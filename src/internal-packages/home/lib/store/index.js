@@ -1,7 +1,6 @@
 const app = require('hadron-app');
 const Reflux = require('reflux');
 const StateMixin = require('reflux-state-mixin');
-const toNS = require('mongodb-ns');
 const electronApp = require('electron').remote.app;
 const { UI_STATES } = require('../constants');
 
@@ -42,14 +41,13 @@ const HomeStore = Reflux.createStore({
    */
   onNamespaceChange(namespace) {
     this.setState({namespace: namespace});
-    const ns = toNS(namespace);
-    this.updateTitle(ns);
+    this.updateTitle(namespace);
   },
 
-  updateTitle: function(ns) {
+  updateTitle: function(namespace) {
     let title = `${electronApp.getName()} - ${app.connection.instance_id}`;
-    if (ns) {
-      title += '/' + ns;
+    if (namespace) {
+      title += '/' + namespace;
     }
     document.title = title;
   },
