@@ -16,13 +16,11 @@ const debug = require('debug')('mongodb-compass:chart:store');
 const HISTORY_STATE_FIELDS = ['specType', 'chartType', 'channels'];
 
 const READ = ReadPreference.PRIMARY_PREFERRED;
-const MAX_LIMIT = 1000;
 const INITIAL_QUERY = {
   filter: {},
   sort: null,
-  project: null,
   skip: 0,
-  limit: MAX_LIMIT,
+  limit: 0,
   ns: '',
   maxTimeMS: 10000
 };
@@ -265,18 +263,30 @@ const ChartStore = Reflux.createStore({
       return;
     }
 
-    // limit document number to MAX_LIMIT (currently 1000).
-    const findOptions = {
-      sort: _.isEmpty(query.sort) ? null : _.pairs(query.sort),
-      fields: query.project,
-      skip: query.skip,
-      limit: query.limit ? Math.min(MAX_LIMIT, query.limit) : MAX_LIMIT,
+    const pipeline = [];
+    const options = {
       readPreference: READ,
       maxTimeMS: query.maxTimeMS,
       promoteValues: true
     };
 
-    app.dataService.find(ns.ns, query.filter, findOptions, (error, documents) => {
+    if (query.filter) {
+      pipeline.push({$match: query.filter});
+    }
+
+    if (query.sort) {
+      pipeline.push({$sort: query.sort});
+    }
+
+    if (query.skip) {
+      pipeline.push({$skip: query.skip});
+    }
+
+    if (query.limit) {
+      pipeline.push({$limit: query.limit});
+    }
+
+    app.dataService.aggregate(ns.ns, pipeline, options, (error, documents) => {
       if (error) {
         // @todo handle error better? what kind of errors can happen here?
         throw error;
@@ -399,7 +409,7 @@ const ChartStore = Reflux.createStore({
    */
   onQueryChanged(state) {
     const newQuery = _.pick(state,
-      ['filter', 'sort', 'project', 'skip', 'limit', 'maxTimeMS', 'ns']);
+      ['filter', 'sort', 'skip', 'limit', 'maxTimeMS', 'ns']);
     this._refreshDataCache(newQuery);
   },
 
