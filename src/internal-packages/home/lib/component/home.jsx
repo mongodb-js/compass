@@ -2,7 +2,10 @@ const React = require('react');
 const PropTypes = require('prop-types');
 const app = require('hadron-app');
 const toNS = require('mongodb-ns');
+const { StatusRow } = require('hadron-react-components');
 const { UI_STATES } = require('../constants');
+
+const ERROR_WARNING = 'An error occurred while loading navigation';
 
 /**
  * Resize minicharts after sidebar has finished collapsing, should be the same
@@ -60,6 +63,9 @@ class Home extends React.Component {
     if (this.props.uiStatus === UI_STATES.LOADING) {
       return this.renderLoadingState();
     }
+    if (this.props.uiStatus === UI_STATES.ERROR) {
+      return <StatusRow style="error">{ERROR_WARNING}: {this.props.errorMessage}</StatusRow>;
+    }
     const ns = toNS(this.props.namespace);
     let view;
     if (ns.database === '') {
@@ -95,6 +101,7 @@ class Home extends React.Component {
 }
 
 Home.propTypes = {
+  errorMessage: PropTypes.string,
   namespace: PropTypes.string,
   uiStatus: PropTypes.string
 };

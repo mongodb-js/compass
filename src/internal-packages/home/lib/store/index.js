@@ -25,13 +25,29 @@ const HomeStore = Reflux.createStore({
 
   getInitialState() {
     return {
+      errorMessage: '',
       namespace: '',
-      uiStatus: UI_STATES.LOADING
+      uiStatus: UI_STATES.INITIAL
     };
   },
 
-  onInstanceChange() {
-    this.setState({uiStatus: UI_STATES.COMPLETE});
+  onConnected() {
+    this.setState({
+      uiStatus: UI_STATES.LOADING
+    });
+  },
+
+  onInstanceChange(state) {
+    if (state.errorMessage) {
+      this.setState({
+        errorMessage: state.errorMessage,
+        uiStatus: UI_STATES.ERROR
+      });
+      return;
+    }
+    this.setState({
+      uiStatus: UI_STATES.COMPLETE
+    });
     this.updateTitle();
   },
 

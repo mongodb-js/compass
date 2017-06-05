@@ -19,7 +19,7 @@ const OUTDATED_WARNING = 'The schema content is outdated and no longer in sync'
   + ' with the documents view. Press "Analyze" again to see the schema for the'
   + ' current query.';
 
-const ERROR_WARNING = 'An error occured during schema analysis';
+const ERROR_WARNING = 'An error occurred during schema analysis';
 
 /**
  * Component for the entire schema view component.

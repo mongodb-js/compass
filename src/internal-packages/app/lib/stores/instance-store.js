@@ -27,6 +27,7 @@ const InstanceStore = Reflux.createStore({
   */
   getInitialState() {
     return {
+      errorMessage: '',
       instance: {
         databases: LOADING_STATE,
         collections: LOADING_STATE,
@@ -41,9 +42,23 @@ const InstanceStore = Reflux.createStore({
     // TODO: COMPASS-562, de-ampersand instance-model
     debug('fetching instance model...');
     app.instance.fetch({
-      // TODO: Error handling into the Home component...
+      error: this.handleError.bind(this),
       success: this.onFirstFetch.bind(this)
     });
+  },
+
+  /**
+   * Handles any errors from fetching an instance.
+   */
+  handleError(model, resp, options) {
+    // Handle the curious output of wrap-error.js
+    const err = options.error.arguments[2];
+
+    if (err) {
+      this.setState({
+        errorMessage: err
+      });
+    }
   },
 
   /**
@@ -76,12 +91,10 @@ const InstanceStore = Reflux.createStore({
   refreshInstance() {
     if (this.state.instance.fetch) {
       this.state.instance.fetch({
+        error: this.handleError.bind(this),
         success: (instance) => {
           debug('Setting refetched instance', instance);
           this.setState({ instance });
-        },
-        error: (instance, response) => {
-          debug('Failed to refetch instance', response);
         }
       });
       // Only reset to initial state if fetched successfully at least once
