@@ -6,7 +6,6 @@ const { TextButton } = require('hadron-react-buttons');
 const { ModalStatusMessage } = require('hadron-react-components');
 const Actions = require('../action');
 const CreateDatabaseStore = require('../store/create-database-store');
-const { NamespaceStore } = require('hadron-reflux-store');
 
 /**
  * The more information url.
@@ -34,6 +33,7 @@ class CreateDatabaseDialog extends React.Component {
     this.CreateCollectionInput = app.appRegistry.getComponent('Database.CreateCollectionInput');
     this.CreateCollectionSizeInput = app.appRegistry.getComponent('Database.CreateCollectionSizeInput');
     this.CreateCollectionCheckbox = app.appRegistry.getComponent('Database.CreateCollectionCheckbox');
+    this.NamespaceStore = app.appRegistry.getStore('App.NamespaceStore');
   }
 
   /**
@@ -89,7 +89,7 @@ class CreateDatabaseDialog extends React.Component {
       this.state.capped,
       this.state.maxSize
     );
-    NamespaceStore.ns = '';
+    this.NamespaceStore.ns = '';
   }
 
   /**

@@ -5,7 +5,7 @@ const InstanceStore = require('./lib/stores/instance-store');
 const CollectionStore = require('./lib/stores/collection-store');
 const FieldStore = require('./lib/stores/field-store');
 const ViewSwitcher = require('./lib/components/view-switcher');
-const { NamespaceStore } = require('hadron-reflux-store');
+const NamespaceStore = require('./lib/stores/namespace-store');
 
 /**
  * Activate all the components in the Compass Sidebar package.

@@ -1,10 +1,9 @@
 const Reflux = require('reflux');
 const StateMixin = require('reflux-state-mixin');
 const parseSchema = require('mongodb-schema');
-const { NamespaceStore } = require('hadron-reflux-store');
 const _ = require('lodash');
 
-const debug = require('debug')('mongodb-compass:stores:field-store');
+const debug = require('debug')('mongodb-compass:stores:namespace:field-store');
 
 const FIELDS = [
   'name',
@@ -45,7 +44,7 @@ const FieldStore = Reflux.createStore({
       });
     }
     // listen to namespace changes to reset the state
-    NamespaceStore.listen(this.onNamespaceChanged.bind(this));
+    appRegistry.getStore('App.NamespaceStore').listen(this.onNamespaceChanged.bind(this));
   },
 
   /**
@@ -151,6 +150,7 @@ const FieldStore = Reflux.createStore({
    * resets the FieldStore when the namespace changes.
    */
   onNamespaceChanged() {
+    debug("in onNamespaceChanged");
     this.setState(this.getInitialState());
   },
 

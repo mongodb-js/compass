@@ -1,5 +1,4 @@
 const Reflux = require('reflux');
-const { NamespaceStore } = require('hadron-reflux-store');
 
 /**
  * Sets global collection information.
@@ -12,6 +11,7 @@ const CollectionStore = Reflux.createStore({
   init() {
     this.collection = {};
     this.activeTabIndex = 0;
+    this.NamespaceStore = app.appRegistry.getStore('App.NamespaceStore');
   },
 
   /**
@@ -22,7 +22,7 @@ const CollectionStore = Reflux.createStore({
   setCollection(collection) {
     this.collection = collection;
     if (collection._id) {
-      NamespaceStore.ns = collection._id;
+      this.NamespaceStore.ns = collection._id;
     }
   },
 

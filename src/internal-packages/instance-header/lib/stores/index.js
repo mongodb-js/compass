@@ -1,4 +1,5 @@
 const Reflux = require('reflux');
+const app = require('hadron-app');
 const InstanceHeaderActions = require('../actions');
 const StateMixin = require('reflux-state-mixin');
 const debug = require('debug')('mongodb-compass:stores:instance-header');
@@ -24,7 +25,8 @@ const InstanceHeaderStore = Reflux.createStore({
    * Initialize everything that is not part of the store's state.
    */
   init() {
-    NamespaceStore.listen(this.clickInstance.bind(this));
+    this.NamespaceStore = app.appRegistry.getStore('App.NamespaceStore');
+    this.NamespaceStore.listen(this.clickInstance.bind(this)); //TOOD: NamespaceStore
     this.listenToExternalStore('App.InstanceStore', this.fetchInstanceDetails.bind(this));
   },
 
@@ -54,7 +56,7 @@ const InstanceHeaderStore = Reflux.createStore({
       hostname: state.instance.hostname,
       port: state.instance.port,
       processStatus: 'TODO: Get Replica Set Status',
-      activeNamespace: NamespaceStore.ns || ''
+      activeNamespace: this.NamespaceStore.ns || ''
     });
   },
 
@@ -63,7 +65,7 @@ const InstanceHeaderStore = Reflux.createStore({
    */
   clickInstance() {
     this.setState({
-      activeNamespace: NamespaceStore.ns || ''
+      activeNamespace: this.NamespaceStore.ns || ''
     });
   },
 

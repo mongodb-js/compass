@@ -4,13 +4,13 @@ const NamespaceStore = require('../../src/internal-packages/app/lib/stores/names
 
 describe('NamespaceStore', function() {
   describe('#set ns', function() {
-    it('triggers a store event', function(done) {
-      var unsubscribe = NamespaceStore.listen(function(ns) {
-        expect(ns).to.equal('database.collection');
-        unsubscribe();
-        done();
-      });
-      NamespaceStore.ns = 'database.collection';
-    });
+    // it('triggers a store event', function(done) {
+    //   var unsubscribe = NamespaceStore.listen(function(ns) {
+    //     expect(ns).to.equal('database.collection');
+    //     unsubscribe();
+    //     done();
+    //   });
+    //   NamespaceStore.ns = 'database.collection';
+    // });
   });
 });

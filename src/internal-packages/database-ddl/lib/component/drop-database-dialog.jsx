@@ -1,6 +1,6 @@
 const React = require('react');
 const Modal = require('react-bootstrap').Modal;
-const { NamespaceStore } = require('hadron-reflux-store');
+const app = require('hadron-app');
 const { ModalStatusMessage } = require('hadron-react-components');
 const { TextButton } = require('hadron-react-buttons');
 const Actions = require('../action');
@@ -19,6 +19,7 @@ class DropDatabaseDialog extends React.Component {
   constructor(props) {
     super(props);
     this.state = { name: '', confirmName: '' };
+    this.NamespaceStore = app.appRegistry.getStore('App.NamespaceStore');
   }
 
   /**
@@ -68,7 +69,7 @@ class DropDatabaseDialog extends React.Component {
     }
     this.setState({ inProgress: true, error: false, errorMessage: '' });
     Actions.dropDatabase(databaseName);
-    NamespaceStore.ns = '';
+    this.NamespaceStore.ns = '';
   }
 
   /**

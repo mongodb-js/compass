@@ -2,7 +2,6 @@ const app = require('hadron-app');
 const React = require('react');
 const PropTypes = require('prop-types');
 const Reflux = require('reflux');
-const NamespaceStore = require('hadron-reflux-store').NamespaceStore;
 const HadronDocument = require('hadron-document');
 const Element = require('hadron-document').Element;
 const Actions = require('../actions');
@@ -151,7 +150,7 @@ class EditableDocument extends React.Component {
        * Initialize the store.
        */
       init: function() {
-        this.ns = NamespaceStore.ns;
+        this.ns = app.appRegistry.getStore('App.NamespaceStore').ns;
         this.listenTo(actions.update, this.update);
       },
 
@@ -201,7 +200,7 @@ class EditableDocument extends React.Component {
        * Initialize the store.
        */
       init: function() {
-        this.ns = NamespaceStore.ns;
+        this.ns = app.appRegistry.getStore('App.NamespaceStore').ns;
         this.listenTo(actions.remove, this.remove);
       },
 

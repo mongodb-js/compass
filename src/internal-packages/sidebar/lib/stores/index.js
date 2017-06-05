@@ -1,9 +1,10 @@
 const Reflux = require('reflux');
+// const app = require('hadron-app');
 const StateMixin = require('reflux-state-mixin');
+const NamespaceStore = require('../../../app/lib/stores/namespace-store');
 
 const SidebarActions = require('../actions');
 const { LOADING_STATE } = require('../constants');
-const { NamespaceStore } = require('hadron-reflux-store');
 
 const debug = require('debug')('mongodb-compass:stores:sidebar');
 
@@ -29,7 +30,8 @@ const SidebarStore = Reflux.createStore({
   * Initialize everything that is not part of the store's state.
   */
   init() {
-    NamespaceStore.listen(this.onNamespaceChanged.bind(this));
+    // this.NamespaceStore = app.appRegistry.getStore('App.NamespaceStore');
+    NamespaceStore.listen(this.onNamespaceChanged.bind(this)); // TODO: NamespaceStore
     this.listenToExternalStore('App.InstanceStore', this.onInstanceChange.bind(this));
   },
 

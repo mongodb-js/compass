@@ -3,7 +3,6 @@ const React = require('react');
 const uuid = require('uuid');
 const ObjectID = require('bson').ObjectID;
 const Action = require('../actions');
-const NamespaceStore = require('hadron-reflux-store').NamespaceStore;
 const { StatusRow } = require('hadron-react-components');
 const ResetDocumentListStore = require('../store/reset-document-list-store');
 const LoadMoreDocumentsStore = require('../store/load-more-documents-store');
@@ -57,6 +56,7 @@ class DocumentList extends React.Component {
     this.samplingMessage = appRegistry.getComponent('Query.SamplingMessage');
     this.CollectionStore = appRegistry.getStore('App.CollectionStore');
     this.WriteStateStore = appRegistry.getStore('DeploymentAwareness.WriteStateStore');
+    this.NamespaceStore = appRegistry.getStore('App.NamespaceStore');
     this.projection = false;
     this.queryBar = appRegistry.getComponent('Query.QueryBar');
     this.QueryChangedStore = appRegistry.getStore('Query.ChangedStore');
@@ -64,7 +64,7 @@ class DocumentList extends React.Component {
     this.state = {
       docs: [],
       nextSkip: 0,
-      namespace: NamespaceStore.ns,
+      namespace: this.NamespaceStore.ns,
       loading: false,
       isWritable: !this.CollectionStore.isReadonly() && this.WriteStateStore.state.isWritable,
       description: this.WriteStateStore.state.description
@@ -149,7 +149,7 @@ class DocumentList extends React.Component {
       nextSkip: documents.length,
       count: count,
       loadedCount: documents.length,
-      namespace: NamespaceStore.ns,
+      namespace: this.NamespaceStore.ns,
       error: error
     });
   }

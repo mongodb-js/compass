@@ -1,6 +1,6 @@
 const Reflux = require('reflux');
 const StateMixin = require('reflux-state-mixin');
-const NamespaceStore = require('hadron-reflux-store').NamespaceStore;
+const NamespaceStore = require('../../../app/lib/stores/namespace-store');
 const QueryAction = require('../action');
 const EJSON = require('mongodb-extended-json');
 const accepts = require('mongodb-language-model').accepts;
@@ -48,7 +48,8 @@ const QueryStore = Reflux.createStore({
       this.validFeatureFlags = [];
     }
     // on namespace changes, reset the store
-    NamespaceStore.listen((ns) => {
+    // this.NamespaceStore = app.appRegistry.getStore('App.NamespaceStore');
+    NamespaceStore.listen((ns) => {  // TODO: NamespaceStore
       const newState = this.getInitialState();
       newState.ns = ns;
       this.setState(newState);

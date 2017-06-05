@@ -2,10 +2,10 @@ const _ = require('lodash');
 const Reflux = require('reflux');
 const app = require('hadron-app');
 const IndexModel = require('mongodb-index-model');
-const NamespaceStore = require('hadron-reflux-store').NamespaceStore;
 const ReadPreference = require('mongodb').ReadPreference;
 const toNS = require('mongodb-ns');
 const Actions = require('../action/index-actions');
+const NamespaceStore = require('../../../app/lib/stores/namespace-store');
 
 /**
  * The default read preference.
@@ -22,10 +22,9 @@ const LoadIndexesStore = Reflux.createStore({
    */
   init: function() {
     this.CollectionStore = app.appRegistry.getStore('App.CollectionStore');
+    // this.NamespaceStore = app.appRegistry.getStore('App.NamespaceStore');
     this.listenTo(Actions.loadIndexes, this.loadIndexes);
-    NamespaceStore.listen(() => {
-      this.loadIndexes();
-    });
+    NamespaceStore.listen(() => { this.loadIndexes(); }); //TODO: NamespaceStore
   },
 
   /**

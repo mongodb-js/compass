@@ -3,10 +3,10 @@ const React = require('react');
 const PropTypes = require('prop-types');
 const app = require('hadron-app');
 const semver = require('semver');
-const { NamespaceStore } = require('hadron-reflux-store');
 const { TabNavBar } = require('hadron-react-components');
 const toNS = require('mongodb-ns');
 const ipc = require('hadron-ipc');
+const debug = require('debug')('mongodb-compass:namespace');
 
 class Collection extends React.Component {
   constructor(props) {
@@ -16,6 +16,8 @@ class Collection extends React.Component {
 
     this.Stats = app.appRegistry.getComponent('CollectionHUD.Item');
     this.CollectionStore = app.appRegistry.getStore('App.CollectionStore');
+    this.NamespaceStore = app.appRegistry.getStore('App.NamespaceStore');
+    debug("NAMESPACESTORE=", this.NamespaceStore);
     this.setupTabs();
   }
 
@@ -43,7 +45,7 @@ class Collection extends React.Component {
   onDBClick() {
     const db = toNS(this.props.namespace).database;
     this.CollectionStore.setCollection({});
-    NamespaceStore.ns = db;
+    this.NamespaceStore.ns = db;
     ipc.call('window:hide-collection-submenu');
   }
 

@@ -3,7 +3,7 @@ const expect = require('chai').expect;
 
 const app = require('hadron-app');
 const AppRegistry = require('hadron-app-registry');
-const { NamespaceStore } = require('hadron-reflux-store');
+const NamespaceStore = require('../../src/internal-packages/app/lib/stores/namespace-store');
 const sinon = require('sinon');
 
 const root = '../../src/internal-packages/';

@@ -2,7 +2,6 @@ const Reflux = require('reflux');
 const app = require('hadron-app');
 const toNS = require('mongodb-ns');
 const numeral = require('numeral');
-const { NamespaceStore } = require('hadron-reflux-store');
 const { ReadPreference } = require('mongodb');
 
 /**
@@ -19,7 +18,8 @@ const CollectionStatsStore = Reflux.createStore({
    * Initialize the collection stats store.
    */
   init: function() {
-    this.listenTo(NamespaceStore, this.loadCollectionStats);
+    this.NamespaceStore = app.appRegistry.getStore('App.NamespaceStore');
+    this.listenTo(this.NamespaceStore, this.loadCollectionStats); //TODO: NamespaceStore
   },
 
   /**

@@ -2,11 +2,10 @@ const app = require('hadron-app');
 const Reflux = require('reflux');
 const HomeActions = require('../action');
 const StateMixin = require('reflux-state-mixin');
-const NamespaceStore = require('hadron-reflux-store').NamespaceStore;
 const toNS = require('mongodb-ns');
 const electronApp = require('electron').remote.app;
 
-const debug = require('debug')('mongodb-compass:stores:home');
+const debug = require('debug')('mongodb-compass:stores:home:namespace');
 
 const HomeStore = Reflux.createStore({
 
@@ -21,7 +20,7 @@ const HomeStore = Reflux.createStore({
    * Initialize home store
    */
   init() {
-    NamespaceStore.listen(HomeActions.switchContent);
+    app.appRegistry.getStore('App.NamespaceStore').listen(HomeActions.switchContent);
     this.listenToExternalStore('App.InstanceStore', this.onInstanceChanged.bind(this));
   },
 
@@ -42,6 +41,7 @@ const HomeStore = Reflux.createStore({
    * @param  {object} namespace current namespace context
    */
   switchContent(namespace) {
+    debug("in switchContent function: namesapce=", namespace);
     const ns = toNS(namespace);
     if (ns.database === '') {
       // top of the side bar was clicked, render server stats
