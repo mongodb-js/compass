@@ -1,6 +1,5 @@
 const Reflux = require('reflux');
 const StateMixin = require('reflux-state-mixin');
-const NamespaceStore = require('../../../app/lib/stores/namespace-store');
 const QueryAction = require('../action');
 const EJSON = require('mongodb-extended-json');
 const accepts = require('mongodb-language-model').accepts;
@@ -11,7 +10,7 @@ const ms = require('ms');
 const bsonEqual = require('../util').bsonEqual;
 const hasDistinctValue = require('../util').hasDistinctValue;
 
-const debug = require('debug')('mongodb-compass:stores:query-new');
+const debug = require('debug')('mongodb-compass:stores:query-new:namespace');
 
 // constants
 const USER_TYPING_DEBOUNCE_MS = 100;
@@ -37,9 +36,6 @@ const QueryStore = Reflux.createStore({
   mixins: [StateMixin.store],
   listenables: QueryAction,
 
-  /**
-   * listen to Namespace store and reset if ns changes.
-   */
   init: function() {
     // store valid feature flags to recognise in the filter box
     if (_.get(app.preferences, 'serialize')) {
@@ -47,13 +43,26 @@ const QueryStore = Reflux.createStore({
     } else {
       this.validFeatureFlags = [];
     }
-    // on namespace changes, reset the store
-    // this.NamespaceStore = app.appRegistry.getStore('App.NamespaceStore');
-    NamespaceStore.listen((ns) => {  // TODO: NamespaceStore
-      const newState = this.getInitialState();
-      newState.ns = ns;
-      this.setState(newState);
-    });
+  },
+
+  /**
+   * listen to Namespace store and reset if ns changes.
+   */
+  onCollectionChanged(ns) {
+    const newState = this.getInitialState();
+    newState.ns = ns;
+    this.setState(newState);
+    debug("query coll changed");
+  },
+
+  /**
+   * listen to Namespace store and reset if ns changes.
+   */
+  onDatabaseChanged(ns) {
+    const newState = this.getInitialState();
+    newState.ns = ns;
+    this.setState(newState);
+    debug("query db changed");
   },
 
   /**
@@ -437,7 +446,7 @@ const QueryStore = Reflux.createStore({
     const match = this._validateFeatureFlag(this.state.filterString);
     if (match) {
       app.preferences.save(match[2], match[1] === 'enable');
-      debug('feature flag %s %sd', match[2], match[1]);
+      // debug('feature flag %s %sd', match[2], match[1]);
       return true;
     }
     return false;
@@ -713,14 +722,15 @@ const QueryStore = Reflux.createStore({
     // otherwise we do need to trigger the QueryChangedStore and let all other
     // components in the app know about the change so they can re-render.
     if (this.state.valid) {
+      const registry = app.appRegistry;
       const newState = this.getInitialState();
-      newState.ns = NamespaceStore.ns;
+      newState.ns = registry.getStore('App.NamespaceStore').ns;
       this.setState(_.omit(newState, 'expanded'));
     }
   },
 
   storeDidUpdate(prevState) {
-    debug('query store changed from', prevState, 'to', this.state);
+    // debug('query store changed from', prevState, 'to', this.state);
   }
 });
 

@@ -5,7 +5,8 @@ const IndexModel = require('mongodb-index-model');
 const ReadPreference = require('mongodb').ReadPreference;
 const toNS = require('mongodb-ns');
 const Actions = require('../action/index-actions');
-const NamespaceStore = require('../../../app/lib/stores/namespace-store');
+
+const debug = require('debug')('mongodb-compass:ddl:load-index:store:namespace');
 
 /**
  * The default read preference.
@@ -22,16 +23,37 @@ const LoadIndexesStore = Reflux.createStore({
    */
   init: function() {
     this.CollectionStore = app.appRegistry.getStore('App.CollectionStore');
-    // this.NamespaceStore = app.appRegistry.getStore('App.NamespaceStore');
+    this.NamespaceStore = app.appRegistry.getStore('App.NamespaceStore');
     this.listenTo(Actions.loadIndexes, this.loadIndexes);
-    NamespaceStore.listen(() => { this.loadIndexes(); }); //TODO: NamespaceStore
   },
 
   /**
    * Load the indexes.
+   *
    */
   loadIndexes: function() {
-    const ns = NamespaceStore.ns;
+
+    const ns = this.NamespaceStore.ns;
+    this.onCollectionChanged(ns); // Could also be onDatabaseChanged
+  },
+
+  onCollectionChanged(ns) { //TODO: is this only for collection changes?
+    debug("load indexes coll changed");
+    if (ns && toNS(ns).collection) {
+      if (this.CollectionStore.isReadonly()) {
+        this.trigger([]);
+      } else {
+        app.dataService.indexes(ns, { readPreference: READ }, (err, indexes) => {
+          if (!err) {
+            this.trigger(this._convertToModels(indexes));
+          }
+        });
+      }
+    }
+  },
+
+  onDatabaseChanged(ns) {
+    debug("load indexes db changed");
     if (ns && toNS(ns).collection) {
       if (this.CollectionStore.isReadonly()) {
         this.trigger([]);

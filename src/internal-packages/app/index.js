@@ -13,6 +13,7 @@ const NamespaceStore = require('./lib/stores/namespace-store');
  * @param {Object} appRegistry    app registry
  */
 function activate(appRegistry) {
+  appRegistry.registerStore('App.NamespaceStore', NamespaceStore);
   appRegistry.registerAction('App.InstanceActions', InstanceActions);
   appRegistry.registerStore('App.InstanceStore', InstanceStore);
   appRegistry.registerStore('App.CollectionStore', CollectionStore);

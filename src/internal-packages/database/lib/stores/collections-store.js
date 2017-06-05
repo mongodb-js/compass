@@ -5,9 +5,8 @@ const toNS = require('mongodb-ns');
 const app = require('hadron-app');
 const { LOADING_STATE } = require('../constants');
 const _ = require('lodash');
-const NamespaceStore = require('../../../app/lib/stores/namespace-store');
 
-const debug = require('debug')('mongodb-compass:stores:collections');
+const debug = require('debug')('mongodb-compass:stores:collection*S*:namespace');
 
 const COLL_COLUMNS = [
   'Collection Name',
@@ -41,10 +40,7 @@ const CollectionsStore = Reflux.createStore({
    */
   init() {
     this.listenToExternalStore('App.InstanceStore', this.onInstanceChange.bind(this));
-    // this.NamespaceStore = app.appRegistry.getStore('App.NamespaceStore');
-    this.NamespaceStore = NamespaceStore; // TODO: fix for unit tests
-
-    this.NamespaceStore.listen(this.onNamespaceChanged.bind(this)); //TODO: NamespaceStore
+    this.NamespaceStore = app.appRegistry.getStore('App.NamespaceStore');
     this.indexes = [];
   },
 
@@ -115,11 +111,7 @@ const CollectionsStore = Reflux.createStore({
     });
   },
 
-  onNamespaceChanged(namespace) {
-    if (!namespace || namespace.includes('.') || namespace === this.state.database) {
-      return;
-    }
-
+  onDatabaseChanged(namespace) {
     this._setDatabaseCollections(app.instance.databases, namespace);
   },
 
@@ -146,7 +138,7 @@ const CollectionsStore = Reflux.createStore({
    * @param  {Object} prevState   previous state.
    */
   storeDidUpdate(prevState) {
-    debug('collections store changed from', prevState, 'to', this.state);
+    // debug('collections store changed from', prevState, 'to', this.state);
   }
 });
 

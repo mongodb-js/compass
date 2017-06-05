@@ -19,7 +19,7 @@ const CollectionStatsStore = Reflux.createStore({
    */
   init: function() {
     this.NamespaceStore = app.appRegistry.getStore('App.NamespaceStore');
-    this.listenTo(this.NamespaceStore, this.loadCollectionStats); //TODO: NamespaceStore
+    this.listenTo(this.NamespaceStore, this.loadCollectionStats);
   },
 
   /**

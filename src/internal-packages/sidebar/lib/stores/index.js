@@ -1,12 +1,11 @@
 const Reflux = require('reflux');
 // const app = require('hadron-app');
 const StateMixin = require('reflux-state-mixin');
-const NamespaceStore = require('../../../app/lib/stores/namespace-store');
 
 const SidebarActions = require('../actions');
 const { LOADING_STATE } = require('../constants');
 
-const debug = require('debug')('mongodb-compass:stores:sidebar');
+const debug = require('debug')('mongodb-compass:stores:sidebar:namespace');
 
 const BLANK = '(?:)';
 
@@ -30,9 +29,21 @@ const SidebarStore = Reflux.createStore({
   * Initialize everything that is not part of the store's state.
   */
   init() {
-    // this.NamespaceStore = app.appRegistry.getStore('App.NamespaceStore');
-    NamespaceStore.listen(this.onNamespaceChanged.bind(this)); // TODO: NamespaceStore
     this.listenToExternalStore('App.InstanceStore', this.onInstanceChange.bind(this));
+  },
+
+  onCollectionChanged(ns) {
+    this.setState({
+      activeNamespace: ns || ''
+    });
+    debug("sidebar coll changed");
+  },
+
+  onDatabaseChanged(ns) {
+    this.setState({
+      activeNamespace: ns || ''
+    });
+    debug("sidebar db changed");
   },
 
   /**
@@ -48,12 +59,6 @@ const SidebarStore = Reflux.createStore({
       filterRegex: /(?:)/,
       activeNamespace: ''
     };
-  },
-
-  onNamespaceChanged() {
-    this.setState({
-      activeNamespace: NamespaceStore.ns || ''
-    });
   },
 
   onInstanceChange(state) {
@@ -102,7 +107,7 @@ const SidebarStore = Reflux.createStore({
   * @param  {Object} prevState   previous state.
   */
   storeDidUpdate(prevState) {
-    debug('Sidebar store changed from', prevState, 'to', this.state);
+    // debug('Sidebar store changed from', prevState, 'to', this.state);
   }
 });
 
