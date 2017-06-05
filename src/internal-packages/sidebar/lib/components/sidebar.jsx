@@ -237,7 +237,6 @@ class Sidebar extends React.Component {
         </div>
         <StoreConnector store={this.InstanceStore}>
           <SidebarInstanceProperties
-            connection={global.hadronApp.connection}
             activeNamespace={this.props.activeNamespace}
           />
         </StoreConnector>
