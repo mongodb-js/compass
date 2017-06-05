@@ -48,7 +48,7 @@ const CollectionStatsStore = Reflux.createStore({
    *  loaded in the unit test environment and the validation tests fail since
    *  not app registry is found. Once we get rid of the ampersand app we can
    *  put the store set back into the init once we've sorted out the proper
-   *  test strategy.
+   *  test strategy. Same as collections-store and query-store.
    *
    * @returns {Boolean} If the collection is readonly.
    */
