@@ -25,7 +25,6 @@ const InstanceHeaderStore = Reflux.createStore({
    */
   init() {
     this.NamespaceStore = app.appRegistry.getStore('App.NamespaceStore');
-    this.NamespaceStore.listen(this.clickInstance.bind(this)); // TODO: NamespaceStore
     this.listenToExternalStore('App.InstanceStore', this.fetchInstanceDetails.bind(this));
   },
 
@@ -62,9 +61,14 @@ const InstanceHeaderStore = Reflux.createStore({
   /**
    * change active namespace when user clicks on the instance area
    */
-  clickInstance() {
+  onCollectionChanged(ns) {
     this.setState({
-      activeNamespace: this.NamespaceStore.ns || ''
+      activeNamespace: ns || ''
+    });
+  },
+  onDatabaseChanged(ns) {
+    this.setState({
+      activeNamespace: ns || ''
     });
   },
 
