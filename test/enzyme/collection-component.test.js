@@ -23,6 +23,11 @@ describe('<Collection />', function() {
     // appRegistry.getComponent (i.e. appRegistry being undefined)
     app.appRegistry = new AppRegistry();
 
+    app.appRegistry.registerStore('App.CollectionStore', {
+      getActiveTab: () => { return 0 },
+      setActiveTab: () => { return 0 },
+      isReadonly: () => { return false }
+    });
     app.appRegistry.registerRole('Collection.Tab', { component: sinon.spy(), name: 'SCHEMA' });
     app.appRegistry.registerRole('Collection.Tab', { component: sinon.spy(), name: 'DOCUMENTS' });
     app.appRegistry.registerRole('Collection.Tab', { component: sinon.spy(), name: 'EXPLAIN' });
