@@ -21,11 +21,6 @@ const InstanceStore = Reflux.createStore({
   listenables: InstanceActions,
 
   /**
-  * Initialize everything that is not part of the store's state.
-  */
-  init() {},
-
-  /**
   * Initialize the Compass Sidebar store state.
   *
   * @return {Object} initial store state.

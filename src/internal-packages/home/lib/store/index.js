@@ -1,6 +1,5 @@
 const app = require('hadron-app');
 const Reflux = require('reflux');
-const HomeActions = require('../action');
 const StateMixin = require('reflux-state-mixin');
 const toNS = require('mongodb-ns');
 const electronApp = require('electron').remote.app;
@@ -12,25 +11,17 @@ const HomeStore = Reflux.createStore({
 
   mixins: [StateMixin.store],
 
-  /**
-   * listen to all actions defined in ../actions/index.jsx
-   */
-  listenables: [HomeActions],
-
-  /**
-   * Initialize home store
-   */
-  init() {
-    this.listenToExternalStore('App.InstanceStore', this.onInstanceChanged.bind(this));
+  onActivated(appRegistry) {
+    // set up listeners on external stores
+    appRegistry.getStore('App.InstanceStore').listen(this.onInstanceChange.bind(this));
   },
 
-  // TODO: Can we get rid of HomeActions entirely?
-  onCollectionChanged(ns) {
-    HomeActions.switchContent(ns);
+  onCollectionChanged(namespace) {
+    this.onNamespaceChange(namespace);
   },
 
-  onDatabaseChanged(ns) {
-    HomeActions.switchContent(ns);
+  onDatabaseChanged(namespace) {
+    this.onNamespaceChange(namespace);
   },
 
   getInitialState() {
@@ -42,16 +33,16 @@ const HomeStore = Reflux.createStore({
     };
   },
 
-  onInstanceChanged() {
+  onInstanceChange() {
     this.setState({uiStatus: UI_STATES.COMPLETE});
     this.updateTitle();
   },
 
   /**
    * change content based on namespace
-   * @param  {object} namespace current namespace context
+   * @param {object} namespace - current namespace context
    */
-  switchContent(namespace) {
+  onNamespaceChange(namespace) {
     const ns = toNS(namespace);
     if (ns.database === '') {
       // top of the side bar was clicked, render server stats
