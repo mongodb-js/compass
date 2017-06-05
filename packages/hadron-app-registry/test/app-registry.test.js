@@ -7,6 +7,44 @@ const Action = require('../lib/actions');
 const AppRegistry = require('../lib/app-registry');
 
 describe('AppRegistry', () => {
+  describe('getStore', () => {
+    context('when the store does not exist', () => {
+      const registry = new AppRegistry();
+      let storeLike;
+
+      before(() => {
+        storeLike = registry.getStore('Test.Store');
+      });
+
+      it('does not return undefined', () => {
+        expect(storeLike).to.not.equal(undefined);
+      });
+
+      it('returns a store-like object', (done) => {
+        const unsubscribe = storeLike.listen((value) => {
+          expect(value).to.equal('test');
+          unsubscribe();
+          done();
+        });
+        storeLike.trigger('test');
+      });
+
+      it('flags the non-existant request', () => {
+        expect(registry.storeMisses['Test.Store']).to.equal(1);
+      });
+
+      context('when asking for a missing store more than once', () => {
+        before(() => {
+          registry.getStore('Test.Store');
+        });
+
+        it('updates the miss count', () => {
+          expect(registry.storeMisses['Test.Store']).to.equal(2);
+        });
+      });
+    });
+  });
+
   describe('#onActivated', () => {
     context('when the method is defined on the store', () => {
       let registry;

@@ -1,5 +1,6 @@
 'use strict';
 
+const Reflux = require('reflux');
 const Action = require('./actions');
 
 /**
@@ -8,6 +9,12 @@ const Action = require('./actions');
  * that we would expect.
  */
 const INT8_MAX = 127;
+
+/**
+ * Returning a fake store when asking for a store that does not
+ * exist.
+ */
+const STUB_STORE = Reflux.createStore();
 
 /**
  * Is a registry for all user interface components, stores, and actions
@@ -43,6 +50,7 @@ class AppRegistry {
     this.stores = {};
     this.containers = {};
     this.roles = {};
+    this.storeMisses = {};
   }
 
   /**
@@ -166,7 +174,12 @@ class AppRegistry {
    * @returns {Store} The store.
    */
   getStore(name) {
-    return this.stores[name];
+    const store = this.stores[name];
+    if (store === undefined) {
+      this.storeMisses[name] = (this.storeMisses[name] || 0) + 1;
+      return STUB_STORE;
+    }
+    return store;
   }
 
   /**
