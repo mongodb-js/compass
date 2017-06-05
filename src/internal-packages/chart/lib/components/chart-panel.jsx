@@ -1,7 +1,6 @@
 const React = require('react');
 const PropTypes = require('prop-types');
-const { FormGroup } = require('react-bootstrap');
-const { OptionSelector } = require('hadron-react-components');
+const { FormGroup, Dropdown, MenuItem } = require('react-bootstrap');
 const EncodingChannel = require('./encoding-channel');
 
 const _ = require('lodash');
@@ -27,15 +26,23 @@ class ChartPanel extends React.Component {
   }
 
   renderChartTypeChoice() {
-    const chartTypeNames = _.indexBy(this.props.availableChartRoles.map(role => role.name));
+    const chartTypes = this.props.availableChartRoles.map((role) => {
+      const icon = role.icon ? <i className={role.icon} /> : 'XX';
+      return (<MenuItem key={role.name} eventKey={role.name}>{icon} {role.name}</MenuItem>);
+    });
+    const selectedChartIcon = _.result(
+      _.find(this.props.availableChartRoles, {name: this.props.chartType}),
+      'icon');
+
     return (
-      <OptionSelector
-        id="chart-type-selector"
-        bsSize="xs"
-        options={chartTypeNames}
-        title={this.props.chartType}
-        onSelect={this.onChartTypeSelect.bind(this)}
-      />
+        <Dropdown id="chart-type-selector" onSelect={this.onChartTypeSelect.bind(this)}>
+          <Dropdown.Toggle>
+            <i className={selectedChartIcon} /> {this.props.chartType}
+          </Dropdown.Toggle>
+          <Dropdown.Menu>
+            {chartTypes}
+          </Dropdown.Menu>
+        </Dropdown>
     );
   }
 
