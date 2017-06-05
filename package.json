@@ -195,7 +195,7 @@
     "marked": "^0.3.5",
     "marky": "^1.2.0",
     "moment": "^2.10.6",
-    "mongodb-collection-model": "^0.3.1",
+    "mongodb-collection-model": "^0.3.2",
     "mongodb-connection-model": "^8.0.0",
     "mongodb-data-service": "^4.0.1",
     "mongodb-database-model": "^0.1.2",
