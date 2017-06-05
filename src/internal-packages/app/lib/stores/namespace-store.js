@@ -41,14 +41,14 @@ const NamespaceStore = Reflux.createStore({
       if (oldNns[0] !== newNs[0]) {
         registry.callOnStores(function(store) {
           if (store.onDatabaseChanged) {
-            store.onDatabaseChanged(this);
+            store.onDatabaseChanged(ns);
           }
         });
       }
       if (oldNns[1] !== newNs[1]) {
         registry.callOnStores(function (store) {
           if (store.onCollectionChanged) {
-            store.onCollectionChanged(this);
+            store.onCollectionChanged(ns);
           }
         });
       }
