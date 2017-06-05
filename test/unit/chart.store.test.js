@@ -7,7 +7,8 @@ const { NamespaceStore } = require('hadron-reflux-store');
 const {
   AGGREGATE_FUNCTION_ENUM,
   CHART_CHANNEL_ENUM,
-  MEASUREMENT_ENUM
+  MEASUREMENT_ENUM,
+  LITE_SPEC_GLOBAL_SETTINGS
 } = require('../../src/internal-packages/chart/lib/constants');
 const ChartActions = require('../../src/internal-packages/chart/lib/actions');
 const ChartStore = require('../../src/internal-packages/chart/lib/store');
@@ -84,6 +85,54 @@ describe('ChartStore', function() {
       limit: 0,
       maxTimeMS: 10000,
       ns: ''
+    });
+  });
+
+  context('when updating the spec manually via setSpecAsJSON', function() {
+    it('fails silently when providing invalid JSON', function(done) {
+      const retValue = this.store.setSpecAsJSON('{"I am": invalid JSON}');
+      setTimeout(() => {
+        expect(retValue).to.be.false;
+        expect(this.store.state.spec).to.be.deep.equal(LITE_SPEC_GLOBAL_SETTINGS);
+        done();
+      });
+    });
+    it('fails when providing valid JSON but invalid spec', function(done) {
+      const invalidSpec = '{"I am": "valid JSON", "but": "not valid vega-lite"}';
+      const retValue = this.store.setSpecAsJSON(invalidSpec);
+      setTimeout(() => {
+        expect(retValue).to.be.false;
+        expect(this.store.state.spec).to.be.deep.equal(LITE_SPEC_GLOBAL_SETTINGS);
+        done();
+      });
+    });
+    it('succeeds when providing valid JSON and valid spec', function(done) {
+      const validSpecJSON = '{"mark": "point", "encoding": {"x": {"field": "year", "type": "temporal"}}}';
+      const retValue = this.store.setSpecAsJSON(validSpecJSON);
+      setTimeout(() => {
+        expect(retValue).to.be.true;
+        expect(this.store.state.spec).to.be.deep.equal(JSON.parse(validSpecJSON));
+        done();
+      });
+    });
+    it('keeps encoded channels even after switching back to chart builder view', function(done) {
+      this.store.switchToJSONView();
+      const spec = _.cloneDeep(this.store.state.spec);
+      spec.mark = 'point';
+      spec.encoding = {
+        color: {
+          field: 'year',
+          type: 'nominal'
+        }
+      };
+      const retValue = this.store.setSpecAsJSON(JSON.stringify(spec));
+      this.store.switchToChartBuilderView();
+      setTimeout(() => {
+        expect(retValue).to.be.true;
+        expect(this.store.state.channels).to.have.all.keys('color');
+        expect(this.store.state.channels.color).to.have.all.keys('field', 'type');
+        done();
+      });
     });
   });
 

@@ -234,7 +234,8 @@
     "turf-destination": "^1.2.1",
     "turf-distance": "^1.1.0",
     "turf-point": "^2.0.1",
-    "uuid": "^3.0.0"
+    "uuid": "^3.0.0",
+    "vega-lite": "^1.3.1"
   },
   "devDependencies": {
     "babel-eslint": "^6.0.4",

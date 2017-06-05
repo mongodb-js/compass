@@ -2,7 +2,8 @@ const Reflux = require('reflux');
 const {
   AGGREGATE_FUNCTION_ENUM,
   MEASUREMENT_ENUM,
-  CHART_COLORS
+  VIEW_TYPE_ENUM,
+  LITE_SPEC_GLOBAL_SETTINGS
 } = require('./constants');
 const Actions = require('./actions');
 const StateMixin = require('reflux-state-mixin');
@@ -10,6 +11,7 @@ const app = require('hadron-app');
 const ReadPreference = require('mongodb').ReadPreference;
 const toNS = require('mongodb-ns');
 const _ = require('lodash');
+const vegaLite = require('vega-lite');
 
 const debug = require('debug')('mongodb-compass:chart:store');
 
@@ -23,37 +25,6 @@ const INITIAL_QUERY = {
   limit: 0,
   ns: '',
   maxTimeMS: 10000
-};
-// "color": CHART_COLORS.CHART0,
-
-const LITE_SPEC_GLOBAL_SETTINGS = {
-  'transform': {
-    'filterInvalid': false
-  },
-  'config': {
-    'mark': {
-      'color': CHART_COLORS.CHART0,
-      'opacity': 0.9,
-      'strokeWidth': 3
-    },
-    'axis': {
-      'titleColor': '#42494f',
-      'titleFont': 'Akzidenz',
-      'titleFontWeight': 'bold',
-      'titleFontSize': 16,
-      'tickColor': '#bfbfbe',
-      'axisColor': '#42494f',
-      'tickLabelFont': 'Akzidenz',
-      'tickLabelFontSize': 12,
-      'tickLabelColor': '#42494f',
-      'subdivide': 3,
-      'tickSizeMinor': 4,
-      'tickSizeMajor': 6,
-      'gridColor': '#42494f',
-      'gridOpacity': 0.12,
-      'grid': true
-    }
-  }
 };
 
 /**
@@ -121,7 +92,7 @@ const ChartStore = Reflux.createStore({
    */
   getInitialChartState() {
     return {
-      spec: {},
+      spec: LITE_SPEC_GLOBAL_SETTINGS,
       specValid: false,
       specType: this.INITIAL_SPEC_TYPE,
       chartType: this.INITIAL_CHART_TYPE,
@@ -146,7 +117,10 @@ const ChartStore = Reflux.createStore({
     const availableChartRoles = {
       availableChartRoles: this.AVAILABLE_CHART_ROLES
     };
-    return Object.assign({}, caches, chart, history, availableChartRoles);
+    const general = {
+      viewType: VIEW_TYPE_ENUM.CHART_BUILDER
+    };
+    return Object.assign({}, caches, chart, history, availableChartRoles, general);
   },
 
   /**
@@ -224,6 +198,32 @@ const ChartStore = Reflux.createStore({
   },
 
   /**
+   * helper function to take a spec template and a channels object (constructed
+   * via the chart builder) and an encoding object and create a full spec.
+   *
+   * Both vega and vega-lite are supported, but need to be handled in different
+   * ways.
+   *
+   * @param  {Object} spec        Spec template
+   * @param  {String} specType    specType, either `vega` or `vega-lite`
+   * @param  {Object} channels    channels object
+   * @return {Object}             An encoded spec (vega or vega-lite)
+   */
+  _encodeSpec(spec, specType, channels) {
+    let result;
+    if (specType === 'vega-lite') {
+      const encoding = {encoding: channels};
+      result = _.merge({}, LITE_SPEC_GLOBAL_SETTINGS, spec, encoding);
+    } else {
+      const encoding = this._createVegaEncodingTransform(channels);
+      result = _.cloneDeep(spec);
+      result.data.unshift(encoding);
+      result.data.unshift({name: 'values'});
+    }
+    return result;
+  },
+
+  /**
    * Any change to the store that can modify the spec goes through this
    * helper function. The new state is computed, the spec is created
    * based on the new state, and then the state (including the spec) is
@@ -237,40 +237,29 @@ const ChartStore = Reflux.createStore({
    * @see https://vega.github.io/vega-lite/docs/spec.html
    */
   _updateSpec(update, pushToHistory) {
-    const newState = Object.assign({}, this.state, update);
-    const chartRole = _.find(newState.availableChartRoles, 'name', newState.chartType);
+    const state = Object.assign({}, this.state, update);
+    const chartRole = _.find(state.availableChartRoles, 'name', state.chartType);
     if (!chartRole) {
-      throw new Error(`Unknown chart type: ${newState.chartType}`);
+      throw new Error(`Unknown chart type: ${state.chartType}`);
     }
-    let spec;
-    if (newState.specType === 'vega-lite') {
-      // vega-lite specs overwrite global settings and receive enconding object
-      const encoding = {encoding: newState.channels};
-      spec = _.merge({}, LITE_SPEC_GLOBAL_SETTINGS, chartRole.spec, encoding);
-    } else {
-      // vega specs are augmented with a transform data stream
-      const encoding = this._createVegaEncodingTransform(newState.channels);
-      spec = _.cloneDeep(chartRole.spec);
-      spec.data.unshift(encoding);
-      spec.data.unshift({name: 'values'});
-    }
-    newState.spec = spec;
+    // encode spec based on spec template, specType, channels
+    state.spec = this._encodeSpec(chartRole.spec, state.specType, state.channels);
 
     // check if all required channels are encoded
     const requiredChannels = _.filter(chartRole.channels, (channel) => {
       return channel.required;
     }).map(channel => channel.name);
-    const encodedChannels = Object.keys(newState.channels);
-    newState.specValid = requiredChannels.length === _.intersection(requiredChannels, encodedChannels).length;
-    if (newState.specValid) {
-      debug('valid spec %j', newState.spec);
+    const encodedChannels = Object.keys(state.channels);
+    state.specValid = requiredChannels.length === _.intersection(requiredChannels, encodedChannels).length;
+    if (state.specValid) {
+      debug('valid spec %j', state.spec);
     }
     // push new chart state to history
     if (pushToHistory) {
-      this._pushToHistory( _.cloneDeep(_.pick(newState, HISTORY_STATE_FIELDS)) );
+      this._pushToHistory( _.cloneDeep(_.pick(state, HISTORY_STATE_FIELDS)) );
     }
     const undoRedoState = this._getUndoRedoState();
-    this.setState(_.assign(newState, undoRedoState));
+    this.setState(_.assign(state, undoRedoState));
   },
 
   /**
@@ -379,6 +368,39 @@ const ChartStore = Reflux.createStore({
       throw new Error(`Unknown encoding channel "${channel}" for chart type `
         + `"${chartType}". Must be one of ${channelNames.join()}.`);
     }
+  },
+
+  /**
+   * This action sets the spec to a custom JSON string. It is used by the
+   * Raw JSON spec editor. If the input is not valid JSON the update fails.
+   *
+   * @param {Object} specStr    the spec as edited by the user (string)
+   * @return {Boolean}          whether the update was successful (for testing)
+   */
+  setSpecAsJSON(specStr) {
+    let spec;
+    // first, check if it's valid JSON
+    try {
+      spec = JSON.parse(specStr);
+    } catch (e) {
+      debug('spec is invalid JSON, ignore input:', specStr);
+      this.setState({ specValid: false });
+      return false;
+    }
+    // next, try to compile the spec to determine if it's valid
+    try {
+      vegaLite.compile(spec);
+    } catch (e) {
+      debug('spec is invalid vega-lite syntax, ignore input:', specStr);
+      this.setState({ specValid: false });
+      return false;
+    }
+    // confirmed valid spec
+    this.setState({
+      specValid: true,
+      spec: spec
+    });
+    return true;
   },
 
   /**
@@ -571,6 +593,25 @@ const ChartStore = Reflux.createStore({
       chartType: chartType,
       specType: chartRole.specType
     }, pushToHistory);
+  },
+
+  /**
+   * switch the editor mode to the chart builder
+   */
+  switchToChartBuilderView() {
+    this.setState({
+      channels: this.state.spec.encoding || {},
+      viewType: VIEW_TYPE_ENUM.CHART_BUILDER
+    });
+  },
+
+  /**
+   * switch the editor mode to the raw JSON editor
+   */
+  switchToJSONView() {
+    this.setState({
+      viewType: VIEW_TYPE_ENUM.JSON_EDITOR
+    });
   },
 
   storeDidUpdate(prevState) {
