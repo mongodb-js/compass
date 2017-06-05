@@ -35,23 +35,23 @@ const NamespaceStore = Reflux.createStore({
     debug("setting ns: from", this._ns, "to", ns);
     const registry = app.appRegistry;
     if (registry) {
-      // const oldNns = this.__nsHelper(this._ns);
-      // const newNs = this.__nsHelper(ns);
-      //
-      // if (oldNns[0] !== newNs[0]) {
-      //   registry.callOnStores(function(store) {
-      //     if (store.onDatabaseChanged) {
-      //       store.onDatabaseChanged(this);
-      //     }
-      //   });
-      // }
-      // if (oldNns[1] !== newNs[1]) {
-      //   registry.callOnStores(function (store) {
-      //     if (store.onCollectionChanged) {
-      //       store.onCollectionChanged(this);
-      //     }
-      //   });
-      // }
+      const oldNns = this.__nsHelper(this._ns);
+      const newNs = this.__nsHelper(ns);
+
+      if (oldNns[0] !== newNs[0]) {
+        registry.callOnStores(function(store) {
+          if (store.onDatabaseChanged) {
+            store.onDatabaseChanged(this);
+          }
+        });
+      }
+      if (oldNns[1] !== newNs[1]) {
+        registry.callOnStores(function (store) {
+          if (store.onCollectionChanged) {
+            store.onCollectionChanged(this);
+          }
+        });
+      }
     } else {
       debug("Error: AppRegistry not available");
     }
