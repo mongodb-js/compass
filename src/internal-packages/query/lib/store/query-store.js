@@ -10,7 +10,7 @@ const ms = require('ms');
 const bsonEqual = require('../util').bsonEqual;
 const hasDistinctValue = require('../util').hasDistinctValue;
 
-const debug = require('debug')('mongodb-compass:stores:query-new:namespace');
+const debug = require('debug')('mongodb-compass:stores:query-new');
 
 // constants
 const USER_TYPING_DEBOUNCE_MS = 100;
@@ -52,7 +52,6 @@ const QueryStore = Reflux.createStore({
     const newState = this.getInitialState();
     newState.ns = ns;
     this.setState(newState);
-    debug("query coll changed");
   },
 
   /**
@@ -62,7 +61,6 @@ const QueryStore = Reflux.createStore({
     const newState = this.getInitialState();
     newState.ns = ns;
     this.setState(newState);
-    debug("query db changed");
   },
 
   /**
@@ -446,7 +444,7 @@ const QueryStore = Reflux.createStore({
     const match = this._validateFeatureFlag(this.state.filterString);
     if (match) {
       app.preferences.save(match[2], match[1] === 'enable');
-      // debug('feature flag %s %sd', match[2], match[1]);
+      debug('feature flag %s %sd', match[2], match[1]);
       return true;
     }
     return false;
@@ -743,7 +741,7 @@ const QueryStore = Reflux.createStore({
   },
 
   storeDidUpdate(prevState) {
-    // debug('query store changed from', prevState, 'to', this.state);
+    debug('query store changed from', prevState, 'to', this.state);
   }
 });
 

@@ -6,8 +6,6 @@ const ReadPreference = require('mongodb').ReadPreference;
 const toNS = require('mongodb-ns');
 const Actions = require('../action/index-actions');
 
-const debug = require('debug')('mongodb-compass:ddl:load-index:store:namespace');
-
 /**
  * The default read preference.
  */
@@ -29,7 +27,6 @@ const LoadIndexesStore = Reflux.createStore({
 
   /**
    * Load the indexes.
-   *
    */
   loadIndexes: function() {
     const ns = this.NamespaceStore.ns;
@@ -37,7 +34,6 @@ const LoadIndexesStore = Reflux.createStore({
   },
 
   onCollectionChanged(ns) {
-    debug("load indexes coll changed");
     if (ns && toNS(ns).collection) {
       if (this.CollectionStore.isReadonly()) {
         this.trigger([]);
@@ -52,7 +48,6 @@ const LoadIndexesStore = Reflux.createStore({
   },
 
   onDatabaseChanged(ns) {
-    debug("load indexes db changed");
     if (ns && toNS(ns).collection) {
       if (this.CollectionStore.isReadonly()) {
         this.trigger([]);

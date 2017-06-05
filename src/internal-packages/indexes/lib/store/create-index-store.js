@@ -1,10 +1,10 @@
 const Reflux = require('reflux');
-// const app = require('hadron-app');
+const app = require('hadron-app');
 const EJSON = require('mongodb-extended-json');
 const Action = require('../action/index-actions');
 const _ = require('lodash');
 
-const debug = require('debug')('mongodb-compass:ddl:index:store:namespace');
+// const debug = require('debug')('mongodb-compass:ddl:index:store');
 
 const ERRORS = {
   duplicate: 'Index keys must be unique',
@@ -30,7 +30,6 @@ const CreateIndexStore = Reflux.createStore({
     this.schemaFields = []; // fields in the current schema
     this.fields = [{name: '', type: ''}];
     this.options = {}; // options for new index
-    // this.NamespaceStore = app.appRegistry.getStore('App.NamespaceStore');
   },
 
   /*
@@ -89,7 +88,6 @@ const CreateIndexStore = Reflux.createStore({
 
     Action.updateStatus('inProgress');
     const nsStore = app.appRegistry.getStore('App.NamespaceStore');
-    debug("nsStore=", nsStore);
     Action.createIndex(nsStore.ns, spec, options);
   },
 

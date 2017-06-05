@@ -1,5 +1,4 @@
 const Reflux = require('reflux');
-const debug = require('debug')('mongodb-compass:collection-store:namespace');
 
 /**
  * Sets global collection information.

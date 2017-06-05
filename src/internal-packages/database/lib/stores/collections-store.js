@@ -6,7 +6,7 @@ const app = require('hadron-app');
 const { LOADING_STATE } = require('../constants');
 const _ = require('lodash');
 
-const debug = require('debug')('mongodb-compass:stores:collection*S*:namespace');
+const debug = require('debug')('mongodb-compass:stores:collections');
 
 const COLL_COLUMNS = [
   'Collection Name',
@@ -152,7 +152,7 @@ const CollectionsStore = Reflux.createStore({
    * @param  {Object} prevState   previous state.
    */
   storeDidUpdate(prevState) {
-    // debug('collections store changed from', prevState, 'to', this.state);
+    debug('collections store changed from', prevState, 'to', this.state);
   }
 });
 
