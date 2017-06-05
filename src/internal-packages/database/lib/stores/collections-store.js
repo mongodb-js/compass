@@ -111,6 +111,9 @@ const CollectionsStore = Reflux.createStore({
   },
 
   onDatabaseChanged(namespace) {
+    if (!namespace || namespace.includes('.') || namespace === this.state.database) {
+      return;
+    }
     this._setDatabaseCollections(app.instance.databases, namespace);
   },
 
