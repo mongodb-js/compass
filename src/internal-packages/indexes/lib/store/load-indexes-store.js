@@ -32,12 +32,11 @@ const LoadIndexesStore = Reflux.createStore({
    *
    */
   loadIndexes: function() {
-
     const ns = this.NamespaceStore.ns;
     this.onCollectionChanged(ns); // Could also be onDatabaseChanged
   },
 
-  onCollectionChanged(ns) { //TODO: is this only for collection changes?
+  onCollectionChanged(ns) {
     debug("load indexes coll changed");
     if (ns && toNS(ns).collection) {
       if (this.CollectionStore.isReadonly()) {

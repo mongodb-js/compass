@@ -185,6 +185,7 @@ describe('LoadIndexesStore', () => {
     // Mock the AppRegistry with a new one so tests don't complain about
     // appRegistry.getComponent (i.e. appRegistry being undefined)
     app.appRegistry = new AppRegistry();
+    app.appRegistry.registerStore('App.NamespaceStore', NamespaceStore);
 
     // Stub out the LoadIndexesStore.CollectionStore
     const CollectionStore = require(storeKeyMap.CollectionStore);
