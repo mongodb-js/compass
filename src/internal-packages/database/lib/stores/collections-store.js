@@ -1,7 +1,6 @@
 const Reflux = require('reflux');
 const StateMixin = require('reflux-state-mixin');
 const CollectionsActions = require('../actions/collections-actions');
-const NamespaceStore = require('../../../app/lib/stores/namespace-store');
 const toNS = require('mongodb-ns');
 const app = require('hadron-app');
 const { LOADING_STATE } = require('../constants');
@@ -41,9 +40,9 @@ const CollectionsStore = Reflux.createStore({
    */
   init() {
     this.listenToExternalStore('App.InstanceStore', this.onInstanceChange.bind(this));
-    // this.NamespaceStore = app.appRegistry.getStore('App.NamespaceStore');
+    this.NamespaceStore = app.appRegistry.getStore('App.NamespaceStore');
 
-    NamespaceStore.listen(this.onNamespaceChanged.bind(this)); //TODO: NamespaceStore
+    this.NamespaceStore.listen(this.onNamespaceChanged.bind(this)); //TODO: NamespaceStore
     this.indexes = [];
   },
 
@@ -124,7 +123,7 @@ const CollectionsStore = Reflux.createStore({
 
   onInstanceChange(state) {
     // continue only when a database is the activeNamespace
-    const namespace = NamespaceStore.ns;
+    const namespace = this.NamespaceStore.ns;
     if (!namespace || namespace.includes('.') || state.instance.databases === LOADING_STATE) {
       return;
     }
