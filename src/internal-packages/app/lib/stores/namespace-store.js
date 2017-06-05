@@ -11,7 +11,7 @@ const NamespaceStore = Reflux.createStore({
    * Gets the current namespace being worked with in the application.
    */
   get ns() {
-    debug("getting ns:", this._ns);
+    debug('getting ns:', this._ns);
     return this._ns;
   },
 
@@ -32,7 +32,7 @@ const NamespaceStore = Reflux.createStore({
    * @param {String} ns - The current ns.
    */
   set ns(ns) {
-    debug("setting ns: from", this._ns, "to", ns);
+    debug('setting ns: from', this._ns, 'to', ns);
     const registry = app.appRegistry;
     if (registry) {
       const oldNns = this.__nsHelper(this._ns);
@@ -46,14 +46,14 @@ const NamespaceStore = Reflux.createStore({
         });
       }
       if (oldNns[1] !== newNs[1]) {
-        registry.callOnStores(function (store) {
+        registry.callOnStores(function(store) {
           if (store.onCollectionChanged) {
             store.onCollectionChanged(ns);
           }
         });
       }
     } else {
-      debug("Error: AppRegistry not available");
+      debug('Error: AppRegistry not available');
     }
     // TODO: still trigger if appRegistry is not available?
     this._ns = ns;

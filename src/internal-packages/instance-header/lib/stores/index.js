@@ -25,7 +25,7 @@ const InstanceHeaderStore = Reflux.createStore({
    */
   init() {
     this.NamespaceStore = app.appRegistry.getStore('App.NamespaceStore');
-    this.NamespaceStore.listen(this.clickInstance.bind(this)); //TODO: NamespaceStore
+    this.NamespaceStore.listen(this.clickInstance.bind(this)); // TODO: NamespaceStore
     this.listenToExternalStore('App.InstanceStore', this.fetchInstanceDetails.bind(this));
   },
 
