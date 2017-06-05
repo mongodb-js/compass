@@ -1,5 +1,5 @@
 const Reflux = require('reflux');
-// const app = require('hadron-app');
+const app = require('hadron-app');
 const _ = require('lodash');
 const debug = require('debug')('mongodb-compass:namespace-stores');
 
@@ -25,6 +25,7 @@ const NamespaceStore = Reflux.createStore({
 
     return [ns, ''];
   },
+
   /**
    * Set the current namespace being worked on in the application.
    *
@@ -32,24 +33,29 @@ const NamespaceStore = Reflux.createStore({
    */
   set ns(ns) {
     debug("setting ns: from", this._ns, "to", ns);
-    // if(app.appRegistry // BECAUSE COLLECTIONSTATSSTORE
-    // const oldNns = this.__nsHelper(this._ns);
-    // const newNs = this.__nsHelper(ns);
-    //
-    // if (oldNns[0] !== newNs[0]) {
-    //   app.appRegistry.callOnStores(function(store) {
-    //     if (store.onDatabaseChanged) {
-    //       store.onDatabaseChanged(this);
-    //     }
-    //   });
-    // }
-    // if (oldNns[1] !== newNs[1]) {
-    //   app.appRegistry.callOnStores(function(store) {
-    //     if (store.onCollectionChanged) {
-    //       store.onCollectionChanged(this);
-    //     }
-    //   });
-    // }
+    const registry = app.appRegistry;
+    if (registry) {
+      // const oldNns = this.__nsHelper(this._ns);
+      // const newNs = this.__nsHelper(ns);
+      //
+      // if (oldNns[0] !== newNs[0]) {
+      //   registry.callOnStores(function(store) {
+      //     if (store.onDatabaseChanged) {
+      //       store.onDatabaseChanged(this);
+      //     }
+      //   });
+      // }
+      // if (oldNns[1] !== newNs[1]) {
+      //   registry.callOnStores(function (store) {
+      //     if (store.onCollectionChanged) {
+      //       store.onCollectionChanged(this);
+      //     }
+      //   });
+      // }
+    } else {
+      debug("Error: AppRegistry not available");
+    }
+    // TODO: still trigger if appRegistry is not available?
     this._ns = ns;
     this.trigger(this._ns);
   }

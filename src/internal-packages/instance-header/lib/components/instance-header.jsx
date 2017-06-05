@@ -18,8 +18,6 @@ class InstanceHeaderComponent extends React.Component {
 
     const state = {hostStr: this.hostNamePortStr(props.hostname, props.port)};
     this.state = state;
-
-    this.NamespaceStore = app.appRegistry.getStore('App.NamespaceStore');
   }
 
   componentWillReceiveProps(nextProps) {
@@ -84,7 +82,8 @@ class InstanceHeaderComponent extends React.Component {
   }
 
   handleClickHostname() {
-    this.NamespaceStore.ns = '';
+    const NamespaceStore = app.appRegistry.getStore('App.NamespaceStore');
+    NamespaceStore.ns = '';
     ipc.call('window:hide-collection-submenu');
   }
 
