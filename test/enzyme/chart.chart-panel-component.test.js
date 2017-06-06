@@ -7,7 +7,6 @@ const React = require('react');
 const sinon = require('sinon');
 const { mount } = require('enzyme');
 const AppRegistry = require('hadron-app-registry');
-const { DropdownButton } = require('react-bootstrap');
 const { DragDropContext } = require('react-dnd');
 
 const BarChartRole = require('../../src/internal-packages/chart/lib/chart-types/bar.json');
@@ -60,8 +59,7 @@ describe('<ChartPanel />', function() {
           encodedChannels={{}}
         />
       );
-      const dropdown = component.find(DropdownButton);
-      expect(dropdown.find('button')).to.have.text('Area Chart ');
+      expect(component.find('.chart-type-picker-title')).to.include.text('Area Chart');
     });
 
     it('renders with placeholders in the initial state', function() {
@@ -114,8 +112,7 @@ describe('<ChartPanel />', function() {
           encodedChannels={{}}
         />
       );
-      const dropdown = component.find(DropdownButton);
-      expect(dropdown.find('button')).to.have.text('Bar Chart ');
+      expect(component.find('.chart-type-picker-title')).to.include.text('Bar Chart');
     });
   });
 
@@ -128,8 +125,7 @@ describe('<ChartPanel />', function() {
           encodedChannels={{}}
         />
       );
-      const dropdown = component.find(DropdownButton);
-      expect(dropdown.find('button')).to.have.text('Scatter Plot ');
+      expect(component.find('.chart-type-picker-title')).to.include.text('Scatter Plot');
     });
   });
 
@@ -142,8 +138,7 @@ describe('<ChartPanel />', function() {
           encodedChannels={{}}
         />
       );
-      const dropdown = component.find(DropdownButton);
-      expect(dropdown.find('button')).to.have.text('Line Chart ');
+      expect(component.find('.chart-type-picker-title')).to.include.text('Line Chart');
     });
   });
 });
