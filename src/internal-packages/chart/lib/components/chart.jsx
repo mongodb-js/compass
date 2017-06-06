@@ -20,10 +20,13 @@ class Chart extends React.Component {
     const spec = _.assign({}, this.props.spec, _.pick(this.props, ['width', 'height']));
 
     const ChartClass = this.props.specType === 'vega-lite' ? VegaLite : Vega;
+
+    // data is being stringified and parsed because Vega is modifying it internally
+    // @see https://github.com/vega/vega-lite/issues/2131
     return (
       <ChartClass
         spec={spec}
-        data={data}
+        data={JSON.parse(JSON.stringify(data))}
         width={this.props.width}
         height={this.props.height}
         padding={this.props.padding}

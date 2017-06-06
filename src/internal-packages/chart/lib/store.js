@@ -27,9 +27,6 @@ const INITIAL_QUERY = {
 // "color": CHART_COLORS.CHART0,
 
 const LITE_SPEC_GLOBAL_SETTINGS = {
-  'transform': {
-    'filterInvalid': false
-  },
   'config': {
     'mark': {
       'color': CHART_COLORS.CHART0,
