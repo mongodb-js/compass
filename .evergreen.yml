@@ -327,18 +327,10 @@ tasks:
       working_dir: src
       script: |
         set -ev
-        sudo apt-get install libsecret-1-0
+        wget https://github.com/mongodb-js/node-keytar/releases/download/v3.0.0/ubuntu-14.04-libsecret-1.so.0
+        cp ./ubuntu-14.04-libsecret-1.so.0 ./libsecret-1.so.0
     variants:
       - ubuntu
-  # - command: shell.exec
-  #   params:
-  #     working_dir: src
-  #     script: |
-  #       set -ev
-  #       wget https://github.com/mongodb-js/node-keytar/releases/download/v3.0.0/ubuntu-14.04-libsecret-1.so.0
-  #       cp ./ubuntu-14.04-libsecret-1.so.0 /usr/lib/x86_64-linux-gnu/libsecret-1.so.0
-  #   variants:
-  #     - ubuntu
   - func: "configure"
   - func: "install"
   - command: expansions.update
