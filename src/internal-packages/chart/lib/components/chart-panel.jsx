@@ -29,8 +29,7 @@ class ChartPanel extends React.Component {
 
   renderChartTypeChoice() {
     const chartTypes = this.props.availableChartRoles.map((role) => {
-      const icon = _.has(role, 'icon') ? <i className={role.icon} />
-        : <i className="chart-type-picker-no-icon" />;
+      const icon = <i className={role.icon || 'chart-type-picker-no-icon'} />;
       return (<MenuItem key={role.name} eventKey={role.name}>{icon} {role.name}</MenuItem>);
     });
     const selectedChartIcon = _.result(
