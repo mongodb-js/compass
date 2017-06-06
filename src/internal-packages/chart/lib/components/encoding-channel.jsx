@@ -61,10 +61,12 @@ class EncodingChannel extends React.Component {
       // render a placeholder string
       return 'drop a field here';
     }
+
+    const fieldName = _.last(this.props.encodedChannel.field.split('.'));
     // else render a DraggableField instance with menus enabled
     return (
       <DraggableField
-        fieldName={this.props.encodedChannel.fieldName}
+        fieldName={fieldName}
         fieldPath={this.props.encodedChannel.field}
         channelName={this.props.channelName}
         type={this.props.encodedChannel.type}

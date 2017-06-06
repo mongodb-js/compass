@@ -98,6 +98,11 @@ const CHART_COLORS = Object.freeze({
   CHART8: '#85CA98'
 });
 
+const VIEW_TYPE_ENUM = Object.freeze({
+  CHART_BUILDER: 'Chart Builder',
+  JSON_EDITOR: 'JSON Editor'
+});
+
 /**
  * A list of chart specifications we might end up using...
  * if we end up not using them or not finding much similarity then nuke this.
@@ -110,12 +115,44 @@ const SPEC_TYPE_ENUM = Object.freeze({
 
 const TOOL_TIP_ID_ARRAY = 'array-not-supported';
 
+const LITE_SPEC_GLOBAL_SETTINGS = {
+  'transform': {
+    'filterInvalid': false
+  },
+  'config': {
+    'mark': {
+      'color': CHART_COLORS.CHART0,
+      'opacity': 0.9,
+      'strokeWidth': 3
+    },
+    'axis': {
+      'titleColor': '#42494f',
+      'titleFont': 'Akzidenz',
+      'titleFontWeight': 'bold',
+      'titleFontSize': 16,
+      'tickColor': '#bfbfbe',
+      'axisColor': '#42494f',
+      'tickLabelFont': 'Akzidenz',
+      'tickLabelFontSize': 12,
+      'tickLabelColor': '#42494f',
+      'subdivide': 3,
+      'tickSizeMinor': 4,
+      'tickSizeMajor': 6,
+      'gridColor': '#42494f',
+      'gridOpacity': 0.12,
+      'grid': true
+    }
+  }
+};
+
 module.exports = {
   AGGREGATE_FUNCTION_ENUM,
   CHART_CHANNEL_ENUM,
   MEASUREMENT_ENUM,
   MEASUREMENT_ICON_ENUM,
   SPEC_TYPE_ENUM,
+  VIEW_TYPE_ENUM,
   TOOL_TIP_ID_ARRAY,
-  CHART_COLORS
+  CHART_COLORS,
+  LITE_SPEC_GLOBAL_SETTINGS
 };

@@ -11,7 +11,10 @@ const Actions = Reflux.createActions([
   'selectChartType',
   'clearChart',
   'undoAction',
-  'redoAction'
+  'redoAction',
+  'setSpecAsJSON',
+  'switchToChartBuilderView',
+  'switchToJSONView'
 ]);
 
 module.exports = Actions;

@@ -21,6 +21,20 @@
     flex-shrink: 0;
   }
 
+  &-json-editor-container {
+    flex-basis: 440px;
+    flex-grow: 0;
+    flex-shrink: 0;
+    padding: 10px;
+  }
+
+  &-json-textarea {
+    font-family: @font-family-monospace;
+    font-size: 13px;
+    width: 100%;
+    height: 90%;
+  }
+
   &-chart-area {
     background-image: url('./images/chart/chart-builder-zero-state.png');
     background-size: 600px 260px;
@@ -29,6 +43,7 @@
     flex-basis: auto;
     flex-grow: 1;
     flex-shrink: 1;
+    min-height: 100%;
   }
 
   &-chart {

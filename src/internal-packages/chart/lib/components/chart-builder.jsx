@@ -10,7 +10,11 @@ const { StatusRow } = require('hadron-react-components');
 const FieldPanel = require('./field-panel');
 const ChartPanel = require('./chart-panel');
 const Chart = require('./chart');
-const { TOOL_TIP_ID_ARRAY } = require('../constants');
+const {
+  TOOL_TIP_ID_ARRAY,
+  VIEW_TYPE_ENUM,
+  SPEC_TYPE_ENUM
+} = require('../constants');
 
 const QUERYBAR_LAYOUT = ['filter', ['sort', 'skip', 'limit']];
 
@@ -24,15 +28,26 @@ class ChartBuilder extends React.Component {
     // fetch external components
     this.queryBar = app.appRegistry.getComponent('Query.QueryBar');
     this.CollectionStore = app.appRegistry.getStore('App.CollectionStore');
+    this.ViewSwitcher = app.appRegistry.getComponent('App.ViewSwitcher');
 
     // intialise chart dimensions
-    this.state = {width: 0, height: 0};
+    this.state = {
+      width: 0,
+      height: 0,
+      editorSpec: JSON.stringify(props.spec, null, '  ')
+    };
   }
 
   componentDidMount() {
     this.handleResize();
     this.boundHandleResize = this.handleResize.bind(this);
     window.addEventListener('resize', this.boundHandleResize);
+  }
+
+  componentWillReceiveProps(nextProps) {
+    this.setState({
+      editorSpec: JSON.stringify(nextProps.spec, null, '  ')
+    });
   }
 
   componentDidUpdate() {
@@ -44,12 +59,22 @@ class ChartBuilder extends React.Component {
     window.removeEventListener('resize', this.boundHandleResize);
   }
 
+  onViewSwitch(label) {
+    if (label === VIEW_TYPE_ENUM.CHART_BUILDER) {
+      this.props.actions.switchToChartBuilderView();
+    } else if (label === VIEW_TYPE_ENUM.JSON_EDITOR) {
+      this.props.actions.switchToJSONView();
+    }
+  }
 
-  _getChartDimensions() {
-    const areaDim = document.getElementsByClassName('chart-builder-chart-area')[0];
-    const width = areaDim.offsetWidth - 200;
-    const height = areaDim.offsetHeight - 130;
-    return {width, height};
+  onJSONEditorChange(evt) {
+    this.setState({
+      editorSpec: evt.target.value
+    });
+  }
+
+  onJSONEditorBlur() {
+    this.props.actions.setSpecAsJSON(this.state.editorSpec);
   }
 
   handleResize() {
@@ -59,6 +84,13 @@ class ChartBuilder extends React.Component {
 
     const dim = this._getChartDimensions();
     this.setState({width: dim.width, height: dim.height});
+  }
+
+  _getChartDimensions() {
+    const areaDim = document.getElementsByClassName('chart-builder-chart-area')[0];
+    const width = areaDim.offsetWidth - 200;
+    const height = areaDim.offsetHeight - 130;
+    return {width, height};
   }
 
   /**
@@ -71,28 +103,37 @@ class ChartBuilder extends React.Component {
     // use plain buttons until IconTextButton passes all props, e.g. `disabled`
     return (
       <StatusRow>
-        <span className="chart-builder-query-message">We should put sampling and document results message back here</span>
-        <TextButton
-          text="Reset Chart"
-          className="btn btn-default btn-xs chart-builder-reset-button"
-          clickHandler={this.props.actions.clearChart}
+        <this.ViewSwitcher
+          label="Edit Mode"
+          buttonLabels={[VIEW_TYPE_ENUM.CHART_BUILDER, VIEW_TYPE_ENUM.JSON_EDITOR]}
+          activeButton={this.props.viewType}
+          dataTestId="chart-view-switcher"
+          disabled={this.props.specType === SPEC_TYPE_ENUM.VEGA}
+          onClick={this.onViewSwitch.bind(this)}
         />
-        <button
-          type="button"
-          className="btn btn-default btn-xs chart-builder-undo-button"
-          disabled={!this.props.hasUndoableActions}
-          onClick={this.props.actions.undoAction}
-        >
-          <i className="fa fa-fw fa-undo" aria-hidden /> Undo
-        </button>
-        <button
-          type="button"
-          className="btn btn-default btn-xs chart-builder-redo-button"
-          disabled={!this.props.hasRedoableActions}
-          onClick={this.props.actions.redoAction}
-        >
-          <i className="fa fa-fw fa-repeat" aria-hidden /> Redo
-        </button>
+        <span>
+          <button
+            type="button"
+            className="btn btn-default btn-xs chart-builder-undo-button"
+            disabled={!this.props.hasUndoableActions}
+            onClick={this.props.actions.undoAction}
+          >
+            <i className="fa fa-fw fa-undo" aria-hidden /> Undo
+          </button>
+          <button
+            type="button"
+            className="btn btn-default btn-xs chart-builder-redo-button"
+            disabled={!this.props.hasRedoableActions}
+            onClick={this.props.actions.redoAction}
+          >
+            <i className="fa fa-fw fa-repeat" aria-hidden /> Redo
+          </button>
+          <TextButton
+            text="Reset Chart"
+            className="btn btn-default btn-xs chart-builder-reset-button"
+            clickHandler={this.props.actions.clearChart}
+          />
+        </span>
       </StatusRow>
     );
   }
@@ -120,19 +161,15 @@ class ChartBuilder extends React.Component {
   }
 
   /**
-   * renders the <ChartBuilder /> component.
+   * renders either the chart builder or the JSON editor, depending on
+   * the viewType prop.
    *
-   * @return {React.Component}  the rendered content.
+   * @return {View}   the correct chart editor view
    */
-  render() {
-    const chart = this.renderChart();
-
-    return (
-      <div className="chart-builder chart-container">
-        <div className="controls-container">
-          <this.queryBar layout={QUERYBAR_LAYOUT} />
-          {this.renderWarning()}
-        </div>
+  renderChartEditor() {
+    // if in chart builder mode, render field and chart panel
+    if (this.props.viewType === VIEW_TYPE_ENUM.CHART_BUILDER) {
+      return (
         <div className="chart-builder-container">
           <div className="chart-builder-field-panel-container">
             <FieldPanel
@@ -153,9 +190,40 @@ class ChartBuilder extends React.Component {
             </div>
           </div>
           <div className="chart-builder-chart-area">
-            {chart}
+            {this.renderChart()}
           </div>
         </div>
+      );
+    }
+    // otherwise render the JSON editor
+    return (
+      <div className="chart-builder-container">
+        <div className="chart-builder-json-editor-container">
+          <textarea className="chart-builder-json-textarea"
+            value={this.state.editorSpec}
+            onChange={this.onJSONEditorChange.bind(this)}
+            onBlur={this.onJSONEditorBlur.bind(this)} />
+        </div>
+        <div className="chart-builder-chart-area">
+          {this.renderChart()}
+        </div>
+      </div>
+    );
+  }
+
+  /**
+   * renders the <ChartBuilder /> component.
+   *
+   * @return {React.Component}  the rendered content.
+   */
+  render() {
+    return (
+      <div className="chart-builder chart-container">
+        <div className="controls-container">
+          <this.queryBar layout={QUERYBAR_LAYOUT} />
+          {this.renderWarning()}
+        </div>
+        {this.renderChartEditor()}
         <ReactTooltip id={TOOL_TIP_ID_ARRAY} place="right" effect="solid" delayShow={200}/>
       </div>
     );
@@ -171,6 +239,7 @@ ChartBuilder.propTypes = {
   spec: PropTypes.object,
   specType: PropTypes.string,
   chartType: PropTypes.string,
+  viewType: PropTypes.string,
   availableChartRoles: PropTypes.array,
   specValid: PropTypes.bool,
   channels: PropTypes.object,
