@@ -327,8 +327,7 @@ tasks:
       working_dir: src
       script: |
         set -ev
-        wget https://github.com/mongodb-js/node-keytar/releases/download/v3.0.0/ubuntu-14.04-libsecret-1.so.0
-        cp ./ubuntu-14.04-libsecret-1.so.0 ./libsecret-1.so.0
+        sudo apt-get install --yes libsecret-1-0 libsecret-1-dev
     variants:
       - ubuntu
   - func: "configure"
