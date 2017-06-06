@@ -19,7 +19,7 @@ const CollectionStore = Reflux.createStore({
    * @param {Object} collection - The collection info.
    */
   setCollection(collection) {
-    const nsStore = app.appRegistry.getStore('App.NamespaceStore');
+    const nsStore = global.hadronApp.appRegistry.getStore('App.NamespaceStore');
     this.collection = collection;
     if (collection._id) {
       nsStore.ns = collection._id;

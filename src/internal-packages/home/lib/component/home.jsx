@@ -25,7 +25,6 @@ class Home extends React.Component {
     this.DropCollectionDialog = app.appRegistry.getComponent('Database.DropCollectionDialog');
     this.InstanceHeader = app.appRegistry.getComponent('InstanceHeader.Component');
     this.SchemaActions = app.appRegistry.getAction('Schema.Actions');
-    debug("HOME: INSTANCEHEADER", this.InstanceHeader);
   }
 
   getContentClasses() {
