@@ -199,7 +199,7 @@
     "electron-prebuilt": "1.2.8",
     "enzyme": "^2.5.1",
     "eslint-config-mongodb-js": "^2.2.0",
-    "hadron-build": "^6.0.1",
+    "hadron-build": "^6.0.5",
     "jsdom": "^9.8.3",
     "mgeneratejs": "^0.2.0",
     "mocha": "^3.1.2",
