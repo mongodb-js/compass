@@ -145,7 +145,7 @@ describe('ChartStore', function() {
 
     context('when the history is pre-populated', function() {
       beforeEach(function(done) {
-        ChartActions.mapFieldToChannel('year', 'x');
+        ChartActions.selectChartType('Area Chart');
         setTimeout(() => {
           const unsubscribe = this.store.listen(() => {
             expect(this.store.history).to.have.lengthOf(3);
@@ -153,7 +153,7 @@ describe('ChartStore', function() {
             unsubscribe();
             done();
           });
-          ChartActions.selectChartType('Area Chart');
+          ChartActions.mapFieldToChannel('year', 'x');
         });
       });
       it('returns to the last state with undoAction', function(done) {
@@ -161,8 +161,8 @@ describe('ChartStore', function() {
         setTimeout(() => {
           expect(this.store.history).to.have.lengthOf(3);
           expect(this.store.history_position).to.be.equal(1);
-          expect(this.store.state.chartType).to.be.equal(this.store.state.availableChartRoles[0].name);
-          expect(this.store.state.channels).to.have.all.keys('x');
+          expect(this.store.state.chartType).to.be.equal('Area Chart');
+          expect(this.store.state.channels).to.be.empty;
           done();
         });
       });

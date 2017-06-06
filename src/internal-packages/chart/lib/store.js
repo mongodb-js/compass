@@ -203,6 +203,27 @@ const ChartStore = Reflux.createStore({
   },
 
   /**
+   * takes an `state.channels` object (created by UI interactions) and builds
+   * a new vega data transform stream mapping field names to channel names.
+   * Example transform mapping field name b to channel name x:
+   *
+   * {"type": "formula","as": "x","expr": "datum.b"},
+   *
+   * @param  {Object} channels   channels object
+   * @return {Object}            vega data transform stream
+   */
+  _createVegaEncodingTransform(channels) {
+    const transform = _.map(channels, (val, key) => {
+      return {type: 'formula', as: key, expr: `datum.${val.field}`};
+    });
+    return {
+      name: 'encoding',
+      source: 'values',
+      transform: transform
+    };
+  },
+
+  /**
    * Any change to the store that can modify the spec goes through this
    * helper function. The new state is computed, the spec is created
    * based on the new state, and then the state (including the spec) is
@@ -227,10 +248,11 @@ const ChartStore = Reflux.createStore({
       const encoding = {encoding: newState.channels};
       spec = _.merge({}, LITE_SPEC_GLOBAL_SETTINGS, chartRole.spec, encoding);
     } else {
-      // vega specs are used without modifications
-      spec = chartRole.spec;
-
-      // @TODO format data for vega specs
+      // vega specs are augmented with a transform data stream
+      const encoding = this._createVegaEncodingTransform(newState.channels);
+      spec = _.cloneDeep(chartRole.spec);
+      spec.data.unshift(encoding);
+      spec.data.unshift({name: 'values'});
     }
     newState.spec = spec;
 
@@ -253,7 +275,7 @@ const ChartStore = Reflux.createStore({
 
   /**
    * fetch data from server based on current query and sets the dataCache state
-   * variable. Currently limits number of documents to 100.
+   * variable. Currently limits number of documents to 1000.
    *
    * @param {Object} query   the new query to fetch data for
    */
@@ -538,13 +560,17 @@ const ChartStore = Reflux.createStore({
    *                                 part of the undo/redo-able history
    */
   selectChartType(chartType, pushToHistory = true) {
-    const chartNames = this.AVAILABLE_CHART_ROLES.map(role => role.name);
-    if (!_.includes(chartNames, chartType)) {
+    const chartRole = _.find(this.AVAILABLE_CHART_ROLES, 'name', chartType);
+    if (!chartRole) {
       throw new Error('Unknown chart type: ' + chartType);
     }
 
     // @TODO must also update specType here when selecting a vega role
-    this._updateSpec({chartType: chartType}, pushToHistory);
+    this._updateSpec({
+      channels: {},
+      chartType: chartType,
+      specType: chartRole.specType
+    }, pushToHistory);
   },
 
   storeDidUpdate(prevState) {
