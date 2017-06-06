@@ -54,12 +54,13 @@ describe('<ChartPanel />', function() {
     it('renders when in the initial state', function() {
       const component = mount(
         <this.ChartPanel
-          availableChartRoles={AVAILABLE_CHART_ROLES}
-          chartType="Area Chart"
-          encodedChannels={{}}
+        availableChartRoles={AVAILABLE_CHART_ROLES}
+        chartType="Area Chart"
+        encodedChannels={{}}
         />
       );
       expect(component.find('.chart-type-picker-title')).to.include.text('Area Chart');
+      expect(component.find('.chart-type-picker-title span i')).to.have.className('mms-icon-chart-area');
     });
 
     it('renders with placeholders in the initial state', function() {
@@ -113,6 +114,7 @@ describe('<ChartPanel />', function() {
         />
       );
       expect(component.find('.chart-type-picker-title')).to.include.text('Bar Chart');
+      expect(component.find('.chart-type-picker-title span i')).to.have.className('mms-icon-chart-bar');
     });
   });
 
@@ -126,6 +128,7 @@ describe('<ChartPanel />', function() {
         />
       );
       expect(component.find('.chart-type-picker-title')).to.include.text('Scatter Plot');
+      expect(component.find('.chart-type-picker-title span i')).to.have.className('mms-icon-chart-scatter');
     });
   });
 
@@ -139,6 +142,37 @@ describe('<ChartPanel />', function() {
         />
       );
       expect(component.find('.chart-type-picker-title')).to.include.text('Line Chart');
+      expect(component.find('.chart-type-picker-title span i')).to.have.className('mms-icon-chart-line');
+    });
+  });
+
+  context('for a chart that has no icon', function() {
+    it('renders in the initial state with no icon', function() {
+      const chartRoles = AVAILABLE_CHART_ROLES.concat([{
+        'name': 'Magic Bar Chart',
+        'order': 14,
+        'specType': 'vega-lite',
+        'channels': [
+          { 'name': 'x', 'required': true },
+          { 'name': 'y', 'required': true },
+          { 'name': 'color', 'required': false },
+          { 'name': 'detail', 'required': false }
+        ],
+        'spec': {
+          'mark': 'bar'
+        }
+      }]);
+      const component = mount(
+        <this.ChartPanel
+          availableChartRoles={chartRoles}
+          chartType="Magic Bar Chart"
+          encodedChannels={{}}
+        />
+      );
+      console.info(chartRoles);
+      console.log(component.debug());
+      expect(component.find('.chart-type-picker-title')).to.include.text('Magic Bar Chart');
+      expect(component.find('.chart-type-picker-title span i')).to.have.className('chart-type-picker-no-icon');
     });
   });
 });
