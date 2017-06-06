@@ -117,7 +117,7 @@ class TopComponent extends React.Component {
 
       return (
         <li className="rt-lists__item" key={`list-item-${i}`}>
-          <div className="rt-lists__collection-hot">
+          <div className="rt-lists__collection-hot" title={row.collectionName}>
             {row.collectionName}
           </div>
           <div className="rt-lists__load">
