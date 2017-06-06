@@ -1,7 +1,8 @@
 const Reflux = require('reflux');
 
 const InstanceActions = Reflux.createActions([
-  'setInstance', 'refreshInstance'
+  'fetchFirstInstance',
+  'refreshInstance'
 ]);
 
 module.exports = InstanceActions;

@@ -39,7 +39,6 @@ var Router = require('./router');
 marky.mark('Migrations');
 var migrateApp = require('./migrations');
 marky.stop('Migrations');
-var metricsSetup = require('./metrics');
 
 var React = require('react');
 var ReactDOM = require('react-dom');
@@ -179,29 +178,6 @@ var Application = View.extend({
     metrics.error(err);
     const StatusAction = app.appRegistry.getAction('Status.Actions');
     StatusAction.setMessage(err);
-  },
-  onInstanceFetched: function() {
-    // TODO: Remove this line
-    // Instead, set the instance inside InstanceStore.refreshInstance
-    app.appRegistry.getAction('App.InstanceActions').setInstance(app.instance);
-    debug('app.instance fetched', app.instance.serialize());
-    const metrics = require('mongodb-js-metrics')();
-    metrics.track('Deployment', 'detected', {
-      'databases count': app.instance.databases.length,
-      'namespaces count': app.instance.collections.length,
-      'mongodb version': app.instance.build.version,
-      'enterprise module': app.instance.build.enterprise_module,
-      'longest database name length': Math.max(...app.instance.databases.map(function(db) {
-        return db._id.length;
-      })),
-      'longest collection name length': Math.max(...app.instance.collections.map(function(col) {
-        return col._id.split('.')[1].length;
-      })),
-      'server architecture': app.instance.host.arch,
-      'server cpu cores': app.instance.host.cpu_cores,
-      'server cpu frequency (mhz)': app.instance.host.cpu_frequency / 1000 / 1000,
-      'server memory size (gb)': app.instance.host.memory_bits / 1024 / 1024 / 1024
-    });
   },
   /**
    * When you want to go to a different page in the app or just save
@@ -410,11 +386,14 @@ app.extend({
           state.onFatalError('create client');
         }
         app.dataService = ds.on('error', state.onFatalError.bind(state, 'create client'));
+
         debug('initializing singleton models... ');
+        // TODO: COMPASS-562, de-ampersand instance-model
         const MongoDBInstance = require('./models/mongodb-instance');
         state.instance = new MongoDBInstance();
-        debug('fetching instance model...');
-        app.instance.fetch({ success: state.onInstanceFetched });
+        const InstanceActions = app.appRegistry.getAction('App.InstanceActions');
+        InstanceActions.fetchFirstInstance();
+
         state.startRouter();
         StatusAction.hide();
         // Iterate through all the registered stores and if they require an
@@ -442,6 +421,7 @@ app.extend({
       require('./setup-package-manager');
       Action.packageActivationCompleted.listen(() => {
         // set up metrics
+        var metricsSetup = require('./metrics');
         metricsSetup();
         global.hadronApp.appRegistry.onActivated();
 
