@@ -5,7 +5,9 @@ const React = require('react');
 const sinon = require('sinon');
 const { shallow } = require('enzyme');
 const AppRegistry = require('hadron-app-registry');
+const { StatusRow } = require('hadron-react-components');
 const { UI_STATES } = require('../../src/internal-packages/home/lib/constants');
+const InstanceComponent = require('../../src/internal-packages/instance/lib/component');
 
 describe('<Home />', () => {
   const appRegistry = app.appRegistry;
@@ -56,6 +58,41 @@ describe('<Home />', () => {
           uiStatus={UI_STATES.LOADING}
       />);
       expect(component.find('.home-loading').text()).to.be.equal(expected);
+    });
+  });
+
+  context('when loaded navigation with error', () => {
+    beforeEach(() => {
+      stateStore.state.isWritable = false;
+    });
+
+    it('displays an error message', () => {
+      const innerError = 'not master and slaveOk=false';
+      const expected = `An error occurred while loading navigation: ${innerError}`;
+      const component = shallow(<this.Home
+          errorMessage={innerError}
+          uiStatus={UI_STATES.ERROR}
+      />);
+      expect(component.find(StatusRow).dive().text()).to.be.equal(expected);
+    });
+  });
+
+  context('when loaded navigation successfully', () => {
+    beforeEach(() => {
+      stateStore.state.isWritable = false;
+
+      // Add in a real component to more easily see there isn't an error shown
+      app.appRegistry.registerComponent('Instance.Instance', InstanceComponent);
+    });
+
+    it('has a tab navigation bar', () => {
+      const INSTANCE_LEVEL_NAMESPACE = '';
+      const expected = '<spy /><InstanceComponent />' + '<spy />'.repeat(5);
+      const component = shallow(<this.Home
+          namespace={INSTANCE_LEVEL_NAMESPACE}
+          uiStatus={UI_STATES.COMPLETE}
+      />);
+      expect(component.text()).to.be.equal(expected);
     });
   });
 });
