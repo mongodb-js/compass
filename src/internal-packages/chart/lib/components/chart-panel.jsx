@@ -78,6 +78,7 @@ class ChartPanel extends React.Component {
     const encodingChannels = this.renderEncodingChannels();
     return (
       <FormGroup>
+        <label className="chart-encoding-channel-label">Chart Type</label>
         {chartType}
         {encodingChannels}
       </FormGroup>
