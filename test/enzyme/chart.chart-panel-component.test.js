@@ -60,7 +60,7 @@ describe('<ChartPanel />', function() {
         />
       );
       expect(component.find('.chart-type-picker-title')).to.include.text('Area Chart');
-      expect(component.find('.chart-type-picker-title span i')).to.have.className('mms-icon-chart-area');
+      expect(component.find('.chart-type-picker-title i')).to.have.className('mms-icon-chart-area');
     });
 
     it('renders with placeholders in the initial state', function() {
@@ -114,7 +114,7 @@ describe('<ChartPanel />', function() {
         />
       );
       expect(component.find('.chart-type-picker-title')).to.include.text('Bar Chart');
-      expect(component.find('.chart-type-picker-title span i')).to.have.className('mms-icon-chart-bar');
+      expect(component.find('.chart-type-picker-title i')).to.have.className('mms-icon-chart-bar');
     });
   });
 
@@ -128,7 +128,7 @@ describe('<ChartPanel />', function() {
         />
       );
       expect(component.find('.chart-type-picker-title')).to.include.text('Scatter Plot');
-      expect(component.find('.chart-type-picker-title span i')).to.have.className('mms-icon-chart-scatter');
+      expect(component.find('.chart-type-picker-title i')).to.have.className('mms-icon-chart-scatter');
     });
   });
 
@@ -142,7 +142,7 @@ describe('<ChartPanel />', function() {
         />
       );
       expect(component.find('.chart-type-picker-title')).to.include.text('Line Chart');
-      expect(component.find('.chart-type-picker-title span i')).to.have.className('mms-icon-chart-line');
+      expect(component.find('.chart-type-picker-title i')).to.have.className('mms-icon-chart-line');
     });
   });
 
@@ -170,7 +170,7 @@ describe('<ChartPanel />', function() {
         />
       );
       expect(component.find('.chart-type-picker-title')).to.include.text('Magic Bar Chart');
-      expect(component.find('.chart-type-picker-title span i')).to.have.className('chart-type-picker-no-icon');
+      expect(component.find('.chart-type-picker-title i')).to.have.className('chart-type-picker-no-icon');
     });
   });
 });
