@@ -1,7 +1,6 @@
 const Reflux = require('reflux');
 const StateMixin = require('reflux-state-mixin');
 const CollectionsActions = require('../actions/collections-actions');
-const { NamespaceStore } = require('hadron-reflux-store');
 const toNS = require('mongodb-ns');
 const app = require('hadron-app');
 const { LOADING_STATE } = require('../constants');
@@ -41,7 +40,6 @@ const CollectionsStore = Reflux.createStore({
    */
   init() {
     this.listenToExternalStore('App.InstanceStore', this.onInstanceChange.bind(this));
-    NamespaceStore.listen(this.onNamespaceChanged.bind(this));
     this.indexes = [];
   },
 
@@ -112,17 +110,31 @@ const CollectionsStore = Reflux.createStore({
     });
   },
 
-  onNamespaceChanged(namespace) {
+  onDatabaseChanged(namespace) {
     if (!namespace || namespace.includes('.') || namespace === this.state.database) {
       return;
     }
-
     this._setDatabaseCollections(app.instance.databases, namespace);
   },
 
+  /*
+  * Continue only when a database is the activeNamespace
+  *
+  *  @note The wacky logic here is because the ampersand app is not
+  *  loaded in the unit test environment and the validation tests fail since
+  *  not app registry is found. Once we get rid of the ampersand app we can
+  *  put the store set back into the init once we've sorted out the proper
+  *  test strategy. Same as collection-stats and query-store.
+  */
   onInstanceChange(state) {
-    // continue only when a database is the activeNamespace
-    const namespace = NamespaceStore.ns;
+    let namespace = '';
+    if (this.NamespaceStore) {
+      namespace = this.NamespaceStore.ns;
+    } else if (app.appRegistry) {
+      this.NamespaceStore = app.appRegistry.getStore('App.NamespaceStore');
+      namespace = this.NamespaceStore.ns;
+    }
+
     if (!namespace || namespace.includes('.') || state.instance.databases === LOADING_STATE) {
       return;
     }

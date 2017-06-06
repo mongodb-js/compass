@@ -1,7 +1,7 @@
 const Reflux = require('reflux');
+const app = require('hadron-app');
 const EJSON = require('mongodb-extended-json');
 const Action = require('../action/index-actions');
-const NamespaceStore = require('hadron-reflux-store').NamespaceStore;
 const _ = require('lodash');
 
 // const debug = require('debug')('mongodb-compass:ddl:index:store');
@@ -87,7 +87,8 @@ const CreateIndexStore = Reflux.createStore({
     }
 
     Action.updateStatus('inProgress');
-    Action.createIndex(NamespaceStore.ns, spec, options);
+    const nsStore = app.appRegistry.getStore('App.NamespaceStore');
+    Action.createIndex(nsStore.ns, spec, options);
   },
 
   /**

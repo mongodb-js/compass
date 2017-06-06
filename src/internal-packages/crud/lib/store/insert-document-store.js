@@ -1,6 +1,5 @@
 const Reflux = require('reflux');
 const app = require('hadron-app');
-const NamespaceStore = require('hadron-reflux-store').NamespaceStore;
 const toNS = require('mongodb-ns');
 const Actions = require('../actions');
 
@@ -16,6 +15,7 @@ const InsertDocumentStore = Reflux.createStore({
     this.filter = {};
     this.listenToExternalStore('Query.ChangedStore', this.onQueryChanged.bind(this));
     this.listenTo(Actions.insertDocument, this.insertDocument);
+    this.NamespaceStore = app.appRegistry.getStore('App.NamespaceStore');
   },
 
   /**
@@ -24,14 +24,14 @@ const InsertDocumentStore = Reflux.createStore({
    * @param {Document} doc - The document to insert.
    */
   insertDocument: function(doc) {
-    app.dataService.insertOne(NamespaceStore.ns, doc, {}, (error) => {
+    app.dataService.insertOne(this.NamespaceStore.ns, doc, {}, (error) => {
       if (error) {
         return this.trigger(false, error);
       }
       // check if the newly inserted document matches the current filter, by
       // running the same filter but targeted only to the doc's _id.
       const filter = Object.assign({}, this.filter, { _id: doc._id });
-      app.dataService.count(NamespaceStore.ns, filter, {}, (err, count) => {
+      app.dataService.count(this.NamespaceStore.ns, filter, {}, (err, count) => {
         if (err) {
           return this.trigger(false, err);
         }

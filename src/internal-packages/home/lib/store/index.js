@@ -2,7 +2,6 @@ const app = require('hadron-app');
 const Reflux = require('reflux');
 const HomeActions = require('../action');
 const StateMixin = require('reflux-state-mixin');
-const NamespaceStore = require('hadron-reflux-store').NamespaceStore;
 const toNS = require('mongodb-ns');
 const electronApp = require('electron').remote.app;
 
@@ -21,8 +20,16 @@ const HomeStore = Reflux.createStore({
    * Initialize home store
    */
   init() {
-    NamespaceStore.listen(HomeActions.switchContent);
     this.listenToExternalStore('App.InstanceStore', this.onInstanceChanged.bind(this));
+  },
+
+  // TODO: Can we get rid of HomeActions entirely?
+  onCollectionChanged(ns) {
+    HomeActions.switchContent(ns);
+  },
+
+  onDatabaseChanged(ns) {
+    HomeActions.switchContent(ns);
   },
 
   getInitialState() {

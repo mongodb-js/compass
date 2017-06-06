@@ -1,7 +1,6 @@
 const ipc = require('hadron-ipc');
 const React = require('react');
 const PropTypes = require('prop-types');
-const { NamespaceStore } = require('hadron-reflux-store');
 const { TOOLTIP_IDS } = require('../constants');
 const SidebarCollection = require('./sidebar-collection');
 
@@ -15,6 +14,7 @@ class SidebarDatabase extends React.Component {
     this.CollectionsActions = appRegistry.getAction('Database.CollectionsActions');
     this.DatabaseDDLActions = appRegistry.getAction('DatabaseDDL.Actions');
     this.CollectionStore = appRegistry.getStore('App.CollectionStore');
+    this.NamespaceStore = appRegistry.getStore('App.NamespaceStore');
     this.state = this.WriteStateStore.state;
   }
 
@@ -60,9 +60,9 @@ class SidebarDatabase extends React.Component {
   }
 
   handleDBClick(db) {
-    if (NamespaceStore.ns !== db) {
+    if (this.NamespaceStore.ns !== db) {
       this.CollectionStore.setCollection({});
-      NamespaceStore.ns = db;
+      this.NamespaceStore.ns = db;
       ipc.call('window:hide-collection-submenu');
     }
   }

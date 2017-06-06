@@ -1,6 +1,5 @@
 const Reflux = require('reflux');
 const app = require('hadron-app');
-const NamespaceStore = require('hadron-reflux-store').NamespaceStore;
 const LoadIndexesStore = require('./load-indexes-store');
 const Action = require('../action/index-actions');
 
@@ -18,6 +17,7 @@ const UpdateIndexesStore = Reflux.createStore({
     this.listenTo(LoadIndexesStore, this.loadIndexes);
     this.listenTo(Action.dropIndex, this.dropIndex);
     this.listenTo(Action.createIndex, this.createIndex);
+    this.NamespaceStore = app.appRegistry.getStore('App.NamespaceStore');
   },
 
   /**
@@ -35,7 +35,7 @@ const UpdateIndexesStore = Reflux.createStore({
    * @param {String} indexName - The name of the index to be dropped.
    */
   dropIndex: function(indexName) {
-    app.dataService.dropIndex(NamespaceStore.ns, indexName, (err) => {
+    app.dataService.dropIndex(this.NamespaceStore.ns, indexName, (err) => {
       if (!err) {
         this.indexes = this.indexes.filter(index => index.name !== indexName);
         this.trigger(this.indexes);

@@ -2,8 +2,6 @@ const React = require('react');
 const PropTypes = require('prop-types');
 const ipc = require('hadron-ipc');
 
-const { NamespaceStore } = require('hadron-reflux-store');
-
 const { TOOLTIP_IDS } = require('../constants');
 
 class SidebarCollection extends React.Component {
@@ -13,6 +11,7 @@ class SidebarCollection extends React.Component {
     this.handleClick = this.handleClick.bind(this);
     this.CollectionsActions = appRegistry.getAction('Database.CollectionsActions');
     this.CollectionStore = appRegistry.getStore('App.CollectionStore');
+    this.NamespaceStore = appRegistry.getStore('App.NamespaceStore');
     this.WriteStateStore = appRegistry.getStore('DeploymentAwareness.WriteStateStore');
     this.state = {
       active: false,
@@ -46,7 +45,7 @@ class SidebarCollection extends React.Component {
   }
 
   handleClick() {
-    if (NamespaceStore.ns !== this.props._id) {
+    if (this.NamespaceStore.ns !== this.props._id) {
       this.CollectionStore.setCollection(this.props);
       ipc.call('window:show-collection-submenu');
     }

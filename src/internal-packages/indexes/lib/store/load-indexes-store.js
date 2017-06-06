@@ -2,7 +2,6 @@ const _ = require('lodash');
 const Reflux = require('reflux');
 const app = require('hadron-app');
 const IndexModel = require('mongodb-index-model');
-const NamespaceStore = require('hadron-reflux-store').NamespaceStore;
 const ReadPreference = require('mongodb').ReadPreference;
 const toNS = require('mongodb-ns');
 const Actions = require('../action/index-actions');
@@ -22,17 +21,33 @@ const LoadIndexesStore = Reflux.createStore({
    */
   init: function() {
     this.CollectionStore = app.appRegistry.getStore('App.CollectionStore');
+    this.NamespaceStore = app.appRegistry.getStore('App.NamespaceStore');
     this.listenTo(Actions.loadIndexes, this.loadIndexes);
-    NamespaceStore.listen(() => {
-      this.loadIndexes();
-    });
   },
 
   /**
    * Load the indexes.
    */
   loadIndexes: function() {
-    const ns = NamespaceStore.ns;
+    const ns = this.NamespaceStore.ns;
+    this.onCollectionChanged(ns); // Could also be onDatabaseChanged
+  },
+
+  onCollectionChanged(ns) {
+    if (ns && toNS(ns).collection) {
+      if (this.CollectionStore.isReadonly()) {
+        this.trigger([]);
+      } else {
+        app.dataService.indexes(ns, { readPreference: READ }, (err, indexes) => {
+          if (!err) {
+            this.trigger(this._convertToModels(indexes));
+          }
+        });
+      }
+    }
+  },
+
+  onDatabaseChanged(ns) {
     if (ns && toNS(ns).collection) {
       if (this.CollectionStore.isReadonly()) {
         this.trigger([]);

@@ -1,7 +1,7 @@
 // TODO: Move this into a internal-packages/collection-ddl
 const React = require('react');
 const Modal = require('react-bootstrap').Modal;
-const { NamespaceStore } = require('hadron-reflux-store');
+const app = require('hadron-app');
 const { TextButton } = require('hadron-react-buttons');
 const { ModalStatusMessage } = require('hadron-react-components');
 const Actions = require('../actions/collections-actions');
@@ -23,6 +23,7 @@ class CreateCollectionDialog extends React.Component {
   constructor(props) {
     super(props);
     this.state = { open: false };
+    this.NamespaceStore = app.appRegistry.getStore('App.NamespaceStore');
   }
 
   /**
@@ -82,7 +83,7 @@ class CreateCollectionDialog extends React.Component {
       this.state.capped,
       this.state.maxSize
     );
-    NamespaceStore.ns = databaseName;
+    this.NamespaceStore.ns = databaseName;
   }
 
   /**

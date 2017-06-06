@@ -6,7 +6,6 @@ const StateMixin = require('reflux-state-mixin');
 const schemaStream = require('mongodb-schema').stream;
 const ReadPreference = require('mongodb').ReadPreference;
 const toNS = require('mongodb-ns');
-const { NamespaceStore } = require('hadron-reflux-store');
 
 const _ = require('lodash');
 
@@ -54,11 +53,12 @@ const SchemaStore = Reflux.createStore({
 
     this.samplingLock = false;
 
-    // listen for query changes
-    this.listenToExternalStore('Query.ChangedStore', this.onQueryChanged.bind(this));
-    NamespaceStore.listen(this.onNamespaceChanged.bind(this));
-
     ipc.on('window:menu-share-schema-json', this.handleSchemaShare.bind(this));
+  },
+
+  onActivated(appRegistry) {
+    appRegistry.getStore('Query.ChangedStore').listen(this.onQueryChanged.bind(this));
+    appRegistry.getStore('App.NamespaceStore').listen(this.onNamespaceChanged.bind(this));
   },
 
   handleSchemaShare() {

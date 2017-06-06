@@ -2,7 +2,6 @@ const React = require('react');
 const PropTypes = require('prop-types');
 const InstanceHeaderActions = require('../actions');
 const FontAwesome = require('react-fontawesome');
-const { NamespaceStore } = require('hadron-reflux-store');
 const ipc = require('hadron-ipc');
 const app = require('hadron-app');
 const _ = require('lodash');
@@ -83,6 +82,7 @@ class InstanceHeaderComponent extends React.Component {
   }
 
   handleClickHostname() {
+    const NamespaceStore = app.appRegistry.getStore('App.NamespaceStore');
     NamespaceStore.ns = '';
     ipc.call('window:hide-collection-submenu');
   }

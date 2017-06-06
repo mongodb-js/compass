@@ -1,6 +1,5 @@
 const Reflux = require('reflux');
 const StateMixin = require('reflux-state-mixin');
-const NamespaceStore = require('hadron-reflux-store').NamespaceStore;
 const QueryAction = require('../action');
 const EJSON = require('mongodb-extended-json');
 const accepts = require('mongodb-language-model').accepts;
@@ -37,9 +36,6 @@ const QueryStore = Reflux.createStore({
   mixins: [StateMixin.store],
   listenables: QueryAction,
 
-  /**
-   * listen to Namespace store and reset if ns changes.
-   */
   init: function() {
     // store valid feature flags to recognise in the filter box
     if (_.get(app.preferences, 'serialize')) {
@@ -47,12 +43,24 @@ const QueryStore = Reflux.createStore({
     } else {
       this.validFeatureFlags = [];
     }
-    // on namespace changes, reset the store
-    NamespaceStore.listen((ns) => {
-      const newState = this.getInitialState();
-      newState.ns = ns;
-      this.setState(newState);
-    });
+  },
+
+  /*
+   * listen to Namespace store and reset if ns changes.
+   */
+  onCollectionChanged(ns) {
+    const newState = this.getInitialState();
+    newState.ns = ns;
+    this.setState(newState);
+  },
+
+  /*
+   * listen to Namespace store and reset if ns changes.
+   */
+  onDatabaseChanged(ns) {
+    const newState = this.getInitialState();
+    newState.ns = ns;
+    this.setState(newState);
   },
 
   /**
@@ -695,6 +703,12 @@ const QueryStore = Reflux.createStore({
 
   /**
    * dismiss current changes to the query and restore `{}` as the query.
+
+   *  @note The wacky logic here is because the ampersand app is not
+   *  loaded in the unit test environment and the validation tests fail since
+   *  not app registry is found. Once we get rid of the ampersand app we can
+   *  put the store set back into the init once we've sorted out the proper
+   *  test strategy. Same as collection-stats and collections-store.
    */
   reset() {
     // if the current query is the same as the default, nothing happens
@@ -712,8 +726,16 @@ const QueryStore = Reflux.createStore({
     // otherwise we do need to trigger the QueryChangedStore and let all other
     // components in the app know about the change so they can re-render.
     if (this.state.valid) {
+      let namespace = '';
+      if (this.NamespaceStore) {
+        namespace = this.NamespaceStore.ns;
+      } else if (app.appRegistry) {
+        this.NamespaceStore = app.appRegistry.getStore('App.NamespaceStore');
+        namespace = this.NamespaceStore.ns;
+      }
+
       const newState = this.getInitialState();
-      newState.ns = NamespaceStore.ns;
+      newState.ns = namespace;
       this.setState(_.omit(newState, 'expanded'));
     }
   },

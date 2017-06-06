@@ -7,7 +7,7 @@ require('../../src/app/reflux-listen-to-external-store.js');
 const { LOADING_STATE } = require('../../src/internal-packages/database/lib/constants');
 const CollectionsStore = require('../../src/internal-packages/database/lib/stores/collections-store');
 const InstanceStore = require('../../src/internal-packages/app/lib/stores/instance-store');
-const { NamespaceStore } = require('hadron-reflux-store');
+const NamespaceStore = require('../../src/internal-packages/app/lib/stores/namespace-store');
 
 const mockDataService = require('./support/mock-data-service');
 

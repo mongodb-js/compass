@@ -2,7 +2,6 @@ const React = require('react');
 const PropTypes = require('prop-types');
 const { shell } = require('electron');
 const ipc = require('hadron-ipc');
-const { NamespaceStore } = require('hadron-reflux-store');
 const { SortableTable, Tooltip } = require('hadron-react-components');
 const numeral = require('numeral');
 const { LOADING_STATE } = require('../constants');
@@ -23,6 +22,7 @@ class DatabasesTable extends React.Component {
     this.DatabaseDDLAction = appRegistry.getAction('DatabaseDDL.Actions');
     this.CollectionStore = appRegistry.getStore('App.CollectionStore');
     this.WriteStateStore = appRegistry.getStore('DeploymentAwareness.WriteStateStore');
+    this.NamespaceStore = appRegistry.getStore('App.NamespaceStore');
     this.state = this.WriteStateStore.state;
   }
 
@@ -53,9 +53,9 @@ class DatabasesTable extends React.Component {
   }
 
   onNameClicked(name) {
-    if (NamespaceStore.ns !== name) {
+    if (this.NamespaceStore.ns !== name) {
       this.CollectionStore.setCollection({});
-      NamespaceStore.ns = name;
+      this.NamespaceStore.ns = name;
       ipc.call('window:hide-collection-submenu');
     }
   }

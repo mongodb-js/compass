@@ -1,6 +1,5 @@
 const Reflux = require('reflux');
 const app = require('hadron-app');
-const NamespaceStore = require('hadron-reflux-store').NamespaceStore;
 const toNS = require('mongodb-ns');
 const Actions = require('../actions');
 const ReadPreference = require('mongodb').ReadPreference;
@@ -30,6 +29,7 @@ const LoadMoreDocumentsStore = Reflux.createStore({
     this.project = null;
     this.counter = 0;
 
+    this.NamespaceStore = app.appRegistry.getStore('App.NamespaceStore');
     this.listenToExternalStore('Query.ChangedStore', this.onQueryChanged.bind(this));
     this.listenTo(Actions.fetchNextDocuments, this.fetchNextDocuments.bind(this));
   },
@@ -75,7 +75,7 @@ const LoadMoreDocumentsStore = Reflux.createStore({
       readPreference: READ,
       promoteValues: false
     };
-    app.dataService.find(NamespaceStore.ns, this.filter, options, (error, documents) => {
+    app.dataService.find(this.NamespaceStore.ns, this.filter, options, (error, documents) => {
       this.trigger(error, documents);
     });
   }
