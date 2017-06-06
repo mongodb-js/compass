@@ -322,6 +322,14 @@ tasks:
         cp ./libsecret-1.so.0 /usr/lib64/libsecret-1.so.0
     variants:
       - rhel
+  - command: shell.exec
+    params:
+      working_dir: src
+      script: |
+        set -ev
+        sudo apt-get install --yes libsecret-1-0 libsecret-1-dev
+    variants:
+      - ubuntu
   - func: "configure"
   - func: "install"
   - command: expansions.update
