@@ -322,6 +322,15 @@ tasks:
         cp ./libsecret-1.so.0 /usr/lib64/libsecret-1.so.0
     variants:
       - rhel
+  - command: shell.exec
+    params:
+      working_dir: src
+      script: |
+        set -ev
+        wget https://github.com/mongodb-js/node-keytar/releases/download/v3.0.0/ubuntu-14.04-libsecret-1.so.0
+        cp ./ubuntu-14.04-libsecret-1.so.0 /usr/lib/x86_64-linux-gnu/libsecret-1.so.0
+    variants:
+      - ubuntu
   - func: "configure"
   - func: "install"
   - command: expansions.update
