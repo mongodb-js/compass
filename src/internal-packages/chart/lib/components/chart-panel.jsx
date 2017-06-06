@@ -38,13 +38,12 @@ class ChartPanel extends React.Component {
       'icon', 'chart-type-picker-no-icon');
 
     return (
-        <Dropdown id="chart-type-selector" className="chart-type-picker-dropdown" onSelect={this.onChartTypeSelect.bind(this)}>
+        <Dropdown id="chart-type-selector" className="chart-type-picker-dropdown btn btn-default btn-lg" onSelect={this.onChartTypeSelect.bind(this)}>
           <CustomToggle bsRole="toggle" className="chart-type-picker-toggle">
             <div className="chart-type-picker-title">
-              <span>
-                <i className={selectedChartIcon} /> {this.props.chartType}
-                <FontAwesome className="chart-type-picker-caret-down" name={'caret-down'} />
-              </span>
+              <i className={selectedChartIcon} />
+              <span className="chart-type-picker-title-name">{this.props.chartType}</span>
+              <FontAwesome className="chart-type-picker-caret-down" name={'caret-down'} />
             </div>
           </CustomToggle>
           <Dropdown.Menu>

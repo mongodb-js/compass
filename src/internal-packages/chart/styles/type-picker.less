@@ -4,7 +4,30 @@
   }
 
   &-dropdown {
-    width: 200px;
+    width: 100%;
+    padding: 0;
+    text-align: left;
+    font-size: 14px;
+    font-weight: bold;
+    cursor: pointer;
+
+    //fred: this is pretty sloppy
+    //would prefer better BEM classnames to target
+    .dropdown-menu {
+      min-width: 200px;
+      max-height: 208px;
+    }
+
+    li {
+      a {
+        padding: 7px 3px 9px;
+        i {
+          width: 33px;
+          display: inline-block;
+          text-align: center;
+        }
+      }
+    }
   }
 
   &-toggle {
@@ -12,13 +35,32 @@
   }
 
   &-title {
-    background-color:  #ebebed;
-    border-radius: 6px;
-    height: 30px;
+    padding-left: 6px;
+    padding-right: 6px;
+    display: flex;
+    align-items: center;
+  }
+
+  //fred: this is also sloppy
+  // would prefer a BEM classname on the chart type icon
+  &-title i[class^="mms-icon-"] {
+    flex-basis: 36px;
+    text-align: center;
+    flex-grow: 0;
+    flex-shrink: 0;
+    color: @linkText;
+  }
+
+  &-title-name {
+    flex-basis: auto;
+    flex-grow: 1;
+    flex-shrink: 1;
   }
 
   &-caret-down {
-    float: right;
-    padding: 5px;
+    flex-basis: 24px;
+    text-align: center;
+    flex-grow: 0;
+    flex-shrink: 0;
   }
 }
