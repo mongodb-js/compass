@@ -169,8 +169,6 @@ describe('<ChartPanel />', function() {
           encodedChannels={{}}
         />
       );
-      console.info(chartRoles);
-      console.log(component.debug());
       expect(component.find('.chart-type-picker-title')).to.include.text('Magic Bar Chart');
       expect(component.find('.chart-type-picker-title span i')).to.have.className('chart-type-picker-no-icon');
     });
