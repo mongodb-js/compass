@@ -28,7 +28,7 @@ class Sharded extends React.Component {
     return (
       <div className="topology-sharded">
         <div className="topology-sharded-name">
-          Cluster0
+          Cluster
         </div>
         <div className="topology-sharded-type">
           <i className="mms-icon-cluster" />

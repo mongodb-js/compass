@@ -12,7 +12,7 @@ describe('<Sharded />', () => {
 
       it('renders the name', () => {
         const node = component.find('.topology-sharded-name');
-        expect(node.children().node).to.equal('Cluster0');
+        expect(node.children().node).to.equal('Cluster');
       });
 
       it('renders the sharded icon', () => {
@@ -40,7 +40,7 @@ describe('<Sharded />', () => {
 
       it('renders the name', () => {
         const node = component.find('.topology-sharded-name');
-        expect(node.children().node).to.equal('Cluster0');
+        expect(node.children().node).to.equal('Cluster');
       });
 
       it('renders the sharded icon', () => {
