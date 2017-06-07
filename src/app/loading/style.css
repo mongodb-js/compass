@@ -25,8 +25,7 @@ html, body {
   left: 50%;
   height: 12px;
   width: 12px;
-  margin-top: -48px;
-  box-shadow: 0px 24px 6px rgba(77,83,89,.2);
+  margin-top: -36px;
 }
 
 @keyframes SQ1 {
