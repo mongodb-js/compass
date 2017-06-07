@@ -71,7 +71,7 @@ function getBuildInfo(done, results) {
     buildInfo: 1
   };
   var options = {
-    readPreference: ReadPreference.secondaryPreferred
+    readPreference: ReadPreference.SECONDARY_PREFERRED
   };
 
   db.db('admin').command(spec, options, function(err, res) {
@@ -148,7 +148,7 @@ function getHostInfo(done, results) {
     hostInfo: 1
   };
   var options = {
-    readPreference: ReadPreference.secondaryPreferred
+    readPreference: ReadPreference.SECONDARY_PREFERRED
   };
 
   db.db('admin').command(spec, options, function(err, res) {
@@ -186,7 +186,7 @@ function listDatabases(done, results) {
   }
 
   var options = {
-    readPreference: ReadPreference.secondaryPreferred
+    readPreference: ReadPreference.SECONDARY_PREFERRED
   };
 
   var spec = {
@@ -295,7 +295,7 @@ function getDatabases(done, results) {
 function getUserInfo(done, results) {
   var db = results.db;
   var options = {
-    readPreference: ReadPreference.secondaryPreferred
+    readPreference: ReadPreference.SECONDARY_PREFERRED
   };
 
   // get the user privileges
@@ -365,7 +365,7 @@ function getDatabaseCollections(db, done) {
   debug('getDatabaseCollections...');
 
   var options = {
-    readPreference: ReadPreference.secondaryPreferred
+    readPreference: ReadPreference.SECONDARY_PREFERRED
   };
 
   var spec = {};
