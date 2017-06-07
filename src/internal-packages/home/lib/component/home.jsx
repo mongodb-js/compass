@@ -42,26 +42,10 @@ class Home extends React.Component {
     setTimeout(this.SchemaActions.resizeMiniCharts, COMPASS_SIDEBAR_TRANSITION_TIME_MS);
   }
 
-  renderLoadingState() {
-    return (
-      <div className="home-loading">
-        <div className="spinner">
-          <div className="rect1" />
-          <div className="rect2" />
-          <div className="rect3" />
-          <div className="rect4" />
-          <div className="rect5" />
-        </div>
-        <p className="message">
-          Loading navigation
-        </p>
-      </div>
-    );
-  }
-
   renderContent() {
     if (this.props.uiStatus === UI_STATES.LOADING) {
-      return this.renderLoadingState();
+      // Handled by the <Status> component
+      return null;
     }
     if (this.props.uiStatus === UI_STATES.ERROR) {
       return <StatusRow style="error">{ERROR_WARNING}: {this.props.errorMessage}</StatusRow>;
