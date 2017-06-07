@@ -4,8 +4,6 @@ const DeploymentAwarenessComponent = require('./deployment-awareness');
 const Store = require('../stores');
 const Actions = require('../actions');
 
-// const debug = require('debug')('mongodb-compass:deployment-awareness:index');
-
 class ConnectedDeploymentAwarenessComponent extends React.Component {
   /**
    * Connect DeploymentAwarenessComponent to store and render.
