@@ -60,16 +60,16 @@ const InstanceStore = Reflux.createStore({
       });
     }
 
-    const StatusActions = app.appRegistry.getAction('Status.Actions');
-    StatusActions.hide();
+    const StatusAction = app.appRegistry.getAction('Status.Actions');
+    StatusAction.hide();
   },
 
   /**
    * Run just once after the first set of instance data is fetched.
    */
   onFirstFetch() {
-    const StatusActions = app.appRegistry.getAction('Status.Actions');
-    StatusActions.hide();
+    const StatusAction = app.appRegistry.getAction('Status.Actions');
+    StatusAction.hide();
 
     const instance = app.instance;
     debug('instance fetched', instance.serialize());
@@ -96,8 +96,8 @@ const InstanceStore = Reflux.createStore({
 
   refreshInstance() {
     if (this.state.instance.fetch) {
-      const StatusActions = app.appRegistry.getAction('Status.Actions');
-      StatusActions.configure({
+      const StatusAction = app.appRegistry.getAction('Status.Actions');
+      StatusAction.configure({
         animation: true,
         message: 'Loading databases',
         visible: true
@@ -107,7 +107,7 @@ const InstanceStore = Reflux.createStore({
         success: (instance) => {
           debug('Setting refetched instance', instance);
           this.setState({ instance });
-          StatusActions.hide();
+          StatusAction.hide();
         }
       });
       // Only reset to initial state if fetched successfully at least once

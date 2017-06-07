@@ -32,8 +32,8 @@ const HomeStore = Reflux.createStore({
   },
 
   onConnected() {
-    const StatusActions = app.appRegistry.getAction('Status.Actions');
-    StatusActions.configure({
+    const StatusAction = app.appRegistry.getAction('Status.Actions');
+    StatusAction.configure({
       animation: true,
       message: 'Loading navigation',
       visible: true
@@ -45,8 +45,8 @@ const HomeStore = Reflux.createStore({
   },
 
   onInstanceChange(state) {
-    const StatusActions = app.appRegistry.getAction('Status.Actions');
-    StatusActions.hide();
+    const StatusAction = app.appRegistry.getAction('Status.Actions');
+    StatusAction.hide();
     if (state.errorMessage) {
       this.setState({
         errorMessage: state.errorMessage,

@@ -1,7 +1,7 @@
 const app = require('hadron-app');
 const Reflux = require('reflux');
 const StateMixin = require('reflux-state-mixin');
-const SSHTunnelStatusActions = require('../actions');
+const SSHTunnelStatusAction = require('../actions');
 
 const debug = require('debug')('mongodb-compass:stores:ssh-tunnel-status');
 
@@ -20,7 +20,7 @@ const SSHTunnelStatusStore = Reflux.createStore({
   /**
    * listen to all actions defined in ../actions/index.jsx
    */
-  listenables: [SSHTunnelStatusActions],
+  listenables: [SSHTunnelStatusAction],
 
   /**
    * when connected to a deployment, checks if the connection is via an ssh

@@ -9,14 +9,14 @@ Provides functionality for the status bar.
 At a Chrome development console, it is possible to trigger specific actions:
 
 ```js
-    const StatusActions = app.appRegistry.getAction('Status.Actions');
+    const StatusAction = app.appRegistry.getAction('Status.Actions');
     
     // Can call individual actions
-    StatusActions.showAnimation();
-    StatusActions.setMessage('Loading navigation');
+    StatusAction.showAnimation();
+    StatusAction.setMessage('Loading navigation');
     
     // Can configure many things at once
-    StatusActions.configure({
+    StatusAction.configure({
       animation: true, 
       message: 'Loading Databases', 
       visible: true
@@ -24,9 +24,9 @@ At a Chrome development console, it is possible to trigger specific actions:
     
     // Can also inject a subview
     const SchemaStatusSubview = app.appRegistry.getComponent('Schema.StatusSubview');
-    const SchemaActions = app.appRegistry.getAction('Schema.Actions');
-    StatusActions.setSubview(SchemaStatusSubview);
-    SchemaActions.startSampling();
+    const SchemaAction = app.appRegistry.getAction('Schema.Actions');
+    StatusAction.setSubview(SchemaStatusSubview);
+    SchemaAction.startSampling();
 ```
 
 ### Components
