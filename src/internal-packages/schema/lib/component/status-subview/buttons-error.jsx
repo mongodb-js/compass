@@ -23,6 +23,7 @@ class ButtonsError extends React.Component {
 
   onNewQueryButtonClick() {
     // dismiss status view
+    debugger;
     this.StatusAction.hide();
   }
 

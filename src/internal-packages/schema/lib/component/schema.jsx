@@ -68,6 +68,7 @@ class Schema extends React.Component {
       return;
     }
     if (this.props.samplingState === 'error') {
+      debugger;
       this.StatusAction.hide();
     }
     const progress = this.props.samplingProgress;
