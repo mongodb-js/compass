@@ -12,5 +12,6 @@
   ],
   "spec": {
     "mark": "point"
-  }
+  },
+  "icon": "mms-icon-chart-scatter"
 }

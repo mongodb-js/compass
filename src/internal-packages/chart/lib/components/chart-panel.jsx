@@ -1,8 +1,9 @@
 const React = require('react');
 const PropTypes = require('prop-types');
-const { FormGroup } = require('react-bootstrap');
-const { OptionSelector } = require('hadron-react-components');
+const { FormGroup, Dropdown, MenuItem } = require('react-bootstrap');
+const FontAwesome = require('react-fontawesome');
 const EncodingChannel = require('./encoding-channel');
+const CustomToggle = require('./custom-toggle');
 
 const _ = require('lodash');
 
@@ -27,15 +28,27 @@ class ChartPanel extends React.Component {
   }
 
   renderChartTypeChoice() {
-    const chartTypeNames = _.indexBy(this.props.availableChartRoles.map(role => role.name));
+    const chartTypes = this.props.availableChartRoles.map((role) => {
+      const icon = <i className={role.icon || 'chart-type-picker-no-icon'} />;
+      return (<MenuItem key={role.name} eventKey={role.name}>{icon} {role.name}</MenuItem>);
+    });
+    const selectedChartIcon = _.result(
+      _.find(this.props.availableChartRoles, {name: this.props.chartType}),
+      'icon', 'chart-type-picker-no-icon');
+
     return (
-      <OptionSelector
-        id="chart-type-selector"
-        bsSize="xs"
-        options={chartTypeNames}
-        title={this.props.chartType}
-        onSelect={this.onChartTypeSelect.bind(this)}
-      />
+        <Dropdown id="chart-type-selector" className="chart-type-picker-dropdown btn btn-default btn-lg" onSelect={this.onChartTypeSelect.bind(this)}>
+          <CustomToggle bsRole="toggle" className="chart-type-picker-toggle">
+            <div className="chart-type-picker-title">
+              <i className={selectedChartIcon} />
+              <span className="chart-type-picker-title-name">{this.props.chartType}</span>
+              <FontAwesome className="chart-type-picker-caret-down" name={'caret-down'} />
+            </div>
+          </CustomToggle>
+          <Dropdown.Menu>
+            {chartTypes}
+          </Dropdown.Menu>
+        </Dropdown>
     );
   }
 
@@ -64,6 +77,7 @@ class ChartPanel extends React.Component {
     const encodingChannels = this.renderEncodingChannels();
     return (
       <FormGroup>
+        <label className="chart-encoding-channel-label">Chart Type</label>
         {chartType}
         {encodingChannels}
       </FormGroup>
