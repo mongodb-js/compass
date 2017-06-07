@@ -57,19 +57,19 @@ class ArrayReductionPicker extends React.Component {
     }));
 
     return (
-      <div className="">
-        <span className="">
-          {this.props.field}
-        </span>
-        <Dropdown className="" id="array-reduction-picker"
+      <div className="chart-draggable-field-array-picker">
+        <div className="chart-draggable-field-title">
+          <span>
+            {this.props.field}
+          </span>
+        </div>
+        <Dropdown className="chart-draggable-field-array-picker" id="array-reduction-picker"
             onSelect={this.selectArrayReduction.bind(this)}>
-          <CustomToggle bsRole="toggle" className="">
-            <div className="">
-              <span>
-                {this.props.type || 'Choose method'}
-              </span>
-            </div>
-            <FontAwesome className="" name={'caret-down'} />
+          <CustomToggle bsRole="toggle" className="chart-draggable-field-array-picker-dropdown">
+            <span className="chart-draggable-field-array-picker-title-name chart-draggable-field-action-title">
+              {this.props.type || 'Choose method'}
+            </span>
+            <FontAwesome className="chart-draggable-field-array-picker-caret-down" name={'caret-down'} />
           </CustomToggle>
           <Dropdown.Menu>
             {menu}

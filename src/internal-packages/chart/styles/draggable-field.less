@@ -73,7 +73,6 @@
     margin-left: 2px;
   }
 
-  &-action-icon,
   &-action-icon {
     flex-grow: 0;
     flex-shrink: 0;
@@ -147,6 +146,43 @@
   &:hover {
     .chart-draggable-field-action-remove {
       opacity: 1;
+    }
+  }
+
+  &-array-picker {
+    width: 100%;
+    background: linear-gradient(180deg, #FFFFFF 0%, #F6F6F6 100%);
+    box-shadow: inset 0 -1px 0 0 lighten(@gray5, 8%);
+    background: linear-gradient(180deg, #FFFFFF 0%, #F6F6F6 100%);
+    border: 1px solid lighten(@gray5, 8%);
+    border-radius: 3px;
+    padding: 3px 2px 2px;
+
+    &-title-name {
+      flex-basis: auto;
+      flex-grow: 1;
+      flex-shrink: 1;
+      padding-right: 75px;
+    }
+
+    &-dropdown {
+      width: 100%;
+      padding: 0;
+      text-align: left;
+      font-size: 14px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    &-unselected {
+      background-color: @green1;
+    }
+
+    &-caret-down {
+      flex-basis: 24px;
+      text-align: center;
+      flex-grow: 0;
+      flex-shrink: 0;
     }
   }
 }
