@@ -7,11 +7,11 @@ const ReadStateStore = require('./lib/stores/read-state-store');
 /**
  * A sample role for the component.
  */
-// const ROLE = {
-  // name: 'Topology',
-  // component: DeploymentAwarenessComponent,
-  // order: 3
-// };
+const ROLE = {
+  name: 'DeploymentAwareness',
+  component: DeploymentAwarenessComponent,
+  alignment: 'left'
+};
 
 /**
  * Activate all the components in the Deployment Awareness package.
@@ -19,7 +19,7 @@ const ReadStateStore = require('./lib/stores/read-state-store');
  * @param {AppRegistry} appRegistry - The app registry.
  */
 function activate(appRegistry) {
-  // appRegistry.registerRole('Instance.Tab', ROLE);
+  appRegistry.registerRole('Header.Item', ROLE);
   appRegistry.registerAction('DeploymentAwareness.Actions', DeploymentAwarenessActions);
   appRegistry.registerStore('DeploymentAwareness.Store', DeploymentAwarenessStore);
   appRegistry.registerStore('DeploymentAwareness.WriteStateStore', WriteStateStore);
@@ -30,7 +30,7 @@ function activate(appRegistry) {
  * Deactivate all the components in the Deployment Awareness package.
  */
 function deactivate() {
-  // global.hadronApp.appRegistry.deregisterRole('Instance.Tab', ROLE);
+  global.hadronApp.appRegistry.deregisterRole('Header.Item', ROLE);
   global.hadronApp.appRegistry.deregisterAction('DeploymentAwareness.Actions');
   global.hadronApp.appRegistry.deregisterStore('DeploymentAwareness.Store');
   global.hadronApp.appRegistry.deregisterStore('DeploymentAwareness.WriteStateStore');
