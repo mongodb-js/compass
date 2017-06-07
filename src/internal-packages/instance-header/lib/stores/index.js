@@ -1,5 +1,4 @@
 const Reflux = require('reflux');
-const app = require('hadron-app');
 const InstanceHeaderActions = require('../actions');
 const StateMixin = require('reflux-state-mixin');
 const debug = require('debug')('mongodb-compass:stores:instance-header');
@@ -7,7 +6,6 @@ const debug = require('debug')('mongodb-compass:stores:instance-header');
 /**
  * Instance Header store.
  */
-
 const InstanceHeaderStore = Reflux.createStore({
   /**
    * adds a state to the store, similar to React.Component's state
@@ -22,10 +20,12 @@ const InstanceHeaderStore = Reflux.createStore({
 
   /**
    * Initialize everything that is not part of the store's state.
+   *
+   * @param {AppRegistry} appRegistry - The app registry.
    */
-  init() {
-    this.NamespaceStore = app.appRegistry.getStore('App.NamespaceStore');
-    this.listenToExternalStore('App.InstanceStore', this.fetchInstanceDetails.bind(this));
+  onActivated(appRegistry) {
+    this.NamespaceStore = appRegistry.getStore('App.NamespaceStore');
+    appRegistry.getStore('DeploymentAwareness.Store').listen(this.fetchInstanceDetails.bind(this));
   },
 
   /**
@@ -35,9 +35,7 @@ const InstanceHeaderStore = Reflux.createStore({
    */
   getInitialState() {
     return {
-      hostname: 'Retrieving host information',
-      port: '',
-      processStatus: '',
+      name: 'Retrieving connection information',
       activeNamespace: ''
     };
   },
@@ -47,13 +45,14 @@ const InstanceHeaderStore = Reflux.createStore({
    * the active namespace is the instance itself. The user can refresh the instance while
    * being on a database or collection view.
    *
-   * @param {Object} state    the new state containing the instance details
+   * @param {Object} description - The topology description.
    */
-  fetchInstanceDetails(state) {
+  fetchInstanceDetails(description) {
+    const { TopologyType } = require('@mongodb-js/compass-deployment-awareness');
+    const connection = global.hadronApp.connection;
+    const topology = `Topology: ${TopologyType.humanize(description.topologyType)}`;
     this.setState({
-      hostname: state.instance.hostname,
-      port: state.instance.port,
-      processStatus: 'TODO: Get Replica Set Status',
+      name: connection.is_favorite ? connection.name : topology,
       activeNamespace: this.NamespaceStore.ns || ''
     });
   },
