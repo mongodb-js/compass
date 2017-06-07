@@ -3,6 +3,8 @@ const PropTypes = require('prop-types');
 const Type = require('./type');
 const Minichart = require('./minichart');
 const detectCoordinates = require('detect-coordinates');
+const { InfoSprinkle } = require('./info-sprinkle');
+const { shell } = require('electron');
 const _ = require('lodash');
 
 // const debug = require('debug')('mongodb-compass:schema:field');
@@ -11,6 +13,11 @@ const _ = require('lodash');
  * The full schema component class.
  */
 const FIELD_CLASS = 'schema-field';
+
+/**
+ * The help URL for building geo queries.
+ */
+const HELP_URL = 'https://docs.mongodb.com/compass/current/schema/#geographic-visualization-and-query-builder';
 
 /**
  * Component for the entire document list.
@@ -165,6 +172,10 @@ class Field extends React.Component {
             <div className="schema-field-name" onClick={this.titleClicked.bind(this)}>
               <span className={nestedDocType ? 'caret' : ''}></span>
               <span>{this.props.name}</span>
+              <InfoSprinkle
+                helpLink={HELP_URL}
+                onClickHandler={shell.openExternal}
+              />
             </div>
             <div className="schema-field-type-list">
               {typeList}
