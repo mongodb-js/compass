@@ -67,7 +67,7 @@ function addGetSidebarCommands(client) {
    * Get the sidebar database count
    */
   client.addCommand('getSidebarDatabaseCount', function() {
-    return this.getText(selector('sidebar-db-count'));
+    return this.waitForInstanceRefresh().getText(selector('sidebar-db-count'));
   });
 
   /**
