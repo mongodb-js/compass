@@ -4,6 +4,31 @@ Provides functionality for the status bar.
 
 ## Available Resources in the App Registry
 
+### Manual Testing in Compass
+
+At a Chrome development console, it is possible to trigger specific actions:
+
+```js
+    const StatusActions = app.appRegistry.getAction('Status.Actions');
+    
+    // Can call individual actions
+    StatusActions.showAnimation();
+    StatusActions.setMessage('Loading navigation');
+    
+    // Can configure many things at once
+    StatusActions.configure({
+      animation: true, 
+      message: 'Loading Databases', 
+      visible: true
+    });
+    
+    // Can also inject a subview
+    const SchemaStatusSubview = app.appRegistry.getComponent('Schema.StatusSubview');
+    const SchemaActions = app.appRegistry.getAction('Schema.Actions');
+    StatusActions.setSubview(SchemaStatusSubview);
+    SchemaActions.startSampling();
+```
+
 ### Components
 
 #### Definitions
