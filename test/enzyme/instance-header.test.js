@@ -48,14 +48,14 @@ describe('<InstanceHeader />', () => {
         databases: []
       };
       this.component = shallow(
-        <InstanceHeader hostname="localhost" port={27017} activeNamespace={''}
+        <InstanceHeader name="testing" activeNamespace={''}
           versionNumber={this.instance.build.version} versionDistro="Enterprise"/>
       );
     });
 
     it('renders the endpoint host name and port as text', function() {
       const element = this.component.find('.instance-header-details');
-      expect(element.text()).to.be.equal('localhost:27017');
+      expect(element.text()).to.be.equal('testing');
     });
   });
 
@@ -76,15 +76,16 @@ describe('<InstanceHeader />', () => {
         databases: []
       };
       this.component = shallow(
-        <InstanceHeader hostname={app.connection.hostname}
-          port={app.connection.port} activeNamespace={''}
+        <InstanceHeader
+          name="testing"
+          activeNamespace={''}
           versionNumber={this.instance.build.version} versionDistro="Community"/>
       );
     });
 
     it('renders the endpoint host name and port as text', function() {
       const element = this.component.find('.instance-header-details');
-      expect(element.text()).to.be.equal('ip-1-2-3-4...mongod.com:27017');
+      expect(element.text()).to.be.equal('testing');
     });
   });
 });

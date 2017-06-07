@@ -16,12 +16,11 @@ class InstanceHeaderComponent extends React.Component {
     super(props);
     this.setupHeaderItems();
 
-    const state = {hostStr: this.hostNamePortStr(props.hostname, props.port)};
-    this.state = state;
+    this.state = { name: this.connectionString(props.name)};
   }
 
   componentWillReceiveProps(nextProps) {
-    const state = {hostStr: this.hostNamePortStr(nextProps.hostname, nextProps.port)};
+    const state = { name: this.connectionString(nextProps.name)};
     this.setState(state);
   }
 
@@ -60,25 +59,15 @@ class InstanceHeaderComponent extends React.Component {
     });
   }
 
-  returnHostnamePrefix(hostname) {
-    const prefix = hostname.slice(0, 10);
-    return prefix;
-  }
-
-  returnHostnameSuffix(hostname) {
-    const suffix = hostname.slice(-10);
-    return suffix;
-  }
-
-  hostNamePortStr(hostname, port, showFull) {
-    const str = (hostname.length < HOST_STRING_LENGTH) || showFull ?
-      hostname + ':' + port
-      : this.returnHostnamePrefix(hostname) + '...' + this.returnHostnameSuffix(hostname) + ':' + port;
+  connectionString(name, showFull) {
+    const str = (name.length < HOST_STRING_LENGTH) || showFull ?
+      name
+      : `${name.substring(0, HOST_STRING_LENGTH)}...`;
     return str;
   }
 
-  showHostNamePort(showFullString) {
-    this.setState({hostStr: this.hostNamePortStr(this.props.hostname, this.props.port, showFullString)});
+  showConnectionString(showFullString) {
+    this.setState({ name: this.connectionString(this.props.name, showFullString) });
   }
 
   handleClickHostname() {
@@ -87,23 +76,12 @@ class InstanceHeaderComponent extends React.Component {
     ipc.call('window:hide-collection-submenu');
   }
 
-  // renderProcessStatus() {
-  //   return this.props.processStatus !== ''
-  //     ? (
-  //       <div className="instance-header-process-status-container">
-  //         <div className="instance-header-process-status">
-  //           <span>{this.props.processStatus}</span>
-  //         </div>
-  //       </div>
-  //     ) : '';
-  // }
-
-  renderHostNamePort() {
+  renderConnectionString() {
     return (
-      <div onMouseOver={this.showHostNamePort.bind(this, true)}
-          onMouseOut={this.showHostNamePort.bind(this, false)}
+      <div onMouseOver={this.showConnectionString.bind(this, true)}
+          onMouseOut={this.showConnectionString.bind(this, false)}
           className="instance-header-details" data-test-id="instance-header-details">
-        {this.state.hostStr}
+        {this.state.name}
       </div>
     );
   }
@@ -126,7 +104,7 @@ class InstanceHeaderComponent extends React.Component {
           <div className="instance-header-icon-container">
             <FontAwesome name="home" className="instance-header-icon instance-header-icon-home"/>
           </div>
-          {this.renderHostNamePort()}
+          {this.renderConnectionString()}
         </div>
         <div className="instance-header-arrow-image"></div>
         <div className="instance-header-items instance-header-items-is-left">
@@ -141,12 +119,7 @@ class InstanceHeaderComponent extends React.Component {
 }
 
 InstanceHeaderComponent.propTypes = {
-  hostname: PropTypes.string,
-  port: PropTypes.oneOfType([
-    PropTypes.number,
-    PropTypes.string
-  ]),
-  processStatus: PropTypes.string,
+  name: PropTypes.string,
   activeNamespace: PropTypes.string,
   sidebarCollapsed: PropTypes.bool
 };
