@@ -7,6 +7,7 @@ const _ = require('lodash');
 const DragSource = require('react-dnd').DragSource;
 const {AGGREGATE_FUNCTION_ENUM, MEASUREMENT_ENUM, MEASUREMENT_ICON_ENUM, TOOL_TIP_ID_ARRAY} = require('../constants');
 const CustomToggle = require('./custom-toggle');
+const ArrayReductionPicker = require('./array-reduction-picker');
 
 // const debug = require('debug')('mongodb-compass:chart:draggable-field');
 
@@ -141,6 +142,9 @@ class DraggableField extends React.Component {
             </div>
           </div>
           : <div></div>}
+        </div>
+        <div className="chart-draggable-field-row">
+          {this.props.enableMenus ? <ArrayReductionPicker channel={this.props.channelName} field={this.props.fieldName} /> : null}
         </div>
         <div className="chart-draggable-field-row">
           {this.props.enableMenus ? this.renderMeasurementMenu() : <div></div>}
