@@ -29,7 +29,6 @@ describe('ReadStateStore', () => {
           const unsubscribe = ReadStateStore.listen((state) => {
             expect(state.isReadable).to.equal(true);
             expect(ReadStateStore.state.isReadable).to.equal(true);
-            console.log(ReadStateStore.state.description);
             unsubscribe();
             done();
           });

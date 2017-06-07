@@ -1,97 +1,33 @@
 const React = require('react');
 const PropTypes = require('prop-types');
 const TopologyType = require('../models/topology-type');
+const Single = require('./single');
+const Sharded = require('./sharded');
+const ReplicaSet = require('./replica-set');
+const Unknown = require('./unknown');
 
 /**
- * Topology types to class name mappings.
- */
-const TOPOLOGY_TYPES = {
-  'Single': 'single',
-  'ReplicaSetNoPrimary': 'replica-set',
-  'ReplicaSetWithPrimary': 'replica-set',
-  'Sharded': 'cluster',
-  'Unknown': 'unknown'
-};
-
-/**
- * Server types to class name mappings.
- */
-const SERVER_TYPES = {
-  'Standalone': 'primary',
-  'Mongos': 'primary',
-  'PossiblePrimary': 'primary',
-  'RSPrimary': 'primary',
-  'RSSecondary': 'secondary',
-  'RSArbiter': 'arbiter',
-  'RSOther': 'nostate',
-  'RSGhost': 'nostate',
-  'Unknown': 'nostate'
-};
-
-/**
- * <i class="mms-icon-leaf"> For version.
+ * The deployment awareness component.
  */
 class DeploymentAwarenessComponent extends React.Component {
 
   /**
-   * Render the servers that are connected to.
+   * Renders the topology information.
    *
-   * @returns {React.Component} The rendered component.
+   * @returns {React.Component} The component.
    */
-  renderServers() {
-    return this.props.servers.map((server, i) => {
-      return (
-        <tr key={i}>
-          <td className="topology-servers-type">
-            <i className={`mms-icon-${SERVER_TYPES[server.type]}`} />
-          </td>
-          <td className="topology-servers-address">
-            {server.address}
-          </td>
-        </tr>
-      );
-    });
-  }
-
-  /**
-   * Render the replica set name.
-   *
-   * @returns {React.Component} The rendered component.
-   */
-  renderSetName() {
-    if (this.props.setName) {
-      return (
-        <span className="topology-type-set-name">({this.props.setName})</span>
-      );
+  renderTopologyInfo() {
+    switch (this.props.topologyType) {
+      case TopologyType.SINGLE:
+        return (<Single server={this.props.servers[0]} />);
+      case TopologyType.SHARDED:
+        return (<Sharded servers={this.props.servers} />);
+      case TopologyType.REPLICA_SET_NO_PRIMARY:
+      case TopologyType.REPLICA_SET_WITH_PRIMARY:
+        return (<ReplicaSet {...this.props} />);
+      default:
+        return (<Unknown servers={this.props.servers} />);
     }
-  }
-
-  renderTopologyType() {
-    return (
-      <div className="topology-type-name">
-        <i className={`mms-icon-${TOPOLOGY_TYPES[this.props.topologyType]}`} />
-        {TopologyType.humanize(this.props.topologyType)}
-      </div>
-    );
-  }
-
-  /**
-   * Render the name of the deployment.
-   *
-   * @returns {String} The name.
-   */
-  renderName() {
-    if (this.props.setName) {
-      return this.props.setName;
-    } else if (this.props.topologyType === TopologyType.SINGLE) {
-      return this.props.servers[0].type;
-    }
-    return this.props.topologyType;
-  }
-
-  renderNodes() {
-    const length = this.props.servers.length;
-    return `${length} Node${length === 1 ? '' : 's'}`;
   }
 
   /**
@@ -101,24 +37,8 @@ class DeploymentAwarenessComponent extends React.Component {
    */
   render() {
     return (
-      <div className="topology-container">
-        <div className="action-bar controls-container"></div>
-        <div className="topology">
-          <div className="topology-name">
-            {this.renderName()}
-          </div>
-          <div className="topology-type">
-            {this.renderTopologyType()}
-          </div>
-          <div className="topology-server-count">
-            {this.renderNodes()}
-          </div>
-          <div className="topology-servers">
-            <table>
-              {this.renderServers()}
-            </table>
-          </div>
-        </div>
+      <div className="topology">
+        {this.renderTopologyInfo()}
       </div>
     );
   }
