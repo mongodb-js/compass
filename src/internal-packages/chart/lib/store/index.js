@@ -5,8 +5,8 @@ const {
   SPEC_TYPE_ENUM,
   VIEW_TYPE_ENUM,
   LITE_SPEC_GLOBAL_SETTINGS
-} = require('./constants');
-const Actions = require('./actions');
+} = require('../constants');
+const Actions = require('../actions');
 const StateMixin = require('reflux-state-mixin');
 const app = require('hadron-app');
 const ReadPreference = require('mongodb').ReadPreference;
