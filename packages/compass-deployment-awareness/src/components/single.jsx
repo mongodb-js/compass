@@ -8,7 +8,7 @@ const { humanize } = require('../models/server-type');
 class Single extends React.Component {
 
   /**
-   * Render DeploymentAwareness component.
+   * Render single component.
    *
    * @returns {React.Component} The rendered component.
    */
