@@ -3,6 +3,8 @@ const DeploymentAwarenessActions = require('./lib/actions');
 const DeploymentAwarenessStore = require('./lib/stores');
 const WriteStateStore = require('./lib/stores/write-state-store');
 const ReadStateStore = require('./lib/stores/read-state-store');
+const TopologyType = require('./lib/models/topology-type');
+const ServerType = require('./lib/models/server-type');
 
 /**
  * A sample role for the component.
@@ -40,5 +42,7 @@ function deactivate() {
 module.exports = DeploymentAwarenessComponent;
 module.exports.WriteStateStore = WriteStateStore;
 module.exports.ReadStateStore = ReadStateStore;
+module.exports.TopologyType = TopologyType;
+module.exports.ServerType = ServerType;
 module.exports.activate = activate;
 module.exports.deactivate = deactivate;
