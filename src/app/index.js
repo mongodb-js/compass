@@ -395,7 +395,6 @@ app.extend({
         InstanceActions.fetchFirstInstance();
 
         state.startRouter();
-        debugger;
         StatusAction.hide();
         // Iterate through all the registered stores and if they require an
         // onConnected hook, call it.

@@ -184,7 +184,6 @@ const StatusStore = Reflux.createStore({
   },
 
   hide() {
-    debugger;
     this.disableProgressTrickle();
     this.setState(this.getInitialState());
   },

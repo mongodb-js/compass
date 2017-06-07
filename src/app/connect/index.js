@@ -469,7 +469,6 @@ var ConnectView = View.extend({
         this.connection.save({ last_used: new Date() }, { success: onSave.bind(this) });
       } else {
         // hide the status bar on error. On success, it is hidden in ./src/app/index.js
-        debugger;
         this.StatusAction.hide();
         this.onError(err, connection);
         this.dispatch('error received');
@@ -488,7 +487,6 @@ var ConnectView = View.extend({
   useConnection: function(connection) {
     connection = connection || this.connection;
     const StatusAction = app.appRegistry.getAction('Status.Actions');
-    debugger;
     StatusAction.hide();
     metrics.track('Connection', 'used', {
       authentication: connection.authentication,
@@ -507,7 +505,6 @@ var ConnectView = View.extend({
         silent: false
       });
       view.remove();
-      debugger;
       StatusAction.hideStaticSidebar();
     });
   },

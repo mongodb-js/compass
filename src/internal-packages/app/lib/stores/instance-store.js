@@ -61,7 +61,6 @@ const InstanceStore = Reflux.createStore({
     }
 
     const StatusAction = app.appRegistry.getAction('Status.Actions');
-    debugger;
     StatusAction.hide();
   },
 
@@ -70,7 +69,6 @@ const InstanceStore = Reflux.createStore({
    */
   onFirstFetch() {
     const StatusAction = app.appRegistry.getAction('Status.Actions');
-    debugger;
     StatusAction.hide();
 
     const instance = app.instance;
@@ -109,7 +107,6 @@ const InstanceStore = Reflux.createStore({
         success: (instance) => {
           debug('Setting refetched instance', instance);
           this.setState({ instance });
-          debugger;
           StatusAction.hide();
         }
       });

@@ -46,7 +46,6 @@ const HomeStore = Reflux.createStore({
 
   onInstanceChange(state) {
     const StatusAction = app.appRegistry.getAction('Status.Actions');
-    debugger;
     StatusAction.hide();
     if (state.errorMessage) {
       this.setState({
