@@ -5,10 +5,11 @@ is in a state to read or write.
 
 ## Available Resources in the App Registry
 
-### Components
+### Roles
 
-| Key                 | Description                  |
-|---------------------|------------------------------|
+| Role          | Description                                                     |
+|---------------|-----------------------------------------------------------------|
+| `Header.Item` | Renders the topology information in the left of the header bar. |
 
 ### Stores
 
