@@ -17,10 +17,10 @@ class Key extends React.Component {
    * @returns {React.Component} The element component.
    */
   render() {
-    const value = `${String(this.props.value.constructor.name)}()`;
+    const value = `${ String(this.props.value.constructor.name) }()`;
     return React.createElement(
       'div',
-      { className: `${CLASS} ${CLASS}-is-${this.props.type.toLowerCase()}`, title: value },
+      { className: `${ CLASS } ${ CLASS }-is-${ this.props.type.toLowerCase() }`, title: value },
       value
     );
   }

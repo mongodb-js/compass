@@ -25,7 +25,7 @@ class Binary extends React.Component {
   renderValue() {
     const type = this.props.value.sub_type;
     const buffer = this.props.value.buffer;
-    return `Binary('${truncate(buffer.toString(BASE_64), 100)}')`;
+    return `Binary('${ truncate(buffer.toString(BASE_64), 100) }')`;
   }
 
   /**

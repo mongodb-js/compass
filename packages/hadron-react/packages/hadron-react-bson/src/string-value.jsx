@@ -1,5 +1,6 @@
 const React = require('react');
 const PropTypes = require('prop-types');
+const { truncate } = require('hadron-react-utils');
 
 /**
  * The base css class.
@@ -19,7 +20,7 @@ class StringValue extends React.Component {
   render() {
     return (
       <div className={`${CLASS} ${CLASS}-is-string`} title={this.props.value}>
-        {`\"${this.props.value}\"`}
+        {`\"${truncate(this.props.value, 70)}\"`}
       </div>
     );
   }
