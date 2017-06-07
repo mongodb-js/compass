@@ -41,7 +41,7 @@ const DeploymentAwarenessStore = Reflux.createStore({
    */
   getInitialState() {
     return {
-      topologyType: '',
+      topologyType: 'Unknown',
       setName: '',
       servers: []
     };

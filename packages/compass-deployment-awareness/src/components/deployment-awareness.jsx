@@ -47,7 +47,7 @@ class DeploymentAwarenessComponent extends React.Component {
 DeploymentAwarenessComponent.propTypes = {
   servers: PropTypes.array,
   setName: PropTypes.string,
-  topologyType: PropTypes.string.isRequired
+  topologyType: PropTypes.string
 };
 
 DeploymentAwarenessComponent.displayName = 'DeploymentAwarenessComponent';
