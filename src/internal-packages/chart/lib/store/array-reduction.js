@@ -50,12 +50,11 @@ const REDUCTIONS = Object.freeze({
  * Filters out all unwind reductions from the reductions array and builds
  * $unwind stages for the respective fields.
  *
- * @param  {String} field       The field the user dragged to encode the channel
  * @param  {Array} reductions   array of reductions, following the following
  *
  * @return {Array}              array of $unwind stages, might be empty
  */
-function constructUnwindStages(field, reductions) {
+function constructUnwindStages(reductions) {
   return _(reductions)
     .filter((red) => {
       return red.type === 'unwind';
@@ -71,7 +70,6 @@ function constructUnwindStages(field, reductions) {
  * pipeline stage to reduce (possibly nested) arrays to a single scalar value
  * according to the provided reduction functions
  *
- * @param  {String} field        The field the user dragged to encode the channel
  * @param  {Array} reductions    an array of reductions as defined by the
  *                               ChartStore, with the following format:
  *
@@ -87,9 +85,10 @@ function constructUnwindStages(field, reductions) {
  *                               the given field array into a scalar value.
  */
 
-function constructAccumulatorStage(field, reductions) {
+function constructAccumulatorStage(reductions) {
   let arr;
   let expr;
+  const lastReduction = reductions[reductions.length - 1];
 
   reductions = _.filter(reductions, (red) => {
     return red.type !== 'unwind';
@@ -103,7 +102,7 @@ function constructAccumulatorStage(field, reductions) {
   if (reductions.length === 1) {
     // with only one reduction, return the reduction applied to the field
     // directly.
-    arr = `$${field}`;
+    arr = `$${lastReduction.field}`;
   } else {
     // first reduction has no map and applies the reducer directly
     arr = '$$value';
@@ -116,20 +115,18 @@ function constructAccumulatorStage(field, reductions) {
     });
 
     // last (outer-most) reduction uses the actual field name with a map
-    arr = _map(`$${field}`, expr);
+    arr = _map(`$${lastReduction.field}`, expr);
   }
-  expr = REDUCTIONS[reductions[reductions.length - 1].type](arr);
+  expr = REDUCTIONS[lastReduction.type](arr);
 
   // we use $addFields to overwrite the original field name
-
-  return {$addFields: {[field]: expr}};
+  return {$addFields: {[lastReduction.field]: expr}};
 }
 
 /**
  * helper to create aggregation pipeline stages to reduce arrays, based on
  * the given field name and a reductions array.
  *
- * @param  {String} field      The field the user dragged to encode the channel
  * @param  {Array} reductions  array of reductions, following the following
  *                             format:
  *             [
@@ -139,11 +136,11 @@ function constructAccumulatorStage(field, reductions) {
  *
  * @return {Array}            pipeline stages to reduce all arrays
  */
-module.exports = function arrayReductionAggBuilder(field, reductions) {
+module.exports = function arrayReductionAggBuilder(reductions) {
   const pipeline = [];
 
-  const unwindStages = constructUnwindStages(field, reductions);
-  const accumulatorStage = constructAccumulatorStage(field, reductions);
+  const unwindStages = constructUnwindStages(reductions);
+  const accumulatorStage = constructAccumulatorStage(reductions);
 
   // combine pipeline
   pipeline.push.apply(pipeline, unwindStages);

@@ -7,17 +7,17 @@ describe('Array Reduction', function() {
   context('no reductions are present', function() {
     const reductions = [];
     it('returns `null`', function() {
-      const result = aggBuilder('myField', reductions);
+      const result = aggBuilder(reductions);
       expect(result).to.be.an('array');
       expect(result).to.be.empty;
     });
   });
   context('one reduction is present', function() {
     const reductions = [
-      {type: 'min'}
+      {field: 'myField', type: 'min'}
     ];
     it('builds the correct agg pipeline', function() {
-      const result = aggBuilder('myField', reductions);
+      const result = aggBuilder(reductions);
       expect(result).to.be.an('array');
       expect(result[0]).to.be.deep.equal({
         $addFields: {
@@ -30,11 +30,11 @@ describe('Array Reduction', function() {
   });
   context('two reductions are present', function() {
     const reductions = [
-      {type: 'min'},
-      {type: 'max'}
+      {field: 'myField', type: 'min'},
+      {field: 'myField', type: 'max'}
     ];
     it('builds the correct agg pipeline', function() {
-      const result = aggBuilder('myField', reductions);
+      const result = aggBuilder(reductions);
       expect(result).to.be.an('array');
       expect(result[0]).to.be.deep.equal({
         $addFields: {
@@ -55,12 +55,12 @@ describe('Array Reduction', function() {
   });
   context('three reductions are present', function() {
     const reductions = [
-      {type: 'length'},
-      {type: 'min'},
-      {type: 'mean'}
+      {field: 'myField', type: 'length'},
+      {field: 'myField', type: 'min'},
+      {field: 'myField', type: 'mean'}
     ];
     it('builds the correct agg pipeline', function() {
-      const result = aggBuilder('myField', reductions);
+      const result = aggBuilder(reductions);
       expect(result).to.be.an('array');
       expect(result[0]).to.be.deep.equal({
         $addFields: {
@@ -92,7 +92,7 @@ describe('Array Reduction', function() {
       const reductions = [
         {field: 'foo', type: 'unwind'}
       ];
-      const result = aggBuilder('foo', reductions);
+      const result = aggBuilder(reductions);
       expect(result).to.be.an('array');
       expect(result).to.have.lengthOf(1);
       expect(result[0]).to.be.deep.equal({
@@ -104,7 +104,7 @@ describe('Array Reduction', function() {
         {field: 'foo', type: 'unwind'},
         {field: 'foo.bar.baz', type: 'unwind'}
       ];
-      const result = aggBuilder('foo.bar.baz', reductions);
+      const result = aggBuilder(reductions);
       expect(result).to.be.an('array');
       expect(result).to.have.lengthOf(2);
       expect(result[0]).to.be.deep.equal({
@@ -119,7 +119,7 @@ describe('Array Reduction', function() {
         {field: 'foo', type: 'unwind'},
         {field: 'foo.bar.baz', type: 'min'}
       ];
-      const result = aggBuilder('foo.bar.baz', reductions);
+      const result = aggBuilder(reductions);
       expect(result).to.be.an('array');
       expect(result).to.have.lengthOf(2);
       expect(result[0]).to.be.deep.equal({
@@ -136,10 +136,10 @@ describe('Array Reduction', function() {
   });
   context('Reduction Operators', function() {
     const reductions = [
-      {type: 'maxStringLength'}
+      {field: 'foo', type: 'maxStringLength'}
     ];
     it('calculates the maximum string length', function() {
-      const result = aggBuilder('foo', reductions);
+      const result = aggBuilder(reductions);
       expect(result).to.be.an('array');
       expect(result[0].$addFields.foo).to.be.deep.equal({
         $max: {
