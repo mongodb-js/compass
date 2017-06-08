@@ -132,19 +132,16 @@ class DraggableField extends React.Component {
             </div>
           </div>
           {this.props.enableMenus ?
-          <div title="Remove field from chart" className="chart-draggable-field-item-container chart-draggable-field-item-container-remove">
-            <div
-            className="chart-draggable-field-action chart-draggable-field-action-remove"
-            onClick={this.props.onRemove.bind(this, this.props.channelName)}
-            >
-              <i className="mms-icon-remove"></i>
-            </div>
-          </div>
-          : <div></div>}
+            <div title="Remove field from chart" className="chart-draggable-field-item-container chart-draggable-field-item-container-remove">
+              <div className="chart-draggable-field-action chart-draggable-field-action-remove"
+                  onClick={this.props.onRemove.bind(this, this.props.channelName)}>
+                <i className="mms-icon-remove"></i>
+              </div>
+            </div> : null}
         </div>
         <div className="chart-draggable-field-row">
-          {this.props.enableMenus ? this.renderMeasurementMenu() : <div></div>}
-          {this.props.enableMenus ? this.renderAggregationMenu() : <div></div>}
+          {this.props.enableMenus ? this.renderMeasurementMenu() : null}
+          {this.props.enableMenus ? this.renderAggregationMenu() : null}
         </div>
       </div>
     );
