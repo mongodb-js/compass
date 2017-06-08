@@ -27,7 +27,7 @@ const CurrentOpStore = Reflux.createStore({
     this.listenTo(Actions.mouseOut, this.mouseOut);
   },
 
-  onConnected: function(dataService) {
+  onConnected: function(error, dataService) {
     this.dataService = dataService;
   },
 
