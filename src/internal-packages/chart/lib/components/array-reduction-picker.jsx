@@ -56,11 +56,9 @@ class ArrayReductionPicker extends React.Component {
       );
     }));
 
-    let dropdownClass = 'chart-draggable-field-array-picker-dropdown';
+    let dropdownClass = 'chart-draggable-field-array-picker-dropdown btn-md';
 
-    if (!this.props.type) {
-      dropdownClass += ' chart-draggable-field-array-picker-unselected';
-    }
+    dropdownClass += this.props.type ? ' btn-default' : ' btn-primary';
 
     return (
       <div className="chart-draggable-field-array-picker">
