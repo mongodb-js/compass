@@ -56,11 +56,11 @@ const REDUCTIONS = Object.freeze({
  */
 function constructUnwindStages(reductions) {
   return _(reductions)
-    .filter((red) => {
-      return red.type === 'unwind';
+    .filter((reduction) => {
+      return reduction.type === 'unwind';
     })
-    .map((red) => {
-      return {$unwind: red.field};
+    .map((reduction) => {
+      return {$unwind: reduction.field};
     })
     .value();
 }
@@ -71,7 +71,7 @@ function constructUnwindStages(reductions) {
  * the provided reduction functions
  *
  * @todo (thomas) I'm pretty sure the use case of array with sub docs with
- * nested arrays is not yet working, as all but the first arrays to map over
+ * nested arrays is not yet working, as all but the first array to map over
  * only use `$$value` so the other field names are not used anywhere yet.
  *
  * @param  {Array} reductions    an array of reductions as defined by the
