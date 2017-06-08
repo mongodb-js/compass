@@ -20,7 +20,7 @@ function _map(arr, expr) {
 }
 
 /**
- * Array reduction functions wrapped as javascript functions
+ * Array reduction operators wrapped as javascript functions
  */
 const REDUCTIONS = Object.freeze({
   length: function(arr) {
@@ -66,9 +66,9 @@ function constructUnwindStages(reductions) {
 }
 
 /**
- * Takes a field name and an array of reductions and creates an aggregation
- * pipeline stage to reduce (possibly nested) arrays to a single scalar value
- * according to the provided reduction functions
+ * Takes an array of reductions and creates an aggregation pipeline stage
+ * to reduce (possibly nested) arrays to a single scalar value according to
+ * the provided reduction functions
  *
  * @param  {Array} reductions    an array of reductions as defined by the
  *                               ChartStore, with the following format:
@@ -84,7 +84,6 @@ function constructUnwindStages(reductions) {
  * @return {Object}              an $addFields aggregation stage that converts
  *                               the given field array into a scalar value.
  */
-
 function constructAccumulatorStage(reductions) {
   let arr;
   let expr;
@@ -125,7 +124,7 @@ function constructAccumulatorStage(reductions) {
 
 /**
  * helper to create aggregation pipeline stages to reduce arrays, based on
- * the given field name and a reductions array.
+ * the given reductions array.
  *
  * @param  {Array} reductions  array of reductions, following the following
  *                             format:
