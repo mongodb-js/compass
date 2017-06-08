@@ -1,9 +1,9 @@
-@import './sidebar-collection.less';
+@import './sidebar-collection.less';  
 @import './sidebar-database.less';
 @import './sidebar-instance-properties.less';
 
 @compass-sidebar-default-text-color: #9DA4AA;
-@compass-sidebar-base-background-color: #4c5259;
+@compass-sidebar-base-background-color: #4C5259;
 @compass-sidebar-lite-background-color: #565E65;
 @compass-sidebar-active-background-color: #6D7984;
 @compass-sidebar-hover-background-color: #42494f;
@@ -21,27 +21,25 @@
   transition: flex-basis @compass-sidebar-transition-time ease;
 
   &-toggle {
-    height: 16px;
-    line-height: 13px;
-    padding-right: 3px;
-    text-align: right;
+    position: absolute;
+    left: 250px;
+    width: 14px;
+    border-left: 0;
+    transition: all @compass-sidebar-transition-time ease;
+    border-bottom-left-radius: 0;
+    border-top-left-radius: 0;
+    top: 4px;
+    padding: 0;
     cursor: pointer;
-    margin-left: 12px;
-    margin-right: 3px;
-    border-top: 1px solid @compass-sidebar-hover-background-color;
-    border-bottom: 1px solid @compass-sidebar-hover-background-color;
-  }
-
-  &-toggle i {
-    line-height: 11px;
-    font-size: 10px;
+    &:hover, &:focus {
+      border-left: 0;
+    }
   }
 
   &-expanded {
     flex-basis: 250px;
   }
 
-  &-toggle,
   &-properties,
   &-filter,
   &-content {
@@ -111,16 +109,15 @@
     flex-grow: 0;
     flex-shrink: 1;
     flex-basis: auto;
-    background: @compass-sidebar-base-background-color;
     padding: 10px;
     z-index: 2;
     position: relative;
   }
 
   &-button-create-database {
-    background-color: @compass-sidebar-active-background-color;
+    background-color: @compass-sidebar-hover-background-color;
     border-radius: 14px;
-    border: none;
+    border: 0;
     color: @pw;
     display: block;
     font-weight: bold;
@@ -134,11 +131,6 @@
     transition: all 180ms ease;
     white-space: nowrap;
     text-align: center;
-  }
-
-  &-button-create-database i.mms-icon-add {
-    font-size: 16px;
-    margin-left: .5px;
   }
 
   &-button-create-database text {
@@ -167,6 +159,10 @@
   overflow: hidden;
   cursor: pointer;
   flex-basis: 36px;
+
+  .compass-sidebar-toggle {
+    left: 36px;
+  }
 
   .compass-sidebar-item,
   .compass-sidebar-property-column,
@@ -220,6 +216,7 @@
   .compass-sidebar-button-create-database-container {
     padding: 0 0 10px 0;
     background: transparent;
+    box-shadow: none;
   }
 
   .compass-sidebar-button-create-database:hover {
@@ -228,9 +225,5 @@
 
   .compass-sidebar-button-create-database:hover text {
     opacity: 0;
-  }
-
-  &:hover {
-    background-color: @compass-sidebar-hover-background-color;
   }
 }

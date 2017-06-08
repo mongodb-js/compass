@@ -64,7 +64,7 @@ class Sidebar extends React.Component {
 
   getToggleClasses() {
     return 'fa' +
-      (this.state.collapsed ? ' fa-forward' : ' fa-backward');
+      (this.state.collapsed ? ' fa-caret-right' : ' fa-caret-left');
   }
 
   /**
