@@ -165,8 +165,49 @@ const LITE_SPEC_GLOBAL_SETTINGS = {
   }
 };
 
+/**
+ * A list of the general array reduction types.
+ */
+const ARRAY_REDUCTIONS_GENERAL = Object.freeze({
+  UNWIND: 'Unwind array',  // $unwind
+  LENGTH: 'Array length',  // $size
+  ARRAY_ELEM_AT_INDEX: 'Array element by index'  // $arrayElemAt
+});
+
+/**
+ * A list of the numeric array reduction types, or accumulates.
+ */
+const ARRAY_REDUCTIONS_NUMERIC = Object.freeze({
+  MIN: 'min',
+  MAX: 'max',
+  MEAN: 'mean',
+  SUM: 'sum'
+});
+
+/**
+ * A list of the string array reduction types, or accumulates.
+ */
+const ARRAY_REDUCTIONS_STRING = Object.freeze({
+  CONCATENATE: 'concatenate',
+  STRING_MIN: 'min length',
+  STRING_MAX: 'max length',
+  LONGEST: 'longest',
+  SHORTEST: 'shortest'
+});
+
+/**
+ * A list of the array reduction types available.
+ */
+const ARRAY_REDUCTION_TYPES = Object.freeze(Object.assign(
+  {},
+  ARRAY_REDUCTIONS_GENERAL,
+  ARRAY_REDUCTIONS_NUMERIC,
+  ARRAY_REDUCTIONS_STRING
+));
+
 module.exports = {
   AGGREGATE_FUNCTION_ENUM,
+  ARRAY_REDUCTION_TYPES,
   CHART_CHANNEL_ENUM,
   MEASUREMENT_ENUM,
   MEASUREMENT_ICON_ENUM,

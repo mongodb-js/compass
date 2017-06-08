@@ -6,6 +6,7 @@ require('../../src/app/reflux-listen-to-external-store.js');
 const NamespaceStore = require('../../src/internal-packages/app/lib/stores/namespace-store');
 const {
   AGGREGATE_FUNCTION_ENUM,
+  ARRAY_REDUCTION_TYPES,
   CHART_CHANNEL_ENUM,
   MEASUREMENT_ENUM,
   LITE_SPEC_GLOBAL_SETTINGS
@@ -46,6 +47,13 @@ const REVENUE_SCHEMA_FIELD = {
   type: 'Decimal128'
 };
 
+// From the array_party dataset on COMPASS-1235
+const UP_TO_5_TAGS_SCHEMA_FIELD = {
+  name: 'up_to_5_tags',
+  path: 'up_to_5_tags',
+  type: 'Array'
+};
+
 describe('ChartStore', function() {
   before(mockDataService.before());
   after(mockDataService.after());
@@ -63,7 +71,8 @@ describe('ChartStore', function() {
     this.store.state.fieldsCache = {
       'address.country': COUNTRY_SCHEMA_FIELD,
       'year': YEAR_SCHEMA_FIELD,
-      'revenue': REVENUE_SCHEMA_FIELD
+      'revenue': REVENUE_SCHEMA_FIELD,
+      'up_to_5_tags': UP_TO_5_TAGS_SCHEMA_FIELD
     };
   });
   afterEach(function() {
@@ -130,7 +139,7 @@ describe('ChartStore', function() {
     });
   });
 
-  const initialFields = ['specType', 'chartType', 'channels'];
+  const initialFields = ['specType', 'chartType', 'channels', 'reductions'];
 
   context('when using the history', function() {
     it('only contains a single state initially', function() {
@@ -562,6 +571,145 @@ describe('ChartStore', function() {
         setTimeout(() => {
           const newChartState = _.pick(this.store.state, chartKeys);
           expect(newChartState).to.be.deep.equal(initialChartState);
+          done();
+        });
+      });
+    });
+  });
+
+  context('before an array channel has been encoded', () => {
+    it('throws error to remind developer to call mapFieldToChannel', () => {
+      const throwFn = () => {
+        const channel = CHART_CHANNEL_ENUM.X;
+        const index = 0;
+        const type = ARRAY_REDUCTION_TYPES.UNWIND;
+        // ChartStore might not work on Reflux 5+, if so change it to ChartActions
+        ChartStore.setArrayReduction(channel, index, type);
+      };
+      expect(throwFn).to.throw(/mapFieldToChannel not called for channel: x/);
+    });
+  });
+
+  context('after an array channel has been encoded', () => {
+    const field = UP_TO_5_TAGS_SCHEMA_FIELD;
+    const channel = CHART_CHANNEL_ENUM.X;
+    beforeEach(() => {
+      ChartActions.mapFieldToChannel(field.path, channel);
+    });
+
+    context('when calling the setArrayReduction action', function() {
+      let index;
+      let type;
+
+      it('stores an unwind array reduction', function(done) {
+        index = 0;
+        type = ARRAY_REDUCTION_TYPES.UNWIND;
+        const expected = {
+          [channel]: [{
+            field: field.path,
+            type: type,
+            arguments: []
+          }]
+        };
+        ChartActions.setArrayReduction(channel, index, type);
+        setTimeout(() => {
+          const reductions = this.store.state.reductions;
+          expect(reductions).to.be.deep.equal(expected);
+          done();
+        });
+      });
+
+      it('stores index number of unwind reductions', function(done) {
+        index = 2;
+        type = ARRAY_REDUCTION_TYPES.UNWIND;
+        const expected = {
+          [channel]: [
+            {
+              field: field.path,
+              type: type,
+              arguments: []
+            },
+            {
+              field: field.path,
+              type: type,
+              arguments: []
+            },
+            {
+              field: field.path,
+              type: type,
+              arguments: []
+            }
+          ]
+        };
+        ChartActions.setArrayReduction(channel, 2, ARRAY_REDUCTION_TYPES.UNWIND);
+        setTimeout(() => {
+          const reductions = this.store.state.reductions;
+          expect(reductions).to.be.deep.equal(expected);
+          done();
+        });
+      });
+
+      it('stores index number of unwind reductions and min after', function(done) {
+        const expected = {
+          [channel]: [
+            {
+              field: field.path,
+              type: ARRAY_REDUCTION_TYPES.UNWIND,
+              arguments: []
+            },
+            {
+              field: field.path,
+              type: ARRAY_REDUCTION_TYPES.UNWIND,
+              arguments: []
+            },
+            {
+              field: field.path,
+              type: ARRAY_REDUCTION_TYPES.UNWIND,
+              arguments: []
+            },
+            {
+              field: field.path,
+              type: ARRAY_REDUCTION_TYPES.MIN,
+              arguments: []
+            }
+          ]
+        };
+        ChartActions.setArrayReduction(channel, 2, ARRAY_REDUCTION_TYPES.UNWIND);
+        ChartActions.setArrayReduction(channel, 3, ARRAY_REDUCTION_TYPES.MIN);
+        setTimeout(() => {
+          const reductions = this.store.state.reductions;
+          expect(reductions).to.be.deep.equal(expected);
+          done();
+        });
+      });
+
+      it('stores a max length reduction', function(done) {
+        index = 0;
+        type = ARRAY_REDUCTION_TYPES.STRING_MAX;
+        const expected = {
+          [channel]: [{
+            field: field.path,
+            type: type,
+            arguments: []
+          }]
+        };
+        ChartActions.setArrayReduction(channel, index, type);
+        setTimeout(() => {
+          const reductions = this.store.state.reductions;
+          expect(reductions).to.be.deep.equal(expected);
+          done();
+        });
+      });
+
+      it('throws error on receiving an unknown reduction type', function(done) {
+        const throwFn = () => {
+          index = 0;
+          type = 'BAD_REDUCER';
+          // ChartStore might not work on Reflux 5+, if so change it to ChartActions
+          ChartStore.setArrayReduction(channel, index, type);
+        };
+        setTimeout(() => {
+          expect(throwFn).to.throw(/Expect a reduction type, got: BAD_REDUCER/);
           done();
         });
       });

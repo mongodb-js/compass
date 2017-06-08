@@ -1,12 +1,14 @@
 const Reflux = require('reflux');
 const {
   AGGREGATE_FUNCTION_ENUM,
+  ARRAY_REDUCTION_TYPES,
   MEASUREMENT_ENUM,
   SPEC_TYPE_ENUM,
   VIEW_TYPE_ENUM,
   LITE_SPEC_GLOBAL_SETTINGS
 } = require('../constants');
 const Actions = require('../actions');
+const arrayReductionAggBuilder = require('./array-reduction');
 const StateMixin = require('reflux-state-mixin');
 const app = require('hadron-app');
 const toNS = require('mongodb-ns');
@@ -15,7 +17,7 @@ const vegaLite = require('vega-lite');
 
 const debug = require('debug')('mongodb-compass:chart:store');
 
-const HISTORY_STATE_FIELDS = ['specType', 'chartType', 'channels'];
+const HISTORY_STATE_FIELDS = ['specType', 'chartType', 'channels', 'reductions'];
 
 const INITIAL_QUERY = {
   filter: {},
@@ -97,7 +99,10 @@ const ChartStore = Reflux.createStore({
       chartType: this.INITIAL_CHART_TYPE,
       // Use channels to construct the "encoding" of the vega-lite spec
       // https://vega.github.io/vega-lite/docs/spec.html#spec
-      channels: {}
+      channels: {},
+      // Array reductions for each channel, to turn into an aggregation
+      // pipeline and applied before Vega
+      reductions: {}
     };
   },
 
@@ -590,6 +595,56 @@ const ChartStore = Reflux.createStore({
       chartType: chartType,
       specType: chartRole.specType
     }, pushToHistory);
+  },
+
+  /**
+   * Sets an array reduction, after a channel has been encoded,
+   * e.g. by calling mapFieldToChannel.
+   *
+   * @param {String} channel    The Vega-lite encoding channel
+   * @param {Object} index      The stage of the reduction pipeline to update,
+   *                            where the 0-th index represents the outermost
+   *                            reduction.
+   * @param {string} type       The array reduction type, e.g. $unwind
+   * @param {Object} args       Array of user-provided arguments to the
+   *                            reduction, e.g. the index to $arrayElemAt
+   */
+  setArrayReduction(channel, index, type, args = []) {
+    const encoded = this.state.channels[channel];
+    if (!encoded || !encoded.field) {
+      throw new Error(`mapFieldToChannel not called for channel: ${channel}`);
+    }
+    const field = encoded.field;
+    // Check types are valid members of ARRAY_REDUCTION_TYPES
+    if (!(_.includes(_.values(ARRAY_REDUCTION_TYPES), type))) {
+      throw new Error(`Expect a reduction type, got: ${type}`);
+    }
+    const reductions = _.cloneDeep(this.state.reductions);
+    const channelReductions = reductions[channel] || [];
+    while (channelReductions.length < index) {
+      channelReductions.push({
+        field: field
+      });
+    }
+    channelReductions[index] = {
+      field: field,
+      type: type,
+      arguments: args
+    };
+    // Unwind requires all previous transforms to also be unwinds
+    if (type === ARRAY_REDUCTION_TYPES.UNWIND) {
+      for (let i = 0; i < index; i++) {
+        channelReductions[i].type = ARRAY_REDUCTION_TYPES.UNWIND;
+        channelReductions[i].arguments = [];
+      }
+    }
+    reductions[channel] = channelReductions;
+    this._updateSpec({
+      reductions: reductions
+    }, true);
+
+    // TODO: Check reductions valid, then update the chart
+    // const pipeline = arrayReductionAggBuilder(reductions);
   },
 
   /**
