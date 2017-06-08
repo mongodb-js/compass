@@ -1,6 +1,11 @@
 const React = require('react');
 const PropTypes = require('prop-types');
 const app = require('hadron-app');
+const toNS = require('mongodb-ns');
+const { StatusRow } = require('hadron-react-components');
+const { UI_STATES } = require('../constants');
+
+const ERROR_WARNING = 'An error occurred while loading navigation';
 
 /**
  * Resize minicharts after sidebar has finished collapsing, should be the same
@@ -38,18 +43,25 @@ class Home extends React.Component {
   }
 
   renderContent() {
-    let view;
-    switch (this.props.mode) {
-      case 'database':
-        view = (<this.collectionsTable />);
-        break;
-      case 'collection':
-        view = (<this.collectionView namespace={this.props.namespace} />);
-        break;
-      default:
-        view = (<this.instanceView interval={1000}/>);
+    if (this.props.uiStatus === UI_STATES.LOADING) {
+      // Handled by the <Status> component
+      return null;
     }
-
+    if (this.props.uiStatus === UI_STATES.ERROR) {
+      return <StatusRow style="error">{ERROR_WARNING}: {this.props.errorMessage}</StatusRow>;
+    }
+    const ns = toNS(this.props.namespace);
+    let view;
+    if (ns.database === '') {
+      // top of the side bar was clicked, render server stats
+      view = (<this.instanceView interval={1000}/>);
+    } else if (ns.collection === '') {
+      // a database was clicked, render collections table
+      view = (<this.collectionsTable />);
+    } else {
+      // show collection view
+      view = (<this.collectionView namespace={this.props.namespace} />);
+    }
     return view;
   }
 
@@ -73,8 +85,9 @@ class Home extends React.Component {
 }
 
 Home.propTypes = {
-  mode: PropTypes.oneOf(['instance', 'database', 'collection']),
-  namespace: PropTypes.string
+  errorMessage: PropTypes.string,
+  namespace: PropTypes.string,
+  uiStatus: PropTypes.string
 };
 
 Home.displayName = 'Home';

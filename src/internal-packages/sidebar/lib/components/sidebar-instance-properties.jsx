@@ -56,7 +56,6 @@ class SidebarInstanceProperties extends React.Component {
 }
 
 SidebarInstanceProperties.propTypes = {
-  connection: PropTypes.object,
   instance: PropTypes.object,
   activeNamespace: PropTypes.string.isRequired
 };

@@ -21,17 +21,13 @@ const InstanceStore = Reflux.createStore({
   listenables: InstanceActions,
 
   /**
-  * Initialize everything that is not part of the store's state.
-  */
-  init() {},
-
-  /**
   * Initialize the Compass Sidebar store state.
   *
   * @return {Object} initial store state.
   */
   getInitialState() {
     return {
+      errorMessage: '',
       instance: {
         databases: LOADING_STATE,
         collections: LOADING_STATE,
@@ -46,15 +42,35 @@ const InstanceStore = Reflux.createStore({
     // TODO: COMPASS-562, de-ampersand instance-model
     debug('fetching instance model...');
     app.instance.fetch({
-      // TODO: Error handling into the Home component...
+      error: this.handleError.bind(this),
       success: this.onFirstFetch.bind(this)
     });
+  },
+
+  /**
+   * Handles any errors from fetching an instance.
+   */
+  handleError(model, resp, options) {
+    // Handle the curious output of wrap-error.js
+    const err = options.error.arguments[2];
+
+    if (err) {
+      this.setState({
+        errorMessage: err
+      });
+    }
+
+    const StatusAction = app.appRegistry.getAction('Status.Actions');
+    StatusAction.hide();
   },
 
   /**
    * Run just once after the first set of instance data is fetched.
    */
   onFirstFetch() {
+    const StatusAction = app.appRegistry.getAction('Status.Actions');
+    StatusAction.hide();
+
     const instance = app.instance;
     debug('instance fetched', instance.serialize());
     this.setState({ instance });
@@ -80,13 +96,18 @@ const InstanceStore = Reflux.createStore({
 
   refreshInstance() {
     if (this.state.instance.fetch) {
+      const StatusAction = app.appRegistry.getAction('Status.Actions');
+      StatusAction.configure({
+        animation: true,
+        message: 'Loading databases',
+        visible: true
+      });
       this.state.instance.fetch({
+        error: this.handleError.bind(this),
         success: (instance) => {
           debug('Setting refetched instance', instance);
           this.setState({ instance });
-        },
-        error: (instance, response) => {
-          debug('Failed to refetch instance', response);
+          StatusAction.hide();
         }
       });
       // Only reset to initial state if fetched successfully at least once

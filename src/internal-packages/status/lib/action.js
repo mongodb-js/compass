@@ -79,6 +79,7 @@ const StatusAction = Reflux.createActions([
    */
   'enableModal',
   /**
+   * TODO: This modal flag does not currently work, it needs to change the style into say a popup box so it's clear what the user can/cannot click on.
    * disables the modal transparent div.
    */
   'disableModal',

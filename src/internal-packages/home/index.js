@@ -1,6 +1,5 @@
 const app = require('hadron-app');
 const HomeComponent = require('./lib/component');
-const HomeActions = require('./lib/action');
 const HomeStore = require('./lib/store');
 
 /**
@@ -8,7 +7,6 @@ const HomeStore = require('./lib/store');
  */
 function activate(appRegistry) {
   appRegistry.registerComponent('Home.Home', HomeComponent);
-  appRegistry.registerAction('Home.Actions', HomeActions);
   appRegistry.registerStore('Home.HomeStore', HomeStore);
 }
 
@@ -17,8 +15,7 @@ function activate(appRegistry) {
  */
 function deactivate() {
   app.appRegistry.deregisterComponent('Home.Home');
-  app.appRegistry.deregisterAction('Home.Actions');
-  app.appRegistry.deregisterStore('Home.HomeStore', HomeStore);
+  app.appRegistry.deregisterStore('Home.HomeStore');
 }
 
 module.exports = HomeComponent;

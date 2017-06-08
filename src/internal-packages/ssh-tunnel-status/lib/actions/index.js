@@ -1,6 +1,6 @@
 const Reflux = require('reflux');
 
-const SSHTunnelStatusActions = Reflux.createActions([
+const SSHTunnelStatusAction = Reflux.createActions([
   /**
    * define your actions as strings below, for example:
    */
@@ -8,4 +8,4 @@ const SSHTunnelStatusActions = Reflux.createActions([
   'showTruncatedHostPort'
 ]);
 
-module.exports = SSHTunnelStatusActions;
+module.exports = SSHTunnelStatusAction;

@@ -24,11 +24,9 @@ const SidebarStore = Reflux.createStore({
   */
   listenables: [SidebarActions],
 
-  /**
-  * Initialize everything that is not part of the store's state.
-  */
-  init() {
-    this.listenToExternalStore('App.InstanceStore', this.onInstanceChange.bind(this));
+  onActivated(appRegistry) {
+    // set up listeners on external stores
+    appRegistry.getStore('App.InstanceStore').listen(this.onInstanceChange.bind(this));
   },
 
   onCollectionChanged(ns) {
@@ -51,7 +49,10 @@ const SidebarStore = Reflux.createStore({
   getInitialState() {
     return {
       expandedDBList: false,
-      instance: {},
+      instance: {
+        databases: LOADING_STATE,
+        collections: LOADING_STATE
+      },
       databases: [],
       filterRegex: /(?:)/,
       activeNamespace: ''

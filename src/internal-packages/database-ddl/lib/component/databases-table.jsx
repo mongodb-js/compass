@@ -91,26 +91,10 @@ class DatabasesTable extends React.Component {
     );
   }
 
-  renderLoadingState() {
-    return (
-      <div className="databases-table">
-        <div className="spinner">
-          <div className="rect1" />
-          <div className="rect2" />
-          <div className="rect3" />
-          <div className="rect4" />
-          <div className="rect5" />
-        </div>
-        <p className="message">
-          Loading
-        </p>
-      </div>
-    );
-  }
-
   render() {
     if (this.props.databases === LOADING_STATE) {
-      return this.renderLoadingState();
+      // Handled by the <Status> component
+      return null;
     }
 
     // convert storage size to human-readable units (MB, GB, ...)

@@ -15,4 +15,3 @@ Home layout for Compass view that switches between different views based on the 
 | Key                               | Description                                   |
 |-----------------------------------|-----------------------------------------------|
 | `Home.Home`                       | Renders the Home component                    |
-| `Home.Actions`                    | Exposes Home actions                          |

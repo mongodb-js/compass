@@ -1,9 +1,8 @@
 const app = require('hadron-app');
 const Reflux = require('reflux');
-const HomeActions = require('../action');
 const StateMixin = require('reflux-state-mixin');
-const toNS = require('mongodb-ns');
 const electronApp = require('electron').remote.app;
+const { UI_STATES } = require('../constants');
 
 const debug = require('debug')('mongodb-compass:stores:home');
 
@@ -11,62 +10,67 @@ const HomeStore = Reflux.createStore({
 
   mixins: [StateMixin.store],
 
-  /**
-   * listen to all actions defined in ../actions/index.jsx
-   */
-  listenables: [HomeActions],
-
-  /**
-   * Initialize home store
-   */
-  init() {
-    this.listenToExternalStore('App.InstanceStore', this.onInstanceChanged.bind(this));
+  onActivated(appRegistry) {
+    // set up listeners on external stores
+    appRegistry.getStore('App.InstanceStore').listen(this.onInstanceChange.bind(this));
   },
 
-  // TODO: Can we get rid of HomeActions entirely?
-  onCollectionChanged(ns) {
-    HomeActions.switchContent(ns);
+  onCollectionChanged(namespace) {
+    this.onNamespaceChange(namespace);
   },
 
-  onDatabaseChanged(ns) {
-    HomeActions.switchContent(ns);
+  onDatabaseChanged(namespace) {
+    this.onNamespaceChange(namespace);
   },
 
   getInitialState() {
     return {
-      // mode can be one of instance, database, collection
-      mode: 'instance',
-      namespace: ''
+      errorMessage: '',
+      namespace: '',
+      uiStatus: UI_STATES.INITIAL
     };
   },
 
-  onInstanceChanged() {
+  onConnected() {
+    const StatusAction = app.appRegistry.getAction('Status.Actions');
+    StatusAction.configure({
+      animation: true,
+      message: 'Loading navigation',
+      visible: true
+    });
+
+    this.setState({
+      uiStatus: UI_STATES.LOADING
+    });
+  },
+
+  onInstanceChange(state) {
+    if (state.errorMessage) {
+      this.setState({
+        errorMessage: state.errorMessage,
+        uiStatus: UI_STATES.ERROR
+      });
+      return;
+    }
+    this.setState({
+      uiStatus: UI_STATES.COMPLETE
+    });
     this.updateTitle();
   },
 
   /**
    * change content based on namespace
-   * @param  {object} namespace current namespace context
+   * @param {object} namespace - current namespace context
    */
-  switchContent(namespace) {
-    const ns = toNS(namespace);
-    if (ns.database === '') {
-      // top of the side bar was clicked, render server stats
-      this.setState({mode: 'instance', namespace: namespace});
-    } else if (ns.collection === '') {
-      // a database was clicked, render collections table
-      this.setState({mode: 'database', namespace: namespace});
-    } else {
-      // show collection view
-      this.setState({mode: 'collection', namespace: namespace});
-    }
-    this.updateTitle(ns);
+  onNamespaceChange(namespace) {
+    this.setState({namespace: namespace});
+    this.updateTitle(namespace);
   },
 
-  updateTitle: function(ns) {
+  updateTitle: function(namespace) {
     let title = `${electronApp.getName()} - ${app.connection.instance_id}`;
-    if (ns) {
-      title += '/' + ns;
+    if (namespace) {
+      title += '/' + namespace;
     }
     document.title = title;
   },

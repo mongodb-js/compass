@@ -99,8 +99,9 @@ describe('<DatabasesTable />', () => {
       stateStore.state.isWritable = false;
     });
 
-    it('displays a loading message', () => {
-      const expected = 'Loading';
+    // TODO: Need a non-global status component
+    it.skip('displays a loading message', () => {
+      const expected = 'Loading databases';
       const component = shallow(<this.DatabasesTable
           columns={[]}
           databases={LOADING_STATE}
