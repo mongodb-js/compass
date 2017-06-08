@@ -9,7 +9,6 @@ const {
 const Actions = require('../actions');
 const StateMixin = require('reflux-state-mixin');
 const app = require('hadron-app');
-const ReadPreference = require('mongodb').ReadPreference;
 const toNS = require('mongodb-ns');
 const _ = require('lodash');
 const vegaLite = require('vega-lite');
@@ -18,7 +17,6 @@ const debug = require('debug')('mongodb-compass:chart:store');
 
 const HISTORY_STATE_FIELDS = ['specType', 'chartType', 'channels'];
 
-const READ = ReadPreference.PRIMARY_PREFERRED;
 const INITIAL_QUERY = {
   filter: {},
   sort: null,
@@ -279,7 +277,6 @@ const ChartStore = Reflux.createStore({
 
     const pipeline = [];
     const options = {
-      readPreference: READ,
       maxTimeMS: query.maxTimeMS,
       promoteValues: true
     };

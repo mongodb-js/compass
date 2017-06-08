@@ -32,7 +32,7 @@ const CollectionStatsStore = Reflux.createStore({
       if (this._isCollectionReadonly()) {
         this.trigger();
       } else {
-        app.dataService.collection(ns, { readPreference: READ }, (err, result) => {
+        app.dataService.collection(ns, {}, (err, result) => {
           if (!err) {
             this.trigger(this._parseCollectionDetails(result));
           }

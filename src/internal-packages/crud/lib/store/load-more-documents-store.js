@@ -72,7 +72,6 @@ const LoadMoreDocumentsStore = Reflux.createStore({
       limit: nextPageCount,
       sort: this.sort,
       fields: this.project,
-      readPreference: READ,
       promoteValues: false
     };
     app.dataService.find(this.NamespaceStore.ns, this.filter, options, (error, documents) => {
