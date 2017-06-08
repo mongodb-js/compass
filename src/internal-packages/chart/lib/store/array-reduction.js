@@ -70,6 +70,10 @@ function constructUnwindStages(reductions) {
  * to reduce (possibly nested) arrays to a single scalar value according to
  * the provided reduction functions
  *
+ * @todo (thomas) I'm pretty sure the use case of array with sub docs with
+ * nested arrays is not yet working, as all but the first arrays to map over
+ * only use `$$value` so the other field names are not used anywhere yet.
+ *
  * @param  {Array} reductions    an array of reductions as defined by the
  *                               ChartStore, with the following format:
  *
