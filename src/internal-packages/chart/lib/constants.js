@@ -114,20 +114,20 @@ const SPEC_TYPE_ENUM = Object.freeze({
 
 const TOOL_TIP_ID_ARRAY = 'array-not-supported';
 
-const ARRAY_GENERAL_REDUCTION_ACTIONS = Object.freeze({
+const ARRAY_GENERAL_REDUCTIONS = Object.freeze({
   UNWIND: 'Unwind array',
   LENGTH: 'Array length',
   INDEX: 'Array element by index'
 });
 
-const ARRAY_NUMERIC_REDUCTION_ACTIONS = Object.freeze({
+const ARRAY_NUMERIC_REDUCTIONS = Object.freeze({
   MIN: 'min',
   MAX: 'max',
   MEAN: 'mean',
   SUM: 'sum'
 });
 
-const ARRAY_STRING_REDUCTION_ACTIONS = Object.freeze({
+const ARRAY_STRING_REDUCTIONS = Object.freeze({
   CONCAT: 'concat',
   MIN: 'min length',
   MAX: 'max length',
@@ -173,9 +173,9 @@ module.exports = {
   SPEC_TYPE_ENUM,
   VIEW_TYPE_ENUM,
   TOOL_TIP_ID_ARRAY,
-  ARRAY_GENERAL_REDUCTION_ACTIONS,
-  ARRAY_NUMERIC_REDUCTION_ACTIONS,
-  ARRAY_STRING_REDUCTION_ACTIONS,
+  ARRAY_GENERAL_REDUCTIONS,
+  ARRAY_NUMERIC_REDUCTIONS,
+  ARRAY_STRING_REDUCTIONS,
   CHART_COLORS,
   LITE_SPEC_GLOBAL_SETTINGS
 };
