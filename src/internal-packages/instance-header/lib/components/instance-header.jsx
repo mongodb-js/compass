@@ -78,9 +78,7 @@ class InstanceHeaderComponent extends React.Component {
 
   renderConnectionString() {
     return (
-      <div onMouseOver={this.showConnectionString.bind(this, true)}
-          onMouseOut={this.showConnectionString.bind(this, false)}
-          className="instance-header-details" data-test-id="instance-header-details">
+      <div className="instance-header-details" data-test-id="instance-header-details">
         {this.state.name}
       </div>
     );
@@ -106,7 +104,6 @@ class InstanceHeaderComponent extends React.Component {
           </div>
           {this.renderConnectionString()}
         </div>
-        <div className="instance-header-arrow-image"></div>
         <div className="instance-header-items instance-header-items-is-left">
           {this.leftHeaderItems}
         </div>

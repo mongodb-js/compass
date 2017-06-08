@@ -14,33 +14,21 @@
   }
 
   &-connection-string {
-    background-color: @compass-sidebar-base-background-color;
+    background-color: @compass-sidebar-hover-background-color;
+    box-shadow: inset 0 -1px 0 0 #393E43;
     cursor: pointer;
-    flex-basis: 250px;
+    flex-basis: auto;
+    width: 250px;
     flex-grow: 0;
     flex-shrink: 0;
     overflow: hidden;
-    padding-right: 9px;
     display: flex;
     transition: all @compass-sidebar-transition-time ease;
 
-    &:hover {
-      background-color: @compass-sidebar-hover-background-color;
-      flex-basis: auto;
-      min-width: 250px;
-
-      .instance-header-icon-home {
-        background-color: @compass-sidebar-hover-background-color;
-      }
-    }
-
-    &-is-active,
-    &-is-active:hover {
+    &:hover,
+    &-is-active {
       background-color: @compass-sidebar-active-background-color;
-
-      .instance-header-icon-home {
-        background-color: @compass-sidebar-active-background-color;
-      }
+      box-shadow: none;
     }
   }
 
@@ -52,21 +40,21 @@
   }
 
   &-icon-home {
-    background-color: @compass-sidebar-base-background-color;
     width: 36px;
     height: 36px;
     margin-right: 0px;
-    padding-top: 8px;
+    padding-top: 10px;
     transition: margin-right @compass-sidebar-transition-time ease, background-color @compass-sidebar-transition-time ease;
   }
 
   &-details {
     display: flex;
-    flex: 1;
     flex-basis: auto;
     overflow: hidden;
     padding-top: 8px;
-    transition: color @compass-sidebar-transition-time ease;
+    max-height: 28px;
+    font-weight: bold;
+    transition: all @compass-sidebar-transition-time ease;
   }
 
   &-hostname-prefix {
@@ -116,24 +104,6 @@
     }
   }
 
-  &-arrow-image {
-    background-image: url('./images/instance-header/hostname-bg.png');
-    background-size: 16px 36px;
-    background-repeat: no-repeat;
-    padding-top: 7px;
-    transition: all @compass-sidebar-transition-time ease;
-    width: 16px;
-  }
-
-  &-connection-string:hover + .instance-header-arrow-image {
-    background-image: url('./images/instance-header/hostname-bg-hover.png');
-  }
-
-  &-connection-string-is-active       + .instance-header-arrow-image,
-  &-connection-string-is-active:hover + .instance-header-arrow-image {
-    background-image: url('./images/instance-header/hostname-bg-active.png');
-  }
-
   &-status-ssh {
     padding: 0 24px;
     display: flex;
@@ -164,21 +134,25 @@
 
   /*SIDEBAR COLLAPSED STATE*/
   &-sidebar-collapsed {
-
     .instance-header-connection-string {
-      background-color: @gray8;
+      width: 36px;
+      transition: all @compass-sidebar-transition-time ease;
     }
+
     .instance-header-icon-home {
       color: @pw;
-      margin-right: 15px;
-    }
-    .instance-header-details {
-      color: @gray3;
-    }
-    .instance-header-arrow-image,
-    .instance-header-connection-string:hover + .instance-header-arrow-image {
-      background-position: -16px 0;
+      box-shadow: none;
+
+      &:hover,
+      &-is-active {
+        background-color: @compass-sidebar-active-background-color;
+      }
     }
 
+    .instance-header-details {
+      width: 0;
+      visibility: hidden;
+      transition: width @compass-sidebar-transition-time ease;
+    }
   }
 }

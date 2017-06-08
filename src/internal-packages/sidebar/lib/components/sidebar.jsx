@@ -64,7 +64,7 @@ class Sidebar extends React.Component {
 
   getToggleClasses() {
     return 'fa' +
-      (this.state.collapsed ? ' fa-forward' : ' fa-backward');
+      (this.state.collapsed ? ' fa-caret-right' : ' fa-caret-left');
   }
 
   /**
@@ -227,12 +227,12 @@ class Sidebar extends React.Component {
         className={this.getSidebarClasses()}
         data-test-id="instance-sidebar"
         onClick={this.handleExpand.bind(this)}>
-        <div className="compass-sidebar-toggle"
+        <button className="compass-sidebar-toggle btn btn-default btn-sm"
           onClick={this.handleCollapse.bind(this)}
           data-test-id="toggle-sidebar"
         >
           <i className={this.getToggleClasses()}></i>
-        </div>
+        </button>
         <SidebarInstanceProperties
           instance={this.props.instance}
           activeNamespace={this.props.activeNamespace}
