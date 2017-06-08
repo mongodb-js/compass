@@ -41,8 +41,7 @@ describe('<FieldPanel />', function() {
       'name': '_id',
       'path': '_id',
       'count': 4,
-      'type': 'ObjectID',
-      'probability': 1
+      'type': 'ObjectID'
     }
   };
 
@@ -57,15 +56,13 @@ describe('<FieldPanel />', function() {
         'name': 'foo',
         'path': 'foo',
         'count': 4,
-        'type': 'String',
-        'probability': 1
+        'type': 'String'
       },
       'bar': {
         'name': 'bar',
         'path': 'bar',
         'count': 1,
-        'type': 'String',
-        'probability': 0.25
+        'type': 'String'
       }
     });
     const component = mount(<this.FieldPanel fieldsCache={fields} topLevelFields={Object.keys(fields)}/>);
@@ -83,15 +80,13 @@ describe('<FieldPanel />', function() {
         'path': 'foo',
         'count': 4,
         'type': 'Document',
-        'probability': 1,
         'nestedFields': ['foo.bar']
       },
       'foo.bar': {
         'name': 'bar',
         'path': 'foo.bar',
         'count': 4,
-        'type': 'String',
-        'probability': 1
+        'type': 'String'
       }
     });
     const component = mount(<this.FieldPanel fieldsCache={fields} topLevelFields={Object.keys(fields)}/>);
@@ -109,30 +104,26 @@ describe('<FieldPanel />', function() {
         'path': 'foo',
         'count': 4,
         'type': 'Document',
-        'probability': 1,
         'nestedFields': ['foo.bar']
       },
       'foo.bar': {
         'name': 'bar',
         'path': 'foo.bar',
         'count': 4,
-        'type': 'String',
-        'probability': 1
+        'type': 'String'
       },
       'fizz': {
         'name': 'fizz',
         'path': 'fizz',
         'count': 4,
         'type': 'Document',
-        'probability': 1,
         'nestedFields': ['fizz.bang']
       },
       'fizz.bang': {
         'name': 'bang',
         'path': 'fizz.bang',
         'count': 4,
-        'type': 'String',
-        'probability': 1
+        'type': 'String'
       }
     });
     const component = mount(<this.FieldPanel fieldsCache={fields} topLevelFields={Object.keys(fields)}/>);

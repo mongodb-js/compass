@@ -32,24 +32,21 @@ const COUNTRY_SCHEMA_FIELD = {
   name: 'country',
   path: 'address.country',
   count: 100,
-  type: 'String',
-  probability: 1
+  type: 'String'
 };
 
 const YEAR_SCHEMA_FIELD = {
   name: 'year',
   path: 'year',
   count: 100,
-  type: 'Int32',
-  probability: 1
+  type: 'Int32'
 };
 
 const REVENUE_SCHEMA_FIELD = {
   name: 'revenue',
   path: 'revenue',
   count: 80,
-  type: 'Decimal128',
-  probability: 0.8
+  type: 'Decimal128'
 };
 
 describe('ChartStore', function() {
