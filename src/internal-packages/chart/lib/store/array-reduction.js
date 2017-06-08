@@ -46,6 +46,15 @@ const REDUCTIONS = Object.freeze({
   }
 });
 
+/**
+ * Filters out all unwind reductions from the reductions array and builds
+ * $unwind stages for the respective fields.
+ *
+ * @param  {String} field       The field the user dragged to encode the channel
+ * @param  {Array} reductions   array of reductions, following the following
+ *
+ * @return {Array}              array of $unwind stages, might be empty
+ */
 function constructUnwindStages(field, reductions) {
   return _(reductions)
     .filter((red) => {
@@ -59,10 +68,10 @@ function constructUnwindStages(field, reductions) {
 
 /**
  * Takes a field name and an array of reductions and creates an aggregation
- * pipeline to reduce (possibly nested) arrays to a single scalar value
+ * pipeline stage to reduce (possibly nested) arrays to a single scalar value
  * according to the provided reduction functions
  *
- * @param  {String} field        field name of the array as string, no leading `$`
+ * @param  {String} field        The field the user dragged to encode the channel
  * @param  {Array} reductions    an array of reductions as defined by the
  *                               ChartStore, with the following format:
  *
@@ -116,6 +125,20 @@ function constructAccumulatorStage(field, reductions) {
   return {$addFields: {[field]: expr}};
 }
 
+/**
+ * helper to create aggregation pipeline stages to reduce arrays, based on
+ * the given field name and a reductions array.
+ *
+ * @param  {String} field      The field the user dragged to encode the channel
+ * @param  {Array} reductions  array of reductions, following the following
+ *                             format:
+ *             [
+ *               { field: "foo", type: "$unwind", arguments: [] },
+ *               { field: "bar.baz" , type: "index", arguments: [3] }
+ *             ]
+ *
+ * @return {Array}            pipeline stages to reduce all arrays
+ */
 module.exports = function arrayReductionAggBuilder(field, reductions) {
   const pipeline = [];
 
