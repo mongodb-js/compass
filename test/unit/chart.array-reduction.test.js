@@ -114,6 +114,25 @@ describe('Array Reduction', function() {
         $unwind: 'foo.bar.baz'
       });
     });
+    it('creates an unwind stage and an addField stage for mixed reductions', function() {
+      const reductions = [
+        {field: 'foo', type: 'unwind'},
+        {field: 'foo.bar.baz', type: 'min'}
+      ];
+      const result = aggBuilder('foo.bar.baz', reductions);
+      expect(result).to.be.an('array');
+      expect(result).to.have.lengthOf(2);
+      expect(result[0]).to.be.deep.equal({
+        $unwind: 'foo'
+      });
+      expect(result[1]).to.be.deep.equal({
+        $addFields: {
+          'foo.bar.baz': {
+            $min: '$foo.bar.baz'
+          }
+        }
+      });
+    });
   });
   context('Reduction Operators', function() {
     const reductions = [
