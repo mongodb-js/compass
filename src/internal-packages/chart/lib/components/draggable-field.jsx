@@ -7,6 +7,7 @@ const _ = require('lodash');
 const DragSource = require('react-dnd').DragSource;
 const {AGGREGATE_FUNCTION_ENUM, MEASUREMENT_ENUM, MEASUREMENT_ICON_ENUM, TOOL_TIP_ID_ARRAY} = require('../constants');
 const CustomToggle = require('./custom-toggle');
+const ArrayReductionPicker = require('./array-reduction-picker');
 
 // const debug = require('debug')('mongodb-compass:chart:draggable-field');
 
@@ -105,6 +106,14 @@ class DraggableField extends React.Component {
     );
   }
 
+  renderArrays() {
+    const reductions = this.props.arrayReductions;
+
+    return reductions.map((reduction, i) => {
+      return <ArrayReductionPicker key={i} channel={this.props.channelName} field={reduction.field} type={reduction.type || null} />;
+    });
+  }
+
   /**
    * Render draggable field component
    *
@@ -126,11 +135,13 @@ class DraggableField extends React.Component {
     return connectDragSource(
       <div {...attributes} >
         <div className="chart-draggable-field-row">
-          <div className="chart-draggable-field-item-container chart-draggable-field-item-container-title">
-            <div className="chart-draggable-field-title">
-              {this.props.fieldName}
-            </div>
-          </div>
+          {this.props.arrayReductions && this.props.enableMenus ?
+            this.renderArrays()
+            : <div className="chart-draggable-field-item-container chart-draggable-field-item-container-title">
+              <div className="chart-draggable-field-title">
+                {this.props.fieldName}
+              </div>
+            </div>}
           {this.props.enableMenus ?
             <div title="Remove field from chart" className="chart-draggable-field-item-container chart-draggable-field-item-container-remove">
               <div className="chart-draggable-field-action chart-draggable-field-action-remove"
@@ -156,6 +167,7 @@ DraggableField.propTypes = {
   aggregate: PropTypes.oneOf(_.values(AGGREGATE_FUNCTION_ENUM)),
   enableMenus: PropTypes.bool,
   disabled: PropTypes.bool,
+  arrayReductions: PropTypes.array,
   selectAggregate: PropTypes.func,
   selectMeasurement: PropTypes.func,
   connectDragSource: PropTypes.func,
