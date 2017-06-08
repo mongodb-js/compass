@@ -35,5 +35,10 @@ describe('<ArrayReductionPicker />', () => {
     it('displays "choose method"', () => {
       expect(component.find('.chart-draggable-field-array-picker-title-name')).to.have.text('Choose method');
     });
+
+    it('contains unselected class when no type is specified', () => {
+      expect(component.find('.chart-draggable-field-array-picker-dropdown'))
+        .to.have.className('chart-draggable-field-array-picker-unselected');
+    });
   });
 });

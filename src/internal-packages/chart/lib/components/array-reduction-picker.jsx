@@ -56,6 +56,12 @@ class ArrayReductionPicker extends React.Component {
       );
     }));
 
+    let dropdownClass = 'chart-draggable-field-array-picker-dropdown';
+
+    if (!this.props.type) {
+      dropdownClass += ' chart-draggable-field-array-picker-unselected';
+    }
+
     return (
       <div className="chart-draggable-field-array-picker">
         <div className="chart-draggable-field-title">
@@ -65,7 +71,7 @@ class ArrayReductionPicker extends React.Component {
         </div>
         <Dropdown className="chart-draggable-field-array-picker" id="array-reduction-picker"
             onSelect={this.selectArrayReduction.bind(this)}>
-          <CustomToggle bsRole="toggle" className="chart-draggable-field-array-picker-dropdown">
+          <CustomToggle bsRole="toggle" className={dropdownClass}>
             <span className="chart-draggable-field-array-picker-title-name chart-draggable-field-action-title">
               {this.props.type || 'Choose method'}
             </span>
