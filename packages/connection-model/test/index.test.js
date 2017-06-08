@@ -207,62 +207,84 @@ describe('mongodb-connection-model', function() {
     });
 
     describe('ATLAS - mongodb.net', function() {
-      var atlasConnection = 'mongodb://ADMINUSER:<PASSWORD>@' +
-          'a-compass-atlas-test-shard-00-00-vll9l.mongodb.net:38128,' +
-          'a-compass-atlas-test-shard-00-01-vll9l.mongodb.net:38128,' +
-          'a-compass-atlas-test-shard-00-02-vll9l.mongodb.net:38128/<DATABASE>?' +
-          'ssl=true&replicaSet=a-compass-atlas-test-shard-0&authSource=admin&readPreference=secondary';
-      var okAtlasPassword = 'A_MUCH_LONGER_PASSWORD_should_be_more secure...';
-      var okAtlasPasswordConnection = atlasConnection.replace(
-        '<PASSWORD>',
-        okAtlasPassword
-      );
-      it('sets the replica set name', function() {
+      context('when a database is provided', function() {
+        var atlasConnection = 'mongodb://ADMINUSER:<PASSWORD>@' +
+            'a-compass-atlas-test-shard-00-00-vll9l.mongodb.net:38128,' +
+            'a-compass-atlas-test-shard-00-01-vll9l.mongodb.net:38128,' +
+            'a-compass-atlas-test-shard-00-02-vll9l.mongodb.net:38128/<DATABASE>?' +
+            'ssl=true&replicaSet=a-compass-atlas-test-shard-0&authSource=admin&readPreference=secondary';
+        var okAtlasPassword = 'A_MUCH_LONGER_PASSWORD_should_be_more secure...';
+        var okAtlasPasswordConnection = atlasConnection.replace(
+          '<PASSWORD>',
+          okAtlasPassword
+        );
+        it('sets the replica set name', function() {
+          var c = Connection.from(atlasConnection);
+          assert.equal(c.replica_set_name, 'a-compass-atlas-test-shard-0');
+        });
+        it('sets the read preference', function() {
+          var c = Connection.from(atlasConnection);
+          assert.equal(c.read_preference, 'secondary');
+        });
+        it('defaults SSL to SYSTEMCA', function() {
+          var c = Connection.from(atlasConnection);
+          // In future, we should ship our own CA with Compass
+          // so we can default to 'SERVER'-validated.
+          // This is a step in the right direction so let's take the easy wins.
+          assert.equal(c.ssl, 'SYSTEMCA');
+        });
+        it('clears the default <PASSWORD>', function() {
+          // UX: We clear the default string 'PASSWORD' from the Atlas GUI
+          // so the user is forced to enter their own password
+          // rather than getting trapped with the error:
+          // "Could not connect to MongoDB on the provided host and port"
+          var c = Connection.from(atlasConnection);
+          assert.equal(c.mongodb_password, '');
+        });
+        it('does not clear sufficiently long passwords that happen to contain PASSWORD', function() {
+          var c = Connection.from(okAtlasPasswordConnection);
+          assert.equal(c.mongodb_password, okAtlasPassword);
+        });
+        it('works with a non-default secure password', function() {
+          var userPass = '6NuZPtHCrjYBAWnI7Iq6jvtsdJx67X0';
+          var c = Connection.from(atlasConnection.replace('<PASSWORD>', userPass));
+          assert.equal(c.ssl, 'SYSTEMCA');
+          assert.equal(c.mongodb_password, userPass);
+        });
+        it('changes the <DATABASE> namespace to test', function() {
+          assert.ok(atlasConnection.indexOf('<DATABASE>') > -1);
+          var c = Connection.from(atlasConnection);
+          assert.equal(c.ns, 'test');
+        });
+        it('does not false positive on hi.mongodb.net.my.domain.com', function() {
+          var c = Connection.from(
+              atlasConnection.replace(/mongodb.net/g, 'hi.mongodb.net.my.domain.com'));
+          assert.equal(c.ssl, 'NONE');  // Whatever the Compass default is
+        });
+        it('is case insensitive, see RFC4343', function() {
+          var c = Connection.from(atlasConnection.replace(/mongodb.net/g, 'mOnGOdB.NeT'));
+          assert.equal(c.ssl, 'SYSTEMCA');
+        });
+      });
+
+      context('when a database is not provided', function() {
+        var atlasConnection = 'mongodb://ADMINUSER:<PASSWORD>@' +
+            'a-compass-atlas-test-shard-00-00-vll9l.mongodb.net:38128,' +
+            'a-compass-atlas-test-shard-00-01-vll9l.mongodb.net:38128,' +
+            'a-compass-atlas-test-shard-00-02-vll9l.mongodb.net:38128';
         var c = Connection.from(atlasConnection);
-        assert.equal(c.replica_set_name, 'a-compass-atlas-test-shard-0');
-      });
-      it('sets the read preference', function() {
-        var c = Connection.from(atlasConnection);
-        assert.equal(c.read_preference, 'secondary');
-      });
-      it('defaults SSL to SYSTEMCA', function() {
-        var c = Connection.from(atlasConnection);
-        // In future, we should ship our own CA with Compass
-        // so we can default to 'SERVER'-validated.
-        // This is a step in the right direction so let's take the easy wins.
-        assert.equal(c.ssl, 'SYSTEMCA');
-      });
-      it('clears the default <PASSWORD>', function() {
-        // UX: We clear the default string 'PASSWORD' from the Atlas GUI
-        // so the user is forced to enter their own password
-        // rather than getting trapped with the error:
-        // "Could not connect to MongoDB on the provided host and port"
-        var c = Connection.from(atlasConnection);
-        assert.equal(c.mongodb_password, '');
-      });
-      it('does not clear sufficiently long passwords that happen to contain PASSWORD', function() {
-        var c = Connection.from(okAtlasPasswordConnection);
-        assert.equal(c.mongodb_password, okAtlasPassword);
-      });
-      it('works with a non-default secure password', function() {
-        var userPass = '6NuZPtHCrjYBAWnI7Iq6jvtsdJx67X0';
-        var c = Connection.from(atlasConnection.replace('<PASSWORD>', userPass));
-        assert.equal(c.ssl, 'SYSTEMCA');
-        assert.equal(c.mongodb_password, userPass);
-      });
-      it('changes the <DATABASE> namespace to test', function() {
-        assert.ok(atlasConnection.indexOf('<DATABASE>') > -1);
-        var c = Connection.from(atlasConnection);
-        assert.equal(c.ns, 'test');
-      });
-      it('does not false positive on hi.mongodb.net.my.domain.com', function() {
-        var c = Connection.from(
-            atlasConnection.replace(/mongodb.net/g, 'hi.mongodb.net.my.domain.com'));
-        assert.equal(c.ssl, 'NONE');  // Whatever the Compass default is
-      });
-      it('is case insensitive, see RFC4343', function() {
-        var c = Connection.from(atlasConnection.replace(/mongodb.net/g, 'mOnGOdB.NeT'));
-        assert.equal(c.ssl, 'SYSTEMCA');
+
+        it('sets the host to the first host', function() {
+          assert.equal(c.hostname, 'a-compass-atlas-test-shard-00-00-vll9l.mongodb.net');
+        });
+
+        it('sets the port to the first port', function() {
+          assert.equal(c.port, 38128);
+        });
+
+        it('sets the namespace to the default', function() {
+          assert.equal(c.ns, 'test');
+        });
       });
     });
 

@@ -1098,7 +1098,7 @@ Connection._improveAtlasDefaults = function(url, mongodb_password, namespace) {
     if (mongodb_password.match(/^.?PASSWORD.?$/i)) {
       atlasConnectionAttrs.mongodb_password = '';
     }
-    if (namespace.match(/^.?DATABASE.?$/i)) {
+    if (!namespace || namespace.match(/^.?DATABASE.?$/i)) {
       atlasConnectionAttrs.ns = Connection.MONGODB_NAMESPACE_DEFAULT;
     }
   }
