@@ -1,6 +1,7 @@
 const Reflux = require('reflux');
 const QueryStore = require('./query-store');
 const StateMixin = require('reflux-state-mixin');
+const app = require('hadron-app');
 
 // By-passing hadron-app because of poor handling with store tests
 const IndexesActions = require('../../../indexes/lib/action/index-actions');
@@ -61,6 +62,18 @@ const QueryChangedStore = Reflux.createStore({
       this.setState(newState);
       // reload indexes if this convenience store has changed
       IndexesActions.loadIndexes();
+
+      // Call onQueryChanged lifecycle method
+      const registry = app.appRegistry;
+      if (registry) {
+        registry.callOnStores(function(store) {
+          if (store.onQueryChanged) {
+            store.onQueryChanged(newState);
+          }
+        });
+      } else {
+        debug('Error: AppRegistry not available for query-changed-store');
+      }
     }
   },
 
