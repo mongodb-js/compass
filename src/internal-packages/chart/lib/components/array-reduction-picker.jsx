@@ -56,24 +56,24 @@ class ArrayReductionPicker extends React.Component {
       );
     }));
 
-    let dropdownClass = 'chart-draggable-field-array-picker-dropdown btn-md';
+    let dropdownClass = 'full-width btn-md';
 
     dropdownClass += this.props.type ? ' btn-default' : ' btn-primary';
 
     return (
-      <div className="chart-draggable-field-array-picker">
+      <div className="btn-default">
         <div className="chart-draggable-field-title">
           <span>
             {this.props.field}
           </span>
         </div>
-        <Dropdown className="chart-draggable-field-array-picker" id="array-reduction-picker"
+        <Dropdown className="chart-draggable-field-item-container" id="array-reduction-picker"
             onSelect={this.selectArrayReduction.bind(this)}>
           <CustomToggle bsRole="toggle" className={dropdownClass}>
-            <span className="chart-draggable-field-array-picker-title-name chart-draggable-field-action-title">
+            <span className="chart-draggable-field-action-title">
               {this.props.type || 'Choose method'}
             </span>
-            <FontAwesome className="chart-draggable-field-array-picker-caret-down" name={'caret-down'} />
+            <FontAwesome className="caret-down" name={'caret-down'} />
           </CustomToggle>
           <Dropdown.Menu>
             {menu}

@@ -19,11 +19,11 @@ describe('<ArrayReductionPicker />', () => {
     });
 
     it('displays the label', () => {
-      expect(component.find('.chart-draggable-field-array-picker .chart-draggable-field-title')).to.have.text('MagicLetters');
+      expect(component.find('.chart-draggable-field-title')).to.have.text('MagicLetters');
     });
 
     it('displays the type', () => {
-      expect(component.find('.chart-draggable-field-array-picker-title-name')).to.have.text('concat');
+      expect(component.find('.chart-draggable-field-action-title')).to.have.text('concat');
     });
   });
 
@@ -33,11 +33,11 @@ describe('<ArrayReductionPicker />', () => {
     });
 
     it('displays "choose method"', () => {
-      expect(component.find('.chart-draggable-field-array-picker-title-name')).to.have.text('Choose method');
+      expect(component.find('.chart-draggable-field-action-title')).to.have.text('Choose method');
     });
 
     it('contains unselected class when no type is specified', () => {
-      expect(component.find('.chart-draggable-field-array-picker-dropdown'))
+      expect(component.find('.full-width.btn-md'))
         .to.have.className('btn-primary');
     });
   });
