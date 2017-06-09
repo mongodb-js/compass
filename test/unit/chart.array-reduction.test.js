@@ -2,6 +2,11 @@
 
 const { expect } = require('chai');
 const aggBuilder = require('../../src/internal-packages/chart/lib/store/array-reduction');
+const {
+  ARRAY_GENERAL_REDUCTIONS,
+  ARRAY_NUMERIC_REDUCTIONS,
+  ARRAY_STRING_REDUCTIONS
+} = require('../../src/internal-packages/chart/lib/constants');
 
 describe('Array Reduction', function() {
   context('no reductions are present', function() {
@@ -14,7 +19,7 @@ describe('Array Reduction', function() {
   });
   context('one reduction is present', function() {
     const reductions = [
-      {field: 'myField', type: 'min'}
+      {field: 'myField', type: ARRAY_NUMERIC_REDUCTIONS.MIN}
     ];
     it('builds the correct agg pipeline', function() {
       const result = aggBuilder(reductions);
@@ -30,8 +35,8 @@ describe('Array Reduction', function() {
   });
   context('two reductions are present', function() {
     const reductions = [
-      {field: 'myField', type: 'max'},
-      {field: 'myField', type: 'min'}
+      {field: 'myField', type: ARRAY_NUMERIC_REDUCTIONS.MAX},
+      {field: 'myField', type: ARRAY_NUMERIC_REDUCTIONS.MIN}
     ];
     it('builds the correct agg pipeline', function() {
       const result = aggBuilder(reductions);
@@ -55,9 +60,9 @@ describe('Array Reduction', function() {
   });
   context('three reductions are present', function() {
     const reductions = [
-      {field: 'myField', type: 'mean'},
-      {field: 'myField', type: 'min'},
-      {field: 'myField', type: 'length'}
+      {field: 'myField', type: ARRAY_NUMERIC_REDUCTIONS.MEAN},
+      {field: 'myField', type: ARRAY_NUMERIC_REDUCTIONS.MIN},
+      {field: 'myField', type: ARRAY_GENERAL_REDUCTIONS.LENGTH}
     ];
     it('builds the correct agg pipeline', function() {
       const result = aggBuilder(reductions);
@@ -90,7 +95,7 @@ describe('Array Reduction', function() {
   context('$unwind reduction', function() {
     it('creates a unwind stage for a single unwind reduction', function() {
       const reductions = [
-        {field: 'foo', type: 'unwind'}
+        {field: 'foo', type: ARRAY_GENERAL_REDUCTIONS.UNWIND}
       ];
       const result = aggBuilder(reductions);
       expect(result).to.be.an('array');
@@ -101,8 +106,8 @@ describe('Array Reduction', function() {
     });
     it('creates multiple unwind stages one for each reduction', function() {
       const reductions = [
-        {field: 'foo', type: 'unwind'},
-        {field: 'foo.bar.baz', type: 'unwind'}
+        {field: 'foo', type: ARRAY_GENERAL_REDUCTIONS.UNWIND},
+        {field: 'foo.bar.baz', type: ARRAY_GENERAL_REDUCTIONS.UNWIND}
       ];
       const result = aggBuilder(reductions);
       expect(result).to.be.an('array');
@@ -116,8 +121,8 @@ describe('Array Reduction', function() {
     });
     it('creates an unwind stage and an addField stage for mixed reductions', function() {
       const reductions = [
-        {field: 'foo', type: 'unwind'},
-        {field: 'foo.bar.baz', type: 'min'}
+        {field: 'foo', type: ARRAY_GENERAL_REDUCTIONS.UNWIND},
+        {field: 'foo.bar.baz', type: ARRAY_NUMERIC_REDUCTIONS.MIN}
       ];
       const result = aggBuilder(reductions);
       expect(result).to.be.an('array');
@@ -136,7 +141,7 @@ describe('Array Reduction', function() {
   });
   context('Reduction Operators', function() {
     const reductions = [
-      {field: 'foo', type: 'maxStringLength'}
+      {field: 'foo', type: ARRAY_STRING_REDUCTIONS.MAX_LENGTH}
     ];
     it('calculates the maximum string length', function() {
       const result = aggBuilder(reductions);

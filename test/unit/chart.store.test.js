@@ -685,7 +685,7 @@ describe('ChartStore', function() {
 
       it('stores a max length reduction', function(done) {
         index = 0;
-        type = ARRAY_REDUCTION_TYPES.STRING_MAX;
+        type = ARRAY_REDUCTION_TYPES.MAX_LENGTH;
         const expected = {
           [channel]: [{
             field: field.path,

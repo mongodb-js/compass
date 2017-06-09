@@ -114,26 +114,45 @@ const SPEC_TYPE_ENUM = Object.freeze({
 
 const TOOL_TIP_ID_ARRAY = 'array-not-supported';
 
+/**
+ * A list of the general array reduction types.
+ */
 const ARRAY_GENERAL_REDUCTIONS = Object.freeze({
   UNWIND: 'Unwind array',
   LENGTH: 'Array length',
-  INDEX: 'Array element by index'
+  INDEX: 'Array element by index'  // TODO: Note is args not implemented in React <ArrayReductionPicker>
 });
 
+/**
+ * A list of the numeric array reduction types, or accumulates.
+ */
 const ARRAY_NUMERIC_REDUCTIONS = Object.freeze({
   MIN: 'min',
   MAX: 'max',
-  MEAN: 'mean',
-  SUM: 'sum'
+  MEAN: 'mean'
+  // SUM: 'sum'  // TODO: Not implemented in arrayReductionAggBuilder
 });
 
+/**
+ * A list of the string array reduction types, or accumulates.
+ */
 const ARRAY_STRING_REDUCTIONS = Object.freeze({
-  CONCAT: 'concat',
-  MIN: 'min length',
-  MAX: 'max length',
-  LONGEST: 'longest',
-  SHORTEST: 'shortest'
+  // CONCAT: 'concat',  // TODO: Not implemented in arrayReductionAggBuilder
+  MIN_LENGTH: 'min length',
+  MAX_LENGTH: 'max length'
+  // LONGEST: 'longest',  // TODO: Not implemented in arrayReductionAggBuilder
+  // SHORTEST: 'shortest'  // TODO: Not implemented in arrayReductionAggBuilder
 });
+
+/**
+ * A list of all the array reduction types available.
+ */
+const ARRAY_REDUCTION_TYPES = Object.freeze(Object.assign(
+  {},
+  ARRAY_GENERAL_REDUCTIONS,
+  ARRAY_NUMERIC_REDUCTIONS,
+  ARRAY_STRING_REDUCTIONS
+));
 
 const LITE_SPEC_GLOBAL_SETTINGS = {
   'transform': {
@@ -165,49 +184,8 @@ const LITE_SPEC_GLOBAL_SETTINGS = {
   }
 };
 
-/**
- * A list of the general array reduction types.
- */
-const ARRAY_REDUCTIONS_GENERAL = Object.freeze({
-  UNWIND: 'Unwind array',  // $unwind
-  LENGTH: 'Array length',  // $size
-  ARRAY_ELEM_AT_INDEX: 'Array element by index'  // $arrayElemAt
-});
-
-/**
- * A list of the numeric array reduction types, or accumulates.
- */
-const ARRAY_REDUCTIONS_NUMERIC = Object.freeze({
-  MIN: 'min',
-  MAX: 'max',
-  MEAN: 'mean',
-  SUM: 'sum'
-});
-
-/**
- * A list of the string array reduction types, or accumulates.
- */
-const ARRAY_REDUCTIONS_STRING = Object.freeze({
-  CONCATENATE: 'concatenate',
-  STRING_MIN: 'min length',
-  STRING_MAX: 'max length',
-  LONGEST: 'longest',
-  SHORTEST: 'shortest'
-});
-
-/**
- * A list of the array reduction types available.
- */
-const ARRAY_REDUCTION_TYPES = Object.freeze(Object.assign(
-  {},
-  ARRAY_REDUCTIONS_GENERAL,
-  ARRAY_REDUCTIONS_NUMERIC,
-  ARRAY_REDUCTIONS_STRING
-));
-
 module.exports = {
   AGGREGATE_FUNCTION_ENUM,
-  ARRAY_REDUCTION_TYPES,
   CHART_CHANNEL_ENUM,
   MEASUREMENT_ENUM,
   MEASUREMENT_ICON_ENUM,
@@ -217,6 +195,7 @@ module.exports = {
   ARRAY_GENERAL_REDUCTIONS,
   ARRAY_NUMERIC_REDUCTIONS,
   ARRAY_STRING_REDUCTIONS,
+  ARRAY_REDUCTION_TYPES,
   CHART_COLORS,
   LITE_SPEC_GLOBAL_SETTINGS
 };

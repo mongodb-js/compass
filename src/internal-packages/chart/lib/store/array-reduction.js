@@ -1,4 +1,9 @@
 const _ = require('lodash');
+const {
+  ARRAY_GENERAL_REDUCTIONS,
+  ARRAY_NUMERIC_REDUCTIONS,
+  ARRAY_STRING_REDUCTIONS
+} = require('../constants');
 
 /**
  * map wrapper around aggregation framework $map. Applies `expr` function
@@ -23,25 +28,29 @@ function _map(arr, expr) {
  * Array reduction operators wrapped as javascript functions
  */
 const REDUCTIONS = Object.freeze({
-  length: function(arr) {
+  [ARRAY_GENERAL_REDUCTIONS.LENGTH]: function(arr) {
     return {$size: arr};
   },
-  max: function(arr) {
-    return {$max: arr};
-  },
-  min: function(arr) {
-    return {$min: arr};
-  },
-  mean: function(arr) {
-    return {$avg: arr};
-  },
-  index: function(arr, args) {
+  [ARRAY_GENERAL_REDUCTIONS.INDEX]: function(arr, args) {
     return {$arrayElemAt: [arr, args[0]]};
   },
-  maxStringLength: function(arr) {
+
+  // Numeric reductions
+  [ARRAY_NUMERIC_REDUCTIONS.MAX]: function(arr) {
+    return {$max: arr};
+  },
+  [ARRAY_NUMERIC_REDUCTIONS.MIN]: function(arr) {
+    return {$min: arr};
+  },
+  [ARRAY_NUMERIC_REDUCTIONS.MEAN]: function(arr) {
+    return {$avg: arr};
+  },
+
+  // String reductions
+  [ARRAY_STRING_REDUCTIONS.MAX_LENGTH]: function(arr) {
     return {$max: {$map: {input: arr, as: 'str', in: {$strLenCP: '$$str'}}}};
   },
-  minStringLength: function(arr) {
+  [ARRAY_STRING_REDUCTIONS.MIN_LENGTH]: function(arr) {
     return {$min: {$map: {input: arr, as: 'str', in: {$strLenCP: '$$str'}}}};
   }
 });
@@ -57,7 +66,7 @@ const REDUCTIONS = Object.freeze({
 function constructUnwindStages(reductions) {
   return _(reductions)
     .filter((reduction) => {
-      return reduction.type === 'unwind';
+      return reduction.type === ARRAY_GENERAL_REDUCTIONS.UNWIND;
     })
     .map((reduction) => {
       return {$unwind: reduction.field};
@@ -93,7 +102,7 @@ function constructAccumulatorStage(reductions) {
   let expr;
 
   reductions = _.filter(reductions, (reduction) => {
-    return reduction.type !== 'unwind';
+    return reduction.type !== ARRAY_GENERAL_REDUCTIONS.UNWIND;
   });
 
   // reverse the array (without modifying original), below code assumes inside->out order
