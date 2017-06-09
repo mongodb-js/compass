@@ -269,6 +269,24 @@ const ChartStore = Reflux.createStore({
   },
 
   /**
+   * Helper method to construct the array reduction aggregation pipeline
+   * for each encoded channel.
+   *
+   * @returns {Array}   Array with the combined aggregation pipeline.
+   */
+  _arrayReductionPipeline() {
+    // TODO: Validations / errors here?
+    // e.g. trying to encode a field into two aggregations doesn't work
+    const reductions = this.state.reductions;
+    const channels = Object.keys(reductions);
+    return channels.reduce((_pipeline, channel) => {
+      const channelReductions = reductions[channel];
+      const addToPipeline = arrayReductionAggBuilder(channelReductions);
+      return _pipeline.concat(addToPipeline);
+    }, []);
+  },
+
+  /**
    * fetch data from server based on current query and sets the dataCache state
    * variable. Currently limits number of documents to 1000.
    *

@@ -54,6 +54,12 @@ const UP_TO_5_TAGS_SCHEMA_FIELD = {
   type: 'Array'
 };
 
+const TEN_RANDOM_STRINGS_SCHEMA_FIELD = {
+  name: '10_random_strings',
+  path: '10_random_strings',
+  type: 'Array'
+};
+
 describe('ChartStore', function() {
   before(mockDataService.before());
   after(mockDataService.after());
@@ -72,7 +78,8 @@ describe('ChartStore', function() {
       'address.country': COUNTRY_SCHEMA_FIELD,
       'year': YEAR_SCHEMA_FIELD,
       'revenue': REVENUE_SCHEMA_FIELD,
-      'up_to_5_tags': UP_TO_5_TAGS_SCHEMA_FIELD
+      'up_to_5_tags': UP_TO_5_TAGS_SCHEMA_FIELD,
+      '10_random_strings': TEN_RANDOM_STRINGS_SCHEMA_FIELD
     };
   });
   afterEach(function() {
@@ -710,6 +717,80 @@ describe('ChartStore', function() {
         };
         setTimeout(() => {
           expect(throwFn).to.throw(/Expect a reduction type, got: BAD_REDUCER/);
+          done();
+        });
+      });
+    });
+  });
+
+  context('after multiple array channels have been encoded', () => {
+    const field1 = UP_TO_5_TAGS_SCHEMA_FIELD;
+    const field2 = TEN_RANDOM_STRINGS_SCHEMA_FIELD;
+    const xChannel = CHART_CHANNEL_ENUM.X;
+    const yChannel = CHART_CHANNEL_ENUM.Y;
+    beforeEach(() => {
+      ChartActions.mapFieldToChannel(field1.path, xChannel);
+      ChartActions.mapFieldToChannel(field2.path, yChannel);
+    });
+
+    context('and calling the setArrayReduction action', function() {
+      let index;
+      let type;
+
+      it('can compute a combined aggregation pipeline', function(done) {
+        index = 0;
+        type = ARRAY_REDUCTION_TYPES.MAX_LENGTH;
+        const expectedReductions = {
+          [xChannel]: [{
+            field: field1.path,
+            type: type,
+            arguments: []
+          }],
+          [yChannel]: [{
+            field: field2.path,
+            type: type,
+            arguments: []
+          }]
+        };
+        const expectedPipeline = [
+          {
+            '$addFields': {
+              'up_to_5_tags': {
+                '$max': {
+                  '$map': {
+                    'as': 'str',
+                    'in': {
+                      '$strLenCP': '$$str'
+                    },
+                    'input': '$up_to_5_tags'
+                  }
+                }
+              }
+            }
+          },
+          {
+            '$addFields': {
+              '10_random_strings': {
+                '$max': {
+                  '$map': {
+                    'as': 'str',
+                    'in': {
+                      '$strLenCP': '$$str'
+                    },
+                    'input': '$10_random_strings'
+                  }
+                }
+              }
+            }
+          }
+        ];
+        ChartActions.setArrayReduction(xChannel, index, type);
+        ChartActions.setArrayReduction(yChannel, index, type);
+        setTimeout(() => {
+          const reductions = this.store.state.reductions;
+          expect(reductions).to.be.deep.equal(expectedReductions);
+          const pipeline = ChartStore._arrayReductionPipeline();
+          expect(pipeline).to.be.deep.equal(expectedPipeline);
           done();
         });
       });
