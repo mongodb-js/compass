@@ -32,7 +32,7 @@ describe('#connect', function() {
 
       it('displays the instance details', function() {
         return client
-          .getInstanceHeaderDetails().should.eventually.equal('Topology: Single');
+          .getInstanceHeaderDetails().should.eventually.equal('My Cluster');
       });
     });
   });
