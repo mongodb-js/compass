@@ -298,7 +298,7 @@ const ChartStore = Reflux.createStore({
       return;
     }
 
-    const pipeline = [];
+    const pipeline = this._arrayReductionPipeline();
     const options = {
       maxTimeMS: query.maxTimeMS,
       promoteValues: true
@@ -661,8 +661,10 @@ const ChartStore = Reflux.createStore({
       reductions: reductions
     }, true);
 
-    // TODO: Check reductions valid, then update the chart
-    // const pipeline = arrayReductionAggBuilder(reductions);
+    // Also update the chart
+    setTimeout(() => {
+      this._refreshDataCache(this.state.queryCache);
+    });
   },
 
   /**
