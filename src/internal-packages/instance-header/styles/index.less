@@ -23,12 +23,16 @@
     flex-shrink: 0;
     overflow: hidden;
     display: flex;
-    transition: all @compass-sidebar-transition-time ease;
+    transition: width @compass-sidebar-transition-time ease;
 
     &:hover,
     &-is-active {
       background-color: @compass-sidebar-active-background-color;
       box-shadow: none;
+    }
+
+    &:hover {
+      transition: background-color 180ms ease-out;
     }
   }
 
