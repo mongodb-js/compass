@@ -45,7 +45,7 @@ class Types extends React.Component {
    * @returns {String} The class name.
    */
   getClassName() {
-    let className = `editable-element-types dropdown`;
+    let className = 'editable-element-types dropdown';
     if (this.element.currentType !== this.element.type) {
       className = `${className} editable-element-types-is-edited`;
     }
