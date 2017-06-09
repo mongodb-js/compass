@@ -30,8 +30,8 @@ describe('Array Reduction', function() {
   });
   context('two reductions are present', function() {
     const reductions = [
-      {field: 'myField', type: 'min'},
-      {field: 'myField', type: 'max'}
+      {field: 'myField', type: 'max'},
+      {field: 'myField', type: 'min'}
     ];
     it('builds the correct agg pipeline', function() {
       const result = aggBuilder(reductions);
@@ -55,9 +55,9 @@ describe('Array Reduction', function() {
   });
   context('three reductions are present', function() {
     const reductions = [
-      {field: 'myField', type: 'length'},
+      {field: 'myField', type: 'mean'},
       {field: 'myField', type: 'min'},
-      {field: 'myField', type: 'mean'}
+      {field: 'myField', type: 'length'}
     ];
     it('builds the correct agg pipeline', function() {
       const result = aggBuilder(reductions);
@@ -147,7 +147,7 @@ describe('Array Reduction', function() {
             input: '$foo',
             as: 'str',
             in: {
-              $strLenBytes: '$$str'
+              $strLenCP: '$$str'
             }
           }
         }

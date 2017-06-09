@@ -39,10 +39,10 @@ const REDUCTIONS = Object.freeze({
     return {$arrayElemAt: [arr, args[0]]};
   },
   maxStringLength: function(arr) {
-    return {$max: {$map: {input: arr, as: 'str', in: {$strLenBytes: '$$str'}}}};
+    return {$max: {$map: {input: arr, as: 'str', in: {$strLenCP: '$$str'}}}};
   },
   minStringLength: function(arr) {
-    return {$min: {$map: {input: arr, as: 'str', in: {$strLenBytes: '$$str'}}}};
+    return {$min: {$map: {input: arr, as: 'str', in: {$strLenCP: '$$str'}}}};
   }
 });
 
@@ -82,8 +82,8 @@ function constructUnwindStages(reductions) {
  *               { field: "bar.baz" , type: "index", arguments: [3] }
  *             ]
  *
- *                               The reductions are applied inside out, above
- *                               example would result in `index(max(field), 3)`.
+ *                               The reductions are applied outside inwards, above
+ *                               example would result in `max(index(field, 3))`.
  *
  * @return {Object}              an $addFields aggregation stage that converts
  *                               the given field array into a scalar value.
@@ -91,11 +91,14 @@ function constructUnwindStages(reductions) {
 function constructAccumulatorStage(reductions) {
   let arr;
   let expr;
-  const lastReduction = reductions[reductions.length - 1];
 
-  reductions = _.filter(reductions, (red) => {
-    return red.type !== 'unwind';
+  reductions = _.filter(reductions, (reduction) => {
+    return reduction.type !== 'unwind';
   });
+
+  // reverse the array (without modifying original), below code assumes inside->out order
+  reductions = reductions.slice().reverse();
+  const lastReduction = reductions[reductions.length - 1];
 
   if (reductions.length === 0) {
     // if no reductions are present, return empty array
@@ -107,7 +110,7 @@ function constructAccumulatorStage(reductions) {
     // directly.
     arr = `$${lastReduction.field}`;
   } else {
-    // first reduction has no map and applies the reducer directly
+    // first (inner-most) reduction has no map and applies the reducer expression directly
     arr = '$$value';
     expr = REDUCTIONS[reductions[0].type](arr);
 
