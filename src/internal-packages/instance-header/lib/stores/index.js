@@ -49,7 +49,7 @@ const InstanceHeaderStore = Reflux.createStore({
    *
    * @param {Object} description - The topology description.
    */
-  fetchInstanceDetails(description) {
+  fetchInstanceDetails() {
     const connection = global.hadronApp.connection;
     this.setState({
       name: connection.is_favorite ? connection.name : CLUSTER,
