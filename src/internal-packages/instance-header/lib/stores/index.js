@@ -3,6 +3,8 @@ const InstanceHeaderActions = require('../actions');
 const StateMixin = require('reflux-state-mixin');
 const debug = require('debug')('mongodb-compass:stores:instance-header');
 
+const CLUSTER = 'My Cluster';
+
 /**
  * Instance Header store.
  */
@@ -48,11 +50,9 @@ const InstanceHeaderStore = Reflux.createStore({
    * @param {Object} description - The topology description.
    */
   fetchInstanceDetails(description) {
-    const { TopologyType } = require('@mongodb-js/compass-deployment-awareness');
     const connection = global.hadronApp.connection;
-    const topology = `Topology: ${TopologyType.humanize(description.topologyType)}`;
     this.setState({
-      name: connection.is_favorite ? connection.name : topology,
+      name: connection.is_favorite ? connection.name : CLUSTER,
       activeNamespace: this.NamespaceStore.ns || ''
     });
   },
