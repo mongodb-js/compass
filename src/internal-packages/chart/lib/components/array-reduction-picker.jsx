@@ -30,7 +30,7 @@ class ArrayReductionPicker extends React.Component {
       );
     });
 
-    // add numeric accumalates
+    // add numeric accumulates
     menu.push(<MenuItem key={NUMERIC + DIVIDER} divider/>);
     menu.push(<MenuItem key={NUMERIC + HEADER} header>Numeric accumulates</MenuItem>);
     menu = menu.concat(_.values(ARRAY_NUMERIC_REDUCTIONS).map((action) => {
@@ -42,7 +42,7 @@ class ArrayReductionPicker extends React.Component {
       );
     }));
 
-    // add string accumalates
+    // add string accumulates
     menu.push(<MenuItem key={STRING + DIVIDER} divider/>);
     menu.push(<MenuItem key={STRING + HEADER} header>String accumulates</MenuItem>);
     menu = menu.concat(_.values(ARRAY_STRING_REDUCTIONS).map((action) => {
