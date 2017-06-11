@@ -606,9 +606,7 @@ _.assign(derived, {
         req.query.replicaSet = this.replica_set_name;
       }
 
-      if (this.read_preference && this.read_preference !== 'primary') {
-        req.query.readPreference = this.read_preference;
-      }
+      req.query.readPreference = this.read_preference;
 
       if (this.app_name) {
         req.query.appname = this.app_name;
