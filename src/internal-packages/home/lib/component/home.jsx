@@ -8,6 +8,26 @@ const { UI_STATES } = require('../constants');
 const ERROR_WARNING = 'An error occurred while loading navigation';
 
 /**
+ * Not master error.
+ */
+const NOT_MASTER = 'not master and slaveOk=false';
+
+/**
+ * We recommend in the connection dialog.
+ */
+const RECOMMEND = 'It is recommended to change your read preference in the connection dialog';
+
+/**
+ * To switch to these read preferences.
+ */
+const RP_RECOMMEND = `${RECOMMEND} to Primary Preferred or Secondary Preferred`;
+
+/**
+ * Rs name message.
+ */
+const RS_RECOMMEND = `${RP_RECOMMEND} or provide a replica set name for a full topology connection.`;
+
+/**
  * Resize minicharts after sidebar has finished collapsing, should be the same
  * as the "@compass-sidebar-transition-time" variable in sidebar styles
  */
@@ -37,6 +57,14 @@ class Home extends React.Component {
       (this.state.collapsed ? ' content-sidebar-collapsed' : ' content-sidebar-expanded');
   }
 
+  getErrorMessage() {
+    const message = this.props.errorMessage;
+    if (message.includes(NOT_MASTER)) {
+      return `'${message}': ${RS_RECOMMEND}`;
+    }
+    return message;
+  }
+
   collapseSidebar() {
     this.setState({ collapsed: !this.state.collapsed });
     setTimeout(this.SchemaActions.resizeMiniCharts, COMPASS_SIDEBAR_TRANSITION_TIME_MS);
@@ -48,7 +76,11 @@ class Home extends React.Component {
       return null;
     }
     if (this.props.uiStatus === UI_STATES.ERROR) {
-      return <StatusRow style="error">{ERROR_WARNING}: {this.props.errorMessage}</StatusRow>;
+      return (
+        <StatusRow style="error">
+          {ERROR_WARNING}: {this.getErrorMessage()}
+        </StatusRow>
+      );
     }
     const ns = toNS(this.props.namespace);
     let view;
