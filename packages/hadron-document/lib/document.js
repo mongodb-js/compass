@@ -63,7 +63,7 @@ class Document extends EventEmitter {
   getId() {
     for (let element of this.elements) {
       if (element.currentKey === ID) {
-        return element.currentValue;
+        return element.generateObject();
       }
     }
     return null;

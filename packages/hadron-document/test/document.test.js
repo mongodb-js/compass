@@ -104,6 +104,14 @@ describe('Document', function() {
         expect(doc.getId()).to.equal(null);
       });
     });
+
+    context('when the _id is an object', function() {
+      var doc = new Document({ _id: { name: 'test' }});
+
+      it('returns null', function() {
+        expect(doc.getId()).to.deep.equal({ name: 'test' });
+      });
+    });
   });
 
   describe('.new', function() {
