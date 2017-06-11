@@ -5,11 +5,6 @@ const numeral = require('numeral');
 const { ReadPreference } = require('mongodb');
 
 /**
- * The default read preference.
- */
-const READ = ReadPreference.PRIMARY_PREFERRED;
-
-/**
  * The reflux store for collection stats.
  */
 const CollectionStatsStore = Reflux.createStore({
