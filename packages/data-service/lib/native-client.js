@@ -10,7 +10,6 @@ const createSampleStream = require('mongodb-collection-sample');
 const parseNamespace = require('mongodb-ns');
 const translate = require('mongodb-js-errors').translate;
 const debug = require('debug')('mongodb-data-service:native-client');
-const ReadPreference = require('mongodb').ReadPreference;
 
 /**
  * The constant for a mongos.
@@ -57,11 +56,6 @@ class NativeClient extends EventEmitter {
       }
       debug('connected!');
       this.database = database;
-      this.readPreferenceOption = {
-        // https://docs.mongodb.com/manual/core/read-preference/#maxstalenessseconds
-        // maxStalenessMS: 25000,
-        readPreference: ReadPreference.PRIMARY_PREFERRED
-      };
       this.database.admin().command({ ismaster: 1 }, (error, result) => {
         const ismaster = error ? {} : result;
         this.isWritable = this._isWritable(ismaster);
@@ -129,7 +123,7 @@ class NativeClient extends EventEmitter {
    * @param {Function} callback - The callback.
    */
   buildInfo(callback) {
-    this.database.admin().command({'buildInfo': 1}, this.readPreferenceOption, (error, result) => {
+    this.database.admin().command({'buildInfo': 1}, {}, (error, result) => {
       if (error) {
         return callback(this._translateMessage(error));
       }
@@ -143,7 +137,7 @@ class NativeClient extends EventEmitter {
    * @param {Function} callback - The callback.
    */
   hostInfo(callback) {
-    this.database.admin().command({'hostInfo': 1}, this.readPreferenceOption, (error, result) => {
+    this.database.admin().command({'hostInfo': 1}, {}, (error, result) => {
       if (error) {
         return callback(this._translateMessage(error));
       }
@@ -158,7 +152,7 @@ class NativeClient extends EventEmitter {
    */
   connectionStatus(callback) {
     // TODO: Don't require admin db...?
-    this.database.admin().command({'connectionStatus': 1}, this.readPreferenceOption, (error, result) => {
+    this.database.admin().command({'connectionStatus': 1}, {}, (error, result) => {
       if (error) {
         return callback(this._translateMessage(error));
       }
@@ -203,7 +197,7 @@ class NativeClient extends EventEmitter {
       return callback(new Error('Unexpected keys found in usersInfo options: ' + redundantKeys), null);
     }
     const authDb = this._database(authenticationDatabase);
-    authDb.command(usersInfo, this.readPreferenceOption, (error, result) => {
+    authDb.command(usersInfo, {}, (error, result) => {
       if (error) {
         return callback(this._translateMessage(error));
       }
@@ -251,7 +245,7 @@ class NativeClient extends EventEmitter {
    */
   listCollections(databaseName, filter, callback) {
     var db = this._database(databaseName);
-    db.listCollections(filter, this.readPreferenceOption).toArray((error, data) => {
+    db.listCollections(filter, {}).toArray((error, data) => {
       if (error) {
         return callback(this._translateMessage(error));
       }
@@ -265,7 +259,7 @@ class NativeClient extends EventEmitter {
    * @param {Function} callback - The callback.
    */
   listDatabases(callback) {
-    this.database.admin().command({'listDatabases': 1}, this.readPreferenceOption, (error, result) => {
+    this.database.admin().command({'listDatabases': 1}, {}, (error, result) => {
       if (error) {
         return callback(this._translateMessage(error));
       }

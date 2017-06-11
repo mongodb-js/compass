@@ -4,7 +4,7 @@
   "author": "Durran Jordan <durran@gmail.com>",
   "bugs": "https://github.com/mongodb-js/data-service/issues",
   "homepage": "https://github.com/mongodb-js/data-service",
-  "version": "4.0.2",
+  "version": "5.0.0-beta.2",
   "repository": {
     "type": "git",
     "url": "https://github.com/mongodb-js/data-service.git"
@@ -28,10 +28,10 @@
     "debug": "^2.6.0",
     "lodash": "^4.6.1",
     "mongodb": "^2.2.28",
-    "mongodb-collection-sample": "^1.6.2",
-    "mongodb-connection-model": "^8.0.1",
+    "mongodb-collection-sample": "^2.0.0-beta.0",
+    "mongodb-connection-model": "^9.0.0-beta.0",
     "mongodb-index-model": "^0.6.5",
-    "mongodb-instance-model": "^4.1.0",
+    "mongodb-instance-model": "^5.0.0-beta.1",
     "mongodb-js-errors": "^0.3.0",
     "mongodb-ns": "^2.0.0",
     "mongodb-url": "^2.0.0"
