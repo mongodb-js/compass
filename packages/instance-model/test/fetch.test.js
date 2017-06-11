@@ -10,6 +10,7 @@ var debug = require('debug')('mongodb-instance-model:test:fetch');
 var fixtures = require('mongodb-connection-fixture').MATRIX.map(function(model) {
   return new Connection(model);
 });
+
 describe('mongodb-instance-model#fetch', function() {
   describe('local', function() {
     var db;
@@ -24,7 +25,7 @@ describe('mongodb-instance-model#fetch', function() {
     });
     it('should connect to `localhost:27017`', function(done) {
       var model = Connection.from('mongodb://localhost:27017');
-      connect(model, function(err, _db) {
+      connect(model, null, function(err, _db) {
         if (err) {
           return done(err);
         }
@@ -64,7 +65,7 @@ describe('mongodb-instance-model#fetch', function() {
    */
   it.skip('should get instance details for john doe', function(done) {
     var connection = Connection.from('john:doe@localhost:30000/admin?authMechanism=MONGODB-CR');
-    connect(connection, function(err, db) {
+    connect(connection, null, function(err, db) {
       if (err) {
         return done(err);
       }
@@ -93,7 +94,7 @@ describe('mongodb-instance-model#fetch', function() {
                 this.slow(5000);
                 this.timeout(20000);
 
-                connect(model, function(err, _db) {
+                connect(model, null, function(err, _db) {
                   if (err) {
                     return done(err);
                   }

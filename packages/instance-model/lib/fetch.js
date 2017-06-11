@@ -1,9 +1,9 @@
 var async = require('async');
-var ReadPreference = require('mongodb').ReadPreference;
 var isNotAuthorized = require('mongodb-js-errors').isNotAuthorized;
 var toNS = require('mongodb-ns');
 var security = require('mongodb-security');
 var _ = require('lodash');
+var ReadPreference = require('mongodb').ReadPreference;
 
 var debug = require('debug')('mongodb-instance-model:fetch');
 
@@ -70,11 +70,8 @@ function getBuildInfo(done, results) {
   var spec = {
     buildInfo: 1
   };
-  var options = {
-    readPreference: ReadPreference.SECONDARY_PREFERRED
-  };
 
-  db.db('admin').command(spec, options, function(err, res) {
+  db.db('admin').command(spec, {}, function(err, res) {
     if (err) {
       // buildInfo doesn't require any privileges to run, so if it fails,
       // something really went wrong and we should return the error.
@@ -147,11 +144,8 @@ function getHostInfo(done, results) {
   var spec = {
     hostInfo: 1
   };
-  var options = {
-    readPreference: ReadPreference.SECONDARY_PREFERRED
-  };
 
-  db.db('admin').command(spec, options, function(err, res) {
+  db.db('admin').command(spec, {}, function(err, res) {
     if (err) {
       if (isNotAuthorized(err)) {
         // if the error is that the user is not authorized, silently ignore it
@@ -185,15 +179,11 @@ function listDatabases(done, results) {
     done(null, []);
   }
 
-  var options = {
-    readPreference: ReadPreference.SECONDARY_PREFERRED
-  };
-
   var spec = {
     listDatabases: 1
   };
 
-  db.db('admin').command(spec, options, function(err, res) {
+  db.db('admin').command(spec, {}, function(err, res) {
     if (err) {
       if (isNotAuthorized(err)) {
         // we caught this further up already and really should never get here!
@@ -294,12 +284,9 @@ function getDatabases(done, results) {
 
 function getUserInfo(done, results) {
   var db = results.db;
-  var options = {
-    readPreference: ReadPreference.SECONDARY_PREFERRED
-  };
 
   // get the user privileges
-  db.command({ connectionStatus: 1, showPrivileges: true }, options, function(err, res) {
+  db.command({ connectionStatus: 1, showPrivileges: true }, {}, function(err, res) {
     // no auth required, if this fails there was a real problem
     if (err) {
       return done(err);
@@ -310,7 +297,7 @@ function getUserInfo(done, results) {
     }
     var user = res.authInfo.authenticatedUsers[0];
 
-    db.command({ usersInfo: user, showPrivileges: true }, options, function(_err, _res) {
+    db.command({ usersInfo: user, showPrivileges: true }, {}, function(_err, _res) {
       if (_err) {
         // @durran: For the case usersInfo cannot be retrieved.
         debug('Command \"usersInfo\" could not be retrieved: ' + _err.message);
@@ -364,11 +351,15 @@ function getAllowedCollections(done, results) {
 function getDatabaseCollections(db, done) {
   debug('getDatabaseCollections...');
 
-  var options = {
-    readPreference: ReadPreference.SECONDARY_PREFERRED
-  };
-
   var spec = {};
+
+  /**
+   * @note: Durran: For some reason the listCollections call does not take into
+   *  account the read preference that was set on the db instance - it only looks
+   *  in the passed options: https://github.com/mongodb/node-mongodb-native/blob/2.2/lib/db.js#L671
+   */
+  var rp = db.s ? db.s.readPreference : ReadPreference.PRIMARY;
+  var options = { readPreference: rp };
 
   db.listCollections(spec, options).toArray(function(err, res) {
     if (err) {
