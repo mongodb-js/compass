@@ -2,7 +2,6 @@ const Reflux = require('reflux');
 const app = require('hadron-app');
 const toNS = require('mongodb-ns');
 const Actions = require('../actions');
-const ReadPreference = require('mongodb').ReadPreference;
 const _ = require('lodash');
 
 // const debug = require('debug')('mongodb-compass:crud:load-more-store');

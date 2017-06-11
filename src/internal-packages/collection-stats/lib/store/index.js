@@ -2,7 +2,6 @@ const Reflux = require('reflux');
 const app = require('hadron-app');
 const toNS = require('mongodb-ns');
 const numeral = require('numeral');
-const { ReadPreference } = require('mongodb');
 
 /**
  * The reflux store for collection stats.
