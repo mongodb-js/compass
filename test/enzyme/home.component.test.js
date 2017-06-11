@@ -74,7 +74,7 @@ describe('<Home />', () => {
           errorMessage={innerError}
           uiStatus={UI_STATES.ERROR}
       />);
-      expect(component.find(StatusRow).dive().text()).to.be.equal(expected);
+      expect(component.find(StatusRow).dive().text()).to.include(innerError);
     });
   });
 
