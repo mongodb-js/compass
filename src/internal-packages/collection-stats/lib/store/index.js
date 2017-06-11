@@ -2,12 +2,6 @@ const Reflux = require('reflux');
 const app = require('hadron-app');
 const toNS = require('mongodb-ns');
 const numeral = require('numeral');
-const { ReadPreference } = require('mongodb');
-
-/**
- * The default read preference.
- */
-const READ = ReadPreference.PRIMARY_PREFERRED;
 
 /**
  * The reflux store for collection stats.
@@ -32,7 +26,7 @@ const CollectionStatsStore = Reflux.createStore({
       if (this._isCollectionReadonly()) {
         this.trigger();
       } else {
-        app.dataService.collection(ns, { readPreference: READ }, (err, result) => {
+        app.dataService.collection(ns, {}, (err, result) => {
           if (!err) {
             this.trigger(this._parseCollectionDetails(result));
           }

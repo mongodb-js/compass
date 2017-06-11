@@ -2,15 +2,9 @@ const Reflux = require('reflux');
 const app = require('hadron-app');
 const toNS = require('mongodb-ns');
 const Actions = require('../actions');
-const ReadPreference = require('mongodb').ReadPreference;
 const _ = require('lodash');
 
 // const debug = require('debug')('mongodb-compass:crud:load-more-store');
-
-/**
- * The default read preference.
- */
-const READ = ReadPreference.PRIMARY_PREFERRED;
 
 const NUM_PAGE_DOCS = 20;
 /**
@@ -72,7 +66,6 @@ const LoadMoreDocumentsStore = Reflux.createStore({
       limit: nextPageCount,
       sort: this.sort,
       fields: this.project,
-      readPreference: READ,
       promoteValues: false
     };
     app.dataService.find(this.NamespaceStore.ns, this.filter, options, (error, documents) => {

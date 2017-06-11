@@ -4,17 +4,11 @@ const { remote } = require('electron');
 const Reflux = require('reflux');
 const StateMixin = require('reflux-state-mixin');
 const schemaStream = require('mongodb-schema').stream;
-const ReadPreference = require('mongodb').ReadPreference;
 const toNS = require('mongodb-ns');
 
 const _ = require('lodash');
 
 const COMPASS_ICON_PATH = require('../../../../icon').path;
-
-/**
- * The default read preference.
- */
-const READ = ReadPreference.PRIMARY_PREFERRED;
 
 // actions
 const SchemaAction = require('../action');
@@ -170,8 +164,7 @@ const SchemaStore = Reflux.createStore({
       query: this.query.filter,
       size: this.query.limit === 0 ? 1000 : Math.min(MAX_NUM_DOCUMENTS, this.query.limit),
       fields: this.query.project,
-      promoteValues: PROMOTE_VALUES,
-      readPreference: READ
+      promoteValues: PROMOTE_VALUES
     };
     debug('sampleOptions', sampleOptions);
 
@@ -215,8 +208,7 @@ const SchemaStore = Reflux.createStore({
     };
 
     const countOptions = {
-      maxTimeMS: this.state.maxTimeMS,
-      readPreference: READ
+      maxTimeMS: this.state.maxTimeMS
     };
 
     app.dataService.count(this.ns, this.query.filter, countOptions, (err, count) => {

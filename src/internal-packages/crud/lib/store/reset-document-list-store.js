@@ -1,16 +1,10 @@
 const Reflux = require('reflux');
 const app = require('hadron-app');
-const ReadPreference = require('mongodb').ReadPreference;
 const toNS = require('mongodb-ns');
 const Actions = require('../actions');
 const _ = require('lodash');
 
 // const debug = require('debug')('mongodb-compass:crud:reset-store');
-
-/**
- * The default read preference.
- */
-const READ = ReadPreference.PRIMARY_PREFERRED;
 
 /**
  * The reflux store for resetting the document list.
@@ -58,8 +52,7 @@ const ResetDocumentListStore = Reflux.createStore({
    */
   reset: function() {
     const countOptions = {
-      skip: this.skip,
-      readPreference: READ
+      skip: this.skip
     };
 
     const findOptions = {
@@ -67,7 +60,6 @@ const ResetDocumentListStore = Reflux.createStore({
       fields: this.project,
       skip: this.skip,
       limit: 20,
-      readPreference: READ,
       promoteValues: false
     };
 

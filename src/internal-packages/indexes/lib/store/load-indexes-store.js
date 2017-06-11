@@ -2,14 +2,8 @@ const _ = require('lodash');
 const Reflux = require('reflux');
 const app = require('hadron-app');
 const IndexModel = require('mongodb-index-model');
-const ReadPreference = require('mongodb').ReadPreference;
 const toNS = require('mongodb-ns');
 const Actions = require('../action/index-actions');
-
-/**
- * The default read preference.
- */
-const READ = ReadPreference.PRIMARY_PREFERRED;
 
 /**
  * The reflux store for sorting indexes
@@ -38,7 +32,7 @@ const LoadIndexesStore = Reflux.createStore({
       if (this.CollectionStore.isReadonly()) {
         this.trigger([]);
       } else {
-        app.dataService.indexes(ns, { readPreference: READ }, (err, indexes) => {
+        app.dataService.indexes(ns, {}, (err, indexes) => {
           if (!err) {
             this.trigger(this._convertToModels(indexes));
           }
@@ -52,7 +46,7 @@ const LoadIndexesStore = Reflux.createStore({
       if (this.CollectionStore.isReadonly()) {
         this.trigger([]);
       } else {
-        app.dataService.indexes(ns, { readPreference: READ }, (err, indexes) => {
+        app.dataService.indexes(ns, {}, (err, indexes) => {
           if (!err) {
             this.trigger(this._convertToModels(indexes));
           }
