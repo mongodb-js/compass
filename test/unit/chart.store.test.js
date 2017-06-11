@@ -694,8 +694,7 @@ describe('ChartStore', function() {
         expect(pipeline).to.be.deep.equal([ { '$match': {} }, { '$limit': 100 } ]);
         expect(options).to.be.deep.equal({
           'maxTimeMS': defaultQuery.maxTimeMS,
-          'promoteValues': true,
-          'readPreference': 'primaryPreferred'
+          'promoteValues': true
         });
       });
     });
@@ -735,8 +734,7 @@ describe('ChartStore', function() {
         ]);
         expect(options).to.be.deep.equal({
           'maxTimeMS': 10000,
-          'promoteValues': true,
-          'readPreference': 'primaryPreferred'
+          'promoteValues': true
         });
       });
       it('updates the queryCache', (done) => {
