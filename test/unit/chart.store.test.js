@@ -827,7 +827,7 @@ describe('ChartStore', function() {
         setTimeout(() => {
           const reductions = this.store.state.reductions;
           expect(reductions).to.be.deep.equal(expectedReductions);
-          const pipeline = ChartStore._arrayReductionPipeline();
+          const pipeline = ChartStore._arrayReductionPipeline(reductions);
           expect(pipeline).to.be.deep.equal(expectedPipeline);
           done();
         });
@@ -937,6 +937,7 @@ describe('ChartStore', function() {
       ns: '',
       maxTimeMS: 10000
     };
+    const REDUCTIONS = {};
 
     beforeEach(mockDataService.before());
     afterEach(mockDataService.after());
@@ -946,7 +947,7 @@ describe('ChartStore', function() {
         ChartStore.state.queryCache.ns = 'foo.bar';
         ChartStore._refreshDataCache(Object.assign({}, defaultQuery, {
           ns: 'foo.bar'
-        }));
+        }), REDUCTIONS);
         const options = app.dataService.aggregate.args[0][2];
         const pipeline = app.dataService.aggregate.args[0][1];
         const ns = app.dataService.aggregate.args[0][0];
@@ -965,7 +966,7 @@ describe('ChartStore', function() {
         ChartStore._refreshDataCache(Object.assign({}, defaultQuery, {
           ns: 'foo.bar',
           limit: 5000
-        }));
+        }), REDUCTIONS);
         const pipeline = app.dataService.aggregate.args[0][1];
         expect(pipeline).to.deep.equal([ { '$match': {} }, { '$limit': 5000 } ]);
       });
@@ -981,7 +982,7 @@ describe('ChartStore', function() {
         limit: 9
       });
       it('calls app.dataService.find with the correct arguments', () => {
-        ChartStore._refreshDataCache(nonDefaultQuery);
+        ChartStore._refreshDataCache(nonDefaultQuery, REDUCTIONS);
         const options = app.dataService.aggregate.args[0][2];
         const pipeline = app.dataService.aggregate.args[0][1];
         const ns = app.dataService.aggregate.args[0][0];
@@ -1004,7 +1005,7 @@ describe('ChartStore', function() {
           unsubscribe();
           done();
         });
-        ChartStore._refreshDataCache(nonDefaultQuery);
+        ChartStore._refreshDataCache(nonDefaultQuery, REDUCTIONS);
       });
     });
   });

@@ -272,9 +272,10 @@ const ChartStore = Reflux.createStore({
    * Helper method to construct the array reduction aggregation pipeline
    * for each encoded channel.
    *
+   * @param {Object} reductions   The object containing all array reductions keyed by channel
    * @returns {Array}   Array with the combined aggregation pipeline.
    */
-  _arrayReductionPipeline() {
+  _arrayReductionPipeline(reductions) {
     // TODO: Validations / errors here?
     // More specifically:
     // 1.  Does the FieldStore provide a recursive or flattened with
@@ -284,7 +285,6 @@ const ChartStore = Reflux.createStore({
     //     validate that every field has a reduction.
     // 3.  Encoding the same field into two aggregations most likely won't work
     //     as they have the same field name but the name should be unique...
-    const reductions = this.state.reductions;
     const channels = Object.keys(reductions);
     return channels.reduce((_pipeline, channel) => {
       const channelReductions = reductions[channel];
@@ -298,14 +298,15 @@ const ChartStore = Reflux.createStore({
    * variable. Currently limits number of documents to 1000.
    *
    * @param {Object} query   the new query to fetch data for
+   * @param {Object} reductions   The object containing all array reductions keyed by channel
    */
-  _refreshDataCache(query) {
+  _refreshDataCache(query, reductions) {
     const ns = toNS(query.ns);
     if (!ns.collection) {
       return;
     }
 
-    const pipeline = this._arrayReductionPipeline();
+    const pipeline = this._arrayReductionPipeline(reductions);
     const options = {
       maxTimeMS: query.maxTimeMS,
       promoteValues: true
@@ -484,7 +485,7 @@ const ChartStore = Reflux.createStore({
   onQueryChanged(state) {
     const newQuery = _.pick(state,
       ['filter', 'sort', 'skip', 'limit', 'maxTimeMS', 'ns']);
-    this._refreshDataCache(newQuery);
+    this._refreshDataCache(newQuery, this.state.reductions);
   },
 
 
@@ -664,9 +665,7 @@ const ChartStore = Reflux.createStore({
     }, true);
 
     // Also update the chart
-    setTimeout(() => {
-      this._refreshDataCache(this.state.queryCache);
-    });
+    this._refreshDataCache(this.state.queryCache, reductions);
   },
 
   /**
