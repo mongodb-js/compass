@@ -401,6 +401,38 @@ describe('ChartStore', function() {
         done();
       });
     });
+    it('retains the supported channel encodings when changing chart types', function(done) {
+      const expected = {
+        'x': {
+          field: COUNTRY_SCHEMA_FIELD.path,
+          type: MEASUREMENT_ENUM.NOMINAL
+        }
+      };
+      ChartActions.mapFieldToChannel(COUNTRY_SCHEMA_FIELD.path, CHART_CHANNEL_ENUM.X);
+      ChartActions.selectChartType('Line Chart');
+      setTimeout(() => {
+        expect(this.store.state.channels).to.be.deep.equal(expected);
+        done();
+      });
+    });
+    it('removes channel encodings not supported by the new chart type', function(done) {
+      const expected = {
+        'x': {
+          field: YEAR_SCHEMA_FIELD.path,
+          type: MEASUREMENT_ENUM.TEMPORAL
+        }
+      };
+      // encode x and shape channel
+      ChartActions.mapFieldToChannel(YEAR_SCHEMA_FIELD.path, CHART_CHANNEL_ENUM.X);
+      ChartActions.selectMeasurement(CHART_CHANNEL_ENUM.X, MEASUREMENT_ENUM.TEMPORAL);
+      ChartActions.mapFieldToChannel(COUNTRY_SCHEMA_FIELD.path, CHART_CHANNEL_ENUM.SHAPE);
+      // switch to line chart which does not have a shape channel
+      ChartActions.selectChartType('Line Chart');
+      setTimeout(() => {
+        expect(this.store.state.channels).to.be.deep.equal(expected);
+        done();
+      });
+    });
     it('allows un-encoding a detail encoding channel relationship', function(done) {
       const expectEncoded = {
         'detail': {
