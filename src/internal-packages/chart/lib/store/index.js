@@ -615,9 +615,12 @@ const ChartStore = Reflux.createStore({
       throw new Error('Unknown chart type: ' + chartType);
     }
 
-    // @TODO must also update specType here when selecting a vega role
+    // only keep the channel encodings of channels the new chart type supports
+    const channels = _.pick(this.state.channels,
+      chartRole.channels.map(channel => channel.name));
+
     this._updateSpec({
-      channels: {},
+      channels: channels,
       chartType: chartType,
       specType: chartRole.specType
     }, pushToHistory);
