@@ -650,14 +650,7 @@ const ChartStore = Reflux.createStore({
       arguments: args
     };
     // Unwind requires all previous transforms to also be unwinds
-    // TODO: This invariant needs to be maintained after all reduction changes,
-    // TODO: ... not just if type is unwind, e.g. change first of two unwinds
-    if (type === ARRAY_REDUCTION_TYPES.UNWIND) {
-      for (let i = 0; i < index; i++) {
-        channelReductions[i].type = ARRAY_REDUCTION_TYPES.UNWIND;
-        channelReductions[i].arguments = [];
-      }
-    }
+    this._maintainUnwindInvariant(channelReductions);
     reductions[channel] = channelReductions;
     this._updateSpec({
       reductions: reductions
@@ -667,6 +660,28 @@ const ChartStore = Reflux.createStore({
     setTimeout(() => {
       this._refreshDataCache(this.state.queryCache);
     });
+  },
+
+  /**
+   * Helper to maintain the unwind invariant, that all unwinds must take place
+   * before any other array reductions can be performed, i.e. all unwinds are
+   * the outermost or topmost operations in the reduction pipeline.
+   *
+   * Mutates the channelReductions in place.
+   *
+   * @param {Array} channelReductions   The reductions to modify.
+   */
+  _maintainUnwindInvariant(channelReductions) {
+    let unwinding = false;
+    for (let i = channelReductions.length - 1; i >= 0; i--) {
+      if (channelReductions[i].type === ARRAY_REDUCTION_TYPES.UNWIND) {
+        unwinding = true;
+      }
+      if (unwinding) {
+        channelReductions[i].type = ARRAY_REDUCTION_TYPES.UNWIND;
+        channelReductions[i].arguments = [];
+      }
+    }
   },
 
   /**
