@@ -648,11 +648,49 @@ describe('ChartStore', function() {
             }
           ]
         };
-        ChartActions.setArrayReduction(channel, 2, ARRAY_REDUCTION_TYPES.UNWIND);
+        ChartActions.setArrayReduction(channel, 2, type);
         setTimeout(() => {
           const reductions = this.store.state.reductions;
           expect(reductions).to.be.deep.equal(expected);
           done();
+        });
+      });
+
+      context('if encoding a different operation', () => {
+        beforeEach(() => {
+          ChartActions.setArrayReduction(channel, 2, ARRAY_REDUCTION_TYPES.UNWIND);
+        });
+        it('maintains index number of unwind reductions', function(done) {
+          type = ARRAY_REDUCTION_TYPES.UNWIND;
+          const expected = {
+            [channel]: [
+              {
+                field: field.path,
+                type: type,
+                arguments: []
+              },
+              {
+                field: field.path,
+                // If user tries to change this, it should not change
+                // until the later unwind reduction has been un-encoded...
+                // perhaps this should even be disabled in the GUI?
+                type: type,
+                arguments: []
+              },
+              {
+                field: field.path,
+                type: type,
+                arguments: []
+              }
+            ]
+          };
+          const DIFFERENT_OP = ARRAY_REDUCTION_TYPES.MIN;
+          ChartActions.setArrayReduction(channel, 1, DIFFERENT_OP);
+          setTimeout(() => {
+            const reductions = this.store.state.reductions;
+            expect(reductions).to.be.deep.equal(expected);
+            done();
+          });
         });
       });
 
