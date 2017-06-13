@@ -250,13 +250,8 @@ const ChartStore = Reflux.createStore({
     }
     // encode spec based on spec template, specType, channels
     state.spec = this._encodeSpec(chartRole.spec, state.specType, state.channels);
-
-    // check if all required channels are encoded
-    const requiredChannels = _.filter(chartRole.channels, (channel) => {
-      return channel.required;
-    }).map(channel => channel.name);
     const encodedChannels = Object.keys(state.channels);
-    state.specValid = requiredChannels.length === _.intersection(requiredChannels, encodedChannels).length;
+    state.specValid = encodedChannels.length > 0;
     if (state.specValid) {
       debug('valid spec %j', state.spec);
     }
