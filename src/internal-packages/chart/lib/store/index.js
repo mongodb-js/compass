@@ -309,7 +309,11 @@ const ChartStore = Reflux.createStore({
     const pipeline = this._arrayReductionPipeline(reductions);
     const options = {
       maxTimeMS: query.maxTimeMS,
-      promoteValues: true
+      promoteValues: true,
+      allowDiskUse: true,
+      cursor: {
+        batchSize: 1000
+      }
     };
 
     if (query.filter) {
@@ -328,7 +332,7 @@ const ChartStore = Reflux.createStore({
       pipeline.push({$limit: query.limit});
     }
 
-    app.dataService.aggregate(ns.ns, pipeline, options, (error, documents) => {
+    app.dataService.aggregate(ns.ns, pipeline, options).toArray((error, documents) => {
       if (error) {
         // @todo handle error better? what kind of errors can happen here?
         throw error;
