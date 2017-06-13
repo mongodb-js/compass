@@ -6,6 +6,7 @@ require('../../src/app/reflux-listen-to-external-store.js');
 const NamespaceStore = require('../../src/internal-packages/app/lib/stores/namespace-store');
 const {
   AGGREGATE_FUNCTION_ENUM,
+  ARRAY_REDUCTION_TYPES,
   CHART_CHANNEL_ENUM,
   MEASUREMENT_ENUM,
   LITE_SPEC_GLOBAL_SETTINGS
@@ -31,25 +32,32 @@ const mockDataService = require('./support/mock-data-service');
 const COUNTRY_SCHEMA_FIELD = {
   name: 'country',
   path: 'address.country',
-  count: 100,
-  type: 'String',
-  probability: 1
+  type: 'String'
 };
 
 const YEAR_SCHEMA_FIELD = {
   name: 'year',
   path: 'year',
-  count: 100,
-  type: 'Int32',
-  probability: 1
+  type: 'Int32'
 };
 
 const REVENUE_SCHEMA_FIELD = {
   name: 'revenue',
   path: 'revenue',
-  count: 80,
-  type: 'Decimal128',
-  probability: 0.8
+  type: 'Decimal128'
+};
+
+// From the array_party dataset on COMPASS-1235
+const UP_TO_5_TAGS_SCHEMA_FIELD = {
+  name: 'up_to_5_tags',
+  path: 'up_to_5_tags',
+  type: 'Array'
+};
+
+const TEN_RANDOM_STRINGS_SCHEMA_FIELD = {
+  name: '10_random_strings',
+  path: '10_random_strings',
+  type: 'Array'
 };
 
 describe('ChartStore', function() {
@@ -69,7 +77,9 @@ describe('ChartStore', function() {
     this.store.state.fieldsCache = {
       'address.country': COUNTRY_SCHEMA_FIELD,
       'year': YEAR_SCHEMA_FIELD,
-      'revenue': REVENUE_SCHEMA_FIELD
+      'revenue': REVENUE_SCHEMA_FIELD,
+      'up_to_5_tags': UP_TO_5_TAGS_SCHEMA_FIELD,
+      '10_random_strings': TEN_RANDOM_STRINGS_SCHEMA_FIELD
     };
   });
   afterEach(function() {
@@ -136,7 +146,7 @@ describe('ChartStore', function() {
     });
   });
 
-  const initialFields = ['specType', 'chartType', 'channels'];
+  const initialFields = ['specType', 'chartType', 'channels', 'reductions'];
 
   context('when using the history', function() {
     it('only contains a single state initially', function() {
@@ -574,6 +584,257 @@ describe('ChartStore', function() {
     });
   });
 
+  context('before an array channel has been encoded', () => {
+    it('throws error to remind developer to call mapFieldToChannel', () => {
+      const throwFn = () => {
+        const channel = CHART_CHANNEL_ENUM.X;
+        const index = 0;
+        const type = ARRAY_REDUCTION_TYPES.UNWIND;
+        // ChartStore might not work on Reflux 5+, if so change it to ChartActions
+        ChartStore.setArrayReduction(channel, index, type);
+      };
+      expect(throwFn).to.throw(/mapFieldToChannel not called for channel: x/);
+    });
+  });
+
+  context('after an array channel has been encoded', () => {
+    const field = UP_TO_5_TAGS_SCHEMA_FIELD;
+    const channel = CHART_CHANNEL_ENUM.X;
+    beforeEach(() => {
+      ChartActions.mapFieldToChannel(field.path, channel);
+    });
+
+    context('when calling the setArrayReduction action', function() {
+      let index;
+      let type;
+
+      it('stores an unwind array reduction', function(done) {
+        index = 0;
+        type = ARRAY_REDUCTION_TYPES.UNWIND;
+        const expected = {
+          [channel]: [{
+            field: field.path,
+            type: type,
+            arguments: []
+          }]
+        };
+        ChartActions.setArrayReduction(channel, index, type);
+        setTimeout(() => {
+          const reductions = this.store.state.reductions;
+          expect(reductions).to.be.deep.equal(expected);
+          done();
+        });
+      });
+
+      it('stores index number of unwind reductions', function(done) {
+        index = 2;
+        type = ARRAY_REDUCTION_TYPES.UNWIND;
+        const expected = {
+          [channel]: [
+            {
+              field: field.path,
+              type: type,
+              arguments: []
+            },
+            {
+              field: field.path,
+              type: type,
+              arguments: []
+            },
+            {
+              field: field.path,
+              type: type,
+              arguments: []
+            }
+          ]
+        };
+        ChartActions.setArrayReduction(channel, 2, type);
+        setTimeout(() => {
+          const reductions = this.store.state.reductions;
+          expect(reductions).to.be.deep.equal(expected);
+          done();
+        });
+      });
+
+      context('if encoding a different operation', () => {
+        beforeEach(() => {
+          ChartActions.setArrayReduction(channel, 2, ARRAY_REDUCTION_TYPES.UNWIND);
+        });
+        it('maintains index number of unwind reductions', function(done) {
+          type = ARRAY_REDUCTION_TYPES.UNWIND;
+          const expected = {
+            [channel]: [
+              {
+                field: field.path,
+                type: type,
+                arguments: []
+              },
+              {
+                field: field.path,
+                // If user tries to change this, it should not change
+                // until the later unwind reduction has been un-encoded...
+                // perhaps this should even be disabled in the GUI?
+                type: type,
+                arguments: []
+              },
+              {
+                field: field.path,
+                type: type,
+                arguments: []
+              }
+            ]
+          };
+          const DIFFERENT_OP = ARRAY_REDUCTION_TYPES.MIN;
+          ChartActions.setArrayReduction(channel, 1, DIFFERENT_OP);
+          setTimeout(() => {
+            const reductions = this.store.state.reductions;
+            expect(reductions).to.be.deep.equal(expected);
+            done();
+          });
+        });
+      });
+
+      it('stores index number of unwind reductions and min after', function(done) {
+        const expected = {
+          [channel]: [
+            {
+              field: field.path,
+              type: ARRAY_REDUCTION_TYPES.UNWIND,
+              arguments: []
+            },
+            {
+              field: field.path,
+              type: ARRAY_REDUCTION_TYPES.UNWIND,
+              arguments: []
+            },
+            {
+              field: field.path,
+              type: ARRAY_REDUCTION_TYPES.UNWIND,
+              arguments: []
+            },
+            {
+              field: field.path,
+              type: ARRAY_REDUCTION_TYPES.MIN,
+              arguments: []
+            }
+          ]
+        };
+        ChartActions.setArrayReduction(channel, 2, ARRAY_REDUCTION_TYPES.UNWIND);
+        ChartActions.setArrayReduction(channel, 3, ARRAY_REDUCTION_TYPES.MIN);
+        setTimeout(() => {
+          const reductions = this.store.state.reductions;
+          expect(reductions).to.be.deep.equal(expected);
+          done();
+        });
+      });
+
+      it('stores a max length reduction', function(done) {
+        index = 0;
+        type = ARRAY_REDUCTION_TYPES.MAX_LENGTH;
+        const expected = {
+          [channel]: [{
+            field: field.path,
+            type: type,
+            arguments: []
+          }]
+        };
+        ChartActions.setArrayReduction(channel, index, type);
+        setTimeout(() => {
+          const reductions = this.store.state.reductions;
+          expect(reductions).to.be.deep.equal(expected);
+          done();
+        });
+      });
+
+      it('throws error on receiving an unknown reduction type', function(done) {
+        const throwFn = () => {
+          index = 0;
+          type = 'BAD_REDUCER';
+          // ChartStore might not work on Reflux 5+, if so change it to ChartActions
+          ChartStore.setArrayReduction(channel, index, type);
+        };
+        setTimeout(() => {
+          expect(throwFn).to.throw(/Expect a reduction type, got: BAD_REDUCER/);
+          done();
+        });
+      });
+    });
+  });
+
+  context('after multiple array channels have been encoded', () => {
+    const field1 = UP_TO_5_TAGS_SCHEMA_FIELD;
+    const field2 = TEN_RANDOM_STRINGS_SCHEMA_FIELD;
+    const xChannel = CHART_CHANNEL_ENUM.X;
+    const yChannel = CHART_CHANNEL_ENUM.Y;
+    beforeEach(() => {
+      ChartActions.mapFieldToChannel(field1.path, xChannel);
+      ChartActions.mapFieldToChannel(field2.path, yChannel);
+    });
+
+    context('and calling the setArrayReduction action', function() {
+      let index;
+      let type;
+
+      it('can compute a combined aggregation pipeline', function(done) {
+        index = 0;
+        type = ARRAY_REDUCTION_TYPES.MAX_LENGTH;
+        const expectedReductions = {
+          [xChannel]: [{
+            field: field1.path,
+            type: type,
+            arguments: []
+          }],
+          [yChannel]: [{
+            field: field2.path,
+            type: type,
+            arguments: []
+          }]
+        };
+        const expectedPipeline = [
+          {
+            '$addFields': {
+              'up_to_5_tags': {
+                '$max': {
+                  '$map': {
+                    'as': 'str',
+                    'in': {
+                      '$strLenCP': '$$str'
+                    },
+                    'input': '$up_to_5_tags'
+                  }
+                }
+              }
+            }
+          },
+          {
+            '$addFields': {
+              '10_random_strings': {
+                '$max': {
+                  '$map': {
+                    'as': 'str',
+                    'in': {
+                      '$strLenCP': '$$str'
+                    },
+                    'input': '$10_random_strings'
+                  }
+                }
+              }
+            }
+          }
+        ];
+        ChartActions.setArrayReduction(xChannel, index, type);
+        ChartActions.setArrayReduction(yChannel, index, type);
+        setTimeout(() => {
+          const reductions = this.store.state.reductions;
+          expect(reductions).to.be.deep.equal(expectedReductions);
+          const pipeline = ChartStore._arrayReductionPipeline(reductions);
+          expect(pipeline).to.be.deep.equal(expectedPipeline);
+          done();
+        });
+      });
+    });
+  });
+
   context('when calling multiple actions', function() {
     it('encodes every action in channels state', function(done) {
       // Expect 3 keys set
@@ -676,6 +937,7 @@ describe('ChartStore', function() {
       ns: '',
       maxTimeMS: 10000
     };
+    const REDUCTIONS = {};
 
     beforeEach(mockDataService.before());
     afterEach(mockDataService.after());
@@ -685,7 +947,7 @@ describe('ChartStore', function() {
         ChartStore.state.queryCache.ns = 'foo.bar';
         ChartStore._refreshDataCache(Object.assign({}, defaultQuery, {
           ns: 'foo.bar'
-        }));
+        }), REDUCTIONS);
         const options = app.dataService.aggregate.args[0][2];
         const pipeline = app.dataService.aggregate.args[0][1];
         const ns = app.dataService.aggregate.args[0][0];
@@ -704,7 +966,7 @@ describe('ChartStore', function() {
         ChartStore._refreshDataCache(Object.assign({}, defaultQuery, {
           ns: 'foo.bar',
           limit: 5000
-        }));
+        }), REDUCTIONS);
         const pipeline = app.dataService.aggregate.args[0][1];
         expect(pipeline).to.deep.equal([ { '$match': {} }, { '$limit': 5000 } ]);
       });
@@ -720,7 +982,7 @@ describe('ChartStore', function() {
         limit: 9
       });
       it('calls app.dataService.find with the correct arguments', () => {
-        ChartStore._refreshDataCache(nonDefaultQuery);
+        ChartStore._refreshDataCache(nonDefaultQuery, REDUCTIONS);
         const options = app.dataService.aggregate.args[0][2];
         const pipeline = app.dataService.aggregate.args[0][1];
         const ns = app.dataService.aggregate.args[0][0];
@@ -743,7 +1005,7 @@ describe('ChartStore', function() {
           unsubscribe();
           done();
         });
-        ChartStore._refreshDataCache(nonDefaultQuery);
+        ChartStore._refreshDataCache(nonDefaultQuery, REDUCTIONS);
       });
     });
   });
