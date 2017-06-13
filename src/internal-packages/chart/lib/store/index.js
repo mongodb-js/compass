@@ -650,6 +650,8 @@ const ChartStore = Reflux.createStore({
       arguments: args
     };
     // Unwind requires all previous transforms to also be unwinds
+    // TODO: This invariant needs to be maintained after all reduction changes,
+    // TODO: ... not just if type is unwind, e.g. change first of two unwinds
     if (type === ARRAY_REDUCTION_TYPES.UNWIND) {
       for (let i = 0; i < index; i++) {
         channelReductions[i].type = ARRAY_REDUCTION_TYPES.UNWIND;
