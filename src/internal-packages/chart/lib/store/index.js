@@ -276,7 +276,14 @@ const ChartStore = Reflux.createStore({
    */
   _arrayReductionPipeline() {
     // TODO: Validations / errors here?
-    // e.g. trying to encode a field into two aggregations doesn't work
+    // More specifically:
+    // 1.  Does the FieldStore provide a recursive or flattened with
+    //     depth/nestingLevel schema for arrays? If not...
+    //     should this code listen to the SchemaStore?
+    // 2.  Given the recursive or otherwise encoded structure,
+    //     validate that every field has a reduction.
+    // 3.  Encoding the same field into two aggregations most likely won't work
+    //     as they have the same field name but the name should be unique...
     const reductions = this.state.reductions;
     const channels = Object.keys(reductions);
     return channels.reduce((_pipeline, channel) => {
