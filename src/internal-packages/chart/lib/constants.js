@@ -112,7 +112,13 @@ const SPEC_TYPE_ENUM = Object.freeze({
   CUSTOM: 'custom'
 });
 
-const TOOL_TIP_ID_ARRAY = 'array-not-supported';
+const TOOL_TIP_ARRAY_REDUCE = Object.freeze({
+  'data-for': 'array-reduce-tooltip',
+  'data-tip': 'In order to use fields or values<br/>'
+    + 'inside an array, the array has to<br/>'
+    + 'be reduced to a scalar value.<br/>'
+    + 'Choose from the array reduction methods.'
+});
 
 /**
  * A list of the general array reduction types.
@@ -214,7 +220,7 @@ module.exports = {
   MEASUREMENT_ICON_ENUM,
   SPEC_TYPE_ENUM,
   VIEW_TYPE_ENUM,
-  TOOL_TIP_ID_ARRAY,
+  TOOL_TIP_ARRAY_REDUCE,
   ARRAY_GENERAL_REDUCTIONS,
   ARRAY_NUMERIC_REDUCTIONS,
   ARRAY_STRING_REDUCTIONS,

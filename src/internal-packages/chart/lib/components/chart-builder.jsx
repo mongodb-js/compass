@@ -16,7 +16,7 @@ const {
   MIN_CHART_HEIGHT,
   MIN_CHART_WIDTH,
   SPEC_TYPE_ENUM,
-  TOOL_TIP_ID_ARRAY,
+  TOOL_TIP_ARRAY_REDUCE,
   VIEW_TYPE_ENUM
 } = require('../constants');
 
@@ -246,7 +246,7 @@ class ChartBuilder extends React.Component {
           {this.renderWarning()}
         </div>
         {this.renderChartEditor()}
-        <ReactTooltip id={TOOL_TIP_ID_ARRAY} place="right" effect="solid" delayShow={200}/>
+        <ReactTooltip id={TOOL_TIP_ARRAY_REDUCE['data-for']} place="right" effect="solid" delayShow={200} />
       </div>
     );
   }
