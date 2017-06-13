@@ -260,6 +260,10 @@ const ChartStore = Reflux.createStore({
     if (state.specValid) {
       debug('valid spec %j', state.spec);
     }
+    // if the spec is valid and no data has been fetched yet, do that now
+    if (state.specValid && _.isEmpty(this.state.dataCache)) {
+      this._refreshDataCache(state.queryCache, state.reductions);
+    }
     // push new chart state to history
     if (pushToHistory) {
       this._pushToHistory( _.cloneDeep(_.pick(state, HISTORY_STATE_FIELDS)) );
@@ -309,7 +313,11 @@ const ChartStore = Reflux.createStore({
     const pipeline = this._arrayReductionPipeline(reductions);
     const options = {
       maxTimeMS: query.maxTimeMS,
-      promoteValues: true
+      promoteValues: true,
+      allowDiskUse: true,
+      cursor: {
+        batchSize: 1000
+      }
     };
 
     if (query.filter) {
@@ -328,22 +336,14 @@ const ChartStore = Reflux.createStore({
       pipeline.push({$limit: query.limit});
     }
 
-    app.dataService.aggregate(ns.ns, pipeline, options, (error, documents) => {
+    app.dataService.aggregate(ns.ns, pipeline, options).toArray((error, documents) => {
       if (error) {
         // @todo handle error better? what kind of errors can happen here?
         throw error;
       }
-
-      let state = {
-        queryCache: query,
+      this.setState({
         dataCache: documents
-      };
-
-      if (this.state.queryCache.ns !== query.ns) {
-        state = Object.assign(state, this.getInitialChartState());
-      }
-
-      this.setState(state);
+      });
     });
   },
 
@@ -478,14 +478,27 @@ const ChartStore = Reflux.createStore({
   },
 
   /**
-   * Fires when the query is changed.
+   * Fires when the query is changed, and if a chart is already on the screen
+   * also triggers refresh of the dataCache.
    *
-   * @param {Object} state - The query state.
+   * @param {Object} query - The query state.
    */
-  onQueryChanged(state) {
-    const newQuery = _.pick(state,
+  onQueryChanged(query) {
+    const newQuery = _.pick(query,
       ['filter', 'sort', 'skip', 'limit', 'maxTimeMS', 'ns']);
-    this._refreshDataCache(newQuery, this.state.reductions);
+
+    let state = {
+      queryCache: newQuery
+    };
+    // clear the chart when the namespace changes
+    if (this.state.queryCache.ns !== query.ns) {
+      state = Object.assign(state, this.getInitialChartState());
+    }
+    this.setState(state);
+    // when we have a chart, we need to refresh the data immediately
+    if (this.state.specValid) {
+      this._refreshDataCache(newQuery, this.state.reductions);
+    }
   },
 
 
@@ -666,9 +679,6 @@ const ChartStore = Reflux.createStore({
     this._updateSpec({
       reductions: reductions
     }, true);
-
-    // Also update the chart
-    this._refreshDataCache(this.state.queryCache, reductions);
   },
 
   /**

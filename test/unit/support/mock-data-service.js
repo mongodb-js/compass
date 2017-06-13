@@ -110,7 +110,7 @@ const before = function(errors, results) {
 
 /**
  * `after` hook, restoring the previous data-service
- * @return {[type]} [description]
+ * @return {Function}  function to restore original data service
  */
 const after = function() {
   return function() {
