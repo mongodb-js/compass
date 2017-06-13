@@ -971,11 +971,17 @@ describe('ChartStore', function() {
     };
     const REDUCTIONS = {};
 
-    beforeEach(mockDataService.before());
+    beforeEach(mockDataService.before({}, {
+      aggregate: {
+        toArray: function(cb) {
+          cb(null, []);
+        }
+      }
+    }));
     afterEach(mockDataService.after());
 
     context('when calling with default arguments', () => {
-      it('calls app.dataService.find with the correct arguments', () => {
+      it('calls app.dataService.aggregate with the correct arguments', () => {
         ChartStore.state.queryCache.ns = 'foo.bar';
         ChartStore._refreshDataCache(Object.assign({}, defaultQuery, {
           ns: 'foo.bar'
@@ -987,8 +993,12 @@ describe('ChartStore', function() {
         expect(ns).to.be.equal('foo.bar');
         expect(pipeline).to.be.deep.equal([ { '$match': {} }, { '$limit': 100 } ]);
         expect(options).to.be.deep.equal({
-          'maxTimeMS': defaultQuery.maxTimeMS,
-          'promoteValues': true
+          allowDiskUse: true,
+          cursor: {
+            batchSize: 1000
+          },
+          maxTimeMS: defaultQuery.maxTimeMS,
+          promoteValues: true
         });
       });
     });
@@ -1013,7 +1023,7 @@ describe('ChartStore', function() {
         skip: 40,
         limit: 9
       });
-      it('calls app.dataService.find with the correct arguments', () => {
+      it('calls app.dataService.aggregate with the correct arguments', () => {
         ChartStore._refreshDataCache(nonDefaultQuery, REDUCTIONS);
         const options = app.dataService.aggregate.args[0][2];
         const pipeline = app.dataService.aggregate.args[0][1];
@@ -1027,17 +1037,13 @@ describe('ChartStore', function() {
           {'$limit': 9}
         ]);
         expect(options).to.be.deep.equal({
-          'maxTimeMS': 10000,
-          'promoteValues': true
+          allowDiskUse: true,
+          cursor: {
+            batchSize: 1000
+          },
+          maxTimeMS: 10000,
+          promoteValues: true
         });
-      });
-      it('updates the queryCache', (done) => {
-        const unsubscribe = ChartStore.listen((state) => {
-          expect(state.queryCache).to.be.deep.equal(nonDefaultQuery);
-          unsubscribe();
-          done();
-        });
-        ChartStore._refreshDataCache(nonDefaultQuery, REDUCTIONS);
       });
     });
   });
