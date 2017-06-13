@@ -532,22 +532,29 @@ class NativeClient extends EventEmitter {
 
   /**
    * Execute an aggregation framework pipeline with the provided options on the
-   * collection. For more details, see
+   * collection. Async if called with a callback function, otherwise function
+   * returns a cursor. For more details, see
    * http://mongodb.github.io/node-mongodb-native/2.2/api/Collection.html#aggregate
    *
    * @param {String} ns - The namespace to search on.
    * @param {Object} pipeline - The aggregation pipeline.
    * @param {Object} options - The aggregation options.
-   * @param {Function} callback - The callback.
+   * @param {Function} callback - The callback (optional)
+   *
    * @return {(null|AggregationCursor)}
    */
   aggregate(ns, pipeline, options, callback) {
-    return this._collection(ns).aggregate(pipeline, options, (error, result) => {
-      if (error) {
-        return callback(this._translateMessage(error));
-      }
-      callback(null, result);
-    });
+    // async when a callback is provided
+    if (_.isFunction(callback)) {
+      this._collection(ns).aggregate(pipeline, options, (error, result) => {
+        if (error) {
+          return callback(this._translateMessage(error));
+        }
+        return callback(null, result);
+      });
+    }
+    // otherwise return cursor
+    return this._collection(ns).aggregate(pipeline, options);
   }
 
   /**
