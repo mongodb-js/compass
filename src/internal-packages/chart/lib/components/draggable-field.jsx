@@ -112,8 +112,11 @@ class DraggableField extends React.Component {
     });
 
     return (
-      <div className="chart-draggable-field-array-picker-column">
-        { reductions }
+      <div>
+        <span className="chart-draggable-field-array-picker-title">array reductions</span>
+        <div className="chart-draggable-field-array-picker-column">
+          { reductions }
+        </div>
       </div>
     );
   }
