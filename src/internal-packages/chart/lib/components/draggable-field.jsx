@@ -106,12 +106,16 @@ class DraggableField extends React.Component {
     );
   }
 
-  renderArrays() {
-    const reductions = this.props.arrayReductions;
-
-    return reductions.map((reduction, i) => {
+  renderArrayReductions() {
+    const reductions = this.props.arrayReductions.map((reduction, i) => {
       return <ArrayReductionPicker key={i} channel={this.props.channelName} field={reduction.field} type={reduction.type || null} />;
     });
+
+    return (
+      <div className="chart-draggable-field-array-picker-column">
+        { reductions }
+      </div>
+    );
   }
 
   /**
@@ -136,7 +140,7 @@ class DraggableField extends React.Component {
       <div {...attributes} >
         <div className="chart-draggable-field-row">
           {this.props.arrayReductions && this.props.enableMenus ?
-            this.renderArrays()
+            this.renderArrayReductions()
             : <div className="chart-draggable-field-item-container chart-draggable-field-item-container-title">
               <div className="chart-draggable-field-title">
                 {this.props.fieldName}
