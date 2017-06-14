@@ -16,12 +16,16 @@ describe('QueryStore', () => {
     mock('../../src/internal-packages/indexes/lib/action/index-actions', {
       loadIndexes: sinon.spy()
     });
-    QueryStore = mock.reRequire('../../src/internal-packages/query/lib/store/query-store');
+    QueryStore = mock.reRequire(
+      '../../src/internal-packages/query/lib/store/query-store'
+    );
   });
 
   after(() => {
     mock.stopAll();
-    mock.reRequire('../../src/internal-packages/indexes/lib/action/index-actions');
+    mock.reRequire(
+      '../../src/internal-packages/indexes/lib/action/index-actions'
+    );
   });
 
   // reset query store to initial state
@@ -32,19 +36,19 @@ describe('QueryStore', () => {
   });
 
   describe('toggleQueryOptions', () => {
-    it('sets expanded to true when calling it once', (done) => {
+    it('sets expanded to true when calling it once', done => {
       expect(QueryStore.state.expanded).to.be.false;
-      unsubscribe = QueryStore.listen((state) => {
+      unsubscribe = QueryStore.listen(state => {
         expect(state.expanded).to.be.true;
         done();
       });
       QueryStore.toggleQueryOptions();
     });
 
-    it('sets expanded back to false when calling it twice', (done) => {
+    it('sets expanded back to false when calling it twice', done => {
       expect(QueryStore.state.expanded).to.be.false;
       QueryStore.toggleQueryOptions();
-      unsubscribe = QueryStore.listen((state) => {
+      unsubscribe = QueryStore.listen(state => {
         expect(state.expanded).to.be.false;
         done();
       });
@@ -54,27 +58,27 @@ describe('QueryStore', () => {
 
   describe('valid', () => {
     context('when using setQuery', () => {
-      it('updates its valid state for an invalid query', (done) => {
+      it('updates its valid state for an invalid query', done => {
         expect(QueryStore.state.valid).to.be.true;
-        unsubscribe = QueryStore.listen((state) => {
+        unsubscribe = QueryStore.listen(state => {
           expect(state.valid).to.be.false;
           done();
         });
-        QueryStore.setQuery({skip: 'invalid', sort: {foo: 1}});
+        QueryStore.setQuery({ skip: 'invalid', sort: { foo: 1 } });
       });
-      it('updates its valid state for a valid query', (done) => {
-        QueryStore.setQuery({skip: 'invalid', sort: {foo: 1}});
-        unsubscribe = QueryStore.listen((state) => {
+      it('updates its valid state for a valid query', done => {
+        QueryStore.setQuery({ skip: 'invalid', sort: { foo: 1 } });
+        unsubscribe = QueryStore.listen(state => {
           expect(state.valid).to.be.true;
           done();
         });
-        QueryStore.setQuery({skip: 3, sort: {foo: 1}});
+        QueryStore.setQuery({ skip: 3, sort: { foo: 1 } });
       });
     });
     context('when using setQueryString', () => {
-      it('updates its valid state for an invalid query', (done) => {
+      it('updates its valid state for an invalid query', done => {
         expect(QueryStore.state.valid).to.be.true;
-        unsubscribe = QueryStore.listen((state) => {
+        unsubscribe = QueryStore.listen(state => {
           expect(state.valid).to.be.false;
           done();
         });
@@ -84,11 +88,11 @@ describe('QueryStore', () => {
   });
 
   describe('_cloneQuery', () => {
-    it('returns a clone of the current query', (done) => {
+    it('returns a clone of the current query', done => {
       const query = {
-        filter: {a: {$exists: true}},
-        project: {b: 1},
-        sort: {c: -1, d: 1},
+        filter: { a: { $exists: true } },
+        project: { b: 1 },
+        sort: { c: -1, d: 1 },
         skip: 5,
         limit: 10,
         sample: false
@@ -162,7 +166,11 @@ describe('QueryStore', () => {
 
   describe('_validateFeatureFlag', () => {
     it('accepts a valid feature flag', () => {
-      QueryStore.validFeatureFlags = ['rocketLauncher', 'laserWeapon', 'turboBoost'];
+      QueryStore.validFeatureFlags = [
+        'rocketLauncher',
+        'laserWeapon',
+        'turboBoost'
+      ];
       const res = QueryStore._validateFeatureFlag('enable rocketLauncher');
       expect(res[1]).to.be.equal('enable');
       expect(res[2]).to.be.equal('rocketLauncher');
@@ -173,67 +181,52 @@ describe('QueryStore', () => {
     });
   });
 
-  describe('_cleanObjectString', () => {
-    it('adds quotes to field names', () => {
-      const clean = QueryStore._cleanObjectString('{foo: 1}');
-      expect(clean).to.be.equal('{"foo": 1}');
-    });
-    it('removes multiple spaces', () => {
-      const clean = QueryStore._cleanObjectString('{foo:     1}');
-      expect(clean).to.be.equal('{"foo": 1}');
-    });
-    it('replaces just whitespace with empty query string', () => {
-      const clean = QueryStore._cleanObjectString('   ');
-      expect(clean).to.be.equal('{}');
-    });
-  });
-
   describe('setQuery', () => {
     context('when setting a single query property', () => {
-      it('sets a new `filter`', (done) => {
-        unsubscribe = QueryStore.listen((state) => {
-          expect(state.filter).to.be.deep.equal({foo: 1});
-          expect(state.filterString).to.be.equal('{"foo":1}');
+      it('sets a new `filter`', done => {
+        unsubscribe = QueryStore.listen(state => {
+          expect(state.filter).to.be.deep.equal({ foo: 1 });
+          expect(state.filterString).to.be.equal('{foo: 1}');
           expect(state.filterValid).to.be.true;
           done();
         });
-        QueryStore.setQuery({filter: {foo: 1}});
+        QueryStore.setQuery({ filter: { foo: 1 } });
       });
-      it('sets a new `project`', (done) => {
-        unsubscribe = QueryStore.listen((state) => {
-          expect(state.project).to.be.deep.equal({_id: 0});
-          expect(state.projectString).to.be.equal('{"_id":0}');
+      it('sets a new `project`', done => {
+        unsubscribe = QueryStore.listen(state => {
+          expect(state.project).to.be.deep.equal({ _id: 0 });
+          expect(state.projectString).to.be.equal('{_id: 0}');
           expect(state.projectValid).to.be.true;
           done();
         });
-        QueryStore.setQuery({project: {_id: 0}});
+        QueryStore.setQuery({ project: { _id: 0 } });
       });
-      it('sets a new `sort`', (done) => {
-        unsubscribe = QueryStore.listen((state) => {
-          expect(state.sort).to.be.deep.equal({foo: -1});
-          expect(state.sortString).to.be.equal('{"foo":-1}');
+      it('sets a new `sort`', done => {
+        unsubscribe = QueryStore.listen(state => {
+          expect(state.sort).to.be.deep.equal({ foo: -1 });
+          expect(state.sortString).to.be.equal('{foo: -1}');
           expect(state.sortValid).to.be.true;
           done();
         });
-        QueryStore.setQuery({sort: {foo: -1}});
+        QueryStore.setQuery({ sort: { foo: -1 } });
       });
-      it('sets a new `skip`', (done) => {
-        unsubscribe = QueryStore.listen((state) => {
+      it('sets a new `skip`', done => {
+        unsubscribe = QueryStore.listen(state => {
           expect(state.skip).to.be.deep.equal(101);
           expect(state.skipString).to.be.equal('101');
           expect(state.skipValid).to.be.true;
           done();
         });
-        QueryStore.setQuery({skip: 101});
+        QueryStore.setQuery({ skip: 101 });
       });
-      it('sets a new `limit`', (done) => {
-        unsubscribe = QueryStore.listen((state) => {
+      it('sets a new `limit`', done => {
+        unsubscribe = QueryStore.listen(state => {
           expect(state.limit).to.be.deep.equal(3);
           expect(state.limitString).to.be.equal('3');
           expect(state.limitValid).to.be.true;
           done();
         });
-        QueryStore.setQuery({limit: 3});
+        QueryStore.setQuery({ limit: 3 });
       });
       it('sets a new `sample` to true', (done) => {
         unsubscribe = QueryStore.listen((state) => {
@@ -254,20 +247,24 @@ describe('QueryStore', () => {
       });
     });
     context('when setting multiple query properties', () => {
-      it('sets all state fields correctly', (done) => {
-        unsubscribe = QueryStore.listen((state) => {
+      it('sets all state fields correctly', done => {
+        unsubscribe = QueryStore.listen(state => {
           expect(state.limit).to.be.equal(0);
           expect(state.limitString).to.be.equal('false');
           expect(state.limitValid).to.be.false;
-          expect(state.sort).to.be.deep.equal({field: -1});
-          expect(state.sortString).to.be.equal('{"field":-1}');
+          expect(state.sort).to.be.deep.equal({ field: -1 });
+          expect(state.sortString).to.be.equal('{field: -1}');
           expect(state.sortValid).to.be.true;
-          expect(state.filter).to.be.deep.equal({a: {$exists: true}});
-          expect(state.filterString).to.be.equal('{"a":{"$exists":true}}');
+          expect(state.filter).to.be.deep.equal({ a: { $exists: true } });
+          expect(state.filterString).to.be.equal('{a: {$exists: true}}');
           expect(state.filterValid).to.be.true;
           done();
         });
-        QueryStore.setQuery({limit: false, sort: {field: -1}, filter: {a: {$exists: true}}});
+        QueryStore.setQuery({
+          limit: false,
+          sort: { field: -1 },
+          filter: { a: { $exists: true } }
+        });
       });
     });
     context('when using toggleSample', () => {
@@ -319,11 +316,19 @@ describe('QueryStore', () => {
       });
     });
     context('when passing no query object', () => {
-      it('sets the default query values', (done) => {
-        QueryStore.setQuery({limit: false, sort: {field: -1}, filter: {a: {$exists: true}}});
-        expect(QueryStore._cloneQuery()).to.not.deep.equal(QueryStore._getDefaultQuery());
+      it('sets the default query values', done => {
+        QueryStore.setQuery({
+          limit: false,
+          sort: { field: -1 },
+          filter: { a: { $exists: true } }
+        });
+        expect(QueryStore._cloneQuery()).to.not.deep.equal(
+          QueryStore._getDefaultQuery()
+        );
         unsubscribe = QueryStore.listen(() => {
-          expect(QueryStore._cloneQuery()).to.deep.equal(QueryStore._getDefaultQuery());
+          expect(QueryStore._cloneQuery()).to.deep.equal(
+            QueryStore._getDefaultQuery()
+          );
           done();
         });
         QueryStore.setQuery();
@@ -333,11 +338,13 @@ describe('QueryStore', () => {
 
   describe('apply', () => {
     describe('with a valid query', () => {
-      it('sets queryState to active and sets the lastExecuteQuery', (done) => {
-        QueryStore.setQuery({limit: 3, filter: {foo: 'bar'}});
-        unsubscribe = QueryStore.listen((state) => {
+      it('sets queryState to active and sets the lastExecuteQuery', done => {
+        QueryStore.setQuery({ limit: 3, filter: { foo: 'bar' } });
+        unsubscribe = QueryStore.listen(state => {
           expect(state.lastExecutedQuery.limit).to.be.equal(3);
-          expect(state.lastExecutedQuery.filter).to.be.deep.equal({foo: 'bar'});
+          expect(state.lastExecutedQuery.filter).to.be.deep.equal({
+            foo: 'bar'
+          });
           expect(state.lastExecutedQuery.skip).to.be.equal(0);
           expect(state.queryState).to.be.equal('apply');
           expect(state.valid).to.be.true;
@@ -347,8 +354,8 @@ describe('QueryStore', () => {
       });
     });
     describe('with an invalid query', () => {
-      it('does not set lastExecuteQuery or queryState', (done) => {
-        QueryStore.setQuery({limit: 'invalid', filter: {foo: 'bar'}});
+      it('does not set lastExecuteQuery or queryState', done => {
+        QueryStore.setQuery({ limit: 'invalid', filter: { foo: 'bar' } });
         QueryStore.apply();
         setTimeout(() => {
           expect(QueryStore.state.lastExecutedQuery).to.be.null;
@@ -361,7 +368,7 @@ describe('QueryStore', () => {
 
   describe('reset', () => {
     describe('when the current query is the default query', () => {
-      it('does not trigger the store', (done) => {
+      it('does not trigger the store', done => {
         unsubscribe = QueryStore.listen(() => {
           assert.fail(0, 1, 'Should not have triggered the store.');
         });
@@ -372,21 +379,25 @@ describe('QueryStore', () => {
       });
     });
     describe('when the current query is different to the default', () => {
-      it('resets the query to the default', (done) => {
-        QueryStore.setQuery({limit: 4, filter: {foo: 'bar'}});
+      it('resets the query to the default', done => {
+        QueryStore.setQuery({ limit: 4, filter: { foo: 'bar' } });
         unsubscribe = QueryStore.listen(() => {
-          expect(QueryStore._cloneQuery()).to.be.deep.equal(QueryStore._getDefaultQuery());
+          expect(QueryStore._cloneQuery()).to.be.deep.equal(
+            QueryStore._getDefaultQuery()
+          );
           done();
         });
         QueryStore.reset();
       });
     });
     describe('when the both query and lastExecutedQuery have been changed', () => {
-      it('resets the query to the default', (done) => {
-        QueryStore.setQuery({limit: 4, filter: {foo: 'bar'}});
+      it('resets the query to the default', done => {
+        QueryStore.setQuery({ limit: 4, filter: { foo: 'bar' } });
         QueryStore.apply();
         unsubscribe = QueryStore.listen(() => {
-          expect(QueryStore._cloneQuery()).to.be.deep.equal(QueryStore._getDefaultQuery());
+          expect(QueryStore._cloneQuery()).to.be.deep.equal(
+            QueryStore._getDefaultQuery()
+          );
           expect(QueryStore.state.lastExecutedQuery).to.be.deep.null;
           expect(QueryStore.state.queryState).to.be.equal('reset');
           done();
@@ -397,17 +408,17 @@ describe('QueryStore', () => {
   });
 
   describe('typeQueryString', () => {
-    it('should pass through `userTyping` to the state', (done) => {
+    it('should pass through `userTyping` to the state', done => {
       expect(QueryStore.state.userTyping).to.be.false;
-      unsubscribe = QueryStore.listen((state) => {
+      unsubscribe = QueryStore.listen(state => {
         expect(state.userTyping).to.be.true;
         done();
       });
-      QueryStore.typeQueryString('filter', '{"foo": 1}');
+      QueryStore.typeQueryString('filter', '{foo: 1}');
     });
-    it('should set `userTyping` back to false after 100ms', (done) => {
+    it('should set `userTyping` back to false after 100ms', done => {
       expect(QueryStore.state.userTyping).to.be.false;
-      QueryStore.typeQueryString('filter', '{"foo": 1}');
+      QueryStore.typeQueryString('filter', '{foo: 1}');
       setTimeout(() => {
         expect(QueryStore.state.userTyping).to.be.false;
         done();
@@ -416,55 +427,55 @@ describe('QueryStore', () => {
   });
 
   describe('setQueryString', () => {
-    it('should pass through `userTyping` to the state', (done) => {
+    it('should pass through `userTyping` to the state', done => {
       expect(QueryStore.state.userTyping).to.be.false;
-      unsubscribe = QueryStore.listen((state) => {
+      unsubscribe = QueryStore.listen(state => {
         expect(state.userTyping).to.be.true;
         done();
       });
-      QueryStore.setQueryString('filter', '{"foo": 1}', true);
+      QueryStore.setQueryString('filter', '{foo: 1}', true);
     });
     context('when setting a valid input', () => {
       describe('filter', () => {
-        it('sets the filterString, filterValid and filter', (done) => {
+        it('sets the filterString, filterValid and filter', done => {
           expect(QueryStore.state.filterString).to.be.equal('');
-          unsubscribe = QueryStore.listen((state) => {
-            expect(state.filterString).to.be.equal('{"foo": 1}');
+          unsubscribe = QueryStore.listen(state => {
+            expect(state.filterString).to.be.equal('{foo: 1}');
             expect(state.filterValid).to.be.true;
-            expect(state.filter).to.deep.equal({foo: 1});
+            expect(state.filter).to.deep.equal({ foo: 1 });
             done();
           });
-          QueryStore.setQueryString('filter', '{"foo": 1}');
+          QueryStore.setQueryString('filter', '{foo: 1}');
         });
       });
       describe('project', () => {
-        it('sets the projectString, projectValid and project', (done) => {
+        it('sets the projectString, projectValid and project', done => {
           expect(QueryStore.state.projectString).to.be.equal('');
-          unsubscribe = QueryStore.listen((state) => {
-            expect(state.projectString).to.be.equal('{"foo": 1}');
+          unsubscribe = QueryStore.listen(state => {
+            expect(state.projectString).to.be.equal('{foo: 1}');
             expect(state.projectValid).to.be.true;
-            expect(state.project).to.deep.equal({foo: 1});
+            expect(state.project).to.deep.equal({ foo: 1 });
             done();
           });
-          QueryStore.setQueryString('project', '{"foo": 1}');
+          QueryStore.setQueryString('project', '{foo: 1}');
         });
       });
       describe('sort', () => {
-        it('sets the sortString, sortValid and sort', (done) => {
+        it('sets the sortString, sortValid and sort', done => {
           expect(QueryStore.state.sortString).to.be.equal('');
-          unsubscribe = QueryStore.listen((state) => {
-            expect(state.sortString).to.be.equal('{"foo": 1}');
+          unsubscribe = QueryStore.listen(state => {
+            expect(state.sortString).to.be.equal('{foo: 1}');
             expect(state.sortValid).to.be.true;
-            expect(state.sort).to.deep.equal({foo: 1});
+            expect(state.sort).to.deep.equal({ foo: 1 });
             done();
           });
-          QueryStore.setQueryString('sort', '{"foo": 1}');
+          QueryStore.setQueryString('sort', '{foo: 1}');
         });
       });
       describe('skip', () => {
-        it('sets the skipString, skipValid and skip', (done) => {
+        it('sets the skipString, skipValid and skip', done => {
           expect(QueryStore.state.skipString).to.be.equal('');
-          unsubscribe = QueryStore.listen((state) => {
+          unsubscribe = QueryStore.listen(state => {
             expect(state.skipString).to.be.equal('20');
             expect(state.skipValid).to.be.true;
             expect(state.skip).to.deep.equal(20);
@@ -474,9 +485,9 @@ describe('QueryStore', () => {
         });
       });
       describe('limit', () => {
-        it('sets the limitString, limitValid and limit', (done) => {
+        it('sets the limitString, limitValid and limit', done => {
           expect(QueryStore.state.limitString).to.be.equal('');
-          unsubscribe = QueryStore.listen((state) => {
+          unsubscribe = QueryStore.listen(state => {
             expect(state.limitString).to.be.equal('100');
             expect(state.limitValid).to.be.true;
             expect(state.limit).to.deep.equal(100);
@@ -489,9 +500,9 @@ describe('QueryStore', () => {
 
     context('when setting an invalid input', () => {
       describe('filter', () => {
-        it('sets the filterString, filterValid but not filter', (done) => {
+        it('sets the filterString, filterValid but not filter', done => {
           expect(QueryStore.state.filterString).to.be.equal('');
-          unsubscribe = QueryStore.listen((state) => {
+          unsubscribe = QueryStore.listen(state => {
             expect(state.filterString).to.be.equal('{filter: invalid}');
             expect(state.filterValid).to.be.false;
             expect(state.filter).to.deep.equal({});
@@ -501,9 +512,9 @@ describe('QueryStore', () => {
         });
       });
       describe('project', () => {
-        it('sets the projectString, projectValid but not project', (done) => {
+        it('sets the projectString, projectValid but not project', done => {
           expect(QueryStore.state.projectString).to.be.equal('');
-          unsubscribe = QueryStore.listen((state) => {
+          unsubscribe = QueryStore.listen(state => {
             expect(state.projectString).to.be.equal('{project: "invalid"}');
             expect(state.projectValid).to.be.false;
             expect(state.project).to.null;
@@ -513,21 +524,21 @@ describe('QueryStore', () => {
         });
       });
       describe('sort', () => {
-        it('sets the sortString, sortValid but not sort', (done) => {
+        it('sets the sortString, sortValid but not sort', done => {
           expect(QueryStore.state.sortString).to.be.equal('');
-          unsubscribe = QueryStore.listen((state) => {
-            expect(state.sortString).to.be.equal('{"sort": null}');
+          unsubscribe = QueryStore.listen(state => {
+            expect(state.sortString).to.be.equal('{sort: null}');
             expect(state.sortValid).to.be.false;
             expect(state.sort).to.deep.equal(null);
             done();
           });
-          QueryStore.setQueryString('sort', '{"sort": null}');
+          QueryStore.setQueryString('sort', '{sort: null}');
         });
       });
       describe('skip', () => {
-        it('sets the skipString, skipValid and skip', (done) => {
+        it('sets the skipString, skipValid and skip', done => {
           expect(QueryStore.state.skipString).to.be.equal('');
-          unsubscribe = QueryStore.listen((state) => {
+          unsubscribe = QueryStore.listen(state => {
             expect(state.skipString).to.be.equal('invalid input');
             expect(state.skipValid).to.be.false;
             expect(state.skip).to.deep.equal(0);
@@ -537,9 +548,9 @@ describe('QueryStore', () => {
         });
       });
       describe('limit', () => {
-        it('sets the limitString, limitValid and limit', (done) => {
+        it('sets the limitString, limitValid and limit', done => {
           expect(QueryStore.state.limitString).to.be.equal('');
-          unsubscribe = QueryStore.listen((state) => {
+          unsubscribe = QueryStore.listen(state => {
             expect(state.limitString).to.be.equal('invalid input');
             expect(state.limitValid).to.be.false;
             expect(state.limit).to.deep.equal(0);

@@ -1,8 +1,7 @@
 const Reflux = require('reflux');
 const StateMixin = require('reflux-state-mixin');
 const QueryAction = require('../action');
-const EJSON = require('mongodb-extended-json');
-const accepts = require('mongodb-language-model').accepts;
+const queryParser = require('mongodb-query-parser');
 const app = require('hadron-app');
 const assert = require('assert');
 const _ = require('lodash');
@@ -42,10 +41,17 @@ const QueryStore = Reflux.createStore({
   init: function() {
     // store valid feature flags to recognise in the filter box
     if (_.get(app.preferences, 'serialize')) {
-      this.validFeatureFlags = _.keys(_.pick(app.preferences.serialize(), _.isBoolean));
+      this.validFeatureFlags = _.keys(
+        _.pick(app.preferences.serialize(), _.isBoolean)
+      );
     } else {
       this.validFeatureFlags = [];
     }
+
+    this.listenToExternalStore(
+      'Schema.FieldStore',
+      this.onFieldChanged.bind(this)
+    );
   },
 
   /*
@@ -64,6 +70,23 @@ const QueryStore = Reflux.createStore({
     const newState = this.getInitialState();
     newState.ns = ns;
     this.setState(newState);
+  },
+
+  /**
+   * Parse and load fields from the field store.
+   *
+   * @param {Object} state - The state of the field store.
+   */
+  onFieldChanged: function(state) {
+    if (!state.fields) {
+      return;
+    }
+
+    // don't allow users to make indexes on _id
+    this.schemaFields = Object.keys(state.fields).filter(
+      name => name !== '_id'
+    );
+    this.sendValues();
   },
 
   /**
@@ -179,7 +202,10 @@ const QueryStore = Reflux.createStore({
     if (this.userTypingTimer) {
       clearTimeout(this.userTypingTimer);
     }
-    this.userTypingTimer = setTimeout(this._stoppedTyping, USER_TYPING_DEBOUNCE_MS);
+    this.userTypingTimer = setTimeout(
+      this._stoppedTyping,
+      USER_TYPING_DEBOUNCE_MS
+    );
     this.setQueryString(label, input, true);
   },
 
@@ -238,7 +264,7 @@ const QueryStore = Reflux.createStore({
 
     // convert all query inputs into their string values and validate them
     const stringProperties = _.without(QUERY_PROPERTIES, 'sample');
-    let inputStrings = _.mapValues(_.pick(query, stringProperties), EJSON.stringify);
+    let inputStrings = _.mapValues(_.pick(query, stringProperties), queryParser.stringify);
     let inputValids = _.mapValues(inputStrings, (val, label) => {
       return this._validateInput(label, val) !== false;
     });
@@ -247,13 +273,20 @@ const QueryStore = Reflux.createStore({
     const validKeys = _.keys(_.pick(inputValids, _.identity));
 
     // determine if query is valid overall with these new values
-    const valid = _.every(_.values(_.assign({
-      filter: this.state.filterValid,
-      project: this.state.projectValid,
-      sort: this.state.sortValid,
-      skip: this.state.skipValid,
-      limit: this.state.limitValid
-    }, inputValids)));
+    const valid = _.every(
+      _.values(
+        _.assign(
+          {
+            filter: this.state.filterValid,
+            project: this.state.projectValid,
+            sort: this.state.sortValid,
+            skip: this.state.skipValid,
+            limit: this.state.limitValid
+          },
+          inputValids
+        )
+      )
+    );
 
     // now rename the keys appropriately to xxxxString and xxxxValid
     inputStrings = _.mapKeys(inputStrings, (val, label) => {
@@ -293,33 +326,7 @@ const QueryStore = Reflux.createStore({
   },
 
   /**
-   * helper function to clean up a filter string. It adds quotes around field names
-   * and replaces multiple whitespace with a single whitespace. It also replaces
-   * an empty input with the empty filter {}.
-   *
-   * @param {String} input   The input to clean up.
-   *
-   * @return {String}   cleaned up filter string.
-   */
-  _cleanObjectString(input) {
-    let output = input;
-    // accept whitespace-only input as empty query
-    if (_.trim(output) === '') {
-      output = '{}';
-    }
-    // wrap field names in double quotes. I appologize for the next line of code.
-    // @see http://stackoverflow.com/questions/6462578/alternative-to-regex-match-all-instances-not-inside-quotes
-    // @see https://regex101.com/r/xM7iH6/1
-    output = output.replace(/([{,])\s*([^,{\s\'"]+)\s*:(?=([^"\\]*(\\.|"([^"\\]*\\.)*[^"\\]*"))*[^"]*$)/g, '$1"$2":');
-
-    // replace multiple whitespace with single whitespace
-    output = output.replace(/\s+/g, ' ');
-    return output;
-  },
-
-  /**
-   * routes to the correct validation function if available. If the validation
-   * function does not exist (e.g. in the case of `sample`), always return true.
+   * routes to the correct validation function.
    *
    * @param {String} label   one of `filter`, `project`, `sort`, `skip`, `limit`
    * @param {String} input   the input to validated
@@ -345,18 +352,7 @@ const QueryStore = Reflux.createStore({
    * @return {Boolean|Object}   false if not valid, otherwise the cleaned-up filter.
    */
   _validateFilter(input) {
-    if (input === '') {
-      return DEFAULT_FILTER;
-    }
-    try {
-      const cleaned = this._cleanObjectString(input);
-      // is it valid eJSON?
-      const parsed = EJSON.parse(cleaned);
-      // is it a valid MongoDB query according to the language?
-      return accepts(cleaned) ? parsed : false;
-    } catch (e) {
-      return false;
-    }
+    return queryParser.isFilterValid(input);
   },
 
   /**
@@ -367,20 +363,7 @@ const QueryStore = Reflux.createStore({
    * @return {Boolean|Object}   false if not valid, otherwise the cleaned-up project.
    */
   _validateProject(input) {
-    if (input === '') {
-      return DEFAULT_PROJECT;
-    }
-    try {
-      const cleaned = this._cleanObjectString(input);
-      // is it valid eJSON?
-      const parsed = EJSON.parse(cleaned);
-      // does the object only have 0 or 1 as its values?
-      return _.every(parsed, (val) => {
-        return _.isNumber(val) && (val === 0 || val === 1);
-      }) ? parsed : false;
-    } catch (e) {
-      return false;
-    }
+    return queryParser.isProjectValid(input);
   },
 
   /**
@@ -391,20 +374,7 @@ const QueryStore = Reflux.createStore({
    * @return {Boolean|Object}   false if not valid, otherwise the cleaned-up sort.
    */
   _validateSort(input) {
-    if (input === '') {
-      return DEFAULT_SORT;
-    }
-    try {
-      const cleaned = this._cleanObjectString(input);
-      // is it valid eJSON?
-      const parsed = EJSON.parse(cleaned);
-      // does the object only have -1 or 1 as its values?
-      return _.every(parsed, (val) => {
-        return _.isNumber(val) && (val === -1 || val === 1);
-      }) ? parsed : false;
-    } catch (e) {
-      return false;
-    }
+    return queryParser.isSortValid(input);
   },
 
   /**
@@ -457,11 +427,13 @@ const QueryStore = Reflux.createStore({
    * @return {Boolean}  if the full query is valid.
    */
   _validateQuery() {
-    return this._validateFilter(this.state.filterString) !== false
-      && this._validateProject(this.state.projectString) !== false
-      && this._validateSort(this.state.sortString) !== false
-      && this._validateSkip(this.state.skipString) !== false
-      && this._validateLimit(this.state.limitString) !== false;
+    return (
+      this._validateFilter(this.state.filterString) !== false &&
+      this._validateProject(this.state.projectString) !== false &&
+      this._validateSort(this.state.sortString) !== false &&
+      this._validateSkip(this.state.skipString) !== false &&
+      this._validateLimit(this.state.limitString) !== false
+    );
   },
 
   /**
@@ -508,12 +480,15 @@ const QueryStore = Reflux.createStore({
    */
   setValue(args) {
     const filter = _.clone(this.state.filter);
-    if (args.unsetIfSet && _.isEqual(filter[args.field], args.value, bsonEqual)) {
+    if (
+      args.unsetIfSet &&
+      _.isEqual(filter[args.field], args.value, bsonEqual)
+    ) {
       delete filter[args.field];
     } else {
       filter[args.field] = args.value;
     }
-    this.setQuery({filter: filter});
+    this.setQuery({ filter: filter });
   },
 
   /**
@@ -529,17 +504,17 @@ const QueryStore = Reflux.createStore({
     const filter = _.clone(this.state.filter);
     if (_.isArray(args.value)) {
       if (args.value.length > 1) {
-        filter[args.field] = {$in: args.value};
+        filter[args.field] = { $in: args.value };
       } else if (args.value.length === 1) {
         filter[args.field] = args.value[0];
       } else {
         this.clearValue(args);
       }
-      this.setQuery({filter: filter});
+      this.setQuery({ filter: filter });
       return;
     }
     filter[args.field] = args.value;
-    this.setQuery({filter: filter});
+    this.setQuery({ filter: filter });
   },
 
   /**
@@ -551,7 +526,7 @@ const QueryStore = Reflux.createStore({
   clearValue(args) {
     const filter = _.clone(this.state.filter);
     delete filter[args.field];
-    this.setQuery({filter: filter});
+    this.setQuery({ filter: filter });
   },
 
   /**
@@ -567,7 +542,7 @@ const QueryStore = Reflux.createStore({
     // field not present in filter yet, add primitive value
     if (field === undefined) {
       filter[args.field] = args.value;
-      this.setQuery({filter: filter});
+      this.setQuery({ filter: filter });
       return;
     }
     // field is object, could be a $in clause or a primitive value
@@ -577,18 +552,18 @@ const QueryStore = Reflux.createStore({
         const inArray = filter[args.field].$in;
         if (!_.contains(inArray, args.value)) {
           filter[args.field].$in.push(args.value);
-          this.setQuery({filter: filter});
+          this.setQuery({ filter: filter });
         }
         return;
       }
       // it is not a $in operator, replace the value
       filter[args.field] = args.value;
-      this.setQuery({filter: filter});
+      this.setQuery({ filter: filter });
       return;
     }
     // in all other cases, we want to turn a primitive value into a $in list
-    filter[args.field] = {$in: [field, args.value]};
-    this.setQuery({filter: filter});
+    filter[args.field] = { $in: [field, args.value] };
+    this.setQuery({ filter: filter });
   },
 
   /**
@@ -618,14 +593,14 @@ const QueryStore = Reflux.createStore({
         } else {
           delete filter[args.field];
         }
-        this.setQuery({filter: filter});
+        this.setQuery({ filter: filter });
         return;
       }
     }
     // if value to remove is the same as the primitive value, unset field
     if (_.isEqual(field, args.value, bsonEqual)) {
       delete filter[args.field];
-      this.setQuery({filter: filter});
+      this.setQuery({ filter: filter });
       return;
     }
     // else do nothing
@@ -640,8 +615,9 @@ const QueryStore = Reflux.createStore({
    */
   toggleDistinctValue(args) {
     const field = _.get(this.state.filter, args.field, undefined);
-    const actionFn = hasDistinctValue(field, args.value) ?
-      this.removeDistinctValue : this.addDistinctValue;
+    const actionFn = hasDistinctValue(field, args.value)
+      ? this.removeDistinctValue
+      : this.addDistinctValue;
     actionFn(args);
   },
 
@@ -672,7 +648,7 @@ const QueryStore = Reflux.createStore({
     const minValue = _.get(args, 'min', undefined);
     const maxValue = _.get(args, 'max', undefined);
     if (minValue === undefined && maxValue === undefined) {
-      this.clearValue({field: args.field});
+      this.clearValue({ field: args.field });
       return;
     }
 
@@ -692,7 +668,7 @@ const QueryStore = Reflux.createStore({
     } else {
       filter[args.field] = value;
     }
-    this.setQuery({filter: filter});
+    this.setQuery({ filter: filter });
   },
 
   /**
@@ -717,13 +693,12 @@ const QueryStore = Reflux.createStore({
         $centerSphere: [[center[0], center[1]], radius]
       };
       filter[args.field] = value;
-      this.setQuery({filter: filter});
+      this.setQuery({ filter: filter });
       return;
     }
     // else if center or radius are not set, or radius is 0, clear field
-    this.clearValue({field: args.field});
+    this.clearValue({ field: args.field });
   },
-
 
   /**
    * apply the current (valid) query, and store it in `lastExecutedQuery`.
