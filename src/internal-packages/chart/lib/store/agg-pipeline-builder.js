@@ -2,7 +2,8 @@ const _ = require('lodash');
 const {
   ARRAY_GENERAL_REDUCTIONS,
   ARRAY_NUMERIC_REDUCTIONS,
-  ARRAY_STRING_REDUCTIONS
+  ARRAY_STRING_REDUCTIONS,
+  DOT_UNICODE_REPLACEMENT
 } = require('../constants');
 
 // const debug = require('debug')('mongodb-compass:chart:agg-pipeline-builder');
@@ -161,19 +162,49 @@ function reduceArrays(reductions) {
 
 /**
  * helper to create aggregation pipeline stages to reduce arrays, based on
- * the given reductions array.
+ * the provided chart store state.
  *
  * @param  {Array} state   chart store state
  * @return {Array}         pipeline stages to reduce all arrays
  */
 module.exports = function aggPipelineBuilder(state) {
+  const pipeline = [];
+
+  // add $filter, $sort, $skip, $limit based on query
+  if (!_.isEmpty(state.queryCache)) {
+    if (!_.isEmpty(state.queryCache.filter)) {
+      pipeline.push({$match: state.queryCache.filter});
+    }
+    if (!_.isEmpty(state.queryCache.sort)) {
+      pipeline.push({$sort: state.queryCache.sort});
+    }
+    if (state.queryCache.skip) {
+      pipeline.push({$skip: state.queryCache.skip});
+    }
+    if (state.queryCache.limit) {
+      pipeline.push({$limit: state.queryCache.limit});
+    }
+  }
+
   // array reduction for all channels
   const channels = Object.keys(state.reductions);
-  const pipeline = channels.reduce((_pipeline, channel) => {
+  const arrayReductionStages = channels.reduce((_pipeline, channel) => {
     const channelReductions = state.reductions[channel];
     const addToPipeline = reduceArrays(channelReductions);
     return _pipeline.concat(addToPipeline);
   }, []);
+  pipeline.push.apply(pipeline, arrayReductionStages);
+
+  // project encoded fields to top-level
+  // by replacing `.` with `DOT_UNICODE_REPLACEMENT`
+  if (!_.isEmpty(state.channels)) {
+    const projectStage = _.reduce(_.filter(state.channels), (_project, encoding) => {
+      const hashedField = encoding.field.replace(/\./g, DOT_UNICODE_REPLACEMENT);
+      _project[hashedField] = `$${ encoding.field }`;
+      return _project;
+    }, {});
+    pipeline.push({$project: projectStage});
+  }
 
   return pipeline;
 };
