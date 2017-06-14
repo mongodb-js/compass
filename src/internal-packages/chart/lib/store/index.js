@@ -257,7 +257,14 @@ const ChartStore = Reflux.createStore({
       return channel.required;
     }).map(channel => channel.name);
     const encodedChannels = Object.keys(state.channels);
-    state.specValid = requiredChannels.length === _.intersection(requiredChannels, encodedChannels).length;
+    const allRequiredChannelsEncoded = requiredChannels.length ===
+      _.intersection(requiredChannels, encodedChannels).length;
+    const allReductionsSelected = _.every(_.map(state.reductions, (reductions) => {
+      return _.filter(reductions, (reduction) => {
+        return reduction.type === null;
+      }).length === 0;
+    }));
+    state.specValid = allReductionsSelected && allRequiredChannelsEncoded;
 
     // if spec is valid, potentially refresh the data cache
     if (state.specValid) {
