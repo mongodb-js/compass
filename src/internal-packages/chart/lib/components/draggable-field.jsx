@@ -73,7 +73,7 @@ class DraggableField extends React.Component {
     return (
       <Dropdown title="Set field type" className="chart-draggable-field-item-container chart-draggable-field-item-container-measurement" id={this.props.fieldName + 'measurements'}
           onSelect={this.selectMeasurement.bind(this)}>
-        <CustomToggle bsRole="toggle" className="chart-draggable-field-action chart-draggable-field-action-measurement">
+        <CustomToggle bsRole="toggle" className="chart-draggable-field-action chart-draggable-field-action-default chart-draggable-field-action-measurement">
           {this.renderMeasurementIcon()}
           <div className="chart-draggable-field-action-title">
             <span>
@@ -93,7 +93,7 @@ class DraggableField extends React.Component {
     return (
       <Dropdown title="Set aggregation type" className="chart-draggable-field-item-container chart-draggable-field-item-container-aggregation" id={this.props.fieldName + 'aggregation'}
           pullRight onSelect={this.selectAggregate.bind(this)}>
-        <CustomToggle bsRole="toggle" className="chart-draggable-field-action chart-draggable-field-action-aggregation">
+        <CustomToggle bsRole="toggle" className="chart-draggable-field-action chart-draggable-field-action-default chart-draggable-field-action-aggregation">
           <div className="chart-draggable-field-action-title">
             <span>
               {this.props.aggregate ? this.props.aggregate : 'aggregate...'}
@@ -120,10 +120,7 @@ class DraggableField extends React.Component {
 
     return (
       <div>
-        <span className="chart-draggable-field-array-picker-title chart-draggable-field-title">array reductions</span>
-        <div className="chart-draggable-field-array-picker-column">
-          { reductions }
-        </div>
+        { reductions }
       </div>
     );
   }
@@ -149,13 +146,14 @@ class DraggableField extends React.Component {
     return connectDragSource(
       <div {...attributes} >
         <div className="chart-draggable-field-row">
-          {!_.isEmpty(this.props.reductions) && this.props.enableMenus ?
-            this.renderReductions()
-            : <div className="chart-draggable-field-item-container chart-draggable-field-item-container-title">
-              <div className="chart-draggable-field-title">
-                {this.props.fieldName}
-              </div>
-            </div>}
+          <div className="chart-draggable-field-item-container chart-draggable-field-item-container-title">
+            <div className="chart-draggable-field-title">
+              {!_.isEmpty(this.props.reductions) && this.props.enableMenus ?
+                <span className="chart-draggable-field-title-array">Array Reduction</span>
+                : <span>{this.props.fieldName}</span>
+              }
+            </div>
+          </div>
           {this.props.enableMenus ?
             <div title="Remove field from chart" className="chart-draggable-field-item-container chart-draggable-field-item-container-remove">
               <div className="chart-draggable-field-action chart-draggable-field-action-remove"
@@ -164,10 +162,27 @@ class DraggableField extends React.Component {
               </div>
             </div> : null}
         </div>
-        <div className="chart-draggable-field-row">
-          {this.props.enableMenus ? this.renderMeasurementMenu() : null}
-          {this.props.enableMenus ? this.renderAggregationMenu() : null}
-        </div>
+        {!_.isEmpty(this.props.reductions) && this.props.enableMenus ?
+          <div>
+            { this.renderReductions() }
+            <div className="chart-draggable-field-nested chart-draggable-field-nested-controls">
+              <div className="chart-draggable-field-item-container chart-draggable-field-item-container-title">
+                <div className="chart-draggable-field-title chart-draggable-field-title-nested">
+                  <span>{this.props.fieldName}</span>
+                </div>
+              </div>
+              <div className="chart-draggable-field-row">
+                {this.props.enableMenus ? this.renderMeasurementMenu() : null}
+                {this.props.enableMenus ? this.renderAggregationMenu() : null}
+              </div>
+            </div>
+          </div>
+          :
+          <div className="chart-draggable-field-row">
+            {this.props.enableMenus ? this.renderMeasurementMenu() : null}
+            {this.props.enableMenus ? this.renderAggregationMenu() : null}
+          </div>
+         }
       </div>
     );
   }

@@ -54,27 +54,31 @@ class ArrayReductionPicker extends React.Component {
       );
     }));
 
-    let dropdownClass = 'full-width btn-md';
+    let dropdownClass = 'chart-draggable-field-action chart-draggable-field-action-reduction';
 
-    dropdownClass += this.props.type ? ' btn-default' : ' btn-primary';
+    dropdownClass += this.props.type ? ' chart-draggable-field-action-default' : ' chart-draggable-field-action-primary';
 
     return (
-      <div className="chart-draggable-field">
-        <div className="chart-draggable-field-title">
-          {this.props.field}
+      <div className="chart-draggable-field-nested">
+        <div className="chart-draggable-field-row">
+          <div className="chart-draggable-field-title chart-draggable-field-title-nested">
+            {this.props.field}
+          </div>
         </div>
-        <Dropdown className="chart-draggable-field-item-container" id="array-reduction-picker"
-            onSelect={this.selectArrayReduction.bind(this)}>
-          <CustomToggle bsRole="toggle" className={dropdownClass}>
-            <span className="chart-draggable-field-action-title">
-              {this.props.type || 'Choose method'}
-            </span>
-            <FontAwesome className="caret-down" name={'caret-down'} />
-          </CustomToggle>
-          <Dropdown.Menu>
-            {menu}
-          </Dropdown.Menu>
-        </Dropdown>
+        <div className="chart-draggable-field-row">
+          <Dropdown className="chart-draggable-field-item-container chart-draggable-field-item-container-reduction" id="array-reduction-picker"
+              onSelect={this.selectArrayReduction.bind(this)}>
+            <CustomToggle bsRole="toggle" className={dropdownClass}>
+              <span className="chart-draggable-field-action-title">
+                {this.props.type || 'Choose method'}
+              </span>
+              <FontAwesome className="chart-draggable-field-action-icon" name={'caret-down'} />
+            </CustomToggle>
+            <Dropdown.Menu>
+              {menu}
+            </Dropdown.Menu>
+          </Dropdown>
+        </div>
       </div>
     );
   }
