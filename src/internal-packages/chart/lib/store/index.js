@@ -483,6 +483,46 @@ const ChartStore = Reflux.createStore({
   },
 
   /**
+   * Takes a channels object and constructs an empty reductions object from it.
+   *
+   * @param  {Object} channels  channels object (this.state.channels), e.g.
+   *
+   *      {
+   *        x: {field: 'foo', type: 'quantitative'},
+   *        y: {field: 'bar.baz', type: 'temporal'}
+   *      }
+   *
+   * @return {Object}           returns object with same keys and array of
+   *                            reductions for each array from the root to
+   *                            the nested field, e.g.
+   *
+   *      {
+   *        x: [],
+   *        y: [
+   *          {field: 'bar', type: null, args: []},
+   *          {field: 'bar.baz', type: null, args: []}
+   *        ]
+   *      }
+   */
+  _createReductionFromChannels(channels) {
+    return _.mapValues(channels, (encoding) => {
+      // turns 'foo.bar.baz' into ['foo', 'foo.bar', 'foo.bar.baz']
+      const parentPaths = _.map(encoding.field.split('.'), (token, idx, tokens) => {
+        return tokens.slice(0, idx + 1).join('.');
+      });
+      // determine which of those paths are array types
+      const arrayPaths = _.filter(parentPaths, (path) => {
+        return _.has(this.state.fieldsCache, path) &&
+          _.includes(this.state.fieldsCache[path].type, 'Array');
+      });
+      // create reduction entries (with empty type) for those array paths
+      return arrayPaths.map((path) => {
+        return { field: path, type: null, arguments: [] };
+      });
+    });
+  },
+
+  /**
    * Maps a MongoDB Schema field [1] to a Vega-lite encoding channel [2], such as
    * x, y, color, size, etc and stores it in the Vega-lite `field` key.
    *
@@ -704,7 +744,7 @@ const ChartStore = Reflux.createStore({
   },
 
   storeDidUpdate(prevState) {
-    debug('chart store changed from', prevState, 'to', this.state);
+    // debug('chart store changed from', prevState, 'to', this.state);
   }
 });
 
