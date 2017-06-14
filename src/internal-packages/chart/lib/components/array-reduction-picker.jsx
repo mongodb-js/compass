@@ -59,11 +59,9 @@ class ArrayReductionPicker extends React.Component {
     dropdownClass += this.props.type ? ' btn-default' : ' btn-primary';
 
     return (
-      <div className="btn-default">
+      <div className="chart-draggable-field">
         <div className="chart-draggable-field-title">
-          <span>
-            {this.props.field}
-          </span>
+          {this.props.field}
         </div>
         <Dropdown className="chart-draggable-field-item-container" id="array-reduction-picker"
             onSelect={this.selectArrayReduction.bind(this)}>

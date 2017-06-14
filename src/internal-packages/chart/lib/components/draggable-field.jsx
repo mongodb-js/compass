@@ -120,7 +120,7 @@ class DraggableField extends React.Component {
 
     return (
       <div>
-        <span className="chart-draggable-field-array-picker-title">array reductions</span>
+        <span className="chart-draggable-field-array-picker-title chart-draggable-field-title">array reductions</span>
         <div className="chart-draggable-field-array-picker-column">
           { reductions }
         </div>
