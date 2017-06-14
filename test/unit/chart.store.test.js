@@ -548,7 +548,7 @@ describe('ChartStore', function() {
   context('when calling the selectAggregate action', function() {
     it('stores the encoding channel relationship', function(done) {
       const expected = {
-        'size': {aggregate: 'count'}
+        'size': {aggregate: 'count', type: 'quantitative'}
       };
       ChartActions.selectAggregate(CHART_CHANNEL_ENUM.SIZE, AGGREGATE_FUNCTION_ENUM.COUNT);
       setTimeout(() => {
@@ -883,7 +883,7 @@ describe('ChartStore', function() {
           type: 'nominal'
         },
         'y': {type: 'quantitative'},
-        'size': {aggregate: 'count'}
+        'size': {aggregate: 'count', type: 'quantitative'}
       };
 
       // As we currently run 3 actions

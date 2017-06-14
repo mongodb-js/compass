@@ -577,6 +577,9 @@ const ChartStore = Reflux.createStore({
     prop.aggregate = aggregate;
     if (aggregate === AGGREGATE_FUNCTION_ENUM.NONE) {
       delete prop.aggregate;
+    } else {
+      // if an aggregate is selected, also set measurement to `quantitative`
+      prop.type = MEASUREMENT_ENUM.QUANTITATIVE;
     }
     channels[channel] = prop;
     this._updateSpec({channels: channels}, pushToHistory);
