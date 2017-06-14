@@ -751,7 +751,7 @@ const ChartStore = Reflux.createStore({
   },
 
   storeDidUpdate(prevState) {
-    // debug('chart store changed from', prevState, 'to', this.state);
+    debug('chart store changed from', prevState, 'to', this.state);
   }
 });
 
