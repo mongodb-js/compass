@@ -8,6 +8,7 @@ const Dropdown = require('react-bootstrap').Dropdown;
 const shallow = require('enzyme').shallow;
 
 const DraggableField = require('../../src/internal-packages/chart/lib/components/draggable-field.jsx').DecoratedComponent;
+const ArrayReductionPicker = require('../../src/internal-packages/chart/lib/components/array-reduction-picker');
 
 
 chai.use(chaiEnzyme());
@@ -92,6 +93,92 @@ describe('<DraggableField />', () => {
 
     it('the field path is the title', () => {
       expect(component.props()).to.have.property('title', fieldPath);
+    });
+  });
+
+  describe('when there are no reductions', () => {
+    const fieldName = 'coordinates';
+    const fieldPath = `location.${fieldName}`;
+
+    before(() => {
+      const identity = el => el;
+      component = shallow(
+        <DraggableField
+          type="nominal"
+          fieldName={fieldName}
+          fieldPath={fieldPath}
+          connectDragSource={identity}
+          reductions={[]}
+          enableMenus
+          // onRemove is required only if enableMenus is set
+          onRemove={identity}
+        />
+      );
+    });
+    it('should not render the array reduction picker', () => {
+      // show no reduction by searching for it and showing a count
+      expect(component.find(ArrayReductionPicker)).to.have.lengthOf(0);
+    });
+  });
+
+  describe('when there is one reduction', () => {
+    const fieldName = 'coordinates';
+    const fieldPath = `location.${fieldName}`;
+    const reductions = [
+      {field: 'coordinates', type: 'unwind'}
+    ];
+
+    before(() => {
+      const identity = el => el;
+      component = shallow(
+        <DraggableField
+          type="nominal"
+          fieldName={fieldName}
+          fieldPath={fieldPath}
+          connectDragSource={identity}
+          reductions={reductions}
+          enableMenus
+          // onRemove is required only if enableMenus is set
+          onRemove={identity}
+        />
+      );
+    });
+
+    it('should render one array reduction picker', () => {
+      // show one reduction by searching for it and showing a count
+      expect(component.find(ArrayReductionPicker)).to.have.lengthOf(reductions.length);
+    });
+  });
+
+  describe('when there are multiple reductions', () => {
+    const fieldName = 'coordinates';
+    const fieldPath = `location.${fieldName}`;
+    const reductions = [
+      {field: 'coordinates', type: 'unwind'},
+      {field: 'coordinates', type: null},
+      {field: 'coordinates', type: null},
+      {field: 'coordinates', type: null}
+    ];
+
+    before(() => {
+      const identity = el => el;
+      component = shallow(
+        <DraggableField
+          type="nominal"
+          fieldName={fieldName}
+          fieldPath={fieldPath}
+          connectDragSource={identity}
+          reductions={reductions}
+          enableMenus
+          // onRemove is required only if enableMenus is set
+          onRemove={identity}
+        />
+      );
+    });
+
+    it('should render multiple array reduction pickers', () => {
+      // show one reduction by searching for it and showing a count
+      expect(component.find(ArrayReductionPicker)).to.have.lengthOf(reductions.length);
     });
   });
 });
