@@ -8,7 +8,7 @@ const {
   LITE_SPEC_GLOBAL_SETTINGS
 } = require('../constants');
 const Actions = require('../actions');
-const arrayReductionAggBuilder = require('./array-reduction');
+const aggPipelineBuilder = require('./agg-pipeline-builder');
 const StateMixin = require('reflux-state-mixin');
 const app = require('hadron-app');
 const toNS = require('mongodb-ns');
@@ -262,7 +262,7 @@ const ChartStore = Reflux.createStore({
     }
     // if the spec is valid and no data has been fetched yet, do that now
     if (state.specValid && _.isEmpty(this.state.dataCache)) {
-      this._refreshDataCache(state.queryCache, state.reductions);
+      this._refreshDataCache(state);
     }
     // push new chart state to history
     if (pushToHistory) {
@@ -273,46 +273,20 @@ const ChartStore = Reflux.createStore({
   },
 
   /**
-   * Helper method to construct the array reduction aggregation pipeline
-   * for each encoded channel.
-   *
-   * @param {Object} reductions   The object containing all array reductions keyed by channel
-   * @returns {Array}   Array with the combined aggregation pipeline.
-   */
-  _arrayReductionPipeline(reductions) {
-    // TODO: Validations / errors here?
-    // More specifically:
-    // 1.  Does the FieldStore provide a recursive or flattened with
-    //     depth/nestingLevel schema for arrays? If not...
-    //     should this code listen to the SchemaStore?
-    // 2.  Given the recursive or otherwise encoded structure,
-    //     validate that every field has a reduction.
-    // 3.  Encoding the same field into two aggregations most likely won't work
-    //     as they have the same field name but the name should be unique...
-    const channels = Object.keys(reductions);
-    return channels.reduce((_pipeline, channel) => {
-      const channelReductions = reductions[channel];
-      const addToPipeline = arrayReductionAggBuilder(channelReductions);
-      return _pipeline.concat(addToPipeline);
-    }, []);
-  },
-
-  /**
    * fetch data from server based on current query and sets the dataCache state
-   * variable. Currently limits number of documents to 1000.
+   * variable.
    *
-   * @param {Object} query   the new query to fetch data for
-   * @param {Object} reductions   The object containing all array reductions keyed by channel
+   * @param {Object} state   new store state (could be different from this.state)
    */
-  _refreshDataCache(query, reductions) {
-    const ns = toNS(query.ns);
+  _refreshDataCache(state) {
+    const ns = toNS(state.queryCache.ns);
     if (!ns.collection) {
       return;
     }
 
-    const pipeline = this._arrayReductionPipeline(reductions);
+    const pipeline = aggPipelineBuilder(state);
     const options = {
-      maxTimeMS: query.maxTimeMS,
+      maxTimeMS: state.queryCache.maxTimeMS,
       promoteValues: true,
       allowDiskUse: true,
       cursor: {
@@ -320,20 +294,20 @@ const ChartStore = Reflux.createStore({
       }
     };
 
-    if (query.filter) {
-      pipeline.push({$match: query.filter});
+    if (state.queryCache.filter) {
+      pipeline.push({$match: state.queryCache.filter});
     }
 
-    if (query.sort) {
-      pipeline.push({$sort: query.sort});
+    if (state.queryCache.sort) {
+      pipeline.push({$sort: state.queryCache.sort});
     }
 
-    if (query.skip) {
-      pipeline.push({$skip: query.skip});
+    if (state.queryCache.skip) {
+      pipeline.push({$skip: state.queryCache.skip});
     }
 
-    if (query.limit) {
-      pipeline.push({$limit: query.limit});
+    if (state.queryCache.limit) {
+      pipeline.push({$limit: state.queryCache.limit});
     }
 
     app.dataService.aggregate(ns.ns, pipeline, options).toArray((error, documents) => {
@@ -497,7 +471,7 @@ const ChartStore = Reflux.createStore({
     this.setState(state);
     // when we have a chart, we need to refresh the data immediately
     if (this.state.specValid) {
-      this._refreshDataCache(newQuery, this.state.reductions);
+      this._refreshDataCache(state);
     }
   },
 

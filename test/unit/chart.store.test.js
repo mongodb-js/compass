@@ -15,6 +15,7 @@ const ChartActions = require('../../src/internal-packages/chart/lib/actions');
 const ChartStore = require('../../src/internal-packages/chart/lib/store');
 const _ = require('lodash');
 const app = require('hadron-app');
+const aggPipelineBuilder = require('../../src/internal-packages/chart/lib/store/agg-pipeline-builder');
 
 const BarChartRole = require('../../src/internal-packages/chart/lib/chart-types/bar.json');
 const AreaChartRole = require('../../src/internal-packages/chart/lib/chart-types/area.json');
@@ -859,7 +860,7 @@ describe('ChartStore', function() {
         setTimeout(() => {
           const reductions = this.store.state.reductions;
           expect(reductions).to.be.deep.equal(expectedReductions);
-          const pipeline = ChartStore._arrayReductionPipeline(reductions);
+          const pipeline = aggPipelineBuilder(this.store.state);
           expect(pipeline).to.be.deep.equal(expectedPipeline);
           done();
         });
@@ -982,10 +983,9 @@ describe('ChartStore', function() {
 
     context('when calling with default arguments', () => {
       it('calls app.dataService.aggregate with the correct arguments', () => {
-        ChartStore.state.queryCache.ns = 'foo.bar';
-        ChartStore._refreshDataCache(Object.assign({}, defaultQuery, {
-          ns: 'foo.bar'
-        }), REDUCTIONS);
+        ChartStore.state.queryCache = Object.assign({}, defaultQuery, {ns: 'foo.bar'});
+        ChartStore.state.reductions = REDUCTIONS;
+        ChartStore._refreshDataCache(ChartStore.state);
         const options = app.dataService.aggregate.args[0][2];
         const pipeline = app.dataService.aggregate.args[0][1];
         const ns = app.dataService.aggregate.args[0][0];
@@ -1005,10 +1005,12 @@ describe('ChartStore', function() {
 
     context('when calling with limit > 1000', () => {
       it('exceeds limit from 1000', () => {
-        ChartStore._refreshDataCache(Object.assign({}, defaultQuery, {
+        ChartStore.state.queryCache = Object.assign({}, defaultQuery, {
           ns: 'foo.bar',
           limit: 5000
-        }), REDUCTIONS);
+        });
+        ChartStore.state.reductions = REDUCTIONS;
+        ChartStore._refreshDataCache(ChartStore.state);
         const pipeline = app.dataService.aggregate.args[0][1];
         expect(pipeline).to.deep.equal([ { '$match': {} }, { '$limit': 5000 } ]);
       });
@@ -1024,7 +1026,11 @@ describe('ChartStore', function() {
         limit: 9
       });
       it('calls app.dataService.aggregate with the correct arguments', () => {
-        ChartStore._refreshDataCache(nonDefaultQuery, REDUCTIONS);
+        ChartStore.state.queryCache = Object.assign({}, nonDefaultQuery, {
+          ns: 'foo.bar'
+        });
+        ChartStore.state.reductions = REDUCTIONS;
+        ChartStore._refreshDataCache(ChartStore.state);
         const options = app.dataService.aggregate.args[0][2];
         const pipeline = app.dataService.aggregate.args[0][1];
         const ns = app.dataService.aggregate.args[0][0];

@@ -5,6 +5,8 @@ const {
   ARRAY_STRING_REDUCTIONS
 } = require('../constants');
 
+// const debug = require('debug')('mongodb-compass:chart:agg-pipeline-builder');
+
 /**
  * map wrapper around aggregation framework $map. Applies `expr` function
  * to each element in the array `arr`. Returns the agg framework operators
@@ -69,7 +71,7 @@ function constructUnwindStages(reductions) {
       return reduction.type === ARRAY_GENERAL_REDUCTIONS.UNWIND;
     })
     .map((reduction) => {
-      return {$unwind: reduction.field};
+      return {$unwind: `$${ reduction.field }`};
     })
     .value();
 }
@@ -139,21 +141,13 @@ function constructAccumulatorStage(reductions) {
 }
 
 /**
- * helper to create aggregation pipeline stages to reduce arrays, based on
- * the given reductions array.
+ * constructs the pipeline stages to reduce arrays for a single channel.
  *
- * @param  {Array} reductions  array of reductions, following the following
- *                             format:
- *             [
- *               { field: "foo", type: "$unwind", arguments: [] },
- *               { field: "bar.baz" , type: "index", arguments: [3] }
- *             ]
- *
- * @return {Array}            pipeline stages to reduce all arrays
+ * @param  {Array} reductions   the reductions array for a single channel
+ * @return {Array}              the resulting aggregation pipeline
  */
-module.exports = function arrayReductionAggBuilder(reductions) {
+function reduceArrays(reductions) {
   const pipeline = [];
-
   const unwindStages = constructUnwindStages(reductions);
   const accumulatorStage = constructAccumulatorStage(reductions);
 
@@ -162,5 +156,24 @@ module.exports = function arrayReductionAggBuilder(reductions) {
   if (accumulatorStage) {
     pipeline.push(accumulatorStage);
   }
+  return pipeline;
+}
+
+/**
+ * helper to create aggregation pipeline stages to reduce arrays, based on
+ * the given reductions array.
+ *
+ * @param  {Array} state   chart store state
+ * @return {Array}         pipeline stages to reduce all arrays
+ */
+module.exports = function aggPipelineBuilder(state) {
+  // array reduction for all channels
+  const channels = Object.keys(state.reductions);
+  const pipeline = channels.reduce((_pipeline, channel) => {
+    const channelReductions = state.reductions[channel];
+    const addToPipeline = reduceArrays(channelReductions);
+    return _pipeline.concat(addToPipeline);
+  }, []);
+
   return pipeline;
 };
