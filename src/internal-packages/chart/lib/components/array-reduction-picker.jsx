@@ -64,6 +64,7 @@ class ArrayReductionPicker extends React.Component {
           <div className="chart-draggable-field-title chart-draggable-field-title-nested">
             {this.props.field}
           </div>
+          <i className="mms-icon-array"></i>
         </div>
         <div className="chart-draggable-field-row">
           <Dropdown className="chart-draggable-field-item-container chart-draggable-field-item-container-reduction" id="array-reduction-picker"
