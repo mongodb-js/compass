@@ -149,7 +149,7 @@ class DraggableField extends React.Component {
     return connectDragSource(
       <div {...attributes} >
         <div className="chart-draggable-field-row">
-          {this.props.reductions && this.props.enableMenus ?
+          {!_.isEmpty(this.props.reductions) && this.props.enableMenus ?
             this.renderReductions()
             : <div className="chart-draggable-field-item-container chart-draggable-field-item-container-title">
               <div className="chart-draggable-field-title">
