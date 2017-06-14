@@ -20,6 +20,18 @@ const QUERYBAR_LAYOUT = ['filter', ['sort', 'skip', 'limit']];
 
 // const debug = require('debug')('mongodb-compass:chart:chart-builder');
 
+/**
+ * The minimum spacing needed to avoid a horizontal scrollbar, in pixels.
+ * Happens with cases like long company name labels.
+ */
+const WIDTH_MIN_SPACING = 200;
+
+/**
+ * The minimum spacing needed to avoid a vertical scrollbar, in pixels.
+ * Happens with cases like long company name labels.
+ */
+const HEIGHT_MIN_SPACING = 130;
+
 class ChartBuilder extends React.Component {
 
   constructor(props) {
@@ -88,8 +100,8 @@ class ChartBuilder extends React.Component {
 
   _getChartDimensions() {
     const areaDim = document.getElementsByClassName('chart-builder-chart-area')[0];
-    const width = areaDim.offsetWidth - 200;
-    const height = areaDim.offsetHeight - 130;
+    const width = areaDim.offsetWidth - WIDTH_MIN_SPACING;
+    const height = areaDim.offsetHeight - HEIGHT_MIN_SPACING;
     return {width, height};
   }
 
