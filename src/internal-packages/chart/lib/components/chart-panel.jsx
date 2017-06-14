@@ -65,6 +65,7 @@ class ChartPanel extends React.Component {
           key={channel.name}
           channelName={channel.name}
           encodedChannel={this.props.encodedChannels[channel.name]}
+          encodedReductions={this.props.reductions[channel.name]}
           specType={this.props.specType}
           actions={this.props.actions}
         />
@@ -90,10 +91,12 @@ ChartPanel.propTypes = {
   chartType: PropTypes.string.isRequired,
   availableChartRoles: PropTypes.array.isRequired,
   encodedChannels: PropTypes.object.isRequired,
+  reductions: PropTypes.object,
   actions: PropTypes.object
 };
 
 ChartPanel.defaultProps = {
+  reductions: {}
 };
 
 ChartPanel.displayName = 'ChartPanel';

@@ -72,9 +72,11 @@ class EncodingChannel extends React.Component {
         type={this.props.encodedChannel.type}
         aggregate={this.props.encodedChannel.aggregate}
         enableMenus={this.props.specType === 'vega-lite'}
+        reductions={this.props.encodedReductions}
         selectAggregate={this.onSelectAggregate.bind(this)}
         selectMeasurement={this.onSelectMeasurement.bind(this)}
         onRemove={this.onRemove.bind(this)}
+        actions={this.props.actions}
       />
     );
   }
@@ -116,6 +118,7 @@ EncodingChannel.propTypes = {
   connectDropTarget: PropTypes.func,
   isOver: PropTypes.bool.isRequired,
   specType: PropTypes.oneOf(['vega', 'vega-lite']),
+  encodedReductions: PropTypes.array,
   canDrop: PropTypes.bool.isRequired
 };
 

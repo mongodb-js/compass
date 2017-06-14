@@ -24,7 +24,7 @@ class ArrayReductionPicker extends React.Component {
     let menu = _.values(ARRAY_GENERAL_REDUCTIONS).map((action) => {
       const key = GENERAL + action;
       return (
-        <MenuItem key={action} eventKey={key} href="#">
+        <MenuItem key={key} eventKey={action} href="#">
           {action}
         </MenuItem>
       );
@@ -36,7 +36,7 @@ class ArrayReductionPicker extends React.Component {
     menu = menu.concat(_.values(ARRAY_NUMERIC_REDUCTIONS).map((action) => {
       const key = NUMERIC + action;
       return (
-        <MenuItem key={action} eventKey={key} href="#">
+        <MenuItem key={key} eventKey={action} href="#">
           {action}
         </MenuItem>
       );
@@ -48,7 +48,7 @@ class ArrayReductionPicker extends React.Component {
     menu = menu.concat(_.values(ARRAY_STRING_REDUCTIONS).map((action) => {
       const key = STRING + action;
       return (
-        <MenuItem key={action} eventKey={key} href="#">
+        <MenuItem key={key} eventKey={action} href="#">
           {action}
         </MenuItem>
       );

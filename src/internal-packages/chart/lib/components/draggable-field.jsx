@@ -106,9 +106,15 @@ class DraggableField extends React.Component {
     );
   }
 
-  renderArrayReductions() {
-    const reductions = this.props.arrayReductions.map((reduction, i) => {
-      return <ArrayReductionPicker key={i} channel={this.props.channelName} field={reduction.field} type={reduction.type || null} />;
+  renderReductions() {
+    const reductions = this.props.reductions.map((reduction, i) => {
+      return (<ArrayReductionPicker
+        key={i}
+        channel={this.props.channelName}
+        field={reduction.field}
+        actions={this.props.actions}
+        type={reduction.type || null}
+      />);
     });
 
     return (
@@ -142,8 +148,8 @@ class DraggableField extends React.Component {
     return connectDragSource(
       <div {...attributes} >
         <div className="chart-draggable-field-row">
-          {this.props.arrayReductions && this.props.enableMenus ?
-            this.renderArrayReductions()
+          {this.props.reductions && this.props.enableMenus ?
+            this.renderReductions()
             : <div className="chart-draggable-field-item-container chart-draggable-field-item-container-title">
               <div className="chart-draggable-field-title">
                 {this.props.fieldName}
@@ -174,7 +180,8 @@ DraggableField.propTypes = {
   aggregate: PropTypes.oneOf(_.values(AGGREGATE_FUNCTION_ENUM)),
   enableMenus: PropTypes.bool,
   disabled: PropTypes.bool,
-  arrayReductions: PropTypes.array,
+  reductions: PropTypes.array,
+  actions: PropTypes.object,
   selectAggregate: PropTypes.func,
   selectMeasurement: PropTypes.func,
   connectDragSource: PropTypes.func,
