@@ -17,7 +17,7 @@ class ArrayReductionPicker extends React.Component {
   selectArrayReduction(action, evt) {
     evt.preventDefault();
     evt.stopPropagation();
-    this.props.actions.setArrayReduction(this.props.channel, this.props.field, action);
+    this.props.actions.setArrayReduction(this.props.channel, this.props.index, action);
   }
 
   render() {
@@ -86,6 +86,7 @@ ArrayReductionPicker.propTypes = {
   channel: PropTypes.string,
   field: PropTypes.string,
   type: PropTypes.string,
+  index: PropTypes.number,
   actions: PropTypes.object
 };
 

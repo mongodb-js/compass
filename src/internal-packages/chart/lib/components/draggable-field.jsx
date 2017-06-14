@@ -110,6 +110,7 @@ class DraggableField extends React.Component {
     const reductions = this.props.reductions.map((reduction, i) => {
       return (<ArrayReductionPicker
         key={i}
+        index={i}
         channel={this.props.channelName}
         field={reduction.field}
         actions={this.props.actions}
