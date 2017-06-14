@@ -464,6 +464,7 @@ const ChartStore = Reflux.createStore({
     this.setState(state);
     // when we have a chart, we need to refresh the data immediately
     if (this.state.specValid) {
+      state = Object.assign({}, _.omit(this.state, 'dataCache'), state);
       this._refreshDataCache(state);
     }
   },
