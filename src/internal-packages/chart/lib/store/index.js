@@ -78,6 +78,7 @@ const ChartStore = Reflux.createStore({
    */
   getInitialCacheState() {
     return {
+      pipelineCache: [],
       dataCache: [],
       fieldsCache: {},
       topLevelFields: [],
@@ -257,13 +258,13 @@ const ChartStore = Reflux.createStore({
     }).map(channel => channel.name);
     const encodedChannels = Object.keys(state.channels);
     state.specValid = requiredChannels.length === _.intersection(requiredChannels, encodedChannels).length;
+
+    // if spec is valid, potentially refresh the data cache
     if (state.specValid) {
       debug('valid spec %j', state.spec);
-    }
-    // if the spec is valid and no data has been fetched yet, do that now
-    if (state.specValid && _.isEmpty(this.state.dataCache)) {
       this._refreshDataCache(state);
     }
+
     // push new chart state to history
     if (pushToHistory) {
       this._pushToHistory( _.cloneDeep(_.pick(state, HISTORY_STATE_FIELDS)) );
@@ -284,7 +285,12 @@ const ChartStore = Reflux.createStore({
       return;
     }
 
+    // construct new pipeline and compare with last one. exit if they are equal.
     const pipeline = aggPipelineBuilder(state);
+    if (_.isEqual(state.pipelineCache, pipeline)) {
+      return;
+    }
+
     const options = {
       maxTimeMS: state.queryCache.maxTimeMS,
       promoteValues: true,
@@ -294,21 +300,7 @@ const ChartStore = Reflux.createStore({
       }
     };
 
-    if (state.queryCache.filter) {
-      pipeline.push({$match: state.queryCache.filter});
-    }
-
-    if (state.queryCache.sort) {
-      pipeline.push({$sort: state.queryCache.sort});
-    }
-
-    if (state.queryCache.skip) {
-      pipeline.push({$skip: state.queryCache.skip});
-    }
-
-    if (state.queryCache.limit) {
-      pipeline.push({$limit: state.queryCache.limit});
-    }
+    debug('executed pipeline %j', pipeline);
 
     app.dataService.aggregate(ns.ns, pipeline, options).toArray((error, documents) => {
       if (error) {
@@ -316,6 +308,7 @@ const ChartStore = Reflux.createStore({
         throw error;
       }
       this.setState({
+        pipelineCache: pipeline,
         dataCache: documents
       });
     });

@@ -853,6 +853,12 @@ describe('ChartStore', function() {
                 }
               }
             }
+          },
+          {
+            '$project': {
+              '10_random_strings': '$10_random_strings',
+              'up_to_5_tags': '$up_to_5_tags'
+            }
           }
         ];
         ChartActions.setArrayReduction(xChannel, index, type);
@@ -991,7 +997,7 @@ describe('ChartStore', function() {
         const ns = app.dataService.aggregate.args[0][0];
 
         expect(ns).to.be.equal('foo.bar');
-        expect(pipeline).to.be.deep.equal([ { '$match': {} }, { '$limit': 100 } ]);
+        expect(pipeline).to.be.deep.equal([ { '$limit': 100 } ]);
         expect(options).to.be.deep.equal({
           allowDiskUse: true,
           cursor: {
@@ -1012,7 +1018,7 @@ describe('ChartStore', function() {
         ChartStore.state.reductions = REDUCTIONS;
         ChartStore._refreshDataCache(ChartStore.state);
         const pipeline = app.dataService.aggregate.args[0][1];
-        expect(pipeline).to.deep.equal([ { '$match': {} }, { '$limit': 5000 } ]);
+        expect(pipeline).to.deep.equal([ { '$limit': 5000 } ]);
       });
     });
 
