@@ -17,14 +17,14 @@ class ArrayReductionPicker extends React.Component {
   selectArrayReduction(action, evt) {
     evt.preventDefault();
     evt.stopPropagation();
-    this.props.actions.setArrayReduction(this.props.channel, this.props.field, action);
+    this.props.actions.setArrayReduction(this.props.channel, this.props.index, action);
   }
 
   render() {
     let menu = _.values(ARRAY_GENERAL_REDUCTIONS).map((action) => {
       const key = GENERAL + action;
       return (
-        <MenuItem key={action} eventKey={key} href="#">
+        <MenuItem key={key} eventKey={action} href="#">
           {action}
         </MenuItem>
       );
@@ -36,7 +36,7 @@ class ArrayReductionPicker extends React.Component {
     menu = menu.concat(_.values(ARRAY_NUMERIC_REDUCTIONS).map((action) => {
       const key = NUMERIC + action;
       return (
-        <MenuItem key={action} eventKey={key} href="#">
+        <MenuItem key={key} eventKey={action} href="#">
           {action}
         </MenuItem>
       );
@@ -48,35 +48,38 @@ class ArrayReductionPicker extends React.Component {
     menu = menu.concat(_.values(ARRAY_STRING_REDUCTIONS).map((action) => {
       const key = STRING + action;
       return (
-        <MenuItem key={action} eventKey={key} href="#">
+        <MenuItem key={key} eventKey={action} href="#">
           {action}
         </MenuItem>
       );
     }));
 
-    let dropdownClass = 'full-width btn-md';
+    let dropdownClass = 'chart-draggable-field-action chart-draggable-field-action-reduction';
 
-    dropdownClass += this.props.type ? ' btn-default' : ' btn-primary';
+    dropdownClass += this.props.type ? ' chart-draggable-field-action-default' : ' chart-draggable-field-action-primary';
 
     return (
-      <div className="btn-default">
-        <div className="chart-draggable-field-title">
-          <span>
+      <div className="chart-draggable-field-nested">
+        <div className="chart-draggable-field-row">
+          <div className="chart-draggable-field-title chart-draggable-field-title-nested">
             {this.props.field}
-          </span>
+          </div>
+          <i className="mms-icon-array"></i>
         </div>
-        <Dropdown className="chart-draggable-field-item-container" id="array-reduction-picker"
-            onSelect={this.selectArrayReduction.bind(this)}>
-          <CustomToggle bsRole="toggle" className={dropdownClass}>
-            <span className="chart-draggable-field-action-title">
-              {this.props.type || 'Choose method'}
-            </span>
-            <FontAwesome className="caret-down" name={'caret-down'} />
-          </CustomToggle>
-          <Dropdown.Menu>
-            {menu}
-          </Dropdown.Menu>
-        </Dropdown>
+        <div className="chart-draggable-field-row">
+          <Dropdown className="chart-draggable-field-item-container chart-draggable-field-item-container-reduction" id="array-reduction-picker"
+              onSelect={this.selectArrayReduction.bind(this)}>
+            <CustomToggle bsRole="toggle" className={dropdownClass}>
+              <span className="chart-draggable-field-action-title">
+                {this.props.type || 'Choose method'}
+              </span>
+              <FontAwesome className="chart-draggable-field-action-icon" name={'caret-down'} />
+            </CustomToggle>
+            <Dropdown.Menu>
+              {menu}
+            </Dropdown.Menu>
+          </Dropdown>
+        </div>
       </div>
     );
   }
@@ -86,6 +89,7 @@ ArrayReductionPicker.propTypes = {
   channel: PropTypes.string,
   field: PropTypes.string,
   type: PropTypes.string,
+  index: PropTypes.number,
   actions: PropTypes.object
 };
 

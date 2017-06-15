@@ -230,6 +230,30 @@ const ChartStore = Reflux.createStore({
     return result;
   },
 
+
+  /**
+   * Check if the spec is valid
+   * @param{Object} chartRole   a type of chart
+   * @param{Object} state       the chart state with updates applied
+   * @return{Boolean} whether the spec is valid or not
+   */
+  _isSpecValid(chartRole, state) {
+    // check if all required channels are encoded
+    const requiredChannels = _.filter(chartRole.channels, (channel) => {
+      return channel.required;
+    }).map(channel => channel.name);
+    const encodedChannels = Object.keys(state.channels);
+    const allRequiredChannelsEncoded = requiredChannels.length ===
+      _.intersection(requiredChannels, encodedChannels).length;
+    const allReductionsSelected = _.every(_.map(state.reductions, (reductions) => {
+      return _.filter(reductions, (reduction) => {
+        return reduction.type === null;
+      }).length === 0;
+    }));
+
+    return allReductionsSelected && allRequiredChannelsEncoded;
+  },
+
   /**
    * Any change to the store that can modify the spec goes through this
    * helper function. The new state is computed, the spec is created
@@ -251,13 +275,7 @@ const ChartStore = Reflux.createStore({
     }
     // encode spec based on spec template, specType, channels
     state.spec = this._encodeSpec(chartRole.spec, state.specType, state.channels);
-
-    // check if all required channels are encoded
-    const requiredChannels = _.filter(chartRole.channels, (channel) => {
-      return channel.required;
-    }).map(channel => channel.name);
-    const encodedChannels = Object.keys(state.channels);
-    state.specValid = requiredChannels.length === _.intersection(requiredChannels, encodedChannels).length;
+    state.specValid = this._isSpecValid(chartRole, state);
 
     // if spec is valid, potentially refresh the data cache
     if (state.specValid) {
@@ -483,6 +501,46 @@ const ChartStore = Reflux.createStore({
   },
 
   /**
+   * Takes a channels object and constructs an empty reductions object from it.
+   *
+   * @param  {Object} channels  channels object (this.state.channels), e.g.
+   *
+   *      {
+   *        x: {field: 'foo', type: 'quantitative'},
+   *        y: {field: 'bar.baz', type: 'temporal'}
+   *      }
+   *
+   * @return {Object}           returns object with same keys and array of
+   *                            reductions for each array from the root to
+   *                            the nested field, e.g.
+   *
+   *      {
+   *        x: [],
+   *        y: [
+   *          {field: 'bar', type: null, args: []},
+   *          {field: 'bar.baz', type: null, args: []}
+   *        ]
+   *      }
+   */
+  _createReductionFromChannels(channels) {
+    return _.mapValues(channels, (encoding) => {
+      // turns 'foo.bar.baz' into ['foo', 'foo.bar', 'foo.bar.baz']
+      const parentPaths = _.map(encoding.field.split('.'), (token, index, tokens) => {
+        return tokens.slice(0, index + 1).join('.');
+      });
+      // determine which of those paths are array types
+      const arrayPaths = _.filter(parentPaths, (path) => {
+        return _.has(this.state.fieldsCache, path) &&
+          _.includes(this.state.fieldsCache[path].type, 'Array');
+      });
+      // create reduction entries (with empty type) for those array paths
+      return arrayPaths.map((path) => {
+        return { field: path, type: null, arguments: [] };
+      });
+    });
+  },
+
+  /**
    * Maps a MongoDB Schema field [1] to a Vega-lite encoding channel [2], such as
    * x, y, color, size, etc and stores it in the Vega-lite `field` key.
    *
@@ -512,7 +570,12 @@ const ChartStore = Reflux.createStore({
       prop.type = this._inferMeasurementFromField(field);
       channels[channel] = prop;
     }
-    this._updateSpec({channels: channels}, pushToHistory);
+    // compute new reductions based on new encoding channels
+    const reductions = this._createReductionFromChannels(channels);
+    this._updateSpec({
+      channels: channels,
+      reductions: reductions
+    }, pushToHistory);
   },
 
   /**

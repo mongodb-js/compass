@@ -61,6 +61,18 @@ const TEN_RANDOM_STRINGS_SCHEMA_FIELD = {
   type: 'Array'
 };
 
+const ARRAY_OF_3_SUBDOCS_FIELD = {
+  name: 'array_of_3_subdocs',
+  path: 'array_of_3_subdocs',
+  type: 'Array'
+};
+
+const SUBDOCS_AGE_FIELD = {
+  name: 'age',
+  path: 'array_of_3_subdocs.age',
+  type: 'Int32'
+};
+
 describe('ChartStore', function() {
   before(mockDataService.before());
   after(mockDataService.after());
@@ -80,7 +92,9 @@ describe('ChartStore', function() {
       'year': YEAR_SCHEMA_FIELD,
       'revenue': REVENUE_SCHEMA_FIELD,
       'up_to_5_tags': UP_TO_5_TAGS_SCHEMA_FIELD,
-      '10_random_strings': TEN_RANDOM_STRINGS_SCHEMA_FIELD
+      '10_random_strings': TEN_RANDOM_STRINGS_SCHEMA_FIELD,
+      'array_of_3_subdocs': ARRAY_OF_3_SUBDOCS_FIELD,
+      'array_of_3_subdocs.age': SUBDOCS_AGE_FIELD
     };
   });
   afterEach(function() {
@@ -627,6 +641,40 @@ describe('ChartStore', function() {
         ChartStore.setArrayReduction(channel, index, type);
       };
       expect(throwFn).to.throw(/mapFieldToChannel not called for channel: x/);
+    });
+  });
+
+  context('when calling the _createReductionFromChannels helper function', function() {
+    const channel = CHART_CHANNEL_ENUM.X;
+    it('returns the correct array reduction', function(done) {
+      ChartActions.mapFieldToChannel(ARRAY_OF_3_SUBDOCS_FIELD.path, channel);
+      const expected = {
+        [channel]: [{
+          field: ARRAY_OF_3_SUBDOCS_FIELD.path,
+          type: null,
+          arguments: []
+        }]
+      };
+      setTimeout(() => {
+        const reductions = ChartStore._createReductionFromChannels(this.store.state.channels);
+        expect(reductions).to.be.deep.equal(expected);
+        done();
+      });
+    });
+    it('returns the correct parent array reduction', function(done) {
+      ChartActions.mapFieldToChannel(SUBDOCS_AGE_FIELD.path, channel);
+      const expected = {
+        [channel]: [{
+          field: ARRAY_OF_3_SUBDOCS_FIELD.path,
+          type: null,
+          arguments: []
+        }]
+      };
+      setTimeout(() => {
+        const reductions = ChartStore._createReductionFromChannels(this.store.state.channels);
+        expect(reductions).to.be.deep.equal(expected);
+        done();
+      });
     });
   });
 
