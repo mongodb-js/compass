@@ -157,6 +157,7 @@
     "async": "^1.5.2",
     "backoff": "^2.4.1",
     "bootstrap": "https://github.com/twbs/bootstrap/archive/v3.3.5.tar.gz",
+    "codemirror-mongodb": "0.0.1",
     "create-react-class": "^15.5.2",
     "d3": "^3.5.6",
     "d3-flextree": "^1.0.3",
@@ -213,6 +214,7 @@
     "react": "^15.5.4",
     "react-bootstrap": "0.31.0",
     "react-click-outside": "^2.2.0",
+    "react-codemirror": "^1.0.0",
     "react-dnd": "^2.2.4",
     "react-dnd-html5-backend": "^2.2.4",
     "react-dom": "^15.5.4",
@@ -264,7 +266,7 @@
   ],
   "engines": {
     "node": "^7.4.0",
-    "npm": "^4.0.0"
+    "npm": "^5.0.0"
   },
   "bugs": {
     "url": "https://docs.mongodb.com/compass/current/#contact",
