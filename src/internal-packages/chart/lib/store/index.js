@@ -603,11 +603,23 @@ const ChartStore = Reflux.createStore({
     this._validateEncodingChannel(this.state.chartType, channel1);
     this._validateEncodingChannel(this.state.chartType, channel2);
 
+    const spec = {};
+
     const channels = _.cloneDeep(this.state.channels);
     const tempChannel = channels[channel1];
     channels[channel1] = channels[channel2];
     channels[channel2] = tempChannel;
-    this._updateSpec({channels: channels}, pushToHistory);
+    spec.channels = channels;
+
+    // if reductions exist swap em
+    if (_.has(this.state.reductions, channel1) || _.has(this.state.reductions, channel2)) {
+      const reductions = _.cloneDeep(this.state.reductions);
+      const tempReductions = reductions[channel1];
+      reductions[channel1] = reductions[channel2];
+      reductions[channel2] = tempReductions;
+      spec.reductions = reductions;
+    }
+    this._updateSpec(spec, pushToHistory);
   },
 
   /**
