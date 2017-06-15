@@ -33,8 +33,7 @@ class FieldPanel extends React.Component {
         data-test-id="chart-builder-field-panel"
       >
         <div className="chart-builder-field-panel-controls-row">
-          <h5 className="chart-builder-field-panel-controls-item chart-builder-field-panel-field-count">72 Fields</h5>
-          <i className={this.renderAddIcon()} aria-hidden="true"></i>
+          <h5 className="chart-builder-field-panel-controls-item chart-builder-field-panel-field-count">Fields</h5>
         </div>
         {this.renderFields()}
       </div>
