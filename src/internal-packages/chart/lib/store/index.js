@@ -519,42 +519,32 @@ const ChartStore = Reflux.createStore({
   },
 
   /**
-   * Takes a channels object and constructs an empty reductions object from it.
+   * Takes a channel object and constructs an empty reductions object from it.
    *
-   * @param  {Object} channels  channels object (this.state.channels), e.g.
+   * @param  {Object} channel  channel object (this.state.channels), e.g.
    *
-   *      {
-   *        x: {field: 'foo', type: 'quantitative'},
-   *        y: {field: 'bar.baz', type: 'temporal'}
-   *      }
+   *      {field: 'bar.baz', type: 'temporal'}
    *
-   * @return {Object}           returns object with same keys and array of
-   *                            reductions for each array from the root to
-   *                            the nested field, e.g.
-   *
-   *      {
-   *        x: [],
-   *        y: [
+   * @return {Array}           returns an array of reductions for each array from the
+   *                           root to the nested field, e.g.
+   *        [
    *          {field: 'bar', type: null, args: []},
    *          {field: 'bar.baz', type: null, args: []}
    *        ]
-   *      }
    */
-  _createReductionFromChannels(channels) {
-    return _.mapValues(channels, (encoding) => {
-      // turns 'foo.bar.baz' into ['foo', 'foo.bar', 'foo.bar.baz']
-      const parentPaths = _.map(encoding.field.split('.'), (token, index, tokens) => {
-        return tokens.slice(0, index + 1).join('.');
-      });
-      // determine which of those paths are array types
-      const arrayPaths = _.filter(parentPaths, (path) => {
-        return _.has(this.state.fieldsCache, path) &&
-          _.includes(this.state.fieldsCache[path].type, 'Array');
-      });
-      // create reduction entries (with empty type) for those array paths
-      return arrayPaths.map((path) => {
-        return { field: path, type: null, arguments: [] };
-      });
+  _createReductionFromChannel(channel) {
+    // turns 'foo.bar.baz' into ['foo', 'foo.bar', 'foo.bar.baz']
+    const parentPaths = _.map(channel.field.split('.'), (token, index, tokens) => {
+      return tokens.slice(0, index + 1).join('.');
+    });
+    // determine which of those paths are array types
+    const arrayPaths = _.filter(parentPaths, (path) => {
+      return _.has(this.state.fieldsCache, path) &&
+        _.includes(this.state.fieldsCache[path].type, 'Array');
+    });
+    // create reduction entries (with empty type) for those array paths
+    return arrayPaths.map((path) => {
+      return { field: path, type: null, arguments: [] };
     });
   },
 
@@ -575,8 +565,10 @@ const ChartStore = Reflux.createStore({
     this._validateEncodingChannel(this.state.chartType, channel);
 
     const channels = _.cloneDeep(this.state.channels);
+    const reductions = _.cloneDeep(this.state.reductions);
     if (fieldPath === null) {
       delete channels[channel];
+      delete reductions[channel];
     } else if (!_.has(this.state.fieldsCache, fieldPath)) {
       throw new Error('Unknown field: ' + fieldPath);
     } else {
@@ -587,12 +579,12 @@ const ChartStore = Reflux.createStore({
       prop.field = fieldPath;
       prop.type = this._inferMeasurementFromField(field);
       channels[channel] = prop;
+      // compute new reduction for channel if not already existing
+      if (!_.has(reductions, channel)) {
+        reductions[channel] = this._createReductionFromChannel(channels[channel]);
+      }
     }
-    // merge in new reductions based on new encoding channels
-    const reductions = Object.assign({},
-      this._createReductionFromChannels(channels),
-      this.state.reductions
-    );
+
     this._updateSpec({
       channels: channels,
       reductions: reductions
@@ -611,11 +603,33 @@ const ChartStore = Reflux.createStore({
     this._validateEncodingChannel(this.state.chartType, channel1);
     this._validateEncodingChannel(this.state.chartType, channel2);
 
+    const spec = {};
     const channels = _.cloneDeep(this.state.channels);
+    const reductions = _.cloneDeep(this.state.reductions);
+
     const tempChannel = channels[channel1];
     channels[channel1] = channels[channel2];
     channels[channel2] = tempChannel;
-    this._updateSpec({channels: channels}, pushToHistory);
+    spec.channels = channels;
+
+    // if reductions exist swap em
+    if (_.has(reductions, channel1) && _.has(reductions, channel2)) {
+      const tempReductions = reductions[channel1];
+      reductions[channel1] = reductions[channel2];
+      reductions[channel2] = tempReductions;
+    } else if (!_.has(reductions, channel1)) {
+      reductions[channel1] = reductions[channel2];
+      delete reductions[channel2];
+    } else if (!_.has(reductions, channel2)) {
+      reductions[channel2] = reductions[channel1];
+      delete reductions[channel1];
+    }
+
+    if (!_.isEmpty(reductions)) {
+      spec.reductions = reductions;
+    }
+
+    this._updateSpec(spec, pushToHistory);
   },
 
   /**

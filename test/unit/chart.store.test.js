@@ -658,35 +658,31 @@ describe('ChartStore', function() {
     });
   });
 
-  context('when calling the _createReductionFromChannels helper function', function() {
+  context('when calling the _createReductionFromChannel helper function', function() {
     const channel = CHART_CHANNEL_ENUM.X;
     it('returns the correct array reduction', function(done) {
       ChartActions.mapFieldToChannel(ARRAY_OF_3_SUBDOCS_FIELD.path, channel);
-      const expected = {
-        [channel]: [{
-          field: ARRAY_OF_3_SUBDOCS_FIELD.path,
-          type: null,
-          arguments: []
-        }]
-      };
+      const expected = [{
+        field: ARRAY_OF_3_SUBDOCS_FIELD.path,
+        type: null,
+        arguments: []
+      }];
       setTimeout(() => {
-        const reductions = ChartStore._createReductionFromChannels(this.store.state.channels);
-        expect(reductions).to.be.deep.equal(expected);
+        const reduction = ChartStore._createReductionFromChannel(this.store.state.channels[channel]);
+        expect(reduction).to.be.deep.equal(expected);
         done();
       });
     });
     it('returns the correct parent array reduction', function(done) {
       ChartActions.mapFieldToChannel(SUBDOCS_AGE_FIELD.path, channel);
-      const expected = {
-        [channel]: [{
-          field: ARRAY_OF_3_SUBDOCS_FIELD.path,
-          type: null,
-          arguments: []
-        }]
-      };
+      const expected = [{
+        field: ARRAY_OF_3_SUBDOCS_FIELD.path,
+        type: null,
+        arguments: []
+      }];
       setTimeout(() => {
-        const reductions = ChartStore._createReductionFromChannels(this.store.state.channels);
-        expect(reductions).to.be.deep.equal(expected);
+        const reduction = ChartStore._createReductionFromChannel(this.store.state.channels[channel]);
+        expect(reduction).to.be.deep.equal(expected);
         done();
       });
     });
@@ -914,6 +910,15 @@ describe('ChartStore', function() {
           done();
         });
       });
+
+      it('deletes an array reduction if channel is removed from channels', function(done) {
+        ChartActions.mapFieldToChannel(null, channel);
+        setTimeout(() => {
+          const reductions = this.store.state.reductions;
+          expect(reductions).to.be.empty;
+          done();
+        });
+      });
     });
   });
 
@@ -944,6 +949,109 @@ describe('ChartStore', function() {
         const reductions = this.store.state.reductions;
         expect(reductions).to.be.deep.equal(expected);
         done();
+      });
+    });
+  });
+
+  context('swap array channels after one has been encoded', () => {
+    const field1 = UP_TO_5_TAGS_SCHEMA_FIELD;
+    const field2 = TEN_RANDOM_STRINGS_SCHEMA_FIELD;
+    const xChannel = CHART_CHANNEL_ENUM.X;
+    const yChannel = CHART_CHANNEL_ENUM.Y;
+    const type = ARRAY_REDUCTION_TYPES.MAX_LENGTH;
+    context('when swapping an array reduction to an empy channel', function() {
+      beforeEach(() => {
+        ChartActions.mapFieldToChannel(field1.path, xChannel);
+        ChartActions.setArrayReduction(xChannel, 0, ARRAY_REDUCTION_TYPES.MAX_LENGTH);
+      });
+
+      it('has an initial expected reduction', function(done) {
+        const expected = {
+          [xChannel]: [{
+            field: field1.path,
+            type: type,
+            arguments: []
+          }]
+        };
+        setTimeout(() => {
+          const reductions = this.store.state.reductions;
+          expect(reductions).to.be.deep.equal(expected);
+          done();
+        });
+      });
+
+      it('switches to the other channel on swap', function(done) {
+        ChartActions.swapEncodedChannels(xChannel, yChannel);
+        const expected = {
+          [yChannel]: [{
+            field: field1.path,
+            type: type,
+            arguments: []
+          }]
+        };
+        setTimeout(() => {
+          const reductions = this.store.state.reductions;
+          expect(reductions).to.be.deep.equal(expected);
+          done();
+        });
+      });
+    });
+    context('when swapping an array reduction to a filled channel', function() {
+      beforeEach(() => {
+        ChartActions.mapFieldToChannel(field1.path, xChannel);
+        ChartActions.setArrayReduction(xChannel, 0, ARRAY_REDUCTION_TYPES.MAX_LENGTH);
+        ChartActions.mapFieldToChannel(field2.path, yChannel);
+      });
+
+      it('has an initial expected reduction', function(done) {
+        const expected = {
+          [xChannel]: [{
+            field: field1.path,
+            type: type,
+            arguments: []
+          }],
+          [yChannel]: [{
+            field: field2.path,
+            type: null,
+            arguments: []
+          }]
+        };
+        setTimeout(() => {
+          const reductions = this.store.state.reductions;
+          expect(reductions).to.be.deep.equal(expected);
+          done();
+        });
+      });
+
+      it('switches to the other channel on swap', function(done) {
+        ChartActions.swapEncodedChannels(xChannel, yChannel);
+        const expected = {
+          [xChannel]: [{
+            field: field2.path,
+            type: null,
+            arguments: []
+          }],
+          [yChannel]: [{
+            field: field1.path,
+            type: type,
+            arguments: []
+          }]
+        };
+        setTimeout(() => {
+          const reductions = this.store.state.reductions;
+          expect(reductions).to.be.deep.equal(expected);
+          done();
+        });
+      });
+
+      it('deletes an array reduction if channel is removed from channels', function(done) {
+        ChartActions.mapFieldToChannel(null, xChannel);
+        ChartActions.mapFieldToChannel(null, yChannel);
+        setTimeout(() => {
+          const reductions = this.store.state.reductions;
+          expect(reductions).to.be.empty;
+          done();
+        });
       });
     });
   });
