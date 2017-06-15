@@ -658,35 +658,31 @@ describe('ChartStore', function() {
     });
   });
 
-  context('when calling the _createReductionFromChannels helper function', function() {
+  context('when calling the _createReductionFromChannel helper function', function() {
     const channel = CHART_CHANNEL_ENUM.X;
     it('returns the correct array reduction', function(done) {
       ChartActions.mapFieldToChannel(ARRAY_OF_3_SUBDOCS_FIELD.path, channel);
-      const expected = {
-        [channel]: [{
-          field: ARRAY_OF_3_SUBDOCS_FIELD.path,
-          type: null,
-          arguments: []
-        }]
-      };
+      const expected = [{
+        field: ARRAY_OF_3_SUBDOCS_FIELD.path,
+        type: null,
+        arguments: []
+      }];
       setTimeout(() => {
-        const reductions = ChartStore._createReductionFromChannels(this.store.state.channels);
-        expect(reductions).to.be.deep.equal(expected);
+        const reduction = ChartStore._createReductionFromChannel(this.store.state.channels[channel]);
+        expect(reduction).to.be.deep.equal(expected);
         done();
       });
     });
     it('returns the correct parent array reduction', function(done) {
       ChartActions.mapFieldToChannel(SUBDOCS_AGE_FIELD.path, channel);
-      const expected = {
-        [channel]: [{
-          field: ARRAY_OF_3_SUBDOCS_FIELD.path,
-          type: null,
-          arguments: []
-        }]
-      };
+      const expected = [{
+        field: ARRAY_OF_3_SUBDOCS_FIELD.path,
+        type: null,
+        arguments: []
+      }];
       setTimeout(() => {
-        const reductions = ChartStore._createReductionFromChannels(this.store.state.channels);
-        expect(reductions).to.be.deep.equal(expected);
+        const reduction = ChartStore._createReductionFromChannel(this.store.state.channels[channel]);
+        expect(reduction).to.be.deep.equal(expected);
         done();
       });
     });
