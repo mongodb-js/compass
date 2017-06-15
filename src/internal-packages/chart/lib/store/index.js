@@ -251,7 +251,7 @@ const ChartStore = Reflux.createStore({
       }).length === 0;
     }));
 
-    return allReductionsSelected && allRequiredChannelsEncoded;
+    return allReductionsSelected && allRequiredChannelsEncoded && encodedChannels.length > 0;
   },
 
   /**
