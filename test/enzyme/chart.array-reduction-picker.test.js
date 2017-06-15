@@ -25,6 +25,11 @@ describe('<ArrayReductionPicker />', () => {
     it('displays the type', () => {
       expect(component.find('.chart-draggable-field-action-title')).to.have.text('concat');
     });
+
+    it('contains default class when no type is specified', () => {
+      expect(component.find('.chart-draggable-field-action.chart-draggable-field-action-reduction'))
+        .to.have.className('chart-draggable-field-action-default');
+    });
   });
 
   context('when no type is set', () => {
@@ -36,9 +41,9 @@ describe('<ArrayReductionPicker />', () => {
       expect(component.find('.chart-draggable-field-action-title')).to.have.text('Choose method');
     });
 
-    it('contains unselected class when no type is specified', () => {
-      expect(component.find('.full-width.btn-md'))
-        .to.have.className('btn-primary');
+    it('contains primary class when no type is specified', () => {
+      expect(component.find('.chart-draggable-field-action.chart-draggable-field-action-reduction'))
+        .to.have.className('chart-draggable-field-action-primary');
     });
   });
 });
