@@ -230,6 +230,30 @@ const ChartStore = Reflux.createStore({
     return result;
   },
 
+
+  /**
+   * Check if the spec is valid
+   * @param{Object} chartRole   a type of chart
+   * @param{Object} state       the chart state with updates applied
+   * @return{Boolean} whether the spec is valid or not
+   */
+  _isSpecValid(chartRole, state) {
+    // check if all required channels are encoded
+    const requiredChannels = _.filter(chartRole.channels, (channel) => {
+      return channel.required;
+    }).map(channel => channel.name);
+    const encodedChannels = Object.keys(state.channels);
+    const allRequiredChannelsEncoded = requiredChannels.length ===
+      _.intersection(requiredChannels, encodedChannels).length;
+    const allReductionsSelected = _.every(_.map(state.reductions, (reductions) => {
+      return _.filter(reductions, (reduction) => {
+        return reduction.type === null;
+      }).length === 0;
+    }));
+
+    return allReductionsSelected && allRequiredChannelsEncoded;
+  },
+
   /**
    * Any change to the store that can modify the spec goes through this
    * helper function. The new state is computed, the spec is created
@@ -251,20 +275,7 @@ const ChartStore = Reflux.createStore({
     }
     // encode spec based on spec template, specType, channels
     state.spec = this._encodeSpec(chartRole.spec, state.specType, state.channels);
-
-    // check if all required channels are encoded
-    const requiredChannels = _.filter(chartRole.channels, (channel) => {
-      return channel.required;
-    }).map(channel => channel.name);
-    const encodedChannels = Object.keys(state.channels);
-    const allRequiredChannelsEncoded = requiredChannels.length ===
-      _.intersection(requiredChannels, encodedChannels).length;
-    const allReductionsSelected = _.every(_.map(state.reductions, (reductions) => {
-      return _.filter(reductions, (reduction) => {
-        return reduction.type === null;
-      }).length === 0;
-    }));
-    state.specValid = allReductionsSelected && allRequiredChannelsEncoded;
+    state.specValid = this._isSpecValid(chartRole, state);
 
     // if spec is valid, potentially refresh the data cache
     if (state.specValid) {
