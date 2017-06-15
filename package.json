@@ -255,7 +255,7 @@
     "mgeneratejs": "^0.2.0",
     "mocha": "^3.1.2",
     "mock-require": "^2.0.1",
-    "mongodb-js-precommit": "^0.2.9",
+    "mongodb-js-precommit": "^0.3.0",
     "mongodb-runner": "^3.5.0",
     "react-addons-test-utils": "^15.2.1",
     "sinon": "^1.17.6",
