@@ -125,6 +125,8 @@ describe('Array Reduction', function() {
         const state = {
           reductions: {
             x: [
+              // Can accept the short field syntax of 'foo' for the first
+              // field, as well as the fully qualified 'foo.bar.baz'
               {field: 'foo', type: ARRAY_GENERAL_REDUCTIONS.UNWIND},
               {field: 'foo.bar.baz', type: ARRAY_GENERAL_REDUCTIONS.UNWIND}
             ]
@@ -137,7 +139,7 @@ describe('Array Reduction', function() {
           $unwind: '$foo'
         });
         expect(result[1]).to.be.deep.equal({
-          $unwind: '$foo.bar.baz'
+          $unwind: '$foo.bar'
         });
       });
       it('COMPASS-1244 creates multiple unwind stages for the same field', function() {
