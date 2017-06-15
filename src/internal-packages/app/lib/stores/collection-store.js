@@ -32,6 +32,7 @@ const CollectionStore = Reflux.createStore({
    */
   setActiveTab(idx) {
     this.activeTabIndex = idx;
+    this.trigger(idx);
   },
 
   /**
