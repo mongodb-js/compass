@@ -1,6 +1,7 @@
 const React = require('react');
 const PropTypes = require('prop-types');
-// const FontAwesome = require('react-fontawesome');
+const { InfoSprinkle } = require('hadron-react-components');
+const { shell } = require('electron');
 
 class QueryOption extends React.Component {
 
@@ -44,9 +45,6 @@ class QueryOption extends React.Component {
     return (
       <div className={outerClass}>
         <div className="querybar-option-label">
-          { /** TODO (thomasr) include when documentation exists to link out to.
-            /* <FontAwesome className="querybar-option-label-info" name="info-circle" />
-             */ }
           {this.props.label}
         </div>
         { renderFunction(innerClass) }
