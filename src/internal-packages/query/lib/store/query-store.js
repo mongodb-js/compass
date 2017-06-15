@@ -134,15 +134,9 @@ const QueryStore = Reflux.createStore({
    *                          state.
    */
   toggleQueryOptions(force) {
-    if (_.isBoolean(force)) {
-      this.setState({
-        expanded: force
-      });
-    } else {
-      this.setState({
-        expanded: !this.state.expanded
-      });
-    }
+    this.setState({
+      expanded: _.isBoolean(force) ? force : !this.state.expanded
+    });
   },
 
   /**
