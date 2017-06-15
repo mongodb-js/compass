@@ -125,8 +125,6 @@ describe('Array Reduction', function() {
         const state = {
           reductions: {
             x: [
-              // Can accept the short field syntax of 'foo' for the first
-              // field, as well as the fully qualified 'foo.bar.baz'
               {field: 'foo', type: ARRAY_GENERAL_REDUCTIONS.UNWIND},
               {field: 'foo.bar.baz', type: ARRAY_GENERAL_REDUCTIONS.UNWIND}
             ]
@@ -139,29 +137,6 @@ describe('Array Reduction', function() {
           $unwind: '$foo'
         });
         expect(result[1]).to.be.deep.equal({
-          $unwind: '$foo.bar'
-        });
-      });
-      it('COMPASS-1244 creates multiple unwind stages for the same field', function() {
-        const state = {
-          reductions: {
-            x: [
-              {field: 'foo.bar.baz.js', type: ARRAY_GENERAL_REDUCTIONS.UNWIND},
-              {field: 'foo.bar.baz.js', type: ARRAY_GENERAL_REDUCTIONS.UNWIND},
-              {field: 'foo.bar.baz.js', type: ARRAY_GENERAL_REDUCTIONS.UNWIND}
-            ]
-          }
-        };
-        const result = aggBuilder(state);
-        expect(result).to.be.an('array');
-        expect(result).to.have.lengthOf(3);
-        expect(result[0]).to.be.deep.equal({
-          $unwind: '$foo'
-        });
-        expect(result[1]).to.be.deep.equal({
-          $unwind: '$foo.bar'
-        });
-        expect(result[2]).to.be.deep.equal({
           $unwind: '$foo.bar.baz'
         });
       });
