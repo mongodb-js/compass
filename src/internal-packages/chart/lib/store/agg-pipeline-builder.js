@@ -71,8 +71,10 @@ function constructUnwindStages(reductions) {
     .filter((reduction) => {
       return reduction.type === ARRAY_GENERAL_REDUCTIONS.UNWIND;
     })
-    .map((reduction) => {
-      return {$unwind: `$${ reduction.field }`};
+    .map((reduction, index) => {
+      const DELIMITER = '.';
+      const parts = reduction.field.split(DELIMITER).slice(0, index + 1);
+      return {$unwind: `$${ parts.join(DELIMITER) }`};
     })
     .value();
 }
