@@ -693,23 +693,19 @@ const ChartStore = Reflux.createStore({
     if (!encoded || !encoded.field) {
       throw new Error(`mapFieldToChannel not called for channel: ${channel}`);
     }
-    const field = encoded.field;
+
     // Check types are valid members of ARRAY_REDUCTION_TYPES
     if (!(_.includes(_.values(ARRAY_REDUCTION_TYPES), type))) {
       throw new Error(`Expect a reduction type, got: ${type}`);
     }
     const reductions = _.cloneDeep(this.state.reductions);
     const channelReductions = reductions[channel] || [];
-    while (channelReductions.length < index) {
-      channelReductions.push({
-        field: field
-      });
+    if (index >= channelReductions.length) {
+      throw new Error('Not enough channel reductions.');
     }
-    channelReductions[index] = {
-      field: field,
-      type: type,
-      arguments: args
-    };
+    channelReductions[index].type = type;
+    channelReductions[index].arguments = args;
+
     // Unwind requires all previous transforms to also be unwinds
     this._maintainUnwindInvariant(channelReductions);
     reductions[channel] = channelReductions;
