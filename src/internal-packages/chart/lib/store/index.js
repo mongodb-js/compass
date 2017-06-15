@@ -525,8 +525,8 @@ const ChartStore = Reflux.createStore({
   _createReductionFromChannels(channels) {
     return _.mapValues(channels, (encoding) => {
       // turns 'foo.bar.baz' into ['foo', 'foo.bar', 'foo.bar.baz']
-      const parentPaths = _.map(encoding.field.split('.'), (token, idx, tokens) => {
-        return tokens.slice(0, idx + 1).join('.');
+      const parentPaths = _.map(encoding.field.split('.'), (token, index, tokens) => {
+        return tokens.slice(0, index + 1).join('.');
       });
       // determine which of those paths are array types
       const arrayPaths = _.filter(parentPaths, (path) => {
