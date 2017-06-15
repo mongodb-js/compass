@@ -479,9 +479,10 @@ const ChartStore = Reflux.createStore({
     let state = {
       queryCache: newQuery
     };
-    // clear the chart when the namespace changes
+    // clear the chart when the namespace changes and reset safety switch
     if (this.state.queryCache.ns !== query.ns) {
       state = Object.assign(state, this.getInitialChartState());
+      this.limitSafetySwitch = false;
     }
     this.setState(state);
     // when we have a chart, we need to refresh the data immediately
