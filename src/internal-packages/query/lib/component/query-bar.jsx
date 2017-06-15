@@ -5,35 +5,34 @@ const OptionsToggle = require('./options-toggle');
 
 const _ = require('lodash');
 
-// const debug = require('debug')('mongodb-compass:query-bar');
-
 const QUERY_PROPERTIES = require('../store/query-store').QUERY_PROPERTIES;
 
 const OPTION_DEFINITION = {
   filter: {
     type: 'document',
-    placeholder: '{ "filter" : "example" }',
-    link: 'https://docs.mongodb.com/TBD'
+    placeholder: "{ filter: 'example' }",
+    link: 'https://docs.mongodb.com/getting-started/shell/query/'
   },
   project: {
     type: 'document',
-    placeholder: '{ "project" : 1 }',
-    link: 'https://docs.mongodb.com/TBD'
+    placeholder: '{ project: 1 }',
+    link:
+      'https://docs.mongodb.com/manual/tutorial/project-fields-from-query-results/'
   },
   sort: {
     type: 'document',
-    placeholder: '{ "sort" : 1 }',
-    link: 'https://docs.mongodb.com/TBD'
+    placeholder: '{ sort: 1 }',
+    link: 'https://docs.mongodb.com/manual/reference/method/cursor.sort/'
   },
   skip: {
     type: 'numeric',
     placeholder: '0',
-    link: 'https://docs.mongodb.com/TBD'
+    link: 'https://docs.mongodb.com/manual/reference/method/cursor.skip/'
   },
   limit: {
     type: 'numeric',
     placeholder: '0',
-    link: 'https://docs.mongodb.com/TBD'
+    link: 'https://docs.mongodb.com/manual/reference/method/cursor.limit/'
   },
   sample: {
     type: 'boolean',
@@ -43,7 +42,6 @@ const OPTION_DEFINITION = {
 };
 
 class QueryBar extends React.Component {
-
   constructor(props) {
     super(props);
     this.state = { hasFocus: false };
@@ -122,9 +120,9 @@ class QueryBar extends React.Component {
    */
   renderOption(option, id, hasToggle) {
     // for filter only, also validate feature flag directives
-    const hasError = option === 'filter' ?
-      !(this.props.filterValid || this.props.featureFlag) :
-      !(this.props[`${option}Valid`]);
+    const hasError = option === 'filter'
+      ? !(this.props.filterValid || this.props.featureFlag)
+      : !this.props[`${option}Valid`];
 
     // checkbox options use the value directly, text inputs use the
     // `<option>String` prop.
@@ -174,8 +172,11 @@ class QueryBar extends React.Component {
   renderOptionRows() {
     // for multi-line layouts, the first option must be stand-alone
     if (this._showToggle() && !_.isString(this.props.layout[0])) {
-      throw new Error('First item in multi-line layout must be single option'
-        + ', found' + this.props.layout[0]);
+      throw new Error(
+        'First item in multi-line layout must be single option' +
+          ', found' +
+          this.props.layout[0]
+      );
     }
     const rows = _.map(this.props.layout, (row, id) => {
       // only the first in multi-line options has the toggle
@@ -199,8 +200,9 @@ class QueryBar extends React.Component {
    * @returns {React.Component} The Query Bar view.
    */
   renderForm() {
-    let inputGroupClass = this.props.valid ?
-      'querybar-input-group input-group' : 'querybar-input-group input-group has-error';
+    let inputGroupClass = this.props.valid
+      ? 'querybar-input-group input-group'
+      : 'querybar-input-group input-group has-error';
     if (this.props.featureFlag) {
       inputGroupClass = 'querybar-input-group input-group is-feature-flag';
     }
@@ -210,15 +212,18 @@ class QueryBar extends React.Component {
     };
     const applyDisabled = !(this.props.valid || this.props.featureFlag);
 
-    const queryOptionClassName =
-      this.state.hasFocus ?
-        'querybar-option-container querybar-has-focus'
-        : 'querybar-option-container';
+    const queryOptionClassName = this.state.hasFocus
+      ? 'querybar-option-container querybar-has-focus'
+      : 'querybar-option-container';
 
     return (
       <form onSubmit={this.onApplyButtonClicked.bind(this)}>
         <div className={inputGroupClass}>
-          <div onBlur={this._onBlur.bind(this)} onFocus={this._onFocus.bind(this)} className={queryOptionClassName}>
+          <div
+            onBlur={this._onBlur.bind(this)}
+            onFocus={this._onFocus.bind(this)}
+            className={queryOptionClassName}
+          >
             {this.renderOptionRows()}
             {this.renderToggle()}
           </div>
@@ -230,7 +235,10 @@ class QueryBar extends React.Component {
               data-test-id="apply-filter-button"
               type="button"
               onClick={this.onApplyButtonClicked.bind(this)}
-              disabled={applyDisabled}>{this.props.buttonLabel}</button>
+              disabled={applyDisabled}
+            >
+              {this.props.buttonLabel}
+            </button>
             <button
               id="reset_button"
               key="reset-button"
@@ -238,7 +246,10 @@ class QueryBar extends React.Component {
               data-test-id="reset-filter-button"
               type="button"
               onClick={this.onResetButtonClicked.bind(this)}
-              style={resetButtonStyle}>Reset</button>
+              style={resetButtonStyle}
+            >
+              Reset
+            </button>
           </div>
         </div>
       </form>
