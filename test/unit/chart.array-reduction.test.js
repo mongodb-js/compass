@@ -140,6 +140,29 @@ describe('Array Reduction', function() {
           $unwind: '$foo.bar.baz'
         });
       });
+      it('COMPASS-1244 creates multiple unwind stages for the same field', function() {
+        const state = {
+          reductions: {
+            x: [
+              {field: 'foo.bar.baz.js', type: ARRAY_GENERAL_REDUCTIONS.UNWIND},
+              {field: 'foo.bar.baz.js', type: ARRAY_GENERAL_REDUCTIONS.UNWIND},
+              {field: 'foo.bar.baz.js', type: ARRAY_GENERAL_REDUCTIONS.UNWIND}
+            ]
+          }
+        };
+        const result = aggBuilder(state);
+        expect(result).to.be.an('array');
+        expect(result).to.have.lengthOf(3);
+        expect(result[0]).to.be.deep.equal({
+          $unwind: '$foo'
+        });
+        expect(result[1]).to.be.deep.equal({
+          $unwind: '$foo.bar'
+        });
+        expect(result[2]).to.be.deep.equal({
+          $unwind: '$foo.bar.baz'
+        });
+      });
       it('creates an unwind stage and an addField stage for mixed reductions', function() {
         const state = {
           reductions: {
