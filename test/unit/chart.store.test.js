@@ -842,6 +842,37 @@ describe('ChartStore', function() {
     });
   });
 
+  context('COMPASS-1250 after an array channel is encoded and an unwind reduction set', () => {
+    const field = UP_TO_5_TAGS_SCHEMA_FIELD;
+    const channel1 = CHART_CHANNEL_ENUM.X;
+    const channel2 = CHART_CHANNEL_ENUM.Y;
+    const type = ARRAY_REDUCTION_TYPES.UNWIND;
+    beforeEach(() => {
+      ChartActions.mapFieldToChannel(field.path, channel1);
+      ChartActions.setArrayReduction(channel1, 0, type);
+    });
+    it('when encoding another channel, it does not lose the unwind', function(done) {
+      const expected = {
+        [channel1]: [{
+          field: field.path,
+          type: type,
+          arguments: []
+        }],
+        [channel2]: [{
+          field: field.path,
+          type: null,
+          arguments: []
+        }]
+      };
+      ChartActions.mapFieldToChannel(field.path, channel2);
+      setTimeout(() => {
+        const reductions = this.store.state.reductions;
+        expect(reductions).to.be.deep.equal(expected);
+        done();
+      });
+    });
+  });
+
   context('after multiple array channels have been encoded', () => {
     const field1 = UP_TO_5_TAGS_SCHEMA_FIELD;
     const field2 = TEN_RANDOM_STRINGS_SCHEMA_FIELD;

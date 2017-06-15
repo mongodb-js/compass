@@ -570,8 +570,11 @@ const ChartStore = Reflux.createStore({
       prop.type = this._inferMeasurementFromField(field);
       channels[channel] = prop;
     }
-    // compute new reductions based on new encoding channels
-    const reductions = this._createReductionFromChannels(channels);
+    // merge in new reductions based on new encoding channels
+    const reductions = Object.assign({},
+      this._createReductionFromChannels(channels),
+      this.state.reductions
+    );
     this._updateSpec({
       channels: channels,
       reductions: reductions
