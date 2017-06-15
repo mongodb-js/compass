@@ -266,7 +266,7 @@
   ],
   "engines": {
     "node": "^7.4.0",
-    "npm": "^5.0.0"
+    "npm": "^4.0.0 || ^5.0.0"
   },
   "bugs": {
     "url": "https://docs.mongodb.com/compass/current/#contact",
