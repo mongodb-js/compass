@@ -127,11 +127,22 @@ const QueryStore = Reflux.createStore({
 
   /**
    * toggles between expanded and collapsed query options state.
+   *
+   * @param {Boolean} force   optional flag to force the extended options
+   *                          to be open (true) or closed (false). If not
+   *                          specified, the options switch to their opposite
+   *                          state.
    */
-  toggleQueryOptions() {
-    this.setState({
-      expanded: !this.state.expanded
-    });
+  toggleQueryOptions(force) {
+    if (_.isBoolean(force)) {
+      this.setState({
+        expanded: force
+      });
+    } else {
+      this.setState({
+        expanded: !this.state.expanded
+      });
+    }
   },
 
   /**
