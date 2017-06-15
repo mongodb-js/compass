@@ -86,7 +86,8 @@ const QueryStore = Reflux.createStore({
     this.schemaFields = Object.keys(state.fields).filter(
       name => name !== '_id'
     );
-    this.sendValues();
+    debug('this.schemaFields', this.schemaFields);
+    // this.sendValues();
   },
 
   /**
@@ -335,6 +336,7 @@ const QueryStore = Reflux.createStore({
    *                            cleaned-up string input.
    */
   _validateInput(label, input) {
+<<<<<<< 2792af4dcf674e12a6f35f0a76d8f7cbc42b59ed
     if (!_.includes(QUERY_PROPERTIES, label)) {
       return false;
     }
@@ -417,6 +419,9 @@ const QueryStore = Reflux.createStore({
       input = '0';
     }
     return /^\d+$/.test(input) ? parseInt(input, 10) : false;
+=======
+    return queryParser.validate(label, input);
+>>>>>>> Tests passing locally
   },
 
   /**
@@ -428,11 +433,11 @@ const QueryStore = Reflux.createStore({
    */
   _validateQuery() {
     return (
-      this._validateFilter(this.state.filterString) !== false &&
-      this._validateProject(this.state.projectString) !== false &&
-      this._validateSort(this.state.sortString) !== false &&
-      this._validateSkip(this.state.skipString) !== false &&
-      this._validateLimit(this.state.limitString) !== false
+      queryParser.isFilterValid(this.state.filterString) !== false &&
+      queryParser.isProjectValid(this.state.projectString) !== false &&
+      queryParser.isSortValid(this.state.sortString) !== false &&
+      queryParser.isSkipValid(this.state.skipString) !== false &&
+      queryParser.isLimitValid(this.state.limitString) !== false
     );
   },
 

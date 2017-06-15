@@ -109,61 +109,6 @@ describe('QueryStore', () => {
     });
   });
 
-  describe('_validateFilter', () => {
-    it('accepts a valid query filter', () => {
-      const res = QueryStore._validateFilter('{foo: {$exists: false}}');
-      expect(res).to.be.an('object');
-    });
-    it('rejects an invalid query filter', () => {
-      const res = QueryStore._validateFilter('{foo: {$blabla: false}}');
-      expect(res).to.be.false;
-    });
-  });
-
-  describe('_validateProject', () => {
-    it('accepts a valid query projection', () => {
-      const res = QueryStore._validateProject('{foo: 0, bar: 1}');
-      expect(res).to.be.an('object');
-    });
-    it('rejects an invalid query projection', () => {
-      const res = QueryStore._validateProject('{foo: 0, bar: -1}');
-      expect(res).to.be.false;
-    });
-  });
-
-  describe('_validateSort', () => {
-    it('accepts a valid query sort', () => {
-      const res = QueryStore._validateSort('{foo: -1, bar: 1}');
-      expect(res).to.be.an('object');
-    });
-    it('rejects an invalid query sort', () => {
-      const res = QueryStore._validateSort('{foo: 0, bar: -1}');
-      expect(res).to.be.false;
-    });
-  });
-
-  describe('_validateSkip', () => {
-    it('accepts a valid query skip value', () => {
-      const res = QueryStore._validateSkip('5');
-      expect(res).to.be.a('number');
-    });
-    it('rejects an invalid query sort', () => {
-      const res = QueryStore._validateSkip('{foo: 1}');
-      expect(res).to.be.false;
-    });
-  });
-
-  describe('_validateLimit', () => {
-    it('accepts a valid query skip value', () => {
-      const res = QueryStore._validateLimit('5');
-      expect(res).to.be.a('number');
-    });
-    it('rejects an invalid query sort', () => {
-      const res = QueryStore._validateLimit('{foo: 1}');
-      expect(res).to.be.false;
-    });
-  });
-
   describe('_validateFeatureFlag', () => {
     it('accepts a valid feature flag', () => {
       QueryStore.validFeatureFlags = [
