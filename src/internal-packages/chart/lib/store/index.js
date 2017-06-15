@@ -28,6 +28,8 @@ const INITIAL_QUERY = {
   maxTimeMS: 10000
 };
 
+const SAFETY_SWITCH_LIMIT = 1000;
+
 /**
  * The reflux store for the currently displayed Chart singleton.
  */
@@ -52,7 +54,9 @@ const ChartStore = Reflux.createStore({
     // set up listeners on external stores
     appRegistry.getStore('Query.ChangedStore').listen(this.onQueryChanged.bind(this));
     appRegistry.getStore('Schema.FieldStore').listen(this.onFieldsChanged.bind(this));
+    appRegistry.getStore('App.CollectionStore').listen(this.onCollectionTabChanged.bind(this));
 
+    this.QueryActions = appRegistry.getAction('Query.Actions');
     const roles = appRegistry.getRole('Chart.Type');
 
     this.AVAILABLE_CHART_ROLES = roles;
@@ -487,6 +491,19 @@ const ChartStore = Reflux.createStore({
     }
   },
 
+  onCollectionTabChanged(idx) {
+    // TODO this is hardcoded and needs to use onTabFocused and onTabBlurred
+    // eventually. See COMPASS-1138
+    if (idx === 5 && !this.limitSafetySwitch) {
+      // on very first tab focus
+      this.limitSafetySwitch = true;
+      this.QueryActions.setQueryString('limit', String(SAFETY_SWITCH_LIMIT));
+      this.setState({
+        queryCache: Object.assign({}, this.state.queryCache, {limit: SAFETY_SWITCH_LIMIT})
+      });
+      this.QueryActions.toggleQueryOptions(true);
+    }
+  },
 
   /**
    * Fires when field store changes
