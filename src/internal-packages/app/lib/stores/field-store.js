@@ -103,7 +103,7 @@ const FieldStore = Reflux.createStore({
     }
 
     for (const field of nestedFields) {
-      const existingField = _.get(fields, field.path, {});
+      const existingField = fields[field.path] || {};
       const newField = _.pick(field, FIELDS);
       fields[field.path] = this._mergeFields(existingField, newField);
 
