@@ -87,4 +87,77 @@ describe('FieldStore', function() {
     });
     FieldStore.processSingleDocument({a: {b: {c: 1}}, d: 5, e: {f: 3}});
   });
+
+  context('collisions of name/path/count/type within a single document', () => {
+    it('handles name', (done) => {
+      const expected = {
+        'foo1': {
+          'count': 1,
+          'name': 'foo1',
+          'nestedFields': [
+            'foo1.age',
+            'foo1.name'
+          ],
+          'path': 'foo1',
+          'type': 'Array'
+        },
+        'foo1.age': {
+          'count': 1,
+          'name': 'age',
+          'path': 'foo1.age',
+          'type': 'Number'
+        },
+        // The following was a string, not a field
+        'foo1.name': {
+          'count': 1,
+          'name': 'name',
+          'path': 'foo1.name',
+          'type': 'String'
+        }
+      };
+      const doc = {
+        foo1: [{age: 10, name: 'bazillion'}]
+      };
+      unsubscribe = FieldStore.listen((state) => {
+        expect(state.fields).to.be.deep.equal(expected);
+        done();
+      });
+      FieldStore.processSingleDocument(doc);
+    });
+    it('handles path', (done) => {
+      const expected = {
+        'foo1': {
+          'count': 1,
+          'name': 'foo1',
+          'nestedFields': [
+            'foo1.age',
+            'foo1.path'
+          ],
+          'path': 'foo1',
+          'type': 'Array'
+        },
+        'foo1.age': {
+          'count': 1,
+          'name': 'age',
+          'path': 'foo1.age',
+          'type': 'Number'
+        },
+        // The following was a string, not a field
+        'foo1.path': {
+          'count': 1,
+          'name': 'path',
+          'path': 'foo1.path',
+          'type': 'String'
+        }
+      };
+      const doc = {
+        foo1: [{age: 10, path: 'bazillion'}]
+      };
+      unsubscribe = FieldStore.listen((state) => {
+        expect(state.fields).to.be.deep.equal(expected);
+        done();
+      });
+      FieldStore.processSingleDocument(doc);
+    });
+  });
 });
