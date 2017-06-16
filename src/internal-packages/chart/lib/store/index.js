@@ -84,6 +84,9 @@ const ChartStore = Reflux.createStore({
       dataCache: [],
       fieldsCache: {},
       topLevelFields: [],
+      completeFieldsCache: {},
+      completeTopLevelFields: [],
+      filterRegex: /(?:)/,
       queryCache: INITIAL_QUERY
     };
   },
@@ -127,7 +130,12 @@ const ChartStore = Reflux.createStore({
     const general = {
       viewType: VIEW_TYPE_ENUM.CHART_BUILDER
     };
-    return Object.assign({}, caches, chart, history, availableChartRoles, general);
+
+    const filter = {
+
+    };
+
+    return Object.assign({}, caches, chart, history, availableChartRoles, general, filter);
   },
 
   /**
@@ -524,7 +532,15 @@ const ChartStore = Reflux.createStore({
     if (!state.fields) {
       return;
     }
-    this.setState({fieldsCache: state.fields, topLevelFields: state.topLevelFields});
+
+    const filteredFields = this._filterFields(this.state.regex);
+
+    this.setState({
+      completeFieldsCache: state.fields,
+      completeTopLevelFields: state.topLevelFields,
+      topLevelFields: filteredFields.topLevelFields,
+      fieldsCache: filteredFields.fieldsCache
+    });
   },
 
   /**
@@ -806,6 +822,29 @@ const ChartStore = Reflux.createStore({
     this.setState({
       specType: SPEC_TYPE_ENUM.VEGA_LITE,
       viewType: VIEW_TYPE_ENUM.JSON_EDITOR
+    });
+  },
+
+
+  /**
+   * Helper to filter the complete fields list based on regex
+   * @param {Object} regex regular expression object
+   * @return {Object} an object consisting of the filtered topLevelFields & fieldsCache
+   */
+  _filterFields(regex) {
+    return {fieldsCache: this.state.completeFieldsCache, topLevelFields: this.state.completeTopLevelFields};
+  },
+
+  /**
+   * Filter fields based on provided regular expression parameter
+   * @param {Object} regex regular expression to filter fields
+   */
+  filterFields(regex) {
+    const filteredFields = this._filterFields(regex);
+    this.setState({
+      filterRegex: regex,
+      topLevelFields: filteredFields.topLevelFields,
+      fieldsCache: filteredFields.fieldsCache
     });
   },
 

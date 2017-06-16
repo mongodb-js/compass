@@ -15,7 +15,8 @@ const Actions = Reflux.createActions([
   'setArrayReduction',
   'setSpecAsJSON',
   'switchToChartBuilderView',
-  'switchToJSONView'
+  'switchToJSONView',
+  'filterFields'
 ]);
 
 module.exports = Actions;

@@ -7,12 +7,14 @@ class FieldPanel extends React.Component {
   handleFilter(event) {
     const searchString = event.target.value;
 
-    let re;
+    let regex;
     try {
-      re = new RegExp(searchString, 'i');
+      regex = new RegExp(searchString, 'i');
     } catch (e) {
-      re = /(?:)/;
+      regex = /(?:)/;
     }
+
+    this.props.actions.filterFields(regex);
   }
 
   renderAddIcon() {
@@ -45,7 +47,7 @@ class FieldPanel extends React.Component {
         </div>
         <div className="chart-builder-field-panel-controls-row">
           <i className="fa fa-search compass-sidebar-search-icon"></i>
-          <input ref="filter" className="" placeholder="filter" onChange={this.handleFilter}></input>
+          <input ref="filter" className="" placeholder="filter" onChange={this.handleFilter.bind(this)}></input>
         </div>
         {this.renderFields()}
       </div>
