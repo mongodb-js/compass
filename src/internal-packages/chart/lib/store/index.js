@@ -592,6 +592,31 @@ const ChartStore = Reflux.createStore({
   },
 
   /**
+   * Helper to swap two items in `container`, which can be accessed using the
+   * square bracket notation by `key1` and `key2`. Leaves behind no keys if
+   * an item is not present in the container.
+   *
+   * @param {Object} container  Something on which the bracket notation
+   *                            property accessor works.
+   * @param {String} key1       First thing to use the bracket notation with.
+   * @param {String} key2       Second thing to use the bracket notation with.
+   * @private
+   */
+  _swapOrDelete(container, key1, key2) {
+    const tempChannel = container[key1];
+    if (container[key2] !== undefined) {
+      container[key1] = container[key2];
+    } else {
+      delete container[key1];
+    }
+    if (tempChannel !== undefined) {
+      container[key2] = tempChannel;
+    } else {
+      delete container[key2];
+    }
+  },
+
+  /**
    * Swaps the contents of two channels.
 
    * @param {String} channel1       one of the channels to swap
@@ -607,27 +632,10 @@ const ChartStore = Reflux.createStore({
     const channels = _.cloneDeep(this.state.channels);
     const reductions = _.cloneDeep(this.state.reductions);
 
-    const tempChannel = channels[channel1];
-    channels[channel1] = channels[channel2];
-    channels[channel2] = tempChannel;
+    this._swapOrDelete(channels, channel1, channel2);
+    this._swapOrDelete(reductions, channel1, channel2);
     spec.channels = channels;
-
-    // if reductions exist swap em
-    if (_.has(reductions, channel1) && _.has(reductions, channel2)) {
-      const tempReductions = reductions[channel1];
-      reductions[channel1] = reductions[channel2];
-      reductions[channel2] = tempReductions;
-    } else if (!_.has(reductions, channel1)) {
-      reductions[channel1] = reductions[channel2];
-      delete reductions[channel2];
-    } else if (!_.has(reductions, channel2)) {
-      reductions[channel2] = reductions[channel1];
-      delete reductions[channel1];
-    }
-
-    if (!_.isEmpty(reductions)) {
-      spec.reductions = reductions;
-    }
+    spec.reductions = reductions;
 
     this._updateSpec(spec, pushToHistory);
   },
