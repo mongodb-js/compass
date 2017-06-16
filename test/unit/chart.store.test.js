@@ -532,7 +532,6 @@ describe('ChartStore', function() {
           type: MEASUREMENT_ENUM.QUANTITATIVE,
           aggregate: AGGREGATE_FUNCTION_ENUM.MAX
         },
-        'y': undefined,
         'detail': {
           field: COUNTRY_SCHEMA_FIELD.path,
           type: MEASUREMENT_ENUM.NOMINAL
