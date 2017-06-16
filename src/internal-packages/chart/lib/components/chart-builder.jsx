@@ -16,7 +16,7 @@ const {
   SPEC_TYPE_ENUM
 } = require('../constants');
 
-const QUERYBAR_LAYOUT = ['filter', ['sort', 'skip', 'limit']];
+const QUERYBAR_LAYOUT = ['filter', ['sort', 'skip', 'limit', 'sample']];
 
 // const debug = require('debug')('mongodb-compass:chart:chart-builder');
 

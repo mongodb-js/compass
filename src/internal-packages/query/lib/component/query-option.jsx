@@ -3,6 +3,32 @@ const PropTypes = require('prop-types');
 // const FontAwesome = require('react-fontawesome');
 
 class QueryOption extends React.Component {
+
+  renderTextInput(className) {
+    return (
+      <input
+        id={`querybar-option-input-${this.props.label}`}
+        className={className}
+        type="text"
+        value={this.props.value}
+        onChange={this.props.onChange}
+        placeholder={this.props.placeholder}
+      />
+    );
+  }
+
+  renderCheckboxInput(className) {
+    return (
+      <input
+        id={`querybar-option-input-${this.props.label}`}
+        className={className}
+        type="checkbox"
+        value={this.props.value}
+        onChange={this.props.onChange}
+      />
+    );
+  }
+
   render() {
     let outerClass = `querybar-option querybar-option-is-${this.props.inputType}-type`;
     let innerClass = `querybar-option-input input-${this.props.label}`;
@@ -12,6 +38,9 @@ class QueryOption extends React.Component {
     if (this.props.hasToggle) {
       innerClass += ' querybar-option-has-toggle';
     }
+    const renderFunction = this.props.inputType === 'boolean' ?
+      this.renderCheckboxInput.bind(this) : this.renderTextInput.bind(this);
+
     return (
       <div className={outerClass}>
         <div className="querybar-option-label">
@@ -20,14 +49,7 @@ class QueryOption extends React.Component {
              */ }
           {this.props.label}
         </div>
-        <input
-          id={`querybar-option-input-${this.props.label}`}
-          className={innerClass}
-          type="text"
-          value={this.props.value}
-          onChange={this.props.onChange}
-          placeholder={this.props.placeholder}
-        />
+        { renderFunction(innerClass) }
       </div>
     );
   }
@@ -37,7 +59,7 @@ QueryOption.propTypes = {
   placeholder: PropTypes.string,
   label: PropTypes.string.isRequired,
   link: PropTypes.string.isRequired,
-  inputType: PropTypes.oneOf(['numeric', 'document']).isRequired,
+  inputType: PropTypes.oneOf(['numeric', 'boolean', 'document']).isRequired,
   value: PropTypes.string,
   hasToggle: PropTypes.bool,
   hasError: PropTypes.bool,

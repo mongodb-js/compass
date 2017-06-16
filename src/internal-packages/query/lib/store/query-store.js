@@ -24,10 +24,11 @@ const DEFAULT_LIMIT = 0;
 const DEFAULT_SKIP = 0;
 const DEFAULT_PROJECT = null;
 const DEFAULT_MAX_TIME_MS = ms('10 seconds');
+const DEFAULT_SAMPLE = false;
 const DEFAULT_STATE = RESET_STATE;
 
 // these state properties make up a "query"
-const QUERY_PROPERTIES = ['filter', 'project', 'sort', 'skip', 'limit'];
+const QUERY_PROPERTIES = ['filter', 'project', 'sort', 'skip', 'limit', 'sample'];
 
 /**
  * The reflux store for the schema.
@@ -76,6 +77,7 @@ const QueryStore = Reflux.createStore({
       sort: DEFAULT_SORT,
       skip: DEFAULT_SKIP,
       limit: DEFAULT_LIMIT,
+      sample: DEFAULT_SAMPLE,
 
       // internal query properties
       maxTimeMS: DEFAULT_MAX_TIME_MS,
@@ -97,6 +99,7 @@ const QueryStore = Reflux.createStore({
       sortValid: true,
       skipValid: true,
       limitValid: true,
+      sampleValid: true,
 
       // last full query (contains user-facing and internal variables above)
       lastExecutedQuery: null,
@@ -136,6 +139,20 @@ const QueryStore = Reflux.createStore({
   toggleQueryOptions(force) {
     this.setState({
       expanded: _.isBoolean(force) ? force : !this.state.expanded
+    });
+  },
+
+  /**
+   * toggles between sampling on/off. Also can take a value to force sampling
+   * to be on or off directly.
+   *
+   * @param {Boolean} force   optional flag to force the sampling to be on or
+   *                          off. If no specified, the value switcesh to its
+   *                          opposite state.
+   */
+  toggleSample(force) {
+    this.setState({
+      sample: _.isBoolean(force) ? force : !this.state.sample
     });
   },
 
@@ -211,7 +228,8 @@ const QueryStore = Reflux.createStore({
     }
 
     // convert all query inputs into their string values and validate them
-    let inputStrings = _.mapValues(_.pick(query, QUERY_PROPERTIES), EJSON.stringify);
+    const stringProperties = _.without(QUERY_PROPERTIES, 'sample');
+    let inputStrings = _.mapValues(_.pick(query, stringProperties), EJSON.stringify);
     let inputValids = _.mapValues(inputStrings, (val, label) => {
       return this._validateInput(label, val) !== false;
     });
@@ -238,6 +256,10 @@ const QueryStore = Reflux.createStore({
 
     // merge query, query strings, valid flags into state object
     const state = _.assign({}, _.pick(query, validKeys), inputStrings, inputValids);
+    // add sample state if available
+    if (_.has(query, 'sample')) {
+      state.sample = query.sample;
+    }
     state.featureFlag = false;
     state.valid = valid;
     this.setState(state);
@@ -287,7 +309,8 @@ const QueryStore = Reflux.createStore({
   },
 
   /**
-   * routes to the correct validation function.
+   * routes to the correct validation function if available. If the validation
+   * function does not exist (e.g. in the case of `sample`), always return true.
    *
    * @param {String} label   one of `filter`, `project`, `sort`, `skip`, `limit`
    * @param {String} input   the input to validated
@@ -300,7 +323,8 @@ const QueryStore = Reflux.createStore({
       return false;
     }
     const upperCaseLabel = _.capitalize(label);
-    return this[`_validate${upperCaseLabel}`](input);
+    const validationFunc = this[`_validate${upperCaseLabel}`];
+    return validationFunc ? validationFunc(input) : true;
   },
 
   /**
@@ -402,6 +426,13 @@ const QueryStore = Reflux.createStore({
     return this._validateNumber(input);
   },
 
+  /**
+   * generic validation function validating numeric inputs. Used by
+   * _validateLimit and _validateSkip.
+   *
+   * @param  {String} input      the input to validate.
+   * @return {Boolean|Number}    false if not valid, otherwise parsed number.
+   */
   _validateNumber(input) {
     if (input === '') {
       input = '0';

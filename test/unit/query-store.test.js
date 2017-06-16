@@ -90,7 +90,8 @@ describe('QueryStore', () => {
         project: {b: 1},
         sort: {c: -1, d: 1},
         skip: 5,
-        limit: 10
+        limit: 10,
+        sample: false
       };
       unsubscribe = QueryStore.listen(() => {
         const cloned = QueryStore._cloneQuery();
@@ -233,6 +234,23 @@ describe('QueryStore', () => {
           done();
         });
         QueryStore.setQuery({limit: 3});
+      });
+      it('sets a new `sample` to true', (done) => {
+        unsubscribe = QueryStore.listen((state) => {
+          expect(state.sample).to.be.true;
+          expect(state.sampleValid).to.be.true;
+          done();
+        });
+        QueryStore.setQuery({sample: true});
+      });
+      it('sets a new `sample` to false', (done) => {
+        QueryStore.setQuery({sample: true});
+        unsubscribe = QueryStore.listen((state) => {
+          expect(state.sample).to.be.false;
+          expect(state.sampleValid).to.be.true;
+          done();
+        });
+        QueryStore.setQuery({sample: false});
       });
     });
     context('when setting multiple query properties', () => {

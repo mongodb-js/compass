@@ -34,7 +34,7 @@ describe('QueryChangedStore', () => {
   it('returns the extended query properties for its initial state', () => {
     const keys = QueryChangedStore.getInitialState();
     expect(keys).to.have.all.keys(['filter', 'project', 'sort', 'skip',
-      'limit', 'maxTimeMS', 'queryState', 'ns']);
+      'limit', 'sample', 'maxTimeMS', 'queryState', 'ns']);
   });
 
   it('detects if there was a change in lastExecutedQuery', () => {
@@ -54,6 +54,16 @@ describe('QueryChangedStore', () => {
     QueryStore.apply();
   });
 
+  it('triggers when the QueryStore sample variable changes', (done) => {
+    expect(QueryStore.state.sample).to.be.false;
+    unsubscribe = QueryChangedStore.listen((state) => {
+      expect(state.sample).to.be.true;
+      done();
+    });
+    QueryStore.setQuery({sample: true});
+    QueryStore.apply();
+  });
+
   it('contains all the other query options', (done) => {
     unsubscribe = QueryChangedStore.listen((state) => {
       expect(state.filter).to.be.deep.equal({foo: 1});
@@ -61,6 +71,7 @@ describe('QueryChangedStore', () => {
       expect(state.skip).to.be.equal(0);
       expect(state.limit).to.be.equal(0);
       expect(state.project).to.be.deep.equal(null);
+      expect(state.sample).to.be.false;
       expect(state.maxTimeMS).to.be.equal(10000);
       done();
     });
