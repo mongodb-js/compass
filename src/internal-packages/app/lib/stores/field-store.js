@@ -86,7 +86,7 @@ const FieldStore = Reflux.createStore({
    * @param  {Array} nestedFields  sub-fields of topLevelFields (if existing)
    * @param  {Object} rootField    current top level field which can contain nestedFields
    */
-  _generateFields(fields, nestedFields, rootField) {
+  _flattenedFields(fields, nestedFields, rootField) {
     if (!nestedFields) {
       return;
     }
@@ -111,13 +111,13 @@ const FieldStore = Reflux.createStore({
       for (const type of field.types) {
         if (type.name === 'Document') {
           // add nested sub-fields
-          this._generateFields(fields, type.fields, field);
+          this._flattenedFields(fields, type.fields, field);
         }
         if (type.name === 'Array') {
           // add nested sub-fields of document type
           const docType = _.find(type.types, 'name', 'Document');
           if (docType) {
-            this._generateFields(fields, docType.fields, field);
+            this._flattenedFields(fields, docType.fields, field);
           }
         }
       }
@@ -136,7 +136,7 @@ const FieldStore = Reflux.createStore({
     for (const field of schema.fields) {
       topLevelFields.push(field.name);
     }
-    this._generateFields(fields, schema.fields);
+    this._flattenedFields(fields, schema.fields);
 
     this.setState({
       fields: fields,
