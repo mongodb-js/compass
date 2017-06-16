@@ -8,11 +8,13 @@ const _ = require('lodash');
 const ms = require('ms');
 const bsonEqual = require('../util').bsonEqual;
 const hasDistinctValue = require('../util').hasDistinctValue;
+const diff = require('object-diff');
 
-const debug = require('debug')('mongodb-compass:stores:query-new');
+const debug = require('debug')('mongodb-compass:stores:query');
 
 // constants
 const USER_TYPING_DEBOUNCE_MS = 100;
+
 const FEATURE_FLAG_REGEX = /^(enable|disable) (\w+)\s*$/;
 const RESET_STATE = 'reset';
 const APPLY_STATE = 'apply';
@@ -82,12 +84,10 @@ const QueryStore = Reflux.createStore({
       return;
     }
 
-    // don't allow users to make indexes on _id
-    this.schemaFields = Object.keys(state.fields).filter(
-      name => name !== '_id'
-    );
-    debug('this.schemaFields', this.schemaFields);
-    // this.sendValues();
+    debug('field change', state.fields);
+    this.setState({
+      schemaFields: state.fields
+    });
   },
 
   /**
@@ -140,7 +140,10 @@ const QueryStore = Reflux.createStore({
       expanded: false,
 
       // set the namespace
-      ns: ''
+      ns: '',
+
+      // Schema fields to use for filter autocompletion
+      schemaFields: null
     };
   },
 
@@ -766,7 +769,7 @@ const QueryStore = Reflux.createStore({
   },
 
   storeDidUpdate(prevState) {
-    debug('query store changed from', prevState, 'to', this.state);
+    debug('query store changed', diff(prevState, this.state));
   }
 });
 

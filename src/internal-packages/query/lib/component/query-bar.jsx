@@ -129,6 +129,12 @@ class QueryBar extends React.Component {
     const value = OPTION_DEFINITION[option].type === 'boolean' ?
       this.props[option] : this.props[`${option}String`];
 
+    /**
+     * TODO (@imlucas) This would be quite useful for `project` and `sort`
+     * as well.
+     */
+    const hasSchemaFields = option === 'filter';
+
     return (
       <QueryOption
         label={option}
@@ -140,6 +146,7 @@ class QueryBar extends React.Component {
         link={OPTION_DEFINITION[option].link}
         inputType={OPTION_DEFINITION[option].type}
         onChange={this.onChange.bind(this, option)}
+        schemaFields={hasSchemaFields ? this.props.schemaFields : {}}
       />
     );
   }
@@ -300,13 +307,15 @@ QueryBar.propTypes = {
   expanded: PropTypes.bool,
   lastExecutedQuery: PropTypes.object,
   onReset: PropTypes.func,
-  onApply: PropTypes.func
+  onApply: PropTypes.func,
+  schemaFields: PropTypes.object
 };
 
 QueryBar.defaultProps = {
   expanded: false,
   buttonLabel: 'Apply',
-  layout: ['filter', 'project', ['sort', 'skip', 'limit']]
+  layout: ['filter', 'project', ['sort', 'skip', 'limit']],
+  schemaFields: {}
 };
 
 QueryBar.displayName = 'QueryBar';
