@@ -32,17 +32,50 @@ class QueryOption extends React.Component {
     return innerClassList.join(' ');
   }
 
-  applyChangeFromCodeMirror(newCode/*, change*/) {
+  /**
+   * Listen for codemirror input change events. Bubble them up to `onChange(evt)`
+   * using a `CustomEvent` so autocomplete enabled inputs look just like simple
+   * text inputs to the outside world.
+   *
+   * @param {String} newCode The updated value of the underlying textarea.
+   * @param {object} change A codemirror change object.
+   * @api private
+   *
+   * @example
+   * ```javascript
+   * // If I start typing in a query filter,
+   * // then request autocompletion {█},
+   * // then select `custom_attributes.app_name` from the popover list,
+   * // then `applyChangeFromCodeMirror()` will be called with:
+   * var code = "{'custom_attributes.app_name'}"
+   * var change = {
+   *   origin: 'complete',
+   *   text: [
+   *    "'custom_attributes.app_name'"
+   *   ],
+   *   removed: [""]
+   * }
+   * ```
+   */
+  applyChangeFromCodeMirror(newCode, change) {
     const code = newCode.replace(/\n/g, '');
-    debug('single-line of code from codemirror', code);
-    new window.CustomEvent('change', {
+    if (change) {
+      if (change.origin === 'complete') {
+        debug('Autocomplete used for `%s`', change.text[0]);
+        /**
+         * TODO (@imlucas) Record autocomplete usage as a metric!
+         */
+      }
+    }
+    /* eslint no-new: 0 */
+    this.onChange(new window.CustomEvent('change', {
       bubbles: true,
       detail: {
         target: {
           value: code
         }
       }
-    })
+    }));
   }
 
   _renderCheckboxInput() {
@@ -72,7 +105,6 @@ class QueryOption extends React.Component {
         fields: this.props.schemaFields
       }
     };
-    debug('Rendering autocomplete for %s', this.props.label);
     return (
       <CodeMirror
         id={`querybar-option-input-${this.props.label}`}
