@@ -9,27 +9,15 @@ const { shell } = require('electron');
 const debug = require('debug')('monngodb-compass:query:component:query-option');
 
 class QueryOption extends React.Component {
-  _getOuterClassName() {
-    const outerClassList = [
-      'querybar-option',
-      `querybar-option-is-${this.props.inputType}-type`
-    ];
-
-    if (this.props.hasError) {
-      outerClassList.push('querybar-option-has-error');
+  componentDidMount() {
+    const cm = this.refs.codemirror;
+    if (cm) {
+      /**
+       * Set the id on the underlying `<textarea />` used by react-codemirror
+       * so the functional tests can read values from it.
+       */
+      cm.textareaNode.id = `querybar-option-input-${this.props.label}`;
     }
-    return outerClassList.join(' ');
-  }
-
-  _getInnerClassName() {
-    const innerClassList = [
-      'querybar-option-input',
-      `input-${this.props.label}`
-    ];
-    if (this.props.hasToggle) {
-      innerClassList.push('querybar-option-has-toggle');
-    }
-    return innerClassList.join(' ');
   }
 
   /**
@@ -58,24 +46,40 @@ class QueryOption extends React.Component {
    * ```
    */
   applyChangeFromCodeMirror(newCode, change) {
-    const code = newCode.replace(/\n/g, '');
-    if (change) {
-      if (change.origin === 'complete') {
-        debug('Autocomplete used for `%s`', change.text[0]);
-        /**
-         * TODO (@imlucas) Record autocomplete usage as a metric!
-         */
-      }
+    if (change && change.origin === 'complete') {
+      debug('Autocomplete used for `%s`', change.text[0]);
+      /**
+       * TODO (@imlucas) Record autocomplete usage as a metric!
+       */
     }
-    /* eslint no-new: 0 */
-    this.onChange(new window.CustomEvent('change', {
-      bubbles: true,
-      detail: {
-        target: {
-          value: code
-        }
+    this.props.onChange({
+      target: {
+        value: newCode
       }
-    }));
+    });
+  }
+
+  _getOuterClassName() {
+    const outerClassList = [
+      'querybar-option',
+      `querybar-option-is-${this.props.inputType}-type`
+    ];
+
+    if (this.props.hasError) {
+      outerClassList.push('querybar-option-has-error');
+    }
+    return outerClassList.join(' ');
+  }
+
+  _getInnerClassName() {
+    const innerClassList = [
+      'querybar-option-input',
+      `input-${this.props.label}`
+    ];
+    if (this.props.hasToggle) {
+      innerClassList.push('querybar-option-has-toggle');
+    }
+    return innerClassList.join(' ');
   }
 
   _renderCheckboxInput() {
@@ -99,19 +103,21 @@ class QueryOption extends React.Component {
       matchBrackets: true,
       theme: 'mongodb',
       extraKeys: {
-        'Ctrl-Space': 'autocomplete'
+        'Ctrl-Space': 'autocomplete',
+        '.': 'autocomplete',
+        '$': 'autocomplete'
       },
+      oneliner: true,
       mongodb: {
         fields: this.props.schemaFields
       }
     };
     return (
       <CodeMirror
-        id={`querybar-option-input-${this.props.label}`}
         className={this._getInnerClassName()}
         ref="codemirror"
         value={this.props.value}
-        onChange={this.applyChangeFromCodeMirror}
+        onChange={this.applyChangeFromCodeMirror.bind(this)}
         options={options}
         placeholder={this.props.placeholder}
       />
@@ -133,7 +139,7 @@ class QueryOption extends React.Component {
 
   render() {
     let input = null;
-    if (this.props.label === 'filter') {
+    if (this.props.label === 'filter' && process.env.NODE_ENV !== 'testing') {
       input = this._renderAutoCompleteInput();
     } else if (this.props.inputType === 'boolean') {
       input = this._renderCheckboxInput();
