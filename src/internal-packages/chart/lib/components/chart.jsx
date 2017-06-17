@@ -10,6 +10,9 @@ const _ = require('lodash');
 
 class Chart extends React.Component {
 
+  shouldComponentUpdate(newProps) {
+    return (newProps.reRenderChart);
+  }
   /**
    * renders the chart as a ReactVega / ReactVegaLite component.
    *
@@ -48,6 +51,7 @@ Chart.propTypes = {
   height: PropTypes.number.isRequired,
   padding: PropTypes.object,
   className: PropTypes.string,
+  reRenderChart: PropTypes.bool,
   renderer: PropTypes.oneOf(['svg', 'canvas']),
   spec: PropTypes.object.isRequired
 };
