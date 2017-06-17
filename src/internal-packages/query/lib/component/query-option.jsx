@@ -139,7 +139,7 @@ class QueryOption extends React.Component {
 
   render() {
     let input = null;
-    if (this.props.label === 'filter' && process.env.NODE_ENV !== 'testing') {
+    if (this.props.label === 'filter') {
       input = this._renderAutoCompleteInput();
     } else if (this.props.inputType === 'boolean') {
       input = this._renderCheckboxInput();
