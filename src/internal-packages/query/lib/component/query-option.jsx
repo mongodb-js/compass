@@ -23,7 +23,7 @@ class QueryOption extends React.Component {
         id={`querybar-option-input-${this.props.label}`}
         className={className}
         type="checkbox"
-        value={this.props.value}
+        checked={this.props.value}
         onChange={this.props.onChange}
       />
     );
@@ -60,7 +60,7 @@ QueryOption.propTypes = {
   label: PropTypes.string.isRequired,
   link: PropTypes.string.isRequired,
   inputType: PropTypes.oneOf(['numeric', 'boolean', 'document']).isRequired,
-  value: PropTypes.string,
+  value: PropTypes.any,
   hasToggle: PropTypes.bool,
   hasError: PropTypes.bool,
   validationFunc: PropTypes.func,

@@ -25,6 +25,7 @@ const DEFAULT_SKIP = 0;
 const DEFAULT_PROJECT = null;
 const DEFAULT_MAX_TIME_MS = ms('10 seconds');
 const DEFAULT_SAMPLE = false;
+const DEFAULT_SAMPLE_SIZE = 1000;
 const DEFAULT_STATE = RESET_STATE;
 
 // these state properties make up a "query"
@@ -144,16 +145,23 @@ const QueryStore = Reflux.createStore({
 
   /**
    * toggles between sampling on/off. Also can take a value to force sampling
-   * to be on or off directly.
+   * to be on or off directly. When sampling is turned on and there is no limit
+   * specified, set it to the DEFAULT_SAMPLE_SIZE = 1000.
    *
    * @param {Boolean} force   optional flag to force the sampling to be on or
    *                          off. If no specified, the value switcesh to its
    *                          opposite state.
    */
   toggleSample(force) {
-    this.setState({
+    const newState = {
       sample: _.isBoolean(force) ? force : !this.state.sample
-    });
+    };
+    if (newState.sample && this.state.limit === 0) {
+      newState.limit = DEFAULT_SAMPLE_SIZE;
+      newState.limitString = String(DEFAULT_SAMPLE_SIZE);
+      newState.limitValid = true;
+    }
+    this.setState(newState);
   },
 
   /**
@@ -258,7 +266,7 @@ const QueryStore = Reflux.createStore({
     const state = _.assign({}, _.pick(query, validKeys), inputStrings, inputValids);
     // add sample state if available
     if (_.has(query, 'sample')) {
-      state.sample = query.sample;
+      this.toggleSample(query.sample);
     }
     state.featureFlag = false;
     state.valid = valid;

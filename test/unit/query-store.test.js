@@ -270,6 +270,54 @@ describe('QueryStore', () => {
         QueryStore.setQuery({limit: false, sort: {field: -1}, filter: {a: {$exists: true}}});
       });
     });
+    context('when using toggleSample', () => {
+      it('toggles the sample boolean value if no arguments are passed', (done) => {
+        QueryStore.state.sample = false;
+        unsubscribe = QueryStore.listen((state) => {
+          expect(state.sample).to.be.true;
+          done();
+        });
+        QueryStore.toggleSample();
+      });
+      it('sets the sample to true if true is passed in', (done) => {
+        QueryStore.state.sample = true;
+        unsubscribe = QueryStore.listen((state) => {
+          expect(state.sample).to.be.true;
+          done();
+        });
+        QueryStore.toggleSample(true);
+      });
+      it('sets the sample to false if false is passed in', (done) => {
+        QueryStore.state.sample = true;
+        unsubscribe = QueryStore.listen((state) => {
+          expect(state.sample).to.be.false;
+          done();
+        });
+        QueryStore.toggleSample(false);
+      });
+      it('sets the limit to 1000 if sample is true and limit is 0', (done) => {
+        QueryStore.state.sample = false;
+        QueryStore.state.limit = 0;
+        unsubscribe = QueryStore.listen((state) => {
+          expect(state.sample).to.be.true;
+          expect(state.limit).to.be.equal(1000);
+          expect(state.limitString).to.be.equal('1000');
+          expect(state.limitValid).to.be.true;
+          done();
+        });
+        QueryStore.toggleSample(true);
+      });
+      it('leaves the limit as is if sample is true and limit is not 0', (done) => {
+        QueryStore.state.sample = false;
+        QueryStore.state.limit = 123;
+        unsubscribe = QueryStore.listen((state) => {
+          expect(state.sample).to.be.true;
+          expect(state.limit).to.be.equal(123);
+          done();
+        });
+        QueryStore.toggleSample(true);
+      });
+    });
     context('when passing no query object', () => {
       it('sets the default query values', (done) => {
         QueryStore.setQuery({limit: false, sort: {field: -1}, filter: {a: {$exists: true}}});

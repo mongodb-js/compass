@@ -126,13 +126,18 @@ class QueryBar extends React.Component {
       !(this.props.filterValid || this.props.featureFlag) :
       !(this.props[`${option}Valid`]);
 
+    // checkbox options use the value directly, text inputs use the
+    // `<option>String` prop.
+    const value = OPTION_DEFINITION[option].type === 'boolean' ?
+      this.props[option] : this.props[`${option}String`];
+
     return (
       <QueryOption
         label={option}
         hasToggle={hasToggle}
         hasError={hasError}
         key={`query-option-${id}`}
-        value={this.props[`${option}String`]}
+        value={value}
         placeholder={OPTION_DEFINITION[option].placeholder}
         link={OPTION_DEFINITION[option].link}
         inputType={OPTION_DEFINITION[option].type}
