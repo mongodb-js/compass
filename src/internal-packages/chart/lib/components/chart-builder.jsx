@@ -190,6 +190,10 @@ class ChartBuilder extends React.Component {
    * @return {View}   the correct chart editor view
    */
   renderChartEditor() {
+    let chartAreaClass = 'chart-builder-chart-area';
+    if (!this.props.specValid) {
+      chartAreaClass += ' chart-builder-chart-area-has-zero-state';
+    }
     // if in chart builder mode, render field and chart panel
     if (this.props.viewType === VIEW_TYPE_ENUM.CHART_BUILDER) {
       return (
@@ -213,7 +217,7 @@ class ChartBuilder extends React.Component {
               />
             </div>
           </div>
-          <div className="chart-builder-chart-area">
+          <div className={chartAreaClass}>
             {this.renderChart()}
           </div>
         </div>
@@ -228,7 +232,7 @@ class ChartBuilder extends React.Component {
             onChange={this.onJSONEditorChange.bind(this)}
             onBlur={this.onJSONEditorBlur.bind(this)} />
         </div>
-        <div className="chart-builder-chart-area">
+        <div className={chartAreaClass}>
           {this.renderChart()}
         </div>
       </div>
