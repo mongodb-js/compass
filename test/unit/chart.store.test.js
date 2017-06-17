@@ -121,7 +121,7 @@ describe('ChartStore', function() {
       filter: {},
       sort: null,
       skip: 0,
-      limit: 0,
+      limit: 1000,
       sample: true,
       maxTimeMS: 10000,
       ns: ''
