@@ -51,7 +51,6 @@ const ChartStore = Reflux.createStore({
 
   onActivated(appRegistry) {
     // set up listeners on external stores
-    appRegistry.getStore('Query.ChangedStore').listen(this.onQueryChanged.bind(this));
     appRegistry.getStore('Schema.FieldStore').listen(this.onFieldsChanged.bind(this));
     appRegistry.getStore('App.CollectionStore').listen(this.onCollectionTabChanged.bind(this));
 
