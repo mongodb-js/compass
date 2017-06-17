@@ -42,7 +42,7 @@ const QueryChangedStore = Reflux.createStore({
     const hasChanged = !_.isEqual(this.lastExecutedQuery, state.lastExecutedQuery)
       || !_.isEqual(this.namespace, state.ns);
     if (hasChanged) {
-      this.lastExecutedQuery = _.clone(state.lastExecutedQuery);
+      this.lastExecutedQuery = _.cloneDeep(state.lastExecutedQuery);
       this.namespace = state.ns;
     }
     return hasChanged;
@@ -55,7 +55,7 @@ const QueryChangedStore = Reflux.createStore({
    */
   onQueryStoreChanged(state) {
     if (this._detectChange(state)) {
-      const newState = state.lastExecutedQuery || this.getInitialState();
+      const newState = _.cloneDeep(state.lastExecutedQuery || this.getInitialState());
       newState.queryState = state.queryState;
       newState.maxTimeMS = state.maxTimeMS;
       newState.ns = state.ns;
