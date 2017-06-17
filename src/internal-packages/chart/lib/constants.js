@@ -155,9 +155,6 @@ const ARRAY_REDUCTION_TYPES = Object.freeze(Object.assign(
 ));
 
 const LITE_SPEC_GLOBAL_SETTINGS = {
-  'transform': {
-    'filterInvalid': false
-  },
   'config': {
     'mark': {
       'color': CHART_COLORS.CHART0,
