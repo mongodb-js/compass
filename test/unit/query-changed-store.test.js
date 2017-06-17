@@ -46,11 +46,11 @@ describe('QueryChangedStore', () => {
   });
 
   it('triggers when the QueryStore lastExecutedQuery variable changes', (done) => {
+    QueryStore.setQuery({filter: {foo: 1}});
     unsubscribe = QueryChangedStore.listen((state) => {
       expect(state.filter).to.be.deep.equal({foo: 1});
       done();
     });
-    QueryStore.setQuery({filter: {foo: 1}});
     QueryStore.apply();
   });
 
