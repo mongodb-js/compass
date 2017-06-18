@@ -155,9 +155,6 @@ const ARRAY_REDUCTION_TYPES = Object.freeze(Object.assign(
 ));
 
 const LITE_SPEC_GLOBAL_SETTINGS = {
-  'transform': {
-    'filterInvalid': false
-  },
   'config': {
     'mark': {
       'color': CHART_COLORS.CHART0,
@@ -169,15 +166,15 @@ const LITE_SPEC_GLOBAL_SETTINGS = {
       'titleFont': 'Akzidenz',
       'titleFontWeight': 'bold',
       'titleFontSize': 16,
-      'tickColor': '#bfbfbe',
-      'axisColor': '#42494f',
-      'tickLabelFont': 'Akzidenz',
-      'tickLabelFontSize': 12,
-      'tickLabelColor': '#42494f',
+      'domainColor': '#42494f',
+      'tickColor': '#42494f',
+      'labelFont': 'Akzidenz',
+      'labelFontSize': 12,
+      'labelColor': '#42494f',
       'subdivide': 3,
       'tickSizeMinor': 4,
       'tickSizeMajor': 6,
-      'gridColor': '#42494f',
+      'gridColor': '#bfbfbe',
       'gridOpacity': 0.12,
       'grid': true
     }
