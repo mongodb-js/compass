@@ -53,35 +53,32 @@ function addGetSchemaCommands(client) {
 function addInputSchemaCommands(client) {
   /**
    * Inputs a filter into the collection level query bar from the schema tab.
-   *
    * @param {String} filter - The filter.
    */
   client.addCommand('inputFilterFromSchemaTab', function(filter) {
     const base = selector('schema-content');
-    const input = `${base} .input-filter`;
-    return this.setValue(input, filter);
+    const input = `${base} .ReactCodeMirror`;
+    return this.waitForVisibleInCompass(input).click(input).keys(filter);
   });
 
   /**
    * Input a projection into the query from the schema tab.
-   *
-   * @type {String} filter - the filter.
+   * @param {String} projection
    */
-  client.addCommand('inputProjectFromSchemaTab', function(filter) {
+  client.addCommand('inputProjectFromSchemaTab', function(projection) {
     const base = selector('schema-content');
     const input = `${base} .input-project`;
-    return this.setValue(input, filter);
+    return this.setValue(input, projection);
   });
 
   /**
    * Input a limit into the query from the schema tab.
-   *
-   * @type {String} filter - the filter.
+   * @param {String} limit
    */
-  client.addCommand('inputLimitFromSchemaTab', function(filter) {
+  client.addCommand('inputLimitFromSchemaTab', function(limit) {
     const base = selector('schema-content');
     const input = `${base} .input-limit`;
-    return this.setValue(input, filter);
+    return this.setValue(input, limit);
   });
 }
 
