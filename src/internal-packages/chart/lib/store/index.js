@@ -533,7 +533,7 @@ const ChartStore = Reflux.createStore({
       return;
     }
 
-    const filteredFields = this._filterFields(this.state.regex);
+    const filteredFields = this._filterFields(this.state.filterRegex);
 
     this.setState({
       completeFieldsCache: state.fields,
@@ -832,7 +832,34 @@ const ChartStore = Reflux.createStore({
    * @return {Object} an object consisting of the filtered topLevelFields & fieldsCache
    */
   _filterFields(regex) {
-    return {fieldsCache: this.state.completeFieldsCache, topLevelFields: this.state.completeTopLevelFields};
+    // get keys that match filter
+    const filteredKeys = _.keys(this.state.completeFieldsCache).filter((field) => regex.test(field));
+
+    // make fields
+    const fieldsCacheKeys = _.flatten(filteredKeys.map((key) => {
+      return _.map(key.split('.'), (token, index, tokens) => {
+        return tokens.slice(0, index + 1).join('.');
+      });
+    }));
+
+    // get the raw fieldscache based on fieldsCacheKeys
+    const rawFieldsCache = _.pick(this.state.completeFieldsCache, fieldsCacheKeys);
+
+    // omit all fieldKeys from nestedFields that don't exist in fieldsCacheKeys
+    const fieldsCache = _.mapValues(rawFieldsCache, (field) => {
+      if (_.has(field, 'nestedFields')) {
+        field.nestedFields = _.filter(field.nestedFields, (f) => {
+          return fieldsCacheKeys.includes(f);
+        });
+      }
+      return field;
+    });
+
+    const topLevelFields = _.uniq(fieldsCacheKeys.map((field) => {
+      return field.split('.')[0];
+    }));
+
+    return {fieldsCache: fieldsCache, topLevelFields: topLevelFields};
   },
 
   /**
