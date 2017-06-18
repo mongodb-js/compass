@@ -57,7 +57,8 @@ class ChartBuilder extends React.Component {
     this.state = {
       width: 0,
       height: 0,
-      editorSpec: JSON.stringify(props.spec, null, '  ')
+      editorSpec: JSON.stringify(props.spec, null, '  '),
+      reRenderChart: true
     };
   }
 
@@ -68,8 +69,11 @@ class ChartBuilder extends React.Component {
   }
 
   componentWillReceiveProps(nextProps) {
+    const viewSwitched = nextProps.viewType !== this.props.viewType;
+
     this.setState({
-      editorSpec: JSON.stringify(nextProps.spec, null, '  ')
+      editorSpec: JSON.stringify(nextProps.spec, null, '  '),
+      reRenderChart: !viewSwitched
     });
   }
 
@@ -96,8 +100,13 @@ class ChartBuilder extends React.Component {
     });
   }
 
+  onJSONEditorFocus() {
+    this.setState({reRenderChart: false});
+  }
+
   onJSONEditorBlur() {
     this.props.actions.setSpecAsJSON(this.state.editorSpec);
+    this.setState({reRenderChart: true});
   }
 
   handleResize() {
@@ -177,6 +186,7 @@ class ChartBuilder extends React.Component {
         data={this.props.dataCache}
         width={dim.width}
         height={dim.height}
+        reRenderChart={this.state.reRenderChart}
         className="chart-builder-chart"
         renderer="svg"
       />
@@ -230,7 +240,8 @@ class ChartBuilder extends React.Component {
           <textarea className="chart-builder-json-textarea"
             value={this.state.editorSpec}
             onChange={this.onJSONEditorChange.bind(this)}
-            onBlur={this.onJSONEditorBlur.bind(this)} />
+            onBlur={this.onJSONEditorBlur.bind(this)}
+            onFocus={this.onJSONEditorFocus.bind(this)} />
         </div>
         <div className={chartAreaClass}>
           {this.renderChart()}
