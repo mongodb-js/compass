@@ -181,7 +181,9 @@ module.exports = function aggPipelineBuilder(state) {
     if (state.queryCache.skip) {
       pipeline.push({$skip: state.queryCache.skip});
     }
-    if (state.queryCache.limit) {
+    if (state.queryCache.sample) {
+      pipeline.push({$sample: {size: state.queryCache.limit || 1000}});
+    } else if (state.queryCache.limit) {
       pipeline.push({$limit: state.queryCache.limit});
     }
   }

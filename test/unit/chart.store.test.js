@@ -121,7 +121,8 @@ describe('ChartStore', function() {
       filter: {},
       sort: null,
       skip: 0,
-      limit: 0,
+      limit: 1000,
+      sample: true,
       maxTimeMS: 10000,
       ns: ''
     });
@@ -1085,6 +1086,11 @@ describe('ChartStore', function() {
           }]
         };
         const expectedPipeline = [
+          {
+            '$sample': {
+              'size': 1000
+            }
+          },
           {
             '$addFields': {
               'up_to_5_tags': {

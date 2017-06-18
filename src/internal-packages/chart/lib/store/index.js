@@ -23,12 +23,11 @@ const INITIAL_QUERY = {
   filter: {},
   sort: null,
   skip: 0,
-  limit: 0,
+  limit: 1000,
   ns: '',
-  maxTimeMS: 10000
+  maxTimeMS: 10000,
+  sample: true
 };
-
-const SAFETY_SWITCH_LIMIT = 1000;
 
 /**
  * The reflux store for the currently displayed Chart singleton.
@@ -52,7 +51,6 @@ const ChartStore = Reflux.createStore({
 
   onActivated(appRegistry) {
     // set up listeners on external stores
-    appRegistry.getStore('Query.ChangedStore').listen(this.onQueryChanged.bind(this));
     appRegistry.getStore('Schema.FieldStore').listen(this.onFieldsChanged.bind(this));
     appRegistry.getStore('App.CollectionStore').listen(this.onCollectionTabChanged.bind(this));
 
@@ -466,6 +464,20 @@ const ChartStore = Reflux.createStore({
     this.setState(_.assign(state, undoRedoState));
   },
 
+  _activateSampling() {
+    const SAFETY_LIMIT = 1000;
+    const query = Object.assign({}, this.state.queryCache, {
+      sample: true,
+      limit: SAFETY_LIMIT
+    });
+    // set the query in the query bar and open query options
+    this.QueryActions.setQuery(query);
+    this.QueryActions.toggleQueryOptions(true);
+    this.setState({
+      queryCache: query
+    });
+  },
+
   /**
    * Fires when the query is changed, and if a chart is already on the screen
    * also triggers refresh of the dataCache.
@@ -474,7 +486,7 @@ const ChartStore = Reflux.createStore({
    */
   onQueryChanged(query) {
     const newQuery = _.pick(query,
-      ['filter', 'sort', 'skip', 'limit', 'maxTimeMS', 'ns']);
+      ['filter', 'sort', 'skip', 'limit', 'maxTimeMS', 'ns', 'sample']);
 
     let state = {
       queryCache: newQuery
@@ -498,11 +510,7 @@ const ChartStore = Reflux.createStore({
     if (idx === 5 && !this.limitSafetySwitch) {
       // on very first tab focus
       this.limitSafetySwitch = true;
-      this.QueryActions.setQueryString('limit', String(SAFETY_SWITCH_LIMIT));
-      this.setState({
-        queryCache: Object.assign({}, this.state.queryCache, {limit: SAFETY_SWITCH_LIMIT})
-      });
-      this.QueryActions.toggleQueryOptions(true);
+      this._activateSampling();
     }
   },
 

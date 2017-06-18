@@ -3,7 +3,14 @@ const Reflux = require('reflux');
 const QueryAction = Reflux.createActions({
   /* Generic actions */
 
+  /**
+   * toggles or sets the expanded query options open or closed.
+   */
   'toggleQueryOptions': {sync: true},
+  /**
+   * toggles or sets sample true/false
+   */
+  'toggleSample': {sync: true},
   /**
    * Sets the entire query, overwriting all fields.
    */

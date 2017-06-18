@@ -90,7 +90,8 @@ describe('QueryStore', () => {
         project: {b: 1},
         sort: {c: -1, d: 1},
         skip: 5,
-        limit: 10
+        limit: 10,
+        sample: false
       };
       unsubscribe = QueryStore.listen(() => {
         const cloned = QueryStore._cloneQuery();
@@ -234,6 +235,23 @@ describe('QueryStore', () => {
         });
         QueryStore.setQuery({limit: 3});
       });
+      it('sets a new `sample` to true', (done) => {
+        unsubscribe = QueryStore.listen((state) => {
+          expect(state.sample).to.be.true;
+          expect(state.sampleValid).to.be.true;
+          done();
+        });
+        QueryStore.setQuery({sample: true});
+      });
+      it('sets a new `sample` to false', (done) => {
+        QueryStore.setQuery({sample: true});
+        unsubscribe = QueryStore.listen((state) => {
+          expect(state.sample).to.be.false;
+          expect(state.sampleValid).to.be.true;
+          done();
+        });
+        QueryStore.setQuery({sample: false});
+      });
     });
     context('when setting multiple query properties', () => {
       it('sets all state fields correctly', (done) => {
@@ -250,6 +268,54 @@ describe('QueryStore', () => {
           done();
         });
         QueryStore.setQuery({limit: false, sort: {field: -1}, filter: {a: {$exists: true}}});
+      });
+    });
+    context('when using toggleSample', () => {
+      it('toggles the sample boolean value if no arguments are passed', (done) => {
+        QueryStore.state.sample = false;
+        unsubscribe = QueryStore.listen((state) => {
+          expect(state.sample).to.be.true;
+          done();
+        });
+        QueryStore.toggleSample();
+      });
+      it('sets the sample to true if true is passed in', (done) => {
+        QueryStore.state.sample = true;
+        unsubscribe = QueryStore.listen((state) => {
+          expect(state.sample).to.be.true;
+          done();
+        });
+        QueryStore.toggleSample(true);
+      });
+      it('sets the sample to false if false is passed in', (done) => {
+        QueryStore.state.sample = true;
+        unsubscribe = QueryStore.listen((state) => {
+          expect(state.sample).to.be.false;
+          done();
+        });
+        QueryStore.toggleSample(false);
+      });
+      it('sets the limit to 1000 if sample is true and limit is 0', (done) => {
+        QueryStore.state.sample = false;
+        QueryStore.state.limit = 0;
+        unsubscribe = QueryStore.listen((state) => {
+          expect(state.sample).to.be.true;
+          expect(state.limit).to.be.equal(1000);
+          expect(state.limitString).to.be.equal('1000');
+          expect(state.limitValid).to.be.true;
+          done();
+        });
+        QueryStore.toggleSample(true);
+      });
+      it('leaves the limit as is if sample is true and limit is not 0', (done) => {
+        QueryStore.state.sample = false;
+        QueryStore.state.limit = 123;
+        unsubscribe = QueryStore.listen((state) => {
+          expect(state.sample).to.be.true;
+          expect(state.limit).to.be.equal(123);
+          done();
+        });
+        QueryStore.toggleSample(true);
       });
     });
     context('when passing no query object', () => {
