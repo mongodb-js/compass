@@ -92,8 +92,8 @@ function addInputExplainCommands(client) {
    */
   client.addCommand('inputFilterFromExplainPlanTab', function(filter) {
     const base = selector('explain-plan-content');
-    const input = `${base} .input-filter`;
-    return this.setValue(input, filter);
+    const input = `${base} .ReactCodeMirror`;
+    return this.waitForVisibleInCompass(input).click(input).keys(filter);
   });
 
   /**

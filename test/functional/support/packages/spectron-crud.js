@@ -234,8 +234,8 @@ function addInputCRUDCommands(client) {
    */
   client.addCommand('inputFilterFromDocumentsTab', function(filter) {
     const base = selector('documents-content');
-    const input = `${base} .input-filter`;
-    return this.setValue(input, filter);
+    const input = `${base} .ReactCodeMirror`;
+    return this.waitForVisibleInCompass(input).click(input).keys(filter);
   });
 
   /**
