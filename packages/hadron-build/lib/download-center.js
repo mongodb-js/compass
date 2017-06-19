@@ -144,8 +144,11 @@ exports.maybeUpload = (CONFIG) => {
     CONFIG.download_center_key_prefix += `/${CONFIG.channel}`;
   }
 
-  return Promise.all(CONFIG.assets.map( (asset) => maybeUpload(CONFIG, asset)))
-    .then(maybeUploadManifest(CONFIG));
+  return Promise.all(CONFIG.assets.map( (asset) => maybeUpload(CONFIG, asset)));
+
+  // TODO (imlucas) We upload the manifest manually and I think this is currently
+  // blocking @durran.
+  //  .then(maybeUploadManifest(CONFIG));
 };
 
 exports.release = (id, version) => {
