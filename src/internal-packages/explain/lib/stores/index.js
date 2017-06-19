@@ -166,6 +166,7 @@ const CompassExplainStore = Reflux.createStore({
     } else {
       app.dataService.explain(this.ns, this.filter, options, (err, explain) => {
         if (err) {
+          // @note: Need the UI to render the error and not continue.
           this.setState({ error: err });
         } else {
           const explainPlanModel = new ExplainPlanModel(explain);
