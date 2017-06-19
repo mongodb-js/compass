@@ -32,7 +32,7 @@
         "package-prefix": "@mongodb-js/compass",
         "default": "compass",
         "compass": {
-          "name": "compass",
+          "name": "mongodb-compass",
           "productName": "MongoDB Compass",
           "plugins-directory": ".mongodb/compass/plugins",
           "packages": [
@@ -46,7 +46,7 @@
           ]
         },
         "compass-enterprise": {
-          "name": "compass-enterprise",
+          "name": "mongodb-compass-enterprise",
           "productName": "MongoDB Compass Enterprise",
           "plugins-directory": ".mongodb/compass-enterprise/plugins",
           "packages": [
@@ -60,7 +60,7 @@
           ]
         },
         "compass-charts": {
-          "name": "compass-charts",
+          "name": "mongodb-compass-charts",
           "productName": "MongoDB Compass Visualisations",
           "plugins-directory": ".mongodb/compass-charts/plugins",
           "packages": [
@@ -249,7 +249,7 @@
     "electron": "1.6.1",
     "enzyme": "^2.5.1",
     "eslint-config-mongodb-js": "^2.2.0",
-    "hadron-build": "^13.0.0",
+    "hadron-build": "^13.0.8",
     "hadron-spectron": "^1.0.0",
     "jsdom": "^9.8.3",
     "mgeneratejs": "^0.2.0",
