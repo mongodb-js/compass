@@ -44,34 +44,6 @@
             "index",
             "help"
           ]
-        },
-        "compass-enterprise": {
-          "name": "mongodb-compass-enterprise",
-          "productName": "MongoDB Compass Enterprise",
-          "plugins-directory": ".mongodb/compass-enterprise/plugins",
-          "packages": [
-            "node_modules/@mongodb-js/compass-serverstats",
-            "node_modules/@mongodb-js/compass-document-validation",
-            "node_modules/@mongodb-js/compass-deployment-awareness"
-          ],
-          "styles": [
-            "index",
-            "help"
-          ]
-        },
-        "compass-charts": {
-          "name": "mongodb-compass-charts",
-          "productName": "MongoDB Compass Visualisations",
-          "plugins-directory": ".mongodb/compass-charts/plugins",
-          "packages": [
-            "node_modules/@mongodb-js/compass-serverstats",
-            "node_modules/@mongodb-js/compass-document-validation",
-            "node_modules/@mongodb-js/compass-deployment-awareness"
-          ],
-          "styles": [
-            "index",
-            "help"
-          ]
         }
       },
       "build": {
@@ -249,7 +221,7 @@
     "electron": "1.6.1",
     "enzyme": "^2.5.1",
     "eslint-config-mongodb-js": "^2.2.0",
-    "hadron-build": "^13.0.4",
+    "hadron-build": "^13.0.6",
     "hadron-spectron": "^1.0.0",
     "jsdom": "^9.8.3",
     "mgeneratejs": "^0.2.0",
