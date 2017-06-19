@@ -4,6 +4,19 @@ const FieldPanelItem = require('./field-panel-item');
 
 class FieldPanel extends React.Component {
 
+  handleFilter(event) {
+    const searchString = event.target.value;
+
+    let regex;
+    try {
+      regex = new RegExp(searchString, 'i');
+    } catch (e) {
+      regex = /(?:)/;
+    }
+
+    this.props.actions.filterFields(regex);
+  }
+
   renderAddIcon() {
     return 'mms-icon-add-circle chart-builder-field-panel-controls-action chart-builder-field-panel-controls-item';
   }
@@ -28,12 +41,13 @@ class FieldPanel extends React.Component {
 
   render() {
     return (
-      <div
-        className="chart-builder-field-panel"
-        data-test-id="chart-builder-field-panel"
-      >
+      <div className="chart-builder-field-panel" data-test-id="chart-builder-field-panel">
         <div className="chart-builder-field-panel-controls-row">
           <h5 className="chart-builder-field-panel-controls-item chart-builder-field-panel-field-count">Fields</h5>
+        </div>
+        <div className="chart-builder-field-panel-controls-row chart-builder-field-panel-filter">
+          <i className="fa fa-search chart-builder-field-panel-filter-icon"></i>
+          <input className="chart-builder-field-panel-search-input" placeholder="filter" onChange={this.handleFilter.bind(this)}></input>
         </div>
         {this.renderFields()}
       </div>

@@ -22,7 +22,7 @@
     align-items: center;
     display: flex;
     justify-content: space-between;
-    margin-bottom: 12px;
+    margin-bottom: 8px;
     padding: 0 4px;
   }
 
@@ -79,4 +79,24 @@
     padding-left: 10px;
   }
 
+  &-filter {
+    background-color: @gray7;
+    width: ~"calc(100% + 12px)";
+    margin-left: -6px;
+    height: 32px;
+    &-icon {
+      color: @linkText;
+      margin-left: 6px;
+    }
+  }
+
+  &-search-input {
+    background-color: @gray7;
+    line-height: 14px;
+    margin-left: 6px;
+    color: @gray2;
+    width: 100%;
+    border: none;
+    outline: none;
+  }
 }
