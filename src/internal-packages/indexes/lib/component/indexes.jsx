@@ -48,16 +48,17 @@ class Indexes extends React.Component {
     this.setState(state);
   }
 
-  determineState() {
+  determineState(error) {
     return {
       isWritable: this.WriteStateStore.state.isWritable,
       isReadonly: this.CollectionStore.isReadonly(),
-      description: this.WriteStateStore.state.description
+      description: this.WriteStateStore.state.description,
+      error: error
     };
   }
 
-  handleLoad() {
-    this.setState(this.determineState());
+  handleLoad(indexes, error) {
+    this.setState(this.determineState(error));
   }
 
   shouldComponentupdate(nextProps, nextState) {
@@ -78,10 +79,17 @@ class Indexes extends React.Component {
     );
   }
 
-  renderReadonly() {
+  renderBanner() {
+    if (this.state.isReadonly) {
+      return (
+        <StatusRow style="warning">
+          Readonly views may not contain indexes.
+        </StatusRow>
+      );
+    }
     return (
-      <StatusRow style="warning">
-        Readonly views may not contain indexes.
+      <StatusRow style="error">
+        {this.state.error.message}
       </StatusRow>
     );
   }
@@ -98,7 +106,7 @@ class Indexes extends React.Component {
         <div className="controls-container">
           <CreateIndexButton isWritable={this.state.isWritable} description={this.state.description} />
         </div>
-        {this.state.isReadonly ? this.renderReadonly() : this.renderComponent()}
+        {(this.state.isReadonly || this.state.error) ? this.renderBanner() : this.renderComponent()}
       </div>
     );
   }

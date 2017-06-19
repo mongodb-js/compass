@@ -50,12 +50,14 @@ class CompassExplain extends React.Component {
       banner = <StatusRow style="warning">{COLLECTION_SCAN_WARNING}</StatusRow>;
     } else if (this.props.explainState === 'outdated') {
       banner = <StatusRow style="warning">{OUTDATED_WARNING}</StatusRow>;
+    } else if (this.props.error) {
+      banner = <StatusRow style="error">{this.props.error.message}</StatusRow>;
     }
     return banner;
   }
 
   renderContent() {
-    if (!_.includes(['done', 'outdated'], this.props.explainState)) {
+    if (this.props.error || !_.includes(['done', 'outdated'], this.props.explainState)) {
       return null;
     }
 
@@ -127,7 +129,8 @@ CompassExplain.propTypes = {
   index: PropTypes.object,
   viewType: PropTypes.oneOf(['tree', 'json']).isRequired,
   rawExplainObject: PropTypes.object.isRequired,
-  actions: PropTypes.object
+  actions: PropTypes.object,
+  error: PropTypes.object
 };
 
 CompassExplain.defaultProps = {
@@ -140,7 +143,8 @@ CompassExplain.defaultProps = {
   indexType: 'UNAVAILABLE',
   index: null,
   viewType: 'tree',
-  rawExplainObject: {}
+  rawExplainObject: {},
+  error: null
 };
 
 CompassExplain.displayName = 'CompassExplain';

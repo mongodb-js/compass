@@ -82,6 +82,7 @@ const CompassExplainStore = Reflux.createStore({
     return {
       explainState: 'initial',
       viewType: 'tree',
+      error: null,
       executionSuccess: false,
       executionTimeMillis: 0,
       inMemorySort: false,
@@ -165,19 +166,21 @@ const CompassExplainStore = Reflux.createStore({
     } else {
       app.dataService.explain(this.ns, this.filter, options, (err, explain) => {
         if (err) {
-          return debug('error fetching explain plan:', err);
-        }
-        const explainPlanModel = new ExplainPlanModel(explain);
-        const newState = explainPlanModel.serialize();
+          // @note: Need the UI to render the error and not continue.
+          this.setState({ error: err });
+        } else {
+          const explainPlanModel = new ExplainPlanModel(explain);
+          const newState = explainPlanModel.serialize();
 
-        // extract index type, index object
-        newState.indexType = this._getIndexType(newState);
-        newState.index = _.isString(newState.usedIndex) ?
-          _.find(this.indexes, (idx) => {
-            return idx.name === newState.usedIndex;
-          }) : null;
-        newState.explainState = 'done';
-        this.setState(newState);
+          // extract index type, index object
+          newState.indexType = this._getIndexType(newState);
+          newState.index = _.isString(newState.usedIndex) ?
+            _.find(this.indexes, (idx) => {
+              return idx.name === newState.usedIndex;
+            }) : null;
+          newState.explainState = 'done';
+          this.setState(newState);
+        }
       });
     }
   },

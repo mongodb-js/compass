@@ -33,7 +33,9 @@ const LoadIndexesStore = Reflux.createStore({
         this.trigger([]);
       } else {
         app.dataService.indexes(ns, {}, (err, indexes) => {
-          if (!err) {
+          if (err) {
+            this.trigger([], err);
+          } else {
             this.trigger(this._convertToModels(indexes));
           }
         });
@@ -47,7 +49,9 @@ const LoadIndexesStore = Reflux.createStore({
         this.trigger([]);
       } else {
         app.dataService.indexes(ns, {}, (err, indexes) => {
-          if (!err) {
+          if (err) {
+            this.trigger([], err);
+          } else {
             this.trigger(this._convertToModels(indexes));
           }
         });
