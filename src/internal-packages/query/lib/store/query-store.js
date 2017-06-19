@@ -146,10 +146,10 @@ const QueryStore = Reflux.createStore({
   /**
    * toggles between sampling on/off. Also can take a value to force sampling
    * to be on or off directly. When sampling is turned on and there is no limit
-   * specified, set it to the DEFAULT_SAMPLE_SIZE = 1000.
+   * specified, set it to the DEFAULT_SAMPLE_SIZE.
    *
    * @param {Boolean} force   optional flag to force the sampling to be on or
-   *                          off. If no specified, the value switcesh to its
+   *                          off. If not specified, the value switches to its
    *                          opposite state.
    */
   toggleSample(force) {
