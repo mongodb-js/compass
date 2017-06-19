@@ -47,6 +47,8 @@ const ChartStore = Reflux.createStore({
     this.INITIAL_CHART_TYPE = '';
     this.INITIAL_SPEC_TYPE = SPEC_TYPE_ENUM.VEGA_LITE;
     this.AVAILABLE_CHART_ROLES = [];
+    this.completeFieldsCache = {};
+    this.completeTopLevelFields = [];
   },
 
   onActivated(appRegistry) {
@@ -84,8 +86,6 @@ const ChartStore = Reflux.createStore({
       dataCache: [],
       fieldsCache: {},
       topLevelFields: [],
-      completeFieldsCache: {},
-      completeTopLevelFields: [],
       filterRegex: /(?:)/,
       queryCache: INITIAL_QUERY
     };
@@ -529,11 +529,11 @@ const ChartStore = Reflux.createStore({
       return;
     }
 
+    this.completeFieldsCache = state.fields;
+    this.completeTopLevelFields = state.topLevelFields;
     const filteredFields = this._filterFields(this.state.filterRegex);
 
     this.setState({
-      completeFieldsCache: state.fields,
-      completeTopLevelFields: state.topLevelFields,
       topLevelFields: filteredFields.topLevelFields,
       fieldsCache: filteredFields.fieldsCache
     });
@@ -840,13 +840,13 @@ const ChartStore = Reflux.createStore({
    */
   _filterFields(regex) {
     // get keys that match filter
-    const filteredFieldKeys = _.keys(this.state.completeFieldsCache).filter((field) => regex.test(field));
+    const filteredFieldKeys = _.keys(this.completeFieldsCache).filter((field) => regex.test(field));
 
     // include parent field keys from filtered fields
     const fieldsCacheKeys = _.flatten(filteredFieldKeys.map((key) => this._createParentPaths(key)));
 
     // get the raw fieldscache based on fieldsCacheKeys
-    const rawFieldsCache = _.pick(this.state.completeFieldsCache, fieldsCacheKeys);
+    const rawFieldsCache = _.pick(this.completeFieldsCache, fieldsCacheKeys);
 
     // omit all fieldKeys from nestedFields that don't exist in fieldsCacheKeys
     const fieldsCache = _.mapValues(rawFieldsCache, (field) => {
