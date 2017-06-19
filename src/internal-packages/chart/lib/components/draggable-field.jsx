@@ -1,11 +1,10 @@
 const React = require('react');
 const PropTypes = require('prop-types');
-const Dropdown = require('react-bootstrap').Dropdown;
-const MenuItem = require('react-bootstrap').MenuItem;
+const {Dropdown, MenuItem} = require('react-bootstrap');
 const FontAwesome = require('react-fontawesome');
 const _ = require('lodash');
 const DragSource = require('react-dnd').DragSource;
-const {AGGREGATE_FUNCTION_ENUM, MEASUREMENT_ENUM, MEASUREMENT_ICON_ENUM, TOOL_TIP_ID_ARRAY} = require('../constants');
+const {AGGREGATE_FUNCTION_ENUM, MEASUREMENT_ENUM, MEASUREMENT_ICON_ENUM, TOOL_TIP_ARRAY_REDUCE} = require('../constants');
 const CustomToggle = require('./custom-toggle');
 const ArrayReductionPicker = require('./array-reduction-picker');
 
@@ -131,20 +130,10 @@ class DraggableField extends React.Component {
    * @returns {React.Component} The rendered component.
    */
   render() {
-    const attributes = {
-      className: 'chart-draggable-field',
-      title: this.props.fieldPath
-    };
-
-    // add tool tip if disabled due to array type
-    if (this.props.disabled) {
-      attributes['data-tip'] = 'Array types are not yet supported';
-      attributes['data-for'] = TOOL_TIP_ID_ARRAY;
-    }
-
     const connectDragSource = this.props.connectDragSource;
+
     return connectDragSource(
-      <div {...attributes} >
+      <div className="chart-draggable-field" title={this.props.fieldPath} >
         <div className="chart-draggable-field-row">
           <div className="chart-draggable-field-item-container chart-draggable-field-item-container-title">
             <div className="chart-draggable-field-title">
