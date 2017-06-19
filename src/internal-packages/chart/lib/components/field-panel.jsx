@@ -45,9 +45,9 @@ class FieldPanel extends React.Component {
         <div className="chart-builder-field-panel-controls-row">
           <h5 className="chart-builder-field-panel-controls-item chart-builder-field-panel-field-count">Fields</h5>
         </div>
-        <div className="chart-builder-field-panel-controls-row">
-          <i className="fa fa-search compass-sidebar-search-icon"></i>
-          <input ref="filter" className="" placeholder="filter" onChange={this.handleFilter.bind(this)}></input>
+        <div className="chart-builder-field-panel-controls-row chart-builder-field-panel-filter">
+          <i className="fa fa-search chart-builder-field-panel-filter-icon"></i>
+          <input className="chart-builder-field-panel-search-input" placeholder="filter" onChange={this.handleFilter.bind(this)}></input>
         </div>
         {this.renderFields()}
       </div>
