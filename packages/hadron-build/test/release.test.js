@@ -18,7 +18,7 @@ if (process.platform === 'win32') {
         if (_err) {
           return done(_err);
         }
-        target = getConfig({ version: '1.2.0' });
+        target = getConfig();
         commands.release.run(target, done);
       });
     });
@@ -33,6 +33,10 @@ if (process.platform === 'win32') {
         assert(exists, `Expected ${bin} to exist`);
         done();
       });
+    });
+
+    it('has the correct product name', () => {
+      assert.equal(target.productName, 'MongoDB Compass Enterprise super long test name Beta');
     });
 
     /**

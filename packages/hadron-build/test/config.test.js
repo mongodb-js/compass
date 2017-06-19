@@ -36,7 +36,7 @@ describe('hadron-build::config', () => {
     });
 
     it('should not include channel in the slug on stable', () => {
-      expect(channels.stable.slug).to.equal('compass-lite');
+      expect(channels.stable.slug).to.equal('compass');
     });
 
     describe('For releases *not* on the stable channel', () => {
@@ -45,8 +45,8 @@ describe('hadron-build::config', () => {
         expect(channels.custom.productName).to.equal('MongoDB Compass Enterprise super long test name Custom');
       });
       it('should add the channel as a suffix to the slug', () => {
-        expect(channels.beta.slug).to.equal('compass-lite-beta');
-        expect(channels.custom.slug).to.equal('compass-lite-custom');
+        expect(channels.beta.slug).to.equal('compass-beta');
+        expect(channels.custom.slug).to.equal('compass-custom');
       });
     });
 

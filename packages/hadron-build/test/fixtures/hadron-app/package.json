@@ -1,7 +1,7 @@
 {
   "name": "hadron-app",
   "description": "Hadron build's test fixture app.",
-  "version": "1.2.0",
+  "version": "1.2.0-beta",
   "main": "main.js",
   "productName": "Hadron",
   "authors": "MongoDB Inc.",
@@ -28,9 +28,9 @@
       },
       "distributions": {
         "package-prefix": "compass",
-        "default": "compass-lite",
-        "compass-lite": {
-          "name": "compass-lite",
+        "default": "compass",
+        "compass": {
+          "name": "compass",
           "productName": "MongoDB Compass Enterprise super long test name",
           "packages": [],
           "styles": [ "index" ]

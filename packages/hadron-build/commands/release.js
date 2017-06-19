@@ -304,6 +304,10 @@ const transformPackageJson = (CONFIG, done) => {
    * that are not part of the distribution.
    */
   const distributions = contents.config.hadron.distributions;
+  _.assign(contents, {
+    productName: CONFIG.productName
+  });
+
   const pluginPrefix = distributions['package-prefix'];
   const plugins = distributions[contents.distribution].packages;
   const deps = contents.dependencies;
