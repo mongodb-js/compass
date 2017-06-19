@@ -11,36 +11,18 @@ const FieldPanel = require('./field-panel');
 const ChartPanel = require('./chart-panel');
 const Chart = require('./chart');
 const {
+  AXIS_LABEL_MAX_PIXELS,
+  AXIS_TITLE_BUFFER_PIXELS,
+  MIN_CHART_HEIGHT,
+  MIN_CHART_WIDTH,
+  SPEC_TYPE_ENUM,
   TOOL_TIP_ID_ARRAY,
-  VIEW_TYPE_ENUM,
-  SPEC_TYPE_ENUM
+  VIEW_TYPE_ENUM
 } = require('../constants');
 
 const QUERYBAR_LAYOUT = ['filter', ['sort', 'skip', 'limit', 'sample']];
 
 // const debug = require('debug')('mongodb-compass:chart:chart-builder');
-
-/**
- * The minimum spacing needed to avoid a horizontal scrollbar, in pixels.
- * Happens with cases like long company name labels.
- */
-const WIDTH_MIN_SPACING = 230;
-
-/**
- * The minimum spacing needed to avoid a vertical scrollbar, in pixels.
- * Happens with cases like long company name labels.
- */
-const HEIGHT_MIN_SPACING = 230;
-
-/**
- * The smallest chart width in pixels, to avoid negative size errors.
- */
-const MIN_CHART_WIDTH = 50;
-
-/**
- * The smallest chart height in pixels, to avoid negative size errors.
- */
-const MIN_CHART_HEIGHT = 50;
 
 
 class ChartBuilder extends React.Component {
@@ -120,8 +102,9 @@ class ChartBuilder extends React.Component {
 
   _getChartDimensions() {
     const areaDim = document.getElementsByClassName('chart-builder-chart-area')[0];
-    const width = Math.max(MIN_CHART_WIDTH, areaDim.offsetWidth - WIDTH_MIN_SPACING);
-    const height = Math.max(MIN_CHART_HEIGHT, areaDim.offsetHeight - HEIGHT_MIN_SPACING);
+    const SPACING = AXIS_LABEL_MAX_PIXELS + AXIS_TITLE_BUFFER_PIXELS;
+    const width = Math.max(MIN_CHART_WIDTH, areaDim.offsetWidth - SPACING);
+    const height = Math.max(MIN_CHART_HEIGHT, areaDim.offsetHeight - SPACING);
     return {width, height};
   }
 
