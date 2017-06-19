@@ -858,9 +858,7 @@ const ChartStore = Reflux.createStore({
       return field;
     });
 
-    const topLevelFields = _.uniq(fieldsCacheKeys.map((field) => {
-      return field.split('.')[0];
-    }));
+    const topLevelFields = fieldsCacheKeys.filter((key) => !key.includes('.'));
 
     return {fieldsCache: fieldsCache, topLevelFields: topLevelFields};
   },
