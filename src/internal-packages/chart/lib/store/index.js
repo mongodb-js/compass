@@ -47,6 +47,8 @@ const ChartStore = Reflux.createStore({
     this.INITIAL_CHART_TYPE = '';
     this.INITIAL_SPEC_TYPE = SPEC_TYPE_ENUM.VEGA_LITE;
     this.AVAILABLE_CHART_ROLES = [];
+    this.completeFieldsCache = {};
+    this.completeTopLevelFields = [];
   },
 
   onActivated(appRegistry) {
@@ -84,6 +86,7 @@ const ChartStore = Reflux.createStore({
       dataCache: [],
       fieldsCache: {},
       topLevelFields: [],
+      filterRegex: /(?:)/,
       queryCache: INITIAL_QUERY
     };
   },
@@ -127,6 +130,7 @@ const ChartStore = Reflux.createStore({
     const general = {
       viewType: VIEW_TYPE_ENUM.CHART_BUILDER
     };
+
     return Object.assign({}, caches, chart, history, availableChartRoles, general);
   },
 
@@ -524,7 +528,28 @@ const ChartStore = Reflux.createStore({
     if (!state.fields) {
       return;
     }
-    this.setState({fieldsCache: state.fields, topLevelFields: state.topLevelFields});
+
+    this.completeFieldsCache = state.fields;
+    this.completeTopLevelFields = state.topLevelFields;
+    const filteredFields = this._filterFields(this.state.filterRegex);
+
+    this.setState({
+      topLevelFields: filteredFields.topLevelFields,
+      fieldsCache: filteredFields.fieldsCache
+    });
+  },
+
+  /**
+   * Helper function to turn 'foo.bar.baz' into ['foo', 'foo.bar', 'foo.bar.baz']
+   *
+   * @param {String} field  field path that can be split via '.'
+   *
+   * @return {Array} returns the above array based on the channel fields
+   */
+  _createParentPaths(field) {
+    return _.map(field.split('.'), (token, index, tokens) => {
+      return tokens.slice(0, index + 1).join('.');
+    });
   },
 
   /**
@@ -542,10 +567,8 @@ const ChartStore = Reflux.createStore({
    *        ]
    */
   _createReductionFromChannel(channel) {
-    // turns 'foo.bar.baz' into ['foo', 'foo.bar', 'foo.bar.baz']
-    const parentPaths = _.map(channel.field.split('.'), (token, index, tokens) => {
-      return tokens.slice(0, index + 1).join('.');
-    });
+    //
+    const parentPaths = this._createParentPaths(channel.field);
     // determine which of those paths are array types
     const arrayPaths = _.filter(parentPaths, (path) => {
       return _.has(this.state.fieldsCache, path) &&
@@ -806,6 +829,51 @@ const ChartStore = Reflux.createStore({
     this.setState({
       specType: SPEC_TYPE_ENUM.VEGA_LITE,
       viewType: VIEW_TYPE_ENUM.JSON_EDITOR
+    });
+  },
+
+
+  /**
+   * Helper function to filter the complete fields list based on regex
+   * @param {Object} regex regular expression object
+   * @return {Object} an object consisting of the filtered topLevelFields & fieldsCache
+   */
+  _filterFields(regex) {
+    // get keys that match filter
+    const filteredFieldKeys = _.keys(this.completeFieldsCache).filter((field) => regex.test(field));
+
+    // include parent field keys from filtered fields
+    const fieldsCacheKeys = _.uniq(_.flatten(filteredFieldKeys.map((key) => this._createParentPaths(key))));
+
+    // get the raw fieldscache based on fieldsCacheKeys
+    const rawFieldsCache = _.pick(this.completeFieldsCache, fieldsCacheKeys);
+
+    // omit all fieldKeys from nestedFields that don't exist in fieldsCacheKeys
+    const fieldsCache = _.mapValues(rawFieldsCache, (field) => {
+      const fieldCopy = _.cloneDeep(field);
+      if (_.has(fieldCopy, 'nestedFields')) {
+        fieldCopy.nestedFields = _.filter(field.nestedFields, (f) => {
+          return fieldsCacheKeys.includes(f);
+        });
+      }
+      return fieldCopy;
+    });
+
+    const topLevelFields = fieldsCacheKeys.filter((key) => !key.includes('.'));
+
+    return {fieldsCache: fieldsCache, topLevelFields: topLevelFields};
+  },
+
+  /**
+   * Filter fields based on provided regular expression parameter
+   * @param {Object} regex regular expression to filter fields
+   */
+  filterFields(regex) {
+    const filteredFields = this._filterFields(regex);
+    this.setState({
+      filterRegex: regex,
+      topLevelFields: filteredFields.topLevelFields,
+      fieldsCache: filteredFields.fieldsCache
     });
   },
 
