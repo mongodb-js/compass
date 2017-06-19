@@ -470,8 +470,9 @@ const ChartStore = Reflux.createStore({
       sample: true,
       limit: SAFETY_LIMIT
     });
-    // set the query in the query bar and open query options
-    this.QueryActions.setQuery(query);
+    // set the limit and sample in the query bar and open query options
+    this.QueryActions.setQueryString('limit', String(SAFETY_LIMIT));
+    this.QueryActions.toggleSample(true);
     this.QueryActions.toggleQueryOptions(true);
     this.setState({
       queryCache: query
