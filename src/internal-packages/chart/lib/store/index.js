@@ -834,7 +834,7 @@ const ChartStore = Reflux.createStore({
 
 
   /**
-   * Helper to filter the complete fields list based on regex
+   * Helper function to filter the complete fields list based on regex
    * @param {Object} regex regular expression object
    * @return {Object} an object consisting of the filtered topLevelFields & fieldsCache
    */
