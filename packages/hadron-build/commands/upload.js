@@ -100,6 +100,7 @@ let doGitHubReleaseAssetUpload = (CONFIG, release, asset) => {
   };
 
   cli.spinner(`Uploading ${asset.name}`);
+  cli.debug(opts);
 
   const p = Promise.defer();
   github.repos.uploadAsset(opts, function(err, res) {
