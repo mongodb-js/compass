@@ -131,12 +131,6 @@ class DraggableField extends React.Component {
    */
   render() {
     const connectDragSource = this.props.connectDragSource;
-    const arrayToolTipAttributes = {
-      className: 'info-sprinkle',
-      'data-tip': TOOL_TIP_ARRAY_REDUCE['data-tip'],
-      'data-for': TOOL_TIP_ARRAY_REDUCE['data-for'],
-      'data-multiline': true
-    };
 
     return connectDragSource(
       <div className="chart-draggable-field" title={this.props.fieldPath} >
@@ -144,7 +138,7 @@ class DraggableField extends React.Component {
           <div className="chart-draggable-field-item-container chart-draggable-field-item-container-title">
             <div className="chart-draggable-field-title">
               {!_.isEmpty(this.props.reductions) && this.props.enableMenus ?
-                <span className="chart-draggable-field-title-array">Array Reduction <i {...arrayToolTipAttributes} /></span>
+                <span className="chart-draggable-field-title-array">Array Reduction</span>
                 : <span>{this.props.fieldName}</span>
               }
             </div>
