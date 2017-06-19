@@ -540,6 +540,19 @@ const ChartStore = Reflux.createStore({
   },
 
   /**
+   * Helper function to turn 'foo.bar.baz' into ['foo', 'foo.bar', 'foo.bar.baz']
+   *
+   * @param {String} field  field path that can be split via '.'
+   *
+   * @return {Array} returns the above array based on the channel fields
+   */
+  _createParentPaths(field) {
+    return _.map(field.split('.'), (token, index, tokens) => {
+      return tokens.slice(0, index + 1).join('.');
+    });
+  },
+
+  /**
    * Takes a channel object and constructs an empty reductions object from it.
    *
    * @param  {Object} channel  channel object (this.state.channels), e.g.
@@ -554,10 +567,8 @@ const ChartStore = Reflux.createStore({
    *        ]
    */
   _createReductionFromChannel(channel) {
-    // turns 'foo.bar.baz' into ['foo', 'foo.bar', 'foo.bar.baz']
-    const parentPaths = _.map(channel.field.split('.'), (token, index, tokens) => {
-      return tokens.slice(0, index + 1).join('.');
-    });
+    //
+    const parentPaths = this._createParentPaths(channel.field);
     // determine which of those paths are array types
     const arrayPaths = _.filter(parentPaths, (path) => {
       return _.has(this.state.fieldsCache, path) &&
@@ -829,14 +840,10 @@ const ChartStore = Reflux.createStore({
    */
   _filterFields(regex) {
     // get keys that match filter
-    const filteredKeys = _.keys(this.state.completeFieldsCache).filter((field) => regex.test(field));
+    const filteredFieldKeys = _.keys(this.state.completeFieldsCache).filter((field) => regex.test(field));
 
-    // make fields
-    const fieldsCacheKeys = _.flatten(filteredKeys.map((key) => {
-      return _.map(key.split('.'), (token, index, tokens) => {
-        return tokens.slice(0, index + 1).join('.');
-      });
-    }));
+    // include parent field keys from filtered fields
+    const fieldsCacheKeys = _.flatten(filteredFieldKeys.map((key) => this._createParentPaths(key)));
 
     // get the raw fieldscache based on fieldsCacheKeys
     const rawFieldsCache = _.pick(this.state.completeFieldsCache, fieldsCacheKeys);
