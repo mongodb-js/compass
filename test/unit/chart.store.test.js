@@ -1141,6 +1141,60 @@ describe('ChartStore', function() {
     });
   });
 
+  context('when filtering fields', function() {
+    before(function() {
+      this.store.completeFieldsCache = {
+        'address.country': COUNTRY_SCHEMA_FIELD,
+        'year': YEAR_SCHEMA_FIELD,
+        'revenue': REVENUE_SCHEMA_FIELD,
+        'up_to_5_tags': UP_TO_5_TAGS_SCHEMA_FIELD,
+        '10_random_strings': TEN_RANDOM_STRINGS_SCHEMA_FIELD,
+        'array_of_3_subdocs': ARRAY_OF_3_SUBDOCS_FIELD,
+        'array_of_3_subdocs.age': SUBDOCS_AGE_FIELD,
+        'array_of_subdocs_with_number_arrays': ARRAY_OF_SUBDOCS_WITH_NUMBER_ARRAYS_FIELD,
+        'array_of_subdocs_with_number_arrays.highscores': HIGHSCORE_ARRAY_FIELD
+      };
+    });
+
+    it('initially has a blank filter', function() {
+      expect(Object.keys(this.store.state.fieldsCache)).to.have.lengthOf(9);
+      expect(this.store.state.filterRegex.source).to.equal('(?:)');
+    });
+
+    it('filters on a field', function(done) {
+      ChartActions.filterFields(new RegExp('array_of', 'i'));
+      setTimeout(() => {
+        expect(Object.keys(this.store.state.fieldsCache)).to.have.lengthOf(4);
+        expect(this.store.state.filterRegex.source).to.equal('array_of');
+        expect(this.store.state.topLevelFields).to.deep.equal(['array_of_3_subdocs', 'array_of_subdocs_with_number_arrays']);
+        done();
+      });
+    });
+
+    it('filters on a nested field', function(done) {
+      ChartActions.filterFields(new RegExp('age', 'i'));
+      setTimeout(() => {
+        expect(Object.keys(this.store.state.fieldsCache)).to.have.lengthOf(2);
+        expect(this.store.state.filterRegex.source).to.equal('age');
+        expect(this.store.state.fieldsCache).to.deep.equal({
+          'array_of_3_subdocs': ARRAY_OF_3_SUBDOCS_FIELD,
+          'array_of_3_subdocs.age': SUBDOCS_AGE_FIELD
+        });
+        expect(this.store.state.topLevelFields).to.deep.equal(['array_of_3_subdocs']);
+        done();
+      });
+    });
+
+    it('resets the filter', function(done) {
+      ChartActions.filterFields(/(?:)/);
+      setTimeout(() => {
+        expect(Object.keys(this.store.state.fieldsCache)).to.have.lengthOf(9);
+        expect(this.store.state.filterRegex.source).to.equal('(?:)');
+        done();
+      });
+    });
+  });
+
   context('when calling multiple actions', function() {
     it('encodes every action in channels state', function(done) {
       // Expect 3 keys set
