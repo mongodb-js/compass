@@ -129,7 +129,8 @@ CompassExplain.propTypes = {
   index: PropTypes.object,
   viewType: PropTypes.oneOf(['tree', 'json']).isRequired,
   rawExplainObject: PropTypes.object.isRequired,
-  actions: PropTypes.object
+  actions: PropTypes.object,
+  error: PropTypes.object
 };
 
 CompassExplain.defaultProps = {
@@ -142,7 +143,8 @@ CompassExplain.defaultProps = {
   indexType: 'UNAVAILABLE',
   index: null,
   viewType: 'tree',
-  rawExplainObject: {}
+  rawExplainObject: {},
+  error: null
 };
 
 CompassExplain.displayName = 'CompassExplain';
