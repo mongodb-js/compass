@@ -16,6 +16,7 @@ class FieldGroup extends React.Component {
           fieldPath={fieldPath}
           nestedFields={nestedFields}
           disabled={this.props.disabled}
+          filter={this.props.filter}
         />
       );
     });
@@ -39,37 +40,43 @@ FieldGroup.propTypes = {
   fieldPath: PropTypes.string,
   fieldsCache: PropTypes.object,
   nestedFields: PropTypes.array,
-  disabled: PropTypes.bool
+  disabled: PropTypes.bool,
+  filter: PropTypes.object
 };
 
 FieldGroup.defaultProps = {
   fieldPath: '',
   fieldsCache: {},
-  nestedFields: []
+  nestedFields: [],
+  filter: /(?:)/
 };
 
 FieldGroup.displayName = 'FieldGroup';
 
 class FieldPanelItem extends React.Component {
 
+  renderDraggableFields(isArray) {
+    const isVisible = this.props.filter.test(this.props.fieldPath);
+    return isVisible ? (<DraggableField
+      key={this.props.fieldPath}
+      fieldPath={this.props.fieldPath}
+      fieldName={this.props.fieldsCache[this.props.fieldPath].name}
+      disabled={isArray}
+    />) : null;
+  }
+
   renderFields() {
     const isArray = this.props.disabled || this.props.fieldsCache[this.props.fieldPath].type === 'Array';
-    const view =
-      this.props.nestedFields ?
-        (<FieldGroup
-          key={this.props.fieldPath}
-          fieldsCache={this.props.fieldsCache}
-          fieldPath={this.props.fieldPath}
-          nestedFields={this.props.nestedFields}
-          disabled={isArray}
-        />)
-        :
-        (<DraggableField
-          key={this.props.fieldPath}
-          fieldPath={this.props.fieldPath}
-          fieldName={this.props.fieldsCache[this.props.fieldPath].name}
-          disabled={isArray}
-        />);
+    const view = this.props.nestedFields ?
+      (<FieldGroup
+        key={this.props.fieldPath}
+        fieldsCache={this.props.fieldsCache}
+        fieldPath={this.props.fieldPath}
+        nestedFields={this.props.nestedFields}
+        disabled={isArray}
+        filter={this.props.filter}
+      />)
+      : this.renderDraggableFields(isArray);
 
     return view;
   }
@@ -87,13 +94,15 @@ FieldPanelItem.propTypes = {
   fieldPath: PropTypes.string,
   fieldsCache: PropTypes.object,
   nestedFields: PropTypes.array,
-  disabled: PropTypes.bool
+  disabled: PropTypes.bool,
+  filter: PropTypes.object
 };
 
 FieldPanelItem.defaultProps = {
   fieldPath: '',
   fieldsCache: {},
-  nestedFields: []
+  nestedFields: [],
+  filter: /(?:)/
 };
 
 FieldPanelItem.displayName = 'FieldPanelItem';
