@@ -26,15 +26,19 @@ class WriteButton extends React.Component {
   }
 
   isWritable() {
-    return WriteStateStore.state.isWritable;
+    const isWritable = WriteStateStore.state.isWritable;
+    if (!this.props.isCollectionLevel) {
+      return isWritable;
+    }
+    return isWritable && !this.CollectionStore.isReadonly();
   }
 
   namespaceChanged() {
 
   }
 
-  writeStateChanged() {
-
+  writeStateChanged(state) {
+    this.setState(state);
   }
 
   render() {

@@ -99,5 +99,47 @@ describe('<WriteButton />', () => {
         });
       });
     });
+
+    context('when the button is collection level', () => {
+      context('when the collection is readonly', () => {
+        let component;
+        const store = {
+          isReadonly: () => { return true; }
+        };
+
+        beforeEach(() => {
+          global.hadronApp.appRegistry.registerStore('App.CollectionStore', store);
+          WriteStateStore.setState({ isWritable: true });
+          const click = () => {};
+          component = shallow(
+            <WriteButton
+              className="testing"
+              clickHandler={click}
+              isCollectionLevel
+              text="test button"
+              dataTestId="test-id" />
+          );
+        });
+
+        it('sets the button as disabled', () => {
+          const button = component.find('.testing');
+          expect(button).to.be.disabled();
+        });
+
+        it('renders the wrapper data-tip', () => {
+          const wrapper = component.find('.tooltip-button-wrapper');
+          expect(wrapper).to.have.data('tip', '');
+        });
+
+        it('renders the wrapper data-for', () => {
+          const wrapper = component.find('.tooltip-button-wrapper');
+          expect(wrapper).to.have.data('for', '');
+        });
+      });
+
+      context('when the collection is not readonly', () => {
+
+      });
+    });
   });
 });
