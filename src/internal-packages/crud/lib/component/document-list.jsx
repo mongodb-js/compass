@@ -55,6 +55,7 @@ class DocumentList extends React.Component {
     const appRegistry = global.hadronApp.appRegistry;
     this.samplingMessage = appRegistry.getComponent('Query.SamplingMessage');
     this.CollectionStore = appRegistry.getStore('App.CollectionStore');
+    this.WriteStateStore = appRegistry.getStore('DeploymentAwareness.WriteStateStore');
     this.NamespaceStore = appRegistry.getStore('App.NamespaceStore');
     this.projection = false;
     this.queryBar = appRegistry.getComponent('Query.QueryBar');
@@ -64,7 +65,9 @@ class DocumentList extends React.Component {
       docs: [],
       nextSkip: 0,
       namespace: this.NamespaceStore.ns,
-      loading: false
+      loading: false,
+      isWritable: !this.CollectionStore.isReadonly() && this.WriteStateStore.state.isWritable,
+      description: this.WriteStateStore.state.description
     };
   }
 
@@ -78,6 +81,7 @@ class DocumentList extends React.Component {
     this.unsubscribeRemove = RemoveDocumentStore.listen(this.handleRemove.bind(this));
     this.unsubscribeInsert = InsertDocumentStore.listen(this.handleInsert.bind(this));
     this.unsubscribeQueryStore = this.QueryChangedStore.listen(this.handleQueryChanged.bind(this));
+    this.unsubscribeStateStore = this.WriteStateStore.listen(this.deploymentStateChanged.bind(this));
   }
 
   /**
@@ -88,6 +92,7 @@ class DocumentList extends React.Component {
     this.unsubscribeLoadMore();
     this.unsubscribeRemove();
     this.unsubscribeInsert();
+    this.unsubscribeStateStore();
   }
 
   /**
@@ -291,7 +296,8 @@ class DocumentList extends React.Component {
       <div className="content-container content-container-documents compass-documents">
         <div className="controls-container">
           <this.queryBar buttonLabel="Find" />
-          <this.samplingMessage insertHandler={this.handleOpenInsert.bind(this)} />
+          <this.samplingMessage isWritable={this.state.isWritable} description={this.state.description}
+            insertHandler={this.handleOpenInsert.bind(this)} />
         </div>
         {this.renderContent()}
       </div>
