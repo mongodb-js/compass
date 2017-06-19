@@ -154,6 +154,29 @@ const ARRAY_REDUCTION_TYPES = Object.freeze(Object.assign(
   ARRAY_STRING_REDUCTIONS
 ));
 
+/**
+ * The maximum size of chart axis labels.
+ * @type {number}
+ */
+const AXIS_LABEL_MAX_PIXELS = 150;
+
+/**
+ * The size of the chart axis title, margins and padding,
+ * to avoid scrollbars appearing.
+ * @type {number}
+ */
+const AXIS_TITLE_BUFFER_PIXELS = 50;
+
+/**
+ * The smallest chart height in pixels, to avoid negative size errors.
+ */
+const MIN_CHART_HEIGHT = 50;
+
+/**
+ * The smallest chart width in pixels, to avoid negative size errors.
+ */
+const MIN_CHART_WIDTH = 50;
+
 const LITE_SPEC_GLOBAL_SETTINGS = {
   'config': {
     'mark': {
@@ -162,21 +185,22 @@ const LITE_SPEC_GLOBAL_SETTINGS = {
       'strokeWidth': 3
     },
     'axis': {
-      'titleColor': '#42494f',
-      'titleFont': 'Akzidenz',
-      'titleFontWeight': 'bold',
-      'titleFontSize': 16,
       'domainColor': '#42494f',
-      'tickColor': '#42494f',
-      'labelFont': 'Akzidenz',
-      'labelFontSize': 12,
-      'labelColor': '#42494f',
-      'subdivide': 3,
-      'tickSizeMinor': 4,
-      'tickSizeMajor': 6,
+      'grid': true,
       'gridColor': '#bfbfbe',
       'gridOpacity': 0.12,
-      'grid': true
+      'labelColor': '#42494f',
+      'labelFont': 'Akzidenz',
+      'labelFontSize': 12,
+      'labelLimit': AXIS_LABEL_MAX_PIXELS,
+      'subdivide': 3,
+      'tickColor': '#42494f',
+      'tickSizeMajor': 6,
+      'tickSizeMinor': 4,
+      'titleColor': '#42494f',
+      'titleFont': 'Akzidenz',
+      'titleFontSize': 16,
+      'titleFontWeight': 'bold'
     }
   }
 };
@@ -196,6 +220,10 @@ module.exports = {
   ARRAY_STRING_REDUCTIONS,
   ARRAY_REDUCTION_TYPES,
   CHART_COLORS,
+  AXIS_LABEL_MAX_PIXELS,
+  AXIS_TITLE_BUFFER_PIXELS,
+  MIN_CHART_HEIGHT,
+  MIN_CHART_WIDTH,
   LITE_SPEC_GLOBAL_SETTINGS,
   DOT_UNICODE_REPLACEMENT
 };
