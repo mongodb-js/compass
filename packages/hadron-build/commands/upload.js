@@ -100,6 +100,7 @@ let doGitHubReleaseAssetUpload = (CONFIG, release, asset) => {
   };
 
   cli.spinner(`Uploading ${asset.name}`);
+  /* eslint no-console: 0, no-sync: 0 */
   console.log(opts);
 
   const p = Promise.defer();
