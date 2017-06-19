@@ -131,11 +131,7 @@ const ChartStore = Reflux.createStore({
       viewType: VIEW_TYPE_ENUM.CHART_BUILDER
     };
 
-    const filter = {
-
-    };
-
-    return Object.assign({}, caches, chart, history, availableChartRoles, general, filter);
+    return Object.assign({}, caches, chart, history, availableChartRoles, general);
   },
 
   /**
