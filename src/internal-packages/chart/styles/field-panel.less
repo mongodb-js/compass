@@ -80,15 +80,20 @@
   }
 
   &-filter {
-    background-color: @gray6;
-    width: 100%;
+    background-color: @gray7;
+    width: ~"calc(100% + 12px)";
+    margin-left: -6px;
+    height: 32px;
     &-icon {
-      color: @chart1;
+      color: @linkText;
+      margin-left: 6px;
     }
   }
 
   &-search-input {
     background-color: @gray7;
+    line-height: 14px;
+    margin-left: 6px;
     color: @gray4;
     width: 100%;
     border: none;
