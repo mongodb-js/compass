@@ -141,17 +141,21 @@ class DocumentList extends React.Component {
    * @param {Integer} count - The count.
    */
   handleReset(error, documents, count) {
-    // If resetting, then we need to go back to page one with
-    // the documents as the filter changed. The loaded count and
-    // total count are reset here as well.
-    this.setState({
-      docs: this.renderDocuments(documents),
-      nextSkip: documents.length,
-      count: count,
-      loadedCount: documents.length,
-      namespace: this.NamespaceStore.ns,
-      error: error
-    });
+    if (error) {
+      this.setState({ error: error });
+    } else {
+      // If resetting, then we need to go back to page one with
+      // the documents as the filter changed. The loaded count and
+      // total count are reset here as well.
+      this.setState({
+        docs: this.renderDocuments(documents),
+        nextSkip: documents.length,
+        count: count,
+        loadedCount: documents.length,
+        namespace: this.NamespaceStore.ns,
+        error: error
+      });
+    }
   }
 
   /**
