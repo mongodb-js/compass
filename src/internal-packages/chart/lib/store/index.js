@@ -850,12 +850,13 @@ const ChartStore = Reflux.createStore({
 
     // omit all fieldKeys from nestedFields that don't exist in fieldsCacheKeys
     const fieldsCache = _.mapValues(rawFieldsCache, (field) => {
-      if (_.has(field, 'nestedFields')) {
-        field.nestedFields = _.filter(field.nestedFields, (f) => {
+      const fieldCopy = _.cloneDeep(field);
+      if (_.has(fieldCopy, 'nestedFields')) {
+        fieldCopy.nestedFields = _.filter(field.nestedFields, (f) => {
           return fieldsCacheKeys.includes(f);
         });
       }
-      return field;
+      return fieldCopy;
     });
 
     const topLevelFields = fieldsCacheKeys.filter((key) => !key.includes('.'));
