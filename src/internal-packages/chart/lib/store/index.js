@@ -843,7 +843,7 @@ const ChartStore = Reflux.createStore({
     const filteredFieldKeys = _.keys(this.completeFieldsCache).filter((field) => regex.test(field));
 
     // include parent field keys from filtered fields
-    const fieldsCacheKeys = _.flatten(filteredFieldKeys.map((key) => this._createParentPaths(key)));
+    const fieldsCacheKeys = _.uniq(_.flatten(filteredFieldKeys.map((key) => this._createParentPaths(key))));
 
     // get the raw fieldscache based on fieldsCacheKeys
     const rawFieldsCache = _.pick(this.completeFieldsCache, fieldsCacheKeys);
