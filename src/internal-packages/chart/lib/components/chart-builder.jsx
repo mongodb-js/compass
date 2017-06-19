@@ -24,13 +24,13 @@ const QUERYBAR_LAYOUT = ['filter', ['sort', 'skip', 'limit', 'sample']];
  * The minimum spacing needed to avoid a horizontal scrollbar, in pixels.
  * Happens with cases like long company name labels.
  */
-const WIDTH_MIN_SPACING = 210;
+const WIDTH_MIN_SPACING = 230;
 
 /**
  * The minimum spacing needed to avoid a vertical scrollbar, in pixels.
  * Happens with cases like long company name labels.
  */
-const HEIGHT_MIN_SPACING = 210;
+const HEIGHT_MIN_SPACING = 230;
 
 /**
  * The smallest chart width in pixels, to avoid negative size errors.
