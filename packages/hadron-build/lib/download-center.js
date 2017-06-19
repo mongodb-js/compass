@@ -67,56 +67,58 @@ let requireEnvironmentVariables = (keys) => {
   }
 };
 
-let maybeUploadManifest = (CONFIG) => {
-  const prefix = `https://downloads.mongodb.com/${CONFIG.download_center_id}/${CONFIG.channel}`;
-  const bucket = 'info-mongodb-com';
-  const key = `com-download-center/${CONFIG.download_center_id}/${CONFIG.version}.json`;
-
-  const MANIFEST = {
-    version: CONFIG.version,
-    channel: CONFIG.channel,
-    platform: [
-      {
-        name: 'OS X 10.10+ 64-bit',
-        download_link: `${prefix}/${CONFIG.id}-${CONFIG.version}-darwin-x64.dmg`
-      },
-      {
-        name: 'Windows 7+ 64-bit',
-        download_link: `${prefix}/${CONFIG.id}-${CONFIG.version}-win32-x64.exe`
-      }
-    ],
-    development_releases_link: `https://${CONFIG.download_center_id}.mongodb.com/beta`,
-    manual_link: `https://${CONFIG.download_center_id}.mongodb.com/docs`,
-    release_notes_link: `https://${CONFIG.download_center_id}.mongodb.com/releases/${CONFIG.version}`,
-    previous_releases_link: `https://${CONFIG.download_center_id}.mongodb.com/releases`,
-    supported_browsers_link: '',
-    tutorial_link: ''
-  };
-
-  return new Promise((resolve, reject) => {
-    const req = new AWS.S3({
-      params: {
-        Bucket: bucket,
-        Key: key
-      }
-    });
-    req.headObject( (err, data) => {
-      if (data) {
-        debug(`Manifest for ${CONFIG.version} already exists`, data);
-        return resolve(data);
-      }
-
-      if (err && err.code !== 'NotFound') {
-        return reject(err);
-      }
-      debug(`Uploading manifest for ${CONFIG.version}`);
-      req.upload({Body: JSON.stringify(MANIFEST, null, 2)}, (_err) => {
-        if (_err) return reject(_err);
-        resolve(MANIFEST);
-      });
-    });
-  });
-};
+// TODO (imlucas) We upload the manifest manually and I think this is currently
+// blocking @durran.
+// let maybeUploadManifest = (CONFIG) => {
+//   const prefix = `https://downloads.mongodb.com/${CONFIG.download_center_id}/${CONFIG.channel}`;
+//   const bucket = 'info-mongodb-com';
+//   const key = `com-download-center/${CONFIG.download_center_id}/${CONFIG.version}.json`;
+//
+//   const MANIFEST = {
+//     version: CONFIG.version,
+//     channel: CONFIG.channel,
+//     platform: [
+//       {
+//         name: 'OS X 10.10+ 64-bit',
+//         download_link: `${prefix}/${CONFIG.id}-${CONFIG.version}-darwin-x64.dmg`
+//       },
+//       {
+//         name: 'Windows 7+ 64-bit',
+//         download_link: `${prefix}/${CONFIG.id}-${CONFIG.version}-win32-x64.exe`
+//       }
+//     ],
+//     development_releases_link: `https://${CONFIG.download_center_id}.mongodb.com/beta`,
+//     manual_link: `https://${CONFIG.download_center_id}.mongodb.com/docs`,
+//     release_notes_link: `https://${CONFIG.download_center_id}.mongodb.com/releases/${CONFIG.version}`,
+//     previous_releases_link: `https://${CONFIG.download_center_id}.mongodb.com/releases`,
+//     supported_browsers_link: '',
+//     tutorial_link: ''
+//   };
+//
+//   return new Promise((resolve, reject) => {
+//     const req = new AWS.S3({
+//       params: {
+//         Bucket: bucket,
+//         Key: key
+//       }
+//     });
+//     req.headObject( (err, data) => {
+//       if (data) {
+//         debug(`Manifest for ${CONFIG.version} already exists`, data);
+//         return resolve(data);
+//       }
+//
+//       if (err && err.code !== 'NotFound') {
+//         return reject(err);
+//       }
+//       debug(`Uploading manifest for ${CONFIG.version}`);
+//       req.upload({Body: JSON.stringify(MANIFEST, null, 2)}, (_err) => {
+//         if (_err) return reject(_err);
+//         resolve(MANIFEST);
+//       });
+//     });
+//   });
+// };
 
 let setup = () => {
   requireEnvironmentVariables([
