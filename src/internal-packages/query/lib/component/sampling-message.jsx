@@ -28,12 +28,18 @@ class SamplingMessage extends React.Component {
   constructor(props) {
     super(props);
     const crudActions = app.appRegistry.getAction('CRUD.Actions');
-    this.state = { count: 0, loaded: 0 };
+    this.CollectionStore = app.appRegistry.getStore('App.CollectionStore');
+    this.WriteStateStore = app.appRegistry.getStore('DeploymentAwareness.WriteStateStore');
     this.resetDocumentListStore = app.appRegistry.getStore('CRUD.ResetDocumentListStore');
     this.insertDocumentStore = app.appRegistry.getStore('CRUD.InsertDocumentStore');
     this.documentRemovedAction = crudActions.documentRemoved;
     this.refreshDocumentsAction = crudActions.refreshDocuments;
     this.loadMoreDocumentsStore = app.appRegistry.getStore('CRUD.LoadMoreDocumentsStore');
+    this.state = {
+      count: 0,
+      loaded: 0,
+      isWritable: !this.CollectionStore.isReadonly() && this.WriteStateStore.state.isWritable
+    };
   }
 
   /**
@@ -44,6 +50,7 @@ class SamplingMessage extends React.Component {
     this.unsubscribeInsert = this.insertDocumentStore.listen(this.handleInsert.bind(this));
     this.unsubscribeRemove = this.documentRemovedAction.listen(this.handleRemove.bind(this));
     this.unsubscribeLoadMore = this.loadMoreDocumentsStore.listen(this.handleLoadMore.bind(this));
+    this.unsubscribeStateStore = this.WriteStateStore.listen(this.deploymentStateChanged.bind(this));
   }
 
   /**
@@ -54,6 +61,16 @@ class SamplingMessage extends React.Component {
     this.unsubscribeInsert();
     this.unsubscribeRemove();
     this.unsubscribeLoadMore();
+    this.unsubscribeStateStore();
+  }
+
+  /**
+   * Called when the deployment state changes.
+   *
+   * @param {Object} state - The deployment state.
+   */
+  deploymentStateChanged(state) {
+    this.setState(state);
   }
 
   /**
@@ -83,7 +100,11 @@ class SamplingMessage extends React.Component {
    */
   handleReset(error, documents, count) {
     if (!error) {
-      this.setState({ count: count, loaded: (count < 20) ? count : 20 });
+      this.setState({
+        count: count,
+        loaded: (count < 20) ? count : 20,
+        isWritable: !this.CollectionStore.isReadonly() && this.WriteStateStore.state.isWritable
+      });
     }
   }
 
@@ -151,10 +172,10 @@ class SamplingMessage extends React.Component {
     const noun = pluralize('document', this.state.count);
 
     const tooltipId = 'document-is-not-writable';
-    const isNotWritableTooltip = this.props.isWritable ? null : (
+    const isNotWritableTooltip = this.state.isWritable ? null : (
       <Tooltip id={tooltipId} />
     );
-    const tooltipText = this.props.description;
+    const tooltipText = this.state.description;
 
     return (
       <div>
@@ -180,7 +201,7 @@ class SamplingMessage extends React.Component {
                 className="btn btn-primary btn-xs open-insert"
                 type="button"
                 data-test-id="open-insert-document-modal-button"
-                disabled={!this.props.isWritable}
+                disabled={!this.state.isWritable}
                 onClick={this.props.insertHandler}>
               Insert Document
             </button>
@@ -208,9 +229,7 @@ SamplingMessage.displayName = 'SamplingMessage';
 
 SamplingMessage.propTypes = {
   sampleSize: PropTypes.number,
-  insertHandler: PropTypes.func,
-  isWritable: PropTypes.bool,
-  description: PropTypes.string
+  insertHandler: PropTypes.func
 };
 
 module.exports = SamplingMessage;
