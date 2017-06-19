@@ -162,21 +162,21 @@ const LITE_SPEC_GLOBAL_SETTINGS = {
       'strokeWidth': 3
     },
     'axis': {
-      'titleColor': '#42494f',
-      'titleFont': 'Akzidenz',
-      'titleFontWeight': 'bold',
-      'titleFontSize': 16,
       'domainColor': '#42494f',
-      'tickColor': '#42494f',
-      'labelFont': 'Akzidenz',
-      'labelFontSize': 12,
-      'labelColor': '#42494f',
-      'subdivide': 3,
-      'tickSizeMinor': 4,
-      'tickSizeMajor': 6,
+      'grid': true,
       'gridColor': '#bfbfbe',
       'gridOpacity': 0.12,
-      'grid': true
+      'labelColor': '#42494f',
+      'labelFont': 'Akzidenz',
+      'labelFontSize': 12,
+      'subdivide': 3,
+      'tickColor': '#42494f',
+      'tickSizeMajor': 6,
+      'tickSizeMinor': 4,
+      'titleColor': '#42494f',
+      'titleFont': 'Akzidenz',
+      'titleFontSize': 16,
+      'titleFontWeight': 'bold'
     }
   }
 };
