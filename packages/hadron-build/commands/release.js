@@ -307,6 +307,7 @@ const transformPackageJson = (CONFIG, done) => {
   _.assign(contents, {
     productName: CONFIG.productName
   });
+  distributions[contents.distribution].productName = CONFIG.productName
 
   const pluginPrefix = distributions['package-prefix'];
   const plugins = distributions[contents.distribution].packages;
@@ -500,6 +501,11 @@ exports.run = (argv, done) => {
     };
   };
 
+  // @note: Durran: The 'double' transform package.json is a temporary
+  //   hack to ensure that the product name is being correctly written.
+  //   The create compile cache and create module cache tasks were actually
+  //   using the original package.json and overwriting the original changes
+  //   to it, so we do it again afterwards.
   const tasks = _.flatten([
     function(cb) {
       verify.tasks(argv)
@@ -516,6 +522,7 @@ exports.run = (argv, done) => {
     task('write license file', writeLicenseFile),
     task('create compile cache', createCompileCache),
     task('create module cache', createModuleCache),
+    task('transform package.json', transformPackageJson),
     task('create packaged styles', createPackagedStyles),
     task('remove development files', removeDevelopmentFiles),
     task('create application asar', createApplicationAsar),
