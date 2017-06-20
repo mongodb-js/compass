@@ -112,6 +112,9 @@ const SPEC_TYPE_ENUM = Object.freeze({
   CUSTOM: 'custom'
 });
 
+/**
+ * (@satyasinha) TODO add this tooltip for the Array Reduce icon via COMPASS-1228
+ */
 const TOOL_TIP_ARRAY_REDUCE = Object.freeze({
   'data-for': 'array-reduce-tooltip',
   'data-tip': 'In order to use fields or values<br/>'
