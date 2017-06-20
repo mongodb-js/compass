@@ -1,7 +1,5 @@
 const expect = require('chai').expect;
-const { WriteStateStore } = require('../../');
-const ServerType = require('../../lib/models/server-type');
-const TopologyType = require('../../lib/models/topology-type');
+const { WriteStateStore, ServerType, TopologyType } = require('../../');
 
 describe('WriteStateStore', () => {
   beforeEach(() => {
