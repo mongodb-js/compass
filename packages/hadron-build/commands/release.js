@@ -73,7 +73,8 @@ const createCompileCache = (CONFIG, done) => {
       CompileCache.compileFileAtPath(compiler, file);
     });
     // Write the compile cache mappings to the package.json.
-    var metadata = CONFIG.pkg;
+    const PACKAGE_JSON_DEST = path.join(CONFIG.resources, 'app', 'package.json');
+    let metadata = require(PACKAGE_JSON_DEST);
     metadata[COMPILE_CACHE_MAPPINGS] = CompileCache.digestMappings;
     fs.writeFile(path.join(appDir, 'package.json'), JSON.stringify(metadata, null, 2), done);
   });
@@ -460,7 +461,8 @@ const createModuleCache = (CONFIG, done) => {
   const appDir = path.join(CONFIG.resources, 'app');
   ModuleCache.create(appDir);
 
-  let metadata = CONFIG.pkg;
+  const PACKAGE_JSON_DEST = path.join(CONFIG.resources, 'app', 'package.json');
+  let metadata = require(PACKAGE_JSON_DEST);
 
   for (let folder in _.get(metadata, '_compassModuleCache.folders')) {
     if (_.includes(folder.paths, '')) {
@@ -501,11 +503,6 @@ exports.run = (argv, done) => {
     };
   };
 
-  // @note: Durran: The 'double' transform package.json is a temporary
-  //   hack to ensure that the product name is being correctly written.
-  //   The create compile cache and create module cache tasks were actually
-  //   using the original package.json and overwriting the original changes
-  //   to it, so we do it again afterwards.
   const tasks = _.flatten([
     function(cb) {
       verify.tasks(argv)
@@ -522,7 +519,6 @@ exports.run = (argv, done) => {
     task('write license file', writeLicenseFile),
     task('create compile cache', createCompileCache),
     task('create module cache', createModuleCache),
-    task('transform package.json', transformPackageJson),
     task('create packaged styles', createPackagedStyles),
     task('remove development files', removeDevelopmentFiles),
     task('create application asar', createApplicationAsar),
