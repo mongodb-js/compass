@@ -1,7 +1,6 @@
 const React = require('react');
 const PropTypes = require('prop-types');
 const CreateIndexModal = require('./create-index-modal');
-const { Tooltip } = require('hadron-react-components');
 
 /**
  * Component for the create index button.

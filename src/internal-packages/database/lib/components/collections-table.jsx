@@ -3,7 +3,7 @@ const PropTypes = require('prop-types');
 const CollectionsActions = require('../actions/collections-actions');
 const numeral = require('numeral');
 const ipc = require('hadron-ipc');
-const { SortableTable, Tooltip } = require('hadron-react-components');
+const { SortableTable } = require('hadron-react-components');
 const _ = require('lodash');
 
 // const debug = require('debug')('mongodb-compass:database:collections-table');
