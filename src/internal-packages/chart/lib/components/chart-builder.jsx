@@ -174,7 +174,7 @@ class ChartBuilder extends React.Component {
         height={dim.height}
         reRenderChart={this.state.reRenderChart}
         className="chart-builder-chart"
-        renderer="svg"
+        renderer="canvas"
       />
     );
   }
