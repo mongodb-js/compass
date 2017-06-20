@@ -1,6 +1,6 @@
 const expect = require('chai').expect;
 const { ReadPreference } = require('mongodb');
-const ReadStateStore = require('../../lib/stores/read-state-store');
+const { ReadStateStore } = require('../../');
 const ServerType = require('../../lib/models/server-type');
 const TopologyType = require('../../lib/models/topology-type');
 

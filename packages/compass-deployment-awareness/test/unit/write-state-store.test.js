@@ -1,5 +1,5 @@
 const expect = require('chai').expect;
-const WriteStateStore = require('../../lib/stores/write-state-store');
+const { WriteStateStore } = require('../../');
 const ServerType = require('../../lib/models/server-type');
 const TopologyType = require('../../lib/models/topology-type');
 
