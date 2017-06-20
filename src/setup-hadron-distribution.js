@@ -7,3 +7,7 @@ const pkg = require('../package.json');
 if (!process.env.HADRON_DISTRIBUTION) {
   process.env.HADRON_DISTRIBUTION = pkg.distribution || pkg.config.hadron.distributions.default;
 }
+
+if (pkg.distribution) {
+  process.env.NODE_ENV = 'production';
+}
