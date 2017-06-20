@@ -45,25 +45,6 @@ describe('<Indexes />', () => {
     app.instance = appInstance;
   });
 
-  context('When collection is not writable', function() {
-    it('disables the CREATE INDEX button', function() {
-      component = shallow(<this.CreateIndexButton isWritable={false} description="not writable" />);
-      expect(component.find('.btn.btn-primary.btn-xs')).to.be.disabled();
-    });
-
-    it('shows tooltip indicating why button is disabled', () => {
-      expect(component.find('.tooltip-button-wrapper'))
-        .to.have.data('tip', 'not writable');
-    });
-  });
-
-  context('When collection is writable', function() {
-    it('enables the CREATE INDEX button', function() {
-      component = shallow(<this.CreateIndexButton isWritable={true} />);
-      expect(component.find('.btn.btn-primary.btn-xs')).to.not.be.disabled();
-    });
-  });
-
   context('When indexes are loaded', function() {
     it('has a size column', function() {
       const size = Object.assign({}, sizeTemplate);

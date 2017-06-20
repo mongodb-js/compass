@@ -1,7 +1,6 @@
 const React = require('react');
 const PropTypes = require('prop-types');
 const CreateIndexModal = require('./create-index-modal');
-const { Tooltip } = require('hadron-react-components');
 
 /**
  * Component for the create index button.
@@ -15,6 +14,7 @@ class CreateIndexButton extends React.Component {
    */
   constructor(props) {
     super(props);
+    this.WriteButton = global.hadronApp.appRegistry.getComponent('DeploymentAwareness.WriteButton');
     this.state = {
       showModal: false
     };
@@ -44,25 +44,15 @@ class CreateIndexButton extends React.Component {
    * @returns {React.Component} The create index button.
    */
   render() {
-    const tooltipId = 'index-is-not-writable';
-    const isNotWritableTooltip = this.props.isWritable ? null : (
-      <Tooltip id={tooltipId} />
-    );
-    const tooltipText = this.props.description;
-
     return (
       <div className="create-index-btn action-bar">
-        <div className="tooltip-button-wrapper" data-tip={tooltipText} data-for={tooltipId}>
-          <button
-            className="btn btn-primary btn-xs"
-            type="button"
-            data-test-id="open-create-index-modal-button"
-            disabled={!this.props.isWritable}
-            onClick={this.clickCreateHandler.bind(this)}>
-            Create Index
-          </button>
-        </div>
-        {isNotWritableTooltip}
+        <this.WriteButton
+          className="btn btn-primary btn-xs"
+          dataTestId="open-create-index-modal-button"
+          isCollectionLevel
+          text="Create Index"
+          tooltipId="index-is-not-writable"
+          clickHandler={this.clickCreateHandler.bind(this)} />
         <CreateIndexModal
           open={this.state.showModal}
           close={this.close.bind(this)} />
