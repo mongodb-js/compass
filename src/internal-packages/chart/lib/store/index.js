@@ -611,9 +611,11 @@ const ChartStore = Reflux.createStore({
       prop.field = fieldPath;
       prop.type = this._inferMeasurementFromField(field);
       channels[channel] = prop;
-      // compute new reduction for channel if not already existing
-      if (!_.has(reductions, channel)) {
+      if (_.includes(this.state.fieldsCache[fieldPath].type, 'Array')) {
+        // compute new reduction for channel or clear existing channel
         reductions[channel] = this._createReductionFromChannel(channels[channel]);
+      } else {
+        delete reductions[channel];
       }
     }
 
