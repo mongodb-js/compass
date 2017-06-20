@@ -2,30 +2,68 @@ const React = require('react');
 const PropTypes = require('prop-types');
 const WriteStateStore = require('../stores/write-state-store');
 
+/**
+ * The button element.
+ */
 const BUTTON = 'button';
+
+/**
+ * The collection store name.
+ */
 const COLLECTION_STORE = 'App.CollectionStore';
+
+/**
+ * The namespace store name.
+ */
 const NAMESPACE_STORE = 'App.NamespaceStore';
+
+/**
+ * The readonly collection message.
+ */
 const READONLY = 'Write operations are not permitted on readonly collections.';
+
+/**
+ * The wrapper class.
+ */
 const WRAPPER = 'tooltip-button-wrapper';
 
+/**
+ * Button component that is aware of the write state of the application.
+ */
 class WriteButton extends React.Component {
 
+  /**
+   * Instantiate the component.
+   *
+   * @param {Object} props - The properties.
+   */
   constructor(props) {
     super(props);
     this.CollectionStore = global.hadronApp.appRegistry.getStore(COLLECTION_STORE);
     this.NamespaceStore = global.hadronApp.appRegistry.getStore(NAMESPACE_STORE);
   }
 
+  /**
+   * Subscribe to the state changing stores.
+   */
   componentDidMount() {
     this.unsubscribeNamespace = this.NamespaceStore.listen(this.namespaceChanged.bind(this));
     this.unsubscribeWriteState = WriteStateStore.listen(this.writeStateChanged.bind(this));
   }
 
+  /**
+   * Unsubscribe from the stores.
+   */
   componentWillUnmount() {
     this.unsubscribeNamespace();
     this.unsubscribeWriteState();
   }
 
+  /**
+   * Determine if the application is in a writable state.
+   *
+   * @returns {Boolean} If the application is writable.
+   */
   isWritable() {
     const isWritable = WriteStateStore.state.isWritable;
     if (!this.props.isCollectionLevel) {
@@ -34,14 +72,27 @@ class WriteButton extends React.Component {
     return isWritable && !this.CollectionStore.isReadonly();
   }
 
+  /**
+   * Handle namespace changes.
+   */
   namespaceChanged() {
     this.setState(this.state);
   }
 
+  /**
+   * Handle write state changes.
+   *
+   * @param {Object} state - The write state.
+   */
   writeStateChanged(state) {
     this.setState(state);
   }
 
+  /**
+   * Get the tooltip text.
+   *
+   * @returns {String} The tooltip text.
+   */
   tooltipText() {
     if (!this.isWritable()) {
       if (this.props.isCollectionLevel && this.CollectionStore.isReadonly()) {
@@ -51,6 +102,11 @@ class WriteButton extends React.Component {
     }
   }
 
+  /**
+   * Render the component.
+   *
+   * @returns {React.Component} The rendered component.
+   */
   render() {
     const tooltipId = '';
 
