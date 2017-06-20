@@ -68,6 +68,12 @@ class Home extends React.Component {
   collapseSidebar() {
     this.setState({ collapsed: !this.state.collapsed });
     setTimeout(this.SchemaActions.resizeMiniCharts, COMPASS_SIDEBAR_TRANSITION_TIME_MS);
+
+    // Probably would prefer an onChartsActivated lifecycle method here...
+    const ChartActions = app.appRegistry.getAction('Chart.Actions');
+    if (ChartActions !== undefined) {
+      setTimeout(ChartActions.resizeChart, COMPASS_SIDEBAR_TRANSITION_TIME_MS);
+    }
   }
 
   renderContent() {

@@ -10,6 +10,7 @@ const { StatusRow } = require('hadron-react-components');
 const FieldPanel = require('./field-panel');
 const ChartPanel = require('./chart-panel');
 const Chart = require('./chart');
+const Actions = require('../actions');
 const {
   AXIS_LABEL_MAX_PIXELS,
   AXIS_TITLE_BUFFER_PIXELS,
@@ -48,6 +49,7 @@ class ChartBuilder extends React.Component {
     this.handleResize();
     this.boundHandleResize = this.handleResize.bind(this);
     window.addEventListener('resize', this.boundHandleResize);
+    this.unsubscribeChartResize = Actions.resizeChart.listen(this.boundHandleResize);
   }
 
   componentWillReceiveProps(nextProps) {
@@ -66,6 +68,7 @@ class ChartBuilder extends React.Component {
   componentWillUnmount() {
     ChartActions.clearChart();
     window.removeEventListener('resize', this.boundHandleResize);
+    this.unsubscribeChartResize();
   }
 
   onViewSwitch(label) {
