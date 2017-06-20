@@ -898,6 +898,23 @@ describe('ChartStore', function() {
         });
       });
 
+      it('resets reductions on adding a different array field', function(done) {
+        ChartActions.setArrayReduction(channel, 0, ARRAY_REDUCTION_TYPES.MAX_LENGTH);
+        ChartActions.mapFieldToChannel(TEN_RANDOM_STRINGS_SCHEMA_FIELD.path, channel);
+        const expected = {
+          [channel]: [{
+            field: TEN_RANDOM_STRINGS_SCHEMA_FIELD.path,
+            type: null,
+            arguments: []
+          }]
+        };
+        setTimeout(() => {
+          const reductions = this.store.state.reductions;
+          expect(reductions).to.be.deep.equal(expected);
+          done();
+        });
+      });
+
       it('throws error on receiving an unknown reduction type', function(done) {
         const throwFn = () => {
           index = 0;
@@ -911,8 +928,17 @@ describe('ChartStore', function() {
         });
       });
 
-      it('deletes an array reduction if channel is removed from channels', function(done) {
+      it('deletes array reduction if channel is removed from channels', function(done) {
         ChartActions.mapFieldToChannel(null, channel);
+        setTimeout(() => {
+          const reductions = this.store.state.reductions;
+          expect(reductions).to.be.empty;
+          done();
+        });
+      });
+
+      it('deletes array reduction if channel is replaced with a non-array draggable field', function(done) {
+        ChartActions.mapFieldToChannel(YEAR_SCHEMA_FIELD.path, channel);
         setTimeout(() => {
           const reductions = this.store.state.reductions;
           expect(reductions).to.be.empty;
