@@ -30,7 +30,8 @@ describe('<WriteButton />', () => {
               className="testing"
               clickHandler={click}
               text="test button"
-              dataTestId="test-id" />
+              dataTestId="test-id"
+              tooltipId="test-button" />
           );
         });
 
@@ -58,6 +59,11 @@ describe('<WriteButton />', () => {
           expect(button).to.not.be.disabled();
         });
 
+        it('sets the tooltipId', () => {
+          const wrapper = component.find('.tooltip-button-wrapper');
+          expect(wrapper).to.have.data('for', 'test-button');
+        });
+
         context('when clicking on the button', () => {
           beforeEach(() => {
             component.find('.testing').simulate('click');
@@ -79,7 +85,8 @@ describe('<WriteButton />', () => {
               className="testing"
               clickHandler={click}
               text="test button"
-              dataTestId="test-id" />
+              dataTestId="test-id"
+              tooltipId="test-button" />
           );
         });
 
@@ -95,7 +102,7 @@ describe('<WriteButton />', () => {
 
         it('renders the wrapper data-for', () => {
           const wrapper = component.find('.tooltip-button-wrapper');
-          expect(wrapper).to.have.data('for', '');
+          expect(wrapper).to.have.data('for', 'test-button');
         });
       });
     });
@@ -117,7 +124,8 @@ describe('<WriteButton />', () => {
               clickHandler={click}
               isCollectionLevel
               text="test button"
-              dataTestId="test-id" />
+              dataTestId="test-id"
+              tooltipId="test-button" />
           );
         });
 
@@ -134,7 +142,7 @@ describe('<WriteButton />', () => {
 
         it('renders the wrapper data-for', () => {
           const wrapper = component.find('.tooltip-button-wrapper');
-          expect(wrapper).to.have.data('for', '');
+          expect(wrapper).to.have.data('for', 'test-button');
         });
       });
 
@@ -154,7 +162,8 @@ describe('<WriteButton />', () => {
               clickHandler={click}
               isCollectionLevel
               text="test button"
-              dataTestId="test-id" />
+              dataTestId="test-id"
+              tooltipId="test-button" />
           );
         });
 
