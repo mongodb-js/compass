@@ -1,3 +1,4 @@
+/* eslint complexity: [2, 12] */
 const React = require('react');
 const PropTypes = require('prop-types');
 const ReactDOM = require('react-dom');

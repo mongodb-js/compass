@@ -15,8 +15,8 @@
     "pretest": "mongodb-runner install && mongodb-runner start --port 27018",
     "test": "hadron-build test",
     "posttest": "mongodb-runner stop --port 27018",
-    "check": "mongodb-js-precommit ./src/app/*.js ./src/app/**/**/*.js ./src/{app/**/*.js,main/**/*.js} ./test/**/*.js ./src/internal-packages/**/*.js ./src/internal-packages/**/**/*{.js,.jsx} ./src/internal-packages/**/**/**/*{.js,.jsx} ./src/internal-packages/**/**/**/**/*{.js,.jsx}",
-    "fmt": "mongodb-js-fmt ./*.js src/{**/*.js,*.js} test/{**/*.js,*.js}",
+    "check": "mongodb-js-precommit './src/**/*{.js,.jsx}' './test/**/*.js' index.js",
+    "fmt": "mongodb-js-fmt ./*.js ./test/*.js",
     "test-enzyme": "npm test -- --enzyme",
     "test-functional": "npm test -- --functional"
   },

@@ -28,6 +28,9 @@ const CurrentOpStore = Reflux.createStore({
   },
 
   onConnected: function(error, dataService) {
+    if (error) {
+      throw error;
+    }
     this.dataService = dataService;
   },
 

@@ -8,7 +8,7 @@ const TopStore = require('./lib/stores/top-store');
  */
 const INSTANCE_TAB_ROLE = {
   component: PerformanceComponent,
-  name: "PERFORMANCE",
+  name: 'PERFORMANCE',
   order: 2
 };
 

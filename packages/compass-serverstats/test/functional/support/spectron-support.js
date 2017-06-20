@@ -1,4 +1,3 @@
-const semver = require('semver');
 const chai = require('chai');
 const chaiAsPromised = require('chai-as-promised');
 const assert = require('assert');
