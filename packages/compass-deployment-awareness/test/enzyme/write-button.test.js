@@ -138,7 +138,29 @@ describe('<WriteButton />', () => {
       });
 
       context('when the collection is not readonly', () => {
+        let component;
+        const store = {
+          isReadonly: () => { return false; }
+        };
 
+        beforeEach(() => {
+          global.hadronApp.appRegistry.registerStore('App.CollectionStore', store);
+          WriteStateStore.setState({ isWritable: true });
+          const click = () => {};
+          component = shallow(
+            <WriteButton
+              className="testing"
+              clickHandler={click}
+              isCollectionLevel
+              text="test button"
+              dataTestId="test-id" />
+          );
+        });
+
+        it('sets the button as enabled', () => {
+          const button = component.find('.testing');
+          expect(button).to.not.be.disabled();
+        });
       });
     });
   });

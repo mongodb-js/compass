@@ -34,7 +34,7 @@ class WriteButton extends React.Component {
   }
 
   namespaceChanged() {
-
+    this.setState(this.state);
   }
 
   writeStateChanged(state) {
