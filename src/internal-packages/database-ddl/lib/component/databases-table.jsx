@@ -113,7 +113,7 @@ class DatabasesTable extends React.Component {
         <div className="rtss-databases-create-button action-bar controls-container">
           <this.WriteButton
             className="btn btn-primary btn-xs"
-            data-test-id="open-create-database-modal-button"
+            dataTestId="open-create-database-modal-button"
             text="Create Database"
             tooltipId="database-ddl-is-not-writable"
             clickHandler={this.onCreateDatabaseButtonClicked.bind(this)} />

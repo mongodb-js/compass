@@ -49,7 +49,7 @@ class CreateIndexButton extends React.Component {
       <div className="create-index-btn action-bar">
         <this.WriteButton
           className="btn btn-primary btn-xs"
-          data-test-id="open-create-index-modal-button"
+          dataTestId="open-create-index-modal-button"
           isCollectionLevel
           text="Create Index"
           tooltipId="index-is-not-writable"

@@ -171,7 +171,7 @@ class SamplingMessage extends React.Component {
         <div className="action-bar">
           <this.WriteButton
             className="btn btn-primary btn-xs open-insert"
-            data-test-id="open-insert-document-modal-button"
+            dataTestId="open-insert-document-modal-button"
             isCollectionLevel
             text="Insert Document"
             tooltipId="document-is-not-writable"

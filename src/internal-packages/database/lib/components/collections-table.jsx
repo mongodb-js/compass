@@ -86,7 +86,7 @@ class CollectionsTable extends React.Component {
         <div className="collections-table-create-button action-bar controls-container">
           <this.WriteButton
             className="btn btn-primary btn-xs"
-            data-test-id="open-create-collection-modal-button"
+            dataTestId="open-create-collection-modal-button"
             text="Create Collection"
             tooltipId="database-is-not-writable"
             clickHandler={this.onCreateCollectionButtonClicked.bind(this)} />
