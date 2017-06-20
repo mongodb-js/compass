@@ -5,6 +5,7 @@ const WriteStateStore = require('../stores/write-state-store');
 const BUTTON = 'button';
 const COLLECTION_STORE = 'App.CollectionStore';
 const NAMESPACE_STORE = 'App.NamespaceStore';
+const READONLY = 'Write operations are not permitted on readonly collections.';
 const WRAPPER = 'tooltip-button-wrapper';
 
 class WriteButton extends React.Component {
@@ -41,12 +42,20 @@ class WriteButton extends React.Component {
     this.setState(state);
   }
 
+  tooltipText() {
+    if (!this.isWritable()) {
+      if (this.props.isCollectionLevel && this.CollectionStore.isReadonly()) {
+        return READONLY;
+      }
+      return WriteStateStore.state.description;
+    }
+  }
+
   render() {
-    const tooltipText = '';
     const tooltipId = '';
 
     return (
-      <div className={WRAPPER} data-tip={tooltipText} data-for={tooltipId}>
+      <div className={WRAPPER} data-tip={this.tooltipText()} data-for={tooltipId}>
         <button
           className={this.props.className}
           type={BUTTON}

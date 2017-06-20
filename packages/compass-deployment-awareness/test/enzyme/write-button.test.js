@@ -40,7 +40,7 @@ describe('<WriteButton />', () => {
 
         it('renders the wrapper', () => {
           const wrapper = component.find('.tooltip-button-wrapper');
-          expect(wrapper).to.have.data('tip', '');
+          expect(wrapper).to.be.present();
         });
 
         it('renders the data-test-id', () => {
@@ -90,7 +90,7 @@ describe('<WriteButton />', () => {
 
         it('renders the wrapper data-tip', () => {
           const wrapper = component.find('.tooltip-button-wrapper');
-          expect(wrapper).to.have.data('tip', '');
+          expect(wrapper).to.have.data('tip', 'Topology type not yet discovered.');
         });
 
         it('renders the wrapper data-for', () => {
@@ -127,8 +127,9 @@ describe('<WriteButton />', () => {
         });
 
         it('renders the wrapper data-tip', () => {
+          const tip = 'Write operations are not permitted on readonly collections.';
           const wrapper = component.find('.tooltip-button-wrapper');
-          expect(wrapper).to.have.data('tip', '');
+          expect(wrapper).to.have.data('tip', tip);
         });
 
         it('renders the wrapper data-for', () => {
