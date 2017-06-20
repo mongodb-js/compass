@@ -14,6 +14,7 @@ class CollectionsTable extends React.Component {
     super(props);
     const appRegistry = global.hadronApp.appRegistry;
     this.CollectionStore = appRegistry.getStore('App.CollectionStore');
+    this.WriteButton = appRegistry.getComponent('DeploymentAwareness.WriteButton');
     this.WriteStateStore = appRegistry.getStore('DeploymentAwareness.WriteStateStore');
     this.state = this.WriteStateStore.state;
   }
@@ -80,25 +81,15 @@ class CollectionsTable extends React.Component {
       });
     });
 
-    const tooltipId = 'database-is-not-writable';
-    const isNotWritableTooltip = this.state.isWritable ? null : (
-      <Tooltip id={tooltipId} />
-    );
-    const tooltipText = this.state.description;
-
     return (
       <div className="collections-table" data-test-id="collections-table">
         <div className="collections-table-create-button action-bar controls-container">
-          <div className="tooltip-button-wrapper" data-tip={tooltipText} data-for={tooltipId}>
-            <button
-                className="btn btn-primary btn-xs"
-                type="button"
-                data-test-id="open-create-collection-modal-button"
-                disabled={!this.state.isWritable}
-                onClick={this.onCreateCollectionButtonClicked.bind(this)}>
-              Create Collection
-            </button>
-          </div>
+          <this.WriteButton
+            className="btn btn-primary btn-xs"
+            data-test-id="open-create-collection-modal-button"
+            text="Create Collection"
+            tooltipId="database-is-not-writable"
+            clickHandler={this.onCreateCollectionButtonClicked.bind(this)} />
         </div>
         <div className="column-container">
           <div className="column main">
@@ -116,7 +107,6 @@ class CollectionsTable extends React.Component {
             />
           </div>
         </div>
-        {isNotWritableTooltip}
       </div>
     );
   }
