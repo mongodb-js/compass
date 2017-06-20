@@ -1,6 +1,7 @@
 const DeploymentAwarenessComponent = require('./lib/components');
 const DeploymentAwarenessActions = require('./lib/actions');
 const DeploymentAwarenessStore = require('./lib/stores');
+const WriteButton = require('./lib/components/write-button');
 const WriteStateStore = require('./lib/stores/write-state-store');
 const ReadStateStore = require('./lib/stores/read-state-store');
 const TopologyType = require('./lib/models/topology-type');
@@ -22,6 +23,7 @@ const ROLE = {
  */
 function activate(appRegistry) {
   appRegistry.registerRole('Header.Item', ROLE);
+  appRegistry.registerComponent('DeploymentAwareness.WriteButton', WriteButton);
   appRegistry.registerAction('DeploymentAwareness.Actions', DeploymentAwarenessActions);
   appRegistry.registerStore('DeploymentAwareness.Store', DeploymentAwarenessStore);
   appRegistry.registerStore('DeploymentAwareness.WriteStateStore', WriteStateStore);
@@ -33,6 +35,7 @@ function activate(appRegistry) {
  */
 function deactivate() {
   global.hadronApp.appRegistry.deregisterRole('Header.Item', ROLE);
+  global.hadronApp.appRegistry.deregisterComponent('DeploymentAwareness.WriteButton');
   global.hadronApp.appRegistry.deregisterAction('DeploymentAwareness.Actions');
   global.hadronApp.appRegistry.deregisterStore('DeploymentAwareness.Store');
   global.hadronApp.appRegistry.deregisterStore('DeploymentAwareness.WriteStateStore');
@@ -40,6 +43,7 @@ function deactivate() {
 }
 
 module.exports = DeploymentAwarenessComponent;
+module.exports.WriteButton = WriteButton;
 module.exports.WriteStateStore = WriteStateStore;
 module.exports.ReadStateStore = ReadStateStore;
 module.exports.TopologyType = TopologyType;

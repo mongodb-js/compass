@@ -5,8 +5,8 @@ const chai = require('chai');
 const expect = chai.expect;
 const { shallow } = require('enzyme');
 const chaiEnzyme = require('chai-enzyme');
-const WriteButton = require('../../src/components/write-button');
-const WriteStateStore = require('../../src/stores/write-state-store');
+const { WriteButton } = require('../../');
+const { WriteStateStore } = require('../../');
 
 chai.use(chaiEnzyme());
 
