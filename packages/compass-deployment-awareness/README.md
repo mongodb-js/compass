@@ -5,6 +5,12 @@ is in a state to read or write.
 
 ## Available Resources in the App Registry
 
+### Components
+
+| Key                               | Description                                           |
+|-----------------------------------|-------------------------------------------------------|
+| `DeploymentAwareness.WriteButton` | A button that changes state when write state changes. |
+
 ### Roles
 
 | Role          | Description                                                     |
