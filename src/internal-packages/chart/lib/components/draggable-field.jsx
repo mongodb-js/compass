@@ -4,7 +4,11 @@ const {Dropdown, MenuItem} = require('react-bootstrap');
 const FontAwesome = require('react-fontawesome');
 const _ = require('lodash');
 const DragSource = require('react-dnd').DragSource;
-const {AGGREGATE_FUNCTION_ENUM, MEASUREMENT_ENUM, MEASUREMENT_ICON_ENUM, TOOL_TIP_ARRAY_REDUCE} = require('../constants');
+const {
+  AGGREGATE_FUNCTION_ENUM,
+  MEASUREMENT_ENUM,
+  MEASUREMENT_ICON_ENUM
+} = require('../constants');
 const CustomToggle = require('./custom-toggle');
 const ArrayReductionPicker = require('./array-reduction-picker');
 
