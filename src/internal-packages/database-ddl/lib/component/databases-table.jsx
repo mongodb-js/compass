@@ -21,6 +21,7 @@ class DatabasesTable extends React.Component {
     const appRegistry = global.hadronApp.appRegistry;
     this.DatabaseDDLAction = appRegistry.getAction('DatabaseDDL.Actions');
     this.CollectionStore = appRegistry.getStore('App.CollectionStore');
+    this.WriteButton = appRegistry.getComponent('DeploymentAwareness.WriteButton');
     this.WriteStateStore = appRegistry.getStore('DeploymentAwareness.WriteStateStore');
     this.NamespaceStore = appRegistry.getStore('App.NamespaceStore');
     this.state = this.WriteStateStore.state;
@@ -107,25 +108,15 @@ class DatabasesTable extends React.Component {
       });
     });
 
-    const tooltipId = 'database-ddl-is-not-writable';
-    const isNotWritableTooltip = this.state.isWritable ? null : (
-      <Tooltip id={tooltipId} />
-    );
-    const tooltipText = this.state.description;
-
     return (
       <div className="rtss-databases" data-test-id="databases-table">
         <div className="rtss-databases-create-button action-bar controls-container">
-          <div className="tooltip-button-wrapper" data-tip={tooltipText} data-for={tooltipId}>
-            <button
-                className="btn btn-primary btn-xs"
-                type="button"
-                data-test-id="open-create-database-modal-button"
-                disabled={!this.state.isWritable}
-                onClick={this.onCreateDatabaseButtonClicked.bind(this)}>
-                Create Database
-            </button>
-          </div>
+          <this.WriteButton
+            className="btn btn-primary btn-xs"
+            data-test-id="open-create-database-modal-button"
+            text="Create Database"
+            tooltipId="database-ddl-is-not-writable"
+            clickHandler={this.onCreateDatabaseButtonClicked.bind(this)} />
         </div>
         <div className="column-container">
           <div className="column main">
@@ -144,8 +135,7 @@ class DatabasesTable extends React.Component {
           </div>
         </div>
         {this.props.databases.length === 0 ?
-            this.renderNoCollections(this.state.isWritable) : null}
-        {isNotWritableTooltip}
+           this.renderNoCollections(this.state.isWritable) : null}
       </div>
     );
   }
