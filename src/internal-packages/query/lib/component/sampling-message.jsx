@@ -29,6 +29,7 @@ class SamplingMessage extends React.Component {
     super(props);
     const crudActions = app.appRegistry.getAction('CRUD.Actions');
     this.state = { count: 0, loaded: 0 };
+    this.WriteButton = app.appRegistry.getComponent('DeploymentAwareness.WriteButton');
     this.resetDocumentListStore = app.appRegistry.getStore('CRUD.ResetDocumentListStore');
     this.insertDocumentStore = app.appRegistry.getStore('CRUD.InsertDocumentStore');
     this.documentRemovedAction = crudActions.documentRemoved;
@@ -149,13 +150,6 @@ class SamplingMessage extends React.Component {
    */
   renderQueryMessage() {
     const noun = pluralize('document', this.state.count);
-
-    const tooltipId = 'document-is-not-writable';
-    const isNotWritableTooltip = this.props.isWritable ? null : (
-      <Tooltip id={tooltipId} />
-    );
-    const tooltipText = this.props.description;
-
     return (
       <div>
         <div className="sampling-message">
@@ -175,17 +169,13 @@ class SamplingMessage extends React.Component {
             text="&nbsp;Refresh" />
         </div>
         <div className="action-bar">
-          <div className="tooltip-button-wrapper" data-tip={tooltipText} data-for={tooltipId}>
-            <button
-                className="btn btn-primary btn-xs open-insert"
-                type="button"
-                data-test-id="open-insert-document-modal-button"
-                disabled={!this.props.isWritable}
-                onClick={this.props.insertHandler}>
-              Insert Document
-            </button>
-          </div>
-          {isNotWritableTooltip}
+          <this.WriteButton
+            className="btn btn-primary btn-xs open-insert"
+            data-test-id="open-insert-document-modal-button"
+            isCollectionLevel
+            text="Insert Document"
+            tooltipId="document-is-not-writable"
+            clickHandler={this.props.insertHandler} />
         </div>
       </div>
     );
@@ -208,9 +198,7 @@ SamplingMessage.displayName = 'SamplingMessage';
 
 SamplingMessage.propTypes = {
   sampleSize: PropTypes.number,
-  insertHandler: PropTypes.func,
-  isWritable: PropTypes.bool,
-  description: PropTypes.string
+  insertHandler: PropTypes.func
 };
 
 module.exports = SamplingMessage;
