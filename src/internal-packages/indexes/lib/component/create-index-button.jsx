@@ -14,7 +14,7 @@ class CreateIndexButton extends React.Component {
    */
   constructor(props) {
     super(props);
-    this.WriteButton = global.hadronApp.appRegistry.getComponent('DeploymentAwareness.WriteButton');
+    this.TextWriteButton = global.hadronApp.appRegistry.getComponent('DeploymentAwareness.TextWriteButton');
     this.state = {
       showModal: false
     };
@@ -46,7 +46,7 @@ class CreateIndexButton extends React.Component {
   render() {
     return (
       <div className="create-index-btn action-bar">
-        <this.WriteButton
+        <this.TextWriteButton
           className="btn btn-primary btn-xs"
           dataTestId="open-create-index-modal-button"
           isCollectionLevel
