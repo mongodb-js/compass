@@ -2,6 +2,9 @@ const app = require('hadron-app');
 const React = require('react');
 const PropTypes = require('prop-types');
 const ms = require('ms');
+const { shell } = require('electron');
+const { InfoSprinkle } = require('hadron-react-components');
+const { LONG_RUNNING_QUERIES_URL } = require('./constants');
 
 // const debug = require('debug')('mongodb-compass:schema:status-subview:buttons-error');
 
@@ -53,6 +56,7 @@ class ButtonsError extends React.Component {
 
     const sampleTime = ms(this.props.maxTimeMS, {long: true});
     const tryAgainButton = this._getTryAgainButton();
+    const NOOP = () => {};
 
     return (
       <div className="buttons">
@@ -60,9 +64,12 @@ class ButtonsError extends React.Component {
           <div className="alert alert-warning" role="alert">
             The query took longer than {sampleTime} on the database.
             As a safety measure, Compass aborts long-running queries. &nbsp;
-            <a className="help" data-hook="schema-long-running-queries">
+            <a onClick={() => {shell.openExternal(LONG_RUNNING_QUERIES_URL);}}>
               Learn More
-              <i className="fa fa-fw fa-info-circle"></i>
+              <InfoSprinkle
+                helpLink={LONG_RUNNING_QUERIES_URL}
+                onClickHandler={NOOP}
+              />
             </a>
           </div>
           <br />
