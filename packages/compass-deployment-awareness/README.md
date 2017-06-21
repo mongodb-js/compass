@@ -7,9 +7,9 @@ is in a state to read or write.
 
 ### Components
 
-| Key                               | Description                                           |
-|-----------------------------------|-------------------------------------------------------|
-| `DeploymentAwareness.WriteButton` | A button that changes state when write state changes. |
+| Key                                   | Description                                                |
+|---------------------------------------|------------------------------------------------------------|
+| `DeploymentAwareness.TextWriteButton` | A text button that changes state when write state changes. |
 
 ### Roles
 
