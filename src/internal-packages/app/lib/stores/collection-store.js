@@ -44,15 +44,6 @@ const CollectionStore = Reflux.createStore({
   },
 
   /**
-   * Get the collection ns.
-   *
-   * @returns {String} The collection ns.
-   */
-  ns() {
-    return this.collection._id;
-  },
-
-  /**
    * Is the collection readonly?
    *
    * @returns {Boolean} If the collection is readonly.
