@@ -1,12 +1,8 @@
 const React = require('react');
 const PropTypes = require('prop-types');
+const { TextButton } = require('hadron-react-buttons');
 const { Tooltip } = require('hadron-react-components');
 const WriteStateStore = require('../stores/write-state-store');
-
-/**
- * The button element.
- */
-const BUTTON = 'button';
 
 /**
  * The collection store name.
@@ -30,8 +26,9 @@ const WRAPPER = 'tooltip-button-wrapper';
 
 /**
  * Button component that is aware of the write state of the application.
+ * This button contains only text, no icons, no animations.
  */
-class WriteButton extends React.Component {
+class TextWriteButton extends React.Component {
 
   /**
    * Instantiate the component.
@@ -112,21 +109,19 @@ class WriteButton extends React.Component {
     const tooltip = (this.isWritable()) ? null : (<Tooltip id={this.props.tooltipId} />);
     return (
       <div className={WRAPPER} data-tip={this.tooltipText()} data-for={this.props.tooltipId}>
-        <button
+        <TextButton
           className={this.props.className}
-          type={BUTTON}
-          data-test-id={this.props.dataTestId}
+          dataTestId={this.props.dataTestId}
           disabled={!this.isWritable()}
-          onClick={this.props.clickHandler}>
-          {this.props.text}
-        </button>
+          clickHandler={this.props.clickHandler}
+          text={this.props.text} />
         {tooltip}
       </div>
     );
   }
 }
 
-WriteButton.propTypes = {
+TextWriteButton.propTypes = {
   className: PropTypes.string.isRequired,
   clickHandler: PropTypes.func.isRequired,
   dataTestId: PropTypes.string,
@@ -135,6 +130,6 @@ WriteButton.propTypes = {
   tooltipId: PropTypes.string.isRequired
 };
 
-WriteButton.displayName = 'WriteButton';
+TextWriteButton.displayName = 'TextWriteButton';
 
-module.exports = WriteButton;
+module.exports = TextWriteButton;

@@ -49,6 +49,7 @@
     "hadron-app": "^0.12.0",
     "hadron-app-registry": "^6.0.0",
     "hadron-build": "^9.1.0",
+    "hadron-react-buttons": "^1.0.0",
     "hadron-react-components": "^1.3.0",
     "hadron-reflux-store": "0.0.3",
     "hadron-spectron": "^0.0.1",

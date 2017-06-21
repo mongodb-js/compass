@@ -5,12 +5,12 @@ const chai = require('chai');
 const expect = chai.expect;
 const { shallow } = require('enzyme');
 const chaiEnzyme = require('chai-enzyme');
-const { WriteButton } = require('../../');
+const { TextWriteButton } = require('../../');
 const { WriteStateStore } = require('../../');
 
 chai.use(chaiEnzyme());
 
-describe('<WriteButton />', () => {
+describe('<TextWriteButton />', () => {
   describe('#render', () => {
     beforeEach(() => {
       global.hadronApp.appRegistry = new AppRegistry();
@@ -26,7 +26,7 @@ describe('<WriteButton />', () => {
           spy = sinon.spy();
           const click = () => { spy(); };
           component = shallow(
-            <WriteButton
+            <TextWriteButton
               className="testing"
               clickHandler={click}
               text="test button"
@@ -46,17 +46,17 @@ describe('<WriteButton />', () => {
 
         it('renders the data-test-id', () => {
           const button = component.find('.testing');
-          expect(button).to.have.data('test-id', 'test-id');
+          expect(button.dive()).to.have.data('test-id', 'test-id');
         });
 
         it('renders the button text', () => {
           const button = component.find('.testing');
-          expect(button).to.have.text('test button');
+          expect(button.dive()).to.have.text('test button');
         });
 
         it('sets the button as enabled', () => {
           const button = component.find('.testing');
-          expect(button).to.not.be.disabled();
+          expect(button.dive()).to.not.be.disabled();
         });
 
         it('sets the tooltipId', () => {
@@ -66,7 +66,7 @@ describe('<WriteButton />', () => {
 
         context('when clicking on the button', () => {
           beforeEach(() => {
-            component.find('.testing').simulate('click');
+            component.find('.testing').dive().simulate('click');
           });
 
           it('calls the button click handler', () => {
@@ -79,9 +79,10 @@ describe('<WriteButton />', () => {
         let component;
 
         beforeEach(() => {
+          WriteStateStore.setState({ isWritable: false });
           const click = () => {};
           component = shallow(
-            <WriteButton
+            <TextWriteButton
               className="testing"
               clickHandler={click}
               text="test button"
@@ -92,7 +93,7 @@ describe('<WriteButton />', () => {
 
         it('sets the button as disabled', () => {
           const button = component.find('.testing');
-          expect(button).to.be.disabled();
+          expect(button.dive()).to.be.disabled();
         });
 
         it('renders the wrapper data-tip', () => {
@@ -119,7 +120,7 @@ describe('<WriteButton />', () => {
           WriteStateStore.setState({ isWritable: true });
           const click = () => {};
           component = shallow(
-            <WriteButton
+            <TextWriteButton
               className="testing"
               clickHandler={click}
               isCollectionLevel
@@ -131,7 +132,7 @@ describe('<WriteButton />', () => {
 
         it('sets the button as disabled', () => {
           const button = component.find('.testing');
-          expect(button).to.be.disabled();
+          expect(button.dive()).to.be.disabled();
         });
 
         it('renders the wrapper data-tip', () => {
@@ -157,7 +158,7 @@ describe('<WriteButton />', () => {
           WriteStateStore.setState({ isWritable: true });
           const click = () => {};
           component = shallow(
-            <WriteButton
+            <TextWriteButton
               className="testing"
               clickHandler={click}
               isCollectionLevel
@@ -169,7 +170,7 @@ describe('<WriteButton />', () => {
 
         it('sets the button as enabled', () => {
           const button = component.find('.testing');
-          expect(button).to.not.be.disabled();
+          expect(button.dive()).to.not.be.disabled();
         });
       });
     });
