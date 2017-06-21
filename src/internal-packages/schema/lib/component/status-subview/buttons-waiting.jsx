@@ -40,7 +40,10 @@ class ButtonsWaiting extends React.Component {
         <div id="buttons-waiting">
           <div className="alert alert-info" role="alert">
             Document analysis is taking longer than expected. &nbsp;
-            <a onClick={() => {shell.openExternal(LONG_RUNNING_QUERIES_URL);}}>
+            <a
+              className="help"
+              onClick={() => {shell.openExternal(LONG_RUNNING_QUERIES_URL);}}
+            >
               Learn More
               <InfoSprinkle
                 helpLink={LONG_RUNNING_QUERIES_URL}
