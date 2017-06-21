@@ -360,6 +360,11 @@ const minicharts_d3fns_geo = function() {
             + 'px ' + margin.left + 'px;'
         });
 
+      // Add maps help overlay of how to $geoWithin
+      el.selectAll('div.map-overlay').data([null]).enter()
+        .append('div')
+        .classed('map-overlay', true);
+
       // compute bounds from data
       const bounds = new mapboxgl.LngLatBounds();
       _.each(data, function(d) {
