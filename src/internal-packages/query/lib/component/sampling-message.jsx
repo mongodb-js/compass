@@ -29,7 +29,7 @@ class SamplingMessage extends React.Component {
     super(props);
     const crudActions = app.appRegistry.getAction('CRUD.Actions');
     this.state = { count: 0, loaded: 0 };
-    this.WriteButton = app.appRegistry.getComponent('DeploymentAwareness.WriteButton');
+    this.TextWriteButton = app.appRegistry.getComponent('DeploymentAwareness.TextWriteButton');
     this.resetDocumentListStore = app.appRegistry.getStore('CRUD.ResetDocumentListStore');
     this.insertDocumentStore = app.appRegistry.getStore('CRUD.InsertDocumentStore');
     this.documentRemovedAction = crudActions.documentRemoved;
@@ -169,7 +169,7 @@ class SamplingMessage extends React.Component {
             text="&nbsp;Refresh" />
         </div>
         <div className="action-bar">
-          <this.WriteButton
+          <this.TextWriteButton
             className="btn btn-primary btn-xs open-insert"
             dataTestId="open-insert-document-modal-button"
             isCollectionLevel
