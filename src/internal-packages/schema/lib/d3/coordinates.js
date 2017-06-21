@@ -360,11 +360,6 @@ const minicharts_d3fns_geo = function() {
             + 'px ' + margin.left + 'px;'
         });
 
-      // append info sprinkle
-      el.selectAll('i.help').data([null]).enter().append('i')
-        .classed('help', true)
-        .attr('data-hook', 'schema-geo-query-builder');
-
       // compute bounds from data
       const bounds = new mapboxgl.LngLatBounds();
       _.each(data, function(d) {
