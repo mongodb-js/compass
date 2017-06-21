@@ -14,7 +14,7 @@ class CollectionsTable extends React.Component {
     super(props);
     const appRegistry = global.hadronApp.appRegistry;
     this.CollectionStore = appRegistry.getStore('App.CollectionStore');
-    this.WriteButton = appRegistry.getComponent('DeploymentAwareness.WriteButton');
+    this.TextWriteButton = appRegistry.getComponent('DeploymentAwareness.TextWriteButton');
     this.WriteStateStore = appRegistry.getStore('DeploymentAwareness.WriteStateStore');
     this.state = this.WriteStateStore.state;
   }
@@ -84,7 +84,7 @@ class CollectionsTable extends React.Component {
     return (
       <div className="collections-table" data-test-id="collections-table">
         <div className="collections-table-create-button action-bar controls-container">
-          <this.WriteButton
+          <this.TextWriteButton
             className="btn btn-primary btn-xs"
             dataTestId="open-create-collection-modal-button"
             text="Create Collection"
