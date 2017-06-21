@@ -21,7 +21,7 @@ class DatabasesTable extends React.Component {
     const appRegistry = global.hadronApp.appRegistry;
     this.DatabaseDDLAction = appRegistry.getAction('DatabaseDDL.Actions');
     this.CollectionStore = appRegistry.getStore('App.CollectionStore');
-    this.WriteButton = appRegistry.getComponent('DeploymentAwareness.WriteButton');
+    this.TextWriteButton = appRegistry.getComponent('DeploymentAwareness.TextWriteButton');
     this.WriteStateStore = appRegistry.getStore('DeploymentAwareness.WriteStateStore');
     this.NamespaceStore = appRegistry.getStore('App.NamespaceStore');
     this.state = this.WriteStateStore.state;
@@ -111,7 +111,7 @@ class DatabasesTable extends React.Component {
     return (
       <div className="rtss-databases" data-test-id="databases-table">
         <div className="rtss-databases-create-button action-bar controls-container">
-          <this.WriteButton
+          <this.TextWriteButton
             className="btn btn-primary btn-xs"
             dataTestId="open-create-database-modal-button"
             text="Create Database"
