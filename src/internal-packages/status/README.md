@@ -6,27 +6,39 @@ Provides functionality for the status bar.
 
 ### Manual Testing in Compass
 
-At a Chrome development console, it is possible to trigger specific actions:
+At a Chrome development console, it is possible to:
+ 
+#### Trigger specific actions:
 
 ```js
-    const StatusAction = app.appRegistry.getAction('Status.Actions');
+  var StatusAction = app.appRegistry.getAction('Status.Actions');
     
-    // Can call individual actions
-    StatusAction.showAnimation();
-    StatusAction.setMessage('Loading navigation');
+  // Can call individual actions
+  StatusAction.showAnimation();
+  StatusAction.setMessage('Loading navigation');
     
-    // Can configure many things at once
-    StatusAction.configure({
-      animation: true, 
-      message: 'Loading Databases', 
-      visible: true
-    });
+  // Can configure many things at once
+  StatusAction.configure({
+    animation: true, 
+    message: 'Loading Databases', 
+    visible: true
+  });
+```
     
-    // Can also inject a subview
-    const SchemaStatusSubview = app.appRegistry.getComponent('Schema.StatusSubview');
-    const SchemaAction = app.appRegistry.getAction('Schema.Actions');
-    StatusAction.setSubview(SchemaStatusSubview);
-    SchemaAction.startSampling();
+#### See a subview
+
+For example, the schema subview:
+
+```js
+  var StatusAction = app.appRegistry.getAction('Status.Actions');
+  var SchemaStatusSubview = app.appRegistry.getComponent('Schema.StatusSubview');
+  var SchemaStore = app.appRegistry.getStore('Schema.Store');
+  StatusAction.showAnimation();
+  StatusAction.setSubview(SchemaStatusSubview);
+  SchemaStore.setState({samplingState: 'timeout'});
+  
+  // Also possible to show the waiting state
+  SchemaStore.setState({samplingState: 'error', samplingTimeMS: 15001});
 ```
 
 ### Components
