@@ -27,7 +27,8 @@ const HomeStore = Reflux.createStore({
     return {
       errorMessage: '',
       namespace: '',
-      uiStatus: UI_STATES.INITIAL
+      uiStatus: UI_STATES.INITIAL,
+      instance: { databases: null, collections: null }
     };
   },
 
@@ -53,7 +54,8 @@ const HomeStore = Reflux.createStore({
       return;
     }
     this.setState({
-      uiStatus: UI_STATES.COMPLETE
+      uiStatus: UI_STATES.COMPLETE,
+      instance: state.instance
     });
     this.updateTitle();
   },
