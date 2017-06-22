@@ -1,6 +1,7 @@
 const DeploymentAwarenessComponent = require('./lib/components');
 const DeploymentAwarenessActions = require('./lib/actions');
 const DeploymentAwarenessStore = require('./lib/stores');
+const TextReadButton = require('./lib/components/text-read-button');
 const TextWriteButton = require('./lib/components/text-write-button');
 const WriteStateStore = require('./lib/stores/write-state-store');
 const ReadStateStore = require('./lib/stores/read-state-store');
@@ -78,6 +79,7 @@ function deactivate() {
 }
 
 module.exports = DeploymentAwarenessComponent;
+module.exports.TextReadButton = TextReadButton;
 module.exports.TextWriteButton = TextWriteButton;
 module.exports.WriteStateStore = WriteStateStore;
 module.exports.ReadStateStore = ReadStateStore;
