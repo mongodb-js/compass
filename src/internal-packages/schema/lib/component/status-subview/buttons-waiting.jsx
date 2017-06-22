@@ -1,3 +1,4 @@
+const app = require('hadron-app');
 const React = require('react');
 const PropTypes = require('prop-types');
 const SchemaAction = require('../../action');
@@ -12,6 +13,10 @@ const SHOW_WAITING_BUTTONS_TIME_MS = 15000;
 class ButtonsWaiting extends React.Component {
   onStopPartialButton() {
     SchemaAction.stopSampling();
+    const StatusAction = app.appRegistry.getAction('Status.Actions');
+    if (StatusAction !== undefined) {
+      StatusAction.hide();
+    }
   }
 
   render() {
