@@ -10,8 +10,10 @@ describe('<TextButton />', () => {
     const component = shallow((
       <TextButton
         text="title"
+        id="testing"
         clickHandler={click}
         className="class-name"
+        style={{ color: "green" }}
         dataTestId="text-button-test" />
     ));
 
@@ -25,6 +27,14 @@ describe('<TextButton />', () => {
 
     it('sets the data-test-id', () => {
       expect(component.props()['data-test-id']).to.equal('text-button-test');
+    });
+
+    it('sets the id', () => {
+      expect(component.props()['id']).to.equal('testing');
+    });
+
+    it('sets the style', () => {
+      expect(component.props()['style']).to.deep.equal({ color: 'green' });
     });
   });
 
