@@ -1,3 +1,4 @@
+const app = require('hadron-app');
 const React = require('react');
 const SchemaAction = require('../../action');
 
@@ -16,6 +17,10 @@ const ButtonsWaiting = React.createClass({
 
   onStopPartialButton() {
     SchemaAction.stopSampling();
+    const StatusAction = app.appRegistry.getAction('Status.Actions');
+    if (StatusAction !== undefined) {
+      StatusAction.hide();
+    }
   },
 
   render() {
