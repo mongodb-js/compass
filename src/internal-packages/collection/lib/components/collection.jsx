@@ -84,7 +84,7 @@ class Collection extends React.Component {
     return (
       <div className="collection-view clearfix">
         <header>
-          <this.Stats />
+          <this.Stats namespace={this.props.namespace} isReadonly={this.props.isReadonly} />
           <h1 className="collection-view-title">
             <span className="collection-view-database-name">
               <a className="collection-view-database-name-link" title={database} onClick={this.onDBClick.bind(this)}>{database}</a>
