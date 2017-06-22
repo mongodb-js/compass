@@ -87,7 +87,6 @@ TextReadButton.propTypes = {
   clickHandler: PropTypes.func.isRequired,
   dataTestId: PropTypes.string,
   id: PropTypes.string,
-  isCollectionLevel: PropTypes.bool,
   style: PropTypes.object,
   text: PropTypes.string.isRequired,
   tooltipId: PropTypes.string.isRequired
