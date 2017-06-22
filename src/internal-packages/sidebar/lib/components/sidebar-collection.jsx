@@ -46,7 +46,7 @@ class SidebarCollection extends React.Component {
 
   handleClick() {
     if (this.NamespaceStore.ns !== this.props._id) {
-      this.CollectionStore.setCollection(this.props);
+      this.NamespaceStore.ns = this.props._id;
       ipc.call('window:show-collection-submenu');
     }
   }
