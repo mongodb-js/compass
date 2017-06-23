@@ -1,6 +1,9 @@
 const app = require('hadron-app');
 const React = require('react');
 const PropTypes = require('prop-types');
+const { shell } = require('electron');
+const { InfoSprinkle } = require('hadron-react-components');
+const { LONG_RUNNING_QUERIES_URL } = require('./constants');
 const SchemaAction = require('../../action');
 
 // const debug = require('debug')('mongodb-compass:schema:status-subview:buttons-waiting');
@@ -30,15 +33,19 @@ class ButtonsWaiting extends React.Component {
       visibility: (this.props.samplingTimeMS < SHOW_WAITING_BUTTONS_TIME_MS) ?
         'hidden' : 'visible'
     };
+    const NOOP = () => {};
 
     return (
       <div className="buttons" style={buttonStyle}>
         <div id="buttons-waiting">
           <div className="alert alert-info" role="alert">
             Document analysis is taking longer than expected. &nbsp;
-            <a className="help" data-hook="schema-long-running-queries">
+            <a onClick={() => {shell.openExternal(LONG_RUNNING_QUERIES_URL);}}>
               Learn More
-              <i className="fa fa-fw fa-info-circle"></i>
+              <InfoSprinkle
+                helpLink={LONG_RUNNING_QUERIES_URL}
+                onClickHandler={NOOP}
+              />
             </a>
           </div>
           <br />
