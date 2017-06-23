@@ -143,10 +143,6 @@ var Application = View.extend({
     this.pageSwitcher.set(view);
   },
   onLinkClick: function(event) {
-    // ignore help links, they're handled in `onHelpClicked`
-    if (event.target.className === 'help') {
-      return;
-    }
     var pathname = localLinks.getLocalPathname(event);
     if (pathname) {
       event.preventDefault();
