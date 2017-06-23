@@ -64,10 +64,7 @@ class ButtonsError extends React.Component {
           <div className="alert alert-warning" role="alert">
             The query took longer than {sampleTime} on the database.
             As a safety measure, Compass aborts long-running queries. &nbsp;
-            <a
-              className="help"
-               onClick={() => {shell.openExternal(LONG_RUNNING_QUERIES_URL);}}
-            >
+            <a onClick={() => {shell.openExternal(LONG_RUNNING_QUERIES_URL);}}>
               Learn More
               <InfoSprinkle
                 helpLink={LONG_RUNNING_QUERIES_URL}
