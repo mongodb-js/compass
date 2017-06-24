@@ -1,6 +1,7 @@
 const Reflux = require('reflux');
 const StateMixin = require('reflux-state-mixin');
 const _ = require('lodash');
+const Actions = require('../actions');
 
 /**
 * Compass Collection store.
@@ -11,6 +12,8 @@ const CollectionStore = Reflux.createStore({
   * @see https://github.com/yonatanmn/Super-Simple-Flux#reflux-state-mixin
   */
   mixins: [StateMixin.store],
+
+  listenables: Actions,
 
   onActivated(appRegistry) {
     // set up listeners on external stores

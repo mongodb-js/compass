@@ -2,6 +2,7 @@ const React = require('react');
 const { StoreConnector } = require('hadron-react-components');
 const Collection = require('./collection');
 const Store = require('../store');
+const Actions = require('../actions');
 
 class ConnectedCollection extends React.Component {
 
@@ -13,7 +14,7 @@ class ConnectedCollection extends React.Component {
   render() {
     return (
       <StoreConnector store={Store}>
-        <Collection />
+        <Collection actions={Actions} />
       </StoreConnector>
     );
   }
