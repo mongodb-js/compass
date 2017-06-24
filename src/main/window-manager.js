@@ -33,22 +33,12 @@ let DEFAULT_HEIGHT = 800;
 let MIN_WIDTH = 1024;
 
 /**
-* The outer window dimensions to use for new dialog
-* windows like the connection and setup dialogs.
-*/
-let DEFAULT_WIDTH_DIALOG = 900;
-let DEFAULT_HEIGHT_DIALOG = 800;
-
-let MIN_WIDTH_DIALOG = 768;
-/**
 * Adjust the heights to account for platforms
 * that use a single menu bar at the top of the screen.
 */
 if (process.platform === 'linux') {
-  DEFAULT_HEIGHT_DIALOG -= 30;
   DEFAULT_HEIGHT -= 30;
 } else if (process.platform === 'darwin') {
-  DEFAULT_HEIGHT_DIALOG -= 60;
   DEFAULT_HEIGHT -= 60;
 }
 
@@ -57,15 +47,7 @@ if (process.platform === 'linux') {
  * created by the `build:pages` gulp task.
  */
 var DEFAULT_URL = 'file://' + path.join(RESOURCES, 'index.html#connect');
-var HELP_URL = 'file://' + path.join(RESOURCES, 'help.html#help');
 var LOADING_URL = 'file://' + path.join(RESOURCES, 'loading', 'loading.html');
-
-/**
- * We want the Help window to be special
- * and for there to ever only be one instance of each of them
- * so we'll use scope to essentially make each of them a Singleton.
- */
-var helpWindow;
 
 // track if app was launched, @see `renderer ready` handler below
 var appLaunched = false;
@@ -217,29 +199,6 @@ function showAboutDialog() {
   });
 }
 
-function showHelpWindow(win, id) {
-  if (helpWindow) {
-    helpWindow.focus();
-    if (_.isString(id)) {
-      ipc.broadcast('app:show-help-entry', id);
-    }
-    return;
-  }
-  var url = HELP_URL;
-  if (_.isString(id)) {
-    url += '/' + id;
-  }
-  helpWindow = createWindow({
-    width: DEFAULT_WIDTH_DIALOG,
-    height: DEFAULT_HEIGHT_DIALOG,
-    minwidth: MIN_WIDTH_DIALOG,
-    url: url
-  });
-  helpWindow.on('closed', function() {
-    helpWindow = null;
-  });
-}
-
 function showCompassOverview() {
   AppMenu.showCompassOverview();
 }
@@ -271,7 +230,6 @@ function rendererReady(sender) {
 // respond to events from the renderer process
 ipc.respondTo({
   'app:show-connect-window': showConnectWindow,
-  'app:show-help-window': showHelpWindow,
   'window:show-about-dialog': showAboutDialog,
   'window:show-collection-submenu': showCollectionSubmenu,
   'window:hide-collection-submenu': hideCollectionSubmenu,
@@ -282,7 +240,6 @@ ipc.respondTo({
 // respond to events from the main process
 app.on('window:show-about-dialog', showAboutDialog);
 app.on('app:show-connect-window', showConnectWindow);
-app.on('app:show-help-window', showHelpWindow);
 
 app.on('before-quit', function() {
   var win = _.first(BrowserWindow.getAllWindows());
