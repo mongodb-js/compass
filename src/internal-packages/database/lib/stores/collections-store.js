@@ -35,12 +35,9 @@ const CollectionsStore = Reflux.createStore({
   */
   listenables: CollectionsActions,
 
-  /**
-   * Initialize everything that is not part of the store's state.
-   */
-  init() {
-    this.listenToExternalStore('App.InstanceStore', this.onInstanceChange.bind(this));
-    this.indexes = [];
+  onActivated(appRegistry) {
+    // set up listeners on external stores
+    appRegistry.getStore('Home.HomeStore').listen(this.onHomeChange.bind(this));
   },
 
   getInitialState() {
@@ -48,7 +45,6 @@ const CollectionsStore = Reflux.createStore({
       columns: COLL_COLUMNS,
       collections: [],
       database: '',
-      renderedCollections: [],
       sortOrder: 'asc',
       sortColumn: 'Collection Name',
       fetchState: 'initial',
@@ -62,23 +58,10 @@ const CollectionsStore = Reflux.createStore({
   },
 
   _setDatabaseCollections(databases, namespace) {
-    const database = _.first(_.filter(databases.models, '_id', namespace));
-
-    const collections = database ? database.collections.models.map(c => {
-      return {
-        _id: c._id,
-        database: c.database,
-        capped: c.capped,
-        power_of_two: c.power_of_two,
-        readonly: c.readonly
-      };
-    }) : [];
-
     app.dataService.database(namespace, {}, (err, res) => {
       if (err) {
         this.setState({
           collections: [],
-          renderedCollections: [],
           fetchState: 'error',
           errorMessage: err
         });
@@ -103,38 +86,14 @@ const CollectionsStore = Reflux.createStore({
       })
       .value();
       this.setState({
-        collections: collections,
-        renderedCollections: this._sort(unsorted),
+        collections: this._sort(unsorted),
         database: namespace
       });
     });
   },
 
-  onDatabaseChanged(namespace) {
-    if (!namespace || namespace.includes('.') || namespace === this.state.database) {
-      return;
-    }
-    this._setDatabaseCollections(app.instance.databases, namespace);
-  },
-
-  /*
-  * Continue only when a database is the activeNamespace
-  *
-  *  @note The wacky logic here is because the ampersand app is not
-  *  loaded in the unit test environment and the validation tests fail since
-  *  not app registry is found. Once we get rid of the ampersand app we can
-  *  put the store set back into the init once we've sorted out the proper
-  *  test strategy. Same as collection-stats and query-store.
-  */
-  onInstanceChange(state) {
-    let namespace = '';
-    if (this.NamespaceStore) {
-      namespace = this.NamespaceStore.ns;
-    } else if (app.appRegistry) {
-      this.NamespaceStore = app.appRegistry.getStore('App.NamespaceStore');
-      namespace = this.NamespaceStore.ns;
-    }
-
+  onHomeChange(state) {
+    const namespace = state.namespace;
     if (!namespace || namespace.includes('.') || state.instance.databases === LOADING_STATE) {
       return;
     }
@@ -144,7 +103,7 @@ const CollectionsStore = Reflux.createStore({
 
   sortCollections(column, order) {
     this.setState({
-      renderedCollections: this._sort(this.state.renderedCollections, column, order),
+      collections: this._sort(this.state.collections, column, order),
       sortColumn: column,
       sortOrder: order
     });

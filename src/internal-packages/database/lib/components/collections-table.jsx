@@ -63,7 +63,7 @@ class CollectionsTable extends React.Component {
   }
 
   render() {
-    const rows = _.map(this.props.renderedCollections, (coll) => {
+    const rows = _.map(this.props.collections, (coll) => {
       const linkName = this.renderLink(coll);
 
       // return formatted table row
@@ -114,7 +114,6 @@ class CollectionsTable extends React.Component {
 CollectionsTable.propTypes = {
   columns: PropTypes.arrayOf(PropTypes.string),
   collections: PropTypes.arrayOf(PropTypes.object),
-  renderedCollections: PropTypes.arrayOf(PropTypes.object),
   database: PropTypes.string,
   sortOrder: PropTypes.oneOf(['asc', 'desc']),
   sortColumn: PropTypes.string
