@@ -2,7 +2,6 @@ const app = require('hadron-app');
 
 const InstanceActions = require('./lib/actions/instance-actions');
 const InstanceStore = require('./lib/stores/instance-store');
-const CollectionStore = require('./lib/stores/collection-store');
 const FieldStore = require('./lib/stores/field-store');
 const ViewSwitcher = require('./lib/components/view-switcher');
 const NamespaceStore = require('./lib/stores/namespace-store');
@@ -16,7 +15,6 @@ function activate(appRegistry) {
   appRegistry.registerStore('App.NamespaceStore', NamespaceStore);
   appRegistry.registerAction('App.InstanceActions', InstanceActions);
   appRegistry.registerStore('App.InstanceStore', InstanceStore);
-  appRegistry.registerStore('App.CollectionStore', CollectionStore);
   appRegistry.registerStore('App.NamespaceStore', NamespaceStore);
   appRegistry.registerComponent('App.ViewSwitcher', ViewSwitcher);
   appRegistry.registerStore('Schema.FieldStore', FieldStore);
@@ -28,7 +26,6 @@ function activate(appRegistry) {
 function deactivate() {
   app.appRegistry.deregisterAction('App.InstanceActions');
   app.appRegistry.deregisterStore('App.InstanceStore');
-  app.appRegistry.deregisterStore('App.CollectionStore');
   app.appRegistry.deregisterStore('App.NamespaceStore');
   app.appRegistry.deregisterComponent('App.ViewSwitcher');
   app.appRegistry.deregisterStore('Schema.FieldStore');

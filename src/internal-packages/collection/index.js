@@ -7,7 +7,7 @@ const CollectionStore = require('./lib/store');
  */
 function activate(appRegistry) {
   appRegistry.registerComponent('Collection.Collection', CollectionComponent);
-  appRegistry.registerStore('Collection.Store', CollectionStore);
+  appRegistry.registerStore('App.CollectionStore', CollectionStore);
 }
 
 /**
@@ -15,7 +15,7 @@ function activate(appRegistry) {
  */
 function deactivate() {
   app.appRegistry.deregisterComponent('Collection.Collection');
-  app.appRegistry.deregisterStore('Collection.Store');
+  app.appRegistry.deregisterStore('App.CollectionStore');
 }
 
 module.exports.activate = activate;
