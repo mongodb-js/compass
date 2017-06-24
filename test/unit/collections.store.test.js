@@ -35,7 +35,7 @@ describe('CollectionsStore', () => {
     const state = InstanceStore.getInitialState();
     expect(state.instance.databases).to.be.equal(LOADING_STATE);
 
-    CollectionsStore.onInstanceChange(state);
+    CollectionsStore.onHomeChange(state);
     setTimeout(() => {
       expect(CollectionsStore.state.collections.length).to.be.equal(0);
       done();

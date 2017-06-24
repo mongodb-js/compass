@@ -8,7 +8,7 @@ const sinon = require('sinon');
 
 const root = '../../src/internal-packages/';
 const storeKeyMap = {
-  'CollectionStore': root + 'app/lib/stores/collection-store',
+  'CollectionStore': root + 'collection/lib/store',
   'LoadIndexesStore': root + 'indexes/lib/store/load-indexes-store',
   'Schema.Store': root + 'schema/lib/store',
   'Query.ChangedStore': root + 'query/lib/store/query-changed-store'
