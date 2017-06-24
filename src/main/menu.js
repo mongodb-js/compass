@@ -11,6 +11,8 @@ var State = require('ampersand-state');
 var _ = require('lodash');
 var debug = require('debug')('mongodb-compass:menu');
 
+const COMPASS_HELP = 'https://docs.mongodb.com/compass/';
+
 // submenu related
 function separator() {
   return {
@@ -149,10 +151,10 @@ function nonDarwinAboutItem() {
 
 function helpWindowItem() {
   return {
-    label: `&Show ${app.getName()} Help`,
+    label: `&Online ${app.getName()} Help`,
     accelerator: 'F1',
     click: function() {
-      app.emit('app:show-help-window');
+      require('electron').shell.openExternal(COMPASS_HELP);
     }
   };
 }
