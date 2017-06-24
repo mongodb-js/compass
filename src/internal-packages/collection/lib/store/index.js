@@ -35,6 +35,7 @@ const CollectionStore = Reflux.createStore({
   */
   getInitialState() {
     return {
+      activeTab: 0,
       namespace: '',
       isReadonly: false
     };
@@ -42,6 +43,16 @@ const CollectionStore = Reflux.createStore({
 
   onHomeChange(state) {
     this.collections = state.instance.collections;
+  },
+
+  setActiveTab(activeTab) {
+    if (this.state.activeTab !== activeTab) {
+      this.setState({activeTab});
+    }
+  },
+
+  getActiveTab() {
+    return this.state.activeTab;
   }
 });
 

@@ -11,33 +11,13 @@ class Collection extends React.Component {
   constructor(props) {
     super(props);
 
-    this.state = {activeTab: 0};
-
     this.Stats = app.appRegistry.getComponent('CollectionHUD.Item');
-    this.CollectionStore = app.appRegistry.getStore('App.CollectionStore');
     this.NamespaceStore = app.appRegistry.getStore('App.NamespaceStore');
     this.setupTabs();
   }
 
-  componentWillMount() {
-    const ns = this.props.namespace;
-    if (ns && toNS(ns).collection) {
-      this.setState({
-        activeTab: this.CollectionStore && this.CollectionStore.getActiveTab()
-      });
-    } else {
-      this.setState({activeTab: 0});
-    }
-  }
-
   onTabClicked(idx) {
-    // Only proceed if the active tab has changed; prevent multiple clicks
-    if (this.state.activeTab === idx) {
-      return;
-    }
-
-    this.CollectionStore.setActiveTab(idx);
-    this.setState({activeTab: this.CollectionStore.getActiveTab()});
+    this.props.actions.setActiveTab(idx);
   }
 
   onDBClick() {
@@ -99,7 +79,7 @@ class Collection extends React.Component {
           theme="light"
           tabs={this.tabs}
           views={this.views}
-          activeTabIndex={this.state.activeTab}
+          activeTabIndex={this.props.activeTab}
           onTabClicked={this.onTabClicked.bind(this)}
           className="collection-nav"
         />
@@ -110,7 +90,9 @@ class Collection extends React.Component {
 
 Collection.propTypes = {
   namespace: PropTypes.string,
-  isReadonly: PropTypes.bool
+  isReadonly: PropTypes.bool,
+  activeTab: PropTypes.number,
+  actions: PropTypes.object
 };
 
 Collection.displayName = 'Collection';
