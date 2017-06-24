@@ -21,11 +21,11 @@ const CollectionStore = Reflux.createStore({
   },
 
   onCollectionChanged(namespace) {
-    const isReadonly = _.first(_.pluck(_.filter(this.collections.models, (col) => {
+    const readonly = _.first(_.pluck(_.filter(this.collections.models, (col) => {
       return col._id === namespace;
     }), 'readonly'));
 
-    this.setState({namespace, isReadonly});
+    this.setState({namespace, readonly});
   },
 
   /**
@@ -37,7 +37,7 @@ const CollectionStore = Reflux.createStore({
     return {
       activeTab: 0,
       namespace: '',
-      isReadonly: false
+      readonly: false
     };
   },
 
@@ -53,6 +53,10 @@ const CollectionStore = Reflux.createStore({
 
   getActiveTab() {
     return this.state.activeTab;
+  },
+
+  isReadonly() {
+    return this.state.readonly;
   }
 });
 

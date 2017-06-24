@@ -48,7 +48,7 @@ class Collection extends React.Component {
   }
 
   renderReadonly() {
-    if (this.props.isReadonly) {
+    if (this.props.readonly) {
       return (
         <span className="collection-view-readonly">
           <i className="fa fa-lock" aria-hidden="true" />
@@ -64,7 +64,7 @@ class Collection extends React.Component {
     return (
       <div className="collection-view clearfix">
         <header>
-          <this.Stats namespace={this.props.namespace} isReadonly={this.props.isReadonly} />
+          <this.Stats namespace={this.props.namespace} isReadonly={this.props.readonly} />
           <h1 className="collection-view-title">
             <span className="collection-view-database-name">
               <a className="collection-view-database-name-link" title={database} onClick={this.onDBClick.bind(this)}>{database}</a>
@@ -90,7 +90,7 @@ class Collection extends React.Component {
 
 Collection.propTypes = {
   namespace: PropTypes.string,
-  isReadonly: PropTypes.bool,
+  readonly: PropTypes.bool,
   activeTab: PropTypes.number,
   actions: PropTypes.object
 };
