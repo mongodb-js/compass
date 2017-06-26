@@ -6,7 +6,9 @@ const QueryStore = require('./lib/store/query-store');
 const QueryChangedStore = require('./lib/store/query-changed-store');
 
 /**
- * Activate all the components in the Query Bar package.
+ * Activate all the components in the collection stats package.
+ * @param{object} appRegistry   the app registry
+ * @see https://github.com/mongodb-js/hadron-app-registry
  */
 function activate(appRegistry) {
   appRegistry.registerComponent('Query.QueryBar', QueryBarComponent);

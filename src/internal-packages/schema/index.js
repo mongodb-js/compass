@@ -14,9 +14,9 @@ const COLLECTION_TAB_ROLE = {
 };
 
 /**
- * Activate all the components in the Schema package.
- *
- * @param {Object} appRegistry   the app registry
+ * Activate all the components in the collection stats package.
+ * @param{object} appRegistry   the app registry
+ * @see https://github.com/mongodb-js/hadron-app-registry
  */
 function activate(appRegistry) {
   appRegistry.registerRole('Collection.Tab', COLLECTION_TAB_ROLE);

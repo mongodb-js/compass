@@ -4,7 +4,9 @@ const InstanceHeaderActions = require('./lib/actions');
 const InstanceHeaderStore = require('./lib/stores');
 
 /**
- * Activate all the components in the Instance Header package.
+ * Activate all the components in the collection stats package.
+ * @param{object} appRegistry   the app registry
+ * @see https://github.com/mongodb-js/hadron-app-registry
  */
 function activate(appRegistry) {
   appRegistry.registerComponent('InstanceHeader.Component', InstanceHeaderComponent);

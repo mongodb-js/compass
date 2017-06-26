@@ -4,7 +4,9 @@ const CompassSidebarActions = require('./lib/actions');
 const CompassSidebarStore = require('./lib/stores');
 
 /**
- * Activate all the components in the Compass Sidebar package.
+ * Activate all the components in the collection stats package.
+ * @param{object} appRegistry   the app registry
+ * @see https://github.com/mongodb-js/hadron-app-registry
  */
 function activate(appRegistry) {
   appRegistry.registerComponent('Sidebar.Component', CompassSidebarComponent);
