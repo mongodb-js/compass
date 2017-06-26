@@ -47,7 +47,6 @@ class QueryBar extends React.Component {
   constructor(props) {
     super(props);
     this.state = { hasFocus: false };
-    this.TextReadButton = global.hadronApp.appRegistry.getComponent('DeploymentAwareness.TextReadButton');
   }
 
   onChange(label, evt) {
@@ -224,14 +223,14 @@ class QueryBar extends React.Component {
             {this.renderToggle()}
           </div>
           <div className="querybar-button-group">
-            <this.TextReadButton
+            <button
               id="apply_button"
               key="apply-button"
               className="btn btn-primary btn-sm querybar-apply-button"
-              dataTestId="apply-filter-button"
-              clickHandler={this.onApplyButtonClicked.bind(this)}
-              disabled={applyDisabled}
-              text={this.props.buttonLabel} />
+              data-test-id="apply-filter-button"
+              type="button"
+              onClick={this.onApplyButtonClicked.bind(this)}
+              disabled={applyDisabled}>{this.props.buttonLabel}</button>
             <button
               id="reset_button"
               key="reset-button"
