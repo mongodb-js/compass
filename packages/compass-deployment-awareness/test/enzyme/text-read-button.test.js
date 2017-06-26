@@ -124,5 +124,62 @@ describe('<TextReadButton />', () => {
         expect(wrapper).to.have.data('tip', 'Topology type not yet discovered.');
       });
     });
+
+    context('when additional disabled options are passed', () => {
+      context('when disabled is true', () => {
+        let component;
+        let spy;
+
+        beforeEach(() => {
+          ReadStateStore.setState({ isReadable: true });
+          spy = sinon.spy();
+          const click = () => { spy(); };
+          component = shallow(
+            <TextReadButton
+              className="testing"
+              clickHandler={click}
+              text="test button"
+              disabled
+              tooltipId="test-button" />
+          );
+        });
+
+        afterEach(() => {
+          ReadStateStore.setState(ReadStateStore.getInitialState());
+        });
+
+        it('sets the button as disabled', () => {
+          const button = component.find('.testing');
+          expect(button.dive()).to.be.disabled();
+        });
+      });
+
+      context('when disabled is false', () => {
+        let component;
+        let spy;
+
+        beforeEach(() => {
+          ReadStateStore.setState({ isReadable: true });
+          spy = sinon.spy();
+          const click = () => { spy(); };
+          component = shallow(
+            <TextReadButton
+              className="testing"
+              clickHandler={click}
+              text="test button"
+              tooltipId="test-button" />
+          );
+        });
+
+        afterEach(() => {
+          ReadStateStore.setState(ReadStateStore.getInitialState());
+        });
+
+        it('sets the button as enabled', () => {
+          const button = component.find('.testing');
+          expect(button.dive()).to.not.be.disabled();
+        });
+      });
+    });
   });
 });

@@ -19,6 +19,11 @@ const BASE = 'DeploymentAwareness';
 const TEXT_WRITE_BUTTON = `${BASE}.TextWriteButton`;
 
 /**
+ * Read button name.
+ */
+const TEXT_READ_BUTTON = `${BASE}.TextReadButton`;
+
+/**
  * The actions name.
  */
 const ACTIONS = `${BASE}.Actions`;
@@ -59,6 +64,7 @@ const HEADER_ITEM = 'Header.Item';
  */
 function activate(appRegistry) {
   appRegistry.registerRole(HEADER_ITEM, ROLE);
+  appRegistry.registerComponent(TEXT_READ_BUTTON, TextReadButton);
   appRegistry.registerComponent(TEXT_WRITE_BUTTON, TextWriteButton);
   appRegistry.registerAction(ACTIONS, DeploymentAwarenessActions);
   appRegistry.registerStore(STORE, DeploymentAwarenessStore);
@@ -71,6 +77,7 @@ function activate(appRegistry) {
  */
 function deactivate() {
   global.hadronApp.appRegistry.deregisterRole(HEADER_ITEM, ROLE);
+  global.hadronApp.appRegistry.deregisterComponent(TEXT_READ_BUTTON);
   global.hadronApp.appRegistry.deregisterComponent(TEXT_WRITE_BUTTON);
   global.hadronApp.appRegistry.deregisterAction(ACTIONS);
   global.hadronApp.appRegistry.deregisterStore(STORE);
