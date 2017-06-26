@@ -13,9 +13,12 @@ const InsertDocumentStore = Reflux.createStore({
    */
   init: function() {
     this.filter = {};
-    this.listenToExternalStore('Query.ChangedStore', this.onQueryChanged.bind(this));
     this.listenTo(Actions.insertDocument, this.insertDocument);
+  },
+
+  onActivated(appRegistry) {
     this.NamespaceStore = app.appRegistry.getStore('App.NamespaceStore');
+    appRegistry.getStore('Query.ChangedStore').listen(this.onQueryChanged.bind(this));
   },
 
   /**
