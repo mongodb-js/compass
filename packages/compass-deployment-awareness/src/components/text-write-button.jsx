@@ -74,7 +74,7 @@ class TextWriteButton extends React.Component {
    * Handle namespace changes.
    */
   namespaceChanged() {
-    this.setState(this.state);
+    this.forceUpdate();
   }
 
   /**
