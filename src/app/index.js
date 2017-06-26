@@ -470,7 +470,6 @@ Object.defineProperty(app, 'state', {
 marky.mark('Loading styles');
 const setupStyleManager = require('./setup-style-manager');
 setupStyleManager('index.less', () => {
-  require('./reflux-listen-to-external-store');
   app.init();
   // expose app globally for debugging purposes
   window.app = app;
