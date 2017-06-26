@@ -30,9 +30,25 @@ class IndexDefinitionType extends React.Component {
     }
     return (
       <span className="type">
-        {field.value}
+        {field.value._bsontype ? this.renderBsonValue(field.value) : field.value}
       </span>
     );
+  }
+
+  /**
+   * Render the bson value.
+   *
+   * @param {Object} value - The value.
+   */
+  renderBsonValue(value) {
+    if (value._bsontype === 'Decimal128') {
+      return value.toString();
+    } else if (value._bsontype === 'Int32') {
+      return value.valueOf();
+    } else if (value._bsontype === 'Long') {
+      return value.toNumber();
+    }
+    return value;
   }
 
   /**
