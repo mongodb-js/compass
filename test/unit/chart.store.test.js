@@ -2,7 +2,6 @@
 
 const { expect } = require('chai');
 
-require('../../src/app/reflux-listen-to-external-store.js');
 const NamespaceStore = require('../../src/internal-packages/app/lib/stores/namespace-store');
 const {
   AGGREGATE_FUNCTION_ENUM,

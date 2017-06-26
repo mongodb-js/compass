@@ -13,8 +13,6 @@ const UsageColumn = require('../../src/internal-packages/indexes/lib/component/u
 
 chai.use(chaiEnzyme());
 
-require('../../src/app/reflux-listen-to-external-store.js');
-
 describe('<Indexes />', () => {
   let component;
 

@@ -2,8 +2,6 @@
 const { expect } = require('chai');
 const app = require('hadron-app');
 
-require('../../src/app/reflux-listen-to-external-store.js');
-
 const { LOADING_STATE } = require('../../src/internal-packages/database/lib/constants');
 const CollectionsStore = require('../../src/internal-packages/database/lib/stores/collections-store');
 const InstanceStore = require('../../src/internal-packages/app/lib/stores/instance-store');
