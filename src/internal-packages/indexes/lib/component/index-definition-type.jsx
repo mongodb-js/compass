@@ -76,7 +76,6 @@ class IndexDefinitionType extends React.Component {
    */
   render() {
     const fields = _.map(this.props.index.fields.serialize(), (field) => {
-      console.log(field);
       return this.renderField(field);
     });
     return (
