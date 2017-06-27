@@ -1,6 +1,9 @@
 const React = require('react');
+const PropTypes = require('prop-types');
 const _ = require('lodash');
 const app = require('hadron-app');
+
+const actions = require('../actions');
 
 /**
  * The base list class.
@@ -22,7 +25,12 @@ class CollectionStats extends React.Component {
     this.setupStatsItems();
   }
 
+  componentWillReceiveProps(nextProps) {
+    actions.loadCollectionStats(nextProps.namespace, nextProps.isReadonly);
+  }
+
   setupStatsItems() {
+    actions.loadCollectionStats(this.props.namespace, this.props.isReadonly);
     const roles = app.appRegistry.getRole('CollectionHUD.Item');
     const views = _.map(roles, (role) => {
       return React.createElement(role.component, {key: _.uniqueId()});
@@ -44,6 +52,11 @@ class CollectionStats extends React.Component {
     );
   }
 }
+
+CollectionStats.propTypes = {
+  namespace: PropTypes.string,
+  isReadonly: PropTypes.bool
+};
 
 CollectionStats.displayName = 'CollectionStats';
 

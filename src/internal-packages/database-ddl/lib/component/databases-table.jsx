@@ -55,7 +55,6 @@ class DatabasesTable extends React.Component {
 
   onNameClicked(name) {
     if (this.NamespaceStore.ns !== name) {
-      this.CollectionStore.setCollection({});
       this.NamespaceStore.ns = name;
       ipc.call('window:hide-collection-submenu');
     }

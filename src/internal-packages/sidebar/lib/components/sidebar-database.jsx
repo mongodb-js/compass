@@ -61,7 +61,6 @@ class SidebarDatabase extends React.Component {
 
   handleDBClick(db) {
     if (this.NamespaceStore.ns !== db) {
-      this.CollectionStore.setCollection({});
       this.NamespaceStore.ns = db;
       ipc.call('window:hide-collection-submenu');
     }

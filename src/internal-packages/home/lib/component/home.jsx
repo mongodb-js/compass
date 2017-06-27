@@ -92,13 +92,13 @@ class Home extends React.Component {
     let view;
     if (ns.database === '') {
       // top of the side bar was clicked, render server stats
-      view = (<this.instanceView interval={1000}/>);
+      view = (<this.instanceView interval={1000} />);
     } else if (ns.collection === '') {
       // a database was clicked, render collections table
       view = (<this.collectionsTable />);
     } else {
       // show collection view
-      view = (<this.collectionView namespace={this.props.namespace} />);
+      view = (<this.collectionView />);
     }
     return view;
   }

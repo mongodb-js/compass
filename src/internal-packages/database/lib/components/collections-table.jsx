@@ -13,7 +13,7 @@ class CollectionsTable extends React.Component {
   constructor(props) {
     super(props);
     const appRegistry = global.hadronApp.appRegistry;
-    this.CollectionStore = appRegistry.getStore('App.CollectionStore');
+    this.NamespaceStore = appRegistry.getStore('App.NamespaceStore');
     this.TextWriteButton = appRegistry.getComponent('DeploymentAwareness.TextWriteButton');
     this.WriteStateStore = appRegistry.getStore('DeploymentAwareness.WriteStateStore');
     this.state = this.WriteStateStore.state;
@@ -42,8 +42,7 @@ class CollectionsTable extends React.Component {
 
   onNameClicked(name) {
     // retrieve collection based on name
-    const collection = _.first(_.filter(this.props.collections, '_id', `${this.props.database}.${name}`));
-    this.CollectionStore.setCollection(collection);
+    this.NamespaceStore.ns = `${this.props.database}.${name}`;
     ipc.call('window:show-collection-submenu');
   }
 
@@ -64,7 +63,7 @@ class CollectionsTable extends React.Component {
   }
 
   render() {
-    const rows = _.map(this.props.renderedCollections, (coll) => {
+    const rows = _.map(this.props.collections, (coll) => {
       const linkName = this.renderLink(coll);
 
       // return formatted table row
@@ -115,7 +114,6 @@ class CollectionsTable extends React.Component {
 CollectionsTable.propTypes = {
   columns: PropTypes.arrayOf(PropTypes.string),
   collections: PropTypes.arrayOf(PropTypes.object),
-  renderedCollections: PropTypes.arrayOf(PropTypes.object),
   database: PropTypes.string,
   sortOrder: PropTypes.oneOf(['asc', 'desc']),
   sortColumn: PropTypes.string
