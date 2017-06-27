@@ -8,12 +8,15 @@ const numeral = require('numeral');
  */
 const CollectionStatsStore = Reflux.createStore({
 
-  /**
-   * Initialize the collection stats store.
-   */
-  init: function() {
-    this.NamespaceStore = app.appRegistry.getStore('App.NamespaceStore');
-    this.listenTo(this.NamespaceStore, this.loadCollectionStats);
+  onActivated: function(registry) {
+    this.NamespaceStore = registry.getStore('App.NamespaceStore');
+    this.CollectionStore = registry.getStore('App.CollectionStore');
+    this.listenTo(this.NamespaceStore, this.loadCollectionStats.bind(this));
+    registry.getAction('CRUD.Actions').documentRemoved.listen(this.documentRemoved.bind(this));
+  },
+
+  documentRemoved: function() {
+    this.loadCollectionStats(this.NamespaceStore.ns);
   },
 
   /**
@@ -23,7 +26,7 @@ const CollectionStatsStore = Reflux.createStore({
    */
   loadCollectionStats: function(ns) {
     if (toNS(ns || '').collection) {
-      if (this._isCollectionReadonly()) {
+      if (this.CollectionStore.isReadonly()) {
         this.trigger();
       } else {
         app.dataService.collection(ns, {}, (err, result) => {
@@ -33,29 +36,6 @@ const CollectionStatsStore = Reflux.createStore({
         });
       }
     }
-  },
-
-  /**
-   * Determine if the collection is readonly.
-   *
-   * @note Durran: The wacky logic here is because the ampersand app is not
-   *  loaded in the unit test environment and the validation tests fail since
-   *  not app registry is found. Once we get rid of the ampersand app we can
-   *  put the store set back into the init once we've sorted out the proper
-   *  test strategy. Same as collections-store and query-store.
-   *
-   * @returns {Boolean} If the collection is readonly.
-   */
-  _isCollectionReadonly() {
-    if (this.CollectionStore) {
-      return this.CollectionStore.isReadonly();
-    }
-    const registry = app.appRegistry;
-    if (registry) {
-      this.CollectionStore = registry.getStore('App.CollectionStore');
-      return this.CollectionStore.isReadonly();
-    }
-    return false;
   },
 
   _parseCollectionDetails(result) {
