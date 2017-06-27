@@ -1,5 +1,6 @@
 const app = require('hadron-app');
 const CollectionStats = require('./lib/component/');
+const CollectionStatsStore = require('./lib/store/');
 const DocumentsStatsItem = require('./lib/component/documents-stats-item');
 const IndexesStatsItem = require('./lib/component/indexes-stats-item');
 
@@ -19,6 +20,7 @@ const INDEXES_STATS_ITEM_ROLE = {
  * Activate all the components in the collection stats package.
  */
 function activate(appRegistry) {
+  appRegistry.registerStore('CollectionStats.Store', CollectionStatsStore);
   appRegistry.registerRole('CollectionHUD.Item', DOCUMENTS_STATS_ITEM_ROLE);
   appRegistry.registerRole('CollectionHUD.Item', INDEXES_STATS_ITEM_ROLE);
   appRegistry.registerComponent('CollectionHUD.Item', CollectionStats);
@@ -28,6 +30,7 @@ function activate(appRegistry) {
  * Deactivate all the components in the collection stats package.
  */
 function deactivate() {
+  app.appRegistry.deregisterStore('CollectionStats.Store');
   app.appRegistry.deregisterRole('CollectionHUD.Item', DOCUMENTS_STATS_ITEM_ROLE);
   app.appRegistry.deregisterRole('CollectionHUD.Item', INDEXES_STATS_ITEM_ROLE);
   app.appRegistry.deregisterComponent('CollectionHUD.Item', CollectionStats);
