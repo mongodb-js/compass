@@ -535,7 +535,8 @@ class Target {
         bin: this.productName,
         section: debianSection,
         depends: [
-          'libsecret-1-0'
+          'libsecret-1-0',
+          'libgconf-2-4'
         ]
       },
       rpm: {
