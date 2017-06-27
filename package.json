@@ -41,8 +41,7 @@
             "node_modules/@mongodb-js/compass-deployment-awareness"
           ],
           "styles": [
-            "index",
-            "help"
+            "index"
           ]
         },
         "compass-enterprise": {
@@ -55,8 +54,7 @@
             "node_modules/@mongodb-js/compass-deployment-awareness"
           ],
           "styles": [
-            "index",
-            "help"
+            "index"
           ]
         },
         "compass-charts": {
@@ -69,8 +67,7 @@
             "node_modules/@mongodb-js/compass-deployment-awareness"
           ],
           "styles": [
-            "index",
-            "help"
+            "index"
           ]
         }
       },
