@@ -196,6 +196,15 @@ const SchemaStore = Reflux.createStore({
       this.stopSampling();
     };
 
+    // @note: Durran the sampling strem itself is executing a count that gets
+    //   the same error as the direct count call when a timeout has occured.
+    //   However, we need to ensure we handle it in case we return from the
+    //   other count before setting up the listener, so we listen for error
+    //   here.
+    this.samplingStream.on('error', (sampleErr) => {
+      return onError(sampleErr);
+    });
+
     const onSuccess = (_schema) => {
       this.setState({
         samplingState: 'complete',
@@ -225,9 +234,6 @@ const SchemaStore = Reflux.createStore({
       let sampleCount = 0;
 
       this.samplingStream
-        .on('error', (sampleErr) => {
-          return onError(sampleErr);
-        })
         .pipe(this.analyzingStream)
         .once('progress', () => {
           this.setState({
