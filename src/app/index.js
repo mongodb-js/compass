@@ -142,21 +142,11 @@ var Application = View.extend({
     preferences: Preferences
   },
   events: {
-    'click a': 'onLinkClick',
-    'click i.help': 'onHelpClicked',
-    'click a.help': 'onHelpClicked'
+    'click a': 'onLinkClick'
   },
   initialize: function() {
     ipc.on('window:show-compass-tour', this.showTour.bind(this, true));
     ipc.on('window:show-network-optin', this.showOptIn.bind(this));
-  },
-  onHelpClicked: function(evt) {
-    evt.preventDefault();
-    evt.stopPropagation();
-    var id = evt.target.dataset.hook;
-    require('electron').shell.openExternal(id);
-    // TODO: Clean up rest of help window stuff in COMPASS-1169
-    // ipc.call('app:show-help-window', id);
   },
   startRouter: function() {
     if (this.router) {
@@ -285,10 +275,6 @@ var Application = View.extend({
     }
   },
   onLinkClick: function(event) {
-    // ignore help links, they're handled in `onHelpClicked`
-    if (event.target.className === 'help') {
-      return;
-    }
     const localLinks = require('local-links');
     const pathname = localLinks.getLocalPathname(event);
     if (pathname) {

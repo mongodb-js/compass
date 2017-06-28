@@ -360,10 +360,18 @@ const minicharts_d3fns_geo = function() {
             + 'px ' + margin.left + 'px;'
         });
 
-      // append info sprinkle
-      el.selectAll('i.help').data([null]).enter().append('i')
-        .classed('help', true)
-        .attr('data-hook', 'schema-geo-query-builder');
+      // Add maps help overlay of how to $geoWithin
+      const mapoverlay = el.selectAll('div.map-overlay').data([null]).enter()
+        .append('div')
+        .classed('map-overlay', true);
+      mapoverlay
+        .append('div')
+        .html('shift')
+        .classed('map-overlay-button', true);
+      mapoverlay
+        .append('p')
+        .html('+ Drag to Build a Query')
+        .classed('map-overlay-text', true);
 
       // compute bounds from data
       const bounds = new mapboxgl.LngLatBounds();
