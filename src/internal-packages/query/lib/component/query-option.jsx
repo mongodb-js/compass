@@ -116,7 +116,7 @@ class QueryOption extends React.Component {
     };
     return (
       <CodeMirror
-        addons={[ "display/autorefresh", "display/placeholder" ]}
+        addons={[ 'display/autorefresh', 'display/placeholder' ]}
         className={this._getInnerClassName()}
         ref="codemirror"
         value={this.props.value}
