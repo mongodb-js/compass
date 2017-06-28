@@ -120,7 +120,8 @@ const TOOL_TIP_ARRAY_REDUCE = Object.freeze({
   'data-tip': 'In order to use fields or values<br/>'
     + 'inside an array, the array has to<br/>'
     + 'be reduced to a scalar value.<br/>'
-    + 'Choose from the array reduction methods.'
+    + 'Choose from the array reduction<br/>'
+    + 'methods.'
 });
 
 /**
