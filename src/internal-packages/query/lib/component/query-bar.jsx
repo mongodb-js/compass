@@ -44,7 +44,20 @@ const OPTION_DEFINITION = {
 class QueryBar extends React.Component {
   constructor(props) {
     super(props);
-    this.state = { hasFocus: false };
+    this.state = { hasFocus: false, schemaFields: {} };
+  }
+
+  componentDidMount() {
+    const fieldStore = global.hadronApp.appRegistry.getStore('Schema.FieldStore');
+    this.unsubscribeFieldStore = fieldStore.listen(this.onFieldsChanged.bind(this));
+  }
+
+  componentWillUnmount() {
+    this.unsubscribeFieldStore();
+  }
+
+  onFieldsChanged(state) {
+    this.setState({ schemaFields: state.fields });
   }
 
   onChange(label, evt) {
@@ -129,12 +142,6 @@ class QueryBar extends React.Component {
     const value = OPTION_DEFINITION[option].type === 'boolean' ?
       this.props[option] : this.props[`${option}String`];
 
-    /**
-     * TODO (@imlucas) This would be quite useful for `project` and `sort`
-     * as well.
-     */
-    const hasSchemaFields = option === 'filter';
-
     return (
       <QueryOption
         label={option}
@@ -146,7 +153,7 @@ class QueryBar extends React.Component {
         link={OPTION_DEFINITION[option].link}
         inputType={OPTION_DEFINITION[option].type}
         onChange={this.onChange.bind(this, option)}
-        schemaFields={hasSchemaFields ? this.props.schemaFields : {}}
+        schemaFields={this.state.schemaFields}
       />
     );
   }

@@ -49,11 +49,6 @@ const QueryStore = Reflux.createStore({
     } else {
       this.validFeatureFlags = [];
     }
-
-    this.listenToExternalStore(
-      'Schema.FieldStore',
-      this.onFieldChanged.bind(this)
-    );
   },
 
   /*
@@ -72,22 +67,6 @@ const QueryStore = Reflux.createStore({
     const newState = this.getInitialState();
     newState.ns = ns;
     this.setState(newState);
-  },
-
-  /**
-   * Parse and load fields from the field store.
-   *
-   * @param {Object} state - The state of the field store.
-   */
-  onFieldChanged: function(state) {
-    if (!state.fields) {
-      return;
-    }
-
-    debug('field change', state.fields);
-    this.setState({
-      schemaFields: state.fields
-    });
   },
 
   /**
