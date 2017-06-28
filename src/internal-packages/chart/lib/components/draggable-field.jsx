@@ -142,7 +142,8 @@ class DraggableField extends React.Component {
       className: 'info-sprinkle',
       'data-tip': TOOL_TIP_ARRAY_REDUCE['data-tip'],
       'data-for': TOOL_TIP_ARRAY_REDUCE['data-for'],
-      'data-multiline': true
+      'data-multiline': true,
+      'data-class': 'chart-draggable-field-reduction-tooltip'
     };
 
     return connectDragSource(
