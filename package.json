@@ -41,8 +41,7 @@
             "node_modules/@mongodb-js/compass-deployment-awareness"
           ],
           "styles": [
-            "index",
-            "help"
+            "index"
           ]
         }
       },
