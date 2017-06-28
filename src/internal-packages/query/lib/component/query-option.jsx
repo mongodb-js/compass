@@ -100,6 +100,8 @@ class QueryOption extends React.Component {
       scrollbarStyle: 'null',
       mode: 'javascript',
       autoCloseBrackets: true,
+      autoRefresh: true,
+      placeholder: this.props.placeholder,
       matchBrackets: true,
       theme: 'mongodb',
       extraKeys: {
@@ -114,12 +116,12 @@ class QueryOption extends React.Component {
     };
     return (
       <CodeMirror
+        addons={[ "display/autorefresh", "display/placeholder" ]}
         className={this._getInnerClassName()}
         ref="codemirror"
         value={this.props.value}
         onChange={this.applyChangeFromCodeMirror.bind(this)}
         options={options}
-        placeholder={this.props.placeholder}
       />
     );
   }
