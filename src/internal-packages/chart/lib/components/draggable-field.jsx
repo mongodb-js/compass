@@ -7,7 +7,8 @@ const DragSource = require('react-dnd').DragSource;
 const {
   AGGREGATE_FUNCTION_ENUM,
   MEASUREMENT_ENUM,
-  MEASUREMENT_ICON_ENUM
+  MEASUREMENT_ICON_ENUM,
+  TOOL_TIP_ARRAY_REDUCE
 } = require('../constants');
 const CustomToggle = require('./custom-toggle');
 const ArrayReductionPicker = require('./array-reduction-picker');
@@ -137,13 +138,20 @@ class DraggableField extends React.Component {
   render() {
     const connectDragSource = this.props.connectDragSource;
 
+    const attributes = {
+      className: 'info-sprinkle',
+      'data-tip': TOOL_TIP_ARRAY_REDUCE['data-tip'],
+      'data-for': TOOL_TIP_ARRAY_REDUCE['data-for'],
+      'data-multiline': true
+    };
+
     return connectDragSource(
       <div className="chart-draggable-field" title={this.props.fieldPath} >
         <div className="chart-draggable-field-row">
           <div className="chart-draggable-field-item-container chart-draggable-field-item-container-title">
             <div className="chart-draggable-field-title">
               {!_.isEmpty(this.props.reductions) && this.props.enableMenus ?
-                <span className="chart-draggable-field-title-array">Array Reduction</span>
+                <span className="chart-draggable-field-title-array">Array Reduction <i {...attributes} /></span>
                 : <span>{this.props.fieldName}</span>
               }
             </div>
