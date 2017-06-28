@@ -2,7 +2,9 @@ const app = require('hadron-app');
 const CollectionComponent = require('./lib/components');
 
 /**
- * Activate all the components in the Collection package.
+ * Activate all the components in the collection stats package.
+ * @param{object} appRegistry   the app registry
+ * @see https://github.com/mongodb-js/hadron-app-registry
  */
 function activate(appRegistry) {
   appRegistry.registerComponent('Collection.Collection', CollectionComponent);

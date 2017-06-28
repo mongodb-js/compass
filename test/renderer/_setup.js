@@ -1,8 +1,6 @@
 require('../../src/app/setup-hadron-caches');
 require('../../src/setup-hadron-distribution');
 
-require('../../src/app/reflux-listen-to-external-store');
-
 // Would be nice not to need this jQuery being present
 window.jQuery = require('jquery');
 

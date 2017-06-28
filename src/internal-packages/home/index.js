@@ -3,7 +3,9 @@ const HomeComponent = require('./lib/component');
 const HomeStore = require('./lib/store');
 
 /**
- * Activate all the components in the Collection package.
+ * Activate all the components in the collection stats package.
+ * @param{object} appRegistry   the app registry
+ * @see https://github.com/mongodb-js/hadron-app-registry
  */
 function activate(appRegistry) {
   appRegistry.registerComponent('Home.Home', HomeComponent);

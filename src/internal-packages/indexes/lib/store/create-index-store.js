@@ -19,7 +19,6 @@ const CreateIndexStore = Reflux.createStore({
    * Initialize the index fields store.
    */
   init: function() {
-    this.listenToExternalStore('Schema.FieldStore', this.onFieldChanged.bind(this));
     this.listenTo(Action.clearForm, this.clearForm);
     this.listenTo(Action.triggerIndexCreation, this.triggerIndexCreation);
     this.listenTo(Action.updateOption, this.updateOption);
@@ -30,6 +29,10 @@ const CreateIndexStore = Reflux.createStore({
     this.schemaFields = []; // fields in the current schema
     this.fields = [{name: '', type: ''}];
     this.options = {}; // options for new index
+  },
+
+  onActivated(appRegistry) {
+    appRegistry.getStore('Schema.FieldStore').listen(this.onFieldChange.bind(this));
   },
 
   /*

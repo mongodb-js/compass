@@ -61,7 +61,9 @@ const OBJECT_ID_EDITOR_ROLE = {
 };
 
 /**
- * Activate all the components in the CRUD package.
+ * Activate all the components in the collection stats package.
+ * @param{object} appRegistry   the app registry
+ * @see https://github.com/mongodb-js/hadron-app-registry
  */
 function activate(appRegistry) {
   appRegistry.registerRole('Collection.Tab', COLLECTION_TAB_ROLE);

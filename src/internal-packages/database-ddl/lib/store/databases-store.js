@@ -26,9 +26,12 @@ const DatabasesStore = Reflux.createStore({
    * Initialize everything that is not part of the store's state.
    */
   init() {
-    this.listenToExternalStore('App.InstanceStore', this.onInstanceRefreshed.bind(this));
     this.listenTo(DatabasesActions.sortDatabases, this.sortDatabases.bind(this));
     this.indexes = [];
+  },
+
+  onActivated(appRegistry) {
+    appRegistry.getStore('App.InstanceStore').listen(this.onInstanceRefreshed.bind(this));
   },
 
   getInitialState() {

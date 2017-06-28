@@ -13,7 +13,6 @@ const storeKeyMap = {
   'Schema.Store': root + 'schema/lib/store',
   'Query.ChangedStore': root + 'query/lib/store/query-changed-store'
 };
-require('../../src/app/reflux-listen-to-external-store.js');
 
 const CreateIndexStore = require('../../src/internal-packages/indexes/lib/store/create-index-store');
 const Collection = require('../../src/internal-packages/collection/lib/components/index');

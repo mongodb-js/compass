@@ -23,9 +23,12 @@ const LoadMoreDocumentsStore = Reflux.createStore({
     this.project = null;
     this.counter = 0;
 
-    this.NamespaceStore = app.appRegistry.getStore('App.NamespaceStore');
-    this.listenToExternalStore('Query.ChangedStore', this.onQueryChanged.bind(this));
     this.listenTo(Actions.fetchNextDocuments, this.fetchNextDocuments.bind(this));
+  },
+
+  onActivated(appRegistry) {
+    this.NamespaceStore = app.appRegistry.getStore('App.NamespaceStore');
+    appRegistry.getStore('Query.ChangedStore').listen(this.onQueryChanged.bind(this));
   },
 
   /**

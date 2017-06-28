@@ -19,7 +19,9 @@ const DATABASE_TAB_ROLE = {
 };
 
 /**
- * Activate all the components in the Schema package.
+ * Activate all the components in the collection stats package.
+ * @param{object} appRegistry   the app registry
+ * @see https://github.com/mongodb-js/hadron-app-registry
  */
 function activate(appRegistry) {
   appRegistry.registerRole('Database.Tab', DATABASE_TAB_ROLE);
