@@ -107,9 +107,7 @@ class UniqueMiniChart extends React.Component {
       <div className="minichart unique" style={style}>
         <dl className="dl-horizontal">
           <dt>
-            <a href="#" onClick={this.onRefresh.bind(this)}>
-              <i className="mms-icon-continuous" />
-            </a>
+            <i onClick={this.onRefresh.bind(this)} className="mms-icon-continuous" />
           </dt>
           <dd>
             <ul className="list-inline">
