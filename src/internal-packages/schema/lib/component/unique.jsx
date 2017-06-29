@@ -2,7 +2,6 @@ const app = require('hadron-app');
 const React = require('react');
 const PropTypes = require('prop-types');
 const _ = require('lodash');
-const NativeListener = require('react-native-listener');
 const hasDistinctValue = require('../../../query/lib/util').hasDistinctValue;
 
 const { DECIMAL_128, DOUBLE, LONG, INT_32 } = require('../helpers');
@@ -108,11 +107,7 @@ class UniqueMiniChart extends React.Component {
       <div className="minichart unique" style={style}>
         <dl className="dl-horizontal">
           <dt>
-            <NativeListener onClick={this.onRefresh.bind(this)}>
-              <a>
-                <i className="mms-icon-continuous" />
-              </a>
-            </NativeListener>
+            <i onClick={this.onRefresh.bind(this)} className="mms-icon-continuous" />
           </dt>
           <dd>
             <ul className="list-inline">
