@@ -3,8 +3,11 @@ const {
   ARRAY_GENERAL_REDUCTIONS,
   ARRAY_NUMERIC_REDUCTIONS,
   ARRAY_STRING_REDUCTIONS,
-  DOT_UNICODE_REPLACEMENT
+  DOT_UNICODE_REPLACEMENT,
+  ALIAS_TYPE_ENUM
 } = require('../constants');
+
+const fieldAlias = require('./field-alias');
 
 // const debug = require('debug')('mongodb-compass:chart:agg-pipeline-builder');
 
@@ -103,10 +106,13 @@ function constructUnwindStages(reductions) {
 function constructAccumulatorStage(reductions) {
   let arr;
   let expr;
+  let alias;
 
   reductions = _.filter(reductions, (reduction) => {
     return reduction.type !== ARRAY_GENERAL_REDUCTIONS.UNWIND;
   });
+
+  const aliasType = ALIAS_PREFIX_ENUM.REDUCTION;
 
   // reverse the array (without modifying original), below code assumes inside->out order
   reductions = reductions.slice().reverse();
@@ -120,7 +126,8 @@ function constructAccumulatorStage(reductions) {
   if (reductions.length === 1) {
     // with only one reduction, return the reduction applied to the field
     // directly.
-    arr = `$${lastReduction.field}`;
+    alias = fieldAlias(lastReduction.field, aliasType, lastReduction.type);
+    arr = `$${ alias }`;
   } else {
     // first (inner-most) reduction has no map and applies the reducer expression directly
     arr = '$$value';
@@ -133,7 +140,8 @@ function constructAccumulatorStage(reductions) {
     });
 
     // last (outer-most) reduction uses the actual field name with a map
-    arr = _map(`$${lastReduction.field}`, expr);
+    alias = fieldAlias(lastReduction.field, aliasType, lastReduction.type);
+    arr = _map(`$${ alias }`, expr);
   }
   expr = REDUCTIONS[lastReduction.type](arr);
 
