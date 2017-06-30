@@ -88,10 +88,249 @@ describe('FieldStore', function() {
     FieldStore.processSingleDocument({a: {b: {c: 1}}, d: 5, e: {f: 3}});
   });
 
+  context('multidimensional arrays', () => {
+    it('identifies empty 1d arrays', function(done) {
+      const expected = {
+        'a': {
+          'arrayDimensions': 1,
+          'count': 1,
+          'name': 'a',
+          'path': 'a',
+          'type': 'Array'
+        }
+      };
+      unsubscribe = FieldStore.listen((state) => {
+        expect(state.fields).to.be.deep.equal(expected);
+        unsubscribe();
+        done();
+      });
+      FieldStore.processSingleDocument({a: []});
+    });
+    it('identifies populated 1d arrays', function(done) {
+      const expected = {
+        'a': {
+          'arrayDimensions': 1,
+          'count': 1,
+          'name': 'a',
+          'path': 'a',
+          'type': 'Array'
+        }
+      };
+      unsubscribe = FieldStore.listen((state) => {
+        expect(state.fields).to.be.deep.equal(expected);
+        unsubscribe();
+        done();
+      });
+      FieldStore.processSingleDocument({a: [1, 2, 3]});
+    });
+    it('identifies 2d arrays', function(done) {
+      const expected = {
+        'a': {
+          'arrayDimensions': 2,
+          'count': 1,
+          'name': 'a',
+          'path': 'a',
+          'type': 'Array'
+        }
+      };
+      unsubscribe = FieldStore.listen((state) => {
+        expect(state.fields).to.be.deep.equal(expected);
+        unsubscribe();
+        done();
+      });
+      FieldStore.processSingleDocument({a: [
+        ['1_1', '1_2', '1_3'],
+        ['2_1', '2_2', '2_3']
+      ]});
+    });
+    it('identifies 3d arrays', function(done) {
+      const expected = {
+        'a': {
+          'arrayDimensions': 3,
+          'count': 1,
+          'name': 'a',
+          'path': 'a',
+          'type': 'Array'
+        }
+      };
+      unsubscribe = FieldStore.listen((state) => {
+        expect(state.fields).to.be.deep.equal(expected);
+        unsubscribe();
+        done();
+      });
+      FieldStore.processSingleDocument({a: [
+        // Think cube
+        [
+          ['1_1_1', '1_1_2'],
+          ['1_2_1', '1_2_2']
+        ],
+        [
+          ['2_1_1', '2_1_2'],
+          ['2_2_1', '2_2_2']
+        ]
+      ]});
+    });
+  });
+
+  context('mixed nested arrays and subdocuments', () => {
+    it('identifies 1d arrays of subdocuments', function(done) {
+      const expected = {
+        'a': {
+          'arrayDimensions': 1,
+          'count': 1,
+          'name': 'a',
+          'nestedFields': [
+            'a.b'
+          ],
+          'path': 'a',
+          'type': 'Array'
+        },
+        'a.b': {
+          'count': 2,
+          'name': 'b',
+          'path': 'a.b',
+          'type': 'String'
+        }
+      };
+      unsubscribe = FieldStore.listen((state) => {
+        expect(state.fields).to.be.deep.equal(expected);
+        unsubscribe();
+        done();
+      });
+      FieldStore.processSingleDocument({a: [
+        {b: 'foo'},
+        {b: 'bar'}
+      ]});
+    });
+    it('identifies 2d arrays of subdocuments', function(done) {
+      const expected = {
+        'a': {
+          'arrayDimensions': 2,
+          'count': 1,
+          'name': 'a',
+          'nestedFields': [
+            'a.b'
+          ],
+          'path': 'a',
+          'type': 'Array'
+        },
+        'a.b': {
+          'count': 4,
+          'name': 'b',
+          'path': 'a.b',
+          'type': 'String'
+        }
+      };
+      unsubscribe = FieldStore.listen((state) => {
+        expect(state.fields).to.be.deep.equal(expected);
+        unsubscribe();
+        done();
+      });
+      FieldStore.processSingleDocument({a: [
+        [
+          {b: 'foo'},
+          {b: 'bar'}
+        ],
+        [
+          {b: 'foo'},
+          {b: 'bar'}
+        ]
+      ]});
+    });
+    it('identifies 1d arrays of sub-subdocuments', function(done) {
+      const expected = {
+        'a': {
+          'arrayDimensions': 1,
+          'count': 1,
+          'name': 'a',
+          'nestedFields': [
+            'a.b'
+          ],
+          'path': 'a',
+          'type': 'Array'
+        },
+        'a.b': {
+          'count': 2,
+          'name': 'b',
+          'nestedFields': [
+            'a.b.c'
+          ],
+          'path': 'a.b',
+          'type': 'Document'
+        },
+        'a.b.c': {
+          'count': 2,
+          'name': 'c',
+          'path': 'a.b.c',
+          'type': 'String'
+        }
+      };
+      unsubscribe = FieldStore.listen((state) => {
+        expect(state.fields).to.be.deep.equal(expected);
+        unsubscribe();
+        done();
+      });
+      FieldStore.processSingleDocument({a: [
+        {b: {c: 'foo'}},
+        {b: {c: 'bar'}}
+      ]});
+    });
+    it('identifies subdocuments of 1d arrays of sub-subdocuments of 2d arrays', function(done) {
+      // At this point just spot-checking the recursion because I can
+      const expected = {
+        'a': {
+          'count': 1,
+          'name': 'a',
+          'nestedFields': [
+            'a.b'
+          ],
+          'path': 'a',
+          'type': 'Document'
+        },
+        'a.b': {
+          'arrayDimensions': 1,
+          'count': 1,
+          'name': 'b',
+          'nestedFields': [
+            'a.b.c'
+          ],
+          'path': 'a.b',
+          'type': 'Array'
+        },
+        'a.b.c': {
+          'count': 2,
+          'name': 'c',
+          'nestedFields': [
+            'a.b.c.d'
+          ],
+          'path': 'a.b.c',
+          'type': 'Document'
+        },
+        'a.b.c.d': {
+          'arrayDimensions': 2,
+          'count': 2,
+          'name': 'd',
+          'path': 'a.b.c.d',
+          'type': 'Array'
+        }
+      };
+      unsubscribe = FieldStore.listen((state) => {
+        expect(state.fields).to.be.deep.equal(expected);
+        unsubscribe();
+        done();
+      });
+      FieldStore.processSingleDocument({a: {b: [
+        {c: {d: [[1, 2], [3, 4]]}},
+        {c: {d: [[5, 6], [7, 8]]}}
+      ]}});
+    });
+  });
+
   context('collisions of name/path/count/type within a single document', () => {
     it('handles name', (done) => {
       const expected = {
         'foo1': {
+          'arrayDimensions': 1,
           'count': 1,
           'name': 'foo1',
           'nestedFields': [
@@ -127,6 +366,7 @@ describe('FieldStore', function() {
     it('handles path', (done) => {
       const expected = {
         'foo1': {
+          'arrayDimensions': 1,
           'count': 1,
           'name': 'foo1',
           'nestedFields': [

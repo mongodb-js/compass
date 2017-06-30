@@ -108,19 +108,45 @@ const FieldStore = Reflux.createStore({
       const newField = _.pick(field, FIELDS);
       fields[field.path] = this._mergeFields(existingField, newField);
 
-      // recursively search sub documents
+      // recursively search arrays and subdocuments
       for (const type of field.types) {
         if (type.name === 'Document') {
           // add nested sub-fields
           this._flattenedFields(fields, type.fields, field);
         }
         if (type.name === 'Array') {
-          // add nested sub-fields of document type
-          const docType = _.find(type.types, 'name', 'Document');
-          if (docType) {
-            this._flattenedFields(fields, docType.fields, field);
-          }
+          // add arrays of arrays or subdocuments
+          this._flattenedArray(fields, type.types, field);
         }
+      }
+    }
+  },
+
+  /**
+   * Helper to recurse into the "types" of the mongodb-schema superstructure.
+   *
+   * @param {Object} fields      flattened list of fields to mutate
+   * @param {Array} nestedTypes  the "types" array currently being inspected
+   * @param {Object} field       current top level field on which to
+   *                             mutate arrayDimensions
+   */
+  _flattenedArray(fields, nestedTypes, field) {
+    // Increment the array cardinality / depth / number of dimensions
+    // to capture if it's linear, square, cubic, etc
+    if (typeof(fields[field.path].arrayDimensions) !== 'number') {
+      fields[field.path].arrayDimensions = 0;
+    }
+    fields[field.path].arrayDimensions += 1;
+
+    // Arrays have no name, so can only recurse into arrays or subdocuments
+    for (const type of nestedTypes) {
+      if (type.name === 'Document') {
+        // recurse into nested sub-fields
+        this._flattenedFields(fields, type.fields, field);
+      }
+      if (type.name === 'Array') {
+        // recurse into nested arrays (again)
+        this._flattenedArray(fields, type.types, field);
       }
     }
   },
