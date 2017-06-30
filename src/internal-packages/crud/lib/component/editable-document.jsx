@@ -71,7 +71,7 @@ class EditableDocument extends React.Component {
       editing: false,
       deleting: false,
       deleteFinished: false,
-      expandAll: false,
+      expandAll: this.props.expandAll || false,
       expanded: false
     };
 
