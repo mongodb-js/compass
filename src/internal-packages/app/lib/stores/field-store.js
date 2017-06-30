@@ -174,7 +174,7 @@ const FieldStore = Reflux.createStore({
   /**
    * processes a single document returned from the InsertDocumentStore.
    *
-   * @param  {Array} document     document to process.
+   * @param  {Object} document     document to process.
    */
   processSingleDocument(document) {
     parseSchema([ document ], {storeValues: false}, (err, schema) => {
