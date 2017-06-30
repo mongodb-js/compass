@@ -567,17 +567,23 @@ const ChartStore = Reflux.createStore({
    *        ]
    */
   _createReductionFromChannel(channel) {
-    //
     const parentPaths = this._createParentPaths(channel.field);
     // determine which of those paths are array types
-    const arrayPaths = _.filter(parentPaths, (path) => {
-      return _.has(this.state.fieldsCache, path) &&
-        _.includes(this.state.fieldsCache[path].type, 'Array');
-    });
+    const arrayFields = parentPaths.filter(path =>
+      _.has(this.state.fieldsCache, path) &&
+      _.includes(this.state.fieldsCache[path].type, 'Array')
+    ).map(path => this.state.fieldsCache[path]);
+
     // create reduction entries (with empty type) for those array paths
-    return arrayPaths.map((path) => {
-      return { field: path, type: null, arguments: [] };
+    const nestedArrayFields = arrayFields.map(field => {
+      return Array.from(new Array(field.dimensionality), () => ({
+        field: field.path,
+        type: null,
+        arguments: []
+      }));
     });
+    const flattened = [].concat(...nestedArrayFields);
+    return flattened;
   },
 
   /**
