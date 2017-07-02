@@ -61,7 +61,7 @@ const minicharts_d3fns_few = function() {
       const values = _.map(selected.data(), 'value');
       QueryAction.setDistinctValues({
         field: options.fieldName,
-        value: values
+        value: values.map((v) => options.promoter(v))
       });
     }
   }
@@ -85,7 +85,7 @@ const minicharts_d3fns_few = function() {
       QueryAction.toggleDistinctValue : QueryAction.setValue;
     qbAction({
       field: options.fieldName,
-      value: d.value,
+      value: options.promoter(d.value),
       unsetIfSet: true
     });
 

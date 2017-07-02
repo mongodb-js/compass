@@ -2,17 +2,31 @@ const React = require('react');
 const PropTypes = require('prop-types');
 const ReactDOM = require('react-dom');
 const d3 = require('d3');
+const bson = require('bson');
 const _ = require('lodash');
 
 /**
  * Conversion for display in minicharts for non-promoted BSON types.
  */
-const CONVERTERS = {
+const TO_JS_CONVERSIONS = {
   'Double': (values) => { return values.map((v) => v.value); },
   'Int32': (values) => { return values.map((v) => v.value); },
   'Long': (values) => { return values.map((v) => v.toNumber()); },
   'Decimal128': (values) => { return values.map((v) => v.toString()); }
 };
+
+/**
+ * Convert back to BSON types from the raw JS.
+ */
+const TO_BSON_CONVERSIONS = {
+  'Long': (value) => { return bson.Long.fromNumber(value) },
+  'Decimal128': (value) => { return bson.Decimal128.fromString(value) }
+}
+
+/**
+ * Default conversion.
+ */
+const DEFAULT = (value) => { return value };
 
 // const debug = require('debug')('mongodb-compass:schema:d3component');
 
@@ -72,15 +86,17 @@ class D3Component extends React.Component {
       .width(this.props.width)
       .height(this.props.height);
 
+    // @todo: Durran add the original type here.
     this.state.chart.options({
       fieldName: this.props.fieldName,
       unique: this.props.type.unique,
-      query: this.props.query
+      query: this.props.query,
+      promoter: TO_BSON_CONVERSIONS[this.props.type.bsonType] || DEFAULT
     });
 
-    if (CONVERTERS.hasOwnProperty(this.props.type.bsonType)) {
+    if (TO_JS_CONVERSIONS.hasOwnProperty(this.props.type.bsonType)) {
       d3.select(el)
-        .datum(CONVERTERS[this.props.type.bsonType](this.props.type.values))
+        .datum(TO_JS_CONVERSIONS[this.props.type.bsonType](this.props.type.values))
         .call(this.state.chart);
     } else {
       d3.select(el)
