@@ -71,6 +71,7 @@ class EncodingChannel extends React.Component {
       'data-class': 'chart-draggable-field-reduction-tooltip'
     } : null;
 
+    this.props.showTooltip(this.refs.tooltip);
     // else render a DraggableField instance with menus enabled
     return (
       <div ref="tooltip" {...attributes}>
@@ -129,6 +130,7 @@ EncodingChannel.propTypes = {
   isOver: PropTypes.bool.isRequired,
   specType: PropTypes.oneOf(['vega', 'vega-lite']),
   encodedReductions: PropTypes.array,
+  showTooltip: PropTypes.func,
   canDrop: PropTypes.bool.isRequired
 };
 
