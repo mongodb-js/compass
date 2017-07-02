@@ -19,14 +19,14 @@ const TO_JS_CONVERSIONS = {
  * Convert back to BSON types from the raw JS.
  */
 const TO_BSON_CONVERSIONS = {
-  'Long': (value) => { return bson.Long.fromNumber(value) },
-  'Decimal128': (value) => { return bson.Decimal128.fromString(value) }
-}
+  'Long': (value) => { return bson.Long.fromNumber(value); },
+  'Decimal128': (value) => { return bson.Decimal128.fromString(value); }
+};
 
 /**
  * Default conversion.
  */
-const DEFAULT = (value) => { return value };
+const DEFAULT = (value) => { return value; };
 
 // const debug = require('debug')('mongodb-compass:schema:d3component');
 
