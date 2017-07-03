@@ -321,15 +321,26 @@ const ChartStore = Reflux.createStore({
 
     debug('executed pipeline %j', pipeline);
 
+    // return the first (and only) editState that is updating
+    const editStates = _.cloneDeep(state.editStates);
+    const channel = _.findKey(editStates, (editState) => {
+      return editState === EDIT_STATES_ENUM.UPDATING;
+    });
+
     app.dataService.aggregate(ns.ns, pipeline, options).toArray((error, documents) => {
       if (error) {
         // @todo handle error better? what kind of errors can happen here?
+        if (channel) {
+          editStates[channel] = EDIT_STATES_ENUM.ERROR;
+        }
         throw error;
       }
-      this.setState({
-        pipelineCache: pipeline,
-        dataCache: documents
-      });
+      const newState = {pipelineCache: pipeline, dataCache: documents};
+      if (channel) {
+        editStates[channel] = EDIT_STATES_ENUM.SUCCESS;
+        newState.editStates = editStates;
+      }
+      this.setState(newState);
     });
   },
 
