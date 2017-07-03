@@ -205,25 +205,6 @@ const ChartStore = Reflux.createStore({
     if (specType === SPEC_TYPE_ENUM.VEGA_LITE) {
       const encodedChannels = {encoding: channels};
       result = _.merge({}, LITE_SPEC_GLOBAL_SETTINGS, spec, encodedChannels);
-
-      // Because we encode the channels via the aggregation framework already,
-      // we need to rename the field encodings to match the channel names here,
-      // and fix the axis titles to use the original field names.
-      _.each(result.encoding, (encoding, channel) => {
-        // overwrite axis titles, wrap in aggregate function if present
-        let axisTitle = encoding.field;
-        if (encoding.aggregate) {
-          axisTitle = `${encoding.aggregate}(${axisTitle})`;
-        }
-        result.encoding[channel].axis = {
-          title: axisTitle
-        };
-        // rename fields to match channel
-        result.encoding[channel].field = channel;
-      });
-
-      // keep the existing spec config (special case if editing via JSON editor)
-      result.config = _.merge(result.config, this.state.spec.config);
     } else {
       result = _.cloneDeep(spec);
       // result.data.unshift(encoding);
@@ -275,11 +256,14 @@ const ChartStore = Reflux.createStore({
     if (!chartRole) {
       throw new Error(`Unknown chart type: ${state.chartType}`);
     }
-    // encode spec based on spec template, specType, channels
-    state.spec = this._encodeSpec(chartRole.spec, state.specType, state.channels);
-    state.specValid = this._isSpecValid(chartRole, state);
+    // if update.spec was passed in (custom edits in JSON editor), use that
+    // spec as a template, otherwise use the pre-defined template. Then encode
+    // channels based on specType.
+    state.spec = this._encodeSpec(
+      update.spec || chartRole.spec, state.specType, state.channels);
 
     // if spec is valid, potentially refresh the data cache
+    state.specValid = this._isSpecValid(chartRole, state);
     if (state.specValid) {
       debug('valid spec %j', state.spec);
       this._refreshDataCache(state);
@@ -413,10 +397,10 @@ const ChartStore = Reflux.createStore({
       this.setState({ specValid: false });
       return false;
     }
-    // confirmed valid spec
-    this.setState({
-      specValid: true,
-      spec: spec
+    // confirmed valid spec, update chart
+    this._updateSpec({
+      spec: spec,
+      channels: spec.encoding || {}
     });
     return true;
   },

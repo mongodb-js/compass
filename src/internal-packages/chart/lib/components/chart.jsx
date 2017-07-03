@@ -53,7 +53,8 @@ Chart.defaultProps = {
   data: [],
   renderer: 'svg',
   className: 'chart',
-  specType: 'vega-lite'
+  specType: 'vega-lite',
+  reRenderChart: true
 };
 
 Chart.displayName = 'Chart';

@@ -171,7 +171,7 @@ describe('ChartStore', function() {
       const retValue = this.store.setSpecAsJSON(validSpecJSON);
       setTimeout(() => {
         expect(retValue).to.be.true;
-        expect(this.store.state.spec).to.be.deep.equal(JSON.parse(validSpecJSON));
+        expect(_.omit(this.store.state.spec, 'config')).to.be.deep.equal(JSON.parse(validSpecJSON));
         done();
       });
     });
