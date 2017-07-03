@@ -5,7 +5,8 @@ const {
   MEASUREMENT_ENUM,
   SPEC_TYPE_ENUM,
   VIEW_TYPE_ENUM,
-  LITE_SPEC_GLOBAL_SETTINGS
+  LITE_SPEC_GLOBAL_SETTINGS,
+  EDIT_STATES_ENUM
 } = require('../constants');
 const Actions = require('../actions');
 const AggPipelineBuilder = require('./agg-pipeline-builder');
@@ -109,7 +110,10 @@ const ChartStore = Reflux.createStore({
       channels: {},
       // Array reductions for each channel, to turn into an aggregation
       // pipeline and applied before Vega
-      reductions: {}
+      reductions: {},
+      // edit states for each channel, that indicate which stage each
+      // channel is in the UI
+      editStates: {}
     };
   },
 
@@ -585,9 +589,11 @@ const ChartStore = Reflux.createStore({
 
     const channels = _.cloneDeep(this.state.channels);
     const reductions = _.cloneDeep(this.state.reductions);
+    const editStates = _.cloneDeep(this.state.editStates);
     if (fieldPath === null) {
       delete channels[channel];
       delete reductions[channel];
+      delete editStates[channel];
     } else if (!_.has(this.state.fieldsCache, fieldPath)) {
       throw new Error('Unknown field: ' + fieldPath);
     } else {
@@ -601,6 +607,8 @@ const ChartStore = Reflux.createStore({
       if (_.includes(this.state.fieldsCache[fieldPath].type, 'Array')) {
         // compute new reduction for channel or clear existing channel
         reductions[channel] = this._createReductionFromChannel(channels[channel]);
+        // set edit state to initial
+        editStates[channel] = EDIT_STATES_ENUM.INITIAL;
       } else {
         delete reductions[channel];
       }
@@ -608,7 +616,8 @@ const ChartStore = Reflux.createStore({
 
     this._updateSpec({
       channels: channels,
-      reductions: reductions
+      reductions: reductions,
+      editStates: editStates
     }, pushToHistory);
   },
 
@@ -652,11 +661,14 @@ const ChartStore = Reflux.createStore({
     const spec = {};
     const channels = _.cloneDeep(this.state.channels);
     const reductions = _.cloneDeep(this.state.reductions);
+    const editStates = _.cloneDeep(this.state.editStates);
 
     this._swapOrDelete(channels, channel1, channel2);
     this._swapOrDelete(reductions, channel1, channel2);
+    this._swapOrDelete(editStates, channel1, channel2);
     spec.channels = channels;
     spec.reductions = reductions;
+    spec.editStates = editStates;
 
     this._updateSpec(spec, pushToHistory);
   },
@@ -760,6 +772,7 @@ const ChartStore = Reflux.createStore({
       throw new Error(`Expect a reduction type, got: ${type}`);
     }
     const reductions = _.cloneDeep(this.state.reductions);
+    const editStates = _.cloneDeep(this.state.editStates);
     const channelReductions = reductions[channel] || [];
     if (index >= channelReductions.length) {
       throw new Error('Not enough channel reductions.');
@@ -770,8 +783,11 @@ const ChartStore = Reflux.createStore({
     // Unwind requires all previous transforms to also be unwinds
     this._maintainUnwindInvariant(channelReductions);
     reductions[channel] = channelReductions;
+
+    editStates[channel] = EDIT_STATES_ENUM.MODIFIED;
     this._updateSpec({
-      reductions: reductions
+      reductions: reductions,
+      editStates: editStates
     }, true);
   },
 
