@@ -128,15 +128,15 @@ const FieldStore = Reflux.createStore({
    * @param {Object} fields      flattened list of fields to mutate
    * @param {Array} nestedTypes  the "types" array currently being inspected
    * @param {Object} field       current top level field on which to
-   *                             mutate arrayDimensions
+   *                             mutate dimensionality
    */
   _flattenedArray(fields, nestedTypes, field) {
     // Increment the array cardinality / depth / number of dimensions
     // to capture if it's linear, square, cubic, etc
     if (typeof(fields[field.path].arrayDimensions) !== 'number') {
-      fields[field.path].arrayDimensions = 0;
+      fields[field.path].dimensionality = 0;
     }
-    fields[field.path].arrayDimensions += 1;
+    fields[field.path].dimensionality += 1;
 
     // Arrays have no name, so can only recurse into arrays or subdocuments
     for (const type of nestedTypes) {

@@ -92,7 +92,7 @@ describe('FieldStore', function() {
     it('identifies empty 1d arrays', function(done) {
       const expected = {
         'a': {
-          'arrayDimensions': 1,
+          'dimensionality': 1,
           'count': 1,
           'name': 'a',
           'path': 'a',
@@ -109,7 +109,7 @@ describe('FieldStore', function() {
     it('identifies populated 1d arrays', function(done) {
       const expected = {
         'a': {
-          'arrayDimensions': 1,
+          'dimensionality': 1,
           'count': 1,
           'name': 'a',
           'path': 'a',
@@ -126,7 +126,7 @@ describe('FieldStore', function() {
     it('identifies 2d arrays', function(done) {
       const expected = {
         'a': {
-          'arrayDimensions': 2,
+          'dimensionality': 2,
           'count': 1,
           'name': 'a',
           'path': 'a',
@@ -146,7 +146,7 @@ describe('FieldStore', function() {
     it('identifies 3d arrays', function(done) {
       const expected = {
         'a': {
-          'arrayDimensions': 3,
+          'dimensionality': 3,
           'count': 1,
           'name': 'a',
           'path': 'a',
@@ -176,7 +176,7 @@ describe('FieldStore', function() {
     it('identifies 1d arrays of subdocuments', function(done) {
       const expected = {
         'a': {
-          'arrayDimensions': 1,
+          'dimensionality': 1,
           'count': 1,
           'name': 'a',
           'nestedFields': [
@@ -205,7 +205,7 @@ describe('FieldStore', function() {
     it('identifies 2d arrays of subdocuments', function(done) {
       const expected = {
         'a': {
-          'arrayDimensions': 2,
+          'dimensionality': 2,
           'count': 1,
           'name': 'a',
           'nestedFields': [
@@ -240,7 +240,7 @@ describe('FieldStore', function() {
     it('identifies 1d arrays of sub-subdocuments', function(done) {
       const expected = {
         'a': {
-          'arrayDimensions': 1,
+          'dimensionality': 1,
           'count': 1,
           'name': 'a',
           'nestedFields': [
@@ -288,7 +288,7 @@ describe('FieldStore', function() {
           'type': 'Document'
         },
         'a.b': {
-          'arrayDimensions': 1,
+          'dimensionality': 1,
           'count': 1,
           'name': 'b',
           'nestedFields': [
@@ -307,7 +307,7 @@ describe('FieldStore', function() {
           'type': 'Document'
         },
         'a.b.c.d': {
-          'arrayDimensions': 2,
+          'dimensionality': 2,
           'count': 2,
           'name': 'd',
           'path': 'a.b.c.d',
@@ -330,7 +330,7 @@ describe('FieldStore', function() {
     it('handles name', (done) => {
       const expected = {
         'foo1': {
-          'arrayDimensions': 1,
+          'dimensionality': 1,
           'count': 1,
           'name': 'foo1',
           'nestedFields': [
@@ -366,7 +366,7 @@ describe('FieldStore', function() {
     it('handles path', (done) => {
       const expected = {
         'foo1': {
-          'arrayDimensions': 1,
+          'dimensionality': 1,
           'count': 1,
           'name': 'foo1',
           'nestedFields': [
