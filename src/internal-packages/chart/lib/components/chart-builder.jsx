@@ -118,8 +118,8 @@ class ChartBuilder extends React.Component {
    * axis labels to use the old field name. This is because the encoding of
    * the data is now done in the aggregation framework directly.
    *
-   * @param  {[type]} spec [description]
-   * @return {[type]}      [description]
+   * @param  {Object} spec    the vega-lite spec to render
+   * @return {Object}         updated spec with field names replaced
    */
   _encodeVegaLiteSpec(spec) {
     const encodedSpec = _.cloneDeep(spec);
