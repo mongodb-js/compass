@@ -8,7 +8,7 @@ const {
   LITE_SPEC_GLOBAL_SETTINGS
 } = require('../constants');
 const Actions = require('../actions');
-const aggPipelineBuilder = require('./agg-pipeline-builder');
+const AggPipelineBuilder = require('./agg-pipeline-builder');
 const StateMixin = require('reflux-state-mixin');
 const app = require('hadron-app');
 const toNS = require('mongodb-ns');
@@ -44,6 +44,7 @@ const ChartStore = Reflux.createStore({
     this.listenables = Actions;
     this._resetChart();
 
+    this.aggPipelineBuilder = new AggPipelineBuilder();
     this.INITIAL_CHART_TYPE = '';
     this.INITIAL_SPEC_TYPE = SPEC_TYPE_ENUM.VEGA_LITE;
     this.AVAILABLE_CHART_ROLES = [];
@@ -188,27 +189,6 @@ const ChartStore = Reflux.createStore({
   },
 
   /**
-   * takes an `state.channels` object (created by UI interactions) and builds
-   * a new vega data transform stream mapping field names to channel names.
-   * Example transform mapping field name b to channel name x:
-   *
-   * {"type": "formula","as": "x","expr": "datum.b"},
-   *
-   * @param  {Object} channels   channels object
-   * @return {Object}            vega data transform stream
-   */
-  _createVegaEncodingTransform(channels) {
-    const transform = _.map(channels, (val, key) => {
-      return {type: 'formula', as: key, expr: `datum.${val.field}`};
-    });
-    return {
-      name: 'encoding',
-      source: 'values',
-      transform: transform
-    };
-  },
-
-  /**
    * helper function to take a spec template and a channels object (constructed
    * via the chart builder) and an encoding object and create a full spec.
    *
@@ -223,14 +203,30 @@ const ChartStore = Reflux.createStore({
   _encodeSpec(spec, specType, channels) {
     let result;
     if (specType === SPEC_TYPE_ENUM.VEGA_LITE) {
-      const encoding = {encoding: channels};
-      result = _.merge({}, LITE_SPEC_GLOBAL_SETTINGS, spec, encoding);
+      const encodedChannels = {encoding: channels};
+      result = _.merge({}, LITE_SPEC_GLOBAL_SETTINGS, spec, encodedChannels);
+
+      // Because we encode the channels via the aggregation framework already,
+      // we need to rename the field encodings to match the channel names here,
+      // and fix the axis titles to use the original field names.
+      _.each(result.encoding, (encoding, channel) => {
+        // overwrite axis titles, wrap in aggregate function if present
+        let axisTitle = encoding.field;
+        if (encoding.aggregate) {
+          axisTitle = `${encoding.aggregate}(${axisTitle})`;
+        }
+        result.encoding[channel].axis = {
+          title: axisTitle
+        };
+        // rename fields to match channel
+        result.encoding[channel].field = channel;
+      });
+
       // keep the existing spec config (special case if editing via JSON editor)
       result.config = _.merge(result.config, this.state.spec.config);
     } else {
-      const encoding = this._createVegaEncodingTransform(channels);
       result = _.cloneDeep(spec);
-      result.data.unshift(encoding);
+      // result.data.unshift(encoding);
       result.data.unshift({name: 'values'});
     }
     return result;
@@ -310,7 +306,7 @@ const ChartStore = Reflux.createStore({
     }
 
     // construct new pipeline and compare with last one. exit if they are equal.
-    const pipeline = aggPipelineBuilder(state);
+    const pipeline = this.aggPipelineBuilder.constructPipeline(state);
     if (_.isEqual(state.pipelineCache, pipeline)) {
       return;
     }

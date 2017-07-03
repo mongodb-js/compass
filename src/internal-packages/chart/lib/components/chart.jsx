@@ -2,18 +2,14 @@ const React = require('react');
 const PropTypes = require('prop-types');
 const VegaLite = require('react-vega-lite').default;
 const Vega = require('react-vega').default;
-const vl = require('vega-lite');
-const remote = require('electron').remote;
-
-const { DOT_UNICODE_REPLACEMENT } = require('../constants');
-
 const _ = require('lodash');
-const debug = require('debug')('mongodb-compass:chart:chart');
+
+// const debug = require('debug')('mongodb-compass:chart:chart');
 
 class Chart extends React.Component {
 
   shouldComponentUpdate(newProps) {
-    return (newProps.reRenderChart);
+    return (newProps.reRenderChart && newProps.data.length > 0);
   }
   /**
    * renders the chart as a ReactVega / ReactVegaLite component.
@@ -25,15 +21,6 @@ class Chart extends React.Component {
     const data = {values: this.props.data};
     // add width and height to the spec
     const spec = _.assign({}, this.props.spec, _.pick(this.props, ['width', 'height']));
-    spec.data = data;
-    const vegaSpec = vl.compile(spec).spec;
-    debug('vega spec %j', vegaSpec);
-    remote.clipboard.writeText(JSON.stringify(vegaSpec, null, '  '));
-
-    // temporary work-around to flatten all nested fields, see COMPASS-1246
-    _.each(spec.encoding, (encoding, channel) => {
-      spec.encoding[channel].field = encoding.field.replace(/\./g, DOT_UNICODE_REPLACEMENT);
-    });
 
     const ChartClass = this.props.specType === 'vega-lite' ? VegaLite : Vega;
     return (
