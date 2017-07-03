@@ -784,7 +784,11 @@ const ChartStore = Reflux.createStore({
     this._maintainUnwindInvariant(channelReductions);
     reductions[channel] = channelReductions;
 
-    editStates[channel] = EDIT_STATES_ENUM.MODIFIED;
+    // Only update edit state to modified if it is previously unmodified
+    if (editStates[channel] === EDIT_STATES_ENUM.UNMODIFIED) {
+      editStates[channel] = EDIT_STATES_ENUM.MODIFIED;
+    }
+
     this._updateSpec({
       reductions: reductions,
       editStates: editStates
