@@ -820,10 +820,11 @@ const ChartStore = Reflux.createStore({
   /**
    * Apply reductions by setting edit state to updating
    * @param {String} channel the channel related to the reductions
+   * @param {String} editState the editState to set (Updating by default)
    */
-  applyReductions(channel) {
+  applyReductions(channel, editState = EDIT_STATES_ENUM.UPDATING) {
     const editStates = _.cloneDeep(this.state.editStates);
-    editStates[channel] = EDIT_STATES_ENUM.UPDATING;
+    editStates[channel] = editState;
     this._updateSpec({editStates: editStates}, true);
   },
 

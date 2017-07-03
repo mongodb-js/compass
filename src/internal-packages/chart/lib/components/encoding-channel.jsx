@@ -103,6 +103,10 @@ class EncodingChannel extends React.Component {
           <button onClick={this._applyReduction.bind(this)} disabled={disabled}>Apply</button>
         </div>
       );
+    } else if (this.props.editState === EDIT_STATES_ENUM.SUCCESS) {
+      setTimeout(() => {
+        this.props.actions.applyReductions(this.props.channelName, EDIT_STATES_ENUM.UNMODIFIED);
+      }, 1000);
     }
 
     return view;
