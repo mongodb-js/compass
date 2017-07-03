@@ -283,21 +283,6 @@ class EditableElement extends React.Component {
   }
 
   /**
-   * Render the style with the provided base style.
-   *
-   * @param {String} base - The base style.
-   *
-   * @returns {String} The style.
-   */
-  renderStyle(base) {
-    let style = base;
-    if (this.props.rootFieldIndex > FIELD_LIMIT) {
-      style = `${style} hidden`;
-    }
-    return style;
-  }
-
-  /**
    * Render the types column.
    *
    * @returns {React.Component} The component.
