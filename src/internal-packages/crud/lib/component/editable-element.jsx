@@ -233,7 +233,7 @@ class EditableElement extends React.Component {
    */
   renderChildren() {
     const components = [];
-    if (!this.props.editing && !this.props.expandAll) {
+    if (!this.state.expanded && !this.props.expandAll) {
       // COMPASS-1312 Lazily render children when user clicks on expand
       return components;
     }
