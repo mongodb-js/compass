@@ -82,6 +82,28 @@ class EncodingChannel extends React.Component {
     );
   }
 
+  renderReductionEditState() {
+    let view;
+    if (!this.props.encodedReductions) {
+      return null;
+    }
+
+    if (this.props.editState === EDIT_STATES_ENUM.INITIAL) {
+      // set disabled to true if none of the reduction types are set
+      const disabled = this.props.encodedReductions.every((red) => {
+        return !red.type;
+      });
+      view = (
+        <div>
+          <button disabled={disabled}>Cancel</button>
+          <button disabled={disabled}>Apply</button>
+        </div>
+      );
+    }
+
+    return view;
+  }
+
   render() {
     // TODO: Add required/optional CSS to labelClassNames
     // const cssOptional = this.props.optional === 'required' ? CSS : CSS;
@@ -106,6 +128,7 @@ class EncodingChannel extends React.Component {
         <div id={chartChannelId} className={droppableClass}>
           {this.renderField()}
         </div>
+        {this.renderReductionEditState()}
       </div>
     );
   }
