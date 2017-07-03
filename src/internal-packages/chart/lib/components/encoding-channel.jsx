@@ -87,29 +87,55 @@ class EncodingChannel extends React.Component {
   }
 
   renderReductionEditState() {
-    let view;
     if (!this.props.encodedReductions) {
       return null;
     }
 
-    if (this.props.editState === EDIT_STATES_ENUM.INITIAL) {
-      // set disabled to true if none of the reduction types are set
-      const disabled = this.props.encodedReductions.every((red) => {
-        return !red.type;
-      });
-      view = (
-        <div>
-          <button disabled={disabled}>Cancel</button>
-          <button onClick={this._applyReduction.bind(this)} disabled={disabled}>Apply</button>
-        </div>
-      );
-    } else if (this.props.editState === EDIT_STATES_ENUM.SUCCESS) {
-      setTimeout(() => {
-        this.props.actions.applyReductions(this.props.channelName, EDIT_STATES_ENUM.UNMODIFIED);
-      }, 1000);
-    }
+    switch (this.props.editState) {
+      case EDIT_STATES_ENUM.INITIAL:
+        // set disabled to true if none of the reduction types are set
+        const disabled = this.props.encodedReductions.every((red) => {
+          return !red.type;
+        });
+        return (
+          <div>
+            <button disabled={disabled}>Cancel</button>
+            <button onClick={this._applyReduction.bind(this)} disabled={disabled}>Apply</button>
+          </div>
+        );
+      case EDIT_STATES_ENUM.MODIFIED:
+        return (
+          <div>
+            <button>Cancel</button>
+            <button onClick={this._applyReduction.bind(this)}>Apply</button>
+          </div>
+        );
+      case EDIT_STATES_ENUM.UPDATING:
+        return (
+          <div>
+            <span>Updating...</span>
+          </div>
+        );
+      case EDIT_STATES_ENUM.SUCCESS:
+        // set edit state to unmodified after a second
+        setTimeout(() => {
+          this.props.actions.applyReductions(this.props.channelName, EDIT_STATES_ENUM.UNMODIFIED);
+        }, 1000);
 
-    return view;
+        return (
+          <div>
+            <span>Updated</span>
+          </div>
+        );
+      case EDIT_STATES_ENUM.ERROR:
+        return (
+          <div>
+            <span>An error occured</span>
+          </div>
+        );
+      // handles UNMODIFIED case
+      default: return null;
+    }
   }
 
   render() {
