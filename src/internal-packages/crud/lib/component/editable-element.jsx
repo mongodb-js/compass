@@ -320,7 +320,7 @@ class EditableElement extends React.Component {
     }
     const onDoubleClick = this.element.isKeyEditable() ? null : this.focusEditKey.bind(this);
     return (
-      <div className={FIELD_CLASS} onDoubleClick={onDoubleClick}>
+      <div className={FIELD_CLASS} onClick={this.toggleExpandable.bind(this)} onDoubleClick={onDoubleClick}>
         {this.element.parent.currentType === 'Array' ? this.props.index : this.element.currentKey}
       </div>
     );
@@ -344,7 +344,7 @@ class EditableElement extends React.Component {
   }
 
   /**
-   * Render the expanable label column.
+   * Render the expandable label column.
    *
    * @returns {Component} The component.
    */
