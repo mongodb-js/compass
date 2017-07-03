@@ -4,9 +4,7 @@ const { expect } = require('chai');
 // const aggBuilder = require('../../src/internal-packages/chart/lib/store/agg-pipeline-builder');
 
 const {
-  ARRAY_GENERAL_REDUCTIONS,
-  ARRAY_NUMERIC_REDUCTIONS,
-  ARRAY_STRING_REDUCTIONS
+  ARRAY_REDUCTION_TYPES
 } = require('../../src/internal-packages/chart/lib/constants');
 
 const DataService = require('mongodb-data-service');
@@ -59,8 +57,8 @@ describe('Aggregation Pipeline Builder', function() {
       const state = {
         reductions: {
           x: [
-            {field: 'friends', type: ARRAY_NUMERIC_REDUCTIONS.MAX},
-            {field: 'friends.scores', type: ARRAY_NUMERIC_REDUCTIONS.MIN}
+            {field: 'friends', type: ARRAY_REDUCTION_TYPES.MAX},
+            {field: 'friends.scores', type: ARRAY_REDUCTION_TYPES.MIN}
           ]
         },
         channels: {
@@ -90,8 +88,8 @@ describe('Aggregation Pipeline Builder', function() {
       const state = {
         reductions: {
           x: [
-            { field: 'friends', type: ARRAY_NUMERIC_REDUCTIONS.MAX },
-            { field: 'friends.scores', type: ARRAY_NUMERIC_REDUCTIONS.MIN }
+            { field: 'friends', type: ARRAY_REDUCTION_TYPES.MAX },
+            { field: 'friends.scores', type: ARRAY_REDUCTION_TYPES.MIN }
           ]
         },
         channels: {
@@ -112,8 +110,8 @@ describe('Aggregation Pipeline Builder', function() {
       const state = {
         reductions: {
           x: [
-            { field: 'friends', type: ARRAY_NUMERIC_REDUCTIONS.MAX },
-            { field: 'friends.scores', type: ARRAY_NUMERIC_REDUCTIONS.MIN }
+            { field: 'friends', type: ARRAY_REDUCTION_TYPES.MAX },
+            { field: 'friends.scores', type: ARRAY_REDUCTION_TYPES.MIN }
           ]
         },
         channels: {
