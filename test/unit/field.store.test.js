@@ -170,6 +170,33 @@ describe('FieldStore', function() {
         ]
       ]});
     });
+    it('multiple calls chooses latest array definition', function(done) {
+      // Ideally in this polymorphic case we'd store all the types,
+      // but that's much harder to reason about and not needed at this time
+      const expected = {
+        'a': {
+          'dimensionality': 1,
+          'count': 2,
+          'name': 'a',
+          'path': 'a',
+          'type': 'Array'
+        }
+      };
+
+      // Should effectively be a no-op call
+      FieldStore.processSingleDocument({a: [
+        ['1_1', '1_2', '1_3'],
+        ['2_1', '2_2', '2_3']
+      ]});
+
+      // Call that matters, the one that should be kept around
+      FieldStore.processSingleDocument({a: [1, 2, 3]});
+
+      setTimeout(() => {
+        expect(FieldStore.state.fields).to.be.deep.equal(expected);
+        done();
+      });
+    });
   });
 
   context('mixed nested arrays and subdocuments', () => {
