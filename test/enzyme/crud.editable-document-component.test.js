@@ -15,14 +15,17 @@ chai.use(chaiEnzyme());
 
 describe('<EditableDocument />', function() {
   let appRegistry = app.appRegistry;
+  let appInstance = app.instance;
   beforeEach(() => {
     // Mock the AppRegistry with a new one so tests don't complain about
     // appRegistry.getComponent (i.e. appRegistry being undefined)
     app.appRegistry = new AppRegistry();
+    app.instance = {build: {version: '3.2.0'}};
   });
   afterEach(() => {
     // Restore properties on the global app, so they don't affect other tests
     app.appRegistry = appRegistry;
+    app.instance = appInstance;
   });
 
   const doc = {a: {b: {c: {d: 1}}}};
@@ -31,9 +34,22 @@ describe('<EditableDocument />', function() {
     const children = component.find(EditableElement);
     expect(children).to.be.of.length(4);
   });
-  it('COMPASS-1306, if expandAll is false, does not render children', () => {
-    const component = mount(<EditableDocument doc={doc} expandAll={false} />);
-    const children = component.find(EditableElement);
-    expect(children).to.be.of.length(1);
+  context('COMPASS_1306, if expandAll is false', () => {
+    it('if not in editing mode, does not render children', () => {
+      const component = mount(
+        <EditableDocument doc={doc} expandAll={false} />
+      );
+      component.setState({editing: false});
+      const children = component.find(EditableElement);
+      expect(children).to.be.of.length(1);
+    });
+    it('if in editing mode, render children', () => {
+      const component = mount(
+        <EditableDocument doc={doc} expandAll={false} />
+      );
+      component.setState({editing: true});
+      const children = component.find(EditableElement);
+      expect(children).to.be.of.length(4);
+    });
   });
 });
