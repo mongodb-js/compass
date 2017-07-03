@@ -61,7 +61,15 @@ const TEN_RANDOM_STRINGS_SCHEMA_FIELD = {
   type: 'Array'
 };
 
+const COORDINATES_ARRAY_FIELD = {
+  dimensionality: 2,
+  name: 'coordinates_array',
+  path: 'coordinates_array',
+  type: 'Array'
+};
+
 const ARRAY_OF_3_SUBDOCS_FIELD = {
+  dimensionality: 1,
   name: 'array_of_3_subdocs',
   path: 'array_of_3_subdocs',
   type: 'Array'
@@ -74,6 +82,7 @@ const SUBDOCS_AGE_FIELD = {
 };
 
 const ARRAY_OF_SUBDOCS_WITH_NUMBER_ARRAYS_FIELD = {
+  dimensionality: 1,
   name: 'array_of_subdocs_with_number_arrays',
   path: 'array_of_subdocs_with_number_arrays',
   type: 'Array'
@@ -105,6 +114,7 @@ describe('ChartStore', function() {
       'revenue': REVENUE_SCHEMA_FIELD,
       'up_to_5_tags': UP_TO_5_TAGS_SCHEMA_FIELD,
       '10_random_strings': TEN_RANDOM_STRINGS_SCHEMA_FIELD,
+      'coordinates_array': COORDINATES_ARRAY_FIELD,
       'array_of_3_subdocs': ARRAY_OF_3_SUBDOCS_FIELD,
       'array_of_3_subdocs.age': SUBDOCS_AGE_FIELD,
       'array_of_subdocs_with_number_arrays': ARRAY_OF_SUBDOCS_WITH_NUMBER_ARRAYS_FIELD,
@@ -663,6 +673,7 @@ describe('ChartStore', function() {
     it('returns the correct array reduction', function(done) {
       ChartActions.mapFieldToChannel(ARRAY_OF_3_SUBDOCS_FIELD.path, channel);
       const expected = [{
+        dimensionality: 1,
         field: ARRAY_OF_3_SUBDOCS_FIELD.path,
         type: null,
         arguments: []
@@ -676,7 +687,27 @@ describe('ChartStore', function() {
     it('returns the correct parent array reduction', function(done) {
       ChartActions.mapFieldToChannel(SUBDOCS_AGE_FIELD.path, channel);
       const expected = [{
+        dimensionality: 1,
         field: ARRAY_OF_3_SUBDOCS_FIELD.path,
+        type: null,
+        arguments: []
+      }];
+      setTimeout(() => {
+        const reduction = ChartStore._createReductionFromChannel(this.store.state.channels[channel]);
+        expect(reduction).to.be.deep.equal(expected);
+        done();
+      });
+    });
+    it('handles 2D arrays of coordinates', function(done) {
+      ChartActions.mapFieldToChannel(COORDINATES_ARRAY_FIELD.path, channel);
+      const expected = [{
+        dimensionality: 1,
+        field: COORDINATES_ARRAY_FIELD.path,
+        type: null,
+        arguments: []
+      }, {
+        dimensionality: 2,
+        field: COORDINATES_ARRAY_FIELD.path,
         type: null,
         arguments: []
       }];
@@ -699,11 +730,13 @@ describe('ChartStore', function() {
       const expected = {
         [channel]: [
           {
+            dimensionality: 1,
             field: outerArrayField.path,
             type: null,
             arguments: []
           },
           {
+            dimensionality: 1,
             field: innerArrayField.path,
             type: null,
             arguments: []
@@ -722,11 +755,13 @@ describe('ChartStore', function() {
       const expected = {
         [channel]: [
           {
+            dimensionality: 1,
             field: outerArrayField.path,
             type: ARRAY_REDUCTION_TYPES.UNWIND,
             arguments: []
           },
           {
+            dimensionality: 1,
             field: innerArrayField.path,
             type: ARRAY_REDUCTION_TYPES.UNWIND,
             arguments: []
@@ -760,6 +795,7 @@ describe('ChartStore', function() {
         type = ARRAY_REDUCTION_TYPES.UNWIND;
         const expected = {
           [channel]: [{
+            dimensionality: 1,
             field: field.path,
             type: type,
             arguments: []
@@ -885,6 +921,7 @@ describe('ChartStore', function() {
         type = ARRAY_REDUCTION_TYPES.MAX_LENGTH;
         const expected = {
           [channel]: [{
+            dimensionality: 1,
             field: field.path,
             type: type,
             arguments: []
@@ -903,6 +940,7 @@ describe('ChartStore', function() {
         ChartActions.mapFieldToChannel(TEN_RANDOM_STRINGS_SCHEMA_FIELD.path, channel);
         const expected = {
           [channel]: [{
+            dimensionality: 1,
             field: TEN_RANDOM_STRINGS_SCHEMA_FIELD.path,
             type: null,
             arguments: []
@@ -960,11 +998,13 @@ describe('ChartStore', function() {
     it('when encoding another channel, it does not lose the unwind', function(done) {
       const expected = {
         [channel1]: [{
+          dimensionality: 1,
           field: field.path,
           type: type,
           arguments: []
         }],
         [channel2]: [{
+          dimensionality: 1,
           field: field.path,
           type: null,
           arguments: []
@@ -994,6 +1034,7 @@ describe('ChartStore', function() {
       it('has an initial expected reduction', function(done) {
         const expected = {
           [xChannel]: [{
+            dimensionality: 1,
             field: field1.path,
             type: type,
             arguments: []
@@ -1010,6 +1051,7 @@ describe('ChartStore', function() {
         ChartActions.swapEncodedChannels(xChannel, yChannel);
         const expected = {
           [yChannel]: [{
+            dimensionality: 1,
             field: field1.path,
             type: type,
             arguments: []
@@ -1032,11 +1074,13 @@ describe('ChartStore', function() {
       it('has an initial expected reduction', function(done) {
         const expected = {
           [xChannel]: [{
+            dimensionality: 1,
             field: field1.path,
             type: type,
             arguments: []
           }],
           [yChannel]: [{
+            dimensionality: 1,
             field: field2.path,
             type: null,
             arguments: []
@@ -1053,11 +1097,13 @@ describe('ChartStore', function() {
         ChartActions.swapEncodedChannels(xChannel, yChannel);
         const expected = {
           [xChannel]: [{
+            dimensionality: 1,
             field: field2.path,
             type: null,
             arguments: []
           }],
           [yChannel]: [{
+            dimensionality: 1,
             field: field1.path,
             type: type,
             arguments: []
@@ -1101,11 +1147,13 @@ describe('ChartStore', function() {
         type = ARRAY_REDUCTION_TYPES.MAX_LENGTH;
         const expectedReductions = {
           [xChannel]: [{
+            dimensionality: 1,
             field: field1.path,
             type: type,
             arguments: []
           }],
           [yChannel]: [{
+            dimensionality: 1,
             field: field2.path,
             type: type,
             arguments: []

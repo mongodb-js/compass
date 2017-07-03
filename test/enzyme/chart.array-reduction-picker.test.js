@@ -13,9 +13,9 @@ chai.use(chaiEnzyme());
 
 describe('<ArrayReductionPicker />', () => {
   let component;
-  context('when setting a label and type', () => {
+  context('when dimensionality=1 and setting a label and type', () => {
     beforeEach(() => {
-      component = shallow(<ArrayReductionPicker field="MagicLetters" type="concat" />);
+      component = shallow(<ArrayReductionPicker dimensionality={1} field="MagicLetters" type="concat" />);
     });
 
     it('displays the label', () => {
@@ -32,9 +32,20 @@ describe('<ArrayReductionPicker />', () => {
     });
   });
 
+  // 321 is not particularly special, it's just a big-ish number
+  context('when dimensionality=321', () => {
+    beforeEach(() => {
+      component = shallow(<ArrayReductionPicker dimensionality={321} field="MagicLetters" type="concat" />);
+    });
+
+    it('has 321 [] icons present', () => {
+      expect(component.find('i.mms-icon-array')).to.have.length(321);
+    });
+  });
+
   context('when no type is set', () => {
     beforeEach(() => {
-      component = shallow(<ArrayReductionPicker />);
+      component = shallow(<ArrayReductionPicker dimensionality={1} />);
     });
 
     it('displays "choose method"', () => {
