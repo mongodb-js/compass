@@ -69,7 +69,10 @@ const FieldStore = Reflux.createStore({
           return _.isNumber(objectValue) ? objectValue + sourceValue : sourceValue;
         }
         if (key === 'type') {
-          // arrays concatenate and de-dupe
+          if (objectValue === sourceValue) {
+            return objectValue;
+          }
+          // arrays concatenate and de-duplicate
           if (_.isString(objectValue)) {
             return _.uniq([objectValue, sourceValue]);
           }
