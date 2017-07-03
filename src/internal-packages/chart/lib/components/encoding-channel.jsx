@@ -57,6 +57,10 @@ class EncodingChannel extends React.Component {
     this.props.actions.mapFieldToChannel(null, channelName);
   }
 
+  _applyReduction() {
+    this.props.actions.applyReductions(this.props.channelName);
+  }
+
   renderField() {
     if (_.isEmpty(this.props.encodedChannel)) {
       // render a placeholder string
@@ -96,7 +100,7 @@ class EncodingChannel extends React.Component {
       view = (
         <div>
           <button disabled={disabled}>Cancel</button>
-          <button disabled={disabled}>Apply</button>
+          <button onClick={this._applyReduction.bind(this)} disabled={disabled}>Apply</button>
         </div>
       );
     }

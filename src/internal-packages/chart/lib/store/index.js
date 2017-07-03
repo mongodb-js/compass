@@ -232,13 +232,24 @@ const ChartStore = Reflux.createStore({
     const encodedChannels = Object.keys(state.channels);
     const allRequiredChannelsEncoded = requiredChannels.length ===
       _.intersection(requiredChannels, encodedChannels).length;
+
+    // check if all reductions have types selected
     const allReductionsSelected = _.every(_.map(state.reductions, (reductions) => {
       return _.filter(reductions, (reduction) => {
         return reduction.type === null;
       }).length === 0;
     }));
 
-    return allReductionsSelected && allRequiredChannelsEncoded && encodedChannels.length > 0;
+    // check if channel is in updating editState (if there are no editStates assume true)
+    const isUpdating = _.isEmpty(state.editStates) ? true :
+      _.filter(state.editStates, (editState) => {
+        return editState === EDIT_STATES_ENUM.UPDATING;
+      }).length > 0;
+
+    return allReductionsSelected
+      && allRequiredChannelsEncoded
+      && encodedChannels.length > 0
+      && isUpdating;
   },
 
   /**
@@ -793,6 +804,16 @@ const ChartStore = Reflux.createStore({
       reductions: reductions,
       editStates: editStates
     }, true);
+  },
+
+  /**
+   * Apply reductions by setting edit state to updating
+   * @param {String} channel the channel related to the reductions
+   */
+  applyReductions(channel) {
+    const editStates = _.cloneDeep(this.state.editStates);
+    editStates[channel] = EDIT_STATES_ENUM.UPDATING;
+    this._updateSpec({editStates: editStates}, true);
   },
 
   /**
