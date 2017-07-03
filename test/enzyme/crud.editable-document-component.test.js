@@ -30,24 +30,31 @@ describe('<EditableDocument />', function() {
 
   const doc = {a: {b: {c: {d: 1}}}};
   it('if expandAll is true, renders children', () => {
-    const component = mount(<EditableDocument doc={doc} expandAll={true} />);
+    const component = mount(<EditableDocument doc={doc} />);
+    component.setState({ expandAll: true });
     const children = component.find(EditableElement);
     expect(children).to.be.of.length(4);
   });
   context('COMPASS_1306, if expandAll is false', () => {
     it('if not in editing mode, does not render children', () => {
       const component = mount(
-        <EditableDocument doc={doc} expandAll={false} />
+        <EditableDocument doc={doc} />
       );
-      component.setState({editing: false});
+      component.setState({
+        editing: false,
+        expandAll: false
+      });
       const children = component.find(EditableElement);
       expect(children).to.be.of.length(1);
     });
     it('if in editing mode, render children', () => {
       const component = mount(
-        <EditableDocument doc={doc} expandAll={false} />
+        <EditableDocument doc={doc} />
       );
-      component.setState({editing: true});
+      component.setState({
+        editing: true,
+        expandAll: false
+      });
       const children = component.find(EditableElement);
       expect(children).to.be.of.length(4);
     });
