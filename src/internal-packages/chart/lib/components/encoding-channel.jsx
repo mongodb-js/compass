@@ -4,6 +4,7 @@ const PropTypes = require('prop-types');
 const DropTarget = require('react-dnd').DropTarget;
 const _ = require('lodash');
 const DraggableField = require('./draggable-field');
+const { EDIT_STATES_ENUM } = require('../constants');
 
 // const debug = require('debug')('mongodb-compass:chart:encoding-channel');
 
@@ -119,6 +120,7 @@ EncodingChannel.propTypes = {
   isOver: PropTypes.bool.isRequired,
   specType: PropTypes.oneOf(['vega', 'vega-lite']),
   encodedReductions: PropTypes.array,
+  editState: PropTypes.oneOf(_.values(EDIT_STATES_ENUM)),
   canDrop: PropTypes.bool.isRequired
 };
 

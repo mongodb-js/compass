@@ -243,6 +243,7 @@ class ChartBuilder extends React.Component {
                 availableChartRoles={this.props.availableChartRoles}
                 encodedChannels={this.props.channels}
                 reductions={this.props.reductions}
+                editStates={this.props.editStates}
                 actions={this.props.actions}
               />
             </div>
@@ -303,6 +304,7 @@ ChartBuilder.propTypes = {
   specValid: PropTypes.bool,
   channels: PropTypes.object,
   reductions: PropTypes.object,
+  editStates: PropTypes.object,
   actions: PropTypes.object,
   hasUndoableActions: PropTypes.bool,
   hasRedoableActions: PropTypes.bool
