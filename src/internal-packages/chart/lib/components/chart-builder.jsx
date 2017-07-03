@@ -193,7 +193,7 @@ class ChartBuilder extends React.Component {
       this._getChartDimensions() : {width: this.state.width, height: this.state.height};
 
     // map field names to channel names for vega-lite
-    const spec = (this.props.specType === 'vega-lite') ?
+    const spec = (this.props.specType === SPEC_TYPE_ENUM.VEGA_LITE) ?
       this._encodeVegaLiteSpec(this.props.spec) : this.props.spec;
 
     return (
