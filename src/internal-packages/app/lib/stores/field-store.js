@@ -86,8 +86,9 @@ const FieldStore = Reflux.createStore({
    * @param  {Object} fields       flattened list of fields
    * @param  {Array} nestedFields  sub-fields of topLevelFields (if existing)
    * @param  {Object} rootField    current top level field which can contain nestedFields
+   * @param  {Number} arrayDepth   track depth of the dimensionality recursion
    */
-  _flattenedFields(fields, nestedFields, rootField) {
+  _flattenedFields(fields, nestedFields, rootField, arrayDepth = 1) {
     if (!nestedFields) {
       return;
     }
@@ -116,7 +117,7 @@ const FieldStore = Reflux.createStore({
         }
         if (type.name === 'Array') {
           // add arrays of arrays or subdocuments
-          this._flattenedArray(fields, type.types, field);
+          this._flattenedArray(fields, type.types, field, arrayDepth);
         }
       }
     }
@@ -129,14 +130,11 @@ const FieldStore = Reflux.createStore({
    * @param {Array} nestedTypes  the "types" array currently being inspected
    * @param {Object} field       current top level field on which to
    *                             mutate dimensionality
+   * @param {Number} arrayDepth  track depth of the dimensionality recursion
    */
-  _flattenedArray(fields, nestedTypes, field) {
-    // Increment the array cardinality / depth / number of dimensions
-    // to capture if it's linear, square, cubic, etc
-    if (typeof(fields[field.path].arrayDimensions) !== 'number') {
-      fields[field.path].dimensionality = 0;
-    }
-    fields[field.path].dimensionality += 1;
+  _flattenedArray(fields, nestedTypes, field, arrayDepth) {
+    fields[field.path].dimensionality = arrayDepth;
+    arrayDepth += 1;
 
     // Arrays have no name, so can only recurse into arrays or subdocuments
     for (const type of nestedTypes) {
@@ -146,7 +144,7 @@ const FieldStore = Reflux.createStore({
       }
       if (type.name === 'Array') {
         // recurse into nested arrays (again)
-        this._flattenedArray(fields, type.types, field);
+        this._flattenedArray(fields, type.types, field, arrayDepth);
       }
     }
   },
