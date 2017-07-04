@@ -111,7 +111,7 @@ describe('Aggregation Pipeline Builder', function() {
         });
       });
     });
-    context('when a all query properties are present', function() {
+    context('when all query properties are present', function() {
       it('has the stages in the right order', function() {
         const state = {
           queryCache: {

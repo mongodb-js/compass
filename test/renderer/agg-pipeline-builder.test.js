@@ -1,7 +1,6 @@
 /* eslint no-unused-expressions: 0 */
 
 const { expect } = require('chai');
-// const aggBuilder = require('../../src/internal-packages/chart/lib/store/agg-pipeline-builder');
 
 const {
   ARRAY_REDUCTION_TYPES
