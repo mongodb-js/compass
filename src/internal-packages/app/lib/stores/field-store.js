@@ -69,7 +69,12 @@ const FieldStore = Reflux.createStore({
           return _.isNumber(objectValue) ? objectValue + sourceValue : sourceValue;
         }
         if (key === 'type') {
-          // arrays concatenate and de-dupe
+          // Avoid the merge of 'Array' with 'Array' case becoming
+          // an array with a single value, i.e. ['Array']
+          if (objectValue === sourceValue) {
+            return objectValue;
+          }
+          // arrays concatenate and de-duplicate
           if (_.isString(objectValue)) {
             return _.uniq([objectValue, sourceValue]);
           }
@@ -86,8 +91,9 @@ const FieldStore = Reflux.createStore({
    * @param  {Object} fields       flattened list of fields
    * @param  {Array} nestedFields  sub-fields of topLevelFields (if existing)
    * @param  {Object} rootField    current top level field which can contain nestedFields
+   * @param  {Number} arrayDepth   track depth of the dimensionality recursion
    */
-  _flattenedFields(fields, nestedFields, rootField) {
+  _flattenedFields(fields, nestedFields, rootField, arrayDepth = 1) {
     if (!nestedFields) {
       return;
     }
@@ -108,19 +114,41 @@ const FieldStore = Reflux.createStore({
       const newField = _.pick(field, FIELDS);
       fields[field.path] = this._mergeFields(existingField, newField);
 
-      // recursively search sub documents
+      // recursively search arrays and subdocuments
       for (const type of field.types) {
         if (type.name === 'Document') {
           // add nested sub-fields
           this._flattenedFields(fields, type.fields, field);
         }
         if (type.name === 'Array') {
-          // add nested sub-fields of document type
-          const docType = _.find(type.types, 'name', 'Document');
-          if (docType) {
-            this._flattenedFields(fields, docType.fields, field);
-          }
+          // add arrays of arrays or subdocuments
+          this._flattenedArray(fields, type.types, field, arrayDepth);
         }
+      }
+    }
+  },
+
+  /**
+   * Helper to recurse into the "types" of the mongodb-schema superstructure.
+   *
+   * @param {Object} fields      flattened list of fields to mutate
+   * @param {Array} nestedTypes  the "types" array currently being inspected
+   * @param {Object} field       current top level field on which to
+   *                             mutate dimensionality
+   * @param {Number} arrayDepth  track depth of the dimensionality recursion
+   */
+  _flattenedArray(fields, nestedTypes, field, arrayDepth) {
+    fields[field.path].dimensionality = arrayDepth;
+
+    // Arrays have no name, so can only recurse into arrays or subdocuments
+    for (const type of nestedTypes) {
+      if (type.name === 'Document') {
+        // recurse into nested sub-fields
+        this._flattenedFields(fields, type.fields, field);
+      }
+      if (type.name === 'Array') {
+        // recurse into nested arrays (again)
+        this._flattenedArray(fields, type.types, field, arrayDepth + 1);
       }
     }
   },

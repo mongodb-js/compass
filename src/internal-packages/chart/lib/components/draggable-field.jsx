@@ -115,6 +115,7 @@ class DraggableField extends React.Component {
         key={i}
         index={i}
         channel={this.props.channelName}
+        dimensionality={reduction.dimensionality}
         field={reduction.field}
         actions={this.props.actions}
         type={reduction.type || null}

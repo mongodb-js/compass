@@ -20,6 +20,12 @@ class ArrayReductionPicker extends React.Component {
     this.props.actions.setArrayReduction(this.props.channel, this.props.index, action);
   }
 
+  renderDimensionality() {
+    return Array.from(new Array(this.props.dimensionality), (v, i) => {
+      return <i className="mms-icon-array" key={i} />;
+    });
+  }
+
   render() {
     let menu = _.values(ARRAY_GENERAL_REDUCTIONS).map((action) => {
       const key = GENERAL + action;
@@ -64,7 +70,7 @@ class ArrayReductionPicker extends React.Component {
           <div className="chart-draggable-field-title chart-draggable-field-title-nested">
             {this.props.field}
           </div>
-          <i className="mms-icon-array"></i>
+          {this.renderDimensionality()}
         </div>
         <div className="chart-draggable-field-row">
           <Dropdown className="chart-draggable-field-item-container chart-draggable-field-item-container-reduction" id="array-reduction-picker"
@@ -87,6 +93,7 @@ class ArrayReductionPicker extends React.Component {
 
 ArrayReductionPicker.propTypes = {
   channel: PropTypes.string,
+  dimensionality: PropTypes.number.isRequired,
   field: PropTypes.string,
   type: PropTypes.string,
   index: PropTypes.number,
