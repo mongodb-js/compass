@@ -64,7 +64,7 @@ class EditableDocument extends React.Component {
    */
   constructor(props) {
     super(props);
-    this.doc = this.loadDocument(props.doc);
+    this.doc = EditableDocument.loadDocument(props.doc);
     debug('props.doc', this.doc);
 
     this.state = {
@@ -110,7 +110,7 @@ class EditableDocument extends React.Component {
    *
    * @returns {HadronDocument} The hadron document.
    */
-  loadDocument(doc) {
+  static loadDocument(doc) {
     return new HadronDocument(doc);
   }
 
@@ -271,7 +271,7 @@ class EditableDocument extends React.Component {
    * @param {Object} doc - The updated document.
    */
   handleUpdateSuccess(doc) {
-    this.doc = this.loadDocument(doc);
+    this.doc = EditableDocument.loadDocument(doc);
     this.subscribeToDocumentEvents();
     setTimeout(() => {
       this.setState({ editing: false });
