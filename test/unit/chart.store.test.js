@@ -68,6 +68,13 @@ const COORDINATES_ARRAY_FIELD = {
   type: 'Array'
 };
 
+const MATRIX_3D = {
+  dimensionality: 3,
+  name: 'matrix_3D',
+  path: 'matrix_3D',
+  type: 'Array'
+};
+
 const ARRAY_OF_3_SUBDOCS_FIELD = {
   dimensionality: 1,
   name: 'array_of_3_subdocs',
@@ -115,6 +122,7 @@ describe('ChartStore', function() {
       'up_to_5_tags': UP_TO_5_TAGS_SCHEMA_FIELD,
       '10_random_strings': TEN_RANDOM_STRINGS_SCHEMA_FIELD,
       'coordinates_array': COORDINATES_ARRAY_FIELD,
+      'matrix_3D': MATRIX_3D,
       'array_of_3_subdocs': ARRAY_OF_3_SUBDOCS_FIELD,
       'array_of_3_subdocs.age': SUBDOCS_AGE_FIELD,
       'array_of_subdocs_with_number_arrays': ARRAY_OF_SUBDOCS_WITH_NUMBER_ARRAYS_FIELD,
@@ -779,7 +787,7 @@ describe('ChartStore', function() {
     });
   });
 
-  context('after an array channel has been encoded', () => {
+  context('after a 1D array channel has been encoded', () => {
     const field = UP_TO_5_TAGS_SCHEMA_FIELD;
     const channel = CHART_CHANNEL_ENUM.X;
     beforeEach(() => {
@@ -802,113 +810,6 @@ describe('ChartStore', function() {
           }]
         };
         ChartActions.setArrayReduction(channel, index, type);
-        setTimeout(() => {
-          const reductions = this.store.state.reductions;
-          expect(reductions).to.be.deep.equal(expected);
-          done();
-        });
-      });
-
-      // @TODO array of array (of array) case not implemented yet, skipping
-      it.skip('stores index number of unwind reductions', function(done) {
-        index = 2;
-        type = ARRAY_REDUCTION_TYPES.UNWIND;
-        const expected = {
-          [channel]: [
-            {
-              field: field.path,
-              type: type,
-              arguments: []
-            },
-            {
-              field: field.path,
-              type: type,
-              arguments: []
-            },
-            {
-              field: field.path,
-              type: type,
-              arguments: []
-            }
-          ]
-        };
-        ChartActions.setArrayReduction(channel, 2, type);
-        setTimeout(() => {
-          const reductions = this.store.state.reductions;
-          expect(reductions).to.be.deep.equal(expected);
-          done();
-        });
-      });
-
-      // @TODO array(->array)+ case not implemented yet, should be
-      // resolved by COMPASS-1241.
-      context.skip('if encoding a different operation', () => {
-        beforeEach(() => {
-          ChartActions.setArrayReduction(channel, 2, ARRAY_REDUCTION_TYPES.UNWIND);
-        });
-        it('maintains index number of unwind reductions', function(done) {
-          type = ARRAY_REDUCTION_TYPES.UNWIND;
-          const expected = {
-            [channel]: [
-              {
-                field: field.path,
-                type: type,
-                arguments: []
-              },
-              {
-                field: field.path,
-                // If user tries to change this, it should not change
-                // until the later unwind reduction has been un-encoded...
-                // perhaps this should even be disabled in the GUI?
-                type: type,
-                arguments: []
-              },
-              {
-                field: field.path,
-                type: type,
-                arguments: []
-              }
-            ]
-          };
-          const DIFFERENT_OP = ARRAY_REDUCTION_TYPES.MIN;
-          ChartActions.setArrayReduction(channel, 1, DIFFERENT_OP);
-          setTimeout(() => {
-            const reductions = this.store.state.reductions;
-            expect(reductions).to.be.deep.equal(expected);
-            done();
-          });
-        });
-      });
-
-      // @TODO array->array(->array) case not implemented yet, should be
-      // resolved by COMPASS-1241.
-      it.skip('stores index number of unwind reductions and min after', function(done) {
-        const expected = {
-          [channel]: [
-            {
-              field: field.path,
-              type: ARRAY_REDUCTION_TYPES.UNWIND,
-              arguments: []
-            },
-            {
-              field: field.path,
-              type: ARRAY_REDUCTION_TYPES.UNWIND,
-              arguments: []
-            },
-            {
-              field: field.path,
-              type: ARRAY_REDUCTION_TYPES.UNWIND,
-              arguments: []
-            },
-            {
-              field: field.path,
-              type: ARRAY_REDUCTION_TYPES.MIN,
-              arguments: []
-            }
-          ]
-        };
-        ChartActions.setArrayReduction(channel, 2, ARRAY_REDUCTION_TYPES.UNWIND);
-        ChartActions.setArrayReduction(channel, 3, ARRAY_REDUCTION_TYPES.MIN);
         setTimeout(() => {
           const reductions = this.store.state.reductions;
           expect(reductions).to.be.deep.equal(expected);
@@ -981,6 +882,123 @@ describe('ChartStore', function() {
           const reductions = this.store.state.reductions;
           expect(reductions).to.be.empty;
           done();
+        });
+      });
+    });
+  });
+
+  context('after a 3D array channel has been encoded', () => {
+    const field = MATRIX_3D;
+    const channel = CHART_CHANNEL_ENUM.X;
+    beforeEach(() => {
+      ChartActions.mapFieldToChannel(field.path, channel);
+    });
+
+    context('when calling the setArrayReduction action', function() {
+      let type;
+
+      it('stores index number of unwind reductions', function(done) {
+        type = ARRAY_REDUCTION_TYPES.UNWIND;
+        const expected = {
+          [channel]: [
+            {
+              dimensionality: 1,
+              field: field.path,
+              type: type,
+              arguments: []
+            },
+            {
+              dimensionality: 2,
+              field: field.path,
+              type: type,
+              arguments: []
+            },
+            {
+              dimensionality: 3,
+              field: field.path,
+              type: type,
+              arguments: []
+            }
+          ]
+        };
+        ChartActions.setArrayReduction(channel, 2, type);
+        setTimeout(() => {
+          const reductions = this.store.state.reductions;
+          expect(reductions).to.be.deep.equal(expected);
+          done();
+        });
+      });
+
+      it('stores index number of unwind reductions and min after', function(done) {
+        const expected = {
+          [channel]: [
+            {
+              dimensionality: 1,
+              field: field.path,
+              type: ARRAY_REDUCTION_TYPES.UNWIND,
+              arguments: []
+            },
+            {
+              dimensionality: 2,
+              field: field.path,
+              type: ARRAY_REDUCTION_TYPES.UNWIND,
+              arguments: []
+            },
+            {
+              dimensionality: 3,
+              field: field.path,
+              type: ARRAY_REDUCTION_TYPES.MIN,
+              arguments: []
+            }
+          ]
+        };
+        ChartActions.setArrayReduction(channel, 1, ARRAY_REDUCTION_TYPES.UNWIND);
+        ChartActions.setArrayReduction(channel, 2, ARRAY_REDUCTION_TYPES.MIN);
+        setTimeout(() => {
+          const reductions = this.store.state.reductions;
+          expect(reductions).to.be.deep.equal(expected);
+          done();
+        });
+      });
+
+      context('if encoding a different operation', () => {
+        beforeEach(() => {
+          ChartActions.setArrayReduction(channel, 2, ARRAY_REDUCTION_TYPES.UNWIND);
+        });
+        it('maintains index number of unwind reductions', function(done) {
+          type = ARRAY_REDUCTION_TYPES.UNWIND;
+          const expected = {
+            [channel]: [
+              {
+                dimensionality: 1,
+                field: field.path,
+                type: type,
+                arguments: []
+              },
+              {
+                dimensionality: 2,
+                field: field.path,
+                // If user tries to change this, it should not change
+                // until the later unwind reduction has been un-encoded...
+                // perhaps this should even be disabled in the GUI?
+                type: type,
+                arguments: []
+              },
+              {
+                dimensionality: 3,
+                field: field.path,
+                type: type,
+                arguments: []
+              }
+            ]
+          };
+          const DIFFERENT_OP = ARRAY_REDUCTION_TYPES.MIN;
+          ChartActions.setArrayReduction(channel, 1, DIFFERENT_OP);
+          setTimeout(() => {
+            const reductions = this.store.state.reductions;
+            expect(reductions).to.be.deep.equal(expected);
+            done();
+          });
         });
       });
     });
