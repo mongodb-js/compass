@@ -343,7 +343,7 @@ describe('Aggregation Pipeline Builder', function() {
         aggBuilder._constructReductionSegment(state);
         const result = aggBuilder.segments.reduction;
         expect(result).to.be.an('array');
-        expect(result).to.have.lengthOf('2');
+        expect(result).to.have.lengthOf(2);
         expect(result[0]).to.be.deep.equal({
           $addFields: {
             __alias_0: {
