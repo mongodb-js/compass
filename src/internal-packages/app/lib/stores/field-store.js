@@ -69,6 +69,8 @@ const FieldStore = Reflux.createStore({
           return _.isNumber(objectValue) ? objectValue + sourceValue : sourceValue;
         }
         if (key === 'type') {
+          // Avoid the merge of 'Array' with 'Array' case becoming
+          // an array with a single value, i.e. ['Array']
           if (objectValue === sourceValue) {
             return objectValue;
           }
@@ -137,7 +139,6 @@ const FieldStore = Reflux.createStore({
    */
   _flattenedArray(fields, nestedTypes, field, arrayDepth) {
     fields[field.path].dimensionality = arrayDepth;
-    arrayDepth += 1;
 
     // Arrays have no name, so can only recurse into arrays or subdocuments
     for (const type of nestedTypes) {
@@ -147,7 +148,7 @@ const FieldStore = Reflux.createStore({
       }
       if (type.name === 'Array') {
         // recurse into nested arrays (again)
-        this._flattenedArray(fields, type.types, field, arrayDepth);
+        this._flattenedArray(fields, type.types, field, arrayDepth + 1);
       }
     }
   },
