@@ -115,8 +115,8 @@ class ChartBuilder extends React.Component {
 
   /**
    * Maps field names to channel names in the encoding section and forces
-   * axis labels to use the old field name. This is because the encoding of
-   * the data is now done in the aggregation framework directly.
+   * axis and legend labels to use the old field name. This is because the
+   * encoding of the data is now done in the aggregation framework directly.
    *
    * @param  {Object} spec    the vega-lite spec to render
    * @return {Object}         updated spec with field names replaced
@@ -124,13 +124,16 @@ class ChartBuilder extends React.Component {
   _encodeVegaLiteSpec(spec) {
     const encodedSpec = _.cloneDeep(spec);
     _.each(encodedSpec.encoding, (encoding, channel) => {
-      // overwrite axis titles, wrap in aggregate function if present
-      let axisTitle = encoding.field;
+      // overwrite axis and legend titles, wrap in aggregate function if present
+      let title = encoding.field;
       if (encoding.aggregate) {
-        axisTitle = `${encoding.aggregate}(${axisTitle})`;
+        title = `${encoding.aggregate}(${title})`;
       }
       encodedSpec.encoding[channel].axis = {
-        title: axisTitle
+        title: title
+      };
+      encodedSpec.encoding[channel].legend = {
+        title: title
       };
       // rename fields to match channel
       encodedSpec.encoding[channel].field = channel;
