@@ -9,6 +9,7 @@ const {
 const DataService = require('mongodb-data-service');
 const Connection = require('mongodb-connection-model');
 const AggPipelineBuilder = require('../../src/internal-packages/chart/lib/store/agg-pipeline-builder');
+const semver = require('semver');
 
 // const debug = require('debug')('mongodb-compass:charts:test:array-reduction');
 
@@ -26,7 +27,29 @@ const CONNECTION = new Connection({
 const aggBuilder = new AggPipelineBuilder();
 
 describe('Aggregation Pipeline Builder', function() {
+  let versionSupported = true;
   const dataService = new DataService(CONNECTION);
+
+  /**
+   * Check if the MongoDB version is high enough to support aggregation
+   * tests. We need at least version 3.4 for $addFields support.
+   *
+   * Note: Due to a bug in mocha, we cannot skip all tests here, instead
+   * we set `versionSupported` to false and skip them individually.
+   *
+   * @see https://github.com/mochajs/mocha/issues/2819
+   */
+  before(function(done) {
+    dataService.connect(() => {
+      dataService.command('admin', {buildInfo: 1}, (err, buildInfo) => {
+        expect(err).to.be.null;
+        if (semver.lt(buildInfo.version, '3.4.0')) {
+          versionSupported = false;
+        }
+        done();
+      });
+    });
+  });
 
   after(function(done) {
     dataService.dropDatabase(DB, function() {
@@ -84,6 +107,10 @@ describe('Aggregation Pipeline Builder', function() {
         });
       });
       it('returns the correct results when executing the pipeline', function(done) {
+        if (!versionSupported) {
+          this.skip();
+        }
+
         const pipeline = aggBuilder.constructPipeline(state);
         dataService.aggregate(`${DB}.array_numbers`, pipeline, {}, function(err, res) {
           expect(err).to.be.null;
@@ -154,6 +181,10 @@ describe('Aggregation Pipeline Builder', function() {
       });
 
       it('returns the correct results when executing the pipeline', function(done) {
+        if (!versionSupported) {
+          this.skip();
+        }
+
         dataService.aggregate(`${DB}.array_subdoc_array`, pipeline, {}, function(err, res) {
           expect(err).to.be.null;
           expect(res).to.have.lengthOf(2);
