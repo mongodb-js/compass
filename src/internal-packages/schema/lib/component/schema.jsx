@@ -39,7 +39,7 @@ class Schema extends React.Component {
     // auto-sizes to 0. Therefore, when the user switches back to the tab,
     // making it "display:block" again and giving it a proper non-zero size,
     // the minicharts have to be re-rendered.
-    if (this.CollectionStore.getActiveTab() === 0) {
+    if (this.CollectionStore.getActiveTab() === 1) {
       this.props.actions.resizeMiniCharts();
       ReactTooltip.rebuild();
     }
