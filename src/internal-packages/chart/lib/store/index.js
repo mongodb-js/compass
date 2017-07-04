@@ -8,7 +8,7 @@ const {
   LITE_SPEC_GLOBAL_SETTINGS
 } = require('../constants');
 const Actions = require('../actions');
-const aggPipelineBuilder = require('./agg-pipeline-builder');
+const AggPipelineBuilder = require('./agg-pipeline-builder');
 const StateMixin = require('reflux-state-mixin');
 const app = require('hadron-app');
 const toNS = require('mongodb-ns');
@@ -44,6 +44,7 @@ const ChartStore = Reflux.createStore({
     this.listenables = Actions;
     this._resetChart();
 
+    this.aggPipelineBuilder = new AggPipelineBuilder();
     this.INITIAL_CHART_TYPE = '';
     this.INITIAL_SPEC_TYPE = SPEC_TYPE_ENUM.VEGA_LITE;
     this.AVAILABLE_CHART_ROLES = [];
@@ -188,27 +189,6 @@ const ChartStore = Reflux.createStore({
   },
 
   /**
-   * takes an `state.channels` object (created by UI interactions) and builds
-   * a new vega data transform stream mapping field names to channel names.
-   * Example transform mapping field name b to channel name x:
-   *
-   * {"type": "formula","as": "x","expr": "datum.b"},
-   *
-   * @param  {Object} channels   channels object
-   * @return {Object}            vega data transform stream
-   */
-  _createVegaEncodingTransform(channels) {
-    const transform = _.map(channels, (val, key) => {
-      return {type: 'formula', as: key, expr: `datum.${val.field}`};
-    });
-    return {
-      name: 'encoding',
-      source: 'values',
-      transform: transform
-    };
-  },
-
-  /**
    * helper function to take a spec template and a channels object (constructed
    * via the chart builder) and an encoding object and create a full spec.
    *
@@ -223,14 +203,11 @@ const ChartStore = Reflux.createStore({
   _encodeSpec(spec, specType, channels) {
     let result;
     if (specType === SPEC_TYPE_ENUM.VEGA_LITE) {
-      const encoding = {encoding: channels};
-      result = _.merge({}, LITE_SPEC_GLOBAL_SETTINGS, spec, encoding);
-      // keep the existing spec config (special case if editing via JSON editor)
-      result.config = _.merge(result.config, this.state.spec.config);
+      const encodedChannels = {encoding: channels};
+      result = _.merge({}, LITE_SPEC_GLOBAL_SETTINGS, spec, encodedChannels);
     } else {
-      const encoding = this._createVegaEncodingTransform(channels);
       result = _.cloneDeep(spec);
-      result.data.unshift(encoding);
+      // result.data.unshift(encoding);
       result.data.unshift({name: 'values'});
     }
     return result;
@@ -279,11 +256,14 @@ const ChartStore = Reflux.createStore({
     if (!chartRole) {
       throw new Error(`Unknown chart type: ${state.chartType}`);
     }
-    // encode spec based on spec template, specType, channels
-    state.spec = this._encodeSpec(chartRole.spec, state.specType, state.channels);
-    state.specValid = this._isSpecValid(chartRole, state);
+    // if update.spec was passed in (custom edits in JSON editor), use that
+    // spec as a template, otherwise use the pre-defined template. Then encode
+    // channels based on specType.
+    state.spec = this._encodeSpec(
+      update.spec || chartRole.spec, state.specType, state.channels);
 
     // if spec is valid, potentially refresh the data cache
+    state.specValid = this._isSpecValid(chartRole, state);
     if (state.specValid) {
       debug('valid spec %j', state.spec);
       this._refreshDataCache(state);
@@ -310,7 +290,7 @@ const ChartStore = Reflux.createStore({
     }
 
     // construct new pipeline and compare with last one. exit if they are equal.
-    const pipeline = aggPipelineBuilder(state);
+    const pipeline = this.aggPipelineBuilder.constructPipeline(state);
     if (_.isEqual(state.pipelineCache, pipeline)) {
       return;
     }
@@ -417,10 +397,10 @@ const ChartStore = Reflux.createStore({
       this.setState({ specValid: false });
       return false;
     }
-    // confirmed valid spec
-    this.setState({
-      specValid: true,
-      spec: spec
+    // confirmed valid spec, update chart
+    this._updateSpec({
+      spec: spec,
+      channels: spec.encoding || {}
     });
     return true;
   },

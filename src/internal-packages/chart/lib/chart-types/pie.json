@@ -19,7 +19,7 @@
     "data": [
       {
         "name": "pieData",
-        "source": "encoding",
+        "source": "values",
         "transform": [
           {
             "type": "pie",
@@ -38,7 +38,7 @@
         "range": {
           "scheme": "category20"
         },
-        "domain": {"data": "encoding", "field": "label"}
+        "domain": {"data": "values", "field": "label"}
       }
     ],
     "legends": [

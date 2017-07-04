@@ -11,6 +11,8 @@ const FieldPanel = require('./field-panel');
 const ChartPanel = require('./chart-panel');
 const Chart = require('./chart');
 const Actions = require('../actions');
+const _ = require('lodash');
+
 const {
   AXIS_LABEL_MAX_PIXELS,
   AXIS_TITLE_BUFFER_PIXELS,
@@ -112,12 +114,40 @@ class ChartBuilder extends React.Component {
   }
 
   /**
-   * temporary warning to indicate this is an experimental feature and may
-   * not work as expected.
+   * Maps field names to channel names in the encoding section and forces
+   * axis and legend labels to use the old field name. This is because the
+   * encoding of the data is now done in the aggregation framework directly.
    *
-   * @return {React.Component} <StatusRow /> banner with warning.
+   * @param  {Object} spec    the vega-lite spec to render
+   * @return {Object}         updated spec with field names replaced
    */
-  renderWarning() {
+  _encodeVegaLiteSpec(spec) {
+    const encodedSpec = _.cloneDeep(spec);
+    _.each(encodedSpec.encoding, (encoding, channel) => {
+      // overwrite axis and legend titles, wrap in aggregate function if present
+      let title = encoding.field;
+      if (encoding.aggregate) {
+        title = `${encoding.aggregate}(${title})`;
+      }
+      encodedSpec.encoding[channel].axis = {
+        title: title
+      };
+      encodedSpec.encoding[channel].legend = {
+        title: title
+      };
+      // rename fields to match channel
+      encodedSpec.encoding[channel].field = channel;
+    });
+    return encodedSpec;
+  }
+
+  /**
+   * Renders the status row with Undo/Redo buttons, Reset Chart button and
+   * Chart Builder / JSON Editor.
+   *
+   * @return {React.Component} <StatusRow /> banner with buttons.
+   */
+  renderStatusRow() {
     // use plain buttons until IconTextButton passes all props, e.g. `disabled`
     return (
       <StatusRow>
@@ -165,10 +195,14 @@ class ChartBuilder extends React.Component {
     const dim = (!this.state.width || !this.state.height) ?
       this._getChartDimensions() : {width: this.state.width, height: this.state.height};
 
+    // map field names to channel names for vega-lite
+    const spec = (this.props.specType === SPEC_TYPE_ENUM.VEGA_LITE) ?
+      this._encodeVegaLiteSpec(this.props.spec) : this.props.spec;
+
     return (
       <Chart
         specType={this.props.specType}
-        spec={this.props.spec}
+        spec={spec}
         data={this.props.dataCache}
         width={dim.width}
         height={dim.height}
@@ -246,7 +280,7 @@ class ChartBuilder extends React.Component {
       <div className="chart-builder chart-container">
         <div className="controls-container">
           <this.queryBar layout={QUERYBAR_LAYOUT} />
-          {this.renderWarning()}
+          {this.renderStatusRow()}
         </div>
         {this.renderChartEditor()}
         <ReactTooltip id={TOOL_TIP_ARRAY_REDUCE['data-for']} place="right" effect="solid" delayShow={200} />

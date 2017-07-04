@@ -15,7 +15,9 @@ const ChartActions = require('../../src/internal-packages/chart/lib/actions');
 const ChartStore = require('../../src/internal-packages/chart/lib/store');
 const _ = require('lodash');
 const app = require('hadron-app');
-const aggPipelineBuilder = require('../../src/internal-packages/chart/lib/store/agg-pipeline-builder');
+
+const AggPipelineBuilder = require('../../src/internal-packages/chart/lib/store/agg-pipeline-builder');
+const aggPipelineBuilder = new AggPipelineBuilder();
 
 const BarChartRole = require('../../src/internal-packages/chart/lib/chart-types/bar.json');
 const AreaChartRole = require('../../src/internal-packages/chart/lib/chart-types/area.json');
@@ -169,7 +171,7 @@ describe('ChartStore', function() {
       const retValue = this.store.setSpecAsJSON(validSpecJSON);
       setTimeout(() => {
         expect(retValue).to.be.true;
-        expect(this.store.state.spec).to.be.deep.equal(JSON.parse(validSpecJSON));
+        expect(_.omit(this.store.state.spec, 'config')).to.be.deep.equal(JSON.parse(validSpecJSON));
         done();
       });
     });
@@ -1185,7 +1187,7 @@ describe('ChartStore', function() {
           },
           {
             '$addFields': {
-              'up_to_5_tags': {
+              '__alias_0': {
                 '$max': {
                   '$map': {
                     'as': 'str',
@@ -1200,7 +1202,7 @@ describe('ChartStore', function() {
           },
           {
             '$addFields': {
-              '10_random_strings': {
+              '__alias_1': {
                 '$max': {
                   '$map': {
                     'as': 'str',
@@ -1215,8 +1217,9 @@ describe('ChartStore', function() {
           },
           {
             '$project': {
-              '10_random_strings': '$10_random_strings',
-              'up_to_5_tags': '$up_to_5_tags'
+              '_id': 0,
+              'x': '$__alias_0',
+              'y': '$__alias_1'
             }
           }
         ];
@@ -1225,7 +1228,7 @@ describe('ChartStore', function() {
         setTimeout(() => {
           const reductions = this.store.state.reductions;
           expect(reductions).to.be.deep.equal(expectedReductions);
-          const pipeline = aggPipelineBuilder(this.store.state);
+          const pipeline = aggPipelineBuilder.constructPipeline(this.store.state);
           expect(pipeline).to.be.deep.equal(expectedPipeline);
           done();
         });
