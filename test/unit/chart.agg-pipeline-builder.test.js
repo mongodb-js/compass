@@ -191,8 +191,8 @@ describe('Aggregation Pipeline Builder', function() {
               }
             }
           });
-          expect(aggBuilder.aliases).to.have.keys('myField.inner');
-          expect(aggBuilder.aliases['myField.inner']).to.be.equal('__alias_0');
+          expect(aggBuilder.aliases).to.have.keys('x_myField.inner');
+          expect(aggBuilder.aliases['x_myField.inner']).to.be.equal('__alias_0');
         });
       });
       context('when three reductions are present', function() {
@@ -232,8 +232,8 @@ describe('Aggregation Pipeline Builder', function() {
               }
             }
           });
-          expect(aggBuilder.aliases).to.have.keys('myField.middle1.middle2.inner');
-          expect(aggBuilder.aliases['myField.middle1.middle2.inner']).to.be.equal('__alias_0');
+          expect(aggBuilder.aliases).to.have.keys('x_myField.middle1.middle2.inner');
+          expect(aggBuilder.aliases['x_myField.middle1.middle2.inner']).to.be.equal('__alias_0');
         });
       });
       context('when using $unwind reduction', function() {
@@ -296,8 +296,8 @@ describe('Aggregation Pipeline Builder', function() {
               }
             }
           });
-          expect(aggBuilder.aliases).to.have.keys('foo.bar.baz');
-          expect(aggBuilder.aliases['foo.bar.baz']).to.be.equal('__alias_0');
+          expect(aggBuilder.aliases).to.have.keys('x_foo.bar.baz');
+          expect(aggBuilder.aliases['x_foo.bar.baz']).to.be.equal('__alias_0');
         });
       });
       context('for Reduction Operators', function() {
@@ -327,8 +327,8 @@ describe('Aggregation Pipeline Builder', function() {
               }
             }
           });
-          expect(aggBuilder.aliases).to.have.keys('foo');
-          expect(aggBuilder.aliases.foo).to.be.equal('__alias_0');
+          expect(aggBuilder.aliases).to.have.keys('x_foo');
+          expect(aggBuilder.aliases.x_foo).to.be.equal('__alias_0');
         });
       });
     });
@@ -358,9 +358,9 @@ describe('Aggregation Pipeline Builder', function() {
             }
           }
         });
-        expect(aggBuilder.aliases).to.have.keys(['myField', 'myOtherField']);
-        expect(aggBuilder.aliases.myField).to.be.equal('__alias_0');
-        expect(aggBuilder.aliases.myOtherField).to.be.equal('__alias_1');
+        expect(aggBuilder.aliases).to.have.keys(['x_myField', 'y_myOtherField']);
+        expect(aggBuilder.aliases.x_myField).to.be.equal('__alias_0');
+        expect(aggBuilder.aliases.y_myOtherField).to.be.equal('__alias_1');
       });
     });
   });
@@ -391,9 +391,9 @@ describe('Aggregation Pipeline Builder', function() {
           }
         };
         aggBuilder._constructReductionSegment(state);
-        expect(aggBuilder.aliases).to.have.all.keys(['foo', 'bar']);
-        expect(aggBuilder.aliases.foo).to.be.equal('__alias_0');
-        expect(aggBuilder.aliases.bar).to.be.equal('__alias_1');
+        expect(aggBuilder.aliases).to.have.all.keys(['x_foo', 'color_bar']);
+        expect(aggBuilder.aliases.x_foo).to.be.equal('__alias_0');
+        expect(aggBuilder.aliases.color_bar).to.be.equal('__alias_1');
       });
       it('maps aliases back to to correct channels', function() {
         const state = {

@@ -101,11 +101,33 @@ class AggPipelineBuilder {
     };
   }
 
-  _assignUniqueAlias(field) {
+  /**
+   * assigns a unique alias name to a field/channel combination, in order
+   * to prevent naming collisions during pipeline execution. This mapping
+   * is reversed in the final encoding segment of the pipeline.
+   *
+   * @param  {String} field     field name
+   * @param  {String} channel   channel name
+   * @return {String}           a temporary alias name
+   */
+  _assignUniqueAlias(field, channel) {
     const count = Object.keys(this.aliases).length;
     const alias = `__alias_${ count }`;
-    this.aliases[field] = alias;
+    this.aliases[`${channel}_${field}`] = alias;
     return alias;
+  }
+
+  /**
+   * This function returns the alias name given a field and a channel. It
+   * is used in _constructEncodingSegment() to look up the correct alias names
+   * to build the projection.
+   *
+   * @param  {String} field     field name
+   * @param  {String} channel   channel name
+   * @return {String}           the stored alias name
+   */
+  _getAlias(field, channel) {
+    return this.aliases[`${channel}_${field}`];
   }
 
   /**
@@ -169,10 +191,11 @@ class AggPipelineBuilder {
    *                               The reductions are applied outside inwards, above
    *                               example would result in `max(index(field, 3))`.
    *
+   * @param {String}  channel      The channel name, used for creating unique alias
    * @return {Object}              an $addFields aggregation stage that converts
    *                               the given field array into a scalar value.
    */
-  _constructAccumulatorStage(reductions) {
+  _constructAccumulatorStage(reductions, channel) {
     let arr;
     let expr;
 
@@ -219,7 +242,7 @@ class AggPipelineBuilder {
     expr = REDUCTIONS[lastReduction.type](arr);
 
     // we use $addFields to overwrite the original field name
-    const alias = this._assignUniqueAlias(reductions[0].field);
+    const alias = this._assignUniqueAlias(reductions[0].field, channel);
     return {$addFields: {[alias]: expr}};
   }
 
@@ -229,13 +252,14 @@ class AggPipelineBuilder {
    * Calls are made to _constructUnwindStages and _constructAccumulatorStage,
    * as both are possible array reductions.
    *
-   * @param  {Array} reductions   the reductions array for a single channel
-   * @return {Array}              the resulting aggregation pipeline
+   * @param  {Array} reductions   reductions array for a single channel
+   * @param  {String} channel     current channel name
+   * @return {Array}              resulting aggregation pipeline
    */
-  _reduceArraysPerChannel(reductions) {
+  _reduceArraysPerChannel(reductions, channel) {
     const pipeline = [];
     const unwindStages = this._constructUnwindStages(reductions);
-    const accumulatorStage = this._constructAccumulatorStage(reductions);
+    const accumulatorStage = this._constructAccumulatorStage(reductions, channel);
 
     // combine pipeline
     pipeline.push.apply(pipeline, unwindStages);
@@ -259,7 +283,7 @@ class AggPipelineBuilder {
     const channels = Object.keys(state.reductions);
     const arrayReductionStages = channels.reduce((_pipeline, channel) => {
       const channelReductions = state.reductions[channel];
-      const addToPipeline = this._reduceArraysPerChannel(channelReductions);
+      const addToPipeline = this._reduceArraysPerChannel(channelReductions, channel);
       return _pipeline.concat(addToPipeline);
     }, []);
     segment.push.apply(segment, arrayReductionStages);
@@ -290,7 +314,7 @@ class AggPipelineBuilder {
     if (!_.isEmpty(state.channels)) {
       const projectStage = _.reduce(_.pick(state.channels, _.isObject), (_project, encoding, channel) => {
         // check if the field name has an alias, otherwise use original field name
-        const alias = this.aliases[encoding.field] || encoding.field;
+        const alias = this._getAlias(encoding.field, channel) || encoding.field;
         _project[channel] = `$${ alias }`;
         return _project;
       }, {});
