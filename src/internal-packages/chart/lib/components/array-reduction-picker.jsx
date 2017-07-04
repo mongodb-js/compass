@@ -21,7 +21,7 @@ class ArrayReductionPicker extends React.Component {
   }
 
   renderDimensionality() {
-    return Array.from(_.range(this.props.dimensionality), (v, i) => {
+    return Array.from(new Array(this.props.dimensionality), (v, i) => {
       return <i className="mms-icon-array" key={i} />;
     });
   }

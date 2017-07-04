@@ -576,7 +576,7 @@ const ChartStore = Reflux.createStore({
 
     // create reduction entries (with empty type) for those array paths
     const nestedArrayFields = arrayFields.map(field => {
-      return Array.from(_.range(field.dimensionality), (v, i) => ({
+      return Array.from(new Array(field.dimensionality), (v, i) => ({
         dimensionality: i + 1,
         field: field.path,
         type: null,
