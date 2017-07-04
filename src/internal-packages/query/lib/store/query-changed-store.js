@@ -65,8 +65,10 @@ const QueryChangedStore = Reflux.createStore({
       //   such as Long to lose their prototype methods and fail during BSON serialization.
       const newState = {};
       const copyable = state.lastExecutedQuery || this.getInitialState();
-      for (let key in copyable) {
-        newState[key] = copyable[key];
+      for (const key in copyable) {
+        if (copyable.hasOwnProperty(key)) {
+          newState[key] = copyable[key];
+        }
       }
       newState.queryState = state.queryState;
       newState.maxTimeMS = state.maxTimeMS;
