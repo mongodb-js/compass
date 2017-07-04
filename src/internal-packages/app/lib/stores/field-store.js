@@ -48,10 +48,11 @@ const FieldStore = Reflux.createStore({
   /**
    * Initialize the field store.
    *
-   * @param {Object} fields         flattened list of fields
-   * @param {Array} topLevelFields  array of names of top level fields
+   * @return {Object}                  the initial store state with properties:
    *
-   * @return {Object}          the initial field store.
+   * @property {Object} fields         flattened list of fields
+   * @property {Array} topLevelFields  array of names of top level fields
+   *
    */
   getInitialState() {
     return {
@@ -173,7 +174,7 @@ const FieldStore = Reflux.createStore({
   /**
    * processes a single document returned from the InsertDocumentStore.
    *
-   * @param  {Array} document     document to process.
+   * @param  {Object} document     document to process.
    */
   processSingleDocument(document) {
     parseSchema([ document ], {storeValues: false}, (err, schema) => {

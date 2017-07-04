@@ -1168,8 +1168,8 @@ describe('ChartStore', function() {
   });
 
   context('when filtering fields', function() {
-    before(function() {
-      this.store.completeFieldsCache = {
+    beforeEach(function() {
+      this.store.state.fieldsCache = this.store.completeFieldsCache = {
         'address.country': COUNTRY_SCHEMA_FIELD,
         'year': YEAR_SCHEMA_FIELD,
         'revenue': REVENUE_SCHEMA_FIELD,
