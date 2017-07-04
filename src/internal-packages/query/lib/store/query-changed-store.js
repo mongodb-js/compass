@@ -60,7 +60,14 @@ const QueryChangedStore = Reflux.createStore({
    */
   onQueryStoreChanged(state) {
     if (this._detectChange(state)) {
-      const newState = _.cloneDeep(state.lastExecutedQuery || this.getInitialState());
+      // @note: Durran: Cloning does not have the ability to retain the prototype methods
+      //   of the original object - it only copies properties. This results in BSON types
+      //   such as Long to lose their prototype methods and fail during BSON serialization.
+      const newState = {};
+      const copyable = state.lastExecutedQuery || this.getInitialState();
+      for (let key in copyable) {
+        newState[key] = copyable[key];
+      }
       newState.queryState = state.queryState;
       newState.maxTimeMS = state.maxTimeMS;
       newState.ns = state.ns;
