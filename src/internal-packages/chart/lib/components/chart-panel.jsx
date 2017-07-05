@@ -66,7 +66,7 @@ class ChartPanel extends React.Component {
           channelName={channel.name}
           encodedChannel={this.props.encodedChannels[channel.name]}
           encodedReductions={this.props.reductions[channel.name]}
-          editState={this.props.editStates[channel.name]}
+          editState={this.props.editStates ? this.props.editStates[channel.name] : null}
           specType={this.props.specType}
           actions={this.props.actions}
         />
