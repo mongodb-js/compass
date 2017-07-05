@@ -117,6 +117,8 @@ class ChartBuilder extends React.Component {
    * Maps field names to channel names in the encoding section and forces
    * axis and legend labels to use the old field name. This is because the
    * encoding of the data is now done in the aggregation framework directly.
+   * Also replaces all aggregate values with "sum" as this acts as an
+   * identity function (all aggregations are executed on the server).
    *
    * @param  {Object} spec    the vega-lite spec to render
    * @return {Object}         updated spec with field names replaced
@@ -128,6 +130,7 @@ class ChartBuilder extends React.Component {
       let title = encoding.field;
       if (encoding.aggregate) {
         title = `${encoding.aggregate}(${title})`;
+        encoding.aggregate = 'sum';
       }
       encodedSpec.encoding[channel].axis = {
         title: title
