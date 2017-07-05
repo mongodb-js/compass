@@ -15,12 +15,14 @@ class Editable extends React.Component {
             bsStyle="link"
             bsSize="xsmall"
             className="btn-borderless"
+            disabled={this.props.disableButtons}
             onClick={this.props.onCancel}>Cancel
           </Button>
           <Button
             bsSize="xsmall"
             bsStyle="default"
             className="btn-edit"
+            disabled={this.props.disableButtons}
             onClick={this.props.onUpdate}>Update
           </Button>
         </div>
@@ -33,12 +35,14 @@ class Editable extends React.Component {
             bsStyle="link"
             bsSize="xsmall"
             className="btn-borderless"
+            disabled={this.props.disableButtons}
             onClick={this.props.onCancel}>Cancel
           </Button>
           <Button
             bsSize="xsmall"
             bsStyle="default"
             className="btn-edit"
+            disabled={this.props.disableButtons}
             onClick={this.props.onUpdate}>Update
           </Button>
         </div>
@@ -51,6 +55,7 @@ class Editable extends React.Component {
             bsStyle="link"
             bsSize="xsmall"
             className="btn-borderless"
+            disabled={this.props.disableButtons}
             onClick={this.props.onCancel}>Cancel
           </Button>
         </div>
@@ -124,13 +129,15 @@ Editable.propTypes = {
   childName: PropTypes.string,
   onCancel: PropTypes.func,
   onUpdate: PropTypes.func,
-  errorMessage: PropTypes.string
+  errorMessage: PropTypes.string,
+  disableButtons: PropTypes.bool
 };
 
 Editable.defaultProps = {
   editState: 'unmodified',
   onCancel: () => {},
-  onUpdate: () => {}
+  onUpdate: () => {},
+  disableButtons: false
 };
 
 Editable.displayName = 'Editable';
