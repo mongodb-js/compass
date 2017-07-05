@@ -16,6 +16,7 @@ class Collection extends React.Component {
     this.Stats = app.appRegistry.getComponent('CollectionHUD.Item');
     this.CollectionStore = app.appRegistry.getStore('App.CollectionStore');
     this.NamespaceStore = app.appRegistry.getStore('App.NamespaceStore');
+    this.QueryActions = app.appRegistry.getAction('Query.Actions');
     this.setupTabs();
   }
 
@@ -28,6 +29,10 @@ class Collection extends React.Component {
     } else {
       this.setState({activeTab: 0});
     }
+  }
+
+  componentDidUpdate() {
+    this.QueryActions.refreshCodeMirror();
   }
 
   onTabClicked(idx) {

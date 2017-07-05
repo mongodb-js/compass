@@ -18,6 +18,12 @@ class QueryOption extends React.Component {
        */
       cm.textareaNode.id = `querybar-option-input-${this.props.label}`;
     }
+    const queryActions = global.hadronApp.appRegistry.getAction('Query.Actions');
+    this.unsubscribeRefresh = queryActions.refreshCodeMirror.listen(this.refresh.bind(this));
+  }
+
+  componentWillUnmount() {
+    this.unsubscribeRefresh();
   }
 
   /**
@@ -57,6 +63,10 @@ class QueryOption extends React.Component {
         value: newCode
       }
     });
+  }
+
+  refresh() {
+    this.refs.codemirror.codeMirror.refresh();
   }
 
   _getOuterClassName() {
@@ -116,7 +126,7 @@ class QueryOption extends React.Component {
     };
     return (
       <CodeMirror
-        addons={[ 'display/autorefresh', 'display/placeholder' ]}
+        addons={[ 'display/placeholder' ]}
         className={this._getInnerClassName()}
         ref="codemirror"
         value={this.props.value}

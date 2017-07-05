@@ -82,7 +82,12 @@ const QueryAction = Reflux.createActions({
   /**
    * return to the last executed query, dismissing all changes.
    */
-  'reset': {sync: true}
+  'reset': {sync: true},
+
+  /**
+   * Refresh the code mirror instance.
+   */
+  'refreshCodeMirror': { sync: true }
 });
 
 module.exports = QueryAction;
