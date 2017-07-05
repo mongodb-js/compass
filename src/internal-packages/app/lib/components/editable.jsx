@@ -8,6 +8,24 @@ const FontAwesome = require('react-fontawesome');
 class Editable extends React.Component {
 
   getButtons() {
+    if (this.props.editState === 'initial') {
+      return (
+        <div className="pull-right">
+          <Button
+            bsStyle="link"
+            bsSize="xsmall"
+            className="btn-borderless"
+            onClick={this.props.onCancel}>Cancel
+          </Button>
+          <Button
+            bsSize="xsmall"
+            bsStyle="default"
+            className="btn-edit"
+            onClick={this.props.onUpdate}>Update
+          </Button>
+        </div>
+      );
+    }
     if (this.props.editState === 'modified') {
       return (
         <div className="pull-right">
@@ -47,6 +65,7 @@ class Editable extends React.Component {
     const errorMsg = this.props.errorMessage;
 
     switch (this.props.editState) {
+      case 'initial': return '';
       case 'unmodified': return '';
       case 'modified': return name ? `${name} modified` : 'Modified';
       case 'updating': return name ? `Updating ${name}...` : 'Updating...';
@@ -63,6 +82,7 @@ class Editable extends React.Component {
 
   getSymbol() {
     switch (this.props.editState) {
+      case 'initial': return null;
       case 'unmodified': return null;
       case 'modified': return null;
       case 'updating': return <FontAwesome name="spinner" spin/>;
@@ -99,7 +119,7 @@ class Editable extends React.Component {
 
 Editable.propTypes = {
   children: PropTypes.node.isRequired,
-  editState: PropTypes.oneOf(['unmodified', 'modified', 'updating',
+  editState: PropTypes.oneOf(['initial', 'unmodified', 'modified', 'updating',
     'success', 'error']).isRequired,
   childName: PropTypes.string,
   onCancel: PropTypes.func,
