@@ -194,5 +194,101 @@ describe('Aggregation Pipeline Builder', function() {
         });
       });
     });
+
+    context('when using mean accumlator', function() {
+      const state = {
+        reductions: {
+          x: [
+            {field: 'friends', type: ARRAY_REDUCTION_TYPES.MAX},
+            {field: 'friends.scores', type: ARRAY_REDUCTION_TYPES.MEAN}
+          ]
+        },
+        channels: {
+          x: { field: 'friends.scores', type: 'quantitative' }
+        }
+      };
+      const pipeline = aggBuilder.constructPipeline(state);
+
+      it('builds the correct agg pipeline using the "mean" reduction', function() {
+        expect(pipeline).to.be.an('array');
+        expect(pipeline[0]).to.be.deep.equal({
+          $addFields: {
+            '__alias_0': {
+              $max: {
+                $map: {
+                  input: '$friends',
+                  as: 'value',
+                  in: {
+                    $avg: '$$value.scores'
+                  }
+                }
+              }
+            }
+          }
+        });
+      });
+
+      it('returns the correct results when executing the pipeline', function(done) {
+        if (!versionSupported) {
+          this.skip();
+        }
+
+        dataService.aggregate(`${DB}.array_subdoc_array`, pipeline, {}, function(err, res) {
+          expect(err).to.be.null;
+          expect(res).to.have.lengthOf(2);
+          expect(res[0].x).to.be.equal(9.333333333333334);
+          expect(res[1].x).to.be.equal(31.333333333333332);
+          done();
+        });
+      });
+    });
+
+    context('when using sum accumalator', function() {
+      const state = {
+        reductions: {
+          x: [
+            {field: 'friends', type: ARRAY_REDUCTION_TYPES.MAX},
+            {field: 'friends.scores', type: ARRAY_REDUCTION_TYPES.SUM}
+          ]
+        },
+        channels: {
+          x: { field: 'friends.scores', type: 'quantitative' }
+        }
+      };
+      const pipeline = aggBuilder.constructPipeline(state);
+
+      it('builds the correct agg pipeline using the "sum" reduction', function() {
+        expect(pipeline).to.be.an('array');
+        expect(pipeline[0]).to.be.deep.equal({
+          $addFields: {
+            '__alias_0': {
+              $max: {
+                $map: {
+                  input: '$friends',
+                  as: 'value',
+                  in: {
+                    $sum: '$$value.scores'
+                  }
+                }
+              }
+            }
+          }
+        });
+      });
+
+      it('returns the correct results when executing the pipeline', function(done) {
+        if (!versionSupported) {
+          this.skip();
+        }
+
+        dataService.aggregate(`${DB}.array_subdoc_array`, pipeline, {}, function(err, res) {
+          expect(err).to.be.null;
+          expect(res).to.have.lengthOf(2);
+          expect(res[0].x).to.be.equal(28);
+          expect(res[1].x).to.be.equal(94);
+          done();
+        });
+      });
+    });
   });
 });
