@@ -153,6 +153,7 @@ class DraggableField extends React.Component {
       'data-tip': TOOL_TIP_ARRAY_REDUCE['data-tip'],
       'data-for': TOOL_TIP_ARRAY_REDUCE['data-for'],
       'data-multiline': true,
+      'data-offset': "{'bottom': 6, 'left': 6}",
       'data-event': '__nothing__', // work-around do ignore hover or click events
       'data-effect': 'solid',
       'data-class': 'chart-draggable-field-reduction-tooltip'
@@ -160,11 +161,10 @@ class DraggableField extends React.Component {
 
     const fieldOrReduction = !_.isEmpty(this.props.reductions) && this.props.enableMenus ?
       (
-        <div ref="tooltip" {...tooltipAttributes} >
-          <span className="chart-draggable-field-title-array">
-            Array Reduction <i className="chart-draggable-field-info-sprinkle info-sprinkle" onClick={this.onInfoSprinkleClicked.bind(this)} />
-          </span>
-        </div>
+        <span ref="tooltip" className="chart-draggable-field-title-array" {...tooltipAttributes}>
+          Array Reduction
+          <i className="chart-draggable-field-info-sprinkle info-sprinkle" onClick={this.onInfoSprinkleClicked.bind(this)} />
+        </span>
       ) : <span>{this.props.fieldName}</span>;
 
     return connectDragSource(
