@@ -23,7 +23,7 @@ class Editable extends React.Component {
             bsStyle="default"
             className="btn-edit"
             disabled={this.props.disableButtons}
-            onClick={this.props.onUpdate}>Update
+            onClick={this.props.onUpdate}>{this.props.updateText}
           </Button>
         </div>
       );
@@ -43,7 +43,7 @@ class Editable extends React.Component {
             bsStyle="default"
             className="btn-edit"
             disabled={this.props.disableButtons}
-            onClick={this.props.onUpdate}>Update
+            onClick={this.props.onUpdate}>{this.props.updateText}
           </Button>
         </div>
       );
@@ -130,14 +130,16 @@ Editable.propTypes = {
   onCancel: PropTypes.func,
   onUpdate: PropTypes.func,
   errorMessage: PropTypes.string,
-  disableButtons: PropTypes.bool
+  disableButtons: PropTypes.bool,
+  updateText: PropTypes.string
 };
 
 Editable.defaultProps = {
   editState: 'unmodified',
   onCancel: () => {},
   onUpdate: () => {},
-  disableButtons: false
+  disableButtons: false,
+  updateText: 'Update'
 };
 
 Editable.displayName = 'Editable';
