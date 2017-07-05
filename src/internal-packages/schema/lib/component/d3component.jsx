@@ -9,18 +9,20 @@ const _ = require('lodash');
  * Conversion for display in minicharts for non-promoted BSON types.
  */
 const TO_JS_CONVERSIONS = {
-  'Double': (values) => { return values.map((v) => v.value); },
-  'Int32': (values) => { return values.map((v) => v.value); },
-  'Long': (values) => { return values.map((v) => v.toNumber()); },
-  'Decimal128': (values) => { return values.map((v) => v.toString()); }
+  'Double': (values) => values.map((v) => v.value),
+  'Int32': (values) => values.map((v) => v.value),
+  'Long': (values) => values.map((v) => v.toNumber()),
+  'Decimal128': (values) => values.map((v) => v.toString())
 };
 
 /**
  * Convert back to BSON types from the raw JS.
  */
 const TO_BSON_CONVERSIONS = {
-  'Long': (value) => { return bson.Long.fromNumber(value); },
-  'Decimal128': (value) => { return bson.Decimal128.fromString(value); }
+  'Long': (value) => bson.Long.fromNumber(value),
+  'Decimal128': (value) => bson.Decimal128.fromString(value),
+  'Date': (value) => new Date(value),
+  'ObjectID': (value) => bson.ObjectId.createFromHexString(value)
 };
 
 /**
