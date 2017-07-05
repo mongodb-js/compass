@@ -1,0 +1,80 @@
+.editable {
+  padding: 10px;
+
+  .editable-wrapper {
+    border: 1px solid transparent;
+    background-color: @pw;
+  }
+
+  &-is-modified, &-is-updating, &-is-success, &-is-error {
+    .editable-wrapper {
+      box-shadow: 2px 5px 8px rgba(0, 0, 0, 0.2);
+    }
+  }
+
+  &-is-modified {
+    .editable-wrapper {
+      border-color: #fcb200;
+    }
+    .editable-statusbar {
+      background-color: #fcb200;
+    }
+  }
+
+  &-is-updating {
+    .editable-wrapper {
+      border-color: #3bb0e7;
+    }
+    .editable-statusbar {
+      background-color: #3bb0e7;
+    }
+  }
+
+  &-is-success {
+    .editable-wrapper {
+      border-color: #69a53b;
+    }
+    .editable-statusbar {
+      background-color: #69a53b;
+    }
+  }
+
+  &-is-error {
+    .editable-wrapper {
+      border-color: #ef4c4c;
+    }
+    .editable-statusbar {
+      background-color: #ef4c4c;
+      .btn-borderless {
+        color: white;
+       }
+    }
+  }
+
+  &-is-unmodified {
+    .editable-wrapper {
+      border-color: @pw;
+    }
+  }
+}
+
+.editable-content {
+  padding: 0;
+  margin: 0;
+}
+
+.editable-statusbar {
+  padding: 0 15px;
+  display: flex;
+  flex-wrap: nowrap;
+  align-items: center;
+  justify-content: space-between;
+
+  min-height: 26px;
+  color: white;
+
+  span {
+    height: 16px;
+    font-style: italic;
+  }
+}

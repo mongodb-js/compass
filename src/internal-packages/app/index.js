@@ -5,6 +5,7 @@ const InstanceStore = require('./lib/stores/instance-store');
 const CollectionStore = require('./lib/stores/collection-store');
 const FieldStore = require('./lib/stores/field-store');
 const ViewSwitcher = require('./lib/components/view-switcher');
+const Editable = require('./lib/components/editable');
 const NamespaceStore = require('./lib/stores/namespace-store');
 
 /**
@@ -19,6 +20,7 @@ function activate(appRegistry) {
   appRegistry.registerStore('App.CollectionStore', CollectionStore);
   appRegistry.registerStore('App.NamespaceStore', NamespaceStore);
   appRegistry.registerComponent('App.ViewSwitcher', ViewSwitcher);
+  appRegistry.registerComponent('App.Editable', Editable);
   appRegistry.registerStore('Schema.FieldStore', FieldStore);
 }
 
@@ -31,6 +33,7 @@ function deactivate() {
   app.appRegistry.deregisterStore('App.CollectionStore');
   app.appRegistry.deregisterStore('App.NamespaceStore');
   app.appRegistry.deregisterComponent('App.ViewSwitcher');
+  app.appRegistry.deregisterComponent('App.Editable');
   app.appRegistry.deregisterStore('Schema.FieldStore');
 }
 
