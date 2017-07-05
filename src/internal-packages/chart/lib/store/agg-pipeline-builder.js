@@ -1,10 +1,12 @@
 const _ = require('lodash');
-
 const {
   ARRAY_GENERAL_REDUCTIONS,
   ARRAY_NUMERIC_REDUCTIONS,
-  ARRAY_STRING_REDUCTIONS
+  ARRAY_STRING_REDUCTIONS,
+  AGGREGATE_FUNCTION_ENUM
 } = require('../constants');
+
+// const debug = require('debug')('mongodb-compass:chart:agg-pipeline-builder');
 
 /**
  * Array reduction operators wrapped as javascript functions
@@ -12,7 +14,7 @@ const {
 const REDUCTIONS = Object.freeze({
   [ARRAY_GENERAL_REDUCTIONS.LENGTH]: function(arr) {
     return {
-      $size: arr
+      $cond: {if: {$isArray: arr}, then: {$size: arr}, else: 0}
     };
   },
   [ARRAY_GENERAL_REDUCTIONS.INDEX]: function(arr, args) {
@@ -121,6 +123,43 @@ const REDUCTIONS = Object.freeze({
   }
 });
 
+const AGGREGATIONS = Object.freeze({
+  [AGGREGATE_FUNCTION_ENUM.COUNT]: function() {
+    return {
+      $sum: 1
+    };
+  },
+  [AGGREGATE_FUNCTION_ENUM.SUM]: function(field) {
+    return {
+      $sum: field
+    };
+  },
+  [AGGREGATE_FUNCTION_ENUM.MEAN]: function(field) {
+    return {
+      $avg: field
+    };
+  },
+  [AGGREGATE_FUNCTION_ENUM.MIN]: function(field) {
+    return {
+      $min: field
+    };
+  },
+  [AGGREGATE_FUNCTION_ENUM.MAX]: function(field) {
+    return {
+      $max: field
+    };
+  },
+  [AGGREGATE_FUNCTION_ENUM.STDEV]: function(field) {
+    return {
+      $stdDevSamp: field
+    };
+  },
+  [AGGREGATE_FUNCTION_ENUM.STDEVP]: function(field) {
+    return {
+      $stdDevPop: field
+    };
+  }
+});
 
 /**
  * map wrapper around aggregation framework $map. Applies `expr` function
@@ -159,7 +198,7 @@ function _map(arr, expr) {
  *                    |              |              |              |
  *                  $match        $unwind        $group         $project
  *                  $sort         $addFields     $bucket
- *                  $skip
+ *                  $skip                        $project
  *              $sample / $limit
  *
  * The segments are computed individually and then concatenated in above
@@ -190,14 +229,20 @@ class AggPipelineBuilder {
    * to prevent naming collisions during pipeline execution. This mapping
    * is reversed in the final encoding segment of the pipeline.
    *
+   * If a field/channel combination has already been mapped, just return
+   * the same alias without creating a new one.
+   *
    * @param  {String} field     field name
    * @param  {String} channel   channel name
    * @return {String}           a temporary alias name
    */
   _assignUniqueAlias(field, channel) {
-    const count = Object.keys(this.aliases).length;
-    const alias = `__alias_${ count }`;
-    this.aliases[`${channel}_${field}`] = alias;
+    let alias = this._getAlias(field, channel);
+    if (!alias) {
+      const count = Object.keys(this.aliases).length;
+      alias = `__alias_${ count }`;
+      this.aliases[`${channel}_${field}`] = alias;
+    }
     return alias;
   }
 
@@ -363,6 +408,11 @@ class AggPipelineBuilder {
   _constructReductionSegment(state) {
     const segment = this.segments.reduction;
 
+    // return early if no reductions are present
+    if (_.isEmpty(state.reductions)) {
+      return;
+    }
+
     // array reduction for all channels
     const channels = Object.keys(state.reductions);
     const arrayReductionStages = channels.reduce((_pipeline, channel) => {
@@ -377,11 +427,104 @@ class AggPipelineBuilder {
    * builds the segment of the pipeline that executes aggregations across
    * documents on the server, instead of the client in vega-lite.
    *
+   * The following strategy is used:
+   *
+   * 1. Identify all dependent fields/measures (channels with "aggregate")
+   * 2. Identify all independent fields/dimensions (channels without "aggregate")
+   * 3. Create a $group stage and group by (_id) a compound object containing
+   *    all dimensions (use aliases because of nested fields), e.g.
+   *
+   *    {_id: {"__alias_0": "$dim1", __alias_1: "$dim2"}}
+   *
+   * 4. Add a field (use aliases because of nested fields) to the group
+   *    object for each measure, e.g.
+   *
+   *    {_id: {...}, __alias_2: {$min: "$meas1"}, __alias_3: {$avg: "$meas2"}}
+   *
+   * 5. Add another stage that unwraps the group key back to top-level fields
+   *    and removes the _id key. It also needs to include all measures, e.g.
+   *
+   *    {
+   *      $project: {
+   *        _id: 0,                           // exclude _id
+   *        "__alias_0": "$_id.__alias_0",    // independent fields/dimensions
+   *        "__alias_1": "$_id.__alias_1",
+   *        "__alias_2": 1,                   // dependent fields/measures
+   *        "__alias_3": 1
+   *      }
+   *    }
+   *
    * @param  {Object} state   chart store state
    */
-  _constructAggregationSegment(/* state */) {
-    // const segment = this.segments.aggregation;
-    // TODO not implemented yet
+  _constructAggregationSegment(state) {
+    const segment = this.segments.aggregation;
+
+    // step 1, identify measures
+    const measures = _(state.channels)
+      .pick(encoding => encoding.aggregate)
+      .map((encoding, channel) => {
+        return [encoding.field, channel];
+      })
+      .zipObject()
+      .value();
+
+    if (Object.keys(measures).length === 0) {
+      // no aggregations required, return early
+      return;
+    }
+
+    // step 2, identify dimensions
+    const dimensions = _(state.channels)
+      .pick(encoding => !encoding.aggregate)
+      .map((encoding, channel) => {
+        return [encoding.field, channel];
+      })
+      .zipObject()
+      .value();
+
+    // step 3, create group key for all dimensions
+    // note: this also works for zero dimensions, where the group key is
+    // the empty object {}. This is correct behavior as the entire dataset
+    // is reduced to a single value.
+    const groupKey = _(dimensions)
+      .map((channel, field) => {
+        const alias = this._getAlias(field, channel) || field;
+        return [this._assignUniqueAlias(field, channel), `$${alias}`];
+      })
+      .zipObject()
+      .value();
+
+    // step 4, create object of all aggregate functions with aliased names
+    const groupAggregates = _(measures)
+      .map((channel, field) => {
+        const alias = this._getAlias(field, channel) || field;
+        return [
+          this._assignUniqueAlias(field, channel),
+          AGGREGATIONS[state.channels[channel].aggregate](`$${alias}`)
+        ];
+      })
+      .zipObject()
+      .value();
+
+    // merge group key and aggregates for the final $group stage
+    const groupStage = {$group: _.assign({_id: groupKey}, groupAggregates)};
+
+    // step 5, create $project stage to heist group key fields back to top level
+    const projections = {_id: 0};
+    // dimensions(their aliases) need to be lifted to the top level
+    _.each(dimensions, (channel, field) => {
+      const alias = this._getAlias(field, channel);
+      projections[alias] = `$_id.${alias}`;
+    });
+    // measures (their aliases) just need to be included in the projection
+    _.each(measures, (channel, field) => {
+      projections[this._getAlias(field, channel)] = 1;
+    });
+    const projectStage = {$project: projections};
+
+    // push the resulting stages into the aggregation segment
+    segment.push(groupStage);
+    segment.push(projectStage);
   }
 
   /**

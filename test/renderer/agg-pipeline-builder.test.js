@@ -3,13 +3,16 @@
 const { expect } = require('chai');
 
 const {
-  ARRAY_REDUCTION_TYPES
+  ARRAY_REDUCTION_TYPES,
+  AGGREGATE_FUNCTION_ENUM,
+  MEASUREMENT_ENUM
 } = require('../../src/internal-packages/chart/lib/constants');
 
 const DataService = require('mongodb-data-service');
 const Connection = require('mongodb-connection-model');
 const AggPipelineBuilder = require('../../src/internal-packages/chart/lib/store/agg-pipeline-builder');
 const semver = require('semver');
+const _ = require('lodash');
 
 // const debug = require('debug')('mongodb-compass:charts:test:array-reduction');
 
@@ -55,6 +58,181 @@ describe('Aggregation Pipeline Builder', function() {
     dataService.dropDatabase(DB, function() {
       dataService.disconnect();
       done();
+    });
+  });
+
+  context('on the "compass_devs" collection', function() {
+    before(function(done) {
+      dataService.connect(function() {
+        const docs = [
+          {_id: 0, name: 'Thomas', loc: 'Australia', number: 2, favorite_days: ['Tuesday', 'Thursday']},
+          {_id: 1, name: 'Durran', loc: 'Europe', number: 3, favorite_days: ['Monday']},
+          {_id: 2, name: 'Anna', loc: 'Europe', number: 4, favorite_days: ['Wednesday', 'Friday', 'Saturday']},
+          {_id: 3, name: 'Peter', loc: 'Australia', number: 5, favorite_days: ['Tuesday']},
+          {_id: 4, name: 'Lucas', loc: 'USA', number: 1, favorite_days: ['Monday', 'Sunday', 'Friday', 'Wednesday']},
+          {_id: 5, name: 'Satya', loc: 'Australia', number: 6, favorite_days: ['Monday', 'Thursday']},
+          {_id: 6, name: 'Jessica', loc: 'USA', number: 7},
+          {_id: 7, name: 'Matt', loc: 'Australia', number: 8, favorite_days: ['Friday']}
+        ];
+        dataService.insertMany(`${DB}.compass_devs`, docs, {}, done);
+      });
+    });
+
+    context('when aggregating over numeric fields without dimension', function() {
+      const state = {
+        channels: {
+          x: {
+            field: 'number',
+            type: MEASUREMENT_ENUM.QUANTITATIVE,
+            aggregate: AGGREGATE_FUNCTION_ENUM.MEAN
+          }
+        }
+      };
+      it('returns the correct results when executing the pipeline', function(done) {
+        if (!versionSupported) {
+          this.skip();
+        }
+        const pipeline = aggBuilder.constructPipeline(state);
+        dataService.aggregate(`${DB}.compass_devs`, pipeline, {}, function(err, res) {
+          expect(err).to.be.null;
+          expect(res).to.have.lengthOf(1);
+          expect(res[0].x).to.be.equal(4.5);
+          done();
+        });
+      });
+    });
+    context('when aggregating over numeric fields with one dimension', function() {
+      const state = {
+        channels: {
+          x: {
+            field: 'number',
+            type: MEASUREMENT_ENUM.QUANTITATIVE,
+            aggregate: AGGREGATE_FUNCTION_ENUM.MEAN
+          },
+          y: {
+            field: 'loc',
+            type: MEASUREMENT_ENUM.NOMINAL
+          }
+        }
+      };
+      it('returns the correct results when executing the pipeline', function(done) {
+        if (!versionSupported) {
+          this.skip();
+        }
+        const pipeline = aggBuilder.constructPipeline(state);
+        dataService.aggregate(`${DB}.compass_devs`, pipeline, {}, function(err, res) {
+          expect(err).to.be.null;
+          expect(res).to.have.lengthOf(3);
+          expect(_.find(res, 'y', 'Australia').x).to.be.equal(5.25);
+          expect(_.find(res, 'y', 'USA').x).to.be.equal(4.0);
+          expect(_.find(res, 'y', 'Europe').x).to.be.equal(3.5);
+          done();
+        });
+      });
+    });
+    context('when aggregating over numeric fields with two dimensions', function() {
+      const state = {
+        channels: {
+          x: {
+            field: 'number',
+            type: MEASUREMENT_ENUM.QUANTITATIVE,
+            aggregate: AGGREGATE_FUNCTION_ENUM.MEAN
+          },
+          y: {
+            field: 'loc',
+            type: MEASUREMENT_ENUM.NOMINAL
+          },
+          detail: {
+            field: 'name',
+            type: MEASUREMENT_ENUM.NOMINAL
+          }
+        }
+      };
+      it('returns the correct results when executing the pipeline', function(done) {
+        if (!versionSupported) {
+          this.skip();
+        }
+        const pipeline = aggBuilder.constructPipeline(state);
+        dataService.aggregate(`${DB}.compass_devs`, pipeline, {}, function(err, res) {
+          expect(err).to.be.null;
+          expect(res).to.have.lengthOf(8);
+          done();
+        });
+      });
+    });
+    context('when using an unwind array reduction and aggregation', function() {
+      const state = {
+        reductions: {
+          x: [
+            {field: 'favorite_days', type: ARRAY_REDUCTION_TYPES.UNWIND}
+          ]
+        },
+        channels: {
+          x: {
+            field: 'favorite_days',
+            type: MEASUREMENT_ENUM.NOMINAL
+          },
+          y: {
+            field: '_id',
+            type: MEASUREMENT_ENUM.NOMINAL,
+            aggregate: AGGREGATE_FUNCTION_ENUM.COUNT
+          }
+        }
+      };
+      it('returns the correct results when executing the pipeline', function(done) {
+        if (!versionSupported) {
+          this.skip();
+        }
+        const pipeline = aggBuilder.constructPipeline(state);
+        dataService.aggregate(`${DB}.compass_devs`, pipeline, {}, function(err, res) {
+          expect(err).to.be.null;
+          expect(res).to.have.lengthOf(7);
+          expect(_.find(res, 'x', 'Monday').y).to.be.equal(3);
+          expect(_.find(res, 'x', 'Tuesday').y).to.be.equal(2);
+          expect(_.find(res, 'x', 'Wednesday').y).to.be.equal(2);
+          expect(_.find(res, 'x', 'Thursday').y).to.be.equal(2);
+          expect(_.find(res, 'x', 'Friday').y).to.be.equal(3);
+          expect(_.find(res, 'x', 'Saturday').y).to.be.equal(1);
+          expect(_.find(res, 'x', 'Sunday').y).to.be.equal(1);
+          done();
+        });
+      });
+    });
+    context('when using a length array reduction and aggregation', function() {
+      const state = {
+        reductions: {
+          x: [
+            {field: 'favorite_days', type: ARRAY_REDUCTION_TYPES.LENGTH}
+          ]
+        },
+        channels: {
+          x: {
+            field: 'favorite_days',
+            type: MEASUREMENT_ENUM.QUANTITATIVE
+          },
+          y: {
+            field: '_id',
+            type: MEASUREMENT_ENUM.NOMINAL,
+            aggregate: AGGREGATE_FUNCTION_ENUM.COUNT
+          }
+        }
+      };
+      it('returns the correct results when executing the pipeline', function(done) {
+        if (!versionSupported) {
+          this.skip();
+        }
+        const pipeline = aggBuilder.constructPipeline(state);
+        dataService.aggregate(`${DB}.compass_devs`, pipeline, {}, function(err, res) {
+          expect(err).to.be.null;
+          expect(res).to.have.lengthOf(5);
+          expect(_.find(res, 'x', 0).y).to.be.equal(1);
+          expect(_.find(res, 'x', 1).y).to.be.equal(3);
+          expect(_.find(res, 'x', 2).y).to.be.equal(2);
+          expect(_.find(res, 'x', 3).y).to.be.equal(1);
+          expect(_.find(res, 'x', 4).y).to.be.equal(1);
+          done();
+        });
+      });
     });
   });
 

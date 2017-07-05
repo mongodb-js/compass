@@ -5,7 +5,9 @@ const AggPipelineBuilder = require('../../src/internal-packages/chart/lib/store/
 const {
   ARRAY_GENERAL_REDUCTIONS,
   ARRAY_NUMERIC_REDUCTIONS,
-  ARRAY_STRING_REDUCTIONS
+  ARRAY_STRING_REDUCTIONS,
+  AGGREGATE_FUNCTION_ENUM,
+  MEASUREMENT_ENUM
 } = require('../../src/internal-packages/chart/lib/constants');
 
 // const debug = require('debug')('mongodb-compass:charts:test:array-reduction');
@@ -15,6 +17,51 @@ const aggBuilder = new AggPipelineBuilder();
 describe('Aggregation Pipeline Builder', function() {
   beforeEach(function() {
     aggBuilder._reset();
+  });
+  describe('Aliases', function() {
+    it('creates the right alias for a field/channel combination', function() {
+      aggBuilder._assignUniqueAlias('foo', 'bar');
+      expect(Object.keys(aggBuilder.aliases)).to.have.lengthOf(1);
+      expect(aggBuilder.aliases).to.have.all.keys('bar_foo');
+      expect(aggBuilder.aliases.bar_foo).to.be.equal('__alias_0');
+    });
+    it('works with field names containing underscores', function() {
+      aggBuilder._assignUniqueAlias('foo_foo_foo', 'bar');
+      expect(Object.keys(aggBuilder.aliases)).to.have.lengthOf(1);
+      expect(aggBuilder.aliases).to.have.all.keys('bar_foo_foo_foo');
+      expect(aggBuilder.aliases.bar_foo_foo_foo).to.be.equal('__alias_0');
+    });
+    it('does not create duplicate alias for the same field/channel combination', function() {
+      aggBuilder._assignUniqueAlias('foo', 'bar');
+      aggBuilder._assignUniqueAlias('foo', 'bar');
+      expect(Object.keys(aggBuilder.aliases)).to.have.lengthOf(1);
+      expect(aggBuilder.aliases).to.have.all.keys('bar_foo');
+      expect(aggBuilder.aliases.bar_foo).to.be.equal('__alias_0');
+    });
+    it('creates multiple aliases for different fields same channel', function() {
+      aggBuilder._assignUniqueAlias('foo', 'bar');
+      aggBuilder._assignUniqueAlias('baz', 'bar');
+      expect(Object.keys(aggBuilder.aliases)).to.have.lengthOf(2);
+      expect(aggBuilder.aliases).to.have.all.keys(['bar_foo', 'bar_baz']);
+      expect(aggBuilder.aliases.bar_foo).to.be.equal('__alias_0');
+      expect(aggBuilder.aliases.bar_baz).to.be.equal('__alias_1');
+    });
+    it('creates multiple aliases for same field different channels', function() {
+      aggBuilder._assignUniqueAlias('foo', 'bar');
+      aggBuilder._assignUniqueAlias('foo', 'baz');
+      expect(Object.keys(aggBuilder.aliases)).to.have.lengthOf(2);
+      expect(aggBuilder.aliases).to.have.all.keys(['bar_foo', 'baz_foo']);
+      expect(aggBuilder.aliases.bar_foo).to.be.equal('__alias_0');
+      expect(aggBuilder.aliases.baz_foo).to.be.equal('__alias_1');
+    });
+    it('creates multiple aliases for different fields and channels', function() {
+      aggBuilder._assignUniqueAlias('foo', 'bar');
+      aggBuilder._assignUniqueAlias('fii', 'bor');
+      expect(Object.keys(aggBuilder.aliases)).to.have.lengthOf(2);
+      expect(aggBuilder.aliases).to.have.all.keys(['bar_foo', 'bor_fii']);
+      expect(aggBuilder.aliases.bar_foo).to.be.equal('__alias_0');
+      expect(aggBuilder.aliases.bor_fii).to.be.equal('__alias_1');
+    });
   });
   describe('Query Segment', function() {
     context('when no query properties are present', function() {
@@ -222,7 +269,15 @@ describe('Aggregation Pipeline Builder', function() {
                           input: '$$value.middle1',
                           as: 'value',
                           in: {
-                            $size: '$$value.middle2.inner'
+                            $cond: {
+                              if: {
+                                $isArray: '$$value.middle2.inner'
+                              },
+                              then: {
+                                $size: '$$value.middle2.inner'
+                              },
+                              else: 0
+                            }
                           }
                         }
                       }
@@ -361,6 +416,233 @@ describe('Aggregation Pipeline Builder', function() {
         expect(aggBuilder.aliases).to.have.keys(['x_myField', 'y_myOtherField']);
         expect(aggBuilder.aliases.x_myField).to.be.equal('__alias_0');
         expect(aggBuilder.aliases.y_myOtherField).to.be.equal('__alias_1');
+      });
+    });
+  });
+  describe('Aggregation Segment', function() {
+    context('when no measures are present', function() {
+      const state = {
+        channels: {
+          x: {field: 'foo', type: MEASUREMENT_ENUM.NOMINAL},
+          y: {field: 'bar', type: MEASUREMENT_ENUM.QUANTITATIVE}
+        }
+      };
+      it('returns an empty aggregation segment', function() {
+        aggBuilder._constructAggregationSegment(state);
+        const result = aggBuilder.segments.aggregation;
+        expect(result).to.be.an('array');
+        expect(result).to.be.empty;
+      });
+    });
+    context('when no dimensions are present', function() {
+      const state = {
+        channels: {
+          y: {
+            field: 'bar',
+            type: MEASUREMENT_ENUM.QUANTITATIVE,
+            aggregate: AGGREGATE_FUNCTION_ENUM.MEAN
+          }
+        }
+      };
+      it('builds the correct $group and $project stages', function() {
+        aggBuilder._constructAggregationSegment(state);
+        const result = aggBuilder.segments.aggregation;
+        expect(result).to.be.an('array');
+        expect(result).to.have.lengthOf(2);
+        expect(result[0]).to.be.deep.equal({
+          $group: {
+            _id: {},
+            __alias_0: {
+              $avg: '$bar'
+            }
+          }
+        });
+        expect(result[1]).to.be.deep.equal({
+          $project: {
+            _id: 0,
+            __alias_0: 1
+          }
+        });
+      });
+    });
+    context('when one measure and one dimension are present', function() {
+      const state = {
+        channels: {
+          x: {
+            field: 'foo',
+            type: MEASUREMENT_ENUM.NOMINAL
+          },
+          y: {
+            field: 'bar',
+            type: MEASUREMENT_ENUM.QUANTITATIVE,
+            aggregate: AGGREGATE_FUNCTION_ENUM.MEAN
+          }
+        }
+      };
+      it('builds the correct $group and $project stages', function() {
+        aggBuilder._constructAggregationSegment(state);
+        const result = aggBuilder.segments.aggregation;
+        expect(result).to.be.an('array');
+        expect(result).to.have.lengthOf(2);
+        expect(result[0]).to.be.deep.equal({
+          $group: {
+            _id: {
+              __alias_0: '$foo'
+            },
+            __alias_1: {
+              $avg: '$bar'
+            }
+          }
+        });
+        expect(result[1]).to.be.deep.equal({
+          $project: {
+            _id: 0,
+            __alias_0: '$_id.__alias_0',
+            __alias_1: 1
+          }
+        });
+      });
+      it('handles previous field aliases on the dimension correctly', function() {
+        aggBuilder._assignUniqueAlias('foo', 'x');
+        aggBuilder._constructAggregationSegment(state);
+        const result = aggBuilder.segments.aggregation;
+        expect(result).to.be.an('array');
+        expect(result).to.have.lengthOf(2);
+        expect(result[0]).to.be.deep.equal({
+          $group: {
+            _id: {
+              __alias_0: '$__alias_0'
+            },
+            __alias_1: {
+              $avg: '$bar'
+            }
+          }
+        });
+        expect(result[1]).to.be.deep.equal({
+          $project: {
+            _id: 0,
+            __alias_0: '$_id.__alias_0',
+            __alias_1: 1
+          }
+        });
+      });
+      it('handles previous field aliases on the measure correctly', function() {
+        aggBuilder._assignUniqueAlias('bar', 'y');
+        aggBuilder._constructAggregationSegment(state);
+        const result = aggBuilder.segments.aggregation;
+        expect(result).to.be.an('array');
+        expect(result).to.have.lengthOf(2);
+        expect(result[0]).to.be.deep.equal({
+          $group: {
+            _id: {
+              __alias_1: '$foo'
+            },
+            __alias_0: {
+              $avg: '$__alias_0'
+            }
+          }
+        });
+        expect(result[1]).to.be.deep.equal({
+          $project: {
+            _id: 0,
+            __alias_1: '$_id.__alias_1',
+            __alias_0: 1
+          }
+        });
+      });
+      it('handles previous unrelated field aliases correctly', function() {
+        aggBuilder._assignUniqueAlias('something', 'x');
+        aggBuilder._assignUniqueAlias('something_else', 'y');
+        aggBuilder._constructAggregationSegment(state);
+        const result = aggBuilder.segments.aggregation;
+        expect(result).to.be.an('array');
+        expect(result).to.have.lengthOf(2);
+        expect(result[0]).to.be.deep.equal({
+          $group: {
+            _id: {
+              __alias_2: '$foo'
+            },
+            __alias_3: {
+              $avg: '$bar'
+            }
+          }
+        });
+        expect(result[1]).to.be.deep.equal({
+          $project: {
+            _id: 0,
+            __alias_2: '$_id.__alias_2',
+            __alias_3: 1
+          }
+        });
+      });
+      it('handles previous field aliases on measure and dimension correctly', function() {
+        aggBuilder._assignUniqueAlias('foo', 'x');
+        aggBuilder._assignUniqueAlias('bar', 'y');
+        aggBuilder._constructAggregationSegment(state);
+        const result = aggBuilder.segments.aggregation;
+        expect(result).to.be.an('array');
+        expect(result).to.have.lengthOf(2);
+        expect(result[0]).to.be.deep.equal({
+          $group: {
+            _id: {
+              __alias_0: '$__alias_0'
+            },
+            __alias_1: {
+              $avg: '$__alias_1'
+            }
+          }
+        });
+        expect(result[1]).to.be.deep.equal({
+          $project: {
+            _id: 0,
+            __alias_0: '$_id.__alias_0',
+            __alias_1: 1
+          }
+        });
+      });
+    });
+    context('when multiple dimensions are present', function() {
+      const state = {
+        channels: {
+          x: {
+            field: 'foo',
+            type: MEASUREMENT_ENUM.NOMINAL
+          },
+          y: {
+            field: 'bar',
+            type: MEASUREMENT_ENUM.QUANTITATIVE,
+            aggregate: AGGREGATE_FUNCTION_ENUM.MEAN
+          },
+          color: {
+            field: 'baz',
+            type: MEASUREMENT_ENUM.TEMPORAL
+          }
+        }
+      };
+      it('builds the correct $group and $project stages', function() {
+        aggBuilder._constructAggregationSegment(state);
+        const result = aggBuilder.segments.aggregation;
+        expect(result).to.be.an('array');
+        expect(result).to.have.lengthOf(2);
+        expect(result[0]).to.be.deep.equal({
+          $group: {
+            _id: {
+              __alias_0: '$foo',
+              __alias_1: '$baz'
+            },
+            __alias_2: {
+              $avg: '$bar'
+            }
+          }
+        });
+        expect(result[1]).to.be.deep.equal({
+          $project: {
+            _id: 0,
+            __alias_0: '$_id.__alias_0',
+            __alias_1: '$_id.__alias_1',
+            __alias_2: 1
+          }
+        });
       });
     });
   });
