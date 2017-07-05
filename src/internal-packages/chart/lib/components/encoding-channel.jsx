@@ -4,7 +4,6 @@ const PropTypes = require('prop-types');
 const DropTarget = require('react-dnd').DropTarget;
 const _ = require('lodash');
 const DraggableField = require('./draggable-field');
-const { TOOL_TIP_ARRAY_REDUCE } = require('../constants');
 
 // const debug = require('debug')('mongodb-compass:chart:encoding-channel');
 
@@ -64,31 +63,22 @@ class EncodingChannel extends React.Component {
     }
 
     const fieldName = _.last(this.props.encodedChannel.field.split('.'));
-    const attributes = this.props.encodedReductions ? {
-      'data-tip': TOOL_TIP_ARRAY_REDUCE['data-tip'],
-      'data-for': TOOL_TIP_ARRAY_REDUCE['data-for'],
-      'data-multiline': true,
-      'data-class': 'chart-draggable-field-reduction-tooltip'
-    } : null;
 
-    this.props.showTooltip(this.refs.tooltip);
     // else render a DraggableField instance with menus enabled
     return (
-      <div ref="tooltip" {...attributes}>
-        <DraggableField
-          fieldName={fieldName}
-          fieldPath={this.props.encodedChannel.field}
-          channelName={this.props.channelName}
-          type={this.props.encodedChannel.type}
-          aggregate={this.props.encodedChannel.aggregate}
-          enableMenus={this.props.specType === 'vega-lite'}
-          reductions={this.props.encodedReductions}
-          selectAggregate={this.onSelectAggregate.bind(this)}
-          selectMeasurement={this.onSelectMeasurement.bind(this)}
-          onRemove={this.onRemove.bind(this)}
-          actions={this.props.actions}
-        />
-      </div>
+      <DraggableField
+        fieldName={fieldName}
+        fieldPath={this.props.encodedChannel.field}
+        channelName={this.props.channelName}
+        type={this.props.encodedChannel.type}
+        aggregate={this.props.encodedChannel.aggregate}
+        enableMenus={this.props.specType === 'vega-lite'}
+        reductions={this.props.encodedReductions}
+        selectAggregate={this.onSelectAggregate.bind(this)}
+        selectMeasurement={this.onSelectMeasurement.bind(this)}
+        onRemove={this.onRemove.bind(this)}
+        actions={this.props.actions}
+      />
     );
   }
 

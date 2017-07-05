@@ -7,10 +7,14 @@ const DragSource = require('react-dnd').DragSource;
 const {
   AGGREGATE_FUNCTION_ENUM,
   MEASUREMENT_ENUM,
-  MEASUREMENT_ICON_ENUM
+  MEASUREMENT_ICON_ENUM,
+  TOOL_TIP_ARRAY_REDUCE
 } = require('../constants');
+
 const CustomToggle = require('./custom-toggle');
 const ArrayReductionPicker = require('./array-reduction-picker');
+const { findDOMNode } = require('react-dom');
+const ReactTooltip = require('react-tooltip');
 
 // const debug = require('debug')('mongodb-compass:chart:draggable-field');
 
@@ -31,6 +35,14 @@ function collect(connect, monitor) {
 }
 
 class DraggableField extends React.Component {
+
+  onInfoSprinkleClicked(evt) {
+    if (this.props.reductions) {
+      ReactTooltip.show(findDOMNode(this.refs.tooltip));
+      evt.stopPropagation();
+      evt.preventDefault();
+    }
+  }
 
   mapToMenu(array, type) {
     // note the empty function on onChange to avoid warnings
@@ -137,15 +149,30 @@ class DraggableField extends React.Component {
   render() {
     const connectDragSource = this.props.connectDragSource;
 
+    const tooltipAttributes = this.props.reductions ? {
+      'data-tip': TOOL_TIP_ARRAY_REDUCE['data-tip'],
+      'data-for': TOOL_TIP_ARRAY_REDUCE['data-for'],
+      'data-multiline': true,
+      'data-event': '__nothing__', // work-around do ignore hover or click events
+      'data-effect': 'solid',
+      'data-class': 'chart-draggable-field-reduction-tooltip'
+    } : null;
+
+    const fieldOrReduction = !_.isEmpty(this.props.reductions) && this.props.enableMenus ?
+      (
+        <div ref="tooltip" {...tooltipAttributes} >
+          <span className="chart-draggable-field-title-array">
+            Array Reduction <i className="chart-draggable-field-info-sprinkle info-sprinkle" onClick={this.onInfoSprinkleClicked.bind(this)} />
+          </span>
+        </div>
+      ) : <span>{this.props.fieldName}</span>;
+
     return connectDragSource(
       <div className="chart-draggable-field" title={this.props.fieldPath} >
         <div className="chart-draggable-field-row">
           <div className="chart-draggable-field-item-container chart-draggable-field-item-container-title">
             <div className="chart-draggable-field-title">
-              {!_.isEmpty(this.props.reductions) && this.props.enableMenus ?
-                <span className="chart-draggable-field-title-array">Array Reduction <i className="info-sprinkle" /></span>
-                : <span>{this.props.fieldName}</span>
-              }
+              {fieldOrReduction}
             </div>
           </div>
           {this.props.enableMenus ?
