@@ -291,4 +291,179 @@ describe('Aggregation Pipeline Builder', function() {
       });
     });
   });
+
+  context('On the "array_of_strings" collection ', function() {
+    before(function(done) {
+      dataService.connect(function() {
+        const docs = [
+          {_id: 0, friends: [ 'Tom', 'Jerry', 'Harry' ]},
+          {_id: 1, friends: ['Justice', 'Courage', 'Temperance', 'Wisdom']},
+          {_id: 2, friends: ['Pirates', 'Ninjas']}
+        ];
+        dataService.insertMany(`${DB}.array_of_strings`, docs, {}, done);
+      });
+    });
+
+    it('the collection has 3 documents', function(done) {
+      dataService.count(`${DB}.array_of_strings`, {}, {}, function(err, res) {
+        expect(err).to.be.null;
+        expect(res).to.be.equal(3);
+        done();
+      });
+    });
+
+    context('when using concat accumlator', function() {
+      const state = {
+        reductions: {
+          x: [
+            {field: 'friends', type: ARRAY_REDUCTION_TYPES.CONCAT}
+          ]
+        },
+        channels: {
+          x: { field: 'friends', type: 'ordinal' }
+        }
+      };
+      const pipeline = aggBuilder.constructPipeline(state);
+
+      it('builds the correct agg pipeline with the "concat" reduction', function() {
+        expect(pipeline).to.be.an('array');
+        expect(pipeline[0]).to.be.deep.equal({
+          $addFields: {
+            '__alias_0': {
+              $reduce: {
+                in: {
+                  $concat: ['$$value', '$$this']
+                },
+                initialValue: '',
+                input: '$friends'
+              }
+            }
+          }
+        });
+      });
+
+      it('returns the correct results when executing the pipeline', function(done) {
+        if (!versionSupported) {
+          this.skip();
+        }
+
+        dataService.aggregate(`${DB}.array_of_strings`, pipeline, {}, function(err, res) {
+          expect(err).to.be.null;
+          expect(res).to.have.lengthOf(3);
+          expect(res[0].x).to.be.equal('TomJerryHarry');
+          expect(res[1].x).to.be.equal('JusticeCourageTemperanceWisdom');
+          expect(res[2].x).to.be.equal('PiratesNinjas');
+          done();
+        });
+      });
+    });
+
+    context('when using longest accumlator', function() {
+      const state = {
+        reductions: {
+          x: [
+            {field: 'friends', type: ARRAY_REDUCTION_TYPES.LONGEST}
+          ]
+        },
+        channels: {
+          x: { field: 'friends', type: 'ordinal' }
+        }
+      };
+      const pipeline = aggBuilder.constructPipeline(state);
+
+      it('builds the correct agg pipeline with the "longest" reduction', function() {
+        expect(pipeline).to.be.an('array');
+        expect(pipeline[0]).to.be.deep.equal({
+          $addFields: {
+            '__alias_0': {
+              $reduce: {
+                in: {
+                  $cond: {
+                    else: '$$value',
+                    if: {
+                      $gt: [{$strLenCP: '$$this'}, {$strLenCP: '$$value'}]
+                    },
+                    then: '$$this'
+                  }
+                },
+                initialValue: {
+                  $arrayElemAt: ['$friends', 0]
+                },
+                input: '$friends'
+              }
+            }
+          }
+        });
+      });
+
+      it('returns the correct results when executing the pipeline', function(done) {
+        if (!versionSupported) {
+          this.skip();
+        }
+
+        dataService.aggregate(`${DB}.array_of_strings`, pipeline, {}, function(err, res) {
+          expect(err).to.be.null;
+          expect(res).to.have.lengthOf(3);
+          expect(res[0].x).to.be.equal('Jerry');
+          expect(res[1].x).to.be.equal('Temperance');
+          expect(res[2].x).to.be.equal('Pirates');
+          done();
+        });
+      });
+    });
+
+    context('when using shortest accumlator', function() {
+      const state = {
+        reductions: {
+          x: [
+            {field: 'friends', type: ARRAY_REDUCTION_TYPES.SHORTEST}
+          ]
+        },
+        channels: {
+          x: { field: 'friends', type: 'ordinal' }
+        }
+      };
+      const pipeline = aggBuilder.constructPipeline(state);
+
+      it('builds the correct agg pipeline with the "shortest" reduction', function() {
+        expect(pipeline).to.be.an('array');
+        expect(pipeline[0]).to.be.deep.equal({
+          $addFields: {
+            '__alias_0': {
+              $reduce: {
+                in: {
+                  $cond: {
+                    else: '$$value',
+                    if: {
+                      $lt: [{$strLenCP: '$$this'}, {$strLenCP: '$$value'}]
+                    },
+                    then: '$$this'
+                  }
+                },
+                initialValue: {
+                  $arrayElemAt: ['$friends', 0]
+                },
+                input: '$friends'
+              }
+            }
+          }
+        });
+      });
+
+      it('returns the correct results when executing the pipeline', function(done) {
+        if (!versionSupported) {
+          this.skip();
+        }
+
+        dataService.aggregate(`${DB}.array_of_strings`, pipeline, {}, function(err, res) {
+          expect(err).to.be.null;
+          expect(res).to.have.lengthOf(3);
+          expect(res[0].x).to.be.equal('Tom');
+          expect(res[1].x).to.be.equal('Wisdom');
+          expect(res[2].x).to.be.equal('Ninjas');
+          done();
+        });
+      });
+    });
+  });
 });
