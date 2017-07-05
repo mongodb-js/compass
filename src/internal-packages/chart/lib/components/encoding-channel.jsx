@@ -5,6 +5,7 @@ const DropTarget = require('react-dnd').DropTarget;
 const _ = require('lodash');
 const DraggableField = require('./draggable-field');
 const { EDIT_STATES_ENUM } = require('../constants');
+const app = require('hadron-app');
 
 // const debug = require('debug')('mongodb-compass:chart:encoding-channel');
 
@@ -43,6 +44,10 @@ function collect(connect, monitor) {
  */
 class EncodingChannel extends React.Component {
 
+  componentWillMount() {
+    this.Editable = app.appRegistry.getComponent('App.Editable');
+  }
+
   onSelectAggregate(aggregate) {
     const channel = this.props.channelName;
     this.props.actions.selectAggregate(channel, aggregate);
@@ -70,19 +75,22 @@ class EncodingChannel extends React.Component {
     const fieldName = _.last(this.props.encodedChannel.field.split('.'));
     // else render a DraggableField instance with menus enabled
     return (
-      <DraggableField
-        fieldName={fieldName}
-        fieldPath={this.props.encodedChannel.field}
-        channelName={this.props.channelName}
-        type={this.props.encodedChannel.type}
-        aggregate={this.props.encodedChannel.aggregate}
-        enableMenus={this.props.specType === 'vega-lite'}
-        reductions={this.props.encodedReductions}
-        selectAggregate={this.onSelectAggregate.bind(this)}
-        selectMeasurement={this.onSelectMeasurement.bind(this)}
-        onRemove={this.onRemove.bind(this)}
-        actions={this.props.actions}
-      />
+      <this.Editable editState={this.props.editState}>
+        <DraggableField
+          fieldName={fieldName}
+          fieldPath={this.props.encodedChannel.field}
+          channelName={this.props.channelName}
+          type={this.props.encodedChannel.type}
+          aggregate={this.props.encodedChannel.aggregate}
+          enableMenus={this.props.specType === 'vega-lite'}
+          reductions={this.props.encodedReductions}
+          selectAggregate={this.onSelectAggregate.bind(this)}
+          selectMeasurement={this.onSelectMeasurement.bind(this)}
+          onRemove={this.onRemove.bind(this)}
+          editState={this.props.editState}
+          actions={this.props.actions}
+        />
+    </this.Editable>
     );
   }
 
