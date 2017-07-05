@@ -21,24 +21,6 @@ class TabNavBar extends React.Component {
   }
 
   /**
-   * When the component updates, check if the focus/blur lifecycle methods
-   * exist and call them if they do.
-   */
-  componentDidUpdate() {
-    for (let i = 0; i < this.props.views.length; i++) {
-      if (this.state.activeTabIndex === i) {
-        if (this.props.views[i].onTabFocused) {
-          this.props.views[i].onTabFocused();
-        }
-      } else {
-        if (this.props.views[i].onTabBlurred) {
-          this.props.views[i].onTabBlurred();
-        }
-      }
-    }
-  }
-
-  /**
    * Handle component receiving new props.
    *
    * @param {Object} nextProps - The new props.
