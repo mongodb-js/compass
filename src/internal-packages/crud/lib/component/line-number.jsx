@@ -101,9 +101,11 @@ class LineNumber extends React.Component {
 
   /**
    * Handle key press for enter on the line number.
+   *
+   * @param {Object} event    The DOM event
    */
   handleKeyPress(event) {
-    if(event.key == 'Enter' && this.props.element.isParentEditable()) {
+    if (event.key === 'Enter' && this.props.element.isParentEditable()) {
       Actions.closeAllMenus(this);
       this.setState({menu: !this.state.menu});
     }
@@ -301,8 +303,8 @@ class LineNumber extends React.Component {
    */
   render() {
     return (
-      <div className={this.divClassName()} 
-        onClick={this.handleClick.bind(this)} 
+      <div className={this.divClassName()}
+        onClick={this.handleClick.bind(this)}
         onKeyPress={this.handleKeyPress.bind(this)}
         onBlur={this.handleClickOutside.bind(this)}
         tabIndex="0">
