@@ -138,19 +138,19 @@ const ARRAY_GENERAL_REDUCTIONS = Object.freeze({
 const ARRAY_NUMERIC_REDUCTIONS = Object.freeze({
   MIN: 'min',
   MAX: 'max',
-  MEAN: 'mean'
-  // SUM: 'sum'  // TODO: Not implemented in arrayReductionAggBuilder
+  MEAN: 'mean',
+  SUM: 'sum'
 });
 
 /**
  * A list of the string array reduction types, or accumulates.
  */
 const ARRAY_STRING_REDUCTIONS = Object.freeze({
-  // CONCAT: 'concat',  // TODO: Not implemented in arrayReductionAggBuilder
+  CONCAT: 'concat',
   MIN_LENGTH: 'min length',
-  MAX_LENGTH: 'max length'
-  // LONGEST: 'longest',  // TODO: Not implemented in arrayReductionAggBuilder
-  // SHORTEST: 'shortest'  // TODO: Not implemented in arrayReductionAggBuilder
+  MAX_LENGTH: 'max length',
+  LONGEST: 'longest',
+  SHORTEST: 'shortest'
 });
 
 /**
