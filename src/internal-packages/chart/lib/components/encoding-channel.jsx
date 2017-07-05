@@ -9,6 +9,8 @@ const app = require('hadron-app');
 
 // const debug = require('debug')('mongodb-compass:chart:encoding-channel');
 
+const EDITABLE_UPDATE_TEXT = 'Apply';
+
 /**
  * Drop target for react-dnd
  * @see http://react-dnd.github.io/react-dnd/docs-drop-target.html
@@ -48,6 +50,15 @@ class EncodingChannel extends React.Component {
     this.Editable = app.appRegistry.getComponent('App.Editable');
   }
 
+  componentDidUpdate() {
+    if (this.props.editState === EDIT_STATES_ENUM.SUCCESS) {
+      // set edit state to unmodified after a second
+      setTimeout(() => {
+        this.props.actions.applyReductions(this.props.channelName, EDIT_STATES_ENUM.UNMODIFIED);
+      }, 1000);
+    }
+  }
+
   onSelectAggregate(aggregate) {
     const channel = this.props.channelName;
     this.props.actions.selectAggregate(channel, aggregate);
@@ -66,17 +77,39 @@ class EncodingChannel extends React.Component {
     this.props.actions.applyReductions(this.props.channelName);
   }
 
+  _getEditableProps() {
+    const props = {editState: this.props.editState};
+
+    switch (this.props.editState) {
+      case EDIT_STATES_ENUM.INITIAL:
+        // set areAllReduced to true if all of the reduction types are set otherwise false
+        const areAllReduced = this.props.encodedReductions.every((red) => {
+          return red.type;
+        });
+        props.disableButtons = !areAllReduced;
+        props.onUpdate = this._applyReduction.bind(this);
+        props.updateText = EDITABLE_UPDATE_TEXT;
+        break;
+      case EDIT_STATES_ENUM.MODIFIED:
+        props.onUpdate = this._applyReduction.bind(this);
+        props.updateText = EDITABLE_UPDATE_TEXT;
+        break;
+      default: break;
+    }
+
+    return props;
+  }
+
   renderField() {
     if (_.isEmpty(this.props.encodedChannel)) {
       // render a placeholder string
       return 'drop a field here';
     }
 
-    const fieldName = _.last(this.props.encodedChannel.field.split('.'));
     // else render a DraggableField instance with menus enabled
-    return (
-      <this.Editable editState={this.props.editState}>
-        <DraggableField
+    const fieldName = _.last(this.props.encodedChannel.field.split('.'));
+    const draggable = (
+      <DraggableField
           fieldName={fieldName}
           fieldPath={this.props.encodedChannel.field}
           channelName={this.props.channelName}
@@ -90,60 +123,14 @@ class EncodingChannel extends React.Component {
           editState={this.props.editState}
           actions={this.props.actions}
         />
-    </this.Editable>
     );
-  }
 
-  renderReductionEditState() {
-    if (!this.props.encodedReductions) {
-      return null;
+    if (this.props.editState) {
+      const props = this._getEditableProps();
+      return (<this.Editable {... props}>{draggable}</this.Editable>);
     }
 
-    switch (this.props.editState) {
-      case EDIT_STATES_ENUM.INITIAL:
-        // set disabled to true if none of the reduction types are set
-        const disabled = this.props.encodedReductions.every((red) => {
-          return !red.type;
-        });
-        return (
-          <div>
-            <button disabled={disabled}>Cancel</button>
-            <button onClick={this._applyReduction.bind(this)} disabled={disabled}>Apply</button>
-          </div>
-        );
-      case EDIT_STATES_ENUM.MODIFIED:
-        return (
-          <div>
-            <button>Cancel</button>
-            <button onClick={this._applyReduction.bind(this)}>Apply</button>
-          </div>
-        );
-      case EDIT_STATES_ENUM.UPDATING:
-        return (
-          <div>
-            <span>Updating...</span>
-          </div>
-        );
-      case EDIT_STATES_ENUM.SUCCESS:
-        // set edit state to unmodified after a second
-        setTimeout(() => {
-          this.props.actions.applyReductions(this.props.channelName, EDIT_STATES_ENUM.UNMODIFIED);
-        }, 1000);
-
-        return (
-          <div>
-            <span>Updated</span>
-          </div>
-        );
-      case EDIT_STATES_ENUM.ERROR:
-        return (
-          <div>
-            <span>An error occured</span>
-          </div>
-        );
-      // handles UNMODIFIED case
-      default: return null;
-    }
+    return draggable;
   }
 
   render() {
@@ -170,7 +157,6 @@ class EncodingChannel extends React.Component {
         <div id={chartChannelId} className={droppableClass}>
           {this.renderField()}
         </div>
-        {this.renderReductionEditState()}
       </div>
     );
   }
