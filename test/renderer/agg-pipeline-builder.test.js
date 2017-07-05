@@ -465,5 +465,101 @@ describe('Aggregation Pipeline Builder', function() {
         });
       });
     });
+
+    context('when using min length accumlator', function() {
+      const state = {
+        reductions: {
+          x: [
+            {field: 'friends', type: ARRAY_REDUCTION_TYPES.MIN_LENGTH}
+          ]
+        },
+        channels: {
+          x: { field: 'friends', type: 'ordinal' }
+        }
+      };
+      const pipeline = aggBuilder.constructPipeline(state);
+
+      it('builds the correct agg pipeline with the "min length" reduction', function() {
+        expect(pipeline).to.be.an('array');
+        expect(pipeline[0]).to.be.deep.equal({
+          $addFields: {
+            '__alias_0': {
+              $min: {
+                $map: {
+                  as: 'str',
+                  in: {
+                    $strLenCP: '$$str'
+                  },
+                  input: '$friends'
+                }
+              }
+            }
+          }
+        });
+      });
+
+      it('returns the correct results when executing the pipeline', function(done) {
+        if (!versionSupported) {
+          this.skip();
+        }
+
+        dataService.aggregate(`${DB}.array_of_strings`, pipeline, {}, function(err, res) {
+          expect(err).to.be.null;
+          expect(res).to.have.lengthOf(3);
+          expect(res[0].x).to.be.equal(3);
+          expect(res[1].x).to.be.equal(6);
+          expect(res[2].x).to.be.equal(6);
+          done();
+        });
+      });
+    });
+
+    context('when using max length accumlator', function() {
+      const state = {
+        reductions: {
+          x: [
+            {field: 'friends', type: ARRAY_REDUCTION_TYPES.MAX_LENGTH}
+          ]
+        },
+        channels: {
+          x: { field: 'friends', type: 'ordinal' }
+        }
+      };
+      const pipeline = aggBuilder.constructPipeline(state);
+
+      it('builds the correct agg pipeline with the "max length" reduction', function() {
+        expect(pipeline).to.be.an('array');
+        expect(pipeline[0]).to.be.deep.equal({
+          $addFields: {
+            '__alias_0': {
+              $max: {
+                $map: {
+                  as: 'str',
+                  in: {
+                    $strLenCP: '$$str'
+                  },
+                  input: '$friends'
+                }
+              }
+            }
+          }
+        });
+      });
+
+      it('returns the correct results when executing the pipeline', function(done) {
+        if (!versionSupported) {
+          this.skip();
+        }
+
+        dataService.aggregate(`${DB}.array_of_strings`, pipeline, {}, function(err, res) {
+          expect(err).to.be.null;
+          expect(res).to.have.lengthOf(3);
+          expect(res[0].x).to.be.equal(5);
+          expect(res[1].x).to.be.equal(10);
+          expect(res[2].x).to.be.equal(7);
+          done();
+        });
+      });
+    });
   });
 });
