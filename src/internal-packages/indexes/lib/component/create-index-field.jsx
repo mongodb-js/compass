@@ -128,8 +128,8 @@ class CreateIndexField extends React.Component {
     const hasTypeError = this.state.isTypeValid ? '' : 'has-error';
 
     return (
-      <div className="form-inline row create-index-field">
-        <div className="col-md-6" data-test-id="create-index-modal-field-select">
+      <div className="form-inline create-index-field">
+        <div className="create-index-field-dropdown-name" data-test-id="create-index-modal-field-select">
           <Select.Creatable
             value={this.props.field.name}
             placeholder={DEFAULT_FIELD.name}
@@ -140,7 +140,7 @@ class CreateIndexField extends React.Component {
             className={hasNameError}
           />
         </div>
-        <div className="col-md-4" data-test-id="create-index-modal-type-select">
+        <div className="create-index-field-dropdown-type" data-test-id="create-index-modal-type-select">
           <Select
             value={this.props.field.type}
             placeholder={DEFAULT_FIELD.type}
@@ -151,7 +151,7 @@ class CreateIndexField extends React.Component {
             className={hasTypeError}
           />
         </div>
-        <div className="col-md-2">
+        <div>
           <button disabled={this.props.isRemovable}
             className="btn btn-primary btn-circle"
             onClick={this.remove.bind(this)}>
