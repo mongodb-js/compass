@@ -8,9 +8,15 @@
     border-radius: 5px;
   }
 
-  &-is-modified, &-is-updating, &-is-success, &-is-error {
+  &-is-initial, &-is-modified, &-is-updating, &-is-success, &-is-error {
     .editable-wrapper {
       box-shadow: 2px 5px 8px rgba(0, 0, 0, 0.2);
+    }
+  }
+
+  &-is-initial, &-is-updating {
+    .editable-wrapper {
+      border-color: #3bb0e7 !important;
     }
   }
 
@@ -24,9 +30,6 @@
   }
 
   &-is-updating {
-    .editable-wrapper {
-      border-color: #3bb0e7;
-    }
     .editable-statusbar {
       background-color: #3bb0e7;
     }
