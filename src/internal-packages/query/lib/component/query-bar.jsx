@@ -84,11 +84,10 @@ class QueryBar extends React.Component {
   }
 
   onResetButtonClicked() {
+    this.props.actions.reset();
     if (_.isFunction(this.props.onReset)) {
       this.props.onReset();
     }
-
-    this.props.actions.reset();
   }
 
   _onFocus() {
