@@ -77,7 +77,7 @@ const minicharts_d3fns_many = function() {
         const values = _.map(selected.data(), 'value');
         QueryAction.setDistinctValues({
           field: options.fieldName,
-          value: values
+          value: values.map((v) => options.promoter(v))
         });
         return;
       }
@@ -93,7 +93,7 @@ const minicharts_d3fns_many = function() {
         // if not binned and values are the same, single equality query
         QueryAction.setValue({
           field: options.fieldName,
-          value: minValue.bson
+          value: options.promoter(minValue.bson)
         });
         return;
       }
@@ -101,8 +101,8 @@ const minicharts_d3fns_many = function() {
       // or $gte and $lte (if not binned)
       QueryAction.setRangeValues({
         field: options.fieldName,
-        min: minValue.value,
-        max: maxValue.value + maxValue.dx,
+        min: options.promoter(minValue.value),
+        max: options.promoter(maxValue.value + maxValue.dx),
         maxInclusive: maxValue.dx === 0
       });
     }
@@ -146,14 +146,14 @@ const minicharts_d3fns_many = function() {
         QueryAction.toggleDistinctValue : QueryAction.setValue;
       qbAction({
         field: options.fieldName,
-        value: d.value,
+        value: options.promoter(d.value),
         unsetIfSet: true
       });
     } else if (d3.event.shiftKey && lastNonShiftRangeValue) {
       QueryAction.setRangeValues({
         field: options.fieldName,
-        min: Math.min(d.value, lastNonShiftRangeValue.value),
-        max: Math.max(d.value + d.dx, lastNonShiftRangeValue.value + lastNonShiftRangeValue.dx),
+        min: options.promoter(Math.min(d.value, lastNonShiftRangeValue.value)),
+        max: options.promoter(Math.max(d.value + d.dx, lastNonShiftRangeValue.value + lastNonShiftRangeValue.dx)),
         maxInclusive: d.dx === 0
       });
     } else {
@@ -163,15 +163,15 @@ const minicharts_d3fns_many = function() {
         // binned bars, turn single value into range
         QueryAction.setRangeValues({
           field: options.fieldName,
-          min: d.value,
-          max: d.value + d.dx,
+          min: options.promoter(d.value),
+          max: options.promoter(d.value + d.dx),
           unsetIfSet: true
         });
       } else {
         // bars don't represent bins, build single value query
         QueryAction.setValue({
           field: options.fieldName,
-          value: d.bson,
+          value: options.promoter(d.bson),
           unsetIfSet: true
         });
       }

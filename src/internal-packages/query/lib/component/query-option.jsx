@@ -1,14 +1,147 @@
 const React = require('react');
+const CodeMirror = require('react-codemirror');
 const PropTypes = require('prop-types');
-// const FontAwesome = require('react-fontawesome');
+require('codemirror-mongodb/addon/hint/mongodb-hint');
+
+const { InfoSprinkle } = require('hadron-react-components');
+const { shell } = require('electron');
+
+const debug = require('debug')('monngodb-compass:query:component:query-option');
 
 class QueryOption extends React.Component {
+  componentDidMount() {
+    const cm = this.refs.codemirror;
+    if (cm) {
+      /**
+       * Set the id on the underlying `<textarea />` used by react-codemirror
+       * so the functional tests can read values from it.
+       */
+      cm.textareaNode.id = `querybar-option-input-${this.props.label}`;
+    }
+    const queryActions = global.hadronApp.appRegistry.getAction('Query.Actions');
+    this.unsubscribeRefresh = queryActions.refreshCodeMirror.listen(this.refresh.bind(this));
+  }
 
-  renderTextInput(className) {
+  componentWillUnmount() {
+    this.unsubscribeRefresh();
+  }
+
+  /**
+   * Listen for codemirror input change events. Bubble them up to `onChange(evt)`
+   * using a `CustomEvent` so autocomplete enabled inputs look just like simple
+   * text inputs to the outside world.
+   *
+   * @param {String} newCode The updated value of the underlying textarea.
+   * @param {object} change A codemirror change object.
+   * @api private
+   *
+   * @example
+   * ```javascript
+   * // If I start typing in a query filter,
+   * // then request autocompletion {█},
+   * // then select `custom_attributes.app_name` from the popover list,
+   * // then `applyChangeFromCodeMirror()` will be called with:
+   * var code = "{'custom_attributes.app_name'}"
+   * var change = {
+   *   origin: 'complete',
+   *   text: [
+   *    "'custom_attributes.app_name'"
+   *   ],
+   *   removed: [""]
+   * }
+   * ```
+   */
+  applyChangeFromCodeMirror(newCode, change) {
+    if (change && change.origin === 'complete') {
+      debug('Autocomplete used for `%s`', change.text[0]);
+      /**
+       * TODO (@imlucas) Record autocomplete usage as a metric!
+       */
+    }
+    this.props.onChange({
+      target: {
+        value: newCode
+      }
+    });
+  }
+
+  refresh() {
+    if (this.refs.codemirror) {
+      this.refs.codemirror.codeMirror.refresh();
+    }
+  }
+
+  _getOuterClassName() {
+    const outerClassList = [
+      'querybar-option',
+      `querybar-option-is-${this.props.inputType}-type`
+    ];
+
+    if (this.props.hasError) {
+      outerClassList.push('querybar-option-has-error');
+    }
+    return outerClassList.join(' ');
+  }
+
+  _getInnerClassName() {
+    const innerClassList = [
+      'querybar-option-input',
+      `input-${this.props.label}`
+    ];
+    if (this.props.hasToggle) {
+      innerClassList.push('querybar-option-has-toggle');
+    }
+    return innerClassList.join(' ');
+  }
+
+  _renderCheckboxInput() {
     return (
       <input
         id={`querybar-option-input-${this.props.label}`}
-        className={className}
+        className={this._getInnerClassName()}
+        type="checkbox"
+        checked={this.props.value}
+        onChange={this.props.onChange}
+      />
+    );
+  }
+
+  _renderAutoCompleteInput() {
+    const options = {
+      lineNumbers: false,
+      scrollbarStyle: 'null',
+      mode: 'javascript',
+      autoCloseBrackets: true,
+      autoRefresh: true,
+      placeholder: this.props.placeholder,
+      matchBrackets: true,
+      theme: 'mongodb',
+      extraKeys: {
+        'Ctrl-Space': 'autocomplete',
+        '$': 'autocomplete'
+      },
+      oneliner: true,
+      mongodb: {
+        fields: this.props.schemaFields
+      }
+    };
+    return (
+      <CodeMirror
+        addons={[ 'display/placeholder' ]}
+        className={this._getInnerClassName()}
+        ref="codemirror"
+        value={this.props.value}
+        onChange={this.applyChangeFromCodeMirror.bind(this)}
+        options={options}
+      />
+    );
+  }
+
+  _renderSimpleInput() {
+    return (
+      <input
+        id={`querybar-option-input-${this.props.label}`}
+        className={this._getInnerClassName()}
         type="text"
         value={this.props.value}
         onChange={this.props.onChange}
@@ -17,39 +150,26 @@ class QueryOption extends React.Component {
     );
   }
 
-  renderCheckboxInput(className) {
-    return (
-      <input
-        id={`querybar-option-input-${this.props.label}`}
-        className={className}
-        type="checkbox"
-        checked={this.props.value}
-        onChange={this.props.onChange}
-      />
-    );
-  }
-
   render() {
-    let outerClass = `querybar-option querybar-option-is-${this.props.inputType}-type`;
-    let innerClass = `querybar-option-input input-${this.props.label}`;
-    if (this.props.hasError) {
-      outerClass += ' querybar-option-has-error';
+    let input = null;
+    if (this.props.label === 'filter') {
+      input = this._renderAutoCompleteInput();
+    } else if (this.props.inputType === 'boolean') {
+      input = this._renderCheckboxInput();
+    } else {
+      input = this._renderSimpleInput();
     }
-    if (this.props.hasToggle) {
-      innerClass += ' querybar-option-has-toggle';
-    }
-    const renderFunction = this.props.inputType === 'boolean' ?
-      this.renderCheckboxInput.bind(this) : this.renderTextInput.bind(this);
 
     return (
-      <div className={outerClass}>
+      <div className={this._getOuterClassName()}>
         <div className="querybar-option-label">
-          { /** TODO (thomasr) include when documentation exists to link out to.
-            /* <FontAwesome className="querybar-option-label-info" name="info-circle" />
-             */ }
+          <InfoSprinkle
+            helpLink={this.props.link}
+            onClickHandler={shell.openExternal}
+          />
           {this.props.label}
         </div>
-        { renderFunction(innerClass) }
+        {input}
       </div>
     );
   }
@@ -64,13 +184,15 @@ QueryOption.propTypes = {
   hasToggle: PropTypes.bool,
   hasError: PropTypes.bool,
   validationFunc: PropTypes.func,
-  onChange: PropTypes.func
+  onChange: PropTypes.func,
+  schemaFields: PropTypes.object
 };
 
 QueryOption.defaultProps = {
   placeholder: '',
   value: '',
-  hasToggle: false
+  hasToggle: false,
+  schemaFields: {}
 };
 
 QueryOption.displayName = 'QueryOption';

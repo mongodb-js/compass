@@ -1,0 +1,36 @@
+.CodeMirror {
+  height: auto;
+  font-family: Menlo, Monaco, Consolas, "Courier New", monospace;
+
+  &-hints {
+    margin: 2px 0 0;
+    padding: 3px;
+    font-size: 12px;
+    text-align: left;
+    background-color: #fff;
+    border: 1px solid rgba(0, 0, 0, 0.15);
+    border-radius: 4px;
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.175);
+    min-width: 160px;
+  }
+}
+
+li.CodeMirror-hint {
+  padding: 3px 8px;
+
+  &-active {
+    color: white;
+    background: linear-gradient(180deg, #2469BE 0%, #11509E 100%);
+    border-radius: 2px;
+    outline: none;
+  }
+}
+
+.cm-s-mongodb .CodeMirror-matchingbracket {
+    outline: 0;
+    border-bottom: 1px solid grey;
+}
+
+::-webkit-scrollbar {
+  display: none;
+}

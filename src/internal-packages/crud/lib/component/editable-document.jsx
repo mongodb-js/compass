@@ -10,8 +10,6 @@ const DocumentActions = require('./document-actions');
 const DocumentFooter = require('./document-footer');
 const RemoveDocumentFooter = require('./remove-document-footer');
 
-const debug = require('debug')('mongodb-compass:crud:editable-document');
-
 /**
  * The arrow up class.
  */
@@ -65,8 +63,6 @@ class EditableDocument extends React.Component {
   constructor(props) {
     super(props);
     this.doc = EditableDocument.loadDocument(props.doc);
-    debug('props.doc', this.doc);
-
     this.state = {
       editing: false,
       deleting: false,
