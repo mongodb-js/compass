@@ -15,6 +15,7 @@ const Actions = Reflux.createActions([
   'resizeChart',
   'setArrayReduction',
   'applyReductions',
+  'cancelReductions',
   'setSpecAsJSON',
   'switchToChartBuilderView',
   'switchToJSONView',

@@ -829,6 +829,25 @@ const ChartStore = Reflux.createStore({
   },
 
   /**
+   * Removes any reduction/channel that are not applied if INITIAL editState
+   * or restores to last UNMODIFIED state of reduction/channel
+   * @param {String} channel the channel related to the reductions
+   */
+  cancelReductions(channel) {
+    const channels = _.cloneDeep(this.state.channels);
+    const reductions = _.cloneDeep(this.state.reductions);
+    const editStates = _.cloneDeep(this.state.editStates);
+
+    delete channels[channel];
+    delete reductions[channel];
+    delete editStates[channel];
+
+    this._updateSpec({channels: channels,
+      reductions: reductions,
+      editStates: editStates}, true);
+  },
+
+  /**
    * Helper to maintain the unwind invariant, that all unwinds must take place
    * before any other array reductions can be performed, i.e. all unwinds are
    * the outermost or topmost operations in the reduction pipeline.

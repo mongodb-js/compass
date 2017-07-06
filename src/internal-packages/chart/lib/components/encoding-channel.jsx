@@ -73,8 +73,12 @@ class EncodingChannel extends React.Component {
     this.props.actions.mapFieldToChannel(null, channelName);
   }
 
-  _applyReduction() {
+  _apply() {
     this.props.actions.applyReductions(this.props.channelName);
+  }
+
+  _cancel() {
+    this.props.actions.cancelReductions(this.props.channelName);
   }
 
   _getEditableProps() {
@@ -87,11 +91,13 @@ class EncodingChannel extends React.Component {
           return red.type;
         });
         props.disableButtons = !areAllReduced;
-        props.onUpdate = this._applyReduction.bind(this);
+        props.onCancel = this._cancel.bind(this);
+        props.onUpdate = this._apply.bind(this);
         props.updateText = EDITABLE_UPDATE_TEXT;
         break;
       case EDIT_STATES_ENUM.MODIFIED:
-        props.onUpdate = this._applyReduction.bind(this);
+        props.onCancel = this._cancel.bind(this);
+        props.onUpdate = this._apply.bind(this);
         props.updateText = EDITABLE_UPDATE_TEXT;
         break;
       default: break;
