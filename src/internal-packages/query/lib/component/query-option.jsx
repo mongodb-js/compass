@@ -116,7 +116,6 @@ class QueryOption extends React.Component {
       theme: 'mongodb',
       extraKeys: {
         'Ctrl-Space': 'autocomplete',
-        '.': 'autocomplete',
         '$': 'autocomplete'
       },
       oneliner: true,
