@@ -130,6 +130,35 @@ describe('Aggregation Pipeline Builder', function() {
         });
       });
     });
+    context('when aggregating over numeric fields with a 2-stage aggregation', function() {
+      const state = {
+        channels: {
+          x: {
+            field: 'number',
+            type: MEASUREMENT_ENUM.QUANTITATIVE,
+            aggregate: AGGREGATE_FUNCTION_ENUM.VARIANCEP
+          },
+          y: {
+            field: 'loc',
+            type: MEASUREMENT_ENUM.NOMINAL
+          }
+        }
+      };
+      it('returns the correct results when executing the pipeline', function(done) {
+        if (!versionSupported) {
+          this.skip();
+        }
+        const pipeline = aggBuilder.constructPipeline(state);
+        dataService.aggregate(`${DB}.compass_devs`, pipeline, {}, function(err, res) {
+          expect(err).to.be.null;
+          expect(res).to.have.lengthOf(3);
+          expect(_.find(res, 'y', 'Australia').x).to.be.closeTo(4.6875, 0.001);
+          expect(_.find(res, 'y', 'USA').x).to.be.equal(9.0);
+          expect(_.find(res, 'y', 'Europe').x).to.be.equal(0.25);
+          done();
+        });
+      });
+    });
     context('when aggregating over numeric fields with two dimensions', function() {
       const state = {
         channels: {

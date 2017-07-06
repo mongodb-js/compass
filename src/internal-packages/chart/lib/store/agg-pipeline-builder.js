@@ -9,7 +9,7 @@ const {
 // const debug = require('debug')('mongodb-compass:chart:agg-pipeline-builder');
 
 /**
- * Array reduction operators wrapped as javascript functions
+ * Array reduction operators wrapped as javascript functions.
  */
 const REDUCTIONS = Object.freeze({
   [ARRAY_GENERAL_REDUCTIONS.LENGTH]: function(arr) {
@@ -123,41 +123,100 @@ const REDUCTIONS = Object.freeze({
   }
 });
 
+/**
+ * Aggreations across documents wrapped as JavaScript function. If the aggregation
+ * only requires a single stage (group accumulators like sum, mean, ...) then
+ * just return an object. If the aggregation requires a subsequent $project stage,
+ * (e.g. distinct, which needs an $addToSet followed by a $size projection),
+ * return an array, where the first element is the group accumulator and the
+ * second element is the projection expression.
+ */
 const AGGREGATIONS = Object.freeze({
   [AGGREGATE_FUNCTION_ENUM.COUNT]: function() {
     return {
       $sum: 1
     };
   },
+  /**
+   * Returns the number of distinct values per group. This operation requires
+   * a $group and $project stage, therefore returning array of two elements.
+   *
+   * @param {String} field   field name to operate on
+   * @returns {Object}       aggregation pipeline operators
+   */
+  [AGGREGATE_FUNCTION_ENUM.DISTINCT]: function(field) {
+    return [
+      {
+        $addToSet: `$${field}`
+      },
+      {
+        $size: `$${field}`
+      }
+    ];
+  },
   [AGGREGATE_FUNCTION_ENUM.SUM]: function(field) {
     return {
-      $sum: field
+      $sum: `$${field}`
     };
   },
   [AGGREGATE_FUNCTION_ENUM.MEAN]: function(field) {
     return {
-      $avg: field
+      $avg: `$${field}`
     };
   },
   [AGGREGATE_FUNCTION_ENUM.MIN]: function(field) {
     return {
-      $min: field
+      $min: `$${field}`
     };
   },
   [AGGREGATE_FUNCTION_ENUM.MAX]: function(field) {
     return {
-      $max: field
+      $max: `$${field}`
     };
   },
   [AGGREGATE_FUNCTION_ENUM.STDEV]: function(field) {
     return {
-      $stdDevSamp: field
+      $stdDevSamp: `$${field}`
     };
+  },
+  /**
+   * Returns the variance over the samples per group. This operation requires
+   * a $group and $project stage, therefore returning array of two elements.
+   *
+   * @param {String} field   field name to operate on
+   * @returns {Object}       aggregation pipeline operators
+   */
+  [AGGREGATE_FUNCTION_ENUM.VARIANCE]: function(field) {
+    return [
+      {
+        $stdDevSamp: `$${field}`
+      },
+      {
+        $pow: [`$${field}`, 2]
+      }
+    ];
   },
   [AGGREGATE_FUNCTION_ENUM.STDEVP]: function(field) {
     return {
-      $stdDevPop: field
+      $stdDevPop: `$${field}`
     };
+  },
+  /**
+   * Returns the population variance per group. This operation requires
+   * a $group and $project stage, therefore returning array of two elements.
+   *
+   * @param {String} field   field name to operate on
+   * @returns {Object}       aggregation pipeline operators
+   */
+  [AGGREGATE_FUNCTION_ENUM.VARIANCEP]: function(field) {
+    return [
+      {
+        $stdDevPop: `$${field}`
+      },
+      {
+        $pow: [`$${field}`, 2]
+      }
+    ];
   }
 });
 
@@ -498,10 +557,15 @@ class AggPipelineBuilder {
     const groupAggregates = _(measures)
       .map((channel, field) => {
         const alias = this._getAlias(field, channel) || field;
-        return [
-          this._assignUniqueAlias(field, channel),
-          AGGREGATIONS[state.channels[channel].aggregate](`$${alias}`)
-        ];
+        let aggregation = AGGREGATIONS[state.channels[channel].aggregate](alias);
+        // if the aggregation function consists of multiple parts, use the
+        // first part here in the grouping, and the second part below in the
+        // projection stage. Otherwise it's just a simple grouping without
+        // additional projection.
+        if (Array.isArray(aggregation) && aggregation.length > 1) {
+          aggregation = aggregation[0];
+        }
+        return [this._assignUniqueAlias(field, channel), aggregation];
       })
       .zipObject()
       .value();
@@ -518,7 +582,16 @@ class AggPipelineBuilder {
     });
     // measures (their aliases) just need to be included in the projection
     _.each(measures, (channel, field) => {
-      projections[this._getAlias(field, channel)] = 1;
+      const alias = this._getAlias(field, channel);
+      let aggregation = AGGREGATIONS[state.channels[channel].aggregate](alias);
+      if (Array.isArray(aggregation) && aggregation.length > 1) {
+        // if the aggregations need a project stage, use it here
+        aggregation = aggregation[1];
+        projections[alias] = aggregation;
+      } else {
+        // otherwise just project the field as it is
+        projections[alias] = 1;
+      }
     });
     const projectStage = {$project: projections};
 

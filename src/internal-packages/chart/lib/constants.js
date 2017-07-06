@@ -14,9 +14,9 @@ const AGGREGATE_FUNCTION_ENUM = Object.freeze({
   VARIANCEP: 'variancep',
   STDEV: 'stdev',
   STDEVP: 'stdevp',
-  MEDIAN: 'median',
-  Q1: 'q1',
-  Q3: 'q3',
+  // MEDIAN: 'median',
+  // Q1: 'q1',           not supported in agg framework, comment out for now
+  // Q3: 'q3',
   MIN: 'min',
   MAX: 'max'
 });
