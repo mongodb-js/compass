@@ -829,6 +829,9 @@ const ChartStore = Reflux.createStore({
   applyReductions(channel, editState = EDIT_STATES_ENUM.UPDATING) {
     const editStates = _.cloneDeep(this.state.editStates);
     editStates[channel] = editState;
+
+    delete this.editStatesPreviousReduction[channel];
+
     this._updateSpec({editStates: editStates}, true);
   },
 
