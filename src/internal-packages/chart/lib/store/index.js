@@ -51,6 +51,7 @@ const ChartStore = Reflux.createStore({
     this.AVAILABLE_CHART_ROLES = [];
     this.completeFieldsCache = {};
     this.completeTopLevelFields = [];
+    this.editStatesPreviousReduction = {};
   },
 
   onActivated(appRegistry) {
@@ -688,6 +689,8 @@ const ChartStore = Reflux.createStore({
     this._swapOrDelete(channels, channel1, channel2);
     this._swapOrDelete(reductions, channel1, channel2);
     this._swapOrDelete(editStates, channel1, channel2);
+    this._swapOrDelete(this.editStatesPreviousReduction, channel1, channel2);
+
     spec.channels = channels;
     spec.reductions = reductions;
     spec.editStates = editStates;
@@ -809,6 +812,7 @@ const ChartStore = Reflux.createStore({
     // Only update edit state to modified if it is previously unmodified
     if (editStates[channel] === EDIT_STATES_ENUM.UNMODIFIED) {
       editStates[channel] = EDIT_STATES_ENUM.MODIFIED;
+      this.editStatesPreviousReduction[channel] = _.cloneDeep(this.state.reductions[channel]);
     }
 
     this._updateSpec({
@@ -838,13 +842,26 @@ const ChartStore = Reflux.createStore({
     const reductions = _.cloneDeep(this.state.reductions);
     const editStates = _.cloneDeep(this.state.editStates);
 
-    delete channels[channel];
-    delete reductions[channel];
-    delete editStates[channel];
+    const state = {};
 
-    this._updateSpec({channels: channels,
-      reductions: reductions,
-      editStates: editStates}, true);
+    if (editStates[channel] === EDIT_STATES_ENUM.INITIAL) {
+      delete channels[channel];
+      delete reductions[channel];
+      delete editStates[channel];
+
+      state.channels = channels;
+      state.reductions = reductions;
+      state.editStates = editStates;
+    } else if (editStates[channel] === EDIT_STATES_ENUM.MODIFIED) {
+      reductions[channel] = this.editStatesPreviousReduction[channel];
+      editStates[channel] = EDIT_STATES_ENUM.UNMODIFIED;
+      delete this.editStatesPreviousReduction[channel];
+
+      state.reductions = reductions;
+      state.editStates = editStates;
+    }
+
+    this._updateSpec(state, true);
   },
 
   /**
