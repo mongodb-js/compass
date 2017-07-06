@@ -14,14 +14,14 @@ class Editable extends React.Component {
           <Button
             bsStyle="link"
             bsSize="xsmall"
-            className="btn-borderless"
+            className="btn-default"
             disabled={this.props.disableButtons}
             onClick={this.props.onCancel}>Cancel
           </Button>
           <Button
             bsSize="xsmall"
             bsStyle="default"
-            className="btn-edit"
+            className="btn-primary"
             disabled={this.props.disableButtons}
             onClick={this.props.onUpdate}>{this.props.updateText}
           </Button>
