@@ -90,7 +90,7 @@ class EncodingChannel extends React.Component {
         const areAllReduced = this.props.encodedReductions.every((red) => {
           return red.type;
         });
-        props.disableButtons = !areAllReduced;
+        props.disableUpdate = !areAllReduced;
         props.onCancel = this._cancel.bind(this);
         props.onUpdate = this._apply.bind(this);
         props.updateText = EDITABLE_UPDATE_TEXT;

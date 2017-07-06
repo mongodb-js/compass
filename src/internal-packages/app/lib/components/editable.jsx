@@ -15,14 +15,13 @@ class Editable extends React.Component {
             bsStyle="link"
             bsSize="xsmall"
             className="btn-default"
-            disabled={this.props.disableButtons}
             onClick={this.props.onCancel}>Cancel
           </Button>
           <Button
             bsSize="xsmall"
             bsStyle="default"
             className="btn-primary"
-            disabled={this.props.disableButtons}
+            disabled={this.props.disableUpdate}
             onClick={this.props.onUpdate}>{this.props.updateText}
           </Button>
         </div>
@@ -35,14 +34,13 @@ class Editable extends React.Component {
             bsStyle="link"
             bsSize="xsmall"
             className="btn-borderless"
-            disabled={this.props.disableButtons}
             onClick={this.props.onCancel}>Cancel
           </Button>
           <Button
             bsSize="xsmall"
             bsStyle="default"
             className="btn-edit"
-            disabled={this.props.disableButtons}
+            disabled={this.props.disableUpdate}
             onClick={this.props.onUpdate}>{this.props.updateText}
           </Button>
         </div>
@@ -55,7 +53,7 @@ class Editable extends React.Component {
             bsStyle="link"
             bsSize="xsmall"
             className="btn-borderless"
-            disabled={this.props.disableButtons}
+            disabled={this.props.disableUpdate}
             onClick={this.props.onCancel}>Cancel
           </Button>
         </div>
@@ -132,7 +130,7 @@ Editable.propTypes = {
   onCancel: PropTypes.func,
   onUpdate: PropTypes.func,
   errorMessage: PropTypes.string,
-  disableButtons: PropTypes.bool,
+  disableUpdate: PropTypes.bool,
   updateText: PropTypes.string,
   disableStatusBar: PropTypes.bool
 };
@@ -141,7 +139,7 @@ Editable.defaultProps = {
   editState: 'unmodified',
   onCancel: () => {},
   onUpdate: () => {},
-  disableButtons: false,
+  disableUpdate: false,
   updateText: 'Update',
   disableStatusBar: false
 };
