@@ -585,11 +585,10 @@ class AggPipelineBuilder {
     // second part into the $project stage here.
     _.each(measures, (channel, field) => {
       const alias = this._getAlias(field, channel);
-      let aggregation = AGGREGATIONS[state.channels[channel].aggregate](alias);
+      const aggregation = AGGREGATIONS[state.channels[channel].aggregate](alias);
       if (Array.isArray(aggregation) && aggregation.length > 1) {
         // if the aggregation needs a project stage, use it here
-        aggregation = aggregation[1];
-        projections[alias] = aggregation;
+        projections[alias] = aggregation[1];
       } else {
         // otherwise just project the field as it is
         projections[alias] = 1;
