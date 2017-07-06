@@ -580,12 +580,14 @@ class AggPipelineBuilder {
       const alias = this._getAlias(field, channel);
       projections[alias] = `$_id.${alias}`;
     });
-    // measures (their aliases) just need to be included in the projection
+    // measures (their aliases) with 1-stage aggregations just need to be
+    // included in the $project stage, 2-stage aggregations inject their
+    // second part into the $project stage here.
     _.each(measures, (channel, field) => {
       const alias = this._getAlias(field, channel);
       let aggregation = AGGREGATIONS[state.channels[channel].aggregate](alias);
       if (Array.isArray(aggregation) && aggregation.length > 1) {
-        // if the aggregations need a project stage, use it here
+        // if the aggregation needs a project stage, use it here
         aggregation = aggregation[1];
         projections[alias] = aggregation;
       } else {
