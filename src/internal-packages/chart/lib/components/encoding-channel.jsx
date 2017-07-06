@@ -71,7 +71,7 @@ class EncodingChannel extends React.Component {
         channelName={this.props.channelName}
         type={this.props.encodedChannel.type}
         aggregate={this.props.encodedChannel.aggregate}
-        enableMenus={this.props.specType === 'vega-lite'}
+        enableMenus
         reductions={this.props.encodedReductions}
         selectAggregate={this.onSelectAggregate.bind(this)}
         selectMeasurement={this.onSelectMeasurement.bind(this)}
