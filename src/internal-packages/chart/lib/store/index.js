@@ -619,10 +619,12 @@ const ChartStore = Reflux.createStore({
     const channels = _.cloneDeep(this.state.channels);
     const reductions = _.cloneDeep(this.state.reductions);
     const editStates = _.cloneDeep(this.state.editStates);
+    let pipelineCache = this.state.pipelineCache;
     if (fieldPath === null) {
       delete channels[channel];
       delete reductions[channel];
       delete editStates[channel];
+      pipelineCache = [];
     } else if (!_.has(this.state.fieldsCache, fieldPath)) {
       throw new Error('Unknown field: ' + fieldPath);
     } else {
@@ -646,7 +648,8 @@ const ChartStore = Reflux.createStore({
     this._updateSpec({
       channels: channels,
       reductions: reductions,
-      editStates: editStates
+      editStates: editStates,
+      pipelineCache: pipelineCache
     }, pushToHistory);
   },
 
