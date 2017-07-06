@@ -100,6 +100,9 @@ class EncodingChannel extends React.Component {
         props.onUpdate = this._apply.bind(this);
         props.updateText = EDITABLE_UPDATE_TEXT;
         break;
+      case EDIT_STATES_ENUM.UNMODIFIED:
+        props.disableStatusBar = true;
+        break;
       default: break;
     }
 

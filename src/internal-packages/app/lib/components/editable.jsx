@@ -112,10 +112,12 @@ class Editable extends React.Component {
           <div className="editable-content" ref="content">
             {React.cloneElement(this.props.children, {ref: 'child'})}
           </div>
-          <div className="editable-statusbar">
-            <span>{symbol}&nbsp;{message}</span>
-            {buttons}
-          </div>
+          {!this.props.disableStatusBar ?
+            <div className="editable-statusbar">
+              <span>{symbol}&nbsp;{message}</span>
+              {buttons}
+            </div>
+           : null}
         </div>
       </div>
     );
@@ -131,7 +133,8 @@ Editable.propTypes = {
   onUpdate: PropTypes.func,
   errorMessage: PropTypes.string,
   disableButtons: PropTypes.bool,
-  updateText: PropTypes.string
+  updateText: PropTypes.string,
+  disableStatusBar: PropTypes.bool
 };
 
 Editable.defaultProps = {
@@ -139,7 +142,8 @@ Editable.defaultProps = {
   onCancel: () => {},
   onUpdate: () => {},
   disableButtons: false,
-  updateText: 'Update'
+  updateText: 'Update',
+  disableStatusBar: false
 };
 
 Editable.displayName = 'Editable';
