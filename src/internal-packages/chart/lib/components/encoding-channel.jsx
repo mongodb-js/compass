@@ -120,7 +120,6 @@ EncodingChannel.propTypes = {
   isOver: PropTypes.bool.isRequired,
   specType: PropTypes.oneOf(['vega', 'vega-lite']),
   encodedReductions: PropTypes.array,
-  showTooltip: PropTypes.func,
   canDrop: PropTypes.bool.isRequired
 };
 

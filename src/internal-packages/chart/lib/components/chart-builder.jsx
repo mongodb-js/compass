@@ -1,6 +1,5 @@
 const React = require('react');
 const PropTypes = require('prop-types');
-const { findDOMNode } = require('react-dom');
 const app = require('hadron-app');
 const ChartActions = require('../actions');
 const HTML5Backend = require('react-dnd-html5-backend');
@@ -95,10 +94,6 @@ class ChartBuilder extends React.Component {
   onJSONEditorBlur() {
     this.props.actions.setSpecAsJSON(this.state.editorSpec);
     this.setState({reRenderChart: true});
-  }
-
-  showTooltip(ref) {
-    ReactTooltip.show(findDOMNode(ref));
   }
 
   handleResize() {
@@ -248,7 +243,6 @@ class ChartBuilder extends React.Component {
                 availableChartRoles={this.props.availableChartRoles}
                 encodedChannels={this.props.channels}
                 reductions={this.props.reductions}
-                showTooltip={this.showTooltip}
                 actions={this.props.actions}
               />
             </div>
