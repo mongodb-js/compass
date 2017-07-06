@@ -241,16 +241,18 @@ const ChartStore = Reflux.createStore({
       }).length === 0;
     }));
 
-    // check if channel is in updating editState (if there are no editStates assume true)
-    const isUpdating = _.isEmpty(state.editStates) ? true :
+    // check if channel is in a valid editState for spec to render
+    // (if there are no editStates assume true)
+    const isEditValid = _.isEmpty(state.editStates) ? true :
       _.filter(state.editStates, (editState) => {
-        return editState === EDIT_STATES_ENUM.UPDATING;
+        return editState === EDIT_STATES_ENUM.UPDATING ||
+          editState === EDIT_STATES_ENUM.UNMODIFIED;
       }).length > 0;
 
     return allReductionsSelected
       && allRequiredChannelsEncoded
       && encodedChannels.length > 0
-      && isUpdating;
+      && isEditValid;
   },
 
   /**
