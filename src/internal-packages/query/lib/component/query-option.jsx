@@ -66,7 +66,9 @@ class QueryOption extends React.Component {
   }
 
   refresh() {
-    this.refs.codemirror.codeMirror.refresh();
+    if (this.refs.codemirror) {
+      this.refs.codemirror.codeMirror.refresh();
+    }
   }
 
   _getOuterClassName() {
