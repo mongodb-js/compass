@@ -307,6 +307,16 @@ const ChartStore = Reflux.createStore({
       return;
     }
 
+    const editStates = _.cloneDeep(state.editStates);
+    const channel = _.findKey(editStates, (editState) => {
+      return editState === EDIT_STATES_ENUM.UPDATING;
+    });
+
+    // pipeline should be constructed only on updating reductions otherwise early exit
+    if (!_.isEmpty(editStates) && !channel) {
+      return;
+    }
+
     // construct new pipeline and compare with last one. exit if they are equal.
     const pipeline = this.aggPipelineBuilder.constructPipeline(state);
     if (_.isEqual(state.pipelineCache, pipeline)) {
@@ -323,12 +333,6 @@ const ChartStore = Reflux.createStore({
     };
 
     debug('executed pipeline %j', pipeline);
-
-    // return the first (and only) editState that is updating
-    const editStates = _.cloneDeep(state.editStates);
-    const channel = _.findKey(editStates, (editState) => {
-      return editState === EDIT_STATES_ENUM.UPDATING;
-    });
 
     app.dataService.aggregate(ns.ns, pipeline, options).toArray((error, documents) => {
       if (error) {
