@@ -20,8 +20,13 @@
     flex-grow: 1;
     flex-shrink: 1;
     flex-basis: auto;
+    pointer-events: none;
     overflow: hidden;
     white-space: nowrap;
+  }
+
+  &-info-sprinkle {
+    pointer-events: auto;
   }
 
   &-item-container-remove {
@@ -159,7 +164,6 @@
     font-size: 11px;
     font-weight: bold;
     overflow: hidden;
-    pointer-events: none;
     text-overflow: ellipsis;
     white-space: nowrap;
   }
@@ -207,5 +211,12 @@
     flex-grow: 0;
     flex-shrink: 0;
     align-self: flex-start;
+  }
+
+  &-reduction-tooltip {
+    line-height: 1;
+    .multi-line {
+      text-align: left !important;
+    }
   }
 }

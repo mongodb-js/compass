@@ -283,7 +283,11 @@ class ChartBuilder extends React.Component {
           {this.renderStatusRow()}
         </div>
         {this.renderChartEditor()}
-        <ReactTooltip id={TOOL_TIP_ARRAY_REDUCE['data-for']} place="right" effect="solid" delayShow={200} />
+        <ReactTooltip
+          id={TOOL_TIP_ARRAY_REDUCE['data-for']}
+          globalEventOff="click"
+          place="left"
+          effect="solid" />
       </div>
     );
   }

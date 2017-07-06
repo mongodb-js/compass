@@ -148,6 +148,11 @@ describe('<DraggableField />', () => {
       // show one reduction by searching for it and showing a count
       expect(component.find(ArrayReductionPicker)).to.have.lengthOf(reductions.length);
     });
+
+    it('should have a tooltip for array reductions', () => {
+      const titleArray = component.find('.chart-draggable-field-title-array');
+      expect(titleArray.prop('data-tip')).to.match(/^In order to use fields or values/);
+    });
   });
 
   describe('when there are multiple reductions', () => {
