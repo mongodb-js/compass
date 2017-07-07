@@ -9,6 +9,7 @@ const {
   ARRAY_REDUCTION_TYPES,
   CHART_CHANNEL_ENUM,
   MEASUREMENT_ENUM,
+  EDIT_STATES_ENUM,
   LITE_SPEC_GLOBAL_SETTINGS
 } = require('../../src/internal-packages/chart/lib/constants');
 const ChartActions = require('../../src/internal-packages/chart/lib/actions');
@@ -1001,6 +1002,32 @@ describe('ChartStore', function() {
             expect(reductions).to.be.deep.equal(expected);
             done();
           });
+        });
+      });
+    });
+
+    context('when setting editStates', function() {
+      it('has an initial editState', function(done) {
+        setTimeout(() => {
+          const editStates = this.store.state.editStates;
+          expect(editStates[channel]).to.equal(EDIT_STATES_ENUM.INITIAL);
+          done();
+        });
+      });
+      it('keeps editState as initial on setting array reduction', function(done) {
+        ChartActions.setArrayReduction(channel, 0, ARRAY_REDUCTION_TYPES.UNWIND);
+        setTimeout(() => {
+          const editStates = this.store.state.editStates;
+          expect(editStates[channel]).to.equal(EDIT_STATES_ENUM.INITIAL);
+          done();
+        });
+      });
+      it('sets editState as updating on applyReductions', function(done) {
+        ChartActions.applyReductions(channel);
+        setTimeout(() => {
+          const editStates = this.store.state.editStates;
+          expect(editStates[channel]).to.equal(EDIT_STATES_ENUM.UPDATING);
+          done();
         });
       });
     });

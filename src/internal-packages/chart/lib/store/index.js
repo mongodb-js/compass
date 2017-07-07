@@ -5,7 +5,8 @@ const {
   MEASUREMENT_ENUM,
   SPEC_TYPE_ENUM,
   VIEW_TYPE_ENUM,
-  LITE_SPEC_GLOBAL_SETTINGS
+  LITE_SPEC_GLOBAL_SETTINGS,
+  EDIT_STATES_ENUM
 } = require('../constants');
 const Actions = require('../actions');
 const AggPipelineBuilder = require('./agg-pipeline-builder');
@@ -50,6 +51,7 @@ const ChartStore = Reflux.createStore({
     this.AVAILABLE_CHART_ROLES = [];
     this.completeFieldsCache = {};
     this.completeTopLevelFields = [];
+    this.editStatesPreviousReduction = {};
   },
 
   onActivated(appRegistry) {
@@ -109,7 +111,10 @@ const ChartStore = Reflux.createStore({
       channels: {},
       // Array reductions for each channel, to turn into an aggregation
       // pipeline and applied before Vega
-      reductions: {}
+      reductions: {},
+      // edit states for each channel, that indicate which stage each
+      // channel is in the UI
+      editStates: {}
     };
   },
 
@@ -228,13 +233,26 @@ const ChartStore = Reflux.createStore({
     const encodedChannels = Object.keys(state.channels);
     const allRequiredChannelsEncoded = requiredChannels.length ===
       _.intersection(requiredChannels, encodedChannels).length;
+
+    // check if all reductions have types selected
     const allReductionsSelected = _.every(_.map(state.reductions, (reductions) => {
       return _.filter(reductions, (reduction) => {
         return reduction.type === null;
       }).length === 0;
     }));
 
-    return allReductionsSelected && allRequiredChannelsEncoded && encodedChannels.length > 0;
+    // check if channel is in a valid editState for spec to render
+    // (if there are no editStates assume true)
+    const isEditValid = _.isEmpty(state.editStates) ? true :
+      _.filter(state.editStates, (editState) => {
+        return editState === EDIT_STATES_ENUM.UPDATING ||
+          editState === EDIT_STATES_ENUM.UNMODIFIED;
+      }).length > 0;
+
+    return allReductionsSelected
+      && allRequiredChannelsEncoded
+      && encodedChannels.length > 0
+      && isEditValid;
   },
 
   /**
@@ -289,6 +307,16 @@ const ChartStore = Reflux.createStore({
       return;
     }
 
+    const editStates = _.cloneDeep(state.editStates);
+    const channel = _.findKey(editStates, (editState) => {
+      return editState === EDIT_STATES_ENUM.UPDATING;
+    });
+
+    // pipeline should be constructed only on updating reductions otherwise early exit
+    if (!_.isEmpty(editStates) && !channel) {
+      return;
+    }
+
     // construct new pipeline and compare with last one. exit if they are equal.
     const pipeline = this.aggPipelineBuilder.constructPipeline(state);
     if (_.isEqual(state.pipelineCache, pipeline)) {
@@ -309,12 +337,17 @@ const ChartStore = Reflux.createStore({
     app.dataService.aggregate(ns.ns, pipeline, options).toArray((error, documents) => {
       if (error) {
         // @todo handle error better? what kind of errors can happen here?
+        if (channel) {
+          editStates[channel] = EDIT_STATES_ENUM.ERROR;
+        }
         throw error;
       }
-      this.setState({
-        pipelineCache: pipeline,
-        dataCache: documents
-      });
+      const newState = {pipelineCache: pipeline, dataCache: documents};
+      if (channel) {
+        editStates[channel] = EDIT_STATES_ENUM.SUCCESS;
+        newState.editStates = editStates;
+      }
+      this.setState(newState);
     });
   },
 
@@ -585,9 +618,13 @@ const ChartStore = Reflux.createStore({
 
     const channels = _.cloneDeep(this.state.channels);
     const reductions = _.cloneDeep(this.state.reductions);
+    const editStates = _.cloneDeep(this.state.editStates);
+    let pipelineCache = this.state.pipelineCache;
     if (fieldPath === null) {
       delete channels[channel];
       delete reductions[channel];
+      delete editStates[channel];
+      pipelineCache = [];
     } else if (!_.has(this.state.fieldsCache, fieldPath)) {
       throw new Error('Unknown field: ' + fieldPath);
     } else {
@@ -601,6 +638,8 @@ const ChartStore = Reflux.createStore({
       if (_.includes(this.state.fieldsCache[fieldPath].type, 'Array')) {
         // compute new reduction for channel or clear existing channel
         reductions[channel] = this._createReductionFromChannel(channels[channel]);
+        // set edit state to initial
+        editStates[channel] = EDIT_STATES_ENUM.INITIAL;
       } else {
         delete reductions[channel];
       }
@@ -608,7 +647,9 @@ const ChartStore = Reflux.createStore({
 
     this._updateSpec({
       channels: channels,
-      reductions: reductions
+      reductions: reductions,
+      editStates: editStates,
+      pipelineCache: pipelineCache
     }, pushToHistory);
   },
 
@@ -652,11 +693,16 @@ const ChartStore = Reflux.createStore({
     const spec = {};
     const channels = _.cloneDeep(this.state.channels);
     const reductions = _.cloneDeep(this.state.reductions);
+    const editStates = _.cloneDeep(this.state.editStates);
 
     this._swapOrDelete(channels, channel1, channel2);
     this._swapOrDelete(reductions, channel1, channel2);
+    this._swapOrDelete(editStates, channel1, channel2);
+    this._swapOrDelete(this.editStatesPreviousReduction, channel1, channel2);
+
     spec.channels = channels;
     spec.reductions = reductions;
+    spec.editStates = editStates;
 
     this._updateSpec(spec, pushToHistory);
   },
@@ -760,6 +806,7 @@ const ChartStore = Reflux.createStore({
       throw new Error(`Expect a reduction type, got: ${type}`);
     }
     const reductions = _.cloneDeep(this.state.reductions);
+    const editStates = _.cloneDeep(this.state.editStates);
     const channelReductions = reductions[channel] || [];
     if (index >= channelReductions.length) {
       throw new Error('Not enough channel reductions.');
@@ -770,9 +817,63 @@ const ChartStore = Reflux.createStore({
     // Unwind requires all previous transforms to also be unwinds
     this._maintainUnwindInvariant(channelReductions);
     reductions[channel] = channelReductions;
+
+    // Only update edit state to modified if it is previously unmodified
+    if (editStates[channel] === EDIT_STATES_ENUM.UNMODIFIED) {
+      editStates[channel] = EDIT_STATES_ENUM.MODIFIED;
+      this.editStatesPreviousReduction[channel] = _.cloneDeep(this.state.reductions[channel]);
+    }
+
     this._updateSpec({
-      reductions: reductions
+      reductions: reductions,
+      editStates: editStates
     }, true);
+  },
+
+  /**
+   * Apply reductions by setting edit state to updating
+   * @param {String} channel the channel related to the reductions
+   * @param {String} editState the editState to set (Updating by default)
+   */
+  applyReductions(channel, editState = EDIT_STATES_ENUM.UPDATING) {
+    const editStates = _.cloneDeep(this.state.editStates);
+    editStates[channel] = editState;
+
+    delete this.editStatesPreviousReduction[channel];
+
+    this._updateSpec({editStates: editStates}, true);
+  },
+
+  /**
+   * Removes any reduction/channel that are not applied if INITIAL editState
+   * or restores to last UNMODIFIED state of reduction/channel
+   * @param {String} channel the channel related to the reductions
+   */
+  cancelReductions(channel) {
+    const channels = _.cloneDeep(this.state.channels);
+    const reductions = _.cloneDeep(this.state.reductions);
+    const editStates = _.cloneDeep(this.state.editStates);
+
+    const state = {};
+
+    if (editStates[channel] === EDIT_STATES_ENUM.INITIAL) {
+      delete channels[channel];
+      delete reductions[channel];
+      delete editStates[channel];
+
+      state.channels = channels;
+      state.reductions = reductions;
+      state.editStates = editStates;
+    } else if (editStates[channel] === EDIT_STATES_ENUM.MODIFIED) {
+      reductions[channel] = this.editStatesPreviousReduction[channel];
+      editStates[channel] = EDIT_STATES_ENUM.UNMODIFIED;
+      delete this.editStatesPreviousReduction[channel];
+
+      state.reductions = reductions;
+      state.editStates = editStates;
+    }
+
+    this._updateSpec(state, true);
   },
 
   /**

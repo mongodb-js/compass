@@ -4,8 +4,12 @@ const PropTypes = require('prop-types');
 const DropTarget = require('react-dnd').DropTarget;
 const _ = require('lodash');
 const DraggableField = require('./draggable-field');
+const { EDIT_STATES_ENUM } = require('../constants');
+const app = require('hadron-app');
 
 // const debug = require('debug')('mongodb-compass:chart:encoding-channel');
+
+const EDITABLE_UPDATE_TEXT = 'Apply';
 
 /**
  * Drop target for react-dnd
@@ -42,6 +46,19 @@ function collect(connect, monitor) {
  */
 class EncodingChannel extends React.Component {
 
+  componentWillMount() {
+    this.Editable = app.appRegistry.getComponent('App.Editable');
+  }
+
+  componentDidUpdate() {
+    if (this.props.editState === EDIT_STATES_ENUM.SUCCESS) {
+      // set edit state to unmodified after a second
+      setTimeout(() => {
+        this.props.actions.applyReductions(this.props.channelName, EDIT_STATES_ENUM.UNMODIFIED);
+      }, 1000);
+    }
+  }
+
   onSelectAggregate(aggregate) {
     const channel = this.props.channelName;
     this.props.actions.selectAggregate(channel, aggregate);
@@ -56,29 +73,73 @@ class EncodingChannel extends React.Component {
     this.props.actions.mapFieldToChannel(null, channelName);
   }
 
+  _apply() {
+    this.props.actions.applyReductions(this.props.channelName);
+  }
+
+  _cancel() {
+    this.props.actions.cancelReductions(this.props.channelName);
+  }
+
+  _getEditableProps() {
+    const props = {editState: this.props.editState};
+
+    switch (this.props.editState) {
+      case EDIT_STATES_ENUM.INITIAL:
+        // set areAllReduced to true if all of the reduction types are set otherwise false
+        const areAllReduced = this.props.encodedReductions.every((red) => {
+          return red.type;
+        });
+        props.disableUpdate = !areAllReduced;
+        props.onCancel = this._cancel.bind(this);
+        props.onUpdate = this._apply.bind(this);
+        props.updateText = EDITABLE_UPDATE_TEXT;
+        break;
+      case EDIT_STATES_ENUM.MODIFIED:
+        props.onCancel = this._cancel.bind(this);
+        props.onUpdate = this._apply.bind(this);
+        props.updateText = EDITABLE_UPDATE_TEXT;
+        break;
+      case EDIT_STATES_ENUM.UNMODIFIED:
+        props.disableStatusBar = true;
+        break;
+      default: break;
+    }
+
+    return props;
+  }
+
   renderField() {
     if (_.isEmpty(this.props.encodedChannel)) {
       // render a placeholder string
       return 'drop a field here';
     }
 
-    const fieldName = _.last(this.props.encodedChannel.field.split('.'));
     // else render a DraggableField instance with menus enabled
-    return (
+    const fieldName = _.last(this.props.encodedChannel.field.split('.'));
+    const draggable = (
       <DraggableField
-        fieldName={fieldName}
-        fieldPath={this.props.encodedChannel.field}
-        channelName={this.props.channelName}
-        type={this.props.encodedChannel.type}
-        aggregate={this.props.encodedChannel.aggregate}
-        enableMenus={this.props.specType === 'vega-lite'}
-        reductions={this.props.encodedReductions}
-        selectAggregate={this.onSelectAggregate.bind(this)}
-        selectMeasurement={this.onSelectMeasurement.bind(this)}
-        onRemove={this.onRemove.bind(this)}
-        actions={this.props.actions}
-      />
+          fieldName={fieldName}
+          fieldPath={this.props.encodedChannel.field}
+          channelName={this.props.channelName}
+          type={this.props.encodedChannel.type}
+          aggregate={this.props.encodedChannel.aggregate}
+          enableMenus={this.props.specType === 'vega-lite'}
+          reductions={this.props.encodedReductions}
+          selectAggregate={this.onSelectAggregate.bind(this)}
+          selectMeasurement={this.onSelectMeasurement.bind(this)}
+          onRemove={this.onRemove.bind(this)}
+          editState={this.props.editState}
+          actions={this.props.actions}
+        />
     );
+
+    if (this.props.editState) {
+      const props = this._getEditableProps();
+      return (<this.Editable {... props}>{draggable}</this.Editable>);
+    }
+
+    return draggable;
   }
 
   render() {
@@ -119,6 +180,7 @@ EncodingChannel.propTypes = {
   isOver: PropTypes.bool.isRequired,
   specType: PropTypes.oneOf(['vega', 'vega-lite']),
   encodedReductions: PropTypes.array,
+  editState: PropTypes.oneOf(_.values(EDIT_STATES_ENUM)),
   canDrop: PropTypes.bool.isRequired
 };
 

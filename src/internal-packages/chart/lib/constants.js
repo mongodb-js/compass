@@ -85,6 +85,15 @@ const MEASUREMENT_ICON_ENUM = Object.freeze({
   [MEASUREMENT_ENUM.TEMPORAL]: 'calendar'
 });
 
+const EDIT_STATES_ENUM = Object.freeze({
+  INITIAL: 'initial',
+  UNMODIFIED: 'unmodified',
+  MODIFIED: 'modified',
+  UPDATING: 'updating',
+  ERROR: 'error',
+  SUCCESS: 'success'
+});
+
 const CHART_COLORS = Object.freeze({
   CHART0: '#43B1E5',
   CHART1: '#F68A1E',
@@ -222,6 +231,7 @@ module.exports = {
   MEASUREMENT_ICON_ENUM,
   SPEC_TYPE_ENUM,
   VIEW_TYPE_ENUM,
+  EDIT_STATES_ENUM,
   TOOL_TIP_ARRAY_REDUCE,
   ARRAY_GENERAL_REDUCTIONS,
   ARRAY_NUMERIC_REDUCTIONS,
