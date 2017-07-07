@@ -441,7 +441,9 @@ function attach(anything, done) {
 }
 
 /**
- * pass in a connection model and get instance details back.
+ * Retrieves many instance details, such as the build and host info, 
+ * databases and collections which the user has access to.
+ *
  * @param  {Mongo.db}   db     database handle from the node driver
  * @param  {Function} done     callback
  */
