@@ -441,7 +441,7 @@ function attach(anything, done) {
 }
 
 /**
- * Retrieves many instance details, such as the build and host info, 
+ * Retrieves many instance details, such as the build and host info,
  * databases and collections which the user has access to.
  *
  * @param  {Mongo.db}   db     database handle from the node driver
