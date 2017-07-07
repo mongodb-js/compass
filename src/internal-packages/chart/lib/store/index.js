@@ -531,7 +531,8 @@ const ChartStore = Reflux.createStore({
   },
 
   /**
-   * Takes a channel object and constructs an empty reductions object from it.
+   * Takes a channel object and constructs an empty reductions object from it
+   * if it has array types otherwise returns an empty array
    *
    * @param  {Object} channel  channel object (this.state.channels), e.g.
    *
@@ -596,9 +597,9 @@ const ChartStore = Reflux.createStore({
       prop.field = fieldPath;
       prop.type = this._inferMeasurementFromField(field);
       channels[channel] = prop;
-      if (_.includes(this.state.fieldsCache[fieldPath].type, 'Array')) {
-        // compute new reduction for channel or clear existing channel
-        reductions[channel] = this._createReductionFromChannel(channels[channel]);
+      const reduction = this._createReductionFromChannel(channels[channel]);
+      if (!_.isEmpty(reduction)) {
+        reductions[channel] = reduction;
       } else {
         delete reductions[channel];
       }
