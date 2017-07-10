@@ -1,246 +1,11 @@
 const _ = require('lodash');
 const {
-  ARRAY_GENERAL_REDUCTIONS,
-  ARRAY_NUMERIC_REDUCTIONS,
-  ARRAY_STRING_REDUCTIONS,
-  AGGREGATE_FUNCTION_ENUM
-} = require('../constants');
+  REDUCTIONS,
+  AGGREGATIONS
+} = require('./constants');
 
-// const debug = require('debug')('mongodb-compass:chart:agg-pipeline-builder');
-
-/**
- * Array reduction operators wrapped as javascript functions.
- */
-const REDUCTIONS = Object.freeze({
-  [ARRAY_GENERAL_REDUCTIONS.LENGTH]: function(arr) {
-    return {
-      $cond: {if: {$isArray: arr}, then: {$size: arr}, else: 0}
-    };
-  },
-  [ARRAY_GENERAL_REDUCTIONS.INDEX]: function(arr, args) {
-    return {
-      $arrayElemAt: [arr, args[0]]
-    };
-  },
-
-  // Numeric reductions
-  [ARRAY_NUMERIC_REDUCTIONS.MAX]: function(arr) {
-    return {
-      $max: arr
-    };
-  },
-  [ARRAY_NUMERIC_REDUCTIONS.MIN]: function(arr) {
-    return {
-      $min: arr
-    };
-  },
-  [ARRAY_NUMERIC_REDUCTIONS.MEAN]: function(arr) {
-    return {
-      $avg: arr
-    };
-  },
-  [ARRAY_NUMERIC_REDUCTIONS.SUM]: function(arr) {
-    return {
-      $sum: arr
-    };
-  },
-
-  // String reductions
-  [ARRAY_STRING_REDUCTIONS.MAX_LENGTH]: function(arr) {
-    return {
-      $max: {
-        $map: {
-          input: arr,
-          as: 'str',
-          in: {
-            $strLenCP: '$$str'
-          }
-        }
-      }
-    };
-  },
-  [ARRAY_STRING_REDUCTIONS.MIN_LENGTH]: function(arr) {
-    return {
-      $min: {
-        $map: {
-          input: arr,
-          as: 'str',
-          in: {
-            $strLenCP: '$$str'
-          }
-        }
-      }
-    };
-  },
-  [ARRAY_STRING_REDUCTIONS.CONCAT]: function(arr) {
-    return {
-      $reduce: {
-        input: arr,
-        initialValue: '',
-        in: {
-          $concat: ['$$value', '$$this']
-        }
-      }
-    };
-  },
-  [ARRAY_STRING_REDUCTIONS.LONGEST]: function(arr) {
-    return {
-      $reduce: {
-        input: arr,
-        initialValue: {
-          $arrayElemAt: [arr, 0]
-        },
-        in: {
-          $cond: {
-            if: {
-              $gt: [{$strLenCP: '$$this'}, {$strLenCP: '$$value'}]
-            },
-            then: '$$this',
-            else: '$$value'
-          }
-        }
-      }
-    };
-  },
-  [ARRAY_STRING_REDUCTIONS.SHORTEST]: function(arr) {
-    return {
-      $reduce: {
-        input: arr,
-        initialValue: {
-          $arrayElemAt: [arr, 0]
-        },
-        in: {
-          $cond: {
-            if: {
-              $lt: [{$strLenCP: '$$this'}, {$strLenCP: '$$value'}]
-            },
-            then: '$$this',
-            else: '$$value'
-          }
-        }
-      }
-    };
-  }
-});
-
-/**
- * Aggregations across documents wrapped as JavaScript function. The shape of
- * an aggregation is defined as:
- *
- *    {
- *      groupStage: {...},     // always required
- *      projectStage: {...}    // optional
- *    }
- *
- * If the aggregation only requires a single stage (group accumulators like
- * sum, mean, ...) then just return the object with a `groupStage` value.
- *
- * If the aggregation requires a subsequent $project stage, (e.g. distinct,
- * which needs an $addToSet followed by a $size projection), return an object
- * with both `groupStage` and `projectStage` values.
- */
-const AGGREGATIONS = Object.freeze({
-  [AGGREGATE_FUNCTION_ENUM.COUNT]: function() {
-    return {
-      groupStage: {
-        $sum: 1
-      }
-    };
-  },
-  /**
-   * Returns the number of distinct values per group. This operation requires
-   * a $group and $project stage, therefore returning array of two elements.
-   *
-   * @param {String} field   field name to operate on
-   * @returns {Object}       aggregation pipeline operators
-   */
-  [AGGREGATE_FUNCTION_ENUM.DISTINCT]: function(field) {
-    return {
-      groupStage: {
-        $addToSet: `$${field}`
-      },
-      projectStage: {
-        $size: `$${field}`
-      }
-    };
-  },
-  [AGGREGATE_FUNCTION_ENUM.SUM]: function(field) {
-    return {
-      groupStage: {
-        $sum: `$${field}`
-      }
-    };
-  },
-  [AGGREGATE_FUNCTION_ENUM.MEAN]: function(field) {
-    return {
-      groupStage: {
-        $avg: `$${field}`
-      }
-    };
-  },
-  [AGGREGATE_FUNCTION_ENUM.MIN]: function(field) {
-    return {
-      groupStage: {
-        $min: `$${field}`
-      }
-    };
-  },
-  [AGGREGATE_FUNCTION_ENUM.MAX]: function(field) {
-    return {
-      groupStage: {
-        $max: `$${field}`
-      }
-    };
-  },
-  [AGGREGATE_FUNCTION_ENUM.STDEV]: function(field) {
-    return {
-      groupStage: {
-        $stdDevSamp: `$${field}`
-      }
-    };
-  },
-  /**
-   * Returns the variance over the samples per group. This operation requires
-   * a $group and $project stage, therefore returning array of two elements.
-   *
-   * @param {String} field   field name to operate on
-   * @returns {Object}       aggregation pipeline operators
-   */
-  [AGGREGATE_FUNCTION_ENUM.VARIANCE]: function(field) {
-    return {
-      groupStage: {
-        $stdDevSamp: `$${field}`
-      },
-      projectStage: {
-        $pow: [`$${field}`, 2]
-      }
-    };
-  },
-  [AGGREGATE_FUNCTION_ENUM.STDEVP]: function(field) {
-    return {
-      groupStage: {
-        $stdDevPop: `$${field}`
-      }
-    };
-  },
-  /**
-   * Returns the population variance per group. This operation requires
-   * a $group and $project stage, therefore returning array of two elements.
-   *
-   * @param {String} field   field name to operate on
-   * @returns {Object}       aggregation pipeline operators
-   */
-  [AGGREGATE_FUNCTION_ENUM.VARIANCEP]: function(field) {
-    return {
-      groupStage: {
-        $stdDevPop: `$${field}`
-      },
-      projectStage: {
-        $pow: [`$${field}`, 2]
-      }
-    };
-  }
-});
+const { ARRAY_GENERAL_REDUCTIONS } = require('../../constants');
+const Aliaser = require('./aliaser');
 
 /**
  * map wrapper around aggregation framework $map. Applies `expr` function
@@ -260,7 +25,6 @@ function _map(arr, expr) {
     }
   };
 }
-
 
 /**
  * Constructs an aggregation pipeline based on the current chart store state.
@@ -296,48 +60,13 @@ class AggPipelineBuilder {
    */
   _reset() {
     this.pipeline = [];
-    this.aliases = {};
+    this.aliaser = new Aliaser();
     this.segments = {
       query: [],
       reduction: [],
       aggregation: [],
       encoding: []
     };
-  }
-
-  /**
-   * assigns a unique alias name to a field/channel combination, in order
-   * to prevent naming collisions during pipeline execution. This mapping
-   * is reversed in the final encoding segment of the pipeline.
-   *
-   * If a field/channel combination has already been mapped, just return
-   * the same alias without creating a new one.
-   *
-   * @param  {String} field     field name
-   * @param  {String} channel   channel name
-   * @return {String}           a temporary alias name
-   */
-  _assignUniqueAlias(field, channel) {
-    let alias = this._getAlias(field, channel);
-    if (!alias) {
-      const count = Object.keys(this.aliases).length;
-      alias = `__alias_${ count }`;
-      this.aliases[`${channel}_${field}`] = alias;
-    }
-    return alias;
-  }
-
-  /**
-   * This function returns the alias name given a field and a channel. It
-   * is used in _constructEncodingSegment() to look up the correct alias names
-   * to build the projection.
-   *
-   * @param  {String} field     field name
-   * @param  {String} channel   channel name
-   * @return {String}           the stored alias name
-   */
-  _getAlias(field, channel) {
-    return this.aliases[`${channel}_${field}`];
   }
 
   /**
@@ -380,7 +109,7 @@ class AggPipelineBuilder {
         return reduction.type === ARRAY_GENERAL_REDUCTIONS.UNWIND;
       })
       .map((reduction) => {
-        return {$unwind: `$${ reduction.field }`};
+        return { $unwind: `$${ reduction.field }`};
       })
       .value();
   }
@@ -452,7 +181,7 @@ class AggPipelineBuilder {
     expr = REDUCTIONS[lastReduction.type](arr);
 
     // we use $addFields to overwrite the original field name
-    const alias = this._assignUniqueAlias(reductions[0].field, channel);
+    const alias = this.aliaser.assignUniqueAlias(reductions[0].field, channel);
     return {$addFields: {[alias]: expr}};
   }
 
@@ -570,8 +299,8 @@ class AggPipelineBuilder {
     // is reduced to a single value.
     const groupKey = _(dimensions)
       .map((channel, field) => {
-        const alias = this._getAlias(field, channel) || field;
-        return [this._assignUniqueAlias(field, channel), `$${alias}`];
+        const alias = this.aliaser.getAlias(field, channel) || field;
+        return [this.aliaser.assignUniqueAlias(field, channel), `$${alias}`];
       })
       .zipObject()
       .value();
@@ -579,9 +308,9 @@ class AggPipelineBuilder {
     // step 4, create object of all aggregate functions with aliased names
     const groupAggregates = _(measures)
       .map((channel, field) => {
-        const alias = this._getAlias(field, channel) || field;
+        const alias = this.aliaser.getAlias(field, channel) || field;
         const aggregation = AGGREGATIONS[state.channels[channel].aggregate](alias).groupStage;
-        return [this._assignUniqueAlias(field, channel), aggregation];
+        return [this.aliaser.assignUniqueAlias(field, channel), aggregation];
       })
       .zipObject()
       .value();
@@ -593,14 +322,14 @@ class AggPipelineBuilder {
     const projections = {_id: 0};
     // dimensions(their aliases) need to be lifted to the top level
     _.each(dimensions, (channel, field) => {
-      const alias = this._getAlias(field, channel);
+      const alias = this.aliaser.getAlias(field, channel);
       projections[alias] = `$_id.${alias}`;
     });
     // measures (their aliases) with 1-stage aggregations just need to be
     // included in the $project stage, 2-stage aggregations inject their
     // second part into the $project stage here.
     _.each(measures, (channel, field) => {
-      const alias = this._getAlias(field, channel);
+      const alias = this.aliaser.getAlias(field, channel);
       // check if this aggregation needs to inject into the $project stage.
       // if it does, get the expression here, otherwise just use a 1 as value
       // so the field is included in the final result.
@@ -628,7 +357,7 @@ class AggPipelineBuilder {
     if (!_.isEmpty(state.channels)) {
       const projectStage = _.reduce(_.pick(state.channels, _.isObject), (_project, encoding, channel) => {
         // check if the field name has an alias, otherwise use original field name
-        const alias = this._getAlias(encoding.field, channel) || encoding.field;
+        const alias = this.aliaser.getAlias(encoding.field, channel) || encoding.field;
         _project[channel] = `$${ alias }`;
         return _project;
       }, {});

@@ -2,6 +2,7 @@
 
 const { expect } = require('chai');
 const AggPipelineBuilder = require('../../src/internal-packages/chart/lib/store/agg-pipeline-builder');
+const Aliaser = require('../../src/internal-packages/chart/lib/store/agg-pipeline-builder/aliaser');
 const {
   ARRAY_GENERAL_REDUCTIONS,
   ARRAY_NUMERIC_REDUCTIONS,
@@ -19,48 +20,52 @@ describe('Aggregation Pipeline Builder', function() {
     aggBuilder._reset();
   });
   describe('Aliases', function() {
+    let aliaser;
+    beforeEach(function() {
+      aliaser = new Aliaser();
+    });
     it('creates the right alias for a field/channel combination', function() {
-      aggBuilder._assignUniqueAlias('foo', 'bar');
-      expect(Object.keys(aggBuilder.aliases)).to.have.lengthOf(1);
-      expect(aggBuilder.aliases).to.have.all.keys('bar_foo');
-      expect(aggBuilder.aliases.bar_foo).to.be.equal('__alias_0');
+      aliaser.assignUniqueAlias('foo', 'bar');
+      expect(Object.keys(aliaser.aliases)).to.have.lengthOf(1);
+      expect(aliaser.aliases).to.have.all.keys('bar_foo');
+      expect(aliaser.aliases.bar_foo).to.be.equal('__alias_0');
     });
     it('works with field names containing underscores', function() {
-      aggBuilder._assignUniqueAlias('foo_foo_foo', 'bar');
-      expect(Object.keys(aggBuilder.aliases)).to.have.lengthOf(1);
-      expect(aggBuilder.aliases).to.have.all.keys('bar_foo_foo_foo');
-      expect(aggBuilder.aliases.bar_foo_foo_foo).to.be.equal('__alias_0');
+      aliaser.assignUniqueAlias('foo_foo_foo', 'bar');
+      expect(Object.keys(aliaser.aliases)).to.have.lengthOf(1);
+      expect(aliaser.aliases).to.have.all.keys('bar_foo_foo_foo');
+      expect(aliaser.aliases.bar_foo_foo_foo).to.be.equal('__alias_0');
     });
     it('does not create duplicate alias for the same field/channel combination', function() {
-      aggBuilder._assignUniqueAlias('foo', 'bar');
-      aggBuilder._assignUniqueAlias('foo', 'bar');
-      expect(Object.keys(aggBuilder.aliases)).to.have.lengthOf(1);
-      expect(aggBuilder.aliases).to.have.all.keys('bar_foo');
-      expect(aggBuilder.aliases.bar_foo).to.be.equal('__alias_0');
+      aliaser.assignUniqueAlias('foo', 'bar');
+      aliaser.assignUniqueAlias('foo', 'bar');
+      expect(Object.keys(aliaser.aliases)).to.have.lengthOf(1);
+      expect(aliaser.aliases).to.have.all.keys('bar_foo');
+      expect(aliaser.aliases.bar_foo).to.be.equal('__alias_0');
     });
     it('creates multiple aliases for different fields same channel', function() {
-      aggBuilder._assignUniqueAlias('foo', 'bar');
-      aggBuilder._assignUniqueAlias('baz', 'bar');
-      expect(Object.keys(aggBuilder.aliases)).to.have.lengthOf(2);
-      expect(aggBuilder.aliases).to.have.all.keys(['bar_foo', 'bar_baz']);
-      expect(aggBuilder.aliases.bar_foo).to.be.equal('__alias_0');
-      expect(aggBuilder.aliases.bar_baz).to.be.equal('__alias_1');
+      aliaser.assignUniqueAlias('foo', 'bar');
+      aliaser.assignUniqueAlias('baz', 'bar');
+      expect(Object.keys(aliaser.aliases)).to.have.lengthOf(2);
+      expect(aliaser.aliases).to.have.all.keys(['bar_foo', 'bar_baz']);
+      expect(aliaser.aliases.bar_foo).to.be.equal('__alias_0');
+      expect(aliaser.aliases.bar_baz).to.be.equal('__alias_1');
     });
     it('creates multiple aliases for same field different channels', function() {
-      aggBuilder._assignUniqueAlias('foo', 'bar');
-      aggBuilder._assignUniqueAlias('foo', 'baz');
-      expect(Object.keys(aggBuilder.aliases)).to.have.lengthOf(2);
-      expect(aggBuilder.aliases).to.have.all.keys(['bar_foo', 'baz_foo']);
-      expect(aggBuilder.aliases.bar_foo).to.be.equal('__alias_0');
-      expect(aggBuilder.aliases.baz_foo).to.be.equal('__alias_1');
+      aliaser.assignUniqueAlias('foo', 'bar');
+      aliaser.assignUniqueAlias('foo', 'baz');
+      expect(Object.keys(aliaser.aliases)).to.have.lengthOf(2);
+      expect(aliaser.aliases).to.have.all.keys(['bar_foo', 'baz_foo']);
+      expect(aliaser.aliases.bar_foo).to.be.equal('__alias_0');
+      expect(aliaser.aliases.baz_foo).to.be.equal('__alias_1');
     });
     it('creates multiple aliases for different fields and channels', function() {
-      aggBuilder._assignUniqueAlias('foo', 'bar');
-      aggBuilder._assignUniqueAlias('fii', 'bor');
-      expect(Object.keys(aggBuilder.aliases)).to.have.lengthOf(2);
-      expect(aggBuilder.aliases).to.have.all.keys(['bar_foo', 'bor_fii']);
-      expect(aggBuilder.aliases.bar_foo).to.be.equal('__alias_0');
-      expect(aggBuilder.aliases.bor_fii).to.be.equal('__alias_1');
+      aliaser.assignUniqueAlias('foo', 'bar');
+      aliaser.assignUniqueAlias('fii', 'bor');
+      expect(Object.keys(aliaser.aliases)).to.have.lengthOf(2);
+      expect(aliaser.aliases).to.have.all.keys(['bar_foo', 'bor_fii']);
+      expect(aliaser.aliases.bar_foo).to.be.equal('__alias_0');
+      expect(aliaser.aliases.bor_fii).to.be.equal('__alias_1');
     });
   });
   describe('Query Segment', function() {
@@ -238,8 +243,8 @@ describe('Aggregation Pipeline Builder', function() {
               }
             }
           });
-          expect(aggBuilder.aliases).to.have.keys('x_myField.inner');
-          expect(aggBuilder.aliases['x_myField.inner']).to.be.equal('__alias_0');
+          expect(aggBuilder.aliaser.aliases).to.have.keys('x_myField.inner');
+          expect(aggBuilder.aliaser.aliases['x_myField.inner']).to.be.equal('__alias_0');
         });
       });
       context('when three reductions are present', function() {
@@ -287,8 +292,8 @@ describe('Aggregation Pipeline Builder', function() {
               }
             }
           });
-          expect(aggBuilder.aliases).to.have.keys('x_myField.middle1.middle2.inner');
-          expect(aggBuilder.aliases['x_myField.middle1.middle2.inner']).to.be.equal('__alias_0');
+          expect(aggBuilder.aliaser.aliases).to.have.keys('x_myField.middle1.middle2.inner');
+          expect(aggBuilder.aliaser.aliases['x_myField.middle1.middle2.inner']).to.be.equal('__alias_0');
         });
       });
       context('when using $unwind reduction', function() {
@@ -351,8 +356,8 @@ describe('Aggregation Pipeline Builder', function() {
               }
             }
           });
-          expect(aggBuilder.aliases).to.have.keys('x_foo.bar.baz');
-          expect(aggBuilder.aliases['x_foo.bar.baz']).to.be.equal('__alias_0');
+          expect(aggBuilder.aliaser.aliases).to.have.keys('x_foo.bar.baz');
+          expect(aggBuilder.aliaser.aliases['x_foo.bar.baz']).to.be.equal('__alias_0');
         });
       });
       context('for Reduction Operators', function() {
@@ -382,8 +387,8 @@ describe('Aggregation Pipeline Builder', function() {
               }
             }
           });
-          expect(aggBuilder.aliases).to.have.keys('x_foo');
-          expect(aggBuilder.aliases.x_foo).to.be.equal('__alias_0');
+          expect(aggBuilder.aliaser.aliases).to.have.keys('x_foo');
+          expect(aggBuilder.aliaser.aliases.x_foo).to.be.equal('__alias_0');
         });
       });
     });
@@ -413,9 +418,9 @@ describe('Aggregation Pipeline Builder', function() {
             }
           }
         });
-        expect(aggBuilder.aliases).to.have.keys(['x_myField', 'y_myOtherField']);
-        expect(aggBuilder.aliases.x_myField).to.be.equal('__alias_0');
-        expect(aggBuilder.aliases.y_myOtherField).to.be.equal('__alias_1');
+        expect(aggBuilder.aliaser.aliases).to.have.keys(['x_myField', 'y_myOtherField']);
+        expect(aggBuilder.aliaser.aliases.x_myField).to.be.equal('__alias_0');
+        expect(aggBuilder.aliaser.aliases.y_myOtherField).to.be.equal('__alias_1');
       });
     });
   });
@@ -583,7 +588,7 @@ describe('Aggregation Pipeline Builder', function() {
         });
       });
       it('handles previous field aliases on the dimension correctly', function() {
-        aggBuilder._assignUniqueAlias('foo', 'x');
+        aggBuilder.aliaser.assignUniqueAlias('foo', 'x');
         aggBuilder._constructAggregationSegment(state);
         const result = aggBuilder.segments.aggregation;
         expect(result).to.be.an('array');
@@ -607,7 +612,7 @@ describe('Aggregation Pipeline Builder', function() {
         });
       });
       it('handles previous field aliases on the measure correctly', function() {
-        aggBuilder._assignUniqueAlias('bar', 'y');
+        aggBuilder.aliaser.assignUniqueAlias('bar', 'y');
         aggBuilder._constructAggregationSegment(state);
         const result = aggBuilder.segments.aggregation;
         expect(result).to.be.an('array');
@@ -631,8 +636,8 @@ describe('Aggregation Pipeline Builder', function() {
         });
       });
       it('handles previous unrelated field aliases correctly', function() {
-        aggBuilder._assignUniqueAlias('something', 'x');
-        aggBuilder._assignUniqueAlias('something_else', 'y');
+        aggBuilder.aliaser.assignUniqueAlias('something', 'x');
+        aggBuilder.aliaser.assignUniqueAlias('something_else', 'y');
         aggBuilder._constructAggregationSegment(state);
         const result = aggBuilder.segments.aggregation;
         expect(result).to.be.an('array');
@@ -656,8 +661,8 @@ describe('Aggregation Pipeline Builder', function() {
         });
       });
       it('handles previous field aliases on measure and dimension correctly', function() {
-        aggBuilder._assignUniqueAlias('foo', 'x');
-        aggBuilder._assignUniqueAlias('bar', 'y');
+        aggBuilder.aliaser.assignUniqueAlias('foo', 'x');
+        aggBuilder.aliaser.assignUniqueAlias('bar', 'y');
         aggBuilder._constructAggregationSegment(state);
         const result = aggBuilder.segments.aggregation;
         expect(result).to.be.an('array');
@@ -737,7 +742,7 @@ describe('Aggregation Pipeline Builder', function() {
           }
         };
         aggBuilder._constructReductionSegment(state);
-        expect(aggBuilder.aliases).to.be.empty;
+        expect(aggBuilder.aliaser.aliases).to.be.empty;
       });
     });
     context('when using $addFields reductions', function() {
@@ -753,9 +758,9 @@ describe('Aggregation Pipeline Builder', function() {
           }
         };
         aggBuilder._constructReductionSegment(state);
-        expect(aggBuilder.aliases).to.have.all.keys(['x_foo', 'color_bar']);
-        expect(aggBuilder.aliases.x_foo).to.be.equal('__alias_0');
-        expect(aggBuilder.aliases.color_bar).to.be.equal('__alias_1');
+        expect(aggBuilder.aliaser.aliases).to.have.all.keys(['x_foo', 'color_bar']);
+        expect(aggBuilder.aliaser.aliases.x_foo).to.be.equal('__alias_0');
+        expect(aggBuilder.aliaser.aliases.color_bar).to.be.equal('__alias_1');
       });
       it('maps aliases back to to correct channels', function() {
         const state = {
