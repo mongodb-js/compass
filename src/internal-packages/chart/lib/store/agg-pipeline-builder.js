@@ -124,17 +124,27 @@ const REDUCTIONS = Object.freeze({
 });
 
 /**
- * Aggreations across documents wrapped as JavaScript function. If the aggregation
- * only requires a single stage (group accumulators like sum, mean, ...) then
- * just return an object. If the aggregation requires a subsequent $project stage,
- * (e.g. distinct, which needs an $addToSet followed by a $size projection),
- * return an array, where the first element is the group accumulator and the
- * second element is the projection expression.
+ * Aggregations across documents wrapped as JavaScript function. The shape of
+ * an aggregation is defined as:
+ *
+ *    {
+ *      groupStage: {...},     // always required
+ *      projectStage: {...}    // optional
+ *    }
+ *
+ * If the aggregation only requires a single stage (group accumulators like
+ * sum, mean, ...) then just return the object with a `groupStage` value.
+ *
+ * If the aggregation requires a subsequent $project stage, (e.g. distinct,
+ * which needs an $addToSet followed by a $size projection), return an object
+ * with both `groupStage` and `projectStage` values.
  */
 const AGGREGATIONS = Object.freeze({
   [AGGREGATE_FUNCTION_ENUM.COUNT]: function() {
     return {
-      $sum: 1
+      groupStage: {
+        $sum: 1
+      }
     };
   },
   /**
@@ -145,38 +155,48 @@ const AGGREGATIONS = Object.freeze({
    * @returns {Object}       aggregation pipeline operators
    */
   [AGGREGATE_FUNCTION_ENUM.DISTINCT]: function(field) {
-    return [
-      {
+    return {
+      groupStage: {
         $addToSet: `$${field}`
       },
-      {
+      projectStage: {
         $size: `$${field}`
       }
-    ];
+    };
   },
   [AGGREGATE_FUNCTION_ENUM.SUM]: function(field) {
     return {
-      $sum: `$${field}`
+      groupStage: {
+        $sum: `$${field}`
+      }
     };
   },
   [AGGREGATE_FUNCTION_ENUM.MEAN]: function(field) {
     return {
-      $avg: `$${field}`
+      groupStage: {
+        $avg: `$${field}`
+      }
     };
   },
   [AGGREGATE_FUNCTION_ENUM.MIN]: function(field) {
     return {
-      $min: `$${field}`
+      groupStage: {
+        $min: `$${field}`
+      }
     };
   },
   [AGGREGATE_FUNCTION_ENUM.MAX]: function(field) {
     return {
-      $max: `$${field}`
+      groupStage: {
+        $max: `$${field}`
+      }
     };
   },
   [AGGREGATE_FUNCTION_ENUM.STDEV]: function(field) {
     return {
-      $stdDevSamp: `$${field}`
+      groupStage: {
+        $stdDevSamp: `$${field}`
+      }
     };
   },
   /**
@@ -187,18 +207,20 @@ const AGGREGATIONS = Object.freeze({
    * @returns {Object}       aggregation pipeline operators
    */
   [AGGREGATE_FUNCTION_ENUM.VARIANCE]: function(field) {
-    return [
-      {
+    return {
+      groupStage: {
         $stdDevSamp: `$${field}`
       },
-      {
+      projectStage: {
         $pow: [`$${field}`, 2]
       }
-    ];
+    };
   },
   [AGGREGATE_FUNCTION_ENUM.STDEVP]: function(field) {
     return {
-      $stdDevPop: `$${field}`
+      groupStage: {
+        $stdDevPop: `$${field}`
+      }
     };
   },
   /**
@@ -209,14 +231,14 @@ const AGGREGATIONS = Object.freeze({
    * @returns {Object}       aggregation pipeline operators
    */
   [AGGREGATE_FUNCTION_ENUM.VARIANCEP]: function(field) {
-    return [
-      {
+    return {
+      groupStage: {
         $stdDevPop: `$${field}`
       },
-      {
+      projectStage: {
         $pow: [`$${field}`, 2]
       }
-    ];
+    };
   }
 });
 
@@ -247,7 +269,7 @@ function _map(arr, expr) {
  *
  *   1. Query stages ($match, $sort, $skip, $sample/$limit)
  *   2. Array reduction stages ($unwind and $addFields)
- *   3. Aggregation stages ($group / $bucket)
+ *   3. Aggregation stages ($group / $bucket / $project)
  *   4. Encoding and flattening stages ($project)
  *
  *
@@ -486,7 +508,8 @@ class AggPipelineBuilder {
    * builds the segment of the pipeline that executes aggregations across
    * documents on the server, instead of the client in vega-lite.
    *
-   * The following strategy is used:
+   * The following strategy is used (using terminology from
+   * https://vega.github.io/vega-lite/docs/aggregate.html):
    *
    * 1. Identify all dependent fields/measures (channels with "aggregate")
    * 2. Identify all independent fields/dimensions (channels without "aggregate")
@@ -557,14 +580,7 @@ class AggPipelineBuilder {
     const groupAggregates = _(measures)
       .map((channel, field) => {
         const alias = this._getAlias(field, channel) || field;
-        let aggregation = AGGREGATIONS[state.channels[channel].aggregate](alias);
-        // if the aggregation function consists of multiple parts, use the
-        // first part here in the grouping, and the second part below in the
-        // projection stage. Otherwise it's just a simple grouping without
-        // additional projection.
-        if (Array.isArray(aggregation) && aggregation.length > 1) {
-          aggregation = aggregation[0];
-        }
+        const aggregation = AGGREGATIONS[state.channels[channel].aggregate](alias).groupStage;
         return [this._assignUniqueAlias(field, channel), aggregation];
       })
       .zipObject()
@@ -585,14 +601,11 @@ class AggPipelineBuilder {
     // second part into the $project stage here.
     _.each(measures, (channel, field) => {
       const alias = this._getAlias(field, channel);
-      const aggregation = AGGREGATIONS[state.channels[channel].aggregate](alias);
-      if (Array.isArray(aggregation) && aggregation.length > 1) {
-        // if the aggregation needs a project stage, use it here
-        projections[alias] = aggregation[1];
-      } else {
-        // otherwise just project the field as it is
-        projections[alias] = 1;
-      }
+      // check if this aggregation needs to inject into the $project stage.
+      // if it does, get the expression here, otherwise just use a 1 as value
+      // so the field is included in the final result.
+      const projection = AGGREGATIONS[state.channels[channel].aggregate](alias).projectStage;
+      projections[alias] = projection || 1;
     });
     const projectStage = {$project: projections};
 

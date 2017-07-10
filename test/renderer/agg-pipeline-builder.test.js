@@ -68,10 +68,10 @@ describe('Aggregation Pipeline Builder', function() {
           {_id: 0, name: 'Thomas', loc: 'Australia', number: 2, favorite_days: ['Tuesday', 'Thursday']},
           {_id: 1, name: 'Durran', loc: 'Europe', number: 3, favorite_days: ['Monday']},
           {_id: 2, name: 'Anna', loc: 'Europe', number: 4, favorite_days: ['Wednesday', 'Friday', 'Saturday']},
-          {_id: 3, name: 'Peter', loc: 'Australia', number: 5, favorite_days: ['Tuesday']},
+          {_id: 3, name: 'Jessica', loc: 'Australia', number: 7, favorite_days: ['Tuesday']},
           {_id: 4, name: 'Lucas', loc: 'USA', number: 1, favorite_days: ['Monday', 'Sunday', 'Friday', 'Wednesday']},
           {_id: 5, name: 'Satya', loc: 'Australia', number: 6, favorite_days: ['Monday', 'Thursday']},
-          {_id: 6, name: 'Jessica', loc: 'USA', number: 7},
+          {_id: 6, name: 'Peter', loc: 'USA', number: 5},
           {_id: 7, name: 'Matt', loc: 'Australia', number: 8, favorite_days: ['Friday']}
         ];
         dataService.insertMany(`${DB}.compass_devs`, docs, {}, done);
@@ -123,14 +123,14 @@ describe('Aggregation Pipeline Builder', function() {
         dataService.aggregate(`${DB}.compass_devs`, pipeline, {}, function(err, res) {
           expect(err).to.be.null;
           expect(res).to.have.lengthOf(3);
-          expect(_.find(res, 'y', 'Australia').x).to.be.equal(5.25);
-          expect(_.find(res, 'y', 'USA').x).to.be.equal(4.0);
+          expect(_.find(res, 'y', 'Australia').x).to.be.equal(5.75);
+          expect(_.find(res, 'y', 'USA').x).to.be.equal(3.0);
           expect(_.find(res, 'y', 'Europe').x).to.be.equal(3.5);
           done();
         });
       });
     });
-    context('when aggregating over numeric fields with a 2-stage aggregation', function() {
+    context('when aggregating over numeric fields with a 2-stage aggregation (variance)', function() {
       const state = {
         channels: {
           x: {
@@ -152,9 +152,32 @@ describe('Aggregation Pipeline Builder', function() {
         dataService.aggregate(`${DB}.compass_devs`, pipeline, {}, function(err, res) {
           expect(err).to.be.null;
           expect(res).to.have.lengthOf(3);
-          expect(_.find(res, 'y', 'Australia').x).to.be.closeTo(4.6875, 0.001);
-          expect(_.find(res, 'y', 'USA').x).to.be.equal(9.0);
+          expect(_.find(res, 'y', 'Australia').x).to.be.closeTo(5.1875, 0.001);
+          expect(_.find(res, 'y', 'USA').x).to.be.equal(4.0);
           expect(_.find(res, 'y', 'Europe').x).to.be.equal(0.25);
+          done();
+        });
+      });
+    });
+    context('when aggregating over numeric fields with a 2-stage aggregation (distinct)', function() {
+      const state = {
+        channels: {
+          x: {
+            field: 'loc',
+            type: MEASUREMENT_ENUM.NOMINAL,
+            aggregate: AGGREGATE_FUNCTION_ENUM.DISTINCT
+          }
+        }
+      };
+      it('returns the correct results when executing the pipeline', function(done) {
+        if (!versionSupported) {
+          this.skip();
+        }
+        const pipeline = aggBuilder.constructPipeline(state);
+        dataService.aggregate(`${DB}.compass_devs`, pipeline, {}, function(err, res) {
+          expect(err).to.be.null;
+          expect(res).to.have.lengthOf(1);
+          expect(res[0].x).to.be.equal(3); // 3 distinct locs
           done();
         });
       });
@@ -227,7 +250,7 @@ describe('Aggregation Pipeline Builder', function() {
         });
       });
     });
-    context('when using a length array reduction and aggregation', function() {
+    context('when using a `length` array reduction and aggregation', function() {
       const state = {
         reductions: {
           x: [

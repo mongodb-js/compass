@@ -465,7 +465,7 @@ describe('Aggregation Pipeline Builder', function() {
         });
       });
     });
-    context('when a measure is present that requires 2-stage aggregation', function() {
+    context('when a measure is present that requires 2-stage aggregation (variance)', function() {
       const state = {
         channels: {
           x: {
@@ -500,6 +500,46 @@ describe('Aggregation Pipeline Builder', function() {
             __alias_0: '$_id.__alias_0',
             __alias_1: {
               $pow: ['$__alias_1', 2]
+            }
+          }
+        });
+      });
+    });
+    context('when a measure is present that requires 2-stage aggregation (distinct)', function() {
+      const state = {
+        channels: {
+          x: {
+            field: 'foo',
+            type: MEASUREMENT_ENUM.NOMINAL
+          },
+          y: {
+            field: 'bar',
+            type: MEASUREMENT_ENUM.QUANTITATIVE,
+            aggregate: AGGREGATE_FUNCTION_ENUM.DISTINCT
+          }
+        }
+      };
+      it('builds the correct $group and $project stages', function() {
+        aggBuilder._constructAggregationSegment(state);
+        const result = aggBuilder.segments.aggregation;
+        expect(result).to.be.an('array');
+        expect(result).to.have.lengthOf(2);
+        expect(result[0]).to.be.deep.equal({
+          $group: {
+            _id: {
+              __alias_0: '$foo'
+            },
+            __alias_1: {
+              $addToSet: '$bar'
+            }
+          }
+        });
+        expect(result[1]).to.be.deep.equal({
+          $project: {
+            _id: 0,
+            __alias_0: '$_id.__alias_0',
+            __alias_1: {
+              $size: '$__alias_1'
             }
           }
         });
