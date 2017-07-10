@@ -58,30 +58,18 @@ function constructUnwindStages(reductions) {
  *                               example would result in `max(index(field, 3))`.
  *
  * @param {String}  channel      The channel name, used for creating unique alias
+ * @param {String} encodedField Field to encode
  * @param  {Object} aliaser      an AggregationAliaser instance
  * @return {Object}              an $addFields aggregation stage that converts
  *                               the given field array into a scalar value.
  */
-function constructAccumulatorStage(reductions, channel, aliaser) {
+function constructAccumulatorStage(reductions, channel, encodedField, aliaser) {
   let arr;
   let expr;
 
   reductions = _.filter(reductions, (reduction) => {
     return reduction.type !== ARRAY_GENERAL_REDUCTIONS.UNWIND;
   });
-
-  // compute the array names relative to their parent array name
-  if (reductions.length > 0) {
-    reductions[0].relativeArrayName = reductions[0].field;
-    for (let i = 1; i < reductions.length; i++) {
-      const prefix = reductions[i - 1].field;
-      reductions[i].relativeArrayName = reductions[i].field.replace(new RegExp(`^${prefix}\.`), '');
-    }
-  }
-
-  // reverse the array (without modifying original), below code assumes inside->out order
-  reductions = reductions.slice().reverse();
-  const lastReduction = reductions[reductions.length - 1];
 
   if (reductions.length === 0) {
     // if no reductions are present, return empty array
@@ -91,8 +79,23 @@ function constructAccumulatorStage(reductions, channel, aliaser) {
   if (reductions.length === 1) {
     // with only one reduction, return the reduction applied to the field
     // directly.
-    arr = `$${ lastReduction.field }`;
+    arr = `$${ encodedField }`;
   } else if (reductions.length > 1) {
+    reductions[0].relativeArrayName = reductions[0].field;
+    // assign relativeArrayName to each reduction (Remove path information)
+    for (let i = 1; i < reductions.length; i++) {
+      const prefix = reductions[i - 1].field;
+      reductions[i].relativeArrayName = reductions[i].field.replace(new RegExp(`^${prefix}\.`), '');
+    }
+
+    // reverse the array (without modifying original), below code assumes inside->out order
+    reductions = reductions.slice().reverse();
+
+    // If the inner reduction doesn't match the encodedField add its relative array name
+    if (encodedField !== reductions[0].field) {
+      reductions[0].relativeArrayName = encodedField.replace(new RegExp(`^${reductions[1].field}\.`), '');
+    }
+
     // first (inner-most) reduction has no map and applies the reducer expression directly
     arr = `$$value.${ reductions[0].relativeArrayName }`;
     expr = REDUCTIONS[reductions[0].type](arr);
@@ -104,12 +107,12 @@ function constructAccumulatorStage(reductions, channel, aliaser) {
     });
 
     // last reduction uses the actual field name with a map
-    arr = _map(`$${ lastReduction.field }`, expr);
+    arr = _map(`$${ reductions[reductions.length - 1].field }`, expr);
   }
-  expr = REDUCTIONS[lastReduction.type](arr);
+  expr = REDUCTIONS[reductions[reductions.length - 1].type](arr);
 
   // we use $addFields to overwrite the original field name
-  const alias = aliaser.assignUniqueAlias(reductions[0].field, channel);
+  const alias = aliaser.assignUniqueAlias(encodedField, channel);
   return {$addFields: {[alias]: expr}};
 }
 
@@ -121,13 +124,14 @@ function constructAccumulatorStage(reductions, channel, aliaser) {
  *
  * @param  {Array} reductions   reductions array for a single channel
  * @param  {String} channel     current channel name
+ * @param  {String} encodedField  field to encode
  * @param  {Object} aliaser     an AggregationAliaser instance
  * @return {Array}              resulting aggregation pipeline
  */
-function reduceArraysPerChannel(reductions, channel, aliaser) {
+function reduceArraysPerChannel(reductions, channel, encodedField, aliaser) {
   const pipeline = [];
   const unwindStages = constructUnwindStages(reductions);
-  const accumulatorStage = constructAccumulatorStage(reductions, channel, aliaser);
+  const accumulatorStage = constructAccumulatorStage(reductions, channel, encodedField, aliaser);
 
   // combine pipeline
   pipeline.push.apply(pipeline, unwindStages);
@@ -158,7 +162,8 @@ function constructReductionSegment(state, aliaser) {
   const channels = Object.keys(state.reductions);
   const arrayReductionStages = channels.reduce((_pipeline, channel) => {
     const channelReductions = state.reductions[channel];
-    const addToPipeline = reduceArraysPerChannel(channelReductions, channel, aliaser);
+    const encodedField = state.channels[channel].field;
+    const addToPipeline = reduceArraysPerChannel(channelReductions, channel, encodedField, aliaser);
     return _pipeline.concat(addToPipeline);
   }, []);
   result.push.apply(result, arrayReductionStages);
