@@ -14,7 +14,7 @@ const app = require('hadron-app');
 const toNS = require('mongodb-ns');
 const _ = require('lodash');
 const vegaLite = require('vega-lite');
-
+const EJSON = require('mongodb-extended-json');
 const debug = require('debug')('mongodb-compass:chart:store');
 
 const HISTORY_STATE_FIELDS = ['specType', 'chartType', 'channels', 'reductions'];
@@ -290,7 +290,6 @@ const ChartStore = Reflux.createStore({
 
     // construct new pipeline and compare with last one. exit if they are equal.
     const pipeline = constructPipeline(state);
-    console.log('PIPELINE %j', pipeline);
     if (_.isEqual(state.pipelineCache, pipeline)) {
       return;
     }
@@ -303,8 +302,7 @@ const ChartStore = Reflux.createStore({
         batchSize: 1000
       }
     };
-
-    debug('executed pipeline %j', pipeline);
+    debug('executed pipeline', EJSON.stringify(pipeline));
 
     app.dataService.aggregate(ns.ns, pipeline, options).toArray((error, documents) => {
       if (error) {
