@@ -542,6 +542,121 @@ describe('Aggregation Pipeline Builder', function() {
           });
         });
       });
+      context('when applying accumulator reductions to a field of subdocuments in arrays in subdocuments in an array', function() {
+        context('when applying unwind reduction', function() {
+          const state = {
+            reductions: {
+              x: [{field: 'myArray', type: ARRAY_GENERAL_REDUCTIONS.UNWIND},
+                  {field: 'myArray.myNumber.myCharacter', type: ARRAY_GENERAL_REDUCTIONS.UNWIND}
+              ]
+            },
+            channels: {
+              x: {field: 'myArray.myNumber.myCharacter.myPixel'}
+            }
+          };
+          it('builds the correct agg pipeline', function() {
+            const result = constructReductionSegment(state, aliaser);
+            expect(result).to.be.an('array');
+            expect(result[0]).to.be.deep.equal({
+              $unwind: '$myArray'
+            });
+            expect(result[1]).to.be.deep.equal({
+              $unwind: '$myArray.myNumber.myCharacter'
+            });
+          });
+        });
+        context('when applying array length reduction', function() {
+          const state = {
+            reductions: {
+              x: [{field: 'myArray', type: ARRAY_GENERAL_REDUCTIONS.UNWIND},
+                  {field: 'myArray.myNumber.myCharacter', type: ARRAY_GENERAL_REDUCTIONS.LENGTH}
+              ]
+            },
+            channels: {
+              x: {field: 'myArray.myString.myCharacter.myPixel', type: MEASUREMENT_ENUM.ORDINAL}
+            }
+          };
+          it('builds the correct agg pipeline', function() {
+            const result = constructReductionSegment(state, aliaser);
+            expect(result).to.be.an('array');
+            expect(result[0]).to.be.deep.equal({
+              $unwind: '$myArray'
+            });
+            expect(result[1]).to.be.deep.equal({
+              $addFields: {
+                __alias_0: {
+                  $cond: {
+                    else: 0,
+                    if: {
+                      $isArray: '$myArray.myString.myCharacter.myPixel'
+                    },
+                    then: {
+                      $size: '$myArray.myString.myCharacter.myPixel'
+                    }
+                  }
+                }
+              }
+            });
+          });
+        });
+        context('when applying min reduction', function() {
+          const state = {
+            reductions: {
+              x: [{field: 'myArray', type: ARRAY_GENERAL_REDUCTIONS.UNWIND},
+                  {field: 'myArray.myNumber.myCharacter', type: ARRAY_NUMERIC_REDUCTIONS.MIN}
+              ]
+            },
+            channels: {
+              x: {field: 'myArray.myNumber.myCharacter.myPixel', type: MEASUREMENT_ENUM.QUANTITATIVE}
+            }
+          };
+          it('builds the correct agg pipeline', function() {
+            const result = constructReductionSegment(state, aliaser);
+            expect(result).to.be.an('array');
+            expect(result[0]).to.be.deep.equal({
+              $unwind: '$myArray'
+            });
+            expect(result[1]).to.be.deep.equal({
+              $addFields: {
+                __alias_0: {
+                  $min: '$myArray.myNumber.myCharacter.myPixel'
+                }
+              }
+            });
+          });
+        });
+        context('when applying concat reduction', function() {
+          const state = {
+            reductions: {
+              x: [{field: 'myArray', type: ARRAY_GENERAL_REDUCTIONS.UNWIND},
+                  {field: 'myArray.myString.myCharacter', type: ARRAY_STRING_REDUCTIONS.CONCAT}]
+            },
+            channels: {
+              x: {field: 'myArray.myString.myCharacter.myPixel', type: MEASUREMENT_ENUM.ORDINAL}
+            }
+          };
+          it('builds the correct agg pipeline', function() {
+            const result = constructReductionSegment(state, aliaser);
+            expect(result).to.be.an('array');
+            expect(result[0]).to.be.deep.equal({
+              $unwind: '$myArray'
+            });
+            expect(result[1]).to.be.deep.equal({
+              $addFields: {
+                __alias_0: {
+                  $reduce: {
+                    in: {
+                      $concat: ['$$value', '$$this']
+                    },
+                    initialValue: '',
+                    input: '$myArray.myString.myCharacter.myPixel'
+                  }
+                }
+              }
+            });
+          });
+        });
+      });
     });
     context('for multiple channels', function() {
       const state = {
