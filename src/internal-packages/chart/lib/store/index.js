@@ -8,7 +8,7 @@ const {
   LITE_SPEC_GLOBAL_SETTINGS
 } = require('../constants');
 const Actions = require('../actions');
-const AggPipelineBuilder = require('./agg-pipeline-builder');
+const constructPipeline = require('./agg-pipeline-builder');
 const StateMixin = require('reflux-state-mixin');
 const app = require('hadron-app');
 const toNS = require('mongodb-ns');
@@ -44,7 +44,6 @@ const ChartStore = Reflux.createStore({
     this.listenables = Actions;
     this._resetChart();
 
-    this.aggPipelineBuilder = new AggPipelineBuilder();
     this.INITIAL_CHART_TYPE = '';
     this.INITIAL_SPEC_TYPE = SPEC_TYPE_ENUM.VEGA_LITE;
     this.AVAILABLE_CHART_ROLES = [];
@@ -290,7 +289,8 @@ const ChartStore = Reflux.createStore({
     }
 
     // construct new pipeline and compare with last one. exit if they are equal.
-    const pipeline = this.aggPipelineBuilder.constructPipeline(state);
+    const pipeline = constructPipeline(state);
+    console.log('PIPELINE %j', pipeline);
     if (_.isEqual(state.pipelineCache, pipeline)) {
       return;
     }
