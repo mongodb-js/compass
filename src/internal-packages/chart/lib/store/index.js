@@ -8,13 +8,13 @@ const {
   LITE_SPEC_GLOBAL_SETTINGS
 } = require('../constants');
 const Actions = require('../actions');
-const AggPipelineBuilder = require('./agg-pipeline-builder');
+const constructPipeline = require('./agg-pipeline-builder');
 const StateMixin = require('reflux-state-mixin');
 const app = require('hadron-app');
 const toNS = require('mongodb-ns');
 const _ = require('lodash');
 const vegaLite = require('vega-lite');
-
+const EJSON = require('mongodb-extended-json');
 const debug = require('debug')('mongodb-compass:chart:store');
 
 const HISTORY_STATE_FIELDS = ['specType', 'chartType', 'channels', 'reductions'];
@@ -44,7 +44,6 @@ const ChartStore = Reflux.createStore({
     this.listenables = Actions;
     this._resetChart();
 
-    this.aggPipelineBuilder = new AggPipelineBuilder();
     this.INITIAL_CHART_TYPE = '';
     this.INITIAL_SPEC_TYPE = SPEC_TYPE_ENUM.VEGA_LITE;
     this.AVAILABLE_CHART_ROLES = [];
@@ -290,7 +289,7 @@ const ChartStore = Reflux.createStore({
     }
 
     // construct new pipeline and compare with last one. exit if they are equal.
-    const pipeline = this.aggPipelineBuilder.constructPipeline(state);
+    const pipeline = constructPipeline(state);
     if (_.isEqual(state.pipelineCache, pipeline)) {
       return;
     }
@@ -303,8 +302,7 @@ const ChartStore = Reflux.createStore({
         batchSize: 1000
       }
     };
-
-    debug('executed pipeline %j', pipeline);
+    debug('executed pipeline', EJSON.stringify(pipeline));
 
     app.dataService.aggregate(ns.ns, pipeline, options).toArray((error, documents) => {
       if (error) {

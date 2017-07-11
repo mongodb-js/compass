@@ -16,8 +16,7 @@ const ChartStore = require('../../src/internal-packages/chart/lib/store');
 const _ = require('lodash');
 const app = require('hadron-app');
 
-const AggPipelineBuilder = require('../../src/internal-packages/chart/lib/store/agg-pipeline-builder');
-const aggPipelineBuilder = new AggPipelineBuilder();
+const constructPipeline = require('../../src/internal-packages/chart/lib/store/agg-pipeline-builder');
 
 const BarChartRole = require('../../src/internal-packages/chart/lib/chart-types/bar.json');
 const AreaChartRole = require('../../src/internal-packages/chart/lib/chart-types/area.json');
@@ -1228,7 +1227,7 @@ describe('ChartStore', function() {
         setTimeout(() => {
           const reductions = this.store.state.reductions;
           expect(reductions).to.be.deep.equal(expectedReductions);
-          const pipeline = aggPipelineBuilder.constructPipeline(this.store.state);
+          const pipeline = constructPipeline(this.store.state);
           expect(pipeline).to.be.deep.equal(expectedPipeline);
           done();
         });
