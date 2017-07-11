@@ -28,6 +28,12 @@ const constructEncodingSegment = require('./segment-encoding');
  *
  * The segments are computed individually and then concatenated in above
  * order to construct the final pipeline.
+ *
+ * The only stateful component is an AggregationAliaser instance, which is
+ * initialized on each new call to constructPipeline. This component handles
+ * all temporary renaming of fields in the aggregation pipeline, which is
+ * then resolved in the encodingSegment, where temporary aliases are mapped
+ * to the encoded channels.
  */
 
 function constructPipeline(state) {

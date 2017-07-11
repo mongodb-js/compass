@@ -139,7 +139,7 @@ function reduceArraysPerChannel(reductions, channel, aliaser) {
 
 
 /**
- * array reduction for all encoded channels, calls the reduceArrayPerChannel
+ * main entry point for array reductions. Calls the reduceArrayPerChannel
  * function for each channel and combines the results.
  *
  * @param  {Object} state     chart store state

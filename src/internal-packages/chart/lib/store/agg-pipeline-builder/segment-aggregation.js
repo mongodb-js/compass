@@ -1,7 +1,6 @@
 const _ = require('lodash');
 const { AGGREGATIONS } = require('./constants');
 
-
 /**
  * builds the segment of the pipeline that executes aggregations across
  * documents on the server, instead of the client in vega-lite.
