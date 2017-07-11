@@ -18,7 +18,7 @@ describe('Aggregation Pipeline Builder', function() {
   describe('Reduction Segment', function() {
     context('for a single channel', function() {
       context('when no reductions are present', function() {
-        const state = {reductions: {x: []}};
+        const state = {reductions: {x: []}, channels: {x: {}}};
         it('returns `null`', function() {
           const result = constructReductionSegment(state, aliaser);
           expect(result).to.be.an('array');
@@ -29,6 +29,9 @@ describe('Aggregation Pipeline Builder', function() {
         const state = {
           reductions: {
             x: [{field: 'myField', type: ARRAY_NUMERIC_REDUCTIONS.MIN}]
+          },
+          channels: {
+            x: {field: 'myField'}
           }
         };
         it('builds the correct agg pipeline', function() {
@@ -50,6 +53,9 @@ describe('Aggregation Pipeline Builder', function() {
               {field: 'myField', type: ARRAY_NUMERIC_REDUCTIONS.MAX},
               {field: 'myField.inner', type: ARRAY_NUMERIC_REDUCTIONS.MIN}
             ]
+          },
+          channels: {
+            x: {field: 'myField.inner'}
           }
         };
         it('builds the correct agg pipeline', function() {
@@ -82,6 +88,9 @@ describe('Aggregation Pipeline Builder', function() {
               {field: 'myField.middle1', type: ARRAY_NUMERIC_REDUCTIONS.MIN},
               {field: 'myField.middle1.middle2.inner', type: ARRAY_GENERAL_REDUCTIONS.LENGTH}
             ]
+          },
+          channels: {
+            x: {field: 'myField.middle1.middle2.inner'}
           }
         };
         it('builds the correct agg pipeline', function() {
@@ -129,6 +138,9 @@ describe('Aggregation Pipeline Builder', function() {
               x: [
                 {field: 'foo', type: ARRAY_GENERAL_REDUCTIONS.UNWIND}
               ]
+            },
+            channels: {
+              x: {field: 'foo'}
             }
           };
           const result = constructReductionSegment(state, aliaser);
@@ -145,6 +157,9 @@ describe('Aggregation Pipeline Builder', function() {
                 {field: 'foo', type: ARRAY_GENERAL_REDUCTIONS.UNWIND},
                 {field: 'foo.bar.baz', type: ARRAY_GENERAL_REDUCTIONS.UNWIND}
               ]
+            },
+            channels: {
+              x: {field: 'foo.bar.baz'}
             }
           };
           const result = constructReductionSegment(state, aliaser);
@@ -164,6 +179,9 @@ describe('Aggregation Pipeline Builder', function() {
                 {field: 'foo', type: ARRAY_GENERAL_REDUCTIONS.UNWIND},
                 {field: 'foo.bar.baz', type: ARRAY_NUMERIC_REDUCTIONS.MIN}
               ]
+            },
+            channels: {
+              x: {field: 'foo.bar.baz'}
             }
           };
           const result = constructReductionSegment(state, aliaser);
@@ -189,6 +207,9 @@ describe('Aggregation Pipeline Builder', function() {
             x: [
               {field: 'foo', type: ARRAY_STRING_REDUCTIONS.MAX_LENGTH}
             ]
+          },
+          channels: {
+            x: {field: 'foo'}
           }
         };
         it('calculates the maximum string length', function() {
@@ -219,6 +240,10 @@ describe('Aggregation Pipeline Builder', function() {
         reductions: {
           x: [{field: 'myField', type: ARRAY_NUMERIC_REDUCTIONS.MIN}],
           y: [{field: 'myOtherField', type: ARRAY_NUMERIC_REDUCTIONS.MAX}]
+        },
+        channels: {
+          x: {field: 'myField'},
+          y: {field: 'myOtherField'}
         }
       };
       it('builds the correct agg pipeline', function() {
