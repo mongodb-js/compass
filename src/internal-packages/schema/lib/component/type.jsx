@@ -103,7 +103,11 @@ class Type extends React.Component {
     };
     const subtypes = this._getArraySubTypes();
     const label = <span className="schema-field-type-label">{this.props.name}</span>;
-    const tooltipText = `${this.props.name} (${numeral(this.props.probability).format('0%')})`;
+    // show integer accuracy by default, but show one decimal point accuracy
+    // when less than 1% or greater than 99% but no 0% or 100%
+    const format = (this.props.probability > 0.99 && this.props.probability < 1.0)
+      || (this.props.probability > 0 && this.props.probability < 0.01) ? '0.0%' : '0%';
+    const tooltipText = `${this.props.name} (${numeral(this.props.probability).format(format)})`;
     const tooltipOptions = {
       'data-for': TOOLTIP_IDS.SCHEMA_PROBABILITY_PERCENT,
       'data-tip': tooltipText,
