@@ -10,7 +10,7 @@ const {
 
 const DataService = require('mongodb-data-service');
 const Connection = require('mongodb-connection-model');
-const AggPipelineBuilder = require('../../src/internal-packages/chart/lib/store/agg-pipeline-builder');
+const constructPipeline = require('../../src/internal-packages/chart/lib/store/agg-pipeline-builder');
 const semver = require('semver');
 const _ = require('lodash');
 
@@ -26,8 +26,6 @@ const CONNECTION = new Connection({
   ns: DB,
   port: 27018
 });
-
-const aggBuilder = new AggPipelineBuilder();
 
 describe('Aggregation Pipeline Builder', function() {
   let versionSupported = true;
@@ -92,7 +90,7 @@ describe('Aggregation Pipeline Builder', function() {
         if (!versionSupported) {
           this.skip();
         }
-        const pipeline = aggBuilder.constructPipeline(state);
+        const pipeline = constructPipeline(state);
         dataService.aggregate(`${DB}.compass_devs`, pipeline, {}, function(err, res) {
           expect(err).to.be.null;
           expect(res).to.have.lengthOf(1);
@@ -119,7 +117,7 @@ describe('Aggregation Pipeline Builder', function() {
         if (!versionSupported) {
           this.skip();
         }
-        const pipeline = aggBuilder.constructPipeline(state);
+        const pipeline = constructPipeline(state);
         dataService.aggregate(`${DB}.compass_devs`, pipeline, {}, function(err, res) {
           expect(err).to.be.null;
           expect(res).to.have.lengthOf(3);
@@ -148,7 +146,7 @@ describe('Aggregation Pipeline Builder', function() {
         if (!versionSupported) {
           this.skip();
         }
-        const pipeline = aggBuilder.constructPipeline(state);
+        const pipeline = constructPipeline(state);
         dataService.aggregate(`${DB}.compass_devs`, pipeline, {}, function(err, res) {
           expect(err).to.be.null;
           expect(res).to.have.lengthOf(3);
@@ -173,7 +171,7 @@ describe('Aggregation Pipeline Builder', function() {
         if (!versionSupported) {
           this.skip();
         }
-        const pipeline = aggBuilder.constructPipeline(state);
+        const pipeline = constructPipeline(state);
         dataService.aggregate(`${DB}.compass_devs`, pipeline, {}, function(err, res) {
           expect(err).to.be.null;
           expect(res).to.have.lengthOf(1);
@@ -204,7 +202,7 @@ describe('Aggregation Pipeline Builder', function() {
         if (!versionSupported) {
           this.skip();
         }
-        const pipeline = aggBuilder.constructPipeline(state);
+        const pipeline = constructPipeline(state);
         dataService.aggregate(`${DB}.compass_devs`, pipeline, {}, function(err, res) {
           expect(err).to.be.null;
           expect(res).to.have.lengthOf(8);
@@ -235,7 +233,7 @@ describe('Aggregation Pipeline Builder', function() {
         if (!versionSupported) {
           this.skip();
         }
-        const pipeline = aggBuilder.constructPipeline(state);
+        const pipeline = constructPipeline(state);
         dataService.aggregate(`${DB}.compass_devs`, pipeline, {}, function(err, res) {
           expect(err).to.be.null;
           expect(res).to.have.lengthOf(7);
@@ -273,7 +271,7 @@ describe('Aggregation Pipeline Builder', function() {
         if (!versionSupported) {
           this.skip();
         }
-        const pipeline = aggBuilder.constructPipeline(state);
+        const pipeline = constructPipeline(state);
         dataService.aggregate(`${DB}.compass_devs`, pipeline, {}, function(err, res) {
           expect(err).to.be.null;
           expect(res).to.have.lengthOf(5);
@@ -311,7 +309,7 @@ describe('Aggregation Pipeline Builder', function() {
         }
       };
       it('builds the correct agg pipeline', function() {
-        const pipeline = aggBuilder.constructPipeline(state);
+        const pipeline = constructPipeline(state);
         expect(pipeline).to.be.an('array');
         expect(pipeline).to.have.lengthOf(3);
         expect(pipeline[0]).to.be.deep.equal({
@@ -341,7 +339,7 @@ describe('Aggregation Pipeline Builder', function() {
           this.skip();
         }
 
-        const pipeline = aggBuilder.constructPipeline(state);
+        const pipeline = constructPipeline(state);
         dataService.aggregate(`${DB}.array_numbers`, pipeline, {}, function(err, res) {
           expect(err).to.be.null;
           expect(res[0]).to.be.deep.equal({
@@ -389,7 +387,7 @@ describe('Aggregation Pipeline Builder', function() {
           x: { field: 'friends.scores', type: 'quantitative' }
         }
       };
-      const pipeline = aggBuilder.constructPipeline(state);
+      const pipeline = constructPipeline(state);
 
       it('builds the correct agg pipeline with two accumulating reductions', function() {
         expect(pipeline).to.be.an('array');
@@ -437,7 +435,7 @@ describe('Aggregation Pipeline Builder', function() {
           x: { field: 'friends.scores', type: 'quantitative' }
         }
       };
-      const pipeline = aggBuilder.constructPipeline(state);
+      const pipeline = constructPipeline(state);
 
       it('builds the correct agg pipeline using the "mean" reduction', function() {
         expect(pipeline).to.be.an('array');
@@ -485,7 +483,7 @@ describe('Aggregation Pipeline Builder', function() {
           x: { field: 'friends.scores', type: 'quantitative' }
         }
       };
-      const pipeline = aggBuilder.constructPipeline(state);
+      const pipeline = constructPipeline(state);
 
       it('builds the correct agg pipeline using the "sum" reduction', function() {
         expect(pipeline).to.be.an('array');
@@ -553,7 +551,7 @@ describe('Aggregation Pipeline Builder', function() {
           x: { field: 'friends', type: 'ordinal' }
         }
       };
-      const pipeline = aggBuilder.constructPipeline(state);
+      const pipeline = constructPipeline(state);
 
       it('builds the correct agg pipeline with the "concat" reduction', function() {
         expect(pipeline).to.be.an('array');
@@ -599,7 +597,7 @@ describe('Aggregation Pipeline Builder', function() {
           x: { field: 'friends', type: 'ordinal' }
         }
       };
-      const pipeline = aggBuilder.constructPipeline(state);
+      const pipeline = constructPipeline(state);
 
       it('builds the correct agg pipeline with the "longest" reduction', function() {
         expect(pipeline).to.be.an('array');
@@ -653,7 +651,7 @@ describe('Aggregation Pipeline Builder', function() {
           x: { field: 'friends', type: 'ordinal' }
         }
       };
-      const pipeline = aggBuilder.constructPipeline(state);
+      const pipeline = constructPipeline(state);
 
       it('builds the correct agg pipeline with the "shortest" reduction', function() {
         expect(pipeline).to.be.an('array');
@@ -707,7 +705,7 @@ describe('Aggregation Pipeline Builder', function() {
           x: { field: 'friends', type: 'ordinal' }
         }
       };
-      const pipeline = aggBuilder.constructPipeline(state);
+      const pipeline = constructPipeline(state);
 
       it('builds the correct agg pipeline with the "min length" reduction', function() {
         expect(pipeline).to.be.an('array');
@@ -755,7 +753,7 @@ describe('Aggregation Pipeline Builder', function() {
           x: { field: 'friends', type: 'ordinal' }
         }
       };
-      const pipeline = aggBuilder.constructPipeline(state);
+      const pipeline = constructPipeline(state);
 
       it('builds the correct agg pipeline with the "max length" reduction', function() {
         expect(pipeline).to.be.an('array');
