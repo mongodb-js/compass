@@ -235,7 +235,7 @@ describe('Aggregation Pipeline Builder', function() {
           expect(aliaser.aliases.x_foo).to.be.equal('__alias_0');
         });
       });
-      context('when applying accumulator reductions to a field of subdocuments in an array', function() {
+      context('when applying reductions to a field of subdocuments in an array', function() {
         context('when applying unwind reduction', function() {
           const state = {
             reductions: {
@@ -331,7 +331,7 @@ describe('Aggregation Pipeline Builder', function() {
           });
         });
       });
-      context('when applying accumulator reductions to a field of subdocuments in subdocuments in an array', function() {
+      context('when applying reductions to a field of subdocuments in subdocuments in an array', function() {
         context('when applying unwind reduction', function() {
           const state = {
             reductions: {
@@ -427,7 +427,7 @@ describe('Aggregation Pipeline Builder', function() {
           });
         });
       });
-      context('when applying accumulator reductions to a field of array in subdocuments in an array', function() {
+      context('when applying reductions to a field of array in subdocuments in an array', function() {
         context('when applying unwind reduction', function() {
           const state = {
             reductions: {
@@ -542,7 +542,7 @@ describe('Aggregation Pipeline Builder', function() {
           });
         });
       });
-      context('when applying accumulator reductions to a field of subdocuments in arrays in subdocuments in an array', function() {
+      context('when applying reductions to a field of subdocuments in arrays in subdocuments in an array', function() {
         context('when applying unwind reduction', function() {
           const state = {
             reductions: {
