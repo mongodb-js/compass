@@ -4,8 +4,6 @@ const VegaLite = require('react-vega-lite').default;
 const Vega = require('react-vega').default;
 const _ = require('lodash');
 
-const { CHART_SPEC_TYPE_ENUM } = require('../constants');
-
 // const debug = require('debug')('mongodb-compass:chart:chart');
 
 class Chart extends React.Component {
@@ -24,7 +22,7 @@ class Chart extends React.Component {
     // add width and height to the spec
     const spec = _.assign({}, this.props.spec, _.pick(this.props, ['width', 'height']));
 
-    const ChartClass = this.props.specType === CHART_SPEC_TYPE_ENUM.VEGA ? Vega : VegaLite;
+    const ChartClass = this.props.specType === 'vega' ? Vega : VegaLite;
     return (
       <ChartClass
         spec={spec}
