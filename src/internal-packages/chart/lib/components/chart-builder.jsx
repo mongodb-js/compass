@@ -9,16 +9,15 @@ const { TextButton } = require('hadron-react-buttons');
 const { StatusRow } = require('hadron-react-components');
 const FieldPanel = require('./field-panel');
 const ChartPanel = require('./chart-panel');
-const Chart = require('./chart');
 const Actions = require('../actions');
 const _ = require('lodash');
 
+const { CHART_SPEC_TYPE_ENUM } = require('../../../app/lib/constants');
 const {
   AXIS_LABEL_MAX_PIXELS,
   AXIS_TITLE_BUFFER_PIXELS,
   MIN_CHART_HEIGHT,
   MIN_CHART_WIDTH,
-  SPEC_TYPE_ENUM,
   TOOL_TIP_ARRAY_REDUCE,
   VIEW_TYPE_ENUM
 } = require('../constants');
@@ -37,6 +36,7 @@ class ChartBuilder extends React.Component {
     this.queryBar = app.appRegistry.getComponent('Query.QueryBar');
     this.CollectionStore = app.appRegistry.getStore('App.CollectionStore');
     this.ViewSwitcher = app.appRegistry.getComponent('App.ViewSwitcher');
+    this.Chart = app.appRegistry.getComponent('Chart.Chart');
 
     // intialise chart dimensions
     this.state = {
@@ -159,7 +159,7 @@ class ChartBuilder extends React.Component {
           buttonLabels={[VIEW_TYPE_ENUM.CHART_BUILDER, VIEW_TYPE_ENUM.JSON_EDITOR]}
           activeButton={this.props.viewType}
           dataTestId="chart-view-switcher"
-          disabled={this.props.specType === SPEC_TYPE_ENUM.VEGA}
+          disabled={this.props.specType === CHART_SPEC_TYPE_ENUM.VEGA}
           onClick={this.onViewSwitch.bind(this)}
         />
         <span>
@@ -199,11 +199,11 @@ class ChartBuilder extends React.Component {
       this._getChartDimensions() : {width: this.state.width, height: this.state.height};
 
     // map field names to channel names for vega-lite
-    const spec = (this.props.specType === SPEC_TYPE_ENUM.VEGA_LITE) ?
+    const spec = (this.props.specType === CHART_SPEC_TYPE_ENUM.VEGA_LITE) ?
       this._encodeVegaLiteSpec(this.props.spec) : this.props.spec;
 
     return (
-      <Chart
+      <this.Chart
         specType={this.props.specType}
         spec={spec}
         data={this.props.dataCache}

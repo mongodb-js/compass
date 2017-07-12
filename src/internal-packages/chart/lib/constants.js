@@ -103,16 +103,6 @@ const VIEW_TYPE_ENUM = Object.freeze({
 });
 
 /**
- * A list of chart specifications we might end up using...
- * if we end up not using them or not finding much similarity then nuke this.
- */
-const SPEC_TYPE_ENUM = Object.freeze({
-  VEGA: 'vega',
-  VEGA_LITE: 'vega-lite',
-  CUSTOM: 'custom'
-});
-
-/**
  * (@satyasinha) TODO add this tooltip for the Array Reduce icon via COMPASS-1228
  */
 const TOOL_TIP_ARRAY_REDUCE = Object.freeze({
@@ -220,7 +210,6 @@ module.exports = {
   CHART_CHANNEL_ENUM,
   MEASUREMENT_ENUM,
   MEASUREMENT_ICON_ENUM,
-  SPEC_TYPE_ENUM,
   VIEW_TYPE_ENUM,
   TOOL_TIP_ARRAY_REDUCE,
   ARRAY_GENERAL_REDUCTIONS,

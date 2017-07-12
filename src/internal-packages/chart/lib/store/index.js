@@ -1,9 +1,9 @@
 const Reflux = require('reflux');
+const { CHART_SPEC_TYPE_ENUM } = require('../../../app/lib/constants');
 const {
   AGGREGATE_FUNCTION_ENUM,
   ARRAY_REDUCTION_TYPES,
   MEASUREMENT_ENUM,
-  SPEC_TYPE_ENUM,
   VIEW_TYPE_ENUM,
   LITE_SPEC_GLOBAL_SETTINGS
 } = require('../constants');
@@ -45,7 +45,7 @@ const ChartStore = Reflux.createStore({
     this._resetChart();
 
     this.INITIAL_CHART_TYPE = '';
-    this.INITIAL_SPEC_TYPE = SPEC_TYPE_ENUM.VEGA_LITE;
+    this.INITIAL_SPEC_TYPE = CHART_SPEC_TYPE_ENUM.VEGA_LITE;
     this.AVAILABLE_CHART_ROLES = [];
     this.completeFieldsCache = {};
     this.completeTopLevelFields = [];
@@ -201,7 +201,7 @@ const ChartStore = Reflux.createStore({
    */
   _encodeSpec(spec, specType, channels) {
     let result;
-    if (specType === SPEC_TYPE_ENUM.VEGA_LITE) {
+    if (specType === CHART_SPEC_TYPE_ENUM.VEGA_LITE) {
       const encodedChannels = {encoding: channels};
       result = _.merge({}, LITE_SPEC_GLOBAL_SETTINGS, spec, encodedChannels);
     } else {
@@ -811,11 +811,11 @@ const ChartStore = Reflux.createStore({
    * vega-lite specs.
    */
   switchToJSONView() {
-    if (this.state.specType === SPEC_TYPE_ENUM.VEGA) {
+    if (this.state.specType === CHART_SPEC_TYPE_ENUM.VEGA) {
       return;
     }
     this.setState({
-      specType: SPEC_TYPE_ENUM.VEGA_LITE,
+      specType: CHART_SPEC_TYPE_ENUM.VEGA_LITE,
       viewType: VIEW_TYPE_ENUM.JSON_EDITOR
     });
   },
