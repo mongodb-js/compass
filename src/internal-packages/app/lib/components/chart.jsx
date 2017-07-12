@@ -3,7 +3,7 @@ const PropTypes = require('prop-types');
 const VegaLite = require('react-vega-lite').default;
 const Vega = require('react-vega').default;
 
-const { DOT_UNICODE_REPLACEMENT } = require('../constants');
+const DOT_UNICODE_REPLACEMENT = '\u2024';
 
 const _ = require('lodash');
 // const debug = require('debug')('mongodb-compass:chart:chart');
@@ -29,7 +29,7 @@ class Chart extends React.Component {
       spec.encoding[channel].field = encoding.field.replace(/\./g, DOT_UNICODE_REPLACEMENT);
     });
 
-    const ChartClass = this.props.specType === 'vega-lite' ? VegaLite : Vega;
+    const ChartClass = this.props.specType === 'vega' ? Vega : VegaLite;
     return (
       <ChartClass
         spec={spec}

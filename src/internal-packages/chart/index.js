@@ -1,7 +1,6 @@
 const app = require('hadron-app');
 const ChartActions = require('./lib/actions');
 const ChartStore = require('./lib/store');
-const Chart = require('./lib/components/chart');
 const ChartBuilder = require('./lib/components/index');
 
 const BarChartType = require('./lib/chart-types/bar.json');
@@ -33,7 +32,6 @@ function activate(appRegistry) {
   appRegistry.registerRole('Chart.Type', PieChartType);
   appRegistry.registerAction('Chart.Actions', ChartActions);
   appRegistry.registerStore('Chart.Store', ChartStore);
-  appRegistry.registerComponent('Chart.Chart', Chart);
   appRegistry.registerComponent('Chart.ChartBuilder', ChartBuilder);
 }
 
@@ -49,7 +47,6 @@ function deactivate() {
   app.appRegistry.deregisterRole('Chart.Type', PieChartType);
   app.appRegistry.deregisterAction('Chart.Actions');
   app.appRegistry.deregisterStore('Chart.Store');
-  app.appRegistry.deregisterComponent('Chart.Chart');
   app.appRegistry.deregisterComponent('Chart.ChartBuilder');
 }
 
