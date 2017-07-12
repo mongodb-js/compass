@@ -1,4 +1,5 @@
 const channels = require('./channels');
+const types = require('./types');
 
 const CHART_COLORS = Object.freeze({
   CHART0: '#43B1E5',
@@ -10,21 +11,6 @@ const CHART_COLORS = Object.freeze({
   CHART6: '#46929A',
   CHART7: '#D381B3',
   CHART8: '#85CA98'
-});
-
-const VIEW_TYPE_ENUM = Object.freeze({
-  CHART_BUILDER: 'Chart Builder',
-  JSON_EDITOR: 'JSON Editor'
-});
-
-/**
- * A list of chart specifications we might end up using...
- * if we end up not using them or not finding much similarity then nuke this.
- */
-const SPEC_TYPE_ENUM = Object.freeze({
-  VEGA: 'vega',
-  VEGA_LITE: 'vega-lite',
-  CUSTOM: 'custom'
 });
 
 /**
@@ -131,8 +117,6 @@ const LITE_SPEC_GLOBAL_SETTINGS = {
 };
 
 module.exports = Object.assign({
-  SPEC_TYPE_ENUM,
-  VIEW_TYPE_ENUM,
   TOOL_TIP_ARRAY_REDUCE,
   ARRAY_GENERAL_REDUCTIONS,
   ARRAY_NUMERIC_REDUCTIONS,
@@ -144,4 +128,4 @@ module.exports = Object.assign({
   MIN_CHART_HEIGHT,
   MIN_CHART_WIDTH,
   LITE_SPEC_GLOBAL_SETTINGS
-}, channels);
+}, channels, types);
