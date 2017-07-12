@@ -7,7 +7,7 @@ const React = require('react');
 const sinon = require('sinon');
 const mount = require('enzyme').mount;
 
-const Chart = require('../../src/internal-packages/chart/lib/components/chart');
+const Chart = require('../../src/internal-packages/app/lib/components/chart');
 
 // const debug = require('debug')('mongodb-compass:test:chart');
 

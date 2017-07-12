@@ -9,7 +9,6 @@ const { TextButton } = require('hadron-react-buttons');
 const { StatusRow } = require('hadron-react-components');
 const FieldPanel = require('./field-panel');
 const ChartPanel = require('./chart-panel');
-const Chart = require('./chart');
 const Actions = require('../actions');
 const _ = require('lodash');
 
@@ -37,6 +36,7 @@ class ChartBuilder extends React.Component {
     this.queryBar = app.appRegistry.getComponent('Query.QueryBar');
     this.CollectionStore = app.appRegistry.getStore('App.CollectionStore');
     this.ViewSwitcher = app.appRegistry.getComponent('App.ViewSwitcher');
+    this.Chart = app.appRegistry.getComponent('Chart.Chart');
 
     // intialise chart dimensions
     this.state = {
@@ -203,7 +203,7 @@ class ChartBuilder extends React.Component {
       this._encodeVegaLiteSpec(this.props.spec) : this.props.spec;
 
     return (
-      <Chart
+      <this.Chart
         specType={this.props.specType}
         spec={spec}
         data={this.props.dataCache}
