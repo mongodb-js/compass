@@ -78,6 +78,10 @@ function constructAccumulatorStage(reductions, channel, encodedField, aliaser) {
     return null;
   }
 
+  // In order to build the complex expression to handle multiple array reductions below,
+  // we need to know the path names of each field in a reduction relative to the previous
+  // reduction field. E.g. if the first reduction is on "a.b" and the next is on "a.b.c.d.e"
+  // then the relative field is "c.d.e", which can later be appended to "$$value." in the expression.
   if (reductions.length === 1) {
     // with only one reduction, return the reduction applied to the field
     // directly.
