@@ -232,7 +232,7 @@ const preferencesProps = {
 };
 
 const prerelease = semver.prerelease(pkg.version);
-if (prerelease[0] !== 'dev') {
+if (!prerelease || prerelease[0] !== 'dev') {
   // COMPASS-1340: Disable chartView for all builds except development,
   // until it can be moved into a new product coupled to the Charts Server.
   delete preferencesProps.chartView;
