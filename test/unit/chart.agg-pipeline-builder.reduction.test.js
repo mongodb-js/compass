@@ -4,6 +4,7 @@ const Aliaser = require('../../src/internal-packages/chart/lib/store/agg-pipelin
 const { expect } = require('chai');
 
 const {
+  MEASUREMENT_ENUM,
   ARRAY_NUMERIC_REDUCTIONS,
   ARRAY_STRING_REDUCTIONS,
   ARRAY_GENERAL_REDUCTIONS
@@ -18,7 +19,7 @@ describe('Aggregation Pipeline Builder', function() {
   describe('Reduction Segment', function() {
     context('for a single channel', function() {
       context('when no reductions are present', function() {
-        const state = {reductions: {x: []}};
+        const state = {reductions: {x: []}, channels: {x: {}}};
         it('returns `null`', function() {
           const result = constructReductionSegment(state, aliaser);
           expect(result).to.be.an('array');
@@ -29,6 +30,9 @@ describe('Aggregation Pipeline Builder', function() {
         const state = {
           reductions: {
             x: [{field: 'myField', type: ARRAY_NUMERIC_REDUCTIONS.MIN}]
+          },
+          channels: {
+            x: {field: 'myField'}
           }
         };
         it('builds the correct agg pipeline', function() {
@@ -50,6 +54,9 @@ describe('Aggregation Pipeline Builder', function() {
               {field: 'myField', type: ARRAY_NUMERIC_REDUCTIONS.MAX},
               {field: 'myField.inner', type: ARRAY_NUMERIC_REDUCTIONS.MIN}
             ]
+          },
+          channels: {
+            x: {field: 'myField.inner'}
           }
         };
         it('builds the correct agg pipeline', function() {
@@ -82,6 +89,9 @@ describe('Aggregation Pipeline Builder', function() {
               {field: 'myField.middle1', type: ARRAY_NUMERIC_REDUCTIONS.MIN},
               {field: 'myField.middle1.middle2.inner', type: ARRAY_GENERAL_REDUCTIONS.LENGTH}
             ]
+          },
+          channels: {
+            x: {field: 'myField.middle1.middle2.inner'}
           }
         };
         it('builds the correct agg pipeline', function() {
@@ -129,6 +139,9 @@ describe('Aggregation Pipeline Builder', function() {
               x: [
                 {field: 'foo', type: ARRAY_GENERAL_REDUCTIONS.UNWIND}
               ]
+            },
+            channels: {
+              x: {field: 'foo'}
             }
           };
           const result = constructReductionSegment(state, aliaser);
@@ -145,6 +158,9 @@ describe('Aggregation Pipeline Builder', function() {
                 {field: 'foo', type: ARRAY_GENERAL_REDUCTIONS.UNWIND},
                 {field: 'foo.bar.baz', type: ARRAY_GENERAL_REDUCTIONS.UNWIND}
               ]
+            },
+            channels: {
+              x: {field: 'foo.bar.baz'}
             }
           };
           const result = constructReductionSegment(state, aliaser);
@@ -164,6 +180,9 @@ describe('Aggregation Pipeline Builder', function() {
                 {field: 'foo', type: ARRAY_GENERAL_REDUCTIONS.UNWIND},
                 {field: 'foo.bar.baz', type: ARRAY_NUMERIC_REDUCTIONS.MIN}
               ]
+            },
+            channels: {
+              x: {field: 'foo.bar.baz'}
             }
           };
           const result = constructReductionSegment(state, aliaser);
@@ -189,6 +208,9 @@ describe('Aggregation Pipeline Builder', function() {
             x: [
               {field: 'foo', type: ARRAY_STRING_REDUCTIONS.MAX_LENGTH}
             ]
+          },
+          channels: {
+            x: {field: 'foo'}
           }
         };
         it('calculates the maximum string length', function() {
@@ -213,12 +235,500 @@ describe('Aggregation Pipeline Builder', function() {
           expect(aliaser.aliases.x_foo).to.be.equal('__alias_0');
         });
       });
+      context('when applying reductions to a field of subdocuments in an array', function() {
+        context('when applying unwind reduction', function() {
+          const state = {
+            reductions: {
+              x: [{field: 'myArray', type: ARRAY_GENERAL_REDUCTIONS.UNWIND}]
+            },
+            channels: {
+              x: {field: 'myArray.myNumber'}
+            }
+          };
+          it('builds the correct agg pipeline', function() {
+            const result = constructReductionSegment(state, aliaser);
+            expect(result).to.be.an('array');
+            expect(result[0]).to.be.deep.equal({
+              $unwind: '$myArray'
+            });
+          });
+        });
+        context('when applying array length reduction', function() {
+          const state = {
+            reductions: {
+              x: [{field: 'myArray', type: ARRAY_GENERAL_REDUCTIONS.LENGTH}]
+            },
+            channels: {
+              x: {field: 'myArray.myString', type: MEASUREMENT_ENUM.ORDINAL}
+            }
+          };
+          it('builds the correct agg pipeline', function() {
+            const result = constructReductionSegment(state, aliaser);
+            expect(result).to.be.an('array');
+            expect(result[0]).to.be.deep.equal({
+              $addFields: {
+                __alias_0: {
+                  $cond: {
+                    else: 0,
+                    if: {
+                      $isArray: '$myArray.myString'
+                    },
+                    then: {
+                      $size: '$myArray.myString'
+                    }
+                  }
+                }
+              }
+            });
+          });
+        });
+        context('when applying min reduction', function() {
+          const state = {
+            reductions: {
+              x: [{field: 'myArray', type: ARRAY_NUMERIC_REDUCTIONS.MIN}]
+            },
+            channels: {
+              x: {field: 'myArray.myNumber', type: MEASUREMENT_ENUM.QUANTITATIVE}
+            }
+          };
+          it('builds the correct agg pipeline', function() {
+            const result = constructReductionSegment(state, aliaser);
+            expect(result).to.be.an('array');
+            expect(result[0]).to.be.deep.equal({
+              $addFields: {
+                __alias_0: {
+                  $min: '$myArray.myNumber'
+                }
+              }
+            });
+          });
+        });
+        context('when applying concat reduction', function() {
+          const state = {
+            reductions: {
+              x: [{field: 'myArray', type: ARRAY_STRING_REDUCTIONS.CONCAT}]
+            },
+            channels: {
+              x: {field: 'myArray.myString', type: MEASUREMENT_ENUM.ORDINAL}
+            }
+          };
+          it('builds the correct agg pipeline', function() {
+            const result = constructReductionSegment(state, aliaser);
+            expect(result).to.be.an('array');
+            expect(result[0]).to.be.deep.equal({
+              $addFields: {
+                __alias_0: {
+                  $reduce: {
+                    in: {
+                      $concat: ['$$value', '$$this']
+                    },
+                    initialValue: '',
+                    input: '$myArray.myString'
+                  }
+                }
+              }
+            });
+          });
+        });
+      });
+      context('when applying reductions to a field of subdocuments in subdocuments in an array', function() {
+        context('when applying unwind reduction', function() {
+          const state = {
+            reductions: {
+              x: [{field: 'myArray', type: ARRAY_GENERAL_REDUCTIONS.UNWIND}]
+            },
+            channels: {
+              x: {field: 'myArray.myNumber.myCharacter'}
+            }
+          };
+          it('builds the correct agg pipeline', function() {
+            const result = constructReductionSegment(state, aliaser);
+            expect(result).to.be.an('array');
+            expect(result[0]).to.be.deep.equal({
+              $unwind: '$myArray'
+            });
+          });
+        });
+        context('when applying array length reduction', function() {
+          const state = {
+            reductions: {
+              x: [{field: 'myArray', type: ARRAY_GENERAL_REDUCTIONS.LENGTH}]
+            },
+            channels: {
+              x: {field: 'myArray.myString.myCharacter', type: MEASUREMENT_ENUM.ORDINAL}
+            }
+          };
+          it('builds the correct agg pipeline', function() {
+            const result = constructReductionSegment(state, aliaser);
+            expect(result).to.be.an('array');
+            expect(result[0]).to.be.deep.equal({
+              $addFields: {
+                __alias_0: {
+                  $cond: {
+                    else: 0,
+                    if: {
+                      $isArray: '$myArray.myString.myCharacter'
+                    },
+                    then: {
+                      $size: '$myArray.myString.myCharacter'
+                    }
+                  }
+                }
+              }
+            });
+          });
+        });
+        context('when applying min reduction', function() {
+          const state = {
+            reductions: {
+              x: [{field: 'myArray', type: ARRAY_NUMERIC_REDUCTIONS.MIN}]
+            },
+            channels: {
+              x: {field: 'myArray.myNumber.myCharacter', type: MEASUREMENT_ENUM.QUANTITATIVE}
+            }
+          };
+          it('builds the correct agg pipeline', function() {
+            const result = constructReductionSegment(state, aliaser);
+            expect(result).to.be.an('array');
+            expect(result[0]).to.be.deep.equal({
+              $addFields: {
+                __alias_0: {
+                  $min: '$myArray.myNumber.myCharacter'
+                }
+              }
+            });
+          });
+        });
+        context('when applying concat reduction', function() {
+          const state = {
+            reductions: {
+              x: [{field: 'myArray', type: ARRAY_STRING_REDUCTIONS.CONCAT}]
+            },
+            channels: {
+              x: {field: 'myArray.myString.myCharacter', type: MEASUREMENT_ENUM.ORDINAL}
+            }
+          };
+          it('builds the correct agg pipeline', function() {
+            const result = constructReductionSegment(state, aliaser);
+            expect(result).to.be.an('array');
+            expect(result[0]).to.be.deep.equal({
+              $addFields: {
+                __alias_0: {
+                  $reduce: {
+                    in: {
+                      $concat: ['$$value', '$$this']
+                    },
+                    initialValue: '',
+                    input: '$myArray.myString.myCharacter'
+                  }
+                }
+              }
+            });
+          });
+        });
+      });
+      context('when applying reductions to a field of array in subdocuments in an array', function() {
+        context('when applying unwind reduction', function() {
+          const state = {
+            reductions: {
+              x: [{field: 'myArray', type: ARRAY_GENERAL_REDUCTIONS.UNWIND},
+                  {field: 'myArray.myNumber.myCharacter', type: ARRAY_GENERAL_REDUCTIONS.UNWIND}
+              ]
+            },
+            channels: {
+              x: {field: 'myArray.myNumber.myCharacter'}
+            }
+          };
+          it('builds the correct agg pipeline', function() {
+            const result = constructReductionSegment(state, aliaser);
+            expect(result).to.be.an('array');
+            expect(result[0]).to.be.deep.equal({
+              $unwind: '$myArray'
+            });
+            expect(result[1]).to.be.deep.equal({
+              $unwind: '$myArray.myNumber.myCharacter'
+            });
+          });
+        });
+        context('when applying array length reduction', function() {
+          const state = {
+            reductions: {
+              x: [{field: 'myArray', type: ARRAY_GENERAL_REDUCTIONS.UNWIND},
+                  {field: 'myArray.myNumber.myCharacter', type: ARRAY_GENERAL_REDUCTIONS.LENGTH}
+              ]
+            },
+            channels: {
+              x: {field: 'myArray.myString.myCharacter', type: MEASUREMENT_ENUM.ORDINAL}
+            }
+          };
+          it('builds the correct agg pipeline', function() {
+            const result = constructReductionSegment(state, aliaser);
+            expect(result).to.be.an('array');
+            expect(result[0]).to.be.deep.equal({
+              $unwind: '$myArray'
+            });
+            expect(result[1]).to.be.deep.equal({
+              $addFields: {
+                __alias_0: {
+                  $cond: {
+                    else: 0,
+                    if: {
+                      $isArray: '$myArray.myString.myCharacter'
+                    },
+                    then: {
+                      $size: '$myArray.myString.myCharacter'
+                    }
+                  }
+                }
+              }
+            });
+          });
+        });
+        context('when applying min reduction', function() {
+          const state = {
+            reductions: {
+              x: [{field: 'myArray', type: ARRAY_GENERAL_REDUCTIONS.UNWIND},
+                  {field: 'myArray.myNumber.myCharacter', type: ARRAY_NUMERIC_REDUCTIONS.MIN}
+              ]
+            },
+            channels: {
+              x: {field: 'myArray.myNumber.myCharacter', type: MEASUREMENT_ENUM.QUANTITATIVE}
+            }
+          };
+          it('builds the correct agg pipeline', function() {
+            const result = constructReductionSegment(state, aliaser);
+            expect(result).to.be.an('array');
+            expect(result[0]).to.be.deep.equal({
+              $unwind: '$myArray'
+            });
+            expect(result[1]).to.be.deep.equal({
+              $addFields: {
+                __alias_0: {
+                  $min: '$myArray.myNumber.myCharacter'
+                }
+              }
+            });
+          });
+        });
+        context('when applying min and max reduction', function() {
+          const state = {
+            reductions: {
+              x: [{field: 'myArray', type: ARRAY_NUMERIC_REDUCTIONS.MAX},
+                  {field: 'myArray.myNumber.myCharacter', type: ARRAY_NUMERIC_REDUCTIONS.MIN}
+              ]
+            },
+            channels: {
+              x: {field: 'myArray.myNumber.myCharacter', type: MEASUREMENT_ENUM.QUANTITATIVE}
+            }
+          };
+          it('builds the correct agg pipeline', function() {
+            const result = constructReductionSegment(state, aliaser);
+            expect(result).to.be.an('array');
+            expect(result[0]).to.be.deep.equal({
+              $addFields: {
+                __alias_0: {
+                  $max: {
+                    $map: {
+                      as: 'value',
+                      in: {
+                        $min: '$$value.myNumber.myCharacter'
+                      },
+                      input: '$myArray'
+                    }
+                  }
+                }
+              }
+            });
+          });
+        });
+        context('when applying concat reduction', function() {
+          const state = {
+            reductions: {
+              x: [{field: 'myArray', type: ARRAY_GENERAL_REDUCTIONS.UNWIND},
+                  {field: 'myArray.myString.myCharacter', type: ARRAY_STRING_REDUCTIONS.CONCAT}]
+            },
+            channels: {
+              x: {field: 'myArray.myString.myCharacter', type: MEASUREMENT_ENUM.ORDINAL}
+            }
+          };
+          it('builds the correct agg pipeline', function() {
+            const result = constructReductionSegment(state, aliaser);
+            expect(result).to.be.an('array');
+            expect(result[0]).to.be.deep.equal({
+              $unwind: '$myArray'
+            });
+            expect(result[1]).to.be.deep.equal({
+              $addFields: {
+                __alias_0: {
+                  $reduce: {
+                    in: {
+                      $concat: ['$$value', '$$this']
+                    },
+                    initialValue: '',
+                    input: '$myArray.myString.myCharacter'
+                  }
+                }
+              }
+            });
+          });
+        });
+      });
+      context('when applying reductions to a field of subdocuments in arrays in subdocuments in an array', function() {
+        context('when applying unwind reduction', function() {
+          const state = {
+            reductions: {
+              x: [{field: 'myArray', type: ARRAY_GENERAL_REDUCTIONS.UNWIND},
+                  {field: 'myArray.myNumber.myCharacter', type: ARRAY_GENERAL_REDUCTIONS.UNWIND}
+              ]
+            },
+            channels: {
+              x: {field: 'myArray.myNumber.myCharacter.myPixel'}
+            }
+          };
+          it('builds the correct agg pipeline', function() {
+            const result = constructReductionSegment(state, aliaser);
+            expect(result).to.be.an('array');
+            expect(result[0]).to.be.deep.equal({
+              $unwind: '$myArray'
+            });
+            expect(result[1]).to.be.deep.equal({
+              $unwind: '$myArray.myNumber.myCharacter'
+            });
+          });
+        });
+        context('when applying array length reduction', function() {
+          const state = {
+            reductions: {
+              x: [{field: 'myArray', type: ARRAY_GENERAL_REDUCTIONS.UNWIND},
+                  {field: 'myArray.myNumber.myCharacter', type: ARRAY_GENERAL_REDUCTIONS.LENGTH}
+              ]
+            },
+            channels: {
+              x: {field: 'myArray.myString.myCharacter.myPixel', type: MEASUREMENT_ENUM.ORDINAL}
+            }
+          };
+          it('builds the correct agg pipeline', function() {
+            const result = constructReductionSegment(state, aliaser);
+            expect(result).to.be.an('array');
+            expect(result[0]).to.be.deep.equal({
+              $unwind: '$myArray'
+            });
+            expect(result[1]).to.be.deep.equal({
+              $addFields: {
+                __alias_0: {
+                  $cond: {
+                    else: 0,
+                    if: {
+                      $isArray: '$myArray.myString.myCharacter.myPixel'
+                    },
+                    then: {
+                      $size: '$myArray.myString.myCharacter.myPixel'
+                    }
+                  }
+                }
+              }
+            });
+          });
+        });
+        context('when applying min reduction', function() {
+          const state = {
+            reductions: {
+              x: [{field: 'myArray', type: ARRAY_GENERAL_REDUCTIONS.UNWIND},
+                  {field: 'myArray.myNumber.myCharacter', type: ARRAY_NUMERIC_REDUCTIONS.MIN}
+              ]
+            },
+            channels: {
+              x: {field: 'myArray.myNumber.myCharacter.myPixel', type: MEASUREMENT_ENUM.QUANTITATIVE}
+            }
+          };
+          it('builds the correct agg pipeline', function() {
+            const result = constructReductionSegment(state, aliaser);
+            expect(result).to.be.an('array');
+            expect(result[0]).to.be.deep.equal({
+              $unwind: '$myArray'
+            });
+            expect(result[1]).to.be.deep.equal({
+              $addFields: {
+                __alias_0: {
+                  $min: '$myArray.myNumber.myCharacter.myPixel'
+                }
+              }
+            });
+          });
+        });
+        context('when applying min and max reduction', function() {
+          const state = {
+            reductions: {
+              x: [{field: 'myArray', type: ARRAY_NUMERIC_REDUCTIONS.MAX},
+                  {field: 'myArray.myNumber.myCharacter', type: ARRAY_NUMERIC_REDUCTIONS.MIN}
+              ]
+            },
+            channels: {
+              x: {field: 'myArray.myNumber.myCharacter.myPixel', type: MEASUREMENT_ENUM.QUANTITATIVE}
+            }
+          };
+          it('builds the correct agg pipeline', function() {
+            const result = constructReductionSegment(state, aliaser);
+            expect(result).to.be.an('array');
+            expect(result[0]).to.be.deep.equal({
+              $addFields: {
+                __alias_0: {
+                  $max: {
+                    $map: {
+                      as: 'value',
+                      in: {
+                        $min: '$$value.myNumber.myCharacter.myPixel'
+                      },
+                      input: '$myArray'
+                    }
+                  }
+                }
+              }
+            });
+          });
+        });
+        context('when applying concat reduction', function() {
+          const state = {
+            reductions: {
+              x: [{field: 'myArray', type: ARRAY_GENERAL_REDUCTIONS.UNWIND},
+                  {field: 'myArray.myString.myCharacter', type: ARRAY_STRING_REDUCTIONS.CONCAT}]
+            },
+            channels: {
+              x: {field: 'myArray.myString.myCharacter.myPixel', type: MEASUREMENT_ENUM.ORDINAL}
+            }
+          };
+          it('builds the correct agg pipeline', function() {
+            const result = constructReductionSegment(state, aliaser);
+            expect(result).to.be.an('array');
+            expect(result[0]).to.be.deep.equal({
+              $unwind: '$myArray'
+            });
+            expect(result[1]).to.be.deep.equal({
+              $addFields: {
+                __alias_0: {
+                  $reduce: {
+                    in: {
+                      $concat: ['$$value', '$$this']
+                    },
+                    initialValue: '',
+                    input: '$myArray.myString.myCharacter.myPixel'
+                  }
+                }
+              }
+            });
+          });
+        });
+      });
     });
     context('for multiple channels', function() {
       const state = {
         reductions: {
           x: [{field: 'myField', type: ARRAY_NUMERIC_REDUCTIONS.MIN}],
           y: [{field: 'myOtherField', type: ARRAY_NUMERIC_REDUCTIONS.MAX}]
+        },
+        channels: {
+          x: {field: 'myField'},
+          y: {field: 'myOtherField'}
         }
       };
       it('builds the correct agg pipeline', function() {
