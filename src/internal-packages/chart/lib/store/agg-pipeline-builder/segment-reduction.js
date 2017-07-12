@@ -83,11 +83,11 @@ function constructAccumulatorStage(reductions, channel, encodedField, aliaser) {
     // directly.
     arr = `$${ encodedField }`;
   } else if (reductions.length > 1) {
-    reductions[0].relativeArrayName = reductions[0].field;
-    // assign relativeArrayName to each reduction (Remove path information)
+    reductions[0].relativeFieldPath = reductions[0].field;
+    // assign relativeFieldPath to each reduction (Remove path information)
     for (let i = 1; i < reductions.length; i++) {
       const prefix = reductions[i - 1].field;
-      reductions[i].relativeArrayName = reductions[i].field.replace(new RegExp(`^${prefix}\.`), '');
+      reductions[i].relativeFieldPath = reductions[i].field.replace(new RegExp(`^${prefix}\.`), '');
     }
 
     // reverse the array (without modifying original), below code assumes inside->out order
@@ -95,16 +95,16 @@ function constructAccumulatorStage(reductions, channel, encodedField, aliaser) {
 
     // If the inner reduction doesn't match the encodedField add its relative array name
     if (encodedField !== reductions[0].field) {
-      reductions[0].relativeArrayName = encodedField.replace(new RegExp(`^${reductions[1].field}\.`), '');
+      reductions[0].relativeFieldPath = encodedField.replace(new RegExp(`^${reductions[1].field}\.`), '');
     }
 
     // first (inner-most) reduction has no map and applies the reducer expression directly
-    arr = `$$value.${ reductions[0].relativeArrayName }`;
+    arr = `$$value.${ reductions[0].relativeFieldPath }`;
     expr = REDUCTIONS[reductions[0].type](arr);
 
     // second to second last reductions use a map but pass $$value down
     reductions.slice(1, -1).forEach((reduction) => {
-      arr = _map(`$$value.${ reduction.relativeArrayName }`, expr);
+      arr = _map(`$$value.${ reduction.relativeFieldPath }`, expr);
       expr = REDUCTIONS[reduction.type](arr);
     });
 
