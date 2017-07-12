@@ -8,9 +8,10 @@ const { REDUCTIONS } = require('./constants');
  * to each element in the array `arr`. Returns the agg framework operators
  * to represent the mapping.
  *
- * @param       {Array} arr       array to map over
- * @param       {Function} expr   function to apply to each element in the array
- * @return      {Array}           resulting array
+ * @param   {Array}    arr   array to map over
+ * @param   {Function} expr  function to apply to each element in the array
+ *
+ * @return  {Array}          resulting array
  */
 function _map(arr, expr) {
   return {
@@ -46,22 +47,23 @@ function constructUnwindStages(reductions) {
  * to reduce (possibly nested) arrays to a single scalar value according to
  * the provided reduction functions
  *
- * @param  {Array} reductions    an array of reductions as defined by the
- *                               ChartStore, with the following format:
+ * @param  {Array} reductions     an array of reductions as defined by the
+ *                                ChartStore, with the following format:
  *
  *             [
  *               { field: "foo", type: "max", arguments: [] },
  *               { field: "bar.baz" , type: "index", arguments: [3] }
  *             ]
  *
- *                               The reductions are applied outside inwards, above
- *                               example would result in `max(index(field, 3))`.
+ *                                The reductions are applied outside inwards, above
+ *                                example would result in `max(index(field, 3))`.
  *
- * @param {String}  channel      The channel name, used for creating unique alias
- * @param {String} encodedField Field to encode
- * @param  {Object} aliaser      an AggregationAliaser instance
- * @return {Object}              an $addFields aggregation stage that converts
- *                               the given field array into a scalar value.
+ * @param  {String} channel       The channel name, used for creating unique alias
+ * @param  {String} encodedField  Field to encode
+ * @param  {Object} aliaser       an AggregationAliaser instance
+ *
+ * @return {Object}               an $addFields aggregation stage that converts
+ *                                the given field array into a scalar value.
  */
 function constructAccumulatorStage(reductions, channel, encodedField, aliaser) {
   let arr;
@@ -122,11 +124,12 @@ function constructAccumulatorStage(reductions, channel, encodedField, aliaser) {
  * Calls are made to _constructUnwindStages and _constructAccumulatorStage,
  * as both are possible array reductions.
  *
- * @param  {Array} reductions   reductions array for a single channel
- * @param  {String} channel     current channel name
+ * @param  {Array}  reductions    reductions array for a single channel
+ * @param  {String} channel       current channel name
  * @param  {String} encodedField  field to encode
- * @param  {Object} aliaser     an AggregationAliaser instance
- * @return {Array}              resulting aggregation pipeline
+ * @param  {Object} aliaser       an AggregationAliaser instance
+ *
+ * @return {Array}                resulting aggregation pipeline
  */
 function reduceArraysPerChannel(reductions, channel, encodedField, aliaser) {
   const pipeline = [];
@@ -146,9 +149,10 @@ function reduceArraysPerChannel(reductions, channel, encodedField, aliaser) {
  * main entry point for array reductions. Calls the reduceArrayPerChannel
  * function for each channel and combines the results.
  *
- * @param  {Object} state     chart store state
- * @param  {Object} aliaser   an AggregationAliaser instance
- * @return {Array}            resulting aggregation segment
+ * @param  {Object} state    chart store state
+ * @param  {Object} aliaser  an AggregationAliaser instance
+ *
+ * @return {Array}           resulting aggregation segment
  */
 function constructReductionSegment(state, aliaser) {
   const result = [];

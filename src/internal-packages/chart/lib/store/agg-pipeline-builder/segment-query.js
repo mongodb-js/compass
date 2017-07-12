@@ -3,7 +3,7 @@ const _ = require('lodash');
 /**
  * add $filter, $sort, $skip, $sample or $limit stage to the query segment.
  *
- * @param  {Array} state   chart store state
+ * @param   {Array} state  chart store state
  * @returns {Array}        resulting pipeline segment
  */
 function constructQuerySegment(state) {
