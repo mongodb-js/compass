@@ -510,6 +510,37 @@ describe('Aggregation Pipeline Builder', function() {
             });
           });
         });
+        context('when applying min and max reduction', function() {
+          const state = {
+            reductions: {
+              x: [{field: 'myArray', type: ARRAY_NUMERIC_REDUCTIONS.MAX},
+                  {field: 'myArray.myNumber.myCharacter', type: ARRAY_NUMERIC_REDUCTIONS.MIN}
+              ]
+            },
+            channels: {
+              x: {field: 'myArray.myNumber.myCharacter', type: MEASUREMENT_ENUM.QUANTITATIVE}
+            }
+          };
+          it('builds the correct agg pipeline', function() {
+            const result = constructReductionSegment(state, aliaser);
+            expect(result).to.be.an('array');
+            expect(result[0]).to.be.deep.equal({
+              $addFields: {
+                __alias_0: {
+                  $max: {
+                    $map: {
+                      as: 'value',
+                      in: {
+                        $min: '$$value.myNumber.myCharacter'
+                      },
+                      input: '$myArray'
+                    }
+                  }
+                }
+              }
+            });
+          });
+        });
         context('when applying concat reduction', function() {
           const state = {
             reductions: {
@@ -620,6 +651,37 @@ describe('Aggregation Pipeline Builder', function() {
               $addFields: {
                 __alias_0: {
                   $min: '$myArray.myNumber.myCharacter.myPixel'
+                }
+              }
+            });
+          });
+        });
+        context('when applying min and max reduction', function() {
+          const state = {
+            reductions: {
+              x: [{field: 'myArray', type: ARRAY_NUMERIC_REDUCTIONS.MAX},
+                  {field: 'myArray.myNumber.myCharacter', type: ARRAY_NUMERIC_REDUCTIONS.MIN}
+              ]
+            },
+            channels: {
+              x: {field: 'myArray.myNumber.myCharacter.myPixel', type: MEASUREMENT_ENUM.QUANTITATIVE}
+            }
+          };
+          it('builds the correct agg pipeline', function() {
+            const result = constructReductionSegment(state, aliaser);
+            expect(result).to.be.an('array');
+            expect(result[0]).to.be.deep.equal({
+              $addFields: {
+                __alias_0: {
+                  $max: {
+                    $map: {
+                      as: 'value',
+                      in: {
+                        $min: '$$value.myNumber.myCharacter.myPixel'
+                      },
+                      input: '$myArray'
+                    }
+                  }
                 }
               }
             });
