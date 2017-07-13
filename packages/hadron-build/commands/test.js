@@ -12,7 +12,7 @@ const async = require('async');
 const fs = require('fs-extra');
 
 const ELECTRON_MOCHA = which.sync('electron-mocha');
-const TEST_SUITES = ['unit', 'enzyme', 'packages', 'main', 'renderer', 'functional'];
+const TEST_SUITES = ['unit', 'enzyme', 'main', 'renderer', 'functional'];
 
 // const debug = require('debug')('hadron-build:test');
 
@@ -27,10 +27,6 @@ exports.builder = {
   },
   enzyme: {
     description: 'Run enzyme tests for React components.',
-    default: false
-  },
-  packages: {
-    description: 'Run the individual internal-packages tests',
     default: false
   },
   main: {
@@ -99,7 +95,7 @@ exports.getSpawnJobs = (argv) => {
   const spawnJobs = {};
   _.each(TEST_SUITES, (suite) => {
     // suite path and special handling of packages
-    const suitePath = suite === 'packages' ? './src/internal-packages' : `./test/${suite}`;
+    const suitePath = `./test/${suite}`;
     const mochaArgs = exports.getMochaArgs(argv);
     // add any extra arguments for suites, like e.g. --renderer
     if (_.get(extraSuiteArgs, suite)) {
@@ -133,12 +129,9 @@ exports.handler = (argv) => {
     process.env.EVENT_NOKQUEUE = '1';
   }
 
-  // if no individual suites are selected, run all of them except `packages`
+  // if no individual suites are selected, run all of them
   if (!_.some(_.map(TEST_SUITES, (suite) => argv[suite]))) {
     _.each(TEST_SUITES, (suite) => {
-      if (suite === 'packages') {
-        return;
-      }
       argv[suite] = true;
     });
   }
