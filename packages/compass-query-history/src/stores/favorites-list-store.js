@@ -1,16 +1,16 @@
 const Reflux = require('reflux');
-const QueryHistoryActions = require('../actions');
+const Actions = require('../actions');
 const StateMixin = require('reflux-state-mixin');
 
-const debug = require('debug')('mongodb-compass:stores:query-history-favorite--store');
+const debug = require('debug')('mongodb-compass:query-history:favorites-store');
 
 /**
  * Query History Favorites List store.
  */
-const QueryHistoryFavoritesListStore = Reflux.createStore({
+const FavoritesListStore = Reflux.createStore({
   mixins: [StateMixin.store],
 
-  listenables: QueryHistoryActions,
+  listenables: Actions,
 
   init() {
   },
@@ -37,8 +37,8 @@ const QueryHistoryFavoritesListStore = Reflux.createStore({
   },
 
   storeDidUpdate(prevState) {
-    debug('QueryHistoryFavoritesListStore changed from', prevState, 'to', this.state);
+    debug('FavoritesListStore changed from', prevState, 'to', this.state);
   }
 });
 
-module.exports = QueryHistoryFavoritesListStore;
+module.exports = FavoritesListStore;

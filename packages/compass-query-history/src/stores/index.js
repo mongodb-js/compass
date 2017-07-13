@@ -1,13 +1,13 @@
 const Reflux = require('reflux');
-const QueryHistoryActions = require('../actions');
+const Actions = require('../actions');
 const StateMixin = require('reflux-state-mixin');
 
-const debug = require('debug')('mongodb-compass:stores:query-history');
+const debug = require('debug')('mongodb-compass:query-history:sidebar-store');
 
 /**
  * Query History store.
  */
-const QueryHistorySidebarStore = Reflux.createStore({
+const SidebarStore = Reflux.createStore({
   /**
    * adds a state to the store, similar to React.Component's state
    * @see https://github.com/yonatanmn/Super-Simple-Flux#reflux-state-mixin
@@ -20,7 +20,7 @@ const QueryHistorySidebarStore = Reflux.createStore({
   /**
    * listen to all actions defined in ../actions/index.jsx
    */
-  listenables: QueryHistoryActions,
+  listenables: Actions,
 
   /**
    * Initialize everything that is not part of the store's state.
@@ -87,8 +87,8 @@ const QueryHistorySidebarStore = Reflux.createStore({
    * @param  {Object} prevState   previous state.
    */
   storeDidUpdate(prevState) {
-    debug('QueryHistory store changed from', prevState, 'to', this.state);
+    debug('Sidebar store changed from', prevState, 'to', this.state);
   }
 });
 
-module.exports = QueryHistorySidebarStore;
+module.exports = SidebarStore;

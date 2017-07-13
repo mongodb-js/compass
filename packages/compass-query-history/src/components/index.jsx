@@ -1,27 +1,27 @@
 const React = require('react');
 const { StoreConnector } = require('hadron-react-components');
-const QueryHistorySidebarComponent = require('./query-history-sidebar-component');
+const SidebarComponent = require('./sidebar-component');
 const Store = require('../stores');
 const Actions = require('../actions');
 
-const debug = require('debug')('mongodb-compass:query-history:index');
+// const debug = require('debug')('mongodb-compass:query-history:index');
 
-class ConnectedQueryHistoryComponent extends React.Component {
+class QueryHistoryComponent extends React.Component {
   /**
-   * Connect QueryHistorySidebarComponent to store and render.
+   * Connect SidebarComponent to store and render.
    *
    * @returns {React.Component} The rendered component.
    */
   render() {
     return (
       <StoreConnector store={Store}>
-        <QueryHistorySidebarComponent
+        <SidebarComponent
           actions={Actions} {...this.props} />
       </StoreConnector>
     );
   }
 }
 
-ConnectedQueryHistoryComponent.displayName = 'ConnectedQueryHistoryComponent';
+QueryHistoryComponent.displayName = 'QueryHistoryComponent';
 
-module.exports = ConnectedQueryHistoryComponent;
+module.exports = QueryHistoryComponent;

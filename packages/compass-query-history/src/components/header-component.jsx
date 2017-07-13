@@ -1,10 +1,11 @@
 const React = require('react');
 const PropTypes = require('prop-types');
 
-const QueryHistoryActions = require('../actions');
-// const debug = require('debug')('mongodb-compass:query-history-header-component');
+const Actions = require('../actions');
 
-class QueryHistoryHeaderComponent extends React.Component {
+// const debug = require('debug')('mongodb-compass:query-history:header-component');
+
+class HeaderComponent extends React.Component {
   constructor(props) {
     super(props);
     this.showRecent = this.showRecent.bind(this);
@@ -13,22 +14,22 @@ class QueryHistoryHeaderComponent extends React.Component {
 
   showRecent() {
     if (this.props.showing !== "recent") {
-      QueryHistoryActions.showRecent();
+      Actions.showRecent();
     }
   }
 
   showFavorites() {
     if (this.props.showing !== "favorites") {
-      QueryHistoryActions.showFavorites();
+      Actions.showFavorites();
     }
   }
 
   collapse() {
-    QueryHistoryActions.collapse();
+    Actions.collapse();
   }
 
   /**
-   * Render QueryHistory component.
+   * Render HeaderComponent.
    *
    * @returns {React.Component} The rendered component.
    */
@@ -52,14 +53,14 @@ class QueryHistoryHeaderComponent extends React.Component {
   }
 }
 
-QueryHistoryHeaderComponent.propTypes = {
+HeaderComponent.propTypes = {
   showing: PropTypes.oneOf(['recent', 'favorites'])
 };
 
-QueryHistoryHeaderComponent.defaultProps = {
+HeaderComponent.defaultProps = {
   showing: 'recent'
 };
 
-QueryHistoryHeaderComponent.displayName = 'QueryHistoryHeaderComponent';
+HeaderComponent.displayName = 'QueryHistoryHeaderComponent';
 
-module.exports = QueryHistoryHeaderComponent;
+module.exports = HeaderComponent;

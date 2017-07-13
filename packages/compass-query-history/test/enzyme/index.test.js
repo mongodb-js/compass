@@ -12,7 +12,7 @@ const ConnectedQueryHistoryComponent = require('../../lib/components');
 // use chai-enzyme assertions, see https://github.com/producthunt/chai-enzyme
 chai.use(chaiEnzyme());
 
-describe('<ConnectedQueryHistoryComponent />', function() {
+describe('<QueryHistoryComponent />', function() {
   let component;
 
   beforeEach(function() {

@@ -1,16 +1,16 @@
 const Reflux = require('reflux');
-const QueryHistoryActions = require('../actions');
+const Actions = require('../actions');
 const StateMixin = require('reflux-state-mixin');
 
-const debug = require('debug')('mongodb-compass:stores:query-history-header-store');
+const debug = require('debug')('mongodb-compass:query-history:header-store');
 
 /**
  * Query History Header store.
  */
-const QueryHistoryHeaderStore = Reflux.createStore({
+const HeaderStore = Reflux.createStore({
   mixins: [StateMixin.store],
 
-  listenables: QueryHistoryActions,
+  listenables: Actions,
 
   init() {
   },
@@ -34,8 +34,8 @@ const QueryHistoryHeaderStore = Reflux.createStore({
   },
 
   storeDidUpdate(prevState) {
-    debug('QueryHistoryHeaderStore changed from', prevState, 'to', this.state);
+    debug('HeaderStore changed from', prevState, 'to', this.state);
   }
 });
 
-module.exports = QueryHistoryHeaderStore;
+module.exports = HeaderStore;

@@ -1,6 +1,6 @@
 const Reflux = require('reflux');
 
-const QueryHistoryActions = Reflux.createActions([
+const Actions = Reflux.createActions([
   /**
    * define your actions as strings below, for example:
    */
@@ -12,4 +12,4 @@ const QueryHistoryActions = Reflux.createActions([
   'saveFavorite'
 ]);
 
-module.exports = QueryHistoryActions;
+module.exports = Actions;
