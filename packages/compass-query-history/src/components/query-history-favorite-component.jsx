@@ -18,20 +18,18 @@ class QueryHistoryFavoriteComponent extends React.Component {
   render() {
     return (
       <div className="query-history-favorite">
-        <p><i>A query history favorite with name {this.props.name}</i></p>
+        <p><i>A query history favorite</i></p>
       </div>
     );
   }
 }
 
 QueryHistoryFavoriteComponent.propTypes = {
-  name: PropTypes.string,
-  query: PropTypes.object.isRequired
+  model: PropTypes.object.isRequired
 };
 
 QueryHistoryFavoriteComponent.defaultProps = {
-  name: 'Query Name',
-  query: null
+  model: null
 };
 
 QueryHistoryFavoriteComponent.displayName = 'QueryHistoryFavoriteComponent';

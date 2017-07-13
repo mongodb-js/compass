@@ -28,6 +28,18 @@ const QueryHistorySidebarStore = Reflux.createStore({
   init() {
   },
 
+  showFavorites() {
+    this.setState({
+      showing: 'favorites'
+    });
+  },
+
+  showRecent() {
+    this.setState({
+      showing: 'recent'
+    });
+  },
+
   /**
    * This method is called when all plugins are activated. You can register
    * listeners to other plugins' stores here, e.g.
@@ -66,7 +78,7 @@ const QueryHistorySidebarStore = Reflux.createStore({
    */
   getInitialState() {
     return {
-      status: 'recent'
+      showing: 'recent'
     };
   },
 

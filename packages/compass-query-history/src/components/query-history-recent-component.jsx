@@ -24,11 +24,11 @@ class QueryHistoryRecentComponent extends React.Component {
 }
 
 QueryHistoryRecentComponent.propTypes = {
-  query: PropTypes.object.isRequired
+  model: PropTypes.object.isRequired
 };
 
 QueryHistoryRecentComponent.defaultProps = {
-  query: null
+  model: null
 };
 
 QueryHistoryRecentComponent.displayName = 'QueryHistoryRecentComponent';
