@@ -1,4 +1,3 @@
-const _ = require('lodash');
 const React = require('react');
 const CodeMirror = require('react-codemirror');
 const PropTypes = require('prop-types');
@@ -29,10 +28,10 @@ class QueryOption extends React.Component {
        */
       cm.textareaNode.id = `querybar-option-input-${this.props.label}`;
       if (cm.codeMirror) {
-        cm.codeMirror.on('keyup', (cm, evt) => {
-          if (!cm.state.completionActive) {
+        cm.codeMirror.on('keyup', (code, evt) => {
+          if (!code.state.completionActive) {
             if (!NO_TRIGGER.includes(evt.keyCode)) {
-              CM.commands.autocomplete(cm);
+              CM.commands.autocomplete(code);
             }
           }
         });
