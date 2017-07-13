@@ -92,7 +92,7 @@ function addInputExplainCommands(client) {
    */
   client.addCommand('inputFilterFromExplainPlanTab', function(filter) {
     const base = selector('explain-plan-content');
-    const input = `${base} .ReactCodeMirror`;
+    const input = `${base} .input-filter`;
     return this.waitForVisibleInCompass(input).click(input).keys(filter);
   });
 
@@ -101,10 +101,10 @@ function addInputExplainCommands(client) {
    *
    * @param {String} filter - The filter.
   */
-  client.addCommand('inputSortFromExplainPlanTab', function(filter) {
+  client.addCommand('inputSortFromExplainPlanTab', function(sort) {
     const base = selector('explain-plan-content');
     const input = `${base} .input-sort`;
-    return this.setValue(input, filter);
+    return this.waitForVisibleInCompass(input).click(input).keys(sort);
   });
 
   /**
@@ -112,10 +112,10 @@ function addInputExplainCommands(client) {
    *
    * @param {String} filter - The filter.
   */
-  client.addCommand('inputProjectFromExplainPlanTab', function(filter) {
+  client.addCommand('inputProjectFromExplainPlanTab', function(projection) {
     const base = selector('explain-plan-content');
     const input = `${base} .input-project`;
-    return this.setValue(input, filter);
+    return this.waitForVisibleInCompass(input).click(input).keys(projection);
   });
 
   /**
