@@ -57,7 +57,7 @@ function addInputSchemaCommands(client) {
    */
   client.addCommand('inputFilterFromSchemaTab', function(filter) {
     const base = selector('schema-content');
-    const input = `${base} .ReactCodeMirror`;
+    const input = `${base} .input-filter`;
     return this.waitForVisibleInCompass(input).click(input).keys(filter);
   });
 
@@ -68,7 +68,7 @@ function addInputSchemaCommands(client) {
   client.addCommand('inputProjectFromSchemaTab', function(projection) {
     const base = selector('schema-content');
     const input = `${base} .input-project`;
-    return this.setValue(input, projection);
+    return this.waitForVisibleInCompass(input).click(input).keys(projection);
   });
 
   /**

@@ -18,6 +18,20 @@ const debug = require('debug')('monngodb-compass:query:component:query-option');
  */
 const NO_TRIGGER = [ 8, 27, 37, 39 ];
 
+/**
+ * The common autocomplete function.
+ *
+ * @param {CodeMirror} code - The codemirror instance.
+ * @param {Event} evt - The event.
+ */
+const autocomplete = (code, evt) => {
+  if (!code.state.completionActive) {
+    if (!NO_TRIGGER.includes(evt.keyCode)) {
+      CM.commands.autocomplete(code);
+    }
+  }
+}
+
 class QueryOption extends React.Component {
   componentDidMount() {
     const cm = this.refs.codemirror;
@@ -26,15 +40,9 @@ class QueryOption extends React.Component {
        * Set the id on the underlying `<textarea />` used by react-codemirror
        * so the functional tests can read values from it.
        */
-      cm.textareaNode.id = `querybar-option-input-${this.props.label}`;
+      cm.textareaNode.id =`querybar-option-input-${this.props.label}`;
       if (cm.codeMirror) {
-        cm.codeMirror.on('keyup', (code, evt) => {
-          if (!code.state.completionActive) {
-            if (!NO_TRIGGER.includes(evt.keyCode)) {
-              CM.commands.autocomplete(code);
-            }
-          }
-        });
+        cm.codeMirror.on('keyup', autocomplete);
       }
     }
     const queryActions = global.hadronApp.appRegistry.getAction('Query.Actions');
@@ -46,7 +54,7 @@ class QueryOption extends React.Component {
 
     const cm = this.refs.codemirror;
     if (cm && cm.codeMirror) {
-      cm.codeMirror.removeAllListeners('keyup');
+      cm.codeMirror.off('keyup', autocomplete);
     }
   }
 

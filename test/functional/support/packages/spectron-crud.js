@@ -234,7 +234,7 @@ function addInputCRUDCommands(client) {
    */
   client.addCommand('inputFilterFromDocumentsTab', function(filter) {
     const base = selector('documents-content');
-    const input = `${base} .ReactCodeMirror`;
+    const input = `${base} .input-filter`;
     return this.waitForVisibleInCompass(input).click(input).keys(filter);
   });
 
@@ -243,10 +243,10 @@ function addInputCRUDCommands(client) {
    *
    * @param {String} filter - The filter.
    */
-  client.addCommand('inputProjectFromDocumentsTab', function(filter) {
+  client.addCommand('inputProjectFromDocumentsTab', function(projection) {
     const base = selector('documents-content');
     const input = `${base} .input-project`;
-    return this.setValue(input, filter);
+    return this.waitForVisibleInCompass(input).click(input).keys(projection);
   });
 
   /**
@@ -254,10 +254,10 @@ function addInputCRUDCommands(client) {
    *
    * @param {String} filter - The filter.
    */
-  client.addCommand('inputSortFromDocumentsTab', function(filter) {
+  client.addCommand('inputSortFromDocumentsTab', function(sort) {
     const base = selector('documents-content');
     const input = `${base} .input-sort`;
-    return this.setValue(input, filter);
+    return this.waitForVisibleInCompass(input).click(input).keys(sort);
   });
 
   /**
