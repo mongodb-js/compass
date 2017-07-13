@@ -1,12 +1,23 @@
+const _ = require('lodash');
 const React = require('react');
 const CodeMirror = require('react-codemirror');
 const PropTypes = require('prop-types');
+const CM = require('codemirror');
 require('codemirror-mongodb/addon/hint/mongodb-hint');
 
 const { InfoSprinkle } = require('hadron-react-components');
 const { shell } = require('electron');
 
 const debug = require('debug')('monngodb-compass:query:component:query-option');
+
+/**
+ * Key codes that should not trigger autocomplete.
+ *  8: BACKSPACE
+ *  27: ESC
+ *  37: Left Arrow
+ *  39: Right Arrow
+ */
+const NO_TRIGGER = [ 8, 27, 37, 39 ];
 
 class QueryOption extends React.Component {
   componentDidMount() {
@@ -17,6 +28,15 @@ class QueryOption extends React.Component {
        * so the functional tests can read values from it.
        */
       cm.textareaNode.id = `querybar-option-input-${this.props.label}`;
+      if (cm.codeMirror) {
+        cm.codeMirror.on('keyup', (cm, evt) => {
+          if (!cm.state.completionActive) {
+            if (!NO_TRIGGER.includes(evt.keyCode)) {
+              CM.commands.autocomplete(cm);
+            }
+          }
+        });
+      }
     }
     const queryActions = global.hadronApp.appRegistry.getAction('Query.Actions');
     this.unsubscribeRefresh = queryActions.refreshCodeMirror.listen(this.refresh.bind(this));
@@ -24,6 +44,11 @@ class QueryOption extends React.Component {
 
   componentWillUnmount() {
     this.unsubscribeRefresh();
+
+    const cm = this.refs.codemirror;
+    if (cm && cm.codeMirror) {
+      cm.codeMirror.removeAllListeners('keyup');
+    }
   }
 
   /**
