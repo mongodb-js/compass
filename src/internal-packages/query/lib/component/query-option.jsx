@@ -12,11 +12,12 @@ const debug = require('debug')('monngodb-compass:query:component:query-option');
 /**
  * Key codes that should not trigger autocomplete.
  *  8: BACKSPACE
+ *  13: ENTER
  *  27: ESC
  *  37: Left Arrow
  *  39: Right Arrow
  */
-const NO_TRIGGER = [ 8, 27, 37, 39 ];
+const NO_TRIGGER = [ 8, 13, 27, 37, 39 ];
 
 /**
  * The common autocomplete function.
@@ -29,8 +30,11 @@ const autocomplete = (code, evt) => {
     if (!NO_TRIGGER.includes(evt.keyCode)) {
       CM.commands.autocomplete(code);
     }
+    if (evt.keyCode === 13) {
+      // Submit.
+    }
   }
-}
+};
 
 class QueryOption extends React.Component {
   componentDidMount() {
@@ -40,7 +44,7 @@ class QueryOption extends React.Component {
        * Set the id on the underlying `<textarea />` used by react-codemirror
        * so the functional tests can read values from it.
        */
-      cm.textareaNode.id =`querybar-option-input-${this.props.label}`;
+      cm.textareaNode.id = `querybar-option-input-${this.props.label}`;
       if (cm.codeMirror) {
         cm.codeMirror.on('keyup', autocomplete);
       }
