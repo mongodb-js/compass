@@ -1,6 +1,5 @@
 const _ = require('lodash');
-const { ARRAY_GENERAL_REDUCTIONS } = require('../../constants');
-const { REDUCTIONS } = require('./constants');
+const { ARRAY_GENERAL_REDUCTIONS, REDUCTIONS} = require('../../constants');
 
 
 /**

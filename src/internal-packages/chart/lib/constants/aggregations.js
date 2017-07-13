@@ -1,125 +1,24 @@
-const {
-  ARRAY_GENERAL_REDUCTIONS,
-  ARRAY_NUMERIC_REDUCTIONS,
-  ARRAY_STRING_REDUCTIONS,
-  AGGREGATE_FUNCTION_ENUM
-} = require('../../constants');
-
-// const debug = require('debug')('mongodb-compass:chart:agg-pipeline-builder');
-
 /**
- * Array reduction operators wrapped as javascript functions.
+ * An enumeration of the subset of Vega-Lite aggregates we support.
+ * For a full list of things we could add, see:
+ *
+ * @see https://vega.github.io/vega-lite/docs/aggregate.html
  */
-const REDUCTIONS = Object.freeze({
-  [ARRAY_GENERAL_REDUCTIONS.LENGTH]: function(arr) {
-    return {
-      $cond: {if: {$isArray: arr}, then: {$size: arr}, else: 0}
-    };
-  },
-  [ARRAY_GENERAL_REDUCTIONS.INDEX]: function(arr, args) {
-    return {
-      $arrayElemAt: [arr, args[0]]
-    };
-  },
-
-  // Numeric reductions
-  [ARRAY_NUMERIC_REDUCTIONS.MAX]: function(arr) {
-    return {
-      $max: arr
-    };
-  },
-  [ARRAY_NUMERIC_REDUCTIONS.MIN]: function(arr) {
-    return {
-      $min: arr
-    };
-  },
-  [ARRAY_NUMERIC_REDUCTIONS.MEAN]: function(arr) {
-    return {
-      $avg: arr
-    };
-  },
-  [ARRAY_NUMERIC_REDUCTIONS.SUM]: function(arr) {
-    return {
-      $sum: arr
-    };
-  },
-
-  // String reductions
-  [ARRAY_STRING_REDUCTIONS.MAX_LENGTH]: function(arr) {
-    return {
-      $max: {
-        $map: {
-          input: arr,
-          as: 'str',
-          in: {
-            $strLenCP: '$$str'
-          }
-        }
-      }
-    };
-  },
-  [ARRAY_STRING_REDUCTIONS.MIN_LENGTH]: function(arr) {
-    return {
-      $min: {
-        $map: {
-          input: arr,
-          as: 'str',
-          in: {
-            $strLenCP: '$$str'
-          }
-        }
-      }
-    };
-  },
-  [ARRAY_STRING_REDUCTIONS.CONCAT]: function(arr) {
-    return {
-      $reduce: {
-        input: arr,
-        initialValue: '',
-        in: {
-          $concat: ['$$value', '$$this']
-        }
-      }
-    };
-  },
-  [ARRAY_STRING_REDUCTIONS.LONGEST]: function(arr) {
-    return {
-      $reduce: {
-        input: arr,
-        initialValue: {
-          $arrayElemAt: [arr, 0]
-        },
-        in: {
-          $cond: {
-            if: {
-              $gt: [{$strLenCP: '$$this'}, {$strLenCP: '$$value'}]
-            },
-            then: '$$this',
-            else: '$$value'
-          }
-        }
-      }
-    };
-  },
-  [ARRAY_STRING_REDUCTIONS.SHORTEST]: function(arr) {
-    return {
-      $reduce: {
-        input: arr,
-        initialValue: {
-          $arrayElemAt: [arr, 0]
-        },
-        in: {
-          $cond: {
-            if: {
-              $lt: [{$strLenCP: '$$this'}, {$strLenCP: '$$value'}]
-            },
-            then: '$$this',
-            else: '$$value'
-          }
-        }
-      }
-    };
-  }
+const AGGREGATE_FUNCTION_ENUM = Object.freeze({
+  NONE: '(none)',
+  COUNT: 'count',
+  DISTINCT: 'distinct',
+  SUM: 'sum',
+  MEAN: 'mean',
+  VARIANCE: 'variance',
+  VARIANCEP: 'variancep',
+  STDEV: 'stdev',
+  STDEVP: 'stdevp',
+  // MEDIAN: 'median',
+  // Q1: 'q1',           not supported in agg framework, comment out for now
+  // Q3: 'q3',
+  MIN: 'min',
+  MAX: 'max'
 });
 
 /**
@@ -242,6 +141,6 @@ const AGGREGATIONS = Object.freeze({
 });
 
 module.exports = {
-  REDUCTIONS,
+  AGGREGATE_FUNCTION_ENUM,
   AGGREGATIONS
 };

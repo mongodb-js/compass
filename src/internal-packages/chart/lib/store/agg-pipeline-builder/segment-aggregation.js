@@ -1,5 +1,5 @@
 const _ = require('lodash');
-const { AGGREGATIONS } = require('./constants');
+const { AGGREGATIONS } = require('../../constants');
 
 /**
  * builds the segment of the pipeline that executes aggregations across

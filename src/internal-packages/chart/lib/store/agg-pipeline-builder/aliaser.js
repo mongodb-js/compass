@@ -1,4 +1,3 @@
-
 /**
  * Assigns and retrieves unique aliases during aggregation pipeline building
  * to prevent naming collisions.
