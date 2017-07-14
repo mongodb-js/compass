@@ -32,9 +32,11 @@
   "devDependencies": {
     "@kadira/react-storybook-addon-info": "^3.2.1",
     "@kadira/storybook": "^2.3.0",
+    "ampersand-model": "^8.0.0",
+    "ampersand-rest-collection": "^6.0.0",
     "babel-cli": "^6.10.1",
-    "babel-preset-react": "^6.11.1",
     "babel-plugin-transform-class-properties": "^6.24.1",
+    "babel-preset-react": "^6.11.1",
     "babel-register": "^6.9.0",
     "bootstrap": "https://github.com/twbs/bootstrap/archive/v3.3.5.tar.gz",
     "chai": "^3.5.0",
@@ -48,8 +50,8 @@
     "font-awesome": "^4.7.0",
     "hadron-app": "^0.8.0",
     "hadron-app-registry": "^5.2.0",
-    "hadron-react-components": "^1.1.0",
     "hadron-build": "^9.1.0",
+    "hadron-react-components": "^1.1.0",
     "hadron-reflux-store": "0.0.3",
     "hadron-spectron": "^0.0.1",
     "hadron-type-checker": "^2.0.0",
@@ -70,6 +72,7 @@
     "reflux-state-mixin": "^0.7.0",
     "sinon": "^1.17.6",
     "sinon-chai": "^2.8.0",
+    "storage-mixin": "^0.8.1",
     "watch": "^1.0.2"
   }
 }
