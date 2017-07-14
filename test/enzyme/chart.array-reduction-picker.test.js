@@ -3,11 +3,11 @@ const chai = require('chai');
 const chaiEnzyme = require('chai-enzyme');
 const expect = chai.expect;
 const React = require('react');
-const Dropdown = require('react-bootstrap').Dropdown;
 
-const shallow = require('enzyme').shallow;
+const { shallow } = require('enzyme');
 
 const ArrayReductionPicker = require('../../src/internal-packages/chart/lib/components/array-reduction-picker');
+const { ARRAY_STRING_REDUCTIONS } = require('../../src/internal-packages/chart/lib/constants');
 
 chai.use(chaiEnzyme());
 
@@ -15,7 +15,11 @@ describe('<ArrayReductionPicker />', () => {
   let component;
   context('when dimensionality=1 and setting a label and type', () => {
     beforeEach(() => {
-      component = shallow(<ArrayReductionPicker dimensionality={1} field="MagicLetters" type="concat" />);
+      component = shallow(<ArrayReductionPicker
+        dimensionality={1}
+        field="MagicLetters"
+        type="concat"
+      />);
     });
 
     it('displays the label', () => {
@@ -35,7 +39,11 @@ describe('<ArrayReductionPicker />', () => {
   // 321 is not particularly special, it's just a big-ish number
   context('when dimensionality=321', () => {
     beforeEach(() => {
-      component = shallow(<ArrayReductionPicker dimensionality={321} field="MagicLetters" type="concat" />);
+      component = shallow(<ArrayReductionPicker
+        dimensionality={321}
+        field="MagicLetters"
+        type={ARRAY_STRING_REDUCTIONS.CONCAT}
+      />);
     });
 
     it('has 321 [] icons present', () => {
@@ -45,7 +53,9 @@ describe('<ArrayReductionPicker />', () => {
 
   context('when no type is set', () => {
     beforeEach(() => {
-      component = shallow(<ArrayReductionPicker dimensionality={1} />);
+      component = shallow(<ArrayReductionPicker
+        dimensionality={1}
+      />);
     });
 
     it('displays "choose method"', () => {
