@@ -1,10 +1,8 @@
 const React = require('react');
 const PropTypes = require('prop-types');
 
-// const debug = require('debug')('mongodb-compass:query-history:list-component');
-
 class FavoriteComponent extends React.Component {
-  
+
   /**
    * Render FavoriteComponent.
    *

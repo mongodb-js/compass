@@ -18,7 +18,7 @@ class RecentListComponent extends React.Component {
         <h2 className="query-history-title">RecentListComponent</h2>
         <p><i>The query history recent-list.</i></p>
         <ul>
-          {this.props.recents.map(function(item){
+          {this.props.recents.map(function(item) {
             return (
               <RecentComponent model={item}/>
             );

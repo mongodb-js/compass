@@ -13,13 +13,13 @@ class HeaderComponent extends React.Component {
   }
 
   showRecent() {
-    if (this.props.showing !== "recent") {
+    if (this.props.showing !== 'recent') {
       Actions.showRecent();
     }
   }
 
   showFavorites() {
-    if (this.props.showing !== "favorites") {
+    if (this.props.showing !== 'favorites') {
       Actions.showFavorites();
     }
   }

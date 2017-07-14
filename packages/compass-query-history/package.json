@@ -73,6 +73,7 @@
     "sinon": "^1.17.6",
     "sinon-chai": "^2.8.0",
     "storage-mixin": "^0.8.1",
+    "uuid": "^3.1.0",
     "watch": "^1.0.2"
   }
 }

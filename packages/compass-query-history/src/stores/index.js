@@ -50,8 +50,8 @@ const SidebarStore = Reflux.createStore({
    *
    * @param {Object} appRegistry   app registry containing all stores and components
    */
-  onActivated(appRegistry){
-  },
+  // onActivated(appRegistry){
+  // },
 
   /**
    * This method is called when the data service is finished connecting. You
@@ -67,8 +67,8 @@ const SidebarStore = Reflux.createStore({
    * @param {Object} dataService   the dataService object if connection was successful
    *
    */
-  onConnected(error, dataService) {
-  },
+  // onConnected(error, dataService) {
+  // },
 
   /**
    * Initialize the Query History store state. The returned object must
