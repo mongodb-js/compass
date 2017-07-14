@@ -540,7 +540,7 @@ describe('Aggregation Pipeline Builder', function() {
       });
     });
 
-    context('when using concat accumlator', function() {
+    context('when using concat accumulator', function() {
       const state = {
         reductions: {
           x: [
