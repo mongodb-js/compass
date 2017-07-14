@@ -18,4 +18,17 @@ describe('QueryCollection', () => {
       expect(collection.models[0]).to.deep.equal(query);
     });
   });
+
+  describe('#new', () => {
+    const query = new Query({ filter: "{ name: 'test' }" });
+    const collection = new QueryCollection([ query ]);
+
+    it('adds the query to the collection', () => {
+      expect(collection.length).to.equal(1);
+    });
+
+    it('stores the model instance in the collection', () => {
+      expect(collection.models[0]).to.deep.equal(query);
+    });
+  });
 });
