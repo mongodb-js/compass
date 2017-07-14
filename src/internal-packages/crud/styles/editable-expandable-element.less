@@ -98,6 +98,24 @@
     }
 
     &-is-editing {
+      
+      .line-number:focus {
+        outline: 0;
+        color: #494747;
+        font-weight: bold;
+        border: 1px solid #494747;
+        border-radius: 2px;
+
+        &:before {
+          content: '+';
+        }
+
+        &-is-selected {
+          &:before {
+            content: '-';
+          }
+        }
+      }
 
       &:hover {
         background-color: @gray8;

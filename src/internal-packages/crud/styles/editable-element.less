@@ -23,6 +23,24 @@
 
   &-is-editing {
 
+    .line-number:focus {
+      outline: 0;
+      color: #494747;
+      font-weight: bold;
+      border: 1px solid #494747;
+      border-radius: 2px;
+
+      &:before {
+        content: '+';
+      }
+
+      &-is-selected {
+        &:before {
+          content: '-';
+        }
+      }
+    }
+
     &:hover {
       background-color: @gray8;
 
@@ -216,6 +234,10 @@
     color: @gray3;
     height: 17px;
     flex-shrink: 0;
+
+    .closed > .dropdown-menu {
+      display: none;
+    }
 
     .type-label {
       padding: 1px 12px;

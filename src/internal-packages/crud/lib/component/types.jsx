@@ -34,6 +34,7 @@ class Types extends React.Component {
    */
   constructor(props) {
     super(props);
+    this.state = { isOpen: false };
     this.element = props.element;
     this._version = app.instance.build.version;
   }
@@ -48,7 +49,7 @@ class Types extends React.Component {
     if (this.element.currentType !== this.element.type) {
       className = `${className} editable-element-types-is-edited`;
     }
-    return className;
+    return this.state.isOpen ? `${className}` : `${className} closed`;
   }
 
   /**
@@ -107,6 +108,10 @@ class Types extends React.Component {
     return this.element.isValueEditable() || this.element.isAdded();
   }
 
+  removeOpenClass() {
+    this.setState({ isOpen: !this.state.isOpen });
+  }
+
   /**
    * Render the type list dropdown.
    *
@@ -118,11 +123,13 @@ class Types extends React.Component {
         <button
           className="btn-crud"
           type="button"
-          tabIndex="-1"
+          tabIndex="0"
           id="types-dropdown"
           data-toggle="dropdown"
           aria-haspopup="true"
-          aria-expanded="false">
+          aria-expanded="false"
+          onBlur={this.removeOpenClass.bind(this)}
+          >
           {this.element.currentType}
           <span className="caret"></span>
         </button>
