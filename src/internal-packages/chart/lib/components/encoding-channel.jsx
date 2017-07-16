@@ -7,6 +7,11 @@ const DraggableField = require('./draggable-field');
 
 // const debug = require('debug')('mongodb-compass:chart:encoding-channel');
 
+// modifier keys
+const ALT = 'altKey';
+const CTRL = 'ctrlKey';
+const META = 'metaKey';
+
 /**
  * Drop target for react-dnd
  * @see http://react-dnd.github.io/react-dnd/docs-drop-target.html
@@ -41,6 +46,26 @@ function collect(connect, monitor) {
  * and whether the user has encoded a specific field into it.
  */
 class EncodingChannel extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = {isCopyAction: false};
+  }
+
+  componentDidMount() {
+    window.addEventListener('dragstart', this.onDragStart.bind(this));
+  }
+
+  componentWillUnmount() {
+    window.removeEventListener('dragstart', this.onDragStart);
+  }
+
+  onDragStart(event) {
+    if (event[ALT] || event[CTRL] || event[META]) {
+      this.setState({isCopyAction: true});
+    } else {
+      this.setState({isCopyAction: false});
+    }
+  }
 
   onSelectAggregate(aggregate) {
     const channel = this.props.channelName;
@@ -77,6 +102,7 @@ class EncodingChannel extends React.Component {
         selectMeasurement={this.onSelectMeasurement.bind(this)}
         onRemove={this.onRemove.bind(this)}
         actions={this.props.actions}
+        isCopy={this.state.isCopyAction}
       />
     );
   }

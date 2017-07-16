@@ -21,7 +21,7 @@ const ReactTooltip = require('react-tooltip');
 const draggableFieldSource = {
   beginDrag: function(props) {
     return {
-      channelName: props.channelName,
+      channelName: props.isCopy ? undefined : props.channelName,
       fieldPath: props.fieldPath
     };
   }
@@ -223,7 +223,8 @@ DraggableField.propTypes = {
   selectAggregate: PropTypes.func,
   selectMeasurement: PropTypes.func,
   connectDragSource: PropTypes.func,
-  onRemove: PropTypes.func
+  onRemove: PropTypes.func,
+  isCopy: PropTypes.bool
 };
 
 DraggableField.displayName = 'DraggableField';
