@@ -33,7 +33,7 @@ describe('<ChartPanel />', function() {
 
     const ChartPanel = require('../../src/internal-packages/chart/lib/components/chart-panel');
 
-    // @KeyboardTsundoku: fake backend is required to prevent the error
+    // fake backend is required to prevent the error
     // 'Cannot have two HTML5 backends at the same time.''
     const fakeBackend = {
       setup: () => {},
@@ -42,7 +42,7 @@ describe('<ChartPanel />', function() {
       connectDragSource: () => {}
     };
 
-    // @KeyboardTsundoku: wrapping field panel in DragDropContext to avoid the error
+    // wrapping field panel in DragDropContext to avoid the error
     // "Invariant Violation: Could not find the drag and drop manager in the context
     //  of DraggableField. Make sure to wrap the top-level component of your app with DragDropContext."
     this.ChartPanel = DragDropContext(() => {return fakeBackend;})(ChartPanel);
