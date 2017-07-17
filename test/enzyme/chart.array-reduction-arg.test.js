@@ -1,0 +1,56 @@
+/* eslint no-unused-vars: 0 */
+const chai = require('chai');
+const chaiEnzyme = require('chai-enzyme');
+const expect = chai.expect;
+const React = require('react');
+const { mount } = require('enzyme');
+
+const ArrayReductionArg = require('../../src/internal-packages/chart/lib/components/array-reduction-arg');
+const { ARRAY_GENERAL_REDUCTIONS } = require('../../src/internal-packages/chart/lib/constants');
+
+chai.use(chaiEnzyme());
+
+describe('<ArrayReductionArg />', () => {
+  const validateError = () => {
+    return false;
+  };
+  const validateUnmodified = () => {
+    return true;
+  };
+  let component;
+
+  context('"Array element by index"', () => {
+    context('with an error validator', () => {
+      beforeEach(() => {
+        component = mount(<ArrayReductionArg
+          label="Index"
+          type={ARRAY_GENERAL_REDUCTIONS.INDEX}
+          validator={validateError}
+        />);
+      });
+      it('determines an appropriate error validation state', () => {
+        const errorsFound = component.find('.has-error');
+        expect(errorsFound).to.have.length(1);
+      });
+    });
+
+    context('with a label and unmodified validator', () => {
+      beforeEach(() => {
+        component = mount(<ArrayReductionArg
+          label="Index"
+          type={ARRAY_GENERAL_REDUCTIONS.INDEX}
+          validator={validateUnmodified}
+        />);
+      });
+
+      it('displays a label for this argument', () => {
+        const label = component.find('.chart-draggable-field-row-reduction-arg-label');
+        expect(label.text()).to.be.equal('Index');
+      });
+      it('determines no error validation state', () => {
+        const errorsFound = component.find('.has-error');
+        expect(errorsFound).to.have.length(0);
+      });
+    });
+  });
+});
