@@ -48,6 +48,21 @@ const ARRAY_REDUCTION_TYPES = Object.freeze(Object.assign(
 ));
 
 /**
+ * A mechanism to configure the reduction argument fields displayed
+ * to the chart user and the validator applied to those fields.
+ */
+const REDUCTION_ARGS_TEMPLATE = Object.freeze({
+  [ARRAY_GENERAL_REDUCTIONS.INDEX]: [
+    {
+      label: 'Index',
+      validator: (value) => {
+        return /^0-9+$/.test(value);
+      }
+    }
+  ]
+});
+
+/**
  * Array reduction operators wrapped as javascript functions.
  */
 const REDUCTIONS = Object.freeze({
@@ -168,5 +183,6 @@ module.exports = {
   ARRAY_NUMERIC_REDUCTIONS,
   ARRAY_STRING_REDUCTIONS,
   ARRAY_REDUCTION_TYPES,
+  REDUCTION_ARGS_TEMPLATE,
   REDUCTIONS
 };

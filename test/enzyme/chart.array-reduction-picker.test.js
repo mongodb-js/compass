@@ -6,8 +6,12 @@ const React = require('react');
 
 const { shallow } = require('enzyme');
 
+const ArrayReductionArg = require('../../src/internal-packages/chart/lib/components/array-reduction-arg');
 const ArrayReductionPicker = require('../../src/internal-packages/chart/lib/components/array-reduction-picker');
-const { ARRAY_STRING_REDUCTIONS } = require('../../src/internal-packages/chart/lib/constants');
+const {
+  ARRAY_GENERAL_REDUCTIONS,
+  ARRAY_STRING_REDUCTIONS
+} = require('../../src/internal-packages/chart/lib/constants');
 
 chai.use(chaiEnzyme());
 
@@ -19,6 +23,8 @@ describe('<ArrayReductionPicker />', () => {
         dimensionality={1}
         field="MagicLetters"
         type="concat"
+        argsTemplate={[]}
+        args={[]}
       />);
     });
 
@@ -43,6 +49,8 @@ describe('<ArrayReductionPicker />', () => {
         dimensionality={321}
         field="MagicLetters"
         type={ARRAY_STRING_REDUCTIONS.CONCAT}
+        argsTemplate={[]}
+        args={[]}
       />);
     });
 
@@ -51,10 +59,30 @@ describe('<ArrayReductionPicker />', () => {
     });
   });
 
+  context('with an argsTemplate for array element by index', () => {
+    beforeEach(() => {
+      component = shallow(<ArrayReductionPicker
+        dimensionality={1}
+        field="Kazooie"
+        type={ARRAY_GENERAL_REDUCTIONS.INDEX}
+        // Note this should get automatically turned into an
+        // <ArrayReductionArg> component even though no args values
+        // have yet been provided
+        args={[]}
+      />);
+    });
+
+    it('has an <ArrayReductionArg> component present', () => {
+      expect(component.find(ArrayReductionArg)).to.have.length(1);
+    });
+  });
+
   context('when no type is set', () => {
     beforeEach(() => {
       component = shallow(<ArrayReductionPicker
         dimensionality={1}
+        argsTemplate={[]}
+        args={[]}
       />);
     });
 

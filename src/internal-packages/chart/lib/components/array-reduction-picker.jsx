@@ -4,10 +4,12 @@ const {Dropdown, MenuItem} = require('react-bootstrap');
 const FontAwesome = require('react-fontawesome');
 const _ = require('lodash');
 const CustomToggle = require('./custom-toggle');
+const ArrayReductionArg = require('./array-reduction-arg');
 const {
   ARRAY_GENERAL_REDUCTIONS,
   ARRAY_NUMERIC_REDUCTIONS,
-  ARRAY_STRING_REDUCTIONS
+  ARRAY_STRING_REDUCTIONS,
+  REDUCTION_ARGS_TEMPLATE
 } = require('../constants');
 
 const GENERAL = 'general-';
@@ -27,6 +29,22 @@ class ArrayReductionPicker extends React.Component {
   renderDimensionality() {
     return Array.from(new Array(this.props.dimensionality), (v, i) => {
       return <i className="mms-icon-array" key={i} />;
+    });
+  }
+
+  renderReductionArgs() {
+    // Assume the args and argsTemplate lists are the same length
+    const argsTemplate = REDUCTION_ARGS_TEMPLATE[this.props.type] || [];
+    const paired = _.zip(argsTemplate, this.props.args.slice(0, argsTemplate.length));
+    return paired.map(([argTemplate, argValue], index) => {
+      const validator = argTemplate.validator;
+      return (<ArrayReductionArg
+        key={index}
+        label={argTemplate.label}
+        type={this.props.type}
+        validator={validator}
+        value={argValue}
+      />);
     });
   }
 
@@ -90,6 +108,7 @@ class ArrayReductionPicker extends React.Component {
             </Dropdown.Menu>
           </Dropdown>
         </div>
+        {this.renderReductionArgs()}
       </div>
     );
   }
@@ -100,6 +119,7 @@ ArrayReductionPicker.propTypes = {
   dimensionality: PropTypes.number.isRequired,
   field: PropTypes.string,
   type: PropTypes.string,
+  args: PropTypes.arrayOf(PropTypes.string).isRequired,
   index: PropTypes.number,
   actions: PropTypes.object
 };
