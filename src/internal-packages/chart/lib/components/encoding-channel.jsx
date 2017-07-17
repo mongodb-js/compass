@@ -8,7 +8,6 @@ const DraggableField = require('./draggable-field');
 // const debug = require('debug')('mongodb-compass:chart:encoding-channel');
 
 // modifier keys
-const ALT = 'altKey';
 const CTRL = 'ctrlKey';
 const META = 'metaKey';
 
@@ -60,7 +59,15 @@ class EncodingChannel extends React.Component {
   }
 
   onDragStart(event) {
-    if (event[ALT] || event[CTRL] || event[META]) {
+    let key;
+    // for OSX use meta key for everything else (windows, linux etc) use ctrl
+    if (process.platform === 'darwin') {
+      key = META;
+    } else {
+      key = CTRL;
+    }
+
+    if (event[key]) {
       this.setState({isCopyAction: true});
     } else {
       this.setState({isCopyAction: false});
