@@ -51,9 +51,11 @@ const ARRAY_REDUCTION_TYPES = Object.freeze(Object.assign(
  * A mechanism to configure the reduction argument fields displayed
  * to the chart user and the validator applied to those fields.
  *
- * Each reduction argument array has the following arguments:
+ * Each reduction type should have an ordered array of objects, to be
+ * paired up with each argument to be rendered on screen, and each object
+ * has the following keys:
  *
- *  - label       the user-facing text to display,
+ *  - label       the user-facing text to display
  *  - validator   a function which in the pattern of Django ReST framework
  *                returns an updated value if the value is valid,
  *                (e.g. to allow type coercion from string to integer) or
