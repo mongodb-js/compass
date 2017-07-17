@@ -831,4 +831,168 @@ describe('Aggregation Pipeline Builder', function() {
       });
     });
   });
+
+  context('On a "coordinate_pairs" collection', function() {
+    before(function(done) {
+      dataService.connect(function() {
+        const docs = [
+          {_id: 0, coordinate_pairs: [
+            ['1.1', '1.1'],
+            ['1.2', '1.2'],
+            ['2.1', '2.1'],
+            ['2.2', '2.2']
+          ]},
+          {_id: 1, coordinate_pairs: [
+            ['3.1', '3.1'],
+            ['3.2', '3.2'],
+            ['4.1', '4.1'],
+            ['4.2', '4.2']
+          ]}
+        ];
+        dataService.insertMany(`${DB}.coordinate_pairs`, docs, {}, done);
+      });
+    });
+
+    context('with arguments in the first and last reduction stages', () => {
+      const state = {
+        reductions: {
+          x: [
+            {field: 'coordinate_pairs', type: ARRAY_REDUCTION_TYPES.INDEX, arguments: [0]},
+            {field: 'coordinate_pairs', type: ARRAY_REDUCTION_TYPES.INDEX, arguments: [0]}
+          ]
+        },
+        channels: {
+          x: { field: 'coordinate_pairs', type: 'ordinal' }
+        }
+      };
+      const pipeline = constructPipeline(state);
+
+      it('builds the correct agg pipeline with the "index" reductions', () => {
+        expect(pipeline).to.be.an('array');
+        expect(pipeline[0]).to.be.deep.equal({
+          $addFields: {
+            '__alias_0': {
+              '$arrayElemAt': [{
+                '$map': {
+                  'as': 'value',
+                  'in': {
+                    '$arrayElemAt': ['$$value.coordinate_pairs', 0]
+                  },
+                  'input': '$coordinate_pairs'
+                }
+              }, 0]
+            }
+          }
+        });
+      });
+
+      it.skip('returns the correct results when executing the pipeline', function(done) {
+        if (!versionSupported) {
+          this.skip();
+        }
+
+        dataService.aggregate(`${DB}.coordinate_pairs`, pipeline, {}, function(err, res) {
+          expect(err).to.be.null;
+          expect(res).to.be.deep.equal([
+            // TODO: Fill me in with correct expected results
+            {x: null},
+            {x: null}
+          ]);
+          done();
+        });
+      });
+    });
+  });
+
+  context('On a "matrix_3D" collection', function() {
+    before(function(done) {
+      dataService.connect(function() {
+        const docs = [
+          // Think cubes
+          {_id: 0, matrix_3D: [
+            [
+              ['1_1_1', '1_1_2'],
+              ['1_2_1', '1_2_2']
+            ],
+            [
+              ['2_1_1', '2_1_2'],
+              ['2_2_1', '2_2_2']
+            ]
+          ]},
+          {_id: 1, matrix_3D: [
+            [
+              ['a_1_1', 'a_1_2'],
+              ['a_2_1', 'a_2_2']
+            ],
+            [
+              ['b_1_1', 'b_1_2'],
+              ['b_2_1', 'b_2_2']
+            ]
+          ]}
+        ];
+        dataService.insertMany(`${DB}.matrix_3D`, docs, {}, done);
+      });
+    });
+
+    context('with arguments in the first, middle and last reduction stages', () => {
+      const state = {
+        reductions: {
+          x: [
+            {field: 'matrix_3D', type: ARRAY_REDUCTION_TYPES.INDEX, arguments: [0]},
+            {field: 'matrix_3D', type: ARRAY_REDUCTION_TYPES.INDEX, arguments: [0]},
+            {field: 'matrix_3D', type: ARRAY_REDUCTION_TYPES.INDEX, arguments: [0]}
+          ]
+        },
+        channels: {
+          x: { field: 'matrix_3D', type: 'ordinal' }
+        }
+      };
+      const pipeline = constructPipeline(state);
+
+      it('builds the correct agg pipeline with the "index" reductions', () => {
+        expect(pipeline).to.be.an('array');
+        const inner = {
+          '$map': {
+            'as': 'value',
+            'in': {
+              '$arrayElemAt': ['$$value.matrix_3D', 0]
+            },
+            'input': '$$value.matrix_3D'
+          }
+        };
+        const middle = {
+          '$map': {
+            'as': 'value',
+            'in': {
+              '$arrayElemAt': [inner, 0]
+            },
+            'input': '$matrix_3D'
+          }
+        };
+        expect(pipeline[0]).to.be.deep.equal({
+          $addFields: {
+            '__alias_0': {
+              '$arrayElemAt': [middle, 0]
+            }
+          }
+        });
+      });
+
+      it.skip('returns the correct results when executing the pipeline', function(done) {
+        if (!versionSupported) {
+          this.skip();
+        }
+
+        dataService.aggregate(`${DB}.matrix_3D`, pipeline, {}, function(err, res) {
+          expect(err).to.be.null;
+          expect(res).to.be.deep.equal([
+            // TODO: Fill me in with correct expected results
+            {x: null},
+            {x: null}
+          ]);
+          done();
+        });
+      });
+    });
+  });
 });
