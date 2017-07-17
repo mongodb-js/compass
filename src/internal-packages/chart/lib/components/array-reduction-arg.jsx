@@ -4,16 +4,8 @@ const { VALIDATION_STATES } = require('../constants');
 const { ControlLabel, FormControl, FormGroup } = require('react-bootstrap');
 
 class ArrayReductionArg extends React.Component {
-
-  // TODO: What actions are needed, e.g. call the validator onBlur?
-  // selectArrayReduction(action, evt) {
-  //   evt.preventDefault();
-  //   evt.stopPropagation();
-  //   this.props.actions.setArrayReduction(this.props.channel, this.props.index, action);
-  // }
-
   render() {
-    const validationState = this.props.validator(this.props.value) ?
+    const validationState = this.props.validator(this.props.defaultValue) ?
       VALIDATION_STATES.UNMODIFIED :
       VALIDATION_STATES.ERROR;
 
@@ -28,9 +20,9 @@ class ArrayReductionArg extends React.Component {
         <FormControl
           autoFocus
           bsClass="chart-draggable-field-row-reduction-arg-value"
-          // onBlur={this.onBlur.bind(this)}
+          defaultValue={this.props.defaultValue}
+          onBlur={this.props.onBlur.bind(this)}
           type="text"
-          value={this.props.value}
         />
       </FormGroup>
     );
@@ -42,10 +34,11 @@ ArrayReductionArg.defaultProps = {
 };
 
 ArrayReductionArg.propTypes = {
+  defaultValue: PropTypes.string,
   label: PropTypes.string.isRequired,
+  onBlur: PropTypes.func.isRequired,
   type: PropTypes.string.isRequired,
-  validator: PropTypes.func.isRequired,
-  value: PropTypes.string
+  validator: PropTypes.func.isRequired
 };
 
 module.exports = ArrayReductionArg;

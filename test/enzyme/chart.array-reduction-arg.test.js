@@ -17,6 +17,7 @@ describe('<ArrayReductionArg />', () => {
   const validateUnmodified = () => {
     return true;
   };
+  const onBlur = () => {};  // Perhaps use a sinon.spy() to improve coverage
   let component;
 
   context('"Array element by index"', () => {
@@ -24,6 +25,7 @@ describe('<ArrayReductionArg />', () => {
       beforeEach(() => {
         component = mount(<ArrayReductionArg
           label="Index"
+          onBlur={onBlur}
           type={ARRAY_GENERAL_REDUCTIONS.INDEX}
           validator={validateError}
         />);
@@ -38,6 +40,7 @@ describe('<ArrayReductionArg />', () => {
       beforeEach(() => {
         component = mount(<ArrayReductionArg
           label="Index"
+          onBlur={onBlur}
           type={ARRAY_GENERAL_REDUCTIONS.INDEX}
           validator={validateUnmodified}
         />);

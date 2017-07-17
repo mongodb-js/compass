@@ -56,7 +56,9 @@ const REDUCTION_ARGS_TEMPLATE = Object.freeze({
     {
       label: 'Index',
       validator: (value) => {
-        return /^0-9+$/.test(value);
+        // Not sure how to warn out of bounds for this field, e.g. array
+        // length is 3 but user asks for element 7. Do in a future ticket...
+        return /^[0-9]+$/.test(value);
       }
     }
   ]

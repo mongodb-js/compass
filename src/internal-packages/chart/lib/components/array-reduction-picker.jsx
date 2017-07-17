@@ -20,10 +20,16 @@ const HEADER = '-header';
 
 class ArrayReductionPicker extends React.Component {
 
+  setArrayReductionArg(argsIndex, event) {
+    const args = _.cloneDeep(this.props.args);
+    args[argsIndex] = event.target.value;
+    this.props.actions.setArrayReduction(this.props.channel, this.props.index, this.props.type, args);
+  }
+
   selectArrayReduction(action, evt) {
     evt.preventDefault();
     evt.stopPropagation();
-    this.props.actions.setArrayReduction(this.props.channel, this.props.index, action);
+    this.props.actions.setArrayReduction(this.props.channel, this.props.index, action, this.props.args);
   }
 
   renderDimensionality() {
@@ -39,11 +45,12 @@ class ArrayReductionPicker extends React.Component {
     return paired.map(([argTemplate, argValue], index) => {
       const validator = argTemplate.validator;
       return (<ArrayReductionArg
+        defaultValue={argValue}
         key={index}
         label={argTemplate.label}
+        onBlur={this.setArrayReductionArg.bind(this, index)}
         type={this.props.type}
         validator={validator}
-        value={argValue}
       />);
     });
   }
