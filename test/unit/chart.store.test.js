@@ -572,25 +572,6 @@ describe('ChartStore', function() {
       ChartActions.mapFieldToChannel(COUNTRY_SCHEMA_FIELD.path, CHART_CHANNEL_ENUM.Y);
       setTimeout(done);
     });
-    it('copies from a source to a target channel', function(done) {
-      const expected = {
-        'x': {
-          field: YEAR_SCHEMA_FIELD.path,
-          type: MEASUREMENT_ENUM.QUANTITATIVE,
-          aggregate: AGGREGATE_FUNCTION_ENUM.MAX
-        },
-        'y': {
-          field: YEAR_SCHEMA_FIELD.path,
-          type: MEASUREMENT_ENUM.QUANTITATIVE,
-          aggregate: AGGREGATE_FUNCTION_ENUM.MAX
-        }
-      };
-      ChartActions.copyEncodedChannel(CHART_CHANNEL_ENUM.X, CHART_CHANNEL_ENUM.Y);
-      setTimeout(() => {
-        expect(this.store.state.channels).to.be.deep.equal(expected);
-        done();
-      });
-    });
     it('copies from a source to a blank target channel', function(done) {
       const expected = {
         'x': {
@@ -608,6 +589,25 @@ describe('ChartStore', function() {
         }
       };
       ChartActions.copyEncodedChannel(CHART_CHANNEL_ENUM.Y, CHART_CHANNEL_ENUM.DETAIL);
+      setTimeout(() => {
+        expect(this.store.state.channels).to.be.deep.equal(expected);
+        done();
+      });
+    });
+    it('copies from a source to a filled target channel (overwrite)', function(done) {
+      const expected = {
+        'x': {
+          field: YEAR_SCHEMA_FIELD.path,
+          type: MEASUREMENT_ENUM.QUANTITATIVE,
+          aggregate: AGGREGATE_FUNCTION_ENUM.MAX
+        },
+        'y': {
+          field: YEAR_SCHEMA_FIELD.path,
+          type: MEASUREMENT_ENUM.QUANTITATIVE,
+          aggregate: AGGREGATE_FUNCTION_ENUM.MAX
+        }
+      };
+      ChartActions.copyEncodedChannel(CHART_CHANNEL_ENUM.X, CHART_CHANNEL_ENUM.Y);
       setTimeout(() => {
         expect(this.store.state.channels).to.be.deep.equal(expected);
         done();
