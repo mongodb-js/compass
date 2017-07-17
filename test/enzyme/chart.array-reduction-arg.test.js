@@ -6,7 +6,6 @@ const React = require('react');
 const { mount } = require('enzyme');
 
 const ArrayReductionArg = require('../../src/internal-packages/chart/lib/components/array-reduction-arg');
-const { ARRAY_GENERAL_REDUCTIONS } = require('../../src/internal-packages/chart/lib/constants');
 
 chai.use(chaiEnzyme());
 
@@ -26,7 +25,6 @@ describe('<ArrayReductionArg />', () => {
         component = mount(<ArrayReductionArg
           label="Index"
           onBlur={onBlur}
-          type={ARRAY_GENERAL_REDUCTIONS.INDEX}
           validator={validateError}
         />);
       });
@@ -41,7 +39,6 @@ describe('<ArrayReductionArg />', () => {
         component = mount(<ArrayReductionArg
           label="Index"
           onBlur={onBlur}
-          type={ARRAY_GENERAL_REDUCTIONS.INDEX}
           validator={validateUnmodified}
         />);
       });

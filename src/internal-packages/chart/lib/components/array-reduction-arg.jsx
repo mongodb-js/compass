@@ -40,7 +40,6 @@ ArrayReductionArg.propTypes = {
   defaultValue: PropTypes.string,
   label: PropTypes.string.isRequired,
   onBlur: PropTypes.func.isRequired,
-  type: PropTypes.string.isRequired,
   validator: PropTypes.func.isRequired
 };
 

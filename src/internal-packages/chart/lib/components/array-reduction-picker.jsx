@@ -55,7 +55,6 @@ class ArrayReductionPicker extends React.Component {
         key={index}
         label={argTemplate.label}
         onBlur={this.setArrayReductionArg.bind(this, validator, index)}
-        type={this.props.type}
         validator={validator}
       />);
     });
