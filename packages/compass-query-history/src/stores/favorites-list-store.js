@@ -1,6 +1,8 @@
 const Reflux = require('reflux');
 const Actions = require('../actions');
 const StateMixin = require('reflux-state-mixin');
+// const { Query, QueryCollection } = require('../../');
+// const FilteredCollection = require('ampersand-filtered-subcollection');
 
 const debug = require('debug')('mongodb-compass:query-history:favorites-store');
 
@@ -16,6 +18,11 @@ const FavoritesListStore = Reflux.createStore({
   },
 
   addFavorites(recent) {
+    // @note: Durran: To save the favorite query:
+    //   const attributes = recent.serialize();
+    //   attributes.name = '';
+    //   const query = new Query(attributes);
+    //   query.save();
     this.setState({
       recents: this.state.recents.push(recent)
     });
@@ -30,8 +37,18 @@ const FavoritesListStore = Reflux.createStore({
   },
 
   getInitialState() {
+    // const queries = QueryCollection.fetch();
+    // var favoriteQueries = new FilteredCollection(queries, {
+      // where: {
+        // isFavorite: true
+      // },
+      // comparator: (model) => {
+        // return -model.lastExecuted;
+      // }
+    // });
+
     return {
-      favorites: [],
+      favorites: [], // QueryCollection.fetch();
       current_favorite: null
     };
   },

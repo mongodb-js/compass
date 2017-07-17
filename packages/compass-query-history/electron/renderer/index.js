@@ -7,6 +7,7 @@ const AppRegistry = require('hadron-app-registry');
 
 const { DataServiceStore, DataServiceActions } = require('mongodb-data-service');
 const Connection = require('mongodb-connection-model');
+const { Query } = require('../../');
 
 /**
  * Boilerplate.

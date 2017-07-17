@@ -19,6 +19,7 @@ function createWindow() {
 }
 
 app.on('ready', () => {
+  electron.app.setName('query-history');
   createWindow();
   watch.watchTree(SRC_DIR, (f, curr, prev) => {
     if (typeof f === 'object' && prev === null && curr === null) {

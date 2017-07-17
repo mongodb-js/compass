@@ -32,6 +32,7 @@
   "devDependencies": {
     "@kadira/react-storybook-addon-info": "^3.2.1",
     "@kadira/storybook": "^2.3.0",
+    "ampersand-filtered-subcollection": "^3.0.0",
     "ampersand-model": "^8.0.0",
     "ampersand-rest-collection": "^6.0.0",
     "babel-cli": "^6.10.1",
