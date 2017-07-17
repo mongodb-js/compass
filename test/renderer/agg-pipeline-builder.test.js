@@ -789,5 +789,46 @@ describe('Aggregation Pipeline Builder', function() {
         });
       });
     });
+
+    context('when using the "index" accumulator', function() {
+      const state = {
+        reductions: {
+          x: [
+            {field: 'friends', type: ARRAY_REDUCTION_TYPES.INDEX, arguments: [0]}
+          ]
+        },
+        channels: {
+          x: { field: 'friends', type: 'ordinal' }
+        }
+      };
+      const pipeline = constructPipeline(state);
+
+      it('builds the correct agg pipeline with the "index" reduction', function() {
+        expect(pipeline).to.be.an('array');
+        expect(pipeline[0]).to.be.deep.equal({
+          $addFields: {
+            '__alias_0': {
+              $arrayElemAt: ['$friends', 0]
+            }
+          }
+        });
+      });
+
+      it('returns the correct results when executing the pipeline', function(done) {
+        if (!versionSupported) {
+          this.skip();
+        }
+
+        dataService.aggregate(`${DB}.array_of_strings`, pipeline, {}, function(err, res) {
+          expect(err).to.be.null;
+          expect(res).to.be.deep.equal([
+            {x: 'Tom'},
+            {x: 'Justice'},
+            {x: 'Pirates'}
+          ]);
+          done();
+        });
+      });
+    });
   });
 });

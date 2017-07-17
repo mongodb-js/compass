@@ -114,7 +114,7 @@ function constructAccumulatorStage(reductions, channel, encodedField, aliaser) {
     // last reduction uses the actual field name with a map
     arr = _map(`$${ reductions[reductions.length - 1].field }`, expr);
   }
-  expr = REDUCTIONS[reductions[reductions.length - 1].type](arr);
+  expr = REDUCTIONS[reductions[reductions.length - 1].type](arr, reductions[reductions.length - 1].arguments);
 
   // we use $addFields to overwrite the original field name
   const alias = aliaser.assignUniqueAlias(encodedField, channel);
