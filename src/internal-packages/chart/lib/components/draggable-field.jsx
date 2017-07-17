@@ -21,8 +21,9 @@ const ReactTooltip = require('react-tooltip');
 const draggableFieldSource = {
   beginDrag: function(props) {
     return {
-      channelName: props.isCopy ? undefined : props.channelName,
-      fieldPath: props.fieldPath
+      channelName: props.channelName,
+      fieldPath: props.fieldPath,
+      isCopy: props.isCopy
     };
   }
 };

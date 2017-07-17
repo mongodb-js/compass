@@ -24,7 +24,9 @@ const encodingChannelTarget = {
   drop(props, monitor) {
     const item = monitor.getItem();
     // const encodedChannel = props.encodedChannel;
-    if (item.channelName !== undefined) {
+    if (item.isCopy) {
+      return props.actions.copyEncodedChannel(item.channelName, props.channelName);
+    } else if (item.channelName !== undefined) {
       return props.actions.swapEncodedChannels(props.channelName, item.channelName);
     }
     // Always encode the target channel
