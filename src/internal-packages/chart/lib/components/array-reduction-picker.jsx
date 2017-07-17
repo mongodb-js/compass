@@ -131,7 +131,7 @@ ArrayReductionPicker.propTypes = {
   dimensionality: PropTypes.number.isRequired,
   field: PropTypes.string,
   type: PropTypes.string,
-  args: PropTypes.arrayOf(PropTypes.string).isRequired,
+  args: PropTypes.array.isRequired,
   index: PropTypes.number,
   actions: PropTypes.object
 };

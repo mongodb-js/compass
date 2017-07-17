@@ -32,12 +32,8 @@ class ArrayReductionArg extends React.Component {
   }
 }
 
-ArrayReductionArg.defaultProps = {
-  value: ''
-};
-
 ArrayReductionArg.propTypes = {
-  defaultValue: PropTypes.string,
+  defaultValue: PropTypes.any,
   label: PropTypes.string.isRequired,
   onBlur: PropTypes.func.isRequired,
   validator: PropTypes.func.isRequired
