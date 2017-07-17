@@ -12,10 +12,10 @@ chai.use(chaiEnzyme());
 
 describe('<ArrayReductionArg />', () => {
   const validateError = () => {
-    return false;
+    throw new Error('ValidationError - oops');
   };
   const validateUnmodified = () => {
-    return true;
+    return 0;
   };
   const onBlur = () => {};  // Perhaps use a sinon.spy() to improve coverage
   let component;

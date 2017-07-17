@@ -50,6 +50,15 @@ const ARRAY_REDUCTION_TYPES = Object.freeze(Object.assign(
 /**
  * A mechanism to configure the reduction argument fields displayed
  * to the chart user and the validator applied to those fields.
+ *
+ * Each reduction argument array has the following arguments:
+ *
+ *  - label       the user-facing text to display,
+ *  - validator   a function which in the pattern of Django ReST framework
+ *                returns an updated value if the value is valid,
+ *                (e.g. to allow type coercion from string to integer) or
+ *                throws a ValidationError if the value is not valid.
+ * @see http://www.django-rest-framework.org/api-guide/validators/#writing-custom-validators
  */
 const REDUCTION_ARGS_TEMPLATE = Object.freeze({
   [ARRAY_GENERAL_REDUCTIONS.INDEX]: [
@@ -58,7 +67,11 @@ const REDUCTION_ARGS_TEMPLATE = Object.freeze({
       validator: (value) => {
         // Not sure how to warn out of bounds for this field, e.g. array
         // length is 3 but user asks for element 7. Do in a future ticket...
-        return /^[0-9]+$/.test(value);
+        if (/^[0-9]+$/.test(value)) {
+          // Coerce to the integer value
+          return parseInt(value, 10);
+        }
+        throw new Error(`ValidationError - Invalid value: ${value}`);
       }
     }
   ]

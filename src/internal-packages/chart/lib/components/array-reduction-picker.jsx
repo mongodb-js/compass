@@ -20,9 +20,15 @@ const HEADER = '-header';
 
 class ArrayReductionPicker extends React.Component {
 
-  setArrayReductionArg(argsIndex, event) {
+  setArrayReductionArg(validator, argsIndex, event) {
     const args = _.cloneDeep(this.props.args);
-    args[argsIndex] = event.target.value;
+    const rawValue = event.target.value;
+    try {
+      // Allow type coercions, e.g. from string to integer
+      args[argsIndex] = validator(rawValue);
+    } catch (e) {
+      args[argsIndex] = rawValue;
+    }
     this.props.actions.setArrayReduction(this.props.channel, this.props.index, this.props.type, args);
   }
 
@@ -48,7 +54,7 @@ class ArrayReductionPicker extends React.Component {
         defaultValue={argValue}
         key={index}
         label={argTemplate.label}
-        onBlur={this.setArrayReductionArg.bind(this, index)}
+        onBlur={this.setArrayReductionArg.bind(this, validator, index)}
         type={this.props.type}
         validator={validator}
       />);

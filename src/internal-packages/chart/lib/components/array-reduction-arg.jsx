@@ -5,9 +5,12 @@ const { ControlLabel, FormControl, FormGroup } = require('react-bootstrap');
 
 class ArrayReductionArg extends React.Component {
   render() {
-    const validationState = this.props.validator(this.props.defaultValue) ?
-      VALIDATION_STATES.UNMODIFIED :
-      VALIDATION_STATES.ERROR;
+    let validationState = VALIDATION_STATES.UNMODIFIED;
+    try {
+      this.props.validator(this.props.defaultValue);
+    } catch (e) {
+      validationState = VALIDATION_STATES.ERROR;
+    }
 
     return (
       <FormGroup

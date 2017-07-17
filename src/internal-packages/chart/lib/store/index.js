@@ -240,7 +240,12 @@ const ChartStore = Reflux.createStore({
           // args must be validated for
           const paired = _.zip(templateArray, reduction.arguments);
           return _.every(paired, ([template, reductionArg]) => {
-            return template.validator(reductionArg);
+            try {
+              template.validator(reductionArg);
+            } catch (e) {
+              return false;
+            }
+            return true;
           });
         }
         // If no args, the reduction is valid
