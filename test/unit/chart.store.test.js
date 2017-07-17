@@ -1259,6 +1259,58 @@ describe('ChartStore', function() {
     });
   });
 
+  context('copy array channels after one has been encoded', () => {
+    const field = UP_TO_5_TAGS_SCHEMA_FIELD;
+    const xChannel = CHART_CHANNEL_ENUM.X;
+    const yChannel = CHART_CHANNEL_ENUM.Y;
+    const type = ARRAY_REDUCTION_TYPES.MAX_LENGTH;
+    context('when copying an array reduction to an empty channel', function() {
+      beforeEach(() => {
+        ChartActions.mapFieldToChannel(field.path, xChannel);
+        ChartActions.setArrayReduction(xChannel, 0, ARRAY_REDUCTION_TYPES.MAX_LENGTH);
+      });
+
+      it('has an initial expected reduction', function(done) {
+        const expected = {
+          [xChannel]: [{
+            dimensionality: 1,
+            field: field.path,
+            type: type,
+            arguments: []
+          }]
+        };
+        setTimeout(() => {
+          const reductions = this.store.state.reductions;
+          expect(reductions).to.be.deep.equal(expected);
+          done();
+        });
+      });
+
+      it('copies to the other channel', function(done) {
+        ChartActions.copyEncodedChannel(xChannel, yChannel);
+        const expected = {
+          [xChannel]: [{
+            dimensionality: 1,
+            field: field.path,
+            type: type,
+            arguments: []
+          }],
+          [yChannel]: [{
+            dimensionality: 1,
+            field: field.path,
+            type: type,
+            arguments: []
+          }]
+        };
+        setTimeout(() => {
+          const reductions = this.store.state.reductions;
+          expect(reductions).to.be.deep.equal(expected);
+          done();
+        });
+      });
+    });
+  });
+
   context('after multiple array channels have been encoded', () => {
     const field1 = UP_TO_5_TAGS_SCHEMA_FIELD;
     const field2 = TEN_RANDOM_STRINGS_SCHEMA_FIELD;
