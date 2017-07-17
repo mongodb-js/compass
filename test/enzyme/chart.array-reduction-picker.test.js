@@ -23,7 +23,6 @@ describe('<ArrayReductionPicker />', () => {
         dimensionality={1}
         field="MagicLetters"
         type="concat"
-        argsTemplate={[]}
         args={[]}
       />);
     });
@@ -49,7 +48,6 @@ describe('<ArrayReductionPicker />', () => {
         dimensionality={321}
         field="MagicLetters"
         type={ARRAY_STRING_REDUCTIONS.CONCAT}
-        argsTemplate={[]}
         args={[]}
       />);
     });
@@ -59,7 +57,7 @@ describe('<ArrayReductionPicker />', () => {
     });
   });
 
-  context('with an argsTemplate for array element by index', () => {
+  context('for array element by index in initial state with no args', () => {
     beforeEach(() => {
       component = shallow(<ArrayReductionPicker
         dimensionality={1}
@@ -81,7 +79,6 @@ describe('<ArrayReductionPicker />', () => {
     beforeEach(() => {
       component = shallow(<ArrayReductionPicker
         dimensionality={1}
-        argsTemplate={[]}
         args={[]}
       />);
     });
