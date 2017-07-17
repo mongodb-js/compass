@@ -149,7 +149,7 @@ class Types extends React.Component {
     return _.map(TypeChecker.castableTypes(this.isHighPrecision()), (type) => {
       return (
         <li key={type}>
-          <span onClick={this.handleTypeChange.bind(this)}>{type}</span>
+          <span onMouseDown={this.handleTypeChange.bind(this)}>{type}</span>
         </li>
       );
     });
