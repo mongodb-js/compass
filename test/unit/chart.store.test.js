@@ -565,6 +565,56 @@ describe('ChartStore', function() {
     });
   });
 
+  context('when calling the copyEncodedChannel action', function() {
+    beforeEach((done) => {
+      ChartActions.mapFieldToChannel(YEAR_SCHEMA_FIELD.path, CHART_CHANNEL_ENUM.X);
+      ChartActions.selectAggregate(CHART_CHANNEL_ENUM.X, AGGREGATE_FUNCTION_ENUM.MAX);
+      ChartActions.mapFieldToChannel(COUNTRY_SCHEMA_FIELD.path, CHART_CHANNEL_ENUM.Y);
+      setTimeout(done);
+    });
+    it('copies from a source to a target channel', function(done) {
+      const expected = {
+        'x': {
+          field: YEAR_SCHEMA_FIELD.path,
+          type: MEASUREMENT_ENUM.QUANTITATIVE,
+          aggregate: AGGREGATE_FUNCTION_ENUM.MAX
+        },
+        'y': {
+          field: YEAR_SCHEMA_FIELD.path,
+          type: MEASUREMENT_ENUM.QUANTITATIVE,
+          aggregate: AGGREGATE_FUNCTION_ENUM.MAX
+        }
+      };
+      ChartActions.copyEncodedChannel(CHART_CHANNEL_ENUM.X, CHART_CHANNEL_ENUM.Y);
+      setTimeout(() => {
+        expect(this.store.state.channels).to.be.deep.equal(expected);
+        done();
+      });
+    });
+    it('copies from a source to a blank target channel', function(done) {
+      const expected = {
+        'x': {
+          field: YEAR_SCHEMA_FIELD.path,
+          type: MEASUREMENT_ENUM.QUANTITATIVE,
+          aggregate: AGGREGATE_FUNCTION_ENUM.MAX
+        },
+        'y': {
+          field: COUNTRY_SCHEMA_FIELD.path,
+          type: MEASUREMENT_ENUM.NOMINAL
+        },
+        'detail': {
+          field: COUNTRY_SCHEMA_FIELD.path,
+          type: MEASUREMENT_ENUM.NOMINAL
+        }
+      };
+      ChartActions.copyEncodedChannel(CHART_CHANNEL_ENUM.Y, CHART_CHANNEL_ENUM.DETAIL);
+      setTimeout(() => {
+        expect(this.store.state.channels).to.be.deep.equal(expected);
+        done();
+      });
+    });
+  });
+
   context('when calling the selectMeasurement action', function() {
     it('stores the encoding channel relationship', function(done) {
       const expected = {
