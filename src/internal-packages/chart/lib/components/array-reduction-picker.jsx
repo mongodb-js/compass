@@ -51,11 +51,11 @@ class ArrayReductionPicker extends React.Component {
     return paired.map(([argTemplate, argValue], index) => {
       const validator = argTemplate.validator;
       return (<ArrayReductionArg
-        defaultValue={argValue}
         key={index}
         label={argTemplate.label}
         onBlur={this.setArrayReductionArg.bind(this, validator, index)}
         validator={validator}
+        value={argValue}
       />);
     });
   }
