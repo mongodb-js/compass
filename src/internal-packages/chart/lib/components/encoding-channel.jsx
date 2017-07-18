@@ -49,14 +49,15 @@ class EncodingChannel extends React.Component {
   constructor(props) {
     super(props);
     this.state = {isCopy: false};
+    this.onDrag = this.onDragStart.bind(this);
   }
 
   componentDidMount() {
-    window.addEventListener('dragstart', this.onDragStart.bind(this));
+    window.addEventListener('dragstart', this.onDrag);
   }
 
   componentWillUnmount() {
-    window.removeEventListener('dragstart', this.onDragStart);
+    window.removeEventListener('dragstart', this.onDrag);
   }
 
   onDragStart(event) {
