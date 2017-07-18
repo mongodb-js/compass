@@ -125,7 +125,7 @@ describe('<DraggableField />', () => {
     const fieldName = 'coordinates';
     const fieldPath = `location.${fieldName}`;
     const reductions = [
-      {field: 'coordinates', type: 'unwind'}
+      {dimensionality: 1, field: 'coordinates', type: 'unwind'}
     ];
 
     before(() => {
@@ -159,10 +159,10 @@ describe('<DraggableField />', () => {
     const fieldName = 'coordinates';
     const fieldPath = `location.${fieldName}`;
     const reductions = [
-      {field: 'coordinates', type: 'unwind'},
-      {field: 'coordinates', type: null},
-      {field: 'coordinates', type: null},
-      {field: 'coordinates', type: null}
+      {dimensionality: 1, field: 'coordinates', type: 'unwind'},
+      {dimensionality: 1, field: 'coordinates', type: null},
+      {dimensionality: 1, field: 'coordinates', type: null},
+      {dimensionality: 1, field: 'coordinates', type: null}
     ];
 
     before(() => {

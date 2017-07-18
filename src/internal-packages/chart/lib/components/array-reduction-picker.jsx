@@ -4,7 +4,11 @@ const {Dropdown, MenuItem} = require('react-bootstrap');
 const FontAwesome = require('react-fontawesome');
 const _ = require('lodash');
 const CustomToggle = require('./custom-toggle');
-const {ARRAY_GENERAL_REDUCTIONS, ARRAY_NUMERIC_REDUCTIONS, ARRAY_STRING_REDUCTIONS} = require('../constants');
+const {
+  ARRAY_GENERAL_REDUCTIONS,
+  ARRAY_NUMERIC_REDUCTIONS,
+  ARRAY_STRING_REDUCTIONS
+} = require('../constants');
 
 const GENERAL = 'general-';
 const NUMERIC = 'numeric-';

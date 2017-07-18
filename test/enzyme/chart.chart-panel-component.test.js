@@ -18,7 +18,7 @@ const AVAILABLE_CHART_ROLES = [ScatterPlotRole, BarChartRole, LineChartRole, Are
 
 const {
   CHART_CHANNEL_ENUM,
-  CHART_TYPE_ENUM
+  SPEC_TYPE_ENUM
 } = require('../../src/internal-packages/chart/lib/constants');
 
 // use chai-enzyme assertions, see https://github.com/producthunt/chai-enzyme
@@ -57,6 +57,7 @@ describe('<ChartPanel />', function() {
         availableChartRoles={AVAILABLE_CHART_ROLES}
         chartType="Area Chart"
         encodedChannels={{}}
+        specType={SPEC_TYPE_ENUM.VEGA_LITE}
         />
       );
       expect(component.find('.chart-type-picker-title')).to.include.text('Area Chart');
@@ -69,6 +70,7 @@ describe('<ChartPanel />', function() {
           availableChartRoles={AVAILABLE_CHART_ROLES}
           chartType="Area Chart"
           encodedChannels={{}}
+          specType={SPEC_TYPE_ENUM.VEGA_LITE}
         />
       );
       const xChannel = component.find('#chart-panel-channel-x');
@@ -95,6 +97,7 @@ describe('<ChartPanel />', function() {
           availableChartRoles={AVAILABLE_CHART_ROLES}
           chartType="Area Chart"
           encodedChannels={encodedChannels}
+          specType={SPEC_TYPE_ENUM.VEGA_LITE}
         />
       );
       const xChannel = component.find('#chart-panel-channel-x');
@@ -111,6 +114,7 @@ describe('<ChartPanel />', function() {
           availableChartRoles={AVAILABLE_CHART_ROLES}
           chartType="Bar Chart"
           encodedChannels={{}}
+          specType={SPEC_TYPE_ENUM.VEGA_LITE}
         />
       );
       expect(component.find('.chart-type-picker-title')).to.include.text('Bar Chart');
@@ -125,6 +129,7 @@ describe('<ChartPanel />', function() {
           availableChartRoles={AVAILABLE_CHART_ROLES}
           chartType="Scatter Plot"
           encodedChannels={{}}
+          specType={SPEC_TYPE_ENUM.VEGA_LITE}
         />
       );
       expect(component.find('.chart-type-picker-title')).to.include.text('Scatter Plot');
@@ -139,6 +144,7 @@ describe('<ChartPanel />', function() {
           availableChartRoles={AVAILABLE_CHART_ROLES}
           chartType="Line Chart"
           encodedChannels={{}}
+          specType={SPEC_TYPE_ENUM.VEGA_LITE}
         />
       );
       expect(component.find('.chart-type-picker-title')).to.include.text('Line Chart');
@@ -167,6 +173,7 @@ describe('<ChartPanel />', function() {
           availableChartRoles={chartRoles}
           chartType="Magic Bar Chart"
           encodedChannels={{}}
+          specType={SPEC_TYPE_ENUM.VEGA_LITE}
         />
       );
       expect(component.find('.chart-type-picker-title')).to.include.text('Magic Bar Chart');
