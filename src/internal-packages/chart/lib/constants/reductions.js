@@ -65,7 +65,7 @@ const ARRAY_REDUCTION_TYPES = Object.freeze(Object.assign(
 const REDUCTION_ARGS_TEMPLATE = Object.freeze({
   [ARRAY_GENERAL_REDUCTIONS.INDEX]: [
     {
-      label: 'Index',
+      label: 'Index (0-based)',
       validator: (value) => {
         // Not sure how to warn out of bounds for this field, e.g. array
         // length is 3 but user asks for element 7. Do in a future ticket...
