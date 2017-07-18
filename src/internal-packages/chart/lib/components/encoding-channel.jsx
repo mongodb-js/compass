@@ -49,7 +49,7 @@ function collect(connect, monitor) {
 class EncodingChannel extends React.Component {
   constructor(props) {
     super(props);
-    this.state = {isCopyAction: false};
+    this.state = {isCopy: false};
   }
 
   componentDidMount() {
@@ -70,9 +70,9 @@ class EncodingChannel extends React.Component {
     }
 
     if (event[key]) {
-      this.setState({isCopyAction: true});
+      this.setState({isCopy: true});
     } else {
-      this.setState({isCopyAction: false});
+      this.setState({isCopy: false});
     }
   }
 
@@ -111,7 +111,7 @@ class EncodingChannel extends React.Component {
         selectMeasurement={this.onSelectMeasurement.bind(this)}
         onRemove={this.onRemove.bind(this)}
         actions={this.props.actions}
-        isCopy={this.state.isCopyAction}
+        isCopy={this.state.isCopy}
       />
     );
   }
