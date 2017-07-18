@@ -103,18 +103,18 @@ function constructAccumulatorStage(reductions, channel, encodedField, aliaser) {
 
     // first (inner-most) reduction has no map and applies the reducer expression directly
     arr = `$$value.${ reductions[0].relativeFieldPath }`;
-    expr = REDUCTIONS[reductions[0].type](arr);
+    expr = REDUCTIONS[reductions[0].type](arr, reductions[0].arguments);
 
     // second to second last reductions use a map but pass $$value down
     reductions.slice(1, -1).forEach((reduction) => {
       arr = _map(`$$value.${ reduction.relativeFieldPath }`, expr);
-      expr = REDUCTIONS[reduction.type](arr);
+      expr = REDUCTIONS[reduction.type](arr, reduction.arguments);
     });
 
     // last reduction uses the actual field name with a map
     arr = _map(`$${ reductions[reductions.length - 1].field }`, expr);
   }
-  expr = REDUCTIONS[reductions[reductions.length - 1].type](arr);
+  expr = REDUCTIONS[reductions[reductions.length - 1].type](arr, reductions[reductions.length - 1].arguments);
 
   // we use $addFields to overwrite the original field name
   const alias = aliaser.assignUniqueAlias(encodedField, channel);

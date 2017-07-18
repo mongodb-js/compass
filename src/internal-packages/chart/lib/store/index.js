@@ -3,6 +3,7 @@ const {
   AGGREGATE_FUNCTION_ENUM,
   ARRAY_REDUCTION_TYPES,
   MEASUREMENT_ENUM,
+  REDUCTION_ARGS_TEMPLATE,
   SPEC_TYPE_ENUM,
   VIEW_TYPE_ENUM,
   LITE_SPEC_GLOBAL_SETTINGS
@@ -232,8 +233,29 @@ const ChartStore = Reflux.createStore({
         return reduction.type === null;
       }).length === 0;
     }));
-
-    return allReductionsSelected && allRequiredChannelsEncoded && encodedChannels.length > 0;
+    const allReductionsHaveValidArguments = _.every(_.map(state.reductions, (reductions) => {
+      return _.every(reductions.map(reduction => {
+        const templateArray = REDUCTION_ARGS_TEMPLATE[reduction.type];
+        if (templateArray !== undefined) {
+          // args must be validated for
+          const paired = _.zip(templateArray, reduction.arguments);
+          return _.every(paired, ([template, reductionArg]) => {
+            try {
+              template.validator(reductionArg);
+            } catch (e) {
+              return false;
+            }
+            return true;
+          });
+        }
+        // If no args, the reduction is valid
+        return true;
+      }));
+    }));
+    return allReductionsSelected &&
+      allRequiredChannelsEncoded &&
+      allReductionsHaveValidArguments &&
+      encodedChannels.length > 0;
   },
 
   /**

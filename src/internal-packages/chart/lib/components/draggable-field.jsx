@@ -131,6 +131,7 @@ class DraggableField extends React.Component {
         field={reduction.field}
         actions={this.props.actions}
         type={reduction.type || null}
+        args={reduction.arguments || []}
       />);
     });
 

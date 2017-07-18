@@ -4,10 +4,12 @@ const {Dropdown, MenuItem} = require('react-bootstrap');
 const FontAwesome = require('react-fontawesome');
 const _ = require('lodash');
 const CustomToggle = require('./custom-toggle');
+const ArrayReductionArg = require('./array-reduction-arg');
 const {
   ARRAY_GENERAL_REDUCTIONS,
   ARRAY_NUMERIC_REDUCTIONS,
-  ARRAY_STRING_REDUCTIONS
+  ARRAY_STRING_REDUCTIONS,
+  REDUCTION_ARGS_TEMPLATE
 } = require('../constants');
 
 const GENERAL = 'general-';
@@ -18,15 +20,69 @@ const HEADER = '-header';
 
 class ArrayReductionPicker extends React.Component {
 
+  /**
+   * Wrapper for setArrayReduction which extracts and applies validation to
+   * the user-supplied value from the event.
+   *
+   * @param {Function} validator  A function that returns an updated validated
+   *                              value or throws a validation error
+   * @param {Number} argsIndex    The index of the arguments to be updated
+   * @param {Event} event         The change event
+   */
+  setArrayReductionArg(validator, argsIndex, event) {
+    const args = _.cloneDeep(this.props.args);
+    const rawValue = event.target.value;
+    try {
+      // Allow type coercions, e.g. from string to integer
+      args[argsIndex] = validator(rawValue);
+    } catch (e) {
+      args[argsIndex] = rawValue;
+    }
+    this.props.actions.setArrayReduction(this.props.channel, this.props.index, this.props.type, args);
+  }
+
+  /**
+   * Wrapper around setArrayReduction to handle the action and event.
+   *
+   * @param {String} action   The array reduction type, e.g. $unwind
+   * @param {Event} evt       The change event
+   */
   selectArrayReduction(action, evt) {
     evt.preventDefault();
     evt.stopPropagation();
-    this.props.actions.setArrayReduction(this.props.channel, this.props.index, action);
+    this.props.actions.setArrayReduction(this.props.channel, this.props.index, action, this.props.args);
   }
 
+  /**
+   * Renders the required number of square bracket icons.
+   *
+   * @returns {Array} of HTML <i/> tags
+   */
   renderDimensionality() {
     return Array.from(new Array(this.props.dimensionality), (v, i) => {
       return <i className="mms-icon-array" key={i} />;
+    });
+  }
+
+  /**
+   * Renders zero or more <ArrayReductionArg> components with the
+   * user-supplied `args` for this reduction `type`.
+   *
+   * @returns {Array} of rendered <ArrayReductionArg> components
+   */
+  renderReductionArgs() {
+    // Assume the args and argsTemplate lists are the same length
+    const argsTemplate = REDUCTION_ARGS_TEMPLATE[this.props.type] || [];
+    const paired = _.zip(argsTemplate, this.props.args.slice(0, argsTemplate.length));
+    return paired.map(([argTemplate, argValue], index) => {
+      const validator = argTemplate.validator;
+      return (<ArrayReductionArg
+        key={index}
+        label={argTemplate.label}
+        onBlur={this.setArrayReductionArg.bind(this, validator, index)}
+        validator={validator}
+        value={argValue}
+      />);
     });
   }
 
@@ -90,6 +146,7 @@ class ArrayReductionPicker extends React.Component {
             </Dropdown.Menu>
           </Dropdown>
         </div>
+        {this.renderReductionArgs()}
       </div>
     );
   }
@@ -100,6 +157,7 @@ ArrayReductionPicker.propTypes = {
   dimensionality: PropTypes.number.isRequired,
   field: PropTypes.string,
   type: PropTypes.string,
+  args: PropTypes.array.isRequired,
   index: PropTypes.number,
   actions: PropTypes.object
 };

@@ -1,3 +1,8 @@
+// Not sure how to nest these more clearly in less, CSS modules might be better
+.has-error .chart-draggable-field-row-reduction-arg-value {
+  border-color: #843534;  // Same as the color in document validation
+}
+
 .chart-draggable-field {
   cursor: -webkit-grab;
   background: linear-gradient(180deg, #FFFFFF 0%, #F6F6F6 100%);
@@ -8,6 +13,26 @@
 
   &-row {
     display: flex;
+
+    &-reduction-arg-label {
+      font-family: "Akzidenz", "Helvetica Neue", Helvetica, Arial, sans-serif;
+      font-size: 11px;
+      font-weight: normal;
+      overflow: hidden;
+      margin: 6px 0 0 6px;
+      text-overflow: ellipsis;
+      width: 50%;
+    }
+
+    &-reduction-arg-value {
+      border: 1px solid #bfbfbe;
+      border-radius: 3px;
+      font-family: "Akzidenz", "Helvetica Neue", Helvetica, Arial, sans-serif;
+      font-size: 11px;
+      margin: 3px 0 3px 0;
+      padding: 1px 5px 1px 5px;
+      width: 50%;
+    }
   }
 
   &-item-container {

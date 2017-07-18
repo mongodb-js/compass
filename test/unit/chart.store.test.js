@@ -818,6 +818,68 @@ describe('ChartStore', function() {
         });
       });
 
+      context('"Array element by index" array reduction', () => {
+        it('specValid is false in the default state', function(done) {
+          type = ARRAY_REDUCTION_TYPES.INDEX;
+          ChartActions.setArrayReduction(channel, 0, type);
+          setTimeout(() => {
+            const specValid = this.store.state.specValid;
+            expect(specValid).to.be.false;
+            done();
+          });
+        });
+        it('specValid is false in the empty state', function(done) {
+          type = ARRAY_REDUCTION_TYPES.INDEX;
+          const args = [''];
+          ChartActions.setArrayReduction(channel, 0, type, args);
+          setTimeout(() => {
+            const specValid = this.store.state.specValid;
+            expect(specValid).to.be.false;
+            done();
+          });
+        });
+        it('specValid is false for string inputs', function(done) {
+          type = ARRAY_REDUCTION_TYPES.INDEX;
+          const args = ['a'];
+          ChartActions.setArrayReduction(channel, 0, type, args);
+          setTimeout(() => {
+            const specValid = this.store.state.specValid;
+            expect(specValid).to.be.false;
+            done();
+          });
+        });
+        it('specValid is false for decimal inputs', function(done) {
+          type = ARRAY_REDUCTION_TYPES.INDEX;
+          const args = ['1.5'];
+          ChartActions.setArrayReduction(channel, 0, type, args);
+          setTimeout(() => {
+            const specValid = this.store.state.specValid;
+            expect(specValid).to.be.false;
+            done();
+          });
+        });
+        it('specValid is true once the user types in an integer', function(done) {
+          type = ARRAY_REDUCTION_TYPES.INDEX;
+          const args = ['0'];
+          ChartActions.setArrayReduction(channel, 0, type, args);
+          setTimeout(() => {
+            const specValid = this.store.state.specValid;
+            expect(specValid).to.be.true;
+            done();
+          });
+        });
+        it('specValid is true for negative integers', function(done) {
+          type = ARRAY_REDUCTION_TYPES.INDEX;
+          const args = ['-2'];
+          ChartActions.setArrayReduction(channel, 0, type, args);
+          setTimeout(() => {
+            const specValid = this.store.state.specValid;
+            expect(specValid).to.be.true;
+            done();
+          });
+        });
+      });
+
       it('stores a max length reduction', function(done) {
         index = 0;
         type = ARRAY_REDUCTION_TYPES.MAX_LENGTH;
