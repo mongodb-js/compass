@@ -7,7 +7,7 @@ class ArrayReductionArg extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      value: this.props.value
+      value: this.props.value === undefined ? '' : this.props.value
     };
   }
 
