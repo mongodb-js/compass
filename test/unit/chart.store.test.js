@@ -868,6 +868,16 @@ describe('ChartStore', function() {
             done();
           });
         });
+        it('specValid is true for negative integers', function(done) {
+          type = ARRAY_REDUCTION_TYPES.INDEX;
+          const args = ['-2'];
+          ChartActions.setArrayReduction(channel, 0, type, args);
+          setTimeout(() => {
+            const specValid = this.store.state.specValid;
+            expect(specValid).to.be.true;
+            done();
+          });
+        });
       });
 
       it('stores a max length reduction', function(done) {

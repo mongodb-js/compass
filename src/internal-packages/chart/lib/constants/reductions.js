@@ -69,7 +69,7 @@ const REDUCTION_ARGS_TEMPLATE = Object.freeze({
       validator: (value) => {
         // Not sure how to warn out of bounds for this field, e.g. array
         // length is 3 but user asks for element 7. Do in a future ticket...
-        if (/^[0-9]+$/.test(value)) {
+        if (/^-?[0-9]+$/.test(value)) {
           // Coerce to the integer value
           return parseInt(value, 10);
         }
