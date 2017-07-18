@@ -832,7 +832,7 @@ describe('Aggregation Pipeline Builder', function() {
     });
   });
 
-  context('On a "coordinate_pairs" collection', function() {
+  context.skip('COMPASS-1413 On a "coordinate_pairs" collection', function() {
     before(function(done) {
       dataService.connect(function() {
         const docs = [
@@ -886,7 +886,7 @@ describe('Aggregation Pipeline Builder', function() {
         });
       });
 
-      it.skip('returns the correct results when executing the pipeline', function(done) {
+      it('returns the correct results when executing the pipeline', function(done) {
         if (!versionSupported) {
           this.skip();
         }
@@ -904,7 +904,7 @@ describe('Aggregation Pipeline Builder', function() {
     });
   });
 
-  context('On a "matrix_3D" collection', function() {
+  context.skip('COMPASS-1413 On a "matrix_3D" collection', function() {
     before(function(done) {
       dataService.connect(function() {
         const docs = [
@@ -978,7 +978,7 @@ describe('Aggregation Pipeline Builder', function() {
         });
       });
 
-      it.skip('returns the correct results when executing the pipeline', function(done) {
+      it('returns the correct results when executing the pipeline', function(done) {
         if (!versionSupported) {
           this.skip();
         }
