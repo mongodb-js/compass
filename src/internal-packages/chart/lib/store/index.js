@@ -252,7 +252,10 @@ const ChartStore = Reflux.createStore({
         return true;
       }));
     }));
-    return allReductionsSelected && allRequiredChannelsEncoded && allReductionsHaveValidArguments && encodedChannels.length > 0;
+    return allReductionsSelected &&
+      allRequiredChannelsEncoded &&
+      allReductionsHaveValidArguments &&
+      encodedChannels.length > 0;
   },
 
   /**
