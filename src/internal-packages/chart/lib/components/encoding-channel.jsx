@@ -50,20 +50,27 @@ class EncodingChannel extends React.Component {
     super(props);
     this.state = {isCopyEnabled: false};
     this.onDragEnter = this.onDragEnter.bind(this);
+    this.onDrop = this.onDrop.bind(this);
   }
 
   componentDidMount() {
     window.addEventListener('dragenter', this.onDragEnter);
+    window.addEventListener('drop', this.onDrop);
   }
 
   componentWillUnmount() {
     window.removeEventListener('dragenter', this.onDragEnter);
+    window.removeEventListener('drop', this.onDrop);
   }
 
   onDragEnter(event) {
     // if MODIFIER_KEY is truthy then allow copying of encoding channel otherwise don't
     const isCopyEnabled = event[MODIFIER_KEY];
     this.setState({isCopyEnabled});
+  }
+
+  onDrop() {
+    this.setState({isCopyEnabled: false});
   }
 
   onSelectAggregate(aggregate) {
@@ -118,6 +125,8 @@ class EncodingChannel extends React.Component {
     }
     if (this.props.isOver) {
       droppableClass += ' chart-encoding-channel-droppable-over';
+    } else if (this.state.isCopyEnabled) {
+      droppableClass += ' chart-encoding-channel-droppable-copy';
     } else if (this.props.canDrop) {
       droppableClass += ' chart-encoding-channel-droppable-can-drop';
     }
