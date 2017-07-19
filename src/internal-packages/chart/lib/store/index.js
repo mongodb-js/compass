@@ -649,9 +649,14 @@ const ChartStore = Reflux.createStore({
     const reductions = _.cloneDeep(this.state.reductions);
 
     channels[target] = _.cloneDeep(channels[source]);
-    reductions[target] = _.cloneDeep(reductions[source]);
+    if (!_.isEmpty(reductions[source])) {
+      reductions[target] = _.cloneDeep(reductions[source]);
+    }
 
-    this._updateSpec({channels, reductions}, pushToHistory);
+    this._updateSpec({
+      channels: channels,
+      reductions: reductions
+    }, pushToHistory);
   },
 
   /**
