@@ -103,13 +103,16 @@ function constructAccumulatorStage(reductions, channel, encodedField, aliaser) {
     // reverse the array (without modifying original), below code assumes inside->out order
     reductions = reductions.slice().reverse();
 
+    // in the case of nested arrays
+    if (reductions[0].relativeFieldPath === reductions[1].relativeFieldPath) {
+      reductions[0].relativeFieldPath = null;
+    } else if (encodedField !== reductions[0].field) {
     // If the inner reduction doesn't match the encodedField add its relative array name
-    if (encodedField !== reductions[0].field) {
       reductions[0].relativeFieldPath = encodedField.replace(new RegExp(`^${reductions[1].field}\.`), '');
     }
 
     // first (inner-most) reduction has no map and applies the reducer expression directly
-    arr = `$$value.${ reductions[0].relativeFieldPath }`;
+    arr = reductions[0].relativeFieldPath ? `$$value.${ reductions[0].relativeFieldPath }` : '$$value';
     expr = REDUCTIONS[reductions[0].type](arr, reductions[0].arguments);
 
     // second to second last reductions use a map but pass $$value down
