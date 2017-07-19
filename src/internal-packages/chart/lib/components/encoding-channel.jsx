@@ -7,6 +7,9 @@ const DraggableField = require('./draggable-field');
 
 // const debug = require('debug')('mongodb-compass:chart:encoding-channel');
 
+// for OSX use meta key as the modifier, for everything else (windows, linux etc) use ctrl
+const MODIFIER_KEY = (process.platform === 'darwin') ? 'metaKey' : 'ctrlKey';
+
 /**
  * Drop target for react-dnd
  * @see http://react-dnd.github.io/react-dnd/docs-drop-target.html
@@ -17,13 +20,15 @@ const encodingChannelTarget = {
     // All drop targets are currently valid
     return true;
   },
-  drop(props, monitor) {
+  drop(props, monitor, component) {
     const item = monitor.getItem();
-    // const encodedChannel = props.encodedChannel;
-    if (item.channelName !== undefined) {
+    // if the incoming EncodingChannel has truthy isCopyEnabled state do a copy
+    if (item.channelName && component.state.isCopyEnabled) {
+      return props.actions.copyEncodedChannel(item.channelName, props.channelName);
+    } else if (item.channelName !== undefined) {
       return props.actions.swapEncodedChannels(props.channelName, item.channelName);
     }
-    // Always encode the target channel
+    // Otherwise encode the target channel
     props.actions.mapFieldToChannel(item.fieldPath, props.channelName);
   }
 };
@@ -41,6 +46,32 @@ function collect(connect, monitor) {
  * and whether the user has encoded a specific field into it.
  */
 class EncodingChannel extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = {isCopyEnabled: false};
+    this.onDragEnter = this.onDragEnter.bind(this);
+    this.onDrop = this.onDrop.bind(this);
+  }
+
+  componentDidMount() {
+    window.addEventListener('dragenter', this.onDragEnter);
+    window.addEventListener('drop', this.onDrop);
+  }
+
+  componentWillUnmount() {
+    window.removeEventListener('dragenter', this.onDragEnter);
+    window.removeEventListener('drop', this.onDrop);
+  }
+
+  onDragEnter(event) {
+    // if MODIFIER_KEY is truthy then allow copying of encoding channel otherwise don't
+    const isCopyEnabled = event[MODIFIER_KEY];
+    this.setState({isCopyEnabled});
+  }
+
+  onDrop() {
+    this.setState({isCopyEnabled: false});
+  }
 
   onSelectAggregate(aggregate) {
     const channel = this.props.channelName;
@@ -94,6 +125,8 @@ class EncodingChannel extends React.Component {
     }
     if (this.props.isOver) {
       droppableClass += ' chart-encoding-channel-droppable-over';
+    } else if (this.state.isCopyEnabled) {
+      droppableClass += ' chart-encoding-channel-droppable-copy';
     } else if (this.props.canDrop) {
       droppableClass += ' chart-encoding-channel-droppable-can-drop';
     }

@@ -565,6 +565,56 @@ describe('ChartStore', function() {
     });
   });
 
+  context('when calling the copyEncodedChannel action', function() {
+    beforeEach((done) => {
+      ChartActions.mapFieldToChannel(YEAR_SCHEMA_FIELD.path, CHART_CHANNEL_ENUM.X);
+      ChartActions.selectAggregate(CHART_CHANNEL_ENUM.X, AGGREGATE_FUNCTION_ENUM.MAX);
+      ChartActions.mapFieldToChannel(COUNTRY_SCHEMA_FIELD.path, CHART_CHANNEL_ENUM.Y);
+      setTimeout(done);
+    });
+    it('copies from a source to a blank target channel', function(done) {
+      const expected = {
+        'x': {
+          field: YEAR_SCHEMA_FIELD.path,
+          type: MEASUREMENT_ENUM.QUANTITATIVE,
+          aggregate: AGGREGATE_FUNCTION_ENUM.MAX
+        },
+        'y': {
+          field: COUNTRY_SCHEMA_FIELD.path,
+          type: MEASUREMENT_ENUM.NOMINAL
+        },
+        'detail': {
+          field: COUNTRY_SCHEMA_FIELD.path,
+          type: MEASUREMENT_ENUM.NOMINAL
+        }
+      };
+      ChartActions.copyEncodedChannel(CHART_CHANNEL_ENUM.Y, CHART_CHANNEL_ENUM.DETAIL);
+      setTimeout(() => {
+        expect(this.store.state.channels).to.be.deep.equal(expected);
+        done();
+      });
+    });
+    it('copies from a source to a filled target channel (overwrite)', function(done) {
+      const expected = {
+        'x': {
+          field: YEAR_SCHEMA_FIELD.path,
+          type: MEASUREMENT_ENUM.QUANTITATIVE,
+          aggregate: AGGREGATE_FUNCTION_ENUM.MAX
+        },
+        'y': {
+          field: YEAR_SCHEMA_FIELD.path,
+          type: MEASUREMENT_ENUM.QUANTITATIVE,
+          aggregate: AGGREGATE_FUNCTION_ENUM.MAX
+        }
+      };
+      ChartActions.copyEncodedChannel(CHART_CHANNEL_ENUM.X, CHART_CHANNEL_ENUM.Y);
+      setTimeout(() => {
+        expect(this.store.state.channels).to.be.deep.equal(expected);
+        done();
+      });
+    });
+  });
+
   context('when calling the selectMeasurement action', function() {
     it('stores the encoding channel relationship', function(done) {
       const expected = {
@@ -1203,6 +1253,58 @@ describe('ChartStore', function() {
         setTimeout(() => {
           const reductions = this.store.state.reductions;
           expect(reductions).to.be.empty;
+          done();
+        });
+      });
+    });
+  });
+
+  context('copy array channels after one has been encoded', () => {
+    const field = UP_TO_5_TAGS_SCHEMA_FIELD;
+    const xChannel = CHART_CHANNEL_ENUM.X;
+    const yChannel = CHART_CHANNEL_ENUM.Y;
+    const type = ARRAY_REDUCTION_TYPES.MAX_LENGTH;
+    context('when copying an array reduction to an empty channel', function() {
+      beforeEach(() => {
+        ChartActions.mapFieldToChannel(field.path, xChannel);
+        ChartActions.setArrayReduction(xChannel, 0, ARRAY_REDUCTION_TYPES.MAX_LENGTH);
+      });
+
+      it('has an initial expected reduction', function(done) {
+        const expected = {
+          [xChannel]: [{
+            dimensionality: 1,
+            field: field.path,
+            type: type,
+            arguments: []
+          }]
+        };
+        setTimeout(() => {
+          const reductions = this.store.state.reductions;
+          expect(reductions).to.be.deep.equal(expected);
+          done();
+        });
+      });
+
+      it('copies to the other channel', function(done) {
+        ChartActions.copyEncodedChannel(xChannel, yChannel);
+        const expected = {
+          [xChannel]: [{
+            dimensionality: 1,
+            field: field.path,
+            type: type,
+            arguments: []
+          }],
+          [yChannel]: [{
+            dimensionality: 1,
+            field: field.path,
+            type: type,
+            arguments: []
+          }]
+        };
+        setTimeout(() => {
+          const reductions = this.store.state.reductions;
+          expect(reductions).to.be.deep.equal(expected);
           done();
         });
       });
