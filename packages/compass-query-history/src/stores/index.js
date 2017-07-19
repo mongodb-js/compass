@@ -2,8 +2,6 @@ const Reflux = require('reflux');
 const Actions = require('../actions');
 const StateMixin = require('reflux-state-mixin');
 
-const debug = require('debug')('mongodb-compass:query-history:sidebar-store');
-
 /**
  * Query History store.
  */
@@ -80,14 +78,6 @@ const SidebarStore = Reflux.createStore({
     return {
       showing: 'recent'
     };
-  },
-
-  /**
-   * log changes to the store as debug messages.
-   * @param  {Object} prevState   previous state.
-   */
-  storeDidUpdate(prevState) {
-    debug('Sidebar store changed from', prevState, 'to', this.state);
   }
 });
 

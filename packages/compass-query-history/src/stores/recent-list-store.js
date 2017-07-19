@@ -4,8 +4,6 @@ const StateMixin = require('reflux-state-mixin');
 // const { Query, QueryCollection } = require('../../');
 // const FilteredCollection = require('ampersand-filtered-subcollection');
 
-const debug = require('debug')('mongodb-compass:query-history:recent-store');
-
 /**
  * Query History Recent List store.
  */
@@ -39,10 +37,6 @@ const RecentListStore = Reflux.createStore({
     return {
       recents: []
     };
-  },
-
-  storeDidUpdate(prevState) {
-    debug('RecentListStore changed from', prevState, 'to', this.state);
   }
 });
 

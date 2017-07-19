@@ -4,7 +4,7 @@ const StateMixin = require('reflux-state-mixin');
 // const { Query, QueryCollection } = require('../../');
 // const FilteredCollection = require('ampersand-filtered-subcollection');
 
-const debug = require('debug')('mongodb-compass:query-history:favorites-store');
+// const debug = require('debug')('mongodb-compass:query-history:favorites-store');
 
 /**
  * Query History Favorites List store.
@@ -51,10 +51,6 @@ const FavoritesListStore = Reflux.createStore({
       favorites: [], // QueryCollection.fetch();
       current_favorite: null
     };
-  },
-
-  storeDidUpdate(prevState) {
-    debug('FavoritesListStore changed from', prevState, 'to', this.state);
   }
 });
 
