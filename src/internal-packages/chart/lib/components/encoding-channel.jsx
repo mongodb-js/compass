@@ -7,7 +7,7 @@ const DraggableField = require('./draggable-field');
 
 // const debug = require('debug')('mongodb-compass:chart:encoding-channel');
 
-// for OSX use meta key as the modifier, for everything else (windows, linux etc) use ctrl
+// use alt key for copying fields on all platforms
 const MODIFIER_KEY = 'altKey';
 
 /**
