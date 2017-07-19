@@ -365,7 +365,7 @@ app.extend({
         socketTimeoutMS: 120000
       };
       const DataService = require('mongodb-data-service');
-      state.connection.app_name = "mongodb-compass";
+      state.connection.app_name = 'mongodb-compass';
       const dataService = new DataService(state.connection);
       global.hadronApp.appRegistry.onDataServiceInitialized(dataService);
       dataService.connect((error, ds) => {
