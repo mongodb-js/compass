@@ -49,28 +49,32 @@ class EncodingChannel extends React.Component {
   constructor(props) {
     super(props);
     this.state = {isCopyEnabled: false};
-    this.onDragEnter = this.onDragEnter.bind(this);
-    this.onDrop = this.onDrop.bind(this);
+    this.onDragStart = this.onDragStart.bind(this);
+    this.onDrag = this.onDrag.bind(this);
   }
 
   componentDidMount() {
-    window.addEventListener('dragenter', this.onDragEnter);
-    window.addEventListener('drop', this.onDrop);
+    window.addEventListener('drag', this.onDrag);
+    window.addEventListener('dragstart', this.onDragStart);
   }
 
   componentWillUnmount() {
-    window.removeEventListener('dragenter', this.onDragEnter);
-    window.removeEventListener('drop', this.onDrop);
+    window.removeEventListener('drag', this.onDrag);
+    window.removeEventListener('dragstart', this.onDragStart);
   }
 
-  onDragEnter(event) {
-    // if MODIFIER_KEY is truthy then allow copying of encoding channel otherwise don't
+  onDragStart(event) {
+    // disable HTML5 drag&drop backend internal move/copy behavior
+    event.dataTransfer.effectAllowed = 'move';
+  }
+
+  onDrag(event) {
+    // if MODIFIER_KEY is truthy then allow copying to encoding channel otherwise don't
     const isCopyEnabled = event[MODIFIER_KEY];
-    this.setState({isCopyEnabled});
-  }
-
-  onDrop() {
-    this.setState({isCopyEnabled: false});
+    if (this.state.isCopyEnabled !== isCopyEnabled) {
+      this.setState({isCopyEnabled});
+    }
+    event.preventDefault();
   }
 
   onSelectAggregate(aggregate) {
@@ -125,8 +129,6 @@ class EncodingChannel extends React.Component {
     }
     if (this.props.isOver) {
       droppableClass += ' chart-encoding-channel-droppable-over';
-    } else if (this.state.isCopyEnabled) {
-      droppableClass += ' chart-encoding-channel-droppable-copy';
     } else if (this.props.canDrop) {
       droppableClass += ' chart-encoding-channel-droppable-can-drop';
     }
