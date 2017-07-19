@@ -8,7 +8,7 @@ const DraggableField = require('./draggable-field');
 // const debug = require('debug')('mongodb-compass:chart:encoding-channel');
 
 // for OSX use meta key as the modifier, for everything else (windows, linux etc) use ctrl
-const MODIFIER_KEY = (process.platform === 'darwin') ? 'metaKey' : 'ctrlKey';
+const MODIFIER_KEY = 'altKey';
 
 /**
  * Drop target for react-dnd
@@ -65,7 +65,7 @@ class EncodingChannel extends React.Component {
 
   onDragStart(event) {
     // disable HTML5 drag&drop backend internal move/copy behavior
-    event.dataTransfer.effectAllowed = 'move';
+    event.dataTransfer.effectAllowed = 'copyMove';
   }
 
   onDrag(event) {
