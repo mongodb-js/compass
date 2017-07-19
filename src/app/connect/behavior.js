@@ -255,6 +255,7 @@ module.exports = State.extend({
         } else {
           connection = view.connection;
         }
+        connection.app_name = "mongodb-compass";
         _.defer(view.validateConnection.bind(view), connection);
         break;
 
