@@ -23,6 +23,22 @@ function _map(arr, expr) {
 }
 
 /**
+ * In order to build the complex expression to handle multiple array reductions below,
+ * we need to know the path names of each field in a reduction relative to the previous
+ * reduction field. E.g. if the first reduction is on "a.b" and the next is on "a.b.c.d.e"
+ * then the relative field is "c.d.e", which can later be appended to "$$value." in the expression.
+ * @param {Array} reductions   array of reductions
+ */
+function _addRelativeFieldPaths(reductions) {
+  reductions[0].relativeFieldPath = reductions[0].field;
+  // assign relativeFieldPath to each reduction (Remove path information)
+  for (let i = 1; i < reductions.length; i++) {
+    const prefix = reductions[i - 1].field;
+    reductions[i].relativeFieldPath = reductions[i].field.replace(new RegExp(`^${prefix}\.`), '');
+  }
+}
+
+/**
  * Filters out all unwind reductions from the reductions array and builds
  * $unwind stages for the respective fields.
  *
@@ -77,21 +93,12 @@ function constructAccumulatorStage(reductions, channel, encodedField, aliaser) {
     return null;
   }
 
-  // In order to build the complex expression to handle multiple array reductions below,
-  // we need to know the path names of each field in a reduction relative to the previous
-  // reduction field. E.g. if the first reduction is on "a.b" and the next is on "a.b.c.d.e"
-  // then the relative field is "c.d.e", which can later be appended to "$$value." in the expression.
   if (reductions.length === 1) {
     // with only one reduction, return the reduction applied to the field
     // directly.
     arr = `$${ encodedField }`;
   } else if (reductions.length > 1) {
-    reductions[0].relativeFieldPath = reductions[0].field;
-    // assign relativeFieldPath to each reduction (Remove path information)
-    for (let i = 1; i < reductions.length; i++) {
-      const prefix = reductions[i - 1].field;
-      reductions[i].relativeFieldPath = reductions[i].field.replace(new RegExp(`^${prefix}\.`), '');
-    }
+    _addRelativeFieldPaths(reductions);
 
     // reverse the array (without modifying original), below code assumes inside->out order
     reductions = reductions.slice().reverse();
