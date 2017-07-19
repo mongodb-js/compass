@@ -22,8 +22,7 @@ const draggableFieldSource = {
   beginDrag: function(props) {
     return {
       channelName: props.channelName,
-      fieldPath: props.fieldPath,
-      isCopy: props.isCopy
+      fieldPath: props.fieldPath
     };
   }
 };
@@ -224,8 +223,7 @@ DraggableField.propTypes = {
   selectAggregate: PropTypes.func,
   selectMeasurement: PropTypes.func,
   connectDragSource: PropTypes.func,
-  onRemove: PropTypes.func,
-  isCopy: PropTypes.bool
+  onRemove: PropTypes.func
 };
 
 DraggableField.displayName = 'DraggableField';
