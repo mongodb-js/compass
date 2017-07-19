@@ -20,15 +20,15 @@ const encodingChannelTarget = {
     // All drop targets are currently valid
     return true;
   },
-  drop(props, monitor) {
+  drop(props, monitor, component) {
     const item = monitor.getItem();
-    // const encodedChannel = props.encodedChannel;
-    if (item.isCopy) {
+    // if the incoming EncodingChannel has truthy isCopyEnabled state do a copy
+    if (item.channelName && component.state.isCopyEnabled) {
       return props.actions.copyEncodedChannel(item.channelName, props.channelName);
     } else if (item.channelName !== undefined) {
       return props.actions.swapEncodedChannels(props.channelName, item.channelName);
     }
-    // Always encode the target channel
+    // Otherwise encode the target channel
     props.actions.mapFieldToChannel(item.fieldPath, props.channelName);
   }
 };
@@ -48,24 +48,22 @@ function collect(connect, monitor) {
 class EncodingChannel extends React.Component {
   constructor(props) {
     super(props);
-    this.state = {isCopy: false};
-    this.onDrag = this.onDragStart.bind(this);
+    this.state = {isCopyEnabled: false};
+    this.onDragEnter = this.onDragEnter.bind(this);
   }
 
   componentDidMount() {
-    window.addEventListener('dragstart', this.onDrag);
+    window.addEventListener('dragenter', this.onDragEnter);
   }
 
   componentWillUnmount() {
-    window.removeEventListener('dragstart', this.onDrag);
+    window.removeEventListener('dragenter', this.onDragEnter);
   }
 
-  onDragStart(event) {
-    if (event[MODIFIER_KEY]) {
-      this.setState({isCopy: true});
-    } else {
-      this.setState({isCopy: false});
-    }
+  onDragEnter(event) {
+    // if MODIFIER_KEY is truthy then allow copying of encoding channel otherwise don't
+    const isCopyEnabled = event[MODIFIER_KEY];
+    this.setState({isCopyEnabled});
   }
 
   onSelectAggregate(aggregate) {
@@ -103,7 +101,6 @@ class EncodingChannel extends React.Component {
         selectMeasurement={this.onSelectMeasurement.bind(this)}
         onRemove={this.onRemove.bind(this)}
         actions={this.props.actions}
-        isCopy={this.state.isCopy}
       />
     );
   }
