@@ -34,7 +34,8 @@ const ARRAY_STRING_REDUCTIONS = Object.freeze({
   MIN_LENGTH: 'min length',
   MAX_LENGTH: 'max length',
   LONGEST: 'longest',
-  SHORTEST: 'shortest'
+  SHORTEST: 'shortest',
+  EXISTENCE_OF_VALUE: 'existence of value'
 });
 
 /**
@@ -74,6 +75,20 @@ const REDUCTION_ARGS_TEMPLATE = Object.freeze({
           return parseInt(value, 10);
         }
         throw new Error(`ValidationError - Invalid value: ${value}`);
+      }
+    }
+  ],
+  [ARRAY_STRING_REDUCTIONS.EXISTENCE_OF_VALUE]: [
+    {
+      // https://docs.mongodb.com/manual/reference/operator/aggregation/in/#exp._S_in
+      label: 'String value',
+      validator: (value) => {
+        if (value.length > 0) {
+          return value;
+        }
+        // Might want to demote this to a warning,
+        // as the empty string is a potentially valid case
+        throw new Error('ValidationError - A string must be provided');
       }
     }
   ]
@@ -190,6 +205,12 @@ const REDUCTIONS = Object.freeze({
           }
         }
       }
+    };
+  },
+  [ARRAY_STRING_REDUCTIONS.EXISTENCE_OF_VALUE]: function(arr, args) {
+    const expression = args[0];
+    return {
+      $in: [expression, arr]
     };
   }
 });

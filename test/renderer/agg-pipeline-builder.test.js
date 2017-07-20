@@ -830,6 +830,47 @@ describe('Aggregation Pipeline Builder', function() {
         });
       });
     });
+
+    context('when using the "existence of value" accumulator', function() {
+      const state = {
+        reductions: {
+          x: [
+            {field: 'friends', type: ARRAY_REDUCTION_TYPES.EXISTENCE_OF_VALUE, arguments: ['Tom']}
+          ]
+        },
+        channels: {
+          x: { field: 'friends', type: 'ordinal' }
+        }
+      };
+      const pipeline = constructPipeline(state);
+
+      it('builds the correct agg pipeline with the "existence of value" reduction', function() {
+        expect(pipeline).to.be.an('array');
+        expect(pipeline[0]).to.be.deep.equal({
+          $addFields: {
+            '__alias_0': {
+              $in: ['Tom', '$friends']
+            }
+          }
+        });
+      });
+
+      it('returns the correct results when executing the pipeline', function(done) {
+        if (!versionSupported) {
+          this.skip();
+        }
+
+        dataService.aggregate(`${DB}.array_of_strings`, pipeline, {}, function(err, res) {
+          expect(err).to.be.null;
+          expect(res).to.be.deep.equal([
+            {x: true},
+            {x: false},
+            {x: false}
+          ]);
+          done();
+        });
+      });
+    });
   });
 
   context.skip('COMPASS-1413 On a "coordinate_pairs" collection', function() {
