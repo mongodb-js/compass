@@ -940,16 +940,16 @@ describe('Aggregation Pipeline Builder', function() {
       dataService.connect(function() {
         const docs = [
           {_id: 0, coordinate_pairs: [
-            ['1.1', '1.1'],
-            ['1.2', '1.2'],
-            ['2.1', '2.1'],
-            ['2.2', '2.2']
+            ['1.1', '1.5'],
+            ['1.2', '1.6'],
+            ['2.1', '2.7'],
+            ['2.2', '2.8']
           ]},
           {_id: 1, coordinate_pairs: [
-            ['3.1', '3.1'],
-            ['3.2', '3.2'],
-            ['4.1', '4.1'],
-            ['4.2', '4.2']
+            ['3.1', '3.5'],
+            ['3.2', '3.6'],
+            ['4.1', '4.7'],
+            ['4.2', '4.8']
           ]}
         ];
         dataService.insertMany(`${DB}.coordinate_pairs`, docs, {}, done);
@@ -999,6 +999,104 @@ describe('Aggregation Pipeline Builder', function() {
           expect(res).to.be.deep.equal([
             {x: '1.1'},
             {x: '3.1'}
+          ]);
+          done();
+        });
+      });
+    });
+
+    context('with different arguments in the first and last reduction stages', () => {
+      const state = {
+        reductions: {
+          x: [
+            {field: 'coordinate_pairs', type: ARRAY_REDUCTION_TYPES.INDEX, arguments: [2]},
+            {field: 'coordinate_pairs', type: ARRAY_REDUCTION_TYPES.INDEX, arguments: [1]}
+          ]
+        },
+        channels: {
+          x: { field: 'coordinate_pairs', type: 'ordinal' }
+        }
+      };
+      const pipeline = constructPipeline(state);
+
+      it('builds the correct agg pipeline with the "index" reductions', () => {
+        expect(pipeline).to.be.an('array');
+        expect(pipeline[0]).to.be.deep.equal({
+          $addFields: {
+            '__alias_0': {
+              '$arrayElemAt': [{
+                '$map': {
+                  'as': 'value',
+                  'in': {
+                    '$arrayElemAt': ['$$value', 1]
+                  },
+                  'input': '$coordinate_pairs'
+                }
+              }, 2]
+            }
+          }
+        });
+      });
+
+      it('returns the correct results when executing the pipeline', function(done) {
+        if (!versionSupported) {
+          this.skip();
+        }
+
+        dataService.aggregate(`${DB}.coordinate_pairs`, pipeline, {}, function(err, res) {
+          expect(err).to.be.null;
+          expect(res).to.be.deep.equal([
+            {x: '2.7'},
+            {x: '4.7'}
+          ]);
+          done();
+        });
+      });
+    });
+
+    context('with different reduction types', () => {
+      const state = {
+        reductions: {
+          x: [
+            {field: 'coordinate_pairs', type: ARRAY_REDUCTION_TYPES.MAX},
+            {field: 'coordinate_pairs', type: ARRAY_REDUCTION_TYPES.MIN}
+          ]
+        },
+        channels: {
+          x: { field: 'coordinate_pairs', type: 'ordinal' }
+        }
+      };
+      const pipeline = constructPipeline(state);
+
+      it('builds the correct agg pipeline with the "index" reductions', () => {
+        expect(pipeline).to.be.an('array');
+        expect(pipeline[0]).to.be.deep.equal({
+          $addFields: {
+            '__alias_0': {
+              '$max': {
+                '$map': {
+                  'as': 'value',
+                  'in': {
+                    '$min': '$$value'
+                  },
+                  'input': '$coordinate_pairs'
+                }
+              }
+            }
+          }
+        });
+      });
+
+      it('returns the correct results when executing the pipeline', function(done) {
+        if (!versionSupported) {
+          this.skip();
+        }
+
+        dataService.aggregate(`${DB}.coordinate_pairs`, pipeline, {}, function(err, res) {
+          expect(err).to.be.null;
+          expect(res).to.be.deep.equal([
+            {x: '2.2'},
+            {x: '4.2'}
           ]);
           done();
         });
