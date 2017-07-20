@@ -7,6 +7,9 @@ const DraggableField = require('./draggable-field');
 
 // const debug = require('debug')('mongodb-compass:chart:encoding-channel');
 
+// use alt key for copying fields on all platforms
+const MODIFIER_KEY = 'altKey';
+
 /**
  * Drop target for react-dnd
  * @see http://react-dnd.github.io/react-dnd/docs-drop-target.html
@@ -17,13 +20,15 @@ const encodingChannelTarget = {
     // All drop targets are currently valid
     return true;
   },
-  drop(props, monitor) {
+  drop(props, monitor, component) {
     const item = monitor.getItem();
-    // const encodedChannel = props.encodedChannel;
-    if (item.channelName !== undefined) {
+    // if the incoming EncodingChannel has truthy isCopyEnabled state do a copy
+    if (item.channelName && component.state.isCopyEnabled) {
+      return props.actions.copyEncodedChannel(item.channelName, props.channelName);
+    } else if (item.channelName !== undefined) {
       return props.actions.swapEncodedChannels(props.channelName, item.channelName);
     }
-    // Always encode the target channel
+    // Otherwise encode the target channel
     props.actions.mapFieldToChannel(item.fieldPath, props.channelName);
   }
 };
@@ -41,6 +46,36 @@ function collect(connect, monitor) {
  * and whether the user has encoded a specific field into it.
  */
 class EncodingChannel extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = {isCopyEnabled: false};
+    this.onDragStart = this.onDragStart.bind(this);
+    this.onDrag = this.onDrag.bind(this);
+  }
+
+  componentDidMount() {
+    window.addEventListener('drag', this.onDrag);
+    window.addEventListener('dragstart', this.onDragStart);
+  }
+
+  componentWillUnmount() {
+    window.removeEventListener('drag', this.onDrag);
+    window.removeEventListener('dragstart', this.onDragStart);
+  }
+
+  onDragStart(event) {
+    // disable HTML5 drag&drop backend internal move/copy behavior
+    event.dataTransfer.effectAllowed = 'copyMove';
+  }
+
+  onDrag(event) {
+    // if MODIFIER_KEY is truthy then allow copying to encoding channel otherwise don't
+    const isCopyEnabled = event[MODIFIER_KEY];
+    if (this.state.isCopyEnabled !== isCopyEnabled) {
+      this.setState({isCopyEnabled});
+    }
+    event.preventDefault();
+  }
 
   onSelectAggregate(aggregate) {
     const channel = this.props.channelName;

@@ -634,6 +634,32 @@ const ChartStore = Reflux.createStore({
   },
 
   /**
+   * Copies  the content of the source channel to the target channel.
+
+   * @param {String} source          the source channel to copy
+   * @param {String} target          the target channel to paste
+   * @param {Boolean} pushToHistory  whether or not the new state should become
+   *                                 part of the undo/redo-able history
+   */
+  copyEncodedChannel(source, target, pushToHistory = true) {
+    this._validateEncodingChannel(this.state.chartType, source);
+    this._validateEncodingChannel(this.state.chartType, target);
+
+    const channels = _.cloneDeep(this.state.channels);
+    const reductions = _.cloneDeep(this.state.reductions);
+
+    channels[target] = _.cloneDeep(channels[source]);
+    if (!_.isEmpty(reductions[source])) {
+      reductions[target] = _.cloneDeep(reductions[source]);
+    }
+
+    this._updateSpec({
+      channels: channels,
+      reductions: reductions
+    }, pushToHistory);
+  },
+
+  /**
    * Helper to swap two items in `container`, which can be accessed using the
    * square bracket notation by `key1` and `key2`. Leaves behind no keys if
    * an item is not present in the container.
