@@ -37,8 +37,18 @@ function addWaitCollectionDDLCommands(client) {
     return this.waitForVisibleInCompass(selector('drop-collection-modal'));
   });
 
+  /**
+   * Waits for the create collection modal to be hidden.
+   */
   client.addCommand('waitForCreateCollectionModalHidden', function() {
     return this.waitForVisibleInCompass(selector('create-collection-modal'), true);
+  });
+
+  /**
+   * Waits for the drop collection modal to be hidden.
+   */
+  client.addCommand('waitForDropCollectionModalHidden', function() {
+    return this.waitForVisibleInCompass(selector('drop-collection-modal'), true);
   });
 }
 
