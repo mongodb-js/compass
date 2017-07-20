@@ -166,7 +166,7 @@ describe('#collections', function() {
             return client
             .inputDropCollectionName('bands')
             .pressEnter()
-            .waitForDropCollectionModal()
+            .waitForDropCollectionModalHidden()
             .waitForCollectionDeletion('bands')
             .getCollectionsTabCollectionNames()
             .should.not.eventually.include('bands');
