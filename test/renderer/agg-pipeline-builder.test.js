@@ -423,7 +423,7 @@ describe('Aggregation Pipeline Builder', function() {
       });
     });
 
-    context('when using mean accumlator', function() {
+    context('when using mean accumulator', function() {
       const state = {
         reductions: {
           x: [
@@ -471,7 +471,7 @@ describe('Aggregation Pipeline Builder', function() {
       });
     });
 
-    context('when using sum accumalator', function() {
+    context('when using sum accumulator', function() {
       const state = {
         reductions: {
           x: [
@@ -586,7 +586,7 @@ describe('Aggregation Pipeline Builder', function() {
       });
     });
 
-    context('when using longest accumlator', function() {
+    context('when using longest accumulator', function() {
       const state = {
         reductions: {
           x: [
@@ -640,7 +640,7 @@ describe('Aggregation Pipeline Builder', function() {
       });
     });
 
-    context('when using shortest accumlator', function() {
+    context('when using shortest accumulator', function() {
       const state = {
         reductions: {
           x: [
@@ -694,7 +694,7 @@ describe('Aggregation Pipeline Builder', function() {
       });
     });
 
-    context('when using min length accumlator', function() {
+    context('when using min length accumulator', function() {
       const state = {
         reductions: {
           x: [
@@ -742,7 +742,7 @@ describe('Aggregation Pipeline Builder', function() {
       });
     });
 
-    context('when using max length accumlator', function() {
+    context('when using max length accumulator', function() {
       const state = {
         reductions: {
           x: [
