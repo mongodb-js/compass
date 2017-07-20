@@ -13,7 +13,7 @@ const TOOL_TIP_ARRAY_REDUCE = Object.freeze({
 const ARRAY_GENERAL_REDUCTIONS = Object.freeze({
   UNWIND: 'Unwind array',
   LENGTH: 'Array length',
-  INDEX: 'Array element by index'  // TODO: Note is args not implemented in React <ArrayReductionPicker>
+  INDEX: 'Array element by index'
 });
 
 /**
