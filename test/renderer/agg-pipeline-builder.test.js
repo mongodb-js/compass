@@ -1186,9 +1186,8 @@ describe('Aggregation Pipeline Builder', function() {
         dataService.aggregate(`${DB}.matrix_3D`, pipeline, {}, function(err, res) {
           expect(err).to.be.null;
           expect(res).to.be.deep.equal([
-            // TODO: Fill me in with correct expected results
-            {x: undefined},
-            {x: undefined}
+            {x: '1_1_1'},
+            {x: 'a_1_1'}
           ]);
           done();
         });
@@ -1268,9 +1267,8 @@ describe('Aggregation Pipeline Builder', function() {
         dataService.aggregate(`${DB}.matrix_subdoc`, pipeline, {}, function(err, res) {
           expect(err).to.be.null;
           expect(res).to.be.deep.equal([
-            // TODO: Fill me in with correct expected results
-            {x: undefined},
-            {x: undefined}
+            {x: '1_1_1'},
+            {x: 'a_1_1'}
           ]);
           done();
         });
