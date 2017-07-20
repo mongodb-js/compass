@@ -97,6 +97,14 @@ class NativeClient extends EventEmitter {
       client.on('topologyDescriptionChanged', (evt) => {
         this.emit('topologyDescriptionChanged', evt);
       });
+
+      client.on('serverHeartbeatSucceeded', (evt) => {
+        this.emit('serverHeartbeatSucceeded', evt);
+      });
+
+      client.on('serverHeartbeatFailed', (evt) => {
+        this.emit('serverHeartbeatFailed', evt);
+      });
     }
   }
 
