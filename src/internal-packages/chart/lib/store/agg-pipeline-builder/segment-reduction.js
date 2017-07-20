@@ -27,14 +27,38 @@ function _map(arr, expr) {
  * we need to know the path names of each field in a reduction relative to the previous
  * reduction field. E.g. if the first reduction is on "a.b" and the next is on "a.b.c.d.e"
  * then the relative field is "c.d.e", which can later be appended to "$$value." in the expression.
+ *
+ * The caveat for this is when there are arrays in between these fields. In this case every nested
+ * array has a null relativeField. E.g. if there are 2 nested arrays in between "a" and "a.b" 
+ * like so,
+ * { a: [
+ *        [
+ *          {
+ *            b: 'blah
+ *          }
+ *        ]
+ *      ]
+ * }
+ * then
+ * the corresponding relative fields would be:
+ * "a" -> "a"
+ * a[] -> null
+ * a[[]] -> null
+ * a.b -> b
+ *
  * @param {Array} reductions   array of reductions
  */
 function _addRelativeFieldPaths(reductions) {
+  let prefix = reductions[0].field;
   reductions[0].relativeFieldPath = reductions[0].field;
   // assign relativeFieldPath to each reduction (Remove path information)
   for (let i = 1; i < reductions.length; i++) {
-    const prefix = reductions[i - 1].field;
-    reductions[i].relativeFieldPath = reductions[i].field.replace(new RegExp(`^${prefix}\.`), '');
+    if (reductions[1 - 1].field === reductions[i].field) {
+      reductions[i].relativeFieldPath = null;
+    } else {
+      reductions[i].relativeFieldPath = reductions[i].field.replace(new RegExp(`^${prefix}\.`), '');
+      prefix = reductions[i].field;
+    }
   }
 }
 
@@ -103,10 +127,7 @@ function constructAccumulatorStage(reductions, channel, encodedField, aliaser) {
     // reverse the array (without modifying original), below code assumes inside->out order
     reductions = reductions.slice().reverse();
 
-    // in the case of nested arrays
-    if (reductions[0].relativeFieldPath === reductions[1].relativeFieldPath) {
-      reductions[0].relativeFieldPath = null;
-    } else if (encodedField !== reductions[0].field) {
+    if (encodedField !== reductions[0].field) {
     // If the inner reduction doesn't match the encodedField add its relative array name
       reductions[0].relativeFieldPath = encodedField.replace(new RegExp(`^${reductions[1].field}\.`), '');
     }
@@ -117,7 +138,8 @@ function constructAccumulatorStage(reductions, channel, encodedField, aliaser) {
 
     // second to second last reductions use a map but pass $$value down
     reductions.slice(1, -1).forEach((reduction) => {
-      arr = _map(`$$value.${ reduction.relativeFieldPath }`, expr);
+      const value = reduction.relativeFieldPath ? `$$value.${ reduction.relativeFieldPath }` : '$$value';
+      arr = _map(value, expr);
       expr = REDUCTIONS[reduction.type](arr, reduction.arguments);
     });
 
