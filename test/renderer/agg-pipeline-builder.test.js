@@ -935,7 +935,7 @@ describe('Aggregation Pipeline Builder', function() {
     });
   });
 
-  context.skip('COMPASS-1413 On a "coordinate_pairs" collection', function() {
+  context('On a "coordinate_pairs" collection', function() {
     before(function(done) {
       dataService.connect(function() {
         const docs = [
@@ -979,7 +979,7 @@ describe('Aggregation Pipeline Builder', function() {
                 '$map': {
                   'as': 'value',
                   'in': {
-                    '$arrayElemAt': ['$$value.coordinate_pairs', 0]
+                    '$arrayElemAt': ['$$value', 0]
                   },
                   'input': '$coordinate_pairs'
                 }
@@ -997,9 +997,8 @@ describe('Aggregation Pipeline Builder', function() {
         dataService.aggregate(`${DB}.coordinate_pairs`, pipeline, {}, function(err, res) {
           expect(err).to.be.null;
           expect(res).to.be.deep.equal([
-            // TODO: Fill me in with correct expected results
-            {x: null},
-            {x: null}
+            {x: '1.1'},
+            {x: '3.1'}
           ]);
           done();
         });
@@ -1007,7 +1006,7 @@ describe('Aggregation Pipeline Builder', function() {
     });
   });
 
-  context.skip('COMPASS-1413 On a "matrix_3D" collection', function() {
+  context('On a "matrix_3D" collection', function() {
     before(function(done) {
       dataService.connect(function() {
         const docs = [
@@ -1058,7 +1057,7 @@ describe('Aggregation Pipeline Builder', function() {
           '$map': {
             'as': 'value',
             'in': {
-              '$arrayElemAt': ['$$value.matrix_3D', 0]
+              '$arrayElemAt': ['$$value', 0]
             },
             'input': '$$value.matrix_3D'
           }
