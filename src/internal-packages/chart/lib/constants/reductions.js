@@ -35,7 +35,8 @@ const ARRAY_STRING_REDUCTIONS = Object.freeze({
   MAX_LENGTH: 'max length',
   LONGEST: 'longest',
   SHORTEST: 'shortest',
-  EXISTENCE_OF_VALUE: 'existence of value'
+  EXISTENCE_OF_VALUE: 'existence of value',
+  COUNT_OF_OCCURRENCES: 'count of occurrences'
 });
 
 /**
@@ -82,6 +83,21 @@ const REDUCTION_ARGS_TEMPLATE = Object.freeze({
     {
       // https://docs.mongodb.com/manual/reference/operator/aggregation/in/#exp._S_in
       label: 'string value',
+      validator: (value) => {
+        if (value.length > 0) {
+          return value;
+        }
+        // Might want to demote this to a warning,
+        // as the empty string is a potentially valid case
+        throw new Error('ValidationError - A string must be provided');
+      }
+    }
+  ],
+  [ARRAY_STRING_REDUCTIONS.COUNT_OF_OCCURRENCES]: [
+    {
+      // https://docs.mongodb.com/manual/reference/operator/aggregation/filter/
+      // https://docs.mongodb.com/manual/reference/operator/aggregation/size/
+      label: 'string',
       validator: (value) => {
         if (value.length > 0) {
           return value;
@@ -211,6 +227,18 @@ const REDUCTIONS = Object.freeze({
     const expression = args[0];
     return {
       $in: [expression, arr]
+    };
+  },
+  [ARRAY_STRING_REDUCTIONS.COUNT_OF_OCCURRENCES]: function(arr, args) {
+    const expression = args[0];
+    return {
+      $size: {
+        $filter: {
+          input: arr,
+          as: 'str',
+          cond: {$eq: ['$$str', expression]}
+        }
+      }
     };
   }
 });

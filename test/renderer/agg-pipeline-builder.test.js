@@ -873,6 +873,68 @@ describe('Aggregation Pipeline Builder', function() {
     });
   });
 
+  context('On the "array_of_state_histories" collection', () => {
+    before(function(done) {
+      dataService.connect(() => {
+        const docs = [
+          {_id: 0, history: ['Needs triage', 'Open', 'Ready for work', 'In progress', 'In code review', 'Done']},
+          {_id: 1, history: ['Needs triage', 'Open', 'Ready for work', 'Open', 'Open']},
+          {_id: 2, history: ['Needs triage', 'Open', 'Closed']},
+          {_id: 3, history: ['Needs triage']}
+        ];
+        dataService.insertMany(`${DB}.array_of_state_histories`, docs, {}, done);
+      });
+    });
+
+    context('when using "count of occurrences" accumulator', () => {
+      const state = {
+        reductions: {
+          x: [
+            {field: 'history', type: ARRAY_REDUCTION_TYPES.COUNT_OF_OCCURRENCES, arguments: ['Open']}
+          ]
+        },
+        channels: {
+          x: { field: 'history', type: 'quantitative' }
+        }
+      };
+      const pipeline = constructPipeline(state);
+
+      it('builds the correct agg pipeline with the "count of occurrences" reduction', () => {
+        expect(pipeline).to.be.an('array');
+        expect(pipeline[0]).to.be.deep.equal({
+          $addFields: {
+            '__alias_0': {
+              $size: {
+                $filter: {
+                  input: '$history',
+                  as: 'str',
+                  cond: {$eq: ['$$str', 'Open']}
+                }
+              }
+            }
+          }
+        });
+      });
+
+      it('returns the correct results when executing the pipeline', function(done) {
+        if (!versionSupported) {
+          this.skip();
+        }
+
+        dataService.aggregate(`${DB}.array_of_state_histories`, pipeline, {}, (err, res) => {
+          expect(err).to.be.null;
+          expect(res).to.be.deep.equal([
+            {x: 1},
+            {x: 3},
+            {x: 1},
+            {x: 0}
+          ]);
+          done();
+        });
+      });
+    });
+  });
+
   context.skip('COMPASS-1413 On a "coordinate_pairs" collection', function() {
     before(function(done) {
       dataService.connect(function() {

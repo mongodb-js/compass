@@ -356,6 +356,37 @@ describe('Aggregation Pipeline Builder', function() {
           });
         });
       });
+      context('when applying count of occurrences reduction', function() {
+        const state = {
+          reductions: {
+            x: [{
+              field: 'myArray',
+              type: ARRAY_STRING_REDUCTIONS.COUNT_OF_OCCURRENCES,
+              arguments: ['foo']
+            }]
+          },
+          channels: {
+            x: {field: 'myArray.myString', type: MEASUREMENT_ENUM.ORDINAL}
+          }
+        };
+        it('builds the correct agg pipeline', function() {
+          const result = constructReductionSegment(state, aliaser);
+          expect(result).to.be.an('array');
+          expect(result).to.be.deep.equal([{
+            $addFields: {
+              __alias_0: {
+                $size: {
+                  $filter: {
+                    input: '$myArray.myString',
+                    as: 'str',
+                    cond: {$eq: ['$$str', 'foo']}
+                  }
+                }
+              }
+            }
+          }]);
+        });
+      });
       context('when applying reductions to a field of subdocuments in subdocuments in an array', function() {
         context('when applying unwind reduction', function() {
           const state = {
