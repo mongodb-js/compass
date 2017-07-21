@@ -23,6 +23,9 @@ function _map(arr, expr) {
 }
 
 /**
+ * This function takes an array of reductions and computes the relative field paths from one
+ * reduction to the next. It modifies the reductions array in place.
+ *
  * In order to build the complex expression to handle multiple array reductions below,
  * we need to know the path names of each field in a reduction relative to the previous
  * reduction field. E.g. if the first reduction is on "a.b" and the next is on "a.b.c.d.e"
@@ -34,13 +37,12 @@ function _map(arr, expr) {
  * { a: [
  *        [
  *          {
- *            b: 'blah
+ *            b: []
  *          }
  *        ]
  *      ]
  * }
- * then
- * the corresponding relative fields would be:
+ * then the corresponding relative fields would be:
  * "a" -> "a"
  * a[] -> null
  * a[[]] -> null
