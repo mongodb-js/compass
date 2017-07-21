@@ -35,7 +35,8 @@ const ARRAY_STRING_REDUCTIONS = Object.freeze({
   MAX_LENGTH: 'max length',
   LONGEST: 'longest',
   SHORTEST: 'shortest',
-  EXISTENCE_OF_VALUE: 'existence of value'
+  EXISTENCE_OF_VALUE: 'existence of value',
+  COUNT_OF_OCCURRENCES: 'count of occurrences'
 });
 
 /**
@@ -66,7 +67,8 @@ const ARRAY_REDUCTION_TYPES = Object.freeze(Object.assign(
 const REDUCTION_ARGS_TEMPLATE = Object.freeze({
   [ARRAY_GENERAL_REDUCTIONS.INDEX]: [
     {
-      label: 'Index (0-based)',
+      label: 'Index',
+      placeholder: '0-based',
       validator: (value) => {
         // Not sure how to warn out of bounds for this field, e.g. array
         // length is 3 but user asks for element 7. Do in a future ticket...
@@ -81,7 +83,24 @@ const REDUCTION_ARGS_TEMPLATE = Object.freeze({
   [ARRAY_STRING_REDUCTIONS.EXISTENCE_OF_VALUE]: [
     {
       // https://docs.mongodb.com/manual/reference/operator/aggregation/in/#exp._S_in
-      label: 'string value',
+      label: 'string',
+      placeholder: 'case-sensitive',
+      validator: (value) => {
+        if (value.length > 0) {
+          return value;
+        }
+        // Might want to demote this to a warning,
+        // as the empty string is a potentially valid case
+        throw new Error('ValidationError - A string must be provided');
+      }
+    }
+  ],
+  [ARRAY_STRING_REDUCTIONS.COUNT_OF_OCCURRENCES]: [
+    {
+      // https://docs.mongodb.com/manual/reference/operator/aggregation/filter/
+      // https://docs.mongodb.com/manual/reference/operator/aggregation/size/
+      label: 'string',
+      placeholder: 'case-sensitive',
       validator: (value) => {
         if (value.length > 0) {
           return value;
@@ -211,6 +230,18 @@ const REDUCTIONS = Object.freeze({
     const expression = args[0];
     return {
       $in: [expression, arr]
+    };
+  },
+  [ARRAY_STRING_REDUCTIONS.COUNT_OF_OCCURRENCES]: function(arr, args) {
+    const expression = args[0];
+    return {
+      $size: {
+        $filter: {
+          input: arr,
+          as: 'str',
+          cond: {$eq: ['$$str', expression]}
+        }
+      }
     };
   }
 });

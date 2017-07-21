@@ -25,6 +25,7 @@ describe('<ArrayReductionArg />', () => {
         component = mount(<ArrayReductionArg
           label="Index"
           onBlur={onBlur}
+          placeholder="0-based..."
           validator={validateError}
         />);
       });
@@ -39,6 +40,7 @@ describe('<ArrayReductionArg />', () => {
         component = mount(<ArrayReductionArg
           label="Index"
           onBlur={onBlur}
+          placeholder="0-based..."
           validator={validateUnmodified}
         />);
       });

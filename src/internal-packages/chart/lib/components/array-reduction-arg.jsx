@@ -43,6 +43,7 @@ class ArrayReductionArg extends React.Component {
           bsClass="chart-draggable-field-row-reduction-arg-value"
           onBlur={this.props.onBlur.bind(this)}
           onChange={this.onChange.bind(this)}
+          placeholder={this.props.placeholder}
           type="text"
           value={this.state.value}
         />
@@ -54,6 +55,7 @@ class ArrayReductionArg extends React.Component {
 ArrayReductionArg.propTypes = {
   label: PropTypes.string.isRequired,
   onBlur: PropTypes.func.isRequired,
+  placeholder: PropTypes.string.isRequired,
   validator: PropTypes.func.isRequired,
   value: PropTypes.any
 };
