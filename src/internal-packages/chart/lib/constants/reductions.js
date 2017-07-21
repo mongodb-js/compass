@@ -67,7 +67,8 @@ const ARRAY_REDUCTION_TYPES = Object.freeze(Object.assign(
 const REDUCTION_ARGS_TEMPLATE = Object.freeze({
   [ARRAY_GENERAL_REDUCTIONS.INDEX]: [
     {
-      label: 'Index (0-based)',
+      label: 'Index',
+      placeholder: '0-based',
       validator: (value) => {
         // Not sure how to warn out of bounds for this field, e.g. array
         // length is 3 but user asks for element 7. Do in a future ticket...
@@ -82,7 +83,8 @@ const REDUCTION_ARGS_TEMPLATE = Object.freeze({
   [ARRAY_STRING_REDUCTIONS.EXISTENCE_OF_VALUE]: [
     {
       // https://docs.mongodb.com/manual/reference/operator/aggregation/in/#exp._S_in
-      label: 'string (case-sensitive)',
+      label: 'string',
+      placeholder: 'case-sensitive',
       validator: (value) => {
         if (value.length > 0) {
           return value;
@@ -97,7 +99,8 @@ const REDUCTION_ARGS_TEMPLATE = Object.freeze({
     {
       // https://docs.mongodb.com/manual/reference/operator/aggregation/filter/
       // https://docs.mongodb.com/manual/reference/operator/aggregation/size/
-      label: 'string (case-sensitive)',
+      label: 'string',
+      placeholder: 'case-sensitive',
       validator: (value) => {
         if (value.length > 0) {
           return value;
