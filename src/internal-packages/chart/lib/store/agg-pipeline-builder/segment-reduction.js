@@ -29,7 +29,7 @@ function _map(arr, expr) {
  * then the relative field is "c.d.e", which can later be appended to "$$value." in the expression.
  *
  * The caveat for this is when there are arrays in between these fields. In this case every nested
- * array has a null relativeField. E.g. if there are 2 nested arrays in between "a" and "a.b" 
+ * array has a null relativeField. E.g. if there are 2 nested arrays in between "a" and "a.b"
  * like so,
  * { a: [
  *        [
