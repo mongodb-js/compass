@@ -53,7 +53,8 @@ function _map(arr, expr) {
 function _addRelativeFieldPaths(reductions) {
   let prefix = reductions[0].field;
   reductions[0].relativeFieldPath = reductions[0].field;
-  // assign relativeFieldPath to each reduction (Remove path information)
+  // assign relativeFieldPath to each reduction by comparing to previous computed 'prefix'
+  // unless the 'field' property is the same in which case set 'relativeFieldPath' to null
   for (let i = 1; i < reductions.length; i++) {
     if (reductions[i - 1].field === reductions[i].field) {
       reductions[i].relativeFieldPath = null;
