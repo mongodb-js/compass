@@ -82,7 +82,7 @@ const REDUCTION_ARGS_TEMPLATE = Object.freeze({
   [ARRAY_STRING_REDUCTIONS.EXISTENCE_OF_VALUE]: [
     {
       // https://docs.mongodb.com/manual/reference/operator/aggregation/in/#exp._S_in
-      label: 'string value',
+      label: 'string (case-sensitive)',
       validator: (value) => {
         if (value.length > 0) {
           return value;
@@ -97,7 +97,7 @@ const REDUCTION_ARGS_TEMPLATE = Object.freeze({
     {
       // https://docs.mongodb.com/manual/reference/operator/aggregation/filter/
       // https://docs.mongodb.com/manual/reference/operator/aggregation/size/
-      label: 'string',
+      label: 'string (case-sensitive)',
       validator: (value) => {
         if (value.length > 0) {
           return value;
