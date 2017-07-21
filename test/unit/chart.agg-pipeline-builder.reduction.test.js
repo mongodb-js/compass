@@ -330,6 +330,31 @@ describe('Aggregation Pipeline Builder', function() {
             });
           });
         });
+        context('when applying existence of value reduction', function() {
+          const state = {
+            reductions: {
+              x: [{
+                field: 'myArray',
+                type: ARRAY_STRING_REDUCTIONS.EXISTENCE_OF_VALUE,
+                arguments: ['foo']
+              }]
+            },
+            channels: {
+              x: {field: 'myArray.myString', type: MEASUREMENT_ENUM.ORDINAL}
+            }
+          };
+          it('builds the correct agg pipeline', function() {
+            const result = constructReductionSegment(state, aliaser);
+            expect(result).to.be.an('array');
+            expect(result).to.be.deep.equal([{
+              $addFields: {
+                __alias_0: {
+                  $in: ['foo', '$myArray.myString']
+                }
+              }
+            }]);
+          });
+        });
       });
       context('when applying reductions to a field of subdocuments in subdocuments in an array', function() {
         context('when applying unwind reduction', function() {
