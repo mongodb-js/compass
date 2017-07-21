@@ -53,7 +53,7 @@ function _addRelativeFieldPaths(reductions) {
   reductions[0].relativeFieldPath = reductions[0].field;
   // assign relativeFieldPath to each reduction (Remove path information)
   for (let i = 1; i < reductions.length; i++) {
-    if (reductions[1 - 1].field === reductions[i].field) {
+    if (reductions[i - 1].field === reductions[i].field) {
       reductions[i].relativeFieldPath = null;
     } else {
       reductions[i].relativeFieldPath = reductions[i].field.replace(new RegExp(`^${prefix}\.`), '');
