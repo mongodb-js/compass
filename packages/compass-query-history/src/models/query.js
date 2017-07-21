@@ -1,9 +1,7 @@
 const Model = require('ampersand-model');
-const storageMixin = require('storage-mixin');
 const uuid = require('uuid');
 const electronApp = require('electron').remote.app;
-
-console.log(electronApp.getName());
+const storageMixin = require('storage-mixin');
 
 /**
  * A model that represents a MongoDB query.
@@ -59,7 +57,11 @@ const Query = Model.extend(storageMixin, {
     isFavorite: {
       type: 'boolean',
       default: false
-    }
+    },
+    /**
+     * When was the query saved
+     */
+    dateSaved: 'date'
   }
 });
 

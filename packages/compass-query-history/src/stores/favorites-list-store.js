@@ -1,8 +1,9 @@
 const Reflux = require('reflux');
 const Actions = require('../actions');
 const StateMixin = require('reflux-state-mixin');
-// const { Query, QueryCollection } = require('../../');
-// const FilteredCollection = require('ampersand-filtered-subcollection');
+const Query = require('../models/query');
+const QueryCollection = require('../models/query-collection');
+const FilteredCollection = require('ampersand-filtered-subcollection');
 
 // const debug = require('debug')('mongodb-compass:query-history:favorites-store');
 
@@ -14,44 +15,58 @@ const FavoritesListStore = Reflux.createStore({
 
   listenables: Actions,
 
-  init() {
+
+  saveRecent(query) {
+    this.setState({
+      current_favorite: query
+    });
+    Actions.showFavorites();
   },
 
-  addFavorites(recent) {
-    // @note: Durran: To save the favorite query:
-    //   const attributes = recent.serialize();
-    //   attributes.name = '';
-    //   const query = new Query(attributes);
-    //   query.save();
+  saveFavorite(recent, name) {
+    QueryCollection.remove(recent._id);
+
+    const attributes = recent.serialize();
+    attributes.name = name;
+    attributes.isFavorite = true;
+    attributes.dateSaved = Date.now();
+
+    const query = new Query(attributes);
+
+    QueryCollection.add(query);
+
     this.setState({
-      recents: this.state.recents.push(recent)
+      current_favorite: null
     });
   },
 
-  saveFavorite(name) {
-    this.state.current_favorite.setName(name);
+  cancelSave() {
     this.setState({
-      favorites: this.state.favorites.push(this.state.current_favorite)
+      current_favorite: null
     });
-    this.state.current_favorite = null;
+    Actions.showRecent();
+  },
+
+  deleteFavorite(query) {
+    QueryCollection.remove(query._id);
+    this.trigger(this.state);
   },
 
   getInitialState() {
-    // const queries = QueryCollection.fetch();
-    // var favoriteQueries = new FilteredCollection(queries, {
-      // where: {
-        // isFavorite: true
-      // },
-      // comparator: (model) => {
-        // return -model.lastExecuted;
-      // }
-    // });
-
+    const favoriteQueries = new FilteredCollection(QueryCollection, {
+      where: {
+        isFavorite: true
+      },
+      comparator: (model) => {
+        return -model.dateSaved;
+      }
+    });
     return {
-      favorites: [], // QueryCollection.fetch();
+      favorites: favoriteQueries,
       current_favorite: null
     };
   }
+
 });
 
 module.exports = FavoritesListStore;

@@ -1,6 +1,7 @@
 const { expect } = require('chai');
 const { Query, QueryCollection } = require('../../');
 
+// TODO: currently not working because how QueryCollection is being exported.
 describe('QueryCollection', () => {
   describe('#add', () => {
     const collection = new QueryCollection();

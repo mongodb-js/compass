@@ -75,5 +75,8 @@
     "storage-mixin": "^0.8.1",
     "uuid": "^3.1.0",
     "watch": "^1.0.2"
+  },
+  "dependencies": {
+    "lodash": "^4.17.4"
   }
 }

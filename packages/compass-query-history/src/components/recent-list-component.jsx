@@ -6,6 +6,9 @@ const RecentComponent = require('./recent-component');
 // const debug = require('debug')('mongodb-compass:query-history:recent-list-component');
 
 class RecentListComponent extends React.Component {
+  constructor(props) {
+    super(props);
+  }
 
   /**
    * Render RecentList component.
@@ -18,9 +21,9 @@ class RecentListComponent extends React.Component {
         <h2 className="query-history-title">RecentListComponent</h2>
         <p><i>The query history recent-list.</i></p>
         <ul>
-          {this.props.recents.map(function(item) {
+          {this.props.recents.map(function(item, i) {
             return (
-              <RecentComponent model={item}/>
+              <RecentComponent key={i} model={item}/>
             );
           })}
         </ul>
@@ -30,11 +33,11 @@ class RecentListComponent extends React.Component {
 }
 
 RecentListComponent.propTypes = {
-  recents: PropTypes.array
+  recents: PropTypes.object
 };
 
 RecentListComponent.defaultProps = {
-  recents: []
+  recents: null
 };
 
 RecentListComponent.displayName = 'QueryHistoryRecentListComponent';

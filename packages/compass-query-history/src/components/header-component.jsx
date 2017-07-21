@@ -36,7 +36,6 @@ class HeaderComponent extends React.Component {
   render() {
     return (
       <div className="query-history-header-component">
-        <p>Past Queries (Header.props.showing={this.props.showing})</p>
         <ul>
           <li id="RECENT">
             <span href="#" onClick={this.showRecent}>RECENT</span>
