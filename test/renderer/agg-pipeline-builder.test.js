@@ -935,21 +935,21 @@ describe('Aggregation Pipeline Builder', function() {
     });
   });
 
-  context.skip('COMPASS-1413 On a "coordinate_pairs" collection', function() {
+  context('On a "coordinate_pairs" collection', function() {
     before(function(done) {
       dataService.connect(function() {
         const docs = [
           {_id: 0, coordinate_pairs: [
-            ['1.1', '1.1'],
-            ['1.2', '1.2'],
-            ['2.1', '2.1'],
-            ['2.2', '2.2']
+            ['1.1', '1.5'],
+            ['1.2', '1.6'],
+            ['2.1', '2.7'],
+            ['2.2', '2.8']
           ]},
           {_id: 1, coordinate_pairs: [
-            ['3.1', '3.1'],
-            ['3.2', '3.2'],
-            ['4.1', '4.1'],
-            ['4.2', '4.2']
+            ['3.1', '3.5'],
+            ['3.2', '3.6'],
+            ['4.1', '4.7'],
+            ['4.2', '4.8']
           ]}
         ];
         dataService.insertMany(`${DB}.coordinate_pairs`, docs, {}, done);
@@ -979,7 +979,7 @@ describe('Aggregation Pipeline Builder', function() {
                 '$map': {
                   'as': 'value',
                   'in': {
-                    '$arrayElemAt': ['$$value.coordinate_pairs', 0]
+                    '$arrayElemAt': ['$$value', 0]
                   },
                   'input': '$coordinate_pairs'
                 }
@@ -997,9 +997,106 @@ describe('Aggregation Pipeline Builder', function() {
         dataService.aggregate(`${DB}.coordinate_pairs`, pipeline, {}, function(err, res) {
           expect(err).to.be.null;
           expect(res).to.be.deep.equal([
-            // TODO: Fill me in with correct expected results
-            {x: null},
-            {x: null}
+            {x: '1.1'},
+            {x: '3.1'}
+          ]);
+          done();
+        });
+      });
+    });
+
+    context('with different arguments in the first and last reduction stages', () => {
+      const state = {
+        reductions: {
+          x: [
+            {field: 'coordinate_pairs', type: ARRAY_REDUCTION_TYPES.INDEX, arguments: [2]},
+            {field: 'coordinate_pairs', type: ARRAY_REDUCTION_TYPES.INDEX, arguments: [1]}
+          ]
+        },
+        channels: {
+          x: { field: 'coordinate_pairs', type: 'ordinal' }
+        }
+      };
+      const pipeline = constructPipeline(state);
+
+      it('builds the correct agg pipeline with the "index" reductions', () => {
+        expect(pipeline).to.be.an('array');
+        expect(pipeline[0]).to.be.deep.equal({
+          $addFields: {
+            '__alias_0': {
+              '$arrayElemAt': [{
+                '$map': {
+                  'as': 'value',
+                  'in': {
+                    '$arrayElemAt': ['$$value', 1]
+                  },
+                  'input': '$coordinate_pairs'
+                }
+              }, 2]
+            }
+          }
+        });
+      });
+
+      it('returns the correct results when executing the pipeline', function(done) {
+        if (!versionSupported) {
+          this.skip();
+        }
+
+        dataService.aggregate(`${DB}.coordinate_pairs`, pipeline, {}, function(err, res) {
+          expect(err).to.be.null;
+          expect(res).to.be.deep.equal([
+            {x: '2.7'},
+            {x: '4.7'}
+          ]);
+          done();
+        });
+      });
+    });
+
+    context('with different reduction types', () => {
+      const state = {
+        reductions: {
+          x: [
+            {field: 'coordinate_pairs', type: ARRAY_REDUCTION_TYPES.MAX},
+            {field: 'coordinate_pairs', type: ARRAY_REDUCTION_TYPES.MIN}
+          ]
+        },
+        channels: {
+          x: { field: 'coordinate_pairs', type: 'ordinal' }
+        }
+      };
+      const pipeline = constructPipeline(state);
+
+      it('builds the correct agg pipeline with the "index" reductions', () => {
+        expect(pipeline).to.be.an('array');
+        expect(pipeline[0]).to.be.deep.equal({
+          $addFields: {
+            '__alias_0': {
+              '$max': {
+                '$map': {
+                  'as': 'value',
+                  'in': {
+                    '$min': '$$value'
+                  },
+                  'input': '$coordinate_pairs'
+                }
+              }
+            }
+          }
+        });
+      });
+
+      it('returns the correct results when executing the pipeline', function(done) {
+        if (!versionSupported) {
+          this.skip();
+        }
+
+        dataService.aggregate(`${DB}.coordinate_pairs`, pipeline, {}, function(err, res) {
+          expect(err).to.be.null;
+          expect(res).to.be.deep.equal([
+            {x: '2.2'},
+            {x: '4.2'}
           ]);
           done();
         });
@@ -1007,7 +1104,7 @@ describe('Aggregation Pipeline Builder', function() {
     });
   });
 
-  context.skip('COMPASS-1413 On a "matrix_3D" collection', function() {
+  context('On a "matrix_3D" collection', function() {
     before(function(done) {
       dataService.connect(function() {
         const docs = [
@@ -1058,9 +1155,9 @@ describe('Aggregation Pipeline Builder', function() {
           '$map': {
             'as': 'value',
             'in': {
-              '$arrayElemAt': ['$$value.matrix_3D', 0]
+              '$arrayElemAt': ['$$value', 0]
             },
-            'input': '$$value.matrix_3D'
+            'input': '$$value'
           }
         };
         const middle = {
@@ -1089,9 +1186,261 @@ describe('Aggregation Pipeline Builder', function() {
         dataService.aggregate(`${DB}.matrix_3D`, pipeline, {}, function(err, res) {
           expect(err).to.be.null;
           expect(res).to.be.deep.equal([
-            // TODO: Fill me in with correct expected results
-            {x: null},
-            {x: null}
+            {x: '1_1_1'},
+            {x: 'a_1_1'}
+          ]);
+          done();
+        });
+      });
+    });
+  });
+
+  context('On a "matrix_subdoc" collection', function() {
+    before(function(done) {
+      dataService.connect(function() {
+        const docs = [
+          {_id: 0, matrix_subdoc: [
+            [
+              {a: '1_1_1', b: '1_1_2'},
+              {a: '1_2_1', b: '1_2_2'}
+            ],
+            [
+              {a: '2_1_1', b: '2_1_2'},
+              {a: '2_2_1', b: '2_2_2'}
+            ]
+          ]},
+          {_id: 1, matrix_subdoc: [
+            [
+              {a: 'a_1_1', b: 'a_1_2'},
+              {a: 'a_2_1', b: 'a_2_2'}
+            ],
+            [
+              {a: 'b_1_1', b: 'b_1_2'},
+              {a: 'b_2_1', b: 'b_2_2'}
+            ]
+          ]}
+        ];
+        dataService.insertMany(`${DB}.matrix_subdoc`, docs, {}, done);
+      });
+    });
+
+    context('with arguments in the first, middle and last reduction stages', () => {
+      const state = {
+        reductions: {
+          x: [
+            {field: 'matrix_subdoc', type: ARRAY_REDUCTION_TYPES.INDEX, arguments: [0]},
+            {field: 'matrix_subdoc', type: ARRAY_REDUCTION_TYPES.INDEX, arguments: [0]}
+          ]
+        },
+        channels: {
+          x: { field: 'a', type: 'ordinal' }
+        }
+      };
+      const pipeline = constructPipeline(state);
+
+      it('builds the correct agg pipeline with the "index" reductions', () => {
+        expect(pipeline).to.be.an('array');
+        const inside = {
+          '$map': {
+            'as': 'value',
+            'in': {
+              '$arrayElemAt': ['$$value.a', 0]
+            },
+            'input': '$matrix_subdoc'
+          }
+        };
+        const expected = {
+          $addFields: {
+            '__alias_0': {
+              '$arrayElemAt': [inside, 0]
+            }
+          }
+        };
+        expect(pipeline[0]).to.be.deep.equal(expected);
+      });
+
+      it('returns the correct results when executing the pipeline', function(done) {
+        if (!versionSupported) {
+          this.skip();
+        }
+
+        dataService.aggregate(`${DB}.matrix_subdoc`, pipeline, {}, function(err, res) {
+          expect(err).to.be.null;
+          expect(res).to.be.deep.equal([
+            {x: '1_1_1'},
+            {x: 'a_1_1'}
+          ]);
+          done();
+        });
+      });
+    });
+  });
+
+  context('On a "matrix_subdoc_array" collection', function() {
+    before(function(done) {
+      dataService.connect(function() {
+        const docs = [
+          {_id: 0, matrix_subdoc: [
+            [
+              {a: ['1_1_1', '1_1_3'], b: ['1_1_2', '1_1_4']},
+              {a: ['1_2_1', '1_2_3'], b: ['1_2_2', '1_2_4']}
+            ],
+            [
+              {a: ['2_1_1', '2_1_3'], b: ['2_1_2', '2_1_4']},
+              {a: ['2_2_1', '2_2_3'], b: ['2_2_2', '2_1_4']}
+            ]
+          ]},
+          {_id: 1, matrix_subdoc: [
+            [
+              {a: ['a_1_1', 'a_1_3'], b: ['a_1_2', 'a_1_4']},
+              {a: ['a_2_1', 'a_2_3'], b: ['a_2_2', 'a_2_4']}
+            ],
+            [
+              {a: ['b_1_1', 'b_1_3'], b: ['b_1_2', 'b_1_4']},
+              {a: ['b_2_1', 'b_2_3'], b: ['b_2_2', 'b_1_4']}
+            ]
+          ]}
+        ];
+        dataService.insertMany(`${DB}.matrix_subdoc_array`, docs, {}, done);
+      });
+    });
+
+    context('with arguments in the first, middle and last reduction stages', () => {
+      const state = {
+        reductions: {
+          x: [
+            {field: 'matrix_subdoc', type: ARRAY_REDUCTION_TYPES.INDEX, arguments: [0]},
+            {field: 'matrix_subdoc', type: ARRAY_REDUCTION_TYPES.INDEX, arguments: [0]},
+            {field: 'matrix_subdoc.a', type: ARRAY_REDUCTION_TYPES.INDEX, arguments: [0]}
+          ]
+        },
+        channels: {
+          x: { field: 'a', type: 'ordinal' }
+        }
+      };
+      const pipeline = constructPipeline(state);
+
+      it('builds the correct agg pipeline with the "index" reductions', () => {
+        expect(pipeline).to.be.an('array');
+        const inner = {
+          $map: {
+            'as': 'value',
+            'in': {
+              $arrayElemAt: ['$$value.a', 0]
+            },
+            input: '$$value'
+          }
+        };
+        const middle = {
+          $map: {
+            as: 'value',
+            in: {
+              $arrayElemAt: [inner, 0]
+            },
+            input: '$matrix_subdoc'
+          }
+        };
+        const expected = {
+          $addFields: {
+            __alias_0: {
+              $arrayElemAt: [middle, 0]
+            }
+          }
+        };
+        expect(pipeline[0]).to.be.deep.equal(expected);
+      });
+
+      it('returns the correct results when executing the pipeline', function(done) {
+        if (!versionSupported) {
+          this.skip();
+        }
+
+        dataService.aggregate(`${DB}.matrix_subdoc_array`, pipeline, {}, function(err, res) {
+          expect(err).to.be.null;
+          expect(res).to.be.deep.equal([
+            {x: '1_1_1'},
+            {x: 'a_1_1'}
+          ]);
+          done();
+        });
+      });
+    });
+  });
+
+  context('On a "matrix_subdoc_subdoc" collection', function() {
+    before(function(done) {
+      dataService.connect(function() {
+        const docs = [
+          {_id: 0, matrix_subdoc: [
+            [
+              {a: {aa: '1_1_1', ab: '1_1_3'}, b: {ba: '1_1_2', bb: '1_1_4'}},
+              {a: {aa: '1_2_1', ab: '1_2_3'}, b: {ba: '1_2_2', bb: '1_2_4'}}
+            ],
+            [
+              {a: {aa: '2_1_1', ab: '2_1_3'}, b: {ba: '2_1_2', bb: '2_1_4'}},
+              {a: {aa: '2_2_1', ab: '2_2_3'}, b: {ba: '2_2_2', bb: '2_1_4'}}
+            ]
+          ]},
+          {_id: 1, matrix_subdoc: [
+            [
+              {a: {aa: 'a_1_1', ab: 'a_1_3'}, b: {ba: 'a_1_2', bb: 'a_1_4'}},
+              {a: {aa: 'a_2_1', ab: 'a_2_3'}, b: {ba: 'a_2_2', bb: 'a_2_4'}}
+            ],
+            [
+              {a: {aa: 'b_1_1', ab: 'b_1_3'}, b: {ba: 'b_1_2', bb: 'b_1_4'}},
+              {a: {aa: 'b_2_1', ab: 'b_2_3'}, b: {ba: 'b_2_2', bb: 'b_1_4'}}
+            ]
+          ]}
+        ];
+        dataService.insertMany(`${DB}.matrix_subdoc_subdoc`, docs, {}, done);
+      });
+    });
+
+    context('with arguments in the first, middle and last reduction stages', () => {
+      const state = {
+        reductions: {
+          x: [
+            {field: 'matrix_subdoc', type: ARRAY_REDUCTION_TYPES.INDEX, arguments: [0]},
+            {field: 'matrix_subdoc', type: ARRAY_REDUCTION_TYPES.INDEX, arguments: [0]}
+          ]
+        },
+        channels: {
+          x: { field: 'a.ab', type: 'ordinal' }
+        }
+      };
+      const pipeline = constructPipeline(state);
+
+      it('builds the correct agg pipeline with the "index" reductions', () => {
+        expect(pipeline).to.be.an('array');
+        const middle = {
+          $map: {
+            as: 'value',
+            in: {
+              $arrayElemAt: ['$$value.a.ab', 0]
+            },
+            input: '$matrix_subdoc'
+          }
+        };
+        const expected = {
+          $addFields: {
+            __alias_0: {
+              $arrayElemAt: [middle, 0]
+            }
+          }
+        };
+        expect(pipeline[0]).to.be.deep.equal(expected);
+      });
+
+      it('returns the correct results when executing the pipeline', function(done) {
+        if (!versionSupported) {
+          this.skip();
+        }
+
+        dataService.aggregate(`${DB}.matrix_subdoc_subdoc`, pipeline, {}, function(err, res) {
+          expect(err).to.be.null;
+          expect(res).to.be.deep.equal([
+            {x: '1_1_3'},
+            {x: 'a_1_3'}
           ]);
           done();
         });

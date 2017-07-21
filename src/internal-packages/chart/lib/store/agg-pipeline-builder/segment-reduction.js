@@ -23,6 +23,49 @@ function _map(arr, expr) {
 }
 
 /**
+ * This function takes an array of reductions and computes the relative field paths from one
+ * reduction to the next. It modifies the reductions array in place.
+ *
+ * In order to build the complex expression to handle multiple array reductions below,
+ * we need to know the path names of each field in a reduction relative to the previous
+ * reduction field. E.g. if the first reduction is on "a.b" and the next is on "a.b.c.d.e"
+ * then the relative field is "c.d.e", which can later be appended to "$$value." in the expression.
+ *
+ * The caveat for this is when there are arrays in between these fields. In this case every nested
+ * array has a null relativeField. E.g. if there are 2 nested arrays in between "a" and "a.b"
+ * like so,
+ * { a: [
+ *        [
+ *          {
+ *            b: []
+ *          }
+ *        ]
+ *      ]
+ * }
+ * then the corresponding relative fields would be:
+ * "a" -> "a"
+ * a[] -> null
+ * a[[]] -> null
+ * a.b -> b
+ *
+ * @param {Array} reductions   array of reductions
+ */
+function _addRelativeFieldPaths(reductions) {
+  let prefix = reductions[0].field;
+  reductions[0].relativeFieldPath = reductions[0].field;
+  // assign relativeFieldPath to each reduction by comparing to previous computed 'prefix'
+  // unless the 'field' property is the same in which case set 'relativeFieldPath' to null
+  for (let i = 1; i < reductions.length; i++) {
+    if (reductions[i - 1].field === reductions[i].field) {
+      reductions[i].relativeFieldPath = null;
+    } else {
+      reductions[i].relativeFieldPath = reductions[i].field.replace(new RegExp(`^${prefix}\.`), '');
+      prefix = reductions[i].field;
+    }
+  }
+}
+
+/**
  * Filters out all unwind reductions from the reductions array and builds
  * $unwind stages for the respective fields.
  *
@@ -77,37 +120,30 @@ function constructAccumulatorStage(reductions, channel, encodedField, aliaser) {
     return null;
   }
 
-  // In order to build the complex expression to handle multiple array reductions below,
-  // we need to know the path names of each field in a reduction relative to the previous
-  // reduction field. E.g. if the first reduction is on "a.b" and the next is on "a.b.c.d.e"
-  // then the relative field is "c.d.e", which can later be appended to "$$value." in the expression.
   if (reductions.length === 1) {
     // with only one reduction, return the reduction applied to the field
     // directly.
     arr = `$${ encodedField }`;
   } else if (reductions.length > 1) {
-    reductions[0].relativeFieldPath = reductions[0].field;
-    // assign relativeFieldPath to each reduction (Remove path information)
-    for (let i = 1; i < reductions.length; i++) {
-      const prefix = reductions[i - 1].field;
-      reductions[i].relativeFieldPath = reductions[i].field.replace(new RegExp(`^${prefix}\.`), '');
-    }
+    // compute relative field paths within reductions in place
+    _addRelativeFieldPaths(reductions);
 
     // reverse the array (without modifying original), below code assumes inside->out order
     reductions = reductions.slice().reverse();
 
-    // If the inner reduction doesn't match the encodedField add its relative array name
     if (encodedField !== reductions[0].field) {
+    // If the inner reduction doesn't match the encodedField add its relative array name
       reductions[0].relativeFieldPath = encodedField.replace(new RegExp(`^${reductions[1].field}\.`), '');
     }
 
     // first (inner-most) reduction has no map and applies the reducer expression directly
-    arr = `$$value.${ reductions[0].relativeFieldPath }`;
+    arr = reductions[0].relativeFieldPath ? `$$value.${ reductions[0].relativeFieldPath }` : '$$value';
     expr = REDUCTIONS[reductions[0].type](arr, reductions[0].arguments);
 
     // second to second last reductions use a map but pass $$value down
     reductions.slice(1, -1).forEach((reduction) => {
-      arr = _map(`$$value.${ reduction.relativeFieldPath }`, expr);
+      const value = reduction.relativeFieldPath ? `$$value.${ reduction.relativeFieldPath }` : '$$value';
+      arr = _map(value, expr);
       expr = REDUCTIONS[reduction.type](arr, reduction.arguments);
     });
 

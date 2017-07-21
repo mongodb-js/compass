@@ -810,5 +810,247 @@ describe('Aggregation Pipeline Builder', function() {
         expect(aliaser.aliases.y_myOtherField).to.be.equal('__alias_1');
       });
     });
+    context('for examining "relativeFieldPath"', function() {
+      context('when there is an array within an array', function() {
+        const state = {
+          reductions: {
+            x: [
+              {field: 'myField', type: ARRAY_NUMERIC_REDUCTIONS.MIN},
+              {field: 'myField', type: ARRAY_NUMERIC_REDUCTIONS.MIN}
+            ]
+          },
+          channels: {
+            x: {field: 'myField'}
+          }
+        };
+        it('builds relativeFieldPath correctly', function() {
+          constructReductionSegment(state, aliaser);
+          const expected = [
+            {field: 'myField', type: ARRAY_NUMERIC_REDUCTIONS.MIN, relativeFieldPath: 'myField'},
+            {field: 'myField', type: ARRAY_NUMERIC_REDUCTIONS.MIN, relativeFieldPath: null}
+          ];
+          expect(state.reductions.x).to.deep.equal(expected);
+        });
+      });
+      context('when there is an array within an array within an array', function() {
+        const state = {
+          reductions: {
+            x: [
+              {field: 'myField', type: ARRAY_NUMERIC_REDUCTIONS.MIN},
+              {field: 'myField', type: ARRAY_NUMERIC_REDUCTIONS.MIN},
+              {field: 'myField', type: ARRAY_NUMERIC_REDUCTIONS.MIN}
+            ]
+          },
+          channels: {
+            x: {field: 'myField'}
+          }
+        };
+        it('builds relativeFieldPath correctly', function() {
+          constructReductionSegment(state, aliaser);
+          const expected = [
+            {field: 'myField', type: ARRAY_NUMERIC_REDUCTIONS.MIN, relativeFieldPath: 'myField'},
+            {field: 'myField', type: ARRAY_NUMERIC_REDUCTIONS.MIN, relativeFieldPath: null},
+            {field: 'myField', type: ARRAY_NUMERIC_REDUCTIONS.MIN, relativeFieldPath: null}
+          ];
+          expect(state.reductions.x).to.deep.equal(expected);
+        });
+      });
+      context('when there is a subdoc within an array', function() {
+        const state = {
+          reductions: {
+            x: [
+              {field: 'myField', type: ARRAY_NUMERIC_REDUCTIONS.MIN},
+              {field: 'myField', type: ARRAY_NUMERIC_REDUCTIONS.MIN}
+            ]
+          },
+          channels: {
+            x: {field: 'myField.myNumber'}
+          }
+        };
+        it('adds relativeFieldPath correctly', function() {
+          constructReductionSegment(state, aliaser);
+          const expected = [
+            {field: 'myField', type: ARRAY_NUMERIC_REDUCTIONS.MIN, relativeFieldPath: 'myField'},
+            {field: 'myField', type: ARRAY_NUMERIC_REDUCTIONS.MIN, relativeFieldPath: 'myNumber'}
+          ];
+          expect(state.reductions.x).to.deep.equal(expected);
+        });
+      });
+      context('when there is a subdoc within a within a sudoc within an array', function() {
+        const state = {
+          reductions: {
+            x: [
+              {field: 'myField', type: ARRAY_NUMERIC_REDUCTIONS.MIN},
+              {field: 'myField', type: ARRAY_NUMERIC_REDUCTIONS.MIN}
+            ]
+          },
+          channels: {
+            x: {field: 'myField.myNumber.myCharacter'}
+          }
+        };
+        it('adds relativeFieldPath correctly', function() {
+          constructReductionSegment(state, aliaser);
+          const expected = [
+            {field: 'myField', type: ARRAY_NUMERIC_REDUCTIONS.MIN, relativeFieldPath: 'myField'},
+            {field: 'myField', type: ARRAY_NUMERIC_REDUCTIONS.MIN, relativeFieldPath: 'myNumber.myCharacter'}
+          ];
+          expect(state.reductions.x).to.deep.equal(expected);
+        });
+      });
+      context('when there is an array within an array within an array within an array', function() {
+        const state = {
+          reductions: {
+            x: [
+              {field: 'myField', type: ARRAY_NUMERIC_REDUCTIONS.MIN},
+              {field: 'myField', type: ARRAY_NUMERIC_REDUCTIONS.MIN},
+              {field: 'myField', type: ARRAY_NUMERIC_REDUCTIONS.MIN},
+              {field: 'myField', type: ARRAY_NUMERIC_REDUCTIONS.MIN}
+            ]
+          },
+          channels: {
+            x: {field: 'myField'}
+          }
+        };
+        it('adds relativeFieldPath correctly', function() {
+          constructReductionSegment(state, aliaser);
+          const expected = [
+            {field: 'myField', type: ARRAY_NUMERIC_REDUCTIONS.MIN, relativeFieldPath: 'myField'},
+            {field: 'myField', type: ARRAY_NUMERIC_REDUCTIONS.MIN, relativeFieldPath: null},
+            {field: 'myField', type: ARRAY_NUMERIC_REDUCTIONS.MIN, relativeFieldPath: null},
+            {field: 'myField', type: ARRAY_NUMERIC_REDUCTIONS.MIN, relativeFieldPath: null}
+          ];
+          expect(state.reductions.x).to.deep.equal(expected);
+        });
+      });
+      context('when there is a subdoc within an array within an array within an array', function() {
+        const state = {
+          reductions: {
+            x: [
+              {field: 'myField', type: ARRAY_NUMERIC_REDUCTIONS.MIN},
+              {field: 'myField', type: ARRAY_NUMERIC_REDUCTIONS.MIN},
+              {field: 'myField', type: ARRAY_NUMERIC_REDUCTIONS.MIN},
+              {field: 'myField', type: ARRAY_NUMERIC_REDUCTIONS.MIN}
+            ]
+          },
+          channels: {
+            x: {field: 'myField.myNumber'}
+          }
+        };
+        it('adds relativeFieldPath correctly', function() {
+          constructReductionSegment(state, aliaser);
+          const expected = [
+            {field: 'myField', type: ARRAY_NUMERIC_REDUCTIONS.MIN, relativeFieldPath: 'myField'},
+            {field: 'myField', type: ARRAY_NUMERIC_REDUCTIONS.MIN, relativeFieldPath: null},
+            {field: 'myField', type: ARRAY_NUMERIC_REDUCTIONS.MIN, relativeFieldPath: null},
+            {field: 'myField', type: ARRAY_NUMERIC_REDUCTIONS.MIN, relativeFieldPath: 'myNumber'}
+          ];
+          expect(state.reductions.x).to.deep.equal(expected);
+        });
+      });
+      context('when there is an array within a subdoc within an array within an array', function() {
+        const state = {
+          reductions: {
+            x: [
+              {field: 'myField', type: ARRAY_NUMERIC_REDUCTIONS.MIN},
+              {field: 'myField', type: ARRAY_NUMERIC_REDUCTIONS.MIN},
+              {field: 'myField.myNumber', type: ARRAY_NUMERIC_REDUCTIONS.MIN}
+            ]
+          },
+          channels: {
+            x: {field: 'myField.myNumber'}
+          }
+        };
+        it('adds relativeFieldPath correctly', function() {
+          constructReductionSegment(state, aliaser);
+          const expected = [
+            {field: 'myField', type: ARRAY_NUMERIC_REDUCTIONS.MIN, relativeFieldPath: 'myField'},
+            {field: 'myField', type: ARRAY_NUMERIC_REDUCTIONS.MIN, relativeFieldPath: null},
+            {field: 'myField.myNumber', type: ARRAY_NUMERIC_REDUCTIONS.MIN, relativeFieldPath: 'myNumber'}
+          ];
+          expect(state.reductions.x).to.deep.equal(expected);
+        });
+      });
+      context('when there is an array within a subdoc within an array within an array', function() {
+        const state = {
+          reductions: {
+            x: [
+              {field: 'myField', type: ARRAY_NUMERIC_REDUCTIONS.MIN},
+              {field: 'myField', type: ARRAY_NUMERIC_REDUCTIONS.MIN},
+              {field: 'myField.myNumber', type: ARRAY_NUMERIC_REDUCTIONS.MIN},
+              {field: 'myField.myNumber', type: ARRAY_NUMERIC_REDUCTIONS.MIN}
+            ]
+          },
+          channels: {
+            x: {field: 'myField.myNumber'}
+          }
+        };
+        it('adds relativeFieldPath correctly', function() {
+          constructReductionSegment(state, aliaser);
+          const expected = [
+            {field: 'myField', type: ARRAY_NUMERIC_REDUCTIONS.MIN, relativeFieldPath: 'myField'},
+            {field: 'myField', type: ARRAY_NUMERIC_REDUCTIONS.MIN, relativeFieldPath: null},
+            {field: 'myField.myNumber', type: ARRAY_NUMERIC_REDUCTIONS.MIN, relativeFieldPath: 'myNumber'},
+            {field: 'myField.myNumber', type: ARRAY_NUMERIC_REDUCTIONS.MIN, relativeFieldPath: null}
+          ];
+          expect(state.reductions.x).to.deep.equal(expected);
+        });
+      });
+      context('when there is a subdoc within an array within a subdoc within an array within an array', function() {
+        const state = {
+          reductions: {
+            x: [
+              {field: 'myField', type: ARRAY_NUMERIC_REDUCTIONS.MIN},
+              {field: 'myField', type: ARRAY_NUMERIC_REDUCTIONS.MIN},
+              {field: 'myField.myNumber', type: ARRAY_NUMERIC_REDUCTIONS.MIN},
+              {field: 'myField.myNumber', type: ARRAY_NUMERIC_REDUCTIONS.MIN},
+              {field: 'myField.myNumber.myCharacter', type: ARRAY_NUMERIC_REDUCTIONS.MIN}
+            ]
+          },
+          channels: {
+            x: {field: 'myField.myNumber.myCharacter'}
+          }
+        };
+        it('adds relativeFieldPath correctly', function() {
+          constructReductionSegment(state, aliaser);
+          const expected = [
+            {field: 'myField', type: ARRAY_NUMERIC_REDUCTIONS.MIN, relativeFieldPath: 'myField'},
+            {field: 'myField', type: ARRAY_NUMERIC_REDUCTIONS.MIN, relativeFieldPath: null},
+            {field: 'myField.myNumber', type: ARRAY_NUMERIC_REDUCTIONS.MIN, relativeFieldPath: 'myNumber'},
+            {field: 'myField.myNumber', type: ARRAY_NUMERIC_REDUCTIONS.MIN, relativeFieldPath: null},
+            {field: 'myField.myNumber.myCharacter', type: ARRAY_NUMERIC_REDUCTIONS.MIN, relativeFieldPath: 'myCharacter'}
+          ];
+          expect(state.reductions.x).to.deep.equal(expected);
+        });
+      });
+      context('when there is an array within a subdoc within an array within a subdoc within an array within an array', function() {
+        const state = {
+          reductions: {
+            x: [
+              {field: 'myField', type: ARRAY_NUMERIC_REDUCTIONS.MIN},
+              {field: 'myField', type: ARRAY_NUMERIC_REDUCTIONS.MIN},
+              {field: 'myField.myNumber', type: ARRAY_NUMERIC_REDUCTIONS.MIN},
+              {field: 'myField.myNumber', type: ARRAY_NUMERIC_REDUCTIONS.MIN},
+              {field: 'myField.myNumber.myCharacter', type: ARRAY_NUMERIC_REDUCTIONS.MIN},
+              {field: 'myField.myNumber.myCharacter', type: ARRAY_NUMERIC_REDUCTIONS.MIN}
+            ]
+          },
+          channels: {
+            x: {field: 'myField.myNumber.myCharacter'}
+          }
+        };
+        it('adds relativeFieldPath correctly', function() {
+          constructReductionSegment(state, aliaser);
+          const expected = [
+            {field: 'myField', type: ARRAY_NUMERIC_REDUCTIONS.MIN, relativeFieldPath: 'myField'},
+            {field: 'myField', type: ARRAY_NUMERIC_REDUCTIONS.MIN, relativeFieldPath: null},
+            {field: 'myField.myNumber', type: ARRAY_NUMERIC_REDUCTIONS.MIN, relativeFieldPath: 'myNumber'},
+            {field: 'myField.myNumber', type: ARRAY_NUMERIC_REDUCTIONS.MIN, relativeFieldPath: null},
+            {field: 'myField.myNumber.myCharacter', type: ARRAY_NUMERIC_REDUCTIONS.MIN, relativeFieldPath: 'myCharacter'},
+            {field: 'myField.myNumber.myCharacter', type: ARRAY_NUMERIC_REDUCTIONS.MIN, relativeFieldPath: null}
+          ];
+          expect(state.reductions.x).to.deep.equal(expected);
+        });
+      });
+    });
   });
 });
