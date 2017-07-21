@@ -125,6 +125,7 @@ function constructAccumulatorStage(reductions, channel, encodedField, aliaser) {
     // directly.
     arr = `$${ encodedField }`;
   } else if (reductions.length > 1) {
+    // compute relative field paths within reductions in place
     _addRelativeFieldPaths(reductions);
 
     // reverse the array (without modifying original), below code assumes inside->out order
