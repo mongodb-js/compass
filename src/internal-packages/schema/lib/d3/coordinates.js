@@ -17,7 +17,6 @@ const CONTROL_COLOR = '#ed271c';
 const TOKEN = 'pk.eyJ1IjoibW9uZ29kYi1jb21wYXNzIiwiYSI6ImNpbWUxZjNudjAwZTZ0emtrczByanZ4MzIifQ.6Mha4zoflraopcZKOLSpYQ';
 
 const MAPBOX_API_URL = 'https://compass-maps.mongodb.com/api.mapbox.com';
-const STYLE_URL = MAPBOX_API_URL + '/styles/v1/mapbox/light-v9?access_token=' + TOKEN;
 
 mapboxgl.accessToken = TOKEN;
 mapboxgl.config.API_URL = MAPBOX_API_URL;
@@ -348,13 +347,12 @@ const minicharts_d3fns_geo = function() {
       });
 
       // create the map once
-      console.log(STYLE_URL);
       if (!map) {
         map = new mapboxgl.Map({
           container: innerDiv[0][0],
           // not allowed to whitelabel the map without enterprise license
           // attributionControl: false,
-          style: STYLE_URL,
+          style: 'mapbox://styles/mapbox/light-v9',
           center: bounds.getCenter()
         });
         map.dragPan.enable();
