@@ -49,6 +49,12 @@ Run checks on all packages in the repo - this also runs as a precommit hook.
 lerna run check
 ```
 
+### Releasing
+
+```shell
+lerna publish
+```
+
 ## License
 
 Apache 2.0
