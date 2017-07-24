@@ -26,7 +26,6 @@ class SidebarComponent extends React.Component {
       filter: 'number: #' + this.count++,
       skip: 99,
       limit: 99,
-      isFavorite: false,
       lastExecuted: Date.now()};
     Actions.addRecent(newQuery);
   }

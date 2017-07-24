@@ -10,6 +10,7 @@ const FavoriteQueryCollection = require('./lib/models/favorite-query-collection'
  */
 function activate(appRegistry) {
   appRegistry.registerStore('QueryHistory.Store', QueryHistoryStore);
+  appRegistry.registerComponent('QueryHistory.Component', QueryHistoryComponent);
 }
 
 /**
@@ -17,6 +18,7 @@ function activate(appRegistry) {
  */
 function deactivate(appRegistry) {
   appRegistry.deregisterStore('QueryHistory.Store');
+  appRegistry.deregisterComponent('QueryHistory.Component', QueryHistoryComponent);
 }
 
 module.exports = QueryHistoryComponent;

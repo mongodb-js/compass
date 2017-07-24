@@ -26,7 +26,6 @@ const FavoritesListStore = Reflux.createStore({
 
     const attributes = recent.serialize();
     attributes.name = name;
-    attributes.isFavorite = true;
     attributes.dateSaved = Date.now();
 
     const query = new FavoriteQuery(attributes);
