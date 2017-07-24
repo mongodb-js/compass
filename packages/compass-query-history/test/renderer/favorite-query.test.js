@@ -5,9 +5,9 @@ describe('FavoriteQuery', () => {
   describe('#new', () => {
     const date = new Date('2017-01-01');
     const query = new FavoriteQuery({
-      filter: "{ name: 'test' }",
-      projection: '{ name: 1 }',
-      sort: '{ name: -1 }',
+      filter: { name: 'test' },
+      projection: { name: 1 },
+      sort: { name: -1 },
       skip: 10,
       limit: 20,
       lastExecuted: date,
@@ -20,15 +20,15 @@ describe('FavoriteQuery', () => {
     });
 
     it('has a filter attribute', () => {
-      expect(query.filter).to.equal("{ name: 'test' }");
+      expect(query.filter).to.deep.equal({ name: 'test' });
     });
 
     it('has a projection attribute', () => {
-      expect(query.projection).to.equal('{ name: 1 }');
+      expect(query.projection).to.deep.equal({ name: 1 });
     });
 
     it('has a sort attribute', () => {
-      expect(query.sort).to.equal('{ name: -1 }');
+      expect(query.sort).to.deep.equal({ name: -1 });
     });
 
     it('has a skip attribute', () => {

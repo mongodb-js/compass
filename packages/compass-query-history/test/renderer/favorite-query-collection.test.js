@@ -4,7 +4,7 @@ const { FavoriteQuery, FavoriteQueryCollection } = require('../../');
 describe('FavoriteQueryCollection', () => {
   describe('#add', () => {
     const collection = new FavoriteQueryCollection();
-    const query = new FavoriteQuery({ filter: "{ name: 'test' }" });
+    const query = new FavoriteQuery({ filter: { name: 'test' } });
 
     before(() => {
       collection.add(query);
@@ -20,7 +20,7 @@ describe('FavoriteQueryCollection', () => {
   });
 
   describe('#new', () => {
-    const query = new FavoriteQuery({ filter: "{ name: 'test' }" });
+    const query = new FavoriteQuery({ filter: { name: 'test' } });
     const collection = new FavoriteQueryCollection([ query ]);
 
     it('adds the query to the collection', () => {

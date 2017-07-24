@@ -23,11 +23,11 @@ const Query = Model.extend({
     /**
      * The query projection.
      */
-    projection: 'string',
+    projection: 'object',
     /**
      * The query sort.
      */
-    sort: 'string',
+    sort: 'object',
     /**
      * The query skip.
      */

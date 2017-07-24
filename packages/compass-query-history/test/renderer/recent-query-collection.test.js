@@ -4,7 +4,7 @@ const { RecentQuery, RecentQueryCollection } = require('../../');
 describe('RecentQueryCollection', () => {
   describe('#add', () => {
     const collection = new RecentQueryCollection();
-    const query = new RecentQuery({ filter: "{ name: 'test' }" });
+    const query = new RecentQuery({ filter: { name: 'test' } });
 
     before(() => {
       collection.add(query);
@@ -20,7 +20,7 @@ describe('RecentQueryCollection', () => {
   });
 
   describe('#new', () => {
-    const query = new RecentQuery({ filter: "{ name: 'test' }" });
+    const query = new RecentQuery({ filter: { name: 'test' } });
     const collection = new RecentQueryCollection([ query ]);
 
     it('adds the query to the collection', () => {
@@ -35,13 +35,13 @@ describe('RecentQueryCollection', () => {
   context('when the collection has multiples', () => {
     const older = new Date('2014-01-01');
     const newer = new Date();
-    const queryOne = new RecentQuery({ lastExecuted: older, filter: 'one' });
-    const queryTwo = new RecentQuery({ lastExecuted: newer, filter: 'two' });
+    const queryOne = new RecentQuery({ lastExecuted: older, filter: {'one': 1} });
+    const queryTwo = new RecentQuery({ lastExecuted: newer, filter: {'two': 1} });
     const collection = new RecentQueryCollection([ queryOne, queryTwo ]);
 
     it('sorts the collection by dateSaved', () => {
-      expect(collection.models[0].filter).to.equal('two');
-      expect(collection.models[1].filter).to.equal('one');
+      expect(collection.models[0].filter).to.deep.equal({'two': 1});
+      expect(collection.models[1].filter).to.deep.equal({'one': 1});
     });
   });
 });
