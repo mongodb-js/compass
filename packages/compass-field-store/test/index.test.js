@@ -2,17 +2,14 @@
 const expect = require('chai').expect;
 const mock = require('mock-require');
 const schemaFixture = require('./fixtures/array_of_docs.fixture.json');
-const Reflux = require('reflux');
-let FieldStore = require('../lib/stores').default;
+let FieldStore = require('../lib/stores');
 
 describe('FieldStore', function() {
   let unsubscribe;
-  let fieldStore;
 
   beforeEach(() => {
     unsubscribe = () => {};
     FieldStore = mock.reRequire('../lib/stores');
-    fieldStore = Reflux.initStore(FieldStore);
   });
 
   afterEach(() => {
@@ -20,7 +17,7 @@ describe('FieldStore', function() {
   });
 
   it('has an initial state', () => {
-    const state = fieldStore.getInitialState();
+    const state = FieldStore.getInitialState();
     expect(state).to.have.all.keys(['fields', 'topLevelFields']);
     expect(state.fields).to.be.empty;
     expect(state.topLevelFields).to.be.empty;
@@ -28,67 +25,67 @@ describe('FieldStore', function() {
 
   it('samples a single document', (done) => {
     const doc = {harry: 1, potter: true};
-    unsubscribe = fieldStore.listen((state) => {
+    unsubscribe = FieldStore.listen((state) => {
       expect(Object.keys(state.fields)).to.have.all.members(['harry', 'potter']);
       done();
     });
-    fieldStore.processSingleDocument(doc);
+    FieldStore.processSingleDocument(doc);
   });
 
   it('samples many documents', (done) => {
     const docs = [{harry: 1, potter: true}, {ron: 'test', weasley: null}];
-    unsubscribe = fieldStore.listen((state) => {
+    unsubscribe = FieldStore.listen((state) => {
       expect(Object.keys(state.fields)).to.have.all.members([
         'harry', 'potter', 'ron', 'weasley']);
       done();
     });
-    fieldStore.processDocuments(docs);
+    FieldStore.processDocuments(docs);
   });
 
   it('merges new docs with the existing state', (done) => {
     const doc = {harry: 1, potter: true};
-    fieldStore.processSingleDocument(doc);
+    FieldStore.processSingleDocument(doc);
     setTimeout(() => {
       const secondDoc = {hermione: 0, granger: false};
-      unsubscribe = fieldStore.listen((state) => {
+      unsubscribe = FieldStore.listen((state) => {
         expect(Object.keys(state.fields)).to.have.all.members([
           'harry', 'potter', 'hermione', 'granger']);
         done();
       });
-      fieldStore.processSingleDocument(secondDoc);
+      FieldStore.processSingleDocument(secondDoc);
     });
   });
 
   it('merges a schema with the existing state', (done) => {
     const doc = {harry: 1, potter: true};
-    fieldStore.processSingleDocument(doc);
+    FieldStore.processSingleDocument(doc);
     setTimeout(() => {
-      unsubscribe = fieldStore.listen((state) => {
+      unsubscribe = FieldStore.listen((state) => {
         expect(Object.keys(state.fields)).to.have.all.members(['harry', 'potter',
           '_id', 'review', 'review._id', 'review.rating', 'review.text',
           'reviews', 'reviews._id', 'reviews.rating', 'reviews.text']);
         done();
       });
-      fieldStore.processSchema(schemaFixture);
+      FieldStore.processSchema(schemaFixture);
     });
   });
 
   it('flattens the schema', function(done) {
-    unsubscribe = fieldStore.listen((state) => {
+    unsubscribe = FieldStore.listen((state) => {
       expect(state.fields).to.have.all.keys(['a', 'a.b', 'a.b.c']);
       unsubscribe();
       done();
     });
-    fieldStore.processSingleDocument({a: {b: {c: 1}}});
+    FieldStore.processSingleDocument({a: {b: {c: 1}}});
   });
 
   it('maintains list of root fields', function(done) {
-    unsubscribe = fieldStore.listen((state) => {
+    unsubscribe = FieldStore.listen((state) => {
       expect(state.topLevelFields).to.have.all.members(['a', 'd', 'e']);
       unsubscribe();
       done();
     });
-    fieldStore.processSingleDocument({a: {b: {c: 1}}, d: 5, e: {f: 3}});
+    FieldStore.processSingleDocument({a: {b: {c: 1}}, d: 5, e: {f: 3}});
   });
 
   context('multidimensional arrays', () => {
@@ -102,12 +99,12 @@ describe('FieldStore', function() {
           'type': 'Array'
         }
       };
-      unsubscribe = fieldStore.listen((state) => {
+      unsubscribe = FieldStore.listen((state) => {
         expect(state.fields).to.be.deep.equal(expected);
         unsubscribe();
         done();
       });
-      fieldStore.processSingleDocument({a: []});
+      FieldStore.processSingleDocument({a: []});
     });
     it('identifies populated 1d arrays', function(done) {
       const expected = {
@@ -119,12 +116,12 @@ describe('FieldStore', function() {
           'type': 'Array'
         }
       };
-      unsubscribe = fieldStore.listen((state) => {
+      unsubscribe = FieldStore.listen((state) => {
         expect(state.fields).to.be.deep.equal(expected);
         unsubscribe();
         done();
       });
-      fieldStore.processSingleDocument({a: [1, 2, 3]});
+      FieldStore.processSingleDocument({a: [1, 2, 3]});
     });
     it('identifies 2d arrays', function(done) {
       const expected = {
@@ -136,12 +133,12 @@ describe('FieldStore', function() {
           'type': 'Array'
         }
       };
-      unsubscribe = fieldStore.listen((state) => {
+      unsubscribe = FieldStore.listen((state) => {
         expect(state.fields).to.be.deep.equal(expected);
         unsubscribe();
         done();
       });
-      fieldStore.processSingleDocument({a: [
+      FieldStore.processSingleDocument({a: [
         ['1_1', '1_2', '1_3'],
         ['2_1', '2_2', '2_3']
       ]});
@@ -156,12 +153,12 @@ describe('FieldStore', function() {
           'type': 'Array'
         }
       };
-      unsubscribe = fieldStore.listen((state) => {
+      unsubscribe = FieldStore.listen((state) => {
         expect(state.fields).to.be.deep.equal(expected);
         unsubscribe();
         done();
       });
-      fieldStore.processSingleDocument({a: [
+      FieldStore.processSingleDocument({a: [
         // Think cube
         [
           ['1_1_1', '1_1_2'],
@@ -187,16 +184,16 @@ describe('FieldStore', function() {
       };
 
       // Should effectively be a no-op call
-      fieldStore.processSingleDocument({a: [
+      FieldStore.processSingleDocument({a: [
         ['1_1', '1_2', '1_3'],
         ['2_1', '2_2', '2_3']
       ]});
 
       // Call that matters, the one that should be kept around
-      fieldStore.processSingleDocument({a: [1, 2, 3]});
+      FieldStore.processSingleDocument({a: [1, 2, 3]});
 
       setTimeout(() => {
-        expect(fieldStore.state.fields).to.be.deep.equal(expected);
+        expect(FieldStore.state.fields).to.be.deep.equal(expected);
         done();
       });
     });
@@ -222,12 +219,12 @@ describe('FieldStore', function() {
           'type': 'String'
         }
       };
-      unsubscribe = fieldStore.listen((state) => {
+      unsubscribe = FieldStore.listen((state) => {
         expect(state.fields).to.be.deep.equal(expected);
         unsubscribe();
         done();
       });
-      fieldStore.processSingleDocument({a: [
+      FieldStore.processSingleDocument({a: [
         {b: 'foo'},
         {b: 'bar'}
       ]});
@@ -251,12 +248,12 @@ describe('FieldStore', function() {
           'type': 'String'
         }
       };
-      unsubscribe = fieldStore.listen((state) => {
+      unsubscribe = FieldStore.listen((state) => {
         expect(state.fields).to.be.deep.equal(expected);
         unsubscribe();
         done();
       });
-      fieldStore.processSingleDocument({a: [
+      FieldStore.processSingleDocument({a: [
         [
           {b: 'foo'},
           {b: 'bar'}
@@ -295,12 +292,12 @@ describe('FieldStore', function() {
           'type': 'String'
         }
       };
-      unsubscribe = fieldStore.listen((state) => {
+      unsubscribe = FieldStore.listen((state) => {
         expect(state.fields).to.be.deep.equal(expected);
         unsubscribe();
         done();
       });
-      fieldStore.processSingleDocument({a: [
+      FieldStore.processSingleDocument({a: [
         {b: {c: 'foo'}},
         {b: {c: 'bar'}}
       ]});
@@ -344,12 +341,12 @@ describe('FieldStore', function() {
           'type': 'Array'
         }
       };
-      unsubscribe = fieldStore.listen((state) => {
+      unsubscribe = FieldStore.listen((state) => {
         expect(state.fields).to.be.deep.equal(expected);
         unsubscribe();
         done();
       });
-      fieldStore.processSingleDocument({a: {b: [
+      FieldStore.processSingleDocument({a: {b: [
         {c: {d: [[1, 2], [3, 4]]}},
         {c: {d: [[5, 6], [7, 8]]}}
       ]}});
@@ -387,11 +384,11 @@ describe('FieldStore', function() {
       const doc = {
         foo1: [{age: 10, name: 'bazillion'}]
       };
-      unsubscribe = fieldStore.listen((state) => {
+      unsubscribe = FieldStore.listen((state) => {
         expect(state.fields).to.be.deep.equal(expected);
         done();
       });
-      fieldStore.processSingleDocument(doc);
+      FieldStore.processSingleDocument(doc);
     });
     it('handles path', (done) => {
       const expected = {
@@ -423,11 +420,11 @@ describe('FieldStore', function() {
       const doc = {
         foo1: [{age: 10, path: 'bazillion'}]
       };
-      unsubscribe = fieldStore.listen((state) => {
+      unsubscribe = FieldStore.listen((state) => {
         expect(state.fields).to.be.deep.equal(expected);
         done();
       });
-      fieldStore.processSingleDocument(doc);
+      FieldStore.processSingleDocument(doc);
     });
   });
 });

@@ -1,6 +1,7 @@
 const Reflux = require('reflux');
 const parseSchema = require('mongodb-schema');
 const FieldActions = require('../actions');
+const StateMixin = require('reflux-state-mixin');
 const _ = require('lodash');
 const debug = require('debug')('mongodb-compass:stores:field-store');
 
@@ -11,13 +12,13 @@ const FIELDS = [
   'type'
 ];
 
-class FieldStore extends Reflux.Store {
+const FieldStore = Reflux.createStore({
 
-  constructor() {
-    super();
+  mixins: [StateMixin.store],
+
+  init() {
     this.listenables = FieldActions;
-    this.state = this.getInitialState();
-  }
+  },
 
   /**
    * Initialize the field store.
@@ -33,7 +34,7 @@ class FieldStore extends Reflux.Store {
       fields: {},
       topLevelFields: []
     };
-  }
+  },
 
   _mergeFields(existingField, newField) {
     return _.mergeWith(existingField, newField,
@@ -57,7 +58,7 @@ class FieldStore extends Reflux.Store {
         // all other keys are handled as per default
         return undefined;
       });
-  }
+  },
 
   /**
    * Generate the flattened list of fields for the FieldStore.
@@ -100,7 +101,7 @@ class FieldStore extends Reflux.Store {
         }
       }
     }
-  }
+  },
 
   /**
    * Helper to recurse into the "types" of the mongodb-schema superstructure.
@@ -125,7 +126,7 @@ class FieldStore extends Reflux.Store {
         this._flattenedArray(fields, type.types, field, arrayDepth + 1);
       }
     }
-  }
+  },
 
   /**
    * merges a schema with the existing FieldStore content.
@@ -145,14 +146,14 @@ class FieldStore extends Reflux.Store {
       fields: fields,
       topLevelFields: _.union(this.state.topLevelFields, topLevelFields)
     });
-  }
+  },
 
   /**
    * resets the FieldStore
    */
   reset() {
     this.setState(this.getInitialState());
-  }
+  },
 
   /**
    * processes documents returned from the ResetDocumentListStore and
@@ -167,7 +168,7 @@ class FieldStore extends Reflux.Store {
       }
       this._mergeSchema(schema);
     });
-  }
+  },
 
   /**
    * processes a single document returned from the InsertDocumentStore.
@@ -181,7 +182,7 @@ class FieldStore extends Reflux.Store {
       }
       this._mergeSchema(schema);
     });
-  }
+  },
 
   /**
    * processes a schema from the SchemaStore.
@@ -190,11 +191,11 @@ class FieldStore extends Reflux.Store {
    */
   processSchema(schema) {
     this._mergeSchema(schema);
-  }
+  },
 
   storeDidUpdate(prevState) {
     debug('field store changed from', prevState, 'to', this.state);
   }
-}
+});
 
 module.exports = FieldStore;

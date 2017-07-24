@@ -22,5 +22,6 @@ function deactivate(appRegistry) {
 }
 
 module.exports = FieldStore;
+module.exports.Actions = FieldActions;
 module.exports.activate = activate;
 module.exports.deactivate = deactivate;

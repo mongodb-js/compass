@@ -50,13 +50,14 @@
     "react": "^15.5.4",
     "react-dom": "^15.5.4",
     "react-fontawesome": "^1.6.1",
-    "reflux": "6.4.1",
+    "reflux": "^0.4.1",
     "sinon": "^1.17.6",
     "sinon-chai": "^2.8.0",
     "watch": "^1.0.2"
   },
   "dependencies": {
     "lodash": "^4.17.4",
-    "mongodb-schema": "^7.0.0"
+    "mongodb-schema": "^7.0.0",
+    "reflux-state-mixin": "^0.7.0"
   }
 }
