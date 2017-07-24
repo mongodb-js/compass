@@ -360,7 +360,8 @@ const minicharts_d3fns_geo = function() {
         map.boxZoom.disable();
 
         // Add zoom and rotation controls to the map
-        map.addControl(new mapboxgl.NavigationControl('top-left'));
+        const navControl = new mapboxgl.NavigationControl();
+        map.addControl(navControl, 'top-left');
 
         // Setup our svg layer that we can manipulate with d3
         const container = map.getCanvasContainer();
