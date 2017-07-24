@@ -1,3 +1,5 @@
+const numeral = require('numeral');
+
 const TOOL_TIP_ARRAY_REDUCE = Object.freeze({
   'data-for': 'array-reduce-tooltip',
   'data-tip': 'In order to use fields or values<br/>'
@@ -246,6 +248,51 @@ const REDUCTIONS = Object.freeze({
   }
 });
 
+const REDUCTION_AXIS_TITLE_FACTORIES = Object.freeze({
+  [ARRAY_GENERAL_REDUCTIONS.UNWIND]: function() {
+    return 'unwind ';
+  },
+  [ARRAY_GENERAL_REDUCTIONS.LENGTH]: function() {
+    return 'length of ';
+  },
+  [ARRAY_GENERAL_REDUCTIONS.INDEX]: function(args) {
+    return `${numeral(args[0] + 1).format('0o')} element of `;
+  },
+  [ARRAY_NUMERIC_REDUCTIONS.MAX]: function() {
+    return 'maximum of ';
+  },
+  [ARRAY_NUMERIC_REDUCTIONS.MIN]: function() {
+    return 'minimum of ';
+  },
+  [ARRAY_NUMERIC_REDUCTIONS.MEAN]: function() {
+    return 'mean of ';
+  },
+  [ARRAY_NUMERIC_REDUCTIONS.SUM]: function() {
+    return 'sum of ';
+  },
+  [ARRAY_STRING_REDUCTIONS.MAX_LENGTH]: function() {
+    return 'length of longest string in ';
+  },
+  [ARRAY_STRING_REDUCTIONS.MIN_LENGTH]: function() {
+    return 'length of shortest string in ';
+  },
+  [ARRAY_STRING_REDUCTIONS.CONCAT]: function() {
+    return 'concatenation of ';
+  },
+  [ARRAY_STRING_REDUCTIONS.LONGEST]: function() {
+    return 'longest string in ';
+  },
+  [ARRAY_STRING_REDUCTIONS.SHORTEST]: function() {
+    return 'shortest string in ';
+  },
+  [ARRAY_STRING_REDUCTIONS.EXISTENCE_OF_VALUE]: function(args) {
+    return `existence of string '${args[0]}' in `;
+  },
+  [ARRAY_STRING_REDUCTIONS.COUNT_OF_OCCURRENCES]: function(args) {
+    return `count of occurrence of string '${args[0]}' in `;
+  }
+});
+
 module.exports = {
   TOOL_TIP_ARRAY_REDUCE,
   ARRAY_GENERAL_REDUCTIONS,
@@ -253,5 +300,6 @@ module.exports = {
   ARRAY_STRING_REDUCTIONS,
   ARRAY_REDUCTION_TYPES,
   REDUCTION_ARGS_TEMPLATE,
+  REDUCTION_AXIS_TITLE_FACTORIES,
   REDUCTIONS
 };
