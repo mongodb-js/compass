@@ -20,7 +20,6 @@ const RecentListStore = Reflux.createStore({
   listenables: Actions,
 
   addRecent(recent) {
-    // TODO: Integrate with Compass: determine the format that queries will come in
     if (this.state.recents.length >= TOTAL_RECENTS) {
       this.state.recents.remove(this.state.recents.at(TOTAL_RECENTS - 1)._id);
     }

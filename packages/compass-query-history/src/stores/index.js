@@ -38,6 +38,10 @@ const SidebarStore = Reflux.createStore({
     });
   },
 
+  onQueryChanged(query) {
+    Actions.addRecent(query);
+  },
+
   /**
    * This method is called when all plugins are activated. You can register
    * listeners to other plugins' stores here, e.g.

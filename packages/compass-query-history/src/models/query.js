@@ -19,7 +19,7 @@ const Query = Model.extend({
     /**
      * The query filter.
      */
-    filter: 'string',
+    filter: 'object',
     /**
      * The query projection.
      */
