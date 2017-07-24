@@ -144,6 +144,7 @@
     "@mongodb-js/compass-deployment-awareness": "3.2.0",
     "@mongodb-js/compass-document-validation": "4.1.0",
     "@mongodb-js/compass-serverstats": "9.1.0",
+    "compass-query-history": "https://github.com/10gen/compass-query-history",
     "ampersand-collection": "^1.5.0",
     "ampersand-collection-filterable": "^0.2.1",
     "ampersand-dom-bindings": "^3.7.0",

@@ -55,6 +55,10 @@ class QueryBar extends React.Component {
     this.unsubscribeFieldStore = fieldStore.listen(this.onFieldsChanged.bind(this));
   }
 
+  componentWillMount() {
+    this.QueryHistoryComponent = global.hadronApp.appRegistry.getComponent('QueryHistory.Component');
+  }
+
   componentWillUnmount() {
     this.unsubscribeFieldStore();
   }
@@ -94,7 +98,7 @@ class QueryBar extends React.Component {
   }
 
   onQueryHistoryButtonClicked() {
-    debug("QUERY HISTORY CLICKED");
+    debug('QUERY HISTORY CLICKED');
   }
 
   _onFocus() {
@@ -293,6 +297,9 @@ class QueryBar extends React.Component {
           <div className="row">
             <div className="col-md-12">
               {this.renderForm()}
+            </div>
+            <div className="query-history">
+              <this.QueryHistoryComponent />
             </div>
           </div>
         </div>
