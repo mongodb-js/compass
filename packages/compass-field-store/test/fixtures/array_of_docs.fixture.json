@@ -1,0 +1,319 @@
+{
+  "fields": [
+    {
+      "name": "_id",
+      "path": "_id",
+      "count": 4,
+      "types": [
+        {
+          "name": "ObjectID",
+          "bsonType": "ObjectID",
+          "path": "_id",
+          "count": 4,
+          "values": [
+            {
+              "$oid": "5626704c0104270098888917"
+            },
+            {
+              "$oid": "5626704b0104270098888916"
+            },
+            {
+              "$oid": "5626704d0104270098888918"
+            },
+            {
+              "$oid": "58b66452509f926100cd8812"
+            }
+          ],
+          "total_count": 0,
+          "probability": 1,
+          "unique": 4,
+          "has_duplicates": false
+        }
+      ],
+      "total_count": 4,
+      "type": "ObjectID",
+      "has_duplicates": false,
+      "probability": 1
+    },
+    {
+      "name": "review",
+      "path": "review",
+      "count": 1,
+      "types": [
+        {
+          "name": "Undefined",
+          "type": "Undefined",
+          "path": "review",
+          "count": 3,
+          "total_count": 0,
+          "probability": 0.75,
+          "unique": 1,
+          "has_duplicates": true
+        },
+        {
+          "name": "Document",
+          "bsonType": "Document",
+          "path": "review",
+          "count": 1,
+          "fields": [
+            {
+              "name": "_id",
+              "path": "review._id",
+              "count": 1,
+              "types": [
+                {
+                  "name": "Number",
+                  "bsonType": "Number",
+                  "path": "review._id",
+                  "count": 1,
+                  "values": [
+                    3
+                  ],
+                  "total_count": 0,
+                  "probability": 1,
+                  "unique": 1,
+                  "has_duplicates": false
+                }
+              ],
+              "total_count": 1,
+              "type": "Number",
+              "has_duplicates": false,
+              "probability": 1
+            },
+            {
+              "name": "rating",
+              "path": "review.rating",
+              "count": 1,
+              "types": [
+                {
+                  "name": "Number",
+                  "bsonType": "Number",
+                  "path": "review.rating",
+                  "count": 1,
+                  "values": [
+                    9
+                  ],
+                  "total_count": 0,
+                  "probability": 1,
+                  "unique": 1,
+                  "has_duplicates": false
+                }
+              ],
+              "total_count": 1,
+              "type": "Number",
+              "has_duplicates": false,
+              "probability": 1
+            },
+            {
+              "name": "text",
+              "path": "review.text",
+              "count": 1,
+              "types": [
+                {
+                  "name": "String",
+                  "bsonType": "String",
+                  "path": "review.text",
+                  "count": 1,
+                  "values": [
+                    "it was great!"
+                  ],
+                  "total_count": 0,
+                  "probability": 1,
+                  "unique": 1,
+                  "has_duplicates": false
+                }
+              ],
+              "total_count": 1,
+              "type": "String",
+              "has_duplicates": false,
+              "probability": 1
+            }
+          ],
+          "total_count": 0,
+          "probability": 0.25
+        }
+      ],
+      "total_count": 4,
+      "type": [
+        "Undefined",
+        "Document"
+      ],
+      "has_duplicates": true,
+      "probability": 0.25
+    },
+    {
+      "name": "reviews",
+      "path": "reviews",
+      "count": 3,
+      "types": [
+        {
+          "name": "Array",
+          "bsonType": "Array",
+          "path": "reviews",
+          "count": 3,
+          "types": [
+            {
+              "name": "Document",
+              "bsonType": "Document",
+              "path": "reviews",
+              "count": 6,
+              "fields": [
+                {
+                  "name": "_id",
+                  "path": "reviews._id",
+                  "count": 5,
+                  "types": [
+                    {
+                      "name": "Number",
+                      "bsonType": "Number",
+                      "path": "reviews._id",
+                      "count": 5,
+                      "values": [
+                        1,
+                        2,
+                        2,
+                        1,
+                        2
+                      ],
+                      "total_count": 0,
+                      "probability": 0.8333333333333334,
+                      "unique": 2,
+                      "has_duplicates": true
+                    },
+                    {
+                      "name": "Undefined",
+                      "type": "Undefined",
+                      "path": "reviews._id",
+                      "count": 1,
+                      "total_count": 0,
+                      "probability": 0.16666666666666666,
+                      "unique": 1,
+                      "has_duplicates": false
+                    }
+                  ],
+                  "total_count": 6,
+                  "type": [
+                    "Number",
+                    "Undefined"
+                  ],
+                  "has_duplicates": true,
+                  "probability": 0.8333333333333334
+                },
+                {
+                  "name": "rating",
+                  "path": "reviews.rating",
+                  "count": 5,
+                  "types": [
+                    {
+                      "name": "Number",
+                      "bsonType": "Number",
+                      "path": "reviews.rating",
+                      "count": 5,
+                      "values": [
+                        4,
+                        1,
+                        1,
+                        4,
+                        1
+                      ],
+                      "total_count": 0,
+                      "probability": 0.8333333333333334,
+                      "unique": 2,
+                      "has_duplicates": true
+                    },
+                    {
+                      "name": "Undefined",
+                      "type": "Undefined",
+                      "path": "reviews.rating",
+                      "count": 1,
+                      "total_count": 0,
+                      "probability": 0.16666666666666666,
+                      "unique": 1,
+                      "has_duplicates": false
+                    }
+                  ],
+                  "total_count": 6,
+                  "type": [
+                    "Number",
+                    "Undefined"
+                  ],
+                  "has_duplicates": true,
+                  "probability": 0.8333333333333334
+                },
+                {
+                  "name": "text",
+                  "path": "reviews.text",
+                  "count": 5,
+                  "types": [
+                    {
+                      "name": "String",
+                      "bsonType": "String",
+                      "path": "reviews.text",
+                      "count": 5,
+                      "values": [
+                        "great!",
+                        "didn't like it",
+                        "didn't like it",
+                        "great!",
+                        "didn't like it"
+                      ],
+                      "total_count": 0,
+                      "probability": 0.8333333333333334,
+                      "unique": 2,
+                      "has_duplicates": true
+                    },
+                    {
+                      "name": "Undefined",
+                      "type": "Undefined",
+                      "path": "reviews.text",
+                      "count": 1,
+                      "total_count": 0,
+                      "probability": 0.16666666666666666,
+                      "unique": 1,
+                      "has_duplicates": false
+                    }
+                  ],
+                  "total_count": 6,
+                  "type": [
+                    "String",
+                    "Undefined"
+                  ],
+                  "has_duplicates": true,
+                  "probability": 0.8333333333333334
+                }
+              ],
+              "total_count": 0,
+              "probability": 1
+            }
+          ],
+          "lengths": [
+            3,
+            1,
+            2
+          ],
+          "total_count": 6,
+          "probability": 0.75,
+          "average_length": 2
+        },
+        {
+          "name": "Undefined",
+          "type": "Undefined",
+          "path": "reviews",
+          "count": 1,
+          "total_count": 0,
+          "probability": 0.25,
+          "unique": 1,
+          "has_duplicates": false
+        }
+      ],
+      "total_count": 4,
+      "type": [
+        "Array",
+        "Undefined"
+      ],
+      "has_duplicates": false,
+      "probability": 0.75
+    }
+  ],
+  "count": 4
+}
