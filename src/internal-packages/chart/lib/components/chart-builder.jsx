@@ -19,7 +19,9 @@ const {
   MIN_CHART_WIDTH,
   SPEC_TYPE_ENUM,
   TOOL_TIP_ARRAY_REDUCE,
-  VIEW_TYPE_ENUM
+  VIEW_TYPE_ENUM,
+  REDUCTION_AXIS_TITLE_FACTORIES,
+  ARRAY_NUMERIC_REDUCTIONS
 } = require('../constants');
 
 const QUERYBAR_LAYOUT = ['filter', ['sort', 'skip', 'limit', 'sample']];
@@ -110,6 +112,31 @@ class ChartBuilder extends React.Component {
     const width = Math.max(MIN_CHART_WIDTH, areaDim.offsetWidth - SPACING);
     const height = Math.max(MIN_CHART_HEIGHT, areaDim.offsetHeight - SPACING);
     return {width, height};
+  }
+
+  /**
+   * Generate axis labels based on the types of every element in the provided
+   * channel reduction array
+   *
+   * @param {Object} reductions  the reductions array of a particular channel
+   * @return {String}            human readable string representation of reductions
+   */
+  static _generateReductionAxisLabel(reductions) {
+    // generate array of strings based on reduction type
+    const strings = reductions.map((reduction) => {
+      return REDUCTION_AXIS_TITLE_FACTORIES[reduction.type](reduction.arguments);
+    });
+
+    const reductionLabel = strings.join(' of ');
+    const lastReduction = _.last(reductions);
+
+    // add 'numeric array' prefix if the final reduction type is for numeric types
+    let arrayLabel = _.includes(_.values(ARRAY_NUMERIC_REDUCTIONS), lastReduction.type) ?
+      'numeric array ' : 'array ';
+
+    arrayLabel += `'${lastReduction.field}'`;
+
+    return reductionLabel + arrayLabel;
   }
 
   /**
