@@ -1,9 +1,9 @@
 /* eslint no-unused-expressions: 0 */
 const expect = require('chai').expect;
 const mock = require('mock-require');
-const schemaFixture = require('../fixtures/array_of_docs.fixture.json');
+const schemaFixture = require('./fixtures/array_of_docs.fixture.json');
 const Reflux = require('reflux');
-let FieldStore = require('../../lib/stores').default;
+let FieldStore = require('../lib/stores').default;
 
 describe('FieldStore', function() {
   let unsubscribe;
@@ -11,7 +11,7 @@ describe('FieldStore', function() {
 
   beforeEach(() => {
     unsubscribe = () => {};
-    FieldStore = mock.reRequire('../../lib/stores');
+    FieldStore = mock.reRequire('../lib/stores');
     fieldStore = Reflux.initStore(FieldStore);
   });
 
