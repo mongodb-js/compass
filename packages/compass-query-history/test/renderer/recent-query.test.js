@@ -1,10 +1,10 @@
 const { expect } = require('chai');
-const { Query } = require('../../');
+const { RecentQuery } = require('../../');
 
-describe('Query', () => {
+describe('RecentQuery', () => {
   describe('#new', () => {
     const date = new Date('2017-01-01');
-    const query = new Query({
+    const query = new RecentQuery({
       filter: "{ name: 'test' }",
       projection: '{ name: 1 }',
       sort: '{ name: -1 }',
@@ -15,10 +15,6 @@ describe('Query', () => {
 
     it('defaults the _id attribute', () => {
       expect(query._id).to.not.equal(null);
-    });
-
-    it('defaults the isFavorite attribute', () => {
-      expect(query.isFavorite).to.equal(false);
     });
 
     it('has a filter attribute', () => {

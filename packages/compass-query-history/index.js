@@ -1,8 +1,10 @@
 const QueryHistoryComponent = require('./lib/components');
 const QueryHistoryActions = require('./lib/actions');
 const QueryHistoryStore = require('./lib/stores');
-const Query = require('./lib/models/query');
-const QueryCollection = require('./lib/models/query-collection');
+const RecentQuery = require('./lib/models/recent-query');
+const FavoriteQuery = require('./lib/models/favorite-query');
+const RecentQueryCollection = require('./lib/models/recent-query-collection');
+const FavoriteQueryCollection = require('./lib/models/favorite-query-collection');
 
 /**
  * A sample role for the component.
@@ -40,7 +42,9 @@ function deactivate(appRegistry) {
 }
 
 module.exports = QueryHistoryComponent;
-module.exports.Query = Query;
-module.exports.QueryCollection = QueryCollection;
+module.exports.RecentQuery = RecentQuery;
+module.exports.FavoriteQuery = FavoriteQuery;
+module.exports.RecentQueryCollection = RecentQueryCollection;
+module.exports.FavoriteQueryCollection = FavoriteQueryCollection;
 module.exports.activate = activate;
 module.exports.deactivate = deactivate;
