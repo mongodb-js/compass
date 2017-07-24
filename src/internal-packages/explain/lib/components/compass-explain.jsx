@@ -1,7 +1,7 @@
 const React = require('react');
 const PropTypes = require('prop-types');
 const app = require('hadron-app');
-const { StatusRow } = require('hadron-react-components');
+const { StatusRow, ViewSwitcher } = require('hadron-react-components');
 const ExplainBody = require('./explain-body');
 const _ = require('lodash');
 
@@ -19,7 +19,6 @@ class CompassExplain extends React.Component {
   constructor(props) {
     super(props);
     this.CollectionStore = app.appRegistry.getStore('App.CollectionStore');
-    this.ViewSwitcher = app.appRegistry.getComponent('App.ViewSwitcher');
   }
 
   componentWillMount() {
@@ -100,7 +99,7 @@ class CompassExplain extends React.Component {
             onReset={this.onResetClicked.bind(this)}
           />
           <div className="action-bar">
-            <this.ViewSwitcher
+            <ViewSwitcher
               label="View Details As"
               buttonLabels={['Visual Tree', 'Raw JSON']}
               activeButton={activeViewTypeButton}

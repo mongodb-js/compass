@@ -6,7 +6,7 @@ const HTML5Backend = require('react-dnd-html5-backend');
 const { DragDropContext } = require('react-dnd');
 const ReactTooltip = require('react-tooltip');
 const { TextButton } = require('hadron-react-buttons');
-const { StatusRow } = require('hadron-react-components');
+const { StatusRow, ViewSwitcher } = require('hadron-react-components');
 const FieldPanel = require('./field-panel');
 const ChartPanel = require('./chart-panel');
 const Actions = require('../actions');
@@ -35,7 +35,6 @@ class ChartBuilder extends React.Component {
     // fetch external components
     this.queryBar = app.appRegistry.getComponent('Query.QueryBar');
     this.CollectionStore = app.appRegistry.getStore('App.CollectionStore');
-    this.ViewSwitcher = app.appRegistry.getComponent('App.ViewSwitcher');
     this.Chart = app.appRegistry.getComponent('Chart.Chart');
 
     // intialise chart dimensions
@@ -154,7 +153,7 @@ class ChartBuilder extends React.Component {
     // use plain buttons until IconTextButton passes all props, e.g. `disabled`
     return (
       <StatusRow>
-        <this.ViewSwitcher
+        <ViewSwitcher
           label="Edit Mode"
           buttonLabels={[VIEW_TYPE_ENUM.CHART_BUILDER, VIEW_TYPE_ENUM.JSON_EDITOR]}
           activeButton={this.props.viewType}
