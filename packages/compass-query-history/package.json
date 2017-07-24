@@ -1,5 +1,5 @@
 {
-  "name": "query-history",
+  "name": "@mongodb-js/compass-query-history",
   "productName": "Compass Query History package",
   "version": "0.0.1",
   "description": "The query history sidebar.",
