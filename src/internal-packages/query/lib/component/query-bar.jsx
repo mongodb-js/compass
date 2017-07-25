@@ -258,7 +258,6 @@ class QueryBar extends React.Component {
             >
               {this.props.buttonLabel}
             </button>
-            <this.ShowQueryHistoryButton />
             <button
               id="reset_button"
               key="reset-button"
@@ -270,6 +269,7 @@ class QueryBar extends React.Component {
             >
               Reset
             </button>
+            <this.ShowQueryHistoryButton />
           </div>
         </div>
       </form>
