@@ -6,6 +6,7 @@ const app = require('hadron-app');
 const turfDistance = require('turf-distance');
 const turfPoint = require('turf-point');
 const turfDestination = require('turf-destination');
+const mapboxgl = require('mapbox-gl/dist/mapbox-gl.js');
 
 // const metrics = require('mongodb-js-metrics')();
 // const debug = require('debug')('mongodb-compass:minicharts:geo');
@@ -16,7 +17,9 @@ const CONTROL_COLOR = '#ed271c';
 const TOKEN = 'pk.eyJ1IjoibW9uZ29kYi1jb21wYXNzIiwiYSI6ImNpbWUxZjNudjAwZTZ0emtrczByanZ4MzIifQ.6Mha4zoflraopcZKOLSpYQ';
 
 const MAPBOX_API_URL = 'https://compass-maps.mongodb.com/api.mapbox.com';
-const MAPBOX_CLIENT_URL = MAPBOX_API_URL + '/mapbox-gl-js/v0.15.0/mapbox-gl.js';
+
+mapboxgl.accessToken = TOKEN;
+mapboxgl.config.API_URL = MAPBOX_API_URL;
 
 const minicharts_d3fns_geo = function() {
   // --- beginning chart setup ---
@@ -25,7 +28,6 @@ const minicharts_d3fns_geo = function() {
   let map = null;
   let mousedown = false;
   let circleControl;
-  let mapboxgl;
 
   const options = {
     view: null
@@ -276,28 +278,6 @@ const minicharts_d3fns_geo = function() {
     return this;
   }
 
-  function disableMapsFeature() {
-    // disable in preferences and persist
-    app.preferences.save('googleMaps', false);
-    delete window.google;
-    // options.view.parent.render();
-  }
-
-  function loadMapBoxScript(done) {
-    const script = document.createElement('script');
-    script.setAttribute('type', 'text/javascript');
-    script.src = MAPBOX_CLIENT_URL;
-    script.onerror = function() {
-      done('Error ocurred while loading MapBox script.');
-    };
-    script.onload = function() {
-      window.mapboxgl.config.API_URL = MAPBOX_API_URL;
-      done(null, window.mapboxgl);
-    };
-    document.getElementsByTagName('head')[0].appendChild(script);
-  }
-
-
   function selectFromQuery() {
     // don't update from query while dragging the circle
     if (mousedown) {
@@ -321,19 +301,6 @@ const minicharts_d3fns_geo = function() {
   // --- end chart setup ---
 
   function chart(selection) {
-    // load mapbox script
-    if (!window.mapboxgl) {
-      loadMapBoxScript(function(err) {
-        if (err) {
-          disableMapsFeature();
-        } else {
-          chart.call(this, selection);
-        }
-      });
-      return;
-    }
-    mapboxgl = window.mapboxgl;
-
     selection.each(function(data) {
       function getLL(d) {
         if (d instanceof mapboxgl.LngLat) return d;
@@ -381,12 +348,11 @@ const minicharts_d3fns_geo = function() {
 
       // create the map once
       if (!map) {
-        mapboxgl.accessToken = TOKEN;
         map = new mapboxgl.Map({
           container: innerDiv[0][0],
-          // not allowed to whitelabel the map without enterprise license
+          // not allowed to whitelabel the map ever due to OpenStreetMaps license.
           // attributionControl: false,
-          style: 'mapbox://styles/mapbox/light-v8',
+          style: 'mapbox://styles/mapbox/light-v9',
           center: bounds.getCenter()
         });
         map.dragPan.enable();
@@ -394,7 +360,8 @@ const minicharts_d3fns_geo = function() {
         map.boxZoom.disable();
 
         // Add zoom and rotation controls to the map
-        map.addControl(new mapboxgl.Navigation({position: 'top-left'}));
+        const navControl = new mapboxgl.NavigationControl();
+        map.addControl(navControl, 'top-left');
 
         // Setup our svg layer that we can manipulate with d3
         const container = map.getCanvasContainer();
