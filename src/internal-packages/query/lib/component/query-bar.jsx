@@ -2,7 +2,6 @@ const React = require('react');
 const PropTypes = require('prop-types');
 const QueryOption = require('./query-option');
 const OptionsToggle = require('./options-toggle');
-const FontAwesome = require('react-fontawesome');
 
 const _ = require('lodash');
 
@@ -50,10 +49,13 @@ class QueryBar extends React.Component {
     this.state = { hasFocus: false, schemaFields: {} };
   }
 
+  componentWillMount() {
+    this.ShowQueryHistoryButton = global.hadronApp.appRegistry.getComponent('QueryHistory.ShowQueryHistoryButton');
+  }
+
   componentDidMount() {
     const fieldStore = global.hadronApp.appRegistry.getStore('Field.Store');
     this.unsubscribeFieldStore = fieldStore.listen(this.onFieldsChanged.bind(this));
-    this.QueryHistoryActions = global.hadronApp.appRegistry.getAction('QueryHistory.Actions');
   }
 
   componentWillUnmount() {
@@ -92,10 +94,6 @@ class QueryBar extends React.Component {
     if (_.isFunction(this.props.onReset)) {
       this.props.onReset();
     }
-  }
-
-  onQueryHistoryButtonClicked() {
-    this.QueryHistoryActions.unCollapse();
   }
 
   _onFocus() {
@@ -260,16 +258,7 @@ class QueryBar extends React.Component {
             >
               {this.props.buttonLabel}
             </button>
-            <button
-              id="query_history_button"
-              key="query-history-button"
-              className="btn btn-default btn-sm query-history-button"
-              data-test-id="query-history-button"
-              type="button"
-              onClick={this.onQueryHistoryButtonClicked.bind(this)}
-            >
-              <FontAwesome name="history" className="query-history-button-icon"/>
-            </button>
+            <this.ShowQueryHistoryButton />
             <button
               id="reset_button"
               key="reset-button"
