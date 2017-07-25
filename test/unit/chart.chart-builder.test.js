@@ -27,6 +27,13 @@ const HIGHSCORE_ARRAY_FIELD = {
   type: 'Array'
 };
 
+const FRIENDS = {
+  dimenionality: 2,
+  name: 'friends',
+  path: 'friends',
+  type: 'Array'
+};
+
 describe('ChartBuilder', () => {
   context('when calling _generateReductionAxisLabel on single reductions', () => {
     it('produces label for an unwind reduction', () => {
@@ -184,6 +191,118 @@ describe('ChartBuilder', () => {
 
       const label = ChartBuilder._generateReductionAxisLabel(reduction[CHART_CHANNEL_ENUM.X]);
       expect(label).to.be.equal(`count of occurrence of string 'foo' in array '${UP_TO_5_TAGS_SCHEMA_FIELD.name}'`);
+    });
+  });
+
+  context('when calling _generateReductionAxisLabel on multiple reductions', () => {
+    it('produces label for unwind and mean reduction', () => {
+      const reduction = {
+        [CHART_CHANNEL_ENUM.X]: [
+          {
+            dimensionality: 2,
+            field: COORDINATES_ARRAY_FIELD.name,
+            type: ARRAY_REDUCTION_TYPES.UNWIND,
+            arguments: []
+          },
+          {
+            dimensionality: 1,
+            field: COORDINATES_ARRAY_FIELD.name,
+            type: ARRAY_REDUCTION_TYPES.MEAN,
+            arguments: []
+          }
+        ]
+      };
+
+      const label = ChartBuilder._generateReductionAxisLabel(reduction[CHART_CHANNEL_ENUM.X]);
+      expect(label).to.be.equal(`unwind mean of numeric array '${COORDINATES_ARRAY_FIELD.name}'`);
+    });
+
+    it('produces label for array element at and sum reduction', () => {
+      const reduction = {
+        [CHART_CHANNEL_ENUM.X]: [
+          {
+            dimensionality: 2,
+            field: COORDINATES_ARRAY_FIELD.name,
+            type: ARRAY_REDUCTION_TYPES.INDEX,
+            arguments: [0]
+          },
+          {
+            dimensionality: 1,
+            field: COORDINATES_ARRAY_FIELD.name,
+            type: ARRAY_REDUCTION_TYPES.SUM,
+            arguments: []
+          }
+        ]
+      };
+
+      const label = ChartBuilder._generateReductionAxisLabel(reduction[CHART_CHANNEL_ENUM.X]);
+      expect(label).to.be.equal(`1st element of sum of numeric array '${COORDINATES_ARRAY_FIELD.name}'`);
+    });
+
+    it('produces label for max and sum reduction', () => {
+      const reduction = {
+        [CHART_CHANNEL_ENUM.X]: [
+          {
+            dimensionality: 2,
+            field: COORDINATES_ARRAY_FIELD.name,
+            type: ARRAY_REDUCTION_TYPES.MAX,
+            arguments: []
+          },
+          {
+            dimensionality: 1,
+            field: COORDINATES_ARRAY_FIELD.name,
+            type: ARRAY_REDUCTION_TYPES.SUM,
+            arguments: []
+          }
+        ]
+      };
+
+      const label = ChartBuilder._generateReductionAxisLabel(reduction[CHART_CHANNEL_ENUM.X]);
+      expect(label).to.be.equal(`maximum of sum of numeric array '${COORDINATES_ARRAY_FIELD.name}'`);
+    });
+
+    it('produces label for longest and concatenation reduction', () => {
+      const reduction = {
+        [CHART_CHANNEL_ENUM.X]: [
+          {
+            dimensionality: 2,
+            field: FRIENDS.name,
+            type: ARRAY_REDUCTION_TYPES.LONGEST,
+            arguments: []
+          },
+          {
+            dimensionality: 1,
+            field: FRIENDS.name,
+            type: ARRAY_REDUCTION_TYPES.CONCAT,
+            arguments: []
+          }
+        ]
+      };
+
+      const label = ChartBuilder._generateReductionAxisLabel(reduction[CHART_CHANNEL_ENUM.X]);
+      expect(label).to.be.equal(`longest string in concatenation of array '${FRIENDS.name}'`);
+    });
+
+    it('produces label for mean and count of occurrences reduction', () => {
+      const reduction = {
+        [CHART_CHANNEL_ENUM.X]: [
+          {
+            dimensionality: 2,
+            field: FRIENDS.name,
+            type: ARRAY_REDUCTION_TYPES.MEAN,
+            arguments: []
+          },
+          {
+            dimensionality: 1,
+            field: FRIENDS.name,
+            type: ARRAY_REDUCTION_TYPES.COUNT_OF_OCCURRENCES,
+            arguments: ['Jon Snow']
+          }
+        ]
+      };
+
+      const label = ChartBuilder._generateReductionAxisLabel(reduction[CHART_CHANNEL_ENUM.X]);
+      expect(label).to.be.equal(`mean of count of occurrence of string 'Jon Snow' in array '${FRIENDS.name}'`);
     });
   });
 });
