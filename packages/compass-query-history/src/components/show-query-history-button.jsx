@@ -22,7 +22,7 @@ class ShowQueryHistoryButton extends React.Component {
       <button
         id="query_history_button"
         key="query-history-button"
-        className="btn btn-default btn-sm query-history-button"
+        className="btn btn-default btn-sm query-history-button query-history-button-expand"
         data-test-id="query-history-button"
         type="button"
         onClick={this.unCollapse}

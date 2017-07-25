@@ -1,9 +1,15 @@
+@compass-sidebar-transition-time: 400ms;
+
 .query-history {
   display: flex;
   flex-basis: 300px;
   order: 3;
+  flex-grow: 0;
+  flex-shrink: 0;
   background-color: #F5F6F7;
   border-left: solid 1px #DDDDDD;
+  transition: flex-basis @compass-sidebar-transition-time ease;
+
 
   &-sidebar-component {
   	width: 100%;
@@ -14,16 +20,29 @@
   	}
   }
 
-  &-card {
-  	background: #FFFFFF;
+  &-recent-query, &-favorite-query {
+    background: #FFFFFF;
     box-shadow: 0 2px 20px 0 rgba(0,0,0,0.10);
     border-radius: 3px;
     width: 95%;
     margin: auto;
     margin-bottom: 10px;
     padding: 10px;
-    color: #494747;
 
+    .btn-group {
+      float: right;
+      visibility: hidden;
+    }
+
+    &:hover {
+      .btn-group {
+        visibility: visible;
+      }
+    }
+  }
+
+  &-card {
+    color: #494747;
 
     // Code Snippet
     p {
@@ -38,8 +57,12 @@
 
     &-title {
       font-weight: bold;
-      font-size: 12px;
+      font-size: 14px;
       color: #494747;
+      width: 170px;
+      text-overflow: ellipsis;
+      overflow: hidden;
+      white-space: nowrap;
     }
 
     &-label {
@@ -50,10 +73,17 @@
     }
   }
 
+  // Query history button in querybar
   &-button {
     padding: 0;
     width: 25px;
-    margin: 5px;
+    margin-left: 5px;
+
+    &-expand {
+      border-top-right-radius: 0;
+      border-bottom-right-radius: 0;
+      border-right: 0
+    }
   }
 
   // Scrollable List
@@ -61,6 +91,7 @@
     height: 100%;
     overflow-y: scroll;
     padding-bottom: 40px;
+    padding-top: 10px;
   }
 }
 

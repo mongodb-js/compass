@@ -1,6 +1,6 @@
 const React = require('react');
 const PropTypes = require('prop-types');
-
+const FontAwesome = require('react-fontawesome');
 const Actions = require('../actions');
 
 // const debug = require('debug')('mongodb-compass:query-history:header-component');
@@ -43,7 +43,9 @@ class HeaderComponent extends React.Component {
             <button className="btn btn-default btn-xs query-history-header-favorites" href="#" onClick={this.showFavorites}>FAVORITES</button>
           </div>
         </div>
-        <span className="query-history-header-close" href="#" onClick={this.collapse}>X</span>
+        <span className="query-history-header-close" href="#" onClick={this.collapse}>
+          <FontAwesome name="times"/>
+        </span>
       </div>
     );
   }
