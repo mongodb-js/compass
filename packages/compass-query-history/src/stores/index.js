@@ -93,7 +93,7 @@ const SidebarStore = Reflux.createStore({
   getInitialState() {
     return {
       showing: 'recent',
-      collapsed: false
+      collapsed: true
     };
   }
 });
