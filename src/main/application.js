@@ -2,6 +2,11 @@ var _ = require('lodash');
 var pkg = require('../../package.json');
 var electron = require('electron');
 var app = electron.app;
+// For Linux users with drivers that are blacklisted by Chromium
+// we ignore the blacklist to attempt to bypass the disabled
+// WebGL settings.
+app.commandLine.appendSwitch('ignore-gpu-blacklist', 'true');
+
 var path = require('path');
 var EventEmitter = require('events').EventEmitter;
 var inherits = require('util').inherits;
