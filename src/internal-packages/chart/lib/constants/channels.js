@@ -6,6 +6,8 @@
 const MARK_PROPERTY_CHANNEL_ENUM = Object.freeze({
   X: 'x',
   Y: 'y',
+  X2: 'x2',
+  Y2: 'y2',
   COLOR: 'color',
   OPACITY: 'opacity',
   SHAPE: 'shape',

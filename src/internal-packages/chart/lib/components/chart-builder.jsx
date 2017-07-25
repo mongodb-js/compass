@@ -19,10 +19,21 @@ const {
   MIN_CHART_WIDTH,
   SPEC_TYPE_ENUM,
   TOOL_TIP_ARRAY_REDUCE,
-  VIEW_TYPE_ENUM
+  VIEW_TYPE_ENUM,
+  REDUCTION_AXIS_TITLE_FACTORIES,
+  ARRAY_NUMERIC_REDUCTIONS,
+  CHART_CHANNEL_ENUM
 } = require('../constants');
 
 const QUERYBAR_LAYOUT = ['filter', ['sort', 'skip', 'limit', 'sample']];
+
+// whitelist axes from CHART_CHANNEL_ENUM (as opposed to chart legends)
+const CHART_AXES = [
+  CHART_CHANNEL_ENUM.X,
+  CHART_CHANNEL_ENUM.Y,
+  CHART_CHANNEL_ENUM.X2,
+  CHART_CHANNEL_ENUM.Y2
+];
 
 // const debug = require('debug')('mongodb-compass:chart:chart-builder');
 
@@ -113,20 +124,47 @@ class ChartBuilder extends React.Component {
   }
 
   /**
+   * Generate axis labels based on the types of every element in the provided
+   * channel reduction array
+   *
+   * @param {Object} reductions  the reductions array of a particular channel
+   * @return {String}            human readable string representation of reductions
+   */
+  static _generateReductionAxisLabel(reductions) {
+    // generate array of strings based on reduction type
+    const strings = reductions.map((reduction) => {
+      return REDUCTION_AXIS_TITLE_FACTORIES[reduction.type](reduction.arguments);
+    });
+    const reductionLabel = strings.join('');
+
+    const lastReduction = _.last(reductions);
+
+    // add 'numeric array' prefix if the final reduction type is for numeric types
+    let arrayLabel = _.includes(_.values(ARRAY_NUMERIC_REDUCTIONS), lastReduction.type) ?
+      'numeric array ' : 'array ';
+
+    arrayLabel += `'${lastReduction.field}'`;
+
+    return reductionLabel + arrayLabel;
+  }
+
+  /**
    * Maps field names to channel names in the encoding section and forces
    * axis and legend labels to use the old field name. This is because the
    * encoding of the data is now done in the aggregation framework directly.
    * Also replaces all aggregate values with "sum" as this acts as an
    * identity function (all aggregations are executed on the server).
    *
-   * @param  {Object} spec    the vega-lite spec to render
-   * @return {Object}         updated spec with field names replaced
+   * @param  {Object} spec        the vega-lite spec to render
+   * @param  {Object} reductions  the array reductions object
+   * @return {Object}             updated spec with field names replaced
    */
-  _encodeVegaLiteSpec(spec) {
+  _encodeVegaLiteSpec(spec, reductions) {
     const encodedSpec = _.cloneDeep(spec);
     _.each(encodedSpec.encoding, (encoding, channel) => {
       // overwrite axis and legend titles, wrap in aggregate function if present
-      let title = encoding.field;
+      let title = reductions[channel] && _.includes(CHART_AXES, channel) ?
+        ChartBuilder._generateReductionAxisLabel(reductions[channel]) : encoding.field;
       if (encoding.aggregate) {
         title = `${encoding.aggregate}(${title})`;
         encoding.aggregate = 'sum';
@@ -199,7 +237,7 @@ class ChartBuilder extends React.Component {
 
     // map field names to channel names for vega-lite
     const spec = (this.props.specType === SPEC_TYPE_ENUM.VEGA_LITE) ?
-      this._encodeVegaLiteSpec(this.props.spec) : this.props.spec;
+      this._encodeVegaLiteSpec(this.props.spec, this.props.reductions) : this.props.spec;
 
     return (
       <this.Chart
