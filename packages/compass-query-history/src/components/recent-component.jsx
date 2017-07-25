@@ -44,7 +44,7 @@ class RecentComponent extends React.Component {
           <button className="btn btn-sm btn-default query-history-button" onClick={this.copyQuery}>
             <FontAwesome name="clipboard"/>
           </button>
-          <button className="btn btn-sm btn-default query-history-button" onClick={this.deleteFavorite}>
+          <button className="btn btn-sm btn-default query-history-button" onClick={this.deleteRecent}>
             <FontAwesome name="trash"/>
           </button>
         </div>

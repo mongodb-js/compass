@@ -13,9 +13,12 @@ class FavoritesListComponent extends React.Component {
   }
 
   renderSaving() {
-    return (
-      <SavingComponent key={0} model={this.props.current_favorite}/>
-    );
+    if (this.props.current_favorite !== null) {
+      return (
+        <SavingComponent key={0} model={this.props.current_favorite}/>
+      );
+    }
+    return null;
   }
 
   /**
@@ -26,15 +29,12 @@ class FavoritesListComponent extends React.Component {
   render() {
     return (
       <div className="query-history-favorites-list">
-        <ul>
-          {this.props.current_favorite === null ? null : this.renderSaving()}
-
-          {this.props.favorites.map(function(item, i) {
-            return (
-              <FavoritesComponent key={i + 1} model={item}/>
-            );
-          })}
-        </ul>
+        {this.renderSaving()}
+        {this.props.favorites.map(function(item, i) {
+          return (
+            <FavoritesComponent key={i + 1} model={item}/>
+          );
+        })}
       </div>
     );
   }

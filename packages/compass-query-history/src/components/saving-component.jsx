@@ -33,23 +33,24 @@ class SavingComponent extends React.Component {
    * @returns {React.Component} The rendered component.
    */
   render() {
-    return (
-      <div className="query-history-saving">
-        <p><i>Currently being saved + {JSON.stringify(this.props.model, null, ' ')}</i></p>
-
-        <form onSubmit={this.handleSubmit}>
-          <label>
-            Name:
-            <input type="text" onChange={this.handleChange} />
-          </label>
-          <input type="submit" value="Save" />
-        </form>
-
-        <li id="CANCEL-SAVE">
-          <span href="#" onClick={this.cancel}>Cancel</span>
-        </li>
-      </div>
-    );
+    if (this.props.model !== null) {
+      return (
+        <div className="query-history-saving">
+          <form onSubmit={this.handleSubmit}>
+            <label>
+              Name:
+              <input type="text" onChange={this.handleChange}/>
+            </label>
+            <input type="submit" value="Save"/>
+          </form>
+          <button className="query-history-cancel-button"
+                  onClick={this.cancel}>
+            CANCEL
+          </button>
+        </div>
+      );
+    }
+    return null;
   }
 }
 
