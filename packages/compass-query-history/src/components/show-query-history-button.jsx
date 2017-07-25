@@ -12,6 +12,11 @@ class ShowQueryHistoryButton extends React.Component {
   unCollapse() {
     Actions.unCollapse();
   }
+
+  collapse() {
+    Actions.collapse();
+  }
+
   /**
    * Render ShowQueryHistoryButton.
    *
