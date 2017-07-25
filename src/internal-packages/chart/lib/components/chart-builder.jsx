@@ -21,10 +21,19 @@ const {
   TOOL_TIP_ARRAY_REDUCE,
   VIEW_TYPE_ENUM,
   REDUCTION_AXIS_TITLE_FACTORIES,
-  ARRAY_NUMERIC_REDUCTIONS
+  ARRAY_NUMERIC_REDUCTIONS,
+  CHART_CHANNEL_ENUM
 } = require('../constants');
 
 const QUERYBAR_LAYOUT = ['filter', ['sort', 'skip', 'limit', 'sample']];
+
+// whitelist axes from CHART_CHANNEL_ENUM (as opposed to chart legends)
+const CHART_AXES = [
+  CHART_CHANNEL_ENUM.X,
+  CHART_CHANNEL_ENUM.Y,
+  CHART_CHANNEL_ENUM.X2,
+  CHART_CHANNEL_ENUM.Y2
+];
 
 // const debug = require('debug')('mongodb-compass:chart:chart-builder');
 
@@ -154,7 +163,7 @@ class ChartBuilder extends React.Component {
     const encodedSpec = _.cloneDeep(spec);
     _.each(encodedSpec.encoding, (encoding, channel) => {
       // overwrite axis and legend titles, wrap in aggregate function if present
-      let title = reductions[channel] ?
+      let title = reductions[channel] && _.includes(CHART_AXES, channel) ?
         ChartBuilder._generateReductionAxisLabel(reductions[channel]) : encoding.field;
       if (encoding.aggregate) {
         title = `${encoding.aggregate}(${title})`;
