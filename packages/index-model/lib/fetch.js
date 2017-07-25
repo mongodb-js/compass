@@ -8,14 +8,8 @@ var _ = require('lodash');
 var async = require('async');
 var mongodbNS = require('mongodb-ns');
 var isNotAuthorizedError = require('mongodb-js-errors').isNotAuthorized;
-var ReadPreference = require('mongodb').ReadPreference;
 
 var debug = require('debug')('mongodb-index-model:fetch');
-
-/**
- * The default read preference.
- */
-var READ = ReadPreference.PRIMARY_PREFERRED;
 
 /**
  * helper function to attach objects to the async.auto task structure.
@@ -34,7 +28,7 @@ function attach(anything, done) {
 function getIndexes(done, results) {
   var db = results.db;
   var ns = mongodbNS(results.namespace);
-  db.db(ns.database, {readPreference: {mode: READ}, returnNonCachedInstance: true}).collection(ns.collection).indexes(function(err, indexes) {
+  db.db(ns.database, { returnNonCachedInstance: true }).collection(ns.collection).indexes(function(err, indexes) {
     if (err) {
       done(err);
     }
@@ -58,8 +52,8 @@ function getIndexStats(done, results) {
     { $indexStats: { } },
     { $project: { name: 1, usageHost: '$host', usageCount: '$accesses.ops', usageSince: '$accesses.since' } }
   ];
-  var collection = db.db(ns.database, {readPreference: {mode: READ}, returnNonCachedInstance: true}).collection(ns.collection);
-  collection.aggregate(pipeline, function(err, res) {
+  var collection = db.db(ns.database, { returnNonCachedInstance: true }).collection(ns.collection);
+  collection.aggregate(pipeline, { cursor: {}}).toArray(function(err, res) {
     if (err) {
       if (isNotAuthorizedError(err)) {
         /**
@@ -92,7 +86,7 @@ function getIndexStats(done, results) {
 function getIndexSizes(done, results) {
   var db = results.db;
   var ns = mongodbNS(results.namespace);
-  db.db(ns.database, {readPreference: {mode: READ}, returnNonCachedInstance: true}).collection(ns.collection).stats(function(err, res) {
+  db.db(ns.database, { returnNonCachedInstance: true }).collection(ns.collection).stats(function(err, res) {
     if (err) {
       if (isNotAuthorizedError(err)) {
         debug('Not authorized to get collection stats.  Returning default for indexSizes {}.');
