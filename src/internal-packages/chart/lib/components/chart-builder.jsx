@@ -146,14 +146,16 @@ class ChartBuilder extends React.Component {
    * Also replaces all aggregate values with "sum" as this acts as an
    * identity function (all aggregations are executed on the server).
    *
-   * @param  {Object} spec    the vega-lite spec to render
-   * @return {Object}         updated spec with field names replaced
+   * @param  {Object} spec        the vega-lite spec to render
+   * @param  {Object} reductions  the array reductions object
+   * @return {Object}             updated spec with field names replaced
    */
-  _encodeVegaLiteSpec(spec) {
+  _encodeVegaLiteSpec(spec, reductions) {
     const encodedSpec = _.cloneDeep(spec);
     _.each(encodedSpec.encoding, (encoding, channel) => {
       // overwrite axis and legend titles, wrap in aggregate function if present
-      let title = encoding.field;
+      let title = reductions[channel] ?
+        ChartBuilder._generateReductionAxisLabel(reductions[channel]) : encoding.field;
       if (encoding.aggregate) {
         title = `${encoding.aggregate}(${title})`;
         encoding.aggregate = 'sum';
@@ -226,7 +228,7 @@ class ChartBuilder extends React.Component {
 
     // map field names to channel names for vega-lite
     const spec = (this.props.specType === SPEC_TYPE_ENUM.VEGA_LITE) ?
-      this._encodeVegaLiteSpec(this.props.spec) : this.props.spec;
+      this._encodeVegaLiteSpec(this.props.spec, this.props.reductions) : this.props.spec;
 
     return (
       <this.Chart
