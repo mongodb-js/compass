@@ -126,8 +126,8 @@ class ChartBuilder extends React.Component {
     const strings = reductions.map((reduction) => {
       return REDUCTION_AXIS_TITLE_FACTORIES[reduction.type](reduction.arguments);
     });
+    const reductionLabel = strings.join('');
 
-    const reductionLabel = strings.join(' of ');
     const lastReduction = _.last(reductions);
 
     // add 'numeric array' prefix if the final reduction type is for numeric types
