@@ -350,7 +350,7 @@ const minicharts_d3fns_geo = function() {
       if (!map) {
         map = new mapboxgl.Map({
           container: innerDiv[0][0],
-          // not allowed to whitelabel the map without enterprise license
+          // not allowed to whitelabel the map ever due to OpenStreetMaps license.
           // attributionControl: false,
           style: 'mapbox://styles/mapbox/light-v9',
           center: bounds.getCenter()
