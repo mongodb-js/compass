@@ -3,6 +3,7 @@ const PropTypes = require('prop-types');
 const Type = require('./type');
 const Minichart = require('./minichart');
 const detectCoordinates = require('detect-coordinates');
+const app = require('hadron-app');
 const _ = require('lodash');
 
 // const debug = require('debug')('mongodb-compass:schema:field');
@@ -101,11 +102,13 @@ class Field extends React.Component {
    * @return {Object}        The possibly modified type
    */
   getSemanticType(type) {
-    // check if the type represents geo coordinates
-    const coords = detectCoordinates(type);
-    if (coords) {
-      type.name = 'Coordinates';
-      type.values = coords;
+    // check if the type represents geo coordinates, if privacy settings allow
+    if (app.isFeatureEnabled('enableMaps')) {
+      const coords = detectCoordinates(type);
+      if (coords) {
+        type.name = 'Coordinates';
+        type.values = coords;
+      }
     }
     return type;
   }
