@@ -57,6 +57,10 @@ class Home extends React.Component {
       (this.state.collapsed ? ' content-sidebar-collapsed' : ' content-sidebar-expanded');
   }
 
+  componentWillMount() {
+    this.QueryHistoryComponent = global.hadronApp.appRegistry.getComponent('QueryHistory.Component');
+  }
+
   getErrorMessage() {
     const message = this.props.errorMessage;
     if (message.includes(NOT_MASTER)) {
@@ -74,10 +78,6 @@ class Home extends React.Component {
     if (ChartActions !== undefined) {
       setTimeout(ChartActions.resizeChart, COMPASS_SIDEBAR_TRANSITION_TIME_MS);
     }
-  }
-
-  componentWillMount() {
-    this.QueryHistoryComponent = global.hadronApp.appRegistry.getComponent('QueryHistory.Component');
   }
 
   renderContent() {
@@ -116,9 +116,7 @@ class Home extends React.Component {
             {this.renderContent()}
           </div>
           <this.sideBar onCollapse={this.collapseSidebar.bind(this)}/>
-          <div className="query-history">
-            <this.QueryHistoryComponent />
-          </div>
+          <this.QueryHistoryComponent />
           <this.CreateDatabaseDialog />
           <this.DropDatabaseDialog />
           <this.CreateCollectionDialog />
