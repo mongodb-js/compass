@@ -76,6 +76,10 @@ class Home extends React.Component {
     }
   }
 
+  componentWillMount() {
+    this.QueryHistoryComponent = global.hadronApp.appRegistry.getComponent('QueryHistory.Component');
+  }
+
   renderContent() {
     if (this.props.uiStatus === UI_STATES.LOADING) {
       // Handled by the <Status> component
@@ -112,6 +116,9 @@ class Home extends React.Component {
             {this.renderContent()}
           </div>
           <this.sideBar onCollapse={this.collapseSidebar.bind(this)}/>
+          <div className="query-history">
+            <this.QueryHistoryComponent />
+          </div>
           <this.CreateDatabaseDialog />
           <this.DropDatabaseDialog />
           <this.CreateCollectionDialog />

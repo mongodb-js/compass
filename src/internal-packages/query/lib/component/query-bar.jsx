@@ -55,10 +55,6 @@ class QueryBar extends React.Component {
     this.unsubscribeFieldStore = fieldStore.listen(this.onFieldsChanged.bind(this));
   }
 
-  componentWillMount() {
-    this.QueryHistoryComponent = global.hadronApp.appRegistry.getComponent('QueryHistory.Component');
-  }
-
   componentWillUnmount() {
     this.unsubscribeFieldStore();
   }
@@ -225,8 +221,8 @@ class QueryBar extends React.Component {
    */
   renderForm() {
     let inputGroupClass = this.props.valid
-      ? 'querybar-input-group input-group'
-      : 'querybar-input-group input-group has-error';
+      ? 'querybar-input-group'
+      : 'querybar-input-group has-error';
     if (this.props.featureFlag) {
       inputGroupClass = 'querybar-input-group input-group is-feature-flag';
     }
@@ -297,9 +293,6 @@ class QueryBar extends React.Component {
           <div className="row">
             <div className="col-md-12">
               {this.renderForm()}
-            </div>
-            <div className="query-history">
-              <this.QueryHistoryComponent />
             </div>
           </div>
         </div>
