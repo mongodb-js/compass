@@ -16,11 +16,11 @@ const FavoriteQuery = Query.extend(storageMixin, {
     /**
      * The query name.
      */
-    name: 'string',
+    _name: 'string',
     /**
      * When was the favorite saved
      */
-    dateSaved: 'date'
+    _dateSaved: 'date'
   }
 });
 

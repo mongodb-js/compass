@@ -1,0 +1,72 @@
+.query-history {
+  display: flex;
+  flex-basis: 300px;
+  order: 3;
+  background-color: #F5F6F7;
+  border-left: solid 1px #DDDDDD;
+
+  &-sidebar-component {
+  	width: 100%;
+
+  	ul {
+  	  list-style-type : none;
+  	  padding-left:0;
+  	}
+  }
+
+  &-card {
+  	background: #FFFFFF;
+    box-shadow: 0 2px 20px 0 rgba(0,0,0,0.10);
+    border-radius: 3px;
+    width: 95%;
+    margin: auto;
+    margin-bottom: 10px;
+    padding: 10px;
+    color: #494747;
+
+
+    // Code Snippet
+    p {
+	    background: #F5F6F7;
+	    box-shadow: inset 2px 0 0 0 #E8E8EA;
+	    padding: 5px 10px 5px 10px;
+      max-width: 275px;
+      max-height: 250px;
+      overflow-y: scroll;
+      word-wrap: break-word;
+    }
+
+    &-title {
+      font-weight: bold;
+      font-size: 12px;
+      color: #494747;
+    }
+
+    &-label {
+      font-weight: bold;
+      font-size: 11px;
+      color: #A09F9E;
+      text-transform: uppercase;
+    }
+  }
+
+  &-button {
+    padding: 0;
+    width: 25px;
+    margin: 5px;
+  }
+
+  // Scrollable List
+  &-recent-list, &-favorites-list {
+    height: 100%;
+    overflow-y: scroll;
+    padding-bottom: 40px;
+  }
+}
+
+.query-history-sidebar-component {
+  ul {
+    list-style-type : none;
+    padding-left:0;
+  }
+}

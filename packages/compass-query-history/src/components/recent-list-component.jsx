@@ -18,8 +18,6 @@ class RecentListComponent extends React.Component {
   render() {
     return (
       <div className="query-history-recent-list">
-        <h2 className="query-history-title">RecentListComponent</h2>
-        <p><i>The query history recent-list.</i></p>
         <ul>
           {this.props.recents.map(function(item, i) {
             return (

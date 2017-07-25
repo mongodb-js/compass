@@ -8,7 +8,6 @@ const FavoritesListComponent = require('./favorites-list-component');
 const HeaderStore = require('../stores/header-store');
 const RecentListStore = require('../stores/recent-list-store');
 const FavoritesListStore = require('../stores/favorites-list-store');
-const Actions = require('../actions');
 
 // const debug = require('debug')('mongodb-compass:query-history:sidebar-component');
 
@@ -17,17 +16,6 @@ class SidebarComponent extends React.Component {
     super(props);
     this.renderRecents = this.renderRecents.bind(this);
     this.renderFavorites = this.renderFavorites.bind(this);
-    this.addRecent = this.addRecent.bind(this);
-    this.count = 0;
-  }
-
-  addRecent() {
-    const newQuery = {
-      filter: 'number: #' + this.count++,
-      skip: 99,
-      limit: 99,
-      lastExecuted: Date.now()};
-    Actions.addRecent(newQuery);
   }
 
   renderFavorites() {
@@ -52,25 +40,31 @@ class SidebarComponent extends React.Component {
    * @returns {React.Component} The rendered component.
    */
   render() {
-    return (
-      <div className="query-history-sidebar-component">
-        <StoreConnector store={HeaderStore}>
-          <HeaderComponent showing={this.props.showing}/>
-        </StoreConnector>
-        {this.props.showing === 'favorites' ? this.renderFavorites() : null}
-        {this.props.showing === 'recent' ? this.renderRecents() : null}
-        <span href="#" onClick={this.addRecent}>Click here to add a sample recent query</span>
-      </div>
-    );
+    if (!this.props.collapsed) {
+      return (
+        <div className="query-history">
+          <div className="query-history-sidebar-component">
+            <StoreConnector store={HeaderStore}>
+              <HeaderComponent showing={this.props.showing}/>
+            </StoreConnector>
+            {this.props.showing === 'favorites' ? this.renderFavorites() : null}
+            {this.props.showing === 'recent' ? this.renderRecents() : null}
+          </div>
+        </div>
+      );
+    }
+    return null;
   }
 }
 
 SidebarComponent.propTypes = {
-  showing: PropTypes.oneOf(['recent', 'favorites'])
+  showing: PropTypes.oneOf(['recent', 'favorites']),
+  collapsed: PropTypes.bool
 };
 
 SidebarComponent.defaultProps = {
-  showing: 'recent'
+  showing: 'recent',
+  collapsed: false
 };
 
 

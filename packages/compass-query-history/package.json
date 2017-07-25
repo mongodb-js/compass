@@ -9,9 +9,7 @@
     "fmt": "mongodb-js-fmt ./*.js ./test/*.js",
     "check": "mongodb-js-precommit './src/**/*{.js,.jsx}' './test/**/*.js' index.js",
     "compile": "npm run jsx && npm run less",
-    "postcompile": "cp -r styles/fonts lib/styles/",
     "jsx": "babel ./src --out-dir ./lib --presets react",
-    "preless": "lessc ./styles/compass/index.less ./lib/styles/compass/index.css",
     "less": "lessc ./styles/index.less ./lib/styles/index.css",
     "prepublish": "npm run compile",
     "pretest": "npm run compile",
@@ -74,8 +72,5 @@
     "storage-mixin": "^0.8.1",
     "uuid": "^3.1.0",
     "watch": "^1.0.2"
-  },
-  "dependencies": {
-    "lodash": "^4.17.4"
   }
 }

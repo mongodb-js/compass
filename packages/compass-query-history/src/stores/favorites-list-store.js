@@ -25,8 +25,8 @@ const FavoritesListStore = Reflux.createStore({
     // Actions.deleteRecent(recent._id);
 
     const attributes = recent.serialize();
-    attributes.name = name;
-    attributes.dateSaved = Date.now();
+    attributes._name = name;
+    attributes._dateSaved = Date.now();
 
     const query = new FavoriteQuery(attributes);
 
@@ -48,7 +48,7 @@ const FavoritesListStore = Reflux.createStore({
   },
 
   getInitialState() {
-    const favorites = new FavoriteQueryCollection();
+    const favorites = new FavoriteQueryCollection([]);
     return {
       favorites: favorites,
       current_favorite: null

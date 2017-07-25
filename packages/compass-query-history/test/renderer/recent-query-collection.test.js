@@ -35,11 +35,11 @@ describe('RecentQueryCollection', () => {
   context('when the collection has multiples', () => {
     const older = new Date('2014-01-01');
     const newer = new Date();
-    const queryOne = new RecentQuery({ lastExecuted: older, filter: {'one': 1} });
-    const queryTwo = new RecentQuery({ lastExecuted: newer, filter: {'two': 1} });
+    const queryOne = new RecentQuery({ _lastExecuted: older, filter: {'one': 1} });
+    const queryTwo = new RecentQuery({ _lastExecuted: newer, filter: {'two': 1} });
     const collection = new RecentQueryCollection([ queryOne, queryTwo ]);
 
-    it('sorts the collection by dateSaved', () => {
+    it('sorts the collection by _dateSaved', () => {
       expect(collection.models[0].filter).to.deep.equal({'two': 1});
       expect(collection.models[1].filter).to.deep.equal({'one': 1});
     });

@@ -6,7 +6,8 @@ const Actions = Reflux.createActions([
    */
   'showFavorites',
   'showRecent',
-  'collapse', // TODO: handle collapsing sidebar
+  'collapse',
+  'unCollapse',
   'copyQuery',
   'deleteRecent',
   'deleteFavorite',

@@ -10,7 +10,7 @@ describe('RecentQuery', () => {
       sort: { name: -1 },
       skip: 10,
       limit: 20,
-      lastExecuted: date
+      _lastExecuted: date
     });
 
     it('defaults the _id attribute', () => {
@@ -37,8 +37,8 @@ describe('RecentQuery', () => {
       expect(query.limit).to.equal(20);
     });
 
-    it('has a lastExecuted attribute', () => {
-      expect(query.lastExecuted).to.deep.equal(date);
+    it('has a _lastExecuted attribute', () => {
+      expect(query._lastExecuted).to.deep.equal(date);
     });
   });
 });

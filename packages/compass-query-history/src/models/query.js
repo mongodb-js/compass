@@ -39,7 +39,7 @@ const Query = Model.extend({
     /**
      * The query last executed time.
      */
-    lastExecuted: 'date'
+    _lastExecuted: 'date'
   }
 });
 

@@ -10,9 +10,9 @@ describe('FavoriteQuery', () => {
       sort: { name: -1 },
       skip: 10,
       limit: 20,
-      lastExecuted: date,
-      name: 'Testing',
-      dateSaved: date
+      _lastExecuted: date,
+      _name: 'Testing',
+      _dateSaved: date
     });
 
     it('defaults the _id attribute', () => {
@@ -39,16 +39,16 @@ describe('FavoriteQuery', () => {
       expect(query.limit).to.equal(20);
     });
 
-    it('has a lastExecuted attribute', () => {
-      expect(query.lastExecuted).to.deep.equal(date);
+    it('has a _lastExecuted attribute', () => {
+      expect(query._lastExecuted).to.deep.equal(date);
     });
 
-    it('has a dateSaved attribute', () => {
-      expect(query.dateSaved).to.deep.equal(date);
+    it('has a _dateSaved attribute', () => {
+      expect(query._dateSaved).to.deep.equal(date);
     });
 
-    it('has a name attribute', () => {
-      expect(query.name).to.equal('Testing');
+    it('has a _name attribute', () => {
+      expect(query._name).to.equal('Testing');
     });
   });
 });

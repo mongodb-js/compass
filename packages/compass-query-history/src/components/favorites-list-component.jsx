@@ -26,8 +26,6 @@ class FavoritesListComponent extends React.Component {
   render() {
     return (
       <div className="query-history-favorites-list">
-        <h2 className="query-history-title">FavoritesListComponent</h2>
-        <p><i>The query history favorites-list.</i></p>
         <ul>
           {this.props.current_favorite === null ? null : this.renderSaving()}
 

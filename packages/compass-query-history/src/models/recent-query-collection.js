@@ -21,7 +21,7 @@ const RecentQueryCollection = Collection.extend(storageMixin, {
   },
   mainIndex: '_id',
   comparator: (recent) => {
-    return -recent.lastExecuted;
+    return -recent._lastExecuted;
   }
 });
 

@@ -38,6 +38,18 @@ const SidebarStore = Reflux.createStore({
     });
   },
 
+  collapse() {
+    this.setState({
+      collapsed: true
+    });
+  },
+
+  unCollapse() {
+    this.setState({
+      collapsed: false
+    });
+  },
+
   onQueryChanged(query) {
     Actions.addRecent(query);
   },
@@ -80,7 +92,8 @@ const SidebarStore = Reflux.createStore({
    */
   getInitialState() {
     return {
-      showing: 'recent'
+      showing: 'recent',
+      collapsed: false
     };
   }
 });

@@ -9,7 +9,7 @@ class SavingComponent extends React.Component {
     this.handleChange = this.handleChange.bind(this);
     this.handleSubmit = this.handleSubmit.bind(this);
 
-    this.name = this.props.model.lastExecuted.toString();
+    this.name = this.props.model._lastExecuted.toString();
   }
 
   cancel() {

@@ -36,17 +36,14 @@ class HeaderComponent extends React.Component {
   render() {
     return (
       <div className="query-history-header-component">
-        <ul>
-          <li id="RECENT">
-            <span href="#" onClick={this.showRecent}>RECENT</span>
-          </li>
-          <li id="FAVORITES">
-            <span href="#" onClick={this.showFavorites}>FAVORITES</span>
-          </li>
-          <li id="COLLAPSE">
-            <span href="#" onClick={this.collapse}>X</span>
-          </li>
-        </ul>
+        <div className="view-switcher">
+          <span className="view-switcher-label">Past Queries</span>
+          <div className="btn-group">
+            <button className="btn btn-default btn-xs query-history-header-recent" href="#" onClick={this.showRecent}>RECENT</button>
+            <button className="btn btn-default btn-xs query-history-header-favorites" href="#" onClick={this.showFavorites}>FAVORITES</button>
+          </div>
+        </div>
+        <span className="query-history-header-close" href="#" onClick={this.collapse}>X</span>
       </div>
     );
   }

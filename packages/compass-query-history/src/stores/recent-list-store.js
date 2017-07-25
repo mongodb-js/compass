@@ -4,9 +4,9 @@ const StateMixin = require('reflux-state-mixin');
 const RecentQuery = require('../models/recent-query');
 const RecentQueryCollection = require('../models/recent-query-collection');
 
-const electron = require('electron');
-const remote = electron.remote;
-const Clipboard = remote.clipboard;
+// const electron = require('electron');
+// const remote = electron.remote;
+// const Clipboard = remote.clipboard;
 
 const TOTAL_RECENTS = 30;
 const ALLOWED = ['filter', 'project', 'sort', 'skip', 'limit'];
@@ -25,7 +25,7 @@ const RecentListStore = Reflux.createStore({
     }
 
     const query = new RecentQuery(recent);
-    query.lastExecuted = Date.now();
+    query._lastExecuted = Date.now();
     this.state.recents.add(query);
     this.trigger(this.state);
   },
@@ -43,7 +43,7 @@ const RecentListStore = Reflux.createStore({
       .filter(key => !ALLOWED.includes(key))
       .forEach(key => delete attributes[key]);
 
-    Clipboard.writeText(JSON.stringify(attributes, null, ' '));
+    // Clipboard.writeText(JSON.stringify(attributes, null, ' '));
   },
 
   getInitialState() {

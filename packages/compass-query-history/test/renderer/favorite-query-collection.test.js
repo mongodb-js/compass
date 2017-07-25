@@ -20,7 +20,7 @@ describe('FavoriteQueryCollection', () => {
   });
 
   describe('#new', () => {
-    const query = new FavoriteQuery({ filter: { name: 'test' } });
+    const query = new FavoriteQuery({ filter: { _name: 'test' } });
     const collection = new FavoriteQueryCollection([ query ]);
 
     it('adds the query to the collection', () => {
@@ -35,13 +35,13 @@ describe('FavoriteQueryCollection', () => {
   context('when the collection has multiples', () => {
     const older = new Date('2014-01-01');
     const newer = new Date();
-    const queryOne = new FavoriteQuery({ dateSaved: older, name: 'one' });
-    const queryTwo = new FavoriteQuery({ dateSaved: newer, name: 'two' });
+    const queryOne = new FavoriteQuery({ _dateSaved: older, _name: 'one' });
+    const queryTwo = new FavoriteQuery({ _dateSaved: newer, _name: 'two' });
     const collection = new FavoriteQueryCollection([ queryOne, queryTwo ]);
 
-    it('sorts the collection by dateSaved', () => {
-      expect(collection.models[0].name).to.equal('two');
-      expect(collection.models[1].name).to.equal('one');
+    it('sorts the collection by _dateSaved', () => {
+      expect(collection.models[0]._name).to.equal('two');
+      expect(collection.models[1]._name).to.equal('one');
     });
   });
 });
