@@ -160,7 +160,7 @@ describe('#query-bar', function() {
             .should.eventually.include('Query returned 100 documents.');
         });
       });
-      context('when applying a limit', function() {
+      context.skip('when applying a limit #race', function() {
         it('runs schema analysis on some of the documents', function() {
           return client
             .inputLimitFromSchemaTab('5')
