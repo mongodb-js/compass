@@ -1,7 +1,7 @@
 {
   "name": "@mongodb-js/compass-deployment-awareness",
   "productName": "Compass Deployment Awareness",
-  "version": "3.1.1",
+  "version": "3.2.0",
   "description": "Compass Deployment Awareness Plugin",
   "main": "index.js",
   "scripts": {
