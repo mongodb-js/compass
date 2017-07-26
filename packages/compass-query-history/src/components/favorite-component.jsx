@@ -28,6 +28,10 @@ class FavoriteComponent extends React.Component {
    */
   render() {
     const attributes = this.props.model.serialize();
+    Object.keys(attributes)
+      .filter(key => key.charAt(0) === '_')
+      .forEach(key => delete attributes[key]);
+
     return (
       <div className="query-history-favorite-query">
         <div className="btn-group">

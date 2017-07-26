@@ -36,6 +36,9 @@ class SavingComponent extends React.Component {
   render() {
     if (this.props.model !== null) {
       const attributes = this.props.model.serialize();
+      Object.keys(attributes)
+        .filter(key => key.charAt(0) === '_')
+        .forEach(key => delete attributes[key]);
       return (
         <div className="query-history-favorite-query">
           <div className="query-history-favorite-query-header">

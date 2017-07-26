@@ -15,14 +15,12 @@ class QueryComponent extends React.Component {
         <div className="query-history-card-title">{this.props.title}</div>
         <ul>
           {Object.keys(attributes).map(function(key, i) {
-            if (key.charAt(0) !== '_') {
-              return (
-                <li key={i}>
-                  <h className="query-history-card-label">{key}</h>
-                  <p>{JSON.stringify(attributes[key], null, 0)}</p>
-                </li>
-              );
-            }
+            return (
+              <li key={i}>
+                <h className="query-history-card-label">{key}</h>
+                <p>{JSON.stringify(attributes[key], null, 0)}</p>
+              </li>
+            );
           })}
         </ul>
       </div>
