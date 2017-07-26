@@ -1,7 +1,7 @@
 const React = require('react');
 const PropTypes = require('prop-types');
 const Actions = require('../actions');
-
+const _ = require('lodash');
 
 class QueryComponent extends React.Component {
   constructor(props) {
@@ -10,7 +10,9 @@ class QueryComponent extends React.Component {
   }
 
   populateQuery() {
-    Actions.runQuery(this.props.attributes);
+    const fullQuery = {filter: {}, project: {}, sort: {}, skip: 0, limit: 0};
+    _.merge(fullQuery, this.props.attributes);
+    Actions.runQuery(fullQuery);
   }
 
   /**
