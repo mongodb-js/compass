@@ -44,9 +44,9 @@ const SidebarStore = Reflux.createStore({
     });
   },
 
-  unCollapse() {
+  toggleCollapse() {
     this.setState({
-      collapsed: false
+      collapsed: !this.state.collapsed
     });
   },
 

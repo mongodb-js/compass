@@ -6,19 +6,10 @@ class ShowQueryHistoryButton extends React.Component {
   constructor(props) {
     super(props);
     this.handleCollapse = this.handleCollapse.bind(this);
-    this.state = {
-      collapsed: false
-    };
   }
 
   handleCollapse() {
-    if (!this.state.collapsed) {
-      Actions.unCollapse();
-      this.setState({ collapsed: !this.state.collapsed });
-    } else {
-      Actions.collapse();
-      this.setState({ collapsed: !this.state.collapsed });
-    }
+    Actions.toggleCollapse();
   }
 
   /**

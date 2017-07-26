@@ -1,8 +1,18 @@
 const React = require('react');
 const PropTypes = require('prop-types');
+const Actions = require('../actions');
 
 
 class QueryComponent extends React.Component {
+  constructor(props) {
+    super(props);
+    this.populateQuery = this.populateQuery.bind(this);
+  }
+
+  populateQuery() {
+    Actions.runQuery(this.props.attributes);
+  }
+
   /**
    * Render QueryComponent.
    *
@@ -11,7 +21,7 @@ class QueryComponent extends React.Component {
   render() {
     const attributes = this.props.attributes;
     return (
-      <div className="query-history-card">
+      <div className="query-history-card" onClick={this.populateQuery}>
         <div className="query-history-card-title">{this.props.title}</div>
         <ul>
           {Object.keys(attributes).map(function(key, i) {
