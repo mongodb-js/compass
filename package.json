@@ -38,7 +38,8 @@
           "packages": [
             "node_modules/@mongodb-js/compass-serverstats",
             "node_modules/@mongodb-js/compass-document-validation",
-            "node_modules/@mongodb-js/compass-deployment-awareness"
+            "node_modules/@mongodb-js/compass-deployment-awareness",
+            "node_modules/@mongodb-js/compass-charts"
           ],
           "styles": [
             "index"
@@ -51,7 +52,8 @@
           "packages": [
             "node_modules/@mongodb-js/compass-serverstats",
             "node_modules/@mongodb-js/compass-document-validation",
-            "node_modules/@mongodb-js/compass-deployment-awareness"
+            "node_modules/@mongodb-js/compass-deployment-awareness",
+            "node_modules/@mongodb-js/compass-charts"
           ],
           "styles": [
             "index"
@@ -64,7 +66,8 @@
           "packages": [
             "node_modules/@mongodb-js/compass-serverstats",
             "node_modules/@mongodb-js/compass-document-validation",
-            "node_modules/@mongodb-js/compass-deployment-awareness"
+            "node_modules/@mongodb-js/compass-deployment-awareness",
+            "node_modules/@mongodb-js/compass-charts"
           ],
           "styles": [
             "index"
@@ -137,6 +140,7 @@
     "url": "git://github.com/10gen/compass.git"
   },
   "dependencies": {
+    "@mongodb-js/compass-charts": "^0.2.0",
     "@mongodb-js/compass-deployment-awareness": "3.2.0",
     "@mongodb-js/compass-document-validation": "4.1.0",
     "@mongodb-js/compass-serverstats": "9.1.0",
