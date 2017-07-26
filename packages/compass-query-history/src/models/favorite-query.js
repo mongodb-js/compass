@@ -9,8 +9,8 @@ const FavoriteQuery = Query.extend(storageMixin, {
   idAttribute: '_id',
   namespace: 'FavoriteQueries',
   storage: {
-    backend: 'local',
-    appName: electronApp.getName()
+    backend: 'disk',
+    basepath: electronApp.getPath('userData')
   },
   props: {
     /**

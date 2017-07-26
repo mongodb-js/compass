@@ -9,8 +9,8 @@ const RecentQuery = Query.extend(storageMixin, {
   idAttribute: '_id',
   namespace: 'RecentQueries',
   storage: {
-    backend: 'local',
-    appName: electronApp.getName()
+    backend: 'disk',
+    basepath: electronApp.getPath('userData')
   }
 });
 

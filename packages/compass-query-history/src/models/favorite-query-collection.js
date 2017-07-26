@@ -16,8 +16,8 @@ const FavoriteQueryCollection = Collection.extend(storageMixin, {
    */
   namespace: 'FavoriteQueries',
   storage: {
-    backend: 'local',
-    appName: electronApp.getName()
+    backend: 'disk',
+    basepath: electronApp.getPath('userData')
   },
   mainIndex: '_id',
   comparator: (favorite) => {

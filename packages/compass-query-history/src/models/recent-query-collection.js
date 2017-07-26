@@ -16,8 +16,8 @@ const RecentQueryCollection = Collection.extend(storageMixin, {
    */
   namespace: 'RecentQueries',
   storage: {
-    backend: 'local',
-    appName: electronApp.getName()
+    backend: 'disk',
+    basepath: electronApp.getPath('userData')
   },
   mainIndex: '_id',
   comparator: (recent) => {
