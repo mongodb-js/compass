@@ -32,7 +32,7 @@ class SidebarComponent extends React.Component {
    * @returns {React.Component} The rendered component.
    */
   render() {
-    if (true) {
+    if (!this.props.collapsed) {
       return (
         <div className="query-history">
           <div className="query-history-sidebar-component">
