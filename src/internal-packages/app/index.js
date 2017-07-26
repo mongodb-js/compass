@@ -17,7 +17,7 @@ function activate(appRegistry) {
   appRegistry.registerStore('App.InstanceStore', InstanceStore);
   appRegistry.registerStore('App.CollectionStore', CollectionStore);
   appRegistry.registerStore('App.NamespaceStore', NamespaceStore);
-  appRegistry.registerStore('Schema.FieldStore', FieldStore);
+  appRegistry.registerStore('Field.Store', FieldStore);
 }
 
 /**
@@ -28,7 +28,7 @@ function deactivate() {
   app.appRegistry.deregisterStore('App.InstanceStore');
   app.appRegistry.deregisterStore('App.CollectionStore');
   app.appRegistry.deregisterStore('App.NamespaceStore');
-  app.appRegistry.deregisterStore('Schema.FieldStore');
+  app.appRegistry.deregisterStore('Field.Store');
 }
 
 module.exports.activate = activate;
