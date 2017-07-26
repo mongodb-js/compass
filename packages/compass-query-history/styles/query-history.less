@@ -2,7 +2,7 @@
 
 .query-history {
   display: flex;
-  flex-basis: 300px;
+  flex-basis: 325 px;
   order: 3;
   flex-grow: 0;
   flex-shrink: 0;
@@ -43,7 +43,7 @@
 
   &-favorite-query {
     &-header {
-      margin-bottom: 5px;
+      margin-bottom: 10px;
     }
 
     &-form {
@@ -51,18 +51,18 @@
       float: left;
 
       &-input {
-        background: #FFFFFF;
         border: 1px solid #5CAEEB;
         border-radius: 2px;
         border-top-right-radius: 0;
         border-bottom-right-radius: 0;
-        padding-left: 5px;
+        padding: 0px 5px 0px 5px;
         outline: 0;
-        width: 155px;
+        width: 177px;
+        height: 28px;
       }
 
       &-save {
-        background-color: white;
+        background-color: #FFFFFF;
         border: 1px solid #5CAEEB;
         border-left: 0;
         border-top-right-radius: 2px;
@@ -72,12 +72,15 @@
         text-transform: uppercase;
         outline: 0;
         color: #006CBC;
+        height: 28px;
+        padding: 0;
+        width: 50px;
       }
 
       &-cancel {
         margin-left: 5px;
         padding: 0 5px 0 5px;
-        height: 24px;
+        height: 28px;
       }
     }
   }
@@ -90,7 +93,6 @@
 	    background: #F5F6F7;
 	    box-shadow: inset 2px 0 0 0 #E8E8EA;
 	    padding: 5px 10px 5px 10px;
-      max-width: 275px;
       max-height: 250px;
       overflow-y: scroll;
       word-wrap: break-word;
