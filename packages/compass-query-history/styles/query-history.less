@@ -1,5 +1,3 @@
-@compass-sidebar-transition-time: 400ms;
-
 .query-history {
   display: flex;
   flex-basis: 325px;
@@ -8,8 +6,6 @@
   flex-shrink: 0;
   background-color: #F5F6F7;
   border-left: solid 1px #DDDDDD;
-  transition: flex-basis @compass-sidebar-transition-time ease;
-
 
   &-sidebar-component {
   	width: 100%;
@@ -119,13 +115,14 @@
   // Query history button in querybar
   &-button {
     padding: 0;
-    width: 25px;
+    width: 28px;
     margin-left: 5px;
 
     &-expand {
       border-top-right-radius: 0;
       border-bottom-right-radius: 0;
-      border-right: 0
+      border-right: 0;
+      width: 24px;
     }
   }
 
