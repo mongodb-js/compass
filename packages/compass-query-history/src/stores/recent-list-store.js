@@ -1,6 +1,7 @@
 const Reflux = require('reflux');
 const Actions = require('../actions');
 const StateMixin = require('reflux-state-mixin');
+const _ = require('lodash');
 const RecentQuery = require('../models/recent-query');
 const RecentQueryCollection = require('../models/recent-query-collection');
 
@@ -19,7 +20,24 @@ const RecentListStore = Reflux.createStore({
 
   listenables: Actions,
 
+  _filterDefaults(attributes) {
+    for (const key in attributes) {
+      if (attributes.hasOwnProperty(key)) {
+        if (!attributes[key] || ALLOWED.indexOf(key) === -1) {
+          delete attributes[key];
+        } else if (_.isObject(attributes[key]) && _.isEmpty(attributes[key])) {
+          delete attributes[key];
+        }
+      }
+    }
+  },
+
   addRecent(recent) {
+    this._filterDefaults(recent);
+    if (_.isEmpty(recent) || ('queryState' in recent && recent.queryState === 'reset')) {
+      return;
+    }
+
     if (this.state.recents.length >= TOTAL_RECENTS) {
       this.state.recents.remove(this.state.recents.at(TOTAL_RECENTS - 1)._id);
     }
@@ -39,7 +57,7 @@ const RecentListStore = Reflux.createStore({
     const attributes = query.serialize();
 
     Object.keys(attributes)
-      .filter(key => !ALLOWED.includes(key))
+      .filter(key => key.charAt(0) === '_')
       .forEach(key => delete attributes[key]);
 
     Clipboard.writeText(JSON.stringify(attributes, null, ' '));

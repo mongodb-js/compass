@@ -23,7 +23,7 @@ const Query = Model.extend({
     /**
      * The query projection.
      */
-    projection: 'object',
+    project: 'object',
     /**
      * The query sort.
      */
