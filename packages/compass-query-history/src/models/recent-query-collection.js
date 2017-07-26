@@ -1,5 +1,5 @@
 const Collection = require('ampersand-rest-collection');
-const RecentQuery = require('./query');
+const RecentQuery = require('./recent-query');
 const storageMixin = require('storage-mixin');
 const electronApp = require('electron').remote.app;
 

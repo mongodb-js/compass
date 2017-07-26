@@ -2,7 +2,7 @@ const React = require('react');
 const PropTypes = require('prop-types');
 const FontAwesome = require('react-fontawesome');
 const Actions = require('../actions');
-const ViewSwitcher = require('./common/view-switcher');
+const { ViewSwitcher } = require('hadron-react-components');
 
 // const debug = require('debug')('mongodb-compass:query-history:header-component');
 
