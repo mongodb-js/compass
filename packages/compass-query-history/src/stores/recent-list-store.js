@@ -33,8 +33,21 @@ const RecentListStore = Reflux.createStore({
   },
 
   addRecent(recent) {
+    /* Ignore queries not triggered with 'apply' */
+    if ('queryState' in recent && recent.queryState !== 'apply') {
+      return;
+    }
+    /* Ignore queries that don't have a namespace. TODO: error? warn? */
+    if (!('ns' in recent)) {
+      console.log(
+        'Warning: query added without namespace: ' + JSON.stringify(recent, null, ' '));
+      return;
+    }
+    const ns = recent.ns;
+
     this._filterDefaults(recent);
-    if (_.isEmpty(recent) || ('queryState' in recent && recent.queryState === 'reset')) {
+    /* Ignore empty or default queries */
+    if (_.isEmpty(recent)) {
       return;
     }
 
@@ -44,6 +57,7 @@ const RecentListStore = Reflux.createStore({
 
     const query = new RecentQuery(recent);
     query._lastExecuted = Date.now();
+    query._ns = ns;
     this.state.recents.add(query);
     this.trigger(this.state);
   },

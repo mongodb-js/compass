@@ -38,11 +38,14 @@ class FavoritesListComponent extends React.Component {
    * @returns {React.Component} The rendered component.
    */
   render() {
+    const filtered = this.props.favorites.filter((favorite) => {
+      return favorite._ns === this.props.ns;
+    });
     return (
       <div className="query-history-list">
         {this.renderSaving()}
         {this.renderZeroState()}
-        {this.props.favorites.map(function(item, i) {
+        {filtered.map(function(item, i) {
           return (
             <FavoritesComponent key={i + 1} model={item}/>
           );
@@ -54,12 +57,14 @@ class FavoritesListComponent extends React.Component {
 
 FavoritesListComponent.propTypes = {
   favorites: PropTypes.object,
-  current_favorite: PropTypes.object
+  current_favorite: PropTypes.object,
+  ns: PropTypes.string
 };
 
 FavoritesListComponent.defaultProps = {
   favorites: null,
-  current_favorite: null
+  current_favorite: null,
+  ns: ''
 };
 
 FavoritesListComponent.displayName = 'QueryHistoryFavoritesListComponent';

@@ -39,7 +39,12 @@ const Query = Model.extend({
     /**
      * The query last executed time.
      */
-    _lastExecuted: 'date'
+    _lastExecuted: 'date',
+    /**
+     * The namespace the query was executed on.
+     */
+    _ns: 'string'
+
   }
 });
 

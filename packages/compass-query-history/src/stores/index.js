@@ -1,6 +1,7 @@
 const Reflux = require('reflux');
 const Actions = require('../actions');
 const StateMixin = require('reflux-state-mixin');
+const _ = require('lodash');
 
 /**
  * Query History store.
@@ -54,6 +55,28 @@ const SidebarStore = Reflux.createStore({
     Actions.addRecent(query);
   },
 
+  onCollectionChanged(namespace) {
+    if (!_.includes(namespace, '.')) {
+      return;
+    }
+    this.setState({
+      ns: namespace
+    });
+  },
+
+  onDatabaseChanged(namespace) {
+    if (!this.state.ns) {
+      return;
+    }
+    if (!_.includes(namespace, '.')) {
+      const coll = this.state.ns.split('.')[1];
+      namespace = namespace + '.' + coll;
+    }
+    this.setState({
+      ns: namespace
+    });
+  },
+
   /**
    * This method is called when all plugins are activated. You can register
    * listeners to other plugins' stores here, e.g.
@@ -93,7 +116,8 @@ const SidebarStore = Reflux.createStore({
   getInitialState() {
     return {
       showing: 'recent',
-      collapsed: true
+      collapsed: true,
+      ns: ''
     };
   }
 });

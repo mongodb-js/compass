@@ -15,7 +15,8 @@ const Actions = Reflux.createActions([
   'saveRecent',
   'saveFavorite',
   'cancelSave',
-  'runQuery'
+  'runQuery',
+  'namespaceChanged'
 ]);
 
 module.exports = Actions;
