@@ -59,8 +59,12 @@ const RecentListStore = Reflux.createStore({
       return;
     }
 
-    if (this.state.recents.length >= TOTAL_RECENTS) {
-      const lastRecent = this.state.recents.at(TOTAL_RECENTS - 1);
+    const filtered = this.state.recents.filter((r) => {
+      return r._ns === ns;
+    });
+
+    if (filtered.length >= TOTAL_RECENTS) {
+      const lastRecent = filtered[TOTAL_RECENTS - 1];
       this.state.recents.remove(lastRecent._id);
       lastRecent.destroy();
     }
