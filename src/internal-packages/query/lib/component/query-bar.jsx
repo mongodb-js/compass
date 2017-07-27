@@ -5,8 +5,6 @@ const OptionsToggle = require('./options-toggle');
 
 const _ = require('lodash');
 
-const debug = require('debug')('mongodb-compass:query-bar');
-
 const QUERY_PROPERTIES = require('../store/query-store').QUERY_PROPERTIES;
 
 const OPTION_DEFINITION = {
@@ -51,6 +49,7 @@ class QueryBar extends React.Component {
 
   componentWillMount() {
     this.ShowQueryHistoryButton = global.hadronApp.appRegistry.getComponent('QueryHistory.ShowQueryHistoryButton');
+    this.QueryHistoryActions = global.hadronApp.appRegistry.getAction('QueryHistory.Actions');
   }
 
   componentDidMount() {
@@ -60,6 +59,7 @@ class QueryBar extends React.Component {
 
   componentWillUnmount() {
     this.unsubscribeFieldStore();
+    this.QueryHistoryActions.collapse();
   }
 
   onFieldsChanged(state) {

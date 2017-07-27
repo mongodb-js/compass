@@ -17,6 +17,7 @@ class Collection extends React.Component {
     this.CollectionStore = app.appRegistry.getStore('App.CollectionStore');
     this.NamespaceStore = app.appRegistry.getStore('App.NamespaceStore');
     this.QueryActions = app.appRegistry.getAction('Query.Actions');
+    this.QueryHistoryActions = app.appRegistry.getAction('QueryHistory.Actions');
     this.setupTabs();
   }
 
@@ -39,6 +40,9 @@ class Collection extends React.Component {
     // Only proceed if the active tab has changed; prevent multiple clicks
     if (this.state.activeTab === idx) {
       return;
+    }
+    if (idx > 2 || idx < 0) { // TODO: way to not hardcode?
+      this.QueryHistoryActions.collapse();
     }
 
     this.CollectionStore.setActiveTab(idx);
