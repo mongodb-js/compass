@@ -10,6 +10,17 @@ class RecentListComponent extends React.Component {
     super(props);
   }
 
+  renderZeroState() {
+    if (this.props.recents.length === 0) {
+      return (
+        <div className="query-history-zero-state">
+            <div className="query-history-zero-state-title">Run a query to see it saved here! </div>
+        </div>
+      );
+    }
+    return null;
+  }
+
   /**
    * Render RecentList component.
    *
@@ -17,14 +28,13 @@ class RecentListComponent extends React.Component {
    */
   render() {
     return (
-      <div className="query-history-recent-list">
-        <ul>
-          {this.props.recents.map(function(item, i) {
-            return (
-              <RecentComponent key={i} model={item}/>
-            );
-          })}
-        </ul>
+      <div className="query-history-list">
+        {this.renderZeroState()}
+        {this.props.recents.map(function(item, i) {
+          return (
+            <RecentComponent key={i} model={item}/>
+          );
+        })}
       </div>
     );
   }

@@ -15,7 +15,7 @@
   	}
   }
 
-  &-recent-query, &-favorite-query {
+  &-recent-query, &-favorite-query, &-zero-state {
     background: #FFFFFF;
     box-shadow: 0 2px 20px 0 rgba(0,0,0,0.10);
     border-radius: 3px;
@@ -80,6 +80,21 @@
     }
   }
 
+  &-zero-state {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100px;
+
+    &-title {
+      font-weight: bold;
+      font-size: 14px;
+      color: #494747;
+      overflow: hidden;
+      height: 18px;
+    }
+  }
+
   &-card {
     color: #494747;
 
@@ -130,7 +145,7 @@
   }
 
   // Scrollable List
-  &-recent-list, &-favorites-list {
+  &-list {
     height: 100%;
     overflow-y: scroll;
     padding-bottom: 40px;

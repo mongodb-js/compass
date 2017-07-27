@@ -21,6 +21,17 @@ class FavoritesListComponent extends React.Component {
     return null;
   }
 
+  renderZeroState() {
+    if (this.props.favorites.length === 0 && this.props.current_favorite === null) {
+      return (
+        <div className="query-history-zero-state">
+            <div className="query-history-zero-state-title">Favorite a query to see it saved here! </div>
+        </div>
+      );
+    }
+    return null;
+  }
+
   /**
    * Render FavoritesListComponent.
    *
@@ -28,8 +39,9 @@ class FavoritesListComponent extends React.Component {
    */
   render() {
     return (
-      <div className="query-history-favorites-list">
+      <div className="query-history-list">
         {this.renderSaving()}
+        {this.renderZeroState()}
         {this.props.favorites.map(function(item, i) {
           return (
             <FavoritesComponent key={i + 1} model={item}/>
