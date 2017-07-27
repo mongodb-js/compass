@@ -15,7 +15,11 @@ const FavoritesListStore = Reflux.createStore({
   listenables: Actions,
 
   onConnected() {
-    this.state.favorites.fetch({ reset: true });
+    this.state.favorites.fetch({
+      success: () => {
+        this.trigger(this.state);
+      }
+    });
   },
 
   saveRecent(query) {
@@ -48,9 +52,12 @@ const FavoritesListStore = Reflux.createStore({
   },
 
   deleteFavorite(query) {
-    this.state.favorites.remove(query._id);
-    query.destroy();
-    this.trigger(this.state);
+    query.destroy({
+      success: () => {
+        this.state.favorites.remove(query._id);
+        this.trigger(this.state);
+      }
+    });
   },
 
   getInitialState() {

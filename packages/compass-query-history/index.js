@@ -1,5 +1,7 @@
 const QueryHistoryComponent = require('./lib/components');
 const QueryHistoryStore = require('./lib/stores');
+const RecentListStore = require('./lib/stores/recent-list-store');
+const FavoriteListStore = require('./lib/stores/favorites-list-store');
 const RecentQuery = require('./lib/models/recent-query');
 const FavoriteQuery = require('./lib/models/favorite-query');
 const RecentQueryCollection = require('./lib/models/recent-query-collection');
@@ -12,6 +14,8 @@ const QueryHistoryActions = require('./lib/actions');
  */
 function activate(appRegistry) {
   appRegistry.registerStore('QueryHistory.Store', QueryHistoryStore);
+  appRegistry.registerStore('QueryHistory.RecentListStore', RecentListStore);
+  appRegistry.registerStore('QueryHistory.FavoriteListStore', FavoriteListStore);
   appRegistry.registerComponent('QueryHistory.Component', QueryHistoryComponent);
   appRegistry.registerComponent('QueryHistory.ShowQueryHistoryButton', ShowQueryHistoryButton);
   appRegistry.registerAction('QueryHistory.Actions', QueryHistoryActions);
@@ -22,6 +26,8 @@ function activate(appRegistry) {
  */
 function deactivate(appRegistry) {
   appRegistry.deregisterStore('QueryHistory.Store');
+  appRegistry.deregisterStore('QueryHistory.RecentListStore');
+  appRegistry.deregisterStore('QueryHistory.FavoriteListStore');
   appRegistry.deregisterComponent('QueryHistory.Component');
   appRegistry.deregisterComponent('QueryHistory.ShowQueryHistoryButton');
   appRegistry.deregisterAction('QueryHistory.Actions');

@@ -51,8 +51,9 @@ class RecentComponent extends React.Component {
             <FontAwesome name="trash"/>
           </button>
         </div>
-        <QueryComponent attributes={attributes}
-                        title={this.props.model._lastExecuted.toString()}/>
+        <QueryComponent
+          attributes={attributes}
+          title={this.props.model._lastExecuted.toString()}/>
       </div>
     );
   }

@@ -33,7 +33,11 @@ const RecentListStore = Reflux.createStore({
   },
 
   onConnected() {
-    this.state.recents.fetch({ reset: true });
+    this.state.recents.fetch({
+      success: () => {
+        this.trigger(this.state);
+      }
+    });
   },
 
   addRecent(recent) {
@@ -68,9 +72,12 @@ const RecentListStore = Reflux.createStore({
   },
 
   deleteRecent(query) {
-    this.state.recents.remove(query._id);
-    query.destroy();
-    this.trigger(this.state);
+    query.destroy({
+      success: () => {
+        this.state.recents.remove(query._id);
+        this.trigger(this.state);
+      }
+    });
   },
 
   copyQuery(query) {

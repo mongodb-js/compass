@@ -19,6 +19,8 @@ const QueryHistoryComponent = require('../../lib/components');
 const QueryHistoryStore = require('../../lib/stores');
 const QueryHistoryActions = require('../../lib/actions');
 
+const appRegistry = new AppRegistry();
+
 // const CONNECTION = new Connection({
   // hostname: '127.0.0.1',
   // port: 27018,
@@ -27,19 +29,11 @@ const QueryHistoryActions = require('../../lib/actions');
 // });
 
 global.hadronApp = app;
-global.hadronApp.appRegistry = new AppRegistry();
-global.hadronApp.appRegistry.registerStore('App.CollectionStore', CollectionStore);
-global.hadronApp.appRegistry.registerStore('DeploymentAwareness.DeploymentStateStore', DeploymentStateStore);
-global.hadronApp.appRegistry.registerStore('QueryHistory.Store', QueryHistoryStore);
-global.hadronApp.appRegistry.registerAction('QueryHistory.Actions', QueryHistoryActions);
-
-// const dataService = new DataService(CONNECTION);
-// dataService.onDataServiceInitialized(dataService);
-// dataService.connect((error, ds) => {
-  // global.hadronApp.dataService = ds;
-  global.hadronApp.appRegistry.onActivated();
-  // global.hadronApp.appRegistry.onConnected(error, ds);
-// });
+global.hadronApp.appRegistry = appRegistry;
+appRegistry.registerStore('App.CollectionStore', CollectionStore);
+require('../../').activate(appRegistry);
+appRegistry.onActivated();
+appRegistry.onConnected();
 
 ReactDOM.render(
   React.createElement(QueryHistoryComponent),

@@ -9,15 +9,7 @@ const HeaderStore = require('../stores/header-store');
 const RecentListStore = require('../stores/recent-list-store');
 const FavoritesListStore = require('../stores/favorites-list-store');
 
-// const debug = require('debug')('mongodb-compass:query-history:sidebar-component');
-
 class SidebarComponent extends React.Component {
-  constructor(props) {
-    super(props);
-    this.renderRecents = this.renderRecents.bind(this);
-    this.renderFavorites = this.renderFavorites.bind(this);
-  }
-
   renderFavorites() {
     return (
       <StoreConnector store={FavoritesListStore}>
@@ -40,7 +32,7 @@ class SidebarComponent extends React.Component {
    * @returns {React.Component} The rendered component.
    */
   render() {
-    if (!this.props.collapsed) {
+    if (true) {
       return (
         <div className="query-history">
           <div className="query-history-sidebar-component">

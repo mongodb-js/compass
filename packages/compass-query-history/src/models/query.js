@@ -44,7 +44,6 @@ const Query = Model.extend({
      * The namespace the query was executed on.
      */
     _ns: 'string'
-
   }
 });
 
