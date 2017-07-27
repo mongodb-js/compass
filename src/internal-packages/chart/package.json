@@ -1,9 +1,0 @@
-{
-  "name": "chart",
-  "productName": "Compass Chart View",
-  "description": "The Chart View",
-  "version": "0.0.1",
-  "authors": "MongoDB Inc.",
-  "private": true,
-  "main": "./index.js"
-}

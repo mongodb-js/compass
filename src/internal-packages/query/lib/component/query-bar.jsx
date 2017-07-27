@@ -48,7 +48,7 @@ class QueryBar extends React.Component {
   }
 
   componentDidMount() {
-    const fieldStore = global.hadronApp.appRegistry.getStore('Schema.FieldStore');
+    const fieldStore = global.hadronApp.appRegistry.getStore('Field.Store');
     this.unsubscribeFieldStore = fieldStore.listen(this.onFieldsChanged.bind(this));
   }
 
