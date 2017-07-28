@@ -1,5 +1,6 @@
 const React = require('react');
 const PropTypes = require('prop-types');
+const mongodbns = require('mongodb-ns');
 
 const { StoreConnector } = require('hadron-react-components');
 const HeaderComponent = require('./header-component');
@@ -52,13 +53,13 @@ class SidebarComponent extends React.Component {
 SidebarComponent.propTypes = {
   showing: PropTypes.oneOf(['recent', 'favorites']),
   collapsed: PropTypes.bool,
-  ns: PropTypes.string
+  ns: PropTypes.object
 };
 
 SidebarComponent.defaultProps = {
   showing: 'recent',
   collapsed: false,
-  ns: ''
+  ns: mongodbns('')
 };
 
 

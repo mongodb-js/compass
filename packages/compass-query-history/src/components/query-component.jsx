@@ -9,6 +9,9 @@ class QueryComponent extends React.Component {
     this.populateQuery = this.populateQuery.bind(this);
   }
 
+  /**
+   * Populate the query bar with the value of this query.
+  */
   populateQuery() {
     const fullQuery = {filter: {}, project: {}, sort: {}, skip: 0, limit: 0};
     _.merge(fullQuery, this.props.attributes);

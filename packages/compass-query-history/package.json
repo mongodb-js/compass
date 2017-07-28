@@ -75,6 +75,7 @@
   },
   "dependencies": {
     "lodash": "^4.17.4",
+    "mongodb-ns": "^2.0.0",
     "react-bootstrap": "^0.31.1"
   }
 }

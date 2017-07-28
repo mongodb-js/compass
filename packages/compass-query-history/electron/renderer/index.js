@@ -16,7 +16,7 @@ const CollectionStore = require('./stores/collection-store');
 const DeploymentStateStore = require('./stores/deployment-state-store');
 
 const QueryHistoryComponent = require('../../lib/components');
-const QueryHistoryStore = require('../../lib/stores');
+const QueryHistoryStore = require('../../lib/stores/sidebar-store');
 const QueryHistoryActions = require('../../lib/actions');
 
 const appRegistry = new AppRegistry();

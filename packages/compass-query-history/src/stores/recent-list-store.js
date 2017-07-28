@@ -1,13 +1,15 @@
 const Reflux = require('reflux');
 const Actions = require('../actions');
-const StateMixin = require('reflux-state-mixin');
 const _ = require('lodash');
+
+const StateMixin = require('reflux-state-mixin');
+const electron = require('electron');
+const remote = electron.remote;
+const clipboard = remote.clipboard;
+
 const RecentQuery = require('../models/recent-query');
 const RecentQueryCollection = require('../models/recent-query-collection');
 
-const electron = require('electron');
-const remote = electron.remote;
-const Clipboard = remote.clipboard;
 
 const TOTAL_RECENTS = 30;
 const ALLOWED = ['filter', 'project', 'sort', 'skip', 'limit'];
@@ -20,6 +22,10 @@ const RecentListStore = Reflux.createStore({
 
   listenables: Actions,
 
+  /**
+   * Filter attributes that aren't query fields or have default/empty values.
+   * @param {object} attributes
+   */
   _filterDefaults(attributes) {
     for (const key in attributes) {
       if (attributes.hasOwnProperty(key)) {
@@ -32,6 +38,10 @@ const RecentListStore = Reflux.createStore({
     }
   },
 
+  /**
+   * Plugin lifecycle method that is called when Compass is connected.
+   * Fetches the saved recent queries from disk.
+   */
   onConnected() {
     this.state.recents.fetch({
       success: () => {
@@ -45,7 +55,7 @@ const RecentListStore = Reflux.createStore({
     if ('queryState' in recent && recent.queryState !== 'apply') {
       return;
     }
-    /* Ignore queries that don't have a namespace. TODO: error? warn? */
+    /* Ignore queries that don't have a namespace. */
     if (!('ns' in recent)) {
       console.log(
         'Warning: query added without namespace: ' + JSON.stringify(recent, null, ' '));
@@ -53,8 +63,8 @@ const RecentListStore = Reflux.createStore({
     }
     const ns = recent.ns;
 
-    this._filterDefaults(recent);
     /* Ignore empty or default queries */
+    this._filterDefaults(recent);
     if (_.isEmpty(recent)) {
       return;
     }
@@ -63,6 +73,7 @@ const RecentListStore = Reflux.createStore({
       return r._ns === ns;
     });
 
+    /* Keep length of each recent list to TOTAL_RECENTS */
     if (filtered.length >= TOTAL_RECENTS) {
       const lastRecent = filtered[TOTAL_RECENTS - 1];
       this.state.recents.remove(lastRecent._id);
@@ -93,7 +104,7 @@ const RecentListStore = Reflux.createStore({
       .filter(key => key.charAt(0) === '_')
       .forEach(key => delete attributes[key]);
 
-    Clipboard.writeText(JSON.stringify(attributes, null, ' '));
+    clipboard.writeText(JSON.stringify(attributes, null, ' '));
   },
 
   getInitialState() {

@@ -4,6 +4,8 @@ const PropTypes = require('prop-types');
 const FavoritesComponent = require('./favorite-component');
 const SavingComponent = require('./saving-component');
 
+const mongodbns = require('mongodb-ns');
+
 // const debug = require('debug')('mongodb-compass:query-history:favorites-list-component');
 
 class FavoritesListComponent extends React.Component {
@@ -39,7 +41,7 @@ class FavoritesListComponent extends React.Component {
    */
   render() {
     const favorites = this.props.favorites.filter((favorite) => {
-      return favorite._ns === this.props.ns;
+      return favorite._ns === this.props.ns.ns;
     }).map(function(item, i) {
       return (
         <FavoritesComponent key={i + 1} model={item}/>
@@ -60,13 +62,13 @@ class FavoritesListComponent extends React.Component {
 FavoritesListComponent.propTypes = {
   favorites: PropTypes.object,
   current_favorite: PropTypes.object,
-  ns: PropTypes.string
+  ns: PropTypes.object
 };
 
 FavoritesListComponent.defaultProps = {
   favorites: null,
   current_favorite: null,
-  ns: ''
+  ns: mongodbns('')
 };
 
 FavoritesListComponent.displayName = 'QueryHistoryFavoritesListComponent';

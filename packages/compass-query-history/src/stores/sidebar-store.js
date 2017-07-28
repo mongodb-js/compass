@@ -1,7 +1,8 @@
 const Reflux = require('reflux');
 const Actions = require('../actions');
 const StateMixin = require('reflux-state-mixin');
-const _ = require('lodash');
+
+const mongodbns = require('mongodb-ns');
 
 /**
  * Query History store.
@@ -51,61 +52,48 @@ const SidebarStore = Reflux.createStore({
     });
   },
 
-  onQueryChanged(query) {
-    Actions.addRecent(query);
-  },
+  /**
+   * Plugin lifecycle method that is called when the query changes in Compass.
+   *
+   * @param {object} query - the new query.
+   */
+  // Commented out because of https://jira.mongodb.org/browse/COMPASS-1619s
+  // onQueryChanged(query) {
+  //   Actions.addRecent(query);
+  // },
 
+  /**
+   * Plugin lifecycle method that is called when the namespace changes in Compass.
+   *
+   * @param {string} namespace - the new namespace
+   */
   onCollectionChanged(namespace) {
-    if (!_.includes(namespace, '.')) {
+    const nsobj = mongodbns(namespace);
+    if (nsobj.collection === '' || nsobj.ns === this.state.ns.ns) {
       return;
     }
     this.setState({
-      ns: namespace
+      ns: nsobj
     });
   },
 
+  /**
+   * Plugin lifecycle method that is called when the namespace changes in Compass.
+   *
+   * @param {string} namespace - the new namespace.
+   */
   onDatabaseChanged(namespace) {
-    if (!this.state.ns) {
+    const nsobj = mongodbns(namespace);
+    if (!this.state.ns || this.state.ns.ns === nsobj.ns) {
       return;
     }
-    if (!_.includes(namespace, '.')) {
-      const coll = this.state.ns.split('.')[1];
-      namespace = namespace + '.' + coll;
+    if (nsobj.collection === '') {
+      nsobj.collection = this.state.ns.collection;
     }
     this.setState({
-      ns: namespace
+      ns: nsobj
     });
   },
-
-  /**
-   * This method is called when all plugins are activated. You can register
-   * listeners to other plugins' stores here, e.g.
-   *
-   * appRegistry.getStore('OtherPlugin.Store').listen(this.otherStoreChanged.bind(this));
-   *
-   * If this plugin does not depend on other stores, you can delete the method.
-   *
-   * @param {Object} appRegistry   app registry containing all stores and components
-   */
-  // onActivated(appRegistry){
-  // },
-
-  /**
-   * This method is called when the data service is finished connecting. You
-   * receive either an error or the connected data service object, and if the
-   * connection was successful you can now make calls to the database, e.g.
-   *
-   * dataService.command('admin', {connectionStatus: 1}, this.handleStatus.bind(this));
-   *
-   * If this plugin does not need to talk to the database, you can delete this
-   * method.
-   *
-   * @param {Object} error         the error object if connection was unsuccessful
-   * @param {Object} dataService   the dataService object if connection was successful
-   *
-   */
-  // onConnected(error, dataService) {
-  // },
 
   /**
    * Initialize the Query History store state. The returned object must
@@ -117,7 +105,7 @@ const SidebarStore = Reflux.createStore({
     return {
       showing: 'recent',
       collapsed: true,
-      ns: ''
+      ns: mongodbns('')
     };
   }
 });

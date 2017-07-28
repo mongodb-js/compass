@@ -2,6 +2,8 @@ const React = require('react');
 const PropTypes = require('prop-types');
 const RecentComponent = require('./recent-component');
 
+const mongodbns = require('mongodb-ns');
+
 class RecentListComponent extends React.Component {
 
   renderZeroState(length) {
@@ -22,7 +24,7 @@ class RecentListComponent extends React.Component {
    */
   render() {
     const recents = this.props.recents.filter((recent) => {
-      return recent._ns === this.props.ns;
+      return recent._ns === this.props.ns.ns;
     }).map((item, i) => {
       return (
         <RecentComponent key={i} model={item}/>
@@ -41,12 +43,12 @@ class RecentListComponent extends React.Component {
 
 RecentListComponent.propTypes = {
   recents: PropTypes.object,
-  ns: PropTypes.string
+  ns: PropTypes.object
 };
 
 RecentListComponent.defaultProps = {
   recents: null,
-  ns: ''
+  ns: mongodbns('')
 };
 
 RecentListComponent.displayName = 'QueryHistoryRecentListComponent';

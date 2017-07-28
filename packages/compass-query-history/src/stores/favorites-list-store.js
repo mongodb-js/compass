@@ -14,6 +14,9 @@ const FavoritesListStore = Reflux.createStore({
 
   listenables: Actions,
 
+  /**
+   * Get the queries stored on disk.
+   */
   onConnected() {
     this.state.favorites.fetch({
       success: () => {

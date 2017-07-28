@@ -1,5 +1,5 @@
 const QueryHistoryComponent = require('./lib/components');
-const QueryHistoryStore = require('./lib/stores');
+const SidebarStore = require('./lib/stores/sidebar-store');
 const RecentListStore = require('./lib/stores/recent-list-store');
 const FavoriteListStore = require('./lib/stores/favorites-list-store');
 const RecentQuery = require('./lib/models/recent-query');
@@ -11,9 +11,12 @@ const QueryHistoryActions = require('./lib/actions');
 
 /**
  * Activate all the components in the Query History package.
+ *
+ * @param {object} appRegistry: In order to register shared components, stores,
+ * and actions.
  */
 function activate(appRegistry) {
-  appRegistry.registerStore('QueryHistory.Store', QueryHistoryStore);
+  appRegistry.registerStore('QueryHistory.Store', SidebarStore);
   appRegistry.registerStore('QueryHistory.RecentListStore', RecentListStore);
   appRegistry.registerStore('QueryHistory.FavoriteListStore', FavoriteListStore);
   appRegistry.registerComponent('QueryHistory.Component', QueryHistoryComponent);
@@ -23,6 +26,9 @@ function activate(appRegistry) {
 
 /**
  * Deactivate all the components in the Query History package.
+ *
+ * @param {object} appRegistry: In order to deregister shared components,
+ * stores, and actions.
  */
 function deactivate(appRegistry) {
   appRegistry.deregisterStore('QueryHistory.Store');
