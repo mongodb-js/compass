@@ -17,6 +17,7 @@ class Collection extends React.Component {
     this.CollectionStore = app.appRegistry.getStore('App.CollectionStore');
     this.NamespaceStore = app.appRegistry.getStore('App.NamespaceStore');
     this.QueryActions = app.appRegistry.getAction('Query.Actions');
+    this.QueryHistoryActions = app.appRegistry.getAction('QueryHistory.Actions');
     this.setupTabs();
   }
 
@@ -40,6 +41,9 @@ class Collection extends React.Component {
     if (this.state.activeTab === idx) {
       return;
     }
+    if (!this.queryHistoryIndexes.includes(idx)) {
+      this.QueryHistoryActions.collapse();
+    }
 
     this.CollectionStore.setActiveTab(idx);
     this.setState({activeTab: this.CollectionStore.getActiveTab()});
@@ -62,9 +66,13 @@ class Collection extends React.Component {
     const views = _.map(roles, (role) => {
       return React.createElement(role.component);
     });
+    const queryHistoryIndexes = _.map(roles, (role, index) => {
+      if (role.hasQueryHistory) return index;
+    });
 
     this.tabs = tabs;
     this.views = views;
+    this.queryHistoryIndexes = queryHistoryIndexes;
   }
 
   roleFiltered(role) {

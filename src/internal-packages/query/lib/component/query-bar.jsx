@@ -47,6 +47,14 @@ class QueryBar extends React.Component {
     this.state = { hasFocus: false, schemaFields: {} };
   }
 
+  componentWillMount() {
+    this.ShowQueryHistoryButton = null;
+    if (global.hadronApp.appRegistry) { // Unit tests don't have appRegistry
+      this.ShowQueryHistoryButton = global.hadronApp.appRegistry.getComponent('QueryHistory.ShowQueryHistoryButton');
+      this.QueryHistoryActions = global.hadronApp.appRegistry.getAction('QueryHistory.Actions');
+    }
+  }
+
   componentDidMount() {
     const fieldStore = global.hadronApp.appRegistry.getStore('Field.Store');
     this.unsubscribeFieldStore = fieldStore.listen(this.onFieldsChanged.bind(this));
@@ -54,6 +62,9 @@ class QueryBar extends React.Component {
 
   componentWillUnmount() {
     this.unsubscribeFieldStore();
+    if (this.QueryHistoryActions) {
+      this.QueryHistoryActions.collapse();
+    }
   }
 
   onFieldsChanged(state) {
@@ -214,8 +225,8 @@ class QueryBar extends React.Component {
    */
   renderForm() {
     let inputGroupClass = this.props.valid
-      ? 'querybar-input-group input-group'
-      : 'querybar-input-group input-group has-error';
+      ? 'querybar-input-group'
+      : 'querybar-input-group has-error';
     if (this.props.featureFlag) {
       inputGroupClass = 'querybar-input-group input-group is-feature-flag';
     }
@@ -263,6 +274,7 @@ class QueryBar extends React.Component {
             >
               Reset
             </button>
+            <this.ShowQueryHistoryButton />
           </div>
         </div>
       </form>

@@ -51,6 +51,11 @@ const QueryStore = Reflux.createStore({
     }
   },
 
+  onActivated(appRegistry) {
+    this.QueryHistoryActions = appRegistry.getAction('QueryHistory.Actions');
+    this.QueryHistoryActions.runQuery.listen(this.setQuery.bind(this));
+  },
+
   /*
    * listen to Namespace store and reset if ns changes.
    */
@@ -615,6 +620,17 @@ const QueryStore = Reflux.createStore({
     // otherwise, if the query validates ok, modify lastExecutedQuery (which
     // triggers the QueryChangedStore) and set the "apply" state.
     if (this._validateQuery()) {
+      if (this.QueryHistoryActions) { // Unit tests don't have appRegistry
+        this.QueryHistoryActions.addRecent({
+          filter: this.state.filter,
+          projection: this.state.project,
+          sort: this.state.sort,
+          skip: this.state.skip,
+          limit: this.state.limit,
+          ns: this.state.ns
+        });
+      }
+
       this.setState({
         valid: true,
         queryState: APPLY_STATE,
