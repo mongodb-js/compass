@@ -45,7 +45,7 @@ _.assign(props, {
     type: 'string',
     default: 'localhost'
   },
-  stitchAppId: {
+  stitchClientAppId: {
     type: 'string'
   },
   stitchGroupId: {
