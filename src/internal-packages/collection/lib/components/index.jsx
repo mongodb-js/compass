@@ -41,7 +41,7 @@ class Collection extends React.Component {
     if (this.state.activeTab === idx) {
       return;
     }
-    if (idx > 2 || idx < 0) { // TODO: way to not hardcode?
+    if (!this.queryHistoryIndexes.includes(idx)) {
       this.QueryHistoryActions.collapse();
     }
 
@@ -66,9 +66,13 @@ class Collection extends React.Component {
     const views = _.map(roles, (role) => {
       return React.createElement(role.component);
     });
+    const queryHistoryIndexes = _.map(roles, (role, index) => {
+      if (role.hasQueryHistory) return index;
+    });
 
     this.tabs = tabs;
     this.views = views;
+    this.queryHistoryIndexes = queryHistoryIndexes;
   }
 
   roleFiltered(role) {

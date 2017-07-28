@@ -10,6 +10,7 @@ const SchemaStore = require('./lib/store');
 const COLLECTION_TAB_ROLE = {
   component: SchemaComponent,
   name: 'SCHEMA',
+  hasQueryHistory: true,
   order: 2
 };
 
