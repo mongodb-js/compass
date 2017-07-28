@@ -52,13 +52,13 @@ class Home extends React.Component {
     this.SchemaActions = app.appRegistry.getAction('Schema.Actions');
   }
 
+  componentWillMount() {
+    this.QueryHistoryComponent = global.hadronApp.appRegistry.getComponent('QueryHistory.Component');
+  }
+
   getContentClasses() {
     return 'content' +
       (this.state.collapsed ? ' content-sidebar-collapsed' : ' content-sidebar-expanded');
-  }
-
-  componentWillMount() {
-    this.QueryHistoryComponent = global.hadronApp.appRegistry.getComponent('QueryHistory.Component');
   }
 
   getErrorMessage() {
