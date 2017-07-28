@@ -61,6 +61,7 @@ class InstanceComponent extends React.Component {
           activeTabIndex={this.state.activeTab}
           onTabClicked={this.onTabClicked.bind(this)}
           className="rt-nav"
+          mountAllViews={false}
         />
       </div>
     );
