@@ -620,14 +620,16 @@ const QueryStore = Reflux.createStore({
     // otherwise, if the query validates ok, modify lastExecutedQuery (which
     // triggers the QueryChangedStore) and set the "apply" state.
     if (this._validateQuery()) {
-      this.QueryHistoryActions.addRecent({
-        filter: this.state.filter,
-        projection: this.state.project,
-        sort: this.state.sort,
-        skip: this.state.skip,
-        limit: this.state.limit,
-        ns: this.state.ns
-      });
+      if (this.QueryHistoryActions) { // Unit tests don't have appRegistry
+        this.QueryHistoryActions.addRecent({
+          filter: this.state.filter,
+          projection: this.state.project,
+          sort: this.state.sort,
+          skip: this.state.skip,
+          limit: this.state.limit,
+          ns: this.state.ns
+        });
+      }
 
       this.setState({
         valid: true,

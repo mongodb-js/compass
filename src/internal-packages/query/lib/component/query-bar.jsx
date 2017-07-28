@@ -48,8 +48,11 @@ class QueryBar extends React.Component {
   }
 
   componentWillMount() {
-    this.ShowQueryHistoryButton = global.hadronApp.appRegistry.getComponent('QueryHistory.ShowQueryHistoryButton');
-    this.QueryHistoryActions = global.hadronApp.appRegistry.getAction('QueryHistory.Actions');
+    this.ShowQueryHistoryButton = null;
+    if (global.hadronApp.appRegistry) { // Unit tests don't have appRegistry
+      this.ShowQueryHistoryButton = global.hadronApp.appRegistry.getComponent('QueryHistory.ShowQueryHistoryButton');
+      this.QueryHistoryActions = global.hadronApp.appRegistry.getAction('QueryHistory.Actions');
+    }
   }
 
   componentDidMount() {
@@ -59,7 +62,9 @@ class QueryBar extends React.Component {
 
   componentWillUnmount() {
     this.unsubscribeFieldStore();
-    this.QueryHistoryActions.collapse();
+    if (this.QueryHistoryActions) {
+      this.QueryHistoryActions.collapse();
+    }
   }
 
   onFieldsChanged(state) {
