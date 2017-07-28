@@ -620,19 +620,14 @@ const QueryStore = Reflux.createStore({
     // otherwise, if the query validates ok, modify lastExecutedQuery (which
     // triggers the QueryChangedStore) and set the "apply" state.
     if (this._validateQuery()) {
-      // @note: Durran: Only add recent queries if the user explicitly clicked
-      //  on the apply button.
-      // @note: Anna: This causes recent queries to be added twice. There's a
-      //  check in the QueryHistory plugin that queryState=apply, so the reset
-      //  queries will not be added. Can change it to trigger the action directly
-      //  but that requires a bigger change.
-      // this.QueryHistoryActions.addRecent({
-      //   filter: this.state.filter,
-      //   projection: this.state.project,
-      //   sort: this.state.sort,
-      //   skip: this.state.skip,
-      //   limit: this.state.limit
-      // });
+      this.QueryHistoryActions.addRecent({
+        filter: this.state.filter,
+        projection: this.state.project,
+        sort: this.state.sort,
+        skip: this.state.skip,
+        limit: this.state.limit,
+        ns: this.state.ns,
+      });
 
       this.setState({
         valid: true,
