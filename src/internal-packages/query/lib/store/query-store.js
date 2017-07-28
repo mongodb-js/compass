@@ -626,7 +626,7 @@ const QueryStore = Reflux.createStore({
         sort: this.state.sort,
         skip: this.state.skip,
         limit: this.state.limit,
-        ns: this.state.ns,
+        ns: this.state.ns
       });
 
       this.setState({
