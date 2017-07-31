@@ -43,6 +43,7 @@ module.exports = QueryHistoryComponent;
 module.exports.RecentQuery = RecentQuery;
 module.exports.FavoriteQuery = FavoriteQuery;
 module.exports.FavoriteListStore = FavoriteListStore;
+module.exports.RecentListStore = RecentListStore;
 module.exports.RecentQueryCollection = RecentQueryCollection;
 module.exports.FavoriteQueryCollection = FavoriteQueryCollection;
 module.exports.activate = activate;
