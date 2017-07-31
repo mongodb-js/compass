@@ -629,7 +629,7 @@ const QueryStore = Reflux.createStore({
           skip: this.state.skip,
           limit: this.state.limit,
           ns: this.state.ns
-        }
+        };
         registry.callOnStores((store) => {
           if (store.onQueryApplied) {
             store.onQueryApplied(newState);
