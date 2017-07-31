@@ -9,6 +9,15 @@ module.exports.assert = assert;
 module.exports.expect = expect;
 module.exports.eventStream = es;
 
+module.exports.stitchConnection = new Connection({
+  hostname: '127.0.0.1',
+  port: 8080,
+  stitchClientAppId: 'cool-app-dvfdk',
+  stitchGroupId: '597f4ba283fe9e31cd955fd4',
+  mongodb_username: 'test-user@domain.com',
+  mongodb_password: 'password'
+});
+
 module.exports.connection = new Connection({
   hostname: '127.0.0.1',
   port: 27018,

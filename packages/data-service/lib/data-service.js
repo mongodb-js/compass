@@ -1,7 +1,5 @@
 'use strict';
 
-const debug = require('debug')('mongodb-data-service:data-service');
-const NativeClient = require('./native-client');
 const Router = require('./router');
 const EventEmitter = require('events');
 
@@ -21,14 +19,21 @@ class DataService extends EventEmitter {
    */
   constructor(model) {
     super();
-    this.client = new NativeClient(model)
-      .on('status', (evt) => this.emit('status', evt))
-      .on('serverDescriptionChanged', (evt) => this.emit('serverDescriptionChanged', evt))
-      .on('serverOpening', (evt) => this.emit('serverOpening', evt))
-      .on('serverClosed', (evt) => this.emit('serverClosed', evt))
-      .on('topologyOpening', (evt) => this.emit('topologyOpening', evt))
-      .on('topologyClosed', (evt) => this.emit('topologyClosed', evt))
-      .on('topologyDescriptionChanged', (evt) => this.emit('topologyDescriptionChanged', evt));
+    this.client = null;
+    if (model.stitchAppId && model.stitchGroupId) {
+      const WebClient = require('./web-client');
+      this.client = new WebClient(model);
+    } else {
+      const NativeClient = require('./native-client');
+      this.client = new NativeClient(model)
+        .on('status', (evt) => this.emit('status', evt))
+        .on('serverDescriptionChanged', (evt) => this.emit('serverDescriptionChanged', evt))
+        .on('serverOpening', (evt) => this.emit('serverOpening', evt))
+        .on('serverClosed', (evt) => this.emit('serverClosed', evt))
+        .on('topologyOpening', (evt) => this.emit('topologyOpening', evt))
+        .on('topologyClosed', (evt) => this.emit('topologyClosed', evt))
+        .on('topologyDescriptionChanged', (evt) => this.emit('topologyDescriptionChanged', evt));
+    }
     this.router = new Router();
   }
 
@@ -40,7 +45,6 @@ class DataService extends EventEmitter {
    * @param {Function} callback - The callback.
    */
   collection(ns, options, callback) {
-    debug(`#collection: ${ns}: options: ${options}`);
     this.client.collectionDetail(ns, callback);
   }
 
@@ -52,7 +56,6 @@ class DataService extends EventEmitter {
    * @param {Function} callback - The callback.
    */
   command(databaseName, comm, callback) {
-    debug(`#command: ${databaseName}: command: ${comm}`);
     this.client.command(databaseName, comm, callback);
   }
 
@@ -80,7 +83,6 @@ class DataService extends EventEmitter {
    * @param {Function} callback - The callback.
    */
   buildInfo(callback) {
-    debug('Running buildInfo command');
     this.client.buildInfo(callback);
   }
 
@@ -90,7 +92,6 @@ class DataService extends EventEmitter {
    * @param {Function} callback - The callback.
    */
   hostInfo(callback) {
-    debug('Running hostInfo command');
     this.client.hostInfo(callback);
   }
 
@@ -100,7 +101,6 @@ class DataService extends EventEmitter {
    * @param {Function} callback - The callback.
    */
   connectionStatus(callback) {
-    debug('Running connectionStatus command');
     this.client.connectionStatus(callback);
   }
 
@@ -112,7 +112,6 @@ class DataService extends EventEmitter {
    * @param {Function} callback - The callback.
    */
   usersInfo(authenticationDatabase, options, callback) {
-    debug(`Running usersInfo command with options: ${authenticationDatabase} ${options}`);
     this.client.usersInfo(authenticationDatabase, options, callback);
   }
 
@@ -124,7 +123,6 @@ class DataService extends EventEmitter {
    * @param {Function} callback - The callback.
    */
   listCollections(databaseName, filter, callback) {
-    debug(`Listing collections: ${databaseName}, filter: ${filter}`);
     this.client.listCollections(databaseName, filter, callback);
   }
 
@@ -134,7 +132,6 @@ class DataService extends EventEmitter {
    * @param {Function} callback - The callback.
    */
   listDatabases(callback) {
-    debug('Listing databases');
     this.client.listDatabases(callback);
   }
 
@@ -144,7 +141,6 @@ class DataService extends EventEmitter {
    * @param {function} done - The callback function.
    */
   connect(done) {
-    debug('Connecting...');
     this.client.connect((err) => {
       if (err) {
         return done(err);
@@ -164,7 +160,6 @@ class DataService extends EventEmitter {
    * @param {function} callback - The callback function.
    */
   count(ns, filter, options, callback) {
-    debug(`#count: ${ns}, filter: ${filter}, options: ${options}`);
     this.client.count(ns, filter, options, callback);
   }
 
@@ -176,7 +171,6 @@ class DataService extends EventEmitter {
    * @param {Function} callback - The callback.
    */
   createCollection(ns, options, callback) {
-    debug(`#createCollection: ${ns}`);
     this.client.createCollection(ns, options, callback);
   }
 
@@ -189,7 +183,6 @@ class DataService extends EventEmitter {
    * @param {Function} callback - The callback.
    */
   createIndex(ns, spec, options, callback) {
-    debug(`#createIndex: ${ns}, ${spec}`);
     this.client.createIndex(ns, spec, options, callback);
   }
 
@@ -201,7 +194,6 @@ class DataService extends EventEmitter {
    * @param {Function} callback - The callback.
    */
   database(name, options, callback) {
-    debug(`#database: ${name}, options: ${options}`);
     this.client.databaseDetail(name, callback);
   }
 
@@ -214,7 +206,6 @@ class DataService extends EventEmitter {
    * @param {Function} callback - The callback.
    */
   deleteOne(ns, filter, options, callback) {
-    debug(`#deleteOne: ${ns}, filter: ${filter}`);
     this.client.deleteOne(ns, filter, options, callback);
   }
 
@@ -227,7 +218,6 @@ class DataService extends EventEmitter {
    * @param {Function} callback - The callback.
    */
   deleteMany(ns, filter, options, callback) {
-    debug(`#deleteMany: ${ns}, filter: ${filter}`);
     this.client.deleteMany(ns, filter, options, callback);
   }
 
@@ -245,7 +235,6 @@ class DataService extends EventEmitter {
    * @param {Function} callback - The callback.
    */
   dropCollection(ns, callback) {
-    debug(`#dropCollection: ${ns}`);
     this.client.dropCollection(ns, callback);
   }
 
@@ -256,7 +245,6 @@ class DataService extends EventEmitter {
    * @param {Function} callback - The callback.
    */
   dropDatabase(name, callback) {
-    debug(`#dropDatabase: ${name}`);
     this.client.dropDatabase(name, callback);
   }
 
@@ -268,7 +256,6 @@ class DataService extends EventEmitter {
    * @param {Function} callback - The callback.
    */
   dropIndex(ns, name, callback) {
-    debug(`#dropIndex: ${ns}, ${name}`);
     this.client.dropIndex(ns, name, callback);
   }
 
@@ -284,7 +271,6 @@ class DataService extends EventEmitter {
    * @return {(null|AggregationCursor)}
    */
   aggregate(ns, pipeline, options, callback) {
-    debug(`#aggregate: ${ns}, pipeline: ${pipeline}, options: ${options}`);
     return this.client.aggregate(ns, pipeline, options, callback);
   }
 
@@ -297,7 +283,6 @@ class DataService extends EventEmitter {
    * @param {Function} callback - The callback function.
    */
   find(ns, filter, options, callback) {
-    debug(`#find: ${ns}, filter: ${filter}, options: ${options}`);
     this.client.find(ns, filter, options, callback);
   }
 
@@ -311,7 +296,6 @@ class DataService extends EventEmitter {
    * @param {Function} callback - The callback.
    */
   findOneAndReplace(ns, filter, replacement, options, callback) {
-    debug(`#findOneAndReplace: ${ns}, filter: ${filter}, replacement: ${replacement}, options: ${options}`);
     this.client.findOneAndReplace(ns, filter, replacement, options, callback);
   }
 
@@ -324,7 +308,6 @@ class DataService extends EventEmitter {
    * @param {Function} callback - The callback function.
    */
   explain(ns, filter, options, callback) {
-    debug(`#explain: ${ns}, filter: ${filter}, options: ${options}`);
     this.client.explain(ns, filter, options, callback);
   }
 
@@ -338,7 +321,6 @@ class DataService extends EventEmitter {
    * @return {Object} The result of the delegated call.
    */
   get(url, options, callback) {
-    debug(`#get: ${url}, options: ${options}`);
     var route = this.router.resolve(url);
     var args = this._generateArguments(route.args, options, callback);
     return this[route.method].apply(this, args);
@@ -362,7 +344,6 @@ class DataService extends EventEmitter {
    * @param {Function} callback - The callback function.
    */
   instance(options, callback) {
-    debug(`#instance: ${options}`);
     this.client.instance(callback);
   }
 
@@ -375,7 +356,6 @@ class DataService extends EventEmitter {
    * @param {Function} callback - The callback.
    */
   insertOne(ns, doc, options, callback) {
-    debug(`#insertOne: ${ns}, doc: ${doc}`);
     this.client.insertOne(ns, doc, options, callback);
   }
 
@@ -388,7 +368,6 @@ class DataService extends EventEmitter {
    * @param {Function} callback - The callback.
    */
   insertMany(ns, docs, options, callback) {
-    debug(`#insertMany: ${ns}, docs: ${docs}`);
     this.client.insertMany(ns, docs, options, callback);
   }
 
@@ -401,7 +380,6 @@ class DataService extends EventEmitter {
    * @return {Stream} The sample stream.
    */
   sample(ns, options) {
-    debug(`#sample: ${ns}, options: ${options}`);
     return this.client.sample(ns, options);
   }
 
@@ -413,7 +391,6 @@ class DataService extends EventEmitter {
    * @param {Function} callback - The callback.
    */
   updateCollection(ns, flags, callback) {
-    debug(`#updateCollection: ${ns}, flags: ${flags}`);
     this.client.updateCollection(ns, flags, callback);
   }
 
@@ -427,7 +404,6 @@ class DataService extends EventEmitter {
    * @param {Function} callback - The callback.
    */
   updateOne(ns, filter, update, options, callback) {
-    debug(`#updateOne: ${ns}, filter: ${filter}, update: ${update}`);
     this.client.updateOne(ns, filter, update, options, callback);
   }
 
@@ -441,7 +417,6 @@ class DataService extends EventEmitter {
    * @param {Function} callback - The callback.
    */
   updateMany(ns, filter, update, options, callback) {
-    debug(`#updateMany: ${ns}, filter: ${filter}, update: ${update}`);
     this.client.updateMany(ns, filter, update, options, callback);
   }
 
@@ -452,7 +427,6 @@ class DataService extends EventEmitter {
    * @param {Function} callback - The callback.
    */
   currentOp(includeAll, callback) {
-    debug(`#currentOp: ${includeAll}`);
     this.client.currentOp(includeAll, callback);
   }
 
@@ -462,7 +436,6 @@ class DataService extends EventEmitter {
    * @param {function} callback - the callback.
    */
   serverstats(callback) {
-    debug('#serverstats');
     this.client.serverStats(callback);
   }
 
@@ -475,7 +448,6 @@ class DataService extends EventEmitter {
    * @param {Function} callback - The callback.
    */
   shardedCollectionDetail(ns, callback) {
-    debug(`#shardedCollectionDetail: ${ns}`);
     this.client.shardedCollectionDetail(ns, callback);
   }
 
@@ -485,7 +457,6 @@ class DataService extends EventEmitter {
    * @param {function} callback - the callback.
    */
   top(callback) {
-    debug('#top');
     this.client.top(callback);
   }
 
