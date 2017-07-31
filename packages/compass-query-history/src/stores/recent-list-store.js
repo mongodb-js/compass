@@ -50,11 +50,11 @@ const RecentListStore = Reflux.createStore({
     });
   },
 
+  onQueryApplied(query) {
+    this.addRecent(query);
+  },
+
   addRecent(recent) {
-    /* Ignore queries not triggered with 'apply' */
-    if ('queryState' in recent && recent.queryState !== 'apply') {
-      return;
-    }
     /* Ignore queries that don't have a namespace. */
     if (!('ns' in recent)) {
       console.log(
