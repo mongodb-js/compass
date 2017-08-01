@@ -1,7 +1,7 @@
 {
   "name": "@mongodb-js/compass-serverstats",
   "productName": "Compass Server Stats plugin",
-  "version": "9.1.0",
+  "version": "9.1.1",
   "description": "Compass Real Time Server Stats Component.",
   "main": "index.js",
   "scripts": {
