@@ -4,8 +4,6 @@ const StateMixin = require('reflux-state-mixin');
 const FavoriteQuery = require('../models/favorite-query');
 const FavoriteQueryCollection = require('../models/favorite-query-collection');
 
-// const debug = require('debug')('mongodb-compass:query-history:favorites-store');
-
 /**
  * Query History Favorites List store.
  */
