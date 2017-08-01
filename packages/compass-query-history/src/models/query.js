@@ -1,5 +1,6 @@
 const Model = require('ampersand-model');
 const uuid = require('uuid');
+const queryParser = require('mongodb-query-parser');
 
 /**
  * A model that represents a MongoDB query.
@@ -47,4 +48,15 @@ const Query = Model.extend({
   }
 });
 
+/**
+ * Format the provided attribute into a pretty-printed version
+ * of what would appear in the query bar.
+ *
+ * @param {Object} value - The value to format.
+ */
+const format = (value) => {
+  return queryParser.stringify(value);
+};
+
 module.exports = Query;
+module.exports.format = format;
