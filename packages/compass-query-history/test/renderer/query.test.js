@@ -4,6 +4,12 @@ const { format } = require('../../lib/models/query');
 
 describe('Query', () => {
   describe('.format', () => {
+    context('when the value is a number', () => {
+      it('returns the number as a string', () => {
+        expect(format(10)).to.equal('10');
+      });
+    });
+
     context('when the property has an ObjectId', () => {
       const value = new bson.ObjectId();
       const filter = { _id: value };
