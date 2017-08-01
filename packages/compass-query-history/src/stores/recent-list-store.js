@@ -8,6 +8,7 @@ const remote = electron.remote;
 const clipboard = remote.clipboard;
 
 const RecentQuery = require('../models/recent-query');
+const { format } = require('../models/query');
 const RecentQueryCollection = require('../models/recent-query-collection');
 
 
@@ -98,13 +99,13 @@ const RecentListStore = Reflux.createStore({
   },
 
   copyQuery(query) {
-    const attributes = query.serialize();
+    const attributes = query.getAttributes({ props: true });
 
     Object.keys(attributes)
       .filter(key => key.charAt(0) === '_')
       .forEach(key => delete attributes[key]);
 
-    clipboard.writeText(JSON.stringify(attributes, null, ' '));
+    clipboard.writeText(format(attributes));
   },
 
   getInitialState() {

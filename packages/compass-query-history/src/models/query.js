@@ -1,5 +1,6 @@
 const Model = require('ampersand-model');
 const uuid = require('uuid');
+const EJSON = require('mongodb-extended-json');
 const queryParser = require('mongodb-query-parser');
 
 /**
@@ -45,6 +46,12 @@ const Query = Model.extend({
      * The namespace the query was executed on.
      */
     _ns: 'string'
+  },
+  parse: function(attrs) {
+    return EJSON.deserialize(attrs);
+  },
+  serialize: function() {
+    return EJSON.serialize(this.getAttributes({ props: true }));
   }
 });
 

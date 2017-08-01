@@ -27,7 +27,7 @@ class FavoriteComponent extends React.Component {
    * @returns {React.Component} The rendered component.
    */
   render() {
-    const attributes = this.props.model.serialize();
+    const attributes = this.props.model.getAttributes({ props: true });
     Object.keys(attributes)
       .filter(key => key.charAt(0) === '_')
       .forEach(key => delete attributes[key]);

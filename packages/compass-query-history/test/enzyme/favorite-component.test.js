@@ -11,7 +11,7 @@ describe('<FavoriteComponent />', () => {
   describe('#render', () => {
     const date = new Date();
     const favorite = {
-      serialize: () => {
+      getAttributes: () => {
         return {
           _name: 'testing',
           _dateSaved: date,

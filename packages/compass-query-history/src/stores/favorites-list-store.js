@@ -33,7 +33,7 @@ const FavoritesListStore = Reflux.createStore({
   saveFavorite(recent, name) {
     Actions.deleteRecent(recent); // If query shouldn't stay in recents after save
 
-    const attributes = recent.serialize();
+    const attributes = recent.getAttributes({ props: true });
     attributes._name = name;
     attributes._dateSaved = Date.now();
 

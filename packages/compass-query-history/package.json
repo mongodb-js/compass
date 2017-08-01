@@ -58,6 +58,7 @@
     "less-loader": "^2.2.3",
     "mocha": "^2.5.3",
     "mongodb-data-service": "^7.0.0",
+    "mongodb-extended-json": "^1.10.0",
     "mongodb-js-fmt": "^0.0.3",
     "mongodb-js-precommit": "^0.2.8",
     "mongodb-query-parser": "^0.7.0",

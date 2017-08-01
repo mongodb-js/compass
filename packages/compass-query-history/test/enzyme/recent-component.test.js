@@ -12,7 +12,7 @@ describe('<RecentComponent />', () => {
     const date = new Date();
     const recent = {
       _lastExecuted: date,
-      serialize: () => {
+      getAttributes: () => {
         return {
           _lastExecuted: date,
           filter: { name: 'test' }

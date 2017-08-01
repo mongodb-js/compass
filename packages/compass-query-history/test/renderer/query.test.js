@@ -1,12 +1,44 @@
 const { expect } = require('chai');
 const bson = require('bson');
-const { format } = require('../../lib/models/query');
+const Query = require('../../lib/models/query');
 
 describe('Query', () => {
+  context('#serialize', () => {
+    context('when the document contains a BSON type', () => {
+      const oid = new bson.ObjectId();
+      const filter = { _id: oid };
+      const query = new Query({ filter: filter });
+
+      it('converts to an extended json object', () => {
+        expect(query.serialize().filter).to.deep.equal({
+          _id: {
+            '$oid': oid.toHexString()
+          }
+        });
+      });
+    });
+  });
+
+  context('#parse', () => {
+    const oid = new bson.ObjectId();
+    const query = new Query();
+    const obj = {
+      filter: {
+        _id: {
+          '$oid': oid.toHexString()
+        }
+      }
+    };
+
+    it('converts from extended json back to objects', () => {
+      expect(query.parse(obj).filter._id).to.deep.equal(oid);
+    });
+  });
+
   describe('.format', () => {
     context('when the value is a number', () => {
       it('returns the number as a string', () => {
-        expect(format(10)).to.equal('10');
+        expect(Query.format(10)).to.equal('10');
       });
     });
 
@@ -16,7 +48,7 @@ describe('Query', () => {
       const expected = `{\n _id: ObjectId('${value.toHexString()}')\n}`;
 
       it('returns the shell syntax string', () => {
-        expect(format(filter)).to.equal(expected);
+        expect(Query.format(filter)).to.equal(expected);
       });
     });
 
@@ -26,7 +58,7 @@ describe('Query', () => {
       const expected = `{\n field: BSONDate('${value.toISOString()}')\n}`;
 
       it('returns the shell syntax string', () => {
-        expect(format(filter)).to.equal(expected);
+        expect(Query.format(filter)).to.equal(expected);
       });
     });
 
@@ -36,7 +68,7 @@ describe('Query', () => {
       const expected = `{\n field: Binary('${value.buffer.toString('base64')}', '0')\n}`;
 
       it('returns the shell syntax string', () => {
-        expect(format(filter)).to.equal(expected);
+        expect(Query.format(filter)).to.equal(expected);
       });
     });
 
@@ -46,7 +78,7 @@ describe('Query', () => {
       const expected = '{\n field: MaxKey()\n}';
 
       it('returns the shell syntax string', () => {
-        expect(format(filter)).to.equal(expected);
+        expect(Query.format(filter)).to.equal(expected);
       });
     });
 
@@ -56,7 +88,7 @@ describe('Query', () => {
       const expected = '{\n field: MinKey()\n}';
 
       it('returns the shell syntax string', () => {
-        expect(format(filter)).to.equal(expected);
+        expect(Query.format(filter)).to.equal(expected);
       });
     });
 
@@ -66,7 +98,7 @@ describe('Query', () => {
       const expected = '{\n field: NumberDecimal(\'0E-6176\')\n}';
 
       it('returns the shell syntax string', () => {
-        expect(format(filter)).to.equal(expected);
+        expect(Query.format(filter)).to.equal(expected);
       });
     });
 
@@ -76,7 +108,7 @@ describe('Query', () => {
       const expected = '{\n field: NumberLong(1)\n}';
 
       it('returns the shell syntax string', () => {
-        expect(format(filter)).to.equal(expected);
+        expect(Query.format(filter)).to.equal(expected);
       });
     });
 
@@ -86,7 +118,7 @@ describe('Query', () => {
       const expected = '{\n field: RegExp(\'test\', i)\n}';
 
       it('returns the shell syntax string', () => {
-        expect(format(filter)).to.equal(expected);
+        expect(Query.format(filter)).to.equal(expected);
       });
     });
 
@@ -96,7 +128,7 @@ describe('Query', () => {
       const expected = '{\n field: Timestamp(1000, 0)\n}';
 
       it('returns the shell syntax string', () => {
-        expect(format(filter)).to.equal(expected);
+        expect(Query.format(filter)).to.equal(expected);
       });
     });
   });
