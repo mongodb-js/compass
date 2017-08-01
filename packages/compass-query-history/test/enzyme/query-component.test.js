@@ -28,9 +28,9 @@ describe('<QueryComponent />', () => {
       expect(node).to.have.text('filter');
     });
 
-    it('renders the attribute value as JSON', () => {
+    it('renders the attribute value as a js string', () => {
       const node = component.find('.query-history-card p');
-      expect(node).to.have.text('{"name":"test"}');
+      expect(node).to.have.text('{ name: \'test\'\n}');
     });
   });
 });

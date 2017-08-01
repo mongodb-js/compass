@@ -13,7 +13,7 @@ describe('Query', () => {
     context('when the property has an ObjectId', () => {
       const value = new bson.ObjectId();
       const filter = { _id: value };
-      const expected = `{_id: ObjectId('${value.toHexString()}')}`;
+      const expected = `{\n _id: ObjectId('${value.toHexString()}')\n}`;
 
       it('returns the shell syntax string', () => {
         expect(format(filter)).to.equal(expected);
@@ -23,7 +23,7 @@ describe('Query', () => {
     context('when the property has a date', () => {
       const value = new Date();
       const filter = { field: value };
-      const expected = `{field: BSONDate('${value.toISOString()}')}`;
+      const expected = `{\n field: BSONDate('${value.toISOString()}')\n}`;
 
       it('returns the shell syntax string', () => {
         expect(format(filter)).to.equal(expected);
@@ -33,7 +33,7 @@ describe('Query', () => {
     context('when the property has a binary', () => {
       const value = new bson.Binary('xxxx');
       const filter = { field: value };
-      const expected = `{field: Binary('${value.buffer.toString('base64')}', '0')}`;
+      const expected = `{\n field: Binary('${value.buffer.toString('base64')}', '0')\n}`;
 
       it('returns the shell syntax string', () => {
         expect(format(filter)).to.equal(expected);
@@ -43,7 +43,7 @@ describe('Query', () => {
     context('when the property has a MaxKey', () => {
       const value = new bson.MaxKey();
       const filter = { field: value };
-      const expected = '{field: MaxKey()}';
+      const expected = '{\n field: MaxKey()\n}';
 
       it('returns the shell syntax string', () => {
         expect(format(filter)).to.equal(expected);
@@ -53,7 +53,7 @@ describe('Query', () => {
     context('when the property has a MinKey', () => {
       const value = new bson.MinKey();
       const filter = { field: value };
-      const expected = '{field: MinKey()}';
+      const expected = '{\n field: MinKey()\n}';
 
       it('returns the shell syntax string', () => {
         expect(format(filter)).to.equal(expected);
@@ -63,7 +63,7 @@ describe('Query', () => {
     context('when the property has a Decimal128', () => {
       const value = new bson.Decimal128('0.00');
       const filter = { field: value };
-      const expected = '{field: NumberDecimal(\'0E-6176\')}';
+      const expected = '{\n field: NumberDecimal(\'0E-6176\')\n}';
 
       it('returns the shell syntax string', () => {
         expect(format(filter)).to.equal(expected);
@@ -73,7 +73,7 @@ describe('Query', () => {
     context('when the property has a Long', () => {
       const value = bson.Long.fromNumber(1);
       const filter = { field: value };
-      const expected = '{field: NumberLong(1)}';
+      const expected = '{\n field: NumberLong(1)\n}';
 
       it('returns the shell syntax string', () => {
         expect(format(filter)).to.equal(expected);
@@ -83,7 +83,7 @@ describe('Query', () => {
     context('when the property has a Regexp', () => {
       const value = /test/i;
       const filter = { field: value };
-      const expected = '{field: RegExp(\'test\', i)}';
+      const expected = '{\n field: RegExp(\'test\', i)\n}';
 
       it('returns the shell syntax string', () => {
         expect(format(filter)).to.equal(expected);
@@ -93,7 +93,7 @@ describe('Query', () => {
     context('when the property has a Timestamp', () => {
       const value = new bson.Timestamp(1000);
       const filter = { field: value };
-      const expected = '{field: Timestamp(1000, 0)}';
+      const expected = '{\n field: Timestamp(1000, 0)\n}';
 
       it('returns the shell syntax string', () => {
         expect(format(filter)).to.equal(expected);

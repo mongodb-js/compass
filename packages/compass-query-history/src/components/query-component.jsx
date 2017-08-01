@@ -2,6 +2,7 @@ const React = require('react');
 const PropTypes = require('prop-types');
 const Actions = require('../actions');
 const _ = require('lodash');
+const { format } = require('../models/query');
 
 class QueryComponent extends React.Component {
   constructor(props) {
@@ -33,7 +34,7 @@ class QueryComponent extends React.Component {
             return (
               <li key={i}>
                 <h className="query-history-card-label">{key}</h>
-                <p>{JSON.stringify(attributes[key], null, 0)}</p>
+                <p>{format(attributes[key])}</p>
               </li>
             );
           })}

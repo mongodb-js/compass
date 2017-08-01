@@ -55,7 +55,7 @@ const Query = Model.extend({
  * @param {Object} value - The value to format.
  */
 const format = (value) => {
-  return queryParser.stringify(value);
+  return queryParser.toJSString(value);
 };
 
 module.exports = Query;
