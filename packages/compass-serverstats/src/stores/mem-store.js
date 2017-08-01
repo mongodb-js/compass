@@ -70,6 +70,11 @@ const MemStore = Reflux.createStore({
       }
       const startPause = Math.max(this.endPause - this.xLength, 0);
 
+      // remove any dataSets elements that are not in doc.mem
+      _.remove(this.data.dataSets, (ds) => {
+        return !_.has(doc.mem, ds.line);
+      });
+
       for (let q = 0; q < this.data.dataSets.length; q++) {
         key = this.data.dataSets[q].line;
         val = _.round(doc.mem[key] / 1000, 2); // convert to GB

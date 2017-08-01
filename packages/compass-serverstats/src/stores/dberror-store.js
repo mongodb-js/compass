@@ -46,12 +46,6 @@ const DBErrorStore = Reflux.createStore({
   },
 
   dbError: function(data) {
-    if (data.error !== null && this.ops[data.op] !== null && data.op === 'top'
-        && _.isEqual(this.ops[data.op], data.error)) {
-      Actions.suppressTop(true);
-      return;
-    }
-
     // Remove previous error
     if (this.ops[data.op] !== null && data.error === null) {
       this.ops[data.op] = data.error;

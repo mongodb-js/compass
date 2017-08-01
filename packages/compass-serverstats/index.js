@@ -14,6 +14,8 @@ const INSTANCE_TAB_ROLE = {
 
 /**
  * Activate all the components in the RTSS package.
+ *
+ * @param{Object} appRegistry   the hadron app registry
  */
 function activate(appRegistry) {
   appRegistry.registerRole('Instance.Tab', INSTANCE_TAB_ROLE);
