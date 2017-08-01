@@ -155,6 +155,7 @@ class QueryBar extends React.Component {
     return (
       <QueryOption
         label={option}
+        autoPopulated={this.props.autoPopulated}
         hasToggle={hasToggle}
         hasError={hasError}
         key={`query-option-${id}`}
@@ -312,6 +313,7 @@ QueryBar.propTypes = {
   limitValid: PropTypes.bool,
 
   featureFlag: PropTypes.bool,
+  autoPopulated: PropTypes.bool,
   filterString: PropTypes.string,
   projectString: PropTypes.string,
   sortString: PropTypes.string,
