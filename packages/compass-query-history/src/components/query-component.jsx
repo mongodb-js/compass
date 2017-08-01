@@ -3,6 +3,7 @@ const PropTypes = require('prop-types');
 const Actions = require('../actions');
 const _ = require('lodash');
 const { format } = require('../models/query');
+const Code = require('./code-component');
 
 class QueryComponent extends React.Component {
   constructor(props) {
@@ -34,7 +35,7 @@ class QueryComponent extends React.Component {
             return (
               <li key={i}>
                 <h className="query-history-card-label">{key}</h>
-                <p>{format(attributes[key])}</p>
+                <Code code={format(attributes[key])} language="js" />
               </li>
             );
           })}
@@ -49,6 +50,6 @@ QueryComponent.propTypes = {
   attributes: PropTypes.object
 };
 
-QueryComponent.displayName = 'QueryHistoryQueryComponent';
+QueryComponent.displayName = 'QueryComponent';
 
 module.exports = QueryComponent;
