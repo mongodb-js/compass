@@ -47,6 +47,7 @@ class QueryOption extends React.Component {
       cm.textareaNode.id = `querybar-option-input-${this.props.label}`;
       if (cm.codeMirror) {
         cm.codeMirror.on('keyup', autocomplete);
+        cm.codeMirror.on('focus', this.onFocus.bind(this));
       }
     }
     const queryActions = global.hadronApp.appRegistry.getAction('Query.Actions');
@@ -59,6 +60,12 @@ class QueryOption extends React.Component {
     const cm = this.refs.codemirror;
     if (cm && cm.codeMirror) {
       cm.codeMirror.off('keyup', autocomplete);
+    }
+  }
+
+  onFocus(code) {
+    if (this.props.autoPopulated) {
+      code.setCursor(1, -1);
     }
   }
 
@@ -219,6 +226,7 @@ QueryOption.propTypes = {
   link: PropTypes.string.isRequired,
   inputType: PropTypes.oneOf(['numeric', 'boolean', 'document']).isRequired,
   value: PropTypes.any,
+  autoPopulated: PropTypes.bool,
   hasToggle: PropTypes.bool,
   hasError: PropTypes.bool,
   validationFunc: PropTypes.func,

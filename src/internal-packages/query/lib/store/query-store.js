@@ -53,7 +53,7 @@ const QueryStore = Reflux.createStore({
 
   onActivated(appRegistry) {
     this.QueryHistoryActions = appRegistry.getAction('QueryHistory.Actions');
-    this.QueryHistoryActions.runQuery.listen(this.setQuery.bind(this));
+    this.QueryHistoryActions.runQuery.listen(this.autoPopulateQuery.bind(this));
   },
 
   /*
@@ -116,6 +116,10 @@ const QueryStore = Reflux.createStore({
 
       // is the user currently typing (debounced by USER_TYPING_DEBOUNCE_MS)
       userTyping: false,
+
+      // if the value was populated from a click in the schema view or
+      // query history view.
+      autoPopulated: false,
 
       // was a feature flag recognised in the input
       featureFlag: false,
@@ -237,6 +241,15 @@ const QueryStore = Reflux.createStore({
   },
 
   /**
+   * Auto populate the query.
+   *
+   * @param {Object} query - The query.
+   */
+  autoPopulateQuery(query) {
+    this.setQuery(query, true);
+  },
+
+  /**
    * set many/all properties of a query at once. The values are converted to
    * strings, and xxxString is set. The values are validated, and xxxValid is
    * set. the properties themselves are only set for valid values.
@@ -245,7 +258,7 @@ const QueryStore = Reflux.createStore({
    *
    * @param {Object} query   a query object with some or all query properties set.
    */
-  setQuery(query) {
+  setQuery(query, autoPopulated = false) {
     if (_.isUndefined(query) || _.isNull(query)) {
       query = this._getDefaultQuery();
     }
@@ -291,6 +304,7 @@ const QueryStore = Reflux.createStore({
       this.toggleSample(query.sample);
     }
     state.featureFlag = false;
+    state.autoPopulated = autoPopulated;
     state.valid = valid;
     this.setState(state);
   },
