@@ -35,4 +35,20 @@ describe('FavoriteListStore', () => {
       expect(model._name).to.equal('testing');
     });
   });
+
+  describe('#deleteFavorite', () => {
+    const ns = 'db.test';
+    const filter = { name: 'test' };
+    const recent = new RecentQuery({ ns: ns, filter: filter });
+
+    before(() => {
+      FavoriteListStore.saveFavorite(recent, 'testing');
+      const model = FavoriteListStore.state.favorites.models[0];
+      FavoriteListStore.deleteFavorite(model);
+    });
+
+    it('removes the favorite from the list', () => {
+      expect(FavoriteListStore.state.favorites.length).to.equal(0);
+    });
+  });
 });
