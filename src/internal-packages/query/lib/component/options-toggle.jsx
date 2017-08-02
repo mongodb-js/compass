@@ -9,12 +9,17 @@ class OptionsToggle extends React.Component {
     QueryActions.toggleQueryOptions();
   }
 
+  getClassName() {
+    let className = 'btn btn-default btn-xs querybar-options-toggle';
+    return this.props.expanded ? `${className} querybar-options-toggle-open` : `${className}`;
+  }
+
   render() {
     const symbol = this.props.expanded ? 'caret-down' : 'caret-right';
 
     return (
       <div
-        className="querybar-options-toggle"
+        className={this.getClassName()}
         onClick={this.onClick.bind(this)}
         data-test-id="querybar-options-toggle">
         <FontAwesome fixedWidth name={symbol} />
