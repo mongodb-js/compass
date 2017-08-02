@@ -22,14 +22,21 @@
     width: 95%;
     margin: auto;
     margin-bottom: 10px;
-    padding: 10px;
+    padding: 11px;
+    outline: 0;
 
     .btn-group {
       float: right;
       visibility: hidden;
+      height: 28px;
+      overflow: hidden;
     }
 
     &:hover {
+      border: 1px solid #5CAEEB;
+      box-shadow: 0 2px 6px 0 rgba(78,175,233,0.30);
+      padding: 10px;
+
       .btn-group {
         visibility: visible;
       }
@@ -46,19 +53,19 @@
       float: left;
 
       &-input {
-        border: 1px solid #5CAEEB;
+        border: 1px solid #BEBCB9;
         border-radius: 2px;
         border-top-right-radius: 0;
         border-bottom-right-radius: 0;
         padding: 0px 5px 0px 5px;
         outline: 0;
-        width: 177px;
+        width: 175px;
         height: 28px;
       }
 
       &-save {
         background-color: #FFFFFF;
-        border: 1px solid #5CAEEB;
+        border: 1px solid #BEBCB9;
         border-left: 0;
         border-top-right-radius: 2px;
         border-bottom-right-radius: 2px;
@@ -108,6 +115,8 @@
       word-wrap: break-word;
       white-space: pre;
       font-size: 11px;
+      animation: 600ms card;
+      cursor: pointer;
 
       .hljs-string {
         color: steelblue;
@@ -170,4 +179,22 @@
 @keyframes slidein {
   from { width: 0px }
   to   { width: 325px }
+}
+
+// Card loading animation
+@keyframes card {
+  0% {
+    color: #F5F6F7;
+    height: 30px;
+  }
+
+  80% {
+    color: #F5F6F7;
+    height: 30px;
+  }
+
+  100% {
+    color: #494747;
+    height: 100%;
+  }
 }
