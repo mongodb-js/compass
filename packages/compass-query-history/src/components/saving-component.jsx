@@ -43,7 +43,7 @@ class SavingComponent extends React.Component {
         <div className="query-history-favorite-query">
           <div className="query-history-favorite-query-header">
             <form onSubmit={this.handleSubmit} className="query-history-favorite-query-form">
-              <input type="text" className="query-history-favorite-query-form-input" placeholder="Favorite Name" onChange={this.handleChange}/>
+              <input type="text" className="query-history-favorite-query-form-input" placeholder="Favorite Name" onChange={this.handleChange} autoFocus/>
               <input type="submit" className="query-history-favorite-query-form-save" value="Save"/>
             </form>
             <button className="btn btn-default btn-xs query-history-favorite-query-form-cancel"
