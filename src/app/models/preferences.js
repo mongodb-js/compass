@@ -3,8 +3,6 @@ const storageMixin = require('storage-mixin');
 const _ = require('lodash');
 const format = require('util').format;
 const electronApp = require('electron').remote.app;
-const semver = require('semver');
-const pkg = require('../../../package.json');
 
 const debug = require('debug')('mongodb-compass:models:preferences');
 
