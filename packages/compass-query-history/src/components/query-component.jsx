@@ -1,23 +1,21 @@
 const React = require('react');
 const PropTypes = require('prop-types');
 const Actions = require('../actions');
-const _ = require('lodash');
 const { format } = require('../models/query');
 const Code = require('./code-component');
 
 class QueryComponent extends React.Component {
-  constructor(props) {
-    super(props);
-    this.populateQuery = this.populateQuery.bind(this);
-  }
 
   /**
    * Populate the query bar with the value of this query.
   */
   populateQuery() {
-    const fullQuery = {filter: {}, project: {}, sort: {}, skip: 0, limit: 0};
-    _.merge(fullQuery, this.props.attributes);
-    Actions.runQuery(fullQuery);
+    // @note: Durran/Jessica: Don't default the attributes as the empty
+    //   projection will cause the document list to go into readony mode.
+    //   We don't allow editing of documents if there is a projection
+    //   and there's no need for an empty projection in the query bar
+    //   as the default placeholder will not display.
+    Actions.runQuery(this.props.attributes);
   }
 
   /**
@@ -28,7 +26,7 @@ class QueryComponent extends React.Component {
   render() {
     const attributes = this.props.attributes;
     return (
-      <div className="query-history-card" onClick={this.populateQuery}>
+      <div className="query-history-card" onClick={this.populateQuery.bind(this)}>
         <div className="query-history-card-title">{this.props.title}</div>
         <ul>
           {Object.keys(attributes).map(function(key, i) {
