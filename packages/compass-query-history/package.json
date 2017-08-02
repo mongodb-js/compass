@@ -61,10 +61,12 @@
     "mongodb-extended-json": "^1.10.0",
     "mongodb-js-fmt": "^0.0.3",
     "mongodb-js-precommit": "^0.2.8",
+    "mongodb-ns": "^2.0.0",
     "mongodb-query-parser": "^0.7.0",
     "pre-commit": "^1.1.3",
     "prop-types": "^15.5.8",
     "react": "^15.5.4",
+    "react-bootstrap": "^0.31.0"
     "react-dom": "^15.5.4",
     "react-fontawesome": "^1.6.1",
     "reflux": "0.4.1",
@@ -76,8 +78,6 @@
     "watch": "^1.0.2"
   },
   "dependencies": {
-    "lodash": "^4.17.4",
-    "mongodb-ns": "^2.0.0",
-    "react-bootstrap": "^0.31.1"
+    "lodash": "^4.17.4"
   }
 }
