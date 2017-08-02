@@ -12,6 +12,20 @@ class CodeComponent extends React.Component {
    * Highlight on mount.
    */
   componentDidMount() {
+    this.highlightCode();
+  }
+
+  /**
+   * Highlight on update.
+   */
+  componentDidUpdate() {
+    this.highlightCode();
+  }
+
+  /**
+   * Highlights the code.
+   */
+  highlightCode() {
     highlight.highlightBlock(ReactDOM.findDOMNode(this.refs.code));
   }
 
