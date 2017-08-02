@@ -14,22 +14,6 @@ The RecentListStore contains the RecentQueryCollection, which saves the queries
  converted to a FavoriteQuery and is saved in the FavoriteQueryCollection.
  The FavoriteQueryCollection is kept in the FavoriteListStore.
 
-## Notice
-
-When developing the plugin against Compass with `npm link`, one must also link React in order
-to not get multiple copies of react loaded. The process:
-
-```shell
-cd ~/path/to/10gen/compass
-cd node_modules/react
-npm link
-cd ~/path/to/10gen/compass-query-history
-npm link react
-npm link
-cd ~/path/to/10gen/compass
-npm link @mongodb-js/compass-query-history
-```
-
 ## License
 
 Apache 2
