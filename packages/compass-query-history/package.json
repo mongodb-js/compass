@@ -11,6 +11,8 @@
     "compile": "npm run jsx && npm run less",
     "jsx": "babel ./src --out-dir ./lib --presets react",
     "less": "lessc ./styles/index.less ./lib/styles/index.css",
+    "link-plugin": "./scripts/link.sh",
+    "unlink-plugin": "./scripts/unlink.sh",
     "prepublish": "npm run compile",
     "pretest": "npm run compile",
     "prestart": "npm run compile",
