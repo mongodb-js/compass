@@ -1,6 +1,6 @@
 const _ = require('lodash');
 const React = require('react');
-const InsertDocumentStore = require('../store/insert-document-store');
+const InsertDocumentStore = require('../stores/insert-document-store');
 const Actions = require('../actions');
 
 const INSERTING = 'Inserting Document';

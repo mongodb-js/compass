@@ -4,10 +4,10 @@ const uuid = require('uuid');
 const ObjectID = require('bson').ObjectID;
 const Action = require('../actions');
 const { StatusRow } = require('hadron-react-components');
-const ResetDocumentListStore = require('../store/reset-document-list-store');
-const LoadMoreDocumentsStore = require('../store/load-more-documents-store');
-const RemoveDocumentStore = require('../store/remove-document-store');
-const InsertDocumentStore = require('../store/insert-document-store');
+const ResetDocumentListStore = require('../stores/reset-document-list-store');
+const LoadMoreDocumentsStore = require('../stores/load-more-documents-store');
+const RemoveDocumentStore = require('../stores/remove-document-store');
+const InsertDocumentStore = require('../stores/insert-document-store');
 const InsertDocumentDialog = require('./insert-document-dialog');
 const Actions = require('../actions');
 

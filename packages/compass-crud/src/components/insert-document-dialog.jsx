@@ -1,8 +1,8 @@
 const _ = require('lodash');
 const React = require('react');
 const Modal = require('react-bootstrap').Modal;
-const OpenInsertDocumentDialogStore = require('../store/open-insert-document-dialog-store');
-const InsertDocumentStore = require('../store/insert-document-store');
+const OpenInsertDocumentDialogStore = require('../stores/open-insert-document-dialog-store');
+const InsertDocumentStore = require('../stores/insert-document-store');
 const InsertDocument = require('./insert-document');
 const InsertDocumentFooter = require('./insert-document-footer');
 const { TextButton } = require('hadron-react-buttons');

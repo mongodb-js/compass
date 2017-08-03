@@ -1,5 +1,4 @@
 const Reflux = require('reflux');
-const app = require('hadron-app');
 const toNS = require('mongodb-ns');
 const Actions = require('../actions');
 const _ = require('lodash');
@@ -21,11 +20,11 @@ const ResetDocumentListStore = Reflux.createStore({
     this.skip = 0;
     this.project = null;
     this.ns = '';
-
-    // listen for query changes
-    this.listenToExternalStore('Query.ChangedStore', this.onQueryChanged.bind(this));
-
     Actions.refreshDocuments.listen(this.reset.bind(this));
+  },
+
+  onActivated(appRegistry) {
+    appRegistry.getStore('Query.ChangedStore').listen(this.onQueryChanged.bind(this));
   },
 
   /**
@@ -69,9 +68,9 @@ const ResetDocumentListStore = Reflux.createStore({
       findOptions.limit = Math.min(20, this.limit);
     }
 
-    app.dataService.count(this.ns, this.filter, countOptions, (err, count) => {
+    global.hadronApp.dataService.count(this.ns, this.filter, countOptions, (err, count) => {
       if (!err) {
-        app.dataService.find(this.ns, this.filter, findOptions, (error, documents) => {
+        global.hadronApp.dataService.find(this.ns, this.filter, findOptions, (error, documents) => {
           this.trigger(error, documents, count);
         });
       } else {

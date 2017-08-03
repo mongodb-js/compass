@@ -13,7 +13,7 @@ const {
   NullEditor,
   UndefinedEditor,
   ObjectIDEditor
-} = require('./lib/component/editor');
+} = require('./lib/components/editor');
 
 const COLLECTION_TAB_ROLE = {
   component: DocumentList,
