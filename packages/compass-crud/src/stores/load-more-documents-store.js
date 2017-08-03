@@ -39,7 +39,7 @@ const LoadMoreDocumentsStore = Reflux.createStore({
   onQueryChanged: function(state) {
     if (state.ns && toNS(state.ns).collection) {
       this.filter = state.filter || {};
-      this.sort = _.pairs(state.sort);
+      this.sort = _.toPairs(state.sort);
       this.limit = state.limit;
       this.skip = state.skip;
       this.project = state.project;

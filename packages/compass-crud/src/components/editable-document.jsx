@@ -1,4 +1,3 @@
-const app = require('hadron-app');
 const React = require('react');
 const PropTypes = require('prop-types');
 const Reflux = require('reflux');
@@ -146,7 +145,7 @@ class EditableDocument extends React.Component {
        * Initialize the store.
        */
       init: function() {
-        this.ns = app.appRegistry.getStore('App.NamespaceStore').ns;
+        this.ns = global.hadronApp.appRegistry.getStore('App.NamespaceStore').ns;
         this.listenTo(actions.update, this.update);
       },
 
@@ -159,7 +158,7 @@ class EditableDocument extends React.Component {
        */
       update: function(object) {
         // TODO (@thomasr) this does not work for projections
-        app.dataService.findOneAndReplace(
+        global.hadronApp.dataService.findOneAndReplace(
           this.ns,
           { _id: object._id },
           object,
@@ -196,7 +195,7 @@ class EditableDocument extends React.Component {
        * Initialize the store.
        */
       init: function() {
-        this.ns = app.appRegistry.getStore('App.NamespaceStore').ns;
+        this.ns = global.hadronApp.appRegistry.getStore('App.NamespaceStore').ns;
         this.listenTo(actions.remove, this.remove);
       },
 
@@ -208,7 +207,7 @@ class EditableDocument extends React.Component {
       remove: function(object) {
         const id = object.getId();
         if (id) {
-          app.dataService.deleteOne(this.ns, { _id: id }, {}, this.handleResult);
+          global.hadronApp.dataService.deleteOne(this.ns, { _id: id }, {}, this.handleResult);
         } else {
           this.handleResult(DELETE_ERROR);
         }

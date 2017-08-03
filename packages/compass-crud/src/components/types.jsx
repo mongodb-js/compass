@@ -1,5 +1,4 @@
 const _ = require('lodash');
-const app = require('hadron-app');
 const React = require('react');
 const PropTypes = require('prop-types');
 const TypeChecker = require('hadron-type-checker');
@@ -36,7 +35,7 @@ class Types extends React.Component {
     super(props);
     this.state = { isOpen: false };
     this.element = props.element;
-    this._version = app.instance.build.version;
+    this._version = global.hadronApp.instance.build.version;
   }
 
   /**

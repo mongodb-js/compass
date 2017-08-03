@@ -1,4 +1,3 @@
-const app = require('hadron-app');
 const React = require('react');
 const PropTypes = require('prop-types');
 const { Tooltip } = require('hadron-react-components');
@@ -46,7 +45,7 @@ class EditableValue extends React.Component {
     this.element = props.element;
     this.state = { editing: false };
     this._pasting = false;
-    this._version = app.instance.build.version;
+    this._version = global.hadronApp.instance.build.version;
     this._editors = initEditors(this.element);
   }
 
