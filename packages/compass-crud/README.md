@@ -1,4 +1,6 @@
-# Compass CRUD Package [![][travis_img]][travis_url]
+# Compass CRUD Package
+
+[![][travis_img]][travis_url]
 
 Provide functionality shown in the "Documents" tab in the collection view.
 
