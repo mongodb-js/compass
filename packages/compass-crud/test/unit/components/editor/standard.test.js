@@ -29,6 +29,50 @@ describe('StandardEditor', () => {
         expect(element.isCurrentTypeValid()).to.equal(true);
       });
     });
+
+    context('when editing boolean strings', () => {
+      const bool = true;
+      const element = new Element('boolean', bool, false);
+
+      context('when the boolean string is valid', () => {
+        const standardEditor = new StandardEditor(element);
+
+        before(() => {
+          standardEditor.start();
+          standardEditor.edit('false');
+        });
+
+        it('keeps the string as the current value', () => {
+          expect(element.currentValue).to.equal(false);
+        });
+
+        it('sets the current value as valid', () => {
+          expect(element.isCurrentTypeValid()).to.equal(true);
+        });
+      });
+
+      context('when the standard string is invalid', () => {
+        const standardEditor = new StandardEditor(element);
+        const invalidString = 'fal';
+
+        before(() => {
+          standardEditor.start();
+          standardEditor.edit(invalidString);
+        });
+
+        it('keeps the string as the current value', () => {
+          expect(element.currentValue).to.equal('fal');
+        });
+
+        it('sets the current value as invalid', () => {
+          expect(element.isCurrentTypeValid()).to.equal(false);
+        });
+
+        it('sets the invalid message', () => {
+          expect(element.invalidTypeMessage).to.equal('\'fal\' is not a valid boolean string');
+        });
+      });
+    });
   });
 
   describe('#paste', () => {
