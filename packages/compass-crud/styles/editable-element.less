@@ -1,0 +1,299 @@
+.editable-element {
+  width: 100%;
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  align-items: center;
+
+  &-field {
+    display: inline-block;
+    vertical-align: top;
+    margin-left: 22px;
+  }
+
+  &-expand-button {
+    position: absolute;
+    padding: 2px 6px 0px 5px;
+  }
+
+  &-separator {
+    padding-right: 2px;
+    vertical-align: top;
+  }
+
+  &-is-editing {
+
+    .line-number:focus {
+      outline: 0;
+      color: #494747;
+      font-weight: bold;
+      border: 1px solid #494747;
+      border-radius: 2px;
+
+      &:before {
+        content: '+';
+      }
+
+      &-is-selected {
+        &:before {
+          content: '-';
+        }
+      }
+    }
+
+    &:hover {
+      background-color: @gray8;
+
+      &::before {
+        background-color: @gray8;
+      }
+
+      input {
+        background-color: @gray8;
+
+        &:focus {
+          background-color: @pw;
+        }
+      }
+
+      .line-number {
+        color: #494747;
+        font-weight: bold;
+        border: 1px solid #494747;
+        border-radius: 2px;
+
+        &:before {
+          content: '+';
+        }
+
+        &-is-selected {
+          &:before {
+            content: '-';
+          }
+        }
+      }
+
+      .editable-element-actions {
+        opacity: 1;
+      }
+
+      .editable-element-types {
+        .btn {
+          background-color: @gray6;
+          color: @gray0;
+        }
+        .caret {
+          visibility: visible;
+        }
+
+        &-is-edited {
+          .btn {
+            font-weight: bold;
+            color: #000000;
+          }
+        }
+      }
+    }
+  }
+
+  &-is-edited {
+    background-color: @alertOrangeBg;
+
+    &:hover {
+      .line-number {
+        color: @pw;
+        border: 1px solid @pw;
+
+        &-is-selected {
+          border: 1px solid @pw;
+        }
+      }
+    }
+
+    .line-number {
+      background-color: @alertOrange;
+      color: @pw;
+      border: 1px solid @pw;
+
+      &-is-selected {
+        border: 1px solid @pw;
+      }
+    }
+
+    input {
+      background-color: @alertOrangeBg;
+    }
+
+    .editable-element-field {
+      background-color: @alertOrangeBg;
+
+      &:focus {
+        background-color: @pw;
+      }
+
+      &::before {
+        background-color: @alertOrangeBg;
+      }
+    }
+  }
+
+  &-is-added {
+    background-color: @greenBg;
+
+    .editable-element-field {
+      background-color: @greenBg;
+
+      &:focus {
+        background-color: @pw;
+      }
+    }
+
+    &:hover {
+      .line-number {
+        color: @pw;
+        border: 1px solid @pw;
+
+        &-is-selected {
+          border: 1px solid @pw;
+        }
+      }
+    }
+
+    .line-number {
+      background-color: @green2;
+      color: @pw;
+      border: 1px solid @pw;
+
+      &-is-selected {
+        border: 1px solid @pw;
+      }
+    }
+
+    input {
+      background-color: @greenBg;
+    }
+  }
+
+  &-is-removed {
+    background-color: @alertRedBg;
+
+    .editable-element-field {
+      background-color: @alertRedBg;
+
+      &:focus {
+        background-color: @pw;
+      }
+    }
+
+    &:hover {
+      .line-number {
+        color: @pw;
+        border: 1px solid @pw;
+
+        &-is-selected {
+          border: 1px solid @pw;
+        }
+      }
+    }
+
+    .line-number {
+      background-color: @alertRed;
+      color: @pw;
+      border: 1px solid @pw;
+
+      &-is-selected {
+        border: 1px solid @pw;
+      }
+    }
+
+    input {
+      background-color: @alertRedBg;
+    }
+  }
+
+  &-actions {
+    display: inline-block;
+    opacity: 0;
+    width: 18px;
+    font-size: 13px;
+    line-height: 11px;
+    margin-top: 1px;
+    text-align: center;
+    color: @gray3;
+    position: absolute;
+    left: 3px;
+
+    i:hover {
+      cursor: pointer;
+    }
+  }
+
+  &-types {
+    display: inline-block;
+    width: 120px;
+    color: @gray3;
+    height: 17px;
+    flex-shrink: 0;
+
+    .closed > .dropdown-menu {
+      display: none;
+    }
+
+    .type-label {
+      padding: 1px 12px;
+    }
+
+    .btn {
+      background-color: transparent;
+      color: @gray4;
+      border: none;
+      text-transform: none;
+      font-size: 11px;
+      border-radius: 8px;
+      padding: 1px 12px;
+    }
+
+    .caret {
+      visibility: hidden;
+    }
+
+    &-is-edited {
+      .btn {
+        color: #000000;
+        font-weight: bold;
+      }
+    }
+
+    .dropdown-menu {
+      min-width: 120px;
+
+      li {
+        span {
+          display: block;
+          padding: 3px 20px;
+          clear: both;
+          font-weight: normal;
+          font-size: 11px;
+          color: #333333;
+          white-space: nowrap;
+        }
+        span:hover {
+          color: #313030;
+          text-decoration: none;
+          background: #e6e6e6;
+        }
+      }
+    }
+  }
+
+  &-value {
+    position: relative;
+    vertical-align: top;
+    z-index: 1;
+  }
+
+  &-field {
+    position: relative;
+    z-index: 1;
+  }
+}

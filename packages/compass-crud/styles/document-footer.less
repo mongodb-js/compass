@@ -1,0 +1,107 @@
+.document-footer {
+  font-family: "Akzidenz", "Helvetica Neue", Helvetica, Arial, sans-serif;
+  height: 28px;
+  vertical-align: middle;
+  top: 20px;
+  position: relative;
+
+  &-message {
+    position: absolute;
+    right: 150px;
+    left: 10px;
+    font-size: 14px;
+    font-style: italic;
+    padding-left: 10px;
+    padding-top: 4px;
+    color: @pw;
+    overflow: hidden;
+    height: 28px;
+  }
+
+  &-is-modified {
+    background-color: @alertOrange;
+
+    .document-footer-actions {
+
+      .cancel {
+        color: @alertOrangeBorder;
+      }
+
+      .btn-default {
+        color: @alertOrangeBorder;
+        border-color: @alertOrangeBorder;
+        background: none;
+        box-shadow: inset 0 -1px 0 0 @alertOrangeBorder;
+        transition: none;
+      }
+    }
+  }
+
+  &-is-in-progress {
+    background-color: @chart1;
+  }
+
+  &-is-success {
+    background-color: @green2;
+
+    .document-footer-actions {
+
+      .cancel {
+        color: white;
+      }
+
+      .btn-default {
+        color: white;
+        border-color: white;
+        background: none;
+        box-shadow: inset 0 -1px 0 0 white;
+        transition: none;
+      }
+    }
+
+  }
+
+  &-is-error {
+    background-color: @alertRed;
+
+    .document-footer-actions {
+
+      .cancel {
+        color: @alertRedBg;
+      }
+
+      .error {
+        color: @pw;
+        background: rgba(255,255,255,0.2);
+        border: 1px solid rgba(255,255,255,0.4);
+
+        &:hover {
+          background: rgba(255,255,255,0.4);
+          border: 1px solid rgba(255,255,255,0.6);
+        }
+      }
+    }
+  }
+
+  &-is-viewing {
+    background-color: #F8F8F8;
+
+    .document-footer-actions {
+
+      .cancel {
+        color: #B8B8B8;
+      }
+    }
+  }
+
+  &-actions {
+    position: absolute;
+    right: 10px;
+    top: 2px;
+    padding-top: 1px;
+
+    .cancel {
+      font-weight: bold;
+    }
+  }
+}

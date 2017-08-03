@@ -1,0 +1,94 @@
+.editable-element-value {
+  display: inline-block;
+  border: none;
+  padding-left: 1px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  overflow: hidden;
+  max-width: ~"calc(85vw - 260px);";
+
+  &-tooltip {
+    height: 20px !important;
+    font-size: 11px !important;
+    opacity: 1 !important;
+    padding: 3px 6px !important;
+  }
+
+  &-is-string {
+    white-space: pre-line;
+    word-break: break-all;
+    padding-right: 0px;
+  }
+
+  &-is-int32 {
+    color: #145a32;
+  }
+
+  &-is-int64 {
+    color: #196f3d;
+  }
+
+  &-is-double {
+    color: #1e8449;
+  }
+
+  &-is-decimal128 {
+    color: #229954;
+  }
+
+  &-is-date {
+    color: firebrick;
+  }
+
+  &-is-boolean {
+    color: purple;
+  }
+
+  &-is-objectid {
+    color: orangered;
+    &::before {
+      content: "ObjectID('";
+    }
+    &::after {
+      content: "')";
+    }
+  }
+
+  &-is-editing {
+    border: 1px solid @gray3;
+    box-shadow: 0px 2px 4px 0px rgba(0,0,0,0.2);
+    z-index: 10;
+    margin-top: -1px;
+    margin-bottom: -1px;
+  }
+
+  &-is-invalid-type {
+    background-color: #F88379 !important;
+    color: #FFFFFF !important;
+  }
+
+  &-wrapper {
+    flex-grow: 3;
+    z-index: 100;
+
+    &-is-string {
+      color: steelblue;
+      &::before {
+        content: "\"";
+      }
+      &::after {
+        content: "\"";
+      }
+    }
+
+    &-is-objectid {
+      color: orangered;
+      &::before {
+        content: "ObjectID('";
+      }
+      &::after {
+        content: "')";
+      }
+    }
+  }
+}
