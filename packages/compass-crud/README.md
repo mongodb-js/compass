@@ -84,7 +84,7 @@ CrudActions.insertDocument((doc) => {
 });
 ```
 
-[travis_img]: https://travis-ci.com/10gen/10gen/compass-crud.svg?style=flat-square
+[travis_img]: https://travis-ci.com/10gen/compass-crud.svg?token=ezEB2TnpPiu7XLo6ByZp&branch=master
 [travis_url]: https://travis-ci.com/10gen/compass-crud
 [npm_img]: https://img.shields.io/npm/v/@mongodb-js/compass-crud.svg?style=flat-square
 [npm_url]: https://www.npmjs.org/package/@mongodb-js/compass-crud
