@@ -13,9 +13,9 @@ const OpenInsertDocumentDialogStore = Reflux.createStore({
    * Initialize the reset document list store.
    */
   init: function() {
-    this.listenTo(Actions.openInsertDocumentDialog, this.openInsertDocumentDialog.bind(this));
+    this.listenTo(Actions.openInsertDocumentDialog, this.open.bind(this));
     ipc.on('window:menu-open-insert-document-dialog', () => {
-      this.openInsertDocumentDialog({ _id: new ObjectId(), '': '' }, false);
+      this.open({ _id: new ObjectId(), '': '' }, false);
     });
   },
 
@@ -25,7 +25,7 @@ const OpenInsertDocumentDialogStore = Reflux.createStore({
    * @param {Object} doc - The document to open the dialog with.
    * @param {Boolean} clone - If the operation is a clone.
    */
-  openInsertDocumentDialog: function(doc, clone) {
+  open: function(doc, clone) {
     const hadronDoc = new HadronDocument(doc, true);
     if (clone) {
       // We need to remove the _id or we will get an duplicate key error on
