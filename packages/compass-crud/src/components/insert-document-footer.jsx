@@ -60,12 +60,11 @@ class InsertDocumentFooter extends React.Component {
   /**
    * Handles completion of document insert.
    *
-   * @param {Boolean} success - If the operation succeeded.
-   * @param {Object} doc - The document or error.
+   * @param {Error} error - Any insert error.
    */
-  handleDocumentInsert(success, doc) {
-    if (!success) {
-      this.setState({ message: doc.message, mode: 'Error' });
+  handleDocumentInsert(error) {
+    if (error) {
+      this.setState({ message: error.message, mode: 'Error' });
     }
   }
 

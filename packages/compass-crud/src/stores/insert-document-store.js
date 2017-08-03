@@ -12,12 +12,25 @@ const InsertDocumentStore = Reflux.createStore({
    */
   init: function() {
     this.filter = {};
-    this.listenTo(Actions.insertDocument, this.insertDocument);
+    this.listenTo(Actions.insertDocument, this.insertDocument.bind(this));
   },
 
-  onActivated(appRegistry) {
+  /**
+   * Listen to query changes on activation.
+   *
+   * @param {AppRegistry} appRegistry - The app registry.
+   */
+  onActivated: function(appRegistry) {
     appRegistry.getStore('Query.ChangedStore').listen(this.onQueryChanged.bind(this));
-    this.NamespaceStore = appRegistry.getStore('App.NamespaceStore');
+  },
+
+  /**
+   * Change the ns when the collection changes.
+   *
+   * @param {String} ns - The namespace.
+   */
+  onCollectionChanged: function(ns) {
+    this.ns = ns;
   },
 
   /**
@@ -26,20 +39,20 @@ const InsertDocumentStore = Reflux.createStore({
    * @param {Document} doc - The document to insert.
    */
   insertDocument: function(doc) {
-    global.hadronApp.dataService.insertOne(this.NamespaceStore.ns, doc, {}, (error) => {
+    global.hadronApp.dataService.insertOne(this.ns, doc, {}, (error) => {
       if (error) {
-        return this.trigger(false, error);
+        return this.trigger(error);
       }
       // check if the newly inserted document matches the current filter, by
       // running the same filter but targeted only to the doc's _id.
       const filter = Object.assign({}, this.filter, { _id: doc._id });
-      global.hadronApp.dataService.count(this.NamespaceStore.ns, filter, {}, (err, count) => {
+      global.hadronApp.dataService.count(this.ns, filter, {}, (err, count) => {
         if (err) {
-          return this.trigger(false, err);
+          return this.trigger(err);
         }
-        // count is either 0 or 1, if 1 then the new doc matches the filter
+        // count is greater than 0, if 1 then the new doc matches the filter
         if (count > 0) {
-          return this.trigger(true, doc);
+          return this.trigger(null, doc);
         }
         Actions.closeInsertDocumentDialog();
       });

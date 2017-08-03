@@ -4,6 +4,7 @@ const Actions = require('../actions');
 const _ = require('lodash');
 
 const NUM_PAGE_DOCS = 20;
+
 /**
  * The reflux store for loading more documents.
  */
@@ -23,9 +24,22 @@ const LoadMoreDocumentsStore = Reflux.createStore({
     this.listenTo(Actions.fetchNextDocuments, this.fetchNextDocuments.bind(this));
   },
 
+  /**
+   * Listen to query changes on activation.
+   *
+   * @param {AppRegistry} appRegistry - The app registry.
+   */
   onActivated(appRegistry) {
-    this.NamespaceStore = appRegistry.getStore('App.NamespaceStore');
     appRegistry.getStore('Query.ChangedStore').listen(this.onQueryChanged.bind(this));
+  },
+
+  /**
+   * Change the ns when the collection changes.
+   *
+   * @param {String} ns - The namespace.
+   */
+  onCollectionChanged: function(ns) {
+    this.ns = ns;
   },
 
   /**
@@ -68,7 +82,7 @@ const LoadMoreDocumentsStore = Reflux.createStore({
       fields: this.project,
       promoteValues: false
     };
-    global.hadronApp.dataService.find(this.NamespaceStore.ns, this.filter, options, (error, documents) => {
+    global.hadronApp.dataService.find(this.ns, this.filter, options, (error, documents) => {
       this.trigger(error, documents);
     });
   }

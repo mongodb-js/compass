@@ -185,11 +185,11 @@ class DocumentList extends React.Component {
   /**
    * Handle insert of a new document.
    *
-   * @param {Boolean} success - If the insert was successful.
+   * @param {Error} error - Any error that happened.
    * @param {Object} doc - The raw document that was inserted.
    */
-  handleInsert(success, doc) {
-    if (success) {
+  handleInsert(error, doc) {
+    if (!error) {
       this.setState({
         docs: this.state.docs.concat(this.renderDocuments([doc])),
         nextSkip: (this.state.nextSkip + 1),

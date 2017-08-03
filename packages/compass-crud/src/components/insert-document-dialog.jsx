@@ -94,10 +94,10 @@ class InsertDocumentDialog extends React.Component {
   /**
    * Handles completion of the document insert.
    *
-   * @param {Boolean} success - If the operation succeeded.
+   * @param {Error} error - Any error in the insert.
    */
-  handleDocumentInsert(success) {
-    if (success) {
+  handleDocumentInsert(error) {
+    if (!error) {
       this.closeDialog();
     }
   }

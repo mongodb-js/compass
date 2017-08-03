@@ -9,14 +9,14 @@ const AppRegistry = require('hadron-app-registry');
 
 const DataService = require('mongodb-data-service');
 const Connection = require('mongodb-connection-model');
-const DocumentList = require('../../src/components/document-list');
+const DocumentList = require('../../lib/components/document-list');
 
-// const CONNECTION = new Connection({
-  // hostname: '127.0.0.1',
-  // port: 27018,
-  // ns: 'compass-crud',
-  // mongodb_database_name: 'admin'
-// });
+const CONNECTION = new Connection({
+  hostname: '127.0.0.1',
+  port: 27018,
+  ns: 'compass-crud',
+  mongodb_database_name: 'admin'
+});
 
 const entryPoint = require('../../');
 const appRegistry = new AppRegistry();
@@ -44,12 +44,16 @@ appRegistry.registerComponent('Query.QueryBar', QueryBar);
 
 appRegistry.onActivated();
 
-// const dataService = new DataService(CONNECTION);
-// dataService.onDataServiceInitialized(dataService);
-// dataService.connect((error, ds) => {
-  // global.hadronApp.dataService = ds;
-  // global.hadronApp.appRegistry.onConnected(error, ds);
-// });
+const dataService = new DataService(CONNECTION);
+appRegistry.onDataServiceInitialized(dataService);
+
+dataService.connect((error, ds) => {
+  global.hadronApp.dataService = ds;
+  global.hadronApp.appRegistry.onConnected(error, ds);
+
+  // Set the namespace for the CRUD plugin.
+  CollectionStore.setCollection({ _id: 'compass-crud.test' });
+});
 
 ReactDOM.render(
   React.createElement(DocumentList),
