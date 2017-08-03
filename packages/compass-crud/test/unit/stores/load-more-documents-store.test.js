@@ -72,7 +72,7 @@ describe('LoadMoreDocumentsStore', () => {
       limit: 10,
       skip: 5,
       project: { name: 1 }
-    }
+    };
 
     before(() => {
       LoadMoreDocumentsStore.onQueryChanged(query);
@@ -123,5 +123,4 @@ describe('LoadMoreDocumentsStore', () => {
       LoadMoreDocumentsStore.fetchNextDocuments(1);
     });
   });
-
 });
