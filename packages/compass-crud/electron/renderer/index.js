@@ -23,7 +23,25 @@ const appRegistry = new AppRegistry();
 
 global.hadronApp = app;
 global.hadronApp.appRegistry = appRegistry;
+
+global.hadronApp.instance = {
+  build: '3.4.0'
+};
+
 entryPoint.activate(appRegistry);
+
+// Stores/Actions/Components required from other plugins/Compass:
+const CollectionStore = require('./stores/collection-store');
+const NamespaceStore = require('./stores/namespace-store');
+const QueryChangedStore = require('./stores/query-changed-store');
+const SamplingMessage = require('./components/sampling-message');
+const QueryBar = require('./components/query-bar');
+appRegistry.registerStore('App.NamespaceStore', NamespaceStore);
+appRegistry.registerStore('App.CollectionStore', CollectionStore);
+appRegistry.registerStore('Query.ChangedStore', QueryChangedStore);
+appRegistry.registerComponent('Query.SamplingMessage', SamplingMessage);
+appRegistry.registerComponent('Query.QueryBar', QueryBar);
+
 appRegistry.onActivated();
 
 // const dataService = new DataService(CONNECTION);
