@@ -10,18 +10,18 @@ const QUERY_PROPERTIES = require('../store/query-store').QUERY_PROPERTIES;
 const OPTION_DEFINITION = {
   filter: {
     type: 'document',
-    placeholder: "{ filter: 'example' }",
+    placeholder: "{ field: 'value' }",
     link: 'https://docs.mongodb.com/getting-started/shell/query/'
   },
   project: {
     type: 'document',
-    placeholder: '{ project: 1 }',
+    placeholder: '{ field: 0 }',
     link:
       'https://docs.mongodb.com/manual/tutorial/project-fields-from-query-results/'
   },
   sort: {
     type: 'document',
-    placeholder: '{ sort: 1 }',
+    placeholder: '{ field: -1 }',
     link: 'https://docs.mongodb.com/manual/reference/method/cursor.sort/'
   },
   skip: {
