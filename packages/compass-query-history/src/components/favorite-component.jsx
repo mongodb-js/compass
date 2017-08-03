@@ -35,10 +35,10 @@ class FavoriteComponent extends React.Component {
     return (
       <div className="query-history-favorite-query">
         <div className="btn-group">
-          <button className="btn btn-sm btn-default query-history-button" onClick={this.copyQuery}>
+          <button title="Copy Query to Clipboard" className="btn btn-sm btn-default query-history-button query-history-button-copy" onClick={this.copyQuery}>
             <FontAwesome name="clipboard"/>
           </button>
-          <button className="btn btn-sm btn-default query-history-button" onClick={this.deleteFavorite}>
+          <button title="Delete Query from Favorites List" className="btn btn-sm btn-default query-history-button" onClick={this.deleteFavorite}>
             <FontAwesome name="trash"/>
           </button>
         </div>

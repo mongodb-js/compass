@@ -41,13 +41,13 @@ class RecentComponent extends React.Component {
     return (
       <div className="query-history-recent-query">
         <div className="btn-group">
-          <button className="btn btn-sm btn-default query-history-button" onClick={this.saveRecent}>
+          <button title="Favorite Query" className="btn btn-sm btn-default query-history-button" onClick={this.saveRecent}>
             <FontAwesome name="star-o"/>
           </button>
-          <button className="btn btn-sm btn-default query-history-button" onClick={this.copyQuery}>
+          <button title="Copy Query to Clipboard" className="btn btn-sm btn-default query-history-button query-history-button-copy" onClick={this.copyQuery}>
             <FontAwesome name="clipboard"/>
           </button>
-          <button className="btn btn-sm btn-default query-history-button" onClick={this.deleteRecent}>
+          <button title= "Delete Query from Recent List" className="btn btn-sm btn-default query-history-button" onClick={this.deleteRecent}>
             <FontAwesome name="trash"/>
           </button>
         </div>
