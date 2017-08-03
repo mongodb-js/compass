@@ -1,6 +1,4 @@
-# Compass CRUD Package
-
-[![][travis_img]][travis_url]
+# Compass CRUD Plugin [![][travis_img]][travis_url] [![][npm_img]][npm_url]
 
 Provide functionality shown in the "Documents" tab in the collection view.
 
@@ -88,3 +86,5 @@ CrudActions.insertDocument((doc) => {
 
 [travis_img]: https://travis-ci.com/10gen/10gen/compass-crud.svg?style=flat-square
 [travis_url]: https://travis-ci.com/10gen/compass-crud
+[npm_img]: https://img.shields.io/npm/v/@mongodb-js/compass-crud.svg?style=flat-square
+[npm_url]: https://www.npmjs.org/package/@mongodb-js/compass-crud
