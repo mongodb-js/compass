@@ -14,13 +14,7 @@ const LoadMoreDocumentsStore = Reflux.createStore({
    * Initialize the reset document list store.
    */
   init: function() {
-    this.filter = {};
-    this.sort = [[ '_id', 1 ]];
-    this.limit = 0;
-    this.skip = 0;
-    this.project = null;
-    this.counter = 0;
-
+    this.reset();
     this.listenTo(Actions.fetchNextDocuments, this.fetchNextDocuments.bind(this));
   },
 
@@ -85,7 +79,18 @@ const LoadMoreDocumentsStore = Reflux.createStore({
     global.hadronApp.dataService.find(this.ns, this.filter, options, (error, documents) => {
       this.trigger(error, documents);
     });
+  },
+
+  reset: function() {
+    this.ns = undefined;
+    this.filter = {};
+    this.sort = [[ '_id', 1 ]];
+    this.limit = 0;
+    this.skip = 0;
+    this.project = null;
+    this.counter = 0;
   }
+
 });
 
 module.exports = LoadMoreDocumentsStore;
