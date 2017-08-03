@@ -7,25 +7,25 @@ describe('OpenInsertDocumentDialogStore', () => {
 
     context('when clone is true', () => {
       it('removes _id from the document', (done) => {
-        const unsubscribe = OpenInsertDocumentDialogStore.listen((doc) => {
-          expect(doc.elements.at(0).key).to.equal('name');
+        const unsubscribe = OpenInsertDocumentDialogStore.listen((d) => {
+          expect(d.elements.at(0).key).to.equal('name');
           unsubscribe();
           done();
         });
 
-        OpenInsertDocumentDialogStore.open(doc, true)
+        OpenInsertDocumentDialogStore.open(doc, true);
       });
     });
 
     context('when clone is false', () => {
       it('does not remove _id from the document', (done) => {
-        const unsubscribe = OpenInsertDocumentDialogStore.listen((doc) => {
-          expect(doc.elements.at(0).key).to.equal('_id');
+        const unsubscribe = OpenInsertDocumentDialogStore.listen((d) => {
+          expect(d.elements.at(0).key).to.equal('_id');
           unsubscribe();
           done();
         });
 
-        OpenInsertDocumentDialogStore.open(doc, false)
+        OpenInsertDocumentDialogStore.open(doc, false);
       });
     });
   });
