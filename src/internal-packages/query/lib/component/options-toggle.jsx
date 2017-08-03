@@ -10,7 +10,7 @@ class OptionsToggle extends React.Component {
   }
 
   getClassName() {
-    let className = 'btn btn-default btn-xs querybar-options-toggle';
+    const className = 'btn btn-default btn-xs querybar-options-toggle';
     return this.props.expanded ? `${className} querybar-options-toggle-open` : `${className}`;
   }
 
