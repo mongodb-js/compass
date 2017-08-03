@@ -21,6 +21,7 @@ describe('InsertDocumentStore', () => {
   });
 
   after(() => {
+    dataService.disconnect();
     global.hadronApp.dataService = undefined;
   });
 

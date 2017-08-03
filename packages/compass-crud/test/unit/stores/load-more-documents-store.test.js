@@ -21,6 +21,7 @@ describe('LoadMoreDocumentsStore', () => {
   });
 
   after(() => {
+    dataService.disconnect();
     global.hadronApp.dataService = undefined;
   });
 
