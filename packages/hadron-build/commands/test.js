@@ -49,8 +49,11 @@ exports.builder = {
 
 // any extra arguments that certain suites require
 const extraSuiteArgs = {
-  renderer: ['--renderer'],
-  packages: ['--recursive']
+  renderer: ['--renderer', '--recursive'],
+  main: ['--recursive'],
+  packages: ['--recursive'],
+  unit: ['--recursive'],
+  enzyme: ['--recursive']
 };
 
 exports.getMochaArgs = (argv) => {

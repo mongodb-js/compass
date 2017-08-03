@@ -88,10 +88,10 @@ describe('hadron-build', () => {
           functional: true
         }, DEFAULT_ARGS);
         expect(commands.test.getSpawnJobs(argv)).to.deep.equal({
-          unit: ['--sort', './test/unit'],
-          enzyme: ['--sort', './test/enzyme'],
-          main: ['--sort', './test/main'],
-          renderer: ['--sort', '--renderer', './test/renderer'],
+          unit: ['--sort', '--recursive', './test/unit'],
+          enzyme: ['--sort', '--recursive', './test/enzyme'],
+          main: ['--sort', '--recursive', './test/main'],
+          renderer: ['--sort', '--renderer', '--recursive', './test/renderer'],
           functional: ['--sort', './test/functional']
         });
       });
