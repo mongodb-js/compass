@@ -62,8 +62,10 @@ const OBJECT_ID_EDITOR_ROLE = {
 
 /**
  * Activate all the components in the CRUD package.
+ *
+ * @param {AppRegistry} appRegistry - The app registry.
  */
-function activate(appRegistry) {
+const activate = (appRegistry) => {
   appRegistry.registerRole('Collection.Tab', COLLECTION_TAB_ROLE);
   appRegistry.registerRole('CRUD.Document', DOCUMENT_ROLE);
   appRegistry.registerRole('CRUD.Editor.Standard', STANDARD_EDITOR_ROLE);
@@ -78,12 +80,14 @@ function activate(appRegistry) {
   appRegistry.registerStore('CRUD.InsertDocumentStore', InsertDocumentStore);
   appRegistry.registerStore('CRUD.ResetDocumentListStore', ResetDocumentListStore);
   appRegistry.registerStore('CRUD.LoadMoreDocumentsStore', LoadMoreDocumentsStore);
-}
+};
 
 /**
  * Deactivate all the components in the CRUD package.
+ *
+ * @param {AppRegistry} appRegistry - The app registry.
  */
-function deactivate(appRegistry) {
+const deactivate = (appRegistry) => {
   appRegistry.deregisterRole('Collection.Tab', COLLECTION_TAB_ROLE);
   appRegistry.deregisterRole('CRUD.Document', DOCUMENT_ROLE);
   appRegistry.deregisterRole('CRUD.Editor.Standard', STANDARD_EDITOR_ROLE);
@@ -98,7 +102,7 @@ function deactivate(appRegistry) {
   appRegistry.deregisterStore('CRUD.InsertDocumentStore');
   appRegistry.deregisterStore('CRUD.ResetDocumentListStore');
   appRegistry.deregisterStore('CRUD.LoadMoreDocumentsStore');
-}
+};
 
 module.exports.activate = activate;
 module.exports.deactivate = deactivate;
