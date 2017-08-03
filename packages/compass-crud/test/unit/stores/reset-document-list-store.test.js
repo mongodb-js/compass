@@ -20,6 +20,11 @@ describe('ResetDocumentListStore', () => {
     });
   });
 
+  after(() => {
+    dataService.disconnect();
+    global.hadronApp.dataService = undefined;
+  });
+
   describe('#init', () => {
     it('sets the default filter', () => {
       expect(ResetDocumentListStore.filter).to.deep.equal({});
