@@ -64,7 +64,6 @@ describe('InsertDocumentStore', () => {
       const doc = { name: 'test' };
       before(() => {
         InsertDocumentStore.onCollectionChanged('compass-crud.test');
-        InsertDocumentStore.insertDocument(doc);
       });
 
       it('triggers with the inserted document', (done) => {
@@ -76,6 +75,7 @@ describe('InsertDocumentStore', () => {
             done();
           });
         });
+        InsertDocumentStore.insertDocument(doc);
       });
     });
   });
