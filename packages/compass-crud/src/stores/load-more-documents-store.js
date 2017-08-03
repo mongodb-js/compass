@@ -3,8 +3,6 @@ const toNS = require('mongodb-ns');
 const Actions = require('../actions');
 const _ = require('lodash');
 
-// const debug = require('debug')('mongodb-compass:crud:load-more-store');
-
 const NUM_PAGE_DOCS = 20;
 /**
  * The reflux store for loading more documents.

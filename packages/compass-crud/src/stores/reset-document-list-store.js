@@ -3,8 +3,6 @@ const toNS = require('mongodb-ns');
 const Actions = require('../actions');
 const _ = require('lodash');
 
-// const debug = require('debug')('mongodb-compass:crud:reset-store');
-
 /**
  * The reflux store for resetting the document list.
  */

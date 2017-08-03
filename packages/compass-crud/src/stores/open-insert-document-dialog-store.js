@@ -4,8 +4,6 @@ const ObjectId = require('bson').ObjectId;
 const Actions = require('../actions');
 const HadronDocument = require('hadron-document');
 
-// const debug = require('debug')('mongodb-compass:crud:store:open-insert-doc');
-
 /**
  * The reflux store for opening the insert document dialog.
  */

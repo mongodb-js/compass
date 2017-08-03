@@ -3,7 +3,6 @@ const PropTypes = require('prop-types');
 const outsideClickable = require('react-click-outside');
 const getComponent = require('hadron-react-bson');
 const Actions = require('../actions');
-// const debug = require('debug')('mongodb-compass:crud:line-number');
 
 /**
  * The BEM base style name for the element.

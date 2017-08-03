@@ -11,8 +11,6 @@ const InsertDocumentStore = require('../stores/insert-document-store');
 const InsertDocumentDialog = require('./insert-document-dialog');
 const Actions = require('../actions');
 
-const debug = require('debug')('mongodb-compass:crud:component');
-
 /* eslint no-return-assign:0 */
 
 /**
@@ -202,7 +200,6 @@ class DocumentList extends React.Component {
   }
 
   handleQueryChanged(state) {
-    debug('state', state);
     this.projection = state.project !== null;
   }
 
