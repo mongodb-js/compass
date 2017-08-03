@@ -7,10 +7,7 @@ const AppRegistry = require('hadron-app-registry');
 
 const DataService = require('mongodb-data-service');
 const Connection = require('mongodb-connection-model');
-
-const CompassCrudComponent = require('../../lib/components');
-const CompassCrudStore = require('../../lib/stores');
-const CompassCrudActions = require('../../lib/actions');
+const DocumentList = require('../../src/component/document-list');
 
 // const CONNECTION = new Connection({
   // hostname: '127.0.0.1',
@@ -19,10 +16,12 @@ const CompassCrudActions = require('../../lib/actions');
   // mongodb_database_name: 'admin'
 // });
 
+const entryPoint = require('../../');
+const appRegistry = new AppRegistry();
+
 global.hadronApp = app;
-global.hadronApp.appRegistry = new AppRegistry();
-global.hadronApp.appRegistry.registerStore('CompassCrud.Store', CompassCrudStore);
-global.hadronApp.appRegistry.registerAction('CompassCrud.Actions', CompassCrudActions);
+global.hadronApp.appRegistry = appRegistry;
+entryPoint.activate(appRegistry);
 
 // const dataService = new DataService(CONNECTION);
 // dataService.onDataServiceInitialized(dataService);
@@ -33,6 +32,6 @@ global.hadronApp.appRegistry.registerAction('CompassCrud.Actions', CompassCrudAc
 // });
 
 ReactDOM.render(
-  React.createElement(CompassCrudComponent),
+  React.createElement(DocumentList),
   document.getElementById('container')
 );

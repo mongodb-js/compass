@@ -1,6 +1,6 @@
 {
   "name": "compass-crud",
-  "productName": "Compass Crud plugin",
+  "productName": "Compass CRUD plugin",
   "version": "0.0.1",
   "description": "Compass Plugin for CRUD Operations",
   "main": "index.js",
