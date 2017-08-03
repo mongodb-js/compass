@@ -39,6 +39,11 @@ const ARRAY = 'Array';
 const TRUE = 'true';
 
 /**
+ * False constant.
+ */
+const FALSE = 'false';
+
+/**
  * Long constant.
  */
 const LONG = 'Long';
@@ -112,8 +117,10 @@ const toBoolean = (object) => {
   if (isString(object)) {
     if (object.toLowerCase() === TRUE) {
       return true;
+    } else if (object.toLowerCase() === FALSE) {
+      return false;
     }
-    return false;
+    throw new Error(`'${object}' is not a valid boolean string`);
   }
   if (object) {
     return true;

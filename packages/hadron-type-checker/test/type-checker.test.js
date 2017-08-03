@@ -128,6 +128,14 @@ describe('TypeChecker', function() {
           });
         });
 
+        context('when casting to a boolean', function() {
+          var value = 'fal';
+
+          it('raises an exception', function() {
+            expect(TypeChecker.cast.bind(null, value, 'Boolean')).to.throw('not a valid boolean');
+          });
+        });
+
         context('when casting to an object', function() {
           var value = 'test';
 
