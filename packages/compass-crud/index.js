@@ -1,10 +1,9 @@
-const app = require('hadron-app');
-const Document = require('./lib/component/document');
-const DocumentList = require('./lib/component/document-list');
+const Document = require('./lib/components/document');
+const DocumentList = require('./lib/components/document-list');
 const Actions = require('./lib/actions');
-const InsertDocumentStore = require('./lib/store/insert-document-store');
-const ResetDocumentListStore = require('./lib/store/reset-document-list-store');
-const LoadMoreDocumentsStore = require('./lib/store/load-more-documents-store');
+const InsertDocumentStore = require('./lib/stores/insert-document-store');
+const ResetDocumentListStore = require('./lib/stores/reset-document-list-store');
+const LoadMoreDocumentsStore = require('./lib/stores/load-more-documents-store');
 const {
   StandardEditor,
   DateEditor,
@@ -84,21 +83,21 @@ function activate(appRegistry) {
 /**
  * Deactivate all the components in the CRUD package.
  */
-function deactivate() {
-  app.appRegistry.deregisterRole('Collection.Tab', COLLECTION_TAB_ROLE);
-  app.appRegistry.deregisterRole('CRUD.Document', DOCUMENT_ROLE);
-  app.appRegistry.deregisterRole('CRUD.Editor.Standard', STANDARD_EDITOR_ROLE);
-  app.appRegistry.deregisterRole('CRUD.Editor.Date', DATE_EDITOR_ROLE);
-  app.appRegistry.deregisterRole('CRUD.Editor.Double', DOUBLE_EDITOR_ROLE);
-  app.appRegistry.deregisterRole('CRUD.Editor.String', STRING_EDITOR_ROLE);
-  app.appRegistry.deregisterRole('CRUD.Editor.Int32', INT32_EDITOR_ROLE);
-  app.appRegistry.deregisterRole('CRUD.Editor.Null', NULL_EDITOR_ROLE);
-  app.appRegistry.deregisterRole('CRUD.Editor.Undefined', UNDEFINED_EDITOR_ROLE);
-  app.appRegistry.deregisterRole('CRUD.Editor.ObjectID', OBJECT_ID_EDITOR_ROLE);
-  app.appRegistry.deregisterAction('CRUD.Actions');
-  app.appRegistry.deregisterStore('CRUD.InsertDocumentStore');
-  app.appRegistry.deregisterStore('CRUD.ResetDocumentListStore');
-  app.appRegistry.deregisterStore('CRUD.LoadMoreDocumentsStore');
+function deactivate(appRegistry) {
+  appRegistry.deregisterRole('Collection.Tab', COLLECTION_TAB_ROLE);
+  appRegistry.deregisterRole('CRUD.Document', DOCUMENT_ROLE);
+  appRegistry.deregisterRole('CRUD.Editor.Standard', STANDARD_EDITOR_ROLE);
+  appRegistry.deregisterRole('CRUD.Editor.Date', DATE_EDITOR_ROLE);
+  appRegistry.deregisterRole('CRUD.Editor.Double', DOUBLE_EDITOR_ROLE);
+  appRegistry.deregisterRole('CRUD.Editor.String', STRING_EDITOR_ROLE);
+  appRegistry.deregisterRole('CRUD.Editor.Int32', INT32_EDITOR_ROLE);
+  appRegistry.deregisterRole('CRUD.Editor.Null', NULL_EDITOR_ROLE);
+  appRegistry.deregisterRole('CRUD.Editor.Undefined', UNDEFINED_EDITOR_ROLE);
+  appRegistry.deregisterRole('CRUD.Editor.ObjectID', OBJECT_ID_EDITOR_ROLE);
+  appRegistry.deregisterAction('CRUD.Actions');
+  appRegistry.deregisterStore('CRUD.InsertDocumentStore');
+  appRegistry.deregisterStore('CRUD.ResetDocumentListStore');
+  appRegistry.deregisterStore('CRUD.LoadMoreDocumentsStore');
 }
 
 module.exports.activate = activate;

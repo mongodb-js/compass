@@ -7,7 +7,7 @@ const AppRegistry = require('hadron-app-registry');
 
 const DataService = require('mongodb-data-service');
 const Connection = require('mongodb-connection-model');
-const DocumentList = require('../../src/component/document-list');
+const DocumentList = require('../../src/components/document-list');
 
 // const CONNECTION = new Connection({
   // hostname: '127.0.0.1',
