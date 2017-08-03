@@ -86,7 +86,7 @@
     "watch": "^1.0.2"
   },
   "dependencies": {
-    "hadron-document": "^2.2.0",
+    "hadron-document": "^2.3.0",
     "hadron-react-bson": "^1.4.0",
     "jquery": "^2.1.4",
     "react-click-outside": "^2.2.0"
