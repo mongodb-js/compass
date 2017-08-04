@@ -21,7 +21,6 @@
     "posttest": "mongodb-runner stop --port 27018",
     "prestart": "npm run compile",
     "start": "electron ./electron",
-    "storybook": "start-storybook -p 9001",
     "test": "hadron-build test",
     "test-enzyme": "npm test -- --enzyme",
     "test-main": "npm test -- --main",
@@ -34,8 +33,6 @@
   ],
   "license": "Apache-2.0",
   "devDependencies": {
-    "@kadira/react-storybook-addon-info": "^3.2.1",
-    "@kadira/storybook": "^2.3.0",
     "babel-cli": "^6.10.1",
     "babel-plugin-transform-class-properties": "^6.24.1",
     "babel-preset-react": "^6.11.1",
@@ -82,8 +79,7 @@
     "reflux-state-mixin": "^0.7.0",
     "sinon": "^1.17.6",
     "sinon-chai": "^2.8.0",
-    "uuid": "^3.1.0",
-    "watch": "^1.0.2"
+    "uuid": "^3.1.0"
   },
   "dependencies": {
     "hadron-document": "^2.3.0",
