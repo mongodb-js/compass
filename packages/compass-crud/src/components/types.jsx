@@ -66,7 +66,7 @@ class Types extends React.Component {
    * @param {Event} evt - The event.
    */
   handleTypeChange(evt) {
-    const newType = evt.target.innerText;
+    const newType = evt.target.innerText || evt.target.textContent;
     if (newType === OBJECT) {
       this.element.edit('{');
       this.element.next();
@@ -148,7 +148,11 @@ class Types extends React.Component {
     return _.map(TypeChecker.castableTypes(this.isHighPrecision()), (type) => {
       return (
         <li key={type}>
-          <span onMouseDown={this.handleTypeChange.bind(this)}>{type}</span>
+          <span
+            className={`editable-element-type-${type.toLowerCase()}`}
+            onMouseDown={this.handleTypeChange.bind(this)}>
+            {type}
+          </span>
         </li>
       );
     });

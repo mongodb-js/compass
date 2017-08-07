@@ -25,7 +25,9 @@ global.hadronApp = app;
 global.hadronApp.appRegistry = appRegistry;
 
 global.hadronApp.instance = {
-  build: '3.4.0'
+  build: {
+    version: '3.4.0'
+  }
 };
 
 entryPoint.activate(appRegistry);
