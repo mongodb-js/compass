@@ -7,7 +7,6 @@ const isArray = require('lodash.isarray');
 const isEqual = require('lodash.isequal');
 const isString = require('lodash.isstring');
 const includes = require('lodash.includes');
-const { ObjectId } = require('bson');
 const Iterator = require('./iterator');
 const ObjectGenerator = require('./object-generator');
 const TypeChecker = require('hadron-type-checker');
@@ -323,7 +322,7 @@ class Element extends EventEmitter {
 
   _isObjectIdEqual() {
     try {
-      return isEqual(this.value, ObjectId.createFromHexString(this.currentValue));
+      return this.value.toHexString() === this.currentValue;
     } catch (_) {
       return false;
     }

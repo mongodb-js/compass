@@ -23,7 +23,6 @@
     "check"
   ],
   "dependencies": {
-    "bson": "^0.5.4",
     "debug": "^2.2.0",
     "hadron-type-checker": "^2.1.0",
     "lodash.foreach": "^4.3.0",
@@ -36,6 +35,7 @@
     "uuid": "^3.0.0"
   },
   "devDependencies": {
+    "bson": "^0.5.4",
     "chai": "^3.4.1",
     "eslint-config-mongodb-js": "^2.2.0",
     "mocha": "^2.3.4",

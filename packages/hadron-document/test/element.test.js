@@ -818,7 +818,7 @@ describe('Element', function() {
 
       context('when editing to the same value', function() {
         before(function() {
-          element.currentValue = oid.toString();
+          element.currentValue = oid.toHexString();
           element.setValid();
         });
 
