@@ -98,15 +98,6 @@ class Types extends React.Component {
     return this._version >= HP_VERSION;
   }
 
-  /**
-   * Is the type changeable?
-   *
-   * @returns {Boolean} If the type is changeable.
-   */
-  isTypeChangeable() {
-    return this.element.isValueEditable() || this.element.isAdded();
-  }
-
   removeOpenClass() {
     this.setState({ isOpen: !this.state.isOpen });
   }
@@ -127,8 +118,7 @@ class Types extends React.Component {
           data-toggle="dropdown"
           aria-haspopup="true"
           aria-expanded="false"
-          onBlur={this.removeOpenClass.bind(this)}
-          >
+          onBlur={this.removeOpenClass.bind(this)}>
           {this.element.currentType}
           <span className="caret"></span>
         </button>
