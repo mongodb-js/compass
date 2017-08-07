@@ -14,6 +14,7 @@ const Decimal128 = bson.Decimal128;
 
 const chai = require('chai');
 const expect = chai.expect;
+const moment = require('moment');
 const Document = require('../lib/document');
 const Element = require('../lib/element');
 
@@ -785,6 +786,58 @@ describe('Element', function() {
   });
 
   describe('#edit', function() {
+    context('when the value is a date', function() {
+      var date = new Date('2014-12-01 12:00:00.000');
+      var element = new Element('val', date, false);
+
+      context('when editing to the same value', function() {
+        before(function() {
+          element.currentValue = moment(date).format(Element.DATE_FORMAT);
+          element.setValid();
+        });
+
+        it('does not flag the element as edited', function() {
+          expect(element.isEdited()).to.equal(false);
+        });
+      });
+
+      context('when editing to an invalid date', function() {
+        before(function() {
+          element.currentValue = 'i am not a date';
+        });
+
+        it('flags the element as edited', function() {
+          expect(element.isEdited()).to.equal(true);
+        });
+      });
+    });
+
+    context('when the value is an object id', function() {
+      var oid = new ObjectId();
+      var element = new Element('val', oid, false);
+
+      context('when editing to the same value', function() {
+        before(function() {
+          element.currentValue = oid.toString();
+          element.setValid();
+        });
+
+        it('does not flag the element as edited', function() {
+          expect(element.isEdited()).to.equal(false);
+        });
+      });
+
+      context('when editing to an invalid object id', function() {
+        before(function() {
+          element.currentValue = 'not a hex string';
+        });
+
+        it('flags the element as edited', function() {
+          expect(element.isEdited()).to.equal(true);
+        });
+      });
+    });
+
     context('when the value is an int32', function() {
       var element = new Element('val', new Int32(10), false);
 

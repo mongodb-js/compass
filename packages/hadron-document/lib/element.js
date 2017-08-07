@@ -5,11 +5,15 @@ const keys = require('lodash.keys');
 const isObject = require('lodash.isplainobject');
 const isArray = require('lodash.isarray');
 const isEqual = require('lodash.isequal');
+const isString = require('lodash.isstring');
 const includes = require('lodash.includes');
+const { ObjectId } = require('bson');
 const Iterator = require('./iterator');
 const ObjectGenerator = require('./object-generator');
 const TypeChecker = require('hadron-type-checker');
 const uuid = require('uuid');
+
+const DATE_FORMAT = 'YYYY-MM-DD HH:mm:ss.SSS';
 
 /**
  * The event constant.
@@ -300,9 +304,29 @@ class Element extends EventEmitter {
    */
   isEdited() {
     return (this.key !== this.currentKey ||
-        !isEqual(this.value, this.currentValue) ||
+        !this._valuesEqual() ||
         this.type !== this.currentType) &&
         !this.isAdded();
+  }
+
+  /**
+   * Check for value equality.
+   */
+  _valuesEqual() {
+    if (this.currentType === 'Date' && isString(this.currentValue)) {
+      return isEqual(this.value, new Date(this.currentValue));
+    } else if (this.currentType === 'ObjectID' && isString(this.currentValue)) {
+      return this._isObjectIdEqual();
+    }
+    return isEqual(this.value, this.currentValue);
+  }
+
+  _isObjectIdEqual() {
+    try {
+      return isEqual(this.value, ObjectId.createFromHexString(this.currentValue));
+    } catch (_) {
+      return false;
+    }
   }
 
   /**
@@ -699,3 +723,4 @@ class LinkedList {
 module.exports = Element;
 module.exports.LinkedList = LinkedList;
 module.exports.Events = Events;
+module.exports.DATE_FORMAT = DATE_FORMAT;
