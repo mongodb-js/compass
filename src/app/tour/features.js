@@ -56,6 +56,13 @@ module.exports = [
     initial: true
   },
   {
+    title: 'Deployment Awareness',
+    description: 'Compass is now aware of your deployment type, be it a standalone node, replica set or sharded cluster. To connect to a replica set, specify its name and read preference for automatic fail-over.',
+    image: 'deployment-awareness.png',
+    version: '1.8.1',
+    initial: false
+  },
+  {
     title: 'Documents Tab to the Front',
     description: 'The Documents and Schema tabs have switched places, with the Documents now the default view when you open a collection. The first 20 documents load immediately, giving you instant access to your data without delay.',
     image: 'documents-default.png',
@@ -80,13 +87,6 @@ module.exports = [
     title: 'Enhanced Index Creation',
     description: 'Indexes can now be created on fields that do not exist yet. This is useful when creating indexes on empty collections or if your schema is going to change.',
     image: 'index-type-dropdown.png',
-    version: '1.8.1',
-    initial: false
-  },
-  {
-    title: 'Deployment Awareness',
-    description: 'Compass is now aware of your deployment type, be it a standalone node, replica set or sharded cluster. To connect to a replica set, specify its name and read preference for automatic fail-over.',
-    image: 'deployment-awareness.png',
     version: '1.8.1',
     initial: false
   }
