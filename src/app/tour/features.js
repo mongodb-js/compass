@@ -54,5 +54,33 @@ module.exports = [
     image: 'validation.png',
     version: '1.5.0',
     initial: true
+  },
+  {
+    title: 'Documents Tab to the Front',
+    description: 'The Documents and Schema tabs have switched places, with the Documents now the default view when you open a collection. The first 20 documents load immediately, giving you instant access to your data without delay.',
+    image: 'documents-default.png',
+    version: '1.8.1',
+    initial: false
+  },
+  {
+    title: 'Schema Analysis and Explain Execution on Demand',
+    description: 'Schema Analysis and Explain Execution are expensive operations. Compass now only executes these operations when needed. Just click the green "Analyze" or "Explain" button to start the operation. You can also specify a query before executing the operation.',
+    image: 'schema-explain-on-demand.png',
+    version: '1.8.1',
+    initial: false
+  },
+  {
+    title: 'Improved Document Editing',
+    description: 'Document editing has become much easier: values are validated inline based on their types, and converting a field to another type is now more intuitive. Date parsing has become much more flexible, with many supported formats and defaults for missing information like the time.',
+    image: 'improved-crud.png',
+    version: '1.8.1',
+    initial: false
+  },
+  {
+    title: 'Enhanced Index Creation',
+    description: 'Indexes can now be created on fields that do not exist yet. This is useful when creating indexes on empty collections or if your schema is going to change.',
+    image: 'index-type-dropdown.png',
+    version: '1.8.1',
+    initial: false
   }
 ];
