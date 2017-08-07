@@ -4,6 +4,7 @@ const EventEmitter = require('events');
 const keys = require('lodash.keys');
 const isObject = require('lodash.isplainobject');
 const isArray = require('lodash.isarray');
+const isEqual = require('lodash.isequal');
 const includes = require('lodash.includes');
 const Iterator = require('./iterator');
 const ObjectGenerator = require('./object-generator');
@@ -299,7 +300,7 @@ class Element extends EventEmitter {
    */
   isEdited() {
     return (this.key !== this.currentKey ||
-        this.value !== this.currentValue ||
+        !isEqual(this.value, this.currentValue) ||
         this.type !== this.currentType) &&
         !this.isAdded();
   }

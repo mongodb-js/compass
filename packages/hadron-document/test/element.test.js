@@ -10,6 +10,7 @@ const Timestamp = bson.Timestamp;
 const Int32 = bson.Int32;
 const Long = bson.Long;
 const Double = bson.Double;
+const Decimal128 = bson.Decimal128;
 
 const chai = require('chai');
 const expect = chai.expect;
@@ -784,6 +785,62 @@ describe('Element', function() {
   });
 
   describe('#edit', function() {
+    context('when the value is an int32', function() {
+      var element = new Element('val', new Int32(10), false);
+
+      context('when editing to the same value', function() {
+        before(function() {
+          element.edit(new Int32(10));
+        });
+
+        it('does not flag the element as edited', function() {
+          expect(element.isEdited()).to.equal(false);
+        });
+      });
+    });
+
+    context('when the value is a double', function() {
+      var element = new Element('val', new Double(10.0), false);
+
+      context('when editing to the same value', function() {
+        before(function() {
+          element.edit(new Double(10.0));
+        });
+
+        it('does not flag the element as edited', function() {
+          expect(element.isEdited()).to.equal(false);
+        });
+      });
+    });
+
+    context('when the value is a long', function() {
+      var element = new Element('val', Long.fromNumber(10), false);
+
+      context('when editing to the same value', function() {
+        before(function() {
+          element.edit(Long.fromNumber(10.0));
+        });
+
+        it('does not flag the element as edited', function() {
+          expect(element.isEdited()).to.equal(false);
+        });
+      });
+    });
+
+    context('when the value is a decimal 128', function() {
+      var element = new Element('val', new Decimal128('10.0'), false);
+
+      context('when editing to the same value', function() {
+        before(function() {
+          element.edit(new Decimal128('10.0'));
+        });
+
+        it('does not flag the element as edited', function() {
+          expect(element.isEdited()).to.equal(false);
+        });
+      });
+    });
+
     context('when the element is a document', function() {
       var element = new Element('val', { test: 'value' }, false);
 
