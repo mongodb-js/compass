@@ -56,7 +56,7 @@ class ObjectIDEditor {
    */
   start() {
     if (this.element.isCurrentTypeValid()) {
-      this.edit(String(this.element.currentValue));
+      this.edit(this.element.currentValue.toHexString());
     }
   }
 
