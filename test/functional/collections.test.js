@@ -2,6 +2,8 @@ const Connection = require('mongodb-connection-model');
 const DataService = require('mongodb-data-service');
 const { launchCompass, quitCompass} = require('./support/spectron-support');
 
+const debug = require('debug')('mongodb-compass:functional:collections');
+
 /**
  * Global connection model for this test.
  */
@@ -14,6 +16,7 @@ describe('#collections', function() {
   let client = null;
 
   before(function() {
+    debug('1st before');
     return launchCompass().then(function(application) {
       app = application;
       client = application.client;
@@ -29,11 +32,15 @@ describe('#collections', function() {
     const dataService = new DataService(CONNECTION);
 
     before(function(done) {
+      debug('2nd before - pre dataService connect');
       dataService.connect(function() {
+        debug('2nd before - dataService connected');
         dataService.createCollection('music.artists', {}, function() {
+          debug('2nd before - collection created');
           return client
             .clickInstanceRefreshIcon()
             .waitForInstanceRefresh().then(function() {
+              debug('2nd before - done');
               done();
             });
         });
@@ -49,6 +56,7 @@ describe('#collections', function() {
 
     context('when viewing the database', function() {
       it('lists the collections in the database', function() {
+        debug('inside "lists the collections in the database"');
         return client
           .clickDatabaseInSidebar('music')
           .waitForDatabaseView()
