@@ -217,9 +217,9 @@ class App {
    */
   quit() {
     if (!this.app || !this.app.isRunning()) return Promise.resolve();
-    return this.app.stop().then(function() {
+    return this.app.stop().then(() => {
       assert.equal(this.app.isRunning(), false);
-    }).catch(function(err) {
+    }).catch((err) => {
       debug('Quitting Compass failed due to error: ', err);
     });
   }
