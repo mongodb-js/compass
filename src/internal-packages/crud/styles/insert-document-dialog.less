@@ -1,0 +1,116 @@
+.modal-body {
+  .document {
+    .document-elements {
+      width: 100%;
+
+      .editable-element-actions {
+        display: inline-block;
+        opacity: 0;
+        width: 18px;
+        line-height: 11px;
+        margin-right: 35px;
+        text-align: center;
+        cursor: pointer;
+        color: @gray3;
+      }
+
+      .editable-element-field {
+        max-width: 10vw;
+      }
+
+      .editable-element-value {
+        max-width: 20vw; 
+      }
+
+      .editable-element-is-added, .editable-expandable-element-header-is-added {
+        background-color: @pw;
+
+        input {
+          background-color: @pw;
+
+          &:focus {
+            background-color: @pw;
+          }
+        }
+
+        .line-number {
+          background-color: @pw;
+          color: @gray3;
+        }
+      }
+
+      .editable-element {
+
+        &:hover {
+          background-color: @gray8;
+
+          &::before {
+            background-color: @gray8;
+          }
+
+          input {
+            background-color: @gray8;
+
+            &:focus {
+              background-color: @pw;
+            }
+          }
+
+          .editable-element-actions {
+            opacity: 1;
+          }
+
+          .editable-element-types {
+            .btn {
+              background-color: @gray6;
+              color: @gray0;
+            }
+            .caret {
+              visibility: visible;
+            }
+
+            &-is-edited {
+              .btn {
+                color: #000000;
+                font-weight: bold;
+              }
+            }
+          }
+        }
+      }
+
+      .editable-expandable-element-header {
+
+        &:hover {
+          background-color: @gray8;
+
+          &::before {
+            background-color: @gray8;
+          }
+
+          input {
+            background-color: @gray8;
+
+            &:focus {
+              background-color: @pw;
+            }
+          }
+
+          .editable-element-actions {
+            opacity: 1;
+          }
+
+          .editable-element-types {
+            .btn {
+              background-color: @gray6;
+              color: @gray0;
+            }
+            .caret {
+              visibility: visible;
+            }
+          }
+        }
+      }
+    }
+  }
+}

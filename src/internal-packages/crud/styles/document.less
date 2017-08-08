@@ -1,0 +1,31 @@
+.document {
+  font-family: @font-family-monospace;
+  font-size: 11px;
+  list-style: none;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 100%;
+  padding-top: 20px;
+  padding-bottom: 20px;
+
+  &-elements {
+    position: relative;
+
+    .btn {
+      margin: 10px 0px 0px 22px;
+
+      i {
+        margin-right: 5px;
+      }
+    }
+  }
+
+  &-is-deleting {
+    box-shadow: 2px 5px 8px rgba(0, 0, 0, 0.2);
+    border: 1px solid @alertRed;
+  }
+
+  &-is-editing {
+    box-shadow: 2px 5px 8px rgba(0, 0, 0, 0.2);
+  }
+}

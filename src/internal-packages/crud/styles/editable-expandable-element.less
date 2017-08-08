@@ -1,0 +1,225 @@
+.editable-expandable-element {
+  width: 100%;
+  display: block;
+  font-size: 11px;
+
+  &-is-edited {
+    background-color: @alertOrangeBg;
+
+    .line-number {
+      background-color: @alertOrange;
+      color: @pw;
+
+      &-is-selected {
+        border: 1px solid @pw;
+        border-radius: 2px;
+      }
+    }
+
+    input {
+      background-color: @alertOrangeBg;
+    }
+
+    .editable-element-field {
+      background-color: @alertOrangeBg;
+
+      &:focus {
+        background-color: @pw;
+      }
+
+      &::before {
+        background-color: @alertOrangeBg;
+      }
+    }
+  }
+
+  &-is-added {
+    background-color: @greenBg;
+
+    .editable-element-field {
+      background-color: @greenBg;
+
+      &:focus {
+        background-color: @pw;
+      }
+    }
+
+    .line-number {
+      background-color: @green2;
+      color: @pw;
+
+      &-is-selected {
+        border: 1px solid @pw;
+        border-radius: 2px;
+      }
+    }
+
+    input {
+      background-color: @greenBg;
+    }
+  }
+
+  &-is-removed {
+    background-color: @alertRedBg;
+
+    .editable-element-field {
+      background-color: @alertRedBg;
+
+      &:focus {
+        background-color: @pw;
+      }
+    }
+
+    .line-number {
+      background-color: @alertRed;
+      color: @pw;
+
+      &-is-selected {
+        border: 1px solid @pw;
+        border-radius: 2px;
+      }
+    }
+
+    input {
+      background-color: @alertRedBg;
+    }
+  }
+
+  &-header {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    align-items: center;
+    cursor: pointer;
+
+    &-label {
+      display: inline-block;
+      flex-grow: 3;
+    }
+
+    &-is-editing {
+      
+      .line-number:focus {
+        outline: 0;
+        color: #494747;
+        font-weight: bold;
+        border: 1px solid #494747;
+        border-radius: 2px;
+
+        &:before {
+          content: '+';
+        }
+
+        &-is-selected {
+          &:before {
+            content: '-';
+          }
+        }
+      }
+
+      &:hover {
+        background-color: @gray8;
+
+        &::before {
+          background-color: @gray8;
+        }
+
+        .line-number {
+          color: #494747;
+          font-weight: bold;
+          border: 1px solid #494747;
+          border-radius: 2px;
+
+          &:before {
+            content: '+';
+          }
+
+          &-is-selected {
+            &:before {
+              content: '-';
+            }
+          }
+        }
+
+        input {
+          background-color: @gray8;
+
+          &:focus {
+            background-color: @pw;
+          }
+        }
+
+        .editable-element-actions {
+          opacity: 1;
+        }
+
+        .editable-element-types {
+          .btn {
+            background-color: @gray6;
+            color: @gray0;
+          }
+          .caret {
+            visibility: visible;
+          }
+          &-is-edited {
+            .btn {
+              color: #000000;
+              font-weight: bold;
+            }
+          }
+        }
+      }
+    }
+
+    &-is-edited {
+
+      &:hover {
+        .line-number {
+          color: @pw;
+          border: 1px solid @pw;
+
+          &-is-selected {
+            border: 1px solid @pw;
+          }
+        }
+      }
+    }
+
+    &-is-added {
+
+      &:hover {
+        .line-number {
+          color: @pw;
+          border: 1px solid @pw;
+
+          &-is-selected {
+            border: 1px solid @pw;
+          }
+        }
+      }
+    }
+
+    &-is-removed {
+
+      &:hover {
+        .line-number {
+          color: @pw;
+          border: 1px solid @pw;
+
+          &-is-selected {
+            border: 1px solid @pw;
+          }
+        }
+      }
+    }
+  }
+
+  &-children {
+    display: none;
+    padding-left: 0px;
+
+    &-is-expanded {
+      display: block;
+    }
+  }
+}
