@@ -196,7 +196,6 @@ class EditableValue extends React.Component {
    * Handle focus on the value.
    */
   handleFocus() {
-    console.log('handle focus');
     this.editor().start();
     this.setState({ editing: true });
   }
