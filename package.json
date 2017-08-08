@@ -131,7 +131,7 @@
   },
   "dependencies": {
     "@mongodb-js/compass-charts": "^0.2.3",
-    "@mongodb-js/compass-crud": "0.0.2",
+    "@mongodb-js/compass-crud": "0.0.3",
     "@mongodb-js/compass-deployment-awareness": "3.2.0",
     "@mongodb-js/compass-document-validation": "4.1.0",
     "@mongodb-js/compass-serverstats": "9.1.1",
