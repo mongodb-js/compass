@@ -74,7 +74,16 @@ class EditableValue extends React.Component {
    * @returns {Boolean} If the element can be focused automatically.
    */
   isAutoFocusable() {
-    return !this.element.isKeyEditable();
+    return !this.element.isKeyEditable() || this.isArrayValue();
+  }
+
+  /**
+   * Is the value a member of an array?
+   *
+   * @returns {Boolean} If the value is in an array.
+   */
+  isArrayValue() {
+    return this.element.parent.currentType === 'Array';
   }
 
   /**
@@ -187,6 +196,7 @@ class EditableValue extends React.Component {
    * Handle focus on the value.
    */
   handleFocus() {
+    console.log('handle focus');
     this.editor().start();
     this.setState({ editing: true });
   }
