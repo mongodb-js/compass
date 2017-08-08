@@ -15,43 +15,33 @@ describe('#collections', function() {
   let app = null;
   let client = null;
 
-  before(function() {
-    debug('1st before');
-    return launchCompass().then(function(application) {
-      app = application;
-      client = application.client;
-      client.connectToCompass({ hostname: 'localhost', port: 27018 });
+  const dataService = new DataService(CONNECTION);
+  before(function(done) {
+    dataService.connect(function() {
+      dataService.createCollection('music.artists', {}, function() {
+        done();
+      });
     });
   });
 
-  after(function() {
-    return quitCompass(app);
+  after(function(done) {
+    dataService.dropDatabase('music', function() {
+      dataService.disconnect();
+      done();
+    });
   });
 
   context('when creating & deleting collections', function() {
-    const dataService = new DataService(CONNECTION);
-
-    before(function(done) {
-      debug('2nd before - pre dataService connect');
-      dataService.connect(function() {
-        debug('2nd before - dataService connected');
-        dataService.createCollection('music.artists', {}, function() {
-          debug('2nd before - collection created');
-          return client
-            .clickInstanceRefreshIcon()
-            .waitForInstanceRefresh().then(function() {
-              debug('2nd before - done');
-              done();
-            });
-        });
+    before(function() {
+      return launchCompass().then(function(application) {
+        app = application;
+        client = application.client;
+        client.connectToCompass({ hostname: 'localhost', port: 27018 });
       });
     });
 
-    after(function(done) {
-      dataService.dropDatabase('music', function() {
-        dataService.disconnect();
-        done();
-      });
+    after(function() {
+      return quitCompass(app);
     });
 
     context('when viewing the database', function() {
