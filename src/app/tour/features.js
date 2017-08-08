@@ -57,7 +57,7 @@ module.exports = [
   },
   {
     title: 'Deployment Awareness',
-    description: 'Compass is now aware of your deployment type, be it a standalone node, replica set or sharded cluster. To connect to a replica set, specify its name and read preference for automatic fail-over.',
+    description: 'Compass is now aware of your deployment type, be it a standalone node, replica set or sharded cluster. To connect to a replica set, specify its name and read preference for automatic fail-over. This feature also supports MongoDB connection strings directly from your clipboard, for example for your Atlas cluster.',
     image: 'deployment-awareness.png',
     version: '1.8.1',
     initial: false
