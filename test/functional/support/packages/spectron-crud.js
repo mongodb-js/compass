@@ -1,6 +1,7 @@
 const _ = require('lodash');
 const { selector } = require('hadron-spectron');
 
+
 function addWaitCRUDCommands(client) {
   /**
    * Wait for the insert document modal to open.
@@ -356,5 +357,6 @@ function addCRUDCommands(client) {
   addGetCRUDCommands(client);
   addInputCRUDCommands(client);
 }
+
 
 module.exports = addCRUDCommands;
