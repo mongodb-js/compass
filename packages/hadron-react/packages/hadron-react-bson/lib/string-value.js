@@ -20,8 +20,8 @@ class StringValue extends React.Component {
   render() {
     return React.createElement(
       'div',
-      { className: `${ CLASS } ${ CLASS }-is-string`, title: this.props.value },
-      `\"${ truncate(this.props.value, 70) }\"`
+      { className: `${CLASS} ${CLASS}-is-string`, title: this.props.value },
+      `\"${truncate(this.props.value, 70)}\"`
     );
   }
 }

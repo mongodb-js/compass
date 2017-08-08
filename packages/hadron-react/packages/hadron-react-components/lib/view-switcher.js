@@ -14,7 +14,7 @@ class ViewSwitcher extends React.Component {
    * @return {React.Fragment}  array of buttons
    */
   buttonFactory() {
-    return this.props.buttonLabels.map(label => {
+    return this.props.buttonLabels.map((label, i) => {
       const active = this.props.activeButton === label;
       const dataTestId = `${this.props.dataTestId}-${label.toLowerCase().replace(/ /g, '-')}`;
       return React.createElement(
@@ -26,9 +26,17 @@ class ViewSwitcher extends React.Component {
           disabled: this.props.disabled,
           onClick: this.props.onClick.bind(this, label),
           bsSize: 'xsmall' },
+        this.renderIcon(i),
         label
       );
     });
+  }
+
+  renderIcon(i) {
+    console.log(this.props.iconClassNames);
+    if (this.props.iconClassNames[i]) {
+      return React.createElement('i', { className: this.props.iconClassNames[i], 'aria-hidden': true });
+    }
   }
 
   /**
@@ -61,7 +69,12 @@ ViewSwitcher.propTypes = {
   activeButton: PropTypes.string,
   disabled: PropTypes.bool,
   dataTestId: PropTypes.string,
-  onClick: PropTypes.func
+  onClick: PropTypes.func,
+  iconClassNames: PropTypes.arrayOf(PropTypes.string)
+};
+
+ViewSwitcher.defaultProps = {
+  iconClassNames: []
 };
 
 ViewSwitcher.displayName = 'ViewSwitcher';

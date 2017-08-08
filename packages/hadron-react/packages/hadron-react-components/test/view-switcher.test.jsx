@@ -1,3 +1,4 @@
+
 const React = require('react');
 const sinon = require('sinon');
 const chaiEnzyme = require('chai-enzyme');
@@ -38,6 +39,24 @@ describe('<ViewSwitcher />', () => {
 
     it('executes the onClick function', () => {
       expect(onClick.called).to.be.true;
+    });
+  });
+
+  context('when providing icon class names', () => {
+    const iconComponent = mount(
+      <ViewSwitcher
+        label="Edit Mode"
+        buttonLabels={[ 'Chart Builder', 'JSON Editor' ]}
+        iconClassNames={['list', 'table']}
+        activeButton='json-editor'
+        dataTestId="chart-view-switcher"
+        onClick={onClick}
+      />
+    );
+
+    it('adds an icon to the button', () => {
+      expect(iconComponent.find('i.list')).to.be.present();
+      expect(iconComponent.find('i.table')).to.be.present();
     });
   });
 });

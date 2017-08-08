@@ -18,7 +18,7 @@ organisation and publishing.
 Lerna must be installed as a global module to run everything locally:
 
 ```shell
-npm install --global lerna@prerelease
+npm install --global lerna
 ```
 
 ### Bootstrapping
