@@ -21,7 +21,6 @@ describe('#collections', function() {
       app = application;
       client = application.client;
       client.connectToCompass({ hostname: 'localhost', port: 27018 });
-
     });
   });
 
