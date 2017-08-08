@@ -1,7 +1,5 @@
 const { selector } = require('hadron-spectron');
 
-const debug = require('debug')('mongodb-compass:functional:spectron-sidebar');
-
 
 function addWaitSidebarCommands(client) {
   /**
@@ -17,10 +15,8 @@ function addWaitSidebarCommands(client) {
    * Wait for the instance refresh to finish.
    */
   client.addCommand('waitForInstanceRefresh', function() {
-    debug('2nd before - connection created - waitForInstanceRefresh');
     const button = selector('instance-refresh-button');
     const icon = `${button} i.fa-spin`;
-    debug('2nd before - connection created - selected button');
     return this.waitForVisibleInCompass(icon, true);
   });
 }
@@ -39,9 +35,7 @@ function addClickSidebarCommands(client) {
    * Click the instance refresh button in the top right corner of the sidebar.
    */
   client.addCommand('clickInstanceRefreshIcon', function() {
-    debug('2nd before - connection created - clickInstanceRefreshIcon');
     const button = selector('instance-refresh-button');
-    debug('2nd before - connection created - selected button');
     return this
       .waitForVisibleInCompass(button).click(button);
   });
