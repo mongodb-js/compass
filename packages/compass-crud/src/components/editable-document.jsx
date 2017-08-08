@@ -322,7 +322,7 @@ class EditableDocument extends React.Component {
    * Handles modification to the document.
    */
   handleModify() {
-    this.setState({});
+    this.forceUpdate();
   }
 
   /**

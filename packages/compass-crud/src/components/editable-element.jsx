@@ -161,7 +161,7 @@ class EditableElement extends React.Component {
    * Here to re-render the component when a change is made.
    */
   handleChange() {
-    this.setState({});
+    this.forceUpdate();
   }
 
   /**

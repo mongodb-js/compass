@@ -53,7 +53,7 @@ class InsertDocument extends React.Component {
    * Handle modifications to the document.
    */
   handleModify() {
-    this.setState({});
+    this.forceUpdate();
   }
 
   /**

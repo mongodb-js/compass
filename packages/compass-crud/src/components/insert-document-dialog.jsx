@@ -104,14 +104,14 @@ class InsertDocumentDialog extends React.Component {
 
   handleValid(uuid) {
     _.pull(this.invalidElements, uuid);
-    this.setState({});
+    this.forceUpdate();
     Actions.elementValid(uuid);
   }
 
   handleInvalid(uuid) {
     if (!_.includes(this.invalidElements, uuid)) {
       this.invalidElements.push(uuid);
-      this.setState({});
+      this.forceUpdate();
       Actions.elementInvalid(uuid);
     }
   }
