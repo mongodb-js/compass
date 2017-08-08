@@ -39,20 +39,8 @@
             "node_modules/@mongodb-js/compass-serverstats",
             "node_modules/@mongodb-js/compass-document-validation",
             "node_modules/@mongodb-js/compass-deployment-awareness",
+            "node_modules/@mongodb-js/compass-crud",
             "node_modules/@mongodb-js/compass-query-history"
-          ],
-          "styles": [
-            "index"
-          ]
-        },
-        "compass-enterprise": {
-          "name": "mongodb-compass-enterprise",
-          "productName": "MongoDB Compass Enterprise",
-          "plugins-directory": ".mongodb/compass-enterprise/plugins",
-          "packages": [
-            "node_modules/@mongodb-js/compass-serverstats",
-            "node_modules/@mongodb-js/compass-document-validation",
-            "node_modules/@mongodb-js/compass-deployment-awareness"
           ],
           "styles": [
             "index"
@@ -125,6 +113,7 @@
     "url": "git://github.com/10gen/compass.git"
   },
   "dependencies": {
+    "@mongodb-js/compass-crud": "0.0.5",
     "@mongodb-js/compass-deployment-awareness": "3.2.0",
     "@mongodb-js/compass-document-validation": "4.1.0",
     "@mongodb-js/compass-serverstats": "9.1.1",
