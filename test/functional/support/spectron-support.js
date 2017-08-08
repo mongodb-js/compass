@@ -4,6 +4,7 @@ const addChartsCommands = require('./packages/spectron-charts');
 const addCollectionCommands = require('./packages/spectron-collection');
 const addCollectionDDLCommands = require('./packages/spectron-collection-ddl');
 const addConnectCommands = require('./packages/spectron-connect');
+const addCRUDCommands = require('./packages/spectron-crud');
 const addDatabaseCommands = require('./packages/spectron-database');
 const addDatabaseDDLCommands = require('./packages/spectron-database-ddl');
 const addExplainCommands = require('./packages/spectron-explain');
@@ -32,6 +33,7 @@ function addCommands(client) {
   addCollectionCommands(client);
   addCollectionDDLCommands(client);
   addConnectCommands(client);
+  addCRUDCommands(client);
   addDatabaseCommands(client);
   addDatabaseDDLCommands(client);
   addExplainCommands(client);
