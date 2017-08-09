@@ -23,5 +23,7 @@ COMPASS_HOME=/path/to/my/compass npm run unlink-plugin
 
 Apache 2.0
 
-[travis_img]: https://travis-ci.com/10gen/compass-connect.svg?style=flat-square
+[travis_img]: https://travis-ci.com/10gen/compass-connect.svg?token=ezEB2TnpPiu7XLo6ByZp&branch=master
 [travis_url]: https://travis-ci.com/10gen/compass-connect
+[npm_img]: https://img.shields.io/npm/v/@mongodb-js/compass-connect.svg?style=flat-square
+[npm_url]: https://www.npmjs.org/package/@mongodb-js/compass-connect
