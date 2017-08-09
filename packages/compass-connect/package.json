@@ -69,5 +69,9 @@
     "sinon": "^1.17.6",
     "sinon-chai": "^2.8.0",
     "watch": "^1.0.2"
+  },
+  "dependencies": {
+    "mongodb-connection-model": "^9.2.0",
+    "storage-mixin": "^0.8.1"
   }
 }
