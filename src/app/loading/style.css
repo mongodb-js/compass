@@ -15,6 +15,7 @@ html, body {
   color: #333;
   font-weight: bold;
   -webkit-font-smoothing: antialiased;
+  margin: 0;
   position: relative;
 }
 
