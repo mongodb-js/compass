@@ -209,6 +209,7 @@ class Sidebar extends React.Component {
         <List
           width={width}
           height={height}
+          className="compass-sidebar-autosizer-list"
           overScanRowCount={OVER_SCAN_COUNT}
           rowCount={this.props.databases.length}
           rowHeight={this._calculateRowHeight.bind(this)}
