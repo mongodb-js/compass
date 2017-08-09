@@ -61,8 +61,8 @@ html, body {
 span {
   position: absolute;
   top: 50%;
-  width: 100%;
-  padding-left: 6px;
+  left: 50%;
+  margin-left: -26px;
   text-align: center;
   font-size: 11px;
   line-height: 1;
