@@ -56,17 +56,22 @@ class Document extends EventEmitter {
   }
 
   /**
+   * Get an element by its key.
+   *
+   * @returns {Element} The element.
+   */
+  get(key) {
+    return this.elements.get(key);
+  }
+
+  /**
    * Get the _id value for the document.
    *
    * @returns {Object} The id.
    */
   getId() {
-    for (let element of this.elements) {
-      if (element.currentKey === ID) {
-        return element.generateObject();
-      }
-    }
-    return null;
+    const element = this.get(ID);
+    return element ? element.generateObject() : null;
   }
 
   /**

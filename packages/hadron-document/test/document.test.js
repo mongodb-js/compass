@@ -6,6 +6,54 @@ const Document = require('../lib/document');
 const SharedExamples = require('./shared-examples');
 
 describe('Document', function() {
+  describe('#get', function() {
+    context('when the element exists for the key', function() {
+      var doc = new Document({ name: 'test' });
+
+      it('returns the element', function() {
+        expect(doc.get('name').currentValue).to.equal('test');
+      });
+    });
+
+    context('when the element is deleted', function() {
+      var doc = new Document({});
+      var element = doc.insertEnd('name', 'test');
+
+      before(function() {
+        element.remove();
+      });
+
+      it('returns undefined', function() {
+        expect(doc.get('test')).to.equal(undefined);
+      });
+    });
+
+    context('when the element field is changed', function() {
+      var doc = new Document({ name: 'test' });
+      var element = doc.elements.at(0);
+
+      before(function() {
+        element.rename('testing');
+      });
+
+      it('returns undefined for the new key', function() {
+        expect(doc.get('testing')).to.equal(undefined);
+      });
+
+      it('returns the element for the original key', function() {
+        expect(doc.get('name')).to.equal(element);
+      });
+    });
+
+    context('when the element does not exist for the key', function() {
+      var doc = new Document({ name: 'test' });
+
+      it('returns undefined', function() {
+        expect(doc.get('test')).to.equal(undefined);
+      });
+    });
+  });
+
   describe('.insertEnd', function() {
     context('when the new element is a primitive value', function() {
       var doc = new Document({});

@@ -19,6 +19,62 @@ const Document = require('../lib/document');
 const Element = require('../lib/element');
 
 describe('Element', function() {
+  describe('#get', function() {
+    context('when the element is not expandable', function() {
+      var element = new Element('name', 'test');
+
+      it('returns undefined', function() {
+        expect(element.get('name')).to.equal(undefined);
+      });
+    });
+
+    context('when the element exists for the key', function() {
+      var element = new Element('key', { name: 'test' });
+
+      it('returns the element', function() {
+        expect(element.get('name').currentValue).to.equal('test');
+      });
+    });
+
+    context('when the element is deleted', function() {
+      var element = new Element('key', {});
+      var child = element.insertEnd('name', 'test');
+
+      before(function() {
+        child.remove();
+      });
+
+      it('returns undefined', function() {
+        expect(element.get('test')).to.equal(undefined);
+      });
+    });
+
+    context('when the element field is changed', function() {
+      var element = new Element('key', { name: 'test' });
+      var child = element.elements.at(0);
+
+      before(function() {
+        child.rename('testing');
+      });
+
+      it('returns undefined for the new key', function() {
+        expect(element.get('testing')).to.equal(undefined);
+      });
+
+      it('returns the element for the original key', function() {
+        expect(element.get('name')).to.equal(child);
+      });
+    });
+
+    context('when the element does not exist for the key', function() {
+      var element = new Element('key', { name: 'test' });
+
+      it('returns undefined', function() {
+        expect(element.get('test')).to.equal(undefined);
+      });
+    });
+  });
+
   describe('#cancel', function() {
     context('when the element is invalid', function() {
       var doc = new Document({});

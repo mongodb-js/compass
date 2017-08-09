@@ -149,6 +149,15 @@ class Element extends EventEmitter {
   }
 
   /**
+   * Get an element by its key.
+   *
+   * @returns {Element} The element.
+   */
+  get(key) {
+    return this.elements ? this.elements.get(key) : undefined;
+  }
+
+  /**
    * Go to the next edit.
    *
    * Will check if the value is either { or [ and take appropriate action.
@@ -594,6 +603,10 @@ class LinkedList {
     return element;
   }
 
+  get(key) {
+    return this._map[key];
+  }
+
   /**
    * Instantiate the new doubly linked list.
    */
@@ -601,6 +614,7 @@ class LinkedList {
     this.firstElement = null;
     this.lastElement = null;
     this.size = 0;
+    this._map = {};
   }
 
   /**
@@ -622,6 +636,7 @@ class LinkedList {
       this.lastElement = newElement;
     }
     element.nextElement = newElement;
+    this._map[newElement.key] = newElement;
     this.size += 1;
     return newElement;
   }
@@ -645,6 +660,7 @@ class LinkedList {
       this.firstElement = newElement;
     }
     element.previousElement = newElement;
+    this._map[newElement.key] = newElement;
     this.size += 1;
     return newElement;
   }
@@ -664,9 +680,12 @@ class LinkedList {
       var element = new Element(key, value, added, parent, null, null);
       this.firstElement = this.lastElement = element;
       this.size += 1;
+      this._map[element.key] = element;
       return element;
     }
-    return this.insertBefore(this.firstElement, key, value, added, parent);
+    const newElement = this.insertBefore(this.firstElement, key, value, added, parent);
+    this._map[newElement.key] = newElement;
+    return newElement;
   }
 
   /**
@@ -714,6 +733,7 @@ class LinkedList {
       this.lastElement = element.previousElement;
     }
     element.nextElement = element.previousElement = null;
+    delete this._map[element.currentKey];
     this.size -= 1;
     return this;
   }
