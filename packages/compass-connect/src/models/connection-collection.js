@@ -10,7 +10,7 @@ const ConnectionCollection = Collection.extend(storageMixin, {
     backend: 'splice',
     appName: electronApp.getName()
   },
-  mainIndex: '_id',
+  mainIndex: '_id'
 });
 
 module.exports = ConnectionCollection;

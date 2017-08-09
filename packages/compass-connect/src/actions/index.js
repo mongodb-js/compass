@@ -1,10 +1,10 @@
 const Reflux = require('reflux');
 
-const MongodbJsCompassConnectActions = Reflux.createActions([
+const ConnectActions = Reflux.createActions([
   /**
    * define your actions as strings below, for example:
    */
   'toggleStatus'
 ]);
 
-module.exports = MongodbJsCompassConnectActions;
+module.exports = ConnectActions;
