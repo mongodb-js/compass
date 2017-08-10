@@ -1,4 +1,4 @@
-@import './sidebar-collection.less';  
+@import './sidebar-collection.less';
 @import './sidebar-database.less';
 @import './sidebar-instance-properties.less';
 
@@ -228,4 +228,9 @@
   .compass-sidebar-button-create-database:hover text {
     opacity: 0;
   }
+}
+
+// Disable the blue (macOS) or orange (RedHat/Ubuntu/Windows) focus outline
+.compass-sidebar-autosizer-list:focus {
+  outline: 0;
 }
