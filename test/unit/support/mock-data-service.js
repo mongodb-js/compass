@@ -65,7 +65,7 @@ function callbackWrapper(cb, err, res) {
 const mockDataService = function(errors, results) {
   errors = errors || {};
   results = results || {};
-  const dataService = new DataService();
+  const dataService = new DataService({});
   // extract all method names from real data-service
   const methodNames = Object.getOwnPropertyNames(Object.getPrototypeOf(dataService));
   // create new object with all methods, but mock spy functions that return
