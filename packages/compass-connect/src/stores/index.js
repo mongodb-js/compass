@@ -8,8 +8,14 @@ const ConnectStore = Reflux.createStore({
 
   listenables: Actions,
 
-  changeUsername() {
+  onHostnameChanged(hostname) {
+    this.state.currentConnection.hostname = hostname;
+    this.trigger(this.state);
+  },
 
+  onPortChanged(port) {
+    this.state.currentConnection.port = port;
+    this.trigger(this.state);
   },
 
   getInitialState() {
