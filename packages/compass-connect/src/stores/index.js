@@ -1,5 +1,6 @@
 const Reflux = require('reflux');
 const Actions = require('../actions');
+const Connection = require('../models/connection');
 const StateMixin = require('reflux-state-mixin');
 
 const ConnectStore = Reflux.createStore({
@@ -13,7 +14,7 @@ const ConnectStore = Reflux.createStore({
 
   getInitialState() {
     return {
-      currentConnection: null,
+      currentConnection: new Connection(),
       connections: []
     };
   }

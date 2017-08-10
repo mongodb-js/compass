@@ -1,5 +1,5 @@
 const { expect } = require('chai');
-const Connection = require('../../lib/models/connection');
+const Connection = require('../../../lib/models/connection');
 
 describe('Connection', () => {
   describe('#new', () => {
