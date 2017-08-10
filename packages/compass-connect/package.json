@@ -35,8 +35,8 @@
     "@kadira/react-storybook-addon-info": "^3.2.1",
     "@kadira/storybook": "^2.3.0",
     "babel-cli": "^6.10.1",
-    "babel-preset-react": "^6.11.1",
     "babel-plugin-transform-class-properties": "^6.24.1",
+    "babel-preset-react": "^6.11.1",
     "babel-register": "^6.9.0",
     "bootstrap": "https://github.com/twbs/bootstrap/archive/v3.3.5.tar.gz",
     "chai": "^3.5.0",
@@ -68,6 +68,7 @@
     "reflux-state-mixin": "^0.7.0",
     "sinon": "^1.17.6",
     "sinon-chai": "^2.8.0",
+    "uuid": "^3.1.0",
     "watch": "^1.0.2"
   },
   "dependencies": {
