@@ -190,7 +190,7 @@
     "moment": "^2.10.6",
     "mongodb-collection-model": "^0.4.0",
     "mongodb-connection-model": "^9.0.0",
-    "mongodb-data-service": "^7.0.0",
+    "mongodb-data-service": "7.0.0",
     "mongodb-database-model": "^0.1.2",
     "mongodb-explain-plan-model": "^0.2.2",
     "mongodb-extended-json": "^1.10.0",
