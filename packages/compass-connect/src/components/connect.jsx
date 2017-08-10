@@ -1,7 +1,16 @@
 const React = require('react');
+const Actions = require('../actions');
 const FormItem = require('./form-item');
 
 class Connect extends React.Component {
+
+  onHostnameChanged(evt) {
+    Actions.onHostnameChanged(evt.target.value);
+  }
+
+  onPortChanged(evt) {
+    Actions.onPortChanged(evt.target.value);
+  }
 
   render() {
     return (
@@ -15,8 +24,16 @@ class Connect extends React.Component {
           </header>
           <form data-test-id="connect-form">
             <div id="host-port" className="form-group">
-              <FormItem label="Hostname" name="hostname" placeholder="localhost" />
-              <FormItem label="Port" name="port" placeholder="27017" />
+              <FormItem
+                label="Hostname"
+                name="hostname"
+                placeholder="localhost"
+                changeHandler={this.onHostnameChanged.bind(this)} />
+              <FormItem
+                label="Port"
+                name="port"
+                placeholder="27017"
+                changeHandler={this.onPortChanged.bind(this)} />
             </div>
           </form>
         </div>
