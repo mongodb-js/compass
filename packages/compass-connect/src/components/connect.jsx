@@ -3,7 +3,14 @@ const React = require('react');
 class Connect extends React.Component {
 
   render() {
-    return (<div></div>);
+    return (
+      <div className="page connect">
+        <div>
+          <div className="sidebar panel"></div>
+        </div>
+        <div className="form-container"></div>
+      </div>
+    );
   }
 }
 
