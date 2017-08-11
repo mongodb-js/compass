@@ -9,22 +9,28 @@
 }
 
 html, body {
-  height: 100%;
-  width: 100%;
   font-family: "Akzidenz", "Helvetica Neue", Helvetica, Arial, sans-serif;
   color: #333;
   font-weight: bold;
   -webkit-font-smoothing: antialiased;
+  margin: 0;
   position: relative;
+}
+
+.loading-animation {
+  align-items: center;
+  display: flex;
+  height: 100vh;
+  justify-content: center;
+  width: 100vw;
 }
 
 .sq {
   background: #43B1E5;
   position: absolute;
-  top: 50%;
-  left: 50%;
   height: 12px;
   width: 12px;
+  /* So animation does not overlap with loading text */
   margin-top: -36px;
 }
 
@@ -58,14 +64,9 @@ html, body {
 }
 
 span {
-  position: absolute;
-  top: 50%;
-  width: 100%;
-  padding-left: 6px;
   text-align: center;
   font-size: 11px;
   line-height: 1;
   text-transform: uppercase;
-  text-align: center;
-  -moz-osx-font-smoothing: grayscale;
+  width: 100%;
 }
