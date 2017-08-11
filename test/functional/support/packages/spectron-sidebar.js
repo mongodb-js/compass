@@ -32,15 +32,6 @@ function addClickSidebarCommands(client) {
   });
 
   /**
-   * Click the instance refresh button in the top right corner of the sidebar.
-   */
-  client.addCommand('clickInstanceRefreshIcon', function() {
-    const button = selector('instance-refresh-button');
-    return this
-      .waitForVisibleInCompass(button).click(button);
-  });
-
-  /**
    * Click on a collection in the sidebar.
    *
    * @param {String} name - The full collection name.

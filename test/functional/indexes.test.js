@@ -13,42 +13,40 @@ describe('#indexes', function() {
   let app = null;
   let client = null;
   let serverVersion;
+  const dataService = new DataService(CONNECTION);
 
-  before(function() {
-    return launchCompass()
-      .then(function(application) {
-        app = application;
-        client = application.client;
-        return client.connectToCompass({ hostname: 'localhost', port: 27018 });
+  before(function(done) {
+    const doc = {'name': 'Aphex Twin', 'genre': 'Electronic', 'location': 'London'};
+    dataService.connect(function() {
+      dataService.insertOne('music.artists', doc, function() {
+        done();
       });
+    });
   });
 
-  after(function() {
-    return quitCompass(app);
+  after(function(done) {
+    dataService.dropDatabase('music', function() {
+      dataService.disconnect();
+      done();
+    });
   });
 
   context('when navigating to the indexes tab', function() {
-    const dataService = new DataService(CONNECTION);
-
-    before(function(done) {
-      const doc = {'name': 'Aphex Twin', 'genre': 'Electronic', 'location': 'London'};
-      dataService.connect(function() {
-        dataService.insertOne('music.artists', doc, function() {
-          return client
+    before(function() {
+      return launchCompass()
+        .then(function(application) {
+          app = application;
+          client = application.client;
+          return client.connectToCompass({ hostname: 'localhost', port: 27018 })
             .goToCollection('music', 'artists')
             .getServerVersion().then(function(value) {
               serverVersion = value.replace(/MongoDB ([0-9.]+) Community/, '$1');
-              done();
             });
         });
-      });
     });
 
-    after(function(done) {
-      dataService.dropDatabase('music', function() {
-        dataService.disconnect();
-        done();
-      });
+    after(function() {
+      return quitCompass(app);
     });
 
     it('renders the indexes table', function() {

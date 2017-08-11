@@ -12,43 +12,42 @@ describe('#sidebar', function() {
   this.timeout(60000);
   let app = null;
   let client = null;
+  const dataService = new DataService(CONNECTION);
 
-  before(function() {
-    return launchCompass()
-      .then(function(application) {
-        app = application;
-        client = application.client;
-        return client.connectToCompass({ hostname: 'localhost', port: 27018 });
+  before(function(done) {
+    dataService.connect(function() {
+      dataService.createCollection('music.artists', {}, function() {
+        done();
       });
+    });
   });
 
-  after(function() {
-    return quitCompass(app);
+  after(function(done) {
+    dataService.dropDatabase('music', function() {
+      dataService.disconnect();
+      done();
+    });
   });
 
   context('when entering filters in the sidebar', function() {
-    const dataService = new DataService(CONNECTION);
     let dbCount;
 
-    before(function(done) {
-      dataService.connect(function() {
-        dataService.createCollection('music.artists', {}, function() {
+    before(function() {
+      return launchCompass()
+        .then(function(application) {
+          app = application;
+          client = application.client;
           return client
-            .clickInstanceRefreshIcon()
-            .waitForInstanceRefresh()
-            .getSidebarDatabaseNames().then(function(names) {
+            .connectToCompass({ hostname: 'localhost', port: 27018 })
+            .getSidebarDatabaseNames()
+            .then(function(names) {
               dbCount = names.length;
-              done();
             });
         });
-      });
     });
 
-    after(function(done) {
-      dataService.dropDatabase('music', function() {
-        dataService.disconnect();
-        done();
-      });
+    after(function() {
+      return quitCompass(app);
     });
 
     context('when entering a plain string', function() {
