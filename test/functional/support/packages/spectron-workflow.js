@@ -37,8 +37,6 @@ function addWorkflowCommands(client) {
    */
   client.addCommand('goToCollection', function(database, collection) {
     return this
-      .clickInstanceRefreshIcon()
-      .waitForInstanceRefresh()
       .clickDatabaseInSidebar(database)
       .waitForSidebar('collection')
       .clickCollectionInSidebar(`${database}.${collection}`)
