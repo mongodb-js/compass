@@ -13,42 +13,42 @@ describe('#schema', function() {
   let app = null;
   let client = null;
 
-  before(function() {
-    return launchCompass()
-      .then(function(application) {
-        app = application;
-        client = application.client;
-        return client.connectToCompass({ hostname: 'localhost', port: 27018 });
+  const dataService = new DataService(CONNECTION);
+
+  before(function(done) {
+    const doc = {'name': 'Aphex Twin', 'genre': 'Electronic', 'location': 'London'};
+    dataService.connect(function() {
+      dataService.insertOne('music.artists', doc, function() {
+        done();
       });
+    });
   });
 
-  after(function() {
-    return quitCompass(app);
+  after(function(done) {
+    dataService.dropDatabase('music', function() {
+      dataService.disconnect();
+      done();
+    });
   });
 
   context('when applying a filter in the schema tab', function() {
     const filter = '{"name":"Bonobo"}';
     const expectedOneDoc = 'Query returned 1 document. This report is based on a sample of 1 document (100.00%).';
     const expectedZeroDoc = 'Query returned 0 documents. This report is based on a sample of 0 documents (0.00%).';
-    const dataService = new DataService(CONNECTION);
 
-    before(function(done) {
-      const doc = {'name': 'Aphex Twin', 'genre': 'Electronic', 'location': 'London'};
-      dataService.connect(function() {
-        dataService.insertOne('music.artists', doc, function() {
+    before(function() {
+      return launchCompass()
+        .then(function(application) {
+          app = application;
+          client = application.client;
           return client
-          .goToCollection('music', 'artists').then(function() {
-            done();
-          });
+            .connectToCompass({ hostname: 'localhost', port: 27018 })
+            .goToCollection('music', 'artists');
         });
-      });
     });
 
-    after(function(done) {
-      dataService.dropDatabase('music', function() {
-        dataService.disconnect();
-        done();
-      });
+    after(function() {
+      return quitCompass(app);
     });
 
     it('shows schema view', function() {

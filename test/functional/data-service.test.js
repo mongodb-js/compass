@@ -12,43 +12,41 @@ describe('#data-service', function() {
   this.timeout(60000);
   let app = null;
   let client = null;
+  const dataService = new DataService(CONNECTION);
 
-  before(function() {
-    return launchCompass()
-      .then(function(application) {
-        app = application;
-        client = application.client;
-        return client.connectToCompass({ hostname: 'localhost', port: 27018 });
+  before(function(done) {
+    dataService.connect(function() {
+      const docs = [
+        {'name': 'Aphex Twin', 'genre': 'Electronic', 'location': 'London'},
+        { name: 'Bauhaus' }
+      ];
+      dataService.insertMany('music.artists', docs, {}, function() {
+        done();
       });
+    });
   });
 
-  after(function() {
-    return quitCompass(app);
+  after(function(done) {
+    dataService.dropDatabase('music', function() {
+      dataService.disconnect();
+      done();
+    });
   });
 
   context('when using data-service directly', function() {
-    const dataService = new DataService(CONNECTION);
-
-    before(function(done) {
-      dataService.connect(function() {
-        const docs = [
-          {'name': 'Aphex Twin', 'genre': 'Electronic', 'location': 'London'},
-          { name: 'Bauhaus' }
-        ];
-        dataService.insertMany('music.artists', docs, {}, function() {
+    before(function() {
+      return launchCompass()
+        .then(function(application) {
+          app = application;
+          client = application.client;
           return client
-            .goToCollection('music', 'artists').then(function() {
-              done();
-            });
+            .connectToCompass({ hostname: 'localhost', port: 27018 })
+            .goToCollection('music', 'artists');
         });
-      });
     });
 
-    after(function(done) {
-      dataService.dropDatabase('music', function() {
-        dataService.disconnect();
-        done();
-      });
+    after(function() {
+      return quitCompass(app);
     });
 
     context('when refreshing the documents list', function() {

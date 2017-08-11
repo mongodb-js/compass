@@ -15,40 +15,38 @@ describe('#query-bar', function() {
   this.timeout(60000);
   let app = null;
   let client = null;
+  const dataService = new DataService(CONNECTION);
 
-  before(function() {
-    return launchCompass()
-      .then(function(application) {
-        app = application;
-        client = application.client;
-        return client.connectToCompass({ hostname: 'localhost', port: 27018 });
+  before(function(done) {
+    dataService.connect(function() {
+      const docs = _.map(_.range(100), mgenerate.bind(null, fanclubTemplate));
+      dataService.insertMany('mongodb.fanclub', docs, {}, function() {
+        done();
       });
+    });
   });
 
-  after(function() {
-    return quitCompass(app);
+  after(function(done) {
+    dataService.dropDatabase('mongodb', function() {
+      dataService.disconnect();
+      done();
+    });
   });
 
   context('when using advanced query options', function() {
-    const dataService = new DataService(CONNECTION);
-
-    before(function(done) {
-      dataService.connect(function() {
-        const docs = _.map(_.range(100), mgenerate.bind(null, fanclubTemplate));
-        dataService.insertMany('mongodb.fanclub', docs, {}, function() {
+    before(function() {
+      return launchCompass()
+        .then(function(application) {
+          app = application;
+          client = application.client;
           return client
-            .goToCollection('mongodb', 'fanclub').then(function() {
-              done();
-            });
+            .connectToCompass({ hostname: 'localhost', port: 27018 })
+            .goToCollection('mongodb', 'fanclub');
         });
-      });
     });
 
-    after(function(done) {
-      dataService.dropDatabase('mongodb', function() {
-        dataService.disconnect();
-        done();
-      });
+    after(function() {
+      return quitCompass(app);
     });
 
     context('when using the fanclub collection with 100 docs', function() {
