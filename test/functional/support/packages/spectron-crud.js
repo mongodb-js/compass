@@ -175,7 +175,7 @@ function addGetCRUDCommands(client) {
    */
   client.addCommand('getSamplingMessageFromDocumentsTab', function() {
     const base = selector('documents-content');
-    const div = `${base} .sampling-message`;
+    const div = `${base} .document-list-action-bar-message`;
     return this.waitForVisibleInCompass(div).getText(div);
   });
 
