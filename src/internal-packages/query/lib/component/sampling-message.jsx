@@ -1,7 +1,6 @@
 const React = require('react');
 const PropTypes = require('prop-types');
 const app = require('hadron-app');
-const { AnimatedIconTextButton } = require('hadron-react-buttons');
 const { InfoSprinkle } = require('hadron-react-components');
 const { shell } = require('electron');
 const numeral = require('numeral');
@@ -29,7 +28,6 @@ class SamplingMessage extends React.Component {
     super(props);
     const crudActions = app.appRegistry.getAction('CRUD.Actions');
     this.state = { count: 0, loaded: 0 };
-    this.TextWriteButton = app.appRegistry.getComponent('DeploymentAwareness.TextWriteButton');
     this.resetDocumentListStore = app.appRegistry.getStore('CRUD.ResetDocumentListStore');
     this.insertDocumentStore = app.appRegistry.getStore('CRUD.InsertDocumentStore');
     this.documentRemovedAction = crudActions.documentRemoved;
@@ -144,52 +142,11 @@ class SamplingMessage extends React.Component {
   }
 
   /**
-   * If we are on the documents tab, just display the count and insert button.
-   *
-   * @returns {React.Component} The count message.
-   */
-  renderQueryMessage() {
-    const noun = pluralize('document', this.state.count);
-    return (
-      <div>
-        <div className="sampling-message">
-          Query returned&nbsp;<b>{this.state.count}</b>&nbsp;{noun}.&nbsp;
-          {this._loadedMessage()}
-          <InfoSprinkle
-            helpLink={HELP_URLS.DOCUMENTS}
-            onClickHandler={shell.openExternal}
-          />
-          <AnimatedIconTextButton
-            clickHandler={this.handleRefreshDocuments.bind(this)}
-            stopAnimationListenable={this.resetDocumentListStore}
-            dataTestId="refresh-documents-button"
-            className="btn btn-default btn-xs sampling-message-refresh-documents"
-            iconClassName="fa fa-repeat"
-            animatingIconClassName="fa fa-refresh fa-spin"
-            text="&nbsp;Refresh" />
-        </div>
-        <div className="action-bar">
-          <this.TextWriteButton
-            className="btn btn-primary btn-xs open-insert"
-            dataTestId="open-insert-document-modal-button"
-            isCollectionLevel
-            text="Insert Document"
-            tooltipId="document-is-not-writable"
-            clickHandler={this.props.insertHandler} />
-        </div>
-      </div>
-    );
-  }
-
-  /**
    * Render the sampling message.
    *
    * @returns {React.Component} The document list.
    */
   render() {
-    if (this.props.insertHandler) {
-      return this.renderQueryMessage();
-    }
     return this.renderSamplingMessage();
   }
 }
