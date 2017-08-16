@@ -48,6 +48,11 @@ const ConnectStore = Reflux.createStore({
     this.trigger(this.state);
   },
 
+  onSSLMethodChanged(method) {
+    this.state.currentConnection.ssl = method;
+    this.trigger(this.state);
+  },
+
   getInitialState() {
     return {
       currentConnection: new Connection(),

@@ -3,6 +3,7 @@ const PropTypes = require('prop-types');
 const AuthenticationSection = require('./authentication-section');
 const HostPortSection = require('./host-port-section');
 const ReplicaSetNameReadPreferenceSection = require('./replica-set-name-read-preference-section');
+const SSLSection = require('./ssl-section');
 
 class Connect extends React.Component {
 
@@ -23,6 +24,7 @@ class Connect extends React.Component {
             <hr />
             <ReplicaSetNameReadPreferenceSection {...this.props} />
             <hr />
+            <SSLSection {...this.props} />
           </form>
         </div>
       </div>

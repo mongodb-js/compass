@@ -8,7 +8,8 @@ const ConnectActions = Reflux.createActions([
   'onAuthenticationMethodChanged',
   'onUsernameChanged',
   'onPasswordChanged',
-  'onAuthSourceChanged'
+  'onAuthSourceChanged',
+  'onSSLMethodChanged'
 ]);
 
 module.exports = ConnectActions;

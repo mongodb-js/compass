@@ -57,6 +57,17 @@ describe('IndexStore', () => {
     });
   });
 
+  describe('#onSSLMethodChanged', () => {
+    it('updates the ssl method in the current connection model', (done) => {
+      const unsubscribe = IndexStore.listen((state) => {
+        expect(state.currentConnection.ssl).to.equal('SYSTEMCA');
+        unsubscribe();
+        done();
+      });
+      Actions.onSSLMethodChanged('SYSTEMCA');
+    });
+  });
+
   describe('#onAuthenticationMethodChanged', () => {
     it('updates the authentication method in the current connection model', (done) => {
       const unsubscribe = IndexStore.listen((state) => {
