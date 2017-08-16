@@ -54,6 +54,7 @@ const DOUBLE = 'Double';
 const DECIMAL_128 = 'Decimal128';
 const OBJECT_TYPE = '[object Object]';
 const EMPTY = '';
+const OBJECT_ID = 'ObjectID';
 
 /**
  * The bson type field.
@@ -221,7 +222,7 @@ const CASTERS = {
   'MinKey': toMinKey,
   'Null': toNull,
   'Object': toObject,
-  'ObjectID': toObjectID,
+  'ObjectId': toObjectID,
   'BSONRegexp': toRegex,
   'String': toString,
   'Symbol': toSymbol,
@@ -321,6 +322,9 @@ class TypeChecker {
     if (has(object, BSON_TYPE)) {
       if (object._bsontype === LONG) {
         return INT_64;
+      }
+      if (object._bsontype === OBJECT_ID) {
+        return 'ObjectId';
       }
       return object._bsontype;
     }

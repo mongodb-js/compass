@@ -35,11 +35,11 @@ describe('TypeChecker', function() {
           });
         });
 
-        context('when casting to ObjectID', function() {
+        context('when casting to ObjectId', function() {
           var value = '';
 
           it('returns a new ObjectId()', function() {
-            expect(TypeChecker.cast(value, 'ObjectID')).to.be.an.instanceof(bson.ObjectId);
+            expect(TypeChecker.cast(value, 'ObjectId')).to.be.an.instanceof(bson.ObjectId);
           });
         });
       });
@@ -171,12 +171,12 @@ describe('TypeChecker', function() {
       });
 
       context('when the string is a 12-byte hex string', function() {
-        context('when casting to an ObjectID', function() {
+        context('when casting to an ObjectId', function() {
           var value = '58cbf2318ecfb65b8cee6556';
           var oid = new ObjectId(value);
 
-          it('returns a new ObjectID', function() {
-            expect(TypeChecker.cast(value, 'ObjectID')).to.deep.equal(oid);
+          it('returns a new ObjectId', function() {
+            expect(TypeChecker.cast(value, 'ObjectId')).to.deep.equal(oid);
           });
         });
 
@@ -199,7 +199,7 @@ describe('TypeChecker', function() {
 
       context('when casting to an object id', function() {
         it('returns a new ObjectId()', function() {
-          expect(TypeChecker.cast(2.45, 'ObjectID')).to.be.an.instanceof(bson.ObjectId);
+          expect(TypeChecker.cast(2.45, 'ObjectId')).to.be.an.instanceof(bson.ObjectId);
         });
       });
     });
@@ -466,8 +466,8 @@ describe('TypeChecker', function() {
     context('when the object is an object id', function() {
       var objectId = new ObjectId();
 
-      it('returns ObjectID', function() {
-        expect(TypeChecker.type(objectId)).to.equal('ObjectID');
+      it('returns ObjectId', function() {
+        expect(TypeChecker.type(objectId)).to.equal('ObjectId');
       });
     });
 
@@ -562,7 +562,7 @@ describe('TypeChecker', function() {
     context('when the object is a min key', function() {
       var minKey = new MinKey();
 
-      it('returns ObjectID', function() {
+      it('returns ObjectId', function() {
         expect(TypeChecker.type(minKey)).to.equal('MinKey');
       });
     });
@@ -570,7 +570,7 @@ describe('TypeChecker', function() {
     context('when the object is a max key', function() {
       var maxKey = new MaxKey();
 
-      it('returns ObjectID', function() {
+      it('returns ObjectId', function() {
         expect(TypeChecker.type(maxKey)).to.equal('MaxKey');
       });
     });
@@ -605,7 +605,7 @@ describe('TypeChecker', function() {
           'MinKey',
           'Null',
           'Object',
-          'ObjectID',
+          'ObjectId',
           'BSONRegexp',
           'String',
           'Symbol',
@@ -630,7 +630,7 @@ describe('TypeChecker', function() {
           'MinKey',
           'Null',
           'Object',
-          'ObjectID',
+          'ObjectId',
           'BSONRegexp',
           'String',
           'Symbol',
