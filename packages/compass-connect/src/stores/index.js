@@ -8,6 +8,11 @@ const ConnectStore = Reflux.createStore({
 
   listenables: Actions,
 
+  onAuthMethodChanged(method) {
+    this.state.currentConnection.authentication = method;
+    this.trigger(this.state);
+  },
+
   onHostnameChanged(hostname) {
     this.state.currentConnection.hostname = hostname;
     this.trigger(this.state);

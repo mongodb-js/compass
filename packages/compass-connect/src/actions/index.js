@@ -4,7 +4,11 @@ const ConnectActions = Reflux.createActions([
   'onHostnameChanged',
   'onPortChanged',
   'onReadPreferenceChanged',
-  'onReplicaSetNameChanged'
+  'onReplicaSetNameChanged',
+  'onAuthenticationMethodChanged',
+  'onUsernameChanged',
+  'onPasswordChanged',
+  'onAuthSourceChanged'
 ]);
 
 module.exports = ConnectActions;

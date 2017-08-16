@@ -1,9 +1,10 @@
 const React = require('react');
+const PropTypes = require('prop-types');
 const Actions = require('../actions');
 const FormItemInput = require('./form-item-input');
 const FormItemSelect = require('./form-item-select');
 
-class FormReplicaSetNameReadPreference extends React.Component {
+class ReplicaSetNameReadPreferenceSection extends React.Component {
 
   onReplicaSetNameChanged(evt) {
     Actions.onReplicaSetNameChanged(evt.target.value);
@@ -37,6 +38,10 @@ class FormReplicaSetNameReadPreference extends React.Component {
   }
 }
 
-FormReplicaSetNameReadPreference.displayName = 'FormReplicaSetNameReadPreference';
+ReplicaSetNameReadPreferenceSection.propTypes = {
+  currentConnection: PropTypes.object.isRequired
+};
 
-module.exports = FormReplicaSetNameReadPreference;
+ReplicaSetNameReadPreferenceSection.displayName = 'ReplicaSetNameReadPreferenceSection';
+
+module.exports = ReplicaSetNameReadPreferenceSection;

@@ -13,14 +13,6 @@ global.hadronApp = app;
 global.hadronApp.appRegistry = appRegistry;
 entryPoint.activate(appRegistry);
 
-// const dataService = new DataService(CONNECTION);
-// dataService.onDataServiceInitialized(dataService);
-// global.hadronApp.appRegistry.onActivated();
-// dataService.connect((error, ds) => {
-  // global.hadronApp.dataService = ds;
-  // global.hadronApp.appRegistry.onConnected(error, ds);
-// });
-
 ReactDOM.render(
   React.createElement(ConnectComponent),
   document.getElementById('container')

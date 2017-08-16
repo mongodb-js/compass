@@ -1,8 +1,9 @@
 const React = require('react');
+const PropTypes = require('prop-types');
 const Actions = require('../actions');
 const FormItemInput = require('./form-item-input');
 
-class FormConnectHostPort extends React.Component {
+class HostPortSection extends React.Component {
 
   onHostnameChanged(evt) {
     Actions.onHostnameChanged(evt.target.value);
@@ -30,7 +31,10 @@ class FormConnectHostPort extends React.Component {
   }
 }
 
+HostPortSection.propTypes = {
+  currentConnection: PropTypes.object.isRequired
+};
 
-FormConnectHostPort.displayName = 'FormConnectHostPort';
+HostPortSection.displayName = 'HostPortSection';
 
-module.exports = FormConnectHostPort;
+module.exports = HostPortSection;

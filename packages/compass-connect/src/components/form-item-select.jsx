@@ -15,7 +15,11 @@ class FormItemSelect extends React.Component {
           type="text">
           {this.props.options.map((option, i) => {
             const select = Object.keys(option);
-            return <option key={i} value={select}>{option[select]}</option>;
+            return (
+              <option key={i} value={select}>
+                {option[select]}
+              </option>
+            );
           })}
         </select>
       </div>

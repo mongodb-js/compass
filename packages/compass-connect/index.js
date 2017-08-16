@@ -1,31 +1,42 @@
-const MongodbJsCompassConnectComponent = require('./lib/components');
-const MongodbJsCompassConnectActions = require('./lib/actions');
-const MongodbJsCompassConnectStore = require('./lib/stores');
+const ConnectComponent = require('./lib/components');
+const MongoDBAuthentication = require('./lib/components/mongodb-authentication');
+const ConnectActions = require('./lib/actions');
+const ConnectStore = require('./lib/stores');
 
 /**
  * A sample role for the component.
  */
 const ROLE = {
-  name: 'MongodbJsCompassConnect',
-  component: MongodbJsCompassConnectComponent
+  name: 'Connect',
+  component: ConnectComponent
+};
+
+/**
+ * No auth role has no component.
+ */
+const NO_AUTH_ROLE = {
+  name: 'NONE',
+  selectOption: { NONE: 'None' }
+};
+
+/**
+ * No auth role has no component.
+ */
+const MONGODB_AUTH_ROLE = {
+  name: 'MONGODB',
+  selectOption: { MONGODB: 'Username / Password' },
+  component: MongoDBAuthentication
 };
 
 /**
  * Activate all the components in the  Mongodb Js Compass Connect package.
  */
 function activate(appRegistry) {
-  // Register the MongodbJsCompassConnectComponent as a role in Compass
-  //
-  // Available roles are:
-  //   - Instance.Tab
-  //   - Database.Tab
-  //   - Collection.Tab
-  //   - CollectionHUD.Item
-  //   - Header.Item
-
   appRegistry.registerRole('Application.Connect', ROLE);
-  appRegistry.registerAction('MongodbJsCompassConnect.Actions', MongodbJsCompassConnectActions);
-  appRegistry.registerStore('MongodbJsCompassConnect.Store', MongodbJsCompassConnectStore);
+  appRegistry.registerRole('Connect.AuthenticationMethod', NO_AUTH_ROLE);
+  appRegistry.registerRole('Connect.AuthenticationMethod', MONGODB_AUTH_ROLE);
+  appRegistry.registerAction('Connect.Actions', ConnectActions);
+  appRegistry.registerStore('Connect.Store', ConnectStore);
 }
 
 /**
@@ -33,10 +44,12 @@ function activate(appRegistry) {
  */
 function deactivate(appRegistry) {
   appRegistry.deregisterRole('Application.Connect', ROLE);
-  appRegistry.deregisterAction('MongodbJsCompassConnect.Actions');
-  appRegistry.deregisterStore('MongodbJsCompassConnect.Store');
+  appRegistry.deregisterRole('Connect.AuthenticationMethod', NO_AUTH_ROLE);
+  appRegistry.deregisterRole('Connect.AuthenticationMethod', MONGODB_AUTH_ROLE);
+  appRegistry.deregisterAction('Connect.Actions');
+  appRegistry.deregisterStore('Connect.Store');
 }
 
-module.exports = MongodbJsCompassConnectComponent;
+module.exports = ConnectComponent;
 module.exports.activate = activate;
 module.exports.deactivate = deactivate;
