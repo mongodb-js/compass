@@ -1,7 +1,7 @@
 const _ = require('lodash');
 const React = require('react');
 const uuid = require('uuid');
-const ObjectID = require('bson').ObjectID;
+const ObjectId = require('bson').ObjectId;
 const Action = require('../actions');
 const { StatusRow } = require('hadron-react-components');
 const ResetDocumentListStore = require('../store/reset-document-list-store');
@@ -152,7 +152,7 @@ class DocumentList extends React.Component {
   handleRemove(id) {
     const index = _.findIndex(this.state.docs, (component) => {
       const _id = component.props.children.props.doc._id;
-      if (id instanceof ObjectID) {
+      if (id instanceof ObjectId) {
         return id.equals(_id);
       }
       return _id === id;
@@ -181,7 +181,7 @@ class DocumentList extends React.Component {
    * Handle opening of the insert dialog.
    */
   handleOpenInsert() {
-    Actions.openInsertDocumentDialog({ _id: new ObjectID(), '': '' }, false);
+    Actions.openInsertDocumentDialog({ _id: new ObjectId(), '': '' }, false);
   }
 
   /**

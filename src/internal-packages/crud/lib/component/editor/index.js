@@ -5,7 +5,7 @@ const DoubleEditor = require('./double');
 const DateEditor = require('./date');
 const NullEditor = require('./null');
 const UndefinedEditor = require('./undefined');
-const ObjectIDEditor = require('./objectid');
+const ObjectIdEditor = require('./objectid');
 
 const init = (element) => {
   return {
@@ -16,7 +16,7 @@ const init = (element) => {
     'Int32': new Int32Editor(element),
     'Null': new NullEditor(element),
     'Undefined': new UndefinedEditor(element),
-    'ObjectID': new ObjectIDEditor(element)
+    'ObjectId': new ObjectIdEditor(element)
   };
 };
 
@@ -28,4 +28,4 @@ module.exports.DoubleEditor = DoubleEditor;
 module.exports.Int32Editor = Int32Editor;
 module.exports.NullEditor = NullEditor;
 module.exports.UndefinedEditor = UndefinedEditor;
-module.exports.ObjectIDEditor = ObjectIDEditor;
+module.exports.ObjectIdEditor = ObjectIdEditor;

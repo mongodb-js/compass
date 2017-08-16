@@ -5,7 +5,7 @@ const chars = require('../utils');
 /**
  * CRUD editor for object id values.
  */
-class ObjectIDEditor {
+class ObjectIdEditor {
 
   /**
    * Create the editor with the element.
@@ -22,7 +22,7 @@ class ObjectIDEditor {
    */
   complete() {
     if (this.element.isCurrentTypeValid()) {
-      this.element.edit(TypeChecker.cast(this.element.currentValue, 'ObjectID'));
+      this.element.edit(TypeChecker.cast(this.element.currentValue, 'ObjectId'));
     }
   }
 
@@ -33,7 +33,7 @@ class ObjectIDEditor {
    */
   edit(value) {
     try {
-      TypeChecker.cast(value, 'ObjectID');
+      TypeChecker.cast(value, 'ObjectId');
       this.element.currentValue = value;
       this.element.setValid();
       this.element._bubbleUp(Element.Events.Edited);
@@ -70,4 +70,4 @@ class ObjectIDEditor {
   }
 }
 
-module.exports = ObjectIDEditor;
+module.exports = ObjectIdEditor;
