@@ -323,7 +323,7 @@ class Element extends EventEmitter {
   _valuesEqual() {
     if (this.currentType === 'Date' && isString(this.currentValue)) {
       return isEqual(this.value, new Date(this.currentValue));
-    } else if (this.currentType === 'ObjectID' && isString(this.currentValue)) {
+    } else if (this.currentType === 'ObjectId' && isString(this.currentValue)) {
       return this._isObjectIdEqual();
     }
     return isEqual(this.value, this.currentValue);
