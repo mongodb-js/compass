@@ -1,16 +1,16 @@
 const { expect } = require('chai');
 const { Element } = require('hadron-document');
 const { ObjectId } = require('bson');
-const { ObjectIDEditor } = require('../../../../lib/components/editor');
+const { ObjectIdEditor } = require('../../../../lib/components/editor');
 
-describe('ObjectIDEditor', () => {
+describe('ObjectIdEditor', () => {
   describe('#start', () => {
     const objectIdString = '598398b16a636b7637f475c0';
     const objectId = new ObjectId(objectIdString);
     const element = new Element('objectId', objectId, false);
 
     context('when the current type is valid (not yet edited)', () => {
-      const objectIdEditor = new ObjectIDEditor(element);
+      const objectIdEditor = new ObjectIdEditor(element);
 
       before(() => {
         objectIdEditor.start();
@@ -26,7 +26,7 @@ describe('ObjectIDEditor', () => {
     });
 
     context('when the current type is not valid (edited, blurred, and edited again)', () => {
-      const objectIdEditor = new ObjectIDEditor(element);
+      const objectIdEditor = new ObjectIdEditor(element);
 
       before(() => {
         objectIdEditor.start();
@@ -55,7 +55,7 @@ describe('ObjectIDEditor', () => {
     const element = new Element('objectId', objectId, false);
 
     context('when the objectId string is valid', () => {
-      const objectIdEditor = new ObjectIDEditor(element);
+      const objectIdEditor = new ObjectIdEditor(element);
       const newValidString = '598398b16a636b7637f475c1';
 
       before(() => {
@@ -73,7 +73,7 @@ describe('ObjectIDEditor', () => {
     });
 
     context('when the objectId string is invalid', () => {
-      const objectIdEditor = new ObjectIDEditor(element);
+      const objectIdEditor = new ObjectIdEditor(element);
       const invalidString = 'nope';
 
       before(() => {
@@ -101,7 +101,7 @@ describe('ObjectIDEditor', () => {
     const element = new Element('objectId', objectId, false);
 
     context('when the objectId string is valid', () => {
-      const objectIdEditor = new ObjectIDEditor(element);
+      const objectIdEditor = new ObjectIdEditor(element);
       const newValidString = '598398b16a636b7637f475c1';
 
       before(() => {
@@ -120,7 +120,7 @@ describe('ObjectIDEditor', () => {
     });
 
     context('when the objectId string is invalid', () => {
-      const objectIdEditor = new ObjectIDEditor(element);
+      const objectIdEditor = new ObjectIdEditor(element);
       const invalidString = 'nope';
 
       before(() => {
@@ -148,7 +148,7 @@ describe('ObjectIDEditor', () => {
       const objectIdString = '598398b16a636b7637f475c0';
       const objectId = new ObjectId(objectIdString);
       const element = new Element('objectId', objectId, false);
-      const objectIdEditor = new ObjectIDEditor(element);
+      const objectIdEditor = new ObjectIdEditor(element);
 
       it('returns the number of chars in the hex string', () => {
         expect(objectIdEditor.size()).to.equal(24);
@@ -159,7 +159,7 @@ describe('ObjectIDEditor', () => {
       const objectIdString = '598398b16a636b7637f475c0';
       const objectId = new ObjectId(objectIdString);
       const element = new Element('objectId', objectId, false);
-      const objectIdEditor = new ObjectIDEditor(element);
+      const objectIdEditor = new ObjectIdEditor(element);
 
       before(() => {
         objectIdEditor.edit('testing');
@@ -176,7 +176,7 @@ describe('ObjectIDEditor', () => {
       const objectIdString = '598398b16a636b7637f475c0';
       const objectId = new ObjectId(objectIdString);
       const element = new Element('objectId', objectId, false);
-      const objectIdEditor = new ObjectIDEditor(element);
+      const objectIdEditor = new ObjectIdEditor(element);
 
       it('returns the value', () => {
         expect(objectIdEditor.value()).to.equal(objectId);
@@ -187,7 +187,7 @@ describe('ObjectIDEditor', () => {
       const objectIdString = '598398b16a636b7637f475c0';
       const objectId = new ObjectId(objectIdString);
       const element = new Element('objectId', objectId, false);
-      const objectIdEditor = new ObjectIDEditor(element);
+      const objectIdEditor = new ObjectIdEditor(element);
 
       before(() => {
         objectIdEditor.edit('testing');
