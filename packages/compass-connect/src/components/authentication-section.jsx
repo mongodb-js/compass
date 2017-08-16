@@ -9,7 +9,7 @@ class AuthenticationSection extends React.Component {
   constructor(props) {
     super(props);
     this.setupAuthenticationRoles();
-    this.state = { authenticationMethod: 'NONE' };
+    this.state = { authenticationMethod: props.currentConnection.authentication };
   }
 
   onAuthMethodChanged(evt) {
@@ -41,7 +41,8 @@ class AuthenticationSection extends React.Component {
           label="Authentication"
           name="authentication"
           options={this.selectOptions}
-          changeHandler={this.onAuthMethodChanged.bind(this)} />
+          changeHandler={this.onAuthMethodChanged.bind(this)}
+          value={this.props.currentConnection.authentication} />
         {this.renderAuthenticationMethod()}
       </div>
     );

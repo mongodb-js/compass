@@ -12,9 +12,9 @@ class FormItemSelect extends React.Component {
           name={this.props.name}
           onChange={this.props.changeHandler}
           className="form-control"
-          type="text">
+          value={this.props.value}>
           {this.props.options.map((option, i) => {
-            const select = Object.keys(option);
+            const select = Object.keys(option)[0];
             return (
               <option key={i} value={select}>
                 {option[select]}
@@ -31,7 +31,8 @@ FormItemSelect.propTypes = {
   label: PropTypes.string.isRequired,
   name: PropTypes.string.isRequired,
   options: PropTypes.arrayOf(PropTypes.object).isRequired,
-  changeHandler: PropTypes.func.isRequired
+  changeHandler: PropTypes.func.isRequired,
+  value: PropTypes.string
 };
 
 FormItemSelect.displayName = 'FormItemSelect';

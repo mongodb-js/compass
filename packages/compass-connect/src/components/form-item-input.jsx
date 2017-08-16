@@ -12,7 +12,7 @@ class FormItemInput extends React.Component {
         <input
           name={this.props.name}
           placeholder={this.props.placeholder}
-          onBlur={this.props.blurHandler}
+          onChange={this.props.changeHandler}
           value={this.props.value}
           className="form-control"
           type={this.props.type || 'text'} />
@@ -24,7 +24,7 @@ class FormItemInput extends React.Component {
 FormItemInput.propTypes = {
   label: PropTypes.string.isRequired,
   name: PropTypes.string.isRequired,
-  blurHandler: PropTypes.func.isRequired,
+  changeHandler: PropTypes.func.isRequired,
   placeholder: PropTypes.string,
   value: PropTypes.string,
   type: PropTypes.string

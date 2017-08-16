@@ -21,7 +21,8 @@ class ReplicaSetNameReadPreferenceSection extends React.Component {
           label="Replica Set Name"
           name="replica_set_name"
           placeholder=""
-          blurHandler={this.onReplicaSetNameChanged.bind(this)} />
+          changeHandler={this.onReplicaSetNameChanged.bind(this)}
+          value={this.props.currentConnection.replica_set_name} />
         <FormItemSelect
           label="Read Preference"
           name="read_preference"
@@ -32,7 +33,8 @@ class ReplicaSetNameReadPreferenceSection extends React.Component {
             {'secondaryPreferred': 'Secondary Preferred'},
             {'nearest': 'Nearest'}
           ]}
-          changeHandler={this.onReadPreferenceChanged.bind(this)} />
+          changeHandler={this.onReadPreferenceChanged.bind(this)}
+          value={this.props.currentConnection.read_preference} />
       </div>
     );
   }
