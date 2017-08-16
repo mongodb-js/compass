@@ -20,12 +20,14 @@ class HostPortSection extends React.Component {
           label="Hostname"
           name="hostname"
           placeholder="localhost"
-          blurHandler={this.onHostnameChanged.bind(this)} />
+          blurHandler={this.onHostnameChanged.bind(this)}
+          value={this.props.currentConnection.hostname} />
         <FormItemInput
           label="Port"
           name="port"
           placeholder="27017"
-          blurHandler={this.onPortChanged.bind(this)} />
+          blurHandler={this.onPortChanged.bind(this)}
+          value={this.props.currentConnection.port} />
       </div>
     );
   }
