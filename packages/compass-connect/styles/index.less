@@ -79,6 +79,27 @@ label {
       text-align: right;
       padding: 5px 15px 0 0;
     }
+
+    &-file-label {
+      width: 500px !important;
+      cursor: pointer;
+      text-align: center !important;
+      display: block;
+      height: 34px;
+      padding: 6px 12px;
+      font-size: 14px;
+      line-height: 1.42857143;
+      color: #555555;
+      background-color: #fff;
+      background-image: none;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075);
+
+      i {
+        padding-right: 5px;
+      }
+    }
   }
 
   .form-control {
@@ -93,5 +114,14 @@ label {
     border: 1px solid #ccc;
     border-radius: 4px;
     box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075);
+  }
+
+  .file-input {
+    width: 0.1px;
+    height: 0.1px;
+    opacity: 0;
+    overflow: hidden;
+    position: absolute;
+    z-index: -1;
   }
 }

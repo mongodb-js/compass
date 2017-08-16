@@ -1,5 +1,6 @@
 const ConnectComponent = require('./lib/components');
 const MongoDBAuthentication = require('./lib/components/mongodb-authentication');
+const SSLServerValidation = require('./lib/components/ssl-server-validation');
 const ConnectActions = require('./lib/actions');
 const ConnectStore = require('./lib/stores');
 
@@ -45,12 +46,22 @@ const SYSTEM_CA_SSL_ROLE = {
 };
 
 /**
+ * System CA ssl role has no component.
+ */
+const SERVER_VALIDATION_SSL_ROLE = {
+  name: 'SERVER',
+  selectOption: { SERVER: 'Server Validation' },
+  component: SSLServerValidation
+};
+
+/**
  * Activate all the components in the  Mongodb Js Compass Connect package.
  */
 function activate(appRegistry) {
   appRegistry.registerRole('Application.Connect', ROLE);
   appRegistry.registerRole('Connect.SSLMethod', NO_SSL_ROLE);
   appRegistry.registerRole('Connect.SSLMethod', SYSTEM_CA_SSL_ROLE);
+  appRegistry.registerRole('Connect.SSLMethod', SERVER_VALIDATION_SSL_ROLE);
   appRegistry.registerRole('Connect.AuthenticationMethod', NO_AUTH_ROLE);
   appRegistry.registerRole('Connect.AuthenticationMethod', MONGODB_AUTH_ROLE);
   appRegistry.registerAction('Connect.Actions', ConnectActions);
@@ -64,6 +75,7 @@ function deactivate(appRegistry) {
   appRegistry.deregisterRole('Application.Connect', ROLE);
   appRegistry.deregisterRole('Connect.SSLMethod', NO_SSL_ROLE);
   appRegistry.deregisterRole('Connect.SSLMethod', SYSTEM_CA_SSL_ROLE);
+  appRegistry.deregisterRole('Connect.SSLMethod', SERVER_VALIDATION_SSL_ROLE);
   appRegistry.deregisterRole('Connect.AuthenticationMethod', NO_AUTH_ROLE);
   appRegistry.deregisterRole('Connect.AuthenticationMethod', MONGODB_AUTH_ROLE);
   appRegistry.deregisterAction('Connect.Actions');

@@ -53,6 +53,11 @@ const ConnectStore = Reflux.createStore({
     this.trigger(this.state);
   },
 
+  onSSLCAChanged(file) {
+    this.state.currentConnection.ssl_ca = file;
+    this.trigger(this.state);
+  },
+
   getInitialState() {
     return {
       currentConnection: new Connection(),

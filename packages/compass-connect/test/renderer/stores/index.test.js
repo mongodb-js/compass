@@ -111,4 +111,15 @@ describe('IndexStore', () => {
       Actions.onAuthSourceChanged('database');
     });
   });
+
+  describe('#onSSLCAChanged', () => {
+    it('updates the ssl ca field in the current connection model', (done) => {
+      const unsubscribe = IndexStore.listen((state) => {
+        expect(state.currentConnection.ssl_ca).to.equal('file');
+        unsubscribe();
+        done();
+      });
+      Actions.onSSLCAChanged('file');
+    });
+  });
 });

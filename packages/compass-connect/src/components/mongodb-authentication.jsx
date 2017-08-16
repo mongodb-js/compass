@@ -23,19 +23,19 @@ class MongoDBAuthentication extends React.Component {
         <FormItemInput
           label="Username"
           name="username"
-          blurHandler={this.onUsernameChanged.bind(this)}
+          changeHandler={this.onUsernameChanged.bind(this)}
           value={this.props.currentConnection.mongodb_username} />
         <FormItemInput
           label="Password"
           name="password"
           type="password"
-          blurHandler={this.onPasswordChanged.bind(this)}
+          changeHandler={this.onPasswordChanged.bind(this)}
           value={this.props.currentConnection.mongodb_password} />
         <FormItemInput
           label="Authentication Database"
           placeholder="admin"
           name="auth-source"
-          blurHandler={this.onAuthSourceChanged.bind(this)}
+          changeHandler={this.onAuthSourceChanged.bind(this)}
           value={this.props.currentConnection.mongodb_database_name} />
       </div>
     );
