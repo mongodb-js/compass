@@ -3,13 +3,13 @@ const chai = require('chai');
 const expect = chai.expect;
 const chaiEnzyme = require('chai-enzyme');
 const { shallow } = require('enzyme');
-const FormItem = require('../../src/components/form-item');
+const FormItemInput = require('../../src/components/form-item-input');
 
 chai.use(chaiEnzyme());
 
-describe('<FormItem />', () => {
+describe('<FormItemInput />', () => {
   describe('#render', () => {
-    const component = shallow(<FormItem label="Test" name="testing" placeholder="testme" />);
+    const component = shallow(<FormItemInput label="Test" name="testing" placeholder="testme" />);
 
     it('renders the wrapper div', () => {
       expect(component.find('.form-item')).to.be.present();

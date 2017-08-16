@@ -1,7 +1,7 @@
 const React = require('react');
 const PropTypes = require('prop-types');
 
-class FormItem extends React.Component {
+class FormItemInput extends React.Component {
 
   render() {
     return (
@@ -12,7 +12,7 @@ class FormItem extends React.Component {
         <input
           name={this.props.name}
           placeholder={this.props.placeholder}
-          onChange={this.props.changeHandler}
+          onBlur={this.props.blurHandler}
           className="form-control"
           type="text" />
       </div>
@@ -20,13 +20,13 @@ class FormItem extends React.Component {
   }
 }
 
-FormItem.propTypes = {
+FormItemInput.propTypes = {
   label: PropTypes.string.isRequired,
   name: PropTypes.string.isRequired,
-  changeHandler: PropTypes.func.isRequired,
+  blurHandler: PropTypes.func.isRequired,
   placeholder: PropTypes.string
 };
 
-FormItem.displayName = 'FormItem';
+FormItemInput.displayName = 'FormItemInput';
 
-module.exports = FormItem;
+module.exports = FormItemInput;
