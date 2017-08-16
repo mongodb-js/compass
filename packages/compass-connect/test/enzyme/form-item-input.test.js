@@ -9,22 +9,40 @@ chai.use(chaiEnzyme());
 
 describe('<FormItemInput />', () => {
   describe('#render', () => {
-    const component = shallow(<FormItemInput label="Test" name="testing" placeholder="testme" />);
+    context('when no value is provided', () => {
+      const component = shallow(
+        <FormItemInput label="Test" name="testing" placeholder="testme" />
+      );
 
-    it('renders the wrapper div', () => {
-      expect(component.find('.form-item')).to.be.present();
+      it('renders the wrapper div', () => {
+        expect(component.find('.form-item')).to.be.present();
+      });
+
+      it('renders the label', () => {
+        expect(component.find('.form-item-label').text()).to.equal('Test');
+      });
+
+      it('renders the input name', () => {
+        expect(component.find('.form-control').prop('name')).to.equal('testing');
+      });
+
+      it('renders the input placeholder', () => {
+        expect(component.find('.form-control').prop('placeholder')).to.equal('testme');
+      });
+
+      it('renders an empty value', () => {
+        expect(component.find('.form-control')).to.have.value(undefined);
+      });
     });
 
-    it('renders the label', () => {
-      expect(component.find('.form-item-label').text()).to.equal('Test');
-    });
+    context('when a value is provided', () => {
+      const component = shallow(
+        <FormItemInput label="Test" name="testing" value="test" />
+      );
 
-    it('renders the input name', () => {
-      expect(component.find('.form-control').prop('name')).to.equal('testing');
-    });
-
-    it('renders the input placeholder', () => {
-      expect(component.find('.form-control').prop('placeholder')).to.equal('testme');
+      it('renders the value', () => {
+        expect(component.find('.form-control')).to.have.value('test');
+      });
     });
   });
 });

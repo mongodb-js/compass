@@ -13,8 +13,9 @@ class FormItemInput extends React.Component {
           name={this.props.name}
           placeholder={this.props.placeholder}
           onBlur={this.props.blurHandler}
+          value={this.props.value}
           className="form-control"
-          type="text" />
+          type={this.props.type || 'text'} />
       </div>
     );
   }
@@ -24,7 +25,9 @@ FormItemInput.propTypes = {
   label: PropTypes.string.isRequired,
   name: PropTypes.string.isRequired,
   blurHandler: PropTypes.func.isRequired,
-  placeholder: PropTypes.string
+  placeholder: PropTypes.string,
+  value: PropTypes.string,
+  type: PropTypes.string
 };
 
 FormItemInput.displayName = 'FormItemInput';

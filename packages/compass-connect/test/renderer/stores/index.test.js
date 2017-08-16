@@ -56,4 +56,48 @@ describe('IndexStore', () => {
       Actions.onReadPreferenceChanged('primaryPreferred');
     });
   });
+
+  describe('#onAuthenticationMethodChanged', () => {
+    it('updates the authentication method in the current connection model', (done) => {
+      const unsubscribe = IndexStore.listen((state) => {
+        expect(state.currentConnection.authentication).to.equal('MONGODB');
+        unsubscribe();
+        done();
+      });
+      Actions.onAuthenticationMethodChanged('MONGODB');
+    });
+  });
+
+  describe('#onUsernameChanged', () => {
+    it('updates the username in the current connection model', (done) => {
+      const unsubscribe = IndexStore.listen((state) => {
+        expect(state.currentConnection.mongodb_username).to.equal('user');
+        unsubscribe();
+        done();
+      });
+      Actions.onUsernameChanged('user');
+    });
+  });
+
+  describe('#onPasswordChanged', () => {
+    it('updates the password in the current connection model', (done) => {
+      const unsubscribe = IndexStore.listen((state) => {
+        expect(state.currentConnection.mongodb_password).to.equal('pass');
+        unsubscribe();
+        done();
+      });
+      Actions.onPasswordChanged('pass');
+    });
+  });
+
+  describe('#onAuthSourceChanged', () => {
+    it('updates the auth source in the current connection model', (done) => {
+      const unsubscribe = IndexStore.listen((state) => {
+        expect(state.currentConnection.mongodb_database_name).to.equal('database');
+        unsubscribe();
+        done();
+      });
+      Actions.onAuthSourceChanged('database');
+    });
+  });
 });

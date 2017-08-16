@@ -13,8 +13,8 @@ class AuthenticationSection extends React.Component {
   }
 
   onAuthMethodChanged(evt) {
-    Actions.onAuthenticationMethodChanged(evt.target.value);
     this.setState({ authenticationMethod: evt.target.value });
+    Actions.onAuthenticationMethodChanged(evt.target.value);
   }
 
   setupAuthenticationRoles() {

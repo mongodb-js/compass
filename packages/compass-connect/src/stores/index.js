@@ -8,8 +8,23 @@ const ConnectStore = Reflux.createStore({
 
   listenables: Actions,
 
-  onAuthMethodChanged(method) {
+  onAuthenticationMethodChanged(method) {
     this.state.currentConnection.authentication = method;
+    this.trigger(this.state);
+  },
+
+  onUsernameChanged(username) {
+    this.state.currentConnection.mongodb_username = username;
+    this.trigger(this.state);
+  },
+
+  onPasswordChanged(password) {
+    this.state.currentConnection.mongodb_password = password;
+    this.trigger(this.state);
+  },
+
+  onAuthSourceChanged(authSource) {
+    this.state.currentConnection.mongodb_database_name = authSource;
     this.trigger(this.state);
   },
 
