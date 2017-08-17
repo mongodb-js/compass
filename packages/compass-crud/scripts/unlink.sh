@@ -1,7 +1,10 @@
 #!/bin/bash
 PLUGIN_DIR=${PWD}
 PLUGIN_NAME=${PWD##*/}
+npm unlink hadron-app
 npm unlink react
+cd ${COMPASS_HOME}/node_modules/hadron-app
+npm unlink
 cd ${COMPASS_HOME}/node_modules/react
 npm unlink
 cd ${COMPASS_HOME}

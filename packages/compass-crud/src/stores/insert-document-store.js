@@ -16,15 +16,6 @@ const InsertDocumentStore = Reflux.createStore({
   },
 
   /**
-   * Listen to query changes on activation.
-   *
-   * @param {AppRegistry} appRegistry - The app registry.
-   */
-  onActivated: function(appRegistry) {
-    appRegistry.getStore('Query.ChangedStore').listen(this.onQueryChanged.bind(this));
-  },
-
-  /**
    * Change the ns when the collection changes.
    *
    * @param {String} ns - The namespace.

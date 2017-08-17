@@ -45,7 +45,7 @@ describe('InsertDocumentStore', () => {
     });
   });
 
-  describe('#onCollectionChanged', () => {
+  describe('#onQueryChanged', () => {
     const filter = { name: 'test' };
     before(() => {
       InsertDocumentStore.onQueryChanged({ ns: 'compass-crud.test', filter: filter });

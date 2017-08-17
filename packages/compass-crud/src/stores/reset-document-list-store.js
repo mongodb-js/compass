@@ -22,15 +22,6 @@ const ResetDocumentListStore = Reflux.createStore({
   },
 
   /**
-   * Listen to query changes on activation.
-   *
-   * @param {AppRegistry} appRegistry - The app registry.
-   */
-  onActivated(appRegistry) {
-    appRegistry.getStore('Query.ChangedStore').listen(this.onQueryChanged.bind(this));
-  },
-
-  /**
    * Fires when the query is changed.
    *
    * @param {Object} state - The query state.
