@@ -22,9 +22,6 @@ const ResetDocumentListStore = Reflux.createStore({
     this.project = null;
     this.ns = '';
 
-    // listen for query changes
-    this.listenToExternalStore('Query.ChangedStore', this.onQueryChanged.bind(this));
-
     Actions.refreshDocuments.listen(this.reset.bind(this));
   },
 
