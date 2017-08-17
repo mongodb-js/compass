@@ -131,11 +131,11 @@
   },
   "dependencies": {
     "@mongodb-js/compass-charts": "^0.2.3",
-    "@mongodb-js/compass-crud": "0.2.0",
+    "@mongodb-js/compass-crud": "0.2.1",
     "@mongodb-js/compass-deployment-awareness": "3.2.0",
     "@mongodb-js/compass-document-validation": "4.1.0",
-    "@mongodb-js/compass-serverstats": "9.1.1",
     "@mongodb-js/compass-query-history": "0.3.0",
+    "@mongodb-js/compass-serverstats": "9.1.1",
     "ampersand-collection": "^1.5.0",
     "ampersand-collection-filterable": "^0.2.1",
     "ampersand-dom-bindings": "^3.7.0",
