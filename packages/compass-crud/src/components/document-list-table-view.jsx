@@ -5,6 +5,8 @@ const BreadcrumbStore = require('../stores/breadcrumb-store');
 const { StoreConnector } = require('hadron-react-components');
 const {AgGridReact} = require('ag-grid-react');
 const _ = require('lodash');
+const HeaderComponent = require('./cell-renderers/header-cell');
+const TypeChecker = require('hadron-type-checker');
 
 /**
  * Represents the table view of the documents tab.
@@ -32,12 +34,20 @@ class DocumentListTableView extends React.Component {
     this.gridApi.sizeColumnsToFit();
   }
 
-  createColumnDefs() {
+  createColumnHeaders() {
     const headers = {};
 
-    // This is stupid, there's probably a way to auto generate headers?
     for (let i = 0; i < this.props.docs.length; i++) {
-      _.map(this.props.docs[i], function(val, key) { headers[key] = { headerName: key, field: key}; });
+      _.map(this.props.docs[i], function(val, key) {
+        headers[key] = {
+          headerName: key,
+          field: key,
+          headerComponentFramework: HeaderComponent,
+          headerComponentParams: {
+            bsonType: TypeChecker.type(val)
+          }
+        };
+      });
     }
     return Object.values(headers);
   }
@@ -61,12 +71,13 @@ class DocumentListTableView extends React.Component {
         <div style={containerStyle} className="ag-fresh">
           <AgGridReact
             // properties
-            columnDefs={this.createColumnDefs()}
+            columnDefs={this.createColumnHeaders()}
             rowData={this.props.docs}
             // events
             onGridReady={this.onGridReady}/>
         </div>
-      </div>);
+      </div>
+    );
   }
 }
 
