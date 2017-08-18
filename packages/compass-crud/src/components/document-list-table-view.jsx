@@ -4,6 +4,7 @@ const BreadcrumbComponent = require('./breadcrumb');
 const BreadcrumbStore = require('../stores/breadcrumb-store');
 const { StoreConnector } = require('hadron-react-components');
 const {AgGridReact} = require('ag-grid-react');
+const _ = require('lodash');
 
 /**
  * Represents the table view of the documents tab.
@@ -32,19 +33,13 @@ class DocumentListTableView extends React.Component {
   }
 
   createColumnDefs() {
-    return [
-      {headerName: 'Make', field: 'make'},
-      {headerName: 'Model', field: 'model'},
-      {headerName: 'Price', field: 'price'}
-    ];
-  }
+    const headers = {};
 
-  createRowData() {
-    return [
-      {make: 'Toyota', model: 'Celica', price: 35000},
-      {make: 'Ford', model: 'Mondeo', price: 32000},
-      {make: 'Porsche', model: 'Boxter', price: 72000}
-    ];
+    // This is stupid, there's probably a way to auto generate headers?
+    for (let i = 0; i < this.props.docs.length; i++) {
+      _.map(this.props.docs[i], function(val, key) { headers[key] = { headerName: key, field: key}; });
+    }
+    return Object.values(headers);
   }
 
   /**
@@ -66,9 +61,8 @@ class DocumentListTableView extends React.Component {
         <div style={containerStyle} className="ag-fresh">
           <AgGridReact
             // properties
-            columnDefs={this.state.columnDefs}
-            rowData={this.state.rowData}
-
+            columnDefs={this.createColumnDefs()}
+            rowData={this.props.docs}
             // events
             onGridReady={this.onGridReady}/>
         </div>
