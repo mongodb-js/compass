@@ -74,16 +74,17 @@ class EditableValue extends React.Component {
    * @returns {Boolean} If the element can be focused automatically.
    */
   isAutoFocusable() {
-    return !this.element.isKeyEditable() || this.isArrayValue();
+    return !this.element.isKeyEditable() || this.isLastArrayValue();
   }
 
   /**
-   * Is the value a member of an array?
+   * Is the value the last member of an array?
    *
-   * @returns {Boolean} If the value is in an array.
+   * @returns {Boolean} If the value is the last member of an array.
    */
-  isArrayValue() {
-    return this.element.parent.currentType === 'Array';
+  isLastArrayValue() {
+    return this.element.parent.currentType === 'Array' &&
+      this.element.parent.elements.lastElement === this.element;
   }
 
   /**

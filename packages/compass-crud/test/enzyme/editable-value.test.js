@@ -38,21 +38,6 @@ describe('<EditableValue />', () => {
       });
     });
 
-    context('when the value is an array element', () => {
-      let wrapper;
-
-      before(() => {
-        const parentElement = new Element('parent', [], false);
-        const element = new Element('0', 1, true, parentElement);
-        wrapper = mount(<EditableValue element={element} isFocused={false} />);
-      });
-
-      it('auto focuses the input', () => {
-        const input = wrapper.instance()._node;
-        expect(input).to.equal(document.activeElement);
-      });
-    });
-
     context('when the value corresponds with an editable key', () => {
       let wrapper;
 
