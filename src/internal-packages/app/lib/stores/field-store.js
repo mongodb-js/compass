@@ -171,6 +171,7 @@ const FieldStore = Reflux.createStore({
       fields: fields,
       topLevelFields: _.union(this.state.topLevelFields, topLevelFields)
     });
+    require('marky').stop('Load CRUD');
   },
 
   /**

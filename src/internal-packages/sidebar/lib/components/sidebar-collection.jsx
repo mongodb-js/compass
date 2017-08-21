@@ -45,6 +45,7 @@ class SidebarCollection extends React.Component {
   }
 
   handleClick() {
+    require('marky').mark('Load CRUD');
     if (this.NamespaceStore.ns !== this.props._id) {
       this.CollectionStore.setCollection(this.props);
       ipc.call('window:show-collection-submenu');
