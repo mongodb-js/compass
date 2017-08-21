@@ -115,11 +115,44 @@ describe('IndexStore', () => {
   describe('#onSSLCAChanged', () => {
     it('updates the ssl ca field in the current connection model', (done) => {
       const unsubscribe = IndexStore.listen((state) => {
-        expect(state.currentConnection.ssl_ca).to.equal('file');
+        expect(state.currentConnection.ssl_ca).to.deep.equal(['file']);
         unsubscribe();
         done();
       });
-      Actions.onSSLCAChanged('file');
+      Actions.onSSLCAChanged(['file']);
+    });
+  });
+
+  describe('#onSSLCertificateChanged', () => {
+    it('updates the ssl certificate field in the current connection model', (done) => {
+      const unsubscribe = IndexStore.listen((state) => {
+        expect(state.currentConnection.ssl_certificate).to.deep.equal(['file']);
+        unsubscribe();
+        done();
+      });
+      Actions.onSSLCertificateChanged(['file']);
+    });
+  });
+
+  describe('#onSSLPrivateKeyChanged', () => {
+    it('updates the ssl private key field in the current connection model', (done) => {
+      const unsubscribe = IndexStore.listen((state) => {
+        expect(state.currentConnection.ssl_private_key).to.deep.equal(['file']);
+        unsubscribe();
+        done();
+      });
+      Actions.onSSLPrivateKeyChanged(['file']);
+    });
+  });
+
+  describe('#onSSLPrivateKeyPasswordChanged', () => {
+    it('updates the ssl private key password field in the current connection model', (done) => {
+      const unsubscribe = IndexStore.listen((state) => {
+        expect(state.currentConnection.ssl_private_key_password).to.equal('testing');
+        unsubscribe();
+        done();
+      });
+      Actions.onSSLPrivateKeyPasswordChanged('testing');
     });
   });
 });

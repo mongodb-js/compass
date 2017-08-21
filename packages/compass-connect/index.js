@@ -1,6 +1,7 @@
 const ConnectComponent = require('./lib/components');
 const MongoDBAuthentication = require('./lib/components/mongodb-authentication');
 const SSLServerValidation = require('./lib/components/ssl-server-validation');
+const SSLServerClientValidation = require('./lib/components/ssl-server-client-validation');
 const ConnectActions = require('./lib/actions');
 const ConnectStore = require('./lib/stores');
 
@@ -46,12 +47,21 @@ const SYSTEM_CA_SSL_ROLE = {
 };
 
 /**
- * System CA ssl role has no component.
+ * Server vaildation role.
  */
 const SERVER_VALIDATION_SSL_ROLE = {
   name: 'SERVER',
   selectOption: { SERVER: 'Server Validation' },
   component: SSLServerValidation
+};
+
+/**
+ * Server/Client validation role.
+ */
+const SERVER_CLIENT_VALIDATION_SSL_ROLE = {
+  name: 'ALL',
+  selectOption: { ALL: 'Server and Client Validation' },
+  component: SSLServerClientValidation
 };
 
 /**
@@ -62,6 +72,7 @@ function activate(appRegistry) {
   appRegistry.registerRole('Connect.SSLMethod', NO_SSL_ROLE);
   appRegistry.registerRole('Connect.SSLMethod', SYSTEM_CA_SSL_ROLE);
   appRegistry.registerRole('Connect.SSLMethod', SERVER_VALIDATION_SSL_ROLE);
+  appRegistry.registerRole('Connect.SSLMethod', SERVER_CLIENT_VALIDATION_SSL_ROLE);
   appRegistry.registerRole('Connect.AuthenticationMethod', NO_AUTH_ROLE);
   appRegistry.registerRole('Connect.AuthenticationMethod', MONGODB_AUTH_ROLE);
   appRegistry.registerAction('Connect.Actions', ConnectActions);
@@ -76,6 +87,7 @@ function deactivate(appRegistry) {
   appRegistry.deregisterRole('Connect.SSLMethod', NO_SSL_ROLE);
   appRegistry.deregisterRole('Connect.SSLMethod', SYSTEM_CA_SSL_ROLE);
   appRegistry.deregisterRole('Connect.SSLMethod', SERVER_VALIDATION_SSL_ROLE);
+  appRegistry.deregisterRole('Connect.SSLMethod', SERVER_CLIENT_VALIDATION_SSL_ROLE);
   appRegistry.deregisterRole('Connect.AuthenticationMethod', NO_AUTH_ROLE);
   appRegistry.deregisterRole('Connect.AuthenticationMethod', MONGODB_AUTH_ROLE);
   appRegistry.deregisterAction('Connect.Actions');

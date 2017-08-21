@@ -53,8 +53,23 @@ const ConnectStore = Reflux.createStore({
     this.trigger(this.state);
   },
 
-  onSSLCAChanged(file) {
-    this.state.currentConnection.ssl_ca = file;
+  onSSLCAChanged(files) {
+    this.state.currentConnection.ssl_ca = files;
+    this.trigger(this.state);
+  },
+
+  onSSLCertificateChanged(files) {
+    this.state.currentConnection.ssl_certificate = files;
+    this.trigger(this.state);
+  },
+
+  onSSLPrivateKeyChanged(files) {
+    this.state.currentConnection.ssl_private_key = files;
+    this.trigger(this.state);
+  },
+
+  onSSLPrivateKeyPasswordChanged(password) {
+    this.state.currentConnection.ssl_private_key_password = password;
     this.trigger(this.state);
   },
 

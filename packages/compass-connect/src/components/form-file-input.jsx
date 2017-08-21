@@ -50,7 +50,10 @@ class FormFileInput extends React.Component {
         <label>
           <span className="form-item-label">{this.props.label}</span>
         </label>
-        <button className="form-item-file-button btn btn-default" onClick={this.onClick.bind(this)}>
+        <button
+          id={this.props.id}
+          className="form-item-file-button btn btn-default"
+          onClick={this.onClick.bind(this)}>
           <i className="fa fa-upload" aria-hidden />
           {this.renderButtonText()}
         </button>
@@ -62,6 +65,7 @@ class FormFileInput extends React.Component {
 FormFileInput.propTypes = {
   label: PropTypes.string.isRequired,
   changeHandler: PropTypes.func.isRequired,
+  id: PropTypes.string,
   values: PropTypes.array,
   multi: PropTypes.bool
 };
