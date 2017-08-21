@@ -55,7 +55,7 @@ const Connection = Model.extend(storageMixin, {
     }
   },
   serialize: function() {
-    return Connection.prototype.serialize.call(this, {
+    return Model.prototype.serialize.call(this, {
       all: true
     });
   }

@@ -170,4 +170,35 @@ describe('IndexStore', () => {
       Actions.onSSLPrivateKeyPasswordChanged('testing');
     });
   });
+
+  describe('#onFavoriteNameChanged', () => {
+    it('updates the name on the current connection model', (done) => {
+      const unsubscribe = IndexStore.listen((state) => {
+        expect(state.currentConnection.name).to.equal('myconnection');
+        unsubscribe();
+        done();
+      });
+      Actions.onFavoriteNameChanged('myconnection');
+    });
+  });
+
+  describe('#onCreateFavorite', () => {
+    before(() => {
+      IndexStore.state.currentConnection.name = 'myconnection';
+    });
+
+    after(() => {
+      IndexStore.onDeleteConnection(IndexStore.state.currentConnection);
+    });
+
+    it('creates a new favorite in the store', (done) => {
+      const unsubscribe = IndexStore.listen((state) => {
+        expect(state.currentConnection.is_favorite).to.equal(true);
+        expect(state.connections.length).to.equal(1);
+        unsubscribe();
+        done();
+      });
+      Actions.onCreateFavorite();
+    });
+  });
 });
