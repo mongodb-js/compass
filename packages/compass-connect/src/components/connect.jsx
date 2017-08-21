@@ -4,15 +4,14 @@ const AuthenticationSection = require('./authentication-section');
 const HostPortSection = require('./host-port-section');
 const ReplicaSetNameReadPreferenceSection = require('./replica-set-name-read-preference-section');
 const SSLSection = require('./ssl-section');
+const Sidebar = require('./sidebar');
 
 class Connect extends React.Component {
 
   render() {
     return (
       <div className="page connect">
-        <div>
-          <div className="sidebar panel"></div>
-        </div>
+        <Sidebar />
         <div className="form-container">
           <header>
             <h2 data-test-id="connect-header">Connect to Host</h2>

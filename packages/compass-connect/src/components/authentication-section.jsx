@@ -12,6 +12,13 @@ class AuthenticationSection extends React.Component {
     this.state = { authenticationMethod: props.currentConnection.authentication };
   }
 
+  componentWillReceiveProps(nextProps) {
+    const authMethod = nextProps.currentConnection.authentication;
+    if (authMethod !== this.state.authenticationMethod) {
+      this.setState({ authenticationMethod: authMethod });
+    }
+  }
+
   onAuthMethodChanged(evt) {
     this.setState({ authenticationMethod: evt.target.value });
     Actions.onAuthenticationMethodChanged(evt.target.value);

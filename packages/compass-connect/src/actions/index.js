@@ -1,6 +1,7 @@
 const Reflux = require('reflux');
 
 const ConnectActions = Reflux.createActions([
+  'resetConnection',
   'onHostnameChanged',
   'onPortChanged',
   'onReadPreferenceChanged',

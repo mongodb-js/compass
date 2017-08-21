@@ -12,6 +12,13 @@ class SSLSection extends React.Component {
     this.state = { sslMethod: props.currentConnection.ssl };
   }
 
+  componentWillReceiveProps(nextProps) {
+    const sslMethod = nextProps.currentConnection.ssl;
+    if (sslMethod !== this.state.sslMethod) {
+      this.setState({ sslMethod: sslMethod });
+    }
+  }
+
   onSSLMethodChanged(evt) {
     this.setState({ sslMethod: evt.target.value });
     Actions.onSSLMethodChanged(evt.target.value);

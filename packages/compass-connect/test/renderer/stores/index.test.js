@@ -13,6 +13,21 @@ describe('IndexStore', () => {
     });
   });
 
+  describe('#resetConnection', () => {
+    before(() => {
+      IndexStore.state.currentConnection.mongodb_username = 'testing';
+    });
+
+    it('updates the hostname in the current connection model', (done) => {
+      const unsubscribe = IndexStore.listen((state) => {
+        expect(state.currentConnection.mongodb_username).to.equal(undefined);
+        unsubscribe();
+        done();
+      });
+      Actions.resetConnection();
+    });
+  });
+
   describe('#onHostnameChanged', () => {
     it('updates the hostname in the current connection model', (done) => {
       const unsubscribe = IndexStore.listen((state) => {
