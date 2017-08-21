@@ -131,7 +131,6 @@ class Target {
     this.platform = opts.platform;
     this.arch = opts.arch;
     this.description = opts.description;
-    this.app_bundle_id = opts.app_bundle_id;
     this.author = _.get(opts, 'author.name', opts.author);
 
     this.slug = this.name;
@@ -362,7 +361,7 @@ class Target {
     Object.assign(this.packagerOptions, {
       name: this.productName,
       icon: this.src(platformSettings.icon),
-      'app-bundle-id': this.app_bundle_id,
+      'app-bundle-id': platformSettings.app_bundle_id,
       'app-category-type': platformSettings.app_category_type,
       protocols: _.get(this, 'config.hadron.protocols', [])
     });

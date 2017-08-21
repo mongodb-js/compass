@@ -1,6 +1,7 @@
 const hadronBuild = require('../');
 const commands = hadronBuild;
 const fs = require('fs-extra');
+const plist = require('plist');
 const assert = require('assert');
 
 const path = require('path');
@@ -27,7 +28,6 @@ if (process.platform === 'win32') {
       if (target.platform !== 'darwin') {
         return this.skip();
       }
-
       const bin = target.dest(`${target.productName}-darwin-x64`, `${target.productName}.app`, 'Contents', 'MacOS', 'Electron');
       fs.exists(bin, function(exists) {
         assert(exists, `Expected ${bin} to exist`);
@@ -37,6 +37,15 @@ if (process.platform === 'win32') {
 
     it('has the correct product name', () => {
       assert.equal(target.productName, 'MongoDB Compass Enterprise super long test name Beta');
+    });
+
+    it('sets the correct CFBundleIdentifier', function() {
+      if (target.platform !== 'darwin') {
+        return this.skip();
+      }
+      const info = target.dest(`${target.productName}-darwin-x64`, `${target.productName}.app`, 'Contents', 'Info.plist');
+      const config = plist.parse(fs.readFileSync(info, 'utf8'));
+      assert.equal(config.CFBundleIdentifier, 'com.mongodb.hadron.beta');
     });
 
     /**
