@@ -2,6 +2,7 @@ const React = require('react');
 const chai = require('chai');
 const expect = chai.expect;
 const chaiEnzyme = require('chai-enzyme');
+const sinon = require('sinon');
 const { shallow } = require('enzyme');
 const FormItemInput = require('../../src/components/form-item-input');
 
@@ -9,9 +10,15 @@ chai.use(chaiEnzyme());
 
 describe('<FormItemInput />', () => {
   describe('#render', () => {
+    const changeHandler = sinon.spy();
+
     context('when no value is provided', () => {
       const component = shallow(
-        <FormItemInput label="Test" name="testing" placeholder="testme" />
+        <FormItemInput
+          label="Test"
+          name="testing"
+          placeholder="testme"
+          changeHandler={changeHandler} />
       );
 
       it('renders the wrapper div', () => {
@@ -37,7 +44,11 @@ describe('<FormItemInput />', () => {
 
     context('when a value is provided', () => {
       const component = shallow(
-        <FormItemInput label="Test" name="testing" value="test" />
+        <FormItemInput
+          label="Test"
+          name="testing"
+          value="test"
+          changeHandler={changeHandler} />
       );
 
       it('renders the value', () => {

@@ -4,13 +4,13 @@ const expect = chai.expect;
 const chaiEnzyme = require('chai-enzyme');
 const sinon = require('sinon');
 const { shallow } = require('enzyme');
-const FormFileInput = require('../../src/components/form-file-input');
+const FormFileInput = require('../../../src/components/form-file-input');
 
 chai.use(chaiEnzyme());
 
 describe('<FormFileInput />', () => {
   describe('#render', () => {
-    context('when no value is provided', () => {
+    context('when no values are provided', () => {
       const spy = sinon.spy();
       const component = shallow(
         <FormFileInput label="Test" name="testing" changeHandler={spy} />
@@ -25,11 +25,7 @@ describe('<FormFileInput />', () => {
       });
 
       it('renders the label button', () => {
-        expect(component.find('.form-item-file-label').text()).to.equal('Select a file...');
-      });
-
-      it('renders the input name', () => {
-        expect(component.find('.file-input').prop('name')).to.equal('testing');
+        expect(component.find('.form-item-file-button').text()).to.equal('Select a file...');
       });
 
       it('renders the file icon', () => {

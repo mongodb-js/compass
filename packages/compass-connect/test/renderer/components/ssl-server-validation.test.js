@@ -3,14 +3,14 @@ const chai = require('chai');
 const expect = chai.expect;
 const chaiEnzyme = require('chai-enzyme');
 const { mount } = require('enzyme');
-const SSLServerValidation = require('../../src/components/ssl-server-validation');
+const SSLServerValidation = require('../../../src/components/ssl-server-validation');
 
 chai.use(chaiEnzyme());
 
 describe('<SSLServerValidation />', () => {
   describe('#render', () => {
     const connection = {
-      ssl_ca: 'path/to/file'
+      ssl_ca: ['path/to/file']
     };
     const component = mount(
       <SSLServerValidation currentConnection={connection} />
@@ -21,7 +21,7 @@ describe('<SSLServerValidation />', () => {
     });
 
     it('renders the username input', () => {
-      expect(component.find('input[name="ssl_ca"]')).to.have.value('path/to/file');
+      expect(component.find('.form-item-file-button')).to.have.text('file');
     });
   });
 });
