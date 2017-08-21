@@ -47,7 +47,15 @@ const SYSTEM_CA_SSL_ROLE = {
 };
 
 /**
- * Server vaildation role.
+ * Unvalidated (insecure) ssl role has no component.
+ */
+const UNVALIDATED_SLL_ROLE = {
+  name: 'UNVALIDATED',
+  selectOption: { UNVALIDATED: 'Unvalidated (insecure)' }
+};
+
+/**
+ * Server validation role.
  */
 const SERVER_VALIDATION_SSL_ROLE = {
   name: 'SERVER',
@@ -73,6 +81,7 @@ function activate(appRegistry) {
   appRegistry.registerRole('Connect.SSLMethod', SYSTEM_CA_SSL_ROLE);
   appRegistry.registerRole('Connect.SSLMethod', SERVER_VALIDATION_SSL_ROLE);
   appRegistry.registerRole('Connect.SSLMethod', SERVER_CLIENT_VALIDATION_SSL_ROLE);
+  appRegistry.registerRole('Connect.SSLMethod', UNVALIDATED_SLL_ROLE);
   appRegistry.registerRole('Connect.AuthenticationMethod', NO_AUTH_ROLE);
   appRegistry.registerRole('Connect.AuthenticationMethod', MONGODB_AUTH_ROLE);
   appRegistry.registerAction('Connect.Actions', ConnectActions);
@@ -88,6 +97,7 @@ function deactivate(appRegistry) {
   appRegistry.deregisterRole('Connect.SSLMethod', SYSTEM_CA_SSL_ROLE);
   appRegistry.deregisterRole('Connect.SSLMethod', SERVER_VALIDATION_SSL_ROLE);
   appRegistry.deregisterRole('Connect.SSLMethod', SERVER_CLIENT_VALIDATION_SSL_ROLE);
+  appRegistry.deregisterRole('Connect.SSLMethod', UNVALIDATED_SLL_ROLE);
   appRegistry.deregisterRole('Connect.AuthenticationMethod', NO_AUTH_ROLE);
   appRegistry.deregisterRole('Connect.AuthenticationMethod', MONGODB_AUTH_ROLE);
   appRegistry.deregisterAction('Connect.Actions');
