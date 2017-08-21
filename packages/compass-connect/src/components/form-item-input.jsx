@@ -1,13 +1,27 @@
 const React = require('react');
 const PropTypes = require('prop-types');
+const { shell } = require('electron');
 
 class FormItemInput extends React.Component {
+
+  openLink() {
+    shell.openExternal(this.props.link);
+  }
+
+  renderInfoSprinkle() {
+    if (this.props.link) {
+      return (
+        <i className="help" onClick={this.openLink.bind(this)} />
+      );
+    }
+  }
 
   render() {
     return (
       <div className="form-item">
         <label>
           <span className="form-item-label">{this.props.label}</span>
+          {this.renderInfoSprinkle()}
         </label>
         <input
           name={this.props.name}
@@ -29,7 +43,8 @@ FormItemInput.propTypes = {
   blurHandler: PropTypes.func,
   placeholder: PropTypes.string,
   value: PropTypes.oneOfType([ PropTypes.string, PropTypes.number ]),
-  type: PropTypes.string
+  type: PropTypes.string,
+  link: PropTypes.string
 };
 
 FormItemInput.displayName = 'FormItemInput';

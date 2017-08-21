@@ -1,6 +1,6 @@
 const path = require('path');
 const React = require('react');
-const { remote } = require('electron');
+const { remote, shell } = require('electron');
 const dialog = remote.dialog;
 const BrowserWindow = remote.BrowserWindow;
 const PropTypes = require('prop-types');
@@ -30,6 +30,10 @@ class FormFileInput extends React.Component {
     });
   }
 
+  openLink() {
+    shell.openExternal(this.props.link);
+  }
+
   renderButtonText() {
     if (this.state.values && this.state.values.length > 0) {
       return this.renderFileNames();
@@ -44,11 +48,20 @@ class FormFileInput extends React.Component {
     return baseFiles.join(', ');
   }
 
+  renderInfoSprinkle() {
+    if (this.props.link) {
+      return (
+        <i className="help" onClick={this.openLink.bind(this)} />
+      );
+    }
+  }
+
   render() {
     return (
       <div className="form-item">
         <label>
           <span className="form-item-label">{this.props.label}</span>
+          {this.renderInfoSprinkle()}
         </label>
         <button
           id={this.props.id}
@@ -67,7 +80,8 @@ FormFileInput.propTypes = {
   changeHandler: PropTypes.func.isRequired,
   id: PropTypes.string,
   values: PropTypes.array,
-  multi: PropTypes.bool
+  multi: PropTypes.bool,
+  link: PropTypes.string
 };
 
 FormFileInput.defaultProps = {

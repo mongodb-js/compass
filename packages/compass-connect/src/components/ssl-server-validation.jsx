@@ -16,6 +16,7 @@ class SSLServerValidation extends React.Component {
           label="Certificate Authority"
           changeHandler={this.onSSLCAChanged.bind(this)}
           values={this.props.currentConnection.ssl_ca}
+          link="https://docs.mongodb.com/manual/tutorial/configure-ssl/#certificate-authorities"
           multi />
       </div>
     );

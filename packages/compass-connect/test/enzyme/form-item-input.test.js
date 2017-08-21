@@ -55,5 +55,19 @@ describe('<FormItemInput />', () => {
         expect(component.find('.form-control')).to.have.value('test');
       });
     });
+
+    context('when a link is provided', () => {
+      const component = shallow(
+        <FormItemInput
+          label="Test"
+          name="testing"
+          link="http://mongodb.com"
+          changeHandler={changeHandler} />
+      );
+
+      it('renders the info sprinkle', () => {
+        expect(component.find('i.help')).to.be.present();
+      });
+    });
   });
 });

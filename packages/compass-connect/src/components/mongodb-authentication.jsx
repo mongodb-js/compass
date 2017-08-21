@@ -36,7 +36,8 @@ class MongoDBAuthentication extends React.Component {
           placeholder="admin"
           name="auth-source"
           changeHandler={this.onAuthSourceChanged.bind(this)}
-          value={this.props.currentConnection.mongodb_database_name} />
+          value={this.props.currentConnection.mongodb_database_name}
+          link="https://docs.mongodb.com/manual/core/security-users/#user-authentication-database" />
       </div>
     );
   }

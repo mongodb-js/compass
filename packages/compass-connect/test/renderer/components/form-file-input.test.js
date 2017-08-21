@@ -32,5 +32,20 @@ describe('<FormFileInput />', () => {
         expect(component.find('.fa-upload')).to.be.present();
       });
     });
+
+    context('when a link is provided', () => {
+      const spy = sinon.spy();
+      const component = shallow(
+        <FormFileInput
+          label="Test"
+          name="testing"
+          changeHandler={spy}
+          link="http://mongodb.com" />
+      );
+
+      it('renders the info sprinkle', () => {
+        expect(component.find('i.help')).to.be.present();
+      });
+    });
   });
 });
