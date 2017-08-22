@@ -59,7 +59,10 @@ class InsertDocumentDialog extends React.Component {
    * @param {Object} doc - The document.
    */
   handleStoreOpen(doc) {
-    this.setState({ doc: doc, open: true });
+    require('marky').mark('EditableDocument - Clone');
+    this.setState({ doc: doc, open: true }, () => {
+      require('marky').stop('EditableDocument - Clone');
+    });
     this.unsubscribeInvalid = this.handleInvalid.bind(this);
     this.unsubscribeValid = this.handleValid.bind(this);
     this.state.doc.on(Element.Events.Invalid, this.unsubscribeInvalid);

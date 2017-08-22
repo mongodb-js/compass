@@ -231,7 +231,10 @@ class EditableDocument extends React.Component {
    * Handle clicking the expand button.
    */
   handleExpandClick() {
-    this.setState({ expanded: !this.state.expanded });
+    require('marky').mark('EditableDocument - Show N more fields');
+    this.setState({ expanded: !this.state.expanded }, () => {
+      require('marky').stop('EditableDocument - Show N more fields');
+    });
   }
 
   /**
@@ -252,7 +255,6 @@ class EditableDocument extends React.Component {
    * Handles a trigger from the store.
    *
    * @param {Boolean} success - If the update succeeded.
-   * @param {Object} object - The error or document.
    */
   handleStoreRemove(success) {
     if (success) {
@@ -261,22 +263,23 @@ class EditableDocument extends React.Component {
   }
 
   /**
-   * Handle a sucessful update.
+   * Handle a successful update.
    *
    * @param {Object} doc - The updated document.
    */
   handleUpdateSuccess(doc) {
+    require('marky').mark('EditableDocument - Handle update success');
     this.doc = EditableDocument.loadDocument(doc);
     this.subscribeToDocumentEvents();
     setTimeout(() => {
-      this.setState({ editing: false });
+      this.setState({ editing: false }, () => {
+        require('marky').stop('EditableDocument - Handle update success');
+      });
     }, 500);
   }
 
   /**
-   * Handle a sucessful update.
-   *
-   * @param {Object} doc - The updated document.
+   * Handle a successful update.
    */
   handleRemoveSuccess() {
     this.setState({ deleting: false, deleteFinished: true });
@@ -287,7 +290,10 @@ class EditableDocument extends React.Component {
    * Handles canceling edits to the document.
    */
   handleCancel() {
-    this.setState({ editing: false });
+    require('marky').mark('EditableDocument - Cancel');
+    this.setState({ editing: false }, () => {
+      require('marky').stop('EditableDocument - Cancel');
+    });
   }
 
   /**
@@ -315,7 +321,10 @@ class EditableDocument extends React.Component {
    * Handle the edit click.
    */
   handleEdit() {
-    this.setState({ editing: true, expanded: true });
+    require('marky').mark('EditableDocument - Edit');
+    this.setState({ editing: true, expanded: true }, () => {
+      require('marky').stop('EditableDocument - Edit');
+    });
   }
 
   /**
@@ -329,7 +338,10 @@ class EditableDocument extends React.Component {
    * Handle clicking the expand all button.
    */
   handleExpandAll() {
-    this.setState({ expandAll: !this.state.expandAll });
+    require('marky').mark('EditableDocument - Expand All');
+    this.setState({ expandAll: !this.state.expandAll }, () => {
+      require('marky').stop('EditableDocument - Expand All');
+    });
   }
 
   /**

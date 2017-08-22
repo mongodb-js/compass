@@ -1,7 +1,7 @@
 {
   "name": "@mongodb-js/compass-crud",
   "productName": "Compass CRUD plugin",
-  "version": "0.2.2",
+  "version": "0.3.0-0",
   "description": "Compass Plugin for CRUD Operations",
   "repository": "https://github.com/10gen/compass-crud",
   "main": "index.js",
@@ -86,6 +86,7 @@
     "hadron-type-checker": "^3.0.0",
     "jquery": "^2.1.4",
     "lodash": "^4.17.4",
+    "marky": "^1.2.0",
     "react-click-outside": "^2.2.0"
   }
 }

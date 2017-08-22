@@ -81,12 +81,15 @@ class DocumentList extends React.Component {
     // If not resetting we append the documents to the existing
     // list and increment the page. The loaded count is incremented
     // by the number of new documents.
+    require('marky').mark('DocumentList - Handle load more');
     this.setState({
       docs: this.state.docs.concat(documents),
       nextSkip: (this.state.nextSkip + documents.length),
       loadedCount: (this.state.loadedCount + documents.length),
       error: error,
       loading: false
+    }, () => {
+      require('marky').stop('DocumentList - Handle load more');
     });
   }
 
@@ -104,6 +107,7 @@ class DocumentList extends React.Component {
       // If resetting, then we need to go back to page one with
       // the documents as the filter changed. The loaded count and
       // total count are reset here as well.
+      require('marky').mark('DocumentList - Handle reset');
       this.setState({
         docs: documents,
         nextSkip: documents.length,
@@ -111,6 +115,8 @@ class DocumentList extends React.Component {
         loadedCount: documents.length,
         namespace: this.NamespaceStore.ns,
         error: error
+      }, () => {
+        require('marky').stop('DocumentList - Handle reset');
       });
     }
   }
@@ -121,6 +127,7 @@ class DocumentList extends React.Component {
    * @param {Object} id - The id of the removed document.
    */
   handleRemove(id) {
+    require('marky').mark('DocumentList - Handle remove');
     const index = _.findIndex(this.state.docs, (component) => {
       const _id = component.props.children.props.doc._id;
       if (id instanceof ObjectId) {
@@ -133,6 +140,8 @@ class DocumentList extends React.Component {
       docs: this.state.docs,
       loadedCount: (this.state.loadedCount - 1),
       nextSkip: (this.state.nextSkip - 1)
+    }, () => {
+      require('marky').stop('DocumentList - Handle remove');
     });
   }
 
@@ -163,11 +172,14 @@ class DocumentList extends React.Component {
    */
   handleInsert(error, doc) {
     if (!error) {
+      require('marky').mark('DocumentList - Handle insert');
       this.setState({
         docs: this.state.docs.concat([doc]),
         nextSkip: (this.state.nextSkip + 1),
         loadedCount: (this.state.loadedCount + 1),
         count: this.state.count + 1
+      }, () => {
+        require('marky').stop('DocumentList - Handle insert');
       });
     }
   }
