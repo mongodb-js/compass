@@ -795,7 +795,9 @@ _.assign(derived, {
         opts.password = this.ssh_tunnel_password;
       } else if (this.ssh_tunnel === 'IDENTITY_FILE') {
         /* eslint no-sync: 0 */
-        opts.privateKey = fs.readFileSync(this.ssh_tunnel_identity_file[0]);
+        if (this.ssh_tunnel_identity_file && this.ssh_tunnel_identity_file[0]) {
+          opts.privateKey = fs.readFileSync(this.ssh_tunnel_identity_file[0]);
+        }
         if (this.ssh_tunnel_passphrase) {
           opts.passphrase = this.ssh_tunnel_passphrase;
         }
