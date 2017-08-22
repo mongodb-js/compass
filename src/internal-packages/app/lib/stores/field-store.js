@@ -206,12 +206,7 @@ const FieldStore = Reflux.createStore({
    * @param  {Object} document     document to process.
    */
   processSingleDocument(document) {
-    parseSchema([ document ], {storeValues: false}, (err, schema) => {
-      if (err) {
-        return;
-      }
-      this._mergeSchema(schema);
-    });
+    this.processDocuments([ document ]);
   },
 
   /**
