@@ -167,10 +167,12 @@ const FieldStore = Reflux.createStore({
     }
     this._flattenedFields(fields, schema.fields);
 
+    require('marky').mark('FieldStore - Merge schema');
     this.setState({
       fields: fields,
       topLevelFields: _.union(this.state.topLevelFields, topLevelFields)
     });
+    require('marky').stop('FieldStore - Merge schema');
   },
 
   /**
@@ -191,11 +193,13 @@ const FieldStore = Reflux.createStore({
    * @param  {Array} documents  documents to process.
    */
   processDocuments(documents) {
+    require('marky').mark('FieldStore - Process Documents');
     parseSchema(documents, {storeValues: false}, (err, schema) => {
       if (err) {
         return;
       }
       this._mergeSchema(schema);
+      require('marky').stop('FieldStore - Process Documents');
     });
   },
 
@@ -205,12 +209,7 @@ const FieldStore = Reflux.createStore({
    * @param  {Object} document     document to process.
    */
   processSingleDocument(document) {
-    parseSchema([ document ], {storeValues: false}, (err, schema) => {
-      if (err) {
-        return;
-      }
-      this._mergeSchema(schema);
-    });
+    this.processDocuments([ document ]);
   },
 
   /**
