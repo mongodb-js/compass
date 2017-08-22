@@ -47,8 +47,9 @@ class SSLServerClientValidation extends React.Component {
         <FormItemInput
           label="Client Key Password"
           name="ssl_private_key_password"
+          type="password"
           changeHandler={this.onClientKeyPasswordChanged.bind(this)}
-          value={this.props.currentConnection.ssl_private_key_password}
+          value={this.props.currentConnection.ssl_private_key_password || ''}
           link="https://docs.mongodb.com/manual/reference/configuration-options/#net.ssl.PEMKeyPassword" />
       </div>
     );

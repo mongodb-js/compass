@@ -9,6 +9,14 @@ const ConnectStore = Reflux.createStore({
 
   listenables: Actions,
 
+  init() {
+    this.state.connections.fetch({
+      success: () => {
+        this.trigger(this.state);
+      }
+    });
+  },
+
   resetConnection() {
     this.setState({ currentConnection: new Connection() });
   },
@@ -89,6 +97,10 @@ const ConnectStore = Reflux.createStore({
     this.state.connections.add(connection);
     connection.save();
     this.trigger(this.state);
+  },
+
+  onFavoriteSelected(favorite) {
+    this.setState({ currentConnection: favorite });
   },
 
   onDeleteConnection(connection) {

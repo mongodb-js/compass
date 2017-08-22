@@ -1,70 +1,10 @@
+@import 'sidebar.less';
+
 .page {
   display: flex;
   flex-direction: row;
   align-items: stretch;
   flex: 1;
-}
-
-.sidebar {
-  display: flex;
-  flex-direction: column;
-  justify-content: flex-start;
-  border-radius: 0;
-  position: fixed;
-  z-index: 10;
-  margin-bottom: 0;
-  top: 0;
-  left: 0;
-  bottom: 0;
-  width: 250px;
-  background: #4c5259;
-  border-left-width: 0;
-  border-top-width: 0;
-  border-bottom-width: 0;
-
-  .widget-container {
-    .list-group {
-      margin-bottom: 0px;
-      line-height: 24px;
-      overflow-y: auto;
-      width: 100%;
-      z-index: -1;
-      padding-left: 0;
-
-      &-item-heading {
-        border-bottom: 1px solid #454a51;
-        margin-bottom: 0;
-        cursor: pointer;
-        color: #bfbfbe;
-        font-weight: bold;
-
-        a {
-          text-transform: uppercase;
-          font-size: 12px;
-          color: #fff;
-          transition: all 180ms ease-out;
-          display: block;
-          text-decoration: none;
-          white-space: nowrap;
-          overflow: hidden;
-          text-overflow: ellipsis;
-          padding: 9px 0;
-
-          i {
-            margin: 0 5px;
-          }
-        }
-      }
-
-      .active {
-        background-color: #6D7984;
-      }
-    }
-
-    .root {
-      bottom: 0px;
-    }
-  }
 }
 
 .panel {

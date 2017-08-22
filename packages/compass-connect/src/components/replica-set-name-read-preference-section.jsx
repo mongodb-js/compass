@@ -20,9 +20,8 @@ class ReplicaSetNameReadPreferenceSection extends React.Component {
         <FormItemInput
           label="Replica Set Name"
           name="replica_set_name"
-          placeholder=""
           changeHandler={this.onReplicaSetNameChanged.bind(this)}
-          value={this.props.currentConnection.replica_set_name} />
+          value={this.props.currentConnection.replica_set_name || ''} />
         <FormItemSelect
           label="Read Preference"
           name="read_preference"

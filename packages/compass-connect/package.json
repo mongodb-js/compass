@@ -73,7 +73,10 @@
   },
   "dependencies": {
     "ampersand-rest-collection": "^5.0.0",
+    "keytar": "mongodb-js/node-keytar#fdef09013f576b7a257ad768939e827882bccef5",
+    "lodash.filter": "^4.6.0",
     "lodash.find": "^4.6.0",
+    "lodash.map": "^4.6.0",
     "mongodb-connection-model": "^9.2.0",
     "storage-mixin": "^0.8.1"
   }

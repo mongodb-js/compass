@@ -8,6 +8,8 @@ const path = require('path');
 const ROOT_DIR = path.resolve(`${__dirname}/../..`);
 const SRC_DIR = path.join(ROOT_DIR, 'src');
 
+app.setName('Compass-Connect');
+
 let mainWindow;
 
 function createWindow() {

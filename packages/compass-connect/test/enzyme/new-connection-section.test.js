@@ -14,11 +14,11 @@ describe('<NewConnectionSection />', () => {
     );
 
     it('renders the wrapper div', () => {
-      expect(component.find('.widget-container')).to.be.present();
+      expect(component.find('.connect-sidebar-new-connection')).to.be.present();
     });
 
-    it('renders the ul', () => {
-      expect(component.find('ul.list-group')).to.be.present();
+    it('renders the header', () => {
+      expect(component.find('.connect-sidebar-header')).to.be.present();
     });
 
     it('renders the new connection icon', () => {

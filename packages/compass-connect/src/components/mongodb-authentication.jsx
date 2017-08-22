@@ -24,19 +24,19 @@ class MongoDBAuthentication extends React.Component {
           label="Username"
           name="username"
           changeHandler={this.onUsernameChanged.bind(this)}
-          value={this.props.currentConnection.mongodb_username} />
+          value={this.props.currentConnection.mongodb_username || ''} />
         <FormItemInput
           label="Password"
           name="password"
           type="password"
           changeHandler={this.onPasswordChanged.bind(this)}
-          value={this.props.currentConnection.mongodb_password} />
+          value={this.props.currentConnection.mongodb_password || ''} />
         <FormItemInput
           label="Authentication Database"
           placeholder="admin"
           name="auth-source"
           changeHandler={this.onAuthSourceChanged.bind(this)}
-          value={this.props.currentConnection.mongodb_database_name}
+          value={this.props.currentConnection.mongodb_database_name || ''}
           link="https://docs.mongodb.com/manual/core/security-users/#user-authentication-database" />
       </div>
     );

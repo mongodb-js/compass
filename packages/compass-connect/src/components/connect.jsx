@@ -12,7 +12,7 @@ class Connect extends React.Component {
   render() {
     return (
       <div className="page connect">
-        <Sidebar />
+        <Sidebar {...this.props} />
         <div className="form-container">
           <header>
             <h2 data-test-id="connect-header">Connect to Host</h2>
@@ -35,7 +35,8 @@ class Connect extends React.Component {
 }
 
 Connect.propTypes = {
-  currentConnection: PropTypes.object
+  currentConnection: PropTypes.object,
+  connections: PropTypes.object
 };
 
 Connect.displayName = 'Connect';
