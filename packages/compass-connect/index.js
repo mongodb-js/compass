@@ -2,6 +2,8 @@ const ConnectComponent = require('./lib/components');
 const MongoDBAuthentication = require('./lib/components/mongodb-authentication');
 const SSLServerValidation = require('./lib/components/ssl-server-validation');
 const SSLServerClientValidation = require('./lib/components/ssl-server-client-validation');
+const SSHTunnelIdentityFileValidation = require('./lib/components/ssh-tunnel-identity-file-validation');
+const SSHTunnelPasswordValidation = require('./lib/components/ssh-tunnel-password-validation');
 const ConnectActions = require('./lib/actions');
 const ConnectStore = require('./lib/stores');
 
@@ -73,6 +75,32 @@ const SERVER_CLIENT_VALIDATION_SSL_ROLE = {
 };
 
 /**
+ * No SSH tunnel role has no component.
+ */
+const NO_SSH_TUNNEL_ROLE = {
+  name: 'NONE',
+  selectOption: { NONE: 'None' }
+};
+
+/**
+ * Use passworld SSH tunnel role.
+ */
+const PASSWORD_SSH_TUNNEL_ROLE = {
+  name: 'USER_PASSWORD',
+  selectOption: { USER_PASSWORD: 'Use Password' },
+  component: SSHTunnelPasswordValidation
+};
+
+/**
+ * Use indentity file SSH tunnel role.
+ */
+const IDENTITY_FILE_SSH_TUNNEL_ROLE = {
+  name: 'IDENTITY_FILE',
+  selectOption: { IDENTITY_FILE: 'Use Identity File' },
+  component: SSHTunnelIdentityFileValidation
+};
+
+/**
  * Activate all the components in the  Mongodb Js Compass Connect package.
  */
 function activate(appRegistry) {
@@ -82,6 +110,9 @@ function activate(appRegistry) {
   appRegistry.registerRole('Connect.SSLMethod', SERVER_VALIDATION_SSL_ROLE);
   appRegistry.registerRole('Connect.SSLMethod', SERVER_CLIENT_VALIDATION_SSL_ROLE);
   appRegistry.registerRole('Connect.SSLMethod', UNVALIDATED_SLL_ROLE);
+  appRegistry.registerRole('Connect.SSHTunnelMethod', NO_SSH_TUNNEL_ROLE);
+  appRegistry.registerRole('Connect.SSHTunnelMethod', PASSWORD_SSH_TUNNEL_ROLE);
+  appRegistry.registerRole('Connect.SSHTunnelMethod', IDENTITY_FILE_SSH_TUNNEL_ROLE);
   appRegistry.registerRole('Connect.AuthenticationMethod', NO_AUTH_ROLE);
   appRegistry.registerRole('Connect.AuthenticationMethod', MONGODB_AUTH_ROLE);
   appRegistry.registerAction('Connect.Actions', ConnectActions);
@@ -98,6 +129,9 @@ function deactivate(appRegistry) {
   appRegistry.deregisterRole('Connect.SSLMethod', SERVER_VALIDATION_SSL_ROLE);
   appRegistry.deregisterRole('Connect.SSLMethod', SERVER_CLIENT_VALIDATION_SSL_ROLE);
   appRegistry.deregisterRole('Connect.SSLMethod', UNVALIDATED_SLL_ROLE);
+  appRegistry.deregisterRole('Connect.SSHTunnelMethod', NO_SSH_TUNNEL_ROLE);
+  appRegistry.deregisterRole('Connect.SSHTunnelMethod', PASSWORD_SSH_TUNNEL_ROLE);
+  appRegistry.deregisterRole('Connect.SSHTunnelMethod', IDENTITY_FILE_SSH_TUNNEL_ROLE);
   appRegistry.deregisterRole('Connect.AuthenticationMethod', NO_AUTH_ROLE);
   appRegistry.deregisterRole('Connect.AuthenticationMethod', MONGODB_AUTH_ROLE);
   appRegistry.deregisterAction('Connect.Actions');

@@ -182,7 +182,7 @@ describe('IndexStore', () => {
     });
   });
 
-  describe('#onCreateFavorite', () => {
+  describe.skip('#onCreateFavorite', () => {
     before(() => {
       IndexStore.state.currentConnection.name = 'myconnection';
     });
@@ -199,6 +199,72 @@ describe('IndexStore', () => {
         done();
       });
       Actions.onCreateFavorite();
+    });
+  });
+
+  describe('#onSSHTunnelPortChanged', () => {
+    it('updates the SSH Tunnel port in the current connection model', (done) => {
+      const unsubscribe = IndexStore.listen((state) => {
+        expect(state.currentConnection.ssh_tunnel_port).to.equal('5000');
+        unsubscribe();
+        done();
+      });
+      Actions.onSSHTunnelPortChanged('5000');
+    });
+  });
+
+  describe('#onSSHTunnelUsernameChanged', () => {
+    it('updates the SSH Tunnel username in the current connection model', (done) => {
+      const unsubscribe = IndexStore.listen((state) => {
+        expect(state.currentConnection.ssh_tunnel_username).to.equal('mongodb');
+        unsubscribe();
+        done();
+      });
+      Actions.onSSHTunnelUsernameChanged('mongodb');
+    });
+  });
+
+  describe('#onSSHTunnelHostnameChanged', () => {
+    it('updates the SSH Tunnel hostname in the current connection model', (done) => {
+      const unsubscribe = IndexStore.listen((state) => {
+        expect(state.currentConnection.ssh_tunnel_hostname).to.equal('localhost');
+        unsubscribe();
+        done();
+      });
+      Actions.onSSHTunnelHostnameChanged('localhost');
+    });
+  });
+
+  describe('#onSSHTunnelPasswordChanged', () => {
+    it('updates the SSH Tunnel password in the current connection model', (done) => {
+      const unsubscribe = IndexStore.listen((state) => {
+        expect(state.currentConnection.ssh_tunnel_password).to.equal('mongodb');
+        unsubscribe();
+        done();
+      });
+      Actions.onSSHTunnelPasswordChanged('mongodb');
+    });
+  });
+
+  describe('#onSSHTunnelPassphraseChanged', () => {
+    it('updates the SSH Tunnel passphrase in the current connection model', (done) => {
+      const unsubscribe = IndexStore.listen((state) => {
+        expect(state.currentConnection.ssh_tunnel_passphrase).to.equal('mongodb');
+        unsubscribe();
+        done();
+      });
+      Actions.onSSHTunnelPassphraseChanged('mongodb');
+    });
+  });
+
+  describe('#onSSHTunnelIdentityFileChanged', () => {
+    it('updates the SSH Tunnel identity file in the current connection model', (done) => {
+      const unsubscribe = IndexStore.listen((state) => {
+        expect(state.currentConnection.ssh_tunnel_identity_file).to.deep.equal(['file']);
+        unsubscribe();
+        done();
+      });
+      Actions.onSSHTunnelIdentityFileChanged(['file']);
     });
   });
 });
