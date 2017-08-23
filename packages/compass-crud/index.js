@@ -4,6 +4,8 @@ const Actions = require('./lib/actions');
 const InsertDocumentStore = require('./lib/stores/insert-document-store');
 const ResetDocumentListStore = require('./lib/stores/reset-document-list-store');
 const LoadMoreDocumentsStore = require('./lib/stores/load-more-documents-store');
+const BreadcrumbStore = require('./lib/stores/breadcrumb-store');
+
 const {
   StandardEditor,
   DateEditor,
@@ -80,6 +82,7 @@ const activate = (appRegistry) => {
   appRegistry.registerStore('CRUD.InsertDocumentStore', InsertDocumentStore);
   appRegistry.registerStore('CRUD.ResetDocumentListStore', ResetDocumentListStore);
   appRegistry.registerStore('CRUD.LoadMoreDocumentsStore', LoadMoreDocumentsStore);
+  appRegistry.registerStore('CRUD.BreadcrumbStore', BreadcrumbStore);
 };
 
 /**
@@ -102,6 +105,7 @@ const deactivate = (appRegistry) => {
   appRegistry.deregisterStore('CRUD.InsertDocumentStore');
   appRegistry.deregisterStore('CRUD.ResetDocumentListStore');
   appRegistry.deregisterStore('CRUD.LoadMoreDocumentsStore');
+  appRegistry.deregisterStore('CRUD.BreadcrumbStore');
 };
 
 module.exports.activate = activate;
