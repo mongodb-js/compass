@@ -1,4 +1,5 @@
 const { expect } = require('chai');
+const Connection = require('../../../lib/models/connection');
 const Actions = require('../../../lib/actions');
 const IndexStore = require('../../../lib/stores');
 
@@ -182,12 +183,16 @@ describe('IndexStore', () => {
     });
   });
 
-  describe.skip('#onCreateFavorite', () => {
+  describe('#onCreateFavorite', () => {
     before(() => {
       IndexStore.state.currentConnection.name = 'myconnection';
     });
 
-    after(() => {
+    after((done) => {
+      const unsubscribe = IndexStore.listen(() => {
+        unsubscribe();
+        done();
+      });
       IndexStore.onDeleteConnection(IndexStore.state.currentConnection);
     });
 
@@ -199,6 +204,65 @@ describe('IndexStore', () => {
         done();
       });
       Actions.onCreateFavorite();
+    });
+  });
+
+  describe('#onCreateRecent', () => {
+    context('when the list is under 10 recent connections', () => {
+      after((done) => {
+        const unsubscribe = IndexStore.listen(() => {
+          unsubscribe();
+          done();
+        });
+        IndexStore.onDeleteConnection(IndexStore.state.currentConnection);
+      });
+
+      it('creates a new recent in the store', (done) => {
+        const unsubscribe = IndexStore.listen((state) => {
+          expect(state.currentConnection.is_favorite).to.equal(false);
+          expect(state.currentConnection.last_used).to.not.equal(undefined);
+          expect(state.connections.length).to.equal(1);
+          unsubscribe();
+          done();
+        });
+        Actions.onCreateRecent();
+      });
+    });
+
+    context('when the list has 10 recent connections', () => {
+      before(() => {
+        IndexStore.state.connections.add(new Connection({ is_favorite: true }));
+        IndexStore.state.connections.add(new Connection({ last_used: new Date('2017-01-01') }));
+        IndexStore.state.connections.add(new Connection({ last_used: new Date('2017-01-02') }));
+        IndexStore.state.connections.add(new Connection({ last_used: new Date('2017-01-03') }));
+        IndexStore.state.connections.add(new Connection({ last_used: new Date('2017-01-04') }));
+        IndexStore.state.connections.add(new Connection({ last_used: new Date('2017-01-08') }));
+        IndexStore.state.connections.add(new Connection({ last_used: new Date('2017-01-09') }));
+        IndexStore.state.connections.add(new Connection({ last_used: new Date('2017-01-10') }));
+        IndexStore.state.connections.add(new Connection({ last_used: new Date('2017-01-05') }));
+        IndexStore.state.connections.add(new Connection({ last_used: new Date('2017-01-06') }));
+        IndexStore.state.connections.add(new Connection({ last_used: new Date('2017-01-07') }));
+      });
+
+      after((done) => {
+        const unsubscribe = IndexStore.listen(() => {
+          IndexStore.state.connections.reset();
+          unsubscribe();
+          done();
+        });
+        IndexStore.onDeleteConnection(IndexStore.state.currentConnection);
+      });
+
+      it('limits the recent connections to 10', (done) => {
+        const unsubscribe = IndexStore.listen((state) => {
+          expect(state.currentConnection.is_favorite).to.equal(false);
+          expect(state.currentConnection.last_used).to.not.equal(undefined);
+          expect(state.connections.length).to.equal(11);
+          unsubscribe();
+          done();
+        });
+        Actions.onCreateRecent();
+      });
     });
   });
 

@@ -1,4 +1,5 @@
 const Reflux = require('reflux');
+const sortBy = require('lodash.sortby');
 const Actions = require('../actions');
 const Connection = require('../models/connection');
 const ConnectionCollection = require('../models/connection-collection');
@@ -94,9 +95,15 @@ const ConnectStore = Reflux.createStore({
   onCreateFavorite() {
     const connection = this.state.currentConnection;
     connection.is_favorite = true;
-    this.state.connections.add(connection);
-    connection.save();
-    this.trigger(this.state);
+    this._addConnection(connection);
+  },
+
+  onCreateRecent() {
+    const connection = this.state.currentConnection;
+    connection.last_used = new Date();
+    this._pruneRecents(() => {
+      this._addConnection(connection);
+    });
   },
 
   onFavoriteSelected(favorite) {
@@ -161,6 +168,29 @@ const ConnectStore = Reflux.createStore({
       currentConnection: new Connection(),
       connections: new ConnectionCollection()
     };
+  },
+
+  _addConnection(connection) {
+    this.state.connections.add(connection);
+    connection.save();
+    this.trigger(this.state);
+  },
+
+  _pruneRecents(done) {
+    const recents = this.state.connections.filter((connection) => {
+      return !connection.is_favorite;
+    });
+    if (recents.length === 10) {
+      const sortedRecents = sortBy(recents, 'last_used');
+      const toDelete = sortedRecents[9];
+      toDelete.destroy({
+        success: () => {
+          this.state.connections.remove(toDelete._id);
+          return done();
+        }
+      });
+    }
+    done();
   }
 });
 

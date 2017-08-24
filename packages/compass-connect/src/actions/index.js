@@ -17,6 +17,7 @@ const ConnectActions = Reflux.createActions([
   'onSSLPrivateKeyPasswordChanged',
   'onFavoriteNameChanged',
   'onCreateFavorite',
+  'onCreateRecent',
   'onSSHTunnelPasswordChanged',
   'onSSHTunnelPassphraseChanged',
   'onSSHTunnelHostnameChanged',
