@@ -57,15 +57,24 @@ leaf_clause
     { return { pos: "leaf-clause", key: key, value: value }; }
 
 value
-  = operator_object
+  = operator_expression
   / JSON
 
 
 /* --- Operators --- */
 
-operator_object
+value_operator
+  = "$gte" / "$gt" / "$lte" / "$lt" / "$eq" / "$ne" / "$type" / "$size" / "$exists"
+
+list_operator
+  = "$in" / "$nin" / "$all"
+
+operator_expression_operator
+  = "$not" / "$elemMatch"
+
+operator_expression
   = begin_object operators:operator_list end_object
-    { return { pos: "operator-object", operators: operators !== null ? operators : [] }; }
+    { return { pos: "operator-expression", operators: operators !== null ? operators : [] }; }
 
 operator_list
   = head:operator
@@ -82,9 +91,9 @@ operator
   // elemmatch-expression-operator
   / quotation_mark "$elemMatch" quotation_mark name_separator expression:expression
   { return { pos: "elemmatch-expression-operator", expression: expression } }
-  // elemmatch-operator-operator
-  / quotation_mark "$elemMatch" quotation_mark name_separator opobject:operator_object
-  { return { pos: "elemmatch-operator-operator", operators: opobject.operators } }
+  // operator-expression-operator
+  / quotation_mark operator:operator_expression_operator quotation_mark name_separator opobject:operator_expression
+  { return { pos: "operator-expression-operator", operator: operator, operators: opobject.operators } }
   // geo-operator
   / quotation_mark "$geoWithin" quotation_mark name_separator shape:shape
   { return { pos: "geo-within-operator", operator: "$geoWithin", shape: shape }; }
@@ -156,12 +165,6 @@ polygon_shape
     end_object
     { return {"$polygon": JSON.parse(parameters)}; }
 
-
-value_operator
-  = "$gte" / "$gt" / "$lte" / "$lt" / "$eq" / "$ne" / "$type" / "$size" / "$exists"
-
-list_operator
-  = "$in" / "$nin" / "$all"
 
 where_operator = "$where"
 

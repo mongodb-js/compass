@@ -199,12 +199,33 @@ describe('accepts', function() {
     });
   });
 
-  describe('$elemMatch operator', function() {
+  describe('Operator Expression Operators', function() {
     it('should accept $elemMatch in its expression form', function() {
       accepts('{"results": {"$elemMatch": {"product": "xyz", "score": {"$gte": 8}}}}');
     });
     it('should accept $elemMatch in its operator form', function() {
       accepts('{"results": {"$elemMatch": {"$gte": 8, "$lt": 20}}}');
+    });
+    it('should reject $elemMatch in a top-level operator position', function() {
+      rejects('{"$elemMatch": {"name": {"$exists": true}}}');
+    });
+    it('should reject $elemMatch in a value-operator position', function() {
+      rejects('{"name": {"$elemMatch": true}}}');
+    });
+    it('should accept $not with an operator object as its value', function() {
+      accepts('{"names": {"$exists": true, "$not": {"$size": 0}}}');
+    });
+    it('should accept $not with a complex operator object as its value', function() {
+      accepts('{"names": {"$not": {"$exists": true, "$size": 0}}}');
+    });
+    it('should reject $not in combination with a $regex operator', function() {
+      rejects('{"name": {"$not": {"$regex": "^Th"}}}');
+    });
+    it('should reject $not in a top-level operator position', function() {
+      rejects('{"$not": {"name": {"$exists": true}}}');
+    });
+    it('should reject $not as a value-operator position', function() {
+      rejects('{"name": {"$not": true}}}');
     });
   });
 
