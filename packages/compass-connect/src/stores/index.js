@@ -107,6 +107,7 @@ const ConnectStore = Reflux.createStore({
     connection.destroy({
       success: () => {
         this.state.connections.remove(connection._id);
+        this.state.currentConnection = new Connection();
         this.trigger(this.state);
       }
     });
@@ -145,6 +146,14 @@ const ConnectStore = Reflux.createStore({
   onSSHTunnelIdentityFileChanged(file) {
     this.state.currentConnection.ssh_tunnel_identity_file = file;
     this.trigger(this.state);
+  },
+
+  onSaveConnection(connection) {
+    connection.save({
+      success: () => {
+        this.trigger(this.state);
+      }
+    });
   },
 
   getInitialState() {

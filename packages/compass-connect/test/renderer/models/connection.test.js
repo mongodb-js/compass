@@ -2,6 +2,12 @@ const { expect } = require('chai');
 const Connection = require('../../../lib/models/connection');
 
 describe('Connection', () => {
+  context('when saving secure fields', () => {
+    it('successfully requires keytar', () => {
+      expect(require('keytar')).to.have.property('addPassword');
+    });
+  });
+
   describe('#new', () => {
     const date = new Date();
     const connection = new Connection({

@@ -20,4 +20,3 @@ script: npm run test
 cache:
   directories:
     - $HOME/.electron
-    - node_modules

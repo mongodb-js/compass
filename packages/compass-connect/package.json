@@ -42,7 +42,7 @@
     "chai": "^3.5.0",
     "chai-as-promised": "^5.1.0",
     "chai-enzyme": "^0.5.0",
-    "electron": "^1.6.1",
+    "electron": "1.6.1",
     "electron-mocha": "^3.3.0",
     "enzyme": "^2.4.1",
     "eslint-config-mongodb-js": "^2.1.0",

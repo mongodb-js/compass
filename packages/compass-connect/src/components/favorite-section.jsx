@@ -16,6 +16,14 @@ class FavoriteSection extends React.Component {
     Actions.onCreateFavorite();
   }
 
+  onDeleteFavorite() {
+    Actions.onDeleteConnection(this.props.currentConnection);
+  }
+
+  onSaveFavorite() {
+    Actions.onSaveConnection(this.props.currentConnection);
+  }
+
   onNameChanged(evt) {
     this.isNameChanged = true;
     Actions.onFavoriteNameChanged(evt.target.value);
@@ -30,13 +38,39 @@ class FavoriteSection extends React.Component {
   }
 
   renderCreateFavorite() {
-    if (this.getName() !== '') {
+    if (this.getName() !== '' && !this.props.currentConnection.is_favorite) {
       return (
         <button
           type="button"
           className="btn btn-sm btn-default"
           onClick={this.onCreateFavorite.bind(this)}>
           Create Favorite
+        </button>
+      );
+    }
+  }
+
+  renderDeleteFavorite() {
+    if (this.props.currentConnection.is_favorite) {
+      return (
+        <button
+          type="button"
+          className="btn btn-sm btn-default"
+          onClick={this.onDeleteFavorite.bind(this)}>
+          Delete Favorite
+        </button>
+      );
+    }
+  }
+
+  renderSaveFavorite() {
+    if (this.props.currentConnection.is_favorite) {
+      return (
+        <button
+          type="button"
+          className="btn btn-sm btn-default"
+          onClick={this.onSaveFavorite.bind(this)}>
+          Save Favorite
         </button>
       );
     }
@@ -54,6 +88,8 @@ class FavoriteSection extends React.Component {
           value={this.getName()} />
         <div className="buttons">
           {this.renderCreateFavorite()}
+          {this.renderDeleteFavorite()}
+          {this.renderSaveFavorite()}
         </div>
       </div>
     );

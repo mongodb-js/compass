@@ -17,14 +17,16 @@ const ConnectActions = Reflux.createActions([
   'onSSLPrivateKeyPasswordChanged',
   'onFavoriteNameChanged',
   'onCreateFavorite',
-  'onFavoriteSelected',
   'onSSHTunnelPasswordChanged',
   'onSSHTunnelPassphraseChanged',
   'onSSHTunnelHostnameChanged',
   'onSSHTunnelUsernameChanged',
   'onSSHTunnelPortChanged',
   'onSSHTunnelIdentityFileChanged',
-  'onSSHTunnelChanged'
+  'onSSHTunnelChanged',
+  'onSaveConnection',
+  'onDeleteConnection',
+  'onFavoriteSelected'
 ]);
 
 module.exports = ConnectActions;
