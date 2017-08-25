@@ -9,11 +9,12 @@ class HeaderCellRenderer extends React.Component {
 
   constructor(props) {
     super(props);
-    // console.log('props in constructor ' + JSON.stringify(Object.keys(props)));
   }
 
   render() {
-    return <span><b>{this.props.displayName}</b> {this.props.bsonType}</span>;
+    return (
+      <span><b>{this.props.displayName}</b> {this.props.bsonType}</span>
+    );
   }
 }
 

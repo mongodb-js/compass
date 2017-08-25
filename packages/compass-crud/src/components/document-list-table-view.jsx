@@ -5,8 +5,11 @@ const BreadcrumbStore = require('../stores/breadcrumb-store');
 const { StoreConnector } = require('hadron-react-components');
 const {AgGridReact} = require('ag-grid-react');
 const _ = require('lodash');
-const HeaderComponent = require('./cell-renderers/header-cell');
+const HeaderComponent = require('./cell-renderers/header-cell-renderer');
 const TypeChecker = require('hadron-type-checker');
+
+const RowRenderer = require('./cell-renderers/row-renderer');
+// const util = require('util');
 
 /**
  * Represents the table view of the documents tab.
@@ -14,28 +17,27 @@ const TypeChecker = require('hadron-type-checker');
 class DocumentListTableView extends React.Component {
   constructor(props) {
     super(props);
-    const appRegistry = global.hadronApp.appRegistry;
-    this.NamespaceStore = appRegistry.getStore('App.NamespaceStore');
-  }
+    this.createColumnHeaders = this.createColumnHeaders.bind(this);
 
-  constructor(props) {
-    super(props);
-
-    this.state = {
-      columnDefs: this.createColumnDefs(),
-      rowData: this.createRowData()
+    this.gridOptions = {
+      context: {
+        column_width: 150
+      }
     };
   }
 
   onGridReady(params) {
     this.gridApi = params.api;
     this.columnApi = params.columnApi;
-
-    this.gridApi.sizeColumnsToFit();
   }
 
+  // onRowClicked(event) {
+  //   // console.log('a row was clicked + event=' + util.inspect(event));
+  // }
+  //
   createColumnHeaders() {
     const headers = {};
+    const width = this.gridOptions.context.column_width;
 
     for (let i = 0; i < this.props.docs.length; i++) {
       _.map(this.props.docs[i], function(val, key) {
@@ -43,10 +45,15 @@ class DocumentListTableView extends React.Component {
           headerName: key,
           field: key,
           headerComponentFramework: HeaderComponent,
+          width: width,
           headerComponentParams: {
             bsonType: TypeChecker.type(val)
           }
         };
+        /* Pin the ObjectId to the left */
+        if (key === '_id') {
+          headers[key].pinned = 'left';
+        }
       });
     }
     return Object.values(headers);
@@ -59,8 +66,8 @@ class DocumentListTableView extends React.Component {
    */
   render() {
     const containerStyle = {
-      height: 115,
-      width: 500
+      height: 1000,
+      width: 1200
     };
 
     return (
@@ -72,9 +79,16 @@ class DocumentListTableView extends React.Component {
           <AgGridReact
             // properties
             columnDefs={this.createColumnHeaders()}
+            gridOptions={this.gridOptions}
+
+            isFullWidthCell={()=>{return true;}}
+            fullWidthCellRendererFramework={RowRenderer}
+
             rowData={this.props.docs}
             // events
-            onGridReady={this.onGridReady}/>
+            onGridReady={this.onGridReady}
+            onRowClicked={this.onRowClicked}
+        />
         </div>
       </div>
     );
