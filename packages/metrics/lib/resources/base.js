@@ -12,7 +12,7 @@ var debug = require('debug')('mongodb-js-metrics:resources:base');
 module.exports = State.extend({
   idAttribute: 'id',
   id: 'Base',
-  eventTrackers: ['ga', 'mixpanel', 'intercom'],
+  eventTrackers: ['ga', 'intercom'],
   collections: {
     trackers: TrackerCollection
   },
@@ -47,24 +47,6 @@ module.exports = State.extend({
     }
   },
   /**
-   * send any Mixpanel event. This is the only actual call to Mixpanel.
-   *
-   * @param {String} eventName   name of the event
-   * @param {Object} metadata    additional metadata for the eventName
-   * @param {Function} callback  optional callback handler
-   *
-   * @api private
-   */
-  _send_mixpanel: function(eventName, metadata, callback) {
-    var tracker = this.trackers.get('mixpanel');
-    if (tracker && tracker.enabled) {
-      return tracker.send(eventName, metadata, callback);
-    }
-    if (callback) {
-      return callback(null, false);
-    }
-  },
-  /**
    * send an intercom event. This is the only actual call to the intercom tracker.
    *
    * @param {String} eventName   eventName to send
@@ -84,8 +66,8 @@ module.exports = State.extend({
     }
   },
   /**
-   * prepare sending an event to all trackers that support events (ga, intercom,
-   * mixpanel). Re-format resource and action into `<Resource> <action>` event
+   * prepare sending an event to all trackers that support events (ga, intercom).
+   * Re-format resource and action into `<Resource> <action>` event
    * name, attach all other relevant information as metadata. For Google
    * Analytics, send an event for each key in metadata.
    *
@@ -108,9 +90,6 @@ module.exports = State.extend({
     var tasks = {};
     if (this.eventTrackers.indexOf('intercom') !== -1) {
       tasks.intercom = that._send_intercom.bind(that, eventName, metadata);
-    }
-    if (this.eventTrackers.indexOf('mixpanel') !== -1) {
-      tasks.mixpanel = that._send_mixpanel.bind(that, eventName, metadata);
     }
 
     // `Screen` and `Error` resources have their own hit type in Google

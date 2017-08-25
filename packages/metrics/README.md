@@ -1,5 +1,5 @@
 # mongodb-js-metrics [![travis][travis_img]][travis_url] [![npm][npm_img]][npm_url]
-mongodb-js-metrics is a reusable metrics wrapper for a number of external tracking services. Currently, it supports [Google Analytics][ga], [Intercom][intercom], [Mixpanel][mixpanel] and [Bugsnag][bugsnag].
+mongodb-js-metrics is a reusable metrics wrapper for a number of external tracking services. Currently, it supports [Google Analytics][ga], [Intercom][intercom], and [Bugsnag][bugsnag].
 
 ## Quick Start
 Here is an example how to set up Google Analytics tracking of application launches, screen views and user logins within your app.
@@ -78,11 +78,6 @@ Used to send _screen views_, _events_, _errors_, _timings_. Tracker name is `ga`
 
 Used to send _events_ and also provides _in-app communication_. Tracker name is `intercom`. Requires **App** and **User** resources.
 
-
-##### Mixpanel
-
-Used to send _events_. Tracker name is `mixpanel`. Requires **App** and **User** resources.
-
 ##### Bugsnag
 
 Used to send _errors_. Tracker name is `bugsnag`. Requires **App** resource.
@@ -108,12 +103,6 @@ metrics.configure('bugsnag', {
 // configure Intercom
 metrics.configure('intercom', {
   appId: '########',
-  enabled: true
-});
-
-// configure Mixpanel
-metrics.configure('mixpanel', {
-  apiToken: '#####################',
   enabled: true
 });
 ```
@@ -212,4 +201,3 @@ Apache 2.0
 [ga]: https://analytics.google.com
 [intercom]: https://intercom.io
 [bugsnag]: https://bugsnag.com
-[mixpanel]: https://mixpanel.com
