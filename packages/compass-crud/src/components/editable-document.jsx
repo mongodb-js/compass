@@ -488,6 +488,7 @@ EditableDocument.displayName = 'EditableDocument';
 
 EditableDocument.propTypes = {
   doc: PropTypes.object.isRequired,
+  editable: PropTypes.bool,
   expandAll: PropTypes.bool
 };
 
