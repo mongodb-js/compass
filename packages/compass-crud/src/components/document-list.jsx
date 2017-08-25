@@ -128,8 +128,8 @@ class DocumentList extends React.Component {
    */
   handleRemove(id) {
     require('marky').mark('DocumentList - Handle remove');
-    const index = _.findIndex(this.state.docs, (component) => {
-      const _id = component.props.children.props.doc._id;
+    const index = _.findIndex(this.state.docs, (document) => {
+      const _id = document._id;
       if (id instanceof ObjectId) {
         return id.equals(_id);
       }
