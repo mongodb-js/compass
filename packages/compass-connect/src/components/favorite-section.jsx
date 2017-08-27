@@ -76,6 +76,19 @@ class FavoriteSection extends React.Component {
     }
   }
 
+  renderConnect() {
+    return (
+      <button
+        type="submit"
+        name="connect"
+        className="btn btn-sm btn-primary"
+        data_hook="connect-button"
+        data_test_id="connect-button">
+        Connect
+      </button>
+    );
+  }
+
   render() {
     return (
       <div id="favorite" className="form-group">
@@ -90,6 +103,7 @@ class FavoriteSection extends React.Component {
           {this.renderCreateFavorite()}
           {this.renderDeleteFavorite()}
           {this.renderSaveFavorite()}
+          {this.renderConnect()}
         </div>
       </div>
     );
