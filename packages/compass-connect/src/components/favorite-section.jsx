@@ -81,9 +81,7 @@ class FavoriteSection extends React.Component {
       <button
         type="submit"
         name="connect"
-        className="btn btn-sm btn-primary"
-        data_hook="connect-button"
-        data_test_id="connect-button">
+        className="btn btn-sm btn-primary">
         Connect
       </button>
     );

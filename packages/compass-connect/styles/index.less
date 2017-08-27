@@ -58,6 +58,10 @@ label {
     overflow: auto;
     display: flex;
     justify-content: flex-end;
+
+    button {
+      margin-left: 5px;
+    }
   }
 
   .form-item {
@@ -75,19 +79,6 @@ label {
 
     &-file-button {
       width: 500px !important;
-      cursor: pointer;
-      text-align: center !important;
-      display: block;
-      height: 34px;
-      padding: 6px 12px;
-      font-size: 14px;
-      line-height: 1.42857143;
-      color: #555555;
-      background-color: #fff;
-      background-image: none;
-      border: 1px solid #ccc;
-      border-radius: 4px;
-      box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075);
 
       i {
         padding-right: 5px;
@@ -121,6 +112,10 @@ label {
     border: 1px solid #ccc;
     border-radius: 4px;
     box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075);
+
+    &:focus {
+      border: 1px solid #3db1f8;
+    }
   }
 
   .file-input {
