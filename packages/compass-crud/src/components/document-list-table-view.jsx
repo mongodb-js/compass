@@ -9,7 +9,9 @@ const HeaderComponent = require('./cell-renderers/header-cell-renderer');
 const TypeChecker = require('hadron-type-checker');
 
 const CellRenderer = require('./cell-renderers/cell-renderer');
-// const util = require('util');
+const HadronDocument = require('hadron-document');
+
+const util = require('util');
 
 /**
  * Represents the table view of the documents tab.
@@ -18,6 +20,7 @@ class DocumentListTableView extends React.Component {
   constructor(props) {
     super(props);
     this.createColumnHeaders = this.createColumnHeaders.bind(this);
+    this.createRowData = this.createRowData.bind(this);
 
     this.gridOptions = {
       context: {
@@ -43,15 +46,16 @@ class DocumentListTableView extends React.Component {
       _.map(this.props.docs[i], function(val, key) {
         headers[key] = {
           headerName: key,
-          field: key,
+          valueGetter: function(params) {
+            return params.data.get(key);
+          },
           headerComponentFramework: HeaderComponent,
-          width: width,
+          // width: width, TODO: prevents horizontal scrolling
           headerComponentParams: {
             bsonType: TypeChecker.type(val)
           },
           cellRendererFramework: CellRenderer,
           cellRendererParams: {
-
           }
         };
         /* Pin the ObjectId to the left */
@@ -61,6 +65,17 @@ class DocumentListTableView extends React.Component {
       });
     }
     return Object.values(headers);
+  }
+
+  /**
+   * Create Hadron Documents for each row.
+   *
+   * @returns {List} A list of HadronDocuments.
+   */
+  createRowData() {
+    return _.map(this.props.docs, function(val) {
+      return new HadronDocument(val);
+    });
   }
 
   /**
@@ -85,7 +100,7 @@ class DocumentListTableView extends React.Component {
             columnDefs={this.createColumnHeaders()}
             gridOptions={this.gridOptions}
 
-            rowData={this.props.docs}
+            rowData={this.createRowData()}
             // events
             onGridReady={this.onGridReady}
             onRowClicked={this.onRowClicked}

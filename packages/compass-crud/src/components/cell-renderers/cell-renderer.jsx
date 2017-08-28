@@ -1,7 +1,8 @@
 const React = require('react');
 const PropTypes = require('prop-types');
 // const _ = require('lodash');
-// const util = require('util');
+const util = require('util');
+const EditableValue = require('../editable-value');
 
 /**
  * The renderer that renders a cell.
@@ -21,10 +22,13 @@ class CellRenderer extends React.Component {
   }
 
   render() {
+    // return (
+    //   <div className="cell">
+    //     {JSON.stringify(this.props.value.value)}
+    //   </div>
+    // );
     return (
-      <div className="cell">
-        {JSON.stringify(this.props.value)}
-      </div>
+      <EditableValue element={this.props.value} isFocused={false} />
     );
   }
 }
