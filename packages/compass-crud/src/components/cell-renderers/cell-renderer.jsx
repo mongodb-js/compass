@@ -3,6 +3,7 @@ const PropTypes = require('prop-types');
 // const _ = require('lodash');
 const util = require('util');
 const EditableValue = require('../editable-value');
+const getComponent = require('hadron-react-bson');
 
 /**
  * The renderer that renders a cell.
@@ -21,21 +22,37 @@ class CellRenderer extends React.Component {
   refresh() {
   }
 
+  renderEditable() {
+    return (
+      <EditableValue element={this.props.value} isFocused={false} />
+    );
+  }
+
+  renderReadOnly() {
+    const component = getComponent(this.props.value.currentType);
+    return React.createElement(
+      component,
+      { type: this.props.value.currentType, value: this.props.value.currentValue }
+    );
+  }
+
   render() {
     // return (
     //   <div className="cell">
     //     {JSON.stringify(this.props.value.value)}
     //   </div>
     // );
-    return (
-      <EditableValue element={this.props.value} isFocused={false} />
-    );
+    if (this.props.isEditable) {
+      return this.renderEditable();
+    }
+    return this.renderReadOnly();
   }
 }
 
 CellRenderer.propTypes = {
   api: PropTypes.any,
-  value: PropTypes.any
+  value: PropTypes.any,
+  isEditable: PropTypes.bool.isRequired
 };
 
 CellRenderer.displayName = 'CellRenderer';

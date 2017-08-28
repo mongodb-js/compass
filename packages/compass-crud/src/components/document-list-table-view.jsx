@@ -41,6 +41,7 @@ class DocumentListTableView extends React.Component {
   createColumnHeaders() {
     const headers = {};
     const width = this.gridOptions.context.column_width;
+    const isEditable = this.props.isEditable;
 
     for (let i = 0; i < this.props.docs.length; i++) {
       _.map(this.props.docs[i], function(val, key) {
@@ -56,6 +57,7 @@ class DocumentListTableView extends React.Component {
           },
           cellRendererFramework: CellRenderer,
           cellRendererParams: {
+            isEditable: isEditable
           }
         };
         /* Pin the ObjectId to the left */
@@ -70,7 +72,7 @@ class DocumentListTableView extends React.Component {
   /**
    * Create Hadron Documents for each row.
    *
-   * @returns {List} A list of HadronDocuments.
+   * @returns {Array} A list of HadronDocuments.
    */
   createRowData() {
     return _.map(this.props.docs, function(val) {
@@ -94,7 +96,7 @@ class DocumentListTableView extends React.Component {
         <StoreConnector store={BreadcrumbStore}>
           <BreadcrumbComponent/>
         </StoreConnector>
-        <div style={containerStyle} className="ag-fresh">
+        <div style={containerStyle}>
           <AgGridReact
             // properties
             columnDefs={this.createColumnHeaders()}
