@@ -1,7 +1,7 @@
 const app = require('hadron-app');
 const React = require('react');
 const PropTypes = require('prop-types');
-const UniqueMinichart = require('./unique');
+const UniqueMiniChart = require('./unique');
 const _ = require('lodash');
 const DocumentMinichart = require('./document');
 const ArrayMinichart = require('./array');
@@ -80,7 +80,7 @@ class MiniChart extends React.Component {
 
     if (_.includes([ STRING, NUMBER ], typeName) && !hasDuplicates) {
       return (
-        <UniqueMinichart
+        <UniqueMiniChart
           key={typeName}
           fieldName={fieldName}
           query={queryClause}
