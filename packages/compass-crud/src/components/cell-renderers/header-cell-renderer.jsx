@@ -13,7 +13,9 @@ class HeaderCellRenderer extends React.Component {
 
   render() {
     return (
-      <span><b>{this.props.displayName}</b> {this.props.bsonType}</span>
+      <div className="header-cell">
+        <b>{this.props.displayName}</b> {this.props.bsonType}
+      </div>
     );
   }
 }

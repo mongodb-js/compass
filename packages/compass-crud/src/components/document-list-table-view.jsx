@@ -60,10 +60,10 @@ class DocumentListTableView extends React.Component {
             isEditable: isEditable
           }
         };
-        /* Pin the ObjectId to the left */
-        if (key === '_id') {
-          headers[key].pinned = 'left';
-        }
+        // /* Pin the ObjectId to the left */
+        // if (key === '_id') {
+        //   headers[key].pinned = 'left';
+        // }
       });
     }
     return Object.values(headers);

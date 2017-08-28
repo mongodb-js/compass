@@ -37,15 +37,12 @@ class CellRenderer extends React.Component {
   }
 
   render() {
-    // return (
-    //   <div className="cell">
-    //     {JSON.stringify(this.props.value.value)}
-    //   </div>
-    // );
-    if (this.props.isEditable) {
-      return this.renderEditable();
-    }
-    return this.renderReadOnly();
+    const element = this.props.editable ? this.renderEditable() : this.renderReadOnly();
+    return (
+      <div className="table-cell">
+        {element}
+      </div>
+    );
   }
 }
 
