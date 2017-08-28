@@ -77,7 +77,7 @@ class MiniChart extends React.Component {
       this.props.type.name) ? NUMBER : this.props.type.name;
 
     const fieldName = this.props.fieldName;
-    const queryClause = this.state.filter[fieldName];
+    const queryValue = this.state.filter[fieldName];
     const hasDuplicates = this.props.type.has_duplicates;
     const fn = vizFns[typeName.toLowerCase()];
     const width = this.state.containerWidth;
@@ -87,7 +87,7 @@ class MiniChart extends React.Component {
         <UniqueMiniChart
           key={typeName}
           fieldName={fieldName}
-          query={queryClause}
+          queryValue={queryValue}
           type={this.props.type}
           width={width}
         />
@@ -100,7 +100,7 @@ class MiniChart extends React.Component {
           fieldName={fieldName}
           type={this.props.type}
           renderMode="div"
-          query={queryClause}
+          query={queryValue}
           width={width}
           height={height}
           fn={vizFns.coordinates}
@@ -133,7 +133,7 @@ class MiniChart extends React.Component {
         fieldName={this.props.fieldName}
         type={this.props.type}
         renderMode="svg"
-        query={queryClause}
+        query={queryValue}
         width={width}
         height={100}
         fn={fn}

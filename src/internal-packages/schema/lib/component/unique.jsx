@@ -44,7 +44,7 @@ class ValueBubble extends React.Component {
 
   render() {
     const value = this._extractStringValue(this.props.value);
-    const selectedClass = hasDistinctValue(this.props.query, this.props.value) ?
+    const selectedClass = hasDistinctValue(this.props.queryValue, this.props.value) ?
       'selected' : 'unselected';
     return (
       <li className="bubble">
@@ -58,8 +58,8 @@ class ValueBubble extends React.Component {
 
 ValueBubble.propTypes = {
   fieldName: PropTypes.string.isRequired,
-  value: PropTypes.any.isRequired,
-  query: PropTypes.any
+  queryValue: PropTypes.string,
+  value: PropTypes.any.isRequired
 };
 
 /* eslint react/no-multi-comp: 0 */
@@ -94,7 +94,7 @@ class UniqueMiniChart extends React.Component {
         <ValueBubble
           key={`${fieldName}-${typeName}-${i}`}
           value={value}
-          query={this.props.query}
+          queryValue={this.props.queryValue}
           fieldName={this.props.fieldName}
         />
       );
@@ -122,9 +122,9 @@ class UniqueMiniChart extends React.Component {
 
 UniqueMiniChart.propTypes = {
   fieldName: PropTypes.string.isRequired,
+  queryValue: PropTypes.string,
   type: PropTypes.object.isRequired,
-  width: PropTypes.number,
-  query: PropTypes.any
+  width: PropTypes.number
 };
 
 module.exports = UniqueMiniChart;
