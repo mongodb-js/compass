@@ -40,6 +40,10 @@ class MiniChart extends React.Component {
         userTyping: store.userTyping
       });
     };
+
+    // Also populate initial values
+    onQueryChanged(QueryStore.state);
+
     this.unsubscribeQueryStore = QueryStore.listen(onQueryChanged);
     this.unsubscribeMiniChartResize = Actions.resizeMiniCharts.listen(this.resizeListener);
   }
