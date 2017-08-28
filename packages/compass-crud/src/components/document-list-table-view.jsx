@@ -8,7 +8,7 @@ const _ = require('lodash');
 const HeaderComponent = require('./cell-renderers/header-cell-renderer');
 const TypeChecker = require('hadron-type-checker');
 
-const RowRenderer = require('./cell-renderers/row-renderer');
+const CellRenderer = require('./cell-renderers/cell-renderer');
 // const util = require('util');
 
 /**
@@ -48,6 +48,10 @@ class DocumentListTableView extends React.Component {
           width: width,
           headerComponentParams: {
             bsonType: TypeChecker.type(val)
+          },
+          cellRendererFramework: CellRenderer,
+          cellRendererParams: {
+
           }
         };
         /* Pin the ObjectId to the left */
@@ -80,9 +84,6 @@ class DocumentListTableView extends React.Component {
             // properties
             columnDefs={this.createColumnHeaders()}
             gridOptions={this.gridOptions}
-
-            isFullWidthCell={()=>{return true;}}
-            fullWidthCellRendererFramework={RowRenderer}
 
             rowData={this.props.docs}
             // events
