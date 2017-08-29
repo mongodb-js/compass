@@ -27,6 +27,22 @@ function sentenceCase(s) {
   return camelToSentence(s);
 }
 
+/**
+ * Turns strings and object keys into `snake_case`.
+ *
+ * @param  {String} s  string to be converted
+ * @return {String}    result
+ */
+function snakeCase(s) {
+  if (_.isPlainObject(s)) {
+    return _.mapKeys(s, function(value, key) {
+      return _.snakeCase(key);
+    });
+  }
+  return _.snakeCase(s);
+}
+
 module.exports = {
-  sentenceCase: sentenceCase
+  sentenceCase: sentenceCase,
+  snakeCase: snakeCase
 };

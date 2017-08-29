@@ -7,12 +7,10 @@ var async = require('async');
 var sentenceCase = require('../shared').sentenceCase;
 var uuid = require('uuid');
 
-var debug = require('debug')('mongodb-js-metrics:resources:base');
-
 module.exports = State.extend({
   idAttribute: 'id',
   id: 'Base',
-  eventTrackers: ['ga', 'intercom'],
+  eventTrackers: ['ga', 'intercom', 'stitch'],
   collections: {
     trackers: TrackerCollection
   },
@@ -25,10 +23,11 @@ module.exports = State.extend({
    * any case, pass own properties to the trackers.
    */
   _update_trackers: function() {
-    debug('tracker or properties have changed, updating trackers.', this.serialize());
-    this.trackers.each(function(tracker) {
-      tracker.set(this.serialize());
-    }.bind(this));
+    this.trackers.each(
+      function(tracker) {
+        tracker.set(this.serialize());
+      }.bind(this)
+    );
   },
   /**
    * send any GA hit. This is the only actual call to GA.
@@ -66,7 +65,27 @@ module.exports = State.extend({
     }
   },
   /**
-   * prepare sending an event to all trackers that support events (ga, intercom).
+   * send an event to Stitch. This is the only actual call to the stitch tracker.
+   *
+   * @param {String} eventName   eventName to send
+   * @param {Object} metadata    attached metadata (5 keys max!)
+   * @api private
+   */
+  _send_stitch: function(eventName, metadata, callback) {
+    var tracker = this.trackers.get('stitch');
+    if (tracker && tracker.enabled) {
+      tracker.send(eventName, metadata);
+      if (callback) {
+        return callback(null, true);
+      }
+    }
+    if (callback) {
+      return callback(null, false);
+    }
+  },
+  /**
+   * prepare sending an event to all trackers that support events (ga,
+   * intercom, stitch).
    * Re-format resource and action into `<Resource> <action>` event
    * name, attach all other relevant information as metadata. For Google
    * Analytics, send an event for each key in metadata.
@@ -92,10 +111,16 @@ module.exports = State.extend({
       tasks.intercom = that._send_intercom.bind(that, eventName, metadata);
     }
 
+    if (this.eventTrackers.indexOf('stitch') !== -1) {
+      tasks.stitch = that._send_stitch.bind(that, eventName, metadata);
+    }
+
     // `Screen` and `Error` resources have their own hit type in Google
     // Analytics, don't send a as an `event` hittype here
-    if (['Screen', 'Error'].indexOf(resource) === -1 &&
-      this.eventTrackers.indexOf('ga') !== -1) {
+    if (
+      ['Screen', 'Error'].indexOf(resource) === -1 &&
+      this.eventTrackers.indexOf('ga') !== -1
+    ) {
       var opts;
       // if there's no metadata, send a single event to GA with `eventCategory`
       // set to the resource and `eventAction` set to the action

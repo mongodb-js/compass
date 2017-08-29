@@ -11,7 +11,8 @@ module.exports = BaseResource.extend({
     },
     createdAt: ['date', true],
     name: 'string',
-    email: {type: 'any', default: undefined, required: false, allowNull: true},
+    email: 'string',
+    developer: 'boolean',
     twitter: 'string'
   },
   login: function(callback) {
