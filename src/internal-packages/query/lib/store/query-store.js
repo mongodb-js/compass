@@ -638,7 +638,7 @@ const QueryStore = Reflux.createStore({
       if (registry) {
         const newState = {
           filter: this.state.filter,
-          projection: this.state.project,
+          project: this.state.project,
           sort: this.state.sort,
           skip: this.state.skip,
           limit: this.state.limit,
