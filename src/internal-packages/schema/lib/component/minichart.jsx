@@ -1,7 +1,7 @@
 const app = require('hadron-app');
 const React = require('react');
 const PropTypes = require('prop-types');
-const UniqueMinichart = require('./unique');
+const UniqueMiniChart = require('./unique-minichart');
 const _ = require('lodash');
 const DocumentMinichart = require('./document');
 const ArrayMinichart = require('./array');
@@ -33,14 +33,18 @@ class MiniChart extends React.Component {
     window.addEventListener('resize', this.resizeListener);
 
     const QueryStore = app.appRegistry.getStore('Query.Store');
-    this.unsubscribeQueryStore = QueryStore.listen((store) => {
+    const onQueryChanged = (store) => {
       this.setState({
         filter: store.filter,
         valid: store.valid,
         userTyping: store.userTyping
       });
-    });
+    };
 
+    // Also populate initial values
+    onQueryChanged(QueryStore.state);
+
+    this.unsubscribeQueryStore = QueryStore.listen(onQueryChanged);
     this.unsubscribeMiniChartResize = Actions.resizeMiniCharts.listen(this.resizeListener);
   }
 
@@ -73,17 +77,17 @@ class MiniChart extends React.Component {
       this.props.type.name) ? NUMBER : this.props.type.name;
 
     const fieldName = this.props.fieldName;
-    const queryClause = this.state.filter[fieldName];
+    const queryValue = this.state.filter[fieldName];
     const hasDuplicates = this.props.type.has_duplicates;
     const fn = vizFns[typeName.toLowerCase()];
     const width = this.state.containerWidth;
 
     if (_.includes([ STRING, NUMBER ], typeName) && !hasDuplicates) {
       return (
-        <UniqueMinichart
+        <UniqueMiniChart
           key={typeName}
           fieldName={fieldName}
-          query={queryClause}
+          queryValue={queryValue}
           type={this.props.type}
           width={width}
         />
@@ -96,7 +100,7 @@ class MiniChart extends React.Component {
           fieldName={fieldName}
           type={this.props.type}
           renderMode="div"
-          query={queryClause}
+          query={queryValue}
           width={width}
           height={height}
           fn={vizFns.coordinates}
@@ -129,7 +133,7 @@ class MiniChart extends React.Component {
         fieldName={this.props.fieldName}
         type={this.props.type}
         renderMode="svg"
-        query={queryClause}
+        query={queryValue}
         width={width}
         height={100}
         fn={fn}
