@@ -2,10 +2,8 @@ const React = require('react');
 const PropTypes = require('prop-types');
 // const _ = require('lodash');
 const util = require('util');
-const EditableValue = require('../editable-value');
-const getComponent = require('hadron-react-bson');
 const { Element } = require('hadron-document');
-const initEditors = require('../editor/');
+const HadronDocument = require('hadron-document');
 
 const MESSAGE = {
   modified: 'Document Modified',
@@ -25,7 +23,7 @@ class UpdateBarRenderer extends React.Component {
     super(props);
     props.api.selectAll();
 
-    this.document = props.data.hadronDocument;
+    this.doc = props.data.hadronDocument;
 
     this.state = {
       mode: props.data.state
@@ -35,34 +33,20 @@ class UpdateBarRenderer extends React.Component {
     this.handleUpdate = this.handleUpdate.bind(this);
 
   }
-
-  /**
-   * Unsubscribe from the events.
-   */
-  componentWillUnmount() {
+  componentDidMount() {
+    this.unsubscribeEdited = this.handleDocEdited.bind(this);
+    this.doc.on(Element.Events.Edited, this.unsubscribeEdited);
   }
 
-  // subscribeToDocumentEvents() {
-  //   this.unsubscribeFromDocumentEvents();
-  //
-  //   if (!this.unsubscribeAdded) {
-  //     this.unsubscribeAdded = this.handleModify.bind(this);
-  //     this.unsubscribeRemoved = this.handleModify.bind(this);
-  //     this.unsubscribeCancel = this.handleCancel.bind(this);
-  //   }
-  //
-  //   this.doc.on(Element.Events.Added, this.unsubscribeAdded);
-  //   this.doc.on(Element.Events.Removed, this.unsubscribeRemoved);
-  //   this.doc.on(HadronDocument.Events.Cancel, this.unsubscribeCancel);
-  // }
-  //
-  // unsubscribeFromDocumentEvents() {
-  //   if (this.unsubscribeAdded) {
-  //     this.doc.removeListener(Element.Events.Added, this.unsubscribeAdded);
-  //     this.doc.removeListener(Element.Events.Removed, this.unsubscribeRemoved);
-  //     this.doc.removeListener(HadronDocument.Events.Cancel, this.unsubscribeCancel);
-  //   }
-  // }
+  componentWillUnmount() {
+    this.doc.removeListener(Element.Events.Edited, this.unsubscribeEdited);
+  }
+
+  handleDocEdited() {
+    console.log("doc edited");
+    this.props.node.data.state = 'modified';
+    this.setState({mode: 'modified'});
+  }
 
   handleCancel() {
     console.log("cancel");

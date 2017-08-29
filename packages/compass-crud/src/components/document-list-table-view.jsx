@@ -67,6 +67,7 @@ class DocumentListTableView extends React.Component {
    *     event?: Event // if even was due to browser event (eg click), then this is browser event
    */
   onRowClicked(event) {
+    console.log("state of row:" + event.data.state);
     this.addUpdateBar(event.node, event.data, event.rowIndex, event.context);
   }
 

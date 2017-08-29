@@ -18,38 +18,55 @@ class CellRenderer extends React.Component {
     this.element = props.value;
 
     this._editors = initEditors(this.element);
+  }
 
-    // this.unsubscribeAdded = this.handleExpand.bind(this);
-    // this.unsubscribeConverted = this.handleExpand.bind(this);
-    // this.unsubscribeEdited = this.handleChange.bind(this);
-    // this.unsubscribeRemoved = this.handleChange.bind(this);
-    // this.unsubscribeReverted = this.handleChange.bind(this);
-    // this.unsubscribeInvalid = this.handleChange.bind(this);
-    //
-    // this.element.on(Element.Events.Added, this.unsubscribeAdded);
-    // this.element.on(Element.Events.Converted, this.unsubscribeConverted);
-    // this.element.on(Element.Events.Edited, this.unsubscribeEdited);
-    // this.element.on(Element.Events.Removed, this.unsubscribeRemoved);
-    // this.element.on(Element.Events.Reverted, this.unsubscribeReverted);
-    // this.element.on(Element.Events.Invalid, this.unsubscribeInvalid);
+  componentDidMount() {
+    this.unsubscribeAdded = this.handleAdded.bind(this);
+    this.unsubscribeConverted = this.handleConverted.bind(this);
+    this.unsubscribeEdited = this.handleEdited.bind(this);
+    this.unsubscribeRemoved = this.handleRemoved.bind(this);
+    this.unsubscribeReverted = this.handleReverted.bind(this);
+    this.unsubscribeInvalid = this.handleInvalid.bind(this);
+
+    this.element.on(Element.Events.Added, this.unsubscribeAdded);
+    this.element.on(Element.Events.Converted, this.unsubscribeConverted);
+    this.element.on(Element.Events.Edited, this.unsubscribeEdited);
+    this.element.on(Element.Events.Removed, this.unsubscribeRemoved);
+    this.element.on(Element.Events.Reverted, this.unsubscribeReverted);
+    this.element.on(Element.Events.Invalid, this.unsubscribeInvalid);
   }
 
   /**
    * Unsubscribe from the events.
    */
   componentWillUnmount() {
-    // this.element.removeListener(Element.Events.Added, this.unsubscribeAdded);
-    // this.element.removeListener(Element.Events.Converted, this.unsubscribeConverted);
-    // this.element.removeListener(Element.Events.Edited, this.unsubscribeEdited);
-    // this.element.removeListener(Element.Events.Removed, this.unsubscribeRemoved);
-    // this.element.removeListener(Element.Events.Reverted, this.unsubscribeReverted);
-    // this.element.removeListener(Element.Events.Invalid, this.unsubscribeInvalid);
+    this.element.removeListener(Element.Events.Added, this.unsubscribeAdded);
+    this.element.removeListener(Element.Events.Converted, this.unsubscribeConverted);
+    this.element.removeListener(Element.Events.Edited, this.unsubscribeEdited);
+    this.element.removeListener(Element.Events.Removed, this.unsubscribeRemoved);
+    this.element.removeListener(Element.Events.Reverted, this.unsubscribeReverted);
+    this.element.removeListener(Element.Events.Invalid, this.unsubscribeInvalid);
   }
 
-  renderEditable() {
-    return (
-      <EditableValue element={this.props.value} isFocused={false} />
-    );
+  handleAdded() {
+    console.log("handle added");
+  }
+  handleConverted() {
+    console.log("handle converted");
+  }
+  handleRemoved() {
+    console.log("handle removed");
+  }
+  handleReverted() {
+    console.log("handle reverted");
+  }
+  handleInvalid() {
+    console.log("handle invalid");
+  }
+
+  handleEdited() {
+    console.log("handle edited");
+    this.props.node.data.state = 'modified';
   }
 
   renderReadOnly() {
@@ -61,11 +78,9 @@ class CellRenderer extends React.Component {
   }
 
   render() {
-    // const element = this.props.editable ? this.renderEditable() : this.renderReadOnly();
-    const element = this.renderReadOnly();
     return (
       <div className="table-cell">
-        {element}
+        {this.renderReadOnly()}
       </div>
     );
   }
