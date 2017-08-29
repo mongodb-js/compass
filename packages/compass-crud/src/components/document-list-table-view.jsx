@@ -36,29 +36,25 @@ class DocumentListTableView extends React.Component {
   }
 
   onGridReady(params) {
-    console.log("onGridReady:" + Object.keys(params));
     this.gridApi = params.api;
     this.columnApi = params.columnApi;
   }
 
   addUpdateBar(rowNode, data, rowIndex, context, updateState) {
-    /* Update bar does not already exist */
-    if (data.isUpdateRow) {
-      // TODO
-      console.log("clicking on update bar");
+    /* Ignore clicks on update rows or data rows that already have update row */
+    if (data.isUpdateRow || data.hasUpdateRow) {
+      return;
     }
-    else if (!data.hasUpdateRow) {
-      rowNode.data.hasUpdateRow = true;
-      const newData = {
-        hadronDocument: data.hadronDocument,
-        hasUpdateRow: false,
-        isUpdateRow: true
-      };
-      this.gridApi.updateRowData({add: [newData], addIndex: rowIndex + 1});
-    } else {
-      // TODO
-      console.log("updateBar already present");
-    }
+
+    /* Add update row below this row */
+    rowNode.data.hasUpdateRow = true;
+    const newData = {
+      hadronDocument: data.hadronDocument,
+      hasUpdateRow: false,
+      isUpdateRow: true,
+      state: 'editing'
+    };
+    this.gridApi.updateRowData({add: [newData], addIndex: rowIndex + 1});
   }
 
   /**
@@ -71,9 +67,7 @@ class DocumentListTableView extends React.Component {
    *     event?: Event // if even was due to browser event (eg click), then this is browser event
    */
   onRowClicked(event) {
-    console.log("row clicked: hasUpdateRow=" + event.data.hasUpdateRow + ", isUpdateRow=" + event.data.isUpdateRow);
     this.addUpdateBar(event.node, event.data, event.rowIndex, event.context);
-    console.log("row clicked AFTER: hasUpdateRow=" + event.node.data.hasUpdateRow + ", isUpdateRow=" + event.node.data.isUpdateRow);
   }
 
   /**
@@ -128,10 +122,16 @@ class DocumentListTableView extends React.Component {
    */
   createRowData() {
     return _.map(this.props.docs, function(val) {
+      // TODO: Make wrapper object for HadronDocument
       return {
+        /* The same doc is shared between a document row and it's update row */
         hadronDocument: new HadronDocument(val),
+        /* Is this row an update row or document row? */
+        isUpdateRow: false,
+        /* If this is a document row, does it already have an update row? */
         hasUpdateRow: false,
-        isUpdateRow: false
+        /* If this is an update row, state is [editing, modified, deleting] */
+        state: null
       };
     });
   }

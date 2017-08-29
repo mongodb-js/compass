@@ -7,6 +7,10 @@ const getComponent = require('hadron-react-bson');
 const { Element } = require('hadron-document');
 const initEditors = require('../editor/');
 
+MESSAGE = {
+  modified: 'Document modified', editing: '', updated: 'Document updated'
+};
+
 /**
  * The custom full-width cell renderer that renders the update/cancel bar
  * in the table view.
@@ -16,40 +20,66 @@ class UpdateBarRenderer extends React.Component {
     super(props);
     props.api.selectAll();
 
-    this.element = props.data;
+    this.document = props.data.hadronDocument;
 
-    // this.unsubscribeAdded = this.handleExpand.bind(this);
-    // this.unsubscribeConverted = this.handleExpand.bind(this);
-    // this.unsubscribeEdited = this.handleChange.bind(this);
-    // this.unsubscribeRemoved = this.handleChange.bind(this);
-    // this.unsubscribeReverted = this.handleChange.bind(this);
-    // this.unsubscribeInvalid = this.handleChange.bind(this);
-    //
-    // this.element.on(Element.Events.Added, this.unsubscribeAdded);
-    // this.element.on(Element.Events.Converted, this.unsubscribeConverted);
-    // this.element.on(Element.Events.Edited, this.unsubscribeEdited);
-    // this.element.on(Element.Events.Removed, this.unsubscribeRemoved);
-    // this.element.on(Element.Events.Reverted, this.unsubscribeReverted);
-    // this.element.on(Element.Events.Invalid, this.unsubscribeInvalid);
+    this.state = {
+      mode: props.data.state
+    };
+
+    this.handleCancel = this.handleCancel.bind(this);
+    this.handleUpdate = this.handleUpdate.bind(this);
+
   }
 
   /**
    * Unsubscribe from the events.
    */
   componentWillUnmount() {
-    // this.element.removeListener(Element.Events.Added, this.unsubscribeAdded);
-    // this.element.removeListener(Element.Events.Converted, this.unsubscribeConverted);
-    // this.element.removeListener(Element.Events.Edited, this.unsubscribeEdited);
-    // this.element.removeListener(Element.Events.Removed, this.unsubscribeRemoved);
-    // this.element.removeListener(Element.Events.Reverted, this.unsubscribeReverted);
-    // this.element.removeListener(Element.Events.Invalid, this.unsubscribeInvalid);
+  }
+
+  // subscribeToDocumentEvents() {
+  //   this.unsubscribeFromDocumentEvents();
+  //
+  //   if (!this.unsubscribeAdded) {
+  //     this.unsubscribeAdded = this.handleModify.bind(this);
+  //     this.unsubscribeRemoved = this.handleModify.bind(this);
+  //     this.unsubscribeCancel = this.handleCancel.bind(this);
+  //   }
+  //
+  //   this.doc.on(Element.Events.Added, this.unsubscribeAdded);
+  //   this.doc.on(Element.Events.Removed, this.unsubscribeRemoved);
+  //   this.doc.on(HadronDocument.Events.Cancel, this.unsubscribeCancel);
+  // }
+  //
+  // unsubscribeFromDocumentEvents() {
+  //   if (this.unsubscribeAdded) {
+  //     this.doc.removeListener(Element.Events.Added, this.unsubscribeAdded);
+  //     this.doc.removeListener(Element.Events.Removed, this.unsubscribeRemoved);
+  //     this.doc.removeListener(HadronDocument.Events.Cancel, this.unsubscribeCancel);
+  //   }
+  // }
+
+  handleCancel() {
+    console.log("cancel");
+  }
+
+  handleUpdate() {
+    console.log("update");
   }
 
   render() {
-    // const element = this.props.editable ? this.renderEditable() : this.renderReadOnly();
+    const modeName = `update-bar-row-${this.state.mode}`;
     return (
-      <div className="update-bar-row">
-        <span> UPDATE BAR</span>
+      <div className={modeName}>
+        <span className="update-bar-row-message">{MESSAGE[this.state.mode]}</span>
+        <button
+          className="update-bar-row-button"
+          type="button"
+          onClick={this.handleCancel}>Cancel</button>
+        <button
+          className="update-bar-row-button"
+          type="button"
+          onClick={this.handleUpdate}>Update</button>
       </div>
     );
   }
