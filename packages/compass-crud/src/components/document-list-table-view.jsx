@@ -22,19 +22,42 @@ class DocumentListTableView extends React.Component {
     super(props);
     this.createColumnHeaders = this.createColumnHeaders.bind(this);
     this.createRowData = this.createRowData.bind(this);
+    this.addUpdateBar = this.addUpdateBar.bind(this);
+    this.onRowClicked = this.onRowClicked.bind(this);
 
     this.gridOptions = {
       context: {
         column_width: 150
       },
-      onRowClicked: this.onRowClicked.bind(this),
+      onRowClicked: this.onRowClicked,
       onCellClicked: this.onCellClicked.bind(this)
     };
   }
 
   onGridReady(params) {
+    console.log("onGridReady:" + Object.keys(params));
     this.gridApi = params.api;
     this.columnApi = params.columnApi;
+  }
+
+  addUpdateBar(rowNode, data, rowIndex, context, updateState) {
+    /* Update bar does not already exist */
+    if (data.isUpdateRow) {
+      // TODO
+      console.log("clicking on update bar");
+    }
+    else if (!data.hasUpdateRow) {
+      rowNode.data.hasUpdateRow = true;
+      const newData = {
+        hadronDocument: data.hadronDocument,
+        hasUpdateRow: false,
+        isUpdateRow: true
+      };
+      this.gridApi.updateRowData({add: [newData], addIndex: rowIndex + 1});
+    } else {
+      // TODO
+      console.log("updateBar already present");
+    }
   }
 
   /**
@@ -47,7 +70,9 @@ class DocumentListTableView extends React.Component {
    *     event?: Event // if even was due to browser event (eg click), then this is browser event
    */
   onRowClicked(event) {
-    // console.log('a row was clicked + data=' + util.inspect(event.data));
+    console.log("row clicked: hasUpdateRow=" + event.data.hasUpdateRow + ", isUpdateRow=" + event.data.isUpdateRow);
+    this.addUpdateBar(event.node, event.data, event.rowIndex, event.context);
+    console.log("row clicked AFTER: hasUpdateRow=" + event.node.data.hasUpdateRow + ", isUpdateRow=" + event.node.data.isUpdateRow);
   }
 
   /**
@@ -70,7 +95,7 @@ class DocumentListTableView extends React.Component {
         headers[key] = {
           headerName: key,
           valueGetter: function(params) {
-            return params.data.get(key);
+            return params.data.hadronDocument.get(key);
           },
           headerComponentFramework: HeaderComponent,
           // width: width, TODO: prevents horizontal scrolling
@@ -102,7 +127,11 @@ class DocumentListTableView extends React.Component {
    */
   createRowData() {
     return _.map(this.props.docs, function(val) {
-      return new HadronDocument(val);
+      return {
+        hadronDocument: new HadronDocument(val),
+        hasUpdateRow: false,
+        isUpdateRow: false
+      };
     });
   }
 
@@ -130,8 +159,7 @@ class DocumentListTableView extends React.Component {
 
             rowData={this.createRowData()}
             // events
-            onGridReady={this.onGridReady}
-            onRowClicked={this.onRowClicked}
+            onGridReady={this.onGridReady.bind(this)}
         />
         </div>
       </div>
