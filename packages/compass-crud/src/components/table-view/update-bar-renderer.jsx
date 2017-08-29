@@ -8,16 +8,15 @@ const { Element } = require('hadron-document');
 const initEditors = require('../editor/');
 
 /**
- * The custom cell renderer that renders a cell in the table view.
+ * The custom full-width cell renderer that renders the update/cancel bar
+ * in the table view.
  */
-class CellRenderer extends React.Component {
+class UpdateBarRenderer extends React.Component {
   constructor(props) {
     super(props);
     props.api.selectAll();
 
-    this.element = props.value;
-
-    this._editors = initEditors(this.element);
+    this.element = props.data;
 
     // this.unsubscribeAdded = this.handleExpand.bind(this);
     // this.unsubscribeConverted = this.handleExpand.bind(this);
@@ -46,37 +45,21 @@ class CellRenderer extends React.Component {
     // this.element.removeListener(Element.Events.Invalid, this.unsubscribeInvalid);
   }
 
-  renderEditable() {
-    return (
-      <EditableValue element={this.props.value} isFocused={false} />
-    );
-  }
-
-  renderReadOnly() {
-    const component = getComponent(this.props.value.currentType);
-    return React.createElement(
-      component,
-      { type: this.props.value.currentType, value: this.props.value.currentValue }
-    );
-  }
-
   render() {
     // const element = this.props.editable ? this.renderEditable() : this.renderReadOnly();
-    const element = this.renderReadOnly();
     return (
-      <div className="table-cell">
-        {element}
+      <div className="update-bar-row">
+        <span> UPDATE BAR</span>
       </div>
     );
   }
 }
 
-CellRenderer.propTypes = {
+UpdateBarRenderer.propTypes = {
   api: PropTypes.any,
-  value: PropTypes.any,
-  isEditable: PropTypes.bool.isRequired
+  value: PropTypes.any
 };
 
-CellRenderer.displayName = 'CellRenderer';
+UpdateBarRenderer.displayName = 'UpdateBarRenderer';
 
-module.exports = CellRenderer;
+module.exports = UpdateBarRenderer;

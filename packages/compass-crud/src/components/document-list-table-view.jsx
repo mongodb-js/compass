@@ -9,6 +9,7 @@ const TypeChecker = require('hadron-type-checker');
 const HadronDocument = require('hadron-document');
 
 const CellRenderer = require('./table-view/cell-renderer');
+const UpdateBarRenderer = require('./table-view/update-bar-renderer');
 const HeaderComponent = require('./table-view/header-cell-renderer');
 const CellEditor = require('./table-view/cell-editor');
 
@@ -156,6 +157,9 @@ class DocumentListTableView extends React.Component {
             // properties
             columnDefs={this.createColumnHeaders()}
             gridOptions={this.gridOptions}
+            
+            isFullWidthCell={(rowNode)=>{return rowNode.data.isUpdateRow;}}
+            fullWidthCellRendererFramework={UpdateBarRenderer}
 
             rowData={this.createRowData()}
             // events
