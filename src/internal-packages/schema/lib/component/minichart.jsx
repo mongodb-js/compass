@@ -33,14 +33,18 @@ class MiniChart extends React.Component {
     window.addEventListener('resize', this.resizeListener);
 
     const QueryStore = app.appRegistry.getStore('Query.Store');
-    this.unsubscribeQueryStore = QueryStore.listen((store) => {
+    const onQueryChanged = (store) => {
       this.setState({
         filter: store.filter,
         valid: store.valid,
         userTyping: store.userTyping
       });
-    });
+    };
 
+    // Also populate initial values
+    onQueryChanged(QueryStore.state);
+
+    this.unsubscribeQueryStore = QueryStore.listen(onQueryChanged);
     this.unsubscribeMiniChartResize = Actions.resizeMiniCharts.listen(this.resizeListener);
   }
 
