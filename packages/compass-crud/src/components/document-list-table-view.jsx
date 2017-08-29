@@ -130,7 +130,7 @@ class DocumentListTableView extends React.Component {
         isUpdateRow: false,
         /* If this is a document row, does it already have an update row? */
         hasUpdateRow: false,
-        /* If this is an update row, state is [editing, modified, deleting] */
+        /* If this is an update row, state is [editing, modified, deleting, updated] */
         state: null
       };
     });

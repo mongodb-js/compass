@@ -7,13 +7,18 @@ const getComponent = require('hadron-react-bson');
 const { Element } = require('hadron-document');
 const initEditors = require('../editor/');
 
-MESSAGE = {
-  modified: 'Document modified', editing: '', updated: 'Document updated'
+const MESSAGE = {
+  modified: 'Document Modified',
+  editing: '',
+  updated: 'Document Updated',
+  deleted: 'Document Flagged For Deletion'
 };
 
 /**
  * The custom full-width cell renderer that renders the update/cancel bar
  * in the table view.
+ *
+ * Has four states: 'editing', 'modified', 'deleting', 'updated'.
  */
 class UpdateBarRenderer extends React.Component {
   constructor(props) {
