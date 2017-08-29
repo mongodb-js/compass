@@ -2,8 +2,7 @@ const React = require('react');
 const PropTypes = require('prop-types');
 
 /**
-  Custom cell renderer for the headers. Right now it's empty, will grow as more
-  features are added.
+  Custom cell renderer for the headers.
  */
 class HeaderCellRenderer extends React.Component {
 

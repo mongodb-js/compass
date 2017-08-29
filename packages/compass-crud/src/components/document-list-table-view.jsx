@@ -5,11 +5,12 @@ const BreadcrumbStore = require('../stores/breadcrumb-store');
 const { StoreConnector } = require('hadron-react-components');
 const {AgGridReact} = require('ag-grid-react');
 const _ = require('lodash');
-const HeaderComponent = require('./cell-renderers/header-cell-renderer');
 const TypeChecker = require('hadron-type-checker');
-
-const CellRenderer = require('./cell-renderers/cell-renderer');
 const HadronDocument = require('hadron-document');
+
+const CellRenderer = require('./table-view/cell-renderer');
+const HeaderComponent = require('./table-view/header-cell-renderer');
+const CellEditor = require('./table-view/cell-editor');
 
 const util = require('util');
 
@@ -25,7 +26,9 @@ class DocumentListTableView extends React.Component {
     this.gridOptions = {
       context: {
         column_width: 150
-      }
+      },
+      onRowClicked: this.onRowClicked.bind(this),
+      onCellClicked: this.onCellClicked.bind(this)
     };
   }
 
@@ -34,13 +37,32 @@ class DocumentListTableView extends React.Component {
     this.columnApi = params.columnApi;
   }
 
-  // onRowClicked(event) {
-  //   // console.log('a row was clicked + event=' + util.inspect(event));
-  // }
-  //
+  /**
+   * @param {Object} event
+   *     node: RowNode, // the RowNode for the row in question
+   *     data: any, // the user provided data for the row in question
+   *     rowIndex: number, // the visible row index for the row in question
+   *     rowPinned: string, // either 'top', 'bottom' or undefined / null (if not pinned)
+   *     context: any, // bag of attributes, provided by user, see Context
+   *     event?: Event // if even was due to browser event (eg click), then this is browser event
+   */
+  onRowClicked(event) {
+    // console.log('a row was clicked + data=' + util.inspect(event.data));
+  }
+
+  /**
+   * @param {Object} event
+   *    column: Column, // the column for the cell in question
+   *    colDef: ColDef, // the column definition for the cell in question
+   *    value: any // the value for the cell in question
+   */
+  onCellClicked(event) {
+    // console.log('a cell was clicked + event=');
+  }
+
   createColumnHeaders() {
     const headers = {};
-    const width = this.gridOptions.context.column_width;
+    // const width = this.gridOptions.context.column_width;
     const isEditable = this.props.isEditable;
 
     for (let i = 0; i < this.props.docs.length; i++) {
@@ -58,6 +80,10 @@ class DocumentListTableView extends React.Component {
           cellRendererFramework: CellRenderer,
           cellRendererParams: {
             isEditable: isEditable
+          },
+          editable: isEditable,
+          cellEditorFramework: CellEditor,
+          cellEditorParams: {
           }
         };
         // /* Pin the ObjectId to the left */
