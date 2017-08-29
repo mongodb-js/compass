@@ -31,7 +31,6 @@ class CellEditor extends React.Component {
 
   componentWillUnmount() {
     this.props.reactContainer.removeEventListener('keydown', this.onKeyDown);
-    this.blur();
   }
 
   /**
@@ -42,6 +41,7 @@ class CellEditor extends React.Component {
   }
 
   getValue() {
+    this.editor().complete();
     return this.editor().value();
   }
 
@@ -52,10 +52,6 @@ class CellEditor extends React.Component {
    */
   editor() {
     return this._editors[this.element.currentType] || this._editors.Standard;
-  }
-
-  blur() {
-    this.editor().complete();
   }
 
   handleChange(event) {
