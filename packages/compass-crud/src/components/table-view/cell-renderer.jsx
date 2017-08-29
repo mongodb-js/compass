@@ -65,6 +65,7 @@ class CellRenderer extends React.Component {
   }
 
   handleEdited() {
+    //TODO: set for consistency, state is only really used for update rows.
     console.log("handle edited");
     this.props.node.data.state = 'modified';
   }
