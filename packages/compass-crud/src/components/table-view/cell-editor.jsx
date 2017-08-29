@@ -61,7 +61,7 @@ class CellEditor extends React.Component {
   handleChange(event) {
     // TODO: change event is triggered when enter is pressed/editing is done
     this.editor().edit(event.target.value);
-    this.forceUpdate();go
+    this.forceUpdate();
   }
 
   focus() {
