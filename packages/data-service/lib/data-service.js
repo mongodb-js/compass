@@ -20,7 +20,7 @@ class DataService extends EventEmitter {
   constructor(model) {
     super();
     this.client = null;
-    if (model.stitchAppId && model.stitchGroupId) {
+    if (model.stitchClientAppId) {
       const WebClient = require('./web-client');
       this.client = new WebClient(model);
     } else {

@@ -44,8 +44,11 @@ class WebClient {
    * @param {Function} callback - The callback.
    */
   connect(callback) {
-    var baseUrl = `http://${this.model.hostname}:${this.model.port}`;
-    this.stitchClient = new StitchClient(this.model.stitchClientAppId, { baseUrl: baseUrl });
+    const options = {};
+    if (this.model.hostname && this.model.port) {
+      options.baseUrl = `http://${this.model.hostname}:${this.model.port}`;
+    }
+    this.stitchClient = new StitchClient(this.model.stitchClientAppId, options);
     this.stitchClient
       .login(this.model.mongodb_username, this.model.mongodb_password)
       .then(() => {
