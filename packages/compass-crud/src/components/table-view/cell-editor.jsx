@@ -4,6 +4,8 @@ const PropTypes = require('prop-types');
 const util = require('util');
 const ReactDOM = require('react-dom');
 const initEditors = require('../editor/');
+const Types = require('../types');
+const FontAwesome = require('react-fontawesome');
 
 
 /**
@@ -16,6 +18,8 @@ class CellEditor extends React.Component {
 
     this.onKeyDown = this.onKeyDown.bind(this);
     this.handleChange = this.handleChange.bind(this);
+    this.handleAddField = this.handleAddField.bind(this);
+    this.handleRemoveField = this.handleRemoveField.bind(this);
 
     this._editors = initEditors(props.value);
   }
@@ -45,6 +49,10 @@ class CellEditor extends React.Component {
     return this.editor().value();
   }
 
+  isPopup() {
+    return true;
+  }
+
   /**
    * Get the editor for the current type.
    *
@@ -60,10 +68,18 @@ class CellEditor extends React.Component {
     this.forceUpdate();
   }
 
+  handleAddField(event) {
+    console.log("add field");
+  }
+
+  handleRemoveField(event) {
+    console.log("remove field");
+  }
+
   focus() {
     this.editor().start();
 
-    // TODO: why this?
+    // // TODO: why this?
     setTimeout(() => {
       const container = ReactDOM.findDOMNode(this.props.reactContainer);
       if (container) {
@@ -72,12 +88,39 @@ class CellEditor extends React.Component {
     });
   }
 
+  /**
+   * Render the types column.
+   *
+   * @returns {React.Component} The component.
+   */
+  renderTypes() {
+    return (
+      <Types element={this.element} className="table-view-cell-editor"/>
+    );
+  }
+
   render() {
     return (
-      <input ref="input"
-             value={this.editor().value(true)}
-             onChange={this.handleChange}
-      />
+      <div className="table-view-cell-editor">
+        <input className="table-view-cell-editor-input"
+               ref="input"
+               value={this.editor().value(true)}
+               onChange={this.handleChange}
+        />
+        {this.renderTypes()}
+        <button
+          className="table-view-cell-editor-button"
+          onClick={this.handleAddField}
+        >
+          <FontAwesome name="plus-square-o" className="table-view-button-icon"/>
+        </button>
+        <button
+          className="table-view-cell-editor-button"
+          onClick={this.handleRemoveField}
+        >
+          <FontAwesome name="trash" className="table-view-button-icon"/>
+        </button>
+      </div>
     );
   }
 }

@@ -1,0 +1,74 @@
+.table-view-cell-editor {
+  z-index: 1000;
+  position: absolute;
+  width: 253px; //TODO: set correctly
+  background: white;
+  border: 1px solid grey;
+  border-radius: 2px;
+
+  &-input {
+    width: 120px;
+  }
+  &-button {
+    width: 25px;
+  }
+
+  &-types {
+    display: inline-block;
+    width: 80px;
+    color: #807f7f;
+    height: 17px;
+    flex-shrink: 0;
+
+    .closed > .dropdown-menu {
+      display: none;
+    }
+
+    .type-label {
+      padding: 1px 12px;
+    }
+
+    .btn {
+      background-color: transparent;
+      color: #a09f9e;
+      border: none;
+      text-transform: none;
+      font-size: 11px;
+      border-radius: 8px;
+      padding: 1px 12px;
+    }
+
+    .caret {
+      visibility: hidden;
+    }
+
+    &-is-edited {
+      .btn {
+        color: #000000;
+        font-weight: bold;
+      }
+    }
+
+    .dropdown-menu {
+      min-width: 80px;
+
+      li {
+        span {
+          display: block;
+          padding: 3px 20px;
+          clear: both;
+          font-weight: normal;
+          font-size: 11px;
+          color: #333333;
+          white-space: nowrap;
+        }
+        span:hover {
+          color: #313030;
+          text-decoration: none;
+          background: #e6e6e6;
+        }
+      }
+    }
+  }
+
+}

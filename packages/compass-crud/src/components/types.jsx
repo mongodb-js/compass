@@ -36,6 +36,7 @@ class Types extends React.Component {
     this.state = { isOpen: false };
     this.element = props.element;
     this._version = global.hadronApp.instance.build.version;
+    this.className = props.className ? props.className : "editable-element";
   }
 
   /**
@@ -44,7 +45,7 @@ class Types extends React.Component {
    * @returns {String} The class name.
    */
   getClassName() {
-    let className = 'editable-element-types dropdown';
+    let className = `${this.className}-types dropdown`;
     if (this.element.currentType !== this.element.type) {
       className = `${className} editable-element-types-is-edited`;
     }
@@ -161,7 +162,8 @@ class Types extends React.Component {
 Types.displayName = 'Types';
 
 Types.propTypes = {
-  element: PropTypes.object.isRequired
+  element: PropTypes.object.isRequired,
+  className: PropTypes.string
 };
 
 module.exports = Types;
