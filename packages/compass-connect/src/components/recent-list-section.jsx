@@ -6,7 +6,7 @@ const Actions = require('../actions');
 class RecentListSection extends React.Component {
 
   onRecentClicked(recent) {
-    Actions.onRecentSelected(recent);
+    Actions.onConnectionSelected(recent);
   }
 
   getClassName(recent) {

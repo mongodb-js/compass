@@ -6,7 +6,7 @@ const Actions = require('../actions');
 class FavoriteListSection extends React.Component {
 
   onFavoriteClicked(favorite) {
-    Actions.onFavoriteSelected(favorite);
+    Actions.onConnectionSelected(favorite);
   }
 
   getClassName(favorite) {
