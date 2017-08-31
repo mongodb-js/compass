@@ -45,6 +45,19 @@ describe('NamespaceStore', () => {
       NamespaceStore.ns = newNamespace;
     });
 
+    it('when the initial collection does not contain a dot, calls onCollectionChanged', (done) => {
+      NamespaceStore.ns = 'foo.bar';
+      const newNamespace = 'jaguar.bar';
+      const CollectionSubscriberStore = Reflux.createStore({
+        onCollectionChanged(namespace) {
+          expect(namespace).to.be.equal(newNamespace);
+          done();
+        }
+      });
+      app.appRegistry.registerStore('CollectionSubscriber.Store', CollectionSubscriberStore);
+      NamespaceStore.ns = newNamespace;
+    });
+
     it('when database changes, calls onDatabaseChanged', (done) => {
       const newNamespace = `changeTheDB.${initialCollection}`;
       const DatabaseSubscriberStore = Reflux.createStore({
