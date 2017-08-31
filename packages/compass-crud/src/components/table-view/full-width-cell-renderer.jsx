@@ -1,9 +1,6 @@
 const React = require('react');
 const PropTypes = require('prop-types');
 
-// const EditingFooter = require('./editing-footer');
-// const DeletingFooter = require('./deleting-footer');
-
 const DocumentFooter = require('../document-footer');
 const RemoveDocumentFooter = require('../remove-document-footer');
 
