@@ -36,7 +36,7 @@ class Types extends React.Component {
     this.state = { isOpen: false };
     this.element = props.element;
     this._version = global.hadronApp.instance.build.version;
-    this.className = props.className ? props.className : "editable-element";
+    this.className = props.className ? props.className : 'editable-element';
   }
 
   /**

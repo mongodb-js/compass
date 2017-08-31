@@ -1,12 +1,13 @@
 const React = require('react');
-const PropTypes = require('prop-types');
-// const _ = require('lodash');
-const util = require('util');
 const ReactDOM = require('react-dom');
+const PropTypes = require('prop-types');
+
 const initEditors = require('../editor/');
 const Types = require('../types');
 const FontAwesome = require('react-fontawesome');
 const { Tooltip } = require('hadron-react-components');
+
+// const util = require('util');
 
 /**
  * The document value class.
@@ -46,20 +47,51 @@ class CellEditor extends React.Component {
     this.props.reactContainer.removeEventListener('keydown', this.onKeyDown);
   }
 
-  /**
-   * Get the editor for the current type.
-   *
-   * @returns {Editor} The editor.
-   */
-  editor() {
-    return this._editors[this.element.currentType] || this._editors.Standard;
+  // /**
+  //  * This is only required if you are preventing event propagation.
+  //  * @param {Object} event
+  //  */
+  // handleKeyDown(event) {
+  // }
+
+  // handleAddField(event) {
+  //   console.log("add field");
+  // }
+  //
+  // handleRemoveField(event) {
+  //   console.log("remove field");
+  // }
+
+  getValue() {
+    this.editor().complete();
+    return this.editor().value();
   }
 
-  /**
-   * This is only required if you are preventing event propagation.
-   * @param {Object} event
-   */
-  handleKeyDown(event) {
+  isPopup() {
+    return true;
+  }
+
+  focus() {
+    // TODO: why this?
+    setTimeout(() => {
+      const container = ReactDOM.findDOMNode(this.props.reactContainer);
+      if (container) {
+        container.focus();
+      }
+    });
+  }
+
+  handleChange(event) {
+    if (this._pasting) {
+      this._pasteEdit(event.target.value);
+    } else {
+      this.editor().edit(event.target.value);
+    }
+    this.forceUpdate();
+  }
+
+  handlePaste() {
+    this._pasting = true;
   }
 
   /**
@@ -77,55 +109,13 @@ class CellEditor extends React.Component {
     }
   }
 
-  handlePaste() {
-    this._pasting = true;
-  }
-
-  handleChange(event) {
-    if (this._pasting) {
-      this._pasteEdit(value);
-    } else {
-      this.editor().edit(event.target.value);
-    }
-    this.forceUpdate();
-  }
-
-  focus() {
-    // TODO: why this?
-    setTimeout(() => {
-      const container = ReactDOM.findDOMNode(this.props.reactContainer);
-      if (container) {
-        container.focus();
-      }
-    });
-  }
-
-  handleAddField(event) {
-    console.log("add field");
-  }
-
-  handleRemoveField(event) {
-    console.log("remove field");
-  }
-
-  getValue() {
-    this.editor().complete();
-    return this.editor().value();
-  }
-
-  isPopup() {
-    return true;
-  }
-
   /**
-   * Render the types column.
+   * Get the editor for the current type.
    *
-   * @returns {React.Component} The component.
+   * @returns {Editor} The editor.
    */
-  renderTypes() {
-    return (
-      <Types element={this.element} className="table-view-cell-editor"/>
-    );
+  editor() {
+    return this._editors[this.element.currentType] || this._editors.Standard;
   }
 
   /**
@@ -150,6 +140,17 @@ class CellEditor extends React.Component {
     return `${VALUE_CLASS}-wrapper ${VALUE_CLASS}-wrapper-is-${this.element.currentType.toLowerCase()}`;
   }
 
+  /**
+   * Render the types column.
+   *
+   * @returns {React.Component} The component.
+   */
+  renderTypes() {
+    return (
+      <Types element={this.element} className="table-view-cell-editor"/>
+    );
+  }
+
   renderInput() {
     const length = 120; // TODO: styles
     return (
@@ -162,7 +163,7 @@ class CellEditor extends React.Component {
         <input
           data-tip=""
           data-for={this.element.uuid}
-          ref={(c) => this._node = c}
+          ref={(c) => {this._node = c;}}
           type="text"
           style={{ width: `${length}px` }}
           className={this.style()}
@@ -171,8 +172,7 @@ class CellEditor extends React.Component {
           onPaste={this.handlePaste.bind(this)}
           value={this.editor().value(true)} />
       </span>
-     );
-
+    );
   }
 
   render() {

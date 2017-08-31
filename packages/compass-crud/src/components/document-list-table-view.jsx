@@ -1,19 +1,20 @@
 const React = require('react');
 const PropTypes = require('prop-types');
-const BreadcrumbComponent = require('./breadcrumb');
-const BreadcrumbStore = require('../stores/breadcrumb-store');
-const { StoreConnector } = require('hadron-react-components');
 const {AgGridReact} = require('ag-grid-react');
 const _ = require('lodash');
+
+const { StoreConnector } = require('hadron-react-components');
 const TypeChecker = require('hadron-type-checker');
 const HadronDocument = require('hadron-document');
 
+const BreadcrumbComponent = require('./breadcrumb');
+const BreadcrumbStore = require('../stores/breadcrumb-store');
 const CellRenderer = require('./table-view/cell-renderer');
 const FullWidthCellRenderer = require('./table-view/full-width-cell-renderer');
 const HeaderComponent = require('./table-view/header-cell-renderer');
 const CellEditor = require('./table-view/cell-editor');
 
-const util = require('util');
+// const util = require('util');
 
 /**
  * Represents the table view of the documents tab.
@@ -38,6 +39,29 @@ class DocumentListTableView extends React.Component {
   onGridReady(params) {
     this.gridApi = params.api;
     this.columnApi = params.columnApi;
+  }
+
+  // /**
+  //  * @param {Object} event
+  //  *    column: Column, // the column for the cell in question
+  //  *    colDef: ColDef, // the column definition for the cell in question
+  //  *    value: any // the value for the cell in question
+  //  */
+  // onCellClicked(event) {
+  //   // console.log('a cell was clicked + event=');
+  // }
+
+  /**
+   * @param {Object} event
+   *     node: RowNode, // the RowNode for the row in question
+   *     data: any, // the user provided data for the row in question
+   *     rowIndex: number, // the visible row index for the row in question
+   *     rowPinned: string, // either 'top', 'bottom' or undefined / null (if not pinned)
+   *     context: any, // bag of attributes, provided by user, see Context
+   *     event?: Event // if even was due to browser event (eg click), then this is browser event
+   */
+  onRowClicked(event) {
+    this.addEditingFooter(event.node, event.data, event.rowIndex);
   }
 
   addEditingFooter(rowNode, data, rowIndex) {
@@ -77,30 +101,6 @@ class DocumentListTableView extends React.Component {
     this.gridApi.updateRowData({add: [newData], addIndex: rowIndex + 1});
   }
 
-  /**
-   * @param {Object} event
-   *     node: RowNode, // the RowNode for the row in question
-   *     data: any, // the user provided data for the row in question
-   *     rowIndex: number, // the visible row index for the row in question
-   *     rowPinned: string, // either 'top', 'bottom' or undefined / null (if not pinned)
-   *     context: any, // bag of attributes, provided by user, see Context
-   *     event?: Event // if even was due to browser event (eg click), then this is browser event
-   */
-  onRowClicked(event) {
-    // console.log("state of row:" + event.data.state);
-    this.addEditingFooter(event.node, event.data, event.rowIndex);
-  }
-
-  /**
-   * @param {Object} event
-   *    column: Column, // the column for the cell in question
-   *    colDef: ColDef, // the column definition for the cell in question
-   *    value: any // the value for the cell in question
-   */
-  onCellClicked(event) {
-    // console.log('a cell was clicked + event=');
-  }
-
   createColumnHeaders() {
     const headers = {};
     // const width = this.gridOptions.context.column_width;
@@ -110,32 +110,30 @@ class DocumentListTableView extends React.Component {
       _.map(this.props.docs[i], function(val, key) {
         headers[key] = {
           headerName: key,
+          // width: width, TODO: prevents horizontal scrolling
+
           valueGetter: function(params) {
             return params.data.hadronDocument.get(key);
           },
+
           headerComponentFramework: HeaderComponent,
-          // width: width, TODO: prevents horizontal scrolling
           headerComponentParams: {
             bsonType: TypeChecker.type(val)
           },
+
           cellRendererFramework: CellRenderer,
-          cellRendererParams: {
-            isEditable: isEditable
-          },
+          cellRendererParams: {},
+
           editable: function(params) {
             if (!isEditable) {
               return false;
             }
             return params.node.data.hadronDocument.get(key).isValueEditable();
           },
+
           cellEditorFramework: CellEditor,
-          cellEditorParams: {
-          }
+          cellEditorParams: {}
         };
-        // /* Pin the ObjectId to the left */
-        // if (key === '_id') {
-        //   headers[key].pinned = 'left';
-        // }
       });
     }
     return Object.values(headers);
@@ -183,7 +181,7 @@ class DocumentListTableView extends React.Component {
             // properties
             columnDefs={this.createColumnHeaders()}
             gridOptions={this.gridOptions}
-            
+
             isFullWidthCell={(rowNode)=>{return rowNode.data.isFooter;}}
             fullWidthCellRendererFramework={FullWidthCellRenderer}
 

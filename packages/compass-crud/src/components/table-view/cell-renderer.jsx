@@ -1,11 +1,11 @@
 const React = require('react');
 const PropTypes = require('prop-types');
-// const _ = require('lodash');
-const util = require('util');
 const getComponent = require('hadron-react-bson');
 const { Element } = require('hadron-document');
+
 const initEditors = require('../editor/');
-const { Tooltip } = require('hadron-react-components');
+
+// const util = require('util');
 
 /**
  * The BEM base style name for the element.
@@ -78,25 +78,24 @@ class CellRenderer extends React.Component {
     this.element.removeListener(Element.Events.Invalid, this.unsubscribeInvalid);
   }
 
-  handleAdded() {
-    console.log("handle added");
-  }
-  handleConverted() {
-    console.log("handle converted");
-  }
-  handleRemoved() {
-    console.log("handle removed");
-  }
-  handleReverted() {
-    console.log("handle reverted");
-  }
-  handleInvalid() {
-    console.log("handle invalid");
-  }
+  // handleAdded() {
+  //   console.log("handle added");
+  // }
+  // handleConverted() {
+  //   console.log("handle converted");
+  // }
+  // handleRemoved() {
+  //   console.log("handle removed");
+  // }
+  // handleReverted() {
+  //   console.log("handle reverted");
+  // }
+  // handleInvalid() {
+  //   console.log("handle invalid");
+  // }
 
   handleEdited() {
-    //TODO: set for consistency, state is only really used for update rows.
-    console.log("handle edited");
+    // TODO: set for consistency, state is only really used for update rows.
     this.props.node.data.state = 'modified';
   }
 
@@ -128,7 +127,7 @@ class CellRenderer extends React.Component {
           {this.element.currentValue}
         </div>
       </div>
-    )
+    );
   }
 
   render() {
@@ -155,7 +154,7 @@ class CellRenderer extends React.Component {
 CellRenderer.propTypes = {
   api: PropTypes.any,
   value: PropTypes.any,
-  isEditable: PropTypes.bool.isRequired
+  node: PropTypes.any
 };
 
 CellRenderer.displayName = 'CellRenderer';

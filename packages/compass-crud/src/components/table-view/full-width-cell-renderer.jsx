@@ -21,12 +21,11 @@ class FullWidthCellRenderer extends React.Component {
     };
 
     this.actions = {update: ()=>{}, remove: ()=>{}};
-    this.updateStore = {listen: ()=>{return ()=>{}}};
-    this.removeStore = {listen: ()=>{return ()=>{}}};
+    this.updateStore = {listen: ()=>{return ()=>{};}};
+    this.removeStore = {listen: ()=>{return ()=>{};}};
   }
 
   handleCancelDelete() {
-
   }
 
   render() {
@@ -37,7 +36,7 @@ class FullWidthCellRenderer extends React.Component {
           updateStore={this.updateStore}
           actions={this.actions}
         />
-        );
+      );
     }
     return (
       <RemoveDocumentFooter
@@ -52,7 +51,8 @@ class FullWidthCellRenderer extends React.Component {
 
 FullWidthCellRenderer.propTypes = {
   api: PropTypes.any,
-  mode: PropTypes.any
+  mode: PropTypes.any,
+  data: PropTypes.any
 };
 
 FullWidthCellRenderer.displayName = 'FullWidthCellRenderer';
