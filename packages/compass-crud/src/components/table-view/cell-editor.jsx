@@ -35,7 +35,7 @@ class CellEditor extends React.Component {
   }
 
   componentDidMount() {
-    this.props.reactContainer.addEventListener('keydown', this.onKeyDown);
+    // this.props.reactContainer.addEventListener('keydown', this.onKeyDown);
     this.focus();
   }
 
@@ -44,7 +44,7 @@ class CellEditor extends React.Component {
   }
 
   componentWillUnmount() {
-    this.props.reactContainer.removeEventListener('keydown', this.onKeyDown);
+    // this.props.reactContainer.removeEventListener('keydown', this.onKeyDown);
   }
 
   // /**
@@ -52,14 +52,6 @@ class CellEditor extends React.Component {
   //  * @param {Object} event
   //  */
   // handleKeyDown(event) {
-  // }
-
-  // handleAddField(event) {
-  //   console.log("add field");
-  // }
-  //
-  // handleRemoveField(event) {
-  //   console.log("remove field");
   // }
 
   /**
@@ -90,6 +82,14 @@ class CellEditor extends React.Component {
         container.focus();
       }
     });
+  }
+
+  handleAddField() {
+    console.log('add field');
+  }
+
+  handleRemoveField() {
+    console.log('remove field');
   }
 
   handleChange(event) {
@@ -184,11 +184,19 @@ class CellEditor extends React.Component {
           style={{ width: `${length}px` }}
           className={this.style()}
           onChange={this.handleChange.bind(this)}
-          onKeyDown={this.handleKeyDown.bind(this)}
+          // onKeyDown={this.handleKeyDown.bind(this)}
           onPaste={this.handlePaste.bind(this)}
           value={this.editor().value(true)} />
       </span>
     );
+  }
+
+  /**
+   * Render the add field/delete field buttons. If the element is an object or
+   * an array, provide a "drill down" button.
+   */
+  renderActions() {
+
   }
 
   render() {

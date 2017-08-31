@@ -51,31 +51,31 @@ class CellRenderer extends React.Component {
   }
 
   componentDidMount() {
-    this.unsubscribeAdded = this.handleAdded.bind(this);
-    this.unsubscribeConverted = this.handleConverted.bind(this);
+    // this.unsubscribeAdded = this.handleAdded.bind(this);
+    // this.unsubscribeConverted = this.handleConverted.bind(this);
+    // this.unsubscribeRemoved = this.handleRemoved.bind(this);
+    // this.unsubscribeReverted = this.handleReverted.bind(this);
+    // this.unsubscribeInvalid = this.handleInvalid.bind(this);
     this.unsubscribeEdited = this.handleEdited.bind(this);
-    this.unsubscribeRemoved = this.handleRemoved.bind(this);
-    this.unsubscribeReverted = this.handleReverted.bind(this);
-    this.unsubscribeInvalid = this.handleInvalid.bind(this);
 
-    this.element.on(Element.Events.Added, this.unsubscribeAdded);
-    this.element.on(Element.Events.Converted, this.unsubscribeConverted);
+    // this.element.on(Element.Events.Added, this.unsubscribeAdded);
+    // this.element.on(Element.Events.Converted, this.unsubscribeConverted);
+    // this.element.on(Element.Events.Removed, this.unsubscribeRemoved);
+    // this.element.on(Element.Events.Reverted, this.unsubscribeReverted);
+    // this.element.on(Element.Events.Invalid, this.unsubscribeInvalid);
     this.element.on(Element.Events.Edited, this.unsubscribeEdited);
-    this.element.on(Element.Events.Removed, this.unsubscribeRemoved);
-    this.element.on(Element.Events.Reverted, this.unsubscribeReverted);
-    this.element.on(Element.Events.Invalid, this.unsubscribeInvalid);
   }
 
   /**
    * Unsubscribe from the events.
    */
   componentWillUnmount() {
-    this.element.removeListener(Element.Events.Added, this.unsubscribeAdded);
-    this.element.removeListener(Element.Events.Converted, this.unsubscribeConverted);
+    // this.element.removeListener(Element.Events.Added, this.unsubscribeAdded);
+    // this.element.removeListener(Element.Events.Converted, this.unsubscribeConverted);
+    // this.element.removeListener(Element.Events.Removed, this.unsubscribeRemoved);
+    // this.element.removeListener(Element.Events.Reverted, this.unsubscribeReverted);
+    // this.element.removeListener(Element.Events.Invalid, this.unsubscribeInvalid);
     this.element.removeListener(Element.Events.Edited, this.unsubscribeEdited);
-    this.element.removeListener(Element.Events.Removed, this.unsubscribeRemoved);
-    this.element.removeListener(Element.Events.Reverted, this.unsubscribeReverted);
-    this.element.removeListener(Element.Events.Invalid, this.unsubscribeInvalid);
   }
 
   // handleAdded() {

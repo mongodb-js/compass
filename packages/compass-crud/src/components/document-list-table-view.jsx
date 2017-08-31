@@ -31,8 +31,8 @@ class DocumentListTableView extends React.Component {
       context: {
         column_width: 150
       },
-      onRowClicked: this.onRowClicked,
-      onCellClicked: this.onCellClicked.bind(this)
+      onRowClicked: this.onRowClicked
+      // onCellClicked: this.onCellClicked.bind(this)
     };
   }
 
