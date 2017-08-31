@@ -71,10 +71,10 @@ class DocumentListTableView extends React.Component {
    * row directly above. The row will be a full-width row that has the same
    * hadron-document as the "data" row above.
    *
-   * @param rowNode {RowNode} The RowNode for the row that was clicked on.
-   * @param data {object} The data for the row that was clicked on. Will be a
+   * @param rowNode {RowNode} - The RowNode for the row that was clicked on.
+   * @param data {object} - The data for the row that was clicked on. Will be a
    *  HadronDocument with some metadata.
-   * @param rowIndex {number} Index of the row clicked on.
+   * @param rowIndex {number} - Index of the row clicked on.
    */
   addEditingFooter(rowNode, data, rowIndex) {
     /* Ignore clicks on footers or data rows that already have footers */
@@ -98,10 +98,10 @@ class DocumentListTableView extends React.Component {
    * row directly above. The row will be a full-width row that has the same
    * hadron-document as the "data" row above.
    *
-   * @param rowNode {RowNode} The RowNode for the row that was clicked on.
-   * @param data {object} The data for the row that was clicked on. Will be a
+   * @param rowNode {RowNode} - The RowNode for the row that was clicked on.
+   * @param data {object} - The data for the row that was clicked on. Will be a
    *  HadronDocument with some metadata.
-   * @param rowIndex {number} Index of the row clicked on.
+   * @param rowIndex {number} - Index of the row clicked on.
    */
   addDeletingFooter(rowNode, data, rowIndex) {
     /* If bar exists and is in editing mode, set to deleting */
