@@ -38,6 +38,18 @@ describe('IndexStore', () => {
       });
       Actions.onHostnameChanged('myserver');
     });
+
+    context('when the hostname contains mongodb.net', () => {
+      it('updates the hostname and sets the systemca ssl option', (done) => {
+        const unsubscribe = IndexStore.listen((state) => {
+          unsubscribe();
+          expect(state.currentConnection.hostname).to.equal('mongodb.net');
+          expect(state.currentConnection.ssl).to.equal('SYSTEMCA');
+          done();
+        });
+        Actions.onHostnameChanged('mongodb.net');
+      });
+    });
   });
 
   describe('#onPortChanged', () => {

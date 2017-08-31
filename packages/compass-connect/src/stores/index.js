@@ -44,6 +44,9 @@ const ConnectStore = Reflux.createStore({
 
   onHostnameChanged(hostname) {
     this.state.currentConnection.hostname = hostname;
+    if (hostname.match(/mongodb\.net/i)) {
+      this.state.currentConnection.ssl = 'SYSTEMCA';
+    }
     this.trigger(this.state);
   },
 
