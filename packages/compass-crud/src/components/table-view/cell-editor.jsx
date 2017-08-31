@@ -62,11 +62,22 @@ class CellEditor extends React.Component {
   //   console.log("remove field");
   // }
 
+  /**
+   * AG-Grid API call to get final result of editing. Not being used because
+   * changes are tracked with HadronDocument internally, so we don't need to
+   * set it using the API (for now).
+   *
+   * @returns {*} The value that will be set.
+   */
   getValue() {
     this.editor().complete();
     return this.editor().value();
   }
 
+  /**
+   * Determines if the editor can take up more space than just 1 cell.
+   * @returns {boolean}
+   */
   isPopup() {
     return true;
   }
@@ -151,6 +162,11 @@ class CellEditor extends React.Component {
     );
   }
 
+  /**
+   * Render the input field.
+   *
+   * @returns {React.Component} The component.
+   */
   renderInput() {
     const length = 120; // TODO: styles
     return (

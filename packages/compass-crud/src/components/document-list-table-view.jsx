@@ -52,18 +52,30 @@ class DocumentListTableView extends React.Component {
   // }
 
   /**
+   * Callback for when a row is clicked.
+   *
    * @param {Object} event
-   *     node: RowNode, // the RowNode for the row in question
-   *     data: any, // the user provided data for the row in question
-   *     rowIndex: number, // the visible row index for the row in question
-   *     rowPinned: string, // either 'top', 'bottom' or undefined / null (if not pinned)
-   *     context: any, // bag of attributes, provided by user, see Context
-   *     event?: Event // if even was due to browser event (eg click), then this is browser event
+   *     node {RowNode} - the RowNode for the row in question
+   *     data {*} - the user provided data for the row in question
+   *     rowIndex {number} - the visible row index for the row in question
+   *     rowPinned {string} - 'top', 'bottom' or undefined / null if not pinned
+   *     context: {*} - bag of attributes, provided by user, see Context
+   *     event?: {Event} - event if this was result of a browser event
    */
   onRowClicked(event) {
     this.addEditingFooter(event.node, event.data, event.rowIndex);
   }
 
+  /**
+   * Add a row to the table that represents the update/cancel footer for the
+   * row directly above. The row will be a full-width row that has the same
+   * hadron-document as the "data" row above.
+   *
+   * @param rowNode {RowNode} The RowNode for the row that was clicked on.
+   * @param data {object} The data for the row that was clicked on. Will be a
+   *  HadronDocument with some metadata.
+   * @param rowIndex {number} Index of the row clicked on.
+   */
   addEditingFooter(rowNode, data, rowIndex) {
     /* Ignore clicks on footers or data rows that already have footers */
     if (data.isFooter || data.hasFooter) {
@@ -81,6 +93,16 @@ class DocumentListTableView extends React.Component {
     this.gridApi.updateRowData({add: [newData], addIndex: rowIndex + 1});
   }
 
+  /**
+   * Add a row to the table that represents the delete/cancel footer for the
+   * row directly above. The row will be a full-width row that has the same
+   * hadron-document as the "data" row above.
+   *
+   * @param rowNode {RowNode} The RowNode for the row that was clicked on.
+   * @param data {object} The data for the row that was clicked on. Will be a
+   *  HadronDocument with some metadata.
+   * @param rowIndex {number} Index of the row clicked on.
+   */
   addDeletingFooter(rowNode, data, rowIndex) {
     /* If bar exists and is in editing mode, set to deleting */
     if (data.isFooter) {
@@ -101,6 +123,11 @@ class DocumentListTableView extends React.Component {
     this.gridApi.updateRowData({add: [newData], addIndex: rowIndex + 1});
   }
 
+  /**
+   * Define all the columns in table and their renderer components.
+   *
+   * @returns {object} the ColHeaders
+   */
   createColumnHeaders() {
     const headers = {};
     // const width = this.gridOptions.context.column_width;
@@ -140,9 +167,10 @@ class DocumentListTableView extends React.Component {
   }
 
   /**
-   * Create Hadron Documents for each row.
+   * Create data for each document row. Contains a HadronDocument and some
+   * metadata.
    *
-   * @returns {Array} A list of HadronDocuments.
+   * @returns {Array} A list of HadronDocument wrappers.
    */
   createRowData() {
     return _.map(this.props.docs, function(val) {
