@@ -88,7 +88,7 @@ class DocumentListTableView extends React.Component {
    */
   onRowClicked(event) {
     console.log("state of row:" + event.data.state);
-    this.addEditingFooter(event.node, event.data, event.rowIndex);
+    this.addDeletingFooter(event.node, event.data, event.rowIndex);
   }
 
   /**
