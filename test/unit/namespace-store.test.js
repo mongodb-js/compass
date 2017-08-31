@@ -33,41 +33,47 @@ describe('NamespaceStore', () => {
       NamespaceStore.ns = 'database.collection';
     });
 
-    it('when collection changes, calls onCollectionChanged', (done) => {
-      const newNamespace = `${initialDatabase}.change.the-collection.please`;
-      const CollectionSubscriberStore = Reflux.createStore({
-        onCollectionChanged(namespace) {
-          expect(namespace).to.be.equal(newNamespace);
-          done();
-        }
+    context('when collection changes', () => {
+      it('calls onCollectionChanged', (done) => {
+        const newNamespace = `${initialDatabase}.change.the-collection.please`;
+        const CollectionSubscriberStore = Reflux.createStore({
+          onCollectionChanged(namespace) {
+            expect(namespace).to.be.equal(newNamespace);
+            done();
+          }
+        });
+        app.appRegistry.registerStore('CollectionSubscriber.Store', CollectionSubscriberStore);
+        NamespaceStore.ns = newNamespace;
       });
-      app.appRegistry.registerStore('CollectionSubscriber.Store', CollectionSubscriberStore);
-      NamespaceStore.ns = newNamespace;
     });
 
-    it('when the initial collection does not contain a dot, calls onCollectionChanged', (done) => {
-      NamespaceStore.ns = 'foo.bar';
-      const newNamespace = 'jaguar.bar';
-      const CollectionSubscriberStore = Reflux.createStore({
-        onCollectionChanged(namespace) {
-          expect(namespace).to.be.equal(newNamespace);
-          done();
-        }
+    context('when the initial collection does not contain a dot', () => {
+      it('calls onCollectionChanged', (done) => {
+        NamespaceStore.ns = 'foo.bar';
+        const newNamespace = 'jaguar.bar';
+        const CollectionSubscriberStore = Reflux.createStore({
+          onCollectionChanged(namespace) {
+            expect(namespace).to.be.equal(newNamespace);
+            done();
+          }
+        });
+        app.appRegistry.registerStore('CollectionSubscriber.Store', CollectionSubscriberStore);
+        NamespaceStore.ns = newNamespace;
       });
-      app.appRegistry.registerStore('CollectionSubscriber.Store', CollectionSubscriberStore);
-      NamespaceStore.ns = newNamespace;
     });
 
-    it('when database changes, calls onDatabaseChanged', (done) => {
-      const newNamespace = `changeTheDB.${initialCollection}`;
-      const DatabaseSubscriberStore = Reflux.createStore({
-        onDatabaseChanged(namespace) {
-          expect(namespace).to.be.equal(newNamespace);
-          done();
-        }
+    context('when database changes', () => {
+      it('calls onDatabaseChanged', (done) => {
+        const newNamespace = `changeTheDB.${initialCollection}`;
+        const DatabaseSubscriberStore = Reflux.createStore({
+          onDatabaseChanged(namespace) {
+            expect(namespace).to.be.equal(newNamespace);
+            done();
+          }
+        });
+        app.appRegistry.registerStore('DatabaseSubscriber.Store', DatabaseSubscriberStore);
+        NamespaceStore.ns = newNamespace;
       });
-      app.appRegistry.registerStore('DatabaseSubscriber.Store', DatabaseSubscriberStore);
-      NamespaceStore.ns = newNamespace;
     });
   });
 });
