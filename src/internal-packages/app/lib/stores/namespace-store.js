@@ -1,6 +1,6 @@
 const Reflux = require('reflux');
 const app = require('hadron-app');
-const _ = require('lodash');
+const toNS = require('mongodb-ns');
 const debug = require('debug')('mongodb-compass:namespace-store');
 
 /**
@@ -15,17 +15,6 @@ const NamespaceStore = Reflux.createStore({
     return this._ns;
   },
 
-  __nsHelper: function(ns) {
-    if (!ns) {
-      return ['', ''];
-    }
-    if (_.includes(ns, '.')) {
-      return ns.split('.');
-    }
-
-    return [ns, ''];
-  },
-
   /**
    * Set the current namespace being worked on in the application.
    *
@@ -35,17 +24,17 @@ const NamespaceStore = Reflux.createStore({
     debug('setting ns: from', this._ns, 'to', ns);
     const registry = app.appRegistry;
     if (registry) {
-      const oldNns = this.__nsHelper(this._ns);
-      const newNs = this.__nsHelper(ns);
+      const oldNs = toNS(this._ns);
+      const newNs = toNS(ns);
 
-      if (oldNns[0] !== newNs[0]) {
+      if (oldNs.database !== newNs.database) {
         registry.callOnStores(function(store) {
           if (store.onDatabaseChanged) {
             store.onDatabaseChanged(ns);
           }
         });
       }
-      if (oldNns[0] !== newNs[0] || oldNns[1] !== newNs[1]) {
+      if (oldNs.database !== newNs.database || oldNs.collection !== newNs.collection) {
         registry.callOnStores(function(store) {
           if (store.onCollectionChanged) {
             store.onCollectionChanged(ns);
