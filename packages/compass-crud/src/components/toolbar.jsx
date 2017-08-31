@@ -65,10 +65,10 @@ class Toolbar extends React.Component {
   /**
    * Handle updating the count on document insert.
    *
-   * @param {Boolean} success - If the insert succeeded.
+   * @param {Error} error - If an error occurred.
    */
-  handleInsert(success) {
-    if (success) {
+  handleInsert(error) {
+    if (!error) {
       this.setState({ count: this.state.count + 1 });
     }
   }
