@@ -88,7 +88,7 @@ class DocumentFooter extends React.Component {
    * Subscribe to the update store on mount.
    */
   componentDidMount() {
-    this.unsubscribeUpdate = this.updateStore.listen(this.handleStoreUpdate.bind(this));
+    // this.unsubscribeUpdate = this.updateStore.listen(this.handleStoreUpdate.bind(this));
 
     this.unsubscribeAdded = this.handleModification.bind(this);
     this.unsubscribeEdited = this.handleModification.bind(this);
@@ -109,7 +109,7 @@ class DocumentFooter extends React.Component {
    * Unsubscribe from the udpate store on unmount.
    */
   componentWillUnmount() {
-    this.unsubscribeUpdate();
+    // this.unsubscribeUpdate();
     this.doc.removeListener(Element.Events.Added, this.unsubscribeAdded);
     this.doc.removeListener(Element.Events.Edited, this.unsubscribeEdited);
     this.doc.removeListener(Element.Events.Removed, this.unsubscribeRemoved);
@@ -167,7 +167,7 @@ class DocumentFooter extends React.Component {
   handleUpdate() {
     const object = this.props.doc.generateObject();
     this.setState({ mode: PROGRESS, message: UPDATING });
-    this.actions.update(object);
+    // this.actions.update(object);
   }
 
   /**

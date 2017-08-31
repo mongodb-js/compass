@@ -1,8 +1,11 @@
 const React = require('react');
 const PropTypes = require('prop-types');
 
-const EditingFooter = require('./editing-footer');
-const DeletingFooter = require('./deleting-footer');
+// const EditingFooter = require('./editing-footer');
+// const DeletingFooter = require('./deleting-footer');
+
+const DocumentFooter = require('../document-footer');
+const RemoveDocumentFooter = require('../remove-document-footer');
 
 
 /**
@@ -14,28 +17,36 @@ class FullWidthCellRenderer extends React.Component {
   constructor(props) {
     super(props);
     props.api.selectAll();
-    this.mode = props.data.state;
 
-  }
+    this.doc = props.data.hadronDocument;
+    this.state = {
+      mode: props.data.state
+    };
 
-  renderEditing() {
-    return (
-      <EditingFooter {...this.props}/>
-    );
-  }
-
-  renderDeleting() {
-    return (
-     <DeletingFooter {...this.props}/>
-    )
+    this.actions = {};
+    this.updateStore = {};
+    this.removeStore = {};
   }
 
   render() {
-    if (this.mode === 'editing') {
-      return this.renderEditing()
+    if (this.state.mode === 'editing') {
+      return (
+        <DocumentFooter
+          doc={this.doc}
+          updateStore={this.updateStore}
+          actions={this.actions}
+        />
+        );
     }
-    return this.renderDeleting();
+    return (
+      <RemoveDocumentFooter
+        doc={this.doc}
+        removeStore={this.removeStore}
+        actions={this.actions}
+        cancelHandler={this.handleCancelDelete.bind(this)} />
+    );
   }
+
 }
 
 FullWidthCellRenderer.propTypes = {
