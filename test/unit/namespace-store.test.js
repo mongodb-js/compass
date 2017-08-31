@@ -1,11 +1,11 @@
-const expect = require('chai').expect;
+const { expect } = require('chai');
 const NamespaceStore = require('../../src/internal-packages/app/lib/stores/namespace-store');
 
 
-describe('NamespaceStore', function() {
-  describe('#set ns', function() {
-    it('triggers a store event', function(done) {
-      var unsubscribe = NamespaceStore.listen(function(ns) {
+describe('NamespaceStore', () => {
+  describe('#set ns', () => {
+    it('triggers a store event', (done) => {
+      const unsubscribe = NamespaceStore.listen((ns) => {
         expect(ns).to.equal('database.collection');
         unsubscribe();
         done();
