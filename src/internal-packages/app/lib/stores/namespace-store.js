@@ -4,9 +4,22 @@ const toNS = require('mongodb-ns');
 const debug = require('debug')('mongodb-compass:namespace-store');
 
 /**
+ * The default namespace when the Compass user connects to a MongoDB instance.
+ */
+const DEFAULT_NAMESPACE = '';
+
+/**
  * The store holds the source of truth for the namespace being worked on.
  */
 const NamespaceStore = Reflux.createStore({
+
+  /**
+   * Initializing the store should set up the default namespace.
+   */
+  init() {
+    this._ns = DEFAULT_NAMESPACE;
+  },
+
   /**
    * Gets the current namespace being worked with in the application.
    */
