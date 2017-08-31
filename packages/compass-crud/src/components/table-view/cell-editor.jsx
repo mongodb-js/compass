@@ -29,6 +29,10 @@ class CellEditor extends React.Component {
     this._editors = initEditors(props.value);
   }
 
+  componentWillMount() {
+    this.editor().start();
+  }
+
   componentDidMount() {
     this.props.reactContainer.addEventListener('keydown', this.onKeyDown);
     this.focus();
@@ -87,9 +91,7 @@ class CellEditor extends React.Component {
   }
 
   focus() {
-    this.editor().start();
-
-    // // TODO: why this?
+    // TODO: why this?
     setTimeout(() => {
       const container = ReactDOM.findDOMNode(this.props.reactContainer);
       if (container) {
@@ -167,7 +169,7 @@ class CellEditor extends React.Component {
           onChange={this.handleChange.bind(this)}
           onKeyDown={this.handleKeyDown.bind(this)}
           onPaste={this.handlePaste.bind(this)}
-          value={this.editor().value(false)} />
+          value={this.editor().value(true)} />
       </span>
      );
 
