@@ -47,6 +47,23 @@ describe('NamespaceStore', () => {
       });
     });
 
+    context('when the initial collection contains a dot', () => {
+      context('when only the part after the dot changes', () => {
+        it('calls onCollectionChanged', (done) => {
+          NamespaceStore.ns = 'foo.bar.baz';
+          const newNamespace = 'foo.bar.jaguar';
+          const CollectionSubscriberStore = Reflux.createStore({
+            onCollectionChanged(namespace) {
+              expect(namespace).to.be.equal(newNamespace);
+              done();
+            }
+          });
+          app.appRegistry.registerStore('CollectionSubscriber.Store', CollectionSubscriberStore);
+          NamespaceStore.ns = newNamespace;
+        });
+      });
+    });
+
     context('when the initial collection does not contain a dot', () => {
       it('calls onCollectionChanged', (done) => {
         NamespaceStore.ns = 'foo.bar';
