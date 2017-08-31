@@ -9,7 +9,7 @@ const TypeChecker = require('hadron-type-checker');
 const HadronDocument = require('hadron-document');
 
 const CellRenderer = require('./table-view/cell-renderer');
-const UpdateBarRenderer = require('./table-view/update-bar-renderer');
+const FullWidthCellRenderer = require('./table-view/full-width-cell-renderer');
 const HeaderComponent = require('./table-view/header-cell-renderer');
 const CellEditor = require('./table-view/cell-editor');
 
@@ -23,7 +23,7 @@ class DocumentListTableView extends React.Component {
     super(props);
     this.createColumnHeaders = this.createColumnHeaders.bind(this);
     this.createRowData = this.createRowData.bind(this);
-    this.addUpdateBar = this.addUpdateBar.bind(this);
+    this.addEditingFooter = this.addEditingFooter.bind(this);
     this.onRowClicked = this.onRowClicked.bind(this);
 
     this.gridOptions = {
@@ -40,19 +40,39 @@ class DocumentListTableView extends React.Component {
     this.columnApi = params.columnApi;
   }
 
-  addUpdateBar(rowNode, data, rowIndex, context, updateState) {
-    /* Ignore clicks on update rows or data rows that already have update row */
-    if (data.isUpdateRow || data.hasUpdateRow) {
+  addEditingFooter(rowNode, data, rowIndex) {
+    /* Ignore clicks on footers or data rows that already have footers */
+    if (data.isFooter || data.hasFooter) {
       return;
     }
 
-    /* Add update row below this row */
-    rowNode.data.hasUpdateRow = true;
+    /* Add footer below this row */
+    rowNode.data.hasFooter = true;
     const newData = {
       hadronDocument: data.hadronDocument,
-      hasUpdateRow: false,
-      isUpdateRow: true,
+      hasFooter: false,
+      isFooter: true,
       state: 'editing'
+    };
+    this.gridApi.updateRowData({add: [newData], addIndex: rowIndex + 1});
+  }
+
+  addDeletingFooter(rowNode, data, rowIndex) {
+    /* If bar exists and is in editing mode, set to deleting */
+    if (data.isFooter) {
+      return;
+    } else if (data.hasFooter) {
+      data.state = 'deleting';
+      return;
+    }
+
+    /* Add deleting row below this row */
+    rowNode.data.hasFooter = true;
+    const newData = {
+      hadronDocument: data.hadronDocument,
+      hasFooter: false,
+      isFooter: true,
+      state: 'deleting'
     };
     this.gridApi.updateRowData({add: [newData], addIndex: rowIndex + 1});
   }
@@ -68,7 +88,7 @@ class DocumentListTableView extends React.Component {
    */
   onRowClicked(event) {
     console.log("state of row:" + event.data.state);
-    this.addUpdateBar(event.node, event.data, event.rowIndex, event.context);
+    this.addEditingFooter(event.node, event.data, event.rowIndex);
   }
 
   /**
@@ -125,13 +145,13 @@ class DocumentListTableView extends React.Component {
     return _.map(this.props.docs, function(val) {
       // TODO: Make wrapper object for HadronDocument
       return {
-        /* The same doc is shared between a document row and it's update row */
+        /* The same doc is shared between a document row and it's footer */
         hadronDocument: new HadronDocument(val),
-        /* Is this row an update row or document row? */
-        isUpdateRow: false,
-        /* If this is a document row, does it already have an update row? */
-        hasUpdateRow: false,
-        /* If this is an update row, state is [editing, modified, deleting, updated] */
+        /* Is this row an footer row or document row? */
+        isFooter: false,
+        /* If this is a document row, does it already have a footer? */
+        hasFooter: false,
+        /* If this is a footer, state is 'editing' or 'deleting' */
         state: null
       };
     });
@@ -159,8 +179,8 @@ class DocumentListTableView extends React.Component {
             columnDefs={this.createColumnHeaders()}
             gridOptions={this.gridOptions}
             
-            isFullWidthCell={(rowNode)=>{return rowNode.data.isUpdateRow;}}
-            fullWidthCellRendererFramework={UpdateBarRenderer}
+            isFullWidthCell={(rowNode)=>{return rowNode.data.isFooter;}}
+            fullWidthCellRendererFramework={FullWidthCellRenderer}
 
             rowData={this.createRowData()}
             // events

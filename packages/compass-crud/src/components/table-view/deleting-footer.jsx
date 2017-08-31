@@ -13,15 +13,11 @@ const MESSAGE = {
 };
 
 /**
- * The custom full-width cell renderer that renders the update/cancel bar
- * in the table view.
- *
- * Has four states: 'editing', 'modified', 'deleting', 'updated'.
+ * Renders the delete/cancel footer for a document.
  */
-class UpdateBarRenderer extends React.Component {
+class DeletingFooter extends React.Component {
   constructor(props) {
     super(props);
-    props.api.selectAll();
 
     this.doc = props.data.hadronDocument;
 
@@ -74,11 +70,11 @@ class UpdateBarRenderer extends React.Component {
   }
 }
 
-UpdateBarRenderer.propTypes = {
+DeletingFooter.propTypes = {
   api: PropTypes.any,
   value: PropTypes.any
 };
 
-UpdateBarRenderer.displayName = 'UpdateBarRenderer';
+DeletingFooter.displayName = 'DeletingFooter';
 
-module.exports = UpdateBarRenderer;
+module.exports = DeletingFooter;
