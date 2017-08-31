@@ -32,19 +32,9 @@ const ADDED = 'is-added';
 const EDITED = 'is-edited';
 
 /**
- * The editing constant.
- */
-const EDITING = 'is-editing';
-
-/**
- * The field limit.
- */
-const FIELD_LIMIT = 30;
-
-/**
  * The removed constant.
  */
-const REMOVED = 'is-removed';
+const REMOVED = 'is-removed-cell';
 
 
 /**
