@@ -51,6 +51,7 @@ class CellRenderer extends React.Component {
   }
 
   componentDidMount() {
+    if (this.element === undefined) return;
     // this.unsubscribeAdded = this.handleAdded.bind(this);
     // this.unsubscribeConverted = this.handleConverted.bind(this);
     // this.unsubscribeRemoved = this.handleRemoved.bind(this);
@@ -70,6 +71,7 @@ class CellRenderer extends React.Component {
    * Unsubscribe from the events.
    */
   componentWillUnmount() {
+    if (this.element === undefined) return;
     // this.element.removeListener(Element.Events.Added, this.unsubscribeAdded);
     // this.element.removeListener(Element.Events.Converted, this.unsubscribeConverted);
     // this.element.removeListener(Element.Events.Removed, this.unsubscribeRemoved);
@@ -130,7 +132,18 @@ class CellRenderer extends React.Component {
     );
   }
 
+  renderEmptyCell() {
+    return (
+      <div className="table-cell">
+          No field
+      </div>
+    );
+  }
+
   render() {
+    if (this.element === undefined) {
+      return this.renderEmptyCell();
+    }
     if (!this.element.isCurrentTypeValid()) {
       return this.renderInvalidCell();
     }
