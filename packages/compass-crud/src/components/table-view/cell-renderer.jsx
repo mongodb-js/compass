@@ -122,7 +122,7 @@ class CellRenderer extends React.Component {
     let valueClass = `${VALUE_CLASS}-is-${this.element.currentType.toLowerCase()}`;
     valueClass = `${valueClass} ${INVALID}`;
     return (
-      <div className="table-cell">
+      <div className="table-view-cell">
         <div className={valueClass}>
           {this.element.currentValue}
         </div>
@@ -142,7 +142,7 @@ class CellRenderer extends React.Component {
     );
 
     return (
-      <div className="table-cell">
+      <div className="table-view-cell">
         <div className={this.style()}>
           {element}
         </div>

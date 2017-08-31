@@ -12,7 +12,7 @@ class HeaderCellRenderer extends React.Component {
 
   render() {
     return (
-      <div className="header-cell">
+      <div className="table-view-header-cell">
         <b>{this.props.displayName}</b> {this.props.bsonType}
       </div>
     );
