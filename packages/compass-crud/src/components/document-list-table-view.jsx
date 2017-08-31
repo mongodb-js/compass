@@ -62,7 +62,7 @@ class DocumentListTableView extends React.Component {
     if (data.isFooter) {
       return;
     } else if (data.hasFooter) {
-      data.state = 'deleting';
+      data.state = 'deleting'; // TODO: need to notify footer row that state has changed (COMPASS-1870)
       return;
     }
 
@@ -88,7 +88,7 @@ class DocumentListTableView extends React.Component {
    */
   onRowClicked(event) {
     console.log("state of row:" + event.data.state);
-    this.addDeletingFooter(event.node, event.data, event.rowIndex);
+    this.addEditingFooter(event.node, event.data, event.rowIndex);
   }
 
   /**
