@@ -122,7 +122,12 @@ class DocumentListTableView extends React.Component {
           cellRendererParams: {
             isEditable: isEditable
           },
-          editable: isEditable,
+          editable: function(params) {
+            if (!isEditable) {
+              return false;
+            }
+            return params.node.data.hadronDocument.get(key).isValueEditable();
+          },
           cellEditorFramework: CellEditor,
           cellEditorParams: {
           }

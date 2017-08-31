@@ -21,8 +21,8 @@ class FullWidthCellRenderer extends React.Component {
     };
 
     this.actions = {update: ()=>{}, remove: ()=>{}};
-    this.updateStore = {listen: ()=>{}};
-    this.removeStore = {listen: ()=>{}};
+    this.updateStore = {listen: ()=>{return ()=>{}}};
+    this.removeStore = {listen: ()=>{return ()=>{}}};
   }
 
   handleCancelDelete() {
