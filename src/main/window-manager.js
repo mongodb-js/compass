@@ -181,6 +181,14 @@ var createWindow = module.exports.create = function(opts) {
       detach: true
     });
   }
+
+  /**
+   * Open all external links in the system's web browser.
+   */
+  _window.webContents.on('new-window', function(event, url) {
+    event.preventDefault();
+    electron.shell.openExternal(url);
+  });
   return _window;
 };
 
