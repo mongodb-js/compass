@@ -31,8 +31,9 @@ class DocumentListTableView extends React.Component {
       context: {
         column_width: 150
       },
-      onRowClicked: this.onRowClicked
+      onRowClicked: this.onRowClicked,
       // onCellClicked: this.onCellClicked.bind(this)
+      rowHeight: 28  // .document-footer row needs 28px, ag-grid default is 25px
     };
   }
 

@@ -11,6 +11,11 @@ const marky = require('marky');
 const BASE = 'document';
 
 /**
+ * The contents class.
+ */
+const CONTENTS = `${BASE}-contents`;
+
+/**
  * The elements class.
  */
 const ELEMENTS = `${BASE}-elements`;
@@ -101,10 +106,12 @@ class ReadonlyDocument extends React.Component {
   render() {
     return (
       <div className={BASE} data-test-id={TEST_ID}>
-        <ol className={ELEMENTS}>
-          {this.renderElements()}
+        <div className={CONTENTS}>
+          <ol className={ELEMENTS}>
+            {this.renderElements()}
+          </ol>
           {this.renderExpansion()}
-        </ol>
+        </div>
       </div>
     );
   }

@@ -1,18 +1,17 @@
 .document-footer {
+  display: flex;
+  flex-direction: row;
   font-family: "Akzidenz", "Helvetica Neue", Helvetica, Arial, sans-serif;
   height: 28px;
-  vertical-align: middle;
-  top: 0px; // TODO: allow top for list-view but not table-view.
-  position: relative;
+  padding-left: 20px;
+  padding-right: 10px;
 
   &-message {
-    position: absolute;
-    right: 150px;
-    left: 10px;
+    align-items: center;
+    display: flex;
+    flex: 1;
     font-size: 14px;
     font-style: italic;
-    padding-left: 10px;
-    padding-top: 4px;
     color: #FFFFFF;
     overflow: hidden;
     height: 28px;
@@ -95,10 +94,8 @@
   }
 
   &-actions {
-    position: absolute;
-    right: 10px;
-    top: 2px;
-    padding-top: 1px;
+    display: flex;
+    align-items: center;
 
     .cancel {
       font-weight: bold;
