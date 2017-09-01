@@ -1,0 +1,9 @@
+{
+  "name": "metrics",
+  "productName": "Compass Metrics",
+  "description": "Anonymous Usage Statistics in Compass",
+  "version": "0.0.1",
+  "authors": "MongoDB Inc.",
+  "private": true,
+  "main": "./index.js"
+}

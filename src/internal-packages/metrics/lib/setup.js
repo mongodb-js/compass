@@ -1,22 +1,22 @@
-var metrics = require('mongodb-js-metrics')();
-var resources = require('mongodb-js-metrics').resources;
-var pkg = require('../../../package.json');
-var app = require('hadron-app');
-var _ = require('lodash');
-var format = require('util').format;
-var ipc = require('hadron-ipc');
-var intercom = require('./intercom');
-var features = require('./features');
-var Notifier = require('node-notifier');
+const metrics = require('mongodb-js-metrics')();
+const resources = require('mongodb-js-metrics').resources;
+const pkg = require('../../../../package.json');
+const app = require('hadron-app');
+const _ = require('lodash');
+const format = require('util').format;
+const ipc = require('hadron-ipc');
+const intercom = require('./intercom');
+const features = require('./features');
+const Notifier = require('node-notifier');
 
-var path = require('path');
-var ICON_PATH = path.join(__dirname, '..', 'images', 'compass-dialog-icon.png');
+const path = require('path');
+const ICON_PATH = path.join(__dirname, '..', 'images', 'compass-dialog-icon.png');
 
-var debug = require('debug')('mongodb-compass:metrics');
+const debug = require('debug')('mongodb-compass:metrics:setup');
 
 
-var INTERCOM_KEY = 'p57suhg7';
-var BUGSNAG_KEY = '0d11ab5f4d97452cc83d3365c21b491c';
+const INTERCOM_KEY = 'p57suhg7';
+const BUGSNAG_KEY = '0d11ab5f4d97452cc83d3365c21b491c';
 
 module.exports = function() {
   metrics.configure({
@@ -42,7 +42,7 @@ module.exports = function() {
   });
 
   // create an app resource with name and version
-  var appResource = new resources.AppResource({
+  const appResource = new resources.AppResource({
     appName: pkg.productName,
     appVersion: pkg.version,
     appPlatform: process.platform,
@@ -50,7 +50,7 @@ module.exports = function() {
   });
 
   // create a user resource with client id (UUID v4 recommended)
-  var userResource = new resources.UserResource({
+  const userResource = new resources.UserResource({
     userId: app.user.id,
     createdAt: app.user.createdAt,
     name: app.user.name,
@@ -60,7 +60,7 @@ module.exports = function() {
   });
 
   // create a user resource with client id (UUID v4 recommended)
-  var errorResource = new resources.ErrorResource();
+  const errorResource = new resources.ErrorResource();
 
   // add all resources
   metrics.addResource(appResource, userResource, errorResource);

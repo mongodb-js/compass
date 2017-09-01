@@ -408,8 +408,8 @@ app.extend({
       require('./setup-package-manager');
       Action.packageActivationCompleted.listen(() => {
         // set up metrics
-        var metricsSetup = require('./metrics');
-        metricsSetup();
+        // var metricsSetup = require('./metrics');
+        // metricsSetup();
         global.hadronApp.appRegistry.onActivated();
 
         // signal to main process that app is ready
