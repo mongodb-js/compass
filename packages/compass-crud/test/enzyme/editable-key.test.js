@@ -3,8 +3,7 @@ const chai = require('chai');
 const expect = chai.expect;
 const chaiEnzyme = require('chai-enzyme');
 const { mount } = require('enzyme');
-const Document = require('hadron-document');
-const Element = Document.Element;
+const { Element } = require('hadron-document');
 const EditableKey = require('../../src/components/editable-key');
 
 chai.use(chaiEnzyme());
