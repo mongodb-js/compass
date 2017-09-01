@@ -2,16 +2,8 @@ const React = require('react');
 const PropTypes = require('prop-types');
 const HadronDocument = require('hadron-document');
 const Element = require('./element');
-
-/**
- * The arrow up class.
- */
-const ARROW_UP = 'fa fa-arrow-up';
-
-/**
- * The arrow down class.
- */
-const ARROW_DOWN = 'fa fa-arrow-down';
+const ExpansionBar = require('./expansion-bar');
+const marky = require('marky');
 
 /**
  * The base class.
@@ -24,14 +16,9 @@ const BASE = 'document';
 const ELEMENTS = `${BASE}-elements`;
 
 /**
- * The field limit.
+ * The initial field limit.
  */
-const FIELD_LIMIT = 30;
-
-/**
- * The expander class.
- */
-const EXPANDER = 'btn btn-default btn-xs';
+const INITIAL_FIELD_LIMIT = 25;
 
 /**
  * The test id.
@@ -51,14 +38,18 @@ class ReadonlyDocument extends React.Component {
   constructor(props) {
     super(props);
     this.doc = new HadronDocument(props.doc);
-    this.state = { expanded: false };
+    this.state = {
+      renderSize: INITIAL_FIELD_LIMIT
+    };
   }
 
-  /**
-   * Handle clicking the expand button.
-   */
-  handleExpandClick() {
-    this.setState({ expanded: !this.state.expanded });
+  setRenderSize(newLimit) {
+    marky.mark('ReadonlyDocument - Show/Hide N fields');
+    this.setState({
+      renderSize: newLimit
+    }, () => {
+      marky.stop('ReadonlyDocument - Show/Hide N fields');
+    });
   }
 
   /**
@@ -75,9 +66,12 @@ class ReadonlyDocument extends React.Component {
           key={element.uuid}
           element={element}
           expandAll={this.props.expandAll}
-          rootFieldIndex={this.state.expanded ? 0 : index} />
+        />
       ));
       index++;
+      if (index >= this.state.renderSize) {
+        break;
+      }
     }
     return components;
   }
@@ -88,36 +82,15 @@ class ReadonlyDocument extends React.Component {
    * @returns {React.Component} The expander bar.
    */
   renderExpansion() {
-    if (this.doc.elements.size >= FIELD_LIMIT) {
-      return (
-        <button className={EXPANDER} onClick={this.handleExpandClick.bind(this)}>
-          <i className={this.renderIconStyle()} aria-hidden="true"></i>
-          <span>{this.renderExpansionText()}</span>
-        </button>
-      );
-    }
-  }
-
-  /**
-   * Render the expansion text.
-   *
-   * @returns {String} The text.
-   */
-  renderExpansionText() {
-    const extraFields = this.doc.elements.size - FIELD_LIMIT;
-    if (this.state.expanded) {
-      return `Hide ${extraFields} fields`;
-    }
-    return `Show ${extraFields} more fields`;
-  }
-
-  /**
-   * Render the style for the expansion icon.
-   *
-   * @returns {String} The style.
-   */
-  renderIconStyle() {
-    return this.state.expanded ? ARROW_UP : ARROW_DOWN;
+    const totalSize = this.doc.elements.size;
+    return (
+      <ExpansionBar
+        initialSize={INITIAL_FIELD_LIMIT}
+        renderSize={this.state.renderSize}
+        setRenderSize={this.setRenderSize.bind(this)}
+        totalSize={totalSize}
+      />
+    );
   }
 
   /**

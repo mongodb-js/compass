@@ -4,20 +4,12 @@ const Reflux = require('reflux');
 const HadronDocument = require('hadron-document');
 const Element = require('hadron-document').Element;
 const Actions = require('../actions');
+const ExpansionBar = require('./expansion-bar');
 const EditableElement = require('./editable-element');
 const DocumentActions = require('./document-actions');
 const DocumentFooter = require('./document-footer');
 const RemoveDocumentFooter = require('./remove-document-footer');
-
-/**
- * The arrow up class.
- */
-const ARROW_UP = 'fa fa-arrow-up';
-
-/**
- * The arrow down class.
- */
-const ARROW_DOWN = 'fa fa-arrow-down';
+const marky = require('marky');
 
 /**
  * The base class.
@@ -30,14 +22,9 @@ const BASE = 'document';
 const ELEMENTS = `${BASE}-elements`;
 
 /**
- * The field limit.
+ * The initial field limit.
  */
-const FIELD_LIMIT = 30;
-
-/**
- * The expander class.
- */
-const EXPANDER = 'btn btn-default btn-xs';
+const INITIAL_FIELD_LIMIT = 25;
 
 /**
  * The test id.
@@ -63,11 +50,11 @@ class EditableDocument extends React.Component {
     super(props);
     this.doc = EditableDocument.loadDocument(props.doc);
     this.state = {
+      renderSize: INITIAL_FIELD_LIMIT,
       editing: false,
       deleting: false,
       deleteFinished: false,
-      expandAll: false,
-      expanded: false
+      expandAll: false
     };
 
     // Actions need to be scoped to the single document component and not
@@ -96,6 +83,15 @@ class EditableDocument extends React.Component {
     this.unsubscribeUpdate();
     this.unsubscribeRemove();
     this.unsubscribeFromDocumentEvents();
+  }
+
+  setRenderSize(newLimit) {
+    marky.mark('EditableDocument - Show/Hide N fields');
+    this.setState({
+      renderSize: newLimit
+    }, () => {
+      marky.stop('EditableDocument - Show/Hide N fields');
+    });
   }
 
   /**
@@ -228,16 +224,6 @@ class EditableDocument extends React.Component {
   }
 
   /**
-   * Handle clicking the expand button.
-   */
-  handleExpandClick() {
-    require('marky').mark('EditableDocument - Show N more fields');
-    this.setState({ expanded: !this.state.expanded }, () => {
-      require('marky').stop('EditableDocument - Show N more fields');
-    });
-  }
-
-  /**
    * Handles a trigger from the store.
    *
    * @param {Boolean} success - If the update succeeded.
@@ -268,12 +254,12 @@ class EditableDocument extends React.Component {
    * @param {Object} doc - The updated document.
    */
   handleUpdateSuccess(doc) {
-    require('marky').mark('EditableDocument - Handle update success');
+    marky.mark('EditableDocument - Handle update success');
     this.doc = EditableDocument.loadDocument(doc);
     this.subscribeToDocumentEvents();
     setTimeout(() => {
       this.setState({ editing: false }, () => {
-        require('marky').stop('EditableDocument - Handle update success');
+        marky.stop('EditableDocument - Handle update success');
       });
     }, 500);
   }
@@ -290,9 +276,9 @@ class EditableDocument extends React.Component {
    * Handles canceling edits to the document.
    */
   handleCancel() {
-    require('marky').mark('EditableDocument - Cancel');
+    marky.mark('EditableDocument - Cancel');
     this.setState({ editing: false }, () => {
-      require('marky').stop('EditableDocument - Cancel');
+      marky.stop('EditableDocument - Cancel');
     });
   }
 
@@ -307,7 +293,7 @@ class EditableDocument extends React.Component {
    * Handles document deletion.
    */
   handleDelete() {
-    this.setState({ editing: false, deleting: true, expanded: true });
+    this.setState({ editing: false, deleting: true });
   }
 
   /**
@@ -321,9 +307,9 @@ class EditableDocument extends React.Component {
    * Handle the edit click.
    */
   handleEdit() {
-    require('marky').mark('EditableDocument - Edit');
-    this.setState({ editing: true, expanded: true }, () => {
-      require('marky').stop('EditableDocument - Edit');
+    marky.mark('EditableDocument - Edit');
+    this.setState({ editing: true }, () => {
+      marky.stop('EditableDocument - Edit');
     });
   }
 
@@ -338,9 +324,9 @@ class EditableDocument extends React.Component {
    * Handle clicking the expand all button.
    */
   handleExpandAll() {
-    require('marky').mark('EditableDocument - Expand All');
+    marky.mark('EditableDocument - Expand All');
     this.setState({ expandAll: !this.state.expandAll }, () => {
-      require('marky').stop('EditableDocument - Expand All');
+      marky.stop('EditableDocument - Expand All');
     });
   }
 
@@ -396,40 +382,37 @@ class EditableDocument extends React.Component {
           editing={this.state.editing}
           edit={this.handleEdit.bind(this)}
           expandAll={this.state.expandAll}
-          rootFieldIndex={this.state.expanded ? 0 : index} />
+        />
       ));
       index++;
+      if (index >= this.state.renderSize) {
+        if (!this.state.editing && !this.state.deleting) {
+          break;
+        }
+      }
     }
     return components;
   }
 
   /**
-   * Render the expander bar.
+   * Render the show/hide fields bar.
    *
-   * @returns {React.Component} The expander bar.
+   * @returns {React.Component} The expansion bar.
    */
   renderExpansion() {
-    if (this.doc.elements.size > FIELD_LIMIT && !this.state.editing && !this.state.deleting) {
-      return (
-        <button className={EXPANDER} onClick={this.handleExpandClick.bind(this)}>
-          <i className={this.renderIconStyle()} aria-hidden="true"></i>
-          <span>{this.renderExpansionText()}</span>
-        </button>
-      );
+    const totalSize = this.doc.elements.size;
+    let initialSize = INITIAL_FIELD_LIMIT;
+    if (this.state.deleting || this.state.editing) {
+      initialSize = totalSize;
     }
-  }
-
-  /**
-   * Render the expansion text.
-   *
-   * @returns {String} The text.
-   */
-  renderExpansionText() {
-    const extraFields = this.doc.elements.size - FIELD_LIMIT;
-    if (this.state.expanded) {
-      return `Hide ${extraFields} fields`;
-    }
-    return `Show ${extraFields} more fields`;
+    return (
+      <ExpansionBar
+        initialSize={initialSize}
+        renderSize={this.state.renderSize}
+        setRenderSize={this.setRenderSize.bind(this)}
+        totalSize={totalSize}
+      />
+    );
   }
 
   /**
@@ -457,15 +440,6 @@ class EditableDocument extends React.Component {
   }
 
   /**
-   * Render the style for the expansion icon.
-   *
-   * @returns {String} The style.
-   */
-  renderIconStyle() {
-    return this.state.expanded ? ARROW_UP : ARROW_DOWN;
-  }
-
-  /**
    * Render a single document list item.
    *
    * @returns {React.Component} The component.
@@ -475,8 +449,8 @@ class EditableDocument extends React.Component {
       <div className={this.style()} data-test-id={TEST_ID}>
         <ol className={ELEMENTS}>
           {this.renderElements()}
-          {this.renderExpansion()}
         </ol>
+        {this.renderExpansion()}
         {this.renderActions()}
         {this.renderFooter()}
       </div>

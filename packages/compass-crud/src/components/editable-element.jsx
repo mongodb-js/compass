@@ -34,11 +34,6 @@ const EDITED = 'is-edited';
 const EDITING = 'is-editing';
 
 /**
- * The field limit.
- */
-const FIELD_LIMIT = 30;
-
-/**
  * The removed constant.
  */
 const REMOVED = 'is-removed';
@@ -207,8 +202,6 @@ class EditableElement extends React.Component {
       } else if (this.element.isRemoved()) {
         style = style.concat(` ${base}-${REMOVED}`);
       }
-    } else if (this.props.rootFieldIndex >= FIELD_LIMIT) {
-      style = `${style} hidden`;
     }
     if (this.state.expanded) {
       style = style.concat(` ${base}-${EXPANDED}`);
@@ -248,7 +241,7 @@ class EditableElement extends React.Component {
           editing={this.props.editing}
           edit={this.props.edit}
           expandAll={this.props.expandAll}
-          rootFieldIndex={0} />
+        />
       ));
       index++;
     }
@@ -425,8 +418,7 @@ EditableElement.propTypes = {
   element: PropTypes.object.isRequired,
   index: PropTypes.number,
   indent: PropTypes.number,
-  expandAll: PropTypes.bool,
-  rootFieldIndex: PropTypes.number
+  expandAll: PropTypes.bool
 };
 
 module.exports = EditableElement;

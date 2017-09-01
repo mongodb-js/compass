@@ -8,6 +8,7 @@ const InsertDocumentFooter = require('./insert-document-footer');
 const { TextButton } = require('hadron-react-buttons');
 const { Element } = require('hadron-document');
 const Actions = require('../actions');
+const marky = require('marky');
 
 /**
  * Component for the insert document dialog.
@@ -59,9 +60,9 @@ class InsertDocumentDialog extends React.Component {
    * @param {Object} doc - The document.
    */
   handleStoreOpen(doc) {
-    require('marky').mark('EditableDocument - Clone');
+    marky.mark('EditableDocument - Clone');
     this.setState({ doc: doc, open: true }, () => {
-      require('marky').stop('EditableDocument - Clone');
+      marky.stop('EditableDocument - Clone');
     });
     this.unsubscribeInvalid = this.handleInvalid.bind(this);
     this.unsubscribeValid = this.handleValid.bind(this);
