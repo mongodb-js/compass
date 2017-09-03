@@ -1,9 +1,9 @@
 const React = require('react');
 const PropTypes = require('prop-types');
 const map = require('lodash.map');
-const Actions = require('../actions');
+const Actions = require('../../actions');
 
-class FavoriteListSection extends React.Component {
+class Favorites extends React.Component {
 
   onFavoriteClicked(favorite) {
     Actions.onConnectionSelected(favorite);
@@ -51,11 +51,11 @@ class FavoriteListSection extends React.Component {
   }
 }
 
-FavoriteListSection.propTypes = {
+Favorites.propTypes = {
   currentConnection: PropTypes.object.isRequired,
   connections: PropTypes.object.isRequired
 };
 
-FavoriteListSection.displayName = 'FavoriteListSection';
+Favorites.displayName = 'Favorites';
 
-module.exports = FavoriteListSection;
+module.exports = Favorites;

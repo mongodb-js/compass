@@ -1,9 +1,9 @@
 const React = require('react');
 const PropTypes = require('prop-types');
 const map = require('lodash.map');
-const Actions = require('../actions');
+const Actions = require('../../actions');
 
-class RecentListSection extends React.Component {
+class Recents extends React.Component {
 
   onRecentClicked(recent) {
     Actions.onConnectionSelected(recent);
@@ -51,11 +51,11 @@ class RecentListSection extends React.Component {
   }
 }
 
-RecentListSection.propTypes = {
+Recents.propTypes = {
   currentConnection: PropTypes.object.isRequired,
   connections: PropTypes.object.isRequired
 };
 
-RecentListSection.displayName = 'RecentListSection';
+Recents.displayName = 'Recents';
 
-module.exports = RecentListSection;
+module.exports = Recents;

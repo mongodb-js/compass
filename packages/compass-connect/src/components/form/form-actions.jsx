@@ -1,11 +1,12 @@
 const React = require('react');
 const PropTypes = require('prop-types');
-const Actions = require('../actions');
+const Actions = require('../../actions');
 const FormItemInput = require('./form-item-input');
+const FormGroup = require('./form-group');
 
 const DEFAULT_NAME = 'Local';
 
-class FavoriteSection extends React.Component {
+class FormActions extends React.Component {
 
   constructor(props) {
     super(props);
@@ -89,7 +90,7 @@ class FavoriteSection extends React.Component {
 
   render() {
     return (
-      <div id="favorite" className="form-group">
+      <FormGroup id="favorite">
         <FormItemInput
           label="Favorite Name"
           name="favorite_name"
@@ -103,15 +104,15 @@ class FavoriteSection extends React.Component {
           {this.renderSaveFavorite()}
           {this.renderConnect()}
         </div>
-      </div>
+      </FormGroup>
     );
   }
 }
 
-FavoriteSection.propTypes = {
+FormActions.propTypes = {
   currentConnection: PropTypes.object.isRequired
 };
 
-FavoriteSection.displayName = 'FavoriteSection';
+FormActions.displayName = 'FormActions';
 
-module.exports = FavoriteSection;
+module.exports = FormActions;

@@ -6,13 +6,8 @@ const dialog = remote.dialog;
 const BrowserWindow = remote.BrowserWindow;
 const shellToURL = require('mongodb-shell-to-url');
 const Connection = require('mongodb-connection-model');
-const AuthenticationSection = require('./authentication-section');
-const HostPortSection = require('./host-port-section');
-const ReplicaSetNameReadPreferenceSection = require('./replica-set-name-read-preference-section');
-const SSLSection = require('./ssl-section');
-const FavoriteSection = require('./favorite-section');
 const Sidebar = require('./sidebar');
-const SSHTunnelSection = require('./ssh-tunnel-section');
+const ConnectForm = require('./form');
 const Actions = require('../actions');
 
 class Connect extends React.Component {
@@ -73,19 +68,7 @@ class Connect extends React.Component {
           <header>
             <h2 data-test-id="connect-header">Connect to Host</h2>
           </header>
-          <form data-test-id="connect-form">
-            <HostPortSection {...this.props} />
-            <hr />
-            <AuthenticationSection {...this.props} />
-            <hr />
-            <ReplicaSetNameReadPreferenceSection {...this.props} />
-            <hr />
-            <SSLSection {...this.props} />
-            <hr />
-            <SSHTunnelSection {...this.props} />
-            <hr />
-            <FavoriteSection {...this.props } />
-          </form>
+          <ConnectForm {...this.props} />
         </div>
       </div>
     );

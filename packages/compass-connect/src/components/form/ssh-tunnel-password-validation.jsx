@@ -1,12 +1,11 @@
 const React = require('react');
 const PropTypes = require('prop-types');
-const Actions = require('../actions');
-const FormFileInput = require('./form-file-input');
+const Actions = require('../../actions');
 const FormItemInput = require('./form-item-input');
 
 const DEFAULT_SSH_TUNNEL_PORT = 22;
 
-class SSHTunnelIdentityFileValidation extends React.Component {
+class SSHTunnelPasswordValidation extends React.Component {
 
   constructor(props) {
     super(props);
@@ -21,12 +20,8 @@ class SSHTunnelIdentityFileValidation extends React.Component {
     Actions.onSSHTunnelUsernameChanged(evt.target.value);
   }
 
-  onSSHTunnelIdentityFileChanged(paths) {
-    Actions.onSSHTunnelIdentityFileChanged(paths);
-  }
-
-  onSSHTunnelPassphraseChanged(evt) {
-    Actions.onSSHTunnelPassphraseChanged(evt.target.value);
+  onSSHTunnelPasswordChanged(evt) {
+    Actions.onSSHTunnelPasswordChanged(evt.target.value);
   }
 
   onSSHTunnelPortChanged(evt) {
@@ -49,7 +44,7 @@ class SSHTunnelIdentityFileValidation extends React.Component {
 
   render() {
     return (
-      <div id="ssh_tunnel-IDENTITY_FILE" className="form-group">
+      <div id="ssh_tunnel-USER_PASSWORD" className="form-group">
         <FormItemInput
           label="SSH Hostname"
           name="ssh_tunnel_hostname"
@@ -59,7 +54,6 @@ class SSHTunnelIdentityFileValidation extends React.Component {
         <FormItemInput
           label="SSH Tunnel Port"
           name="ssh_tunnel_port"
-          placeholder="22"
           changeHandler={this.onSSHTunnelPortChanged.bind(this)}
           value={this.getPort()} />
         <FormItemInput
@@ -67,25 +61,20 @@ class SSHTunnelIdentityFileValidation extends React.Component {
           name="ssh_tunnel_username"
           changeHandler={this.onSSHTunnelUsernameChanged.bind(this)}
           value={this.props.currentConnection.ssh_tunnel_username || ''} />
-        <FormFileInput
-          label="SSH Identity File"
-          id="ssh_tunnel_identity_file"
-          changeHandler={this.onSSHTunnelIdentityFileChanged.bind(this)}
-          values={this.props.currentConnection.ssh_tunnel_identity_file} />
         <FormItemInput
-          label="SSH Passphrase"
-          name="ssh_tunnel_passphrase"
-          changeHandler={this.onSSHTunnelPassphraseChanged.bind(this)}
-          value={this.props.currentConnection.ssh_tunnel_passphrase || ''} />
+          label="SSH Password"
+          name="ssh_tunnel_password"
+          changeHandler={this.onSSHTunnelPasswordChanged.bind(this)}
+          value={this.props.currentConnection.ssh_tunnel_password || ''} />
       </div>
     );
   }
 }
 
-SSHTunnelIdentityFileValidation.propTypes = {
+SSHTunnelPasswordValidation.propTypes = {
   currentConnection: PropTypes.object.isRequired
 };
 
-SSHTunnelIdentityFileValidation.displayName = 'SSHTunnelIdentityFileValidation';
+SSHTunnelPasswordValidation.displayName = 'SSHTunnelPasswordValidation';
 
-module.exports = SSHTunnelIdentityFileValidation;
+module.exports = SSHTunnelPasswordValidation;

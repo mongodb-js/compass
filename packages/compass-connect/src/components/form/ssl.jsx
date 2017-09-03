@@ -1,8 +1,9 @@
 const find = require('lodash.find');
 const React = require('react');
 const PropTypes = require('prop-types');
-const Actions = require('../actions');
+const Actions = require('../../actions');
 const FormItemSelect = require('./form-item-select');
+const FormGroup = require('./form-group');
 
 class SSLSection extends React.Component {
 
@@ -43,7 +44,7 @@ class SSLSection extends React.Component {
 
   render() {
     return (
-      <div id="ssl" className="form-group">
+      <FormGroup id="ssl" separator>
         <FormItemSelect
           label="SSL"
           name="ssl"
@@ -51,7 +52,7 @@ class SSLSection extends React.Component {
           changeHandler={this.onSSLMethodChanged.bind(this)}
           value={this.props.currentConnection.ssl} />
         {this.renderSSLMethod()}
-      </div>
+      </FormGroup>
     );
   }
 }

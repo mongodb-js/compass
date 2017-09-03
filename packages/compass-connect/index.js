@@ -1,9 +1,9 @@
 const ConnectComponent = require('./lib/components');
-const MongoDBAuthentication = require('./lib/components/mongodb-authentication');
-const SSLServerValidation = require('./lib/components/ssl-server-validation');
-const SSLServerClientValidation = require('./lib/components/ssl-server-client-validation');
-const SSHTunnelIdentityFileValidation = require('./lib/components/ssh-tunnel-identity-file-validation');
-const SSHTunnelPasswordValidation = require('./lib/components/ssh-tunnel-password-validation');
+const MongoDBAuthentication = require('./lib/components/form/mongodb-authentication');
+const SSLServerValidation = require('./lib/components/form/ssl-server-validation');
+const SSLServerClientValidation = require('./lib/components/form/ssl-server-client-validation');
+const SSHTunnelIdentityFileValidation = require('./lib/components/form/ssh-tunnel-identity-file-validation');
+const SSHTunnelPasswordValidation = require('./lib/components/form/ssh-tunnel-password-validation');
 const ConnectActions = require('./lib/actions');
 const ConnectStore = require('./lib/stores');
 

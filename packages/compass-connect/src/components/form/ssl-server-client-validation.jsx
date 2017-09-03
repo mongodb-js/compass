@@ -1,6 +1,6 @@
 const React = require('react');
 const PropTypes = require('prop-types');
-const Actions = require('../actions');
+const Actions = require('../../actions');
 const FormFileInput = require('./form-file-input');
 const FormItemInput = require('./form-item-input');
 

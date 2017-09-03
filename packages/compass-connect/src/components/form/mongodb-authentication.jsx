@@ -1,6 +1,6 @@
 const React = require('react');
 const PropTypes = require('prop-types');
-const Actions = require('../actions');
+const Actions = require('../../actions');
 const FormItemInput = require('./form-item-input');
 
 class MongoDBAuthentication extends React.Component {

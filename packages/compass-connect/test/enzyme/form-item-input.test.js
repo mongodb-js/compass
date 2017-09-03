@@ -4,7 +4,7 @@ const expect = chai.expect;
 const chaiEnzyme = require('chai-enzyme');
 const sinon = require('sinon');
 const { shallow } = require('enzyme');
-const FormItemInput = require('../../src/components/form-item-input');
+const FormItemInput = require('../../src/components/form/form-item-input');
 
 chai.use(chaiEnzyme());
 

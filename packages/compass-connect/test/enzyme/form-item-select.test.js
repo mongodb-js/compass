@@ -4,7 +4,7 @@ const expect = chai.expect;
 const chaiEnzyme = require('chai-enzyme');
 const sinon = require('sinon');
 const { mount } = require('enzyme');
-const FormItemSelect = require('../../src/components/form-item-select');
+const FormItemSelect = require('../../src/components/form/form-item-select');
 
 chai.use(chaiEnzyme());
 

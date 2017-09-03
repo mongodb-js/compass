@@ -1,8 +1,8 @@
 const React = require('react');
 const PropTypes = require('prop-types');
-const Actions = require('../actions');
+const Actions = require('../../actions');
 
-class NewConnectionSection extends React.Component {
+class NewConnection extends React.Component {
 
   onNewConnectionClicked() {
     Actions.resetConnection();
@@ -29,10 +29,10 @@ class NewConnectionSection extends React.Component {
   }
 }
 
-NewConnectionSection.displayName = 'NewConnectionSection';
+NewConnection.displayName = 'NewConnection';
 
-NewConnectionSection.propTypes = {
+NewConnection.propTypes = {
   currentConnection: PropTypes.object.isRequired
 };
 
-module.exports = NewConnectionSection;
+module.exports = NewConnection;

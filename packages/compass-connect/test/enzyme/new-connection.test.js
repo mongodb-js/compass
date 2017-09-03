@@ -3,14 +3,14 @@ const chai = require('chai');
 const expect = chai.expect;
 const chaiEnzyme = require('chai-enzyme');
 const { mount } = require('enzyme');
-const NewConnectionSection = require('../../src/components/new-connection-section');
+const NewConnection = require('../../src/components/sidebar/new-connection');
 
 chai.use(chaiEnzyme());
 
-describe('<NewConnectionSection />', () => {
+describe('<NewConnection />', () => {
   describe('#render', () => {
     const component = mount(
-      <NewConnectionSection />
+      <NewConnection currentConnection={{}} />
     );
 
     it('renders the wrapper div', () => {

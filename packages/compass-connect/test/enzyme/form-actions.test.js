@@ -3,17 +3,17 @@ const chai = require('chai');
 const expect = chai.expect;
 const chaiEnzyme = require('chai-enzyme');
 const { mount } = require('enzyme');
-const FavoriteSection = require('../../src/components/favorite-section');
+const FormActions = require('../../src/components/form/form-actions');
 
 chai.use(chaiEnzyme());
 
-describe('<FavoriteSection />', () => {
+describe('<FormActions />', () => {
   describe('#render', () => {
     const connection = {
       name: 'myconnection'
     };
     const component = mount(
-      <FavoriteSection currentConnection={connection} />
+      <FormActions currentConnection={connection} />
     );
 
     it('renders the wrapper div', () => {

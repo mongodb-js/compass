@@ -50,6 +50,12 @@ label {
 
   .form-group {
     margin: 0 10px;
+
+    &-separator {
+      padding-bottom: 10px;
+      margin-bottom: 20px;
+      border-bottom: 1px solid #eeeeee;
+    }
   }
 
   .buttons {
@@ -64,12 +70,48 @@ label {
     }
   }
 
+  .form-control {
+    display: block;
+    height: 34px;
+    padding: 6px 12px;
+    font-size: 14px;
+    line-height: 1.42857143;
+    color: #555555;
+    background-color: #fff;
+    background-image: none;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075);
+
+    &:focus {
+      border: 1px solid #3db1f8;
+    }
+  }
+
   .form-item {
     margin: 15px auto 15px;
     width: 500px;
     overflow: auto;
     display: flex;
     justify-content: flex-end;
+
+    &-has-error {
+      .form-control {
+        border: 1px solid #843534;
+
+        &:focus {
+          border: 1px solid #843534;
+        }
+      }
+
+      label {
+        color: red;
+
+        i {
+          margin-right: 5px;
+        }
+      }
+    }
 
     label {
       width: 70%;
@@ -97,24 +139,6 @@ label {
           color: #fbb129;
         }
       }
-    }
-  }
-
-  .form-control {
-    display: block;
-    height: 34px;
-    padding: 6px 12px;
-    font-size: 14px;
-    line-height: 1.42857143;
-    color: #555555;
-    background-color: #fff;
-    background-image: none;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075);
-
-    &:focus {
-      border: 1px solid #3db1f8;
     }
   }
 

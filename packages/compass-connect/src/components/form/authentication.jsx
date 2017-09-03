@@ -1,7 +1,8 @@
 const find = require('lodash.find');
 const React = require('react');
 const PropTypes = require('prop-types');
-const Actions = require('../actions');
+const Actions = require('../../actions');
+const FormGroup = require('./form-group');
 const FormItemSelect = require('./form-item-select');
 
 class AuthenticationSection extends React.Component {
@@ -43,7 +44,7 @@ class AuthenticationSection extends React.Component {
 
   render() {
     return (
-      <div id="authentication" className="form-group">
+      <FormGroup id="authentication" separator>
         <FormItemSelect
           label="Authentication"
           name="authentication"
@@ -51,7 +52,7 @@ class AuthenticationSection extends React.Component {
           changeHandler={this.onAuthMethodChanged.bind(this)}
           value={this.props.currentConnection.authentication} />
         {this.renderAuthenticationMethod()}
-      </div>
+      </FormGroup>
     );
   }
 }

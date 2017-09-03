@@ -1,8 +1,9 @@
 const find = require('lodash.find');
 const React = require('react');
 const PropTypes = require('prop-types');
-const Actions = require('../actions');
+const Actions = require('../../actions');
 const FormItemSelect = require('./form-item-select');
+const FormGroup = require('./form-group');
 
 class SSHTunnelSection extends React.Component {
 
@@ -36,7 +37,7 @@ class SSHTunnelSection extends React.Component {
 
   render() {
     return (
-      <div id="ssh-tunnel" className="form-group">
+      <FormGroup id="ssh-tunnel" separator>
         <FormItemSelect
           label="SSH Tunnel"
           name="ssh_tunnel"
@@ -44,7 +45,7 @@ class SSHTunnelSection extends React.Component {
           changeHandler={this.onSSHTunnelChanged.bind(this)}
           value={this.props.currentConnection.ssl_tunnel} />
         {this.renderSSHTunnelMethod()}
-      </div>
+      </FormGroup>
     );
   }
 }
