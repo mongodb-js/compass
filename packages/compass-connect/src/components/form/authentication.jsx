@@ -33,12 +33,11 @@ class AuthenticationSection extends React.Component {
   }
 
   renderAuthenticationMethod() {
-    const connection = this.props.currentConnection;
     const currentRole = find(this.roles, (role) => {
       return role.name === this.state.authenticationMethod;
     });
     if (currentRole.component) {
-      return (<currentRole.component currentConnection={connection} />);
+      return (<currentRole.component {...this.props} />);
     }
   }
 
@@ -58,7 +57,8 @@ class AuthenticationSection extends React.Component {
 }
 
 AuthenticationSection.propTypes = {
-  currentConnection: PropTypes.object.isRequired
+  currentConnection: PropTypes.object.isRequired,
+  isValid: PropTypes.bool
 };
 
 AuthenticationSection.displayName = 'AuthenticationSection';

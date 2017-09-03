@@ -166,10 +166,20 @@ const ConnectStore = Reflux.createStore({
     });
   },
 
+  onConnectClicked() {
+    const connection = this.state.currentConnection;
+    if (!connection.isValid()) {
+      this.setState({ isValid: false });
+    } else {
+      this.setState({ isValid: true });
+    }
+  },
+
   getInitialState() {
     return {
       currentConnection: new Connection(),
-      connections: new ConnectionCollection()
+      connections: new ConnectionCollection(),
+      isValid: true
     };
   },
 

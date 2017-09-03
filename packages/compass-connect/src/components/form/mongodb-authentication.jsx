@@ -1,5 +1,6 @@
 const React = require('react');
 const PropTypes = require('prop-types');
+const isEmpty = require('lodash.isempty');
 const Actions = require('../../actions');
 const FormItemInput = require('./form-item-input');
 
@@ -17,18 +18,34 @@ class MongoDBAuthentication extends React.Component {
     Actions.onAuthSourceChanged(evt.target.value);
   }
 
+  getUsernameError() {
+    const connection = this.props.currentConnection;
+    if (!this.props.isValid && isEmpty(connection.mongodb_username)) {
+      return 'Username is required';
+    }
+  }
+
+  getPasswordError() {
+    const connection = this.props.currentConnection;
+    if (!this.props.isValid && isEmpty(connection.mongodb_password)) {
+      return 'Password is required';
+    }
+  }
+
   render() {
     return (
       <div id="mongodb-authentication" className="form-group">
         <FormItemInput
           label="Username"
           name="username"
+          error={this.getUsernameError()}
           changeHandler={this.onUsernameChanged.bind(this)}
           value={this.props.currentConnection.mongodb_username || ''} />
         <FormItemInput
           label="Password"
           name="password"
           type="password"
+          error={this.getPasswordError()}
           changeHandler={this.onPasswordChanged.bind(this)}
           value={this.props.currentConnection.mongodb_password || ''} />
         <FormItemInput
@@ -44,7 +61,8 @@ class MongoDBAuthentication extends React.Component {
 }
 
 MongoDBAuthentication.propTypes = {
-  currentConnection: PropTypes.object.isRequired
+  currentConnection: PropTypes.object.isRequired,
+  isValid: PropTypes.bool
 };
 
 MongoDBAuthentication.displayName = 'MongoDBAuthentication';

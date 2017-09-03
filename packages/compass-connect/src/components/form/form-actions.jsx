@@ -25,6 +25,12 @@ class FormActions extends React.Component {
     Actions.onSaveConnection(this.props.currentConnection);
   }
 
+  onConnectClicked(evt) {
+    evt.preventDefault();
+    evt.stopPropagation();
+    Actions.onConnectClicked();
+  }
+
   onNameChanged(evt) {
     this.isNameChanged = true;
     Actions.onFavoriteNameChanged(evt.target.value);
@@ -82,7 +88,8 @@ class FormActions extends React.Component {
       <button
         type="submit"
         name="connect"
-        className="btn btn-sm btn-primary">
+        className="btn btn-sm btn-primary"
+        onClick={this.onConnectClicked.bind(this)}>
         Connect
       </button>
     );
