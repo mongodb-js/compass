@@ -3,6 +3,7 @@ const PropTypes = require('prop-types');
 const isEmpty = require('lodash.isempty');
 const Actions = require('../../actions');
 const FormItemInput = require('./form-item-input');
+const FormGroup = require('./form-group');
 
 const DEFAULT_SSH_TUNNEL_PORT = 22;
 
@@ -74,7 +75,7 @@ class SSHTunnelPasswordValidation extends React.Component {
 
   render() {
     return (
-      <div id="ssh_tunnel_password" className="form-group">
+      <FormGroup id="ssh_tunnel_password">
         <FormItemInput
           label="SSH Hostname"
           name="ssh_tunnel_hostname"
@@ -100,7 +101,7 @@ class SSHTunnelPasswordValidation extends React.Component {
           error={this.getPasswordError()}
           changeHandler={this.onSSHTunnelPasswordChanged.bind(this)}
           value={this.props.currentConnection.ssh_tunnel_password || ''} />
-      </div>
+      </FormGroup>
     );
   }
 }
