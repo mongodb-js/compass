@@ -19,7 +19,7 @@ const ConnectStore = Reflux.createStore({
   },
 
   resetConnection() {
-    this.setState({ currentConnection: new Connection() });
+    this.setState({ currentConnection: new Connection(), isValid: true });
   },
 
   onAuthenticationMethodChanged(method) {

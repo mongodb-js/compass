@@ -15,17 +15,34 @@ describe('IndexStore', () => {
   });
 
   describe('#resetConnection', () => {
-    before(() => {
-      IndexStore.state.currentConnection.mongodb_username = 'testing';
+    context('when the form is currently valid', () => {
+      before(() => {
+        IndexStore.state.currentConnection.mongodb_username = 'testing';
+      });
+
+      it('updates the hostname in the current connection model', (done) => {
+        const unsubscribe = IndexStore.listen((state) => {
+          unsubscribe();
+          expect(state.currentConnection.mongodb_username).to.equal(undefined);
+          done();
+        });
+        Actions.resetConnection();
+      });
     });
 
-    it('updates the hostname in the current connection model', (done) => {
-      const unsubscribe = IndexStore.listen((state) => {
-        unsubscribe();
-        expect(state.currentConnection.mongodb_username).to.equal(undefined);
-        done();
+    context('when the form is not valid', () => {
+      before(() => {
+        IndexStore.state.isValid = false;
       });
-      Actions.resetConnection();
+
+      it('resets the form to valid', (done) => {
+        const unsubscribe = IndexStore.listen((state) => {
+          unsubscribe();
+          expect(state.isValid).to.equal(true);
+          done();
+        });
+        Actions.resetConnection();
+      });
     });
   });
 

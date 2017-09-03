@@ -26,12 +26,11 @@ class SSHTunnelSection extends React.Component {
   }
 
   renderSSHTunnelMethod() {
-    const connection = this.props.currentConnection;
     const currentRole = find(this.roles, (role) => {
       return role.name === this.state.sshTunnelMethod;
     });
     if (currentRole.component) {
-      return (<currentRole.component currentConnection={connection} />);
+      return (<currentRole.component {...this.props} />);
     }
   }
 

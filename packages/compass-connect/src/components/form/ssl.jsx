@@ -33,12 +33,11 @@ class SSLSection extends React.Component {
   }
 
   renderSSLMethod() {
-    const connection = this.props.currentConnection;
     const currentRole = find(this.roles, (role) => {
       return role.name === this.state.sslMethod;
     });
     if (currentRole.component) {
-      return (<currentRole.component currentConnection={connection} />);
+      return (<currentRole.component {...this.props} />);
     }
   }
 
