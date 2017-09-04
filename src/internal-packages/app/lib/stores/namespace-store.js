@@ -1,29 +1,31 @@
 const Reflux = require('reflux');
 const app = require('hadron-app');
-const _ = require('lodash');
+const toNS = require('mongodb-ns');
 const debug = require('debug')('mongodb-compass:namespace-store');
+
+/**
+ * The default namespace when the Compass user connects to a MongoDB instance.
+ */
+const DEFAULT_NAMESPACE = '';
 
 /**
  * The store holds the source of truth for the namespace being worked on.
  */
 const NamespaceStore = Reflux.createStore({
+
+  /**
+   * Initializing the store should set up the default namespace.
+   */
+  init() {
+    this._ns = DEFAULT_NAMESPACE;
+  },
+
   /**
    * Gets the current namespace being worked with in the application.
    */
   get ns() {
     debug('getting ns:', this._ns);
     return this._ns;
-  },
-
-  __nsHelper: function(ns) {
-    if (!ns) {
-      return ['', ''];
-    }
-    if (_.includes(ns, '.')) {
-      return ns.split('.');
-    }
-
-    return [ns, ''];
   },
 
   /**
@@ -35,17 +37,17 @@ const NamespaceStore = Reflux.createStore({
     debug('setting ns: from', this._ns, 'to', ns);
     const registry = app.appRegistry;
     if (registry) {
-      const oldNns = this.__nsHelper(this._ns);
-      const newNs = this.__nsHelper(ns);
+      const oldNs = toNS(this._ns);
+      const newNs = toNS(ns);
 
-      if (oldNns[0] !== newNs[0]) {
+      if (oldNs.database !== newNs.database) {
         registry.callOnStores(function(store) {
           if (store.onDatabaseChanged) {
             store.onDatabaseChanged(ns);
           }
         });
       }
-      if (oldNns[1] !== newNs[1]) {
+      if (oldNs.database !== newNs.database || oldNs.collection !== newNs.collection) {
         registry.callOnStores(function(store) {
           if (store.onCollectionChanged) {
             store.onCollectionChanged(ns);
