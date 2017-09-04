@@ -106,6 +106,44 @@ describe('IndexStore', function() {
     });
   });
 
+  describe('#onSSHTunnelChanged', () => {
+    it('updates the ssh method in the current connection model', (done) => {
+      const unsubscribe = IndexStore.listen((state) => {
+        unsubscribe();
+        expect(state.currentConnection.ssh_tunnel).to.equal('IDENTITY_FILE');
+        done();
+      });
+      Actions.onSSHTunnelChanged('IDENTITY_FILE');
+    });
+
+    context('when ssl attributes already exist', () => {
+      beforeEach(() => {
+        IndexStore.state.currentConnection.ssh_tunnel_hostname = 'host';
+        IndexStore.state.currentConnection.ssh_tunnel_port = '3000';
+        IndexStore.state.currentConnection.ssh_tunnel_bind_to_local_port = '5000';
+        IndexStore.state.currentConnection.ssh_tunnel_username = 'user';
+        IndexStore.state.currentConnection.ssh_tunnel_password = 'pass';
+        IndexStore.state.currentConnection.ssh_tunnel_passphrase = 'pp';
+      });
+
+      it('clears out all previous values', (done) => {
+        const unsubscribe = IndexStore.listen((state) => {
+          unsubscribe();
+          expect(state.currentConnection.ssh_tunnel).to.equal('IDENTITY_FILE');
+          expect(state.currentConnection.ssh_tunnel_hostname).to.equal(undefined);
+          expect(state.currentConnection.ssh_tunnel_port).to.equal(22);
+          expect(state.currentConnection.ssh_tunnel_bind_to_local_port).to.equal(undefined);
+          expect(state.currentConnection.ssh_tunnel_username).to.equal(undefined);
+          expect(state.currentConnection.ssh_tunnel_password).to.equal(undefined);
+          expect(state.currentConnection.ssh_tunnel_identity_file).to.equal(undefined);
+          expect(state.currentConnection.ssh_tunnel_passphrase).to.equal(undefined);
+          done();
+        });
+        Actions.onSSHTunnelChanged('IDENTITY_FILE');
+      });
+    });
+  });
+
   describe('#onSSLMethodChanged', () => {
     it('updates the ssl method in the current connection model', (done) => {
       const unsubscribe = IndexStore.listen((state) => {
@@ -114,6 +152,28 @@ describe('IndexStore', function() {
         done();
       });
       Actions.onSSLMethodChanged('SYSTEMCA');
+    });
+
+    context('when ssl attributes already exist', () => {
+      beforeEach(() => {
+        IndexStore.state.currentConnection.ssl_ca = ['ca'];
+        IndexStore.state.currentConnection.ssl_certificate = ['cert'];
+        IndexStore.state.currentConnection.ssl_private_key = ['key'];
+        IndexStore.state.currentConnection.ssl_private_key_password = 'pass';
+      });
+
+      it('clears out all previous values', (done) => {
+        const unsubscribe = IndexStore.listen((state) => {
+          unsubscribe();
+          expect(state.currentConnection.ssl).to.equal('SYSTEMCA');
+          expect(state.currentConnection.ssl_certificate).to.equal(undefined);
+          expect(state.currentConnection.ssl_private_key).to.equal(undefined);
+          expect(state.currentConnection.ssl_ca).to.equal(undefined);
+          expect(state.currentConnection.ssl_private_key_password).to.equal(undefined);
+          done();
+        });
+        Actions.onSSLMethodChanged('SYSTEMCA');
+      });
     });
   });
 
@@ -125,6 +185,38 @@ describe('IndexStore', function() {
         done();
       });
       Actions.onAuthenticationMethodChanged('MONGODB');
+    });
+
+    context('when auth attributes already exist', () => {
+      beforeEach(() => {
+        IndexStore.state.currentConnection.mongodb_username = 'user';
+        IndexStore.state.currentConnection.mongodb_password = 'password';
+        IndexStore.state.currentConnection.mongodb_database_name = 'foo';
+        IndexStore.state.currentConnection.kerberos_principal = 'kerb';
+        IndexStore.state.currentConnection.kerberos_password = 'pass';
+        IndexStore.state.currentConnection.kerberos_service_name = 'kerb-service';
+        IndexStore.state.currentConnection.x509_username = 'x5user';
+        IndexStore.state.currentConnection.ldap_username = 'ldapuser';
+        IndexStore.state.currentConnection.ldap_password = 'ldappass';
+      });
+
+      it('clears out all previous values', (done) => {
+        const unsubscribe = IndexStore.listen((state) => {
+          unsubscribe();
+          expect(state.currentConnection.authentication).to.equal('MONGODB');
+          expect(state.currentConnection.mongodb_username).to.equal(undefined);
+          expect(state.currentConnection.mongodb_password).to.equal(undefined);
+          expect(state.currentConnection.mongodn_database_name).to.equal(undefined);
+          expect(state.currentConnection.kerberos_principal).to.equal(undefined);
+          expect(state.currentConnection.kerberos_password).to.equal(undefined);
+          expect(state.currentConnection.kerberos_service_name).to.equal(undefined);
+          expect(state.currentConnection.x509_username).to.equal(undefined);
+          expect(state.currentConnection.ldap_username).to.equal(undefined);
+          expect(state.currentConnection.ldap_password).to.equal(undefined);
+          done();
+        });
+        Actions.onAuthenticationMethodChanged('MONGODB');
+      });
     });
   });
 

@@ -6,6 +6,50 @@ const Connection = require('../models/connection');
 const ConnectionCollection = require('../models/connection-collection');
 const StateMixin = require('reflux-state-mixin');
 
+/**
+ * All the authentication related fields on the connection model, with
+ * the exception of the method.
+ */
+const AUTH_FIELDS = [
+  'mongodb_username',
+  'mongodb_password',
+  'mongodb_database_name',
+  'kerberos_principal',
+  'kerberos_password',
+  'kerberos_service_name',
+  'x509_username',
+  'ldap_username',
+  'ldap_password'
+];
+
+/**
+ * All the SSL related fields on the connection model, with the exception
+ * of the method.
+ */
+const SSL_FIELDS = [
+  'ssl_ca',
+  'ssl_certificate',
+  'ssl_private_key',
+  'ssl_private_key_password'
+];
+
+/**
+ * All the ssh tunnel related fields on the connection model, with the
+ * exception of the method.
+ */
+const SSH_TUNNEL_FIELDS = [
+  'ssh_tunnel_hostname',
+  'ssh_tunnel_port',
+  'ssh_tunnel_bind_to_local_port',
+  'ssh_tunnel_username',
+  'ssh_tunnel_password',
+  'ssh_tunnel_identity_file',
+  'ssh_tunnel_passphrase'
+];
+
+/**
+ * The store that backs the connect plugin.
+ */
 const ConnectStore = Reflux.createStore({
   mixins: [StateMixin.store],
 
@@ -24,6 +68,7 @@ const ConnectStore = Reflux.createStore({
   },
 
   onAuthenticationMethodChanged(method) {
+    this._clearAuthFields();
     this.state.currentConnection.authentication = method;
     this.trigger(this.state);
   },
@@ -67,6 +112,7 @@ const ConnectStore = Reflux.createStore({
   },
 
   onSSLMethodChanged(method) {
+    this._clearSSLFields();
     this.state.currentConnection.ssl = method;
     this.trigger(this.state);
   },
@@ -125,6 +171,7 @@ const ConnectStore = Reflux.createStore({
   },
 
   onSSHTunnelChanged(tunnel) {
+    this._clearSSHTunnelFields();
     this.state.currentConnection.ssh_tunnel = tunnel;
     this.trigger(this.state);
   },
@@ -202,6 +249,24 @@ const ConnectStore = Reflux.createStore({
     this.state.connections.add(connection);
     connection.save();
     this.trigger(this.state);
+  },
+
+  _clearAuthFields() {
+    AUTH_FIELDS.forEach((field) => {
+      this.state.currentConnection[field] = undefined;
+    });
+  },
+
+  _clearSSLFields() {
+    SSL_FIELDS.forEach((field) => {
+      this.state.currentConnection[field] = undefined;
+    });
+  },
+
+  _clearSSHTunnelFields() {
+    SSH_TUNNEL_FIELDS.forEach((field) => {
+      this.state.currentConnection[field] = undefined;
+    });
   },
 
   _pruneRecents(done) {
