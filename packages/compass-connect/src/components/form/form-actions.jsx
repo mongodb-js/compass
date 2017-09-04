@@ -28,7 +28,7 @@ class FormActions extends React.Component {
   onConnectClicked(evt) {
     evt.preventDefault();
     evt.stopPropagation();
-    Actions.onConnectClicked();
+    Actions.onConnect();
   }
 
   onNameChanged(evt) {

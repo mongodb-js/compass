@@ -25,6 +25,10 @@ label {
 }
 
 .connect {
+  &-is-connected {
+    border: 2px solid green;
+  }
+
   .form-container {
     position: absolute;
     top: 0;
@@ -32,6 +36,42 @@ label {
     bottom: 0;
     left: 250px;
     overflow-y: auto;
+
+    .error {
+      background-color: #ffeaea;
+      border-bottom: 3px solid #ed271c;
+      position: absolute;
+      top: 0;
+      left: 0;
+      height: 72px;
+      width: 100%;
+
+      p {
+        margin: 26px auto;
+        width: 70%;
+        color: #ed271c;
+        text-align: center;
+        font-weight: bold;
+      }
+    }
+
+    .success {
+      background-color: #90ee90;
+      border-bottom: 3px solid #008000;
+      position: absolute;
+      top: 0;
+      left: 0;
+      height: 72px;
+      width: 100%;
+
+      p {
+        margin: 26px auto;
+        width: 70%;
+        color: #008000;
+        text-align: center;
+        font-weight: bold;
+      }
+    }
 
     header {
       height: 72px;

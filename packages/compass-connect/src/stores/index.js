@@ -1,5 +1,6 @@
 const Reflux = require('reflux');
 const sortBy = require('lodash.sortby');
+const DataService = require('mongodb-data-service');
 const Actions = require('../actions');
 const Connection = require('../models/connection');
 const ConnectionCollection = require('../models/connection-collection');
@@ -166,12 +167,24 @@ const ConnectStore = Reflux.createStore({
     });
   },
 
-  onConnectClicked() {
+  onConnect() {
     const connection = this.state.currentConnection;
     if (!connection.isValid()) {
       this.setState({ isValid: false });
     } else {
-      this.setState({ isValid: true });
+      const dataService = new DataService(this.state.currentConnection);
+      dataService.connect((err, ds) => {
+        if (err) {
+          return this.setState({ isValid: false, errorMessage: err.message });
+        }
+        global.hadronApp.appRegistry.onConnected(err, ds);
+        // @note: onCreateRecent will handle the store triggering, no need to do
+        //   it twice.
+        this.state.isValid = true;
+        this.state.isConnected = true;
+        this.state.errorMessage = null;
+        this.onCreateRecent();
+      });
     }
   },
 
@@ -179,7 +192,9 @@ const ConnectStore = Reflux.createStore({
     return {
       currentConnection: new Connection(),
       connections: new ConnectionCollection(),
-      isValid: true
+      isValid: true,
+      isConnected: false,
+      errorMessage: null
     };
   },
 

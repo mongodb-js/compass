@@ -28,7 +28,7 @@ const ConnectActions = Reflux.createActions([
   'onSaveConnection',
   'onDeleteConnection',
   'onConnectionSelected',
-  'onConnectClicked'
+  'onConnect'
 ]);
 
 module.exports = ConnectActions;

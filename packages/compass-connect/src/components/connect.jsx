@@ -60,6 +60,24 @@ class Connect extends React.Component {
     Actions.onConnectionSelected(connection);
   }
 
+  renderMessage() {
+    if (!this.props.isValid && this.props.errorMessage) {
+      return (
+        <div className="message error">
+          <p>{this.props.errorMessage}</p>
+        </div>
+      );
+    } else if (this.props.isConnected) {
+      const connection = this.props.currentConnection;
+      const server = `${connection.hostname}:${connection.port}`;
+      return (
+        <div className="message success">
+          <p>Connected to {server}</p>
+        </div>
+      );
+    }
+  }
+
   render() {
     return (
       <div className="page connect">
@@ -68,6 +86,7 @@ class Connect extends React.Component {
           <header>
             <h2 data-test-id="connect-header">Connect to Host</h2>
           </header>
+          {this.renderMessage()}
           <ConnectForm {...this.props} />
         </div>
       </div>
@@ -77,7 +96,10 @@ class Connect extends React.Component {
 
 Connect.propTypes = {
   currentConnection: PropTypes.object,
-  connections: PropTypes.object
+  connections: PropTypes.object,
+  isValid: PropTypes.bool,
+  isConnected: PropTypes.bool,
+  errorMessage: PropTypes.string
 };
 
 Connect.displayName = 'Connect';
