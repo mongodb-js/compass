@@ -36,6 +36,7 @@
     "@kadira/react-storybook-addon-info": "^3.2.1",
     "@kadira/storybook": "^2.3.0",
     "@mongodb-js/compass-auth-kerberos": "0.0.1",
+    "@mongodb-js/compass-auth-ldap": "0.0.1",
     "babel-cli": "^6.10.1",
     "babel-plugin-transform-class-properties": "^6.24.1",
     "babel-preset-react": "^6.11.1",
