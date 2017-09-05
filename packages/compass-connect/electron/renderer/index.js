@@ -6,6 +6,7 @@ const ReactDOM = require('react-dom');
 const AppRegistry = require('hadron-app-registry');
 const kerberos = require('@mongodb-js/compass-auth-kerberos');
 const ldap = require('@mongodb-js/compass-auth-ldap');
+const x509 = require('@mongodb-js/compass-auth-x509');
 
 const entryPoint = require('../../');
 const appRegistry = new AppRegistry();
@@ -16,6 +17,7 @@ global.hadronApp.appRegistry = appRegistry;
 entryPoint.activate(appRegistry);
 kerberos.activate(appRegistry);
 ldap.activate(appRegistry);
+x509.activate(appRegistry);
 
 appRegistry.onActivated();
 
