@@ -18,6 +18,34 @@ describe('IndexStore', function() {
     });
   });
 
+  describe('#onActivated', () => {
+    const extensions = {
+      onKerberosPrincipalChanged: function(principal) {
+        this.state.currentConnection.kerberos_principal = principal;
+        this.trigger(this.state);
+      }
+    };
+
+    before(() => {
+      const registry = new AppRegistry();
+      registry.registerRole(IndexStore.EXTENSION, extensions);
+      IndexStore.onActivated(registry);
+    });
+
+    it('adds the method extensions to the store', () => {
+      expect(IndexStore.onKerberosPrincipalChanged).to.not.equal(undefined);
+    });
+
+    it('binds the store context to the extension', (done) => {
+      const unsubscribe = IndexStore.listen((state) => {
+        unsubscribe();
+        expect(state.currentConnection.kerberos_principal).to.equal('testing');
+        done();
+      });
+      Actions.onKerberosPrincipalChanged('testing');
+    });
+  });
+
   describe('#resetConnection', () => {
     context('when the form is currently valid', () => {
       before(() => {

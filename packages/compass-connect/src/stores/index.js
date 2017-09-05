@@ -1,6 +1,7 @@
 const Reflux = require('reflux');
 const sortBy = require('lodash.sortby');
 const isEmpty = require('lodash.isempty');
+const forEach = require('lodash.foreach');
 const DataService = require('mongodb-data-service');
 const Actions = require('../actions');
 const Connection = require('../models/connection');
@@ -49,6 +50,11 @@ const SSH_TUNNEL_FIELDS = [
 ];
 
 /**
+ * The role name for plugin extensions.
+ */
+const EXTENSION = 'Connect.Extension';
+
+/**
  * The store that backs the connect plugin.
  */
 const ConnectStore = Reflux.createStore({
@@ -56,6 +62,9 @@ const ConnectStore = Reflux.createStore({
 
   listenables: Actions,
 
+  /**
+   * Fetch all the connections on init.
+   */
   init() {
     this.state.connections.fetch({
       success: () => {
@@ -64,31 +73,82 @@ const ConnectStore = Reflux.createStore({
     });
   },
 
-  resetConnection() {
-    this.setState({ currentConnection: new Connection(), isValid: true });
+  /**
+   * On activation of the app registry, we search for extensions defined by plugins
+   * and dynamically add them to tis store and its corresponding actions.
+   *
+   * @param {AppRegistry} appRegistry - The app registry.
+   */
+  onActivated(appRegistry) {
+    forEach(appRegistry.getRole(EXTENSION) || [], (ext) => {
+      forEach(ext, (method, name) => {
+        Actions[name] = Reflux.createAction(name);
+        const bound = method.bind(this);
+        this[name] = bound;
+        Actions[name].listen(bound);
+      });
+    });
   },
 
+  /**
+   * Resets the connection after clicking on the new connection section.
+   */
+  resetConnection() {
+    this.setState({
+      currentConnection: new Connection(),
+      isValid: true,
+      isConnected: false,
+      errorMessage: null
+    });
+  },
+
+  /**
+   * Changes the auth method.
+   *
+   * @param {String} method - The auth method.
+   */
   onAuthenticationMethodChanged(method) {
     this._clearAuthFields();
     this.state.currentConnection.authentication = method;
     this.trigger(this.state);
   },
 
+  /**
+   * Changes the username.
+   *
+   * @param {String} username - The username.
+   */
   onUsernameChanged(username) {
     this.state.currentConnection.mongodb_username = username;
     this.trigger(this.state);
   },
 
+  /**
+   * Changes the password.
+   *
+   * @param {String} password - The password.
+   */
   onPasswordChanged(password) {
     this.state.currentConnection.mongodb_password = password;
     this.trigger(this.state);
   },
 
+  /**
+   * Changes the auth source.
+   *
+   * @param {String} authSource - The auth source.
+   */
   onAuthSourceChanged(authSource) {
     this.state.currentConnection.mongodb_database_name = authSource;
     this.trigger(this.state);
   },
 
+  /**
+   * Changes the host name. If the hostname contains mongodb.net then
+   * then its an Atlas instance and we change the SSL settings.
+   *
+   * @param {String} hostname - The hostname.
+   */
   onHostnameChanged(hostname) {
     this.state.currentConnection.hostname = hostname;
     if (hostname.match(/mongodb\.net/i)) {
@@ -97,58 +157,109 @@ const ConnectStore = Reflux.createStore({
     this.trigger(this.state);
   },
 
+  /**
+   * Change the port.
+   *
+   * @param {String,Integer} port - The port.
+   */
   onPortChanged(port) {
     this.state.currentConnection.port = port;
     this.trigger(this.state);
   },
 
+  /**
+   * Change the read preference.
+   *
+   * @param {String} readPreference - The read preference.
+   */
   onReadPreferenceChanged(readPreference) {
     this.state.currentConnection.read_preference = readPreference;
     this.trigger(this.state);
   },
 
+  /**
+   * Change the replica set name.
+   *
+   * @param {String} replicaSetName - The replica set name.
+   */
   onReplicaSetNameChanged(replicaSetName) {
     this.state.currentConnection.replica_set_name = replicaSetName;
     this.trigger(this.state);
   },
 
+  /**
+   * Change the SSL method.
+   *
+   * @param {String} method - The SSL method.
+   */
   onSSLMethodChanged(method) {
     this._clearSSLFields();
     this.state.currentConnection.ssl = method;
     this.trigger(this.state);
   },
 
+  /**
+   * Change the SSL ca.
+   *
+   * @param {Array} files - The files.
+   */
   onSSLCAChanged(files) {
     this.state.currentConnection.ssl_ca = files;
     this.trigger(this.state);
   },
 
+  /**
+   * Change the SSL certificate.
+   *
+   * @param {Array} files - The files.
+   */
   onSSLCertificateChanged(files) {
     this.state.currentConnection.ssl_certificate = files;
     this.trigger(this.state);
   },
 
+  /**
+   * Change the SSL private key.
+   *
+   * @param {Array} files - The files.
+   */
   onSSLPrivateKeyChanged(files) {
     this.state.currentConnection.ssl_private_key = files;
     this.trigger(this.state);
   },
 
+  /**
+   * Change the SSL password.
+   *
+   * @param {String} password - The password.
+   */
   onSSLPrivateKeyPasswordChanged(password) {
     this.state.currentConnection.ssl_private_key_password = password;
     this.trigger(this.state);
   },
 
+  /**
+   * Change the favorite name.
+   *
+   * @param {String} name - The favorite name.
+   */
   onFavoriteNameChanged(name) {
     this.state.currentConnection.name = name;
     this.trigger(this.state);
   },
 
+  /**
+   * Create a favorite from the current connection.
+   */
   onCreateFavorite() {
     const connection = this.state.currentConnection;
     connection.is_favorite = true;
     this._addConnection(connection);
   },
 
+  /**
+   * Create a recent connection from the current connection.
+   */
   onCreateRecent() {
     const connection = this.state.currentConnection;
     connection.last_used = new Date();
@@ -157,10 +268,20 @@ const ConnectStore = Reflux.createStore({
     });
   },
 
+  /**
+   * Select a connection in the sidebar.
+   *
+   * @param {Connection} connection - The connection to select.
+   */
   onConnectionSelected(connection) {
     this.setState({ currentConnection: connection });
   },
 
+  /**
+   * Delete a connection.
+   *
+   * @param {Connection} connection - The connection to delete.
+   */
   onDeleteConnection(connection) {
     connection.destroy({
       success: () => {
@@ -171,42 +292,82 @@ const ConnectStore = Reflux.createStore({
     });
   },
 
+  /**
+   * Change the SSH tunnel method.
+   *
+   * @param {String} tunnel - The method.
+   */
   onSSHTunnelChanged(tunnel) {
     this._clearSSHTunnelFields();
     this.state.currentConnection.ssh_tunnel = tunnel;
     this.trigger(this.state);
   },
 
+  /**
+   * Change the SSH tunnel password.
+   *
+   * @param {String} password - The password.
+   */
   onSSHTunnelPasswordChanged(password) {
     this.state.currentConnection.ssh_tunnel_password = password;
     this.trigger(this.state);
   },
 
+  /**
+   * Change the SSH tunnel passphrase.
+   *
+   * @param {String} passphrase - The passphrase.
+   */
   onSSHTunnelPassphraseChanged(passphrase) {
     this.state.currentConnection.ssh_tunnel_passphrase = passphrase;
     this.trigger(this.state);
   },
 
+  /**
+   * Change the SSH tunnel hostname.
+   *
+   * @param {String} hostname - The hostname.
+   */
   onSSHTunnelHostnameChanged(hostname) {
     this.state.currentConnection.ssh_tunnel_hostname = hostname;
     this.trigger(this.state);
   },
 
+  /**
+   * Change the SSH tunnel username.
+   *
+   * @param {String} username - The username.
+   */
   onSSHTunnelUsernameChanged(username) {
     this.state.currentConnection.ssh_tunnel_username = username;
     this.trigger(this.state);
   },
 
+  /**
+   * Change the SSH tunnel port.
+   *
+   * @param {String, Integer} port - The port.
+   */
   onSSHTunnelPortChanged(port) {
     this.state.currentConnection.ssh_tunnel_port = port;
     this.trigger(this.state);
   },
 
-  onSSHTunnelIdentityFileChanged(file) {
-    this.state.currentConnection.ssh_tunnel_identity_file = file;
+  /**
+   * Change the SSH tunnel identity file.
+   *
+   * @param {Array} files - The file.
+   */
+  onSSHTunnelIdentityFileChanged(files) {
+    this.state.currentConnection.ssh_tunnel_identity_file = files;
     this.trigger(this.state);
   },
 
+  /**
+   * Save a connection.
+   *
+   * @param {Connection} connection - The connection.
+   */
   onSaveConnection(connection) {
     connection.save({
       success: () => {
@@ -215,6 +376,11 @@ const ConnectStore = Reflux.createStore({
     });
   },
 
+  /**
+   * Connect to the current connection. Will validate the connection first,
+   * then will attempt to connect. If connection is successful then a new
+   * recent connection is created.
+   */
   onConnect() {
     const connection = this.state.currentConnection;
     if (!connection.isValid()) {
@@ -241,6 +407,11 @@ const ConnectStore = Reflux.createStore({
     }
   },
 
+  /**
+   * Get the initial state of the store.
+   *
+   * @returns {Object} The state.
+   */
   getInitialState() {
     return {
       currentConnection: new Connection(),
@@ -294,3 +465,4 @@ const ConnectStore = Reflux.createStore({
 });
 
 module.exports = ConnectStore;
+module.exports.EXTENSION = EXTENSION;
