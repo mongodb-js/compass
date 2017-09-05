@@ -1,5 +1,6 @@
 const { expect } = require('chai');
 const sinon = require('sinon');
+const Reflux = require('reflux');
 const AppRegistry = require('hadron-app-registry');
 const Connection = require('../../../lib/models/connection');
 const Actions = require('../../../lib/actions');
@@ -19,21 +20,22 @@ describe('IndexStore', function() {
   });
 
   describe('#onActivated', () => {
-    const extensions = {
-      onKerberosPrincipalChanged: function(principal) {
-        this.state.currentConnection.kerberos_principal = principal;
-        this.trigger(this.state);
-      }
+    const ExtActions = Reflux.createActions([
+      'onKerberosPrincipalChanged'
+    ]);
+    const onKerberosPrincipalChanged = function(principal) {
+      this.state.currentConnection.kerberos_principal = principal;
+      this.trigger(this.state);
+    };
+    const extension = function(store) {
+      const principal = onKerberosPrincipalChanged.bind(store);
+      ExtActions.onKerberosPrincipalChanged.listen(principal);
     };
 
     before(() => {
       const registry = new AppRegistry();
-      registry.registerRole(IndexStore.EXTENSION, extensions);
+      registry.registerRole(IndexStore.EXTENSION, extension);
       IndexStore.onActivated(registry);
-    });
-
-    it('adds the method extensions to the store', () => {
-      expect(IndexStore.onKerberosPrincipalChanged).to.not.equal(undefined);
     });
 
     it('binds the store context to the extension', (done) => {
@@ -42,7 +44,7 @@ describe('IndexStore', function() {
         expect(state.currentConnection.kerberos_principal).to.equal('testing');
         done();
       });
-      Actions.onKerberosPrincipalChanged('testing');
+      ExtActions.onKerberosPrincipalChanged('testing');
     });
   });
 

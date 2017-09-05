@@ -75,18 +75,13 @@ const ConnectStore = Reflux.createStore({
 
   /**
    * On activation of the app registry, we search for extensions defined by plugins
-   * and dynamically add them to tis store and its corresponding actions.
+   * and execute their extension functions with the store instance and the actions.
    *
    * @param {AppRegistry} appRegistry - The app registry.
    */
   onActivated(appRegistry) {
-    forEach(appRegistry.getRole(EXTENSION) || [], (ext) => {
-      forEach(ext, (method, name) => {
-        Actions[name] = Reflux.createAction(name);
-        const bound = method.bind(this);
-        this[name] = bound;
-        Actions[name].listen(bound);
-      });
+    forEach(appRegistry.getRole(EXTENSION) || [], (extension) => {
+      extension(this);
     });
   },
 
