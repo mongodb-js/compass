@@ -1,5 +1,5 @@
 {
-  "name": "-mongodb-js-compass-connect",
+  "name": "@mongodb-js/compass-connect",
   "productName": " Mongodb Js Compass Connect plugin",
   "version": "0.0.1",
   "description": "Compass Connection Plugin",
