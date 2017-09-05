@@ -4,6 +4,10 @@ Compass Connection Plugin
 
 ## Usage
 
+## Testing
+
+[Testing Authentication](https://wiki.corp.mongodb.com/display/DI/Testing+Authentication)
+
 ### Scripts
 
 `link-plugin`: Links the Compass plugin and Compass for development along with React to ensure the
