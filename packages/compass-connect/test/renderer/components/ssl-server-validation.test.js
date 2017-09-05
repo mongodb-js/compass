@@ -3,7 +3,7 @@ const chai = require('chai');
 const expect = chai.expect;
 const chaiEnzyme = require('chai-enzyme');
 const { mount } = require('enzyme');
-const SSLServerValidation = require('../../../src/components/form/ssl-server-validation');
+const SSLServerValidation = require('../../../lib/components/form/ssl-server-validation');
 
 chai.use(chaiEnzyme());
 

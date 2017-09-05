@@ -3,7 +3,7 @@ const chai = require('chai');
 const expect = chai.expect;
 const chaiEnzyme = require('chai-enzyme');
 const { mount } = require('enzyme');
-const SSHTunnelIdentityFile = require('../../../src/components/form/ssh-tunnel-identity-file-validation');
+const SSHTunnelIdentityFile = require('../../../lib/components/form/ssh-tunnel-identity-file-validation');
 
 chai.use(chaiEnzyme());
 

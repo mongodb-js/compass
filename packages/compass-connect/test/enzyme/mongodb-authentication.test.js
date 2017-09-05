@@ -3,7 +3,7 @@ const chai = require('chai');
 const expect = chai.expect;
 const chaiEnzyme = require('chai-enzyme');
 const { mount } = require('enzyme');
-const MongoDBAuthentication = require('../../src/components/form/mongodb-authentication');
+const MongoDBAuthentication = require('../../lib/components/form/mongodb-authentication');
 
 chai.use(chaiEnzyme());
 

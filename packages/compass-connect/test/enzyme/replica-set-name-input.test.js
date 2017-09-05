@@ -3,7 +3,7 @@ const chai = require('chai');
 const expect = chai.expect;
 const chaiEnzyme = require('chai-enzyme');
 const { mount } = require('enzyme');
-const ReplicaSetNameInput = require('../../src/components/form/replica-set-name-input');
+const ReplicaSetNameInput = require('../../lib/components/form/replica-set-name-input');
 
 chai.use(chaiEnzyme());
 

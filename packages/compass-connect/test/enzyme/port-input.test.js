@@ -3,7 +3,7 @@ const chai = require('chai');
 const expect = chai.expect;
 const chaiEnzyme = require('chai-enzyme');
 const { mount } = require('enzyme');
-const PortInput = require('../../src/components/form/port-input');
+const PortInput = require('../../lib/components/form/port-input');
 
 chai.use(chaiEnzyme());
 

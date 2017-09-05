@@ -3,7 +3,7 @@ const chai = require('chai');
 const expect = chai.expect;
 const chaiEnzyme = require('chai-enzyme');
 const { mount } = require('enzyme');
-const Favorites = require('../../src/components/sidebar/favorites');
+const Favorites = require('../../lib/components/sidebar/favorites');
 
 chai.use(chaiEnzyme());
 

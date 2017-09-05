@@ -3,7 +3,7 @@ const chai = require('chai');
 const expect = chai.expect;
 const chaiEnzyme = require('chai-enzyme');
 const { mount } = require('enzyme');
-const FormGroup = require('../../src/components/form/form-group');
+const FormGroup = require('../../lib/components/form/form-group');
 
 chai.use(chaiEnzyme());
 
