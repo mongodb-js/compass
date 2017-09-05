@@ -1,5 +1,6 @@
 const Reflux = require('reflux');
 const sortBy = require('lodash.sortby');
+const isEmpty = require('lodash.isempty');
 const DataService = require('mongodb-data-service');
 const Actions = require('../actions');
 const Connection = require('../models/connection');
@@ -219,7 +220,12 @@ const ConnectStore = Reflux.createStore({
     if (!connection.isValid()) {
       this.setState({ isValid: false });
     } else {
-      const dataService = new DataService(this.state.currentConnection);
+      // @note: If using MONGODB auth and the auth source is empty, we
+      //   default it to admin.
+      if (connection.authentication === 'MONGODB' && isEmpty(connection.mongodb_database_name)) {
+        connection.mongodb_database_name = 'admin';
+      }
+      const dataService = new DataService(connection);
       dataService.connect((err, ds) => {
         if (err) {
           return this.setState({ isValid: false, errorMessage: err.message });
