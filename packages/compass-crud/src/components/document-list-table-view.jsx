@@ -26,10 +26,12 @@ class DocumentListTableView extends React.Component {
     this.createRowData = this.createRowData.bind(this);
     this.addEditingFooter = this.addEditingFooter.bind(this);
     this.onRowClicked = this.onRowClicked.bind(this);
+    this.addHeader = this.addHeader.bind(this);
 
     this.gridOptions = {
       context: {
-        column_width: 150
+        column_width: 150,
+        addHeader: this.addHeader
       },
       onRowClicked: this.onRowClicked,
       // onCellClicked: this.onCellClicked.bind(this)
@@ -64,7 +66,9 @@ class DocumentListTableView extends React.Component {
    *     event?: {Event} - event if this was result of a browser event
    */
   onRowClicked(event) {
-    this.addEditingFooter(event.node, event.data, event.rowIndex);
+    if (this.props.isEditable) {
+      this.addEditingFooter(event.node, event.data, event.rowIndex);
+    }
   }
 
   /**
@@ -85,6 +89,7 @@ class DocumentListTableView extends React.Component {
 
     /* Add footer below this row */
     rowNode.data.hasFooter = true;
+    rowNode.data.state = 'editing';
     const newData = {
       hadronDocument: data.hadronDocument,
       hasFooter: false,
@@ -105,16 +110,26 @@ class DocumentListTableView extends React.Component {
    * @param {number} rowIndex - Index of the row clicked on.
    */
   addDeletingFooter(rowNode, data, rowIndex) {
-    /* If bar exists and is in editing mode, set to deleting */
-    if (data.isFooter) {
+    if (data.isFooter || data.state === 'deleting') {
       return;
     } else if (data.hasFooter) {
-      data.state = 'deleting'; // TODO: need to notify footer row that state has changed (COMPASS-1870)
+      /* If bar exists and is in editing mode, set this row deleting and also
+       * this rows' footer's state to deleting. */
+
+      data.state = 'deleting';
+      const rowId = data.hadronDocument.get('_id').value.toString() + '1';
+
+      const footerNode = this.gridApi.getRowNode(rowId);
+      footerNode.data.state = 'deleting';
+
+      /* rerender footer */
+      this.gridApi.redrawRows([footerNode]);
       return;
     }
 
     /* Add deleting row below this row */
     rowNode.data.hasFooter = true;
+    rowNode.data.state = 'deleting';
     const newData = {
       hadronDocument: data.hadronDocument,
       hasFooter: false,
@@ -122,6 +137,41 @@ class DocumentListTableView extends React.Component {
       state: 'deleting'
     };
     this.gridApi.updateRowData({add: [newData], addIndex: rowIndex + 1});
+  }
+
+
+  addHeader(key, type, isEditable) {
+    return {
+      headerName: key,
+      valueGetter: function(params) {
+        return params.data.hadronDocument.get(key);
+      },
+      valueSetter: function(params) {
+        return (params.oldValue === undefined && params.newValue !== undefined);
+      },
+
+      headerComponentFramework: HeaderComponent,
+      headerComponentParams: {
+        isRowNumber: false,
+        bsonType: type
+      },
+
+      cellRendererFramework: CellRenderer,
+      cellRendererParams: {},
+
+      editable: function(params) {
+        if (!isEditable || params.node.data.state === 'deleting') {
+          return false;
+        }
+        if (params.node.data.hadronDocument.get(key) === undefined) {
+          return true;
+        }
+        return params.node.data.hadronDocument.get(key).isValueEditable();
+      },
+
+      cellEditorFramework: CellEditor,
+      cellEditorParams: {}
+    };
   }
 
   /**
@@ -134,6 +184,8 @@ class DocumentListTableView extends React.Component {
     // const width = this.gridOptions.context.column_width;
     const isEditable = this.props.isEditable;
 
+    const addHeader = this.addHeader;
+
     headers.hadronRowNumber = {
       headerName: 'Row',
       field: 'rowNumber',
@@ -145,32 +197,7 @@ class DocumentListTableView extends React.Component {
 
     for (let i = 0; i < this.props.docs.length; i++) {
       _.map(this.props.docs[i], function(val, key) {
-        headers[key] = {
-          headerName: key,
-          // width: width, TODO: prevents horizontal scrolling
-          valueGetter: function(params) {
-            return params.data.hadronDocument.get(key);
-          },
-
-          headerComponentFramework: HeaderComponent,
-          headerComponentParams: {
-            isRowNumber: false,
-            bsonType: TypeChecker.type(val)
-          },
-
-          cellRendererFramework: CellRenderer,
-          cellRendererParams: {},
-
-          editable: function(params) {
-            if (!isEditable) {
-              return false;
-            }
-            return params.node.data.hadronDocument.get(key).isValueEditable();
-          },
-
-          cellEditorFramework: CellEditor,
-          cellEditorParams: {}
-        };
+        headers[key] = addHeader(key, TypeChecker.type(val), isEditable);
       });
     }
     return Object.values(headers);
@@ -226,6 +253,10 @@ class DocumentListTableView extends React.Component {
             fullWidthCellRendererFramework={FullWidthCellRenderer}
 
             rowData={this.createRowData()}
+            getRowNodeId={function(data) {
+              const fid = data.isFooter ? '1' : '0';
+              return data.hadronDocument.get('_id').value.toString() + fid;
+            }}
             // events
             onGridReady={this.onGridReady.bind(this)}
         />

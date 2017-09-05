@@ -2,4 +2,54 @@
 .table-view-cell {
   z-index: 1;
   position: absolute;
+  height: 100%;
+  width: 100%;
+  min-height: 28px;
+  padding-left: 5px;
+  padding-right: 5px;
+
+  .editable-element {
+    min-height: 28px;
+  }
+
+  &-is-deleted {
+    min-height: 25px;
+    background-color: #FFE5EA;
+    border: 1px solid pink;
+    line-height: 25px;
+    margin: 1px;
+    padding-left: 5px;
+    padding-right: 5px;
+  }
+
+  &-is-empty {
+    min-height: 28px;
+    line-height: 28px;
+    margin: 1px;
+    padding-left: 5px;
+    padding-right: 5px;
+  }
+
+  &-is-edited {
+    .editable-element {
+      min-height: 24px;
+    }
+    border: 1px solid #ffd27f;
+    margin: 1px;
+    background-color: #fff4dc;
+    padding-left: 5px;
+    padding-right: 5px;
+  }
+
+  &-is-added {
+    .editable-element {
+      min-height: 24px;
+    }
+    border: 1px solid #b2d8b2;
+    background-color: #e9f2e3;
+    margin: 1px;
+    padding-left: 5px;
+    padding-right: 5px;
+  }
+
 }

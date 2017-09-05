@@ -1,24 +1,40 @@
 .table-view-cell-editor {
   z-index: 1000;
   position: absolute;
-  width: 280px; //TODO: set correctly
+  width: 265px; //TODO: set correctly
   background: white;
-  border: 1px solid grey;
-  border-radius: 2px;
+  border: 1px solid #807f7f;
+  border-radius: 3px;
+  height: 28px;
+  padding: 2px;
 
   &-input {
+    :focus {
+      outline: none;
+    }
+    display: inline-block;
     width: 120px;
-  }
-  &-button {
-    width: 25px;
+    border: 1px solid #d3d3d3;
+    border-radius: 3px;
+    height: 21px;
+
+    .editable-element-value-is-editing {
+      border: none;
+      box-shadow: none;
+      margin-top: 3px;
+      height: 15px;
+    }
   }
 
   &-types {
     display: inline-block;
-    width: 80px;
+    width: 90px;
     color: #807f7f;
-    height: 17px;
+    height: 21px;
     flex-shrink: 0;
+    border: 1px solid #d3d3d3;
+    border-radius: 3px;
+    margin-left: 3px;
 
     .closed > .dropdown-menu {
       display: none;
@@ -28,18 +44,21 @@
       padding: 1px 12px;
     }
 
-    .btn {
+    .btn-crud {
       background-color: transparent;
-      color: #a09f9e;
       border: none;
       text-transform: none;
-      font-size: 11px;
+      font-size: 12px;
       border-radius: 8px;
-      padding: 1px 12px;
+      padding: 1px 5px;
+      width: 100%;
+      color: black;
+      text-align: left;
+
     }
 
     .caret {
-      visibility: hidden;
+      margin-left: 36px;
     }
 
     &-is-edited {
@@ -51,14 +70,14 @@
 
     .dropdown-menu {
       min-width: 80px;
+      font-size: 12px;
 
       li {
         span {
           display: block;
-          padding: 3px 20px;
+          padding: 3px 5px;
           clear: both;
           font-weight: normal;
-          font-size: 11px;
           color: #333333;
           white-space: nowrap;
         }
@@ -67,6 +86,68 @@
           text-decoration: none;
           background: #e6e6e6;
         }
+      }
+    }
+  }
+
+  &-button {
+    display: inline-block;
+    color: black;
+    text-align: center;
+    cursor: pointer;
+    width: 20px;
+    height: 21px;
+    border: solid #d3d3d3 1px;
+    border-radius: 3px;
+    margin-left: 3px;
+
+    &-is-selected {
+      border: solid black 1px;
+    }
+
+    &-icon {
+      font-size: 10px;
+    }
+
+    &-menu {
+      display: none;
+      color: #807f7f;
+      position: absolute;
+
+
+      li {
+        span {
+          display: block;
+          padding: 3px 5px;
+          clear: both;
+          font-weight: normal;
+          font-size: 11px;
+          color: #333333;
+          white-space: nowrap;
+
+          .fa-level-down {
+            margin-right: 12px;
+          }
+
+          .fa-plus-square-o {
+            margin-right: 10px;
+          }
+        }
+        span:hover {
+          color: #313030;
+          text-decoration: none;
+          background: #e6e6e6;
+        }
+      }
+
+      &-field {
+        display: inline-block !important;
+        padding: 0px !important;
+        font-weight: bold !important;
+      }
+
+      &-is-visible {
+        display: block;
       }
     }
   }
