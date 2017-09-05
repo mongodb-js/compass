@@ -82,7 +82,7 @@ class EditableDocument extends React.Component {
   }
 
   /**
-   * Unsubscribe from the udpate store on unmount.
+   * Unsubscribe from the update store on unmount.
    */
   componentWillUnmount() {
     this.unsubscribeUpdate();
@@ -263,7 +263,15 @@ class EditableDocument extends React.Component {
     this.doc = EditableDocument.loadDocument(doc);
     this.subscribeToDocumentEvents();
     setTimeout(() => {
-      this.setState({ editing: false }, () => {
+      const ref = this.onHideScrollIntoView;
+      if (ref) {
+        // Avoid loading more documents on clicking the Update button
+        ref.scrollIntoView();
+      }
+      this.setState({
+        editing: false,
+        renderSize: INITIAL_FIELD_LIMIT
+      }, () => {
         marky.stop('EditableDocument - Handle update success');
       });
     }, 500);
@@ -282,7 +290,12 @@ class EditableDocument extends React.Component {
    */
   handleCancel() {
     marky.mark('EditableDocument - Cancel');
-    this.setState({ editing: false }, () => {
+    const ref = this.onHideScrollIntoView;
+    if (ref) {
+      // Avoid loading more documents on clicking the Cancel button
+      ref.scrollIntoView();
+    }
+    this.setState({ editing: false, renderSize: INITIAL_FIELD_LIMIT }, () => {
       marky.stop('EditableDocument - Cancel');
     });
   }
@@ -298,7 +311,17 @@ class EditableDocument extends React.Component {
    * Handles document deletion.
    */
   handleDelete() {
-    this.setState({ editing: false, deleting: true });
+    const ref = this.onHideScrollIntoView;
+    if (ref) {
+      // Avoid loading more documents on clicking the Delete button,
+      // with 1000+ fields expanded
+      ref.scrollIntoView();
+    }
+    this.setState({
+      deleting: true,
+      editing: false,
+      renderSize: INITIAL_FIELD_LIMIT
+    });
   }
 
   /**
@@ -313,7 +336,17 @@ class EditableDocument extends React.Component {
    */
   handleEdit() {
     marky.mark('EditableDocument - Edit');
-    this.setState({ editing: true }, () => {
+    this.setState({
+      editing: true
+      // renderSize: INITIAL_FIELD_LIMIT
+      // Scenario - User has clicked "Show 1000 more fields"
+      // (perhaps several times), then enters edit mode
+      // (by double-click or the mouse-hover + edit button).
+      // TODO: Need a loading spinner here, preserving the user's current state
+      // TODO: ... (and focus if they double-clicked on a field to edit it)
+      // TODO: ... is probably more valuable than raw performance here.
+      // TODO: See COMPASS-1901
+    }, () => {
       marky.stop('EditableDocument - Edit');
     });
   }
@@ -391,9 +424,7 @@ class EditableDocument extends React.Component {
       ));
       index++;
       if (index >= this.state.renderSize) {
-        if (!this.state.editing && !this.state.deleting) {
-          break;
-        }
+        break;
       }
     }
     return components;
@@ -406,17 +437,22 @@ class EditableDocument extends React.Component {
    */
   renderExpansion() {
     const totalSize = this.doc.elements.size;
-    let initialSize = INITIAL_FIELD_LIMIT;
-    if (this.state.deleting || this.state.editing) {
-      initialSize = totalSize;
+    const props = {
+      disableHideButton: false,
+      initialSize: INITIAL_FIELD_LIMIT,
+      renderSize: this.state.renderSize,
+      setRenderSize: this.setRenderSize.bind(this),
+      totalSize: totalSize
+    };
+    if (this.state.editing) {
+      // Not sure how to handle case where hide/collapse an edited row,
+      // should the update be applied or ignored? So just disable the update.
+      props.disableHideButton = true;
+      // Performance - Reduce extra fields added per click in edit mode
+      props.perClickSize = 100;
     }
     return (
-      <ExpansionBar
-        initialSize={initialSize}
-        renderSize={this.state.renderSize}
-        setRenderSize={this.setRenderSize.bind(this)}
-        totalSize={totalSize}
-      />
+      <ExpansionBar {...props} />
     );
   }
 
@@ -451,7 +487,9 @@ class EditableDocument extends React.Component {
    */
   render() {
     return (
-      <div className={this.style()} data-test-id={TEST_ID}>
+      <div className={this.style()} data-test-id={TEST_ID}
+        ref={(div) => { this.onHideScrollIntoView = div; }}
+      >
         <div className={CONTENTS}>
           <ol className={ELEMENTS}>
             {this.renderElements()}

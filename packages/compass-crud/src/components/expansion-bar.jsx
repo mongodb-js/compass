@@ -105,7 +105,7 @@ class ExpansionBar extends React.PureComponent {
       if (this.props.renderSize < total) {
         components.push(this.renderShowMoreFieldsButton(showMoreFields));
       }
-      if (this.props.renderSize > this.props.initialSize) {
+      if (this.props.renderSize > this.props.initialSize && !this.props.disableHideButton) {
         components.push(this.renderHideFieldsButton(hideFields));
       }
     }
@@ -121,6 +121,7 @@ class ExpansionBar extends React.PureComponent {
 }
 
 ExpansionBar.propTypes = {
+  disableHideButton: PropTypes.bool,            // Flag to disable display of the "Hide M fields" button
   initialSize: PropTypes.number.isRequired,     // Initial number of elements to render
   perClickSize: PropTypes.number,               // Extra elements to render per click
   renderSize: PropTypes.number.isRequired,      // Current number of elements to be rendered
@@ -129,6 +130,7 @@ ExpansionBar.propTypes = {
 };
 
 ExpansionBar.defaultProps = {
+  disableHideButton: false,
   perClickSize: MAX_EXTRA_ELEMENTS
 };
 

@@ -15,7 +15,7 @@ describe('<ExpansionBar />', () => {
     let showSize;
     let spy;
 
-    context('when initialSize === everythingSize', () => {
+    context('when initialSize === totalSize', () => {
       before(() => {
         const size = 8;
         const props = {
@@ -37,7 +37,7 @@ describe('<ExpansionBar />', () => {
       });
     });
 
-    context('when initialSize === renderSize and renderSize < everythingSize', () => {
+    context('when initialSize === renderSize and renderSize < totalSize', () => {
       before(() => {
         showSize = 2;
         const size = 3;
@@ -60,7 +60,7 @@ describe('<ExpansionBar />', () => {
       });
     });
 
-    context('when initialSize < renderSize < everythingSize', () => {
+    context('when initialSize < renderSize < totalSize', () => {
       before(() => {
         const props = {
           initialSize: 3,
@@ -86,7 +86,33 @@ describe('<ExpansionBar />', () => {
       });
     });
 
-    context('when initialSize < renderSize and renderSize === everythingSize', () => {
+    context('when initialSize < renderSize < totalSize and disableHideButton', () => {
+      before(() => {
+        const props = {
+          disableHideButton: true,
+          initialSize: 3,
+          perClickSize: 2,
+          setRenderSize: () => {},
+          totalSize: 8
+        };
+        hideSize = 2 * props.perClickSize;  // 2 clicks of "Show more" button
+        props.renderSize = props.initialSize + hideSize;
+        expect(props.renderSize).to.be.equal(7);
+        showSize = props.totalSize - props.renderSize;
+        expect(showSize).to.be.equal(1);
+        bar = mount(<ExpansionBar {...props} />);
+      });
+      it('renders a show more fields button', () => {
+        const downButtons = bar.find('.fa-arrow-down').parent();
+        expect(downButtons.text()).to.be.equal(`Show ${showSize} more fields`);
+      });
+      it('does not render a hide fields button', () => {
+        const upButtons = bar.find('.fa-arrow-up');
+        expect(upButtons.length).to.equal(0);
+      });
+    });
+
+    context('when initialSize < renderSize and renderSize === totalSize', () => {
       before(() => {
         const size = 8;
         const props = {
