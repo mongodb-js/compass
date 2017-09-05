@@ -160,7 +160,7 @@ const ConnectStore = Reflux.createStore({
   /**
    * Change the port.
    *
-   * @param {String,Integer} port - The port.
+   * @param {String} port - The port.
    */
   onPortChanged(port) {
     this.state.currentConnection.port = port;
@@ -346,7 +346,7 @@ const ConnectStore = Reflux.createStore({
   /**
    * Change the SSH tunnel port.
    *
-   * @param {String, Integer} port - The port.
+   * @param {String} port - The port.
    */
   onSSHTunnelPortChanged(port) {
     this.state.currentConnection.ssh_tunnel_port = port;

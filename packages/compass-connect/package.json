@@ -51,7 +51,6 @@
     "hadron-app": "^1.0.0",
     "hadron-app-registry": "^5.2.0",
     "hadron-build": "^13.1.0",
-    "hadron-react-components": "^1.9.1",
     "hadron-spectron": "^0.0.1",
     "jsdom": "^9.4.2",
     "less": "^2.7.1",
@@ -74,6 +73,7 @@
   },
   "dependencies": {
     "ampersand-rest-collection": "^5.0.0",
+    "hadron-react-components": "^1.10.0",
     "keytar": "mongodb-js/node-keytar#fdef09013f576b7a257ad768939e827882bccef5",
     "lodash.filter": "^4.6.0",
     "lodash.find": "^4.6.0",

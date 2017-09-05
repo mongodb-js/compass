@@ -2,7 +2,8 @@ const React = require('react');
 const PropTypes = require('prop-types');
 const isEmpty = require('lodash.isempty');
 const Actions = require('../../actions');
-const FormItemInput = require('./form-item-input');
+const { FormInput } = require('hadron-react-components');
+const { shell } = require('electron');
 
 class MongoDBAuthentication extends React.Component {
 
@@ -16,6 +17,10 @@ class MongoDBAuthentication extends React.Component {
 
   onAuthSourceChanged(evt) {
     Actions.onAuthSourceChanged(evt.target.value);
+  }
+
+  onSourceHelp() {
+    shell.openExternal('https://docs.mongodb.com/manual/core/security-users/#user-authentication-database');
   }
 
   getUsernameError() {
@@ -35,26 +40,26 @@ class MongoDBAuthentication extends React.Component {
   render() {
     return (
       <div id="mongodb-authentication" className="form-group">
-        <FormItemInput
+        <FormInput
           label="Username"
           name="username"
           error={this.getUsernameError()}
           changeHandler={this.onUsernameChanged.bind(this)}
           value={this.props.currentConnection.mongodb_username || ''} />
-        <FormItemInput
+        <FormInput
           label="Password"
           name="password"
           type="password"
           error={this.getPasswordError()}
           changeHandler={this.onPasswordChanged.bind(this)}
           value={this.props.currentConnection.mongodb_password || ''} />
-        <FormItemInput
+        <FormInput
           label="Authentication Database"
           placeholder="admin"
           name="auth-source"
           changeHandler={this.onAuthSourceChanged.bind(this)}
           value={this.props.currentConnection.mongodb_database_name || ''}
-          link="https://docs.mongodb.com/manual/core/security-users/#user-authentication-database" />
+          linkHandler={this.onSourceHelp.bind(this)}/>
       </div>
     );
   }

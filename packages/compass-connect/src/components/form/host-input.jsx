@@ -1,7 +1,7 @@
 const React = require('react');
 const PropTypes = require('prop-types');
 const Actions = require('../../actions');
-const FormItemInput = require('./form-item-input');
+const { FormInput } = require('hadron-react-components');
 
 const DEFAULT_HOST = 'localhost';
 
@@ -27,7 +27,7 @@ class HostInput extends React.Component {
 
   render() {
     return (
-      <FormItemInput
+      <FormInput
         label="Hostname"
         name="hostname"
         placeholder="localhost"

@@ -1,9 +1,10 @@
 const React = require('react');
 const PropTypes = require('prop-types');
+const { FormInput } = require('hadron-react-components');
+const { shell } = require('electron');
 const isEmpty = require('lodash.isempty');
 const Actions = require('../../actions');
 const FormFileInput = require('./form-file-input');
-const FormItemInput = require('./form-item-input');
 const FormGroup = require('./form-group');
 
 const DEFAULT_SSH_TUNNEL_PORT = 22;
@@ -39,6 +40,10 @@ class SSHTunnelIdentityFileValidation extends React.Component {
       this.isSSHTunnelPortChanged = true;
     }
     Actions.onSSHTunnelPortChanged(value);
+  }
+
+  onSourceHelp() {
+    shell.openExternal('https://docs.mongodb.com/compass/current/connect');
   }
 
   getPort() {
@@ -81,21 +86,21 @@ class SSHTunnelIdentityFileValidation extends React.Component {
   render() {
     return (
       <FormGroup id="ssh_tunnel_identity_file_validation">
-        <FormItemInput
+        <FormInput
           label="SSH Hostname"
           name="ssh_tunnel_hostname"
           error={this.getHostnameError()}
           changeHandler={this.onSSHTunnelHostnameChanged.bind(this)}
           value={this.props.currentConnection.ssh_tunnel_hostname || ''}
-          link="https://docs.mongodb.com/compass/current/connect" />
-        <FormItemInput
+          linkHandler={this.onSourceHelp.bind(this)} />
+        <FormInput
           label="SSH Tunnel Port"
           name="ssh_tunnel_port"
           placeholder="22"
           error={this.getPortError()}
           changeHandler={this.onSSHTunnelPortChanged.bind(this)}
           value={this.getPort()} />
-        <FormItemInput
+        <FormInput
           label="SSH Username"
           name="ssh_tunnel_username"
           error={this.getUsernameError()}
@@ -107,7 +112,7 @@ class SSHTunnelIdentityFileValidation extends React.Component {
           error={this.getFileError()}
           changeHandler={this.onSSHTunnelIdentityFileChanged.bind(this)}
           values={this.props.currentConnection.ssh_tunnel_identity_file} />
-        <FormItemInput
+        <FormInput
           label="SSH Passphrase"
           name="ssh_tunnel_passphrase"
           changeHandler={this.onSSHTunnelPassphraseChanged.bind(this)}

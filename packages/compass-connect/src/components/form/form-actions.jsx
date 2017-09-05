@@ -1,7 +1,8 @@
 const React = require('react');
 const PropTypes = require('prop-types');
 const Actions = require('../../actions');
-const FormItemInput = require('./form-item-input');
+const { FormInput } = require('hadron-react-components');
+const { shell } = require('electron');
 const FormGroup = require('./form-group');
 
 const DEFAULT_NAME = 'Local';
@@ -34,6 +35,10 @@ class FormActions extends React.Component {
   onNameChanged(evt) {
     this.isNameChanged = true;
     Actions.onFavoriteNameChanged(evt.target.value);
+  }
+
+  onNameHelp() {
+    shell.openExternal('https://docs.mongodb.com/compass/current/connect/');
   }
 
   getName() {
@@ -98,11 +103,11 @@ class FormActions extends React.Component {
   render() {
     return (
       <FormGroup id="favorite">
-        <FormItemInput
+        <FormInput
           label="Favorite Name"
           name="favorite_name"
           placeholder="e.g. Shared Dev, QA Box, PRODUCTION"
-          link="https://docs.mongodb.com/compass/current/connect/"
+          linkHandler={this.onNameHelp.bind(this)}
           changeHandler={this.onNameChanged.bind(this)}
           value={this.getName()} />
         <div className="buttons">

@@ -1,7 +1,7 @@
 const React = require('react');
 const PropTypes = require('prop-types');
 const Actions = require('../../actions');
-const FormItemInput = require('./form-item-input');
+const { FormInput } = require('hadron-react-components');
 
 class ReplicaSetNameInput extends React.Component {
 
@@ -11,7 +11,7 @@ class ReplicaSetNameInput extends React.Component {
 
   render() {
     return (
-      <FormItemInput
+      <FormInput
         label="Replica Set Name"
         name="replica_set_name"
         changeHandler={this.onReplicaSetNameChanged.bind(this)}

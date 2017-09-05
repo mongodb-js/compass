@@ -102,6 +102,8 @@ const IDENTITY_FILE_SSH_TUNNEL_ROLE = {
 
 /**
  * Activate all the components in the  Mongodb Js Compass Connect package.
+ *
+ * @param {AppRegistry} appRegistry - The app registry.
  */
 function activate(appRegistry) {
   appRegistry.registerRole('Application.Connect', ROLE);
@@ -121,6 +123,8 @@ function activate(appRegistry) {
 
 /**
  * Deactivate all the components in the  Mongodb Js Compass Connect package.
+ *
+ * @param {AppRegistry} appRegistry - The app registry.
  */
 function deactivate(appRegistry) {
   appRegistry.deregisterRole('Application.Connect', ROLE);

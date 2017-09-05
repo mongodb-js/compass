@@ -3,7 +3,8 @@ const PropTypes = require('prop-types');
 const isEmpty = require('lodash.isempty');
 const Actions = require('../../actions');
 const FormFileInput = require('./form-file-input');
-const FormItemInput = require('./form-item-input');
+const { FormInput } = require('hadron-react-components');
+const { shell } = require('electron');
 
 class SSLServerClientValidation extends React.Component {
 
@@ -21,6 +22,10 @@ class SSLServerClientValidation extends React.Component {
 
   onClientKeyPasswordChanged(evt) {
     Actions.onSSLPrivateKeyPasswordChanged(evt.target.value);
+  }
+
+  onPasswordHelp() {
+    shell.openExternal('https://docs.mongodb.com/manual/reference/configuration-options/#net.ssl.PEMKeyPassword');
   }
 
   getCertAuthError() {
@@ -70,13 +75,13 @@ class SSLServerClientValidation extends React.Component {
           changeHandler={this.onClientPrivateKeyChanged.bind(this)}
           values={this.props.currentConnection.ssl_private_key}
           link="https://docs.mongodb.com/manual/tutorial/configure-ssl/#pem-file" />
-        <FormItemInput
+        <FormInput
           label="Client Key Password"
           name="ssl_private_key_password"
           type="password"
           changeHandler={this.onClientKeyPasswordChanged.bind(this)}
           value={this.props.currentConnection.ssl_private_key_password || ''}
-          link="https://docs.mongodb.com/manual/reference/configuration-options/#net.ssl.PEMKeyPassword" />
+          linkHandler={this.onPasswordHelp.bind(this)} />
       </div>
     );
   }

@@ -1,7 +1,7 @@
 const React = require('react');
 const PropTypes = require('prop-types');
 const Actions = require('../../actions');
-const FormItemInput = require('./form-item-input');
+const { FormInput } = require('hadron-react-components');
 
 const DEFAULT_PORT = 27017;
 
@@ -32,7 +32,7 @@ class PortInput extends React.Component {
 
   render() {
     return (
-      <FormItemInput
+      <FormInput
         label="Port"
         name="port"
         placeholder="27017"

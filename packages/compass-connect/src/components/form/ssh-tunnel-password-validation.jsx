@@ -1,8 +1,9 @@
 const React = require('react');
 const PropTypes = require('prop-types');
 const isEmpty = require('lodash.isempty');
+const { FormInput } = require('hadron-react-components');
+const { shell } = require('electron');
 const Actions = require('../../actions');
-const FormItemInput = require('./form-item-input');
 const FormGroup = require('./form-group');
 
 const DEFAULT_SSH_TUNNEL_PORT = 22;
@@ -34,6 +35,10 @@ class SSHTunnelPasswordValidation extends React.Component {
       this.isSSHTunnelPortChanged = true;
     }
     Actions.onSSHTunnelPortChanged(value);
+  }
+
+  onHostnameHelp() {
+    shell.openExternal('https://docs.mongodb.com/compass/current/connect');
   }
 
   getPort() {
@@ -76,26 +81,26 @@ class SSHTunnelPasswordValidation extends React.Component {
   render() {
     return (
       <FormGroup id="ssh_tunnel_password">
-        <FormItemInput
+        <FormInput
           label="SSH Hostname"
           name="ssh_tunnel_hostname"
           error={this.getHostnameError()}
           changeHandler={this.onSSHTunnelHostnameChanged.bind(this)}
           value={this.props.currentConnection.ssh_tunnel_hostname || ''}
-          link="https://docs.mongodb.com/compass/current/connect" />
-        <FormItemInput
+          linkHandler={this.onHostnameHelp.bind(this)} />
+        <FormInput
           label="SSH Tunnel Port"
           name="ssh_tunnel_port"
           error={this.getPortError()}
           changeHandler={this.onSSHTunnelPortChanged.bind(this)}
           value={this.getPort()} />
-        <FormItemInput
+        <FormInput
           label="SSH Username"
           name="ssh_tunnel_username"
           error={this.getUsernameError()}
           changeHandler={this.onSSHTunnelUsernameChanged.bind(this)}
           value={this.props.currentConnection.ssh_tunnel_username || ''} />
-        <FormItemInput
+        <FormInput
           label="SSH Password"
           name="ssh_tunnel_password"
           error={this.getPasswordError()}
