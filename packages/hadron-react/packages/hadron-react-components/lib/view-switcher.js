@@ -33,7 +33,6 @@ class ViewSwitcher extends React.Component {
   }
 
   renderIcon(i) {
-    console.log(this.props.iconClassNames);
     if (this.props.iconClassNames[i]) {
       return React.createElement('i', { className: this.props.iconClassNames[i], 'aria-hidden': true });
     }
