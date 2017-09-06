@@ -791,6 +791,7 @@ describe('mongodb-connection-model', function() {
             sslCA: [fixture.ssl.ca],
             sslCert: fixture.ssl.server,
             sslKey: fixture.ssl.server,
+            checkServerIdentity: false,
             sslValidate: true
           };
           assert.deepEqual(c.driver_options, expected);
@@ -802,6 +803,7 @@ describe('mongodb-connection-model', function() {
             sslCA: [fs.readFileSync(fixture.ssl.ca)],
             sslCert: fs.readFileSync(fixture.ssl.server),
             sslKey: fs.readFileSync(fixture.ssl.server),
+            checkServerIdentity: false,
             sslValidate: true
           };
           /* eslint-enable no-sync */
@@ -820,6 +822,7 @@ describe('mongodb-connection-model', function() {
           ssl_ca: fixture.ssl.ca,
           ssl_certificate: fixture.ssl.server,
           ssl_private_key: fixture.ssl.server,
+          checkServerIdentity: false,
           ssl_private_key_password: 'woof'
         });
 
@@ -838,6 +841,7 @@ describe('mongodb-connection-model', function() {
             sslCA: [fixture.ssl.ca],
             sslCert: fixture.ssl.server,
             sslKey: fixture.ssl.server,
+            checkServerIdentity: false,
             sslPass: 'woof',
             sslValidate: true
           };
