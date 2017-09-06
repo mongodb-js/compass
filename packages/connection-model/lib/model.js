@@ -893,8 +893,8 @@ Connection = AmpersandModel.extend({
     if (attrs.ssl === 'SERVER' && !attrs.ssl_ca) {
       throw new TypeError('ssl_ca is required when ssl is SERVER.');
     } else if (attrs.ssl === 'ALL') {
-      if (!attrs.ssl_ca) {
-        throw new TypeError('ssl_ca is required when ssl is ALL.');
+      if (attrs.authentication !== 'X509' && !attrs.ssl_ca) {
+        throw new TypeError('ssl_ca is required when ssl is ALL and not using X509.');
       }
 
       if (!attrs.ssl_private_key) {
