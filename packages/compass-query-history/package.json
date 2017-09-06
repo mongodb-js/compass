@@ -2,7 +2,6 @@
   "name": "@mongodb-js/compass-query-history",
   "productName": "Query History plugin",
   "version": "1.0.0-0",
-  "private": true,
   "description": "The query history sidebar.",
   "main": "lib/index.js",
   "homepage": "https://compass.mongodb.com",
