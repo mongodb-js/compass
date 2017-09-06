@@ -381,11 +381,7 @@ const ConnectStore = Reflux.createStore({
     if (!connection.isValid()) {
       this.setState({ isValid: false });
     } else {
-      // @note: If using MONGODB auth and the auth source is empty, we
-      //   default it to admin.
-      if (connection.authentication === 'MONGODB' && isEmpty(connection.mongodb_database_name)) {
-        connection.mongodb_database_name = 'admin';
-      }
+      this._setupDefaults(connection);
       const dataService = new DataService(connection);
       dataService.connect((err, ds) => {
         if (err) {
@@ -456,6 +452,16 @@ const ConnectStore = Reflux.createStore({
       });
     }
     done();
+  },
+
+  _setupDefaults(connection) {
+    // @note: If using MONGODB auth and the auth source is empty, we
+    //   default it to admin. For kerberos default service name to mongodb.
+    if (connection.authentication === 'MONGODB' && isEmpty(connection.mongodb_database_name)) {
+      connection.mongodb_database_name = 'admin';
+    } else if (connection.authentication === 'KERBEROS' && isEmpty(connection.kerberos_service_name)) {
+      connection.kerberos_service_name = 'mongodb';
+    }
   }
 });
 
