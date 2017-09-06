@@ -713,7 +713,6 @@ _.assign(derived, {
         _.assign(opts, {
           server: {
             sslValidate: true,
-            checkServerIdentity: false,
             sslCA: this.ssl_ca,
             sslKey: this.ssl_private_key,
             sslCert: this.ssl_certificate
@@ -722,6 +721,10 @@ _.assign(derived, {
 
         if (this.ssl_private_key_password) {
           opts.server.sslPass = this.ssl_private_key_password;
+        }
+
+        if (this.authentication === 'X509') {
+          opts.server.checkServerIdentity = false;
         }
       } else if (this.ssl === 'UNVALIDATED') {
         _.assign(opts, {

@@ -770,6 +770,37 @@ describe('mongodb-connection-model', function() {
           assert(Array.isArray(c.ssl_ca));
         });
       });
+
+      context('when auth is x509', function() {
+        var c = new Connection({
+          ssl: 'ALL',
+          ssl_ca: fixture.ssl.ca,
+          ssl_certificate: fixture.ssl.server,
+          ssl_private_key: fixture.ssl.server,
+          authentication: 'X509',
+          x509_username: 'testing'
+        });
+        it('should be valid', function() {
+          assert.equal(c.isValid(), true);
+        });
+        it('should produce the correct driver_url', function() {
+          assert.equal(c.driver_url,
+            'mongodb://testing@localhost:27017/?readPreference=primary&authMechanism=MONGODB-X509&ssl=true');
+        });
+
+        it('should produce the correct driver_options', function() {
+          var expected = _.clone(Connection.DRIVER_OPTIONS_DEFAULT);
+          expected.server = {
+            sslCA: [fixture.ssl.ca],
+            sslCert: fixture.ssl.server,
+            sslKey: fixture.ssl.server,
+            sslValidate: true,
+            checkServerIdentity: false
+          };
+          assert.deepEqual(c.driver_options, expected);
+        });
+      });
+
       describe('passwordless private keys', function() {
         var c = new Connection({
           ssl: 'ALL',
@@ -791,7 +822,6 @@ describe('mongodb-connection-model', function() {
             sslCA: [fixture.ssl.ca],
             sslCert: fixture.ssl.server,
             sslKey: fixture.ssl.server,
-            checkServerIdentity: false,
             sslValidate: true
           };
           assert.deepEqual(c.driver_options, expected);
@@ -803,7 +833,6 @@ describe('mongodb-connection-model', function() {
             sslCA: [fs.readFileSync(fixture.ssl.ca)],
             sslCert: fs.readFileSync(fixture.ssl.server),
             sslKey: fs.readFileSync(fixture.ssl.server),
-            checkServerIdentity: false,
             sslValidate: true
           };
           /* eslint-enable no-sync */
@@ -822,7 +851,6 @@ describe('mongodb-connection-model', function() {
           ssl_ca: fixture.ssl.ca,
           ssl_certificate: fixture.ssl.server,
           ssl_private_key: fixture.ssl.server,
-          checkServerIdentity: false,
           ssl_private_key_password: 'woof'
         });
 
@@ -841,7 +869,6 @@ describe('mongodb-connection-model', function() {
             sslCA: [fixture.ssl.ca],
             sslCert: fixture.ssl.server,
             sslKey: fixture.ssl.server,
-            checkServerIdentity: false,
             sslPass: 'woof',
             sslValidate: true
           };
