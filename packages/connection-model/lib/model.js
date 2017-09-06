@@ -725,6 +725,7 @@ _.assign(derived, {
 
         if (this.authentication === 'X509') {
           opts.server.checkServerIdentity = false;
+          opts.server.sslValidate = false;
         }
       } else if (this.ssl === 'UNVALIDATED') {
         _.assign(opts, {
@@ -905,8 +906,8 @@ Connection = AmpersandModel.extend({
         throw new TypeError('ssl_private_key is required when ssl is ALL.');
       }
 
-      if (attrs.authentication !== 'X509' && !attrs.ssl_certificate) {
-        throw new TypeError('ssl_certificate is required when ssl is ALL and not using X509.');
+      if (!attrs.ssl_certificate) {
+        throw new TypeError('ssl_certificate is required when ssl is ALL.');
       }
     }
   },

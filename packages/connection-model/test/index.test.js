@@ -794,8 +794,8 @@ describe('mongodb-connection-model', function() {
             sslCA: [fixture.ssl.ca],
             sslCert: fixture.ssl.server,
             sslKey: fixture.ssl.server,
-            sslValidate: true,
-            checkServerIdentity: false
+            checkServerIdentity: false,
+            sslValidate: false
           };
           assert.deepEqual(c.driver_options, expected);
         });
