@@ -1,6 +1,6 @@
-const Reflux = require('reflux');
-const Actions = require('../actions');
-const StateMixin = require('reflux-state-mixin');
+import Reflux from 'reflux';
+import Actions from 'actions';
+import StateMixin from 'reflux-state-mixin';
 
 /**
  * Query History Header store.
@@ -32,4 +32,5 @@ const HeaderStore = Reflux.createStore({
   }
 });
 
-module.exports = HeaderStore;
+export default HeaderStore;
+export { HeaderStore };

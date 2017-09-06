@@ -8,3 +8,4 @@ coverage
 .idea/
 *.iml
 .nvmrc
+.nyc_output

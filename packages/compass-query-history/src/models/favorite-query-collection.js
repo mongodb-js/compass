@@ -1,7 +1,7 @@
-const Collection = require('ampersand-rest-collection');
-const FavoriteQuery = require('./favorite-query');
-const storageMixin = require('storage-mixin');
-const electronApp = require('electron').remote.app;
+import { remote } from 'electron';
+import Collection from 'ampersand-rest-collection';
+import FavoriteQuery from './favorite-query';
+import storageMixin from 'storage-mixin';
 
 /**
  * Represents a collection of favorite queries.
@@ -17,7 +17,7 @@ const FavoriteQueryCollection = Collection.extend(storageMixin, {
   namespace: 'FavoriteQueries',
   storage: {
     backend: 'disk',
-    basepath: electronApp.getPath('userData')
+    basepath: remote.app.getPath('userData')
   },
   mainIndex: '_id',
   comparator: (favorite) => {
@@ -25,4 +25,5 @@ const FavoriteQueryCollection = Collection.extend(storageMixin, {
   }
 });
 
-module.exports = FavoriteQueryCollection;
+export default FavoriteQueryCollection;
+export { FavoriteQueryCollection };

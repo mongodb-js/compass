@@ -1,0 +1,35 @@
+.component {
+  flex: 1;
+  overflow-y: scroll;
+  padding: 10px;
+}
+
+.items {
+  list-style-type: none;
+  padding-left: 0;
+  margin: 0;
+}
+
+.item {
+  margin-bottom: 20px;
+
+  &:last-child,
+  &:only-child {
+    margin-bottom: 0;
+  }
+}
+
+.zeroState {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100px;
+
+  &-title {
+    font-weight: bold;
+    font-size: 14px;
+    color: #494747;
+    overflow: hidden;
+    height: 18px;
+  }
+}

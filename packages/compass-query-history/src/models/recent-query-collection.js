@@ -1,7 +1,7 @@
-const Collection = require('ampersand-rest-collection');
-const RecentQuery = require('./recent-query');
-const storageMixin = require('storage-mixin');
-const electronApp = require('electron').remote.app;
+import { remote } from 'electron';
+import Collection from 'ampersand-rest-collection';
+import RecentQuery from './recent-query';
+import storageMixin from 'storage-mixin';
 
 /**
  * Represents a collection of recent queries.
@@ -17,7 +17,7 @@ const RecentQueryCollection = Collection.extend(storageMixin, {
   namespace: 'RecentQueries',
   storage: {
     backend: 'disk',
-    basepath: electronApp.getPath('userData')
+    basepath: remote.app.getPath('userData')
   },
   mainIndex: '_id',
   comparator: (recent) => {
@@ -25,4 +25,5 @@ const RecentQueryCollection = Collection.extend(storageMixin, {
   }
 });
 
-module.exports = RecentQueryCollection;
+export default RecentQueryCollection;
+export { RecentQueryCollection };

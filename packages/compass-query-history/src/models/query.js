@@ -1,7 +1,6 @@
-const Model = require('ampersand-model');
-const uuid = require('uuid');
-const EJSON = require('mongodb-extended-json');
-const queryParser = require('mongodb-query-parser');
+import Model from 'ampersand-model';
+import uuid from 'uuid';
+import EJSON from 'mongodb-extended-json';
 
 /**
  * A model that represents a MongoDB query.
@@ -55,15 +54,7 @@ const Query = Model.extend({
   }
 });
 
-/**
- * Format the provided attribute into a pretty-printed version
- * of what would appear in the query bar.
- *
- * @param {Object} value - The value to format.
- */
-const format = (value) => {
-  return queryParser.toJSString(value);
+export default Query;
+export {
+  Query
 };
-
-module.exports = Query;
-module.exports.format = format;

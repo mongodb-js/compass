@@ -1,0 +1,56 @@
+.component {
+  display: flex;
+  flex-direction: column;
+  background: #FFFFFF;
+  box-shadow: 0 2px 20px 0 rgba(0,0,0,0.10);
+  border-radius: 3px;
+  border: 1px solid transparent;
+  color: #494747;
+
+  &:hover {
+    border-color: #5CAEEB;
+
+    .component-header-actions {
+      display: flex;
+    }
+  }
+}
+
+.component-header,
+.component-body {
+  padding: 11px;
+}
+
+.component-header {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: flex-end;
+  position: relative;
+  min-height: 50px;
+}
+
+.component-header-inner {
+  display: flex;
+  flex: 1;
+}
+
+.component-header-title {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-weight: bold;
+  font-size: 14px;
+  line-height: 1;
+  color: #494747;
+  white-space: nowrap;
+}
+
+.component-header-actions {
+  display: none;
+  flex-direction: row;
+
+  &.is-visible {
+    display: flex;
+  }
+}

@@ -1,6 +1,6 @@
-const Query = require('./query');
-const electronApp = require('electron').remote.app;
-const storageMixin = require('storage-mixin');
+import { remote } from 'electron';
+import Query from './query';
+import storageMixin from 'storage-mixin';
 
 /**
  * A model that represents a favorite MongoDB query.
@@ -10,7 +10,7 @@ const FavoriteQuery = Query.extend(storageMixin, {
   namespace: 'FavoriteQueries',
   storage: {
     backend: 'disk',
-    basepath: electronApp.getPath('userData')
+    basepath: remote.app.getPath('userData')
   },
   props: {
     /**
@@ -24,4 +24,5 @@ const FavoriteQuery = Query.extend(storageMixin, {
   }
 });
 
-module.exports = FavoriteQuery;
+export default FavoriteQuery;
+export { FavoriteQuery };

@@ -1,6 +1,6 @@
-const Query = require('./query');
-const electronApp = require('electron').remote.app;
-const storageMixin = require('storage-mixin');
+import { remote } from 'electron';
+import Query from './query';
+import storageMixin from 'storage-mixin';
 
 /**
  * A model that represents a recent MongoDB query.
@@ -10,8 +10,9 @@ const RecentQuery = Query.extend(storageMixin, {
   namespace: 'RecentQueries',
   storage: {
     backend: 'disk',
-    basepath: electronApp.getPath('userData')
+    basepath: remote.app.getPath('userData')
   }
 });
 
-module.exports = RecentQuery;
+export default RecentQuery;
+export { RecentQuery };

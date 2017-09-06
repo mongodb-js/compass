@@ -1,16 +1,11 @@
-const Reflux = require('reflux');
-const Actions = require('../actions');
-const _ = require('lodash');
+import Reflux from 'reflux';
+import StateMixin from 'reflux-state-mixin';
+import { remote } from 'electron';
+import _ from 'lodash';
 
-const StateMixin = require('reflux-state-mixin');
-const electron = require('electron');
-const remote = electron.remote;
-const clipboard = remote.clipboard;
-
-const RecentQuery = require('../models/recent-query');
-const { format } = require('../models/query');
-const RecentQueryCollection = require('../models/recent-query-collection');
-
+import { formatQuery } from 'utils';
+import { RecentQuery, RecentQueryCollection } from 'models';
+import Actions from 'actions';
 
 const TOTAL_RECENTS = 30;
 const ALLOWED = ['filter', 'project', 'sort', 'skip', 'limit'];
@@ -44,7 +39,7 @@ const RecentListStore = Reflux.createStore({
    * Fetches the saved recent queries from disk.
    */
   onConnected() {
-    this.state.recents.fetch({
+    this.state.items.fetch({
       success: () => {
         this.trigger(this.state);
       }
@@ -58,10 +53,9 @@ const RecentListStore = Reflux.createStore({
   addRecent(recent) {
     /* Ignore queries that don't have a namespace. */
     if (!('ns' in recent)) {
-      console.log(
-        'Warning: query added without namespace: ' + JSON.stringify(recent, null, ' '));
       return;
     }
+
     const ns = recent.ns;
 
     /* Ignore empty or default queries */
@@ -70,21 +64,21 @@ const RecentListStore = Reflux.createStore({
       return;
     }
 
-    const filtered = this.state.recents.filter((r) => {
+    const filtered = this.state.items.filter((r) => {
       return r._ns === ns;
     });
 
     /* Keep length of each recent list to TOTAL_RECENTS */
     if (filtered.length >= TOTAL_RECENTS) {
       const lastRecent = filtered[TOTAL_RECENTS - 1];
-      this.state.recents.remove(lastRecent._id);
+      this.state.items.remove(lastRecent._id);
       lastRecent.destroy();
     }
 
     const query = new RecentQuery(recent);
     query._lastExecuted = Date.now();
     query._ns = ns;
-    this.state.recents.add(query);
+    this.state.items.add(query);
     query.save();
     this.trigger(this.state);
   },
@@ -92,7 +86,7 @@ const RecentListStore = Reflux.createStore({
   deleteRecent(query) {
     query.destroy({
       success: () => {
-        this.state.recents.remove(query._id);
+        this.state.items.remove(query._id);
         this.trigger(this.state);
       }
     });
@@ -105,14 +99,15 @@ const RecentListStore = Reflux.createStore({
       .filter(key => key.charAt(0) === '_')
       .forEach(key => delete attributes[key]);
 
-    clipboard.writeText(format(attributes));
+    remote.clipboard.writeText(formatQuery(attributes));
   },
 
   getInitialState() {
     return {
-      recents: new RecentQueryCollection()
+      items: new RecentQueryCollection()
     };
   }
 });
 
-module.exports = RecentListStore;
+export default RecentListStore;
+export { RecentListStore };

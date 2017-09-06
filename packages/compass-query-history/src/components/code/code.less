@@ -1,0 +1,23 @@
+.component {
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+}
+
+.code {
+  background: #F5F6F7;
+  box-shadow: inset 2px 0 0 0 #E8E8EA;
+  display: block;
+  padding: 5px 10px 5px 10px;
+  max-height: 250px;
+  overflow-y: scroll;
+  word-wrap: break-word;
+  white-space: pre;
+  font-size: 11px;
+
+  :global {
+    .hljs-string {
+      color: steelblue;
+    }
+  }
+}

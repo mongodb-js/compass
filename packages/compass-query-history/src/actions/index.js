@@ -1,22 +1,4 @@
-const Reflux = require('reflux');
+import Actions from './actions';
 
-const Actions = Reflux.createActions([
-  /**
-   * define your actions as strings below, for example:
-   */
-  'showFavorites',
-  'showRecent',
-  'collapse',
-  'toggleCollapse',
-  'copyQuery',
-  'deleteRecent',
-  'deleteFavorite',
-  'addRecent',
-  'saveRecent',
-  'saveFavorite',
-  'cancelSave',
-  'runQuery',
-  'namespaceChanged'
-]);
-
-module.exports = Actions;
+export default Actions;
+export { Actions };

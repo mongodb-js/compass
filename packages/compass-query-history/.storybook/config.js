@@ -1,14 +1,18 @@
-import '../styles/index.less';
+import { configure, addDecorator, setAddon } from '@storybook/react';
+import chaptersAddon from 'react-storybook-addon-chapters';
+import PageDecorator from 'storybook/decorators/page';
 
-import { configure, setAddon } from '@kadira/storybook';
-import infoAddon from '@kadira/react-storybook-addon-info';
+setAddon(chaptersAddon);
 
-setAddon(infoAddon);
+// Add decorators globally to wrap our stories with
+addDecorator(PageDecorator);
 
-// load all stories matching ../stories/*.js
-const req = require.context('../stories', true, /.js$/);
+// Dynamically load all stories found in the components directory that
+// match the .stores.js extension
+const req = require.context('../src', true, /\.stories\.js$/);
+
 function loadStories() {
-  req.keys().forEach(req);
+  req.keys().forEach((filename) => req(filename));
 }
 
 configure(loadStories, module);
