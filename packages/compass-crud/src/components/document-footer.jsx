@@ -103,6 +103,8 @@ class DocumentFooter extends React.Component {
     this.doc.on(Element.Events.Reverted, this.unsubscribeReverted);
     this.doc.on(Element.Events.Invalid, this.unsubscribeInvalid);
     this.doc.on(Element.Events.Valid, this.unsubscribeValid);
+
+    this.handleModification();
   }
 
   /**

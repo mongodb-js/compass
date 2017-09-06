@@ -11,10 +11,16 @@ class HeaderCellRenderer extends React.Component {
   }
 
   render() {
-    if (this.props.isRowNumber) return null;
+    let displayName = this.props.displayName;
+    if (this.props.isRowNumber) {
+      return null;
+    }
+    if (this.props.displayName === '$new') {
+      displayName = 'New Field';
+    }
     return (
       <div className="table-view-header-cell">
-        <b>{this.props.displayName}</b> {this.props.bsonType}
+        <b>{displayName}</b> {this.props.bsonType}
       </div>
     );
   }

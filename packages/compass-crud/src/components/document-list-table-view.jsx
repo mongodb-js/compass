@@ -7,8 +7,9 @@ const { StoreConnector } = require('hadron-react-components');
 const TypeChecker = require('hadron-type-checker');
 const HadronDocument = require('hadron-document');
 
-const BreadcrumbComponent = require('./breadcrumb');
+const GridStore = require('../stores/grid-store');
 const BreadcrumbStore = require('../stores/breadcrumb-store');
+const BreadcrumbComponent = require('./breadcrumb');
 const CellRenderer = require('./table-view/cell-renderer');
 const FullWidthCellRenderer = require('./table-view/full-width-cell-renderer');
 const HeaderComponent = require('./table-view/header-cell-renderer');
@@ -26,17 +27,25 @@ class DocumentListTableView extends React.Component {
     this.createRowData = this.createRowData.bind(this);
     this.addEditingFooter = this.addEditingFooter.bind(this);
     this.onRowClicked = this.onRowClicked.bind(this);
-    this.addHeader = this.addHeader.bind(this);
+    this.getColDef = this.getColDef.bind(this);
 
     this.gridOptions = {
       context: {
         column_width: 150,
-        addHeader: this.addHeader
+        addHeader: this.getColDef
       },
       onRowClicked: this.onRowClicked,
       // onCellClicked: this.onCellClicked.bind(this)
       rowHeight: 28  // .document-footer row needs 28px, ag-grid default is 25px
     };
+  }
+
+  componentDidMount() {
+    this.unsubscribeGridStore = GridStore.listen(this.modifyColumns.bind(this));
+  }
+
+  componentWillUnmount() {
+    this.unsubscribeGridStore();
   }
 
   onGridReady(params) {
@@ -69,6 +78,44 @@ class DocumentListTableView extends React.Component {
     if (this.props.isEditable) {
       this.addEditingFooter(event.node, event.data, event.rowIndex);
     }
+  }
+
+  getColDef(key, type, isEditable) {
+    return {
+      headerName: key,
+      colId: key,
+      valueGetter: function(params) {
+        return params.data.hadronDocument.get(key);
+      },
+      valueSetter: function(params) {
+        if (params.oldValue === undefined && params.newValue === undefined) {
+          return false;
+        }
+        return params.newValue.isEdited() || params.newValue.isAdded() || params.newValue.isRemoved();
+      },
+
+      headerComponentFramework: HeaderComponent,
+      headerComponentParams: {
+        isRowNumber: false,
+        bsonType: type
+      },
+
+      cellRendererFramework: CellRenderer,
+      cellRendererParams: {},
+
+      editable: function(params) {
+        if (!isEditable || params.node.data.state === 'deleting') {
+          return false;
+        }
+        if (params.node.data.hadronDocument.get(key) === undefined) {
+          return true;
+        }
+        return params.node.data.hadronDocument.get(key).isValueEditable();
+      },
+
+      cellEditorFramework: CellEditor,
+      cellEditorParams: {}
+    };
   }
 
   /**
@@ -139,39 +186,44 @@ class DocumentListTableView extends React.Component {
     this.gridApi.updateRowData({add: [newData], addIndex: rowIndex + 1});
   }
 
+  /**
+   * The user has added a new field in the cell editor or needs to remove
+   * an entire column.
+   *
+   * @param {String} columnId - The name of the column that will come
+   * immediately before the new element, or the column to be deleted.
+   * @param {number} rowNum - The row where the new column was added, or -1.
+   */
+  modifyColumns(columnId, rowNum) {
+    /* Have to calculate the index of the neighbor column */
+    const columns = this.columnApi.getAllColumns();
 
-  addHeader(key, type, isEditable) {
-    return {
-      headerName: key,
-      valueGetter: function(params) {
-        return params.data.hadronDocument.get(key);
-      },
-      valueSetter: function(params) {
-        return (params.oldValue === undefined && params.newValue !== undefined);
-      },
+    let i = 0;
+    while (i < columns.length) {
+      if (columns[i].getColDef().colId === columnId) {
+        break;
+      }
+      i++;
+    }
 
-      headerComponentFramework: HeaderComponent,
-      headerComponentParams: {
-        isRowNumber: false,
-        bsonType: type
-      },
+    const columnHeaders = _.map(columns, function(col) {
+      return col.getColDef();
+    });
 
-      cellRendererFramework: CellRenderer,
-      cellRendererParams: {},
+    if (rowNum === -1) {
+      /* Remove column */
+      columnHeaders.splice(i, 1);
+    } else {
+      /* Add new column */
+      const newColDef = this.getColDef('$new', '', this.props.isEditable);
+      columnHeaders.splice(i + 1, 0, newColDef);
+    }
 
-      editable: function(params) {
-        if (!isEditable || params.node.data.state === 'deleting') {
-          return false;
-        }
-        if (params.node.data.hadronDocument.get(key) === undefined) {
-          return true;
-        }
-        return params.node.data.hadronDocument.get(key).isValueEditable();
-      },
+    this.gridApi.setColumnDefs(columnHeaders);
 
-      cellEditorFramework: CellEditor,
-      cellEditorParams: {}
-    };
+    if (rowNum !== -1) {
+      this.gridApi.startEditingCell({rowIndex: rowNum, colKey: '$new'});
+    }
   }
 
   /**
@@ -184,7 +236,7 @@ class DocumentListTableView extends React.Component {
     // const width = this.gridOptions.context.column_width;
     const isEditable = this.props.isEditable;
 
-    const addHeader = this.addHeader;
+    const addHeader = this.getColDef;
 
     headers.hadronRowNumber = {
       headerName: 'Row',

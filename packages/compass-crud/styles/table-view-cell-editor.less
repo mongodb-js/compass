@@ -9,20 +9,36 @@
   padding: 2px;
 
   &-input {
-    :focus {
-      outline: none;
-    }
     display: inline-block;
-    width: 120px;
     border: 1px solid #d3d3d3;
     border-radius: 3px;
     height: 21px;
+    :focus {
+      outline: none;
+    }
 
     .editable-element-value-is-editing {
       border: none;
       box-shadow: none;
       margin-top: 3px;
       height: 15px;
+    }
+  }
+
+  &-field-name {
+    display: inline-block;
+    &::after {
+      content: ":";
+      margin-right: 1px;
+    }
+    :focus {
+      outline: none;
+      border: 1px solid black;
+    }
+    &-input {
+      height: 21px;
+      border: 1px solid #d3d3d3;
+      border-radius: 3px;
     }
   }
 

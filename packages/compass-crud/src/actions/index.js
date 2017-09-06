@@ -12,7 +12,9 @@ const Actions = Reflux.createActions([
   'closeAllMenus',
   'fetchNextDocuments',
   'elementInvalid',
-  'elementValid'
+  'elementValid',
+  'addColumn',
+  'removeColumn'
 ]);
 
 document.ondragover = document.ondrop = (ev) => {

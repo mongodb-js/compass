@@ -3,7 +3,8 @@ const PropTypes = require('prop-types');
 const FontAwesome = require('react-fontawesome');
 const outsideClickable = require('react-click-outside');
 const getComponent = require('hadron-react-bson');
-const _ = require('lodash');
+
+const Actions = require('../../actions');
 
 /**
  * The BEM base style name for the element.
@@ -116,20 +117,15 @@ class AddFieldButton extends React.Component {
    * When clicking on a hotspot we append or remove on the parent.
    */
   handleAddFieldClick() {
-    // this.props.value.next();
     this.setState({ menu: false });
 
-    // const newColDef = this.props.context.addHeader();
+    if (!this.empty) {
+      this.props.node.data.hadronDocument.insertAfter(this.props.value, '$new', 'Value');
+    } else {
+      this.props.node.data.hadronDocument.insertEnd('$new', 'Value');
+    }
 
-    const columns = this.props.columnApi.getAllColumns();
-
-    const colDefs = _.map(columns, function(col) {
-      return col.colDef;
-    });
-
-    // colDefs.push(newColDef);
-    this.props.api.setColumnDefs(colDefs);
-    this.props.api.stopEditing();
+    Actions.addColumn(this.props.column.getColDef().colId, this.props.node.childIndex);
   }
 
   /**
@@ -235,7 +231,7 @@ class AddFieldButton extends React.Component {
    */
   renderIdentifier() {
     if (this.empty) {
-      return this.props.column.colDef.headerName;
+      return this.props.column.getColDef().headerName;
     }
     // this case is already handled in renderDefaultItem()
     if (this.isParentArray() && (this.isElementObject() || this.isElementArray())) {
@@ -326,7 +322,8 @@ AddFieldButton.propTypes = {
   columnApi: PropTypes.any.isRequired,
   api: PropTypes.any.isRequired,
   context: PropTypes.any.isRequired,
-  column: PropTypes.any.isRequired
+  column: PropTypes.any.isRequired,
+  node: PropTypes.any.isRequired
 };
 
 module.exports = outsideClickable(AddFieldButton);

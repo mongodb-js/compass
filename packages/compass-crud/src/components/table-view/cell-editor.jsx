@@ -6,6 +6,7 @@ const FontAwesome = require('react-fontawesome');
 const { Tooltip } = require('hadron-react-components');
 const TypeChecker = require('hadron-type-checker');
 
+const Actions = require('../../actions');
 const initEditors = require('../editor/');
 const Types = require('../types');
 const AddFieldButton = require('./add-field-button');
@@ -33,22 +34,28 @@ const INVALID = `${VALUE_CLASS}-is-invalid-type`;
 class CellEditor extends React.Component {
   constructor(props) {
     super(props);
+    this.state = { fieldName: 'New Field' };
   }
 
   componentWillMount() {
     this.element = this.props.value;
     this.wasEmpty = false;
+    this.newField = false;
 
+    /* If there was no value in the cell */
     if (this.element === undefined) {
       this.wasEmpty = true;
-      const key = this.props.column.colDef.headerName;
-      let type = this.props.column.colDef.headerComponentParams.bsonType;
+      const key = this.props.column.getColDef().headerName;
+      let type = this.props.column.getColDef().headerComponentParams.bsonType;
       if (type === 'mixed') {
         type = 'Undefined';
       }
       this.element = this.props.node.data.hadronDocument.insertEnd(key, '');
       const value = TypeChecker.cast(null, type);
       this.element.edit(value);
+    } else {
+      /* If this column has just been added */
+      this.newField = (this.props.value.currentKey === '$new');
     }
 
     this._editors = initEditors(this.element);
@@ -89,9 +96,51 @@ class CellEditor extends React.Component {
   /**
    * AG-Grid API call to do a final check before closing the. Returning false
    * will cancel editing.
+   *
+   * @returns {Bool} If the edit should go through.
    */
   isCancelAfterEnd() {
     this.editor().complete();
+
+    /* If this is a new field, need to update the colDef with the key name */
+    if (this.newField) {
+      const key = this.state.fieldName;
+
+      if (this.element.isDuplicateKey(key) || key.includes('$') || key.includes(' ')) {
+        this.element.revert();
+        Actions.removeColumn('$new');
+        return false;
+      }
+
+      /* Rename the element within HadronDocument */
+      this.element.rename(key);
+
+      /* Rename the column + update its definition */
+      const colDef = this.props.column.getColDef();
+      colDef.headerName = key;
+      colDef.colId = key;
+      colDef.valueGetter = function(params) {
+        return params.data.hadronDocument.get(key);
+      };
+      colDef.headerComponentParams.bsonType = this.element.currentType;
+      colDef.editable = function(params) {
+        if (params.node.data.state === 'deleting') {
+          return false;
+        }
+        if (params.node.data.hadronDocument.get(key) === undefined) {
+          return true;
+        }
+        return params.node.data.hadronDocument.get(key).isValueEditable();
+      };
+
+      /* TODO: should we update column.* as well to be safe?
+         Not needed if everywhere we access columns through .getColDef() but
+         if somewhere internally they don't do that, will have outdated values.
+         Docs: https://www.ag-grid.com/javascript-grid-column-definitions
+       */
+
+      this.props.api.refreshHeader();
+    }
   }
 
   /**
@@ -112,12 +161,7 @@ class CellEditor extends React.Component {
     });
   }
 
-  handleAddField() {
-    console.log('add field');
-  }
-
   handleRemoveField() {
-    console.log('remove field');
     if (this.element.isRemovable()) {
       this.element.remove();
       if (this.wasEmpty) {
@@ -127,9 +171,7 @@ class CellEditor extends React.Component {
     }
   }
 
-  handleDrillDown() {
-    console.log('drill down');
-  }
+  handleDrillDown() {}
 
   handleChange(event) {
     if (this._pasting) {
@@ -138,6 +180,10 @@ class CellEditor extends React.Component {
       this.editor().edit(event.target.value);
     }
     this.forceUpdate();
+  }
+
+  handleFieldNameChange(event) {
+    this.setState({fieldName: event.target.value});
   }
 
   handlePaste() {
@@ -196,17 +242,16 @@ class CellEditor extends React.Component {
    * @returns {React.Component} The component.
    */
   renderFieldName() {
-    if (this.element.key === '') {
+    if (this.newField) {
       return (
-        <input
-          type="text"
-          style={{ width: '100px' }}
-          className={`${BEM_BASE}-field-name`}
-          onChange={this.handleChange.bind(this)}
-          // onKeyDown={this.handleKeyDown.bind(this)}
-          onPaste={this.handlePaste.bind(this)}
-          value={this.editor().value(true)}/>
-
+        <div className={`${BEM_BASE}-field-name`}>
+          <input
+            type="text"
+            style={{ width: '100px' }}
+            onChange={this.handleFieldNameChange.bind(this)}
+            className={`${BEM_BASE}-field-name-input`}
+            value={this.state.fieldName}/>
+        </div>
       );
     }
     return null;
@@ -282,23 +327,29 @@ class CellEditor extends React.Component {
    * @returns {React.Component} The component.
    */
   renderActions(displace) {
-    return (
-      <span className={`${BEM_BASE}-actions`}>
-        {this.renderExpand()}
-        <AddFieldButton {...this.props}
-          displace={displace}
-        />
-        <div className={`${BEM_BASE}-button`} onClick={this.handleRemoveField.bind(this)}>
-          <FontAwesome name="trash" className={`${BEM_BASE}-button-icon`}/>
-        </div>
-      </span>
-    );
+    if (!this.newField) {
+      return (
+        <span className={`${BEM_BASE}-actions`}>
+          {this.renderExpand()}
+          <AddFieldButton {...this.props}
+            displace={displace}
+          />
+          <div className={`${BEM_BASE}-button`}
+               onClick={this.handleRemoveField.bind(this)}>
+            <FontAwesome name="trash" className={`${BEM_BASE}-button-icon`}/>
+          </div>
+        </span>
+      );
+    }
+    return null;
   }
 
   render() {
-    let width = 265;
-    let displace = 218;
-    if (this.element.currentType === 'Object' || this.element.currentType === 'Array') {
+    let width = 258;
+    let displace = 211;
+    if (this.newField) {
+      width = 316;
+    } else if (this.element.currentType === 'Object' || this.element.currentType === 'Array') {
       width = 170;
       displace = 120;
     }
