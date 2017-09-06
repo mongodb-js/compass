@@ -2,8 +2,23 @@
   "name": "@mongodb-js/compass-query-history",
   "productName": "Query History plugin",
   "version": "0.3.0",
+  "private": true,
   "description": "The query history sidebar.",
   "main": "lib/index.js",
+  "homepage": "https://compass.mongodb.com",
+  "license": "Apache-2.0",
+  "author": {
+    "name": "MongoDB Inc",
+    "email": "compass@mongodb.com"
+  },
+  "bugs": {
+    "url": "https://docs.mongodb.com/compass/current/#contact",
+    "email": "compass@mongodb.com"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/10gen/compass-query-history.git"
+  },
   "scripts": {
     "clean": "rimraf lib",
     "precompile": "npm run clean",
@@ -26,7 +41,6 @@
   "precommit": [
     "check"
   ],
-  "license": "Apache-2.0",
   "dependencies": {
     "bootstrap": "https://github.com/twbs/bootstrap/archive/v3.3.5.tar.gz",
     "highlight.js": "^9.12.0",
