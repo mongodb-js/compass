@@ -186,44 +186,68 @@ class DocumentListTableView extends React.Component {
     this.gridApi.updateRowData({add: [newData], addIndex: rowIndex + 1});
   }
 
+
   /**
-   * The user has added a new field in the cell editor or needs to remove
-   * an entire column.
+   * Add a column to the grid to the right of the column with colId.
    *
-   * @param {String} columnId - The name of the column that will come
-   * immediately before the new element, or the column to be deleted.
-   * @param {number} rowNum - The row where the new column was added, or -1.
+   * @param {String} colId - The new column will be inserted after the column
+   * with colId.
    */
-  modifyColumns(columnId, rowNum) {
-    /* Have to calculate the index of the neighbor column */
-    const columns = this.columnApi.getAllColumns();
+  addColumn(colId) {
+    const columnHeaders = _.map(this.columnApi.getAllColumns(), function(col) {
+      return col.getColDef();
+    });
 
     let i = 0;
-    while (i < columns.length) {
-      if (columns[i].getColDef().colId === columnId) {
+    while (i < columnHeaders.length) {
+      if (columnHeaders[i].colId === colId) {
         break;
       }
       i++;
     }
 
-    const columnHeaders = _.map(columns, function(col) {
+    const newColDef = this.getColDef('$new', '', true); // Newly added columns are always editable.
+    columnHeaders.splice(i + 1, 0, newColDef);
+    this.gridApi.setColumnDefs(columnHeaders);
+  }
+
+  /**
+   * Remove a list of columns from the grid.
+   *
+   * @param {Array} colIds - The list of colIds that will be removed.
+   */
+  removeColumns(colIds) {
+    const columnHeaders = _.map(this.columnApi.getAllColumns(), function(col) {
       return col.getColDef();
     });
 
-    if (rowNum === -1) {
-      /* Remove column */
-      columnHeaders.splice(i, 1);
-    } else {
-      /* Add new column */
-      const newColDef = this.getColDef('$new', '', this.props.isEditable);
-      columnHeaders.splice(i + 1, 0, newColDef);
+    const indexes = [];
+    for (let i = 0; i < columnHeaders.length; i++) {
+      if (colIds.includes(columnHeaders[i].colId)) {
+        indexes.push(i);
+      }
     }
-
+    for (let i = 0; i < indexes.length; i++) {
+      columnHeaders.splice(indexes[i], 1);
+    }
     this.gridApi.setColumnDefs(columnHeaders);
+  }
 
-    if (rowNum !== -1) {
-      this.gridApi.startEditingCell({rowIndex: rowNum, colKey: '$new'});
+  updateHeaders() {
+
+  }
+
+  modifyColumns(params) {
+    if ('add' in params) {
+      this.addColumn(params.add.colId);
+      this.gridApi.startEditingCell({rowIndex: params.add.rowIndex, colKey: '$new'});
     }
+    if ('remove' in params) {
+      this.removeColumns(params.remove.colIds);
+    }
+    // if ('updateHeaders' in params) {
+    //
+    // }
   }
 
   /**

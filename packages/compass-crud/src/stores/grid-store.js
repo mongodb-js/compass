@@ -10,11 +10,11 @@ const GridStore = Reflux.createStore( {
   },
 
   addColumn: function(columnBefore, rowIndex) {
-    this.trigger(columnBefore, rowIndex);
+    this.trigger({add: {colId: columnBefore, rowIndex: rowIndex}});
   },
 
   removeColumn: function(colId) {
-    this.trigger(colId, -1);
+    this.trigger({remove: {colIds: [colId]}});
   }
 });
 
