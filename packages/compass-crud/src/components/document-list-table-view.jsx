@@ -7,6 +7,7 @@ const { StoreConnector } = require('hadron-react-components');
 const TypeChecker = require('hadron-type-checker');
 const HadronDocument = require('hadron-document');
 
+const Actions = require('../actions');
 const GridStore = require('../stores/grid-store');
 const BreadcrumbStore = require('../stores/breadcrumb-store');
 const BreadcrumbComponent = require('./breadcrumb');
@@ -16,6 +17,8 @@ const HeaderComponent = require('./table-view/header-cell-renderer');
 const CellEditor = require('./table-view/cell-editor');
 
 // const util = require('util');
+
+const MIXED = 'Mixed';
 
 /**
  * Represents the table view of the documents tab.
@@ -28,6 +31,7 @@ class DocumentListTableView extends React.Component {
     this.addEditingFooter = this.addEditingFooter.bind(this);
     this.onRowClicked = this.onRowClicked.bind(this);
     this.getColDef = this.getColDef.bind(this);
+    this.updateHeaders = this.updateHeaders.bind(this);
 
     this.gridOptions = {
       context: {
@@ -233,10 +237,41 @@ class DocumentListTableView extends React.Component {
     this.gridApi.setColumnDefs(columnHeaders);
   }
 
-  updateHeaders() {
-
+  /**
+   * When the header component's types have changed, need to update the
+   * HeaderComponentParams in the column definitions.
+   *
+   * @param {Object} showing - A mapping of columnId to new displayed type.
+   * @param {Object} columnHeaders - The column definitions. We get them from
+   * calling columnApi.getAllColumns(), except when we are initializing the
+   * grid (since columnApi doesn't exist until the grid is ready).
+   */
+  updateHeaders(showing, columnHeaders) {
+    const colIds = Object.keys(showing);
+    for (let i = 0; i < columnHeaders.length; i++) {
+      if (colIds.includes(columnHeaders[i].colId)) {
+        columnHeaders[i].headerComponentParams.bsonType = showing[columnHeaders[i].colId];
+      }
+    }
   }
 
+  /**
+   * This is called when there is a change to the data so that the column headers
+   * must be modified. This is called when a element is added, deleted, or the
+   * type has changed and the headers need to be updated to reflect the new type
+   * of the column.
+   *
+   * @param {Object} params - The set of optional params.
+   *   Adding a column:
+   *    params.add.colId - The columnId that the new column will be added next to.
+   *    params.add.rowIndex - The index of row which added the new column. Required
+   *      so that we can open up the new field for editing.
+   *   Deleting columns:
+   *    params.remove.colIds - The array of columnIds to be deleted.
+   *   Updating headers:
+   *    params.updateHeaders.showing - A mapping of columnId to BSON type. The
+   *      new bson type will be forwarded to the column headers.
+   */
   modifyColumns(params) {
     if ('add' in params) {
       this.addColumn(params.add.colId);
@@ -245,9 +280,14 @@ class DocumentListTableView extends React.Component {
     if ('remove' in params) {
       this.removeColumns(params.remove.colIds);
     }
-    // if ('updateHeaders' in params) {
-    //
-    // }
+    if ('updateHeaders' in params) {
+      const columnHeaders = _.map(this.columnApi.getAllColumns(), function(col) {
+        return col.getColDef();
+      });
+
+      this.updateHeaders(params.updateHeaders.showing, columnHeaders);
+      this.gridApi.refreshHeader();
+    }
   }
 
   /**
@@ -257,26 +297,60 @@ class DocumentListTableView extends React.Component {
    */
   createColumnHeaders() {
     const headers = {};
+    const headerTypes = {};
     // const width = this.gridOptions.context.column_width;
     const isEditable = this.props.isEditable;
+    const docs = this.props.docs;
 
     const addHeader = this.getColDef;
 
     headers.hadronRowNumber = {
       headerName: 'Row',
       field: 'rowNumber',
+      colId: '$rowNumber', // TODO: make sure user can't get duplicate
       headerComponentFramework: HeaderComponent,
       headerComponentParams: {
         isRowNumber: true
       }
     };
 
-    for (let i = 0; i < this.props.docs.length; i++) {
-      _.map(this.props.docs[i], function(val, key) {
-        headers[key] = addHeader(key, TypeChecker.type(val), isEditable);
+    /* Make column definitions + track type for header components */
+    for (let i = 0; i < docs.length; i++) {
+      _.map(docs[i], function(val, key) {
+        const type = TypeChecker.type(val);
+        headers[key] = addHeader(key, type, isEditable);
+
+        if (!(key in headerTypes)) {
+          headerTypes[key] = {};
+        }
+        headerTypes[key][docs[i]._id.toString()] = type;
       });
     }
-    return Object.values(headers);
+
+    /* Set header types correctly in GridStore */
+    Actions.resetHeaders(headerTypes);
+
+    /* Set header types correctly in the column definitions to be passed to
+     the grid. This is handled here for the initial header values, and then
+     in the GridStore for any subsequent updates. */
+    const columnHeaders = Object.values(headers);
+    const showing = {};
+
+    _.map(headerTypes, function(oids, key) {
+      const types = Object.values(oids);
+      let currentType = types[0];
+      for (let i = 0; i < types.length; i++) {
+        if (currentType !== types[i]) {
+          currentType = MIXED;
+          break;
+        }
+      }
+      showing[key] = currentType;
+    });
+    this.updateHeaders(showing, columnHeaders);
+
+    /* Return the updated column definitions */
+    return columnHeaders;
   }
 
   /**

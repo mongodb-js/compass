@@ -14,7 +14,11 @@ const Actions = Reflux.createActions([
   'elementInvalid',
   'elementValid',
   'addColumn',
-  'removeColumn'
+  'removeColumn',
+  'resetHeaders',
+  'elementAdded',
+  'elementRemoved',
+  'elementTypeChanged'
 ]);
 
 document.ondragover = document.ondrop = (ev) => {

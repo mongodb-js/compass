@@ -11,10 +11,13 @@ const DataService = require('mongodb-data-service');
 const Connection = require('mongodb-connection-model');
 const DocumentList = require('../../lib/components/document-list');
 
+const DB = 'compass-crud';
+const COLL = 'test2';
+
 const CONNECTION = new Connection({
   hostname: '127.0.0.1',
   port: 27017,
-  ns: 'compass-crud',
+  ns: DB,
   mongodb_database_name: 'admin'
 });
 
@@ -54,8 +57,8 @@ dataService.connect((error, ds) => {
   global.hadronApp.appRegistry.onConnected(error, ds);
 
   // Set the namespace for the CRUD plugin.
-  CollectionStore.setCollection({ _id: 'compass-crud.test' });
-  QueryChangedStore.onQueryStoreChanged({ns: "compass-crud.test"});
+  CollectionStore.setCollection({ _id: `${DB}.${COLL}` });
+  QueryChangedStore.onQueryStoreChanged({ns: `${DB}.${COLL}`});
 });
 
 ReactDOM.render(
