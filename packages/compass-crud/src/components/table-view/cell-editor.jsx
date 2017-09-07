@@ -109,6 +109,7 @@ class CellEditor extends React.Component {
    */
   isCancelAfterEnd() {
     this.editor().complete();
+    const id = this.props.node.data.hadronDocument.getId().toString();
 
     /* If this is a new field, need to update the colDef with the key name */
     if (this.newField) {
@@ -146,7 +147,7 @@ class CellEditor extends React.Component {
 
         /* Update the grid store so we know what type this element is. This
          * will also refresh the header API */
-        Actions.elementAdded(this.element, this.props.node.data.hadronDocument.getId().toString());
+        Actions.elementAdded(this.element.currentKey, this.element.currentType, id);
 
         /* TODO: should we update column.* as well to be safe?
          Not needed if everywhere we access columns through .getColDef() but
@@ -156,13 +157,13 @@ class CellEditor extends React.Component {
       }
     } else if (this.wasEmpty) {
       /* Update the grid store so we know what type this element is */
-      Actions.elementAdded(this.element, this.props.node.data.hadronDocument.getId().toString());
+      Actions.elementAdded(this.element.currentKey, this.element.currentType, id);
     } else if (this.element.isRemoved()) {
       /* Update the grid store so we know that the header should not include this type */
-      Actions.elementRemoved(this.element.currentKey, this.props.node.data.hadronDocument.getId().toString());
+      Actions.elementRemoved(this.element.currentKey, id, false);
     } else if (this.element.currentType !== this.oldType) {
       /* Update the grid store since the element has changed type */
-      Actions.elementTypeChanged(this.element, this.props.node.data.hadronDocument.getId().toString());
+      Actions.elementTypeChanged(this.element.currentKey, this.element.currentType, id);
     }
   }
 

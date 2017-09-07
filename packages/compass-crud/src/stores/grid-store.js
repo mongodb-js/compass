@@ -57,13 +57,11 @@ const GridStore = Reflux.createStore( {
    * A new element has been added to a document. If the new type will change
    * the column header type, then trigger a change on the grid.
    *
-   * @param {Element} element - The newly added element.
+   * @param {String} key - The newly added element's fieldname.
+   * @param {String} type - The newly added element's type.
    * @param {ObjectId} oid - The ObjectId of the parent document.
    */
-  elementAdded(element, oid) {
-    const key = element.currentKey;
-    const type = element.currentType;
-
+  elementAdded(key, type, oid) {
     let oldType = null;
 
     if (!(key in this.columns)) {
@@ -92,15 +90,17 @@ const GridStore = Reflux.createStore( {
    *
    * @param {String} key - The removed element's key.
    * @param {ObjectId} oid - The ObjectId of the parent element.
+   * @param {boolean} deleteCol - If true, delete the column if it is empty.
    */
-  elementRemoved(key, oid) {
+  elementRemoved(key, oid, deleteCol) {
     delete this.columns[key][oid];
     const params = {};
 
     if (_.isEmpty(this.columns[key])) {
       delete this.columns[key];
-      /* Don't delete column until update is clicked */
-      // params.remove = {colIds: [key]};
+      if (deleteCol) {
+        params.remove = {colIds: [key]};
+      }
     } else {
       const oldType = this.showing[key];
       if (oldType === MIXED) {
@@ -116,9 +116,15 @@ const GridStore = Reflux.createStore( {
   },
 
 
-  elementTypeChanged(element, oid) {
-    const key = element.currentKey;
-    const type = element.currentType;
+  /**
+   * The type of an element has changed. If the new type will change
+   * the column header type, then trigger a change on the grid.
+   *
+   * @param {String} key - The newly added element's fieldname.
+   * @param {String} type - The newly added element's type.
+   * @param {ObjectId} oid - The ObjectId of the parent document.
+   */
+  elementTypeChanged(key, type, oid) {
     const oldType = this.showing[key];
 
     this.columns[key][oid] = type;

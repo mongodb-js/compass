@@ -1,6 +1,7 @@
 const React = require('react');
 const PropTypes = require('prop-types');
 
+const Actions = require('../../actions');
 const DocumentFooter = require('../document-footer');
 const RemoveDocumentFooter = require('../remove-document-footer');
 
@@ -48,7 +49,30 @@ class FullWidthCellRenderer extends React.Component {
   }
 
   handleCancelUpdate() {
+    const id = this.doc.getId().toString();
+    const removed = [];
+    const changed = [];
+    const added = [];
+    for (let element of this.doc.elements) {
+      if (element.isAdded()) {
+        added.push(element);
+      } else if (element.isRemoved()) {
+        removed.push(element);
+      } else if (element.isEdited()) {
+        changed.push(element);
+      }
+    }
+
+    for (let i = 0; i < removed.length; i++) {
+      Actions.elementAdded(removed[i].currentKey, removed[i].currentType, id);
+    }
+    for (let i = 0; i < added.length; i++) {
+      Actions.elementRemoved(added[i].currentKey, id, true);
+    }
     this.doc.cancel();
+    for (let i = 0; i < changed.length; i++) {
+      Actions.elementTypeChanged(changed[i].currentKey, changed[i].currentType, id);
+    }
     this.closeFooter();
   }
 
