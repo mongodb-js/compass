@@ -45,6 +45,8 @@ class CellEditor extends React.Component {
     /* If there was no value in the cell */
     if (this.element === undefined) {
       this.wasEmpty = true;
+      /* If the column is of one type, then make the new value that type.
+         Otherwise, set it to undefined. Set the key name to be the columnId */
       const key = this.props.column.getColDef().headerName;
       let type = this.props.column.getColDef().headerComponentParams.bsonType;
       if (type === 'mixed') {
@@ -54,14 +56,16 @@ class CellEditor extends React.Component {
       const value = TypeChecker.cast(null, type);
       this.element.edit(value);
     } else {
-      /* If this is reopening a newly added field */
+      /* Only use fieldName if this is reopening a newly added field */
       if (this.element.currentKey !== '$new') {
         this.setState({fieldName: this.element.currentKey});
       }
-      /* If this column has just been added */
+      /* If this column has just been added, or the user has re-opened a field
+       * that has been added but not updated to the DB. */
       this.newField = (this.props.value.key === '$new');
     }
 
+    this.oldType = this.element.currentType;
     this._editors = initEditors(this.element);
     this.editor().start();
   }
@@ -117,6 +121,8 @@ class CellEditor extends React.Component {
         return false;
       }
 
+      /* Don't let users save fields that are duplicates (it will break the grid).
+       * If a user adds a duplicate key, the key gets reset to empty. */
       if (!this.element.isDuplicateKey(key)) {
         /* Rename the element within HadronDocument */
         this.element.rename(key);
@@ -128,7 +134,6 @@ class CellEditor extends React.Component {
         };
         colDef.headerName = key;
         colDef.colId = key;
-        colDef.headerComponentParams.bsonType = this.element.currentType;
         colDef.editable = function(params) {
           if (params.node.data.state === 'deleting') {
             return false;
@@ -139,14 +144,25 @@ class CellEditor extends React.Component {
           return params.node.data.hadronDocument.get(key).isValueEditable();
         };
 
+        /* Update the grid store so we know what type this element is. This
+         * will also refresh the header API */
+        Actions.elementAdded(this.element, this.props.node.data.hadronDocument.getId().toString());
+
         /* TODO: should we update column.* as well to be safe?
          Not needed if everywhere we access columns through .getColDef() but
          if somewhere internally they don't do that, will have outdated values.
          Docs: https://www.ag-grid.com/javascript-grid-column-definitions
          */
-
-        this.props.api.refreshHeader();
       }
+    } else if (this.wasEmpty) {
+      /* Update the grid store so we know what type this element is */
+      Actions.elementAdded(this.element, this.props.node.data.hadronDocument.getId().toString());
+    } else if (this.element.isRemoved()) {
+      /* Update the grid store so we know that the header should not include this type */
+      Actions.elementRemoved(this.element.currentKey, this.props.node.data.hadronDocument.getId().toString());
+    } else if (this.element.currentType !== this.oldType) {
+      /* Update the grid store since the element has changed type */
+      Actions.elementTypeChanged(this.element, this.props.node.data.hadronDocument.getId().toString());
     }
   }
 

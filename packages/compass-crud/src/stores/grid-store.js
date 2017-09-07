@@ -99,7 +99,8 @@ const GridStore = Reflux.createStore( {
 
     if (_.isEmpty(this.columns[key])) {
       delete this.columns[key];
-      params.remove = {colIds: [key]};
+      /* Don't delete column until update is clicked */
+      // params.remove = {colIds: [key]};
     } else {
       const oldType = this.showing[key];
       if (oldType === MIXED) {
