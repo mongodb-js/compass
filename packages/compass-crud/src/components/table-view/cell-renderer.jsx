@@ -102,9 +102,9 @@ class CellRenderer extends React.Component {
     // this.element.removeListener(Element.Events.Added, this.unsubscribeAdded);
     // this.element.removeListener(Element.Events.Converted, this.unsubscribeConverted);
     // this.element.removeListener(Element.Events.Invalid, this.unsubscribeInvalid);
+    this.element.removeListener(Element.Events.Reverted, this.unsubscribeReverted);
     this.element.removeListener(Element.Events.Removed, this.unsubscribeRemoved);
     this.element.removeListener(Element.Events.Edited, this.unsubscribeEdited);
-    this.element.removeListener(Element.Events.Reverted, this.unsubscribeReverted);
   }
 
   // handleAdded() {
@@ -123,6 +123,9 @@ class CellRenderer extends React.Component {
 
   handleRemoved() {
     this.isEmpty = true;
+    /* TODO: have to unsubscribe from events when update is called
+        Can't do it here or we wouldn't be able to undo or cancel the changes.
+        Has to happen in update */
     // this.unsubscribeElementEvents();
     // this.element = null;
   }

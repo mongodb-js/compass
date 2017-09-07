@@ -82,6 +82,11 @@ class DocumentFooter extends React.Component {
     this.actions = props.actions;
     this.state = { mode: VIEWING, message: EMPTY };
     this.invalidElements = [];
+
+    this.handleCancel = this.handleCancel.bind(this);
+    if (props.cancelHandler !== undefined) {
+      this.handleCancel = props.cancelHandler;
+    }
   }
 
   /**
@@ -224,7 +229,7 @@ class DocumentFooter extends React.Component {
           <TextButton
             className="btn btn-borderless btn-xs cancel"
             text="Cancel"
-            clickHandler={this.handleCancel.bind(this)} />
+            clickHandler={this.handleCancel} />
           <TextButton
             className="btn btn-default btn-xs"
             text="Update"
@@ -242,7 +247,8 @@ DocumentFooter.displayName = 'DocumentFooter';
 DocumentFooter.propTypes = {
   doc: PropTypes.object.isRequired,
   actions: PropTypes.object.isRequired,
-  updateStore: PropTypes.object.isRequired
+  updateStore: PropTypes.object.isRequired,
+  cancelHandler: PropTypes.func
 };
 
 module.exports = DocumentFooter;
