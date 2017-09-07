@@ -27,6 +27,7 @@
 
   &-field-name {
     display: inline-block;
+
     &::after {
       content: ":";
       margin-right: 1px;
@@ -34,11 +35,23 @@
     :focus {
       outline: none;
       border: 1px solid black;
+      border-radius: 3px;
     }
+
     &-input {
       height: 21px;
       border: 1px solid #d3d3d3;
       border-radius: 3px;
+      &-is-duplicate {
+        :focus {
+          outline: none;
+          display: none;
+        }
+        color: red;
+        height: 21px;
+        border: 1px solid red;
+        border-radius: 3px;
+      }
     }
   }
 

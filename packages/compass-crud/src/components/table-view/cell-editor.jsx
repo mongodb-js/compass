@@ -34,7 +34,7 @@ const INVALID = `${VALUE_CLASS}-is-invalid-type`;
 class CellEditor extends React.Component {
   constructor(props) {
     super(props);
-    this.state = { fieldName: 'New Field' };
+    this.state = { fieldName: '' };
   }
 
   componentWillMount() {
@@ -54,8 +54,12 @@ class CellEditor extends React.Component {
       const value = TypeChecker.cast(null, type);
       this.element.edit(value);
     } else {
+      /* If this is reopening a newly added field */
+      if (this.element.currentKey !== '$new') {
+        this.setState({fieldName: this.element.currentKey});
+      }
       /* If this column has just been added */
-      this.newField = (this.props.value.currentKey === '$new');
+      this.newField = (this.props.value.key === '$new');
     }
 
     this._editors = initEditors(this.element);
@@ -97,7 +101,7 @@ class CellEditor extends React.Component {
    * AG-Grid API call to do a final check before closing the. Returning false
    * will cancel editing.
    *
-   * @returns {Bool} If the edit should go through.
+   * @returns {boolean} If the edit should go through.
    */
   isCancelAfterEnd() {
     this.editor().complete();
@@ -106,40 +110,43 @@ class CellEditor extends React.Component {
     if (this.newField) {
       const key = this.state.fieldName;
 
-      if (this.element.isDuplicateKey(key) || key.includes('$') || key.includes(' ')) {
+      /* Cancel and remove the column bc neither the key or value was edited */
+      if ((key === '' && this.editor().value() === '')) {
         this.element.revert();
         Actions.removeColumn('$new');
         return false;
       }
 
-      /* Rename the element within HadronDocument */
-      this.element.rename(key);
+      if (!this.element.isDuplicateKey(key)) {
+        /* Rename the element within HadronDocument */
+        this.element.rename(key);
 
-      /* Rename the column + update its definition */
-      const colDef = this.props.column.getColDef();
-      colDef.headerName = key;
-      colDef.colId = key;
-      colDef.valueGetter = function(params) {
-        return params.data.hadronDocument.get(key);
-      };
-      colDef.headerComponentParams.bsonType = this.element.currentType;
-      colDef.editable = function(params) {
-        if (params.node.data.state === 'deleting') {
-          return false;
-        }
-        if (params.node.data.hadronDocument.get(key) === undefined) {
-          return true;
-        }
-        return params.node.data.hadronDocument.get(key).isValueEditable();
-      };
+        /* Rename the column + update its definition */
+        const colDef = this.props.column.getColDef();
+        colDef.valueGetter = function(params) {
+          return params.data.hadronDocument.get(key);
+        };
+        colDef.headerName = key;
+        colDef.colId = key;
+        colDef.headerComponentParams.bsonType = this.element.currentType;
+        colDef.editable = function(params) {
+          if (params.node.data.state === 'deleting') {
+            return false;
+          }
+          if (params.node.data.hadronDocument.get(key) === undefined) {
+            return true;
+          }
+          return params.node.data.hadronDocument.get(key).isValueEditable();
+        };
 
-      /* TODO: should we update column.* as well to be safe?
+        /* TODO: should we update column.* as well to be safe?
          Not needed if everywhere we access columns through .getColDef() but
          if somewhere internally they don't do that, will have outdated values.
          Docs: https://www.ag-grid.com/javascript-grid-column-definitions
-       */
+         */
 
-      this.props.api.refreshHeader();
+        this.props.api.refreshHeader();
+      }
     }
   }
 
@@ -215,11 +222,28 @@ class CellEditor extends React.Component {
   }
 
   /**
+   * Get the style for the field name.
+   *
+   * @param {boolean} input - If the style is the input form.
+   * @returns {String} The key style.
+   */
+  styleField(input) {
+    let base = `${BEM_BASE}-field-name`;
+    if (input) {
+      base = `${base}-input`;
+      if (this.element.isDuplicateKey(this.state.fieldName)) {
+        base = `${base}-is-duplicate`;
+      }
+    }
+    return base;
+  }
+
+  /**
    * Get the style for the value of the element.
    *
    * @returns {String} The value style.
    */
-  style() {
+  styleValue() {
     let typeClass = `${VALUE_CLASS}-is-${this.element.currentType.toLowerCase()}`;
     if (!this.element.isCurrentTypeValid()) {
       typeClass = `${typeClass} ${INVALID}`;
@@ -244,13 +268,14 @@ class CellEditor extends React.Component {
   renderFieldName() {
     if (this.newField) {
       return (
-        <div className={`${BEM_BASE}-field-name`}>
+        <div className={this.styleField()}>
           <input
             type="text"
             style={{ width: '100px' }}
             onChange={this.handleFieldNameChange.bind(this)}
-            className={`${BEM_BASE}-field-name-input`}
-            value={this.state.fieldName}/>
+            className={this.styleField(true)}
+            value={this.state.fieldName}
+            placeholder="Field Name"/>
         </div>
       );
     }
@@ -290,11 +315,12 @@ class CellEditor extends React.Component {
               ref={(c) => {this._node = c;}}
               type="text"
               style={{ width: `${length}px`}}
-              className={this.style()}
+              className={this.styleValue()}
               onChange={this.handleChange.bind(this)}
               // onKeyDown={this.handleKeyDown.bind(this)}
               onPaste={this.handlePaste.bind(this)}
-              value={this.editor().value(true)}/>
+              value={this.editor().value(true)}
+              placeholder="Value"/>
           </span>
         </div>
       );

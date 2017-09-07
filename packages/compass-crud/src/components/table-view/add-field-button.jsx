@@ -120,9 +120,9 @@ class AddFieldButton extends React.Component {
     this.setState({ menu: false });
 
     if (!this.empty) {
-      this.props.node.data.hadronDocument.insertAfter(this.props.value, '$new', 'Value');
+      this.props.node.data.hadronDocument.insertAfter(this.props.value, '$new', '');
     } else {
-      this.props.node.data.hadronDocument.insertEnd('$new', 'Value');
+      this.props.node.data.hadronDocument.insertEnd('$new', '');
     }
 
     Actions.addColumn(this.props.column.getColDef().colId, this.props.node.childIndex);
