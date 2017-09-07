@@ -103,7 +103,7 @@ const QueryHistoryStore = Reflux.createStore({
   getInitialState() {
     return {
       showing: 'recent',
-      collapsed: false,
+      collapsed: true,
       ns: mongodbns('')
     };
   }
