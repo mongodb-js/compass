@@ -1,7 +1,6 @@
 var View = require('ampersand-view');
 var app = require('hadron-app');
 var ipc = require('hadron-ipc');
-var metrics = require('mongodb-js-metrics')();
 var debug = require('debug')('mongodb-compass:notification-update-available');
 
 var indexTemplate = require('./index.jade');
@@ -28,18 +27,13 @@ var NotificationUpdateAvailable = View.extend({
   initialize: function() {
     ipc.on('app:checking-for-update', function() {
       debug('checking for update');
-      metrics.track('Auto Update', 'checking');
     });
 
     ipc.on('app:update-not-available', function() {
-      metrics.track('Auto Update', 'uptodate');
     });
 
     ipc.on('app:update-available', function(_opts) {
       debug('new update available!  wanna update to', _opts, '?');
-      metrics.track('Auto Update', 'available', {
-        releaseVersion: _opts.releaseVersion
-      });
       if (app.isFeatureEnabled('showAutoUpdateBanner')) {
         this.visible = true;
       }
@@ -47,7 +41,6 @@ var NotificationUpdateAvailable = View.extend({
 
     ipc.on('app:update-downloaded', function() {
       debug('the update has been downloaded.');
-      metrics.track('Auto Update', 'downloaded');
     });
 
     this.listenToAndRun(app.preferences, 'change:autoUpdates', function() {

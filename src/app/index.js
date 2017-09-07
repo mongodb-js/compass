@@ -265,13 +265,9 @@ var Application = View.extend({
     }
   },
   onPageChange: function(view) {
-    const metrics = require('mongodb-js-metrics')();
     // connect dialog
     if (view.screenName) {
-      metrics.track('App', 'viewed', view.screenName);
       this.pageSwitcher.set(view);
-    } else {
-      metrics.track('App', 'viewed', view.displayName);
     }
   },
   onLinkClick: function(event) {
@@ -407,9 +403,6 @@ app.extend({
       }
       require('./setup-package-manager');
       Action.packageActivationCompleted.listen(() => {
-        // set up metrics
-        // var metricsSetup = require('./metrics');
-        // metricsSetup();
         global.hadronApp.appRegistry.onActivated();
 
         // signal to main process that app is ready

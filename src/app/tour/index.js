@@ -236,10 +236,6 @@ var TourView = View.extend({
     this.showHidePreviousNextButtons();
   },
   tourRemove: function() {
-    metrics.track('Feature Tour', 'used', {
-      lastSlide: this.tourCount,
-      totalTime: new Date() - this.timeAtStart
-    });
     this.trigger('close');
     this.body.removeEventListener('keydown', this.onKeyPress);
     this.remove();

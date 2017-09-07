@@ -336,10 +336,6 @@ var ConnectView = View.extend({
           + 'fill out this form?',
         buttons: ['Yes', 'No']
       }, function(response) {
-        // track clipboard feature with user response
-        metrics.track('Clipboard Detection', 'used', {
-          answer: response === 0 ? 'yes' : 'no'
-        });
         if (response === 0) {
           this.autofillFromClipboard();
         }
@@ -488,13 +484,6 @@ var ConnectView = View.extend({
     connection = connection || this.connection;
     const StatusAction = app.appRegistry.getAction('Status.Actions');
     StatusAction.hide();
-    metrics.track('Connection', 'used', {
-      authentication: connection.authentication,
-      ssl: connection.ssl,
-      'localhost': connection.hostname === 'localhost',
-      'default port': connection.port === 27017,
-      'outcome': 'success'
-    });
 
     var view = this;
     app.setConnectionId(connection.getId(), function() {
@@ -579,13 +568,6 @@ var ConnectView = View.extend({
    * @api private
    */
   onError: function(err, connection) {
-    metrics.track('Connection', 'used', {
-      authentication: connection.authentication,
-      ssl: connection.ssl,
-      'localhost': connection.hostname === 'localhost',
-      'default port': connection.port === 27017,
-      'outcome': 'error'
-    });
     metrics.error(err);
     debug('showing error message', {
       err: err,
