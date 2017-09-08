@@ -172,11 +172,17 @@ class Element extends EventEmitter {
   }
 
   /**
-   * Rename the element.
+   * Rename the element. Update the parent's mapping if available.
    *
    * @param {String} key - The new key.
    */
   rename(key) {
+    if (this.parent !== undefined) {
+      const elm = this.parent.elements._map[this.currentKey];
+      delete this.parent.elements._map[this.currentKey];
+      this.parent.elements._map[key] = elm;
+    }
+
     this.currentKey = key;
     this._bubbleUp(Events.Edited);
   }

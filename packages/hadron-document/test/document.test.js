@@ -36,12 +36,12 @@ describe('Document', function() {
         element.rename('testing');
       });
 
-      it('returns undefined for the new key', function() {
-        expect(doc.get('testing')).to.equal(undefined);
+      it('returns the element for the new key', function() {
+        expect(doc.get('testing')).to.equal(element);
       });
 
-      it('returns the element for the original key', function() {
-        expect(doc.get('name')).to.equal(element);
+      it('returns undefined for the original key', function() {
+        expect(doc.get('name')).to.equal(undefined);
       });
     });
 
