@@ -354,7 +354,7 @@ class DocumentListTableView extends React.Component {
     columnHeaders.push({
       colId: '$rowActions',
       valueGetter: function(params) {
-        return params.data.hadronDocument;
+        return params.data;
       },
 
       headerComponentFramework: HeaderComponent,

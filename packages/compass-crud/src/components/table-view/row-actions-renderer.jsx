@@ -15,42 +15,44 @@ class RowActionsRenderer extends React.Component {
   }
 
   handleEdit() {
-    console.log('handling edit button');
+    console.log('handling edit button for row #' + this.props.value.rowNumber);
   }
   handleRemove() {
-    console.log('handling delete button');
+    console.log('handling delete button for row #' + this.props.value.rowNumber);
   }
   handleClone() {
-    console.log('handling clone button');
+    console.log('handling clone button for row #' + this.props.value.rowNumber);
   }
   handleCopy() {
-    console.log('handle copy button');
+    console.log('handle copy button for row #' + this.props.value.rowNumber);
   }
 
   render() {
     return (
       <div className={BEM_BASE}>
+        <div className={`${BEM_BASE}-panel`}>
         <IconButton
           title="Edit row"
-          className={`${BEM_BASE}-button btn btn-default btn-xs`}
+          className={`${BEM_BASE}-panel-button btn btn-default btn-xs`}
           iconClassName={`${BEM_BASE}-button-icon fa fa-pencil`}
           clickHandler={this.handleEdit.bind(this)} />
         <IconButton
           title="Copy row"
-          className={`${BEM_BASE}-button btn btn-default btn-xs`}
+          className={`${BEM_BASE}-panel-button btn btn-default btn-xs`}
           iconClassName={`${BEM_BASE}-button-icon fa fa-copy`}
           clickHandler={this.handleCopy.bind(this)} />
         <IconButton
           title="Clone row"
-          className={`${BEM_BASE}-button btn btn-default btn-xs`}
+          className={`${BEM_BASE}-panel-button btn btn-default btn-xs`}
           iconClassName={`${BEM_BASE}-button-icon fa fa-clone`}
           clickHandler={this.handleClone.bind(this)} />
         <IconButton
           title="Delete row"
-          className={`${BEM_BASE}-button btn btn-default btn-xs`}
+          className={`${BEM_BASE}-panel-button btn btn-default btn-xs`}
           iconClassName={`${BEM_BASE}-button-icon fa fa-trash-o`}
           clickHandler={this.handleRemove.bind(this)} />
       </div>
+    </div>
     );
   }
 }
