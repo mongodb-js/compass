@@ -135,6 +135,10 @@ class CellRenderer extends React.Component {
     this.props.node.data.state = 'modified';
   }
 
+  handleUndo() {
+    this.element.revert();
+  }
+
   renderInvalidCell() {
     let valueClass = `${VALUE_CLASS}-is-${this.element.currentType.toLowerCase()}`;
     valueClass = `${valueClass} ${INVALID_VALUE}`;
@@ -169,9 +173,22 @@ class CellRenderer extends React.Component {
     );
   }
 
+  renderUndo(classname, canUndo) {
+    if (!canUndo) {
+      return null;
+    }
+    return (
+      <div className={`${classname}-actions`} onClick={this.handleUndo.bind(this)}>
+        <span className={`fa fa-circle ${classname}-actions-background`} aria-hidden />
+        <span className={`fa fa-rotate-left ${classname}-actions-background-icon`} aria-hidden />
+      </div>
+    );
+  }
+
   render() {
     let element;
     let className = BEM_BASE;
+    let canUndo = false;
 
     if (this.isEmpty) {
       element = 'No field';
@@ -179,20 +196,25 @@ class CellRenderer extends React.Component {
     } else if (!this.element.isCurrentTypeValid()) {
       element = this.renderInvalidCell();
       className = `${className}-${INVALID}`;
+      canUndo = true;
     } else if (this.element.isRemoved()) {
       element = 'Deleted field';
       className = `${className}-${DELETED}`;
+      canUndo = true;
     } else {
       element = this.renderValidCell();
       if (this.element.isEdited()) {
         className = `${className}-${EDITED}`;
+        canUndo = true;
       } else if (this.element.isAdded()) {
         className = `${className}-${ADDED}`;
+        canUndo = true;
       }
     }
 
     return (
       <div className={className}>
+        {this.renderUndo(className, canUndo)}
         {element}
       </div>
     );

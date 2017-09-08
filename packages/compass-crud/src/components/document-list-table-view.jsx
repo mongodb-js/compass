@@ -162,7 +162,7 @@ class DocumentListTableView extends React.Component {
    */
   addColumn(colId) {
     const columnHeaders = _.map(this.columnApi.getAllColumns(), function(col) {
-      return col.createColumnHeader();
+      return col.getColDef();
     });
 
     let i = 0;
@@ -185,7 +185,7 @@ class DocumentListTableView extends React.Component {
    */
   removeColumns(colIds) {
     const columnHeaders = _.map(this.columnApi.getAllColumns(), function(col) {
-      return col.createColumnHeader();
+      return col.getColDef();
     });
 
     const indexes = [];
@@ -245,7 +245,7 @@ class DocumentListTableView extends React.Component {
     }
     if ('updateHeaders' in params) {
       const columnHeaders = _.map(this.columnApi.getAllColumns(), function(col) {
-        return col.createColumnHeader();
+        return col.getColDef();
       });
 
       this.updateHeaders(params.updateHeaders.showing, columnHeaders);
