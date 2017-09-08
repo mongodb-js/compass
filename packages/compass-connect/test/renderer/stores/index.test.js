@@ -399,6 +399,9 @@ describe('IndexStore', function() {
       const unsubscribe = IndexStore.listen((state) => {
         unsubscribe();
         expect(state.currentConnection).to.equal(connection);
+        expect(state.isValid).to.equal(true);
+        expect(state.isConnected).to.equal(false);
+        expect(state.errorMessage).to.equal(null);
         done();
       });
       Actions.onConnectionSelected(connection);
