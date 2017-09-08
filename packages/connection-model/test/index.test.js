@@ -367,8 +367,7 @@ describe('mongodb-connection-model', function() {
       describe('X509', function() {
         it('should set authentication to X509', function() {
           var c = new Connection({
-            x509_username: 'CN=client,OU=arlo,O=MongoDB,L=Philadelphia,'
-              + 'ST=Pennsylvania,C=US'
+            x509_username: 'CN=client,OU=kerneluser,O=10Gen,L=New York City,ST=New York,C=US'
           });
           assert.equal(c.authentication, 'X509');
         });
@@ -382,8 +381,7 @@ describe('mongodb-connection-model', function() {
         describe('driver_url', function() {
           var c = new Connection({
             authentication: 'X509',
-            x509_username: 'CN=client,OU=arlo,O=MongoDB,L=Philadelphia,'
-              + 'ST=Pennsylvania,C=US'
+            x509_username: 'CN=client,OU=kerneluser,O=10Gen,L=New York City,ST=New York,C=US'
           });
 
           it('should have the correct authMechanism', function() {
@@ -392,8 +390,8 @@ describe('mongodb-connection-model', function() {
 
           it('should urlencode credentials', function() {
             assert.equal(c.driver_url,
-              'mongodb://CN%253Dclient%252COU%253Darlo%252CO%253DMongoDB%252CL%253DPhiladelphia'
-              + '%252CST%253DPennsylvania%252CC%253DUS@localhost:27017/'
+              'mongodb://CN%3Dclient%2COU%3Dkerneluser%2CO%3D10Gen%2CL%3DNew%20York%20City'
+              + '%2CST%3DNew%20York%2CC%3DUS@localhost:27017/'
               + '?readPreference=primary&authMechanism=MONGODB-X509');
           });
 

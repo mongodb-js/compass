@@ -641,7 +641,7 @@ _.assign(derived, {
               encodeURIComponent(this.kerberos_principal));
           }
         } else if (this.authentication === 'X509') {
-          req.auth = encodeURIComponent(this.x509_username);
+          req.auth = this.x509_username;
           _.defaults(req.query, {
             authMechanism: this.driver_auth_mechanism
           });
