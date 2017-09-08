@@ -269,7 +269,12 @@ const ConnectStore = Reflux.createStore({
    * @param {Connection} connection - The connection to select.
    */
   onConnectionSelected(connection) {
-    this.setState({ currentConnection: connection });
+    this.setState({
+      currentConnection: connection,
+      isValid: true,
+      isConnected: false,
+      errorMessage: null
+    });
   },
 
   /**
@@ -381,9 +386,9 @@ const ConnectStore = Reflux.createStore({
     if (!connection.isValid()) {
       this.setState({ isValid: false });
     } else {
-      this._setupDefaults(connection);
-      const dataService = new DataService(connection);
-      dataService.connect((err, ds) => {
+      this.updateDefaults();
+      this.dataService = new DataService(connection);
+      this.dataService.connect((err, ds) => {
         if (err) {
           return this.setState({ isValid: false, errorMessage: err.message });
         }
@@ -395,6 +400,32 @@ const ConnectStore = Reflux.createStore({
         this.state.errorMessage = null;
         this.onCreateRecent();
       });
+    }
+  },
+
+  /**
+   * Disconnect the current connection.
+   */
+  onDisconnect() {
+    if (this.dataService) {
+      this.dataService.disconnect();
+      this.dataService = undefined;
+    }
+    this.setState({ isConnected: false, errorMessage: null, isValid: true });
+  },
+
+  /**
+   * Update default values for the connection depending on the authentication
+   * method and database values.
+   *
+   * @todo: Add tests for this.
+   */
+  updateDefaults() {
+    const connection = this.state.currentConnection;
+    if (connection.authentication === 'MONGODB' && isEmpty(connection.mongodb_database_name)) {
+      connection.mongodb_database_name = 'admin';
+    } else if (connection.authentication === 'KERBEROS' && isEmpty(connection.kerberos_service_name)) {
+      connection.kerberos_service_name = 'mongodb';
     }
   },
 
@@ -452,16 +483,6 @@ const ConnectStore = Reflux.createStore({
       });
     }
     done();
-  },
-
-  _setupDefaults(connection) {
-    // @note: If using MONGODB auth and the auth source is empty, we
-    //   default it to admin. For kerberos default service name to mongodb.
-    if (connection.authentication === 'MONGODB' && isEmpty(connection.mongodb_database_name)) {
-      connection.mongodb_database_name = 'admin';
-    } else if (connection.authentication === 'KERBEROS' && isEmpty(connection.kerberos_service_name)) {
-      connection.kerberos_service_name = 'mongodb';
-    }
   }
 });
 

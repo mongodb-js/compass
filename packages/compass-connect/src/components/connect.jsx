@@ -42,8 +42,8 @@ class Connect extends React.Component {
           + 'fill out this form?',
         buttons: ['Yes', 'No']
       }, (response) => {
+        this.clipboardText = clipboardText;
         if (response === 0) {
-          this.clipboardText = clipboardText;
           this.autoFillFromClipboard();
         }
       });

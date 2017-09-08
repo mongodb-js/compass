@@ -498,4 +498,41 @@ describe('IndexStore', function() {
       });
     });
   });
+
+  describe('#updateDefaults', () => {
+    context('when auth is mongodb', () => {
+      context('when the database name is empty', () => {
+        before(() => {
+          IndexStore.state.currentConnection.authentication = 'MONGODB';
+          IndexStore.state.currentConnection.mongodb_database_name = '';
+          IndexStore.updateDefaults();
+        });
+
+        after(() => {
+          IndexStore.state.currentConnection = new Connection();
+        });
+
+        it('sets the database name to admin', () => {
+          expect(IndexStore.state.currentConnection.mongodb_database_name).to.equal('admin');
+        });
+      });
+    });
+
+    context('when auth is kerberos', () => {
+      context('when the service name is empty', () => {
+        before(() => {
+          IndexStore.state.currentConnection.authentication = 'KERBEROS';
+          IndexStore.updateDefaults();
+        });
+
+        after(() => {
+          IndexStore.state.currentConnection = new Connection();
+        });
+
+        it('sets the service name to mongodb', () => {
+          expect(IndexStore.state.currentConnection.kerberos_service_name).to.equal('mongodb');
+        });
+      });
+    });
+  });
 });

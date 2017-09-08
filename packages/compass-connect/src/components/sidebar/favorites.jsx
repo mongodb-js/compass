@@ -1,7 +1,10 @@
 const React = require('react');
 const PropTypes = require('prop-types');
 const map = require('lodash.map');
+const moment = require('moment');
 const Actions = require('../../actions');
+
+const TWO_DAYS = 24 * 60 * 60 * 1000;
 
 class Favorites extends React.Component {
 
@@ -17,6 +20,14 @@ class Favorites extends React.Component {
     return className;
   }
 
+  formatLastUsed(model) {
+    if (!model.last_used) return 'Never';
+    if ((new Date() - model.last_used) < TWO_DAYS) {
+      return moment(model.last_used).fromNow();
+    }
+    return moment(model.last_used).format('lll');
+  }
+
   renderFavorites() {
     const favorites = this.props.connections.filter((connection) => {
       return connection.is_favorite;
@@ -29,7 +40,7 @@ class Favorites extends React.Component {
           key={i}
           title={title}
           onClick={this.onFavoriteClicked.bind(this, favorite)}>
-          <div className="connect-sidebar-list-item-last-used">{favorite.last_used || 'Never'}</div>
+          <div className="connect-sidebar-list-item-last-used">{this.formatLastUsed(favorite)}</div>
           <div className="connect-sidebar-list-item-name">{favorite.name}</div>
         </li>
       );

@@ -32,6 +32,12 @@ class FormActions extends React.Component {
     Actions.onConnect();
   }
 
+  onDisconnectClicked(evt) {
+    evt.preventDefault();
+    evt.stopPropagation();
+    Actions.onDisconnect();
+  }
+
   onNameChanged(evt) {
     this.isNameChanged = true;
     Actions.onFavoriteNameChanged(evt.target.value);
@@ -89,13 +95,24 @@ class FormActions extends React.Component {
   }
 
   renderConnect() {
+    if (!this.props.isConnected) {
+      return (
+        <button
+          type="submit"
+          name="connect"
+          className="btn btn-sm btn-primary"
+          onClick={this.onConnectClicked.bind(this)}>
+          Connect
+        </button>
+      );
+    }
     return (
       <button
         type="submit"
-        name="connect"
+        name="disconnect"
         className="btn btn-sm btn-primary"
-        onClick={this.onConnectClicked.bind(this)}>
-        Connect
+        onClick={this.onDisconnectClicked.bind(this)}>
+        Disconnect
       </button>
     );
   }
@@ -122,7 +139,8 @@ class FormActions extends React.Component {
 }
 
 FormActions.propTypes = {
-  currentConnection: PropTypes.object.isRequired
+  currentConnection: PropTypes.object.isRequired,
+  isConnected: PropTypes.bool
 };
 
 FormActions.displayName = 'FormActions';
