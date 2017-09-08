@@ -80,4 +80,13 @@ describe('Connection', () => {
       });
     });
   });
+
+  describe('.from', () => {
+    const uri = 'mongodb://user:pass@127.0.0.1:27018/db?authSource=test';
+    const connection = Connection.from(uri);
+
+    it('returns the subclassed connection model', () => {
+      expect(connection.username).to.equal('user');
+    });
+  });
 });

@@ -505,13 +505,13 @@ describe('IndexStore', function() {
   describe('#updateDefaults', () => {
     context('when auth is mongodb', () => {
       context('when the database name is empty', () => {
-        before(() => {
+        beforeEach(() => {
           IndexStore.state.currentConnection.authentication = 'MONGODB';
           IndexStore.state.currentConnection.mongodb_database_name = '';
           IndexStore.updateDefaults();
         });
 
-        after(() => {
+        afterEach(() => {
           IndexStore.state.currentConnection = new Connection();
         });
 

@@ -61,4 +61,16 @@ const Connection = Model.extend(storageMixin, {
   }
 });
 
+/**
+ * Create a connection from a URI. This needs to ensure we create our subclass
+ * or we won't have the storage mixin available.
+ *
+ * @param {String} uri - The mongodb uri to create from.
+ *
+ * @returns {Connection} A new connection.
+ */
+Connection.from = function(uri) {
+  return new Connection(Model.from(uri).getAttributes({ props: true }));
+};
+
 module.exports = Connection;
