@@ -11,10 +11,10 @@ class HeaderCellRenderer extends React.Component {
   }
 
   render() {
-    let displayName = this.props.displayName;
-    if (this.props.isRowNumber) {
+    if (this.props.hide) {
       return null;
     }
+    let displayName = this.props.displayName;
     if (this.props.displayName === '$new') {
       displayName = 'New Field';
     }
@@ -27,9 +27,9 @@ class HeaderCellRenderer extends React.Component {
 }
 
 HeaderCellRenderer.propTypes = {
-  displayName: PropTypes.string.isRequired,
+  displayName: PropTypes.string,
   bsonType: PropTypes.string,
-  isRowNumber: PropTypes.bool
+  hide: PropTypes.bool
 };
 
 HeaderCellRenderer.displayName = 'HeaderCellRenderer';

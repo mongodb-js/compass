@@ -13,6 +13,7 @@ const BreadcrumbStore = require('../stores/breadcrumb-store');
 const BreadcrumbComponent = require('./breadcrumb');
 const CellRenderer = require('./table-view/cell-renderer');
 const FullWidthCellRenderer = require('./table-view/full-width-cell-renderer');
+const RowActionsRenderer = require('./table-view/row-actions-renderer');
 const HeaderComponent = require('./table-view/header-cell-renderer');
 const CellEditor = require('./table-view/cell-editor');
 
@@ -30,13 +31,13 @@ class DocumentListTableView extends React.Component {
     this.createRowData = this.createRowData.bind(this);
     this.addEditingFooter = this.addEditingFooter.bind(this);
     this.onRowClicked = this.onRowClicked.bind(this);
-    this.getColDef = this.getColDef.bind(this);
+    this.createColumnHeader = this.createColumnHeader.bind(this);
     this.updateHeaders = this.updateHeaders.bind(this);
 
     this.gridOptions = {
       context: {
         column_width: 150,
-        addHeader: this.getColDef
+        addHeader: this.createColumnHeader
       },
       onRowClicked: this.onRowClicked,
       // onCellClicked: this.onCellClicked.bind(this)
@@ -82,44 +83,6 @@ class DocumentListTableView extends React.Component {
     if (this.props.isEditable) {
       this.addEditingFooter(event.node, event.data, event.rowIndex);
     }
-  }
-
-  getColDef(key, type, isEditable) {
-    return {
-      headerName: key,
-      colId: key,
-      valueGetter: function(params) {
-        return params.data.hadronDocument.get(key);
-      },
-      valueSetter: function(params) {
-        if (params.oldValue === undefined && params.newValue === undefined) {
-          return false;
-        }
-        return params.newValue.isEdited() || params.newValue.isAdded() || params.newValue.isRemoved();
-      },
-
-      headerComponentFramework: HeaderComponent,
-      headerComponentParams: {
-        isRowNumber: false,
-        bsonType: type
-      },
-
-      cellRendererFramework: CellRenderer,
-      cellRendererParams: {},
-
-      editable: function(params) {
-        if (!isEditable || params.node.data.state === 'deleting') {
-          return false;
-        }
-        if (params.node.data.hadronDocument.get(key) === undefined) {
-          return true;
-        }
-        return params.node.data.hadronDocument.get(key).isValueEditable();
-      },
-
-      cellEditorFramework: CellEditor,
-      cellEditorParams: {}
-    };
   }
 
   /**
@@ -199,7 +162,7 @@ class DocumentListTableView extends React.Component {
    */
   addColumn(colId) {
     const columnHeaders = _.map(this.columnApi.getAllColumns(), function(col) {
-      return col.getColDef();
+      return col.createColumnHeader();
     });
 
     let i = 0;
@@ -210,7 +173,7 @@ class DocumentListTableView extends React.Component {
       i++;
     }
 
-    const newColDef = this.getColDef('$new', '', true); // Newly added columns are always editable.
+    const newColDef = this.createColumnHeader('$new', '', true); // Newly added columns are always editable.
     columnHeaders.splice(i + 1, 0, newColDef);
     this.gridApi.setColumnDefs(columnHeaders);
   }
@@ -222,7 +185,7 @@ class DocumentListTableView extends React.Component {
    */
   removeColumns(colIds) {
     const columnHeaders = _.map(this.columnApi.getAllColumns(), function(col) {
-      return col.getColDef();
+      return col.createColumnHeader();
     });
 
     const indexes = [];
@@ -282,12 +245,50 @@ class DocumentListTableView extends React.Component {
     }
     if ('updateHeaders' in params) {
       const columnHeaders = _.map(this.columnApi.getAllColumns(), function(col) {
-        return col.getColDef();
+        return col.createColumnHeader();
       });
 
       this.updateHeaders(params.updateHeaders.showing, columnHeaders);
       this.gridApi.refreshHeader();
     }
+  }
+
+  createColumnHeader(key, type, isEditable) {
+    return {
+      headerName: key,
+      colId: key,
+      valueGetter: function(params) {
+        return params.data.hadronDocument.get(key);
+      },
+      valueSetter: function(params) {
+        if (params.oldValue === undefined && params.newValue === undefined) {
+          return false;
+        }
+        return params.newValue.isEdited() || params.newValue.isAdded() || params.newValue.isRemoved();
+      },
+
+      headerComponentFramework: HeaderComponent,
+      headerComponentParams: {
+        hide: false,
+        bsonType: type
+      },
+
+      cellRendererFramework: CellRenderer,
+      cellRendererParams: {},
+
+      editable: function(params) {
+        if (!isEditable || params.node.data.state === 'deleting') {
+          return false;
+        }
+        if (params.node.data.hadronDocument.get(key) === undefined) {
+          return true;
+        }
+        return params.node.data.hadronDocument.get(key).isValueEditable();
+      },
+
+      cellEditorFramework: CellEditor,
+      cellEditorParams: {}
+    };
   }
 
   /**
@@ -302,7 +303,7 @@ class DocumentListTableView extends React.Component {
     const isEditable = this.props.isEditable;
     const docs = this.props.docs;
 
-    const addHeader = this.getColDef;
+    const addHeader = this.createColumnHeader;
 
     headers.hadronRowNumber = {
       headerName: 'Row',
@@ -310,7 +311,7 @@ class DocumentListTableView extends React.Component {
       colId: '$rowNumber', // TODO: make sure user can't get duplicate
       headerComponentFramework: HeaderComponent,
       headerComponentParams: {
-        isRowNumber: true
+        hide: true
       }
     };
 
@@ -348,6 +349,24 @@ class DocumentListTableView extends React.Component {
       showing[key] = currentType;
     });
     this.updateHeaders(showing, columnHeaders);
+
+    /* Add button action row column */
+    columnHeaders.push({
+      colId: '$rowActions',
+      valueGetter: function(params) {
+        return params.data.hadronDocument;
+      },
+
+      headerComponentFramework: HeaderComponent,
+      headerComponentParams: {
+        hide: true
+      },
+
+      cellRendererFramework: RowActionsRenderer,
+      cellRendererParams: {},
+      editable: false,
+      pinned: 'right'
+    });
 
     /* Return the updated column definitions */
     return columnHeaders;
