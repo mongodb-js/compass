@@ -28,11 +28,15 @@ function loadOptions(model, done) {
     }
 
     if (Array.isArray(opts.server[key])) {
-      tasks[key] = function(cb) {
-        async.parallel(opts.server[key].map(function(k) {
-          return fs.readFile.bind(null, k);
-        }), cb);
-      };
+      opts.server[key].forEach(function(value) {
+        if (typeof value === 'string') {
+          tasks[key] = function(cb) {
+            async.parallel(opts.server[key].map(function(k) {
+              return fs.readFile.bind(null, k);
+            }), cb);
+          };
+        }
+      });
     }
 
     if (typeof opts.server[key] !== 'string') {
