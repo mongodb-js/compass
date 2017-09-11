@@ -136,10 +136,10 @@ describe('StatusStore [Store]', () => {
           unsubscribe();
           expect(state.trickle).to.equal(false);
           expect(Store._trickleTimer).to.equal(null);
-          const unsub = Store.listen((state) => {
+          const unsub = Store.listen((st) => {
             unsub();
-            expect(state.progress).to.equal(50);
-            expect(state.progressbar).to.equal(true);
+            expect(st.progress).to.equal(50);
+            expect(st.progressbar).to.equal(true);
             done();
           });
         });
@@ -161,9 +161,9 @@ describe('StatusStore [Store]', () => {
           unsubscribe();
           expect(state.trickle).to.equal(true);
           expect(Store._trickleTimer).to.not.equal(null);
-          const unsub = Store.listen((state) => {
+          const unsub = Store.listen((st) => {
             unsub();
-            expect(state.progress).to.equal(50);
+            expect(st.progress).to.equal(50);
             done();
           });
         });
