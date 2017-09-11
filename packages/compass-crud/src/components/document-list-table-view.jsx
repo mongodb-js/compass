@@ -61,7 +61,12 @@ class DocumentListTableView extends React.Component {
   }
 
   /**
+   * If the row is in 'editing' mode, a single click should open the editor.
+   *
    * @param {Object} event
+   *     node {RowNode} - the RowNode for the cell in question
+   *     data {*} - the user provided data for the cell in question
+   *     column {Column} - the column of the cell clicked
    */
   onCellClicked(event) {
     if (event.data.state === 'editing') {
@@ -70,15 +75,12 @@ class DocumentListTableView extends React.Component {
   }
 
   /**
-   * Callback for when a row is clicked.
+   * Callback for when a row is double clicked.
    *
    * @param {Object} event
    *     node {RowNode} - the RowNode for the row in question
    *     data {*} - the user provided data for the row in question
    *     rowIndex {number} - the visible row index for the row in question
-   *     rowPinned {string} - 'top', 'bottom' or undefined / null if not pinned
-   *     context: {*} - bag of attributes, provided by user, see Context
-   *     event?: {Event} - event if this was result of a browser event
    */
   onRowDoubleClicked(event) {
     if (this.props.isEditable) {
