@@ -55,4 +55,61 @@ describe('StatusStore [Store]', () => {
       Actions.showProgressBar();
     });
   });
+
+  describe('#showIndeterminateProgressBar', () => {
+  });
+
+  describe('#hideProgressBar', () => {
+  });
+
+  describe('#configure', () => {
+  });
+
+  describe('#setProgressValue', () => {
+  });
+
+  describe('#incProgressValue', () => {
+  });
+
+  describe('#enableProgressTrickle', () => {
+  });
+
+  describe('#disableProgressTrickle', () => {
+  });
+
+  describe('#setMessage', () => {
+  });
+
+  describe('#clearMessage', () => {
+  });
+
+  describe('#showAnimation', () => {
+  });
+
+  describe('#hideAnimation', () => {
+  });
+
+  describe('#showStaticSidebar', () => {
+  });
+
+  describe('#hideStaticSidebar', () => {
+  });
+
+  describe('#setSubview', () => {
+  });
+
+  describe('#onClearSubview', () => {
+  });
+
+  describe('#enableModal', () => {
+  });
+
+  describe('#disableModal', () => {
+  });
+
+  describe('#hide', () => {
+  });
+
+  describe('#done', () => {
+  });
 });
