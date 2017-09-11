@@ -1,5 +1,5 @@
 const schemaStats = require('mongodb-schema/lib/stats');
-const debug = require('debug')('mongodb-compass:metrics:rules');
+// const debug = require('debug')('mongodb-compass:metrics:rules');
 
 /**
  * This file defines rules for tracking metrics based on Reflux store changes.

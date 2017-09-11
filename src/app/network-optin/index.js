@@ -2,7 +2,6 @@ var $ = window.jQuery;
 var View = require('ampersand-view');
 var app = require('hadron-app');
 var _ = require('lodash');
-var metrics = require('mongodb-js-metrics')();
 
 var debug = require('debug')('mongodb-compass:network-optin:index');
 
