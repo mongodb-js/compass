@@ -26,12 +26,6 @@ class FullWidthCellRenderer extends React.Component {
     this.removeStore = {listen: ()=>{return ()=>{};}};
   }
 
-  // componentDidMount() {
-  // }
-  //
-  // componentWillUnmount() {
-  // }
-
   closeFooter() {
     const api = this.props.api;
     const data = this.props.data;

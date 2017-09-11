@@ -64,6 +64,7 @@ class CellRenderer extends React.Component {
     props.api.selectAll();
 
     this.isEmpty = props.value === undefined;
+    this.deleted = false;
     this.element = props.value;
 
     this._editors = initEditors(this.element);
@@ -75,9 +76,6 @@ class CellRenderer extends React.Component {
     }
   }
 
-  /**
-   * Unsubscribe from the events.
-   */
   componentWillUnmount() {
     if (!this.isEmpty) {
       this.unsubscribeElementEvents();
@@ -85,51 +83,20 @@ class CellRenderer extends React.Component {
   }
 
   subscribeElementEvents() {
-    // this.unsubscribeAdded = this.handleAdded.bind(this);
-    // this.unsubscribeConverted = this.handleConverted.bind(this);
-    // this.unsubscribeInvalid = this.handleInvalid.bind(this);
     this.unsubscribeReverted = this.handleReverted.bind(this);
-    this.unsubscribeRemoved = this.handleRemoved.bind(this);
     this.unsubscribeEdited = this.handleEdited.bind(this);
 
-    // this.element.on(Element.Events.Added, this.unsubscribeAdded);
-    // this.element.on(Element.Events.Converted, this.unsubscribeConverted);
-    // this.element.on(Element.Events.Invalid, this.unsubscribeInvalid);
     this.element.on(Element.Events.Reverted, this.unsubscribeReverted);
-    this.element.on(Element.Events.Removed, this.unsubscribeRemoved);
     this.element.on(Element.Events.Edited, this.unsubscribeEdited);
   }
 
   unsubscribeElementEvents() {
-    // this.element.removeListener(Element.Events.Added, this.unsubscribeAdded);
-    // this.element.removeListener(Element.Events.Converted, this.unsubscribeConverted);
-    // this.element.removeListener(Element.Events.Invalid, this.unsubscribeInvalid);
     this.element.removeListener(Element.Events.Reverted, this.unsubscribeReverted);
-    this.element.removeListener(Element.Events.Removed, this.unsubscribeRemoved);
     this.element.removeListener(Element.Events.Edited, this.unsubscribeEdited);
   }
 
-  // handleAdded() {
-  //   console.log("handle added");
-  // }
-  // handleConverted() {
-  //   console.log("handle converted");
-  // }
-  // handleInvalid() {
-  //   console.log("handle invalid");
-  // }
-
   handleReverted() {
     this.forceUpdate();
-  }
-
-  handleRemoved() {
-    this.isEmpty = true;
-    /* TODO: have to unsubscribe from events when update is called
-        Can't do it here or we wouldn't be able to undo or cancel the changes.
-        Has to happen in update */
-    // this.unsubscribeElementEvents();
-    // this.element = null;
   }
 
   handleEdited() {
@@ -141,7 +108,6 @@ class CellRenderer extends React.Component {
     const oid = this.props.node.data.hadronDocument.getId().toString();
     if (this.element.isAdded()) {
       Actions.elementRemoved(this.element.currentKey, oid, false);
-      this.isEmpty = true;
     } else if (this.element.isRemoved()) {
       Actions.elementAdded(this.element.currentKey, this.element.currentType, oid);
     } else {
