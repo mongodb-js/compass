@@ -91,6 +91,38 @@ describe('StatusStore [Store]', () => {
   });
 
   describe('#hideProgressBar', () => {
+    beforeEach(() => {
+      Store.state.progressbar = true;
+    });
+
+    it('sets the progress bar to false', (done) => {
+      const unsubscribe = Store.listen((state) => {
+        unsubscribe();
+        expect(state.progressbar).to.equal(false);
+        done();
+      });
+      Actions.hideProgressBar();
+    });
+
+    context('when the bar is trickling', () => {
+      beforeEach((done) => {
+        const unsubscribe = Store.listen(() => {
+          unsubscribe();
+          done();
+        });
+        Actions.enableProgressTrickle();
+      });
+
+      it('stops the trickle', (done) => {
+        const unsubscribe = Store.listen((state) => {
+          unsubscribe();
+          expect(state.trickle).to.equal(false);
+          expect(Store._trickleTimer).to.equal(null);
+          done();
+        });
+        Actions.hideProgressBar();
+      });
+    });
   });
 
   describe('#configure', () => {
