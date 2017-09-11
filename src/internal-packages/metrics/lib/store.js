@@ -2,7 +2,7 @@ const Reflux = require('reflux');
 const metrics = require('mongodb-js-metrics')();
 const setupMetrics = require('./setup');
 const rules = require('./rules');
-const debug = require('debug')('mongodb-compass:stores:metrics');
+// const debug = require('debug')('mongodb-compass:stores:metrics');
 
 const MetricsStore = Reflux.createStore({
 
@@ -14,7 +14,6 @@ const MetricsStore = Reflux.createStore({
    */
   onActivated(appRegistry) {
     // set up listeners on external stores
-    debug('onActivated metrics');
     setupMetrics();
 
     // configure rules
@@ -26,10 +25,8 @@ const MetricsStore = Reflux.createStore({
       }
       // attach an event listener
       store.listen((state) => {
-        debug('rule detected', rule, state);
         // only track an event if the rule condition evaluates to true
         if (rule.condition(state)) {
-          debug('rule condition true', state);
           metrics.track(rule.resource, rule.action, rule.metadata(state));
         }
       });

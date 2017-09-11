@@ -1,5 +1,8 @@
+const schemaStats = require('mongodb-schema/lib/stats');
+const debug = require('debug')('mongodb-compass:metrics:rules');
+
 /**
- * This file defines rules for tracking metrics.
+ * This file defines rules for tracking metrics based on Reflux store changes.
  *
  * Each rule is an object with the following keys:
  *
@@ -35,12 +38,16 @@ module.exports = [
     })
   },
   {
-    store: 'Field.Store',
+    store: 'Schema.Store',
     resource: 'Schema',
     action: 'sampled',
-    condition: (state) => Object.keys(state.fields).length > 0,
+    condition: (state) => state.samplingState === 'complete',
     metadata: (state) => ({
-      'number of fields': Object.keys(state.fields).length
+      'sampling time ms': state.samplingTimeMS,
+      'number of fields': state.schema.fields.length,
+      'schema width': schemaStats.width(state.schema),
+      'schema depth': schemaStats.depth(state.schema),
+      'schema branching factors': schemaStats.branch(state.schema)
     })
   }
 

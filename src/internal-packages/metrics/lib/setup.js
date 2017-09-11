@@ -82,6 +82,7 @@ module.exports = function() {
     }
   });
 
+  // TODO (thomas) this doesn't always seem to trigger. Perhaps racy?
   ipc.once('app:quit', function() {
     metrics.track('App', 'quit');
   });
