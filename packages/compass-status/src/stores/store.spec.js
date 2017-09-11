@@ -127,11 +127,44 @@ describe('StatusStore [Store]', () => {
 
   describe('#configure', () => {
     context('when trickle is falsy', () => {
+      beforeEach(() => {
+        Store.state.trickle = true;
+      });
 
+      it('configures state with a disabled trickle', (done) => {
+        const unsubscribe = Store.listen((state) => {
+          unsubscribe();
+          expect(state.trickle).to.equal(false);
+          expect(Store._trickleTimer).to.equal(null);
+          // TODO: Second state change not fired yet.
+          // expect(state.progress).to.equal(50);
+          // expect(state.progressbar).to.equal(true);
+          done();
+        });
+        Actions.configure({ progress: 50, progressbar: true });
+      });
     });
 
     context('when trickle is truthy', () => {
+      afterEach((done) => {
+        const unsubscribe = Store.listen(() => {
+          unsubscribe();
+          done();
+        });
+        Actions.disableProgressTrickle();
+      });
 
+      it('configures state with an enabled trickle', (done) => {
+        const unsubscribe = Store.listen((state) => {
+          unsubscribe();
+          expect(state.trickle).to.equal(true);
+          expect(Store._trickleTimer).to.not.equal(null);
+          // TODO: Second state change not fired yet.
+          // expect(state.progress).to.equal(50);
+          done();
+        });
+        Actions.configure({ progress: 50, trickle: true });
+      });
     });
   });
 
