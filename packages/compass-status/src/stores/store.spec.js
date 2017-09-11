@@ -136,10 +136,12 @@ describe('StatusStore [Store]', () => {
           unsubscribe();
           expect(state.trickle).to.equal(false);
           expect(Store._trickleTimer).to.equal(null);
-          // TODO: Second state change not fired yet.
-          // expect(state.progress).to.equal(50);
-          // expect(state.progressbar).to.equal(true);
-          done();
+          const unsub = Store.listen((state) => {
+            unsub();
+            expect(state.progress).to.equal(50);
+            expect(state.progressbar).to.equal(true);
+            done();
+          });
         });
         Actions.configure({ progress: 50, progressbar: true });
       });
@@ -159,9 +161,11 @@ describe('StatusStore [Store]', () => {
           unsubscribe();
           expect(state.trickle).to.equal(true);
           expect(Store._trickleTimer).to.not.equal(null);
-          // TODO: Second state change not fired yet.
-          // expect(state.progress).to.equal(50);
-          done();
+          const unsub = Store.listen((state) => {
+            unsub();
+            expect(state.progress).to.equal(50);
+            done();
+          });
         });
         Actions.configure({ progress: 50, trickle: true });
       });
