@@ -21,8 +21,6 @@ const CellEditor = require('./table-view/cell-editor');
 
 const MIXED = 'Mixed';
 
-/* eslint react/sort-comp:0 */
-
 /**
  * Represents the table view of the documents tab.
  */
@@ -41,16 +39,12 @@ class DocumentListTableView extends React.Component {
       context: {
         column_width: 150,
         onRowDoubleClicked: this.onRowDoubleClicked,
-        removeFooter: this.removeFooter,
-        getCurrentRow: this.getCurrentRow.bind(this),
-        setCurrentRow: this.setCurrentRow.bind(this)
+        removeFooter: this.removeFooter
       },
       onRowDoubleClicked: this.onRowDoubleClicked,
       onCellClicked: this.onCellClicked.bind(this),
       rowHeight: 28  // .document-footer row needs 28px, ag-grid default is 25px
     };
-
-    this.currentRow = null; /* The row currently being edited or deleted. */
   }
 
   componentDidMount() {
@@ -59,14 +53,6 @@ class DocumentListTableView extends React.Component {
 
   componentWillUnmount() {
     this.unsubscribeGridStore();
-  }
-
-  getCurrentRow() {
-    return this.currentRow;
-  }
-
-  setCurrentRow(data) {
-    this.currentRow = data;
   }
 
   onGridReady(params) {
@@ -97,16 +83,8 @@ class DocumentListTableView extends React.Component {
    *     rowIndex {number} - the visible row index for the row in question
    */
   onRowDoubleClicked(event) {
-    if (this.props.isEditable && !event.data.isFooter) {
-      if (this.currentRow === null) {
-        this.addEditingFooter(event.node, event.data, event.rowIndex);
-      } else if (this.currentRow !== event.data) {
-        /* TODO: COMPASS-1837 Popup box for warning the user if they navigate away.*/
-        console.log('You still haven\'t updated your changes to document '
-          + this.currentRow.rowNumber + '. Editing a different document '
-          + 'will abandon any unsaved edits you have made. New document:'
-          + event.data.rowNumber);
-      }
+    if (this.props.isEditable) {
+      this.addEditingFooter(event.node, event.data, event.rowIndex);
     }
   }
 
@@ -129,7 +107,6 @@ class DocumentListTableView extends React.Component {
     /* Add footer below this row */
     rowNode.data.hasFooter = true;
     rowNode.data.state = 'editing';
-    this.currentRow = data;
     this.gridApi.refreshCells({rowNodes: [rowNode], columns: ['$rowActions'], force: true});
 
     const newData = {
@@ -190,7 +167,6 @@ class DocumentListTableView extends React.Component {
   removeFooter(data) {
     const rowId = data.hadronDocument.get('_id').value.toString() + '0';
     const api = this.gridApi;
-    this.currentRow = null;
 
     const dataNode = api.getRowNode(rowId);
     setTimeout(function() {
@@ -200,6 +176,7 @@ class DocumentListTableView extends React.Component {
       api.updateRowData({remove: [data]});
     }, 0);
   }
+
 
   /**
    * Add a column to the grid to the right of the column with colId.
