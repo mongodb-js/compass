@@ -195,7 +195,7 @@ const StatusStore = Reflux.createStore({
     delay(() => {
       this.hide();
     }, 700);
-  },
+  }
 });
 
 module.exports = StatusStore;
