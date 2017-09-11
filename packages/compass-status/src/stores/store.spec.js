@@ -126,6 +126,13 @@ describe('StatusStore [Store]', () => {
   });
 
   describe('#configure', () => {
+    context('when trickle is falsy', () => {
+
+    });
+
+    context('when trickle is truthy', () => {
+
+    });
   });
 
   describe('#setProgressValue', () => {
@@ -135,9 +142,23 @@ describe('StatusStore [Store]', () => {
   });
 
   describe('#enableProgressTrickle', () => {
+    context('when a timer already exists', () => {
+
+    });
+
+    context('when a timer does not exist', () => {
+
+    });
   });
 
   describe('#disableProgressTrickle', () => {
+    context('when a timer exists', () => {
+
+    });
+
+    context('when a timer does not exist', () => {
+
+    });
   });
 
   describe('#setMessage', () => {
@@ -171,8 +192,14 @@ describe('StatusStore [Store]', () => {
   });
 
   describe('#hide', () => {
+    context('when the store is trickling', () => {
+
+    });
   });
 
   describe('#done', () => {
+    context('when the store is trickling', () => {
+
+    });
   });
 });
