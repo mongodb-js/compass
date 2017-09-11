@@ -3,6 +3,8 @@ const PropTypes = require('prop-types');
 const getComponent = require('hadron-react-bson');
 const { Element } = require('hadron-document');
 
+const Actions = require('../../actions');
+
 const initEditors = require('../editor/');
 
 // const util = require('util');
@@ -136,6 +138,15 @@ class CellRenderer extends React.Component {
   }
 
   handleUndo() {
+    const oid = this.props.node.data.hadronDocument.getId().toString();
+    if (this.element.isAdded()) {
+      Actions.elementRemoved(this.element.currentKey, oid, false);
+      this.isEmpty = true;
+    } else if (this.element.isRemoved()) {
+      Actions.elementAdded(this.element.currentKey, this.element.currentType, oid);
+    } else {
+      Actions.elementTypeChanged(this.element.currentKey, this.element.type, oid);
+    }
     this.element.revert();
   }
 
