@@ -64,7 +64,7 @@ class CellRenderer extends React.Component {
     props.api.selectAll();
 
     this.isEmpty = props.value === undefined;
-    this.deleted = false;
+    this.isDeleted = false;
     this.element = props.value;
 
     this._editors = initEditors(this.element);
@@ -107,6 +107,7 @@ class CellRenderer extends React.Component {
   handleUndo() {
     const oid = this.props.node.data.hadronDocument.getId().toString();
     if (this.element.isAdded()) {
+      this.isDeleted = true;
       Actions.elementRemoved(this.element.currentKey, oid, false);
     } else if (this.element.isRemoved()) {
       Actions.elementAdded(this.element.currentKey, this.element.currentType, oid);
@@ -167,7 +168,7 @@ class CellRenderer extends React.Component {
     let className = BEM_BASE;
     let canUndo = false;
 
-    if (this.isEmpty) {
+    if (this.isEmpty || this.isDeleted) {
       element = 'No field';
       className = `${className}-${EMPTY}`;
     } else if (!this.element.isCurrentTypeValid()) {
