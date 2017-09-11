@@ -136,9 +136,31 @@ describe('StatusStore [Store]', () => {
   });
 
   describe('#setProgressValue', () => {
+    it('sets a visible progress', (done) => {
+      const unsubscribe = Store.listen((state) => {
+        unsubscribe();
+        expect(state.visible).to.equal(true);
+        expect(state.progress).to.equal(45);
+        done();
+      });
+      Actions.setProgressValue(45);
+    });
   });
 
   describe('#incProgressValue', () => {
+    beforeEach(() => {
+      Store.state.progress = 40;
+    });
+
+    it('increments the visible progress', (done) => {
+      const unsubscribe = Store.listen((state) => {
+        unsubscribe();
+        expect(state.visible).to.equal(true);
+        expect(state.progress).to.equal(55);
+        done();
+      });
+      Actions.incProgressValue(15);
+    });
   });
 
   describe('#enableProgressTrickle', () => {

@@ -87,7 +87,7 @@ const StatusStore = Reflux.createStore({
   incProgressValue(value) {
     this.setState({
       visible: true,
-      progress: this.state.value + value
+      progress: this.state.progress + value
     });
   },
 
