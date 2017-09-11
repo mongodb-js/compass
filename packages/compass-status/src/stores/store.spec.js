@@ -1,4 +1,5 @@
 import Store from 'stores';
+import Actions from 'actions';
 
 describe('StatusStore [Store]', () => {
   beforeEach(() => {
@@ -40,6 +41,18 @@ describe('StatusStore [Store]', () => {
 
     it('defaults trickle to false', () => {
       expect(Store.state.trickle).to.equal(false);
+    });
+  });
+
+  describe('#showProgressBar', () => {
+    it('sets visible and progressbar to true', (done) => {
+      const unsubscribe = Store.listen((state) => {
+        unsubscribe();
+        expect(state.visible).to.equal(true);
+        expect(state.progressbar).to.equal(true);
+        done();
+      });
+      Actions.showProgressBar();
     });
   });
 });
