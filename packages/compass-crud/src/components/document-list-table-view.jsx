@@ -30,16 +30,16 @@ class DocumentListTableView extends React.Component {
     this.createColumnHeaders = this.createColumnHeaders.bind(this);
     this.createRowData = this.createRowData.bind(this);
     this.addEditingFooter = this.addEditingFooter.bind(this);
-    this.onRowClicked = this.onRowClicked.bind(this);
+    this.onRowDoubleClicked = this.onRowDoubleClicked.bind(this);
     this.createColumnHeader = this.createColumnHeader.bind(this);
     this.updateHeaders = this.updateHeaders.bind(this);
 
     this.gridOptions = {
       context: {
         column_width: 150,
-        addHeader: this.createColumnHeader
+        onRowDoubleClicked: this.onRowDoubleClicked
       },
-      onRowClicked: this.onRowClicked,
+      onRowDoubleClicked: this.onRowDoubleClicked,
       onCellClicked: this.onCellClicked.bind(this),
       rowHeight: 28  // .document-footer row needs 28px, ag-grid default is 25px
     };
@@ -78,7 +78,7 @@ class DocumentListTableView extends React.Component {
    *     context: {*} - bag of attributes, provided by user, see Context
    *     event?: {Event} - event if this was result of a browser event
    */
-  onRowClicked(event) {
+  onRowDoubleClicked(event) {
     if (this.props.isEditable) {
       this.addEditingFooter(event.node, event.data, event.rowIndex);
     }

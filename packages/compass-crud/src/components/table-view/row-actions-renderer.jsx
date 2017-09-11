@@ -15,8 +15,13 @@ class RowActionsRenderer extends React.Component {
   }
 
   handleEdit() {
-    console.log('handling edit button for row #' + this.props.value.rowNumber);
+    this.props.context.onRowDoubleClicked({
+      node: this.props.node,
+      data: this.props.data,
+      rowIndex: this.props.node.rowIndex
+    });
   }
+
   handleRemove() {
     console.log('handling delete button for row #' + this.props.value.rowNumber);
   }
@@ -65,7 +70,9 @@ class RowActionsRenderer extends React.Component {
 RowActionsRenderer.propTypes = {
   api: PropTypes.any,
   value: PropTypes.any,
-  node: PropTypes.any
+  node: PropTypes.any,
+  context: PropTypes.any,
+  data: PropTypes.any
 };
 
 RowActionsRenderer.displayName = 'RowActionsRenderer';
