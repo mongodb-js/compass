@@ -57,6 +57,37 @@ describe('StatusStore [Store]', () => {
   });
 
   describe('#showIndeterminateProgressBar', () => {
+    it('sets the 100% visible bar without trickle', (done) => {
+      const unsubscribe = Store.listen((state) => {
+        unsubscribe();
+        expect(state.visible).to.equal(true);
+        expect(state.progressbar).to.equal(true);
+        expect(state.progress).to.equal(100);
+        expect(state.trickle).to.equal(false);
+        done();
+      });
+      Actions.showIndeterminateProgressBar();
+    });
+
+    context('when the bar is trickling', () => {
+      beforeEach((done) => {
+        const unsubscribe = Store.listen(() => {
+          unsubscribe();
+          done();
+        });
+        Actions.enableProgressTrickle();
+      });
+
+      it('stops the trickle', (done) => {
+        const unsubscribe = Store.listen((state) => {
+          unsubscribe();
+          expect(state.trickle).to.equal(false);
+          expect(Store._trickleTimer).to.equal(null);
+          done();
+        });
+        Actions.showIndeterminateProgressBar();
+      });
+    });
   });
 
   describe('#hideProgressBar', () => {
