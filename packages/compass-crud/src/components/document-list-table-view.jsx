@@ -40,7 +40,7 @@ class DocumentListTableView extends React.Component {
         addHeader: this.createColumnHeader
       },
       onRowClicked: this.onRowClicked,
-      // onCellClicked: this.onCellClicked.bind(this)
+      onCellClicked: this.onCellClicked.bind(this),
       rowHeight: 28  // .document-footer row needs 28px, ag-grid default is 25px
     };
   }
@@ -58,15 +58,14 @@ class DocumentListTableView extends React.Component {
     this.columnApi = params.columnApi;
   }
 
-  // /**
-  //  * @param {Object} event
-  //  *    column: Column, // the column for the cell in question
-  //  *    colDef: ColDef, // the column definition for the cell in question
-  //  *    value: any // the value for the cell in question
-  //  */
-  // onCellClicked(event) {
-  //   // console.log('a cell was clicked + event=');
-  // }
+  /**
+   * @param {Object} event
+   */
+  onCellClicked(event) {
+    if (event.data.state === 'editing') {
+      event.api.startEditingCell({rowIndex: event.node.rowIndex, colKey: event.column.getColId()});
+    }
+  }
 
   /**
    * Callback for when a row is clicked.
