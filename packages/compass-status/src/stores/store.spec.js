@@ -221,7 +221,7 @@ describe('StatusStore [Store]', () => {
   });
 
   describe('#setMessage', () => {
-    it('sets a visible message', () => {
+    it('sets a visible message', (done) => {
       const unsubscribe = Store.listen((state) => {
         unsubscribe();
         expect(state.visible).to.equal(true);
