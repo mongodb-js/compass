@@ -33,11 +33,13 @@ class DocumentListTableView extends React.Component {
     this.onRowDoubleClicked = this.onRowDoubleClicked.bind(this);
     this.createColumnHeader = this.createColumnHeader.bind(this);
     this.updateHeaders = this.updateHeaders.bind(this);
+    this.removeFooter = this.removeFooter.bind(this);
 
     this.gridOptions = {
       context: {
         column_width: 150,
-        onRowDoubleClicked: this.onRowDoubleClicked
+        onRowDoubleClicked: this.onRowDoubleClicked,
+        removeFooter: this.removeFooter
       },
       onRowDoubleClicked: this.onRowDoubleClicked,
       onCellClicked: this.onCellClicked.bind(this),
@@ -152,6 +154,25 @@ class DocumentListTableView extends React.Component {
       state: 'deleting'
     };
     this.gridApi.updateRowData({add: [newData], addIndex: rowIndex + 1});
+  }
+
+  /**
+   * A row has finished editing and the footer needs to be removed and the state
+   * set back to null.
+   *
+   * @param {object} data - The data of the footer that is going to be removed.
+   */
+  removeFooter(data) {
+    const rowId = data.hadronDocument.get('_id').value.toString() + '0';
+    const api = this.gridApi;
+
+    const dataNode = api.getRowNode(rowId);
+    setTimeout(function() {
+      dataNode.data.hasFooter = false;
+      dataNode.data.state = null;
+      api.refreshCells({rowNodes: [dataNode], columns: ['$rowActions'], force: true});
+      api.updateRowData({remove: [data]});
+    }, 0);
   }
 
 

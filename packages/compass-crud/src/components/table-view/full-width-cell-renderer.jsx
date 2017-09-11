@@ -26,22 +26,8 @@ class FullWidthCellRenderer extends React.Component {
     this.removeStore = {listen: ()=>{return ()=>{};}};
   }
 
-  closeFooter() {
-    const api = this.props.api;
-    const data = this.props.data;
-
-    const rowId = data.hadronDocument.get('_id').value.toString() + '0';
-    const dataNode = api.getRowNode(rowId);
-    setTimeout(function() {
-      dataNode.data.hasFooter = false;
-      dataNode.data.state = null;
-      api.refreshCells({rowNodes: [dataNode], columns: ['$rowActions'], force: true});
-      api.updateRowData({remove: [data]});
-    }, 0);
-  }
-
   handleCancelDelete() {
-    this.closeFooter();
+    this.props.context.removeFooter(this.props.data);
   }
 
   handleCancelUpdate() {
@@ -69,7 +55,7 @@ class FullWidthCellRenderer extends React.Component {
     for (let i = 0; i < changed.length; i++) {
       Actions.elementTypeChanged(changed[i].currentKey, changed[i].currentType, id);
     }
-    this.closeFooter();
+    this.props.context.removeFooter(this.props.data);
   }
 
   render() {
@@ -97,7 +83,8 @@ class FullWidthCellRenderer extends React.Component {
 FullWidthCellRenderer.propTypes = {
   api: PropTypes.any,
   mode: PropTypes.any,
-  data: PropTypes.any
+  data: PropTypes.any,
+  context: PropTypes.any
 };
 
 FullWidthCellRenderer.displayName = 'FullWidthCellRenderer';
