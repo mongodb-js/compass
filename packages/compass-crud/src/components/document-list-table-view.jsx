@@ -103,6 +103,8 @@ class DocumentListTableView extends React.Component {
     /* Add footer below this row */
     rowNode.data.hasFooter = true;
     rowNode.data.state = 'editing';
+    this.gridApi.refreshCells({rowNodes: [rowNode], columns: ['$rowActions'], force: true});
+
     const newData = {
       hadronDocument: data.hadronDocument,
       hasFooter: false,

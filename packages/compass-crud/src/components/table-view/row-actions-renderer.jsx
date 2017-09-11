@@ -28,6 +28,11 @@ class RowActionsRenderer extends React.Component {
   }
 
   render() {
+    /* Don't show actions for rows that are being edited or marked for deletion */
+    if (this.props.value.state === 'editing' || this.props.value.state === 'deleting') {
+      return null;
+    }
+
     return (
       <div className={BEM_BASE}>
         <div className={`${BEM_BASE}-panel`}>
