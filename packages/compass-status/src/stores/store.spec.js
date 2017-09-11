@@ -221,6 +221,15 @@ describe('StatusStore [Store]', () => {
   });
 
   describe('#setMessage', () => {
+    it('sets a visible message', () => {
+      const unsubscribe = Store.listen((state) => {
+        unsubscribe();
+        expect(state.visible).to.equal(true);
+        expect(state.message).to.equal('message');
+        done();
+      });
+      Actions.setMessage('message');
+    });
   });
 
   describe('#clearMessage', () => {
