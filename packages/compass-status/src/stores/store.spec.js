@@ -260,30 +260,124 @@ describe('StatusStore [Store]', () => {
   });
 
   describe('#clearMessage', () => {
+    beforeEach(() => {
+      Store.state.message = 'testing';
+    });
+
+    it('clears the message', (done) => {
+      const unsubscribe = Store.listen((state) => {
+        unsubscribe();
+        expect(state.message).to.equal('');
+        done();
+      });
+      Actions.clearMessage();
+    });
   });
 
   describe('#showAnimation', () => {
+    it('sets a visible animation', (done) => {
+      const unsubscribe = Store.listen((state) => {
+        unsubscribe();
+        expect(state.visible).to.equal(true);
+        expect(state.animation).to.equal(true);
+        done();
+      });
+      Actions.showAnimation();
+    });
   });
 
   describe('#hideAnimation', () => {
+    beforeEach(() => {
+      Store.state.animation = true;
+    });
+
+    it('hides the animation', (done) => {
+      const unsubscribe = Store.listen((state) => {
+        unsubscribe();
+        expect(state.animation).to.equal(false);
+        done();
+      });
+      Actions.hideAnimation();
+    });
   });
 
   describe('#showStaticSidebar', () => {
+    it('sets a visible sidebar', (done) => {
+      const unsubscribe = Store.listen((state) => {
+        unsubscribe();
+        expect(state.visible).to.equal(true);
+        expect(state.sidebar).to.equal(true);
+        done();
+      });
+      Actions.showStaticSidebar();
+    });
   });
 
   describe('#hideStaticSidebar', () => {
+    beforeEach(() => {
+      Store.state.sidebar = true;
+    });
+
+    it('hides the sidebar', (done) => {
+      const unsubscribe = Store.listen((state) => {
+        unsubscribe();
+        expect(state.sidebar).to.equal(false);
+        done();
+      });
+      Actions.hideStaticSidebar();
+    });
   });
 
   describe('#setSubview', () => {
+    it('sets the subview', (done) => {
+      const unsubscribe = Store.listen((state) => {
+        unsubscribe();
+        expect(state.subview).to.equal('div');
+        done();
+      });
+      Actions.setSubview('div');
+    });
   });
 
   describe('#onClearSubview', () => {
+    beforeEach(() => {
+      Store.state.subview = 'div';
+    });
+
+    it('clears the subview', (done) => {
+      const unsubscribe = Store.listen((state) => {
+        unsubscribe();
+        expect(state.subview).to.equal(null);
+        done();
+      });
+      Store.onClearSubview();
+    });
   });
 
   describe('#enableModal', () => {
+    it('sets modal to true', (done) => {
+      const unsubscribe = Store.listen((state) => {
+        unsubscribe();
+        expect(state.modal).to.equal(true);
+        done();
+      });
+      Actions.enableModal();
+    });
   });
 
   describe('#disableModal', () => {
+    beforeEach(() => {
+      Store.state.modal = true;
+    });
+
+    it('sets modal to false', (done) => {
+      const unsubscribe = Store.listen((state) => {
+        unsubscribe();
+        expect(state.modal).to.equal(false);
+        done();
+      });
+      Actions.disableModal();
+    });
   });
 
   describe('#hide', () => {
