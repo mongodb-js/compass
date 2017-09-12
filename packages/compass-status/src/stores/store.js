@@ -198,4 +198,5 @@ const StatusStore = Reflux.createStore({
   }
 });
 
-module.exports = StatusStore;
+export default StatusStore;
+export { StatusStore };
