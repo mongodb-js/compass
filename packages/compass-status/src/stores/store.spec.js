@@ -202,11 +202,38 @@ describe('StatusStore [Store]', () => {
 
   describe('#enableProgressTrickle', () => {
     context('when a timer already exists', () => {
+      beforeEach(() => {
+        Store._trickleTimer = true;
+        Actions.enableProgressTrickle();
+      });
 
+      afterEach(() => {
+        Store._trickleTimer = null;
+      });
+
+      it('returns', () => {
+        expect(Store.state.trickle).to.equal(false);
+      });
     });
 
     context('when a timer does not exist', () => {
+      afterEach((done) => {
+        const unsubscribe = Store.listen(() => {
+          unsubscribe();
+          done();
+        });
+        Actions.disableProgressTrickle();
+      });
 
+      it('sets the store to be trickling', (done) => {
+        const unsubscribe = Store.listen((state) => {
+          unsubscribe();
+          expect(state.trickle).to.equal(true);
+          expect(Store._trickleTimer).to.not.equal(null);
+          done();
+        });
+        Actions.enableProgressTrickle();
+      });
     });
   });
 
