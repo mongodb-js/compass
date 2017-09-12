@@ -28,20 +28,19 @@ class DocumentListTableView extends React.Component {
   constructor(props) {
     super(props);
     this.createColumnHeaders = this.createColumnHeaders.bind(this);
-    this.createRowData = this.createRowData.bind(this);
-    this.addEditingFooter = this.addEditingFooter.bind(this);
-    this.onRowDoubleClicked = this.onRowDoubleClicked.bind(this);
     this.createColumnHeader = this.createColumnHeader.bind(this);
+    this.createRowData = this.createRowData.bind(this);
     this.updateHeaders = this.updateHeaders.bind(this);
     this.removeFooter = this.removeFooter.bind(this);
+    this.addFooter = this.addFooter.bind(this);
 
     this.gridOptions = {
       context: {
         column_width: 150,
-        onRowDoubleClicked: this.onRowDoubleClicked,
+        addFooter: this.addFooter,
         removeFooter: this.removeFooter
       },
-      onRowDoubleClicked: this.onRowDoubleClicked,
+      onRowDoubleClicked: this.onRowDoubleClicked.bind(this),
       onCellClicked: this.onCellClicked.bind(this),
       rowHeight: 28  // .document-footer row needs 28px, ag-grid default is 25px
     };
@@ -80,82 +79,38 @@ class DocumentListTableView extends React.Component {
    * @param {Object} event
    *     node {RowNode} - the RowNode for the row in question
    *     data {*} - the user provided data for the row in question
-   *     rowIndex {number} - the visible row index for the row in question
    */
   onRowDoubleClicked(event) {
-    if (this.props.isEditable) {
-      this.addEditingFooter(event.node, event.data, event.rowIndex);
-    }
+    this.addFooter(event.node, event.data, 'editing');
   }
 
   /**
    * Add a row to the table that represents the update/cancel footer for the
    * row directly above. The row will be a full-width row that has the same
-   * hadron-document as the "data" row above.
+   * hadron-document as the "document row" above.
    *
-   * @param {RowNode} rowNode - The RowNode for the row that was clicked on.
-   * @param {object} data - The data for the row that was clicked on. Will be a
-   *  HadronDocument with some metadata.
-   * @param {number} rowIndex - Index of the row clicked on.
+   * @param {RowNode} node - The RowNode for the document row.
+   * @param {object} data - The data for the document row.
+   * @param {String} state - Either an editing or a deleting footer.
    */
-  addEditingFooter(rowNode, data, rowIndex) {
-    /* Ignore clicks on footers or data rows that already have footers */
-    if (data.isFooter || data.hasFooter) {
+  addFooter(node, data, state) {
+    /* Ignore clicks on footers or document rows that already have footers */
+    if (!this.props.isEditable || data.isFooter || data.hasFooter) {
       return;
     }
 
     /* Add footer below this row */
-    rowNode.data.hasFooter = true;
-    rowNode.data.state = 'editing';
-    this.gridApi.refreshCells({rowNodes: [rowNode], columns: ['$rowActions'], force: true});
+    node.data.hasFooter = true;
+    node.data.state = state;
+    this.gridApi.refreshCells({rowNodes: [node], columns: ['$rowActions'], force: true});
 
     const newData = {
       hadronDocument: data.hadronDocument,
       hasFooter: false,
       isFooter: true,
-      state: 'editing'
+      state: state
     };
-    this.gridApi.updateRowData({add: [newData], addIndex: rowIndex + 1});
-  }
-
-  /**
-   * Add a row to the table that represents the delete/cancel footer for the
-   * row directly above. The row will be a full-width row that has the same
-   * hadron-document as the "data" row above.
-   *
-   * @param {RowNode} rowNode - The RowNode for the row that was clicked on.
-   * @param {object} data - The data for the row that was clicked on. Will be a
-   *  HadronDocument with some metadata.
-   * @param {number} rowIndex - Index of the row clicked on.
-   */
-  addDeletingFooter(rowNode, data, rowIndex) {
-    if (data.isFooter || data.state === 'deleting') {
-      return;
-    } else if (data.hasFooter) {
-      /* If bar exists and is in editing mode, set this row deleting and also
-       * this rows' footer's state to deleting. */
-
-      data.state = 'deleting';
-      const rowId = data.hadronDocument.get('_id').value.toString() + '1';
-
-      const footerNode = this.gridApi.getRowNode(rowId);
-      footerNode.data.state = 'deleting';
-
-      /* rerender footer */
-      this.gridApi.redrawRows([footerNode]);
-      return;
-    }
-
-    /* Add deleting row below this row */
-    rowNode.data.hasFooter = true;
-    rowNode.data.state = 'deleting';
-    const newData = {
-      hadronDocument: data.hadronDocument,
-      hasFooter: false,
-      isFooter: true,
-      state: 'deleting'
-    };
-    this.gridApi.updateRowData({add: [newData], addIndex: rowIndex + 1});
+    this.gridApi.updateRowData({add: [newData], addIndex: node.rowIndex + 1});
   }
 
   /**

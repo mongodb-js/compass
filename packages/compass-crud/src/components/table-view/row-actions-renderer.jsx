@@ -15,16 +15,13 @@ class RowActionsRenderer extends React.Component {
   }
 
   handleEdit() {
-    this.props.context.onRowDoubleClicked({
-      node: this.props.node,
-      data: this.props.data,
-      rowIndex: this.props.node.rowIndex
-    });
+    this.props.context.addFooter(this.props.node, this.props.data, 'editing');
   }
 
   handleRemove() {
-    console.log('handling delete button for row #' + this.props.value.rowNumber);
+    this.props.context.addFooter(this.props.node, this.props.data, 'deleting');
   }
+
   handleClone() {
     console.log('handling clone button for row #' + this.props.value.rowNumber);
   }
