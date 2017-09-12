@@ -1,10 +1,10 @@
-var BaseResource = require('mongodb-js-metrics').resources.BaseResource;
-var FeatureResource = require('mongodb-js-metrics').resources.FeatureResource;
-var debug = require('debug')('mongodb-compass:metrics:features');
-var _ = require('lodash');
+const BaseResource = require('mongodb-js-metrics').resources.BaseResource;
+const FeatureResource = require('mongodb-js-metrics').resources.FeatureResource;
+const debug = require('debug')('mongodb-compass:metrics:features');
+const _ = require('lodash');
 
 // generic features with action `used`
-var features = [
+const features = [
   'Clipboard Detection',
   'Document Viewer',
   'Query Builder',
@@ -17,62 +17,62 @@ var features = [
   'Indexes'
 ];
 
-var featureResources = _.object(_.map(features, function(feature) {
-  var Klass = FeatureResource.extend({
+const featureResources = _.object(_.map(features, function(feature) {
+  const Klass = FeatureResource.extend({
     id: feature,
-    eventTrackers: ['ga', 'intercom', 'mixpanel']
+    eventTrackers: ['ga', 'intercom', 'stitch']
   });
   return [feature, new Klass()];
 }));
 
 // Geo Data uses `detected` as action
-var GeoDataResource = FeatureResource.extend({
+const GeoDataResource = FeatureResource.extend({
   id: 'Geo Data',
-  eventTrackers: ['ga', 'intercom', 'mixpanel'],
+  eventTrackers: ['ga', 'intercom', 'stitch'],
   detected: function(metadata, callback) {
     this._send_event(metadata, callback);
   }
 });
 
 // Collection uses `fetched` as action
-var CollectionResource = FeatureResource.extend({
+const CollectionResource = FeatureResource.extend({
   id: 'Collection',
-  eventTrackers: ['ga', 'intercom', 'mixpanel'],
+  eventTrackers: ['ga', 'intercom', 'stitch'],
   fetched: function(metadata, callback) {
     this._send_event(metadata, callback);
   }
 });
 
 // Deployment Data uses `detected` as action
-var DeploymentResource = FeatureResource.extend({
+const DeploymentResource = FeatureResource.extend({
   id: 'Deployment',
-  eventTrackers: ['ga', 'intercom', 'mixpanel'],
+  eventTrackers: ['ga', 'intercom', 'stitch'],
   detected: function(metadata, callback) {
     this._send_event(metadata, callback);
   }
 });
 
 // Schema resource uses `sampled` as action
-var SchemaResource = BaseResource.extend({
+const SchemaResource = BaseResource.extend({
   id: 'Schema',
-  eventTrackers: ['ga', 'intercom', 'mixpanel'],
+  eventTrackers: ['ga', 'intercom', 'stitch'],
   sampled: function(metadata, callback) {
     this._send_event(metadata, callback);
   }
 });
 
 // Index resource uses `detected` as action
-var IndexesResource = BaseResource.extend({
+const IndexesResource = BaseResource.extend({
   id: 'Indexes',
-  eventTrackers: ['ga', 'intercom', 'mixpanel'],
+  eventTrackers: ['ga', 'intercom', 'stitch'],
   detected: function(metadata, callback) {
     this._send_event(metadata, callback);
   }
 });
 
-var AutoUpdateResource = BaseResource.extend({
+const AutoUpdateResource = BaseResource.extend({
   id: 'Auto Update',
-  eventTrackers: ['ga', 'intercom', 'mixpanel'],
+  eventTrackers: ['ga', 'intercom', 'stitch'],
   checking: function(metadata, callback) {
     this._send_event(metadata, callback);
   },

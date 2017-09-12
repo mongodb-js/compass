@@ -2,7 +2,6 @@ var $ = window.jQuery;
 var View = require('ampersand-view');
 var app = require('hadron-app');
 var _ = require('lodash');
-var metrics = require('mongodb-js-metrics')();
 
 var debug = require('debug')('mongodb-compass:network-optin:index');
 
@@ -106,14 +105,6 @@ var NetworkOptInView = View.extend({
     _.delay(function() {
       this.remove();
     }.bind(this), 500);
-    var metadata = {
-      'track usage stats': settings.trackUsageStatistics,
-      'product feedback': settings.enableFeedbackPanel,
-      'track errors': settings.trackErrors,
-      'auto updates': settings.autoUpdates,
-      'enable maps': settings.enableMaps
-    };
-    metrics.track('Network Opt-in', 'used', metadata);
   },
   render: function() {
     this.renderWithTemplate(this);

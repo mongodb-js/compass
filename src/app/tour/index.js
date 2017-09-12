@@ -1,6 +1,5 @@
 var $ = require('jquery');
 var View = require('ampersand-view');
-var metrics = require('mongodb-js-metrics')();
 var app = require('hadron-app');
 var semver = require('semver');
 var _ = require('lodash');
@@ -236,10 +235,6 @@ var TourView = View.extend({
     this.showHidePreviousNextButtons();
   },
   tourRemove: function() {
-    metrics.track('Feature Tour', 'used', {
-      lastSlide: this.tourCount,
-      totalTime: new Date() - this.timeAtStart
-    });
     this.trigger('close');
     this.body.removeEventListener('keydown', this.onKeyPress);
     this.remove();
