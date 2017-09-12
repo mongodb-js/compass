@@ -25,57 +25,63 @@ class Status extends Component {
    * @returns {React.Component} The rendered component.
    */
   render() {
-    const visible = { visibility: this.props.visible ? 'visible' : 'hidden' };
-    const progressBarWidth = this.props.progress;
-    const progressBarHeight = 4;
-    const outerBarStyle = {
-      display: this.props.progressbar ? 'block' : 'none',
-      height: progressBarHeight
-    };
-    const innerBarStyle = {
-      width: `${progressBarWidth}%`
-    };
-    const messageStyle = {
-      visibility: this.props.message !== '' ? 'visible' : 'hidden'
-    };
-    const animationStyle = {
-      visibility: this.props.animation ? 'visible' : 'hidden'
-    };
-    const sidebarStyle = {
-      display: this.props.sidebar ? 'block' : 'none'
-    };
-
     let statusSubview = null;
     if (this.props.subview) {
       const SubView = this.props.subview;
       statusSubview = <SubView {...this.props} />;
     }
 
-    const progressBarStyles = {
-      'progress-bar': true,
-      'progress-bar-striped': true,
-      'active': true
+    const statusClasses = {
+      'status': true,
+      'status-is-visible': this.props.visible
     };
 
-    const messageStyles = {
-      'with-sidebar': true,
-      'centered': true
+    const progressClasses = {
+      'progress': true,
+      'progress-is-visible': this.props.progressbar
+    };
+
+    const progressBarClasses = {
+      'progress-bar': true,
+      'progress-bar-is-striped': true,
+      'progress-bar-is-active': true
+    };
+
+    const progressBarWidth = {
+      width: `${this.props.progress}%`
+    };
+
+    const sidebarClasses = {
+      'sidebar': true,
+      'sidebar-is-visible': this.props.sidebar
+    };
+
+    const messageClasses = {
+      'message': true,
+      'message-with-sidebar': true,
+      'message-is-centered': true,
+      'message-is-visible': this.props.message !== ''
+    };
+
+    const spinnerClasses = {
+      'spinner': true,
+      'spinner-is-visible': this.props.animation
     };
 
     return (
-      <div id={STATUS_ID} className={classnames(styles.root)} style={visible}>
-        <div className={classnames(styles.progress)} style={outerBarStyle}>
-          <div className={classnames(progressBarStyles)} style={innerBarStyle}>
+      <div id={STATUS_ID} className={classnames(statusClasses)}>
+        <div className={classnames(progressClasses)}>
+          <div className={classnames(progressBarClasses)} style={progressBarWidth}>
           </div>
         </div>
-        <div className={classnames(styles.sidebar)} style={sidebarStyle}>
+        <div className={classnames(sidebarClasses)}>
         </div>
-        <ul className={classnames(messageStyles)}>
+        <ul className={classnames(messageClasses)}>
           <li>
-            <p className={classnames(styles.message)} style={messageStyle}>
+            <p className={classnames(styles.message)}>
               {this.props.message}
             </p>
-            <div className={classnames(styles.spinner)} style={animationStyle}>
+            <div className={classnames(spinnerClasses)}>
               <div className={classnames(styles.rect1)}></div>
               <div className={classnames(styles.rect2)}></div>
               <div className={classnames(styles.rect3)}></div>

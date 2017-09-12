@@ -1,4 +1,4 @@
-.root {
+.status {
   position: fixed;
   top: 0;
   left: 0;
@@ -6,6 +6,11 @@
   z-index: 1020;
   height: 100%;
   width: 100%;
+  visibility: hidden;
+
+  &-is-visible {
+    visibility: visible;
+  }
 }
 
 .progress {
@@ -18,10 +23,45 @@
   z-index: 2000;
   border-radius: 0;
   transition: height 500ms cubic-bezier(0.600, -0.280, 0.735, 0.045);
+  display: none;
+
+  &-is-visible {
+    display: block;
+  }
+
+  &-bar {
+    background-color: #6ba442;
+
+    &-is-striped {
+
+    }
+
+    &-is-active {
+
+    }
+  }
 }
 
-.progress-bar {
-  background-color: #6ba442;
+.sidebar {
+  display: none;
+
+  &-is-visible {
+    display: block;
+  }
+}
+
+.message {
+  &-with-sidebar {
+
+  }
+
+  &-is-visible {
+
+  }
+
+  &-is-centered {
+
+  }
 }
 
 .spinner {
@@ -30,6 +70,11 @@
   height: 60px;
   text-align: center;
   font-size: 10px;
+  visibility: hidden;
+
+  &-is-visible {
+    visibility: visible;
+  }
 }
 
 .spinner > div {
