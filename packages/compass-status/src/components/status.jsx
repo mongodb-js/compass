@@ -25,7 +25,7 @@ class Status extends Component {
    * @returns {React.Component} The rendered component.
    */
   render() {
-    const visible = this.props.visible ? '' : 'hidden';
+    const visible = { visibility: this.props.visible ? 'visible' : 'hidden' };
     const progressBarWidth = this.props.progress;
     const progressBarHeight = 4;
     const outerBarStyle = {
@@ -63,7 +63,7 @@ class Status extends Component {
     };
 
     return (
-      <div id={STATUS_ID} className={classnames(styles.root)}> style={visible}>
+      <div id={STATUS_ID} className={classnames(styles.root)} style={visible}>
         <div className={classnames(styles.progress)} style={outerBarStyle}>
           <div className={classnames(progressBarStyles)} style={innerBarStyle}>
           </div>
