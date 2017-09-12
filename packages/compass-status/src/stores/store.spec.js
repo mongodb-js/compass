@@ -7,39 +7,39 @@ describe('StatusStore [Store]', () => {
   });
 
   describe('#getInitialState', () => {
-    it('defaults visible to false', () => {
+    it('sets visible to false', () => {
       expect(Store.state.visible).to.equal(false);
     });
 
-    it('defaults progressbar to false', () => {
+    it('sets progressbar to false', () => {
       expect(Store.state.progressbar).to.equal(false);
     });
 
-    it('defaults progress to 0', () => {
+    it('sets progress to 0', () => {
       expect(Store.state.progress).to.equal(0);
     });
 
-    it('defaults modal to false', () => {
+    it('sets modal to false', () => {
       expect(Store.state.modal).to.equal(false);
     });
 
-    it('defaults animation to false', () => {
+    it('sets animation to false', () => {
       expect(Store.state.animation).to.equal(false);
     });
 
-    it('defaults message to empty', () => {
+    it('sets message to empty', () => {
       expect(Store.state.message).to.equal('');
     });
 
-    it('defaults subview to null', () => {
+    it('sets subview to null', () => {
       expect(Store.state.subview).to.equal(null);
     });
 
-    it('defaults sidebar to false', () => {
+    it('sets sidebar to false', () => {
       expect(Store.state.sidebar).to.equal(false);
     });
 
-    it('defaults trickle to false', () => {
+    it('sets trickle to false', () => {
       expect(Store.state.trickle).to.equal(false);
     });
   });
@@ -382,13 +382,62 @@ describe('StatusStore [Store]', () => {
 
   describe('#hide', () => {
     context('when the store is trickling', () => {
+      beforeEach((done) => {
+        const unsubscribe = Store.listen((state) => {
+          unsubscribe();
+          state.visible = true;
+          done();
+        });
+        Actions.enableProgressTrickle();
+      });
 
+      it('stops the trickle', (done) => {
+        const unsubscribe = Store.listen((state) => {
+          unsubscribe();
+          expect(state.trickle).to.equal(false);
+          expect(Store._trickleTimer).to.equal(null);
+          const unsub = Store.listen((st) => {
+            unsub();
+            expect(st.visible).to.equal(false);
+            done();
+          });
+        });
+        Actions.hide();
+      });
     });
   });
 
   describe('#done', () => {
     context('when the store is trickling', () => {
+      beforeEach((done) => {
+        const unsubscribe = Store.listen((state) => {
+          unsubscribe();
+          state.visible = true;
+          state.progress = 50;
+          state.animation = true;
+          state.message = 'testing';
+          state.subview = 'div';
+          done();
+        });
+        Actions.enableProgressTrickle();
+      });
 
+      it('stops the trickle', (done) => {
+        const unsubscribe = Store.listen((state) => {
+          unsubscribe();
+          expect(state.trickle).to.equal(false);
+          expect(Store._trickleTimer).to.equal(null);
+          const unsub = Store.listen((st) => {
+            unsub();
+            expect(st.progress).to.equal(100);
+            expect(st.animation).to.equal(false);
+            expect(st.message).to.equal('');
+            expect(st.subview).to.equal(null);
+            done();
+          });
+        });
+        Actions.done();
+      });
     });
   });
 });
