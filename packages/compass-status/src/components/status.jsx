@@ -31,42 +31,36 @@ class Status extends Component {
       statusSubview = <SubView {...this.props} />;
     }
 
-    const statusClasses = {
-      'status': true,
-      'status-is-visible': this.props.visible
-    };
+    const statusClasses = {};
+    statusClasses[styles.status] = true;
+    statusClasses[styles['status-is-visible']] = this.props.visible;
 
-    const progressClasses = {
-      'progress': true,
-      'progress-is-visible': this.props.progressbar
-    };
+    const progressClasses = {};
+    progressClasses[styles.progress] = true;
+    progressClasses[styles['progress-is-visible']] = this.props.progressbar;
 
-    const progressBarClasses = {
-      'progress-bar': true,
-      'progress-bar-is-striped': true,
-      'progress-bar-is-active': true
-    };
+    const progressBarClasses = {};
+    progressBarClasses[styles['progress-bar']] = true;
+    progressBarClasses[styles['progress-bar-is-striped']] = true;
+    progressBarClasses[styles['progress-bar-is-active']] = true;
 
     const progressBarWidth = {
       width: `${this.props.progress}%`
     };
 
-    const sidebarClasses = {
-      'sidebar': true,
-      'sidebar-is-visible': this.props.sidebar
-    };
+    const sidebarClasses = {};
+    sidebarClasses[styles.sidebar] = true;
+    sidebarClasses[styles['sidebar-is-visible']] = this.props.sidebar;
 
-    const messageClasses = {
-      'message': true,
-      'message-with-sidebar': true,
-      'message-is-centered': true,
-      'message-is-visible': this.props.message !== ''
-    };
+    const messageClasses = {};
+    messageClasses[styles.message] = true;
+    messageClasses[styles['message-with-sidebar']] = true;
+    messageClasses[styles['message-is-centered']] = true;
+    messageClasses[styles['message-is-visible']] = this.props.message !== '';
 
-    const spinnerClasses = {
-      'spinner': true,
-      'spinner-is-visible': this.props.animation
-    };
+    const spinnerClasses = {};
+    spinnerClasses[styles.spinner] = true;
+    spinnerClasses[styles['spinner-is-visible']] = this.props.animation;
 
     return (
       <div id={STATUS_ID} className={classnames(statusClasses)}>

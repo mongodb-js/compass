@@ -6,6 +6,7 @@
   z-index: 1020;
   height: 100%;
   width: 100%;
+  background-color: rgba(255, 255, 255, 0.5);
   visibility: hidden;
 
   &-is-visible {
@@ -31,13 +32,16 @@
 
   &-bar {
     background-color: #6ba442;
+    height: 4px;
+    transition: width .6s ease;
 
     &-is-striped {
-
+      background-image: linear-gradient(45deg, rgba(255, 255, 255, 0.15) 25%, transparent 25%, transparent 50%, rgba(255, 255, 255, 0.15) 50%, rgba(255, 255, 255, 0.15) 75%, transparent 75%, transparent);
+      background-size: 40px 40px;
     }
 
     &-is-active {
-
+      animation: progress-bar-stripes 1s linear infinite;
     }
   }
 }
@@ -51,16 +55,30 @@
 }
 
 .message {
-  &-with-sidebar {
+  display: flex;
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  visibility: hidden;
 
+  li {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    color: #bfbfbe;
+  }
+
+  &-with-sidebar {
   }
 
   &-is-visible {
-
+    visibility: visible;
   }
 
   &-is-centered {
-
+    text-align: center;
   }
 }
 
@@ -100,6 +118,15 @@
 
 .rect5 {
   animation-delay: -0.8s;
+}
+
+@keyframes progress-bar-stripes {
+  from {
+    background-position: 40px 0;
+  }
+  to {
+    background-position: 0 0;
+  }
 }
 
 @keyframes sk-stretchdelay {

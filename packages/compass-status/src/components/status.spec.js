@@ -2,7 +2,7 @@ import React from 'react';
 import { mount } from 'enzyme';
 
 import Status from 'components/status';
-// import styles from './status.less';
+import styles from './status.less';
 
 describe('Status [Component]', () => {
   let component;
@@ -21,6 +21,7 @@ describe('Status [Component]', () => {
   });
 
   it('renders the correct root classname', () => {
-    expect(component.find('.status')).to.have.length(1);
+    console.log(component.html());
+    expect(component.find(`.${styles.status}`)).to.have.length(1);
   });
 });
