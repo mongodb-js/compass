@@ -1,11 +1,16 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import classnames from 'classnames';
+import isEmpty from 'lodash.isempty';
 
 import styles from './status.less';
 
 const STATUS_ID = 'statusbar';
 
+/**
+ * The status component displays various items when the user is waiting for
+ * something to complete.
+ */
 class Status extends Component {
   static displayName = 'StatusComponent';
 
@@ -59,7 +64,7 @@ class Status extends Component {
 
     const messageTextClasses = {};
     messageTextClasses[styles['message-text']] = true;
-    messageTextClasses[styles['message-text-is-visible']] = this.props.message !== '';
+    messageTextClasses[styles['message-text-is-visible']] = !isEmpty(this.props.message);
 
     const spinnerClasses = {};
     spinnerClasses[styles.spinner] = true;

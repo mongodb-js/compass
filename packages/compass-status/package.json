@@ -111,6 +111,7 @@
     "webpack-node-externals": "^1.6.0"
   },
   "dependencies": {
-    "lodash.delay": "^4.1.1"
+    "lodash.delay": "^4.1.1",
+    "lodash.isempty": "^4.4.0"
   }
 }
