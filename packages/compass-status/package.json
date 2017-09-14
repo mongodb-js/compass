@@ -1,7 +1,7 @@
 {
   "name": "compass-status",
   "productName": "Compass Status plugin",
-  "version": "1.0.0",
+  "version": "0.0.0",
   "description": "Compass Status Plugin",
   "main": "lib/index.js",
   "scripts": {
