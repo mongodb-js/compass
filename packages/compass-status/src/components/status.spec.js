@@ -187,7 +187,31 @@ describe('Status [Component]', () => {
         });
 
         context('when the message is not empty', () => {
+          let component;
 
+          beforeEach(() => {
+            component = mount(<Status visible animation message="Loading" />);
+          });
+
+          afterEach(() => {
+            component = null;
+          });
+
+          it('renders the message area', () => {
+            expect(component.find(`.${styles.message}`)).to.be.present();
+          });
+
+          it('displays the message text area', () => {
+            expect(component.find(`.${styles['message-text-is-visible']}`)).to.be.present();
+          });
+
+          it('displays the message text', () => {
+            expect(component.find(`.${styles['message-text-is-visible']}`)).to.have.text('Loading');
+          });
+
+          it('displays spinner area', () => {
+            expect(component.find(`.${styles['spinner-is-visible']}`)).to.be.present();
+          });
         });
 
         context('when a sidebar is present', () => {
