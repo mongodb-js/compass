@@ -215,15 +215,27 @@ describe('Status [Component]', () => {
         });
 
         context('when a sidebar is present', () => {
+          let component;
 
-        });
+          beforeEach(() => {
+            component = mount(<Status visible sidebar />);
+          });
 
-        context('when a sidebar is not present', () => {
+          afterEach(() => {
+            component = null;
+          });
 
-        });
+          it('renders the status section', () => {
+            expect(component.find(`.${styles.status}`)).to.be.present();
+          });
 
-        context('when a subview is not present', () => {
+          it('sets the status as visible', () => {
+            expect(component.find(`.${styles['status-is-visible']}`)).to.be.present();
+          });
 
+          it('displays the sidebar space', () => {
+            expect(component.find(`.${styles['sidebar-is-visible']}`)).to.be.present();
+          });
         });
 
         context('when a subview is present', () => {
