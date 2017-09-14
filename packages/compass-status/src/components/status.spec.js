@@ -145,13 +145,45 @@ describe('Status [Component]', () => {
         });
       });
 
-      context('when the animation is not visible', () => {
-
-      });
-
       context('when the animation is visible', () => {
         context('when the message is empty', () => {
+          let component;
 
+          beforeEach(() => {
+            component = mount(<Status visible animation />);
+          });
+
+          afterEach(() => {
+            component = null;
+          });
+
+          it('does not display the progress area', () => {
+            expect(component.find(`.${styles['progress-is-visible']}`)).to.not.be.present();
+          });
+
+          it('renders the status section', () => {
+            expect(component.find(`.${styles.status}`)).to.be.present();
+          });
+
+          it('sets the status as visible', () => {
+            expect(component.find(`.${styles['status-is-visible']}`)).to.be.present();
+          });
+
+          it('does not render the sidebar space', () => {
+            expect(component.find(`.${styles['sidebar-is-visible']}`)).to.not.be.present();
+          });
+
+          it('renders the message area', () => {
+            expect(component.find(`.${styles.message}`)).to.be.present();
+          });
+
+          it('does not render the message text area', () => {
+            expect(component.find(`.${styles['message-text-is-visible']}`)).to.not.be.present();
+          });
+
+          it('displays spinner area', () => {
+            expect(component.find(`.${styles['spinner-is-visible']}`)).to.be.present();
+          });
         });
 
         context('when the message is not empty', () => {
