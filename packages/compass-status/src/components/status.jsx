@@ -89,7 +89,7 @@ class Status extends Component {
             <div className={classnames(styles['spinner-rect-delay-3'])}></div>
             <div className={classnames(styles['spinner-rect-delay-4'])}></div>
           </div>
-          <div className={classnames(styles.subview)}>
+          <div>
             {statusSubview}
           </div>
         </div>

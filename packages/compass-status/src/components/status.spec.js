@@ -239,7 +239,34 @@ describe('Status [Component]', () => {
         });
 
         context('when a subview is present', () => {
+          class SubComponent extends React.Component {
+            render() {
+              return (
+                <div className="subview"></div>
+              );
+            }
+          }
+          let component;
 
+          beforeEach(() => {
+            component = mount(<Status visible subview={SubComponent} />);
+          });
+
+          afterEach(() => {
+            component = null;
+          });
+
+          it('renders the status section', () => {
+            expect(component.find(`.${styles.status}`)).to.be.present();
+          });
+
+          it('sets the status as visible', () => {
+            expect(component.find(`.${styles['status-is-visible']}`)).to.be.present();
+          });
+
+          it('displays the subview', () => {
+            expect(component.find('.subview')).to.be.present();
+          });
         });
       });
     });
