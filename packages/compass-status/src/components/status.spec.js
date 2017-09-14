@@ -81,11 +81,67 @@ describe('Status [Component]', () => {
 
       context('when the prgress bar is visible', () => {
         context('when there is no progress', () => {
+          let component;
 
+          beforeEach(() => {
+            component = mount(<Status visible progressbar progress={0} />);
+          });
+
+          afterEach(() => {
+            component = null;
+          });
+
+          it('displays the progress bar', () => {
+            expect(component.find(`.${styles['progress-is-visible']}`)).to.be.present();
+          });
+
+          it('displays the progress bar', () => {
+            expect(component.find(`.${styles['progress-bar-is-active']}`)).to.be.present();
+          });
+
+          it('sets progress bar width to 0%', () => {
+            expect(component.find(`.${styles['progress-bar']}`)).to.have.style('width', '0%');
+          });
+
+          it('renders the status section', () => {
+            expect(component.find(`.${styles.status}`)).to.be.present();
+          });
+
+          it('sets the status as visible', () => {
+            expect(component.find(`.${styles['status-is-visible']}`)).to.be.present();
+          });
+
+          it('does not render the sidebar space', () => {
+            expect(component.find(`.${styles['sidebar-is-visible']}`)).to.not.be.present();
+          });
+
+          it('renders the message area', () => {
+            expect(component.find(`.${styles.message}`)).to.be.present();
+          });
+
+          it('does not render the message text area', () => {
+            expect(component.find(`.${styles['message-text-is-visible']}`)).to.not.be.present();
+          });
+
+          it('does not render the spinner area', () => {
+            expect(component.find(`.${styles['spinner-is-visible']}`)).to.not.be.present();
+          });
         });
 
         context('when there is partial progress', () => {
+          let component;
 
+          beforeEach(() => {
+            component = mount(<Status visible progressbar progress={50} />);
+          });
+
+          afterEach(() => {
+            component = null;
+          });
+
+          it('sets progress bar width to 50%', () => {
+            expect(component.find(`.${styles['progress-bar']}`)).to.have.style('width', '50%');
+          });
         });
       });
 
