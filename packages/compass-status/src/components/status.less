@@ -56,34 +56,49 @@
 
 .message {
   display: flex;
+  flex-direction: column;
+  justify-content: center;
   position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
+  margin: 0;
+  padding: 0;
   visibility: hidden;
 
-  li {
-    margin: 0;
-    padding: 0;
-    list-style: none;
-    color: #bfbfbe;
-  }
-
-  &-with-sidebar {
-  }
-
-  &-is-visible {
-    visibility: visible;
+  &-has-sidebar {
+    margin-left: 250px;
   }
 
   &-is-centered {
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
     text-align: center;
+  }
+
+  &-text {
+    visiblity: hidden;
+    color: #bfbfbe;
+    font-size: 28px;
+    font-weight: 400;
+    width: 100%;
+
+    &-is-visible {
+      visibility: visible;
+    }
   }
 }
 
+.animated-rectangle {
+  background-color: rgba(0, 0, 0, 0.2);;
+  margin: 0 3px 0 0;
+  height: 100%;
+  width: 10px;
+  display: inline-block;
+  animation: sk-stretchdelay 1.2s infinite ease-in-out;
+}
+
 .spinner {
-  margin: 50px auto;
+  margin: 20px auto;
   width: 65px;
   height: 60px;
   text-align: center;
@@ -93,31 +108,30 @@
   &-is-visible {
     visibility: visible;
   }
-}
 
-.spinner > div {
-  background-color: rgba(0, 0, 0, 0.2);;
-  margin: 0 3px 0 0;
-  height: 100%;
-  width: 10px;
-  display: inline-block;
-  animation: sk-stretchdelay 1.2s infinite ease-in-out;
-}
+  &-rect {
+    .animated-rectangle;
 
-.rect2 {
-  animation-delay: -1.1s;
-}
+    &-delay-1 {
+      .animated-rectangle;
+      animation-delay: -1.1s;
+    }
 
-.rect3 {
-  animation-delay: -1.0s;
-}
+    &-delay-2 {
+      .animated-rectangle;
+      animation-delay: -1.0s;
+    }
 
-.rect4 {
-  animation-delay: -0.9s;
-}
+    &-delay-3 {
+      .animated-rectangle;
+      animation-delay: -0.9s;
+    }
 
-.rect5 {
-  animation-delay: -0.8s;
+    &-delay-4 {
+      .animated-rectangle;
+      animation-delay: -0.8s;
+    }
+  }
 }
 
 @keyframes progress-bar-stripes {

@@ -8,7 +8,7 @@ import { withChaptersOptions } from 'constants/storybook';
 import Status from 'components/status';
 
 storiesOf('Status', module)
-  .addWithChapters('Progress Bar (Not Visible)', {
+  .addWithChapters('Hidden', {
     chapters: [
       {
         sections: [
@@ -40,7 +40,7 @@ storiesOf('Status', module)
       }
     ]
   })
-  .addWithChapters('Animation (No Message)', {
+  .addWithChapters('Animation', {
     chapters: [
       {
         sections: [
@@ -56,7 +56,7 @@ storiesOf('Status', module)
       }
     ]
   })
-  .addWithChapters('Animation (With Message)', {
+  .addWithChapters('Animation w/ Message', {
     chapters: [
       {
         sections: [
@@ -64,6 +64,22 @@ storiesOf('Status', module)
             sectionFn: () => (
               <ComponentPreview light>
                 <Status visible animation message="Loading" />
+              </ComponentPreview>
+            ),
+            options: withChaptersOptions
+          }
+        ]
+      }
+    ]
+  })
+  .addWithChapters('Animation w/ Sidebar & Message', {
+    chapters: [
+      {
+        sections: [
+          {
+            sectionFn: () => (
+              <ComponentPreview light>
+                <Status visible animation sidebar message="Loading" />
               </ComponentPreview>
             ),
             options: withChaptersOptions

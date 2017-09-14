@@ -54,9 +54,12 @@ class Status extends Component {
 
     const messageClasses = {};
     messageClasses[styles.message] = true;
-    messageClasses[styles['message-with-sidebar']] = true;
+    messageClasses[styles['message-has-sidebar']] = this.props.sidebar;
     messageClasses[styles['message-is-centered']] = true;
-    messageClasses[styles['message-is-visible']] = this.props.message !== '';
+
+    const messageTextClasses = {};
+    messageTextClasses[styles['message-text']] = true;
+    messageTextClasses[styles['message-text-is-visible']] = this.props.message !== '';
 
     const spinnerClasses = {};
     spinnerClasses[styles.spinner] = true;
@@ -70,23 +73,21 @@ class Status extends Component {
         </div>
         <div className={classnames(sidebarClasses)}>
         </div>
-        <ul className={classnames(messageClasses)}>
-          <li>
-            <p className={classnames(styles.message)}>
-              {this.props.message}
-            </p>
-            <div className={classnames(spinnerClasses)}>
-              <div className={classnames(styles.rect1)}></div>
-              <div className={classnames(styles.rect2)}></div>
-              <div className={classnames(styles.rect3)}></div>
-              <div className={classnames(styles.rect4)}></div>
-              <div className={classnames(styles.rect5)}></div>
-            </div>
-            <div className={classnames(styles.subview)}>
-              {statusSubview}
-            </div>
-          </li>
-        </ul>
+        <div className={classnames(messageClasses)}>
+          <p className={classnames(messageTextClasses)}>
+            {this.props.message}
+          </p>
+          <div className={classnames(spinnerClasses)}>
+            <div className={classnames(styles['spinner-rect'])}></div>
+            <div className={classnames(styles['spinner-rect-delay-1'])}></div>
+            <div className={classnames(styles['spinner-rect-delay-2'])}></div>
+            <div className={classnames(styles['spinner-rect-delay-3'])}></div>
+            <div className={classnames(styles['spinner-rect-delay-4'])}></div>
+          </div>
+          <div className={classnames(styles.subview)}>
+            {statusSubview}
+          </div>
+        </div>
       </div>
     );
   }
