@@ -306,7 +306,7 @@ class CellEditor extends React.Component {
    */
   renderTypes() {
     return (
-      <Types element={this.element} className={BEM_BASE}/>
+      <Types element={this.element} className={`${BEM_BASE}-types btn btn-default btn-xs`}/>
     );
   }
 
@@ -353,7 +353,7 @@ class CellEditor extends React.Component {
   renderExpand() {
     if (this.element.currentType === 'Object' || this.element.currentType === 'Array') {
       return (
-        <div className={`${BEM_BASE}-button`} onClick={this.handleDrillDown}>
+        <div className={`${BEM_BASE}-button btn btn-default btn-xs`} onClick={this.handleDrillDown}>
           <FontAwesome name="forward" className={`${BEM_BASE}-button-icon`}/>
         </div>
       );
@@ -377,7 +377,7 @@ class CellEditor extends React.Component {
           <AddFieldButton {...this.props}
             displace={displace}
           />
-          <div className={`${BEM_BASE}-button`}
+          <div className={`${BEM_BASE}-button btn btn-default btn-xs`}
                onClick={this.handleRemoveField.bind(this)}>
             <FontAwesome name="trash" className={`${BEM_BASE}-button-icon`}/>
           </div>
@@ -388,7 +388,7 @@ class CellEditor extends React.Component {
   }
 
   render() {
-    let width = 258;
+    let width = 268;
     let displace = 211;
     if (this.newField) {
       width = 316;

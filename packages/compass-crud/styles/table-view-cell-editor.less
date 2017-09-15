@@ -1,20 +1,32 @@
 .table-view-cell-editor {
-  z-index: 1000;
   position: absolute;
-  width: 265px; //TODO: set correctly
-  background: white;
-  border: 1px solid #807f7f;
-  border-radius: 3px;
-  height: 28px;
-  padding: 2px;
+  z-index: 1000;
+  display: flex;
+  margin-left: -8px;
+  justify-content: center;
+  align-items: center;
+  height: 30px;
+  width: 260px; // todo set correctly
+  background: #FFFFFF;
+  border: 1px solid #C3C3C2;
+  border-radius: 2px;
+  box-shadow: 0 2px 6px 0 rgba(152,152,152,0.30);
+  outline: 0;
 
   &-input {
     display: inline-block;
     border: 1px solid #d3d3d3;
-    border-radius: 3px;
-    height: 21px;
-    :focus {
+    border-radius: 1px;
+    height: 22px;
+    padding: 0 7px 0 7px;
+
+    &:focus {
       outline: none;
+    }
+
+    input {
+      width: 80px;
+      outline: 0;
     }
 
     .editable-element-value-is-editing {
@@ -56,14 +68,18 @@
   }
 
   &-types {
-    display: inline-block;
-    width: 90px;
-    color: #807f7f;
-    height: 21px;
-    flex-shrink: 0;
-    border: 1px solid #d3d3d3;
-    border-radius: 3px;
+    height: 22px;
+    padding: 0 5px 0 5px;
     margin-left: 3px;
+
+    .btn-crud {
+      background-color: transparent;
+      border: none;
+      padding: 0;
+      border-radius: 0;
+      font-size: 12px;
+      font-family: Menlo;
+    }
 
     .closed > .dropdown-menu {
       display: none;
@@ -73,21 +89,8 @@
       padding: 1px 12px;
     }
 
-    .btn-crud {
-      background-color: transparent;
-      border: none;
-      text-transform: none;
-      font-size: 12px;
-      border-radius: 8px;
-      padding: 1px 5px;
-      width: 100%;
-      color: black;
-      text-align: left;
-
-    }
-
     .caret {
-      margin-left: 36px;
+      margin-left: 20px;
     }
 
     &-is-edited {
@@ -121,14 +124,10 @@
 
   &-button {
     display: inline-block;
-    color: black;
-    text-align: center;
-    cursor: pointer;
     width: 20px;
-    height: 21px;
-    border: solid #d3d3d3 1px;
-    border-radius: 3px;
+    padding: 0 6px 0 6px;
     margin-left: 3px;
+
 
     &-is-selected {
       border: solid black 1px;

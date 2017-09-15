@@ -82,7 +82,7 @@ class AddFieldButton extends React.Component {
    * @returns {String} The class name.
    */
   divClassName() {
-    return this.state.menu ? `${BEM_BASE} ${BEM_BASE}-is-selected` : BEM_BASE;
+    return this.state.menu ? `${BEM_BASE} ${BEM_BASE}-is-selected btn btn-default btn-xs` : `${BEM_BASE} btn btn-default btn-xs`;
   }
 
   /**
