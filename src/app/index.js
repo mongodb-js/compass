@@ -222,7 +222,7 @@ var Application = View.extend({
       }
     });
     debug('rendering statusbar...');
-    this.statusComponent = app.appRegistry.getComponent('Status.ProgressBar');
+    this.statusComponent = app.appRegistry.getRole('Application.Status')[0].component;
     ReactDOM.render(React.createElement(this.statusComponent), this.queryByHook('statusbar'));
 
     this.autoUpdate = new AutoUpdate({

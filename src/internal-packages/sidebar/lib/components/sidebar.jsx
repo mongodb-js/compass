@@ -21,6 +21,7 @@ class Sidebar extends React.Component {
     const appRegistry = global.hadronApp.appRegistry;
     this.WriteStateStore = appRegistry.getStore('DeploymentAwareness.WriteStateStore');
     this.DatabaseDDLActions = appRegistry.getAction('DatabaseDDL.Actions');
+    this.StatusActions = appRegistry.getAction('Status.Actions');
     this.state = {
       collapsed: false,
       expandedDB: {},
@@ -79,6 +80,7 @@ class Sidebar extends React.Component {
   handleCollapse() {
     if (!this.state.collapsed) {
       this.props.onCollapse();
+      this.StatusActions.configure({ sidebar: false });
       this.setState({ collapsed: !this.state.collapsed });
     } else {
       return null;
@@ -88,6 +90,7 @@ class Sidebar extends React.Component {
   handleExpand() {
     if (this.state.collapsed) {
       this.props.onCollapse();
+      this.StatusActions.configure({ sidebar: true });
       this.setState({ collapsed: !this.state.collapsed });
     } else {
       return null;
