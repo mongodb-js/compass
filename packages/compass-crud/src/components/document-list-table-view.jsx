@@ -470,6 +470,7 @@ class DocumentListTableView extends React.Component {
       field: 'rowNumber',
       colId: '$rowNumber', // TODO: make sure user can't get duplicate
       width: 20,
+      pinned: 'left',
       headerComponentFramework: HeaderComponent,
       headerComponentParams: {
         hide: true
