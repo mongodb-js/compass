@@ -20,6 +20,7 @@ const HELP_URLS = Object.freeze({
 
 const BASE_CLASS = 'document-list';
 const ACTION_BAR_CLASS = `${BASE_CLASS}-action-bar`;
+const CONTAINER_CLASS = `${ACTION_BAR_CLASS}-container`;
 const MESSAGE_CLASS = `${ACTION_BAR_CLASS}-message`;
 const REFRESH_CLASS = `${ACTION_BAR_CLASS}-refresh`;
 const VIEW_SWITCHER_CLASS = `${ACTION_BAR_CLASS}-view-switcher`;
@@ -141,40 +142,42 @@ class Toolbar extends React.Component {
     return (
       <div>
         <div className={ACTION_BAR_CLASS}>
-          <div className={MESSAGE_CLASS}>
-            Query returned&nbsp;<b>{this.state.count}</b>&nbsp;{noun}.&nbsp;
-            {this._loadedMessage()}
-            <InfoSprinkle
-              helpLink={HELP_URLS.DOCUMENTS}
-              onClickHandler={shell.openExternal}
-            />
+          <div className={CONTAINER_CLASS}>
+            <this.TextWriteButton
+                className="btn btn-primary btn-xs open-insert"
+                dataTestId="open-insert-document-modal-button"
+                isCollectionLevel
+                text="Insert Document"
+                tooltipId="document-is-not-writable"
+                clickHandler={this.props.insertHandler} />
+            <div className={VIEW_SWITCHER_CLASS}>
+              <ViewSwitcher
+                label="View"
+                buttonLabels={['List', 'Table']}
+                iconClassNames={['fa fa-list-ul', 'fa fa-table']}
+                activeButton={this.props.activeDocumentView}
+                onClick={this.switchDocumentView.bind(this)} />
+            </div>
           </div>
-          <div className={REFRESH_CLASS}>
-            <AnimatedIconTextButton
-              clickHandler={this.handleRefreshDocuments.bind(this)}
-              stopAnimationListenable={ResetDocumentListStore}
-              dataTestId="refresh-documents-button"
-              className="btn btn-default btn-xs sampling-message-refresh-documents"
-              iconClassName="fa fa-repeat"
-              animatingIconClassName="fa fa-refresh fa-spin"
-              text="&nbsp;Refresh" />
-          </div>
-        </div>
-        <div className={ACTION_BAR_CLASS}>
-          <this.TextWriteButton
-            className="btn btn-primary btn-xs open-insert"
-            dataTestId="open-insert-document-modal-button"
-            isCollectionLevel
-            text="Insert Document"
-            tooltipId="document-is-not-writable"
-            clickHandler={this.props.insertHandler} />
-          <div className={VIEW_SWITCHER_CLASS}>
-            <ViewSwitcher
-              label="View"
-              buttonLabels={['List', 'Table']}
-              iconClassNames={['fa fa-list-ul', 'fa fa-table']}
-              activeButton={this.props.activeDocumentView}
-              onClick={this.switchDocumentView.bind(this)} />
+          <div className={CONTAINER_CLASS}>
+            <div className={MESSAGE_CLASS}>
+              <b>{this.state.count}</b>&nbsp;{noun}.&nbsp;
+              {this._loadedMessage()}
+              <InfoSprinkle
+                helpLink={HELP_URLS.DOCUMENTS}
+                onClickHandler={shell.openExternal}
+              />
+            </div>
+            <div className={REFRESH_CLASS}>
+              <AnimatedIconTextButton
+                clickHandler={this.handleRefreshDocuments.bind(this)}
+                stopAnimationListenable={ResetDocumentListStore}
+                dataTestId="refresh-documents-button"
+                className="btn btn-default btn-xs sampling-message-refresh-documents"
+                iconClassName="fa fa-repeat"
+                animatingIconClassName="fa fa-refresh fa-spin"
+                />
+            </div>
           </div>
         </div>
       </div>
