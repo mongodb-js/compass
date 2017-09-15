@@ -83,6 +83,7 @@ const ConnectStore = Reflux.createStore({
     forEach(appRegistry.getRole(EXTENSION) || [], (extension) => {
       extension(this);
     });
+    this.StatusActions = appRegistry.getAction('Status.Actions');
   },
 
   /**
@@ -386,9 +387,11 @@ const ConnectStore = Reflux.createStore({
     if (!connection.isValid()) {
       this.setState({ isValid: false });
     } else {
+      this.StatusActions.showIndeterminateProgressBar();
       this.updateDefaults();
       this.dataService = new DataService(connection);
       this.dataService.connect((err, ds) => {
+        this.StatusActions.done();
         if (err) {
           return this.setState({ isValid: false, errorMessage: err.message });
         }
