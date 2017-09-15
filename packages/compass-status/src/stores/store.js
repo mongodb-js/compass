@@ -37,7 +37,7 @@ const StatusStore = Reflux.createStore({
       animation: false,
       message: '',
       subview: null,
-      sidebar: false,
+      sidebar: true,
       trickle: false
     };
   },

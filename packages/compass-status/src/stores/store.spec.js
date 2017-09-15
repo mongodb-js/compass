@@ -35,8 +35,8 @@ describe('StatusStore [Store]', () => {
       expect(Store.state.subview).to.equal(null);
     });
 
-    it('sets sidebar to false', () => {
-      expect(Store.state.sidebar).to.equal(false);
+    it('sets sidebar to true', () => {
+      expect(Store.state.sidebar).to.equal(true);
     });
 
     it('sets trickle to false', () => {
