@@ -41,7 +41,8 @@
             "node_modules/@mongodb-js/compass-deployment-awareness",
             "node_modules/@mongodb-js/compass-charts",
             "node_modules/@mongodb-js/compass-crud",
-            "node_modules/@mongodb-js/compass-query-history"
+            "node_modules/@mongodb-js/compass-query-history",
+            "node_modules/@mongodb-js/compass-status"
           ],
           "styles": [
             "index"
@@ -57,7 +58,8 @@
             "node_modules/@mongodb-js/compass-deployment-awareness",
             "node_modules/@mongodb-js/compass-charts",
             "node_modules/@mongodb-js/compass-crud",
-            "node_modules/@mongodb-js/compass-query-history"
+            "node_modules/@mongodb-js/compass-query-history",
+            "node_modules/@mongodb-js/compass-status"
           ],
           "styles": [
             "index"
@@ -136,6 +138,7 @@
     "@mongodb-js/compass-document-validation": "4.1.0",
     "@mongodb-js/compass-query-history": "1.0.0",
     "@mongodb-js/compass-serverstats": "9.1.1",
+    "@mongodb-js/compass-status": "1.0.0",
     "ampersand-collection": "^1.5.0",
     "ampersand-collection-filterable": "^0.2.1",
     "ampersand-dom-bindings": "^3.7.0",
