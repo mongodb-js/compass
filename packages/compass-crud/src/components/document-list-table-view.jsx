@@ -36,6 +36,23 @@ class DocumentListTableView extends React.Component {
     this.handleUpdate = this.handleUpdate.bind(this);
     this.addFooter = this.addFooter.bind(this);
 
+    this.AGGrid = this.createGrid();
+  }
+
+  componentDidMount() {
+    this.unsubscribeGridStore = GridStore.listen(this.modifyColumns.bind(this));
+    // this.unsubscribeInsert = InsertDocumentStore.listen(this.handleInsert.bind(this));
+  }
+
+  componentWillUnmount() {
+    this.unsubscribeGridStore();
+  }
+
+  // shouldComponentUpdate() {
+  //   return false;
+  // }
+
+  createGrid() {
     this.gridOptions = {
       context: {
         column_width: 150,
@@ -48,14 +65,28 @@ class DocumentListTableView extends React.Component {
       onCellClicked: this.onCellClicked.bind(this),
       rowHeight: 28  // .document-footer row needs 28px, ag-grid default is 25px
     };
-  }
 
-  componentDidMount() {
-    this.unsubscribeGridStore = GridStore.listen(this.modifyColumns.bind(this));
-  }
+    const gridProps = {
+      columnDefs: this.createColumnHeaders(),
+      gridOptions: this.gridOptions,
 
-  componentWillUnmount() {
-    this.unsubscribeGridStore();
+      isFullWidthCell: function(rowNode) {
+        return rowNode.data.isFooter;
+      },
+      fullWidthCellRendererFramework: FullWidthCellRenderer,
+
+      rowData: this.createRowData(this.props.docs),
+      getRowNodeId: function(data) {
+        const fid = data.isFooter ? '1' : '0';
+        return data.hadronDocument.get('_id').value.toString() + fid;
+      },
+      onGridReady: this.onGridReady.bind(this)
+    };
+
+    return React.createElement(
+      AgGridReact,
+      gridProps,
+    );
   }
 
   onGridReady(params) {
@@ -439,22 +470,7 @@ class DocumentListTableView extends React.Component {
           <BreadcrumbComponent/>
         </StoreConnector>
         <div style={containerStyle}>
-          <AgGridReact
-            // properties
-            columnDefs={this.createColumnHeaders()}
-            gridOptions={this.gridOptions}
-
-            isFullWidthCell={(rowNode)=>{return rowNode.data.isFooter;}}
-            fullWidthCellRendererFramework={FullWidthCellRenderer}
-
-            rowData={this.createRowData(this.props.docs)}
-            getRowNodeId={function(data) {
-              const fid = data.isFooter ? '1' : '0';
-              return data.hadronDocument.get('_id').value.toString() + fid;
-            }}
-            // events
-            onGridReady={this.onGridReady.bind(this)}
-        />
+          {this.AGGrid}
         </div>
       </div>
     );
