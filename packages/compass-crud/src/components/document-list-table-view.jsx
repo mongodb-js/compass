@@ -124,9 +124,9 @@ class DocumentListTableView extends React.Component {
    * @param {RowNode} node - The RowNode of the footer that is being removed.
    */
   removeFooter(node) {
+    const api = this.gridApi;
     /* rowId is the document row */
     const rowId = node.data.hadronDocument.get('_id').value.toString() + '0';
-    const api = this.gridApi;
     const dataNode = api.getRowNode(rowId);
 
     setTimeout(function() {
@@ -141,13 +141,20 @@ class DocumentListTableView extends React.Component {
   /**
    * A row has either been deleted or updated successfully.
    *
-   * @param {object} data - The data of the row that has been deleted/updated.
+   * @param {RowNode} node - The RowNode of the footer of the document that is being removed.
    */
-  handleRemove(data) {
+  handleRemove(node) {
     const api = this.gridApi;
+
+    /* rowId is the document row */
+    const rowId = node.data.hadronDocument.get('_id').value.toString() + '0';
+    const dataNode = api.getRowNode(rowId);
+
     setTimeout(function() {
-      api.updateRowData({remove: [data]});
+      api.updateRowData({remove: [dataNode.data]});
     }, 0);
+
+    this.removeFooter(node);
   }
 
   /**

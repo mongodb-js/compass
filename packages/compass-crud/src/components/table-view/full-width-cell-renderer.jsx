@@ -26,10 +26,6 @@ class FullWidthCellRenderer extends React.Component {
       mode: props.data.state
     };
 
-    // this.actions = {update: ()=>{}, remove: ()=>{}};
-    // this.updateStore = {listen: ()=>{return ()=>{};}};
-    // this.removeStore = {listen: ()=>{return ()=>{};}};
-
     // Actions need to be scoped to the single document component and not
     // global singletons.
     this.actions = Reflux.createActions([ 'update', 'remove', 'cancelRemove' ]);
@@ -159,7 +155,6 @@ class FullWidthCellRenderer extends React.Component {
    * @param {Object} object - The error or document.
    */
   handleStoreUpdate(success, object) {
-    console.log('handleStoreUpdate');
     if (success) {
       this.handleUpdateSuccess(object);
     }
@@ -171,7 +166,6 @@ class FullWidthCellRenderer extends React.Component {
    * @param {Boolean} success - If the update succeeded.
    */
   handleStoreRemove(success) {
-    console.log('handleStoreRemove');
     if (success) {
       this.handleRemoveSuccess();
     }
@@ -183,7 +177,6 @@ class FullWidthCellRenderer extends React.Component {
    * @param {Object} doc - The updated document.
    */
   handleUpdateSuccess(doc) {
-    console.log('handleUpdateSuccess');
     this.props.context.handleUpdate(doc);
   }
 
@@ -191,8 +184,7 @@ class FullWidthCellRenderer extends React.Component {
    * Handle a successful update.
    */
   handleRemoveSuccess() {
-    console.log('handleRemoveSuccess');
-    this.props.context.handleRemove(this.props.data);
+    this.props.context.handleRemove(this.props.node);
   }
 
   handleCancelDelete() {
