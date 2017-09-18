@@ -1,14 +1,18 @@
+.column-container {
+	background: #F5F6F7;
+}
 .ag {
 	&-parent {
 		padding: 10px 15px;
-		height: calc(~"100vh - 66px"); // Hardcoded, need to fix later
 		font-family: Menlo;
 		font-size: 11px;
+		height: 100vh;
 	}
 	&-bl-full-height {
 		background-color: #FAFAFA;
 		box-shadow: 0 0px 6px 0 rgba(0, 0, 0, 0.15);
 		border-radius: 0px 3px 3px 3px;
+		height: calc(~"100vh - 82px"); // 82px is hardcoded; needs to be adjusted when placed into compass
 	}
 	&-header {
 		background: #F5F6F7;
@@ -41,13 +45,13 @@
 	}
 	&-full-width-row {
 		height: 56px!important;
-	    background: #FFFFFF;
+	    background: transparent;
 	    border: 1px solid #5CAEEB;
 	    border-radius: 2px;
 	    margin-top: -28px;
 
 	    .document-footer {
-	    	margin-top: 28px;
+	    	margin-top: 26px;
 	    }
 	}
 	&-cell {
