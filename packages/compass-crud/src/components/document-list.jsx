@@ -174,8 +174,9 @@ class DocumentList extends React.Component {
   handleInsert(error, doc) {
     if (!error) {
       marky.mark('DocumentList - Handle insert');
+      const newDocs = [doc].concat(this.state.docs);
       this.setState({
-        docs: this.state.docs.concat([doc]),
+        docs: newDocs,
         nextSkip: (this.state.nextSkip + 1),
         loadedCount: (this.state.loadedCount + 1),
         count: this.state.count + 1
