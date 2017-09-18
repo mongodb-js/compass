@@ -1,7 +1,7 @@
 .ag {
 	&-parent {
 		padding: 10px 15px;
-		height: 100vh;
+		height: calc(~"100vh - 66px"); // Hardcoded, need to fix later
 		font-family: Menlo;
 		font-size: 11px;
 	}
@@ -9,7 +9,6 @@
 		background-color: #FAFAFA;
 		box-shadow: 0 0px 6px 0 rgba(0, 0, 0, 0.15);
 		border-radius: 0px 3px 3px 3px;
-		height: calc(~"100vh - 66px"); // Hardcoded, need to fix later
 	}
 	&-header {
 		background: #F5F6F7;
