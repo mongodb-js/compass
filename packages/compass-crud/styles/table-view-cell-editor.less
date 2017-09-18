@@ -141,32 +141,33 @@
 
     &-menu {
       display: none;
-      color: #807f7f;
-      position: absolute;
-
+      margin-left: 8px;
 
       li {
-        span {
-          display: block;
-          padding: 3px 5px;
-          clear: both;
-          font-weight: normal;
-          font-size: 11px;
-          color: #333333;
-          white-space: nowrap;
+        font-family: Menlo;
+        font-size: 11px;
+        padding: 1px;
+      }
 
-          .fa-level-down {
-            margin-right: 12px;
-          }
+      &-option {
+        font-weight: normal;
+        text-transform: none;
+        padding: 4px 8px;
+        white-space: nowrap;
 
-          .fa-plus-square-o {
-            margin-right: 10px;
-          }
+        &:focus, &:hover, &:active { 
+          color: white;
+          background: linear-gradient(180deg, #2469BE 0%, #11509E 100%);
+          border-radius: 2px;
+          outline: none;
         }
-        span:hover {
-          color: #313030;
-          text-decoration: none;
-          background: #e6e6e6;
+
+        .fa-level-down {
+          margin-right: 12px;
+        }
+
+        .fa-plus-square-o {
+          margin-right: 10px;
         }
       }
 
@@ -181,5 +182,4 @@
       }
     }
   }
-
 }
