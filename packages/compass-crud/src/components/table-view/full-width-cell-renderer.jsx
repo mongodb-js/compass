@@ -1,10 +1,15 @@
 const React = require('react');
+const Reflux = require('reflux');
 const PropTypes = require('prop-types');
 
 const Actions = require('../../actions');
 const DocumentFooter = require('../document-footer');
 const RemoveDocumentFooter = require('../remove-document-footer');
 
+/**
+ * The delete error message.
+ */
+const DELETE_ERROR = new Error('Cannot delete documents that do not have an _id field.');
 
 /**
  * The custom full-width cell renderer that renders the update/cancel bar
@@ -21,9 +26,190 @@ class FullWidthCellRenderer extends React.Component {
       mode: props.data.state
     };
 
-    this.actions = {update: ()=>{}, remove: ()=>{}};
-    this.updateStore = {listen: ()=>{return ()=>{};}};
-    this.removeStore = {listen: ()=>{return ()=>{};}};
+    // this.actions = {update: ()=>{}, remove: ()=>{}};
+    // this.updateStore = {listen: ()=>{return ()=>{};}};
+    // this.removeStore = {listen: ()=>{return ()=>{};}};
+
+    // Actions need to be scoped to the single document component and not
+    // global singletons.
+    this.actions = Reflux.createActions([ 'update', 'remove', 'cancelRemove' ]);
+
+    // The update store needs to be scoped to a document and not a global
+    // singleton.
+    this.updateStore = this.createUpdateStore(this.actions);
+    this.removeStore = this.createRemoveStore(this.actions);
+  }
+
+  /**
+   * Subscribe to the update store on mount.
+   */
+  componentDidMount() {
+    this.unsubscribeUpdate = this.updateStore.listen(this.handleStoreUpdate.bind(this));
+    this.unsubscribeRemove = this.removeStore.listen(this.handleStoreRemove.bind(this));
+  }
+
+  /**
+   * Unsubscribe from the update store on unmount.
+   */
+  componentWillUnmount() {
+    this.unsubscribeUpdate();
+    this.unsubscribeRemove();
+  }
+
+  /**
+   * Create the scoped update store.
+   *
+   * @param {Action} actions - The component reflux actions.
+   *
+   * @returns {Store} The scoped store.
+   */
+  createUpdateStore(actions) {
+    return Reflux.createStore({
+
+      /**
+       * Initialize the store.
+       */
+      init: function() {
+        this.ns = global.hadronApp.appRegistry.getStore('App.NamespaceStore').ns;
+        this.listenTo(actions.update, this.update);
+      },
+
+      /**
+       * Update the document in the database.
+       *
+       * @param {Object} object - The replacement document.
+       *
+       * @todo: Durran: Determine shard key.
+       */
+      update: function(object) {
+        // TODO (@thomasr) this does not work for projections
+        global.hadronApp.dataService.findOneAndReplace(
+          this.ns,
+          { _id: object._id },
+          object,
+          { returnOriginal: false, promoteValues: false },
+          this.handleResult
+        );
+      },
+
+      /**
+       * Handle the result from the driver.
+       *
+       * @param {Error} error - The error.
+       * @param {Object} doc - The document.
+       *
+       * @returns {Object} The trigger event.
+       */
+      handleResult: function(error, doc) {
+        return (error) ? this.trigger(false, error) : this.trigger(true, doc);
+      }
+    });
+  }
+
+  /**
+   * Create the scoped remove store.
+   *
+   * @param {Action} actions - The component reflux actions.
+   *
+   * @returns {Store} The scoped store.
+   */
+  createRemoveStore(actions) {
+    return Reflux.createStore({
+
+      /**
+       * Initialize the store.
+       */
+      init: function() {
+        this.ns = global.hadronApp.appRegistry.getStore('App.NamespaceStore').ns;
+        this.listenTo(actions.remove, this.remove);
+      },
+
+      /**
+       * Remove the document from the collection.
+       *
+       * @param {Object} object - The object to delete.
+       */
+      remove: function(object) {
+        const id = object.getId();
+        if (id) {
+          global.hadronApp.dataService.deleteOne(this.ns, { _id: id }, {}, this.handleResult);
+        } else {
+          this.handleResult(DELETE_ERROR);
+        }
+      },
+
+      /**
+       * Handle the result from the driver.
+       *
+       * @param {Error} error - The error.
+       * @param {Object} result - The document.
+       *
+       * @returns {Object} The trigger event.
+       */
+      handleResult: function(error, result) {
+        return (error) ? this.trigger(false, error) : this.trigger(true, result);
+      }
+    });
+  }
+
+  /**
+   * Handles a trigger from the store.
+   *
+   * @param {Boolean} success - If the update succeeded.
+   * @param {Object} object - The error or document.
+   */
+  handleStoreUpdate(success, object) {
+    console.log('handleStoreUpdate');
+    if (success) {
+      this.handleUpdateSuccess(object);
+    }
+  }
+
+  /**
+   * Handles a trigger from the store.
+   *
+   * @param {Boolean} success - If the update succeeded.
+   */
+  handleStoreRemove(success) {
+    console.log('handleStoreRemove');
+    if (success) {
+      this.handleRemoveSuccess();
+    }
+  }
+
+  /**
+   * Handle a successful update.
+   *
+   * @param {Object} doc - The updated document.
+   */
+  handleUpdateSuccess(doc) {
+    console.log('handleUpdateSuccess');
+    console.log(doc);
+    // TODO: set state to successful and delete row
+    // this.doc = EditableDocument.loadDocument(doc);
+    // this.subscribeToDocumentEvents();
+    // setTimeout(() => {
+    //   const ref = this.onHideScrollIntoView;
+    //   if (ref) {
+    //     // Avoid loading more documents on clicking the Update button
+    //     ref.scrollIntoView();
+    //   }
+    //   this.setState({
+    //     editing: false,
+    //     renderSize: INITIAL_FIELD_LIMIT
+    //   }, () => {
+    //   });
+    // }, 500);
+  }
+
+  /**
+   * Handle a successful update.
+   */
+  handleRemoveSuccess() {
+    console.log('handleRemoveSuccess');
+    // this.setState({ deleting: false, deleteFinished: true });
+    // TODO: remove row from table
+    // Actions.documentRemoved(this.props.doc._id);
   }
 
   handleCancelDelete() {

@@ -383,7 +383,7 @@ class DocumentListTableView extends React.Component {
   render() {
     const containerStyle = {
       height: 1000,
-      width: 1200
+      width: 900
     };
 
     return (
