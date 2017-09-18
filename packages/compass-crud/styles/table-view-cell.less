@@ -9,6 +9,23 @@
   padding-left: 5px;
   padding-right: 5px;
 
+  &-circle-button { 
+    position: absolute;
+    z-index: 100;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    opacity: 0;
+    right: 0;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    margin: 2px 5px;
+    background: white;
+    box-shadow: 0 2px 5px 0 rgba(0,0,0,0.15), inset 0 2px 5px 0 rgba(0,0,0,0.05);
+    cursor: pointer;
+  }
+
   .editable-element {
     min-height: 28px;
     display: block;
@@ -26,169 +43,42 @@
     padding-right: 5px;
   }
 
-  &-is-deleted {
+  &-is-deleted, &-is-edited, &-is-added, &-is-invalid {
     min-height: 24px;
-    background-color: #FFE5EA;
-    border: 1px solid pink;
     line-height: 24px;
     margin: 1px;
     padding-left: 5px;
     padding-right: 5px;
 
+    .editable-element {
+      min-height: 24px;
+      z-index: 1;
+    }
+
     &:hover {
-      .table-view-cell-is-deleted-actions {
+      .table-view-cell-circle-button {
         opacity: 1;
       }
     }
+  }
 
-    &-actions {
-      position: absolute;
-      opacity: 0;
-      right: 0;
-      margin-right: 5px;
-      margin-top: 4px;
-      width: 15px;
-      height: 16px;
-      z-index: 4;
-
-      &-background {
-        position: absolute;
-        color: white;
-        z-index: 2;
-        font-size: 18px;
-        &-icon {
-          position: absolute;
-          z-index: 3;
-          font-size: 11px;
-          padding-left: 3px;
-          padding-top: 3px
-        }
-      }
-    }
-
+  &-is-deleted {
+    background-color: #FFE5EA;
+    border: 1px solid pink;
   }
 
   &-is-edited {
-    z-index: 1;
-    .editable-element {
-      min-height: 24px;
-      z-index: 1;
-    }
     background-color: #fff4dc;
     border: 1px solid #ffd27f;
-    margin: 1px;
-    padding-left: 5px;
-    padding-right: 5px;
-
-    &:hover {
-      .table-view-cell-is-edited-actions {
-        opacity: 1;
-      }
-    }
-    &-actions {
-      position: absolute;
-      z-index: 100;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      opacity: 0;
-      right: 0;
-      width: 18px;
-      height: 18px;
-      border-radius: 50%;
-      margin: 2px 5px;
-      background: white;
-      box-shadow: 0 2px 5px 0 rgba(0,0,0,0.15), inset 0 2px 5px 0 rgba(0,0,0,0.05);
-      cursor: pointer;
-    }
   }
 
   &-is-added {
-    z-index: 1;
-    .editable-element {
-      min-height: 24px;
-      z-index: 1;
-    }
     background-color: #e9f2e3;
     border: 1px solid #b2d8b2;
-    margin: 1px;
-    padding-left: 5px;
-    padding-right: 5px;
-
-    &:hover {
-      .table-view-cell-is-added-actions {
-        opacity: 1;
-      }
-    }
-    &-actions {
-      position: absolute;
-      opacity: 0;
-      right: 0;
-      margin-right: 5px;
-      margin-top: 4px;
-      width: 15px;
-      height: 16px;
-      z-index: 100;
-
-      &-background {
-        position: absolute;
-        color: white;
-        z-index: 2;
-        font-size: 18px;
-        &-icon {
-          position: absolute;
-          z-index: 3;
-          font-size: 11px;
-          padding-left: 3px;
-          padding-top: 3px
-        }
-      }
-    }
   }
 
   &-is-invalid {
-    z-index: 1;
-    .editable-element {
-      margin-top: 5px;
-      min-height: 24px;
-      z-index: 1;
-    }
     background-color: #F88379;
     border: 1px solid #ef4c4c;// #F88379;
-    margin: 1px;
-    padding-left: 5px;
-    padding-right: 5px;
-    padding-top: 4px;
-
-    &:hover {
-      .table-view-cell-is-invalid-actions {
-        opacity: 1;
-      }
-    }
-    &-actions {
-      position: absolute;
-      opacity: 0;
-      right: 0;
-      margin-right: 5px;
-      //margin-top: 4px;
-      width: 15px;
-      height: 16px;
-      z-index: 100;
-
-      &-background {
-        position: absolute;
-        color: white;
-        z-index: 2;
-        font-size: 18px;
-        &-icon {
-          position: absolute;
-          z-index: 3;
-          font-size: 11px;
-          padding-left: 3px;
-          padding-top: 3px
-        }
-      }
-    }
   }
-
 }

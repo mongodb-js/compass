@@ -151,13 +151,13 @@ class CellRenderer extends React.Component {
     );
   }
 
-  renderUndo(classname, canUndo) {
+  renderUndo(canUndo) {
     if (!canUndo) {
       return null;
     }
     return (
-      <div className={`${classname}-actions`} onClick={this.handleUndo.bind(this)}>
-        <span className={`fa fa-rotate-left ${classname}-actions-icon`} aria-hidden />
+      <div className={'table-view-cell-circle-button'} onClick={this.handleUndo.bind(this)}>
+        <span className={'fa fa-rotate-left'} aria-hidden />
       </div>
     );
   }
@@ -191,7 +191,7 @@ class CellRenderer extends React.Component {
 
     return (
       <div className={className}>
-        {this.renderUndo(className, canUndo)}
+        {this.renderUndo(canUndo)}
         {element}
       </div>
     );
