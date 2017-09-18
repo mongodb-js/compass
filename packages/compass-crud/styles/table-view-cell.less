@@ -87,27 +87,19 @@
     }
     &-actions {
       position: absolute;
+      z-index: 100;
+      display: flex;
+      justify-content: center;
+      align-items: center;
       opacity: 0;
       right: 0;
-      margin-right: 5px;
-      margin-top: 4px;
-      width: 15px;
-      height: 16px;
-      z-index: 100;
-
-      &-background {
-        position: absolute;
-        color: white;
-        z-index: 2;
-        font-size: 18px;
-        &-icon {
-          position: absolute;
-          z-index: 3;
-          font-size: 11px;
-          padding-left: 3px;
-          padding-top: 3px
-        }
-      }
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      margin: 2px 5px;
+      background: white;
+      box-shadow: 0 2px 5px 0 rgba(0,0,0,0.15), inset 0 2px 5px 0 rgba(0,0,0,0.05);
+      cursor: pointer;
     }
   }
 

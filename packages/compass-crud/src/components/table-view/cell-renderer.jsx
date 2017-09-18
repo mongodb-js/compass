@@ -157,8 +157,7 @@ class CellRenderer extends React.Component {
     }
     return (
       <div className={`${classname}-actions`} onClick={this.handleUndo.bind(this)}>
-        <span className={`fa fa-circle ${classname}-actions-background`} aria-hidden />
-        <span className={`fa fa-rotate-left ${classname}-actions-background-icon`} aria-hidden />
+        <span className={`fa fa-rotate-left ${classname}-actions-icon`} aria-hidden />
       </div>
     );
   }
