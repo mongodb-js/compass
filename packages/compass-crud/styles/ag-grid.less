@@ -1,15 +1,52 @@
 .ag {
-	&-body-viewport-wrapper {
-		margin-right: 0px!important;
+	&-parent {
+		padding: 10px 15px;
+		height: 100vh;
+	}
+	&-bl-full-height {
+		background-color: #FAFAFA;
+		box-shadow: 0 2px 10px 0 rgba(0,0,0,0.10);
+		border-radius: 0px 3px 3px 3px;
 	}
 	&-header {
 		background: #F5F6F7;
     	padding: 2px 0 2px 0;
-    	box-shadow: 0 2px 10px 0 rgba(0,0,0,0.10), inset 0 -1px 0 0 #D7D7D
+		box-shadow: 0 2px 10px 0 rgba(0,0,0,0.10), inset 0 -1px 0 0 #D7D7D7;
+
+		&-cell {
+			//border-left: 0.5px solid #E0E0E0;
+			padding-right: 15px;
+			border-right: 0.5px solid #E0E0E0;
+		}
+
+		&-breadcrumb {
+			height: 25px;
+		    padding: 3px 5px;
+		    font-weight: bold;
+		    font-size: 12px;
+		    width: 100px;
+		    text-overflow: ellipsis;
+		    overflow: hidden;
+		    display: block;
+		    white-space: nowrap;
+		    background-color: #F5F6F7;
+		    border-radius: 3px 3px 0 0;
+		}
+	}
+	&-row  {
+		box-sizing: border-box;
+		background-color: white;
 	}
 	&-cell {
-		border-right: 1px solid #D8D8D8;
-    	border-bottom: 1px solid #D8D8D8;
+		border-right: 0.5px solid #E0E0E0;
+		border-bottom: 0.5px solid #E0E0E0;
     	outline: 0;
+
+    	&-last-left-pinned{
+			padding: 3px 7px;
+    		color: #A2A0A0;
+    		border-left: 0.5px solid #E0E0E0;
+
+    	}
 	}
 }

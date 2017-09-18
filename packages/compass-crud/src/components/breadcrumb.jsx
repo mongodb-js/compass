@@ -9,7 +9,7 @@ class BreadcrumbComponent extends React.Component {
 
   render() {
     return (
-      <div className="document-list-breadcrumb">
+      <div className="ag-header-breadcrumb">
         <span> {this.props.ns.ns}</span>
       </div>
     );
