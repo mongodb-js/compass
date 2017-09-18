@@ -53,6 +53,8 @@ class DocumentListTableView extends React.Component {
 
   componentWillUnmount() {
     this.unsubscribeGridStore();
+    this.unsubscribeInsert();
+    this.unsubscribeReset();
   }
 
   createGrid() {
