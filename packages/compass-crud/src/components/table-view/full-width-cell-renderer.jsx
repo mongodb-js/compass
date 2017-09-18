@@ -184,22 +184,7 @@ class FullWidthCellRenderer extends React.Component {
    */
   handleUpdateSuccess(doc) {
     console.log('handleUpdateSuccess');
-    console.log(doc);
-    // TODO: set state to successful and delete row
-    // this.doc = EditableDocument.loadDocument(doc);
-    // this.subscribeToDocumentEvents();
-    // setTimeout(() => {
-    //   const ref = this.onHideScrollIntoView;
-    //   if (ref) {
-    //     // Avoid loading more documents on clicking the Update button
-    //     ref.scrollIntoView();
-    //   }
-    //   this.setState({
-    //     editing: false,
-    //     renderSize: INITIAL_FIELD_LIMIT
-    //   }, () => {
-    //   });
-    // }, 500);
+    this.props.context.handleUpdate(doc);
   }
 
   /**
@@ -207,13 +192,11 @@ class FullWidthCellRenderer extends React.Component {
    */
   handleRemoveSuccess() {
     console.log('handleRemoveSuccess');
-    // this.setState({ deleting: false, deleteFinished: true });
-    // TODO: remove row from table
-    // Actions.documentRemoved(this.props.doc._id);
+    this.props.context.handleRemove(this.props.data);
   }
 
   handleCancelDelete() {
-    this.props.context.removeFooter(this.props.data);
+    this.props.context.removeFooter(this.props.node);
   }
 
   handleCancelUpdate() {
@@ -241,7 +224,7 @@ class FullWidthCellRenderer extends React.Component {
     for (let i = 0; i < changed.length; i++) {
       Actions.elementTypeChanged(changed[i].currentKey, changed[i].currentType, id);
     }
-    this.props.context.removeFooter(this.props.data);
+    this.props.context.removeFooter(this.props.node);
   }
 
   render() {
@@ -270,7 +253,8 @@ FullWidthCellRenderer.propTypes = {
   api: PropTypes.any,
   mode: PropTypes.any,
   data: PropTypes.any,
-  context: PropTypes.any
+  context: PropTypes.any,
+  node: PropTypes.any
 };
 
 FullWidthCellRenderer.displayName = 'FullWidthCellRenderer';

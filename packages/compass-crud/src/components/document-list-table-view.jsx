@@ -32,13 +32,17 @@ class DocumentListTableView extends React.Component {
     this.createRowData = this.createRowData.bind(this);
     this.updateHeaders = this.updateHeaders.bind(this);
     this.removeFooter = this.removeFooter.bind(this);
+    this.handleRemove = this.handleRemove.bind(this);
+    this.handleUpdate = this.handleUpdate.bind(this);
     this.addFooter = this.addFooter.bind(this);
 
     this.gridOptions = {
       context: {
         column_width: 150,
         addFooter: this.addFooter,
-        removeFooter: this.removeFooter
+        removeFooter: this.removeFooter,
+        handleUpdate: this.handleUpdate,
+        handleRemove: this.handleRemove
       },
       onRowDoubleClicked: this.onRowDoubleClicked.bind(this),
       onCellClicked: this.onCellClicked.bind(this),
@@ -117,19 +121,53 @@ class DocumentListTableView extends React.Component {
    * A row has finished editing and the footer needs to be removed and the state
    * set back to null.
    *
-   * @param {object} data - The data of the footer that is going to be removed.
+   * @param {RowNode} node - The RowNode of the footer that is being removed.
    */
-  removeFooter(data) {
-    const rowId = data.hadronDocument.get('_id').value.toString() + '0';
+  removeFooter(node) {
+    /* rowId is the document row */
+    const rowId = node.data.hadronDocument.get('_id').value.toString() + '0';
     const api = this.gridApi;
-
     const dataNode = api.getRowNode(rowId);
+
     setTimeout(function() {
+      /* This data gets reset twice if being called from handleUpdate */
       dataNode.data.hasFooter = false;
       dataNode.data.state = null;
       api.refreshCells({rowNodes: [dataNode], columns: ['$rowActions'], force: true});
+      api.updateRowData({remove: [node.data]});
+    }, 0);
+  }
+
+  /**
+   * A row has either been deleted or updated successfully.
+   *
+   * @param {object} data - The data of the row that has been deleted/updated.
+   */
+  handleRemove(data) {
+    const api = this.gridApi;
+    setTimeout(function() {
       api.updateRowData({remove: [data]});
     }, 0);
+  }
+
+  /**
+   * A row has been updated successfully. We need to set the data to the new
+   * values and redraw that row.
+   *
+   * @param {Object} data - The new data of the row that has been updated.
+   */
+  handleUpdate(data) {
+    const api = this.gridApi;
+
+    const rowId = data._id + '0';
+    const dataNode = api.getRowNode(rowId);
+    const newData = this.createRowData([data])[0];
+    api.redrawRows({rowNodes: [dataNode]});
+    dataNode.setData(newData);
+
+    const footerRowId = data._id + '1';
+    const footerNode = api.getRowNode(footerRowId);
+    this.removeFooter(footerNode);
   }
 
 
@@ -355,10 +393,12 @@ class DocumentListTableView extends React.Component {
    * Create data for each document row. Contains a HadronDocument and some
    * metadata.
    *
+   * @param {Array} documents - A list of JSON documents.
+   *
    * @returns {Array} A list of HadronDocument wrappers.
    */
-  createRowData() {
-    return _.map(this.props.docs, function(val, i) {
+  createRowData(documents) {
+    return _.map(documents, function(val, i) {
       // TODO: Make wrapper object for HadronDocument
       return {
         /* The same doc is shared between a document row and it's footer */
@@ -400,7 +440,7 @@ class DocumentListTableView extends React.Component {
             isFullWidthCell={(rowNode)=>{return rowNode.data.isFooter;}}
             fullWidthCellRendererFramework={FullWidthCellRenderer}
 
-            rowData={this.createRowData()}
+            rowData={this.createRowData(this.props.docs)}
             getRowNodeId={function(data) {
               const fid = data.isFooter ? '1' : '0';
               return data.hadronDocument.get('_id').value.toString() + fid;
