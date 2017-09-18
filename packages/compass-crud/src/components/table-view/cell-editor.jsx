@@ -354,7 +354,7 @@ class CellEditor extends React.Component {
     if (this.element.currentType === 'Object' || this.element.currentType === 'Array') {
       return (
         <div className={`${BEM_BASE}-button btn btn-default btn-xs`} onClick={this.handleDrillDown}>
-          <FontAwesome name="forward" className={`${BEM_BASE}-button-icon`}/>
+          <FontAwesome name="expand" className={`${BEM_BASE}-button-icon`}/>
         </div>
       );
     }
