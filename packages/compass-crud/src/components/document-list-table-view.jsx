@@ -177,18 +177,27 @@ class DocumentListTableView extends React.Component {
    */
   handleRemove(node) {
     const api = this.gridApi;
+    const oid = node.data.hadronDocument.get('_id').value.toString();
 
     /* rowId is the document row */
-    const rowId = node.data.hadronDocument.get('_id').value.toString() + '0';
+    const rowId = oid + '0';
     const dataNode = api.getRowNode(rowId);
 
+    /* Update the row numbers */
     this.updateRowNumbers(dataNode.data.rowNumber, false);
 
+    /* Update the grid */
     setTimeout(function() {
       api.updateRowData({remove: [dataNode.data]});
     }, 0);
 
+    /* Remove the footer */
     this.removeFooter(node);
+
+    /* Update the headers */
+    for (const element of node.data.hadronDocument.elements) {
+      Actions.elementRemoved(element.currentKey, oid, true);
+    }
   }
 
   /**
@@ -342,6 +351,11 @@ class DocumentListTableView extends React.Component {
       this.updateRowNumbers(1, true);
       const data = this.createRowData([doc])[0];
       this.gridApi.updateRowData({add: [data], addIndex: 0});
+
+      /* Update the headers */
+      for (const element of data.hadronDocument.elements) {
+        Actions.elementAdded(element.currentKey, element.currentType, doc._id);
+      }
     }
   }
 
