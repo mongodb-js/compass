@@ -172,14 +172,6 @@ class CellEditor extends React.Component {
     }
   }
 
-  /**
-   * Determines if the editor can take up more space than just 1 cell.
-   * @returns {boolean}
-   */
-  isPopup() {
-    return true;
-  }
-
   focus() {
     // TODO: why this?
     setTimeout(() => {
