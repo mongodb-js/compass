@@ -2,17 +2,18 @@
   position: absolute;
   z-index: 1000;
   display: flex;
-  margin-top: -2px;
-  margin-left: -8px;
   justify-content: center;
   align-items: center;
   height: 32px;
-  width: 260px; // todo set correctly
   background: #FFFFFF;
   border: 1px solid #C3C3C2;
   border-radius: 2px;
   box-shadow: 0 2px 6px 0 rgba(152,152,152,0.30);
   outline: 0;
+  padding: 1px 5px;
+  margin-top: -2px;
+  margin-left: -8px;
+
 
   &-input {
     display: inline-block;
@@ -20,6 +21,7 @@
     border-radius: 1px;
     height: 22px;
     padding: 0 7px 0 7px;
+    width: 130px;
 
     &:focus {
       outline: none;
@@ -30,11 +32,20 @@
       outline: 0;
     }
 
+    &-field {
+        margin-right: 3px;
+    }
+
     .editable-element-value-is-editing {
       border: none;
       box-shadow: none;
       margin-top: 3px;
       height: 15px;
+    }
+
+    .editable-element-field {
+      margin-left: 0;
+      padding-top: 3px;
     }
   }
 
@@ -69,17 +80,18 @@
   }
 
   &-types {
+    display: flex;
     height: 22px;
+    width: 85px;
     padding: 0 5px 0 5px;
     margin-left: 3px;
-    display: flex;
 
     .btn-crud {
       background-color: transparent;
       border: none;
       padding: 0;
       border-radius: 0;
-      font-size: 12px;
+      font-size: 10px;
       font-family: Menlo;
     }
 
@@ -122,6 +134,10 @@
         }
       }
     }
+  }
+
+  &-actions {
+    display: flex;
   }
 
   &-button {

@@ -19,6 +19,11 @@ const AddFieldButton = require('./add-field-button');
 const BEM_BASE = 'table-view-cell-editor';
 
 /**
+ * The document field class.
+ */
+const FIELD_CLASS = 'editable-element-field';
+
+/**
  * The document value class.
  */
 const VALUE_CLASS = 'editable-element-value';
@@ -245,9 +250,9 @@ class CellEditor extends React.Component {
    * @returns {String} The key style.
    */
   styleField(input) {
-    let base = `${BEM_BASE}-field-name`;
+    let base = `${FIELD_CLASS}`;
     if (input) {
-      base = `${base}-input`;
+      base = `${base}`;
       if (this.element.isDuplicateKey(this.state.fieldName)) {
         base = `${base}-is-duplicate`;
       }
@@ -285,14 +290,15 @@ class CellEditor extends React.Component {
   renderFieldName() {
     if (this.newField) {
       return (
-        <div className={this.styleField()}>
-          <input
-            type="text"
-            style={{ width: '100px' }}
-            onChange={this.handleFieldNameChange.bind(this)}
-            className={this.styleField(true)}
-            value={this.state.fieldName}
-            placeholder="Field Name"/>
+        <div className={`${BEM_BASE}-input ${BEM_BASE}-input-field`}>
+          <span>
+            <input
+              type="text"
+              onChange={this.handleFieldNameChange.bind(this)}
+              className={this.styleField(true)}
+              value={this.state.fieldName}
+              placeholder="Field Name"/>
+          </span>
         </div>
       );
     }
@@ -339,7 +345,7 @@ class CellEditor extends React.Component {
               value={this.editor().value(true)}
               placeholder="Value"/>
           </span>
-        </div>
+      </div>
       );
     }
     return null;
@@ -388,16 +394,13 @@ class CellEditor extends React.Component {
   }
 
   render() {
-    let width = 268;
     let displace = 211;
-    if (this.newField) {
-      width = 316;
-    } else if (this.element.currentType === 'Object' || this.element.currentType === 'Array') {
-      width = 170;
+    if (this.element.currentType === 'Object' || this.element.currentType === 'Array') {
       displace = 120;
     }
+
     return (
-      <div className={BEM_BASE} style={{width: `${width}px`}}>
+      <div className={BEM_BASE}>
         {this.renderFieldName()}
         {this.renderInput()}
         {this.renderTypes()}
