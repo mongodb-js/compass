@@ -8,8 +8,13 @@ const TypeChecker = require('hadron-type-checker');
 const HadronDocument = require('hadron-document');
 
 const Actions = require('../actions');
+
 const GridStore = require('../stores/grid-store');
 const BreadcrumbStore = require('../stores/breadcrumb-store');
+const RemoveDocumentStore = require('../stores/remove-document-store');
+const InsertDocumentStore = require('../stores/insert-document-store');
+const ResetDocumentListStore = require('../stores/reset-document-list-store');
+
 const BreadcrumbComponent = require('./breadcrumb');
 const CellRenderer = require('./table-view/cell-renderer');
 const FullWidthCellRenderer = require('./table-view/full-width-cell-renderer');
@@ -41,16 +46,14 @@ class DocumentListTableView extends React.Component {
 
   componentDidMount() {
     this.unsubscribeGridStore = GridStore.listen(this.modifyColumns.bind(this));
-    // this.unsubscribeInsert = InsertDocumentStore.listen(this.handleInsert.bind(this));
+    this.unsubscribeInsert = InsertDocumentStore.listen(this.handleInsert.bind(this));
+    this.unsubscribeRemove = RemoveDocumentStore.listen(this.handleRemove.bind(this));
+    this.unsubscribeReset = ResetDocumentListStore.listen(this.handleReset.bind(this));
   }
 
   componentWillUnmount() {
     this.unsubscribeGridStore();
   }
-
-  // shouldComponentUpdate() {
-  //   return false;
-  // }
 
   createGrid() {
     this.gridOptions = {
@@ -199,9 +202,13 @@ class DocumentListTableView extends React.Component {
 
     const rowId = data._id + '0';
     const dataNode = api.getRowNode(rowId);
+    const rowNumber = dataNode.data.rowNumber;
+
     const newData = this.createRowData([data])[0];
-    api.redrawRows({rowNodes: [dataNode]});
+    newData.rowNumber = rowNumber; // Keep old line number
+
     dataNode.setData(newData);
+    api.redrawRows({rowNodes: [dataNode]});
 
     const footerRowId = data._id + '1';
     const footerNode = api.getRowNode(footerRowId);
@@ -305,6 +312,47 @@ class DocumentListTableView extends React.Component {
 
       this.updateHeaders(params.updateHeaders.showing, columnHeaders);
       this.gridApi.refreshHeader();
+    }
+  }
+
+  /**
+   * Handle insert of a new document.
+   *
+   * @param {Error} error - Any error that happened.
+   * @param {Object} doc - The raw document that was inserted.
+   */
+  handleInsert(error, doc) {
+    if (!error) {
+      const data = this.createRowData([doc])[0];
+      this.gridApi.updateRowData({add: [data], addIndex: 0});
+
+      this.gridApi.refreshCells();
+
+    }
+  }
+
+  /**
+   * Handles removal of a document from the document list.
+   *
+   * @param {Object} id - The id of the removed document.
+   */
+  handleRemove(id) {
+    console.log('remove row');
+  }
+
+  /**
+   * Handle the reset of the document list.
+   *
+   * @param {Object} error - Error when trying to reset the document list.
+   * @param {Array} documents - The documents.
+   * @param {Integer} count - The count.
+   */
+  handleReset(error, documents, count) {
+    if (error) {
+      // this.setState({ error: error }); // TODO: make sure it works later
+    } else {
+      this.AGGrid = this.createGrid();
+      this.setState({docs: documents});
     }
   }
 
@@ -437,7 +485,6 @@ class DocumentListTableView extends React.Component {
    */
   createRowData(documents) {
     return _.map(documents, function(val, i) {
-      // TODO: Make wrapper object for HadronDocument
       return {
         /* The same doc is shared between a document row and it's footer */
         hadronDocument: new HadronDocument(val),
