@@ -51,6 +51,16 @@ const InsertDocumentStore = Reflux.createStore({
   },
 
   /**
+   * Trigger if a document has been inserted. Needed for when we use a different
+   * insert document store when cloning.
+   *
+   * @param {Object} doc - The document inserted.
+   */
+  documentInserted(doc) {
+    this.trigger(null, doc, true);
+  },
+
+  /**
    * Fires when the query is changed.
    *
    * @param {Object} state - The query state.

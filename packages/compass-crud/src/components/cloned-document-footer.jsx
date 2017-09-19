@@ -4,6 +4,8 @@ const PropTypes = require('prop-types');
 const { Element } = require('hadron-document');
 const { TextButton } = require('hadron-react-buttons');
 
+const InsertDocumentStore = require('../stores/insert-document-store');
+
 /**
  * The progress mode.
  */
@@ -181,6 +183,7 @@ class ClonedDocumentFooter extends React.Component {
    */
   handleStoreInsert(success, object) {
     if (success) {
+      InsertDocumentStore.documentInserted(object);
       this.handleSuccess();
     } else {
       this.handleError(object);

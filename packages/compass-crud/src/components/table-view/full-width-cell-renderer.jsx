@@ -43,8 +43,8 @@ class FullWidthCellRenderer extends React.Component {
    */
   componentDidMount() {
     this.unsubscribeUpdate = this.updateStore.listen(this.handleStoreUpdate.bind(this));
+    this.unsubscribeInsert = this.insertStore.listen(this.handleStoreUpdate.bind(this));
     this.unsubscribeRemove = this.removeStore.listen(this.handleStoreRemove.bind(this));
-    this.unsubscribeInsert = this.insertStore.listen(this.handleStoreInsert.bind(this));
   }
 
   /**
@@ -84,7 +84,9 @@ class FullWidthCellRenderer extends React.Component {
           this.ns,
           object,
           {},
-          this.handleResult
+          (error) => {
+            this.handleResult(error, object);
+          }
         );
       },
 
@@ -92,11 +94,12 @@ class FullWidthCellRenderer extends React.Component {
        * Handle the result from the driver.
        *
        * @param {Error} error - The error.
+       * @param {Object} doc - The doc.
        *
        * @returns {Object} The trigger event.
        */
-      handleResult: function(error) {
-        return (error) ? this.trigger(false, error) : this.trigger(true);
+      handleResult: function(error, doc) {
+        return (error) ? this.trigger(false, error) : this.trigger(true, doc);
       }
     });
   }
@@ -217,12 +220,6 @@ class FullWidthCellRenderer extends React.Component {
   handleStoreRemove(success) {
     if (success) {
       this.handleRemoveSuccess();
-    }
-  }
-
-  handleStoreInsert(success) {
-    if (success) {
-      this.handleUpdateSuccess(this.props.data.hadronDocument.generateObject());
     }
   }
 
