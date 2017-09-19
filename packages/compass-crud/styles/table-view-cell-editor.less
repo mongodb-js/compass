@@ -14,26 +14,33 @@
   margin-top: -2px;
   margin-left: -8px;
 
-
   &-input {
-    display: inline-block;
+    display: flex;
     border: 1px solid #d3d3d3;
     border-radius: 1px;
     height: 22px;
     padding: 0 7px 0 7px;
     width: 130px;
 
-    &:focus {
-      outline: none;
-    }
-
     input {
-      width: 80px;
       outline: 0;
+      overflow: hidden;
+      text-overflow: none;
+      white-space: nowrap;
     }
 
     &-field {
-        margin-right: 3px;
+        margin-right: 10px;
+        padding-top: 2px;
+
+        &-inner {
+          margin-right: 14px;
+        }
+
+        &::after {
+          content: ":";
+          margin-right: 1px;
+        }
     }
 
     .editable-element-value-is-editing {
@@ -45,7 +52,7 @@
 
     .editable-element-field {
       margin-left: 0;
-      padding-top: 3px;
+      width: 110px;
     }
   }
 

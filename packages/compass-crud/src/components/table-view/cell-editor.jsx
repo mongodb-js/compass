@@ -291,7 +291,7 @@ class CellEditor extends React.Component {
     if (this.newField) {
       return (
         <div className={`${BEM_BASE}-input ${BEM_BASE}-input-field`}>
-          <span>
+          <span className={`${BEM_BASE}-input-field-inner`}>
             <input
               type="text"
               onChange={this.handleFieldNameChange.bind(this)}
