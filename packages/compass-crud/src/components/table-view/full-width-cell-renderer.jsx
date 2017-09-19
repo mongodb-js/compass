@@ -29,12 +29,13 @@ class FullWidthCellRenderer extends React.Component {
 
     // Actions need to be scoped to the single document component and not
     // global singletons.
-    this.actions = Reflux.createActions([ 'update', 'remove', 'cancelRemove' ]);
+    this.actions = Reflux.createActions([ 'update', 'remove', 'cancelRemove', 'insert' ]);
 
     // The update store needs to be scoped to a document and not a global
     // singleton.
     this.updateStore = this.createUpdateStore(this.actions);
     this.removeStore = this.createRemoveStore(this.actions);
+    this.insertStore = this.createInsertStore(this.actions);
   }
 
   /**
@@ -43,6 +44,7 @@ class FullWidthCellRenderer extends React.Component {
   componentDidMount() {
     this.unsubscribeUpdate = this.updateStore.listen(this.handleStoreUpdate.bind(this));
     this.unsubscribeRemove = this.removeStore.listen(this.handleStoreRemove.bind(this));
+    this.unsubscribeInsert = this.insertStore.listen(this.handleStoreInsert.bind(this));
   }
 
   /**
@@ -51,6 +53,52 @@ class FullWidthCellRenderer extends React.Component {
   componentWillUnmount() {
     this.unsubscribeUpdate();
     this.unsubscribeRemove();
+    this.unsubscribeInsert();
+  }
+
+  /**
+   * Create the scoped insert store for cloned documents.
+   *
+   * @param {Action} actions - The component reflux actions.
+   *
+   * @returns {Store} The scoped store.
+   */
+  createInsertStore(actions) {
+    return Reflux.createStore({
+
+      /**
+       * Initialize the store.
+       */
+      init: function() {
+        this.ns = global.hadronApp.appRegistry.getStore('App.NamespaceStore').ns;
+        this.listenTo(actions.insert, this.insert);
+      },
+
+      /**
+       * Insert the document in the database.
+       *
+       * @param {Object} object - The new document.
+       */
+      insert: function(object) {
+        global.hadronApp.dataService.insertOne(
+          this.ns,
+          object,
+          {},
+          this.handleResult
+        );
+      },
+
+      /**
+       * Handle the result from the driver.
+       *
+       * @param {Error} error - The error.
+       *
+       * @returns {Object} The trigger event.
+       */
+      handleResult: function(error) {
+        return (error) ? this.trigger(false, error) : this.trigger(true);
+      }
+    });
   }
 
   /**
@@ -172,6 +220,12 @@ class FullWidthCellRenderer extends React.Component {
     }
   }
 
+  handleStoreInsert(success) {
+    if (success) {
+      this.handleUpdateSuccess(this.props.data.hadronDocument.generateObject());
+    }
+  }
+
   /**
    * Handle a successful update.
    *
@@ -239,7 +293,7 @@ class FullWidthCellRenderer extends React.Component {
       return (
         <ClonedDocumentFooter
           doc={this.doc}
-          updateStore={this.updateStore}
+          insertStore={this.insertStore}
           actions={this.actions}
           cancelHandler={this.handleCancelClone.bind(this)}
         />

@@ -78,7 +78,7 @@ class ClonedDocumentFooter extends React.Component {
   constructor(props) {
     super(props);
     this.doc = props.doc;
-    this.updateStore = props.updateStore;
+    this.insertStore = props.insertStore;
     this.actions = props.actions;
     this.state = { mode: CLONING, message: CLONED };
     this.invalidElements = [];
@@ -90,7 +90,7 @@ class ClonedDocumentFooter extends React.Component {
    * Subscribe to the update store on mount.
    */
   componentDidMount() {
-    this.unsubscribeUpdate = this.updateStore.listen(this.handleStoreUpdate.bind(this));
+    this.unsubscribeUpdate = this.insertStore.listen(this.handleStoreInsert.bind(this));
 
     this.unsubscribeAdded = this.handleModification.bind(this);
     this.unsubscribeEdited = this.handleModification.bind(this);
@@ -163,7 +163,7 @@ class ClonedDocumentFooter extends React.Component {
   handleUpdate() {
     const object = this.props.doc.generateObject();
     this.setState({ mode: PROGRESS, message: UPDATING });
-    this.actions.update(object);
+    this.actions.insert(object);
   }
 
   /**
@@ -179,7 +179,7 @@ class ClonedDocumentFooter extends React.Component {
    * @param {Boolean} success - If the update succeeded.
    * @param {Object} object - The error or document.
    */
-  handleStoreUpdate(success, object) {
+  handleStoreInsert(success, object) {
     if (success) {
       this.handleSuccess();
     } else {
@@ -236,7 +236,7 @@ ClonedDocumentFooter.displayName = 'ClonedDocumentFooter';
 ClonedDocumentFooter.propTypes = {
   doc: PropTypes.object.isRequired,
   actions: PropTypes.object.isRequired,
-  updateStore: PropTypes.object.isRequired,
+  insertStore: PropTypes.object.isRequired,
   cancelHandler: PropTypes.func.isRequired
 };
 

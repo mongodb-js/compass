@@ -395,7 +395,6 @@ class DocumentListTableView extends React.Component {
    */
   handleClone(node) {
     const obj = node.data.hadronDocument.generateObject();
-    obj.address = "A cloned value";
     obj._id = new ObjectId();
     this.insertRow(obj, node.rowIndex + 1, node.data.rowNumber + 1, true);
   }
