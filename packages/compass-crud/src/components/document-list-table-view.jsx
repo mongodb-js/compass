@@ -65,7 +65,7 @@ class DocumentListTableView extends React.Component {
         handleRemove: this.handleRemove,
         handleClone: this.handleClone
       },
-      onRowDoubleClicked: this.onRowDoubleClicked.bind(this),
+      onCellDoubleClicked: this.onCellDoubleClicked.bind(this),
       onCellClicked: this.onCellClicked.bind(this),
       rowHeight: 28  // .document-footer row needs 28px, ag-grid default is 25px
     };
@@ -119,7 +119,7 @@ class DocumentListTableView extends React.Component {
    *     node {RowNode} - the RowNode for the row in question
    *     data {*} - the user provided data for the row in question
    */
-  onRowDoubleClicked(event) {
+  onCellDoubleClicked(event) {
     this.addFooter(event.node, event.data, 'editing');
   }
 
@@ -193,6 +193,7 @@ class DocumentListTableView extends React.Component {
     setTimeout(function() {
       api.updateRowData({remove: [dataNode.data]});
     }, 0);
+    api.clearFocusedCell();
 
     /* Remove the footer */
     this.removeFooter(node);
@@ -226,7 +227,6 @@ class DocumentListTableView extends React.Component {
     const footerNode = api.getRowNode(footerRowId);
     this.removeFooter(footerNode);
   }
-
 
   /**
    * Add a column to the grid to the right of the column with colId.
@@ -312,6 +312,7 @@ class DocumentListTableView extends React.Component {
   modifyColumns(params) {
     if ('add' in params) {
       this.addColumn(params.add.colId);
+      this.gridApi.setFocusedCell(params.add.rowIndex, '$new');
       this.gridApi.startEditingCell({rowIndex: params.add.rowIndex, colKey: '$new'});
     }
     if ('remove' in params) {
