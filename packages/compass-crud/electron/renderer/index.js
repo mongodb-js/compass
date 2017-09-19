@@ -12,7 +12,7 @@ const Connection = require('mongodb-connection-model');
 const DocumentList = require('../../lib/components/document-list');
 
 const DB = 'compass-crud';
-const COLL = 'test';
+const COLL = 'test2';
 
 const CONNECTION = new Connection({
   hostname: '127.0.0.1',

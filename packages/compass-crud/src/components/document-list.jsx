@@ -79,6 +79,7 @@ class DocumentList extends React.Component {
    * @param {Array} documents - The next batch of documents.
    */
   handleLoadMore(error, documents) {
+    console.log('DocumentList:handLoadMore');
     // If not resetting we append the documents to the existing
     // list and increment the page. The loaded count is incremented
     // by the number of new documents.

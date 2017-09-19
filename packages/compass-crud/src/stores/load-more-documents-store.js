@@ -16,6 +16,8 @@ const LoadMoreDocumentsStore = Reflux.createStore({
   init: function() {
     this.reset();
     this.listenTo(Actions.fetchNextDocuments, this.fetchNextDocuments.bind(this));
+    this.listenTo(Actions.getNextPage, this.getNextPage.bind(this));
+    this.listenTo(Actions.getPrevPage, this.getPrevPage.bind(this));
   },
 
   /**
@@ -68,7 +70,7 @@ const LoadMoreDocumentsStore = Reflux.createStore({
       promoteValues: false
     };
     global.hadronApp.dataService.find(this.ns, this.filter, options, (error, documents) => {
-      this.trigger(error, documents);
+      this.trigger(error, documents, 1, nextPageCount);
     });
   },
 
@@ -80,6 +82,43 @@ const LoadMoreDocumentsStore = Reflux.createStore({
     this.skip = 0;
     this.project = null;
     this.counter = 0;
+  },
+
+  getNextPage(skip) {
+    let nextPageCount = 20;
+    if (this.limit > 0) {
+      nextPageCount = Math.min(Math.max(0, this.limit - this.counter + NUM_PAGE_DOCS), NUM_PAGE_DOCS);
+      if (nextPageCount === 0) {
+        return;
+      }
+    }
+    const options = {
+      skip: skip + this.skip,
+      limit: nextPageCount,
+      sort: this.sort,
+      fields: this.project,
+      promoteValues: false
+    };
+    global.hadronApp.dataService.find(this.ns, this.filter, options, (error, documents) => {
+      this.counter += documents.length;
+      this.trigger(error, documents, skip + 1, this.counter);
+    });
+  },
+
+  getPrevPage(skip) {
+    const nextPageCount = 20;
+
+    const options = {
+      skip: skip + this.skip,
+      limit: nextPageCount,
+      sort: this.sort,
+      fields: this.project,
+      promoteValues: false
+    };
+    global.hadronApp.dataService.find(this.ns, this.filter, options, (error, documents) => {
+      this.counter -= documents.length;
+      this.trigger(error, documents, skip + 1, this.counter);
+    });
   }
 
 });

@@ -14,6 +14,7 @@ const GridStore = require('../stores/grid-store');
 const BreadcrumbStore = require('../stores/breadcrumb-store');
 const InsertDocumentStore = require('../stores/insert-document-store');
 const ResetDocumentListStore = require('../stores/reset-document-list-store');
+const LoadMoreDocumentsStore = require('../stores/load-more-documents-store');
 
 const BreadcrumbComponent = require('./breadcrumb');
 const CellRenderer = require('./table-view/cell-renderer');
@@ -42,6 +43,7 @@ class DocumentListTableView extends React.Component {
     this.addFooter = this.addFooter.bind(this);
     this.handleClone = this.handleClone.bind(this);
 
+    this.state = { docs: props.docs, index: 1 };
     this.AGGrid = this.createGrid();
   }
 
@@ -49,12 +51,14 @@ class DocumentListTableView extends React.Component {
     this.unsubscribeGridStore = GridStore.listen(this.modifyColumns.bind(this));
     this.unsubscribeInsert = InsertDocumentStore.listen(this.handleInsert.bind(this));
     this.unsubscribeReset = ResetDocumentListStore.listen(this.handleReset.bind(this));
+    this.unsubscribeLoadMore = LoadMoreDocumentsStore.listen(this.handleLoadDocs.bind(this));
   }
 
   componentWillUnmount() {
     this.unsubscribeGridStore();
-    this.unsubscribeInsert();
     this.unsubscribeReset();
+    this.unsubscribeInsert();
+    this.unsubscribeLoadMore();
   }
 
   createGrid() {
@@ -80,7 +84,7 @@ class DocumentListTableView extends React.Component {
       },
       fullWidthCellRendererFramework: FullWidthCellRenderer,
 
-      rowData: this.createRowData(this.props.docs),
+      rowData: this.createRowData(this.state.docs),
       getRowNodeId: function(data) {
         const fid = data.isFooter ? '1' : '0';
         return data.hadronDocument.get('_id').value.toString() + fid;
@@ -346,7 +350,7 @@ class DocumentListTableView extends React.Component {
     /* Create the new data */
     const data = this.createRowData([doc])[0];
     data.rowNumber = lineNumber;
-    data.state = 'cloned';
+    data.state = edit ? 'cloned' : null;
 
     /* Update row numbers */
     this.updateRowNumbers(lineNumber, true);
@@ -392,17 +396,23 @@ class DocumentListTableView extends React.Component {
   }
 
   /**
-   * Handle the reset of the document list.
+   * The documents have changed due to a refresh or load next/previous page.
    *
-   * @param {Object} error - Error when trying to reset the document list.
-   * @param {Array} documents - The documents.
-   * @param {Integer} count - The count // TODO: use when paginating?
+   * @param {Object} error - Error when trying to load more documents.
+   * @param {Array} documents - The next batch of documents.
+   * @param {Number} start - The index of the first document shown. For list
+   * view it will always be 1, but for table view it will depend on the page.
    */
-  handleReset(error, documents) {
+  handleLoadDocs(error, documents, start) {
     if (!error) {
+      this.setState({docs: documents, index: start});
       this.AGGrid = this.createGrid();
-      this.setState({docs: documents});
+      this.forceUpdate();
     }
+  }
+
+  handleReset(error, documents) {
+    this.handleLoadDocs(error, documents, 1);
   }
 
   createColumnHeader(key, type, isEditable) {
@@ -453,7 +463,7 @@ class DocumentListTableView extends React.Component {
     const headerTypes = {};
     // const width = this.gridOptions.context.column_width;
     const isEditable = this.props.isEditable;
-    const docs = this.props.docs;
+    const docs = this.state.docs;
 
     const addHeader = this.createColumnHeader;
 
@@ -461,7 +471,7 @@ class DocumentListTableView extends React.Component {
       headerName: 'Row',
       field: 'rowNumber',
       colId: '$rowNumber', // TODO: make sure user can't get duplicate
-      width: 24,
+      width: 30,
       pinned: 'left',
       headerComponentFramework: HeaderComponent,
       headerComponentParams: {
@@ -535,6 +545,7 @@ class DocumentListTableView extends React.Component {
    * @returns {Array} A list of HadronDocument wrappers.
    */
   createRowData(documents) {
+    const index = this.state.index;
     return _.map(documents, function(val, i) {
       return {
         /* The same doc is shared between a document row and it's footer */
@@ -546,7 +557,7 @@ class DocumentListTableView extends React.Component {
         /* If this is a footer, state is 'editing' or 'deleting' or 'cloned' */
         state: null,
         /* Add a row number for the first column */
-        rowNumber: i + 1
+        rowNumber: i + index
       };
     });
   }

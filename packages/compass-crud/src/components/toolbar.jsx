@@ -1,7 +1,7 @@
 const React = require('react');
 const PropTypes = require('prop-types');
 const app = require('hadron-app');
-const { AnimatedIconTextButton } = require('hadron-react-buttons');
+const { AnimatedIconTextButton, IconButton } = require('hadron-react-buttons');
 const { InfoSprinkle, ViewSwitcher } = require('hadron-react-components');
 const { shell } = require('electron');
 const pluralize = require('pluralize');
@@ -37,7 +37,7 @@ class Toolbar extends React.Component {
    */
   constructor(props) {
     super(props);
-    this.state = { count: 0, loaded: 0 };
+    this.state = { count: 0, loaded: 0, start: 1 };
     this.TextWriteButton = app.appRegistry.getComponent('DeploymentAwareness.TextWriteButton');
     this.documentRemovedAction = Actions.documentRemoved;
     this.refreshDocumentsAction = Actions.refreshDocuments;
@@ -90,19 +90,23 @@ class Toolbar extends React.Component {
    */
   handleReset(error, documents, count) {
     if (!error) {
-      this.setState({ count: count, loaded: (count < 20) ? count : 20 });
+      this.setState({ count: count, loaded: (count < 20) ? count : 20, start: 1 });
     }
   }
 
   /**
-   * Handle scrolling that loads more documents.
+   * Handle a change in the visible documents. Can be a result of scroll, for
+   * the list view, or a result of the next/previous buttons in the table view.
    *
    * @param {Object} error - The error
    * @param {Array} documents - The loaded documents.
+   * @param {Number} start - The index of the first document shown. For list
+   * view it will always be 1, but for table view it will depend on the page.
+   * @param {Number} end - The index of the last document shown.
    */
-  handleLoadMore(error, documents) {
+  handleLoadMore(error, documents, start, end) {
     if (!error) {
-      this.setState({ loaded: this.state.loaded + documents.length });
+      this.setState({ loaded: end, start: start });
     }
   }
 
@@ -114,22 +118,64 @@ class Toolbar extends React.Component {
   }
 
   /**
+   * Handle loading the next page of documents in the table view.
+   */
+  handleNextPage() {
+    console.log('loaded=' + this.state.loaded + ' count=' + this.state.count);
+    if (this.state.loaded >= this.state.count) {
+      return;
+    }
+    Actions.getNextPage(this.state.loaded);
+  }
+
+  /**
+   * Handle loading the previous page of documents in the table view.
+   */
+  handlePrevPage() {
+    if (this.state.start - 21 < 0) {
+      return;
+    }
+    Actions.getPrevPage(this.state.start - 21);
+  }
+
+  /**
    * Switch between table and list document views.
    *
    * @param {String} view - The active view.
    */
   switchDocumentView(view) {
     this.props.viewSwitchHandler(view);
+    Actions.refreshDocuments();
   }
 
   _loadedMessage() {
     if (this.state.count > 20) {
       return (
         <span>
-          Displaying documents <b>1-{this.state.loaded}</b>&nbsp;
+          Displaying documents <b>{this.state.start}-{this.state.loaded}</b>&nbsp;
         </span>
       );
     }
+  }
+
+  renderPageButtons() {
+    if (this.props.activeDocumentView === 'List') {
+      return null;
+    }
+    return (
+      <div className={REFRESH_CLASS}>
+        <IconButton
+          clickHandler={this.handlePrevPage.bind(this)}
+          className="btn btn-default btn-xs sampling-message-refresh-documents"
+          iconClassName="fa fa-angle-left"
+        />
+        <IconButton
+          clickHandler={this.handleNextPage.bind(this)}
+          className="btn btn-default btn-xs sampling-message-refresh-documents"
+          iconClassName="fa fa-angle-right"
+        />
+      </div>
+    );
   }
 
   /**
@@ -168,6 +214,7 @@ class Toolbar extends React.Component {
                 onClickHandler={shell.openExternal}
               />
             </div>
+            {this.renderPageButtons()}
             <div className={REFRESH_CLASS}>
               <AnimatedIconTextButton
                 clickHandler={this.handleRefreshDocuments.bind(this)}
