@@ -5,6 +5,7 @@ const PropTypes = require('prop-types');
 const Actions = require('../../actions');
 const DocumentFooter = require('../document-footer');
 const RemoveDocumentFooter = require('../remove-document-footer');
+const ClonedDocumentFooter = require('../cloned-document-footer');
 
 /**
  * The delete error message.
@@ -13,7 +14,7 @@ const DELETE_ERROR = new Error('Cannot delete documents that do not have an _id 
 
 /**
  * The custom full-width cell renderer that renders the update/cancel bar
- * in the table view. Can either be a deleting or an editing footer.
+ * in the table view. Can either be a deleting, editing, or cloned footer.
  *
  */
 class FullWidthCellRenderer extends React.Component {
@@ -219,6 +220,10 @@ class FullWidthCellRenderer extends React.Component {
     this.props.context.removeFooter(this.props.node);
   }
 
+  handleCancelClone() {
+    this.props.context.handleRemove(this.props.node);
+  }
+
   render() {
     if (this.state.mode === 'editing') {
       return (
@@ -227,6 +232,16 @@ class FullWidthCellRenderer extends React.Component {
           updateStore={this.updateStore}
           actions={this.actions}
           cancelHandler={this.handleCancelUpdate.bind(this)}
+        />
+      );
+    }
+    if (this.state.mode === 'cloned') {
+      return (
+        <ClonedDocumentFooter
+          doc={this.doc}
+          updateStore={this.updateStore}
+          actions={this.actions}
+          cancelHandler={this.handleCancelClone.bind(this)}
         />
       );
     }

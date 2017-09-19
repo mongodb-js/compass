@@ -6,6 +6,7 @@ const _ = require('lodash');
 const { StoreConnector } = require('hadron-react-components');
 const TypeChecker = require('hadron-type-checker');
 const HadronDocument = require('hadron-document');
+const ObjectId = require('bson').ObjectId;
 
 const Actions = require('../actions');
 
@@ -39,6 +40,7 @@ class DocumentListTableView extends React.Component {
     this.handleRemove = this.handleRemove.bind(this);
     this.handleUpdate = this.handleUpdate.bind(this);
     this.addFooter = this.addFooter.bind(this);
+    this.handleClone = this.handleClone.bind(this);
 
     this.AGGrid = this.createGrid();
   }
@@ -60,7 +62,8 @@ class DocumentListTableView extends React.Component {
         addFooter: this.addFooter,
         removeFooter: this.removeFooter,
         handleUpdate: this.handleUpdate,
-        handleRemove: this.handleRemove
+        handleRemove: this.handleRemove,
+        handleClone: this.handleClone
       },
       onRowDoubleClicked: this.onRowDoubleClicked.bind(this),
       onCellClicked: this.onCellClicked.bind(this),
@@ -104,7 +107,7 @@ class DocumentListTableView extends React.Component {
    *     column {Column} - the column of the cell clicked
    */
   onCellClicked(event) {
-    if (event.data.state === 'editing') {
+    if (event.data.state === 'editing' || event.data.state === 'cloned') {
       event.api.startEditingCell({rowIndex: event.node.rowIndex, colKey: event.column.getColId()});
     }
   }
@@ -127,7 +130,7 @@ class DocumentListTableView extends React.Component {
    *
    * @param {RowNode} node - The RowNode for the document row.
    * @param {object} data - The data for the document row.
-   * @param {String} state - Either an editing or a deleting footer.
+   * @param {String} state - Either an editing, deleting, or cloned footer.
    */
   addFooter(node, data, state) {
     /* Ignore clicks on footers or document rows that already have footers */
@@ -341,6 +344,39 @@ class DocumentListTableView extends React.Component {
   }
 
   /**
+   * Insert a row into the grid.
+   *
+   * @param {Object} doc - The new document to be added.
+   * @param {Number} index - The AG-Grid row index (counting footers)
+   * @param {Number} lineNumber - The line number to be shown for the document (not including footers)
+   * @param {boolean} edit - If the new row should be opened in editing mode.
+   */
+  insertRow(doc, index, lineNumber, edit) {
+    /* Create the new data */
+    const data = this.createRowData([doc])[0];
+    data.rowNumber = lineNumber;
+    data.state = 'cloned';
+
+    /* Update row numbers */
+    this.updateRowNumbers(lineNumber, true);
+
+    /* Update grid API */
+    this.gridApi.updateRowData({add: [data], addIndex: index});
+
+    /* Update the headers */
+    for (const element of data.hadronDocument.elements) {
+      Actions.elementAdded(element.currentKey, element.currentType, doc._id);
+    }
+
+    if (edit) {
+      /* Add a footer */
+      const rowId = doc._id.toString() + '0';
+      const node = this.gridApi.getRowNode(rowId);
+      this.addFooter(node, node.data, 'cloned');
+    }
+  }
+
+  /**
    * Handle insert of a new document.
    *
    * @param {Error} error - Any error that happened.
@@ -348,15 +384,20 @@ class DocumentListTableView extends React.Component {
    */
   handleInsert(error, doc) {
     if (!error) {
-      this.updateRowNumbers(1, true);
-      const data = this.createRowData([doc])[0];
-      this.gridApi.updateRowData({add: [data], addIndex: 0});
-
-      /* Update the headers */
-      for (const element of data.hadronDocument.elements) {
-        Actions.elementAdded(element.currentKey, element.currentType, doc._id);
-      }
+      this.insertRow(doc, 0, 1, false);
     }
+  }
+
+  /**
+   * The clone button has been clicked on a row.
+   *
+   * @param {RowNode} node - The node that is going to be cloned.
+   */
+  handleClone(node) {
+    const obj = node.data.hadronDocument.generateObject();
+    obj.address = "A cloned value";
+    obj._id = new ObjectId();
+    this.insertRow(obj, node.rowIndex + 1, node.data.rowNumber + 1, true);
   }
 
   /**
@@ -509,7 +550,7 @@ class DocumentListTableView extends React.Component {
         isFooter: false,
         /* If this is a document row, does it already have a footer? */
         hasFooter: false,
-        /* If this is a footer, state is 'editing' or 'deleting' */
+        /* If this is a footer, state is 'editing' or 'deleting' or 'cloned' */
         state: null,
         /* Add a row number for the first column */
         rowNumber: i + 1

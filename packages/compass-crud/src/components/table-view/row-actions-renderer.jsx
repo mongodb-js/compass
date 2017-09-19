@@ -23,15 +23,16 @@ class RowActionsRenderer extends React.Component {
   }
 
   handleClone() {
-    console.log('handling clone button for row #' + this.props.value.rowNumber);
+    this.props.context.handleClone(this.props.node);
   }
+
   handleCopy() {
     console.log('handle copy button for row #' + this.props.value.rowNumber);
   }
 
   render() {
     /* Don't show actions for rows that are being edited or marked for deletion */
-    if (this.props.value.state === 'editing' || this.props.value.state === 'deleting') {
+    if (this.props.value.state === 'editing' || this.props.value.state === 'deleting' || this.props.value.state === 'cloned') {
       return null;
     }
 
