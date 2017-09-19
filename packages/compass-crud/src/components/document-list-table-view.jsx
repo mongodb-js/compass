@@ -170,6 +170,7 @@ class DocumentListTableView extends React.Component {
       dataNode.data.state = null;
       api.refreshCells({rowNodes: [dataNode], columns: ['$rowActions'], force: true});
       api.updateRowData({remove: [node.data]});
+      api.clearFocusedCell();
     }, 0);
   }
 
@@ -192,8 +193,8 @@ class DocumentListTableView extends React.Component {
     /* Update the grid */
     setTimeout(function() {
       api.updateRowData({remove: [dataNode.data]});
+      api.clearFocusedCell();
     }, 0);
-    api.clearFocusedCell();
 
     /* Remove the footer */
     this.removeFooter(node);
