@@ -11,7 +11,6 @@ const Actions = require('../actions');
 
 const GridStore = require('../stores/grid-store');
 const BreadcrumbStore = require('../stores/breadcrumb-store');
-const RemoveDocumentStore = require('../stores/remove-document-store');
 const InsertDocumentStore = require('../stores/insert-document-store');
 const ResetDocumentListStore = require('../stores/reset-document-list-store');
 
@@ -22,7 +21,7 @@ const RowActionsRenderer = require('./table-view/row-actions-renderer');
 const HeaderComponent = require('./table-view/header-cell-renderer');
 const CellEditor = require('./table-view/cell-editor');
 
-// const util = require('util');
+/* eslint react/sort-comp:0 */
 
 const MIXED = 'Mixed';
 
@@ -47,7 +46,6 @@ class DocumentListTableView extends React.Component {
   componentDidMount() {
     this.unsubscribeGridStore = GridStore.listen(this.modifyColumns.bind(this));
     this.unsubscribeInsert = InsertDocumentStore.listen(this.handleInsert.bind(this));
-    this.unsubscribeRemove = RemoveDocumentStore.listen(this.handleRemove.bind(this));
     this.unsubscribeReset = ResetDocumentListStore.listen(this.handleReset.bind(this));
   }
 
@@ -184,6 +182,8 @@ class DocumentListTableView extends React.Component {
     const rowId = node.data.hadronDocument.get('_id').value.toString() + '0';
     const dataNode = api.getRowNode(rowId);
 
+    this.updateRowNumbers(dataNode.data.rowNumber, false);
+
     setTimeout(function() {
       api.updateRowData({remove: [dataNode.data]});
     }, 0);
@@ -316,6 +316,22 @@ class DocumentListTableView extends React.Component {
   }
 
   /**
+   * A row has been inserted and we need to update the row numbers.
+   *
+   * @param {Number} index - The index where the row was inserted.
+   * @param {boolean} insert - If the row has been inserted.
+   */
+  updateRowNumbers(index, insert) {
+    const add = insert ? 1 : -1;
+    this.gridApi.forEachNodeAfterFilterAndSort(function(node) {
+      if (!node.data.isFooter && node.data.rowNumber >= index) {
+        node.data.rowNumber += add;
+      }
+    });
+    this.gridApi.refreshCells({columns: ['$rowNumber']});
+  }
+
+  /**
    * Handle insert of a new document.
    *
    * @param {Error} error - Any error that happened.
@@ -323,21 +339,10 @@ class DocumentListTableView extends React.Component {
    */
   handleInsert(error, doc) {
     if (!error) {
+      this.updateRowNumbers(1, true);
       const data = this.createRowData([doc])[0];
       this.gridApi.updateRowData({add: [data], addIndex: 0});
-
-      this.gridApi.refreshCells();
-
     }
-  }
-
-  /**
-   * Handles removal of a document from the document list.
-   *
-   * @param {Object} id - The id of the removed document.
-   */
-  handleRemove(id) {
-    console.log('remove row');
   }
 
   /**
@@ -345,12 +350,10 @@ class DocumentListTableView extends React.Component {
    *
    * @param {Object} error - Error when trying to reset the document list.
    * @param {Array} documents - The documents.
-   * @param {Integer} count - The count.
+   * @param {Integer} count - The count // TODO: use when paginating?
    */
-  handleReset(error, documents, count) {
-    if (error) {
-      // this.setState({ error: error }); // TODO: make sure it works later
-    } else {
+  handleReset(error, documents) {
+    if (!error) {
       this.AGGrid = this.createGrid();
       this.setState({docs: documents});
     }
