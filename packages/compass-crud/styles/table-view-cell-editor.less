@@ -56,36 +56,6 @@
     }
   }
 
-  &-field-name {
-    display: inline-block;
-
-    &::after {
-      content: ":";
-      margin-right: 1px;
-    }
-    :focus {
-      outline: none;
-      border: 1px solid black;
-      border-radius: 3px;
-    }
-
-    &-input {
-      height: 21px;
-      border: 1px solid #d3d3d3;
-      border-radius: 3px;
-      &-is-duplicate {
-        :focus {
-          outline: none;
-          display: none;
-        }
-        color: red;
-        height: 21px;
-        border: 1px solid red;
-        border-radius: 3px;
-      }
-    }
-  }
-
   &-types {
     display: flex;
     height: 22px;
@@ -133,11 +103,13 @@
           font-weight: normal;
           color: #333333;
           white-space: nowrap;
-        }
-        span:hover {
-          color: #313030;
-          text-decoration: none;
-          background: #e6e6e6;
+
+          &:focus, &:hover, &:active {
+            color: white;
+            background: linear-gradient(180deg, #2469BE 0%, #11509E 100%);
+            border-radius: 2px;
+            border-radius: 2px;
+          }
         }
       }
     }
@@ -153,10 +125,6 @@
     padding: 0 5px;
     margin-left: 3px;
     cursor: pointer;
-
-    &-is-selected {
-      border: solid black 1px;
-    }
 
     &-icon {
       font-size: 10px;
