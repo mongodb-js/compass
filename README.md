@@ -22,6 +22,8 @@ npm install
 npm start compass-lite
 npm start compass-enterprise
 npm start compass-charts
+
+# To turn on charts, type: "enable chartView" into the query bar. You may have to copy and paste it from elsewhere in order to not have autocomplete interfere.
 ```
 
 ### Master is broken
