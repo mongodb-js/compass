@@ -366,6 +366,23 @@ class CellEditor extends React.Component {
   }
 
   /**
+   * Render the "remove field" button if the element is not am empty field
+   *
+   * @returns {React.Component} The component.
+   */
+  renderRemoveField() {
+    if (this.element.value.length !== 0) {
+      return (
+        <div className={`${BEM_BASE}-button btn btn-default btn-xs`}
+             onMouseDown={this.handleRemoveField.bind(this)}>
+          <FontAwesome name="trash" className={`${BEM_BASE}-button-icon`}/>
+        </div>
+      );
+    }
+    return null;
+  }
+
+  /**
    * Render the add field/delete field buttons. If the element is an object or
    * an array, provide a "expand" button.
    *
@@ -381,10 +398,7 @@ class CellEditor extends React.Component {
           <AddFieldButton {...this.props}
             displace={displace}
           />
-          <div className={`${BEM_BASE}-button btn btn-default btn-xs`}
-               onMouseDown={this.handleRemoveField.bind(this)}>
-            <FontAwesome name="trash" className={`${BEM_BASE}-button-icon`}/>
-          </div>
+          {this.renderRemoveField()}
         </span>
       );
     }
