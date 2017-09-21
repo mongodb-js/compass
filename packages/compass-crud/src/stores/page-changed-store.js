@@ -8,7 +8,7 @@ const NUM_PAGE_DOCS = 20;
 /**
  * The reflux store for loading more documents.
  */
-const TablePagesStore = Reflux.createStore({
+const PageChangedStore = Reflux.createStore({
 
   /**
    * Initialize the reset document list store.
@@ -59,9 +59,11 @@ const TablePagesStore = Reflux.createStore({
 
   /**
    * When the next page button is clicked, need to load the next 20 documents.
-   * @param {Number} skip - NUM_PAGE_DOCS (20) * The current page.
+   * @param {Number} page - The page that is being shown.
    */
-  getNextPage(skip) {
+  getNextPage(page) {
+    const skip = page * NUM_PAGE_DOCS;
+
     const documentsLoaded = this.counter + NUM_PAGE_DOCS;
     let nextPageCount = 20;
     if (this.limit > 0) {
@@ -78,14 +80,19 @@ const TablePagesStore = Reflux.createStore({
       promoteValues: false
     };
     global.hadronApp.dataService.find(this.ns, this.filter, options, (error, documents) => {
-      this.counter += documents.length;
-      this.trigger(error, documents, skip + 1, this.counter + NUM_PAGE_DOCS);
+      this.counter += NUM_PAGE_DOCS;
+      const length = error ? 0 : documents.length;
+      this.trigger(error, documents, skip + 1, skip + length, page);
     });
   },
 
-  getPrevPage(skip) {
+  /**
+   *
+   * @param {Number} page - The page that is being shown.
+   */
+  getPrevPage(page) {
+    const skip = page * NUM_PAGE_DOCS;
     const nextPageCount = 20;
-
     const options = {
       skip: skip + this.skip,
       limit: nextPageCount,
@@ -94,11 +101,12 @@ const TablePagesStore = Reflux.createStore({
       promoteValues: false
     };
     global.hadronApp.dataService.find(this.ns, this.filter, options, (error, documents) => {
-      this.counter -= documents.length;
-      this.trigger(error, documents, skip + 1, skip + documents.length);
+      this.counter -= NUM_PAGE_DOCS;
+      const length = error ? 0 : documents.length;
+      this.trigger(error, documents, skip + 1, skip + length, page);
     });
   }
 
 });
 
-module.exports = TablePagesStore;
+module.exports = PageChangedStore;

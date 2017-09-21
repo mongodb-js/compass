@@ -1,7 +1,7 @@
 const React = require('react');
 const PropTypes = require('prop-types');
 const app = require('hadron-app');
-const { AnimatedIconTextButton, IconButton } = require('hadron-react-buttons');
+const { AnimatedIconTextButton } = require('hadron-react-buttons');
 const { InfoSprinkle, ViewSwitcher } = require('hadron-react-components');
 const { shell } = require('electron');
 const pluralize = require('pluralize');
@@ -9,7 +9,7 @@ const Actions = require('../actions');
 const ResetDocumentListStore = require('../stores/reset-document-list-store');
 const LoadMoreDocumentsStore = require('../stores/load-more-documents-store');
 const InsertDocumentStore = require('../stores/insert-document-store');
-const TablePageStore = require('../stores/table-page-store');
+const PageChangedStore = require('../stores/page-changed-store');
 
 /**
  * The help URLs for things like the Documents tab.
@@ -43,7 +43,7 @@ class Toolbar extends React.Component {
    */
   constructor(props) {
     super(props);
-    this.state = { count: 0, loaded: 0, start: 1 };
+    this.state = { count: 0, loaded: 0, start: 1, page: 0 };
     this.TextWriteButton = app.appRegistry.getComponent('DeploymentAwareness.TextWriteButton');
     this.documentRemovedAction = Actions.documentRemoved;
     this.refreshDocumentsAction = Actions.refreshDocuments;
@@ -57,7 +57,7 @@ class Toolbar extends React.Component {
     this.unsubscribeInsert = InsertDocumentStore.listen(this.handleInsert.bind(this));
     this.unsubscribeRemove = this.documentRemovedAction.listen(this.handleRemove.bind(this));
     this.unsubscribeLoadMore = LoadMoreDocumentsStore.listen(this.handleLoadMore.bind(this));
-    this.unsubscribeTablePage = TablePageStore.listen(this.handlePageChange.bind(this));
+    this.unsubscribePageChanged = PageChangedStore.listen(this.handlePageChange.bind(this));
   }
 
   /**
@@ -68,7 +68,7 @@ class Toolbar extends React.Component {
     this.unsubscribeInsert();
     this.unsubscribeRemove();
     this.unsubscribeLoadMore();
-    this.unsubscribeTablePage();
+    this.unsubscribePageChanged();
   }
 
   /**
@@ -98,7 +98,12 @@ class Toolbar extends React.Component {
    */
   handleReset(error, documents, count) {
     if (!error) {
-      this.setState({ count: count, loaded: (count < 20) ? count : 20, start: 1 });
+      this.setState({
+        count: count,
+        loaded: (count < 20) ? count : 20,
+        start: 1,
+        page: 0
+      });
     }
   }
 
@@ -123,10 +128,11 @@ class Toolbar extends React.Component {
    * @param {Array} documents - The loaded documents.
    * @param {Number} start - The index of the first document on the page.
    * @param {Number} end - The index of the last document on the page.
+   * @param {Number} page - The page that is being shown.
    */
-  handlePageChange(error, documents, start, end) {
+  handlePageChange(error, documents, start, end, page) {
     if (!error) {
-      this.setState({start: start, loaded: end});
+      this.setState({start: start, loaded: end, page: page});
     }
   }
 
@@ -141,20 +147,17 @@ class Toolbar extends React.Component {
    * Handle loading the next page of documents in the table view.
    */
   handleNextPage() {
-    if (this.state.loaded >= this.state.count) {
-      return;
-    }
-    Actions.getNextPage(this.state.loaded);
+    Actions.getNextPage(this.state.page + 1);
   }
 
   /**
    * Handle loading the previous page of documents in the table view.
    */
   handlePrevPage() {
-    if (this.state.start - 21 < 0) {
+    if (this.state.start - 20 <= 0) {
       return;
     }
-    Actions.getPrevPage(this.state.start - 21);
+    Actions.getPrevPage(this.state.page - 1);
   }
 
   /**
@@ -181,17 +184,26 @@ class Toolbar extends React.Component {
     if (this.props.activeDocumentView === 'List') {
       return null;
     }
+
+    // TODO: use firstPage and lastPage to determine if the buttons should be disabled.
+    // const lastPage = 20 * (this.state.page + 1) >= this.state.count;
+    // const firstPage = this.state.page === 0;
+
     return (
       <div className={REFRESH_CLASS}>
-        <IconButton
+        <AnimatedIconTextButton
           clickHandler={this.handlePrevPage.bind(this)}
+          stopAnimationListenable={PageChangedStore}
           className="btn btn-default btn-xs sampling-message-refresh-documents"
           iconClassName="fa fa-angle-left"
+          animatingIconClassName="fa fa-spinner fa-spin"
         />
-        <IconButton
+        <AnimatedIconTextButton
           clickHandler={this.handleNextPage.bind(this)}
+          stopAnimationListenable={PageChangedStore}
           className="btn btn-default btn-xs sampling-message-refresh-documents"
           iconClassName="fa fa-angle-right"
+          animatingIconClassName="fa fa-spinner fa-spin"
         />
       </div>
     );

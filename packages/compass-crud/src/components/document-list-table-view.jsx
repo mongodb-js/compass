@@ -14,7 +14,7 @@ const GridStore = require('../stores/grid-store');
 const BreadcrumbStore = require('../stores/breadcrumb-store');
 const InsertDocumentStore = require('../stores/insert-document-store');
 const ResetDocumentListStore = require('../stores/reset-document-list-store');
-const TablePageStore = require('../stores/table-page-store');
+const PageChangedStore = require('../stores/page-changed-store');
 
 const BreadcrumbComponent = require('./breadcrumb');
 const CellRenderer = require('./table-view/cell-renderer');
@@ -51,7 +51,7 @@ class DocumentListTableView extends React.Component {
     this.unsubscribeGridStore = GridStore.listen(this.modifyColumns.bind(this));
     this.unsubscribeInsert = InsertDocumentStore.listen(this.handleInsert.bind(this));
     this.unsubscribeReset = ResetDocumentListStore.listen(this.handleReset.bind(this));
-    this.unsubscribeLoadMore = TablePageStore.listen(this.handlePageChange.bind(this));
+    this.unsubscribeLoadMore = PageChangedStore.listen(this.handlePageChange.bind(this));
   }
 
   componentWillUnmount() {

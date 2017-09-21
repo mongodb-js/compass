@@ -8,6 +8,7 @@ const LoadMoreDocumentsStore = require('../stores/load-more-documents-store');
 const RemoveDocumentStore = require('../stores/remove-document-store');
 const InsertDocumentStore = require('../stores/insert-document-store');
 const InsertDocumentDialog = require('./insert-document-dialog');
+const PageChangedStore = require('../stores/page-changed-store');
 const DocumentListView = require('./document-list-view');
 const DocumentListTableView = require('./document-list-table-view');
 const Toolbar = require('./toolbar');
@@ -57,6 +58,7 @@ class DocumentList extends React.Component {
   componentDidMount() {
     this.unsubscribeReset = ResetDocumentListStore.listen(this.handleReset.bind(this));
     this.unsubscribeLoadMore = LoadMoreDocumentsStore.listen(this.handleLoadMore.bind(this));
+    this.unsubscribePageChanged = PageChangedStore.listen(this.handlePageChanged.bind(this));
     this.unsubscribeRemove = RemoveDocumentStore.listen(this.handleRemove.bind(this));
     this.unsubscribeInsert = InsertDocumentStore.listen(this.handleInsert.bind(this));
     this.unsubscribeQueryStore = this.QueryChangedStore.listen(this.handleQueryChanged.bind(this));
@@ -70,6 +72,7 @@ class DocumentList extends React.Component {
     this.unsubscribeLoadMore();
     this.unsubscribeRemove();
     this.unsubscribeInsert();
+    this.unsubscribePageChanged();
   }
 
   /**
@@ -79,7 +82,6 @@ class DocumentList extends React.Component {
    * @param {Array} documents - The next batch of documents.
    */
   handleLoadMore(error, documents) {
-    console.log('DocumentList:handLoadMore');
     // If not resetting we append the documents to the existing
     // list and increment the page. The loaded count is incremented
     // by the number of new documents.
@@ -93,6 +95,17 @@ class DocumentList extends React.Component {
     }, () => {
       marky.stop('DocumentList - Handle load more');
     });
+  }
+
+  /**
+   * If an error occurs when we press 'next page'
+   *
+   * @param {Object} error - Error when trying to click next or prev page.
+   */
+  handlePageChanged(error) {
+    if (error) {
+      this.setState({error: error});
+    }
   }
 
   /**
