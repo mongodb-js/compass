@@ -8,14 +8,17 @@ const NUM_PAGE_DOCS = 20;
 /**
  * The reflux store for loading more documents.
  */
-const LoadMoreDocumentsStore = Reflux.createStore({
+const TablePagesStore = Reflux.createStore({
 
   /**
    * Initialize the reset document list store.
+   *
+   * this.counter is the number of documents that have been loaded by this store.
    */
   init: function() {
     this.reset();
-    this.listenTo(Actions.fetchNextDocuments, this.fetchNextDocuments.bind(this));
+    this.listenTo(Actions.getNextPage, this.getNextPage.bind(this));
+    this.listenTo(Actions.getPrevPage, this.getPrevPage.bind(this));
   },
 
   /**
@@ -44,18 +47,25 @@ const LoadMoreDocumentsStore = Reflux.createStore({
     }
   },
 
+  reset: function() {
+    this.ns = undefined;
+    this.filter = {};
+    this.sort = [[ '_id', 1 ]];
+    this.limit = 0;
+    this.skip = 0;
+    this.project = null;
+    this.counter = 0;
+  },
+
   /**
-   * Fetch the next page of documents. Increase the counter by the page size
-   * (20 documents) until we reach the user-specified limit. Also take into
-   * account user-specified skip.
-   *
-   * @param {Integer} skip - The number of documents to skip.
+   * When the next page button is clicked, need to load the next 20 documents.
+   * @param {Number} skip - NUM_PAGE_DOCS (20) * The current page.
    */
-  fetchNextDocuments: function(skip) {
-    this.counter += NUM_PAGE_DOCS;
+  getNextPage(skip) {
+    const documentsLoaded = this.counter + NUM_PAGE_DOCS;
     let nextPageCount = 20;
     if (this.limit > 0) {
-      nextPageCount = Math.min(Math.max(0, this.limit - this.counter), NUM_PAGE_DOCS);
+      nextPageCount = Math.min(Math.max(0, this.limit - documentsLoaded), NUM_PAGE_DOCS);
       if (nextPageCount === 0) {
         return;
       }
@@ -68,20 +78,27 @@ const LoadMoreDocumentsStore = Reflux.createStore({
       promoteValues: false
     };
     global.hadronApp.dataService.find(this.ns, this.filter, options, (error, documents) => {
-      this.trigger(error, documents);
+      this.counter += documents.length;
+      this.trigger(error, documents, skip + 1, this.counter + NUM_PAGE_DOCS);
     });
   },
 
-  reset: function() {
-    this.ns = undefined;
-    this.filter = {};
-    this.sort = [[ '_id', 1 ]];
-    this.limit = 0;
-    this.skip = 0;
-    this.project = null;
-    this.counter = 0;
+  getPrevPage(skip) {
+    const nextPageCount = 20;
+
+    const options = {
+      skip: skip + this.skip,
+      limit: nextPageCount,
+      sort: this.sort,
+      fields: this.project,
+      promoteValues: false
+    };
+    global.hadronApp.dataService.find(this.ns, this.filter, options, (error, documents) => {
+      this.counter -= documents.length;
+      this.trigger(error, documents, skip + 1, skip + documents.length);
+    });
   }
 
 });
 
-module.exports = LoadMoreDocumentsStore;
+module.exports = TablePagesStore;

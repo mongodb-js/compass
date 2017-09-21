@@ -14,7 +14,7 @@ const GridStore = require('../stores/grid-store');
 const BreadcrumbStore = require('../stores/breadcrumb-store');
 const InsertDocumentStore = require('../stores/insert-document-store');
 const ResetDocumentListStore = require('../stores/reset-document-list-store');
-const LoadMoreDocumentsStore = require('../stores/load-more-documents-store');
+const TablePageStore = require('../stores/table-page-store');
 
 const BreadcrumbComponent = require('./breadcrumb');
 const CellRenderer = require('./table-view/cell-renderer');
@@ -51,7 +51,7 @@ class DocumentListTableView extends React.Component {
     this.unsubscribeGridStore = GridStore.listen(this.modifyColumns.bind(this));
     this.unsubscribeInsert = InsertDocumentStore.listen(this.handleInsert.bind(this));
     this.unsubscribeReset = ResetDocumentListStore.listen(this.handleReset.bind(this));
-    this.unsubscribeLoadMore = LoadMoreDocumentsStore.listen(this.handleLoadDocs.bind(this));
+    this.unsubscribeLoadMore = TablePageStore.listen(this.handlePageChange.bind(this));
   }
 
   componentWillUnmount() {
@@ -400,10 +400,10 @@ class DocumentListTableView extends React.Component {
    *
    * @param {Object} error - Error when trying to load more documents.
    * @param {Array} documents - The next batch of documents.
-   * @param {Number} start - The index of the first document shown. For list
-   * view it will always be 1, but for table view it will depend on the page.
+   * @param {Number} start - The index of the first document shown.
+   * @param {Number} end - (Unused) The index of the last document shown.
    */
-  handleLoadDocs(error, documents, start) {
+  handlePageChange(error, documents, start) {
     if (!error) {
       this.setState({docs: documents, index: start});
       this.AGGrid = this.createGrid();
@@ -412,7 +412,7 @@ class DocumentListTableView extends React.Component {
   }
 
   handleReset(error, documents) {
-    this.handleLoadDocs(error, documents, 1);
+    this.handlePageChange(error, documents, 1);
   }
 
   createColumnHeader(key, type, isEditable) {

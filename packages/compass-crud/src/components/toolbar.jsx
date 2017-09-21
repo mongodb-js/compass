@@ -9,6 +9,7 @@ const Actions = require('../actions');
 const ResetDocumentListStore = require('../stores/reset-document-list-store');
 const LoadMoreDocumentsStore = require('../stores/load-more-documents-store');
 const InsertDocumentStore = require('../stores/insert-document-store');
+const TablePageStore = require('../stores/table-page-store');
 
 /**
  * The help URLs for things like the Documents tab.
@@ -33,6 +34,11 @@ class Toolbar extends React.Component {
   /**
    * The component constructor.
    *
+   * state.count is the total number of documents available to this query.
+   * state.loaded is the total number of documents that have been loaded already.
+   * state.start is the first document being shown. For list view, it will always
+   * be 1 and for table view it will be state.loaded - 20 (or 0).
+   *
    * @param {Object} props - The properties.
    */
   constructor(props) {
@@ -51,16 +57,18 @@ class Toolbar extends React.Component {
     this.unsubscribeInsert = InsertDocumentStore.listen(this.handleInsert.bind(this));
     this.unsubscribeRemove = this.documentRemovedAction.listen(this.handleRemove.bind(this));
     this.unsubscribeLoadMore = LoadMoreDocumentsStore.listen(this.handleLoadMore.bind(this));
+    this.unsubscribeTablePage = TablePageStore.listen(this.handlePageChange.bind(this));
   }
 
   /**
-   * Unsibscribe from the document list store when unmounting.
+   * Unsubscribe from the document list store when unmounting.
    */
   componentWillUnmount() {
     this.unsubscribeReset();
     this.unsubscribeInsert();
     this.unsubscribeRemove();
     this.unsubscribeLoadMore();
+    this.unsubscribeTablePage();
   }
 
   /**
@@ -97,16 +105,28 @@ class Toolbar extends React.Component {
   /**
    * Handle a change in the visible documents. Can be a result of scroll, for
    * the list view, or a result of the next/previous buttons in the table view.
+   * Updates the page counts.
    *
    * @param {Object} error - The error
    * @param {Array} documents - The loaded documents.
-   * @param {Number} start - The index of the first document shown. For list
-   * view it will always be 1, but for table view it will depend on the page.
-   * @param {Number} end - The index of the last document shown.
    */
-  handleLoadMore(error, documents, start, end) {
+  handleLoadMore(error, documents) {
     if (!error) {
-      this.setState({ loaded: end, start: start });
+      this.setState({ loaded: this.state.loaded + documents.length });
+    }
+  }
+
+  /**
+   * The user has switched the page, starting with `start` and ending with `end`.
+   *
+   * @param {Object} error - The error
+   * @param {Array} documents - The loaded documents.
+   * @param {Number} start - The index of the first document on the page.
+   * @param {Number} end - The index of the last document on the page.
+   */
+  handlePageChange(error, documents, start, end) {
+    if (!error) {
+      this.setState({start: start, loaded: end});
     }
   }
 
@@ -121,7 +141,6 @@ class Toolbar extends React.Component {
    * Handle loading the next page of documents in the table view.
    */
   handleNextPage() {
-    console.log('loaded=' + this.state.loaded + ' count=' + this.state.count);
     if (this.state.loaded >= this.state.count) {
       return;
     }

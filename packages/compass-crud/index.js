@@ -5,6 +5,7 @@ const InsertDocumentStore = require('./lib/stores/insert-document-store');
 const ResetDocumentListStore = require('./lib/stores/reset-document-list-store');
 const LoadMoreDocumentsStore = require('./lib/stores/load-more-documents-store');
 const BreadcrumbStore = require('./lib/stores/breadcrumb-store');
+const TablePageStore = require('./lib/stores/table-page-store');
 
 const {
   StandardEditor,
@@ -82,6 +83,7 @@ const activate = (appRegistry) => {
   appRegistry.registerStore('CRUD.InsertDocumentStore', InsertDocumentStore);
   appRegistry.registerStore('CRUD.ResetDocumentListStore', ResetDocumentListStore);
   appRegistry.registerStore('CRUD.LoadMoreDocumentsStore', LoadMoreDocumentsStore);
+  appRegistry.registerStore('CRUD.TablePageStore', TablePageStore);
   appRegistry.registerStore('CRUD.BreadcrumbStore', BreadcrumbStore);
 };
 
@@ -106,6 +108,7 @@ const deactivate = (appRegistry) => {
   appRegistry.deregisterStore('CRUD.ResetDocumentListStore');
   appRegistry.deregisterStore('CRUD.LoadMoreDocumentsStore');
   appRegistry.deregisterStore('CRUD.BreadcrumbStore');
+  appRegistry.deregisterStore('CRUD.TablePageStore');
 };
 
 module.exports.activate = activate;
