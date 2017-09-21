@@ -1,4 +1,4 @@
-# hadron-react [![][travis_img]][travis_url]
+# hadron-react [![][travis_img]][travis_url] [![][lerna_img]][lerna_url]
 > Hadron React Components
 
 ## Packages
@@ -61,6 +61,8 @@ Apache 2.0
 
 [travis_img]: https://img.shields.io/travis/mongodb-js/hadron-react.svg?style=flat-square
 [travis_url]: https://travis-ci.org/mongodb-js/hadron-react
+[lerna_img]: https://img.shields.io/badge/maintained%20with-lerna-cc00ff.svg?style=flat-square
+[lerna_url]: https://lernajs.io/
 [hadron-react-bson-link]: https://github.com/mongodb-js/hadron-react/tree/master/packages/hadron-react-bson
 [hadron-react-utils-link]: https://github.com/mongodb-js/hadron-react/tree/master/packages/hadron-react-utils
 [hadron-react-buttons-link]: https://github.com/mongodb-js/hadron-react/tree/master/packages/hadron-react-buttons
