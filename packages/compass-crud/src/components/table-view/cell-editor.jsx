@@ -182,6 +182,10 @@ class CellEditor extends React.Component {
     });
   }
 
+  handleTypeChange() {
+    this.props.api.stopEditing();
+  }
+
   handleRemoveField() {
     if (this.element.isRemovable()) {
       this.element.remove();
@@ -304,7 +308,9 @@ class CellEditor extends React.Component {
    */
   renderTypes() {
     return (
-      <Types element={this.element} className={`${BEM_BASE}-types btn btn-default btn-xs`}/>
+      <div onBlur={this.handleTypeChange.bind(this)}>
+        <Types element={this.element} className={`${BEM_BASE}-types btn btn-default btn-xs`}/>
+      </div>
     );
   }
 
