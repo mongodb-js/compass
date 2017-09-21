@@ -10,7 +10,7 @@ const InsertDocumentStore = require('../stores/insert-document-store');
 const InsertDocumentDialog = require('./insert-document-dialog');
 const PageChangedStore = require('../stores/page-changed-store');
 const DocumentListView = require('./document-list-view');
-const DocumentListTableView = require('./document-list-table-view');
+const DocumentTableView = require('./document-table-view');
 const Toolbar = require('./toolbar');
 const Actions = require('../actions');
 const marky = require('marky');
@@ -235,7 +235,7 @@ class DocumentList extends React.Component {
       );
     }
     return (
-      <DocumentListTableView docs={this.state.docs} isEditable={isEditable} />
+      <DocumentTableView docs={this.state.docs} isEditable={isEditable} />
     );
   }
 
