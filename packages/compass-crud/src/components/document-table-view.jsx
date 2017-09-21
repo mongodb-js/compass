@@ -328,7 +328,7 @@ class DocumentTableView extends React.Component {
   }
 
   /**
-   * A row has been inserted and we need to update the row numbers.
+   * A row has been inserted or deleted and we need to update the row numbers.
    *
    * @param {Number} index - The index where the row was inserted.
    * @param {boolean} insert - If the row has been inserted.
@@ -344,7 +344,10 @@ class DocumentTableView extends React.Component {
   }
 
   /**
-   * Insert a row into the grid.
+   * Insert a document row into the grid. If the row is added because a document
+   * has been added using the insert document modal, then we don't open it in
+   * edit mode. If it is added because a document has been cloned, then we need
+   * to open it in edit mode.
    *
    * @param {Object} doc - The new document to be added.
    * @param {Number} index - The AG-Grid row index (counting footers)
@@ -416,10 +419,26 @@ class DocumentTableView extends React.Component {
     }
   }
 
+  /**
+   * When the ResetDocumentListStore is triggered with new documents.
+   *
+   * @param {Object} error - Error when trying to load more documents.
+   * @param {Array} documents - The refreshed batch of documents.
+   */
   handleReset(error, documents) {
     this.handlePageChange(error, documents, 1);
   }
 
+  /**
+   * Create a single column header given a field name, a type, and if it's editable.
+   * TODO: Use AG-Grid's default column headers.
+   *
+   * @param {String} key - The field name.
+   * @param {String} type - The type of the column.
+   * @param {boolean} isEditable - If the column is read-only.
+   *
+   * @returns {Object} A column definition for this header.
+   */
   createColumnHeader(key, type, isEditable) {
     return {
       headerName: key,
@@ -460,13 +479,16 @@ class DocumentTableView extends React.Component {
 
   /**
    * Define all the columns in table and their renderer components.
+   * First, add the line number column that is pinned to the left.
+   * Second, add a column for each of the field names in each of the documents.
+   * Third, get the displayed type for the headers of each of the field columns.
+   * Last, add the document level actions column that is pinned to the right.
    *
-   * @returns {object} the ColHeaders
+   * @returns {object} the ColHeaders, which is a list of colDefs.
    */
   createColumnHeaders() {
     const headers = {};
     const headerTypes = {};
-    // const width = this.gridOptions.context.column_width;
     const isEditable = this.props.isEditable;
     const docs = this.state.docs;
 
@@ -519,7 +541,8 @@ class DocumentTableView extends React.Component {
     });
     this.updateHeaders(showing, columnHeaders);
 
-    /* Add button action row column */
+    /* Add the invisible pinned column to the right that has the document
+       level action buttons */
     columnHeaders.push({
       colId: '$rowActions',
       valueGetter: function(params) {

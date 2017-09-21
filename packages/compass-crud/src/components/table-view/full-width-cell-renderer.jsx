@@ -258,6 +258,9 @@ class FullWidthCellRenderer extends React.Component {
       }
     }
 
+    /* Cancel should go through undo all the adding/removing/editing that the cell
+       has done. We go through and remove all the added elements, and add back all
+       the removed elements. */
     for (let i = 0; i < removed.length; i++) {
       Actions.elementAdded(removed[i].currentKey, removed[i].currentType, id);
     }

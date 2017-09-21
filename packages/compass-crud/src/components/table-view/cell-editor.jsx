@@ -42,6 +42,11 @@ class CellEditor extends React.Component {
     this.state = { fieldName: '', changed: false };
   }
 
+  /**
+   * Mount the component. If the editor is opened and there was no field defined
+   * in this cell, get the type of the column from this.props.column and add a
+   * field to the HadronDocument that is empty.
+   */
   componentWillMount() {
     this.element = this.props.value;
     this.wasEmpty = false;
@@ -107,8 +112,11 @@ class CellEditor extends React.Component {
   }
 
   /**
-   * AG-Grid API call to do a final check before closing the. Returning false
-   * will cancel editing.
+   * AG-Grid API call to do a final check before closing the editor. Returning
+   * false will cancel editing.
+   *
+   * Update the column headers if the type has changed or if the column is brand
+   * new.
    *
    * @returns {boolean} If the edit should go through.
    */
