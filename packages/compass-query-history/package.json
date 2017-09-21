@@ -115,7 +115,7 @@
     "mongodb-data-service": "^7.1.0",
     "mongodb-js-fmt": "^0.0.3",
     "mongodb-js-precommit": "^0.3.0",
-    "mongodb-query-parser": "^0.7.0",
+    "mongodb-query-parser": "^1.0.1",
     "mongodb-reflux-store": "0.0.1",
     "nyc": "^11.0.3",
     "peer-deps-externals-webpack-plugin": "^1.0.2",

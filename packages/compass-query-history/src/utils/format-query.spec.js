@@ -21,7 +21,7 @@ describe('formatQuery [Utils]', () => {
   describe('when the property has a date', () => {
     const value = new Date();
     const filter = { field: value };
-    const expected = `{\n field: BSONDate('${value.toISOString()}')\n}`;
+    const expected = `{\n field: ISODate('${value.toISOString()}')\n}`;
 
     it('returns the shell syntax string', () => {
       expect(formatQuery(filter)).to.equal(expected);
