@@ -42,13 +42,16 @@
 	&-row  {
 		box-sizing: border-box;
 		background-color: white;
+		border-bottom: 0.5px solid #E0E0E0;
 	}
+
 	&-full-width-row {
 		height: 56px!important;
 	    background: transparent;
 	    border: 1px solid #5CAEEB;
 	    border-radius: 2px;
 	    margin-top: -28px;
+	    z-index: 1;
 
 	    .document-footer {
 	    	margin-top: 26px;
@@ -56,7 +59,7 @@
 	}
 	&-cell {
 		border-right: 0.5px solid #E0E0E0;
-		border-bottom: 0.5px solid #E0E0E0;
+		z-index: 2;
     	outline: 0;
 
     	&-last-left-pinned{
@@ -64,11 +67,11 @@
 			align-items: center;
 			justify-content: center;
     		color: #A2A0A0;
-    		border-left: 0.5px solid #E0E0E0;
     	}
 
     	&-focus {
     		overflow: visible;
+    		z-index: 3;
     	}
 	}
 	&-popup-editor {
