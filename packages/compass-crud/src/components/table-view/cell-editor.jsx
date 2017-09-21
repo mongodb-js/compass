@@ -351,7 +351,7 @@ class CellEditor extends React.Component {
   renderExpand() {
     if (this.element.currentType === 'Object' || this.element.currentType === 'Array') {
       return (
-        <div className={`${BEM_BASE}-button btn btn-default btn-xs`} onClick={this.handleDrillDown}>
+        <div className={`${BEM_BASE}-button btn btn-default btn-xs`} onMouseDown={this.handleDrillDown}>
           <FontAwesome name="expand" className={`${BEM_BASE}-button-icon`}/>
         </div>
       );
@@ -376,7 +376,7 @@ class CellEditor extends React.Component {
             displace={displace}
           />
           <div className={`${BEM_BASE}-button btn btn-default btn-xs`}
-               onClick={this.handleRemoveField.bind(this)}>
+               onMouseDown={this.handleRemoveField.bind(this)}>
             <FontAwesome name="trash" className={`${BEM_BASE}-button-icon`}/>
           </div>
         </span>
