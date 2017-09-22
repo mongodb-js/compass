@@ -17,13 +17,12 @@ addons:
       - libkrb5-dev
 before_install:
   - echo "//registry.npmjs.org/:_authToken=\${NPM_TOKEN}" >> .npmrc
+  - npm i -g npm@5
+  - npm --version
 before_script:
   - export DISPLAY=:99.0
   - sh -e /etc/init.d/xvfb start
   - npm run check
-  - mkdir -p /home/travis/build/10gen/compass/node_modules/mongodb-version-manager/.mongodb/downloads/
-  - wget -P /home/travis/build/10gen/compass/node_modules/mongodb-version-manager/.mongodb/downloads/ http://fastdl.mongodb.org/linux/mongodb-linux-x86_64-2.6.12.tgz
-  - wget -P /home/travis/build/10gen/compass/node_modules/mongodb-version-manager/.mongodb/downloads/ http://fastdl.mongodb.org/linux/mongodb-linux-x86_64-3.4.8.tgz
 script: npm run test
 cache:
   directories:
