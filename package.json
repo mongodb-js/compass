@@ -254,7 +254,7 @@
     "mocha": "^3.1.2",
     "mock-require": "^2.0.1",
     "mongodb-js-precommit": "^0.3.0",
-    "mongodb-runner": "^3.5.0",
+    "mongodb-runner": "^3.6.1",
     "react-addons-test-utils": "^15.2.1",
     "sinon": "^1.17.6",
     "sinon-chai": "^2.8.0",
