@@ -39,7 +39,7 @@ const INVALID = `${VALUE_CLASS}-is-invalid-type`;
 class CellEditor extends React.Component {
   constructor(props) {
     super(props);
-    this.state = { fieldName: '' };
+    this.state = { fieldName: '', changed: false };
   }
 
   componentWillMount() {
@@ -129,7 +129,7 @@ class CellEditor extends React.Component {
 
       /* Don't let users save fields that are duplicates (it will break the grid).
        * If a user adds a duplicate key, the key gets reset to empty. */
-      if (!this.element.isDuplicateKey(key)) {
+      if (!this.isDuplicateKey(key)) {
         /* Rename the element within HadronDocument */
         this.element.rename(key);
 
@@ -159,8 +159,14 @@ class CellEditor extends React.Component {
          if somewhere internally they don't do that, will have outdated values.
          Docs: https://www.ag-grid.com/javascript-grid-column-definitions
          */
+      } else {
+        this.element.currentKey = undefined;
       }
     } else if (this.wasEmpty) {
+      if (!this.state.changed) {
+        this.element.revert();
+        return false;
+      }
       /* Update the grid store so we know what type this element is */
       Actions.elementAdded(this.element.currentKey, this.element.currentType, id);
     } else if (this.element.isRemoved()) {
@@ -183,6 +189,7 @@ class CellEditor extends React.Component {
   }
 
   handleTypeChange() {
+    this.setState({changed: true});
     this.props.api.stopEditing();
   }
 
@@ -199,6 +206,7 @@ class CellEditor extends React.Component {
   handleDrillDown() {}
 
   handleChange(event) {
+    this.setState({changed: true});
     if (this._pasting) {
       this._pasteEdit(event.target.value);
     } else {
@@ -230,6 +238,16 @@ class CellEditor extends React.Component {
     }
   }
 
+  isDuplicateKey(value) {
+    const cols = this.props.columnApi.getAllColumns();
+    for (let i = 0; i < cols.length; i++) {
+      if (cols[i].getColDef().colId === value) {
+        return true;
+      }
+    }
+    return false;
+  }
+
   /**
    * Get the editor for the current type.
    *
@@ -249,7 +267,7 @@ class CellEditor extends React.Component {
     let base = `${FIELD_CLASS}`;
     if (input) {
       base = `${base}`;
-      if (this.element.isDuplicateKey(this.state.fieldName)) {
+      if (this.isDuplicateKey(this.state.fieldName)) {
         base = `${base}-is-duplicate`;
       }
     }
@@ -371,7 +389,7 @@ class CellEditor extends React.Component {
    * @returns {React.Component} The component.
    */
   renderRemoveField() {
-    if (this.element.value.length !== 0) {
+    if (!this.wasEmpty) {
       return (
         <div className={`${BEM_BASE}-button btn btn-default btn-xs`}
              onMouseDown={this.handleRemoveField.bind(this)}>
