@@ -1,4 +1,4 @@
-# Compass Instance Package
+# Compass Instance Plugin
 
 Instance Level View Layout that contains Instance level tabs.
 

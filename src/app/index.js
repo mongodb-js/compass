@@ -43,7 +43,7 @@ marky.stop('Migrations');
 var React = require('react');
 var ReactDOM = require('react-dom');
 var AutoUpdate = require('../auto-update');
-var { Action } = require('hadron-package-manager');
+var { Action } = require('hadron-plugin-manager');
 
 
 ipc.once('app:launched', function() {
@@ -401,8 +401,8 @@ app.extend({
       if (err) {
         throw err;
       }
-      require('./setup-package-manager');
-      Action.packageActivationCompleted.listen(() => {
+      require('./setup-plugin-manager');
+      Action.pluginActivationCompleted.listen(() => {
         global.hadronApp.appRegistry.onActivated();
 
         // signal to main process that app is ready

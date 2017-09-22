@@ -5,7 +5,7 @@
 
 const app = require('hadron-app');
 const Reflux = require('reflux');
-const packageActivationCompleted = require('hadron-package-manager/lib/action').packageActivationCompleted;
+const pluginActivationCompleted = require('hadron-plugin-manager/lib/action').pluginActivationCompleted;
 
 /**
  * defers attaching a store listener to a store until all packages have
@@ -15,9 +15,9 @@ const packageActivationCompleted = require('hadron-package-manager/lib/action').
  * @param  {Function} callback      Callback to attach
  */
 Reflux.StoreMethods.listenToExternalStore = function(storeKey, callback) {
-  this.listenTo(packageActivationCompleted, () => {
+  this.listenTo(pluginActivationCompleted, () => {
     const store = app.appRegistry.getStore(storeKey);
     this.listenTo(store, callback);
-    this.stopListeningTo(packageActivationCompleted);
+    this.stopListeningTo(pluginActivationCompleted);
   });
 };

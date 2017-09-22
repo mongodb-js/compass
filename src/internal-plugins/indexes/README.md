@@ -1,4 +1,4 @@
-# Compass Indexes Package
+# Compass Indexes Plugin
 
 Provides functionality shown in the "Indexes" tab in the collection view.
 

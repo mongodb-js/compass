@@ -1,4 +1,4 @@
-# Compass Schema Package
+# Compass Schema Plugin
 
 Provides functionality shown in the "Schema" tab in the collection view.
 

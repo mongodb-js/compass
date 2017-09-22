@@ -1,4 +1,4 @@
-# Compass Collection Stats Package
+# Compass Collection Stats Plugin
 
 Provides functionality shown in the stats header area in the collection view.
 

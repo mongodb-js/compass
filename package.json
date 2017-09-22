@@ -35,7 +35,7 @@
           "name": "mongodb-compass",
           "productName": "MongoDB Compass",
           "plugins-directory": ".mongodb/compass/plugins",
-          "packages": [
+          "plugins": [
             "node_modules/@mongodb-js/compass-serverstats",
             "node_modules/@mongodb-js/compass-document-validation",
             "node_modules/@mongodb-js/compass-deployment-awareness",
@@ -48,13 +48,11 @@
             "index"
           ]
         },
-        "compass-enterprise": {
-          "name": "mongodb-compass-enterprise",
-          "productName": "MongoDB Compass Enterprise",
-          "plugins-directory": ".mongodb/compass-enterprise/plugins",
-          "packages": [
-            "node_modules/@mongodb-js/compass-serverstats",
-            "node_modules/@mongodb-js/compass-document-validation",
+        "compass-community": {
+          "name": "mongodb-compass-community",
+          "productName": "MongoDB Compass Community",
+          "plugins-directory": ".mongodb/compass-community/plugins",
+          "plugins": [
             "node_modules/@mongodb-js/compass-deployment-awareness",
             "node_modules/@mongodb-js/compass-charts",
             "node_modules/@mongodb-js/compass-crud",
@@ -173,7 +171,7 @@
     "hadron-compile-cache": "^1.0.1",
     "hadron-ipc": "^0.0.7",
     "hadron-module-cache": "^0.0.3",
-    "hadron-package-manager": "^4.0.0",
+    "hadron-plugin-manager": "^5.0.0",
     "hadron-react-bson": "^1.4.0",
     "hadron-react-buttons": "^1.5.0",
     "hadron-react-components": "^1.8.0",
