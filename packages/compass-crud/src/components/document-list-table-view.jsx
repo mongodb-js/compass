@@ -193,7 +193,6 @@ class DocumentListTableView extends React.Component {
     /* Update the grid */
     setTimeout(function() {
       api.updateRowData({remove: [dataNode.data]});
-      api.clearFocusedCell();
     }, 0);
 
     /* Remove the footer */
