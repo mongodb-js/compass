@@ -61,7 +61,7 @@
     "mongodb-js-fmt": "^0.0.3",
     "mongodb-js-precommit": "^0.2.8",
     "mongodb-ns": "^2.0.0",
-    "mongodb-runner": "^3.4.0",
+    "mongodb-runner": "^3.6.1",
     "pre-commit": "^1.1.3",
     "prop-types": "^15.5.8",
     "react": "^15.5.4",
