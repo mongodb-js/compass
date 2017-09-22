@@ -191,6 +191,7 @@
     "react-dnd-html5-backend": "^2.2.4",
     "react-dom": "^15.5.4",
     "react-fontawesome": "^1.6.1",
+    "react-native-listener": "1.0.1",
     "react-select": "1.0.0-rc.5",
     "react-tooltip": "^3.2.6",
     "react-vega": "^3.0.1",
