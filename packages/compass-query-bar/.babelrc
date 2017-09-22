@@ -1,0 +1,26 @@
+{
+  "env": {
+    "production": {
+      "presets": ["minify"]
+    },
+    "test": {
+      "presets": [
+        ["es2015"]
+      ],
+      "plugins": [
+        "react-hot-loader/babel",
+        "syntax-object-rest-spread",
+        "transform-class-properties"
+      ]
+    }
+  },
+  "presets": [
+    "react",
+    ['es2015', {'modules': false}]
+  ],
+  "plugins": [
+    "react-hot-loader/babel",
+    "syntax-object-rest-spread",
+    "transform-class-properties"
+  ]
+}
