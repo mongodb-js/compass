@@ -6,18 +6,18 @@ const mock = require('mock-require');
 
 // const debug = require('debug')('mongodb-compass:test:query-changed-store');
 
-let QueryStore = require('../../src/internal-packages/query/lib/store/query-store');
-let QueryChangedStore = require('../../src/internal-packages/query/lib/store/query-changed-store');
+let QueryStore = require('../../src/internal-plugins/query/lib/store/query-store');
+let QueryChangedStore = require('../../src/internal-plugins/query/lib/store/query-changed-store');
 
 describe('QueryChangedStore', () => {
   let unsubscribe = () => {};
 
   before(() => {
-    mock('../../src/internal-packages/indexes/lib/action/index-actions', {
+    mock('../../src/internal-plugins/indexes/lib/action/index-actions', {
       loadIndexes: sinon.spy()
     });
-    QueryStore = mock.reRequire('../../src/internal-packages/query/lib/store/query-store');
-    QueryChangedStore = mock.reRequire('../../src/internal-packages/query/lib/store/query-changed-store');
+    QueryStore = mock.reRequire('../../src/internal-plugins/query/lib/store/query-store');
+    QueryChangedStore = mock.reRequire('../../src/internal-plugins/query/lib/store/query-changed-store');
   });
 
   afterEach(() => {
@@ -28,7 +28,7 @@ describe('QueryChangedStore', () => {
 
   after(() => {
     mock.stopAll();
-    mock.reRequire('../../src/internal-packages/indexes/lib/action/index-actions');
+    mock.reRequire('../../src/internal-plugins/indexes/lib/action/index-actions');
   });
 
   it('returns the extended query properties for its initial state', () => {

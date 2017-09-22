@@ -8,8 +8,8 @@ const expect = chai.expect;
 const React = require('react');
 const {mount, shallow} = require('enzyme');
 
-const SizeColumn = require('../../src/internal-packages/indexes/lib/component/size-column');
-const UsageColumn = require('../../src/internal-packages/indexes/lib/component/usage-column');
+const SizeColumn = require('../../src/internal-plugins/indexes/lib/component/size-column');
+const UsageColumn = require('../../src/internal-plugins/indexes/lib/component/usage-column');
 
 chai.use(chaiEnzyme());
 
@@ -36,7 +36,7 @@ describe('<Indexes />', () => {
     app.appRegistry = new AppRegistry();
     app.instance = {build: {version: '3.2.0'}};
 
-    this.CreateIndexButton = require('../../src/internal-packages/indexes/lib/component/create-index-button');
+    this.CreateIndexButton = require('../../src/internal-plugins/indexes/lib/component/create-index-button');
   });
   afterEach(function() {
     // Restore properties on the global app object,

@@ -13,18 +13,18 @@ describe('QueryStore', () => {
   let unsubscribe;
 
   before(() => {
-    mock('../../src/internal-packages/indexes/lib/action/index-actions', {
+    mock('../../src/internal-plugins/indexes/lib/action/index-actions', {
       loadIndexes: sinon.spy()
     });
     QueryStore = mock.reRequire(
-      '../../src/internal-packages/query/lib/store/query-store'
+      '../../src/internal-plugins/query/lib/store/query-store'
     );
   });
 
   after(() => {
     mock.stopAll();
     mock.reRequire(
-      '../../src/internal-packages/indexes/lib/action/index-actions'
+      '../../src/internal-plugins/indexes/lib/action/index-actions'
     );
   });
 

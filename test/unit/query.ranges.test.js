@@ -1,5 +1,5 @@
 /* eslint no-var: 0 */
-var inValueRange = require('../../src/internal-packages/query/lib/util').inValueRange;
+var inValueRange = require('../../src/internal-plugins/query/lib/util').inValueRange;
 var assert = require('assert');
 var bson = require('bson');
 
