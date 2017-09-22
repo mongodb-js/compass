@@ -1,34 +1,34 @@
 'use strict';
 
-const debug = require('debug')('hadron-package-manager:action');
+const debug = require('debug')('hadron-plugin-manager:action');
 const Reflux = require('reflux');
 
 /**
- * The action for a package being activated.
+ * The action for a plugin being activated.
  */
-const packageActivated = Reflux.createAction({
+const pluginActivated = Reflux.createAction({
   /**
    * Log the action.
    *
-   * @param {Package} pkg - The activated package.
+   * @param {Plugin} pkg - The activated plugin.
    */
   preEmit: function(pkg) {
-    debug(`Package ${pkg.metadata.name} activated.`);
+    debug(`Plugin ${pkg.metadata.name} activated.`);
   }
 });
 
 /**
- * The action for when the package manager completes activation.
+ * The action for when the plugin manager completes activation.
  */
-const packageActivationCompleted = Reflux.createAction({
+const pluginActivationCompleted = Reflux.createAction({
   /**
    * Log the action.
    */
   sync: true,
   preEmit: function() {
-    debug('Package activation completed.');
+    debug('Plugin activation completed.');
   }
 });
 
-module.exports.packageActivationCompleted = packageActivationCompleted;
-module.exports.packageActivated = packageActivated;
+module.exports.pluginActivationCompleted = pluginActivationCompleted;
+module.exports.pluginActivated = pluginActivated;
