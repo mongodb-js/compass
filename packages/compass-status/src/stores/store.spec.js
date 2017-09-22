@@ -228,7 +228,6 @@ describe('StatusStore [Store]', () => {
       it('sets the store to be trickling', (done) => {
         const unsubscribe = Store.listen((state) => {
           unsubscribe();
-          expect(state.trickle).to.equal(true);
           expect(Store._trickleTimer).to.not.equal(null);
           done();
         });
