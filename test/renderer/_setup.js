@@ -26,7 +26,7 @@ const ROOT = path.join(__dirname, '..', '..');
  *   of plugins for the distribution and their relative paths from the
  *   root directory.
  */
-app.pluginManager = new PackageManager(
+app.pluginManager = new PluginManager(
   [ INTERNAL_PLUGINS ],
   ROOT,
   pkg.config.hadron.distributions[process.env.HADRON_DISTRIBUTION].plugins
