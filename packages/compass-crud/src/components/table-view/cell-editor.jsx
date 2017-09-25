@@ -302,7 +302,7 @@ class CellEditor extends React.Component {
    * @returns {React.Component} The component.
    */
   renderFieldName() {
-    if (this.newField) {
+    if (this.newField && this.element.currentKey === '$new') {
       return (
         <div className={`${BEM_BASE}-input ${BEM_BASE}-input-field`}>
           <span className={`${BEM_BASE}-input-field-inner`}>
@@ -409,7 +409,7 @@ class CellEditor extends React.Component {
    * @returns {React.Component} The component.
    */
   renderActions(displace) {
-    if (!this.newField) {
+    if (this.element.currentKey !== '$new') {
       return (
         <span className={`${BEM_BASE}-actions`}>
           {this.renderExpand()}
