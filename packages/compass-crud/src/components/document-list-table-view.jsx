@@ -66,7 +66,6 @@ class DocumentListTableView extends React.Component {
         handleClone: this.handleClone
       },
       onCellDoubleClicked: this.onCellDoubleClicked.bind(this),
-      onCellClicked: this.onCellClicked.bind(this),
       rowHeight: 28  // .document-footer row needs 28px, ag-grid default is 25px
     };
 
@@ -99,21 +98,7 @@ class DocumentListTableView extends React.Component {
   }
 
   /**
-   * If the row is in 'editing' mode, a single click should open the editor.
-   *
-   * @param {Object} event
-   *     node {RowNode} - the RowNode for the cell in question
-   *     data {*} - the user provided data for the cell in question
-   *     column {Column} - the column of the cell clicked
-   */
-  onCellClicked(event) {
-    if (event.data.state === 'editing' || event.data.state === 'cloned') {
-      event.api.startEditingCell({rowIndex: event.node.rowIndex, colKey: event.column.getColId()});
-    }
-  }
-
-  /**
-   * Callback for when a row is double clicked.
+   * Callback for when a cell is double clicked.
    *
    * @param {Object} event
    *     node {RowNode} - the RowNode for the row in question

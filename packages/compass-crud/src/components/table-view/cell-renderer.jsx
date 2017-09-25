@@ -104,7 +104,8 @@ class CellRenderer extends React.Component {
     this.props.node.data.state = 'modified';
   }
 
-  handleUndo() {
+  handleUndo(event) {
+    event.stopPropagation();
     const oid = this.props.node.data.hadronDocument.getId().toString();
     if (this.element.isAdded()) {
       this.isDeleted = true;
@@ -115,6 +116,15 @@ class CellRenderer extends React.Component {
       Actions.elementTypeChanged(this.element.currentKey, this.element.type, oid);
     }
     this.element.revert();
+  }
+
+  handleClicked() {
+    if (this.props.node.data.state === 'editing' || this.props.node.data.state === 'cloned') {
+      this.props.api.startEditingCell({
+        rowIndex: this.props.node.rowIndex,
+        colKey: this.props.column.getColId()
+      });
+    }
   }
 
   renderInvalidCell() {
@@ -190,7 +200,7 @@ class CellRenderer extends React.Component {
     }
 
     return (
-      <div className={className}>
+      <div className={className} onClick={this.handleClicked.bind(this)}>
         {this.renderUndo(canUndo)}
         {element}
       </div>
@@ -201,7 +211,8 @@ class CellRenderer extends React.Component {
 CellRenderer.propTypes = {
   api: PropTypes.any,
   value: PropTypes.any,
-  node: PropTypes.any
+  node: PropTypes.any,
+  column: PropTypes.any
 };
 
 CellRenderer.displayName = 'CellRenderer';
