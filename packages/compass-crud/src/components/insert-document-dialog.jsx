@@ -99,9 +99,12 @@ class InsertDocumentDialog extends React.Component {
    * Handles completion of the document insert.
    *
    * @param {Error} error - Any error in the insert.
+   * @param {Object} doc (Unused)
+   * @param {boolean} dialogue - If the insert came from the insert document
+   * dialogue or if it came from a clone.
    */
-  handleDocumentInsert(error) {
-    if (!error) {
+  handleDocumentInsert(error, doc, dialogue) {
+    if (!error && !dialogue) {
       this.closeDialog();
     }
   }
