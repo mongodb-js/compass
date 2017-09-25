@@ -195,9 +195,12 @@ class CellEditor extends React.Component {
 
   handleRemoveField() {
     if (this.element.isRemovable()) {
+      const oid = this.props.node.data.hadronDocument.getId().toString();
       this.element.remove();
       if (this.wasEmpty) {
         this.element = undefined; // return state to undefined
+      } else if (this.newField) {
+        Actions.elementRemoved(this.element.currentKey, oid, true);
       }
       this.props.api.stopEditing();
     }
