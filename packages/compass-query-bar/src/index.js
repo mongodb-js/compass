@@ -5,10 +5,10 @@ import QueryBarStore from 'stores';
 /**
  * A sample role for the component.
  */
-const ROLE = {
-  name: 'QueryBar',
-  component: QueryBarPlugin
-};
+// const ROLE = {
+//   name: 'QueryBar',
+//   component: QueryBarPlugin
+// };
 
 /**
  * Activate all the components in the Query Bar package.
@@ -24,8 +24,8 @@ function activate(appRegistry) {
   //   - CollectionHUD.Item
   //   - Header.Item
 
-  appRegistry.registerRole('', ROLE);
-  appRegistry.registerAction('QueryBar.Actions', QueryBarActions);
+  // appRegistry.registerRole('', ROLE);
+  appRegistry.registerAction('Query.Actions', QueryBarActions);
   appRegistry.registerStore('QueryBar.Store', QueryBarStore);
 }
 
@@ -34,8 +34,8 @@ function activate(appRegistry) {
  * @param {Object} appRegistry - The Hadron appRegisrty to deactivate this plugin with.
  **/
 function deactivate(appRegistry) {
-  appRegistry.deregisterRole('', ROLE);
-  appRegistry.deregisterAction('QueryBar.Actions');
+  // appRegistry.deregisterRole('', ROLE);
+  appRegistry.deregisterAction('Query.Actions');
   appRegistry.deregisterStore('QueryBar.Store');
 }
 
