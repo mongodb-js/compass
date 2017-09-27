@@ -9,7 +9,7 @@
   padding-left: 5px;
   padding-right: 5px;
 
-  &-circle-button { 
+  &-circle-button {
     position: absolute;
     z-index: 100;
     display: flex;
@@ -24,6 +24,10 @@
     background: white;
     box-shadow: 0 2px 5px 0 rgba(0,0,0,0.15), inset 0 2px 5px 0 rgba(0,0,0,0.05);
     cursor: pointer;
+
+    &-left {
+      right: 20px;
+    }
   }
 
   .editable-element {
@@ -43,6 +47,12 @@
     padding-right: 5px;
   }
 
+  &:hover {
+    .table-view-cell-circle-button {
+      opacity: 1;
+    }
+  }
+
   &-is-deleted, &-is-edited, &-is-added, &-is-invalid {
     height: 24px;
     line-height: 24px;
@@ -54,7 +64,7 @@
       min-height: 24px;
       z-index: 1;
     }
-
+    
     &:hover {
       .table-view-cell-circle-button {
         opacity: 1;

@@ -53,6 +53,10 @@ const INVALID = 'is-invalid';
  * The deleted constant.
  */
 const DELETED = 'is-deleted';
+/**
+ * The button button.
+ */
+const BUTTON_CLASS = 'table-view-cell-circle-button';
 
 
 /**
@@ -118,6 +122,10 @@ class CellRenderer extends React.Component {
     this.element.revert();
   }
 
+  handleExpand(event) {
+    event.stopPropagation();
+  }
+
   handleClicked() {
     if (this.props.node.data.state === 'editing' || this.props.node.data.state === 'cloned') {
       this.props.api.startEditingCell({
@@ -142,17 +150,24 @@ class CellRenderer extends React.Component {
 
   renderValidCell() {
     let className = VALUE_BASE;
+    let element = '';
     if (this.element.isAdded()) {
       className = `${className} ${VALUE_BASE}-${ADDED}`;
     } else if (this.element.isEdited()) {
       className = `${className} ${VALUE_BASE}-${EDITED}`;
     }
 
-    const component = getComponent(this.element.currentType);
-    const element = React.createElement(
-      component,
-      { type: this.props.value.currentType, value: this.element.currentValue }
-    );
+    if (this.element.currentType === 'Object') {
+      element = `{${this.element.elements.size}}`;
+    } else if (this.element.currentType === 'Array') {
+      element = `[${this.element.elements.size}]`;
+    } else {
+      const component = getComponent(this.element.currentType);
+      element = React.createElement(
+        component,
+        {type: this.props.value.currentType, value: this.element.currentValue}
+      );
+    }
 
     return (
       <div className={className}>
@@ -161,13 +176,29 @@ class CellRenderer extends React.Component {
     );
   }
 
-  renderUndo(canUndo) {
+  renderUndo(canUndo, canExpand) {
+    let undoButtonClass = `${BUTTON_CLASS}`;
+    if (canUndo && canExpand) {
+      undoButtonClass = `${undoButtonClass} ${undoButtonClass}-left`;
+    }
+
     if (!canUndo) {
       return null;
     }
     return (
-      <div className={'table-view-cell-circle-button'} onClick={this.handleUndo.bind(this)}>
+      <div className={`${undoButtonClass}`} onClick={this.handleUndo.bind(this)}>
         <span className={'fa fa-rotate-left'} aria-hidden />
+      </div>
+    );
+  }
+
+  renderExpand(canExpand) {
+    if (!canExpand) {
+      return null;
+    }
+    return (
+      <div className={'table-view-cell-circle-button'} onClick={this.handleExpand.bind(this)}>
+        <span className={'fa fa-expand'} aria-hidden />
       </div>
     );
   }
@@ -176,6 +207,7 @@ class CellRenderer extends React.Component {
     let element;
     let className = BEM_BASE;
     let canUndo = false;
+    let canExpand = false;
 
     if (this.isEmpty || this.isDeleted) {
       element = 'No field';
@@ -197,11 +229,13 @@ class CellRenderer extends React.Component {
         className = `${className}-${ADDED}`;
         canUndo = true;
       }
+      canExpand = (this.element.currentType === 'Object' || this.element.currentType === 'Array');
     }
 
     return (
       <div className={className} onClick={this.handleClicked.bind(this)}>
-        {this.renderUndo(canUndo)}
+        {this.renderUndo(canUndo, canExpand)}
+        {this.renderExpand(canExpand)}
         {element}
       </div>
     );
