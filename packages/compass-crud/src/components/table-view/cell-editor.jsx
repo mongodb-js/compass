@@ -128,48 +128,42 @@ class CellEditor extends React.Component {
     if (this.newField) {
       const key = this.state.fieldName;
 
-      /* Cancel and remove the column bc neither the key or value was edited */
-      if ((key === '' && this.editor().value() === '')) {
+      /* Cancel and remove the column if the key was unedited or a duplicate */
+      if (key === '' || this.isDuplicateKey(key)) {
         this.element.revert();
         Actions.removeColumn('$new');
         return false;
       }
 
-      /* Don't let users save fields that are duplicates (it will break the grid).
-       * If a user adds a duplicate key, the key gets reset to empty. */
-      if (!this.isDuplicateKey(key)) {
-        /* Rename the element within HadronDocument */
-        this.element.rename(key);
+      /* Rename the element within HadronDocument */
+      this.element.rename(key);
 
-        /* Rename the column + update its definition */
-        const colDef = this.props.column.getColDef();
-        colDef.valueGetter = function(params) {
-          return params.data.hadronDocument.get(key);
-        };
-        colDef.headerName = key;
-        colDef.colId = key;
-        colDef.editable = function(params) {
-          if (params.node.data.state === 'deleting') {
-            return false;
-          }
-          if (params.node.data.hadronDocument.get(key) === undefined) {
-            return true;
-          }
-          return params.node.data.hadronDocument.get(key).isValueEditable();
-        };
+      /* Rename the column + update its definition */
+      const colDef = this.props.column.getColDef();
+      colDef.valueGetter = function(params) {
+        return params.data.hadronDocument.get(key);
+      };
+      colDef.headerName = key;
+      colDef.colId = key;
+      colDef.editable = function(params) {
+        if (params.node.data.state === 'deleting') {
+          return false;
+        }
+        if (params.node.data.hadronDocument.get(key) === undefined) {
+          return true;
+        }
+        return params.node.data.hadronDocument.get(key).isValueEditable();
+      };
 
-        /* Update the grid store so we know what type this element is. This
-         * will also refresh the header API */
-        Actions.elementAdded(this.element.currentKey, this.element.currentType, id);
+      /* Update the grid store so we know what type this element is. This
+       * will also refresh the header API */
+      Actions.elementAdded(this.element.currentKey, this.element.currentType, id);
 
-        /* TODO: should we update column.* as well to be safe?
-         Not needed if everywhere we access columns through .getColDef() but
-         if somewhere internally they don't do that, will have outdated values.
-         Docs: https://www.ag-grid.com/javascript-grid-column-definitions
-         */
-      } else {
-        this.element.currentKey = undefined;
-      }
+      /* TODO: should we update column.* as well to be safe?
+       Not needed if everywhere we access columns through .getColDef() but
+       if somewhere internally they don't do that, will have outdated values.
+       Docs: https://www.ag-grid.com/javascript-grid-column-definitions
+       */
     } else if (this.wasEmpty) {
       if (!this.state.changed) {
         this.element.revert();
