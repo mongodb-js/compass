@@ -31,17 +31,13 @@ describe('#sidebar', function() {
     let dbCount;
 
     before(function(done) {
-      console.log('BEFORE');
       dataService.connect(function() {
-        console.log('CONNECTED');
         dataService.createCollection('music.artists', {}, function() {
-          console.log('CREATED');
           return client
             .clickInstanceRefreshIcon()
             .waitForInstanceRefresh()
             .getSidebarDatabaseNames().then(function(names) {
               dbCount = names.length;
-              console.log('DONE');
               done();
             });
         });

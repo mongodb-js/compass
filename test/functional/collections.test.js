@@ -15,11 +15,8 @@ describe('#collections', function() {
 
   const dataService = new DataService(CONNECTION);
   before(function(done) {
-    console.log('BEFORE');
     dataService.connect(function() {
-      console.log('CONNECTED');
       dataService.createCollection('music.artists', {}, function() {
-        console.log('DONE');
         done();
       });
     });

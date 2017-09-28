@@ -32,16 +32,12 @@ describe('#indexes', function() {
 
     before(function(done) {
       const doc = {'name': 'Aphex Twin', 'genre': 'Electronic', 'location': 'London'};
-      console.log('BEFORE');
       dataService.connect(function() {
-        console.log('CONNECTED');
         dataService.insertOne('music.artists', doc, function() {
-          console.log('INSERTED');
           return client
             .goToCollection('music', 'artists')
             .getServerVersion().then(function(value) {
               serverVersion = value.replace(/MongoDB ([0-9.]+) Community/, '$1');
-              console.log('DONE');
               done();
             });
         });
