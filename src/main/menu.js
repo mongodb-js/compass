@@ -212,7 +212,7 @@ function collectionSubMenu() {
 }
 
 function viewSubMenu() {
-  return {
+  const menu = {
     label: '&View',
     submenu: [
       {
@@ -244,16 +244,19 @@ function viewSubMenu() {
           ipc.broadcast('window:zoom-out');
         }
       },
-      separator(),
-      {
-        label: '&Toggle DevTools',
-        accelerator: 'Alt+CmdOrCtrl+I',
-        click: function() {
-          BrowserWindow.getFocusedWindow().toggleDevTools();
-        }
-      }
     ]
   };
+  if (process.env.NODE_ENV === 'development') {
+    menu.submenu.push(separator());
+    menu.submenu.push({
+      label: '&Toggle DevTools',
+      accelerator: 'Alt+CmdOrCtrl+I',
+      click: function() {
+        BrowserWindow.getFocusedWindow().toggleDevTools();
+      }
+    });
+  }
+  return menu;
 }
 
 function windowSubMenu() {
