@@ -18,6 +18,14 @@ global.hadronApp = app;
 require('./setup-hadron-caches');
 
 /**
+ * @note: COMPASS-2070: This needs to happen after the caches are setup as Jade
+ *   uses eval. Can be moved up when caches are removed.
+ */
+window.eval = global.eval = function() {
+  throw new Error('Compass does not support window.eval() for security reasons.');
+}
+
+/**
  * The main entrypoint for the application!
  */
 var electron = require('electron');
