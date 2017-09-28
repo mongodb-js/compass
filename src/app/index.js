@@ -1,4 +1,5 @@
 /* eslint no-console:0 */
+/* eslint no-eval:0 */
 const marky = require('marky');
 marky.mark('Time to Connect rendered');
 marky.mark('Time to user can Click Connect');
@@ -23,7 +24,7 @@ require('./setup-hadron-caches');
  */
 window.eval = global.eval = function() {
   throw new Error('Compass does not support window.eval() for security reasons.');
-}
+};
 
 /**
  * The main entrypoint for the application!
