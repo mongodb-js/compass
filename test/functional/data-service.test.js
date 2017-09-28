@@ -30,14 +30,18 @@ describe('#data-service', function() {
     const dataService = new DataService(CONNECTION);
 
     before(function(done) {
+      console.log('BEFORE');
       dataService.connect(function() {
+        console.log('CONNECTED');
         const docs = [
           {'name': 'Aphex Twin', 'genre': 'Electronic', 'location': 'London'},
           { name: 'Bauhaus' }
         ];
         dataService.insertMany('music.artists', docs, {}, function() {
+          console.log('INSERTED');
           return client
             .goToCollection('music', 'artists').then(function() {
+              console.log('DONE');
               done();
             });
         });

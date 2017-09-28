@@ -31,9 +31,12 @@ describe('#databases', function() {
     let dbCount = 0;
 
     before(function(done) {
+      console.log('BEFORE');
       dataService.connect(function() {
+        console.log('CONNECTED');
         return client.getSidebarDatabaseCount().then(function(value) {
           dbCount = parseInt(value, 10);
+          console.log('DONE');
           done();
         });
       });

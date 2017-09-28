@@ -33,11 +33,15 @@ describe('#query-bar', function() {
     const dataService = new DataService(CONNECTION);
 
     before(function(done) {
+      console.log('BEFORE');
       dataService.connect(function() {
+        console.log('CONNECT');
         const docs = _.map(_.range(100), mgenerate.bind(null, fanclubTemplate));
         dataService.insertMany('mongodb.fanclub', docs, {}, function() {
+          console.log('INSERTED');
           return client
             .goToCollection('mongodb', 'fanclub').then(function() {
+              console.log('DONE');
               done();
             });
         });

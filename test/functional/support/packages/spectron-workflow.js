@@ -36,6 +36,7 @@ function addWorkflowCommands(client) {
    * Go to collection, assumes refresh is required
    */
   client.addCommand('goToCollection', function(database, collection) {
+    console.log('GOTOCOLLECTION');
     return this
       .clickInstanceRefreshIcon()
       .waitForInstanceRefresh()
