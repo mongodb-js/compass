@@ -208,7 +208,9 @@ class CellEditor extends React.Component {
     }
   }
 
-  handleDrillDown() {}
+  handleDrillDown() {
+    Actions.drillDown(this.element.currentKey, this.element.currentType);
+  }
 
   handleChange(event) {
     this.setState({changed: true});
@@ -380,7 +382,7 @@ class CellEditor extends React.Component {
   renderExpand() {
     if (this.element.currentType === 'Object' || this.element.currentType === 'Array') {
       return (
-        <div className={`${BEM_BASE}-button btn btn-default btn-xs`} onMouseDown={this.handleDrillDown}>
+        <div className={`${BEM_BASE}-button btn btn-default btn-xs`} onMouseDown={this.handleDrillDown.bind(this)}>
           <FontAwesome name="expand" className={`${BEM_BASE}-button-icon`}/>
         </div>
       );

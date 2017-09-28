@@ -21,7 +21,8 @@ const Actions = Reflux.createActions([
   'elementTypeChanged',
   'getNextPage',
   'getPrevPage',
-  'pathChanged'
+  'pathChanged',
+  'drillDown'
 ]);
 
 document.ondragover = document.ondrop = (ev) => {

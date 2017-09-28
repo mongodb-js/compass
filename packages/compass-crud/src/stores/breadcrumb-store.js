@@ -20,6 +20,7 @@ const BreadcrumbStore = Reflux.createStore( {
     this.collection = '';
 
     this.listenTo(Actions.pathChanged, this.pathChanged.bind(this));
+    this.listenTo(Actions.drillDown, this.drillDown.bind(this));
   },
 
   /**
@@ -36,11 +37,24 @@ const BreadcrumbStore = Reflux.createStore( {
   /**
    * The path of the table view has changed.
    *
-   * @param {String} path - A combination of fieldnames and indexes.
+   * @param {Array} path - A list of fieldnames and indexes.
+   * @param {Array} types - A list of the types of each path segment.
    */
   pathChanged(path, types) {
     this.path = path;
     this.types = types;
+    this.trigger({path: this.path, types: this.types});
+  },
+
+  /**
+   * The user has drilled down into a new element.
+   *
+   * @param {String} segment - The name of the new fieldname.
+   * @param {BSONType} type - The type of the segment.
+   */
+  drillDown(segment, type) {
+    this.path.push(segment);
+    this.types.push(type);
     this.trigger({path: this.path, types: this.types});
   }
 

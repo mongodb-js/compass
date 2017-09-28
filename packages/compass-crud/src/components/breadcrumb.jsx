@@ -6,7 +6,7 @@ const Actions = require('../actions');
 const BreadcrumbStore = require('../stores/breadcrumb-store');
 
 const BEM_BASE = 'ag-header-breadcrumb';
-const ICON_TYPE = {Array: '{ }', Object: '[ ]' };
+const ICON_TYPE = {Array: '[ ]', Object: '{ }' };
 
 class BreadcrumbComponent extends React.Component {
 
@@ -27,9 +27,15 @@ class BreadcrumbComponent extends React.Component {
 
   onTabClicked(index) {
     Actions.pathChanged(
-      this.state.path.slice(0, index),
-      this.state.types.slice(0, index)
+      this.state.path.slice(0, index + 1),
+      this.state.types.slice(0, index + 1)
     );
+  }
+
+  onHomeClicked() {
+    this.state.path = [];
+    this.state.types = [];
+    Actions.pathChanged([], []);
   }
 
   /**
@@ -55,9 +61,9 @@ class BreadcrumbComponent extends React.Component {
     return (
       <div className={BEM_BASE}>
         <FontAwesome name="home" className={`${BEM_BASE}-button-icon`}/>
-        <span> {this.state.collection} </span>
+        <span onClick={this.onHomeClicked.bind(this)}> {this.state.collection} </span>
         {this.state.path.map((name, i) => {
-          return <span onClick={() => this.onTabClicked(i)}>{name} {ICON_TYPE[this.state.types[i]]}</span>;
+          return <span key={i} onClick={() => this.onTabClicked(i)}>{name} {ICON_TYPE[this.state.types[i]]}</span>;
         })}
       </div>
     );

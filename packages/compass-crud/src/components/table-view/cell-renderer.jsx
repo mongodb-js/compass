@@ -122,8 +122,9 @@ class CellRenderer extends React.Component {
     this.element.revert();
   }
 
-  handleExpand(event) {
+  handleDrillDown(event) {
     event.stopPropagation();
+    Actions.drillDown(this.element.currentKey, this.element.currentType);
   }
 
   handleClicked() {
@@ -197,7 +198,7 @@ class CellRenderer extends React.Component {
       return null;
     }
     return (
-      <div className={'table-view-cell-circle-button'} onClick={this.handleExpand.bind(this)}>
+      <div className={'table-view-cell-circle-button'} onClick={this.handleDrillDown.bind(this)}>
         <span className={'fa fa-expand'} aria-hidden />
       </div>
     );
