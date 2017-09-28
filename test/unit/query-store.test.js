@@ -2,31 +2,13 @@
 
 const expect = require('chai').expect;
 const assert = require('assert');
-const mock = require('mock-require');
-const sinon = require('sinon');
 
-let QueryStore;
+let QueryStore = require('../../src/internal-packages/query/lib/store/query-store');
 
 // const debug = require('debug')('mongodb-compass:test:query-store')
 
 describe('QueryStore', () => {
   let unsubscribe;
-
-  before(() => {
-    mock('../../src/internal-plugins/indexes/lib/action/index-actions', {
-      loadIndexes: sinon.spy()
-    });
-    QueryStore = mock.reRequire(
-      '../../src/internal-plugins/query/lib/store/query-store'
-    );
-  });
-
-  after(() => {
-    mock.stopAll();
-    mock.reRequire(
-      '../../src/internal-plugins/indexes/lib/action/index-actions'
-    );
-  });
 
   // reset query store to initial state
   afterEach(() => {
