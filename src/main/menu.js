@@ -243,7 +243,7 @@ function viewSubMenu() {
         click: function() {
           ipc.broadcast('window:zoom-out');
         }
-      },
+      }
     ]
   };
   if (process.env.NODE_ENV === 'development') {
