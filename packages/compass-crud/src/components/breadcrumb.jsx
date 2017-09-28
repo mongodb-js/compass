@@ -1,27 +1,75 @@
 const React = require('react');
 const PropTypes = require('prop-types');
+const FontAwesome = require('react-fontawesome');
+
+const Actions = require('../actions');
+const BreadcrumbStore = require('../stores/breadcrumb-store');
+
+const BEM_BASE = 'ag-header-breadcrumb';
+const ICON_TYPE = {Array: '{ }', Object: '[ ]' };
 
 class BreadcrumbComponent extends React.Component {
 
   constructor(props) {
     super(props);
+    this.state = { path: [], types: [], collection: props.collection };
+    this.onTabClicked = this.onTabClicked.bind(this);
+    this.renderTabs = this.renderTabs.bind(this);
+  }
+
+  componentDidMount() {
+    this.unsubscribeBreadcrumbStore = BreadcrumbStore.listen(this.breadcrumbStoreChanged.bind(this));
+  }
+
+  componentWillUnmount() {
+    this.unsubscribeBreadcrumbStore();
+  }
+
+  onTabClicked(index) {
+    Actions.pathChanged(
+      this.state.path.slice(0, index),
+      this.state.types.slice(0, index)
+    );
+  }
+
+  /**
+   * When the BreadcrumbStore changes, update the state.
+   *
+   * @param {Object} params - Can contain collection, path, and/or types.
+   *  collection {String} - The collection name.
+   *  path {Array} - The array of field names/indexes.
+   *  types {Array} - The array of types for each segment of the path array.
+   */
+  breadcrumbStoreChanged(params) {
+    this.setState(params);
+  }
+
+  renderTabs() {
+    return (
+      <div>
+      </div>
+    );
   }
 
   render() {
     return (
-      <div className="ag-header-breadcrumb">
-        <span> {this.props.ns.ns}</span>
+      <div className={BEM_BASE}>
+        <FontAwesome name="home" className={`${BEM_BASE}-button-icon`}/>
+        <span> {this.state.collection} </span>
+        {this.state.path.map((name, i) => {
+          return <span onClick={() => this.onTabClicked(i)}>{name} {ICON_TYPE[this.state.types[i]]}</span>;
+        })}
       </div>
     );
   }
 }
 
 BreadcrumbComponent.propTypes = {
-  ns: PropTypes.object
+  collection: PropTypes.string.isRequired
 };
 
 BreadcrumbComponent.defaultPropTypes = {
-  ns: ['', '']
+  collection: ''
 };
 
 BreadcrumbComponent.displayName = 'BreadcrumbComponent';

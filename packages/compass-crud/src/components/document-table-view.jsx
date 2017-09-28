@@ -3,15 +3,14 @@ const PropTypes = require('prop-types');
 const {AgGridReact} = require('ag-grid-react');
 const _ = require('lodash');
 
-const { StoreConnector } = require('hadron-react-components');
 const TypeChecker = require('hadron-type-checker');
 const HadronDocument = require('hadron-document');
 const ObjectId = require('bson').ObjectId;
+const mongodbns = require('mongodb-ns');
 
 const Actions = require('../actions');
 
 const GridStore = require('../stores/grid-store');
-const BreadcrumbStore = require('../stores/breadcrumb-store');
 const InsertDocumentStore = require('../stores/insert-document-store');
 const ResetDocumentListStore = require('../stores/reset-document-list-store');
 const PageChangedStore = require('../stores/page-changed-store');
@@ -44,6 +43,7 @@ class DocumentTableView extends React.Component {
     this.handleClone = this.handleClone.bind(this);
 
     this.state = { docs: props.docs, index: 1 };
+    this.collection = mongodbns(props.ns).collection;
     this.AGGrid = this.createGrid();
   }
 
@@ -600,9 +600,7 @@ class DocumentTableView extends React.Component {
   render() {
     return (
       <div className="ag-parent">
-        <StoreConnector store={BreadcrumbStore}>
-          <BreadcrumbComponent/>
-        </StoreConnector>
+        <BreadcrumbComponent collection={this.collection}/>
         {this.AGGrid}
       </div>
     );
@@ -611,7 +609,8 @@ class DocumentTableView extends React.Component {
 
 DocumentTableView.propTypes = {
   docs: PropTypes.array.isRequired,
-  isEditable: PropTypes.bool.isRequired
+  isEditable: PropTypes.bool.isRequired,
+  ns: PropTypes.string.isRequired
 };
 
 DocumentTableView.displayName = 'DocumentTableView';

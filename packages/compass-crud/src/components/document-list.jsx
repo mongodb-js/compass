@@ -235,7 +235,9 @@ class DocumentList extends React.Component {
       );
     }
     return (
-      <DocumentTableView docs={this.state.docs} isEditable={isEditable} />
+      <DocumentTableView docs={this.state.docs}
+                         isEditable={isEditable}
+                         ns={this.state.namespace}/>
     );
   }
 

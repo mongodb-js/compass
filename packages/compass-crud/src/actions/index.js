@@ -20,7 +20,8 @@ const Actions = Reflux.createActions([
   'elementRemoved',
   'elementTypeChanged',
   'getNextPage',
-  'getPrevPage'
+  'getPrevPage',
+  'pathChanged'
 ]);
 
 document.ondragover = document.ondrop = (ev) => {
