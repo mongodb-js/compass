@@ -59,11 +59,13 @@ class BreadcrumbComponent extends React.Component {
 
   render() {
     return (
-      <div className={BEM_BASE}>
-        <FontAwesome name="home" className={`${BEM_BASE}-button-icon`}/>
-        <span onClick={this.onHomeClicked.bind(this)}> {this.state.collection} </span>
+      <div className={`${BEM_BASE}-container`}>
+        <div onClick={this.onHomeClicked.bind(this)} className={`${BEM_BASE}-tab`}>
+          <FontAwesome name="home" className={`${BEM_BASE}-home-icon`}/>
+          {this.state.collection}
+        </div>
         {this.state.path.map((name, i) => {
-          return <span key={i} onClick={() => this.onTabClicked(i)}>{name} {ICON_TYPE[this.state.types[i]]}</span>;
+          return <span key={i} onClick={() => this.onTabClicked(i)} className={`${BEM_BASE}-tab`}>{name} {ICON_TYPE[this.state.types[i]]}</span>;
         })}
       </div>
     );
