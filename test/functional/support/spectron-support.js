@@ -58,10 +58,8 @@ function addCommands(client) {
  * @returns {Promise} Promise that resolves when app starts.
  */
 function launchCompass() {
-  console.time('LAUNCH COMPASS');
-  const app = new App(ROOT).launch(addCommands);
-  console.timeEnd('LAUNCH COMPASS');
-  return app;
+  console.time('launchCompass -> connectToCompass');
+  return new App(ROOT).launch(addCommands);
 }
 
 /**

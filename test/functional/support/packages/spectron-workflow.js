@@ -23,6 +23,8 @@ function addWorkflowCommands(client) {
    * Connect to Compass
    */
   client.addCommand('connectToCompass', function(connection) {
+    console.timeEnd('launchCompass -> connectToCompass');
+    console.time('connectToCompass -> getDatabasesTabText');
     return this
       .waitForConnectView()
       .inputConnectionDetails(connection)
