@@ -14,7 +14,6 @@ class BreadcrumbComponent extends React.Component {
     super(props);
     this.state = { path: [], types: [], collection: props.collection };
     this.onTabClicked = this.onTabClicked.bind(this);
-    this.renderTabs = this.renderTabs.bind(this);
   }
 
   componentDidMount() {
@@ -50,13 +49,6 @@ class BreadcrumbComponent extends React.Component {
     this.setState(params);
   }
 
-  renderTabs() {
-    return (
-      <div>
-      </div>
-    );
-  }
-
   render() {
     return (
       <div className={`${BEM_BASE}-container`}>
@@ -65,7 +57,8 @@ class BreadcrumbComponent extends React.Component {
           {this.state.collection}
         </div>
         {this.state.path.map((name, i) => {
-          return <span key={i} onClick={() => this.onTabClicked(i)} className={`${BEM_BASE}-tab`}>{name} {ICON_TYPE[this.state.types[i]]}</span>;
+          const className = (i === this.state.path.length - 1) ? `${BEM_BASE}-tab-active` : `${BEM_BASE}-tab`;
+          return <span key={i} onClick={() => this.onTabClicked(i)} className={className}>{name} {ICON_TYPE[this.state.types[i]]}</span>;
         })}
       </div>
     );
