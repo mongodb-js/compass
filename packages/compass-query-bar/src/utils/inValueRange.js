@@ -100,7 +100,7 @@ const inValueRange = (field, d) => {
     return 'partial';
   }
   return 'no';
-}
+};
 
 export default inValueRange;
 export { inValueRange };

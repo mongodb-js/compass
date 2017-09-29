@@ -1,4 +1,6 @@
 import QueryBarPlugin from './plugin';
+import QueryBar from 'components/query-bar';
+import SamplingMessage from 'components/sampling-message';
 import QueryBarActions from 'actions';
 import { QueryBarStore, QueryChangedStore } from 'stores';
 
@@ -25,6 +27,8 @@ function activate(appRegistry) {
   //   - Header.Item
 
   // appRegistry.registerRole('', ROLE);
+  appRegistry.registerComponent('Query.QueryBar', QueryBar);
+  appRegistry.registerComponent('Query.SamplingMessage', SamplingMessage);
   appRegistry.registerAction('Query.Actions', QueryBarActions);
   appRegistry.registerStore('Query.Store', QueryBarStore);
   appRegistry.registerStore('Query.ChangedStore', QueryChangedStore);
@@ -36,6 +40,8 @@ function activate(appRegistry) {
  **/
 function deactivate(appRegistry) {
   // appRegistry.deregisterRole('', ROLE);
+  appRegistry.deregisterComponent('Query.QueryBar');
+  appRegistry.deregisterComponent('Query.SamplingMessage');
   appRegistry.deregisterAction('Query.Actions');
   appRegistry.deregisterStore('Query.Store');
   appRegistry.deregisterStore('Query.ChangedStore');

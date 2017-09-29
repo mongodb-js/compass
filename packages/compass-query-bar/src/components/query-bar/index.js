@@ -1,4 +1,4 @@
-import QueryBar from './Query Bar';
+import QueryBar from './query-bar';
 
 export default QueryBar;
 export { QueryBar };

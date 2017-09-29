@@ -19,7 +19,7 @@ const getDistinctValues = (field) => {
   }
   // it is not a $in operator, return single value as array
   return [field];
-}
+};
 
 export default getDistinctValues;
 export { getDistinctValues };

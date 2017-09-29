@@ -25,7 +25,7 @@ const hasDistinctValue = (field, value) => {
   }
   // it is not a $in operator, check value directly
   return (isEqual(field, value, bsonEqual));
-}
+};
 
 export default hasDistinctValue;
 export { hasDistinctValue };

@@ -1,8 +1,8 @@
 import React, { Component } from 'react';
 import { StoreConnector } from 'hadron-react-components';
-import QueryBar from 'components/Query Bar';
-import store from 'stores';
-import actions from 'actions';
+import { QueryBarStore } from 'stores';
+import QueryBarActions from 'actions';
+import QueryBar from 'components/query-bar';
 
 class Plugin extends Component {
   static displayName = 'QueryBarPlugin';
@@ -14,8 +14,8 @@ class Plugin extends Component {
    */
   render() {
     return (
-      <StoreConnector store={store}>
-        <QueryBar actions={actions} {...this.props} />
+      <StoreConnector store={QueryBarStore}>
+        <QueryBar actions={QueryBarActions} {...this.props} />
       </StoreConnector>
     );
   }

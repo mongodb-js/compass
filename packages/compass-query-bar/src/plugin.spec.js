@@ -1,19 +1,17 @@
 import React from 'react';
-import { mount } from 'enzyme';
+import { shallow } from 'enzyme';
 import { StoreConnector } from 'hadron-react-components';
 import QueryBarPlugin from './plugin';
 
 describe('QueryBar [Plugin]', () => {
   let component;
 
-  beforeEach((done) => {
-    component = mount(<QueryBarPlugin />);
-    done();
+  beforeEach(function() {
+    component = shallow(<QueryBarPlugin />);
   });
 
-  afterEach((done) => {
+  afterEach(function() {
     component = null;
-    done();
   });
 
   it('should contain a <StoreConnector /> with a store prop', function() {

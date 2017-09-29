@@ -32,6 +32,7 @@ import {
 
 import QueryBarActions from 'actions';
 import { bsonEqual, hasDistinctValue } from 'utils';
+import QUERY_PROPERTIES from 'constants/query-properties';
 
 const debug = require('debug')('mongodb-compass:stores:query-bar');
 
@@ -52,9 +53,6 @@ const DEFAULT_SAMPLE = false;
 const DEFAULT_MAX_TIME_MS = ms('10 seconds');
 const DEFAULT_SAMPLE_SIZE = 1000;
 const DEFAULT_STATE = RESET_STATE;
-
-// these state properties make up a "query"
-const QUERY_PROPERTIES = ['filter', 'project', 'sort', 'skip', 'limit', 'sample'];
 
 /**
  * Query Bar store.
@@ -728,4 +726,4 @@ const QueryBarStore = Reflux.createStore({
 });
 
 export default QueryBarStore;
-export { QueryBarStore, QUERY_PROPERTIES };
+export { QueryBarStore };

@@ -1,9 +1,12 @@
 import Reflux from 'reflux';
 import StateMixin from 'reflux-state-mixin';
 import app from 'hadron-app';
-import { pick, isEqual, cloneDeep } from 'lodash';
+import { pick, isEqual, cloneDeep, isFunction } from 'lodash';
 
-import { QueryBarStore, QUERY_PROPERTIES } from './query-bar-store';
+import QUERY_PROPERTIES from 'constants/query-properties';
+import QueryBarStore from './query-bar-store';
+
+const debug = require('debug')('mongodb-compass:stores:query-changed-store');
 
 const EXTENDED_QUERY_PROPERTIES = QUERY_PROPERTIES.concat([
   'maxTimeMS',
@@ -78,7 +81,9 @@ const QueryChangedStore = Reflux.createStore({
       this.setState(newState);
 
       // reload indexes if this convenience store has changed
-      this.loadIndexes();
+      if (isFunction(this.loadIndexes)) {
+        this.loadIndexes();
+      }
 
       // Call onQueryChanged lifecycle method
       const registry = app.appRegistry;

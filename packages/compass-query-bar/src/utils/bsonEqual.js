@@ -14,7 +14,7 @@ const bsonEqual = (value, other) => {
   }
   // for all others, use native comparisons
   return undefined;
-}
+};
 
 export default bsonEqual;
 export { bsonEqual };
