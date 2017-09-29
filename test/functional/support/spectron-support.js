@@ -69,7 +69,7 @@ function launchCompass() {
  * @returns {Promise}    Promise that resolves when app stops or is undefined.
  */
 function quitCompass(app) {
-  if (app === undefined) {
+  if (app === undefined || app === null) {
     return Promise.resolve();
   }
   return app.quit();
