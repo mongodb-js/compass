@@ -327,7 +327,7 @@ Which assets are generated depends on the target platform.
 
 ## Auto Update
 
-- `hadron-auto-update-manager`: https://github.com/hadron-auto-update-manager
+- `hadron-auto-update-manager`: https://github.com/mongodb-js/hadron-auto-update-manager
 
 ### macOS
 
@@ -340,7 +340,7 @@ Which assets are generated depends on the target platform.
 
 ### Linux
 
-- Not currently supported. Waiting for upstream to do it. [hadron-auto-update-manager](https://github.com/hadron-auto-update-manager) contains a noop polyfill for linux though.
+- Not currently supported. Waiting for upstream to do it. [hadron-auto-update-manager](https://github.com/mongodb-js/hadron-auto-update-manager) contains a noop polyfill for linux though.
 
 
 ## Todo
