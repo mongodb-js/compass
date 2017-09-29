@@ -69,7 +69,7 @@ const cleanupElectronChromeDriver = () => {
       console.log(`ps process exited with code ${code}`);
     }
   });
-}
+};
 
 const printProcessInfo = () => {
   // From https://nodejs.org/docs/latest/api/child_process.html#child_process_class_childprocess
