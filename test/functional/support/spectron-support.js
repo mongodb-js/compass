@@ -55,7 +55,7 @@ function addCommands(client) {
 const printProcessInfo = () => {
   // From https://nodejs.org/docs/latest/api/child_process.html#child_process_class_childprocess
   const { spawn } = require('child_process');
-  const ps = spawn('ps', ['ax']);
+  const ps = spawn('ps', ['-ef']);
 
   ps.stdout.on('data', (data) => {
     console.log(`ps stdout: ${data}`);
