@@ -232,8 +232,10 @@ class DocumentTableView extends React.Component {
    *
    * @param {String} colId - The new column will be inserted after the column
    * with colId.
+   * @param {String} headerName - The field of a new columnfrom insert document dialog
+   * @param {String} colType - The type of a new column from document insert dialog
    */
-  addColumn(colId) {
+  addColumn(colId, headerName, colType) {
     const columnHeaders = _.map(this.columnApi.getAllColumns(), function(col) {
       return col.getColDef();
     });
@@ -243,11 +245,16 @@ class DocumentTableView extends React.Component {
       if (columnHeaders[i].colId === colId) {
         break;
       }
+      if (columnHeaders[i].colId === headerName) {
+        return;
+      }
       i++;
     }
 
-    const newColDef = this.createColumnHeader('$new', '', true); // Newly added columns are always editable.
+    // Newly added columns are always editable.
+    const newColDef = this.createColumnHeader(headerName, colType, true);
     columnHeaders.splice(i + 1, 0, newColDef);
+
     this.gridApi.setColumnDefs(columnHeaders);
   }
 
@@ -310,7 +317,7 @@ class DocumentTableView extends React.Component {
    */
   modifyColumns(params) {
     if ('add' in params) {
-      this.addColumn(params.add.colId);
+      this.addColumn(params.add.colId, '$new', '');
       this.gridApi.setFocusedCell(params.add.rowIndex, '$new');
       this.gridApi.startEditingCell({rowIndex: params.add.rowIndex, colKey: '$new'});
     }
@@ -388,6 +395,9 @@ class DocumentTableView extends React.Component {
    */
   handleInsert(error, doc, clone) {
     if (!error && !clone) {
+      Object.keys(doc).forEach((key) => {
+        this.addColumn(null, key, TypeChecker.type(doc[key]));
+      });
       this.insertRow(doc, 0, 1, false);
     }
   }
