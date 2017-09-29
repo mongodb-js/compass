@@ -7,7 +7,6 @@ describe('#connect', function() {
   let client = null;
 
   before(function() {
-    this.timeout(300000); // 5 minutes
     return launchCompass()
       .then(function(application) {
         app = application;

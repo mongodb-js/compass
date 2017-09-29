@@ -31,7 +31,6 @@ describe('#collections', function() {
 
   context('when creating & deleting collections', function() {
     before(function() {
-      this.timeout(300000); // 5 minutes
       return launchCompass().then(function(application) {
         app = application;
         client = application.client;
