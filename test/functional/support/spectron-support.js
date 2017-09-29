@@ -70,22 +70,6 @@ const printProcessInfo = () => {
       console.log(`ps process exited with code ${code}`);
     }
   });
-
-  const top = spawn('top', ['-n1']);
-
-  top.stdout.on('data', (data) => {
-    console.log(`top stdout: ${data}`);
-  });
-
-  top.stderr.on('data', (data) => {
-    console.log(`top stderr: ${data}`);
-  });
-
-  top.on('close', (code) => {
-    if (code !== 0) {
-      console.log(`top process exited with code ${code}`);
-    }
-  });
 };
 
 /**
