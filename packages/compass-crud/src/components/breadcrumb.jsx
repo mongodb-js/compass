@@ -57,7 +57,7 @@ class BreadcrumbComponent extends React.Component {
           {this.state.collection}
         </div>
         {this.state.path.map((name, i) => {
-          const className = (i === this.state.path.length - 1) ? `${BEM_BASE}-tab-active` : `${BEM_BASE}-tab`;
+          const className = (i === this.state.path.length - 1) ? `${BEM_BASE}-tab ${BEM_BASE}-tab-active` : `${BEM_BASE}-tab`;
           return <span key={i} onClick={() => this.onTabClicked(i)} className={className}>{name} {ICON_TYPE[this.state.types[i]]}</span>;
         })}
       </div>
