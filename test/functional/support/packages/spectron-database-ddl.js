@@ -53,6 +53,7 @@ function addGetDatabaseDDLCommands(client) {
    * Gets the human-readable text of the Databases Tab.
    */
   client.addCommand('getDatabasesTabText', function() {
+    console.log('-> getDatabasesTabText');
     console.timeEnd('connectToCompass -> getDatabasesTabText');
     return this.getText(selector('databases-tab'));
   });
