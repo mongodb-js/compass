@@ -6,8 +6,8 @@ const sinon = require('sinon');
 const { shallow } = require('enzyme');
 const AppRegistry = require('hadron-app-registry');
 const { StatusRow } = require('hadron-react-components');
-const { UI_STATES } = require('../../src/internal-packages/home/lib/constants');
-const InstanceComponent = require('../../src/internal-packages/instance/lib/component');
+const { UI_STATES } = require('../../src/internal-plugins/home/lib/constants');
+const InstanceComponent = require('../../src/internal-plugins/instance/lib/component');
 
 describe('<Home />', () => {
   const appRegistry = app.appRegistry;
@@ -37,7 +37,7 @@ describe('<Home />', () => {
     app.appRegistry.registerComponent('Database.CreateCollectionDialog', sinon.spy());
     app.appRegistry.registerComponent('Database.DropCollectionDialog', sinon.spy());
 
-    this.Home = require('../../src/internal-packages/home/lib/component/home');
+    this.Home = require('../../src/internal-plugins/home/lib/component/home');
   });
   afterEach(() => {
     // Restore properties on the global app object,

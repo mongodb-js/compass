@@ -1,4 +1,4 @@
-# Compass Explain Plan Package
+# Compass Explain Plan Plugin
 
 Provides functionality shown in the "Explain Plan" tab in the collection view.
 

@@ -7,8 +7,8 @@ const React = require('react');
 const sinon = require('sinon');
 const AppRegistry = require('hadron-app-registry');
 const { shallow } = require('enzyme');
-const SidebarInstanceProperties = require('../../src/internal-packages/sidebar/lib/components/sidebar-instance-properties');
-const { LOADING_STATE } = require('../../src/internal-packages/sidebar/lib/constants');
+const SidebarInstanceProperties = require('../../src/internal-plugins/sidebar/lib/components/sidebar-instance-properties');
+const { LOADING_STATE } = require('../../src/internal-plugins/sidebar/lib/constants');
 
 chai.use(chaiEnzyme());
 

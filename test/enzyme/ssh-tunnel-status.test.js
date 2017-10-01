@@ -7,8 +7,8 @@ const React = require('react');
 const sinon = require('sinon');
 const AppRegistry = require('hadron-app-registry');
 const { shallow } = require('enzyme');
-const SSHTunnelStatus = require('../../src/internal-packages/ssh-tunnel-status/lib/components/ssh-tunnel-status');
-const Actions = require('../../src/internal-packages/ssh-tunnel-status/lib/actions');
+const SSHTunnelStatus = require('../../src/internal-plugins/ssh-tunnel-status/lib/components/ssh-tunnel-status');
+const Actions = require('../../src/internal-plugins/ssh-tunnel-status/lib/actions');
 chai.use(chaiEnzyme());
 
 const appRegistry = app.appRegistry;

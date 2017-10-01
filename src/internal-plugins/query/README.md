@@ -1,4 +1,4 @@
-# Compass Query Package
+# Compass Query Plugin
 
 Provides functionality shown in the query bar in the collection view.
 

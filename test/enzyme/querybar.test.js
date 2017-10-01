@@ -9,9 +9,9 @@ const _ = require('lodash');
 const shallow = require('enzyme').shallow;
 const mount = require('enzyme').mount;
 
-const QueryBar = require('../../src/internal-packages/query/lib/component/query-bar');
-const QueryOption = require('../../src/internal-packages/query/lib/component/query-option');
-const OptionsToggle = require('../../src/internal-packages/query/lib/component/options-toggle');
+const QueryBar = require('../../src/internal-plugins/query/lib/component/query-bar');
+const QueryOption = require('../../src/internal-plugins/query/lib/component/query-option');
+const OptionsToggle = require('../../src/internal-plugins/query/lib/component/options-toggle');
 const debug = require('debug')('mongodb-compass:test:validation');
 
 chai.use(chaiEnzyme());

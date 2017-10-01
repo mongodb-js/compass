@@ -1,8 +1,8 @@
-# Compass Internal Packages
+# Compass Internal Plugins
 
 ## Developer Notes
 
-When registering resources in the app registry, please use the `PackageName.ResourceName`
+When registering resources in the app registry, please use the `PluginName.ResourceName`
 convention for keys.
 
 ### Examples:

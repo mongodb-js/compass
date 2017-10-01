@@ -6,30 +6,30 @@ require('../../src/app/reflux-listen-to-external-store');
 // Would be nice not to need this jQuery being present
 window.jQuery = require('jquery');
 
-// Require our internal-packages so we can integration-test things fast,
+// Require our internal-plugins so we can integration-test things fast,
 // i.e. without requiring a full functional test
 const app = require('hadron-app');
 const pkg = require('../../package.json');
 const path = require('path');
 const AppRegistry = require('hadron-app-registry');
-const { PackageManager } = require('hadron-package-manager');
+const PluginManager = require('hadron-plugin-manager');
 
 app.appRegistry = new AppRegistry();
 global.hadronApp = app;
 
-const INTERNAL_PACKAGES = path.join(__dirname, '..', 'internal-packages');
+const INTERNAL_PLUGINS = path.join(__dirname, '..', 'internal-plugins');
 
 const ROOT = path.join(__dirname, '..', '..');
 
 /**
  * @note: The 2nd and 3rd arguments are the root directory and an array
- *   of packages for the distribution and their relative paths from the
+ *   of plugins for the distribution and their relative paths from the
  *   root directory.
  */
-app.packageManager = new PackageManager(
-  [ INTERNAL_PACKAGES ],
+app.pluginManager = new PluginManager(
+  [ INTERNAL_PLUGINS ],
   ROOT,
-  pkg.config.hadron.distributions[process.env.HADRON_DISTRIBUTION].packages
+  pkg.config.hadron.distributions[process.env.HADRON_DISTRIBUTION].plugins
 );
 
-app.packageManager.activate(app.appRegistry);
+app.pluginManager.activate(app.appRegistry);

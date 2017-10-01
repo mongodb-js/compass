@@ -1,7 +1,7 @@
 /* eslint no-unused-expressions: 0 */
 const expect = require('chai').expect;
 const mock = require('mock-require');
-let FieldStore = require('../../src/internal-packages/app/lib/stores/field-store');
+let FieldStore = require('../../src/internal-plugins/app/lib/stores/field-store');
 let schemaFixture = require('../fixtures/array_of_docs.fixture.json');
 
 describe('FieldStore', function() {
@@ -9,7 +9,7 @@ describe('FieldStore', function() {
 
   beforeEach(() => {
     unsubscribe = () => {};
-    FieldStore = mock.reRequire('../../src/internal-packages/app/lib/stores/field-store');
+    FieldStore = mock.reRequire('../../src/internal-plugins/app/lib/stores/field-store');
   });
 
   afterEach(() => {

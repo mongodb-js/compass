@@ -1,4 +1,4 @@
-# Compass Home Package
+# Compass Home Plugin
 
 Home layout for Compass view that switches between different views based on the current namespace:
 
