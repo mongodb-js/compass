@@ -1,6 +1,8 @@
 const React = require('react');
 const PropTypes = require('prop-types');
 
+const clipboard = require('electron').clipboard;
+
 const { IconButton } = require('hadron-react-buttons');
 
 const BEM_BASE = 'table-view-row-actions';
@@ -27,7 +29,8 @@ class RowActionsRenderer extends React.Component {
   }
 
   handleCopy() {
-    console.log('handle copy button for row #' + this.props.value.rowNumber);
+    const documentJSON = JSON.stringify(this.props.data.hadronDocument.generateObject());
+    clipboard.writeText(documentJSON);
   }
 
   render() {
