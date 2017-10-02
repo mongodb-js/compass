@@ -49,7 +49,7 @@ class RowActionsRenderer extends React.Component {
           clickHandler={this.handleEdit.bind(this)} />
         <IconButton
           title="Copy row"
-          className={`${BEM_BASE}-panel-button btn btn-default btn-xs`}
+          className={`${BEM_BASE}-panel-button ${BEM_BASE}-panel-copy-button btn btn-default btn-xs`}
           iconClassName={`${BEM_BASE}-button-icon fa fa-copy`}
           clickHandler={this.handleCopy.bind(this)} />
         <IconButton
