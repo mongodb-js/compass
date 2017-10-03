@@ -2,7 +2,6 @@
 
 const expect = require('chai').expect;
 const sinon = require('sinon');
-const mock = require('mock-require');
 
 // const debug = require('debug')('mongodb-compass:test:query-changed-store');
 
@@ -12,23 +11,10 @@ let QueryChangedStore = require('../../src/internal-plugins/query/lib/store/quer
 describe('QueryChangedStore', () => {
   let unsubscribe = () => {};
 
-  before(() => {
-    mock('../../src/internal-plugins/indexes/lib/action/index-actions', {
-      loadIndexes: sinon.spy()
-    });
-    QueryStore = mock.reRequire('../../src/internal-plugins/query/lib/store/query-store');
-    QueryChangedStore = mock.reRequire('../../src/internal-plugins/query/lib/store/query-changed-store');
-  });
-
   afterEach(() => {
     unsubscribe();
     unsubscribe = () => {};
     QueryStore.setState(QueryStore.getInitialState());
-  });
-
-  after(() => {
-    mock.stopAll();
-    mock.reRequire('../../src/internal-plugins/indexes/lib/action/index-actions');
   });
 
   it('returns the extended query properties for its initial state', () => {
