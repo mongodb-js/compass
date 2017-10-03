@@ -14,11 +14,13 @@ const FavoriteListStore = Reflux.createStore({
   /**
    * Get the queries stored on disk.
    */
-  onConnected() {
-    this.state.items.fetch({
-      success: () => {
-        this.trigger(this.state);
-      }
+  onActivated(appRegistry) {
+    appRegistry.on('data-service-connected', () => {
+      this.state.items.fetch({
+        success: () => {
+          this.trigger(this.state);
+        }
+      });
     });
   },
 
