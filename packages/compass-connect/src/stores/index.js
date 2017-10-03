@@ -84,6 +84,7 @@ const ConnectStore = Reflux.createStore({
       extension(this);
     });
     this.StatusActions = appRegistry.getAction('Status.Actions');
+    this.appRegistry = appRegistry;
   },
 
   /**
@@ -391,12 +392,12 @@ const ConnectStore = Reflux.createStore({
       this.updateDefaults();
       this.dataService = new DataService(connection);
       this.dataService.connect((err, ds) => {
-        global.hadronApp.appRegistry.onDataServiceInitialized(ds);
+        this.appRegistry.emit('data-service-initialized', ds);
         this.StatusActions.done();
         if (err) {
           return this.setState({ isValid: false, errorMessage: err.message });
         }
-        global.hadronApp.appRegistry.onConnected(err, ds);
+        this.appRegistry.emit('data-service-connected', err, ds);
         // @note: onCreateRecent will handle the store triggering, no need to do
         //   it twice.
         this.state.isValid = true;
