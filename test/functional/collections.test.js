@@ -1,6 +1,6 @@
 const Connection = require('mongodb-connection-model');
 const DataService = require('mongodb-data-service');
-const { launchCompass, quitCompass} = require('./support/spectron-support');
+const { launchCompass, quitCompass } = require('./support/spectron-support');
 
 /**
  * Global connection model for this test.

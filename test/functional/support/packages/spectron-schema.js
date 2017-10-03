@@ -13,6 +13,7 @@ function addClickSchemaCommands(client) {
    * Click the apply filter button from the schema tab.
    */
   client.addCommand('clickApplyFilterButtonFromSchemaTab', function() {
+    console.log('clickApplyFilterButtonFromSchemaTab');
     const base = selector('schema-content');
     const button = `${base} ${selector('apply-filter-button')}`;
     return this.waitForVisibleInCompass(button).click(button);
@@ -34,6 +35,7 @@ function addGetSchemaCommands(client) {
    * Get the sampling message on the schema tab.
    */
   client.addCommand('getSamplingMessageFromSchemaTab', function() {
+    console.log('getSamplingMessageFromSchemaTab');
     const base = selector('schema-content');
     const div = `${base} .sampling-message`;
     return this.waitForVisibleInCompass(div).getText(div);

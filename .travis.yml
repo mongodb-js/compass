@@ -1,4 +1,4 @@
-sudo: required
+sudo: false
 dist: trusty
 language: node_js
 node_js:
@@ -24,7 +24,7 @@ before_script:
   - export DISPLAY=:99.0
   - sh -e /etc/init.d/xvfb start
   - npm run check
-script: npm run test
+script: DEBUG=* npm run test -- --functional
 cache:
   directories:
     - $HOME/.electron

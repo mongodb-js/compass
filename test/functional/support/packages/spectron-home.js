@@ -6,6 +6,7 @@ function addWaitHomeCommands(client) {
    * Wait for the home screen to finish loading.
    */
   client.addCommand('waitForHomeView', function() {
+    console.log('-> waitForHomeView');
     return this.waitForVisibleInCompass(selector('home-view'));
   });
 }

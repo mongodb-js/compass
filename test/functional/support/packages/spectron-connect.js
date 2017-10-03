@@ -6,6 +6,7 @@ function addWaitConnectCommands(client) {
    * Wait for the connect screen to finish loading.
    */
   client.addCommand('waitForConnectView', function() {
+    console.log('-> waitForConnectView');
     return this.waitForVisibleInCompass(selector('connect-form'));
   });
 }
@@ -26,6 +27,7 @@ function addClickConnectCommands(client) {
    * click the Connect button on the connect screen.
    */
   client.addCommand('clickConnectButton', function() {
+    console.log('-> clickConnectButton');
     return this.click(selector('connect-button'));
   });
 }
@@ -38,6 +40,7 @@ function addInputConnectCommands(client) {
    * @param {Object} model - The connection model.
    */
   client.addCommand('inputConnectionDetails', function(model) {
+    console.log('-> inputConnectionDetails');
     const that = this;
     let sequence = Promise.resolve();
 

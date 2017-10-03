@@ -3,6 +3,7 @@ function addWaitStatusBarCommands(client) {
    * Waits for the status bar to finish its progress and unlock the page.
    */
   client.addCommand('waitForStatusBar', function() {
+    console.log('-> waitForStatusBar');
     return this.waitForVisibleInCompass('#statusbar', true);
   });
 }

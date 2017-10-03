@@ -23,6 +23,8 @@ function addWorkflowCommands(client) {
    * Connect to Compass
    */
   client.addCommand('connectToCompass', function(connection) {
+    console.timeEnd('launchCompass -> connectToCompass');
+    console.time('connectToCompass -> getDatabasesTabText');
     return this
       .waitForConnectView()
       .inputConnectionDetails(connection)
@@ -36,6 +38,7 @@ function addWorkflowCommands(client) {
    * Go to collection, assumes refresh is required
    */
   client.addCommand('goToCollection', function(database, collection) {
+    console.log('goToCollection');
     return this
       .clickInstanceRefreshIcon()
       .waitForInstanceRefresh()

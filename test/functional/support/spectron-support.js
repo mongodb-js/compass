@@ -52,12 +52,54 @@ function addCommands(client) {
   addWorkflowCommands(client);
 }
 
+const cleanupElectronChromeDriver = () => {
+  const { spawn } = require('child_process');
+  const killall = spawn('killall', ['chromedriver']);
+
+  killall.stdout.on('data', (data) => {
+    console.log(`ps stdout: ${data}`);
+  });
+
+  killall.stderr.on('data', (data) => {
+    console.log(`ps stderr: ${data}`);
+  });
+
+  killall.on('close', (code) => {
+    if (code !== 0) {
+      console.log(`ps process exited with code ${code}`);
+    }
+  });
+};
+
+const printProcessInfo = () => {
+  // From https://nodejs.org/docs/latest/api/child_process.html#child_process_class_childprocess
+  const { spawn } = require('child_process');
+  const ps = spawn('ps', ['-ef']);
+
+  ps.stdout.on('data', (data) => {
+    console.log(`ps stdout: ${data}`);
+  });
+
+  ps.stderr.on('data', (data) => {
+    console.log(`ps stderr: ${data}`);
+  });
+
+  ps.on('close', (code) => {
+    if (code !== 0) {
+      console.log(`ps process exited with code ${code}`);
+    }
+  });
+};
+
 /**
  * Call launchCompass in beforeEach for all UI tests:
  *
  * @returns {Promise} Promise that resolves when app starts.
  */
 function launchCompass() {
+  printProcessInfo();
+  cleanupElectronChromeDriver();
+  console.time('launchCompass -> connectToCompass');
   return new App(ROOT).launch(addCommands);
 }
 
@@ -65,12 +107,14 @@ function launchCompass() {
  * Call quitCompass in afterEach for all UI tests:
 
  * @param {Object} app - The running application
- * @param {Function} done - The callback to execute when finished.
  *
- * @returns {Promise}    Promise that resolves when app stops.
+ * @returns {Promise}    Promise that resolves when app stops or is undefined.
  */
 function quitCompass(app) {
-  return app.quit();
+  if (app === undefined || app === null) {
+    return Promise.resolve().then(printProcessInfo).then(cleanupElectronChromeDriver);
+  }
+  return app.quit().then(printProcessInfo).then(cleanupElectronChromeDriver);
 }
 
 /**
