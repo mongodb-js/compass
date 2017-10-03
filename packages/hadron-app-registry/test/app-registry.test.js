@@ -84,70 +84,26 @@ describe('AppRegistry', () => {
     });
   });
 
-  describe('#onConnected', () => {
-    context('when the method is defined on the store', () => {
+  describe('#emit data-service-connected', () => {
+    context('when a listener exists', () => {
       let registry;
       let spy = sinon.spy();
       const store = Reflux.createStore({
-        onConnected: (error, ds) => {
-          spy(error, ds);
+        onActivated: (ar) => {
+          ar.on('data-service-connected', (error, ds) => {
+            spy(error, ds);
+          });
         }
       });
 
       beforeEach(() => {
         registry = new AppRegistry().registerStore('TestStore', store);
+        registry.onActivated();
       });
 
       it('calls onConnected on the store', () => {
-        registry.onConnected('error', 'ds');
+        registry.emit('data-service-connected', 'error', 'ds');
         expect(spy.callCount).to.equal(1);
-      });
-    });
-
-    context('when the method is not defined on the store', () => {
-      let registry;
-      const store = Reflux.createStore({});
-
-      beforeEach(() => {
-        registry = new AppRegistry().registerStore('TestStore', store);
-      });
-
-      it('does not call onConnected on the store', () => {
-        expect(registry.onConnected()).to.equal(registry);
-      });
-    });
-  });
-
-  describe('#onDataServiceInitialized', () => {
-    context('when the method is defined on the store', () => {
-      let registry;
-      let spy = sinon.spy();
-      const store = Reflux.createStore({
-        onDataServiceInitialized: (ds) => {
-          spy(ds);
-        }
-      });
-
-      beforeEach(() => {
-        registry = new AppRegistry().registerStore('TestStore', store);
-      });
-
-      it('calls onDataServiceInitialized on the store', () => {
-        registry.onDataServiceInitialized('ds');
-        expect(spy.callCount).to.equal(1);
-      });
-    });
-
-    context('when the method is not defined on the store', () => {
-      let registry;
-      const store = Reflux.createStore({});
-
-      beforeEach(() => {
-        registry = new AppRegistry().registerStore('TestStore', store);
-      });
-
-      it('does not call onDataServiceInitialized on the store', () => {
-        expect(registry.onDataServiceInitialized()).to.equal(registry);
       });
     });
   });

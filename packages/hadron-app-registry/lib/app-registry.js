@@ -1,6 +1,7 @@
 'use strict';
 
 const Reflux = require('reflux');
+const EventEmitter = require('events');
 const Action = require('./actions');
 
 /**
@@ -20,24 +21,7 @@ const STUB_STORE = Reflux.createStore();
  * Is a registry for all user interface components, stores, and actions
  * in the application.
  */
-class AppRegistry {
-
-  /**
-   * Executes the provided function against all stores in the registry.
-   *
-   * @param {Function} fn - The function
-   *
-   * @returns {AppRegistry} This instance.
-   */
-  callOnStores(fn) {
-    for (let key in this.stores) {
-      if (this.stores.hasOwnProperty(key)) {
-        const store = this.stores[key];
-        fn(store);
-      }
-    }
-    return this;
-  }
+class AppRegistry extends EventEmitter {
 
   /**
    * Instantiate the registry.
@@ -45,6 +29,7 @@ class AppRegistry {
    * @todo: Package manager activates at end.
    */
   constructor() {
+    super();
     this.actions = {};
     this.components = {};
     this.stores = {};
@@ -188,40 +173,9 @@ class AppRegistry {
    * @returns {AppRegistry} The app registry.
    */
   onActivated() {
-    return this.callOnStores((store) => {
+    return this._callOnStores((store) => {
       if (store.onActivated) {
         store.onActivated(this);
-      }
-    });
-  }
-
-  /**
-   * Calls onConnected on all the stores in the registry.
-   *
-   * @param {Error} error - The possible error.
-   * @param {DataService} dataService - The connected data service.
-   *
-   * @returns {AppRegistry} The app registry.
-   */
-  onConnected(error, dataService) {
-    return this.callOnStores((store) => {
-      if (store.onConnected) {
-        store.onConnected(error, dataService);
-      }
-    });
-  }
-
-  /**
-   * Calls onDataServiceInitialized on all the stores in the registry.
-   *
-   * @param {DataService} dataService - The data service before connection.
-   *
-   * @returns {AppRegistry} The app registry.
-   */
-  onDataServiceInitialized(dataService) {
-    return this.callOnStores((store) => {
-      if (store.onDataServiceInitialized) {
-        store.onDataServiceInitialized(dataService);
       }
     });
   }
@@ -316,6 +270,16 @@ class AppRegistry {
       Action.storeOverridden(name);
     } else {
       Action.storeRegistered(name);
+    }
+    return this;
+  }
+
+  _callOnStores(fn) {
+    for (let key in this.stores) {
+      if (this.stores.hasOwnProperty(key)) {
+        const store = this.stores[key];
+        fn(store);
+      }
     }
     return this;
   }
