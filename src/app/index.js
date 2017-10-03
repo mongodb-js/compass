@@ -22,8 +22,8 @@ require('./setup-hadron-caches');
 /**
  * The main entrypoint for the application!
  */
-const electron = require('electron');
-const APP_VERSION = electron.remote.app.getVersion();
+// const electron = require('electron');
+// const APP_VERSION = electron.remote.app.getVersion();
 
 const ipc = require('hadron-ipc');
 
@@ -31,7 +31,7 @@ require('./menu-renderer');
 
 const React = require('react');
 const ReactDOM = require('react-dom');
-const AutoUpdate = require('../auto-update');
+// const AutoUpdate = require('../auto-update');
 const { Action } = require('hadron-plugin-manager');
 
 ipc.once('app:launched', function() {
@@ -71,7 +71,8 @@ function fetchUser(done) {
 Action.pluginActivationCompleted.listen(() => {
   // @todo: Remove when all plugins conform to the API.
   app.preferences = app.appRegistry.getStore('Preferences.Store').state.preferences;
-  fetchUser((err, user) => {
+  fetchUser((err) => {
+    if (err) return;
     app.appRegistry.onActivated();
     // @todo: Move to compass-connect.
     // global.hadronApp.appRegistry.onDataServiceInitialized(dataService);

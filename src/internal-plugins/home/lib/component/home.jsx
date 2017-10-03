@@ -70,6 +70,13 @@ class Home extends React.Component {
     return message;
   }
 
+  setupRoles() {
+    this.statusRole = global.app.appRegistry.getRole('Application.Status')[0];
+    this.connectRole = global.app.appRegistry.getRole('Application.Connect')[0];
+    this.preferencesRole = global.app.appRegistry.getRole('Application.Preferences')[0];
+    this.featureTourRole = global.app.appRegistry.getRole('Application.FeatureTour')[0];
+  }
+
   collapseSidebar() {
     this.setState({ collapsed: !this.state.collapsed });
     setTimeout(this.SchemaActions.resizeMiniCharts, COMPASS_SIDEBAR_TRANSITION_TIME_MS);
@@ -79,13 +86,6 @@ class Home extends React.Component {
     if (ChartActions !== undefined) {
       setTimeout(ChartActions.resizeChart, COMPASS_SIDEBAR_TRANSITION_TIME_MS);
     }
-  }
-
-  setupRoles() {
-    this.statusRole = global.app.appRegistry.getRole('Application.Status')[0];
-    this.connectRole = global.app.appRegistry.getRole('Application.Connect')[0];
-    this.preferencesRole = global.app.appRegistry.getRole('Application.Preferences')[0];
-    this.featureTourRole = global.app.appRegistry.getRole('Application.FeatureTour')[0];
   }
 
   renderContent() {
@@ -173,7 +173,7 @@ class Home extends React.Component {
         {this.renderPreferences()}
         {this.renderWorkspace()}
       </div>
-    )
+    );
   }
 }
 

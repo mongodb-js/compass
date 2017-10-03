@@ -1,4 +1,3 @@
-const app = require('hadron-app');
 const HomeComponent = require('./lib/component');
 const HomeStore = require('./lib/store');
 
