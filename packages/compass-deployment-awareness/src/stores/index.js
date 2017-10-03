@@ -15,6 +15,15 @@ const DeploymentAwarenessStore = Reflux.createStore({
   mixins: [StateMixin.store],
 
   /**
+   * Setup listeners to the app registry.
+   *
+   * @param {AppRegistry} appRegistry - The app registry.
+   */
+  onActivated(appRegistry) {
+    appRegistry.on('data-service-initialized', this.onDataServiceInitialized.bind(this));
+  },
+
+  /**
    * When the data service is initialized this is called in order to set up
    * listeners for SDAM events.
    *
