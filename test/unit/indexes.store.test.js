@@ -207,15 +207,17 @@ describe('LoadIndexesStore', () => {
   });
 
   it('does not load indexes for a database-level namespace', () => {
-    NamespaceStore.ns = 'hello';
-    // To make the event coupling clearer, rerun loadIndexes explicitly
-    this.LoadIndexesStore.loadIndexes();
+    const ns = 'hello';
+    this.LoadIndexesStore.loadIndexes(ns);
     expect(this.isReadOnlyStub.called).to.be.false;
   });
   it('loads indexes for a collection-level namespace', () => {
-    NamespaceStore.ns = 'hello.world';
-    // To make the event coupling clearer, rerun loadIndexes explicitly
-    this.LoadIndexesStore.loadIndexes();
+    const ns = 'hello.world';
+    this.LoadIndexesStore.loadIndexes(ns);
+    expect(this.isReadOnlyStub.called).to.be.true;
+  });
+  it('loads indexes during a query change', () => {
+    this.LoadIndexesStore.onQueryChanged({ns: 'hello.world'});
     expect(this.isReadOnlyStub.called).to.be.true;
   });
 });

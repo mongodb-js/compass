@@ -3,6 +3,7 @@ const Reflux = require('reflux');
 const app = require('hadron-app');
 const IndexModel = require('mongodb-index-model');
 const toNS = require('mongodb-ns');
+
 const Actions = require('../action/index-actions');
 
 /**
@@ -15,19 +16,14 @@ const LoadIndexesStore = Reflux.createStore({
    */
   init: function() {
     this.CollectionStore = app.appRegistry.getStore('App.CollectionStore');
-    this.NamespaceStore = app.appRegistry.getStore('App.NamespaceStore');
     this.listenTo(Actions.loadIndexes, this.loadIndexes);
   },
 
   /**
-   * Load the indexes.
+   * Load the indexes on query change
+   * @param {Object} ns namespace to load indexes on
    */
-  loadIndexes: function() {
-    const ns = this.NamespaceStore.ns;
-    this.onCollectionChanged(ns); // Could also be onDatabaseChanged
-  },
-
-  onCollectionChanged(ns) {
+  loadIndexes(ns) {
     if (ns && toNS(ns).collection) {
       if (this.CollectionStore.isReadonly()) {
         this.trigger([]);
@@ -43,20 +39,14 @@ const LoadIndexesStore = Reflux.createStore({
     }
   },
 
-  onDatabaseChanged(ns) {
-    if (ns && toNS(ns).collection) {
-      if (this.CollectionStore.isReadonly()) {
-        this.trigger([]);
-      } else {
-        app.dataService.indexes(ns, {}, (err, indexes) => {
-          if (err) {
-            this.trigger([], err);
-          } else {
-            this.trigger(this._convertToModels(indexes));
-          }
-        });
-      }
-    }
+  /**
+   * Triggers on query change (Includes namespace changes)
+   * TODO: link to the query-bar plugin and indicate this is a lifecyle method
+   *
+   * @param{Object} query the query changed state
+   */
+  onQueryChanged(query) {
+    this.loadIndexes(query.ns);
   },
 
   /**

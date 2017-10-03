@@ -3,9 +3,6 @@ const QueryStore = require('./query-store');
 const StateMixin = require('reflux-state-mixin');
 const app = require('hadron-app');
 
-// By-passing hadron-app because of poor handling with store tests
-const IndexesActions = require('../../../indexes/lib/action/index-actions');
-
 const _ = require('lodash');
 const debug = require('debug')('mongodb-compass:stores:query-changed');
 
@@ -74,8 +71,6 @@ const QueryChangedStore = Reflux.createStore({
       newState.maxTimeMS = state.maxTimeMS;
       newState.ns = state.ns;
       this.setState(newState);
-      // reload indexes if this convenience store has changed
-      IndexesActions.loadIndexes();
 
       // Call onQueryChanged lifecycle method
       const registry = app.appRegistry;
