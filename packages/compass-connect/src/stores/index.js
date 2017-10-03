@@ -391,6 +391,7 @@ const ConnectStore = Reflux.createStore({
       this.updateDefaults();
       this.dataService = new DataService(connection);
       this.dataService.connect((err, ds) => {
+        global.hadronApp.appRegistry.onDataServiceInitialized(ds);
         this.StatusActions.done();
         if (err) {
           return this.setState({ isValid: false, errorMessage: err.message });
