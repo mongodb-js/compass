@@ -44,8 +44,6 @@ ipc.once('app:launched', function() {
 marky.mark('Loading styles');
 const setupStyleManager = require('./setup-style-manager');
 setupStyleManager('index.less', () => {
-  // @todo: Remove this.
-  require('./reflux-listen-to-external-store');
   window.app = app;
   marky.stop('Loading styles');
   require('./setup-plugin-manager');
