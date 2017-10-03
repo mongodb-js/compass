@@ -8,6 +8,7 @@ function addWaitSidebarCommands(client) {
    * @param {String} type - One of database or collection.
    */
   client.addCommand('waitForSidebar', function(type) {
+    console.log('waitForSidebar');
     return this.waitForVisibleInCompass(selector('sidebar-' + type));
   });
 
@@ -15,6 +16,7 @@ function addWaitSidebarCommands(client) {
    * Wait for the instance refresh to finish.
    */
   client.addCommand('waitForInstanceRefresh', function() {
+    console.log('waitForInstanceRefresh');
     const button = selector('instance-refresh-button');
     const icon = `${button} i.fa-spin`;
     return this.waitForVisibleInCompass(icon, true);
@@ -35,6 +37,7 @@ function addClickSidebarCommands(client) {
    * Click the instance refresh button in the top right corner of the sidebar.
    */
   client.addCommand('clickInstanceRefreshIcon', function() {
+    console.log('clickInstanceRefreshIcon');
     const button = selector('instance-refresh-button');
     return this
       .waitForVisibleInCompass(button).click(button);
@@ -46,6 +49,7 @@ function addClickSidebarCommands(client) {
    * @param {String} name - The full collection name.
    */
   client.addCommand('clickCollectionInSidebar', function(name) {
+    console.log('clickCollectionInSidebar');
     const base = `${selector('sidebar-collection')}[title='${name}']`;
     return this.waitForVisibleInCompass(base).click(base);
   });
@@ -56,6 +60,7 @@ function addClickSidebarCommands(client) {
    * @param {String} name - The database name.
    */
   client.addCommand('clickDatabaseInSidebar', function(name) {
+    console.log('clickDatabaseInSidebar');
     const base = `${selector('sidebar-database')}[title='${name}']`;
     return this.waitForVisibleInCompass(base).click(base);
   });
