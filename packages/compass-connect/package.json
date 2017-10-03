@@ -34,9 +34,9 @@
   "devDependencies": {
     "@kadira/react-storybook-addon-info": "^3.2.1",
     "@kadira/storybook": "^2.3.0",
-    "@mongodb-js/compass-auth-kerberos": "0.0.1",
-    "@mongodb-js/compass-auth-ldap": "0.0.1",
-    "@mongodb-js/compass-auth-x509": "0.0.2",
+    "@mongodb-js/compass-auth-kerberos": "^0.0.2",
+    "@mongodb-js/compass-auth-ldap": "^0.0.2",
+    "@mongodb-js/compass-auth-x509": "^0.0.3",
     "@mongodb-js/compass-status": "^1.0.0",
     "babel-cli": "^6.10.1",
     "babel-plugin-transform-class-properties": "^6.24.1",
