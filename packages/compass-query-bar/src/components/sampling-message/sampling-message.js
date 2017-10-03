@@ -1,10 +1,13 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
+import classnames from 'classnames';
 import app from 'hadron-app';
 import { InfoSprinkle } from 'hadron-react-components';
 import { shell } from 'electron';
 import numeral from 'numeral';
 import pluralize from 'pluralize';
+
+import styles from './sampling-message.less';
 
 /**
  * The help URLs for things like the Documents tab.
@@ -142,7 +145,7 @@ class SamplingMessage extends Component {
     const noun = pluralize('document', count);
 
     return (
-      <div className="sampling-message">
+      <div className={classnames(styles.component)}>
         Query returned&nbsp;
         <b>{count}</b>&nbsp;{noun}.
         This report is based on a sample of&nbsp;

@@ -6,6 +6,8 @@ import CM from 'codemirror';
 import { InfoSprinkle } from 'hadron-react-components';
 import { shell } from 'electron';
 
+import styles from './query-option.less';
+
 // Add the mongodb hint to codemirror
 require('codemirror-mongodb/addon/hint/mongodb-hint');
 
@@ -145,12 +147,13 @@ class QueryOption extends Component {
   };
 
   _getInnerClassName() {
-    const { label, hasToggle } = this.props;
+    const { label, inputType, hasToggle } = this.props;
 
     return classnames(
-      'querybar-option-input',
-      { [`input-${label}`]: true },
-      { ['querybar-option-has-toggle']: hasToggle }
+      styles.input,
+      { [ styles[`input-${label}`] ]: label },
+      { [ styles[`input-${inputType}`] ]: inputType },
+      { [ styles['has-toggle'] ]: hasToggle }
     );
   }
 
@@ -190,6 +193,7 @@ class QueryOption extends Component {
         input: this.props.label
       }
     };
+
     return (
       <CodeMirror
         data-test-id="query-bar-option-input"
@@ -230,9 +234,9 @@ class QueryOption extends Component {
     }
 
     const _className = classnames(
-      'querybar-option',
-      { [`querybar-option-is-${inputType}-type`]: true },
-      { ['querybar-option-has-error']: hasError }
+      styles.component,
+      { [ styles[`is-${inputType}-type`] ]: true },
+      { [ styles['has-error'] ]: hasError }
     );
 
     return (
@@ -240,7 +244,7 @@ class QueryOption extends Component {
         className={_className}
         data-test-id="query-bar-option">
         <div
-          className="querybar-option-label"
+          className={classnames(styles.label)}
           data-test-id="query-bar-option-label">
           <InfoSprinkle
             helpLink={link}

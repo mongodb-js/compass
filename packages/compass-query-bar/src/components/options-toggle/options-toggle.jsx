@@ -3,6 +3,8 @@ import PropTypes from 'prop-types';
 import classnames from 'classnames';
 import FontAwesome from 'react-fontawesome';
 
+import styles from './options-toggle.less';
+
 class OptionsToggle extends PureComponent {
   static displayName = 'OptionsToggle';
 
@@ -28,8 +30,8 @@ class OptionsToggle extends PureComponent {
       'btn',
       'btn-default',
       'btn-xs',
-      'querybar-options-toggle',
-      { ['querybar-options-toggle-open']: expanded },
+      styles.component,
+      { [ styles['is-open'] ]: expanded },
       className
     );
 

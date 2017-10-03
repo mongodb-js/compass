@@ -1,0 +1,123 @@
+@import "~less/compass/_theme.less";
+
+.component {
+  display: flex;
+  align-items: center;
+  height: 28px;
+  padding: 0 5px;
+  border-top: 1px solid @gray7;
+  overflow: scroll;
+  width: 100%;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
+
+  &.has-error {
+    .label {
+      background: @alertRed;
+    }
+  }
+}
+
+.is-document-type {
+  flex-grow: 10;
+}
+
+.is-numeric-type {
+  flex-basis: 140px;
+}
+
+.is-boolean-type {
+  flex-basis: 130px;
+}
+
+.label {
+  background: @gray5;
+  color: @pw;
+  white-space: nowrap;
+  border-radius: 14px;
+  padding: 2px 5px;
+  margin-right: 5px;
+  text-transform: uppercase;
+  font-weight: bold;
+  font-family: "Akzidenz", "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-size: 11px;
+  flex-grow: 0;
+
+  // TODO: CSS-modules on Info Sprinkle styles in dependency repo
+  :global {
+    .info-sprinkle {
+      margin-left: inherit;
+      margin-right: 3px;
+      font-size: 11px;
+      color: @pw;
+      top: 0px;
+
+      &:hover {
+        opacity: 1;
+        color: white;
+      }
+    }
+  }
+}
+
+.input {
+  flex-grow: 10;
+  width: 0;
+  border: none;
+  font-family: @font-family-monospace;
+  font-size: 12px;
+  outline: none;
+
+  &.has-toggle {
+    padding-right: 85px;
+    width: calc(~"100% - 60px")!important;
+  }
+
+  // TODO: CSS-modules Code-Mirror styles in dependency repo
+  :global {
+    .CodeMirror {
+      height: auto;
+      font-family: Menlo, Monaco, Consolas, "Courier New", monospace;
+    }
+
+    ul.CodeMirror-hints {
+      margin: 2px 0 0;
+      padding: 3px;
+      font-size: 12px;
+      text-align: left;
+      background-color: #fff;
+      border: 1px solid rgba(0, 0, 0, 0.15);
+      border-radius: 4px;
+      box-shadow: 0 6px 12px rgba(0, 0, 0, 0.175);
+      min-width: 160px;
+      z-index: 500;
+    }
+
+    .CodeMirror-placeholder {
+      color: @gray3;
+    }
+
+    li.CodeMirror-hint {
+      padding: 3px 8px;
+    }
+
+    li.CodeMirror-hint-active {
+      color: white;
+      background: linear-gradient(180deg, #2469BE 0%, #11509E 100%);
+      border-radius: 2px;
+      outline: none;
+    }
+
+    .cm-s-mongodb .CodeMirror-matchingbracket {
+        outline: 0;
+        border-bottom: 1px solid grey;
+    }
+  }
+}
+
+.input-boolean {
+  position: relative;
+  top: -2px;
+}
