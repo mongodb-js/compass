@@ -3,8 +3,6 @@ const { StoreConnector } = require('hadron-react-components');
 const Home = require('./home');
 const HomeStore = require('../store');
 
-// const debug = require('debug')('mongodb-compass:home:index');
-
 class ConnectedHome extends React.Component {
 
   /**
@@ -15,7 +13,7 @@ class ConnectedHome extends React.Component {
   render() {
     return (
       <StoreConnector store={HomeStore}>
-        <Home />
+        <Home {...this.props} />
       </StoreConnector>
     );
   }

@@ -11,7 +11,6 @@ const HomeStore = Reflux.createStore({
   mixins: [StateMixin.store],
 
   onActivated(appRegistry) {
-    // set up listeners on external stores
     appRegistry.getStore('App.InstanceStore').listen(this.onInstanceChange.bind(this));
   },
 
@@ -27,7 +26,8 @@ const HomeStore = Reflux.createStore({
     return {
       errorMessage: '',
       namespace: '',
-      uiStatus: UI_STATES.INITIAL
+      uiStatus: UI_STATES.INITIAL,
+      isConnected: false
     };
   },
 
@@ -40,7 +40,8 @@ const HomeStore = Reflux.createStore({
     });
 
     this.setState({
-      uiStatus: UI_STATES.LOADING
+      uiStatus: UI_STATES.LOADING,
+      isConnected: true
     });
   },
 

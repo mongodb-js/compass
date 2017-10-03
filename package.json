@@ -42,7 +42,13 @@
             "node_modules/@mongodb-js/compass-charts",
             "node_modules/@mongodb-js/compass-crud",
             "node_modules/@mongodb-js/compass-query-history",
-            "node_modules/@mongodb-js/compass-status"
+            "node_modules/@mongodb-js/compass-status",
+            "node_modules/@mongodb-js/compass-connect",
+            "node_modules/@mongodb-js/compass-auth-ldap",
+            "node_modules/@mongodb-js/compass-auth-kerberos",
+            "node_modules/@mongodb-js/compass-auth-x509",
+            "node_modules/@mongodb-js/compass-preferences",
+            "node_modules/@mongodb-js/compass-feature-tour"
           ],
           "styles": [
             "index"
@@ -57,7 +63,10 @@
             "node_modules/@mongodb-js/compass-charts",
             "node_modules/@mongodb-js/compass-crud",
             "node_modules/@mongodb-js/compass-query-history",
-            "node_modules/@mongodb-js/compass-status"
+            "node_modules/@mongodb-js/compass-status",
+            "node_modules/@mongodb-js/compass-connect",
+            "node_modules/@mongodb-js/compass-preferences",
+            "node_modules/@mongodb-js/compass-feature-tour"
           ],
           "styles": [
             "index"
@@ -130,10 +139,16 @@
     "url": "git://github.com/10gen/compass.git"
   },
   "dependencies": {
+    "@mongodb-js/compass-auth-kerberos": "0.0.1",
+    "@mongodb-js/compass-auth-ldap": "0.0.1",
+    "@mongodb-js/compass-auth-x509": "0.0.2",
     "@mongodb-js/compass-charts": "^0.2.3",
+    "@mongodb-js/compass-connect": "0.0.1",
     "@mongodb-js/compass-crud": "0.6.0",
     "@mongodb-js/compass-deployment-awareness": "3.2.0",
     "@mongodb-js/compass-document-validation": "4.1.0",
+    "@mongodb-js/compass-feature-tour": "0.0.2",
+    "@mongodb-js/compass-preferences": "0.0.3",
     "@mongodb-js/compass-query-history": "^1.0.1",
     "@mongodb-js/compass-serverstats": "9.1.1",
     "@mongodb-js/compass-status": "1.0.0",

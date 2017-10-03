@@ -50,6 +50,7 @@ class Home extends React.Component {
     this.DropCollectionDialog = app.appRegistry.getComponent('Database.DropCollectionDialog');
     this.InstanceHeader = app.appRegistry.getComponent('InstanceHeader.Component');
     this.SchemaActions = app.appRegistry.getAction('Schema.Actions');
+    this.setupRoles();
   }
 
   componentWillMount() {
@@ -80,6 +81,13 @@ class Home extends React.Component {
     }
   }
 
+  setupRoles() {
+    this.statusRole = global.app.appRegistry.getRole('Application.Status')[0];
+    this.connectRole = global.app.appRegistry.getRole('Application.Connect')[0];
+    this.preferencesRole = global.app.appRegistry.getRole('Application.Preferences')[0];
+    this.featureTourRole = global.app.appRegistry.getRole('Application.FeatureTour')[0];
+  }
+
   renderContent() {
     if (this.props.uiStatus === UI_STATES.LOADING) {
       // Handled by the <Status> component
@@ -107,7 +115,38 @@ class Home extends React.Component {
     return view;
   }
 
-  render() {
+  renderConnect() {
+    if (this.connectRole) {
+      return (<this.connectRole.component />);
+    }
+  }
+
+  renderStatus() {
+    if (this.statusRole) {
+      return (<this.statusRole.component />);
+    }
+  }
+
+  renderFeatureTour() {
+    if (this.featureTourRole) {
+      return (<this.featureTourRole.component />);
+    }
+  }
+
+  renderPreferences() {
+    if (this.preferencesRole) {
+      return (<this.preferencesRole.component />);
+    }
+  }
+
+  renderWorkspace() {
+    if (this.props.isConnected) {
+      return this.renderHome();
+    }
+    return this.renderConnect();
+  }
+
+  renderHome() {
     return (
       <div className="page-container" data-test-id="home-view">
         <this.InstanceHeader sidebarCollapsed={this.state.collapsed}/>
@@ -125,9 +164,21 @@ class Home extends React.Component {
       </div>
     );
   }
+
+  render() {
+    return (
+      <div>
+        {this.renderStatus()}
+        {this.renderFeatureTour()}
+        {this.renderPreferences()}
+        {this.renderWorkspace()}
+      </div>
+    )
+  }
 }
 
 Home.propTypes = {
+  isConnected: PropTypes.bool,
   errorMessage: PropTypes.string,
   namespace: PropTypes.string,
   uiStatus: PropTypes.string

@@ -14,7 +14,6 @@ const ICON_PATH = path.join(__dirname, '..', 'images', 'compass-dialog-icon.png'
 
 const debug = require('debug')('mongodb-compass:metrics:setup');
 
-
 const INTERCOM_KEY = 'p57suhg7';
 const BUGSNAG_KEY = '0d11ab5f4d97452cc83d3365c21b491c';
 
