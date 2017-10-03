@@ -12,12 +12,14 @@ const ServerStatsStore = Reflux.createStore({
     this.listenTo(Actions.pause, this.pause);
   },
 
-  onConnected: function(error, dataService) {
-    if (!error) {
-      this.dataService = dataService;
-      this.isMongos = dataService.isMongos();
-      this.isWritable = dataService.isWritable();
-    }
+  onActivated: function(appRegistry) {
+    appRegistry.on('data-service-connected', (err, ds) => {
+      if (!err) {
+        this.dataService = ds;
+        this.isMongos = ds.isMongos();
+        this.isWritable = ds.isWritable();
+      }
+    });
   },
 
   restart: function() {

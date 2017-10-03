@@ -27,11 +27,11 @@ const CurrentOpStore = Reflux.createStore({
     this.listenTo(Actions.mouseOut, this.mouseOut);
   },
 
-  onConnected: function(error, dataService) {
-    if (error) {
-      throw error;
-    }
-    this.dataService = dataService;
+  onActivated: function(appRegistry) {
+    appRegistry.on('data-service-connected', (err, ds) => {
+      if (err) throw err;
+      this.dataService = ds;
+    });
   },
 
   restart: function() {

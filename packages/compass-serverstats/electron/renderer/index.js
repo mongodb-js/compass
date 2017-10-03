@@ -32,7 +32,7 @@ global.hadronApp.instance = { host: { cpu_cores: 4 } };
 const dataService = new DataService(CONNECTION);
 dataService.connect((error, ds) => {
   global.hadronApp.appRegistry.onActivated();
-  global.hadronApp.appRegistry.onConnected(error, ds);
+  global.hadronApp.appRegistry.emit('data-service-connected', error, ds);
   ReactDOM.render(
     React.createElement(PerformanceComponent),
     document.getElementById('container')
