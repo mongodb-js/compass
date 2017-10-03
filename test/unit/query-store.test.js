@@ -3,7 +3,7 @@
 const expect = require('chai').expect;
 const assert = require('assert');
 
-let QueryStore = require('../../src/internal-packages/query/lib/store/query-store');
+let QueryStore = require('../../src/internal-plugins/query/lib/store/query-store');
 
 // const debug = require('debug')('mongodb-compass:test:query-store')
 
