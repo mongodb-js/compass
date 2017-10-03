@@ -22,8 +22,8 @@ require('./setup-hadron-caches');
 /**
  * The main entrypoint for the application!
  */
-// const electron = require('electron');
-// const APP_VERSION = electron.remote.app.getVersion();
+const electron = require('electron');
+const APP_VERSION = electron.remote.app.getVersion();
 
 const ipc = require('hadron-ipc');
 
@@ -67,16 +67,18 @@ function fetchUser(done) {
 }
 
 Action.pluginActivationCompleted.listen(() => {
-  // @todo: Remove when all plugins conform to the API.
+  // @todo: Remove preferences code/init when all plugins conform to the API.
+  app.appRegistry.callOnStores((store) => {
+    if (store.onInitialized) {
+      store.onInitialized(APP_VERSION);
+    }
+  });
   app.preferences = app.appRegistry.getStore('Preferences.Store').state.preferences;
+
   fetchUser((err) => {
     if (err) return;
     app.appRegistry.onActivated();
-    // @todo: Move to compass-connect.
-    // global.hadronApp.appRegistry.onDataServiceInitialized(dataService);
-    ipc.call('window:renderer-ready');
 
-    // as soon as dom is ready, render and set up the rest
     /**
      * When all the plugins are converted to the new templates and Compass
      * itself is using Webpack, we can remove the compile cache and the
@@ -84,6 +86,8 @@ Action.pluginActivationCompleted.listen(() => {
      */
     const WORKSPACE = 'Application.Workspace';
     const workspaceRole = app.appRegistry.getRole(WORKSPACE)[0].component;
+
+    ipc.call('window:renderer-ready');
 
     ReactDOM.render(
       React.createElement(workspaceRole),
@@ -94,4 +98,3 @@ Action.pluginActivationCompleted.listen(() => {
     marky.stop('Time to user can Click Connect');
   });
 });
-
