@@ -22,6 +22,16 @@ const PageChangedStore = Reflux.createStore({
   },
 
   /**
+   * Registry the event listeners.
+   *
+   * @param {AppRegistry} appRegistry - The app registry.
+   */
+  onActivated(appRegistry) {
+    appRegistry.on('collection-changed', this.onCollectionChanged.bind(this));
+    appRegistry.on('query-changed', this.onQueryChanged.bind(this));
+  },
+
+  /**
    * Change the ns when the collection changes.
    *
    * @param {String} ns - The namespace.

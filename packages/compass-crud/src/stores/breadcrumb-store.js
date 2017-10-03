@@ -24,6 +24,15 @@ const BreadcrumbStore = Reflux.createStore( {
   },
 
   /**
+   * Registry the event listeners.
+   *
+   * @param {AppRegistry} appRegistry - The app registry.
+   */
+  onActivated(appRegistry) {
+    appRegistry.on('collection-changed', this.onCollectionChanged.bind(this));
+  },
+
+  /**
    * Plugin lifecycle method that is called when the namespace changes in
    * Compass. Trigger with new namespace and cleared path/types.
    *
