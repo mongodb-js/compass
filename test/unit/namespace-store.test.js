@@ -1,7 +1,6 @@
 const app = require('hadron-app');
 const AppRegistry = require('hadron-app-registry');
 const { expect } = require('chai');
-const Reflux = require('reflux');
 const NamespaceStore = require('../../src/internal-plugins/app/lib/stores/namespace-store');
 
 /**

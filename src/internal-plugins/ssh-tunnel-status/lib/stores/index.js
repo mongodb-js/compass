@@ -1,4 +1,3 @@
-const app = require('hadron-app');
 const Reflux = require('reflux');
 const StateMixin = require('reflux-state-mixin');
 const SSHTunnelStatusAction = require('../actions');
@@ -32,6 +31,7 @@ const SSHTunnelStatusStore = Reflux.createStore({
    * and sets the new state.
    */
   onConnected(err, ds) {
+    if (err) return;
     const sshTunnel = ds.client.model.ssh_tunnel !== 'NONE';
     const sshTunnelHostname = sshTunnel ? ds.client.model.ssh_tunnel_hostname : '';
     const sshTunnelPort = sshTunnel ? ds.client.model.ssh_tunnel_options.dstPort : '';

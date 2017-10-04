@@ -1,4 +1,3 @@
-const app = require('hadron-app');
 const Reflux = require('reflux');
 const StateMixin = require('reflux-state-mixin');
 const electronApp = require('electron').remote.app;
