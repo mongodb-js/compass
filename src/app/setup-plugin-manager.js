@@ -6,7 +6,7 @@ const AppRegistry = require('hadron-app-registry');
 const PluginManager = require('hadron-plugin-manager');
 const debug = require('debug')('mongodb-compass:setup-plugin-manager');
 
-app.appRegistry = new AppRegistry();
+app.appRegistry = new AppRegistry().setMaxListeners(50);
 
 /**
  * Location of the internal plugins.

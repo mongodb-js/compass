@@ -2,6 +2,12 @@
 <html lang="en">
   <head>
     <meta name="viewport" content="initial-scale=1">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self' 'unsafe-eval' blob:;
+      img-src * data: blob:;
+      style-src * 'unsafe-inline';
+      connect-src https://compass-maps.mongodb.com https://stitch.mongodb.com https://*.intercom.io wss://*.intercom.io https://app.getsentry.com;
+      script-src 'self' https://intercom.io https://*.intercom.io https://js.intercomcdn.com 'unsafe-eval';
+      font-src * https://js.intercomcdn.com;">
   </head>
   <body>
     <div id="application">
