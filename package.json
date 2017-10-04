@@ -131,7 +131,7 @@
   },
   "dependencies": {
     "@mongodb-js/compass-charts": "^0.5.0",
-    "@mongodb-js/compass-crud": "^0.7.0",
+    "@mongodb-js/compass-crud": "^0.7.1",
     "@mongodb-js/compass-deployment-awareness": "^4.0.0",
     "@mongodb-js/compass-document-validation": "^5.0.0",
     "@mongodb-js/compass-query-history": "^2.0.0",
@@ -188,7 +188,7 @@
     "marky": "^1.2.0",
     "moment": "^2.10.6",
     "mongodb-collection-model": "^0.4.0",
-    "mongodb-connection-model": "^9.0.0",
+    "mongodb-connection-model": "^10.1.2",
     "mongodb-data-service": "^8.0.0",
     "mongodb-database-model": "^0.1.2",
     "mongodb-explain-plan-model": "^0.2.2",
