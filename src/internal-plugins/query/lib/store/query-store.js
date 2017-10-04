@@ -55,7 +55,7 @@ const QueryStore = Reflux.createStore({
     this.QueryHistoryActions = appRegistry.getAction('QueryHistory.Actions');
     this.QueryHistoryActions.runQuery.listen(this.autoPopulateQuery.bind(this));
     appRegistry.on('collection-changed', this.onCollectionChanged.bind(this));
-    appRegistry.on('database-changed', this.onDatbaseChanged.bind(this));
+    appRegistry.on('database-changed', this.onDatabaseChanged.bind(this));
   },
 
   /*
