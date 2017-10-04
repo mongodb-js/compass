@@ -44,7 +44,7 @@ const NamespaceStore = Reflux.createStore({
         registry.emit('database-changed', ns);
       }
       if (oldNs.database !== newNs.database || oldNs.collection !== newNs.collection) {
-        registry.emit('collection-changed', ns)'
+        registry.emit('collection-changed', ns);
       }
     } else {
       debug('Error: AppRegistry not available');
