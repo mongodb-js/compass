@@ -134,7 +134,7 @@
     "@mongodb-js/compass-crud": "^0.7.1",
     "@mongodb-js/compass-deployment-awareness": "^4.0.0",
     "@mongodb-js/compass-document-validation": "^5.0.0",
-    "@mongodb-js/compass-query-history": "^2.0.0",
+    "@mongodb-js/compass-query-history": "^2.0.1",
     "@mongodb-js/compass-serverstats": "^10.0.0",
     "@mongodb-js/compass-status": "^2.0.0",
     "ampersand-collection": "^1.5.0",
