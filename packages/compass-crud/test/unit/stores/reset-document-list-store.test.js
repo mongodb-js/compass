@@ -1,6 +1,7 @@
 const { expect } = require('chai');
 const Connection = require('mongodb-connection-model');
 const DataService = require('mongodb-data-service');
+const AppRegistry = require('hadron-app-registry');
 const ResetDocumentListStore = require('../../../lib/stores/reset-document-list-store');
 
 const CONNECTION = new Connection({
@@ -15,6 +16,9 @@ describe('ResetDocumentListStore', () => {
 
   before((done) => {
     global.hadronApp.dataService = dataService;
+    global.hadronApp.appRegistry = new AppRegistry();
+    global.hadronApp.appRegistry.registerStore('CRUD.Store', ResetDocumentListStore);
+    global.hadronApp.appRegistry.onActivated();
     dataService.connect(() => {
       done();
     });
@@ -23,6 +27,7 @@ describe('ResetDocumentListStore', () => {
   after(() => {
     dataService.disconnect();
     global.hadronApp.dataService = undefined;
+    global.hadronApp.appRegistry = undefined;
   });
 
   describe('#init', () => {
@@ -71,6 +76,29 @@ describe('ResetDocumentListStore', () => {
       });
 
       ResetDocumentListStore.onQueryChanged(query);
+    });
+  });
+
+  describe('#emit query-changed', () => {
+    const query = {
+      ns: 'compass-crud.test',
+      filter: { name: 'test' },
+      sort: { name: 1 },
+      limit: 10,
+      skip: 5,
+      project: { name: 1 }
+    };
+
+    it('tiggers with the reset documents', (done) => {
+      const unsubscribe = ResetDocumentListStore.listen((error, docs, count) => {
+        expect(error).to.equal(null);
+        expect(docs).to.deep.equal([]);
+        expect(count).to.equal(0);
+        unsubscribe();
+        done();
+      });
+
+      global.hadronApp.appRegistry.emit('query-changed', query);
     });
   });
 });

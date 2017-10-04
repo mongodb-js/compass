@@ -1,6 +1,7 @@
 const { expect } = require('chai');
 const Connection = require('mongodb-connection-model');
 const DataService = require('mongodb-data-service');
+const AppRegistry = require('hadron-app-registry');
 const InsertDocumentStore = require('../../../lib/stores/insert-document-store');
 
 const CONNECTION = new Connection({
@@ -15,6 +16,9 @@ describe('InsertDocumentStore', () => {
 
   before((done) => {
     global.hadronApp.dataService = dataService;
+    global.hadronApp.appRegistry = new AppRegistry();
+    global.hadronApp.appRegistry.registerStore('CRUD.Store', InsertDocumentStore);
+    global.hadronApp.appRegistry.onActivated();
     dataService.connect(() => {
       done();
     });
@@ -23,6 +27,7 @@ describe('InsertDocumentStore', () => {
   after(() => {
     dataService.disconnect();
     global.hadronApp.dataService = undefined;
+    global.hadronApp.appRegistry = undefined;
   });
 
   describe('#init', () => {
@@ -45,10 +50,39 @@ describe('InsertDocumentStore', () => {
     });
   });
 
+  describe('#emit collection-changed', () => {
+    before(() => {
+      global.hadronApp.appRegistry.emit('collection-changed', 'compass-crud.test');
+    });
+
+    after(() => {
+      InsertDocumentStore.onCollectionChanged(undefined);
+    });
+
+    it('sets the namespace', () => {
+      expect(InsertDocumentStore.ns).to.equal('compass-crud.test');
+    });
+  });
+
   describe('#onQueryChanged', () => {
     const filter = { name: 'test' };
     before(() => {
       InsertDocumentStore.onQueryChanged({ ns: 'compass-crud.test', filter: filter });
+    });
+
+    after(() => {
+      InsertDocumentStore.onQueryChanged({ ns: 'compass-crud.test', filter: {}});
+    });
+
+    it('sets the filter', () => {
+      expect(InsertDocumentStore.filter).to.deep.equal(filter);
+    });
+  });
+
+  describe('#emit query-changed', () => {
+    const filter = { name: 'test' };
+    before(() => {
+      global.hadronApp.appRegistry.emit('query-changed', { ns: 'compass-crud.test', filter: filter });
     });
 
     after(() => {

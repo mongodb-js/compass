@@ -61,14 +61,9 @@ const QueryChangedStore = Reflux.createStore({
       newState.maxTimeMS = state.maxTimeMS;
       newState.ns = state.ns;
       this.setState(newState);
-      // Call onQueryChanged lifecycle method
       const registry = app.appRegistry;
       if (registry) {
-        registry.callOnStores(function(store) {
-          if (store.onQueryChanged) {
-            store.onQueryChanged(newState);
-          }
-        });
+        registry.emit('query-changed', newState);
       } else {
         debug('Error: AppRegistry not available for query-changed-store');
       }

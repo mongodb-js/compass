@@ -50,11 +50,11 @@ appRegistry.registerComponent('DeploymentAwareness.TextWriteButton', TextWriteBu
 appRegistry.onActivated();
 
 const dataService = new DataService(CONNECTION);
-appRegistry.onDataServiceInitialized(dataService);
+appRegistry.emit('data-service-initialized', dataService);
 
 dataService.connect((error, ds) => {
   global.hadronApp.dataService = ds;
-  global.hadronApp.appRegistry.onConnected(error, ds);
+  appRegistry.emit('data-service-connected', error, ds);
 
   // Set the namespace for the CRUD plugin.
   CollectionStore.setCollection({ _id: `${DB}.${COLL}` });
