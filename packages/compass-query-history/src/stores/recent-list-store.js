@@ -37,14 +37,19 @@ const RecentListStore = Reflux.createStore({
   /**
    * Plugin lifecycle method that is called when Compass is connected.
    * Fetches the saved recent queries from disk.
+   *
+   * @param {AppRegistry} appRegistry - The app registry.
    */
   onActivated(appRegistry) {
-    appRegistry.on('data-service-connected', () => {
-      this.state.items.fetch({
-        success: () => {
-          this.trigger(this.state);
-        }
-      });
+    appRegistry.on('data-service-connected', this.onConnected.bind(this));
+    appRegistry.on('query-applied', this.onQueryApplied.bind(this));
+  },
+
+  onConnected() {
+    this.state.items.fetch({
+      success: () => {
+        this.trigger(this.state);
+      }
     });
   },
 

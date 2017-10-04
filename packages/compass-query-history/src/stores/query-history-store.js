@@ -23,8 +23,12 @@ const QueryHistoryStore = Reflux.createStore({
 
   /**
    * Initialize everything that is not part of the store's state.
+   *
+   * @param {AppRegistry} appRegistry - The app registry.
    */
-  init() {
+  onActivated(appRegistry) {
+    appRegistry.on('collection-changed', this.onCollectionChanged.bind(this));
+    appRegistry.on('database-changed', this.onDatabaseChanged.bind(this));
   },
 
   showFavorites() {
@@ -50,16 +54,6 @@ const QueryHistoryStore = Reflux.createStore({
       collapsed: !this.state.collapsed
     });
   },
-
-  /**
-   * Plugin lifecycle method that is called when the query changes in Compass.
-   *
-   * @param {object} query - the new query.
-   */
-  // Commented out because of https://jira.mongodb.org/browse/COMPASS-1619s
-  // onQueryChanged(query) {
-  //   Actions.addRecent(query);
-  // },
 
   /**
    * Plugin lifecycle method that is called when the namespace changes in Compass.

@@ -13,6 +13,8 @@ const FavoriteListStore = Reflux.createStore({
 
   /**
    * Get the queries stored on disk.
+   *
+   * @param {AppRegistry} appRegistry - The app registry.
    */
   onActivated(appRegistry) {
     appRegistry.on('data-service-connected', () => {
