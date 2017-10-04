@@ -1,25 +1,37 @@
 import Store from 'stores';
+import AppRegistry from 'hadron-app-registry';
 
-// TODO: Update unit tests
-describe.skip('QueryBarStore [Store]', () => {
-  beforeEach(function() {
-    Store.setState( Store.getInitialState() );
+describe('QueryBarStore [Store]', () => {
+  const registry = new AppRegistry();
+
+  before(() => {
+    registry.registerStore('QueryBarStore', Store);
+    registry.onActivated();
   });
 
-  it('should have an initial state of {status: \'enabled\'}', function() {
-    expect(Store.state.status).to.be.equal('enabled');
+  beforeEach(() => {
+    Store.setState(Store.getInitialState());
   });
 
-  describe('toggleStatus()', function() {
-    it('should switch the state to {status: \'disabled\'}', function() {
-      Store.toggleStatus();
-      expect(Store.state.status).to.be.equal('disabled');
+  describe('AppRegistry#emit collection-changed', () => {
+    it('updates the namespace', (done) => {
+      const unsubscribe = Store.listen((state) => {
+        unsubscribe();
+        expect(state.ns).to.equal('db.test');
+        done();
+      });
+      registry.emit('collection-changed', 'db.test');
     });
+  });
 
-    it('should switch the state back to {status: \'enabled\'} when used a second time', function() {
-      Store.toggleStatus();
-      Store.toggleStatus();
-      expect(Store.state.status).to.be.equal('enabled');
+  describe('AppRegistry#emit database-changed', () => {
+    it('updates the namespace', (done) => {
+      const unsubscribe = Store.listen((state) => {
+        unsubscribe();
+        expect(state.ns).to.equal('db.test');
+        done();
+      });
+      registry.emit('database-changed', 'db.test');
     });
   });
 });

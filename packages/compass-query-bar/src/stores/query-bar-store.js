@@ -75,6 +75,8 @@ const QueryBarStore = Reflux.createStore({
   onActivated(appRegistry) {
     this.QueryHistoryActions = appRegistry.getAction('QueryHistory.Actions');
     this.QueryHistoryActions.runQuery.listen(this.autoPopulateQuery.bind(this));
+    appRegistry.on('collection-changed', this.onCollectionChanged.bind(this));
+    appRegistry.on('database-changed', this.onDatabaseChanged.bind(this));
   },
 
   /*
@@ -666,11 +668,7 @@ const QueryBarStore = Reflux.createStore({
           limit: this.state.limit,
           ns: this.state.ns
         };
-        registry.callOnStores((store) => {
-          if (store.onQueryApplied) {
-            store.onQueryApplied(newState);
-          }
-        });
+        registry.emit('query-applied', newState);
       }
 
       this.setState({
