@@ -13,6 +13,9 @@ const HomeStore = Reflux.createStore({
   onActivated(appRegistry) {
     // set up listeners on external stores
     appRegistry.getStore('App.InstanceStore').listen(this.onInstanceChange.bind(this));
+    appRegistry.on('data-service-connected', this.onConnected.bind(this, appRegistry));
+    appRegistry.on('collection-changed', this.onCollectionChanged.bind(this));
+    appRegistry.on('database-changed', this.onDatabaseChanged.bind(this));
   },
 
   onCollectionChanged(namespace) {
@@ -31,8 +34,9 @@ const HomeStore = Reflux.createStore({
     };
   },
 
-  onConnected() {
-    const StatusAction = app.appRegistry.getAction('Status.Actions');
+  onConnected(appRegistry, err, ds) {
+    this.instanceId = ds.client.model.instance_id;
+    const StatusAction = appRegistry.getAction('Status.Actions');
     StatusAction.configure({
       animation: true,
       message: 'Loading navigation',
@@ -68,7 +72,7 @@ const HomeStore = Reflux.createStore({
   },
 
   updateTitle: function(namespace) {
-    let title = `${electronApp.getName()} - ${app.connection.instance_id}`;
+    let title = `${electronApp.getName()} - ${this.instanceId}`;
     if (namespace) {
       title += '/' + namespace;
     }
@@ -80,7 +84,7 @@ const HomeStore = Reflux.createStore({
   * @param  {Object} prevState   previous state.
   */
   storeDidUpdate(prevState) {
-    debug('Sidebar store changed from', prevState, 'to', this.state);
+    debug('Home store changed from', prevState, 'to', this.state);
   }
 });
 
