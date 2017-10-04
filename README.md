@@ -16,6 +16,12 @@ git clone git@github.com:10gen/compass.git
 cd compass
 
 # Install dependencies
+# Note: If you haven't already, you may need to run 
+#     npm login 
+# with an npm account which has been granted membership to
+#     https://www.npmjs.com/org/mongodb-js
+# in order to download and install private npm modules like 
+#     @mongodb-js/compass-document-validation
 npm install
 
 # Build and launch the app, passing a distribution as an argument.
