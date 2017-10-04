@@ -39,8 +39,11 @@ const CollectionsStore = Reflux.createStore({
    * Initialize everything that is not part of the store's state.
    */
   init() {
-    this.listenToExternalStore('App.InstanceStore', this.onInstanceChange.bind(this));
     this.indexes = [];
+  },
+
+  onActivated(appRegistry) {
+    appRegistry.getStore('App.InstanceStore').listen(this.onInstanceChange.bind(this));
   },
 
   getInitialState() {
