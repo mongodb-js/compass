@@ -43,6 +43,9 @@ const FieldStore = Reflux.createStore({
         }
       });
     }
+
+    appRegistry.on('collection-changed', this.onCollectionChanged.bind(this));
+    appRegistry.on('database-changed', this.onDatabaseChanged.bind(this));
   },
 
   /**

@@ -19,6 +19,10 @@ const LoadIndexesStore = Reflux.createStore({
     this.listenTo(Actions.loadIndexes, this.loadIndexes);
   },
 
+  onActivated(appRegistry) {
+    appRegistry.on('query-changed', this.onQueryChanged.bind(this));
+  },
+
   /**
    * Load the indexes on query change
    * @param {Object} ns namespace to load indexes on

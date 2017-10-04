@@ -1,7 +1,6 @@
 const app = require('hadron-app');
 const AppRegistry = require('hadron-app-registry');
 const { expect } = require('chai');
-const Reflux = require('reflux');
 const NamespaceStore = require('../../src/internal-plugins/app/lib/stores/namespace-store');
 
 /**
@@ -34,61 +33,49 @@ describe('NamespaceStore', () => {
     });
 
     context('when collection changes', () => {
-      it('calls onCollectionChanged', (done) => {
+      it('emits the collection-changed event', (done) => {
         const newNamespace = `${initialDatabase}.change.the-collection.please`;
-        const CollectionSubscriberStore = Reflux.createStore({
-          onCollectionChanged(namespace) {
-            expect(namespace).to.be.equal(newNamespace);
-            done();
-          }
+        app.appRegistry.on('collection-changed', (namespace) => {
+          expect(namespace).to.be.equal(newNamespace);
+          done();
         });
-        app.appRegistry.registerStore('CollectionSubscriber.Store', CollectionSubscriberStore);
         NamespaceStore.ns = newNamespace;
       });
     });
 
     context('when the initial collection contains a dot', () => {
       context('when only the part after the dot changes', () => {
-        it('calls onCollectionChanged', (done) => {
+        it('emits the collection-changed event', (done) => {
           NamespaceStore.ns = 'foo.bar.baz';
           const newNamespace = 'foo.bar.jaguar';
-          const CollectionSubscriberStore = Reflux.createStore({
-            onCollectionChanged(namespace) {
-              expect(namespace).to.be.equal(newNamespace);
-              done();
-            }
+          app.appRegistry.on('collection-changed', (namespace) => {
+            expect(namespace).to.be.equal(newNamespace);
+            done();
           });
-          app.appRegistry.registerStore('CollectionSubscriber.Store', CollectionSubscriberStore);
           NamespaceStore.ns = newNamespace;
         });
       });
     });
 
     context('when the initial collection does not contain a dot', () => {
-      it('calls onCollectionChanged', (done) => {
+      it('emits the collection-changed event', (done) => {
         NamespaceStore.ns = 'foo.bar';
         const newNamespace = 'jaguar.bar';
-        const CollectionSubscriberStore = Reflux.createStore({
-          onCollectionChanged(namespace) {
-            expect(namespace).to.be.equal(newNamespace);
-            done();
-          }
+        app.appRegistry.on('collection-changed', (namespace) => {
+          expect(namespace).to.be.equal(newNamespace);
+          done();
         });
-        app.appRegistry.registerStore('CollectionSubscriber.Store', CollectionSubscriberStore);
         NamespaceStore.ns = newNamespace;
       });
     });
 
     context('when database changes', () => {
-      it('calls onDatabaseChanged', (done) => {
+      it('emits the databaase-changed event', (done) => {
         const newNamespace = `changeTheDB.${initialCollection}`;
-        const DatabaseSubscriberStore = Reflux.createStore({
-          onDatabaseChanged(namespace) {
-            expect(namespace).to.be.equal(newNamespace);
-            done();
-          }
+        app.appRegistry.on('database-changed', (namespace) => {
+          expect(namespace).to.be.equal(newNamespace);
+          done();
         });
-        app.appRegistry.registerStore('DatabaseSubscriber.Store', DatabaseSubscriberStore);
         NamespaceStore.ns = newNamespace;
       });
     });
