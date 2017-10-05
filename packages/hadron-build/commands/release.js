@@ -102,8 +102,8 @@ const createPackagedStyles = (CONFIG, done) => {
     });
   }
 
-  const packages = dist.packages
-  for (let dir of packages) {
+  const plugins = dist.plugins;
+  for (let dir of plugins) {
     const fullDir = path.join(rootDir, dir, 'styles', 'index.less');
     tasks.push((done) => {
       manager.build(path.join(appDir, `${styles[0]}.html`), fullDir, done);
@@ -310,12 +310,12 @@ const transformPackageJson = (CONFIG, done) => {
   });
   distributions[contents.distribution].productName = CONFIG.productName
 
-  const pluginPrefix = distributions['package-prefix'];
-  const plugins = distributions[contents.distribution].packages;
+  const pluginPrefix = distributions['plugin-prefix'];
+  const plugins = distributions[contents.distribution].plugins;
   const deps = contents.dependencies;
   _.each(deps, (_, name) => {
     if (name.startsWith(pluginPrefix) && !plugins.includes(`node_modules/${name}`)) {
-      cli.debug(`Removing unused package: ${name} from distribution: ${contents.distribution}`);
+      cli.debug(`Removing unused plugin: ${name} from distribution: ${contents.distribution}`);
       delete contents.dependencies[name];
     }
   });

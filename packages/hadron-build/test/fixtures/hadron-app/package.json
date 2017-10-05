@@ -27,12 +27,12 @@
         }
       },
       "distributions": {
-        "package-prefix": "compass",
+        "plugin-prefix": "compass",
         "default": "compass",
         "compass": {
           "name": "compass",
           "productName": "MongoDB Compass Enterprise super long test name",
-          "packages": [],
+          "plugins": [],
           "styles": [ "index" ]
         }
       },
