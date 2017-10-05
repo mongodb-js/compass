@@ -62,8 +62,6 @@ describe('#schema', function() {
 
     it('shows a schema on refresh', function() {
       return client
-        .clickDatabaseInSidebar('music')
-        .waitForSidebar('collection')
         .goToCollection('music', 'artists')
         .clickApplyFilterButtonFromSchemaTab()
         .waitForStatusBar()
