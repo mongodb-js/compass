@@ -121,6 +121,14 @@ module.exports = {
             esModules: true
           }
         }
+      },
+      {
+        test: /\.(png|jpg|jpeg|gif|svg)$/,
+        use: [{ loader: 'ignore-loader' }]
+      },
+      {
+        test: /\.(woff|woff2|ttf|eot)(\?v=\d+\.\d+\.\d+)?$/,
+        use: [{ loader: 'ignore-loader' }]
       }
     ]
   }

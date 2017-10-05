@@ -3,7 +3,6 @@ import StateMixin from 'reflux-state-mixin';
 import queryParser from 'mongodb-query-parser';
 import app from 'hadron-app';
 import assert from 'assert';
-import ms from 'ms';
 import diff from 'object-diff';
 import {
   identity,
@@ -13,6 +12,7 @@ import {
   pick,
   keys,
   isBoolean,
+  isFunction,
   isUndefined,
   isNull,
   isEqual,
@@ -33,26 +33,22 @@ import {
 import QueryBarActions from 'actions';
 import { bsonEqual, hasDistinctValue } from 'utils';
 import QUERY_PROPERTIES from 'constants/query-properties';
+import {
+  USER_TYPING_DEBOUNCE_MS,
+  FEATURE_FLAG_REGEX,
+  APPLY_STATE,
+  DEFAULT_FILTER,
+  DEFAULT_PROJECT,
+  DEFAULT_SORT,
+  DEFAULT_SKIP,
+  DEFAULT_LIMIT,
+  DEFAULT_SAMPLE,
+  DEFAULT_MAX_TIME_MS,
+  DEFAULT_SAMPLE_SIZE,
+  DEFAULT_STATE
+} from 'constants/query-bar-store';
 
 const debug = require('debug')('mongodb-compass:stores:query-bar');
-
-// constants
-const USER_TYPING_DEBOUNCE_MS = 100;
-
-const FEATURE_FLAG_REGEX = /^(enable|disable) (\w+)\s*$/;
-const RESET_STATE = 'reset';
-const APPLY_STATE = 'apply';
-
-const DEFAULT_FILTER = {};
-const DEFAULT_PROJECT = null;
-const DEFAULT_SORT = null;
-const DEFAULT_SKIP = 0;
-const DEFAULT_LIMIT = 0;
-const DEFAULT_SAMPLE = false;
-
-const DEFAULT_MAX_TIME_MS = ms('10 seconds');
-const DEFAULT_SAMPLE_SIZE = 1000;
-const DEFAULT_STATE = RESET_STATE;
 
 /**
  * Query Bar store.
@@ -74,7 +70,11 @@ const QueryBarStore = Reflux.createStore({
 
   onActivated(appRegistry) {
     this.QueryHistoryActions = appRegistry.getAction('QueryHistory.Actions');
-    this.QueryHistoryActions.runQuery.listen(this.autoPopulateQuery.bind(this));
+
+    if (isFunction(this.QueryHistoryActions)) {
+      this.QueryHistoryActions.runQuery.listen(this.autoPopulateQuery.bind(this));
+    }
+
     appRegistry.on('collection-changed', this.onCollectionChanged.bind(this));
     appRegistry.on('database-changed', this.onDatabaseChanged.bind(this));
   },

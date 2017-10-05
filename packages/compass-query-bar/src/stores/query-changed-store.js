@@ -1,7 +1,7 @@
 import Reflux from 'reflux';
 import StateMixin from 'reflux-state-mixin';
 import app from 'hadron-app';
-import { pick, isEqual, cloneDeep, isFunction } from 'lodash';
+import { pick, isEqual, cloneDeep } from 'lodash';
 
 import QUERY_PROPERTIES from 'constants/query-properties';
 import QueryBarStore from './query-bar-store';
@@ -30,10 +30,6 @@ const QueryChangedStore = Reflux.createStore({
     QueryBarStore.listen(this.onQueryBarStoreChanged.bind(this));
     this.lastExecutedQuery = QueryBarStore.state.lastExecutedQuery;
     this.namespace = QueryBarStore.state.ns;
-  },
-
-  onActivated(appRegistry) {
-    this.loadIndexes = appRegistry.getAction('Indexes.LoadIndexes');
   },
 
   /**
@@ -79,11 +75,6 @@ const QueryChangedStore = Reflux.createStore({
       newState.maxTimeMS = state.maxTimeMS;
       newState.ns = state.ns;
       this.setState(newState);
-
-      // reload indexes if this convenience store has changed
-      if (isFunction(this.loadIndexes)) {
-        this.loadIndexes();
-      }
 
       // Call onQueryChanged lifecycle method
       const registry = app.appRegistry;

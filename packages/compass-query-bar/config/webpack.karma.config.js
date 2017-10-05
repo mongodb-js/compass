@@ -110,23 +110,11 @@ module.exports = {
       },
       {
         test: /\.(png|jpg|jpeg|gif|svg)$/,
-        use: [{
-          loader: 'ignore-loader',
-          query: {
-            limit: 8192,
-            name: 'assets/images/[name]__[hash:base64:5].[ext]'
-          }
-        }]
+        use: [{ loader: 'ignore-loader' }]
       },
       {
         test: /\.(woff|woff2|ttf|eot)(\?v=\d+\.\d+\.\d+)?$/,
-        use: [{
-          loader: 'ignore-loader',
-          query: {
-            limit: 8192,
-            name: 'assets/fonts/[name]__[hash:base64:5].[ext]'
-          }
-        }]
+        use: [{ loader: 'ignore-loader' }]
       }
     ]
   }

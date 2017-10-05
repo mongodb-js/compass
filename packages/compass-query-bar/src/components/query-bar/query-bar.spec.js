@@ -5,6 +5,8 @@ import QueryBar from 'components/query-bar';
 import QueryOption from 'components/query-option';
 import OptionsToggle from 'components/options-toggle';
 
+import styles from 'components/query-bar/query-bar.less';
+
 describe('QueryBar [Component]', function() {
   let actions;
 
@@ -52,14 +54,14 @@ describe('QueryBar [Component]', function() {
 
         it('does not contain the focus class by default', function() {
           const component = shallow(<QueryBar actions={actions} layout={layout} expanded={false} />);
-          expect(component).to.not.have.className('querybar-has-focus');
+          expect(component).to.not.have.className(styles['has-focus']);
         });
 
         it('contains the focus class on focus', function() {
           const component = shallow(<QueryBar actions={actions} layout={layout} expanded={false} />);
 
           component.setState({ hasFocus: true });
-          expect(component.find('.querybar-option-container')).to.have.className('querybar-has-focus');
+          expect(component.find(`.${styles['option-container']}`)).to.have.className(styles['has-focus']);
         });
       });
 
@@ -71,19 +73,19 @@ describe('QueryBar [Component]', function() {
 
         it('has one .query-option-group div', function() {
           const component = shallow(<QueryBar actions={actions} layout={layout} expanded />);
-          expect(component.find('.querybar-option-group')).to.have.lengthOf(1);
+          expect(component.find(`.${styles['option-group']}`)).to.have.lengthOf(1);
         });
 
         it('does not contain the focus class by default', function() {
           const component = shallow(<QueryBar actions={actions} layout={layout} expanded />);
-          expect(component).to.not.have.className('querybar-has-focus');
+          expect(component).to.not.have.className(styles['has-focus']);
         });
 
         it('contains the focus class on focus', function() {
           const component = shallow(<QueryBar actions={actions} layout={layout} expanded />);
 
           component.setState({hasFocus: true});
-          expect(component.find('.querybar-option-container')).to.have.className('querybar-has-focus');
+          expect(component.find(`.${styles['option-container']}`)).to.have.className(styles['has-focus']);
         });
       });
     });
