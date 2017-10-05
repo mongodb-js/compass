@@ -39,15 +39,6 @@ describe('#databases', function() {
       });
     });
 
-    after(function(done) {
-      dataService.connect(function() {
-        dataService.dropDatabase('music', function() {
-          dataService.disconnect();
-          done();
-        });
-      });
-    });
-
     context('when the escape key is pressed', function() {
       it('closes the create databases modal', function() {
         return client
