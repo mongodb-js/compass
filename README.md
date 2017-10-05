@@ -21,7 +21,7 @@ cd compass
 # with an npm account which has been granted membership to
 #     https://www.npmjs.com/org/mongodb-js
 # in order to download and install private npm modules like 
-#     @mongodb-js/compass-document-validation
+#     https://www.npmjs.com/package/@mongodb-js/compass-document-validation
 npm install
 
 # Build and launch the app, passing a distribution as an argument.
