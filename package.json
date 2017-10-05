@@ -29,7 +29,7 @@
         }
       ],
       "distributions": {
-        "package-prefix": "@mongodb-js/compass",
+        "plugin-prefix": "@mongodb-js/compass",
         "default": "compass",
         "compass": {
           "name": "mongodb-compass",
@@ -245,7 +245,7 @@
     "electron-mocha": "^3.3.0",
     "enzyme": "^2.5.1",
     "eslint-config-mongodb-js": "^2.2.0",
-    "hadron-build": "^14.0.0",
+    "hadron-build": "^15.0.0",
     "hadron-spectron": "^1.0.0",
     "jsdom": "^9.8.3",
     "mgeneratejs": "^0.2.0",
