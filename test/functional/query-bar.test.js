@@ -78,7 +78,7 @@ describe('#query-bar', function() {
           .clickDocumentsTab()
           .clickQueryBarOptionsToggle()
           .getSamplingMessageFromDocumentsTab()
-          .should.eventually.include('Query returned 100 documents. Displaying documents 1-20');
+          .should.eventually.include('100 documents. Displaying documents 1-20');
       });
 
       context('when applying a sort', function() {
@@ -128,7 +128,7 @@ describe('#query-bar', function() {
             .clickApplyFilterButtonFromDocumentsTab()
             .waitForStatusBar()
             .getSamplingMessageFromDocumentsTab()
-            .should.eventually.include('Query returned 5 documents');
+            .should.eventually.include('5 documents');
         });
       });
     });

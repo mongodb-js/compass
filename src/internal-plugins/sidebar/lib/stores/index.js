@@ -25,8 +25,9 @@ const SidebarStore = Reflux.createStore({
   listenables: [SidebarActions],
 
   onActivated(appRegistry) {
-    // set up listeners on external stores
     appRegistry.getStore('App.InstanceStore').listen(this.onInstanceChange.bind(this));
+    appRegistry.on('collection-changed', this.onCollectionChanged.bind(this));
+    appRegistry.on('database-changed', this.onDatabaseChanged.bind(this));
   },
 
   onCollectionChanged(ns) {

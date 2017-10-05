@@ -43,6 +43,10 @@ const CollectionsStore = Reflux.createStore({
     this.indexes = [];
   },
 
+  onActivated(appRegistry) {
+    appRegistry.on('database-changed', this.onDatabaseChanged.bind(this));
+  },
+
   getInitialState() {
     return {
       columns: COLL_COLUMNS,

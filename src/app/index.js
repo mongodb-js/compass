@@ -363,7 +363,7 @@ app.extend({
       const DataService = require('mongodb-data-service');
       state.connection.app_name = 'mongodb-compass';
       const dataService = new DataService(state.connection);
-      global.hadronApp.appRegistry.onDataServiceInitialized(dataService);
+      global.hadronApp.appRegistry.emit('data-service-initialized', dataService);
       dataService.connect((error, ds) => {
         if (error) {
           state.onFatalError('create client');
@@ -381,7 +381,7 @@ app.extend({
         StatusAction.hide();
         // Iterate through all the registered stores and if they require an
         // onConnected hook, call it.
-        global.hadronApp.appRegistry.onConnected(error, ds);
+        global.hadronApp.appRegistry.emit('data-service-connected', error, ds);
 
         if (done) {
           done();

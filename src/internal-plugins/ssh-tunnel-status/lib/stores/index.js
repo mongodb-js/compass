@@ -1,4 +1,3 @@
-const app = require('hadron-app');
 const Reflux = require('reflux');
 const StateMixin = require('reflux-state-mixin');
 const SSHTunnelStatusAction = require('../actions');
@@ -22,15 +21,20 @@ const SSHTunnelStatusStore = Reflux.createStore({
    */
   listenables: [SSHTunnelStatusAction],
 
+  onActivated(appRegistry) {
+    appRegistry.on('data-service-connected', this.onConnected.bind(this));
+  },
+
   /**
    * when connected to a deployment, checks if the connection is via an ssh
    * tunnel, and if so, extracts hostname and port from the connection model
    * and sets the new state.
    */
-  onConnected() {
-    const sshTunnel = app.connection.ssh_tunnel !== 'NONE';
-    const sshTunnelHostname = sshTunnel ? app.connection.ssh_tunnel_hostname : '';
-    const sshTunnelPort = sshTunnel ? app.connection.ssh_tunnel_options.dstPort : '';
+  onConnected(err, ds) {
+    if (err) return;
+    const sshTunnel = ds.client.model.ssh_tunnel !== 'NONE';
+    const sshTunnelHostname = sshTunnel ? ds.client.model.ssh_tunnel_hostname : '';
+    const sshTunnelPort = sshTunnel ? ds.client.model.ssh_tunnel_options.dstPort : '';
     const sshTunnelHostPortString = sshTunnel ? this._combineHostPort(
       sshTunnelHostname, sshTunnelPort, true) : '';
 
