@@ -29,7 +29,7 @@
         }
       ],
       "distributions": {
-        "package-prefix": "@mongodb-js/compass",
+        "plugin-prefix": "@mongodb-js/compass",
         "default": "compass",
         "compass": {
           "name": "mongodb-compass",
@@ -202,6 +202,7 @@
     "mongodb-shell-to-url": "^0.1.0",
     "ms": "^0.7.1",
     "node-notifier": "^4.3.1",
+    "node-pre-gyp": "^0.6.38",
     "numeral": "^1.5.3",
     "object-diff": "0.0.4",
     "pluralize": "^1.2.1",
@@ -245,7 +246,7 @@
     "electron-mocha": "^3.3.0",
     "enzyme": "^2.5.1",
     "eslint-config-mongodb-js": "^2.2.0",
-    "hadron-build": "^14.0.0",
+    "hadron-build": "^15.0.0",
     "hadron-spectron": "^1.0.0",
     "jsdom": "^9.8.3",
     "mgeneratejs": "^0.2.0",
