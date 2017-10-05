@@ -1,7 +1,10 @@
 const Reflux = require('reflux');
 const Actions = require('../actions');
 const ServerStatsStore = require('./server-stats-graphs-store');
-const _ = require('lodash');
+const remove = require('lodash.remove');
+const has = require('lodash.has');
+const round = require('lodash.round');
+const max = require('lodash.max');
 
 // const debug = require('debug')('mongodb-compass:server-stats:mem-store');
 
@@ -71,13 +74,13 @@ const MemStore = Reflux.createStore({
       const startPause = Math.max(this.endPause - this.xLength, 0);
 
       // remove any dataSets elements that are not in doc.mem
-      _.remove(this.data.dataSets, (ds) => {
-        return !_.has(doc.mem, ds.line);
+      remove(this.data.dataSets, (ds) => {
+        return !has(doc.mem, ds.line);
       });
 
       for (let q = 0; q < this.data.dataSets.length; q++) {
         key = this.data.dataSets[q].line;
-        val = _.round(doc.mem[key] / 1000, 2); // convert to GB
+        val = round(doc.mem[key] / 1000, 2); // convert to GB
         this.totalCount[key].push(val);
         if (skipped) {
           this.totalCount[key].push(val);
@@ -86,15 +89,15 @@ const MemStore = Reflux.createStore({
       }
       const maxs = [1];
       for (let q = 0; q < this.data.dataSets.length; q++) {
-        maxs.push(_.max(this.data.dataSets[q].count));
+        maxs.push(max(this.data.dataSets[q].count));
       }
       if (skipped) {
         this.localTime.push(new Date(doc.localTime.getTime() - 1000));
-        this.currentMaxs.push(_.max(maxs));
+        this.currentMaxs.push(max(maxs));
         this.skip.push(skipped);
       }
       this.skip.push(false);
-      this.currentMaxs.push(_.max(maxs));
+      this.currentMaxs.push(max(maxs));
       this.localTime.push(doc.localTime);
       this.data.skip = this.skip.slice(startPause, this.endPause);
       this.data.yDomain = [0, this.currentMaxs[this.endPause - 1]];

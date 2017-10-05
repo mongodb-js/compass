@@ -1,7 +1,7 @@
 const Reflux = require('reflux');
 const Actions = require('../actions');
 const toNS = require('mongodb-ns');
-const _ = require('lodash');
+const round = require('lodash.round');
 
 const debug = require('debug')('mongodb-compass:server-stats:current-op-store');
 
@@ -108,7 +108,7 @@ const CurrentOpStore = Reflux.createStore({
               debug('Error: currentOp result from DB did not include \'microsecs_running\'', doc[i]);
               doc[i].ms_running = 0;
             } else {
-              doc[i].ms_running = _.round(doc[i].microsecs_running / 1000, 2);
+              doc[i].ms_running = round(doc[i].microsecs_running / 1000, 2);
             }
             if (!('ns' in doc[i]) || !('op' in doc[i])) {
               debug('Error: currentOp result from DB did not include \'ns\' or \'op\'', doc[i]);

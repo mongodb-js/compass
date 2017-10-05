@@ -1,7 +1,7 @@
 const Reflux = require('reflux');
 const Actions = require('../actions');
 const toNS = require('mongodb-ns');
-const _ = require('lodash');
+const round = require('lodash.round');
 
 const debug = require('debug')('mongodb-compass:server-stats:top-store');
 
@@ -138,12 +138,12 @@ const TopStore = Reflux.createStore({
 
             const tDelta = t2.loadPercent - t1.loadPercent;
 
-            const loadL = tDelta === 0 ? 0 : _.round(((t2.loadPercentL - t1.loadPercentL) / tDelta) * 100, 0);
-            const loadR = tDelta === 0 ? 0 : _.round(((t2.loadPercentR - t1.loadPercentR) / tDelta) * 100, 0);
+            const loadL = tDelta === 0 ? 0 : round(((t2.loadPercentL - t1.loadPercentL) / tDelta) * 100, 0);
+            const loadR = tDelta === 0 ? 0 : round(((t2.loadPercentR - t1.loadPercentR) / tDelta) * 100, 0);
 
             totals.push({
               'collectionName': collname,
-              'loadPercent': _.round((tDelta * 100) / (cadence * numCores), 2), // System load.
+              'loadPercent': round((tDelta * 100) / (cadence * numCores), 2), // System load.
               'loadPercentR': loadR,
               'loadPercentL': loadL
             });

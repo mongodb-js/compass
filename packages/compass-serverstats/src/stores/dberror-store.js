@@ -1,7 +1,7 @@
 const Reflux = require('reflux');
 const Actions = require('../actions');
 const translate = require('mongodb-js-errors').translate;
-const _ = require('lodash');
+const isEqual = require('lodash.isequal');
 
 // const debug = require('debug')('mongodb-compass:server-stats:dberror-store');
 
@@ -52,7 +52,7 @@ const DBErrorStore = Reflux.createStore({
       this.publish();
     }
     // New error
-    if (data.error !== null && !_.isEqual(this.ops[data.op], data.error)) {
+    if (data.error !== null && !isEqual(this.ops[data.op], data.error)) {
       this.ops[data.op] = data.error;
       this.publish();
     }

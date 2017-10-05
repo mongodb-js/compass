@@ -1,7 +1,8 @@
 const Reflux = require('reflux');
 const Actions = require('../actions');
 const ServerStatsStore = require('./server-stats-graphs-store');
-const _ = require('lodash');
+const round = require('lodash.round');
+const max = require('lodash.max');
 
 // const debug = require('debug')('mongodb-compass:server-stats:network-store');
 
@@ -77,13 +78,13 @@ const NetworkStore = Reflux.createStore({
 
       for (let q = 0; q < this.data.dataSets.length; q++) {
         key = this.data.dataSets[q].line;
-        count = _.round(doc.network[key] / 1000, 2); // convert to KB
+        count = round(doc.network[key] / 1000, 2); // convert to KB
 
         if (this.starting) { // don't add data, starting point
           this.data.dataSets[q].current = count;
           continue;
         }
-        val = _.round(Math.max(0, count - this.data.dataSets[q].current, 2)); // Don't allow negatives.
+        val = round(Math.max(0, count - this.data.dataSets[q].current, 2)); // Don't allow negatives.
         this.bytesPerSec[key].push(val);
         if (skipped) {
           this.bytesPerSec[key].push(val);
@@ -97,9 +98,9 @@ const NetworkStore = Reflux.createStore({
       }
       const maxs = [1];
       for (let q = 0; q < this.data.dataSets.length; q++) {
-        maxs.push(_.max(this.data.dataSets[q].count));
+        maxs.push(max(this.data.dataSets[q].count));
       }
-      this.currentMaxs.push(_.round(_.max(maxs), 2));
+      this.currentMaxs.push(round(max(maxs), 2));
 
       // Handle separate scaled line
       const connections = doc.connections.current;
@@ -108,13 +109,13 @@ const NetworkStore = Reflux.createStore({
       if (skipped) {
         this.connectionCount.push(connections);
         this.localTime.push(new Date(doc.localTime.getTime() - 1000));
-        this.currentMaxs.push(_.max(maxs));
-        this.secondCurrentMaxs.push(_.max(this.data.secondScale.count));
+        this.currentMaxs.push(max(maxs));
+        this.secondCurrentMaxs.push(max(this.data.secondScale.count));
         this.skip.push(skipped);
       }
       this.skip.push(false);
       this.data.secondScale.count = this.connectionCount.slice(startPause, this.endPause);
-      this.secondCurrentMaxs.push(_.max(this.data.secondScale.count));
+      this.secondCurrentMaxs.push(max(this.data.secondScale.count));
       this.data.secondScale.currentMax = this.secondCurrentMaxs[this.endPause - 1];
 
       // Add the rest of the data

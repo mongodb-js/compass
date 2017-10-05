@@ -1,7 +1,7 @@
 const Reflux = require('reflux');
 const Actions = require('../actions');
 const ServerStatsStore = require('./server-stats-graphs-store');
-const _ = require('lodash');
+const max = require('lodash.max');
 
 // const debug = require('debug')('mongodb-compass:server-stats:opcounters-store');
 
@@ -95,15 +95,15 @@ const OpCounterStore = Reflux.createStore({
       }
       const maxs = [1];
       for (let q = 0; q < this.data.dataSets.length; q++) {
-        maxs.push(_.max(this.data.dataSets[q].count));
+        maxs.push(max(this.data.dataSets[q].count));
       }
       if (skipped) {
         this.localTime.push(new Date(doc.localTime.getTime() - 1000));
-        this.currentMaxs.push(_.max(maxs));
+        this.currentMaxs.push(max(maxs));
         this.skip.push(skipped);
       }
       this.skip.push(false);
-      this.currentMaxs.push(_.max(maxs));
+      this.currentMaxs.push(max(maxs));
       this.localTime.push(doc.localTime);
       this.data.yDomain = [0, this.currentMaxs[this.endPause - 1]];
       this.data.localTime = this.localTime.slice(startPause, this.endPause);
