@@ -28,6 +28,7 @@ const InstanceHeaderStore = Reflux.createStore({
   onActivated(appRegistry) {
     this.NamespaceStore = appRegistry.getStore('App.NamespaceStore');
     appRegistry.getStore('DeploymentAwareness.Store').listen(this.fetchInstanceDetails.bind(this));
+    appRegistry.getStore('Connect.Store').listen(this.onConnectStateChanged.bind(this));
     appRegistry.on('collection-changed', this.onCollectionChanged.bind(this));
     appRegistry.on('database-changed', this.onDatabaseChanged.bind(this));
   },
@@ -39,9 +40,14 @@ const InstanceHeaderStore = Reflux.createStore({
    */
   getInitialState() {
     return {
+      connection: null,
       name: 'Retrieving connection information',
       activeNamespace: ''
     };
+  },
+
+  onConnectStateChanged(connectState) {
+    this.setState({ connection: connectState.currentConnection });
   },
 
   /**
@@ -52,7 +58,7 @@ const InstanceHeaderStore = Reflux.createStore({
    * @param {Object} description - The topology description.
    */
   fetchInstanceDetails() {
-    const connection = global.hadronApp.connection;
+    const connection = this.state.connection;
     this.setState({
       name: connection.is_favorite ? connection.name : CLUSTER,
       activeNamespace: this.NamespaceStore.ns || ''
