@@ -196,9 +196,9 @@ var Application = View.extend({
         document.scrollTop = 0;
       }
     });
-    // debug('rendering statusbar...');
-    // this.statusComponent = app.appRegistry.getRole('Application.Status')[0].component;
-    // ReactDOM.render(React.createElement(this.statusComponent), this.queryByHook('statusbar'));
+    debug('rendering statusbar...');
+    this.statusComponent = app.appRegistry.getRole('Application.Status')[0].component;
+    ReactDOM.render(React.createElement(this.statusComponent), this.queryByHook('statusbar'));
 
     this.autoUpdate = new AutoUpdate({
       el: this.queryByHook('auto-update')
@@ -327,6 +327,8 @@ app.extend({
         // signal to main process that app is ready
         ipc.call('window:renderer-ready');
         // as soon as dom is ready, render and set up the rest
+        const MongoDBInstance = require('./models/mongodb-instance');
+        state.instance = new MongoDBInstance();
         state.render();
         marky.stop('Time to Connect rendered');
         state.startRouter();

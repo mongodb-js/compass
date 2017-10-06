@@ -45,6 +45,10 @@ const HomeStore = Reflux.createStore({
       visible: true
     });
 
+    global.hadronApp.dataService = ds;
+    const InstanceActions = appRegistry.getAction('App.InstanceActions');
+    InstanceActions.fetchFirstInstance();
+
     this.setState({
       isConnected: true,
       uiStatus: UI_STATES.LOADING
