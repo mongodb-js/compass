@@ -36,12 +36,16 @@
           "productName": "MongoDB Compass",
           "plugins-directory": ".mongodb/compass/plugins",
           "plugins": [
-            "node_modules/@mongodb-js/compass-serverstats",
-            "node_modules/@mongodb-js/compass-document-validation",
-            "node_modules/@mongodb-js/compass-deployment-awareness",
+            "node_modules/@mongodb-js/compass-auth-kerberos",
+            "node_modules/@mongodb-js/compass-auth-ldap",
+            "node_modules/@mongodb-js/compass-auth-x509",
             "node_modules/@mongodb-js/compass-charts",
             "node_modules/@mongodb-js/compass-crud",
+            "node_modules/@mongodb-js/compass-connect",
+            "node_modules/@mongodb-js/compass-document-validation",
+            "node_modules/@mongodb-js/compass-deployment-awareness",
             "node_modules/@mongodb-js/compass-query-history",
+            "node_modules/@mongodb-js/compass-serverstats",
             "node_modules/@mongodb-js/compass-status"
           ],
           "styles": [
@@ -53,9 +57,10 @@
           "productName": "MongoDB Compass Community",
           "plugins-directory": ".mongodb/compass-community/plugins",
           "plugins": [
-            "node_modules/@mongodb-js/compass-deployment-awareness",
             "node_modules/@mongodb-js/compass-charts",
+            "node_modules/@mongodb-js/compass-connect",
             "node_modules/@mongodb-js/compass-crud",
+            "node_modules/@mongodb-js/compass-deployment-awareness",
             "node_modules/@mongodb-js/compass-query-history",
             "node_modules/@mongodb-js/compass-status"
           ],
@@ -130,7 +135,11 @@
     "url": "git://github.com/10gen/compass.git"
   },
   "dependencies": {
+    "@mongodb-js/compass-auth-kerberos": "0.0.2",
+    "@mongodb-js/compass-auth-ldap": "0.0.2",
+    "@mongodb-js/compass-auth-x509": "0.0.3",
     "@mongodb-js/compass-charts": "^0.5.0",
+    "@mongodb-js/compass-connect": "0.0.3",
     "@mongodb-js/compass-crud": "^0.7.1",
     "@mongodb-js/compass-deployment-awareness": "^4.0.0",
     "@mongodb-js/compass-document-validation": "^5.0.0",

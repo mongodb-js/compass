@@ -29,12 +29,15 @@ const HomeStore = Reflux.createStore({
     return {
       errorMessage: '',
       namespace: '',
-      uiStatus: UI_STATES.INITIAL
+      uiStatus: UI_STATES.INITIAL,
+      isConnected: false
     };
   },
 
   onConnected(appRegistry, err, ds) {
-    this.instanceId = ds.client.model.instance_id;
+    const connection = ds.client.model;
+    this.instanceId = connection.instance_id;
+    // global.hadronApp.connection.app_name =
     const StatusAction = appRegistry.getAction('Status.Actions');
     StatusAction.configure({
       animation: true,
@@ -43,6 +46,7 @@ const HomeStore = Reflux.createStore({
     });
 
     this.setState({
+      isConnected: true,
       uiStatus: UI_STATES.LOADING
     });
   },

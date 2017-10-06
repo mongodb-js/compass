@@ -56,31 +56,6 @@ ipc.once('app:launched', function() {
 
 var debug = require('debug')('mongodb-compass:app');
 
-function getConnection(model, done) {
-  function _fetch(fn) {
-    model.fetch({
-      success: function() {
-        debug('_fetch connection succeeded!');
-        fn();
-      },
-      error: function() {
-        debug('_fetch connection failed', arguments);
-        fn(new Error('Error retrieving connection details'));
-      }
-    });
-  }
-
-  const backoff = require('backoff');
-  const call = backoff.call(_fetch, done);
-  call.setStrategy(new backoff.ExponentialStrategy({
-    randomisationFactor: 0,
-    initialDelay: 10,
-    maxDelay: 500
-  }));
-  call.failAfter(10);
-  call.start();
-}
-
 /**
  * The top-level application singleton that brings everything together!
  *
@@ -221,9 +196,9 @@ var Application = View.extend({
         document.scrollTop = 0;
       }
     });
-    debug('rendering statusbar...');
-    this.statusComponent = app.appRegistry.getRole('Application.Status')[0].component;
-    ReactDOM.render(React.createElement(this.statusComponent), this.queryByHook('statusbar'));
+    // debug('rendering statusbar...');
+    // this.statusComponent = app.appRegistry.getRole('Application.Status')[0].component;
+    // ReactDOM.render(React.createElement(this.statusComponent), this.queryByHook('statusbar'));
 
     this.autoUpdate = new AutoUpdate({
       el: this.queryByHook('auto-update')
@@ -334,61 +309,6 @@ app.extend({
     // proxy to preferences for now
     return this.preferences.isFeatureEnabled(feature);
   },
-  setConnectionId: function(connectionId, done) {
-    if (state.connection && state.connection.getId() === connectionId) {
-      debug('Already connected to connectionId', connectionId);
-      return done();
-    }
-    var StatusAction = app.appRegistry.getAction('Status.Actions');
-    StatusAction.showIndeterminateProgressBar();
-
-    const Connection = require('./models/connection');
-    state.connection = new Connection({
-      _id: connectionId
-    });
-
-    debug('looking up connection `%s`...', connectionId);
-    getConnection(state.connection, function(err) {
-      if (err) {
-        state.onFatalError('fetch connection', err);
-        return;
-      }
-      StatusAction.showIndeterminateProgressBar();
-
-      // set socket and connection timeouts to 2 minutes (from 30 sec default)
-      state.connection.extra_options = {
-        connectTimeoutMS: 120000,
-        socketTimeoutMS: 120000
-      };
-      const DataService = require('mongodb-data-service');
-      state.connection.app_name = 'mongodb-compass';
-      const dataService = new DataService(state.connection);
-      global.hadronApp.appRegistry.emit('data-service-initialized', dataService);
-      dataService.connect((error, ds) => {
-        if (error) {
-          state.onFatalError('create client');
-        }
-        app.dataService = ds.on('error', state.onFatalError.bind(state, 'create client'));
-
-        debug('initializing singleton models... ');
-        // TODO: COMPASS-562, de-ampersand instance-model
-        const MongoDBInstance = require('./models/mongodb-instance');
-        state.instance = new MongoDBInstance();
-        const InstanceActions = app.appRegistry.getAction('App.InstanceActions');
-        InstanceActions.fetchFirstInstance();
-
-        state.startRouter();
-        StatusAction.hide();
-        // Iterate through all the registered stores and if they require an
-        // onConnected hook, call it.
-        global.hadronApp.appRegistry.emit('data-service-connected', error, ds);
-
-        if (done) {
-          done();
-        }
-      });
-    });
-  },
   init: function() {
     async.series([
       // check if migrations are required
@@ -404,10 +324,8 @@ app.extend({
       require('./setup-plugin-manager');
       Action.pluginActivationCompleted.listen(() => {
         global.hadronApp.appRegistry.onActivated();
-
         // signal to main process that app is ready
         ipc.call('window:renderer-ready');
-
         // as soon as dom is ready, render and set up the rest
         state.render();
         marky.stop('Time to Connect rendered');
