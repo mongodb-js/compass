@@ -100,6 +100,7 @@ class FormActions extends React.Component {
         <button
           type="submit"
           name="connect"
+          data-test-id="connect-button"
           className="btn btn-sm btn-primary"
           onClick={this.onConnectClicked.bind(this)}>
           Connect
