@@ -29,6 +29,24 @@ const ReadStateStore = Reflux.createStore({
   },
 
   /**
+   * Hook into the app registry when activated.
+   *
+   * @param {AppRegistry} appRegistry - The app registry.
+   */
+  onActivated(appRegistry) {
+    appRegistry.getStore('Connect.Store').listen(this.onConnectStoreChanged.bind(this));
+  },
+
+  /**
+   * When the connect store changes, update the connection in the state here.
+   *
+   * @param {Object} connectState - The connect store state.
+   */
+  onConnectStoreChanged(connectState) {
+    this.setState({ connection: connectState.currentConnection });
+  },
+
+  /**
    * Looks at the topology description and determines if Compass is in a
    * readable state.
    *
@@ -36,7 +54,7 @@ const ReadStateStore = Reflux.createStore({
    */
   topologyChanged(description) {
     const topologyType = description.topologyType;
-    const readPreference = global.hadronApp.connection.read_preference;
+    const readPreference = this.state.connection.read_preference;
     const isReadable = TopologyType.isReadable(topologyType, readPreference);
     this.setState({
       isReadable: isReadable,
@@ -53,6 +71,7 @@ const ReadStateStore = Reflux.createStore({
   getInitialState() {
     return {
       isReadable: false,
+      connection: null,
       description: DEFAULT_DESCRIPTION
     };
   },

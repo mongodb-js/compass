@@ -4,15 +4,16 @@ const { ReadStateStore, ServerType, TopologyType } = require('../../');
 
 describe('ReadStateStore', () => {
   beforeEach(() => {
-    global.hadronApp = {
-      connection: {
-        read_preference: ReadPreference.PRIMARY
-      }
-    };
     ReadStateStore.setState(ReadStateStore.getInitialState());
   });
 
   describe('#isReadable', () => {
+    beforeEach(() => {
+      ReadStateStore.onConnectStoreChanged({
+        currentConnection: { read_preference: ReadPreference.PRIMARY }
+      });
+    });
+
     it('defaults to false', () => {
       expect(ReadStateStore.state.isReadable).to.equal(false);
     });
