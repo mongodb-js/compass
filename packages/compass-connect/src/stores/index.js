@@ -393,16 +393,16 @@ const ConnectStore = Reflux.createStore({
       this.dataService = new DataService(connection);
       this.appRegistry.emit('data-service-initialized', this.dataService);
       this.dataService.connect((err, ds) => {
-        this.StatusActions.done();
         if (err) {
+          this.StatusActions.done();
           return this.setState({ isValid: false, errorMessage: err.message });
         }
-        this.appRegistry.emit('data-service-connected', err, ds);
         // @note: onCreateRecent will handle the store triggering, no need to do
         //   it twice.
         this.state.isValid = true;
         this.state.isConnected = true;
         this.state.errorMessage = null;
+        this.appRegistry.emit('data-service-connected', err, ds);
         this.onCreateRecent();
       });
     }
