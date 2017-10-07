@@ -22,10 +22,9 @@ function addWorkflowCommands(client) {
   /**
    * Connect to Compass
    */
-  client.addCommand('connectToCompass', function(connection) {
+  client.addCommand('connectToCompass', function() {
     return this
       .waitForConnectView()
-      .inputConnectionDetails(connection)
       .clickConnectButton()
       .waitForStatusBar()
       .waitForHomeView()

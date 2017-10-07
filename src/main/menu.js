@@ -246,7 +246,7 @@ function viewSubMenu() {
       }
     ]
   };
-  if (process.env.NODE_ENV === 'development') {
+  if (process.env.NODE_ENV !== 'production') {
     menu.submenu.push(separator());
     menu.submenu.push({
       label: '&Toggle DevTools',

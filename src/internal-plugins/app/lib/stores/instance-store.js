@@ -68,11 +68,11 @@ const InstanceStore = Reflux.createStore({
    * Run just once after the first set of instance data is fetched.
    */
   onFirstFetch() {
+    debug('First fetch complete.');
     const StatusAction = app.appRegistry.getAction('Status.Actions');
     StatusAction.hide();
 
     const instance = app.instance;
-    debug('instance fetched', instance.serialize());
     this.setState({ instance });
   },
 

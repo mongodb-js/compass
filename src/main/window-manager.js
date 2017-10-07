@@ -117,12 +117,12 @@ var createWindow = module.exports.create = function(opts) {
     height: opts.height,
     icon: opts.icon,
     show: false,
-    devTools: process.env.NODE_ENV === 'development',
+    devTools: process.env.NODE_ENV !== 'production',
     'min-width': opts.minwidth,
     'web-preferences': {
       'subpixel-font-scaling': true,
       'direct-write': true,
-      'devTools': process.env.NODE_ENV === 'development'
+      'devTools': process.env.NODE_ENV !== 'production'
     }
   });
 

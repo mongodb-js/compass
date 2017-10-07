@@ -5,7 +5,7 @@ const Connection = require('mongodb-connection-model');
 /**
  * Global connection model for this test.
  */
-const CONNECTION = new Connection({ hostname: '127.0.0.1', port: 27018, ns: 'music' });
+const CONNECTION = new Connection({ hostname: '127.0.0.1', port: 27017, ns: 'music' });
 
 describe('#data-service', function() {
   this.slow(30000);

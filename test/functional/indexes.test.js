@@ -5,7 +5,7 @@ const { launchCompass, quitCompass, isIndexUsageEnabled } = require('./support/s
 /**
  * Global connection model for this test.
  */
-const CONNECTION = new Connection({ hostname: '127.0.0.1', port: 27018, ns: 'music' });
+const CONNECTION = new Connection({ hostname: '127.0.0.1', port: 27017, ns: 'music' });
 
 describe('#indexes', function() {
   this.slow(30000);
