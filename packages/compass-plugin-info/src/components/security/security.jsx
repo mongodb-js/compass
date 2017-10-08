@@ -32,8 +32,11 @@ class Security extends Component {
    * @returns {React.Component} The rendered component.
    */
   render() {
+    const classes = {};
+    classes[styles.security] = true;
+    classes[styles['security-is-visible']] = this.props.isVisible;
     return (
-      <div className={classnames(styles.security)}>
+      <div className={classnames(classes)}>
       </div>
     );
   }

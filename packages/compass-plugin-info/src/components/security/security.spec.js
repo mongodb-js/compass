@@ -5,17 +5,37 @@ import Security from 'components/security';
 import styles from './security.less';
 
 describe('Security [Component]', () => {
-  let component;
+  describe('#render', () => {
+    context('when the component is visible', () => {
+      let component;
 
-  beforeEach(() => {
-    component = mount(<Security />);
-  });
+      beforeEach(() => {
+        component = mount(<Security isVisible />);
+      });
 
-  afterEach(() => {
-    component = null;
-  });
+      afterEach(() => {
+        component = null;
+      });
 
-  it('renders the correct root classname', () => {
-    expect(component.find(`.${styles.security}`)).to.be.present();
+      it('renders the root component', () => {
+        expect(component.find(`.${styles['security-is-visible']}`)).to.be.present();
+      });
+    });
+
+    context('when the component is not visible', () => {
+      let component;
+
+      beforeEach(() => {
+        component = mount(<Security isVisible={false} />);
+      });
+
+      afterEach(() => {
+        component = null;
+      });
+
+      it('renders the root component as hidden', () => {
+        expect(component.find(`.${styles['security-is-visible']}`)).to.not.be.present();
+      });
+    });
   });
 });
