@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import classnames from 'classnames';
 import PluginDetail from 'components/plugin-detail';
+import PluginError from 'components/plugin-error';
 
 import styles from './plugin.less';
 
@@ -41,6 +42,7 @@ class Plugin extends Component {
    * When the user clicks the expand button.
    */
   onExpandClick() {
+    console.log('here');
     this.setState({ isExpanded: !this.state.isExpanded });
   }
 
@@ -57,6 +59,19 @@ class Plugin extends Component {
   }
 
   /**
+   * Render the plugin error if expanded.
+   *
+   * @returns {React.Component} The plugin error component.
+   */
+  renderPluginError() {
+    if (this.state.isExpanded) {
+      return (
+        <PluginError error={this.props.error} />
+      );
+    }
+  }
+
+  /**
    * Render Plugin component.
    *
    * @returns {React.Component} The rendered component.
@@ -67,6 +82,7 @@ class Plugin extends Component {
         <PluginDetail {...this.props}
           isExpanded={this.state.isExpanded}
           expandHandler={this.onExpandClick.bind(this)} />
+        {this.renderPluginError()}
       </div>
     );
   }

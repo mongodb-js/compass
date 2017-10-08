@@ -57,11 +57,13 @@ class PluginDetail extends Component {
    * @returns {React.Component} The expand column.
    */
   renderExpand() {
-    return (
-      <span onClick={this.expandHandler}>
-        {this.props.isExpanded ? '-' : '+'}
-      </span>
-    );
+    if (this.props.error) {
+      return (
+        <span onClick={this.props.expandHandler}>
+          {this.props.isExpanded ? '-' : '+'}
+        </span>
+      );
+    }
   }
 
   /**
