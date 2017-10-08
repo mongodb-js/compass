@@ -5,6 +5,7 @@ import AppRegistry from 'hadron-app-registry';
 import PluginManager, { Plugin } from 'hadron-plugin-manager';
 import { AppContainer } from 'react-hot-loader';
 import SecurityPlugin, { activate } from 'plugin';
+import Store from 'stores';
 
 // Import global less file. Note: these styles WILL NOT be used in compass, as compass provides its own set
 // of global styles. If you are wishing to style a given component, you should be writing a less file per
@@ -62,8 +63,12 @@ const render = Component => {
 
 // Activate our plugin with the Hadron App Registry
 activate(appRegistry);
+appRegistry.onActivated();
+
 // Render our plugin
 render(SecurityPlugin);
+
+Store.show();
 
 if (module.hot) {
   /**
