@@ -35,7 +35,7 @@ class Plugin extends Component {
   render() {
     return (
       <div className={classnames(styles.plugin)}>
-        <PluginDetail metadata={this.props.metadata} isActivated={this.props.isActivated} />
+        <PluginDetail {...this.props} />
       </div>
     );
   }

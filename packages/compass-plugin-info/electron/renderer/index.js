@@ -2,10 +2,12 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import app from 'hadron-app';
 import AppRegistry from 'hadron-app-registry';
-import PluginManager, { Plugin } from 'hadron-plugin-manager';
+import PluginManager from 'hadron-plugin-manager';
 import { AppContainer } from 'react-hot-loader';
 import SecurityPlugin, { activate } from 'plugin';
 import Store from 'stores';
+
+import { corePlugin, extPlugin, errPlugin } from '../../test/renderer/fixtures';
 
 // Import global less file. Note: these styles WILL NOT be used in compass, as compass provides its own set
 // of global styles. If you are wishing to style a given component, you should be writing a less file per
@@ -19,31 +21,8 @@ global.hadronApp = app;
 global.hadronApp.appRegistry = appRegistry;
 global.hadronApp.pluginManager = pluginManager;
 
-const intPlugin = new Plugin(__dirname);
-intPlugin.isActivated = true;
-intPlugin.error = undefined;
-intPlugin.metadata = {
-  'name': '@mongodb-js/core-plugin',
-  'productName': 'Core Plugin',
-  'version': '0.0.7',
-  'description': 'A Sample Core MongoDB Compass Plugin',
-  'main': 'index.js'
-};
-
-const extPlugin = new Plugin(__dirname);
-extPlugin.isActivated = true;
-extPlugin.error = undefined;
-extPlugin.metadata = {
-  'name': 'external-plugin',
-  'productName': 'External Plugin',
-  'version': '1.0.0',
-  'description': 'A Sample External MongoDB Compass Plugin',
-  'main': 'index.js'
-};
-
 // Add some plugins manually to the plugin manager.
-pluginManager.plugins.push(intPlugin);
-pluginManager.plugins.push(extPlugin);
+pluginManager.plugins = [ corePlugin, extPlugin, errPlugin ];
 
 // Since we are using HtmlWebpackPlugin WITHOUT a template,
 // we should create our own root node in the body element before rendering into it.

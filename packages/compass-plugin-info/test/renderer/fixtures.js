@@ -22,4 +22,15 @@ extPlugin.metadata = {
   'main': 'index.js'
 };
 
-export { corePlugin, extPlugin };
+const errPlugin = new Plugin(__dirname);
+errPlugin.isActivated = false;
+errPlugin.error = new Error('Plugin could not be loaded because of...');
+errPlugin.metadata = {
+  'name': 'error-plugin',
+  'productName': 'Error Plugin',
+  'version': '2.5.0',
+  'description': 'A Sample Error MongoDB Compass Plugin',
+  'main': 'index.js'
+};
+
+export { corePlugin, extPlugin, errPlugin };

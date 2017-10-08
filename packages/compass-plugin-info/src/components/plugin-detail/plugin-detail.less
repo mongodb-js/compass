@@ -4,23 +4,29 @@
   width: 100%;
   border-bottom: 1px solid #CCCCCC;
 
+  &-has-error {
+    .plugin-detail-name, .plugin-detail-product-name, .plugin-detail-version {
+      color: red;
+    }
+  }
+
   &-name {
     text-decoration: none;
-    width: 40%;
+    width: 300px;
   }
 
   &-product-name {
     font-weight: bold;
-    width: 50%;
+    width: 100%;
   }
 
   &-version {
     font-weight: bold;
-    width: 5%;
+    width: 50px;
   }
 
   &-is-activated {
     color: green;
-    width: 5%;
+    width: 30px;
   }
 }

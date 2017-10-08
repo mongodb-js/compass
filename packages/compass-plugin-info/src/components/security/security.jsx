@@ -28,6 +28,18 @@ class Security extends Component {
   };
 
   /**
+   * Get the root class names of the component.
+   *
+   * @returns {Object} The classnames object.
+   */
+  rootClassNames() {
+    const classes = {};
+    classes[styles.security] = true;
+    classes[styles['security-is-visible']] = this.props.isVisible;
+    return classes;
+  }
+
+  /**
    * Render all the plugin information.
    *
    * @returns {React.Component} The plugins.
@@ -35,7 +47,11 @@ class Security extends Component {
   renderPlugins() {
     return this.props.plugins.map((plugin, i) => {
       return (
-        <Plugin key={i} isActivated={plugin.isActivated} metadata={plugin.metadata} />
+        <Plugin
+          key={i}
+          isActivated={plugin.isActivated}
+          metadata={plugin.metadata}
+          error={plugin.error} />
       );
     });
   }
@@ -46,11 +62,8 @@ class Security extends Component {
    * @returns {React.Component} The rendered component.
    */
   render() {
-    const classes = {};
-    classes[styles.security] = true;
-    classes[styles['security-is-visible']] = this.props.isVisible;
     return (
-      <div className={classnames(classes)}>
+      <div className={classnames(this.rootClassNames())}>
         {this.renderPlugins()}
       </div>
     );

@@ -15,7 +15,8 @@ class PluginDetail extends Component {
    */
   static propTypes = {
     isActivated: PropTypes.bool.isRequired,
-    metadata: PropTypes.object.isRequired
+    metadata: PropTypes.object.isRequired,
+    error: PropTypes.object
   };
 
   /**
@@ -24,6 +25,18 @@ class PluginDetail extends Component {
   static defaultProps = {
     isActivated: false
   };
+
+  /**
+   * Get the root class names of the component.
+   *
+   * @returns {Object} The classnames object.
+   */
+  rootClassNames() {
+    const classes = {};
+    classes[styles['plugin-detail']] = true;
+    classes[styles['plugin-detail-has-error']] = this.props.error;
+    return classes;
+  }
 
   /**
    * Render the is activated column.
@@ -43,7 +56,7 @@ class PluginDetail extends Component {
    */
   render() {
     return (
-      <div className={classnames(styles['plugin-detail'])}>
+      <div className={classnames(this.rootClassNames())}>
         <div className={classnames(styles['plugin-detail-product-name'])}>
           {this.props.metadata.productName || this.props.metadata.name}
         </div>
