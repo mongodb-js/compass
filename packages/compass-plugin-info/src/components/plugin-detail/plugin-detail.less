@@ -2,21 +2,33 @@
   display: flex;
   flex-direction: row;
   width: 100%;
-  border-bottom: 1px solid #CCCCCC;
 
   &-has-error {
-    .plugin-detail-name, .plugin-detail-product-name, .plugin-detail-version {
+    .plugin-detail-name,
+    .plugin-detail-product-name,
+    .plugin-detail-version,
+    .plugin-detail-description {
       color: red;
     }
   }
 
+  &-expand {
+    width: 18px;
+    cursor: pointer;
+  }
+
   &-name {
-    text-decoration: none;
     width: 300px;
   }
 
   &-product-name {
     font-weight: bold;
+    width: 300px;
+  }
+
+  &-description {
+    font-style: italic;
+    overflow-x: scroll;
     width: 100%;
   }
 

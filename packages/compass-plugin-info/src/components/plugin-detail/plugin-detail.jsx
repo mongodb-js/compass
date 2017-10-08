@@ -15,8 +15,10 @@ class PluginDetail extends Component {
    */
   static propTypes = {
     isActivated: PropTypes.bool.isRequired,
+    isExpanded: PropTypes.bool.isRequired,
     metadata: PropTypes.object.isRequired,
-    error: PropTypes.object
+    error: PropTypes.object,
+    expandHandler: PropTypes.func
   };
 
   /**
@@ -50,6 +52,19 @@ class PluginDetail extends Component {
   }
 
   /**
+   * Render the expand column.
+   *
+   * @returns {React.Component} The expand column.
+   */
+  renderExpand() {
+    return (
+      <span onClick={this.expandHandler}>
+        {this.props.isExpanded ? '-' : '+'}
+      </span>
+    );
+  }
+
+  /**
    * Render Plugin Detail component.
    *
    * @returns {React.Component} The rendered component.
@@ -57,6 +72,9 @@ class PluginDetail extends Component {
   render() {
     return (
       <div className={classnames(this.rootClassNames())}>
+        <div className={classnames(styles['plugin-detail-expand'])}>
+          {this.renderExpand()}
+        </div>
         <div className={classnames(styles['plugin-detail-product-name'])}>
           {this.props.metadata.productName || this.props.metadata.name}
         </div>
@@ -65,6 +83,9 @@ class PluginDetail extends Component {
         </div>
         <div className={classnames(styles['plugin-detail-version'])}>
           {this.props.metadata.version}
+        </div>
+        <div className={classnames(styles['plugin-detail-description'])}>
+          {this.props.metadata.description}
         </div>
         <div className={classnames(styles['plugin-detail-is-activated'])}>
           {this.renderIsActivated()}
