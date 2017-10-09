@@ -26,6 +26,7 @@ const MetricsStore = Reflux.createStore({
       // attach an event listener
       store.listen((state) => {
         // only track an event if the rule condition evaluates to true
+        console.log(state);
         if (rule.condition(state)) {
           metrics.track(rule.resource, rule.action, rule.metadata(state));
         }

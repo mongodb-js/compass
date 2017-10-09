@@ -88,12 +88,11 @@ const InstanceStore = Reflux.createStore({
         error: this.handleError.bind(this),
         success: (instance) => {
           debug('Setting refetched instance', instance);
-          this.setState({ instance });
+          this.state.instance = instance;
+          this.trigger(this.state);
           StatusAction.hide();
         }
       });
-      // Only reset to initial state if fetched successfully at least once
-      this.setState(this.getInitialState());
     }
   }
 });
