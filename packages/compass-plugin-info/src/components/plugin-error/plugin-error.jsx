@@ -28,6 +28,9 @@ class PluginError extends Component {
         <div className={classnames(styles['plugin-error-message'])}>
           {this.props.error.message}
         </div>
+        <div className={classnames(styles['plugin-error-stack'])}>
+          {this.props.error.stack}
+        </div>
       </div>
     );
   }
