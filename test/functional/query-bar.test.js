@@ -8,7 +8,7 @@ const { launchCompass, quitCompass } = require('./support/spectron-support');
 /**
  * Global connection model for this test.
  */
-const CONNECTION = new Connection({ hostname: '127.0.0.1', port: 27018, ns: 'mongodb' });
+const CONNECTION = new Connection({ hostname: '127.0.0.1', port: 27017, ns: 'mongodb' });
 
 describe('#query-bar', function() {
   this.slow(30000);

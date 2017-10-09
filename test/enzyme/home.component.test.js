@@ -37,6 +37,8 @@ describe('<Home />', () => {
     app.appRegistry.registerComponent('Database.CreateCollectionDialog', sinon.spy());
     app.appRegistry.registerComponent('Database.DropCollectionDialog', sinon.spy());
 
+    app.appRegistry.registerRole('Application.Connect', sinon.spy());
+
     this.Home = require('../../src/internal-plugins/home/lib/component/home');
   });
   afterEach(() => {
@@ -73,6 +75,7 @@ describe('<Home />', () => {
       const component = shallow(<this.Home
           errorMessage={innerError}
           uiStatus={UI_STATES.ERROR}
+          isConnected
       />);
       expect(component.find(StatusRow).dive().text()).to.include(innerError);
     });
@@ -92,6 +95,7 @@ describe('<Home />', () => {
       const component = shallow(<this.Home
           namespace={INSTANCE_LEVEL_NAMESPACE}
           uiStatus={UI_STATES.COMPLETE}
+          isConnected
       />);
       expect(component.text()).to.be.equal(expected);
     });

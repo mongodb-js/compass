@@ -68,11 +68,11 @@ const InstanceStore = Reflux.createStore({
    * Run just once after the first set of instance data is fetched.
    */
   onFirstFetch() {
+    debug('First fetch complete.');
     const StatusAction = app.appRegistry.getAction('Status.Actions');
     StatusAction.hide();
 
     const instance = app.instance;
-    debug('instance fetched', instance.serialize());
     this.setState({ instance });
   },
 
@@ -88,12 +88,11 @@ const InstanceStore = Reflux.createStore({
         error: this.handleError.bind(this),
         success: (instance) => {
           debug('Setting refetched instance', instance);
-          this.setState({ instance });
+          this.state.instance = instance;
+          this.trigger(this.state);
           StatusAction.hide();
         }
       });
-      // Only reset to initial state if fetched successfully at least once
-      this.setState(this.getInitialState());
     }
   }
 });

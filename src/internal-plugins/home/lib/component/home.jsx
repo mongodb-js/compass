@@ -44,6 +44,7 @@ class Home extends React.Component {
      * TODO (imlucas) Handle state when rtss permissions not available.
      */
     this.instanceView = app.appRegistry.getComponent('Instance.Instance');
+    this.connectView = app.appRegistry.getRole('Application.Connect')[0].component;
     this.CreateDatabaseDialog = app.appRegistry.getComponent('DatabaseDDL.CreateDatabaseDialog');
     this.DropDatabaseDialog = app.appRegistry.getComponent('DatabaseDDL.DropDatabaseDialog');
     this.CreateCollectionDialog = app.appRegistry.getComponent('Database.CreateCollectionDialog');
@@ -107,7 +108,17 @@ class Home extends React.Component {
     return view;
   }
 
-  render() {
+  renderConnect() {
+    return (
+      <div className="page-container" data-test-id="home-view">
+        <div className="page">
+          <this.connectView />
+        </div>
+      </div>
+    );
+  }
+
+  renderHome() {
     return (
       <div className="page-container" data-test-id="home-view">
         <this.InstanceHeader sidebarCollapsed={this.state.collapsed}/>
@@ -125,12 +136,20 @@ class Home extends React.Component {
       </div>
     );
   }
+
+  render() {
+    if (this.props.isConnected) {
+      return this.renderHome();
+    }
+    return this.renderConnect();
+  }
 }
 
 Home.propTypes = {
   errorMessage: PropTypes.string,
   namespace: PropTypes.string,
-  uiStatus: PropTypes.string
+  uiStatus: PropTypes.string,
+  isConnected: PropTypes.bool
 };
 
 Home.displayName = 'Home';

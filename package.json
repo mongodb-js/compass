@@ -36,12 +36,16 @@
           "productName": "MongoDB Compass",
           "plugins-directory": ".mongodb/compass/plugins",
           "plugins": [
-            "node_modules/@mongodb-js/compass-serverstats",
-            "node_modules/@mongodb-js/compass-document-validation",
-            "node_modules/@mongodb-js/compass-deployment-awareness",
+            "node_modules/@mongodb-js/compass-auth-kerberos",
+            "node_modules/@mongodb-js/compass-auth-ldap",
+            "node_modules/@mongodb-js/compass-auth-x509",
             "node_modules/@mongodb-js/compass-charts",
             "node_modules/@mongodb-js/compass-crud",
+            "node_modules/@mongodb-js/compass-connect",
+            "node_modules/@mongodb-js/compass-document-validation",
+            "node_modules/@mongodb-js/compass-deployment-awareness",
             "node_modules/@mongodb-js/compass-query-history",
+            "node_modules/@mongodb-js/compass-serverstats",
             "node_modules/@mongodb-js/compass-status"
           ],
           "styles": [
@@ -53,9 +57,10 @@
           "productName": "MongoDB Compass Community",
           "plugins-directory": ".mongodb/compass-community/plugins",
           "plugins": [
-            "node_modules/@mongodb-js/compass-deployment-awareness",
             "node_modules/@mongodb-js/compass-charts",
+            "node_modules/@mongodb-js/compass-connect",
             "node_modules/@mongodb-js/compass-crud",
+            "node_modules/@mongodb-js/compass-deployment-awareness",
             "node_modules/@mongodb-js/compass-query-history",
             "node_modules/@mongodb-js/compass-status"
           ],
@@ -106,9 +111,9 @@
   },
   "scripts": {
     "start": "hadron-build develop",
-    "pretest": "mongodb-runner install && mongodb-runner start --port 27018",
+    "pretest": "mongodb-runner install && mongodb-runner start --port 27017",
     "test": "hadron-build test",
-    "posttest": "mongodb-runner stop --port 27018",
+    "posttest": "mongodb-runner stop --port 27017",
     "check": "mongodb-js-precommit './src/**/*{.js,.jsx}' './test/**/*.js'",
     "ci": "npm run check && npm run test",
     "clean": "hadron-build clean",
@@ -130,9 +135,13 @@
     "url": "git://github.com/10gen/compass.git"
   },
   "dependencies": {
+    "@mongodb-js/compass-auth-kerberos": "^0.0.2",
+    "@mongodb-js/compass-auth-ldap": "^0.0.2",
+    "@mongodb-js/compass-auth-x509": "^0.0.3",
     "@mongodb-js/compass-charts": "^0.5.0",
+    "@mongodb-js/compass-connect": "^0.0.7",
     "@mongodb-js/compass-crud": "^0.7.1",
-    "@mongodb-js/compass-deployment-awareness": "^4.0.0",
+    "@mongodb-js/compass-deployment-awareness": "^5.0.0",
     "@mongodb-js/compass-document-validation": "^5.0.0",
     "@mongodb-js/compass-query-history": "^2.0.1",
     "@mongodb-js/compass-serverstats": "^10.0.0",
