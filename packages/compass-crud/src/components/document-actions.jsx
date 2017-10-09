@@ -80,6 +80,12 @@ class DocumentActions extends React.Component {
             dataTestId="edit-document-button"
             clickHandler={this.props.edit} />
           <IconButton
+            title="Copy Document"
+            className="document-actions-button document-actions-button-copy btn btn-default btn-xs"
+            iconClassName="document-actions-button-icon fa fa-copy"
+            dataTestId="copy-document-button"
+            clickHandler={this.props.copy} />
+          <IconButton
             title="Clone Document"
             className="document-actions-button btn btn-default btn-xs"
             iconClassName="document-actions-button-icon fa fa-clone"
@@ -101,6 +107,7 @@ DocumentActions.displayName = 'DocumentActions';
 
 DocumentActions.propTypes = {
   edit: PropTypes.func.isRequired,
+  copy: PropTypes.func.isRequired,
   remove: PropTypes.func.isRequired,
   clone: PropTypes.func.isRequired,
   allExpanded: PropTypes.bool.isRequired,

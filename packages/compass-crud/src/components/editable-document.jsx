@@ -10,6 +10,7 @@ const DocumentActions = require('./document-actions');
 const DocumentFooter = require('./document-footer');
 const RemoveDocumentFooter = require('./remove-document-footer');
 const marky = require('marky');
+const clipboard = require('electron').clipboard;
 
 /**
  * The base class.
@@ -301,6 +302,14 @@ class EditableDocument extends React.Component {
   }
 
   /**
+   * Handle copying JSON to clipboard of the document.
+   */
+  handleCopy() {
+    const documentJSON = JSON.stringify(this.doc.generateObject());
+    clipboard.writeText(documentJSON);
+  }
+
+  /**
    * Handle cloning of the document.
    */
   handleClone() {
@@ -395,6 +404,7 @@ class EditableDocument extends React.Component {
         <DocumentActions
           allExpanded={this.state.expandAll}
           edit={this.handleEdit.bind(this)}
+          copy={this.handleCopy.bind(this)}
           remove={this.handleDelete.bind(this)}
           clone={this.handleClone.bind(this)}
           expandAll={this.handleExpandAll.bind(this)} />

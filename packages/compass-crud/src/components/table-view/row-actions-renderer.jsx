@@ -43,22 +43,22 @@ class RowActionsRenderer extends React.Component {
       <div className={BEM_BASE}>
         <div className={`${BEM_BASE}-panel`}>
         <IconButton
-          title="Edit row"
+          title="Edit Document"
           className={`${BEM_BASE}-panel-button btn btn-default btn-xs`}
           iconClassName={`${BEM_BASE}-button-icon fa fa-pencil`}
           clickHandler={this.handleEdit.bind(this)} />
         <IconButton
-          title="Copy row"
-          className={`${BEM_BASE}-panel-button ${BEM_BASE}-panel-copy-button btn btn-default btn-xs`}
+          title="Copy Document"
+          className={`${BEM_BASE}-panel-button document-actions-button-copy btn btn-default btn-xs`}
           iconClassName={`${BEM_BASE}-button-icon fa fa-copy`}
           clickHandler={this.handleCopy.bind(this)} />
         <IconButton
-          title="Clone row"
+          title="Clone Document"
           className={`${BEM_BASE}-panel-button btn btn-default btn-xs`}
           iconClassName={`${BEM_BASE}-button-icon fa fa-clone`}
           clickHandler={this.handleClone.bind(this)} />
         <IconButton
-          title="Delete row"
+          title="Delete Document"
           className={`${BEM_BASE}-panel-button btn btn-default btn-xs`}
           iconClassName={`${BEM_BASE}-button-icon fa fa-trash-o`}
           clickHandler={this.handleRemove.bind(this)} />
