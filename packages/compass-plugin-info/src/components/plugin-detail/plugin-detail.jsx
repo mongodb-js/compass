@@ -47,8 +47,9 @@ class PluginDetail extends Component {
    */
   renderIsActivated() {
     if (this.props.isActivated) {
-      return (<i className="fa fa-check" />);
+      return (<i className="fa fa-check-circle" />);
     }
+    return (<i className="fa fa-exclamation-circle" />);
   }
 
   /**

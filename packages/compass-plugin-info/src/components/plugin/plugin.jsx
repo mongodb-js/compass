@@ -42,7 +42,6 @@ class Plugin extends Component {
    * When the user clicks the expand button.
    */
   onExpandClick() {
-    console.log('here');
     this.setState({ isExpanded: !this.state.isExpanded });
   }
 
