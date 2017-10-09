@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { StoreConnector } from 'hadron-react-components';
-import Security from 'components/Security';
+import Security from 'components/security';
 import store from 'stores';
 import actions from 'actions';
 
