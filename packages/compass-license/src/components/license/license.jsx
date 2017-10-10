@@ -5,12 +5,12 @@ import Actions from 'actions';
 import Section from 'components/section';
 
 import styles from './license.less';
-import model from 'models/license';
+import { LicenseText } from 'models';
 
 /**
  * The footer text.
  */
-const FOOTER_TEXT = 'If You have any questions regarding this Agreement or the Software, ' + 
+const FOOTER_TEXT = 'If You have any questions regarding this Agreement or the Software, ' +
   'please direct all correspondence to:';
 
 /**
@@ -59,7 +59,7 @@ class License extends Component {
    * @returns {React.Component} The component.
    */
   renderSections() {
-    return model.sections.map((section, i) => {
+    return LicenseText.sections.map((section, i) => {
       return (<Section key={i} text={section.text} title={section.title} index={i} />);
     });
   }
@@ -76,11 +76,11 @@ class License extends Component {
           <div className={classnames(styles['license-content'])}>
             <div className={classnames(styles['license-header'])}>
               <h4 className={classnames(styles['license-header-title'])}>
-                {model.title}
+                {LicenseText.title}
               </h4>
             </div>
             <div className={classnames(styles['license-body'])}>
-              <p>{model.intro}</p>
+              <p>{LicenseText.intro}</p>
               {this.renderSections()}
             </div>
             <div className={classnames(styles['license-footer'])}>
