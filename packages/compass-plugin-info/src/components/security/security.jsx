@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import classnames from 'classnames';
 import Plugin from 'components/plugin';
+import Actions from 'actions';
 
 import styles from './security.less';
 
@@ -26,6 +27,10 @@ class Security extends Component {
     isVisible: false,
     plugins: []
   };
+
+  hide() {
+    Actions.hide();
+  }
 
   /**
    * Get the root class names of the component.
@@ -64,7 +69,15 @@ class Security extends Component {
   render() {
     return (
       <div className={classnames(this.rootClassNames())}>
-        {this.renderPlugins()}
+        <div className={classnames(styles['security-header'])}>
+          <span>Installed Plugins</span>
+          <button className="btn btn-default btn-xs" onClick={this.hide.bind(this)}>
+            Close
+          </button>
+        </div>
+        <div className={classnames(styles['security-content'])}>
+          {this.renderPlugins()}
+        </div>
       </div>
     );
   }

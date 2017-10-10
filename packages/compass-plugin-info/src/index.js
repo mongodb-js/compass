@@ -15,15 +15,6 @@ const ROLE = {
  * @param {Object} appRegistry - The Hadron appRegisrty to activate this plugin with.
  **/
 function activate(appRegistry) {
-  // Register the SecurityPlugin as a role in Compass
-  //
-  // Available roles are:
-  //   - Instance.Tab
-  //   - Database.Tab
-  //   - Collection.Tab
-  //   - CollectionHUD.Item
-  //   - Header.Item
-
   appRegistry.registerRole('Application.Security', ROLE);
   appRegistry.registerAction('Security.Actions', SecurityActions);
   appRegistry.registerStore('Security.Store', SecurityStore);
