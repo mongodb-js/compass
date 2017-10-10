@@ -88,10 +88,9 @@ class Element extends EventEmitter {
       for (let element of this.elements) {
         element.cancel();
       }
-    } else {
-      if (this.isModified()) {
-        this.revert();
-      }
+    }
+    if (this.isModified()) {
+      this.revert();
     }
   }
 
