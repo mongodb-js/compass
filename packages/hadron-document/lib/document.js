@@ -65,6 +65,29 @@ class Document extends EventEmitter {
   }
 
   /**
+   * Get an element by a series of segment names.
+   *
+   * @param {Array} path - The series of fieldnames. Cannot be empty.
+   *
+   * @returns {Element} The element.
+   */
+  getChild(path) {
+    if (!path) {
+      return undefined;
+    }
+    let element = this.elements.get(path[0]);
+    let i = 1;
+    while (i < path.length) {
+      if (element === undefined) {
+        return undefined;
+      }
+      element = element.get(path[i]);
+      i++;
+    }
+    return element;
+  }
+
+  /**
    * Get the _id value for the document.
    *
    * @returns {Object} The id.
