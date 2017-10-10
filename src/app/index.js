@@ -329,7 +329,6 @@ app.extend({
       if (err) {
         throw err;
       }
-      require('./setup-plugin-manager');
       Action.pluginActivationCompleted.listen(() => {
         global.hadronApp.appRegistry.onActivated();
         // signal to main process that app is ready
@@ -343,6 +342,7 @@ app.extend({
         state.postRender();
         marky.stop('Time to user can Click Connect');
       });
+      require('./setup-plugin-manager');
     });
   }
 });
