@@ -83,6 +83,7 @@ var Application = View.extend({
       '  <div data-hook="layout-container"></div>',
       '  <div data-hook="tour-container"></div>',
       '  <div data-hook="optin-container"></div>',
+      '  <div data-hook="security"></div>',
       '</div>'
     ].join('\n');
   },
@@ -122,6 +123,7 @@ var Application = View.extend({
   initialize: function() {
     ipc.on('window:show-compass-tour', this.showTour.bind(this, true));
     ipc.on('window:show-network-optin', this.showOptIn.bind(this));
+    ipc.on('window:show-security-panel', this.showSecurity.bind(this));
   },
   startRouter: function() {
     if (this.router) {
@@ -200,6 +202,9 @@ var Application = View.extend({
     this.statusComponent = app.appRegistry.getRole('Application.Status')[0].component;
     ReactDOM.render(React.createElement(this.statusComponent), this.queryByHook('statusbar'));
 
+    this.securityComponent = app.appRegistry.getRole('Application.Security')[0].component;
+    ReactDOM.render(React.createElement(this.securityComponent), this.queryByHook('security'));
+
     this.autoUpdate = new AutoUpdate({
       el: this.queryByHook('auto-update')
     });
@@ -231,6 +236,9 @@ var Application = View.extend({
     const NetworkOptInView = require('./network-optin');
     const networkOptInView = new NetworkOptInView();
     this.renderSubview(networkOptInView, this.queryByHook('optin-container'));
+  },
+  showSecurity: function() {
+    app.appRegistry.getAction('Security.Actions').show();
   },
   tourClosed: function() {
     app.preferences.unset('showFeatureTour');

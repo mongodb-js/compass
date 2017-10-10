@@ -1,9 +1,9 @@
 {
   "name": "compass-sidebar",
-  "productName": "Compass Compass Sidebar package",
+  "productName": "Compass Sidebar",
   "version": "0.1.0",
   "authors": "MongoDB Inc.",
-  "description": "Sidebar component for the compass app",
+  "description": "Sidebar plugin for the compass app",
   "private": true,
   "main": "index.js"
 }
