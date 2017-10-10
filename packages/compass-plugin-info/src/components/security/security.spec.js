@@ -3,6 +3,8 @@ import { mount } from 'enzyme';
 
 import Security from 'components/security';
 import styles from './security.less';
+import pluginStyles from '../plugin/plugin.less';
+import { corePlugin } from '../../../test/renderer/fixtures';
 
 describe('Security [Component]', () => {
   describe('#render', () => {
@@ -10,7 +12,7 @@ describe('Security [Component]', () => {
       let component;
 
       beforeEach(() => {
-        component = mount(<Security isVisible />);
+        component = mount(<Security isVisible plugins={[ corePlugin ]} />);
       });
 
       afterEach(() => {
@@ -19,6 +21,10 @@ describe('Security [Component]', () => {
 
       it('renders the root component', () => {
         expect(component.find(`.${styles['security-is-visible']}`)).to.be.present();
+      });
+
+      it('renders the plugins', () => {
+        expect(component.find(`.${pluginStyles.plugin}`)).to.have.length(1);
       });
     });
 

@@ -20,24 +20,19 @@
     "check": "mongodb-js-precommit './src/**/*{.js,.jsx}' './test/**/*.js' './electron/**/*.js' './config/**/*{.js,.jsx}'",
     "link-plugin": "./scripts/link.sh",
     "unlink-plugin": "./scripts/unlink.sh",
-    "prepublish": "npm run compile",
-    "storybook": "start-storybook -p 9001 -c .storybook"
+    "prepublish": "npm run compile"
   },
   "precommit": [
     "check"
   ],
   "license": "Apache-2.0",
   "peerDependencies": {
-    "hadron-react-components": "^1.9.1",
     "prop-types": "^15.5.8",
     "react": "^15.5.4",
-    "react-bootstrap": "0.31.0",
-    "react-tooltip": "^3.2.6",
     "reflux": "^0.4.1",
     "reflux-state-mixin": "^0.7.0"
   },
   "devDependencies": {
-    "@storybook/react": "^3.2.0",
     "autoprefixer": "^7.1.2",
     "babel-cli": "^6.10.1",
     "babel-core": "^6.24.1",
@@ -97,7 +92,6 @@
     "react": "^15.5.4",
     "react-dom": "^15.5.4",
     "react-hot-loader": "3.0.0-beta.7",
-    "react-storybook-addon-chapters": "^1.1.0",
     "react-test-renderer": "^15.6.1",
     "reflux": "^0.4.1",
     "reflux-state-mixin": "^0.7.0",
