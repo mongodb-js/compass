@@ -52,6 +52,13 @@ class PluginDetail extends Component {
     return (<i className="fa fa-exclamation-circle" />);
   }
 
+  renderExpandIcon() {
+    if (this.props.isExpanded) {
+      return (<i className="fa fa-minus-square-o" />);
+    }
+    return (<i className="fa fa-plus-square-o" />);
+  }
+
   /**
    * Render the expand column.
    *
@@ -61,7 +68,7 @@ class PluginDetail extends Component {
     if (this.props.error) {
       return (
         <span onClick={this.props.expandHandler}>
-          {this.props.isExpanded ? '-' : '+'}
+          {this.renderExpandIcon()}
         </span>
       );
     }
