@@ -1,8 +1,8 @@
 {
-  "name": "security",
-  "productName": "Security plugin",
+  "name": "@mongodb-js/compass-security",
+  "productName": "Compass Security",
   "version": "1.0.0",
-  "description": "Compass Security Plugin",
+  "description": "Compass Security/Plugin Information Plugin",
   "main": "lib/index.js",
   "scripts": {
     "clean": "rimraf lib",
