@@ -52,6 +52,11 @@ class PluginDetail extends Component {
     return (<i className="fa fa-exclamation-circle" />);
   }
 
+  /**
+   * Render the expand icon.
+   *
+   * @returns {React.Component} The expand/collapse icon.
+   */
   renderExpandIcon() {
     if (this.props.isExpanded) {
       return (<i className="fa fa-minus-square-o" />);
