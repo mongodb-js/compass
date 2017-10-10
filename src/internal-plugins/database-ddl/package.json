@@ -1,6 +1,6 @@
 {
   "name": "database-ddl",
-  "productName": "Compass Database Data Definition Language",
+  "productName": "Compass DDL PLugin",
   "description": "Database-level Data Definition Language (DDL) operations for Compass",
   "version": "0.0.1",
   "authors": "MongoDB Inc.",

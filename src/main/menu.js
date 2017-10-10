@@ -168,12 +168,22 @@ function intercomItem() {
   };
 }
 
+function securityItem() {
+  return {
+    label: '&Plugins',
+    click: function() {
+      BrowserWindow.getFocusedWindow().webContents.send('window:show-security-panel');
+    }
+  };
+}
+
 function helpSubMenu() {
   var subMenu = [];
   subMenu.push(helpWindowItem());
 
   subMenu.push(compassOverviewItem());
   subMenu.push(networkOptInDialogItem());
+  subMenu.push(securityItem());
 
   subMenu.push(separator());
   subMenu.push(intercomItem());
