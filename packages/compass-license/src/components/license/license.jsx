@@ -94,7 +94,7 @@ class License extends Component {
                 onClick={this.agree.bind(this)}>Agree</button>
               <button
                 type="button"
-                className="btn btn-default"
+                className="btn btn-default btn-secondary"
                 onClick={this.disagree.bind(this)}>Disagree</button>
             </div>
           </div>
