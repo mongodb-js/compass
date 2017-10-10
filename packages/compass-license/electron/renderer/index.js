@@ -22,7 +22,7 @@ activate(appRegistry);
 // we should create our own root node in the body element before rendering into it.
 const root = document.createElement('div');
 root.id = 'root';
-document.body.appendChild( root );
+document.body.appendChild(root);
 
 // Create a HMR enabled render function
 const render = Component => {
@@ -35,7 +35,9 @@ const render = Component => {
 };
 
 // Render our plugin
-render( LicensePlugin );
+render(LicensePlugin);
+
+appRegistry.getStore('License.Store').show();
 
 if (module.hot) {
   /**

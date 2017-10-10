@@ -1,8 +1,7 @@
 import Reflux from 'reflux';
 import StateMixin from 'reflux-state-mixin';
 import LicenseActions from 'actions';
-
-const debug = require('debug')('mongodb-compass:stores:license');
+import ipc from 'hadron-ipc';
 
 /**
  * License store.
@@ -23,29 +22,39 @@ const LicenseStore = Reflux.createStore({
   listenables: LicenseActions,
 
   /**
-   * Initialize everything that is not part of the store's state.
+   * Agree to the license terms.
    */
-  init() {
+  agree() {
+    global.hadronApp.preferences.save({ agreedToLicense: true }, {
+      success: () => {
+        this.hide();
+      }
+    });
   },
 
   /**
-   * This method is called when all plugins are activated. You can register
-   * listeners to other plugins' stores here, e.g.
-   *
-   * appRegistry.getStore('OtherPlugin.Store').listen(this.otherStoreChanged.bind(this));
-   *
-   * If this plugin does not depend on other stores, you can delete the method.
-   *
-   * @param {Object} appRegistry - app registry containing all stores and components
+   * Disagree with the license terms.
    */
-  onActivated() {
-    // Events emitted from the app registry:
-    // appRegistry.on('application-intialized', (version) => return true);
-    // appRegistry.on('data-service-intialized', (dataService) => return true);
-    // appRegistry.on('data-service-connected', (error, dataService) => return true);
-    // appRegistry.on('collection-changed', (namespace) => return true);
-    // appRegistry.on('database-changed', (namespace) => return true);
-    // appRegistry.on('query-applied', (queryState) => return true);
+  disagree() {
+    global.hadronApp.preferences.save({ agreedToLicense: false }, {
+      success: () => {
+        ipc.call('license:disagree');
+      }
+    });
+  },
+
+  /**
+   * Show the license.
+   */
+  show() {
+    this.setState({ isVisible: true });
+  },
+
+  /**
+   * Hide the license.
+   */
+  hide() {
+    this.setState({ isVisible: false });
   },
 
   /**
@@ -55,26 +64,7 @@ const LicenseStore = Reflux.createStore({
    * @return {Object} initial store state.
    */
   getInitialState() {
-    return {
-      status: 'enabled'
-    };
-  },
-
-  /**
-   * handlers for each action defined in ../actions/index.jsx, for example:
-   */
-  toggleStatus() {
-    this.setState({
-      status: this.state.status === 'enabled' ? 'disabled' : 'enabled'
-    });
-  },
-
-  /**
-   * log changes to the store as debug messages.
-   * @param  {Object} prevState   previous state.
-   */
-  storeDidUpdate(prevState) {
-    debug('License store changed from', prevState, 'to', this.state);
+    return { isVisible: false };
   }
 });
 

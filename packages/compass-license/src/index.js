@@ -15,15 +15,6 @@ const ROLE = {
  * @param {Object} appRegistry - The Hadron appRegisrty to activate this plugin with.
  **/
 function activate(appRegistry) {
-  // Register the LicensePlugin as a role in Compass
-  //
-  // Available roles are:
-  //   - Instance.Tab
-  //   - Database.Tab
-  //   - Collection.Tab
-  //   - CollectionHUD.Item
-  //   - Header.Item
-
   appRegistry.registerRole('Application.License', ROLE);
   appRegistry.registerAction('License.Actions', LicenseActions);
   appRegistry.registerStore('License.Store', LicenseStore);

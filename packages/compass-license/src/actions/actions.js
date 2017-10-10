@@ -4,7 +4,10 @@ const LicenseActions = Reflux.createActions([
   /**
    * define your actions as strings below, for example:
    */
-  'toggleStatus'
+  'agree',
+  'disagree',
+  'show',
+  'hide'
 ]);
 
 export default LicenseActions;
