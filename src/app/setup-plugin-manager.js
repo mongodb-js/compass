@@ -44,6 +44,35 @@ app.pluginManager = new PluginManager(
   DISTRIBUTION.plugins
 );
 
+/**
+ * Security related items before moving them to security plugin, phase 1.
+ */
+const Module = require('module');
+const loader = Module._load;
+
+/**
+ * The require error message.
+ */
+const ERROR = 'Due to security reasons, 3rd party plugins are not allowed to require ' +
+  'modules with filesystem, network, or child process access.';
+
+/**
+ * List of modules that cannot be required.
+ */
+const ILLEGAL_MODULES = ['fs', 'net', 'tls', 'child_process'];
+
+/**
+ * Prevent loading of fs, net, tls, and child process for 3rd party plugins.
+ */
+Module._load = function(request, loc) {
+  if (ILLEGAL_MODULES.includes(request)) {
+    if (loc.filename.includes(DEV_PLUGINS)) {
+      throw new Error(ERROR);
+    }
+  }
+  return loader.apply(this, arguments);
+};
+
 app.pluginManager.activate(app.appRegistry);
 
 debug(`Plugin manager activated with distribution ${process.env.HADRON_DISTRIBUTION}.`);
