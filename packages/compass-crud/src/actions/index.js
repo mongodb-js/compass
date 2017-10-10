@@ -15,6 +15,7 @@ const Actions = Reflux.createActions([
   'elementValid',
   'addColumn',
   'removeColumn',
+  'cleanCols',
   'resetHeaders',
   'elementAdded',
   'elementRemoved',

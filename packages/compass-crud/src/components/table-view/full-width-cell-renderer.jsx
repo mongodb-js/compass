@@ -240,10 +240,12 @@ class FullWidthCellRenderer extends React.Component {
   }
 
   handleCancelDelete() {
+    this.props.api.stopEditing();
     this.props.context.removeFooter(this.props.node);
   }
 
   handleCancelUpdate() {
+    this.props.api.stopEditing();
     const id = this.doc.getId().toString();
     const removed = [];
     const changed = [];

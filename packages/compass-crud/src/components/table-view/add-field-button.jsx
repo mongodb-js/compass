@@ -123,22 +123,31 @@ class AddFieldButton extends React.Component {
    */
   handleAddFieldClick() {
     this.setState({ menu: false });
-
-    if (!this.empty) {
-      this.props.node.data.hadronDocument.insertAfter(this.props.value, '$new', '');
-    } else {
-      this.props.node.data.hadronDocument.insertEnd('$new', '');
+    let parent = this.props.node.data.hadronDocument;
+    if (this.props.context.path.length) {
+      parent = parent.getChild(this.props.context.path);
     }
 
-    Actions.addColumn(this.props.column.getColDef().colId, this.props.node.childIndex);
+    if (!this.empty) {
+      parent.insertAfter(this.props.value, '$new', '');
+    } else {
+      parent.insertEnd('$new', '');
+    }
+
+    Actions.addColumn(this.props.column.getColDef().colId, this.props.node.childIndex, this.props.context.path);
   }
 
   /**
    * When clicking on an expandable element to append a child.
    */
   handleAddChildClick() {
-    this.props.value.insertPlaceholder();
     this.setState({ menu: false });
+    Actions.drillDown(this.props.node.data.hadronDocument, this.props.value);
+
+    this.props.value.insertEnd('$new', '');
+
+    const path = [].concat(this.props.context.path, [this.props.value.currentKey]);
+    Actions.addColumn(null, 0, path);
   }
 
 

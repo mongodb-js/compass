@@ -33,6 +33,30 @@ class RowActionsRenderer extends React.Component {
     clipboard.writeText(documentJSON);
   }
 
+  renderTopLevelActions() {
+    if (!this.props.nested) {
+      return (
+        <div>
+          <IconButton
+            title="Copy row"
+            className={`${BEM_BASE}-panel-button btn btn-default btn-xs`}
+            iconClassName={`${BEM_BASE}-button-icon fa fa-copy`}
+            clickHandler={this.handleCopy.bind(this)} />
+          <IconButton
+            title="Clone row"
+            className={`${BEM_BASE}-panel-button btn btn-default btn-xs`}
+            iconClassName={`${BEM_BASE}-button-icon fa fa-clone`}
+            clickHandler={this.handleClone.bind(this)} />
+          <IconButton
+            title="Delete row"
+            className={`${BEM_BASE}-panel-button btn btn-default btn-xs`}
+            iconClassName={`${BEM_BASE}-button-icon fa fa-trash-o`}
+            clickHandler={this.handleRemove.bind(this)} />
+        </div>
+      );
+    }
+  }
+
   render() {
     /* Don't show actions for rows that are being edited or marked for deletion */
     if (this.props.value.state === 'editing' || this.props.value.state === 'deleting' || this.props.value.state === 'cloned') {
@@ -47,21 +71,7 @@ class RowActionsRenderer extends React.Component {
           className={`${BEM_BASE}-panel-button btn btn-default btn-xs`}
           iconClassName={`${BEM_BASE}-button-icon fa fa-pencil`}
           clickHandler={this.handleEdit.bind(this)} />
-        <IconButton
-          title="Copy Document"
-          className={`${BEM_BASE}-panel-button document-actions-button-copy btn btn-default btn-xs`}
-          iconClassName={`${BEM_BASE}-button-icon fa fa-copy`}
-          clickHandler={this.handleCopy.bind(this)} />
-        <IconButton
-          title="Clone Document"
-          className={`${BEM_BASE}-panel-button btn btn-default btn-xs`}
-          iconClassName={`${BEM_BASE}-button-icon fa fa-clone`}
-          clickHandler={this.handleClone.bind(this)} />
-        <IconButton
-          title="Delete Document"
-          className={`${BEM_BASE}-panel-button btn btn-default btn-xs`}
-          iconClassName={`${BEM_BASE}-button-icon fa fa-trash-o`}
-          clickHandler={this.handleRemove.bind(this)} />
+        {this.renderTopLevelActions()}
       </div>
     </div>
     );
@@ -73,7 +83,8 @@ RowActionsRenderer.propTypes = {
   value: PropTypes.any,
   node: PropTypes.any,
   context: PropTypes.any,
-  data: PropTypes.any
+  data: PropTypes.any,
+  nested: PropTypes.bool
 };
 
 RowActionsRenderer.displayName = 'RowActionsRenderer';

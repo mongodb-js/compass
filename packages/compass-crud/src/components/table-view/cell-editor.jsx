@@ -62,17 +62,22 @@ class CellEditor extends React.Component {
       if (type === 'mixed') {
         type = 'Undefined';
       }
-      this.element = this.props.node.data.hadronDocument.insertEnd(key, '');
-      const value = TypeChecker.cast(null, type);
+
+      let parent = this.props.node.data.hadronDocument;
+      if (this.props.context.path.length) {
+        parent = parent.getChild(this.props.context.path);
+      }
+
+      this.element = parent.insertEnd(key, '', true, parent);
+      const value = TypeChecker.cast('', type);
       this.element.edit(value);
     } else {
-      /* Only use fieldName if this is reopening a newly added field */
+      /* Only use fieldName if this a newly added field */
       if (this.element.currentKey !== '$new') {
         this.setState({fieldName: this.element.currentKey});
       }
-      /* If this column has just been added, or the user has re-opened a field
-       * that has been added but not updated to the DB. */
-      this.newField = (this.props.value.key === '$new');
+      /* If this column has just been added */
+      this.newField = (this.props.value.currentKey === '$new');
     }
 
     this.oldType = this.element.currentType;
@@ -127,6 +132,7 @@ class CellEditor extends React.Component {
     /* If this is a new field, need to update the colDef with the key name */
     if (this.newField) {
       const key = this.state.fieldName;
+      const path = [].concat(this.props.context.path, [key]);
 
       /* Cancel and remove the column if the key was unedited or a duplicate */
       if (key === '' || this.isDuplicateKey(key)) {
@@ -141,18 +147,12 @@ class CellEditor extends React.Component {
       /* Rename the column + update its definition */
       const colDef = this.props.column.getColDef();
       colDef.valueGetter = function(params) {
-        return params.data.hadronDocument.get(key);
+        return params.data.hadronDocument.getChild(path);
       };
       colDef.headerName = key;
       colDef.colId = key;
       colDef.editable = function(params) {
-        if (params.node.data.state === 'deleting') {
-          return false;
-        }
-        if (params.node.data.hadronDocument.get(key) === undefined) {
-          return true;
-        }
-        return params.node.data.hadronDocument.get(key).isValueEditable();
+        return (params.node.data.state !== 'deleting');
       };
 
       /* Update the grid store so we know what type this element is. This
@@ -209,7 +209,7 @@ class CellEditor extends React.Component {
   }
 
   handleDrillDown() {
-    Actions.drillDown(this.element.currentKey, this.element.currentType);
+    Actions.drillDown(this.props.node.data.hadronDocument, this.element);
   }
 
   handleChange(event) {
@@ -329,9 +329,14 @@ class CellEditor extends React.Component {
   /**
    * Render the types column.
    *
+   * @param {boolean} showTypes - If the element is value editable.
+   *
    * @returns {React.Component} The component.
    */
-  renderTypes() {
+  renderTypes(showTypes) {
+    if (!showTypes) {
+      return null;
+    }
     return (
       <div onBlur={this.handleTypeChange.bind(this)}>
         <Types element={this.element} className={`${BEM_BASE}-types btn btn-default btn-xs`}/>
@@ -342,52 +347,56 @@ class CellEditor extends React.Component {
   /**
    * Render the input field if the element is not an object or an array.
    *
+   * @param {boolean} showInput - If the element is value editable.
+   *
    * @returns {React.Component} The component.
    */
-  renderInput() {
-    if (this.element.currentType !== 'Object' && this.element.currentType !== 'Array') {
-      const length = 100; // TODO: styles
-      return (
-        <div className={`${BEM_BASE}-input`}>
-          <span className={this.wrapperStyle()}>
-            <Tooltip
-              id={this.element.uuid}
-              className="editable-element-value-tooltip"
-              border
-              getContent={() => { return this.element.invalidTypeMessage; }}/>
-            <input
-              data-tip=""
-              data-for={this.element.uuid}
-              ref={(c) => {this._node = c;}}
-              type="text"
-              style={{ width: `${length}px`}}
-              className={this.styleValue()}
-              onChange={this.handleChange.bind(this)}
-              // onKeyDown={this.handleKeyDown.bind(this)}
-              onPaste={this.handlePaste.bind(this)}
-              value={this.editor().value(true)}
-              placeholder="Value"/>
-          </span>
-      </div>
-      );
+  renderInput(showInput) {
+    if (!showInput) {
+      return null;
     }
-    return null;
+    const length = 100; // TODO: styles
+    return (
+      <div className={`${BEM_BASE}-input`}>
+        <span className={this.wrapperStyle()}>
+          <Tooltip
+            id={this.element.uuid}
+            className="editable-element-value-tooltip"
+            border
+            getContent={() => { return this.element.invalidTypeMessage; }}/>
+          <input
+            data-tip=""
+            data-for={this.element.uuid}
+            ref={(c) => {this._node = c;}}
+            type="text"
+            style={{ width: `${length}px`}}
+            className={this.styleValue()}
+            onChange={this.handleChange.bind(this)}
+            // onKeyDown={this.handleKeyDown.bind(this)}
+            onPaste={this.handlePaste.bind(this)}
+            value={this.editor().value(true)}
+            placeholder="Value"/>
+        </span>
+    </div>
+    );
   }
 
   /**
    * Render the "expand" button if the element is an array or object.
+
+   * @param {boolean} showExpand - If the element is expandable.
    *
    * @returns {React.Component} The component.
    */
-  renderExpand() {
-    if (this.element.currentType === 'Object' || this.element.currentType === 'Array') {
-      return (
-        <div className={`${BEM_BASE}-button btn btn-default btn-xs`} onMouseDown={this.handleDrillDown.bind(this)}>
-          <FontAwesome name="expand" className={`${BEM_BASE}-button-icon`}/>
-        </div>
-      );
+  renderExpand(showExpand) {
+    if (!showExpand) {
+      return null;
     }
-    return null;
+    return (
+      <div className={`${BEM_BASE}-button btn btn-default btn-xs`} onMouseDown={this.handleDrillDown.bind(this)}>
+        <FontAwesome name="expand" className={`${BEM_BASE}-button-icon`}/>
+      </div>
+    );
   }
 
   /**
@@ -396,52 +405,59 @@ class CellEditor extends React.Component {
    * @returns {React.Component} The component.
    */
   renderRemoveField() {
-    if (!this.wasEmpty) {
-      return (
-        <div className={`${BEM_BASE}-button btn btn-default btn-xs`}
-             onMouseDown={this.handleRemoveField.bind(this)}>
-          <FontAwesome name="trash" className={`${BEM_BASE}-button-icon`}/>
-        </div>
-      );
+    if (this.wasEmpty || (this.element.currentKey === '_id' && !this.props.context.path.length)) {
+      return null;
     }
-    return null;
+    return (
+      <div className={`${BEM_BASE}-button btn btn-default btn-xs`}
+           onMouseDown={this.handleRemoveField.bind(this)}>
+        <FontAwesome name="trash" className={`${BEM_BASE}-button-icon`}/>
+      </div>
+    );
   }
 
   /**
    * Render the add field/delete field buttons. If the element is an object or
    * an array, provide a "expand" button.
    *
-   * @param {Number} displace - The distance to push the add-field dropdown.
+   * @param {boolean} showTypes - If the element is castable to another type.
+   * @param {boolean} showInput - If the element is value editable.
+   * @param {boolean} showExpand - If the element is expandable.
    *
    * @returns {React.Component} The component.
    */
-  renderActions(displace) {
-    if (this.element.currentKey !== '$new') {
-      return (
-        <span className={`${BEM_BASE}-actions`}>
-          {this.renderExpand()}
-          <AddFieldButton {...this.props}
-            displace={displace}
-          />
-          {this.renderRemoveField()}
-        </span>
-      );
+  renderActions(showTypes, showInput, showExpand) {
+    if (this.element.currentKey === '$new') {
+      return null;
     }
-    return null;
+
+    const displace = 87 * showTypes + 130 * showInput + 23 * showExpand;
+    return (
+      <span className={`${BEM_BASE}-actions`}>
+        {this.renderExpand(showExpand)}
+        <AddFieldButton {...this.props}
+          displace={displace}
+        />
+        {this.renderRemoveField()}
+      </span>
+    );
   }
 
   render() {
-    let displace = 211;
-    if (this.element.currentType === 'Object' || this.element.currentType === 'Array') {
-      displace = 120;
-    }
+    const showTypes = (this.element.currentKey !== '_id' ||
+                       this.props.context.path.length);
+    const showInput = (this.element.currentType !== 'Object' &&
+                       this.element.currentType !== 'Array' &&
+                       this.element.isValueEditable());
+    const showExpand = (this.element.currentType === 'Object' ||
+                       this.element.currentType === 'Array');
 
     return (
       <div className={BEM_BASE}>
         {this.renderFieldName()}
-        {this.renderInput()}
-        {this.renderTypes()}
-        {this.renderActions(displace)}
+        {this.renderInput(showInput)}
+        {this.renderTypes(showTypes)}
+        {this.renderActions(showTypes, showInput, showExpand)}
       </div>
     );
   }
@@ -453,7 +469,8 @@ CellEditor.propTypes = {
   column: PropTypes.any,
   node: PropTypes.any,
   api: PropTypes.any,
-  columnApi: PropTypes.any
+  columnApi: PropTypes.any,
+  context: PropTypes.any
 };
 
 CellEditor.displayName = 'CellEditor';

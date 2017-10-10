@@ -104,8 +104,6 @@ class CellRenderer extends React.Component {
   }
 
   handleEdited() {
-    // TODO: set for consistency, state is only really used for update rows.
-    this.props.node.data.state = 'modified';
   }
 
   handleUndo(event) {
@@ -124,7 +122,7 @@ class CellRenderer extends React.Component {
 
   handleDrillDown(event) {
     event.stopPropagation();
-    Actions.drillDown(this.element.currentKey, this.element.currentType);
+    Actions.drillDown(this.props.node.data.hadronDocument, this.element);
   }
 
   handleClicked() {
@@ -223,11 +221,11 @@ class CellRenderer extends React.Component {
       canUndo = true;
     } else {
       element = this.renderValidCell();
-      if (this.element.isEdited()) {
-        className = `${className}-${EDITED}`;
-        canUndo = true;
-      } else if (this.element.isAdded()) {
+      if (this.element.isAdded()) {
         className = `${className}-${ADDED}`;
+        canUndo = true;
+      } else if (this.element.isModified()) {
+        className = `${className}-${EDITED}`;
         canUndo = true;
       }
       canExpand = (this.element.currentType === 'Object' || this.element.currentType === 'Array');

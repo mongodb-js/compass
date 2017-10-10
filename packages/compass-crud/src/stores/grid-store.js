@@ -12,6 +12,7 @@ const GridStore = Reflux.createStore( {
     this.listenTo(Actions.addColumn, this.addColumn.bind(this));
     this.listenTo(Actions.removeColumn, this.removeColumn.bind(this));
     this.listenTo(Actions.resetHeaders, this.resetColumns.bind(this));
+    this.listenTo(Actions.cleanCols, this.cleanCols.bind(this));
     this.listenTo(Actions.elementAdded, this.elementAdded.bind(this));
     this.listenTo(Actions.elementRemoved, this.elementRemoved.bind(this));
     this.listenTo(Actions.elementTypeChanged, this.elementTypeChanged.bind(this));
@@ -51,6 +52,24 @@ const GridStore = Reflux.createStore( {
     for (let i = 0; i < columnNames.length; i++) {
       this.setShowing(columnNames[i]);
     }
+  },
+
+  /**
+   * After an update, go through and see if any columns are empty. If so,
+   * delete them.
+   */
+  cleanCols() {
+    const toDel = [];
+
+    const columnNames = Object.keys(this.showing);
+    for (let i = 0; i < columnNames.length; i++) {
+      const name = columnNames[i];
+      if (!(name in this.columns)) {
+        toDel.push(name);
+        // delete this.showing[i]
+      }
+    }
+    this.trigger({remove: {colIds: toDel}});
   },
 
   /**
@@ -133,7 +152,7 @@ const GridStore = Reflux.createStore( {
       if (oldType === MIXED) {
         this.setShowing(key);
       } else {
-        this.showing[key] = MIXED;
+        this.showing[key] = (Object.keys(this.columns[key]).length === 1) ? type : MIXED;
       }
       if (oldType !== this.showing[key]) {
         const params = {updateHeaders: {showing: {}}};
@@ -143,8 +162,8 @@ const GridStore = Reflux.createStore( {
     }
   },
 
-  addColumn: function(columnBefore, rowIndex) {
-    this.trigger({add: {colId: columnBefore, rowIndex: rowIndex}});
+  addColumn: function(columnBefore, rowIndex, path) {
+    this.trigger({add: {colId: columnBefore, rowIndex: rowIndex, path: path}});
   },
 
   removeColumn: function(colId) {
