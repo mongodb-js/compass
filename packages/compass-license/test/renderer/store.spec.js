@@ -1,4 +1,5 @@
 import Store from 'stores';
+import Actions from 'actions';
 
 describe('LicenseStore [Store]', () => {
   beforeEach(() => {
@@ -7,5 +8,39 @@ describe('LicenseStore [Store]', () => {
 
   it('defaults to hidden', () => {
     expect(Store.state.isVisible).to.equal(false);
+  });
+
+  describe('#agree', () => {
+
+  });
+
+  describe('#disagree', () => {
+
+  });
+
+  describe('#show', () => {
+    it('sets the state to visible', (done) => {
+      const unsubscribe = Store.listen((state) => {
+        unsubscribe();
+        expect(state.isVisible).to.equal(true);
+        done();
+      });
+      Actions.show();
+    });
+  });
+
+  describe('#hide', () => {
+    beforeEach(() => {
+      Store.state.isVisible = true;
+    });
+
+    it('sets the state to not visible', (done) => {
+      const unsubscribe = Store.listen((state) => {
+        unsubscribe();
+        expect(state.isVisible).to.equal(false);
+        done();
+      });
+      Actions.hide();
+    });
   });
 });
