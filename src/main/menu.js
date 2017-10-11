@@ -189,7 +189,7 @@ function helpSubMenu() {
   subMenu.push(securityItem());
 
 
-  if (DISTRIBUTION.name !== COMMUNITY) {
+  if (!DISTRIBUTION || (DISTRIBUTION.name !== COMMUNITY)) {
     subMenu.push(separator());
     subMenu.push(intercomItem());
   }
