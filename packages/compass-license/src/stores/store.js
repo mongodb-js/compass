@@ -27,7 +27,7 @@ const LicenseStore = Reflux.createStore({
   agree() {
     global.hadronApp.preferences.save({ agreedToLicense: true }, {
       success: () => {
-        this.hide();
+        this.setState({ isVisible: false, isAgreed: true });
       }
     });
   },
@@ -64,7 +64,10 @@ const LicenseStore = Reflux.createStore({
    * @return {Object} initial store state.
    */
   getInitialState() {
-    return { isVisible: false };
+    return {
+      isVisible: false,
+      isAgreed: false
+    };
   }
 });
 

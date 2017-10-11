@@ -1,8 +1,8 @@
 {
-  "name": "license",
-  "productName": "License plugin",
+  "name": "@mongodb-js/compass-license",
+  "productName": "Compass License",
   "version": "1.0.0",
-  "description": "Compass License Plugin",
+  "description": "Compass Community License Plugin",
   "main": "lib/index.js",
   "scripts": {
     "clean": "rimraf lib",

@@ -10,6 +10,10 @@ describe('LicenseStore [Store]', () => {
     expect(Store.state.isVisible).to.equal(false);
   });
 
+  it('defaults agreed to false', () => {
+    expect(Store.state.isAgreed).to.equal(false);
+  });
+
   describe('#show', () => {
     it('sets the state to visible', (done) => {
       const unsubscribe = Store.listen((state) => {
