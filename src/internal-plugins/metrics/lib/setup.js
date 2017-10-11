@@ -14,6 +14,8 @@ const ICON_PATH = path.join(__dirname, '..', 'images', 'compass-dialog-icon.png'
 
 const debug = require('debug')('mongodb-compass:metrics:setup');
 
+const COMMUNITY = 'mongodb-compass-community';
+const DISTRIBUTION = pkg.config.hadron.distributions[process.env.HADRON_DISTRIBUTION];
 
 const INTERCOM_KEY = 'p57suhg7';
 const BUGSNAG_KEY = '0d11ab5f4d97452cc83d3365c21b491c';
@@ -23,11 +25,6 @@ module.exports = function() {
     stitch: {
       appId: 'compass-metrics-irinb',
       enabled: true
-    },
-    intercom: {
-      appId: INTERCOM_KEY,
-      enabled: app.preferences.trackUsageStatistics,
-      panelEnabled: app.preferences.enableFeedbackPanel
     },
     bugsnag: {
       apiKey: BUGSNAG_KEY,
@@ -40,6 +37,16 @@ module.exports = function() {
       enabled: app.preferences.trackErrors
     }
   });
+
+  if (DISTRIBUTION.name !== COMMUNITY) {
+    metrics.configure({
+      intercom: {
+        appId: INTERCOM_KEY,
+        enabled: app.preferences.trackUsageStatistics,
+        panelEnabled: app.preferences.enableFeedbackPanel
+      }
+    });
+  }
 
   // create an app resource with name and version
   const appResource = new resources.AppResource({
@@ -136,7 +143,9 @@ module.exports = function() {
    * such that when a link is clicked, the event is properly
    * passed off to `app.router` and a web page actually opens.
    */
-  intercom.configure();
+  if (DISTRIBUTION.name !== COMMUNITY) {
+    intercom.configure();
+  }
 
   app.metrics = metrics;
 };

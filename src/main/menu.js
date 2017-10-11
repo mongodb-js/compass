@@ -6,12 +6,15 @@ var ipc = require('hadron-ipc');
 var BrowserWindow = electron.BrowserWindow;
 var Menu = electron.Menu;
 var app = electron.app;
+var pkg = require('../../package.json');
 
 var State = require('ampersand-state');
 var _ = require('lodash');
 var debug = require('debug')('mongodb-compass:menu');
 
 const COMPASS_HELP = 'https://docs.mongodb.com/compass/';
+const COMMUNITY = 'mongodb-compass-community';
+const DISTRIBUTION = pkg.config.hadron.distributions[process.env.HADRON_DISTRIBUTION];
 
 // submenu related
 function separator() {
@@ -185,8 +188,11 @@ function helpSubMenu() {
   subMenu.push(networkOptInDialogItem());
   subMenu.push(securityItem());
 
-  subMenu.push(separator());
-  subMenu.push(intercomItem());
+
+  if (DISTRIBUTION.name !== COMMUNITY) {
+    subMenu.push(separator());
+    subMenu.push(intercomItem());
+  }
 
   if (process.platform !== 'darwin') {
     subMenu.push(separator());

@@ -7,17 +7,18 @@
         p To enhance the user experience, Compass can integrate with 3rd party services, which requires external network requests. Please choose from the settings below:
         form
           ul
-            li
-              label
-                input(type='checkbox', name='enableFeedbackPanel', data-hook='product-feedback-checkbox', data-test-id='product-feedback-checkbox')
-                span Enable Product Feedback Tool
-              p.option-description Enables a tool for sending feedback or talking to our Product and Development teams directly from Compass.
+            if !isCommunity
+              li
+                label
+                  input(type='checkbox', name='enableFeedbackPanel', data-hook='product-feedback-checkbox', data-test-id='product-feedback-checkbox')
+                  span Enable Product Feedback Tool
+                p.option-description Enables a tool for sending feedback or talking to our Product and Development teams directly from Compass.
 
-            li
-              label
-                input(type='checkbox', name='enableMaps', data-hook='enable-maps-checkbox', data-test-id='enable-maps-checkbox')
-                span Enable Geographic Visualizations
-              p.option-description Allow Compass to make requests to a 3rd party mapping service.
+              li
+                label
+                  input(type='checkbox', name='enableMaps', data-hook='enable-maps-checkbox', data-test-id='enable-maps-checkbox')
+                  span Enable Geographic Visualizations
+                p.option-description Allow Compass to make requests to a 3rd party mapping service.
 
             li
               label
