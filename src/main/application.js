@@ -93,6 +93,13 @@ Application.prototype.setupLifecycleListeners = function() {
     debug('All windows closed.  Quitting app.');
     app.quit();
   });
+
+  ipc.respondTo({
+    'license:disagree': function() {
+      debug('Did not agree to license, quitting app.');
+      app.quit();
+    }
+  });
 };
 
 Application.prototype.setupApplicationMenu = function() {
@@ -128,13 +135,6 @@ Application.prototype.setupUserDirectory = function() {
       app.setPath('userCache', path.join(app.getPath('cache'), newAppName));
     }
   }
-};
-
-Application.prototype.setupLifecycleListeners = function() {
-  app.on('window-all-closed', function() {
-    debug('All windows closed.  Quitting app.');
-    app.quit();
-  });
 };
 
 Application._instance = null;

@@ -55,6 +55,15 @@ const preferencesProps = {
     required: true,
     default: ''
   },
+  /**
+   * Whether the user agreed to community license terms.
+   * @type {Boolean}
+   */
+  agreedToLicense: {
+    type: 'boolean',
+    required: true,
+    default: false
+  },
 
   /**
    * Feature Flags
