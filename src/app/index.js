@@ -324,6 +324,11 @@ var Application = View.extend({
         prefs.lastKnownVersion = currentVersion;
         save = true;
       }
+      if (DISTRIBUTION.name === COMMUNITY) {
+        prefs.enableMaps = false;
+        prefs.enableFeedbackPanel = false;
+        save = true;
+      }
       if (save) {
         prefs.save(null, {
           success: done.bind(null, null)
