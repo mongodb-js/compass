@@ -17,6 +17,10 @@ var TAB_KEY = 9;
 var ENTER_KEY = 13;
 var SPACE_KEY = 32;
 
+const pkg = require('../../../package.json');
+const COMMUNITY = 'mongodb-compass-community';
+const DISTRIBUTION = pkg.config.hadron.distributions[process.env.HADRON_DISTRIBUTION];
+
 /**
  * The feature tour highlights some signature features of MongoDB Compass.
  * When Compass is started for the first time, it shows all the features in
@@ -118,6 +122,9 @@ var TourView = View.extend({
     var previous = model.previousVersion || '0.0.0';
 
     model.features = _.filter(FEATURES, function(feature) {
+      if (DISTRIBUTION.name === COMMUNITY && !feature.community) {
+        return false;
+      }
       if (model.force && feature.initial) {
         return true;
       }
