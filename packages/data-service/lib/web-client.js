@@ -45,8 +45,8 @@ class WebClient {
    */
   connect(callback) {
     const options = {};
-    if (this.model.hostname && this.model.port) {
-      options.baseUrl = `http://${this.model.hostname}:${this.model.port}`;
+    if (this.model.stitchBaseUrl) {
+      options.baseUrl = this.model.stitchBaseUrl;
     }
     this.stitchClient = new StitchClient(this.model.stitchClientAppId, options);
     this.stitchClient
