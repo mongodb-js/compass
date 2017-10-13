@@ -14,9 +14,6 @@ const ICON_PATH = path.join(__dirname, '..', 'images', 'compass-dialog-icon.png'
 
 const debug = require('debug')('mongodb-compass:metrics:setup');
 
-const COMMUNITY = 'mongodb-compass-community';
-const DISTRIBUTION = pkg.config.hadron.distributions[process.env.HADRON_DISTRIBUTION];
-
 const INTERCOM_KEY = 'p57suhg7';
 const BUGSNAG_KEY = '0d11ab5f4d97452cc83d3365c21b491c';
 
@@ -38,7 +35,7 @@ module.exports = function() {
     }
   });
 
-  if (DISTRIBUTION.name !== COMMUNITY) {
+  if (process.env.HADRON_PRODUCT !== 'mongodb-compass-community') {
     metrics.configure({
       intercom: {
         appId: INTERCOM_KEY,
@@ -143,7 +140,7 @@ module.exports = function() {
    * such that when a link is clicked, the event is properly
    * passed off to `app.router` and a web page actually opens.
    */
-  if (DISTRIBUTION.name !== COMMUNITY) {
+  if (process.env.HADRON_PRODUCT !== 'mongodb-compass-community') {
     intercom.configure();
   }
 

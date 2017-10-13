@@ -1,4 +1,3 @@
-const app = require('hadron-app');
 const SchemaComponent = require('./lib/component');
 const SchemaStatusSubview = require('./lib/component/status-subview');
 const SchemaAction = require('./lib/action');
@@ -17,23 +16,30 @@ const COLLECTION_TAB_ROLE = {
 /**
  * Activate all the components in the Schema package.
  *
- * @param {Object} appRegistry   the app registry
+ * @param {Object} appRegistry - the app registry
  */
 function activate(appRegistry) {
-  appRegistry.registerRole('Collection.Tab', COLLECTION_TAB_ROLE);
-  appRegistry.registerAction('Schema.Actions', SchemaAction);
-  appRegistry.registerStore('Schema.Store', SchemaStore);
-  appRegistry.registerComponent('Schema.StatusSubview', SchemaStatusSubview);
+  // @todo: Temporary hack to remove the internal plugin from the community edition.
+  if (process.env.HADRON_PRODUCT !== 'mongodb-compass-community') {
+    appRegistry.registerRole('Collection.Tab', COLLECTION_TAB_ROLE);
+    appRegistry.registerAction('Schema.Actions', SchemaAction);
+    appRegistry.registerStore('Schema.Store', SchemaStore);
+    appRegistry.registerComponent('Schema.StatusSubview', SchemaStatusSubview);
+  }
 }
 
 /**
  * Deactivate all the components in the Schema package.
+ *
+ * @param {Object} appRegistry - the app registry
  */
-function deactivate() {
-  app.appRegistry.deregisterRole('Collection.Tab', COLLECTION_TAB_ROLE);
-  app.appRegistry.deregisterAction('Schema.Actions');
-  app.appRegistry.deregisterStore('Schema.Store');
-  app.appRegistry.deregisterComponent('Schema.StatusSubview');
+function deactivate(appRegistry) {
+  if (process.env.HADRON_PRODUCT !== 'mongodb-compass-community') {
+    appRegistry.deregisterRole('Collection.Tab', COLLECTION_TAB_ROLE);
+    appRegistry.deregisterAction('Schema.Actions');
+    appRegistry.deregisterStore('Schema.Store');
+    appRegistry.deregisterComponent('Schema.StatusSubview');
+  }
 }
 
 module.exports.activate = activate;

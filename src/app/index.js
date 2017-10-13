@@ -20,10 +20,6 @@ require('./setup-hadron-caches');
 /**
  * The main entrypoint for the application!
  */
-const pkg = require('../../package.json');
-const COMMUNITY = 'mongodb-compass-community';
-const DISTRIBUTION = pkg.config.hadron.distributions[process.env.HADRON_DISTRIBUTION];
-
 var electron = require('electron');
 var APP_VERSION = electron.remote.app.getVersion();
 
@@ -227,7 +223,7 @@ var Application = View.extend({
      * If we're in Compass community and the license has not been agreed, we need
      * to show it first and force the user to agree or disagree.
      */
-    if (DISTRIBUTION.name === COMMUNITY && !app.preferences.agreedToLicense) {
+    if (process.env.HADRON_PRODUCT === 'mongodb-compass-community' && !app.preferences.agreedToLicense) {
       const licenseComponent = app.appRegistry.getRole('Application.License')[0].component;
       const licenseStore = app.appRegistry.getStore('License.Store');
       const licenseActions = app.appRegistry.getAction('License.Actions');
@@ -324,7 +320,7 @@ var Application = View.extend({
         prefs.lastKnownVersion = currentVersion;
         save = true;
       }
-      if (DISTRIBUTION.name === COMMUNITY) {
+      if (process.env.HADRON_PRODUCT === 'mongodb-compass-community') {
         prefs.enableMaps = false;
         prefs.enableFeedbackPanel = false;
         save = true;

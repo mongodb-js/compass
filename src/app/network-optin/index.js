@@ -7,10 +7,6 @@ var debug = require('debug')('mongodb-compass:network-optin:index');
 
 var indexTemplate = require('./index.jade');
 
-const pkg = require('../../../package.json');
-const COMMUNITY = 'mongodb-compass-community';
-const DISTRIBUTION = pkg.config.hadron.distributions[process.env.HADRON_DISTRIBUTION];
-
 var NetworkOptInView = View.extend({
   template: indexTemplate,
   props: {
@@ -30,7 +26,7 @@ var NetworkOptInView = View.extend({
     isCommunity: {
       type: 'boolean',
       required: true,
-      default: DISTRIBUTION.name === COMMUNITY
+      default: process.env.HADRON_PRODUCT === 'mongodb-compass-community'
     }
   },
   events: {

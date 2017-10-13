@@ -5,8 +5,12 @@ const pkg = require('../package.json');
  * npm start compass-community
  */
 if (!process.env.HADRON_DISTRIBUTION) {
-  process.env.HADRON_DISTRIBUTION = pkg.distribution || pkg.config.hadron.distributions.default;
+  const distribution = pkg.distribution || pkg.config.hadron.distributions.default;
+  process.env.HADRON_DISTRIBUTION = distribution;
 }
+
+const name = pkg.config.hadron.distributions[process.env.HADRON_DISTRIBUTION].name;
+process.env.HADRON_PRODUCT = name || 'mongodb-compass';
 
 if (pkg.distribution) {
   process.env.NODE_ENV = 'production';
