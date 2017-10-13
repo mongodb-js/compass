@@ -62,5 +62,29 @@ module.exports = [
     version: '1.5.0',
     initial: true,
     community: false
+  },
+  {
+    title: 'Improved CRUD',
+    description: 'Better editing with validation of individual BSON types.',
+    image: 'improved-crud.png',
+    version: '1.9.0',
+    initial: true,
+    community: true
+  },
+  {
+    title: 'Deployment Awareness',
+    description: 'Replica set aware connections allow for continued use during replica set configuration changes and provides additional information of the connected cluster.',
+    image: 'replica-set-name.png',
+    version: '1.9.0',
+    initial: true,
+    community: true
+  },
+  {
+    title: 'Query History',
+    description: 'Easily access and manage executed queries and save favorites for often executed queries.',
+    image: 'query-history.png',
+    version: '1.9.0',
+    initial: true,
+    community: true
   }
 ];
