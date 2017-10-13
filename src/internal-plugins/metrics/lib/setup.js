@@ -94,13 +94,15 @@ module.exports = function() {
   window.addEventListener('error', function(err) {
     debug('error encountered, notify trackers', err);
     // Notify user that error occurred
-    if (!_.includes(err.message, 'MongoError')) {
-      Notifier.notify({
-        'icon': ICON_PATH,
-        'message': 'Unexpected error occurred: ' + err.message,
-        'title': 'MongoDB Compass Exception',
-        'wait': true
-      });
+    if (process.env.NODE_ENV !== 'production') {
+      if (!_.includes(err.message, 'MongoError')) {
+        Notifier.notify({
+          'icon': ICON_PATH,
+          'message': 'Unexpected error occurred: ' + err.message,
+          'title': 'MongoDB Compass Exception',
+          'wait': true
+        });
+      }
     }
     metrics.error(err);
     // hide progress bar when an unknown error occurs.
