@@ -51,6 +51,9 @@ _.assign(props, {
   stitchGroupId: {
     type: 'string'
   },
+  stitchBaseUrl: {
+    type: 'string'
+  },
   port: {
     type: 'port',
     default: 27017
