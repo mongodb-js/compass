@@ -171,10 +171,7 @@ class CellEditor extends React.Component {
       }
       /* Update the grid store so we know what type this element is */
       Actions.elementAdded(this.element.currentKey, this.element.currentType, id);
-    } else if (this.element.isRemoved()) {
-      /* Update the grid store so we know that the header should not include this type */
-      Actions.elementRemoved(this.element.currentKey, id, false);
-    } else if (this.element.currentType !== this.oldType) {
+    } else if (!this.element.isRemoved() && this.element.currentType !== this.oldType) {
       /* Update the grid store since the element has changed type */
       Actions.elementTypeChanged(this.element.currentKey, this.element.currentType, id);
     }
@@ -198,18 +195,25 @@ class CellEditor extends React.Component {
   handleRemoveField() {
     if (this.element.isRemovable()) {
       const oid = this.props.node.data.hadronDocument.getId().toString();
-      this.element.remove();
+
       if (this.wasEmpty) {
         this.element = undefined; // return state to undefined
-      } else if (this.newField) {
-        Actions.elementRemoved(this.element.currentKey, oid, true);
+        return this.props.api.stopEditing();
       }
-      this.props.api.stopEditing();
+
+      if (this.newField || this.element.isAdded()) {
+        Actions.elementRemoved(this.element.currentKey, oid);
+      } else {
+        Actions.elementMarkRemoved(this.element.currentKey, oid);
+      }
+      this.element.remove();
     }
+    this.props.api.stopEditing();
   }
 
   handleDrillDown() {
     Actions.drillDown(this.props.node.data.hadronDocument, this.element);
+    // TODO: close editor?
   }
 
   handleChange(event) {

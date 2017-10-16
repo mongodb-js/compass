@@ -193,7 +193,7 @@ class DocumentTableView extends React.Component {
 
     /* Update the headers */
     for (const element of node.data.hadronDocument.elements) {
-      Actions.elementRemoved(element.currentKey, oid, true);
+      Actions.elementRemoved(element.currentKey, oid);
     }
 
     /* Update the toolbar */

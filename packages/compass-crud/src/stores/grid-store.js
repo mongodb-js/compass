@@ -9,12 +9,14 @@ const GridStore = Reflux.createStore( {
   init: function() {
     this.columns = {};
     this.showing = {};
+    this.stageRemove = {};
     this.listenTo(Actions.addColumn, this.addColumn.bind(this));
     this.listenTo(Actions.removeColumn, this.removeColumn.bind(this));
     this.listenTo(Actions.resetHeaders, this.resetColumns.bind(this));
     this.listenTo(Actions.cleanCols, this.cleanCols.bind(this));
     this.listenTo(Actions.elementAdded, this.elementAdded.bind(this));
     this.listenTo(Actions.elementRemoved, this.elementRemoved.bind(this));
+    this.listenTo(Actions.elementMarkRemoved, this.elementMarkRemoved.bind(this));
     this.listenTo(Actions.elementTypeChanged, this.elementTypeChanged.bind(this));
 
     this.setShowing = this.setShowing.bind(this);
@@ -36,6 +38,31 @@ const GridStore = Reflux.createStore( {
       }
     }
     this.showing[key] = type;
+  },
+
+  /**
+   * Helper to add/remove elements from the stageRemove object, which tracks
+   * if an element is marked as deleted but not actually removed. Needed because
+   * we want to delete columns that are empty, but not if something is staged.
+   *
+   * @param {String} key - The column ID.
+   * @param {ObjectId} oid - The OID of the document.
+   * @param {boolean} add - True if we are marking a field as deleted. False if
+   * we are no longer tracking that field (either because it was actually
+   * deleted or undo/cancel was clicked.
+   */
+  stageField(key, oid, add) {
+    if (add) {
+      if (!(key in this.stageRemove)) {
+        this.stageRemove[key] = {};
+      }
+      this.stageRemove[key][oid] = true;
+    } else if (key in this.stageRemove) {
+      delete this.stageRemove[key][oid];
+      if (_.isEmpty(this.stageRemove[key])) {
+        delete this.stageRemove[key];
+      }
+    }
   },
 
   /**
@@ -64,12 +91,14 @@ const GridStore = Reflux.createStore( {
     const columnNames = Object.keys(this.showing);
     for (let i = 0; i < columnNames.length; i++) {
       const name = columnNames[i];
-      if (!(name in this.columns)) {
+      if (!(name in this.columns) && !(name in this.stageRemove)) {
         toDel.push(name);
-        // delete this.showing[i]
+        delete this.showing[name];
       }
     }
-    this.trigger({remove: {colIds: toDel}});
+    if (toDel.length) {
+      this.trigger({remove: {colIds: toDel}});
+    }
   },
 
   /**
@@ -95,6 +124,8 @@ const GridStore = Reflux.createStore( {
       }
     }
 
+    this.stageField(key, oid, false);
+
     if (oldType !== this.showing[key]) {
       const params = {updateHeaders: {showing: {}}};
       params.updateHeaders.showing[key] = this.showing[key];
@@ -103,21 +134,59 @@ const GridStore = Reflux.createStore( {
   },
 
   /**
-   * A element has been deleted from the column. If the value was the last
-   * value in the column, delete the column. If the type was mixed, and there
-   * are other elements in the column, recalculate the header type.
+   * A element has been marked as deleted from the column. Need to remove it
+   * from this.columns/this.showing so that the header types will be updated
+   * immediately, but add it to this.markedRemoved so that we don't remove
+   * columns when there are still fields that are marked as deleted but not
+   * fully removed.
    *
    * @param {String} key - The removed element's key.
    * @param {ObjectId} oid - The ObjectId of the parent element.
-   * @param {boolean} deleteCol - If true, delete the column if it is empty.
    */
-  elementRemoved(key, oid, deleteCol) {
+  elementMarkRemoved(key, oid) {
     delete this.columns[key][oid];
     const params = {};
 
+    /* Need to track columns that are marked as deletion but not removed yet */
+    this.stageField(key, oid, true);
+
+    /* Update the headers */
     if (_.isEmpty(this.columns[key])) {
       delete this.columns[key];
-      if (deleteCol) {
+    } else {
+      const oldType = this.showing[key];
+      if (oldType === MIXED) {
+        this.setShowing(key);
+      }
+      if (oldType !== this.showing[key]) {
+        params.updateHeaders = {showing: {}};
+        params.updateHeaders.showing[key] = this.showing[key];
+        this.trigger(params);
+      }
+    }
+  },
+
+  /**
+   * A element has been deleted from the column. Can be deleted after being
+   * marked for deletion or can just be deleted. If the type was mixed, and
+   * there are other elements in the column, recalculate the header type.
+   *
+   * @param {String} key - The removed element's key.
+   * @param {ObjectId} oid - The ObjectId of the parent element.
+   */
+  elementRemoved(key, oid) {
+    if (this.columns[key] && this.columns[key][oid]) {
+      delete this.columns[key][oid];
+    }
+    const params = {};
+
+    /* Need to track columns that are marked as deletion but not removed yet */
+    this.stageField(key, oid, false);
+
+    /* Update the headers */
+    if (_.isEmpty(this.columns[key])) {
+      delete this.columns[key];
+      if (!(key in this.stageRemove)) {
         params.remove = {colIds: [key]};
       }
     } else {
@@ -131,7 +200,10 @@ const GridStore = Reflux.createStore( {
         params.updateHeaders.showing[key] = this.showing[key];
       }
     }
-    this.trigger(params);
+
+    if (!_.isEmpty(params)) {
+      this.trigger(params);
+    }
   },
 
 

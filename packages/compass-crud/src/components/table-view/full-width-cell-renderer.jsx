@@ -229,6 +229,11 @@ class FullWidthCellRenderer extends React.Component {
    * @param {Object} doc - The updated document.
    */
   handleUpdateSuccess(doc) {
+    for (const element of this.doc.elements) {
+      if (!(element.currentKey in doc)) {
+        Actions.elementRemoved(element.currentKey, doc._id);
+      }
+    }
     this.props.context.handleUpdate(doc);
   }
 
@@ -267,7 +272,7 @@ class FullWidthCellRenderer extends React.Component {
       Actions.elementAdded(removed[i].currentKey, removed[i].currentType, id);
     }
     for (let i = 0; i < added.length; i++) {
-      Actions.elementRemoved(added[i].currentKey, id, true);
+      Actions.elementRemoved(added[i].currentKey, id);
     }
     this.doc.cancel();
     for (let i = 0; i < changed.length; i++) {

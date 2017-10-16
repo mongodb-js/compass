@@ -111,7 +111,7 @@ class CellRenderer extends React.Component {
     const oid = this.props.node.data.hadronDocument.getId().toString();
     if (this.element.isAdded()) {
       this.isDeleted = true;
-      Actions.elementRemoved(this.element.currentKey, oid, true);
+      Actions.elementRemoved(this.element.currentKey, oid);
     } else if (this.element.isRemoved()) {
       Actions.elementAdded(this.element.currentKey, this.element.currentType, oid);
     } else {

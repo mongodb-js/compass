@@ -19,6 +19,7 @@ const Actions = Reflux.createActions([
   'resetHeaders',
   'elementAdded',
   'elementRemoved',
+  'elementMarkRemoved',
   'elementTypeChanged',
   'getNextPage',
   'getPrevPage',
