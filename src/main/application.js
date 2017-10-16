@@ -30,15 +30,48 @@ Application.prototype.setupJavaScriptArguments = function() {
   app.commandLine.appendSwitch('js-flags', '--harmony');
 };
 
+/**
+ * Map package.json product names to API endpoint product names.
+ */
+const API_PRODUCT = {
+  'mongodb-compass': 'compass',
+  'mongodb-compass-community': 'compass-community'
+};
+
+/**
+ * Platform API mappings.
+ */
+const API_PLATFORM = {
+  'darwin': 'osx',
+  'win32': 'windows',
+  'linux': 'linux'
+};
+
+/**
+ * Get the channel name from the version number.
+ *
+ * @returns {String} - The channel.
+ */
+const getChannel = () => {
+  if (pkg.version.indexOf('beta') > -1) {
+    return 'beta';
+  }
+  return 'stable';
+};
+
+/**
+ * TODO (imlucas) Extract .pngs from .icns so we can
+ * have nice Compass icons in dialogs.
+ *
+ * path.join(__dirname, '..', 'resources', 'mongodb-compass.png')
+ */
 Application.prototype.setupAutoUpdate = function() {
   this.autoUpdateManager = new AutoUpdateManager(
-    _.get(pkg, 'config.hadron.endpoint')
-    /**
-     * TODO (imlucas) Extract .pngs from .icns so we can
-     * have nice Compass icons in dialogs.
-     *
-     * path.join(__dirname, '..', 'resources', 'mongodb-compass.png')
-     */
+    _.get(pkg, 'config.hadron.endpoint'),
+    null,
+    API_PRODUCT[process.env.HADRON_PRODUCT],
+    getChannel(),
+    API_PLATFORM[process.platform]
   );
 
   this.autoUpdateManager.on('state-change', function(newState) {

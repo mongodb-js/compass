@@ -181,7 +181,7 @@
     "get-object-path": "azer/get-object-path#74eb42de0cfd02c14ffdd18552f295aba723d394",
     "hadron-app": "^2.0.0",
     "hadron-app-registry": "^7.0.0",
-    "hadron-auto-update-manager": "^0.0.12",
+    "hadron-auto-update-manager": "^1.0.0",
     "hadron-compile-cache": "^1.0.1",
     "hadron-ipc": "^0.0.7",
     "hadron-module-cache": "^0.0.3",
