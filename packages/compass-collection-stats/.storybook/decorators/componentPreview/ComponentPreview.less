@@ -1,0 +1,31 @@
+.root {
+  @gutter: 1rem;
+
+  margin-top: @gutter / 2;
+  padding: @gutter;
+  border: 1px solid transparent;
+  position: relative;
+
+  &::before {
+    content: 'Live Preview';
+    display: block;
+    color: rgb(137, 141, 151);
+    position: absolute;
+    top: -(@gutter + (@gutter/2));
+    left: 0;
+    font-size: 16px;
+    margin-bottom: 20px;
+    margin-top: 0px;
+    pointer-events: none;
+  }
+}
+
+.root--light {
+  background-color: #fff;
+  border-color: rgb(204, 214, 221);
+}
+
+.root--dark {
+  background-color: #333;
+  border-color: #000;
+}
