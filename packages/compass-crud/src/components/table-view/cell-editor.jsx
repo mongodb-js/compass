@@ -96,6 +96,7 @@ class CellEditor extends React.Component {
 
   componentWillUnmount() {
     // this.props.reactContainer.removeEventListener('keydown', this.onKeyDown);
+    this.props.api.stopEditing();
   }
 
   // /**
