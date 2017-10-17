@@ -875,4 +875,110 @@ describe('mongodb-connection-model', function() {
       });
     });
   });
+
+  describe('connectionType', function() {
+    it('defaults connectionType to NODE_DRIVER', function() {
+      var c = new Connection({});
+      assert.strictEqual(c.connectionType, 'NODE_DRIVER');
+    });
+    context('when the connectionType is NODE_DRIVER', function() {
+      it('defaults  hostname to localhost', function() {
+        var c = new Connection({connectionType: 'NODE_DRIVER'});
+        assert.equal(c.hostname, 'localhost');
+      });
+      it('defaults port to 27017', function() {
+        var c = new Connection({connectionType: 'NODE_DRIVER'});
+        assert.equal(c.port, 27017);
+      });
+      it('does not allow stitchClientAppId', function() {
+        var c = new Connection({
+          connectionType: 'NODE_DRIVER',
+          stitchClientAppId: 'xkcd42'
+        });
+        assert.strictEqual(c.isValid(), false);
+      });
+      it('does not allow stitchBaseUrl', function() {
+        var c = new Connection({
+          connectionType: 'NODE_DRIVER',
+          stitchBaseUrl: 'http://localhost:9001/'
+        });
+        assert.strictEqual(c.isValid(), false);
+      });
+      it('does not allow stitchGroupId', function() {
+        var c = new Connection({
+          connectionType: 'NODE_DRIVER',
+          stitchGroupId: '23xkcd'
+        });
+        assert.strictEqual(c.isValid(), false);
+      });
+      it('does not allow stitchServiceName', function() {
+        var c = new Connection({
+          connectionType: 'NODE_DRIVER',
+          stitchServiceName: 'woof'
+        });
+        assert.strictEqual(c.isValid(), false);
+      });
+    });
+    context('when the connectionType is STITCH_ATLAS', function() {
+      it('requires a stitchClientAppId', function() {
+        var c = new Connection({connectionType: 'STITCH_ATLAS'});
+        assert.strictEqual(c.isValid(), false);
+      });
+      it('should be valid when stitchClientAppId is included', function() {
+        var c = new Connection({
+          connectionType: 'STITCH_ATLAS',
+          stitchClientAppId: 'xkcd42'
+        });
+        assert.strictEqual(c.isValid(), true);
+      });
+    });
+    context('when the connectionType is STITCH_ON_PREM', function() {
+      it('requires a stitchClientAppId', function() {
+        var c = new Connection({
+          connectionType: 'STITCH_ON_PREM',
+          stitchBaseUrl: 'http://localhost:9001/',
+          stitchGroupId: '23xkcd',
+          stitchServiceName: 'woof'
+        });
+        assert.strictEqual(c.isValid(), false);
+      });
+      it('requires a stitchBaseUrl', function() {
+        var c = new Connection({
+          connectionType: 'STITCH_ON_PREM',
+          stitchClientAppId: 'xkcd42',
+          stitchGroupId: '23xkcd',
+          stitchServiceName: 'woof'
+        });
+        assert.strictEqual(c.isValid(), false);
+      });
+      it('requires a stitchGroupId', function() {
+        var c = new Connection({
+          connectionType: 'STITCH_ON_PREM',
+          stitchClientAppId: 'xkcd42',
+          stitchBaseUrl: 'http://localhost:9001/',
+          stitchServiceName: 'woof'
+        });
+        assert.strictEqual(c.isValid(), false);
+      });
+      it('requires a stitchServiceName', function() {
+        var c = new Connection({
+          connectionType: 'STITCH_ON_PREM',
+          stitchClientAppId: 'xkcd42',
+          stitchBaseUrl: 'http://localhost:9001/',
+          stitchGroupId: '23xkcd'
+        });
+        assert.strictEqual(c.isValid(), false);
+      });
+      it('should be valid when all required fields are included', function() {
+        var c = new Connection({
+          connectionType: 'STITCH_ON_PREM',
+          stitchClientAppId: 'xkcd42',
+          stitchBaseUrl: 'http://localhost:9001/',
+          stitchGroupId: '23xkcd',
+          stitchServiceName: 'woof'
+        });
+        assert.strictEqual(c.isValid(), true);
+      });
+    });
+  });
 });

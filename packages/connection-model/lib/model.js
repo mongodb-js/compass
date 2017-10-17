@@ -26,6 +26,15 @@ function localPortGenerator() {
 }
 
 /**
+ * @constant {Object} - Allowed values for the 'connectionType' field
+ */
+var CONNECTION_TYPE_VALUES = {
+  NODE_DRIVER: 'NODE_DRIVER',
+  STITCH_ON_PREM: 'STITCH_ON_PREM',
+  STITCH_ATLAS: 'STITCH_ATLAS'
+};
+
+/**
  * # Top-Level
  */
 _.assign(props, {
@@ -44,6 +53,13 @@ _.assign(props, {
   hostname: {
     type: 'string',
     default: 'localhost'
+  },
+  connectionType: {
+    type: 'string',
+    default: CONNECTION_TYPE_VALUES.NODE_DRIVER
+  },
+  stitchServiceName: {
+    type: 'string'
   },
   stitchClientAppId: {
     type: 'string'
@@ -886,6 +902,7 @@ Connection = AmpersandModel.extend({
       this.validate_x509(attrs);
       this.validate_ldap(attrs);
       this.validate_ssh_tunnel(attrs);
+      this.validate_stitch(attrs);
     } catch (err) {
       return err;
     }
@@ -1008,6 +1025,39 @@ Connection = AmpersandModel.extend({
     }
     if (!attrs.ssh_tunnel_port) {
       throw new TypeError('ssl_tunnel_port is required when ssh_tunnel is not NONE.');
+    }
+  },
+  validate_stitch: function(attrs) {
+    if (attrs.connectionType === CONNECTION_TYPE_VALUES.STITCH_ATLAS) {
+      if (!attrs.stitchClientAppId) {
+        throw new TypeError('stitchClientAppId is required when connectionType is STITCH_ATLAS.');
+      }
+    } else if (attrs.connectionType === CONNECTION_TYPE_VALUES.STITCH_ON_PREM) {
+      if (!attrs.stitchClientAppId) {
+        throw new TypeError('stitchClientAppId is required when connectionType is STITCH_ON_PREM.');
+      }
+      if (!attrs.stitchBaseUrl) {
+        throw new TypeError('stitchBaseUrl is required when connectionType is STITCH_ON_PREM.');
+      }
+      if (!attrs.stitchGroupId) {
+        throw new TypeError('stitchGroupId is required when connectionType is STITCH_ON_PREM.');
+      }
+      if (!attrs.stitchServiceName) {
+        throw new TypeError('stitchServiceName is required when connectionType is STITCH_ON_PREM.');
+      }
+    } else if (attrs.connectionType === CONNECTION_TYPE_VALUES.NODE_DRIVER) {
+      if (attrs.stitchClientAppId) {
+        throw new TypeError('stitchClientAppId should not be provided when connectionType is NODE_DRIVER.');
+      }
+      if (attrs.stitchBaseUrl) {
+        throw new TypeError('stitchBaseUrl should not be provided when connectionType is NODE_DRIVER.');
+      }
+      if (attrs.stitchGroupId) {
+        throw new TypeError('stitchGroupId should not be provided when connectionType is NODE_DRIVER.');
+      }
+      if (attrs.stitchServiceName) {
+        throw new TypeError('stitchServiceName should not be provided when connectionType is NODE_DRIVER.');
+      }
     }
   }
 });
