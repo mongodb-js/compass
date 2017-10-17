@@ -38,6 +38,7 @@ const CollectionStatsStore = Reflux.createStore({
    *
    * @param {Object} appRegistry - app registry containing all stores and components
    */
+  // eslint-disable-next-line no-unused-vars
   onActivated(appRegistry) {
     // Events emitted from the app registry:
     // appRegistry.on('application-intialized', (version) => return true);

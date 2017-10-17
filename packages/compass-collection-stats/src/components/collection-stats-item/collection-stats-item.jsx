@@ -25,11 +25,11 @@ class CollectionStatsItem extends Component {
   render() {
     const labelClassName = classnames(
       styles.label,
-      {[styles["label-primary"]]: this.props.primary}
+      {[styles['label-primary']]: this.props.primary}
     );
     const valueClassName = classnames(
       styles.value,
-      {[styles["value-primary"]]: this.props.primary}
+      {[styles['value-primary']]: this.props.primary}
     );
 
     return (
@@ -46,4 +46,4 @@ class CollectionStatsItem extends Component {
 }
 
 export default CollectionStatsItem;
-export { CollectionStatsItem }
+export { CollectionStatsItem };

@@ -31,9 +31,9 @@ function activate(appRegistry) {
  **/
 function deactivate(appRegistry) {
   appRegistry.deregisterStore('CollectionStats.Store');
-  app.appRegistry.deregisterRole('CollectionHUD.Item', DOCUMENTS_STATS_ITEM_ROLE);
-  app.appRegistry.deregisterRole('CollectionHUD.Item', INDEXES_STATS_ITEM_ROLE);
-  app.appRegistry.deregisterComponent('CollectionHUD.Item');
+  appRegistry.deregisterRole('CollectionHUD.Item', DOCUMENTS_STATS_ITEM_ROLE);
+  appRegistry.deregisterRole('CollectionHUD.Item', INDEXES_STATS_ITEM_ROLE);
+  appRegistry.deregisterComponent('CollectionHUD.Item');
 }
 
 export default CollectionStatsPlugin;

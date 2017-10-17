@@ -9,18 +9,19 @@ import styles from './collection-stats-list.less';
 /**
  * A factory method that will create an index stats item component with the
  * attributes of `options`.
+ *
  * @param {Object} options
  *    items: the list of collection stats items with a `label` and `value`.
  *    defaults: the default values of each collection stat
  *    displayName: the display name.
- */
+ *
+ * @return {Function} CollectionStatsList - the JSX component
+ **/
 const statsFactory = (options = {items: [], defaults: {}, displayName: ''}) => {
   /**
    * The collection stats component.
    */
   class CollectionStatsList extends Component {
-    //static displayName = options.displayName;
-
     /**
      * Instantiate the component.
      *
@@ -61,9 +62,14 @@ const statsFactory = (options = {items: [], defaults: {}, displayName: ''}) => {
      */
     render() {
       return (
-        <ul className={styles.component}>
-          {options.items.map((item, index) => <CollectionStatsItem label={item.label} value={this.state[item.value]} primary={index===0}/>)}
-        </ul>
+      <ul className={styles.component}>
+        {options.items.map((item, index) => (
+          <CollectionStatsItem
+            label={item.label}
+            value={this.state[item.value]}
+            primary={index === 0} />
+        ))}
+      </ul>
       );
     }
   }
@@ -72,4 +78,4 @@ const statsFactory = (options = {items: [], defaults: {}, displayName: ''}) => {
 };
 
 export default statsFactory;
-export { statsFactory }
+export { statsFactory };

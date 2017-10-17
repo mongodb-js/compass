@@ -17,7 +17,7 @@ class CollectionStats extends Component {
     roles: []
   };
 
-  componentDidMount() {
+  componentWillMount() {
     this.setState({ roles: app.appRegistry.getRole('CollectionHUD.Item') });
   }
 

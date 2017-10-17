@@ -106,6 +106,7 @@
     "resolve": "^1.4.0",
     "rimraf": "^2.6.1",
     "semver": "^5.4.1",
+    "shebang-loader": "0.0.1",
     "sinon": "^3.2.0",
     "sinon-chai": "^2.11.0",
     "style-loader": "^0.18.2",
