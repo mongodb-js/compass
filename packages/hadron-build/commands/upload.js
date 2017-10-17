@@ -114,7 +114,7 @@ let doGitHubReleaseAssetUpload = (CONFIG, release, asset) => {
     if (err) {
       err.stack = err.stack || '<no stacktrace>';
       cli.error(`Failed to upload ${asset.name}`);
-      // return p.reject(err);
+      return p.reject(err);
     }
     cli.debug('Asset upload returned', res);
     cli.ok(`Uploaded ${asset.name}`);
