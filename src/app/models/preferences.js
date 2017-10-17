@@ -240,13 +240,6 @@ const preferencesProps = {
   }
 };
 
-const prerelease = semver.prerelease(pkg.version);
-if (!prerelease || prerelease[0] !== 'dev') {
-  // COMPASS-1340: Disable chartView for all builds except development,
-  // until it can be moved into a new product coupled to the Charts Server.
-  delete preferencesProps.chartView;
-}
-
 const Preferences = Model.extend(storageMixin, {
   props: preferencesProps,
   extraProperties: 'ignore',
@@ -295,10 +288,6 @@ const Preferences = Model.extend(storageMixin, {
     var res = _.get(this, feature, null);
     // don't allow asking for unknown features to prevent bugs
     if (res === null) {
-      if (feature === 'chartView') {
-        // COMPASS-1340 disable chartView error until moved to its own product...
-        return false;
-      }
       throw new Error(format('Feature %s unknown.', feature));
     }
     return res;
