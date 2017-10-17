@@ -194,7 +194,5 @@ exports.handler = function(argv) {
     return exists;
   });
 
-  maybePublishGitHubRelease(target)
-    .then( () => downloadCenter.maybeUpload(target))
-    .catch(abortIfError);
+  maybePublishGitHubRelease(target).catch(abortIfError);
 };

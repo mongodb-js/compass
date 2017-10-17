@@ -21,11 +21,6 @@ let maybeUpload = (CONFIG, asset) => {
     }
   };
 
-  console.log('Uploading asset.');
-  console.log(asset);
-  console.log(params);
-
-
   return new Promise((resolve, reject) => {
     new AWS.S3({
       params: {
