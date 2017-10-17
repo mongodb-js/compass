@@ -37,9 +37,40 @@ module.exports = {
           { loader: 'css-loader' }
         ]
       },
+      // For styles that have to be global (see https://github.com/css-modules/css-modules/pull/65)
       {
         test: /\.less$/,
-        exclude: /node_modules/,
+        include: [/\.global/, /bootstrap/],
+        use: [
+          { loader: 'style-loader' },
+          {
+            loader: 'css-loader',
+            options: {
+              modules: false
+            }
+          },
+          {
+            loader: 'postcss-loader',
+            options: {
+              plugins: function() {
+                return [
+                  project.plugin.autoprefixer
+                ];
+              }
+            }
+          },
+          {
+            loader: 'less-loader',
+            options: {
+              noIeCompat: true
+            }
+          }
+        ]
+      },
+      // For CSS-Modules locally scoped styles
+      {
+        test: /\.less$/,
+        exclude: [/\.global/, /bootstrap/, /node_modules/],
         use: [
           { loader: 'style-loader' },
           {
@@ -47,7 +78,7 @@ module.exports = {
             options: {
               modules: true,
               importLoaders: 1,
-              localIdentName: 'QueryHistory_[name]-[local]__[hash:base64:5]'
+              localIdentName: 'QueryBar_[name]-[local]__[hash:base64:5]'
             }
           },
           {
@@ -79,23 +110,11 @@ module.exports = {
       },
       {
         test: /\.(png|jpg|jpeg|gif|svg)$/,
-        use: [{
-          loader: 'ignore-loader',
-          query: {
-            limit: 8192,
-            name: 'assets/images/[name]__[hash:base64:5].[ext]'
-          }
-        }]
+        use: [{ loader: 'ignore-loader' }]
       },
       {
         test: /\.(woff|woff2|ttf|eot)(\?v=\d+\.\d+\.\d+)?$/,
-        use: [{
-          loader: 'ignore-loader',
-          query: {
-            limit: 8192,
-            name: 'assets/fonts/[name]__[hash:base64:5].[ext]'
-          }
-        }]
+        use: [{ loader: 'ignore-loader' }]
       }
     ]
   }

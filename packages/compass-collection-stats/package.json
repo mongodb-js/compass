@@ -70,6 +70,7 @@
     "hadron-react-components": "^1.9.1",
     "hadron-spectron": "^0.0.1",
     "html-webpack-plugin": "^2.28.0",
+    "ignore-loader": "^0.1.2",
     "istanbul-instrumenter-loader": "^3.0.0",
     "jsdom": "^11.1.0",
     "jsdom-global": "^3.0.2",
