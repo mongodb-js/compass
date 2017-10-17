@@ -77,8 +77,7 @@ class Collection extends React.Component {
 
   roleFiltered(role) {
     const serverVersion = app.instance.build.version;
-    return (!app.isFeatureEnabled('chartView') && role.name === 'CHARTS') ||
-      (role.minimumServerVersion && !semver.gte(serverVersion, role.minimumServerVersion));
+    return (role.minimumServerVersion && !semver.gte(serverVersion, role.minimumServerVersion));
   }
 
   renderReadonly() {
