@@ -104,11 +104,17 @@ let doGitHubReleaseAssetUpload = (CONFIG, release, asset) => {
   console.log(opts);
 
   const p = Promise.defer();
+
+  github.authenticate({
+    token: process.env.GITHUB_TOKEN,
+    type: 'oauth'
+  });
+
   github.repos.uploadAsset(opts, function(err, res) {
     if (err) {
       err.stack = err.stack || '<no stacktrace>';
       cli.error(`Failed to upload ${asset.name}`);
-      return p.reject(err);
+      // return p.reject(err);
     }
     cli.debug('Asset upload returned', res);
     cli.ok(`Uploaded ${asset.name}`);
