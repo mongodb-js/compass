@@ -240,9 +240,7 @@
     "turf-destination": "^1.2.1",
     "turf-distance": "^1.1.0",
     "turf-point": "^2.0.1",
-    "uuid": "^3.0.0",
-    "vega": "^3.0.0-beta.30",
-    "vega-lite": "^2.0.0-beta.4"
+    "uuid": "^3.0.0"
   },
   "devDependencies": {
     "babel-eslint": "^6.0.4",
@@ -257,7 +255,7 @@
     "electron-mocha": "^3.3.0",
     "enzyme": "^2.5.1",
     "eslint-config-mongodb-js": "^2.2.0",
-    "hadron-build": "^15.0.3",
+    "hadron-build": "^15.0.4",
     "hadron-spectron": "^1.0.0",
     "jsdom": "^9.8.3",
     "mgeneratejs": "^0.2.0",
