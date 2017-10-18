@@ -192,7 +192,7 @@ var IntercomTracker = State.extend({
       obj.host_total_memory_gb = os.totalmem() / 1024 / 1024 / 1024;
       obj.host_free_memory_gb = os.freemem() / 1024 / 1024 / 1024;
     }
-    if (typeof window !== 'undefined') {
+    if (typeof window !== 'undefined' && window.Intercom) {
       if (!this.hasBooted) {
         obj.app_id = this.appId;
         window.Intercom('boot', obj);
@@ -249,7 +249,7 @@ var IntercomTracker = State.extend({
     metadata = sentenceCase(redact(metadata));
 
     debug('sending event `%s` to intercom with metadata %j', eventName, metadata);
-    if (typeof window !== 'undefined') {
+    if (typeof window !== 'undefined' && window.Intercom) {
       window.Intercom('trackEvent', eventName, metadata);
     }
   }
