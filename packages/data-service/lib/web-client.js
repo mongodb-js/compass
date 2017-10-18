@@ -1,5 +1,6 @@
 const { StitchClient } = require('mongodb-stitch');
 const toNS = require('mongodb-ns');
+const { CONNECTION_TYPE_VALUES } = require('mongodb-connection-model');
 
 /**
  * A browser based client that wraps a stitch client instance.
@@ -129,7 +130,14 @@ class WebClient {
 
   _getCollection(ns) {
     const namespace = toNS(ns);
-    const db = this.stitchClient.service('mongodb', 'mongodb1').db(namespace.database);
+    let db;
+    if (this.model.connectionType === CONNECTION_TYPE_VALUES.STITCH_ON_PREM) {
+      db = this.stitchClient.service('mongodb', this.model.stitchServiceName)
+            .db(namespace.database);
+    } else if (this.model.connectionType === CONNECTION_TYPE_VALUES.STITCH_ATLAS) {
+      db = this.stitchClient.service('mongodb', 'mongodb-atlas').db(namespace.database);
+    }
+
     return db.collection(namespace.collection);
   }
 }

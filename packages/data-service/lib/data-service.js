@@ -2,6 +2,7 @@
 
 const Router = require('./router');
 const EventEmitter = require('events');
+const { CONNECTION_TYPE_VALUES } = require('mongodb-connection-model');
 
 /**
  * Instantiate a new DataService object.
@@ -20,7 +21,7 @@ class DataService extends EventEmitter {
   constructor(model) {
     super();
     this.client = null;
-    if (model.stitchClientAppId) {
+    if (model.connectionType !== CONNECTION_TYPE_VALUES.NODE_DRIVER) {
       const WebClient = require('./web-client');
       this.client = new WebClient(model);
     } else {
