@@ -128,6 +128,15 @@ class WebClient {
       });
   }
 
+  updateOne(ns, filter, update, options, callback) {
+    this._getCollection(ns).updateOne(filter, update, options)
+      .then((result) => {
+        callback(null, result);
+      }).catch((err) => {
+        callback(err);
+      });
+  }
+
   _getCollection(ns) {
     const namespace = toNS(ns);
     let db;
