@@ -95,10 +95,7 @@ functions:
         ls -alh dist || true;
 
         # Upload release assets to S3 and GitHub
-        pwd
-        ls -alh || true;
-        ls -alh dist || true;
-        DEBUG=* npm run upload ${compass_distribution}
+        npm run upload ${compass_distribution}
         EOF_BUILD_SH
 
         #
