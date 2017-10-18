@@ -18,7 +18,7 @@ const NoUpdateAvailableState = 'no-update-available';
 // const UnsupportedState = 'unsupported';
 const ErrorState = 'error';
 
-function AutoUpdateManager(endpointURL, iconURL) {
+function AutoUpdateManager(endpointURL, iconURL, product, channel, platform) {
   if (!endpointURL) {
     throw new TypeError('endpointURL is required!');
   }
@@ -28,7 +28,7 @@ function AutoUpdateManager(endpointURL, iconURL) {
   this.onUpdateError = _.bind(this.onUpdateError, this);
   this.onUpdateNotAvailable = _.bind(this.onUpdateNotAvailable, this);
   this.state = IdleState;
-  this.feedURL = `${endpointURL}/update?version=${this.version}&platform=${process.platform}&arch=${process.arch}`;
+  this.feedURL = `${endpointURL}/api/v2/update/${product}/${channel}/${platform}/${this.version}`;
 
   debug('auto updater ready and waiting.', {
     version: this.version,

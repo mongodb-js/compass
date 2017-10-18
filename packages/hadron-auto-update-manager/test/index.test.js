@@ -13,9 +13,9 @@ describe('hadron-auto-update-manager', () => {
   });
   it('should setup', () => {
     const endpoint = 'https://hadron-endpoint.herokuapp.com';
-    const autoUpdateManager = new AutoUpdateManager(endpoint);
+    const autoUpdateManager = new AutoUpdateManager(endpoint, null, 'compass', 'stable', 'linux');
     assert.equal(autoUpdateManager.version, electronVersion);
     assert.equal(autoUpdateManager.feedURL,
-      `https://hadron-endpoint.herokuapp.com/update?version=${electronVersion}&platform=${process.platform}&arch=${process.arch}`);
+      `https://hadron-endpoint.herokuapp.com/api/v2/update/compass/stable/linux/${electronVersion}`);
   });
 });
