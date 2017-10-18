@@ -61,13 +61,22 @@ class DocumentTableView extends React.Component {
       isFullWidthCell: function(rowNode) {
         return rowNode.data.isFooter;
       },
-      fullWidthCellRendererFramework: FullWidthCellRenderer
+      fullWidthCellRendererFramework: FullWidthCellRenderer,
+      getRowNodeId: function(data) {
+        const fid = data.isFooter ? '1' : '0';
+        return data.hadronDocument.getId().toString() + fid;
+      }
     };
 
     this.collection = mongodbns(props.ns).collection;
     this.hadronDocs = [];
     this.start = 1;
     this.topLevel = true;
+
+    this.AGGrid = React.createElement(
+      AgGridReact,
+      this.sharedGridProperties
+    );
   }
 
   componentDidMount() {
@@ -153,7 +162,7 @@ class DocumentTableView extends React.Component {
    */
   removeFooter(node) {
     /* rowId is the document row */
-    const rowId = node.data.hadronDocument.get('_id').value.toString() + '0';
+    const rowId = node.data.hadronDocument.getId().toString() + '0';
     const dataNode = this.gridApi.getRowNode(rowId);
 
     dataNode.data.hasFooter = false;
@@ -171,7 +180,7 @@ class DocumentTableView extends React.Component {
    * @param {RowNode} node - The RowNode of the footer of the document that is being removed.
    */
   handleRemove(node) {
-    const oid = node.data.hadronDocument.get('_id').value.toString();
+    const oid = node.data.hadronDocument.getId().toString();
 
     /* rowId is the document row */
     const rowId = oid + '0';
@@ -250,7 +259,7 @@ class DocumentTableView extends React.Component {
    * @param {Array} path - The series of field names. Empty at top-level.
    */
   addColumn(colId, headerName, colType, path) {
-    const columnHeaders = _.map(this.columnApi.getAllColumns(), function(col) {
+    const columnHeaders = _.map(this.columnApi.getAllGridColumns(), function(col) {
       return col.getColDef();
     });
 
@@ -278,7 +287,7 @@ class DocumentTableView extends React.Component {
    * @param {Array} colIds - The list of colIds that will be removed.
    */
   removeColumns(colIds) {
-    const columnHeaders = _.map(this.columnApi.getAllColumns(), function(col) {
+    const columnHeaders = _.map(this.columnApi.getAllGridColumns(), function(col) {
       return col.getColDef();
     });
 
@@ -337,7 +346,7 @@ class DocumentTableView extends React.Component {
       this.removeColumns(params.remove.colIds);
     }
     if ('updateHeaders' in params) {
-      const columnHeaders = _.map(this.columnApi.getAllColumns(), function(col) {
+      const columnHeaders = _.map(this.columnApi.getAllGridColumns(), function(col) {
         return col.getColDef();
       });
 
@@ -476,16 +485,25 @@ class DocumentTableView extends React.Component {
   handleBreadcrumbChange(params) {
     if (params.path.length === 0) {
       this.topLevel = true;
-      this.AGGrid = this.createGrid(this.hadronDocs, this.start);
-    } else if (params.types[params.types.length - 1] === 'Object') {
+
+      const headers = this.createColumnHeaders(this.hadronDocs, []);
+
+      this.gridApi.gridOptionsWrapper.gridOptions.context.path = [];
+      this.gridApi.setColumnDefs(headers);
+      this.gridApi.setRowData(this.createRowData(this.hadronDocs, this.start));
+    } else if (params.types[params.types.length - 1] === 'Object' ||
+               params.types[params.types.length - 1] === 'Array') {
       this.topLevel = false;
-      this.AGGrid = this.createObjectGrid(params.document, params.path);
-    } else if (params.types[params.types.length - 1] === 'Array') {
-      this.topLevel = false;
-      console.log('expanding array'); // TODO
+
+      const headers = this.createColumnHeaders(this.hadronDocs, params.path);
+      headers.push(this.createObjectIdHeader());
+
+      this.gridApi.gridOptionsWrapper.gridOptions.context.path = params.path;
+      this.gridApi.setRowData(this.createRowData(this.hadronDocs, 1));
+      this.gridApi.setColumnDefs(headers);
     }
-    this.forceUpdate();
-    // TODO: Figure out onGridReady
+    this.gridApi.refreshCells({force: true});
+
     if (this.gridApi) {
       this.addFooters();
     }
@@ -606,6 +624,10 @@ class DocumentTableView extends React.Component {
         topLevel = topLevel.getChild(path);
       }
 
+      if (topLevel === undefined) {
+        continue;
+      }
+
       for (const element of topLevel.elements) {
         const key = element.currentKey;
         const type = element.currentType;
@@ -689,65 +711,6 @@ class DocumentTableView extends React.Component {
         rowNumber: i + index
       };
     });
-  }
-
-  /**
-   * Create a table for a nested object.
-   *
-   * @param {HadronDocument} document - The document of the element being viewed.
-   * @param {Array} path - An array of field names. Never empty.
-   *
-   * @returns {AgGridReact} - An AG-Grid component.
-   */
-  createObjectGrid(document, path) {
-    const headers = this.createColumnHeaders([document], path);
-    headers.push(this.createObjectIdHeader());
-
-    const gridProperties = {
-      columnDefs: headers,
-      rowData: this.createRowData([document], 1),
-      getRowNodeId: function(data) {
-        const fid = data.isFooter ? '1' : '0';
-        return data.hadronDocument.getId().toString() + fid;
-      }
-    };
-
-    Object.assign(gridProperties, this.sharedGridProperties);
-
-    /* Cell renderers/editors/etc need to know the path */
-    gridProperties.gridOptions.context.path = path;
-
-    return React.createElement(
-      AgGridReact,
-      gridProperties,
-    );
-  }
-
-  /**
-   * Generate an AG-Grid instance for a top-level view.
-   *
-   * @param {Array} hadronDocs - The list of HadronDocuments.
-   * @param {Number} index - The document to start the page on.
-   *
-   * @returns {Object} The AG-Grid instance
-   */
-  createGrid(hadronDocs, index) {
-    const gridProperties = {
-      columnDefs: this.createColumnHeaders(hadronDocs, []),
-      rowData: this.createRowData(hadronDocs, index),
-      getRowNodeId: function(data) {
-        const fid = data.isFooter ? '1' : '0';
-        return data.hadronDocument.getId().toString() + fid;
-      }
-    };
-
-    Object.assign(gridProperties, this.sharedGridProperties);
-    gridProperties.gridOptions.context.path = [];
-
-    return React.createElement(
-      AgGridReact,
-      gridProperties,
-    );
   }
 
   /**

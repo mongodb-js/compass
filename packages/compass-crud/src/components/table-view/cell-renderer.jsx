@@ -67,7 +67,7 @@ class CellRenderer extends React.Component {
     super(props);
     props.api.selectAll();
 
-    this.isEmpty = props.value === undefined;
+    this.isEmpty = props.value === undefined || props.value === null;
     this.isDeleted = false;
     this.element = props.value;
 
@@ -157,9 +157,9 @@ class CellRenderer extends React.Component {
     }
 
     if (this.element.currentType === 'Object') {
-      element = `{${this.element.elements.size}}`;
+      element = `{} ${this.element.elements.size} fields`;
     } else if (this.element.currentType === 'Array') {
-      element = `[${this.element.elements.size}]`;
+      element = `[] ${this.element.elements.size} elements`;
     } else {
       const component = getComponent(this.element.currentType);
       element = React.createElement(

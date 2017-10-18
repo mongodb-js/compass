@@ -27,7 +27,7 @@ class HeaderCellRenderer extends React.Component {
 }
 
 HeaderCellRenderer.propTypes = {
-  displayName: PropTypes.string,
+  displayName: PropTypes.any,
   bsonType: PropTypes.string,
   hide: PropTypes.bool
 };
