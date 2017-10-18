@@ -178,7 +178,7 @@
     "get-object-path": "azer/get-object-path#74eb42de0cfd02c14ffdd18552f295aba723d394",
     "hadron-app": "^2.0.0",
     "hadron-app-registry": "^7.0.0",
-    "hadron-auto-update-manager": "^1.0.0",
+    "hadron-auto-update-manager": "^2.0.0",
     "hadron-compile-cache": "^1.0.1",
     "hadron-ipc": "^0.0.7",
     "hadron-module-cache": "^0.0.3",
@@ -240,9 +240,7 @@
     "turf-destination": "^1.2.1",
     "turf-distance": "^1.1.0",
     "turf-point": "^2.0.1",
-    "uuid": "^3.0.0",
-    "vega": "^3.0.0-beta.30",
-    "vega-lite": "^2.0.0-beta.4"
+    "uuid": "^3.0.0"
   },
   "devDependencies": {
     "babel-eslint": "^6.0.4",
@@ -257,7 +255,7 @@
     "electron-mocha": "^3.3.0",
     "enzyme": "^2.5.1",
     "eslint-config-mongodb-js": "^2.2.0",
-    "hadron-build": "^15.0.0",
+    "hadron-build": "^15.0.4",
     "hadron-spectron": "^1.0.0",
     "jsdom": "^9.8.3",
     "mgeneratejs": "^0.2.0",
