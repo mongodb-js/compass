@@ -1,6 +1,5 @@
 const React = require('react');
 const PropTypes = require('prop-types');
-const app = require('hadron-app');
 const { AnimatedIconTextButton } = require('hadron-react-buttons');
 const { InfoSprinkle, ViewSwitcher } = require('hadron-react-components');
 const { shell } = require('electron');
@@ -45,7 +44,7 @@ class Toolbar extends React.Component {
   constructor(props) {
     super(props);
     this.state = { count: 0, loaded: 0, start: 1, page: 0 };
-    this.TextWriteButton = app.appRegistry.getComponent('DeploymentAwareness.TextWriteButton');
+    this.TextWriteButton = global.hadronApp.appRegistry.getComponent('DeploymentAwareness.TextWriteButton');
     this.documentRemovedAction = Actions.documentRemoved;
     this.refreshDocumentsAction = Actions.refreshDocuments;
   }
