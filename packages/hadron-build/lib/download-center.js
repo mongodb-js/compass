@@ -1,6 +1,5 @@
 'use strict';
 
-const _ = require('lodash');
 const fs = require('fs-extra');
 const debug = require('debug')('mongodb-download-center');
 const AWS = require('aws-sdk');
@@ -129,6 +128,15 @@ let setup = () => {
   });
 };
 
+exports.generateKey = (CONFIG) => {
+  CONFIG.download_center_id = CONFIG.id.split('-')[1];
+  CONFIG.download_center_key_prefix = CONFIG.download_center_id;
+  if (CONFIG.channel !== 'stable') {
+    CONFIG.download_center_key_prefix += `/${CONFIG.channel}`;
+  }
+  return CONFIG;
+};
+
 exports.maybeUpload = (CONFIG) => {
   setup();
 
@@ -137,11 +145,7 @@ exports.maybeUpload = (CONFIG) => {
     return Promise.resolve();
   }
 
-  CONFIG.download_center_id = _.tail(CONFIG.id.split('-'));
-  CONFIG.download_center_key_prefix = CONFIG.download_center_id;
-  if (CONFIG.channel !== 'stable') {
-    CONFIG.download_center_key_prefix += `/${CONFIG.channel}`;
-  }
+  exports.generateKey(CONFIG);
 
   return Promise.all(CONFIG.assets.map( (asset) => maybeUpload(CONFIG, asset)))
     .then(maybeUploadManifest(CONFIG));
