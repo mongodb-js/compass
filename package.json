@@ -140,7 +140,7 @@
     "@mongodb-js/compass-auth-ldap": "^0.0.2",
     "@mongodb-js/compass-auth-x509": "^0.0.3",
     "@mongodb-js/compass-connect": "^0.0.7",
-    "@mongodb-js/compass-crud": "^0.7.2",
+    "@mongodb-js/compass-crud": "^0.7.3",
     "@mongodb-js/compass-deployment-awareness": "^5.0.0",
     "@mongodb-js/compass-document-validation": "^5.0.0",
     "@mongodb-js/compass-license": "^0.0.1",
