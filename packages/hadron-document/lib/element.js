@@ -157,6 +157,19 @@ class Element extends EventEmitter {
   }
 
   /**
+   * Get an element by its index.
+   *
+   * @returns {Element} The element.
+   */
+  at(i) {
+    if (!this.elements) {
+      return undefined;
+    }
+    return this.elements.at(i);
+    // return (i < this.elements.length()) ? this.elements.at(i) : undefined;
+  }
+
+  /**
    * Go to the next edit.
    *
    * Will check if the value is either { or [ and take appropriate action.
@@ -543,8 +556,10 @@ class Element extends EventEmitter {
    */
   _generateElements(object) {
     var elements = new LinkedList(); // eslint-disable-line no-use-before-define
+    let index = 0;
     for (let key of keys(object)) {
-      elements.insertEnd(this._key(key), object[key], this.added, this);
+      elements.insertEnd(this._key(key, index), object[key], this.added, this);
+      index ++;
     }
     return elements;
   }
@@ -552,8 +567,8 @@ class Element extends EventEmitter {
   /**
    * Get the key for the element.
    */
-  _key(key) {
-    return this.currentType === 'Array' ? '' : key;
+  _key(key, index) {
+    return this.currentType === 'Array' ? index : key;
   }
 
   /**
@@ -741,6 +756,21 @@ class LinkedList {
     delete this._map[element.currentKey];
     this.size -= 1;
     return this;
+  }
+
+  /**
+   * Get the number of elements.
+   *
+   * @returns {number}
+   */
+  length() {
+    let first = this.firstElement;
+    let count = 0;
+    while (first !== undefined) {
+      first = first.nextElement;
+      count++;
+    }
+    return count;
   }
 }
 

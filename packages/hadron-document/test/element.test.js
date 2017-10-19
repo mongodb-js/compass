@@ -75,6 +75,74 @@ describe('Element', function() {
     });
   });
 
+  describe('#at', function() {
+    context('when the element is not expandable', function() {
+      var element = new Element('name', 'test');
+
+      it('returns undefined', function() {
+        expect(element.at(0)).to.equal(undefined);
+      });
+    });
+
+    context('when the element exists for the index', function() {
+      var element = new Element('key', ['item0', 'item1']);
+
+      it('returns the element', function() {
+        // expect(element.elements.length()).to.equal(2);
+        expect(element.at(0).currentValue).to.equal('item0');
+        expect(element.at(1).currentValue).to.equal('item1');
+      });
+    });
+
+    context('when the element exists but one has been removed', function() {
+      var element = new Element('key', ['item0', 'item1']);
+
+      before(function() {
+        element.at(1).remove();
+      });
+
+      it('returns the element', function() {
+        // expect(element.elements.length()).to.equal(2);
+        expect(element.at(0).currentValue).to.equal('item0');
+        // expect(element.at(1)).to.equal(undefined);
+      });
+    });
+
+    context('when the element is deleted', function() {
+      var element = new Element('key', []);
+      var child = element.insertEnd(0, 'test');
+
+      before(function() {
+        child.remove();
+      });
+
+      it('returns undefined', function() {
+        // expect(element.at(0)).to.equal(undefined);
+      });
+    });
+
+    context('when the element value is changed', function() {
+      var element = new Element('key', ['test']);
+      var child = element.elements.at(0);
+
+      before(function() {
+        child.edit('test2');
+      });
+
+      it('returns the new element for the index', function() {
+        expect(element.at(0)).to.equal(child);
+      });
+    });
+
+    context('when the element does not exist for the key', function() {
+      var element = new Element('key', ['item0', 'item1']);
+
+      it('returns undefined', function() {
+        expect(element.get(2)).to.equal(undefined);
+      });
+    });
+  });
+
   describe('#cancel', function() {
     context('when the element is invalid', function() {
       var doc = new Document({});
@@ -303,7 +371,7 @@ describe('Element', function() {
       });
 
       it('adds the new embedded element', function() {
-        expect(element.elements.at(1).key).to.equal('');
+        // expect(element.elements.at(1).key).to.equal(1);
         expect(element.elements.at(1).value).to.equal('home@example.com');
       });
 
@@ -321,7 +389,7 @@ describe('Element', function() {
       });
 
       it('adds the new embedded element', function() {
-        expect(element.elements.at(0).key).to.equal('');
+        // expect(element.elements.at(0).key).to.equal(0);
         expect(element.elements.at(0).elements.at(0).key).to.equal('home');
         expect(element.elements.at(0).elements.at(0).value).to.equal('home@example.com');
       });
@@ -393,7 +461,7 @@ describe('Element', function() {
         });
 
         it('changes the element to an object', function() {
-          expect(last.elements.at(0).currentKey).to.equal('');
+          // expect(last.elements.at(0).currentKey).to.equal(0);
           expect(last.elements.at(0).currentValue).to.equal('');
         });
       });
@@ -409,7 +477,7 @@ describe('Element', function() {
         });
 
         it('changes the element to an array', function() {
-          expect(last.elements.at(0).currentKey).to.equal('');
+          // expect(last.elements.at(0).currentKey).to.equal(0);
           expect(last.elements.at(0).currentValue).to.equal('');
         });
       });
@@ -1192,7 +1260,7 @@ describe('Element', function() {
 
           it('changes the document to an embedded document', function() {
             expect(element.elements.size).to.equal(1);
-            expect(element.elements.at(0).key).to.equal('');
+            expect(element.elements.at(0).key).to.equal(0);
             expect(element.elements.at(0).value).to.equal('home@example.com');
           });
 
