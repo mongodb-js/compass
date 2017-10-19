@@ -20,7 +20,7 @@ const BUGSNAG_KEY = '0d11ab5f4d97452cc83d3365c21b491c';
 module.exports = function() {
   metrics.configure({
     stitch: {
-      appId: 'compass-metrics-irinb',
+      appId: 'datawarehouseprod-compass-nqnxw',
       enabled: true
     },
     bugsnag: {
