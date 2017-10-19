@@ -85,8 +85,25 @@ class WebClient {
    * @param {Object} options - The options.
    * @param {Function} callback - The callback.
    */
-  deleteOne(ns, doc, options, callback) {
-    this._getCollection(ns).deleteOne(doc)
+  deleteOne(ns, filter, options, callback) {
+    this._getCollection(ns).deleteOne(filter, options)
+      .then((result) => {
+        callback(null, result);
+      }).catch((err) => {
+        callback(err);
+      });
+  }
+
+  /**
+   * Delete multiple documents from the collection.
+   *
+   * @param {String} ns - The namespace.
+   * @param {Object} filter - The filter.
+   * @param {Object} options - The options.
+   * @param {Function} callback - The callback.
+   */
+  deleteMany(ns, filter, options, callback) {
+    this._getCollection(ns).deleteMany(filter, options)
       .then((result) => {
         callback(null, result);
       }).catch((err) => {
