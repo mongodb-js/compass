@@ -3,7 +3,7 @@ import { load, save, remove } from 'models/trust-dao';
 const TEST_SERVICE = 'compass-security-dao-spec';
 
 describe('TrustDAO', () => {
-  describe('#load', () => {
+  describe('#load/#save/#remove', () => {
     beforeEach((done) => {
       remove(TEST_SERVICE).then(() => {
         done();
@@ -39,9 +39,5 @@ describe('TrustDAO', () => {
         });
       });
     });
-  });
-
-  describe('#save', () => {
-
   });
 });
