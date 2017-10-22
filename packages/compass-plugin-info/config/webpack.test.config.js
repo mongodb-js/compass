@@ -67,6 +67,10 @@ module.exports = {
         ]
       },
       {
+        test: /\.node$/,
+        use: 'node-loader'
+      },
+      {
         test: /\.(js|jsx)$/,
         use: [{ loader: 'babel-loader' }],
         exclude: /(node_modules)/
