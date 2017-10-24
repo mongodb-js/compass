@@ -32,7 +32,7 @@ const SecurityStore = Reflux.createStore({
         appRegistry.onActivated();
         this.setState({ plugins: pluginManager.plugins, trust: trust });
       });
-      pluginManager.activate(appRegistry, trust);
+      pluginManager.activate(appRegistry);
     });
   },
 
