@@ -8,6 +8,7 @@ class DatabaseView extends React.Component {
   constructor(props) {
     super(props);
     this.state = { activeTab: 0 };
+    this.UnsafeComponent = app.appRegistry.getComponent('Home.UnsafeComponent');
     this.setupTabs();
   }
 
@@ -31,7 +32,9 @@ class DatabaseView extends React.Component {
 
     const tabs = _.map(roles, 'name');
     const views = _.map(roles, (role) => {
-      return React.createElement(role.component);
+      return (
+        <this.UnsafeComponent component={role.component} />
+      );
     });
 
     this.tabs = tabs;
