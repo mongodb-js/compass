@@ -19,7 +19,6 @@
           "dmg_background": "resources/darwin/background.png",
           "codesign_identity": "Developer ID Application: Hadron Fixture (1234567890A)",
           "codesign_sha1": "1111111111111111111111111111111111111111",
-          "app_bundle_id": "com.mongodb.hadron",
           "app_category_type": "public.app-category.productivity"
         },
         "linux": {
@@ -31,6 +30,7 @@
         "default": "compass",
         "compass": {
           "name": "compass",
+          "bundleId": "com.mongodb.hadron-testing",
           "productName": "MongoDB Compass Enterprise super long test name",
           "plugins": [],
           "styles": [ "index" ]

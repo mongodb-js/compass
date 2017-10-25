@@ -74,27 +74,6 @@ describe('hadron-build::config', () => {
       });
     });
   });
-  describe('Only on macOS', () => {
-    const macOS = {
-      version: '1.2.0',
-      product_name: 'Hadron',
-      app_bundle_id: 'com.mongodb.hadron',
-      platform: 'darwin'
-    };
-
-    it('should set app-bundle-id', () => {
-      expect(getConfig(macOS).packagerOptions['app-bundle-id']).to.equal('com.mongodb.hadron');
-    });
-
-    it('should automatically support release channels for app-bundle-id', () => {
-      let beta = getConfig(_.defaults({version: '1.2.0-beta.1'}, macOS));
-      expect(beta.packagerOptions['app-bundle-id']).to.equal('com.mongodb.hadron.beta');
-
-      let alpha = getConfig(_.defaults({version: '1.2.0-custom.5'}, macOS));
-      expect(alpha.packagerOptions['app-bundle-id']).to.equal('com.mongodb.hadron.custom');
-    });
-  });
-
   describe('Only on Linux', () => {
     const linux = {
       name: 'hadron-app',

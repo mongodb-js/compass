@@ -45,7 +45,7 @@ if (process.platform === 'win32') {
       }
       const info = target.dest(`${target.productName}-darwin-x64`, `${target.productName}.app`, 'Contents', 'Info.plist');
       const config = plist.parse(fs.readFileSync(info, 'utf8'));
-      assert.equal(config.CFBundleIdentifier, 'com.mongodb.hadron.beta');
+      assert.equal(config.CFBundleIdentifier, 'com.mongodb.hadron-testing.beta');
     });
 
     /**
