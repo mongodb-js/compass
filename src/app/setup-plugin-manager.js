@@ -34,6 +34,11 @@ const PLUGINS_DIR = 'plugins-directory';
 const DEV_PLUGINS = path.join(os.homedir(), DISTRIBUTION[PLUGINS_DIR]);
 
 /**
+ * Dev plugins lib directory.
+ */
+const DEV_PLUGINS_LIB = path.join(DEV_PLUGINS, 'lib');
+
+/**
  * @note: The 2nd and 3rd arguments are the root directory and an array
  *   of packages for the distribution and their relative paths from the
  *   root directory.
@@ -66,7 +71,7 @@ const ILLEGAL_MODULES = ['fs', 'net', 'tls', 'child_process'];
  */
 Module._load = function(request, loc) {
   if (ILLEGAL_MODULES.includes(request)) {
-    if (loc.filename.includes(DEV_PLUGINS)) {
+    if (loc.filename.includes(DEV_PLUGINS_LIB)) {
       throw new Error(ERROR);
     }
   }
