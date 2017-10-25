@@ -34,6 +34,7 @@
         "compass": {
           "name": "mongodb-compass",
           "productName": "MongoDB Compass",
+          "bundleId": "com.mongodb.compass",
           "plugins-directory": ".mongodb/compass/plugins",
           "plugins": [
             "node_modules/@mongodb-js/compass-auth-kerberos",
@@ -55,6 +56,7 @@
         "compass-community": {
           "name": "mongodb-compass-community",
           "productName": "MongoDB Compass Community",
+          "bundleId": "com.mongodb.compass-community",
           "plugins-directory": ".mongodb/compass-community/plugins",
           "plugins": [
             "node_modules/@mongodb-js/compass-connect",
@@ -81,7 +83,6 @@
           "dmg_background": "src/app/images/darwin/background.png",
           "codesign_identity": "Developer ID Application: Matt Kangas (ZD3CL9MT3L)",
           "codesign_sha1": "90E39AA7832E95369F0FC6DAF823A04DFBD9CF7A",
-          "app_bundle_id": "com.mongodb.compass",
           "app_category_type": "public.app-category.productivity"
         },
         "linux": {
@@ -255,7 +256,7 @@
     "electron-mocha": "^3.3.0",
     "enzyme": "^2.5.1",
     "eslint-config-mongodb-js": "^2.2.0",
-    "hadron-build": "^15.0.5",
+    "hadron-build": "^16.0.0",
     "hadron-spectron": "^1.0.0",
     "jsdom": "^9.8.3",
     "mgeneratejs": "^0.2.0",
