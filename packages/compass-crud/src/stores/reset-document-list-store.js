@@ -28,6 +28,11 @@ const ResetDocumentListStore = Reflux.createStore({
    */
   onActivated(appRegistry) {
     appRegistry.on('query-changed', this.onQueryChanged.bind(this));
+    appRegistry.on('data-service-connected', (error, dataService) => {
+      if (!error) {
+        this.dataService = dataService;
+      }
+    });
   },
 
   /**
@@ -52,7 +57,7 @@ const ResetDocumentListStore = Reflux.createStore({
    *
    * @param {Object} filter - The query filter.
    */
-  reset: function() {
+  reset() {
     const countOptions = {
       skip: this.skip
     };
@@ -71,9 +76,9 @@ const ResetDocumentListStore = Reflux.createStore({
       findOptions.limit = Math.min(20, this.limit);
     }
 
-    global.hadronApp.dataService.count(this.ns, this.filter, countOptions, (err, count) => {
+    this.dataService.count(this.ns, this.filter, countOptions, (err, count) => {
       if (!err) {
-        global.hadronApp.dataService.find(this.ns, this.filter, findOptions, (error, documents) => {
+        this.dataService.find(this.ns, this.filter, findOptions, (error, documents) => {
           this.trigger(error, documents, count);
         });
       } else {

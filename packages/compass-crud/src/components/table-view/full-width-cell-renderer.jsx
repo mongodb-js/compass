@@ -6,6 +6,7 @@ const Actions = require('../../actions');
 const DocumentFooter = require('../document-footer');
 const RemoveDocumentFooter = require('../remove-document-footer');
 const ClonedDocumentFooter = require('../cloned-document-footer');
+const ResetDocumentListStore = require('../../stores/reset-document-list-store');
 
 /**
  * The delete error message.
@@ -80,7 +81,7 @@ class FullWidthCellRenderer extends React.Component {
        * @param {Object} object - The new document.
        */
       insert: function(object) {
-        global.hadronApp.dataService.insertOne(
+        ResetDocumentListStore.dataService.insertOne(
           this.ns,
           object,
           {},
@@ -131,7 +132,7 @@ class FullWidthCellRenderer extends React.Component {
        */
       update: function(object) {
         // TODO (@thomasr) this does not work for projections
-        global.hadronApp.dataService.findOneAndReplace(
+        ResetDocumentListStore.dataService.findOneAndReplace(
           this.ns,
           { _id: object._id },
           object,
@@ -180,7 +181,7 @@ class FullWidthCellRenderer extends React.Component {
       remove: function(object) {
         const id = object.getId();
         if (id) {
-          global.hadronApp.dataService.deleteOne(this.ns, { _id: id }, {}, this.handleResult);
+          ResetDocumentListStore.dataService.deleteOne(this.ns, { _id: id }, {}, this.handleResult);
         } else {
           this.handleResult(DELETE_ERROR);
         }

@@ -23,6 +23,11 @@ const InsertDocumentStore = Reflux.createStore({
   onActivated(appRegistry) {
     appRegistry.on('collection-changed', this.onCollectionChanged.bind(this));
     appRegistry.on('query-changed', this.onQueryChanged.bind(this));
+    appRegistry.on('data-service-connected', (error, dataService) => {
+      if (!error) {
+        this.dataService = dataService;
+      }
+    });
   },
 
   /**
@@ -40,14 +45,14 @@ const InsertDocumentStore = Reflux.createStore({
    * @param {Document} doc - The document to insert.
    */
   insertDocument: function(doc) {
-    global.hadronApp.dataService.insertOne(this.ns, doc, {}, (error) => {
+    this.dataService.insertOne(this.ns, doc, {}, (error) => {
       if (error) {
         return this.trigger(error);
       }
       // check if the newly inserted document matches the current filter, by
       // running the same filter but targeted only to the doc's _id.
       const filter = Object.assign({}, this.filter, { _id: doc._id });
-      global.hadronApp.dataService.count(this.ns, filter, {}, (err, count) => {
+      this.dataService.count(this.ns, filter, {}, (err, count) => {
         if (err) {
           return this.trigger(err);
         }

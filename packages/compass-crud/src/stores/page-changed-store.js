@@ -29,6 +29,11 @@ const PageChangedStore = Reflux.createStore({
   onActivated(appRegistry) {
     appRegistry.on('collection-changed', this.onCollectionChanged.bind(this));
     appRegistry.on('query-changed', this.onQueryChanged.bind(this));
+    appRegistry.on('data-service-connected', (error, dataService) => {
+      if (!error) {
+        this.dataService = dataService;
+      }
+    });
   },
 
   /**
@@ -89,7 +94,7 @@ const PageChangedStore = Reflux.createStore({
       fields: this.project,
       promoteValues: false
     };
-    global.hadronApp.dataService.find(this.ns, this.filter, options, (error, documents) => {
+    this.dataService.find(this.ns, this.filter, options, (error, documents) => {
       this.counter += NUM_PAGE_DOCS;
       const length = error ? 0 : documents.length;
       this.trigger(error, documents, skip + 1, skip + length, page);
@@ -110,7 +115,7 @@ const PageChangedStore = Reflux.createStore({
       fields: this.project,
       promoteValues: false
     };
-    global.hadronApp.dataService.find(this.ns, this.filter, options, (error, documents) => {
+    this.dataService.find(this.ns, this.filter, options, (error, documents) => {
       this.counter -= NUM_PAGE_DOCS;
       const length = error ? 0 : documents.length;
       this.trigger(error, documents, skip + 1, skip + length, page);

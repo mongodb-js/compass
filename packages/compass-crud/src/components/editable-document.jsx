@@ -9,6 +9,7 @@ const EditableElement = require('./editable-element');
 const DocumentActions = require('./document-actions');
 const DocumentFooter = require('./document-footer');
 const RemoveDocumentFooter = require('./remove-document-footer');
+const ResetDocumentListStore = require('../stores/reset-document-list-store');
 const marky = require('marky');
 const clipboard = require('electron').clipboard;
 
@@ -146,7 +147,7 @@ class EditableDocument extends React.Component {
       /**
        * Initialize the store.
        */
-      init: function() {
+      init() {
         this.ns = global.hadronApp.appRegistry.getStore('App.NamespaceStore').ns;
         this.listenTo(actions.update, this.update);
       },
@@ -158,9 +159,9 @@ class EditableDocument extends React.Component {
        *
        * @todo: Durran: Determine shard key.
        */
-      update: function(object) {
+      update(object) {
         // TODO (@thomasr) this does not work for projections
-        global.hadronApp.dataService.findOneAndReplace(
+        ResetDocumentListStore.dataService.findOneAndReplace(
           this.ns,
           { _id: object._id },
           object,
@@ -177,7 +178,7 @@ class EditableDocument extends React.Component {
        *
        * @returns {Object} The trigger event.
        */
-      handleResult: function(error, doc) {
+      handleResult(error, doc) {
         return (error) ? this.trigger(false, error) : this.trigger(true, doc);
       }
     });
@@ -209,7 +210,7 @@ class EditableDocument extends React.Component {
       remove: function(object) {
         const id = object.getId();
         if (id) {
-          global.hadronApp.dataService.deleteOne(this.ns, { _id: id }, {}, this.handleResult);
+          ResetDocumentListStore.dataService.deleteOne(this.ns, { _id: id }, {}, this.handleResult);
         } else {
           this.handleResult(DELETE_ERROR);
         }

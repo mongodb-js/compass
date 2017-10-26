@@ -26,6 +26,11 @@ const LoadMoreDocumentsStore = Reflux.createStore({
   onActivated(appRegistry) {
     appRegistry.on('collection-changed', this.onCollectionChanged.bind(this));
     appRegistry.on('query-changed', this.onQueryChanged.bind(this));
+    appRegistry.on('data-service-connected', (error, dataService) => {
+      if (!error) {
+        this.dataService = dataService;
+      }
+    });
   },
 
   /**
@@ -77,7 +82,7 @@ const LoadMoreDocumentsStore = Reflux.createStore({
       fields: this.project,
       promoteValues: false
     };
-    global.hadronApp.dataService.find(this.ns, this.filter, options, (error, documents) => {
+    this.dataService.find(this.ns, this.filter, options, (error, documents) => {
       this.trigger(error, documents);
     });
   },

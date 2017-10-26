@@ -15,18 +15,17 @@ describe('InsertDocumentStore', () => {
   const dataService = new DataService(CONNECTION);
 
   before((done) => {
-    global.hadronApp.dataService = dataService;
     global.hadronApp.appRegistry = new AppRegistry();
     global.hadronApp.appRegistry.registerStore('CRUD.Store', InsertDocumentStore);
     global.hadronApp.appRegistry.onActivated();
     dataService.connect(() => {
+      global.hadronApp.appRegistry.emit('data-service-connected', null, dataService);
       done();
     });
   });
 
   after(() => {
     dataService.disconnect();
-    global.hadronApp.dataService = undefined;
     global.hadronApp.appRegistry = undefined;
   });
 
