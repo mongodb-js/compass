@@ -64,7 +64,8 @@ const loader = Module._load;
  * The require error message.
  */
 const ERROR = 'Due to security reasons, 3rd party plugins are not allowed to require ' +
-  'modules with filesystem, network, or child process access.';
+  'modules with filesystem, network, or child process access. This includes "fs", "tls", "net", ' +
+  'and "child_process"';
 
 /**
  * List of modules that cannot be required.
@@ -77,7 +78,9 @@ const ILLEGAL_MODULES = ['fs', 'net', 'tls', 'child_process'];
 Module._load = function(request, loc) {
   if (ILLEGAL_MODULES.includes(request)) {
     if (loc.filename.includes(DEV_PLUGINS_LIB)) {
-      throw new Error(ERROR);
+      const error = new Error(ERROR);
+      error.stack = '';
+      throw error;
     }
   }
   return loader.apply(this, arguments);
