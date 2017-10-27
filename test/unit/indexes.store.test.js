@@ -173,7 +173,6 @@ describe('LoadIndexesStore', () => {
   before(mockDataService.before(null, {
     database: { collections: [] }
   }));
-  after(mockDataService.after());
 
   beforeEach(() => {
     // Mock the app.instance.build.version

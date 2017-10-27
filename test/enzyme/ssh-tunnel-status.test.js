@@ -12,7 +12,6 @@ const Actions = require('../../src/internal-plugins/ssh-tunnel-status/lib/action
 chai.use(chaiEnzyme());
 
 const appRegistry = app.appRegistry;
-const dataService = app.dataService;
 
 describe('<SSHTunnelStatus />', () => {
   beforeEach(function() {
@@ -22,14 +21,13 @@ describe('<SSHTunnelStatus />', () => {
       'DatabaseDDL.Actions',
       {openCreateDatabaseDialog: this.DatabaseDDLActionSpy}
     );
-    app.dataService = {
+    app.appRegistry.emit('data-service-connected', null, {
       isWritable: () => {
         return true;
       }
-    };
+    });
   });
   afterEach(() => {
-    app.dataService = dataService;
     app.appRegistry = appRegistry;
   });
 

@@ -1,7 +1,6 @@
 const Reflux = require('reflux');
 const ExplainActions = require('../actions');
 const StateMixin = require('reflux-state-mixin');
-const app = require('hadron-app');
 const toNS = require('mongodb-ns');
 const ExplainPlanModel = require('mongodb-explain-plan-model');
 const _ = require('lodash');
@@ -38,6 +37,11 @@ const CompassExplainStore = Reflux.createStore({
     appRegistry.getStore('App.NamespaceStore').listen(this.onNamespaceChanged.bind(this));
     this.CollectionStore = appRegistry.getStore('App.CollectionStore');
     appRegistry.on('query-changed', this.onQueryChanged.bind(this));
+    appRegistry.on('data-service-connected', (err, dataService) => {
+      if (!err) {
+        this.dataService = dataService;
+      }
+    });
   },
 
   _resetQuery() {
@@ -164,7 +168,7 @@ const CompassExplainStore = Reflux.createStore({
     if (this.CollectionStore.isReadonly()) {
       this.setState(this.getInitialState());
     } else {
-      app.dataService.explain(this.ns, this.filter, options, (err, explain) => {
+      this.dataService.explain(this.ns, this.filter, options, (err, explain) => {
         if (err) {
           // @note: Need the UI to render the error and not continue.
           this.setState({ error: err });

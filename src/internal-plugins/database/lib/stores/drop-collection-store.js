@@ -14,6 +14,14 @@ const DropCollectionStore = Reflux.createStore({
     this.listenTo(Actions.dropCollection, this.dropCollection);
   },
 
+  onActivated(appRegistry) {
+    appRegistry.on('data-service-connected', (err, dataService) => {
+      if (!err) {
+        this.dataService = dataService;
+      }
+    });
+  },
+
   /**
    * Drop the collection.
    *
@@ -22,7 +30,7 @@ const DropCollectionStore = Reflux.createStore({
    */
   dropCollection(dbName, collection) {
     try {
-      app.dataService.dropCollection(`${dbName}.${collection}`, this.handleResult.bind(this));
+      this.dataService.dropCollection(`${dbName}.${collection}`, this.handleResult.bind(this));
     } catch (e) {
       this.handleResult(e, null);
     }

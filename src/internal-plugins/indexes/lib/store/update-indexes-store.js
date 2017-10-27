@@ -20,6 +20,14 @@ const UpdateIndexesStore = Reflux.createStore({
     this.NamespaceStore = app.appRegistry.getStore('App.NamespaceStore');
   },
 
+  onActivated(appRegistry) {
+    appRegistry.on('data-service-connected', (err, dataService) => {
+      if (!err) {
+        this.dataService = dataService;
+      }
+    });
+  },
+
   /**
    * Load the indexes into the store.
    *
@@ -35,7 +43,7 @@ const UpdateIndexesStore = Reflux.createStore({
    * @param {String} indexName - The name of the index to be dropped.
    */
   dropIndex: function(indexName) {
-    app.dataService.dropIndex(this.NamespaceStore.ns, indexName, (err) => {
+    this.dataService.dropIndex(this.NamespaceStore.ns, indexName, (err) => {
       if (!err) {
         this.indexes = this.indexes.filter(index => index.name !== indexName);
         this.trigger(this.indexes);
@@ -54,10 +62,10 @@ const UpdateIndexesStore = Reflux.createStore({
    * @param {Object} options - The optional index options.
    */
   createIndex: function(ns, spec, options) {
-    app.dataService.createIndex(ns, spec, options, (createErr) => {
+    this.dataService.createIndex(ns, spec, options, (createErr) => {
       if (!createErr) {
         // reload indexes
-        app.dataService.indexes(ns, {}, (indexesErr, indexes) => {
+        this.dataService.indexes(ns, {}, (indexesErr, indexes) => {
           if (!indexesErr) {
             Action.updateStatus('complete');
             this.indexes = LoadIndexesStore._convertToModels(indexes);

@@ -58,21 +58,7 @@ var debug = require('debug')('mongodb-compass:app');
 
 /**
  * The top-level application singleton that brings everything together!
- *
- * @example
- *   // Drive Compass from the chrome devtools console using the `app` window global:
- *   console.log(app);
- *   // Make API calls to `mongodb-scope-server` via `mongodb-scope-client`:
- *   app.dataService.instance(function(err, data){
- *     if(err) return console.error(err);
- *     console.log('Details of current MongoDB instance we\'re connected to: ', data)
- *   });
- *   // What connection config are we currently using?
- *   console.log('Current connection config: ', app.connection.toJSON());
- *
- * @see http://learn.humanjavascript.com/react-ampersand/application-pattern
  */
-
 var Application = View.extend({
   template: function() {
     return [

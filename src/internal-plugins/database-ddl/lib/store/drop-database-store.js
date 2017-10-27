@@ -14,6 +14,14 @@ const DropDatabaseStore = Reflux.createStore({
     this.listenTo(Actions.dropDatabase, this.dropDatabase);
   },
 
+  onActivated(appRegistry) {
+    appRegistry.on('data-service-connected', (err, dataService) => {
+      if (!err) {
+        this.dataService = dataService;
+      }
+    });
+  },
+
   /**
    * Drop the database.
    *
@@ -21,7 +29,7 @@ const DropDatabaseStore = Reflux.createStore({
    */
   dropDatabase(dbName) {
     try {
-      app.dataService.dropDatabase(dbName, this.handleResult.bind(this));
+      this.dataService.dropDatabase(dbName, this.handleResult.bind(this));
     } catch (e) {
       this.handleResult(e, null);
     }

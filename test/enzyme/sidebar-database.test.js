@@ -11,7 +11,6 @@ const SidebarDatabase = require('../../src/internal-plugins/sidebar/lib/componen
 
 chai.use(chaiEnzyme());
 
-const appDataService = app.dataService;
 const appRegistry = app.appRegistry;
 const stateStore = {
   state: {
@@ -35,14 +34,13 @@ describe('<SidebarDatabase />', () => {
       'DatabaseDDL.Actions',
       {openDropDatabaseDialog: this.DatabaseDDLActionSpyDrop}
     );
-    app.dataService = {
+    app.appRegistry.emit('data-service-connected', null, {
       isWritable: () => {
         return true;
       }
-    };
+    });
   });
   afterEach(() => {
-    app.dataService = appDataService;
     app.appRegistry = appRegistry;
   });
 

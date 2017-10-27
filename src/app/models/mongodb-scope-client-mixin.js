@@ -1,7 +1,6 @@
 var _ = require('lodash');
 var wrapError = require('./wrap-error');
 var raf = require('raf');
-var app = require('hadron-app');
 
 module.exports = {
   fetch: function(options) {
@@ -35,6 +34,6 @@ module.exports = {
       });
     };
 
-    app.dataService.get(url, options, done);
+    options.dataService.get(url, options, done);
   }
 };

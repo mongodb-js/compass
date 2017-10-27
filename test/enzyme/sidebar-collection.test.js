@@ -11,7 +11,6 @@ const SidebarCollection = require('../../src/internal-plugins/sidebar/lib/compon
 
 chai.use(chaiEnzyme());
 
-const appDataService = app.dataService;
 const appRegistry = app.appRegistry;
 const stateStore = {
   state: {
@@ -32,7 +31,6 @@ describe('<SidebarCollection />', () => {
     );
   });
   afterEach(() => {
-    app.dataService = appDataService;
     app.appRegistry = appRegistry;
   });
 

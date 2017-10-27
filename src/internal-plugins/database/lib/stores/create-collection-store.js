@@ -14,6 +14,14 @@ const CreateCollectionStore = Reflux.createStore({
     this.listenTo(Actions.createCollection, this.createCollection);
   },
 
+  onActivated(appRegistry) {
+    appRegistry.on('data-service-connected', (err, dataService) => {
+      if (!err) {
+        this.dataService = dataService;
+      }
+    });
+  },
+
   /**
    * Create the database.
    *
@@ -25,7 +33,7 @@ const CreateCollectionStore = Reflux.createStore({
   createCollection(dbName, collection, capped, size) {
     const options = capped ? { capped: true, size: parseInt(size, 10) } : {};
     try {
-      app.dataService.createCollection(`${dbName}.${collection}`, options, this.handleResult.bind(this));
+      this.dataService.createCollection(`${dbName}.${collection}`, options, this.handleResult.bind(this));
     } catch (e) {
       this.handleResult(e, null);
     }

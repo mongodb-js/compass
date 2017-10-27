@@ -1,4 +1,3 @@
-const app = require('hadron-app');
 const CollectionsAction = require('./lib/actions/collections-actions');
 const CollectionsTable = require('./lib/components');
 const CreateCollectionCheckbox = require('./lib/components/create-collection-checkbox');
@@ -8,6 +7,7 @@ const CreateCollectionDialog = require('./lib/components/create-collection-dialo
 const DropCollectionDialog = require('./lib/components/drop-collection-dialog');
 const ConnectedCollections = require('./lib/components/connected-collections');
 const CollectionsStore = require('./lib/stores/collections-store');
+const DropCollectionStore = require('./lib/stores/drop-collection-store');
 
 /**
  * The collection tab role for the document list component.
@@ -31,21 +31,23 @@ function activate(appRegistry) {
   appRegistry.registerComponent('Database.CreateCollectionDialog', CreateCollectionDialog);
   appRegistry.registerComponent('Database.DropCollectionDialog', DropCollectionDialog);
   appRegistry.registerStore('Database.CollectionsStore', CollectionsStore);
+  appRegistry.registerStore('Database.DropCollectionStore', DropCollectionStore);
 }
 
 /**
  * Deactivate all the components in the Schema package.
  */
-function deactivate() {
-  app.appRegistry.deregisterRole('Database.Tab', DATABASE_TAB_ROLE);
-  app.appRegistry.deregisterAction('Database.CollectionsActions');
-  app.appRegistry.deregisterComponent('Database.CollectionsTable');
-  app.appRegistry.deregisterComponent('Database.CreateCollectionCheckbox');
-  app.appRegistry.deregisterComponent('Database.CreateCollectionInput');
-  app.appRegistry.deregisterComponent('Database.CreateCollectionSizeInput');
-  app.appRegistry.deregisterComponent('Database.CreateCollectionDialog');
-  app.appRegistry.deregisterComponent('Database.DropCollectionDialog');
-  app.appRegistry.deregisterStore('Database.CollectionsStore', CollectionsStore);
+function deactivate(appRegistry) {
+  appRegistry.deregisterRole('Database.Tab', DATABASE_TAB_ROLE);
+  appRegistry.deregisterAction('Database.CollectionsActions');
+  appRegistry.deregisterComponent('Database.CollectionsTable');
+  appRegistry.deregisterComponent('Database.CreateCollectionCheckbox');
+  appRegistry.deregisterComponent('Database.CreateCollectionInput');
+  appRegistry.deregisterComponent('Database.CreateCollectionSizeInput');
+  appRegistry.deregisterComponent('Database.CreateCollectionDialog');
+  appRegistry.deregisterComponent('Database.DropCollectionDialog');
+  appRegistry.deregisterStore('Database.CollectionsStore');
+  appRegistry.deregisterStore('Database.DropCollectionStore');
 }
 
 module.exports.activate = activate;

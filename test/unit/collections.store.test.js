@@ -1,6 +1,7 @@
 /* eslint no-unused-expressions: 0 */
 const { expect } = require('chai');
 const app = require('hadron-app');
+const AppRegistry = require('hadron-app-registry');
 
 require('../../src/app/reflux-listen-to-external-store.js');
 
@@ -13,12 +14,12 @@ const mockDataService = require('./support/mock-data-service');
 
 describe('CollectionsStore', () => {
   const appInstance = app.instance;
+  app.appRegistry = new AppRegistry();
   const MOCK_APP_INSTANCE = {databases: ['foo-database']};
 
   before(mockDataService.before(null, {
     database: { collections: [] }
   }));
-  after(mockDataService.after());
 
   beforeEach(() => {
     // Stub out the app.instance so the NamespaceStore.ns setup runs through

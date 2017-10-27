@@ -45,6 +45,11 @@ const CollectionsStore = Reflux.createStore({
 
   onActivated(appRegistry) {
     appRegistry.on('database-changed', this.onDatabaseChanged.bind(this));
+    appRegistry.on('data-service-connected', (err, dataService) => {
+      if (!err) {
+        this.dataService = dataService;
+      }
+    });
   },
 
   getInitialState() {
@@ -78,7 +83,7 @@ const CollectionsStore = Reflux.createStore({
       };
     }) : [];
 
-    app.dataService.database(namespace, {}, (err, res) => {
+    this.dataService.database(namespace, {}, (err, res) => {
       if (err) {
         this.setState({
           collections: [],

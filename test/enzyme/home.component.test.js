@@ -11,7 +11,6 @@ const InstanceComponent = require('../../src/internal-plugins/instance/lib/compo
 
 describe('<Home />', () => {
   const appRegistry = app.appRegistry;
-  const appDataService = app.dataService;
   const appInstance = app.instance;
   const stateStore = {
     state: {
@@ -45,7 +44,6 @@ describe('<Home />', () => {
     // Restore properties on the global app object,
     // so they don't affect other tests
     app.appRegistry = appRegistry;
-    app.dataService = appDataService;
     app.instance = appInstance;
   });
 
