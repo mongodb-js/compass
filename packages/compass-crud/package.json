@@ -1,7 +1,7 @@
 {
   "name": "@mongodb-js/compass-crud",
   "productName": "Compass CRUD plugin",
-  "version": "0.7.0",
+  "version": "0.8.0",
   "description": "Compass Plugin for CRUD Operations",
   "repository": "https://github.com/10gen/compass-crud",
   "main": "index.js",
