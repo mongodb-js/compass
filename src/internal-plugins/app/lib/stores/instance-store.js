@@ -20,6 +20,14 @@ const InstanceStore = Reflux.createStore({
   */
   listenables: InstanceActions,
 
+  onActivated(appRegistry) {
+    appRegistry.on('data-service-connected', (err, dataService) => {
+      if (!err) {
+        this.dataService = dataService;
+      }
+    });
+  },
+
   /**
   * Initialize the Compass Sidebar store state.
   *
@@ -43,7 +51,8 @@ const InstanceStore = Reflux.createStore({
     debug('fetching instance model...');
     app.instance.fetch({
       error: this.handleError.bind(this),
-      success: this.onFirstFetch.bind(this)
+      success: this.onFirstFetch.bind(this),
+      dataService: this.dataService
     });
   },
 
@@ -91,7 +100,8 @@ const InstanceStore = Reflux.createStore({
           this.state.instance = instance;
           this.trigger(this.state);
           StatusAction.hide();
-        }
+        },
+        dataService: this.dataService
       });
     }
   }

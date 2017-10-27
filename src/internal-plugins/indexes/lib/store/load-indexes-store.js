@@ -21,6 +21,11 @@ const LoadIndexesStore = Reflux.createStore({
 
   onActivated(appRegistry) {
     appRegistry.on('query-changed', this.onQueryChanged.bind(this));
+    appRegistry.on('data-service-connected', (err, dataService) => {
+      if (!err) {
+        this.dataService = dataService;
+      }
+    });
   },
 
   /**
@@ -32,7 +37,7 @@ const LoadIndexesStore = Reflux.createStore({
       if (this.CollectionStore.isReadonly()) {
         this.trigger([]);
       } else {
-        app.dataService.indexes(ns, {}, (err, indexes) => {
+        this.dataService.indexes(ns, {}, (err, indexes) => {
           if (err) {
             this.trigger([], err);
           } else {

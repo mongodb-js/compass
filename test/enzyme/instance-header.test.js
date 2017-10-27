@@ -12,7 +12,6 @@ const InstanceHeader = require('../../src/internal-plugins/instance-header/lib/c
 chai.use(chaiEnzyme());
 
 const appRegistry = app.appRegistry;
-const dataService = app.dataService;
 
 describe('<InstanceHeader />', () => {
   beforeEach(function() {
@@ -22,14 +21,13 @@ describe('<InstanceHeader />', () => {
       'DatabaseDDL.Actions',
       {openCreateDatabaseDialog: this.DatabaseDDLActionSpy}
     );
-    app.dataService = {
+    app.appRegistry.emit('data-service-connected', null, {
       isWritable: () => {
         return true;
       }
-    };
+    });
   });
   afterEach(() => {
-    app.dataService = dataService;
     app.appRegistry = appRegistry;
   });
 

@@ -28,11 +28,11 @@ describe('<SidebarInstanceProperties />', () => {
   });
   context('when dataService is not writable and databases is loading', function() {
     beforeEach(function() {
-      app.dataService = {
+      app.appRegistry.emit('data-service-connected', null, {
         isWritable: () => {
           return false;
         }
-      };
+      });
       const instance = {
         collections: LOADING_STATE,
         databases: LOADING_STATE

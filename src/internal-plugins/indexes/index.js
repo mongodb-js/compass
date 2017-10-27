@@ -5,6 +5,7 @@ const IndexDefinitionType = require('./lib/component/index-definition-type');
 const Action = require('./lib/action/index-actions');
 const Store = require('./lib/store/sort-indexes-store');
 const LoadIndexesStore = require('./lib/store/load-indexes-store');
+const UpdateIndexesStore = require('./lib/store/update-indexes-store');
 
 /**
  * The collection tab role for the indexes component.
@@ -25,6 +26,7 @@ function activate(appRegistry) {
   appRegistry.registerAction('Indexes.LoadIndexes', Action.loadIndexes);
   appRegistry.registerStore('Indexes.IndexStore', Store);
   appRegistry.registerStore('Indexes.LoadIndexesStore', LoadIndexesStore);
+  appRegistry.registerStore('Indexes.UpdateIndexesStore', UpdateIndexesStore);
 }
 
 /**
@@ -37,6 +39,7 @@ function deactivate() {
   app.appRegistry.deregisterAction('Indexes.LoadIndexes');
   app.appRegistry.deregisterStore('Indexes.IndexStore');
   app.appRegistry.deregisterStore('Indexes.LoadIndexesStore');
+  app.appRegistry.deregisterStore('Indexes.UpdateIndexesStore');
 }
 
 module.exports.activate = activate;

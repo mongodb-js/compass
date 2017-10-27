@@ -1,5 +1,4 @@
 const Reflux = require('reflux');
-const app = require('hadron-app');
 const toNS = require('mongodb-ns');
 const numeral = require('numeral');
 
@@ -13,6 +12,11 @@ const CollectionStatsStore = Reflux.createStore({
     this.CollectionStore = registry.getStore('App.CollectionStore');
     this.listenTo(this.NamespaceStore, this.loadCollectionStats.bind(this));
     registry.getAction('CRUD.Actions').documentRemoved.listen(this.documentRemoved.bind(this));
+    registry.on('data-service-connected', (err, dataService) => {
+      if (!err) {
+        this.dataService = dataService;
+      }
+    });
   },
 
   documentRemoved: function() {
@@ -29,7 +33,7 @@ const CollectionStatsStore = Reflux.createStore({
       if (this.CollectionStore.isReadonly()) {
         this.trigger();
       } else {
-        app.dataService.collection(ns, {}, (err, result) => {
+        this.dataService.collection(ns, {}, (err, result) => {
           if (!err) {
             this.trigger(this._parseCollectionDetails(result));
           }

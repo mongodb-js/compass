@@ -93,8 +93,6 @@ const mockDataService = function(errors, results) {
   return mockedDS;
 };
 
-const originalDataServices = [];
-
 /**
  * `before` hook for tests that need to mock data-service
  * @param  {Objec} errors     object of errors for each of the calls
@@ -103,21 +101,9 @@ const originalDataServices = [];
  */
 const before = function(errors, results) {
   return function() {
-    originalDataServices.push(app.dataService);
-    app.dataService = mockDataService(errors, results);
-  };
-};
-
-/**
- * `after` hook, restoring the previous data-service
- * @return {Function}  function to restore original data service
- */
-const after = function() {
-  return function() {
-    app.dataService = originalDataServices.pop();
+    app.appRegistry.emit('data-service-connected', null, mockDataService(errors, results));
   };
 };
 
 module.exports = mockDataService;
 module.exports.before = before;
-module.exports.after = after;

@@ -53,6 +53,11 @@ const SchemaStore = Reflux.createStore({
   onActivated(appRegistry) {
     appRegistry.getStore('App.NamespaceStore').listen(this.onNamespaceChanged.bind(this));
     appRegistry.on('query-changed', this.onQueryChanged.bind(this));
+    appRegistry.on('data-service-connected', (err, dataService) => {
+      if (!err) {
+        this.dataService = dataService;
+      }
+    });
   },
 
   handleSchemaShare() {
@@ -181,7 +186,7 @@ const SchemaStore = Reflux.createStore({
       progress: 0
     });
 
-    this.samplingStream = app.dataService.sample(this.ns, sampleOptions);
+    this.samplingStream = this.dataService.sample(this.ns, sampleOptions);
     this.analyzingStream = schemaStream();
     let schema;
 
@@ -220,7 +225,7 @@ const SchemaStore = Reflux.createStore({
       maxTimeMS: this.state.maxTimeMS
     };
 
-    app.dataService.count(this.ns, this.query.filter, countOptions, (err, count) => {
+    this.dataService.count(this.ns, this.query.filter, countOptions, (err, count) => {
       if (err) {
         return onError(err);
       }

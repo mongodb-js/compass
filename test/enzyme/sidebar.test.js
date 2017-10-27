@@ -12,7 +12,6 @@ const InstanceStore = require('../../src/internal-plugins/app/lib/stores/instanc
 
 chai.use(chaiEnzyme());
 
-const appDataService = app.dataService;
 const appRegistry = app.appRegistry;
 const stateStore = {
   state: {
@@ -32,14 +31,13 @@ describe('<Sidebar />', () => {
       {openCreateDatabaseDialog: this.DatabaseDDLActionSpy}
     );
     app.appRegistry.registerStore('App.InstanceStore', InstanceStore);
-    app.dataService = {
+    app.appRegistry.emit('data-service-connected', null, {
       isWritable: () => {
         return true;
       }
-    };
+    });
   });
   afterEach(() => {
-    app.dataService = appDataService;
     app.appRegistry = appRegistry;
   });
 
