@@ -8,6 +8,7 @@ const DropCollectionDialog = require('./lib/components/drop-collection-dialog');
 const ConnectedCollections = require('./lib/components/connected-collections');
 const CollectionsStore = require('./lib/stores/collections-store');
 const DropCollectionStore = require('./lib/stores/drop-collection-store');
+const CreateCollectionStore = require('./lib/stores/create-collection-store');
 
 /**
  * The collection tab role for the document list component.
@@ -32,6 +33,7 @@ function activate(appRegistry) {
   appRegistry.registerComponent('Database.DropCollectionDialog', DropCollectionDialog);
   appRegistry.registerStore('Database.CollectionsStore', CollectionsStore);
   appRegistry.registerStore('Database.DropCollectionStore', DropCollectionStore);
+  appRegistry.registerStore('Database.CreateCollectionStore', CreateCollectionStore);
 }
 
 /**
@@ -48,6 +50,7 @@ function deactivate(appRegistry) {
   appRegistry.deregisterComponent('Database.DropCollectionDialog');
   appRegistry.deregisterStore('Database.CollectionsStore');
   appRegistry.deregisterStore('Database.DropCollectionStore');
+  appRegistry.reregisterStore('Database.CreateCollectionStore');
 }
 
 module.exports.activate = activate;
