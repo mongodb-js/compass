@@ -93,8 +93,6 @@ const mockDataService = function(errors, results) {
   return mockedDS;
 };
 
-const originalDataServices = [];
-
 /**
  * `before` hook for tests that need to mock data-service
  * @param  {Objec} errors     object of errors for each of the calls
