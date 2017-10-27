@@ -78,6 +78,11 @@ Module._load = function(request, loc) {
   return loader.apply(this, arguments);
 };
 
+/* eslint no-eval:0 */
+window.eval = global.eval = function() {
+  throw new Error('Due to security reasons, eval() is not supported.');
+};
+
 app.pluginManager.activate(app.appRegistry);
 
 debug(`Plugin manager activated with distribution ${process.env.HADRON_DISTRIBUTION}.`);
