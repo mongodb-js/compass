@@ -116,7 +116,7 @@ var createWindow = module.exports.create = function(opts) {
     width: opts.width,
     height: opts.height,
     icon: opts.icon,
-    show: true,
+    show: false,
     devTools: process.env.NODE_ENV !== 'production',
     'min-width': opts.minwidth,
     'web-preferences': {
