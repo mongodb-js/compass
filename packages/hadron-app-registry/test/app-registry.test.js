@@ -477,6 +477,114 @@ describe('AppRegistry', () => {
     });
   });
 
+  describe('#emit', () => {
+    let registry;
+
+    beforeEach(() => {
+      registry = new AppRegistry();
+    });
+
+    it('emits the event', (done) => {
+      registry.once('test-event', (value) => {
+        expect(value).to.equal('test');
+        done();
+      });
+      registry.emit('test-event', 'test');
+    });
+  });
+
+  describe('#on', () => {
+    let registry;
+
+    beforeEach(() => {
+      registry = new AppRegistry();
+    });
+
+    it('subscribes to the event', (done) => {
+      registry.on('test-event', (value) => {
+        expect(value).to.equal('test');
+        done();
+      });
+      registry.emit('test-event', 'test');
+    });
+  });
+
+  describe('#once', () => {
+    let registry;
+
+    beforeEach(() => {
+      registry = new AppRegistry();
+    });
+
+    it('subscribes to the event once', (done) => {
+      registry.once('test-event', (value) => {
+        expect(value).to.equal('test');
+        done();
+      });
+      registry.emit('test-event', 'test');
+    });
+  });
+
+  describe('#addListener', () => {
+    let registry;
+
+    beforeEach(() => {
+      registry = new AppRegistry();
+    });
+
+    it('adds the listener to the event', (done) => {
+      registry.addListener('test-event', (value) => {
+        expect(value).to.equal('test');
+        done();
+      });
+      registry.emit('test-event', 'test');
+    });
+  });
+
+  describe('#removeListener', () => {
+    let registry;
+    const listener = () => { return true; };
+
+    beforeEach(() => {
+      registry = new AppRegistry();
+      registry.addListener('test-event', listener);
+    });
+
+    it('removes the listener', () => {
+      registry.removeListener('test-event', listener);
+      expect(registry.listenerCount('test-event')).to.equal(0);
+    });
+  });
+
+  describe('#removeAllListeners', () => {
+    let registry;
+    const listenerOne = () => { return true; };
+    const listenerTwo = () => { return true; };
+
+    beforeEach(() => {
+      registry = new AppRegistry();
+      registry.addListener('test-event', listenerOne);
+      registry.addListener('test-event', listenerTwo);
+    });
+
+    it('removes all the listeners', () => {
+      registry.removeAllListeners('test-event');
+      expect(registry.listenerCount('test-event')).to.equal(0);
+    });
+  });
+
+  describe('#setMaxListeners', () => {
+    let registry;
+
+    beforeEach(() => {
+      registry = new AppRegistry();
+    });
+
+    it('returns the app registry', () => {
+      expect(registry.setMaxListeners(50)).to.equal(registry);
+    });
+  });
+
   context('when freezing the app registry', () => {
     let registry;
 

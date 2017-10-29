@@ -313,6 +313,60 @@ class AppRegistry {
     return this;
   }
 
+  /**
+   * Adds a listener for the event name to the underlying event emitter.
+   *
+   * @param {String} eventName - The event name.
+   * @param {Function} listener - The listener.
+   *
+   * @returns {AppRegistry} The chainable app registry.
+   */
+  addListener(eventName, listener) {
+    return this.on(eventName, listener);
+  }
+
+  /**
+   * Removes a listener for the event.
+   *
+   * @param {String} eventName - The event name.
+   * @param {Function} listener - The listener.
+   */
+  removeListener(eventName, listener) {
+    return this._emitter.removeListener(eventName, listener);
+  }
+
+  /**
+   * Removes all the listeners for the event name.
+   *
+   * @param {String} eventName - The event name.
+   */
+  removeAllListeners(eventName) {
+    return this._emitter.removeAllListeners(eventName);
+  }
+
+  /**
+   * Gets a count of listeners for the event name.
+   *
+   * @param {String} eventName - The event name.
+   *
+   * @returns {Number} The listener count.
+   */
+  listenerCount(eventName) {
+    return this._emitter.listenerCount(eventName);
+  }
+
+  /**
+   * Sets the max listeners to warn on for the emitter.
+   *
+   * @param {Number} n - The max listeners.
+   *
+   * @returns {AppRegistry} The app registry.
+   */
+  setMaxListeners(n) {
+    this._emitter.setMaxListeners(n);
+    return this;
+  }
+
   _callOnStores(fn) {
     for (let key in this.stores) {
       if (this.stores.hasOwnProperty(key)) {
