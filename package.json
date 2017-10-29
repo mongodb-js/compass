@@ -4,6 +4,7 @@
   "description": "The MongoDB GUI",
   "homepage": "https://compass.mongodb.com",
   "version": "1.11.0-dev",
+  "apiVersion": "1.0.0",
   "main": "src/main.js",
   "author": {
     "name": "MongoDB Inc",
