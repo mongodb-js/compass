@@ -29,39 +29,40 @@ class PluginManager {
    * Activate all the plugins.
    *
    * @param {AppRegistry} appRegistry - The app registry to pass when activating.
+   * @param {String} apiVersion - The plugin API version.
    */
-  activate(appRegistry) {
+  activate(appRegistry, apiVersion = '1.0.0') {
     async.series([
-      this._loadPluginsFromPaths.bind(this, appRegistry),
-      this._loadPluginList.bind(this, appRegistry)
+      this._loadPluginsFromPaths.bind(this, appRegistry, apiVersion),
+      this._loadPluginList.bind(this, appRegistry, apiVersion)
     ], () => {
       Action.pluginActivationCompleted(appRegistry);
     });
   }
 
-  _loadPluginsFromPaths(appRegistry, done) {
+  _loadPluginsFromPaths(appRegistry, apiVersion, done) {
     async.each(this.paths, (pkgPath, d) => {
-      this._loadPath(appRegistry, pkgPath, d);
+      this._loadPath(appRegistry, apiVersion, pkgPath, d);
     }, () => {
       done();
     });
   }
 
-  _loadPluginList(appRegistry, done) {
+  _loadPluginList(appRegistry, apiVersion, done) {
     async.each(this.pluginList, (pkgPath, d) => {
-      this._loadPlugin(appRegistry, this.baseDir, pkgPath, d);
+      this._loadPlugin(appRegistry, apiVersion, this.baseDir, pkgPath, d);
     }, () => {
       done();
     });
   }
 
-  _loadPath(appRegistry, pkgPath, done) {
+  _loadPath(appRegistry, apiVersion, pkgPath, done) {
     fs.readdir(pkgPath, (error, files) => {
       if (error) {
         done();
       } else {
         async.each(files, (file, d) => {
-          this._loadPlugin(appRegistry, pkgPath, file, d);
+          this._loadPlugin(appRegistry, apiVersion, pkgPath, file, d);
         }, () => {
           done();
         });
@@ -69,19 +70,19 @@ class PluginManager {
     });
   }
 
-  _loadPlugin(appRegistry, pkgPath, file, done) {
+  _loadPlugin(appRegistry, apiVersion, pkgPath, file, done) {
     const pluginPath = path.join(pkgPath, file);
     fs.stat(pluginPath, (error, f) => {
       if (error) {
         return done();
       }
-      this._readPlugin(appRegistry, f, pluginPath, done);
+      this._readPlugin(appRegistry, apiVersion, f, pluginPath, done);
     });
   }
 
-  _readPlugin(appRegistry, file, pkgPath, done) {
+  _readPlugin(appRegistry, apiVersion, file, pkgPath, done) {
     if (file.isDirectory()) {
-      const pkg = new Plugin(pkgPath);
+      const pkg = new Plugin(pkgPath, apiVersion);
       this.plugins.push(pkg);
       pkg.activate(appRegistry);
       Action.pluginActivated(pkg);

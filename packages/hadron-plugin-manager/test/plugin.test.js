@@ -4,7 +4,7 @@ const path = require('path');
 const expect = require('chai').expect;
 
 const Plugin = require('../lib/plugin');
-const Cache = Plugin.Cache;
+const CACHE = Plugin.CACHE;
 const Example = require('./plugins/example');
 
 describe('Plugin', () => {
@@ -16,7 +16,7 @@ describe('Plugin', () => {
 
       context('when the plugin is not yet loaded', () => {
         beforeEach(() => {
-          delete Cache[testPluginPath];
+          delete CACHE[testPluginPath];
         });
 
         it('loads the plugin and calls activate on the module', () => {
@@ -79,14 +79,14 @@ describe('Plugin', () => {
       });
 
       it('sets the module in the cache', () => {
-        expect(Cache[testPluginPath]).to.equal(Example);
+        expect(CACHE[testPluginPath]).to.equal(Example);
       });
     });
   });
 
   describe('#new', () => {
     context('when a package.json exists', () => {
-      const plugin = new Plugin(testPluginPath);
+      const plugin = new Plugin(testPluginPath, '1.2.0');
 
       it('sets the plugin path', () => {
         expect(plugin.pluginPath).to.equal(testPluginPath);
@@ -94,6 +94,10 @@ describe('Plugin', () => {
 
       it('parses the package.json and sets the metadata', () => {
         expect(plugin.metadata.name).to.equal('test-plugin');
+      });
+
+      it('sets the plugin api version', () => {
+        expect(plugin.apiVersion).to.equal('1.2.0');
       });
     });
 

@@ -23,12 +23,12 @@
     "check"
   ],
   "dependencies": {
+    "async": "^2.3.0",
     "debug": "^2.2.0",
-    "lodash": "^4.6.1",
-    "reflux": "^0.4.0"
+    "reflux": "^0.4.0",
+    "semver": "^5.4.1"
   },
   "devDependencies": {
-    "async": "^2.3.0",
     "chai": "^3.4.1",
     "eslint-config-mongodb-js": "^2.2.0",
     "mocha": "^3.1.2",

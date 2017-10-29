@@ -3,9 +3,14 @@
 const path = require('path');
 
 /**
- * The plugin cache.
+ * The plugin module cache.
  */
-const Cache = {};
+const CACHE = {};
+
+/**
+ * The plugin name cache.
+ */
+const NAME_CACHE = {};
 
 /**
  * Define the filename constant.
@@ -20,17 +25,20 @@ class Plugin {
   /**
    * Instantiate the plugin.
    *
-   * @param {string} pluginPath - The path to the plugin.
+   * @param {String} pluginPath - The path to the plugin.
+   * @param {String} apiVersion - The plugin API version of the application.
    */
-  constructor(pluginPath) {
+  constructor(pluginPath, apiVersion) {
     this.pluginPath = pluginPath;
     this.isActivated = false;
+    this.apiVersion = apiVersion;
     try {
       this.metadata = require(path.resolve(this.pluginPath, PLUGIN_FILENAME));
     } catch (e) {
       this.error = e;
       this.metadata = { name: `${path.basename(this.pluginPath)}` };
     }
+    NAME_CACHE[this.metadata.name] = this.pluginPath;
   }
 
   /**
@@ -40,11 +48,11 @@ class Plugin {
    * @returns {module} The loaded module.
    */
   load() {
-    if (Cache.hasOwnProperty(this.pluginPath)) {
-      return Cache[this.pluginPath];
+    if (CACHE.hasOwnProperty(this.pluginPath)) {
+      return CACHE[this.pluginPath];
     }
     const module = require(path.resolve(this.pluginPath, this.metadata.main));
-    Cache[this.pluginPath] = module;
+    CACHE[this.pluginPath] = module;
     return module;
   }
 
@@ -72,4 +80,4 @@ class Plugin {
 }
 
 module.exports = Plugin;
-module.exports.Cache = Cache;
+module.exports.CACHE = CACHE;
