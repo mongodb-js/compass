@@ -362,6 +362,15 @@ class AppRegistry {
   }
 
   /**
+   * Get the number of listeners for the registry to warn on.
+   *
+   * @returns {Number} The number of max listeners.
+   */
+  getMaxListeners() {
+    return this._emitter.getMaxListeners();
+  }
+
+  /**
    * Sets the max listeners to warn on for the emitter.
    *
    * @param {Number} n - The max listeners.
