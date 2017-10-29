@@ -21,7 +21,7 @@ const STUB_STORE = Reflux.createStore();
  * Is a registry for all user interface components, stores, and actions
  * in the application.
  */
-class AppRegistry extends EventEmitter {
+class AppRegistry {
 
   /**
    * Instantiate the registry.
@@ -29,7 +29,7 @@ class AppRegistry extends EventEmitter {
    * @todo: Package manager activates at end.
    */
   constructor() {
-    super();
+    this._emitter = new EventEmitter();
     this.actions = {};
     this.components = {};
     this.stores = {};
@@ -271,6 +271,45 @@ class AppRegistry extends EventEmitter {
     } else {
       Action.storeRegistered(name);
     }
+    return this;
+  }
+
+  /**
+   * Emits an event for the name with the provided arguments.
+   *
+   * @param {String} eventName - The event name.
+   * @param {...Object} args - The arguments.
+   *
+   * @returns {Boolean} If the event had listeners.
+   */
+  emit(eventName, ...args) {
+    return this._emitter.emit(eventName, ...args);
+  }
+
+  /**
+   * Adds a listener for the event name to the underlying event emitter.
+   *
+   * @param {String} eventName - The event name.
+   * @param {Function} listener - The listener.
+   *
+   * @returns {AppRegistry} The chainable app registry.
+   */
+  on(eventName, listener) {
+    this._emitter.on(eventName, listener);
+    return this;
+  }
+
+  /**
+   * Adds a listener for the event name to the underlying event emitter
+   * to handle an event only once.
+   *
+   * @param {String} eventName - The event name.
+   * @param {Function} listener - The listener.
+   *
+   * @returns {AppRegistry} The chainable app registry.
+   */
+  once(eventName, listener) {
+    this._emitter.once(eventName, listener);
     return this;
   }
 
