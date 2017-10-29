@@ -2,6 +2,7 @@
   "name": "compass-sidebar",
   "productName": "Compass Sidebar",
   "version": "0.1.0",
+  "apiVersion": "1.0.0",
   "authors": "MongoDB Inc.",
   "description": "Sidebar plugin for the compass app",
   "private": true,

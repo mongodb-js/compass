@@ -1,8 +1,9 @@
 {
   "name": "query-bar",
   "productName": "Compass Query Bar",
-  "description": "Compass Query Bar component with buttons.",
-  "version": "0.0.1",
+  "description": "Compass Query Bar Component with Autocomplete.",
+  "version": "1.0.0",
+  "apiVersion": "1.0.0",
   "authors": "MongoDB Inc.",
   "private": true,
   "main": "./index.js"

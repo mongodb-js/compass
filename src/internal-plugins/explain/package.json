@@ -1,7 +1,8 @@
 {
   "name": "explain",
   "productName": "Compass Explain View",
-  "version": "0.1.0",
+  "version": "1.0.0",
+  "apiVersion": "1.0.0",
   "authors": "MongoDB Inc.",
   "description": "Compass collection view to visualize explain plans.",
   "private": true,

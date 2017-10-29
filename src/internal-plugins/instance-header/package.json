@@ -2,6 +2,7 @@
   "name": "compass-instance-header",
   "productName": "Compass Instance Header",
   "version": "0.1.0",
+  "apiVersion": "1.0.0",
   "authors": "MongoDB Inc.",
   "description": "Instance header plugin",
   "private": true,

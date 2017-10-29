@@ -2,6 +2,7 @@
   "name": "compass-ssh-tunnel-status",
   "productName": "Compass SSH Tunnel Status",
   "version": "0.1.0",
+  "apiVersion": "1.0.0",
   "authors": "MongoDB Inc.",
   "description": "Shows the bastion host if connected via SSH tunnel.",
   "private": true,

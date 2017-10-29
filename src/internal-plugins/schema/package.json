@@ -1,8 +1,9 @@
 {
   "name": "schema",
   "productName": "Compass Schema",
-  "description": "Schema for Compass as an internal package.",
-  "version": "0.0.1",
+  "description": "Schema Analysis Plugin",
+  "version": "1.0.0",
+  "apiVersion": "1.0.0",
   "authors": "MongoDB Inc.",
   "private": true,
   "main": "./index.js"

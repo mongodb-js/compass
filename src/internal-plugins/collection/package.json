@@ -1,8 +1,9 @@
 {
   "name": "collection",
   "productName": "Compass Collection View",
-  "description": "The Collection View",
-  "version": "0.0.1",
+  "description": "Compass Collection View",
+  "version": "1.0.0",
+  "apiVersion": "1.0.0",
   "authors": "MongoDB Inc.",
   "private": true,
   "main": "./index.js"

@@ -4,6 +4,7 @@ const path = require('path');
 const os = require('os');
 const AppRegistry = require('hadron-app-registry');
 const PluginManager = require('hadron-plugin-manager');
+
 const debug = require('debug')('mongodb-compass:setup-plugin-manager');
 
 /**
@@ -90,6 +91,6 @@ if (process.env.NODE_ENV === 'production') {
   };
 }
 
-app.pluginManager.activate(app.appRegistry);
+app.pluginManager.activate(app.appRegistry, pkg.apiVersion);
 
 debug(`Plugin manager activated with distribution ${process.env.HADRON_DISTRIBUTION}.`);

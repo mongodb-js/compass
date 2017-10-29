@@ -2,7 +2,8 @@
   "name": "database",
   "productName": "Compass Database View",
   "description": "Responsible for the view at the database level.",
-  "version": "0.0.1",
+  "version": "1.0.0",
+  "apiVersion": "1.0.0",
   "authors": "MongoDB Inc.",
   "private": true,
   "main": "./index.js"
