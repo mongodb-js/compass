@@ -117,12 +117,10 @@ var createWindow = module.exports.create = function(opts) {
     height: opts.height,
     icon: opts.icon,
     show: false,
-    devTools: process.env.NODE_ENV !== 'production',
     'min-width': opts.minwidth,
     'web-preferences': {
       'subpixel-font-scaling': true,
-      'direct-write': true,
-      'devTools': process.env.NODE_ENV !== 'production'
+      'direct-write': true
     }
   });
 
@@ -134,8 +132,7 @@ var createWindow = module.exports.create = function(opts) {
     'min-width': opts.minwidth,
     'web-preferences': {
       'subpixel-font-scaling': true,
-      'direct-write': true,
-      'devTools': false
+      'direct-write': true
     }
   });
 

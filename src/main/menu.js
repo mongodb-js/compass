@@ -225,7 +225,7 @@ function collectionSubMenu() {
 }
 
 function viewSubMenu() {
-  const menu = {
+  return {
     label: '&View',
     submenu: [
       {
@@ -256,20 +256,17 @@ function viewSubMenu() {
         click: function() {
           ipc.broadcast('window:zoom-out');
         }
+      },
+      separator(),
+      {
+        label: '&Toggle DevTools',
+        accelerator: 'Alt+CmdOrCtrl+I',
+        click: function() {
+          BrowserWindow.getFocusedWindow().toggleDevTools();
+        }
       }
     ]
   };
-  if (process.env.NODE_ENV !== 'production') {
-    menu.submenu.push(separator());
-    menu.submenu.push({
-      label: '&Toggle DevTools',
-      accelerator: 'Alt+CmdOrCtrl+I',
-      click: function() {
-        BrowserWindow.getFocusedWindow().toggleDevTools();
-      }
-    });
-  }
-  return menu;
 }
 
 function windowSubMenu() {
