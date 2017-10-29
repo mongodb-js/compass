@@ -1,7 +1,8 @@
 {
   "name": "compass-app",
   "productName": "Compass App package",
-  "version": "0.0.1",
+  "version": "1.0.0",
+  "apiVersion": "1.0.0",
   "authors": "MongoDB Inc.",
   "description": "Stores and actions for application-wide use",
   "private": true,
