@@ -603,7 +603,24 @@ describe('AppRegistry', () => {
     });
   });
 
-  // emitter.listeners(eventName)
+  describe('#listeners', () => {
+    let registry;
+    const listenerOne = () => { return true; };
+    const listenerTwo = () => { return true; };
+
+    beforeEach(() => {
+      registry = new AppRegistry();
+      registry.addListener('test-event', listenerOne);
+      registry.addListener('test-event', listenerTwo);
+    });
+
+    it('returns the listeners for the event', () => {
+      expect(registry.listeners('test-event')).to.deep.equal([
+        listenerOne, listenerTwo
+      ]);
+    });
+  });
+
   // emitter.prependListener(eventName, listener)
   // emitter.prependOnceListener(eventName, listener)
 

@@ -326,6 +326,17 @@ class AppRegistry {
   }
 
   /**
+   * Get all the listeners for the event.
+   *
+   * @param {String} eventName - The event name.
+   *
+   * @returns {Array} The listeners for the event.
+   */
+  listeners(eventName) {
+    return this._emitter.listeners(eventName);
+  }
+
+  /**
    * Adds a listener for the event name to the underlying event emitter.
    *
    * @param {String} eventName - The event name.
