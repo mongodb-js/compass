@@ -330,18 +330,24 @@ class AppRegistry {
    *
    * @param {String} eventName - The event name.
    * @param {Function} listener - The listener.
+   *
+   * @returns {AppRegistry} The chainable app registry.
    */
   removeListener(eventName, listener) {
-    return this._emitter.removeListener(eventName, listener);
+    this._emitter.removeListener(eventName, listener);
+    return this;
   }
 
   /**
    * Removes all the listeners for the event name.
    *
    * @param {String} eventName - The event name.
+   *
+   * @returns {AppRegistry} The chainable app registry.
    */
   removeAllListeners(eventName) {
-    return this._emitter.removeAllListeners(eventName);
+    this._emitter.removeAllListeners(eventName);
+    return this;
   }
 
   /**
