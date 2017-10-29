@@ -590,6 +590,10 @@ describe('AppRegistry', () => {
     });
   });
 
+  // emitter.eventNames()
+  // emitter.listeners(eventName)
+  // emitter.prependListener(eventName, listener)
+  // emitter.prependOnceListener(eventName, listener)
 
   context('when freezing the app registry', () => {
     let registry;

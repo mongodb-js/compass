@@ -25,8 +25,6 @@ class AppRegistry {
 
   /**
    * Instantiate the registry.
-   *
-   * @todo: Package manager activates at end.
    */
   constructor() {
     this._emitter = new EventEmitter();
@@ -275,6 +273,18 @@ class AppRegistry {
   }
 
   /**
+   * Adds a listener for the event name to the underlying event emitter.
+   *
+   * @param {String} eventName - The event name.
+   * @param {Function} listener - The listener.
+   *
+   * @returns {AppRegistry} The chainable app registry.
+   */
+  addListener(eventName, listener) {
+    return this.on(eventName, listener);
+  }
+
+  /**
    * Emits an event for the name with the provided arguments.
    *
    * @param {String} eventName - The event name.
@@ -284,6 +294,26 @@ class AppRegistry {
    */
   emit(eventName, ...args) {
     return this._emitter.emit(eventName, ...args);
+  }
+
+  /**
+   * Get the number of listeners for the registry to warn on.
+   *
+   * @returns {Number} The number of max listeners.
+   */
+  getMaxListeners() {
+    return this._emitter.getMaxListeners();
+  }
+
+  /**
+   * Gets a count of listeners for the event name.
+   *
+   * @param {String} eventName - The event name.
+   *
+   * @returns {Number} The listener count.
+   */
+  listenerCount(eventName) {
+    return this._emitter.listenerCount(eventName);
   }
 
   /**
@@ -314,18 +344,6 @@ class AppRegistry {
   }
 
   /**
-   * Adds a listener for the event name to the underlying event emitter.
-   *
-   * @param {String} eventName - The event name.
-   * @param {Function} listener - The listener.
-   *
-   * @returns {AppRegistry} The chainable app registry.
-   */
-  addListener(eventName, listener) {
-    return this.on(eventName, listener);
-  }
-
-  /**
    * Removes a listener for the event.
    *
    * @param {String} eventName - The event name.
@@ -348,26 +366,6 @@ class AppRegistry {
   removeAllListeners(eventName) {
     this._emitter.removeAllListeners(eventName);
     return this;
-  }
-
-  /**
-   * Gets a count of listeners for the event name.
-   *
-   * @param {String} eventName - The event name.
-   *
-   * @returns {Number} The listener count.
-   */
-  listenerCount(eventName) {
-    return this._emitter.listenerCount(eventName);
-  }
-
-  /**
-   * Get the number of listeners for the registry to warn on.
-   *
-   * @returns {Number} The number of max listeners.
-   */
-  getMaxListeners() {
-    return this._emitter.getMaxListeners();
   }
 
   /**
