@@ -37,7 +37,7 @@ class Plugin {
    * Instantiate the plugin.
    *
    * @param {String} pluginPath - The path to the plugin.
-   * @param {String} apiVersion - The plugin API version of the application.
+   * @param {String} applicationApiVersion - The plugin API version of the application.
    */
   constructor(pluginPath, applicationApiVersion = '1.0.0') {
     this.pluginPath = pluginPath;
@@ -49,7 +49,7 @@ class Plugin {
       this.metadata = { name: `${path.basename(this.pluginPath)}` };
     }
     this._validateApiVersion(applicationApiVersion);
-    NAME_CACHE[this.metadata.name] = this.pluginPath;
+    this._validateNameCollision();
   }
 
   /**
@@ -98,7 +98,17 @@ class Plugin {
       );
     }
   }
+
+  _validateNameCollision() {
+    const name = this.metadata.name;
+    if (NAME_CACHE.hasOwnProperty(name)) {
+      this.error = new Error(`Plugin with the name ${name} already exists.`);
+    } else {
+      NAME_CACHE[name] = this.pluginPath;
+    }
+  }
 }
 
 module.exports = Plugin;
 module.exports.CACHE = CACHE;
+module.exports.NAME_CACHE = NAME_CACHE;

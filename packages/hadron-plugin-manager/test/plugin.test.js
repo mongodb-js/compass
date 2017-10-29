@@ -5,6 +5,7 @@ const expect = require('chai').expect;
 
 const Plugin = require('../lib/plugin');
 const CACHE = Plugin.CACHE;
+const NAME_CACHE = Plugin.NAME_CACHE;
 const Example = require('./plugins/example');
 
 describe('Plugin', () => {
@@ -124,7 +125,12 @@ describe('Plugin', () => {
     });
 
     context('when the api version is in range of the api version', () => {
-      const plugin = new Plugin(testPluginPath, '1.2.0');
+      let plugin;
+
+      beforeEach(() => {
+        delete NAME_CACHE['test-plugin'];
+        plugin = new Plugin(testPluginPath, '1.2.0');
+      });
 
       it('sets the application api version on the plugin', () => {
         expect(plugin.applicationApiVersion).to.equal('1.2.0');
@@ -136,7 +142,12 @@ describe('Plugin', () => {
     });
 
     context('when the application api version is not in range of the api version', () => {
-      const plugin = new Plugin(testPluginPath, '2.0.0');
+      let plugin;
+
+      beforeEach(() => {
+        delete NAME_CACHE['test-plugin'];
+        plugin = new Plugin(testPluginPath, '2.0.0');
+      });
 
       it('sets the application api version on the plugin', () => {
         expect(plugin.applicationApiVersion).to.equal('2.0.0');
@@ -148,6 +159,18 @@ describe('Plugin', () => {
 
       it('errors with the version exception', () => {
         expect(plugin.error.message).to.include('is not compatible with the application');
+      });
+    });
+
+    context('when the plugin name already exists', () => {
+      let plugin;
+
+      beforeEach(() => {
+        plugin = new Plugin(testPluginPath, '2.0.0');
+      });
+
+      it('sets the name collision error', () => {
+        expect(plugin.error.message).to.include('Plugin with the name');
       });
     });
   });
