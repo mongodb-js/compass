@@ -297,6 +297,15 @@ class AppRegistry {
   }
 
   /**
+   * Return all the event names.
+   *
+   * @returns {Array} The event names.
+   */
+  eventNames() {
+    return this._emitter.eventNames();
+  }
+
+  /**
    * Get the number of listeners for the registry to warn on.
    *
    * @returns {Number} The number of max listeners.

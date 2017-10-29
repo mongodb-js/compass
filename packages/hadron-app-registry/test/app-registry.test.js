@@ -590,7 +590,19 @@ describe('AppRegistry', () => {
     });
   });
 
-  // emitter.eventNames()
+  describe('#eventNames', () => {
+    let registry;
+
+    beforeEach(() => {
+      registry = new AppRegistry();
+      registry.on('test-event', () => { return true; });
+    });
+
+    it('returns the names of all events', () => {
+      expect(registry.eventNames()).to.deep.equal(['test-event']);
+    });
+  });
+
   // emitter.listeners(eventName)
   // emitter.prependListener(eventName, listener)
   // emitter.prependOnceListener(eventName, listener)
