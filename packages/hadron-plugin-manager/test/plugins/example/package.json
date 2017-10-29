@@ -1,6 +1,7 @@
 {
   "name": "test-plugin",
   "version": "0.0.1",
+  "apiVersion": "1.0.0",
   "main": "./index",
   "description": "Test plugin"
 }

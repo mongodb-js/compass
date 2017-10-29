@@ -96,8 +96,8 @@ describe('Plugin', () => {
         expect(plugin.metadata.name).to.equal('test-plugin');
       });
 
-      it('sets the plugin api version', () => {
-        expect(plugin.apiVersion).to.equal('1.2.0');
+      it('sets the application api version', () => {
+        expect(plugin.applicationApiVersion).to.equal('1.2.0');
       });
     });
 
@@ -116,6 +116,38 @@ describe('Plugin', () => {
       it('sets the error', () => {
         const fileName = path.join(plugin.pluginPath, 'package.json');
         expect(plugin.error.message).to.equal(`Cannot find module '${fileName}'`);
+      });
+
+      it('defaults the applicationApiVersion to 1.0.0', () => {
+        expect(plugin.applicationApiVersion).to.equal('1.0.0');
+      });
+    });
+
+    context('when the api version is in range of the api version', () => {
+      const plugin = new Plugin(testPluginPath, '1.2.0');
+
+      it('sets the application api version on the plugin', () => {
+        expect(plugin.applicationApiVersion).to.equal('1.2.0');
+      });
+
+      it('does not error', () => {
+        expect(plugin.error).to.equal(undefined);
+      });
+    });
+
+    context('when the application api version is not in range of the api version', () => {
+      const plugin = new Plugin(testPluginPath, '2.0.0');
+
+      it('sets the application api version on the plugin', () => {
+        expect(plugin.applicationApiVersion).to.equal('2.0.0');
+      });
+
+      it('sets the api version on the plugin', () => {
+        expect(plugin.apiVersion).to.equal('1.0.0');
+      });
+
+      it('errors with the version exception', () => {
+        expect(plugin.error.message).to.include('is not compatible with the application');
       });
     });
   });

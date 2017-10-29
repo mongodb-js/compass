@@ -1,6 +1,7 @@
 'use strict';
 
 const path = require('path');
+const semver = require('semver');
 
 /**
  * The plugin module cache.
@@ -11,6 +12,16 @@ const CACHE = {};
  * The plugin name cache.
  */
 const NAME_CACHE = {};
+
+/**
+ * Plugin version message.
+ */
+const PLUGIN_VERSION = "This plugin's api version of";
+
+/**
+ * Not compatible message.
+ */
+const NOT_COMPATIBLE = 'is not compatible with the application plugin api version of';
 
 /**
  * Define the filename constant.
@@ -28,16 +39,16 @@ class Plugin {
    * @param {String} pluginPath - The path to the plugin.
    * @param {String} apiVersion - The plugin API version of the application.
    */
-  constructor(pluginPath, apiVersion) {
+  constructor(pluginPath, applicationApiVersion = '1.0.0') {
     this.pluginPath = pluginPath;
     this.isActivated = false;
-    this.apiVersion = apiVersion;
     try {
       this.metadata = require(path.resolve(this.pluginPath, PLUGIN_FILENAME));
     } catch (e) {
       this.error = e;
       this.metadata = { name: `${path.basename(this.pluginPath)}` };
     }
+    this._validateApiVersion(applicationApiVersion);
     NAME_CACHE[this.metadata.name] = this.pluginPath;
   }
 
@@ -75,6 +86,16 @@ class Plugin {
       } catch (e) {
         this.error = e;
       }
+    }
+  }
+
+  _validateApiVersion(applicationApiVersion) {
+    this.applicationApiVersion = applicationApiVersion;
+    this.apiVersion = this.metadata.apiVersion || applicationApiVersion;
+    if (!semver.satisfies(this.applicationApiVersion, `^${this.apiVersion}`)) {
+      this.error = new Error(
+        `${PLUGIN_VERSION} ${this.apiVersion} ${NOT_COMPATIBLE} ${this.applicationApiVersion}`
+      );
     }
   }
 }
