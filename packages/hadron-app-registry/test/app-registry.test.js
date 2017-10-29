@@ -621,9 +621,6 @@ describe('AppRegistry', () => {
     });
   });
 
-  // emitter.prependListener(eventName, listener)
-  // emitter.prependOnceListener(eventName, listener)
-
   context('when freezing the app registry', () => {
     let registry;
 
