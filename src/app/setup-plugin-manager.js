@@ -40,11 +40,6 @@ const PLUGINS_DIR = 'plugins-directory';
 const DEV_PLUGINS = path.join(os.homedir(), DISTRIBUTION[PLUGINS_DIR]);
 
 /**
- * Dev plugins lib directory.
- */
-const DEV_PLUGINS_LIB = path.join(DEV_PLUGINS, 'lib');
-
-/**
  * @note: The 2nd and 3rd arguments are the root directory and an array
  *   of packages for the distribution and their relative paths from the
  *   root directory.
@@ -65,7 +60,7 @@ const loader = Module._load;
  * The require error message.
  */
 const ERROR = 'Due to security reasons, 3rd party plugins are not allowed to require ' +
-  'modules with filesystem, network, or child process access.';
+  'modules with filesystem (fs), network (net/tls), or child process (child_process) access.';
 
 /**
  * List of modules that cannot be required.
@@ -77,8 +72,10 @@ const ILLEGAL_MODULES = ['fs', 'net', 'tls', 'child_process'];
  */
 Module._load = function(request, loc) {
   if (ILLEGAL_MODULES.includes(request)) {
-    if (loc.filename.includes(DEV_PLUGINS_LIB)) {
-      throw new Error(ERROR);
+    if (loc.filename.includes(DEV_PLUGINS)) {
+      const error = new Error(ERROR);
+      error.stack = '';
+      throw error;
     }
   }
   return loader.apply(this, arguments);
