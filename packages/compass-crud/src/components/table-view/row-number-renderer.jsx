@@ -14,7 +14,7 @@ class RowNumberRenderer extends React.Component {
 
   render() {
     return (
-      <div className="table-view-row-number-cell">
+      <div className="table-view-cell-row-number">
         {this.props.value}
       </div>
     );
