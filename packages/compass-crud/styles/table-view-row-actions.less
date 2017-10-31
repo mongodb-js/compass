@@ -1,24 +1,28 @@
 .table-view-row-actions {
   position: absolute;
+  display: flex;
+  justify-content: flex-end;
   width: 100%;
   height: 100%;
+  z-index: 10;
+  margin-top: -1px;
 
   &-panel {
+    display: flex;
+    position: absolute;
+    visibility: hidden;
+    z-index: 2;
+    padding: 3px;
     background: #FFFFFF;
     border: 1px solid #C3C3C2;
     box-shadow: 0 2px 6px 0 rgba(152,152,152,0.45);
     border-radius: 2px;
-    position: absolute;
-    padding: 3px;
-    visibility: hidden;
-    transition: none;
-    z-index: 1100;
-    display: flex;
 
-    &-button {
+    &-button  {
       width: 20px;
       margin-left: 1px;
       padding-left: 5px;
+      transition: none;
     }
   }
 }
