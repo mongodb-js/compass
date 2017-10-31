@@ -3,7 +3,6 @@ const PropTypes = require('prop-types');
 const { AnimatedIconTextButton } = require('hadron-react-buttons');
 const { InfoSprinkle, ViewSwitcher } = require('hadron-react-components');
 const { shell } = require('electron');
-const pluralize = require('pluralize');
 const Actions = require('../actions');
 const ResetDocumentListStore = require('../stores/reset-document-list-store');
 const LoadMoreDocumentsStore = require('../stores/load-more-documents-store');
@@ -171,13 +170,11 @@ class Toolbar extends React.Component {
   }
 
   _loadedMessage() {
-    if (this.state.count > 20) {
-      return (
-        <span>
-          Displaying documents <b>{this.state.start}-{this.state.loaded}</b>&nbsp;
-        </span>
-      );
-    }
+    return (
+      <span>
+        Displaying documents <b>{this.state.start} - {this.state.loaded}</b> of {this.state.count}
+      </span>
+    );
   }
 
   renderPageButtons() {
@@ -216,7 +213,6 @@ class Toolbar extends React.Component {
    * @returns {React.Component} The count message.
    */
   renderQueryMessage() {
-    const noun = pluralize('document', this.state.count);
     return (
       <div>
         <div className={ACTION_BAR_CLASS}>
@@ -239,7 +235,6 @@ class Toolbar extends React.Component {
           </div>
           <div className={CONTAINER_CLASS}>
             <div className={MESSAGE_CLASS}>
-              <b>{this.state.count}</b>&nbsp;{noun}.&nbsp;
               {this._loadedMessage()}
               <InfoSprinkle
                 helpLink={HELP_URLS.DOCUMENTS}
