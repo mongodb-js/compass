@@ -44,7 +44,8 @@ class DocumentTableView extends React.Component {
     this.handleUpdate = this.handleUpdate.bind(this);
     this.addFooter = this.addFooter.bind(this);
     this.handleClone = this.handleClone.bind(this);
-
+    this.onGridSizeChanged = this.onGridSizeChanged.bind(this);
+    this.updateWidth = this.updateWidth.bind(this);
     this.sharedGridProperties = {
       gridOptions: {
         context: {
@@ -56,7 +57,8 @@ class DocumentTableView extends React.Component {
           path: []
         },
         onCellDoubleClicked: this.onCellDoubleClicked.bind(this),
-        rowHeight: 28  // .document-footer row needs 28px, ag-grid default is 25px
+        rowHeight: 28,  // .document-footer row needs 28px, ag-grid default is 25px
+        getRowStyle: this.updateWidth
       },
       onGridReady: this.onGridReady.bind(this),
       isFullWidthCell: function(rowNode) {
@@ -90,6 +92,7 @@ class DocumentTableView extends React.Component {
     this.unsubscribeReset = ResetDocumentListStore.listen(this.handleReset.bind(this));
     this.unsubscribePageChanged = PageChangedStore.listen(this.handlePageChange.bind(this));
     this.unsubscribeBreadcrumbStore = BreadcrumbStore.listen(this.handleBreadcrumbChange.bind(this));
+    window.addEventListener('resize', this.handleResize.bind(this));
   }
 
   componentWillUnmount() {
@@ -117,6 +120,26 @@ class DocumentTableView extends React.Component {
   onGridReady(params) {
     this.gridApi = params.api;
     this.columnApi = params.columnApi;
+  }
+
+  /**
+   * Re-renders the document actions column when the browser window is resized.
+   */
+  handleResize() {
+    this.gridApi.redrawRows({columns: ['$rowActions']});
+  }
+
+  onGridSizeChanged() {
+    const allColumns = this.columnApi.getAllColumns();
+    const tableWidth = document.getElementById('borderLayout_eRootPanel').offsetWidth;
+    const rightViewport = document.getElementsByClassName('ag-pinned-right-cols-viewport')[0];
+    const bodyColumnWidth = ((allColumns.length - 2) * 200 + 30);
+    const emptyWidth = tableWidth - bodyColumnWidth;
+    if (bodyColumnWidth < tableWidth) {
+      rightViewport.style.marginRight = `${emptyWidth}px`;
+    } else {
+      rightViewport.style.marginRight = '0px';
+    }
   }
 
   /**
@@ -174,7 +197,6 @@ class DocumentTableView extends React.Component {
     dataNode.data.state = null;
     this.gridApi.refreshCells({rowNodes: [dataNode], columns: ['$rowActions'], force: true});
     this.gridApi.clearFocusedCell();
-
     this.gridApi.updateRowData({remove: [node.data]});
   }
 
@@ -569,6 +591,34 @@ class DocumentTableView extends React.Component {
     }
   }
 
+   /**
+   * Set the width of the document footer based on the width of the columns.
+   * If there are more columns than can displayed, set the width to 100%.
+   */
+  updateWidth(params) {
+    const allColumns = this.columnApi.getAllColumns();
+    const tableWidth = document.getElementById('borderLayout_eRootPanel').offsetWidth;
+    const rightViewport = document.getElementsByClassName('ag-pinned-right-cols-viewport')[0];
+    const bodyColumnWidth = ((allColumns.length - 2) * 200 + 50);
+    const emptyWidth = tableWidth - bodyColumnWidth;
+    if (bodyColumnWidth < tableWidth) {
+      rightViewport.style.right = `${emptyWidth}px`;
+    } else {
+      rightViewport.style.right = '0px';
+    }
+    if (params.node.data.state === 'editing' || params.node.data.state === 'deleting' || params.node.data.state === 'cloned') {
+      let width = 30;
+      const newColumn = this.columnApi.getColumn('$new');
+      for (let i = 0; i < allColumns.length - 2; i++) {
+        width = width + 200;
+      }
+      if (width > tableWidth || newColumn) {
+        return {width: '100%'};
+      }
+      return {width: `${width}px`};
+    }
+  }
+
   /**
    * Go through and add modified footers to documents that are edited.
    */
@@ -759,7 +809,8 @@ class DocumentTableView extends React.Component {
         nested: (path.length !== 0)
       },
       editable: false,
-      pinned: 'right'
+      pinned: 'right',
+      width: 100
     });
 
     /* Return the updated column definitions */
