@@ -635,13 +635,15 @@ class DocumentTableView extends React.Component {
     return {
       headerName: '_id',
       colId: '$_id',
+      cellClass: 'ag-cell-subtable-objectid',
       valueGetter: function(params) {
         return params.data.hadronDocument.get('_id');
       },
       headerComponentFramework: HeaderComponent,
       headerComponentParams: {
         hide: false,
-        bsonType: 'ObjectId'
+        bsonType: 'ObjectId',
+        subtable: true
       },
       cellRendererFramework: CellRenderer,
       cellRendererParams: {
