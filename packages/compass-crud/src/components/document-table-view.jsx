@@ -62,6 +62,9 @@ class DocumentTableView extends React.Component {
         return rowNode.data.isFooter;
       },
       fullWidthCellRendererFramework: FullWidthCellRenderer,
+      fullWidthCellRendererParams: {
+        actions: Actions
+      },
       getRowNodeId: function(data) {
         const fid = data.isFooter ? '1' : '0';
         return data.hadronDocument.getId().toString() + fid;
@@ -534,6 +537,9 @@ class DocumentTableView extends React.Component {
         bsonType: 'ObjectId'
       },
       cellRendererFramework: CellRenderer,
+      cellRendererParams: {
+        actions: Actions
+      },
       editable: false,
       cellEditorFramework: CellEditor,
       pinned: 'left'
@@ -572,14 +578,18 @@ class DocumentTableView extends React.Component {
       },
 
       cellRendererFramework: CellRenderer,
-      cellRendererParams: {},
+      cellRendererParams: {
+        actions: Actions
+      },
 
       editable: function(params) {
         return (isEditable && params.node.data.state !== 'deleting');
       },
 
       cellEditorFramework: CellEditor,
-      cellEditorParams: {}
+      cellEditorParams: {
+        actions: Actions
+      }
     };
   }
 

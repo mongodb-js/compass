@@ -3,8 +3,6 @@ const PropTypes = require('prop-types');
 const getComponent = require('hadron-react-bson');
 const { Element } = require('hadron-document');
 
-const Actions = require('../../actions');
-
 const initEditors = require('../editor/');
 
 // const util = require('util');
@@ -111,18 +109,18 @@ class CellRenderer extends React.Component {
     const oid = this.props.node.data.hadronDocument.getId().toString();
     if (this.element.isAdded()) {
       this.isDeleted = true;
-      Actions.elementRemoved(this.element.currentKey, oid);
+      this.props.actions.elementRemoved(this.element.currentKey, oid);
     } else if (this.element.isRemoved()) {
-      Actions.elementAdded(this.element.currentKey, this.element.currentType, oid);
+      this.props.actions.elementAdded(this.element.currentKey, this.element.currentType, oid);
     } else {
-      Actions.elementTypeChanged(this.element.currentKey, this.element.type, oid);
+      this.props.actions.elementTypeChanged(this.element.currentKey, this.element.type, oid);
     }
     this.element.revert();
   }
 
   handleDrillDown(event) {
     event.stopPropagation();
-    Actions.drillDown(this.props.node.data.hadronDocument, this.element);
+    this.props.actions.drillDown(this.props.node.data.hadronDocument, this.element);
   }
 
   handleClicked() {
@@ -245,7 +243,8 @@ CellRenderer.propTypes = {
   api: PropTypes.any,
   value: PropTypes.any,
   node: PropTypes.any,
-  column: PropTypes.any
+  column: PropTypes.any,
+  actions: PropTypes.any.isRequired
 };
 
 CellRenderer.displayName = 'CellRenderer';

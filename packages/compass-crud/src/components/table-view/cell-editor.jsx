@@ -6,7 +6,6 @@ const FontAwesome = require('react-fontawesome');
 const { Tooltip } = require('hadron-react-components');
 const TypeChecker = require('hadron-type-checker');
 
-const Actions = require('../../actions');
 const initEditors = require('../editor/');
 const Types = require('../types');
 const AddFieldButton = require('./add-field-button');
@@ -138,7 +137,7 @@ class CellEditor extends React.Component {
       /* Cancel and remove the column if the key was unedited or a duplicate */
       if (key === '' || this.isDuplicateKey(key)) {
         this.element.revert();
-        Actions.removeColumn('$new');
+        this.props.actions.removeColumn('$new');
         return false;
       }
 
@@ -158,7 +157,7 @@ class CellEditor extends React.Component {
 
       /* Update the grid store so we know what type this element is. This
        * will also refresh the header API */
-      Actions.elementAdded(this.element.currentKey, this.element.currentType, id);
+      this.props.actions.elementAdded(this.element.currentKey, this.element.currentType, id);
 
       /* TODO: should we update column.* as well to be safe?
        Not needed if everywhere we access columns through .getColDef() but
@@ -171,10 +170,10 @@ class CellEditor extends React.Component {
         return false;
       }
       /* Update the grid store so we know what type this element is */
-      Actions.elementAdded(this.element.currentKey, this.element.currentType, id);
+      this.props.actions.elementAdded(this.element.currentKey, this.element.currentType, id);
     } else if (!this.element.isRemoved() && this.element.currentType !== this.oldType) {
       /* Update the grid store since the element has changed type */
-      Actions.elementTypeChanged(this.element.currentKey, this.element.currentType, id);
+      this.props.actions.elementTypeChanged(this.element.currentKey, this.element.currentType, id);
     }
   }
 
@@ -203,9 +202,9 @@ class CellEditor extends React.Component {
       }
 
       if (this.newField || this.element.isAdded()) {
-        Actions.elementRemoved(this.element.currentKey, oid);
+        this.props.actions.elementRemoved(this.element.currentKey, oid);
       } else {
-        Actions.elementMarkRemoved(this.element.currentKey, oid);
+        this.props.actions.elementMarkRemoved(this.element.currentKey, oid);
       }
       this.element.remove();
     }
@@ -213,7 +212,7 @@ class CellEditor extends React.Component {
   }
 
   handleDrillDown() {
-    Actions.drillDown(this.props.node.data.hadronDocument, this.element);
+    this.props.actions.drillDown(this.props.node.data.hadronDocument, this.element);
     // TODO: close editor?
   }
 
@@ -475,7 +474,8 @@ CellEditor.propTypes = {
   node: PropTypes.any,
   api: PropTypes.any,
   columnApi: PropTypes.any,
-  context: PropTypes.any
+  context: PropTypes.any,
+  actions: PropTypes.any.isRequired
 };
 
 CellEditor.displayName = 'CellEditor';

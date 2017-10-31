@@ -2,7 +2,6 @@ const React = require('react');
 const Reflux = require('reflux');
 const PropTypes = require('prop-types');
 
-const Actions = require('../../actions');
 const DocumentFooter = require('../document-footer');
 const RemoveDocumentFooter = require('../remove-document-footer');
 const ClonedDocumentFooter = require('../cloned-document-footer');
@@ -232,7 +231,7 @@ class FullWidthCellRenderer extends React.Component {
   handleUpdateSuccess(doc) {
     for (const element of this.doc.elements) {
       if (!(element.currentKey in doc)) {
-        Actions.elementRemoved(element.currentKey, doc._id);
+        this.props.actions.elementRemoved(element.currentKey, doc._id);
       }
     }
     this.props.context.handleUpdate(doc);
@@ -270,14 +269,14 @@ class FullWidthCellRenderer extends React.Component {
        has done. We go through and remove all the added elements, and add back all
        the removed elements. */
     for (let i = 0; i < removed.length; i++) {
-      Actions.elementAdded(removed[i].currentKey, removed[i].currentType, id);
+      this.props.actions.elementAdded(removed[i].currentKey, removed[i].currentType, id);
     }
     for (let i = 0; i < added.length; i++) {
-      Actions.elementRemoved(added[i].currentKey, id);
+      this.props.actions.elementRemoved(added[i].currentKey, id);
     }
     this.doc.cancel();
     for (let i = 0; i < changed.length; i++) {
-      Actions.elementTypeChanged(changed[i].currentKey, changed[i].currentType, id);
+      this.props.actions.elementTypeChanged(changed[i].currentKey, changed[i].currentType, id);
     }
     this.props.context.removeFooter(this.props.node);
   }
@@ -323,7 +322,8 @@ FullWidthCellRenderer.propTypes = {
   mode: PropTypes.any,
   data: PropTypes.any,
   context: PropTypes.any,
-  node: PropTypes.any
+  node: PropTypes.any,
+  actions: PropTypes.any.isRequired
 };
 
 FullWidthCellRenderer.displayName = 'FullWidthCellRenderer';

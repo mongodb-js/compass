@@ -4,8 +4,6 @@ const FontAwesome = require('react-fontawesome');
 const outsideClickable = require('react-click-outside');
 const getComponent = require('hadron-react-bson');
 
-const Actions = require('../../actions');
-
 /**
  * The BEM base style name for the element.
  */
@@ -134,7 +132,7 @@ class AddFieldButton extends React.Component {
       parent.insertEnd('$new', '');
     }
 
-    Actions.addColumn(this.props.column.getColDef().colId, this.props.node.childIndex, this.props.context.path);
+    this.props.actions.addColumn(this.props.column.getColDef().colId, this.props.node.childIndex, this.props.context.path);
   }
 
   /**
@@ -142,12 +140,12 @@ class AddFieldButton extends React.Component {
    */
   handleAddChildClick() {
     this.setState({ menu: false });
-    Actions.drillDown(this.props.node.data.hadronDocument, this.props.value);
+    this.props.actions.drillDown(this.props.node.data.hadronDocument, this.props.value);
 
     this.props.value.insertEnd('$new', '');
 
     const path = [].concat(this.props.context.path, [this.props.value.currentKey]);
-    Actions.addColumn(null, 0, path);
+    this.props.actions.addColumn(null, 0, path);
   }
 
 
@@ -337,7 +335,8 @@ AddFieldButton.propTypes = {
   api: PropTypes.any.isRequired,
   context: PropTypes.any.isRequired,
   column: PropTypes.any.isRequired,
-  node: PropTypes.any.isRequired
+  node: PropTypes.any.isRequired,
+  actions: PropTypes.any.isRequired
 };
 
 module.exports = outsideClickable(AddFieldButton);
