@@ -19,7 +19,7 @@ class HeaderCellRenderer extends React.Component {
       displayName = 'New Field';
     }
     return (
-      <div className="table-view-header-cell">
+      <div className="table-view-cell-header">
         <b>{displayName}</b> {this.props.bsonType}
       </div>
     );
