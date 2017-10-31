@@ -20,7 +20,7 @@
     width: 18px;
     height: 18px;
     border-radius: 50%;
-    margin: 2px 5px;
+    margin: 4px 5px;
     background: white;
     box-shadow: 0 2px 5px 0 rgba(0,0,0,0.15), inset 0 2px 5px 0 rgba(0,0,0,0.05);
     cursor: pointer;
@@ -37,14 +37,26 @@
     text-overflow: ellipsis;
     overflow: hidden;
     white-space: nowrap;
+
+    .element-value {
+      &-is-string {
+      white-space: nowrap;
+      }
+
+      &-is-objectid {
+        &::before, &::after  {
+          content: '';
+        }
+      }
+    }
   }
 
   &-is-empty {
-    min-height: 28px;
-    line-height: 28px;
+    line-height: 26px;
     margin: 1px;
     padding-left: 5px;
     padding-right: 5px;
+    background-color: #EFEFEF;
   }
 
   &:hover {
@@ -59,6 +71,10 @@
     margin: 2px 1px;
     padding-left: 5px;
     overflow-y: hidden;
+
+    .table-view-cell-circle-button {
+      margin-top: 2px;
+    }
 
     .editable-element {
       min-height: 24px;
