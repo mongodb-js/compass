@@ -82,10 +82,11 @@ class PluginManager {
 
   _readPlugin(appRegistry, apiVersion, file, pkgPath, done) {
     if (file.isDirectory()) {
-      const pkg = new Plugin(pkgPath, apiVersion);
-      this.plugins.push(pkg);
-      pkg.activate(appRegistry);
-      Action.pluginActivated(pkg);
+      const plugin = new Plugin(pkgPath, apiVersion);
+      plugin.activate(appRegistry);
+      const frozen = Object.freeze(plugin);
+      this.plugins.push(frozen);
+      Action.pluginActivated(frozen);
     }
     done();
   }

@@ -1,5 +1,6 @@
 'use strict';
 
+const os = require('os');
 const path = require('path');
 const expect = require('chai').expect;
 
@@ -10,6 +11,7 @@ const Example = require('./plugins/example');
 
 describe('Plugin', () => {
   const testPluginPath = path.join(__dirname, 'plugins', 'example');
+  const testIllegalNamePluginPath = path.join(__dirname, 'plugins', 'illegal-example');
 
   describe('#activate', () => {
     context('when the activation has no errors', () => {
@@ -171,6 +173,35 @@ describe('Plugin', () => {
 
       it('sets the name collision error', () => {
         expect(plugin.error.message).to.include('Plugin with the name');
+      });
+    });
+
+    context('when the plugin name starts with @mongodb-js', () => {
+      context('when the plugin path is under .mongodb', () => {
+        let plugin;
+
+        beforeEach(() => {
+          plugin = new Plugin(testIllegalNamePluginPath, '1.0.0');
+          plugin.pluginPath = path.join(os.homedir(), '.mongodb', 'compass');
+          plugin._validateNameLegality();
+        });
+
+        it('sets the name error', () => {
+          expect(plugin.error.message).to.include('Plugin starting with');
+        });
+      });
+
+      context('when the plugin path is not under .mongodb', () => {
+        let plugin;
+
+        beforeEach(() => {
+          delete NAME_CACHE['@mongodb-js/test-plugin'];
+          plugin = new Plugin(testIllegalNamePluginPath, '1.0.0');
+        });
+
+        it('sets no name error', () => {
+          expect(plugin.error).to.equal(undefined);
+        });
       });
     });
   });

@@ -24,7 +24,7 @@ describe('PluginManager', () => {
       it('activates all the plugins', (done) => {
         const spy = sinon.spy();
         const unsubscribe = Action.pluginActivationCompleted.listen((s) => {
-          expect(manager.plugins).to.have.length(8);
+          expect(manager.plugins).to.have.length(9);
           expect(spy.callCount).to.be.equal(0);
           expect(s).to.equal(spy);
           unsubscribe();

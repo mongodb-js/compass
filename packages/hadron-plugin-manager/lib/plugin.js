@@ -29,6 +29,16 @@ const NOT_COMPATIBLE = 'is not compatible with the application plugin api versio
 const PLUGIN_FILENAME = 'package.json';
 
 /**
+ * The ext path.
+ */
+const EXT_PATH = '.mongodb';
+
+/**
+ * The org name.
+ */
+const MDBJS = '@mongodb-js';
+
+/**
  * Represents a plugin to the application.
  */
 class Plugin {
@@ -43,11 +53,12 @@ class Plugin {
     this.pluginPath = pluginPath;
     this.isActivated = false;
     try {
-      this.metadata = require(path.resolve(this.pluginPath, PLUGIN_FILENAME));
+      this.metadata = Object.freeze(require(path.resolve(this.pluginPath, PLUGIN_FILENAME)));
     } catch (e) {
-      this.error = e;
-      this.metadata = { name: `${path.basename(this.pluginPath)}` };
+      this.error = Object.freeze(e);
+      this.metadata = Object.freeze({ name: `${path.basename(this.pluginPath)}` });
     }
+    this._validateNameLegality();
     this._validateApiVersion(applicationApiVersion);
     this._validateNameCollision();
   }
@@ -96,6 +107,13 @@ class Plugin {
       this.error = new Error(
         `${PLUGIN_VERSION} ${this.apiVersion} ${NOT_COMPATIBLE} ${this.applicationApiVersion}`
       );
+    }
+  }
+
+  _validateNameLegality() {
+    const name = this.metadata.name;
+    if (this.pluginPath.includes(EXT_PATH) && name.startsWith(MDBJS)) {
+      this.error = new Error(`Plugin starting with ${MDBJS} is not permitted.`);
     }
   }
 
