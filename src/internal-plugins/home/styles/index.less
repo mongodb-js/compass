@@ -144,3 +144,31 @@ GLOBAL FLEXBOX LAYOUT STYLES
   border-radius: 3px;
   border: 1px solid rgba(0,0,0,.16);
 }
+
+.unsafe-component {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  width: 100%;
+  flex-grow: 1;
+
+  &-has-error {
+    color: red;
+    padding: 10px;
+    background-color: #ffcccc;
+    display: flex;
+    flex-direction: column;
+  }
+
+  &-message {
+    i {
+      margin-right: 5px;
+      font-size: 20px;
+    }
+  }
+
+  &-stack {
+    padding-left: 25px;
+    white-space: pre-wrap;
+  }
+}

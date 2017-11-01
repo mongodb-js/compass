@@ -39,23 +39,13 @@ class InstanceHeaderComponent extends React.Component {
     this.leftHeaderItems = _.map(_.filter(roles, (role) => {
       return role.alignment === 'left';
     }), (role, i) => {
-      return React.createElement(role.component, {
-        key: _.uniqueId(),
-        style: {
-          order: role.order || i
-        }
-      });
+      return React.createElement(role.component, { key: i });
     });
     // create all right-aligned header items
     this.rightHeaderItems = _.map(_.filter(roles, (role) => {
       return role.alignment !== 'left';
     }), (role, i) => {
-      return React.createElement(role.component, {
-        key: _.uniqueId(),
-        style: {
-          order: role.order || i
-        }
-      });
+      return React.createElement(role.component, { key: i });
     });
   }
 

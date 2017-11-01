@@ -24,8 +24,8 @@ class CollectionStats extends React.Component {
 
   setupStatsItems() {
     const roles = app.appRegistry.getRole('CollectionHUD.Item');
-    const views = _.map(roles, (role) => {
-      return React.createElement(role.component, {key: _.uniqueId()});
+    const views = _.map(roles, (role, i) => {
+      return React.createElement(role.component, { key: i });
     });
     this.views = views;
   }

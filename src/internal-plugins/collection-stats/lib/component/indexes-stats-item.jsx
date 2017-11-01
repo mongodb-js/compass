@@ -82,11 +82,11 @@ class IndexesStatsItem extends React.Component {
    */
   render() {
     return (
-      <ul className={LIST_CLASS}>
+      <div className={LIST_CLASS}>
         <CollectionStatsItem label={INDEXES} value={this.state.indexCount} primary />
         <CollectionStatsItem label={TOTAL_SIZE} value={this.state.totalIndexSize} />
         <CollectionStatsItem label={AVG_SIZE} value={this.state.avgIndexSize} />
-      </ul>
+      </div>
     );
   }
 }

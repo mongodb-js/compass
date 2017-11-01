@@ -16,6 +16,7 @@ class InstanceComponent extends React.Component {
   constructor(props) {
     super(props);
     this.state = { activeTab: 0 };
+    this.UnsafeComponent = app.appRegistry.getComponent('Home.UnsafeComponent');
     this.setupTabs();
   }
 
@@ -38,8 +39,10 @@ class InstanceComponent extends React.Component {
     const roles = app.appRegistry.getRole('Instance.Tab');
 
     const tabs = _.map(roles, 'name');
-    const views = _.map(roles, (role) => {
-      return React.createElement(role.component);
+    const views = _.map(roles, (role, i) => {
+      return (
+        <this.UnsafeComponent component={role.component} key={i} />
+      );
     });
 
     this.tabs = tabs;

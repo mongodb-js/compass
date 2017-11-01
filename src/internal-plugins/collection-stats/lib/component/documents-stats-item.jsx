@@ -82,11 +82,11 @@ class DocumentsStatsItem extends React.Component {
    */
   render() {
     return (
-      <ul className={LIST_CLASS}>
+      <div className={LIST_CLASS}>
         <CollectionStatsItem label={DOCUMENTS} value={this.state.documentCount} primary />
         <CollectionStatsItem label={TOTAL_SIZE} value={this.state.totalDocumentSize} />
         <CollectionStatsItem label={AVG_SIZE} value={this.state.avgDocumentSize} />
-      </ul>
+      </div>
     );
   }
 }

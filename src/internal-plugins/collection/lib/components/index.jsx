@@ -18,6 +18,7 @@ class Collection extends React.Component {
     this.NamespaceStore = app.appRegistry.getStore('App.NamespaceStore');
     this.QueryActions = app.appRegistry.getAction('Query.Actions');
     this.QueryHistoryActions = app.appRegistry.getAction('QueryHistory.Actions');
+    this.UnsafeComponent = app.appRegistry.getComponent('Home.UnsafeComponent');
     this.setupTabs();
   }
 
@@ -63,8 +64,10 @@ class Collection extends React.Component {
     });
 
     const tabs = _.map(roles, 'name');
-    const views = _.map(roles, (role) => {
-      return React.createElement(role.component);
+    const views = _.map(roles, (role, i) => {
+      return (
+        <this.UnsafeComponent component={role.component} key={i} />
+      );
     });
     const queryHistoryIndexes = _.map(roles, (role, index) => {
       if (role.hasQueryHistory) return index;
