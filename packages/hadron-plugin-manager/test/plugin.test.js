@@ -187,7 +187,11 @@ describe('Plugin', () => {
         });
 
         it('sets the name error', () => {
-          expect(plugin.error.message).to.include('Plugin starting with');
+          expect(plugin.error.message).to.include('Plugin name starting with');
+        });
+
+        it('sets the stack to empty', () => {
+          expect(plugin.error.stack).to.equal('');
         });
       });
 

@@ -113,7 +113,8 @@ class Plugin {
   _validateNameLegality() {
     const name = this.metadata.name;
     if (this.pluginPath.includes(EXT_PATH) && name.startsWith(MDBJS)) {
-      this.error = new Error(`Plugin starting with ${MDBJS} is not permitted.`);
+      this.error = new Error(`Plugin name starting with ${MDBJS} is not permitted.`);
+      this.error.stack = '';
     }
   }
 
