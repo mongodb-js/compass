@@ -151,5 +151,40 @@ module.exports = [
       'total keys examined': state.totalKeysExamined,
       'index used': state.usedIndex
     })
+  },
+  {
+    store: 'CRUD.InsertDocumentStore',
+    resource: 'Document',
+    action: 'inserted',
+    condition: () => true,
+    metadata: () => ({})
+  },
+  {
+    store: 'CRUD.RemoveDocumentStore',
+    resource: 'Document',
+    action: 'deleted',
+    condition: () => true,
+    metadata: () => ({})
+  },
+  {
+    store: 'CRUD.ResetDocumentListStore',
+    resource: 'Documents',
+    action: 'loaded',
+    condition: () => true,
+    metadata: () => ({})
+  },
+  {
+    store: 'CRUD.LoadMoreDocumentsStore',
+    resource: 'Documents List View',
+    action: 'paginated',
+    condition: () => true,
+    metadata: () => ({})
+  },
+  {
+    store: 'CRUD.PageChangedStore',
+    resource: 'Documents Table View',
+    action: 'paginated',
+    condition: () => true,
+    metadata: () => ({})
   }
 ];

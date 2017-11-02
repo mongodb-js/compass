@@ -124,6 +124,48 @@ const ExplainResource = BaseResource.extend({
   }
 });
 
+// Document resources uses 'inserted', 'updated', and 'deleted' as actions
+const DocumentResource = BaseResource.extend({
+  id: 'Document',
+  eventTrackers: ['stitch'],
+  inserted: function(metadata, callback) {
+    this._send_event(metadata, callback);
+  },
+  updated: function(metadata, callback) {
+    this._send_event(metadata, callback);
+  },
+  deleted: function(metadata, callback) {
+    this._send_event(metadata, callback);
+  }
+});
+
+// Documents resources uses 'loaded' as action
+const DocumentsResource = BaseResource.extend({
+  id: 'Documents',
+  eventTrackers: ['stitch'],
+  loaded: function(metadata, callback) {
+    this._send_event(metadata, callback);
+  }
+});
+
+// DocumentsListView resources uses 'paginated' as action
+const DocumentsListViewResource = BaseResource.extend({
+  id: 'Documents List View',
+  eventTrackers: ['stitch'],
+  paginated: function(metadata, callback) {
+    this._send_event(metadata, callback);
+  }
+});
+
+// DocumentsTableView resources uses 'paginated' as action
+const DocumentsTableViewResource = BaseResource.extend({
+  id: 'Documents Table View',
+  eventTrackers: ['stitch'],
+  paginated: function(metadata, callback) {
+    this._send_event(metadata, callback);
+  }
+});
+
 const AutoUpdateResource = BaseResource.extend({
   id: 'Auto Update',
   eventTrackers: ['ga', 'intercom', 'stitch'],
@@ -159,6 +201,10 @@ featureResources.Query = new QueryResource();
 featureResources.Application = new ApplicationResource();
 featureResources['Validation Rules'] = new ValidationRulesResource();
 featureResources.Explain = new ExplainResource();
+featureResources.Document = new DocumentResource();
+featureResources.Documents = new DocumentsResource();
+featureResources.DocumentsListView = new DocumentsListViewResource();
+featureResources.DocumentsTableView = new DocumentsTableViewResource();
 
 debug('feature resources', featureResources);
 
