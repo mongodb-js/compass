@@ -127,7 +127,7 @@ class CellEditor extends React.Component {
    */
   isCancelAfterEnd() {
     this.editor().complete();
-    const id = this.props.node.data.hadronDocument.getId().toString();
+    const id = this.props.node.data.hadronDocument.getStringId();
 
     /* If this is a new field, need to update the colDef with the key name */
     if (this.newField) {
@@ -194,7 +194,7 @@ class CellEditor extends React.Component {
 
   handleRemoveField() {
     if (this.element.isRemovable()) {
-      const oid = this.props.node.data.hadronDocument.getId().toString();
+      const oid = this.props.node.data.hadronDocument.getStringId();
 
       if (this.wasEmpty) {
         this.element = undefined; // return state to undefined

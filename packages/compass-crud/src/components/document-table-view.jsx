@@ -67,7 +67,7 @@ class DocumentTableView extends React.Component {
       },
       getRowNodeId: function(data) {
         const fid = data.isFooter ? '1' : '0';
-        return data.hadronDocument.getId().toString() + fid;
+        return '' + data.hadronDocument.getStringId() + fid;
       }
     };
 
@@ -165,7 +165,7 @@ class DocumentTableView extends React.Component {
    */
   removeFooter(node) {
     /* rowId is the document row */
-    const rowId = node.data.hadronDocument.getId().toString() + '0';
+    const rowId = node.data.hadronDocument.getStringId() + '0';
     const dataNode = this.gridApi.getRowNode(rowId);
 
     dataNode.data.hasFooter = false;
@@ -183,7 +183,7 @@ class DocumentTableView extends React.Component {
    * @param {RowNode} node - The RowNode of the footer of the document that is being removed.
    */
   handleRemove(node) {
-    const oid = node.data.hadronDocument.getId().toString();
+    const oid = node.data.hadronDocument.getStringId();
 
     /* rowId is the document row */
     const rowId = oid + '0';
@@ -194,7 +194,7 @@ class DocumentTableView extends React.Component {
 
     /* Update this.hadronDocs */
     for (let i = 0; i < this.hadronDocs.length; i++) {
-      if (this.hadronDocs[i].getId() === node.data.hadronDocument.getId()) {
+      if (this.hadronDocs[i].getStringId() === node.data.hadronDocument.getStringId()) {
         this.hadronDocs.splice(i, 1);
         break;
       }
@@ -236,7 +236,7 @@ class DocumentTableView extends React.Component {
 
     /* Update this.hadronDocs */
     for (let i = 0; i < this.hadronDocs.length; i++) {
-      if (this.hadronDocs[i].getId().toString() === data._id.toString()) {
+      if (this.hadronDocs[i].value === data._id) {
         this.hadronDocs[i] = newData.hadronDocument;
         break;
       }
@@ -396,7 +396,7 @@ class DocumentTableView extends React.Component {
     };
 
     /* Update this.hadronDocs */
-    this.hadronDocs.splice(0, 0, data.hadronDocument);
+    this.hadronDocs.splice(index, 0, data.hadronDocument);
 
     if (this.topLevel) {
       /* Update row numbers */
@@ -470,7 +470,11 @@ class DocumentTableView extends React.Component {
    * @param {Array} documents - The refreshed batch of documents.
    */
   handleReset(error, documents) {
-    this.handlePageChange(error, documents, 1);
+    if (!error) {
+      this.hadronDocs = this.initHadronDocs(documents);
+      this.start = 1;
+      Actions.pathChanged([], []);
+    }
   }
 
   /**
@@ -646,7 +650,7 @@ class DocumentTableView extends React.Component {
         if (!(key in headerTypes)) {
           headerTypes[key] = {};
         }
-        headerTypes[key][hadronDocs[i].getId().toString()] = type;
+        headerTypes[key][hadronDocs[i].getStringId()] = type;
       }
     }
 

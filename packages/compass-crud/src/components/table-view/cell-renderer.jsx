@@ -106,7 +106,7 @@ class CellRenderer extends React.Component {
 
   handleUndo(event) {
     event.stopPropagation();
-    const oid = this.props.node.data.hadronDocument.getId().toString();
+    const oid = this.props.node.data.hadronDocument.getStringId();
     if (this.element.isAdded()) {
       this.isDeleted = true;
       this.props.actions.elementRemoved(this.element.currentKey, oid);

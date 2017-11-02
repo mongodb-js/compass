@@ -178,7 +178,7 @@ class FullWidthCellRenderer extends React.Component {
        * @param {Object} object - The object to delete.
        */
       remove: function(object) {
-        const id = object.getId();
+        const id = object.getId().value;
         if (id) {
           ResetDocumentListStore.dataService.deleteOne(this.ns, { _id: id }, {}, this.handleResult);
         } else {
@@ -251,7 +251,7 @@ class FullWidthCellRenderer extends React.Component {
 
   handleCancelUpdate() {
     this.props.api.stopEditing();
-    const id = this.doc.getId().toString();
+    const id = this.doc.getStringId();
     const removed = [];
     const changed = [];
     const added = [];
