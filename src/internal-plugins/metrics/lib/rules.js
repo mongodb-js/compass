@@ -186,5 +186,14 @@ module.exports = [
     action: 'paginated',
     condition: () => true,
     metadata: () => ({})
+  },
+  {
+    store: 'License.Store',
+    resource: 'License',
+    action: 'viewed',
+    condition: () => true,
+    metadata: (state) => ({
+      'license accepted': state.isAgreed
+    })
   }
 ];
