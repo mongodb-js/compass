@@ -98,6 +98,21 @@ class Document extends EventEmitter {
   }
 
   /**
+   * Get the _id value as a string. Required if _id is not always an ObjectId.
+   *
+   * @returns {String} The string id.
+   */
+  getStringId() {
+    const element = this.get(ID);
+    if (!element) {
+      return null;
+    } else if (element.currentType === 'Array' || element.currentType === 'Object') {
+      return JSON.stringify(element.generateObject());
+    }
+    return '' + element.value;
+  }
+
+  /**
    * Insert a placeholder element at the end of the document.
    *
    * @returns {Element} The placeholder element.

@@ -4,6 +4,7 @@ const chai = require('chai');
 const expect = chai.expect;
 const Document = require('../lib/document');
 const SharedExamples = require('./shared-examples');
+const ObjectId = require('bson').ObjectId;
 
 describe('Document', function() {
   describe('#get', function() {
@@ -158,6 +159,57 @@ describe('Document', function() {
 
       it('returns null', function() {
         expect(doc.getId()).to.deep.equal({ name: 'test' });
+      });
+    });
+  });
+
+  describe('#getStringId', function() {
+    context('when the document has no _id element', function() {
+      var doc = new Document({ name: 'test' });
+
+      it('returns null', function() {
+        expect(doc.getStringId()).to.equal(null);
+      });
+    });
+
+    context('when the _id is a string', function() {
+      var doc = new Document({ name: 'test', _id: 'testing' });
+
+      it('returns the _id', function() {
+        expect(doc.getStringId()).to.equal('testing');
+      });
+    });
+
+    context('when the _id is an objectId', function() {
+      const oid = new ObjectId();
+      var doc = new Document({ _id: oid });
+
+      it('returns null', function() {
+        expect(doc.getStringId()).to.equal(oid.toString());
+      });
+    });
+
+    context('when the _id is a number', function() {
+      var doc = new Document({ _id: 5 });
+
+      it('returns null', function() {
+        expect(doc.getStringId()).to.equal('5');
+      });
+    });
+
+    context('when the _id is an array', function() {
+      var doc = new Document({ _id: [1, 2, 3] });
+
+      it('returns null', function() {
+        expect(doc.getStringId()).to.equal('[1,2,3]');
+      });
+    });
+
+    context('when the _id is an object', function() {
+      var doc = new Document({ _id: {test: 'value'} });
+
+      it('returns null', function() {
+        expect(doc.getStringId()).to.equal('{"test":"value"}');
       });
     });
   });
