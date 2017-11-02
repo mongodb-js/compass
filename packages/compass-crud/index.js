@@ -4,6 +4,7 @@ const Actions = require('./lib/actions');
 const InsertDocumentStore = require('./lib/stores/insert-document-store');
 const ResetDocumentListStore = require('./lib/stores/reset-document-list-store');
 const LoadMoreDocumentsStore = require('./lib/stores/load-more-documents-store');
+const RemoveDocumentStore = require('./lib/stores/remove-document-store');
 const BreadcrumbStore = require('./lib/stores/breadcrumb-store');
 const PageChangedStore = require('./lib/stores/page-changed-store');
 
@@ -81,6 +82,7 @@ const activate = (appRegistry) => {
   appRegistry.registerRole('CRUD.Editor.ObjectID', OBJECT_ID_EDITOR_ROLE);
   appRegistry.registerAction('CRUD.Actions', Actions);
   appRegistry.registerStore('CRUD.InsertDocumentStore', InsertDocumentStore);
+  appRegistry.registerStore('CRUD.RemoveDocumentStore', RemoveDocumentStore);
   appRegistry.registerStore('CRUD.ResetDocumentListStore', ResetDocumentListStore);
   appRegistry.registerStore('CRUD.LoadMoreDocumentsStore', LoadMoreDocumentsStore);
   appRegistry.registerStore('CRUD.PageChangedStore', PageChangedStore);
@@ -105,6 +107,7 @@ const deactivate = (appRegistry) => {
   appRegistry.deregisterRole('CRUD.Editor.ObjectID', OBJECT_ID_EDITOR_ROLE);
   appRegistry.deregisterAction('CRUD.Actions');
   appRegistry.deregisterStore('CRUD.InsertDocumentStore');
+  appRegistry.deregisterStore('CRUD.RemoveDocumentStore');
   appRegistry.deregisterStore('CRUD.ResetDocumentListStore');
   appRegistry.deregisterStore('CRUD.LoadMoreDocumentsStore');
   appRegistry.deregisterStore('CRUD.BreadcrumbStore');
