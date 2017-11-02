@@ -2,11 +2,45 @@
 <html lang="en">
   <head>
     <meta name="viewport" content="initial-scale=1">
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self' 'unsafe-eval' blob:;
-      img-src * data: blob:;
+    <meta http-equiv="Content-Security-Policy" content="
+      default-src 'self' 'unsafe-eval' blob:;
+      img-src *
+        data:
+        blob:
+        https://js.intercomcdn.com
+        https://static.intercomassets.com
+        https://downloads.intercomcdn.com
+        https://uploads.intercomusercontent.com
+        https://gifs.intercomcdn.com;
       style-src * 'unsafe-inline';
-      connect-src https://compass-maps.mongodb.com https://stitch.mongodb.com https://*.intercom.io wss://*.intercom.io https://app.getsentry.com https://*.google-analytics.com;
-      script-src 'self' https://intercom.io https://*.intercom.io https://js.intercomcdn.com 'unsafe-eval';
+      connect-src
+        https://compass-maps.mongodb.com
+        https://stitch.mongodb.com
+        https://api.intercom.io
+        https://api-iam.intercom.io
+        https://api-ping.intercom.io
+        https://nexus-websocket-a.intercom.io
+        https://nexus-websocket-b.intercom.io
+        https://nexus-long-poller-a.intercom.io
+        https://nexus-long-poller-b.intercom.io
+        wss://nexus-websocket-a.intercom.io
+        wss://nexus-websocket-b.intercom.io
+        https://uploads.intercomcdn.com
+        https://uploads.intercomusercontent.com
+        https://app.getsentry.com
+        https://*.google-analytics.com;
+      child-src
+        https://share.intercom.io
+        https://www.youtube.com
+        https://player.vimeo.com
+        https://fast.wistia.net;
+      script-src
+        'self'
+        https://app.intercom.io
+        https://widget.intercom.io
+        https://js.intercomcdn.com
+        https://js.intercomcdn.com
+        'unsafe-eval';
       font-src * https://js.intercomcdn.com;">
   </head>
   <body>
