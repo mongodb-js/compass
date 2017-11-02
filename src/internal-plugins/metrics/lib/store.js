@@ -27,7 +27,14 @@ const MetricsStore = Reflux.createStore({
       store.listen((state) => {
         // only track an event if the rule condition evaluates to true
         if (rule.condition(state)) {
-          metrics.track(rule.resource, rule.action, rule.metadata(state));
+          // Some stores trigger with arrays of data.
+          if (rule.multi) {
+            state.forEach((s) => {
+              metrics.track(rule.resource, rule.action, rule.metadata(s));
+            });
+          } else {
+            metrics.track(rule.resource, rule.action, rule.metadata(state));
+          }
         }
       });
     });

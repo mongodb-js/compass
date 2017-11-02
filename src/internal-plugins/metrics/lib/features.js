@@ -20,7 +20,7 @@ const features = [
 const featureResources = _.object(_.map(features, function(feature) {
   const Klass = FeatureResource.extend({
     id: feature,
-    eventTrackers: ['ga', 'intercom', 'stitch']
+    eventTrackers: ['stitch']
   });
   return [feature, new Klass()];
 }));
@@ -28,7 +28,7 @@ const featureResources = _.object(_.map(features, function(feature) {
 // Geo Data uses `detected` as action
 const GeoDataResource = FeatureResource.extend({
   id: 'Geo Data',
-  eventTrackers: ['ga', 'intercom', 'stitch'],
+  eventTrackers: ['stitch'],
   detected: function(metadata, callback) {
     this._send_event(metadata, callback);
   }
@@ -37,7 +37,7 @@ const GeoDataResource = FeatureResource.extend({
 // Collection uses `fetched` as action
 const CollectionResource = FeatureResource.extend({
   id: 'Collection',
-  eventTrackers: ['ga', 'intercom', 'stitch'],
+  eventTrackers: ['stitch'],
   fetched: function(metadata, callback) {
     this._send_event(metadata, callback);
   }
@@ -55,17 +55,113 @@ const DeploymentResource = FeatureResource.extend({
 // Schema resource uses `sampled` as action
 const SchemaResource = BaseResource.extend({
   id: 'Schema',
-  eventTrackers: ['ga', 'intercom', 'stitch'],
+  eventTrackers: ['stitch'],
   sampled: function(metadata, callback) {
     this._send_event(metadata, callback);
   }
 });
 
-// Index resource uses `detected` as action
+// Index resource uses `fetched` as action
 const IndexesResource = BaseResource.extend({
   id: 'Indexes',
-  eventTrackers: ['ga', 'intercom', 'stitch'],
+  eventTrackers: ['stitch'],
+  fetched: function(metadata, callback) {
+    this._send_event(metadata, callback);
+  }
+});
+
+// Collection Stats uses 'fetched' as action
+const CollectionStatsResource = BaseResource.extend({
+  id: 'Collection Stats',
+  eventTrackers: ['stitch'],
+  fetched: function(metadata, callback) {
+    this._send_event(metadata, callback);
+  }
+});
+
+// Topology resources uses 'detected' as action
+const TopologyResource = BaseResource.extend({
+  id: 'Topology',
+  eventTrackers: ['stitch'],
   detected: function(metadata, callback) {
+    this._send_event(metadata, callback);
+  }
+});
+
+// Query resources uses 'applied' as action
+const QueryResource = BaseResource.extend({
+  id: 'Query',
+  eventTrackers: ['stitch'],
+  applied: function(metadata, callback) {
+    this._send_event(metadata, callback);
+  }
+});
+
+// Application resources uses 'connected' as action
+const ApplicationResource = BaseResource.extend({
+  id: 'Application',
+  eventTrackers: ['stitch'],
+  connected: function(metadata, callback) {
+    this._send_event(metadata, callback);
+  }
+});
+
+// ValidationRules resources uses 'fetched' as action
+const ValidationRulesResource = BaseResource.extend({
+  id: 'Validation Rules',
+  eventTrackers: ['stitch'],
+  fetched: function(metadata, callback) {
+    this._send_event(metadata, callback);
+  }
+});
+
+// Explain resources uses 'fetched' as action
+const ExplainResource = BaseResource.extend({
+  id: 'Explain',
+  eventTrackers: ['stitch'],
+  fetched: function(metadata, callback) {
+    this._send_event(metadata, callback);
+  }
+});
+
+// Document resources uses 'inserted', 'updated', and 'deleted' as actions
+const DocumentResource = BaseResource.extend({
+  id: 'Document',
+  eventTrackers: ['stitch'],
+  inserted: function(metadata, callback) {
+    this._send_event(metadata, callback);
+  },
+  updated: function(metadata, callback) {
+    this._send_event(metadata, callback);
+  },
+  deleted: function(metadata, callback) {
+    this._send_event(metadata, callback);
+  }
+});
+
+// Documents resources uses 'loaded' as action
+const DocumentsResource = BaseResource.extend({
+  id: 'Documents',
+  eventTrackers: ['stitch'],
+  loaded: function(metadata, callback) {
+    this._send_event(metadata, callback);
+  }
+});
+
+// DocumentsListView resources uses 'paginated' as action
+const DocumentsListViewResource = BaseResource.extend({
+  id: 'Documents List View',
+  eventTrackers: ['stitch'],
+  paginated: function(metadata, callback) {
+    this._send_event(metadata, callback);
+  }
+});
+
+// DocumentsTableView resources uses 'paginated' as action
+const DocumentsTableViewResource = BaseResource.extend({
+  id: 'Documents Table View',
+  eventTrackers: ['stitch'],
+  paginated: function(metadata, callback) {
     this._send_event(metadata, callback);
   }
 });
@@ -99,6 +195,16 @@ featureResources.Collection = new CollectionResource();
 featureResources.Deployment = new DeploymentResource();
 featureResources.Schema = new SchemaResource();
 featureResources.Indexes = new IndexesResource();
+featureResources['Collection Stats'] = new CollectionStatsResource();
+featureResources.Topology = new TopologyResource();
+featureResources.Query = new QueryResource();
+featureResources.Application = new ApplicationResource();
+featureResources['Validation Rules'] = new ValidationRulesResource();
+featureResources.Explain = new ExplainResource();
+featureResources.Document = new DocumentResource();
+featureResources.Documents = new DocumentsResource();
+featureResources.DocumentsListView = new DocumentsListViewResource();
+featureResources.DocumentsTableView = new DocumentsTableViewResource();
 
 debug('feature resources', featureResources);
 
