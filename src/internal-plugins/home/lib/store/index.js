@@ -30,7 +30,11 @@ const HomeStore = Reflux.createStore({
       errorMessage: '',
       namespace: '',
       uiStatus: UI_STATES.INITIAL,
-      isConnected: false
+      isConnected: false,
+      isAtlas: false,
+      authentication: 'NONE',
+      ssl: 'NONE',
+      sshTunnel: 'NONE'
     };
   },
 
@@ -51,6 +55,10 @@ const HomeStore = Reflux.createStore({
 
     this.setState({
       isConnected: true,
+      isAtlas: /mongodb\.net/i.test(connection.hostname),
+      authentication: connection.authentication,
+      ssl: connection.ssl,
+      sshTunnel: connection.ssh_tunnel,
       uiStatus: UI_STATES.LOADING
     });
   },
