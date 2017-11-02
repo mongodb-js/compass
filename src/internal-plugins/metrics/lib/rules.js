@@ -34,7 +34,13 @@ module.exports = [
       'server architecture': state.instance.host.arch,
       'server cpu cores': state.instance.host.cpu_cores,
       'server cpu frequency (mhz)': state.instance.host.cpu_frequency / 1000 / 1000,
-      'server memory size (gb)': state.instance.host.memory_bits / 1024 / 1024 / 1024
+      'server memory (gb)': state.instance.host.memory_bits / 1024 / 1024 / 1024,
+      'server os': state.instance.host.os,
+      'server arch': state.instance.host.arch,
+      'server os family': state.instance.host.os_family,
+      'server machine model': state.instance.host.machine_model,
+      'server kernel version': state.instance.host.kernel_version,
+      'server kernel version string': state.instance.host.kernel_version_string
     })
   },
   {
@@ -49,6 +55,101 @@ module.exports = [
       'schema depth': schemaStats.depth(state.schema),
       'schema branching factors': schemaStats.branch(state.schema)
     })
+  },
+  {
+    store: 'DeploymentAwareness.Store',
+    resource: 'Topology',
+    action: 'detected',
+    condition: () => true,
+    metadata: (state) => ({
+      'topology type': state.topologyType,
+      'server count': state.servers.length,
+      'server types': state.servers.map(server => server.type)
+    })
+  },
+  {
+    store: 'CollectionStats.Store',
+    resource: 'Collection Stats',
+    action: 'fetched',
+    condition: () => true,
+    metadata: (state) => ({
+      'document count': state.documentCount,
+      'total document size kb': state.totalDocumentSize,
+      'avg document size kb': state.avgDocumentSize,
+      'index count': state.indexCount,
+      'total index size kb': state.totalIndexSize,
+      'avg index size kb': state.avgIndexSize
+    })
+  },
+  {
+    store: 'Indexes.LoadIndexesStore',
+    resource: 'Indexes',
+    action: 'fetched',
+    condition: () => true,
+    multi: true,
+    metadata: (state) => ({
+      'index type': state.type,
+      'usage count': state.usageCount,
+      'cardinality': state.cardinality,
+      'properties': state.properties
+    })
+  },
+  {
+    store: 'Query.QueryStore',
+    resource: 'Query',
+    action: 'applied',
+    condition: (state) => state.queryState === 'apply',
+    metadata: (state) => ({
+      'filter': state.filter,
+      'project': state.project,
+      'sort': state.sort,
+      'skip': state.skip,
+      'limit': state.limit
+    })
+  },
+  {
+    store: 'Home.HomeStore',
+    resource: 'Application',
+    action: 'connected',
+    condition: (state) => state.isConnected === true,
+    metadata: (state) => ({
+      'is atlas': state.isAtlas,
+      'authentication method': state.authentication,
+      'ssl method': state.ssl,
+      'ssh tunnel method': state.sshTunnel
+    })
+  },
+  {
+    store: 'Validation.Store',
+    resource: 'Validation Rules',
+    action: 'fetched',
+    condition: () => true,
+    metadata: (state) => ({
+      'rule count': state.validationRules.length,
+      'validation level': state.validationLevel,
+      'validation action': state.validationAction
+    })
+  },
+  {
+    store: 'Explain.Store',
+    resource: 'Explain',
+    action: 'fetched',
+    condition: () => true,
+    metadata: (state) => ({
+      'view mode': state.viewType,
+      'execution time ms': state.executionTimeMillis,
+      'in memory sort': state.inMemorySort,
+      'is collection scan': state.isCollectionScan,
+      'is covered': state.isCovered,
+      'is multi key': state.isMultiKey,
+      'is sharded': state.isSharded,
+      'index type': state.indexType,
+      'index': state.index,
+      'number of docs returned': state.nReturned,
+      'number of shards': state.numShards,
+      'total docs examined': state.totalDocsExamined,
+      'total keys examined': state.totalKeysExamined,
+      'index used': state.usedIndex
+    })
   }
-
 ];

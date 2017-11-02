@@ -19,8 +19,8 @@ class UnsafeComponent extends React.Component {
 
   unmountInjected() {
     try {
-      const node = React.findDOMNode(this);
-      React.unmountComponentAtNode(node);
+      const node = ReactDOM.findDOMNode(this);
+      ReactDOM.unmountComponentAtNode(node);
     } catch (error) {
       /* eslint no-console:0 */
       console.log(error);
