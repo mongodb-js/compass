@@ -166,6 +166,15 @@ const DocumentsTableViewResource = BaseResource.extend({
   }
 });
 
+// License resources uses 'viewed' as action
+const LicenseResource = BaseResource.extend({
+  id: 'License',
+  eventTrackers: ['stitch'],
+  viewed: function(metadata, callback) {
+    this._send_event(metadata, callback);
+  }
+});
+
 const AutoUpdateResource = BaseResource.extend({
   id: 'Auto Update',
   eventTrackers: ['ga', 'intercom', 'stitch'],
@@ -205,6 +214,7 @@ featureResources.Document = new DocumentResource();
 featureResources.Documents = new DocumentsResource();
 featureResources.DocumentsListView = new DocumentsListViewResource();
 featureResources.DocumentsTableView = new DocumentsTableViewResource();
+featureResources.License = new LicenseResource();
 
 debug('feature resources', featureResources);
 
