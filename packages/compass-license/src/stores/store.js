@@ -38,6 +38,7 @@ const LicenseStore = Reflux.createStore({
   disagree() {
     global.hadronApp.preferences.save({ agreedToLicense: false }, {
       success: () => {
+        this.trigger(this.state);
         ipc.call('license:disagree');
       }
     });
