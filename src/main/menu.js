@@ -159,15 +159,6 @@ function helpWindowItem() {
   };
 }
 
-function intercomItem() {
-  return {
-    label: '&Provide Feedback',
-    click: function() {
-      BrowserWindow.getFocusedWindow().webContents.send('window:show-intercom-panel');
-    }
-  };
-}
-
 function securityItem() {
   return {
     label: '&Plugins',
@@ -184,12 +175,6 @@ function helpSubMenu() {
   subMenu.push(compassOverviewItem());
   subMenu.push(networkOptInDialogItem());
   subMenu.push(securityItem());
-
-
-  if (process.env.HADRON_PRODUCT !== 'mongodb-compass-community') {
-    subMenu.push(separator());
-    subMenu.push(intercomItem());
-  }
 
   if (process.platform !== 'darwin') {
     subMenu.push(separator());
