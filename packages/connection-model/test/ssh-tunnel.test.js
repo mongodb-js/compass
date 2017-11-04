@@ -165,19 +165,17 @@ describe('ssh_tunnel', function() {
   });
 
   describe('IDENTITY_FILE', function() {
-    it('triggers EISDIR error when calculating a derived property', function() {
+    it('sets the private key to undefined', function() {
       const connnectOptions = {
         ssh_tunnel: 'IDENTITY_FILE',
         // If we have an invalid identity directory
-        ssh_tunnel_identity_file: '/path/to/.ssh/me.pub',
+        ssh_tunnel_identity_file: ['/path/to/.ssh/me.pub'],
         ssh_tunnel_port: 5000,
         // And don't specify a derived property beforehand
         // ssh_tunnel_bind_to_local_port: 29555,
         ssh_tunnel_username: 'username'
       };
-      assert.throws(() => { new Connection(connnectOptions); },
-        /Error: EISDIR: illegal operation on a directory, read/
-      );
+      assert.equal(new Connection(connnectOptions).ssh_tunnel_options.privateKey, undefined);
     });
 
     it('should require `ssh_tunnel_hostname`', function() {

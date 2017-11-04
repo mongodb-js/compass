@@ -820,7 +820,14 @@ _.assign(derived, {
       } else if (this.ssh_tunnel === 'IDENTITY_FILE') {
         /* eslint no-sync: 0 */
         if (this.ssh_tunnel_identity_file && this.ssh_tunnel_identity_file[0]) {
-          opts.privateKey = fs.readFileSync(this.ssh_tunnel_identity_file[0]);
+          // @note: COMPASS-2263: Handle the case where the file no longer exists.
+          const fileName = this.ssh_tunnel_identity_file[0];
+          try {
+            opts.privateKey = fs.readFileSync(fileName);
+          } catch (e) {
+            /* eslint no-console: 0 */
+            console.error(`Could not locate ssh tunnel identity file: ${fileName}`);
+          }
         }
         if (this.ssh_tunnel_passphrase) {
           opts.passphrase = this.ssh_tunnel_passphrase;
