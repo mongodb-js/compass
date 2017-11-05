@@ -29,6 +29,29 @@ label {
     border: 2px solid green;
   }
 
+  ::-webkit-scrollbar {
+      width: 10px;
+      &:horizontal {
+        height: 10px;
+      }
+  }
+
+  ::-webkit-scrollbar-track {
+    background-color: rgba(0,0,0,.10);
+    -webkit-border-radius: 0px;
+    border-radius: 0px;
+    &:hover {
+      background-color: rgba(0,0,0,.16);
+    }
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background-color: rgba(255,255,255,1);
+    -webkit-border-radius: 3px;
+    border-radius: 3px;
+    border: 1px solid rgba(0,0,0,.16);
+  }
+
   .form-container {
     position: absolute;
     top: 0;
@@ -194,4 +217,18 @@ label {
     position: absolute;
     z-index: -1;
   }
+}
+
+.connect-sidebar-connections::-webkit-scrollbar-track {
+  background-color: rgba(0,0,0,.12);
+  border-bottom-left-radius: 3px;
+  border-bottom-right-radius: 3px;
+  &:hover {
+    background-color: rgba(0,0,0,.24);
+  }
+}
+
+.connect-sidebar-connections::-webkit-scrollbar-thumb {
+  background-color: #565E65;
+  border: 1px solid rgba(0,0,0,.24);
 }
