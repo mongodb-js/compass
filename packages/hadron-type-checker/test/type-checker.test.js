@@ -87,19 +87,39 @@ describe('TypeChecker', function() {
               it('raises an error', function() {
                 expect(function() {
                   TypeChecker.cast(value, 'Int32');
-                }).to.throw('- is not a valid Int32 value');
+                }).to.throw('is not a valid Int32 value');
+              });
+            });
+
+            context('when the int is a ""', function() {
+              var value = '';
+
+              it('raises an error', function() {
+                expect(function() {
+                  TypeChecker.cast(value, 'Int32');
+                }).to.throw('is not a valid Int32 value');
               });
             });
           });
 
-          context('when the int is partially valid', function() {
+          context('when the int64 is partially valid', function() {
             context('when the int is a -', function() {
               var value = '-';
 
               it('raises an error', function() {
                 expect(function() {
                   TypeChecker.cast(value, 'Int64');
-                }).to.throw('- is not a valid Int64 value');
+                }).to.throw('is not a valid Int64 value');
+              });
+            });
+
+            context('when the int is a ""', function() {
+              var value = '';
+
+              it('raises an error', function() {
+                expect(function() {
+                  TypeChecker.cast(value, 'Int64');
+                }).to.throw('is not a valid Int64 value');
               });
             });
           });
@@ -140,7 +160,17 @@ describe('TypeChecker', function() {
               it('raises an error', function() {
                 expect(function() {
                   TypeChecker.cast(value, 'Double');
-                }).to.throw('- is not a valid Double value');
+                }).to.throw('is not a valid Double value');
+              });
+            });
+
+            context('when the double is a ""', function() {
+              var value = '';
+
+              it('raises an error', function() {
+                expect(function() {
+                  TypeChecker.cast(value, 'Double');
+                }).to.throw('is not a valid Double value');
               });
             });
           });

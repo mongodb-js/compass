@@ -147,8 +147,8 @@ const toArray = (object) => {
 };
 
 const toInt32 = (object) => {
-  if (object === '-') {
-    throw new Error(`Value ${object} is not a valid Int32 value`);
+  if (object === '-' || object === '') {
+    throw new Error(`Value '${object}' is not a valid Int32 value`);
   }
   const number = toNumber(object);
   if (number >= BSON_INT32_MIN && number <= BSON_INT32_MAX) {
@@ -158,8 +158,8 @@ const toInt32 = (object) => {
 };
 
 const toInt64 = (object) => {
-  if (object === '-') {
-    throw new Error(`Value ${object} is not a valid Int64 value`);
+  if (object === '-' || object === '') {
+    throw new Error(`Value '${object}' is not a valid Int64 value`);
   }
   const number = toNumber(object);
   if (number >= BSON_INT64_MIN && number <= BSON_INT64_MAX) {
@@ -169,8 +169,8 @@ const toInt64 = (object) => {
 };
 
 const toDouble = (object) => {
-  if (object === '-') {
-    throw new Error(`Value ${object} is not a valid Double value`);
+  if (object === '-' || object === '') {
+    throw new Error(`Value '${object}' is not a valid Double value`);
   }
   const number = toNumber(object);
   return new Double(number);
