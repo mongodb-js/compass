@@ -173,6 +173,16 @@ describe('TypeChecker', function() {
                 }).to.throw('is not a valid Double value');
               });
             });
+
+            context('when the double ends with decimal', function() {
+              var value = '12.';
+
+              it('raises an error', function() {
+                expect(function() {
+                  TypeChecker.cast(value, 'Double');
+                }).to.throw('Please enter at least one digit after the decimal');
+              });
+            });
           });
         });
       });

@@ -172,6 +172,9 @@ const toDouble = (object) => {
   if (object === '-' || object === '') {
     throw new Error(`Value '${object}' is not a valid Double value`);
   }
+  if (isString(object) && object.endsWith('.')) {
+    throw new Error('Please enter at least one digit after the decimal');
+  }
   const number = toNumber(object);
   return new Double(number);
 };
