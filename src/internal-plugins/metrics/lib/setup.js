@@ -18,6 +18,8 @@ const INTERCOM_KEY = 'p57suhg7';
 const BUGSNAG_KEY = '0d11ab5f4d97452cc83d3365c21b491c';
 
 module.exports = function() {
+  let intercomBlocked = false;
+
   metrics.configure({
     stitch: {
       appId: 'compass-metrics-irinb',
@@ -36,13 +38,32 @@ module.exports = function() {
   });
 
   if (process.env.HADRON_PRODUCT !== 'mongodb-compass-community') {
-    metrics.configure({
-      intercom: {
-        appId: INTERCOM_KEY,
-        enabled: app.preferences.trackUsageStatistics,
-        panelEnabled: app.preferences.enableFeedbackPanel
+    const request = new XMLHttpRequest();
+    request.onreadystatechange = () => {
+      try {
+        if (request.readyState === XMLHttpRequest.DONE) {
+          if (request.status < 400) {
+            metrics.configure({
+              intercom: {
+                appId: INTERCOM_KEY,
+                enabled: app.preferences.trackUsageStatistics,
+                panelEnabled: app.preferences.enableFeedbackPanel
+              }
+            });
+          } else {
+            intercomBlocked = true;
+          }
+        }
+      } catch (e) {
+        intercomBlocked = true;
       }
-    });
+    };
+    try {
+      request.open('GET', format('https://widget.intercom.io/widget/%s', INTERCOM_KEY), true);
+      request.send();
+    } catch (e) {
+      intercomBlocked = true;
+    }
   }
 
   // create an app resource with name and version
@@ -142,7 +163,7 @@ module.exports = function() {
    * such that when a link is clicked, the event is properly
    * passed off to `app.router` and a web page actually opens.
    */
-  if (process.env.HADRON_PRODUCT !== 'mongodb-compass-community') {
+  if (process.env.HADRON_PRODUCT !== 'mongodb-compass-community' && !intercomBlocked) {
     intercom.configure();
   }
 
