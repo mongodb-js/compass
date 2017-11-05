@@ -79,6 +79,30 @@ describe('TypeChecker', function() {
               });
             });
           });
+
+          context('when the int is partially valid', function() {
+            context('when the int is a -', function() {
+              var value = '-';
+
+              it('raises an error', function() {
+                expect(function() {
+                  TypeChecker.cast(value, 'Int32');
+                }).to.throw('- is not a valid Int32 value');
+              });
+            });
+          });
+
+          context('when the int is partially valid', function() {
+            context('when the int is a -', function() {
+              var value = '-';
+
+              it('raises an error', function() {
+                expect(function() {
+                  TypeChecker.cast(value, 'Int64');
+                }).to.throw('- is not a valid Int64 value');
+              });
+            });
+          });
         });
 
         context('when the integer is 64 bit', function() {
@@ -101,10 +125,24 @@ describe('TypeChecker', function() {
 
       context('when the string is a double', function() {
         context('when casting to a double', function() {
-          var value = '23.45';
+          context('when the double is valid', function() {
+            var value = '23.45';
 
-          it('returns the number', function() {
-            expect(TypeChecker.cast(value, 'Double')).to.deep.equal(new Double(23.45));
+            it('returns the number', function() {
+              expect(TypeChecker.cast(value, 'Double')).to.deep.equal(new Double(23.45));
+            });
+          });
+
+          context('when the doule is partially valid', function() {
+            context('when the double is a -', function() {
+              var value = '-';
+
+              it('raises an error', function() {
+                expect(function() {
+                  TypeChecker.cast(value, 'Double');
+                }).to.throw('- is not a valid Double value');
+              });
+            });
           });
         });
       });
