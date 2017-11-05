@@ -54,15 +54,14 @@ module.exports = function() {
             intercomBlocked = true;
           }
         }
-      }
-      catch () {
+      } catch (e) {
         intercomBlocked = true;
       }
     };
     try {
       request.open('GET', format('https://widget.intercom.io/widget/%s', INTERCOM_KEY), true);
       request.send();
-    } catch () {
+    } catch (e) {
       intercomBlocked = true;
     }
   }
