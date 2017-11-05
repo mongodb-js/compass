@@ -85,7 +85,7 @@
     "ag-grid-react": "12.0.0",
     "hadron-document": "^3.1.1",
     "hadron-react-bson": "^1.4.0",
-    "hadron-type-checker": "^3.0.0",
+    "hadron-type-checker": "^4.0.2",
     "jquery": "^2.1.4",
     "lodash": "^4.17.4",
     "marky": "^1.2.0",
