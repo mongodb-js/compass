@@ -91,23 +91,6 @@ describe('QueryStore', () => {
     });
   });
 
-  describe('_validateFeatureFlag', () => {
-    it('accepts a valid feature flag', () => {
-      QueryStore.validFeatureFlags = [
-        'rocketLauncher',
-        'laserWeapon',
-        'turboBoost'
-      ];
-      const res = QueryStore._validateFeatureFlag('enable rocketLauncher');
-      expect(res[1]).to.be.equal('enable');
-      expect(res[2]).to.be.equal('rocketLauncher');
-    });
-    it('rejects an invalid query sort', () => {
-      const res = QueryStore._validateFeatureFlag('{foo: 1}');
-      expect(res).to.be.false;
-    });
-  });
-
   describe('setQuery', () => {
     context('when setting a single query property', () => {
       it('sets a new `filter`', done => {
