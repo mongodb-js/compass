@@ -348,6 +348,7 @@ app.extend({
       Action.pluginActivationCompleted.listen(() => {
         global.hadronApp.appRegistry.onActivated();
         global.hadronApp.appRegistry.emit('application-initialized', APP_VERSION);
+        global.hadronApp.appRegistry.emit('preferences-loaded', state.preferences);
         // signal to main process that app is ready
         ipc.call('window:renderer-ready');
         // as soon as dom is ready, render and set up the rest
