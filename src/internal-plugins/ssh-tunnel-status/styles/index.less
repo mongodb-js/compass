@@ -1,4 +1,8 @@
 .ssh-tunnel-status {
+  margin-left: 10px;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
 
   &-icon {
     &-lock { font-size: 12px; }
@@ -10,19 +14,14 @@
     flex-grow: 0;
     flex-shrink: 0;
     text-align: right;
-    padding-top: 5px;
   }
 
   &-label {
     color: @gray0;
-    flex-basis: auto;
-    flex-grow: 0;
-    flex-shrink: 0;
-    font-size: 14px;
-    line-height: 1;
-    padding-top: 3px;
-    padding-bottom: 8px;
-    padding-right: 20px;
+    font-size: 12px;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
 
     &-is-static {
       font-size: 11px;
