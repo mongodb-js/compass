@@ -84,6 +84,18 @@ class EditableDocument extends React.Component {
   }
 
   /**
+   * Refreshing the list updates the doc in the props so we should update the
+   * document on the instance.
+   *
+   * @param {Object} nextProps - The next props.
+   */
+  componentWillReceiveProps(nextProps) {
+    if (nextProps.doc) {
+      this.doc = EditableDocument.loadDocument(nextProps.doc);
+    }
+  }
+
+  /**
    * Unsubscribe from the update store on unmount.
    */
   componentWillUnmount() {
