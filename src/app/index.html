@@ -3,7 +3,24 @@
   <head>
     <meta name="viewport" content="initial-scale=1">
     <meta http-equiv="Content-Security-Policy" content="
-      default-src 'self' 'unsafe-eval' blob:;
+      default-src
+        'self'
+        'unsafe-eval'
+        blob:
+        https://js.intercomcdn.com
+        https://api.intercom.io
+        https://api-iam.intercom.io
+        https://api-ping.intercom.io
+        https://nexus-websocket-a.intercom.io
+        https://nexus-websocket-b.intercom.io
+        https://nexus-long-poller-a.intercom.io
+        https://nexus-long-poller-b.intercom.io
+        wss://nexus-websocket-a.intercom.io
+        wss://nexus-websocket-b.intercom.io
+        https://widget.intercom.io
+        https://js.intercomcdn.com
+        https://uploads.intercomcdn.com
+        https://uploads.intercomusercontent.com;
       img-src *
         data:
         blob:
