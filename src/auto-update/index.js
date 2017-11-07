@@ -34,9 +34,7 @@ var NotificationUpdateAvailable = View.extend({
 
     ipc.on('app:update-available', function(_opts) {
       debug('new update available!  wanna update to', _opts, '?');
-      if (app.isFeatureEnabled('showAutoUpdateBanner')) {
-        this.visible = true;
-      }
+      this.visible = true;
     }.bind(this));
 
     ipc.on('app:update-downloaded', function() {
