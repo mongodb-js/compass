@@ -103,6 +103,7 @@ class SSHTunnelPasswordValidation extends React.Component {
         <FormInput
           label="SSH Password"
           name="ssh_tunnel_password"
+          type="password"
           error={this.getPasswordError()}
           changeHandler={this.onSSHTunnelPasswordChanged.bind(this)}
           value={this.props.currentConnection.ssh_tunnel_password || ''} />

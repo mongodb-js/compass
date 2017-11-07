@@ -13,6 +13,13 @@ class SSHTunnelSection extends React.Component {
     this.state = { sshTunnelMethod: props.currentConnection.ssh_tunnel };
   }
 
+  componentWillReceiveProps(nextProps) {
+    const sshMethod = nextProps.currentConnection.ssh_tunnel;
+    if (sshMethod !== this.state.sshTunnelMethod) {
+      this.setState({ sshTunnelMethod: sshMethod });
+    }
+  }
+
   onSSHTunnelChanged(evt) {
     this.setState({ sshTunnelMethod: evt.target.value });
     Actions.onSSHTunnelChanged(evt.target.value);
@@ -42,7 +49,7 @@ class SSHTunnelSection extends React.Component {
           name="ssh_tunnel"
           options={this.selectOptions}
           changeHandler={this.onSSHTunnelChanged.bind(this)}
-          value={this.props.currentConnection.ssl_tunnel} />
+          value={this.props.currentConnection.ssh_tunnel} />
         {this.renderSSHTunnelMethod()}
       </FormGroup>
     );
