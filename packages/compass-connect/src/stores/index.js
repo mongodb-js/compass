@@ -390,7 +390,6 @@ const ConnectStore = Reflux.createStore({
     } else {
       this.StatusActions.showIndeterminateProgressBar();
       this.updateDefaults();
-      console.log(connection);
       this.dataService = new DataService(connection);
       this.appRegistry.emit('data-service-initialized', this.dataService);
       this.dataService.connect((err, ds) => {
