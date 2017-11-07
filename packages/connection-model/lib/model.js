@@ -606,6 +606,8 @@ _.assign(derived, {
       'port',
       'ssl',
       'ssh_tunnel',
+      'ssh_tunnel_hostname',
+      'ssh_tunnel_port',
       'app_name',
       'kerberos_principal',
       'kerberos_password',
@@ -613,6 +615,7 @@ _.assign(derived, {
       'mongodb_username',
       'mongodb_password',
       'mongodb_database_name',
+      'x509_username',
       'driver_auth_mechanism'
     ],
     /* eslint complexity: 0 */
