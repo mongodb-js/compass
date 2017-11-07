@@ -22,14 +22,14 @@ class SSHTunnelStatusComponent extends React.Component {
           onMouseOver={this.props.actions.showFullHostPort}
           onMouseOut={this.props.actions.showTruncatedHostPort}>
         <FontAwesome name="lock" className="ssh-tunnel-status-icon ssh-tunnel-status-icon-lock"/>
-        <span className="ssh-tunnel-status-label">
-          <span className="ssh-tunnel-status-label-is-static">
+        <div className="ssh-tunnel-status-label">
+          <div className="ssh-tunnel-status-label-is-static">
             &nbsp;SSH connection via&nbsp;&nbsp;
-          </span>
-          <span className="ssh-tunnel-status-hostportstring">
+          </div>
+          <div className="ssh-tunnel-status-hostportstring">
             {this.props.sshTunnelHostPortString}
-          </span>
-        </span>
+          </div>
+        </div>
       </div>
     );
   }
