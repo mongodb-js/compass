@@ -58,7 +58,7 @@ const connection = new Connection({
 const dataService = new DataService(connection);
 
 appRegistry.emit('data-service-initialized', dataService);
-dataService.connect((error, ds) => {
+dataService.connect((error, dataService) => {
   appRegistry.emit('data-service-connected', error, dataService);
 });
 
