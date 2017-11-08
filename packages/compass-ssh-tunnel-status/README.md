@@ -6,5 +6,5 @@
 
 Apache 2.0
 
-[travis_img]: https://travis-ci.com/10gen/10gen/ssh-tunnel-status.svg?style=flat-square
-[travis_url]: https://travis-ci.com/10gen/ssh-tunnel-status
+[travis_img]: https://travis-ci.org/mongodb-js/compass-ssh-tunnel-status.svg?branch=master
+[travis_url]: https://travis-ci.com/mongodb-js/compass-ssh-tunnel-status
