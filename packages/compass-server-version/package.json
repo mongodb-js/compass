@@ -1,5 +1,5 @@
 {
-  "name": "@mongodb-js/server-version",
+  "name": "@mongodb-js/compass-server-version",
   "productName": "Server Version",
   "version": "1.0.0",
   "apiVersion": "1.0.0",
