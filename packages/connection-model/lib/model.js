@@ -615,6 +615,7 @@ _.assign(derived, {
       'mongodb_username',
       'mongodb_password',
       'mongodb_database_name',
+      'replica_set_name',
       'x509_username',
       'driver_auth_mechanism'
     ],
