@@ -1,7 +1,7 @@
 {
-  "name": "ssh-tunnel-status",
-  "productName": "Ssh Tunnel Status plugin",
-  "version": "1.0.0",
+  "name": "@mongodb-js/compass-ssh-tunnel-status",
+  "productName": "Ssh Tunnel Status",
+  "version": "0.0.0",
   "apiVersion": "1.0.0",
   "description": "Compass SSH Tunnel Status",
   "main": "lib/index.js",
