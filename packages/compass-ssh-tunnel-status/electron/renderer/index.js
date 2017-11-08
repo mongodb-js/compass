@@ -46,23 +46,21 @@ const render = Component => {
 render(SshTunnelStatusPlugin);
 
 // // Data service initialization and connection.
-// import Connection from 'mongodb-connection-model';
-// import DataService from 'mongodb-data-service';
-//
-// const connection = new Connection({
-//   hostname: '127.0.0.1',
-//   port: 27017,
-//   ns: 'databaseName',
-//   mongodb_database_name: 'admin',
-//   mongodb_username: '<user>',
-//   mongodb_password: '<password>'
-// });
-// const dataService = new DataService(connection);
-//
-// appRegistry.emit('data-service-initialized', dataService);
-// dataService.connect((error, ds) => {
-//    appRegistry.emit('data-service-connected', error, dataService);
-// });
+import Connection from 'mongodb-connection-model';
+import DataService from 'mongodb-data-service';
+
+const connection = new Connection({
+  hostname: '127.0.0.1',
+  port: 27017,
+  ns: 'databaseName',
+  mongodb_database_name: 'admin'
+});
+const dataService = new DataService(connection);
+
+appRegistry.emit('data-service-initialized', dataService);
+dataService.connect((error, ds) => {
+  appRegistry.emit('data-service-connected', error, dataService);
+});
 
 // For automatic switching to specific namespaces, uncomment below as needed.
 // appRegistry.emit('collection-changed', 'database.collection');
