@@ -8,7 +8,7 @@ const ExplainStore = require('./lib/stores');
  */
 const COLLECTION_TAB_ROLE = {
   component: ExplainComponent,
-  name: 'EXPLAIN PLAN',
+  name: 'Explain Plan',
   hasQueryHistory: true,
   order: 3
 };
