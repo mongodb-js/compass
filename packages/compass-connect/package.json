@@ -83,7 +83,7 @@
     "lodash.map": "^4.6.0",
     "lodash.sortby": "^4.7.0",
     "moment": "^2.18.1",
-    "mongodb-connection-model": "^10.4.1",
+    "mongodb-connection-model": "^10.4.2",
     "mongodb-data-service": "^8.3.0",
     "mongodb-shell-to-url": "^0.1.0",
     "react-tooltip": "^3.3.0",
