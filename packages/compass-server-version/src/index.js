@@ -6,7 +6,9 @@ import ServerVersionStore from 'stores';
  */
 const ROLE = {
   name: 'ServerVersion',
-  component: ServerVersionPlugin
+  component: ServerVersionPlugin,
+  alignment: 'right',
+  order: 10
 };
 
 /**

@@ -1,6 +1,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import app from 'hadron-app';
+import Reflux from 'reflux';
 import AppRegistry from 'hadron-app-registry';
 import { AppContainer } from 'react-hot-loader';
 import ServerVersionPlugin, { activate } from 'plugin';
@@ -18,7 +19,22 @@ global.hadronApp.appRegistry = appRegistry;
 
 // Activate our plugin with the Hadron App Registry
 activate(appRegistry);
+
+const InstanceStore = Reflux.createStore({});
+
+appRegistry.registerStore('App.InstanceStore', InstanceStore);
 appRegistry.onActivated();
+
+const state = {
+  instance: {
+    build: {
+      enterprise_module: true,
+      version: '3.4.4'
+    }
+  }
+};
+
+InstanceStore.trigger(state);
 
 // Since we are using HtmlWebpackPlugin WITHOUT a template,
 // we should create our own root node in the body element before rendering into it.
