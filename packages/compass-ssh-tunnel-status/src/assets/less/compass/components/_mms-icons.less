@@ -1,0 +1,267 @@
+@import "~less/compass/variables/_index";
+
+i[class^="mms-icon-"],
+i[class^="mms-icon-"] i {
+  -moz-osx-font-smoothing: grayscale;
+}
+
+i[class^="mms-icon-"],
+i[class^="mms-icon-"] i {
+  font-family: "MMS Icons";
+  font-style: normal;
+  font-weight: normal;
+  font-size: 16px;
+  line-height: 1;
+  -moz-osx-font-smoothing: grayscale;
+  font-weight: normal !important;
+  filter: progid:DXImageTransform.Microsoft.AlphaImageLoader(src='data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAyJpVFh0WE1MOmNvbS5hZG9iZS54bXAAAAAAADw/eHBhY2tldCBiZWdpbj0i77u/IiBpZD0iVzVNME1wQ2VoaUh6cmVTek5UY3prYzlkIj8+IDx4OnhtcG1ldGEgeG1sbnM6eD0iYWRvYmU6bnM6bWV0YS8iIHg6eG1wdGs9IkFkb2JlIFhNUCBDb3JlIDUuMC1jMDYwIDYxLjEzNDc3NywgMjAxMC8wMi8xMi0xNzozMjowMCAgICAgICAgIj4gPHJkZjpSREYgeG1sbnM6cmRmPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5LzAyLzIyLXJkZi1zeW50YXgtbnMjIj4gPHJkZjpEZXNjcmlwdGlvbiByZGY6YWJvdXQ9IiIgeG1sbnM6eG1wPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvIiB4bWxuczp4bXBNTT0iaHR0cDovL25zLmFkb2JlLmNvbS94YXAvMS4wL21tLyIgeG1sbnM6c3RSZWY9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC9zVHlwZS9SZXNvdXJjZVJlZiMiIHhtcDpDcmVhdG9yVG9vbD0iQWRvYmUgUGhvdG9zaG9wIENTNSBNYWNpbnRvc2giIHhtcE1NOkluc3RhbmNlSUQ9InhtcC5paWQ6OTJBQkFGRUZFOTIyMTFFMEJDRDNEQzkxOTVGOTNBODAiIHhtcE1NOkRvY3VtZW50SUQ9InhtcC5kaWQ6OTJBQkFGRjBFOTIyMTFFMEJDRDNEQzkxOTVGOTNBODAiPiA8eG1wTU06RGVyaXZlZEZyb20gc3RSZWY6aW5zdGFuY2VJRD0ieG1wLmlpZDo5MkFCQUZFREU5MjIxMUUwQkNEM0RDOTE5NUY5M0E4MCIgc3RSZWY6ZG9jdW1lbnRJRD0ieG1wLmRpZDo5MkFCQUZFRUU5MjIxMUUwQkNEM0RDOTE5NUY5M0E4MCIvPiA8L3JkZjpEZXNjcmlwdGlvbj4gPC9yZGY6UkRGPiA8L3g6eG1wbWV0YT4gPD94cGFja2V0IGVuZD0iciI/PtrV+I8AAAAQSURBVHjaYvj//z8DQIABAAj8Av7bok0WAAAAAElFTkSuQmCC',sizingMethod=crop);
+  zoom: 1;
+  -webkit-transition: all 200ms ease;
+     -moz-transition: all 200ms ease;
+       -o-transition: all 200ms ease;
+          transition: all 200ms ease;
+}
+
+.register h2 {
+  i[class^="mms-icon-"] {
+    font-size: 32px;
+    margin-right: 15px;
+  }
+}
+
+i.mms-icon-rocketbot,
+i.mms-icon-snowbot {
+  font-size: 64px;
+}
+
+i[class^="mms-icon-deployment-location-"],
+i.mms-icon-bigplay,
+i.mms-icon-bookshelf,
+i.mms-icon-desktop,
+i[class^="mms-icon-import-existing-"],
+i[class^="mms-icon-build-new-"],
+i.mms-icon-big-check {
+  font-size: 128px;
+}
+
+i[class^="mms-icon-"] {
+  position: relative;
+  i {
+    position: absolute;
+    top: 0;
+    left: 0;
+  }
+  &[class$="-add"] i          { color: @green2;       &:before        { content: "\E085" } }
+  &[class$="-remove"] i       { color: @errorText;    &:before        { content: "\E086" } }
+  &[class$="-edit"] i         { color: @warningText;  &:before        { content: "\E087" } }
+  &[class$="-exclamation"] i  { color: @warningText;  &:before        { content: "\E098" } }
+  &[class$="-restart"] i      { color: @alertBlue;    &:before        { content: "\E089" } }
+  &[class$="-selected"]       { color: @gray1; }
+}
+i[class^="mms-icon-group-"]  {
+  &[class$="-add"] i:before                                     { content: "\E090" }
+  &[class$="-remove"] i:before                                  { content: "\E091" }
+  &[class$="-edit"] i:before                                    { content: "\E092" }
+  &[class$="-restart"] i:before                                 { content: "\E094" }
+}
+i[class^="mms-icon-mongos-"],
+i[class^="mms-icon-configsvr-"],
+i[class^="mms-icon-wrench-"]  {
+  &[class$="-add"] i:before                                     { content: "\E095" }
+  &[class$="-remove"] i:before                                  { content: "\E096" }
+  &[class$="-edit"] i:before                                    { content: "\E097" }
+  &[class$="-exclamation"] i:before                             { content: "\E098" }
+  &[class$="-restart"] i:before                                 { content: "\E099" }
+}
+i[class^="mms-icon-nostate-"]:before                            { content: "\E100" }
+i[class^="mms-icon-startup-"]:before                            { content: "\E101" }
+i[class^="mms-icon-primary-"]:before                            { content: "\E102" }
+i[class^="mms-icon-secondary-"]:before                          { content: "\E103" }
+i[class^="mms-icon-arbiter-"]:before                            { content: "\E104" }
+i[class^="mms-icon-hidden-s-"]:before                           { content: "\E105" }
+i[class^="mms-icon-delayed-"]:before                            { content: "\E106" }
+i[class^="mms-icon-recovering-"]:before                         { content: "\E107" }
+i[class^="mms-icon-down-"]:before                               { content: "\E108" }
+i[class^="mms-icon-fatal-"]:before                              { content: "\E109" }
+i[class^="mms-icon-shunned-"]:before                            { content: "\E110" }
+i[class^="mms-icon-rollback-"]:before                           { content: "\E111" }
+i[class^="mms-icon-unknown-"]:before                            { content: "\E112" }
+i[class^="mms-icon-standalone-"]:before                         { content: "\E130" }
+i[class^="mms-icon-replica-set-"]:before                        { content: "\E131" }
+i[class^="mms-icon-cluster-"]:before                            { content: "\E132" }
+i[class^="mms-icon-mongos-"]:before                             { content: "\E133" }
+i[class^="mms-icon-configsvr-"]:before                          { content: "\E134" }
+i[class^="mms-icon-automation-"]:before                         { content: "\E135" }
+i[class^="mms-icon-backup-"]:before                             { content: "\E136" }
+i[class^="mms-icon-monitoring-"]:before                         { content: "\E137" }
+i[class^="mms-icon-group-"]:before                              { content: "\E138" }
+i[class^="mms-icon-user-"]:before                               { content: "\E139" }
+i[class^="mms-icon-role-"]:before                               { content: "\E140" }
+i[class^="mms-icon-leaf-"]:before                               { content: "\E141" }
+i[class^="mms-icon-server-"]:before                             { content: "\E142" }
+i[class^="mms-icon-wrench-"]:before                             { content: "\E227" }
+
+
+i.mms-icon-nostate:before                                       { content: "\E000" }
+i.mms-icon-startup:before                                       { content: "\E001" }
+i.mms-icon-startup-selected:before                              { content: "\E002" }
+i.mms-icon-startup2:before                                      { content: "\E001" }
+i.mms-icon-startup2-selected:before                             { content: "\E002" }
+
+i.mms-icon-primary:before                                       { content: "\E004" }
+i.mms-icon-primary-selected:before                              { content: "\E004" }
+i.mms-icon-secondary:before                                     { content: "\E005" }
+i.mms-icon-secondary-selected:before                            { content: "\E006" }
+i.mms-icon-arbiter:before                                       { content: "\E007" }
+i.mms-icon-arbiter-selected:before                              { content: "\E008" }
+i.mms-icon-hidden-s:before                                      { content: "\E009" }
+i.mms-icon-hidden-s-selected:before                             { content: "\E010" }
+i.mms-icon-delayed:before                                       { content: "\E011" }
+i.mms-icon-delayed-selected:before                              { content: "\E012" }
+i.mms-icon-recovering:before                                    { content: "\E013" }
+i.mms-icon-recovering-selected:before                           { content: "\E014" }
+i.mms-icon-down:before                                          { content: "\E015" }
+i.mms-icon-down-selected:before                                 { content: "\E016" }
+i.mms-icon-fatal:before                                         { content: "\E017" }
+i.mms-icon-fatal-selected:before                                { content: "\E018" }
+i.mms-icon-shunned:before                                       { content: "\E019" }
+i.mms-icon-shunned-selected:before                              { content: "\E020" }
+i.mms-icon-rollback:before                                      { content: "\E021" }
+i.mms-icon-rollback-selected:before                             { content: "\E022" }
+i.mms-icon-unknown:before                                       { content: "\E023" }
+i.mms-icon-unknown-selected:before                              { content: "\E024" }
+i.mms-icon-standalone:before                                    { content: "\E030" }
+i.mms-icon-replica-set:before                                   { content: "\E031" }
+i.mms-icon-cluster:before                                       { content: "\E032" }
+i.mms-icon-mongos:before                                        { content: "\E033" }
+i.mms-icon-configsvr:before                                     { content: "\E034" }
+
+i.mms-icon-addtopright:before                                   { content: "\E085" }
+i.mms-icon-removetopright:before                                { content: "\E086" }
+i.mms-icon-edittopright:before                                  { content: "\E087" }
+i.mms-icon-exclamationtopright:before                           { content: "\E088" }
+i.mms-icon-restarttopright:before                               { content: "\E089" }
+
+i.mms-icon-addbottomleft:before                                 { content: "\E090" }
+i.mms-icon-removebottomleft:before                              { content: "\E091" }
+i.mms-icon-editbottomleft:before                                { content: "\E092" }
+i.mms-icon-exclamationbottomleft:before                         { content: "\E093" }
+i.mms-icon-restartbottomleft:before                             { content: "\E094" }
+
+i.mms-icon-addtopleft:before                                    { content: "\E095" }
+i.mms-icon-removetopleft:before                                 { content: "\E096" }
+i.mms-icon-edittopleft:before                                   { content: "\E097" }
+i.mms-icon-exclamationtopleft:before                            { content: "\E098" }
+i.mms-icon-restarttopleft:before                                { content: "\E099" }
+
+i.mms-icon-dragtopleft:before                                   { content: "\E200" }
+i.mms-icon-bell:before                                          { content: "\E201" }
+i.mms-icon-list:before                                          { content: "\E202" }
+i.mms-icon-topology:before                                      { content: "\E203" }
+i.mms-icon-cloud:before                                         { content: "\E204" }
+i.mms-icon-lock:before                                          { content: "\E205" }
+i.mms-icon-laptop:before                                        { content: "\E206" }
+i.mms-icon-office:before                                        { content: "\E207" }
+i.mms-icon-floppy:before                                        { content: "\E208" }
+i.mms-icon-support1:before                                      { content: "\E209" }
+i.mms-icon-support2:before                                      { content: "\E210" }
+i.mms-icon-add:before                                           { content: "\E211" }
+i.mms-icon-remove:before                                        { content: "\E212" }
+i.mms-icon-check:before                                         { content: "\E213" }
+i.mms-icon-creditcard:before                                    { content: "\E214" }
+i.mms-icon-graph:before                                         { content: "\E215" }
+i.mms-icon-api:before                                           { content: "\E216" }
+i.mms-icon-2fa:before                                           { content: "\E217" }
+i.mms-icon-smartphone:before                                    { content: "\E218" }
+i.mms-icon-continuous:before                                    { content: "\E219" }
+i.mms-icon-pointintime:before                                   { content: "\E220" }
+i.mms-icon-hammer:before                                        { content: "\E221" }
+i.mms-icon-edit:before                                          { content: "\E222" }
+i.mms-icon-umbrella:before                                      { content: "\E223" }
+i.mms-icon-ellipsis:before                                      { content: "\E224" }
+i.mms-icon-dragleft:before                                      { content: "\E225" }
+i.mms-icon-list-skinny:before                                   { content: "\E226" }
+i.mms-icon-wrench:before                                        { content: "\E227" }
+i.mms-icon-grid:before                                          { content: "\E228" }
+i.mms-icon-ssl:before                                           { content: "\E229" }
+i.mms-icon-auth:before                                          { content: "\E230" }
+i.mms-icon-right-arrow:before                                   { content: "\E237" }
+i.mms-icon-add-circle:before                                    { content: "\E238" }
+i.mms-icon-automation:before                                    { content: "\E300" }
+i.mms-icon-backup:before                                        { content: "\E301" }
+i.mms-icon-monitoring:before                                    { content: "\E302" }
+i.mms-icon-group:before                                         { content: "\E303" }
+i.mms-icon-user:before                                          { content: "\E304" }
+i.mms-icon-role:before                                          { content: "\E305" }
+i.mms-icon-leaf:before                                          { content: "\E306" }
+i.mms-icon-databases:before                                     { content: "\E307" }
+i.mms-icon-database:before                                      { content: "\E308" }
+i.mms-icon-servers:before                                       { content: "\E309" }
+i.mms-icon-server:before                                        { content: "\E310" }
+i.mms-icon-dashboard:before                                     { content: "\E311" }
+i.mms-icon-setup:before                                         { content: "\E312" }
+i.mms-icon-settings:before                                      { content: "\E313" }
+i.mms-icon-activity:before                                      { content: "\E314" }
+i.mms-icon-desktop:before                                       { content: "\E400" }
+i.mms-icon-deployment-location-laptop:before                    { content: "\E401" }
+i.mms-icon-deployment-location-servers:before                   { content: "\E402" }
+i.mms-icon-deployment-location-aws:before                       { content: "\E403" }
+i.mms-icon-bigplay:before                                       { content: "\E404" }
+i.mms-icon-bookshelf:before                                     { content: "\E405" }
+i.mms-icon-build-new-01:before                                  { content: "\E406" }
+i.mms-icon-import-existing-01:before                            { content: "\E407" }
+i.mms-icon-build-new-02:before                                  { content: "\E408" }
+i.mms-icon-import-existing-02:before                            { content: "\E409" }
+i.mms-icon-big-check:before                                     { content: "\E410" }
+
+i.mms-icon-logo-amazon:before                                   { content: "\E500" }
+i.mms-icon-logo-ubuntu:before                                   { content: "\E501" }
+i.mms-icon-logo-apple:before                                    { content: "\E502" }
+i.mms-icon-logo-linux:before                                    { content: "\E503" }
+i.mms-icon-logo-windows:before                                  { content: "\E504" }
+i.mms-icon-logo-redhat:before                                   { content: "\E505" }
+i.mms-icon-rocketbot:before                                     { content: "\F006" }
+i.mms-icon-snowbot:before                                       { content: "\F007" }
+
+.mongod,
+.mongos {
+  display: inline-block;
+}
+/* color for error states */
+.down,
+.fatal,
+.shunned,
+.unknown {
+  i.mms-icon-mongod {
+    color: @errorText;
+  }
+}
+
+i[class^="mms-icon-down"],
+i[class^="mms-icon-fatal"],
+i[class^="mms-icon-shunned"],
+i[class^="mms-icon-unknown"] {
+  color: @errorText;
+  &[class$="-selected"] { color: @errorText; }
+}
+
+i.mms-icon-wrench-exclamation {
+  color: @gray5;
+}
+
+.startup,
+.startup2,
+.rollback,
+.recovering {
+  i.mms-icon-mongod {
+    color: @warningText;
+  }
+}
+
+/* color for startup states */
+i[class^="mms-icon-startup"],
+i[class^="mms-icon-rollback"],
+i[class^="mms-icon-recovering"] {
+ color: @warningText;
+ &[class$="-selected"] { color: @warningText; }
+}
