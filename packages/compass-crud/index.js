@@ -21,7 +21,7 @@ const {
 
 const COLLECTION_TAB_ROLE = {
   component: DocumentList,
-  name: 'DOCUMENTS',
+  name: 'Documents',
   hasQueryHistory: true,
   order: 1
 };
