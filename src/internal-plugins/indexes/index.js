@@ -12,7 +12,7 @@ const UpdateIndexesStore = require('./lib/store/update-indexes-store');
  */
 const COLLECTION_TAB_ROLE = {
   component: Indexes,
-  name: 'INDEXES',
+  name: 'Indexes',
   order: 4
 };
 
