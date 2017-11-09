@@ -23,6 +23,12 @@ compassStatus.activate(appRegistry);
 
 appRegistry.onActivated();
 
+appRegistry.on('data-service-connected', (err, ds) => {
+  if (!err) {
+    appRegistry.getAction('Status.Actions').done();
+  }
+});
+
 ReactDOM.render(
   React.createElement(Container),
   document.getElementById('container')
