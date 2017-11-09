@@ -13,7 +13,7 @@ class Collection extends React.Component {
 
     this.state = {activeTab: 0};
 
-    this.Stats = app.appRegistry.getComponent('CollectionHUD.Item');
+    this.Stats = app.appRegistry.getComponent('CollectionStats.Component');
     this.CollectionStore = app.appRegistry.getStore('App.CollectionStore');
     this.NamespaceStore = app.appRegistry.getStore('App.NamespaceStore');
     this.QueryActions = app.appRegistry.getAction('Query.Actions');
