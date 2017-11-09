@@ -1,5 +1,5 @@
 {
-  "name": "@mongodb-js/collection-stats",
+  "name": "@mongodb-js/compass-collection-stats",
   "productName": "Collection Stats",
   "version": "1.0.0",
   "apiVersion": "1.0.0",
