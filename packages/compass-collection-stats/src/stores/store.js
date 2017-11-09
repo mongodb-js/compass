@@ -76,7 +76,7 @@ const CollectionStatsStore = Reflux.createStore({
   loadCollectionStats(ns) {
     if (toNS(ns || '').collection) {
       if (this.CollectionStore.isReadonly()) {
-        this.trigger();
+        this.setState(this.getInitialState());
       } else {
         this.dataService.collection(ns, {}, (err, result) => {
           if (!err) {
