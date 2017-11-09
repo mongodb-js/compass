@@ -19,6 +19,8 @@
     justify-content: flex-start;
     align-items: flex-end;
     position: relative;
+    margin: 0 15px;
+    border-bottom: 4px solid @gray10; 
   }
 
   &-tabs {
@@ -29,7 +31,7 @@
     position: absolute;
     top: 9px;
     margin-left: 0px;
-    padding-left: 15px;
+    padding-left: 0px;
   }
 
   &-tab {
@@ -37,45 +39,35 @@
     width: 130px;
     margin-right: 5px;
     font-size: 13px;
-    text-transform: uppercase;
     display: flex;
     justify-content: center;
     cursor: pointer;
     margin-bottom: 0;
-    color: #838F9B;
-    border-bottom: 3px solid @pw;
+    color: @gray9;
+    border-bottom: 4px solid @gray10;
   }
 
   &-tab:hover {
-    background-color: @pw;
-    color: @chart1;
-
-    .tab-nav-bar-link {
-      color: @chart1;
-    }
+    color: @gray1;
   }
 
   &-link {
     margin: auto;
-    text-transform: uppercase;
-    font-size: 11px;
+    font-size: 14px;
     font-weight: bold;
+    padding-bottom: 5px;
   }
 
   &-link:hover, &-link:active, &-link:focus {
     text-decoration: none;
-    color: @gray0;
+    color: @gray1;
   }
 
   &-is-selected {
-    .tab-nav-bar-link {
-      color: @chart1;
-    }
-
-    &.tab-nav-bar-tab:hover {
-      border-color: @chart1;
-    }
     cursor: default;
-    border-color: @chart1;
+    border-bottom-color: @green6;
+    .tab-nav-bar-link {
+      color: @gray1;
+    }
   }
 }
