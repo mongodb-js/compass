@@ -1,38 +1,33 @@
-import app from 'hadron-app';
-import { uniqueId } from 'lodash';
-
 import React, { Component } from 'react';
-import PropTypes from 'prop-types';
+import classnames from 'classnames';
 
 import styles from './collection-stats.less';
 
 class CollectionStats extends Component {
   static displayName = 'CollectionStatsComponent';
 
-  static propTypes = {
-    actions: PropTypes.object.isRequired
-  };
-
-  state = {
-    roles: []
-  };
-
-  componentWillMount() {
-    this.setState({ roles: app.appRegistry.getRole('CollectionHUD.Item') });
+  /**
+   * Instantiate the component.
+   *
+   * @param {Object} props - The properties.
+   */
+  constructor(props) {
+    super(props);
+    this.roles = global.hadronApp.appRegistry.getRole('CollectionHUD.Item');
   }
 
   /**
-   * Render the component.
+   * Render CollectionStats component.
    *
-   * @returns {React.Component} The component.
-   *
+   * @returns {React.Component} The rendered component.
    */
   render() {
-    const { roles } = this.state;
-
+    const views = (this.roles || []).map((role, i) => {
+      return (<role.component key={i} {...this.props} />);
+    });
     return (
-      <div className={styles.component}>
-        {roles.map((role) => React.createElement(role.component, {key: uniqueId()}))}
+      <div className={classnames(styles['collection-stats'])}>
+        {views}
       </div>
     );
   }

@@ -1,39 +1,25 @@
 import React from 'react';
-import { mount } from 'enzyme';
+import { shallow } from 'enzyme';
+import AppRegistry from 'hadron-app-registry';
 
 import CollectionStats from 'components/collection-stats';
-import ToggleButton from 'components/toggle-button';
 import styles from './collection-stats.less';
 
-describe('collection-stats [Component]', () => {
+describe('CollectionStats [Component]', () => {
   let component;
-  let actions;
 
-  beforeEach((done) => {
-    actions = { toggleStatus: sinon.stub() };
-    component = mount(<CollectionStats actions={actions} />);
-    done();
+  beforeEach(() => {
+    global.hadronApp = {
+      appRegistry: new AppRegistry()
+    };
+    component = shallow(<CollectionStats />);
   });
 
-  afterEach((done) => {
+  afterEach(() => {
     component = null;
-    actions = null;
-    done();
   });
 
   it('renders the correct root classname', () => {
-    expect(component.find(`.${styles.root}`)).to.have.length(1);
-  });
-
-  it('should contain one <h2> tag', () => {
-    expect(component.find('h2')).to.have.length(1);
-  });
-
-  it('should contain one <ToggleButton />', () => {
-    expect(component.find(ToggleButton)).to.have.length(1);
-  });
-
-  it('should initially have prop {status: \'enabled\'}', () => {
-    expect(component.prop('status')).to.equal('enabled');
+    expect(component.find(`.${styles['collection-stats']}`)).to.be.present();
   });
 });

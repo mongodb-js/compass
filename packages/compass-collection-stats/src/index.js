@@ -1,16 +1,17 @@
 import CollectionStatsPlugin from './plugin';
 import CollectionStatsStore from 'stores';
-import { DocumentsStatsList, IndexStatsList } from 'components/collection-stats-list';
+import DocumentStatsItem from 'components/document-stats-item';
+import IndexStatsItem from 'components/index-stats-item';
 
 const DOCUMENTS_STATS_ITEM_ROLE = {
-  component: DocumentsStatsList,
-  name: 'DOC STATS',
+  component: DocumentStatsItem,
+  name: 'document-stats',
   order: 1
 };
 
 const INDEXES_STATS_ITEM_ROLE = {
-  component: IndexStatsList,
-  name: 'INDEX STATS',
+  component: IndexStatsItem,
+  name: 'index-stats',
   order: 2
 };
 
@@ -19,10 +20,10 @@ const INDEXES_STATS_ITEM_ROLE = {
  * @param {Object} appRegistry - The Hadron appRegisrty to activate this plugin with.
  **/
 function activate(appRegistry) {
-  appRegistry.registerStore('CollectionStats.Store', CollectionStatsStore);
   appRegistry.registerRole('CollectionHUD.Item', DOCUMENTS_STATS_ITEM_ROLE);
   appRegistry.registerRole('CollectionHUD.Item', INDEXES_STATS_ITEM_ROLE);
-  appRegistry.registerComponent('CollectionHUD.Item', CollectionStatsPlugin);
+  appRegistry.registerStore('CollectionStats.Store', CollectionStatsStore);
+  appRegistry.registerComponent('CollectionStats.Component', CollectionStatsPlugin);
 }
 
 /**
@@ -30,10 +31,10 @@ function activate(appRegistry) {
  * @param {Object} appRegistry - The Hadron appRegisrty to deactivate this plugin with.
  **/
 function deactivate(appRegistry) {
-  appRegistry.deregisterStore('CollectionStats.Store');
   appRegistry.deregisterRole('CollectionHUD.Item', DOCUMENTS_STATS_ITEM_ROLE);
   appRegistry.deregisterRole('CollectionHUD.Item', INDEXES_STATS_ITEM_ROLE);
-  appRegistry.deregisterComponent('CollectionHUD.Item');
+  appRegistry.deregisterStore('CollectionStats.Store');
+  appRegistry.deregisterComponent('CollectionStats.Component');
 }
 
 export default CollectionStatsPlugin;

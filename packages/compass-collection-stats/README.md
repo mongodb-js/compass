@@ -1,6 +1,6 @@
 # collection-stats [![][travis_img]][travis_url]
 
-> The collection stats view.
+> CollectionHUD.Item
 
 ## Usage
 

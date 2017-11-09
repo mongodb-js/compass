@@ -3,7 +3,7 @@ import { mount } from 'enzyme';
 import { StoreConnector } from 'hadron-react-components';
 import CollectionStatsPlugin from './plugin';
 
-describe('collection-stats [Plugin]', () => {
+describe('CollectionStats [Plugin]', () => {
   let component;
 
   beforeEach((done) => {

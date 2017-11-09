@@ -1,8 +1,12 @@
 import Reflux from 'reflux';
 import StateMixin from 'reflux-state-mixin';
-import CollectionStatsActions from 'actions';
+import toNS from 'mongodb-ns';
+import numeral from 'numeral';
 
-const debug = require('debug')('mongodb-compass:stores:collection-stats');
+/**
+ * Invalid stats.
+ */
+const INVALID = 'N/A';
 
 /**
  * Collection Stats store.
@@ -18,17 +22,6 @@ const CollectionStatsStore = Reflux.createStore({
   mixins: [StateMixin.store],
 
   /**
-   * listen to all actions defined in ../actions/index.jsx
-   */
-  listenables: CollectionStatsActions,
-
-  /**
-   * Initialize everything that is not part of the store's state.
-   */
-  init() {
-  },
-
-  /**
    * This method is called when all plugins are activated. You can register
    * listeners to other plugins' stores here, e.g.
    *
@@ -40,13 +33,58 @@ const CollectionStatsStore = Reflux.createStore({
    */
   // eslint-disable-next-line no-unused-vars
   onActivated(appRegistry) {
-    // Events emitted from the app registry:
-    // appRegistry.on('application-intialized', (version) => return true);
-    // appRegistry.on('data-service-intialized', (dataService) => return true);
-    // appRegistry.on('data-service-connected', (error, dataService) => return true);
-    // appRegistry.on('collection-changed', (namespace) => return true);
-    // appRegistry.on('database-changed', (namespace) => return true);
-    // appRegistry.on('query-applied', (queryState) => return true);
+    this.NamespaceStore = appRegistry.getStore('App.NamespaceStore');
+    this.CollectionStore = appRegistry.getStore('App.CollectionStore');
+    appRegistry.getAction('CRUD.Actions').documentRemoved.listen(this.onDocumentDeleted.bind(this));
+    appRegistry.on('data-service-connected', this.onConnected.bind(this));
+    appRegistry.on('collection-changed', this.onCollectionChanged.bind(this));
+  },
+
+  /**
+   * Handle the data-service-connected event.
+   *
+   * @param {Error} err - The error.
+   * @param {DataService} dataService - The data service.
+   */
+  onConnected(err, dataService) {
+    if (!err) {
+      this.dataService = dataService;
+    }
+  },
+
+  /**
+   * Handle document deletion.
+   */
+  onDocumentDeleted() {
+    this.loadCollectionStats(this.NamespaceStore.ns);
+  },
+
+  /**
+   * Handle collection being changed.
+   *
+   * @param {String} ns - The namespace.
+   */
+  onCollectionChanged(ns) {
+    this.loadCollectionStats(ns);
+  },
+
+  /**
+   * Load the collection stats.
+   *
+   * @param {String} ns - The namespace.
+   */
+  loadCollectionStats(ns) {
+    if (toNS(ns || '').collection) {
+      if (this.CollectionStore.isReadonly()) {
+        this.trigger();
+      } else {
+        this.dataService.collection(ns, {}, (err, result) => {
+          if (!err) {
+            this.setState(this._parseCollectionDetails(result));
+          }
+        });
+      }
+    }
   },
 
   /**
@@ -57,25 +95,36 @@ const CollectionStatsStore = Reflux.createStore({
    */
   getInitialState() {
     return {
-      status: 'enabled'
+      documentCount: INVALID,
+      totalDocumentSize: INVALID,
+      avgDocumentSize: INVALID,
+      indexCount: INVALID,
+      totalIndexSize: INVALID,
+      avgIndexSize: INVALID
     };
   },
 
-  /**
-   * handlers for each action defined in ../actions/index.jsx, for example:
-   */
-  toggleStatus() {
-    this.setState({
-      status: this.state.status === 'enabled' ? 'disabled' : 'enabled'
-    });
+  _parseCollectionDetails(result) {
+    return {
+      documentCount: this._format(result.document_count),
+      totalDocumentSize: this._format(result.document_size, 'b'),
+      avgDocumentSize: this._format(this._avg(result.document_size, result.document_count), 'b'),
+      indexCount: this._format(result.index_count),
+      totalIndexSize: this._format(result.index_size, 'b'),
+      avgIndexSize: this._format(this._avg(result.index_size, result.index_count), 'b')
+    };
   },
 
-  /**
-   * log changes to the store as debug messages.
-   * @param  {Object} prevState   previous state.
-   */
-  storeDidUpdate(prevState) {
-    debug('collection-stats store changed from', prevState, 'to', this.state);
+  _avg(size, count) {
+    if (count <= 0) {
+      return 0;
+    }
+    return size / count;
+  },
+
+  _format(value, format = 'a') {
+    const precision = value <= 1000 ? '0' : '0.0';
+    return numeral(value).format(precision + format);
   }
 });
 

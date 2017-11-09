@@ -1,6 +1,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import app from 'hadron-app';
+import Reflux from 'reflux';
 import AppRegistry from 'hadron-app-registry';
 import { AppContainer } from 'react-hot-loader';
 import CollectionStatsPlugin, { activate } from 'plugin';
@@ -11,19 +12,42 @@ import CollectionStatsPlugin, { activate } from 'plugin';
 import 'bootstrap/less/bootstrap.less';
 import 'less/index.less';
 
+const NS = 'ruby-driver.test';
+
 const appRegistry = new AppRegistry();
 
 global.hadronApp = app;
 global.hadronApp.appRegistry = appRegistry;
 
+const NamespaceStore = Reflux.createStore({
+  init() {
+    this.ns = NS;
+  }
+});
+
+const CollectionStore = Reflux.createStore({
+  isReadonly() {
+    return false;
+  }
+});
+
+const CrudActions = Reflux.createActions([
+  'documentRemoved'
+]);
+
+appRegistry.registerStore('App.NamespaceStore', NamespaceStore);
+appRegistry.registerStore('App.CollectionStore', CollectionStore);
+appRegistry.registerAction('CRUD.Actions', CrudActions);
+
 // Activate our plugin with the Hadron App Registry
 activate(appRegistry);
+appRegistry.onActivated();
 
 // Since we are using HtmlWebpackPlugin WITHOUT a template,
 // we should create our own root node in the body element before rendering into it.
 const root = document.createElement('div');
 root.id = 'root';
-document.body.appendChild( root );
+document.body.appendChild(root);
 
 // Create a HMR enabled render function
 const render = Component => {
@@ -35,8 +59,46 @@ const render = Component => {
   );
 };
 
-// Render our plugin
-render( CollectionStatsPlugin );
+// For initialization events to happen in isolation, uncomment the
+// following lines as needed in the same places they are commented out.
+//
+// // Application was initialized.
+// appRegistry.emit('application-initialized', '1.11.0-dev');
+
+// Render our plugin - don't remove the following line.
+render(CollectionStatsPlugin);
+
+// // Data service initialization and connection.
+import Connection from 'mongodb-connection-model';
+import DataService from 'mongodb-data-service';
+
+const connection = new Connection({
+  hostname: '127.0.0.1',
+  port: 27017,
+  ns: 'databaseName',
+  mongodb_database_name: 'admin'
+});
+const dataService = new DataService(connection);
+
+appRegistry.emit('data-service-initialized', dataService);
+dataService.connect((error, ds) => {
+  appRegistry.emit('data-service-connected', error, ds);
+  appRegistry.emit('collection-changed', NS);
+});
+
+// For automatic switching to specific namespaces, uncomment below as needed.
+// appRegistry.emit('database-changed', 'database');
+
+// For plugins based on query execution, comment out below:
+// const query = {
+//   filter: { name: 'testing' },
+//   project: { name: 1 },
+//   sort: { name: -1 },
+//   skip: 0,
+//   limit: 20,
+//   ns: 'database.collection'
+// }
+// appRegistry.emit('query-applied', query);
 
 if (module.hot) {
   /**
@@ -56,6 +118,6 @@ if (module.hot) {
   module.hot.accept('plugin', () => {
     // Because Webpack 2 has built-in support for ES2015 modules,
     // you won't need to re-require your app root in module.hot.accept
-    render( CollectionStatsPlugin );
+    render(CollectionStatsPlugin);
   });
 }

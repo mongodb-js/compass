@@ -5,20 +5,27 @@ describe('CollectionStatsStore [Store]', () => {
     Store.setState(Store.getInitialState());
   });
 
-  it('should have an initial state of {status: \'enabled\'}', () => {
-    expect(Store.state.status).to.be.equal('enabled');
+  it('defaults document count to invalid', () => {
+    expect(Store.state.documentCount).to.be.equal('N/A');
   });
 
-  describe('toggleStatus()', () => {
-    it('should switch the state to {status: \'disabled\'}', () => {
-      Store.toggleStatus();
-      expect(Store.state.status).to.be.equal('disabled');
-    });
+  it('defaults document count to invalid', () => {
+    expect(Store.state.totalDocumentSize).to.be.equal('N/A');
+  });
 
-    it('should switch the state back to {status: \'enabled\'} when used a second time', () => {
-      Store.toggleStatus();
-      Store.toggleStatus();
-      expect(Store.state.status).to.be.equal('enabled');
-    });
+  it('defaults document count to invalid', () => {
+    expect(Store.state.avgDocumentSize).to.be.equal('N/A');
+  });
+
+  it('defaults document count to invalid', () => {
+    expect(Store.state.indexCount).to.be.equal('N/A');
+  });
+
+  it('defaults document count to invalid', () => {
+    expect(Store.state.totalIndexSize).to.be.equal('N/A');
+  });
+
+  it('defaults document count to invalid', () => {
+    expect(Store.state.avgIndexSize).to.be.equal('N/A');
   });
 });

@@ -1,36 +1,41 @@
 @import "~less/compass/_theme.less";
 
-.component {
-  display: inline-block;
-}
+.collection-stats-item {
+  margin-right: 12px;
 
-.label,
-.value {
-  color: @gray4;
-
-  &-primary {
-    color: @gray0;
-    display: inline-block;
+  &-primary-label,
+  &-label {
+    text-transform: uppercase;
+    font-size: 10px;
+    font-weight: bold;
   }
-}
 
-.label {
-  text-transform: uppercase;
-  font-size: 10px;
-  font-weight: bold;
-  line-height: 12px;
+  &-primary-label,
+  &-primary-value {
+    color: @gray0;
+  }
 
-  &-primary {
+  &-primary-label {
+    display: inline-block;
     margin-right: 5px;
   }
-}
 
-.value {
-  font-size: 14px;
-
-  &-primary {
+  &-primary-value {
+    display: inline-block;
     font-size: 24px;
     line-height: 24px;
   }
-}
 
+  &-label,
+  &-value {
+    color: @gray4;
+  }
+
+  &-label {
+    line-height: 12px;
+  }
+
+  &-value {
+    font-size: 14px;
+  }
+}
