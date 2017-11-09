@@ -15,7 +15,7 @@ const CreateCollectionStore = require('./lib/stores/create-collection-store');
  */
 const DATABASE_TAB_ROLE = {
   component: ConnectedCollections,
-  name: 'COLLECTIONS',
+  name: 'Collections',
   order: 1
 };
 
