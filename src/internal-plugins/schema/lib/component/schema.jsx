@@ -14,8 +14,6 @@ const _ = require('lodash');
 
 const QUERYBAR_LAYOUT = ['filter', ['project', 'limit']];
 
-const INITIAL_WARNING = 'Please click "Analyze" to start schema analysis for the current query.';
-
 const OUTDATED_WARNING = 'The schema content is outdated and no longer in sync'
   + ' with the documents view. Press "Analyze" again to see the schema for the'
   + ' current query.';
@@ -25,7 +23,7 @@ const ERROR_WARNING = 'An error occurred during schema analysis';
 const HEADER = 'Explore your schema';
 
 const SUBTEXT = 'Quickly visualize your schema to understand the frequency, types and ranges of'
-  + 'fields in your data set.';
+  + ' fields in your data set.';
 
 const DOCUMENTATION_LINK = 'https://docs.mongodb.com/compass/master/schema/'
 
@@ -138,7 +136,7 @@ class Schema extends React.Component {
   /**
    * Renders the zero state during the initial state; renders the schema if not. 
    */
-  renderBody() {
+  renderContent() {
     if (this.props.samplingState === 'initial') {
       return (
         <ZeroState
@@ -189,7 +187,7 @@ class Schema extends React.Component {
           />
           {this.renderBanner()}
         </div>
-          {this.renderBody()}
+          {this.renderContent()}
         <Tooltip
           id={TOOLTIP_IDS.SCHEMA_PROBABILITY_PERCENT}
           className="opaque-tooltip"

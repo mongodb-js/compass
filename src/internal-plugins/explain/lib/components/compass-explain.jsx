@@ -1,7 +1,8 @@
 const React = require('react');
 const PropTypes = require('prop-types');
 const app = require('hadron-app');
-const { StatusRow, ViewSwitcher } = require('hadron-react-components');
+const { StatusRow, ViewSwitcher, ZeroState } = require('hadron-react-components');
+const { TextButton } = require('hadron-react-buttons');
 const ExplainBody = require('./explain-body');
 const _ = require('lodash');
 
@@ -13,6 +14,13 @@ const COLLECTION_SCAN_WARNING = 'To prevent unintended collection scans, please'
 const OUTDATED_WARNING = 'The explain content is outdated and no longer in sync'
   + ' with the documents view. Press "Explain" again to see the explain plan for'
   + ' the current query.';
+
+const HEADER = 'Evaluate the performance of your query';
+
+const SUBTEXT = 'Explain provides key execution metrics that help diagnose slow queries'
+  + ' and optimize index usage.';
+
+const DOCUMENTATION_LINK = 'https://docs.mongodb.com/compass/master/query-plan/'
 
 class CompassExplain extends React.Component {
 
@@ -45,14 +53,35 @@ class CompassExplain extends React.Component {
     let banner = null;
     if (this.CollectionStore.isReadonly()) {
       banner = <StatusRow style="warning">{READ_ONLY_WARNING}</StatusRow>;
-    } else if (this.props.explainState === 'initial') {
-      banner = <StatusRow style="warning">{COLLECTION_SCAN_WARNING}</StatusRow>;
     } else if (this.props.explainState === 'outdated') {
       banner = <StatusRow style="warning">{OUTDATED_WARNING}</StatusRow>;
     } else if (this.props.error) {
       banner = <StatusRow style="error">{this.props.error.message}</StatusRow>;
     }
     return banner;
+  }
+
+  renderZeroState() {
+    if (this.props.explainState === 'initial') {
+      return (
+        <ZeroState
+          header={HEADER}
+          subtext={SUBTEXT}
+        >
+          <TextButton 
+            className='btn btn-primary btn-lg'
+            text='Execute Explain'
+            clickHandler={this.onApplyClicked.bind(this)}
+          />
+          <a
+            className='btn btn-info btn-lg'
+            href={DOCUMENTATION_LINK}
+          >
+            Learn More
+          </a>
+        </ZeroState>
+      );
+    }
   }
 
   renderContent() {
@@ -110,6 +139,7 @@ class CompassExplain extends React.Component {
           </div>
           {this.renderBanner()}
         </div>
+        {this.renderZeroState()}
         {this.renderContent()}
       </div>
     );
