@@ -143,7 +143,7 @@ var StitchTracker = State.extend({
       this._usersCollectionName,
       function(err, collection) {
         if (err) {
-          return console.error(err);
+          return debug('error sending identify to stitch: %s', err.message);
         }
         updateObj.stitch_user_id = this._client.authedId();
         debug('sending identify', redact(updateObj));
@@ -208,7 +208,7 @@ var StitchTracker = State.extend({
       this._eventsCollectionName,
       function(err, collection) {
         if (err) {
-          return console.error(err);
+          return debug('error sending event to stitch: %s', err.message);
         }
         payload.stitch_user_id = this._client.authedId();
         debug('sending event `%s`', eventName, payload);
