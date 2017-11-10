@@ -49,7 +49,7 @@ class RecentListItem extends PureComponent {
           <button
             title="Favorite Query"
             data-test-id="query-history-button-fav"
-            className={classnames('btn', 'btn-sm', 'btn-default', styles.button)}
+            className={classnames('btn', 'btn-xs', 'btn-default', styles.button)}
             onClick={this.saveRecent}>
             <FontAwesome name="star-o"/>
           </button>
@@ -57,7 +57,7 @@ class RecentListItem extends PureComponent {
           <button
             title="Copy Query to Clipboard"
             data-test-id="query-history-button-copy-query"
-            className={classnames('btn', 'btn-sm', 'btn-default', styles.button, styles['button-copy'])}
+            className={classnames('btn', 'btn-xs', 'btn-default', styles.button, styles['button-copy'])}
             onClick={this.copyQuery}>
             <FontAwesome name="clipboard"/>
           </button>
@@ -65,7 +65,7 @@ class RecentListItem extends PureComponent {
           <button
             title= "Delete Query from Recent List"
             data-test-id="query-history-button-delete-recent"
-            className={classnames('btn', 'btn-sm', 'btn-default', styles.button)}
+            className={classnames('btn', 'btn-xs', 'btn-default', styles.button)}
             onClick={this.deleteRecent}>
             <FontAwesome name="trash"/>
           </button>

@@ -44,7 +44,7 @@ class FavoriteListItem extends PureComponent {
           <button
             title="Copy Query to Clipboard"
             data-test-id="query-history-button-copy-query"
-            className={classnames('btn', 'btn-sm', 'btn-default', styles.button, styles['button-copy'])}
+            className={classnames('btn', 'btn-xs', 'btn-default', styles.button, styles['button-copy'])}
             onClick={this.copyQuery}>
             <FontAwesome name="clipboard"/>
           </button>
@@ -52,7 +52,7 @@ class FavoriteListItem extends PureComponent {
           <button
             title="Delete Query from Favorites List"
             data-test-id="query-history-button-delete-fav"
-            className={classnames('btn', 'btn-sm', 'btn-default', styles.button)}
+            className={classnames('btn', 'btn-xs', 'btn-default', styles.button)}
             onClick={this.deleteFavorite}>
             <FontAwesome name="trash"/>
           </button>
