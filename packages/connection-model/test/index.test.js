@@ -295,6 +295,39 @@ describe('mongodb-connection-model', function() {
           assert.equal(c.driver_url, 'mongodb://localhost:27017/?readPreference=secondary');
         });
       });
+
+      context('when a non-dependent attribute has changed', function() {
+        var c = new Connection({ authentication: 'LDAP' });
+        beforeEach(function() {
+          c.ldap_username = 'ldap-user';
+          c.ldap_password = 'ldap-password';
+        });
+
+        it('includes the attribute in the url', function() {
+          assert.equal(
+            c.driver_url,
+            'mongodb://ldap-user:ldap-password@localhost:27017/?readPreference=primary&authMechanism=PLAIN'
+          );
+        });
+      });
+
+      context('when using a ssh tunnel', function() {
+        var c = new Connection();
+        context('when bind to local port does not exist', function() {
+          beforeEach(function() {
+            c.ssh_tunnel = 'USER_PASSWORD';
+            c.ssh_tunnel_hostname = '123.45.67.89';
+            c.ssh_tunnel_port = '22';
+            c.ssh_tunnel_username = 'user';
+            c.ssh_tunnel_password = 'pass';
+          });
+
+          it('generates the local port', function() {
+            assert.notEqual(c.driver_url, '');
+            assert.notEqual(undefined, c.ssh_tunnel_bind_to_local_port);
+          });
+        });
+      });
     });
 
     describe('enterprise', function() {

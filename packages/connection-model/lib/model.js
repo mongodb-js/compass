@@ -601,24 +601,7 @@ _.assign(derived, {
    * @return {String}
    */
   driver_url: {
-    deps: [
-      'hostname',
-      'port',
-      'ssl',
-      'ssh_tunnel',
-      'ssh_tunnel_hostname',
-      'ssh_tunnel_port',
-      'app_name',
-      'kerberos_principal',
-      'kerberos_password',
-      'kerberos_service_name',
-      'mongodb_username',
-      'mongodb_password',
-      'mongodb_database_name',
-      'replica_set_name',
-      'x509_username',
-      'driver_auth_mechanism'
-    ],
+    cache: false,
     /* eslint complexity: 0 */
     fn: function() {
       const AUTH_TOKEN = 'AUTH_TOKEN';
@@ -714,15 +697,7 @@ _.assign(derived, {
    * @return {Object}
    */
   driver_options: {
-    deps: [
-      'ssl',
-      'ssl_ca',
-      'ssl_certificate',
-      'ssl_private_key',
-      'ssl_private_key_password',
-      'extra_options',
-      'promote_values'
-    ],
+    cache: false,
     fn: function() {
       var opts = _.clone(DRIVER_OPTIONS_DEFAULT, true);
       if (this.ssl === 'SERVER') {
@@ -791,19 +766,13 @@ _.assign(derived, {
    * downwards to http://npm.im/ssh2
    */
   ssh_tunnel_options: {
-    deps: [
-      'ssh_tunnel',
-      'ssh_tunnel_hostname',
-      'ssh_tunnel_port',
-      'ssh_tunnel_bind_to_local_port',
-      'ssh_tunnel_username',
-      'ssh_tunnel_password',
-      'ssh_tunnel_identity_file',
-      'ssh_tunnel_passphrase'
-    ],
+    cache: false,
     fn: function() {
       if (this.ssh_tunnel === 'NONE') {
         return {};
+      }
+      if (!this.ssh_tunnel_bind_to_local_port) {
+        this.ssh_tunnel_bind_to_local_port = localPortGenerator();
       }
       var opts = {
         readyTimeout: 5000,
