@@ -3,7 +3,8 @@ const app = require('hadron-app');
 const React = require('react');
 const ReactTooltip = require('react-tooltip');
 const PropTypes = require('prop-types');
-const { StatusRow, Tooltip } = require('hadron-react-components');
+const { StatusRow, Tooltip, ZeroState } = require('hadron-react-components');
+const { TextButton } = require('hadron-react-buttons');
 const Field = require('./field');
 const StatusSubview = require('../component/status-subview');
 const { TOOLTIP_IDS } = require('../constants');
@@ -20,6 +21,13 @@ const OUTDATED_WARNING = 'The schema content is outdated and no longer in sync'
   + ' current query.';
 
 const ERROR_WARNING = 'An error occurred during schema analysis';
+
+const HEADER = 'Explore your schema';
+
+const SUBTEXT = 'Quickly visualize your schema to understand the frequency, types and ranges of'
+  + 'fields in your data set.';
+
+const DOCUMENTATION_LINK = 'https://docs.mongodb.com/compass/master/schema/'
 
 /**
  * Component for the entire schema view component.
@@ -103,9 +111,7 @@ class Schema extends React.Component {
 
   renderBanner() {
     let banner;
-    if (this.props.samplingState === 'initial') {
-      banner = <StatusRow style="warning">{INITIAL_WARNING}</StatusRow>;
-    } else if (this.props.samplingState === 'outdated') {
+    if (this.props.samplingState === 'outdated') {
       banner = <StatusRow style="warning">{OUTDATED_WARNING}</StatusRow>;
     } else if (this.props.samplingState === 'error') {
       banner = <StatusRow style="error">{ERROR_WARNING}: {this.props.errorMessage}</StatusRow>;
@@ -130,6 +136,41 @@ class Schema extends React.Component {
   }
 
   /**
+   * Renders the zero state during the initial state; renders the schema if not. 
+   */
+  renderBody() {
+    if (this.props.samplingState === 'initial') {
+      return (
+        <ZeroState
+          header={HEADER}
+          subtext={SUBTEXT}
+        >
+          <TextButton 
+            className='btn btn-primary btn-lg'
+            text='Analyze Schema'
+            clickHandler={this.onApplyClicked.bind(this)}
+          />
+          <a
+            className='btn btn-info btn-lg'
+            href={DOCUMENTATION_LINK}
+          >
+            Learn More
+          </a>
+        </ZeroState>
+      );
+    }
+    return (
+      <div className="column-container">
+        <div className="column main">
+          <div className="schema-field-list">
+            {this.renderFieldList()}
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  /**
    * Render the schema
    *
    * @returns {React.Component} The schema view.
@@ -148,13 +189,7 @@ class Schema extends React.Component {
           />
           {this.renderBanner()}
         </div>
-        <div className="column-container">
-          <div className="column main">
-            <div className="schema-field-list">
-              {this.renderFieldList()}
-            </div>
-          </div>
-        </div>
+          {this.renderBody()}
         <Tooltip
           id={TOOLTIP_IDS.SCHEMA_PROBABILITY_PERCENT}
           className="opaque-tooltip"
