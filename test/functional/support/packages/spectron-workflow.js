@@ -28,7 +28,7 @@ function addWorkflowCommands(client) {
       .clickConnectButton()
       .waitForStatusBar()
       .waitForHomeView()
-      .getDatabasesTabText().should.eventually.equal('DATABASES');
+      .getDatabasesTabText().should.eventually.equal('Databases');
   });
 
   /**

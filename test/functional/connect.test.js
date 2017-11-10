@@ -26,7 +26,7 @@ describe('#connect', function() {
           .clickConnectButton()
           .waitForStatusBar()
           .waitForHomeView()
-          .getDatabasesTabText().should.eventually.equal('DATABASES');
+          .getDatabasesTabText().should.eventually.equal('Databases');
       });
 
       it('displays the instance details', function() {
