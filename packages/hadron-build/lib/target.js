@@ -554,7 +554,8 @@ class Target {
         requires: [
           'lsb-core-noarch',
           'libXScrnSaver',
-          'libsecret'
+          'libsecret',
+          'libGConf2_4'
         ],
         categories: rhelCategories,
         license: license
