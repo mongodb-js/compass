@@ -132,7 +132,8 @@ var createWindow = module.exports.create = function(opts) {
     'min-width': opts.minwidth,
     'web-preferences': {
       'subpixel-font-scaling': true,
-      'direct-write': true
+      'direct-write': true,
+      'nodeIntegration': false
     }
   });
 
