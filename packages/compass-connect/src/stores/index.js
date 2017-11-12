@@ -46,7 +46,8 @@ const SSH_TUNNEL_FIELDS = [
   'ssh_tunnel_username',
   'ssh_tunnel_password',
   'ssh_tunnel_identity_file',
-  'ssh_tunnel_passphrase'
+  'ssh_tunnel_passphrase',
+  'replica_set_name'
 ];
 
 /**

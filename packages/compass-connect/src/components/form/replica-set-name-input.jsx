@@ -10,13 +10,17 @@ class ReplicaSetNameInput extends React.Component {
   }
 
   render() {
-    return (
-      <FormInput
-        label="Replica Set Name"
-        name="replica_set_name"
-        changeHandler={this.onReplicaSetNameChanged.bind(this)}
-        value={this.props.currentConnection.replica_set_name || ''} />
-    );
+    const sshTunnel = this.props.currentConnection.ssh_tunnel;
+    if (sshTunnel === 'NONE' || !sshTunnel) {
+      return (
+        <FormInput
+          label="Replica Set Name"
+          name="replica_set_name"
+          changeHandler={this.onReplicaSetNameChanged.bind(this)}
+          value={this.props.currentConnection.replica_set_name || ''} />
+      );
+    }
+    return null;
   }
 }
 
