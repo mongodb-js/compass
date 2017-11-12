@@ -1,4 +1,4 @@
-# security [![][travis_img]][travis_url]
+# Compass Security [![][travis_img]][travis_url]
 
 > Compass Security Plugin
 
@@ -8,5 +8,5 @@
 
 Apache 2.0
 
-[travis_img]: https://travis-ci.com/10gen/10gen/compass-security.svg?style=flat-square
-[travis_url]: https://travis-ci.com/10gen/compass-security
+[travis_img]: https://travis-ci.com/mongodb-js/compass-security.svg?token=ezEB2TnpPiu7XLo6ByZp&branch=master
+[travis_url]: https://travis-ci.com/mongodb-js/compass-security
