@@ -71,7 +71,7 @@ module.exports = [
     store: 'CollectionStats.Store',
     resource: 'Collection Stats',
     action: 'fetched',
-    condition: () => true,
+    condition: (state) => (state !== undefined),
     metadata: (state) => ({
       'document count': state.documentCount,
       'total document size kb': state.totalDocumentSize,
