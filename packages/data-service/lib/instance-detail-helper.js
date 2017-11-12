@@ -2,9 +2,18 @@ const async = require('async');
 const isNotAuthorized = require('mongodb-js-errors').isNotAuthorized;
 const toNS = require('mongodb-ns');
 const security = require('mongodb-security');
-const _ = require('lodash');
 const ReadPreference = require('mongodb').ReadPreference;
 const URL = require('mongodb-url');
+const union = require('lodash.union');
+const map = require('lodash.map');
+const partial = require('lodash.partial');
+const has = require('lodash.has');
+const get = require('lodash.get');
+const uniq = require('lodash.uniq');
+const flatten = require('lodash.flatten');
+const groupBy = require('lodash.groupby');
+const forEach = require('lodash.foreach');
+const omit = require('lodash.omit');
 
 const debug = require('debug')('mongodb-data-service:instance-detail-helper');
 
@@ -274,10 +283,10 @@ function getDatabases(results, done) {
   const db = results.db;
 
   // merge and de-dupe databases
-  const dbnames = _.union(results.listDatabases, results.allowedDatabases);
+  const dbnames = union(results.listDatabases, results.allowedDatabases);
 
-  async.parallel(_.map(dbnames, function(name) {
-    const result = _.partial(getDatabase, db, name);
+  async.parallel(map(dbnames, function(name) {
+    const result = partial(getDatabase, db, name);
     return result;
   }), done);
 }
@@ -292,7 +301,7 @@ function getUserInfo(results, done) {
     if (err) {
       return done(err);
     }
-    if (!_.has(res, 'authInfo.authenticatedUsers') || !res.authInfo.authenticatedUsers[0]) {
+    if (!has(res, 'authInfo.authenticatedUsers') || !res.authInfo.authenticatedUsers[0]) {
       debug('no logged in user, returning empty document');
       return done(null, {});
     }
@@ -327,7 +336,7 @@ function parseCollection(resp) {
     _id: ns.toString(),
     name: ns.collection,
     database: ns.database,
-    readonly: _.get(resp, 'info.readOnly', false)
+    readonly: get(resp, 'info.readOnly', false)
   };
 }
 
@@ -344,7 +353,7 @@ function getAllowedCollections(results, done) {
       };
     });
 
-  collections = _.map(collections, parseCollection);
+  collections = map(collections, parseCollection);
   debug('allowed collections', collections);
   done(null, collections);
 }
@@ -376,7 +385,7 @@ function getDatabaseCollections(db, done) {
       err.command = 'listCollections';
       return done(err);
     }
-    done(null, _.map(res, function(d) {
+    done(null, map(res, function(d) {
       d.db = db.databaseName;
       return parseCollection(d);
     }));
@@ -390,7 +399,7 @@ function getCollections(results, done) {
   let collections = [].concat.apply(
     results.listCollections, results.allowedCollections);
   // de-dupe based on _id
-  collections = _.uniq(collections, '_id');
+  collections = uniq(collections, '_id');
 
   // @todo filter the ones that we can "count on"
   // async.filter(collections, function(collection, callback) {
@@ -411,7 +420,7 @@ function listCollections(results, done) {
   const databases = results.databases;
 
   // merge and de-dupe databases
-  const tasks = _.map(databases, function(_db) {
+  const tasks = map(databases, function(_db) {
     return getDatabaseCollections.bind(null, db.db(_db.name));
   });
 
@@ -420,16 +429,16 @@ function listCollections(results, done) {
       debug('listCollections failed', err);
       return done(err);
     }
-    done(null, _.flatten(res));
+    done(null, flatten(res));
   });
 }
 
 function getHierarchy(results, done) {
   const databases = results.databases;
-  const collections = _.groupBy(results.collections, function(collection) {
+  const collections = groupBy(results.collections, function(collection) {
     return collection.database;
   });
-  _.each(databases, function(db) {
+  forEach(databases, function(db) {
     db.collections = collections[db.name] || [];
   });
   done();
@@ -474,7 +483,7 @@ function getInstanceDetail(db, done) {
       return done(err);
     }
     // cleanup
-    results = _.omit(results, ['db', 'listDatabases', 'allowedDatabases',
+    results = omit(results, ['db', 'listDatabases', 'allowedDatabases',
       'userInfo', 'listCollections', 'allowedCollections']);
     return done(null, results);
   });
@@ -489,14 +498,14 @@ function getInstance(db, done) {
     let port;
     let hostname;
 
-    if (_.has(db, 's.options.url')) {
+    if (has(db, 's.options.url')) {
       debug('parsing port and hostname from driver url option `%s`',
         db.s.options.url);
       port = URL.port(db.s.options.url);
       hostname = URL.hostname(db.s.options.url);
     }
 
-    if (_.has(res, 'host.hostname')) {
+    if (has(res, 'host.hostname')) {
       /**
        * Use the hostname from getBuildInfo() as authoritative.
        *

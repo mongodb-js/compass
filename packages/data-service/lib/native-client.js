@@ -1,6 +1,10 @@
 'use strict';
 
-const _ = require('lodash');
+const fil = require('lodash.filter');
+const map = require('lodash.map');
+const isFunction = require('lodash.isfunction');
+const assignIn = require('lodash.assignin');
+const assign = require('lodash.assign');
 const async = require('async');
 const EventEmitter = require('events');
 const connect = require('mongodb-connection-model').connect;
@@ -199,10 +203,10 @@ class NativeClient extends EventEmitter {
         return callback(this._translateMessage(error));
       }
       // Filter out system. collections.
-      const filteredNames = _.filter(names, (name) => {
+      const filteredNames = fil(names, (name) => {
         return !name.startsWith(SYSTEM);
       });
-      async.parallel(_.map(filteredNames, (name) => {
+      async.parallel(map(filteredNames, (name) => {
         return (done) => {
           this.collectionStats(databaseName, name, done);
         };
@@ -221,7 +225,7 @@ class NativeClient extends EventEmitter {
       if (error) {
         return callback(this._translateMessage(error));
       }
-      var names = _.map(collections, (collection) => {
+      var names = map(collections, (collection) => {
         return collection.name;
       });
       callback(null, names);
@@ -465,7 +469,7 @@ class NativeClient extends EventEmitter {
    */
   aggregate(ns, pipeline, options, callback) {
     // async when a callback is provided
-    if (_.isFunction(callback)) {
+    if (isFunction(callback)) {
       this._collection(ns).aggregate(pipeline, options, (error, result) => {
         if (error) {
           return callback(this._translateMessage(error));
@@ -621,7 +625,7 @@ class NativeClient extends EventEmitter {
       if (!data.sharded) {
         callback(null, data);
       } else {
-        async.parallel(_.map(data.shards, (shardStats, shardName) => {
+        async.parallel(map(data.shards, (shardStats, shardName) => {
           return this._shardDistribution.bind(this, ns, shardName, data, shardStats);
         }), (err) => {
           if (err) {
@@ -644,7 +648,7 @@ class NativeClient extends EventEmitter {
     var collectionName = this._collectionName(ns);
     var db = this._database(this._databaseName(ns));
     var collMod = { 'collMod': collectionName };
-    var command = _.assignIn(collMod, flags);
+    var command = assignIn(collMod, flags);
     db.command(command, (error, result) => {
       if (error) {
         return callback(this._translateMessage(error));
@@ -708,7 +712,7 @@ class NativeClient extends EventEmitter {
         if (err) {
           return callback(this._translateMessage(err));
         }
-        _.assign(shardStats, this._buildShardDistribution(detail, shardStats, shardDoc, chunkCount));
+        assign(shardStats, this._buildShardDistribution(detail, shardStats, shardDoc, chunkCount));
         callback(null);
       });
     });
@@ -723,7 +727,7 @@ class NativeClient extends EventEmitter {
    * @returns {Object} The collection detail.
    */
   _buildCollectionDetail(ns, data) {
-    return _.assignIn(data.stats, {
+    return assignIn(data.stats, {
       _id: ns,
       name: this._collectionName(ns),
       database: this._databaseName(ns),
@@ -834,7 +838,7 @@ class NativeClient extends EventEmitter {
    * @returns {Object} The instance detail.
    */
   _buildInstance(data) {
-    return _.assignIn(data, {
+    return assignIn(data, {
       _id: `${this.model.hostname}:${this.model.port}`,
       hostname: this.model.hostname,
       port: this.model.port
