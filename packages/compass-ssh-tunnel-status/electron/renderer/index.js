@@ -58,8 +58,8 @@ const connection = new Connection({
 const dataService = new DataService(connection);
 
 appRegistry.emit('data-service-initialized', dataService);
-dataService.connect((error, dataService) => {
-  appRegistry.emit('data-service-connected', error, dataService);
+dataService.connect((error, ds) => {
+  appRegistry.emit('data-service-connected', error, ds);
 });
 
 // For automatic switching to specific namespaces, uncomment below as needed.

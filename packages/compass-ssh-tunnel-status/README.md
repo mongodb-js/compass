@@ -7,4 +7,4 @@
 Apache 2.0
 
 [travis_img]: https://travis-ci.org/mongodb-js/compass-ssh-tunnel-status.svg?branch=master
-[travis_url]: https://travis-ci.com/mongodb-js/compass-ssh-tunnel-status
+[travis_url]: https://travis-ci.org/mongodb-js/compass-ssh-tunnel-status
