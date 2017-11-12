@@ -59,7 +59,6 @@ describe('QueryBarStore [Store]', function() {
       lastExecutedQuery: null,
       userTyping: false,
       autoPopulated: false,
-      featureFlag: false,
       expanded: false,
       ns: '',
       schemaFields: null
@@ -191,25 +190,6 @@ describe('QueryBarStore [Store]', function() {
       });
 
       QueryBarStore.setQuery(query);
-    });
-  });
-
-  describe('_validateFeatureFlag', function() {
-    it('accepts a valid feature flag', function() {
-      QueryBarStore.validFeatureFlags = [
-        'rocketLauncher',
-        'laserWeapon',
-        'turboBoost'
-      ];
-
-      const res = QueryBarStore._validateFeatureFlag('enable rocketLauncher');
-      expect(res[1]).to.equal('enable');
-      expect(res[2]).to.equal('rocketLauncher');
-    });
-
-    it('rejects an invalid feature flag', function() {
-      const res = QueryBarStore._validateFeatureFlag('enable foo');
-      expect(res).to.equal(false);
     });
   });
 

@@ -2,7 +2,6 @@ import ms from 'ms';
 
 const USER_TYPING_DEBOUNCE_MS = 100;
 
-const FEATURE_FLAG_REGEX = /^(enable|disable) (\w+)\s*$/;
 const RESET_STATE = 'reset';
 const APPLY_STATE = 'apply';
 
@@ -19,7 +18,6 @@ const DEFAULT_STATE = RESET_STATE;
 
 export {
   USER_TYPING_DEBOUNCE_MS,
-  FEATURE_FLAG_REGEX,
   RESET_STATE,
   APPLY_STATE,
   DEFAULT_FILTER,

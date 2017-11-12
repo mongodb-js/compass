@@ -35,7 +35,6 @@ import { bsonEqual, hasDistinctValue } from 'utils';
 import QUERY_PROPERTIES from 'constants/query-properties';
 import {
   USER_TYPING_DEBOUNCE_MS,
-  FEATURE_FLAG_REGEX,
   APPLY_STATE,
   DEFAULT_FILTER,
   DEFAULT_PROJECT,
@@ -56,17 +55,6 @@ const debug = require('debug')('mongodb-compass:stores:query-bar');
 const QueryBarStore = Reflux.createStore({
   mixins: [StateMixin.store],
   listenables: QueryBarActions,
-
-  init: function() {
-    // store valid feature flags to recognise in the filter box
-    if (get(app.preferences, 'serialize')) {
-      this.validFeatureFlags = keys(
-        pick(app.preferences.serialize(), isBoolean)
-      );
-    } else {
-      this.validFeatureFlags = [];
-    }
-  },
 
   onActivated(appRegistry) {
     this.QueryHistoryActions = appRegistry.getAction('QueryHistory.Actions');
@@ -143,9 +131,6 @@ const QueryBarStore = Reflux.createStore({
       // if the value was populated from a click in the schema view or
       // query history view.
       autoPopulated: false,
-
-      // was a feature flag recognised in the input
-      featureFlag: false,
 
       // is the query bar component expanded or collapsed?
       expanded: false,
@@ -236,10 +221,8 @@ const QueryBarStore = Reflux.createStore({
   setQueryString(label, input, userTyping) {
     assert(includes(QUERY_PROPERTIES, label));
     const validatedInput = this._validateInput(label, input);
-    const isFeatureFlag = Boolean(this._validateFeatureFlag(input));
 
     const state = {
-      featureFlag: isFeatureFlag,
       userTyping: Boolean(userTyping)
     };
     state[`${label}String`] = input;
@@ -327,7 +310,6 @@ const QueryBarStore = Reflux.createStore({
     if (has(query, 'sample')) {
       this.toggleSample(query.sample);
     }
-    state.featureFlag = false;
     state.autoPopulated = autoPopulated;
     state.valid = valid;
     this.setState(state);
@@ -379,37 +361,6 @@ const QueryBarStore = Reflux.createStore({
       queryParser.isSkipValid(this.state.skipString) !== false &&
       queryParser.isLimitValid(this.state.limitString) !== false
     );
-  },
-
-  /**
-   * validates if the input is a feature flag directive.
-   *
-   * @param {String} input   The input to validate.
-   *
-   * @return {Boolean|MatchGroup}  the regex match or false if invalid.
-   */
-  _validateFeatureFlag(input) {
-    const match = input.match(FEATURE_FLAG_REGEX);
-    if (match && contains(this.validFeatureFlags, match[2])) {
-      return match;
-    }
-    return false;
-  },
-
-  /**
-   * check if the filter input is really a feature flag directive, for example
-   * `enable serverStats`. If so, set the feature flag accordingly.
-   *
-   * @return {Boolean}   if it was a feature flag or not.
-   */
-  _checkFeatureFlagDirective() {
-    const match = this._validateFeatureFlag(this.state.filterString);
-    if (match) {
-      app.preferences.save(match[2], match[1] === 'enable');
-      debug('feature flag %s %sd', match[2], match[1]);
-      return true;
-    }
-    return false;
   },
 
   /**
@@ -649,14 +600,6 @@ const QueryBarStore = Reflux.createStore({
    * apply the current (valid) query, and store it in `lastExecutedQuery`.
    */
   apply() {
-    // if it's a feature flag directive, then we can just reset the query
-    // to whatever was last executed.
-    if (this._checkFeatureFlagDirective()) {
-      this.setQuery(this.state.lastExecutedQuery);
-      return;
-    }
-    // otherwise, if the query validates ok, modify lastExecutedQuery (which
-    // triggers the QueryChangedStore) and set the "apply" state.
     if (this._validateQuery()) {
       const registry = app.appRegistry;
       if (registry) {
