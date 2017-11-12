@@ -637,24 +637,14 @@ _.assign(derived, {
             gssapiServiceName: this.kerberos_service_name,
             authMechanism: this.driver_auth_mechanism
           });
-
-          if (this.kerberos_password) {
-            req.auth = format('%s:%s',
-              encodeURIComponent(this.kerberos_principal),
-              this.kerberos_password);
-          } else {
-            req.auth = format('%s:',
-              encodeURIComponent(this.kerberos_principal));
-          }
+          req.auth = AUTH_TOKEN;
         } else if (this.authentication === 'X509') {
           req.auth = this.x509_username;
           _.defaults(req.query, {
             authMechanism: this.driver_auth_mechanism
           });
         } else if (this.authentication === 'LDAP') {
-          req.auth = format('%s:%s',
-            this.ldap_username,
-            this.ldap_password);
+          req.auth = AUTH_TOKEN;
 
           _.defaults(req.query, {
             authMechanism: this.driver_auth_mechanism
@@ -679,13 +669,39 @@ _.assign(derived, {
       // Post url.format() workaround for
       // https://github.com/nodejs/node/issues/1802
       if (this.authentication === 'MONGODB') {
-        var newAuth = format('%s:%s',
+        const authField = format(
+          '%s:%s',
           encodeURIComponent(this.mongodb_username),
-          encodeURIComponent(this.mongodb_password));
+          encodeURIComponent(this.mongodb_password)
+        );
 
         // The auth component comes straight after the mongodb:// so
         // a single string replace should always work
-        result = result.replace(AUTH_TOKEN, newAuth, 1);
+        result = result.replace(AUTH_TOKEN, authField, 1);
+      }
+      if (this.authentication === 'LDAP') {
+        const authField = format(
+          '%s:%s',
+          encodeURIComponent(this.ldap_username),
+          encodeURIComponent(this.ldap_password)
+        );
+        result = result.replace(AUTH_TOKEN, authField, 1);
+      }
+      if (this.authentication === 'KERBEROS') {
+        if (this.kerberos_password) {
+          const authField = format(
+            '%s:%s',
+            encodeURIComponent(this.kerberos_principal),
+            encodeURIComponent(this.kerberos_password)
+          );
+          result = result.replace(AUTH_TOKEN, authField, 1);
+        } else {
+          const authField = format(
+            '%s:',
+            encodeURIComponent(this.kerberos_principal)
+          );
+          result = result.replace(AUTH_TOKEN, authField, 1);
+        }
       }
       return result;
     }

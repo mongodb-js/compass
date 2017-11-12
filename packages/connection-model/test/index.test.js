@@ -138,35 +138,105 @@ describe('mongodb-connection-model', function() {
       });
 
       describe('with special characters e.g. colon', () => {
-        let username;
-        let password;
-        let connection;
-        let authExpect;
+        context('when using mongodb auth', () => {
+          let username;
+          let password;
+          let connection;
+          let authExpect;
 
-        before(() => {
-          username = 'user@-azMPk]&3Wt)iP_9C:PMQ=';
-          password = 'user@-azMPk]&3Wt)iP_9C:PMQ=';
-          connection = new Connection({
-            mongodb_username: username,
-            mongodb_password: password
+          before(() => {
+            username = 'user@-azMPk]&3Wt)iP_9C:PMQ=';
+            password = 'user@-azMPk]&3Wt)iP_9C:PMQ=';
+            connection = new Connection({
+              mongodb_username: username,
+              mongodb_password: password
+            });
+            authExpect = `${encodeURIComponent(username)}:${encodeURIComponent(password)}`;
           });
-          authExpect = `${encodeURIComponent(username)}:${encodeURIComponent(password)}`;
-        });
 
-        it('should urlencode credentials', () => {
-          assert.equal(connection.driver_url,
-            `mongodb://${authExpect}@localhost:27017/?readPreference=primary&authSource=admin`);
-        });
+          it('should urlencode credentials', () => {
+            assert.equal(connection.driver_url,
+              `mongodb://${authExpect}@localhost:27017/?readPreference=primary&authSource=admin`);
+          });
 
-        it('should be parse in the browser', () => {
-          assert.doesNotThrow(() => {
-            parse(connection.driver_url);
+          it('should be parse in the browser', () => {
+            assert.doesNotThrow(() => {
+              parse(connection.driver_url);
+            });
+          });
+
+          it('should parse on the server', () => {
+            assert.doesNotThrow(() => {
+              driverParse(connection.driver_url);
+            });
           });
         });
 
-        it('should parse on the server', () => {
-          assert.doesNotThrow(() => {
-            driverParse(connection.driver_url);
+        context('when using ldap auth', () => {
+          let username;
+          let password;
+          let connection;
+          let authExpect;
+
+          before(() => {
+            username = 'user@-azMPk]&3Wt)iP_9C:PMQ=';
+            password = 'user@-azMPk]&3Wt)iP_9C:PMQ=';
+            connection = new Connection({
+              ldap_username: username,
+              ldap_password: password
+            });
+            authExpect = `${encodeURIComponent(username)}:${encodeURIComponent(password)}`;
+          });
+
+          it('should urlencode credentials', () => {
+            assert.equal(connection.driver_url,
+              `mongodb://${authExpect}@localhost:27017/?readPreference=primary&authMechanism=PLAIN`);
+          });
+
+          it('should be parse in the browser', () => {
+            assert.doesNotThrow(() => {
+              parse(connection.driver_url);
+            });
+          });
+
+          it('should parse on the server', () => {
+            assert.doesNotThrow(() => {
+              driverParse(connection.driver_url);
+            });
+          });
+        });
+
+        context('when using kerberos auth', () => {
+          let username;
+          let password;
+          let connection;
+          let authExpect;
+
+          before(() => {
+            username = 'user@-azMPk]&3Wt)iP_9C:PMQ=';
+            password = 'user@-azMPk]&3Wt)iP_9C:PMQ=';
+            connection = new Connection({
+              kerberos_principal: username,
+              kerberos_password: password
+            });
+            authExpect = `${encodeURIComponent(username)}:${encodeURIComponent(password)}`;
+          });
+
+          it('should urlencode credentials', () => {
+            assert.equal(connection.driver_url,
+              `mongodb://${authExpect}@localhost:27017/?readPreference=primary&gssapiServiceName=mongodb&authMechanism=GSSAPI`);
+          });
+
+          it('should be parse in the browser', () => {
+            assert.doesNotThrow(() => {
+              parse(connection.driver_url);
+            });
+          });
+
+          it('should parse on the server', () => {
+            assert.doesNotThrow(() => {
+              driverParse(connection.driver_url);
+            });
           });
         });
       });
@@ -476,7 +546,9 @@ describe('mongodb-connection-model', function() {
             });
 
             it('should urlencode the principal', function() {
-              var expectedPrefix = 'mongodb://arlo%252Fdog%2540krb5.mongodb.parts:w%40%40f@localhost:27017';
+              var user = encodeURIComponent(c.kerberos_principal);
+              var pass = encodeURIComponent(c.kerberos_password);
+              var expectedPrefix = `mongodb://${user}:${pass}@localhost:27017`;
               assert.equal(c.driver_url.indexOf(expectedPrefix), 0);
             });
 
@@ -520,7 +592,8 @@ describe('mongodb-connection-model', function() {
             var c = new Connection({
               kerberos_principal: 'lucas@kerb.mongodb.parts'
             });
-            var expectedPrefix = 'mongodb://lucas%2540kerb.mongodb.parts:@localhost:27017';
+            var user = encodeURIComponent(c.kerberos_principal);
+            var expectedPrefix = `mongodb://${user}:@localhost:27017`;
             assert.equal(c.driver_url.indexOf(expectedPrefix), 0);
           });
         });
