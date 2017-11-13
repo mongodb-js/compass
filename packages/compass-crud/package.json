@@ -89,6 +89,7 @@
     "jquery": "^2.1.4",
     "lodash": "^4.17.4",
     "marky": "^1.2.0",
-    "react-click-outside": "^2.2.0"
+    "react-click-outside": "^2.2.0",
+    "react-tooltip": "^3.2.6"
   }
 }

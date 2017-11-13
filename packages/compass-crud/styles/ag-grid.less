@@ -1,18 +1,30 @@
-.column-container {
-	background: #F5F6F7;
+.compass-documents {
+	.column {
+		&-container {
+			position: relative;
+		}
+		&.main {
+			position: absolute;
+		    top: 0;
+		    left: 0;
+		    right: 0;
+		    bottom: 0;
+			margin-bottom: 0;
+			padding: 0;
+		}
+	}
 }
 .ag {
 	&-parent {
-		padding: 15px 0;
-		font-family: Menlo;
-		font-size: 11px;
-		height: 100vh;
+	    font-family: Menlo;
+	    font-size: 11px;
+	    height: 100%;
+	    padding: 15px 15px 40px 15px;
 	}
 	&-bl-full-height {
 		background-color: #FAFAFA;
 		box-shadow: 0 0px 6px 0 rgba(0, 0, 0, 0.15);
 		border-radius: 0px 3px 3px 3px;
-		height: calc(~"100vh - 275px");
 	}
 	&-header {
 		background: #F5F6F7;
@@ -59,7 +71,6 @@
 		box-sizing: border-box;
 		background-color: white;
 		border-bottom: 0.5px solid #E0E0E0;
-		border-right: 0.5px solid #E0E0E0;	
 		&-hover {
 			background-color: #f5f6f7;
 			.table-view-cell-is-empty{
