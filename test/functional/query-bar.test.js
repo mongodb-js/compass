@@ -179,7 +179,7 @@ describe('#query-bar', function() {
           .waitForStatusBar()
           .clickExplainPlanTab()
           .getExplainPlanStatusMessage()
-          .should.eventually.include('To prevent unintended collection scans, please enter your query first');
+          .should.eventually.include('Evaluate the performance of your query');
       });
 
       context('when applying a projection', function() {

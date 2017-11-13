@@ -44,8 +44,7 @@ function addGetExplainCommands(client) {
    * Get the status row message from the explain plan.
    */
   client.addCommand('getExplainPlanStatusMessage', function() {
-    const base = selector('explain-plan-content');
-    const row = `${base} .status-row-has-warning`;
+    const row = `.compass-explain .zero-state-header`;
     return this.waitForVisibleInCompass(row).getText(row);
   });
 

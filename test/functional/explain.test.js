@@ -76,7 +76,7 @@ describe('#explain', function() {
           .clickResetFilterButtonFromExplainPlanTab()
           .waitForStatusBar()
           .getExplainPlanStatusMessage()
-          .should.eventually.include('To prevent unintended collection scans');
+          .should.eventually.include('Evaluate the performance of your query');
       });
 
       it('updates the document list', function() {
