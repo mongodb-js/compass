@@ -293,7 +293,7 @@ class Target {
       },
       {
         name: `${this.slug}-RELEASES`,
-        path: this.dest(`${this.slug}-RELEASES`)
+        path: this.dest('RELEASES')
       },
       {
         name: 'LICENSE',
