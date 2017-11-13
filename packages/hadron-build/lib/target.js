@@ -292,8 +292,8 @@ class Target {
         path: this.dest(`${this.productName}-windows.zip`)
       },
       {
-        name: 'RELEASES',
-        path: this.dest('RELEASES')
+        name: `${this.slug}-RELEASES`,
+        path: this.dest(`${this.slug}-RELEASES`)
       },
       {
         name: 'LICENSE',
