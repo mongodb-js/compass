@@ -8,9 +8,6 @@ const _ = require('lodash');
 
 const READ_ONLY_WARNING = 'Explain plans on readonly views are not supported.';
 
-const COLLECTION_SCAN_WARNING = 'To prevent unintended collection scans, please'
-  + ' enter your query first, then press "Explain" to view the explain plan.';
-
 const OUTDATED_WARNING = 'The explain content is outdated and no longer in sync'
   + ' with the documents view. Press "Explain" again to see the explain plan for'
   + ' the current query.';
@@ -20,7 +17,7 @@ const HEADER = 'Evaluate the performance of your query';
 const SUBTEXT = 'Explain provides key execution metrics that help diagnose slow queries'
   + ' and optimize index usage.';
 
-const DOCUMENTATION_LINK = 'https://docs.mongodb.com/compass/master/query-plan/'
+const DOCUMENTATION_LINK = 'https://docs.mongodb.com/compass/master/query-plan/';
 
 class CompassExplain extends React.Component {
 
@@ -68,13 +65,13 @@ class CompassExplain extends React.Component {
           header={HEADER}
           subtext={SUBTEXT}
         >
-          <TextButton 
-            className='btn btn-primary btn-lg'
-            text='Execute Explain'
+          <TextButton
+            className="btn btn-primary btn-lg"
+            text="Execute Explain"
             clickHandler={this.onApplyClicked.bind(this)}
           />
           <a
-            className='btn btn-info btn-lg'
+            className="btn btn-info btn-lg"
             href={DOCUMENTATION_LINK}
           >
             Learn More

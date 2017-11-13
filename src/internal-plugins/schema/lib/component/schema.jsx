@@ -25,7 +25,7 @@ const HEADER = 'Explore your schema';
 const SUBTEXT = 'Quickly visualize your schema to understand the frequency, types and ranges of'
   + ' fields in your data set.';
 
-const DOCUMENTATION_LINK = 'https://docs.mongodb.com/compass/master/schema/'
+const DOCUMENTATION_LINK = 'https://docs.mongodb.com/compass/master/schema/';
 
 /**
  * Component for the entire schema view component.
@@ -134,7 +134,7 @@ class Schema extends React.Component {
   }
 
   /**
-   * Renders the zero state during the initial state; renders the schema if not. 
+   * Renders the zero state during the initial state; renders the schema if not.
    */
   renderContent() {
     if (this.props.samplingState === 'initial') {
@@ -143,13 +143,13 @@ class Schema extends React.Component {
           header={HEADER}
           subtext={SUBTEXT}
         >
-          <TextButton 
-            className='btn btn-primary btn-lg'
-            text='Analyze Schema'
+          <TextButton
+            className="btn btn-primary btn-lg"
+            text="Analyze Schema"
             clickHandler={this.onApplyClicked.bind(this)}
           />
           <a
-            className='btn btn-info btn-lg'
+            className="btn btn-info btn-lg"
             href={DOCUMENTATION_LINK}
           >
             Learn More
@@ -165,7 +165,7 @@ class Schema extends React.Component {
           </div>
         </div>
       </div>
-    )
+    );
   }
 
   /**
