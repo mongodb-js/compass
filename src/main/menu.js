@@ -89,7 +89,7 @@ function connectItem() {
 
 function disconnectItem() {
   return {
-    label: '&Sign out',
+    label: '&Disconnect',
     click: function() {
       app.emit('app:disconnect');
     }
