@@ -55,6 +55,14 @@ describe('mongodb-connection-model', function() {
     });
   });
 
+  describe('#isSrvRecord', function() {
+    const c = new Connection();
+
+    it('defaults to false', function() {
+      assert.equal(c.isSrvRecord, false);
+    });
+  });
+
   describe('authentication', function() {
     describe('NONE', function() {
       it('should return the correct URL for the driver', function() {

@@ -91,6 +91,10 @@ _.assign(props, {
   replica_set_name: {
     type: 'string',
     default: undefined
+  },
+  isSrvRecord: {
+    type: 'boolean',
+    default: false
   }
 });
 
