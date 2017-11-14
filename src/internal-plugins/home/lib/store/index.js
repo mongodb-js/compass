@@ -13,6 +13,7 @@ const HomeStore = Reflux.createStore({
     // set up listeners on external stores
     appRegistry.getStore('App.InstanceStore').listen(this.onInstanceChange.bind(this));
     appRegistry.on('data-service-connected', this.onConnected.bind(this, appRegistry));
+    appRegistry.on('data-service-disconnected', this.onDisconnected.bind(this));
     appRegistry.on('collection-changed', this.onCollectionChanged.bind(this));
     appRegistry.on('database-changed', this.onDatabaseChanged.bind(this));
   },
@@ -36,6 +37,19 @@ const HomeStore = Reflux.createStore({
       ssl: 'NONE',
       sshTunnel: 'NONE'
     };
+  },
+
+  onDisconnected() {
+    this.setState({
+      errorMessage: '',
+      namespace: '',
+      isConnected: false,
+      isAtlas: false,
+      authentication: 'NONE',
+      ssl: 'NONE',
+      sshTunnel: 'NONE',
+      uiStatus: UI_STATES.INITIAL
+    });
   },
 
   onConnected(appRegistry, err, ds) {

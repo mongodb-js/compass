@@ -81,8 +81,8 @@ const InstanceStore = Reflux.createStore({
     const StatusAction = app.appRegistry.getAction('Status.Actions');
     StatusAction.hide();
 
-    const instance = app.instance;
-    this.setState({ instance });
+    this.state.instance = app.instance;
+    this.trigger(this.state);
   },
 
   refreshInstance() {
