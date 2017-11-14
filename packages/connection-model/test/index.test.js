@@ -71,6 +71,26 @@ describe('mongodb-connection-model', function() {
     });
   });
 
+  describe('#isURI', function() {
+    context('when using a mongodb protocol', function() {
+      it('returns true', function() {
+        assert.equal(Connection.isURI('mongodb://localhost'), true);
+      });
+    });
+
+    context('when using a mongodb+srv protocol', function() {
+      it('returns true', function() {
+        assert.equal(Connection.isURI('mongodb+srv://localhost'), true);
+      });
+    });
+
+    context('when using another protocol', function() {
+      it('returns false', function() {
+        assert.equal(Connection.isURI('mongodb+somethign://localhost'), false);
+      });
+    });
+  });
+
   describe('authentication', function() {
     describe('NONE', function() {
       it('should return the correct URL for the driver', function() {
