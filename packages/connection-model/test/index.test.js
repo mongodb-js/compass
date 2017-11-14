@@ -53,6 +53,14 @@ describe('mongodb-connection-model', function() {
       assert.equal(c.driver_url,
         'mongodb://localhost:27017/?replicaSet=testing&readPreference=primary&appname=My%20App');
     });
+
+    context('when the connection is a srv record', function() {
+      const c = new Connection({ isSrvRecord: true });
+
+      it('changes the uri scheme', function() {
+        assert.equal(c.driver_url, 'mongodb+srv://localhost:27017/?readPreference=primary');
+      });
+    });
   });
 
   describe('#isSrvRecord', function() {

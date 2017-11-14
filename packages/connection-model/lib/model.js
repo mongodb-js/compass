@@ -610,7 +610,7 @@ _.assign(derived, {
     fn: function() {
       const AUTH_TOKEN = 'AUTH_TOKEN';
       var req = {
-        protocol: 'mongodb',
+        protocol: this.isSrvRecord ? 'mongodb+srv' : 'mongodb',
         slashes: true,
         hostname: this.hostname,
         port: this.port,
