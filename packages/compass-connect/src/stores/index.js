@@ -156,6 +156,14 @@ const ConnectStore = Reflux.createStore({
   },
 
   /**
+   * Change the srv record flag.
+   */
+  onSRVRecordToggle() {
+    this.state.currentConnection.isSrvRecord = !this.state.currentConnection.isSrvRecord;
+    this.trigger(this.state);
+  },
+
+  /**
    * Change the port.
    *
    * @param {String} port - The port.

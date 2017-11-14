@@ -29,7 +29,8 @@ const ConnectActions = Reflux.createActions([
   'onDeleteConnection',
   'onConnectionSelected',
   'onConnect',
-  'onDisconnect'
+  'onDisconnect',
+  'onSRVRecordToggle'
 ]);
 
 module.exports = ConnectActions;

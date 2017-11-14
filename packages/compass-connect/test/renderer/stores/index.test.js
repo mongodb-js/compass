@@ -102,6 +102,21 @@ describe('IndexStore', function() {
     });
   });
 
+  describe('#onSRVRecordToggle', () => {
+    afterEach(() => {
+      IndexStore.state.currentConnection.isSrvRecord = false;
+    });
+
+    it('updates the srv record property', (done) => {
+      const unsubscribe = IndexStore.listen((state) => {
+        unsubscribe();
+        expect(state.currentConnection.isSrvRecord).to.equal(true);
+        done();
+      });
+      Actions.onSRVRecordToggle();
+    });
+  });
+
   describe('#onPortChanged', () => {
     it('updates the port in the current connection model', (done) => {
       const unsubscribe = IndexStore.listen((state) => {
