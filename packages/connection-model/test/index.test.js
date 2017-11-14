@@ -292,6 +292,18 @@ describe('mongodb-connection-model', function() {
       });
     });
 
+    describe('SRV Records', function() {
+      const c = Connection.from('mongodb+srv://123.45.67.8:27018/admin');
+
+      it('sets isSrvRecord to true', function() {
+        assert.equal(c.isSrvRecord, true);
+      });
+
+      it('regenerates the correct URI', function() {
+        assert.equal(c.driver_url, 'mongodb+srv://123.45.67.8:27018/admin?readPreference=primary');
+      });
+    });
+
     describe('ATLAS - mongodb.net', function() {
       context('when a database is provided', function() {
         var atlasConnection = 'mongodb://ADMINUSER:<PASSWORD>@' +

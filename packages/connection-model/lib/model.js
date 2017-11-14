@@ -1087,6 +1087,8 @@ Connection.from = function(url) {
     port: parsed.servers[0].port
   };
 
+  attrs.isSrvRecord = parsed.isSrvRecord;
+
   // Don't want to inherit the drivers default values
   // into our model's default values so only set `ns`
   // if it was actually in the URL and not a default.
