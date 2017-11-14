@@ -7,6 +7,7 @@ const Actions = require('../actions');
 const Connection = require('../models/connection');
 const ConnectionCollection = require('../models/connection-collection');
 const StateMixin = require('reflux-state-mixin');
+const electronApp = require('electron').remote.app;
 
 /**
  * All the authentication related fields on the connection model, with
@@ -72,6 +73,7 @@ const ConnectStore = Reflux.createStore({
         this.trigger(this.state);
       }
     });
+    electronApp.on('app:disconnect', this.onDisconnect.bind(this));
   },
 
   /**
@@ -426,6 +428,7 @@ const ConnectStore = Reflux.createStore({
       this.dataService = undefined;
     }
     this.setState({ isConnected: false, errorMessage: null, isValid: true });
+    this.appRegistry.emit('data-service-disconnected');
   },
 
   /**

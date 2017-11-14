@@ -54,6 +54,7 @@
     "hadron-app": "^2.0.0",
     "hadron-app-registry": "^7.0.0",
     "hadron-build": "^13.1.0",
+    "hadron-ipc": "^0.0.7",
     "jsdom": "^9.4.2",
     "less": "^2.7.1",
     "less-loader": "^2.2.3",
