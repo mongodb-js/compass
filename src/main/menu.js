@@ -87,8 +87,20 @@ function connectItem() {
   };
 }
 
+function disconnectItem() {
+  return {
+    label: '&Disconnect',
+    click: function() {
+      app.emit('app:disconnect');
+    }
+  };
+}
+
 function connectSubMenu(nonDarwin) {
-  var subMenu = [connectItem()];
+  var subMenu = [
+    connectItem(),
+    disconnectItem()
+  ];
 
   if (nonDarwin) {
     subMenu.push(separator());
