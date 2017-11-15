@@ -176,7 +176,7 @@
     "async": "^1.5.2",
     "backoff": "^2.4.1",
     "bootstrap": "https://github.com/twbs/bootstrap/archive/v3.3.5.tar.gz",
-    "codemirror-mongodb": "^0.10.1",
+    "codemirror-mongodb": "^0.10.2",
     "create-react-class": "^15.5.2",
     "d3": "^3.5.6",
     "d3-flextree": "^1.0.3",
