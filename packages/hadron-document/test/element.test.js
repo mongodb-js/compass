@@ -507,8 +507,8 @@ describe('Element', function() {
           last.next();
         });
 
-        it('changes the element to an array', function() {
-          expect(last.elements.at(0).currentKey).to.equal(0);
+        it('changes the element to an empty array', function() {
+          expect(last.elements.at(0).currentKey).to.equal('');
           expect(last.elements.at(0).currentValue).to.equal('');
         });
       });
@@ -1663,7 +1663,7 @@ describe('Element', function() {
           element.insertPlaceholder();
         });
         it('array has one element', function() {
-          expect(element.at(0).currentKey).to.equal(0);
+          expect(element.at(0).currentKey).to.equal('');
           expect(element.at(0).value).to.equal('');
           expect(element.elements.size).to.equal(1);
         });
@@ -1678,7 +1678,7 @@ describe('Element', function() {
           element.insertPlaceholder();
         });
         it('inserts the element into the end', function() {
-          expect(element.at(3).currentKey).to.equal(3);
+          expect(element.at(3).currentKey).to.equal('');
           expect(element.at(3).value).to.equal('');
         });
         it('keeps the other elements the same', function() {
@@ -1692,6 +1692,122 @@ describe('Element', function() {
           for (let i = 0; i < 4; i ++) {
             expect(element.at(i).isModified()).to.equal(i === 3);
           }
+        });
+      });
+      context('insert after placeholders', function() {
+        context('insertAfter', function() {
+          context('with only placeholders', function() {
+            context('multiple', function() {
+              var doc = new Document({});
+              var element = new Element('emails', [], false, doc);
+              before(function() {
+                element.insertPlaceholder();
+                element.insertPlaceholder();
+                const e = element.insertPlaceholder();
+                element.insertAfter(e, '', 'value');
+              });
+              it('inserts the element into the end', function() {
+                expect(element.at(0).currentKey).to.equal(0);
+                expect(element.at(0).value).to.equal('');
+                expect(element.at(1).currentKey).to.equal(1);
+                expect(element.at(1).value).to.equal('');
+                expect(element.at(2).currentKey).to.equal(2);
+                expect(element.at(2).value).to.equal('');
+                expect(element.at(3).currentKey).to.equal(3);
+                expect(element.at(3).value).to.equal('value');
+              });
+            });
+            context('one', function() {
+              var doc = new Document({});
+              var element = new Element('emails', [], false, doc);
+              before(function() {
+                const e = element.insertPlaceholder();
+                element.insertAfter(e, '', 'value');
+              });
+              it('inserts the element into the end', function() {
+                expect(element.at(0).currentKey).to.equal(0);
+                expect(element.at(0).value).to.equal('');
+                expect(element.at(1).currentKey).to.equal(1);
+                expect(element.at(1).value).to.equal('value');
+              });
+            });
+          });
+          context('with keys and placeholders', function() {
+            var doc = new Document({});
+            var element = new Element('emails', ['first val'], false, doc);
+            before(function() {
+              element.insertPlaceholder();
+              const e = element.insertPlaceholder();
+              element.insertAfter(e, '', 'value');
+            });
+            it('inserts the element into the end', function() {
+              expect(element.at(0).currentKey).to.equal(0);
+              expect(element.at(0).value).to.equal('first val');
+              expect(element.at(1).currentKey).to.equal(1);
+              expect(element.at(1).value).to.equal('');
+              expect(element.at(2).currentKey).to.equal(2);
+              expect(element.at(2).value).to.equal('');
+              expect(element.at(3).currentKey).to.equal(3);
+              expect(element.at(3).value).to.equal('value');
+            });
+          });
+        });
+        context('insertEnd', function() {
+          context('with only placeholders', function() {
+            context('multiple', function() {
+              var doc = new Document({});
+              var element = new Element('emails', [], false, doc);
+              before(function() {
+                element.insertPlaceholder();
+                element.insertPlaceholder();
+                element.insertPlaceholder();
+                element.insertEnd('', 'value');
+              });
+              it('inserts the element into the end', function() {
+                expect(element.at(0).currentKey).to.equal(0);
+                expect(element.at(0).value).to.equal('');
+                expect(element.at(1).currentKey).to.equal(1);
+                expect(element.at(1).value).to.equal('');
+                expect(element.at(2).currentKey).to.equal(2);
+                expect(element.at(2).value).to.equal('');
+                expect(element.at(3).currentKey).to.equal(3);
+                expect(element.at(3).value).to.equal('value');
+              });
+            });
+            context('one', function() {
+              var doc = new Document({});
+              var element = new Element('emails', [], false, doc);
+              before(function() {
+                element.insertPlaceholder();
+                element.insertEnd('', 'value');
+              });
+              it('inserts the element into the end', function() {
+                expect(element.at(0).currentKey).to.equal(0);
+                expect(element.at(0).value).to.equal('');
+                expect(element.at(1).currentKey).to.equal(1);
+                expect(element.at(1).value).to.equal('value');
+              });
+            });
+          });
+          context('with keys and placeholders', function() {
+            var doc = new Document({});
+            var element = new Element('emails', ['first val'], false, doc);
+            before(function() {
+              element.insertPlaceholder();
+              element.insertPlaceholder();
+              element.insertEnd('', 'value');
+            });
+            it('inserts the element into the end', function() {
+              expect(element.at(0).currentKey).to.equal(0);
+              expect(element.at(0).value).to.equal('first val');
+              expect(element.at(1).currentKey).to.equal(1);
+              expect(element.at(1).value).to.equal('');
+              expect(element.at(2).currentKey).to.equal(2);
+              expect(element.at(2).value).to.equal('');
+              expect(element.at(3).currentKey).to.equal(3);
+              expect(element.at(3).value).to.equal('value');
+            });
+          });
         });
       });
     });

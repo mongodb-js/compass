@@ -229,6 +229,9 @@ class Element extends EventEmitter {
    */
   insertAfter(element, key, value) {
     if (this.currentType === 'Array') {
+      if (element.currentKey === '') {
+        this.elements.handleEmptyKeys(element);
+      }
       key = element.currentKey + 1;
     }
     var newElement = this.elements.insertAfter(element, key, value, true, this);
@@ -249,7 +252,13 @@ class Element extends EventEmitter {
    */
   insertEnd(key, value) {
     if (this.currentType === 'Array') {
-      key = this.elements.lastElement ? this.elements.lastElement.currentKey + 1 : 0;
+      key = 0;
+      if (this.elements.lastElement) {
+        if (this.elements.lastElement.currentKey === '') {
+          this.elements.handleEmptyKeys(this.elements.lastElement);
+        }
+        key = this.elements.lastElement.currentKey + 1;
+      }
     }
     var newElement = this.elements.insertEnd(key, value, true, this);
     this._bubbleUp(Events.Added);
@@ -262,11 +271,9 @@ class Element extends EventEmitter {
    * @returns {Element} The placeholder element.
    */
   insertPlaceholder() {
-    let key = '';
-    if (this.currentType === 'Array') {
-      key = this.elements.lastElement ? this.elements.lastElement.currentKey + 1 : 0;
-    }
-    return this.insertEnd(key, '');
+    var newElement = this.elements.insertEnd('', '', true, this);
+    this._bubbleUp(Events.Added);
+    return newElement;
   }
 
   /**
@@ -708,6 +715,30 @@ class LinkedList {
     while (element.nextElement) {
       element.nextElement.currentKey += add;
       element = element.nextElement;
+    }
+  }
+
+  /**
+   * If an element is added after a placeholder, convert that placeholder
+   * into an empty element with the correct key.
+   *
+   * @param {Element} element - The placeholder element.
+   */
+  handleEmptyKeys(element) {
+    if (element.currentKey === '') {
+      let e = element;
+      while (e.currentKey === '') {
+        if (!e.previousElement) {
+          e.currentKey = 0;
+          break;
+        } else {
+          e = e.previousElement;
+        }
+      }
+      while (e.nextElement) {
+        e.nextElement.currentKey = e.currentKey + 1;
+        e = e.nextElement;
+      }
     }
   }
 
