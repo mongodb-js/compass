@@ -15,40 +15,7 @@
 @import "./document-footer.less";
 @import "./insert-document-dialog.less";
 @import "./table-view-cell";
-@import "./table-view-footer";
 @import "./table-view-cell-editor";
 @import "./table-view-row-actions";
 @import (inline) "./ag-grid-dist.css";
 @import "./ag-grid";
-
-.expandable-element-header {
-  &-toggle {
-    margin-left: -10px;
-    margin-right: 6px;
-  }
-
-  &-is-expanded {
-    .expandable-element-header-toggle {
-      margin-left: -14px;
-    }
-  }
-}
-
-.document {
-  &:hover {
-    .document-actions-button {
-      visibility: visible;
-    }
-  }
-}
-
-.document-actions-button {
-  visibility: hidden;
-  margin-left: 3px;
-}
-
-.ag-row-hover {
-  .table-view-row-actions-panel {
-    visibility: visible;
-  }
-}
