@@ -37,6 +37,7 @@ class Document extends EventEmitter {
    * Create the new document from the provided object.
    *
    * @param {Object} doc - The document.
+   * @param {boolean} cloned - If it is a cloned document.
    */
   constructor(doc, cloned) {
     super();
@@ -57,6 +58,8 @@ class Document extends EventEmitter {
 
   /**
    * Get an element by its key.
+   *
+   * @param {String} key
    *
    * @returns {Element} The element.
    */

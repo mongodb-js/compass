@@ -150,6 +150,8 @@ class Element extends EventEmitter {
   /**
    * Get an element by its key.
    *
+   * @param {String} key - The key name.
+   *
    * @returns {Element} The element.
    */
   get(key) {
@@ -159,20 +161,20 @@ class Element extends EventEmitter {
   /**
    * Get an element by its index.
    *
+   * @param {Number} i - The index.
+   *
    * @returns {Element} The element.
    */
   at(i) {
-    if (!this.elements) {
-      return undefined;
-    }
-    return this.elements.at(i);
-    // return (i < this.elements.length()) ? this.elements.at(i) : undefined;
+    return this.elements ? this.elements.at(i) : undefined;
   }
 
   /**
    * Go to the next edit.
    *
    * Will check if the value is either { or [ and take appropriate action.
+   *
+   *  @returns {Element} The next element.
    */
   next() {
     if (this.currentValue === CURLY) {
@@ -215,7 +217,9 @@ class Element extends EventEmitter {
   }
 
   /**
-   * Insert an element after the provided element.
+   * Insert an element after the provided element. If this element is an array,
+   * then ignore the key specified by the caller and use the correct index.
+   * Update the keys of the rest of the elements in the LinkedList.
    *
    * @param {Element} element - The element to insert after.
    * @param {String} key - The key.
@@ -224,7 +228,13 @@ class Element extends EventEmitter {
    * @returns {Element} The new element.
    */
   insertAfter(element, key, value) {
+    if (this.currentType === 'Array') {
+      key = element.currentKey + 1;
+    }
     var newElement = this.elements.insertAfter(element, key, value, true, this);
+    if (this.currentType === 'Array') {
+      this.elements.updateKeys(newElement, 1);
+    }
     this._bubbleUp(Events.Added);
     return newElement;
   }
@@ -232,12 +242,15 @@ class Element extends EventEmitter {
   /**
    * Add a new element to this element.
    *
-   * @param {String} key - The element key.
+   * @param {String | Number} key - The element key.
    * @param {Object} value - The value.
    *
    * @returns {Element} The new element.
    */
   insertEnd(key, value) {
+    if (this.currentType === 'Array') {
+      key = this.elements.lastElement ? this.elements.lastElement.currentKey + 1 : 0;
+    }
     var newElement = this.elements.insertEnd(key, value, true, this);
     this._bubbleUp(Events.Added);
     return newElement;
@@ -249,7 +262,11 @@ class Element extends EventEmitter {
    * @returns {Element} The placeholder element.
    */
   insertPlaceholder() {
-    return this.insertEnd('', '');
+    let key = '';
+    if (this.currentType === 'Array') {
+      key = this.elements.lastElement ? this.elements.lastElement.currentKey + 1 : 0;
+    }
+    return this.insertEnd(key, '');
   }
 
   /**
@@ -324,19 +341,26 @@ class Element extends EventEmitter {
 
   /**
    * Determine if the element is edited - returns true if
-   * the key or value changed.
+   * the key or value changed. Does not count array values whose keys have
+   * changed as edited.
    *
    * @returns {Boolean} If the element is edited.
    */
   isEdited() {
-    return (this.key !== this.currentKey ||
-        !this._valuesEqual() ||
-        this.type !== this.currentType) &&
-        !this.isAdded();
+    let keyChanged = false;
+    if (!this.parent || this.parent.isRoot() || this.parent.currentType === 'Object') {
+      keyChanged = (this.key !== this.currentKey);
+    }
+    return (keyChanged ||
+      !this._valuesEqual() ||
+      this.type !== this.currentType) &&
+      !this.isAdded();
   }
 
   /**
    * Check for value equality.
+
+   * @returns {Boolean} If the value is equal.
    */
   _valuesEqual() {
     if (this.currentType === 'Date' && isString(this.currentValue)) {
@@ -469,6 +493,9 @@ class Element extends EventEmitter {
    */
   revert() {
     if (this.isAdded()) {
+      if (this.parent && this.parent.currentType === 'Array') {
+        this.parent.elements.updateKeys(this, -1);
+      }
       this.parent.elements.remove(this);
       this.parent.emit(Events.Removed);
       this.parent = null;
@@ -496,6 +523,7 @@ class Element extends EventEmitter {
    * Fire and bubble up the event.
    *
    * @param {Event} evt - The event.
+   * @param {*} data - Optional.
    */
   _bubbleUp(evt, data) {
     this.emit(evt, data);
@@ -566,6 +594,11 @@ class Element extends EventEmitter {
 
   /**
    * Get the key for the element.
+   *
+   * @param {String} key
+   * @param {Number} index
+   *
+   * @returns {String|Number} The index if the type is an array, or the key.
    */
   _key(key, index) {
     return this.currentType === 'Array' ? index : key;
@@ -613,14 +646,18 @@ class LinkedList {
    * @returns {Element} The matching element.
    */
   at(index) {
+    if (!Number.isInteger(index)) {
+      return undefined;
+    }
+
     var element = this.firstElement;
     for (var i = 0; i < index; i++) {
       if (!element) {
-        return null;
+        return undefined;
       }
       element = element.nextElement;
     }
-    return element;
+    return element === null ? undefined : element;
   }
 
   get(key) {
@@ -659,6 +696,19 @@ class LinkedList {
     this._map[newElement.key] = newElement;
     this.size += 1;
     return newElement;
+  }
+
+  /**
+   * Update the currentKey of each element if array elements.
+   *
+   * @param {Element} element - The element to insert after.
+   * @param {Number} add - 1 if adding a new element, -1 if removing.
+   */
+  updateKeys(element, add) {
+    while (element.nextElement) {
+      element.nextElement.currentKey += add;
+      element = element.nextElement;
+    }
   }
 
   /**
@@ -756,21 +806,6 @@ class LinkedList {
     delete this._map[element.currentKey];
     this.size -= 1;
     return this;
-  }
-
-  /**
-   * Get the number of elements.
-   *
-   * @returns {number}
-   */
-  length() {
-    let first = this.firstElement;
-    let count = 0;
-    while (first !== undefined) {
-      first = first.nextElement;
-      count++;
-    }
-    return count;
   }
 }
 

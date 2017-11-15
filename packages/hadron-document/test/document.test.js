@@ -55,6 +55,71 @@ describe('Document', function() {
     });
   });
 
+  describe('#getChild', function() {
+    const doc = new Document({
+      array: ['1', [ ['1', ['inner array']]]],
+      object: {a: {b: {c: {d: 'inner object'}}}},
+      mixed: {a: [ {b: [1, {c: 'inner mixed'}]}]}
+    });
+    context('when path is empty', () => {
+      it('returns undefined', () => {
+        expect(doc.getChild([])).to.equal(undefined);
+      });
+    });
+    context('when the path does not exist', () => {
+      it('returns undefined for top level', () => {
+        expect(doc.getChild(['not there'])).to.equal(undefined);
+      });
+      it('returns undefined for object', () => {
+        expect(doc.getChild(['object', 'not there'])).to.equal(undefined);
+      });
+      it('returns undefined for array', () => {
+        expect(doc.getChild(['array', 'not there'])).to.equal(undefined);
+      });
+      it('returns undefined for index too large', () => {
+        expect(doc.getChild(['array', 3])).to.equal(undefined);
+      });
+    });
+    context('when the path is too long', () => {
+      it('returns undefined', () => {
+        expect(doc.getChild(['mixed', 'a', 0, 'b', 1, 'c', 'not there'])).to.equal(undefined);
+      });
+    });
+    context('indexing only into arrays', () => {
+      it('returns the deepest element', () => {
+        const element = doc.getChild(['array', 1, 0, 1, 0]);
+        expect(element.value).to.equal('inner array');
+      });
+      it('returns a  middle element', () => {
+        const element = doc.getChild(['array', 1, 0]);
+        expect(element.currentType).to.equal('Array');
+        expect(element.generateObject()).to.deep.equal(['1', ['inner array']]);
+      });
+    });
+    context('indexing only into objects', () => {
+      it('returns the deepest element', () => {
+        const element = doc.getChild(['object', 'a', 'b', 'c', 'd']);
+        expect(element.value).to.equal('inner object');
+      });
+      it('returns a  middle element', () => {
+        const element = doc.getChild(['object', 'a', 'b']);
+        expect(element.currentType).to.equal('Object');
+        expect(element.generateObject()).to.deep.equal({c: {d: 'inner object'}});
+      });
+    });
+    context('indexing into mixed array and object', () => {
+      it('returns the deepest element', () => {
+        const element = doc.getChild(['mixed', 'a', 0, 'b', 1, 'c']);
+        expect(element.value).to.equal('inner mixed');
+      });
+      it('returns a  middle element', () => {
+        const element = doc.getChild(['mixed', 'a', 0, 'b']);
+        expect(element.currentType).to.equal('Array');
+        expect(element.generateObject()).to.deep.equal([1, {c: 'inner mixed'}]);
+      });
+    });
+  });
+
   describe('.insertEnd', function() {
     context('when the new element is a primitive value', function() {
       var doc = new Document({});
@@ -112,7 +177,7 @@ describe('Document', function() {
           this.doc.insertEnd('emails', []).insertEnd('', 'home@example.com');
         });
 
-        // SharedExamples.itAddsTheArrayElementToTheRootDocument();
+        SharedExamples.itAddsTheArrayElementToTheRootDocument();
       });
     });
 
@@ -132,7 +197,7 @@ describe('Document', function() {
           this.doc.insertEnd('emails', []).insertEnd('', {}).insertEnd('home', 'home@example.com');
         });
 
-        // SharedExamples.itAddsTheEmbeddedArrayElementToTheRootDocument();
+        SharedExamples.itAddsTheEmbeddedArrayElementToTheRootDocument();
       });
     });
   });
