@@ -28,6 +28,7 @@ const SidebarStore = Reflux.createStore({
     appRegistry.getStore('App.InstanceStore').listen(this.onInstanceChange.bind(this));
     appRegistry.on('collection-changed', this.onCollectionChanged.bind(this));
     appRegistry.on('database-changed', this.onDatabaseChanged.bind(this));
+    appRegistry.on('data-service-disconnected', this.onDisconnected.bind(this));
   },
 
   onCollectionChanged(ns) {
@@ -40,6 +41,10 @@ const SidebarStore = Reflux.createStore({
     this.setState({
       activeNamespace: ns || ''
     });
+  },
+
+  onDisconnected() {
+    this.setState(this.getInitialState());
   },
 
   /**
