@@ -73,12 +73,6 @@ class AddFieldButton extends React.Component {
     }
   }
 
-  componentDidMount() {
-  }
-
-  componentWillUnmount() {
-  }
-
   /**
    * Class name for add field button div.
    *
@@ -92,7 +86,6 @@ class AddFieldButton extends React.Component {
    * Handle click on the add field button.
    */
   handleClick() {
-  // Provide menu for _id because it's top-level, but not for any potential children.
     if (this.empty || this.props.value.isParentEditable()) {
       this.setState({menu: !this.state.menu});
     }
@@ -122,17 +115,37 @@ class AddFieldButton extends React.Component {
   handleAddFieldClick() {
     this.setState({ menu: false });
     let parent = this.props.node.data.hadronDocument;
+    let editOnly = false;
+
     if (this.props.context.path.length) {
       parent = parent.getChild(this.props.context.path);
     }
 
+    const isArray = (!parent.isRoot() && parent.currentType === 'Array');
+    let newElement;
+
     if (!this.empty) {
-      parent.insertAfter(this.props.value, '$new', '');
+      /* Set key to $new even though for arrays, it will be a index */
+      newElement = parent.insertAfter(this.props.value, '$new', '');
     } else {
-      parent.insertEnd('$new', '');
+      newElement = parent.insertEnd('$new', '');
     }
 
-    this.props.actions.addColumn(this.props.column.getColDef().colId, this.props.node.childIndex, this.props.context.path);
+    if (isArray) {
+      const lastIndex = parent.elements.lastElement.currentKey;
+      if (this.props.columnApi.getColumn(lastIndex) !== null) {
+        editOnly = true;
+      }
+    }
+
+    this.props.actions.addColumn(
+      newElement.currentKey,
+      this.props.column.getColDef().colId,
+      this.props.node.childIndex,
+      this.props.context.path,
+      isArray,
+      editOnly,
+      this.props.node.data.hadronDocument.getStringId());
   }
 
   /**
@@ -140,12 +153,16 @@ class AddFieldButton extends React.Component {
    */
   handleAddChildClick() {
     this.setState({ menu: false });
-    this.props.actions.drillDown(this.props.node.data.hadronDocument, this.props.value);
+    const newElement = this.props.value.insertEnd('$new', '');
 
-    this.props.value.insertEnd('$new', '');
+    const edit = {
+      colId: newElement.currentKey,
+      rowIndex: this.props.node.childIndex
+    };
 
-    const path = [].concat(this.props.context.path, [this.props.value.currentKey]);
-    this.props.actions.addColumn(null, 0, path);
+    this.props.actions.drillDown(
+      this.props.node.data.hadronDocument, this.props.value, edit
+    );
   }
 
 
@@ -173,8 +190,13 @@ class AddFieldButton extends React.Component {
    * @returns {Boolean} If the parent element is an array.
    */
   isParentArray() {
-    return !this.empty && !this.props.value.parent.isRoot() &&
-        this.props.value.parent.currentType === 'Array';
+    if (this.props.context.path.length) {
+      const parent = this.props.node.data.hadronDocument.getChild(
+        this.props.context.path
+      );
+      return parent.currentType === 'Array';
+    }
+    return false;
   }
 
   /**
@@ -313,6 +335,9 @@ class AddFieldButton extends React.Component {
    * @returns {React.Component} The component.
    */
   render() {
+    if (this.empty && this.isParentArray()) {
+      return null;
+    }
     return (
       <div className={this.divClassName()}
         onClick={this.handleClick.bind(this)}

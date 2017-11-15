@@ -61,14 +61,16 @@ const BreadcrumbStore = Reflux.createStore( {
    *
    * @param {HadronDocument} document - The parent document.
    * @param {Element} element - The element being drilled into.
+   * @param {Object} editParams - If we need to open a cell for editing, the coordinates.
    */
-  drillDown(document, element) {
+  drillDown(document, element, editParams) {
     this.path.push(element.currentKey);
     this.types.push(element.currentType);
     this.doc = document;
-    this.trigger({path: this.path, types: this.types, document: this.doc});
+    this.trigger({
+      path: this.path, types: this.types, document: this.doc,
+      editParams: editParams});
   }
-
 });
 
 module.exports = BreadcrumbStore;

@@ -1,3 +1,4 @@
+/* eslint-disable no-loop-func */
 const React = require('react');
 const PropTypes = require('prop-types');
 const {AgGridReact} = require('ag-grid-react');
@@ -63,7 +64,8 @@ class DocumentTableView extends React.Component {
       },
       fullWidthCellRendererFramework: FullWidthCellRenderer,
       fullWidthCellRendererParams: {
-        actions: Actions
+        actions: Actions,
+        dataService: ResetDocumentListStore.dataService
       },
       getRowNodeId: function(data) {
         const fid = data.isFooter ? '1' : '0';
@@ -205,7 +207,7 @@ class DocumentTableView extends React.Component {
 
     /* Update the headers */
     for (const element of node.data.hadronDocument.elements) {
-      Actions.elementRemoved(element.currentKey, oid);
+      Actions.elementRemoved(element.currentKey, oid, false);
     }
 
     /* Update the toolbar */
@@ -236,7 +238,7 @@ class DocumentTableView extends React.Component {
 
     /* Update this.hadronDocs */
     for (let i = 0; i < this.hadronDocs.length; i++) {
-      if (this.hadronDocs[i].value === data._id) {
+      if (this.hadronDocs[i].getStringId() === newData.hadronDocument.getStringId()) {
         this.hadronDocs[i] = newData.hadronDocument;
         break;
       }
@@ -255,24 +257,46 @@ class DocumentTableView extends React.Component {
   /**
    * Add a column to the grid to the right of the column with colId.
    *
-   * @param {String} colId - The new column will be inserted after the column
+   * @param {String} colIdBefore - The new column will be inserted after the column
    * with colId.
    * @param {String} headerName - The field of a new column from insert document dialog
    * @param {String} colType - The type of a new column from document insert dialog
    * @param {Array} path - The series of field names. Empty at top-level.
+   * @param {HadronDocument} updateArray - If we need to update the array element
+   * headers because of an insert.
    */
-  addColumn(colId, headerName, colType, path) {
+  addGridColumn(colIdBefore, headerName, colType, path, updateArray) {
     const columnHeaders = _.map(this.columnApi.getAllGridColumns(), function(col) {
       return col.getColDef();
     });
 
     let i = 0;
     while (i < columnHeaders.length) {
-      if (columnHeaders[i].colId === colId) {
-        break;
-      }
-      if (columnHeaders[i].colId === headerName) {
+      if (!updateArray && '' + columnHeaders[i].colId === '' + headerName) {
         return;
+      }
+      i++;
+    }
+
+    i = 0;
+    while (i < columnHeaders.length) {
+      if ('' + columnHeaders[i].colId === '' + colIdBefore) {
+        if (updateArray) {
+          let j = i + 1;
+          while (j < columnHeaders.length) {
+            if (!(columnHeaders[j].colId.toString().includes('$'))) {
+              const newId = columnHeaders[j].colId + 1;
+              columnHeaders[j].colId = newId;
+              columnHeaders[j].headerName = newId;
+              columnHeaders[j].valueGetter = function(params) {
+                return params.data.hadronDocument.getChild([].concat(path, [newId]));
+              };
+              /* The bsonType is updated from the GridStore */
+            }
+            j++;
+          }
+        }
+        break;
       }
       i++;
     }
@@ -282,6 +306,9 @@ class DocumentTableView extends React.Component {
     columnHeaders.splice(i + 1, 0, newColDef);
 
     this.gridApi.setColumnDefs(columnHeaders);
+    if (updateArray) {
+      this.gridApi.refreshCells({force: true});
+    }
   }
 
   /**
@@ -296,7 +323,8 @@ class DocumentTableView extends React.Component {
 
     const newCols = [];
     for (let i = 0; i < columnHeaders.length; i++) {
-      if (!colIds.includes(columnHeaders[i].colId)) {
+      if (!colIds.includes('' + columnHeaders[i].colId) &&
+          !colIds.includes(columnHeaders[i].colId)) {
         newCols.push(columnHeaders[i]);
       }
     }
@@ -315,7 +343,7 @@ class DocumentTableView extends React.Component {
   updateHeaders(showing, columnHeaders) {
     const colIds = Object.keys(showing);
     for (let i = 0; i < columnHeaders.length; i++) {
-      if (colIds.includes(columnHeaders[i].colId)) {
+      if (colIds.includes('' + columnHeaders[i].colId)) {
         columnHeaders[i].headerComponentParams.bsonType = showing[columnHeaders[i].colId];
       }
     }
@@ -329,21 +357,28 @@ class DocumentTableView extends React.Component {
    *
    * @param {Object} params - The set of optional params.
    *   Adding a column:
-   *    params.add.colId - The columnId that the new column will be added next to.
-   *    params.add.rowIndex - The index of row which added the new column. Required
-   *      so that we can open up the new field for editing.
+   *    params.add.colIdBefore - The columnId that the new column will be added next to.
    *    params.add.path - An array of field names. Will be empty for top level.
+   *    params.add.newColId - Either $new or the index if it is an array element.
+   *    params.add.isArray - If we're adding to an array view.
+   *    params.add.colType - The type of the column that we're adding, if we know.
    *   Deleting columns:
    *    params.remove.colIds - The array of columnIds to be deleted.
    *   Updating headers:
    *    params.updateHeaders.showing - A mapping of columnId to BSON type. The
    *      new bson type will be forwarded to the column headers.
+   *   Refreshing:
+   *    params.refresh.oid - The OID string of the row to redraw.
+   *   Editing:
+   *    params.edit.rowIndex - The index of row of the cell to start editing.
+   *    params.edit.colId - The colId of the cell to start editing.
    */
   modifyColumns(params) {
     if ('add' in params) {
-      this.addColumn(params.add.colId, '$new', '', params.add.path);
-      this.gridApi.setFocusedCell(params.add.rowIndex, '$new');
-      this.gridApi.startEditingCell({rowIndex: params.add.rowIndex, colKey: '$new'});
+      this.addGridColumn(
+        params.add.colIdBefore, params.add.newColId, params.add.colType,
+        params.add.path, params.add.isArray
+      );
     }
     if ('remove' in params) {
       this.removeColumns(params.remove.colIds);
@@ -355,6 +390,14 @@ class DocumentTableView extends React.Component {
 
       this.updateHeaders(params.updateHeaders.showing, columnHeaders);
       this.gridApi.refreshHeader();
+    }
+    if ('refresh' in params) {
+      const node = this.gridApi.getRowNode(params.refresh.oid + '0');
+      this.gridApi.refreshCells({rowNodes: [node], force: true});
+    }
+    if ('edit' in params) {
+      this.gridApi.setFocusedCell(params.edit.rowIndex, params.edit.colId);
+      this.gridApi.startEditingCell({rowIndex: params.edit.rowIndex, colKey: params.edit.colId});
     }
   }
 
@@ -426,10 +469,10 @@ class DocumentTableView extends React.Component {
    * @param {Object} doc - The raw document that was inserted.
    * @param {boolean} clone - If the document was cloned, don't add row.
    */
-  handleInsert(error, doc, clone) { // TODO: handle nested insert
+  handleInsert(error, doc, clone) {
     if (!error && !clone) {
       Object.keys(doc).forEach((key) => {
-        this.addColumn(null, key, TypeChecker.type(doc[key]), []);
+        this.addGridColumn(null, key, TypeChecker.type(doc[key]), [], false);
       });
       this.insertRow(doc, 0, 1, false);
     }
@@ -480,14 +523,13 @@ class DocumentTableView extends React.Component {
   /**
    * When the BreadcrumbStore changes, update the grid.
    *
-   * TODO: When multi-doc expand is implemented, can drop the 'document' param
    * and just trigger with the path.
    *
    * @param {Object} params - Can contain collection, path, and/or types.
    *  collection {String} - The collection name.
    *  path {Array} - The array of field names/indexes.
    *  types {Array} - The array of types for each segment of the path array.
-   *  document {HadronDocument} - The document that we're drilling down into.
+   *  editParams {Object} - The cell to open for editing, includes colId and rowIndex.
    */
   handleBreadcrumbChange(params) {
     if (params.path.length === 0) {
@@ -513,6 +555,17 @@ class DocumentTableView extends React.Component {
 
     if (this.gridApi) {
       this.addFooters();
+    }
+
+    /* Use this call to open cell for editing so that we're guaranteed the cell
+    has already been created before we start editing it. */
+    if (params.editParams) {
+      const strColId = '' + params.editParams.colId;
+      this.gridApi.ensureColumnVisible(strColId);
+      this.gridApi.setFocusedCell(params.editParams.rowIndex, strColId);
+      this.gridApi.startEditingCell({rowIndex: params.editParams.rowIndex, colKey: strColId});
+    } else if (params.path.length && params.types[params.types.length - 1] === 'Array') {
+      this.gridApi.ensureColumnVisible('0');
     }
   }
 
@@ -587,7 +640,19 @@ class DocumentTableView extends React.Component {
       },
 
       editable: function(params) {
-        return (isEditable && params.node.data.state !== 'deleting');
+        if (!isEditable || params.node.data.state === 'deleting') {
+          return false;
+        } else if (path.length <= 1) {
+          return true;
+        }
+        const parent = params.node.data.hadronDocument.getChild(
+          path.slice(0, path.length - 1)
+        );
+        if (parent.currentType === 'Array' &&
+            params.colDef.colId > parent.elements.lastElement.currentKey + 1) {
+          return false;
+        }
+        return true;
       },
 
       cellEditorFramework: CellEditor,
@@ -619,7 +684,7 @@ class DocumentTableView extends React.Component {
     headers.hadronRowNumber = {
       headerName: 'Row',
       field: 'rowNumber',
-      colId: '$rowNumber', // TODO: make sure user can't get duplicate
+      colId: '$rowNumber',
       width: 30,
       pinned: 'left',
       headerComponentFramework: HeaderComponent,
@@ -735,7 +800,7 @@ class DocumentTableView extends React.Component {
   render() {
     return (
       <div className="ag-parent">
-        <BreadcrumbComponent collection={this.collection}/>
+        <BreadcrumbComponent collection={this.collection} actions={Actions}/>
         {this.AGGrid}
       </div>
     );

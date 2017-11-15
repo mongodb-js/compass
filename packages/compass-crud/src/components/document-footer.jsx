@@ -129,6 +129,9 @@ class DocumentFooter extends React.Component {
    * Handle the user clicking the cancel button.
    */
   handleCancel() {
+    if (this.props.api) {
+      this.props.api.stopEditing();
+    }
     this.doc.cancel();
     this.setState({ mode: VIEWING, message: EMPTY });
   }
@@ -172,6 +175,9 @@ class DocumentFooter extends React.Component {
    * Handle the user clicking the update button.
    */
   handleUpdate() {
+    if (this.props.api) {
+      this.props.api.stopEditing();
+    }
     const object = this.props.doc.generateObject();
     this.setState({ mode: PROGRESS, message: UPDATING });
     this.actions.update(object);
@@ -229,6 +235,7 @@ class DocumentFooter extends React.Component {
           <TextButton
             className="btn btn-borderless btn-xs cancel"
             text="Cancel"
+            dataTestId="cancel-document-button"
             clickHandler={this.handleCancel} />
           <TextButton
             className="btn btn-default btn-xs"
@@ -248,7 +255,8 @@ DocumentFooter.propTypes = {
   doc: PropTypes.object.isRequired,
   actions: PropTypes.object.isRequired,
   updateStore: PropTypes.object.isRequired,
-  cancelHandler: PropTypes.func
+  cancelHandler: PropTypes.func,
+  api: PropTypes.any
 };
 
 module.exports = DocumentFooter;

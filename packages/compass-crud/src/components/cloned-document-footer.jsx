@@ -163,6 +163,9 @@ class ClonedDocumentFooter extends React.Component {
    * Handle the user clicking the update button.
    */
   handleUpdate() {
+    if (this.props.api) {
+      this.props.api.stopEditing();
+    }
     const object = this.props.doc.generateObject();
     this.setState({ mode: PROGRESS, message: UPDATING });
     this.actions.insert(object);
@@ -221,6 +224,7 @@ class ClonedDocumentFooter extends React.Component {
           <TextButton
             className="btn btn-borderless btn-xs cancel"
             text="Cancel"
+            dataTestId="cancel-document-button"
             clickHandler={this.handleCancel} />
           <TextButton
             className="btn btn-default btn-xs"
@@ -240,7 +244,8 @@ ClonedDocumentFooter.propTypes = {
   doc: PropTypes.object.isRequired,
   actions: PropTypes.object.isRequired,
   insertStore: PropTypes.object.isRequired,
-  cancelHandler: PropTypes.func.isRequired
+  cancelHandler: PropTypes.func.isRequired,
+  api: PropTypes.any
 };
 
 module.exports = ClonedDocumentFooter;

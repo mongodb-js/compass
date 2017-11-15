@@ -25,7 +25,7 @@ class BreadcrumbComponent extends React.Component {
   }
 
   onTabClicked(index) {
-    Actions.pathChanged(
+    this.props.actions.pathChanged(
       this.state.path.slice(0, index + 1),
       this.state.types.slice(0, index + 1)
     );
@@ -34,7 +34,7 @@ class BreadcrumbComponent extends React.Component {
   onHomeClicked() {
     this.state.path = [];
     this.state.types = [];
-    Actions.pathChanged([], []);
+    this.props.actions.pathChanged([], []);
   }
 
   /**
@@ -71,11 +71,13 @@ class BreadcrumbComponent extends React.Component {
 }
 
 BreadcrumbComponent.propTypes = {
-  collection: PropTypes.string.isRequired
+  collection: PropTypes.string.isRequired,
+  actions: PropTypes.any.isRequired
 };
 
 BreadcrumbComponent.defaultPropTypes = {
-  collection: ''
+  collection: '',
+  actions: Actions
 };
 
 BreadcrumbComponent.displayName = 'BreadcrumbComponent';

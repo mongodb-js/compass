@@ -1,3 +1,4 @@
+/* eslint-disable react/sort-comp */
 const React = require('react');
 const PropTypes = require('prop-types');
 const getComponent = require('hadron-react-bson');
@@ -109,7 +110,8 @@ class CellRenderer extends React.Component {
     const oid = this.props.node.data.hadronDocument.getStringId();
     if (this.element.isAdded()) {
       this.isDeleted = true;
-      this.props.actions.elementRemoved(this.element.currentKey, oid);
+      const isArray = !this.element.parent.isRoot() && this.element.parent.currentType === 'Array';
+      this.props.actions.elementRemoved(this.element.currentKey, oid, isArray);
     } else if (this.element.isRemoved()) {
       this.props.actions.elementAdded(this.element.currentKey, this.element.currentType, oid);
     } else {
@@ -145,6 +147,23 @@ class CellRenderer extends React.Component {
     );
   }
 
+  getLength() {
+    if (this.element.currentType === 'Object') {
+      return Object.keys(this.element.generateObject()).length;
+    }
+    if (this.element.currentType === 'Array') {
+      let count = 0;
+      let element = this.element.elements.firstElement;
+      while (element) {
+        if (!(element.currentKey === '' && element.currentValue === '')) {
+          count++;
+        }
+        element = element.nextElement;
+      }
+      return count;
+    }
+  }
+
   renderValidCell() {
     let className = VALUE_BASE;
     let element = '';
@@ -155,9 +174,9 @@ class CellRenderer extends React.Component {
     }
 
     if (this.element.currentType === 'Object') {
-      element = `{} ${this.element.elements.size} fields`;
+      element = `{} ${this.getLength()} fields`;
     } else if (this.element.currentType === 'Array') {
-      element = `[] ${this.element.elements.size} elements`;
+      element = `[] ${this.getLength()} elements`;
     } else {
       const component = getComponent(this.element.currentType);
       element = React.createElement(
