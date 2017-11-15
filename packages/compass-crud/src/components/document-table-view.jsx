@@ -591,9 +591,15 @@ class DocumentTableView extends React.Component {
   }
 
    /**
-   * Set the width of the document footer based on the width of the columns.
-   * If there are more columns than can displayed, set the width to 100%.
-   */
+    * Set the width of the document footer based on the width of the columns.
+    * If there are more columns than can displayed, set the width to 100%.
+    * Assigned to the AG-Grid callback getRowStyle.
+    *
+    * @param {Object} params - AG-Grid params object. This function uses the
+    * state of the row in params.node.data.state.
+    *
+    * @returns {Object} - A CSS style object containing the correct width.
+    */
   updateWidth(params) {
     const allColumns = this.columnApi.getAllColumns();
     const tableWidth = document.getElementById('borderLayout_eRootPanel').offsetWidth;
