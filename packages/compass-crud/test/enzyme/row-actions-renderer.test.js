@@ -33,15 +33,15 @@ describe('<RowActionsRenderer />', () => {
       });
       it('renders the copy to JSON button', () => {
         const wrapper = component.find('.table-view-row-actions');
-        expect(wrapper.find({title: 'Copy row'})).to.be.present();
+        expect(wrapper.find({title: 'Copy Document'})).to.be.present();
       });
       it('renders the clone document button', () => {
         const wrapper = component.find('.table-view-row-actions');
-        expect(wrapper.find({title: 'Clone row'})).to.be.present();
+        expect(wrapper.find({title: 'Clone Document'})).to.be.present();
       });
       it('renders the delete document button', () => {
         const wrapper = component.find('.table-view-row-actions');
-        expect(wrapper.find({title: 'Delete row'})).to.be.present();
+        expect(wrapper.find({title: 'Delete Document'})).to.be.present();
       });
     });
     describe('nested', () => {
@@ -99,7 +99,7 @@ describe('<RowActionsRenderer />', () => {
           component = mount(<RowActionsRenderer api={api} value={value}
                                                 node={rowNode} context={context}
                                                 data={data} nested={false} />);
-          const wrapper = component.find({title: 'Clone row'});
+          const wrapper = component.find({title: 'Clone Document'});
           wrapper.simulate('click');
           done();
         });
@@ -121,7 +121,7 @@ describe('<RowActionsRenderer />', () => {
           component = mount(<RowActionsRenderer api={api} value={value}
                                                 node={rowNode} context={context}
                                                 data={data} nested={false} />);
-          const wrapper = component.find({title: 'Delete row'});
+          const wrapper = component.find({title: 'Delete Document'});
           wrapper.simulate('click');
           done();
         });
