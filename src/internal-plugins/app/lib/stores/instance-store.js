@@ -21,11 +21,19 @@ const InstanceStore = Reflux.createStore({
   listenables: InstanceActions,
 
   onActivated(appRegistry) {
-    appRegistry.on('data-service-connected', (err, dataService) => {
-      if (!err) {
-        this.dataService = dataService;
-      }
-    });
+    appRegistry.on('data-service-connected', this.onConnected.bind(this));
+    appRegistry.on('data-service-disconnected', this.onDisconnected.bind(this));
+  },
+
+  onConnected(err, dataService) {
+    if (!err) {
+      this.dataService = dataService;
+    }
+  },
+
+  onDisconnected() {
+    const MongoDBInstance = require('../../../../app/models/mongodb-instance');
+    app.state.instance = new MongoDBInstance();
   },
 
   /**
