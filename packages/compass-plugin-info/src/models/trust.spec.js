@@ -19,13 +19,13 @@ describe('Trust', () => {
       context('when trust settings are saved', () => {
         context('when the plugin is trusted', () => {
           it('returns true', () => {
-            expect(isTrusted(extPlugin, { 'external-plugin': true })).to.equal(true);
+
           });
         });
 
         context('when the plugin is not trusted', () => {
           it('returns false', () => {
-            expect(isTrusted(extPlugin, { 'external-plugin': false })).to.equal(false);
+
           });
         });
       });
