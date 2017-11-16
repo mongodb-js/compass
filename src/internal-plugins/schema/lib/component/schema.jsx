@@ -23,7 +23,7 @@ const ERROR_WARNING = 'An error occurred during schema analysis';
 const HEADER = 'Explore your schema';
 
 const SUBTEXT = 'Quickly visualize your schema to understand the frequency, types and ranges of'
-  + ' fields in your data set.';
+  + '\xa0fields in your data set.';
 
 const DOCUMENTATION_LINK = 'https://docs.mongodb.com/compass/master/schema/';
 
