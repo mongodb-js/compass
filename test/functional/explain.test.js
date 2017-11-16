@@ -83,7 +83,7 @@ describe('#explain', function() {
         return client
           .clickDocumentsTab()
           .getSamplingMessageFromDocumentsTab()
-          .should.eventually.include('1 document.');
+          .should.eventually.include('of 1');
       });
 
       it('updates the schema view', function() {
