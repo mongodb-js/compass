@@ -1,31 +1,19 @@
+/*
+ * Place tests that must run in a renderer context inside Electron here.
+ *
+ * Note: The tests below are just a copy of the store unit tests as an example.
+ * More complex plugins will require actual renderer/integration tests to be
+ * executed here.
+ */
+
 import Store from 'stores';
 
 describe('SecurityStore [Store]', () => {
   beforeEach(() => {
-    Store.state = Store.getInitialState();
+    Store.setState(Store.getInitialState());
   });
 
-  describe('#trust', () => {
-    it('sets the plugin trust to true', () => {
-
-    });
-
-    it('persists the changes', () => {
-
-    });
-  });
-
-  describe('#untrust', () => {
-    it('sets the plugin trust to false', () => {
-
-    });
-
-    it('persists the changes', () => {
-
-    });
-  });
-
-  describe('#setup', () => {
-
+  it('defaults isVisible to false', () => {
+    expect(Store.state.isVisible).to.equal(false);
   });
 });
