@@ -322,8 +322,10 @@ class DocumentTableView extends React.Component {
       i++;
     }
 
+    const parentType = updateArray ? 'Array' : 'Object';
+
     // Newly added columns are always editable.
-    const newColDef = this.createColumnHeader(colType, true, [].concat(path, [headerName]));
+    const newColDef = this.createColumnHeader(colType, true, [].concat(path, [headerName]), parentType);
     columnHeaders.splice(i + 1, 0, newColDef);
 
     this.gridApi.setColumnDefs(columnHeaders);
@@ -556,7 +558,7 @@ class DocumentTableView extends React.Component {
     if (params.path.length === 0) {
       this.topLevel = true;
 
-      const headers = this.createColumnHeaders(this.hadronDocs, []);
+      const headers = this.createColumnHeaders(this.hadronDocs, [], []);
 
       this.gridApi.gridOptionsWrapper.gridOptions.context.path = [];
       this.gridApi.setColumnDefs(headers);
@@ -565,8 +567,14 @@ class DocumentTableView extends React.Component {
                params.types[params.types.length - 1] === 'Array') {
       this.topLevel = false;
 
-      const headers = this.createColumnHeaders(this.hadronDocs, params.path);
+      const headers = this.createColumnHeaders(this.hadronDocs, params.path, params.types);
       headers.push(this.createObjectIdHeader());
+
+      if (headers.length <= 3) {
+        headers.push(this.createPlaceholderHeader(
+          params.types[params.types.length - 1] === 'Array', params.path)
+        );
+      }
 
       this.gridApi.gridOptionsWrapper.gridOptions.context.path = params.path;
       this.gridApi.setRowData(this.createRowData(this.hadronDocs, 1));
@@ -629,6 +637,12 @@ class DocumentTableView extends React.Component {
     });
   }
 
+  createPlaceholderHeader(isArray, path) {
+    const name = isArray ? 0 : '$new';
+    const type = isArray ? 'Array' : 'Object';
+    return this.createColumnHeader('String', true, [].concat(path, [name]), type);
+  }
+
   createObjectIdHeader() {
     return {
       headerName: '_id',
@@ -645,7 +659,8 @@ class DocumentTableView extends React.Component {
       },
       cellRendererFramework: CellRenderer,
       cellRendererParams: {
-        actions: Actions
+        actions: Actions,
+        parentType: ''
       },
       editable: false,
       cellEditorFramework: CellEditor,
@@ -661,15 +676,32 @@ class DocumentTableView extends React.Component {
    * @param {boolean} isEditable - If the column is read-only.
    * @param {Array} path - The list of path segments, including the key of this
    * column. Will always have at least 1 element.
+   * @param {String} parentType - The type of the sub elements being rendered.
+   * Can be either array or object.
    *
    * @returns {Object} A column definition for this header.
    */
-  createColumnHeader(type, isEditable, path) {
+  createColumnHeader(type, isEditable, path, parentType) {
     return {
       headerName: path[path.length - 1],
       colId: path[path.length - 1],
       valueGetter: function(params) {
-        return params.data.hadronDocument.getChild(path);
+        const child = params.data.hadronDocument.getChild(path);
+        if (path.length <= 1) {
+          return child;
+        }
+        const parent = params.node.data.hadronDocument.getChild(
+          path.slice(0, path.length - 1)
+        );
+        if (parent === undefined) {
+          return child;
+        }
+        /* If we're drilling down into an array, don't get object elements and
+           vice versa */
+        if (parentType !== parent.currentType) {
+          return undefined;
+        }
+        return child;
       },
       valueSetter: function(params) {
         if (params.oldValue === undefined && params.newValue === undefined) {
@@ -686,7 +718,8 @@ class DocumentTableView extends React.Component {
 
       cellRendererFramework: CellRenderer,
       cellRendererParams: {
-        actions: Actions
+        actions: Actions,
+        parentType: parentType
       },
 
       editable: function(params) {
@@ -698,9 +731,17 @@ class DocumentTableView extends React.Component {
         const parent = params.node.data.hadronDocument.getChild(
           path.slice(0, path.length - 1)
         );
-        if (parent.currentType === 'Array' &&
-            params.colDef.colId > parent.elements.lastElement.currentKey + 1) {
+        if (!parent || parent.currentType !== parentType) {
           return false;
+        }
+        if (parent.currentType === 'Array' && params.column.getColId() !== '$_id') {
+          let maxKey = 0;
+          if (parent.elements.lastElement) {
+            maxKey = parent.elements.lastElement.currentKey + 1;
+          }
+          if (params.column.getColId() > maxKey) {
+            return false;
+          }
         }
         return true;
       },
@@ -721,13 +762,16 @@ class DocumentTableView extends React.Component {
    *
    * @param {Array} hadronDocs - The list of HadronDocuments.
    * @param {Array} path - The list of path segments. Empty when top-level.
+   * @param {Array} types - The list of types. If element is not of the correct
+   * type, then don't render it.
    *
    * @returns {object} the ColHeaders, which is a list of colDefs.
    */
-  createColumnHeaders(hadronDocs, path) {
+  createColumnHeaders(hadronDocs, path, types) {
     const headers = {};
     const headerTypes = {};
     const isEditable = this.props.isEditable;
+    const parentType = types.length ? types[types.length - 1] : 'Object';
 
     const addHeader = this.createColumnHeader;
 
@@ -751,6 +795,10 @@ class DocumentTableView extends React.Component {
 
       if (path.length > 0) {
         topLevel = topLevel.getChild(path);
+        /* Don't render columns if type doesn't match */
+        if (!topLevel || topLevel.currentType !== parentType) {
+          continue;
+        }
       }
 
       if (topLevel === undefined) {
@@ -760,7 +808,7 @@ class DocumentTableView extends React.Component {
       for (const element of topLevel.elements) {
         const key = element.currentKey;
         const type = element.currentType;
-        headers[key] = addHeader(type, isEditable, [].concat(path, [key]));
+        headers[key] = addHeader(type, isEditable, [].concat(path, [key]), parentType);
 
         if (!(key in headerTypes)) {
           headerTypes[key] = {};
@@ -779,10 +827,10 @@ class DocumentTableView extends React.Component {
     const showing = {};
 
     _.map(headerTypes, function(oids, key) {
-      const types = Object.values(oids);
-      let currentType = types[0];
-      for (let i = 0; i < types.length; i++) {
-        if (currentType !== types[i]) {
+      const colTypes = Object.values(oids);
+      let currentType = colTypes[0];
+      for (let i = 0; i < colTypes.length; i++) {
+        if (currentType !== colTypes[i]) {
           currentType = MIXED;
           break;
         }

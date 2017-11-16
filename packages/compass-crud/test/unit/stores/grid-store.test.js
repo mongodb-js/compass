@@ -1087,9 +1087,12 @@ describe('GridStore', () => {
       it('triggers correctly', (done) => {
         const unsubscribe = GridStore.listen((params) => {
           unsubscribe();
-          expect(params).to.deep.equal({updateHeaders: {showing: {
-            0: 'Int32', 1: 'Mixed', 2: 'Int32'
-          }}});
+          expect(params).to.deep.equal({
+            updateHeaders: {showing: {
+              0: 'Int32', 1: 'Mixed', 2: 'Int32'}
+            },
+            refresh: {oid: 'id1'}
+          });
           done();
         });
         GridStore.replaceDoc(
@@ -1130,9 +1133,12 @@ describe('GridStore', () => {
       it('triggers correctly', (done) => {
         const unsubscribe = GridStore.listen((params) => {
           unsubscribe();
-          expect(params).to.deep.equal({updateHeaders: {showing: {
-            0: 'Int32', 1: 'String', 2: 'String', 3: 'Int32', 4: 'String'
-          }}});
+          expect(params).to.deep.equal({
+            updateHeaders: {showing: {
+              0: 'Int32', 1: 'String', 2: 'String', 3: 'Int32', 4: 'String'}
+            },
+            refresh: {oid: 'id1'}
+          });
           done();
         });
         GridStore.replaceDoc(

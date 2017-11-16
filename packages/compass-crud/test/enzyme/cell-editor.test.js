@@ -276,11 +276,15 @@ describe('<CellEditor />', () => {
         it('unmounting calls stopEditing', () => {
           expect(api.stopEditing.callCount).to.equal(1);
         });
+        it('unmounting calls refreshCells', () => {
+          expect(api.refreshCells.callCount).to.equal(1);
+          expect(api.refreshCells.args[0]).to.deep.equal([{rowNodes: [rowNode], force: true}]);
+        });
         it('updates the hadronElement', () => {
           expect(value.currentValue).to.equal('new input');
         });
         it('does not trigger other actions', () => {
-          notCalledExcept(api, ['stopEditing']);
+          notCalledExcept(api, ['stopEditing', 'refreshCells']);
           notCalledExcept(actions, []);
         });
       });
@@ -312,13 +316,17 @@ describe('<CellEditor />', () => {
           it('calls api.stopEditing()', () => {
             expect(api.stopEditing.callCount).to.equal(1);
           });
+          it('unmounting calls refreshCells', () => {
+            expect(api.refreshCells.callCount).to.equal(1);
+            expect(api.refreshCells.args[0]).to.deep.equal([{rowNodes: [rowNode], force: true}]);
+          });
           it('calls elementTypeChanged', () => {
             expect(actions.elementTypeChanged.callCount).to.equal(1);
             expect(actions.elementTypeChanged.alwaysCalledWithExactly(
               'field1', 'Int32', '1')).to.equal(true);
           });
           it('does not trigger other actions', () => {
-            notCalledExcept(api, ['stopEditing']);
+            notCalledExcept(api, ['stopEditing', 'refreshCells']);
             notCalledExcept(actions, ['elementTypeChanged']);
           });
         });
@@ -348,13 +356,17 @@ describe('<CellEditor />', () => {
           it('calls api.stopEditing()', () => {
             expect(api.stopEditing.callCount).to.equal(1);
           });
+          it('unmounting calls refreshCells', () => {
+            expect(api.refreshCells.callCount).to.equal(1);
+            expect(api.refreshCells.args[0]).to.deep.equal([{rowNodes: [rowNode], force: true}]);
+          });
           it('calls elementTypeChanged', () => {
             expect(actions.elementTypeChanged.callCount).to.equal(1);
             expect(actions.elementTypeChanged.alwaysCalledWithExactly(
               'field1', 'Date', '1')).to.equal(true);
           });
           it('does not trigger other actions', () => {
-            notCalledExcept(api, ['stopEditing']);
+            notCalledExcept(api, ['stopEditing', 'refreshCells']);
             notCalledExcept(actions, ['elementTypeChanged']);
           });
         });
@@ -385,8 +397,12 @@ describe('<CellEditor />', () => {
           it('calls api.stopEditing()', () => {
             expect(api.stopEditing.callCount).to.equal(1);
           });
+          it('unmounting calls refreshCells', () => {
+            expect(api.refreshCells.callCount).to.equal(1);
+            expect(api.refreshCells.args[0]).to.deep.equal([{rowNodes: [rowNode], force: true}]);
+          });
           it('does not trigger other actions', () => {
-            notCalledExcept(api, ['stopEditing']);
+            notCalledExcept(api, ['stopEditing', 'refreshCells']);
             notCalledExcept(actions, ['elementMarkRemoved']);
           });
         });
@@ -417,8 +433,12 @@ describe('<CellEditor />', () => {
         it('calls api.stopEditing()', () => {
           expect(api.stopEditing.callCount).to.equal(1);
         });
+        it('unmounting calls refreshCells', () => {
+          expect(api.refreshCells.callCount).to.equal(1);
+          expect(api.refreshCells.args[0]).to.deep.equal([{rowNodes: [rowNode], force: true}]);
+        });
         it('does not trigger other actions', () => {
-          notCalledExcept(api, ['stopEditing']);
+          notCalledExcept(api, ['stopEditing', 'refreshCells']);
           notCalledExcept(actions, ['elementRemoved']);
         });
       });
@@ -468,8 +488,12 @@ describe('<CellEditor />', () => {
         it('calls refreshHeader', () => {
           expect(api.refreshHeader.callCount).to.equal(1);
         });
+        it('unmounting calls refreshCells', () => {
+          expect(api.refreshCells.callCount).to.equal(1);
+          expect(api.refreshCells.args[0]).to.deep.equal([{rowNodes: [rowNode], force: true}]);
+        });
         it('does not trigger other actions', () => {
-          notCalledExcept(api, ['refreshHeader']);
+          notCalledExcept(api, ['refreshHeader', 'refreshCells']);
           notCalledExcept(actions, ['elementAdded', 'renameColumn']);
         });
       });
@@ -693,8 +717,12 @@ describe('<CellEditor />', () => {
           expect(actions.elementAdded.alwaysCalledWithExactly(
             'field1', 'String', '1')).to.equal(true);
         });
+        it('calls refreshCells', () => {
+          expect(api.refreshCells.callCount).to.equal(1);
+          expect(api.refreshCells.args[0]).to.deep.equal([{rowNodes: [rowNode], force: true}]);
+        });
         it('does not trigger other actions', () => {
-          notCalledExcept(api, []);
+          notCalledExcept(api, ['refreshCells']);
           notCalledExcept(actions, ['elementAdded']);
         });
       });
@@ -730,8 +758,12 @@ describe('<CellEditor />', () => {
           expect(actions.elementAdded.alwaysCalledWithExactly(
             'subsubfield', 'String', '1')).to.equal(true);
         });
+        it('calls refreshCells', () => {
+          expect(api.refreshCells.callCount).to.equal(1);
+          expect(api.refreshCells.args[0]).to.deep.equal([{rowNodes: [rowNode], force: true}]);
+        });
         it('does not trigger other actions', () => {
-          notCalledExcept(api, []);
+          notCalledExcept(api, ['refreshCells']);
           notCalledExcept(actions, ['elementAdded']);
         });
       });

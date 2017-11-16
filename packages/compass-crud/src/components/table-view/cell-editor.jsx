@@ -61,8 +61,19 @@ class CellEditor extends React.Component {
     this.wasEmpty = false;
     this.newField = false;
 
-    /* If there was no value in the cell */
-    if (this.element === undefined) {
+    let parent = this.props.node.data.hadronDocument;
+    if (this.props.context.path.length) {
+      parent = parent.getChild(this.props.context.path);
+    }
+
+    /* If expanding an empty element */
+    if (this.element === undefined && this.props.column.getColDef().headerName === '$new') {
+      this.wasEmpty = true;
+
+      this.element = parent.insertEnd('$new', '');
+      this.newField = true;
+    } else if (this.element === undefined) {
+      /* field was empty */
       this.wasEmpty = true;
       /* If the column is of one type, then make the new value that type.
          Otherwise, set it to undefined. Set the key name to be the columnId */
@@ -70,11 +81,6 @@ class CellEditor extends React.Component {
       let type = this.props.column.getColDef().headerComponentParams.bsonType;
       if (type === 'Mixed') {
         type = 'String';
-      }
-
-      let parent = this.props.node.data.hadronDocument;
-      if (this.props.context.path.length) {
-        parent = parent.getChild(this.props.context.path);
       }
 
       const value = TypeChecker.cast(EMPTY_TYPE[type], type);
@@ -145,6 +151,7 @@ class CellEditor extends React.Component {
       const path = [].concat(this.props.context.path, [key]);
 
       /* Cancel and remove the column if the key was unedited or a duplicate */
+      // TODO: Applies to objects, not arrays.
       if (key === '' || this.isDuplicateKey(key)) {
         this.element.revert();
         this.props.actions.removeColumn('$new');
@@ -184,6 +191,7 @@ class CellEditor extends React.Component {
        Docs: https://www.ag-grid.com/javascript-grid-column-definitions
        */
     }
+    this.props.api.refreshCells({rowNodes: [this.props.node], force: true});
   }
 
   focus() {
@@ -197,6 +205,15 @@ class CellEditor extends React.Component {
   }
 
   handleTypeChange() {
+    /* If we've casted to object or array, need to get rid of any placeholders */
+    const type = this.element.currentType;
+    if (type !== this.oldType && (type === 'Array' || type === 'Object')) {
+      for (const element of this.element.elements) {
+        if (element.isAdded() && element.currentKey === '' && element.currentValue === '') {
+          element.remove();
+        }
+      }
+    }
     this.changed = true;
     this.props.api.stopEditing();
   }

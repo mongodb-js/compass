@@ -15,7 +15,8 @@ const getApi = function() {
     selectAll: sinon.spy(),
     startEditingCell: sinon.spy(),
     stopEditing: sinon.spy(),
-    refreshHeader: sinon.spy()
+    refreshHeader: sinon.spy(),
+    refreshCells: sinon.spy()
   };
 };
 

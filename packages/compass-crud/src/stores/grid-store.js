@@ -100,7 +100,7 @@ const GridStore = Reflux.createStore( {
    * @param {Object} newDoc
    */
   replaceDoc(oldOid, newOid, newDoc) {
-    const params = {};
+    const params = {refresh: {oid: newOid}};
 
     /* Replace types in this.columns */
     _.forEach(this.columns, (val, key) => {
@@ -165,8 +165,8 @@ const GridStore = Reflux.createStore( {
   },
 
   /**
-   * After an update, go through and see if any columns are empty. If so,
-   * delete them.
+   * After an update or cancel, go through and see if any columns are empty.
+   * If so, delete them.
    */
   cleanCols() {
     const toDel = [];
@@ -459,7 +459,7 @@ const GridStore = Reflux.createStore( {
   },
 
   /**
-   * A column must be removed from the grid.
+   * A column must be removed from the grid. Currently only used for $new.
    *
    * @param {String} colId - The colId of the column to be removed.
    */

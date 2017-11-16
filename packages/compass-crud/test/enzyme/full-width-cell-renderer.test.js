@@ -133,52 +133,100 @@ describe('<FullWidthCellRenderer />', () => {
     let data;
     describe('cancel', () => {
       describe('update', () => {
-        const api = getApi();
-        const actions = getActions();
-        const context = getContext([]);
-        before((done) => {
-          rowNode = getNode({toAdd: 1, toTypeChange: 2});
-          rowNode.data.state = 'editing';
-          data = rowNode.data;
+        describe('with valid element', () => {
+          const api = getApi();
+          const actions = getActions();
+          const context = getContext([]);
+          before((done) => {
+            rowNode = getNode({toAdd: 1, toTypeChange: 2});
+            rowNode.data.state = 'editing';
+            data = rowNode.data;
 
-          data.hadronDocument.get('toAdd').remove();
-          data.hadronDocument.insertEnd('toRemove', 3);
-          data.hadronDocument.get('toTypeChange').edit('2');
+            data.hadronDocument.get('toAdd').remove();
+            data.hadronDocument.insertEnd('toRemove', 3);
+            data.hadronDocument.get('toTypeChange').edit('2');
 
-          component = mount(<FullWidthCellRenderer api={api} node={rowNode}
+            component = mount(<FullWidthCellRenderer api={api} node={rowNode}
                                                    actions={actions} data={data}
                                                    context={context}
                                                    dataService={dataService}/>);
-          const wrapper = component.find({'data-test-id': 'cancel-document-button'});
-          expect(wrapper).to.be.present();
-          wrapper.simulate('click');
-          done();
-        });
-        it('calls api.stopEditing()', () => {
-          expect(api.stopEditing.callCount).to.equal(1);
-        });
-        it('calls replaceDoc', () => {
-          expect(actions.replaceDoc.callCount).to.equal(1);
-          expect(actions.replaceDoc.alwaysCalledWithExactly(
+            const wrapper = component.find({'data-test-id': 'cancel-document-button'});
+            expect(wrapper).to.be.present();
+            wrapper.simulate('click');
+            done();
+          });
+          it('calls api.stopEditing()', () => {
+            expect(api.stopEditing.callCount).to.equal(1);
+          });
+          it('calls replaceDoc', () => {
+            expect(actions.replaceDoc.callCount).to.equal(1);
+            expect(actions.replaceDoc.alwaysCalledWithExactly(
             '1', '1', {toAdd: 1, toTypeChange: 2, _id: '1'})).to.equal(true);
-        });
-        it('calls cleanCols', () => {
-          expect(actions.cleanCols.callCount).to.equal(1);
-        });
-        it('does not call other actions', () => {
-          notCalledExcept(actions,
+          });
+          it('calls cleanCols', () => {
+            expect(actions.cleanCols.callCount).to.equal(1);
+          });
+          it('does not call other actions', () => {
+            notCalledExcept(actions,
               ['replaceDoc', 'cleanCols']);
-        });
-        it('calls cancel on the HadronDocument', () => {
-          expect(data.hadronDocument.generateObject()).to.deep.equal({
-            _id: '1', toAdd: 1, toTypeChange: 2
+          });
+          it('calls cancel on the HadronDocument', () => {
+            expect(data.hadronDocument.generateObject()).to.deep.equal({
+              _id: '1', toAdd: 1, toTypeChange: 2
+            });
+          });
+          it('removes the footer', () => {
+            expect(context.removeFooter.callCount).to.equal(1);
+            expect(context.removeFooter.alwaysCalledWithExactly(
+              rowNode)).to.equal(true);
+            notCalledExcept(context, ['removeFooter']);
           });
         });
-        it('removes the footer', () => {
-          expect(context.removeFooter.callCount).to.equal(1);
-          expect(context.removeFooter.alwaysCalledWithExactly(
+        describe('with uneditable row', () => {
+          const api = getApi();
+          const actions = getActions();
+          const context = getContext(['field does not exist']);
+          before((done) => {
+            rowNode = getNode({toAdd: 1, toTypeChange: 2});
+            rowNode.data.state = 'editing';
+            data = rowNode.data;
+
+            data.hadronDocument.get('toAdd').remove();
+            data.hadronDocument.insertEnd('toRemove', 3);
+            data.hadronDocument.get('toTypeChange').edit('2');
+
+            component = mount(<FullWidthCellRenderer api={api} node={rowNode}
+                                                     actions={actions} data={data}
+                                                     context={context}
+                                                     dataService={dataService}/>);
+            const wrapper = component.find({'data-test-id': 'cancel-document-button'});
+            expect(wrapper).to.be.present();
+            wrapper.simulate('click');
+            done();
+          });
+          it('calls api.stopEditing()', () => {
+            expect(api.stopEditing.callCount).to.equal(1);
+          });
+          it('does not call replaceDoc', () => {
+            expect(actions.replaceDoc.callCount).to.equal(0);
+          });
+          it('does not call cleanCols', () => {
+            expect(actions.cleanCols.callCount).to.equal(0);
+          });
+          it('does not call other actions', () => {
+            notCalledExcept(actions, []);
+          });
+          it('calls cancel on the HadronDocument', () => {
+            expect(data.hadronDocument.generateObject()).to.deep.equal({
+              _id: '1', toAdd: 1, toTypeChange: 2
+            });
+          });
+          it('removes the footer', () => {
+            expect(context.removeFooter.callCount).to.equal(1);
+            expect(context.removeFooter.alwaysCalledWithExactly(
               rowNode)).to.equal(true);
-          notCalledExcept(context, ['removeFooter']);
+            notCalledExcept(context, ['removeFooter']);
+          });
         });
       });
       describe('clone', () => {

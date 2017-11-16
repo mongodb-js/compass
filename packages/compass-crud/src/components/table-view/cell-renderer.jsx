@@ -6,8 +6,6 @@ const { Element } = require('hadron-document');
 
 const initEditors = require('../editor/');
 
-// const util = require('util');
-
 /**
  * The BEM base style name for the cell.
  */
@@ -44,6 +42,11 @@ const EDITED = 'is-edited';
 const EMPTY = 'is-empty';
 
 /**
+ * The uneditable constant.
+ */
+const UNEDITABLE = 'is-uneditable';
+
+/**
  * The invalid constant.
  */
 const INVALID = 'is-invalid';
@@ -69,6 +72,25 @@ class CellRenderer extends React.Component {
     this.isEmpty = props.value === undefined || props.value === null;
     this.isDeleted = false;
     this.element = props.value;
+
+    /* Can't get the editable() function from here, so have to reevaluate */
+    this.editable = true;
+    this.wrongParentType = false;
+    if (props.context.path.length > 0 && props.column.getColId() !== '$_id') {
+      const parent = props.node.data.hadronDocument.getChild(props.context.path);
+      if (!parent || (props.parentType && parent.currentType !== props.parentType)) {
+        this.wrongParentType = true;
+        this.editable = false;
+      } else if (parent.currentType === 'Array') {
+        let maxKey = 0;
+        if (parent.elements.lastElement) {
+          maxKey = parent.elements.lastElement.currentKey + 1;
+        }
+        if (props.column.getColId() > maxKey) {
+          this.editable = false;
+        }
+      }
+    }
 
     this._editors = initEditors(this.element);
   }
@@ -225,7 +247,13 @@ class CellRenderer extends React.Component {
     let canUndo = false;
     let canExpand = false;
 
-    if (this.isEmpty || this.isDeleted) {
+    if (!this.editable) {
+      element = 'No field';
+      if (this.wrongParentType) {
+        element = '';
+      }
+      className = `${className}-${UNEDITABLE}`;
+    } else if (this.isEmpty || this.isDeleted) {
       element = 'No field';
       className = `${className}-${EMPTY}`;
     } else if (!this.element.isCurrentTypeValid()) {
@@ -263,6 +291,8 @@ CellRenderer.propTypes = {
   value: PropTypes.any,
   node: PropTypes.any,
   column: PropTypes.any,
+  context: PropTypes.any,
+  parentType: PropTypes.any.isRequired,
   actions: PropTypes.any.isRequired
 };
 
