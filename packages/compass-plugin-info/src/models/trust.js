@@ -6,13 +6,13 @@ const CORE = '@mongodb-js';
 /**
  * Determine if a plugin is trusted.
  *
- * @param {Object} metadata - The plugin metadata.
+ * @param {Plugin} plugin - The plugin.
  * @param {Object} trust - The trust settings.
  *
  * @returns {Boolean} If the plugin is trusted.
  */
-const isTrusted = (metadata, trust) => {
-  const name = metadata.name;
+const isTrusted = (plugin, trust) => {
+  const name = plugin.metadata.name;
   if (name.startsWith(CORE) || trust[name]) {
     return true;
   }
