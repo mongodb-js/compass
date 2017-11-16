@@ -100,6 +100,7 @@ class DocumentTableView extends React.Component {
     this.unsubscribeInsert();
     this.unsubscribeReset();
     this.unsubscribePageChanged();
+    this.gridApi.destroy();
   }
 
   /**

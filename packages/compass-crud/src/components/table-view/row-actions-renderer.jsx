@@ -13,7 +13,6 @@ const BEM_BASE = 'table-view-row-actions';
 class RowActionsRenderer extends React.Component {
   constructor(props) {
     super(props);
-    props.api.selectAll();
   }
 
   handleEdit() {

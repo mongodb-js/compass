@@ -19,7 +19,6 @@ const DELETE_ERROR = new Error('Cannot delete documents that do not have an _id 
 class FullWidthCellRenderer extends React.Component {
   constructor(props) {
     super(props);
-    props.api.selectAll();
 
     this.doc = props.data.hadronDocument;
     this.state = {

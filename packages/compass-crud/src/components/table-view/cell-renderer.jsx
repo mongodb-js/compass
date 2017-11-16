@@ -67,7 +67,6 @@ const BUTTON_CLASS = 'table-view-cell-circle-button';
 class CellRenderer extends React.Component {
   constructor(props) {
     super(props);
-    props.api.selectAll();
 
     this.isEmpty = props.value === undefined || props.value === null;
     this.isDeleted = false;
