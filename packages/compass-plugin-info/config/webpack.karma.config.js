@@ -38,10 +38,6 @@ module.exports = {
         ]
       },
       {
-        test: /\.node$/,
-        use: 'node-loader'
-      },
-      {
         test: /\.less$/,
         exclude: /node_modules/,
         use: [

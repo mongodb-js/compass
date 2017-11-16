@@ -80,10 +80,6 @@ module.exports = {
         ]
       },
       {
-        test: /\.node$/,
-        use: 'node-loader'
-      },
-      {
         test: /\.css$/,
         use: [
           { loader: 'style-loader'},
