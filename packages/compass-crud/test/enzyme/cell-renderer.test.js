@@ -174,7 +174,7 @@ describe('<CellRenderer />', () => {
       });
       it('renders the element as uneditable', () => {
         const wrapper = component.find('.table-view-cell-is-uneditable');
-        expect(wrapper.text()).to.equal('No field');
+        expect(wrapper.text()).to.equal('');
       });
       it('does not render the undo button', () => {
         const wrapper = component.find('.table-view-cell-circle-button');

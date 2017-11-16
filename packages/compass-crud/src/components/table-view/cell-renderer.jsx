@@ -74,11 +74,9 @@ class CellRenderer extends React.Component {
 
     /* Can't get the editable() function from here, so have to reevaluate */
     this.editable = true;
-    this.wrongParentType = false;
     if (props.context.path.length > 0 && props.column.getColId() !== '$_id') {
       const parent = props.node.data.hadronDocument.getChild(props.context.path);
       if (!parent || (props.parentType && parent.currentType !== props.parentType)) {
-        this.wrongParentType = true;
         this.editable = false;
       } else if (parent.currentType === 'Array') {
         let maxKey = 0;
@@ -247,10 +245,7 @@ class CellRenderer extends React.Component {
     let canExpand = false;
 
     if (!this.editable) {
-      element = 'No field';
-      if (this.wrongParentType) {
-        element = '';
-      }
+      element = '';
       className = `${className}-${UNEDITABLE}`;
     } else if (this.isEmpty || this.isDeleted) {
       element = 'No field';
