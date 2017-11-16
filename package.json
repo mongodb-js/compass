@@ -149,7 +149,7 @@
     "@mongodb-js/compass-auth-x509": "^0.0.3",
     "@mongodb-js/compass-collection-stats": "^1.0.1",
     "@mongodb-js/compass-connect": "^0.4.0",
-    "@mongodb-js/compass-crud": "^0.10.0",
+    "@mongodb-js/compass-crud": "^1.0.0",
     "@mongodb-js/compass-deployment-awareness": "^5.0.0",
     "@mongodb-js/compass-document-validation": "^7.0.0",
     "@mongodb-js/compass-license": "^0.0.2",
