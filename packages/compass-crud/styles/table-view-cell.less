@@ -1,13 +1,8 @@
 /* Styles for individual cells in the table-view */
 .table-view-cell {
-  z-index: 1;
-  position: absolute;
-  height: 100%;
-  width: 100%;
-  min-height: 28px;
-  padding: 1px 5px;
-  padding-left: 5px;
-  padding-right: 5px;
+  padding: 0px 5px;
+  margin: 1px;
+  line-height: 26px;
 
   &-circle-button {
     position: absolute;
@@ -31,12 +26,10 @@
   }
 
   .editable-element {
-    min-height: 28px;
-    display: block;
-    margin-top: 6px;
     text-overflow: ellipsis;
     overflow: hidden;
     white-space: nowrap;
+    height: 100%;
 
     .element-value {
       &-is-string {
@@ -52,21 +45,11 @@
   }
 
   &-is-empty {
-    line-height: 26px;
-    margin: 1px;
-    padding-left: 5px;
-    padding-right: 5px;
     background-color: #EFEFEF;
   }
 
   &-is-uneditable {
-    min-height: 28px;
-    line-height: 28px;
-    margin: 1px;
-    padding-left: 5px;
-    padding-right: 5px;
-    background: #F5F6F7;
-    color: #A2A0A0;
+    background: #FAFAFA;
   }
 
   &:hover {
@@ -75,7 +58,7 @@
     }
   }
 
-  &-is-deleted, &-is-edited, &-is-added, &-is-invalid {
+  &-is-deleted, &-is-edited, &-is-added, &-is-invalid, &-is-uneditable {
     height: 24px;
     line-height: 24px;
     margin: 2px 1px;
