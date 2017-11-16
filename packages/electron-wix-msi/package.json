@@ -1,0 +1,58 @@
+{
+  "name": "electron-wix-msi",
+  "version": "0.1.0",
+  "description": "Creates an MSI installer for your Electron app",
+  "license": "MIT",
+  "repository": "",
+  "author": {
+    "name": "Felix Rieseberg",
+    "email": "felix@felixrieseberg.com",
+    "url": "https://www.felixrieseberg.com"
+  },
+  "keywords": [
+    "wix",
+    "msi"
+  ],
+  "files": [
+    "lib"
+  ],
+  "main": "lib/index.js",
+  "typings": "lib/index.d.ts",
+  "scripts": {
+    "prepublish": "npm run build",
+    "build": "shx rm -rf lib && tsc --pretty",
+    "test": "jest"
+  },
+  "dependencies": {
+    "fs-extra": "^4.0.2",
+    "klaw": "^2.1.0",
+    "uuid": "^3.1.0"
+  },
+  "devDependencies": {
+    "@types/fs-extra": "^4.0.5",
+    "@types/jest": "^20.0.5",
+    "@types/klaw": "^2.1.0",
+    "@types/node": "^8.0.0",
+    "@types/uuid": "^3.4.3",
+    "jest": "^20.0.4",
+    "jest-environment-node-debug": "^2.0.0",
+    "shx": "^0.2.2",
+    "ts-jest": "^20.0.7",
+    "tslint": "^5.0.0",
+    "typescript": "^2.3.0"
+  },
+  "engines": {
+    "node": ">=7.0.0"
+  },
+  "jest": {
+    "transform": {
+      ".(ts)": "<rootDir>/node_modules/ts-jest/preprocessor.js"
+    },
+    "testRegex": "(/__tests__/.*|\\.(test|spec))\\.(ts|js)$",
+    "moduleFileExtensions": [
+      "ts",
+      "js"
+    ],
+    "testEnvironment": "node"
+  }
+}

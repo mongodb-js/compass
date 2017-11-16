@@ -1,0 +1,59 @@
+<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
+  <!-- http://wixtoolset.org/documentation/manual/v3/xsd/wix/product.html -->
+  <Product Id="*" UpgradeCode="{{UpgradeCode}}"
+          Name="{{ApplicationName}}"
+          Version="{{Version}}"
+          Manufacturer="{{Manufacturer}}"
+          Language="{{Language}}">
+    <!-- Only run this installer on Windows 7 or up (or if it's already installed, I guess) -->
+    <!-- <Condition Message="This application is only supported on Windows 7 or higher.">
+      <![CDATA[Installed OR (VersionNT >= 601)]]>
+    </Condition> -->
+    <!-- http://wixtoolset.org/documentation/manual/v3/xsd/wix/package.html -->
+    <Package InstallerVersion="200"
+             Compressed="yes"
+             InstallScope="perMachine"
+             Comments="Windows Installer Package"/>
+    <Media Id="1" Cabinet="product.cab" EmbedCab="yes"/>
+
+    <!-- Step 1: Define the directory structure -->
+    <Directory Id="TARGETDIR" Name="SourceDir">
+      <!-- Installation files to %PROGRAMFILES% -->
+      <Directory Id="ProgramFilesFolder">
+        <Directory Id="APPLICATIONROOTDIRECTORY" Name="{{ApplicationName}}"/>
+      </Directory>
+      <!-- Start Menu -->
+      <Directory Id="ProgramMenuFolder">
+        <Directory Id="ApplicationProgramsFolder" Name="{{ApplicationName}}"/>
+      </Directory>
+    </Directory>
+
+    <!-- Step 2: Add files to installer package -->
+    <DirectoryRef Id="APPLICATIONROOTDIRECTORY">
+<!-- {{Components}} -->
+    </DirectoryRef>
+
+    <!-- Step 3: Add app to Start Menu -->
+    <DirectoryRef Id="ApplicationProgramsFolder">
+      <Component Id="ApplicationShortcut" Guid="{{ApplicationShortcutGuid}}">
+        <Shortcut Id="ApplicationStartMenuShortcut"
+                  Name="{{ApplicationName}}"
+                  Description="{{ApplicationDescription}}"
+                  Target="[#{{ApplicationBinary}}.exe]"
+                  WorkingDirectory="APPLICATIONROOTDIRECTORY"/>
+        <RemoveFolder Id="ApplicationProgramsFolder" On="uninstall"/>
+        <RegistryValue Root="HKCU"
+                       Key="Software\Microsoft\{{ApplicationShortName}}"
+                       Name="installed"
+                       Type="integer"
+                       Value="1"
+                       KeyPath="yes"/>
+      </Component>
+    </DirectoryRef>
+
+    <!-- Step 4: Tell WiX to install the files -->
+    <Feature Id="MainApplication" Title="Main Application" Level="1">
+<!-- {{ComponentRefs}} -->
+    </Feature>
+  </Product>
+</Wix>

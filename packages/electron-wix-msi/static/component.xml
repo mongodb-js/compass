@@ -1,0 +1,3 @@
+      <Component Id="{{FileId}}" Guid="{{Guid}}">
+          <File Id="{{FileId}}" Source="{{SourcePath}}" KeyPath="yes" Checksum="yes"/>
+      </Component>
