@@ -57,7 +57,7 @@ describe('#data-service', function() {
           .clickDocumentsTab()
           .clickRefreshDocumentsButton()
           .getSamplingMessageFromDocumentsTab()
-          .should.eventually.include('2 documents.');
+          .should.eventually.include('of 2');
       });
     });
 
@@ -77,7 +77,7 @@ describe('#data-service', function() {
             })
             .clickInsertDocumentModalButton()
             .getSamplingMessageFromDocumentsTab()
-            .should.eventually.include('1 document.');
+            .should.eventually.include('of 1');
         });
 
         it('does not update the schema count', function() {
