@@ -38,6 +38,7 @@
     "@types/mock-fs": "^3.6.30",
     "@types/node": "^8.0.0",
     "@types/uuid": "^3.4.3",
+    "coveralls": "^3.0.0",
     "jest": "^20.0.4",
     "jest-environment-node-debug": "^2.0.0",
     "mock-fs": "^4.4.2",
