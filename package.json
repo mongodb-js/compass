@@ -77,7 +77,7 @@
           "styles": [
             "index"
           ]
-        }
+        },
         "compass-readonly": {
           "name": "mongodb-compass-readonly",
           "productName": "MongoDB Compass Readonly",
@@ -103,7 +103,7 @@
           "styles": [
             "index"
           ]
-        },
+        }
       },
       "build": {
         "win32": {
