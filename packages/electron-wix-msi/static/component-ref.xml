@@ -1,1 +1,1 @@
-      <ComponentRef Id="{{FileId}}" />
+      <ComponentRef Id="{{ComponentId}}" />
