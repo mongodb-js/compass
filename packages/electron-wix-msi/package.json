@@ -31,13 +31,16 @@
   },
   "devDependencies": {
     "@types/fs-extra": "^4.0.5",
+    "@types/graceful-fs": "^4.1.2",
     "@types/jest": "^20.0.5",
     "@types/klaw": "^2.1.0",
     "@types/lodash": "^4.14.85",
+    "@types/mock-fs": "^3.6.30",
     "@types/node": "^8.0.0",
     "@types/uuid": "^3.4.3",
     "jest": "^20.0.4",
     "jest-environment-node-debug": "^2.0.0",
+    "mock-fs": "^4.4.2",
     "shx": "^0.2.2",
     "ts-jest": "^20.0.7",
     "tslint": "^5.0.0",
@@ -51,6 +54,10 @@
       ".(ts)": "<rootDir>/node_modules/ts-jest/preprocessor.js"
     },
     "testRegex": "(/__tests__/.*|\\.(test|spec))\\.(ts|js)$",
+    "testPathIgnorePatterns": [
+      "\\\\node_modules\\\\",
+      "__tests__/fixture"
+    ],
     "moduleFileExtensions": [
       "ts",
       "js"
@@ -58,6 +65,10 @@
     "testEnvironment": "node",
     "collectCoverage": true,
     "mapCoverage": true,
-    "collectCoverageFrom": ["src/**/*.ts", "!src/interfaces.ts", "!src/index.ts"]
+    "collectCoverageFrom": [
+      "src/**/*.ts",
+      "!src/interfaces.ts",
+      "!src/index.ts"
+    ]
   }
 }

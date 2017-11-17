@@ -80,10 +80,12 @@ export class MSICreator {
     this.directories = directories;
     this.tree = this.getTree();
 
-    await this.createWxs();
+    const wxs = await this.createWxs();
+
+    return { wxs };
   }
 
-  private async createWxs() {
+  private async createWxs(): Promise<string> {
     const target = path.join(this.outputDirectory, `${this.exe}.wxs`);
     const base = path.basename(this.appDirectory);
     const directories = await this.getDirectoryForTree(
@@ -105,6 +107,8 @@ export class MSICreator {
     }
 
     await replaceToFile(this.wixTemplate, target, replacements);
+
+    return target;
   }
 
   /**

@@ -1,4 +1,5 @@
 import * as fs from 'fs-extra';
+import * as gfs from 'graceful-fs';
 import * as klaw from 'klaw';
 
 /**
@@ -16,7 +17,10 @@ export function getDirectoryStructure(root: string): Promise <{ files: Array<str
     const files: Array<string> = [];
     const directories: Array<string> = [];
 
-    klaw(root)
+    // Why specify fs? Klaw will lazy-load, which doesn't
+    // buy us much in a build tool. It does, however, break
+    // testing with mock-fs.
+    klaw(root, { fs: gfs })
       .on('data', (item) => {
         if (item.stats.isFile()) {
           files.push(item.path)

@@ -2,6 +2,8 @@ import * as path from 'path';
 
 import { getDirectoryStructure } from '../../src/utils/walker';
 
+// Klaw isn't compatible with mock-fs
+
 test('getDirectoryStructure() actually returns files and folders', async () => {
   const fixturePath = path.join(__dirname, '../fixture/walkable');
   const { files, directories } = await getDirectoryStructure(fixturePath);
@@ -13,7 +15,6 @@ test('getDirectoryStructure() actually returns files and folders', async () => {
 
   const expectedDirectories = [
     path.join(fixturePath, '@hithere'),
-    path.join(fixturePath, 'a-folder'),
     path.join(fixturePath, '@hithere', 'deeper')
   ];
 
