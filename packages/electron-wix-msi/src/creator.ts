@@ -1,12 +1,12 @@
 import * as fs from 'fs-extra';
 import * as path from 'path';
-import * as klaw from 'klaw';
 import * as uuid from 'uuid/v4';
 import { padStart } from 'lodash';
 
-import { replaceToFile, replaceInString } from './replacer';
-import { Component, ComponentRef, Directory, File, FileFolderTree } from './interfaces';
+import { replaceToFile, replaceInString } from './utils/replace';
 import { arrayToTree, addFilesToTree } from './utils/array-to-tree';
+import { getDirectoryStructure } from './utils/walker';
+import { Component, ComponentRef, Directory, File, FileFolderTree } from './interfaces';
 
 export interface MSICreatorOptions {
   appDirectory: string;
@@ -59,7 +59,7 @@ export class MSICreator {
   }
 
   public async create() {
-    const { files, directories } = await this.getDirectoryStructure();
+    const { files, directories } = await getDirectoryStructure(this.appDirectory);
 
     this.files = files;
     this.directories = directories;
@@ -177,32 +177,7 @@ export class MSICreator {
     return { guid, componentId, xml, file }
   }
 
-  /**
-   * Walks over the app directory and returns two arrays of paths,
-   * one for files and another one for directories
-   *
-   * @returns {Promise<{ files: Array<string>, directories: Array<string> }>}
-   */
-  private getDirectoryStructure(): Promise<{ files: Array<string>, directories: Array<string> }> {
-    return new Promise((resolve, reject) => {
-      if (!fs.existsSync(this.appDirectory)) {
-        return reject(new Error(`App directory ${this.appDirectory} does not exist`));
-      }
 
-      const files: Array<string> = [];
-      const directories: Array<string> = [];
-
-      klaw(this.appDirectory)
-        .on('data', (item) => {
-          if (item.stats.isFile()) {
-            files.push(item.path)
-          } else {
-            directories.push(item.path);
-          }
-        })
-        .on('end', () => resolve({ files, directories }));
-    });
-  }
 
   /**
    * Creates a usable component id to use with Wix "id" fields
