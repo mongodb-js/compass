@@ -58,6 +58,6 @@
     "testEnvironment": "node",
     "collectCoverage": true,
     "mapCoverage": true,
-    "collectCoverageFrom": ["src/**/*.ts"]
+    "collectCoverageFrom": ["src/**/*.ts", "!src/interfaces.ts", "!src/index.ts"]
   }
 }
