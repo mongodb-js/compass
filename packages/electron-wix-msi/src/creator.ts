@@ -23,7 +23,13 @@ export interface MSICreatorOptions {
   manufacturer: string;
   language?: number;
   programFilesFolderName?: string;
-  useUI?: boolean;
+  uiOptions?: UIOptions;
+}
+
+export interface UIOptions {
+  enabled?: boolean;
+  background?: string;
+  template?: string;
 }
 
 export class MSICreator {
@@ -37,6 +43,7 @@ export class MSICreator {
   public directoryTemplate = getTemplate('directory');
   public wixTemplate = getTemplate('wix');
   public uiTemplate = getTemplate('ui');
+  public backgroundTemplate = getTemplate('background');
 
   public appDirectory: string;
   public outputDirectory: string;
@@ -49,7 +56,7 @@ export class MSICreator {
   public manufacturer: string;
   public language: number;
   public programFilesFolderName: string;
-  public useUI: boolean;
+  public uiOptions: UIOptions;
 
   constructor(options: MSICreatorOptions) {
     this.appDirectory = options.appDirectory;
@@ -63,7 +70,7 @@ export class MSICreator {
     this.language = options.language || 1033;
     this.shortName = options.shortName || options.name;
     this.programFilesFolderName = options.programFilesFolderName || options.name;
-    this.useUI = options.useUI || true;
+    this.uiOptions = options.uiOptions || { enabled: true };
   }
 
   public async create() {
@@ -94,10 +101,33 @@ export class MSICreator {
       '{{ApplicationShortcutGuid}}': uuid(),
       '<!-- {{Directories}} -->': directories,
       '<!-- {{ComponentRefs}} -->': componentRefs.map(({ xml }) => xml).join('\n'),
-      '<!-- {{UI}} -->': this.useUI ? this.uiTemplate : ''
+      '<!-- {{UI}} -->': this.getUI()
     }
 
     await replaceToFile(this.wixTemplate, target, replacements);
+  }
+
+  /**
+   * Creates the XML portion for a Wix UI, if enabled.
+   *
+   * @returns {string}
+   * @memberof MSICreator
+   */
+  private getUI(): string {
+    const { background, enabled, template } = this.uiOptions;
+    let xml = '';
+
+    if (enabled) {
+      const backgroundXml = background
+        ? replaceInString(this.backgroundTemplate, { '{{Value}}': background })
+        : ''
+
+      xml = replaceInString(template || this.uiTemplate, {
+        '<!-- {{Background}} -->': backgroundXml
+      });
+    }
+
+    return xml;
   }
 
   /**

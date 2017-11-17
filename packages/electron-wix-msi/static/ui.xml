@@ -1,5 +1,6 @@
 <UI Id="UserInterface">
-  <Property Id="WIXUI_INSTALLDIR" Value="TARGETDIR" />
+  <!-- {{Background}} -->
+
   <Property Id="WixUI_Mode" Value="Custom" />
 
   <TextStyle Id="WixUI_Font_Normal" FaceName="Tahoma" Size="8" />
