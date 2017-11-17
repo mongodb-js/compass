@@ -21,17 +21,19 @@
   "scripts": {
     "prepublish": "npm run build",
     "build": "shx rm -rf lib && tsc --pretty",
-    "test": "jest"
+    "test": "npm run build && jest",
   },
   "dependencies": {
     "fs-extra": "^4.0.2",
     "klaw": "^2.1.0",
+    "lodash": "^4.17.4",
     "uuid": "^3.1.0"
   },
   "devDependencies": {
     "@types/fs-extra": "^4.0.5",
     "@types/jest": "^20.0.5",
     "@types/klaw": "^2.1.0",
+    "@types/lodash": "^4.14.85",
     "@types/node": "^8.0.0",
     "@types/uuid": "^3.4.3",
     "jest": "^20.0.4",
