@@ -61,6 +61,10 @@ class Indexes extends React.Component {
     this.setState(this.determineState(error));
   }
 
+  isReadonlyDistro() {
+    return process.env.HADRON_READONLY === 'true';
+  }
+
   shouldComponentupdate(nextProps, nextState) {
     return nextState.isWritable !== this.state.isWritable ||
       nextState.isReadonly !== this.state.isReadonly;
@@ -72,7 +76,7 @@ class Indexes extends React.Component {
         <div className="column main">
           <table data-test-id="indexes-table">
             <IndexHeader />
-            <IndexList />
+            <IndexList isReadonly={this.isReadonlyDistro()} />
           </table>
         </div>
       </div>
@@ -94,6 +98,17 @@ class Indexes extends React.Component {
     );
   }
 
+  renderCreateIndexButton() {
+    if (!this.isReadonlyDistro()) {
+      return (
+        <CreateIndexButton isWritable={this.state.isWritable} description={this.state.description} />
+      );
+    }
+    return (
+      <div className="create-index-btn action-bar"></div>
+    );
+  }
+
   /**
    * Render the indexes.
    *
@@ -102,9 +117,8 @@ class Indexes extends React.Component {
   render() {
     return (
       <div className="index-container">
-        {/* NOT SURE if we need to wrap the controls-container in a readonly conditional as well. */}
         <div className="controls-container">
-          <CreateIndexButton isWritable={this.state.isWritable} description={this.state.description} />
+          {this.renderCreateIndexButton()}
         </div>
         {(this.state.isReadonly || this.state.error) ? this.renderBanner() : this.renderComponent()}
       </div>
