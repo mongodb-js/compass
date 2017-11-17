@@ -23,6 +23,8 @@ const CONNECTION = new Connection({
   mongodb_database_name: 'admin'
 });
 
+// process.env.HADRON_READONLY = true;
+
 const entryPoint = require('../../');
 const appRegistry = new AppRegistry();
 

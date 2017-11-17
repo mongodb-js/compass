@@ -207,6 +207,21 @@ class Toolbar extends React.Component {
     );
   }
 
+  renderInsertButton() {
+    console.log(this.props);
+    if (!this.props.readonly) {
+      return (
+        <this.TextWriteButton
+          className="btn btn-primary btn-xs open-insert"
+          dataTestId="open-insert-document-modal-button"
+          isCollectionLevel
+          text="Insert Document"
+          tooltipId="document-is-not-writable"
+          clickHandler={this.props.insertHandler} />
+      );
+    }
+  }
+
   /**
    * If we are on the documents tab, just display the count and insert button.
    *
@@ -217,13 +232,7 @@ class Toolbar extends React.Component {
       <div>
         <div className={ACTION_BAR_CLASS}>
           <div className={CONTAINER_CLASS}>
-            <this.TextWriteButton
-                className="btn btn-primary btn-xs open-insert"
-                dataTestId="open-insert-document-modal-button"
-                isCollectionLevel
-                text="Insert Document"
-                tooltipId="document-is-not-writable"
-                clickHandler={this.props.insertHandler} />
+            {this.renderInsertButton()}
             <div className={VIEW_SWITCHER_CLASS}>
               <ViewSwitcher
                 label="View"
@@ -273,7 +282,8 @@ Toolbar.displayName = 'Toolbar';
 Toolbar.propTypes = {
   activeDocumentView: PropTypes.string.isRequired,
   insertHandler: PropTypes.func.isRequired,
-  viewSwitchHandler: PropTypes.func.isRequired
+  viewSwitchHandler: PropTypes.func.isRequired,
+  readonly: PropTypes.bool.isRequired
 };
 
 module.exports = Toolbar;

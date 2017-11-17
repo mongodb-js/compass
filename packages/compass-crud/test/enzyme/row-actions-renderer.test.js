@@ -64,6 +64,29 @@ describe('<RowActionsRenderer />', () => {
         expect(wrapper.find({title: 'Delete row'})).not.to.be.present();
       });
     });
+
+    describe('when the distribution is readonly', () => {
+      before(() => {
+        process.env.HADRON_READONLY = 'true';
+        rowNode = getNode({field1: 'value'});
+        value = rowNode.data.hadronDocument.get('field1');
+        component = mount(<RowActionsRenderer api={api} value={value}
+                                              node={rowNode} context={context}
+                                              data={data} nested={true} />);
+      });
+
+      after(() => {
+        process.env.HADRON_READONLY = 'false';
+      });
+
+      it('does not render the buttons', () => {
+        const wrapper = component.find('.table-view-row-actions');
+        expect(wrapper.find({title: 'Edit Document'})).not.to.be.present();
+        expect(wrapper.find({title: 'Copy row'})).not.to.be.present();
+        expect(wrapper.find({title: 'Clone row'})).not.to.be.present();
+        expect(wrapper.find({title: 'Delete row'})).not.to.be.present();
+      });
+    });
   });
 
   describe('#actions', () => {

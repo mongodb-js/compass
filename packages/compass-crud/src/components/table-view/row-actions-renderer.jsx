@@ -58,7 +58,10 @@ class RowActionsRenderer extends React.Component {
 
   render() {
     /* Don't show actions for rows that are being edited or marked for deletion */
-    if (this.props.value.state === 'editing' || this.props.value.state === 'deleting' || this.props.value.state === 'cloned') {
+    if (this.props.value.state === 'editing' ||
+        this.props.value.state === 'deleting' ||
+        this.props.value.state === 'cloned' ||
+        process.env.HADRON_READONLY === 'true') {
       return null;
     }
 

@@ -209,6 +209,19 @@ class DocumentList extends React.Component {
   }
 
   /**
+   * Determine if the plugin is editable.
+   *
+   * @returns {Boolean} If the plugin is editable.
+   */
+  isEditable() {
+    return (
+      !this.CollectionStore.isReadonly() &&
+      !this.projection &&
+      process.env.HADRON_READONLY !== 'true'
+    );
+  }
+
+  /**
    * Get the next batch of documents. Will only fire if there are more documents
    * in the collection to load.
    */
@@ -225,7 +238,7 @@ class DocumentList extends React.Component {
    * @returns {React.Component} The document list views.
    */
   renderViews() {
-    const isEditable = !this.CollectionStore.isReadonly() && !this.projection;
+    const isEditable = this.isEditable();
     if (this.state.activeDocumentView === 'List') {
       return (
         <DocumentListView
@@ -277,6 +290,7 @@ class DocumentList extends React.Component {
         <div className="controls-container">
           <this.queryBar buttonLabel="Find" />
           <Toolbar
+            readonly={!this.isEditable()}
             insertHandler={this.handleOpenInsert.bind(this)}
             viewSwitchHandler={this.handleViewSwitch.bind(this)}
             activeDocumentView={this.state.activeDocumentView} />
