@@ -269,6 +269,7 @@ tasks:
     variants:
       - macos-compass
       - macos-compass-community
+      - macos-compass-readonly
   - command: git.get_project
     params:
       directory: src
@@ -315,6 +316,7 @@ tasks:
     variants:
       - windows-compass
       - windows-compass-community
+      - windows-compass-readonly
   - command: shell.exec
     params:
       working_dir: src
@@ -325,6 +327,7 @@ tasks:
     variants:
       - rhel-compass
       - rhel-compass-community
+      - rhel-compass-readonly
   - func: "configure"
   - func: "install"
   - command: expansions.update
@@ -352,23 +355,28 @@ tasks:
     variants:
       - macos-compass
       - macos-compass-community
+      - macos-compass-readonly
   - func: "build"
   - func: "save windows artifacts"
     variants:
       - windows-compass
       - windows-compass-community
+      - windows-compass-readonly
   - func: "save osx artifacts"
     variants:
       - macos-compass
       - macos-compass-community
+      - macos-compass-readonly
   - func: "save linux artifacts"
     variants:
       - ubuntu-compass
       - ubuntu-compass-community
+      - ubuntu-compass-readonly
   - func: "save rhel artifacts"
     variants:
       - rhel-compass
       - rhel-compass-community
+      - rhel-compass-readonly
 
 #######################################
 #           Buildvariants             #
