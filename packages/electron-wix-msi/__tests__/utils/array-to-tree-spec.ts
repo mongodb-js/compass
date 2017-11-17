@@ -1,4 +1,4 @@
-import { addFilesToTree, arrayToTree, isChild, isDirectChild, shortestString } from '../../lib/utils/array-to-tree';
+import { addFilesToTree, arrayToTree, isChild, isDirectChild, shortestString } from '../../src/utils/array-to-tree';
 import { defaultsDeep, cloneDeep } from 'lodash';
 
 const mockFolders = [
@@ -72,42 +72,42 @@ const mockFolderFileTree = defaultsDeep(cloneDeep(mockFolderTree), {
   }
 });
 
-test('isChild returns true for a child and parent', () => {
+test('isChild() returns true for a child and parent', () => {
   const a = 'C:\\my\\path';
   const b = 'C:\\my\\path\\child';
 
   expect(isChild(a, b)).toBe(true);
 });
 
-test('isChild returns false for a child and non-parent', () => {
+test('isChild() returns false for a child and non-parent', () => {
   const a = 'C:\\my\\path';
   const b = 'C:\\my\\other\\path\\child';
 
   expect(isChild(a, b)).toBe(false);
 });
 
-test('isDirectChild returns true for a child and direct parent', () => {
+test('isDirectChild() returns true for a child and direct parent', () => {
   const a = 'C:\\my\\path';
   const b = 'C:\\my\\path\\child';
 
   expect(isDirectChild(a, b)).toBe(true);
 });
 
-test('isDirectChild returns false for a child and non-direct parent', () => {
+test('isDirectChild() returns false for a child and non-direct parent', () => {
   const a = 'C:\\my\\path';
   const b = 'C:\\my\\path\\child\\ren';
 
   expect(isDirectChild(a, b)).toBe(false);
 });
 
-test('isDirectChild returns false for a child and non-parent', () => {
+test('isDirectChild() returns false for a child and non-parent', () => {
   const a = 'C:\\my\\path';
   const b = 'C:\\my\\other\\path\\child';
 
   expect(isDirectChild(a, b)).toBe(false);
 });
 
-test('shortestString returns the shortest string in an array', () => {
+test('shortestString() returns the shortest string in an array', () => {
   const input = [
     'aaaaaa',
     'aa',
@@ -118,10 +118,10 @@ test('shortestString returns the shortest string in an array', () => {
   expect(shortestString(input)).toBe('aa');
 });
 
-test('arrayToTree creates a tree structure', () => {
+test('arrayToTree() creates a tree structure', () => {
   expect(arrayToTree(mockFolders, 'slack')).toEqual(mockFolderTree);
 });
 
-test('addFilesToTree adds files to a tree structure', () => {
+test('addFilesToTree() adds files to a tree structure', () => {
   expect(addFilesToTree(mockFolderTree, mockFiles, 'slack')).toEqual(mockFolderFileTree);
-})
+});

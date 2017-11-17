@@ -21,7 +21,7 @@
   "scripts": {
     "prepublish": "npm run build",
     "build": "shx rm -rf lib && tsc --pretty",
-    "test": "npm run build && jest",
+    "test": "jest"
   },
   "dependencies": {
     "fs-extra": "^4.0.2",
