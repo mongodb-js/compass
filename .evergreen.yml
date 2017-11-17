@@ -420,6 +420,20 @@ buildvariants:
   tasks:
     - name: compile
 
+- name: macos-compass-readonly
+  display_name: MacOS (Compass Readonly)
+  modules: ~
+  run_on:
+  - "osx-1010-compass"
+  expansions:
+    build_via_local_tunnel: true
+    fetch_npm_tarball: node-v7.4.0-darwin-x64.tgz
+    node_path: "$(pwd)/.deps/bin"
+    num_cores: $(sysctl -n hw.logicalcpu)
+    compass_distribution: compass-readonly
+  tasks:
+    - name: compile
+
 - name: windows-compass
   display_name: Windows (Compass)
   modules: ~
@@ -445,6 +459,20 @@ buildvariants:
     num_cores: $(grep -c ^processor /proc/cpuinfo)
     add_env_appdata: Z:\
     compass_distribution: compass-community
+  tasks:
+    - name: compile
+
+- name: windows-compass-readonly
+  display_name: Windows (Compass Readonly)
+  modules: ~
+  run_on:
+  - "windows-64-vs2013-test"
+  expansions:
+    fetch_npm_tarball: node-v7.4.0-win32-x64.tgz
+    node_path: "$(pwd)/.deps"
+    num_cores: $(grep -c ^processor /proc/cpuinfo)
+    add_env_appdata: Z:\
+    compass_distribution: compass-readonly
   tasks:
     - name: compile
 
@@ -476,6 +504,20 @@ buildvariants:
   tasks:
     - name: compile
 
+- name: ubuntu-compass-readonly
+  display_name: Ubuntu (Compass Readonly)
+  modules: ~
+  run_on:
+  - "ubuntu1404-test"
+  expansions:
+    fetch_npm_tarball: node-v7.4.0-linux-x64.tgz
+    node_path: "$(pwd)/.deps/bin"
+    compile_env: CC=/opt/mongodbtoolchain/bin/gcc CXX=/opt/mongodbtoolchain/bin/g++
+    num_cores: $(grep -c ^processor /proc/cpuinfo)
+    compass_distribution: compass-readonly
+  tasks:
+    - name: compile
+
 - name: rhel-compass
   display_name: RHEL (Compass)
   modules: ~
@@ -501,5 +543,19 @@ buildvariants:
     compile_env: CC=/opt/mongodbtoolchain/bin/gcc CXX=/opt/mongodbtoolchain/bin/g++
     num_cores: $(grep -c ^processor /proc/cpuinfo)
     compass_distribution: compass-community
+  tasks:
+    - name: compile
+
+- name: rhel-compass-readonly
+  display_name: RHEL (Compass Readonly)
+  modules: ~
+  run_on:
+  - "rhel70"
+  expansions:
+    fetch_npm_tarball: node-v7.4.0-linux-x64.tgz
+    node_path: "$(pwd)/.deps/bin"
+    compile_env: CC=/opt/mongodbtoolchain/bin/gcc CXX=/opt/mongodbtoolchain/bin/g++
+    num_cores: $(grep -c ^processor /proc/cpuinfo)
+    compass_distribution: compass-readonly
   tasks:
     - name: compile
