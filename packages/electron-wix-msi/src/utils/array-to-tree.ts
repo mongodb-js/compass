@@ -71,22 +71,24 @@ export function shortestString(input: Array<string>): string {
  *   input = [
  *     'slack\\resources',
  *     'slack\\resources\\app.asar.unpacked',
- *     'slack\\resources\\app.asar.unpacked\\node_modules',
- *     'slack\\resources\\app.asar.unpacked\\src',
  *     'slack\\locales'
  *   ];
  *
  *  output = {
+ *    __ELECTRON_WIX_MSI_PATH__: 'slack',
  *    __ELECTRON_WIX_MSI_FILES__: [],
  *    resources: {
+ *      __ELECTRON_WIX_MSI_PATH__: 'slack\\resources',
  *      __ELECTRON_WIX_MSI_FILES__: [],
  *      'app.asar.unpacked': {
+ *        __ELECTRON_WIX_MSI_PATH__: 'slack\\resources\\app.asar.unpacked',
  *        __ELECTRON_WIX_MSI_FILES__: [],
- *        node_modules: { __ELECTRON_WIX_MSI_FILES__: [] },
- *        src: { __ELECTRON_WIX_MSI_FILES__: [] }
  *      }
  *    },
- *    locales: { __ELECTRON_WIX_MSI_FILES__: [] }
+ *    locales: {
+ *      __ELECTRON_WIX_MSI_PATH__: 'slack\\locales',
+ *      __ELECTRON_WIX_MSI_FILES__: []
+ *    }
  *  }
  *
  * @export
@@ -108,6 +110,44 @@ export function arrayToTree(input: Array<string>, inputRoot?: string): FileFolde
   return output;
 }
 
+/**
+ * Adds files to a FileFolderTree.
+ *
+ *  tree = {
+ *    __ELECTRON_WIX_MSI_FILES__: [],
+ *    resources: { __ELECTRON_WIX_MSI_FILES__: [] },
+ *    locales: { __ELECTRON_WIX_MSI_FILES__: [] }
+ *  }
+ *
+ *  files = [
+ *    'slack\\slack.exe',
+ *    'slack\\resources\\text.txt',
+ *    'slack\\locales\\de-DE.json',
+ *    'slack\\locales\\en-US.json',
+ *  ]
+ *
+ *  output = {
+ *    __ELECTRON_WIX_MSI_PATH__: 'slack',
+ *    __ELECTRON_WIX_MSI_FILES__: [{ name: 'slack.exe', path: 'slack\\slack.exe' }],
+ *    resources: {
+ *      __ELECTRON_WIX_MSI_PATH__: 'slack\\resources',
+ *      __ELECTRON_WIX_MSI_FILES__: [{ name: 'text.txt', path: 'slack\\resources\\text.txt' }],
+ *    },
+ *    locales: {
+ *      __ELECTRON_WIX_MSI_PATH__: 'slack\\locales',
+ *      __ELECTRON_WIX_MSI_FILES__: [
+ *        { name: 'de-DE.json', path: 'slack\\locales\\de-DE.json' },
+ *        { name: 'en-US.json', path: 'slack\\locales\\en-US.json' }
+ *      ]
+ *    }
+ *  }
+ *
+ * @export
+ * @param {FileFolderTree} tree
+ * @param {Array<string>} files
+ * @param {string} root
+ * @returns {FileFolderTree}
+ */
 export function addFilesToTree(tree: FileFolderTree, files: Array<string>, root: string): FileFolderTree {
   const output: FileFolderTree = cloneDeep(tree);
 
