@@ -45,7 +45,7 @@ class DropColumn extends React.Component {
   render() {
     return (
       <td className="drop-column">
-        {this.props.indexName !== '_id_' ?
+        {this.props.indexName !== '_id_' && !this.props.isReadonly ?
           <button
             className="drop-btn btn btn-default btn-sm"
             type="button"
@@ -65,7 +65,8 @@ class DropColumn extends React.Component {
 DropColumn.displayName = 'DropColumn';
 
 DropColumn.propTypes = {
-  indexName: PropTypes.string.isRequired
+  indexName: PropTypes.string.isRequired,
+  isReadonly: PropTypes.bool.isRequired
 };
 
 module.exports = DropColumn;

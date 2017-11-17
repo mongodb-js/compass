@@ -37,6 +37,12 @@ class Index extends React.Component {
     this.setState(state);
   }
 
+  isWritable() {
+    return !this.CollectionStore.isReadonly() &&
+      this.state.isWritable &&
+      !this.props.isReadonly;
+  }
+
   /**
    * Render the index.
    *
@@ -52,9 +58,7 @@ class Index extends React.Component {
           relativeSize={this.props.index.relativeSize} />
         <UsageColumn usage={this.props.index.usageCount} since={this.props.index.usageSince} />
         <PropertyColumn index={this.props.index} />
-        {(!this.CollectionStore.isReadonly() && this.state.isWritable) ?
-          <DropColumn indexName={this.props.index.name} />
-          : null}
+        <DropColumn indexName={this.props.index.name} isReadonly={!this.isWritable()} />
       </tr>
     );
   }
@@ -63,7 +67,8 @@ class Index extends React.Component {
 Index.displayName = 'Index';
 
 Index.propTypes = {
-  index: PropTypes.object.isRequired
+  index: PropTypes.object.isRequired,
+  isReadonly: PropTypes.bool.isRequired
 };
 
 module.exports = Index;

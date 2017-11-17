@@ -1,5 +1,6 @@
 const _ = require('lodash');
 const React = require('react');
+const PropTypes = require('prop-types');
 const Index = require('./index');
 const SortIndexesStore = require('../store/sort-indexes-store');
 const UpdateIndexesStore = require('../store/update-indexes-store');
@@ -52,7 +53,7 @@ class IndexList extends React.Component {
    */
   render() {
     const indexes = _.map(this.state.indexes, (model) => {
-      return (<Index key={model.name} index={model} />);
+      return (<Index key={model.name} index={model} isReadonly={this.props.isReadonly} />);
     });
     return (
       <tbody className="table">
@@ -63,5 +64,9 @@ class IndexList extends React.Component {
 }
 
 IndexList.displayName = 'IndexList';
+
+IndexList.propTypes = {
+  isReadonly: PropTypes.bool.isRequired
+};
 
 module.exports = IndexList;
