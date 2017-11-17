@@ -23,18 +23,18 @@
 <!-- {{Directories}} -->
       </Directory>
       <!-- Start Menu -->
-      <!-- <Directory Id="ProgramMenuFolder">
+      <Directory Id="ProgramMenuFolder">
         <Directory Id="ApplicationProgramsFolder" Name="{{ApplicationName}}"/>
-      </Directory> -->
+      </Directory>
     </Directory>
 
     <!-- Step 3: Add app to Start Menu -->
-    <!-- <DirectoryRef Id="ApplicationProgramsFolder">
+    <DirectoryRef Id="ApplicationProgramsFolder">
       <Component Id="ApplicationShortcut" Guid="{{ApplicationShortcutGuid}}">
         <Shortcut Id="ApplicationStartMenuShortcut"
                   Name="{{ApplicationName}}"
                   Description="{{ApplicationDescription}}"
-                  Target="[#{{ApplicationBinary}}.exe]"
+                  Target="[APPLICATIONROOTDIRECTORY]{{ApplicationBinary}}.exe"
                   WorkingDirectory="APPLICATIONROOTDIRECTORY"/>
         <RemoveFolder Id="ApplicationProgramsFolder" On="uninstall"/>
         <RegistryValue Root="HKCU"
@@ -44,11 +44,12 @@
                        Value="1"
                        KeyPath="yes"/>
       </Component>
-    </DirectoryRef> -->
+    </DirectoryRef>
 
     <!-- Step 4: Tell WiX to install the files -->
     <Feature Id="MainApplication" Title="Main Application" Level="1">
 <!-- {{ComponentRefs}} -->
+      <ComponentRef Id="ApplicationShortcut" />
     </Feature>
   </Product>
 </Wix>
