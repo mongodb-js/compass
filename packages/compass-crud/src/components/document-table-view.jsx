@@ -129,15 +129,19 @@ class DocumentTableView extends React.Component {
    */
   updateActionsPlacement() {
     if (this.gridApi) {
-      const allColumns = this.columnApi.getAllColumns();
-      const tableWidth = document.getElementById('borderLayout_eRootPanel').offsetWidth;
-      const rightViewport = document.getElementsByClassName('ag-pinned-right-cols-viewport')[0];
-      const bodyColumnWidth = ((allColumns.length - 2) * 200 + 50);
-      const emptyWidth = tableWidth - bodyColumnWidth;
-      if (bodyColumnWidth < tableWidth) {
-        rightViewport.style.right = `${emptyWidth}px`;
-      } else {
-        rightViewport.style.right = '0px';
+      const rootPanel = document.getElementById('borderLayout_eRootPanel');
+      // @note: Durran: in readonly mode the actions don't exist.
+      if (rootPanel) {
+        const allColumns = this.columnApi.getAllColumns();
+        const tableWidth = rootPanel.offsetWidth;
+        const rightViewport = document.getElementsByClassName('ag-pinned-right-cols-viewport')[0];
+        const bodyColumnWidth = ((allColumns.length - 2) * 200 + 50);
+        const emptyWidth = tableWidth - bodyColumnWidth;
+        if (bodyColumnWidth < tableWidth) {
+          rightViewport.style.right = `${emptyWidth}px`;
+        } else {
+          rightViewport.style.right = '0px';
+        }
       }
     }
   }

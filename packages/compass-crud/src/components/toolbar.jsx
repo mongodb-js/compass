@@ -208,7 +208,6 @@ class Toolbar extends React.Component {
   }
 
   renderInsertButton() {
-    console.log(this.props);
     if (!this.props.readonly) {
       return (
         <this.TextWriteButton
