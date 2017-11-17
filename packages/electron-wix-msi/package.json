@@ -55,6 +55,9 @@
       "ts",
       "js"
     ],
-    "testEnvironment": "node"
+    "testEnvironment": "node",
+    "collectCoverage": true,
+    "mapCoverage": true,
+    "collectCoverageFrom": ["src/**/*.ts"]
   }
 }
