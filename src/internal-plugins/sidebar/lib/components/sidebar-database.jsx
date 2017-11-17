@@ -87,36 +87,62 @@ class SidebarDatabase extends React.Component {
     }
   }
 
+  isReadonlyDistro() {
+    return process.env.HADRON_READONLY === 'true';
+  }
+
+  renderCreateCollectionButton() {
+    if (!this.isReadonlyDistro()) {
+      const createTooltipText = this.state.isWritable ?
+        'Create collection' :
+        this.state.description;
+      const createTooltipOptions = {
+        'data-for': TOOLTIP_IDS.CREATE_COLLECTION,
+        'data-effect': 'solid',
+        'data-offset': "{'bottom': 10, 'left': -8}",
+        'data-tip': createTooltipText
+      };
+      let createClassName = 'mms-icon-add-circle compass-sidebar-icon compass-sidebar-icon-create-collection';
+      if (!this.state.isWritable) {
+        createClassName += ' compass-sidebar-icon-is-disabled';
+      }
+      return (
+        <i
+          className={createClassName}
+          onClick={this.handleCreateCollectionClick.bind(this, this.state.isWritable)}
+          {...createTooltipOptions} />
+      );
+    }
+  }
+
+  renderDropDatabaseButton() {
+    if (!this.isReadonlyDistro()) {
+      const dropTooltipText = this.state.isWritable ?
+        'Drop database' :
+        'Drop database is not available on a secondary node';  // TODO: Arbiter/recovering/etc
+      const dropTooltipOptions = {
+        'data-for': TOOLTIP_IDS.DROP_DATABASE,
+        'data-effect': 'solid',
+        'data-offset': "{'bottom': 10, 'left': -5}",
+        'data-tip': dropTooltipText
+      };
+      let dropClassName = 'compass-sidebar-icon compass-sidebar-icon-drop-database fa fa-trash-o';
+      if (!this.state.isWritable) {
+        dropClassName += ' compass-sidebar-icon-is-disabled';
+      }
+      return (
+        <i
+          className={dropClassName}
+          onClick={this.handleDropDBClick.bind(this, this.state.isWritable)}
+          {...dropTooltipOptions} />
+      );
+    }
+  }
+
   render() {
-    const createTooltipText = this.state.isWritable ?
-      'Create collection' :
-      this.state.description;
-    const createTooltipOptions = {
-      'data-for': TOOLTIP_IDS.CREATE_COLLECTION,
-      'data-effect': 'solid',
-      'data-offset': "{'bottom': 10, 'left': -8}",
-      'data-tip': createTooltipText
-    };
-    const dropTooltipText = this.state.isWritable ?
-      'Drop database' :
-      'Drop database is not available on a secondary node';  // TODO: Arbiter/recovering/etc
-    const dropTooltipOptions = {
-      'data-for': TOOLTIP_IDS.DROP_DATABASE,
-      'data-effect': 'solid',
-      'data-offset': "{'bottom': 10, 'left': -5}",
-      'data-tip': dropTooltipText
-    };
     let headerClassName = 'compass-sidebar-item-header compass-sidebar-item-header-is-expandable compass-sidebar-item-header-is-actionable';
     if (this.props.activeNamespace === this.props._id) {
       headerClassName += ' compass-sidebar-item-header-is-active';
-    }
-    let createClassName = 'mms-icon-add-circle compass-sidebar-icon compass-sidebar-icon-create-collection';
-    if (!this.state.isWritable) {
-      createClassName += ' compass-sidebar-icon-is-disabled';
-    }
-    let dropClassName = 'compass-sidebar-icon compass-sidebar-icon-drop-database fa fa-trash-o';
-    if (!this.state.isWritable) {
-      dropClassName += ' compass-sidebar-icon-is-disabled';
     }
     return (
       <div className="compass-sidebar-item compass-sidebar-item-is-top-level" style={this.props.style}>
@@ -131,16 +157,8 @@ class SidebarDatabase extends React.Component {
             {this.props._id}
           </div>
           <div className="compass-sidebar-item-header-actions compass-sidebar-item-header-actions-ddl">
-            <i
-              className={createClassName}
-              onClick={this.handleCreateCollectionClick.bind(this, this.state.isWritable)}
-              {...createTooltipOptions}
-            />
-            <i
-              className={dropClassName}
-              onClick={this.handleDropDBClick.bind(this, this.state.isWritable)}
-              {...dropTooltipOptions}
-            />
+            {this.renderCreateCollectionButton()}
+            {this.renderDropDatabaseButton()}
           </div>
         </div>
         <div className="compass-sidebar-item-content">

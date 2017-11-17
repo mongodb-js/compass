@@ -56,11 +56,28 @@ class CollectionsTable extends React.Component {
     this.setState(state);
   }
 
+  isReadonlyDistro() {
+    return process.env.HADRON_READONLY === 'true';
+  }
+
   renderLink(coll) {
     const collName = coll['Collection Name'];
     return (
       <a className="collections-table-link" href="#" onClick={this.onNameClicked.bind(this, collName)}>{collName}</a>
     );
+  }
+
+  renderButton() {
+    if (!this.isReadonlyDistro()) {
+      return (
+        <this.TextWriteButton
+          className="btn btn-primary btn-xs"
+          dataTestId="open-create-collection-modal-button"
+          text="Create Collection"
+          tooltipId="database-is-not-writable"
+          clickHandler={this.onCreateCollectionButtonClicked.bind(this)} />
+      );
+    }
   }
 
   render() {
@@ -84,12 +101,7 @@ class CollectionsTable extends React.Component {
     return (
       <div className="collections-table" data-test-id="collections-table">
         <div className="collections-table-create-button action-bar controls-container">
-          <this.TextWriteButton
-            className="btn btn-primary btn-xs"
-            dataTestId="open-create-collection-modal-button"
-            text="Create Collection"
-            tooltipId="database-is-not-writable"
-            clickHandler={this.onCreateCollectionButtonClicked.bind(this)} />
+          {this.renderButton()}
         </div>
         <div className="column-container">
           <div className="column main">
@@ -101,7 +113,7 @@ class CollectionsTable extends React.Component {
               sortOrder={this.props.sortOrder}
               sortColumn={this.props.sortColumn}
               valueIndex={0}
-              removable={this.state.isWritable}
+              removable={this.state.isWritable && !this.isReadonlyDistro()}
               onColumnHeaderClicked={this.onColumnHeaderClicked.bind(this)}
               onRowDeleteButtonClicked={this.onRowDeleteButtonClicked.bind(this)}
             />
