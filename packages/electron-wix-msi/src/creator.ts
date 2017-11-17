@@ -54,8 +54,6 @@ export class MSICreator {
     this.manufacturer = options.manufacturer;
     this.language = options.language || 1033;
     this.shortName = options.shortName || options.name;
-
-    console.log(this.appDirectory);
   }
 
   public async create() {
@@ -176,8 +174,6 @@ export class MSICreator {
 
     return { guid, componentId, xml, file }
   }
-
-
 
   /**
    * Creates a usable component id to use with Wix "id" fields
