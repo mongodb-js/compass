@@ -16,22 +16,19 @@
              Comments="Windows Installer Package"/>
     <Media Id="1" Cabinet="product.cab" EmbedCab="yes"/>
 
-    <!-- Step 1: Define the directory structure -->
+    <!-- Step 2: Add files and directories -->
     <Directory Id="TARGETDIR" Name="SourceDir">
       <!-- Installation files to %PROGRAMFILES% -->
       <Directory Id="ProgramFilesFolder">
-        <Directory Id="APPLICATIONROOTDIRECTORY" Name="{{ApplicationName}}"/>
+        <Directory Id="APPLICATIONROOTDIRECTORY" Name="{{ApplicationName}}">
+<!-- {{Directories}} -->
+        </Directory>
       </Directory>
       <!-- Start Menu -->
       <Directory Id="ProgramMenuFolder">
         <Directory Id="ApplicationProgramsFolder" Name="{{ApplicationName}}"/>
       </Directory>
     </Directory>
-
-    <!-- Step 2: Add files to installer package -->
-    <DirectoryRef Id="APPLICATIONROOTDIRECTORY">
-<!-- {{Components}} -->
-    </DirectoryRef>
 
     <!-- Step 3: Add app to Start Menu -->
     <DirectoryRef Id="ApplicationProgramsFolder">
