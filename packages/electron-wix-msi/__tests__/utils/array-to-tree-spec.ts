@@ -1,4 +1,4 @@
-import { addFilesToTree, arrayToTree, isChild, isDirectChild, shortestString } from '../../src/utils/array-to-tree';
+import { addFilesToTree, arrayToTree, isChild, isDirectChild } from '../../src/utils/array-to-tree';
 import { defaultsDeep, cloneDeep } from 'lodash';
 
 const mockFolders = [

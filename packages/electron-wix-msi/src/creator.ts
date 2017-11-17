@@ -9,6 +9,7 @@ import { getDirectoryStructure } from './utils/walker';
 import { Component, ComponentRef, Directory, File, FileFolderTree } from './interfaces';
 
 const getTemplate = (name: string) => fs.readFileSync(path.join(__dirname, `../static/${name}.xml`), 'utf-8');
+const ROOTDIR_NAME = 'APPLICATIONROOTDIRECTORY';
 
 export interface MSICreatorOptions {
   appDirectory: string;
@@ -21,6 +22,7 @@ export interface MSICreatorOptions {
   upgradeCode?: string;
   manufacturer: string;
   language?: number;
+  programFilesFolderName?: string;
 }
 
 export class MSICreator {
@@ -44,6 +46,7 @@ export class MSICreator {
   public readonly upgradeCode: string;
   public readonly manufacturer: string;
   public readonly language: number;
+  public readonly programFilesFolderName: string;
 
   constructor(options: MSICreatorOptions) {
     this.appDirectory = options.appDirectory;
@@ -56,6 +59,7 @@ export class MSICreator {
     this.manufacturer = options.manufacturer;
     this.language = options.language || 1033;
     this.shortName = options.shortName || options.name;
+    this.programFilesFolderName = options.programFilesFolderName || options.name;
   }
 
   public async create() {
@@ -71,7 +75,8 @@ export class MSICreator {
   private async createWxs() {
     const target = path.join(this.outputDirectory, `${this.exe}.wxs`);
     const base = path.basename(this.appDirectory);
-    const directories = await this.getDirectoryForTree(this.tree, base, 10);
+    const directories = await this.getDirectoryForTree(
+      this.tree, base, 8, ROOTDIR_NAME, this.programFilesFolderName);
     const componentRefs = await this.getComponentRefs();
     const replacements = {
       '{{ApplicationName}}': this.name,
@@ -99,7 +104,7 @@ export class MSICreator {
    * @param {number} [indent=0]
    * @returns {string}
    */
-  private getDirectoryForTree(tree: FileFolderTree, treePath: string, indent: number = 0): string {
+  private getDirectoryForTree(tree: FileFolderTree, treePath: string, indent: number = 0, id?: string, name?: string): string {
     const childDirectories = Object.keys(tree)
       .filter((k) => !k.startsWith('__ELECTRON_WIX_MSI'))
       .map((k) => {
@@ -120,8 +125,8 @@ export class MSICreator {
 
     return replaceInString(this.directoryTemplate, {
       '<!-- {{I}} -->': indent > 0 ? padStart('', indent) : '',
-      '{{DirectoryId}}': this.getComponentId(treePath),
-      '{{DirectoryName}}': path.basename(treePath),
+      '{{DirectoryId}}': id || this.getComponentId(treePath),
+      '{{DirectoryName}}': name || path.basename(treePath),
       '<!-- {{Children}} -->': children
     });
   }

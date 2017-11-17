@@ -12,7 +12,6 @@ test('getDirectoryStructure() actually returns files and folders', async () => {
   ];
 
   const expectedDirectories = [
-    path.join(fixturePath),
     path.join(fixturePath, '@hithere'),
     path.join(fixturePath, 'a-folder'),
     path.join(fixturePath, '@hithere', 'deeper')

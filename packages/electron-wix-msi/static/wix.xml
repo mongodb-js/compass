@@ -20,18 +20,16 @@
     <Directory Id="TARGETDIR" Name="SourceDir">
       <!-- Installation files to %PROGRAMFILES% -->
       <Directory Id="ProgramFilesFolder">
-        <Directory Id="APPLICATIONROOTDIRECTORY" Name="{{ApplicationName}}">
 <!-- {{Directories}} -->
-        </Directory>
       </Directory>
       <!-- Start Menu -->
-      <Directory Id="ProgramMenuFolder">
+      <!-- <Directory Id="ProgramMenuFolder">
         <Directory Id="ApplicationProgramsFolder" Name="{{ApplicationName}}"/>
-      </Directory>
+      </Directory> -->
     </Directory>
 
     <!-- Step 3: Add app to Start Menu -->
-    <DirectoryRef Id="ApplicationProgramsFolder">
+    <!-- <DirectoryRef Id="ApplicationProgramsFolder">
       <Component Id="ApplicationShortcut" Guid="{{ApplicationShortcutGuid}}">
         <Shortcut Id="ApplicationStartMenuShortcut"
                   Name="{{ApplicationName}}"
@@ -46,7 +44,7 @@
                        Value="1"
                        KeyPath="yes"/>
       </Component>
-    </DirectoryRef>
+    </DirectoryRef> -->
 
     <!-- Step 4: Tell WiX to install the files -->
     <Feature Id="MainApplication" Title="Main Application" Level="1">

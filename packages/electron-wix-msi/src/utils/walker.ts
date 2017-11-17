@@ -20,7 +20,7 @@ export function getDirectoryStructure(root: string): Promise <{ files: Array<str
       .on('data', (item) => {
         if (item.stats.isFile()) {
           files.push(item.path)
-        } else {
+        } else if (item.stats.isDirectory() && item.path !== root) {
           directories.push(item.path);
         }
       })
