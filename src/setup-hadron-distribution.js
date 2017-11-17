@@ -9,8 +9,11 @@ if (!process.env.HADRON_DISTRIBUTION) {
   process.env.HADRON_DISTRIBUTION = distribution;
 }
 
-const name = pkg.config.hadron.distributions[process.env.HADRON_DISTRIBUTION].name;
+const config = pkg.config.hadron.distributions[process.env.HADRON_DISTRIBUTION];
+const name = config.name;
+const readonly = config.readonly;
 process.env.HADRON_PRODUCT = name || 'mongodb-compass';
+process.env.HADRON_READONLY = readonly || false;
 
 if (pkg.distribution) {
   process.env.NODE_ENV = 'production';

@@ -77,6 +77,32 @@
           "styles": [
             "index"
           ]
+        },
+        "compass-readonly": {
+          "name": "mongodb-compass-readonly",
+          "productName": "MongoDB Compass Readonly",
+          "bundleId": "com.mongodb.compass.readonly",
+          "plugins-directory": ".mongodb/compass-readonly/plugins",
+          "readonly": true,
+          "plugins": [
+            "node_modules/@mongodb-js/compass-crud",
+            "node_modules/@mongodb-js/compass-collection-stats",
+            "node_modules/@mongodb-js/compass-connect",
+            "node_modules/@mongodb-js/compass-auth-kerberos",
+            "node_modules/@mongodb-js/compass-auth-ldap",
+            "node_modules/@mongodb-js/compass-auth-x509",
+            "node_modules/@mongodb-js/compass-document-validation",
+            "node_modules/@mongodb-js/compass-deployment-awareness",
+            "node_modules/@mongodb-js/compass-query-history",
+            "node_modules/@mongodb-js/compass-security",
+            "node_modules/@mongodb-js/compass-serverstats",
+            "node_modules/@mongodb-js/compass-server-version",
+            "node_modules/@mongodb-js/compass-ssh-tunnel-status",
+            "node_modules/@mongodb-js/compass-status"
+          ],
+          "styles": [
+            "index"
+          ]
         }
       },
       "build": {
