@@ -148,6 +148,10 @@ class Sidebar extends React.Component {
     return null;
   }
 
+  isReadonlyDistro() {
+    return process.env.HADRON_READONLY === 'true';
+  }
+
   /**
    * On expand/collapse of sidebar-database, add/remove from expandedDBs state and recompute row heights
    * @param{string} _id sidebar-database _id
@@ -160,32 +164,34 @@ class Sidebar extends React.Component {
   }
 
   renderCreateDatabaseButton() {
-    const tooltipText = this.state.description;
-    const tooltipOptions = this.state.isWritable ? {} : {
-      'data-for': TOOLTIP_IDS.CREATE_DATABASE_BUTTON,
-      'data-effect': 'solid',
-      'data-place': 'right',
-      'data-offset': "{'right': -10}",
-      'data-tip': tooltipText
-    };
-    let className = 'compass-sidebar-button-create-database';
-    if (!this.state.isWritable) {
-      className += ' compass-sidebar-button-is-disabled';
+    if (!this.isReadonlyDistro()) {
+      const tooltipText = this.state.description;
+      const tooltipOptions = this.state.isWritable ? {} : {
+        'data-for': TOOLTIP_IDS.CREATE_DATABASE_BUTTON,
+        'data-effect': 'solid',
+        'data-place': 'right',
+        'data-offset': "{'right': -10}",
+        'data-tip': tooltipText
+      };
+      let className = 'compass-sidebar-button-create-database';
+      if (!this.state.isWritable) {
+        className += ' compass-sidebar-button-is-disabled';
+      }
+      return (
+        <div className="compass-sidebar-button-create-database-container" {...tooltipOptions}>
+          <button
+            className={className}
+            title="Create Database"
+            onClick={this.handleCreateDatabaseClick.bind(this, this.state.isWritable)}
+          >
+            <i className="mms-icon-add" />
+            <text className="plus-button">
+              Create Database
+            </text>
+          </button>
+        </div>
+      );
     }
-    return (
-      <div className="compass-sidebar-button-create-database-container" {...tooltipOptions}>
-        <button
-          className={className}
-          title="Create Database"
-          onClick={this.handleCreateDatabaseClick.bind(this, this.state.isWritable)}
-        >
-          <i className="mms-icon-add" />
-          <text className="plus-button">
-            Create Database
-          </text>
-        </button>
-      </div>
-    );
   }
 
   renderSidebarDatabase({index, key, style}) {

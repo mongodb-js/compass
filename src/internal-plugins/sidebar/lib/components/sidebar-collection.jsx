@@ -59,6 +59,10 @@ class SidebarCollection extends React.Component {
     }
   }
 
+  isReadonlyDistro() {
+    return process.env.HADRON_READONLY === 'true';
+  }
+
   renderReadonly() {
     if (this.props.readonly) {
       return (
@@ -67,24 +71,35 @@ class SidebarCollection extends React.Component {
     }
   }
 
+  renderDropCollectionButton() {
+    if (!this.isReadonlyDistro()) {
+      const tooltipText = this.state.isWritable ?
+        'Drop collection' :
+        this.state.description;
+      const tooltipOptions = {
+        'data-for': TOOLTIP_IDS.DROP_COLLECTION,
+        'data-effect': 'solid',
+        'data-offset': "{'bottom': 10, 'left': -5}",
+        'data-tip': tooltipText
+      };
+      let dropClassName = 'compass-sidebar-icon compass-sidebar-icon-drop-collection fa fa-trash-o';
+      if (!this.state.isWritable) {
+        dropClassName += ' compass-sidebar-icon-is-disabled';
+      }
+      return (
+        <i
+          className={dropClassName}
+          onClick={this.handleDropCollectionClick.bind(this, this.state.isWritable)}
+          {...tooltipOptions} />
+      );
+    }
+  }
+
   render() {
     const collectionName = this.getCollectionName();
-    const tooltipText = this.state.isWritable ?
-      'Drop collection' :
-      this.state.description;
-    const tooltipOptions = {
-      'data-for': TOOLTIP_IDS.DROP_COLLECTION,
-      'data-effect': 'solid',
-      'data-offset': "{'bottom': 10, 'left': -5}",
-      'data-tip': tooltipText
-    };
     let itemClassName = 'compass-sidebar-item compass-sidebar-item-is-actionable';
     if (this.props.activeNamespace === this.props._id) {
       itemClassName += ' compass-sidebar-item-is-active';
-    }
-    let dropClassName = 'compass-sidebar-icon compass-sidebar-icon-drop-collection fa fa-trash-o';
-    if (!this.state.isWritable) {
-      dropClassName += ' compass-sidebar-icon-is-disabled';
     }
     return (
       <div className={itemClassName}>
@@ -97,11 +112,7 @@ class SidebarCollection extends React.Component {
           {this.renderReadonly()}
         </div>
         <div className="compass-sidebar-item-actions compass-sidebar-item-actions-ddl">
-          <i
-            className={dropClassName}
-            onClick={this.handleDropCollectionClick.bind(this, this.state.isWritable)}
-            {...tooltipOptions}
-          />
+          {this.renderDropCollectionButton()}
         </div>
       </div>
     );

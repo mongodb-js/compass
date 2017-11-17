@@ -76,6 +76,10 @@ class DatabasesTable extends React.Component {
     this.setState(state);
   }
 
+  isReadonlyDistro() {
+    return process.env.HADRON_READONLY === 'true';
+  }
+
   renderNoCollections(isWritable) {
     return (
       <div className="no-collections-zero-state">
@@ -90,6 +94,19 @@ class DatabasesTable extends React.Component {
           : null}
       </div>
     );
+  }
+
+  renderCreateDatabaseButton() {
+    if (!this.isReadonlyDistro()) {
+      return (
+        <this.TextWriteButton
+          className="btn btn-primary btn-xs"
+          dataTestId="open-create-database-modal-button"
+          text="Create Database"
+          tooltipId="database-ddl-is-not-writable"
+          clickHandler={this.onCreateDatabaseButtonClicked.bind(this)} />
+      );
+    }
   }
 
   render() {
@@ -111,12 +128,7 @@ class DatabasesTable extends React.Component {
     return (
       <div className="rtss-databases" data-test-id="databases-table">
         <div className="rtss-databases-create-button action-bar controls-container">
-          <this.TextWriteButton
-            className="btn btn-primary btn-xs"
-            dataTestId="open-create-database-modal-button"
-            text="Create Database"
-            tooltipId="database-ddl-is-not-writable"
-            clickHandler={this.onCreateDatabaseButtonClicked.bind(this)} />
+          {this.renderCreateDatabaseButton()}
         </div>
         <div className="column-container">
           <div className="column main">
@@ -128,7 +140,7 @@ class DatabasesTable extends React.Component {
               sortOrder={this.props.sortOrder}
               sortColumn={this.props.sortColumn}
               valueIndex={0}
-              removable={this.state.isWritable}
+              removable={this.state.isWritable && !this.isReadonlyDistro()}
               onColumnHeaderClicked={this.onColumnHeaderClicked.bind(this)}
               onRowDeleteButtonClicked={this.onRowDeleteButtonClicked.bind(this)}
             />
