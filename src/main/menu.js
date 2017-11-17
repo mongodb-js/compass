@@ -204,13 +204,6 @@ function collectionSubMenu() {
     label: '&Collection',
     submenu: [
       {
-        label: '&Insert Document',
-        accelerator: 'CmdOrCtrl+D',
-        click: function() {
-          ipc.broadcast('window:menu-open-insert-document-dialog');
-        }
-      },
-      {
         label: '&Share Schema as JSON',
         accelerator: 'Alt+CmdOrCtrl+S',
         click: function() {
