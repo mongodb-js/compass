@@ -8,6 +8,8 @@ import { arrayToTree, addFilesToTree } from './utils/array-to-tree';
 import { getDirectoryStructure } from './utils/walker';
 import { Component, ComponentRef, Directory, File, FileFolderTree } from './interfaces';
 
+const getTemplate = (name: string) => fs.readFileSync(path.join(__dirname, `../static/${name}.xml`), 'utf-8');
+
 export interface MSICreatorOptions {
   appDirectory: string;
   outputDirectory: string;
@@ -26,11 +28,11 @@ export class MSICreator {
   private directories: Array<string> = [];
   private tree: FileFolderTree;
   private components: Array<Component> = [];
-  private componentRefs: Array<ComponentRef> = [];
 
-  public componentTemplate = fs.readFileSync(path.join(__dirname, '../static/component.xml'), 'utf-8');
-  public directoryTemplate = fs.readFileSync(path.join(__dirname, '../static/directory.xml'), 'utf-8');
-  public wixTemplate = fs.readFileSync(path.join(__dirname, '../static/wix.xml'), 'utf-8');
+  public componentTemplate = getTemplate('component');
+  public componentRefTemplate = getTemplate('component-ref');
+  public directoryTemplate = getTemplate('directory');
+  public wixTemplate = getTemplate('wix');
 
   public readonly appDirectory: string;
   public readonly outputDirectory: string;
@@ -70,6 +72,7 @@ export class MSICreator {
     const target = path.join(this.outputDirectory, `${this.exe}.wxs`);
     const base = path.basename(this.appDirectory);
     const directories = await this.getDirectoryForTree(this.tree, base, 10);
+    const componentRefs = await this.getComponentRefs();
     const replacements = {
       '{{ApplicationName}}': this.name,
       '{{UpgradeCode}}': this.upgradeCode,
@@ -81,7 +84,7 @@ export class MSICreator {
       '{{ApplicationShortName}}': this.shortName,
       '{{ApplicationShortcutGuid}}': uuid(),
       '<!-- {{Directories}} -->': directories,
-      '<!-- {{ComponentRefs}} -->': this.componentRefs.map(({ xml }) => xml).join('\n')
+      '<!-- {{ComponentRefs}} -->': componentRefs.map(({ xml }) => xml).join('\n')
     }
 
     await replaceToFile(this.wixTemplate, target, replacements);
@@ -141,12 +144,10 @@ export class MSICreator {
    *
    * @returns {Promise<Array<string>>}
    */
-  private async getComponentRefs(): Promise<Array<ComponentRef>> {
-    const templateSrc = path.join(__dirname, '../static/component-ref.xml');
-    const template = await fs.readFile(templateSrc, 'utf-8');
-
+  private getComponentRefs(indent: number = 6): Array<ComponentRef> {
     return this.components.map(({ componentId }) => {
-      const xml = replaceInString(template, {
+      const xml = replaceInString(this.componentRefTemplate, {
+        '<!-- {{I}} -->': indent > 0 ? padStart('', indent) : '',
         '{{ComponentId}}': componentId
       });
 
@@ -164,7 +165,7 @@ export class MSICreator {
     const guid = uuid();
     const componentId = this.getComponentId(file.path);
     const xml = replaceInString(this.componentTemplate, {
-      '<!-- {{I}} -->': padStart('', indent),
+      '<!-- {{I}} -->': indent > 0 ? padStart('', indent) : '',
       '{{ComponentId}}': componentId,
       '{{FileId}}': componentId,
       '{{Name}}': file.name,

@@ -1,1 +1,1 @@
-      <ComponentRef Id="{{ComponentId}}" />
+<!-- {{I}} --><ComponentRef Id="{{ComponentId}}" />
