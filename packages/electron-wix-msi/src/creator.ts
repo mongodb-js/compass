@@ -2,9 +2,11 @@ import * as fs from 'fs-extra';
 import * as path from 'path';
 import * as klaw from 'klaw';
 import * as uuid from 'uuid/v4';
+import { padStart } from 'lodash';
 
-import { replaceInFile, replaceInString } from './replacer';
-import { Component, ComponentRef, Directory, DirectoryRef } from './interfaces';
+import { replaceToFile, replaceInString } from './replacer';
+import { Component, ComponentRef, Directory, File, FileFolderTree } from './interfaces';
+import { arrayToTree, addFilesToTree } from './utils/array-to-tree';
 
 export interface MSICreatorOptions {
   appDirectory: string;
@@ -22,9 +24,13 @@ export interface MSICreatorOptions {
 export class MSICreator {
   private files: Array<string> = [];
   private directories: Array<string> = [];
+  private tree: FileFolderTree;
   private components: Array<Component> = [];
   private componentRefs: Array<ComponentRef> = [];
-  private directoryRefs: Array<DirectoryRef> = [];
+
+  public componentTemplate = fs.readFileSync(path.join(__dirname, '../static/component.xml'), 'utf-8');
+  public directoryTemplate = fs.readFileSync(path.join(__dirname, '../static/directory.xml'), 'utf-8');
+  public wixTemplate = fs.readFileSync(path.join(__dirname, '../static/wix.xml'), 'utf-8');
 
   public readonly appDirectory: string;
   public readonly outputDirectory: string;
@@ -57,15 +63,15 @@ export class MSICreator {
 
     this.files = files;
     this.directories = directories;
-    this.components = await this.getComponents();
-    this.componentRefs = await this.getComponentRefs();
+    this.tree = this.getTree();
 
     await this.createWxs();
   }
 
   private async createWxs() {
-    const template = path.join(__dirname, '../static/wix.wxs');
     const target = path.join(this.outputDirectory, `${this.exe}.wxs`);
+    const base = path.basename(this.appDirectory);
+    const directories = await this.getDirectoryForTree(this.tree, base, 10);
     const replacements = {
       '{{ApplicationName}}': this.name,
       '{{UpgradeCode}}': this.upgradeCode,
@@ -76,20 +82,61 @@ export class MSICreator {
       '{{ApplicationBinary}}': this.exe,
       '{{ApplicationShortName}}': this.shortName,
       '{{ApplicationShortcutGuid}}': uuid(),
-      '<!-- {{Components}} -->': this.components.map(({ xml }) => xml).join('\n'),
+      '<!-- {{Directories}} -->': directories,
       '<!-- {{ComponentRefs}} -->': this.componentRefs.map(({ xml }) => xml).join('\n')
     }
 
-    await replaceInFile(template, target, replacements);
+    await replaceToFile(this.wixTemplate, target, replacements);
   }
 
-  // private async getDirectories(): Promise<Array<Directory>> {
-  //   const templateSrc = path.join(__dirname, '../static/component-ref.xml');
-  //   const template = await fs.readFile(templateSrc, 'utf-8');
-  //   const directories = this.directories;
+  /**
+   * Creates the XML component for Wix <Directory> elements,
+   * including children
+   *
+   * @param {FileFolderTree} tree
+   * @param {string} treePath
+   * @param {number} [indent=0]
+   * @returns {string}
+   */
+  private getDirectoryForTree(tree: FileFolderTree, treePath: string, indent: number = 0): string {
+    const childDirectories = Object.keys(tree)
+      .filter((k) => !k.startsWith('__ELECTRON_WIX_MSI'))
+      .map((k) => {
+        return this.getDirectoryForTree(
+          tree[k] as FileFolderTree,
+          (tree[k] as FileFolderTree).__ELECTRON_WIX_MSI_PATH__,
+          indent + 2
+        )}
+      );
+    const childFiles = tree.__ELECTRON_WIX_MSI_FILES__
+      .map((file) => {
+        const component = this.getComponent(file, indent + 2);
+        this.components.push(component);
+        return component.xml;
+      });
 
+    const children: string = [childDirectories.join('\n'), childFiles.join('\n')].join('');
 
-  // }
+    return replaceInString(this.directoryTemplate, {
+      '<!-- {{I}} -->': indent > 0 ? padStart('', indent) : '',
+      '{{DirectoryId}}': this.getComponentId(treePath),
+      '{{DirectoryName}}': path.basename(treePath),
+      '<!-- {{Children}} -->': children
+    });
+  }
+
+  /**
+   * Get a FileFolderTree for all files that need to be installed.
+   *
+   * @returns {FileFolderTree}
+   */
+  private getTree(): FileFolderTree {
+    const root = this.appDirectory;
+    const folderTree = arrayToTree(this.directories, root);
+    const fileFolderTree = addFilesToTree(folderTree, this.files, root);
+
+    return fileFolderTree;
+  }
 
   /**
    * Creates Wix <ComponentRefs> for all components.
@@ -100,35 +147,34 @@ export class MSICreator {
     const templateSrc = path.join(__dirname, '../static/component-ref.xml');
     const template = await fs.readFile(templateSrc, 'utf-8');
 
-    return this.components.map(({ id }) => {
+    return this.components.map(({ componentId }) => {
       const xml = replaceInString(template, {
-        '{{FileId}}': id
+        '{{ComponentId}}': componentId
       });
 
-      return { id, xml };
+      return { componentId, xml };
     });
   }
 
   /**
    * Creates Wix <Components> for all files.
    *
-   * @returns {Promise<Array<string>>}
+   * @param {File}
+   * @returns {Component}
    */
-  private async getComponents(): Promise<Array<Component>> {
-    const templateSrc = path.join(__dirname, '../static/component.xml');
-    const template = await fs.readFile(templateSrc, 'utf-8');
-
-    return this.files.map((file) => {
-      const guid = uuid();
-      const id = this.getFileId(file);
-      const xml = replaceInString(template, {
-        '{{FileId}}': id,
-        '{{Guid}}': guid,
-        '{{SourcePath}}': file
-      });
-
-      return { guid, id, xml, file }
+  private getComponent(file: File, indent: number = 0): Component {
+    const guid = uuid();
+    const componentId = this.getComponentId(file.path);
+    const xml = replaceInString(this.componentTemplate, {
+      '<!-- {{I}} -->': padStart('', indent),
+      '{{ComponentId}}': componentId,
+      '{{FileId}}': componentId,
+      '{{Name}}': file.name,
+      '{{Guid}}': guid,
+      '{{SourcePath}}': file.path
     });
+
+    return { guid, componentId, xml, file }
   }
 
   /**
@@ -158,7 +204,14 @@ export class MSICreator {
     });
   }
 
-  private getFileId(filePath: string) {
+  /**
+   * Creates a usable component id to use with Wix "id" fields
+   *
+   * @private
+   * @param {string} filePath
+   * @returns {string} componentId
+   */
+  private getComponentId(filePath: string): string {
     const pathId = filePath
       .replace(this.appDirectory, '')
       .replace(/^\\|\//g, '');
