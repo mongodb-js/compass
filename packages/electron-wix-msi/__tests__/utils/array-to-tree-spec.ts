@@ -77,35 +77,35 @@ test(`isChild() returns true for a child and parent`, () => {
   const a = `C:${S}my${S}path`;
   const b = `C:${S}my${S}path${S}child`;
 
-  expect(isChild(a, b)).toBe(true);
+  expect(isChild(a, b)).toBeTruthy;
 });
 
 test(`isChild() returns false for a child and non-parent`, () => {
   const a = `C:${S}my${S}path`;
   const b = `C:${S}my${S}other${S}path${S}child`;
 
-  expect(isChild(a, b)).toBe(false);
+  expect(isChild(a, b)).toBeFalsy;
 });
 
 test(`isDirectChild() returns true for a child and direct parent`, () => {
   const a = `C:${S}my${S}path`;
   const b = `C:${S}my${S}path${S}child`;
 
-  expect(isDirectChild(a, b)).toBe(true);
+  expect(isDirectChild(a, b)).toBeTruthy;
 });
 
 test(`isDirectChild() returns false for a child and non-direct parent`, () => {
   const a = `C:${S}my${S}path`;
   const b = `C:${S}my${S}path${S}child${S}ren`;
 
-  expect(isDirectChild(a, b)).toBe(false);
+  expect(isDirectChild(a, b)).toBeFalsy;
 });
 
 test(`isDirectChild() returns false for a child and non-parent`, () => {
   const a = `C:${S}my${S}path`;
   const b = `C:${S}my${S}other${S}path${S}child`;
 
-  expect(isDirectChild(a, b)).toBe(false);
+  expect(isDirectChild(a, b)).toBeFalsy;
 });
 
 test(`arrayToTree() creates a tree structure`, () => {
