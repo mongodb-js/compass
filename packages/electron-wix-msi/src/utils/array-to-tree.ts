@@ -55,17 +55,6 @@ export function isChild(parent: string, possibleChild: string): boolean {
 }
 
 /**
- * Returns the shortest string in an array of strings
- *
- * @export
- * @param {Array<string>} input
- * @returns {string}
- */
-export function shortestString(input: Array<string>): string {
-  return input.reduce((a, b) => a.length <= b.length ? a : b)
-}
-
-/**
  * Turns an array of paths into a directory structure.
  *
  *   input = [
@@ -96,10 +85,8 @@ export function shortestString(input: Array<string>): string {
  * @param {string} [inputRoot]
  * @returns {FileFolderTree}
  */
-export function arrayToTree(input: Array<string>, inputRoot?: string): FileFolderTree {
-  const root = inputRoot || shortestString(input);
+export function arrayToTree(input: Array<string>, root: string): FileFolderTree {
   const output: FileFolderTree = { __ELECTRON_WIX_MSI_FILES__: [], __ELECTRON_WIX_MSI_PATH__: root };
-
   const children: Array<string> = input.filter((e) => isChild(root, e));
   const directChildren: Array<string> = children.filter((e) => isDirectChild(root, e));
 

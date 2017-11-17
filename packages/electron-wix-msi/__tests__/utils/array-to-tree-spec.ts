@@ -107,17 +107,6 @@ test('isDirectChild() returns false for a child and non-parent', () => {
   expect(isDirectChild(a, b)).toBe(false);
 });
 
-test('shortestString() returns the shortest string in an array', () => {
-  const input = [
-    'aaaaaa',
-    'aa',
-    'aaaaaaaaaa',
-    'aaaaaa'
-  ]
-
-  expect(shortestString(input)).toBe('aa');
-});
-
 test('arrayToTree() creates a tree structure', () => {
   expect(arrayToTree(mockFolders, 'slack')).toEqual(mockFolderTree);
 });
