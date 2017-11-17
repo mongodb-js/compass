@@ -16,6 +16,8 @@
              Comments="Windows Installer Package"/>
     <Media Id="1" Cabinet="product.cab" EmbedCab="yes"/>
 
+<!-- {{UI}} -->
+
     <!-- Step 2: Add files and directories -->
     <Directory Id="TARGETDIR" Name="SourceDir">
       <!-- Installation files to %PROGRAMFILES% -->

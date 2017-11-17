@@ -23,6 +23,7 @@ export interface MSICreatorOptions {
   manufacturer: string;
   language?: number;
   programFilesFolderName?: string;
+  useUI?: boolean;
 }
 
 export class MSICreator {
@@ -35,18 +36,20 @@ export class MSICreator {
   public componentRefTemplate = getTemplate('component-ref');
   public directoryTemplate = getTemplate('directory');
   public wixTemplate = getTemplate('wix');
+  public uiTemplate = getTemplate('ui');
 
-  public readonly appDirectory: string;
-  public readonly outputDirectory: string;
-  public readonly exe: string;
-  public readonly description: string;
-  public readonly version: string;
-  public readonly name: string;
-  public readonly shortName: string;
-  public readonly upgradeCode: string;
-  public readonly manufacturer: string;
-  public readonly language: number;
-  public readonly programFilesFolderName: string;
+  public appDirectory: string;
+  public outputDirectory: string;
+  public exe: string;
+  public description: string;
+  public version: string;
+  public name: string;
+  public shortName: string;
+  public upgradeCode: string;
+  public manufacturer: string;
+  public language: number;
+  public programFilesFolderName: string;
+  public useUI: boolean;
 
   constructor(options: MSICreatorOptions) {
     this.appDirectory = options.appDirectory;
@@ -60,6 +63,7 @@ export class MSICreator {
     this.language = options.language || 1033;
     this.shortName = options.shortName || options.name;
     this.programFilesFolderName = options.programFilesFolderName || options.name;
+    this.useUI = options.useUI || true;
   }
 
   public async create() {
@@ -89,7 +93,8 @@ export class MSICreator {
       '{{ApplicationShortName}}': this.shortName,
       '{{ApplicationShortcutGuid}}': uuid(),
       '<!-- {{Directories}} -->': directories,
-      '<!-- {{ComponentRefs}} -->': componentRefs.map(({ xml }) => xml).join('\n')
+      '<!-- {{ComponentRefs}} -->': componentRefs.map(({ xml }) => xml).join('\n'),
+      '<!-- {{UI}} -->': this.useUI ? this.uiTemplate : ''
     }
 
     await replaceToFile(this.wixTemplate, target, replacements);
