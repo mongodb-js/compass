@@ -3,14 +3,14 @@ export interface StringMap<T> {
 }
 
 export interface Component {
-  file: string;
+  file: File;
   guid: string;
-  id: string;
+  componentId: string;
   xml: string;
 }
 
 export interface ComponentRef {
-  id: string;
+  componentId: string;
   xml: string;
 }
 
@@ -20,13 +20,16 @@ export interface Directory {
   path: string;
   name: string;
   children: Array<Directory>;
+  files: Array<string>;
 }
 
-export interface DirectoryRef {
-  id: string;
-  xml: string;
-  path: string;
+export interface FileFolderTree {
+  [key: string]: FileFolderTree | Array<File> | string;
+  __ELECTRON_WIX_MSI_FILES__: Array<File>;
+  __ELECTRON_WIX_MSI_PATH__: string;
+}
+
+export interface File {
   name: string;
-  children: Array<DirectoryRef>;
+  path: string;
 }
-
