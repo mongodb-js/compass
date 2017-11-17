@@ -2,6 +2,8 @@ import { File, FileFolderTree, StringMap } from '../interfaces';
 import * as path from 'path';
 import { cloneDeep } from 'lodash';
 
+const separator = process.platform == 'win32' ? '\\' : '/';
+
 /**
  * Are two paths in a direct parent/child relationship?
  *
@@ -25,8 +27,8 @@ import { cloneDeep } from 'lodash';
 export function isDirectChild(parent: string, possibleChild: string): boolean {
   if (!isChild(parent, possibleChild)) return false;
 
-  const parentSplit = parent.split('\\');
-  const childSplit = possibleChild.split('\\');
+  const parentSplit = parent.split(separator);
+  const childSplit = possibleChild.split(separator);
 
   return (parentSplit.length === childSplit.length - 1);
 }
@@ -140,7 +142,7 @@ export function addFilesToTree(tree: FileFolderTree, files: Array<string>, root:
 
   files.forEach((filepath) => {
     const file: File = { name: path.basename(filepath), path: filepath };
-    const walkingSteps = filepath.split('\\');
+    const walkingSteps = filepath.split(separator);
     let target: FileFolderTree = output;
 
     if (walkingSteps[0] === root) {
