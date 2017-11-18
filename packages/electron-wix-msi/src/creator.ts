@@ -1,8 +1,10 @@
+import { spawnPromise } from './utils/spawn';
 import * as fs from 'fs-extra';
 import * as path from 'path';
 import * as uuid from 'uuid/v4';
 import { padStart } from 'lodash';
 
+import { hasLight, hasCandle } from './utils/detect-wix';
 import { replaceToFile, replaceInString } from './utils/replace';
 import { arrayToTree, addFilesToTree } from './utils/array-to-tree';
 import { getDirectoryStructure } from './utils/walker';
@@ -38,6 +40,7 @@ export class MSICreator {
   private tree: FileFolderTree;
   private components: Array<Component> = [];
 
+  // Default Templates
   public componentTemplate = getTemplate('component');
   public componentRefTemplate = getTemplate('component-ref');
   public directoryTemplate = getTemplate('directory');
@@ -45,6 +48,10 @@ export class MSICreator {
   public uiTemplate = getTemplate('ui');
   public backgroundTemplate = getTemplate('background');
 
+  // State, overwritable beteween steps
+  public wxsFile: string = '';
+
+  // Configuration
   public appDirectory: string;
   public outputDirectory: string;
   public exe: string;
@@ -73,19 +80,60 @@ export class MSICreator {
     this.uiOptions = options.uiOptions || { enabled: true };
   }
 
-  public async create() {
+  /**
+   * Analyzes the structure of the app directory and collects necessary
+   * information for creating a .wxs file. Then, creates the file and returns
+   * both the location as well as the content.
+   *
+   * @returns {Promise<{ wxsFile: string, wxsContent: string }>}
+   */
+  public async create(): Promise<{ wxsFile: string, wxsContent: string }> {
     const { files, directories } = await getDirectoryStructure(this.appDirectory);
 
     this.files = files;
     this.directories = directories;
     this.tree = this.getTree();
 
-    const wxs = await this.createWxs();
+    const { wxsContent, wxsFile } = await this.createWxs();
+    this.wxsFile = wxsFile;
 
-    return { wxs };
+    return { wxsContent, wxsFile };
   }
 
-  private async createWxs(): Promise<string> {
+  /**
+   * Creates a wixObj file and kicks of actual compilation into an MSI.
+   * "Guidance is internal" (https://youtu.be/8wdF8nchVMk?t=108)
+   */
+  public async compile() {
+    const light = hasLight();
+    const candle = hasCandle();
+
+    if (!light || !light.has || !candle || !candle.has) {
+      console.warn(`It appears that electron-wix-msi cannot find candle.exe or light.exe.`);
+      console.warn(`Please consult the readme at https://github.com/felixrieseberg/electron-wix-msi`);
+      console.warn(`for information on how to install the Wix toolkit, which is required.\n`);
+
+      throw new Error(`Could not find light.exe or candle.exe`);
+    } else {
+      console.log(`electron-wix-msi: Using light.exe (${light.version}) and candle.exe (${candle.version})`);
+    }
+
+    if (!this.wxsFile) {
+      throw new Error(`wxsFile not found. Did you run create() yet?`);
+    }
+
+    const { wxsObjFile } = await this.createWxsObj();
+
+    return { wxsObjFile };
+  }
+
+  /**
+   * Kicks of creation of a .wxs file and returns both content
+   * and location.
+   *
+   * @returns {Promise<{ wxsFile: string, wxsContent: string }>}
+   */
+  private async createWxs(): Promise<{ wxsFile: string, wxsContent: string }> {
     const target = path.join(this.outputDirectory, `${this.exe}.wxs`);
     const base = path.basename(this.appDirectory);
     const directories = await this.getDirectoryForTree(
@@ -106,16 +154,35 @@ export class MSICreator {
       '<!-- {{UI}} -->': this.getUI()
     }
 
-    await replaceToFile(this.wixTemplate, target, replacements);
+    const output = await replaceToFile(this.wixTemplate, target, replacements);
 
-    return target;
+    return { wxsFile: target, wxsContent: output };
+  }
+
+  /**
+   * Creates a wxsobj file.
+   *
+   * @returns {Promise<{ wxsObjFile: string }>}
+   */
+  private async createWxsObj(): Promise<{ wxsObjFile: string }> {
+    const cwd = path.dirname(this.wxsFile);
+    const expectedObj = path.join(cwd, `${path.basename(this.wxsFile, '.wxs')}.wixobj`);
+    const { code, stderr, stdout } = await spawnPromise('candle.exe', [this.wxsFile], {
+      env: process.env,
+      cwd
+    });
+
+    if (code === 0 && fs.existsSync(expectedObj)) {
+      return { wxsObjFile: expectedObj };
+    } else {
+      throw new Error(`Could not create wxsobj file. Code: ${code} StdErr: ${stderr} StdOut: ${stdout}`);
+    }
   }
 
   /**
    * Creates the XML portion for a Wix UI, if enabled.
    *
    * @returns {string}
-   * @memberof MSICreator
    */
   private getUI(): string {
     const { background, enabled, template } = this.uiOptions;
@@ -223,7 +290,6 @@ export class MSICreator {
   /**
    * Creates a usable component id to use with Wix "id" fields
    *
-   * @private
    * @param {string} filePath
    * @returns {string} componentId
    */
