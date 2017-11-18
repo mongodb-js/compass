@@ -12,9 +12,10 @@ import * as path from 'path';
  */
 export async function replaceToFile(input: string,
                                     target: string,
-                                    replacements: StringMap<string>): Promise<void> {
+                                    replacements: StringMap<string>): Promise<string> {
   const output = replaceInString(input, replacements);
   await fs.outputFile(target, output, 'utf-8');
+  return output;
 }
 
 /**
