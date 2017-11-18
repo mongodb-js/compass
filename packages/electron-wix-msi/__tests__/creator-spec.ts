@@ -111,21 +111,25 @@ test('MSICreator compile() throws if there is no wxsFile', async () => {
   expect(msiCreator.compile()).rejects.toEqual(new Error('wxsFile not found. Did you run create() yet?'));
 });
 
-test('MSICreator compile() creates a wxsObj file', async () => {
+test('MSICreator compile() creates a wixobj and msi file', async () => {
   const msiCreator = new MSICreator(defaultOptions);
   await msiCreator.create();
 
-  const { wxsObjFile } = await msiCreator.compile();
+  const { wixobjFile, msiFile } = await msiCreator.compile();
 
-  expect(wxsObjFile).toBeTruthy();
-  expect(fs.existsSync(wxsObjFile)).toBeTruthy();
+  expect(wixobjFile).toBeTruthy();
+  expect(fs.existsSync(wixobjFile)).toBeTruthy();
+
+  expect(msiFile).toBeTruthy();
+  expect(fs.existsSync(msiFile)).toBeTruthy();
 });
 
-test('MSICreator compile() throws if candle fails', async () => {
+
+test('MSICreator compile() throws if candle or light fail', async () => {
   const msiCreator = new MSICreator({ ...defaultOptions, exe: 'fail' });
   const err = 'A bit of error';
   const out = 'A bit of data';
-  const expectedErr = new Error(`Could not create wxsobj file. Code: 1 StdErr: ${err} StdOut: ${out}`);
+  const expectedErr = new Error(`Could not create wixobj file. Code: 1 StdErr: ${err} StdOut: ${out}`);
   await msiCreator.create();
 
   expect(msiCreator.compile()).rejects.toEqual(expectedErr);

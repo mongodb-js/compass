@@ -122,9 +122,10 @@ export class MSICreator {
       throw new Error(`wxsFile not found. Did you run create() yet?`);
     }
 
-    const { wxsObjFile } = await this.createWxsObj();
+    const { wixobjFile } = await this.createWixobj();
+    const { msiFile } = await this.createMsi();
 
-    return { wxsObjFile };
+    return { wixobjFile, msiFile };
   }
 
   /**
@@ -160,22 +161,48 @@ export class MSICreator {
   }
 
   /**
-   * Creates a wxsobj file.
+   * Creates a wixobj file.
    *
-   * @returns {Promise<{ wxsObjFile: string }>}
+   * @returns {Promise<{ wixobjFile: string }>}
    */
-  private async createWxsObj(): Promise<{ wxsObjFile: string }> {
+  private async createWixobj(): Promise<{ wixobjFile: string }> {
+    return { wixobjFile: await this.createFire('wixobj') };
+  }
+
+  /**
+   * Creates a msi file
+   *
+   * @returns {Promise<{ msiFile: string }>}
+   */
+  private async createMsi(): Promise<{ msiFile: string }> {
+    return { msiFile: await this.createFire('msi') };
+  }
+
+  /**
+   * Uses light.exe or candle.exe to create a wixobj or msi file.
+   *
+   * @param {('wixobj' | 'msi')} type
+   * @returns {Promise<string>} - The created file
+   */
+  private async createFire(type: 'wixobj' | 'msi'): Promise<string> {
     const cwd = path.dirname(this.wxsFile);
-    const expectedObj = path.join(cwd, `${path.basename(this.wxsFile, '.wxs')}.wixobj`);
-    const { code, stderr, stdout } = await spawnPromise('candle.exe', [this.wxsFile], {
+    const expectedObj = path.join(cwd, `${path.basename(this.wxsFile, '.wxs')}.${type}`);
+    const binary = type === 'msi'
+      ? 'light.exe'
+      : 'candle.exe';
+    const input = type === 'msi'
+      ? path.join(cwd, `${path.basename(this.wxsFile, '.wxs')}.wixobj`)
+      : this.wxsFile;
+
+    const { code, stderr, stdout } = await spawnPromise(binary, [ input ], {
       env: process.env,
       cwd
     });
 
     if (code === 0 && fs.existsSync(expectedObj)) {
-      return { wxsObjFile: expectedObj };
+      return expectedObj;
     } else {
-      throw new Error(`Could not create wxsobj file. Code: ${code} StdErr: ${stderr} StdOut: ${stdout}`);
+      throw new Error(`Could not create ${type} file. Code: ${code} StdErr: ${stderr} StdOut: ${stdout}`);
     }
   }
 
