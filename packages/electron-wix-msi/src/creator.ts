@@ -26,6 +26,7 @@ export interface MSICreatorOptions {
   manufacturer: string;
   language?: number;
   programFilesFolderName?: string;
+  shortcutFolderName?: string;
   uiOptions?: UIOptions;
 }
 
@@ -64,6 +65,7 @@ export class MSICreator {
   public manufacturer: string;
   public language: number;
   public programFilesFolderName: string;
+  public shortcutFolderName: string;
   public uiOptions: UIOptions;
 
   constructor(options: MSICreatorOptions) {
@@ -78,6 +80,7 @@ export class MSICreator {
     this.language = options.language || 1033;
     this.shortName = options.shortName || options.name;
     this.programFilesFolderName = options.programFilesFolderName || options.name;
+    this.shortcutFolderName = options.shortcutFolderName || options.manufacturer;
     this.uiOptions = options.uiOptions || { enabled: true };
   }
 
@@ -151,6 +154,7 @@ export class MSICreator {
       '{{ApplicationBinary}}': this.exe,
       '{{ApplicationShortName}}': this.shortName,
       '{{ApplicationShortcutGuid}}': uuid(),
+      '{{ShortcutFolderName}}': this.shortcutFolderName,
       '<!-- {{Directories}} -->': directories,
       '<!-- {{ComponentRefs}} -->': componentRefs.map(({ xml }) => xml).join('\n'),
       '<!-- {{UI}} -->': this.getUI()

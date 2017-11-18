@@ -26,7 +26,7 @@
       </Directory>
       <!-- Start Menu -->
       <Directory Id="ProgramMenuFolder">
-        <Directory Id="ApplicationProgramsFolder" Name="{{Manufacturer}}"/>
+        <Directory Id="ApplicationProgramsFolder" Name="{{ShortcutFolderName}}"/>
       </Directory>
     </Directory>
 
