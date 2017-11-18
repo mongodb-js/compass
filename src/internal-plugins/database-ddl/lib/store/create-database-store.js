@@ -31,6 +31,9 @@ const CreateDatabaseStore = Reflux.createStore({
    * @param {Number} size - The max size of the capped collection.
    */
   createDatabase(dbName, collection, capped, size) {
+    if (dbName.includes('.')) {
+      return this.handleResult(new Error('Database names may not contain a "."'), null);
+    }
     const options = capped ? { capped: true, size: parseInt(size, 10) } : {};
     try {
       this.dataService.createCollection(`${dbName}.${collection}`, options, this.handleResult.bind(this));
