@@ -48,7 +48,7 @@ export function hasBinary(cmd: string): HasBinaryResult {
  * @returns {(string | null)}
  */
 function findVersion(input: string): string | null {
-  const regex = /XML Toolset Compiler version (\d\.\d{1,2}\.\d{1,2}\.\d{1,6})/;
+  const regex = / version (\d\.\d{1,2}\.\d{1,2}\.\d{1,6})/;
   const matched = input.match(regex);
 
   if (matched && matched.length > 1) {

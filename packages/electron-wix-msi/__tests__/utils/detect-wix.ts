@@ -8,7 +8,7 @@ beforeAll(() => {
       }
 
       if (name === 'light -?' || name === 'candle -?') {
-        return new Buffer('Windows Installer XML Toolset Compiler version 3.11.0.1701');
+        return new Buffer(' version 3.11.0.1701');
       }
 
       throw new Error('Command not found');
