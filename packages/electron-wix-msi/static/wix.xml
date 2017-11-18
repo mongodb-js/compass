@@ -10,7 +10,7 @@
       <![CDATA[Installed OR (VersionNT >= 601)]]>
     </Condition> -->
     <!-- http://wixtoolset.org/documentation/manual/v3/xsd/wix/package.html -->
-    <Package InstallerVersion="200"
+    <Package InstallerVersion="405"
              Compressed="yes"
              InstallScope="perMachine"
              Comments="Windows Installer Package"/>

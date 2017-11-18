@@ -45,7 +45,8 @@ await msiCreator.compile();
 The `uiOptions` property in the options passed to the installer instance allows more detailed configuration of the UI. It has the following optional properties:
  - `enabled` (boolean, optional) - Whether to show a typical user interface. Defaults to `true`. If set to `false`, Windows will show a minimal "Windows is configuring NAME_OF_APP" interface.
  - `background` (string, optional) - Path to an optional background file for [`WixUIDialogBmp`](http://wixtoolset.org/documentation/manual/v3/wixui/wixui_customizations.html). Wix will show a default image if left undefined.
- - `template` Substitute your own XML that will be inserted into the final `.wxs` file before compiling the installer to customize the UI options.
+ - `template` (string, optional) - Substitute your own XML that will be inserted into the final `.wxs` file before compiling the installer to customize the UI options.
+ - `chooseDirectory` (boolean, optional) - If set to `true`, the end user will be able to choose the installation directory. Set to `false` by default. Without effect if a custom `template` is used.
 
 ##### Template Configuration (Optional)
 This module uses XML bulding blocks to generate the final `.wxs` file. After instantiating the class, but before calling `create()`, you can change the default XML to one of your choosing. The publically available fields on the class are:

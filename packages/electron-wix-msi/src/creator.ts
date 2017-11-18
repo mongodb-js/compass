@@ -32,6 +32,7 @@ export interface MSICreatorOptions {
 
 export interface UIOptions {
   enabled?: boolean;
+  chooseDirectory?: boolean;
   background?: string;
   template?: string;
 }
@@ -48,6 +49,7 @@ export class MSICreator {
   public directoryTemplate = getTemplate('directory');
   public wixTemplate = getTemplate('wix');
   public uiTemplate = getTemplate('ui');
+  public uiDirTemplate = getTemplate('ui-choose-dir');
   public backgroundTemplate = getTemplate('background');
 
   // State, overwritable beteween steps
@@ -220,15 +222,18 @@ export class MSICreator {
    * @returns {string}
    */
   private getUI(): string {
-    const { background, enabled, template } = this.uiOptions;
+    const { background, enabled, template, chooseDirectory } = this.uiOptions;
     let xml = '';
 
     if (enabled) {
       const backgroundXml = background
         ? replaceInString(this.backgroundTemplate, { '{{Value}}': background })
         : ''
+      const uiTemplate = template || chooseDirectory
+        ? this.uiDirTemplate
+        : this.uiTemplate
 
-      xml = replaceInString(template || this.uiTemplate, {
+      xml = replaceInString(uiTemplate, {
         '<!-- {{Background}} -->': backgroundXml
       });
     }
