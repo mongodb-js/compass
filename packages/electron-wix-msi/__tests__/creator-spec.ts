@@ -112,7 +112,7 @@ test('MSICreator compile() throws if there is no wxsFile', async () => {
 });
 
 test('MSICreator compile() creates a wixobj and msi file', async () => {
-  const msiCreator = new MSICreator(defaultOptions);
+  const msiCreator = new MSICreator({ ...defaultOptions, uiOptions: { enabled: false } });
   await msiCreator.create();
 
   const { wixobjFile, msiFile } = await msiCreator.compile();

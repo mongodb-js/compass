@@ -13,7 +13,7 @@ export class mockSpawn extends EventEmitter {
       this.beCandle(args, fs);
     }
 
-    if (name === 'light.exe' && options) {
+    if (name === 'light.exe' && args && options) {
       this.beLight(args, fs);
     }
 
@@ -22,7 +22,7 @@ export class mockSpawn extends EventEmitter {
       this.stdout.emit('data', 'A bit of data');
 
       setImmediate(() => {
-        const code = args.length > 0 && args[0].includes('fail')
+        const code = args.find((e) => e && e.includes && e.includes('fail'))
           ? 1
           : 0;
         this.emit('close', code);
@@ -35,7 +35,8 @@ export class mockSpawn extends EventEmitter {
     fs.writeFileSync(target, 'hi', 'utf-8');
   }
 
-  private beLight([ filepath ]: Array<string>, fs: any) {
+  private beLight(args: Array<string>, fs: any) {
+    const filepath = args[args.length - 1];
     const target = path.join(path.dirname(filepath), `${path.basename(filepath, '.wixobj')}.msi`);
     fs.writeFileSync(target, 'hi', 'utf-8');
   }

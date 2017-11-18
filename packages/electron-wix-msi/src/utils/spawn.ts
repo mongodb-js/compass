@@ -23,6 +23,8 @@ export function spawnPromise(name: string,
     const { spawn } = require('child_process');
     const fork = spawn(name, args, options);
 
+    debug(`Spawning ${name} with ${args}`);
+
     let stdout = '';
     let stderr = '';
 

@@ -12,6 +12,7 @@ import { Component, ComponentRef, Directory, File, FileFolderTree } from './inte
 
 const getTemplate = (name: string) => fs.readFileSync(path.join(__dirname, `../static/${name}.xml`), 'utf-8');
 const ROOTDIR_NAME = 'APPLICATIONROOTDIRECTORY';
+const debug = require('debug')('electron-wix-msi');
 
 export interface MSICreatorOptions {
   appDirectory: string;
@@ -193,8 +194,11 @@ export class MSICreator {
     const input = type === 'msi'
       ? path.join(cwd, `${path.basename(this.wxsFile, '.wxs')}.wixobj`)
       : this.wxsFile;
+    const preArgs = this.uiOptions.enabled
+      ? [ '-ext', 'WixUIExtension' ]
+      : [];
 
-    const { code, stderr, stdout } = await spawnPromise(binary, [ input ], {
+    const { code, stderr, stdout } = await spawnPromise(binary, [ ...preArgs, input ], {
       env: process.env,
       cwd
     });
