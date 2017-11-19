@@ -140,5 +140,8 @@
     "webpack-bundle-analyzer": "^2.9.0",
     "webpack-dev-server": "^2.4.5",
     "webpack-node-externals": "^1.6.0"
+  },
+  "dependencies": {
+    "mongodb-query-util": "0.0.1"
   }
 }

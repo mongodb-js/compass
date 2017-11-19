@@ -24,8 +24,7 @@ module.exports = {
       models: path.join(project.path.src, 'models'),
       plugin: path.join(project.path.src, 'index.js'),
       stores: path.join(project.path.src, 'stores'),
-      storybook: project.path.storybook,
-      utils: path.join(project.path.src, 'utils')
+      storybook: project.path.storybook
     }
   },
   module: {

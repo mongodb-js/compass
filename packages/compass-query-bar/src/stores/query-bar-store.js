@@ -31,7 +31,7 @@ import {
 } from 'lodash';
 
 import QueryBarActions from 'actions';
-import { bsonEqual, hasDistinctValue } from 'utils';
+import { bsonEqual, hasDistinctValue } from 'mongodb-query-util';
 import QUERY_PROPERTIES from 'constants/query-properties';
 import {
   USER_TYPING_DEBOUNCE_MS,
