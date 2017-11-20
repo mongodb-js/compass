@@ -1,10 +1,10 @@
 import * as path from 'path';
 import * as fs from 'fs-extra';
 
-export const root = 'C:/Users/tester/Code/app';
+export const root = path.join('/', 'Users', 'tester', 'Code', 'app');
 export const numberOfFiles = 14;
 
-const staticDir = path.join(__dirname, '../../static').replace(/\\/, '/');
+const staticDir = path.join(__dirname, '../../static');
 const staticContent = {};
 staticContent[staticDir] = {};
 
