@@ -1,6 +1,4 @@
 <UI Id="UserInterface">
-<!-- {{Properties}} -->
-
   <Property Id="WixUI_Mode" Value="Custom" />
 
   <TextStyle Id="WixUI_Font_Normal" FaceName="Tahoma" Size="8" />
@@ -19,3 +17,4 @@
   <Publish Dialog="WelcomeDlg" Control="Next" Event="EndDialog" Value="Return" Order="2"></Publish>
 </UI>
 <UIRef Id="WixUI_Common" />
+<!-- {{Properties}} -->

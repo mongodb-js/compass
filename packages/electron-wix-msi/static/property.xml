@@ -1,1 +1,1 @@
-<Property Id="{{Key}}" Value="{{Value}}" />
+<WixVariable Id="{{Key}}" Value="{{Value}}" />
