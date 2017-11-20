@@ -23,6 +23,8 @@
           Maximum="{{Version}}" IncludeMaximum="no" />
     </Upgrade>
 
+    <MajorUpgrade AllowSameVersionUpgrades="yes">
+
     <InstallExecuteSequence>
       <RemoveExistingProducts After="InstallInitialize" />
     </InstallExecuteSequence>
