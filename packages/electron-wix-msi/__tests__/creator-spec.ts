@@ -112,17 +112,17 @@ test('MSICreator create() creates Wix file with UI properties', async () => {
   expect(wxsFile).toBeTruthy();
 });
 
-testIncludes('a background definition', '<Property Id="WixUIDialogBmp" Value="resources/background.bmp" />');
+testIncludes('a background definition', 'Id="WixUIDialogBmp" Value="resources/background.bmp" />');
 
-testIncludes('a banner definition', '<Property Id="WixUIBannerBmp" Value="resources/banner.bmp" />');
+testIncludes('a banner definition', 'Id="WixUIBannerBmp" Value="resources/banner.bmp" />');
 
-testIncludes('a exclamationIcon definition', '<Property Id="WixUIExclamationIco" Value="resources/exclamationIcon.bmp" />');
+testIncludes('a exclamationIcon definition', 'Id="WixUIExclamationIco" Value="resources/exclamationIcon.bmp" />');
 
-testIncludes('a infoIcon definition', '<Property Id="WixUIInfoIco" Value="resources/infoIcon.bmp" />');
+testIncludes('a infoIcon definition', 'Id="WixUIInfoIco" Value="resources/infoIcon.bmp" />');
 
-testIncludes('a newIcon definition', '<Property Id="WixUINewIco" Value="resources/newIcon.bmp" />');
+testIncludes('a newIcon definition', 'Id="WixUINewIco" Value="resources/newIcon.bmp" />');
 
-testIncludes('a banupIconner definition', '<Property Id="WixUIUpIco" Value="resources/upIcon.bmp" />');
+testIncludes('a banupIconner definition', 'Id="WixUIUpIco" Value="resources/upIcon.bmp" />');
 
 test('.wxs file contains as many component refs as components', () => {
   const comoponentCount = wxsContent.split('</Component>').length - 1;
