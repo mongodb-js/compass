@@ -4,7 +4,7 @@ import * as mockFs from 'mock-fs';
 import * as os from 'os';
 import * as path from 'path';
 
-import { MSICreator } from '../src/creator';
+import { MSICreator, UIOptions } from '../src/creator';
 import { getMockFileSystem, root, numberOfFiles } from './fixture/mock-fs';
 import { mockSpawn } from './mocks/mock-spawn';
 
@@ -85,13 +85,44 @@ testIncludes('a package element', '<Package');
 
 testIncludes('an APPLICATIONROOTDIRECTORY', '<Directory Id="APPLICATIONROOTDIRECTORY"');
 
-testIncludes('an ApplicationProgramsFolder', '<Directory Id="ApplicationProgramsFolder"')
+testIncludes('an ApplicationProgramsFolder', '<Directory Id="ApplicationProgramsFolder"');
 
 test('.wxs file has as many components as we have files', () => {
   // Files + Shortcut
   const count = wxsContent.split('</Component>').length - 1;
   expect(count).toEqual(numberOfFiles + 1);
 });
+
+test('MSICreator create() creates Wix file with UI properties', async () => {
+  const uiOptions: UIOptions = {
+    images: {
+      background: 'resources/background.bmp',
+      banner: 'resources/banner.bmp',
+      exclamationIcon: 'resources/exclamationIcon.bmp',
+      infoIcon: 'resources/infoIcon.bmp',
+      newIcon: 'resources/newIcon.bmp',
+      upIcon: 'resources/upIcon.bmp'
+    }
+  };
+
+  const msiCreator = new MSICreator({ ...defaultOptions, uiOptions });
+
+  const { wxsFile } = await msiCreator.create();
+  wxsContent = fs.readFileSync(wxsFile, 'utf-8');
+  expect(wxsFile).toBeTruthy();
+});
+
+testIncludes('a background definition', '<Property Id="WixUIDialogBmp" Value="resources/background.bmp" />');
+
+testIncludes('a banner definition', '<Property Id="WixUIBannerBmp" Value="resources/banner.bmp" />');
+
+testIncludes('a exclamationIcon definition', '<Property Id="WixUIExclamationIco" Value="resources/exclamationIcon.bmp" />');
+
+testIncludes('a infoIcon definition', '<Property Id="WixUIInfoIco" Value="resources/infoIcon.bmp" />');
+
+testIncludes('a newIcon definition', '<Property Id="WixUINewIco" Value="resources/newIcon.bmp" />');
+
+testIncludes('a banupIconner definition', '<Property Id="WixUIUpIco" Value="resources/upIcon.bmp" />');
 
 test('.wxs file contains as many component refs as components', () => {
   const comoponentCount = wxsContent.split('</Component>').length - 1;

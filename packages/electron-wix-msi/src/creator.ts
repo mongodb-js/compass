@@ -8,7 +8,7 @@ import { hasLight, hasCandle } from './utils/detect-wix';
 import { replaceToFile, replaceInString } from './utils/replace';
 import { arrayToTree, addFilesToTree } from './utils/array-to-tree';
 import { getDirectoryStructure } from './utils/walker';
-import { Component, ComponentRef, Directory, File, FileFolderTree } from './interfaces';
+import { Component, ComponentRef, Directory, File, FileFolderTree, StringMap } from './interfaces';
 
 const getTemplate = (name: string) => fs.readFileSync(path.join(__dirname, `../static/${name}.xml`), 'utf-8');
 const ROOTDIR_NAME = 'APPLICATIONROOTDIRECTORY';
@@ -27,14 +27,20 @@ export interface MSICreatorOptions {
   language?: number;
   programFilesFolderName?: string;
   shortcutFolderName?: string;
-  uiOptions?: UIOptions;
+  uiOptions?: UIOptions | boolean;
 }
 
 export interface UIOptions {
-  enabled?: boolean;
   chooseDirectory?: boolean;
-  background?: string;
   template?: string;
+  images?: {
+    background?: string;        // WixUIDialogBmp
+    banner?: string;            // WixUIBannerBmp
+    exclamationIcon?: string;   // WixUIExclamationIco
+    infoIcon?: string;          // WixUIInfoIco
+    newIcon?: string;           // WixUINewIco
+    upIcon?: string;            // WixUIUpIco
+  }
 }
 
 export class MSICreator {
@@ -50,7 +56,7 @@ export class MSICreator {
   public wixTemplate = getTemplate('wix');
   public uiTemplate = getTemplate('ui');
   public uiDirTemplate = getTemplate('ui-choose-dir');
-  public backgroundTemplate = getTemplate('background');
+  public propertyTemplate = getTemplate('property');
 
   // State, overwritable beteween steps
   public wxsFile: string = '';
@@ -68,7 +74,7 @@ export class MSICreator {
   public language: number;
   public programFilesFolderName: string;
   public shortcutFolderName: string;
-  public uiOptions: UIOptions;
+  public uiOptions: UIOptions | boolean;
 
   constructor(options: MSICreatorOptions) {
     this.appDirectory = path.normalize(options.appDirectory);
@@ -83,7 +89,7 @@ export class MSICreator {
     this.shortName = options.shortName || options.name;
     this.programFilesFolderName = options.programFilesFolderName || options.name;
     this.shortcutFolderName = options.shortcutFolderName || options.manufacturer;
-    this.uiOptions = options.uiOptions || { enabled: true };
+    this.uiOptions = options.uiOptions || true;
   }
 
   /**
@@ -200,7 +206,7 @@ export class MSICreator {
     const input = type === 'msi'
       ? path.join(cwd, `${path.basename(this.wxsFile, '.wxs')}.wixobj`)
       : this.wxsFile;
-    const preArgs = this.uiOptions.enabled
+    const preArgs = this.uiOptions
       ? [ '-ext', 'WixUIExtension' ]
       : [];
 
@@ -222,23 +228,52 @@ export class MSICreator {
    * @returns {string}
    */
   private getUI(): string {
-    const { background, enabled, template, chooseDirectory } = this.uiOptions;
     let xml = '';
 
-    if (enabled) {
-      const backgroundXml = background
-        ? replaceInString(this.backgroundTemplate, { '{{Value}}': background })
-        : ''
+    if (this.uiOptions) {
+      xml = this.uiTemplate;
+    }
+
+    if (typeof this.uiOptions === 'object' && this.uiOptions !== 'null') {
+      const { images, template, chooseDirectory } = this.uiOptions;
+      const propertiesXml = this.getUIProperties();
       const uiTemplate = template || chooseDirectory
         ? this.uiDirTemplate
         : this.uiTemplate
 
       xml = replaceInString(uiTemplate, {
-        '<!-- {{Background}} -->': backgroundXml
+        '<!-- {{Properties}} -->': propertiesXml
       });
     }
 
     return xml;
+  }
+
+  private getUIProperties() {
+    if (typeof this.uiOptions !== 'object' || !this.uiOptions.images) {
+      return '';
+    }
+
+    const { images } = this.uiOptions;
+    const propertyMap: StringMap<string> = {
+      background: 'WixUIDialogBmp',
+      banner: 'WixUIBannerBmp',
+      exclamationIcon: 'WixUIExclamationIco',
+      infoIcon: 'WixUIInfoIco',
+      newIcon: 'WixUINewIco',
+      upIcon: 'WixUIUpIco'
+    };
+
+    return Object.keys(images)
+      .map((key) => {
+        return propertyMap[key]
+          ? replaceInString(this.propertyTemplate, {
+              '{{Key}}': propertyMap[key],
+              '{{Value}}': (images as any)[key]
+            })
+          : ''
+      })
+      .join('\n');
   }
 
   /**
