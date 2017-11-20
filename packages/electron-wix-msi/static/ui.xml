@@ -17,4 +17,5 @@
   <Publish Dialog="WelcomeDlg" Control="Next" Event="EndDialog" Value="Return" Order="2"></Publish>
 </UI>
 <UIRef Id="WixUI_Common" />
+
 <!-- {{Properties}} -->
