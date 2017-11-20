@@ -251,7 +251,12 @@ export class MSICreator {
     return xml;
   }
 
-  private getUIProperties() {
+  /**
+   * Returns Wix UI properties
+   *
+   * @returns {string}
+   */
+  private getUIProperties(): string {
     if (typeof this.ui !== 'object' || !this.ui.images) return '';
 
     const { images } = this.ui;
