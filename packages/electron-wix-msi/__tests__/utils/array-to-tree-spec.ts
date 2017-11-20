@@ -1,7 +1,7 @@
+import { separator as S } from '../../src/utils/separator';
 import { addFilesToTree, arrayToTree, isChild, isDirectChild } from '../../src/utils/array-to-tree';
 import { defaultsDeep, cloneDeep } from 'lodash';
 
-const S = process.platform === `win32` ? `\\` : `/`;
 const mockFolders = [
   `slack${S}resources`,
   `slack${S}resources${S}app.asar.unpacked`,

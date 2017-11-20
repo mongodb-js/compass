@@ -1,8 +1,8 @@
-import { File, FileFolderTree, StringMap } from '../interfaces';
 import * as path from 'path';
 import { cloneDeep } from 'lodash';
 
-const separator = process.platform == 'win32' ? '\\' : '/';
+import { separator } from './separator';
+import { File, FileFolderTree, StringMap } from '../interfaces';
 
 /**
  * Are two paths in a direct parent/child relationship?
