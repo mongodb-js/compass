@@ -6,15 +6,15 @@ export class mockSpawn extends EventEmitter {
   public stdout = new EventEmitter();
   public stderr = new EventEmitter();
 
-  constructor(name: string, args: Array<string> = [], options: any = {}, fs: any) {
+  constructor(name: string, private readonly args: Array<string> = [], options: any = {}, public readonly fs: any) {
     super();
 
-    if (name === 'candle.exe' && args && options) {
-      this.beCandle(args, fs);
+    if (name === 'candle.exe' && args && options && !this.contains('fail-candle')) {
+      this.beCandle();
     }
 
-    if (name === 'light.exe' && args && options) {
-      this.beLight(args, fs);
+    if (name === 'light.exe' && args && options && !this.contains('fail-light')) {
+      this.beLight();
     }
 
     setImmediate(() => {
@@ -22,22 +22,25 @@ export class mockSpawn extends EventEmitter {
       this.stdout.emit('data', 'A bit of data');
 
       setImmediate(() => {
-        const code = args.find((e) => e && e.includes && e.includes('fail'))
-          ? 1
-          : 0;
+        const code = this.contains('fail-code') ? 1 : 0;
         this.emit('close', code);
       });
     });
   }
 
-  private beCandle([ filepath ]: Array<string>, fs: any) {
+  private beCandle() {
+    const filepath = this.args[this.args.length - 1];
     const target = path.join(path.dirname(filepath), `${path.basename(filepath, '.wxs')}.wixobj`);
-    fs.writeFileSync(target, 'hi', 'utf-8');
+    this.fs.writeFileSync(target, 'hi', 'utf-8');
   }
 
-  private beLight(args: Array<string>, fs: any) {
-    const filepath = args[args.length - 1];
+  private beLight() {
+    const filepath = this.args[this.args.length - 1];
     const target = path.join(path.dirname(filepath), `${path.basename(filepath, '.wixobj')}.msi`);
-    fs.writeFileSync(target, 'hi', 'utf-8');
+    this.fs.writeFileSync(target, 'hi', 'utf-8');
+  }
+
+  private contains(name: string): boolean {
+    return !!this.args.find((e) => e && e.includes && e.includes(name));
   }
 }

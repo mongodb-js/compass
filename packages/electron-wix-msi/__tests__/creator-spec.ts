@@ -126,11 +126,31 @@ test('MSICreator compile() creates a wixobj and msi file', async () => {
 
 
 test('MSICreator compile() throws if candle or light fail', async () => {
-  const msiCreator = new MSICreator({ ...defaultOptions, exe: 'fail' });
+  const msiCreator = new MSICreator({ ...defaultOptions, exe: 'fail-code' });
   const err = 'A bit of error';
   const out = 'A bit of data';
   const expectedErr = new Error(`Could not create wixobj file. Code: 1 StdErr: ${err} StdOut: ${out}`);
   await msiCreator.create();
 
-  expect(msiCreator.compile()).rejects.toEqual(expectedErr);
+  await expect(msiCreator.compile()).rejects.toEqual(expectedErr);
+});
+
+test('MSICreator compile() throws if candle does not create a file', async () => {
+  const msiCreator = new MSICreator({ ...defaultOptions, exe: 'fail-candle' });
+  const err = 'A bit of error';
+  const out = 'A bit of data';
+  const expectedErr = new Error(`Could not create wixobj file. Code: 0 StdErr: ${err} StdOut: ${out}`);
+  await msiCreator.create();
+
+  await expect(msiCreator.compile()).rejects.toEqual(expectedErr);
+});
+
+test('MSICreator compile() throws if light does not create a file', async () => {
+  const msiCreator = new MSICreator({ ...defaultOptions, exe: 'fail-light' });
+  const err = 'A bit of error';
+  const out = 'A bit of data';
+  const expectedErr = new Error(`Could not create msi file. Code: 0 StdErr: ${err} StdOut: ${out}`);
+  await msiCreator.create();
+
+  await expect(msiCreator.compile()).rejects.toEqual(expectedErr);
 });
