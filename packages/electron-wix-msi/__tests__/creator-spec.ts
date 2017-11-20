@@ -94,7 +94,7 @@ test('.wxs file has as many components as we have files', () => {
 });
 
 test('MSICreator create() creates Wix file with UI properties', async () => {
-  const uiOptions: UIOptions = {
+  const ui: UIOptions = {
     images: {
       background: 'resources/background.bmp',
       banner: 'resources/banner.bmp',
@@ -105,7 +105,7 @@ test('MSICreator create() creates Wix file with UI properties', async () => {
     }
   };
 
-  const msiCreator = new MSICreator({ ...defaultOptions, uiOptions });
+  const msiCreator = new MSICreator({ ...defaultOptions, ui });
 
   const { wxsFile } = await msiCreator.create();
   wxsContent = fs.readFileSync(wxsFile, 'utf-8');
@@ -143,7 +143,7 @@ test('MSICreator compile() throws if there is no wxsFile', async () => {
 });
 
 test('MSICreator compile() creates a wixobj and msi file', async () => {
-  const msiCreator = new MSICreator({ ...defaultOptions, uiOptions: { enabled: false } });
+  const msiCreator = new MSICreator({ ...defaultOptions, ui: false });
   await msiCreator.create();
 
   const { wixobjFile, msiFile } = await msiCreator.compile();

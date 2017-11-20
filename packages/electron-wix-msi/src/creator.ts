@@ -27,20 +27,22 @@ export interface MSICreatorOptions {
   language?: number;
   programFilesFolderName?: string;
   shortcutFolderName?: string;
-  uiOptions?: UIOptions | boolean;
+  ui?: UIOptions | boolean;
 }
 
 export interface UIOptions {
   chooseDirectory?: boolean;
   template?: string;
-  images?: {
-    background?: string;        // WixUIDialogBmp
-    banner?: string;            // WixUIBannerBmp
-    exclamationIcon?: string;   // WixUIExclamationIco
-    infoIcon?: string;          // WixUIInfoIco
-    newIcon?: string;           // WixUINewIco
-    upIcon?: string;            // WixUIUpIco
-  }
+  images?: UIImages;
+}
+
+export interface UIImages {
+  background?: string;        // WixUIDialogBmp
+  banner?: string;            // WixUIBannerBmp
+  exclamationIcon?: string;   // WixUIExclamationIco
+  infoIcon?: string;          // WixUIInfoIco
+  newIcon?: string;           // WixUINewIco
+  upIcon?: string;            // WixUIUpIco
 }
 
 export class MSICreator {
@@ -74,7 +76,7 @@ export class MSICreator {
   public language: number;
   public programFilesFolderName: string;
   public shortcutFolderName: string;
-  public uiOptions: UIOptions | boolean;
+  public ui: UIOptions | boolean;
 
   constructor(options: MSICreatorOptions) {
     this.appDirectory = path.normalize(options.appDirectory);
@@ -89,7 +91,7 @@ export class MSICreator {
     this.shortName = options.shortName || options.name;
     this.programFilesFolderName = options.programFilesFolderName || options.name;
     this.shortcutFolderName = options.shortcutFolderName || options.manufacturer;
-    this.uiOptions = options.uiOptions || true;
+    this.ui = options.ui || true;
   }
 
   /**
@@ -206,7 +208,7 @@ export class MSICreator {
     const input = type === 'msi'
       ? path.join(cwd, `${path.basename(this.wxsFile, '.wxs')}.wixobj`)
       : this.wxsFile;
-    const preArgs = this.uiOptions
+    const preArgs = this.ui
       ? [ '-ext', 'WixUIExtension' ]
       : [];
 
@@ -230,12 +232,12 @@ export class MSICreator {
   private getUI(): string {
     let xml = '';
 
-    if (this.uiOptions) {
+    if (this.ui) {
       xml = this.uiTemplate;
     }
 
-    if (typeof this.uiOptions === 'object' && this.uiOptions !== 'null') {
-      const { images, template, chooseDirectory } = this.uiOptions;
+    if (typeof this.ui === 'object' && this.ui !== 'null') {
+      const { images, template, chooseDirectory } = this.ui;
       const propertiesXml = this.getUIProperties();
       const uiTemplate = template || chooseDirectory
         ? this.uiDirTemplate
@@ -250,11 +252,9 @@ export class MSICreator {
   }
 
   private getUIProperties() {
-    if (typeof this.uiOptions !== 'object' || !this.uiOptions.images) {
-      return '';
-    }
+    if (typeof this.ui !== 'object' || !this.ui.images) return '';
 
-    const { images } = this.uiOptions;
+    const { images } = this.ui;
     const propertyMap: StringMap<string> = {
       background: 'WixUIDialogBmp',
       banner: 'WixUIBannerBmp',
