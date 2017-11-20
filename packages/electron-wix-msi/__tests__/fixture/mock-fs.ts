@@ -25,16 +25,16 @@ export function getMockFileSystem() {
         'node_modules': {
           '@nodert-win10': {
             'windows.foundation': {
-              'build"': {
+              'build': {
                 'Release': {
-                  'binding.node': ''
+                  'binding.node': 'hi'
                 }
               }
             },
             'windows.data.xml.dom': {
-              'build"': {
+              'build': {
                 'Release': {
-                  'binding.node': ''
+                  'binding.node': 'hi'
                 }
               }
             }
@@ -42,19 +42,19 @@ export function getMockFileSystem() {
         },
         'src': {
           'static': {
-            'ssb-interop.js': ''
+            'ssb-interop.js': 'hi'
           }
         }
       },
-      'app.asar': '',
-      'electron.asar': ''
+      'app.asar': 'hi',
+      'electron.asar': 'hi'
     },
-    'api-ms-win-core-console-l1-1-0.dll': '',
-    'ffmpeg.dll': '',
-    'content_shell.pck': '',
-    'slack.exe': '',
-    'LICENSE': '',
-    'node.dll': ''
+    'api-ms-win-core-console-l1-1-0.dll': 'hi',
+    'ffmpeg.dll': 'hi',
+    'content_shell.pck': 'hi',
+    'slack.exe': 'hi',
+    'LICENSE': 'hi',
+    'node.dll': 'hi'
   }
 
   const system = {};

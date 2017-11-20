@@ -71,7 +71,7 @@ export class MSICreator {
   public uiOptions: UIOptions;
 
   constructor(options: MSICreatorOptions) {
-    this.appDirectory = options.appDirectory;
+    this.appDirectory = path.normalize(options.appDirectory);
     this.outputDirectory = options.outputDirectory;
     this.exe = options.exe.replace(/\.exe$/, '');
     this.description = options.description;
