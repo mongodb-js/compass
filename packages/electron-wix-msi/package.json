@@ -21,7 +21,7 @@
   "scripts": {
     "prepublish": "npm run build",
     "build": "shx rm -rf lib && tsc --pretty",
-    "test": "jest",
+    "test": "npm run lint && jest",
     "lint": "tslint -c tslint.json 'src/**/*.ts'"
   },
   "dependencies": {
