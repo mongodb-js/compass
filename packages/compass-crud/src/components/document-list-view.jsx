@@ -39,10 +39,13 @@ class DocumentListView extends React.Component {
    * Attach the scroll event to the parent container.
    */
   attachScrollEvent() {
-    this.refs.documentList.parentNode.parentNode.addEventListener(
-      SCROLL_EVENT,
-      this.props.scrollHandler
-    );
+    const scroller = this.refs.documentList.parentNode.parentNode;
+    if (scroller) {
+      scroller.addEventListener(
+        SCROLL_EVENT,
+        this.props.scrollHandler
+      );
+    }
   }
 
   /**
@@ -53,10 +56,10 @@ class DocumentListView extends React.Component {
    * @return {Array} The document list item components.
    */
   renderDocuments() {
-    return _.map(this.props.docs, (doc) => {
+    return _.map(this.props.docs, (doc, i) => {
       return (
-        <li className={LIST_ITEM_CLASS} data-test-id={LIST_ITEM_TEST_ID} key={doc._id}>
-          <Document doc={doc} key={doc._id} editable={this.props.isEditable} />
+        <li className={LIST_ITEM_CLASS} data-test-id={LIST_ITEM_TEST_ID} key={i}>
+          <Document doc={doc} key={i} editable={this.props.isEditable} />
         </li>
       );
     });
