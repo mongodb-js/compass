@@ -8,7 +8,8 @@ Most Electron developers use the official [windows-installer](https://github.com
 However, if you need to create a traditional MSI the way Microsoft intended for software to be installed, you can use this module. It creates a standalone installer that installs your application to `Program Files`. It handles updates.
 
 ## Look & Feel
-![Installer Animation](.github/installer.gif)
+
+<p align="center"><img src="https://github.com/felixrieseberg/electron-wix-msi/raw/master/.github/installer.gif" alt="Installer GIF"></p>
 
 ## Prerequisites
 Before using this module, make sure to [install the Wix toolkit v3](http://wixtoolset.org/releases/). Only the command line tools are required.
