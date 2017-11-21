@@ -17,7 +17,15 @@ Creating an installer is a three-step process:
 import { MSICreator } from 'electron-wix-msi';
 
 // Step 1: Instantiate the MSICreator
-const msiCreator = new MSICreator(yourOptions);
+const msiCreator = new MSICreator({
+  appDirectory: '/path/to/built/app',
+  description: 'My amazing Kitten simulator',
+  exe: 'kittens',
+  name: 'Kittens',
+  manufacturer: 'Kitten Technologies',
+  version: '1.1.2',
+  outputDirectory: '/path/to/output/folder'
+});
 
 // Step 2: Create a .wxs template file
 await msiCreator.create();
@@ -39,14 +47,22 @@ await msiCreator.compile();
  - `shortcutFolderName` (string, optional) - Name of the shortcut folder in the Windows Start Menu. Will use the manufacturer field if left undefined.
  - `upgradeCode` (string, optional) - A unique UUID used by your app to identify itself. This module will generate one for you, but it is important to reuse it to enable conflict-free upgrades.
  - `language` (number, optional) - The [Microsoft Windows Language Code identifier](https://msdn.microsoft.com/en-us/library/cc233965.aspx) used by the installer. Will use 1033 (English, United-States) if left undefined.
- - `uiOptions` (UIOptions, optional) - Enables configuration of the UI. See below for more information.
+ - `ui` (UIOptions, optional) - Enables configuration of the UI. See below for more information.
+
 
 ##### UI Configuration (Optional)
-The `uiOptions` property in the options passed to the installer instance allows more detailed configuration of the UI. It has the following optional properties:
+The `ui` property in the options passed to the installer instance allows more detailed configuration of the UI. It has the following optional properties:
  - `enabled` (boolean, optional) - Whether to show a typical user interface. Defaults to `true`. If set to `false`, Windows will show a minimal "Windows is configuring NAME_OF_APP" interface.
- - `background` (string, optional) - Path to an optional background file for [`WixUIDialogBmp`](http://wixtoolset.org/documentation/manual/v3/wixui/wixui_customizations.html). Wix will show a default image if left undefined.
  - `template` (string, optional) - Substitute your own XML that will be inserted into the final `.wxs` file before compiling the installer to customize the UI options.
  - `chooseDirectory` (boolean, optional) - If set to `true`, the end user will be able to choose the installation directory. Set to `false` by default. Without effect if a custom `template` is used.
+ - `images` (Optional) - Overwrites default installer images with custom files. I recommend JPG.
+    - `background` - (optional, string) 493 x 312 Background bitmap used on the welcome and completion dialogs. Will be used as `WixUIDialogBmp`.
+    - `banner` - (optional, string) 493 × 58 Top banner used on most dialogs that don't use `background`. Will be used as `WixUIBannerBmp`.
+    - `exclamationIcon` - (optional, string) 32 x 32 Exclamation icon on the `WaitForCostingDlg` dialog. Will be used as `WixUIExclamationIco`.
+    - `infoIcon` - (optional, string) 32 x 32 Information icon on the cancel and error dialogs. Will be used as `WixUIInfoIco`.
+    - `newIcon` - (optional, string) 16 x 16 "New folder" icon for the "browse" dialog. Will be used as `WixUINewIco`.
+    - `upIcon` - (optional, string) 16 x 16 "Up" icon for the "browse" dialog. Will be used as `WixUIUpIco`.
+
 
 ##### Template Configuration (Optional)
 This module uses XML bulding blocks to generate the final `.wxs` file. After instantiating the class, but before calling `create()`, you can change the default XML to one of your choosing. The publically available fields on the class are:
