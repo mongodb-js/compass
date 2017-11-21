@@ -147,7 +147,7 @@ you don't.
 > "Young man, creating an installer and dying is easy. Updating it and living is
 > harder."
 >
-> * Windows George Washington, 1776
+> -- Windows George Washington, 1776
 
 If you are however developing enterprise software, you might find that IT
 departments don't want automatically updating software. They want controlled
