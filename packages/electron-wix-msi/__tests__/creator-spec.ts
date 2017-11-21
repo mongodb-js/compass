@@ -131,6 +131,21 @@ test('.wxs file contains as many component refs as components', () => {
   expect(comoponentCount).toEqual(refCount);
 });
 
+test('MSICreator create() does not throw if properties are weird', async () => {
+  const ui: any = {
+    images: {
+      nope: 'resources/background.bmp'
+    }
+  };
+
+  const msiCreator = new MSICreator({ ...defaultOptions, ui });
+
+  const { wxsFile } = await msiCreator.create();
+  wxsContent = fs.readFileSync(wxsFile, 'utf-8');
+  expect(wxsFile).toBeTruthy();
+});
+
+
 test('MSICreator compile() throws if candle/light are not installed', async () => {
   mockWixInstalled = false;
   const msiCreator = new MSICreator(defaultOptions);

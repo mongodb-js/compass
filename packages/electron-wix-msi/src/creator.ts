@@ -238,7 +238,7 @@ export class MSICreator {
 
     if (typeof this.ui === 'object' && this.ui !== 'null') {
       const { images, template, chooseDirectory } = this.ui;
-      const propertiesXml = this.getUIProperties();
+      const propertiesXml = this.getUIProperties(this.ui);
       const uiTemplate = template || chooseDirectory
         ? this.uiDirTemplate
         : this.uiTemplate
@@ -256,10 +256,8 @@ export class MSICreator {
    *
    * @returns {string}
    */
-  private getUIProperties(): string {
-    if (typeof this.ui !== 'object' || !this.ui.images) return '';
-
-    const { images } = this.ui;
+  private getUIProperties(ui: UIOptions): string {
+    const images = ui.images || {};
     const propertyMap: StringMap<string> = {
       background: 'WixUIDialogBmp',
       banner: 'WixUIBannerBmp',
