@@ -3,7 +3,6 @@ const PropTypes = require('prop-types');
 const FormGroup = require('./form-group');
 const HostInput = require('./host-input');
 const PortInput = require('./port-input');
-const SRVInput = require('./srv-input');
 const Authentication = require('./authentication');
 const ReplicaSetNameInput = require('./replica-set-name-input');
 const ReadPreferenceSelect = require('./read-preference-select');
@@ -19,7 +18,6 @@ class ConnectForm extends React.Component {
         <FormGroup id="host-port" separator>
           <HostInput {...this.props} />
           <PortInput {...this.props} />
-          <SRVInput {...this.props} />
         </FormGroup>
         <Authentication {...this.props} />
         <FormGroup id="read-preference" separator>
