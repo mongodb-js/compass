@@ -1,0 +1,8 @@
+src
+.github
+__tests__
+.travis.yml
+tsconfig.json
+.appveyor.yml
+coverage
+.vscode

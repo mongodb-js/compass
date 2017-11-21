@@ -3,9 +3,9 @@
 [![Build status](https://ci.appveyor.com/api/projects/status/s54pty8rve3yemb9?svg=true)](https://ci.appveyor.com/project/felixrieseberg/electron-wix-msi) [![Build Status](https://travis-ci.org/felixrieseberg/electron-wix-msi.svg?branch=master)](https://travis-ci.org/felixrieseberg/electron-wix-msi) [![Coverage Status](https://coveralls.io/repos/github/felixrieseberg/electron-wix-msi/badge.svg?branch=master)](https://coveralls.io/github/felixrieseberg/electron-wix-msi?branch=master) ![TypeScript](https://img.shields.io/badge/typings-included-brightgreen.svg)
 
 ## Traditional MSI Installers
-Most Electron developers use the official [windows-installer](https://github.com/electron/windows-installer) to create Windows installers. It creates a Squirrel-based installer, which does not require Administrator priviledges to install and comes bundled with an automatic updater. In most cases, that is the installer you will want to use.
+Most Electron developers use the official [windows-installer](https://github.com/electron/windows-installer) to create Windows installers. It creates a Squirrel-based installer, which does not require Administrator priviledges to install and comes bundled with an automatic updater. If your app targets consumers, it will likely be the better choice.
 
-However, if you need to create a traditional MSI the way Microsoft intended for software to be installed, you can use this module. It creates a standalone installer that installs your application to `Program Files`. It handles updates.
+However, if you need to create a traditional MSI the way Microsoft intended for software to be installed, you can use this module. It creates a standalone installer that installs your application to `Program Files` or any user-defined directory. It allows up- and downgrades. For more details, see: [Should I use this?](#should-i-use-this)
 
 ## Look & Feel
 
@@ -77,6 +77,11 @@ This module uses XML bulding blocks to generate the final `.wxs` file. After ins
  - `wixTemplate` (string) - Used as the master template.
  - `uiTemplate` (string) - Used as the master UI template.
  - `backgroundTemplate` (string) - Used as the background template.
+
+## Should I use this?
+Let's start with what's bad about this: Electron is based on Chromium, and as such, inherintly dependent upon frequent updates. Whenever a new version of Electron comes out, you should release a new version of your app. The default installer for Windows is based on [Squirrel](https://github.com/Squirrel/Squirrel.Windows), which comes with support for automatic updates. An app that updates itself is fantastic for most consumers. If you are not sure if you need a traditional MSI, chances are that you don't.
+
+If you are however developing enterprise software, you might find that IT departments don't want automatically updating software. They want controlled rollouts and detailed control over the installation. This true for universities, hospitals, the military, and many other organizations that have a managed IT infrastructure. Their administrators will expect a "classic" installer - the same way they would install Microsoft Office, Node.js, Photoshop, or any other software. If you see your app being used in those environments, a classic installer is the way to go. Bear in mind however that you will need to find a way to get updates to your users without relying on Electron's auto updater.
 
 ## License
 MIT, please see LICENSE.md for details.
