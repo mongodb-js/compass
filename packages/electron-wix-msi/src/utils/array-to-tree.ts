@@ -1,8 +1,8 @@
-import * as path from 'path';
 import { cloneDeep } from 'lodash';
+import * as path from 'path';
 
-import { separator } from './separator';
 import { File, FileFolderTree, StringMap } from '../interfaces';
+import { separator } from './separator';
 
 /**
  * Are two paths in a direct parent/child relationship?
@@ -25,7 +25,7 @@ import { File, FileFolderTree, StringMap } from '../interfaces';
  * @returns {boolean}
  */
 export function isDirectChild(parent: string, possibleChild: string): boolean {
-  if (!isChild(parent, possibleChild)) return false;
+  if (!isChild(parent, possibleChild)) { return false; }
 
   const parentSplit = parent.split(separator);
   const childSplit = possibleChild.split(separator);
@@ -93,7 +93,7 @@ export function arrayToTree(input: Array<string>, root: string): FileFolderTree 
   const directChildren: Array<string> = children.filter((e) => isDirectChild(root, e));
 
   directChildren.forEach((directChild) => {
-    output[path.basename(directChild)] = arrayToTree(children, directChild)
+    output[path.basename(directChild)] = arrayToTree(children, directChild);
   });
 
   return output;
@@ -159,7 +159,7 @@ export function addFilesToTree(tree: FileFolderTree, files: Array<string>, root:
         target.__ELECTRON_WIX_MSI_FILES__.push(file);
       }
     });
-  })
+  });
 
   return output;
 }

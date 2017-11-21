@@ -5,7 +5,7 @@ import * as os from 'os';
 import * as path from 'path';
 
 import { MSICreator, UIOptions } from '../src/creator';
-import { getMockFileSystem, root, numberOfFiles } from './mocks/mock-fs';
+import { getMockFileSystem, numberOfFiles, root } from './mocks/mock-fs';
 import { mockSpawn } from './mocks/mock-spawn';
 
 const mockPassedFs = fs;
@@ -48,7 +48,7 @@ const defaultOptions = {
   manufacturer: 'Acme Technologies',
   version: '1.0.0',
   outputDirectory: path.join(os.tmpdir(), 'electron-wix-msi-test')
-}
+};
 
 const testIncludes = (title: string, ...content: Array<string>) => {
   return test(`.wxs file includes ${title}`, () => {
@@ -58,7 +58,7 @@ const testIncludes = (title: string, ...content: Array<string>) => {
       });
     }
   });
-}
+};
 
 let wxsContent = '';
 let mockWixInstalled = true;

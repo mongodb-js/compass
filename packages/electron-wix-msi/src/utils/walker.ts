@@ -23,7 +23,7 @@ export function getDirectoryStructure(root: string): Promise <{ files: Array<str
     klaw(root, { fs: gfs })
       .on('data', (item) => {
         if (item.stats.isFile()) {
-          files.push(item.path)
+          files.push(item.path);
         } else if (item.stats.isDirectory() && item.path !== root) {
           directories.push(item.path);
         }

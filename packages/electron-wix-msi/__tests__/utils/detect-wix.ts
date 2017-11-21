@@ -1,4 +1,4 @@
-import { hasCandle, hasLight, hasBinary } from '../../src/utils/detect-wix';
+import { hasBinary, hasCandle, hasLight } from '../../src/utils/detect-wix';
 
 beforeAll(() => {
   jest.mock('child_process', () => ({

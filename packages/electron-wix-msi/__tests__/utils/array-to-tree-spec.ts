@@ -1,6 +1,6 @@
-import { separator as S } from '../../src/utils/separator';
+import { cloneDeep, defaultsDeep } from 'lodash';
 import { addFilesToTree, arrayToTree, isChild, isDirectChild } from '../../src/utils/array-to-tree';
-import { defaultsDeep, cloneDeep } from 'lodash';
+import { separator as S } from '../../src/utils/separator';
 
 const mockFolders = [
   `slack${S}resources`,
@@ -24,8 +24,8 @@ const mockFolderTree = {
   __ELECTRON_WIX_MSI_PATH__: `slack`,
   __ELECTRON_WIX_MSI_FILES__: [],
   resources: {
-    __ELECTRON_WIX_MSI_PATH__: `slack${S}resources`,
-    __ELECTRON_WIX_MSI_FILES__: [],
+    '__ELECTRON_WIX_MSI_PATH__': `slack${S}resources`,
+    '__ELECTRON_WIX_MSI_FILES__': [],
     'app.asar.unpacked': {
       __ELECTRON_WIX_MSI_PATH__: `slack${S}resources${S}app.asar.unpacked`,
       __ELECTRON_WIX_MSI_FILES__: [],
@@ -48,7 +48,7 @@ const mockFolderTree = {
 const mockFolderFileTree = defaultsDeep(cloneDeep(mockFolderTree), {
   __ELECTRON_WIX_MSI_FILES__: [{ name: `slack.exe`, path: `slack${S}slack.exe` }],
   resources: {
-    __ELECTRON_WIX_MSI_FILES__: [{ name: `text.txt`, path: `slack${S}resources${S}text.txt` }],
+    '__ELECTRON_WIX_MSI_FILES__': [{ name: `text.txt`, path: `slack${S}resources${S}text.txt` }],
     'app.asar.unpacked': {
       __ELECTRON_WIX_MSI_FILES__: [
         { name: `image.png`, path: `slack${S}resources${S}app.asar.unpacked${S}image.png` },

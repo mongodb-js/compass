@@ -1,14 +1,14 @@
-import { spawnPromise } from './utils/spawn';
 import * as fs from 'fs-extra';
+import { padStart } from 'lodash';
 import * as path from 'path';
 import * as uuid from 'uuid/v4';
-import { padStart } from 'lodash';
+import { spawnPromise } from './utils/spawn';
 
-import { hasLight, hasCandle } from './utils/detect-wix';
-import { replaceToFile, replaceInString } from './utils/replace';
-import { arrayToTree, addFilesToTree } from './utils/array-to-tree';
-import { getDirectoryStructure } from './utils/walker';
 import { Component, ComponentRef, Directory, File, FileFolderTree, StringMap } from './interfaces';
+import { addFilesToTree, arrayToTree } from './utils/array-to-tree';
+import { hasCandle, hasLight } from './utils/detect-wix';
+import { replaceInString, replaceToFile } from './utils/replace';
+import { getDirectoryStructure } from './utils/walker';
 
 const getTemplate = (name: string) => fs.readFileSync(path.join(__dirname, `../static/${name}.xml`), 'utf-8');
 const ROOTDIR_NAME = 'APPLICATIONROOTDIRECTORY';
@@ -46,11 +46,6 @@ export interface UIImages {
 }
 
 export class MSICreator {
-  private files: Array<string> = [];
-  private directories: Array<string> = [];
-  private tree: FileFolderTree;
-  private components: Array<Component> = [];
-
   // Default Templates
   public componentTemplate = getTemplate('component');
   public componentRefTemplate = getTemplate('component-ref');
@@ -77,6 +72,11 @@ export class MSICreator {
   public programFilesFolderName: string;
   public shortcutFolderName: string;
   public ui: UIOptions | boolean;
+
+  private files: Array<string> = [];
+  private directories: Array<string> = [];
+  private tree: FileFolderTree;
+  private components: Array<Component> = [];
 
   constructor(options: MSICreatorOptions) {
     this.appDirectory = path.normalize(options.appDirectory);
@@ -168,7 +168,7 @@ export class MSICreator {
       '<!-- {{Directories}} -->': directories,
       '<!-- {{ComponentRefs}} -->': componentRefs.map(({ xml }) => xml).join('\n'),
       '<!-- {{UI}} -->': this.getUI()
-    }
+    };
 
     const output = await replaceToFile(this.wixTemplate, target, replacements);
 
@@ -241,7 +241,7 @@ export class MSICreator {
       const propertiesXml = this.getUIProperties(this.ui);
       const uiTemplate = template || chooseDirectory
         ? this.uiDirTemplate
-        : this.uiTemplate
+        : this.uiTemplate;
 
       xml = replaceInString(uiTemplate, {
         '<!-- {{Properties}} -->': propertiesXml
@@ -274,7 +274,7 @@ export class MSICreator {
               '{{Key}}': propertyMap[key],
               '{{Value}}': (images as any)[key]
             })
-          : ''
+          : '';
       })
       .join('\n');
   }
@@ -288,7 +288,11 @@ export class MSICreator {
    * @param {number} [indent=0]
    * @returns {string}
    */
-  private getDirectoryForTree(tree: FileFolderTree, treePath: string, indent: number, id?: string, name?: string): string {
+  private getDirectoryForTree(tree: FileFolderTree,
+                              treePath: string,
+                              indent: number,
+                              id?: string,
+                              name?: string): string {
     const childDirectories = Object.keys(tree)
       .filter((k) => !k.startsWith('__ELECTRON_WIX_MSI'))
       .map((k) => {
@@ -296,8 +300,8 @@ export class MSICreator {
           tree[k] as FileFolderTree,
           (tree[k] as FileFolderTree).__ELECTRON_WIX_MSI_PATH__,
           indent + 2
-        )}
-      );
+        );
+      });
     const childFiles = tree.__ELECTRON_WIX_MSI_FILES__
       .map((file) => {
         const component = this.getComponent(file, indent + 2);
@@ -308,7 +312,7 @@ export class MSICreator {
     const children: string = [childDirectories.join('\n'), childFiles.join('\n')].join('');
 
     return replaceInString(this.directoryTemplate, {
-      '<!-- {{I}} -->': indent > 0 ? padStart('', indent) : '',
+      '<!-- {{I}} -->': padStart('', indent),
       '{{DirectoryId}}': id || this.getComponentId(treePath),
       '{{DirectoryName}}': name || path.basename(treePath),
       '<!-- {{Children}} -->': children
@@ -331,12 +335,12 @@ export class MSICreator {
   /**
    * Creates Wix <ComponentRefs> for all components.
    *
-   * @returns {Promise<Array<string>>}
+   * @returns {<Array<ComponentRef>}
    */
-  private getComponentRefs(indent: number = 6): Array<ComponentRef> {
+  private getComponentRefs(): Array<ComponentRef> {
     return this.components.map(({ componentId }) => {
       const xml = replaceInString(this.componentRefTemplate, {
-        '<!-- {{I}} -->': indent > 0 ? padStart('', indent) : '',
+        '<!-- {{I}} -->': '      ',
         '{{ComponentId}}': componentId
       });
 
@@ -350,11 +354,11 @@ export class MSICreator {
    * @param {File}
    * @returns {Component}
    */
-  private getComponent(file: File, indent: number = 0): Component {
+  private getComponent(file: File, indent: number): Component {
     const guid = uuid();
     const componentId = this.getComponentId(file.path);
     const xml = replaceInString(this.componentTemplate, {
-      '<!-- {{I}} -->': indent > 0 ? padStart('', indent) : '',
+      '<!-- {{I}} -->': padStart('', indent),
       '{{ComponentId}}': componentId,
       '{{FileId}}': componentId,
       '{{Name}}': file.name,
@@ -362,7 +366,7 @@ export class MSICreator {
       '{{SourcePath}}': file.path
     });
 
-    return { guid, componentId, xml, file }
+    return { guid, componentId, xml, file };
   }
 
   /**

@@ -1,1 +1,1 @@
-export const separator = process.platform == 'win32' ? '\\' : '/';
+export const separator = process.platform === 'win32' ? '\\' : '/';

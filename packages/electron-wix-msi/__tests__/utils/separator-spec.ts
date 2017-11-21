@@ -2,7 +2,7 @@ const oldPlatform = process.platform;
 
 afterEach(() => {
   jest.resetModules();
-})
+});
 
 afterAll(() => {
   process.platform = oldPlatform;

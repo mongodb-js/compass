@@ -1,6 +1,7 @@
-import { StringMap } from '../interfaces';
 import * as fs from 'fs-extra';
 import * as path from 'path';
+
+import { StringMap } from '../interfaces';
 
 /**
  * Replaces all occurences of keys in a string and writes the result to disk.

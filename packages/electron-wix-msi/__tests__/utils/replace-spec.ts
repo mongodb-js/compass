@@ -1,5 +1,5 @@
-import * as path from 'path';
 import * as fs from 'fs-extra';
+import * as path from 'path';
 
 import { replaceInString, replaceToFile } from '../../src/utils/replace';
 
@@ -8,7 +8,7 @@ test('replaceInString() actually replaces in a string', () => {
   const replacements = {
     '{{Test}}': 'Water',
     '{{Test2}}': 'Fire'
-  }
+  };
   const expected = 'Water Fire Water';
 
   expect(replaceInString(input, replacements)).toEqual(expected);
@@ -19,7 +19,7 @@ test('replaceToFile() actually replaces and writes to file', async () => {
   const replacements = {
     '{{Test}}': 'Water',
     '{{Test2}}': 'Fire'
-  }
+  };
   const expected = 'Water Fire Water';
   const testFile = path.join(__dirname, '__testfile');
 
