@@ -91,7 +91,7 @@ export class MSICreator {
     this.shortName = options.shortName || options.name;
     this.programFilesFolderName = options.programFilesFolderName || options.name;
     this.shortcutFolderName = options.shortcutFolderName || options.manufacturer;
-    this.ui = options.ui || true;
+    this.ui = options.ui !== undefined ? options.ui : false;
   }
 
   /**
