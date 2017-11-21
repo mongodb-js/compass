@@ -288,7 +288,7 @@ export class MSICreator {
    * @param {number} [indent=0]
    * @returns {string}
    */
-  private getDirectoryForTree(tree: FileFolderTree, treePath: string, indent: number = 0, id?: string, name?: string): string {
+  private getDirectoryForTree(tree: FileFolderTree, treePath: string, indent: number, id?: string, name?: string): string {
     const childDirectories = Object.keys(tree)
       .filter((k) => !k.startsWith('__ELECTRON_WIX_MSI'))
       .map((k) => {

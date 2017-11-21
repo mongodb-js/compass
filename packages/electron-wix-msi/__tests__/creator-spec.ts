@@ -5,7 +5,7 @@ import * as os from 'os';
 import * as path from 'path';
 
 import { MSICreator, UIOptions } from '../src/creator';
-import { getMockFileSystem, root, numberOfFiles } from './fixture/mock-fs';
+import { getMockFileSystem, root, numberOfFiles } from './mocks/mock-fs';
 import { mockSpawn } from './mocks/mock-spawn';
 
 const mockPassedFs = fs;
