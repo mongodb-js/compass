@@ -1,7 +1,7 @@
 'use strict';
 
 const Reflux = require('reflux');
-const EventEmitter = require('events');
+const EventEmitter = require('eventemitter3');
 const Action = require('./actions');
 
 /**
@@ -306,15 +306,6 @@ class AppRegistry {
   }
 
   /**
-   * Get the number of listeners for the registry to warn on.
-   *
-   * @returns {Number} The number of max listeners.
-   */
-  getMaxListeners() {
-    return this._emitter.getMaxListeners();
-  }
-
-  /**
    * Gets a count of listeners for the event name.
    *
    * @param {String} eventName - The event name.
@@ -322,7 +313,7 @@ class AppRegistry {
    * @returns {Number} The listener count.
    */
   listenerCount(eventName) {
-    return this._emitter.listenerCount(eventName);
+    return this._emitter.listeners(eventName).length;
   }
 
   /**
@@ -385,18 +376,6 @@ class AppRegistry {
    */
   removeAllListeners(eventName) {
     this._emitter.removeAllListeners(eventName);
-    return this;
-  }
-
-  /**
-   * Sets the max listeners to warn on for the emitter.
-   *
-   * @param {Number} n - The max listeners.
-   *
-   * @returns {AppRegistry} The app registry.
-   */
-  setMaxListeners(n) {
-    this._emitter.setMaxListeners(n);
     return this;
   }
 

@@ -573,23 +573,6 @@ describe('AppRegistry', () => {
     });
   });
 
-  describe('#setMaxListeners', () => {
-    let registry;
-
-    beforeEach(() => {
-      registry = new AppRegistry();
-    });
-
-    it('returns the app registry', () => {
-      expect(registry.setMaxListeners(50)).to.equal(registry);
-    });
-
-    it('modifies the max listeners', () => {
-      registry.setMaxListeners(50);
-      expect(registry.getMaxListeners()).to.equal(50);
-    });
-  });
-
   describe('#eventNames', () => {
     let registry;
 
