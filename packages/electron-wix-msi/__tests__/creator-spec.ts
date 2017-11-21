@@ -145,6 +145,21 @@ test('MSICreator create() does not throw if properties are weird', async () => {
   expect(wxsFile).toBeTruthy();
 });
 
+test('MSICreator create() does not throw if UI is just true', async () => {
+  const msiCreator = new MSICreator({ ...defaultOptions, ui: true });
+
+  const { wxsFile } = await msiCreator.create();
+  wxsContent = fs.readFileSync(wxsFile, 'utf-8');
+  expect(wxsFile).toBeTruthy();
+});
+
+test('MSICreator create() does not throw if UI is just an object', async () => {
+  const msiCreator = new MSICreator({ ...defaultOptions, ui: { chooseDirectory: true } });
+
+  const { wxsFile } = await msiCreator.create();
+  wxsContent = fs.readFileSync(wxsFile, 'utf-8');
+  expect(wxsFile).toBeTruthy();
+});
 
 test('MSICreator compile() throws if candle/light are not installed', async () => {
   mockWixInstalled = false;
