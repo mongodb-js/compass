@@ -10,7 +10,7 @@ const debug = require('debug')('mongodb-compass:setup-plugin-manager');
 /**
  * Create a new app registry and prevent modification.
  */
-const appRegistry = Object.freeze(new AppRegistry().setMaxListeners(200));
+const appRegistry = Object.freeze(new AppRegistry());
 
 app.appRegistry = appRegistry;
 
