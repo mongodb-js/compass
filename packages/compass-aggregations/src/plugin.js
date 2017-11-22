@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import Aggregations from 'components/aggregations';
+import { Provider } from 'react-redux'
 import store from 'stores';
 
 class Plugin extends Component {
@@ -12,7 +13,9 @@ class Plugin extends Component {
    */
   render() {
     return (
-      <Aggregations {...this.props} />
+      <Provider store={store}>
+        <Aggregations />
+      </Provider>
     );
   }
 }

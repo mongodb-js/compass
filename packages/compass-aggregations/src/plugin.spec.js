@@ -14,8 +14,4 @@ describe('Aggregations [Plugin]', () => {
     component = null;
     done();
   });
-
-  it('should contain a <StoreConnector /> with a store prop', () => {
-    expect(component.find(StoreConnector).first().props('store')).to.be.an('object');
-  });
 });
