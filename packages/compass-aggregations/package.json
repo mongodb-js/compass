@@ -1,5 +1,5 @@
 {
-  "name": "aggregations",
+  "name": "@mongodb-js/compass-aggregations",
   "productName": "Aggregations plugin",
   "version": "1.0.0",
   "apiVersion": "1.0.0",
@@ -34,7 +34,6 @@
     "react-tooltip": "^3.2.6"
   },
   "devDependencies": {
-    "@storybook/react": "^3.2.0",
     "autoprefixer": "^7.1.2",
     "babel-cli": "^6.10.1",
     "babel-core": "^6.24.1",
@@ -63,7 +62,6 @@
     "hadron-app": "^2.0.0",
     "hadron-app-registry": "^7.1.0",
     "hadron-react-components": "^1.9.1",
-    "hadron-spectron": "^0.0.1",
     "html-webpack-plugin": "^2.28.0",
     "ignore-loader": "^0.1.2",
     "istanbul-instrumenter-loader": "^3.0.0",
@@ -95,7 +93,6 @@
     "react": "^15.5.4",
     "react-dom": "^15.5.4",
     "react-hot-loader": "3.0.0-beta.7",
-    "react-storybook-addon-chapters": "^1.1.0",
     "react-test-renderer": "^15.6.1",
     "resolve": "^1.4.0",
     "rimraf": "^2.6.1",
