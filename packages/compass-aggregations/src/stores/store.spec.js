@@ -4,7 +4,6 @@ import { STAGE_CHANGED } from 'constants/actions';
 describe('Aggregation Store', () => {
   describe('#dispatch', () => {
     context('when the action is unknown', () => {
-
       it('returns the initial state', (done) => {
         const unsubscribe = store.subscribe(() => {
           unsubscribe();

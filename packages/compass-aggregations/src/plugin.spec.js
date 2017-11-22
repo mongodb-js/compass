@@ -1,17 +1,17 @@
-import React from 'react';
-import { mount } from 'enzyme';
-import AggregationsPlugin from './plugin';
+// import React from 'react';
+// import { mount } from 'enzyme';
+// import AggregationsPlugin from './plugin';
 
 describe('Aggregations [Plugin]', () => {
-  let component;
+  // let component;
 
   beforeEach((done) => {
-    component = mount(<AggregationsPlugin />);
+    // component = mount(<AggregationsPlugin />);
     done();
   });
 
   afterEach((done) => {
-    component = null;
+    // component = null;
     done();
   });
 });
