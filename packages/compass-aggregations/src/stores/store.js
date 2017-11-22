@@ -10,6 +10,31 @@ const INITIAL_STATE = {
 };
 
 /**
+ * Make a copy of the provided state.
+ *
+ * @param {Object} state - The current state.
+ *
+ * @returns {Object} The copied state.
+ */
+const copyState = (state) => {
+  return Object.assign({}, state);
+};
+
+/**
+ * Change the value of one of the pipeline stages.
+ *
+ * @param {Object} state - The current state.
+ * @param {Object} action - The action.
+ *
+ * @returns {Object} The new state.
+ */
+const changeStage = (state, action) => {
+  const newState = copyState(state);
+  newState.stages[action.index] = action.stage;
+  return newState;
+};
+
+/**
  * Modify the pipeline being worked on.
  *
  * @param {Object} state - The state.
@@ -19,9 +44,7 @@ const INITIAL_STATE = {
  */
 const pipeline = (state = INITIAL_STATE, action) => {
   if (action.type === STAGE_CHANGED) {
-    const newState = Object.assign({}, state);
-    newState.stages[action.index] = action.stage;
-    return newState;
+    return changeStage(state, action);
   }
   return state;
 };
