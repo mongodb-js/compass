@@ -181,7 +181,7 @@
     "@mongodb-js/compass-license": "^0.0.2",
     "@mongodb-js/compass-query-history": "^2.1.0",
     "@mongodb-js/compass-security": "^0.0.4",
-    "@mongodb-js/compass-serverstats": "^10.0.1",
+    "@mongodb-js/compass-serverstats": "^10.1.0",
     "@mongodb-js/compass-server-version": "^1.0.0",
     "@mongodb-js/compass-ssh-tunnel-status": "^1.0.1",
     "@mongodb-js/compass-status": "^2.0.0",
