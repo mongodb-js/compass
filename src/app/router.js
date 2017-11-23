@@ -7,11 +7,11 @@ module.exports = AmpersandRouter.extend({
     '': 'home'
   },
   home: function(ns) {
-    this.homeView = app.appRegistry.getComponent('Home.Home');
+    this.homeView = global.hadronApp.appRegistry.getComponent('Home.Home');
     this.trigger('page',
       ReactDOM.render(
         React.createElement(this.homeView, {ns: ns}),
-        app.state.queryByHook('layout-container')
+        global.hadronApp.state.queryByHook('layout-container')
     ));
   }
 });
