@@ -7,7 +7,9 @@ const NetworkStore = require('../stores/network-store');
 const GlobalLockStore = require('../stores/globallock-store');
 const MemStore = require('../stores/mem-store');
 const Actions = require('../actions');
+const DBErrorStore = require('../stores/dberror-store');
 const d3 = require('d3');
+const find = require('lodash.find');
 
 // const debug = require('debug')('mongodb-compass:server-stats:graphs-component');
 
@@ -30,6 +32,7 @@ class ServerStatsComponent extends React.Component {
    * When the component mounts, start the polling timer.
    */
   componentDidMount() {
+    this.unsubscribeError = DBErrorStore.listen(this.stop.bind(this));
     this.timer = timer.interval(() => {
       Actions.serverStats();
     }, this.props.interval);
@@ -39,7 +42,20 @@ class ServerStatsComponent extends React.Component {
    * When the component unmounts, we stop the timer.
    */
   componentWillUnmount() {
+    this.unsubscribeError();
     this.timer.stop();
+  }
+
+  stop(msgs) {
+    if (this.isAuthError(msgs)) {
+      this.timer.stop();
+    }
+  }
+
+  isAuthError(msgs) {
+    return find(msgs, (msg) => {
+      return msg.ops === 'serverStatus' && msg.errorMsg.includes('not authorized');
+    }) !== undefined;
   }
 
   /**

@@ -38,7 +38,12 @@ const DBErrorStore = Reflux.createStore({
     for (let key in this.ops) { // eslint-disable-line prefer-const
       if (this.ops.hasOwnProperty( key ) ) {
         if (this.ops[key] !== null) {
-          msg.push({errorMsg: this._translateMessage(this.ops[key]).message, ops: key, type: this.ops[key].name, srcName: this.srcName[key]});
+          msg.push({
+            errorMsg: this._translateMessage(this.ops[key]).message,
+            ops: key,
+            type: this.ops[key].name,
+            srcName: this.srcName[key]
+          });
         }
       }
     }

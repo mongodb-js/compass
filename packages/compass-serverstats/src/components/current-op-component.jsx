@@ -2,6 +2,8 @@ const timer = require('d3-timer');
 const React = require('react');
 const PropTypes = require('prop-types');
 const Actions = require('../actions');
+const DBErrorStore = require('../stores/dberror-store');
+const find = require('lodash.find');
 
 // const debug = require('debug')('mongodb-compass:server-stats:current-op-component');
 
@@ -31,6 +33,7 @@ class CurrentOpComponent extends React.Component {
     this.unsubscribeRefresh = this.props.store.listen(this.refresh.bind(this));
     this.unsubscribeShowOperationDetails = Actions.showOperationDetails.listen(this.hide.bind(this));
     this.unsubscribeHideOperationDetails = Actions.hideOperationDetails.listen(this.show.bind(this));
+    this.unsubscribeError = DBErrorStore.listen(this.stop.bind(this));
     this.timer = timer.interval(() => {
       Actions.currentOp();
     }, this.props.interval);
@@ -44,7 +47,20 @@ class CurrentOpComponent extends React.Component {
     this.unsubscribeRefresh();
     this.unsubscribeShowOperationDetails();
     this.unsubscribeHideOperationDetails();
+    this.unsubscribeError();
     this.timer.stop();
+  }
+
+  stop(msgs) {
+    if (this.isAuthError(msgs)) {
+      this.timer.stop();
+    }
+  }
+
+  isAuthError(msgs) {
+    return find(msgs, (msg) => {
+      return msg.ops === 'currentOp' && msg.errorMsg.includes('Invalid collection name');
+    }) !== undefined;
   }
 
   /**

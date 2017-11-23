@@ -33,6 +33,7 @@
     "d3-timer": "^1.0.3",
     "hadron-react-components": "^1.10.0",
     "less": "^2.7.1",
+    "lodash.find": "^4.6.0",
     "lodash.has": "^4.5.2",
     "lodash.isequal": "^4.5.0",
     "lodash.max": "^4.0.1",
