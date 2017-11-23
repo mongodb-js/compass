@@ -3,7 +3,6 @@ const PropTypes = require('prop-types');
 const HadronDocument = require('hadron-document');
 const Element = require('./element');
 const ExpansionBar = require('./expansion-bar');
-const marky = require('marky');
 
 /**
  * The base class.
@@ -49,12 +48,7 @@ class ReadonlyDocument extends React.Component {
   }
 
   setRenderSize(newLimit) {
-    marky.mark('ReadonlyDocument - Show/Hide N fields');
-    this.setState({
-      renderSize: newLimit
-    }, () => {
-      marky.stop('ReadonlyDocument - Show/Hide N fields');
-    });
+    this.setState({ renderSize: newLimit });
   }
 
   /**

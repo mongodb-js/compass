@@ -10,7 +10,6 @@ const DocumentActions = require('./document-actions');
 const DocumentFooter = require('./document-footer');
 const RemoveDocumentFooter = require('./remove-document-footer');
 const ResetDocumentListStore = require('../stores/reset-document-list-store');
-const marky = require('marky');
 const clipboard = require('electron').clipboard;
 
 /**
@@ -106,12 +105,7 @@ class EditableDocument extends React.Component {
   }
 
   setRenderSize(newLimit) {
-    marky.mark('EditableDocument - Show/Hide N fields');
-    this.setState({
-      renderSize: newLimit
-    }, () => {
-      marky.stop('EditableDocument - Show/Hide N fields');
-    });
+    this.setState({ renderSize: newLimit });
   }
 
   /**
@@ -277,7 +271,6 @@ class EditableDocument extends React.Component {
    * @param {Object} doc - The updated document.
    */
   handleUpdateSuccess(doc) {
-    marky.mark('EditableDocument - Handle update success');
     this.doc = EditableDocument.loadDocument(doc);
     this.subscribeToDocumentEvents();
     setTimeout(() => {
@@ -289,8 +282,6 @@ class EditableDocument extends React.Component {
       this.setState({
         editing: false,
         renderSize: INITIAL_FIELD_LIMIT
-      }, () => {
-        marky.stop('EditableDocument - Handle update success');
       });
     }, 500);
   }
@@ -307,15 +298,12 @@ class EditableDocument extends React.Component {
    * Handles canceling edits to the document.
    */
   handleCancel() {
-    marky.mark('EditableDocument - Cancel');
     const ref = this.onHideScrollIntoView;
     if (ref) {
       // Avoid loading more documents on clicking the Cancel button
       ref.scrollIntoView();
     }
-    this.setState({ editing: false, renderSize: INITIAL_FIELD_LIMIT }, () => {
-      marky.stop('EditableDocument - Cancel');
-    });
+    this.setState({ editing: false, renderSize: INITIAL_FIELD_LIMIT });
   }
 
   /**
@@ -361,7 +349,6 @@ class EditableDocument extends React.Component {
    * Handle the edit click.
    */
   handleEdit() {
-    marky.mark('EditableDocument - Edit');
     this.setState({
       editing: true
       // renderSize: INITIAL_FIELD_LIMIT
@@ -372,8 +359,6 @@ class EditableDocument extends React.Component {
       // TODO: ... (and focus if they double-clicked on a field to edit it)
       // TODO: ... is probably more valuable than raw performance here.
       // TODO: See COMPASS-1901
-    }, () => {
-      marky.stop('EditableDocument - Edit');
     });
   }
 
@@ -388,10 +373,7 @@ class EditableDocument extends React.Component {
    * Handle clicking the expand all button.
    */
   handleExpandAll() {
-    marky.mark('EditableDocument - Expand All');
-    this.setState({ expandAll: !this.state.expandAll }, () => {
-      marky.stop('EditableDocument - Expand All');
-    });
+    this.setState({ expandAll: !this.state.expandAll });
   }
 
   /**
