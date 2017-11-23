@@ -92,6 +92,7 @@ class EditableDocument extends React.Component {
   componentWillReceiveProps(nextProps) {
     if (nextProps.doc) {
       this.doc = EditableDocument.loadDocument(nextProps.doc);
+      this.subscribeToDocumentEvents();
     }
   }
 
@@ -143,6 +144,9 @@ class EditableDocument extends React.Component {
       this.doc.removeListener(Element.Events.Added, this.unsubscribeAdded);
       this.doc.removeListener(Element.Events.Removed, this.unsubscribeRemoved);
       this.doc.removeListener(HadronDocument.Events.Cancel, this.unsubscribeCancel);
+      this.unsubscribeAdded = undefined;
+      this.unsubscribeRemoved = undefined;
+      this.unsubscribeCancel = undefined;
     }
   }
 
