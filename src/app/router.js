@@ -1,14 +1,10 @@
-var AmpersandRouter = require('ampersand-router');
-var app = require('hadron-app');
-var React = require('react');
-var ReactDOM = require('react-dom');
+const AmpersandRouter = require('ampersand-router');
+const React = require('react');
+const ReactDOM = require('react-dom');
 
 module.exports = AmpersandRouter.extend({
   routes: {
-    '': 'home',
-    home: 'home',
-    'home/:ns': 'home',
-    '(*path)': 'catchAll'
+    '': 'home'
   },
   home: function(ns) {
     this.homeView = app.appRegistry.getComponent('Home.Home');
@@ -17,8 +13,5 @@ module.exports = AmpersandRouter.extend({
         React.createElement(this.homeView, {ns: ns}),
         app.state.queryByHook('layout-container')
     ));
-  },
-  catchAll: function() {
-    this.redirectTo('');
   }
 });

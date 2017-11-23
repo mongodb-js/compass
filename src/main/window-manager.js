@@ -46,7 +46,7 @@ if (process.platform === 'linux') {
  * The app's HTML shell which is the output of `./src/index.html`
  * created by the `build:pages` gulp task.
  */
-var DEFAULT_URL = 'file://' + path.join(RESOURCES, 'index.html#connect');
+var DEFAULT_URL = 'file://' + path.join(RESOURCES, 'index.html');
 var LOADING_URL = 'file://' + path.join(RESOURCES, 'loading', 'loading.html');
 
 // track if app was launched, @see `renderer ready` handler below
