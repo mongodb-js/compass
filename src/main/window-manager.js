@@ -137,6 +137,8 @@ var createWindow = module.exports.create = function(opts) {
     }
   });
 
+  _loading.webContents.on('will-navigate', (evt) => evt.preventDefault());
+
   _loading.on('move', () => {
     const position = _loading.getPosition();
     _window.setPosition(position[0], position[1]);
