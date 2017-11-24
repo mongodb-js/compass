@@ -6,7 +6,7 @@ import Completer from 'models/completer';
 
 import 'brace/ext/language_tools';
 import 'brace/mode/json';
-import 'brace/theme/github';
+import 'brace/theme/chrome';
 
 /**
  * Options for the ACE editor.
@@ -50,7 +50,7 @@ class StageEditor extends PureComponent {
     return (
       <AceEditor
         mode="json"
-        theme="github"
+        theme="chrome"
         value={this.props.stage}
         onChange={this.props.onStageChange}
         name={`aggregations-stage-editor-${this.props.index}`}
