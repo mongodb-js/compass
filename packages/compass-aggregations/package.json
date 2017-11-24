@@ -109,6 +109,7 @@
     "webpack-sources": "1.0.1"
   },
   "dependencies": {
+    "react-ace": "^5.7.0",
     "react-redux": "^5.0.6",
     "redux": "^3.7.2"
   }
