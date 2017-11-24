@@ -7,7 +7,7 @@ describe('Aggregation Store', () => {
       it('returns the initial state', (done) => {
         const unsubscribe = store.subscribe(() => {
           unsubscribe();
-          expect(store.getState().stages).to.deep.equal([]);
+          expect(store.getState().stages).to.deep.equal(['']);
           done();
         });
         store.dispatch({ type: 'UNKNOWN' });

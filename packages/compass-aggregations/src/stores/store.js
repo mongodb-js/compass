@@ -5,7 +5,7 @@ import { STAGE_CHANGED } from 'constants/actions';
  * The initial state of the store.
  */
 const INITIAL_STATE = {
-  stages: [],
+  stages: [''],
   isValid: true
 };
 
