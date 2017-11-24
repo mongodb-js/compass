@@ -31,6 +31,9 @@ class StageEditor extends PureComponent {
     onStageChange: PropTypes.func.isRequired
   }
 
+  /**
+   * If our custom completer has not already been added, do it here.
+   */
   componentDidMount() {
     if (!this.langTools) {
       this.langTools = ace.acequire('ace/ext/language_tools');
@@ -38,6 +41,11 @@ class StageEditor extends PureComponent {
     }
   }
 
+  /**
+   * Render the stage editor component.
+   *
+   * @returns {Component} The component.
+   */
   render() {
     return (
       <AceEditor
