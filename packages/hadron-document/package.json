@@ -24,6 +24,7 @@
   ],
   "dependencies": {
     "debug": "^2.2.0",
+    "eventemitter3": "^2.0.3",
     "hadron-type-checker": "^3.0.0",
     "lodash.foreach": "^4.3.0",
     "lodash.includes": "^4.1.3",

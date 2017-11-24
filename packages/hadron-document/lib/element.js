@@ -1,6 +1,6 @@
 'use strict';
 
-const EventEmitter = require('events');
+const EventEmitter = require('eventemitter3');
 const keys = require('lodash.keys');
 const isObject = require('lodash.isplainobject');
 const isArray = require('lodash.isarray');
