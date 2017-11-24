@@ -9,28 +9,21 @@ class Completer {
   /**
    * Get the completion list for the provided params.
    */
-  getCompletions(editor, session, pos, prefix, callback) {
-    callback(null, this._filter(prefix));
+  getCompletions(editor, session, position, prefix, done) {
+    done(null, this._filter(prefix));
   }
 
   /**
-   * Since we keep the list of operators sorted, we can break the loop
-   * at the first non-match.
+   * Filter the operators based on the prefix.
    *
    * @param {String} prefix - The prefix.
    *
    * @returns {Array} The matching operators.
    */
   _filter(prefix) {
-    const operators = [];
-    for (const operator of STAGE_OPERATORS) {
-      if (operator.name.startsWith(prefix)) {
-        operators.push(operator);
-      } else {
-        break;
-      }
-    }
-    return operators;
+    return STAGE_OPERATORS.filter((op) => {
+      return op.name.startsWith(prefix);
+    });
   }
 }
 
