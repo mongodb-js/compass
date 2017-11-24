@@ -24,7 +24,6 @@ var electron = require('electron');
 var APP_VERSION = electron.remote.app.getVersion();
 
 var _ = require('lodash');
-var ViewSwitcher = require('ampersand-view-switcher');
 var View = require('ampersand-view');
 var async = require('async');
 var ipc = require('hadron-ipc');
@@ -117,8 +116,6 @@ var Application = View.extend({
       return debug('router already started!');
     }
     this.router = new Router();
-    debug('Listening for page changes from the router...');
-    this.listenTo(this.router, 'page', this.onPageChange);
 
     debug('Starting router...');
     this.router.history.start({
@@ -180,11 +177,6 @@ var Application = View.extend({
 
     this.el = document.querySelector('#application');
     this.renderWithTemplate(this);
-    this.pageSwitcher = new ViewSwitcher(this.queryByHook('layout-container'), {
-      show: function() {
-        document.scrollTop = 0;
-      }
-    });
     debug('rendering statusbar...');
     this.statusComponent = app.appRegistry.getRole('Application.Status')[0].component;
     ReactDOM.render(React.createElement(this.statusComponent), this.queryByHook('statusbar'));
@@ -256,12 +248,6 @@ var Application = View.extend({
     app.preferences.save();
     if (!app.preferences.showedNetworkOptIn) {
       this.showOptIn();
-    }
-  },
-  onPageChange: function(view) {
-    // connect dialog
-    if (view.screenName) {
-      this.pageSwitcher.set(view);
     }
   },
   onLinkClick: function(event) {
