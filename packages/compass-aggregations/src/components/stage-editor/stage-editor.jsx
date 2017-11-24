@@ -16,7 +16,7 @@ const OPTIONS = {
   enableLiveAutocompletion: true,
   tabSize: 2,
   fontSize: 12,
-  showGutter: false
+  showGutter: true
 };
 
 /**
