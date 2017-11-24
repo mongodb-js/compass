@@ -8,6 +8,12 @@ class Completer {
 
   /**
    * Get the completion list for the provided params.
+   *
+   * @param {Editor} editor - The ACE editor.
+   * @param {Session} session - The current editor session.
+   * @param {Number} position - The cursor position.
+   * @param {String} prefix - The string prefix to complete.
+   * @param {Function} done - The done callback.
    */
   getCompletions(editor, session, position, prefix, done) {
     done(null, this._filter(prefix));
