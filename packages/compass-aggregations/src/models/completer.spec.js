@@ -43,7 +43,8 @@ describe('Completer', () => {
               name: '$addFields',
               value: '$addFields',
               score: 1,
-              meta: 'stage'
+              meta: 'stage',
+              version: '3.4.0'
             }
           ]);
         });
@@ -59,13 +60,15 @@ describe('Completer', () => {
               name: '$collStats',
               value: '$collStats',
               score: 1,
-              meta: 'stage'
+              meta: 'stage',
+              version: '3.4.0'
             },
             {
               name: '$count',
               value: '$count',
               score: 1,
-              meta: 'stage'
+              meta: 'stage',
+              version: '2.2.0'
             }
           ]);
         });
@@ -81,25 +84,29 @@ describe('Completer', () => {
               name: '$sample',
               value: '$sample',
               score: 1,
-              meta: 'stage'
+              meta: 'stage',
+              version: '3.2.0'
             },
             {
               name: '$skip',
               value: '$skip',
               score: 1,
-              meta: 'stage'
+              meta: 'stage',
+              version: '2.2.0'
             },
             {
               name: '$sort',
               value: '$sort',
               score: 1,
-              meta: 'stage'
+              meta: 'stage',
+              version: '2.2.0'
             },
             {
               name: '$sortByCount',
               value: '$sortByCount',
               score: 1,
-              meta: 'stage'
+              meta: 'stage',
+              version: '3.4.0'
             }
           ]);
         });

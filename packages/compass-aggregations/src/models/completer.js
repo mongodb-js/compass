@@ -7,6 +7,15 @@ import STAGE_OPERATORS from 'constants/stage-operators';
 class Completer {
 
   /**
+   * Instantiate a new completer with the current server version.
+   *
+   * @param {String} version - The version.
+   */
+  constructor(version) {
+    this.version = version;
+  }
+
+  /**
    * Get the completion list for the provided params.
    *
    * @param {Editor} editor - The ACE editor.
