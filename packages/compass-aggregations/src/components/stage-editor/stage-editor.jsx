@@ -32,13 +32,11 @@ class StageEditor extends PureComponent {
   }
 
   /**
-   * If our custom completer has not already been added, do it here.
+   * @todo: Figure out best place to put this based on how acequire
+   *  actually works under the covers.
    */
   componentDidMount() {
-    if (!this.langTools) {
-      this.langTools = ace.acequire('ace/ext/language_tools');
-      this.langTools.addCompleter(new Completer());
-    }
+    ace.acequire('ace/ext/language_tools').addCompleter(new Completer());
   }
 
   /**

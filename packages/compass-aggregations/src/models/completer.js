@@ -19,12 +19,22 @@ class Completer {
    * Get the completion list for the provided params.
    *
    * @param {Editor} editor - The ACE editor.
-   * @param {Session} session - The current editor session.
-   * @param {Number} position - The cursor position.
+   * @param {EditSession} session - The current editor session.
+   * @param {Position} position - The cursor position.
    * @param {String} prefix - The string prefix to complete.
    * @param {Function} done - The done callback.
+   *
+   * @note When keys are "$lookup" then treated as type "variable" and token
+   *   has the quotes. When keys are $lookup then treated as type "text" with no
+   *   quotes. Should we extend json mode?
    */
   getCompletions(editor, session, position, prefix, done) {
+    // session.getTokens(row) -> [];
+    // session.getLines(firstRow, lastRow) -> [];
+    //   line.type ('paren.lparen'/'text')
+    //   line.value
+    // position.row -> Number
+    // position.column -> Number
     done(null, this._filter(prefix));
   }
 
