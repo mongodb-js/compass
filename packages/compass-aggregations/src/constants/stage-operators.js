@@ -158,5 +158,10 @@ const STAGE_OPERATORS = [
   }
 ];
 
+/**
+ * The list of stage operator names.
+ */
+const STAGE_OPERATOR_NAMES = STAGE_OPERATORS.map(op => op.name);
+
 export default STAGE_OPERATORS;
-export { STAGE_OPERATORS };
+export { STAGE_OPERATORS, STAGE_OPERATOR_NAMES };

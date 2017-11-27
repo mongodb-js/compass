@@ -111,6 +111,7 @@
   "dependencies": {
     "react-ace": "^5.7.0",
     "react-redux": "^5.0.6",
-    "redux": "^3.7.2"
+    "redux": "^3.7.2",
+    "semver": "^5.4.1"
   }
 }

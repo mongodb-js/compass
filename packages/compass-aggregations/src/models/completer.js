@@ -1,6 +1,12 @@
-import STAGE_OPERATORS from 'constants/stage-operators';
-// import EXPRESSION_OPERATORS from 'constants/expression-operators';
+import semver from 'semver';
+import { STAGE_OPERATORS, STAGE_OPERATOR_NAMES } from 'constants/stage-operators';
+import EXPRESSION_OPERATORS from 'constants/expression-operators';
 // import ACCUMULATORS from 'constants/accumulators';
+
+/**
+ * The type of token for operators in js mode.
+ */
+const IDENTIFIER = 'identifier';
 
 /**
  * Adds autocomplete suggestions based on the aggregation pipeline
@@ -13,7 +19,7 @@ class Completer {
    *
    * @param {String} version - The version.
    */
-  constructor(version) {
+  constructor(version = '3.4.0') {
     this.version = version;
   }
 
@@ -31,28 +37,55 @@ class Completer {
    * "$lookup": token.type == 'string', token.value == "$lookup"
    */
   getCompletions(editor, session, position, prefix, done) {
-    // console.log(session.getTokens(position.row));
-    done(null, this._filter(prefix));
+    const identifiers = this.getIdentifiers(session, position);
+    if (this.needsStageOperator(identifiers)) {
+      done(null, this._filter(STAGE_OPERATORS, prefix));
+    } else {
+      done(null, this._filter(EXPRESSION_OPERATORS, prefix));
+    }
   }
 
-  // 1. Get all previous non-empty string tokens or identifier tokens as trimmed.
-  // 2. If none exist, suggest stage operators.
-  // 3. If some exist:
-  //    a) If first token is a stage operator but not $group or $project:
-  //       i. ) Suggest expression operators.
-  //    b) If first token is $group or $project.
-  //       1. ) Suggest expressions operators + appropriate accumulators.
+  /**
+   * Get all identifier tokens for the current row.
+   *
+   * @param {EditSession} session - The edit session.
+   * @param {Position} position - The current position.
+   *
+   * @returns {Array} The identifiers.
+   */
+  getIdentifiers(session, position) {
+    return session.getTokens(position.row).filter((token) => {
+      return token.type === IDENTIFIER;
+    });
+  }
+
+  /**
+   * Determine if a stage operator is needed by checking if the
+   * existing identifiers already contains one.
+   *
+   * @param {Array} identifiers - The existing identifiers.
+   *
+   * @returns {Boolean} If a stage operator is needed.
+   */
+  needsStageOperator(identifiers) {
+    if (identifiers.length === 0) return true;
+    return !identifiers.some((i) => {
+      return STAGE_OPERATOR_NAMES.includes(i.value);
+    });
+  }
 
   /**
    * Filter the operators based on the prefix.
    *
+   * @param {Array} operators - The operators to filter.
    * @param {String} prefix - The prefix.
    *
    * @returns {Array} The matching operators.
    */
-  _filter(prefix) {
-    return STAGE_OPERATORS.filter((op) => {
-      return op.name.startsWith(prefix);
+  _filter(operators, prefix) {
+    return operators.filter((op) => {
+      return op.name.startsWith(prefix) &&
+        semver.gte(this.version, op.version);
     });
   }
 }
