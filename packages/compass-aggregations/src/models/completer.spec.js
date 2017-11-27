@@ -141,22 +141,225 @@ describe('Completer', () => {
           });
         });
       });
+
+      context('when the version is provided', () => {
+        const completer = new Completer('3.0.0');
+        const session = new EditSession('{ $s', new Mode());
+        const position = { row: 0, column: 3 };
+
+        it('returns available operators for the version', () => {
+          completer.getCompletions(editor, session, position, '$s', (error, results) => {
+            expect(error).to.equal(null);
+            expect(results).to.deep.equal([
+              {
+                name: '$skip',
+                value: '$skip',
+                score: 1,
+                meta: 'stage',
+                version: '2.2.0'
+              },
+              {
+                name: '$sort',
+                value: '$sort',
+                score: 1,
+                meta: 'stage',
+                version: '2.2.0'
+              }
+            ]);
+          });
+        });
+      });
     });
 
     context('when a stage operator has been defined', () => {
       context('when the stage operator is $project', () => {
         context('when the server version is 3.2.0', () => {
+          const completer = new Completer('3.2.0');
+          const session = new EditSession('{ $project: { $m', new Mode());
+          const position = { row: 0, column: 15 };
+
+          it('returns matching expression operators + $project accumulators', () => {
+            completer.getCompletions(editor, session, position, '$m', (error, results) => {
+              expect(error).to.equal(null);
+              expect(results).to.deep.equal([
+                {
+                  name: '$map',
+                  value: '$map',
+                  score: 1,
+                  meta: 'expr:array',
+                  version: '2.6.0'
+                },
+                {
+                  name: '$meta',
+                  value: '$meta',
+                  score: 1,
+                  meta: 'expr:text',
+                  version: '2.6.0'
+                },
+                {
+                  name: '$millisecond',
+                  value: '$millisecond',
+                  score: 1,
+                  meta: 'expr:date',
+                  version: '2.4.0'
+                },
+                {
+                  name: '$minute',
+                  value: '$minute',
+                  score: 1,
+                  meta: 'expr:date',
+                  version: '2.2.0'
+                },
+                {
+                  name: '$mod',
+                  value: '$mod',
+                  score: 1,
+                  meta: 'expr:arith',
+                  version: '2.2.0'
+                },
+                {
+                  name: '$month',
+                  value: '$month',
+                  score: 1,
+                  meta: 'expr:date',
+                  version: '2.2.0'
+                },
+                {
+                  name: '$multiply',
+                  value: '$multiply',
+                  score: 1,
+                  meta: 'expr:arith',
+                  version: '2.2.0'
+                },
+                {
+                  name: '$max',
+                  value: '$max',
+                  score: 1,
+                  meta: 'accumulator',
+                  version: '2.2.0',
+                  projectVersion: '3.2.0'
+                },
+                {
+                  name: '$min',
+                  value: '$min',
+                  score: 1,
+                  meta: 'accumulator',
+                  version: '2.2.0',
+                  projectVersion: '3.2.0'
+                }
+              ]);
+            });
+          });
         });
 
         context('when the server version is 3.4.0', () => {
+          context('when the accumulators are valid in $project', () => {
+            const completer = new Completer('3.4.0');
+            const session = new EditSession('{ $project: { $m', new Mode());
+            const position = { row: 0, column: 15 };
+
+            it('returns matching expression operators + $project accumulators', () => {
+              completer.getCompletions(editor, session, position, '$m', (error, results) => {
+                expect(error).to.equal(null);
+                expect(results).to.deep.equal([
+                  {
+                    name: '$map',
+                    value: '$map',
+                    score: 1,
+                    meta: 'expr:array',
+                    version: '2.6.0'
+                  },
+                  {
+                    name: '$meta',
+                    value: '$meta',
+                    score: 1,
+                    meta: 'expr:text',
+                    version: '2.6.0'
+                  },
+                  {
+                    name: '$millisecond',
+                    value: '$millisecond',
+                    score: 1,
+                    meta: 'expr:date',
+                    version: '2.4.0'
+                  },
+                  {
+                    name: '$minute',
+                    value: '$minute',
+                    score: 1,
+                    meta: 'expr:date',
+                    version: '2.2.0'
+                  },
+                  {
+                    name: '$mod',
+                    value: '$mod',
+                    score: 1,
+                    meta: 'expr:arith',
+                    version: '2.2.0'
+                  },
+                  {
+                    name: '$month',
+                    value: '$month',
+                    score: 1,
+                    meta: 'expr:date',
+                    version: '2.2.0'
+                  },
+                  {
+                    name: '$multiply',
+                    value: '$multiply',
+                    score: 1,
+                    meta: 'expr:arith',
+                    version: '2.2.0'
+                  },
+                  {
+                    name: '$max',
+                    value: '$max',
+                    score: 1,
+                    meta: 'accumulator',
+                    version: '2.2.0',
+                    projectVersion: '3.2.0'
+                  },
+                  {
+                    name: '$min',
+                    value: '$min',
+                    score: 1,
+                    meta: 'accumulator',
+                    version: '2.2.0',
+                    projectVersion: '3.2.0'
+                  }
+                ]);
+              });
+            });
+          });
+
+          context('when the accumulators are not valid in $project', () => {
+            const completer = new Completer('3.4.0');
+            const session = new EditSession('{ $project: { $p', new Mode());
+            const position = { row: 0, column: 15 };
+
+            it('returns matching expression operators + $project accumulators', () => {
+              completer.getCompletions(editor, session, position, '$p', (error, results) => {
+                expect(error).to.equal(null);
+                expect(results).to.deep.equal([
+                  {
+                    name: '$pow',
+                    value: '$pow',
+                    score: 1,
+                    meta: 'expr:arith',
+                    version: '3.2.0'
+                  }
+                ]);
+              });
+            });
+          });
         });
 
         context('when the server version is 3.0.0', () => {
           const completer = new Completer('3.0.0');
           const session = new EditSession('{ $project: { $e', new Mode());
-          const position = { row: 0, column: 13 };
+          const position = { row: 0, column: 15 };
 
-          it('returns matchin expression operators only', () => {
+          it('returns matching expression operators only', () => {
             completer.getCompletions(editor, session, position, '$e', (error, results) => {
               expect(error).to.equal(null);
               expect(results).to.deep.equal([
@@ -174,15 +377,142 @@ describe('Completer', () => {
       });
 
       context('when the stage operator is $group', () => {
+        context('when the server version is 3.2.0', () => {
+          const completer = new Completer('3.2.0');
+          const session = new EditSession('{ $group: { $m', new Mode());
+          const position = { row: 0, column: 13 };
+
+          it('returns matching expression operators + accumulators', () => {
+            completer.getCompletions(editor, session, position, '$m', (error, results) => {
+              expect(error).to.equal(null);
+              expect(results).to.deep.equal([
+                {
+                  name: '$map',
+                  value: '$map',
+                  score: 1,
+                  meta: 'expr:array',
+                  version: '2.6.0'
+                },
+                {
+                  name: '$meta',
+                  value: '$meta',
+                  score: 1,
+                  meta: 'expr:text',
+                  version: '2.6.0'
+                },
+                {
+                  name: '$millisecond',
+                  value: '$millisecond',
+                  score: 1,
+                  meta: 'expr:date',
+                  version: '2.4.0'
+                },
+                {
+                  name: '$minute',
+                  value: '$minute',
+                  score: 1,
+                  meta: 'expr:date',
+                  version: '2.2.0'
+                },
+                {
+                  name: '$mod',
+                  value: '$mod',
+                  score: 1,
+                  meta: 'expr:arith',
+                  version: '2.2.0'
+                },
+                {
+                  name: '$month',
+                  value: '$month',
+                  score: 1,
+                  meta: 'expr:date',
+                  version: '2.2.0'
+                },
+                {
+                  name: '$multiply',
+                  value: '$multiply',
+                  score: 1,
+                  meta: 'expr:arith',
+                  version: '2.2.0'
+                },
+                {
+                  name: '$max',
+                  value: '$max',
+                  score: 1,
+                  meta: 'accumulator',
+                  version: '2.2.0',
+                  projectVersion: '3.2.0'
+                },
+                {
+                  name: '$min',
+                  value: '$min',
+                  score: 1,
+                  meta: 'accumulator',
+                  version: '2.2.0',
+                  projectVersion: '3.2.0'
+                }
+              ]);
+            });
+          });
+        });
+
+        context('when the server version is 3.4.0', () => {
+          const completer = new Completer('3.4.0');
+          const session = new EditSession('{ $group: { $p', new Mode());
+          const position = { row: 0, column: 13 };
+
+          it('returns matching expression operators + accumulators', () => {
+            completer.getCompletions(editor, session, position, '$p', (error, results) => {
+              expect(error).to.equal(null);
+              expect(results).to.deep.equal([
+                {
+                  name: '$pow',
+                  value: '$pow',
+                  score: 1,
+                  meta: 'expr:arith',
+                  version: '3.2.0'
+                },
+                {
+                  name: '$push',
+                  value: '$push',
+                  score: 1,
+                  meta: 'accumulator',
+                  version: '2.2.0'
+                }
+              ]);
+            });
+          });
+        });
+
+        context('when the server version is 3.0.0', () => {
+          const completer = new Completer('3.0.0');
+          const session = new EditSession('{ $group: { $e', new Mode());
+          const position = { row: 0, column: 13 };
+
+          it('returns matching expression operators only', () => {
+            completer.getCompletions(editor, session, position, '$e', (error, results) => {
+              expect(error).to.equal(null);
+              expect(results).to.deep.equal([
+                {
+                  name: '$eq',
+                  value: '$eq',
+                  score: 1,
+                  meta: 'expr:comp',
+                  version: '2.2.0'
+                }
+              ]);
+            });
+          });
+        });
       });
 
       context('when the stage operator is not project or group', () => {
         context('when the version matches all', () => {
           const completer = new Completer('3.4.5');
           const session = new EditSession('{ $match: { $ar', new Mode());
-          const position = { row: 0, column: 13 };
+          const position = { row: 0, column: 14 };
 
-          it('returns matchin expression operators for the version', () => {
+          it('returns matching expression operators for the version', () => {
             completer.getCompletions(editor, session, position, '$ar', (error, results) => {
               expect(error).to.equal(null);
               expect(results).to.deep.equal([
@@ -208,7 +538,7 @@ describe('Completer', () => {
         context('when the version matches a subset', () => {
           const completer = new Completer('3.4.0');
           const session = new EditSession('{ $match: { $ar', new Mode());
-          const position = { row: 0, column: 13 };
+          const position = { row: 0, column: 14 };
 
           it('returns matchin expression operators for the version', () => {
             completer.getCompletions(editor, session, position, '$ar', (error, results) => {

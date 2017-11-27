@@ -1,12 +1,22 @@
 import { STAGE_OPERATORS, STAGE_OPERATOR_NAMES } from 'constants/stage-operators';
 import EXPRESSION_OPERATORS from 'constants/expression-operators';
+import ACCUMULATORS from 'constants/accumulators';
 import semver from 'semver';
-// import ACCUMULATORS from 'constants/accumulators';
 
 /**
  * The type of token for operators in js mode.
  */
 const IDENTIFIER = 'identifier';
+
+/**
+ * The proect stage operator.
+ */
+const PROJECT = '$project';
+
+/**
+ * The group stage operator.
+ */
+const GROUP = '$group';
 
 /**
  * Adds autocomplete suggestions based on the aggregation pipeline
@@ -33,11 +43,12 @@ class Completer {
    * @param {Function} done - The done callback.
    */
   getCompletions(editor, session, position, prefix, done) {
-    const identifiers = this.getIdentifiers(session, position);
-    if (this.needsStageOperator(identifiers)) {
+    const identifiers = this.identifiers(session, position);
+    if (this.isStageOperatorAbsent(identifiers)) {
       done(null, this._filter(STAGE_OPERATORS, prefix));
     } else {
-      done(null, this._filter(EXPRESSION_OPERATORS, prefix));
+      const expressions = EXPRESSION_OPERATORS.concat(this.accumulators(identifiers));
+      done(null, this._filter(expressions, prefix));
     }
   }
 
@@ -49,10 +60,28 @@ class Completer {
    *
    * @returns {Array} The identifiers.
    */
-  getIdentifiers(session, position) {
+  identifiers(session, position) {
     return session.getTokens(position.row).filter((token) => {
       return token.type === IDENTIFIER;
     });
+  }
+
+  /**
+   * Get accumulator completions based on the stage identifier.
+   *
+   * @param {Array} identifiers - The identifiers.
+   *
+   * @returns {Array} The accumulators.
+   */
+  accumulators(identifiers) {
+    if (identifiers[0].value === PROJECT) {
+      return ACCUMULATORS.filter((acc) => {
+        return acc.projectVersion && semver.gte(this.version, acc.projectVersion);
+      });
+    } else if (identifiers[0].value === GROUP) {
+      return ACCUMULATORS;
+    }
+    return [];
   }
 
   /**
@@ -63,7 +92,7 @@ class Completer {
    *
    * @returns {Boolean} If a stage operator is needed.
    */
-  needsStageOperator(identifiers) {
+  isStageOperatorAbsent(identifiers) {
     if (identifiers.length === 0) return true;
     return !identifiers.some((i) => {
       return STAGE_OPERATOR_NAMES.includes(i.value);

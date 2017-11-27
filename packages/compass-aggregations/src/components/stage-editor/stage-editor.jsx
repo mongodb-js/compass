@@ -12,7 +12,6 @@ import 'brace/theme/chrome';
  * Options for the ACE editor.
  */
 const OPTIONS = {
-  enableBasicAutocompletion: true,
   enableLiveAutocompletion: true,
   tabSize: 2,
   fontSize: 12,
@@ -36,7 +35,7 @@ class StageEditor extends PureComponent {
    *  actually works under the covers.
    */
   componentDidMount() {
-    ace.acequire('ace/ext/language_tools').addCompleter(new Completer());
+    ace.acequire('ace/ext/language_tools').setCompleters([ new Completer() ]);
   }
 
   /**
