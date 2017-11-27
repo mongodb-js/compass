@@ -1,4 +1,6 @@
 import STAGE_OPERATORS from 'constants/stage-operators';
+// import EXPRESSION_OPERATORS from 'constants/expression-operators';
+// import ACCUMULATORS from 'constants/accumulators';
 
 /**
  * Adds autocomplete suggestions based on the aggregation pipeline
@@ -24,19 +26,22 @@ class Completer {
    * @param {String} prefix - The string prefix to complete.
    * @param {Function} done - The done callback.
    *
-   * @note When keys are "$lookup" then treated as type "variable" and token
-   *   has the quotes. When keys are $lookup then treated as type "text" with no
-   *   quotes. Should we extend json mode?
+   * $lookup: token.type == 'identifier', token.value == $lookup
+   * '$lookup': token.type == 'string', token.value == '$lookup'
+   * "$lookup": token.type == 'string', token.value == "$lookup"
    */
   getCompletions(editor, session, position, prefix, done) {
-    // session.getTokens(row) -> [];
-    // session.getLines(firstRow, lastRow) -> [];
-    //   line.type ('paren.lparen'/'text')
-    //   line.value
-    // position.row -> Number
-    // position.column -> Number
+    // console.log(session.getTokens(position.row));
     done(null, this._filter(prefix));
   }
+
+  // 1. Get all previous non-empty string tokens or identifier tokens as trimmed.
+  // 2. If none exist, suggest stage operators.
+  // 3. If some exist:
+  //    a) If first token is a stage operator but not $group or $project:
+  //       i. ) Suggest expression operators.
+  //    b) If first token is $group or $project.
+  //       1. ) Suggest expressions operators + appropriate accumulators.
 
   /**
    * Filter the operators based on the prefix.

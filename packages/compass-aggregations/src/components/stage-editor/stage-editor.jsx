@@ -5,7 +5,7 @@ import ace from 'brace';
 import Completer from 'models/completer';
 
 import 'brace/ext/language_tools';
-import 'brace/mode/json';
+import 'brace/mode/javascript';
 import 'brace/theme/chrome';
 
 /**
@@ -47,7 +47,7 @@ class StageEditor extends PureComponent {
   render() {
     return (
       <AceEditor
-        mode="json"
+        mode="javascript"
         theme="chrome"
         value={this.props.stage}
         onChange={this.props.onStageChange}
