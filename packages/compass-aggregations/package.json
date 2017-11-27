@@ -27,9 +27,7 @@
     "check"
   ],
   "dependency-check": {
-    "entries": [
-      "./src/models/",
-    ]
+    "entries": [ "./src/models/completer.js" ]
   },
   "license": "Apache-2.0",
   "peerDependencies": {
