@@ -177,6 +177,54 @@ describe('Completer', () => {
       });
 
       context('when the stage operator is not project or group', () => {
+        context('when the version matches all', () => {
+          const completer = new Completer('3.4.5');
+          const session = new EditSession('{ $match: { $ar', new Mode());
+          const position = { row: 0, column: 13 };
+
+          it('returns matchin expression operators for the version', () => {
+            completer.getCompletions(editor, session, position, '$ar', (error, results) => {
+              expect(error).to.equal(null);
+              expect(results).to.deep.equal([
+                {
+                  name: '$arrayElementAt',
+                  value: '$arrayElementAt',
+                  score: 1,
+                  meta: 'expr:array',
+                  version: '3.2.0'
+                },
+                {
+                  name: '$arrayToObject',
+                  value: '$arrayToObject',
+                  score: 1,
+                  meta: 'expr:array',
+                  version: '3.4.4'
+                }
+              ]);
+            });
+          });
+        });
+
+        context('when the version matches a subset', () => {
+          const completer = new Completer('3.4.0');
+          const session = new EditSession('{ $match: { $ar', new Mode());
+          const position = { row: 0, column: 13 };
+
+          it('returns matchin expression operators for the version', () => {
+            completer.getCompletions(editor, session, position, '$ar', (error, results) => {
+              expect(error).to.equal(null);
+              expect(results).to.deep.equal([
+                {
+                  name: '$arrayElementAt',
+                  value: '$arrayElementAt',
+                  score: 1,
+                  meta: 'expr:array',
+                  version: '3.2.0'
+                }
+              ]);
+            });
+          });
+        });
       });
     });
   });

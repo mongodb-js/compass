@@ -31,10 +31,6 @@ class Completer {
    * @param {Position} position - The cursor position.
    * @param {String} prefix - The string prefix to complete.
    * @param {Function} done - The done callback.
-   *
-   * $lookup: token.type == 'identifier', token.value == $lookup
-   * '$lookup': token.type == 'string', token.value == '$lookup'
-   * "$lookup": token.type == 'string', token.value == "$lookup"
    */
   getCompletions(editor, session, position, prefix, done) {
     const identifiers = this.getIdentifiers(session, position);
