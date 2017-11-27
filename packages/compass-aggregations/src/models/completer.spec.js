@@ -25,14 +25,29 @@ describe('Completer', () => {
         });
 
         context('when the prefix begins with $', () => {
-          const completer = new Completer();
-          const session = new EditSession('{ $', new Mode());
-          const position = { row: 0, column: 2 };
+          context('when the token is on the same line', () => {
+            const completer = new Completer();
+            const session = new EditSession('{ $', new Mode());
+            const position = { row: 0, column: 2 };
 
-          it('returns all the stage operators', () => {
-            completer.getCompletions(editor, session, position, '$', (error, results) => {
-              expect(error).to.equal(null);
-              expect(results).to.deep.equal(STAGE_OPERATORS);
+            it('returns all the stage operators', () => {
+              completer.getCompletions(editor, session, position, '$', (error, results) => {
+                expect(error).to.equal(null);
+                expect(results).to.deep.equal(STAGE_OPERATORS);
+              });
+            });
+          });
+
+          context('when the token is on another line', () => {
+            const completer = new Completer();
+            const session = new EditSession('{\n  $', new Mode());
+            const position = { row: 1, column: 3 };
+
+            it('returns all the stage operators', () => {
+              completer.getCompletions(editor, session, position, '$', (error, results) => {
+                expect(error).to.equal(null);
+                expect(results).to.deep.equal(STAGE_OPERATORS);
+              });
             });
           });
         });
@@ -174,80 +189,161 @@ describe('Completer', () => {
     context('when a stage operator has been defined', () => {
       context('when the stage operator is $project', () => {
         context('when the server version is 3.2.0', () => {
-          const completer = new Completer('3.2.0');
-          const session = new EditSession('{ $project: { $m', new Mode());
-          const position = { row: 0, column: 15 };
+          context('when the stage is a single line', () => {
+            const completer = new Completer('3.2.0');
+            const session = new EditSession('{ $project: { $m', new Mode());
+            const position = { row: 0, column: 15 };
 
-          it('returns matching expression operators + $project accumulators', () => {
-            completer.getCompletions(editor, session, position, '$m', (error, results) => {
-              expect(error).to.equal(null);
-              expect(results).to.deep.equal([
-                {
-                  name: '$map',
-                  value: '$map',
-                  score: 1,
-                  meta: 'expr:array',
-                  version: '2.6.0'
-                },
-                {
-                  name: '$meta',
-                  value: '$meta',
-                  score: 1,
-                  meta: 'expr:text',
-                  version: '2.6.0'
-                },
-                {
-                  name: '$millisecond',
-                  value: '$millisecond',
-                  score: 1,
-                  meta: 'expr:date',
-                  version: '2.4.0'
-                },
-                {
-                  name: '$minute',
-                  value: '$minute',
-                  score: 1,
-                  meta: 'expr:date',
-                  version: '2.2.0'
-                },
-                {
-                  name: '$mod',
-                  value: '$mod',
-                  score: 1,
-                  meta: 'expr:arith',
-                  version: '2.2.0'
-                },
-                {
-                  name: '$month',
-                  value: '$month',
-                  score: 1,
-                  meta: 'expr:date',
-                  version: '2.2.0'
-                },
-                {
-                  name: '$multiply',
-                  value: '$multiply',
-                  score: 1,
-                  meta: 'expr:arith',
-                  version: '2.2.0'
-                },
-                {
-                  name: '$max',
-                  value: '$max',
-                  score: 1,
-                  meta: 'accumulator',
-                  version: '2.2.0',
-                  projectVersion: '3.2.0'
-                },
-                {
-                  name: '$min',
-                  value: '$min',
-                  score: 1,
-                  meta: 'accumulator',
-                  version: '2.2.0',
-                  projectVersion: '3.2.0'
-                }
-              ]);
+            it('returns matching expression operators + $project accumulators', () => {
+              completer.getCompletions(editor, session, position, '$m', (error, results) => {
+                expect(error).to.equal(null);
+                expect(results).to.deep.equal([
+                  {
+                    name: '$map',
+                    value: '$map',
+                    score: 1,
+                    meta: 'expr:array',
+                    version: '2.6.0'
+                  },
+                  {
+                    name: '$meta',
+                    value: '$meta',
+                    score: 1,
+                    meta: 'expr:text',
+                    version: '2.6.0'
+                  },
+                  {
+                    name: '$millisecond',
+                    value: '$millisecond',
+                    score: 1,
+                    meta: 'expr:date',
+                    version: '2.4.0'
+                  },
+                  {
+                    name: '$minute',
+                    value: '$minute',
+                    score: 1,
+                    meta: 'expr:date',
+                    version: '2.2.0'
+                  },
+                  {
+                    name: '$mod',
+                    value: '$mod',
+                    score: 1,
+                    meta: 'expr:arith',
+                    version: '2.2.0'
+                  },
+                  {
+                    name: '$month',
+                    value: '$month',
+                    score: 1,
+                    meta: 'expr:date',
+                    version: '2.2.0'
+                  },
+                  {
+                    name: '$multiply',
+                    value: '$multiply',
+                    score: 1,
+                    meta: 'expr:arith',
+                    version: '2.2.0'
+                  },
+                  {
+                    name: '$max',
+                    value: '$max',
+                    score: 1,
+                    meta: 'accumulator',
+                    version: '2.2.0',
+                    projectVersion: '3.2.0'
+                  },
+                  {
+                    name: '$min',
+                    value: '$min',
+                    score: 1,
+                    meta: 'accumulator',
+                    version: '2.2.0',
+                    projectVersion: '3.2.0'
+                  }
+                ]);
+              });
+            });
+          });
+
+          context('when the stage is on multiple lines', () => {
+            const completer = new Completer('3.2.0');
+            const session = new EditSession('{\n  $project: {\n    $m', new Mode());
+            const position = { row: 2, column: 5 };
+
+            it('returns matching expression operators + $project accumulators', () => {
+              completer.getCompletions(editor, session, position, '$m', (error, results) => {
+                expect(error).to.equal(null);
+                expect(results).to.deep.equal([
+                  {
+                    name: '$map',
+                    value: '$map',
+                    score: 1,
+                    meta: 'expr:array',
+                    version: '2.6.0'
+                  },
+                  {
+                    name: '$meta',
+                    value: '$meta',
+                    score: 1,
+                    meta: 'expr:text',
+                    version: '2.6.0'
+                  },
+                  {
+                    name: '$millisecond',
+                    value: '$millisecond',
+                    score: 1,
+                    meta: 'expr:date',
+                    version: '2.4.0'
+                  },
+                  {
+                    name: '$minute',
+                    value: '$minute',
+                    score: 1,
+                    meta: 'expr:date',
+                    version: '2.2.0'
+                  },
+                  {
+                    name: '$mod',
+                    value: '$mod',
+                    score: 1,
+                    meta: 'expr:arith',
+                    version: '2.2.0'
+                  },
+                  {
+                    name: '$month',
+                    value: '$month',
+                    score: 1,
+                    meta: 'expr:date',
+                    version: '2.2.0'
+                  },
+                  {
+                    name: '$multiply',
+                    value: '$multiply',
+                    score: 1,
+                    meta: 'expr:arith',
+                    version: '2.2.0'
+                  },
+                  {
+                    name: '$max',
+                    value: '$max',
+                    score: 1,
+                    meta: 'accumulator',
+                    version: '2.2.0',
+                    projectVersion: '3.2.0'
+                  },
+                  {
+                    name: '$min',
+                    value: '$min',
+                    score: 1,
+                    meta: 'accumulator',
+                    version: '2.2.0',
+                    projectVersion: '3.2.0'
+                  }
+                ]);
+              });
             });
           });
         });

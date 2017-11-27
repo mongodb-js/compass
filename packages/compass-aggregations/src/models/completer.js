@@ -25,6 +25,40 @@ const GROUP = '$group';
 class Completer {
 
   /**
+   * Get accumulator completions based on the stage identifier.
+   *
+   * @param {Array} identifiers - The identifiers.
+   *
+   * @returns {Array} The accumulators.
+   */
+  accumulators(identifiers) {
+    if (identifiers[0].value === PROJECT) {
+      return ACCUMULATORS.filter((acc) => {
+        return acc.projectVersion &&
+          semver.gte(this.version, acc.projectVersion);
+      });
+    } else if (identifiers[0].value === GROUP) {
+      return ACCUMULATORS;
+    }
+    return [];
+  }
+
+  /**
+   * Add more tokens to the provided token list for the new row.
+   *
+   * @param {EditSession} session - The edit session.
+   * @param {Number} row - The row.
+   * @param {Array} tokens - The tokens to concat to.
+   *
+   * @returns {Array} The new token array.
+   */
+  addTokens(session, row, tokens) {
+    return session.getTokens(row).filter((token) => {
+      return token.type === IDENTIFIER;
+    }).concat(tokens);
+  }
+
+  /**
    * Instantiate a new completer with the current server version.
    *
    * @param {String} version - The version.
@@ -43,7 +77,7 @@ class Completer {
    * @param {Function} done - The done callback.
    */
   getCompletions(editor, session, position, prefix, done) {
-    const identifiers = this.identifiers(session, position);
+    const identifiers = this.identifiers(session, position.row);
     if (this.isStageOperatorAbsent(identifiers)) {
       done(null, this._filter(STAGE_OPERATORS, prefix));
     } else {
@@ -53,35 +87,20 @@ class Completer {
   }
 
   /**
-   * Get all identifier tokens for the current row.
+   * Recursively get all identifier tokens from the current row to
+   * the beginning.
    *
    * @param {EditSession} session - The edit session.
-   * @param {Position} position - The current position.
+   * @param {Number} row - The current row.
+   * @param {Array} tokens - The previous tokens.
    *
    * @returns {Array} The identifiers.
    */
-  identifiers(session, position) {
-    return session.getTokens(position.row).filter((token) => {
-      return token.type === IDENTIFIER;
-    });
-  }
-
-  /**
-   * Get accumulator completions based on the stage identifier.
-   *
-   * @param {Array} identifiers - The identifiers.
-   *
-   * @returns {Array} The accumulators.
-   */
-  accumulators(identifiers) {
-    if (identifiers[0].value === PROJECT) {
-      return ACCUMULATORS.filter((acc) => {
-        return acc.projectVersion && semver.gte(this.version, acc.projectVersion);
-      });
-    } else if (identifiers[0].value === GROUP) {
-      return ACCUMULATORS;
+  identifiers(session, row, tokens = []) {
+    if (row <= 0) {
+      return this.addTokens(session, row, tokens);
     }
-    return [];
+    return this.identifiers(session, row - 1, this.addTokens(session, row, tokens));
   }
 
   /**
