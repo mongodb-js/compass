@@ -15,6 +15,8 @@ const OPTIONS = {
   enableLiveAutocompletion: true,
   tabSize: 2,
   fontSize: 12,
+  minLines: 1,
+  maxLines: Infinity,
   showGutter: true
 };
 
@@ -39,6 +41,16 @@ class StageEditor extends PureComponent {
   }
 
   /**
+   * Need to decorate the change event with the stage index before
+   * dispatching.
+   *
+   * @param {String} value - The value of the stage.
+   */
+  onStageChange(value) {
+    this.props.onStageChange(value, this.props.index);
+  }
+
+  /**
    * Render the stage editor component.
    *
    * @returns {Component} The component.
@@ -48,8 +60,9 @@ class StageEditor extends PureComponent {
       <AceEditor
         mode="javascript"
         theme="chrome"
+        width="100%"
         value={this.props.stage}
-        onChange={this.props.onStageChange}
+        onChange={this.onStageChange.bind(this)}
         name={`aggregations-stage-editor-${this.props.index}`}
         setOptions={OPTIONS} />
     );
