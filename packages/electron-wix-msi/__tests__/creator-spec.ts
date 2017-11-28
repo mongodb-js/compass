@@ -87,6 +87,8 @@ testIncludes('an APPLICATIONROOTDIRECTORY', '<Directory Id="APPLICATIONROOTDIREC
 
 testIncludes('an ApplicationProgramsFolder', '<Directory Id="ApplicationProgramsFolder"');
 
+testIncludes('a default appUserModelId', 'Key="System.AppUserModel.ID" Value="com.squirrel.Acme.acme"');
+
 test('.wxs file has as many components as we have files', () => {
   // Files + Shortcut
   const count = wxsContent.split('</Component>').length - 1;
@@ -167,6 +169,15 @@ test('MSICreator create() does not throw if UI is just an object', async () => {
   const { wxsFile } = await msiCreator.create();
   wxsContent = fs.readFileSync(wxsFile, 'utf-8');
   expect(wxsFile).toBeTruthy();
+});
+
+test('MSICreator create() sets the appUserModelId', async () => {
+  const msiCreator = new MSICreator({ ...defaultOptions, appUserModelId: 'Hi' });
+
+  const { wxsFile } = await msiCreator.create();
+  wxsContent = fs.readFileSync(wxsFile, 'utf-8');
+  expect(wxsFile).toBeTruthy();
+  expect(wxsContent.includes(`Key="System.AppUserModel.ID" Value="Hi"`)).toBeTruthy();
 });
 
 test('MSICreator compile() throws if candle/light are not installed', async () => {

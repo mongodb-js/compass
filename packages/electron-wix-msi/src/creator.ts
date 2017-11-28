@@ -16,18 +16,19 @@ const debug = require('debug')('electron-wix-msi');
 
 export interface MSICreatorOptions {
   appDirectory: string;
-  outputDirectory: string;
-  exe: string;
+  appUserModelId?: string;
   description: string;
-  version: string;
-  name: string;
-  shortName?: string;
-  upgradeCode?: string;
-  manufacturer: string;
+  exe: string;
   language?: number;
+  manufacturer: string;
+  name: string;
+  outputDirectory: string;
   programFilesFolderName?: string;
+  shortName?: string;
   shortcutFolderName?: string;
   ui?: UIOptions | boolean;
+  upgradeCode?: string;
+  version: string;
 }
 
 export interface UIOptions {
@@ -60,17 +61,19 @@ export class MSICreator {
 
   // Configuration
   public appDirectory: string;
-  public outputDirectory: string;
-  public exe: string;
+  public appUserModelId: string;
   public description: string;
-  public version: string;
-  public name: string;
-  public shortName: string;
-  public upgradeCode: string;
-  public manufacturer: string;
+  public exe: string;
   public language: number;
+  public manufacturer: string;
+  public name: string;
+  public outputDirectory: string;
   public programFilesFolderName: string;
+  public shortName: string;
   public shortcutFolderName: string;
+  public upgradeCode: string;
+  public version: string;
+
   public ui: UIOptions | boolean;
 
   private files: Array<string> = [];
@@ -80,17 +83,21 @@ export class MSICreator {
 
   constructor(options: MSICreatorOptions) {
     this.appDirectory = path.normalize(options.appDirectory);
-    this.outputDirectory = options.outputDirectory;
-    this.exe = options.exe.replace(/\.exe$/, '');
     this.description = options.description;
-    this.version = options.version;
-    this.name = options.name;
-    this.upgradeCode = options.upgradeCode || uuid();
-    this.manufacturer = options.manufacturer;
+    this.exe = options.exe.replace(/\.exe$/, '');
     this.language = options.language || 1033;
-    this.shortName = options.shortName || options.name;
+    this.manufacturer = options.manufacturer;
+    this.name = options.name;
+    this.outputDirectory = options.outputDirectory;
     this.programFilesFolderName = options.programFilesFolderName || options.name;
+    this.shortName = options.shortName || options.name;
     this.shortcutFolderName = options.shortcutFolderName || options.manufacturer;
+    this.upgradeCode = options.upgradeCode || uuid();
+    this.version = options.version;
+
+    this.appUserModelId = options.appUserModelId
+      || `com.squirrel.${this.shortName}.${this.exe}`;
+
     this.ui = options.ui !== undefined ? options.ui : false;
   }
 
@@ -165,6 +172,7 @@ export class MSICreator {
       '{{ApplicationShortName}}': this.shortName,
       '{{ApplicationShortcutGuid}}': uuid(),
       '{{ShortcutFolderName}}': this.shortcutFolderName,
+      '{{AppUserModelId}}': this.appUserModelId,
       '<!-- {{Directories}} -->': directories,
       '<!-- {{ComponentRefs}} -->': componentRefs.map(({ xml }) => xml).join('\n'),
       '<!-- {{UI}} -->': this.getUI()
