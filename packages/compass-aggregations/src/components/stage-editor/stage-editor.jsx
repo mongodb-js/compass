@@ -6,7 +6,7 @@ import Completer from 'models/completer';
 
 import 'brace/ext/language_tools';
 import 'brace/mode/javascript';
-import 'brace/theme/chrome';
+import 'brace/theme/github';
 
 /**
  * Options for the ACE editor.
@@ -59,7 +59,7 @@ class StageEditor extends PureComponent {
     return (
       <AceEditor
         mode="javascript"
-        theme="chrome"
+        theme="github"
         width="100%"
         value={this.props.stage}
         onChange={this.onStageChange.bind(this)}
