@@ -42,7 +42,7 @@ class Aggregations extends Component {
    */
   render() {
     return (
-      <div className={classnames(styles.root)}>
+      <div className={classnames(styles.aggregations)}>
         {this.renderStageEditors()}
       </div>
     );

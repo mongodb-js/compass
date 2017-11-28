@@ -2,7 +2,10 @@ import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import AceEditor from 'react-ace';
 import ace from 'brace';
+import classnames from 'classnames';
 import Completer from 'models/completer';
+
+import styles from './stage-editor.less';
 
 import 'brace/ext/language_tools';
 import 'brace/mode/javascript';
@@ -57,14 +60,16 @@ class StageEditor extends PureComponent {
    */
   render() {
     return (
-      <AceEditor
-        mode="javascript"
-        theme="github"
-        width="100%"
-        value={this.props.stage}
-        onChange={this.onStageChange.bind(this)}
-        name={`aggregations-stage-editor-${this.props.index}`}
-        setOptions={OPTIONS} />
+      <div className={classnames(styles['stage-editor'])}>
+        <AceEditor
+          mode="javascript"
+          theme="github"
+          width="100%"
+          value={this.props.stage}
+          onChange={this.onStageChange.bind(this)}
+          name={`aggregations-stage-editor-${this.props.index}`}
+          setOptions={OPTIONS} />
+      </div>
     );
   }
 }

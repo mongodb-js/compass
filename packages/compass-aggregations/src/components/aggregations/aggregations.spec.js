@@ -17,6 +17,6 @@ describe('Aggregations [Component]', () => {
   });
 
   it('renders the correct root classname', () => {
-    expect(component.find(`.${styles.root}`)).to.be.present();
+    expect(component.find(`.${styles.aggregations}`)).to.be.present();
   });
 });
