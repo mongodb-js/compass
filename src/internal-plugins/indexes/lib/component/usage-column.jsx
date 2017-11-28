@@ -10,7 +10,8 @@ const TOOLTIP_ID = 'index-usage';
 /**
  * No usage stats constant.
  */
-const NO_USAGE_STATS = 'Server versions prior to 3.2 do not support $indexStats';
+const NO_USAGE_STATS = 'Either the server does not support the $indexStats command' +
+  'or the user is not authorized to execute it.';
 
 /**
  * Component for the usage column.
