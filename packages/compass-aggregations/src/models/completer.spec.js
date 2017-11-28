@@ -12,11 +12,38 @@ describe('Completer', () => {
   describe('#getCompletions', () => {
     context('when the current token is a string', () => {
       context('when there are no previous autocompletions', () => {
+        const completer = new Completer('3.4.0', textCompleter);
+        const session = new EditSession('', new Mode());
+        const position = { row: 0, column: 0 };
 
+        it('returns no results', () => {
+          completer.getCompletions(editor, session, position, '', (error, results) => {
+            expect(error).to.equal(null);
+            expect(results).to.deep.equal([]);
+          });
+        });
       });
 
       context('when there are previous autocompletions', () => {
+        context('when the latest token is a string', () => {
+          const completer = new Completer('3.4.0', textCompleter);
+          const session = new EditSession('{ $project: { "$', new Mode());
+          const position = { row: 0, column: 15 };
 
+          it('returns only the previous results', () => {
+            completer.getCompletions(editor, session, position, '$', (error, results) => {
+              expect(error).to.equal(null);
+              expect(results).to.deep.equal([
+                {
+                  'caption': '$project',
+                  'meta': 'local',
+                  'score': 2,
+                  'value': '$project'
+                }
+              ]);
+            });
+          });
+        });
       });
     });
 

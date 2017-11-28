@@ -67,6 +67,7 @@ class Completer {
    * Instantiate a new completer with the current server version.
    *
    * @param {String} version - The version.
+   * @param {TextCompleter} textCompleter - The fallback Ace text completer.
    */
   constructor(version, textCompleter) {
     this.version = version;
@@ -81,6 +82,8 @@ class Completer {
    * @param {Position} position - The cursor position.
    * @param {String} prefix - The string prefix to complete.
    * @param {Function} done - The done callback.
+   *
+   * @returns {Function} The completion function.
    */
   getCompletions(editor, session, position, prefix, done) {
     // Empty prefixes do not return results.
