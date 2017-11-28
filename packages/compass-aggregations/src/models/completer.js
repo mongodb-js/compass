@@ -9,6 +9,11 @@ import semver from 'semver';
 const IDENTIFIER = 'identifier';
 
 /**
+ * String token type.
+ */
+const STRING = 'string';
+
+/**
  * The proect stage operator.
  */
 const PROJECT = '$project';
@@ -63,8 +68,9 @@ class Completer {
    *
    * @param {String} version - The version.
    */
-  constructor(version = '3.4.0') {
+  constructor(version, textCompleter) {
     this.version = version;
+    this.textCompleter = textCompleter;
   }
 
   /**
@@ -77,6 +83,18 @@ class Completer {
    * @param {Function} done - The done callback.
    */
   getCompletions(editor, session, position, prefix, done) {
+    // Empty prefixes do not return results.
+    if (prefix === '') return done(null, []);
+    // If the current token is a string with single or double quotes, then
+    // we want to use the local text completer instead of suggesting operators.
+    // This is so we can suggest user variable names inside the pipeline that they
+    // have already typed.
+    const currentToken = this.getCurrentToken(session, position.row);
+    if (currentToken.type === STRING) {
+      return this.textCompleter.getCompletions(editor, session, position, prefix, done);
+    }
+    // If the current token is not a string, then we proceed as normal to suggest
+    // operators to the user.
     const identifiers = this.identifiers(session, position.row);
     if (this.isStageOperatorAbsent(identifiers)) {
       done(null, this._filter(STAGE_OPERATORS, prefix));
@@ -84,6 +102,19 @@ class Completer {
       const expressions = EXPRESSION_OPERATORS.concat(this.accumulators(identifiers));
       done(null, this._filter(expressions, prefix));
     }
+  }
+
+  /**
+   * Get the current token in the row.
+   *
+   * @param {EditSession} session - The edit session.
+   * @param {Number} row - The current row.
+   *
+   * @returns {Token} The current token.
+   */
+  getCurrentToken(session, row) {
+    const tokens = session.getTokens(row);
+    return tokens[tokens.length - 1];
   }
 
   /**

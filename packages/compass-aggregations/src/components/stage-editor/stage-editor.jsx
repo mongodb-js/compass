@@ -36,11 +36,15 @@ class StageEditor extends PureComponent {
   }
 
   /**
-   * @todo: Figure out best place to put this based on how acequire
-   *  actually works under the covers.
+   * Set up the autocompleters once on initialization.
+   *
+   * @param {Object} props - The properties.
    */
-  componentDidMount() {
-    ace.acequire('ace/ext/language_tools').setCompleters([ new Completer() ]);
+  constructor(props) {
+    super(props);
+    const tools = ace.acequire('ace/ext/language_tools');
+    const textCompleter = tools.textCompleter;
+    tools.setCompleters([ new Completer('3.4.0', textCompleter) ]);
   }
 
   /**
