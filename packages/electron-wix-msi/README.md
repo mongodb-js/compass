@@ -72,13 +72,17 @@ await msiCreator.compile();
 * `version` (string) - The app's version.
 * `name` (string) - The app's name.
 * `manufacturer` (string) - Name of the manufacturer.
+
+* `appUserModelId` (string, optional) - String to set as `appUserModelId` on the
+  shortcut. If none is passed, it'll be set to `com.squirrel.(Name).(exe)`,
+  which should match the id given to your app by Squirrel.
 * `shortName` (optional, string) - A short name for the app, used wherever
   spaces and special characters are not allowed. Will use the name if left
   undefined.
-* `programFilesFolderName` (string, optional) - Name of the folder your app will
-  live in. Will use the app's name if left undefined.
 * `shortcutFolderName` (string, optional) - Name of the shortcut folder in the
   Windows Start Menu. Will use the manufacturer field if left undefined.
+* `programFilesFolderName` (string, optional) - Name of the folder your app will
+  live in. Will use the app's name if left undefined.
 * `upgradeCode` (string, optional) - A unique UUID used by your app to identify
   itself. This module will generate one for you, but it is important to reuse it
   to enable conflict-free upgrades.
@@ -86,6 +90,12 @@ await msiCreator.compile();
   [Microsoft Windows Language Code identifier](https://msdn.microsoft.com/en-us/library/cc233965.aspx)
   used by the installer. Will use 1033 (English, United-States) if left
   undefined.
+* `certificateFile` (string, optional) - The path to an Authenticode Code
+  Signing Certificate.
+* `certificatePassword` (string, optional) - The password to decrypt the
+  certificate given in `certificateFile`.
+* `signWithParams` (string, optional) - Paramaters to pass to `signtool.exe`.
+  Overrides `certificateFile` and `certificatePassword`.
 * `ui` (UIOptions, optional) - Enables configuration of the UI. See below for
   more information.
 
