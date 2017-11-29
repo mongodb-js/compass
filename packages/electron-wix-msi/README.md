@@ -9,7 +9,7 @@
 
 Most Electron developers use the official
 [windows-installer](https://github.com/electron/windows-installer) to create
-Windows installers. It does not require Administrator priviledges and comes
+Windows installers. It does not require Administrator privileges and comes
 bundled with an automatic updater. If your app targets consumers, it will likely
 be the better choice.
 
