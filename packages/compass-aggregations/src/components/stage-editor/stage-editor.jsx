@@ -80,4 +80,3 @@ class StageEditor extends PureComponent {
 }
 
 export default StageEditor;
-export { StageEditor };
