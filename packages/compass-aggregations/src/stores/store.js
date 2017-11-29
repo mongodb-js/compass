@@ -1,5 +1,5 @@
 import { createStore } from 'redux';
-import { STAGE_CHANGED } from 'constants/actions';
+import { STAGE_CHANGED } from 'action-creators';
 
 /**
  * The initial state of the store.
@@ -55,4 +55,3 @@ const pipeline = (state = INITIAL_STATE, action) => {
 const store = createStore(pipeline);
 
 export default store;
-export { store };

@@ -3,7 +3,6 @@ import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import classnames from 'classnames';
 import StageEditor from 'components/stage-editor';
-import { STAGE_CHANGED } from 'constants/actions';
 
 import styles from './aggregations.less';
 
@@ -74,8 +73,8 @@ const mapStateToProps = (state) => {
  */
 const mapDispatchToProps = (dispatch) => {
   return {
-    onStageChange: (stage, index) => {
-      dispatch({ type: STAGE_CHANGED, stage: stage, index: index });
+    onStageChange: (action) => {
+      dispatch(action);
     }
   };
 };

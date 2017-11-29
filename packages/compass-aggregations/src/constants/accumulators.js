@@ -81,4 +81,3 @@ const ACCUMULATORS = [
 ];
 
 export default ACCUMULATORS;
-export { ACCUMULATORS };

@@ -4,6 +4,7 @@ import AceEditor from 'react-ace';
 import ace from 'brace';
 import classnames from 'classnames';
 import Completer from 'models/completer';
+import { stageChanged } from 'action-creators';
 
 import styles from './stage-editor.less';
 
@@ -55,7 +56,7 @@ class StageEditor extends PureComponent {
    * @param {String} value - The value of the stage.
    */
   onStageChange(value) {
-    this.props.onStageChange(value, this.props.index);
+    this.props.onStageChange(stageChanged(value, this.props.index));
   }
 
   /**

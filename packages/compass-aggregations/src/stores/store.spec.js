@@ -1,5 +1,5 @@
 import store from 'stores';
-import { STAGE_CHANGED } from 'constants/actions';
+import { stageChanged } from 'action-creators';
 
 describe('Aggregation Store', () => {
   describe('#dispatch', () => {
@@ -18,7 +18,6 @@ describe('Aggregation Store', () => {
 
     context('when the action is STAGE_CHANGED', () => {
       const stage = '{ $match: {}}';
-      const action = { type: STAGE_CHANGED, index: 0, stage: stage };
 
       it('updates the stage in state', (done) => {
         const unsubscribe = store.subscribe(() => {
@@ -30,7 +29,7 @@ describe('Aggregation Store', () => {
           });
           done();
         });
-        store.dispatch(action);
+        store.dispatch(stageChanged(stage, 0));
       });
     });
   });

@@ -1,4 +1,4 @@
-import { STAGE_OPERATORS, STAGE_OPERATOR_NAMES } from 'constants/stage-operators';
+import STAGE_OPERATORS, { STAGE_OPERATOR_NAMES } from 'constants/stage-operators';
 import EXPRESSION_OPERATORS from 'constants/expression-operators';
 import ACCUMULATORS from 'constants/accumulators';
 import semver from 'semver';
