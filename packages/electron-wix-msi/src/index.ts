@@ -1,3 +1,1 @@
-import { MSICreator } from './creator';
-
-export { MSICreator };
+export * from './creator';
