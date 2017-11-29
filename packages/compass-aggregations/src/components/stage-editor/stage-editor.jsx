@@ -54,7 +54,7 @@ class StageEditor extends PureComponent {
    *
    * @param {String} value - The value of the stage.
    */
-  onStageChange(value) {
+  onStageChange = (value) => {
     this.props.stageChanged(value, this.props.index);
   }
 
@@ -71,7 +71,7 @@ class StageEditor extends PureComponent {
           theme="github"
           width="100%"
           value={this.props.stage.stage}
-          onChange={this.onStageChange.bind(this)}
+          onChange={this.onStageChange}
           name={`aggregations-stage-editor-${this.props.index}`}
           setOptions={OPTIONS} />
       </div>
