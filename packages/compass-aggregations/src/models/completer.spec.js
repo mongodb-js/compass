@@ -99,7 +99,7 @@ describe('Completer', () => {
 
           context('when the prefix begins with $', () => {
             context('when the token is on the same line', () => {
-              const completer = new Completer('3.4.0');
+              const completer = new Completer('3.6.0');
               const session = new EditSession('{ $', new Mode());
               const position = { row: 0, column: 2 };
 
@@ -112,7 +112,7 @@ describe('Completer', () => {
             });
 
             context('when the token is on another line', () => {
-              const completer = new Completer('3.4.0');
+              const completer = new Completer('3.6.0');
               const session = new EditSession('{\n  $', new Mode());
               const position = { row: 1, column: 3 };
 

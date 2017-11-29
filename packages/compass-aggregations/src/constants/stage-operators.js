@@ -38,6 +38,13 @@ const STAGE_OPERATORS = [
     version: '2.2.0'
   },
   {
+    name: '$currentOp',
+    value: '$currentOp',
+    score: 1,
+    meta: 'stage',
+    version: '3.6.0'
+  },
+  {
     name: '$facet',
     value: '$facet',
     score: 1,
@@ -78,6 +85,20 @@ const STAGE_OPERATORS = [
     score: 1,
     meta: 'stage',
     version: '2.2.0'
+  },
+  {
+    name: '$listLocalSessions',
+    value: '$listLocalSessions',
+    score: 1,
+    meta: 'stage',
+    version: '3.6.0'
+  },
+  {
+    name: '$listSessions',
+    value: '$listSessions',
+    score: 1,
+    meta: 'stage',
+    version: '3.6.0'
   },
   {
     name: '$lookup',
