@@ -15,6 +15,7 @@ class Aggregations extends Component {
 
   static propTypes = {
     stages: PropTypes.array.isRequired,
+    serverVersion: PropTypes.string.isRequired,
     onStageChange: PropTypes.func.isRequired
   }
 
@@ -29,6 +30,7 @@ class Aggregations extends Component {
         <StageEditor
           stage={stage}
           index={i}
+          serverVersion={this.props.serverVersion}
           key={i}
           onStageChange={this.props.onStageChange} />
       );
@@ -58,7 +60,8 @@ class Aggregations extends Component {
  */
 const mapStateToProps = (state) => {
   return {
-    stages: state.stages
+    stages: state.stages,
+    serverVersion: state.serverVersion
   };
 };
 

@@ -38,8 +38,8 @@ const EXPRESSION_OPERATORS = [
     version: '2.6.0'
   },
   {
-    name: '$arrayElementAt',
-    value: '$arrayElementAt',
+    name: '$arrayElemAt',
+    value: '$arrayElemAt',
     score: 1,
     meta: 'expr:array',
     version: '3.2.0'
@@ -85,6 +85,34 @@ const EXPRESSION_OPERATORS = [
     score: 1,
     meta: 'expr:cond',
     version: '2.6.0'
+  },
+  {
+    name: '$dateFromParts',
+    value: '$dateFromParts',
+    score: 1,
+    meta: 'expr:date',
+    version: '3.6.0'
+  },
+  {
+    name: '$dateFromString',
+    value: '$dateFromString',
+    score: 1,
+    meta: 'expr:date',
+    version: '3.6.0'
+  },
+  {
+    name: '$dateToParts',
+    value: '$dateToParts',
+    score: 1,
+    meta: 'expr:date',
+    version: '3.6.0'
+  },
+  {
+    name: '$dateToString',
+    value: '$dateToString',
+    score: 1,
+    meta: 'expr:date',
+    version: '3.6.0'
   },
   {
     name: '$dayOfMonth',
@@ -288,6 +316,13 @@ const EXPRESSION_OPERATORS = [
     score: 1,
     meta: 'expr:array',
     version: '2.6.0'
+  },
+  {
+    name: '$mergeObjects',
+    value: '$mergeObjects',
+    score: 1,
+    meta: 'expr:obj',
+    version: '3.6.0'
   },
   {
     name: '$meta',

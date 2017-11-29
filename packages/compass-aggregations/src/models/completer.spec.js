@@ -686,8 +686,8 @@ describe('Completer', () => {
                 expect(error).to.equal(null);
                 expect(results).to.deep.equal([
                   {
-                    name: '$arrayElementAt',
-                    value: '$arrayElementAt',
+                    name: '$arrayElemAt',
+                    value: '$arrayElemAt',
                     score: 1,
                     meta: 'expr:array',
                     version: '3.2.0'
@@ -714,8 +714,8 @@ describe('Completer', () => {
                 expect(error).to.equal(null);
                 expect(results).to.deep.equal([
                   {
-                    name: '$arrayElementAt',
-                    value: '$arrayElementAt',
+                    name: '$arrayElemAt',
+                    value: '$arrayElemAt',
                     score: 1,
                     meta: 'expr:array',
                     version: '3.2.0'

@@ -5,8 +5,8 @@ import { STAGE_CHANGED } from 'constants/actions';
  * The initial state of the store.
  */
 const INITIAL_STATE = {
-  stages: [''],
-  isValid: true
+  stages: [{ stage: '', isValid: true, isEnabled: true }],
+  serverVersion: '3.6.0'
 };
 
 /**
@@ -30,7 +30,7 @@ const copyState = (state) => {
  */
 const changeStage = (state, action) => {
   const newState = copyState(state);
-  newState.stages[action.index] = action.stage;
+  newState.stages[action.index].stage = action.stage;
   return newState;
 };
 

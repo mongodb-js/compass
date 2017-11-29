@@ -7,7 +7,9 @@ describe('Aggregation Store', () => {
       it('returns the initial state', (done) => {
         const unsubscribe = store.subscribe(() => {
           unsubscribe();
-          expect(store.getState().stages).to.deep.equal(['']);
+          expect(store.getState().stages).to.deep.equal([
+            { isEnabled: true, isValid: true, stage: '' }
+          ]);
           done();
         });
         store.dispatch({ type: 'UNKNOWN' });
@@ -21,7 +23,11 @@ describe('Aggregation Store', () => {
       it('updates the stage in state', (done) => {
         const unsubscribe = store.subscribe(() => {
           unsubscribe();
-          expect(store.getState().stages[0]).to.equal(stage);
+          expect(store.getState().stages[0]).to.deep.equal({
+            isEnabled: true,
+            isValid: true,
+            stage: stage
+          });
           done();
         });
         store.dispatch(action);

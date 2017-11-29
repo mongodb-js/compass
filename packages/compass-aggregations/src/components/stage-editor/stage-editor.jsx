@@ -30,8 +30,9 @@ class StageEditor extends PureComponent {
   static displayName = 'StageEditorComponent';
 
   static propTypes = {
-    stage: PropTypes.string.isRequired,
+    stage: PropTypes.object.isRequired,
     index: PropTypes.number.isRequired,
+    serverVersion: PropTypes.string.isRequired,
     onStageChange: PropTypes.func.isRequired
   }
 
@@ -44,7 +45,7 @@ class StageEditor extends PureComponent {
     super(props);
     const tools = ace.acequire('ace/ext/language_tools');
     const textCompleter = tools.textCompleter;
-    tools.setCompleters([ new Completer('3.4.0', textCompleter) ]);
+    tools.setCompleters([ new Completer(this.props.serverVersion, textCompleter) ]);
   }
 
   /**
@@ -69,7 +70,7 @@ class StageEditor extends PureComponent {
           mode="javascript"
           theme="github"
           width="100%"
-          value={this.props.stage}
+          value={this.props.stage.stage}
           onChange={this.onStageChange.bind(this)}
           name={`aggregations-stage-editor-${this.props.index}`}
           setOptions={OPTIONS} />
