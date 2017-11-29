@@ -6,3 +6,6 @@ tsconfig.json
 .appveyor.yml
 coverage
 .vscode
+!static
+!vendor
+!lib
