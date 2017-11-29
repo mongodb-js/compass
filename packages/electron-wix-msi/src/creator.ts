@@ -172,19 +172,19 @@ export class MSICreator {
       this.tree, base, 8, ROOTDIR_NAME, this.programFilesFolderName);
     const componentRefs = await this.getComponentRefs();
     const replacements = {
+      '{{ApplicationBinary}}': this.exe,
+      '{{ApplicationDescription}}': this.description,
       '{{ApplicationName}}': this.name,
+      '{{ApplicationShortcutGuid}}': uuid(),
+      '{{ApplicationShortName}}': this.shortName,
+      '{{AppUserModelId}}': this.appUserModelId,
+      '{{Language}}': this.language.toString(10),
+      '{{Manufacturer}}': this.manufacturer,
+      '{{ShortcutFolderName}}': this.shortcutFolderName,
       '{{UpgradeCode}}': this.upgradeCode,
       '{{Version}}': this.version,
-      '{{Manufacturer}}': this.manufacturer,
-      '{{Language}}': this.language.toString(10),
-      '{{ApplicationDescription}}': this.description,
-      '{{ApplicationBinary}}': this.exe,
-      '{{ApplicationShortName}}': this.shortName,
-      '{{ApplicationShortcutGuid}}': uuid(),
-      '{{ShortcutFolderName}}': this.shortcutFolderName,
-      '{{AppUserModelId}}': this.appUserModelId,
-      '<!-- {{Directories}} -->': directories,
       '<!-- {{ComponentRefs}} -->': componentRefs.map(({ xml }) => xml).join('\n'),
+      '<!-- {{Directories}} -->': directories,
       '<!-- {{UI}} -->': this.getUI()
     };
 
