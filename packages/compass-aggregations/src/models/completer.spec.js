@@ -45,6 +45,40 @@ describe('Completer', () => {
           });
         });
       });
+
+      context('when there are tokens after', () => {
+        context('when the latest token is a string', () => {
+          const completer = new Completer('3.4.0', textCompleter);
+          const session = new EditSession('{ $match: { $and: [ "$var1", "$var2" ]}}', new Mode());
+          const position = { row: 0, column: 32 };
+
+          it('returns only the previous results', () => {
+            completer.getCompletions(editor, session, position, '$va', (error, results) => {
+              expect(error).to.equal(null);
+              expect(results).to.deep.equal([
+                {
+                  'caption': '$match',
+                  'meta': 'local',
+                  'score': 3,
+                  'value': '$match'
+                },
+                {
+                  'caption': '$and',
+                  'meta': 'local',
+                  'score': 4,
+                  'value': '$and'
+                },
+                {
+                  'caption': '$var1',
+                  'meta': 'local',
+                  'score': 5,
+                  'value': '$var1'
+                }
+              ]);
+            });
+          });
+        });
+      });
     });
 
     context('when the current token is an identifier', () => {

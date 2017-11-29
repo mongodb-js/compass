@@ -92,7 +92,7 @@ class Completer {
     // we want to use the local text completer instead of suggesting operators.
     // This is so we can suggest user variable names inside the pipeline that they
     // have already typed.
-    const currentToken = this.getCurrentToken(session, position.row);
+    const currentToken = session.getTokenAt(position.row, position.column);
     if (currentToken.type === STRING) {
       return this.textCompleter.getCompletions(editor, session, position, prefix, done);
     }
@@ -105,19 +105,6 @@ class Completer {
       const expressions = EXPRESSION_OPERATORS.concat(this.accumulators(identifiers));
       done(null, this._filter(expressions, prefix));
     }
-  }
-
-  /**
-   * Get the current token in the row.
-   *
-   * @param {EditSession} session - The edit session.
-   * @param {Number} row - The current row.
-   *
-   * @returns {Token} The current token.
-   */
-  getCurrentToken(session, row) {
-    const tokens = session.getTokens(row);
-    return tokens[tokens.length - 1];
   }
 
   /**
