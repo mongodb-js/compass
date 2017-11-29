@@ -6,9 +6,14 @@ import * as path from 'path';
 
 import { MSICreator, UIOptions } from '../src/creator';
 import { getMockFileSystem, numberOfFiles, root } from './mocks/mock-fs';
-import { mockSpawn } from './mocks/mock-spawn';
+import { MockSpawn } from './mocks/mock-spawn';
 
 const mockPassedFs = fs;
+const mockSpawnArgs = {
+  name: '',
+  args: [],
+  options: {}
+};
 
 beforeAll(() => {
   jest.mock('child_process', () => ({
@@ -24,7 +29,10 @@ beforeAll(() => {
       throw new Error('Command not found');
     },
     spawn(name: string, args: Array<string>, options: SpawnOptions) {
-      return new mockSpawn(name, args, options, mockPassedFs);
+      mockSpawnArgs.name = name;
+      mockSpawnArgs.args = args;
+      mockSpawnArgs.options = options;
+      return new MockSpawn(name, args, options, mockPassedFs);
     }
   }));
 
@@ -38,6 +46,9 @@ afterAll(() => {
 
 afterEach(() => {
   mockWixInstalled = true;
+  mockSpawnArgs.name = '';
+  mockSpawnArgs.args = [];
+  mockSpawnArgs.options = {};
 });
 
 const defaultOptions = {
@@ -204,14 +215,22 @@ test('MSICreator compile() creates a wixobj and msi file', async () => {
   expect(fs.existsSync(msiFile)).toBeTruthy();
 });
 
+test('MSICreator compile() creates a wixobj and msi file with ui extensions', async () => {
+  const msiCreator = new MSICreator({ ...defaultOptions, ui: true });
+
+  await msiCreator.create();
+  await msiCreator.compile();
+
+  expect(mockSpawnArgs.args).toContain('WixUIExtension');
+});
 
 test('MSICreator compile() throws if candle or light fail', async () => {
-  const msiCreator = new MSICreator({ ...defaultOptions, exe: 'fail-code' });
+  const msiCreator = new MSICreator({ ...defaultOptions, exe: 'fail-code-candle' });
   const err = 'A bit of error';
   const out = 'A bit of data';
   const expectedErr = new Error(`Could not create wixobj file. Code: 1 StdErr: ${err} StdOut: ${out}`);
-  await msiCreator.create();
 
+  await msiCreator.create();
   await expect(msiCreator.compile()).rejects.toEqual(expectedErr);
 });
 
@@ -220,8 +239,8 @@ test('MSICreator compile() throws if candle does not create a file', async () =>
   const err = 'A bit of error';
   const out = 'A bit of data';
   const expectedErr = new Error(`Could not create wixobj file. Code: 0 StdErr: ${err} StdOut: ${out}`);
-  await msiCreator.create();
 
+  await msiCreator.create();
   await expect(msiCreator.compile()).rejects.toEqual(expectedErr);
 });
 
@@ -230,7 +249,46 @@ test('MSICreator compile() throws if light does not create a file', async () => 
   const err = 'A bit of error';
   const out = 'A bit of data';
   const expectedErr = new Error(`Could not create msi file. Code: 0 StdErr: ${err} StdOut: ${out}`);
-  await msiCreator.create();
 
+  await msiCreator.create();
+  await expect(msiCreator.compile()).rejects.toEqual(expectedErr);
+});
+
+test('MSICreator compile() tries to sign the MSI with default options', async () => {
+  const certOptions = { certificateFile: 'path/to/file', certificatePassword: 'hi' };
+  const msiCreator = new MSICreator({ ...defaultOptions, ...certOptions });
+
+  await msiCreator.create();
+  await msiCreator.compile();
+
+  const expectedCert = path.join(process.cwd(), 'path/to/file');
+  const expectedMsi = path.join(defaultOptions.outputDirectory, 'acme.msi');
+  const expectedArgs = ['sign', '/a', '/f', `"${expectedCert}"`, '/p', '"hi"', `"${expectedMsi}"`];
+
+  expect(mockSpawnArgs.name.endsWith('signtool.exe')).toBeTruthy();
+  expect(mockSpawnArgs.args).toEqual(expectedArgs);
+});
+
+test('MSICreator compile() tries to sign the MSI with custom options', async () => {
+  const certOptions = { signWithParams: 'hello "how are you"'};
+  const msiCreator = new MSICreator({ ...defaultOptions, ...certOptions });
+
+  await msiCreator.create();
+  await msiCreator.compile();
+
+  const expectedMsi = path.join(defaultOptions.outputDirectory, 'acme.msi');
+  const expectedArgs = ['sign', 'hello', '"how are you"', `"${expectedMsi}"`];
+
+  expect(mockSpawnArgs.name.endsWith('signtool.exe')).toBeTruthy();
+  expect(mockSpawnArgs.args).toEqual(expectedArgs);
+});
+
+
+test('MSICreator compile() throws if signing throws', async () => {
+  const certOptions = { signWithParams: 'hello "how are you"'};
+  const msiCreator = new MSICreator({ ...defaultOptions, exe: 'fail-code-signtool', ...certOptions });
+  const expectedErr = new Error(`Signtool exited with code 1. Stderr: A bit of error. Stdout: A bit of data`);
+
+  await msiCreator.create();
   await expect(msiCreator.compile()).rejects.toEqual(expectedErr);
 });

@@ -2,7 +2,7 @@ import { SpawnOptions } from 'child_process';
 import { EventEmitter } from 'events';
 import * as path from 'path';
 
-export class mockSpawn extends EventEmitter {
+export class MockSpawn extends EventEmitter {
   public stdout = new EventEmitter();
   public stderr = new EventEmitter();
 
@@ -22,7 +22,7 @@ export class mockSpawn extends EventEmitter {
       this.stdout.emit('data', 'A bit of data');
 
       setImmediate(() => {
-        const code = this.contains('fail-code') ? 1 : 0;
+        const code = this.contains(`fail-code-${path.basename(name, '.exe')}`) ? 1 : 0;
         this.emit('close', code);
       });
     });

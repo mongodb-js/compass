@@ -29,6 +29,9 @@ export interface MSICreatorOptions {
   ui?: UIOptions | boolean;
   upgradeCode?: string;
   version: string;
+  signWithParams?: string;
+  certificateFile?: string;
+  certificatePassword?: string;
 }
 
 export interface UIOptions {
@@ -73,6 +76,9 @@ export class MSICreator {
   public shortcutFolderName: string;
   public upgradeCode: string;
   public version: string;
+  public certificateFile?: string;
+  public certificatePassword?: string;
+  public signWithParams?: string;
 
   public ui: UIOptions | boolean;
 
@@ -83,6 +89,8 @@ export class MSICreator {
 
   constructor(options: MSICreatorOptions) {
     this.appDirectory = path.normalize(options.appDirectory);
+    this.certificateFile = options.certificateFile;
+    this.certificatePassword = options.certificatePassword;
     this.description = options.description;
     this.exe = options.exe.replace(/\.exe$/, '');
     this.language = options.language || 1033;
@@ -92,6 +100,7 @@ export class MSICreator {
     this.programFilesFolderName = options.programFilesFolderName || options.name;
     this.shortName = options.shortName || options.name;
     this.shortcutFolderName = options.shortcutFolderName || options.manufacturer;
+    this.signWithParams = options.signWithParams;
     this.upgradeCode = options.upgradeCode || uuid();
     this.version = options.version;
 
@@ -145,6 +154,7 @@ export class MSICreator {
 
     const { wixobjFile } = await this.createWixobj();
     const { msiFile } = await this.createMsi();
+    await this.signMSI(msiFile);
 
     return { wixobjFile, msiFile };
   }
@@ -229,6 +239,35 @@ export class MSICreator {
       return expectedObj;
     } else {
       throw new Error(`Could not create ${type} file. Code: ${code} StdErr: ${stderr} StdOut: ${stdout}`);
+    }
+  }
+
+  /**
+   * Signs the resulting MSI
+   *
+   * @memberof MSICreator
+   */
+  private async signMSI(msiFile: string) {
+    const { certificatePassword, certificateFile, signWithParams } = this;
+    const signToolPath = path.join(__dirname, '../vendor/signtool.exe');
+
+    if (!certificateFile && !signWithParams) {
+      debug(`Signing not necessary, no certificate file or parameters given`);
+      return;
+    }
+
+    const args: Array<string> = signWithParams
+      // Split up at spaces and doublequotes
+      ? signWithParams.match(/(?:[^\s"]+|"[^"]*")+/g) as Array<string>
+      : ['/a', '/f', `"${path.resolve(certificateFile)}"`, '/p', `"${certificatePassword}"`];
+
+    const { code, stderr, stdout } = await spawnPromise(signToolPath, [ 'sign', ...args, `"${msiFile}"` ], {
+      env: process.env,
+      cwd: path.join(__dirname, '../vendor'),
+    });
+
+    if (code !== 0) {
+      throw new Error(`Signtool exited with code ${code}. Stderr: ${stderr}. Stdout: ${stdout}`);
     }
   }
 

@@ -1,10 +1,10 @@
 import { spawnPromise } from '../../src/utils/spawn';
-import { mockSpawn } from '../mocks/mock-spawn';
+import { MockSpawn } from '../mocks/mock-spawn';
 
 beforeAll(() => {
   jest.mock('child_process', () => ({
     spawn(name: string, args: Array<string>, o: any, fs: any) {
-      return new mockSpawn(name, args, o, fs);
+      return new MockSpawn(name, args, o, fs);
     }
   }));
 });
