@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import classnames from 'classnames';
 import StageEditor from 'components/stage-editor';
+import { stageChanged } from 'action-creators';
 
 import styles from './aggregations.less';
 
@@ -15,25 +16,7 @@ class Aggregations extends Component {
   static propTypes = {
     stages: PropTypes.array.isRequired,
     serverVersion: PropTypes.string.isRequired,
-    onStageChange: PropTypes.func.isRequired
-  }
-
-  /**
-   * Render the stage editors.
-   *
-   * @returns {Array} The components.
-   */
-  renderStageEditors() {
-    return this.props.stages.map((stage, i) => {
-      return (
-        <StageEditor
-          stage={stage}
-          index={i}
-          serverVersion={this.props.serverVersion}
-          key={i}
-          onStageChange={this.props.onStageChange} />
-      );
-    });
+    stageChanged: PropTypes.func.isRequired
   }
 
   /**
@@ -42,9 +25,19 @@ class Aggregations extends Component {
    * @returns {React.Component} The rendered component.
    */
   render() {
+    const stageEditors = this.props.stages.map((stage, i) => {
+      return (
+        <StageEditor
+          stage={stage}
+          index={i}
+          serverVersion={this.props.serverVersion}
+          key={i}
+          stageChanged={this.props.stageChanged} />
+      );
+    });
     return (
       <div className={classnames(styles.aggregations)}>
-        {this.renderStageEditors()}
+        {stageEditors}
       </div>
     );
   }
@@ -65,26 +58,11 @@ const mapStateToProps = (state) => {
 };
 
 /**
- * Map actions to dispatch to properties in the component.
- *
- * @param {Function} dispatch - The store dispatch function.
- *
- * @returns {Object} The properties.
- */
-const mapDispatchToProps = (dispatch) => {
-  return {
-    onStageChange: (action) => {
-      dispatch(action);
-    }
-  };
-};
-
-/**
  * Connect the redux store to the component.
  */
 const MappedAggregations = connect(
   mapStateToProps,
-  mapDispatchToProps,
+  { stageChanged },
 )(Aggregations);
 
 export default MappedAggregations;
