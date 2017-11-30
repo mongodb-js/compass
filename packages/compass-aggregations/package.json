@@ -1,7 +1,7 @@
 {
   "name": "@mongodb-js/compass-aggregations",
   "productName": "Aggregations plugin",
-  "version": "0.0.0",
+  "version": "0.0.1",
   "apiVersion": "1.0.0",
   "description": "Compass Aggregation Pipeline Builder",
   "main": "lib/index.js",
@@ -27,7 +27,9 @@
     "check"
   ],
   "dependency-check": {
-    "entries": [ "./src/models/completer.js" ]
+    "entries": [
+      "./src/models/completer.js"
+    ]
   },
   "license": "Apache-2.0",
   "peerDependencies": {
