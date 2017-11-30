@@ -11,12 +11,10 @@ const STAGE_CHANGED = 'STAGE_CHANGED';
  *
  * @returns {Object} The stage changed action.
  */
-const stageChanged = (value, index) => {
-  return {
-    type: STAGE_CHANGED,
-    index: index,
-    stage: value
-  };
-};
+const stageChanged = (value, index) => ({
+  type: STAGE_CHANGED,
+  index: index,
+  stage: value
+});
 
 export { stageChanged, STAGE_CHANGED };

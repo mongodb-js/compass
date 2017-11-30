@@ -50,12 +50,10 @@ class Aggregations extends Component {
  *
  * @returns {Object} The mapped properties.
  */
-const mapStateToProps = (state) => {
-  return {
-    stages: state.stages,
-    serverVersion: state.serverVersion
-  };
-};
+const mapStateToProps = (state) => ({
+  stages: state.stages,
+  serverVersion: state.serverVersion
+});
 
 /**
  * Connect the redux store to the component.

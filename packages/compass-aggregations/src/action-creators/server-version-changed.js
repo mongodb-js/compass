@@ -10,11 +10,9 @@ const SERVER_VERSION_CHANGED = 'SERVER_VERSION_CHANGED';
  *
  * @returns {Object} The server version changed action.
  */
-const serverVersionChanged = (version) => {
-  return {
-    type: SERVER_VERSION_CHANGED,
-    version: version
-  };
-};
+const serverVersionChanged = (version) => ({
+  type: SERVER_VERSION_CHANGED,
+  version: version
+});
 
 export { serverVersionChanged, SERVER_VERSION_CHANGED };
