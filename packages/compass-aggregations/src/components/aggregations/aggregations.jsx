@@ -66,3 +66,4 @@ const MappedAggregations = connect(
 )(Aggregations);
 
 export default MappedAggregations;
+export { Aggregations };
