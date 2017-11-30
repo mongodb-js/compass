@@ -26,11 +26,6 @@
   "precommit": [
     "check"
   ],
-  "dependency-check": {
-    "entries": [
-      "./src/models/completer.js"
-    ]
-  },
   "license": "Apache-2.0",
   "peerDependencies": {
     "prop-types": "^15.5.8",
