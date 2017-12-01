@@ -170,6 +170,62 @@ environments, you should push the self-updating package, but have a traditional
 MSI in your pocket. Bear in mind however that you will need to find a way to get
 updates to your users without relying on Electron's auto updater.
 
+## MSI Administration
+The `msi` packages created with this module allow for a wide range of command line parameters. The installer is a "Windows Installer", meaning that the actual installer's logic is part of Windows itself. It supports the following command-line parameters:
+
+#### Install Options
+`</uninstall | /x>` Uninstalls the product
+
+#### Display Options
+- `/quiet` Quiet mode, no user interaction
+- `/passive` Unattended mode - progress bar only
+- `/q[n|b|r|f]` Sets user interface level
+  - n No UI
+  - b Basic UI
+  - r Reduced UI
+  - f Full UI (default)
+`/help` Help information
+
+#### Restart Options
+- `/norestart` Do not restart after the installation is complete
+- `/promptrestart` Prompts the user for restart if necessary
+- `/forcerestart` Always restart the computer after installation
+
+#### Logging Options
+- `/l[i|w|e|a|r|u|c|m|o|p|v|x|+|!|*] <LogFile>`
+  - `i` Status messages
+  - `w` Nonfatal warnings
+  - `e` All error messages
+  - `a` Start up of actions
+  - `r` Action-specific records
+  - `u` User requests
+  - `c` Initial UI parameters
+  - `m` Out-of-memory or fatal exit information
+  - `o` Out-of-disk-space messages
+  - `p` Terminal properties
+  - `v` Verbose output
+  - `x` Extra debugging information
+  - `+` Append to existing log file
+  - `!` Flush each line to the log
+  - `*` Log all information, except for v and x options
+- `/log <LogFile>` Equivalent of /l* <LogFile>
+
+#### Update Options
+- `/update <Update1.msp>[;Update2.msp]` Applies update(s)
+
+#### Repair Options
+- `/f[p|e|c|m|s|o|d|a|u|v]` Repairs a product
+  - `p` only if file is missing
+  - `o` if file is missing or an older version is installed (default)
+  - `e` if file is missing or an equal or older version is installed
+  - `d` if file is missing or a different version is installed
+  - `c` if file is missing or checksum does not match the calculated value
+  - `a` forces all files to be reinstalled
+  - `u` all required user-specific registry entries (default)
+  - `m` all required computer-specific registry entries (default)
+  - `s` all existing shortcuts (default)
+  - `v` runs from source and recaches local package
+
 ## License
 
 MIT, please see LICENSE.md for details.
