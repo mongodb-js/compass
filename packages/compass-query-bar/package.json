@@ -70,7 +70,6 @@
     "chai": "^4.0.2",
     "chai-enzyme": "^0.8.0",
     "classnames": "^2.2.5",
-    "codemirror-mongodb": "^0.10.0",
     "cross-env": "^5.0.1",
     "css-loader": "^0.28.1",
     "debug": "^3.0.1",
@@ -109,7 +108,6 @@
     "mongodb-data-service": "^8.0.0",
     "mongodb-js-fmt": "^0.0.3",
     "mongodb-js-precommit": "^0.3.0",
-    "mongodb-query-parser": "^1.0.1",
     "mongodb-reflux-store": "0.0.1",
     "ms": "^0.7.1",
     "numeral": "^1.5.3",
@@ -142,6 +140,8 @@
     "webpack-node-externals": "^1.6.0"
   },
   "dependencies": {
+    "codemirror-mongodb": "^0.10.3",
+    "mongodb-query-parser": "^1.0.1",
     "mongodb-query-util": "0.0.1"
   }
 }
