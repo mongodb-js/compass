@@ -1,6 +1,5 @@
 import Reflux from 'reflux';
 import StateMixin from 'reflux-state-mixin';
-import app from 'hadron-app';
 import { pick, isEqual, cloneDeep } from 'lodash';
 
 import QUERY_PROPERTIES from 'constants/query-properties';
@@ -77,7 +76,7 @@ const QueryChangedStore = Reflux.createStore({
       this.setState(newState);
 
       // Call onQueryChanged lifecycle method
-      const registry = app.appRegistry;
+      const registry = global.hadronApp.appRegistry;
       if (registry) {
         registry.emit('query-changed', newState);
       } else {

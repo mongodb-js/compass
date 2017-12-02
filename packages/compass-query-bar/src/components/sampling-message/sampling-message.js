@@ -1,7 +1,6 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import classnames from 'classnames';
-import app from 'hadron-app';
 import { InfoSprinkle } from 'hadron-react-components';
 import { shell } from 'electron';
 import numeral from 'numeral';
@@ -31,6 +30,7 @@ class SamplingMessage extends Component {
   }
 
   componentDidMount() {
+    const app = global.hadronApp;
     const crudActions = app.appRegistry.getAction('CRUD.Actions');
 
     this.documentRemovedAction = crudActions.documentRemoved;

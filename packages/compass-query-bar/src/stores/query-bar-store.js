@@ -1,7 +1,6 @@
 import Reflux from 'reflux';
 import StateMixin from 'reflux-state-mixin';
 import queryParser from 'mongodb-query-parser';
-import app from 'hadron-app';
 import assert from 'assert';
 import diff from 'object-diff';
 import {
@@ -601,7 +600,7 @@ const QueryBarStore = Reflux.createStore({
    */
   apply() {
     if (this._validateQuery()) {
-      const registry = app.appRegistry;
+      const registry = global.hadronApp.appRegistry;
       if (registry) {
         const newState = {
           filter: this.state.filter,
@@ -650,8 +649,8 @@ const QueryBarStore = Reflux.createStore({
       let namespace = '';
       if (this.NamespaceStore) {
         namespace = this.NamespaceStore.ns;
-      } else if (app.appRegistry) {
-        this.NamespaceStore = app.appRegistry.getStore('App.NamespaceStore');
+      } else if (global.hadronApp.appRegistry) {
+        this.NamespaceStore = global.hadronApp.appRegistry.getStore('App.NamespaceStore');
         namespace = this.NamespaceStore.ns;
       }
 
