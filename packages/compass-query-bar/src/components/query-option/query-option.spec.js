@@ -1,7 +1,7 @@
 import React from 'react';
 import { shallow } from 'enzyme';
 import { InfoSprinkle } from 'hadron-react-components';
-import CodeMirror from 'react-codemirror';
+import CodeMirror from 'components/codemirror';
 
 // Mockout some of QueryOptions's dependencies via the webpack inject-loader
 import QueryOptionInjector from 'inject-loader!components/query-option/query-option';

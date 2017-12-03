@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import classnames from 'classnames';
-import CodeMirror from 'react-codemirror';
+import CodeMirror from 'components/codemirror';
 import CM from 'codemirror';
 import { InfoSprinkle } from 'hadron-react-components';
 import { shell } from 'electron';
