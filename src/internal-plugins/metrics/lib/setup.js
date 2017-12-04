@@ -37,7 +37,7 @@ module.exports = function() {
     }
   });
 
-  if (process.env.HADRON_PRODUCT !== 'mongodb-compass-community') {
+  if (process.env.HADRON_PRODUCT !== 'mongodb-compass-community' && app.preferences.enableFeedbackPanel) {
     const request = new XMLHttpRequest();
     request.onreadystatechange = () => {
       try {
@@ -163,7 +163,9 @@ module.exports = function() {
    * such that when a link is clicked, the event is properly
    * passed off to `app.router` and a web page actually opens.
    */
-  if (process.env.HADRON_PRODUCT !== 'mongodb-compass-community' && !intercomBlocked) {
+  if (process.env.HADRON_PRODUCT !== 'mongodb-compass-community' &&
+      !intercomBlocked &&
+      app.preferences.enableFeedbackPanel) {
     intercom.configure();
   }
 
