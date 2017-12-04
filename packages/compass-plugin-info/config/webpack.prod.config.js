@@ -97,7 +97,7 @@ module.exports = {
           loader: 'url-loader',
           query: {
             limit: 8192,
-            name: 'assets/images/[name]__[hash:base64:5].[ext]'
+            name: 'assets/images/[name].[ext]'
           }
         }]
       },
@@ -107,7 +107,7 @@ module.exports = {
           loader: 'url-loader',
           query: {
             limit: 8192,
-            name: 'assets/fonts/[name]__[hash:base64:5].[ext]'
+            name: 'assets/fonts/[name].[ext]'
           }
         }]
       }
