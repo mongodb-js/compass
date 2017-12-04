@@ -153,9 +153,7 @@ module.exports = {
           // $USER_HOME/.mongodb/compasss(-community)/plugins
           query: {
             name: 'assets/fonts/[name]__[hash:base64:5].[ext]',
-            publicPath: function(file) {
-              return `./${file}`;
-            }
+            publicPath: ''
           }
         }]
       }
