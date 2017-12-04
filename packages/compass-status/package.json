@@ -1,7 +1,7 @@
 {
   "name": "@mongodb-js/compass-status",
   "productName": "Compass Status plugin",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "description": "Compass Status Plugin",
   "main": "lib/index.js",
   "scripts": {
