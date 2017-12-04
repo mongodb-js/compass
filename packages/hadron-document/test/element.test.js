@@ -575,7 +575,7 @@ describe('Element', function() {
           });
 
           it('removes the empty element', function() {
-            expect(doc.elements.size).to.equal(1);
+            expect(doc.elements.size).to.equal(2);
           });
         });
       });
@@ -590,8 +590,8 @@ describe('Element', function() {
             element.next();
           });
 
-          it('removes the empty element', function() {
-            expect(doc.elements.size).to.equal(1);
+          it('ignores the empty element', function() {
+            expect(doc.elements.size).to.equal(2);
           });
         });
 

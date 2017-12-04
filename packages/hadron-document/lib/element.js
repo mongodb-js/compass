@@ -615,13 +615,7 @@ class Element extends EventEmitter {
    * Add a new element to the parent.
    */
   _next() {
-    if (this._isElementEmpty(this.nextElement)) {
-      this.parent.elements.remove(this.nextElement);
-      this.parent.emit(Events.Removed);
-    } else if (this._isElementEmpty(this)) {
-      this.parent.elements.remove(this);
-      this.parent.emit(Events.Removed);
-    } else {
+    if (!this._isElementEmpty(this.nextElement) && !this._isElementEmpty(this)) {
       this.parent.insertAfter(this, '', '');
     }
   }
