@@ -1,3 +1,4 @@
+/* eslint-disable react/sort-comp */
 const React = require('react');
 const ReactDOM = require('react-dom');
 const PropTypes = require('prop-types');
@@ -101,7 +102,9 @@ class CellEditor extends React.Component {
   }
 
   componentDidMount() {
-    // this.props.reactContainer.addEventListener('keydown', this.onKeyDown);
+    if (this.props.reactContainer) {
+      this.props.reactContainer.addEventListener('keydown', this.onKeyDown);
+    }
     this.focus();
   }
 
@@ -110,16 +113,19 @@ class CellEditor extends React.Component {
   }
 
   componentWillUnmount() {
-    // this.props.reactContainer.removeEventListener('keydown', this.onKeyDown);
+    if (this.props.reactContainer) {
+      this.props.reactContainer.removeEventListener('keydown', this.onKeyDown);
+    }
     this.props.api.stopEditing();
   }
 
-  // /**
-  //  * This is only required if you are preventing event propagation.
-  //  * @param {Object} event
-  //  */
-  // handleKeyDown(event) {
-  // }
+  /**
+   * This is only required if you are preventing event propagation.
+   * @param {Object} event
+   */
+  onKeyDown(event) {
+    event.stopPropagation();
+  }
 
   /**
    * AG-Grid API call to get final result of editing. Not being used because
