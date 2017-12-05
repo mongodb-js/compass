@@ -174,7 +174,7 @@
     "@mongodb-js/compass-auth-ldap": "0.0.2",
     "@mongodb-js/compass-auth-x509": "0.0.3",
     "@mongodb-js/compass-collection-stats": "1.0.2",
-    "@mongodb-js/compass-connect": "0.4.1",
+    "@mongodb-js/compass-connect": "0.4.2",
     "@mongodb-js/compass-crud": "1.2.1",
     "@mongodb-js/compass-deployment-awareness": "5.0.0",
     "@mongodb-js/compass-document-validation": "7.1.0",
