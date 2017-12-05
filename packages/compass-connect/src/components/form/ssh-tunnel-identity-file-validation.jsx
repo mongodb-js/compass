@@ -115,6 +115,7 @@ class SSHTunnelIdentityFileValidation extends React.Component {
         <FormInput
           label="SSH Passphrase"
           name="ssh_tunnel_passphrase"
+          type="password"
           changeHandler={this.onSSHTunnelPassphraseChanged.bind(this)}
           value={this.props.currentConnection.ssh_tunnel_passphrase || ''} />
       </FormGroup>

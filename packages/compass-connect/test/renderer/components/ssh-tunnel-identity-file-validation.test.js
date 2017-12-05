@@ -40,6 +40,10 @@ describe('<SSHTunnelIdentityFile />', () => {
       it('renders the passphrase input', () => {
         expect(component.find('input[name="ssh_tunnel_passphrase"]')).to.have.value('password');
       });
+
+      it('renders the passphrase input as password field', () => {
+        expect(component.find('input[name="ssh_tunnel_passphrase"]')).to.have.attr('type', 'password');
+      });
     });
 
     context('when the form is invalid', () => {
