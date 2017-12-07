@@ -6,8 +6,9 @@ function realTimeMouseOverlay() {
   let strokeWidth = 1;
   let enableMouse = true;
   let title = 'CHANGE ME';
-  // Default dispatcher, will be changed to one shared between charts.
-  let eventDispatcher = d3.dispatch('mouseover', 'updatelabels', 'updateoverlay', 'mouseout');
+  // Default dispatcher for events triggered by the overlay.
+  // Can be changed by consumers to allow for the same dispatcher to be used across components
+  let eventDispatcher = d3.dispatch('mouseover', 'updateoverlay', 'mouseout');
 
   function component(selection) {
     selection.each(function(data) {

@@ -46,7 +46,7 @@ function realTimeLineChart() {
   let enableMouse = true;
   let onOverlay = false;
   // Default dispatcher, will be changed to one shared between charts.
-  let eventDispatcher = d3.dispatch('mouseover', 'updatelabels', 'updateoverlay', 'mouseout');
+  let eventDispatcher = d3.dispatch('mouseover', 'updateoverlay', 'mouseout', 'newXValue');
 
   function chart(selection) {
     selection.each(function(data) {
@@ -138,7 +138,7 @@ function realTimeLineChart() {
          * Prevent the overlay from highlighting data that hasn't been animated
          * yet by preventing the overlay from showing the very last data point.
          */
-        let nearestDefinedPoint = Math.max(1, Math.min(bisectPosition, xValues(data).length - 1));
+        let nearestDefinedPoint = Math.min(bisectPosition, xValues(data).length - 1);
         while (!defined(null, nearestDefinedPoint)) {
           nearestDefinedPoint++;
         }
@@ -158,14 +158,14 @@ function realTimeLineChart() {
             return;
           } else if (xPosition !== undefined) {
             nearestXIndex = getNearestXIndex(xPosition);
-            indexOffset = x(xValues(data)[nearestXIndex]);
+            indexOffset = x(xValues(data)[nearestXIndex]) + bubbleWidth / 2;
             dispatch.mouseover(nearestXIndex);
           }
 
           legend.showValues(nearestXIndex);
           legend2.showValues(nearestXIndex);
           if (xValues(data).length) {
-            d3.select('text.currentTime').text(d3.time.format('%X')(xValues(data)[nearestXIndex]));
+            eventDispatcher.newXValue(xValues(data)[nearestXIndex]);
           }
 
           if (enableMouse) {
@@ -187,7 +187,7 @@ function realTimeLineChart() {
           d3.select(this).selectAll('g.serverstats-overlay-group')
             .attr('transform', `translate(${zeroPosition})`);
 
-          d3.select('text.currentTime').text(d3.time.format('%X')(xValues(data)[lastItem]));
+          eventDispatcher.newXValue(xValues(data)[lastItem]);
           dispatch.mouseout();
         });
 

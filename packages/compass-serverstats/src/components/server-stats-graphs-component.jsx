@@ -8,7 +8,6 @@ const GlobalLockStore = require('../stores/globallock-store');
 const MemStore = require('../stores/mem-store');
 const Actions = require('../actions');
 const DBErrorStore = require('../stores/dberror-store');
-const d3 = require('d3');
 const find = require('lodash.find');
 
 // const debug = require('debug')('mongodb-compass:server-stats:graphs-component');
@@ -25,7 +24,6 @@ class ServerStatsComponent extends React.Component {
    */
   constructor(props) {
     super(props);
-    this.eventDispatcher = d3.dispatch('mouseover', 'updatelabels', 'updateoverlay', 'mouseout');
   }
 
   /**
@@ -64,19 +62,21 @@ class ServerStatsComponent extends React.Component {
    * @returns {React.Component} The component.
    */
   render() {
+    const { eventDispatcher } = this.props;
     return (
       <div className="serverstats">
-        <ChartComponent width={520} height={145} store={OpCountersStore} dispatcher={this.eventDispatcher} />
-        <ChartComponent width={520} height={145} store={GlobalLockStore} dispatcher={this.eventDispatcher} />
-        <ChartComponent width={520} height={145} store={NetworkStore} dispatcher={this.eventDispatcher} />
-        <ChartComponent width={520} height={145} store={MemStore} dispatcher={this.eventDispatcher} />
+        <ChartComponent width={520} height={145} store={OpCountersStore} dispatcher={eventDispatcher} />
+        <ChartComponent width={520} height={145} store={GlobalLockStore} dispatcher={eventDispatcher} />
+        <ChartComponent width={520} height={145} store={NetworkStore} dispatcher={eventDispatcher} />
+        <ChartComponent width={520} height={145} store={MemStore} dispatcher={eventDispatcher} />
       </div>
     );
   }
 }
 
 ServerStatsComponent.propTypes = {
-  interval: PropTypes.number.isRequired
+  interval: PropTypes.number.isRequired,
+  eventDispatcher: PropTypes.object.isRequired
 };
 
 

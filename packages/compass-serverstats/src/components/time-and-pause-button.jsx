@@ -1,4 +1,5 @@
 const React = require('react');
+const d3 = require('d3');
 const PropTypes = require('prop-types');
 const Actions = require('../actions');
 const ServerStatsStore = require('../stores/server-stats-graphs-store');
@@ -9,8 +10,17 @@ class TimeAndPauseButton extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      paused: ServerStatsStore.isPaused
+      paused: ServerStatsStore.isPaused,
+      time: '00:00:00'
     };
+  }
+
+  componentDidMount() {
+    this.props.eventDispatcher.on('newXValue', xDate => {
+      this.setState({
+        time: d3.time.format('%X')(xDate)
+      });
+    });
   }
 
   handlePause() {
@@ -43,14 +53,15 @@ class TimeAndPauseButton extends React.Component {
             PAUSE
           </text>
         </button>
-        <div className="time"><text className="currentTime">00:00:00</text></div>
+        <div className="time"><text className="currentTime">{this.state.time}</text></div>
       </div>
     );
   }
 }
 
 TimeAndPauseButton.propTypes = {
-  paused: PropTypes.bool.isRequired
+  paused: PropTypes.bool.isRequired,
+  eventDispatcher: PropTypes.object.isRequired
 };
 
 TimeAndPauseButton.defaultProps = {

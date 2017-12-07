@@ -4,7 +4,6 @@ const BrowserWindow = electron.BrowserWindow;
 const watch = require('watch');
 const exec = require('child_process').exec;
 const path = require('path');
-const runner = require('mongodb-runner');
 
 const ROOT_DIR = path.resolve(`${__dirname}/../..`);
 const SRC_DIR = path.join(ROOT_DIR, 'src');
@@ -20,29 +19,25 @@ function createWindow() {
 }
 
 app.on('ready', () => {
-  runner({ port: 27018, action: 'start' }, () => {
-    createWindow();
-    watch.watchTree(SRC_DIR, (f, curr, prev) => {
-      if (typeof f === 'object' && prev === null && curr === null) {
-        // don't reload on initial load
-        return;
+  createWindow();
+  watch.watchTree(SRC_DIR, (f, curr, prev) => {
+    if (typeof f === 'object' && prev === null && curr === null) {
+      // don't reload on initial load
+      return;
+    }
+    exec('npm run compile', {cwd: ROOT_DIR}, (err) => {
+      if (err) {
+        /* eslint no-console: 0 */
+        console.error(err);
       }
-      exec('npm run compile', {cwd: ROOT_DIR}, (err) => {
-        if (err) {
-          /* eslint no-console: 0 */
-          console.error(err);
-        }
-        mainWindow.reload();
-      });
+      mainWindow.reload();
     });
   });
 });
 
 app.on('window-all-closed', () => {
   watch.unwatchTree(SRC_DIR);
-  runner({ port: 27018, action: 'stop' }, () => {
-    app.quit();
-  });
+  app.quit();
 });
 
 app.on('activate', () => {

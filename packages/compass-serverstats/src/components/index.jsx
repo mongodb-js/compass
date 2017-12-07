@@ -1,6 +1,7 @@
 const React = require('react');
 
 const GraphsComponent = require('./server-stats-graphs-component');
+const { realTimeDispatcher } = require('../d3');
 const ListsComponent = require('./server-stats-lists-component');
 const DBErrorComponent = require('./dberror-component');
 const TimeAndPauseButton = require('./time-and-pause-button');
@@ -17,6 +18,11 @@ const INTERVAL = 1000;
  * Renders the entire performance tab, including charts and lists.
  */
 class PerformanceComponent extends React.Component {
+
+  constructor(props) {
+    super(props);
+    this.eventDispatcher = realTimeDispatcher();
+  }
 
   renderTopMessage() {
     return (
@@ -35,14 +41,14 @@ class PerformanceComponent extends React.Component {
     return (
       <section className="rt-perf">
         <div className="controls-container">
-          <TimeAndPauseButton paused={false} />
+          <TimeAndPauseButton paused={false} eventDispatcher={this.eventDispatcher} />
           {ServerStatsStore.isMongos ? this.renderTopMessage() : null}
           <DBErrorComponent store={DBErrorStore} />
         </div>
         <div className="column-container">
           <div className="column main">
             <section className="rt__graphs-out">
-              <GraphsComponent interval={INTERVAL} />
+              <GraphsComponent eventDispatcher={this.eventDispatcher} interval={INTERVAL} />
             </section>
             <section className="rt__lists-out">
               <ListsComponent interval={INTERVAL} />
