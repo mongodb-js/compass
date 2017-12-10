@@ -1,0 +1,236 @@
+.btn {
+  height: 32px;
+  padding:0 20px 0 20px;
+  border-radius: 3px;
+  font-family: "Akzidenz";
+  font-weight: normal;
+  font-size: 15px;
+  text-align: center;
+  color: #464C4F;
+  transition: all 0.3s ease-out;
+
+  &.disabled,
+  &[disabled],
+  &[disabled]:hover,
+  fieldset[disabled] & {
+    cursor: @cursor-disabled;
+    .opacity(.65);
+    .box-shadow(none);
+  }
+
+  & {
+    &.disabled,
+    fieldset[disabled] & {
+      pointer-events: none;
+    }
+  }
+
+
+  // COLOR STATES
+
+  &-default {
+    background: linear-gradient(180deg, #FFFFFF 0%, #F6F6F6 100%);
+    box-shadow: inset 0 -1px 0 0 #DDDDDD;
+    border: 1px solid #DDDDDD;
+
+    &:hover, &:focus {
+      background: linear-gradient(180deg, #FFFFFF 0%, #EDEDED 100%);
+      box-shadow: inset 0 -1px 0 0 #CACACA, 0 2px 4px 0 rgba(0,0,0,0.1);
+      border: 1px solid #CACACA;
+    }
+
+    &:active {
+      background: linear-gradient(180deg, #EDEDED 0%, #FFFFFF 99.31%);
+      box-shadow: inset 0 2px 2px 0 #CACACA;
+    }
+  }
+
+  &-primary {
+    background: linear-gradient(180deg, #6BA442 0%, #5A9330 100%);
+    border: 1px solid #4D7A2D;
+    box-shadow: inset 0 -1px 0 0 #4D7A2D;
+    color: white;
+
+    &:hover, &:focus {
+      background: linear-gradient(180deg, #6BA442 0%, #4A7E25 100%);
+      box-shadow: inset 0 -1px 0 0 #3B6A1B, 0 2px 4px 0 rgba(0,0,0,0.1);
+      border: 1px solid #3B6A1B;
+    }
+
+    &:active {
+      background: linear-gradient(180deg, #4A7E25 0%, #6BA442 100%);
+      box-shadow: inset 0 2px 2px 0 #3B6A1B;
+      border: 1px solid #3B6A1B;
+    }
+  }
+
+  &-info {
+    background-color: #FFFFFF;
+    border: 1px solid #6BA442;
+    border-radius: 3px;
+    box-shadow: none;
+    color: #6BA442;
+
+    &:hover, &:focus {
+      background: linear-gradient(180deg, #6BA442 0%, #5A9330 100%);
+      box-shadow: inset 0 -1px 0 0 #4D7A2D, 0 2px 4px 0 rgba(0,0,0,0.1);
+      border: 1px solid #4D7A2D;
+      color: white;
+    }
+
+    &:active {
+      background: linear-gradient(180deg, #578B30 0%, #6BA442 100%);
+      box-shadow: inset 0 2px 2px 0 #4D7A2D;
+    }
+  }
+
+  &-alert {
+    background: linear-gradient(180deg, #EF4C4C 0%, #C93434 100%);
+    border: 1px solid #9D2121;
+    box-shadow: inset 0 -1px 0 0 #9D2121;
+    color: white;
+
+    &:hover, &:focus {
+      background: linear-gradient(180deg, #CA3535 0%, #901717 100%);
+      box-shadow: inset 0 -1px 0 0 #6F1212;
+      border: 1px solid #6F1313;
+      color: white;
+    }
+
+    &:active {
+      background: linear-gradient(180deg, #C93434 0%, #EF4C4C 100%);
+      box-shadow: inset 0 2px 2px 0 #9D2121;
+    }
+  }
+
+  // SIZE STATES
+
+  &-lg {
+    height: 45px;
+    font-size: 18px;
+    line-height: 43px;
+  }
+
+  &-sm {
+    padding: 0 10px 0 10px;
+    height: 28px;
+    font-weight: bold;
+    font-size: 13px;
+    line-height: 26px;
+    text-transform: uppercase;
+  }
+
+  &-xs {
+    padding: 0 10px 0px 10px;
+    height: 22px;
+    font-weight: bold;
+    font-size: 11px;
+    line-height: 20px;
+    text-transform: uppercase;
+  }
+
+  &-full-width {
+    width: 100%;
+  }
+
+  // OTHER
+
+  &-circle {
+    width: 30px;
+    height: 30px;
+    padding: 6px 0;
+    border-radius: 50%
+  }
+
+  &-icon {
+    background-color: transparent;
+    box-shadow: none;
+    padding: 0 10px 0 10px;
+  }
+
+  &-group {
+    display: inline-block;
+  }
+
+  &-crud {
+    background-color: transparent;
+    color: #a09f9e;
+    border: none;
+    text-transform: none;
+    font-size: 11px;
+    border-radius: 8px;
+    padding: 1px 12px;
+  }
+
+  &-borderless {
+    color: #a06c29;
+    font-weight: bold;
+    background-color: transparent;
+    border: 0;
+  }
+
+  &-edit {
+    background: none;
+    color: #a06c29;
+    border: 1px solid #a06c29;
+    box-shadow: inset 0 -1px 0 0 #a06c29;
+
+    &:hover, &:focus {
+      box-shadow: none;
+      background: none;
+    }
+  }
+}
+
+// REMOVE BLUE SELECTOR
+
+.btn, button {
+  outline: none;
+}
+
+// VIEW SWITCHER
+
+.view-switcher {
+
+  .active {
+    background: linear-gradient(180deg, #EDEDED 0%, #FFFFFF 99.31%);
+    box-shadow: inset 0 2px 2px 0 #CACACA;
+    border: 1px solid #CACACA;
+  }
+
+  .btn {
+
+    &:first-child {
+       border-radius: 3px 0 0 3px;
+    }
+
+    &:last-child {
+      border-radius: 0 3px 3px 0;
+    }
+  }
+}
+
+// DROPDOWN TOGGLE
+
+.dropdown {
+
+  &-toggle {
+    padding: 0 10px 1px 10px;
+    font-size: 13px;
+  }
+
+  &-menu {
+    padding: 2px;
+
+    > li > a {
+      padding: 3px 8px;
+
+      &:focus, &:hover, &:active {
+        color: white;
+        background: linear-gradient(180deg, #2469BE 0%, #11509E 100%);
+        border-radius: 2px;
+        outline: none;
+      }
+    }
+  }
+}
