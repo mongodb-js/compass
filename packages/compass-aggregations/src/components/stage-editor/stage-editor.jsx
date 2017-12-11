@@ -72,6 +72,7 @@ class StageEditor extends PureComponent {
           width="100%"
           value={this.props.stage.stage}
           onChange={this.onStageChange}
+          editorProps={{ $blockScrolling: Infinity }}
           name={`aggregations-stage-editor-${this.props.index}`}
           setOptions={OPTIONS} />
       </div>
