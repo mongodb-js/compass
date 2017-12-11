@@ -1,7 +1,7 @@
 /**
  * Server version changed action.
  */
-const SERVER_VERSION_CHANGED = 'SERVER_VERSION_CHANGED';
+const SERVER_VERSION_CHANGED = 'aggregations/server-version/SERVER_VERSION_CHANGED';
 
 /**
  * The initial state.
