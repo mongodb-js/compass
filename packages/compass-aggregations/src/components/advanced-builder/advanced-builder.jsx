@@ -1,7 +1,7 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import classnames from 'classnames';
-import StageEditor from 'components/stage-editor';
+import Stage from 'components/stage';
 
 import styles from './advanced-builder.less';
 
@@ -23,9 +23,9 @@ class AdvancedBuilder extends PureComponent {
    * @returns {Component} The component.
    */
   render() {
-    const stageEditors = this.props.stages.map((stage, i) => {
+    const stages = this.props.stages.map((stage, i) => {
       return (
-        <StageEditor
+        <Stage
           stage={stage}
           index={i}
           serverVersion={this.props.serverVersion}
@@ -35,7 +35,7 @@ class AdvancedBuilder extends PureComponent {
     });
     return (
       <div className={classnames(styles['advanced-builder'])}>
-        {stageEditors}
+        {stages}
       </div>
     );
   }
