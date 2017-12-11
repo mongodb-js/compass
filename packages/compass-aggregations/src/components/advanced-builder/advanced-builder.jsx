@@ -2,6 +2,7 @@ import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import classnames from 'classnames';
 import Stage from 'components/stage';
+import AddStage from 'components/add-stage';
 
 import styles from './advanced-builder.less';
 
@@ -14,6 +15,7 @@ class AdvancedBuilder extends PureComponent {
   static propTypes = {
     stages: PropTypes.array.isRequired,
     serverVersion: PropTypes.string.isRequired,
+    stageAdded: PropTypes.func.isRequired,
     stageChanged: PropTypes.func.isRequired
   }
 
@@ -36,6 +38,7 @@ class AdvancedBuilder extends PureComponent {
     return (
       <div className={classnames(styles['advanced-builder'])}>
         {stages}
+        <AddStage stageAdded={this.props.stageAdded} />
       </div>
     );
   }
