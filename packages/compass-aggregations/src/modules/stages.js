@@ -1,18 +1,35 @@
 /**
- * Stage changed action.
+ * Stage added action name.
  */
-const STAGE_CHANGED = 'STAGE_CHANGED';
+const STAGE_ADDED = 'aggregations/stages/STAGE_ADDED';
+
+/**
+ * Stage changed action name.
+ */
+const STAGE_CHANGED = 'aggregations/stages/STAGE_CHANGED';
+
+/**
+ * An initial stage.
+ */
+const EMPTY_STAGE = {
+  stage: '',
+  isValid: true,
+  isEnabled: true
+};
 
 /**
  * The initial state.
  */
-const INITIAL_STATE = [
-  {
-    stage: '',
-    isValid: true,
-    isEnabled: true
-  }
-];
+const INITIAL_STATE = [ EMPTY_STAGE ];
+
+/**
+ * Copy the state.
+ *
+ * @param {Array} state - The current state.
+ *
+ * @returns {Array} The copied state.
+ */
+const copyState = (state) => (state.map(s => Object.assign({}, s)));
 
 /**
  * Reducer function for handle state changes to stages.
@@ -24,12 +41,25 @@ const INITIAL_STATE = [
  */
 const reducer = (state = INITIAL_STATE, action) => {
   if (action.type === STAGE_CHANGED) {
-    const newState = state.map(s => Object.assign({}, s));
+    const newState = copyState(state);
     newState[action.index].stage = action.stage;
+    return newState;
+  } else if (action.type === STAGE_ADDED) {
+    const newState = copyState(state);
+    newState.push(EMPTY_STAGE);
     return newState;
   }
   return state;
 };
+
+/**
+ * Action creator for adding a stage.
+ *
+ * @returns {Object} the stage added action.
+ */
+const stageAdded = () => ({
+  type: STAGE_ADDED
+});
 
 /**
  * Action creator for stage changed events.
@@ -46,4 +76,4 @@ const stageChanged = (value, index) => ({
 });
 
 export default reducer;
-export { stageChanged, STAGE_CHANGED };
+export { stageAdded, stageChanged, STAGE_ADDED, STAGE_CHANGED };
