@@ -1,5 +1,5 @@
 import store from 'stores';
-import { stageChanged } from 'action-creators';
+import { stageChanged } from 'modules/stages';
 
 describe('Aggregation Store', () => {
   describe('#dispatch', () => {

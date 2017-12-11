@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import classnames from 'classnames';
 import StageEditor from 'components/stage-editor';
-import { stageChanged } from 'action-creators';
+import { stageChanged } from 'modules/stages';
 
 import styles from './aggregations.less';
 
@@ -51,8 +51,8 @@ class Aggregations extends Component {
  * @returns {Object} The mapped properties.
  */
 const mapStateToProps = (state) => ({
-  stages: state.stages,
-  serverVersion: state.serverVersion
+  serverVersion: state.serverVersion,
+  stages: state.stages
 });
 
 /**
