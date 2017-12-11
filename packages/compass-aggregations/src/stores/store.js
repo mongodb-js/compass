@@ -1,5 +1,5 @@
 import { createStore } from 'redux';
-import reducer from 'reducers';
+import reducer from 'modules';
 
 /**
  * The store has a combined pipeline reducer.
