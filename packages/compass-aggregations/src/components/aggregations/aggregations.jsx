@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import classnames from 'classnames';
-import StageEditor from 'components/stage-editor';
+import Pipeline from 'components/pipeline';
 import { stageChanged } from 'modules/stages';
 
 import styles from './aggregations.less';
@@ -25,19 +25,9 @@ class Aggregations extends Component {
    * @returns {React.Component} The rendered component.
    */
   render() {
-    const stageEditors = this.props.stages.map((stage, i) => {
-      return (
-        <StageEditor
-          stage={stage}
-          index={i}
-          serverVersion={this.props.serverVersion}
-          key={i}
-          stageChanged={this.props.stageChanged} />
-      );
-    });
     return (
       <div className={classnames(styles.aggregations)}>
-        {stageEditors}
+        <Pipeline {...this.props} />
       </div>
     );
   }

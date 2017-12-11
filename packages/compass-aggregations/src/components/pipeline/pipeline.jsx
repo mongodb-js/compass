@@ -1,6 +1,7 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import classnames from 'classnames';
+import AdvancedBuilder from 'components/advanced-builder';
 
 import styles from './pipeline.less';
 
@@ -17,13 +18,14 @@ class Pipeline extends PureComponent {
   }
 
   /**
-   * Render the stage editor component.
+   * Render the pipeline component.
    *
    * @returns {Component} The component.
    */
   render() {
     return (
       <div className={classnames(styles.pipeline)}>
+        <AdvancedBuilder {...this.props} />
       </div>
     );
   }

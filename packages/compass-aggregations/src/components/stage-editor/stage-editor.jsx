@@ -18,7 +18,7 @@ const OPTIONS = {
   enableLiveAutocompletion: true,
   tabSize: 2,
   fontSize: 12,
-  minLines: 1,
+  minLines: 5,
   maxLines: Infinity,
   showGutter: true
 };
