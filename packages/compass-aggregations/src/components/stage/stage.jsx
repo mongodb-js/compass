@@ -17,6 +17,7 @@ class Stage extends PureComponent {
     index: PropTypes.number.isRequired,
     serverVersion: PropTypes.string.isRequired,
     stageChanged: PropTypes.func.isRequired,
+    stageCollapseToggled: PropTypes.func.isRequired,
     stageDeleted: PropTypes.func.isRequired,
     stageToggled: PropTypes.func.isRequired
   }
@@ -27,10 +28,11 @@ class Stage extends PureComponent {
    * @returns {Component} The component.
    */
   render() {
+    const editor = this.props.stage.isExpanded ? <StageEditor {...this.props} /> : null;
     return (
       <div className={classnames(styles.stage)}>
         <StageHeader {...this.props} />
-        <StageEditor {...this.props} />
+        {editor}
       </div>
     );
   }

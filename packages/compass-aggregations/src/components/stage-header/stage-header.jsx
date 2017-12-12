@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import classnames from 'classnames';
 import DeleteStage from 'components/delete-stage';
 import ToggleStage from 'components/toggle-stage';
+import StageCollapser from 'components/stage-collapser';
 
 import styles from './stage-header.less';
 
@@ -15,6 +16,7 @@ class StageHeader extends PureComponent {
   static propTypes = {
     stage: PropTypes.object.isRequired,
     index: PropTypes.number.isRequired,
+    stageCollapseToggled: PropTypes.func.isRequired,
     stageDeleted: PropTypes.func.isRequired,
     stageToggled: PropTypes.func.isRequired
   }
@@ -27,8 +29,9 @@ class StageHeader extends PureComponent {
   render() {
     return (
       <div className={classnames(styles['stage-header'])}>
-        <DeleteStage {...this.props} />
+        <StageCollapser {...this.props} />
         <ToggleStage {...this.props} />
+        <DeleteStage {...this.props} />
       </div>
     );
   }

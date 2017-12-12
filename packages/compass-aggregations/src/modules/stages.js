@@ -1,22 +1,32 @@
 /**
+ * Action name prefix.
+ */
+const PREFIX = 'aggregations/stages';
+
+/**
  * Stage added action name.
  */
-const STAGE_ADDED = 'aggregations/stages/STAGE_ADDED';
+const STAGE_ADDED = `${PREFIX}/STAGE_ADDED`;
 
 /**
  * Stage changed action name.
  */
-const STAGE_CHANGED = 'aggregations/stages/STAGE_CHANGED';
+const STAGE_CHANGED = `${PREFIX}/STAGE_CHANGED`;
+
+/**
+ * Stage collapse toggled action name.
+ */
+const STAGE_COLLAPSE_TOGGLED = `${PREFIX}/STAGE_COLLAPSE_TOGGLED`;
 
 /**
  * Stage deleted action name.
  */
-const STAGE_DELETED = 'aggregations/stages/STAGE_DELETED';
+const STAGE_DELETED = `${PREFIX}/STAGE_DELETED`;
 
 /**
  * Stage toggled action name.
  */
-const STAGE_TOGGLED = 'aggregations/stages/STAGE_TOGGLED';
+const STAGE_TOGGLED = `${PREFIX}/STAGE_TOGGLED`;
 
 /**
  * An initial stage.
@@ -24,7 +34,8 @@ const STAGE_TOGGLED = 'aggregations/stages/STAGE_TOGGLED';
 const EMPTY_STAGE = {
   stage: '',
   isValid: true,
-  isEnabled: true
+  isEnabled: true,
+  isExpanded: true
 };
 
 /**
@@ -66,6 +77,10 @@ const reducer = (state = INITIAL_STATE, action) => {
     const newState = copyState(state);
     newState[action.index].isEnabled = !newState[action.index].isEnabled;
     return newState;
+  } else if (action.type === STAGE_COLLAPSE_TOGGLED) {
+    const newState = copyState(state);
+    newState[action.index].isExpanded = !newState[action.index].isExpanded;
+    return newState;
   }
   return state;
 };
@@ -94,6 +109,18 @@ const stageChanged = (value, index) => ({
 });
 
 /**
+ * Action creator for toggling whether the stage is collapsed.
+ *
+ * @param {Number} index - The index of the stage.
+ *
+ * @returns {Object} The stage collapse toggled action.
+ */
+const stageCollapseToggled = (index) => ({
+  type: STAGE_COLLAPSE_TOGGLED,
+  index: index
+});
+
+/**
  * Action creator for stage deleted events.
  *
  * @param {Number} index - The index of the stage.
@@ -105,6 +132,13 @@ const stageDeleted = (index) => ({
   index: index
 });
 
+/**
+ * Handles toggling a stage on/off.
+ *
+ * @param {Number} index - The stage index.
+ *
+ * @returns {Object} The stage toggled action.
+ */
 const stageToggled = (index) => ({
   type: STAGE_TOGGLED,
   index: index
@@ -114,10 +148,12 @@ export default reducer;
 export {
   stageAdded,
   stageChanged,
+  stageCollapseToggled,
   stageDeleted,
   stageToggled,
   STAGE_ADDED,
   STAGE_CHANGED,
+  STAGE_COLLAPSE_TOGGLED,
   STAGE_DELETED,
   STAGE_TOGGLED
 };

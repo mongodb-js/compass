@@ -17,6 +17,7 @@ class AdvancedBuilder extends PureComponent {
     serverVersion: PropTypes.string.isRequired,
     stageAdded: PropTypes.func.isRequired,
     stageChanged: PropTypes.func.isRequired,
+    stageCollapseToggled: PropTypes.func.isRequired,
     stageDeleted: PropTypes.func.isRequired,
     stageToggled: PropTypes.func.isRequired
   }
@@ -36,7 +37,8 @@ class AdvancedBuilder extends PureComponent {
           key={i}
           stageChanged={this.props.stageChanged}
           stageDeleted={this.props.stageDeleted}
-          stageToggled={this.props.stageToggled} />
+          stageToggled={this.props.stageToggled}
+          stageCollapseToggled={this.props.stageCollapseToggled} />
       );
     });
     return (

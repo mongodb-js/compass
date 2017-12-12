@@ -1,10 +1,14 @@
 import reducer, {
   stageAdded,
   stageChanged,
+  stageCollapseToggled,
   stageDeleted,
+  stageToggled,
   STAGE_ADDED,
   STAGE_CHANGED,
-  STAGE_DELETED } from 'modules/stages';
+  STAGE_COLLAPSE_TOGGLED,
+  STAGE_DELETED,
+  STAGE_TOGGLED } from 'modules/stages';
 
 describe('stages module', () => {
   describe('#reducer', () => {
@@ -14,7 +18,8 @@ describe('stages module', () => {
           {
             stage: '',
             isValid: true,
-            isEnabled: true
+            isEnabled: true,
+            isExpanded: true
           }
         ]);
       });
@@ -26,7 +31,34 @@ describe('stages module', () => {
           {
             stage: '{}',
             isValid: true,
-            isEnabled: true
+            isEnabled: true,
+            isExpanded: true
+          }
+        ]);
+      });
+    });
+
+    context('when the action is stage collapse toggled', () => {
+      it('returns the new state', () => {
+        expect(reducer(undefined, stageCollapseToggled(0))).to.deep.equal([
+          {
+            stage: '',
+            isValid: true,
+            isEnabled: true,
+            isExpanded: false
+          }
+        ]);
+      });
+    });
+
+    context('when the action is stage toggled', () => {
+      it('returns the new state', () => {
+        expect(reducer(undefined, stageToggled(0))).to.deep.equal([
+          {
+            stage: '',
+            isValid: true,
+            isEnabled: false,
+            isExpanded: true
           }
         ]);
       });
@@ -38,12 +70,14 @@ describe('stages module', () => {
           {
             stage: '',
             isValid: true,
-            isEnabled: true
+            isEnabled: true,
+            isExpanded: true
           },
           {
             stage: '',
             isValid: true,
-            isEnabled: true
+            isEnabled: true,
+            isExpanded: true
           }
         ]);
       });
@@ -74,10 +108,28 @@ describe('stages module', () => {
     });
   });
 
+  describe('#stageCollapseToggled', () => {
+    it('returns the STAGE_COLLAPSE_TOGGLED action', () => {
+      expect(stageCollapseToggled(0)).to.deep.equal({
+        type: STAGE_COLLAPSE_TOGGLED,
+        index: 0
+      });
+    });
+  });
+
   describe('#stageDeleted', () => {
     it('returns the STAGE_DELETED action', () => {
       expect(stageDeleted(0)).to.deep.equal({
         type: STAGE_DELETED,
+        index: 0
+      });
+    });
+  });
+
+  describe('#stageToggled', () => {
+    it('returns the STAGE_TOGGLED action', () => {
+      expect(stageToggled(0)).to.deep.equal({
+        type: STAGE_TOGGLED,
         index: 0
       });
     });
