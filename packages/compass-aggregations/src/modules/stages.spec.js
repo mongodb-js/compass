@@ -3,11 +3,13 @@ import reducer, {
   stageChanged,
   stageCollapseToggled,
   stageDeleted,
+  stageOperatorSelected,
   stageToggled,
   STAGE_ADDED,
   STAGE_CHANGED,
   STAGE_COLLAPSE_TOGGLED,
   STAGE_DELETED,
+  STAGE_OPERATOR_SELECTED,
   STAGE_TOGGLED } from 'modules/stages';
 
 describe('stages module', () => {
@@ -62,6 +64,20 @@ describe('stages module', () => {
             isValid: true,
             isEnabled: false,
             stageOperator: null,
+            isExpanded: true
+          }
+        ]);
+      });
+    });
+
+    context('when the action is stage operator selected', () => {
+      it('returns the new state', () => {
+        expect(reducer(undefined, stageOperatorSelected(0, '$collStats'))).to.deep.equal([
+          {
+            stage: '',
+            isValid: true,
+            isEnabled: true,
+            stageOperator: '$collStats',
             isExpanded: true
           }
         ]);
@@ -128,6 +144,16 @@ describe('stages module', () => {
       expect(stageDeleted(0)).to.deep.equal({
         type: STAGE_DELETED,
         index: 0
+      });
+    });
+  });
+
+  describe('#stageOperatorSelected', () => {
+    it('returns the STAGE_OPERATOR_SELECTED action', () => {
+      expect(stageOperatorSelected(0, '$collStats')).to.deep.equal({
+        type: STAGE_OPERATOR_SELECTED,
+        index: 0,
+        stageOperator: '$collStats'
       });
     });
   });
