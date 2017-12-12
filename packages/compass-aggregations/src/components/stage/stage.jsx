@@ -1,6 +1,7 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import classnames from 'classnames';
+import StageHeader from 'components/stage-header';
 import StageEditor from 'components/stage-editor';
 
 import styles from './stage.less';
@@ -26,6 +27,7 @@ class Stage extends PureComponent {
   render() {
     return (
       <div className={classnames(styles.stage)}>
+        <StageHeader {...this.props} />
         <StageEditor {...this.props} />
       </div>
     );
