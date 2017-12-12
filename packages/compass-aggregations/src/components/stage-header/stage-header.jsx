@@ -4,6 +4,7 @@ import classnames from 'classnames';
 import DeleteStage from 'components/delete-stage';
 import ToggleStage from 'components/toggle-stage';
 import StageCollapser from 'components/stage-collapser';
+import StageOperatorSelect from 'components/stage-operator-select';
 
 import styles from './stage-header.less';
 
@@ -18,6 +19,7 @@ class StageHeader extends PureComponent {
     index: PropTypes.number.isRequired,
     stageCollapseToggled: PropTypes.func.isRequired,
     stageDeleted: PropTypes.func.isRequired,
+    stageOperatorSelected: PropTypes.func.isRequired,
     stageToggled: PropTypes.func.isRequired
   }
 
@@ -30,6 +32,7 @@ class StageHeader extends PureComponent {
     return (
       <div className={classnames(styles['stage-header'])}>
         <StageCollapser {...this.props} />
+        <StageOperatorSelect {...this.props } />
         <ToggleStage {...this.props} />
         <DeleteStage {...this.props} />
       </div>

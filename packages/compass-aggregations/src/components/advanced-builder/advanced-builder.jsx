@@ -19,6 +19,7 @@ class AdvancedBuilder extends PureComponent {
     stageChanged: PropTypes.func.isRequired,
     stageCollapseToggled: PropTypes.func.isRequired,
     stageDeleted: PropTypes.func.isRequired,
+    stageOperatorSelected: PropTypes.func.isRequired,
     stageToggled: PropTypes.func.isRequired
   }
 
@@ -38,6 +39,7 @@ class AdvancedBuilder extends PureComponent {
           stageChanged={this.props.stageChanged}
           stageDeleted={this.props.stageDeleted}
           stageToggled={this.props.stageToggled}
+          stageOperatorSelected={this.props.stageOperatorSelected}
           stageCollapseToggled={this.props.stageCollapseToggled} />
       );
     });

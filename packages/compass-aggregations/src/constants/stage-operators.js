@@ -5,6 +5,7 @@ const STAGE_OPERATORS = [
   {
     name: '$addFields',
     value: '$addFields',
+    label: '$addFields',
     score: 1,
     meta: 'stage',
     version: '3.4.0'
@@ -12,6 +13,7 @@ const STAGE_OPERATORS = [
   {
     name: '$bucket',
     value: '$bucket',
+    label: '$bucket',
     score: 1,
     meta: 'stage',
     version: '3.4.0'
@@ -19,6 +21,7 @@ const STAGE_OPERATORS = [
   {
     name: '$bucketAuto',
     value: '$bucketAuto',
+    label: '$bucketAuto',
     score: 1,
     meta: 'stage',
     version: '3.4.0'
@@ -26,6 +29,7 @@ const STAGE_OPERATORS = [
   {
     name: '$collStats',
     value: '$collStats',
+    label: '$collStats',
     score: 1,
     meta: 'stage',
     version: '3.4.0'
@@ -33,6 +37,7 @@ const STAGE_OPERATORS = [
   {
     name: '$count',
     value: '$count',
+    label: '$count',
     score: 1,
     meta: 'stage',
     version: '2.2.0'
@@ -40,6 +45,7 @@ const STAGE_OPERATORS = [
   {
     name: '$currentOp',
     value: '$currentOp',
+    label: '$currentOp',
     score: 1,
     meta: 'stage',
     version: '3.6.0'
@@ -47,6 +53,7 @@ const STAGE_OPERATORS = [
   {
     name: '$facet',
     value: '$facet',
+    label: '$facet',
     score: 1,
     meta: 'stage',
     version: '3.4.0'
@@ -54,6 +61,7 @@ const STAGE_OPERATORS = [
   {
     name: '$geoNear',
     value: '$geoNear',
+    label: '$geoNear',
     score: 1,
     meta: 'stage',
     version: '2.4.0'
@@ -61,6 +69,7 @@ const STAGE_OPERATORS = [
   {
     name: '$graphLookup',
     value: '$graphLookup',
+    label: '$graphLookup',
     score: 1,
     meta: 'stage',
     version: '3.4.0'
@@ -68,6 +77,7 @@ const STAGE_OPERATORS = [
   {
     name: '$group',
     value: '$group',
+    label: '$group',
     score: 1,
     meta: 'stage',
     version: '2.2.0'
@@ -75,6 +85,7 @@ const STAGE_OPERATORS = [
   {
     name: '$indexStats',
     value: '$indexStats',
+    label: '$indexStats',
     score: 1,
     meta: 'stage',
     version: '3.2.0'
@@ -82,6 +93,7 @@ const STAGE_OPERATORS = [
   {
     name: '$limit',
     value: '$limit',
+    label: '$limit',
     score: 1,
     meta: 'stage',
     version: '2.2.0'
@@ -89,6 +101,7 @@ const STAGE_OPERATORS = [
   {
     name: '$listLocalSessions',
     value: '$listLocalSessions',
+    label: '$listLocalSessions',
     score: 1,
     meta: 'stage',
     version: '3.6.0'
@@ -96,6 +109,7 @@ const STAGE_OPERATORS = [
   {
     name: '$listSessions',
     value: '$listSessions',
+    label: '$listSessions',
     score: 1,
     meta: 'stage',
     version: '3.6.0'
@@ -103,6 +117,7 @@ const STAGE_OPERATORS = [
   {
     name: '$lookup',
     value: '$lookup',
+    label: '$lookup',
     score: 1,
     meta: 'stage',
     version: '3.2.0'
@@ -110,6 +125,7 @@ const STAGE_OPERATORS = [
   {
     name: '$match',
     value: '$match',
+    label: '$match',
     score: 1,
     meta: 'stage',
     version: '2.2.0'
@@ -117,6 +133,7 @@ const STAGE_OPERATORS = [
   {
     name: '$out',
     value: '$out',
+    label: '$out',
     score: 1,
     meta: 'stage',
     version: '2.2.0'
@@ -124,6 +141,7 @@ const STAGE_OPERATORS = [
   {
     name: '$project',
     value: '$project',
+    label: '$project',
     score: 1,
     meta: 'stage',
     version: '2.2.0'
@@ -131,6 +149,7 @@ const STAGE_OPERATORS = [
   {
     name: '$redact',
     value: '$redact',
+    label: '$redact',
     score: 1,
     meta: 'stage',
     version: '2.6.0'
@@ -138,6 +157,7 @@ const STAGE_OPERATORS = [
   {
     name: '$replaceRoot',
     value: '$replaceRoot',
+    label: '$replaceRoot',
     score: 1,
     meta: 'stage',
     version: '3.4.0'
@@ -145,6 +165,7 @@ const STAGE_OPERATORS = [
   {
     name: '$sample',
     value: '$sample',
+    label: '$sample',
     score: 1,
     meta: 'stage',
     version: '3.2.0'
@@ -152,6 +173,7 @@ const STAGE_OPERATORS = [
   {
     name: '$skip',
     value: '$skip',
+    label: '$skip',
     score: 1,
     meta: 'stage',
     version: '2.2.0'
@@ -159,6 +181,7 @@ const STAGE_OPERATORS = [
   {
     name: '$sort',
     value: '$sort',
+    label: '$sort',
     score: 1,
     meta: 'stage',
     version: '2.2.0'
@@ -166,6 +189,7 @@ const STAGE_OPERATORS = [
   {
     name: '$sortByCount',
     value: '$sortByCount',
+    label: '$sortByCount',
     score: 1,
     meta: 'stage',
     version: '3.4.0'
@@ -173,6 +197,7 @@ const STAGE_OPERATORS = [
   {
     name: '$unwind',
     value: '$unwind',
+    label: '$unwind',
     score: 1,
     meta: 'stage',
     version: '2.2.0'

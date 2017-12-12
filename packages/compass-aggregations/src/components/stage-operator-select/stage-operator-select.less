@@ -1,0 +1,45 @@
+@import (reference) "~less/compass/_theme.less";
+
+.stage-operator-select {
+  position: relative;
+  flex-grow: 4;
+  height: 22px;
+  margin: 0px 0px 0px 5px;
+  z-index: 100;
+
+  &-control {
+    position: relative;
+    font-size: 12px !important;
+
+    :global {
+      .Select-control {
+        height: 22px;
+      }
+
+      .Select-placeholder {
+        line-height: 25px;
+      }
+
+      .Select-input {
+        height: 18px;
+      }
+
+      .Select-arrow-zone {
+        height: 22px;
+      }
+
+      .Select-arrow {
+        margin-top: 8px;
+      }
+
+      .Select-value {
+        line-height: 22px !important;
+        font-weight: bold;
+      }
+
+      .Select-menu {
+        height: 100px;
+      }
+    }
+  }
+}

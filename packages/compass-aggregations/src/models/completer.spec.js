@@ -150,6 +150,7 @@ describe('Completer', () => {
                   {
                     name: '$addFields',
                     value: '$addFields',
+                    label: '$addFields',
                     score: 1,
                     meta: 'stage',
                     version: '3.4.0'
@@ -171,6 +172,7 @@ describe('Completer', () => {
                   {
                     name: '$collStats',
                     value: '$collStats',
+                    label: '$collStats',
                     score: 1,
                     meta: 'stage',
                     version: '3.4.0'
@@ -178,6 +180,7 @@ describe('Completer', () => {
                   {
                     name: '$count',
                     value: '$count',
+                    label: '$count',
                     score: 1,
                     meta: 'stage',
                     version: '2.2.0'
@@ -199,6 +202,7 @@ describe('Completer', () => {
                   {
                     name: '$sample',
                     value: '$sample',
+                    label: '$sample',
                     score: 1,
                     meta: 'stage',
                     version: '3.2.0'
@@ -206,6 +210,7 @@ describe('Completer', () => {
                   {
                     name: '$skip',
                     value: '$skip',
+                    label: '$skip',
                     score: 1,
                     meta: 'stage',
                     version: '2.2.0'
@@ -213,6 +218,7 @@ describe('Completer', () => {
                   {
                     name: '$sort',
                     value: '$sort',
+                    label: '$sort',
                     score: 1,
                     meta: 'stage',
                     version: '2.2.0'
@@ -220,6 +226,7 @@ describe('Completer', () => {
                   {
                     name: '$sortByCount',
                     value: '$sortByCount',
+                    label: '$sortByCount',
                     score: 1,
                     meta: 'stage',
                     version: '3.4.0'
@@ -242,6 +249,7 @@ describe('Completer', () => {
                 {
                   name: '$skip',
                   value: '$skip',
+                  label: '$skip',
                   score: 1,
                   meta: 'stage',
                   version: '2.2.0'
@@ -249,6 +257,7 @@ describe('Completer', () => {
                 {
                   name: '$sort',
                   value: '$sort',
+                  label: '$sort',
                   score: 1,
                   meta: 'stage',
                   version: '2.2.0'

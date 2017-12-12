@@ -19,6 +19,7 @@ describe('stages module', () => {
             stage: '',
             isValid: true,
             isEnabled: true,
+            stageOperator: null,
             isExpanded: true
           }
         ]);
@@ -32,6 +33,7 @@ describe('stages module', () => {
             stage: '{}',
             isValid: true,
             isEnabled: true,
+            stageOperator: null,
             isExpanded: true
           }
         ]);
@@ -45,6 +47,7 @@ describe('stages module', () => {
             stage: '',
             isValid: true,
             isEnabled: true,
+            stageOperator: null,
             isExpanded: false
           }
         ]);
@@ -58,6 +61,7 @@ describe('stages module', () => {
             stage: '',
             isValid: true,
             isEnabled: false,
+            stageOperator: null,
             isExpanded: true
           }
         ]);
@@ -71,12 +75,14 @@ describe('stages module', () => {
             stage: '',
             isValid: true,
             isEnabled: true,
+            stageOperator: null,
             isExpanded: true
           },
           {
             stage: '',
             isValid: true,
             isEnabled: true,
+            stageOperator: null,
             isExpanded: true
           }
         ]);

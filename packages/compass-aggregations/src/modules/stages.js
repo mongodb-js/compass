@@ -24,6 +24,11 @@ const STAGE_COLLAPSE_TOGGLED = `${PREFIX}/STAGE_COLLAPSE_TOGGLED`;
 const STAGE_DELETED = `${PREFIX}/STAGE_DELETED`;
 
 /**
+ * Stage operator selected action name.
+ */
+const STAGE_OPERATOR_SELECTED = `${PREFIX}/STAGE_OPERATOR_SELECTED`;
+
+/**
  * Stage toggled action name.
  */
 const STAGE_TOGGLED = `${PREFIX}/STAGE_TOGGLED`;
@@ -32,6 +37,7 @@ const STAGE_TOGGLED = `${PREFIX}/STAGE_TOGGLED`;
  * An initial stage.
  */
 const EMPTY_STAGE = {
+  stageOperator: null,
   stage: '',
   isValid: true,
   isEnabled: true,
@@ -72,6 +78,10 @@ const reducer = (state = INITIAL_STATE, action) => {
   } else if (action.type === STAGE_DELETED) {
     const newState = copyState(state);
     newState.splice(action.index, 1);
+    return newState;
+  } else if (action.type === STAGE_OPERATOR_SELECTED) {
+    const newState = copyState(state);
+    newState[action.index].stageOperator = action.stageOperator;
     return newState;
   } else if (action.type === STAGE_TOGGLED) {
     const newState = copyState(state);
@@ -133,6 +143,20 @@ const stageDeleted = (index) => ({
 });
 
 /**
+ * Action creator for stage operator selected events.
+ *
+ * @param {Number} index - The index of the stage.
+ * @param {String} operator - The stage operator.
+ *
+ * @returns {Object} The stage operator selected action.
+ */
+const stageOperatorSelected = (index, operator) => ({
+  type: STAGE_OPERATOR_SELECTED,
+  index: index,
+  stageOperator: operator
+});
+
+/**
  * Handles toggling a stage on/off.
  *
  * @param {Number} index - The stage index.
@@ -150,10 +174,12 @@ export {
   stageChanged,
   stageCollapseToggled,
   stageDeleted,
+  stageOperatorSelected,
   stageToggled,
   STAGE_ADDED,
   STAGE_CHANGED,
   STAGE_COLLAPSE_TOGGLED,
   STAGE_DELETED,
+  STAGE_OPERATOR_SELECTED,
   STAGE_TOGGLED
 };

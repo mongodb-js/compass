@@ -17,6 +17,7 @@ describe('Aggregation Store', () => {
               isEnabled: true,
               isExpanded: true,
               isValid: true,
+              stageOperator: null,
               stage: ''
             }
           ]);
@@ -36,6 +37,7 @@ describe('Aggregation Store', () => {
             isEnabled: true,
             isExpanded: true,
             isValid: true,
+            stageOperator: null,
             stage: stage
           });
           done();
@@ -74,6 +76,7 @@ describe('Aggregation Store', () => {
             isEnabled: false,
             isExpanded: true,
             isValid: true,
+            stageOperator: null,
             stage: ''
           });
           done();
@@ -90,6 +93,7 @@ describe('Aggregation Store', () => {
             isEnabled: false,
             isExpanded: false,
             isValid: true,
+            stageOperator: null,
             stage: ''
           });
           done();
