@@ -9,6 +9,11 @@ const STAGE_ADDED = 'aggregations/stages/STAGE_ADDED';
 const STAGE_CHANGED = 'aggregations/stages/STAGE_CHANGED';
 
 /**
+ * Stage deleted action name.
+ */
+const STAGE_DELETED = 'aggregations/stages/STAGE_DELETED';
+
+/**
  * An initial stage.
  */
 const EMPTY_STAGE = {
@@ -48,6 +53,10 @@ const reducer = (state = INITIAL_STATE, action) => {
     const newState = copyState(state);
     newState.push(EMPTY_STAGE);
     return newState;
+  } else if (action.type === STAGE_DELETED) {
+    const newState = copyState(state);
+    newState.splice(action.index, 1);
+    return newState;
   }
   return state;
 };
@@ -75,5 +84,17 @@ const stageChanged = (value, index) => ({
   stage: value
 });
 
+/**
+ * Action creator for stage deleted events.
+ *
+ * @param {Number} index - The index of the stage.
+ *
+ * @returns {Object} The stage deleted action.
+ */
+const stageDeleted = (index) => ({
+  type: STAGE_DELETED,
+  index: index
+});
+
 export default reducer;
-export { stageAdded, stageChanged, STAGE_ADDED, STAGE_CHANGED };
+export { stageAdded, stageChanged, stageDeleted, STAGE_ADDED, STAGE_CHANGED, STAGE_DELETED };

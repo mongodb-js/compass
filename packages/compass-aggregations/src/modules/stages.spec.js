@@ -1,4 +1,10 @@
-import reducer, { stageAdded, stageChanged, STAGE_ADDED, STAGE_CHANGED } from 'modules/stages';
+import reducer, {
+  stageAdded,
+  stageChanged,
+  stageDeleted,
+  STAGE_ADDED,
+  STAGE_CHANGED,
+  STAGE_DELETED } from 'modules/stages';
 
 describe('stages module', () => {
   describe('#reducer', () => {
@@ -42,6 +48,12 @@ describe('stages module', () => {
         ]);
       });
     });
+
+    context('when the action is stage deleted', () => {
+      it('returns the new state with the deleted stage', () => {
+        expect(reducer(undefined, stageDeleted(0))).to.deep.equal([]);
+      });
+    });
   });
 
   describe('#stageAdded', () => {
@@ -58,6 +70,15 @@ describe('stages module', () => {
         type: STAGE_CHANGED,
         index: 0,
         stage: '{}'
+      });
+    });
+  });
+
+  describe('#stageDeleted', () => {
+    it('returns the STAGE_DELETED action', () => {
+      expect(stageDeleted(0)).to.deep.equal({
+        type: STAGE_DELETED,
+        index: 0
       });
     });
   });

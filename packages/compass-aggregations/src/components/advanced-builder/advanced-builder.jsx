@@ -16,7 +16,8 @@ class AdvancedBuilder extends PureComponent {
     stages: PropTypes.array.isRequired,
     serverVersion: PropTypes.string.isRequired,
     stageAdded: PropTypes.func.isRequired,
-    stageChanged: PropTypes.func.isRequired
+    stageChanged: PropTypes.func.isRequired,
+    stageDeleted: PropTypes.func.isRequired
   }
 
   /**
@@ -32,7 +33,8 @@ class AdvancedBuilder extends PureComponent {
           index={i}
           serverVersion={this.props.serverVersion}
           key={i}
-          stageChanged={this.props.stageChanged} />
+          stageChanged={this.props.stageChanged}
+          stageDeleted={this.props.stageDeleted} />
       );
     });
     return (

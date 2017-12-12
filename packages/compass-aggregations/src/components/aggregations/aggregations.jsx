@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import classnames from 'classnames';
 import Pipeline from 'components/pipeline';
-import { stageAdded, stageChanged } from 'modules/stages';
+import { stageAdded, stageChanged, stageDeleted } from 'modules/stages';
 
 import styles from './aggregations.less';
 
@@ -51,7 +51,7 @@ const mapStateToProps = (state) => ({
  */
 const MappedAggregations = connect(
   mapStateToProps,
-  { stageAdded, stageChanged },
+  { stageAdded, stageChanged, stageDeleted },
 )(Aggregations);
 
 export default MappedAggregations;
