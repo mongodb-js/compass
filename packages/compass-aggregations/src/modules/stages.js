@@ -14,6 +14,11 @@ const STAGE_CHANGED = 'aggregations/stages/STAGE_CHANGED';
 const STAGE_DELETED = 'aggregations/stages/STAGE_DELETED';
 
 /**
+ * Stage toggled action name.
+ */
+const STAGE_TOGGLED = 'aggregations/stages/STAGE_TOGGLED';
+
+/**
  * An initial stage.
  */
 const EMPTY_STAGE = {
@@ -57,6 +62,10 @@ const reducer = (state = INITIAL_STATE, action) => {
     const newState = copyState(state);
     newState.splice(action.index, 1);
     return newState;
+  } else if (action.type === STAGE_TOGGLED) {
+    const newState = copyState(state);
+    newState[action.index].isEnabled = !newState[action.index].isEnabled;
+    return newState;
   }
   return state;
 };
@@ -96,5 +105,19 @@ const stageDeleted = (index) => ({
   index: index
 });
 
+const stageToggled = (index) => ({
+  type: STAGE_TOGGLED,
+  index: index
+});
+
 export default reducer;
-export { stageAdded, stageChanged, stageDeleted, STAGE_ADDED, STAGE_CHANGED, STAGE_DELETED };
+export {
+  stageAdded,
+  stageChanged,
+  stageDeleted,
+  stageToggled,
+  STAGE_ADDED,
+  STAGE_CHANGED,
+  STAGE_DELETED,
+  STAGE_TOGGLED
+};

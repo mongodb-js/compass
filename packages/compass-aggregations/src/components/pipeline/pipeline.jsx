@@ -15,7 +15,9 @@ class Pipeline extends PureComponent {
     stages: PropTypes.array.isRequired,
     serverVersion: PropTypes.string.isRequired,
     stageAdded: PropTypes.func.isRequired,
-    stageChanged: PropTypes.func.isRequired
+    stageChanged: PropTypes.func.isRequired,
+    stageDeleted: PropTypes.func.isRequired,
+    stageToggled: PropTypes.func.isRequired
   }
 
   /**

@@ -17,7 +17,8 @@ class Stage extends PureComponent {
     index: PropTypes.number.isRequired,
     serverVersion: PropTypes.string.isRequired,
     stageChanged: PropTypes.func.isRequired,
-    stageDeleted: PropTypes.func.isRequired
+    stageDeleted: PropTypes.func.isRequired,
+    stageToggled: PropTypes.func.isRequired
   }
 
   /**
