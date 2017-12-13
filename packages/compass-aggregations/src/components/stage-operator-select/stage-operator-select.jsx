@@ -20,6 +20,8 @@ class StageOperatorSelect extends PureComponent {
 
   /**
    * Called when the stage operator is selected.
+   *
+   * @param {String} name - The name of the stage operator.
    */
   onStageOperatorSelected = (name) => {
     this.props.stageOperatorSelected(this.props.index, name);
