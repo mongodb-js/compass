@@ -109,6 +109,8 @@
   },
   "dependencies": {
     "react-ace": "^5.7.0",
+    "react-dnd": "^2.5.4",
+    "react-dnd-html5-backend": "^2.5.4",
     "react-ios-switch": "^0.1.19",
     "react-redux": "^5.0.6",
     "react-select-plus": "^1.0.0-rc.10.patch1",

@@ -59,6 +59,103 @@ const INITIAL_STATE = [ EMPTY_STAGE ];
 const copyState = (state) => (state.map(s => Object.assign({}, s)));
 
 /**
+ * Change stage value.
+ *
+ * @param {Object} state - The state.
+ * @param {Object} action - The action.
+ *
+ * @returns {Object} The new state.
+ */
+const changeStage = (state, action) => {
+  const newState = copyState(state);
+  newState[action.index].stage = action.stage;
+  return newState;
+};
+
+/**
+ * Add a stage.
+ *
+ * @param {Object} state - The state.
+ *
+ * @returns {Object} The new state.
+ */
+const addStage = (state) => {
+  const newState = copyState(state);
+  newState.push(EMPTY_STAGE);
+  return newState;
+};
+
+/**
+ * Delete a stage.
+ *
+ * @param {Object} state - The state.
+ * @param {Object} action - The action.
+ *
+ * @returns {Object} The new state.
+ */
+const deleteStage = (state, action) => {
+  const newState = copyState(state);
+  newState.splice(action.index, 1);
+  return newState;
+};
+
+/**
+ * Select a stage operator.
+ *
+ * @param {Object} state - The state.
+ * @param {Object} action - The action.
+ *
+ * @returns {Object} The new state.
+ */
+const selectStageOperator = (state, action) => {
+  const newState = copyState(state);
+  newState[action.index].stageOperator = action.stageOperator;
+  return newState;
+};
+
+/**
+ * Toggle if a stage is enabled.
+ *
+ * @param {Object} state - The state.
+ * @param {Object} action - The action.
+ *
+ * @returns {Object} The new state.
+ */
+const toggleStage = (state, action) => {
+  const newState = copyState(state);
+  newState[action.index].isEnabled = !newState[action.index].isEnabled;
+  return newState;
+};
+
+/**
+ * Toggle if a stage is collapsed.
+ *
+ * @param {Object} state - The state.
+ * @param {Object} action - The action.
+ *
+ * @returns {Object} The new state.
+ */
+const toggleStageCollapse = (state, action) => {
+  const newState = copyState(state);
+  newState[action.index].isExpanded = !newState[action.index].isExpanded;
+  return newState;
+};
+
+/**
+ * To not have a huge switch statement in the reducer.
+ */
+const MAPPINGS = {};
+
+MAPPINGS[STAGE_CHANGED] = changeStage;
+MAPPINGS[STAGE_ADDED] = addStage;
+MAPPINGS[STAGE_DELETED] = deleteStage;
+MAPPINGS[STAGE_OPERATOR_SELECTED] = selectStageOperator;
+MAPPINGS[STAGE_TOGGLED] = toggleStage;
+MAPPINGS[STAGE_COLLAPSE_TOGGLED] = toggleStageCollapse;
+
+Object.freeze(MAPPINGS);
+
+/**
  * Reducer function for handle state changes to stages.
  *
  * @param {Array} state - The stages state.
@@ -67,32 +164,8 @@ const copyState = (state) => (state.map(s => Object.assign({}, s)));
  * @returns {Array} The new state.
  */
 const reducer = (state = INITIAL_STATE, action) => {
-  if (action.type === STAGE_CHANGED) {
-    const newState = copyState(state);
-    newState[action.index].stage = action.stage;
-    return newState;
-  } else if (action.type === STAGE_ADDED) {
-    const newState = copyState(state);
-    newState.push(EMPTY_STAGE);
-    return newState;
-  } else if (action.type === STAGE_DELETED) {
-    const newState = copyState(state);
-    newState.splice(action.index, 1);
-    return newState;
-  } else if (action.type === STAGE_OPERATOR_SELECTED) {
-    const newState = copyState(state);
-    newState[action.index].stageOperator = action.stageOperator;
-    return newState;
-  } else if (action.type === STAGE_TOGGLED) {
-    const newState = copyState(state);
-    newState[action.index].isEnabled = !newState[action.index].isEnabled;
-    return newState;
-  } else if (action.type === STAGE_COLLAPSE_TOGGLED) {
-    const newState = copyState(state);
-    newState[action.index].isExpanded = !newState[action.index].isExpanded;
-    return newState;
-  }
-  return state;
+  const fn = MAPPINGS[action.type];
+  return fn ? fn(state, action) : state;
 };
 
 /**
