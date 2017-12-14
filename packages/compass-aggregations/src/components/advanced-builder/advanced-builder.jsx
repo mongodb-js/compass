@@ -31,16 +31,7 @@ class AdvancedBuilder extends PureComponent {
   render() {
     const stages = this.props.stages.map((stage, i) => {
       return (
-        <Stage
-          stage={stage}
-          index={i}
-          serverVersion={this.props.serverVersion}
-          key={i}
-          stageChanged={this.props.stageChanged}
-          stageDeleted={this.props.stageDeleted}
-          stageToggled={this.props.stageToggled}
-          stageOperatorSelected={this.props.stageOperatorSelected}
-          stageCollapseToggled={this.props.stageCollapseToggled} />
+        <Stage {...this.props} stage={stage} index={i} key={i} />
       );
     });
     return (
