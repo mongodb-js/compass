@@ -52,6 +52,7 @@ class Completer {
    *
    * @param {String} version - The version.
    * @param {TextCompleter} textCompleter - The fallback Ace text completer.
+   * @param {Number} index - The stage index.
    */
   constructor(version, textCompleter, index) {
     this.version = version;
