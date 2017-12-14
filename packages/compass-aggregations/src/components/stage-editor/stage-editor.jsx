@@ -9,7 +9,7 @@ import styles from './stage-editor.less';
 
 import 'brace/ext/language_tools';
 import 'brace/mode/javascript';
-import 'brace/theme/github';
+import './mongodb';
 
 /**
  * Options for the ACE editor.
@@ -17,7 +17,7 @@ import 'brace/theme/github';
 const OPTIONS = {
   enableLiveAutocompletion: true,
   tabSize: 2,
-  fontSize: 12,
+  fontSize: 11,
   minLines: 5,
   maxLines: Infinity,
   showGutter: true
@@ -69,7 +69,7 @@ class StageEditor extends PureComponent {
       <div className={classnames(styles['stage-editor'])}>
         <AceEditor
           mode="javascript"
-          theme="github"
+          theme="mongodb"
           width="100%"
           value={this.props.stage.stage}
           onChange={this.onStageChange}
