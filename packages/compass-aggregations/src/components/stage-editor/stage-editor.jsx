@@ -45,7 +45,8 @@ class StageEditor extends PureComponent {
     super(props);
     const tools = ace.acequire('ace/ext/language_tools');
     const textCompleter = tools.textCompleter;
-    tools.setCompleters([ new Completer(this.props.serverVersion, textCompleter) ]);
+    this.completer = new Completer(this.props.serverVersion, textCompleter, this.props.index);
+    tools.setCompleters([ this.completer ]);
   }
 
   /**

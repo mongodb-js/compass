@@ -1,13 +1,19 @@
 import { EditSession } from 'brace';
 import ace from 'brace';
 import Completer from 'models/completer';
-import STAGE_OPERATORS from 'constants/stage-operators';
+import EXPRESSION_OPERATORS from 'constants/expression-operators';
+import store from 'stores';
+import { stageOperatorSelected } from 'modules/stages';
 
 const { Mode } = ace.acequire('ace/mode/javascript');
 const textCompleter = ace.acequire('ace/ext/language_tools').textCompleter;
 
 describe('Completer', () => {
   const editor = sinon.spy();
+
+  afterEach(() => {
+    store.dispatch(stageOperatorSelected(0, null));
+  });
 
   describe('#getCompletions', () => {
     context('when the current token is a string', () => {
@@ -103,10 +109,10 @@ describe('Completer', () => {
               const session = new EditSession('{ $', new Mode());
               const position = { row: 0, column: 2 };
 
-              it('returns all the stage operators', () => {
+              it('returns all the expression operators', () => {
                 completer.getCompletions(editor, session, position, '$', (error, results) => {
                   expect(error).to.equal(null);
-                  expect(results).to.deep.equal(STAGE_OPERATORS);
+                  expect(results).to.deep.equal(EXPRESSION_OPERATORS);
                 });
               });
             });
@@ -116,10 +122,10 @@ describe('Completer', () => {
               const session = new EditSession('{\n  $', new Mode());
               const position = { row: 1, column: 3 };
 
-              it('returns all the stage operators', () => {
+              it('returns all the expression operators', () => {
                 completer.getCompletions(editor, session, position, '$', (error, results) => {
                   expect(error).to.equal(null);
-                  expect(results).to.deep.equal(STAGE_OPERATORS);
+                  expect(results).to.deep.equal(EXPRESSION_OPERATORS);
                 });
               });
             });
@@ -130,7 +136,7 @@ describe('Completer', () => {
             const session = new EditSession('{ $notAnOp', new Mode());
             const position = { row: 0, column: 9 };
 
-            it('returns none of the stage operators', () => {
+            it('returns none of the expression operators', () => {
               completer.getCompletions(editor, session, position, '$notAnOp', (error, results) => {
                 expect(error).to.equal(null);
                 expect(results).to.deep.equal([]);
@@ -143,17 +149,51 @@ describe('Completer', () => {
             const session = new EditSession('{ $a', new Mode());
             const position = { row: 0, column: 3 };
 
-            it('returns all the stage operators starting with $a', () => {
+            it('returns all the expression operators starting with $a', () => {
               completer.getCompletions(editor, session, position, '$a', (error, results) => {
                 expect(error).to.equal(null);
                 expect(results).to.deep.equal([
                   {
-                    name: '$addFields',
-                    value: '$addFields',
-                    label: '$addFields',
+                    name: '$abs',
+                    value: '$abs',
                     score: 1,
-                    meta: 'stage',
-                    version: '3.4.0'
+                    meta: 'expr:arith',
+                    version: '3.2.0'
+                  },
+                  {
+                    name: '$add',
+                    value: '$add',
+                    score: 1,
+                    meta: 'expr:arith',
+                    version: '2.2.0'
+                  },
+                  {
+                    name: '$allElementsTrue',
+                    value: '$allElementsTrue',
+                    score: 1,
+                    meta: 'expr:set',
+                    version: '2.6.0'
+                  },
+                  {
+                    name: '$and',
+                    value: '$and',
+                    score: 1,
+                    meta: 'expr:bool',
+                    version: '2.2.0'
+                  },
+                  {
+                    name: '$anyElementTrue',
+                    value: '$anyElementTrue',
+                    score: 1,
+                    meta: 'expr:set',
+                    version: '2.6.0'
+                  },
+                  {
+                    name: '$arrayElemAt',
+                    value: '$arrayElemAt',
+                    score: 1,
+                    meta: 'expr:array',
+                    version: '3.2.0'
                   }
                 ]);
               });
@@ -165,71 +205,51 @@ describe('Completer', () => {
             const session = new EditSession('{ $co', new Mode());
             const position = { row: 0, column: 4 };
 
-            it('returns all the stage operators starting with $co', () => {
+            it('returns all the expression operators starting with $co', () => {
               completer.getCompletions(editor, session, position, '$co', (error, results) => {
                 expect(error).to.equal(null);
                 expect(results).to.deep.equal([
                   {
-                    name: '$collStats',
-                    value: '$collStats',
-                    label: '$collStats',
+                    name: '$concat',
+                    value: '$concat',
                     score: 1,
-                    meta: 'stage',
-                    version: '3.4.0'
+                    meta: 'expr:string',
+                    version: '2.4.0'
                   },
                   {
-                    name: '$count',
-                    value: '$count',
-                    label: '$count',
+                    name: '$concatArrays',
+                    value: '$concatArrays',
                     score: 1,
-                    meta: 'stage',
-                    version: '2.2.0'
+                    meta: 'expr:array',
+                    version: '3.2.0'
+                  },
+                  {
+                    name: '$cond',
+                    value: '$cond',
+                    score: 1,
+                    meta: 'expr:cond',
+                    version: '2.6.0'
                   }
                 ]);
               });
             });
           });
 
-          context('when the prefix begins with $s', () => {
+          context('when the prefix begins with $sec', () => {
             const completer = new Completer('3.4.0');
-            const session = new EditSession('{ $s', new Mode());
-            const position = { row: 0, column: 3 };
+            const session = new EditSession('{ $sec', new Mode());
+            const position = { row: 0, column: 4 };
 
-            it('returns all the stage operators starting with $s', () => {
-              completer.getCompletions(editor, session, position, '$s', (error, results) => {
+            it('returns all the expression operators starting with $sec', () => {
+              completer.getCompletions(editor, session, position, '$sec', (error, results) => {
                 expect(error).to.equal(null);
                 expect(results).to.deep.equal([
                   {
-                    name: '$sample',
-                    value: '$sample',
-                    label: '$sample',
+                    name: '$second',
+                    value: '$second',
                     score: 1,
-                    meta: 'stage',
-                    version: '3.2.0'
-                  },
-                  {
-                    name: '$skip',
-                    value: '$skip',
-                    label: '$skip',
-                    score: 1,
-                    meta: 'stage',
+                    meta: 'expr:date',
                     version: '2.2.0'
-                  },
-                  {
-                    name: '$sort',
-                    value: '$sort',
-                    label: '$sort',
-                    score: 1,
-                    meta: 'stage',
-                    version: '2.2.0'
-                  },
-                  {
-                    name: '$sortByCount',
-                    value: '$sortByCount',
-                    label: '$sortByCount',
-                    score: 1,
-                    meta: 'stage',
-                    version: '3.4.0'
                   }
                 ]);
               });
@@ -238,29 +258,20 @@ describe('Completer', () => {
         });
 
         context('when the version is provided', () => {
-          const completer = new Completer('3.0.0');
-          const session = new EditSession('{ $s', new Mode());
-          const position = { row: 0, column: 3 };
+          const completer = new Completer('3.0.0', null, 0);
+          const session = new EditSession('{ $si', new Mode());
+          const position = { row: 0, column: 4 };
 
           it('returns available operators for the version', () => {
-            completer.getCompletions(editor, session, position, '$s', (error, results) => {
+            completer.getCompletions(editor, session, position, '$si', (error, results) => {
               expect(error).to.equal(null);
               expect(results).to.deep.equal([
                 {
-                  name: '$skip',
-                  value: '$skip',
-                  label: '$skip',
+                  name: '$size',
+                  value: '$size',
                   score: 1,
-                  meta: 'stage',
-                  version: '2.2.0'
-                },
-                {
-                  name: '$sort',
-                  value: '$sort',
-                  label: '$sort',
-                  score: 1,
-                  meta: 'stage',
-                  version: '2.2.0'
+                  meta: 'expr:array',
+                  version: '2.6.0'
                 }
               ]);
             });
@@ -272,9 +283,13 @@ describe('Completer', () => {
         context('when the stage operator is $project', () => {
           context('when the server version is 3.2.0', () => {
             context('when the stage is a single line', () => {
-              const completer = new Completer('3.2.0');
-              const session = new EditSession('{ $project: { $m', new Mode());
-              const position = { row: 0, column: 15 };
+              const completer = new Completer('3.2.0', null, 0);
+              const session = new EditSession('{ $m', new Mode());
+              const position = { row: 0, column: 3 };
+
+              beforeEach(() => {
+                store.dispatch(stageOperatorSelected(0, '$project'));
+              });
 
               it('returns matching expression operators + $project accumulators', () => {
                 completer.getCompletions(editor, session, position, '$m', (error, results) => {
@@ -351,9 +366,13 @@ describe('Completer', () => {
             });
 
             context('when the stage is on multiple lines', () => {
-              const completer = new Completer('3.2.0');
-              const session = new EditSession('{\n  $project: {\n    $m', new Mode());
-              const position = { row: 2, column: 5 };
+              const completer = new Completer('3.2.0', null, 0);
+              const session = new EditSession('{\n  $m', new Mode());
+              const position = { row: 1, column: 4 };
+
+              beforeEach(() => {
+                store.dispatch(stageOperatorSelected(0, '$project'));
+              });
 
               it('returns matching expression operators + $project accumulators', () => {
                 completer.getCompletions(editor, session, position, '$m', (error, results) => {
@@ -432,9 +451,13 @@ describe('Completer', () => {
 
           context('when the server version is 3.4.0', () => {
             context('when the accumulators are valid in $project', () => {
-              const completer = new Completer('3.4.0');
-              const session = new EditSession('{ $project: { $m', new Mode());
-              const position = { row: 0, column: 15 };
+              const completer = new Completer('3.4.0', null, 0);
+              const session = new EditSession('{ $m', new Mode());
+              const position = { row: 0, column: 3 };
+
+              beforeEach(() => {
+                store.dispatch(stageOperatorSelected(0, '$project'));
+              });
 
               it('returns matching expression operators + $project accumulators', () => {
                 completer.getCompletions(editor, session, position, '$m', (error, results) => {
@@ -511,9 +534,13 @@ describe('Completer', () => {
             });
 
             context('when the accumulators are not valid in $project', () => {
-              const completer = new Completer('3.4.0');
-              const session = new EditSession('{ $project: { $p', new Mode());
-              const position = { row: 0, column: 15 };
+              const completer = new Completer('3.4.0', null, 0);
+              const session = new EditSession('{ $p', new Mode());
+              const position = { row: 0, column: 3 };
+
+              beforeEach(() => {
+                store.dispatch(stageOperatorSelected(0, '$project'));
+              });
 
               it('returns matching expression operators + $project accumulators', () => {
                 completer.getCompletions(editor, session, position, '$p', (error, results) => {
@@ -533,9 +560,13 @@ describe('Completer', () => {
           });
 
           context('when the server version is 3.0.0', () => {
-            const completer = new Completer('3.0.0');
-            const session = new EditSession('{ $project: { $e', new Mode());
-            const position = { row: 0, column: 15 };
+            const completer = new Completer('3.0.0', null, 0);
+            const session = new EditSession('{ $e', new Mode());
+            const position = { row: 0, column: 3 };
+
+            beforeEach(() => {
+              store.dispatch(stageOperatorSelected(0, '$project'));
+            });
 
             it('returns matching expression operators only', () => {
               completer.getCompletions(editor, session, position, '$e', (error, results) => {
@@ -556,9 +587,13 @@ describe('Completer', () => {
 
         context('when the stage operator is $group', () => {
           context('when the server version is 3.2.0', () => {
-            const completer = new Completer('3.2.0');
-            const session = new EditSession('{ $group: { $m', new Mode());
-            const position = { row: 0, column: 13 };
+            const completer = new Completer('3.2.0', null, 0);
+            const session = new EditSession('{ $m', new Mode());
+            const position = { row: 0, column: 3 };
+
+            beforeEach(() => {
+              store.dispatch(stageOperatorSelected(0, '$group'));
+            });
 
             it('returns matching expression operators + accumulators', () => {
               completer.getCompletions(editor, session, position, '$m', (error, results) => {
@@ -635,9 +670,13 @@ describe('Completer', () => {
           });
 
           context('when the server version is 3.4.0', () => {
-            const completer = new Completer('3.4.0');
-            const session = new EditSession('{ $group: { $p', new Mode());
-            const position = { row: 0, column: 13 };
+            const completer = new Completer('3.4.0', null, 0);
+            const session = new EditSession('{ $p', new Mode());
+            const position = { row: 0, column: 3 };
+
+            beforeEach(() => {
+              store.dispatch(stageOperatorSelected(0, '$group'));
+            });
 
             it('returns matching expression operators + accumulators', () => {
               completer.getCompletions(editor, session, position, '$p', (error, results) => {
@@ -663,9 +702,13 @@ describe('Completer', () => {
           });
 
           context('when the server version is 3.0.0', () => {
-            const completer = new Completer('3.0.0');
-            const session = new EditSession('{ $group: { $e', new Mode());
-            const position = { row: 0, column: 13 };
+            const completer = new Completer('3.0.0', null, 0);
+            const session = new EditSession('{ $e', new Mode());
+            const position = { row: 0, column: 3 };
+
+            beforeEach(() => {
+              store.dispatch(stageOperatorSelected(0, '$group'));
+            });
 
             it('returns matching expression operators only', () => {
               completer.getCompletions(editor, session, position, '$e', (error, results) => {
@@ -686,9 +729,13 @@ describe('Completer', () => {
 
         context('when the stage operator is not project or group', () => {
           context('when the version matches all', () => {
-            const completer = new Completer('3.4.5');
-            const session = new EditSession('{ $match: { $ar', new Mode());
-            const position = { row: 0, column: 14 };
+            const completer = new Completer('3.4.5', null, 0);
+            const session = new EditSession('{ $ar', new Mode());
+            const position = { row: 0, column: 4 };
+
+            beforeEach(() => {
+              store.dispatch(stageOperatorSelected(0, '$match'));
+            });
 
             it('returns matching expression operators for the version', () => {
               completer.getCompletions(editor, session, position, '$ar', (error, results) => {
@@ -714,9 +761,13 @@ describe('Completer', () => {
           });
 
           context('when the version matches a subset', () => {
-            const completer = new Completer('3.4.0');
-            const session = new EditSession('{ $match: { $ar', new Mode());
-            const position = { row: 0, column: 14 };
+            const completer = new Completer('3.4.0', null, 0);
+            const session = new EditSession('{ $ar', new Mode());
+            const position = { row: 0, column: 4 };
+
+            beforeEach(() => {
+              store.dispatch(stageOperatorSelected(0, '$match'));
+            });
 
             it('returns matchin expression operators for the version', () => {
               completer.getCompletions(editor, session, position, '$ar', (error, results) => {
