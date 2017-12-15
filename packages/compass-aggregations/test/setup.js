@@ -13,6 +13,17 @@ require('jsdom-global')('', {
 global.sinon = require('sinon');
 global.expect = chai.expect;
 
+class Worker {
+  postMessage() {
+    return true;
+  }
+  terminate() {
+    return true;
+  }
+}
+
+global.Worker = Worker;
+
 chai.should();
 chai.use(sinonChai);
 chai.use(chaiEnzyme());

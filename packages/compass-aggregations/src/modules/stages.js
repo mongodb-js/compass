@@ -6,32 +6,32 @@ const PREFIX = 'aggregations/stages';
 /**
  * Stage added action name.
  */
-const STAGE_ADDED = `${PREFIX}/STAGE_ADDED`;
+export const STAGE_ADDED = `${PREFIX}/STAGE_ADDED`;
 
 /**
  * Stage changed action name.
  */
-const STAGE_CHANGED = `${PREFIX}/STAGE_CHANGED`;
+export const STAGE_CHANGED = `${PREFIX}/STAGE_CHANGED`;
 
 /**
  * Stage collapse toggled action name.
  */
-const STAGE_COLLAPSE_TOGGLED = `${PREFIX}/STAGE_COLLAPSE_TOGGLED`;
+export const STAGE_COLLAPSE_TOGGLED = `${PREFIX}/STAGE_COLLAPSE_TOGGLED`;
 
 /**
  * Stage deleted action name.
  */
-const STAGE_DELETED = `${PREFIX}/STAGE_DELETED`;
+export const STAGE_DELETED = `${PREFIX}/STAGE_DELETED`;
 
 /**
  * Stage operator selected action name.
  */
-const STAGE_OPERATOR_SELECTED = `${PREFIX}/STAGE_OPERATOR_SELECTED`;
+export const STAGE_OPERATOR_SELECTED = `${PREFIX}/STAGE_OPERATOR_SELECTED`;
 
 /**
  * Stage toggled action name.
  */
-const STAGE_TOGGLED = `${PREFIX}/STAGE_TOGGLED`;
+export const STAGE_TOGGLED = `${PREFIX}/STAGE_TOGGLED`;
 
 /**
  * An initial stage.
@@ -163,17 +163,17 @@ Object.freeze(MAPPINGS);
  *
  * @returns {Array} The new state.
  */
-const reducer = (state = INITIAL_STATE, action) => {
+export default function reducer(state = INITIAL_STATE, action) {
   const fn = MAPPINGS[action.type];
   return fn ? fn(state, action) : state;
-};
+}
 
 /**
  * Action creator for adding a stage.
  *
  * @returns {Object} the stage added action.
  */
-const stageAdded = () => ({
+export const stageAdded = () => ({
   type: STAGE_ADDED
 });
 
@@ -185,7 +185,7 @@ const stageAdded = () => ({
  *
  * @returns {Object} The stage changed action.
  */
-const stageChanged = (value, index) => ({
+export const stageChanged = (value, index) => ({
   type: STAGE_CHANGED,
   index: index,
   stage: value
@@ -198,7 +198,7 @@ const stageChanged = (value, index) => ({
  *
  * @returns {Object} The stage collapse toggled action.
  */
-const stageCollapseToggled = (index) => ({
+export const stageCollapseToggled = (index) => ({
   type: STAGE_COLLAPSE_TOGGLED,
   index: index
 });
@@ -210,7 +210,7 @@ const stageCollapseToggled = (index) => ({
  *
  * @returns {Object} The stage deleted action.
  */
-const stageDeleted = (index) => ({
+export const stageDeleted = (index) => ({
   type: STAGE_DELETED,
   index: index
 });
@@ -223,7 +223,7 @@ const stageDeleted = (index) => ({
  *
  * @returns {Object} The stage operator selected action.
  */
-const stageOperatorSelected = (index, operator) => ({
+export const stageOperatorSelected = (index, operator) => ({
   type: STAGE_OPERATOR_SELECTED,
   index: index,
   stageOperator: operator
@@ -236,23 +236,7 @@ const stageOperatorSelected = (index, operator) => ({
  *
  * @returns {Object} The stage toggled action.
  */
-const stageToggled = (index) => ({
+export const stageToggled = (index) => ({
   type: STAGE_TOGGLED,
   index: index
 });
-
-export default reducer;
-export {
-  stageAdded,
-  stageChanged,
-  stageCollapseToggled,
-  stageDeleted,
-  stageOperatorSelected,
-  stageToggled,
-  STAGE_ADDED,
-  STAGE_CHANGED,
-  STAGE_COLLAPSE_TOGGLED,
-  STAGE_DELETED,
-  STAGE_OPERATOR_SELECTED,
-  STAGE_TOGGLED
-};
