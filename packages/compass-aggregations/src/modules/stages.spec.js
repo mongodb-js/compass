@@ -3,12 +3,14 @@ import reducer, {
   stageChanged,
   stageCollapseToggled,
   stageDeleted,
+  stageMoved,
   stageOperatorSelected,
   stageToggled,
   STAGE_ADDED,
   STAGE_CHANGED,
   STAGE_COLLAPSE_TOGGLED,
   STAGE_DELETED,
+  STAGE_MOVED,
   STAGE_OPERATOR_SELECTED,
   STAGE_TOGGLED } from 'modules/stages';
 
@@ -163,6 +165,16 @@ describe('stages module', () => {
       expect(stageToggled(0)).to.deep.equal({
         type: STAGE_TOGGLED,
         index: 0
+      });
+    });
+  });
+
+  describe('#stageMoved', () => {
+    it('returns the STAGE_MOVED action', () => {
+      expect(stageMoved(0, 5)).to.deep.equal({
+        type: STAGE_MOVED,
+        fromIndex: 0,
+        toIndex: 5
       });
     });
   });

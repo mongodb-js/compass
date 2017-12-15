@@ -24,6 +24,11 @@ export const STAGE_COLLAPSE_TOGGLED = `${PREFIX}/STAGE_COLLAPSE_TOGGLED`;
 export const STAGE_DELETED = `${PREFIX}/STAGE_DELETED`;
 
 /**
+ * Stage moved action name.
+ */
+export const STAGE_MOVED = `${PREFIX}/STAGE_MOVED`;
+
+/**
  * Stage operator selected action name.
  */
 export const STAGE_OPERATOR_SELECTED = `${PREFIX}/STAGE_OPERATOR_SELECTED`;
@@ -213,6 +218,20 @@ export const stageCollapseToggled = (index) => ({
 export const stageDeleted = (index) => ({
   type: STAGE_DELETED,
   index: index
+});
+
+/**
+ * Action creator for stage moved events.
+ *
+ * @param {Number} fromIndex - The original index.
+ * @param {Number} toIndex - The index to move to.
+ *
+ * @returns {Object} The stage moved action.
+ */
+export const stageMoved = (fromIndex, toIndex) => ({
+  type: STAGE_MOVED,
+  fromIndex: fromIndex,
+  toIndex: toIndex
 });
 
 /**
