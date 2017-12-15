@@ -112,6 +112,154 @@ describe('stages module', () => {
         expect(reducer(undefined, stageDeleted(0))).to.deep.equal([]);
       });
     });
+
+    context('when the action is stage moved', () => {
+      const state = [
+        {
+          stage: '{}',
+          isValid: true,
+          isEnabled: true,
+          stageOperator: '$match',
+          isExpanded: true
+        },
+        {
+          stage: '{ name: 1 }',
+          isValid: true,
+          isEnabled: true,
+          stageOperator: '$project',
+          isExpanded: true
+        },
+        {
+          stage: '{ name: -1 }',
+          isValid: true,
+          isEnabled: true,
+          stageOperator: '$sort',
+          isExpanded: true
+        }
+      ];
+
+      context('when moving to a higher position', () => {
+        context('when not moving to the end', () => {
+          it('shifts the stages from the toIndex lower', () => {
+            expect(reducer(state, stageMoved(0, 1))).to.deep.equal([
+              {
+                stage: '{ name: 1 }',
+                isValid: true,
+                isEnabled: true,
+                stageOperator: '$project',
+                isExpanded: true
+              },
+              {
+                stage: '{}',
+                isValid: true,
+                isEnabled: true,
+                stageOperator: '$match',
+                isExpanded: true
+              },
+              {
+                stage: '{ name: -1 }',
+                isValid: true,
+                isEnabled: true,
+                stageOperator: '$sort',
+                isExpanded: true
+              }
+            ]);
+          });
+        });
+
+        context('when moving to the end', () => {
+          it('shifts the stages from the toIndex lower', () => {
+            expect(reducer(state, stageMoved(0, 2))).to.deep.equal([
+              {
+                stage: '{ name: 1 }',
+                isValid: true,
+                isEnabled: true,
+                stageOperator: '$project',
+                isExpanded: true
+              },
+              {
+                stage: '{ name: -1 }',
+                isValid: true,
+                isEnabled: true,
+                stageOperator: '$sort',
+                isExpanded: true
+              },
+              {
+                stage: '{}',
+                isValid: true,
+                isEnabled: true,
+                stageOperator: '$match',
+                isExpanded: true
+              }
+            ]);
+          });
+        });
+      });
+
+      context('when moving to a lower position', () => {
+        context('when the position is not the first', () => {
+          it('shifts the stages from the toIndex higher', () => {
+            expect(reducer(state, stageMoved(2, 1))).to.deep.equal([
+              {
+                stage: '{}',
+                isValid: true,
+                isEnabled: true,
+                stageOperator: '$match',
+                isExpanded: true
+              },
+              {
+                stage: '{ name: -1 }',
+                isValid: true,
+                isEnabled: true,
+                stageOperator: '$sort',
+                isExpanded: true
+              },
+              {
+                stage: '{ name: 1 }',
+                isValid: true,
+                isEnabled: true,
+                stageOperator: '$project',
+                isExpanded: true
+              }
+            ]);
+          });
+        });
+
+        context('when the position is the first', () => {
+          it('shifts the stages from the toIndex higher', () => {
+            expect(reducer(state, stageMoved(2, 0))).to.deep.equal([
+              {
+                stage: '{ name: -1 }',
+                isValid: true,
+                isEnabled: true,
+                stageOperator: '$sort',
+                isExpanded: true
+              },
+              {
+                stage: '{}',
+                isValid: true,
+                isEnabled: true,
+                stageOperator: '$match',
+                isExpanded: true
+              },
+              {
+                stage: '{ name: 1 }',
+                isValid: true,
+                isEnabled: true,
+                stageOperator: '$project',
+                isExpanded: true
+              }
+            ]);
+          });
+        });
+      });
+
+      context('when moving to the same position', () => {
+        it('returns the unmodified state', () => {
+          expect(reducer(state, stageMoved(1, 1))).to.equal(state);
+        });
+      });
+    });
   });
 
   describe('#stageAdded', () => {

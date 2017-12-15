@@ -105,6 +105,21 @@ const deleteStage = (state, action) => {
 };
 
 /**
+ * Move a stage in the pipeline.
+ *
+ * @param {Object} state - The state.
+ * @param {Object} action - The action.
+ *
+ * @returns {Object} The new state.
+ */
+const moveStage = (state, action) => {
+  if (action.fromIndex === action.toIndex) return state;
+  const newState = copyState(state);
+  newState.splice(action.toIndex, 0, newState.splice(action.fromIndex, 1)[0]);
+  return newState;
+};
+
+/**
  * Select a stage operator.
  *
  * @param {Object} state - The state.
@@ -154,6 +169,7 @@ const MAPPINGS = {};
 MAPPINGS[STAGE_CHANGED] = changeStage;
 MAPPINGS[STAGE_ADDED] = addStage;
 MAPPINGS[STAGE_DELETED] = deleteStage;
+MAPPINGS[STAGE_MOVED] = moveStage;
 MAPPINGS[STAGE_OPERATOR_SELECTED] = selectStageOperator;
 MAPPINGS[STAGE_TOGGLED] = toggleStage;
 MAPPINGS[STAGE_COLLAPSE_TOGGLED] = toggleStageCollapse;
