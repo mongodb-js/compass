@@ -42,6 +42,7 @@ export const STAGE_TOGGLED = `${PREFIX}/STAGE_TOGGLED`;
  * An initial stage.
  */
 const EMPTY_STAGE = {
+  id: new Date().getTime(),
   stageOperator: null,
   stage: '',
   isValid: true,
@@ -86,7 +87,9 @@ const changeStage = (state, action) => {
  */
 const addStage = (state) => {
   const newState = copyState(state);
-  newState.push(EMPTY_STAGE);
+  const newStage = EMPTY_STAGE;
+  newStage.id = new Date().getTime();
+  newState.push(newStage);
   return newState;
 };
 

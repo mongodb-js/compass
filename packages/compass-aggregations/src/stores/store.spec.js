@@ -12,15 +12,7 @@ describe('Aggregation Store', () => {
       it('returns the initial state', (done) => {
         const unsubscribe = store.subscribe(() => {
           unsubscribe();
-          expect(store.getState().stages).to.deep.equal([
-            {
-              isEnabled: true,
-              isExpanded: true,
-              isValid: true,
-              stageOperator: null,
-              stage: ''
-            }
-          ]);
+          expect(store.getState().stages[0].stage).to.equal('');
           done();
         });
         store.dispatch({ type: 'UNKNOWN' });
@@ -33,13 +25,7 @@ describe('Aggregation Store', () => {
       it('updates the stage in state', (done) => {
         const unsubscribe = store.subscribe(() => {
           unsubscribe();
-          expect(store.getState().stages[0]).to.deep.equal({
-            isEnabled: true,
-            isExpanded: true,
-            isValid: true,
-            stageOperator: null,
-            stage: stage
-          });
+          expect(store.getState().stages[0].stage).to.equal(stage);
           done();
         });
         store.dispatch(stageChanged(stage, 0));
@@ -72,13 +58,7 @@ describe('Aggregation Store', () => {
       it('updates the stage in state', (done) => {
         const unsubscribe = store.subscribe(() => {
           unsubscribe();
-          expect(store.getState().stages[0]).to.deep.equal({
-            isEnabled: false,
-            isExpanded: true,
-            isValid: true,
-            stageOperator: null,
-            stage: ''
-          });
+          expect(store.getState().stages[0].isEnabled).to.equal(false);
           done();
         });
         store.dispatch(stageToggled(0));
@@ -89,13 +69,7 @@ describe('Aggregation Store', () => {
       it('updates the stage in state', (done) => {
         const unsubscribe = store.subscribe(() => {
           unsubscribe();
-          expect(store.getState().stages[0]).to.deep.equal({
-            isEnabled: false,
-            isExpanded: false,
-            isValid: true,
-            stageOperator: null,
-            stage: ''
-          });
+          expect(store.getState().stages[0].isExpanded).to.equal(false);
           done();
         });
         store.dispatch(stageCollapseToggled(0));

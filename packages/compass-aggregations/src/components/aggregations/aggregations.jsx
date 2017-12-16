@@ -8,6 +8,7 @@ import {
   stageChanged,
   stageCollapseToggled,
   stageDeleted,
+  stageMoved,
   stageOperatorSelected,
   stageToggled
 } from 'modules/stages';
@@ -27,6 +28,7 @@ class Aggregations extends Component {
     stageChanged: PropTypes.func.isRequired,
     stageCollapseToggled: PropTypes.func.isRequired,
     stageDeleted: PropTypes.func.isRequired,
+    stageMoved: PropTypes.func.isRequired,
     stageOperatorSelected: PropTypes.func.isRequired,
     stageToggled: PropTypes.func.isRequired
   }
@@ -67,6 +69,7 @@ const MappedAggregations = connect(
     stageChanged,
     stageCollapseToggled,
     stageDeleted,
+    stageMoved,
     stageOperatorSelected,
     stageToggled
   },

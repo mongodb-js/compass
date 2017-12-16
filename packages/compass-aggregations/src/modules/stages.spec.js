@@ -18,92 +18,38 @@ describe('stages module', () => {
   describe('#reducer', () => {
     context('when the action is undefined', () => {
       it('returns the default state', () => {
-        expect(reducer(undefined, { type: 'test' })).to.deep.equal([
-          {
-            stage: '',
-            isValid: true,
-            isEnabled: true,
-            stageOperator: null,
-            isExpanded: true
-          }
-        ]);
+        expect(reducer(undefined, { type: 'test' })[0].stage).to.equal('');
       });
     });
 
     context('when the action is stage changed', () => {
       it('returns the new state', () => {
-        expect(reducer(undefined, stageChanged('{}', 0))).to.deep.equal([
-          {
-            stage: '{}',
-            isValid: true,
-            isEnabled: true,
-            stageOperator: null,
-            isExpanded: true
-          }
-        ]);
+        expect(reducer(undefined, stageChanged('{}', 0))[0].stage).to.equal('{}');
       });
     });
 
     context('when the action is stage collapse toggled', () => {
       it('returns the new state', () => {
-        expect(reducer(undefined, stageCollapseToggled(0))).to.deep.equal([
-          {
-            stage: '',
-            isValid: true,
-            isEnabled: true,
-            stageOperator: null,
-            isExpanded: false
-          }
-        ]);
+        expect(reducer(undefined, stageCollapseToggled(0))[0].isExpanded).to.equal(false);
       });
     });
 
     context('when the action is stage toggled', () => {
       it('returns the new state', () => {
-        expect(reducer(undefined, stageToggled(0))).to.deep.equal([
-          {
-            stage: '',
-            isValid: true,
-            isEnabled: false,
-            stageOperator: null,
-            isExpanded: true
-          }
-        ]);
+        expect(reducer(undefined, stageToggled(0))[0].isEnabled).to.equal(false);
       });
     });
 
     context('when the action is stage operator selected', () => {
       it('returns the new state', () => {
-        expect(reducer(undefined, stageOperatorSelected(0, '$collStats'))).to.deep.equal([
-          {
-            stage: '',
-            isValid: true,
-            isEnabled: true,
-            stageOperator: '$collStats',
-            isExpanded: true
-          }
-        ]);
+        expect(reducer(undefined, stageOperatorSelected(0, '$collStats'))[0].stageOperator).
+          to.equal('$collStats');
       });
     });
 
     context('when the action is stage added', () => {
       it('returns the new state with an additional stage', () => {
-        expect(reducer(undefined, stageAdded())).to.deep.equal([
-          {
-            stage: '',
-            isValid: true,
-            isEnabled: true,
-            stageOperator: null,
-            isExpanded: true
-          },
-          {
-            stage: '',
-            isValid: true,
-            isEnabled: true,
-            stageOperator: null,
-            isExpanded: true
-          }
-        ]);
+        expect(reducer(undefined, stageAdded()).length).to.equal(2);
       });
     });
 
@@ -140,58 +86,20 @@ describe('stages module', () => {
 
       context('when moving to a higher position', () => {
         context('when not moving to the end', () => {
+          const result = reducer(state, stageMoved(0, 1));
+
           it('shifts the stages from the toIndex lower', () => {
-            expect(reducer(state, stageMoved(0, 1))).to.deep.equal([
-              {
-                stage: '{ name: 1 }',
-                isValid: true,
-                isEnabled: true,
-                stageOperator: '$project',
-                isExpanded: true
-              },
-              {
-                stage: '{}',
-                isValid: true,
-                isEnabled: true,
-                stageOperator: '$match',
-                isExpanded: true
-              },
-              {
-                stage: '{ name: -1 }',
-                isValid: true,
-                isEnabled: true,
-                stageOperator: '$sort',
-                isExpanded: true
-              }
-            ]);
+            expect(result[0].stage).to.equal('{ name: 1 }');
+            expect(result[1].stage).to.equal('{}');
           });
         });
 
         context('when moving to the end', () => {
+          const result = reducer(state, stageMoved(0, 2));
+
           it('shifts the stages from the toIndex lower', () => {
-            expect(reducer(state, stageMoved(0, 2))).to.deep.equal([
-              {
-                stage: '{ name: 1 }',
-                isValid: true,
-                isEnabled: true,
-                stageOperator: '$project',
-                isExpanded: true
-              },
-              {
-                stage: '{ name: -1 }',
-                isValid: true,
-                isEnabled: true,
-                stageOperator: '$sort',
-                isExpanded: true
-              },
-              {
-                stage: '{}',
-                isValid: true,
-                isEnabled: true,
-                stageOperator: '$match',
-                isExpanded: true
-              }
-            ]);
+            expect(result[0].stage).to.equal('{ name: 1 }');
+            expect(result[2].stage).to.equal('{}');
           });
         });
       });

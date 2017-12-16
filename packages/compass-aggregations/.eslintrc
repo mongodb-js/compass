@@ -8,7 +8,8 @@
     "sinon": true
   },
   "rules": {
-    "camelcase": 1
+    "camelcase": 1,
+    "new-cap": 0
   },
   "extends": [
     "mongodb-js/node",
