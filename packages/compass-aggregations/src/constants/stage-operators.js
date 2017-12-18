@@ -30,6 +30,7 @@ const STAGE_OPERATORS = [
     name: '$collStats',
     value: '$collStats',
     label: '$collStats',
+    snippet: '{\n  latencyStats: {\n    histograms: true\n  },\n  storageStats: {}\n}',
     score: 1,
     meta: 'stage',
     version: '3.4.0'

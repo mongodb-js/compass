@@ -1,3 +1,5 @@
+import STAGE_OPERATORS from 'constants/stage-operators';
+
 /**
  * Action name prefix.
  */
@@ -56,6 +58,11 @@ const EMPTY_STAGE = {
 const INITIAL_STATE = [ EMPTY_STAGE ];
 
 /**
+ * The default snippet.
+ */
+const DEFAULT_SNIPPET = '{\n  \n}';
+
+/**
  * Copy the state.
  *
  * @param {Array} state - The current state.
@@ -63,6 +70,17 @@ const INITIAL_STATE = [ EMPTY_STAGE ];
  * @returns {Array} The copied state.
  */
 const copyState = (state) => (state.map(s => Object.assign({}, s)));
+
+/**
+ * Get a stage operator details from the provided operator name.
+ *
+ * @param {String} name - The stage operator name.
+ *
+ * @returns {Object} The stage operator details.
+ */
+const getStageOperator = (name) => {
+  return STAGE_OPERATORS.find(op => op.name === name);
+};
 
 /**
  * Change stage value.
@@ -132,7 +150,10 @@ const moveStage = (state, action) => {
  */
 const selectStageOperator = (state, action) => {
   const newState = copyState(state);
-  newState[action.index].stageOperator = action.stageOperator;
+  const operatorName = action.stageOperator;
+  const operatorDetails = getStageOperator(operatorName);
+  newState[action.index].stageOperator = operatorName;
+  newState[action.index].stage = (operatorDetails || {}).snippet || DEFAULT_SNIPPET;
   return newState;
 };
 

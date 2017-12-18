@@ -12,7 +12,7 @@ describe('Aggregation Store', () => {
       it('returns the initial state', (done) => {
         const unsubscribe = store.subscribe(() => {
           unsubscribe();
-          expect(store.getState().stages[0].stage).to.equal('');
+          expect(store.getState().stages[0].stage).to.equal('{\n  \n}');
           done();
         });
         store.dispatch({ type: 'UNKNOWN' });
