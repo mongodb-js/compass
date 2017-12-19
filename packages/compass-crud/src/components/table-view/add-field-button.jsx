@@ -339,14 +339,15 @@ class AddFieldButton extends React.Component {
       return null;
     }
     return (
-      <div className={this.divClassName()}
-        onClick={this.handleClick.bind(this)}
-        onKeyPress={this.handleKeyPress.bind(this)}
-        onBlur={this.handleClickOutside.bind(this)}
+      <button className={this.divClassName()}
+              onClick={this.handleClick.bind(this)}
+              onKeyPress={this.handleKeyPress.bind(this)}
+              onBlur={this.handleClickOutside.bind(this)}
+              ref={this.props.buttonRef}
       >
         <FontAwesome name="plus-square-o" className={`${BEM_BASE}-icon`}/>
         {this.renderMenu()}
-      </div>
+      </button>
     );
   }
 }
@@ -361,7 +362,8 @@ AddFieldButton.propTypes = {
   context: PropTypes.any.isRequired,
   column: PropTypes.any.isRequired,
   node: PropTypes.any.isRequired,
-  actions: PropTypes.any.isRequired
+  actions: PropTypes.any.isRequired,
+  buttonRef: PropTypes.any.isRequired
 };
 
 module.exports = outsideClickable(AddFieldButton);

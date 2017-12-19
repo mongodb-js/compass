@@ -60,9 +60,13 @@ class DocumentTableView extends React.Component {
         getRowStyle: this.updateWidth,
         onGridSizeChanged: this.updateActionsPlacement,
         suppressPreventDefaultOnMouseWheel: true,
-        /* TODO: implement for hotkeys */
-        navigateToNextCell: () => {},
-        tabToNextCell: () => {}
+        tabToNextCell: (params) => {
+          if (!params.previousCellDef || !params.nextCellDef ||
+              params.previousCellDef.rowIndex !== params.nextCellDef.rowIndex) {
+            return null;
+          }
+          return params.nextCellDef;
+        }
       },
       onGridReady: this.onGridReady.bind(this),
       isFullWidthCell: function(rowNode) {

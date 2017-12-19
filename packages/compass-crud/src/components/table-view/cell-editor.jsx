@@ -20,8 +20,6 @@ const EMPTY_TYPE = {
   Undefined: undefined, Null: null
 };
 
-// const util = require('util');
-
 /**
  * BEM BASE
  */
@@ -50,6 +48,7 @@ class CellEditor extends React.Component {
     super(props);
     this.state = { fieldName: '' };
     this.changed = false;
+    this.onKeyDown = this.onKeyDown.bind(this);
   }
 
   /**
@@ -102,29 +101,67 @@ class CellEditor extends React.Component {
   }
 
   componentDidMount() {
-    if (this.props.reactContainer) {
-      this.props.reactContainer.addEventListener('keydown', this.onKeyDown);
+    if (this.props.eGridCell) {
+      this.props.eGridCell.addEventListener('keydown', this.onKeyDown);
+    }
+    this.nodes = [
+      this.fieldNameNode, this.inputNode, this.typesNode,
+      this.expandNode, this.addFieldNode, this.removeNode
+    ];
+    this.nodeIndex = 1;
+    this.maxNodes = this.nodes.length - 1;
+    while (this.nodes[this.maxNodes] === undefined) {
+      this.maxNodes--;
+    }
+    this.minNodes = 0;
+    while (this.nodes[this.minNodes] === undefined) {
+      this.minNodes++;
     }
     this.focus();
   }
 
-  componentDidUpdate() {
-    this.focus();
-  }
-
   componentWillUnmount() {
-    if (this.props.reactContainer) {
-      this.props.reactContainer.removeEventListener('keydown', this.onKeyDown);
+    if (this.props.eGridCell) {
+      this.props.eGridCell.removeEventListener('keydown', this.onKeyDown);
     }
     this.props.api.stopEditing();
   }
 
   /**
-   * This is only required if you are preventing event propagation.
+   * Hotkeys
+   *
    * @param {Object} event
    */
   onKeyDown(event) {
     event.stopPropagation();
+    if (event.keyCode === 27 || event.keyCode === 13) {
+      this.props.api.stopEditing();
+    }
+    if (event.shiftKey && event.keyCode === 9) {
+      event.preventDefault();
+      while (this.nodeIndex > -1 && this.nodes[this.nodeIndex] === undefined) {
+        this.nodeIndex--;
+      }
+      const node = this.nodes[this.nodeIndex];
+      if (this.nodeIndex <= this.minNodes || node === undefined) {
+        this.props.api.tabToPreviousCell();
+      } else {
+        node.focus();
+        this.nodeIndex--;
+      }
+    } else if (event.keyCode === 9) {
+      event.preventDefault();
+      while (this.nodeIndex < 6 && this.nodes[this.nodeIndex] === undefined) {
+        this.nodeIndex++;
+      }
+      const node = this.nodes[this.nodeIndex];
+      if (this.nodeIndex > this.maxNodes || node === undefined) {
+        this.props.api.tabToNextCell();
+      } else {
+        node.focus();
+        this.nodeIndex++;
+      }
+    }
   }
 
   /**
@@ -201,7 +238,6 @@ class CellEditor extends React.Component {
   }
 
   focus() {
-    // TODO: why this?
     setTimeout(() => {
       const container = ReactDOM.findDOMNode(this.props.reactContainer);
       if (container) {
@@ -213,15 +249,16 @@ class CellEditor extends React.Component {
   handleTypeChange() {
     /* If we've casted to object or array, need to get rid of any placeholders */
     const type = this.element.currentType;
-    if (type !== this.oldType && (type === 'Array' || type === 'Object')) {
-      for (const element of this.element.elements) {
-        if (element.isAdded() && element.currentKey === '' && element.currentValue === '') {
-          element.remove();
+    if (type !== this.oldType) {
+      this.changed = true;
+      if (type === 'Array' || type === 'Object') {
+        for (const element of this.element.elements) {
+          if (element.isAdded() && element.currentKey === '' && element.currentValue === '') {
+            element.remove();
+          }
         }
       }
     }
-    this.changed = true;
-    this.props.api.stopEditing();
   }
 
   handleRemoveField() {
@@ -250,7 +287,7 @@ class CellEditor extends React.Component {
     this.props.actions.drillDown(this.props.node.data.hadronDocument, this.element);
   }
 
-  handleChange(event) {
+  handleInputChange(event) {
     this.changed = true;
     if (this._pasting) {
       this._pasteEdit(event.target.value);
@@ -354,8 +391,10 @@ class CellEditor extends React.Component {
             <input
               type="text"
               onChange={this.handleFieldNameChange.bind(this)}
+              onClick={() => {this.nodeIndex = 1;}}
               className={this.styleField(true)}
               value={this.state.fieldName}
+              ref={(c) => {this.fieldNameNode = c;}}
               placeholder="Field Name"/>
           </span>
         </div>
@@ -376,8 +415,11 @@ class CellEditor extends React.Component {
       return null;
     }
     return (
-      <div className={`${BEM_BASE}-input-types`} onBlur={this.handleTypeChange.bind(this)}>
-        <Types element={this.element} className={`${BEM_BASE}-types btn btn-default btn-xs`}/>
+      <div className={`${BEM_BASE}-input-types`}
+           onBlur={this.handleTypeChange.bind(this)}
+           onClick={() => {this.nodeIndex = 3;}}>
+        <Types element={this.element} className={`${BEM_BASE}-types btn btn-default btn-xs`}
+               buttonRef={(c) => { this.typesNode = c; }}/>
       </div>
     );
   }
@@ -405,12 +447,12 @@ class CellEditor extends React.Component {
           <input
             data-tip=""
             data-for={this.element.uuid}
-            ref={(c) => {this._node = c;}}
+            ref={(c) => {this.inputNode = c;}}
             type="text"
             style={{ width: `${length}px`}}
             className={this.styleValue()}
-            onChange={this.handleChange.bind(this)}
-            // onKeyDown={this.handleKeyDown.bind(this)}
+            onChange={this.handleInputChange.bind(this)}
+            onClick={() => {this.nodeIndex = 2;}}
             onPaste={this.handlePaste.bind(this)}
             value={this.editor().value(true)}
             placeholder="Value"/>
@@ -431,9 +473,11 @@ class CellEditor extends React.Component {
       return null;
     }
     return (
-      <div className={`${BEM_BASE}-button btn btn-default btn-xs`} onMouseDown={this.handleDrillDown.bind(this)}>
+      <button className={`${BEM_BASE}-button btn btn-default btn-xs`}
+              onMouseDown={this.handleDrillDown.bind(this)}
+              ref={(c) => {this.expandNode = c;}}>
         <FontAwesome name="expand" className={`${BEM_BASE}-button-icon`}/>
-      </div>
+      </button>
     );
   }
 
@@ -447,10 +491,11 @@ class CellEditor extends React.Component {
       return null;
     }
     return (
-      <div className={`${BEM_BASE}-button btn btn-default btn-xs`}
-           onMouseDown={this.handleRemoveField.bind(this)}>
+      <button className={`${BEM_BASE}-button btn btn-default btn-xs`}
+              onMouseDown={this.handleRemoveField.bind(this)}
+              ref={(c) => { this.removeNode = c; }}>
         <FontAwesome name="trash" className={`${BEM_BASE}-button-icon`}/>
-      </div>
+      </button>
     );
   }
 
@@ -473,9 +518,12 @@ class CellEditor extends React.Component {
     return (
       <span className={`${BEM_BASE}-actions`}>
         {this.renderExpand(showExpand)}
-        <AddFieldButton {...this.props}
-          displace={displace}
-        />
+        <span onClick={()=>{this.nodeIndex = 5;}}>
+          <AddFieldButton {...this.props}
+                          displace={displace}
+                          buttonRef={(c) => { this.addFieldNode = c; }}
+          />
+        </span>
         {this.renderRemoveField()}
       </span>
     );
@@ -509,7 +557,8 @@ CellEditor.propTypes = {
   api: PropTypes.any,
   columnApi: PropTypes.any,
   context: PropTypes.any,
-  actions: PropTypes.any.isRequired
+  actions: PropTypes.any.isRequired,
+  eGridCell: PropTypes.any
 };
 
 CellEditor.displayName = 'CellEditor';

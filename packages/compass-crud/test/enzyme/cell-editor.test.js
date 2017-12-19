@@ -313,8 +313,8 @@ describe('<CellEditor />', () => {
           it('updates the hadronElement value', () => {
             expect(value.currentValue.value).to.equal(100);
           });
-          it('calls api.stopEditing()', () => {
-            expect(api.stopEditing.callCount).to.equal(1);
+          it('does not call api.stopEditing()', () => {
+            expect(api.stopEditing.callCount).to.equal(0);
           });
           it('unmounting calls refreshCells', () => {
             expect(api.refreshCells.callCount).to.equal(1);
@@ -353,8 +353,8 @@ describe('<CellEditor />', () => {
           it('updates the hadronElement value to undefined', () => {
             expect(value.currentValue.value).to.equal(undefined);
           });
-          it('calls api.stopEditing()', () => {
-            expect(api.stopEditing.callCount).to.equal(1);
+          it('does not call api.stopEditing()', () => {
+            expect(api.stopEditing.callCount).to.equal(0);
           });
           it('unmounting calls refreshCells', () => {
             expect(api.refreshCells.callCount).to.equal(1);

@@ -119,7 +119,9 @@ class Types extends React.Component {
           data-toggle="dropdown"
           aria-haspopup="true"
           aria-expanded="false"
-          onBlur={this.removeOpenClass.bind(this)}>
+          onBlur={this.removeOpenClass.bind(this)}
+          ref={this.props.buttonRef ? this.props.buttonRef : () => {}}
+        >
           {this.element.currentType}
           <span className="caret"></span>
         </button>
@@ -163,7 +165,8 @@ Types.displayName = 'Types';
 
 Types.propTypes = {
   element: PropTypes.object.isRequired,
-  className: PropTypes.string
+  className: PropTypes.string,
+  buttonRef: PropTypes.any
 };
 
 module.exports = Types;
