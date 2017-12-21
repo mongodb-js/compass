@@ -114,7 +114,12 @@ class Intercom extends React.Component {
   render() {
     if (this.state.enabled) {
       return (
-        <iframe allowFullScreen ref="intercomFrame" className="intercom-iframe" src={INTERCOM_HTML}>
+        <iframe
+          allowFullScreen
+          sandbox="allow-scripts allow-same-origin"
+          ref="intercomFrame"
+          className="intercom-iframe"
+          src={INTERCOM_HTML}>
         </iframe>
       );
     }
