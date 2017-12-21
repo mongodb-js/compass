@@ -2,7 +2,6 @@ const Reflux = require('reflux');
 const metrics = require('mongodb-js-metrics')();
 const setupMetrics = require('./setup');
 const rules = require('./rules');
-// const debug = require('debug')('mongodb-compass:stores:metrics');
 
 const MetricsStore = Reflux.createStore({
 

@@ -1,4 +1,5 @@
 const MetricsStore = require('./lib/store');
+const IntercomComponent = require('./lib/component/intercom');
 
 /**
  * Activate all the components in the instance package.
@@ -6,6 +7,7 @@ const MetricsStore = require('./lib/store');
  * @param {Object} appRegistry   the app registry.
  */
 function activate(appRegistry) {
+  appRegistry.registerComponent('Metrics.Intercom', IntercomComponent);
   appRegistry.registerStore('Metrics.Store', MetricsStore);
 }
 
@@ -15,7 +17,8 @@ function activate(appRegistry) {
  * @param {Object} appRegistry   the app registry.
  */
 function deactivate(appRegistry) {
-  appRegistry.deregisterComponent('Metrics.Store');
+  appRegistry.deregisterComponent('Metrics.Intercom');
+  appRegistry.deregisterStore('Metrics.Store');
 }
 
 module.exports.activate = activate;
