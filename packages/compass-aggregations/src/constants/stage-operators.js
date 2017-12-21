@@ -8,7 +8,8 @@ const STAGE_OPERATORS = [
     label: '$addFields',
     score: 1,
     meta: 'stage',
-    version: '3.4.0'
+    version: '3.4.0',
+    description: 'Adds new fields to documents.'
   },
   {
     name: '$bucket',
@@ -16,7 +17,8 @@ const STAGE_OPERATORS = [
     label: '$bucket',
     score: 1,
     meta: 'stage',
-    version: '3.4.0'
+    version: '3.4.0',
+    description: 'Categorizes incoming documents into groups, called buckets, based on a specified expression and bucket boundaries.'
   },
   {
     name: '$bucketAuto',
@@ -24,7 +26,8 @@ const STAGE_OPERATORS = [
     label: '$bucketAuto',
     score: 1,
     meta: 'stage',
-    version: '3.4.0'
+    version: '3.4.0',
+    description: 'Categorizes incoming documents into a specific number of groups, called buckets, based on a specified expression. Bucket boundaries are automatically determined in an attempt to evenly distribute the documents into the specified number of buckets.'
   },
   {
     name: '$collStats',
@@ -33,7 +36,8 @@ const STAGE_OPERATORS = [
     snippet: '{\n  latencyStats: {\n    histograms: true\n  },\n  storageStats: {}\n}',
     score: 1,
     meta: 'stage',
-    version: '3.4.0'
+    version: '3.4.0',
+    description: 'Returns statistics regarding a collection or view.'
   },
   {
     name: '$count',
@@ -41,7 +45,8 @@ const STAGE_OPERATORS = [
     label: '$count',
     score: 1,
     meta: 'stage',
-    version: '2.2.0'
+    version: '2.2.0',
+    description: 'Returns a count of the number of documents at this stage of the aggregation pipeline.'
   },
   {
     name: '$currentOp',
@@ -49,7 +54,8 @@ const STAGE_OPERATORS = [
     label: '$currentOp',
     score: 1,
     meta: 'stage',
-    version: '3.6.0'
+    version: '3.6.0',
+    description: 'Returns information on active and/or dormant operations for the MongoDB deployment.'
   },
   {
     name: '$facet',
@@ -57,7 +63,8 @@ const STAGE_OPERATORS = [
     label: '$facet',
     score: 1,
     meta: 'stage',
-    version: '3.4.0'
+    version: '3.4.0',
+    description: 'Processes multiple aggregation pipelines within a single stage on the same set of input documents.'
   },
   {
     name: '$geoNear',
@@ -65,7 +72,8 @@ const STAGE_OPERATORS = [
     label: '$geoNear',
     score: 1,
     meta: 'stage',
-    version: '2.4.0'
+    version: '2.4.0',
+    description: 'Returns an ordered stream of documents based on the proximity to a geospatial point.'
   },
   {
     name: '$graphLookup',
@@ -73,7 +81,8 @@ const STAGE_OPERATORS = [
     label: '$graphLookup',
     score: 1,
     meta: 'stage',
-    version: '3.4.0'
+    version: '3.4.0',
+    description: 'Performs a recursive search on a collection.'
   },
   {
     name: '$group',
@@ -81,7 +90,8 @@ const STAGE_OPERATORS = [
     label: '$group',
     score: 1,
     meta: 'stage',
-    version: '2.2.0'
+    version: '2.2.0',
+    description: 'Groups input documents by a specified identifier expression and applies the accumulator expression(s), if specified, to each group.'
   },
   {
     name: '$indexStats',
@@ -89,7 +99,8 @@ const STAGE_OPERATORS = [
     label: '$indexStats',
     score: 1,
     meta: 'stage',
-    version: '3.2.0'
+    version: '3.2.0',
+    description: 'Returns statistics regarding the use of each index for the collection.'
   },
   {
     name: '$limit',
@@ -97,7 +108,8 @@ const STAGE_OPERATORS = [
     label: '$limit',
     score: 1,
     meta: 'stage',
-    version: '2.2.0'
+    version: '2.2.0',
+    description: 'Passes the first n documents unmodified to the pipeline where n is the specified limit.'
   },
   {
     name: '$listLocalSessions',
@@ -105,7 +117,8 @@ const STAGE_OPERATORS = [
     label: '$listLocalSessions',
     score: 1,
     meta: 'stage',
-    version: '3.6.0'
+    version: '3.6.0',
+    description: 'Lists all active sessions recently in use on the currently connected mongos or mongod instance.'
   },
   {
     name: '$listSessions',
@@ -113,7 +126,8 @@ const STAGE_OPERATORS = [
     label: '$listSessions',
     score: 1,
     meta: 'stage',
-    version: '3.6.0'
+    version: '3.6.0',
+    description: 'Lists all sessions that have been active long enough to propagate to the system.sessions collection.'
   },
   {
     name: '$lookup',
@@ -121,7 +135,8 @@ const STAGE_OPERATORS = [
     label: '$lookup',
     score: 1,
     meta: 'stage',
-    version: '3.2.0'
+    version: '3.2.0',
+    description: 'Performs a left outer join to another collection in the same database to filter in documents from the “joined” collection for processing.'
   },
   {
     name: '$match',
@@ -129,7 +144,8 @@ const STAGE_OPERATORS = [
     label: '$match',
     score: 1,
     meta: 'stage',
-    version: '2.2.0'
+    version: '2.2.0',
+    description: 'Filters the document stream to allow only matching documents to pass unmodified into the next pipeline stage.'
   },
   {
     name: '$out',
@@ -137,7 +153,8 @@ const STAGE_OPERATORS = [
     label: '$out',
     score: 1,
     meta: 'stage',
-    version: '2.2.0'
+    version: '2.2.0',
+    description: 'Writes the resulting documents of the aggregation pipeline to a collection.'
   },
   {
     name: '$project',
@@ -145,7 +162,8 @@ const STAGE_OPERATORS = [
     label: '$project',
     score: 1,
     meta: 'stage',
-    version: '2.2.0'
+    version: '2.2.0',
+    description: 'Reshapes each document in the stream, such as by adding new fields or removing existing fields.'
   },
   {
     name: '$redact',
@@ -153,7 +171,8 @@ const STAGE_OPERATORS = [
     label: '$redact',
     score: 1,
     meta: 'stage',
-    version: '2.6.0'
+    version: '2.6.0',
+    description: 'Reshapes each document in the stream by restricting the content for each document based on information stored in the documents themselves.'
   },
   {
     name: '$replaceRoot',
@@ -161,7 +180,8 @@ const STAGE_OPERATORS = [
     label: '$replaceRoot',
     score: 1,
     meta: 'stage',
-    version: '3.4.0'
+    version: '3.4.0',
+    description: 'Replaces a document with the specified embedded document.'
   },
   {
     name: '$sample',
@@ -169,7 +189,8 @@ const STAGE_OPERATORS = [
     label: '$sample',
     score: 1,
     meta: 'stage',
-    version: '3.2.0'
+    version: '3.2.0',
+    description: 'Randomly selects the specified number of documents from its input.\n'
   },
   {
     name: '$skip',
@@ -177,7 +198,8 @@ const STAGE_OPERATORS = [
     label: '$skip',
     score: 1,
     meta: 'stage',
-    version: '2.2.0'
+    version: '2.2.0',
+    description: 'Skips the first n documents where n is the specified skip number and passes the remaining documents unmodified to the pipeline.'
   },
   {
     name: '$sort',
@@ -185,7 +207,8 @@ const STAGE_OPERATORS = [
     label: '$sort',
     score: 1,
     meta: 'stage',
-    version: '2.2.0'
+    version: '2.2.0',
+    description: 'Reorders the document stream by a specified sort key.'
   },
   {
     name: '$sortByCount',
@@ -193,7 +216,8 @@ const STAGE_OPERATORS = [
     label: '$sortByCount',
     score: 1,
     meta: 'stage',
-    version: '3.4.0'
+    version: '3.4.0',
+    description: 'Groups incoming documents based on the value of a specified expression, then computes the count of documents in each distinct group.'
   },
   {
     name: '$unwind',
@@ -201,7 +225,8 @@ const STAGE_OPERATORS = [
     label: '$unwind',
     score: 1,
     meta: 'stage',
-    version: '2.2.0'
+    version: '2.2.0',
+    description: 'Deconstructs an array field from the input documents to output a document for each element.'
   }
 ];
 
