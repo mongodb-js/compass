@@ -15,11 +15,11 @@ describe('NativeClient', function() {
   var client = new NativeClient(helper.connection);
 
   before(require('mongodb-runner/mocha/before')({
-    port: 27018
+    port: 27017
   }));
 
   after(require('mongodb-runner/mocha/after')({
-    port: 27018
+    port: 27017
   }));
 
   before(function(done) {
@@ -808,7 +808,7 @@ describe('NativeClient', function() {
       client.instance(function(err, instance) {
         assert.equal(null, err);
         expect(instance.hostname).to.not.equal(undefined);
-        expect(instance.port).to.equal(27018);
+        expect(instance.port).to.equal(27017);
         expect(instance.databases[0]._id).to.not.equal(undefined);
         done();
       });
