@@ -3,6 +3,8 @@ import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import classnames from 'classnames';
 import Pipeline from 'components/pipeline';
+import { namespaceChanged } from 'modules/namespace';
+import { viewChanged } from 'modules/view';
 import {
   stageAdded,
   stageChanged,
@@ -22,6 +24,7 @@ class Aggregations extends Component {
   static displayName = 'AggregationsComponent';
 
   static propTypes = {
+    namespaceChanged: PropTypes.func.isRequired,
     stages: PropTypes.array.isRequired,
     serverVersion: PropTypes.string.isRequired,
     stageAdded: PropTypes.func.isRequired,
@@ -30,7 +33,8 @@ class Aggregations extends Component {
     stageDeleted: PropTypes.func.isRequired,
     stageMoved: PropTypes.func.isRequired,
     stageOperatorSelected: PropTypes.func.isRequired,
-    stageToggled: PropTypes.func.isRequired
+    stageToggled: PropTypes.func.isRequired,
+    viewChanged: PropTypes.func.isRequired
   }
 
   /**
@@ -55,8 +59,10 @@ class Aggregations extends Component {
  * @returns {Object} The mapped properties.
  */
 const mapStateToProps = (state) => ({
+  namespace: state.namespace,
   serverVersion: state.serverVersion,
-  stages: state.stages
+  stages: state.stages,
+  view: state.view
 });
 
 /**
@@ -65,13 +71,15 @@ const mapStateToProps = (state) => ({
 const MappedAggregations = connect(
   mapStateToProps,
   {
+    namespaceChanged,
     stageAdded,
     stageChanged,
     stageCollapseToggled,
     stageDeleted,
     stageMoved,
     stageOperatorSelected,
-    stageToggled
+    stageToggled,
+    viewChanged
   },
 )(Aggregations);
 
