@@ -17,7 +17,7 @@ describe('server version module', () => {
       });
     });
 
-    context('when the action is stage changed', () => {
+    context('when the action is server version changed', () => {
       it('returns the new state', () => {
         expect(reducer(undefined, serverVersionChanged('3.0.0'))).to.equal('3.0.0');
       });
