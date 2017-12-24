@@ -1,6 +1,7 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import classnames from 'classnames';
+import AddStageButton from 'components/add-stage-button';
 
 import styles from './add-stage.less';
 
@@ -22,9 +23,7 @@ class AddStage extends PureComponent {
   render() {
     return (
       <div className={classnames(styles['add-stage'])}>
-        <button className="btn btn-default btn-xs" onClick={this.props.stageAdded}>
-          Add Stage
-        </button>
+        <AddStageButton stageAdded={this.props.stageAdded} />
       </div>
     );
   }

@@ -30,7 +30,7 @@ const STAGE_OPERATORS = [
     meta: 'stage',
     version: '3.4.0',
     description: 'Categorizes incoming documents into a specific number of groups, called buckets, based on a specified expression. Bucket boundaries are automatically determined in an attempt to evenly distribute the documents into the specified number of buckets.',
-    snippet: '{\n  groupBy: ${1:expr},\n  buckets: ${2:0},\n  output: {\n    ${3:field}: ${4:accumulator}, ${5:...}\n  },\ngranularity: \'${6}\'\n}'
+    snippet: '{\n  groupBy: ${1:expr},\n  buckets: ${2:0},\n  output: {\n    ${3:field}: ${4:accumulator}, ${5:...}\n  },\n  granularity: \'${6}\'\n}'
   },
   {
     name: '$collStats',
