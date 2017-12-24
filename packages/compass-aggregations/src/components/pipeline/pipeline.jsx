@@ -2,6 +2,7 @@ import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import classnames from 'classnames';
 import AdvancedBuilder from 'components/advanced-builder';
+import PipelineHeader from 'components/pipeline-header';
 
 import styles from './pipeline.less';
 
@@ -31,6 +32,7 @@ class Pipeline extends PureComponent {
   render() {
     return (
       <div className={classnames(styles.pipeline)}>
+        <PipelineHeader {...this.props} />
         <AdvancedBuilder {...this.props} />
       </div>
     );
