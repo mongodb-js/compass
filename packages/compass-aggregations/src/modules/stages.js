@@ -149,13 +149,17 @@ const moveStage = (state, action) => {
  * @returns {Object} The new state.
  */
 const selectStageOperator = (state, action) => {
-  const newState = copyState(state);
   const operatorName = action.stageOperator;
-  const operatorDetails = getStageOperator(operatorName);
-  newState[action.index].stageOperator = operatorName;
-  newState[action.index].stage = '';
-  newState[action.index].snippet = (operatorDetails || {}).snippet || DEFAULT_SNIPPET;
-  return newState;
+  if (operatorName !== state[action.index].stageOperator) {
+    const newState = copyState(state);
+    const operatorDetails = getStageOperator(operatorName);
+    const snippet = (operatorDetails || {}).snippet || DEFAULT_SNIPPET;
+    newState[action.index].stageOperator = operatorName;
+    newState[action.index].stage = snippet;
+    newState[action.index].snippet = snippet;
+    return newState;
+  }
+  return state;
 };
 
 /**

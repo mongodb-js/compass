@@ -47,12 +47,15 @@ class StageEditor extends PureComponent {
     const textCompleter = tools.textCompleter;
     this.completer = new Completer(this.props.serverVersion, textCompleter, this.props.index);
     tools.setCompleters([ this.completer ]);
-    this.value = '';
   }
 
+  /**
+   * On update if the stage operator is changed insert the snippet and focus on the editor.
+   *
+   * @param {Object} prevProps - The previous properties.
+   */
   componentDidUpdate(prevProps) {
     if (this.props.stage.stageOperator !== prevProps.stage.stageOperator && this.editor) {
-      this.value = '';
       this.editor.setValue('');
       this.editor.insertSnippet(this.props.stage.snippet);
       this.editor.focus();
@@ -66,7 +69,6 @@ class StageEditor extends PureComponent {
    * @param {String} value - The value of the stage.
    */
   onStageChange = (value) => {
-    this.value = value;
     this.props.stageChanged(value, this.props.index);
   }
 
@@ -82,7 +84,7 @@ class StageEditor extends PureComponent {
           mode="javascript"
           theme="mongodb"
           width="100%"
-          value={this.value}
+          value={this.props.stage.stage}
           onChange={this.onStageChange}
           editorProps={{ $blockScrolling: Infinity }}
           name={`aggregations-stage-editor-${this.props.index}`}
