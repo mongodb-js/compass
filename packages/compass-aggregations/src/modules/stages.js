@@ -153,7 +153,8 @@ const selectStageOperator = (state, action) => {
   const operatorName = action.stageOperator;
   const operatorDetails = getStageOperator(operatorName);
   newState[action.index].stageOperator = operatorName;
-  newState[action.index].stage = (operatorDetails || {}).snippet || DEFAULT_SNIPPET;
+  newState[action.index].stage = '';
+  newState[action.index].snippet = (operatorDetails || {}).snippet || DEFAULT_SNIPPET;
   return newState;
 };
 
