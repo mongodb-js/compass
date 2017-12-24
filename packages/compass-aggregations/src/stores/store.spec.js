@@ -1,3 +1,4 @@
+import AppRegistry from 'hadron-app-registry';
 import store from 'stores';
 import {
   stageChanged,
@@ -7,6 +8,20 @@ import {
   stageToggled } from 'modules/stages';
 
 describe('Aggregation Store', () => {
+  describe('#onActivated', () => {
+    context('when the collection changes', () => {
+      const appRegistry = new AppRegistry();
+      before(() => {
+        store.onActivated(appRegistry);
+        appRegistry.emit('collection-changed', 'db.coll');
+      });
+
+      it('updates the namespace in the store', () => {
+        expect(store.getState().namespace).to.equal('db.coll');
+      });
+    });
+  });
+
   describe('#dispatch', () => {
     context('when the action is unknown', () => {
       it('returns the initial state', (done) => {
