@@ -1,6 +1,8 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import classnames from 'classnames';
+import { CODE } from 'modules/view';
+import BasicBuilder from 'components/basic-builder';
 import AdvancedBuilder from 'components/advanced-builder';
 import PipelineHeader from 'components/pipeline-header';
 import PipelineFooter from 'components/pipeline-footer';
@@ -22,7 +24,8 @@ class Pipeline extends PureComponent {
     stageDeleted: PropTypes.func.isRequired,
     stageMoved: PropTypes.func.isRequired,
     stageOperatorSelected: PropTypes.func.isRequired,
-    stageToggled: PropTypes.func.isRequired
+    stageToggled: PropTypes.func.isRequired,
+    view: PropTypes.string.isRequired
   }
 
   /**
@@ -31,10 +34,13 @@ class Pipeline extends PureComponent {
    * @returns {Component} The component.
    */
   render() {
+    const builder = this.props.view === CODE ?
+      <AdvancedBuilder {...this.props } /> :
+      <BasicBuilder {...this.props} />;
     return (
       <div className={classnames(styles.pipeline)}>
         <PipelineHeader {...this.props} />
-        <AdvancedBuilder {...this.props} />
+        {builder}
         <PipelineFooter {...this.props} />
       </div>
     );
