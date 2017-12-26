@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import classnames from 'classnames';
 import DeleteStage from 'components/delete-stage';
 import ToggleStage from 'components/toggle-stage';
+import StageGrabber from 'components/stage-grabber';
 import StageCollapser from 'components/stage-collapser';
 import StageOperatorSelect from 'components/stage-operator-select';
 
@@ -31,6 +32,7 @@ class StageHeader extends PureComponent {
   render() {
     return (
       <div className={classnames(styles['stage-header'])}>
+        <StageGrabber />
         <StageCollapser {...this.props} />
         <StageOperatorSelect {...this.props } />
         <ToggleStage {...this.props} />
