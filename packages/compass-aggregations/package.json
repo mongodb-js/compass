@@ -111,6 +111,7 @@
   },
   "dependencies": {
     "hadron-react-components": "^1.9.1",
+    "mongodb-ace-theme": "0.0.1",
     "react-ace": "^5.7.0",
     "react-dnd": "^2.5.4",
     "react-dnd-html5-backend": "^2.5.4",

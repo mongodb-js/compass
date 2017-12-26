@@ -9,7 +9,7 @@ import styles from './stage-editor.less';
 
 import 'brace/ext/language_tools';
 import 'brace/mode/javascript';
-import './mongodb';
+import 'mongodb-ace-theme';
 
 /**
  * Options for the ACE editor.
