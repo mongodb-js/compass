@@ -50,6 +50,17 @@ class StageEditor extends PureComponent {
   }
 
   /**
+   * Update the autocompleter index if changed.
+   *
+   * @param {Object} nextProps - The new properties.
+   */
+  componentWillReceiveProps(nextProps) {
+    if (this.props.index !== nextProps.index) {
+      this.completer.index = nextProps.index;
+    }
+  }
+
+  /**
    * On update if the stage operator is changed insert the snippet and focus on the editor.
    *
    * @param {Object} prevProps - The previous properties.
