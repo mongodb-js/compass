@@ -41,9 +41,28 @@ describe('stages module', () => {
     });
 
     context('when the action is stage operator selected', () => {
-      it('returns the new state', () => {
-        expect(reducer(undefined, stageOperatorSelected(0, '$collStats'))[0].stageOperator).
-          to.equal('$collStats');
+      context('when the stage is expanded', () => {
+        it('returns the new state', () => {
+          expect(reducer(undefined, stageOperatorSelected(0, '$collStats'))[0].stageOperator).
+            to.equal('$collStats');
+        });
+      });
+
+      context('when the stage is not expanded', () => {
+        const state = [{
+          isExpanded: false,
+          stage: ''
+        }];
+
+        it('set the stage to expanded', () => {
+          expect(reducer(state, stageOperatorSelected(0, '$collStats'))[0].isExpanded).
+            to.equal(true);
+        });
+
+        it('returns the new state', () => {
+          expect(reducer(state, stageOperatorSelected(0, '$collStats'))[0].stageOperator).
+            to.equal('$collStats');
+        });
       });
     });
 

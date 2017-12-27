@@ -157,6 +157,7 @@ const selectStageOperator = (state, action) => {
     newState[action.index].stageOperator = operatorName;
     newState[action.index].stage = snippet;
     newState[action.index].snippet = snippet;
+    newState[action.index].isExpanded = true;
     return newState;
   }
   return state;
