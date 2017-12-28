@@ -18,7 +18,12 @@ describe('StageEditor [Component]', () => {
 
   beforeEach(() => {
     component = mount(
-      <StageEditor stage={stage} index={0} serverVersion="3.6.0" stageChanged={spy} />
+      <StageEditor
+        stage={stage}
+        index={0}
+        fields={[]}
+        serverVersion="3.6.0"
+        stageChanged={spy} />
     );
   });
 

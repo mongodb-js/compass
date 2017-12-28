@@ -4,6 +4,7 @@ import app from 'hadron-app';
 import AppRegistry from 'hadron-app-registry';
 import { AppContainer } from 'react-hot-loader';
 import AggregationsPlugin, { activate } from 'plugin';
+import FieldStore, { activate as fieldsActivate } from '@mongodb-js/compass-field-store';
 
 // Import global less file. Note: these styles WILL NOT be used in compass, as compass provides its own set
 // of global styles. If you are wishing to style a given component, you should be writing a less file per
@@ -18,6 +19,7 @@ global.hadronApp.appRegistry = appRegistry;
 
 // Activate our plugin with the Hadron App Registry
 activate(appRegistry);
+fieldsActivate(appRegistry);
 appRegistry.onActivated();
 
 // Since we are using HtmlWebpackPlugin WITHOUT a template,
@@ -66,7 +68,7 @@ render(AggregationsPlugin);
 // });
 
 // For automatic switching to specific namespaces, uncomment below as needed.
-// appRegistry.emit('collection-changed', 'database.collection');
+appRegistry.emit('collection-changed', 'compassAggregations.myCollection');
 // appRegistry.emit('database-changed', 'database');
 
 // For plugins based on query execution, comment out below:
@@ -79,6 +81,9 @@ render(AggregationsPlugin);
 //   ns: 'database.collection'
 // }
 // appRegistry.emit('query-applied', query);
+
+const docs = [{ _id: 1, name: 'Aphex Twin', loc: 'London', members: 1, newestAlbum: 'Cheetah' }];
+FieldStore.processDocuments(docs);
 
 if (module.hot) {
   /**

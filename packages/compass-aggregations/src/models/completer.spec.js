@@ -9,6 +9,9 @@ const { Mode } = ace.acequire('ace/mode/javascript');
 const textCompleter = ace.acequire('ace/ext/language_tools').textCompleter;
 
 describe('Completer', () => {
+  const fields = [
+    { name: 'name', value: 'name', score: 1, meta: 'field', version: '0.0.0' }
+  ];
   const editor = sinon.spy();
 
   afterEach(() => {
@@ -18,7 +21,7 @@ describe('Completer', () => {
   describe('#getCompletions', () => {
     context('when the current token is a string', () => {
       context('when there are no previous autocompletions', () => {
-        const completer = new Completer('3.4.0', textCompleter);
+        const completer = new Completer('3.4.0', textCompleter, 0, fields);
         const session = new EditSession('', new Mode());
         const position = { row: 0, column: 0 };
 
@@ -32,7 +35,7 @@ describe('Completer', () => {
 
       context('when there are previous autocompletions', () => {
         context('when the latest token is a string', () => {
-          const completer = new Completer('3.4.0', textCompleter);
+          const completer = new Completer('3.4.0', textCompleter, 0, fields);
           const session = new EditSession('{ $project: { "$', new Mode());
           const position = { row: 0, column: 15 };
 
@@ -54,7 +57,7 @@ describe('Completer', () => {
 
       context('when there are tokens after', () => {
         context('when the latest token is a string', () => {
-          const completer = new Completer('3.4.0', textCompleter);
+          const completer = new Completer('3.4.0', textCompleter, 0, fields);
           const session = new EditSession('{ $match: { $and: [ "$var1", "$var2" ]}}', new Mode());
           const position = { row: 0, column: 32 };
 
@@ -91,7 +94,7 @@ describe('Completer', () => {
       context('when no stage operator has been defined', () => {
         context('when the version is not provided', () => {
           context('when the prefix is empty', () => {
-            const completer = new Completer('3.4.0', textCompleter);
+            const completer = new Completer('3.4.0', textCompleter, 0, fields);
             const session = new EditSession('', new Mode());
             const position = { row: 0, column: 0 };
 
@@ -103,9 +106,26 @@ describe('Completer', () => {
             });
           });
 
+          context('when the prefix begins with a letter', () => {
+            context('when the token is on the same line', () => {
+              const completer = new Completer('3.6.0', textCompleter, 0, fields);
+              const session = new EditSession('{ n', new Mode());
+              const position = { row: 0, column: 2 };
+
+              it('returns all the matching field names', () => {
+                completer.getCompletions(editor, session, position, 'n', (error, results) => {
+                  expect(error).to.equal(null);
+                  expect(results).to.deep.equal([
+                    { name: 'name', value: 'name', score: 1, meta: 'field', version: '0.0.0' }
+                  ]);
+                });
+              });
+            });
+          });
+
           context('when the prefix begins with $', () => {
             context('when the token is on the same line', () => {
-              const completer = new Completer('3.6.0');
+              const completer = new Completer('3.6.0', textCompleter, 0, fields);
               const session = new EditSession('{ $', new Mode());
               const position = { row: 0, column: 2 };
 
@@ -118,7 +138,7 @@ describe('Completer', () => {
             });
 
             context('when the token is on another line', () => {
-              const completer = new Completer('3.6.0');
+              const completer = new Completer('3.6.0', textCompleter, 0, fields);
               const session = new EditSession('{\n  $', new Mode());
               const position = { row: 1, column: 3 };
 
@@ -132,7 +152,7 @@ describe('Completer', () => {
           });
 
           context('when the prefix begins with an unknown', () => {
-            const completer = new Completer('3.4.0');
+            const completer = new Completer('3.4.0', textCompleter, 0, fields);
             const session = new EditSession('{ $notAnOp', new Mode());
             const position = { row: 0, column: 9 };
 
@@ -145,7 +165,7 @@ describe('Completer', () => {
           });
 
           context('when the prefix begins with $a', () => {
-            const completer = new Completer('3.4.0');
+            const completer = new Completer('3.4.0', textCompleter, 0, fields);
             const session = new EditSession('{ $a', new Mode());
             const position = { row: 0, column: 3 };
 
@@ -201,7 +221,7 @@ describe('Completer', () => {
           });
 
           context('when the prefix begins with $co', () => {
-            const completer = new Completer('3.4.0');
+            const completer = new Completer('3.4.0', textCompleter, 0, fields);
             const session = new EditSession('{ $co', new Mode());
             const position = { row: 0, column: 4 };
 
@@ -236,7 +256,7 @@ describe('Completer', () => {
           });
 
           context('when the prefix begins with $sec', () => {
-            const completer = new Completer('3.4.0');
+            const completer = new Completer('3.4.0', textCompleter, 0, fields);
             const session = new EditSession('{ $sec', new Mode());
             const position = { row: 0, column: 4 };
 
@@ -258,7 +278,7 @@ describe('Completer', () => {
         });
 
         context('when the version is provided', () => {
-          const completer = new Completer('3.0.0', null, 0);
+          const completer = new Completer('3.0.0', null, 0, fields);
           const session = new EditSession('{ $si', new Mode());
           const position = { row: 0, column: 4 };
 
@@ -283,7 +303,7 @@ describe('Completer', () => {
         context('when the stage operator is $project', () => {
           context('when the server version is 3.2.0', () => {
             context('when the stage is a single line', () => {
-              const completer = new Completer('3.2.0', null, 0);
+              const completer = new Completer('3.2.0', null, 0, fields);
               const session = new EditSession('{ $m', new Mode());
               const position = { row: 0, column: 3 };
 
@@ -366,7 +386,7 @@ describe('Completer', () => {
             });
 
             context('when the stage is on multiple lines', () => {
-              const completer = new Completer('3.2.0', null, 0);
+              const completer = new Completer('3.2.0', null, 0, fields);
               const session = new EditSession('{\n  $m', new Mode());
               const position = { row: 1, column: 4 };
 
@@ -451,7 +471,7 @@ describe('Completer', () => {
 
           context('when the server version is 3.4.0', () => {
             context('when the accumulators are valid in $project', () => {
-              const completer = new Completer('3.4.0', null, 0);
+              const completer = new Completer('3.4.0', null, 0, fields);
               const session = new EditSession('{ $m', new Mode());
               const position = { row: 0, column: 3 };
 
@@ -534,7 +554,7 @@ describe('Completer', () => {
             });
 
             context('when the accumulators are not valid in $project', () => {
-              const completer = new Completer('3.4.0', null, 0);
+              const completer = new Completer('3.4.0', null, 0, fields);
               const session = new EditSession('{ $p', new Mode());
               const position = { row: 0, column: 3 };
 
@@ -560,7 +580,7 @@ describe('Completer', () => {
           });
 
           context('when the server version is 3.0.0', () => {
-            const completer = new Completer('3.0.0', null, 0);
+            const completer = new Completer('3.0.0', null, 0, fields);
             const session = new EditSession('{ $e', new Mode());
             const position = { row: 0, column: 3 };
 
@@ -587,7 +607,7 @@ describe('Completer', () => {
 
         context('when the stage operator is $group', () => {
           context('when the server version is 3.2.0', () => {
-            const completer = new Completer('3.2.0', null, 0);
+            const completer = new Completer('3.2.0', null, 0, fields);
             const session = new EditSession('{ $m', new Mode());
             const position = { row: 0, column: 3 };
 
@@ -670,7 +690,7 @@ describe('Completer', () => {
           });
 
           context('when the server version is 3.4.0', () => {
-            const completer = new Completer('3.4.0', null, 0);
+            const completer = new Completer('3.4.0', null, 0, fields);
             const session = new EditSession('{ $p', new Mode());
             const position = { row: 0, column: 3 };
 
@@ -702,7 +722,7 @@ describe('Completer', () => {
           });
 
           context('when the server version is 3.0.0', () => {
-            const completer = new Completer('3.0.0', null, 0);
+            const completer = new Completer('3.0.0', null, 0, fields);
             const session = new EditSession('{ $e', new Mode());
             const position = { row: 0, column: 3 };
 
@@ -729,7 +749,7 @@ describe('Completer', () => {
 
         context('when the stage operator is not project or group', () => {
           context('when the version matches all', () => {
-            const completer = new Completer('3.4.5', null, 0);
+            const completer = new Completer('3.4.5', null, 0, fields);
             const session = new EditSession('{ $ar', new Mode());
             const position = { row: 0, column: 4 };
 
@@ -761,7 +781,7 @@ describe('Completer', () => {
           });
 
           context('when the version matches a subset', () => {
-            const completer = new Completer('3.4.0', null, 0);
+            const completer = new Completer('3.4.0', null, 0, fields);
             const session = new EditSession('{ $ar', new Mode());
             const position = { row: 0, column: 4 };
 

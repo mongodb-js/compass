@@ -33,6 +33,7 @@ class StageEditor extends PureComponent {
     stage: PropTypes.object.isRequired,
     index: PropTypes.number.isRequired,
     serverVersion: PropTypes.string.isRequired,
+    fields: PropTypes.array.isRequired,
     stageChanged: PropTypes.func.isRequired
   }
 
@@ -45,19 +46,23 @@ class StageEditor extends PureComponent {
     super(props);
     const tools = ace.acequire('ace/ext/language_tools');
     const textCompleter = tools.textCompleter;
-    this.completer = new Completer(this.props.serverVersion, textCompleter, this.props.index);
+    this.completer = new Completer(
+      this.props.serverVersion,
+      textCompleter,
+      this.props.index,
+      this.props.fields
+    );
     tools.setCompleters([ this.completer ]);
   }
 
   /**
-   * Update the autocompleter index if changed.
+   * Update the autocompleter index and fields.
    *
    * @param {Object} nextProps - The new properties.
    */
   componentWillReceiveProps(nextProps) {
-    if (this.props.index !== nextProps.index) {
-      this.completer.index = nextProps.index;
-    }
+    this.completer.fields = nextProps.fields;
+    this.completer.index = nextProps.index;
   }
 
   /**

@@ -61,7 +61,8 @@ class Stage extends Component {
     stageDeleted: PropTypes.func.isRequired,
     stageMoved: PropTypes.func.isRequired,
     stageOperatorSelected: PropTypes.func.isRequired,
-    stageToggled: PropTypes.func.isRequired
+    stageToggled: PropTypes.func.isRequired,
+    fields: PropTypes.array.isRequired
   }
 
   /**

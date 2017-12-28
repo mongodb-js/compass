@@ -25,6 +25,7 @@ class Aggregations extends Component {
 
   static propTypes = {
     namespaceChanged: PropTypes.func.isRequired,
+    fields: PropTypes.array.isRequired,
     stages: PropTypes.array.isRequired,
     serverVersion: PropTypes.string.isRequired,
     stageAdded: PropTypes.func.isRequired,
@@ -60,6 +61,7 @@ class Aggregations extends Component {
  */
 const mapStateToProps = (state) => ({
   namespace: state.namespace,
+  fields: state.fields,
   serverVersion: state.serverVersion,
   stages: state.stages,
   view: state.view

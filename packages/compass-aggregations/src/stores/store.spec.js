@@ -1,4 +1,5 @@
 import AppRegistry from 'hadron-app-registry';
+import FieldStore, { activate } from '@mongodb-js/compass-field-store';
 import store from 'stores';
 import {
   stageChanged,
@@ -11,6 +12,7 @@ describe('Aggregation Store', () => {
   describe('#onActivated', () => {
     context('when the collection changes', () => {
       const appRegistry = new AppRegistry();
+
       before(() => {
         store.onActivated(appRegistry);
         appRegistry.emit('collection-changed', 'db.coll');
@@ -18,6 +20,26 @@ describe('Aggregation Store', () => {
 
       it('updates the namespace in the store', () => {
         expect(store.getState().namespace).to.equal('db.coll');
+      });
+    });
+
+    context('when the fields change', () => {
+      const appRegistry = new AppRegistry();
+      const docs = [
+        { _id: 1, name: 'Aphex Twin' }
+      ];
+
+      before(() => {
+        activate(appRegistry);
+        store.onActivated(appRegistry);
+        FieldStore.processDocuments(docs);
+      });
+
+      it('updates the namespace in the store', () => {
+        expect(store.getState().fields).to.deep.equal([
+          { name: '_id', value: '_id', score: 1, meta: 'field', version: '0.0.0' },
+          { name: 'name', value: 'name', score: 1, meta: 'field', version: '0.0.0' }
+        ]);
       });
     });
   });
