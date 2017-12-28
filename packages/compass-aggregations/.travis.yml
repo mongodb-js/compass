@@ -12,6 +12,8 @@ addons:
       - ubuntu-toolchain-r-test
     packages:
       - libkrb5-dev
+before_install:
+  - echo "//registry.npmjs.org/:_authToken=c3c41e28-29d4-429b-9128-1e3502f16f0e" >> .npmrc
 before_script:
   - export DISPLAY=:99.0
   - sh -e /etc/init.d/xvfb start
