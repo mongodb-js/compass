@@ -25,6 +25,7 @@ class Pipeline extends PureComponent {
     stageMoved: PropTypes.func.isRequired,
     stageOperatorSelected: PropTypes.func.isRequired,
     stageToggled: PropTypes.func.isRequired,
+    copyToClipboard: PropTypes.func.isRequired,
     view: PropTypes.string.isRequired,
     fields: PropTypes.array.isRequired
   }

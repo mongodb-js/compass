@@ -121,6 +121,7 @@
     "react-redux": "^5.0.6",
     "react-select-plus": "^1.0.0-rc.10.patch1",
     "redux": "^3.7.2",
+    "redux-thunk": "^2.2.0",
     "semver": "^5.4.1"
   }
 }

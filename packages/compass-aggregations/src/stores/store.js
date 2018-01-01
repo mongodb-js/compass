@@ -1,12 +1,13 @@
-import { createStore } from 'redux';
+import { createStore, applyMiddleware } from 'redux';
+import thunk from 'redux-thunk';
 import reducer from 'modules';
 import { namespaceChanged } from 'modules/namespace';
 import { fieldsChanged } from 'modules/fields';
 
 /**
- * The store has a combined pipeline reducer.
+ * The store has a combined pipeline reducer plus the thunk middleware.
  */
-const store = createStore(reducer);
+const store = createStore(reducer, applyMiddleware(thunk));
 
 /**
  * This hook is Compass specific to listen to app registry events.

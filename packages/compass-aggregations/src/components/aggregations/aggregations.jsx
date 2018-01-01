@@ -5,6 +5,7 @@ import classnames from 'classnames';
 import Pipeline from 'components/pipeline';
 import { namespaceChanged } from 'modules/namespace';
 import { viewChanged } from 'modules/view';
+import { copyToClipboard } from 'modules/clipboard';
 import {
   stageAdded,
   stageChanged,
@@ -35,7 +36,8 @@ class Aggregations extends Component {
     stageMoved: PropTypes.func.isRequired,
     stageOperatorSelected: PropTypes.func.isRequired,
     stageToggled: PropTypes.func.isRequired,
-    viewChanged: PropTypes.func.isRequired
+    viewChanged: PropTypes.func.isRequired,
+    copyToClipboard: PropTypes.func.isRequired
   }
 
   /**
@@ -81,7 +83,8 @@ const MappedAggregations = connect(
     stageMoved,
     stageOperatorSelected,
     stageToggled,
-    viewChanged
+    viewChanged,
+    copyToClipboard
   },
 )(Aggregations);
 

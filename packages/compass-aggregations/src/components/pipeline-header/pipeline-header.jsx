@@ -2,7 +2,7 @@ import React, { PureComponent } from 'react';
 import { ViewSwitcher } from 'hadron-react-components';
 import PropTypes from 'prop-types';
 import classnames from 'classnames';
-import { TextButton } from 'hadron-react-buttons';
+import { TextButton, IconButton } from 'hadron-react-buttons';
 import { CODE, BUILDER } from 'modules/view';
 
 import styles from './pipeline-header.less';
@@ -16,7 +16,8 @@ class PipelineHeader extends PureComponent {
   static propTypes = {
     view: PropTypes.string.isRequired,
     stageAdded: PropTypes.func.isRequired,
-    viewChanged: PropTypes.func.isRequired
+    viewChanged: PropTypes.func.isRequired,
+    copyToClipboard: PropTypes.func.isRequired
   }
 
   /**
@@ -45,6 +46,11 @@ class PipelineHeader extends PureComponent {
           text="Add Stage"
           className="btn btn-xs btn-default"
           clickHandler={this.props.stageAdded} />
+        <IconButton
+          title="Copy to Clipboard"
+          className="btn btn-default btn-xs"
+          iconClassName="fa fa-clipboard"
+          clickHandler={this.props.copyToClipboard} />
       </div>
     );
   }

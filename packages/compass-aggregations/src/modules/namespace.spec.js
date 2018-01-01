@@ -1,6 +1,6 @@
 import reducer, { namespaceChanged, NAMESPACE_CHANGED } from 'modules/namespace';
 
-describe('server version module', () => {
+describe('namespace module', () => {
   describe('#namespaceChanged', () => {
     it('returns the NAMESPACE_CHANGED action', () => {
       expect(namespaceChanged('db.coll')).to.deep.equal({
