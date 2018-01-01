@@ -2,7 +2,7 @@ import React, { PureComponent } from 'react';
 import { ViewSwitcher } from 'hadron-react-components';
 import PropTypes from 'prop-types';
 import classnames from 'classnames';
-import AddStageButton from 'components/add-stage-button';
+import { TextButton } from 'hadron-react-buttons';
 import { CODE, BUILDER } from 'modules/view';
 
 import styles from './pipeline-header.less';
@@ -41,7 +41,10 @@ class PipelineHeader extends PureComponent {
           buttonLabels={[ CODE, BUILDER ]}
           activeButton={this.props.view}
           onClick={this.onViewChanged} />
-        <AddStageButton className="add-stage-button" stageAdded={this.props.stageAdded} />
+        <TextButton
+          text="Add Stage"
+          className="btn btn-xs btn-default"
+          clickHandler={this.props.stageAdded} />
       </div>
     );
   }
