@@ -1,5 +1,6 @@
 import EXPRESSION_OPERATORS from 'constants/expression-operators';
 import ACCUMULATORS from 'constants/accumulators';
+import BSON_TYPES from 'constants/bson-types';
 import semver from 'semver';
 import store from 'stores';
 
@@ -17,6 +18,11 @@ const PROJECT = '$project';
  * The group stage operator.
  */
 const GROUP = '$group';
+
+/**
+ * The base completions.
+ */
+const BASE_COMPLETIONS = EXPRESSION_OPERATORS.concat(BSON_TYPES);
 
 /**
  * Adds autocomplete suggestions based on the aggregation pipeline
@@ -86,21 +92,21 @@ class Completer {
     }
     // If the current token is not a string, then we proceed as normal to suggest
     // operators to the user.
-    const expressions = EXPRESSION_OPERATORS.concat(this.accumulators()).concat(this.fields);
+    const expressions = BASE_COMPLETIONS.concat(this.accumulators()).concat(this.fields);
     done(null, this._filter(expressions, prefix));
   }
 
   /**
-   * Filter the operators based on the prefix.
+   * Filter the entires based on the prefix.
    *
-   * @param {Array} operators - The operators to filter.
+   * @param {Array} entries - The entries to filter.
    * @param {String} prefix - The prefix.
    *
-   * @returns {Array} The matching operators.
+   * @returns {Array} The matching entries.
    */
-  _filter(operators, prefix) {
-    return operators.filter((op) => {
-      return op.name.startsWith(prefix) && semver.gte(this.version, op.version);
+  _filter(entries, prefix) {
+    return entries.filter((e) => {
+      return e.name.startsWith(prefix) && semver.gte(this.version, e.version);
     });
   }
 }

@@ -108,16 +108,32 @@ describe('Completer', () => {
 
           context('when the prefix begins with a letter', () => {
             context('when the token is on the same line', () => {
-              const completer = new Completer('3.6.0', textCompleter, 0, fields);
-              const session = new EditSession('{ n', new Mode());
-              const position = { row: 0, column: 2 };
+              context('when the token matches a field', () => {
+                const completer = new Completer('3.6.0', textCompleter, 0, fields);
+                const session = new EditSession('{ n', new Mode());
+                const position = { row: 0, column: 2 };
 
-              it('returns all the matching field names', () => {
-                completer.getCompletions(editor, session, position, 'n', (error, results) => {
-                  expect(error).to.equal(null);
-                  expect(results).to.deep.equal([
-                    { name: 'name', value: 'name', score: 1, meta: 'field', version: '0.0.0' }
-                  ]);
+                it('returns all the matching field names', () => {
+                  completer.getCompletions(editor, session, position, 'n', (error, results) => {
+                    expect(error).to.equal(null);
+                    expect(results).to.deep.equal([
+                      { name: 'name', value: 'name', score: 1, meta: 'field', version: '0.0.0' }
+                    ]);
+                  });
+                });
+              });
+              context('when the token matches a BSON type', () => {
+                const completer = new Completer('3.6.0', textCompleter, 0, fields);
+                const session = new EditSession('{ N', new Mode());
+                const position = { row: 0, column: 2 };
+
+                it('returns all the matching field names', () => {
+                  completer.getCompletions(editor, session, position, 'N', (error, results) => {
+                    expect(error).to.equal(null);
+                    expect(results.map(r => r.name)).to.deep.equal([
+                      'NumberInt', 'NumberLong', 'NumberDecimal'
+                    ]);
+                  });
                 });
               });
             });
