@@ -18,7 +18,7 @@ describe('clipboard module', () => {
       };
 
       it('returns the generated text', () => {
-        expect(generateClipboardText(state)).to.equal('{ $match: { name: "testing" }');
+        expect(generateClipboardText(state)).to.equal('{ $match: { name: "testing" } }');
       });
     });
 

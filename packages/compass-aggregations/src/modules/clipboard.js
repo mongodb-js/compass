@@ -32,7 +32,7 @@ const COPY = 'copy';
  */
 const generateStageText = (stage) => {
   if (stage.isEnabled && stage.stageOperator) {
-    return `{ ${stage.stageOperator}: ${stage.stage}`;
+    return `{ ${stage.stageOperator}: ${stage.stage} }`;
   }
   return '';
 };
