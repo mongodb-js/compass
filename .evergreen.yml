@@ -328,6 +328,15 @@ tasks:
       - rhel-compass
       - rhel-compass-community
       - rhel-compass-readonly
+  - command: shell.exec
+    params:
+      working_dir: src
+      script: |
+        sudo apt-get install libsecret-1-0
+    variants:
+      - ubuntu-compass
+      - ubuntu-compass-community
+      - ubuntu-compass-readonly
   - func: "configure"
   - func: "install"
   - command: expansions.update
