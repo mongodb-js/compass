@@ -384,7 +384,7 @@ buildvariants:
   - "osx-1010-compass"
   expansions:
     build_via_local_tunnel: true
-    fetch_npm_tarball: node-v7.4.0-darwin-x64.tgz
+    fetch_npm_tarball: node-v7.9.0-darwin-x64.tgz
     node_path: "$(pwd)/.deps/bin"
     num_cores: $(sysctl -n hw.logicalcpu)
     compass_distribution: compass
@@ -398,7 +398,7 @@ buildvariants:
   - "osx-1010-compass"
   expansions:
     build_via_local_tunnel: true
-    fetch_npm_tarball: node-v7.4.0-darwin-x64.tgz
+    fetch_npm_tarball: node-v7.9.0-darwin-x64.tgz
     node_path: "$(pwd)/.deps/bin"
     num_cores: $(sysctl -n hw.logicalcpu)
     compass_distribution: compass-community
@@ -412,7 +412,7 @@ buildvariants:
   - "osx-1010-compass"
   expansions:
     build_via_local_tunnel: true
-    fetch_npm_tarball: node-v7.4.0-darwin-x64.tgz
+    fetch_npm_tarball: node-v7.9.0-darwin-x64.tgz
     node_path: "$(pwd)/.deps/bin"
     num_cores: $(sysctl -n hw.logicalcpu)
     compass_distribution: compass-readonly
@@ -425,7 +425,7 @@ buildvariants:
   run_on:
   - "windows-64-vs2013-test"
   expansions:
-    fetch_npm_tarball: node-v7.4.0-win32-x64.tgz
+    fetch_npm_tarball: node-v7.9.0-win32-x64.tgz
     node_path: "$(pwd)/.deps"
     num_cores: $(grep -c ^processor /proc/cpuinfo)
     add_env_appdata: Z:\
@@ -439,7 +439,7 @@ buildvariants:
   run_on:
   - "windows-64-vs2013-test"
   expansions:
-    fetch_npm_tarball: node-v7.4.0-win32-x64.tgz
+    fetch_npm_tarball: node-v7.9.0-win32-x64.tgz
     node_path: "$(pwd)/.deps"
     num_cores: $(grep -c ^processor /proc/cpuinfo)
     add_env_appdata: Z:\
@@ -453,7 +453,7 @@ buildvariants:
   run_on:
   - "windows-64-vs2013-test"
   expansions:
-    fetch_npm_tarball: node-v7.4.0-win32-x64.tgz
+    fetch_npm_tarball: node-v7.9.0-win32-x64.tgz
     node_path: "$(pwd)/.deps"
     num_cores: $(grep -c ^processor /proc/cpuinfo)
     add_env_appdata: Z:\
@@ -467,7 +467,7 @@ buildvariants:
   run_on:
   - "ubuntu1404-test"
   expansions:
-    fetch_npm_tarball: node-v7.4.0-linux-x64.tgz
+    fetch_npm_tarball: node-v7.9.0-linux-x64.tgz
     node_path: "$(pwd)/.deps/bin"
     compile_env: CC=/opt/mongodbtoolchain/bin/gcc CXX=/opt/mongodbtoolchain/bin/g++
     num_cores: $(grep -c ^processor /proc/cpuinfo)
@@ -481,7 +481,7 @@ buildvariants:
   run_on:
   - "ubuntu1404-test"
   expansions:
-    fetch_npm_tarball: node-v7.4.0-linux-x64.tgz
+    fetch_npm_tarball: node-v7.9.0-linux-x64.tgz
     node_path: "$(pwd)/.deps/bin"
     compile_env: CC=/opt/mongodbtoolchain/bin/gcc CXX=/opt/mongodbtoolchain/bin/g++
     num_cores: $(grep -c ^processor /proc/cpuinfo)
@@ -495,7 +495,7 @@ buildvariants:
   run_on:
   - "ubuntu1404-test"
   expansions:
-    fetch_npm_tarball: node-v7.4.0-linux-x64.tgz
+    fetch_npm_tarball: node-v7.9.0-linux-x64.tgz
     node_path: "$(pwd)/.deps/bin"
     compile_env: CC=/opt/mongodbtoolchain/bin/gcc CXX=/opt/mongodbtoolchain/bin/g++
     num_cores: $(grep -c ^processor /proc/cpuinfo)
@@ -509,7 +509,7 @@ buildvariants:
   run_on:
   - "rhel70"
   expansions:
-    fetch_npm_tarball: node-v7.4.0-linux-x64.tgz
+    fetch_npm_tarball: node-v7.9.0-linux-x64.tgz
     node_path: "$(pwd)/.deps/bin"
     compile_env: CC=/opt/mongodbtoolchain/bin/gcc CXX=/opt/mongodbtoolchain/bin/g++
     num_cores: $(grep -c ^processor /proc/cpuinfo)
@@ -523,7 +523,7 @@ buildvariants:
   run_on:
   - "rhel70"
   expansions:
-    fetch_npm_tarball: node-v7.4.0-linux-x64.tgz
+    fetch_npm_tarball: node-v7.9.0-linux-x64.tgz
     node_path: "$(pwd)/.deps/bin"
     compile_env: CC=/opt/mongodbtoolchain/bin/gcc CXX=/opt/mongodbtoolchain/bin/g++
     num_cores: $(grep -c ^processor /proc/cpuinfo)
@@ -537,7 +537,7 @@ buildvariants:
   run_on:
   - "rhel70"
   expansions:
-    fetch_npm_tarball: node-v7.4.0-linux-x64.tgz
+    fetch_npm_tarball: node-v7.9.0-linux-x64.tgz
     node_path: "$(pwd)/.deps/bin"
     compile_env: CC=/opt/mongodbtoolchain/bin/gcc CXX=/opt/mongodbtoolchain/bin/g++
     num_cores: $(grep -c ^processor /proc/cpuinfo)
