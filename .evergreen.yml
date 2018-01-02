@@ -293,7 +293,7 @@ tasks:
         # Get precompiled
         curl -fs \
           -o ".deps/${fetch_npm_tarball}" \
-          --url "http://mongodb-dx-public.s3.amazonaws.com/evergreen-deps/${fetch_npm_tarball}"
+          --url "https://nodejs.org/download/release/v7.9.0/${fetch_npm_tarball}"
         cd .deps
         tar xzf ${fetch_npm_tarball} --strip-components=1
 
@@ -358,24 +358,6 @@ tasks:
 #######################################
 #           Buildvariants             #
 #######################################
-# TODO (imlucas) Figure out how evergreen variables work here
-# so we can reduce the copy and paste in `buildvariants` below.
-#
-# variables:
-# - &variant
-#   - name: platform-id-lowercase
-#     display_name: platform-productName
-#     modules: ~
-#     run_on:
-#       - "evergreen-distro-id"
-#     expansions:
-#       fetch_npm_tarball: node-v6.3.1-npm-3.10.3-linux-x64.tgz
-#       node_path: "$(pwd)/.deps/bin"
-#       compile_env: CC=/opt/mongodbtoolchain/bin/gcc CXX=/opt/mongodbtoolchain/bin/g++
-#       num_cores: $(grep -c ^processor /proc/cpuinfo)
-#     tasks:
-#       - name: compile
-
 buildvariants:
 - name: macos-compass
   display_name: MacOS (Compass)
@@ -384,7 +366,7 @@ buildvariants:
   - "osx-1010-compass"
   expansions:
     build_via_local_tunnel: true
-    fetch_npm_tarball: node-v7.9.0-darwin-x64.tgz
+    fetch_npm_tarball: node-v7.9.0-darwin-x64.tar.gz
     node_path: "$(pwd)/.deps/bin"
     num_cores: $(sysctl -n hw.logicalcpu)
     compass_distribution: compass
@@ -398,7 +380,7 @@ buildvariants:
   - "osx-1010-compass"
   expansions:
     build_via_local_tunnel: true
-    fetch_npm_tarball: node-v7.9.0-darwin-x64.tgz
+    fetch_npm_tarball: node-v7.9.0-darwin-x64.tar.gz
     node_path: "$(pwd)/.deps/bin"
     num_cores: $(sysctl -n hw.logicalcpu)
     compass_distribution: compass-community
@@ -412,7 +394,7 @@ buildvariants:
   - "osx-1010-compass"
   expansions:
     build_via_local_tunnel: true
-    fetch_npm_tarball: node-v7.9.0-darwin-x64.tgz
+    fetch_npm_tarball: node-v7.9.0-darwin-x64.tar.gz
     node_path: "$(pwd)/.deps/bin"
     num_cores: $(sysctl -n hw.logicalcpu)
     compass_distribution: compass-readonly
@@ -425,7 +407,7 @@ buildvariants:
   run_on:
   - "windows-64-vs2013-test"
   expansions:
-    fetch_npm_tarball: node-v7.9.0-win32-x64.tgz
+    fetch_npm_tarball: node-v7.9.0-win32-x64.7z
     node_path: "$(pwd)/.deps"
     num_cores: $(grep -c ^processor /proc/cpuinfo)
     add_env_appdata: Z:\
@@ -439,7 +421,7 @@ buildvariants:
   run_on:
   - "windows-64-vs2013-test"
   expansions:
-    fetch_npm_tarball: node-v7.9.0-win32-x64.tgz
+    fetch_npm_tarball: node-v7.9.0-win32-x64.7z
     node_path: "$(pwd)/.deps"
     num_cores: $(grep -c ^processor /proc/cpuinfo)
     add_env_appdata: Z:\
@@ -453,7 +435,7 @@ buildvariants:
   run_on:
   - "windows-64-vs2013-test"
   expansions:
-    fetch_npm_tarball: node-v7.9.0-win32-x64.tgz
+    fetch_npm_tarball: node-v7.9.0-win32-x64.7z
     node_path: "$(pwd)/.deps"
     num_cores: $(grep -c ^processor /proc/cpuinfo)
     add_env_appdata: Z:\
@@ -467,7 +449,7 @@ buildvariants:
   run_on:
   - "ubuntu1404-test"
   expansions:
-    fetch_npm_tarball: node-v7.9.0-linux-x64.tgz
+    fetch_npm_tarball: node-v7.9.0-linux-x64.tar.gz
     node_path: "$(pwd)/.deps/bin"
     compile_env: CC=/opt/mongodbtoolchain/bin/gcc CXX=/opt/mongodbtoolchain/bin/g++
     num_cores: $(grep -c ^processor /proc/cpuinfo)
@@ -481,7 +463,7 @@ buildvariants:
   run_on:
   - "ubuntu1404-test"
   expansions:
-    fetch_npm_tarball: node-v7.9.0-linux-x64.tgz
+    fetch_npm_tarball: node-v7.9.0-linux-x64.tar.gz
     node_path: "$(pwd)/.deps/bin"
     compile_env: CC=/opt/mongodbtoolchain/bin/gcc CXX=/opt/mongodbtoolchain/bin/g++
     num_cores: $(grep -c ^processor /proc/cpuinfo)
@@ -495,7 +477,7 @@ buildvariants:
   run_on:
   - "ubuntu1404-test"
   expansions:
-    fetch_npm_tarball: node-v7.9.0-linux-x64.tgz
+    fetch_npm_tarball: node-v7.9.0-linux-x64.tar.gz
     node_path: "$(pwd)/.deps/bin"
     compile_env: CC=/opt/mongodbtoolchain/bin/gcc CXX=/opt/mongodbtoolchain/bin/g++
     num_cores: $(grep -c ^processor /proc/cpuinfo)
@@ -509,7 +491,7 @@ buildvariants:
   run_on:
   - "rhel70"
   expansions:
-    fetch_npm_tarball: node-v7.9.0-linux-x64.tgz
+    fetch_npm_tarball: node-v7.9.0-linux-x64.tar.gz
     node_path: "$(pwd)/.deps/bin"
     compile_env: CC=/opt/mongodbtoolchain/bin/gcc CXX=/opt/mongodbtoolchain/bin/g++
     num_cores: $(grep -c ^processor /proc/cpuinfo)
@@ -523,7 +505,7 @@ buildvariants:
   run_on:
   - "rhel70"
   expansions:
-    fetch_npm_tarball: node-v7.9.0-linux-x64.tgz
+    fetch_npm_tarball: node-v7.9.0-linux-x64.tar.gz
     node_path: "$(pwd)/.deps/bin"
     compile_env: CC=/opt/mongodbtoolchain/bin/gcc CXX=/opt/mongodbtoolchain/bin/g++
     num_cores: $(grep -c ^processor /proc/cpuinfo)
@@ -537,7 +519,7 @@ buildvariants:
   run_on:
   - "rhel70"
   expansions:
-    fetch_npm_tarball: node-v7.9.0-linux-x64.tgz
+    fetch_npm_tarball: node-v7.9.0-linux-x64.tar.gz
     node_path: "$(pwd)/.deps/bin"
     compile_env: CC=/opt/mongodbtoolchain/bin/gcc CXX=/opt/mongodbtoolchain/bin/g++
     num_cores: $(grep -c ^processor /proc/cpuinfo)
