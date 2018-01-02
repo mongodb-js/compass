@@ -333,29 +333,6 @@ tasks:
   - command: expansions.update
     params:
       file: src/expansions.yml
-  - command: shell.exec
-    params:
-      working_dir: src
-      script: |
-        curl -fs \
-          -o ".deps/macos-alias-0.2.11-abi-51.tgz" \
-          --url "http://mongodb-dx-public.s3.amazonaws.com/evergreen-deps/macos-alias-0.2.11-abi-51.tgz"
-        curl -fs \
-          -o ".deps/fs-xattr-0.1.15-abi-51.tgz" \
-          --url "http://mongodb-dx-public.s3.amazonaws.com/evergreen-deps/fs-xattr-0.1.15-abi-51.tgz"
-        rm -rf node_modules/macos-alias
-        rm -rf node_modules/fs-xattr
-        cd .deps
-        tar xzf macos-alias-0.2.11-abi-51.tgz
-        tar xzf fs-xattr-0.1.15-abi-51.tgz
-        mv node_modules/macos-alias ../node_modules/macos-alias
-        mv node_modules/fs-xattr ../node_modules/fs-xattr
-        rm -rf node_modules/
-        cd ..
-    variants:
-      - macos-compass
-      - macos-compass-community
-      - macos-compass-readonly
   - func: "build"
   - func: "save windows artifacts"
     variants:
