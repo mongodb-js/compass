@@ -332,7 +332,7 @@ tasks:
     params:
       working_dir: src
       script: |
-        sudo apt-get install libsecret-1-0
+        sudo apt-get -y install libsecret-1-0
     variants:
       - ubuntu-compass
       - ubuntu-compass-community
