@@ -24,7 +24,7 @@
     "cli-table": "^0.3.1",
     "debug": "^2.2.0",
     "del": "^2.0.2",
-    "electron": "^1.6.1",
+    "electron": "^1.7.10",
     "electron-installer-run": "^1.0.0",
     "electron-installer-zip": "^0.1.2",
     "electron-license": "^1.0.0",
@@ -54,7 +54,6 @@
     "pify": "^2.3.0",
     "semver": "^5.1.0",
     "tar-pack": "^3.3.0",
-    "templatizer": "^2.0.3",
     "which": "^1.2.0",
     "yargs": "^4.8.1"
   },
