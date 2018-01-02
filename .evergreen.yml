@@ -407,7 +407,7 @@ buildvariants:
   run_on:
   - "windows-64-vs2013-test"
   expansions:
-    fetch_npm_tarball: node-v7.9.0-win32-x64.7z
+    fetch_npm_tarball: node-v7.9.0-win-x64.7z
     node_path: "$(pwd)/.deps"
     num_cores: $(grep -c ^processor /proc/cpuinfo)
     add_env_appdata: Z:\
@@ -421,7 +421,7 @@ buildvariants:
   run_on:
   - "windows-64-vs2013-test"
   expansions:
-    fetch_npm_tarball: node-v7.9.0-win32-x64.7z
+    fetch_npm_tarball: node-v7.9.0-win-x64.7z
     node_path: "$(pwd)/.deps"
     num_cores: $(grep -c ^processor /proc/cpuinfo)
     add_env_appdata: Z:\
@@ -435,7 +435,7 @@ buildvariants:
   run_on:
   - "windows-64-vs2013-test"
   expansions:
-    fetch_npm_tarball: node-v7.9.0-win32-x64.7z
+    fetch_npm_tarball: node-v7.9.0-win-x64.7z
     node_path: "$(pwd)/.deps"
     num_cores: $(grep -c ^processor /proc/cpuinfo)
     add_env_appdata: Z:\
