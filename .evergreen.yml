@@ -20,9 +20,11 @@ functions:
       params:
         working_dir: src
         script: |
+          ls -la
           set -ev
           cat <<EOF_BUILD_SH > ~/compass_env.sh
           export PATH="${node_path}:$PATH"
+          echo $PATH
           export APPDATA=${add_env_appdata|}
           export CI=1
           export EVERGREEN=1
@@ -291,9 +293,6 @@ tasks:
           --url "https://nodejs.org/download/release/v7.9.0/${fetch_npm_tarball}"
         cd .deps
         tar xzf ${fetch_npm_tarball} --strip-components=1
-        ls -la
-        echo $PATH
-        npm
 
         chmod +x npm.cmd || true
     variants:
@@ -323,10 +322,6 @@ tasks:
         unzip ${fetch_npm_tarball}
         mv node-v7.9.0-win-x64/* .
         rm -rf node-v7.9.0-win-x64
-        ls -la
-        export PATH="${node_path}:$PATH"
-        echo $PATH
-        npm
 
         chmod +x npm.cmd || true
     variants:
