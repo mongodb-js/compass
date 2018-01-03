@@ -29,6 +29,7 @@ const license = require('electron-license');
 const ModuleCache = require('hadron-module-cache');
 const CompileCache = require('hadron-compile-cache');
 const StyleManager = require('hadron-style-manager');
+const rebuild = require('electron-rebuild').rebuild;
 
 const ui = require('./ui');
 const verify = require('./verify');
@@ -351,7 +352,17 @@ const installDependencies = (CONFIG, done) => {
       return done(err);
     }
     cli.debug('Dependencies installed');
-    done();
+
+    rebuild({
+      electronVersion: CONFIG.packagerOptions.electronVersion,
+      buildPath: CONFIG.dir,
+      force: true
+    }).then(() => {
+      cli.debug('Native modules rebuilt against Electron.');
+      return done();
+    }).catch((e) => {
+      return done(e)
+    });
   });
 };
 

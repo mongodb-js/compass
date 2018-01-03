@@ -66,7 +66,8 @@
     "url": "git://github.com/mongodb-js/hadron-fixture-app.git"
   },
   "dependencies": {
-    "compass-unused-plugin": "compass/plugin"
+    "compass-unused-plugin": "compass/plugin",
+    "moment": "^2.10.6"
   },
   "devDependencies": {
     "hadron-build": "^0.1.9",
@@ -77,8 +78,8 @@
     "xvfb-maybe": "^0.1.3"
   },
   "engines": {
-    "node": "^5.0.0",
-    "npm": "^3.0.0"
+    "node": "^7.9.0",
+    "npm": "^4.0.0"
   },
   "_path": "/Users/modetojoy/work/mongodb-js/hadron-build/test/fixtures/hadron-app/package.json",
   "bugs": {
