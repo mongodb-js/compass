@@ -74,6 +74,7 @@ functions:
         npm --version
         node --version
         echo $PATH
+        ls -la .deps
         npm install -g node-gyp yarn
         npm install
         npm run evergreen-expansions ${compass_distribution}
