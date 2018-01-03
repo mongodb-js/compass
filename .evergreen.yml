@@ -23,7 +23,7 @@ functions:
           set -ev
           cat <<EOF_BUILD_SH > ~/compass_env.sh
           export PATH="${node_path}:$PATH"
-          export APPDATA=${add_env_appdata|}
+          export APPDATA=${add_env_appdata}
           export CI=1
           export EVERGREEN=1
 
@@ -73,6 +73,7 @@ functions:
         echo "//registry.npmjs.org/:_authToken=${compass_npm_token}" >> .npmrc
         npm --version
         node --version
+        echo $PATH
         npm install -g node-gyp yarn
         npm install
         npm run evergreen-expansions ${compass_distribution}
