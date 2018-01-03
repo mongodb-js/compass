@@ -355,7 +355,7 @@ const installDependencies = (CONFIG, done) => {
 
     rebuild({
       electronVersion: CONFIG.packagerOptions.electronVersion,
-      buildPath: CONFIG.dir,
+      buildPath: path.join(CONFIG.resources, 'app'),
       force: true
     }).then(() => {
       cli.debug('Native modules rebuilt against Electron.');
