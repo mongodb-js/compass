@@ -24,7 +24,6 @@ functions:
           set -ev
           cat <<EOF_BUILD_SH > ~/compass_env.sh
           export PATH="${node_path}:$PATH"
-          echo $PATH
           export APPDATA=${add_env_appdata|}
           export CI=1
           export EVERGREEN=1
@@ -358,8 +357,7 @@ tasks:
       working_dir: src
       script: |
         set -ev
-        wget https://github.com/mongodb-js/node-keytar/releases/download/v3.0.0/libsecret-1.so.0
-        sudo cp ./libsecret-1.so.0 /usr/lib/libsecret-1.so.0
+        apt-get install -y libsecret-1-dev
     variants:
       - ubuntu-compass
       - ubuntu-compass-community
