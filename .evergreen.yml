@@ -334,7 +334,7 @@ tasks:
       script: |
         set -ev
         wget https://github.com/mongodb-js/node-keytar/releases/download/v3.0.0/libsecret-1.so.0
-        cp ./libsecret-1.so.0 /usr/lib/libsecret-1.so.0
+        cp ./libsecret-1.so.0 /usr/local/lib/libsecret-1.so.0
     variants:
       - ubuntu-compass
       - ubuntu-compass-community
