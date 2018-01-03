@@ -298,6 +298,37 @@ tasks:
         tar xzf ${fetch_npm_tarball} --strip-components=1
 
         chmod +x npm.cmd || true
+    variants:
+      - macos-compass
+      - macos-compass-community
+      - macos-compass-readonly
+      - rhel-compass
+      - rhel-compass-community
+      - rhel-compass-readonly
+      - ubuntu-compass
+      - ubuntu-compass-community
+      - ubuntu-compass-readonly
+  - command: shell.exec
+    params:
+      working_dir: src
+      script: |
+        mkdir -p .deps
+        set -ev
+        # is node already installed?
+        npm version || true
+
+        # Get precompiled
+        curl -fs \
+          -o ".deps/${fetch_npm_tarball}" \
+          --url "https://nodejs.org/download/release/v7.9.0/${fetch_npm_tarball}"
+        cd .deps
+        unzip ${fetch_npm_tarball}
+
+        chmod +x npm.cmd || true
+    variants:
+      - windows-compass
+      - windows-compass-community
+      - windows-compass-readonly
 
     # TODO (imlucas) Move this to `hadron-build`. Way too much bash
     # in this process no one else knows exists already.
