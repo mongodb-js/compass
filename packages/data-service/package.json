@@ -40,7 +40,7 @@
     "lodash.partial": "^4.2.1",
     "lodash.union": "^4.6.0",
     "lodash.uniq": "^4.5.0",
-    "mongodb": "^2.2.28",
+    "mongodb": "2.2.33",
     "mongodb-collection-sample": "^2.0.0",
     "mongodb-connection-model": "^10.7.0",
     "mongodb-index-model": "^1.0.0",
