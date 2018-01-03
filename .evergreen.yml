@@ -20,7 +20,6 @@ functions:
       params:
         working_dir: src
         script: |
-          ls -la
           set -ev
           cat <<EOF_BUILD_SH > ~/compass_env.sh
           export PATH="${node_path}:$PATH"
