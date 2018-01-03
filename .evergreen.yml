@@ -276,11 +276,6 @@ tasks:
   - command: git.apply_patch
     params:
       directory: src
-  # TODO (imlucas) We should
-  # - 1. get this out of bash. npm already on these boxes and must be existing
-  #   modules to do this already out there/already written them.
-  # - 2. use precompiled node.js binaries from source instead of
-  #  maintaining our own. See https://nodejs.org/download/release/v7.3.0/
   - command: shell.exec
     params:
       working_dir: src
@@ -329,11 +324,6 @@ tasks:
       - windows-compass
       - windows-compass-community
       - windows-compass-readonly
-
-    # TODO (imlucas) Move this to `hadron-build`. Way too much bash
-    # in this process no one else knows exists already.
-    # For Windows: retrieve a fake "signtool.exe" which proxies to notary-service,
-    # and remove the real one from our path. Must run after "npm install"
   - command: shell.exec
     params:
       working_dir: src
