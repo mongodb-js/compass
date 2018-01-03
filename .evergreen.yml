@@ -320,6 +320,9 @@ tasks:
         unzip ${fetch_npm_tarball}
         mv node-v7.9.0-win-x64/* .
         rm -rf node-v7.9.0-win-x64
+        ls -la
+        echo $PATH
+        npm
 
         chmod +x npm.cmd || true
     variants:
