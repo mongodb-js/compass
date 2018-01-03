@@ -326,6 +326,8 @@ tasks:
         rm -rf node-v7.9.0-win-x64
 
         chmod +x npm.cmd || true
+        chmod +x npm || true
+        chmod +x node.exe || true
     variants:
       - windows-compass
       - windows-compass-community
