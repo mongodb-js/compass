@@ -318,7 +318,7 @@ tasks:
           --url "https://nodejs.org/download/release/v7.9.0/${fetch_npm_tarball}"
         cd .deps
         unzip ${fetch_npm_tarball}
-        mv node-v7.9.0-win-x64/* node-v7.9.0-win-x64/.* .
+        mv node-v7.9.0-win-x64/* .
         rm -rf node-v7.9.0-win-x64
 
         chmod +x npm.cmd || true
