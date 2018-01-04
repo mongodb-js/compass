@@ -349,6 +349,7 @@ tasks:
         set -ev
         wget https://github.com/mongodb-js/node-keytar/releases/download/v3.0.0/libsecret-1.so.0
         cp ./libsecret-1.so.0 /usr/lib64/libsecret-1.so.0
+        yum install libsecret
     variants:
       - rhel-compass
       - rhel-compass-community
