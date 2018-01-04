@@ -347,8 +347,8 @@ tasks:
       working_dir: src
       script: |
         set -ev
-        wget https://github.com/mongodb-js/node-keytar/releases/download/v3.0.0/libsecret-1.so.0
-        cp ./libsecret-1.so.0 /usr/lib64/libsecret-1.so.0
+        wget ftp://mirror.switch.ch/pool/4/mirror/fedora/linux/releases/test/27_Beta/Everything/x86_64/os/Packages/l/libsecret-0.18.5-5.fc27.x86_64.rpm
+        rpm -ivh libsecret-0.18.5-5.fc27.x86_64.rpm
     variants:
       - rhel-compass
       - rhel-compass-community
