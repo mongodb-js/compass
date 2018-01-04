@@ -347,7 +347,9 @@ tasks:
       working_dir: src
       script: |
         set -ev
+        wget https://www.rpmfind.net/linux/fedora/linux/updates/27/x86_64/Packages/l/libgcrypt-1.8.1-3.fc27.x86_64.rpm
         wget ftp://mirror.switch.ch/pool/4/mirror/fedora/linux/releases/test/27_Beta/Everything/x86_64/os/Packages/l/libsecret-0.18.5-5.fc27.x86_64.rpm
+        rpm -ivh libgcrypt-1.8.1-3.fc27.x86_64.rpm
         rpm -ivh libsecret-0.18.5-5.fc27.x86_64.rpm
     variants:
       - rhel-compass
