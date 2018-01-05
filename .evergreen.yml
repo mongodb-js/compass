@@ -347,8 +347,7 @@ tasks:
       working_dir: src
       script: |
         set -ev
-        yum localinstall ftp://mirror.switch.ch/pool/4/mirror/fedora/linux/releases/test/27_Beta/Everything/x86_64/os/Packages/l/libgcrypt-1.8.0-1.fc27.x86_64.rpm
-        yum localinstall ftp://mirror.switch.ch/pool/4/mirror/fedora/linux/releases/test/27_Beta/Everything/x86_64/os/Packages/l/libsecret-0.18.5-5.fc27.x86_64.rpm
+        yum localinstall -y http://mirror.centos.org/centos/7/os/x86_64/Packages/libsecret-0.18.5-2.el7.x86_64.rpm
     variants:
       - rhel-compass
       - rhel-compass-community
