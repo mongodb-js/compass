@@ -5,6 +5,7 @@
   "description": "Compass Plugin for CRUD Operations",
   "repository": "https://github.com/10gen/compass-crud",
   "main": "index.js",
+  "browser": "browser.js",
   "scripts": {
     "ci": "npm run check && npm test",
     "fmt": "mongodb-js-fmt ./*.js ./test/*.js",
