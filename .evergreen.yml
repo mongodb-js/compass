@@ -347,7 +347,7 @@ tasks:
       working_dir: src
       script: |
         set -ev
-        yum localinstall -y https://centos.pkgs.org/7/centos-x86_64/libsecret-devel-0.18.5-2.el7.i686.rpm.html
+        yum localinstall -y --skip-broken http://mirror.centos.org/centos/7/os/x86_64/Packages/libsecret-devel-0.18.5-2.el7.x86_64.rpm
     variants:
       - rhel-compass
       - rhel-compass-community
