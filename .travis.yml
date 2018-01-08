@@ -2,7 +2,7 @@ sudo: false
 dist: trusty
 language: node_js
 node_js:
-  - 7.4
+  - 7.9
 env:
   matrix:
     - MONGODB_VERSION=3.4.x MONGODB_TOPOLOGY=standalone
@@ -14,7 +14,7 @@ addons:
       - ubuntu-toolchain-r-test
     packages:
       - libkrb5-dev
-      - libsecret-1-0
+      - libsecret-1-dev
 before_install:
   - echo "//registry.npmjs.org/:_authToken=\${NPM_TOKEN}" >> .npmrc
   - npm i -g npm@5

@@ -25,8 +25,9 @@ cd compass
 npm install
 
 # Build and launch the app, passing a distribution as an argument.
-npm start compass-lite
-npm start compass-enterprise
+npm start compass
+npm start compass-community
+npm start compass-readonly
 ```
 
 ### Master is broken
@@ -34,7 +35,7 @@ npm start compass-enterprise
 Try:
 
 ```
-npm run clean && npm install && npm test && npm start
+npm run clean && npm install && npm start
 ```
 
 ## Key Modules
@@ -53,8 +54,9 @@ sign it if the signing certificate is available on your machine, and generate a 
 installer for your current platform:
 
 ```bash
-cd compass
-npm run release
+npm run release compass
+npm run release compass-community
+npm run release compass-readonly
 ```
 
 ## The Release Process

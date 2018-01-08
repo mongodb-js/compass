@@ -23,7 +23,7 @@ functions:
           set -ev
           cat <<EOF_BUILD_SH > ~/compass_env.sh
           export PATH="${node_path}:$PATH"
-          export APPDATA=${add_env_appdata|}
+          export APPDATA=${add_env_appdata}
           export CI=1
           export EVERGREEN=1
 
@@ -276,11 +276,6 @@ tasks:
   - command: git.apply_patch
     params:
       directory: src
-  # TODO (imlucas) We should
-  # - 1. get this out of bash. npm already on these boxes and must be existing
-  #   modules to do this already out there/already written them.
-  # - 2. use precompiled node.js binaries from source instead of
-  #  maintaining our own. See https://nodejs.org/download/release/v7.3.0/
   - command: shell.exec
     params:
       working_dir: src
@@ -293,16 +288,46 @@ tasks:
         # Get precompiled
         curl -fs \
           -o ".deps/${fetch_npm_tarball}" \
-          --url "http://mongodb-dx-public.s3.amazonaws.com/evergreen-deps/${fetch_npm_tarball}"
+          --url "https://nodejs.org/download/release/v7.9.0/${fetch_npm_tarball}"
         cd .deps
         tar xzf ${fetch_npm_tarball} --strip-components=1
 
         chmod +x npm.cmd || true
+    variants:
+      - macos-compass
+      - macos-compass-community
+      - macos-compass-readonly
+      - rhel-compass
+      - rhel-compass-community
+      - rhel-compass-readonly
+      - ubuntu-compass
+      - ubuntu-compass-community
+      - ubuntu-compass-readonly
+  - command: shell.exec
+    params:
+      working_dir: src
+      script: |
+        mkdir -p .deps
+        set -ev
+        # is node already installed?
+        npm version || true
 
-    # TODO (imlucas) Move this to `hadron-build`. Way too much bash
-    # in this process no one else knows exists already.
-    # For Windows: retrieve a fake "signtool.exe" which proxies to notary-service,
-    # and remove the real one from our path. Must run after "npm install"
+        # Get precompiled
+        curl -fs \
+          -o ".deps/${fetch_npm_tarball}" \
+          --url "https://nodejs.org/download/release/v7.9.0/${fetch_npm_tarball}"
+        cd .deps
+        unzip ${fetch_npm_tarball}
+        mv node-v7.9.0-win-x64/* .
+        rm -rf node-v7.9.0-win-x64
+
+        chmod +x npm.cmd || true
+        chmod +x npm || true
+        chmod +x node.exe || true
+    variants:
+      - windows-compass
+      - windows-compass-community
+      - windows-compass-readonly
   - command: shell.exec
     params:
       working_dir: src
@@ -322,40 +347,28 @@ tasks:
       working_dir: src
       script: |
         set -ev
-        wget https://github.com/mongodb-js/node-keytar/releases/download/v3.0.0/libsecret-1.so.0
-        cp ./libsecret-1.so.0 /usr/lib64/libsecret-1.so.0
+        yum localinstall -y http://mirror.centos.org/centos/7/os/x86_64/Packages/glib2-devel-2.50.3-3.el7.x86_64.rpm
+        yum localinstall -y http://mirror.centos.org/centos/7/os/x86_64/Packages/libsecret-0.18.5-2.el7.x86_64.rpm
+        yum localinstall -y http://mirror.centos.org/centos/7/os/x86_64/Packages/libsecret-devel-0.18.5-2.el7.x86_64.rpm
     variants:
       - rhel-compass
       - rhel-compass-community
       - rhel-compass-readonly
+  - command: shell.exec
+    params:
+      working_dir: src
+      script: |
+        set -ev
+        sudo apt-get install -y libsecret-1-dev
+    variants:
+      - ubuntu-compass
+      - ubuntu-compass-community
+      - ubuntu-compass-readonly
   - func: "configure"
   - func: "install"
   - command: expansions.update
     params:
       file: src/expansions.yml
-  - command: shell.exec
-    params:
-      working_dir: src
-      script: |
-        curl -fs \
-          -o ".deps/macos-alias-0.2.11-abi-51.tgz" \
-          --url "http://mongodb-dx-public.s3.amazonaws.com/evergreen-deps/macos-alias-0.2.11-abi-51.tgz"
-        curl -fs \
-          -o ".deps/fs-xattr-0.1.15-abi-51.tgz" \
-          --url "http://mongodb-dx-public.s3.amazonaws.com/evergreen-deps/fs-xattr-0.1.15-abi-51.tgz"
-        rm -rf node_modules/macos-alias
-        rm -rf node_modules/fs-xattr
-        cd .deps
-        tar xzf macos-alias-0.2.11-abi-51.tgz
-        tar xzf fs-xattr-0.1.15-abi-51.tgz
-        mv node_modules/macos-alias ../node_modules/macos-alias
-        mv node_modules/fs-xattr ../node_modules/fs-xattr
-        rm -rf node_modules/
-        cd ..
-    variants:
-      - macos-compass
-      - macos-compass-community
-      - macos-compass-readonly
   - func: "build"
   - func: "save windows artifacts"
     variants:
@@ -381,24 +394,6 @@ tasks:
 #######################################
 #           Buildvariants             #
 #######################################
-# TODO (imlucas) Figure out how evergreen variables work here
-# so we can reduce the copy and paste in `buildvariants` below.
-#
-# variables:
-# - &variant
-#   - name: platform-id-lowercase
-#     display_name: platform-productName
-#     modules: ~
-#     run_on:
-#       - "evergreen-distro-id"
-#     expansions:
-#       fetch_npm_tarball: node-v6.3.1-npm-3.10.3-linux-x64.tgz
-#       node_path: "$(pwd)/.deps/bin"
-#       compile_env: CC=/opt/mongodbtoolchain/bin/gcc CXX=/opt/mongodbtoolchain/bin/g++
-#       num_cores: $(grep -c ^processor /proc/cpuinfo)
-#     tasks:
-#       - name: compile
-
 buildvariants:
 - name: macos-compass
   display_name: MacOS (Compass)
@@ -407,7 +402,7 @@ buildvariants:
   - "osx-1010-compass"
   expansions:
     build_via_local_tunnel: true
-    fetch_npm_tarball: node-v7.4.0-darwin-x64.tgz
+    fetch_npm_tarball: node-v7.9.0-darwin-x64.tar.gz
     node_path: "$(pwd)/.deps/bin"
     num_cores: $(sysctl -n hw.logicalcpu)
     compass_distribution: compass
@@ -421,7 +416,7 @@ buildvariants:
   - "osx-1010-compass"
   expansions:
     build_via_local_tunnel: true
-    fetch_npm_tarball: node-v7.4.0-darwin-x64.tgz
+    fetch_npm_tarball: node-v7.9.0-darwin-x64.tar.gz
     node_path: "$(pwd)/.deps/bin"
     num_cores: $(sysctl -n hw.logicalcpu)
     compass_distribution: compass-community
@@ -435,7 +430,7 @@ buildvariants:
   - "osx-1010-compass"
   expansions:
     build_via_local_tunnel: true
-    fetch_npm_tarball: node-v7.4.0-darwin-x64.tgz
+    fetch_npm_tarball: node-v7.9.0-darwin-x64.tar.gz
     node_path: "$(pwd)/.deps/bin"
     num_cores: $(sysctl -n hw.logicalcpu)
     compass_distribution: compass-readonly
@@ -448,7 +443,7 @@ buildvariants:
   run_on:
   - "windows-64-vs2013-test"
   expansions:
-    fetch_npm_tarball: node-v7.4.0-win32-x64.tgz
+    fetch_npm_tarball: node-v7.9.0-win-x64.zip
     node_path: "$(pwd)/.deps"
     num_cores: $(grep -c ^processor /proc/cpuinfo)
     add_env_appdata: Z:\
@@ -462,7 +457,7 @@ buildvariants:
   run_on:
   - "windows-64-vs2013-test"
   expansions:
-    fetch_npm_tarball: node-v7.4.0-win32-x64.tgz
+    fetch_npm_tarball: node-v7.9.0-win-x64.zip
     node_path: "$(pwd)/.deps"
     num_cores: $(grep -c ^processor /proc/cpuinfo)
     add_env_appdata: Z:\
@@ -476,7 +471,7 @@ buildvariants:
   run_on:
   - "windows-64-vs2013-test"
   expansions:
-    fetch_npm_tarball: node-v7.4.0-win32-x64.tgz
+    fetch_npm_tarball: node-v7.9.0-win-x64.zip
     node_path: "$(pwd)/.deps"
     num_cores: $(grep -c ^processor /proc/cpuinfo)
     add_env_appdata: Z:\
@@ -490,7 +485,7 @@ buildvariants:
   run_on:
   - "ubuntu1404-test"
   expansions:
-    fetch_npm_tarball: node-v7.4.0-linux-x64.tgz
+    fetch_npm_tarball: node-v7.9.0-linux-x64.tar.gz
     node_path: "$(pwd)/.deps/bin"
     compile_env: CC=/opt/mongodbtoolchain/bin/gcc CXX=/opt/mongodbtoolchain/bin/g++
     num_cores: $(grep -c ^processor /proc/cpuinfo)
@@ -504,7 +499,7 @@ buildvariants:
   run_on:
   - "ubuntu1404-test"
   expansions:
-    fetch_npm_tarball: node-v7.4.0-linux-x64.tgz
+    fetch_npm_tarball: node-v7.9.0-linux-x64.tar.gz
     node_path: "$(pwd)/.deps/bin"
     compile_env: CC=/opt/mongodbtoolchain/bin/gcc CXX=/opt/mongodbtoolchain/bin/g++
     num_cores: $(grep -c ^processor /proc/cpuinfo)
@@ -518,7 +513,7 @@ buildvariants:
   run_on:
   - "ubuntu1404-test"
   expansions:
-    fetch_npm_tarball: node-v7.4.0-linux-x64.tgz
+    fetch_npm_tarball: node-v7.9.0-linux-x64.tar.gz
     node_path: "$(pwd)/.deps/bin"
     compile_env: CC=/opt/mongodbtoolchain/bin/gcc CXX=/opt/mongodbtoolchain/bin/g++
     num_cores: $(grep -c ^processor /proc/cpuinfo)
@@ -532,7 +527,7 @@ buildvariants:
   run_on:
   - "rhel70"
   expansions:
-    fetch_npm_tarball: node-v7.4.0-linux-x64.tgz
+    fetch_npm_tarball: node-v7.9.0-linux-x64.tar.gz
     node_path: "$(pwd)/.deps/bin"
     compile_env: CC=/opt/mongodbtoolchain/bin/gcc CXX=/opt/mongodbtoolchain/bin/g++
     num_cores: $(grep -c ^processor /proc/cpuinfo)
@@ -546,7 +541,7 @@ buildvariants:
   run_on:
   - "rhel70"
   expansions:
-    fetch_npm_tarball: node-v7.4.0-linux-x64.tgz
+    fetch_npm_tarball: node-v7.9.0-linux-x64.tar.gz
     node_path: "$(pwd)/.deps/bin"
     compile_env: CC=/opt/mongodbtoolchain/bin/gcc CXX=/opt/mongodbtoolchain/bin/g++
     num_cores: $(grep -c ^processor /proc/cpuinfo)
@@ -560,7 +555,7 @@ buildvariants:
   run_on:
   - "rhel70"
   expansions:
-    fetch_npm_tarball: node-v7.4.0-linux-x64.tgz
+    fetch_npm_tarball: node-v7.9.0-linux-x64.tar.gz
     node_path: "$(pwd)/.deps/bin"
     compile_env: CC=/opt/mongodbtoolchain/bin/gcc CXX=/opt/mongodbtoolchain/bin/g++
     num_cores: $(grep -c ^processor /proc/cpuinfo)

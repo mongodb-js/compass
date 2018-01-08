@@ -149,6 +149,7 @@
     "pretest": "mongodb-runner install && mongodb-runner start --port 27017",
     "test": "hadron-build test",
     "posttest": "mongodb-runner stop --port 27017",
+    "postinstall": "./node_modules/.bin/electron-rebuild",
     "check": "mongodb-js-precommit './src/**/*{.js,.jsx}' './test/**/*.js'",
     "ci": "npm run check && npm run test",
     "clean": "hadron-build clean",
@@ -231,8 +232,8 @@
     "marky": "^1.2.0",
     "moment": "^2.10.6",
     "mongodb-collection-model": "^0.4.0",
-    "mongodb-connection-model": "^10.6.0",
-    "mongodb-data-service": "^9.0.0",
+    "mongodb-connection-model": "^10.6.1",
+    "mongodb-data-service": "^9.0.2",
     "mongodb-database-model": "^0.1.2",
     "mongodb-explain-plan-model": "^0.2.2",
     "mongodb-extended-json": "^1.10.0",
@@ -280,12 +281,13 @@
     "chai-as-promised": "^5.1.0",
     "chai-enzyme": "^0.8.0",
     "devtron": "^1.4.0",
-    "electron": "1.6.1",
+    "electron": "1.7.10",
     "electron-devtools-installer": "^2.1.0",
     "electron-mocha": "^3.3.0",
+    "electron-rebuild": "^1.6.0",
     "enzyme": "^2.5.1",
     "eslint-config-mongodb-js": "^2.2.0",
-    "hadron-build": "^17.0.3",
+    "hadron-build": "^18.0.0",
     "hadron-spectron": "^1.0.0",
     "jsdom": "^9.8.3",
     "mgeneratejs": "^0.2.0",
@@ -302,7 +304,7 @@
     "check"
   ],
   "engines": {
-    "node": "^7.4.0",
+    "node": "^7.9.0",
     "npm": "^4.0.0 || ^5.0.0"
   },
   "bugs": {
