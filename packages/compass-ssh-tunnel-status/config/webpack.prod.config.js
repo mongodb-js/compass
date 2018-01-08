@@ -138,7 +138,7 @@ module.exports = {
           // In prod we need to go to $COMPASS_HOME/node_modules/<plugin>/lib or
           // $USER_HOME/.mongodb/compasss(-community)/plugins
           query: {
-            name: 'assets/images/[name]__[hash:base64:5].[ext]',
+            name: 'assets/images/[name].[ext]',
             publicPath: ''
           }
         }]
