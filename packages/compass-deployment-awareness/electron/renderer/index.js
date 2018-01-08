@@ -14,7 +14,7 @@ const DeploymentAwarenessStore = require('../../lib/stores');
 const CONNECTION = new Connection({
   hostname: '127.0.0.1',
   port: 27017,
-  ns: 'admin',
+  ns: 'compass-deployment-awareness',
   mongodb_database_name: 'admin'
 });
 
@@ -23,11 +23,11 @@ global.hadronApp.appRegistry = new AppRegistry();
 global.hadronApp.appRegistry.registerStore('DeploymentAwareness.Store', DeploymentAwarenessStore);
 
 const dataService = new DataService(CONNECTION);
-global.hadronApp.appRegistry.onDataServiceInitialized(dataService);
+global.hadronApp.appRegistry.emit('data-service-initialized', dataService);
 
 dataService.connect((error, ds) => {
   global.hadronApp.dataService = ds;
-  global.hadronApp.appRegistry.onConnected(error, ds);
+  global.hadronApp.appRegistry.emit('data-service-connected', error, ds);
 
   global.hadronApp.appRegistry.onActivated();
 
