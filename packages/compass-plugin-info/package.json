@@ -1,7 +1,7 @@
 {
   "name": "@mongodb-js/compass-security",
   "productName": "Compass Security",
-  "version": "0.0.5",
+  "version": "0.1.0",
   "description": "Compass Security/Plugin Information Plugin",
   "main": "lib/index.js",
   "scripts": {
