@@ -1,4 +1,4 @@
-const moment = require('moment');
+const moment = require('moment-timezone');
 const React = require('react');
 const PropTypes = require('prop-types');
 
@@ -23,7 +23,11 @@ class DateValue extends React.Component {
    * @returns {React.Component} The element component.
    */
   render() {
-    const value = moment(this.props.value).format(FORMAT);
+    const time = moment(this.props.value);
+    if (this.props.tz) {
+      time.tz(this.props.tz);
+    }
+    const value = time.format(FORMAT);
     return React.createElement(
       'div',
       { className: CLASS, title: value },
@@ -36,7 +40,8 @@ DateValue.displayName = 'DateValue';
 
 DateValue.propTypes = {
   type: PropTypes.string.isRequired,
-  value: PropTypes.any.isRequired
+  value: PropTypes.any.isRequired,
+  tz: PropTypes.string
 };
 
 module.exports = DateValue;

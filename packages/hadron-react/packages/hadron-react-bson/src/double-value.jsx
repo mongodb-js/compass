@@ -17,7 +17,7 @@ class Double extends React.Component {
    * @returns {React.Component} The element component.
    */
   render() {
-    const value = String(this.props.value.value);
+    const value = String(this.props.value.valueOf());
     return (
       <div className={`${CLASS} ${CLASS}-is-${this.props.type.toLowerCase()}`} title={value}>
         {value}
