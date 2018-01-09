@@ -1,6 +1,6 @@
 const React = require('react');
 const PropTypes = require('prop-types');
-const { AnimatedIconTextButton } = require('hadron-react-buttons');
+const { AnimatedIconTextButton, IconButton } = require('hadron-react-buttons');
 const { InfoSprinkle, ViewSwitcher } = require('hadron-react-components');
 const { shell } = require('electron');
 const Actions = require('../actions');
@@ -149,6 +149,10 @@ class Toolbar extends React.Component {
     Actions.getNextPage(this.state.page + 1);
   }
 
+  handleExport() {
+    global.hadronApp.appRegistry.emit('request-collection-export');
+  }
+
   /**
    * Handle loading the previous page of documents in the table view.
    */
@@ -221,6 +225,16 @@ class Toolbar extends React.Component {
     }
   }
 
+  renderExportButton() {
+    return (
+      <IconButton
+        title="Export Collection"
+        className="btn btn-default btn-xs"
+        iconClassName="fa fa-download"
+        clickHandler={this.handleExport} />
+    );
+  }
+
   /**
    * If we are on the documents tab, just display the count and insert button.
    *
@@ -260,6 +274,7 @@ class Toolbar extends React.Component {
                 animatingIconClassName="fa fa-refresh fa-spin"
                 />
             </div>
+            {this.renderExportButton()}
           </div>
         </div>
       </div>
