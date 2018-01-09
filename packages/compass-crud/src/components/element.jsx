@@ -101,6 +101,7 @@ class Element extends React.Component {
           key={element.uuid}
           element={element}
           expandAll={this.props.expandAll}
+          tz={this.props.tz}
         />)
       );
     }
@@ -156,7 +157,11 @@ class Element extends React.Component {
     const component = getComponent(this.props.element.currentType);
     return React.createElement(
       component,
-      { type: this.props.element.currentType, value: this.props.element.currentValue }
+      {
+        type: this.props.element.currentType,
+        value: this.props.element.currentValue,
+        tz: this.props.tz
+      }
     );
   }
 
@@ -174,7 +179,8 @@ Element.displayName = 'Element';
 
 Element.propTypes = {
   element: PropTypes.any.isRequired,
-  expandAll: PropTypes.bool
+  expandAll: PropTypes.bool,
+  tz: PropTypes.string
 };
 
 module.exports = Element;

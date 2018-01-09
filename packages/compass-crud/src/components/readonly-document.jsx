@@ -65,6 +65,7 @@ class ReadonlyDocument extends React.Component {
           key={element.uuid}
           element={element}
           expandAll={this.props.expandAll}
+          tz={this.props.tz}
         />
       ));
       index++;
@@ -115,7 +116,8 @@ ReadonlyDocument.displayName = 'ReadonlyDocument';
 
 ReadonlyDocument.propTypes = {
   doc: PropTypes.object.isRequired,
-  expandAll: PropTypes.bool
+  expandAll: PropTypes.bool,
+  tz: PropTypes.string
 };
 
 module.exports = ReadonlyDocument;

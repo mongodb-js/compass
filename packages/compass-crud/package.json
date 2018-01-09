@@ -84,13 +84,13 @@
   "dependencies": {
     "ag-grid": "12.0.0",
     "ag-grid-react": "12.0.0",
+    "classnames": "^2.2.5",
     "hadron-document": "^4.0.0",
-    "hadron-react-bson": "^1.4.0",
+    "hadron-react-bson": "^1.12.0",
     "hadron-type-checker": "^4.0.2",
     "jquery": "^2.1.4",
     "lodash": "^4.17.4",
     "react-click-outside": "^2.2.0",
-    "react-tooltip": "^3.2.6",
-    "classnames": "^2.2.5"
+    "react-tooltip": "^3.2.6"
   }
 }
