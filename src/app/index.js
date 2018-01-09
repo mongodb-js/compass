@@ -70,6 +70,7 @@ var Application = View.extend({
       '  <div data-hook="optin-container"></div>',
       '  <div data-hook="security"></div>',
       '  <div data-hook="license"></div>',
+      '  <div data-hook="intercom" class="intercom-wrapper"></div>',
       '</div>'
     ].join('\n');
   },
@@ -183,6 +184,11 @@ var Application = View.extend({
 
     this.securityComponent = app.appRegistry.getRole('Application.Security')[0].component;
     ReactDOM.render(React.createElement(this.securityComponent), this.queryByHook('security'));
+
+    if (process.env.HADRON_PRODUCT !== 'mongodb-compass-community') {
+      this.intercomComponent = app.appRegistry.getComponent('Metrics.Intercom');
+      ReactDOM.render(React.createElement(this.intercomComponent), this.queryByHook('intercom'));
+    }
 
     this.autoUpdate = new AutoUpdate({
       el: this.queryByHook('auto-update')

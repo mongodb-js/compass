@@ -5,7 +5,7 @@ const app = require('hadron-app');
 const _ = require('lodash');
 const format = require('util').format;
 const ipc = require('hadron-ipc');
-const intercom = require('./intercom');
+// const intercom = require('./intercom');
 const features = require('./features');
 const Notifier = require('node-notifier');
 
@@ -18,8 +18,6 @@ const INTERCOM_KEY = 'p57suhg7';
 const BUGSNAG_KEY = '0d11ab5f4d97452cc83d3365c21b491c';
 
 module.exports = function() {
-  let intercomBlocked = false;
-
   metrics.configure({
     stitch: {
       appId: 'datawarehouseprod-compass-nqnxw',
@@ -36,35 +34,6 @@ module.exports = function() {
       enabled: app.preferences.trackErrors
     }
   });
-
-  if (process.env.HADRON_PRODUCT !== 'mongodb-compass-community' && app.preferences.enableFeedbackPanel) {
-    const request = new XMLHttpRequest();
-    request.onreadystatechange = () => {
-      try {
-        if (request.readyState === XMLHttpRequest.DONE) {
-          if (request.status < 400) {
-            metrics.configure({
-              intercom: {
-                appId: INTERCOM_KEY,
-                enabled: app.preferences.trackUsageStatistics,
-                panelEnabled: app.preferences.enableFeedbackPanel
-              }
-            });
-          } else {
-            intercomBlocked = true;
-          }
-        }
-      } catch (e) {
-        intercomBlocked = true;
-      }
-    };
-    try {
-      request.open('GET', format('https://widget.intercom.io/widget/%s', INTERCOM_KEY), true);
-      request.send();
-    } catch (e) {
-      intercomBlocked = true;
-    }
-  }
 
   // create an app resource with name and version
   const appResource = new resources.AppResource({
@@ -133,41 +102,13 @@ module.exports = function() {
 
   // listen to preference changes
   app.preferences.on('change:trackUsageStatistics', function(prefs, enabled) {
-    // enable/disable event tracking
     metrics.trackers.get('ga').enabled = enabled;
-    metrics.trackers.get('intercom').enabled = enabled;
-    if (enabled && !app.preferences.enableFeedbackPanel) {
-      document.querySelector('#intercom-container').classList.add('hidden');
-    }
-    // metrics.trackers.get('mixpanel').enabled = enabled;
-  });
-  app.preferences.on('change:enableFeedbackPanel', function(prefs, enabled) {
-    // enable/disable product feedback
-    metrics.trackers.get('intercom').panelEnabled = enabled;
-    if (Window && document.querySelector('#intercom-container')) {
-      if (enabled) {
-        document.querySelector('#intercom-container').classList.remove('hidden');
-      } else {
-        document.querySelector('#intercom-container').classList.add('hidden');
-      }
-    }
   });
   app.preferences.on('change:trackErrors', function(prefs, enabled) {
     // enable/disable error reports
     /* eslint new-cap:0 */
     metrics.trackers.get('bugsnag').enabled = enabled;
   });
-
-  /**
-   * Listen for links in the Intercom chat window
-   * such that when a link is clicked, the event is properly
-   * passed off to `app.router` and a web page actually opens.
-   */
-  if (process.env.HADRON_PRODUCT !== 'mongodb-compass-community' &&
-      !intercomBlocked &&
-      app.preferences.enableFeedbackPanel) {
-    intercom.configure();
-  }
 
   app.metrics = metrics;
 };
