@@ -49,5 +49,28 @@ describe('clipboard module', () => {
         expect(generateClipboardText(state)).to.equal('');
       });
     });
+
+    context('when there are multiple stages', () => {
+      const state = {
+        stages: [
+          {
+            isEnabled: true,
+            stageOperator: '$match',
+            stage: '{ name: "testing" }'
+          },
+          {
+            isEnabled: true,
+            stageOperator: '$project',
+            stage: '{ name: 1 }'
+          }
+        ]
+      };
+
+      it('separates each stage with a comma', () => {
+        expect(generateClipboardText(state)).to.equal(
+          '{ $match: { name: "testing" } }, { $project: { name: 1 } }'
+        );
+      });
+    });
   });
 });

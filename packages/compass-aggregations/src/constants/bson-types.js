@@ -40,7 +40,7 @@ const BSON_TYPES = [
     meta: 'bson',
     version: '0.0.0',
     description: 'BSON DBRef type',
-    snippet: "DBRef('${1:ns}, ${2:oid}')"
+    snippet: "DBRef('${1:ns}', '${2:oid}')"
   },
   {
     name: 'Timestamp',

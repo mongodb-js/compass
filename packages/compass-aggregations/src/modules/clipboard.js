@@ -24,6 +24,11 @@ const INPUT = 'input';
 const COPY = 'copy';
 
 /**
+ * Stage clipboard separator.
+ */
+const SEPARATOR = ', ';
+
+/**
  * Generate the text for a single stage.
  *
  * @param {Object} stage - The stage.
@@ -46,8 +51,11 @@ const generateStageText = (stage) => {
  */
 export const generateClipboardText = (state) => {
   let pipeline = '';
-  state.stages.forEach((stage) => {
+  state.stages.forEach((stage, i) => {
     pipeline += generateStageText(stage);
+    if (i < state.stages.length - 1) {
+      pipeline += SEPARATOR;
+    }
   });
   return pipeline;
 };
