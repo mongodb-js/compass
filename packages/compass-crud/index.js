@@ -3,7 +3,6 @@ const DocumentList = require('./lib/components/document-list');
 const Actions = require('./lib/actions');
 const InsertDocumentStore = require('./lib/stores/insert-document-store');
 const ResetDocumentListStore = require('./lib/stores/reset-document-list-store');
-const LoadMoreDocumentsStore = require('./lib/stores/load-more-documents-store');
 const RemoveDocumentStore = require('./lib/stores/remove-document-store');
 const BreadcrumbStore = require('./lib/stores/breadcrumb-store');
 const PageChangedStore = require('./lib/stores/page-changed-store');
@@ -84,7 +83,6 @@ const activate = (appRegistry) => {
   appRegistry.registerStore('CRUD.InsertDocumentStore', InsertDocumentStore);
   appRegistry.registerStore('CRUD.RemoveDocumentStore', RemoveDocumentStore);
   appRegistry.registerStore('CRUD.ResetDocumentListStore', ResetDocumentListStore);
-  appRegistry.registerStore('CRUD.LoadMoreDocumentsStore', LoadMoreDocumentsStore);
   appRegistry.registerStore('CRUD.PageChangedStore', PageChangedStore);
   appRegistry.registerStore('CRUD.BreadcrumbStore', BreadcrumbStore);
 };
@@ -109,7 +107,6 @@ const deactivate = (appRegistry) => {
   appRegistry.deregisterStore('CRUD.InsertDocumentStore');
   appRegistry.deregisterStore('CRUD.RemoveDocumentStore');
   appRegistry.deregisterStore('CRUD.ResetDocumentListStore');
-  appRegistry.deregisterStore('CRUD.LoadMoreDocumentsStore');
   appRegistry.deregisterStore('CRUD.BreadcrumbStore');
   appRegistry.deregisterStore('CRUD.PageChangedStore');
 };

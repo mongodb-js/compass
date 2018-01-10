@@ -5,7 +5,6 @@ const { InfoSprinkle, ViewSwitcher } = require('hadron-react-components');
 const { shell } = require('electron');
 const Actions = require('../actions');
 const ResetDocumentListStore = require('../stores/reset-document-list-store');
-const LoadMoreDocumentsStore = require('../stores/load-more-documents-store');
 const InsertDocumentStore = require('../stores/insert-document-store');
 const PageChangedStore = require('../stores/page-changed-store');
 
@@ -55,7 +54,6 @@ class Toolbar extends React.Component {
     this.unsubscribeReset = ResetDocumentListStore.listen(this.handleReset.bind(this));
     this.unsubscribeInsert = InsertDocumentStore.listen(this.handleInsert.bind(this));
     this.unsubscribeRemove = this.documentRemovedAction.listen(this.handleRemove.bind(this));
-    this.unsubscribeLoadMore = LoadMoreDocumentsStore.listen(this.handleLoadMore.bind(this));
     this.unsubscribePageChanged = PageChangedStore.listen(this.handlePageChange.bind(this));
   }
 
@@ -66,7 +64,6 @@ class Toolbar extends React.Component {
     this.unsubscribeReset();
     this.unsubscribeInsert();
     this.unsubscribeRemove();
-    this.unsubscribeLoadMore();
     this.unsubscribePageChanged();
   }
 
@@ -103,20 +100,6 @@ class Toolbar extends React.Component {
         start: 1,
         page: 0
       });
-    }
-  }
-
-  /**
-   * Handle a change in the visible documents. Can be a result of scroll, for
-   * the list view, or a result of the next/previous buttons in the table view.
-   * Updates the page counts.
-   *
-   * @param {Object} error - The error
-   * @param {Array} documents - The loaded documents.
-   */
-  handleLoadMore(error, documents) {
-    if (!error) {
-      this.setState({ loaded: this.state.loaded + documents.length });
     }
   }
 
@@ -182,10 +165,6 @@ class Toolbar extends React.Component {
   }
 
   renderPageButtons() {
-    if (this.props.activeDocumentView === 'List') {
-      return null;
-    }
-
     const prevButtonDisabled = this.state.page === 0;
     const nextButtonDisabled = 20 * (this.state.page + 1) >= this.state.count;
 

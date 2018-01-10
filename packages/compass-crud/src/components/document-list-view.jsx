@@ -19,34 +19,9 @@ const LIST_ITEM_CLASS = `${LIST_CLASS}-item`;
 const LIST_ITEM_TEST_ID = LIST_ITEM_CLASS;
 
 /**
- * The scroll event name.
- */
-const SCROLL_EVENT = 'scroll';
-
-/**
  * Represents the list view of the documents tab.
  */
 class DocumentListView extends React.Component {
-
-  /**
-   * Attach the scroll event, for now.
-   */
-  componentDidMount() {
-    this.attachScrollEvent();
-  }
-
-  /**
-   * Attach the scroll event to the parent container.
-   */
-  attachScrollEvent() {
-    const scroller = this.refs.documentList.parentNode.parentNode;
-    if (scroller) {
-      scroller.addEventListener(
-        SCROLL_EVENT,
-        this.props.scrollHandler
-      );
-    }
-  }
 
   /**
    * Get the document list item components.
@@ -72,7 +47,7 @@ class DocumentListView extends React.Component {
    */
   render() {
     return (
-      <ol className={LIST_CLASS} ref="documentList">
+      <ol className={LIST_CLASS}>
         {this.renderDocuments()}
       </ol>
     );
@@ -81,8 +56,7 @@ class DocumentListView extends React.Component {
 
 DocumentListView.propTypes = {
   docs: PropTypes.array.isRequired,
-  isEditable: PropTypes.bool.isRequired,
-  scrollHandler: PropTypes.func.isRequired
+  isEditable: PropTypes.bool.isRequired
 };
 
 DocumentListView.displayName = 'DocumentListView';

@@ -14,7 +14,6 @@ const Actions = require('../actions');
 const GridStore = require('../stores/grid-store');
 const InsertDocumentStore = require('../stores/insert-document-store');
 const ResetDocumentListStore = require('../stores/reset-document-list-store');
-const PageChangedStore = require('../stores/page-changed-store');
 const BreadcrumbStore = require('../stores/breadcrumb-store');
 
 const BreadcrumbComponent = require('./breadcrumb');
@@ -85,7 +84,6 @@ class DocumentTableView extends React.Component {
 
     this.collection = mongodbns(props.ns).collection;
     this.hadronDocs = [];
-    this.start = 1;
     this.topLevel = true;
 
     this.AGGrid = React.createElement(
@@ -97,17 +95,17 @@ class DocumentTableView extends React.Component {
   componentDidMount() {
     this.unsubscribeGridStore = GridStore.listen(this.modifyColumns.bind(this));
     this.unsubscribeInsert = InsertDocumentStore.listen(this.handleInsert.bind(this));
-    this.unsubscribeReset = ResetDocumentListStore.listen(this.handleReset.bind(this));
-    this.unsubscribePageChanged = PageChangedStore.listen(this.handlePageChange.bind(this));
     this.unsubscribeBreadcrumbStore = BreadcrumbStore.listen(this.handleBreadcrumbChange.bind(this));
   }
 
   componentWillUnmount() {
     this.unsubscribeGridStore();
     this.unsubscribeInsert();
-    this.unsubscribeReset();
-    this.unsubscribePageChanged();
     this.gridApi.destroy();
+  }
+
+  componentWillReceiveProps(nextProps) {
+    this.hadronDocs = this.initHadronDocs(nextProps.docs);
   }
 
   /**
@@ -525,37 +523,6 @@ class DocumentTableView extends React.Component {
   }
 
   /**
-   * The documents have changed due to a refresh or load next/previous page.
-   * Also need to call pathChanged because going to a new page resets the path.
-   *
-   * @param {Object} error - Error when trying to load more documents.
-   * @param {Array} documents - The next batch of documents.
-   * @param {Number} start - The index of the first document shown.
-   * @param {Number} end - (Unused) The index of the last document shown.
-   */
-  handlePageChange(error, documents, start) {
-    if (!error) {
-      this.hadronDocs = this.initHadronDocs(documents);
-      this.start = start;
-      Actions.pathChanged([], []);
-    }
-  }
-
-  /**
-   * When the ResetDocumentListStore is triggered with new documents.
-   *
-   * @param {Object} error - Error when trying to load more documents.
-   * @param {Array} documents - The refreshed batch of documents.
-   */
-  handleReset(error, documents) {
-    if (!error) {
-      this.hadronDocs = this.initHadronDocs(documents);
-      this.start = 1;
-      Actions.pathChanged([], []);
-    }
-  }
-
-  /**
    * When the BreadcrumbStore changes, update the grid.
    *
    * and just trigger with the path.
@@ -574,7 +541,7 @@ class DocumentTableView extends React.Component {
 
       this.gridApi.gridOptionsWrapper.gridOptions.context.path = [];
       this.gridApi.setColumnDefs(headers);
-      this.gridApi.setRowData(this.createRowData(this.hadronDocs, this.start));
+      this.gridApi.setRowData(this.createRowData(this.hadronDocs, this.props.startIndex));
     } else if (params.types[params.types.length - 1] === 'Object' ||
                params.types[params.types.length - 1] === 'Array') {
       this.topLevel = false;
@@ -921,7 +888,8 @@ class DocumentTableView extends React.Component {
 DocumentTableView.propTypes = {
   docs: PropTypes.array.isRequired,
   isEditable: PropTypes.bool.isRequired,
-  ns: PropTypes.string.isRequired
+  ns: PropTypes.string.isRequired,
+  startIndex: PropTypes.number.isRequired
 };
 
 DocumentTableView.displayName = 'DocumentTableView';
