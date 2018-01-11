@@ -4,9 +4,6 @@ node_js:
   - 7
   - 8
 script: npm run-script ci
-cache:
-  directories:
-  - node_modules
 env:
   global:
     secure: jxh3shK2Ahuem2H3Y8xrRvqdM5frS8Z3cEv1gfYpQv/F+uutjdE39e172qZo/McnOqdppp+cBGYUgNYnSOD5XTNTgFMjoe2WAJ9n2Z3whh5jEZZFAPapsybJUuaeIKPhwO0kbzRVMhpB0kyYB02Fub18hvuiHl44F8iJykVhivH0k0npBtpi/67iRZgQi4/MmYZrqu7tZ5SzmRgNXE+dy2M0Igdpr7U4ewsN7Mpd8qVQWcWPab4HRyQvD0eiIPlhB4Oagnpn5prq8Jr3JMutZCv/5riUTDwPYuplNMgKWUUESw2l0MHcWLxyfHEKf+S9vGU1aPEl1D20NzNARNIGqyvdPgXAe6zNUVUG9dWeSJLdOoHtSWpw/StbO156BCCFONCoTH5SqdPi6vdJLF9767ysyMhKlqT5cPnBX7XmdYdi99YMFm5++r0neKSsevVsNMQjnewsfTL4Bhfbc3cwYba86Bq0Td3nnA+RUVHfs/VqAGDHCIzQV+cAywoIcVvEoqiy2WBJ0ajXsafkVGzVIyxcoJ+nfuJ73AN0cgZb9ktJ4hfJ+yKU8iWVW09EaWefV7fLpeOHeqzG2I32446QfUtwwzF4wNu31R5+CQmbpFtDXYzz28oVgXtsudYid8rn6/vao9wTA9fRBK3fk7DIQNhgeXyEZfBxSUasay2ZMfk=
