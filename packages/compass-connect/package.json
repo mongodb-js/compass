@@ -15,7 +15,7 @@
     "less": "lessc ./styles/index.less ./lib/styles/index.css",
     "link-plugin": "./scripts/link.sh",
     "unlink-plugin": "./scripts/unlink.sh",
-    "postinstall": "./node_modules/.bin/electron-rebuild",
+    "precompile": "./node_modules/.bin/electron-rebuild",
     "prepublish": "npm run compile",
     "pretest": "npm run compile",
     "prestart": "npm run compile",
