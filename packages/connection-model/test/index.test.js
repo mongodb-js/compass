@@ -27,7 +27,7 @@ function isNotValidAndHasMessage(model, msg) {
  */
 describe('mongodb-connection-model', function() {
   describe('client meta data', function() {
-    it('should return the correct URL with appname included', function() {
+    it('should return the correct URL with appname included', function(done) {
       var c = new Connection({
         app_name: 'My App'
       });
@@ -38,8 +38,9 @@ describe('mongodb-connection-model', function() {
         parse(c.driver_url);
       });
 
-      assert.doesNotThrow(function() {
-        driverParse(c.driver_url);
+      driverParse(c.driver_url, {}, (error) => {
+        assert.equal(error, null);
+        done();
       });
     });
 
@@ -93,7 +94,7 @@ describe('mongodb-connection-model', function() {
 
   describe('authentication', function() {
     describe('NONE', function() {
-      it('should return the correct URL for the driver', function() {
+      it('should return the correct URL for the driver', function(done) {
         var c = new Connection({
           ssl: 'NONE'
         });
@@ -104,8 +105,9 @@ describe('mongodb-connection-model', function() {
           parse(c.driver_url);
         });
 
-        assert.doesNotThrow(function() {
-          driverParse(c.driver_url);
+        driverParse(c.driver_url, {}, (error) => {
+          assert.equal(error, null);
+          done();
         });
       });
     });
@@ -166,9 +168,10 @@ describe('mongodb-connection-model', function() {
           });
         });
 
-        it('should parse on the server', function() {
-          assert.doesNotThrow(function() {
-            driverParse(c.driver_url);
+        it('should parse on the server', function(done) {
+          driverParse(c.driver_url, {}, (error) => {
+            assert.equal(error, null);
+            done();
           });
         });
       });
@@ -201,9 +204,10 @@ describe('mongodb-connection-model', function() {
             });
           });
 
-          it('should parse on the server', () => {
-            assert.doesNotThrow(() => {
-              driverParse(connection.driver_url);
+          it('should parse on the server', (done) => {
+            driverParse(connection.driver_url, {}, (error) => {
+              assert.equal(error, null);
+              done();
             });
           });
         });
@@ -235,9 +239,10 @@ describe('mongodb-connection-model', function() {
             });
           });
 
-          it('should parse on the server', () => {
-            assert.doesNotThrow(() => {
-              driverParse(connection.driver_url);
+          it('should parse on the server', (done) => {
+            driverParse(connection.driver_url, {}, (error) => {
+              assert.equal(error, null);
+              done();
             });
           });
         });
@@ -269,9 +274,10 @@ describe('mongodb-connection-model', function() {
             });
           });
 
-          it('should parse on the server', () => {
-            assert.doesNotThrow(() => {
-              driverParse(connection.driver_url);
+          it('should parse on the server', (done) => {
+            driverParse(connection.driver_url, {}, (error) => {
+              assert.equal(error, null);
+              done();
             });
           });
         });
@@ -304,9 +310,10 @@ describe('mongodb-connection-model', function() {
           });
         });
 
-        it('should parse on the server', () => {
-          assert.doesNotThrow(() => {
-            driverParse(connection.driver_url);
+        it('should parse on the server', (done) => {
+          driverParse(connection.driver_url, {}, (error) => {
+            assert.equal(error, null);
+            done();
           });
         });
       });
@@ -494,9 +501,10 @@ describe('mongodb-connection-model', function() {
             });
           });
 
-          it('should parse on the server', function() {
-            assert.doesNotThrow(function() {
-              driverParse(c.driver_url);
+          it('should parse on the server', function(done) {
+            driverParse(c.driver_url, {}, (error) => {
+              assert.equal(error, null);
+              done();
             });
           });
         });
@@ -552,9 +560,10 @@ describe('mongodb-connection-model', function() {
             });
           });
 
-          it('should parse on the server', function() {
-            assert.doesNotThrow(function() {
-              driverParse(c.driver_url);
+          it('should parse on the server', function(done) {
+            driverParse(c.driver_url, {}, (error) => {
+              assert.equal(error, null);
+              done();
             });
           });
         });
@@ -606,9 +615,10 @@ describe('mongodb-connection-model', function() {
               });
             });
 
-            it('should parse on the server', function() {
-              assert.doesNotThrow(function() {
-                driverParse(c.driver_url);
+            it('should parse on the server', function(done) {
+              driverParse(c.driver_url, {}, (error) => {
+                assert.equal(error, null);
+                done();
               });
             });
           });
@@ -628,9 +638,10 @@ describe('mongodb-connection-model', function() {
               });
             });
 
-            it('should parse on the server', function() {
-              assert.doesNotThrow(function() {
-                driverParse(c.driver_url);
+            it('should parse on the server', function(done) {
+              driverParse(c.driver_url, {}, (error) => {
+                assert.equal(error, null);
+                done();
               });
             });
           });

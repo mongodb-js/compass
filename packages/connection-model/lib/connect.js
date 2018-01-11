@@ -69,10 +69,7 @@ function loadOptions(model, done) {
 function validateURL(model, done) {
   var url = model.driver_url;
   try {
-    parseURL(url);
-    process.nextTick(function() {
-      done(null, url);
-    });
+    parseURL(url, {}, done);
   } catch (e) {
     // URL parsing errors are just generic `Error` instances
     // so overwrite name so mongodb-js-server will know

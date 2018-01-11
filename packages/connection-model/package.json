@@ -32,7 +32,7 @@
     "debug": "^2.6.0",
     "kerberos": "^0.0.22",
     "lodash": "^4.16.4",
-    "mongodb": "2.2.33",
+    "mongodb": "^2.2.34",
     "mongodb-url": "^2.1.0",
     "ssh2": "^0.5.4"
   },
@@ -44,7 +44,7 @@
     "mongodb-instance-model": "^4.0.0",
     "mongodb-js-fmt": "^0.0.3",
     "mongodb-js-precommit": "^0.2.9",
-    "mongodb-runner": "^3.3.3",
+    "mongodb-runner": "^3.6.1",
     "pre-commit": "^1.1.2",
     "sinon": "^1.17.7"
   }
