@@ -28,7 +28,7 @@ var RESOURCES = path.resolve(__dirname, '../app/');
 * The outer dimensions to use for new windows.
 */
 let DEFAULT_WIDTH = 1280;
-let DEFAULT_HEIGHT = 800;
+let DEFAULT_HEIGHT = 840;
 
 let MIN_WIDTH = 1024;
 
