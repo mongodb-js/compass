@@ -856,8 +856,7 @@ Connection = AmpersandModel.extend({
       if (attrs.ssl_ca && !Array.isArray(attrs.ssl_ca)) {
         this.ssl_ca = attrs.ssl_ca = [attrs.ssl_ca];
       }
-      if (attrs.ssh_tunnel && attrs.ssh_tunnel !== 'NONE' &&
-          !attrs.ssh_tunnel_bind_to_local_port) {
+      if (attrs.ssh_tunnel && attrs.ssh_tunnel !== 'NONE') {
         const port = localPortGenerator();
         attrs.ssh_tunnel_bind_to_local_port = port;
         this.ssh_tunnel_bind_to_local_port = port;
