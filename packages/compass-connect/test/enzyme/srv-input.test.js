@@ -21,8 +21,8 @@ describe('<SRVInput />', () => {
         expect(component.find('.form-item-label')).to.have.text('SRV Record');
       });
 
-      it('renders the checkbox', () => {
-        expect(component.find('.form-control-checkbox')).to.be.present();
+      it('renders the switch', () => {
+        expect(component.find('.form-control-switch')).to.be.present();
       });
     });
 
@@ -38,8 +38,8 @@ describe('<SRVInput />', () => {
         expect(component.find('.form-item-label')).to.have.text('SRV Record');
       });
 
-      it('renders the checkbox', () => {
-        expect(component.find('.form-control-checkbox')).to.have.prop('checked', true);
+      it('enables the switch', () => {
+        expect(component.find('input')).to.have.prop('checked', true);
       });
     });
   });

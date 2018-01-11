@@ -1,5 +1,6 @@
 const React = require('react');
 const PropTypes = require('prop-types');
+const Switch = require('react-ios-switch');
 const Actions = require('../../actions');
 
 class SRVInput extends React.Component {
@@ -16,12 +17,12 @@ class SRVInput extends React.Component {
             SRV Record
           </span>
         </label>
-        <input
-          name="srv-record"
-          onChange={this.onSRVRecordToggle.bind(this)}
-          checked={this.props.currentConnection.isSrvRecord}
-          className="form-control-checkbox"
-          type="checkbox" />
+        <div className="form-item-switch-wrapper">
+          <Switch
+            checked={this.props.currentConnection.isSrvRecord}
+            onChange={this.onSRVRecordToggle.bind(this)}
+            className="form-control-switch" />
+        </div>
       </div>
     );
   }
