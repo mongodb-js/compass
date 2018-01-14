@@ -90,6 +90,7 @@
     "hadron-type-checker": "^4.0.2",
     "jquery": "^2.1.4",
     "lodash": "^4.17.4",
+    "lodash.topairs": "^4.3.0",
     "react-click-outside": "^2.2.0",
     "react-tooltip": "^3.2.6"
   }
