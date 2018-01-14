@@ -56,11 +56,10 @@ const CRUDStore = Reflux.createStore({
    *
    * @param {String} ns - The new namespace.
    */
-  onCollectionChanged(namespace) {
-    console.log(namespace);
-    const nsobj = toNS(namespace);
+  onCollectionChanged(ns) {
+    const nsobj = toNS(ns);
     this.setState({
-      ns: namespace,
+      ns: ns,
       collection: nsobj.collection,
       table: {
         path: [],
