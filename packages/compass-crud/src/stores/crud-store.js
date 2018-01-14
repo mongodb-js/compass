@@ -1,7 +1,10 @@
 const Reflux = require('reflux');
 const toNS = require('mongodb-ns');
+const ipc = require('hadron-ipc');
 const toPairs = require('lodash.topairs');
 const StateMixin = require('reflux-state-mixin');
+const HadronDocument = require('hadron-document');
+const { ObjectId } = require('bson');
 const Actions = require('../actions');
 
 /**
@@ -10,6 +13,15 @@ const Actions = require('../actions');
 const CRUDStore = Reflux.createStore({
   mixins: [StateMixin.store],
   listenables: Actions,
+
+  /**
+   * Listen for IPC events after init.
+   */
+  init() {
+    ipc.on('window:menu-open-insert-document-dialog', () => {
+      this.openInsertDocumentDialog({ _id: new ObjectId(), '': '' }, false);
+    });
+  },
 
   /**
    * Get the initial state of the store.
@@ -22,6 +34,7 @@ const CRUDStore = Reflux.createStore({
       collection: '',
       error: null,
       docs: [],
+      insertDoc: null,
       count: 0,
       table: {
         doc: null,
@@ -87,6 +100,27 @@ const CRUDStore = Reflux.createStore({
       this.state.collection = collection;
       this.resetDocuments();
     }
+  },
+
+  /**
+   * Open the insert document dialog.
+   *
+   * @param {Object} doc - The document to insert.
+   * @param {Boolean} clone - Whether this is a clone operation.
+   */
+  openInsertDocumentDialog(doc, clone) {
+    const hadronDoc = new HadronDocument(doc, true);
+    if (clone) {
+      // We need to remove the _id or we will get an duplicate key error on
+      // insert, and we currently do not allow editing of the _id field.
+      for (const element of hadronDoc.elements) {
+        if (element.currentKey === '_id') {
+          hadronDoc.elements.remove(element);
+          break;
+        }
+      }
+    }
+    this.setState({ insertDoc: hadronDoc });
   },
 
   /**

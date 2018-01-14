@@ -86,6 +86,10 @@ describe('CRUDStore', () => {
     it('sets the default table edit params', () => {
       expect(CRUDStore.state.table.editParams).to.equal(null);
     });
+
+    it('sets the default insert doc', () => {
+      expect(CRUDStore.state.insertDoc).to.equal(null);
+    });
   });
 
   describe('#onCollectionChanged', () => {
@@ -156,6 +160,34 @@ describe('CRUDStore', () => {
       });
 
       CRUDStore.onQueryChanged(query);
+    });
+  });
+
+  describe('#openInsertDocumentDialog', () => {
+    const doc = { _id: 1, name: 'test' };
+
+    context('when clone is true', () => {
+      it('removes _id from the document', (done) => {
+        const unsubscribe = CRUDStore.listen((state) => {
+          expect(state.insertDoc.elements.at(0).key).to.equal('name');
+          unsubscribe();
+          done();
+        });
+
+        CRUDStore.openInsertDocumentDialog(doc, true);
+      });
+    });
+
+    context('when clone is false', () => {
+      it('does not remove _id from the document', (done) => {
+        const unsubscribe = CRUDStore.listen((state) => {
+          expect(state.insertDoc.elements.at(0).key).to.equal('_id');
+          unsubscribe();
+          done();
+        });
+
+        CRUDStore.openInsertDocumentDialog(doc, false);
+      });
     });
   });
 
