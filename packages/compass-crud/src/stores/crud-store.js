@@ -19,9 +19,16 @@ const CRUDStore = Reflux.createStore({
   getInitialState() {
     return {
       ns: '',
+      collection: '',
       error: null,
-      documents: [],
+      docs: [],
       count: 0,
+      table: {
+        doc: null,
+        path: [],
+        types: [],
+        editParams: null
+      },
       query: {
         filter: {},
         sort: [[ '_id', 1 ]],
@@ -38,20 +45,30 @@ const CRUDStore = Reflux.createStore({
    * @param {AppRegistry} appRegistry - The app registry.
    */
   onActivated(appRegistry) {
+    appRegistry.on('collection-changed', this.onCollectionChanged.bind(this));
     appRegistry.on('query-changed', this.onQueryChanged.bind(this));
     appRegistry.on('data-service-connected', this.setDataService.bind(this));
   },
 
   /**
-   * Set the data service on the store.
+   * Plugin lifecycle method that is called when the namespace changes in
+   * Compass. Trigger with new namespace and cleared path/types.
    *
-   * @param {Error} error - The error connecting.
-   * @param {DataService} dataService - The data service.
+   * @param {String} ns - The new namespace.
    */
-  setDataService(error, dataService) {
-    if (!error) {
-      this.dataService = dataService;
-    }
+  onCollectionChanged(namespace) {
+    console.log(namespace);
+    const nsobj = toNS(namespace);
+    this.setState({
+      ns: namespace,
+      collection: nsobj.collection,
+      table: {
+        path: [],
+        types: [],
+        doc: null,
+        editParams: null
+      }
+    });
   },
 
   /**
@@ -60,15 +77,50 @@ const CRUDStore = Reflux.createStore({
    * @param {Object} state - The query state.
    */
   onQueryChanged(state) {
-    if (state.ns && toNS(state.ns).collection) {
+    const collection = toNS(state.ns).collection;
+    if (state.ns && collection) {
       this.state.query.filter = state.filter || {};
       this.state.query.sort = toPairs(state.sort);
       this.state.query.limit = state.limit;
       this.state.query.skip = state.skip;
       this.state.query.project = state.project;
       this.state.ns = state.ns;
+      this.state.collection = collection;
       this.resetDocuments();
     }
+  },
+
+  /**
+   * The user has drilled down into a new element.
+   *
+   * @param {HadronDocument} doc - The parent document.
+   * @param {Element} element - The element being drilled into.
+   * @param {Object} editParams - If we need to open a cell for editing, the coordinates.
+   */
+  drillDown(doc, element, editParams) {
+    this.setState({
+      table: {
+        path: this.state.table.path.concat([ element.currentKey ]),
+        types: this.state.table.types.concat([ element.currentType ]),
+        doc: doc,
+        editParams: editParams
+      }
+    });
+  },
+
+  /**
+   * The path of the table view has changed.
+   *
+   * @param {Array} path - A list of fieldnames and indexes.
+   * @param {Array} types - A list of the types of each path segment.
+   */
+  pathChanged(path, types) {
+    this.setState({
+      table: {
+        path: path,
+        types: types
+      }
+    });
   },
 
   /**
@@ -101,7 +153,7 @@ const CRUDStore = Reflux.createStore({
         this.dataService.find(this.state.ns, query.filter, findOptions, (error, documents) => {
           this.setState({
             error: error,
-            documents: documents,
+            docs: documents,
             count: count
           });
         });
@@ -111,6 +163,18 @@ const CRUDStore = Reflux.createStore({
         this.setState({ error: err });
       }
     });
+  },
+
+  /**
+   * Set the data service on the store.
+   *
+   * @param {Error} error - The error connecting.
+   * @param {DataService} dataService - The data service.
+   */
+  setDataService(error, dataService) {
+    if (!error) {
+      this.dataService = dataService;
+    }
   }
 });
 

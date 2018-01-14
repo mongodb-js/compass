@@ -2,6 +2,7 @@ const { expect } = require('chai');
 const Connection = require('mongodb-connection-model');
 const DataService = require('mongodb-data-service');
 const AppRegistry = require('hadron-app-registry');
+const { Element } = require('hadron-document');
 const CRUDStore = require('../../../lib/stores/crud-store');
 
 const CONNECTION = new Connection({
@@ -63,11 +64,75 @@ describe('CRUDStore', () => {
     });
 
     it('sets the default documents', () => {
-      expect(CRUDStore.state.documents).to.deep.equal([]);
+      expect(CRUDStore.state.docs).to.deep.equal([]);
     });
 
     it('sets the default count', () => {
       expect(CRUDStore.state.count).to.equal(0);
+    });
+
+    it('sets the default table doc', () => {
+      expect(CRUDStore.state.table.doc).to.equal(null);
+    });
+
+    it('sets the default table path', () => {
+      expect(CRUDStore.state.table.path).to.deep.equal([]);
+    });
+
+    it('sets the default table types', () => {
+      expect(CRUDStore.state.table.types).to.deep.equal([]);
+    });
+
+    it('sets the default table edit params', () => {
+      expect(CRUDStore.state.table.editParams).to.equal(null);
+    });
+  });
+
+  describe('#onCollectionChanged', () => {
+    beforeEach(() => {
+      CRUDStore.state.table.path = [ 'test-path' ];
+      CRUDStore.state.table.types = [ 'test-types' ];
+      CRUDStore.state.table.doc = {};
+      CRUDStore.state.table.editParams = {};
+    });
+
+    it('resets the state for the new collection', (done) => {
+      const unsubscribe = CRUDStore.listen((state) => {
+        expect(state.table.path).to.deep.equal([]);
+        expect(state.table.types).to.deep.equal([]);
+        expect(state.table.doc).to.equal(null);
+        expect(state.table.editParams).to.equal(null);
+        expect(state.collection).to.equal('another');
+        expect(state.ns).to.equal('compass-crud.another');
+        unsubscribe();
+        done();
+      });
+
+      CRUDStore.onCollectionChanged('compass-crud.another');
+    });
+  });
+
+  describe('#emit collection-changed', () => {
+    beforeEach(() => {
+      CRUDStore.state.table.path = [ 'test-path' ];
+      CRUDStore.state.table.types = [ 'test-types' ];
+      CRUDStore.state.table.doc = {};
+      CRUDStore.state.table.editParams = {};
+    });
+
+    it('resets the state for the new collection', (done) => {
+      const unsubscribe = CRUDStore.listen((state) => {
+        expect(state.table.path).to.deep.equal([]);
+        expect(state.table.types).to.deep.equal([]);
+        expect(state.table.doc).to.equal(null);
+        expect(state.table.editParams).to.equal(null);
+        expect(state.collection).to.equal('another');
+        expect(state.ns).to.equal('compass-crud.another');
+        unsubscribe();
+        done();
+      });
+
+      global.hadronApp.appRegistry.emit('collection-changed', 'compass-crud.another');
     });
   });
 
@@ -84,7 +149,7 @@ describe('CRUDStore', () => {
     it('tiggers with the reset documents', (done) => {
       const unsubscribe = CRUDStore.listen((state) => {
         expect(state.error).to.equal(null);
-        expect(state.documents).to.deep.equal([]);
+        expect(state.docs).to.deep.equal([]);
         expect(state.count).to.equal(0);
         unsubscribe();
         done();
@@ -107,13 +172,48 @@ describe('CRUDStore', () => {
     it('tiggers with the reset documents', (done) => {
       const unsubscribe = CRUDStore.listen((state) => {
         expect(state.error).to.equal(null);
-        expect(state.documents).to.deep.equal([]);
+        expect(state.docs).to.deep.equal([]);
         expect(state.count).to.equal(0);
         unsubscribe();
         done();
       });
 
       global.hadronApp.appRegistry.emit('query-changed', query);
+    });
+  });
+
+  describe('#drillDown', () => {
+    const doc = { field4: 'value' };
+    const element = new Element('field3', 'value');
+    const editParams = { colId: 1, rowIndex: 0 };
+
+    it('sets the drill down state', (done) => {
+      const unsubscribe = CRUDStore.listen((state) => {
+        expect(state.table.doc).to.deep.equal(doc);
+        expect(state.table.path).to.deep.equal([ 'field3' ]);
+        expect(state.table.types).to.deep.equal([ 'String' ]);
+        expect(state.table.editParams).to.deep.equal(editParams);
+        unsubscribe();
+        done();
+      });
+
+      CRUDStore.drillDown(doc, element, editParams);
+    });
+  });
+
+  describe('#pathChanged', () => {
+    const path = ['field1', 'field2'];
+    const types = ['Object', 'Array'];
+
+    it('sets the path and types state', (done) => {
+      const unsubscribe = CRUDStore.listen((state) => {
+        expect(state.table.path).to.deep.equal(path);
+        expect(state.table.types).to.deep.equal(types);
+        unsubscribe();
+        done();
+      });
+
+      CRUDStore.pathChanged(path, types);
     });
   });
 
@@ -134,7 +234,7 @@ describe('CRUDStore', () => {
       it('resets the documents to the first page', (done) => {
         const unsubscribe = CRUDStore.listen((state) => {
           expect(state.error).to.equal(null);
-          expect(state.documents).to.have.length(1);
+          expect(state.docs).to.have.length(1);
           expect(state.count).to.equal(1);
           unsubscribe();
           done();
@@ -153,7 +253,7 @@ describe('CRUDStore', () => {
       it('resets the documents to the first page', (done) => {
         const unsubscribe = CRUDStore.listen((state) => {
           expect(state.error).to.not.equal(null);
-          expect(state.documents).to.have.length(0);
+          expect(state.docs).to.have.length(0);
           expect(state.count).to.equal(0);
           unsubscribe();
           done();
