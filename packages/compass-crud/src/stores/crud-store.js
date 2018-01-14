@@ -8,6 +8,11 @@ const { ObjectId } = require('bson');
 const Actions = require('../actions');
 
 /**
+ * Number of docs per page.
+ */
+const NUM_PAGE_DOCS = 20;
+
+/**
  * The main CRUD store.
  */
 const CRUDStore = Reflux.createStore({
@@ -34,6 +39,10 @@ const CRUDStore = Reflux.createStore({
       collection: '',
       error: null,
       docs: [],
+      counter: 0,
+      start: 0,
+      end: 0,
+      page: 1,
       insert: {
         doc: null,
         isOpen: false,
@@ -107,6 +116,71 @@ const CRUDStore = Reflux.createStore({
   },
 
   /**
+   * When the next page button is clicked, need to load the next 20 documents.
+   *
+   * @param {Number} page - The page that is being shown.
+   */
+  getNextPage(page) {
+    const skip = page * NUM_PAGE_DOCS;
+
+    const documentsLoaded = this.state.counter + NUM_PAGE_DOCS;
+    const limit = this.state.query.limit;
+    let nextPageCount = NUM_PAGE_DOCS;
+    if (limit > 0 && documentsLoaded + nextPageCount > limit) {
+      nextPageCount = limit - documentsLoaded;
+      if (nextPageCount === 0) {
+        return;
+      }
+    }
+    const options = {
+      skip: skip + this.state.query.skip,
+      limit: nextPageCount,
+      sort: this.state.query.sort,
+      fields: this.state.query.project,
+      promoteValues: false
+    };
+    this.dataService.find(this.state.ns, this.state.query.filter, options, (error, documents) => {
+      const length = error ? 0 : documents.length;
+      this.setState({
+        error: error,
+        docs: documents,
+        start: skip + 1,
+        end: skip + length,
+        page: page,
+        counter: this.state.counter + NUM_PAGE_DOCS
+      });
+    });
+  },
+
+  /**
+   * Get the previous page of documents.
+   *
+   * @param {Number} page - The page that is being shown.
+   */
+  getPrevPage(page) {
+    const skip = page * NUM_PAGE_DOCS;
+    const nextPageCount = NUM_PAGE_DOCS;
+    const options = {
+      skip: skip + this.state.query.skip,
+      limit: nextPageCount,
+      sort: this.state.query.sort,
+      fields: this.state.query.project,
+      promoteValues: false
+    };
+    this.dataService.find(this.state.ns, this.state.query.filter, options, (error, documents) => {
+      const length = error ? 0 : documents.length;
+      this.setState({
+        error: error,
+        docs: documents,
+        start: skip + 1,
+        end: skip + length,
+        page: page,
+        counter: this.state.counter - NUM_PAGE_DOCS
+      });
+    });
+  },
+
+  /**
    * Open the insert document dialog.
    *
    * @param {Object} doc - The document to insert.
@@ -135,14 +209,26 @@ const CRUDStore = Reflux.createStore({
   insertDocument(doc) {
     this.dataService.insertOne(this.state.ns, doc, {}, (error) => {
       if (error) {
-        return this.setState({ insert: { error: error }});
+        return this.setState({
+          insert: {
+            error: error,
+            doc: this.state.insert.doc,
+            isOpen: true
+          }
+        });
       }
       // check if the newly inserted document matches the current filter, by
       // running the same filter but targeted only to the doc's _id.
       const filter = Object.assign({}, this.state.query.filter, { _id: doc._id });
       this.dataService.count(this.state.ns, filter, {}, (err, count) => {
         if (err) {
-          return this.setState({ insert: { error: error }});
+          return this.setState({
+            insert: {
+              error: error,
+              doc: null,
+              isOpen: false
+            }
+          });
         }
         // count is greater than 0, if 1 then the new doc matches the filter
         if (count > 0) {
@@ -216,14 +302,14 @@ const CRUDStore = Reflux.createStore({
       sort: query.sort,
       fields: query.project,
       skip: query.skip,
-      limit: 20,
+      limit: NUM_PAGE_DOCS,
       promoteValues: false
     };
 
     // only set limit if it's > 0, read-only views cannot handle 0 limit.
     if (query.limit > 0) {
       countOptions.limit = query.limit;
-      findOptions.limit = Math.min(20, query.limit);
+      findOptions.limit = Math.min(NUM_PAGE_DOCS, query.limit);
     }
 
     this.dataService.count(this.state.ns, query.filter, countOptions, (err, count) => {

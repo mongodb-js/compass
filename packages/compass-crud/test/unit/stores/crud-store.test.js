@@ -3,6 +3,7 @@ const Connection = require('mongodb-connection-model');
 const DataService = require('mongodb-data-service');
 const AppRegistry = require('hadron-app-registry');
 const { Element } = require('hadron-document');
+const { expectedDocs, checkPageRange, NUM_DOCS } = require('../../aggrid-helper');
 const CRUDStore = require('../../../lib/stores/crud-store');
 
 const CONNECTION = new Connection({
@@ -30,11 +31,11 @@ describe('CRUDStore', () => {
     global.hadronApp.appRegistry = undefined;
   });
 
-  afterEach(() => {
-    CRUDStore.setState(CRUDStore.getInitialState());
-  });
-
   describe('#getInitialState', () => {
+    beforeEach(() => {
+      CRUDStore.state = CRUDStore.getInitialState();
+    });
+
     it('sets the default filter', () => {
       expect(CRUDStore.state.query.filter).to.deep.equal({});
     });
@@ -102,6 +103,7 @@ describe('CRUDStore', () => {
 
   describe('#onCollectionChanged', () => {
     beforeEach(() => {
+      CRUDStore.state = CRUDStore.getInitialState();
       CRUDStore.state.table.path = [ 'test-path' ];
       CRUDStore.state.table.types = [ 'test-types' ];
       CRUDStore.state.table.doc = {};
@@ -126,6 +128,7 @@ describe('CRUDStore', () => {
 
   describe('#emit collection-changed', () => {
     beforeEach(() => {
+      CRUDStore.state = CRUDStore.getInitialState();
       CRUDStore.state.table.path = [ 'test-path' ];
       CRUDStore.state.table.types = [ 'test-types' ];
       CRUDStore.state.table.doc = {};
@@ -158,6 +161,10 @@ describe('CRUDStore', () => {
       project: { name: 1 }
     };
 
+    beforeEach(() => {
+      CRUDStore.state = CRUDStore.getInitialState();
+    });
+
     it('tiggers with the reset documents', (done) => {
       const unsubscribe = CRUDStore.listen((state) => {
         expect(state.error).to.equal(null);
@@ -173,6 +180,7 @@ describe('CRUDStore', () => {
 
   describe('#insertDocument', () => {
     beforeEach(() => {
+      CRUDStore.state = CRUDStore.getInitialState();
       CRUDStore.state.ns = 'compass-crud.test';
     });
 
@@ -223,15 +231,23 @@ describe('CRUDStore', () => {
     });
 
     context('when there is an error', () => {
-      const doc = { name: 'testing' };
+      const doc = { '$name': 'testing' };
+
+      beforeEach(() => {
+        CRUDStore.state.insert.doc = doc;
+      });
+
+      afterEach((done) => {
+        dataService.deleteMany('compass-crud.test', {}, {}, done);
+      });
 
       it('does not insert the document', (done) => {
         const unsubscribe = CRUDStore.listen((state) => {
-          expect(state.docs.length).to.equal(1);
-          expect(state.count).to.equal(1);
-          expect(state.insert.doc).to.equal(null);
-          expect(state.insert.isOpen).to.equal(false);
-          expect(state.insert.error).to.equal(null);
+          expect(state.docs.length).to.equal(0);
+          expect(state.count).to.equal(0);
+          expect(state.insert.doc).to.not.equal(null);
+          expect(state.insert.isOpen).to.equal(true);
+          expect(state.insert.error).to.not.equal(null);
           unsubscribe();
           done();
         });
@@ -243,6 +259,10 @@ describe('CRUDStore', () => {
 
   describe('#openInsertDocumentDialog', () => {
     const doc = { _id: 1, name: 'test' };
+
+    beforeEach(() => {
+      CRUDStore.state = CRUDStore.getInitialState();
+    });
 
     context('when clone is true', () => {
       it('removes _id from the document', (done) => {
@@ -279,6 +299,10 @@ describe('CRUDStore', () => {
       project: { name: 1 }
     };
 
+    beforeEach(() => {
+      CRUDStore.state = CRUDStore.getInitialState();
+    });
+
     it('tiggers with the reset documents', (done) => {
       const unsubscribe = CRUDStore.listen((state) => {
         expect(state.error).to.equal(null);
@@ -296,6 +320,10 @@ describe('CRUDStore', () => {
     const doc = { field4: 'value' };
     const element = new Element('field3', 'value');
     const editParams = { colId: 1, rowIndex: 0 };
+
+    beforeEach(() => {
+      CRUDStore.state = CRUDStore.getInitialState();
+    });
 
     it('sets the drill down state', (done) => {
       const unsubscribe = CRUDStore.listen((state) => {
@@ -315,6 +343,10 @@ describe('CRUDStore', () => {
     const path = ['field1', 'field2'];
     const types = ['Object', 'Array'];
 
+    beforeEach(() => {
+      CRUDStore.state = CRUDStore.getInitialState();
+    });
+
     it('sets the path and types state', (done) => {
       const unsubscribe = CRUDStore.listen((state) => {
         expect(state.table.path).to.deep.equal(path);
@@ -329,6 +361,7 @@ describe('CRUDStore', () => {
 
   describe('#resetDocuments', () => {
     beforeEach((done) => {
+      CRUDStore.state = CRUDStore.getInitialState();
       dataService.insertOne('compass-crud.test', { name: 'testing' }, {}, done);
     });
 
@@ -337,7 +370,7 @@ describe('CRUDStore', () => {
     });
 
     context('when there is no error', () => {
-      before(() => {
+      beforeEach(() => {
         CRUDStore.state.ns = 'compass-crud.test';
       });
 
@@ -355,7 +388,7 @@ describe('CRUDStore', () => {
     });
 
     context('when there is an error', () => {
-      before(() => {
+      beforeEach(() => {
         CRUDStore.state.ns = 'compass-crud.test';
         CRUDStore.state.query.filter = { '$iamnotanoperator': 1 };
       });
@@ -370,6 +403,230 @@ describe('CRUDStore', () => {
         });
 
         CRUDStore.resetDocuments();
+      });
+    });
+  });
+
+  describe('#getNextPage/#getPrevPage', () => {
+    before((done) => {
+      CRUDStore.state.ns = 'compass-crud.test';
+      dataService.insertMany('compass-crud.test', expectedDocs, {}, done);
+    });
+
+    after((done) => {
+      dataService.deleteMany('compass-crud.test', {}, {}, done);
+    });
+
+    context('when there is no skip or limit', () => {
+      before(() => {
+        CRUDStore.state = CRUDStore.getInitialState();
+      });
+
+      beforeEach(() => {
+        CRUDStore.state.ns = 'compass-crud.test';
+      });
+
+      /* Don't test getNextPage(0) because not possible */
+      for (let i = 1; i < 3; i++) {
+        it('gets the next page for ' + i, (done) => {
+          const unsubscribe = CRUDStore.listen((state) => {
+            unsubscribe();
+            checkPageRange(state.error, state.docs, state.start, state.end, state.page, i, 0, 0);
+            expect(state.counter).to.equal(NUM_DOCS * i);
+            done();
+          });
+          CRUDStore.getNextPage(i);
+        });
+      }
+
+      for (let i = 1; i >= 0; i--) {
+        it('gets the prev page for ' + i, (done) => {
+          const unsubscribe = CRUDStore.listen((state) => {
+            unsubscribe();
+            checkPageRange(state.error, state.docs, state.start, state.end, state.page, i, 0, 0);
+            expect(state.counter).to.equal(NUM_DOCS * i);
+            done();
+          });
+          CRUDStore.getPrevPage(i);
+        });
+      }
+    });
+
+    context('when there is a skip', () => {
+      const skip = 5;
+
+      before(() => {
+        CRUDStore.state = CRUDStore.getInitialState();
+      });
+
+      beforeEach(() => {
+        CRUDStore.state.ns = 'compass-crud.test';
+        CRUDStore.state.query.skip = skip;
+      });
+
+      for (let i = 1; i < 3; i++) {
+        it('gets the next page for ' + i, (done) => {
+          const unsubscribe = CRUDStore.listen((state) => {
+            unsubscribe();
+            checkPageRange(state.error, state.docs, state.start, state.end, state.page, i, skip, 0);
+            expect(state.counter).to.equal(NUM_DOCS * i);
+            done();
+          });
+          CRUDStore.getNextPage(i);
+        });
+      }
+
+      for (let i = 1; i >= 0; i--) {
+        it('gets the prev page for ' + i, (done) => {
+          const unsubscribe = CRUDStore.listen((state) => {
+            unsubscribe();
+            checkPageRange(state.error, state.docs, state.start, state.end, state.page, i, skip, 0);
+            expect(state.counter).to.equal(NUM_DOCS * i);
+            done();
+          });
+          CRUDStore.getPrevPage(i);
+        });
+      }
+    });
+
+    context('when there is a limit', () => {
+      const limit = 50;
+
+      before(() => {
+        CRUDStore.state = CRUDStore.getInitialState();
+      });
+
+      beforeEach(() => {
+        CRUDStore.state.ns = 'compass-crud.test';
+        CRUDStore.state.query.limit = limit;
+      });
+
+      for (let i = 1; i < 3; i++) {
+        it('gets the next page for ' + i, (done) => {
+          const unsubscribe = CRUDStore.listen((state) => {
+            unsubscribe();
+            checkPageRange(state.error, state.docs, state.start, state.end, state.page, i, 0, limit);
+            expect(state.counter).to.equal(NUM_DOCS * i);
+            done();
+          });
+          CRUDStore.getNextPage(i);
+        });
+      }
+
+      for (let i = 1; i >= 0; i--) {
+        it('gets the prev page for ' + i, (done) => {
+          const unsubscribe = CRUDStore.listen((state) => {
+            unsubscribe();
+            checkPageRange(state.error, state.docs, state.start, state.end, state.page, i, 0, limit);
+            expect(state.counter).to.equal(NUM_DOCS * i);
+            done();
+          });
+          CRUDStore.getPrevPage(i);
+        });
+      }
+    });
+
+    context('when there is a skip and limit', () => {
+      const limit = 50;
+      const skip = 2;
+
+      before(() => {
+        CRUDStore.state = CRUDStore.getInitialState();
+      });
+
+      beforeEach(() => {
+        CRUDStore.state.ns = 'compass-crud.test';
+        CRUDStore.state.query.limit = limit;
+        CRUDStore.state.query.skip = skip;
+      });
+
+      for (let i = 1; i < 3; i++) {
+        it('gets the next page for ' + i, (done) => {
+          const unsubscribe = CRUDStore.listen((state) => {
+            unsubscribe();
+            checkPageRange(state.error, state.docs, state.start, state.end, state.page, i, skip, limit);
+            expect(state.counter).to.equal(NUM_DOCS * i);
+            done();
+          });
+          CRUDStore.getNextPage(i);
+        });
+      }
+
+      for (let i = 1; i >= 0; i--) {
+        it('gets the prev page for ' + i, (done) => {
+          const unsubscribe = CRUDStore.listen((state) => {
+            unsubscribe();
+            checkPageRange(state.error, state.docs, state.start, state.end, state.page, i, skip, limit);
+            expect(state.counter).to.equal(NUM_DOCS * i);
+            done();
+          });
+          CRUDStore.getPrevPage(i);
+        });
+      }
+    });
+
+    context('when skipping around pages', () => {
+      const limit = 55;
+      const skip = 3;
+
+      before(() => {
+        CRUDStore.state = CRUDStore.getInitialState();
+      });
+
+      beforeEach(() => {
+        CRUDStore.state.ns = 'compass-crud.test';
+        CRUDStore.state.query.limit = limit;
+        CRUDStore.state.query.skip = skip;
+      });
+
+      it('next to page 1', (done) => {
+        const unsubscribe = CRUDStore.listen((state) => {
+          unsubscribe();
+          checkPageRange(state.error, state.docs, state.start, state.end, state.page, 1, skip, limit);
+          expect(state.counter).to.equal(NUM_DOCS);
+          done();
+        });
+        CRUDStore.getNextPage(1);
+      });
+
+      it('prev to page 0', (done) => {
+        const unsubscribe = CRUDStore.listen((state) => {
+          unsubscribe();
+          checkPageRange(state.error, state.docs, state.start, state.end, state.page, 0, skip, limit);
+          expect(state.counter).to.equal(0);
+          done();
+        });
+        CRUDStore.getPrevPage(0);
+      });
+
+      it('next to page 1', (done) => {
+        const unsubscribe = CRUDStore.listen((state) => {
+          unsubscribe();
+          checkPageRange(state.error, state.docs, state.start, state.end, state.page, 1, skip, limit);
+          expect(state.counter).to.equal(NUM_DOCS);
+          done();
+        });
+        CRUDStore.getNextPage(1);
+      });
+
+      it('next to page 2', (done) => {
+        const unsubscribe = CRUDStore.listen((state) => {
+          unsubscribe();
+          checkPageRange(state.error, state.docs, state.start, state.end, state.page, 2, skip, limit);
+          expect(state.counter).to.equal(NUM_DOCS * 2);
+          done();
+        });
+        CRUDStore.getNextPage(2);
+      });
+
+      it('prev to page 1', (done) => {
+        const unsubscribe = CRUDStore.listen((state) => {
+          unsubscribe();
+          checkPageRange(state.error, state.docs, state.start, state.end, state.page, 1, skip, limit);
+          expect(state.counter).to.equal(NUM_DOCS);
+          done();
+        });
+        CRUDStore.getPrevPage(1);
       });
     });
   });
