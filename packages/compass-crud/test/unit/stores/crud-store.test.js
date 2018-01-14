@@ -88,7 +88,15 @@ describe('CRUDStore', () => {
     });
 
     it('sets the default insert doc', () => {
-      expect(CRUDStore.state.insertDoc).to.equal(null);
+      expect(CRUDStore.state.insert.doc).to.equal(null);
+    });
+
+    it('sets the default insert error', () => {
+      expect(CRUDStore.state.insert.error).to.equal(null);
+    });
+
+    it('sets the default insert open status', () => {
+      expect(CRUDStore.state.insert.isOpen).to.equal(false);
     });
   });
 
@@ -163,13 +171,83 @@ describe('CRUDStore', () => {
     });
   });
 
+  describe('#insertDocument', () => {
+    beforeEach(() => {
+      CRUDStore.state.ns = 'compass-crud.test';
+    });
+
+    context('when there is no error', () => {
+      afterEach((done) => {
+        dataService.deleteMany('compass-crud.test', {}, {}, done);
+      });
+
+      context('when the document matches the filter', () => {
+        const doc = { name: 'testing' };
+
+        it('inserts the document', (done) => {
+          const unsubscribe = CRUDStore.listen((state) => {
+            expect(state.docs.length).to.equal(1);
+            expect(state.count).to.equal(1);
+            expect(state.insert.doc).to.equal(null);
+            expect(state.insert.isOpen).to.equal(false);
+            expect(state.insert.error).to.equal(null);
+            unsubscribe();
+            done();
+          });
+
+          CRUDStore.insertDocument(doc);
+        });
+      });
+
+      context('when the document does not match the filter', () => {
+        const doc = { name: 'testing' };
+        beforeEach(() => {
+          CRUDStore.state.query.filter = { name: 'something' };
+        });
+
+
+        it('inserts the document but does not add to the list', (done) => {
+          const unsubscribe = CRUDStore.listen((state) => {
+            expect(state.docs.length).to.equal(0);
+            expect(state.count).to.equal(1);
+            expect(state.insert.doc).to.equal(null);
+            expect(state.insert.isOpen).to.equal(false);
+            expect(state.insert.error).to.equal(null);
+            unsubscribe();
+            done();
+          });
+
+          CRUDStore.insertDocument(doc);
+        });
+      });
+    });
+
+    context('when there is an error', () => {
+      const doc = { name: 'testing' };
+
+      it('does not insert the document', (done) => {
+        const unsubscribe = CRUDStore.listen((state) => {
+          expect(state.docs.length).to.equal(1);
+          expect(state.count).to.equal(1);
+          expect(state.insert.doc).to.equal(null);
+          expect(state.insert.isOpen).to.equal(false);
+          expect(state.insert.error).to.equal(null);
+          unsubscribe();
+          done();
+        });
+
+        CRUDStore.insertDocument(doc);
+      });
+    });
+  });
+
   describe('#openInsertDocumentDialog', () => {
     const doc = { _id: 1, name: 'test' };
 
     context('when clone is true', () => {
       it('removes _id from the document', (done) => {
         const unsubscribe = CRUDStore.listen((state) => {
-          expect(state.insertDoc.elements.at(0).key).to.equal('name');
+          expect(state.insert.doc.elements.at(0).key).to.equal('name');
           unsubscribe();
           done();
         });
@@ -181,7 +259,7 @@ describe('CRUDStore', () => {
     context('when clone is false', () => {
       it('does not remove _id from the document', (done) => {
         const unsubscribe = CRUDStore.listen((state) => {
-          expect(state.insertDoc.elements.at(0).key).to.equal('_id');
+          expect(state.insert.doc.elements.at(0).key).to.equal('_id');
           unsubscribe();
           done();
         });

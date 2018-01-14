@@ -34,7 +34,11 @@ const CRUDStore = Reflux.createStore({
       collection: '',
       error: null,
       docs: [],
-      insertDoc: null,
+      insert: {
+        doc: null,
+        isOpen: false,
+        error: null
+      },
       count: 0,
       table: {
         doc: null,
@@ -120,7 +124,48 @@ const CRUDStore = Reflux.createStore({
         }
       }
     }
-    this.setState({ insertDoc: hadronDoc });
+    this.setState({ insert: { doc: hadronDoc, isOpen: true }});
+  },
+
+  /**
+   * Insert the document.
+   *
+   * @param {Document} doc - The document to insert.
+   */
+  insertDocument(doc) {
+    this.dataService.insertOne(this.state.ns, doc, {}, (error) => {
+      if (error) {
+        return this.setState({ insert: { error: error }});
+      }
+      // check if the newly inserted document matches the current filter, by
+      // running the same filter but targeted only to the doc's _id.
+      const filter = Object.assign({}, this.state.query.filter, { _id: doc._id });
+      this.dataService.count(this.state.ns, filter, {}, (err, count) => {
+        if (err) {
+          return this.setState({ insert: { error: error }});
+        }
+        // count is greater than 0, if 1 then the new doc matches the filter
+        if (count > 0) {
+          return this.setState({
+            docs: this.state.docs.concat([ doc ]),
+            count: this.state.count + 1,
+            insert: {
+              doc: null,
+              isOpen: false,
+              error: null
+            }
+          });
+        }
+        this.setState({
+          count: this.state.count + 1,
+          insert: {
+            doc: null,
+            isOpen: false,
+            error: null
+          }
+        });
+      });
+    });
   },
 
   /**
