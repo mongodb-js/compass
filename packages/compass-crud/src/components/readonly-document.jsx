@@ -47,6 +47,12 @@ class ReadonlyDocument extends React.Component {
     };
   }
 
+  componentWillReceiveProps(nextProps) {
+    if (this.props.doc !== nextProps.doc) {
+      this.doc = new HadronDocument(nextProps.doc);
+    }
+  }
+
   setRenderSize(newLimit) {
     this.setState({ renderSize: newLimit });
   }
