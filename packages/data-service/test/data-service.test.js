@@ -13,9 +13,11 @@ describe('DataService', function() {
   var service = new DataService(helper.connection);
 
   before(require('mongodb-runner/mocha/before')({
-    port: 27017
+    port: 27018
   }));
-  after(require('mongodb-runner/mocha/after')());
+  after(require('mongodb-runner/mocha/after')({
+    port: 27018
+  }));
 
   before(function(done) {
     service.connect(done);
@@ -193,6 +195,29 @@ describe('DataService', function() {
       service.find('data-service.test', {}, {
         skip: 1
       }, function(error, docs) {
+        assert.equal(null, error);
+        expect(docs.length).to.equal(1);
+        done();
+      });
+    });
+  });
+
+  describe('#fetch', function() {
+    before(function(done) {
+      helper.insertTestDocuments(service.client, function() {
+        done();
+      });
+    });
+
+    after(function(done) {
+      helper.deleteTestDocuments(service.client, function() {
+        done();
+      });
+    });
+
+    it('returns a cursor for the documents', function(done) {
+      const cursor = service.fetch('data-service.test', {}, { skip: 1 });
+      cursor.toArray(function(error, docs) {
         assert.equal(null, error);
         expect(docs.length).to.equal(1);
         done();
@@ -434,7 +459,7 @@ describe('DataService', function() {
           service.get('/instance', {}, function(err, instance) {
             assert.equal(null, err);
             expect(instance.host).to.not.equal(undefined);
-            expect(instance.port).to.equal(27017);
+            expect(instance.port).to.equal(27018);
             done();
           });
         });
@@ -445,7 +470,7 @@ describe('DataService', function() {
           service.get('/instance', function(err, instance) {
             assert.equal(null, err);
             expect(instance.host).to.not.equal(undefined);
-            expect(instance.port).to.equal(27017);
+            expect(instance.port).to.equal(27018);
             done();
           });
         });

@@ -288,6 +288,19 @@ class DataService extends EventEmitter {
   }
 
   /**
+   * Fetch documents for the provided filter and options on the collection.
+   *
+   * @param {String} ns - The namespace to search on.
+   * @param {Object} filter - The query filter.
+   * @param {Object} options - The query options.
+   *
+   * @returns {Cursor} The cursor.
+   */
+  fetch(ns, filter, options) {
+    return this.client.fetch(ns, filter, options);
+  }
+
+  /**
    * Find one document and replace it with the replacement.
    *
    * @param {String} ns - The namespace to search on.

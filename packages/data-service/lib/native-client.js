@@ -499,6 +499,19 @@ class NativeClient extends EventEmitter {
   }
 
   /**
+   * Fetch documents for the provided filter and options on the collection.
+   *
+   * @param {String} ns - The namespace to search on.
+   * @param {Object} filter - The filter.
+   * @param {Object} options - The query options.
+   *
+   * @returns {Cursor} The cursor.
+   */
+  fetch(ns, filter, options) {
+    return this._collection(ns).find(filter, options);
+  }
+
+  /**
    * Find one document and replace it with the replacement.
    *
    * @param {String} ns - The namespace to search on.

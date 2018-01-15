@@ -20,7 +20,7 @@ module.exports.stitchConnection = new Connection({
 
 module.exports.connection = new Connection({
   hostname: '127.0.0.1',
-  port: 27017,
+  port: 27018,
   ns: 'data-service'
 });
 

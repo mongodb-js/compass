@@ -7,16 +7,16 @@ const debug = require('debug')('mongodb-data-service:test:instance');
 describe('mongodb-data-service#instance', function() {
   describe('local', function() {
     before(require('mongodb-runner/mocha/before')({
-      port: 27017
+      port: 27018
     }));
 
     after(require('mongodb-runner/mocha/after')({
-      port: 27017
+      port: 27018
     }));
 
     let db;
-    it('should connect to `localhost:27017`', function(done) {
-      const model = Connection.from('mongodb://localhost:27017');
+    it('should connect to `localhost:27018`', function(done) {
+      const model = Connection.from('mongodb://localhost:27018');
       connect(model, null, function(err, _db) {
         if (err) {
           return done(err);

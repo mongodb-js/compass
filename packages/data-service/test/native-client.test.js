@@ -15,11 +15,11 @@ describe('NativeClient', function() {
   var client = new NativeClient(helper.connection);
 
   before(require('mongodb-runner/mocha/before')({
-    port: 27017
+    port: 27018
   }));
 
   after(require('mongodb-runner/mocha/after')({
-    port: 27017
+    port: 27018
   }));
 
   before(function(done) {
@@ -301,6 +301,53 @@ describe('NativeClient', function() {
         client.find('data-service.test', {}, {
           skip: 1
         }, function(error, docs) {
+          assert.equal(null, error);
+          expect(docs.length).to.equal(1);
+          done();
+        });
+      });
+    });
+  });
+
+  describe('#fetch', function() {
+    before(function(done) {
+      helper.insertTestDocuments(client, function() {
+        done();
+      });
+    });
+
+    after(function(done) {
+      helper.deleteTestDocuments(client, function() {
+        done();
+      });
+    });
+
+    context('when a filter is provided', function() {
+      it('returns a cursor for the matching documents', function(done) {
+        const cursor = client.fetch('data-service.test', { a: 1 }, {});
+        cursor.toArray(function(error, docs) {
+          assert.equal(null, error);
+          expect(docs.length).to.equal(1);
+          done();
+        });
+      });
+    });
+
+    context('when no filter is provided', function() {
+      it('returns a cursor for all documents', function(done) {
+        const cursor = client.fetch('data-service.test', {}, {});
+        cursor.toArray(function(error, docs) {
+          assert.equal(null, error);
+          expect(docs.length).to.equal(2);
+          done();
+        });
+      });
+    });
+
+    context('when options are provided', function() {
+      it('returns a cursor for the documents', function(done) {
+        const cursor = client.fetch('data-service.test', {}, { skip: 1 });
+        cursor.toArray(function(error, docs) {
           assert.equal(null, error);
           expect(docs.length).to.equal(1);
           done();
@@ -808,7 +855,7 @@ describe('NativeClient', function() {
       client.instance(function(err, instance) {
         assert.equal(null, err);
         expect(instance.hostname).to.not.equal(undefined);
-        expect(instance.port).to.equal(27017);
+        expect(instance.port).to.equal(27018);
         expect(instance.databases[0]._id).to.not.equal(undefined);
         done();
       });
