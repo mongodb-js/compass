@@ -75,6 +75,7 @@ const CRUDStore = Reflux.createStore({
     appRegistry.on('collection-changed', this.onCollectionChanged.bind(this));
     appRegistry.on('query-changed', this.onQueryChanged.bind(this));
     appRegistry.on('data-service-connected', this.setDataService.bind(this));
+    this.CollectionStore = appRegistry.getStore('App.CollectionStore');
   },
 
   /**
@@ -85,9 +86,11 @@ const CRUDStore = Reflux.createStore({
    */
   onCollectionChanged(ns) {
     const nsobj = toNS(ns);
+    const editable = this.isListEditable();
     this.setState({
       ns: ns,
       collection: nsobj.collection,
+      isEditable: editable,
       table: {
         path: [],
         types: [],
@@ -114,9 +117,21 @@ const CRUDStore = Reflux.createStore({
       this.state.collection = collection;
       if (state.project) {
         this.state.isEditable = false;
+      } else {
+        const editable = this.isListEditable();
+        this.state.isEditable = editable;
       }
       this.resetDocuments();
     }
+  },
+
+  /**
+   * Determine if the document list is editable.
+   *
+   * @returns {Boolean} If the list is editable.
+   */
+  isListEditable() {
+    return !this.CollectionStore.isReadonly() && process.env.HADRON_READONLY !== 'true';
   },
 
   /**

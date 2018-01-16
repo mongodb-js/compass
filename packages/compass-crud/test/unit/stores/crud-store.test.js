@@ -15,9 +15,15 @@ const CONNECTION = new Connection({
 
 describe('CRUDStore', () => {
   const dataService = new DataService(CONNECTION);
+  const collectionStore = {
+    isReadonly: () => {
+      return false;
+    }
+  };
 
   before((done) => {
     global.hadronApp.appRegistry = new AppRegistry();
+    global.hadronApp.appRegistry.registerStore('App.CollectionStore', collectionStore);
     global.hadronApp.appRegistry.registerStore('CRUD.Store', CRUDStore);
     global.hadronApp.appRegistry.onActivated();
     dataService.connect(() => {
@@ -106,27 +112,97 @@ describe('CRUDStore', () => {
   });
 
   describe('#onCollectionChanged', () => {
-    beforeEach(() => {
-      CRUDStore.state = CRUDStore.getInitialState();
-      CRUDStore.state.table.path = [ 'test-path' ];
-      CRUDStore.state.table.types = [ 'test-types' ];
-      CRUDStore.state.table.doc = {};
-      CRUDStore.state.table.editParams = {};
-    });
-
-    it('resets the state for the new collection', (done) => {
-      const unsubscribe = CRUDStore.listen((state) => {
-        expect(state.table.path).to.deep.equal([]);
-        expect(state.table.types).to.deep.equal([]);
-        expect(state.table.doc).to.equal(null);
-        expect(state.table.editParams).to.equal(null);
-        expect(state.collection).to.equal('another');
-        expect(state.ns).to.equal('compass-crud.another');
-        unsubscribe();
-        done();
+    context('when the collection is not readonly', () => {
+      beforeEach(() => {
+        CRUDStore.state = CRUDStore.getInitialState();
+        CRUDStore.state.table.path = [ 'test-path' ];
+        CRUDStore.state.table.types = [ 'test-types' ];
+        CRUDStore.state.table.doc = {};
+        CRUDStore.state.table.editParams = {};
       });
 
-      CRUDStore.onCollectionChanged('compass-crud.another');
+      it('resets the state for the new editable collection', (done) => {
+        const unsubscribe = CRUDStore.listen((state) => {
+          expect(state.table.path).to.deep.equal([]);
+          expect(state.table.types).to.deep.equal([]);
+          expect(state.table.doc).to.equal(null);
+          expect(state.table.editParams).to.equal(null);
+          expect(state.collection).to.equal('another');
+          expect(state.isEditable).to.equal(true);
+          expect(state.ns).to.equal('compass-crud.another');
+          unsubscribe();
+          done();
+        });
+
+        CRUDStore.onCollectionChanged('compass-crud.another');
+      });
+    });
+
+    context('when the collection is readonly', () => {
+      beforeEach(() => {
+        collectionStore.isReadonly = () => {
+          return true;
+        };
+
+        CRUDStore.state = CRUDStore.getInitialState();
+        CRUDStore.state.table.path = [ 'test-path' ];
+        CRUDStore.state.table.types = [ 'test-types' ];
+        CRUDStore.state.table.doc = {};
+        CRUDStore.state.table.editParams = {};
+      });
+
+      afterEach(() => {
+        collectionStore.isReadonly = () => {
+          return false;
+        };
+      });
+
+      it('resets the state for the new readonly collection', (done) => {
+        const unsubscribe = CRUDStore.listen((state) => {
+          expect(state.table.path).to.deep.equal([]);
+          expect(state.table.types).to.deep.equal([]);
+          expect(state.table.doc).to.equal(null);
+          expect(state.table.editParams).to.equal(null);
+          expect(state.collection).to.equal('another');
+          expect(state.isEditable).to.equal(false);
+          expect(state.ns).to.equal('compass-crud.another');
+          unsubscribe();
+          done();
+        });
+
+        CRUDStore.onCollectionChanged('compass-crud.another');
+      });
+    });
+
+    context('when running in a readonly context', () => {
+      beforeEach(() => {
+        process.env.HADRON_READONLY = 'true';
+        CRUDStore.state = CRUDStore.getInitialState();
+        CRUDStore.state.table.path = [ 'test-path' ];
+        CRUDStore.state.table.types = [ 'test-types' ];
+        CRUDStore.state.table.doc = {};
+        CRUDStore.state.table.editParams = {};
+      });
+
+      afterEach(() => {
+        process.env.HADRON_READONLY = 'false';
+      });
+
+      it('resets the state for the new readonly collection', (done) => {
+        const unsubscribe = CRUDStore.listen((state) => {
+          expect(state.table.path).to.deep.equal([]);
+          expect(state.table.types).to.deep.equal([]);
+          expect(state.table.doc).to.equal(null);
+          expect(state.table.editParams).to.equal(null);
+          expect(state.collection).to.equal('another');
+          expect(state.isEditable).to.equal(false);
+          expect(state.ns).to.equal('compass-crud.another');
+          unsubscribe();
+          done();
+        });
+
+        CRUDStore.onCollectionChanged('compass-crud.another');
+      });
     });
   });
 
