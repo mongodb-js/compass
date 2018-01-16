@@ -229,6 +229,11 @@ class DocumentList extends React.Component {
 }
 
 DocumentList.displayName = 'DocumentList';
+
+DocumentList.propTypes = {
+
+};
+
 DocumentList.Document = Document;
 
 module.exports = DocumentList;

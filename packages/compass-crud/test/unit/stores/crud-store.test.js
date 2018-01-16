@@ -99,6 +99,10 @@ describe('CRUDStore', () => {
     it('sets the default insert open status', () => {
       expect(CRUDStore.state.insert.isOpen).to.equal(false);
     });
+
+    it('sets the default isEditable status', () => {
+      expect(CRUDStore.state.isEditable).to.equal(true);
+    });
   });
 
   describe('#onCollectionChanged', () => {
@@ -152,29 +156,59 @@ describe('CRUDStore', () => {
   });
 
   describe('#onQueryChanged', () => {
-    const query = {
-      ns: 'compass-crud.test',
-      filter: { name: 'test' },
-      sort: { name: 1 },
-      limit: 10,
-      skip: 5,
-      project: { name: 1 }
-    };
+    context('when a project is present', () => {
+      const query = {
+        ns: 'compass-crud.test',
+        filter: { name: 'test' },
+        sort: { name: 1 },
+        limit: 10,
+        skip: 5,
+        project: { name: 1 }
+      };
 
-    beforeEach(() => {
-      CRUDStore.state = CRUDStore.getInitialState();
-    });
-
-    it('tiggers with the reset documents', (done) => {
-      const unsubscribe = CRUDStore.listen((state) => {
-        expect(state.error).to.equal(null);
-        expect(state.docs).to.deep.equal([]);
-        expect(state.count).to.equal(0);
-        unsubscribe();
-        done();
+      beforeEach(() => {
+        CRUDStore.state = CRUDStore.getInitialState();
       });
 
-      CRUDStore.onQueryChanged(query);
+      it('tiggers with the reset documents and isEditable false', (done) => {
+        const unsubscribe = CRUDStore.listen((state) => {
+          expect(state.error).to.equal(null);
+          expect(state.docs).to.deep.equal([]);
+          expect(state.count).to.equal(0);
+          expect(state.isEditable).to.equal(false);
+          unsubscribe();
+          done();
+        });
+
+        CRUDStore.onQueryChanged(query);
+      });
+    });
+
+    context('when a project is not present', () => {
+      const query = {
+        ns: 'compass-crud.test',
+        filter: { name: 'test' },
+        sort: { name: 1 },
+        limit: 10,
+        skip: 5
+      };
+
+      beforeEach(() => {
+        CRUDStore.state = CRUDStore.getInitialState();
+      });
+
+      it('tiggers with the reset documents with isEditable true', (done) => {
+        const unsubscribe = CRUDStore.listen((state) => {
+          expect(state.error).to.equal(null);
+          expect(state.docs).to.deep.equal([]);
+          expect(state.count).to.equal(0);
+          expect(state.isEditable).to.equal(true);
+          unsubscribe();
+          done();
+        });
+
+        CRUDStore.onQueryChanged(query);
+      });
     });
   });
 

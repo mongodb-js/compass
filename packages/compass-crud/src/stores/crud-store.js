@@ -43,6 +43,7 @@ const CRUDStore = Reflux.createStore({
       start: 0,
       end: 0,
       page: 1,
+      isEditable: true,
       insert: {
         doc: null,
         isOpen: false,
@@ -111,6 +112,9 @@ const CRUDStore = Reflux.createStore({
       this.state.query.project = state.project;
       this.state.ns = state.ns;
       this.state.collection = collection;
+      if (state.project) {
+        this.state.isEditable = false;
+      }
       this.resetDocuments();
     }
   },
@@ -281,6 +285,8 @@ const CRUDStore = Reflux.createStore({
   pathChanged(path, types) {
     this.setState({
       table: {
+        doc: this.state.table.doc,
+        editParams: this.state.table.editParams,
         path: path,
         types: types
       }
