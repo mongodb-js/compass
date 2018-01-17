@@ -3,7 +3,6 @@ const PropTypes = require('prop-types');
 const Reflux = require('reflux');
 const HadronDocument = require('hadron-document');
 const Element = require('hadron-document').Element;
-const Actions = require('../actions');
 const ExpansionBar = require('./expansion-bar');
 const EditableElement = require('./editable-element');
 const DocumentActions = require('./document-actions');
@@ -291,7 +290,7 @@ class EditableDocument extends React.Component {
    */
   handleRemoveSuccess() {
     this.setState({ deleting: false, deleteFinished: true });
-    Actions.documentRemoved(this.props.doc._id);
+    this.props.documentRemoved(this.props.doc._id);
   }
 
   /**
@@ -318,7 +317,7 @@ class EditableDocument extends React.Component {
    * Handle cloning of the document.
    */
   handleClone() {
-    Actions.openInsertDocumentDialog(this.doc.generateObject(), true);
+    this.props.openInsertDocumentDialog(this.doc.generateObject(), true);
   }
 
   /**
@@ -427,6 +426,7 @@ class EditableDocument extends React.Component {
           element={element}
           indent={0}
           editing={this.state.editing}
+          closeAllMenus={this.props.closeAllMenus}
           edit={this.handleEdit.bind(this)}
           expandAll={this.state.expandAll}
         />
@@ -497,8 +497,7 @@ class EditableDocument extends React.Component {
   render() {
     return (
       <div className={this.style()} data-test-id={TEST_ID}
-        ref={(div) => { this.onHideScrollIntoView = div; }}
-      >
+        ref={(div) => { this.onHideScrollIntoView = div; }} >
         <div className={CONTENTS}>
           <ol className={ELEMENTS}>
             {this.renderElements()}
@@ -516,6 +515,9 @@ EditableDocument.displayName = 'EditableDocument';
 
 EditableDocument.propTypes = {
   doc: PropTypes.object.isRequired,
+  documentRemoved: PropTypes.func.isRequired,
+  openInsertDocumentDialog: PropTypes.func.isRequired,
+  closeAllMenus: PropTypes.func.isRequired,
   editable: PropTypes.bool,
   expandAll: PropTypes.bool
 };

@@ -2,7 +2,6 @@ const React = require('react');
 const PropTypes = require('prop-types');
 const FontAwesome = require('react-fontawesome');
 
-const Actions = require('../actions');
 const BreadcrumbStore = require('../stores/breadcrumb-store');
 
 const BEM_BASE = 'ag-header-breadcrumb';
@@ -25,7 +24,7 @@ class BreadcrumbComponent extends React.Component {
   }
 
   onTabClicked(index) {
-    this.props.actions.pathChanged(
+    this.props.pathChanged(
       this.state.path.slice(0, index + 1),
       this.state.types.slice(0, index + 1)
     );
@@ -34,7 +33,7 @@ class BreadcrumbComponent extends React.Component {
   onHomeClicked() {
     this.state.path = [];
     this.state.types = [];
-    this.props.actions.pathChanged([], []);
+    this.props.pathChanged([], []);
   }
 
   /**
@@ -72,12 +71,11 @@ class BreadcrumbComponent extends React.Component {
 
 BreadcrumbComponent.propTypes = {
   collection: PropTypes.string.isRequired,
-  actions: PropTypes.any.isRequired
+  pathChanged: PropTypes.func.isRequired
 };
 
 BreadcrumbComponent.defaultPropTypes = {
-  collection: '',
-  actions: Actions
+  collection: ''
 };
 
 BreadcrumbComponent.displayName = 'BreadcrumbComponent';

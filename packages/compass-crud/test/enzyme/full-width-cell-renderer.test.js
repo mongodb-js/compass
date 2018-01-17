@@ -51,8 +51,10 @@ describe('<FullWidthCellRenderer />', () => {
           rowNode = getNode({field1: {'subfield1': 'value'}});
           rowNode.data.state = 'editing';
           data = rowNode.data;
-          component = mount(<FullWidthCellRenderer api={api} node={rowNode}
-                                                   actions={actions} data={data}
+          component = mount(<FullWidthCellRenderer api={api}
+                                                   node={rowNode}
+                                                   replaceDoc={actions.replaceDoc}
+                                                   data={data}
                                                    context={context}
                                                    dataService={dataService}/>);
           expect(component).to.be.present();
@@ -146,10 +148,13 @@ describe('<FullWidthCellRenderer />', () => {
             data.hadronDocument.insertEnd('toRemove', 3);
             data.hadronDocument.get('toTypeChange').edit('2');
 
-            component = mount(<FullWidthCellRenderer api={api} node={rowNode}
-                                                   actions={actions} data={data}
-                                                   context={context}
-                                                   dataService={dataService}/>);
+            component = mount(<FullWidthCellRenderer api={api}
+                                                     node={rowNode}
+                                                     replaceDoc={actions.replaceDoc}
+                                                     cleanCols={actions.cleanCols}
+                                                     data={data}
+                                                     context={context}
+                                                     dataService={dataService}/>);
             const wrapper = component.find({'data-test-id': 'cancel-document-button'});
             expect(wrapper).to.be.present();
             wrapper.simulate('click');
@@ -195,8 +200,10 @@ describe('<FullWidthCellRenderer />', () => {
             data.hadronDocument.insertEnd('toRemove', 3);
             data.hadronDocument.get('toTypeChange').edit('2');
 
-            component = mount(<FullWidthCellRenderer api={api} node={rowNode}
-                                                     actions={actions} data={data}
+            component = mount(<FullWidthCellRenderer api={api}
+                                                     node={rowNode}
+                                                     replaceDoc={actions.replaceDoc}
+                                                     data={data}
                                                      context={context}
                                                      dataService={dataService}/>);
             const wrapper = component.find({'data-test-id': 'cancel-document-button'});
@@ -237,11 +244,12 @@ describe('<FullWidthCellRenderer />', () => {
           rowNode = getNode({field1: 'value'});
           rowNode.data.state = 'cloned';
           data = rowNode.data;
-          component = mount(<FullWidthCellRenderer api={api} node={rowNode}
-                                                     actions={actions}
-                                                     data={data}
-                                                     context={context}
-                                                     dataService={dataService}/>);
+          component = mount(<FullWidthCellRenderer api={api}
+                                                   node={rowNode}
+                                                   replaceDoc={actions.replaceDoc}
+                                                   data={data}
+                                                   context={context}
+                                                   dataService={dataService}/>);
           const wrapper = component.find({
             'data-test-id': 'cancel-document-button'
           });
@@ -267,11 +275,12 @@ describe('<FullWidthCellRenderer />', () => {
           rowNode = getNode({field1: 'value'});
           rowNode.data.state = 'deleting';
           data = rowNode.data;
-          component = mount(<FullWidthCellRenderer api={api} node={rowNode}
-                                                     actions={actions}
-                                                     data={data}
-                                                     context={context}
-                                                     dataService={dataService}/>);
+          component = mount(<FullWidthCellRenderer api={api}
+                                                   node={rowNode}
+                                                   replaceDoc={actions.replaceDoc}
+                                                   data={data}
+                                                   context={context}
+                                                   dataService={dataService}/>);
           const wrapper = component.find({
             'data-test-id': 'cancel-document-button'
           });
@@ -304,11 +313,12 @@ describe('<FullWidthCellRenderer />', () => {
           data = rowNode.data;
           data.hadronDocument.insertEnd('newfield', 'value');
           data.hadronDocument.get('toRemove').remove();
-          component = mount(<FullWidthCellRenderer api={api} node={rowNode}
-                                                     actions={actions}
-                                                     data={data}
-                                                     context={context}
-                                                     dataService={ds}/>);
+          component = mount(<FullWidthCellRenderer api={api}
+                                                   node={rowNode}
+                                                   replaceDoc={actions.replaceDoc}
+                                                   data={data}
+                                                   context={context}
+                                                   dataService={ds}/>);
           expect(component.find('.document-footer-is-modified')).to.be.present();
           const wrapper = component.find({
             'data-test-id': 'update-document-button'
@@ -351,11 +361,12 @@ describe('<FullWidthCellRenderer />', () => {
           rowNode = getNode({field: 'value'}, oid);
           rowNode.data.state = 'cloned';
           data = rowNode.data;
-          component = mount(<FullWidthCellRenderer api={api} node={rowNode}
-                                                     actions={actions}
-                                                     data={data}
-                                                     context={context}
-                                                     dataService={ds}/>);
+          component = mount(<FullWidthCellRenderer api={api}
+                                                   node={rowNode}
+                                                   replaceDoc={actions.replaceDoc}
+                                                   data={data}
+                                                   context={context}
+                                                   dataService={ds}/>);
           expect(component.find('.document-footer-is-modified')).to.be.present();
           const wrapper = component.find({
             'data-test-id': 'update-document-button'
@@ -397,11 +408,12 @@ describe('<FullWidthCellRenderer />', () => {
           rowNode = getNode({field: 'value'}, oid);
           rowNode.data.state = 'deleting';
           data = rowNode.data;
-          component = mount(<FullWidthCellRenderer api={api} node={rowNode}
-                                                     actions={actions}
-                                                     data={data}
-                                                     context={context}
-                                                     dataService={ds}/>);
+          component = mount(<FullWidthCellRenderer api={api}
+                                                   node={rowNode}
+                                                   replaceDoc={actions.replaceDoc}
+                                                   data={data}
+                                                   context={context}
+                                                   dataService={ds}/>);
           expect(component.find('.document-footer-is-error')).to.be.present();
           const wrapper = component.find({
             'data-test-id': 'confirm-delete-document-button'

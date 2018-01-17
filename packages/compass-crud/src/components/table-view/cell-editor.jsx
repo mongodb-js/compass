@@ -197,12 +197,12 @@ class CellEditor extends React.Component {
       // TODO: Applies to objects, not arrays.
       if (key === '' || this.isDuplicateKey(key)) {
         this.element.revert();
-        this.props.actions.removeColumn('$new');
+        this.props.removeColumn('$new');
         return false;
       }
 
       /* Rename the element within HadronDocument */
-      this.props.actions.renameColumn(this.element.currentKey, key);
+      this.props.renameColumn(this.element.currentKey, key);
       this.element.rename(key);
 
       /* Rename the column + update its definition */
@@ -223,11 +223,11 @@ class CellEditor extends React.Component {
       }
     } else if (!this.element.isAdded() && !this.element.isRemoved() && this.element.currentType !== this.oldType) {
       /* Update the grid store since the element has changed type */
-      this.props.actions.elementTypeChanged(this.element.currentKey, this.element.currentType, id);
+      this.props.elementTypeChanged(this.element.currentKey, this.element.currentType, id);
     }
     if (!this.element.isRemoved() && this.element.isAdded()) {
       /* Update the grid store so we know what type this element is */
-      this.props.actions.elementAdded(this.element.currentKey, this.element.currentType, id);
+      this.props.elementAdded(this.element.currentKey, this.element.currentType, id);
       /* TODO: should we update column.* as well to be safe?
        Not needed if everywhere we access columns through .getColDef() but
        if somewhere internally they don't do that, will have outdated values.
@@ -272,9 +272,9 @@ class CellEditor extends React.Component {
 
       if (this.newField || this.element.isAdded()) { /* new field not possible */
         const isArray = !this.element.parent.isRoot() && this.element.parent.currentType === 'Array';
-        this.props.actions.elementRemoved(this.element.currentKey, oid, isArray);
+        this.props.elementRemoved(this.element.currentKey, oid, isArray);
       } else {
-        this.props.actions.elementMarkRemoved(this.element.currentKey, oid);
+        this.props.elementMarkRemoved(this.element.currentKey, oid);
       }
       this.element.remove();
     }
@@ -284,7 +284,7 @@ class CellEditor extends React.Component {
   handleDrillDown() {
     this.changed = true;
     this.props.api.stopEditing();
-    this.props.actions.drillDown(this.props.node.data.hadronDocument, this.element);
+    this.props.drillDown(this.props.node.data.hadronDocument, this.element);
   }
 
   handleInputChange(event) {
@@ -557,7 +557,13 @@ CellEditor.propTypes = {
   api: PropTypes.any,
   columnApi: PropTypes.any,
   context: PropTypes.any,
-  actions: PropTypes.any.isRequired,
+  removeColumn: PropTypes.func.isRequired,
+  renameColumn: PropTypes.func.isRequired,
+  elementAdded: PropTypes.func.isRequired,
+  elementRemoved: PropTypes.func.isRequired,
+  elementTypeChanged: PropTypes.func.isRequired,
+  elementMarkRemoved: PropTypes.func.isRequired,
+  drillDown: PropTypes.func.isRequired,
   eGridCell: PropTypes.any
 };
 

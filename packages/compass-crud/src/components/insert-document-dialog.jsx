@@ -1,5 +1,6 @@
 const _ = require('lodash');
 const React = require('react');
+const PropTypes = require('prop-types');
 const Modal = require('react-bootstrap').Modal;
 const OpenInsertDocumentDialogStore = require('../stores/open-insert-document-dialog-store');
 const InsertDocumentStore = require('../stores/insert-document-store');
@@ -7,7 +8,6 @@ const InsertDocument = require('./insert-document');
 const InsertDocumentFooter = require('./insert-document-footer');
 const { TextButton } = require('hadron-react-buttons');
 const { Element } = require('hadron-document');
-const Actions = require('../actions');
 
 /**
  * Component for the insert document dialog.
@@ -31,7 +31,7 @@ class InsertDocumentDialog extends React.Component {
     this.invalidElements = [];
     this.unsubscribeOpen = OpenInsertDocumentDialogStore.listen(this.handleStoreOpen.bind(this));
     this.unsubscribeInsert = InsertDocumentStore.listen(this.handleDocumentInsert.bind(this));
-    this.unsubscribeClose = Actions.closeInsertDocumentDialog.listen(this.closeDialog.bind(this));
+    this.unsubscribeClose = this.props.closeInsertDocumentDialog.listen(this.closeDialog.bind(this));
   }
 
   /**
@@ -108,14 +108,14 @@ class InsertDocumentDialog extends React.Component {
   handleValid(uuid) {
     _.pull(this.invalidElements, uuid);
     this.forceUpdate();
-    Actions.elementValid(uuid);
+    this.props.elementValid(uuid);
   }
 
   handleInvalid(uuid) {
     if (!_.includes(this.invalidElements, uuid)) {
       this.invalidElements.push(uuid);
       this.forceUpdate();
-      Actions.elementInvalid(uuid);
+      this.props.elementInvalid(uuid);
     }
   }
 
@@ -123,7 +123,7 @@ class InsertDocumentDialog extends React.Component {
    * Handle the insert.
    */
   handleInsert() {
-    Actions.insertDocument(this.state.doc.generateObject());
+    this.props.insertDocument(this.state.doc.generateObject());
   }
 
   hasErrors() {
@@ -166,5 +166,12 @@ class InsertDocumentDialog extends React.Component {
 }
 
 InsertDocumentDialog.displayName = 'InsertDocumentDialog';
+
+InsertDocumentDialog.propTypes = {
+  closeInsertDocumentDialog: PropTypes.func.isRequired,
+  insertDocument: PropTypes.func.isRequired,
+  elementValid: PropTypes.func.isRequired,
+  elementInvalid: PropTypes.func.isRequired
+};
 
 module.exports = InsertDocumentDialog;

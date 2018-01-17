@@ -9,8 +9,6 @@ const HadronDocument = require('hadron-document');
 const ObjectId = require('bson').ObjectId;
 const mongodbns = require('mongodb-ns');
 
-const Actions = require('../actions');
-
 const GridStore = require('../stores/grid-store');
 const InsertDocumentStore = require('../stores/insert-document-store');
 const ResetDocumentListStore = require('../stores/reset-document-list-store');
@@ -73,7 +71,8 @@ class DocumentTableView extends React.Component {
       },
       fullWidthCellRendererFramework: FullWidthCellRenderer,
       fullWidthCellRendererParams: {
-        actions: Actions,
+        replaceDoc: this.props.replaceDoc,
+        cleanCols: this.props.cleanCols,
         dataService: ResetDocumentListStore.dataService
       },
       getRowNodeId: function(data) {
@@ -238,11 +237,11 @@ class DocumentTableView extends React.Component {
 
     /* Update the headers */
     for (const element of node.data.hadronDocument.elements) {
-      Actions.elementRemoved(element.currentKey, oid, false);
+      this.props.elementRemoved(element.currentKey, oid, false);
     }
 
     /* Update the toolbar */
-    Actions.documentRemoved();
+    this.props.documentRemoved();
 
     /* Update the grid */
     this.gridApi.updateRowData({remove: [dataNode.data]});
@@ -282,7 +281,7 @@ class DocumentTableView extends React.Component {
     const footerNode = this.gridApi.getRowNode(footerRowId);
     this.removeFooter(footerNode);
 
-    Actions.cleanCols();
+    this.props.cleanCols();
   }
 
   /**
@@ -483,7 +482,7 @@ class DocumentTableView extends React.Component {
 
       /* Update the headers */
       for (const element of data.hadronDocument.elements) {
-        Actions.elementAdded(element.currentKey, element.currentType, doc._id);
+        this.props.elementAdded(element.currentKey, element.currentType, doc._id);
       }
 
       if (edit) {
@@ -638,7 +637,10 @@ class DocumentTableView extends React.Component {
       },
       cellRendererFramework: CellRenderer,
       cellRendererParams: {
-        actions: Actions,
+        elementAdded: this.props.elementAdded,
+        elementRemoved: this.props.elementRemoved,
+        elementTypeChanged: this.props.elementTypeChanged,
+        drillDown: this.props.drillDown,
         parentType: ''
       },
       editable: false,
@@ -697,7 +699,10 @@ class DocumentTableView extends React.Component {
 
       cellRendererFramework: CellRenderer,
       cellRendererParams: {
-        actions: Actions,
+        elementAdded: this.props.elementAdded,
+        elementRemoved: this.props.elementRemoved,
+        elementTypeChanged: this.props.elementTypeChanged,
+        drillDown: this.props.drillDown,
         parentType: parentType
       },
 
@@ -727,7 +732,13 @@ class DocumentTableView extends React.Component {
 
       cellEditorFramework: CellEditor,
       cellEditorParams: {
-        actions: Actions
+        removeColumn: this.props.removeColumn,
+        renameColumn: this.props.renameColumn,
+        elementAdded: this.props.elementAdded,
+        elementRemoved: this.props.elementRemoved,
+        elementTypeChanged: this.props.elementTypeChanged,
+        elementMarkRemoved: this.props.elementMarkRemoved,
+        drillDown: this.props.drillDown
       }
     };
   }
@@ -797,7 +808,7 @@ class DocumentTableView extends React.Component {
     }
 
     /* Set header types correctly in GridStore */
-    Actions.resetHeaders(headerTypes);
+    this.props.resetHeaders(headerTypes);
 
     /* Set header types correctly in the column definitions to be passed to
      the grid. This is handled here for the initial header values, and then
@@ -878,7 +889,7 @@ class DocumentTableView extends React.Component {
   render() {
     return (
       <div className="ag-parent">
-        <BreadcrumbComponent collection={this.collection} actions={Actions}/>
+        <BreadcrumbComponent collection={this.collection} pathChanged={this.props.pathChanged}/>
         {this.AGGrid}
       </div>
     );
@@ -889,7 +900,19 @@ DocumentTableView.propTypes = {
   docs: PropTypes.array.isRequired,
   isEditable: PropTypes.bool.isRequired,
   ns: PropTypes.string.isRequired,
-  startIndex: PropTypes.number.isRequired
+  startIndex: PropTypes.number.isRequired,
+  pathChanged: PropTypes.func.isRequired,
+  elementAdded: PropTypes.func.isRequired,
+  elementRemoved: PropTypes.func.isRequired,
+  elementTypeChanged: PropTypes.func.isRequired,
+  removeColumn: PropTypes.func.isRequired,
+  renameColumn: PropTypes.func.isRequired,
+  elementMarkRemoved: PropTypes.func.isRequired,
+  drillDown: PropTypes.func.isRequired,
+  documentRemoved: PropTypes.func.isRequired,
+  replaceDoc: PropTypes.func.isRequired,
+  cleanCols: PropTypes.func.isRequired,
+  resetHeaders: PropTypes.func.isRequired
 };
 
 DocumentTableView.displayName = 'DocumentTableView';

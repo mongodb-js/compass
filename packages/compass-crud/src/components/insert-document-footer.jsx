@@ -1,7 +1,7 @@
 const _ = require('lodash');
 const React = require('react');
+const PropTypes = require('prop-types');
 const InsertDocumentStore = require('../stores/insert-document-store');
-const Actions = require('../actions');
 
 const INSERTING = 'Inserting Document';
 
@@ -41,9 +41,9 @@ class InsertDocumentFooter extends React.Component {
   componentWillMount() {
     this.invalidElements = [];
     this.unsubscribeInsert = InsertDocumentStore.listen(this.handleDocumentInsert.bind(this));
-    this.unsubscribeStart = Actions.insertDocument.listen(this.handleInsertStart.bind(this));
-    this.unsubscribeInvalid = Actions.elementInvalid.listen(this.handleInvalid.bind(this));
-    this.unsubscribeValid = Actions.elementValid.listen(this.handleValid.bind(this));
+    this.unsubscribeStart = this.props.insertDocument.listen(this.handleInsertStart.bind(this));
+    this.unsubscribeInvalid = this.props.elementInvalid.listen(this.handleInvalid.bind(this));
+    this.unsubscribeValid = this.props.elementValid.listen(this.handleValid.bind(this));
   }
 
   /**
@@ -119,5 +119,11 @@ class InsertDocumentFooter extends React.Component {
 }
 
 InsertDocumentFooter.displayName = 'InsertDocumentFooter';
+
+InsertDocumentFooter.propTypes = {
+  insertDocument: PropTypes.func.isRequired,
+  elementInvalid: PropTypes.func.isRequired,
+  elementValid: PropTypes.func.isRequired
+};
 
 module.exports = InsertDocumentFooter;

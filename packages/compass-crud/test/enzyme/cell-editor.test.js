@@ -297,7 +297,8 @@ describe('<CellEditor />', () => {
           const value = rowNode.data.hadronDocument.get('field1');
           before((done) => {
             component = mount(<CellEditor api={api} node={rowNode} column={column}
-                                          value={value} actions={actions}
+                                          value={value}
+                                          elementTypeChanged={actions.elementTypeChanged}
                                           context={context} columnApi={columnApi}/>);
             const item = component.find('.table-view-cell-editor-input-types');
             const item2 = component.find('.editable-element-type-int32');
@@ -337,7 +338,8 @@ describe('<CellEditor />', () => {
           const value = rowNode.data.hadronDocument.get('field1');
           before((done) => {
             component = mount(<CellEditor api={api} node={rowNode} columnApi={columnApi}
-                                          value={value} actions={actions}
+                                          value={value}
+                                          elementTypeChanged={actions.elementTypeChanged}
                                           context={context} column={column}/>);
             const item = component.find('.table-view-cell-editor-input-types');
             const item2 = component.find('.editable-element-type-date');
@@ -380,7 +382,8 @@ describe('<CellEditor />', () => {
           let component;
           before((done) => {
             component = mount(<CellEditor api={api} node={rowNode} column={column}
-                                          value={value} actions={actions}
+                                          value={value}
+                                          elementMarkRemoved={actions.elementMarkRemoved}
                                           context={context} columnApi={columnApi}/>);
             const wrapper = component.find('.fa-trash');
             expect(wrapper).to.be.present();
@@ -416,7 +419,8 @@ describe('<CellEditor />', () => {
         let component;
         before((done) => {
           component = mount(<CellEditor api={api} node={rowNode} column={column}
-                                        value={value} actions={actions}
+                                        value={value}
+                                        elementRemoved={actions.elementRemoved}
                                         context={context} columnApi={columnApi}/>);
           const wrapper = component.find('.fa-trash');
           expect(wrapper).to.be.present();
@@ -458,7 +462,9 @@ describe('<CellEditor />', () => {
         let component;
         before((done) => {
           component = mount(<CellEditor api={api} node={rowNode}
-                                        value={value} actions={actions}
+                                        value={value}
+                                        renameColumn={actions.renameColumn}
+                                        elementAdded={actions.elementAdded}
                                         context={context} column={column}
                                         columnApi={columnApi}/>);
           const wrapper = component.find('.editable-element-field');
@@ -512,7 +518,8 @@ describe('<CellEditor />', () => {
         let component;
         before((done) => {
           component = mount(<CellEditor api={api} node={rowNode}
-                                        value={value} actions={actions}
+                                        value={value}
+                                        removeColumn={actions.removeColumn}
                                         context={context} column={column}
                                         columnApi={columnApi}/>);
           const wrapper = component.find('.editable-element-field');
@@ -547,7 +554,8 @@ describe('<CellEditor />', () => {
         let component;
         before((done) => {
           component = mount(<CellEditor api={api} node={rowNode}
-                                        value={value} actions={actions}
+                                        value={value}
+                                        removeColumn={actions.removeColumn}
                                         context={context} column={column}
                                         columnApi={columnApi}/>);
           component.instance().isCancelAfterEnd();
@@ -578,7 +586,8 @@ describe('<CellEditor />', () => {
         let component;
         before((done) => {
           component = mount(<CellEditor api={api} node={rowNode}
-                                        value={value} actions={actions}
+                                        value={value}
+                                        removeColumn={actions.removeColumn}
                                         context={context} column={column}
                                         columnApi={columnApi}/>);
           const wrapper = component.find('.editable-element-value-is-string');
@@ -700,7 +709,7 @@ describe('<CellEditor />', () => {
         before((done) => {
           const component = mount(<CellEditor api={api} column={column}
                                               node={rowNode} value={value}
-                                              actions={actions}
+                                              elementAdded={actions.elementAdded}
                                               columnApi={columnApi}
                                               context={context}/>);
           const wrapper = component.find('.editable-element-value-is-string');
@@ -740,7 +749,7 @@ describe('<CellEditor />', () => {
         before((done) => {
           const component = mount(<CellEditor api={api} column={column}
                                               node={rowNode} value={value}
-                                              actions={actions}
+                                              elementAdded={actions.elementAdded}
                                               columnApi={columnApi}
                                               context={context}/>);
           const wrapper = component.find('.editable-element-value-is-string');
@@ -780,7 +789,7 @@ describe('<CellEditor />', () => {
       before((done) => {
         const component = mount(<CellEditor api={api} column={column}
                                             node={rowNode} value={value}
-                                            actions={actions}
+                                            drillDown={actions.drillDown}
                                             columnApi={columnApi}
                                             context={context}/>);
         const wrapper = component.find('.fa-expand');

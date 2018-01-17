@@ -1,4 +1,5 @@
 const React = require('react');
+const Reflux = require('reflux');
 const chai = require('chai');
 const expect = chai.expect;
 const chaiEnzyme = require('chai-enzyme');
@@ -27,7 +28,7 @@ describe('<EditableDocument />', () => {
     const doc = { a: 1, b: 2 };
 
     before(() => {
-      wrapper = mount(<EditableDocument doc={doc} />);
+      wrapper = mount(<EditableDocument doc={doc} closeAllMenus={sinon.spy(Reflux.createAction())} />);
     });
 
     it('renders the list div', () => {
@@ -59,7 +60,7 @@ describe('<EditableDocument />', () => {
         const arrayDoc = {
           long_array: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14]
         };
-        wrapper = mount(<EditableDocument doc={arrayDoc} />);
+        wrapper = mount(<EditableDocument doc={arrayDoc} closeAllMenus={sinon.spy(Reflux.createAction())} />);
 
         // Set build version, so setState does not throw an error
         _instance = global.hadronApp.instance;

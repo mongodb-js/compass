@@ -236,7 +236,7 @@ class FullWidthCellRenderer extends React.Component {
         check = check[this.props.context.path[i]];
       }
     }
-    this.props.actions.replaceDoc(this.doc.getStringId(), '' + doc._id, check);
+    this.props.replaceDoc(this.doc.getStringId(), '' + doc._id, check);
 
     this.props.context.handleUpdate(doc);
   }
@@ -270,8 +270,8 @@ class FullWidthCellRenderer extends React.Component {
       if (this.props.context.path.length && parent.elements === null) {
         newDoc = {};
       }
-      this.props.actions.replaceDoc(id, id, newDoc);
-      this.props.actions.cleanCols();
+      this.props.replaceDoc(id, id, newDoc);
+      this.props.cleanCols();
     }
   }
 
@@ -323,7 +323,8 @@ FullWidthCellRenderer.propTypes = {
   data: PropTypes.any,
   context: PropTypes.any,
   node: PropTypes.any,
-  actions: PropTypes.any.isRequired,
+  replaceDoc: PropTypes.func.isRequired,
+  cleanCols: PropTypes.func.isRequired,
   dataService: PropTypes.any.isRequired
 };
 

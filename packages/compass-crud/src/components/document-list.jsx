@@ -1,4 +1,5 @@
 const _ = require('lodash');
+const PropTypes = require('prop-types');
 const React = require('react');
 const ObjectId = require('bson').ObjectId;
 const { StatusRow } = require('hadron-react-components');
@@ -10,7 +11,6 @@ const PageChangedStore = require('../stores/page-changed-store');
 const DocumentListView = require('./document-list-view');
 const DocumentTableView = require('./document-table-view');
 const Toolbar = require('./toolbar');
-const Actions = require('../actions');
 
 /**
  * Component for the entire document list.
@@ -70,7 +70,7 @@ class DocumentList extends React.Component {
     if (error) {
       this.setState({ error: error });
     } else {
-      Actions.pathChanged([], []);
+      this.props.pathChanged([], []);
       this.setState({ docs: documents, error: error, startIndex: start });
     }
   }
@@ -89,7 +89,7 @@ class DocumentList extends React.Component {
       // If resetting, then we need to go back to page one with
       // the documents as the filter changed. The loaded count and
       // total count are reset here as well.
-      Actions.pathChanged([], []);
+      this.props.pathChanged([], []);
       this.setState({
         docs: documents,
         count: count,
@@ -121,7 +121,7 @@ class DocumentList extends React.Component {
    * Handle opening of the insert dialog.
    */
   handleOpenInsert() {
-    Actions.openInsertDocumentDialog({ _id: new ObjectId(), '': '' }, false);
+    this.props.openInsertDocumentDialog({ _id: new ObjectId(), '': '' }, false);
   }
 
   /**
@@ -231,7 +231,8 @@ class DocumentList extends React.Component {
 DocumentList.displayName = 'DocumentList';
 
 DocumentList.propTypes = {
-
+  pathChanged: PropTypes.func.isRequired,
+  openInsertDocumentDialog: PropTypes.func.isRequired
 };
 
 DocumentList.Document = Document;

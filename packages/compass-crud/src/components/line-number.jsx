@@ -2,7 +2,6 @@ const React = require('react');
 const PropTypes = require('prop-types');
 const outsideClickable = require('react-click-outside');
 const getComponent = require('hadron-react-bson');
-const Actions = require('../actions');
 
 /**
  * The BEM base style name for the element.
@@ -68,7 +67,7 @@ class LineNumber extends React.Component {
    * Subscribe to the close menu action.
    */
   componentDidMount() {
-    this.unsubscribeClose = Actions.closeAllMenus.listen(this.handleCloseAllMenus.bind(this));
+    this.unsubscribeClose = this.props.closeAllMenus.listen(this.handleCloseAllMenus.bind(this));
   }
 
   /**
@@ -93,7 +92,7 @@ class LineNumber extends React.Component {
   handleClick() {
   // Provide menu for _id because it's top-level, but not for any potential children.
     if (this.props.element.isParentEditable()) {
-      Actions.closeAllMenus(this);
+      this.props.closeAllMenus(this);
       this.setState({menu: !this.state.menu});
     }
   }
@@ -105,7 +104,7 @@ class LineNumber extends React.Component {
    */
   handleKeyPress(event) {
     if (event.key === 'Enter' && this.props.element.isParentEditable()) {
-      Actions.closeAllMenus(this);
+      this.props.closeAllMenus(this);
       this.setState({menu: !this.state.menu});
     }
   }
@@ -316,7 +315,8 @@ class LineNumber extends React.Component {
 LineNumber.displayName = 'LineNumber';
 
 LineNumber.propTypes = {
-  element: PropTypes.object.isRequired
+  element: PropTypes.object.isRequired,
+  closeAllMenus: PropTypes.func.isRequired
 };
 
 module.exports = outsideClickable(LineNumber);

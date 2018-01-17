@@ -130,18 +130,18 @@ class CellRenderer extends React.Component {
     if (this.element.isAdded()) {
       this.isDeleted = true;
       const isArray = !this.element.parent.isRoot() && this.element.parent.currentType === 'Array';
-      this.props.actions.elementRemoved(this.element.currentKey, oid, isArray);
+      this.props.elementRemoved(this.element.currentKey, oid, isArray);
     } else if (this.element.isRemoved()) {
-      this.props.actions.elementAdded(this.element.currentKey, this.element.currentType, oid);
+      this.props.elementAdded(this.element.currentKey, this.element.currentType, oid);
     } else {
-      this.props.actions.elementTypeChanged(this.element.currentKey, this.element.type, oid);
+      this.props.elementTypeChanged(this.element.currentKey, this.element.type, oid);
     }
     this.element.revert();
   }
 
   handleDrillDown(event) {
     event.stopPropagation();
-    this.props.actions.drillDown(this.props.node.data.hadronDocument, this.element);
+    this.props.drillDown(this.props.node.data.hadronDocument, this.element);
   }
 
   handleClicked() {
@@ -287,7 +287,10 @@ CellRenderer.propTypes = {
   column: PropTypes.any,
   context: PropTypes.any,
   parentType: PropTypes.any.isRequired,
-  actions: PropTypes.any.isRequired
+  elementAdded: PropTypes.func.isRequired,
+  elementRemoved: PropTypes.func.isRequired,
+  elementTypeChanged: PropTypes.func.isRequired,
+  drillDown: PropTypes.func.isRequired
 };
 
 CellRenderer.displayName = 'CellRenderer';

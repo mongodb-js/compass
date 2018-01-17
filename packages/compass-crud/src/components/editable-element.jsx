@@ -240,6 +240,7 @@ class EditableElement extends React.Component {
           indent={this.props.indent + 16}
           editing={this.props.editing}
           edit={this.props.edit}
+          closeAllMenus={this.props.closeAllMenus}
           expandAll={this.props.expandAll}
         />
       ));
@@ -266,7 +267,7 @@ class EditableElement extends React.Component {
    */
   renderLineNumber() {
     if (this.props.editing) {
-      return (<LineNumber element={this.element} />);
+      return (<LineNumber element={this.element} closeAllMenus={this.props.closeAllMenus} />);
     }
   }
 
@@ -416,6 +417,7 @@ EditableElement.propTypes = {
   editing: PropTypes.bool,
   edit: PropTypes.func,
   element: PropTypes.object.isRequired,
+  closeAllMenus: PropTypes.func.isRequired,
   index: PropTypes.number,
   indent: PropTypes.number,
   expandAll: PropTypes.bool

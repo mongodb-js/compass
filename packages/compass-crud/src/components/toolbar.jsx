@@ -3,7 +3,6 @@ const PropTypes = require('prop-types');
 const { AnimatedIconTextButton, IconButton } = require('hadron-react-buttons');
 const { InfoSprinkle, ViewSwitcher } = require('hadron-react-components');
 const { shell } = require('electron');
-const Actions = require('../actions');
 const ResetDocumentListStore = require('../stores/reset-document-list-store');
 const InsertDocumentStore = require('../stores/insert-document-store');
 const PageChangedStore = require('../stores/page-changed-store');
@@ -43,8 +42,6 @@ class Toolbar extends React.Component {
     super(props);
     this.state = { count: 0, loaded: 0, start: 1, page: 0 };
     this.TextWriteButton = global.hadronApp.appRegistry.getComponent('DeploymentAwareness.TextWriteButton');
-    this.documentRemovedAction = Actions.documentRemoved;
-    this.refreshDocumentsAction = Actions.refreshDocuments;
   }
 
   /**
@@ -53,7 +50,7 @@ class Toolbar extends React.Component {
   componentDidMount() {
     this.unsubscribeReset = ResetDocumentListStore.listen(this.handleReset.bind(this));
     this.unsubscribeInsert = InsertDocumentStore.listen(this.handleInsert.bind(this));
-    this.unsubscribeRemove = this.documentRemovedAction.listen(this.handleRemove.bind(this));
+    this.unsubscribeRemove = this.props.documentRemoved.listen(this.handleRemove.bind(this));
     this.unsubscribePageChanged = PageChangedStore.listen(this.handlePageChange.bind(this));
   }
 
@@ -122,14 +119,14 @@ class Toolbar extends React.Component {
    * Handle refreshing the document list.
    */
   handleRefreshDocuments() {
-    this.refreshDocumentsAction();
+    this.props.refreshDocuments();
   }
 
   /**
    * Handle loading the next page of documents in the table view.
    */
   handleNextPage() {
-    Actions.getNextPage(this.state.page + 1);
+    this.props.getNextPage(this.state.page + 1);
   }
 
   handleExport() {
@@ -143,7 +140,7 @@ class Toolbar extends React.Component {
     if (this.state.start - 20 <= 0) {
       return;
     }
-    Actions.getPrevPage(this.state.page - 1);
+    this.props.getPrevPage(this.state.page - 1);
   }
 
   /**
@@ -153,7 +150,7 @@ class Toolbar extends React.Component {
    */
   switchDocumentView(view) {
     this.props.viewSwitchHandler(view);
-    Actions.refreshDocuments();
+    this.props.refreshDocuments();
   }
 
   _loadedMessage() {
@@ -276,6 +273,10 @@ Toolbar.propTypes = {
   activeDocumentView: PropTypes.string.isRequired,
   insertHandler: PropTypes.func.isRequired,
   viewSwitchHandler: PropTypes.func.isRequired,
+  documentRemoved: PropTypes.func.isRequired,
+  refreshDocuments: PropTypes.func.isRequired,
+  getNextPage: PropTypes.func.isRequired,
+  getPrevPage: PropTypes.func.isRequired,
   readonly: PropTypes.bool.isRequired
 };
 
