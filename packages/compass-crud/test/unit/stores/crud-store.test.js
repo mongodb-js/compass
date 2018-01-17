@@ -109,10 +109,6 @@ describe('CRUDStore', () => {
     it('sets the default isEditable status', () => {
       expect(CRUDStore.state.isEditable).to.equal(true);
     });
-
-    it('sets the default view', () => {
-      expect(CRUDStore.state.view).to.equal('List');
-    });
   });
 
   describe('#onCollectionChanged', () => {
@@ -427,22 +423,6 @@ describe('CRUDStore', () => {
       });
 
       global.hadronApp.appRegistry.emit('query-changed', query);
-    });
-  });
-
-  describe('#changeView', () => {
-    beforeEach(() => {
-      CRUDStore.state = CRUDStore.getInitialState();
-    });
-
-    it('sets the view', (done) => {
-      const unsubscribe = CRUDStore.listen((state) => {
-        expect(state.view).to.equal('Table');
-        unsubscribe();
-        done();
-      });
-
-      CRUDStore.changeView('Table');
     });
   });
 

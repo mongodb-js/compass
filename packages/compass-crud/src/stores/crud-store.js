@@ -43,7 +43,6 @@ const CRUDStore = Reflux.createStore({
       start: 0,
       end: 0,
       page: 1,
-      view: 'List',
       isEditable: true,
       insert: {
         doc: null,
@@ -133,15 +132,6 @@ const CRUDStore = Reflux.createStore({
    */
   isListEditable() {
     return !this.CollectionStore.isReadonly() && process.env.HADRON_READONLY !== 'true';
-  },
-
-  /**
-   * Change the current view.
-   *
-   * @param {String} view - The new view.
-   */
-  changeView(view) {
-    this.setState({ view: view });
   },
 
   /**
