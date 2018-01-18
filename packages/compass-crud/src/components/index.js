@@ -1,7 +1,5 @@
 const React = require('react');
-const { StoreConnector } = require('hadron-react-components');
 const DocumentList = require('./document-list');
-const Store = require('../stores/crud-store');
 const Actions = require('../actions');
 
 class ConnectedDocumentList extends React.Component {
@@ -13,9 +11,17 @@ class ConnectedDocumentList extends React.Component {
    */
   render() {
     return (
-      <StoreConnector store={Store}>
-        <DocumentList actions={Actions} {...this.props} />
-      </StoreConnector>
+      <DocumentList
+         pathChanged={Actions.pathChanged}
+         documentRemoved={Actions.documentRemoved}
+         refreshDocuments={Actions.refreshDocuments}
+         getNextPage={Actions.getNextPage}
+         getPrevPage={Actions.getPrevPage}
+         closeInsertDocumentDialog={Actions.closeInsertDocumentDialog}
+         insertDocument={Actions.insertDocument}
+         elementValid={Actions.elementValid}
+         elementInvalid={Actions.elementInvalid}
+         openInsertDocumentDialog={Actions.openInsertDocumentDialog} />
     );
   }
 }

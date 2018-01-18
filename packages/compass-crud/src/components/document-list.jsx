@@ -172,7 +172,8 @@ class DocumentList extends React.Component {
       return (
         <DocumentListView
           docs={this.state.docs}
-          isEditable={isEditable} />
+          isEditable={isEditable}
+          {...this.props} />
       );
     }
     return (
@@ -219,10 +220,11 @@ class DocumentList extends React.Component {
             readonly={!this.isEditable()}
             insertHandler={this.handleOpenInsert.bind(this)}
             viewSwitchHandler={this.handleViewSwitch.bind(this)}
-            activeDocumentView={this.state.activeDocumentView} />
+            activeDocumentView={this.state.activeDocumentView}
+            {...this.props} />
         </div>
         {this.renderContent()}
-        <InsertDocumentDialog />
+        <InsertDocumentDialog {...this.props} />
       </div>
     );
   }
@@ -232,6 +234,14 @@ DocumentList.displayName = 'DocumentList';
 
 DocumentList.propTypes = {
   pathChanged: PropTypes.func.isRequired,
+  documentRemoved: PropTypes.func.isRequired,
+  refreshDocuments: PropTypes.func.isRequired,
+  getNextPage: PropTypes.func.isRequired,
+  getPrevPage: PropTypes.func.isRequired,
+  insertDocument: PropTypes.func.isRequired,
+  elementValid: PropTypes.func.isRequired,
+  elementInvalid: PropTypes.func.isRequired,
+  closeInsertDocumentDialog: PropTypes.func.isRequired,
   openInsertDocumentDialog: PropTypes.func.isRequired
 };
 

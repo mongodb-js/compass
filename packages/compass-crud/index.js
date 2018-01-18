@@ -1,5 +1,5 @@
 const Document = require('./lib/components/document');
-const DocumentList = require('./lib/components/document-list');
+const DocumentList = require('./lib/components');
 const Actions = require('./lib/actions');
 const InsertDocumentStore = require('./lib/stores/insert-document-store');
 const ResetDocumentListStore = require('./lib/stores/reset-document-list-store');

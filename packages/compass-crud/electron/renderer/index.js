@@ -9,7 +9,7 @@ const AppRegistry = require('hadron-app-registry');
 
 const DataService = require('mongodb-data-service');
 const Connection = require('mongodb-connection-model');
-const DocumentList = require('../../lib/components/document-list');
+const DocumentList = require('../../lib/components');
 
 const DB = 'Venues';
 const COLL = 'Restaurants';

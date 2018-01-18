@@ -145,7 +145,7 @@ class InsertDocumentDialog extends React.Component {
 
         <Modal.Body onFocus={this.handleBlur.bind(this)} >
           <InsertDocument doc={this.state.doc} />
-          <InsertDocumentFooter />
+          <InsertDocumentFooter {...this.props} />
         </Modal.Body>
 
         <Modal.Footer>
