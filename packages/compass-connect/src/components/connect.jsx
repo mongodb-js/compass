@@ -14,6 +14,7 @@ class Connect extends React.Component {
 
   constructor(props) {
     super(props);
+    this.dialogOpen = false;
     this.checkClipboard = this.onCheckClipboard.bind(this);
   }
 
@@ -32,9 +33,10 @@ class Connect extends React.Component {
     const url = shellToURL(clipboardText);
 
     if (url) clipboardText = url;
-    if (clipboardText === this.clipboardText) return;
+    if (clipboardText === this.clipboardText || this.dialogOpen) return;
 
     if (Connection.isURI(clipboardText)) {
+      this.dialogOpen = true;
       dialog.showMessageBox(BrowserWindow.getFocusedWindow(), {
         type: 'info',
         message: 'MongoDB connection string detected',
@@ -43,6 +45,7 @@ class Connect extends React.Component {
           + 'fill out this form?',
         buttons: ['Yes', 'No']
       }, (response) => {
+        this.dialogOpen = false;
         this.clipboardText = clipboardText;
         if (response === 0) {
           this.autoFillFromClipboard();
