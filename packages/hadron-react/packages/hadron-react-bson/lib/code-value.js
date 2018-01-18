@@ -17,7 +17,7 @@ class Code extends React.Component {
    * @returns {React.Component} The element component.
    */
   render() {
-    const value = `Code('${ this.props.value.code }', ${ JSON.stringify(this.props.value.scope) })`;
+    const value = `Code('${this.props.value.code}', ${JSON.stringify(this.props.value.scope)})`;
     return React.createElement(
       'div',
       { className: CLASS, title: value },

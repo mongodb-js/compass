@@ -18,10 +18,10 @@ class DBRefValue extends React.Component {
    */
   render() {
     const dbref = this.props.value;
-    const value = `DBRef(${ dbref.namespace }, ${ String(dbref.oid) }, ${ dbref.db })`;
+    const value = `DBRef(${dbref.namespace}, ${String(dbref.oid)}, ${dbref.db})`;
     return React.createElement(
       'div',
-      { className: `${ CLASS } ${ CLASS }-is-${ this.props.type.toLowerCase() }`, title: value },
+      { className: `${CLASS} ${CLASS}-is-${this.props.type.toLowerCase()}`, title: value },
       value
     );
   }

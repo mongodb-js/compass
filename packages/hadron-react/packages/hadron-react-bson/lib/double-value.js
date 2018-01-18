@@ -20,7 +20,7 @@ class Double extends React.Component {
     const value = String(this.props.value.valueOf());
     return React.createElement(
       'div',
-      { className: `${ CLASS } ${ CLASS }-is-${ this.props.type.toLowerCase() }`, title: value },
+      { className: `${CLASS} ${CLASS}-is-${this.props.type.toLowerCase()}`, title: value },
       value
     );
   }

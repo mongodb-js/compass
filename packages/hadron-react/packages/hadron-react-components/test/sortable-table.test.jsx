@@ -155,4 +155,44 @@ describe('<SortableTable />', () => {
       expect(sortSpy.firstCall.calledWith('foo', 'asc')).to.be.true;
     });
   });
+
+  context('when hovering over a row', () => {
+    it('calls the onBodyRowMouseEnter prop', () => {
+      const expectedIndex = 0;
+      const columns = ['foo'];
+      const rows = [
+        {foo: 1}
+      ];
+      const hoverSpy = sinon.spy();
+      const mountedComponent = mount(
+        <SortableTable
+          columns={columns}
+          rows={rows}
+          onBodyRowMouseEnter={hoverSpy}
+        />);
+      mountedComponent.find('tr').last().simulate('mouseEnter');
+      expect(hoverSpy.getCall(0).args[0]).to.be.equal(expectedIndex);
+      expect(hoverSpy.getCall(0).args[1].type).to.be.equal('mouseenter');
+    });
+  });
+
+  context('when leaving a hovered row', () => {
+    it('calls the onBodyRowMouseLeave prop', () => {
+      const expectedIndex = 0;
+      const columns = ['foo'];
+      const rows = [
+        {foo: 1}
+      ];
+      const hoverSpy = sinon.spy();
+      const mountedComponent = mount(
+        <SortableTable
+          columns={columns}
+          rows={rows}
+          onBodyRowMouseLeave={hoverSpy}
+        />);
+      mountedComponent.find('tr').last().simulate('mouseLeave');
+      expect(hoverSpy.getCall(0).args[0]).to.be.equal(expectedIndex);
+      expect(hoverSpy.getCall(0).args[1].type).to.be.equal('mouseleave');
+    });
+  });
 });

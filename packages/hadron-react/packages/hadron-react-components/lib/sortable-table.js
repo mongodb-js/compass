@@ -31,6 +31,28 @@ const DESC = 'desc';
 class SortableTable extends React.Component {
 
   /**
+   * Fires when the user's mouse cursor hovers over a <tr>.
+   *
+   * @param {Number} index - The row's index in the table.
+   * @param {SyntheticEvent} event
+   * @see https://reactjs.org/docs/events.html#mouse-events
+   */
+  onBodyRowMouseEnter(index, event) {
+    this.props.onBodyRowMouseEnter(index, event);
+  }
+
+  /**
+   * Fires when the user's mouse cursor stops hovering over a <tr>.
+   *
+   * @param {Number} index - The row's index in the table.
+   * @param {SyntheticEvent} event
+   * @see https://reactjs.org/docs/events.html#mouse-events
+   */
+  onBodyRowMouseLeave(index, event) {
+    this.props.onBodyRowMouseLeave(index, event);
+  }
+
+  /**
    * Fires when a column header is clicked.
    *
    * @param {Number} idx - The index.
@@ -108,7 +130,7 @@ class SortableTable extends React.Component {
    * @returns {React.Component} The rows.
    */
   renderRows() {
-    return map(this.props.rows, (row, r) => {
+    return map(this.props.rows, (row, rowIndex) => {
       // allow both objects and arrays as rows. if object, convert to array
       // in sort order of column names (column names must match exactly).
       if (isPlainObject(row)) {
@@ -127,15 +149,15 @@ class SortableTable extends React.Component {
       } else if (row.length > this.props.columns.length) {
         row = row.slice(0, this.props.columns.length);
       }
-      const cells = map(row, (cell, c) => {
+      const cells = map(row, (cell, columnIndex) => {
         const title = isString(cell) ? cell : get(cell, 'props.children', '');
         return React.createElement(
           'td',
           {
             className: `${BASE}-td`,
-            'data-test-id': `${BASE}-column-${c}`,
+            'data-test-id': `${BASE}-column-${columnIndex}`,
             title: title,
-            key: `td-${c}` },
+            key: `td-${columnIndex}` },
           cell
         );
       });
@@ -155,14 +177,17 @@ class SortableTable extends React.Component {
             {
               className: `${BASE}-trash-button`,
               bsSize: 'sm',
-              onClick: this.onRowDeleteButtonClicked.bind(this, r, valueStr) },
+              onClick: this.onRowDeleteButtonClicked.bind(this, rowIndex, valueStr) },
             React.createElement(FontAwesome, { className: `${BASE}-trash-icon`, name: 'trash-o' })
           )
         ));
       }
       return React.createElement(
         'tr',
-        { className: `${BASE}-tbody-tr`, key: `tr-${r}` },
+        {
+          className: `${BASE}-tbody-tr`, key: `tr-${rowIndex}`,
+          onMouseEnter: this.onBodyRowMouseEnter.bind(this, rowIndex),
+          onMouseLeave: this.onBodyRowMouseLeave.bind(this, rowIndex) },
         cells
       );
     });
@@ -239,6 +264,16 @@ SortableTable.propTypes = {
    */
   removable: PropTypes.bool,
   /**
+   * Fires when the user's mouse cursor hovers over a <tr>.
+   * @type {Function}
+   */
+  onBodyRowMouseEnter: PropTypes.func,
+  /**
+   * Fires when the user's mouse cursor stops hovering over a <tr>.
+   * @type {Function}
+   */
+  onBodyRowMouseLeave: PropTypes.func,
+  /**
    * callback when user clicks on a sortable column header, function signature
    * is callback(columnName, sortOrder), e.g. `Size`, `asc`. These two
    * values can be used directly with lodash's `_.sortByOrder()` function.
@@ -259,6 +294,8 @@ SortableTable.propTypes = {
 };
 
 SortableTable.defaultProps = {
+  onBodyRowMouseEnter: () => {},
+  onBodyRowMouseLeave: () => {},
   theme: 'light',
   rows: [],
   sortable: true,
