@@ -17,7 +17,7 @@ describe('<BreadcrumbComponent />', () => {
     describe('empty path', () => {
       before((done) => {
         component = mount(<BreadcrumbComponent collection={''}
-                                               actions={actions}/>);
+                                               pathChanged={actions.pathChanged}/>);
         component.instance().breadcrumbStoreChanged({
           path: [],
           types: [],
@@ -40,7 +40,7 @@ describe('<BreadcrumbComponent />', () => {
     describe('large path', () => {
       before((done) => {
         component = mount(<BreadcrumbComponent collection={''}
-                                               actions={actions}/>);
+                                               pathChanged={actions.pathChanged}/>);
         component.instance().breadcrumbStoreChanged({
           path: ['a', 'b', 1],
           types: ['Object', 'Array', 'Object'],

@@ -26,9 +26,14 @@ describe('<EditableDocument />', () => {
   describe('#render', () => {
     let wrapper;
     const doc = { a: 1, b: 2 };
+    const action = Reflux.createAction();
 
     before(() => {
-      wrapper = mount(<EditableDocument doc={doc} closeAllMenus={sinon.spy(Reflux.createAction())} />);
+      wrapper = mount(<EditableDocument
+                        doc={doc}
+                        closeAllMenus={sinon.spy(action)}
+                        documentRemoved={sinon.spy(action)}
+                        openInsertDocumentDialog={sinon.spy(action)} />);
     });
 
     it('renders the list div', () => {
@@ -60,7 +65,11 @@ describe('<EditableDocument />', () => {
         const arrayDoc = {
           long_array: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14]
         };
-        wrapper = mount(<EditableDocument doc={arrayDoc} closeAllMenus={sinon.spy(Reflux.createAction())} />);
+        wrapper = mount(<EditableDocument
+                          doc={arrayDoc}
+                          closeAllMenus={sinon.spy(action)}
+                          documentRemoved={sinon.spy(action)}
+                          openInsertDocumentDialog={sinon.spy(action)} />);
 
         // Set build version, so setState does not throw an error
         _instance = global.hadronApp.instance;

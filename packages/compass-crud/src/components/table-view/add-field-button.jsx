@@ -138,7 +138,7 @@ class AddFieldButton extends React.Component {
       }
     }
 
-    this.props.actions.addColumn(
+    this.props.addColumn(
       newElement.currentKey,
       this.props.column.getColDef().colId,
       this.props.node.childIndex,
@@ -160,7 +160,7 @@ class AddFieldButton extends React.Component {
       rowIndex: this.props.node.childIndex
     };
 
-    this.props.actions.drillDown(
+    this.props.drillDown(
       this.props.node.data.hadronDocument, this.props.value, edit
     );
   }
@@ -362,7 +362,8 @@ AddFieldButton.propTypes = {
   context: PropTypes.any.isRequired,
   column: PropTypes.any.isRequired,
   node: PropTypes.any.isRequired,
-  actions: PropTypes.any.isRequired,
+  addColumn: PropTypes.func.isRequired,
+  drillDown: PropTypes.func.isRequired,
   buttonRef: PropTypes.any.isRequired
 };
 

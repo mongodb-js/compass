@@ -54,6 +54,7 @@ describe('<FullWidthCellRenderer />', () => {
           component = mount(<FullWidthCellRenderer api={api}
                                                    node={rowNode}
                                                    replaceDoc={actions.replaceDoc}
+                                                   cleanCols={actions.cleanCols}
                                                    data={data}
                                                    context={context}
                                                    dataService={dataService}/>);
@@ -81,7 +82,9 @@ describe('<FullWidthCellRenderer />', () => {
           rowNode.data.state = 'editing';
           data = rowNode.data;
           component = mount(<FullWidthCellRenderer api={api} node={rowNode}
-                                                   actions={actions} data={data}
+                                                   replaceDoc={actions.replaceDoc}
+                                                   cleanCols={actions.cleanCols}
+                                                   data={data}
                                                    context={context}
                                                    dataService={dataService}/>);
           expect(component).to.be.present();
@@ -107,8 +110,12 @@ describe('<FullWidthCellRenderer />', () => {
         rowNode = getNode({field1: {'subfield1': 'value'}});
         rowNode.data.state = 'deleting';
         data = rowNode.data;
-        component = mount(<FullWidthCellRenderer api={api} node={rowNode}
-                                                 actions={actions} data={data}
+        component = mount(<FullWidthCellRenderer api={api}
+                                                 node={rowNode}
+                                                 dataService={dataService}
+                                                 replaceDoc={actions.replaceDoc}
+                                                 cleanCols={actions.cleanCols}
+                                                 data={data}
                                                  context={context}/>);
         expect(component).to.be.present();
         done();
@@ -203,6 +210,7 @@ describe('<FullWidthCellRenderer />', () => {
             component = mount(<FullWidthCellRenderer api={api}
                                                      node={rowNode}
                                                      replaceDoc={actions.replaceDoc}
+                                                     cleanCols={actions.cleanCols}
                                                      data={data}
                                                      context={context}
                                                      dataService={dataService}/>);
@@ -247,6 +255,7 @@ describe('<FullWidthCellRenderer />', () => {
           component = mount(<FullWidthCellRenderer api={api}
                                                    node={rowNode}
                                                    replaceDoc={actions.replaceDoc}
+                                                   cleanCols={actions.cleanCols}
                                                    data={data}
                                                    context={context}
                                                    dataService={dataService}/>);
@@ -278,6 +287,7 @@ describe('<FullWidthCellRenderer />', () => {
           component = mount(<FullWidthCellRenderer api={api}
                                                    node={rowNode}
                                                    replaceDoc={actions.replaceDoc}
+                                                   cleanCols={actions.cleanCols}
                                                    data={data}
                                                    context={context}
                                                    dataService={dataService}/>);
@@ -316,6 +326,7 @@ describe('<FullWidthCellRenderer />', () => {
           component = mount(<FullWidthCellRenderer api={api}
                                                    node={rowNode}
                                                    replaceDoc={actions.replaceDoc}
+                                                   cleanCols={actions.cleanCols}
                                                    data={data}
                                                    context={context}
                                                    dataService={ds}/>);
@@ -364,6 +375,7 @@ describe('<FullWidthCellRenderer />', () => {
           component = mount(<FullWidthCellRenderer api={api}
                                                    node={rowNode}
                                                    replaceDoc={actions.replaceDoc}
+                                                   cleanCols={actions.cleanCols}
                                                    data={data}
                                                    context={context}
                                                    dataService={ds}/>);
@@ -411,6 +423,7 @@ describe('<FullWidthCellRenderer />', () => {
           component = mount(<FullWidthCellRenderer api={api}
                                                    node={rowNode}
                                                    replaceDoc={actions.replaceDoc}
+                                                   cleanCols={actions.cleanCols}
                                                    data={data}
                                                    context={context}
                                                    dataService={ds}/>);
