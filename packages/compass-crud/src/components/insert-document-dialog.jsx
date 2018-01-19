@@ -1,4 +1,5 @@
-const _ = require('lodash');
+const includes = require('lodash.includes');
+const pull = require('lodash.pull');
 const React = require('react');
 const PropTypes = require('prop-types');
 const Modal = require('react-bootstrap').Modal;
@@ -106,13 +107,13 @@ class InsertDocumentDialog extends React.Component {
   }
 
   handleValid(uuid) {
-    _.pull(this.invalidElements, uuid);
+    pull(this.invalidElements, uuid);
     this.forceUpdate();
     this.props.elementValid(uuid);
   }
 
   handleInvalid(uuid) {
-    if (!_.includes(this.invalidElements, uuid)) {
+    if (!includes(this.invalidElements, uuid)) {
       this.invalidElements.push(uuid);
       this.forceUpdate();
       this.props.elementInvalid(uuid);
