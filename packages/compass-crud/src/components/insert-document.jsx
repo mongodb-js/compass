@@ -25,28 +25,27 @@ class InsertDocument extends React.Component {
    */
   constructor(props) {
     super(props);
-    this.doc = props.doc;
-    this.doc.on(Element.Events.Added, this.handleModify.bind(this));
-    this.doc.on(Element.Events.Removed, this.handleModify.bind(this));
+    this.unsubscribeAdded = this.handleModify.bind(this);
+    this.unsubscribeRemoved = this.handleModify.bind(this);
+
+    this.props.doc.on(Element.Events.Added, this.unsubscribeAdded);
+    this.props.doc.on(Element.Events.Removed, this.unsubscribeRemoved);
   }
 
   /**
    * Subscribe to the events.
    */
   componentDidMount() {
-    this.unsubscribeAdded = this.handleModify.bind(this);
-    this.unsubscribeRemoved = this.handleModify.bind(this);
-
-    this.doc.on(Element.Events.Added, this.unsubscribeAdded);
-    this.doc.on(Element.Events.Removed, this.unsubscribeRemoved);
+    this.props.doc.on(Element.Events.Added, this.unsubscribeAdded);
+    this.props.doc.on(Element.Events.Removed, this.unsubscribeRemoved);
   }
 
   /**
    * Unsubscribe from the events.
    */
   componentWillUnmount() {
-    this.doc.removeListener(Element.Events.Added, this.unsubscribeAdded);
-    this.doc.removeListener(Element.Events.Removed, this.unsubscribeRemoved);
+    this.props.doc.removeListener(Element.Events.Added, this.unsubscribeAdded);
+    this.props.doc.removeListener(Element.Events.Removed, this.unsubscribeRemoved);
   }
 
   /**
@@ -63,7 +62,7 @@ class InsertDocument extends React.Component {
    */
   renderElements() {
     const components = [];
-    for (const element of this.doc.elements) {
+    for (const element of this.props.doc.elements) {
       components.push(
         <EditableElement
           key={element.uuid}
@@ -84,7 +83,7 @@ class InsertDocument extends React.Component {
     return (
       <div className={DOCUMENT} data-test-id="insert-document-modal">
         <ol className={DOCUMENT_ELEMENTS}>
-          {this.renderElements(this.doc)}
+          {this.renderElements(this.props.doc)}
         </ol>
       </div>
     );
@@ -94,7 +93,7 @@ class InsertDocument extends React.Component {
 InsertDocument.displayName = 'InsertDocument';
 
 InsertDocument.propTypes = {
-  doc: PropTypes.object,
+  doc: PropTypes.object.isRequired,
   closeAllMenus: PropTypes.func.isRequired
 };
 
