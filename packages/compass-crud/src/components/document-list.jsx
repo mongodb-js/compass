@@ -25,10 +25,7 @@ class DocumentList extends React.Component {
   constructor(props) {
     super(props);
     const appRegistry = global.hadronApp.appRegistry;
-    this.CollectionStore = appRegistry.getStore('App.CollectionStore');
     this.queryBar = appRegistry.getComponent('Query.QueryBar');
-    this.QueryChangedStore = appRegistry.getStore('Query.ChangedStore');
-    this.projection = false;
     this.state = { docs: [] };
   }
 
@@ -40,7 +37,6 @@ class DocumentList extends React.Component {
     this.unsubscribePageChanged = PageChangedStore.listen(this.handlePageChanged.bind(this));
     this.unsubscribeRemove = RemoveDocumentStore.listen(this.handleRemove.bind(this));
     this.unsubscribeInsert = InsertDocumentStore.listen(this.handleInsert.bind(this));
-    this.unsubscribeQueryStore = this.QueryChangedStore.listen(this.handleQueryChanged.bind(this));
   }
 
   /**
@@ -131,41 +127,23 @@ class DocumentList extends React.Component {
     }
   }
 
-  handleQueryChanged(state) {
-    this.projection = state.project !== null;
-  }
-
-  /**
-   * Determine if the plugin is editable.
-   *
-   * @returns {Boolean} If the plugin is editable.
-   */
-  isEditable() {
-    return (
-      !this.CollectionStore.isReadonly() &&
-      !this.projection &&
-      process.env.HADRON_READONLY !== 'true'
-    );
-  }
-
   /**
    * Render the views for the document list.
    *
    * @returns {React.Component} The document list views.
    */
   renderViews() {
-    const isEditable = this.isEditable();
     if (this.props.view === 'List') {
       return (
         <DocumentListView
           docs={this.state.docs}
-          isEditable={isEditable}
+          isEditable={this.props.isEditable}
           {...this.props} />
       );
     }
     return (
       <DocumentTableView docs={this.state.docs}
-                         isEditable={isEditable}
+                         isEditable={this.props.isEditable}
                          ns={this.props.ns}
                          startIndex={this.props.start}
                          {...this.props} />
@@ -205,7 +183,7 @@ class DocumentList extends React.Component {
         <div className="controls-container">
           <this.queryBar buttonLabel="Find" />
           <Toolbar
-            readonly={!this.isEditable()}
+            readonly={!this.props.isEditable}
             insertHandler={this.handleOpenInsert.bind(this)}
             viewSwitchHandler={this.props.viewChanged}
             activeDocumentView={this.props.view}
@@ -246,12 +224,14 @@ DocumentList.propTypes = {
   closeAllMenus: PropTypes.func.isRequired,
   view: PropTypes.string.isRequired,
   ns: PropTypes.string.isRequired,
-  start: PropTypes.number.isRequired
+  start: PropTypes.number.isRequired,
+  isEditable: PropTypes.bool.isRequired
 };
 
 DocumentList.defaultProps = {
   ns: '',
   view: 'List',
+  isEditable: true,
   start: 1
 };
 
