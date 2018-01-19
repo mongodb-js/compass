@@ -29,10 +29,7 @@ class DocumentList extends React.Component {
     this.queryBar = appRegistry.getComponent('Query.QueryBar');
     this.QueryChangedStore = appRegistry.getStore('Query.ChangedStore');
     this.projection = false;
-    this.state = {
-      docs: [],
-      startIndex: 1
-    };
+    this.state = { docs: [] };
   }
 
   /**
@@ -61,14 +58,13 @@ class DocumentList extends React.Component {
    *
    * @param {Object} error - Error when trying to click next or prev page.
    * @param {Array} documents - The new documents.
-   * @param {Number} start - The start index of the document in the page.
    */
-  handlePageChanged(error, documents, start) {
+  handlePageChanged(error, documents) {
     if (error) {
       this.setState({ error: error });
     } else {
       this.props.pathChanged([], []);
-      this.setState({ docs: documents, error: error, startIndex: start });
+      this.setState({ docs: documents, error: error });
     }
   }
 
@@ -90,8 +86,7 @@ class DocumentList extends React.Component {
       this.setState({
         docs: documents,
         count: count,
-        error: error,
-        startIndex: 1
+        error: error
       });
     }
   }
@@ -172,7 +167,7 @@ class DocumentList extends React.Component {
       <DocumentTableView docs={this.state.docs}
                          isEditable={isEditable}
                          ns={this.props.ns}
-                         startIndex={this.state.startIndex}
+                         startIndex={this.props.start}
                          {...this.props} />
     );
   }
@@ -250,12 +245,14 @@ DocumentList.propTypes = {
   replaceDoc: PropTypes.func.isRequired,
   closeAllMenus: PropTypes.func.isRequired,
   view: PropTypes.string.isRequired,
-  ns: PropTypes.string.isRequired
+  ns: PropTypes.string.isRequired,
+  start: PropTypes.number.isRequired
 };
 
 DocumentList.defaultProps = {
   ns: '',
-  view: 'List'
+  view: 'List',
+  start: 1
 };
 
 DocumentList.Document = Document;
