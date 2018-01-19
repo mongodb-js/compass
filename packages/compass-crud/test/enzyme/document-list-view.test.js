@@ -14,7 +14,13 @@ describe('<DocumentListView />', () => {
       const docs = [{ _id: { name: 'test-1' }}, { _id: { name: 'test-2' }}];
       const scrollHandler = sinon.spy();
       const component = mount(
-        <DocumentListView docs={docs} scrollHandler={scrollHandler} isEditable={false} />
+        <DocumentListView
+          docs={docs}
+          scrollHandler={scrollHandler}
+          isEditable={false}
+          documentRemoved={sinon.spy()}
+          openInsertDocumentDialog={sinon.spy()}
+          closeAllMenus={sinon.spy()} />
       );
 
       it('renders all the documents', () => {
