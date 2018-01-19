@@ -32,7 +32,6 @@ class DocumentList extends React.Component {
     this.projection = false;
     this.state = {
       docs: [],
-      namespace: this.NamespaceStore.ns,
       startIndex: 1
     };
   }
@@ -92,7 +91,6 @@ class DocumentList extends React.Component {
       this.setState({
         docs: documents,
         count: count,
-        namespace: this.NamespaceStore.ns,
         error: error,
         startIndex: 1
       });
@@ -174,7 +172,7 @@ class DocumentList extends React.Component {
     return (
       <DocumentTableView docs={this.state.docs}
                          isEditable={isEditable}
-                         ns={this.state.namespace}
+                         ns={this.props.ns}
                          startIndex={this.state.startIndex}
                          {...this.props} />
     );
@@ -252,10 +250,12 @@ DocumentList.propTypes = {
   resetHeaders: PropTypes.func.isRequired,
   replaceDoc: PropTypes.func.isRequired,
   closeAllMenus: PropTypes.func.isRequired,
-  view: PropTypes.string.isRequired
+  view: PropTypes.string.isRequired,
+  ns: PropTypes.string.isRequired
 };
 
 DocumentList.defaultProps = {
+  ns: '',
   view: 'List'
 };
 
