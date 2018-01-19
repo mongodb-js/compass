@@ -24,6 +24,7 @@ const Actions = Reflux.createActions([
   'getNextPage',
   'getPrevPage',
   'pathChanged',
+  'viewChanged',
   'drillDown'
 ]);
 

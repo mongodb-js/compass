@@ -13,6 +13,11 @@ const Actions = require('../actions');
 const NUM_PAGE_DOCS = 20;
 
 /**
+ * The list view constant.
+ */
+const LIST = 'List';
+
+/**
  * The main CRUD store.
  */
 const CRUDStore = Reflux.createStore({
@@ -44,6 +49,7 @@ const CRUDStore = Reflux.createStore({
       end: 0,
       page: 1,
       isEditable: true,
+      view: LIST,
       insert: {
         doc: null,
         isOpen: false,
@@ -306,6 +312,15 @@ const CRUDStore = Reflux.createStore({
         types: types
       }
     });
+  },
+
+  /**
+   * The view has changed.
+   *
+   * @param {String} view - The new view.
+   */
+  viewChanged(view) {
+    this.setState({ view: view });
   },
 
   /**

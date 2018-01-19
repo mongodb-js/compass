@@ -109,6 +109,10 @@ describe('CRUDStore', () => {
     it('sets the default isEditable status', () => {
       expect(CRUDStore.state.isEditable).to.equal(true);
     });
+
+    it('sets the default view', () => {
+      expect(CRUDStore.state.view).to.equal('List');
+    });
   });
 
   describe('#onCollectionChanged', () => {
@@ -466,6 +470,22 @@ describe('CRUDStore', () => {
       });
 
       CRUDStore.pathChanged(path, types);
+    });
+  });
+
+  describe('#viewChanged', () => {
+    beforeEach(() => {
+      CRUDStore.state = CRUDStore.getInitialState();
+    });
+
+    it('sets the view', (done) => {
+      const unsubscribe = CRUDStore.listen((state) => {
+        expect(state.view).to.equal('Table');
+        unsubscribe();
+        done();
+      });
+
+      CRUDStore.viewChanged('Table');
     });
   });
 
