@@ -180,7 +180,8 @@ class DocumentList extends React.Component {
       <DocumentTableView docs={this.state.docs}
                          isEditable={isEditable}
                          ns={this.state.namespace}
-                         startIndex={this.state.startIndex} />
+                         startIndex={this.state.startIndex}
+                         {...this.props} />
     );
   }
 
@@ -239,10 +240,22 @@ DocumentList.propTypes = {
   getNextPage: PropTypes.func.isRequired,
   getPrevPage: PropTypes.func.isRequired,
   insertDocument: PropTypes.func.isRequired,
+  elementAdded: PropTypes.func.isRequired,
+  elementRemoved: PropTypes.func.isRequired,
+  addColumn: PropTypes.func.isRequired,
+  removeColumn: PropTypes.func.isRequired,
+  renameColumn: PropTypes.func.isRequired,
   elementValid: PropTypes.func.isRequired,
   elementInvalid: PropTypes.func.isRequired,
   closeInsertDocumentDialog: PropTypes.func.isRequired,
-  openInsertDocumentDialog: PropTypes.func.isRequired
+  openInsertDocumentDialog: PropTypes.func.isRequired,
+  elementTypeChanged: PropTypes.func.isRequired,
+  elementMarkRemoved: PropTypes.func.isRequired,
+  drillDown: PropTypes.func.isRequired,
+  cleanCols: PropTypes.func.isRequired,
+  resetHeaders: PropTypes.func.isRequired,
+  replaceDoc: PropTypes.func.isRequired,
+  closeAllMenus: PropTypes.func.isRequired
 };
 
 DocumentList.Document = Document;

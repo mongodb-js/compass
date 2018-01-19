@@ -34,7 +34,13 @@ class DocumentListView extends React.Component {
     return _.map(this.props.docs, (doc, i) => {
       return (
         <li className={LIST_ITEM_CLASS} data-test-id={LIST_ITEM_TEST_ID} key={i}>
-          <Document doc={doc} key={i} editable={this.props.isEditable} />
+          <Document
+            doc={doc}
+            key={i}
+            editable={this.props.isEditable}
+            documentRemoved={this.props.documentRemoved}
+            openInsertDocumentDialog={this.props.openInsertDocumentDialog}
+            closeAllMenus={this.props.closeAllMenus} />
         </li>
       );
     });
@@ -56,7 +62,10 @@ class DocumentListView extends React.Component {
 
 DocumentListView.propTypes = {
   docs: PropTypes.array.isRequired,
-  isEditable: PropTypes.bool.isRequired
+  isEditable: PropTypes.bool.isRequired,
+  documentRemoved: PropTypes.func.isRequired,
+  openInsertDocumentDialog: PropTypes.func.isRequired,
+  closeAllMenus: PropTypes.func.isRequired
 };
 
 DocumentListView.displayName = 'DocumentListView';

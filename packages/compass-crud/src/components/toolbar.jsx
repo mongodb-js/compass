@@ -277,6 +277,7 @@ Toolbar.propTypes = {
   refreshDocuments: PropTypes.func.isRequired,
   getNextPage: PropTypes.func.isRequired,
   getPrevPage: PropTypes.func.isRequired,
+  closeAllMenus: PropTypes.func.isRequired,
   readonly: PropTypes.bool.isRequired
 };
 

@@ -557,6 +557,7 @@ CellEditor.propTypes = {
   api: PropTypes.any,
   columnApi: PropTypes.any,
   context: PropTypes.any,
+  addColumn: PropTypes.func.isRequired,
   removeColumn: PropTypes.func.isRequired,
   renameColumn: PropTypes.func.isRequired,
   elementAdded: PropTypes.func.isRequired,

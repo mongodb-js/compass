@@ -144,7 +144,7 @@ class InsertDocumentDialog extends React.Component {
         </Modal.Header>
 
         <Modal.Body onFocus={this.handleBlur.bind(this)} >
-          <InsertDocument doc={this.state.doc} />
+          <InsertDocument doc={this.state.doc} closeAllMenus={this.props.closeAllMenus} />
           <InsertDocumentFooter {...this.props} />
         </Modal.Body>
 
@@ -169,6 +169,7 @@ InsertDocumentDialog.displayName = 'InsertDocumentDialog';
 
 InsertDocumentDialog.propTypes = {
   closeInsertDocumentDialog: PropTypes.func.isRequired,
+  closeAllMenus: PropTypes.func.isRequired,
   insertDocument: PropTypes.func.isRequired,
   elementValid: PropTypes.func.isRequired,
   elementInvalid: PropTypes.func.isRequired

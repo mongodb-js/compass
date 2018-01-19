@@ -64,7 +64,13 @@ class InsertDocument extends React.Component {
   renderElements() {
     const components = [];
     for (const element of this.doc.elements) {
-      components.push(<EditableElement key={element.uuid} element={element} indent={0} editing />);
+      components.push(
+        <EditableElement
+          key={element.uuid}
+          element={element}
+          closeAllMenus={this.props.closeAllMenus}
+          indent={0}
+          editing />);
     }
     return components;
   }
@@ -88,7 +94,8 @@ class InsertDocument extends React.Component {
 InsertDocument.displayName = 'InsertDocument';
 
 InsertDocument.propTypes = {
-  doc: PropTypes.object
+  doc: PropTypes.object,
+  closeAllMenus: PropTypes.func.isRequired
 };
 
 module.exports = InsertDocument;

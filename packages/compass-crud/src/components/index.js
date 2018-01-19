@@ -17,10 +17,22 @@ class ConnectedDocumentList extends React.Component {
          refreshDocuments={Actions.refreshDocuments}
          getNextPage={Actions.getNextPage}
          getPrevPage={Actions.getPrevPage}
-         closeInsertDocumentDialog={Actions.closeInsertDocumentDialog}
          insertDocument={Actions.insertDocument}
          elementValid={Actions.elementValid}
          elementInvalid={Actions.elementInvalid}
+         elementAdded={Actions.elementAdded}
+         elementRemoved={Actions.elementRemoved}
+         addColumn={Actions.addColumn}
+         removeColumn={Actions.removeColumn}
+         renameColumn={Actions.renameColumn}
+         elementTypeChanged={Actions.elementTypeChanged}
+         elementMarkRemoved={Actions.elementMarkRemoved}
+         drillDown={Actions.drillDown}
+         cleanCols={Actions.cleanCols}
+         resetHeaders={Actions.resetHeaders}
+         replaceDoc={Actions.replaceDoc}
+         closeAllMenus={Actions.closeAllMenus}
+         closeInsertDocumentDialog={Actions.closeInsertDocumentDialog}
          openInsertDocumentDialog={Actions.openInsertDocumentDialog} />
     );
   }

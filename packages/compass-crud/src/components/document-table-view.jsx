@@ -732,6 +732,7 @@ class DocumentTableView extends React.Component {
 
       cellEditorFramework: CellEditor,
       cellEditorParams: {
+        addColumn: this.props.addColumn,
         removeColumn: this.props.removeColumn,
         renameColumn: this.props.renameColumn,
         elementAdded: this.props.elementAdded,
@@ -902,6 +903,7 @@ DocumentTableView.propTypes = {
   ns: PropTypes.string.isRequired,
   startIndex: PropTypes.number.isRequired,
   pathChanged: PropTypes.func.isRequired,
+  addColumn: PropTypes.func.isRequired,
   elementAdded: PropTypes.func.isRequired,
   elementRemoved: PropTypes.func.isRequired,
   elementTypeChanged: PropTypes.func.isRequired,

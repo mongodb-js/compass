@@ -30,7 +30,10 @@ Document.displayName = 'Document';
 Document.propTypes = {
   doc: PropTypes.object.isRequired,
   editable: PropTypes.bool,
-  expandAll: PropTypes.bool
+  expandAll: PropTypes.bool,
+  documentRemoved: PropTypes.func.isRequired,
+  openInsertDocumentDialog: PropTypes.func.isRequired,
+  closeAllMenus: PropTypes.func.isRequired
 };
 
 module.exports = Document;
