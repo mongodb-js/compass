@@ -225,6 +225,9 @@ DocumentList.propTypes = {
   view: PropTypes.string.isRequired,
   ns: PropTypes.string.isRequired,
   start: PropTypes.number.isRequired,
+  end: PropTypes.number.isRequired,
+  page: PropTypes.number.isRequired,
+  count: PropTypes.number.isRequired,
   isEditable: PropTypes.bool.isRequired
 };
 
@@ -232,7 +235,10 @@ DocumentList.defaultProps = {
   ns: '',
   view: 'List',
   isEditable: true,
-  start: 1
+  count: 0,
+  start: 0,
+  end: 0,
+  page: 1
 };
 
 DocumentList.Document = Document;

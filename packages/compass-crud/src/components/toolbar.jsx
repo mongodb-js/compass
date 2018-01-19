@@ -40,7 +40,7 @@ class Toolbar extends React.Component {
    */
   constructor(props) {
     super(props);
-    this.state = { count: 0, loaded: 0, start: 1, page: 0 };
+    this.state = { loaded: 0, start: 1, page: 0 };
     this.TextWriteButton = global.hadronApp.appRegistry.getComponent('DeploymentAwareness.TextWriteButton');
   }
 
@@ -65,13 +65,20 @@ class Toolbar extends React.Component {
   }
 
   /**
+   * Hook for triggering a collection export.
+   */
+  handleExport() {
+    global.hadronApp.appRegistry.emit('request-collection-export');
+  }
+
+  /**
    * Handle updating the count on document insert.
    *
    * @param {Error} error - If an error occurred.
    */
   handleInsert(error) {
     if (!error) {
-      this.setState({ count: this.state.count + 1, loaded: this.state.loaded + 1 });
+      this.setState({ loaded: this.state.loaded + 1 });
     }
   }
 
@@ -79,7 +86,7 @@ class Toolbar extends React.Component {
    * Handle updating the count on document removal.
    */
   handleRemove() {
-    this.setState({ count: this.state.count - 1, loaded: this.state.loaded - 1 });
+    this.setState({ loaded: this.state.loaded - 1 });
   }
 
   /**
@@ -92,7 +99,6 @@ class Toolbar extends React.Component {
   handleReset(error, documents, count) {
     if (!error) {
       this.setState({
-        count: count,
         loaded: (count < 20) ? count : 20,
         start: 1,
         page: 0
@@ -129,10 +135,6 @@ class Toolbar extends React.Component {
     this.props.getNextPage(this.state.page + 1);
   }
 
-  handleExport() {
-    global.hadronApp.appRegistry.emit('request-collection-export');
-  }
-
   /**
    * Handle loading the previous page of documents in the table view.
    */
@@ -156,18 +158,18 @@ class Toolbar extends React.Component {
   _loadedMessage() {
     return (
       <span>
-        Displaying documents <b>{this.state.start} - {this.state.loaded}</b> of {this.state.count}
+        Displaying documents <b>{this.state.start} - {this.state.loaded}</b> of {this.props.count}
       </span>
     );
   }
 
   renderPageButtons() {
     const prevButtonDisabled = this.state.page === 0;
-    const nextButtonDisabled = 20 * (this.state.page + 1) >= this.state.count;
+    const nextButtonDisabled = 20 * (this.state.page + 1) >= this.props.count;
 
     return (
       <div className={PAGINATION_CLASS}>
-      <AnimatedIconTextButton
+        <AnimatedIconTextButton
           clickHandler={this.handlePrevPage.bind(this)}
           stopAnimationListenable={PageChangedStore}
           className={`btn btn-default btn-xs ${PAGINATION_CLASS}-button ${PAGINATION_CLASS}-button-left`}
@@ -278,7 +280,8 @@ Toolbar.propTypes = {
   getNextPage: PropTypes.func.isRequired,
   getPrevPage: PropTypes.func.isRequired,
   closeAllMenus: PropTypes.func.isRequired,
-  readonly: PropTypes.bool.isRequired
+  readonly: PropTypes.bool.isRequired,
+  count: PropTypes.number.isRequired
 };
 
 module.exports = Toolbar;
