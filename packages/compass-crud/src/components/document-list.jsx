@@ -26,7 +26,6 @@ class DocumentList extends React.Component {
     super(props);
     const appRegistry = global.hadronApp.appRegistry;
     this.CollectionStore = appRegistry.getStore('App.CollectionStore');
-    this.NamespaceStore = appRegistry.getStore('App.NamespaceStore');
     this.queryBar = appRegistry.getComponent('Query.QueryBar');
     this.QueryChangedStore = appRegistry.getStore('Query.ChangedStore');
     this.projection = false;
