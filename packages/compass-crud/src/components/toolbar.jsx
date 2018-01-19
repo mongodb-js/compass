@@ -40,7 +40,7 @@ class Toolbar extends React.Component {
    */
   constructor(props) {
     super(props);
-    this.state = { loaded: 0, start: 1, page: 0 };
+    this.state = { loaded: 0, page: 0 };
     this.TextWriteButton = global.hadronApp.appRegistry.getComponent('DeploymentAwareness.TextWriteButton');
   }
 
@@ -100,7 +100,6 @@ class Toolbar extends React.Component {
     if (!error) {
       this.setState({
         loaded: (count < 20) ? count : 20,
-        start: 1,
         page: 0
       });
     }
@@ -117,7 +116,7 @@ class Toolbar extends React.Component {
    */
   handlePageChange(error, documents, start, end, page) {
     if (!error) {
-      this.setState({start: start, loaded: end, page: page});
+      this.setState({ loaded: end, page: page });
     }
   }
 
@@ -139,7 +138,7 @@ class Toolbar extends React.Component {
    * Handle loading the previous page of documents in the table view.
    */
   handlePrevPage() {
-    if (this.state.start - 20 <= 0) {
+    if (this.props.start - 20 <= 0) {
       return;
     }
     this.props.getPrevPage(this.state.page - 1);
@@ -158,7 +157,7 @@ class Toolbar extends React.Component {
   _loadedMessage() {
     return (
       <span>
-        Displaying documents <b>{this.state.start} - {this.state.loaded}</b> of {this.props.count}
+        Displaying documents <b>{this.props.start} - {this.state.loaded}</b> of {this.props.count}
       </span>
     );
   }
@@ -281,7 +280,8 @@ Toolbar.propTypes = {
   getPrevPage: PropTypes.func.isRequired,
   closeAllMenus: PropTypes.func.isRequired,
   readonly: PropTypes.bool.isRequired,
-  count: PropTypes.number.isRequired
+  count: PropTypes.number.isRequired,
+  start: PropTypes.number.isRequired
 };
 
 module.exports = Toolbar;

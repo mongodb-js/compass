@@ -351,10 +351,12 @@ const CRUDStore = Reflux.createStore({
     this.dataService.count(this.state.ns, query.filter, countOptions, (err, count) => {
       if (!err) {
         this.dataService.find(this.state.ns, query.filter, findOptions, (error, documents) => {
+          const length = documents.length;
           this.setState({
             error: error,
             docs: documents,
-            count: count
+            count: count,
+            start: length > 0 ? 1 : 0
           });
         });
       } else {

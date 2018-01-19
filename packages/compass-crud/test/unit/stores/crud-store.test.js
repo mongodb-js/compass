@@ -509,6 +509,7 @@ describe('CRUDStore', () => {
           expect(state.error).to.equal(null);
           expect(state.docs).to.have.length(1);
           expect(state.count).to.equal(1);
+          expect(state.start).to.equal(1);
           unsubscribe();
           done();
         });
@@ -528,6 +529,7 @@ describe('CRUDStore', () => {
           expect(state.error).to.not.equal(null);
           expect(state.docs).to.have.length(0);
           expect(state.count).to.equal(0);
+          expect(state.start).to.equal(0);
           unsubscribe();
           done();
         });
