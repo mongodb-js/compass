@@ -238,7 +238,7 @@ DocumentList.defaultProps = {
   count: 0,
   start: 0,
   end: 0,
-  page: 1
+  page: 0
 };
 
 DocumentList.Document = Document;

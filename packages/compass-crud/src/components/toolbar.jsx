@@ -40,7 +40,7 @@ class Toolbar extends React.Component {
    */
   constructor(props) {
     super(props);
-    this.state = { loaded: 0, page: 0 };
+    this.state = { loaded: 0 };
     this.TextWriteButton = global.hadronApp.appRegistry.getComponent('DeploymentAwareness.TextWriteButton');
   }
 
@@ -99,8 +99,7 @@ class Toolbar extends React.Component {
   handleReset(error, documents, count) {
     if (!error) {
       this.setState({
-        loaded: (count < 20) ? count : 20,
-        page: 0
+        loaded: (count < 20) ? count : 20
       });
     }
   }
@@ -112,11 +111,10 @@ class Toolbar extends React.Component {
    * @param {Array} documents - The loaded documents.
    * @param {Number} start - The index of the first document on the page.
    * @param {Number} end - The index of the last document on the page.
-   * @param {Number} page - The page that is being shown.
    */
-  handlePageChange(error, documents, start, end, page) {
+  handlePageChange(error, documents, start, end) {
     if (!error) {
-      this.setState({ loaded: end, page: page });
+      this.setState({ loaded: end });
     }
   }
 
@@ -131,7 +129,7 @@ class Toolbar extends React.Component {
    * Handle loading the next page of documents in the table view.
    */
   handleNextPage() {
-    this.props.getNextPage(this.state.page + 1);
+    this.props.getNextPage(this.props.page + 1);
   }
 
   /**
@@ -141,7 +139,7 @@ class Toolbar extends React.Component {
     if (this.props.start - 20 <= 0) {
       return;
     }
-    this.props.getPrevPage(this.state.page - 1);
+    this.props.getPrevPage(this.props.page - 1);
   }
 
   /**
@@ -163,8 +161,8 @@ class Toolbar extends React.Component {
   }
 
   renderPageButtons() {
-    const prevButtonDisabled = this.state.page === 0;
-    const nextButtonDisabled = 20 * (this.state.page + 1) >= this.props.count;
+    const prevButtonDisabled = this.props.page === 0;
+    const nextButtonDisabled = 20 * (this.props.page + 1) >= this.props.count;
 
     return (
       <div className={PAGINATION_CLASS}>
@@ -281,7 +279,8 @@ Toolbar.propTypes = {
   closeAllMenus: PropTypes.func.isRequired,
   readonly: PropTypes.bool.isRequired,
   count: PropTypes.number.isRequired,
-  start: PropTypes.number.isRequired
+  start: PropTypes.number.isRequired,
+  page: PropTypes.number.isRequired
 };
 
 module.exports = Toolbar;

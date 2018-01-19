@@ -47,7 +47,7 @@ const CRUDStore = Reflux.createStore({
       counter: 0,
       start: 0,
       end: 0,
-      page: 1,
+      page: 0,
       isEditable: true,
       view: LIST,
       insert: {
