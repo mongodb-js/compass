@@ -1,4 +1,6 @@
 const React = require('react');
+const { StoreConnector } = require('hadron-react-components');
+const Store = require('../stores/crud-store');
 const DocumentList = require('./document-list');
 const Actions = require('../actions');
 
@@ -11,29 +13,33 @@ class ConnectedDocumentList extends React.Component {
    */
   render() {
     return (
-      <DocumentList
-         pathChanged={Actions.pathChanged}
-         documentRemoved={Actions.documentRemoved}
-         refreshDocuments={Actions.refreshDocuments}
-         getNextPage={Actions.getNextPage}
-         getPrevPage={Actions.getPrevPage}
-         insertDocument={Actions.insertDocument}
-         elementValid={Actions.elementValid}
-         elementInvalid={Actions.elementInvalid}
-         elementAdded={Actions.elementAdded}
-         elementRemoved={Actions.elementRemoved}
-         addColumn={Actions.addColumn}
-         removeColumn={Actions.removeColumn}
-         renameColumn={Actions.renameColumn}
-         elementTypeChanged={Actions.elementTypeChanged}
-         elementMarkRemoved={Actions.elementMarkRemoved}
-         drillDown={Actions.drillDown}
-         cleanCols={Actions.cleanCols}
-         resetHeaders={Actions.resetHeaders}
-         replaceDoc={Actions.replaceDoc}
-         closeAllMenus={Actions.closeAllMenus}
-         closeInsertDocumentDialog={Actions.closeInsertDocumentDialog}
-         openInsertDocumentDialog={Actions.openInsertDocumentDialog} />
+      <StoreConnector store={Store}>
+        <DocumentList
+           pathChanged={Actions.pathChanged}
+           documentRemoved={Actions.documentRemoved}
+           refreshDocuments={Actions.refreshDocuments}
+           getNextPage={Actions.getNextPage}
+           getPrevPage={Actions.getPrevPage}
+           insertDocument={Actions.insertDocument}
+           elementValid={Actions.elementValid}
+           elementInvalid={Actions.elementInvalid}
+           elementAdded={Actions.elementAdded}
+           elementRemoved={Actions.elementRemoved}
+           addColumn={Actions.addColumn}
+           removeColumn={Actions.removeColumn}
+           renameColumn={Actions.renameColumn}
+           elementTypeChanged={Actions.elementTypeChanged}
+           elementMarkRemoved={Actions.elementMarkRemoved}
+           drillDown={Actions.drillDown}
+           cleanCols={Actions.cleanCols}
+           resetHeaders={Actions.resetHeaders}
+           replaceDoc={Actions.replaceDoc}
+           closeAllMenus={Actions.closeAllMenus}
+           viewChanged={Actions.viewChanged}
+           closeInsertDocumentDialog={Actions.closeInsertDocumentDialog}
+           openInsertDocumentDialog={Actions.openInsertDocumentDialog}
+           {...this.props} />
+      </StoreConnector>
     );
   }
 }
