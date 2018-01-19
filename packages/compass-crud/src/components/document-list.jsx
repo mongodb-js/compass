@@ -33,7 +33,6 @@ class DocumentList extends React.Component {
     this.state = {
       docs: [],
       namespace: this.NamespaceStore.ns,
-      activeDocumentView: 'List',
       startIndex: 1
     };
   }
@@ -144,10 +143,6 @@ class DocumentList extends React.Component {
     this.projection = state.project !== null;
   }
 
-  handleViewSwitch(view) {
-    this.setState({ activeDocumentView: view });
-  }
-
   /**
    * Determine if the plugin is editable.
    *
@@ -168,7 +163,7 @@ class DocumentList extends React.Component {
    */
   renderViews() {
     const isEditable = this.isEditable();
-    if (this.state.activeDocumentView === 'List') {
+    if (this.props.view === 'List') {
       return (
         <DocumentListView
           docs={this.state.docs}
@@ -220,8 +215,8 @@ class DocumentList extends React.Component {
           <Toolbar
             readonly={!this.isEditable()}
             insertHandler={this.handleOpenInsert.bind(this)}
-            viewSwitchHandler={this.handleViewSwitch.bind(this)}
-            activeDocumentView={this.state.activeDocumentView}
+            viewSwitchHandler={this.props.viewChanged}
+            activeDocumentView={this.props.view}
             {...this.props} />
         </div>
         {this.renderContent()}
@@ -235,6 +230,7 @@ DocumentList.displayName = 'DocumentList';
 
 DocumentList.propTypes = {
   pathChanged: PropTypes.func.isRequired,
+  viewChanged: PropTypes.func.isRequired,
   documentRemoved: PropTypes.func.isRequired,
   refreshDocuments: PropTypes.func.isRequired,
   getNextPage: PropTypes.func.isRequired,
@@ -255,7 +251,12 @@ DocumentList.propTypes = {
   cleanCols: PropTypes.func.isRequired,
   resetHeaders: PropTypes.func.isRequired,
   replaceDoc: PropTypes.func.isRequired,
-  closeAllMenus: PropTypes.func.isRequired
+  closeAllMenus: PropTypes.func.isRequired,
+  view: PropTypes.string.isRequired
+};
+
+DocumentList.defaultProps = {
+  view: 'List'
 };
 
 DocumentList.Document = Document;
