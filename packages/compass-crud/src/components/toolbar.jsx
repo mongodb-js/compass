@@ -3,9 +3,7 @@ const PropTypes = require('prop-types');
 const { AnimatedIconTextButton, IconButton } = require('hadron-react-buttons');
 const { InfoSprinkle, ViewSwitcher } = require('hadron-react-components');
 const { shell } = require('electron');
-const ResetDocumentListStore = require('../stores/reset-document-list-store');
-const InsertDocumentStore = require('../stores/insert-document-store');
-const PageChangedStore = require('../stores/page-changed-store');
+const CRUDStore = require('../stores/crud-store');
 
 /**
  * The help URLs for things like the Documents tab.
@@ -40,28 +38,7 @@ class Toolbar extends React.Component {
    */
   constructor(props) {
     super(props);
-    this.state = { loaded: 0 };
     this.TextWriteButton = global.hadronApp.appRegistry.getComponent('DeploymentAwareness.TextWriteButton');
-  }
-
-  /**
-   * Fetch the state when the component mounts.
-   */
-  componentDidMount() {
-    this.unsubscribeReset = ResetDocumentListStore.listen(this.handleReset.bind(this));
-    this.unsubscribeInsert = InsertDocumentStore.listen(this.handleInsert.bind(this));
-    this.unsubscribeRemove = this.props.documentRemoved.listen(this.handleRemove.bind(this));
-    this.unsubscribePageChanged = PageChangedStore.listen(this.handlePageChange.bind(this));
-  }
-
-  /**
-   * Unsubscribe from the document list store when unmounting.
-   */
-  componentWillUnmount() {
-    this.unsubscribeReset();
-    this.unsubscribeInsert();
-    this.unsubscribeRemove();
-    this.unsubscribePageChanged();
   }
 
   /**
@@ -69,53 +46,6 @@ class Toolbar extends React.Component {
    */
   handleExport() {
     global.hadronApp.appRegistry.emit('request-collection-export');
-  }
-
-  /**
-   * Handle updating the count on document insert.
-   *
-   * @param {Error} error - If an error occurred.
-   */
-  handleInsert(error) {
-    if (!error) {
-      this.setState({ loaded: this.state.loaded + 1 });
-    }
-  }
-
-  /**
-   * Handle updating the count on document removal.
-   */
-  handleRemove() {
-    this.setState({ loaded: this.state.loaded - 1 });
-  }
-
-  /**
-   * Handle the reset of the document list.
-   *
-   * @param {Object} error - The error
-   * @param {Array} documents - The documents.
-   * @param {Integer} count - The count.
-   */
-  handleReset(error, documents, count) {
-    if (!error) {
-      this.setState({
-        loaded: (count < 20) ? count : 20
-      });
-    }
-  }
-
-  /**
-   * The user has switched the page, starting with `start` and ending with `end`.
-   *
-   * @param {Object} error - The error
-   * @param {Array} documents - The loaded documents.
-   * @param {Number} start - The index of the first document on the page.
-   * @param {Number} end - The index of the last document on the page.
-   */
-  handlePageChange(error, documents, start, end) {
-    if (!error) {
-      this.setState({ loaded: end });
-    }
   }
 
   /**
@@ -155,7 +85,7 @@ class Toolbar extends React.Component {
   _loadedMessage() {
     return (
       <span>
-        Displaying documents <b>{this.props.start} - {this.state.loaded}</b> of {this.props.count}
+        Displaying documents <b>{this.props.start} - {this.props.end}</b> of {this.props.count}
       </span>
     );
   }
@@ -168,7 +98,7 @@ class Toolbar extends React.Component {
       <div className={PAGINATION_CLASS}>
         <AnimatedIconTextButton
           clickHandler={this.handlePrevPage.bind(this)}
-          stopAnimationListenable={PageChangedStore}
+          stopAnimationListenable={CRUDStore}
           className={`btn btn-default btn-xs ${PAGINATION_CLASS}-button ${PAGINATION_CLASS}-button-left`}
           iconClassName="fa fa-chevron-left"
           animatingIconClassName="fa fa-spinner fa-spin"
@@ -176,7 +106,7 @@ class Toolbar extends React.Component {
         />
         <AnimatedIconTextButton
           clickHandler={this.handleNextPage.bind(this)}
-          stopAnimationListenable={PageChangedStore}
+          stopAnimationListenable={CRUDStore}
           className={`btn btn-default btn-xs ${PAGINATION_CLASS}-button ${PAGINATION_CLASS}-button-right`}
           iconClassName="fa fa-chevron-right"
           animatingIconClassName="fa fa-spinner fa-spin"
@@ -213,9 +143,9 @@ class Toolbar extends React.Component {
   /**
    * If we are on the documents tab, just display the count and insert button.
    *
-   * @returns {React.Component} The count message.
+   * @returns {React.Component} The component.
    */
-  renderQueryMessage() {
+  render() {
     return (
       <div>
         <div className={ACTION_BAR_CLASS}>
@@ -242,7 +172,7 @@ class Toolbar extends React.Component {
             <div className={REFRESH_CLASS}>
               <AnimatedIconTextButton
                 clickHandler={this.handleRefreshDocuments.bind(this)}
-                stopAnimationListenable={ResetDocumentListStore}
+                stopAnimationListenable={CRUDStore}
                 dataTestId="refresh-documents-button"
                 className="btn btn-default btn-xs sampling-message-refresh-documents"
                 iconClassName="fa fa-repeat"
@@ -254,15 +184,6 @@ class Toolbar extends React.Component {
         </div>
       </div>
     );
-  }
-
-  /**
-   * Render the sampling message.
-   *
-   * @returns {React.Component} The document list.
-   */
-  render() {
-    return this.renderQueryMessage();
   }
 }
 
@@ -280,6 +201,7 @@ Toolbar.propTypes = {
   readonly: PropTypes.bool.isRequired,
   count: PropTypes.number.isRequired,
   start: PropTypes.number.isRequired,
+  end: PropTypes.number.isRequired,
   page: PropTypes.number.isRequired
 };
 

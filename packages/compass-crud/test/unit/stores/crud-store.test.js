@@ -489,7 +489,7 @@ describe('CRUDStore', () => {
     });
   });
 
-  describe('#resetDocuments', () => {
+  describe('#refreshDocuments', () => {
     beforeEach((done) => {
       CRUDStore.state = CRUDStore.getInitialState();
       dataService.insertOne('compass-crud.test', { name: 'testing' }, {}, done);
@@ -514,7 +514,7 @@ describe('CRUDStore', () => {
           done();
         });
 
-        CRUDStore.resetDocuments();
+        CRUDStore.refreshDocuments();
       });
     });
 
@@ -534,7 +534,7 @@ describe('CRUDStore', () => {
           done();
         });
 
-        CRUDStore.resetDocuments();
+        CRUDStore.refreshDocuments();
       });
     });
   });

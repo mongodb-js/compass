@@ -127,7 +127,7 @@ const CRUDStore = Reflux.createStore({
         const editable = this.isListEditable();
         this.state.isEditable = editable;
       }
-      this.resetDocuments();
+      this.refreshDocuments();
     }
   },
 
@@ -328,7 +328,7 @@ const CRUDStore = Reflux.createStore({
    *
    * @param {Object} filter - The query filter.
    */
-  resetDocuments() {
+  refreshDocuments() {
     const query = this.state.query;
     const countOptions = {
       skip: query.skip
@@ -356,7 +356,9 @@ const CRUDStore = Reflux.createStore({
             error: error,
             docs: documents,
             count: count,
-            start: length > 0 ? 1 : 0
+            page: 0,
+            start: length > 0 ? 1 : 0,
+            end: length
           });
         });
       } else {
