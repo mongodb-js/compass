@@ -12,7 +12,6 @@ const mongodbns = require('mongodb-ns');
 const GridStore = require('../stores/grid-store');
 const InsertDocumentStore = require('../stores/insert-document-store');
 const ResetDocumentListStore = require('../stores/reset-document-list-store');
-const BreadcrumbStore = require('../stores/breadcrumb-store');
 
 const BreadcrumbComponent = require('./breadcrumb');
 const CellRenderer = require('./table-view/cell-renderer');
@@ -94,7 +93,6 @@ class DocumentTableView extends React.Component {
   componentDidMount() {
     this.unsubscribeGridStore = GridStore.listen(this.modifyColumns.bind(this));
     this.unsubscribeInsert = InsertDocumentStore.listen(this.handleInsert.bind(this));
-    this.unsubscribeBreadcrumbStore = BreadcrumbStore.listen(this.handleBreadcrumbChange.bind(this));
   }
 
   componentWillUnmount() {
@@ -105,6 +103,10 @@ class DocumentTableView extends React.Component {
 
   componentWillReceiveProps(nextProps) {
     this.hadronDocs = this.initHadronDocs(nextProps.docs);
+  }
+
+  componentDidUpdate() {
+    this.handleBreadcrumbChange();
   }
 
   /**
@@ -123,6 +125,7 @@ class DocumentTableView extends React.Component {
    * @param {Object} params - a reference to the gridAPI and the columnAPI.
    */
   onGridReady(params) {
+    console.log('onGridReady');
     this.gridApi = params.api;
     this.columnApi = params.columnApi;
   }
@@ -523,16 +526,10 @@ class DocumentTableView extends React.Component {
 
   /**
    * When the BreadcrumbStore changes, update the grid.
-   *
    * and just trigger with the path.
-   *
-   * @param {Object} params - Can contain collection, path, and/or types.
-   *  collection {String} - The collection name.
-   *  path {Array} - The array of field names/indexes.
-   *  types {Array} - The array of types for each segment of the path array.
-   *  editParams {Object} - The cell to open for editing, includes colId and rowIndex.
    */
-  handleBreadcrumbChange(params) {
+  handleBreadcrumbChange() {
+    const params = this.props.table;
     if (params.path.length === 0) {
       this.topLevel = true;
 
@@ -914,7 +911,8 @@ DocumentTableView.propTypes = {
   documentRemoved: PropTypes.func.isRequired,
   replaceDoc: PropTypes.func.isRequired,
   cleanCols: PropTypes.func.isRequired,
-  resetHeaders: PropTypes.func.isRequired
+  resetHeaders: PropTypes.func.isRequired,
+  table: PropTypes.object.isRequired
 };
 
 DocumentTableView.displayName = 'DocumentTableView';

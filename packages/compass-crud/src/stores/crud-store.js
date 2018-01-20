@@ -70,14 +70,9 @@ const CRUDStore = Reflux.createStore({
       page: 0,
       isEditable: true,
       view: LIST,
-      insert: this.getInitialInsertState(),
       count: 0,
-      table: {
-        doc: null,
-        path: [],
-        types: [],
-        editParams: null
-      },
+      insert: this.getInitialInsertState(),
+      table: this.getInitialTableState(),
       query: {
         filter: {},
         sort: [[ '_id', 1 ]],
@@ -99,6 +94,20 @@ const CRUDStore = Reflux.createStore({
       message: '',
       mode: MODIFYING,
       isOpen: false
+    };
+  },
+
+  /**
+   * Get the initial table state.
+   *
+   * @returns {Object} The initial table state.
+   */
+  getInitialTableState() {
+    return {
+      doc: null,
+      path: [],
+      types: [],
+      editParams: null
     };
   },
 
@@ -202,7 +211,8 @@ const CRUDStore = Reflux.createStore({
         start: skip + 1,
         end: skip + length,
         page: page,
-        counter: this.state.counter + NUM_PAGE_DOCS
+        counter: this.state.counter + NUM_PAGE_DOCS,
+        table: this.getInitialTableState()
       });
     });
   },
@@ -230,7 +240,8 @@ const CRUDStore = Reflux.createStore({
         start: skip + 1,
         end: skip + length,
         page: page,
-        counter: this.state.counter - NUM_PAGE_DOCS
+        counter: this.state.counter - NUM_PAGE_DOCS,
+        table: this.getInitialTableState()
       });
     });
   },
@@ -403,7 +414,8 @@ const CRUDStore = Reflux.createStore({
             count: count,
             page: 0,
             start: length > 0 ? 1 : 0,
-            end: length
+            end: length,
+            table: this.getInitialTableState()
           });
         });
       } else {
