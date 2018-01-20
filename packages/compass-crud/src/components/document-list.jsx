@@ -1,13 +1,9 @@
-const _ = require('lodash');
+// const _ = require('lodash');
 const PropTypes = require('prop-types');
 const React = require('react');
 const ObjectId = require('bson').ObjectId;
 const { StatusRow } = require('hadron-react-components');
-const ResetDocumentListStore = require('../stores/reset-document-list-store');
-const RemoveDocumentStore = require('../stores/remove-document-store');
-const InsertDocumentStore = require('../stores/insert-document-store');
 const InsertDocumentDialog = require('./insert-document-dialog');
-const PageChangedStore = require('../stores/page-changed-store');
 const DocumentListView = require('./document-list-view');
 const DocumentTableView = require('./document-table-view');
 const Toolbar = require('./toolbar');
@@ -26,65 +22,6 @@ class DocumentList extends React.Component {
     super(props);
     const appRegistry = global.hadronApp.appRegistry;
     this.queryBar = appRegistry.getComponent('Query.QueryBar');
-    this.state = { docs: [] };
-  }
-
-  /**
-   * Fetch the state when the component mounts.
-   */
-  componentDidMount() {
-    this.unsubscribeReset = ResetDocumentListStore.listen(this.handleReset.bind(this));
-    this.unsubscribePageChanged = PageChangedStore.listen(this.handlePageChanged.bind(this));
-    this.unsubscribeRemove = RemoveDocumentStore.listen(this.handleRemove.bind(this));
-    this.unsubscribeInsert = InsertDocumentStore.listen(this.handleInsert.bind(this));
-  }
-
-  /**
-   * Unsibscribe from the document list store when unmounting.
-   */
-  componentWillUnmount() {
-    this.unsubscribeReset();
-    this.unsubscribeRemove();
-    this.unsubscribeInsert();
-    this.unsubscribePageChanged();
-  }
-
-  /**
-   * If an error occurs when we press 'next page'
-   *
-   * @param {Object} error - Error when trying to click next or prev page.
-   * @param {Array} documents - The new documents.
-   */
-  handlePageChanged(error, documents) {
-    if (error) {
-      this.setState({ error: error });
-    } else {
-      this.props.pathChanged([], []);
-      this.setState({ docs: documents, error: error });
-    }
-  }
-
-  /**
-   * Handle the reset of the document list.
-   *
-   * @param {Object} error - Error when trying to reset the document list.
-   * @param {Array} documents - The documents.
-   * @param {Integer} count - The count.
-   */
-  handleReset(error, documents, count) {
-    if (error) {
-      this.setState({ error: error });
-    } else {
-      // If resetting, then we need to go back to page one with
-      // the documents as the filter changed. The loaded count and
-      // total count are reset here as well.
-      this.props.pathChanged([], []);
-      this.setState({
-        docs: documents,
-        count: count,
-        error: error
-      });
-    }
   }
 
   /**
@@ -92,17 +29,18 @@ class DocumentList extends React.Component {
    *
    * @param {Object} id - The id of the removed document.
    */
-  handleRemove(id) {
-    const index = _.findIndex(this.state.docs, (document) => {
-      const _id = document._id;
-      if (id instanceof ObjectId) {
-        return id.equals(_id);
-      }
-      return _id === id;
-    });
-    this.state.docs.splice(index, 1);
-    this.setState({ docs: this.state.docs });
-  }
+  // handleRemove(id) {
+    // const index = _.findIndex(this.props.docs, (doc) => {
+      // const _id = doc._id;
+      // if (id instanceof ObjectId) {
+        // return id.equals(_id);
+      // }
+      // return _id === id;
+    // });
+
+    // this.state.docs.splice(index, 1);
+    // this.setState({ docs: this.state.docs });
+  // }
 
   /**
    * Handle opening of the insert dialog.
@@ -112,42 +50,15 @@ class DocumentList extends React.Component {
   }
 
   /**
-   * Handle insert of a new document.
-   *
-   * @param {Error} error - Any error that happened.
-   * @param {Object} doc - The raw document that was inserted.
-   */
-  handleInsert(error, doc) {
-    if (!error) {
-      const newDocs = [doc].concat(this.state.docs);
-      this.setState({
-        docs: newDocs,
-        count: this.state.count + 1
-      });
-    }
-  }
-
-  /**
    * Render the views for the document list.
    *
    * @returns {React.Component} The document list views.
    */
   renderViews() {
     if (this.props.view === 'List') {
-      return (
-        <DocumentListView
-          docs={this.state.docs}
-          isEditable={this.props.isEditable}
-          {...this.props} />
-      );
+      return (<DocumentListView {...this.props} />);
     }
-    return (
-      <DocumentTableView docs={this.state.docs}
-                         isEditable={this.props.isEditable}
-                         ns={this.props.ns}
-                         startIndex={this.props.start}
-                         {...this.props} />
-    );
+    return (<DocumentTableView {...this.props} />);
   }
 
   /**
@@ -156,10 +67,10 @@ class DocumentList extends React.Component {
    * @returns {React.Component} The list.
    */
   renderContent() {
-    if (this.state.error) {
+    if (this.props.error) {
       return (
         <StatusRow style="error">
-          {this.state.error.message}
+          {this.props.error.message}
         </StatusRow>
       );
     }
@@ -233,10 +144,14 @@ DocumentList.propTypes = {
   end: PropTypes.number.isRequired,
   page: PropTypes.number.isRequired,
   count: PropTypes.number.isRequired,
-  isEditable: PropTypes.bool.isRequired
+  isEditable: PropTypes.bool.isRequired,
+  docs: PropTypes.array.isRequired,
+  error: PropTypes.object
 };
 
 DocumentList.defaultProps = {
+  docs: [],
+  error: null,
   ns: '',
   view: 'List',
   isEditable: true,

@@ -540,7 +540,7 @@ class DocumentTableView extends React.Component {
 
       this.gridApi.gridOptionsWrapper.gridOptions.context.path = [];
       this.gridApi.setColumnDefs(headers);
-      this.gridApi.setRowData(this.createRowData(this.hadronDocs, this.props.startIndex));
+      this.gridApi.setRowData(this.createRowData(this.hadronDocs, this.props.start));
     } else if (params.types[params.types.length - 1] === 'Object' ||
                params.types[params.types.length - 1] === 'Array') {
       this.topLevel = false;
@@ -901,7 +901,7 @@ DocumentTableView.propTypes = {
   docs: PropTypes.array.isRequired,
   isEditable: PropTypes.bool.isRequired,
   ns: PropTypes.string.isRequired,
-  startIndex: PropTypes.number.isRequired,
+  start: PropTypes.number.isRequired,
   pathChanged: PropTypes.func.isRequired,
   addColumn: PropTypes.func.isRequired,
   elementAdded: PropTypes.func.isRequired,
