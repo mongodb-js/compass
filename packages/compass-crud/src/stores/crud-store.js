@@ -13,6 +13,31 @@ const Actions = require('../actions');
 const NUM_PAGE_DOCS = 20;
 
 /**
+ * The inserting message.
+ */
+const INSERTING_MESSAGE = 'Inserting Document';
+
+/**
+ * The insert invalid message.
+ */
+// const INSERT_INVALID_MESSAGE = 'Insert not permitted while document contains errors.';
+
+/**
+ * Progress constant.
+ */
+const PROGRESS = 'progress';
+
+/**
+ * Error constant.
+ */
+const ERROR = 'error';
+
+/**
+ * Modifying constant.
+ */
+const MODIFYING = 'modifying';
+
+/**
  * The list view constant.
  */
 const LIST = 'List';
@@ -50,11 +75,7 @@ const CRUDStore = Reflux.createStore({
       page: 0,
       isEditable: true,
       view: LIST,
-      insert: {
-        doc: null,
-        isOpen: false,
-        error: null
-      },
+      insert: this.getInitialInsertState(),
       count: 0,
       table: {
         doc: null,
@@ -69,6 +90,20 @@ const CRUDStore = Reflux.createStore({
         skip: 0,
         project: null
       }
+    };
+  },
+
+  /**
+   * Get the initial insert state.
+   *
+   * @returns {Object} The initial insert state.
+   */
+  getInitialInsertState() {
+    return {
+      doc: null,
+      message: '',
+      mode: MODIFYING,
+      isOpen: false
     };
   },
 
@@ -229,15 +264,25 @@ const CRUDStore = Reflux.createStore({
   /**
    * Insert the document.
    *
-   * @param {Document} doc - The document to insert.
+   * @param {Document} hadronDoc - The hadron document to insert.
    */
-  insertDocument(doc) {
+  insertDocument(hadronDoc) {
+    const doc = hadronDoc.generateObject();
+    this.setState({
+      insert: {
+        doc: hadronDoc,
+        message: INSERTING_MESSAGE,
+        mode: PROGRESS,
+        isOpen: true
+      }
+    });
     this.dataService.insertOne(this.state.ns, doc, {}, (error) => {
       if (error) {
         return this.setState({
           insert: {
-            error: error,
-            doc: this.state.insert.doc,
+            doc: hadronDoc,
+            message: error.message,
+            mode: ERROR,
             isOpen: true
           }
         });
@@ -248,11 +293,7 @@ const CRUDStore = Reflux.createStore({
       this.dataService.count(this.state.ns, filter, {}, (err, count) => {
         if (err) {
           return this.setState({
-            insert: {
-              error: error,
-              doc: null,
-              isOpen: false
-            }
+            insert: this.getInitialInsertState()
           });
         }
         // count is greater than 0, if 1 then the new doc matches the filter
@@ -260,20 +301,12 @@ const CRUDStore = Reflux.createStore({
           return this.setState({
             docs: this.state.docs.concat([ doc ]),
             count: this.state.count + 1,
-            insert: {
-              doc: null,
-              isOpen: false,
-              error: null
-            }
+            insert: this.getInitialInsertState()
           });
         }
         this.setState({
           count: this.state.count + 1,
-          insert: {
-            doc: null,
-            isOpen: false,
-            error: null
-          }
+          insert: this.getInitialInsertState()
         });
       });
     });

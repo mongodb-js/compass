@@ -124,7 +124,7 @@ class InsertDocumentDialog extends React.Component {
    * Handle the insert.
    */
   handleInsert() {
-    this.props.insertDocument(this.state.doc.generateObject());
+    this.props.insertDocument(this.state.doc);
   }
 
   hasErrors() {
@@ -146,7 +146,7 @@ class InsertDocumentDialog extends React.Component {
 
         <Modal.Body onFocus={this.handleBlur.bind(this)} >
           <InsertDocument doc={this.state.doc} closeAllMenus={this.props.closeAllMenus} />
-          <InsertDocumentFooter {...this.props} />
+          <InsertDocumentFooter message={this.props.insert.message} mode={this.props.insert.mode} />
         </Modal.Body>
 
         <Modal.Footer>
@@ -173,7 +173,8 @@ InsertDocumentDialog.propTypes = {
   closeAllMenus: PropTypes.func.isRequired,
   insertDocument: PropTypes.func.isRequired,
   elementValid: PropTypes.func.isRequired,
-  elementInvalid: PropTypes.func.isRequired
+  elementInvalid: PropTypes.func.isRequired,
+  insert: PropTypes.object.isRequired
 };
 
 module.exports = InsertDocumentDialog;

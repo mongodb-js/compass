@@ -1,23 +1,18 @@
-const _ = require('lodash');
 const React = require('react');
 const PropTypes = require('prop-types');
-const InsertDocumentStore = require('../stores/insert-document-store');
-
-const INSERTING = 'Inserting Document';
 
 /**
- * The invalid message.
+ * BEM prefix.
  */
-const INVALID_MESSAGE = 'Insert not permitted while document contains errors.';
+const PREFIX = 'document-footer';
 
 /**
  * Map of modes to styles.
  */
 const MODES = {
-  'Progress': 'is-in-progress',
-  'Error': 'is-error',
-  'Viewing': 'is-viewing',
-  'Modifying': 'is-modifying'
+  progress: 'is-in-progress',
+  error: 'is-error',
+  modifying: 'is-modifying'
 };
 
 /**
@@ -26,80 +21,12 @@ const MODES = {
 class InsertDocumentFooter extends React.Component {
 
   /**
-   * The component constructor.
-   *
-   * @param {Object} props - The properties.
-   */
-  constructor(props) {
-    super(props);
-    this.state = { message: '', mode: 'Modifying' };
-  }
-
-  /**
-   * Subscribe to the insert document store.
-   */
-  componentWillMount() {
-    this.invalidElements = [];
-    this.unsubscribeInsert = InsertDocumentStore.listen(this.handleDocumentInsert.bind(this));
-    this.unsubscribeStart = this.props.insertDocument.listen(this.handleInsertStart.bind(this));
-    this.unsubscribeInvalid = this.props.elementInvalid.listen(this.handleInvalid.bind(this));
-    this.unsubscribeValid = this.props.elementValid.listen(this.handleValid.bind(this));
-  }
-
-  /**
-   * Unsubscribe from the store.
-   */
-  componentWillUnmount() {
-    this.invalidElements = [];
-    this.unsubscribeInsert();
-    this.unsubscribeStart();
-    this.unsubscribeInvalid();
-    this.unsubscribeValid();
-  }
-
-  /**
-   * Handles completion of document insert.
-   *
-   * @param {Error} error - Any insert error.
-   */
-  handleDocumentInsert(error) {
-    if (error) {
-      this.setState({ message: error.message, mode: 'Error' });
-    }
-  }
-
-  /**
-   * Handles the start of a document insert.
-   */
-  handleInsertStart() {
-    this.setState({ message: INSERTING, mode: 'Progess' });
-  }
-
-  handleValid(uuid) {
-    _.pull(this.invalidElements, uuid);
-    if (!this.hasErrors()) {
-      this.handleInsertStart();
-    }
-  }
-
-  handleInvalid(uuid) {
-    if (!_.includes(this.invalidElements, uuid)) {
-      this.invalidElements.push(uuid);
-      this.setState({ message: INVALID_MESSAGE, mode: 'Error' });
-    }
-  }
-
-  hasErrors() {
-    return this.invalidElements.length > 0;
-  }
-
-  /**
    * Get the style of the footer based on the current mode.
    *
    * @returns {String} The style.
    */
   style() {
-    return `document-footer document-footer-${MODES[this.state.mode]}`;
+    return `${PREFIX} ${PREFIX}-${MODES[this.props.mode]}`;
   }
 
   /**
@@ -110,8 +37,8 @@ class InsertDocumentFooter extends React.Component {
   render() {
     return (
       <div className={this.style()}>
-        <div className="document-footer-message" title={this.state.message}>
-          {this.state.message}
+        <div className="document-footer-message" title={this.props.message}>
+          {this.props.message}
         </div>
       </div>
     );
@@ -121,9 +48,8 @@ class InsertDocumentFooter extends React.Component {
 InsertDocumentFooter.displayName = 'InsertDocumentFooter';
 
 InsertDocumentFooter.propTypes = {
-  insertDocument: PropTypes.func.isRequired,
-  elementInvalid: PropTypes.func.isRequired,
-  elementValid: PropTypes.func.isRequired
+  message: PropTypes.string.isRequired,
+  mode: PropTypes.string.isRequired
 };
 
 module.exports = InsertDocumentFooter;

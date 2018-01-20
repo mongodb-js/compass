@@ -2,7 +2,8 @@ const { expect } = require('chai');
 const Connection = require('mongodb-connection-model');
 const DataService = require('mongodb-data-service');
 const AppRegistry = require('hadron-app-registry');
-const { Element } = require('hadron-document');
+const HadronDocument = require('hadron-document');
+const Element = HadronDocument.Element;
 const { expectedDocs, checkPageRange, NUM_DOCS } = require('../../aggrid-helper');
 const CRUDStore = require('../../../lib/stores/crud-store');
 
@@ -98,8 +99,12 @@ describe('CRUDStore', () => {
       expect(CRUDStore.state.insert.doc).to.equal(null);
     });
 
-    it('sets the default insert error', () => {
-      expect(CRUDStore.state.insert.error).to.equal(null);
+    it('sets the default insert message', () => {
+      expect(CRUDStore.state.insert.message).to.equal('');
+    });
+
+    it('sets the default insert mode', () => {
+      expect(CRUDStore.state.insert.mode).to.equal('modifying');
     });
 
     it('sets the default insert open status', () => {
@@ -304,17 +309,23 @@ describe('CRUDStore', () => {
       });
 
       context('when the document matches the filter', () => {
-        const doc = { name: 'testing' };
+        const doc = new HadronDocument({ name: 'testing' });
 
         it('inserts the document', (done) => {
-          const unsubscribe = CRUDStore.listen((state) => {
-            expect(state.docs.length).to.equal(1);
-            expect(state.count).to.equal(1);
-            expect(state.insert.doc).to.equal(null);
-            expect(state.insert.isOpen).to.equal(false);
-            expect(state.insert.error).to.equal(null);
-            unsubscribe();
-            done();
+          const unsubscribeProgress = CRUDStore.listen((progressState) => {
+            unsubscribeProgress();
+            expect(progressState.insert.doc).to.equal(doc);
+            expect(progressState.insert.message).to.equal('Inserting Document');
+
+            const unsubscribe = CRUDStore.listen((state) => {
+              expect(state.docs.length).to.equal(1);
+              expect(state.count).to.equal(1);
+              expect(state.insert.doc).to.equal(null);
+              expect(state.insert.isOpen).to.equal(false);
+              expect(state.insert.message).to.equal('');
+              unsubscribe();
+              done();
+            });
           });
 
           CRUDStore.insertDocument(doc);
@@ -322,21 +333,28 @@ describe('CRUDStore', () => {
       });
 
       context('when the document does not match the filter', () => {
-        const doc = { name: 'testing' };
+        const doc = new HadronDocument({ name: 'testing' });
+
         beforeEach(() => {
           CRUDStore.state.query.filter = { name: 'something' };
         });
 
 
         it('inserts the document but does not add to the list', (done) => {
-          const unsubscribe = CRUDStore.listen((state) => {
-            expect(state.docs.length).to.equal(0);
-            expect(state.count).to.equal(1);
-            expect(state.insert.doc).to.equal(null);
-            expect(state.insert.isOpen).to.equal(false);
-            expect(state.insert.error).to.equal(null);
-            unsubscribe();
-            done();
+          const unsubscribeProgress = CRUDStore.listen((progressState) => {
+            unsubscribeProgress();
+            expect(progressState.insert.doc).to.equal(doc);
+            expect(progressState.insert.message).to.equal('Inserting Document');
+
+            const unsubscribe = CRUDStore.listen((state) => {
+              expect(state.docs.length).to.equal(0);
+              expect(state.count).to.equal(1);
+              expect(state.insert.doc).to.equal(null);
+              expect(state.insert.isOpen).to.equal(false);
+              expect(state.insert.message).to.equal('');
+              unsubscribe();
+              done();
+            });
           });
 
           CRUDStore.insertDocument(doc);
@@ -345,7 +363,7 @@ describe('CRUDStore', () => {
     });
 
     context('when there is an error', () => {
-      const doc = { '$name': 'testing' };
+      const doc = new HadronDocument({ '$name': 'testing' });
 
       beforeEach(() => {
         CRUDStore.state.insert.doc = doc;
@@ -356,14 +374,20 @@ describe('CRUDStore', () => {
       });
 
       it('does not insert the document', (done) => {
-        const unsubscribe = CRUDStore.listen((state) => {
-          expect(state.docs.length).to.equal(0);
-          expect(state.count).to.equal(0);
-          expect(state.insert.doc).to.not.equal(null);
-          expect(state.insert.isOpen).to.equal(true);
-          expect(state.insert.error).to.not.equal(null);
-          unsubscribe();
-          done();
+        const unsubscribeProgress = CRUDStore.listen((progressState) => {
+          unsubscribeProgress();
+          expect(progressState.insert.doc).to.equal(doc);
+          expect(progressState.insert.message).to.equal('Inserting Document');
+
+          const unsubscribe = CRUDStore.listen((state) => {
+            expect(state.docs.length).to.equal(0);
+            expect(state.count).to.equal(0);
+            expect(state.insert.doc).to.not.equal(null);
+            expect(state.insert.isOpen).to.equal(true);
+            expect(state.insert.message).to.not.equal('');
+            unsubscribe();
+            done();
+          });
         });
 
         CRUDStore.insertDocument(doc);
