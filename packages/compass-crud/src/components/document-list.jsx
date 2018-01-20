@@ -126,8 +126,6 @@ DocumentList.propTypes = {
   addColumn: PropTypes.func.isRequired,
   removeColumn: PropTypes.func.isRequired,
   renameColumn: PropTypes.func.isRequired,
-  elementValid: PropTypes.func.isRequired,
-  elementInvalid: PropTypes.func.isRequired,
   closeInsertDocumentDialog: PropTypes.func.isRequired,
   openInsertDocumentDialog: PropTypes.func.isRequired,
   elementTypeChanged: PropTypes.func.isRequired,

@@ -9,8 +9,6 @@ const Actions = Reflux.createActions([
   'insertDocument',
   'refreshDocuments',
   'closeAllMenus',
-  'elementInvalid',
-  'elementValid',
   'addColumn',
   'removeColumn',
   'cleanCols',

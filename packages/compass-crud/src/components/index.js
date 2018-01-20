@@ -21,8 +21,6 @@ class ConnectedDocumentList extends React.Component {
            getNextPage={Actions.getNextPage}
            getPrevPage={Actions.getPrevPage}
            insertDocument={Actions.insertDocument}
-           elementValid={Actions.elementValid}
-           elementInvalid={Actions.elementInvalid}
            elementAdded={Actions.elementAdded}
            elementRemoved={Actions.elementRemoved}
            addColumn={Actions.addColumn}
