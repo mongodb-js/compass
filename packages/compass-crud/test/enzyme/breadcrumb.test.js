@@ -16,13 +16,13 @@ describe('<BreadcrumbComponent />', () => {
 
     describe('empty path', () => {
       before((done) => {
-        component = mount(<BreadcrumbComponent collection={''}
-                                               pathChanged={actions.pathChanged}/>);
-        component.instance().breadcrumbStoreChanged({
-          path: [],
-          types: [],
-          collection: 'compass-crud'
-        });
+        component = mount(
+          <BreadcrumbComponent
+            collection={'compass-crud'}
+            pathChanged={actions.pathChanged}
+            path={[]}
+            types={[]} />
+        );
         done();
       });
       it('renders the breadcrumb container', () => {
@@ -39,13 +39,13 @@ describe('<BreadcrumbComponent />', () => {
 
     describe('large path', () => {
       before((done) => {
-        component = mount(<BreadcrumbComponent collection={''}
-                                               pathChanged={actions.pathChanged}/>);
-        component.instance().breadcrumbStoreChanged({
-          path: ['a', 'b', 1],
-          types: ['Object', 'Array', 'Object'],
-          collection: 'compass-crud'
-        });
+        component = mount(
+          <BreadcrumbComponent
+            collection={'compass-crud'}
+            pathChanged={actions.pathChanged}
+            path={[ 'a', 'b', 1 ]}
+            types={[ 'Object', 'Array', 'Object' ]} />
+        );
         tabs = component.find('.ag-header-breadcrumb-tab');
         expect(tabs).to.be.present();
         done();
@@ -78,13 +78,13 @@ describe('<BreadcrumbComponent />', () => {
     describe('clicking on the home button triggers correctly', () => {
       before((done) => {
         actions = getActions();
-        component = mount(<BreadcrumbComponent collection={''}
-                                               pathChanged={actions.pathChanged}/>);
-        component.instance().breadcrumbStoreChanged({
-          path: ['a', 'b', 1],
-          types: ['Object', 'Array', 'Object'],
-          collection: 'compass-crud'
-        });
+        component = mount(
+          <BreadcrumbComponent
+            collection={'compass-crud'}
+            pathChanged={actions.pathChanged}
+            path={[ 'a', 'b', 1 ]}
+            types={[ 'Object', 'Array', 'Object' ]} />
+        );
         tabs = component.find('.ag-header-breadcrumb-tab');
         expect(tabs).to.be.present();
         tabs.at(0).simulate('click');
@@ -100,13 +100,13 @@ describe('<BreadcrumbComponent />', () => {
     describe('clicking on a tab triggers correctly', () => {
       before((done) => {
         actions = getActions();
-        component = mount(<BreadcrumbComponent collection={''}
-                                               pathChanged={actions.pathChanged}/>);
-        component.instance().breadcrumbStoreChanged({
-          path: ['a', 'b', 1],
-          types: ['Object', 'Array', 'Object'],
-          collection: 'compass-crud'
-        });
+        component = mount(
+          <BreadcrumbComponent
+            collection={'compass-crud'}
+            pathChanged={actions.pathChanged}
+            path={[ 'a', 'b', 1 ]}
+            types={[ 'Object', 'Array', 'Object' ]} />
+        );
         tabs = component.find('.ag-header-breadcrumb-tab');
         expect(tabs).to.be.present();
         expect(tabs.at(1).text()).to.equal('a { }');

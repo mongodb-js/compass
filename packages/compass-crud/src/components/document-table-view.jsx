@@ -125,7 +125,6 @@ class DocumentTableView extends React.Component {
    * @param {Object} params - a reference to the gridAPI and the columnAPI.
    */
   onGridReady(params) {
-    console.log('onGridReady');
     this.gridApi = params.api;
     this.columnApi = params.columnApi;
   }
@@ -525,8 +524,7 @@ class DocumentTableView extends React.Component {
   }
 
   /**
-   * When the BreadcrumbStore changes, update the grid.
-   * and just trigger with the path.
+   * When the component is updated, handle any changes to the paths.
    */
   handleBreadcrumbChange() {
     const params = this.props.table;
@@ -887,7 +885,11 @@ class DocumentTableView extends React.Component {
   render() {
     return (
       <div className="ag-parent">
-        <BreadcrumbComponent collection={this.collection} pathChanged={this.props.pathChanged}/>
+        <BreadcrumbComponent
+          collection={this.collection}
+          pathChanged={this.props.pathChanged}
+          path={this.props.table.path}
+          types={this.props.table.types} />
         {this.AGGrid}
       </div>
     );
