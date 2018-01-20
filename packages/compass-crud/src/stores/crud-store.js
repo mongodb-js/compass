@@ -18,11 +18,6 @@ const NUM_PAGE_DOCS = 20;
 const INSERTING_MESSAGE = 'Inserting Document';
 
 /**
- * The insert invalid message.
- */
-// const INSERT_INVALID_MESSAGE = 'Insert not permitted while document contains errors.';
-
-/**
  * Progress constant.
  */
 const PROGRESS = 'progress';
@@ -241,6 +236,15 @@ const CRUDStore = Reflux.createStore({
   },
 
   /**
+   * Closing the insert document dialog just resets the state to the default.
+   */
+  closeInsertDocumentDialog() {
+    this.setState({
+      insert: this.getInitialInsertState()
+    });
+  },
+
+  /**
    * Open the insert document dialog.
    *
    * @param {Object} doc - The document to insert.
@@ -258,7 +262,14 @@ const CRUDStore = Reflux.createStore({
         }
       }
     }
-    this.setState({ insert: { doc: hadronDoc, isOpen: true }});
+    this.setState({
+      insert: {
+        doc: hadronDoc,
+        message: '',
+        mode: MODIFYING,
+        isOpen: true
+      }
+    });
   },
 
   /**
@@ -301,6 +312,7 @@ const CRUDStore = Reflux.createStore({
           return this.setState({
             docs: this.state.docs.concat([ doc ]),
             count: this.state.count + 1,
+            end: this.state.end + 1,
             insert: this.getInitialInsertState()
           });
         }

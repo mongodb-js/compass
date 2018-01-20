@@ -190,7 +190,11 @@ class DocumentList extends React.Component {
             {...this.props} />
         </div>
         {this.renderContent()}
-        <InsertDocumentDialog {...this.props} />
+        <InsertDocumentDialog
+          closeInsertDocumentDialog={this.props.closeInsertDocumentDialog}
+          closeAllMenus={this.props.closeAllMenus}
+          insertDocument={this.props.insertDocument}
+          {...this.props.insert} />
       </div>
     );
   }
@@ -222,6 +226,7 @@ DocumentList.propTypes = {
   resetHeaders: PropTypes.func.isRequired,
   replaceDoc: PropTypes.func.isRequired,
   closeAllMenus: PropTypes.func.isRequired,
+  insert: PropTypes.object.isRequired,
   view: PropTypes.string.isRequired,
   ns: PropTypes.string.isRequired,
   start: PropTypes.number.isRequired,
@@ -238,7 +243,8 @@ DocumentList.defaultProps = {
   count: 0,
   start: 0,
   end: 0,
-  page: 0
+  page: 0,
+  insert: {}
 };
 
 DocumentList.Document = Document;

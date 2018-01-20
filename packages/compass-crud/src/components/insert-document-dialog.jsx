@@ -3,12 +3,15 @@ const pull = require('lodash.pull');
 const React = require('react');
 const PropTypes = require('prop-types');
 const Modal = require('react-bootstrap').Modal;
-const OpenInsertDocumentDialogStore = require('../stores/open-insert-document-dialog-store');
-const InsertDocumentStore = require('../stores/insert-document-store');
 const InsertDocument = require('./insert-document');
 const InsertDocumentFooter = require('./insert-document-footer');
 const { TextButton } = require('hadron-react-buttons');
 const { Element } = require('hadron-document');
+
+/**
+ * The insert invalid message.
+ */
+const INSERT_INVALID_MESSAGE = 'Insert not permitted while document contains errors.';
 
 /**
  * Component for the insert document dialog.
@@ -22,63 +25,62 @@ class InsertDocumentDialog extends React.Component {
    */
   constructor(props) {
     super(props);
-    this.state = { open: false, canHide: false };
-  }
-
-  /**
-   * Subscribe to the open dialog store.
-   */
-  componentWillMount() {
-    this.invalidElements = [];
-    this.unsubscribeOpen = OpenInsertDocumentDialogStore.listen(this.handleStoreOpen.bind(this));
-    this.unsubscribeInsert = InsertDocumentStore.listen(this.handleDocumentInsert.bind(this));
-    this.unsubscribeClose = this.props.closeInsertDocumentDialog.listen(this.closeDialog.bind(this));
-  }
-
-  /**
-   * Unsubscribe from the store.
-   */
-  componentWillUnmount() {
-    this.unsubscribeOpen();
-    this.unsubscribeInsert();
-    this.unsubscribeClose();
-  }
-
-  /**
-   * Close the dialog.
-   */
-  closeDialog() {
-    this.invalidElements = [];
-    this.state.doc.removeListener(Element.Events.Invalid, this.unsubscribeInvalid);
-    this.state.doc.removeListener(Element.Events.Valid, this.unsubscribeValid);
-    this.setState({ open: false });
-  }
-
-  /**
-   * Handle opening the dialog with the new document.
-   *
-   * @param {Object} doc - The document.
-   */
-  handleStoreOpen(doc) {
-    this.setState({ doc: doc, open: true });
+    this.state = { canHide: false };
     this.unsubscribeInvalid = this.handleInvalid.bind(this);
     this.unsubscribeValid = this.handleValid.bind(this);
-    this.state.doc.on(Element.Events.Invalid, this.unsubscribeInvalid);
-    this.state.doc.on(Element.Events.Valid, this.unsubscribeValid);
+    this.invalidElements = [];
   }
 
   /**
-   * Handle canceling the insert.
+   * Handle the property updates and subscriptions to the document.
+   *
+   * @param {Object} nextProps - The new properties.
    */
-  handleCancel() {
-    this.closeDialog();
+  componentWillReceiveProps(nextProps) {
+    if (nextProps.isOpen && !this.props.isOpen) {
+      // Opening the modal - reset the invalid elements list, which contains the
+      // uuids of each element that current has BSON type cast errors. Subscribe
+      // to the validation errors for BSON types on the document.
+      this.invalidElements = [];
+      nextProps.doc.on(Element.Events.Invalid, this.unsubscribeInvalid);
+      nextProps.doc.on(Element.Events.Valid, this.unsubscribeValid);
+    } else if (!nextProps.isOpen && this.props.isOpen) {
+      // Closing the modal. Remove the listeners to the BSON type validation errors
+      // in order to clean up properly.
+      this.props.doc.removeListener(Element.Events.Invalid, this.unsubscribeInvalid);
+      this.props.doc.removeListener(Element.Events.Valid, this.unsubscribeValid);
+    }
+  }
+
+  /**
+   * Handles an element in the document becoming valid from invalid.
+   *
+   * @param {Stringg} uuid - The uuid of the element.
+   */
+  handleValid(uuid) {
+    if (this.hasErrors()) {
+      pull(this.invalidElements, uuid);
+      this.forceUpdate();
+    }
+  }
+
+  /**
+   * Handles a valid element in the document becoming invalid.
+   *
+   * @param {String} uuid - The uuid of the element.
+   */
+  handleInvalid(uuid) {
+    if (!includes(this.invalidElements, uuid)) {
+      this.invalidElements.push(uuid);
+      this.forceUpdate();
+    }
   }
 
   /**
    * handle losing focus from element
    */
   handleBlur() {
-    this.setState({canHide: false});
+    this.setState({ canHide: false });
   }
 
   /**
@@ -86,37 +88,9 @@ class InsertDocumentDialog extends React.Component {
    */
   handleHide() {
     if (this.state.canHide) {
-      this.closeDialog();
+      this.props.closeInsertDocumentDialog();
     } else {
       this.setState({ canHide: true });
-    }
-  }
-
-  /**
-   * Handles completion of the document insert.
-   *
-   * @param {Error} error - Any error in the insert.
-   * @param {Object} doc (Unused)
-   * @param {boolean} dialogue - If the insert came from the insert document
-   * dialogue or if it came from a clone.
-   */
-  handleDocumentInsert(error, doc, dialogue) {
-    if (!error && !dialogue) {
-      this.closeDialog();
-    }
-  }
-
-  handleValid(uuid) {
-    pull(this.invalidElements, uuid);
-    this.forceUpdate();
-    this.props.elementValid(uuid);
-  }
-
-  handleInvalid(uuid) {
-    if (!includes(this.invalidElements, uuid)) {
-      this.invalidElements.push(uuid);
-      this.forceUpdate();
-      this.props.elementInvalid(uuid);
     }
   }
 
@@ -124,11 +98,31 @@ class InsertDocumentDialog extends React.Component {
    * Handle the insert.
    */
   handleInsert() {
-    this.props.insertDocument(this.state.doc);
+    this.props.insertDocument(this.props.doc);
   }
 
+  /**
+   * Does the document have errors with the bson types?
+   *
+   * @returns {Boolean} If the document has errors.
+   */
   hasErrors() {
     return this.invalidElements.length > 0;
+  }
+
+  /**
+   * Render the document component.
+   *
+   * @returns {React.Component} The component.
+   */
+  renderDocument() {
+    if (this.props.doc) {
+      return (
+        <InsertDocument
+          doc={this.props.doc}
+          closeAllMenus={this.props.closeAllMenus} />
+      );
+    }
   }
 
   /**
@@ -138,22 +132,26 @@ class InsertDocumentDialog extends React.Component {
    */
   render() {
     return (
-      <Modal show={this.state.open} backdrop="static"
+      <Modal
+          show={this.props.isOpen}
+          backdrop="static"
           onHide={this.handleHide.bind(this)}>
         <Modal.Header>
           <Modal.Title>Insert Document</Modal.Title>
         </Modal.Header>
 
-        <Modal.Body onFocus={this.handleBlur.bind(this)} >
-          <InsertDocument doc={this.state.doc} closeAllMenus={this.props.closeAllMenus} />
-          <InsertDocumentFooter message={this.props.insert.message} mode={this.props.insert.mode} />
+        <Modal.Body onFocus={this.handleBlur.bind(this)}>
+          {this.renderDocument()}
+          <InsertDocumentFooter
+            message={this.hasErrors() ? INSERT_INVALID_MESSAGE : this.props.message}
+            mode={this.hasErrors() ? 'error' : this.props.mode} />
         </Modal.Body>
 
         <Modal.Footer>
           <TextButton
             className="btn btn-default btn-sm"
             text="Cancel"
-            clickHandler={this.handleCancel.bind(this)} />
+            clickHandler={this.props.closeInsertDocumentDialog} />
           <TextButton
             className="btn btn-primary btn-sm"
             dataTestId="insert-document-button"
@@ -172,9 +170,10 @@ InsertDocumentDialog.propTypes = {
   closeInsertDocumentDialog: PropTypes.func.isRequired,
   closeAllMenus: PropTypes.func.isRequired,
   insertDocument: PropTypes.func.isRequired,
-  elementValid: PropTypes.func.isRequired,
-  elementInvalid: PropTypes.func.isRequired,
-  insert: PropTypes.object.isRequired
+  isOpen: PropTypes.bool.isRequired,
+  message: PropTypes.string.isRequired,
+  mode: PropTypes.string.isRequired,
+  doc: PropTypes.object
 };
 
 module.exports = InsertDocumentDialog;

@@ -320,6 +320,7 @@ describe('CRUDStore', () => {
             const unsubscribe = CRUDStore.listen((state) => {
               expect(state.docs.length).to.equal(1);
               expect(state.count).to.equal(1);
+              expect(state.end).to.equal(1);
               expect(state.insert.doc).to.equal(null);
               expect(state.insert.isOpen).to.equal(false);
               expect(state.insert.message).to.equal('');
