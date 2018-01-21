@@ -126,8 +126,8 @@ const checkPageRange = function(error, documents, start, end, page,
   const endingDocument = startingDocument + nextPageSize;
 
   expect(documents.length).to.equal(nextPageSize);
-  expect(documents[0]).to.deep.equal(expectedDocs[startingDocument]);
-  expect(documents[nextPageSize - 1]).to.deep.equal(expectedDocs[endingDocument - 1]);
+  expect(documents[0].generateObject()).to.deep.equal(expectedDocs[startingDocument]);
+  expect(documents[nextPageSize - 1].generateObject()).to.deep.equal(expectedDocs[endingDocument - 1]);
 
   /* 1-indexed */
   expect(start).to.equal((NUM_DOCS * page) + 1);

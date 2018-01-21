@@ -207,7 +207,7 @@ const CRUDStore = Reflux.createStore({
       const length = error ? 0 : documents.length;
       this.setState({
         error: error,
-        docs: documents,
+        docs: documents.map(doc => new HadronDocument(doc)),
         start: skip + 1,
         end: skip + length,
         page: page,
@@ -236,7 +236,7 @@ const CRUDStore = Reflux.createStore({
       const length = error ? 0 : documents.length;
       this.setState({
         error: error,
-        docs: documents,
+        docs: documents.map(doc => new HadronDocument(doc)),
         start: skip + 1,
         end: skip + length,
         page: page,
@@ -321,7 +321,7 @@ const CRUDStore = Reflux.createStore({
         // count is greater than 0, if 1 then the new doc matches the filter
         if (count > 0) {
           return this.setState({
-            docs: this.state.docs.concat([ doc ]),
+            docs: this.state.docs.concat([ new HadronDocument(doc) ]),
             count: this.state.count + 1,
             end: this.state.end + 1,
             insert: this.getInitialInsertState()
@@ -410,7 +410,7 @@ const CRUDStore = Reflux.createStore({
           const length = documents.length;
           this.setState({
             error: error,
-            docs: documents,
+            docs: documents.map(doc => new HadronDocument(doc)),
             count: count,
             page: 0,
             start: length > 0 ? 1 : 0,

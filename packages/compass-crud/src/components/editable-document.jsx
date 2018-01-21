@@ -53,7 +53,7 @@ class EditableDocument extends React.Component {
    */
   constructor(props) {
     super(props);
-    this.doc = EditableDocument.loadDocument(props.doc);
+    this.doc = props.doc;
     this.state = {
       renderSize: INITIAL_FIELD_LIMIT,
       editing: false,
@@ -89,7 +89,7 @@ class EditableDocument extends React.Component {
    */
   componentWillReceiveProps(nextProps) {
     if (nextProps.doc) {
-      this.doc = EditableDocument.loadDocument(nextProps.doc);
+      this.doc = nextProps.doc;
       this.subscribeToDocumentEvents();
     }
   }

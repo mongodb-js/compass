@@ -7,6 +7,7 @@ const app = require('hadron-app');
 const AppRegistry = require('hadron-app-registry');
 const { mount } = require('enzyme');
 const sinon = require('sinon');
+const HadronDocument = require('hadron-document');
 const EditableDocument = require('../../src/components/editable-document');
 const EditableElement = require('../../src/components/editable-element');
 const EditableValue = require('../../src/components/editable-value');
@@ -30,7 +31,7 @@ describe('<EditableDocument />', () => {
 
     before(() => {
       wrapper = mount(<EditableDocument
-                        doc={doc}
+                        doc={new HadronDocument(doc)}
                         closeAllMenus={sinon.spy(action)}
                         documentRemoved={sinon.spy(action)}
                         openInsertDocumentDialog={sinon.spy(action)} />);
@@ -66,7 +67,7 @@ describe('<EditableDocument />', () => {
           long_array: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14]
         };
         wrapper = mount(<EditableDocument
-                          doc={arrayDoc}
+                          doc={new HadronDocument(arrayDoc)}
                           closeAllMenus={sinon.spy(action)}
                           documentRemoved={sinon.spy(action)}
                           openInsertDocumentDialog={sinon.spy(action)} />);

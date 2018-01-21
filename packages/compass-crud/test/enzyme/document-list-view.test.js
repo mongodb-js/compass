@@ -4,6 +4,7 @@ const expect = chai.expect;
 const chaiEnzyme = require('chai-enzyme');
 const { mount } = require('enzyme');
 const sinon = require('sinon');
+const HadronDocument = require('hadron-document');
 const DocumentListView = require('../../src/components/document-list-view');
 
 chai.use(chaiEnzyme());
@@ -12,10 +13,11 @@ describe('<DocumentListView />', () => {
   describe('#render', () => {
     context('when the documents have objects for ids', () => {
       const docs = [{ _id: { name: 'test-1' }}, { _id: { name: 'test-2' }}];
+      const hadronDocs = docs.map(doc => new HadronDocument(doc));
       const scrollHandler = sinon.spy();
       const component = mount(
         <DocumentListView
-          docs={docs}
+          docs={hadronDocs}
           scrollHandler={scrollHandler}
           isEditable={false}
           documentRemoved={sinon.spy()}

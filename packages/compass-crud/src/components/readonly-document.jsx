@@ -1,6 +1,5 @@
 const React = require('react');
 const PropTypes = require('prop-types');
-const HadronDocument = require('hadron-document');
 const Element = require('./element');
 const ExpansionBar = require('./expansion-bar');
 
@@ -41,7 +40,7 @@ class ReadonlyDocument extends React.Component {
    */
   constructor(props) {
     super(props);
-    this.doc = new HadronDocument(props.doc);
+    this.doc = props.doc;
     this.state = {
       renderSize: INITIAL_FIELD_LIMIT
     };
@@ -49,7 +48,7 @@ class ReadonlyDocument extends React.Component {
 
   componentWillReceiveProps(nextProps) {
     if (this.props.doc !== nextProps.doc) {
-      this.doc = new HadronDocument(nextProps.doc);
+      this.doc = nextProps.doc;
     }
   }
 

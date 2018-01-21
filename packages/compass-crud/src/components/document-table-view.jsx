@@ -99,7 +99,7 @@ class DocumentTableView extends React.Component {
   }
 
   componentWillReceiveProps(nextProps) {
-    this.hadronDocs = this.initHadronDocs(nextProps.docs);
+    this.hadronDocs = nextProps.docs;
   }
 
   componentDidUpdate(prevProps) {
@@ -111,17 +111,6 @@ class DocumentTableView extends React.Component {
     if (this.props.docs.length > prevProps.docs.length) {
       this.handleInsert();
     }
-  }
-
-  /**
-   * Initialize the list of HadronDocuments to track changes.
-   *
-   * @param {Array} docs - List of JSON objects.
-   *
-   * @returns {Array} - List of HadronDocuments.
-   */
-  initHadronDocs(docs) {
-    return docs.map((doc) => { return new HadronDocument(doc); });
   }
 
   /**
@@ -298,7 +287,7 @@ class DocumentTableView extends React.Component {
    * @param {String} headerName - The field of a new column from insert document dialog
    * @param {String} colType - The type of a new column from document insert dialog
    * @param {Array} path - The series of field names. Empty at top-level.
-   * @param {HadronDocument} updateArray - If we need to update the array element
+   * @param {Boolean} updateArray - If we need to update the array element
    * headers because of an insert.
    */
   addGridColumn(colIdBefore, headerName, colType, path, updateArray) {
