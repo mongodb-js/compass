@@ -16,7 +16,7 @@ const INSERT_INVALID_MESSAGE = 'Insert not permitted while document contains err
 /**
  * Component for the insert document dialog.
  */
-class InsertDocumentDialog extends React.Component {
+class InsertDocumentDialog extends React.PureComponent {
 
   /**
    * The component constructor.

@@ -16,7 +16,7 @@ const DOCUMENT_ELEMENTS = 'document-elements';
 /**
  * Component for a single document in a list of documents.
  */
-class InsertDocument extends React.Component {
+class InsertDocument extends React.PureComponent {
 
   /**
    * The component constructor.
