@@ -1,4 +1,3 @@
-// const _ = require('lodash');
 const PropTypes = require('prop-types');
 const React = require('react');
 const ObjectId = require('bson').ObjectId;

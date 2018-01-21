@@ -2,7 +2,7 @@
 const React = require('react');
 const PropTypes = require('prop-types');
 const {AgGridReact} = require('ag-grid-react');
-const _ = require('lodash');
+const map = require('lodash.map');
 
 const HadronDocument = require('hadron-document');
 const mongodbns = require('mongodb-ns');
@@ -298,9 +298,7 @@ class DocumentTableView extends React.Component {
    * headers because of an insert.
    */
   addGridColumn(colIdBefore, headerName, colType, path, updateArray) {
-    const columnHeaders = _.map(this.columnApi.getAllGridColumns(), function(col) {
-      return col.getColDef();
-    });
+    const columnHeaders = map(this.columnApi.getAllGridColumns(), col => col.getColDef());
 
     let i = 0;
     while (i < columnHeaders.length) {
@@ -351,9 +349,7 @@ class DocumentTableView extends React.Component {
    * @param {Array} colIds - The list of colIds that will be removed.
    */
   removeColumns(colIds) {
-    const columnHeaders = _.map(this.columnApi.getAllGridColumns(), function(col) {
-      return col.getColDef();
-    });
+    const columnHeaders = map(this.columnApi.getAllGridColumns(), col => col.getColDef());
 
     const newCols = [];
     for (let i = 0; i < columnHeaders.length; i++) {
@@ -418,9 +414,7 @@ class DocumentTableView extends React.Component {
       this.removeColumns(params.remove.colIds);
     }
     if ('updateHeaders' in params) {
-      const columnHeaders = _.map(this.columnApi.getAllGridColumns(), function(col) {
-        return col.getColDef();
-      });
+      const columnHeaders = map(this.columnApi.getAllGridColumns(), col => col.getColDef());
 
       this.updateHeaders(params.updateHeaders.showing, columnHeaders);
       this.gridApi.refreshHeader();
@@ -788,7 +782,7 @@ class DocumentTableView extends React.Component {
     const columnHeaders = Object.values(headers);
     const showing = {};
 
-    _.map(headerTypes, function(oids, key) {
+    map(headerTypes, function(oids, key) {
       const colTypes = Object.values(oids);
       let currentType = colTypes[0];
       for (let i = 0; i < colTypes.length; i++) {
@@ -838,7 +832,7 @@ class DocumentTableView extends React.Component {
    * @returns {Array} A list of HadronDocument wrappers.
    */
   createRowData(documents, index) {
-    return _.map(documents, function(doc, i) {
+    return map(documents, (doc, i) => {
       return {
         /* The same doc is shared between a document row and it's footer */
         hadronDocument: doc,

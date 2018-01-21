@@ -1,4 +1,5 @@
-const _ = require('lodash');
+const pull = require('lodash.pull');
+const includes = require('lodash.includes');
 const React = require('react');
 const PropTypes = require('prop-types');
 const { Element } = require('hadron-document');
@@ -146,11 +147,11 @@ class DocumentFooter extends React.Component {
   }
 
   handleValid(uuid) {
-    _.pull(this.invalidElements, uuid);
+    pull(this.invalidElements, uuid);
   }
 
   handleInvalid(uuid) {
-    if (!_.includes(this.invalidElements, uuid)) {
+    if (!includes(this.invalidElements, uuid)) {
       this.invalidElements.push(uuid);
       this.handleModification();
     }

@@ -1,4 +1,3 @@
-const _ = require('lodash');
 const React = require('react');
 const PropTypes = require('prop-types');
 const TypeChecker = require('hadron-type-checker');
@@ -138,7 +137,7 @@ class Types extends React.Component {
    * @returns {Component} The react component.
    */
   renderTypes() {
-    return _.map(TypeChecker.castableTypes(this.isHighPrecision()), (type) => {
+    return TypeChecker.castableTypes(this.isHighPrecision()).map((type) => {
       return (
         <li key={type}>
           <span

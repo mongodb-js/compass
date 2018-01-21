@@ -1,4 +1,3 @@
-const _ = require('lodash');
 const React = require('react');
 const PropTypes = require('prop-types');
 const Document = require('./document');
@@ -31,7 +30,7 @@ class DocumentListView extends React.Component {
    * @return {Array} The document list item components.
    */
   renderDocuments() {
-    return _.map(this.props.docs, (doc, i) => {
+    return this.props.docs.map((doc, i) => {
       return (
         <li className={LIST_ITEM_CLASS} data-test-id={LIST_ITEM_TEST_ID} key={i}>
           <Document

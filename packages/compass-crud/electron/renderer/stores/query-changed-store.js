@@ -2,7 +2,9 @@ const Reflux = require('reflux');
 const StateMixin = require('reflux-state-mixin');
 const app = require('hadron-app');
 
-const _ = require('lodash');
+const pick = require('lodash.pick');
+const isEqual = require('lodash.isequal');
+const cloneDeep = require('lodash.clonedeep');
 const debug = require('debug')('mongodb-compass:stores:query-changed');
 
 const QUERY_PROPERTIES = ['filter', 'project', 'sort', 'skip', 'limit', 'sample'];
@@ -26,15 +28,15 @@ const QueryChangedStore = Reflux.createStore({
    * @return {Object} the initial store state.
    */
   getInitialState() {
-    return _.pick(this.getInitialQueryStoreState(), EXTENDED_QUERY_PROPERTIES);
+    return pick(this.getInitialQueryStoreState(), EXTENDED_QUERY_PROPERTIES);
   },
 
   _detectChange(state) {
     const hasChanged =
-      !_.isEqual(this.lastExecutedQuery, state.lastExecutedQuery) ||
-      !_.isEqual(this.namespace, state.ns);
+      !isEqual(this.lastExecutedQuery, state.lastExecutedQuery) ||
+      !isEqual(this.namespace, state.ns);
     if (hasChanged) {
-      this.lastExecutedQuery = _.cloneDeep(state.lastExecutedQuery);
+      this.lastExecutedQuery = cloneDeep(state.lastExecutedQuery);
       this.namespace = state.ns;
     }
     return hasChanged;
