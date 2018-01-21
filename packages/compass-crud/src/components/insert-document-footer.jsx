@@ -7,6 +7,11 @@ const PropTypes = require('prop-types');
 const PREFIX = 'document-footer';
 
 /**
+ * Message class constant.
+ */
+const MESSAGE_CLASS = `${PREFIX}-message`;
+
+/**
  * Map of modes to styles.
  */
 const MODES = {
@@ -24,7 +29,7 @@ const MODES = {
  */
 const InsertDocumentFooter = (props) => (
   <div className={`${PREFIX} ${PREFIX}-${MODES[props.mode]}`}>
-    <div className="document-footer-message" title={props.message}>
+    <div className={MESSAGE_CLASS} title={props.message}>
       {props.message}
     </div>
   </div>
