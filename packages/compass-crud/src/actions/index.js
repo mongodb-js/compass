@@ -3,27 +3,27 @@ const Reflux = require('reflux');
 const debug = require('debug')('mongodb-compass:crud:actions');
 
 const Actions = Reflux.createActions([
-  'documentRemoved',
-  'openInsertDocumentDialog',
-  'closeInsertDocumentDialog',
-  'insertDocument',
-  'refreshDocuments',
-  'closeAllMenus',
   'addColumn',
-  'removeColumn',
   'cleanCols',
-  'resetHeaders',
-  'replaceDoc',
-  'renameColumn',
+  'closeAllMenus',
+  'closeInsertDocumentDialog',
+  'documentRemoved',
+  'drillDown',
   'elementAdded',
-  'elementRemoved',
   'elementMarkRemoved',
+  'elementRemoved',
   'elementTypeChanged',
   'getNextPage',
   'getPrevPage',
+  'insertDocument',
+  'openInsertDocumentDialog',
   'pathChanged',
-  'viewChanged',
-  'drillDown'
+  'refreshDocuments',
+  'removeColumn',
+  'renameColumn',
+  'replaceDoc',
+  'resetHeaders',
+  'viewChanged'
 ]);
 
 document.ondragover = document.ondrop = (ev) => {
