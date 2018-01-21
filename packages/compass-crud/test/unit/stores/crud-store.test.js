@@ -329,10 +329,6 @@ describe('CRUDStore', () => {
       });
     });
 
-    context('when the document has no _id', () => {
-
-    });
-
     context('when the deletion errors', () => {
 
     });

@@ -179,34 +179,26 @@ const CRUDStore = Reflux.createStore({
   removeDocument(doc) {
     const id = doc.getId();
     const stringId = doc.getStringId();
-    if (id) {
-      this.dataService.deleteOne(this.state.ns, { _id: id }, {}, (error) => {
-        if (error) {
-          this.state.remove[stringId] = {
-            message: error.message,
-            mode: ERROR
-          };
-          this.trigger(this.state);
-        } else {
-          delete this.state.remove[stringId];
-          const index = findIndex(this.state.docs, (d) => {
-            const _id = d._id;
-            if (id instanceof ObjectId) {
-              return id.equals(_id);
-            }
-            return _id === id;
-          });
-          this.state.docs.splice(index, 1);
-          this.trigger(this.state);
-        }
-      });
-    } else {
-      this.state.remove[stringId] = {
-        message: 'Cannot delete a document without an _id',
-        mode: ERROR
-      };
-      this.trigger(this.state);
-    }
+    this.dataService.deleteOne(this.state.ns, { _id: id }, {}, (error) => {
+      if (error) {
+        this.state.remove[stringId] = {
+          message: error.message,
+          mode: ERROR
+        };
+        this.trigger(this.state);
+      } else {
+        delete this.state.remove[stringId];
+        const index = findIndex(this.state.docs, (d) => {
+          const _id = d._id;
+          if (id instanceof ObjectId) {
+            return id.equals(_id);
+          }
+          return _id === id;
+        });
+        this.state.docs.splice(index, 1);
+        this.trigger(this.state);
+      }
+    });
   },
 
   /**
