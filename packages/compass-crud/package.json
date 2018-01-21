@@ -91,6 +91,7 @@
     "hadron-react-bson": "^1.12.0",
     "hadron-type-checker": "^4.0.2",
     "lodash.clonedeep": "^4.5.0",
+    "lodash.findindex": "^4.6.0",
     "lodash.foreach": "^4.5.0",
     "lodash.includes": "^4.3.0",
     "lodash.isempty": "^4.4.0",

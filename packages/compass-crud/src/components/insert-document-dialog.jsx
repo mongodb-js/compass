@@ -25,7 +25,7 @@ class InsertDocumentDialog extends React.PureComponent {
    */
   constructor(props) {
     super(props);
-    this.state = { canHide: false };
+    this.state = { canHide: false, message: this.props.message, mode: this.props.mode };
     this.unsubscribeInvalid = this.handleInvalid.bind(this);
     this.unsubscribeValid = this.handleValid.bind(this);
     this.invalidElements = [];
@@ -50,6 +50,7 @@ class InsertDocumentDialog extends React.PureComponent {
       this.props.doc.removeListener(Element.Events.Invalid, this.unsubscribeInvalid);
       this.props.doc.removeListener(Element.Events.Valid, this.unsubscribeValid);
     }
+    this.setState({ message: nextProps.message, mode: nextProps.mode });
   }
 
   /**
@@ -98,6 +99,7 @@ class InsertDocumentDialog extends React.PureComponent {
    * Handle the insert.
    */
   handleInsert() {
+    this.setState({ message: 'Inserting Document', mode: 'progress' });
     this.props.insertDocument(this.props.doc);
   }
 
@@ -143,8 +145,8 @@ class InsertDocumentDialog extends React.PureComponent {
         <Modal.Body onFocus={this.handleBlur.bind(this)}>
           {this.renderDocument()}
           <InsertDocumentFooter
-            message={this.hasErrors() ? INSERT_INVALID_MESSAGE : this.props.message}
-            mode={this.hasErrors() ? 'error' : this.props.mode} />
+            message={this.hasErrors() ? INSERT_INVALID_MESSAGE : this.state.message}
+            mode={this.hasErrors() ? 'error' : this.state.mode} />
         </Modal.Body>
 
         <Modal.Footer>

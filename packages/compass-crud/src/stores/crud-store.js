@@ -2,6 +2,7 @@ const Reflux = require('reflux');
 const toNS = require('mongodb-ns');
 const ipc = require('hadron-ipc');
 const toPairs = require('lodash.topairs');
+const findIndex = require('lodash.findindex');
 const StateMixin = require('reflux-state-mixin');
 const HadronDocument = require('hadron-document');
 const { ObjectId } = require('bson');
@@ -11,16 +12,6 @@ const Actions = require('../actions');
  * Number of docs per page.
  */
 const NUM_PAGE_DOCS = 20;
-
-/**
- * The inserting message.
- */
-const INSERTING_MESSAGE = 'Inserting Document';
-
-/**
- * Progress constant.
- */
-const PROGRESS = 'progress';
 
 /**
  * Error constant.
@@ -71,6 +62,7 @@ const CRUDStore = Reflux.createStore({
       isEditable: true,
       view: LIST,
       count: 0,
+      remove: {},
       insert: this.getInitialInsertState(),
       table: this.getInitialTableState(),
       query: {
@@ -177,6 +169,44 @@ const CRUDStore = Reflux.createStore({
    */
   isListEditable() {
     return !this.CollectionStore.isReadonly() && process.env.HADRON_READONLY !== 'true';
+  },
+
+  /**
+   * Remove the provided document from the collection.
+   *
+   * @param {Document} doc - The hadron document.
+   */
+  removeDocument(doc) {
+    const id = doc.getId();
+    const stringId = doc.getStringId();
+    if (id) {
+      this.dataService.deleteOne(this.state.ns, { _id: id }, {}, (error) => {
+        if (error) {
+          this.state.remove[stringId] = {
+            message: error.message,
+            mode: ERROR
+          };
+          this.trigger(this.state);
+        } else {
+          delete this.state.remove[stringId];
+          const index = findIndex(this.state.docs, (d) => {
+            const _id = d._id;
+            if (id instanceof ObjectId) {
+              return id.equals(_id);
+            }
+            return _id === id;
+          });
+          this.state.docs.splice(index, 1);
+          this.trigger(this.state);
+        }
+      });
+    } else {
+      this.state.remove[stringId] = {
+        message: 'Cannot delete a document without an _id',
+        mode: ERROR
+      };
+      this.trigger(this.state);
+    }
   },
 
   /**
@@ -290,14 +320,6 @@ const CRUDStore = Reflux.createStore({
    */
   insertDocument(hadronDoc) {
     const doc = hadronDoc.generateObject();
-    this.setState({
-      insert: {
-        doc: hadronDoc,
-        message: INSERTING_MESSAGE,
-        mode: PROGRESS,
-        isOpen: true
-      }
-    });
     this.dataService.insertOne(this.state.ns, doc, {}, (error) => {
       if (error) {
         return this.setState({

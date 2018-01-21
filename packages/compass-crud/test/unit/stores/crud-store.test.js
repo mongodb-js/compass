@@ -297,6 +297,43 @@ describe('CRUDStore', () => {
     });
   });
 
+  describe('#removeDocument', () => {
+    beforeEach(() => {
+      CRUDStore.state = CRUDStore.getInitialState();
+      CRUDStore.state.ns = 'compass-crud.test';
+      CRUDStore.state.remove.testing = {
+        mode: 'error',
+        message: 'Document Flagged For Deletion.'
+      };
+    });
+
+    context('when there is no error', () => {
+      const doc = { _id: 'testing', name: 'Depeche Mode' };
+      const hadronDoc = new HadronDocument(doc);
+
+      it('deletes the document from the collection', (done) => {
+        const unsubscribe = CRUDStore.listen((state) => {
+          expect(state.docs.length).to.equal(0);
+          expect(state.count).to.equal(0);
+          expect(state.end).to.equal(0);
+          expect(state.remove).to.deep.equal({});
+          unsubscribe();
+          done();
+        });
+
+        CRUDStore.removeDocument(hadronDoc);
+      });
+    });
+
+    context('when the document has no _id', () => {
+
+    });
+
+    context('when the deletion errors', () => {
+
+    });
+  });
+
   describe('#insertDocument', () => {
     beforeEach(() => {
       CRUDStore.state = CRUDStore.getInitialState();
@@ -312,21 +349,15 @@ describe('CRUDStore', () => {
         const doc = new HadronDocument({ name: 'testing' });
 
         it('inserts the document', (done) => {
-          const unsubscribeProgress = CRUDStore.listen((progressState) => {
-            unsubscribeProgress();
-            expect(progressState.insert.doc).to.equal(doc);
-            expect(progressState.insert.message).to.equal('Inserting Document');
-
-            const unsubscribe = CRUDStore.listen((state) => {
-              expect(state.docs.length).to.equal(1);
-              expect(state.count).to.equal(1);
-              expect(state.end).to.equal(1);
-              expect(state.insert.doc).to.equal(null);
-              expect(state.insert.isOpen).to.equal(false);
-              expect(state.insert.message).to.equal('');
-              unsubscribe();
-              done();
-            });
+          const unsubscribe = CRUDStore.listen((state) => {
+            expect(state.docs.length).to.equal(1);
+            expect(state.count).to.equal(1);
+            expect(state.end).to.equal(1);
+            expect(state.insert.doc).to.equal(null);
+            expect(state.insert.isOpen).to.equal(false);
+            expect(state.insert.message).to.equal('');
+            unsubscribe();
+            done();
           });
 
           CRUDStore.insertDocument(doc);
@@ -342,20 +373,14 @@ describe('CRUDStore', () => {
 
 
         it('inserts the document but does not add to the list', (done) => {
-          const unsubscribeProgress = CRUDStore.listen((progressState) => {
-            unsubscribeProgress();
-            expect(progressState.insert.doc).to.equal(doc);
-            expect(progressState.insert.message).to.equal('Inserting Document');
-
-            const unsubscribe = CRUDStore.listen((state) => {
-              expect(state.docs.length).to.equal(0);
-              expect(state.count).to.equal(1);
-              expect(state.insert.doc).to.equal(null);
-              expect(state.insert.isOpen).to.equal(false);
-              expect(state.insert.message).to.equal('');
-              unsubscribe();
-              done();
-            });
+          const unsubscribe = CRUDStore.listen((state) => {
+            expect(state.docs.length).to.equal(0);
+            expect(state.count).to.equal(1);
+            expect(state.insert.doc).to.equal(null);
+            expect(state.insert.isOpen).to.equal(false);
+            expect(state.insert.message).to.equal('');
+            unsubscribe();
+            done();
           });
 
           CRUDStore.insertDocument(doc);
@@ -375,20 +400,14 @@ describe('CRUDStore', () => {
       });
 
       it('does not insert the document', (done) => {
-        const unsubscribeProgress = CRUDStore.listen((progressState) => {
-          unsubscribeProgress();
-          expect(progressState.insert.doc).to.equal(doc);
-          expect(progressState.insert.message).to.equal('Inserting Document');
-
-          const unsubscribe = CRUDStore.listen((state) => {
-            expect(state.docs.length).to.equal(0);
-            expect(state.count).to.equal(0);
-            expect(state.insert.doc).to.not.equal(null);
-            expect(state.insert.isOpen).to.equal(true);
-            expect(state.insert.message).to.not.equal('');
-            unsubscribe();
-            done();
-          });
+        const unsubscribe = CRUDStore.listen((state) => {
+          expect(state.docs.length).to.equal(0);
+          expect(state.count).to.equal(0);
+          expect(state.insert.doc).to.not.equal(null);
+          expect(state.insert.isOpen).to.equal(true);
+          expect(state.insert.message).to.not.equal('');
+          unsubscribe();
+          done();
         });
 
         CRUDStore.insertDocument(doc);
