@@ -17,6 +17,10 @@ const MODES = {
 
 /**
  * Component for the insert document footer.
+ *
+ * @param {Object} props - The properties.
+ *
+ * @returns {Component} The component.
  */
 const InsertDocumentFooter = (props) => (
   <div className={`${PREFIX} ${PREFIX}-${MODES[props.mode]}`}>
