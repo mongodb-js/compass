@@ -128,8 +128,7 @@ describe('<RowActionsRenderer />', () => {
         });
         it('calls context.handleClone', () => {
           expect(context.handleClone.callCount).to.equal(1);
-          expect(context.handleClone.alwaysCalledWithExactly(
-            rowNode)).to.equal(true);
+          expect(context.handleClone.alwaysCalledWithExactly(data)).to.equal(true);
         });
         it('does not call anything else on context', () => {
           notCalledExcept(context, ['handleClone']);

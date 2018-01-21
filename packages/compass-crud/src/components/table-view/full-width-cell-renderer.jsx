@@ -4,7 +4,6 @@ const PropTypes = require('prop-types');
 
 const DocumentFooter = require('../document-footer');
 const RemoveDocumentFooter = require('../remove-document-footer');
-const ClonedDocumentFooter = require('../cloned-document-footer');
 
 /**
  * The delete error message.
@@ -13,7 +12,7 @@ const DELETE_ERROR = new Error('Cannot delete documents that do not have an _id 
 
 /**
  * The custom full-width cell renderer that renders the update/cancel bar
- * in the table view. Can either be a deleting, editing, or cloned footer.
+ * in the table view. Can either be a deleting or editing footer.
  *
  */
 class FullWidthCellRenderer extends React.Component {
@@ -33,7 +32,6 @@ class FullWidthCellRenderer extends React.Component {
     // singleton.
     this.updateStore = this.createUpdateStore(this.actions, this.props.dataService);
     this.removeStore = this.createRemoveStore(this.actions, this.props.dataService);
-    this.insertStore = this.createInsertStore(this.actions, this.props.dataService);
   }
 
   /**
@@ -41,7 +39,6 @@ class FullWidthCellRenderer extends React.Component {
    */
   componentDidMount() {
     this.unsubscribeUpdate = this.updateStore.listen(this.handleStoreUpdate.bind(this));
-    this.unsubscribeInsert = this.insertStore.listen(this.handleStoreUpdate.bind(this));
     this.unsubscribeRemove = this.removeStore.listen(this.handleStoreRemove.bind(this));
   }
 
@@ -51,56 +48,6 @@ class FullWidthCellRenderer extends React.Component {
   componentWillUnmount() {
     this.unsubscribeUpdate();
     this.unsubscribeRemove();
-    this.unsubscribeInsert();
-  }
-
-  /**
-   * Create the scoped insert store for cloned documents.
-   *
-   * @param {Action} actions - The component reflux actions.
-   * @param {DataService} dataService
-   *
-   * @returns {Store} The scoped store.
-   */
-  createInsertStore(actions, dataService) {
-    return Reflux.createStore({
-
-      /**
-       * Initialize the store.
-       */
-      init: function() {
-        this.ns = global.hadronApp.appRegistry.getStore('App.NamespaceStore').ns;
-        this.listenTo(actions.insert, this.insert);
-      },
-
-      /**
-       * Insert the document in the database.
-       *
-       * @param {Object} object - The new document.
-       */
-      insert: function(object) {
-        dataService.insertOne(
-          this.ns,
-          object,
-          {},
-          (error) => {
-            this.handleResult(error, object);
-          }
-        );
-      },
-
-      /**
-       * Handle the result from the driver.
-       *
-       * @param {Error} error - The error.
-       * @param {Object} doc - The doc.
-       *
-       * @returns {Object} The trigger event.
-       */
-      handleResult: function(error, doc) {
-        return (error) ? this.trigger(false, error) : this.trigger(true, doc);
-      }
-    });
   }
 
   /**
@@ -288,17 +235,6 @@ class FullWidthCellRenderer extends React.Component {
           updateStore={this.updateStore}
           actions={this.actions}
           cancelHandler={this.handleCancelUpdate.bind(this)}
-          api = {this.props.api}
-        />
-      );
-    }
-    if (this.state.mode === 'cloned') {
-      return (
-        <ClonedDocumentFooter
-          doc={this.doc}
-          insertStore={this.insertStore}
-          actions={this.actions}
-          cancelHandler={this.handleCancelClone.bind(this)}
           api = {this.props.api}
         />
       );

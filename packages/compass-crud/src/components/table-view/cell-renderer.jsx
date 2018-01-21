@@ -145,7 +145,7 @@ class CellRenderer extends React.Component {
   }
 
   handleClicked() {
-    if (this.props.node.data.state === 'editing' || this.props.node.data.state === 'cloned') {
+    if (this.props.node.data.state === 'editing') {
       this.props.api.startEditingCell({
         rowIndex: this.props.node.rowIndex,
         colKey: this.props.column.getColId()

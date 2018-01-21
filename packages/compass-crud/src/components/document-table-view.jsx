@@ -4,9 +4,7 @@ const PropTypes = require('prop-types');
 const {AgGridReact} = require('ag-grid-react');
 const _ = require('lodash');
 
-const TypeChecker = require('hadron-type-checker');
 const HadronDocument = require('hadron-document');
-const ObjectId = require('bson').ObjectId;
 const mongodbns = require('mongodb-ns');
 
 const GridStore = require('../stores/grid-store');
@@ -114,6 +112,15 @@ class DocumentTableView extends React.Component {
   }
 
   /**
+   * Handle cloning of the document.
+   *
+   * @param {Object} data - The data object.
+   */
+  handleClone(data) {
+    this.props.openInsertDocumentDialog(data.hadronDocument.generateObject(), true);
+  }
+
+  /**
    * AG-Grid lifecycle method. This is called when the grid has loaded.
    * @param {Object} params - a reference to the gridAPI and the columnAPI.
    */
@@ -163,7 +170,7 @@ class DocumentTableView extends React.Component {
    *
    * @param {RowNode} node - The RowNode for the document row.
    * @param {object} data - The data for the document row.
-   * @param {String} state - Either an editing, deleting, or cloned footer.
+   * @param {String} state - Either an editing or deleting footer.
    */
   addFooter(node, data, state) {
     /* Ignore clicks on footers or document rows that already have footers */
@@ -447,21 +454,19 @@ class DocumentTableView extends React.Component {
   /**
    * Insert a document row into the grid. If the row is added because a document
    * has been added using the insert document modal, then we don't open it in
-   * edit mode. If it is added because a document has been cloned, then we need
-   * to open it in edit mode.
+   * edit mode.
    *
    * @param {Object} doc - The new document to be added.
    * @param {Number} index - The AG-Grid row index (counting footers)
    * @param {Number} lineNumber - The line number to be shown for the document (not including footers)
-   * @param {boolean} edit - If the new row should be opened in editing mode.
    */
-  insertRow(doc, index, lineNumber, edit) {
+  insertRow(doc, index, lineNumber) {
     /* Create the new data */
     const data = {
-      hadronDocument: new HadronDocument(doc),
+      hadronDocument: doc,
       isFooter: false,
       hasFooter: false,
-      state: edit ? 'cloned' : null,
+      state: null,
       rowNumber: lineNumber
     };
 
@@ -479,13 +484,6 @@ class DocumentTableView extends React.Component {
       for (const element of data.hadronDocument.elements) {
         this.props.elementAdded(element.currentKey, element.currentType, doc._id);
       }
-
-      if (edit) {
-        /* Add a footer */
-        const rowId = doc._id.toString() + '0';
-        const node = this.gridApi.getRowNode(rowId);
-        this.addFooter(node, node.data, 'cloned');
-      }
     }
   }
 
@@ -495,22 +493,10 @@ class DocumentTableView extends React.Component {
   handleInsert() {
     if (!this.props.error) {
       const doc = this.props.docs[this.props.docs.length - 1];
-      Object.keys(doc).forEach((key) => {
-        this.addGridColumn(null, key, TypeChecker.type(doc[key]), [], false);
-      });
-      this.insertRow(doc, 0, 1, false);
+      for (const element of doc.elements) {
+        this.addGridColumn(null, element.currentKey, element.currentType, []);
+      }
     }
-  }
-
-  /**
-   * The clone button has been clicked on a row.
-   *
-   * @param {RowNode} node - The node that is going to be cloned.
-   */
-  handleClone(node) {
-    const obj = node.data.hadronDocument.generateObject();
-    obj._id = new ObjectId();
-    this.insertRow(obj, node.rowIndex + 1, node.data.rowNumber + 1, true);
   }
 
   /**
@@ -575,7 +561,7 @@ class DocumentTableView extends React.Component {
   updateWidth(params) {
     const allColumns = this.columnApi.getAllColumns();
     const tableWidth = document.getElementById('borderLayout_eRootPanel').offsetWidth;
-    if (params.node.data.state === 'editing' || params.node.data.state === 'deleting' || params.node.data.state === 'cloned') {
+    if (params.node.data.state === 'editing' || params.node.data.state === 'deleting') {
       let width = 30;
       const newColumn = this.columnApi.getColumn('$new');
       for (let i = 0; i < allColumns.length - 2; i++) {
@@ -860,7 +846,7 @@ class DocumentTableView extends React.Component {
         isFooter: false,
         /* If this is a document row, does it already have a footer? */
         hasFooter: false,
-        /* If this is a footer, state is 'editing' or 'deleting' or 'cloned' */
+        /* If this is a footer, state is 'editing' or 'deleting' */
         state: null,
         /* Add a row number for the first column */
         rowNumber: i + index
@@ -888,25 +874,26 @@ class DocumentTableView extends React.Component {
 }
 
 DocumentTableView.propTypes = {
-  docs: PropTypes.array.isRequired,
-  isEditable: PropTypes.bool.isRequired,
-  ns: PropTypes.string.isRequired,
-  start: PropTypes.number.isRequired,
-  pathChanged: PropTypes.func.isRequired,
   addColumn: PropTypes.func.isRequired,
+  cleanCols: PropTypes.func.isRequired,
+  docs: PropTypes.array.isRequired,
+  documentRemoved: PropTypes.func.isRequired,
+  drillDown: PropTypes.func.isRequired,
   elementAdded: PropTypes.func.isRequired,
+  elementMarkRemoved: PropTypes.func.isRequired,
   elementRemoved: PropTypes.func.isRequired,
   elementTypeChanged: PropTypes.func.isRequired,
+  error: PropTypes.object,
+  isEditable: PropTypes.bool.isRequired,
+  ns: PropTypes.string.isRequired,
+  openInsertDocumentDialog: PropTypes.func.isRequired,
+  pathChanged: PropTypes.func.isRequired,
   removeColumn: PropTypes.func.isRequired,
   renameColumn: PropTypes.func.isRequired,
-  elementMarkRemoved: PropTypes.func.isRequired,
-  drillDown: PropTypes.func.isRequired,
-  documentRemoved: PropTypes.func.isRequired,
   replaceDoc: PropTypes.func.isRequired,
-  cleanCols: PropTypes.func.isRequired,
   resetHeaders: PropTypes.func.isRequired,
-  table: PropTypes.object.isRequired,
-  error: PropTypes.object
+  start: PropTypes.number.isRequired,
+  table: PropTypes.object.isRequired
 };
 
 DocumentTableView.displayName = 'DocumentTableView';

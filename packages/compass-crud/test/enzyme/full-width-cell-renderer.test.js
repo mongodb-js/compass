@@ -244,38 +244,6 @@ describe('<FullWidthCellRenderer />', () => {
           });
         });
       });
-      describe('clone', () => {
-        const api = getApi();
-        const actions = getActions();
-        const context = getContext([]);
-        before((done) => {
-          rowNode = getNode({field1: 'value'});
-          rowNode.data.state = 'cloned';
-          data = rowNode.data;
-          component = mount(<FullWidthCellRenderer api={api}
-                                                   node={rowNode}
-                                                   replaceDoc={actions.replaceDoc}
-                                                   cleanCols={actions.cleanCols}
-                                                   data={data}
-                                                   context={context}
-                                                   dataService={dataService}/>);
-          const wrapper = component.find({
-            'data-test-id': 'cancel-document-button'
-          });
-          expect(wrapper).to.be.present();
-          wrapper.simulate('click');
-          done();
-        });
-        it('removes the footer and the row', () => {
-          expect(context.handleRemove.callCount).to.equal(1);
-          expect(context.handleRemove.alwaysCalledWithExactly(
-              rowNode)).to.equal(true);
-          notCalledExcept(context, ['handleRemove']);
-        });
-        it('calls api.stopEditing()', () => {
-          expect(api.stopEditing.callCount).to.equal(1);
-        });
-      });
       describe('delete', () => {
         const api = getApi();
         const actions = getActions();
@@ -358,54 +326,6 @@ describe('<FullWidthCellRenderer />', () => {
             _id: oid, newfield: 'value'
           })).to.equal(true);
           notCalledExcept(context, ['handleUpdate']);
-        });
-      });
-
-      describe('clone', () => {
-        const api = getApi();
-        const actions = getActions();
-        const context = getContext([]);
-        const oid = new ObjectId();
-        let ds;
-        before((done) => {
-          ds = getDataService(done);
-          rowNode = getNode({field: 'value'}, oid);
-          rowNode.data.state = 'cloned';
-          data = rowNode.data;
-          component = mount(<FullWidthCellRenderer api={api}
-                                                   node={rowNode}
-                                                   replaceDoc={actions.replaceDoc}
-                                                   cleanCols={actions.cleanCols}
-                                                   data={data}
-                                                   context={context}
-                                                   dataService={ds}/>);
-          expect(component.find('.document-footer-is-modified')).to.be.present();
-          const wrapper = component.find({
-            'data-test-id': 'update-document-button'
-          });
-          expect(wrapper).to.be.present();
-          wrapper.simulate('click');
-        });
-        it('calls api.stopEditing()', () => {
-          expect(api.stopEditing.callCount).to.equal(1);
-        });
-        it('calls insertOne on DataService', () => {
-          expect(ds.iSpy.callCount).to.equal(1);
-          expect(ds.iSpy.alwaysCalledWith(
-              {_id: oid, field: 'value'})).to.equal(true);
-        });
-        it('calls context.handleUpdate', () => {
-          expect(context.handleUpdate.callCount).to.equal(1);
-          expect(context.handleUpdate.alwaysCalledWithExactly({
-            _id: oid, field: 'value'
-          })).to.equal(true);
-          notCalledExcept(context, ['handleUpdate']);
-        });
-        it('calls replaceDoc', () => {
-          expect(actions.replaceDoc.callCount).to.equal(1);
-        });
-        it('does not call any actions', () => {
-          notCalledExcept(actions, ['replaceDoc']);
         });
       });
 

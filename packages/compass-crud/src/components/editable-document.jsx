@@ -514,12 +514,12 @@ class EditableDocument extends React.Component {
 EditableDocument.displayName = 'EditableDocument';
 
 EditableDocument.propTypes = {
+  closeAllMenus: PropTypes.func.isRequired,
   doc: PropTypes.object.isRequired,
   documentRemoved: PropTypes.func.isRequired,
-  openInsertDocumentDialog: PropTypes.func.isRequired,
-  closeAllMenus: PropTypes.func.isRequired,
   editable: PropTypes.bool,
-  expandAll: PropTypes.bool
+  expandAll: PropTypes.bool,
+  openInsertDocumentDialog: PropTypes.func.isRequired
 };
 
 module.exports = EditableDocument;
