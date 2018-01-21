@@ -65,13 +65,7 @@ const CRUDStore = Reflux.createStore({
       remove: {},
       insert: this.getInitialInsertState(),
       table: this.getInitialTableState(),
-      query: {
-        filter: {},
-        sort: [[ '_id', 1 ]],
-        limit: 0,
-        skip: 0,
-        project: null
-      }
+      query: this.getInitialQueryState()
     };
   },
 
@@ -104,6 +98,21 @@ const CRUDStore = Reflux.createStore({
   },
 
   /**
+   * Get the initial query state.
+   *
+   * @returns {Object} The initial query state.
+   */
+  getInitialQueryState() {
+    return {
+      filter: {},
+      sort: [[ '_id', 1 ]],
+      limit: 0,
+      skip: 0,
+      project: null
+    };
+  },
+
+  /**
    * Add the hooks into the app registry.
    *
    * @param {AppRegistry} appRegistry - The app registry.
@@ -128,12 +137,8 @@ const CRUDStore = Reflux.createStore({
       ns: ns,
       collection: nsobj.collection,
       isEditable: editable,
-      table: {
-        path: [],
-        types: [],
-        doc: null,
-        editParams: null
-      }
+      table: this.getInitialTableState(),
+      query: this.getInitialQueryState()
     });
   },
 
