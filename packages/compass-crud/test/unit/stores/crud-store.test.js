@@ -311,6 +311,10 @@ describe('CRUDStore', () => {
       const doc = { _id: 'testing', name: 'Depeche Mode' };
       const hadronDoc = new HadronDocument(doc);
 
+      beforeEach(() => {
+        CRUDStore.state.docs = [ hadronDoc ];
+      });
+
       it('deletes the document from the collection', (done) => {
         const unsubscribe = CRUDStore.listen((state) => {
           expect(state.docs.length).to.equal(0);
