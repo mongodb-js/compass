@@ -10,8 +10,7 @@ const ObjectId = require('bson').ObjectId;
 const mongodbns = require('mongodb-ns');
 
 const GridStore = require('../stores/grid-store');
-const InsertDocumentStore = require('../stores/insert-document-store');
-const ResetDocumentListStore = require('../stores/reset-document-list-store');
+const CRUDStore = require('../stores/crud-store');
 
 const BreadcrumbComponent = require('./breadcrumb');
 const CellRenderer = require('./table-view/cell-renderer');
@@ -72,7 +71,7 @@ class DocumentTableView extends React.Component {
       fullWidthCellRendererParams: {
         replaceDoc: this.props.replaceDoc,
         cleanCols: this.props.cleanCols,
-        dataService: ResetDocumentListStore.dataService
+        dataService: CRUDStore.dataService
       },
       getRowNodeId: function(data) {
         const fid = data.isFooter ? '1' : '0';
@@ -92,12 +91,10 @@ class DocumentTableView extends React.Component {
 
   componentDidMount() {
     this.unsubscribeGridStore = GridStore.listen(this.modifyColumns.bind(this));
-    this.unsubscribeInsert = InsertDocumentStore.listen(this.handleInsert.bind(this));
   }
 
   componentWillUnmount() {
     this.unsubscribeGridStore();
-    this.unsubscribeInsert();
     this.gridApi.destroy();
   }
 
@@ -105,8 +102,15 @@ class DocumentTableView extends React.Component {
     this.hadronDocs = this.initHadronDocs(nextProps.docs);
   }
 
-  componentDidUpdate() {
+  componentDidUpdate(prevProps) {
     this.handleBreadcrumbChange();
+
+    // @note: Durran: Since all the values are getting passed down as props now
+    //   and the components are decoupled from the stores, we need a way to know
+    //   if a document was just inserted in order to add it dynamically to the grid.
+    if (this.props.docs.length > prevProps.docs.length) {
+      this.handleInsert();
+    }
   }
 
   /**
@@ -498,13 +502,10 @@ class DocumentTableView extends React.Component {
 
   /**
    * Handle insert of a new document.
-   *
-   * @param {Error} error - Any error that happened.
-   * @param {Object} doc - The raw document that was inserted.
-   * @param {boolean} clone - If the document was cloned, don't add row.
    */
-  handleInsert(error, doc, clone) {
-    if (!error && !clone) {
+  handleInsert() {
+    if (!this.props.error) {
+      const doc = this.props.docs[this.props.docs.length - 1];
       Object.keys(doc).forEach((key) => {
         this.addGridColumn(null, key, TypeChecker.type(doc[key]), [], false);
       });
@@ -840,7 +841,8 @@ class DocumentTableView extends React.Component {
 
       cellRendererFramework: RowActionsRenderer,
       cellRendererParams: {
-        nested: (path.length !== 0)
+        nested: (path.length !== 0),
+        isEditable: this.props.isEditable
       },
       editable: false,
       pinned: 'right',
@@ -914,7 +916,8 @@ DocumentTableView.propTypes = {
   replaceDoc: PropTypes.func.isRequired,
   cleanCols: PropTypes.func.isRequired,
   resetHeaders: PropTypes.func.isRequired,
-  table: PropTypes.object.isRequired
+  table: PropTypes.object.isRequired,
+  error: PropTypes.object
 };
 
 DocumentTableView.displayName = 'DocumentTableView';

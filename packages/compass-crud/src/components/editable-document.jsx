@@ -8,7 +8,7 @@ const EditableElement = require('./editable-element');
 const DocumentActions = require('./document-actions');
 const DocumentFooter = require('./document-footer');
 const RemoveDocumentFooter = require('./remove-document-footer');
-const ResetDocumentListStore = require('../stores/reset-document-list-store');
+const CRUDStore = require('../stores/crud-store');
 const clipboard = require('electron').clipboard;
 
 /**
@@ -170,7 +170,7 @@ class EditableDocument extends React.Component {
        */
       update(object) {
         // TODO (@thomasr) this does not work for projections
-        ResetDocumentListStore.dataService.findOneAndReplace(
+        CRUDStore.dataService.findOneAndReplace(
           this.ns,
           { _id: object._id },
           object,
@@ -219,7 +219,7 @@ class EditableDocument extends React.Component {
       remove: function(object) {
         const id = object.getId();
         if (id) {
-          ResetDocumentListStore.dataService.deleteOne(this.ns, { _id: id }, {}, this.handleResult);
+          CRUDStore.dataService.deleteOne(this.ns, { _id: id }, {}, this.handleResult);
         } else {
           this.handleResult(DELETE_ERROR);
         }
