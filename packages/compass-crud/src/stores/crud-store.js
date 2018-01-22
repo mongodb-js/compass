@@ -24,9 +24,9 @@ const ERROR = 'error';
 const MODIFYING = 'modifying';
 
 /**
- * The editing constant.
+ * The viewing constant.
  */
-const EDITING = 'editing';
+const VIEWING = 'viewing';
 
 /**
  * The pending removal message.
@@ -209,7 +209,7 @@ const CRUDStore = Reflux.createStore({
   flagDocumentForUpdate(doc) {
     const stringId = doc.getStringId();
     this.state.update[stringId] = {
-      mode: EDITING,
+      mode: VIEWING,
       message: ''
     };
     this.trigger(this.state);
@@ -223,6 +223,17 @@ const CRUDStore = Reflux.createStore({
   cancelRemoveDocument(doc) {
     const stringId = doc.getStringId();
     delete this.state.remove[stringId];
+    this.trigger(this.state);
+  },
+
+  /**
+   * Cancel updating the document.
+   *
+   * @param {Document} doc - The hadron document.
+   */
+  cancelUpdateDocument(doc) {
+    const stringId = doc.getStringId();
+    delete this.state.update[stringId];
     this.trigger(this.state);
   },
 

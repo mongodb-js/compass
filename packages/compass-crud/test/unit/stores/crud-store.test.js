@@ -330,7 +330,7 @@ describe('CRUDStore', () => {
 
     it('adds the document string id to the update object', (done) => {
       const unsubscribe = CRUDStore.listen((state) => {
-        expect(state.update[stringId].mode).to.equal('editing');
+        expect(state.update[stringId].mode).to.equal('viewing');
         expect(state.update[stringId].message).to.equal('');
         unsubscribe();
         done();
@@ -361,6 +361,29 @@ describe('CRUDStore', () => {
       });
 
       CRUDStore.cancelRemoveDocument(hadronDoc);
+    });
+  });
+
+  describe('#cancelUpdateDocument', () => {
+    const doc = { _id: 'testing', name: 'Depeche Mode' };
+    const hadronDoc = new HadronDocument(doc);
+    const stringId = hadronDoc.getStringId();
+
+    beforeEach(() => {
+      CRUDStore.state = CRUDStore.getInitialState();
+      CRUDStore.state.update.testing = {
+        mode: 'editing'
+      };
+    });
+
+    it('removes the id from the update object', (done) => {
+      const unsubscribe = CRUDStore.listen((state) => {
+        expect(state.update[stringId]).to.equal(undefined);
+        unsubscribe();
+        done();
+      });
+
+      CRUDStore.cancelUpdateDocument(hadronDoc);
     });
   });
 
