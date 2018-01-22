@@ -298,6 +298,51 @@ describe('CRUDStore', () => {
     });
   });
 
+  describe('#flagDocumentForRemoval', () => {
+    const doc = { _id: 'testing', name: 'Depeche Mode' };
+    const hadronDoc = new HadronDocument(doc);
+    const stringId = hadronDoc.getStringId();
+
+    beforeEach(() => {
+      CRUDStore.state = CRUDStore.getInitialState();
+    });
+
+    it('adds the document string id to the remove object', (done) => {
+      const unsubscribe = CRUDStore.listen((state) => {
+        expect(state.remove[stringId].mode).to.equal('error');
+        expect(state.remove[stringId].message).to.equal('Document Flagged For Deletion.');
+        unsubscribe();
+        done();
+      });
+
+      CRUDStore.flagDocumentForRemoval(hadronDoc);
+    });
+  });
+
+  describe('#cancelRemoveDocument', () => {
+    const doc = { _id: 'testing', name: 'Depeche Mode' };
+    const hadronDoc = new HadronDocument(doc);
+    const stringId = hadronDoc.getStringId();
+
+    beforeEach(() => {
+      CRUDStore.state = CRUDStore.getInitialState();
+      CRUDStore.state.remove.testing = {
+        mode: 'error',
+        message: 'Document Flagged For Deletion.'
+      };
+    });
+
+    it('removes the id from the remove object', (done) => {
+      const unsubscribe = CRUDStore.listen((state) => {
+        expect(state.remove[stringId]).to.equal(undefined);
+        unsubscribe();
+        done();
+      });
+
+      CRUDStore.cancelRemoveDocument(hadronDoc);
+    });
+  });
+
   describe('#removeDocument', () => {
     beforeEach(() => {
       CRUDStore.state = CRUDStore.getInitialState();

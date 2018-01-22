@@ -24,6 +24,11 @@ const ERROR = 'error';
 const MODIFYING = 'modifying';
 
 /**
+ * The pending removal message.
+ */
+const PENDING_REMOVAL = 'Document Flagged For Deletion.';
+
+/**
  * The list view constant.
  */
 const LIST = 'List';
@@ -174,6 +179,20 @@ const CRUDStore = Reflux.createStore({
    */
   isListEditable() {
     return !this.CollectionStore.isReadonly() && process.env.HADRON_READONLY !== 'true';
+  },
+
+  /**
+   * Flag a document for deletion.
+   *
+   * @param {Document} doc - The hadron document.
+   */
+  flagDocumentForRemoval(doc) {
+    const stringId = doc.getStringId();
+    this.state.remove[stringId] = {
+      mode: ERROR,
+      message: PENDING_REMOVAL
+    };
+    this.trigger(this.state);
   },
 
   /**
