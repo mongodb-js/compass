@@ -14,29 +14,7 @@ class ConnectedDocumentList extends React.Component {
   render() {
     return (
       <StoreConnector store={Store}>
-        <DocumentList
-           pathChanged={Actions.pathChanged}
-           documentRemoved={Actions.documentRemoved}
-           refreshDocuments={Actions.refreshDocuments}
-           getNextPage={Actions.getNextPage}
-           getPrevPage={Actions.getPrevPage}
-           insertDocument={Actions.insertDocument}
-           elementAdded={Actions.elementAdded}
-           elementRemoved={Actions.elementRemoved}
-           addColumn={Actions.addColumn}
-           removeColumn={Actions.removeColumn}
-           renameColumn={Actions.renameColumn}
-           elementTypeChanged={Actions.elementTypeChanged}
-           elementMarkRemoved={Actions.elementMarkRemoved}
-           drillDown={Actions.drillDown}
-           cleanCols={Actions.cleanCols}
-           resetHeaders={Actions.resetHeaders}
-           replaceDoc={Actions.replaceDoc}
-           closeAllMenus={Actions.closeAllMenus}
-           viewChanged={Actions.viewChanged}
-           closeInsertDocumentDialog={Actions.closeInsertDocumentDialog}
-           openInsertDocumentDialog={Actions.openInsertDocumentDialog}
-           {...this.props} />
+        <DocumentList {...Actions} {...this.props} />
       </StoreConnector>
     );
   }

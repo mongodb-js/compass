@@ -28,6 +28,7 @@ const Actions = Reflux.createActions([
   'renameColumn',
   'replaceDoc',
   'resetHeaders',
+  'updateDocument',
   'viewChanged'
 ]);
 
