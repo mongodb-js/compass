@@ -1,0 +1,16 @@
+{
+  "name": "mongodb-ace-mode",
+  "version": "0.0.1",
+  "description": "MongoDB Mode for the ACE Editor",
+  "main": "index.js",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/mongodb-js/ace-mode"
+  },
+  "keywords": [
+    "MongoDB",
+    "ACE"
+  ],
+  "author": "Anna Herlihy <anna@mongodb.com>",
+  "license": "Apache-2.0"
+}
