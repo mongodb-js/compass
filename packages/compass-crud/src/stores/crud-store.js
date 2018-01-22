@@ -24,6 +24,11 @@ const ERROR = 'error';
 const MODIFYING = 'modifying';
 
 /**
+ * The editing constant.
+ */
+const EDITING = 'editing';
+
+/**
  * The pending removal message.
  */
 const PENDING_REMOVAL = 'Document Flagged For Deletion.';
@@ -68,6 +73,7 @@ const CRUDStore = Reflux.createStore({
       view: LIST,
       count: 0,
       remove: {},
+      update: {},
       insert: this.getInitialInsertState(),
       table: this.getInitialTableState(),
       query: this.getInitialQueryState()
@@ -191,6 +197,20 @@ const CRUDStore = Reflux.createStore({
     this.state.remove[stringId] = {
       mode: ERROR,
       message: PENDING_REMOVAL
+    };
+    this.trigger(this.state);
+  },
+
+  /**
+   * Flag a document for update.
+   *
+   * @param {Document} doc - The hadron document.
+   */
+  flagDocumentForUpdate(doc) {
+    const stringId = doc.getStringId();
+    this.state.update[stringId] = {
+      mode: EDITING,
+      message: ''
     };
     this.trigger(this.state);
   },

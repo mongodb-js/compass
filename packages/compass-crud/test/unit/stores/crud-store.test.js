@@ -319,6 +319,27 @@ describe('CRUDStore', () => {
     });
   });
 
+  describe('#flagDocumentForUpdate', () => {
+    const doc = { _id: 'testing', name: 'Depeche Mode' };
+    const hadronDoc = new HadronDocument(doc);
+    const stringId = hadronDoc.getStringId();
+
+    beforeEach(() => {
+      CRUDStore.state = CRUDStore.getInitialState();
+    });
+
+    it('adds the document string id to the update object', (done) => {
+      const unsubscribe = CRUDStore.listen((state) => {
+        expect(state.update[stringId].mode).to.equal('editing');
+        expect(state.update[stringId].message).to.equal('');
+        unsubscribe();
+        done();
+      });
+
+      CRUDStore.flagDocumentForUpdate(hadronDoc);
+    });
+  });
+
   describe('#cancelRemoveDocument', () => {
     const doc = { _id: 'testing', name: 'Depeche Mode' };
     const hadronDoc = new HadronDocument(doc);
