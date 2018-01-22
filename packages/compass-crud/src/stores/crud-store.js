@@ -268,6 +268,29 @@ const CRUDStore = Reflux.createStore({
   },
 
   /**
+   * Update the provided document.
+   *
+   * @param {Document} doc - The hadron document.
+   */
+  updateDocument(doc) {
+    const object = doc.generateObject();
+    const stringId = doc.getStringId();
+    const options = { returnOriginal: false, promoteValues: false };
+    this.dataService.updateOne(this.state.ns, { _id: object._id }, object, options, (error) => {
+      if (error) {
+        this.state.update[stringId] = {
+          message: error.message,
+          mode: ERROR
+        };
+        this.trigger(this.state);
+      } else {
+        delete this.state.update[stringId];
+        this.trigger(this.state);
+      }
+    });
+  },
+
+  /**
    * When the next page button is clicked, need to load the next 20 documents.
    *
    * @param {Number} page - The page that is being shown.

@@ -453,6 +453,62 @@ describe('CRUDStore', () => {
     });
   });
 
+  describe('#updateDocument', () => {
+    beforeEach(() => {
+      CRUDStore.state = CRUDStore.getInitialState();
+      CRUDStore.state.ns = 'compass-crud.test';
+      CRUDStore.state.update.testing = {
+        mode: 'editing',
+        message: 'Document Modified.'
+      };
+    });
+
+    context('when there is no error', () => {
+      const doc = { _id: 'testing', name: 'Depeche Mode' };
+      const hadronDoc = new HadronDocument(doc);
+
+      it('updates the document in the collection', (done) => {
+        const unsubscribe = CRUDStore.listen((state) => {
+          expect(state.update).to.deep.equal({});
+          unsubscribe();
+          done();
+        });
+
+        CRUDStore.updateDocument(hadronDoc);
+      });
+    });
+
+    context('when the update errors', () => {
+      const doc = { _id: 'testing', name: 'Depeche Mode' };
+      const hadronDoc = new HadronDocument(doc);
+      const stringId = hadronDoc.getStringId();
+      let stub;
+
+      beforeEach(() => {
+        stub = sinon.stub(dataService, 'updateOne').yields({ message: 'error happened' });
+        CRUDStore.state.update[stringId] = {
+          mode: 'progress',
+          message: 'Updating Document.'
+        };
+      });
+
+      afterEach(() => {
+        stub.restore();
+      });
+
+      it('sets the error for the document on the store', (done) => {
+        const unsubscribe = CRUDStore.listen((state) => {
+          expect(state.update[stringId].mode).to.equal('error');
+          expect(state.update[stringId].message).to.equal('error happened');
+          unsubscribe();
+          done();
+        });
+
+        CRUDStore.updateDocument(hadronDoc);
+      });
+    });
+  });
+
   describe('#insertDocument', () => {
     beforeEach(() => {
       CRUDStore.state = CRUDStore.getInitialState();
