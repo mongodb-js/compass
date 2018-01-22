@@ -3,6 +3,7 @@ const Connection = require('mongodb-connection-model');
 const DataService = require('mongodb-data-service');
 const AppRegistry = require('hadron-app-registry');
 const HadronDocument = require('hadron-document');
+const sinon = require('sinon');
 const Element = HadronDocument.Element;
 const { expectedDocs, checkPageRange, NUM_DOCS } = require('../../aggrid-helper');
 const CRUDStore = require('../../../lib/stores/crud-store');
@@ -330,7 +331,36 @@ describe('CRUDStore', () => {
     });
 
     context('when the deletion errors', () => {
+      const doc = { name: 'Depeche Mode' };
+      const hadronDoc = new HadronDocument(doc);
+      const stringId = hadronDoc.getStringId();
+      let stub;
 
+      beforeEach(() => {
+        stub = sinon.stub(dataService, 'deleteOne').yields({ message: 'error happened' });
+        CRUDStore.state.remove[stringId] = {
+          mode: 'error',
+          message: 'Document Flagged For Deletion.'
+        };
+      });
+
+      afterEach(() => {
+        stub.restore();
+      });
+
+      it('sets the error for the document on the store', (done) => {
+        const unsubscribe = CRUDStore.listen((state) => {
+          expect(state.docs.length).to.equal(0);
+          expect(state.count).to.equal(0);
+          expect(state.end).to.equal(0);
+          expect(state.remove[stringId].mode).to.equal('error');
+          expect(state.remove[stringId].message).to.equal('error happened');
+          unsubscribe();
+          done();
+        });
+
+        CRUDStore.removeDocument(hadronDoc);
+      });
     });
   });
 

@@ -4,6 +4,7 @@ const debug = require('debug')('mongodb-compass:crud:actions');
 
 const Actions = Reflux.createActions([
   'addColumn',
+  'cancelRemoveDocument',
   'cleanCols',
   'closeAllMenus',
   'closeInsertDocumentDialog',
@@ -19,6 +20,7 @@ const Actions = Reflux.createActions([
   'openInsertDocumentDialog',
   'pathChanged',
   'refreshDocuments',
+  'removeDocument',
   'removeColumn',
   'renameColumn',
   'replaceDoc',

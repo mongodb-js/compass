@@ -177,6 +177,17 @@ const CRUDStore = Reflux.createStore({
   },
 
   /**
+   * Cancel removing the document.
+   *
+   * @param {Document} doc - The hadron document.
+   */
+  cancelRemoveDocument(doc) {
+    const stringId = doc.getStringId();
+    delete this.state.remove[stringId];
+    this.trigger(this.state);
+  },
+
+  /**
    * Remove the provided document from the collection.
    *
    * @param {Document} doc - The hadron document.
