@@ -273,11 +273,6 @@ class EditableDocument extends React.Component {
     this.doc = EditableDocument.loadDocument(doc);
     this.subscribeToDocumentEvents();
     setTimeout(() => {
-      const ref = this.onHideScrollIntoView;
-      if (ref) {
-        // Avoid loading more documents on clicking the Update button
-        ref.scrollIntoView();
-      }
       this.setState({
         editing: false,
         renderSize: INITIAL_FIELD_LIMIT
@@ -297,11 +292,6 @@ class EditableDocument extends React.Component {
    * Handles canceling edits to the document.
    */
   handleCancel() {
-    const ref = this.onHideScrollIntoView;
-    if (ref) {
-      // Avoid loading more documents on clicking the Cancel button
-      ref.scrollIntoView();
-    }
     this.setState({ editing: false, renderSize: INITIAL_FIELD_LIMIT });
   }
 
@@ -324,12 +314,6 @@ class EditableDocument extends React.Component {
    * Handles document deletion.
    */
   handleDelete() {
-    const ref = this.onHideScrollIntoView;
-    if (ref) {
-      // Avoid loading more documents on clicking the Delete button,
-      // with 1000+ fields expanded
-      ref.scrollIntoView();
-    }
     this.setState({
       deleting: true,
       editing: false,
@@ -496,8 +480,7 @@ class EditableDocument extends React.Component {
    */
   render() {
     return (
-      <div className={this.style()} data-test-id={TEST_ID}
-        ref={(div) => { this.onHideScrollIntoView = div; }} >
+      <div className={this.style()} data-test-id={TEST_ID}>
         <div className={CONTENTS}>
           <ol className={ELEMENTS}>
             {this.renderElements()}
