@@ -6,7 +6,7 @@ export const FIELDS_CHANGED = 'aggregations/fields/FIELDS_CHANGED';
 /**
  * The initial state.
  */
-const INITIAL_STATE = [];
+export const INITIAL_STATE = [];
 
 /**
  * Process the fields into an autocomplete friendly format.

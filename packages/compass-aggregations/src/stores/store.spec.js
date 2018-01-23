@@ -7,22 +7,10 @@ import {
   stageDeleted,
   stageAdded,
   stageToggled } from 'modules/stages';
+import { INITIAL_STATE } from '../modules/index';
 
 describe('Aggregation Store', () => {
   describe('#onActivated', () => {
-    context('when the collection changes', () => {
-      const appRegistry = new AppRegistry();
-
-      before(() => {
-        store.onActivated(appRegistry);
-        appRegistry.emit('collection-changed', 'db.coll');
-      });
-
-      it('updates the namespace in the store', () => {
-        expect(store.getState().namespace).to.equal('db.coll');
-      });
-    });
-
     context('when the fields change', () => {
       const appRegistry = new AppRegistry();
       const docs = [
@@ -110,6 +98,29 @@ describe('Aggregation Store', () => {
           done();
         });
         store.dispatch(stageCollapseToggled(0));
+      });
+    });
+
+    /* Note: this test must stay last */
+    context('when the collection changes', () => {
+      const appRegistry = new AppRegistry();
+
+      before(() => {
+        store.onActivated(appRegistry);
+        appRegistry.emit('collection-changed', 'db.coll');
+      });
+
+      it('updates the namespace in the store', () => {
+        expect(store.getState().namespace).to.equal('db.coll');
+      });
+      it('resets the rest of the state to initial state', () => {
+        expect(store.getState()).to.deep.equal({
+          namespace: 'db.coll',
+          fields: INITIAL_STATE.fields,
+          serverVersion: INITIAL_STATE.serverVersion,
+          stages: INITIAL_STATE.stages,
+          view: INITIAL_STATE.view
+        });
       });
     });
   });

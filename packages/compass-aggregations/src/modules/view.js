@@ -16,7 +16,7 @@ export const BUILDER = 'Builder';
 /**
  * The initial state.
  */
-const INITIAL_STATE = CODE;
+export const INITIAL_STATE = CODE;
 
 /**
  * Reducer function for handle state changes to the view.

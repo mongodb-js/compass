@@ -1,3 +1,4 @@
+
 /**
  * Namespace changed action.
  */
@@ -6,7 +7,7 @@ export const NAMESPACE_CHANGED = 'aggregations/namespace/NAMESPACE_CHANGED';
 /**
  * The initial state.
  */
-const INITIAL_STATE = '';
+export const INITIAL_STATE = '';
 
 /**
  * Reducer function for handle state changes to namespace.

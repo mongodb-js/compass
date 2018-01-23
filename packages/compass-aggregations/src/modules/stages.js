@@ -55,7 +55,7 @@ const EMPTY_STAGE = {
 /**
  * The initial state.
  */
-const INITIAL_STATE = [ EMPTY_STAGE ];
+export const INITIAL_STATE = [ EMPTY_STAGE ];
 
 /**
  * The default snippet.
