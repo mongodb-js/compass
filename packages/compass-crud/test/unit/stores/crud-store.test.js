@@ -298,48 +298,6 @@ describe('CRUDStore', () => {
     });
   });
 
-  describe('#flagDocumentForRemoval', () => {
-    const doc = { _id: 'testing', name: 'Depeche Mode' };
-    const hadronDoc = new HadronDocument(doc);
-    const stringId = hadronDoc.getStringId();
-
-    beforeEach(() => {
-      CRUDStore.state = CRUDStore.getInitialState();
-    });
-
-    it('adds the document string id to the remove object', (done) => {
-      const unsubscribe = CRUDStore.listen((state) => {
-        expect(state.remove[stringId].mode).to.equal('error');
-        expect(state.remove[stringId].message).to.equal('Document Flagged For Deletion.');
-        unsubscribe();
-        done();
-      });
-
-      CRUDStore.flagDocumentForRemoval(hadronDoc);
-    });
-  });
-
-  describe('#flagDocumentForUpdate', () => {
-    const doc = { _id: 'testing', name: 'Depeche Mode' };
-    const hadronDoc = new HadronDocument(doc);
-    const stringId = hadronDoc.getStringId();
-
-    beforeEach(() => {
-      CRUDStore.state = CRUDStore.getInitialState();
-    });
-
-    it('adds the document string id to the update object', (done) => {
-      const unsubscribe = CRUDStore.listen((state) => {
-        expect(state.update[stringId].mode).to.equal('viewing');
-        expect(state.update[stringId].message).to.equal('');
-        unsubscribe();
-        done();
-      });
-
-      CRUDStore.flagDocumentForUpdate(hadronDoc);
-    });
-  });
-
   describe('#cancelRemoveDocument', () => {
     const doc = { _id: 'testing', name: 'Depeche Mode' };
     const hadronDoc = new HadronDocument(doc);
@@ -348,7 +306,6 @@ describe('CRUDStore', () => {
     beforeEach(() => {
       CRUDStore.state = CRUDStore.getInitialState();
       CRUDStore.state.remove.testing = {
-        mode: 'error',
         message: 'Document Flagged For Deletion.'
       };
     });
@@ -372,7 +329,7 @@ describe('CRUDStore', () => {
     beforeEach(() => {
       CRUDStore.state = CRUDStore.getInitialState();
       CRUDStore.state.update.testing = {
-        mode: 'editing'
+        message: 'editing'
       };
     });
 
@@ -392,7 +349,6 @@ describe('CRUDStore', () => {
       CRUDStore.state = CRUDStore.getInitialState();
       CRUDStore.state.ns = 'compass-crud.test';
       CRUDStore.state.remove.testing = {
-        mode: 'error',
         message: 'Document Flagged For Deletion.'
       };
     });
@@ -428,7 +384,6 @@ describe('CRUDStore', () => {
       beforeEach(() => {
         stub = sinon.stub(dataService, 'deleteOne').yields({ message: 'error happened' });
         CRUDStore.state.remove[stringId] = {
-          mode: 'error',
           message: 'Document Flagged For Deletion.'
         };
       });
@@ -442,7 +397,6 @@ describe('CRUDStore', () => {
           expect(state.docs.length).to.equal(0);
           expect(state.count).to.equal(0);
           expect(state.end).to.equal(0);
-          expect(state.remove[stringId].mode).to.equal('error');
           expect(state.remove[stringId].message).to.equal('error happened');
           unsubscribe();
           done();
@@ -458,7 +412,6 @@ describe('CRUDStore', () => {
       CRUDStore.state = CRUDStore.getInitialState();
       CRUDStore.state.ns = 'compass-crud.test';
       CRUDStore.state.update.testing = {
-        mode: 'editing',
         message: 'Document Modified.'
       };
     });
@@ -487,7 +440,6 @@ describe('CRUDStore', () => {
       beforeEach(() => {
         stub = sinon.stub(dataService, 'updateOne').yields({ message: 'error happened' });
         CRUDStore.state.update[stringId] = {
-          mode: 'progress',
           message: 'Updating Document.'
         };
       });
@@ -498,7 +450,6 @@ describe('CRUDStore', () => {
 
       it('sets the error for the document on the store', (done) => {
         const unsubscribe = CRUDStore.listen((state) => {
-          expect(state.update[stringId].mode).to.equal('error');
           expect(state.update[stringId].message).to.equal('error happened');
           unsubscribe();
           done();

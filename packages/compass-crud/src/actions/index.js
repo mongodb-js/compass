@@ -15,8 +15,6 @@ const Actions = Reflux.createActions([
   'elementMarkRemoved',
   'elementRemoved',
   'elementTypeChanged',
-  'flagDocumentForRemoval',
-  'flagDocumentForUpdate',
   'getNextPage',
   'getPrevPage',
   'insertDocument',

@@ -24,16 +24,6 @@ const ERROR = 'error';
 const MODIFYING = 'modifying';
 
 /**
- * The viewing constant.
- */
-const VIEWING = 'viewing';
-
-/**
- * The pending removal message.
- */
-const PENDING_REMOVAL = 'Document Flagged For Deletion.';
-
-/**
  * The list view constant.
  */
 const LIST = 'List';
@@ -188,34 +178,6 @@ const CRUDStore = Reflux.createStore({
   },
 
   /**
-   * Flag a document for deletion.
-   *
-   * @param {Document} doc - The hadron document.
-   */
-  flagDocumentForRemoval(doc) {
-    const stringId = doc.getStringId();
-    this.state.remove[stringId] = {
-      mode: ERROR,
-      message: PENDING_REMOVAL
-    };
-    this.trigger(this.state);
-  },
-
-  /**
-   * Flag a document for update.
-   *
-   * @param {Document} doc - The hadron document.
-   */
-  flagDocumentForUpdate(doc) {
-    const stringId = doc.getStringId();
-    this.state.update[stringId] = {
-      mode: VIEWING,
-      message: ''
-    };
-    this.trigger(this.state);
-  },
-
-  /**
    * Cancel removing the document.
    *
    * @param {Document} doc - The hadron document.
@@ -248,8 +210,7 @@ const CRUDStore = Reflux.createStore({
     this.dataService.deleteOne(this.state.ns, { _id: id }, {}, (error) => {
       if (error) {
         this.state.remove[stringId] = {
-          message: error.message,
-          mode: ERROR
+          message: error.message
         };
         this.trigger(this.state);
       } else {
@@ -279,8 +240,7 @@ const CRUDStore = Reflux.createStore({
     this.dataService.updateOne(this.state.ns, { _id: object._id }, object, options, (error) => {
       if (error) {
         this.state.update[stringId] = {
-          message: error.message,
-          mode: ERROR
+          message: error.message
         };
         this.trigger(this.state);
       } else {
