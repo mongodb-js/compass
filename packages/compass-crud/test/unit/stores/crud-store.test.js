@@ -359,6 +359,8 @@ describe('CRUDStore', () => {
 
       beforeEach(() => {
         CRUDStore.state.docs = [ hadronDoc ];
+        CRUDStore.state.count = 1;
+        CRUDStore.state.end = 1;
       });
 
       it('deletes the document from the collection', (done) => {

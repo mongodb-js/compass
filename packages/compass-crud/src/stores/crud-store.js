@@ -223,7 +223,10 @@ const CRUDStore = Reflux.createStore({
           return _id === id;
         });
         this.state.docs.splice(index, 1);
-        this.trigger(this.state);
+        this.setState({
+          count: this.state.count - 1,
+          end: this.state.end - 1
+        });
       }
     });
   },
