@@ -420,9 +420,14 @@ describe('CRUDStore', () => {
       const doc = { _id: 'testing', name: 'Depeche Mode' };
       const hadronDoc = new HadronDocument(doc);
 
+      beforeEach(() => {
+        CRUDStore.state.docs = [ hadronDoc ];
+      });
+
       it('updates the document in the collection', (done) => {
         const unsubscribe = CRUDStore.listen((state) => {
           expect(state.update).to.deep.equal({});
+          expect(state.docs[0]).to.equal(hadronDoc);
           unsubscribe();
           done();
         });

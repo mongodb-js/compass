@@ -245,6 +245,7 @@ const CRUDStore = Reflux.createStore({
         this.trigger(this.state);
       } else {
         delete this.state.update[stringId];
+        // Replace the doc in the list.
         this.trigger(this.state);
       }
     });
