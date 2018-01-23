@@ -78,15 +78,13 @@ class DocumentFooter extends React.Component {
    */
   constructor(props) {
     super(props);
-    this.doc = props.doc;
-    this.updateStore = props.updateStore;
-    this.actions = props.actions;
     this.state = { mode: VIEWING, message: EMPTY };
     this.invalidElements = [];
-
-    this.handleCancel = this.handleCancel.bind(this);
-    if (props.cancelHandler !== undefined) {
-      this.handleCancel = props.cancelHandler;
+    this.boundHandleUpdateError = this.handleUpdateError.bind(this);
+    this.boundHandleUpdateSuccess = this.handleUpdateSuccess.bind(this);
+    this.boundHandleCancel = this.handleCancel.bind(this);
+    if (props.cancelHandler) {
+      this.boundHandleCancel = props.cancelHandler;
     }
   }
 
@@ -94,21 +92,18 @@ class DocumentFooter extends React.Component {
    * Subscribe to the update store on mount.
    */
   componentDidMount() {
-    this.unsubscribeUpdate = this.updateStore.listen(this.handleStoreUpdate.bind(this));
-
-    this.unsubscribeAdded = this.handleModification.bind(this);
-    this.unsubscribeEdited = this.handleModification.bind(this);
-    this.unsubscribeRemoved = this.handleModification.bind(this);
-    this.unsubscribeReverted = this.handleModification.bind(this);
+    this.unsubscribeModified = this.handleModification.bind(this);
     this.unsubscribeInvalid = this.handleInvalid.bind(this);
     this.unsubscribeValid = this.handleValid.bind(this);
 
-    this.doc.on(Element.Events.Added, this.unsubscribeAdded);
-    this.doc.on(Element.Events.Edited, this.unsubscribeEdited);
-    this.doc.on(Element.Events.Removed, this.unsubscribeRemoved);
-    this.doc.on(Element.Events.Reverted, this.unsubscribeReverted);
-    this.doc.on(Element.Events.Invalid, this.unsubscribeInvalid);
-    this.doc.on(Element.Events.Valid, this.unsubscribeValid);
+    this.props.doc.on(Element.Events.Added, this.unsubscribeModified);
+    this.props.doc.on(Element.Events.Edited, this.unsubscribeModified);
+    this.props.doc.on(Element.Events.Removed, this.unsubscribeModified);
+    this.props.doc.on(Element.Events.Reverted, this.unsubscribeModified);
+    this.props.doc.on(Element.Events.Invalid, this.unsubscribeInvalid);
+    this.props.doc.on(Element.Events.Valid, this.unsubscribeValid);
+    this.props.doc.on('update-error', this.boundHandleUpdateError);
+    this.props.doc.on('update-success', this.boundHandleUpdateSuccess);
 
     this.handleModification();
   }
@@ -117,13 +112,14 @@ class DocumentFooter extends React.Component {
    * Unsubscribe from the udpate store on unmount.
    */
   componentWillUnmount() {
-    this.unsubscribeUpdate();
-    this.doc.removeListener(Element.Events.Added, this.unsubscribeAdded);
-    this.doc.removeListener(Element.Events.Edited, this.unsubscribeEdited);
-    this.doc.removeListener(Element.Events.Removed, this.unsubscribeRemoved);
-    this.doc.removeListener(Element.Events.Reverted, this.unsubscribeReverted);
-    this.doc.removeListener(Element.Events.Invalid, this.unsubscribeInvalid);
-    this.doc.removeListener(Element.Events.Valid, this.unsubscribeValid);
+    this.props.doc.removeListener(Element.Events.Added, this.unsubscribeModified);
+    this.props.doc.removeListener(Element.Events.Edited, this.unsubscribeModified);
+    this.props.doc.removeListener(Element.Events.Removed, this.unsubscribeModified);
+    this.props.doc.removeListener(Element.Events.Reverted, this.unsubscribeModified);
+    this.props.doc.removeListener(Element.Events.Invalid, this.unsubscribeInvalid);
+    this.props.doc.removeListener(Element.Events.Valid, this.unsubscribeValid);
+    this.props.doc.removeListener('update-error', this.boundHandleUpdateError);
+    this.props.doc.removeListener('update-success', this.boundHandleUpdateSuccess);
   }
 
   /**
@@ -133,23 +129,40 @@ class DocumentFooter extends React.Component {
     if (this.props.api) {
       this.props.api.stopEditing();
     }
-    this.doc.cancel();
+    this.props.doc.cancel();
     this.setState({ mode: VIEWING, message: EMPTY });
   }
 
   /**
    * Handle an error with the document update.
    *
-   * @param {Error} error - The error.
+   * @param {String} message - The error message.
    */
-  handleError(error) {
-    this.setState({ mode: ERROR, message: error.message });
+  handleUpdateError(message) {
+    this.setState({ mode: ERROR, message: message });
   }
 
+  /**
+   * Handle a successful document update.
+   */
+  handleUpdateSuccess() {
+    this.setState({ mode: SUCCESS, message: UPDATED });
+  }
+
+  /**
+   * Handle an element becoming valid.
+   *
+   * @param {String} uuid - The element uuid.
+   */
   handleValid(uuid) {
     pull(this.invalidElements, uuid);
   }
 
+  /**
+   * Handle an element becoming invalid.
+   *
+   * @param {String} uuid - The element uuid.
+   */
   handleInvalid(uuid) {
     if (!includes(this.invalidElements, uuid)) {
       this.invalidElements.push(uuid);
@@ -161,7 +174,7 @@ class DocumentFooter extends React.Component {
    * Handle modification to the document.
    */
   handleModification() {
-    const isModified = this.doc.isModified();
+    const isModified = this.props.doc.isModified();
     if (this.hasErrors()) {
       this.setState({ mode: ERROR, message: INVALID_MESSAGE });
     } else {
@@ -179,32 +192,15 @@ class DocumentFooter extends React.Component {
     if (this.props.api) {
       this.props.api.stopEditing();
     }
-    const object = this.props.doc.generateObject();
     this.setState({ mode: PROGRESS, message: UPDATING });
-    this.actions.update(object);
+    this.props.updateDocument(this.props.doc);
   }
 
   /**
-   * Handle a successful document update.
-   */
-  handleSuccess() {
-    this.setState({ mode: SUCCESS, message: UPDATED });
-  }
-
-  /**
-   * Handles a trigger from the store.
+   * Does the document have invalid elements?
    *
-   * @param {Boolean} success - If the update succeeded.
-   * @param {Object} object - The error or document.
+   * @returns {Boolean} If the document has invalid elements.
    */
-  handleStoreUpdate(success, object) {
-    if (success) {
-      this.handleSuccess();
-    } else {
-      this.handleError(object);
-    }
-  }
-
   hasErrors() {
     return this.invalidElements.length > 0;
   }
@@ -237,7 +233,7 @@ class DocumentFooter extends React.Component {
             className="btn btn-borderless btn-xs cancel"
             text="Cancel"
             dataTestId="cancel-document-button"
-            clickHandler={this.handleCancel} />
+            clickHandler={this.boundHandleCancel} />
           <TextButton
             className="btn btn-default btn-xs"
             text="Update"
@@ -254,8 +250,7 @@ DocumentFooter.displayName = 'DocumentFooter';
 
 DocumentFooter.propTypes = {
   doc: PropTypes.object.isRequired,
-  actions: PropTypes.object.isRequired,
-  updateStore: PropTypes.object.isRequired,
+  updateDocument: PropTypes.func.isRequired,
   cancelHandler: PropTypes.func,
   api: PropTypes.any
 };

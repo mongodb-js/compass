@@ -18,6 +18,11 @@ const ERROR = 'Error';
 const DELETING = 'Deleting';
 
 /**
+ * The success mode.
+ */
+const SUCCESS = 'Success';
+
+/**
  * Map of modes to styles.
  */
 const MODES = {
@@ -54,33 +59,34 @@ class RemoveDocumentFooter extends React.Component {
    */
   constructor(props) {
     super(props);
-    this.doc = props.doc;
-    this.actions = props.actions;
-    this.removeStore = props.removeStore;
     this.state = { mode: DELETING, message: MODIFIED };
+    this.boundHandleRemoveError = this.handleRemoveError.bind(this);
+    this.boundHandleRemoveSuccess = this.handleRemoveSuccess.bind(this);
   }
 
   /**
-   * Subscribe to the remove store on mount.
+   * Subscribe to the document events.
    */
   componentDidMount() {
-    this.unsubscribeRemove = this.removeStore.listen(this.handleStoreRemove.bind(this));
+    this.props.doc.on('remove-error', this.boundHandleRemoveError);
+    this.props.doc.on('remove-success', this.boundHandleRemoveSuccess);
   }
 
   /**
-   * Unsubscribe from the remove store on unmount.
+   * Unsubscribe from the document events.
    */
   componentWillUnmount() {
-    this.unsubscribeRemove();
+    this.props.doc.removeListener('remove-error', this.boundHandleRemoveError);
+    this.props.doc.removeListener('remove-success', this.boundHandleRemoveSuccess);
   }
 
   /**
    * Handle an error with the document update.
    *
-   * @param {Error} error - The error.
+   * @param {String} message - The error message.
    */
-  handleError(error) {
-    this.setState({ mode: ERROR, message: error.message });
+  handleRemoveError(message) {
+    this.setState({ mode: ERROR, message: message });
   }
 
   /**
@@ -91,28 +97,14 @@ class RemoveDocumentFooter extends React.Component {
       this.props.api.stopEditing();
     }
     this.setState({ mode: PROGRESS, message: UPDATING });
-    this.actions.remove(this.doc);
+    this.props.removeDocument(this.props.doc);
   }
 
   /**
    * Handle a successful document update.
    */
-  handleSuccess() {
-    this.setState({ mode: DELETING, message: UPDATED });
-  }
-
-  /**
-   * Handles a trigger from the store.
-   *
-   * @param {Boolean} success - If the delete succeeded.
-   * @param {Object} object - The error or document.
-   */
-  handleStoreRemove(success, object) {
-    if (success) {
-      this.handleSuccess();
-    } else {
-      this.handleError(object);
-    }
+  handleRemoveSuccess() {
+    this.setState({ mode: SUCCESS, message: UPDATED });
   }
 
   /**
@@ -159,8 +151,7 @@ RemoveDocumentFooter.displayName = 'RemoveDocumentFooter';
 
 RemoveDocumentFooter.propTypes = {
   doc: PropTypes.object.isRequired,
-  actions: PropTypes.object.isRequired,
-  removeStore: PropTypes.object.isRequired,
+  removeDocument: PropTypes.func.isRequired,
   cancelHandler: PropTypes.func.isRequired,
   api: PropTypes.any
 };

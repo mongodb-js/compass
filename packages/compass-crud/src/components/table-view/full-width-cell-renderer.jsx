@@ -1,14 +1,8 @@
 const React = require('react');
-const Reflux = require('reflux');
 const PropTypes = require('prop-types');
 
 const DocumentFooter = require('../document-footer');
 const RemoveDocumentFooter = require('../remove-document-footer');
-
-/**
- * The delete error message.
- */
-const DELETE_ERROR = new Error('Cannot delete documents that do not have an _id field.');
 
 /**
  * The custom full-width cell renderer that renders the update/cancel bar
@@ -23,152 +17,24 @@ class FullWidthCellRenderer extends React.Component {
     this.state = {
       mode: props.data.state
     };
-
-    // Actions need to be scoped to the single document component and not
-    // global singletons.
-    this.actions = Reflux.createActions([ 'update', 'remove', 'cancelRemove', 'insert' ]);
-
-    // The update store needs to be scoped to a document and not a global
-    // singleton.
-    this.updateStore = this.createUpdateStore(this.actions, this.props.dataService);
-    this.removeStore = this.createRemoveStore(this.actions, this.props.dataService);
+    this.boundHandleUpdateSuccess = this.handleUpdateSuccess.bind(this);
+    this.boundHandleRemoveSuccess = this.handleRemoveSuccess.bind(this);
   }
 
   /**
    * Subscribe to the update store on mount.
    */
   componentDidMount() {
-    this.unsubscribeUpdate = this.updateStore.listen(this.handleStoreUpdate.bind(this));
-    this.unsubscribeRemove = this.removeStore.listen(this.handleStoreRemove.bind(this));
+    this.doc.on('remove-success', this.boundHandleRemoveSuccess);
+    this.doc.on('update-success', this.boundHandleUpdateSuccess);
   }
 
   /**
    * Unsubscribe from the update store on unmount.
    */
   componentWillUnmount() {
-    this.unsubscribeUpdate();
-    this.unsubscribeRemove();
-  }
-
-  /**
-   * Create the scoped update store.
-   *
-   * @param {Action} actions - The component reflux actions.
-   * @param {DataService} dataService
-   *
-   * @returns {Store} The scoped store.
-   */
-  createUpdateStore(actions, dataService) {
-    return Reflux.createStore({
-
-      /**
-       * Initialize the store.
-       */
-      init: function() {
-        this.ns = global.hadronApp.appRegistry.getStore('App.NamespaceStore').ns;
-        this.listenTo(actions.update, this.update);
-      },
-
-      /**
-       * Update the document in the database.
-       *
-       * @param {Object} object - The replacement document.
-       *
-       * @todo: Durran: Determine shard key.
-       */
-      update: function(object) {
-        // TODO (@thomasr) this does not work for projections
-        dataService.findOneAndReplace(
-          this.ns,
-          { _id: object._id },
-          object,
-          { returnOriginal: false, promoteValues: false },
-          this.handleResult
-        );
-      },
-
-      /**
-       * Handle the result from the driver.
-       *
-       * @param {Error} error - The error.
-       * @param {Object} doc - The document.
-       *
-       * @returns {Object} The trigger event.
-       */
-      handleResult: function(error, doc) {
-        return (error) ? this.trigger(false, error) : this.trigger(true, doc);
-      }
-    });
-  }
-
-  /**
-   * Create the scoped remove store.
-   *
-   * @param {Action} actions - The component reflux actions.
-   * @param {DataService} dataService
-   *
-   * @returns {Store} The scoped store.
-   */
-  createRemoveStore(actions, dataService) {
-    return Reflux.createStore({
-
-      /**
-       * Initialize the store.
-       */
-      init: function() {
-        this.ns = global.hadronApp.appRegistry.getStore('App.NamespaceStore').ns;
-        this.listenTo(actions.remove, this.remove);
-      },
-
-      /**
-       * Remove the document from the collection.
-       *
-       * @param {Object} object - The object to delete.
-       */
-      remove: function(object) {
-        const id = object.getId();
-        if (id) {
-          dataService.deleteOne(this.ns, { _id: id }, {}, this.handleResult);
-        } else {
-          this.handleResult(DELETE_ERROR);
-        }
-      },
-
-      /**
-       * Handle the result from the driver.
-       *
-       * @param {Error} error - The error.
-       * @param {Object} result - The document.
-       *
-       * @returns {Object} The trigger event.
-       */
-      handleResult: function(error, result) {
-        return (error) ? this.trigger(false, error) : this.trigger(true, result);
-      }
-    });
-  }
-
-  /**
-   * Handles a trigger from the store.
-   *
-   * @param {Boolean} success - If the update succeeded.
-   * @param {Object} object - The error or document.
-   */
-  handleStoreUpdate(success, object) {
-    if (success) {
-      this.handleUpdateSuccess(object);
-    }
-  }
-
-  /**
-   * Handles a trigger from the store.
-   *
-   * @param {Boolean} success - If the update succeeded.
-   */
-  handleStoreRemove(success) {
-    if (success) {
-      this.handleRemoveSuccess();
-    }
+    this.doc.removeListener('remove-success', this.boundHandleRemoveSuccess);
+    this.doc.removeListener('update-success', this.boundHandleUpdateSuccess);
   }
 
   /**
@@ -195,7 +61,7 @@ class FullWidthCellRenderer extends React.Component {
     this.props.context.handleRemove(this.props.node);
   }
 
-  handleCancelDelete() {
+  handleCancelRemove() {
     this.props.api.stopEditing();
     this.props.context.removeFooter(this.props.node);
   }
@@ -222,32 +88,23 @@ class FullWidthCellRenderer extends React.Component {
     }
   }
 
-  handleCancelClone() {
-    this.props.api.stopEditing();
-    this.props.context.handleRemove(this.props.node);
-  }
-
   render() {
     if (this.state.mode === 'editing') {
       return (
         <DocumentFooter
           doc={this.doc}
-          updateStore={this.updateStore}
-          actions={this.actions}
+          updateDocument={this.props.updateDocument}
           cancelHandler={this.handleCancelUpdate.bind(this)}
-          api = {this.props.api}
-        />
+          api={this.props.api} />
       );
     }
     if (this.state.mode === 'deleting') {
       return (
         <RemoveDocumentFooter
           doc={this.doc}
-          removeStore={this.removeStore}
-          actions={this.actions}
-          cancelHandler={this.handleCancelDelete.bind(this)}
-          api = {this.props.api}
-        />
+          removeDocument={this.props.removeDocument}
+          cancelHandler={this.handleCancelRemove.bind(this)}
+          api={this.props.api} />
       );
     }
   }
@@ -259,9 +116,10 @@ FullWidthCellRenderer.propTypes = {
   data: PropTypes.any,
   context: PropTypes.any,
   node: PropTypes.any,
+  removeDocument: PropTypes.func.isRequired,
+  updateDocument: PropTypes.func.isRequired,
   replaceDoc: PropTypes.func.isRequired,
-  cleanCols: PropTypes.func.isRequired,
-  dataService: PropTypes.any.isRequired
+  cleanCols: PropTypes.func.isRequired
 };
 
 FullWidthCellRenderer.displayName = 'FullWidthCellRenderer';

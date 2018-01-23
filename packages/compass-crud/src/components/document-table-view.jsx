@@ -8,7 +8,6 @@ const HadronDocument = require('hadron-document');
 const mongodbns = require('mongodb-ns');
 
 const GridStore = require('../stores/grid-store');
-const CRUDStore = require('../stores/crud-store');
 
 const BreadcrumbComponent = require('./breadcrumb');
 const CellRenderer = require('./table-view/cell-renderer');
@@ -69,7 +68,8 @@ class DocumentTableView extends React.Component {
       fullWidthCellRendererParams: {
         replaceDoc: this.props.replaceDoc,
         cleanCols: this.props.cleanCols,
-        dataService: CRUDStore.dataService
+        removeDocument: this.props.removeDocument,
+        updateDocument: this.props.updateDocument
       },
       getRowNodeId: function(data) {
         const fid = data.isFooter ? '1' : '0';
@@ -226,14 +226,6 @@ class DocumentTableView extends React.Component {
     /* Update the row numbers */
     this.updateRowNumbers(dataNode.data.rowNumber, false);
 
-    /* Update this.hadronDocs */
-    for (let i = 0; i < this.hadronDocs.length; i++) {
-      if (this.hadronDocs[i].getStringId() === node.data.hadronDocument.getStringId()) {
-        this.hadronDocs.splice(i, 1);
-        break;
-      }
-    }
-
     /* Remove the footer */
     this.removeFooter(node);
 
@@ -241,9 +233,6 @@ class DocumentTableView extends React.Component {
     for (const element of node.data.hadronDocument.elements) {
       this.props.elementRemoved(element.currentKey, oid, false);
     }
-
-    /* Update the toolbar */
-    this.props.documentRemoved();
 
     /* Update the grid */
     this.gridApi.updateRowData({remove: [dataNode.data]});
@@ -871,7 +860,6 @@ DocumentTableView.propTypes = {
   addColumn: PropTypes.func.isRequired,
   cleanCols: PropTypes.func.isRequired,
   docs: PropTypes.array.isRequired,
-  documentRemoved: PropTypes.func.isRequired,
   drillDown: PropTypes.func.isRequired,
   elementAdded: PropTypes.func.isRequired,
   elementMarkRemoved: PropTypes.func.isRequired,
@@ -886,6 +874,8 @@ DocumentTableView.propTypes = {
   renameColumn: PropTypes.func.isRequired,
   replaceDoc: PropTypes.func.isRequired,
   resetHeaders: PropTypes.func.isRequired,
+  removeDocument: PropTypes.func.isRequired,
+  updateDocument: PropTypes.func.isRequired,
   start: PropTypes.number.isRequired,
   table: PropTypes.object.isRequired
 };

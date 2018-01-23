@@ -31,7 +31,8 @@ Document.propTypes = {
   doc: PropTypes.object.isRequired,
   editable: PropTypes.bool,
   expandAll: PropTypes.bool,
-  documentRemoved: PropTypes.func.isRequired,
+  removeDocument: PropTypes.func.isRequired,
+  updateDocument: PropTypes.func.isRequired,
   openInsertDocumentDialog: PropTypes.func.isRequired,
   closeAllMenus: PropTypes.func.isRequired
 };

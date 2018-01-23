@@ -298,59 +298,10 @@ describe('CRUDStore', () => {
     });
   });
 
-  describe('#cancelRemoveDocument', () => {
-    const doc = { _id: 'testing', name: 'Depeche Mode' };
-    const hadronDoc = new HadronDocument(doc);
-    const stringId = hadronDoc.getStringId();
-
-    beforeEach(() => {
-      CRUDStore.state = CRUDStore.getInitialState();
-      CRUDStore.state.remove.testing = {
-        message: 'Document Flagged For Deletion.'
-      };
-    });
-
-    it('removes the id from the remove object', (done) => {
-      const unsubscribe = CRUDStore.listen((state) => {
-        expect(state.remove[stringId]).to.equal(undefined);
-        unsubscribe();
-        done();
-      });
-
-      CRUDStore.cancelRemoveDocument(hadronDoc);
-    });
-  });
-
-  describe('#cancelUpdateDocument', () => {
-    const doc = { _id: 'testing', name: 'Depeche Mode' };
-    const hadronDoc = new HadronDocument(doc);
-    const stringId = hadronDoc.getStringId();
-
-    beforeEach(() => {
-      CRUDStore.state = CRUDStore.getInitialState();
-      CRUDStore.state.update.testing = {
-        message: 'editing'
-      };
-    });
-
-    it('removes the id from the update object', (done) => {
-      const unsubscribe = CRUDStore.listen((state) => {
-        expect(state.update[stringId]).to.equal(undefined);
-        unsubscribe();
-        done();
-      });
-
-      CRUDStore.cancelUpdateDocument(hadronDoc);
-    });
-  });
-
   describe('#removeDocument', () => {
     beforeEach(() => {
       CRUDStore.state = CRUDStore.getInitialState();
       CRUDStore.state.ns = 'compass-crud.test';
-      CRUDStore.state.remove.testing = {
-        message: 'Document Flagged For Deletion.'
-      };
     });
 
     context('when there is no error', () => {
@@ -368,7 +319,6 @@ describe('CRUDStore', () => {
           expect(state.docs.length).to.equal(0);
           expect(state.count).to.equal(0);
           expect(state.end).to.equal(0);
-          expect(state.remove).to.deep.equal({});
           unsubscribe();
           done();
         });
@@ -378,29 +328,21 @@ describe('CRUDStore', () => {
     });
 
     context('when the deletion errors', () => {
-      const doc = { name: 'Depeche Mode' };
+      const doc = { _id: 'testing', name: 'Depeche Mode' };
       const hadronDoc = new HadronDocument(doc);
-      const stringId = hadronDoc.getStringId();
       let stub;
 
       beforeEach(() => {
         stub = sinon.stub(dataService, 'deleteOne').yields({ message: 'error happened' });
-        CRUDStore.state.remove[stringId] = {
-          message: 'Document Flagged For Deletion.'
-        };
       });
 
       afterEach(() => {
         stub.restore();
       });
 
-      it('sets the error for the document on the store', (done) => {
-        const unsubscribe = CRUDStore.listen((state) => {
-          expect(state.docs.length).to.equal(0);
-          expect(state.count).to.equal(0);
-          expect(state.end).to.equal(0);
-          expect(state.remove[stringId].message).to.equal('error happened');
-          unsubscribe();
+      it('sets the error for the document', (done) => {
+        hadronDoc.on('remove-error', (message) => {
+          expect(message).to.equal('error happened');
           done();
         });
 
@@ -413,9 +355,6 @@ describe('CRUDStore', () => {
     beforeEach(() => {
       CRUDStore.state = CRUDStore.getInitialState();
       CRUDStore.state.ns = 'compass-crud.test';
-      CRUDStore.state.update.testing = {
-        message: 'Document Modified.'
-      };
     });
 
     context('when there is no error', () => {
@@ -426,10 +365,9 @@ describe('CRUDStore', () => {
         CRUDStore.state.docs = [ hadronDoc ];
       });
 
-      it('updates the document in the collection', (done) => {
+      it('replaces the document in the list', (done) => {
         const unsubscribe = CRUDStore.listen((state) => {
-          expect(state.update).to.deep.equal({});
-          expect(state.docs[0]).to.equal(hadronDoc);
+          expect(state.docs[0]).to.not.equal(hadronDoc);
           unsubscribe();
           done();
         });
@@ -441,24 +379,19 @@ describe('CRUDStore', () => {
     context('when the update errors', () => {
       const doc = { _id: 'testing', name: 'Depeche Mode' };
       const hadronDoc = new HadronDocument(doc);
-      const stringId = hadronDoc.getStringId();
       let stub;
 
       beforeEach(() => {
-        stub = sinon.stub(dataService, 'updateOne').yields({ message: 'error happened' });
-        CRUDStore.state.update[stringId] = {
-          message: 'Updating Document.'
-        };
+        stub = sinon.stub(dataService, 'findOneAndReplace').yields({ message: 'error happened' });
       });
 
       afterEach(() => {
         stub.restore();
       });
 
-      it('sets the error for the document on the store', (done) => {
-        const unsubscribe = CRUDStore.listen((state) => {
-          expect(state.update[stringId].message).to.equal('error happened');
-          unsubscribe();
+      it('sets the error for the document', (done) => {
+        hadronDoc.on('update-error', (message) => {
+          expect(message).to.equal('error happened');
           done();
         });
 

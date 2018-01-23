@@ -37,7 +37,8 @@ class DocumentListView extends React.Component {
             doc={doc}
             key={i}
             editable={this.props.isEditable}
-            documentRemoved={this.props.documentRemoved}
+            removeDocument={this.props.removeDocument}
+            updateDocument={this.props.updateDocument}
             openInsertDocumentDialog={this.props.openInsertDocumentDialog}
             closeAllMenus={this.props.closeAllMenus} />
         </li>
@@ -62,7 +63,8 @@ class DocumentListView extends React.Component {
 DocumentListView.propTypes = {
   docs: PropTypes.array.isRequired,
   isEditable: PropTypes.bool.isRequired,
-  documentRemoved: PropTypes.func.isRequired,
+  removeDocument: PropTypes.func.isRequired,
+  updateDocument: PropTypes.func.isRequired,
   openInsertDocumentDialog: PropTypes.func.isRequired,
   closeAllMenus: PropTypes.func.isRequired
 };

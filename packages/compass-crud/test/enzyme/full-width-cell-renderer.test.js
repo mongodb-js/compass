@@ -3,26 +3,15 @@ const chai = require('chai');
 const expect = chai.expect;
 const chaiEnzyme = require('chai-enzyme');
 const { mount } = require('enzyme');
-const { getNode, getApi, getActions, getContext, notCalledExcept,
-        getDataService } = require('../aggrid-helper');
+const { getNode, getApi, getActions, getContext, notCalledExcept } = require('../aggrid-helper');
 const FullWidthCellRenderer = require('../../src/components/table-view/full-width-cell-renderer');
 const AppRegistry = require('hadron-app-registry');
 const app = require('hadron-app');
-const Connection = require('mongodb-connection-model');
-const DataService = require('mongodb-data-service');
 const ObjectId = require('bson').ObjectId;
 
 chai.use(chaiEnzyme());
 
-const CONNECTION = new Connection({
-  hostname: '127.0.0.1',
-  port: 27018,
-  ns: 'compass-crud',
-  mongodb_database_name: 'admin'
-});
-
 describe('<FullWidthCellRenderer />', () => {
-  const dataService = new DataService(CONNECTION);
   before(() => {
     global.hadronApp = app;
     global.hadronApp.appRegistry = new AppRegistry();
@@ -55,9 +44,10 @@ describe('<FullWidthCellRenderer />', () => {
                                                    node={rowNode}
                                                    replaceDoc={actions.replaceDoc}
                                                    cleanCols={actions.cleanCols}
+                                                   updateDocument={actions.updateDocument}
+                                                   removeDocument={actions.removeDocument}
                                                    data={data}
-                                                   context={context}
-                                                   dataService={dataService}/>);
+                                                   context={context} />);
           expect(component).to.be.present();
           done();
         });
@@ -84,9 +74,10 @@ describe('<FullWidthCellRenderer />', () => {
           component = mount(<FullWidthCellRenderer api={api} node={rowNode}
                                                    replaceDoc={actions.replaceDoc}
                                                    cleanCols={actions.cleanCols}
+                                                   updateDocument={actions.updateDocument}
+                                                   removeDocument={actions.removeDocument}
                                                    data={data}
-                                                   context={context}
-                                                   dataService={dataService}/>);
+                                                   context={context} />);
           expect(component).to.be.present();
           done();
         });
@@ -112,9 +103,10 @@ describe('<FullWidthCellRenderer />', () => {
         data = rowNode.data;
         component = mount(<FullWidthCellRenderer api={api}
                                                  node={rowNode}
-                                                 dataService={dataService}
                                                  replaceDoc={actions.replaceDoc}
                                                  cleanCols={actions.cleanCols}
+                                                 updateDocument={actions.updateDocument}
+                                                 removeDocument={actions.removeDocument}
                                                  data={data}
                                                  context={context}/>);
         expect(component).to.be.present();
@@ -159,9 +151,10 @@ describe('<FullWidthCellRenderer />', () => {
                                                      node={rowNode}
                                                      replaceDoc={actions.replaceDoc}
                                                      cleanCols={actions.cleanCols}
+                                                     updateDocument={actions.updateDocument}
+                                                     removeDocument={actions.removeDocument}
                                                      data={data}
-                                                     context={context}
-                                                     dataService={dataService}/>);
+                                                     context={context} />);
             const wrapper = component.find({'data-test-id': 'cancel-document-button'});
             expect(wrapper).to.be.present();
             wrapper.simulate('click');
@@ -211,9 +204,10 @@ describe('<FullWidthCellRenderer />', () => {
                                                      node={rowNode}
                                                      replaceDoc={actions.replaceDoc}
                                                      cleanCols={actions.cleanCols}
+                                                     updateDocument={actions.updateDocument}
+                                                     removeDocument={actions.removeDocument}
                                                      data={data}
-                                                     context={context}
-                                                     dataService={dataService}/>);
+                                                     context={context} />);
             const wrapper = component.find({'data-test-id': 'cancel-document-button'});
             expect(wrapper).to.be.present();
             wrapper.simulate('click');
@@ -256,9 +250,10 @@ describe('<FullWidthCellRenderer />', () => {
                                                    node={rowNode}
                                                    replaceDoc={actions.replaceDoc}
                                                    cleanCols={actions.cleanCols}
+                                                   updateDocument={actions.updateDocument}
+                                                   removeDocument={actions.removeDocument}
                                                    data={data}
-                                                   context={context}
-                                                   dataService={dataService}/>);
+                                                   context={context} />);
           const wrapper = component.find({
             'data-test-id': 'cancel-document-button'
           });
@@ -283,9 +278,7 @@ describe('<FullWidthCellRenderer />', () => {
         const actions = getActions();
         const context = getContext([]);
         const oid = new ObjectId();
-        let ds;
-        before((done) => {
-          ds = getDataService(done);
+        before(() => {
           rowNode = getNode({toRemove: 1}, oid);
           rowNode.data.state = 'editing';
           data = rowNode.data;
@@ -295,9 +288,10 @@ describe('<FullWidthCellRenderer />', () => {
                                                    node={rowNode}
                                                    replaceDoc={actions.replaceDoc}
                                                    cleanCols={actions.cleanCols}
+                                                   updateDocument={actions.updateDocument}
+                                                   removeDocument={actions.removeDocument}
                                                    data={data}
-                                                   context={context}
-                                                   dataService={ds}/>);
+                                                   context={context} />);
           expect(component.find('.document-footer-is-modified')).to.be.present();
           const wrapper = component.find({
             'data-test-id': 'update-document-button'
@@ -308,24 +302,8 @@ describe('<FullWidthCellRenderer />', () => {
         it('calls api.stopEditing()', () => {
           expect(api.stopEditing.callCount).to.equal(1);
         });
-        it('calls findOneAndReplace on DataService', () => {
-          expect(ds.foarSpy.callCount).to.equal(1);
-          expect(ds.foarSpy.alwaysCalledWith(
-              {_id: oid},
-              {_id: oid, newfield: 'value'})).to.equal(true);
-        });
-        it('calls replaceDoc', () => {
-          expect(actions.replaceDoc.callCount).to.equal(1);
-          expect(actions.replaceDoc.alwaysCalledWithExactly(
-              '' + oid, '' + oid, {_id: oid, newfield: 'value'})).to.equal(true);
-          notCalledExcept(actions, ['replaceDoc']);
-        });
-        it('calls context.handleUpdate', () => {
-          expect(context.handleUpdate.callCount).to.equal(1);
-          expect(context.handleUpdate.alwaysCalledWithExactly({
-            _id: oid, newfield: 'value'
-          })).to.equal(true);
-          notCalledExcept(context, ['handleUpdate']);
+        it('calls updateDocument()', () => {
+          expect(actions.updateDocument.callCount).to.equal(1);
         });
       });
 
@@ -334,9 +312,7 @@ describe('<FullWidthCellRenderer />', () => {
         const actions = getActions();
         const context = getContext([]);
         const oid = new ObjectId();
-        let ds;
-        before((done) => {
-          ds = getDataService(done);
+        before(() => {
           rowNode = getNode({field: 'value'}, oid);
           rowNode.data.state = 'deleting';
           data = rowNode.data;
@@ -344,9 +320,10 @@ describe('<FullWidthCellRenderer />', () => {
                                                    node={rowNode}
                                                    replaceDoc={actions.replaceDoc}
                                                    cleanCols={actions.cleanCols}
+                                                   updateDocument={actions.updateDocument}
+                                                   removeDocument={actions.removeDocument}
                                                    data={data}
-                                                   context={context}
-                                                   dataService={ds}/>);
+                                                   context={context} />);
           expect(component.find('.document-footer-is-error')).to.be.present();
           const wrapper = component.find({
             'data-test-id': 'confirm-delete-document-button'
@@ -357,14 +334,8 @@ describe('<FullWidthCellRenderer />', () => {
         it('calls api.stopEditing()', () => {
           expect(api.stopEditing.callCount).to.equal(1);
         });
-        it('calls deleteOne on DataService', () => {
-          expect(ds.dSpy.callCount).to.equal(1);
-          expect(ds.dSpy.alwaysCalledWith({_id: oid})).to.equal(true);
-        });
-        it('calls context.handleRemove', () => {
-          expect(context.handleRemove.callCount).to.equal(1);
-          expect(context.handleRemove.alwaysCalledWithExactly(
-              rowNode)).to.equal(true);
+        it('calls removeDocument()', () => {
+          expect(actions.removeDocument.callCount).to.equal(1);
         });
       });
     });

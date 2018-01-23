@@ -29,6 +29,11 @@ const MODIFYING = 'modifying';
 const LIST = 'List';
 
 /**
+ * The delete error message.
+ */
+const DELETE_ERROR = new Error('Cannot delete documents that do not have an _id field.');
+
+/**
  * The main CRUD store.
  */
 const CRUDStore = Reflux.createStore({
@@ -62,8 +67,6 @@ const CRUDStore = Reflux.createStore({
       isEditable: true,
       view: LIST,
       count: 0,
-      remove: {},
-      update: {},
       insert: this.getInitialInsertState(),
       table: this.getInitialTableState(),
       query: this.getInitialQueryState()
@@ -178,51 +181,29 @@ const CRUDStore = Reflux.createStore({
   },
 
   /**
-   * Cancel removing the document.
-   *
-   * @param {Document} doc - The hadron document.
-   */
-  cancelRemoveDocument(doc) {
-    const stringId = doc.getStringId();
-    delete this.state.remove[stringId];
-    this.trigger(this.state);
-  },
-
-  /**
-   * Cancel updating the document.
-   *
-   * @param {Document} doc - The hadron document.
-   */
-  cancelUpdateDocument(doc) {
-    const stringId = doc.getStringId();
-    delete this.state.update[stringId];
-    this.trigger(this.state);
-  },
-
-  /**
    * Remove the provided document from the collection.
    *
    * @param {Document} doc - The hadron document.
    */
   removeDocument(doc) {
     const id = doc.getId();
-    const stringId = doc.getStringId();
-    this.dataService.deleteOne(this.state.ns, { _id: id }, {}, (error) => {
-      if (error) {
-        this.state.remove[stringId] = {
-          message: error.message
-        };
-        this.trigger(this.state);
-      } else {
-        delete this.state.remove[stringId];
-        const index = this.findDocumentIndex(doc);
-        this.state.docs.splice(index, 1);
-        this.setState({
-          count: this.state.count - 1,
-          end: this.state.end - 1
-        });
-      }
-    });
+    if (id) {
+      this.dataService.deleteOne(this.state.ns, { _id: id }, {}, (error) => {
+        if (error) {
+          doc.emit('remove-error', error.message);
+        } else {
+          doc.emit('remove-success');
+          const index = this.findDocumentIndex(doc);
+          this.state.docs.splice(index, 1);
+          this.setState({
+            count: this.state.count - 1,
+            end: this.state.end - 1
+          });
+        }
+      });
+    } else {
+      doc.emit('remove-error', DELETE_ERROR);
+    }
   },
 
   /**
@@ -232,16 +213,12 @@ const CRUDStore = Reflux.createStore({
    */
   updateDocument(doc) {
     const object = doc.generateObject();
-    const stringId = doc.getStringId();
     const options = { returnOriginal: false, promoteValues: false };
-    this.dataService.updateOne(this.state.ns, { _id: object._id }, object, options, (error, d) => {
+    this.dataService.findOneAndReplace(this.state.ns, { _id: object._id }, object, options, (error, d) => {
       if (error) {
-        this.state.update[stringId] = {
-          message: error.message
-        };
-        this.trigger(this.state);
+        doc.emit('update-error', error.message);
       } else {
-        delete this.state.update[stringId];
+        doc.emit('update-success', d);
         const index = this.findDocumentIndex(doc);
         this.state.docs[index] = new HadronDocument(d);
         this.trigger(this.state);
@@ -255,13 +232,8 @@ const CRUDStore = Reflux.createStore({
    * @param {Document} doc - The hadron document.
    */
   findDocumentIndex(doc) {
-    const id = doc.getId();
     return findIndex(this.state.docs, (d) => {
-      const _id = d._id;
-      if (id instanceof ObjectId) {
-        return id.equals(_id);
-      }
-      return _id === id;
+      return doc.getStringId() === d.getStringId();
     });
   },
 

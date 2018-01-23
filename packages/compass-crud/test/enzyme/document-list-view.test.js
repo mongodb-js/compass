@@ -20,7 +20,8 @@ describe('<DocumentListView />', () => {
           docs={hadronDocs}
           scrollHandler={scrollHandler}
           isEditable={false}
-          documentRemoved={sinon.spy()}
+          removeDocument={sinon.spy()}
+          updateDocument={sinon.spy()}
           openInsertDocumentDialog={sinon.spy()}
           closeAllMenus={sinon.spy()} />
       );

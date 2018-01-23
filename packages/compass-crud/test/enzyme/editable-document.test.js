@@ -33,7 +33,8 @@ describe('<EditableDocument />', () => {
       wrapper = mount(<EditableDocument
                         doc={new HadronDocument(doc)}
                         closeAllMenus={sinon.spy(action)}
-                        documentRemoved={sinon.spy(action)}
+                        removeDocument={sinon.spy(action)}
+                        updateDocument={sinon.spy(action)}
                         openInsertDocumentDialog={sinon.spy(action)} />);
     });
 
@@ -69,7 +70,8 @@ describe('<EditableDocument />', () => {
         wrapper = mount(<EditableDocument
                           doc={new HadronDocument(arrayDoc)}
                           closeAllMenus={sinon.spy(action)}
-                          documentRemoved={sinon.spy(action)}
+                          removeDocument={sinon.spy(action)}
+                          updateDocument={sinon.spy(action)}
                           openInsertDocumentDialog={sinon.spy(action)} />);
 
         // Set build version, so setState does not throw an error
