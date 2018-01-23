@@ -215,13 +215,7 @@ const CRUDStore = Reflux.createStore({
         this.trigger(this.state);
       } else {
         delete this.state.remove[stringId];
-        const index = findIndex(this.state.docs, (d) => {
-          const _id = d._id;
-          if (id instanceof ObjectId) {
-            return id.equals(_id);
-          }
-          return _id === id;
-        });
+        const index = this.findDocumentIndex(doc);
         this.state.docs.splice(index, 1);
         this.setState({
           count: this.state.count - 1,
@@ -240,7 +234,7 @@ const CRUDStore = Reflux.createStore({
     const object = doc.generateObject();
     const stringId = doc.getStringId();
     const options = { returnOriginal: false, promoteValues: false };
-    this.dataService.updateOne(this.state.ns, { _id: object._id }, object, options, (error) => {
+    this.dataService.updateOne(this.state.ns, { _id: object._id }, object, options, (error, d) => {
       if (error) {
         this.state.update[stringId] = {
           message: error.message
@@ -248,9 +242,26 @@ const CRUDStore = Reflux.createStore({
         this.trigger(this.state);
       } else {
         delete this.state.update[stringId];
-        // Replace the doc in the list.
+        const index = this.findDocumentIndex(doc);
+        this.state.docs[index] = new HadronDocument(d);
         this.trigger(this.state);
       }
+    });
+  },
+
+  /**
+   * Find the index of the document in the list.
+   *
+   * @param {Document} doc - The hadron document.
+   */
+  findDocumentIndex(doc) {
+    const id = doc.getId();
+    return findIndex(this.state.docs, (d) => {
+      const _id = d._id;
+      if (id instanceof ObjectId) {
+        return id.equals(_id);
+      }
+      return _id === id;
     });
   },
 
