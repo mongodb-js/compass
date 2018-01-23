@@ -8,7 +8,7 @@ import Completer from 'models/completer';
 import styles from './stage-editor.less';
 
 import 'brace/ext/language_tools';
-import 'brace/mode/javascript';
+import 'mongodb-ace-mode';
 import 'mongodb-ace-theme';
 
 /**
@@ -97,7 +97,7 @@ class StageEditor extends PureComponent {
     return (
       <div className={classnames(styles['stage-editor'])}>
         <AceEditor
-          mode="javascript"
+          mode="mongodb"
           theme="mongodb"
           width="100%"
           value={this.props.stage.stage}

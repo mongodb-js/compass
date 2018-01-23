@@ -5,6 +5,7 @@ import EXPRESSION_OPERATORS from 'constants/expression-operators';
 import store from 'stores';
 import { stageOperatorSelected } from 'modules/stages';
 
+import 'brace/mode/javascript';
 const { Mode } = ace.acequire('ace/mode/javascript');
 const textCompleter = ace.acequire('ace/ext/language_tools').textCompleter;
 
