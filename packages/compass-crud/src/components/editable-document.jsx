@@ -53,7 +53,6 @@ class EditableDocument extends React.Component {
    */
   constructor(props) {
     super(props);
-    this.doc = props.doc;
     this.state = {
       renderSize: INITIAL_FIELD_LIMIT,
       editing: false,
@@ -61,6 +60,9 @@ class EditableDocument extends React.Component {
       deleteFinished: false,
       expandAll: false
     };
+
+    this.boundForceUpdate = this.forceUpdate.bind(this);
+    this.boundHandleCancel = this.handleCancel.bind(this);
 
     // Actions need to be scoped to the single document component and not
     // global singletons.
@@ -78,19 +80,19 @@ class EditableDocument extends React.Component {
   componentDidMount() {
     this.unsubscribeUpdate = this.updateStore.listen(this.handleStoreUpdate.bind(this));
     this.unsubscribeRemove = this.removeStore.listen(this.handleStoreRemove.bind(this));
-    this.subscribeToDocumentEvents();
+    this.subscribeToDocumentEvents(this.props.doc);
   }
 
   /**
    * Refreshing the list updates the doc in the props so we should update the
    * document on the instance.
    *
-   * @param {Object} nextProps - The next props.
+   * @param {Object} prevProps - The previous props.
    */
-  componentWillReceiveProps(nextProps) {
-    if (nextProps.doc) {
-      this.doc = nextProps.doc;
-      this.subscribeToDocumentEvents();
+  componentDidUpdate(prevProps) {
+    if (prevProps.doc !== this.props.doc) {
+      this.unsubscribeFromDocumentEvents(prevProps.doc);
+      this.subscribeToDocumentEvents(this.props.doc);
     }
   }
 
@@ -100,47 +102,28 @@ class EditableDocument extends React.Component {
   componentWillUnmount() {
     this.unsubscribeUpdate();
     this.unsubscribeRemove();
-    this.unsubscribeFromDocumentEvents();
+    this.unsubscribeFromDocumentEvents(this.props.doc);
   }
 
+  /**
+   * Set the render size.
+   *
+   * @param {Number} newLimit - The new limit.
+   */
   setRenderSize(newLimit) {
     this.setState({ renderSize: newLimit });
   }
 
-  /**
-   * Load the hadron document for the provided document.
-   *
-   * @param {Object} doc - The document to load.
-   *
-   * @returns {HadronDocument} The hadron document.
-   */
-  static loadDocument(doc) {
-    return new HadronDocument(doc);
+  subscribeToDocumentEvents(doc) {
+    doc.on(Element.Events.Added, this.boundForceUpdate);
+    doc.on(Element.Events.Removed, this.boundForceUpdate);
+    doc.on(HadronDocument.Events.Cancel, this.boundHandleCancel);
   }
 
-  subscribeToDocumentEvents() {
-    this.unsubscribeFromDocumentEvents();
-
-    if (!this.unsubscribeAdded) {
-      this.unsubscribeAdded = this.handleModify.bind(this);
-      this.unsubscribeRemoved = this.handleModify.bind(this);
-      this.unsubscribeCancel = this.handleCancel.bind(this);
-    }
-
-    this.doc.on(Element.Events.Added, this.unsubscribeAdded);
-    this.doc.on(Element.Events.Removed, this.unsubscribeRemoved);
-    this.doc.on(HadronDocument.Events.Cancel, this.unsubscribeCancel);
-  }
-
-  unsubscribeFromDocumentEvents() {
-    if (this.unsubscribeAdded) {
-      this.doc.removeListener(Element.Events.Added, this.unsubscribeAdded);
-      this.doc.removeListener(Element.Events.Removed, this.unsubscribeRemoved);
-      this.doc.removeListener(HadronDocument.Events.Cancel, this.unsubscribeCancel);
-      this.unsubscribeAdded = undefined;
-      this.unsubscribeRemoved = undefined;
-      this.unsubscribeCancel = undefined;
-    }
+  unsubscribeFromDocumentEvents(doc) {
+    doc.removeListener(Element.Events.Added, this.boundForceUpdate);
+    doc.removeListener(Element.Events.Removed, this.boundForceUpdate);
+    doc.removeListener(HadronDocument.Events.Cancel, this.boundHandleCancel);
   }
 
   /**
@@ -266,12 +249,11 @@ class EditableDocument extends React.Component {
 
   /**
    * Handle a successful update.
-   *
-   * @param {Object} doc - The updated document.
    */
-  handleUpdateSuccess(doc) {
-    this.doc = EditableDocument.loadDocument(doc);
-    this.subscribeToDocumentEvents();
+  handleUpdateSuccess() {
+    // @todo: Durran: Replace the doc in the store after update.
+    // this.doc = EditableDocument.loadDocument(doc);
+    // this.subscribeToDocumentEvents();
     setTimeout(() => {
       this.setState({
         editing: false,
@@ -299,7 +281,7 @@ class EditableDocument extends React.Component {
    * Handle copying JSON to clipboard of the document.
    */
   handleCopy() {
-    const documentJSON = JSON.stringify(this.doc.generateObject());
+    const documentJSON = JSON.stringify(this.props.doc.generateObject());
     clipboard.writeText(documentJSON);
   }
 
@@ -307,7 +289,7 @@ class EditableDocument extends React.Component {
    * Handle cloning of the document.
    */
   handleClone() {
-    this.props.openInsertDocumentDialog(this.doc.generateObject(), true);
+    this.props.openInsertDocumentDialog(this.props.doc.generateObject(), true);
   }
 
   /**
@@ -403,7 +385,7 @@ class EditableDocument extends React.Component {
   renderElements() {
     const components = [];
     let index = 0;
-    for (const element of this.doc.elements) {
+    for (const element of this.props.doc.elements) {
       components.push((
         <EditableElement
           key={element.uuid}
@@ -429,7 +411,7 @@ class EditableDocument extends React.Component {
    * @returns {React.Component} The expansion bar.
    */
   renderExpansion() {
-    const totalSize = this.doc.elements.size;
+    const totalSize = this.props.doc.elements.size;
     const props = {
       disableHideButton: false,
       initialSize: INITIAL_FIELD_LIMIT,
@@ -458,14 +440,14 @@ class EditableDocument extends React.Component {
     if (this.state.editing) {
       return (
         <DocumentFooter
-          doc={this.doc}
+          doc={this.props.doc}
           updateStore={this.updateStore}
           actions={this.actions} />
       );
     } else if (this.state.deleting) {
       return (
         <RemoveDocumentFooter
-          doc={this.doc}
+          doc={this.props.doc}
           removeStore={this.removeStore}
           actions={this.actions}
           cancelHandler={this.handleCancelDelete.bind(this)} />
