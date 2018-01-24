@@ -9,6 +9,11 @@ const PREFIX = 'aggregations/sample';
 export const SAMPLE_TOGGLED = `${PREFIX}/SAMPLE_TOGGLED`;
 
 /**
+ * Sample changed action.
+ */
+export const SAMPLE_CHANGED = `${PREFIX}/SAMPLE_CHANGED`;
+
+/**
  * The initial state.
  */
 export const INITIAL_STATE = {
@@ -27,6 +32,8 @@ export const INITIAL_STATE = {
 export default function reducer(state = INITIAL_STATE, action) {
   if (action.type === SAMPLE_TOGGLED) {
     return { isEnabled: !state.isEnabled, value: state.value };
+  } else if (action.type === SAMPLE_CHANGED) {
+    return { isEnabled: state.isEnabled, value: action.value };
   }
   return state;
 }
@@ -38,4 +45,16 @@ export default function reducer(state = INITIAL_STATE, action) {
  */
 export const sampleToggled = () => ({
   type: SAMPLE_TOGGLED
+});
+
+/**
+ * Action creator for sample changed actions.
+ *
+ * @param {Number} value - The value.
+ *
+ * @returns {Object} The sample changed action.
+ */
+export const sampleChanged = (value) => ({
+  type: SAMPLE_CHANGED,
+  value: value
 });

@@ -113,10 +113,12 @@ describe('Aggregation Store', () => {
       it('updates the namespace in the store', () => {
         expect(store.getState().namespace).to.equal('db.coll');
       });
+
       it('resets the rest of the state to initial state', () => {
         expect(store.getState()).to.deep.equal({
           namespace: 'db.coll',
           fields: INITIAL_STATE.fields,
+          sample: INITIAL_STATE.sample,
           serverVersion: INITIAL_STATE.serverVersion,
           stages: INITIAL_STATE.stages,
           view: INITIAL_STATE.view
