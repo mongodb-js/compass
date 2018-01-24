@@ -201,6 +201,7 @@ const CRUDStore = Reflux.createStore({
           doc.emit('remove-error', error.message);
         } else {
           doc.emit('remove-success');
+          this.appRegistry.emit('document-deleted', this.state.view);
           const index = this.findDocumentIndex(doc);
           this.state.docs.splice(index, 1);
           this.setState({
@@ -222,11 +223,13 @@ const CRUDStore = Reflux.createStore({
   updateDocument(doc) {
     const object = doc.generateObject();
     const options = { returnOriginal: false, promoteValues: false };
-    this.dataService.findOneAndReplace(this.state.ns, { _id: object._id }, object, options, (error, d) => {
+    const id = object._id;
+    this.dataService.findOneAndReplace(this.state.ns, { _id: id }, object, options, (error, d) => {
       if (error) {
         doc.emit('update-error', error.message);
       } else {
         doc.emit('update-success', d);
+        this.appRegistry.emit('document-updated', this.state.view);
         const index = this.findDocumentIndex(doc);
         this.state.docs[index] = new HadronDocument(d);
         this.trigger(this.state);
@@ -376,6 +379,7 @@ const CRUDStore = Reflux.createStore({
             insert: this.getInitialInsertState()
           });
         }
+        this.appRegistry.emit('document-inserted', doc);
         // count is greater than 0, if 1 then the new doc matches the filter
         if (count > 0) {
           return this.setState({
@@ -466,6 +470,7 @@ const CRUDStore = Reflux.createStore({
       if (!err) {
         this.dataService.find(this.state.ns, query.filter, findOptions, (error, documents) => {
           const length = documents.length;
+          this.appRegistry.emit('documents-refreshed', documents);
           this.setState({
             error: error,
             docs: documents.map(doc => new HadronDocument(doc)),
