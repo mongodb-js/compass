@@ -30,6 +30,10 @@ const Connection = Model.extend(storageMixin, {
     is_favorite: {
       type: 'boolean',
       default: false
+    },
+    app_name: {
+      type: 'string',
+      default: electronApp.getName()
     }
   },
   derived: {

@@ -25,6 +25,10 @@ describe('Connection', () => {
     it('adds an is_favorite field to the model', () => {
       expect(connection.is_favorite).to.equal(false);
     });
+
+    it('sets the correct app_name', () => {
+      expect(connection.app_name).to.equal('Electron');
+    });
   });
 
   describe('#username', () => {
