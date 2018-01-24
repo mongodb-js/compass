@@ -82,6 +82,17 @@ class DocumentList extends React.Component {
   }
 
   /**
+   * Render the query bar.
+   *
+   * @returns {React.Component} The query bar.
+   */
+  renderQueryBar() {
+    if (!this.props.isExportable) {
+      return (<this.queryBar buttonLabel="Find" />);
+    }
+  }
+
+  /**
    * Render the document list.
    *
    * @returns {React.Component} The document list.
@@ -90,7 +101,7 @@ class DocumentList extends React.Component {
     return (
       <div className="content-container content-container-documents compass-documents">
         <div className="controls-container">
-          <this.queryBar buttonLabel="Find" />
+          {this.renderQueryBar()}
           <Toolbar
             readonly={!this.props.isEditable}
             insertHandler={this.handleOpenInsert.bind(this)}
