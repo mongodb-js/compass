@@ -101,3 +101,4 @@ const deactivate = (appRegistry) => {
 
 module.exports.activate = activate;
 module.exports.deactivate = deactivate;
+module.exports.DocumentList = DocumentList;
