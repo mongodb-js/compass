@@ -2,7 +2,6 @@ const Document = require('./lib/components/document');
 const DocumentList = require('./lib/components');
 const Actions = require('./lib/actions');
 const CRUDStore = require('./lib/stores/crud-store');
-const RemoveDocumentStore = require('./lib/stores/remove-document-store');
 
 const {
   StandardEditor,
@@ -78,7 +77,6 @@ const activate = (appRegistry) => {
   appRegistry.registerRole('CRUD.Editor.ObjectID', OBJECT_ID_EDITOR_ROLE);
   appRegistry.registerAction('CRUD.Actions', Actions);
   appRegistry.registerStore('CRUD.Store', CRUDStore);
-  appRegistry.registerStore('CRUD.RemoveDocumentStore', RemoveDocumentStore);
 };
 
 /**
@@ -99,7 +97,6 @@ const deactivate = (appRegistry) => {
   appRegistry.deregisterRole('CRUD.Editor.ObjectID', OBJECT_ID_EDITOR_ROLE);
   appRegistry.deregisterAction('CRUD.Actions');
   appRegistry.deregisterStore('CRUD.Store');
-  appRegistry.deregisterStore('CRUD.RemoveDocumentStore');
 };
 
 module.exports.activate = activate;
