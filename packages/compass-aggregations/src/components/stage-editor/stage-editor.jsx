@@ -20,7 +20,8 @@ const OPTIONS = {
   fontSize: 11,
   minLines: 5,
   maxLines: Infinity,
-  showGutter: true
+  showGutter: true,
+  useWorker: false
 };
 
 /**
