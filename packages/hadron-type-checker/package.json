@@ -17,12 +17,16 @@
     "ci": "npm test",
     "fmt": "mongodb-js-fmt ./*.js ./test/*.js",
     "test": "mocha --recursive",
-    "check": "mongodb-js-precommit"
+    "check": "mongodb-js-precommit",
+    "prepublish": "babel ./src --out-dir ./lib --presets react",
+    "pretest": "babel ./src --out-dir ./lib --presets react"
   },
   "precommit": [
     "check"
   ],
   "dependencies": {
+    "babel-preset-react": "^6.5.0",
+    "babel-register": "^6.5.2",
     "bson": "^1.0.1",
     "lodash.has": "^4.4.0",
     "lodash.includes": "^4.3.0",
@@ -37,6 +41,7 @@
     "lodash.without": "^4.4.0"
   },
   "devDependencies": {
+    "babel-cli": "^6.9.0",
     "chai": "^3.4.1",
     "eslint-config-mongodb-js": "^2.2.0",
     "mocha": "^3.1.2",

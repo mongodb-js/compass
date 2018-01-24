@@ -77,7 +77,7 @@ const BSON_INT32_MAX = 0x7FFFFFFF;
 const BSON_INT32_MIN = -0x80000000;
 
 const BSON_INT64_MAX = Math.pow(2, 63) - 1;
-const BSON_INT64_MIN = -BSON_INT64_MAX;
+const BSON_INT64_MIN = -(BSON_INT64_MAX);
 
 /**
  * The number regex.
@@ -87,9 +87,14 @@ const NUMBER_REGEX = /^-?\d+$/;
 /**
  * All bson types that are numbers.
  */
-const NUMBER_TYPES = ['Long', 'Int32', 'Double', 'Decimal128'];
+const NUMBER_TYPES = [
+  'Long',
+  'Int32',
+  'Double',
+  'Decimal128'
+];
 
-const toDate = object => {
+const toDate = (object) => {
   return new Date(object);
 };
 
@@ -109,7 +114,7 @@ const toNull = () => {
   return null;
 };
 
-const toBoolean = object => {
+const toBoolean = (object) => {
   if (isString(object)) {
     if (object.toLowerCase() === TRUE) {
       return true;
@@ -124,24 +129,24 @@ const toBoolean = object => {
   return false;
 };
 
-const toObject = object => {
+const toObject = (object) => {
   if (isPlainObject(object)) {
     return object;
   }
   return {};
 };
 
-const toArray = object => {
+const toArray = (object) => {
   if (isArray(object)) {
     return object;
   }
   if (isPlainObject(object)) {
     return [];
   }
-  return [object];
+  return [ object ];
 };
 
-const toInt32 = object => {
+const toInt32 = (object) => {
   if (object === '-' || object === '') {
     throw new Error(`Value '${object}' is not a valid Int32 value`);
   }
@@ -152,7 +157,7 @@ const toInt32 = object => {
   throw new Error(`Value ${number} is outside the valid Int32 range`);
 };
 
-const toInt64 = object => {
+const toInt64 = (object) => {
   if (object === '-' || object === '') {
     throw new Error(`Value '${object}' is not a valid Int64 value`);
   }
@@ -163,7 +168,7 @@ const toInt64 = object => {
   throw new Error(`Value ${number} is outside the valid Int64 range`);
 };
 
-const toDouble = object => {
+const toDouble = (object) => {
   if (object === '-' || object === '') {
     throw new Error(`Value '${object}' is not a valid Double value`);
   }
@@ -174,7 +179,7 @@ const toDouble = object => {
   return new Double(number);
 };
 
-const toDecimal128 = object => {
+const toDecimal128 = (object) => {
   /*
    If converting a BSON Object, extract the value before converting to a string.
    */
@@ -184,30 +189,30 @@ const toDecimal128 = object => {
   return Decimal128.fromString(String(object));
 };
 
-const toObjectID = object => {
+const toObjectID = (object) => {
   if (!isString(object) || object === '') {
     return new bson.ObjectID();
   }
   return bson.ObjectID.createFromHexString(object);
 };
 
-const toBinary = object => {
+const toBinary = (object) => {
   return new Binary(String(object), Binary.SUBTYPE_DEFAULT);
 };
 
-const toRegex = object => {
+const toRegex = (object) => {
   return new BSONRegExp(String(object));
 };
 
-const toCode = object => {
+const toCode = (object) => {
   return new Code(String(object), {});
 };
 
-const toSymbol = object => {
+const toSymbol = (object) => {
   return new Symbol(String(object));
 };
 
-const toTimestamp = object => {
+const toTimestamp = (object) => {
   const number = toNumber(object);
   return Timestamp.fromNumber(number);
 };
@@ -277,7 +282,7 @@ const INT64_CHECK = new Int64Check();
  *
  * @returns {String} The BSON type.
  */
-const numberToBsonType = number => {
+const numberToBsonType = (number) => {
   var string = toString(number);
   if (INT32_CHECK.test(string)) {
     return INT_32;
