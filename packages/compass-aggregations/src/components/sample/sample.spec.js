@@ -32,7 +32,7 @@ describe('Sample [Component]', () => {
   });
 
   it('renders the switch', () => {
-    expect(component.find(`.${styles['sample-toggle']} input`)).to.have.value('on');
+    expect(component.find(`.${styles['sample-toggle']} input`)).to.be.present();
   });
 
   it('renders the input', () => {
