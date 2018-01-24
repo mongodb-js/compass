@@ -1,0 +1,32 @@
+@import (reference) "~less/compass/_theme.less";
+
+.sample {
+  display: flex;
+  align-items: center;
+
+  &-label {
+    text-transform: uppercase;
+    color: #a09f9e;
+    font-size: 11px;
+    padding-right: 10px;
+  }
+
+  &-toggle {
+    height: 22px !important;
+    width: 42px !important;
+    cursor: pointer !important;
+    margin-right: 5px;
+
+    span {
+      height: 20px !important;
+      width: 20px !important;
+      cursor: pointer !important;
+    }
+  }
+
+  &-value {
+    padding: 2px;
+    width: 50px;
+    font-size: 11px;
+  }
+}
