@@ -126,6 +126,7 @@ const CRUDStore = Reflux.createStore({
     appRegistry.on('query-changed', this.onQueryChanged.bind(this));
     appRegistry.on('data-service-connected', this.setDataService.bind(this));
     this.CollectionStore = appRegistry.getStore('App.CollectionStore');
+    this.appRegistry = appRegistry;
   },
 
   /**
@@ -178,6 +179,13 @@ const CRUDStore = Reflux.createStore({
    */
   isListEditable() {
     return !this.CollectionStore.isReadonly() && process.env.HADRON_READONLY !== 'true';
+  },
+
+  /**
+   * Request the export modal be opened.
+   */
+  openExport() {
+    this.appRegistry.emit('open-export', this.state.ns, this.state.query);
   },
 
   /**

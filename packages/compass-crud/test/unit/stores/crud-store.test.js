@@ -22,9 +22,10 @@ describe('CRUDStore', () => {
       return false;
     }
   };
+  const appRegistry = new AppRegistry();
 
   before((done) => {
-    global.hadronApp.appRegistry = new AppRegistry();
+    global.hadronApp.appRegistry = appRegistry;
     global.hadronApp.appRegistry.registerStore('App.CollectionStore', collectionStore);
     global.hadronApp.appRegistry.registerStore('CRUD.Store', CRUDStore);
     global.hadronApp.appRegistry.onActivated();
@@ -295,6 +296,26 @@ describe('CRUDStore', () => {
 
         CRUDStore.onQueryChanged(query);
       });
+    });
+  });
+
+  describe('#openExport', () => {
+    beforeEach(() => {
+      CRUDStore.state = CRUDStore.getInitialState();
+      CRUDStore.state.ns = 'compass-crud.test';
+      CRUDStore.state.query = {
+        filter: { name: 'testing' }
+      };
+    });
+
+    it('emits the event on the app registry with the ns and query', (done) => {
+      appRegistry.on('open-export', (ns, query) => {
+        expect(ns).to.equal(CRUDStore.state.ns);
+        expect(query).to.deep.equal(CRUDStore.state.query);
+        done();
+      });
+
+      CRUDStore.openExport();
     });
   });
 
