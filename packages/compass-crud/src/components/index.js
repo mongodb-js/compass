@@ -14,7 +14,7 @@ class ConnectedDocumentList extends React.Component {
   render() {
     return (
       <StoreConnector store={Store}>
-        <DocumentList {...Actions} {...this.props} />
+        <DocumentList {...Actions} {...this.props} isExportable />
       </StoreConnector>
     );
   }

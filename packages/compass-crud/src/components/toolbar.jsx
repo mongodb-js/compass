@@ -42,13 +42,6 @@ class Toolbar extends React.Component {
   }
 
   /**
-   * Hook for triggering a collection export.
-   */
-  handleExport() {
-    global.hadronApp.appRegistry.emit('request-collection-export');
-  }
-
-  /**
    * Handle refreshing the document list.
    */
   handleRefreshDocuments() {
@@ -131,13 +124,15 @@ class Toolbar extends React.Component {
   }
 
   renderExportButton() {
-    return (
-      <IconButton
-        title="Export Collection"
-        className="btn btn-default btn-xs"
-        iconClassName="fa fa-download"
-        clickHandler={this.handleExport} />
-    );
+    if (this.props.isExportable) {
+      return (
+        <IconButton
+          title="Export Collection"
+          className="btn btn-default btn-xs"
+          iconClassName="fa fa-download"
+          clickHandler={this.props.openExport} />
+      );
+    }
   }
 
   /**
@@ -191,18 +186,20 @@ Toolbar.displayName = 'Toolbar';
 
 Toolbar.propTypes = {
   activeDocumentView: PropTypes.string.isRequired,
-  insertHandler: PropTypes.func.isRequired,
-  viewSwitchHandler: PropTypes.func.isRequired,
+  closeAllMenus: PropTypes.func.isRequired,
+  count: PropTypes.number.isRequired,
   documentRemoved: PropTypes.func.isRequired,
-  refreshDocuments: PropTypes.func.isRequired,
+  end: PropTypes.number.isRequired,
   getNextPage: PropTypes.func.isRequired,
   getPrevPage: PropTypes.func.isRequired,
-  closeAllMenus: PropTypes.func.isRequired,
+  insertHandler: PropTypes.func.isRequired,
+  isExportable: PropTypes.bool.isRequired,
+  openExport: PropTypes.func,
+  page: PropTypes.number.isRequired,
   readonly: PropTypes.bool.isRequired,
-  count: PropTypes.number.isRequired,
+  refreshDocuments: PropTypes.func.isRequired,
   start: PropTypes.number.isRequired,
-  end: PropTypes.number.isRequired,
-  page: PropTypes.number.isRequired
+  viewSwitchHandler: PropTypes.func.isRequired
 };
 
 module.exports = Toolbar;
