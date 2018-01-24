@@ -3,7 +3,6 @@
 /**
  * Generates javascript objects from elements.
  */
-
 class ObjectGenerator {
 
   /**
@@ -52,4 +51,3 @@ class ObjectGenerator {
 }
 
 module.exports = new ObjectGenerator();
-

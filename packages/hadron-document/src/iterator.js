@@ -4,7 +4,6 @@
  * An iterator for a linked list that returns data. The iteration
  * happens in a forward direction.
  */
-
 class Iterator {
 
   /**
@@ -32,4 +31,3 @@ class Iterator {
 }
 
 module.exports = Iterator;
-

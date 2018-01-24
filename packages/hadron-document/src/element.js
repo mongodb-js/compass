@@ -35,7 +35,16 @@ const ID = '_id';
 /**
  * Types that are not editable.
  */
-const UNEDITABLE_TYPES = ['Binary', 'Code', 'MinKey', 'MaxKey', 'Timestamp', 'BSONRegExp', 'Undefined', 'Null'];
+const UNEDITABLE_TYPES = [
+  'Binary',
+  'Code',
+  'MinKey',
+  'MaxKey',
+  'Timestamp',
+  'BSONRegExp',
+  'Undefined',
+  'Null'
+];
 
 /**
  * Curly brace constant.
@@ -273,7 +282,7 @@ class Element extends EventEmitter {
    * @returns {Boolean} If the element is newly added.
    */
   isAdded() {
-    return this.added || this.parent && this.parent.isAdded();
+    return this.added || (this.parent && this.parent.isAdded());
   }
 
   /**
@@ -347,14 +356,18 @@ class Element extends EventEmitter {
   isEdited() {
     let keyChanged = false;
     if (!this.parent || this.parent.isRoot() || this.parent.currentType === 'Object') {
-      keyChanged = this.key !== this.currentKey;
+      keyChanged = (this.key !== this.currentKey);
     }
-    return (keyChanged || !this._valuesEqual() || this.type !== this.currentType) && !this.isAdded();
+    return (keyChanged ||
+      !this._valuesEqual() ||
+      this.type !== this.currentType) &&
+      !this.isAdded();
   }
 
   /**
    * Check for value equality.
-    * @returns {Boolean} If the value is equal.
+
+   * @returns {Boolean} If the value is equal.
    */
   _valuesEqual() {
     if (this.currentType === 'Date' && isString(this.currentValue)) {
@@ -406,7 +419,7 @@ class Element extends EventEmitter {
    * @returns {Boolean} If no action can be taken.
    */
   isNotActionable() {
-    return this.key === ID && !this.isAdded() || !this.isRemovable();
+    return (this.key === ID && !this.isAdded()) || !this.isRemovable();
   }
 
   /**
@@ -436,7 +449,7 @@ class Element extends EventEmitter {
    * @returns {Boolean} If the key is editable.
    */
   isKeyEditable() {
-    return this.isParentEditable() && (this.isAdded() || this.currentKey !== ID);
+    return this.isParentEditable() && (this.isAdded() || (this.currentKey !== ID));
   }
 
   /**
@@ -581,7 +594,7 @@ class Element extends EventEmitter {
     let index = 0;
     for (let key of keys(object)) {
       elements.insertEnd(this._key(key, index), object[key], this.added, this);
-      index++;
+      index ++;
     }
     return elements;
   }
@@ -825,4 +838,3 @@ module.exports = Element;
 module.exports.LinkedList = LinkedList;
 module.exports.Events = Events;
 module.exports.DATE_FORMAT = DATE_FORMAT;
-
