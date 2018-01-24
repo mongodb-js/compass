@@ -65,6 +65,23 @@ class DocumentList extends React.Component {
   }
 
   /**
+   * Render the insert modal.
+   *
+   * @returns {React.Component} The insert modal.
+   */
+  renderInsertModal() {
+    if (this.props.isEditable) {
+      return (
+        <InsertDocumentDialog
+          closeInsertDocumentDialog={this.props.closeInsertDocumentDialog}
+          closeAllMenus={this.props.closeAllMenus}
+          insertDocument={this.props.insertDocument}
+          {...this.props.insert} />
+      );
+    }
+  }
+
+  /**
    * Render the document list.
    *
    * @returns {React.Component} The document list.
@@ -84,11 +101,7 @@ class DocumentList extends React.Component {
             {...this.props} />
         </div>
         {this.renderContent()}
-        <InsertDocumentDialog
-          closeInsertDocumentDialog={this.props.closeInsertDocumentDialog}
-          closeAllMenus={this.props.closeAllMenus}
-          insertDocument={this.props.insertDocument}
-          {...this.props.insert} />
+        {this.renderInsertModal()}
       </div>
     );
   }
@@ -97,14 +110,14 @@ class DocumentList extends React.Component {
 DocumentList.displayName = 'DocumentList';
 
 DocumentList.propTypes = {
-  closeAllMenus: PropTypes.func.isRequired,
-  closeInsertDocumentDialog: PropTypes.func.isRequired,
+  closeAllMenus: PropTypes.func,
+  closeInsertDocumentDialog: PropTypes.func,
   error: PropTypes.object,
-  insert: PropTypes.object.isRequired,
-  insertDocument: PropTypes.func.isRequired,
+  insert: PropTypes.object,
+  insertDocument: PropTypes.func,
   isEditable: PropTypes.bool.isRequired,
   isExportable: PropTypes.bool.isRequired,
-  openInsertDocumentDialog: PropTypes.func.isRequired,
+  openInsertDocumentDialog: PropTypes.func,
   openExport: PropTypes.func,
   view: PropTypes.string.isRequired,
   viewChanged: PropTypes.func.isRequired

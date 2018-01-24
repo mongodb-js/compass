@@ -186,13 +186,12 @@ Toolbar.displayName = 'Toolbar';
 
 Toolbar.propTypes = {
   activeDocumentView: PropTypes.string.isRequired,
-  closeAllMenus: PropTypes.func.isRequired,
+  closeAllMenus: PropTypes.func,
   count: PropTypes.number.isRequired,
-  documentRemoved: PropTypes.func.isRequired,
   end: PropTypes.number.isRequired,
   getNextPage: PropTypes.func.isRequired,
   getPrevPage: PropTypes.func.isRequired,
-  insertHandler: PropTypes.func.isRequired,
+  insertHandler: PropTypes.func,
   isExportable: PropTypes.bool.isRequired,
   openExport: PropTypes.func,
   page: PropTypes.number.isRequired,
