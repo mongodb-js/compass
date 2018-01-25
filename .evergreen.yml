@@ -270,6 +270,7 @@ tasks:
       - macos-compass
       - macos-compass-community
       - macos-compass-readonly
+      - macos-compass-lockdown
   - command: git.get_project
     params:
       directory: src
@@ -297,12 +298,15 @@ tasks:
       - macos-compass
       - macos-compass-community
       - macos-compass-readonly
+      - macos-compass-lockdown
       - rhel-compass
       - rhel-compass-community
       - rhel-compass-readonly
+      - rhel-compass-lockdown
       - ubuntu-compass
       - ubuntu-compass-community
       - ubuntu-compass-readonly
+      - ubuntu-compass-lockdown
   - command: shell.exec
     params:
       working_dir: src
@@ -328,6 +332,7 @@ tasks:
       - windows-compass
       - windows-compass-community
       - windows-compass-readonly
+      - windows-compass-lockdown
   - command: shell.exec
     params:
       working_dir: src
@@ -342,6 +347,7 @@ tasks:
       - windows-compass
       - windows-compass-community
       - windows-compass-readonly
+      - windows-compass-lockdown
   - command: shell.exec
     params:
       working_dir: src
@@ -354,6 +360,7 @@ tasks:
       - rhel-compass
       - rhel-compass-community
       - rhel-compass-readonly
+      - rhel-compass-lockdown
   - command: shell.exec
     params:
       working_dir: src
@@ -364,6 +371,7 @@ tasks:
       - ubuntu-compass
       - ubuntu-compass-community
       - ubuntu-compass-readonly
+      - ubuntu-compass-lockdown
   - func: "configure"
   - func: "install"
   - command: expansions.update
@@ -375,21 +383,25 @@ tasks:
       - windows-compass
       - windows-compass-community
       - windows-compass-readonly
+      - windows-compass-lockdown
   - func: "save osx artifacts"
     variants:
       - macos-compass
       - macos-compass-community
       - macos-compass-readonly
+      - macos-compass-lockdown
   - func: "save linux artifacts"
     variants:
       - ubuntu-compass
       - ubuntu-compass-community
       - ubuntu-compass-readonly
+      - ubuntu-compass-lockdown
   - func: "save rhel artifacts"
     variants:
       - rhel-compass
       - rhel-compass-community
       - rhel-compass-readonly
+      - rhel-compass-lockdown
 
 #######################################
 #           Buildvariants             #
