@@ -185,7 +185,11 @@ function helpSubMenu() {
   subMenu.push(helpWindowItem());
 
   subMenu.push(compassOverviewItem());
-  subMenu.push(networkOptInDialogItem());
+
+  if (process.env.HADRON_LOCKDOWN !== 'true') {
+    subMenu.push(networkOptInDialogItem());
+  }
+
   subMenu.push(securityItem());
 
   if (process.platform !== 'darwin') {
