@@ -47,10 +47,20 @@ describe('Sample [Component]', () => {
   });
 
   context('when changing the input value', () => {
-    it('calls the action with the value cast to an integer', () => {
-      component.find(`.${styles['sample-value']}`).
-        simulate('change', { target: { value: '1500' }});
-      expect(changedSpy.calledWith(1500)).to.equal(true);
+    context('when the input is a number', () => {
+      it('calls the action with the value cast to an integer', () => {
+        component.find(`.${styles['sample-value']}`).
+          simulate('change', { target: { value: '1500' }});
+        expect(changedSpy.calledWith(1500)).to.equal(true);
+      });
+    });
+
+    context('when the input is empty', () => {
+      it('calls the action with the value cast to null', () => {
+        component.find(`.${styles['sample-value']}`).
+          simulate('change', { target: { value: '' }});
+        expect(changedSpy.calledWith(null)).to.equal(true);
+      });
     });
   });
 });

@@ -6,6 +6,11 @@ import Switch from 'react-ios-switch';
 import styles from './sample.less';
 
 /**
+ * Empty string.
+ */
+const EMPTY = '';
+
+/**
  * The sample component.
  */
 class Sample extends PureComponent {
@@ -22,7 +27,8 @@ class Sample extends PureComponent {
    * Handle sample changed events.
    */
   onSampleChanged = (evt) => {
-    this.props.sampleChanged(parseInt(evt.target.value, 10));
+    const value = evt.target.value;
+    this.props.sampleChanged(value.trim() === EMPTY ? null : parseInt(value, 10));
   }
 
   /**
