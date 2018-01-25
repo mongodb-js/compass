@@ -184,10 +184,12 @@ var Application = View.extend({
     this.securityComponent = app.appRegistry.getRole('Application.Security')[0].component;
     ReactDOM.render(React.createElement(this.securityComponent), this.queryByHook('security'));
 
-    this.autoUpdate = new AutoUpdate({
-      el: this.queryByHook('auto-update')
-    });
-    this.autoUpdate.render();
+    if (process.env.HADRON_LOCKDOWN !== 'true') {
+      this.autoUpdate = new AutoUpdate({
+        el: this.queryByHook('auto-update')
+      });
+      this.autoUpdate.render();
+    }
 
     const handleTour = () => {
       if (app.preferences.showFeatureTour) {

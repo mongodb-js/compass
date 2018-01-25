@@ -19,7 +19,9 @@ function Application() {
   this.setupJavaScriptArguments();
   this.setupLifecycleListeners();
 
-  this.setupAutoUpdate();
+  if (process.env.HADRON_LOCKDOWN !== 'true') {
+    this.setupAutoUpdate();
+  }
   this.setupApplicationMenu();
 
   require('./window-manager');
