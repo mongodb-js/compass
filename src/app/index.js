@@ -236,9 +236,11 @@ var Application = View.extend({
     }
   },
   showOptIn: function() {
-    const NetworkOptInView = require('./network-optin');
-    const networkOptInView = new NetworkOptInView();
-    this.renderSubview(networkOptInView, this.queryByHook('optin-container'));
+    if (process.env.HADRON_LOCKDOWN !== 'true') {
+      const NetworkOptInView = require('./network-optin');
+      const networkOptInView = new NetworkOptInView();
+      this.renderSubview(networkOptInView, this.queryByHook('optin-container'));
+    }
   },
   showSecurity: function() {
     app.appRegistry.getAction('Security.Actions').show();
