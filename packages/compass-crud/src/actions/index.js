@@ -19,6 +19,7 @@ const Actions = Reflux.createActions([
   'openInsertDocumentDialog',
   'pathChanged',
   'refreshDocuments',
+  'openImport',
   'openExport',
   'removeDocument',
   'removeColumn',

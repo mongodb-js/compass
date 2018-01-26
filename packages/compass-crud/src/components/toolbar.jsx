@@ -123,6 +123,18 @@ class Toolbar extends React.Component {
     }
   }
 
+  renderImportButton() {
+    if (this.props.isExportable) {
+      return (
+        <IconButton
+          title="Import to Collection"
+          className="btn btn-default btn-xs"
+          iconClassName="fa fa-upload"
+          clickHandler={this.props.openImport} />
+      );
+    }
+  }
+
   renderExportButton() {
     if (this.props.isExportable) {
       return (
@@ -174,6 +186,7 @@ class Toolbar extends React.Component {
                 animatingIconClassName="fa fa-refresh fa-spin"
                 />
             </div>
+            {this.renderImportButton()}
             {this.renderExportButton()}
           </div>
         </div>
@@ -194,6 +207,7 @@ Toolbar.propTypes = {
   insertHandler: PropTypes.func,
   isExportable: PropTypes.bool.isRequired,
   openExport: PropTypes.func,
+  openImport: PropTypes.func,
   page: PropTypes.number.isRequired,
   readonly: PropTypes.bool.isRequired,
   refreshDocuments: PropTypes.func.isRequired,

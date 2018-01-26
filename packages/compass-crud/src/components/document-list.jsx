@@ -109,6 +109,7 @@ class DocumentList extends React.Component {
             activeDocumentView={this.props.view}
             isExportable={this.props.isExportable}
             openExport={this.props.openExport}
+            openImport={this.props.openImport}
             {...this.props} />
         </div>
         {this.renderContent()}
@@ -130,6 +131,7 @@ DocumentList.propTypes = {
   isExportable: PropTypes.bool.isRequired,
   openInsertDocumentDialog: PropTypes.func,
   openExport: PropTypes.func,
+  openImport: PropTypes.func,
   view: PropTypes.string.isRequired,
   viewChanged: PropTypes.func.isRequired
 };

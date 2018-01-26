@@ -189,6 +189,13 @@ const CRUDStore = Reflux.createStore({
   },
 
   /**
+   * Request the import modal be opened.
+   */
+  openImport() {
+    this.appRegistry.emit('open-import', this.state.ns);
+  },
+
+  /**
    * Remove the provided document from the collection.
    *
    * @param {Document} doc - The hadron document.

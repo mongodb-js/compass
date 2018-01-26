@@ -319,6 +319,22 @@ describe('CRUDStore', () => {
     });
   });
 
+  describe('#openImport', () => {
+    beforeEach(() => {
+      CRUDStore.state = CRUDStore.getInitialState();
+      CRUDStore.state.ns = 'compass-crud.test';
+    });
+
+    it('emits the event on the app registry with the ns', (done) => {
+      appRegistry.on('open-import', (ns) => {
+        expect(ns).to.equal(CRUDStore.state.ns);
+        done();
+      });
+
+      CRUDStore.openImport();
+    });
+  });
+
   describe('#removeDocument', () => {
     beforeEach(() => {
       CRUDStore.state = CRUDStore.getInitialState();
