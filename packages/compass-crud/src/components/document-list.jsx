@@ -87,7 +87,7 @@ class DocumentList extends React.Component {
    * @returns {React.Component} The query bar.
    */
   renderQueryBar() {
-    if (!this.props.isExportable) {
+    if (this.props.isExportable) {
       return (<this.queryBar buttonLabel="Find" />);
     }
   }

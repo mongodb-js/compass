@@ -388,7 +388,7 @@ const CRUDStore = Reflux.createStore({
             insert: this.getInitialInsertState()
           });
         }
-        this.appRegistry.emit('document-inserted', doc);
+        this.appRegistry.emit('document-inserted', this.state.view, doc);
         // count is greater than 0, if 1 then the new doc matches the filter
         if (count > 0) {
           return this.setState({
