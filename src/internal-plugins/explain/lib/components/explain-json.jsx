@@ -1,5 +1,6 @@
 const React = require('react');
 const PropTypes = require('prop-types');
+const HadronDocument = require('hadron-document');
 const app = require('hadron-app');
 
 class ExplainJSON extends React.Component {
@@ -14,12 +15,13 @@ class ExplainJSON extends React.Component {
    * @returns {React.Component} The Summary part of the explain view.
    */
   render() {
+    const doc = new HadronDocument(this.props.rawExplainObject);
     return (
       <div className="explain-json">
         <div className="panel panel-default">
           <div className="panel-body">
             <ol className="document-list">
-              <this.documentComponent doc={this.props.rawExplainObject} expandAll />
+              <this.documentComponent doc={doc} expandAll />
             </ol>
           </div>
         </div>
