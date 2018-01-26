@@ -23,15 +23,15 @@ const MetricsStore = Reflux.createStore({
         const eventName = rule.registryEvent;
 
         if (storeName) {
-          this.trackStoreUpdate(appRegistry, storeName);
+          this.trackStoreUpdate(appRegistry, storeName, rule);
         } else if (eventName) {
-          this.trackRegistryEvent(appRegistry, eventName);
+          this.trackRegistryEvent(appRegistry, eventName, rule);
         }
       });
     }
   },
 
-  trackStoreUpdate(appRegistry, storeName) {
+  trackStoreUpdate(appRegistry, storeName, rule) {
     const store = appRegistry.getStore(storeName);
     if (!store) {
       return;
@@ -52,7 +52,7 @@ const MetricsStore = Reflux.createStore({
     });
   },
 
-  trackRegistryEvent(appRegistry, eventName) {
+  trackRegistryEvent(appRegistry, eventName, rule) {
     // attach an event listener
     appRegistry.on(eventName, (...args) => {
       // only track an event if the rule condition evaluates to true
