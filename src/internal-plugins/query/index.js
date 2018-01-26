@@ -1,6 +1,5 @@
 const app = require('hadron-app');
 const QueryBarComponent = require('./lib/component');
-const SamplingMessage = require('./lib/component/sampling-message');
 const QueryAction = require('./lib/action');
 const QueryStore = require('./lib/store/query-store');
 const QueryChangedStore = require('./lib/store/query-changed-store');
@@ -10,7 +9,6 @@ const QueryChangedStore = require('./lib/store/query-changed-store');
  */
 function activate(appRegistry) {
   appRegistry.registerComponent('Query.QueryBar', QueryBarComponent);
-  appRegistry.registerComponent('Query.SamplingMessage', SamplingMessage);
   appRegistry.registerAction('Query.Actions', QueryAction);
   appRegistry.registerStore('Query.Store', QueryStore);
   appRegistry.registerStore('Query.ChangedStore', QueryChangedStore);
@@ -21,7 +19,6 @@ function activate(appRegistry) {
  */
 function deactivate() {
   app.appRegistry.deregisterComponent('Query.QueryBar');
-  app.appRegistry.deregisterComponent('Query.SamplingMessage');
   app.appRegistry.deregisterAction('Query.Actions');
   app.appRegistry.deregisterStore('Query.Store');
   app.appRegistry.deregisterStore('Query.ChangedStore');

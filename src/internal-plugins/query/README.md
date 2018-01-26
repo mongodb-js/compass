@@ -11,7 +11,6 @@ Provides functionality shown in the query bar in the collection view.
 | Key                     | Description                                       |
 |-------------------------|---------------------------------------------------|
 | `Query.QueryBar`        | Renders the query bar.                            |
-| `Query.SamplingMessage` | Renders the sampling message below the query bar. |
 
 ### Actions
 

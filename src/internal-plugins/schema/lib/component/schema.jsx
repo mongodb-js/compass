@@ -6,7 +6,8 @@ const PropTypes = require('prop-types');
 const { StatusRow, Tooltip, ZeroState } = require('hadron-react-components');
 const { TextButton } = require('hadron-react-buttons');
 const Field = require('./field');
-const StatusSubview = require('../component/status-subview');
+const StatusSubview = require('./status-subview');
+const SamplingMessage = require('./sampling-message');
 const { TOOLTIP_IDS } = require('../constants');
 const _ = require('lodash');
 
@@ -33,7 +34,6 @@ const DOCUMENTATION_LINK = 'https://docs.mongodb.com/compass/master/schema/';
 class Schema extends React.Component {
 
   componentWillMount() {
-    this.samplingMessage = app.appRegistry.getComponent('Query.SamplingMessage');
     this.StatusAction = app.appRegistry.getAction('Status.Actions');
     this.queryBar = app.appRegistry.getComponent('Query.QueryBar');
     this.CollectionStore = app.appRegistry.getStore('App.CollectionStore');
@@ -115,9 +115,9 @@ class Schema extends React.Component {
       banner = <StatusRow style="error">{ERROR_WARNING}: {this.props.errorMessage}</StatusRow>;
     } else {
       banner = (
-        <this.samplingMessage
+        <SamplingMessage
           sampleSize={this.props.schema ? this.props.schema.count : 0}
-        />
+          count={this.props.count} />
       );
     }
     return banner;
@@ -141,17 +141,12 @@ class Schema extends React.Component {
       return (
         <ZeroState
           header={HEADER}
-          subtext={SUBTEXT}
-        >
+          subtext={SUBTEXT}>
           <TextButton
             className="btn btn-primary btn-lg"
             text="Analyze Schema"
-            clickHandler={this.onApplyClicked.bind(this)}
-          />
-          <a
-            className="btn btn-info btn-lg"
-            href={DOCUMENTATION_LINK}
-          >
+            clickHandler={this.onApplyClicked.bind(this)} />
+          <a className="btn btn-info btn-lg" href={DOCUMENTATION_LINK}>
             Learn More
           </a>
         </ZeroState>
@@ -183,8 +178,7 @@ class Schema extends React.Component {
             layout={QUERYBAR_LAYOUT}
             buttonLabel="Analyze"
             onApply={this.onApplyClicked.bind(this)}
-            onReset={this.onResetClicked.bind(this)}
-          />
+            onReset={this.onResetClicked.bind(this)} />
           {this.renderBanner()}
         </div>
           {this.renderContent()}
@@ -205,7 +199,8 @@ Schema.propTypes = {
   samplingTimeMS: PropTypes.number,
   errorMessage: PropTypes.string,
   maxTimeMS: PropTypes.number,
-  schema: PropTypes.any
+  schema: PropTypes.any,
+  count: PropTypes.number
 };
 
 Schema.defaultProps = {

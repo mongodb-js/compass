@@ -17,22 +17,12 @@ const FieldStore = Reflux.createStore({
 
   onActivated(appRegistry) {
     // process documents when CRUD store resets (first 20 docs)
-    appRegistry.getStore('CRUD.ResetDocumentListStore').listen((err, docs) => {
-      if (!err) {
-        this.processDocuments(docs);
-      }
-    });
-    // process documents when user scrolls through the list (next 20 docs)
-    appRegistry.getStore('CRUD.LoadMoreDocumentsStore').listen((err, docs) => {
-      if (!err) {
-        this.processDocuments(docs);
-      }
+    appRegistry.on('documents-refreshed', (view, docs) => {
+      this.processDocuments(docs);
     });
     // process new document a user inserts
-    appRegistry.getStore('CRUD.InsertDocumentStore').listen((success, doc) => {
-      if (success) {
-        this.processSingleDocument(doc);
-      }
+    appRegistry.getStore('document-inserted').listen((view, doc) => {
+      this.processSingleDocument(doc);
     });
     // optionally also subscribe to the SchemaStore if present
     const schemaStore = appRegistry.getStore('Schema.Store');
@@ -190,8 +180,7 @@ const FieldStore = Reflux.createStore({
   },
 
   /**
-   * processes documents returned from the ResetDocumentListStore and
-   * LoadMoreDocumentsStore.
+   * processes documents returned from the document list
    *
    * @param  {Array} documents  documents to process.
    */
@@ -207,7 +196,7 @@ const FieldStore = Reflux.createStore({
   },
 
   /**
-   * processes a single document returned from the InsertDocumentStore.
+   * processes a single document returned from inserting a document.
    *
    * @param  {Object} document     document to process.
    */
