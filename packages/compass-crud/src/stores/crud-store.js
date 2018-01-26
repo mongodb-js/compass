@@ -274,6 +274,7 @@ const CRUDStore = Reflux.createStore({
     };
     this.dataService.find(this.state.ns, this.state.query.filter, options, (error, documents) => {
       const length = error ? 0 : documents.length;
+      this.appRegistry.emit('documents-paginated', this.state.view);
       this.setState({
         error: error,
         docs: documents.map(doc => new HadronDocument(doc)),
@@ -303,6 +304,7 @@ const CRUDStore = Reflux.createStore({
     };
     this.dataService.find(this.state.ns, this.state.query.filter, options, (error, documents) => {
       const length = error ? 0 : documents.length;
+      this.appRegistry.emit('documents-paginated', this.state.view);
       this.setState({
         error: error,
         docs: documents.map(doc => new HadronDocument(doc)),
@@ -470,7 +472,7 @@ const CRUDStore = Reflux.createStore({
       if (!err) {
         this.dataService.find(this.state.ns, query.filter, findOptions, (error, documents) => {
           const length = documents.length;
-          this.appRegistry.emit('documents-refreshed', documents);
+          this.appRegistry.emit('documents-refreshed', this.state.view, documents);
           this.setState({
             error: error,
             docs: documents.map(doc => new HadronDocument(doc)),
