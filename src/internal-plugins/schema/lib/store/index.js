@@ -91,7 +91,8 @@ const SchemaStore = Reflux.createStore({
       samplingTimeMS: 0,
       errorMessage: '',
       maxTimeMS: DEFAULT_MAX_TIME_MS,
-      schema: null
+      schema: null,
+      count: 0
     };
   },
 
@@ -231,6 +232,7 @@ const SchemaStore = Reflux.createStore({
       }
 
       this.setState({
+        count: count,
         samplingState: 'sampling',
         samplingProgress: 0,
         samplingTimeMS: new Date() - samplingStart
@@ -274,7 +276,6 @@ const SchemaStore = Reflux.createStore({
   storeDidUpdate(prevState) {
     debug('schema store changed from', prevState, 'to', this.state);
   }
-
 });
 
 module.exports = SchemaStore;
