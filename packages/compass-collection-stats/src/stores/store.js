@@ -35,7 +35,8 @@ const CollectionStatsStore = Reflux.createStore({
   onActivated(appRegistry) {
     this.NamespaceStore = appRegistry.getStore('App.NamespaceStore');
     this.CollectionStore = appRegistry.getStore('App.CollectionStore');
-    appRegistry.getAction('CRUD.Actions').documentRemoved.listen(this.onDocumentDeleted.bind(this));
+    appRegistry.on('document-deleted', this.onDocumentsModified.bind(this));
+    appRegistry.on('document-inserted', this.onDocumentsModified.bind(this));
     appRegistry.on('data-service-connected', this.onConnected.bind(this));
     appRegistry.on('collection-changed', this.onCollectionChanged.bind(this));
   },
@@ -55,7 +56,7 @@ const CollectionStatsStore = Reflux.createStore({
   /**
    * Handle document deletion.
    */
-  onDocumentDeleted() {
+  onDocumentsModified() {
     this.loadCollectionStats(this.NamespaceStore.ns);
   },
 
@@ -100,7 +101,13 @@ const CollectionStatsStore = Reflux.createStore({
       avgDocumentSize: INVALID,
       indexCount: INVALID,
       totalIndexSize: INVALID,
-      avgIndexSize: INVALID
+      avgIndexSize: INVALID,
+      rawDocumentCount: 0,
+      rawTotalDocumentSize: 0,
+      rawAvgDocumentSize: 0,
+      rawIndexCount: 0,
+      rawTotalIndexSize: 0,
+      rawAvgIndexSize: 0
     };
   },
 
@@ -111,7 +118,13 @@ const CollectionStatsStore = Reflux.createStore({
       avgDocumentSize: this._format(this._avg(result.document_size, result.document_count), 'b'),
       indexCount: this._format(result.index_count),
       totalIndexSize: this._format(result.index_size, 'b'),
-      avgIndexSize: this._format(this._avg(result.index_size, result.index_count), 'b')
+      avgIndexSize: this._format(this._avg(result.index_size, result.index_count), 'b'),
+      rawDocumentCount: result.document_count,
+      rawTotalDocumentSize: result.document_size,
+      rawAvgDocumentSize: this._avg(result.document_size, result.document_count),
+      rawIndexCount: result.index_count,
+      rawTotalIndexSize: result.index_size,
+      rawAvgIndexSize: this._avg(result.index_size, result.index_count)
     };
   },
 

@@ -2,7 +2,7 @@ import Store from 'stores';
 
 describe('CollectionStatsStore [Store]', () => {
   beforeEach(() => {
-    Store.setState(Store.getInitialState());
+    Store.state = Store.getInitialState();
   });
 
   it('defaults document count to invalid', () => {
@@ -27,5 +27,29 @@ describe('CollectionStatsStore [Store]', () => {
 
   it('defaults document count to invalid', () => {
     expect(Store.state.avgIndexSize).to.be.equal('N/A');
+  });
+
+  it('defaults raw document count to invalid', () => {
+    expect(Store.state.rawDocumentCount).to.be.equal(0);
+  });
+
+  it('defaults raw document count to invalid', () => {
+    expect(Store.state.rawTotalDocumentSize).to.be.equal(0);
+  });
+
+  it('defaults raw document count to invalid', () => {
+    expect(Store.state.rawAvgDocumentSize).to.be.equal(0);
+  });
+
+  it('defaults raw document count to invalid', () => {
+    expect(Store.state.rawIndexCount).to.be.equal(0);
+  });
+
+  it('defaults raw document count to invalid', () => {
+    expect(Store.state.rawTotalIndexSize).to.be.equal(0);
+  });
+
+  it('defaults raw document count to invalid', () => {
+    expect(Store.state.rawAvgIndexSize).to.be.equal(0);
   });
 });
