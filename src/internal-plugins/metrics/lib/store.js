@@ -19,26 +19,47 @@ const MetricsStore = Reflux.createStore({
       // configure rules
       rules.forEach((rule) => {
         // get the store for this rule
-        const store = appRegistry.getStore(rule.store);
-        if (!store) {
-          return;
+        const storeName = rule.store;
+        const eventName = rule.registryEvent;
+
+        if (storeName) {
+          this.trackStoreUpdate(appRegistry, storeName, rule);
+        } else if (eventName) {
+          this.trackRegistryEvent(appRegistry, eventName, rule);
         }
-        // attach an event listener
-        store.listen((state) => {
-          // only track an event if the rule condition evaluates to true
-          if (rule.condition(state)) {
-            // Some stores trigger with arrays of data.
-            if (rule.multi) {
-              state.forEach((s) => {
-                metrics.track(rule.resource, rule.action, rule.metadata(s));
-              });
-            } else {
-              metrics.track(rule.resource, rule.action, rule.metadata(state));
-            }
-          }
-        });
       });
     }
+  },
+
+  trackStoreUpdate(appRegistry, storeName, rule) {
+    const store = appRegistry.getStore(storeName);
+    if (!store) {
+      return;
+    }
+    // attach an event listener
+    store.listen((state) => {
+      // only track an event if the rule condition evaluates to true
+      if (rule.condition(state)) {
+        // Some stores trigger with arrays of data.
+        if (rule.multi) {
+          state.forEach((s) => {
+            metrics.track(rule.resource, rule.action, rule.metadata(s));
+          });
+        } else {
+          metrics.track(rule.resource, rule.action, rule.metadata(state));
+        }
+      }
+    });
+  },
+
+  trackRegistryEvent(appRegistry, eventName, rule) {
+    // attach an event listener
+    appRegistry.on(eventName, (...args) => {
+      // only track an event if the rule condition evaluates to true
+      if (rule.condition(...args)) {
+        metrics.track(rule.resource, rule.action, rule.metadata(...args));
+      }
+    });
   }
 });
 

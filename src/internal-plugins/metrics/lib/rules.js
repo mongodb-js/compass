@@ -153,39 +153,63 @@ module.exports = [
     })
   },
   {
-    store: 'CRUD.InsertDocumentStore',
-    resource: 'Document',
-    action: 'inserted',
+    registryEvent: 'open-export',
+    resource: 'Export',
+    action: 'opened',
     condition: () => true,
     metadata: () => ({})
   },
   {
-    store: 'CRUD.RemoveDocumentStore',
+    registryEvent: 'open-import',
+    resource: 'Import',
+    action: 'opened',
+    condition: () => true,
+    metadata: () => ({})
+  },
+  {
+    registryEvent: 'document-deleted',
     resource: 'Document',
     action: 'deleted',
     condition: () => true,
-    metadata: () => ({})
+    metadata: (view) => ({
+      'view': view
+    })
   },
   {
-    store: 'CRUD.ResetDocumentListStore',
+    registryEvent: 'document-updated',
+    resource: 'Document',
+    action: 'updated',
+    condition: () => true,
+    metadata: (view) => ({
+      'view': view
+    })
+  },
+  {
+    registryEvent: 'document-inserted',
+    resource: 'Document',
+    action: 'inserted',
+    condition: () => true,
+    metadata: (view) => ({
+      'view': view
+    })
+  },
+  {
+    regestryEvent: 'documents-refreshed',
     resource: 'Documents',
-    action: 'loaded',
+    action: 'refreshed',
     condition: () => true,
-    metadata: () => ({})
+    metadata: (view) => ({
+      'view': view
+    })
   },
   {
-    store: 'CRUD.LoadMoreDocumentsStore',
-    resource: 'Documents List View',
+    store: 'documents-paginated',
+    resource: 'Documents',
     action: 'paginated',
     condition: () => true,
-    metadata: () => ({})
-  },
-  {
-    store: 'CRUD.PageChangedStore',
-    resource: 'Documents Table View',
-    action: 'paginated',
-    condition: () => true,
-    metadata: () => ({})
+    metadata: (view) => ({
+      'view': view
+    })
   },
   {
     store: 'License.Store',
