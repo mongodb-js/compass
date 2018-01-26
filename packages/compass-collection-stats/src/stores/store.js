@@ -33,7 +33,6 @@ const CollectionStatsStore = Reflux.createStore({
    */
   // eslint-disable-next-line no-unused-vars
   onActivated(appRegistry) {
-    this.NamespaceStore = appRegistry.getStore('App.NamespaceStore');
     this.CollectionStore = appRegistry.getStore('App.CollectionStore');
     appRegistry.on('document-deleted', this.onDocumentsModified.bind(this));
     appRegistry.on('document-inserted', this.onDocumentsModified.bind(this));
@@ -57,7 +56,7 @@ const CollectionStatsStore = Reflux.createStore({
    * Handle document deletion.
    */
   onDocumentsModified() {
-    this.loadCollectionStats(this.NamespaceStore.ns);
+    this.loadCollectionStats();
   },
 
   /**
@@ -66,7 +65,8 @@ const CollectionStatsStore = Reflux.createStore({
    * @param {String} ns - The namespace.
    */
   onCollectionChanged(ns) {
-    this.loadCollectionStats(ns);
+    this.ns = ns;
+    this.loadCollectionStats();
   },
 
   /**
@@ -74,12 +74,12 @@ const CollectionStatsStore = Reflux.createStore({
    *
    * @param {String} ns - The namespace.
    */
-  loadCollectionStats(ns) {
-    if (toNS(ns || '').collection) {
+  loadCollectionStats() {
+    if (toNS(this.ns || '').collection) {
       if (this.CollectionStore.isReadonly()) {
         this.setState(this.getInitialState());
       } else {
-        this.dataService.collection(ns, {}, (err, result) => {
+        this.dataService.collection(this.ns, {}, (err, result) => {
           if (!err) {
             this.setState(this._parseCollectionDetails(result));
           }
