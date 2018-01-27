@@ -48,7 +48,7 @@ class PipelineHeader extends PureComponent {
           clickHandler={this.props.stageAdded} />
         <IconButton
           title="Copy to Clipboard"
-          className="btn btn-default btn-xs"
+          className="btn btn-default btn-xs pipeline-header-copy-to-clipboard"
           iconClassName="fa fa-clipboard"
           clickHandler={this.props.copyToClipboard} />
       </div>

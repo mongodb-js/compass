@@ -18,7 +18,10 @@ class Sample extends PureComponent {
 
   static propTypes = {
     isEnabled: PropTypes.bool.isRequired,
-    value: PropTypes.number.isRequired,
+    value: PropTypes.oneOfType([
+      PropTypes.number,
+      PropTypes.string
+    ]).isRequired,
     sampleChanged: PropTypes.func.isRequired,
     sampleToggled: PropTypes.func.isRequired
   }
@@ -28,7 +31,7 @@ class Sample extends PureComponent {
    */
   onSampleChanged = (evt) => {
     const value = evt.target.value;
-    this.props.sampleChanged(value.trim() === EMPTY ? null : parseInt(value, 10));
+    this.props.sampleChanged(value.trim() === EMPTY ? EMPTY : parseInt(value, 10));
   }
 
   /**

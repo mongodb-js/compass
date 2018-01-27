@@ -59,7 +59,7 @@ describe('Sample [Component]', () => {
       it('calls the action with the value cast to null', () => {
         component.find(`.${styles['sample-value']}`).
           simulate('change', { target: { value: '' }});
-        expect(changedSpy.calledWith(null)).to.equal(true);
+        expect(changedSpy.calledWith('')).to.equal(true);
       });
     });
   });

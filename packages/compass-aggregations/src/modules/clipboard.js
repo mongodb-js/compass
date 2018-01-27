@@ -68,13 +68,16 @@ export const generateClipboardText = (state) => {
  * @returns {Object} The result of the copy.
  */
 const executeCopy = (state) => {
-  const input = document.createElement(INPUT);
+  let input = document.createElement(INPUT);
   input.type = TYPE;
   input.setAttribute(STYLES, DISPLAY);
   input.value = generateClipboardText(state);
   document.body.appendChild(input);
   input.select();
-  return document.execCommand(COPY);
+  const success = document.execCommand(COPY);
+  document.body.removeChild(input);
+  input = null;
+  return success;
 };
 
 /**
