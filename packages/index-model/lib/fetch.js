@@ -26,9 +26,9 @@ function attach(anything, done) {
  * @param  {object}   results    results from async.auto
  */
 function getIndexes(done, results) {
-  var db = results.db;
+  var client = results.client;
   var ns = mongodbNS(results.namespace);
-  db.db(ns.database, { returnNonCachedInstance: true }).collection(ns.collection).indexes(function(err, indexes) {
+  client.db(ns.database, { returnNonCachedInstance: true }).collection(ns.collection).indexes(function(err, indexes) {
     if (err) {
       done(err);
     }
@@ -46,13 +46,13 @@ function getIndexes(done, results) {
  * @param  {object}   results    results from async.auto
  */
 function getIndexStats(done, results) {
-  var db = results.db;
+  var client = results.client;
   var ns = mongodbNS(results.namespace);
   var pipeline = [
     { $indexStats: { } },
     { $project: { name: 1, usageHost: '$host', usageCount: '$accesses.ops', usageSince: '$accesses.since' } }
   ];
-  var collection = db.db(ns.database, { returnNonCachedInstance: true }).collection(ns.collection);
+  var collection = client.db(ns.database, { returnNonCachedInstance: true }).collection(ns.collection);
   collection.aggregate(pipeline, { cursor: {}}).toArray(function(err, res) {
     if (err) {
       if (isNotAuthorizedError(err)) {
@@ -84,9 +84,9 @@ function getIndexStats(done, results) {
  */
 
 function getIndexSizes(done, results) {
-  var db = results.db;
+  var client = results.client;
   var ns = mongodbNS(results.namespace);
-  db.db(ns.database, { returnNonCachedInstance: true }).collection(ns.collection).stats(function(err, res) {
+  client.db(ns.database, { returnNonCachedInstance: true }).collection(ns.collection).stats(function(err, res) {
     if (err) {
       if (isNotAuthorizedError(err)) {
         debug('Not authorized to get collection stats.  Returning default for indexSizes {}.');
@@ -124,13 +124,13 @@ function combineStatsAndIndexes(done, results) {
  * @param  {String} namespace    namespace for which to get indexes
  * @param  {Function} done       callback
  */
-function getIndexDetails(db, namespace, done) {
+function getIndexDetails(client, namespace, done) {
   var tasks = {
-    db: attach.bind(null, db),
+    client: attach.bind(null, client),
     namespace: attach.bind(null, namespace),
-    getIndexes: ['db', 'namespace', getIndexes],
-    getIndexStats: ['db', 'namespace', getIndexStats],
-    getIndexSizes: ['db', 'namespace', getIndexSizes],
+    getIndexes: ['client', 'namespace', getIndexes],
+    getIndexStats: ['client', 'namespace', getIndexStats],
+    getIndexSizes: ['client', 'namespace', getIndexSizes],
     indexes: ['getIndexes', 'getIndexStats', 'getIndexSizes', combineStatsAndIndexes]
   };
 

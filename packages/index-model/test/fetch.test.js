@@ -14,15 +14,15 @@ describe('fetch()', function() {
     this.slow(2000);
     this.timeout(10000);
 
-    var db;
+    var client;
     var collection;
 
     // connect and create collection with index
     before(function(done) {
-      MongoClient.connect('mongodb://localhost:27017/test', function(err, _db) {
+      MongoClient.connect('mongodb://localhost:27017/test', function(err, _client) {
         assert.ifError(err);
-        db = _db;
-        collection = db.collection('_test_index_fetch');
+        client = _client;
+        collection = _client.db('test').collection('_test_index_fetch');
         collection.ensureIndex({loc: '2d'}, {w: 1}, function(err2) {
           assert.ifError(err2);
           done();
@@ -36,7 +36,7 @@ describe('fetch()', function() {
     });
 
     it('should connect to `localhost:27017` and get indexes', function(done) {
-      fetch(db, 'test._test_index_fetch', function(err, res) {
+      fetch(client, 'test._test_index_fetch', function(err, res) {
         assert.ifError(err);
         assert.equal(res[0].name, '_id_');
         assert.ok(_.isNumber(res[0].size));
@@ -47,7 +47,7 @@ describe('fetch()', function() {
     });
 
     it('should populate an index collection', function(done) {
-      fetch(db, 'test._test_index_fetch', function(err2, res) {
+      fetch(client, 'test._test_index_fetch', function(err2, res) {
         assert.ifError(err2);
         var indexes = new IndexCollection(res, {parse: true});
         assert.equal(indexes.length, 2);
@@ -56,7 +56,7 @@ describe('fetch()', function() {
     });
 
     it('should work with fetchIndexes() method', function(done) {
-      var coll = new IndexCollection().fetchIndexes(db, 'test._test_index_fetch');
+      var coll = new IndexCollection().fetchIndexes(client, 'test._test_index_fetch');
       coll.on('sync', function() {
         assert.equal(coll.length, 2);
         done();
