@@ -31,6 +31,11 @@ const VIEW_ERROR = 'is a view, not a collection';
 const SYSTEM = 'system';
 
 /**
+ * The admin database name.
+ */
+const ADMIN = 'admin';
+
+/**
  * The native client class.
  */
 class NativeClient extends EventEmitter {
@@ -63,7 +68,7 @@ class NativeClient extends EventEmitter {
 
       debug('connected!');
       this.client.on('status', (evt) => this.emit('status', evt));
-      this.database = this.client.db(this.model.ns);
+      this.database = this.client.db(this.model.ns || ADMIN);
       this.database.admin().command({ ismaster: 1 }, (error, result) => {
         const ismaster = error ? {} : result;
         this.isWritable = this._isWritable(ismaster);
