@@ -164,10 +164,8 @@ var Application = View.extend({
     // Seems like this doesn't have as much of an effect as we'd hoped as
     // most of the expense has already occurred. You can see it take 1700ms
     // or so if you move this to the top of the file.
-    require('backoff');
     require('local-links');
     require('./models/mongodb-instance');
-    require('mongodb-data-service');
     marky.stop('Pre-loading additional modules required to connect');
   },
   /**
