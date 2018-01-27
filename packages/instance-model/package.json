@@ -26,8 +26,8 @@
     "ampersand-state": "4.8.2",
     "debug": "^2.2.0",
     "lodash": "^4.10.0",
-    "mongodb-collection-model": "^0.4.0",
-    "mongodb-database-model": "^0.1.2"
+    "mongodb-collection-model": "^1.0.0",
+    "mongodb-database-model": "^0.1.3"
   },
   "devDependencies": {
     "eslint-config-mongodb-js": "^2.2.0",
