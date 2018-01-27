@@ -212,7 +212,7 @@ function getTasks(model, setupListeners) {
       );
       const mongoClient = new MongoClient(model.driver_url, validOptions);
       if (setupListeners) {
-        setupListeners(client);
+        setupListeners(mongoClient);
       }
       mongoClient.connect(function(err, _client) {
         ctx(err);
