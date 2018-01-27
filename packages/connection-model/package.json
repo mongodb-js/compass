@@ -31,7 +31,6 @@
     "backoff": "^2.4.1",
     "debug": "^2.6.0",
     "kerberos": "^0.0.22",
-    "lodash": "^4.16.4",
     "lodash.assign": "^4.2.0",
     "lodash.clone": "^4.5.0",
     "lodash.defaults": "^4.2.0",
