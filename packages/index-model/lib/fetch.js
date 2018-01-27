@@ -28,7 +28,7 @@ function attach(anything, done) {
 function getIndexes(done, results) {
   var client = results.client;
   var ns = mongodbNS(results.namespace);
-  client.db(ns.database, { returnNonCachedInstance: true }).collection(ns.collection).indexes(function(err, indexes) {
+  client.db(ns.database).collection(ns.collection).indexes(function(err, indexes) {
     if (err) {
       done(err);
     }
@@ -52,7 +52,7 @@ function getIndexStats(done, results) {
     { $indexStats: { } },
     { $project: { name: 1, usageHost: '$host', usageCount: '$accesses.ops', usageSince: '$accesses.since' } }
   ];
-  var collection = client.db(ns.database, { returnNonCachedInstance: true }).collection(ns.collection);
+  var collection = client.db(ns.database).collection(ns.collection);
   collection.aggregate(pipeline, { cursor: {}}).toArray(function(err, res) {
     if (err) {
       if (isNotAuthorizedError(err)) {
@@ -86,7 +86,7 @@ function getIndexStats(done, results) {
 function getIndexSizes(done, results) {
   var client = results.client;
   var ns = mongodbNS(results.namespace);
-  client.db(ns.database, { returnNonCachedInstance: true }).collection(ns.collection).stats(function(err, res) {
+  client.db(ns.database).collection(ns.collection).stats(function(err, res) {
     if (err) {
       if (isNotAuthorizedError(err)) {
         debug('Not authorized to get collection stats.  Returning default for indexSizes {}.');
