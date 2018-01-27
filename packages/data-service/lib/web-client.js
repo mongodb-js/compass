@@ -17,8 +17,6 @@ class WebClient {
    * @param {Object} pipeline - The aggregation pipeline.
    * @param {Object} options - The aggregation options (ignored).
    * @param {Function} callback - The callback (optional)
-   *
-   * @return {(null|AggregationCursor)}
    */
   aggregate(ns, pipeline, options, callback) {
     this._getCollection(ns).aggregate(pipeline)

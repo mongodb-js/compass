@@ -240,9 +240,10 @@ function parseDatabase(resp) {
 }
 
 /**
- * @param {mongo.Db} db
- * @param {String} [name]
- * @param {Function} done
+ * @param {MongoClient} client - The client.
+ * @param {DB} db - The db.
+ * @param {String} name - The name.
+ * @param {Function} done - The callback.
 
  * @example
  *   {
@@ -454,8 +455,9 @@ function attach(anything, done) {
  * Retrieves many instance details, such as the build and host info,
  * databases and collections which the user has access to.
  *
- * @param  {Mongo.db}   db     database handle from the node driver
- * @param  {Function} done     callback
+ * @param {MongoClient} client - The client.
+ * @param {DB} db - database handle from the node driver
+ * @param {Function} done - callback
  */
 function getInstanceDetail(client, db, done) {
   const tasks = {

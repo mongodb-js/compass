@@ -632,6 +632,8 @@ class NativeClient extends EventEmitter {
    * Get the collection details for sharded collections.
    *
    * @param {String} ns - The full collection namespace.
+   *
+   * @param {Function} callback - The callback.
    */
   shardedCollectionDetail(ns, callback) {
     this.collectionDetail(ns, (error, data) => {
@@ -639,17 +641,16 @@ class NativeClient extends EventEmitter {
         return callback(this._translateMessage(error));
       }
       if (!data.sharded) {
-        callback(null, data);
-      } else {
-        async.parallel(map(data.shards, (shardStats, shardName) => {
-          return this._shardDistribution.bind(this, ns, shardName, data, shardStats);
-        }), (err) => {
-          if (err) {
-            return callback(this._translateMessage(err));
-          }
-          callback(null, data);
-        });
+        return callback(null, data);
       }
+      async.parallel(map(data.shards, (shardStats, shardName) => {
+        return this._shardDistribution.bind(this, ns, shardName, data, shardStats);
+      }), (err) => {
+        if (err) {
+          return callback(this._translateMessage(err));
+        }
+        callback(null, data);
+      });
     });
   }
 
@@ -758,6 +759,8 @@ class NativeClient extends EventEmitter {
    * @param {Object} shardStats - The shard stats.
    * @param {Object} shardDoc - The shard doc.
    * @param {Integer} chunkCount - The chunk counts.
+   *
+   * @returns {Object} The details.
    */
   _buildShardDistribution(detail, shardStats, shardDoc, chunkCount) {
     return {
