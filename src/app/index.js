@@ -1,7 +1,10 @@
 /* eslint no-console:0 */
 const marky = require('marky');
+const EventEmitter = require('events');
 marky.mark('Time to Connect rendered');
 marky.mark('Time to user can Click Connect');
+
+EventEmitter.defaultMaxListeners = 100;
 
 require('../setup-hadron-distribution');
 
