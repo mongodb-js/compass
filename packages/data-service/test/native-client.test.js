@@ -171,28 +171,42 @@ describe('NativeClient', function() {
           [{$match: {}}, {$group: {_id: '$x', total: {$sum: '$x'} } }],
           function(error, result) {
             assert.equal(null, error);
-            expect(result.length).to.equal(3);
-            done();
+            result.toArray((err, r) => {
+              assert.equal(null, err);
+              expect(r.length).to.equal(3);
+              done();
+            });
           });
       });
       it('pipeline with $unwind, $group, $project', function(done) {
         client.aggregate('data-service.test',
-          [{ $project: {
-            author: 1,
-            tags: 1
-          }},
-          { $unwind: '$tags' },
-          { $group: {
-            _id: {tags: '$tags'},
-            authors: { $addToSet: '$author' }
-          }}],
+          [
+            {
+              $project: {
+                author: 1,
+                tags: 1
+              }
+            },
+            {
+              $unwind: '$tags'
+            },
+            {
+              $group: {
+                _id: { tags: '$tags' },
+                authors: { $addToSet: '$author' }
+              }
+            }
+          ],
           {},
           function(error, result) {
             assert.equal(null, error);
-            expect(result).to.deep.equal(
-              [ { _id: { tags: 'good' }, authors: [ 'bob' ] },
-                { _id: { tags: 'fun' }, authors: [ 'bob' ] } ]);
-            done();
+            result.toArray((err, r) => {
+              assert.equal(null, err);
+              expect(r).to.deep.equal(
+                [ { _id: { tags: 'good' }, authors: [ 'bob' ] },
+                  { _id: { tags: 'fun' }, authors: [ 'bob' ] } ]);
+              done();
+            });
           });
       });
       it('errors when given a bad option', function() {
@@ -693,7 +707,7 @@ describe('NativeClient', function() {
 
   describe('#dropDatabase', function() {
     before(function(done) {
-      client.database.db('mangoDB').createCollection('testing',
+      client.client.db('mangoDB').createCollection('testing',
       {}, function(error) {
         assert.equal(null, error);
         done();

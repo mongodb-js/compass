@@ -81,7 +81,7 @@ function getBuildInfo(results, done) {
     buildInfo: 1
   };
 
-  db.db('admin').command(spec, {}, function(err, res) {
+  db.admin().command(spec, {}, function(err, res) {
     if (err) {
       // buildInfo doesn't require any privileges to run, so if it fails,
       // something really went wrong and we should return the error.
@@ -155,7 +155,7 @@ function getHostInfo(results, done) {
     hostInfo: 1
   };
 
-  db.db('admin').command(spec, {}, function(err, res) {
+  db.admin().command(spec, {}, function(err, res) {
     if (err) {
       if (isNotAuthorized(err)) {
         // if the error is that the user is not authorized, silently ignore it
@@ -193,7 +193,7 @@ function listDatabases(results, done) {
     listDatabases: 1
   };
 
-  db.db('admin').command(spec, {}, function(err, res) {
+  db.admin().command(spec, {}, function(err, res) {
     if (err) {
       if (isNotAuthorized(err)) {
         // we caught this further up already and really should never get here!
@@ -254,7 +254,7 @@ function parseDatabase(resp) {
  *     index_size: 5496832
  *   }
  */
-function getDatabase(db, name, done) {
+function getDatabase(client, db, name, done) {
   if (typeof name === 'function') {
     done = name;
     name = db.databaseName;
@@ -266,7 +266,7 @@ function getDatabase(db, name, done) {
 
   const options = {};
   debug('running dbStats for `%s`...', name);
-  db.db(name).command(spec, options, function(err, res) {
+  client.db(name).command(spec, options, function(err, res) {
     if (err) {
       debug('dbStats failed. Falling back to no stats.');
       res = {};
@@ -281,12 +281,13 @@ function getDatabase(db, name, done) {
 
 function getDatabases(results, done) {
   const db = results.db;
+  const client = results.client;
 
   // merge and de-dupe databases
   const dbnames = union(results.listDatabases, results.allowedDatabases);
 
   async.parallel(map(dbnames, function(name) {
-    const result = partial(getDatabase, db, name);
+    const result = partial(getDatabase, client, db, name);
     return result;
   }), done);
 }
@@ -416,12 +417,12 @@ function getCollections(results, done) {
 }
 
 function listCollections(results, done) {
-  const db = results.db;
+  const client = results.client;
   const databases = results.databases;
 
   // merge and de-dupe databases
   const tasks = map(databases, function(_db) {
-    return getDatabaseCollections.bind(null, db.db(_db.name));
+    return getDatabaseCollections.bind(null, client.db(_db.name));
   });
 
   async.parallel(tasks, function(err, res) {
@@ -456,21 +457,22 @@ function attach(anything, done) {
  * @param  {Mongo.db}   db     database handle from the node driver
  * @param  {Function} done     callback
  */
-function getInstanceDetail(db, done) {
+function getInstanceDetail(client, db, done) {
   const tasks = {
+    client: attach.bind(null, client),
     db: attach.bind(null, db),
-    userInfo: ['db', getUserInfo],
+    userInfo: ['client', 'db', getUserInfo],
 
-    host: ['db', getHostInfo],
-    build: ['db', getBuildInfo],
+    host: ['client', 'db', getHostInfo],
+    build: ['client', 'db', getBuildInfo],
 
-    listDatabases: ['db', 'userInfo', listDatabases],
+    listDatabases: ['client', 'db', 'userInfo', listDatabases],
     allowedDatabases: ['userInfo', getAllowedDatabases],
-    databases: ['db', 'listDatabases', 'allowedDatabases', getDatabases],
+    databases: ['client', 'db', 'listDatabases', 'allowedDatabases', getDatabases],
 
-    listCollections: ['db', 'databases', listCollections],
+    listCollections: ['client', 'db', 'databases', listCollections],
     allowedCollections: ['userInfo', getAllowedCollections],
-    collections: ['db', 'listCollections', 'allowedCollections', getCollections],
+    collections: ['client', 'db', 'listCollections', 'allowedCollections', getCollections],
 
     hierarchy: ['databases', 'collections', getHierarchy],
 
@@ -489,8 +491,8 @@ function getInstanceDetail(db, done) {
   });
 }
 
-function getInstance(db, done) {
-  getInstanceDetail(db, function(err, res) {
+function getInstance(client, db, done) {
+  getInstanceDetail(client, db, function(err, res) {
     if (err) {
       return done(err);
     }

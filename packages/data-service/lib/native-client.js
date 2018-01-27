@@ -54,12 +54,16 @@ class NativeClient extends EventEmitter {
    */
   connect(done) {
     debug('connecting...');
-    this.client = connect(this.model, this.setupListeners.bind(this), (err, database) => {
+    connect(this.model, this.setupListeners.bind(this), (err, mongoClient) => {
+      this.client = mongoClient;
+
       if (err) {
         return done(this._translateMessage(err));
       }
+
       debug('connected!');
-      this.database = database;
+      this.client.on('status', (evt) => this.emit('status', evt));
+      this.database = this.client.db(this.model.ns);
       this.database.admin().command({ ismaster: 1 }, (error, result) => {
         const ismaster = error ? {} : result;
         this.isWritable = this._isWritable(ismaster);
@@ -67,7 +71,6 @@ class NativeClient extends EventEmitter {
         done(null, this);
       });
     });
-    this.client.on('status', (evt) => this.emit('status', evt));
     return this;
   }
 
@@ -405,7 +408,7 @@ class NativeClient extends EventEmitter {
    * Disconnect the client.
    */
   disconnect() {
-    this.database.close();
+    this.client.close();
   }
 
   /**
@@ -556,7 +559,7 @@ class NativeClient extends EventEmitter {
    * @param {Function} callback - The callback.
    */
   indexes(ns, callback) {
-    getIndexes(this.database, ns, (error, data) => {
+    getIndexes(this.client, ns, (error, data) => {
       if (error) {
         return callback(this._translateMessage(error));
       }
@@ -604,7 +607,7 @@ class NativeClient extends EventEmitter {
    * @param {function} callback - The callback function.
    */
   instance(callback) {
-    getInstance(this.database, (error, data) => {
+    getInstance(this.client, this.database, (error, data) => {
       if (error) {
         return callback(this._translateMessage(error));
       }
@@ -896,7 +899,7 @@ class NativeClient extends EventEmitter {
    * @returns {DB} The database object.
    */
   _database(name) {
-    return this.database.db(name);
+    return this.client.db(name);
   }
 
   /**

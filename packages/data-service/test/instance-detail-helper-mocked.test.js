@@ -15,6 +15,7 @@ const fixtures = require('./fixtures');
 
 describe('instance-detail-helper-mocked', function() {
   let makeMockDB;
+  let makeMockClient;
 
   before(function() {
     /**
@@ -48,12 +49,19 @@ describe('instance-detail-helper-mocked', function() {
           }
         };
       };
-      db.db = function(databaseName) {
-        if (databaseName === 'admin') {
-          return db.admin();
-        }
+      return db;
+    };
+
+    makeMockClient = function(err, res) {
+      const client = {};
+      client.db = function(databaseName) {
         return {
+          // all other commands return the global err/res results
+          command: function(command, options, callback) {
+            return callback(err, res);
+          },
           databaseName: databaseName,
+          // listCollections is a separate function on the admin object
           listCollections: function() {
             return {
               toArray: function(callback) {
@@ -63,7 +71,7 @@ describe('instance-detail-helper-mocked', function() {
           }
         };
       };
-      return db;
+      return client;
     };
   });
 
@@ -271,6 +279,12 @@ describe('instance-detail-helper-mocked', function() {
           'readOnly': true
         }
       }]);
+      results.client = makeMockClient(null, [{
+        'name': 'testCol',
+        'info': {
+          'readOnly': true
+        }
+      }]);
 
       listCollections(results, function(err, res) {
         assert.equal(err, null);
@@ -310,6 +324,7 @@ describe('instance-detail-helper-mocked', function() {
     it('should be empty for no privileges', function(done) {
       results.userInfo = fixtures.USER_INFO_LISTDB_ONLY;
       results.db = makeMockDB(null, []);
+      results.client = makeMockClient(null, []);
 
       listCollections(results, function(err, res) {
         assert.equal(err, null);

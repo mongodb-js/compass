@@ -78,7 +78,7 @@ describe('DataService', function() {
 
   describe('#dropDatabase', function() {
     before(function(done) {
-      service.client.database.db('mangoDB').createCollection('testing',
+      service.client.client.db('mangoDB').createCollection('testing',
       {}, function(error) {
         assert.equal(null, error);
         done();
@@ -172,8 +172,11 @@ describe('DataService', function() {
         {},
         function(error, result) {
           assert.equal(null, error);
-          expect(result.length).to.equal(2);
-          done();
+          result.toArray((err, r) => {
+            assert.equal(null, err);
+            expect(r.length).to.equal(2);
+            done();
+          });
         });
     });
   });
