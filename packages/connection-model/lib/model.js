@@ -2,8 +2,11 @@ var toURL = require('url').format;
 var format = require('util').format;
 var AmpersandModel = require('ampersand-model');
 var AmpersandCollection = require('ampersand-rest-collection');
-var ReadPreference = require('mongodb/lib/read_preference');
-var _ = require('lodash');
+var ReadPreference = require('mongodb-core').ReadPreference;
+var assign = require('lodash.assign');
+var defaults = require('lodash.defaults');
+var clone = require('lodash.clone');
+var includes = require('lodash.includes');
 var parse = require('mongodb-url');
 var dataTypes = require('./data-types');
 var fs = require('fs');
@@ -37,7 +40,7 @@ var CONNECTION_TYPE_VALUES = {
 /**
  * # Top-Level
  */
-_.assign(props, {
+assign(props, {
   /**
    * User specified name for this connection.
    *
@@ -98,7 +101,7 @@ _.assign(props, {
   }
 });
 
-_.assign(derived, {
+assign(derived, {
   /**
    * @see http://npm.im/mongodb-instance-model
    */
@@ -126,7 +129,7 @@ var READ_PREFERENCE_VALUES = [
  */
 var READ_PREFERENCE_DEFAULT = ReadPreference.PRIMARY;
 
-_.assign(props, {
+assign(props, {
   /**
    * @property {String} authentication - `auth_mechanism` for humans.
    */
@@ -172,7 +175,7 @@ var AUTHENTICATION_VALUES = [
  */
 var AUTHENTICATION_DEFAULT = 'NONE';
 
-_.assign(props, {
+assign(props, {
   /**
    * @property {String} authentication - `auth_mechanism` for humans.
    */
@@ -194,7 +197,7 @@ var AUTHENICATION_TO_AUTH_MECHANISM = {
   LDAP: 'PLAIN'
 };
 
-_.assign(derived, {
+assign(derived, {
   /**
    * Converts the value of `authentication` (for humans)
    * into the `auth_mechanism` value for the driver.
@@ -261,7 +264,7 @@ var AUTHENTICATION_TO_FIELD_NAMES = {
  *   >>> { db: { readPreference: 'nearest' },
  *     replSet: { connectWithNoPrimary: true } }
  */
-_.assign(props, {
+assign(props, {
   mongodb_username: {
     type: 'string',
     default: undefined
@@ -311,7 +314,7 @@ var MONGODB_NAMESPACE_DEFAULT = 'test';
  * @enterprise
  * @see http://bit.ly/mongodb-node-driver-kerberos
  */
-_.assign(props, {
+assign(props, {
   /**
    * Any program or computer you access over a network. Examples of
    * services include “host” (a host, e.g., when you use telnet and rsh),
@@ -372,7 +375,7 @@ var KERBEROS_SERVICE_NAME_DEFAULT = 'mongodb';
  * @enterprise
  * @see http://bit.ly/mongodb-node-driver-ldap
  */
-_.assign(props, {
+assign(props, {
   /**
    * @see http://bit.ly/mongodb-node-driver-ldap
    * @see http://bit.ly/mongodb-ldap
@@ -412,7 +415,7 @@ _.assign(props, {
  * @see http://bit.ly/mongodb-node-driver-x509
  * @see http://bit.ly/mongodb-x509
  */
-_.assign(props, {
+assign(props, {
   /**
    * The x.509 certificate derived user name, e.g. "CN=user,OU=OrgUnit,O=myOrg,..."
    */
@@ -462,7 +465,7 @@ var SSL_VALUES = [
  */
 var SSL_DEFAULT = 'NONE';
 
-_.assign(props, {
+assign(props, {
   ssl: {
     type: 'string',
     values: SSL_VALUES,
@@ -526,7 +529,7 @@ var SSH_TUNNEL_VALUES = [
  */
 var SSH_TUNNEL_DEFAULT = 'NONE';
 
-_.assign(props, {
+assign(props, {
   ssh_tunnel: {
     type: 'string',
     values: SSH_TUNNEL_VALUES,
@@ -598,7 +601,7 @@ var DRIVER_OPTIONS_DEFAULT = {
   }
 };
 
-_.assign(derived, {
+assign(derived, {
   /**
    * Get the URL which can be passed to `MongoClient.connect(url)`.
    * @see http://bit.ly/mongoclient-connect
@@ -637,32 +640,32 @@ _.assign(derived, {
           req.auth = AUTH_TOKEN;
           req.query.authSource = this.mongodb_database_name;
         } else if (this.authentication === 'KERBEROS') {
-          _.defaults(req.query, {
+          defaults(req.query, {
             gssapiServiceName: this.kerberos_service_name,
             authMechanism: this.driver_auth_mechanism
           });
           req.auth = AUTH_TOKEN;
         } else if (this.authentication === 'X509') {
           req.auth = this.x509_username;
-          _.defaults(req.query, {
+          defaults(req.query, {
             authMechanism: this.driver_auth_mechanism
           });
         } else if (this.authentication === 'LDAP') {
           req.auth = AUTH_TOKEN;
 
-          _.defaults(req.query, {
+          defaults(req.query, {
             authMechanism: this.driver_auth_mechanism
           });
         }
       };
       encodeAuthForUrlFormat();
 
-      if (_.includes(['UNVALIDATED', 'SYSTEMCA', 'SERVER', 'ALL'], this.ssl)) {
+      if (includes(['UNVALIDATED', 'SYSTEMCA', 'SERVER', 'ALL'], this.ssl)) {
         req.query.ssl = 'true';
       } else if (this.ssl === 'IFAVAILABLE') {
         req.query.ssl = 'prefer';
       }
-      var reqClone = _.clone(req);
+      var reqClone = clone(req);
       if (this.ssh_tunnel !== 'NONE') {
         // Populate the SSH Tunnel options correctly
         reqClone.hostname = this.ssh_tunnel_options.localAddr;
@@ -719,16 +722,16 @@ _.assign(derived, {
   driver_options: {
     cache: false,
     fn: function() {
-      var opts = _.clone(DRIVER_OPTIONS_DEFAULT, true);
+      var opts = clone(DRIVER_OPTIONS_DEFAULT, true);
       if (this.ssl === 'SERVER') {
-        _.assign(opts, {
+        assign(opts, {
           server: {
             sslValidate: true,
             sslCA: this.ssl_ca
           }
         });
       } else if (this.ssl === 'ALL') {
-        _.assign(opts, {
+        assign(opts, {
           server: {
             sslValidate: true,
             sslCA: this.ssl_ca,
@@ -746,21 +749,21 @@ _.assign(derived, {
           opts.server.sslValidate = false;
         }
       } else if (this.ssl === 'UNVALIDATED') {
-        _.assign(opts, {
+        assign(opts, {
           server: {
             checkServerIdentity: false,
             sslValidate: false
           }
         });
       } else if (this.ssl === 'SYSTEMCA') {
-        _.assign(opts, {
+        assign(opts, {
           server: {
             checkServerIdentity: true,
             sslValidate: true
           }
         });
       } else if (this.ssl === 'IFAVAILABLE') {
-        _.assign(opts, {
+        assign(opts, {
           server: {
             checkServerIdentity: false,
             sslValidate: true
@@ -769,7 +772,7 @@ _.assign(derived, {
       }
 
       // assign and overwrite all extra options provided by user
-      _.assign(opts, this.extra_options);
+      assign(opts, this.extra_options);
 
       // only set promoteValues if it is defined
       if (this.promote_values !== undefined) {
@@ -911,7 +914,7 @@ Connection = AmpersandModel.extend({
    * @param {Object} attrs - Incoming attributes.
    */
   validate_ssl: function(attrs) {
-    if (!attrs.ssl || _.includes(['NONE', 'UNVALIDATED', 'IFAVAILABLE', 'SYSTEMCA'], attrs.ssl)) {
+    if (!attrs.ssl || includes(['NONE', 'UNVALIDATED', 'IFAVAILABLE', 'SYSTEMCA'], attrs.ssl)) {
       return;
     }
     if (attrs.ssl === 'SERVER' && !attrs.ssl_ca) {

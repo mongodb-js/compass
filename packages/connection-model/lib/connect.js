@@ -1,6 +1,11 @@
 var fs = require('fs');
 var async = require('async');
-var _ = require('lodash');
+var omit = require('lodash.omit');
+var includes = require('lodash.includes');
+var clone = require('lodash.clone');
+var assign = require('lodash.assign');
+var isString = require('lodash.isstring');
+var isFunction = require('lodash.isfunction');
 var MongoClient = require('mongodb').MongoClient;
 var parseURL = require('mongodb/lib/url_parser');
 var Connection = require('./model');
@@ -9,7 +14,7 @@ var EventEmitter = require('events').EventEmitter;
 var debug = require('debug')('mongodb-connection-model:connect');
 
 function needToLoadSSLFiles(model) {
-  return !_.includes(['NONE', 'UNVALIDATED'], model.ssl);
+  return !includes(['NONE', 'UNVALIDATED'], model.ssl);
 }
 
 function loadOptions(model, done) {
@@ -21,7 +26,7 @@ function loadOptions(model, done) {
   }
 
   var tasks = {};
-  var opts = _.clone(model.driver_options, true);
+  var opts = clone(model.driver_options, true);
   Object.keys(opts.server).map(function(key) {
     if (key.indexOf('ssl') === -1) {
       return;
@@ -68,17 +73,15 @@ function loadOptions(model, done) {
  */
 function validateURL(model, done) {
   var url = model.driver_url;
-  try {
-    parseURL(url, {}, done);
-  } catch (e) {
+  parseURL(url, {}, function(err, result) {
     // URL parsing errors are just generic `Error` instances
     // so overwrite name so mongodb-js-server will know
     // the message is safe to display.
-    e.name = 'MongoError';
-    process.nextTick(function() {
-      done(e);
-    });
-  }
+    if (err) {
+      err.name = 'MongoError';
+    }
+    done(err, result);
+  });
 }
 
 function getStatusStateString(evt) {
@@ -106,7 +109,7 @@ function getStatusStateString(evt) {
 function getTasks(model, setupListeners) {
   var options = {};
   var tunnel;
-  var db;
+  var client;
   var state = new EventEmitter();
   var tasks = {};
   var _statuses = {};
@@ -164,7 +167,7 @@ function getTasks(model, setupListeners) {
    * TODO (imlucas) If localhost, check if MongoDB running -> no: click/prompt to start
    * TODO (imlucas) dns.lookup() model.hostname and model.ssh_tunnel_hostname to check for typos
    */
-  _.assign(tasks, {
+  assign(tasks, {
     Validate: function(cb) {
       validateURL(model, status('Validate', cb));
     },
@@ -178,7 +181,7 @@ function getTasks(model, setupListeners) {
     }
   });
 
-  _.assign(tasks, {
+  assign(tasks, {
     'Create SSH Tunnel': function(cb) {
       var ctx = status('Create SSH Tunnel', cb);
       if (model.ssh_tunnel === 'NONE') {
@@ -189,20 +192,29 @@ function getTasks(model, setupListeners) {
     }
   });
 
-  _.assign(tasks, {
+  assign(tasks, {
     'Connect to MongoDB': function(cb) {
       var ctx = status('Connect to MongoDB');
       // @note: Durran:
       // This check here is to prevent the options getting set to a string when a URI
       // is passed through. This is a temporary solution until we refactor all of this.
-      if (_.isString(options) || !options) {
+      if (isString(options) || !options) {
         options = {};
       }
-      const client = new MongoClient();
+      const validOptions = omit(
+        options,
+        'db_options',
+        'server_options',
+        'rs_options',
+        'mongos_options',
+        'dbName',
+        'servers'
+      );
+      const mongoClient = new MongoClient(model.driver_url, validOptions);
       if (setupListeners) {
         setupListeners(client);
       }
-      client.connect(model.driver_url, options, function(err, _db) {
+      mongoClient.connect(function(err, _client) {
         ctx(err);
         if (err) {
           if (tunnel) {
@@ -211,9 +223,9 @@ function getTasks(model, setupListeners) {
           }
           return cb(err);
         }
-        db = _db;
+        client = _client;
         if (tunnel) {
-          db.on('close', function() {
+          client.on('close', function() {
             debug('data-service disconnected. shutting down ssh tunnel');
             tunnel.close();
           });
@@ -247,9 +259,9 @@ function getTasks(model, setupListeners) {
       },
       enumerable: false
     },
-    db: {
+    client: {
       get: function() {
-        return db;
+        return client;
       },
       enumerable: false
     },
@@ -275,7 +287,7 @@ function connect(model, setupListeners, done) {
     model = new Connection(model);
   }
 
-  if (!_.isFunction(done)) {
+  if (!isFunction(done)) {
     done = function(err) {
       if (err) {
         throw err;
@@ -296,7 +308,7 @@ function connect(model, setupListeners, done) {
       return done(err);
     }
     logTaskStatus('Successfully connected');
-    return done(null, tasks.db);
+    return done(null, tasks.client);
   });
   return tasks.state;
 }

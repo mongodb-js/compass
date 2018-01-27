@@ -1,15 +1,9 @@
 /* eslint no-console:0 */
 var assert = require('assert');
-var Instance = require('mongodb-instance-model');
 var Connection = require('../');
 var connect = Connection.connect;
 var mock = require('mock-require');
 var sinon = require('sinon');
-
-var shouldGetInstanceDetails = function(db, done) {
-  assert(db);
-  Instance.fetch(db, done);
-};
 
 function setupListeners() {}
 
@@ -24,11 +18,9 @@ describe('mongodb-connection#connect', function() {
     after(require('mongodb-runner/mocha/after')({ port: 27018 }));
     it('should connect to `localhost:27018`', function(done) {
       var model = Connection.from('mongodb://localhost:27018');
-      connect(model, setupListeners, function(err, _db) {
-        if (err) {
-          return done(err);
-        }
-        shouldGetInstanceDetails(_db, done);
+      connect(model, setupListeners, function(err) {
+        assert.equal(err, null);
+        done();
       });
     });
 
