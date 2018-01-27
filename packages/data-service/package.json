@@ -43,7 +43,7 @@
     "mongodb": "^3.0.1",
     "mongodb-collection-sample": "^2.0.0",
     "mongodb-connection-model": "^12.0.1",
-    "mongodb-index-model": "^1.0.0",
+    "mongodb-index-model": "^2.0.1",
     "mongodb-js-errors": "^0.3.0",
     "mongodb-ns": "^2.0.0",
     "mongodb-security": "0.0.4",
