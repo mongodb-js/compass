@@ -5,14 +5,20 @@
  * happens in a forward direction.
  */
 
-class Iterator {
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+var Iterator = function () {
 
   /**
    * Instantiate an iterator with the first element.
    *
    * @param {Element} firstElement - The first element in the list.
    */
-  constructor(firstElement) {
+  function Iterator(firstElement) {
+    _classCallCheck(this, Iterator);
+
     this.element = firstElement;
   }
 
@@ -21,15 +27,21 @@ class Iterator {
    *
    * @returns {Object} The next element's data.
    */
-  next() {
-    var element = this.element;
-    if (element) {
-      this.element = element.nextElement;
-      return { value: element };
+
+
+  _createClass(Iterator, [{
+    key: 'next',
+    value: function next() {
+      var element = this.element;
+      if (element) {
+        this.element = element.nextElement;
+        return { value: element };
+      }
+      return { done: true };
     }
-    return { done: true };
-  }
-}
+  }]);
+
+  return Iterator;
+}();
 
 module.exports = Iterator;
-
