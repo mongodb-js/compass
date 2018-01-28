@@ -1,5 +1,6 @@
 const Document = require('./lib/components/document');
-const DocumentList = require('./lib/components');
+const ConnectedDocumentList = require('./lib/components');
+const DocumentList = require('./lib/components/document-list');
 const Actions = require('./lib/actions');
 const CRUDStore = require('./lib/stores/crud-store');
 
@@ -15,7 +16,7 @@ const {
 } = require('./lib/components/editor');
 
 const COLLECTION_TAB_ROLE = {
-  component: DocumentList,
+  component: ConnectedDocumentList,
   name: 'Documents',
   hasQueryHistory: true,
   order: 1
@@ -102,3 +103,4 @@ const deactivate = (appRegistry) => {
 module.exports.activate = activate;
 module.exports.deactivate = deactivate;
 module.exports.DocumentList = DocumentList;
+module.exports.Document = Document;
