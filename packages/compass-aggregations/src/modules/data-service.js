@@ -19,7 +19,7 @@ export const INITIAL_STATE = {
 /**
  * Reducer function for handling data service connected actions.
  *
- * @param {String} state - The data service state.
+ * @param {Object} state - The data service state.
  * @param {Object} action - The action.
  *
  * @returns {String} The new state.
