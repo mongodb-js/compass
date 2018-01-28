@@ -41,7 +41,7 @@
     "lodash.union": "^4.6.0",
     "lodash.uniq": "^4.5.0",
     "mongodb": "^3.0.1",
-    "mongodb-collection-sample": "^2.0.0",
+    "mongodb-collection-sample": "^3.0.0",
     "mongodb-connection-model": "^12.0.2",
     "mongodb-index-model": "^2.0.1",
     "mongodb-js-errors": "^0.3.0",
