@@ -18,8 +18,8 @@
     "test": "mocha",
     "fmt": "mongodb-js-fmt ./*.js ./test/*.js",
     "check": "mongodb-js-precommit",
-    "prepublish": "babel ./src --out-dir ./lib --presets react",
-    "pretest": "babel ./src --out-dir ./lib --presets react"
+    "prepublish": "babel ./src --out-dir ./lib",
+    "pretest": "babel ./src --out-dir ./lib"
   },
   "precommit": [
     "check"
