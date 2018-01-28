@@ -11,15 +11,19 @@ import { INITIAL_STATE } from '../modules/index';
 
 describe('Aggregation Store', () => {
   describe('#onActivated', () => {
+    const appRegistry = new AppRegistry();
+
+    before(() => {
+      activate(appRegistry);
+      store.onActivated(appRegistry);
+    });
+
     context('when the fields change', () => {
-      const appRegistry = new AppRegistry();
       const docs = [
         { _id: 1, name: 'Aphex Twin' }
       ];
 
       before(() => {
-        activate(appRegistry);
-        store.onActivated(appRegistry);
         FieldStore.processDocuments(docs);
       });
 
@@ -28,6 +32,20 @@ describe('Aggregation Store', () => {
           { name: '_id', value: '_id', score: 1, meta: 'field', version: '0.0.0' },
           { name: 'name', value: 'name', score: 1, meta: 'field', version: '0.0.0' }
         ]);
+      });
+    });
+
+    context('when the data service is connected', () => {
+      before(() => {
+        appRegistry.emit('data-service-connected', 'error', 'ds');
+      });
+
+      it('sets the data servicein the state', () => {
+        expect(store.getState().dataService.dataService).to.equal('ds');
+      });
+
+      it('sets the error in the state', () => {
+        expect(store.getState().dataService.error).to.equal('error');
       });
     });
   });
@@ -117,6 +135,7 @@ describe('Aggregation Store', () => {
       it('resets the rest of the state to initial state', () => {
         expect(store.getState()).to.deep.equal({
           namespace: 'db.coll',
+          dataService: INITIAL_STATE.dataService,
           fields: INITIAL_STATE.fields,
           sample: INITIAL_STATE.sample,
           serverVersion: INITIAL_STATE.serverVersion,

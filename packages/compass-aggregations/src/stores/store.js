@@ -2,6 +2,7 @@ import { createStore, applyMiddleware } from 'redux';
 import thunk from 'redux-thunk';
 import reducer from 'modules';
 import { namespaceChanged } from 'modules/namespace';
+import { dataServiceConnected } from 'modules/data-service';
 import { fieldsChanged } from 'modules/fields';
 
 /**
@@ -22,6 +23,16 @@ store.onActivated = (appRegistry) => {
    */
   appRegistry.on('collection-changed', (ns) => {
     store.dispatch(namespaceChanged(ns));
+  });
+
+  /**
+   * Set the data service in the store when connected.
+   *
+   * @param {Error} error - The error.
+   * @param {DataService} dataService - The data service.
+   */
+  appRegistry.on('data-service-connected', (error, dataService) => {
+    store.dispatch(dataServiceConnected(error, dataService));
   });
 
   /**

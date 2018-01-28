@@ -55,7 +55,7 @@
     "cross-env": "^5.0.1",
     "css-loader": "^0.28.1",
     "debug": "^3.0.1",
-    "electron": "^1.6.1",
+    "electron": "^1.7.11",
     "electron-packager": "^8.7.0",
     "enzyme": "^2.9.1",
     "eslint-config-mongodb-js": "^2.1.0",
