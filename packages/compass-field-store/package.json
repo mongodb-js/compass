@@ -42,7 +42,7 @@
     "jsdom": "^9.4.2",
     "mocha": "^2.5.3",
     "mock-require": "^2.0.2",
-    "mongodb-data-service": "^8.0.0",
+    "mongodb-data-service": "^11.0.3",
     "mongodb-js-fmt": "^0.0.3",
     "mongodb-js-precommit": "^0.2.8",
     "pre-commit": "^1.1.3",
@@ -57,7 +57,7 @@
   },
   "dependencies": {
     "lodash": "^4.17.4",
-    "mongodb-schema": "^7.0.0",
+    "mongodb-schema": "^8.0.0",
     "reflux-state-mixin": "^0.7.0"
   }
 }
