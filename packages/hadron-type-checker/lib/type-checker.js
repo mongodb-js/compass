@@ -1,122 +1,126 @@
 'use strict';
 
-const isPlainObject = require('lodash.isplainobject');
-const isArray = require('lodash.isarray');
-const isString = require('lodash.isstring');
-const isNumber = require('lodash.isnumber');
-const has = require('lodash.has');
-const keys = require('lodash.keys');
-const without = require('lodash.without');
-const toNumber = require('lodash.tonumber');
-const toString = require('lodash.tostring');
-const includes = require('lodash.includes');
-const bson = require('bson');
-const MinKey = bson.MinKey;
-const MaxKey = bson.MaxKey;
-const Long = bson.Long;
-const Double = bson.Double;
-const Int32 = bson.Int32;
-const Decimal128 = bson.Decimal128;
-const Binary = bson.Binary;
-const BSONRegExp = bson.BSONRegExp;
-const Code = bson.Code;
-const Symbol = bson.Symbol;
-const Timestamp = bson.Timestamp;
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+var isPlainObject = require('lodash.isplainobject');
+var isArray = require('lodash.isarray');
+var isString = require('lodash.isstring');
+var isNumber = require('lodash.isnumber');
+var has = require('lodash.has');
+var keys = require('lodash.keys');
+var without = require('lodash.without');
+var toNumber = require('lodash.tonumber');
+var toString = require('lodash.tostring');
+var includes = require('lodash.includes');
+var bson = require('bson');
+var MinKey = bson.MinKey;
+var MaxKey = bson.MaxKey;
+var Long = bson.Long;
+var Double = bson.Double;
+var Int32 = bson.Int32;
+var Decimal128 = bson.Decimal128;
+var Binary = bson.Binary;
+var BSONRegExp = bson.BSONRegExp;
+var Code = bson.Code;
+var _Symbol = bson.Symbol;
+var Timestamp = bson.Timestamp;
 
 /**
  * The object string.
  */
-const OBJECT = 'Object';
+var OBJECT = 'Object';
 
 /**
  * The array type string.
  */
-const ARRAY = 'Array';
+var ARRAY = 'Array';
 
 /**
  * True constant.
  */
-const TRUE = 'true';
+var TRUE = 'true';
 
 /**
  * False constant.
  */
-const FALSE = 'false';
+var FALSE = 'false';
 
 /**
  * Long constant.
  */
-const LONG = 'Long';
+var LONG = 'Long';
 
-const INT_32 = 'Int32';
-const INT_64 = 'Int64';
-const DOUBLE = 'Double';
-const DECIMAL_128 = 'Decimal128';
-const OBJECT_TYPE = '[object Object]';
-const EMPTY = '';
-const OBJECT_ID = 'ObjectID';
+var INT_32 = 'Int32';
+var INT_64 = 'Int64';
+var DOUBLE = 'Double';
+var DECIMAL_128 = 'Decimal128';
+var OBJECT_TYPE = '[object Object]';
+var EMPTY = '';
+var OBJECT_ID = 'ObjectID';
 
 /**
  * The bson type field.
  */
-const BSON_TYPE = '_bsontype';
+var BSON_TYPE = '_bsontype';
 
 /**
  * The match regex.
  */
-const MATCH = /\[object (\w+)\]/;
+var MATCH = /\[object (\w+)\]/;
 
 /**
  * The max int 32 value.
  */
-const BSON_INT32_MAX = 0x7FFFFFFF;
+var BSON_INT32_MAX = 0x7FFFFFFF;
 
 /**
  * The min int 32 value.
  */
-const BSON_INT32_MIN = -0x80000000;
+var BSON_INT32_MIN = -0x80000000;
 
-const BSON_INT64_MAX = Math.pow(2, 63) - 1;
-const BSON_INT64_MIN = -BSON_INT64_MAX;
+var BSON_INT64_MAX = Math.pow(2, 63) - 1;
+var BSON_INT64_MIN = -BSON_INT64_MAX;
 
 /**
  * The number regex.
  */
-const NUMBER_REGEX = /^-?\d+$/;
+var NUMBER_REGEX = /^-?\d+$/;
 
 /**
  * All bson types that are numbers.
  */
-const NUMBER_TYPES = ['Long', 'Int32', 'Double', 'Decimal128'];
+var NUMBER_TYPES = ['Long', 'Int32', 'Double', 'Decimal128'];
 
-const toDate = object => {
+var toDate = function toDate(object) {
   return new Date(object);
 };
 
-const toMinKey = () => {
+var toMinKey = function toMinKey() {
   return new MinKey();
 };
 
-const toMaxKey = () => {
+var toMaxKey = function toMaxKey() {
   return new MaxKey();
 };
 
-const toUndefined = () => {
+var toUndefined = function toUndefined() {
   return undefined;
 };
 
-const toNull = () => {
+var toNull = function toNull() {
   return null;
 };
 
-const toBoolean = object => {
+var toBoolean = function toBoolean(object) {
   if (isString(object)) {
     if (object.toLowerCase() === TRUE) {
       return true;
     } else if (object.toLowerCase() === FALSE) {
       return false;
     }
-    throw new Error(`'${object}' is not a valid boolean string`);
+    throw new Error('\'' + object + '\' is not a valid boolean string');
   }
   if (object) {
     return true;
@@ -124,14 +128,14 @@ const toBoolean = object => {
   return false;
 };
 
-const toObject = object => {
+var toObject = function toObject(object) {
   if (isPlainObject(object)) {
     return object;
   }
   return {};
 };
 
-const toArray = object => {
+var toArray = function toArray(object) {
   if (isArray(object)) {
     return object;
   }
@@ -141,40 +145,40 @@ const toArray = object => {
   return [object];
 };
 
-const toInt32 = object => {
+var toInt32 = function toInt32(object) {
   if (object === '-' || object === '') {
-    throw new Error(`Value '${object}' is not a valid Int32 value`);
+    throw new Error('Value \'' + object + '\' is not a valid Int32 value');
   }
-  const number = toNumber(object);
+  var number = toNumber(object);
   if (number >= BSON_INT32_MIN && number <= BSON_INT32_MAX) {
     return new Int32(number);
   }
-  throw new Error(`Value ${number} is outside the valid Int32 range`);
+  throw new Error('Value ' + number + ' is outside the valid Int32 range');
 };
 
-const toInt64 = object => {
+var toInt64 = function toInt64(object) {
   if (object === '-' || object === '') {
-    throw new Error(`Value '${object}' is not a valid Int64 value`);
+    throw new Error('Value \'' + object + '\' is not a valid Int64 value');
   }
-  const number = toNumber(object);
+  var number = toNumber(object);
   if (number >= BSON_INT64_MIN && number <= BSON_INT64_MAX) {
     return Long.fromNumber(number);
   }
-  throw new Error(`Value ${number} is outside the valid Int64 range`);
+  throw new Error('Value ' + number + ' is outside the valid Int64 range');
 };
 
-const toDouble = object => {
+var toDouble = function toDouble(object) {
   if (object === '-' || object === '') {
-    throw new Error(`Value '${object}' is not a valid Double value`);
+    throw new Error('Value \'' + object + '\' is not a valid Double value');
   }
   if (isString(object) && object.endsWith('.')) {
     throw new Error('Please enter at least one digit after the decimal');
   }
-  const number = toNumber(object);
+  var number = toNumber(object);
   return new Double(number);
 };
 
-const toDecimal128 = object => {
+var toDecimal128 = function toDecimal128(object) {
   /*
    If converting a BSON Object, extract the value before converting to a string.
    */
@@ -184,38 +188,38 @@ const toDecimal128 = object => {
   return Decimal128.fromString(String(object));
 };
 
-const toObjectID = object => {
+var toObjectID = function toObjectID(object) {
   if (!isString(object) || object === '') {
     return new bson.ObjectID();
   }
   return bson.ObjectID.createFromHexString(object);
 };
 
-const toBinary = object => {
+var toBinary = function toBinary(object) {
   return new Binary(String(object), Binary.SUBTYPE_DEFAULT);
 };
 
-const toRegex = object => {
+var toRegex = function toRegex(object) {
   return new BSONRegExp(String(object));
 };
 
-const toCode = object => {
+var toCode = function toCode(object) {
   return new Code(String(object), {});
 };
 
-const toSymbol = object => {
-  return new Symbol(String(object));
+var toSymbol = function toSymbol(object) {
+  return new _Symbol(String(object));
 };
 
-const toTimestamp = object => {
-  const number = toNumber(object);
+var toTimestamp = function toTimestamp(object) {
+  var number = toNumber(object);
   return Timestamp.fromNumber(number);
 };
 
 /**
  * The functions to cast to a type.
  */
-const CASTERS = {
+var CASTERS = {
   'Array': toArray,
   'Binary': toBinary,
   'Boolean': toBoolean,
@@ -240,35 +244,56 @@ const CASTERS = {
 /**
  * An array of all bson types.
  */
-const TYPES = keys(CASTERS);
+var TYPES = keys(CASTERS);
 
 /**
  * Checks if a string is an int32.
  */
-class Int32Check {
-  test(string) {
-    if (NUMBER_REGEX.test(string)) {
-      var value = toNumber(string);
-      return value >= BSON_INT32_MIN && value <= BSON_INT32_MAX;
-    }
-    return false;
+
+var Int32Check = function () {
+  function Int32Check() {
+    _classCallCheck(this, Int32Check);
   }
-}
+
+  _createClass(Int32Check, [{
+    key: 'test',
+    value: function test(string) {
+      if (NUMBER_REGEX.test(string)) {
+        var value = toNumber(string);
+        return value >= BSON_INT32_MIN && value <= BSON_INT32_MAX;
+      }
+      return false;
+    }
+  }]);
+
+  return Int32Check;
+}();
 
 /**
  * Checks if a string is an int64.
  */
-class Int64Check {
-  test(string) {
-    if (NUMBER_REGEX.test(string)) {
-      return Number.isSafeInteger(toNumber(string));
-    }
-    return false;
-  }
-}
 
-const INT32_CHECK = new Int32Check();
-const INT64_CHECK = new Int64Check();
+
+var Int64Check = function () {
+  function Int64Check() {
+    _classCallCheck(this, Int64Check);
+  }
+
+  _createClass(Int64Check, [{
+    key: 'test',
+    value: function test(string) {
+      if (NUMBER_REGEX.test(string)) {
+        return Number.isSafeInteger(toNumber(string));
+      }
+      return false;
+    }
+  }]);
+
+  return Int64Check;
+}();
+
+var INT32_CHECK = new Int32Check();
+var INT64_CHECK = new Int64Check();
 
 /**
  * Gets the BSON type for a JS number.
@@ -277,7 +302,7 @@ const INT64_CHECK = new Int64Check();
  *
  * @returns {String} The BSON type.
  */
-const numberToBsonType = number => {
+var numberToBsonType = function numberToBsonType(number) {
   var string = toString(number);
   if (INT32_CHECK.test(string)) {
     return INT_32;
@@ -290,67 +315,86 @@ const numberToBsonType = number => {
 /**
  * Checks the types of objects and returns them as readable strings.
  */
-class TypeChecker {
 
-  /**
-   * Cast the provided object to the desired type.
-   *
-   * @param {Object} object - The object to cast.
-   * @param {String} type - The type.
-   *
-   * @returns {Object} The cast object.
-   */
-  cast(object, type) {
-    var caster = CASTERS[type];
-    var result = object;
-    if (caster) {
-      result = caster(object);
-    }
-    return result === OBJECT_TYPE ? EMPTY : result;
+var TypeChecker = function () {
+  function TypeChecker() {
+    _classCallCheck(this, TypeChecker);
   }
 
-  /**
-   * Get the type for the object.
-   *
-   * @param {Object} object - The object.
-   *
-   * @returns {String} The object type.
-   */
-  type(object) {
-    if (isNumber(object)) {
-      return numberToBsonType(object);
-    }
-    if (isPlainObject(object)) {
-      return OBJECT;
-    }
-    if (isArray(object)) {
-      return ARRAY;
-    }
-    if (has(object, BSON_TYPE)) {
-      if (object._bsontype === LONG) {
-        return INT_64;
+  _createClass(TypeChecker, [{
+    key: 'cast',
+
+
+    /**
+     * Cast the provided object to the desired type.
+     *
+     * @param {Object} object - The object to cast.
+     * @param {String} type - The type.
+     *
+     * @returns {Object} The cast object.
+     */
+    value: function cast(object, type) {
+      var caster = CASTERS[type];
+      var result = object;
+      if (caster) {
+        result = caster(object);
       }
-      if (object._bsontype === OBJECT_ID) {
-        return 'ObjectId';
-      }
-      return object._bsontype;
+      return result === OBJECT_TYPE ? EMPTY : result;
     }
-    return Object.prototype.toString.call(object).replace(MATCH, '$1');
-  }
 
-  /**
-   * Get a list of types the object can be cast to.
-   *
-   * @param {Boolean} highPrecisionSupport - If Decimal128 is supported or not.
-   *
-   * @returns {Array} The available types.
-   */
-  castableTypes(highPrecisionSupport = false) {
-    if (highPrecisionSupport === true) {
-      return TYPES;
+    /**
+     * Get the type for the object.
+     *
+     * @param {Object} object - The object.
+     *
+     * @returns {String} The object type.
+     */
+
+  }, {
+    key: 'type',
+    value: function type(object) {
+      if (isNumber(object)) {
+        return numberToBsonType(object);
+      }
+      if (isPlainObject(object)) {
+        return OBJECT;
+      }
+      if (isArray(object)) {
+        return ARRAY;
+      }
+      if (has(object, BSON_TYPE)) {
+        if (object._bsontype === LONG) {
+          return INT_64;
+        }
+        if (object._bsontype === OBJECT_ID) {
+          return 'ObjectId';
+        }
+        return object._bsontype;
+      }
+      return Object.prototype.toString.call(object).replace(MATCH, '$1');
     }
-    return without(TYPES, DECIMAL_128);
-  }
-}
+
+    /**
+     * Get a list of types the object can be cast to.
+     *
+     * @param {Boolean} highPrecisionSupport - If Decimal128 is supported or not.
+     *
+     * @returns {Array} The available types.
+     */
+
+  }, {
+    key: 'castableTypes',
+    value: function castableTypes() {
+      var highPrecisionSupport = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : false;
+
+      if (highPrecisionSupport === true) {
+        return TYPES;
+      }
+      return without(TYPES, DECIMAL_128);
+    }
+  }]);
+
+  return TypeChecker;
+}();
 
 module.exports = new TypeChecker();
