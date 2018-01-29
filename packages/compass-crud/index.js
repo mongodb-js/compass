@@ -1,8 +1,7 @@
 const Document = require('./lib/components/document');
 const ConnectedDocumentList = require('./lib/components');
 const DocumentList = require('./lib/components/document-list');
-const Actions = require('./lib/actions');
-const CRUDStore = require('./lib/stores/crud-store');
+const InsertDocumentDialog = require('./lib/components/insert-document-dialog');
 
 const {
   StandardEditor,
@@ -66,6 +65,9 @@ const OBJECT_ID_EDITOR_ROLE = {
  * @param {AppRegistry} appRegistry - The app registry.
  */
 const activate = (appRegistry) => {
+  const Actions = require('./lib/actions');
+  const CRUDStore = require('./lib/stores/crud-store');
+
   appRegistry.registerRole('Collection.Tab', COLLECTION_TAB_ROLE);
   appRegistry.registerRole('CRUD.Document', DOCUMENT_ROLE);
   appRegistry.registerRole('CRUD.Editor.Standard', STANDARD_EDITOR_ROLE);
@@ -104,3 +106,4 @@ module.exports.activate = activate;
 module.exports.deactivate = deactivate;
 module.exports.DocumentList = DocumentList;
 module.exports.Document = Document;
+module.exports.InsertDocumentDialog = InsertDocumentDialog;
