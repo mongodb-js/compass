@@ -3,7 +3,6 @@ const PropTypes = require('prop-types');
 const { AnimatedIconTextButton, IconButton } = require('hadron-react-buttons');
 const { InfoSprinkle, ViewSwitcher } = require('hadron-react-components');
 const { shell } = require('electron');
-const CRUDStore = require('../stores/crud-store');
 
 /**
  * The help URLs for things like the Documents tab.
@@ -91,7 +90,7 @@ class Toolbar extends React.Component {
       <div className={PAGINATION_CLASS}>
         <AnimatedIconTextButton
           clickHandler={this.handlePrevPage.bind(this)}
-          stopAnimationListenable={CRUDStore}
+          stopAnimationListenable={this.props.pageLoadedListenable}
           className={`btn btn-default btn-xs ${PAGINATION_CLASS}-button ${PAGINATION_CLASS}-button-left`}
           iconClassName="fa fa-chevron-left"
           animatingIconClassName="fa fa-spinner fa-spin"
@@ -99,7 +98,7 @@ class Toolbar extends React.Component {
         />
         <AnimatedIconTextButton
           clickHandler={this.handleNextPage.bind(this)}
-          stopAnimationListenable={CRUDStore}
+          stopAnimationListenable={this.props.pageLoadedListenable}
           className={`btn btn-default btn-xs ${PAGINATION_CLASS}-button ${PAGINATION_CLASS}-button-right`}
           iconClassName="fa fa-chevron-right"
           animatingIconClassName="fa fa-spinner fa-spin"
@@ -179,7 +178,7 @@ class Toolbar extends React.Component {
             <div className={REFRESH_CLASS}>
               <AnimatedIconTextButton
                 clickHandler={this.handleRefreshDocuments.bind(this)}
-                stopAnimationListenable={CRUDStore}
+                stopAnimationListenable={this.props.pageLoadedListenable}
                 dataTestId="refresh-documents-button"
                 className="btn btn-default btn-xs sampling-message-refresh-documents"
                 iconClassName="fa fa-repeat"
@@ -212,7 +211,8 @@ Toolbar.propTypes = {
   readonly: PropTypes.bool.isRequired,
   refreshDocuments: PropTypes.func.isRequired,
   start: PropTypes.number.isRequired,
-  viewSwitchHandler: PropTypes.func.isRequired
+  viewSwitchHandler: PropTypes.func.isRequired,
+  pageLoadedListenable: PropTypes.object.isRequired
 };
 
 module.exports = Toolbar;

@@ -107,9 +107,6 @@ class DocumentList extends React.Component {
             insertHandler={this.handleOpenInsert.bind(this)}
             viewSwitchHandler={this.props.viewChanged}
             activeDocumentView={this.props.view}
-            isExportable={this.props.isExportable}
-            openExport={this.props.openExport}
-            openImport={this.props.openImport}
             {...this.props} />
         </div>
         {this.renderContent()}
@@ -130,8 +127,6 @@ DocumentList.propTypes = {
   isEditable: PropTypes.bool.isRequired,
   isExportable: PropTypes.bool.isRequired,
   openInsertDocumentDialog: PropTypes.func,
-  openExport: PropTypes.func,
-  openImport: PropTypes.func,
   view: PropTypes.string.isRequired,
   viewChanged: PropTypes.func.isRequired
 };
