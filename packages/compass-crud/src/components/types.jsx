@@ -3,8 +3,6 @@ const PropTypes = require('prop-types');
 const TypeChecker = require('hadron-type-checker');
 const { DateEditor } = require('./editor');
 
-require('bootstrap/js/dropdown');
-
 /**
  * Object constant.
  */
@@ -32,6 +30,7 @@ class Types extends React.Component {
    */
   constructor(props) {
     super(props);
+    require('bootstrap/js/dropdown');
     this.state = { isOpen: false };
     this.element = props.element;
     this._version = global.hadronApp.instance.build.version;
