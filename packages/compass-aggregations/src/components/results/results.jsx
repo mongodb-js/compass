@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import { DocumentList } from '@mongodb-js/compass-crud';
 import PropTypes from 'prop-types';
 import classnames from 'classnames';
 
@@ -22,6 +23,20 @@ class Results extends Component {
   render() {
     return (
       <div className={classnames(styles.results)}>
+        <DocumentList
+          docs={this.props.results.docs}
+          isEditable={false}
+          isExportable={false}
+          page={0}
+          start={0}
+          end={0}
+          count={0}
+          view="List"
+          refreshDocuments={() => {}}
+          pageLoadedListenable={{ listen: () => {}}}
+          getNextPage={() => {}}
+          getPrevPage={() => {}}
+          viewChanged={() => {}}/>
       </div>
     );
   }
