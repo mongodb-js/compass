@@ -28,7 +28,6 @@
   ],
   "license": "Apache-2.0",
   "peerDependencies": {
-    "@mongodb-js/compass-crud": "^2.0.8",
     "hadron-react-components": "^1.9.1",
     "prop-types": "^15.5.8",
     "react": "^15.5.4",
@@ -37,7 +36,6 @@
   },
   "devDependencies": {
     "@mongodb-js/compass-field-store": "^1.0.0",
-    "@mongodb-js/compass-crud": "^2.0.8",
     "autoprefixer": "^7.1.2",
     "babel-cli": "^6.10.1",
     "babel-core": "^6.24.1",

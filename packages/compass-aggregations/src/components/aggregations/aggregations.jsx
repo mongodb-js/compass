@@ -3,11 +3,9 @@ import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import classnames from 'classnames';
 import Pipeline from 'components/pipeline';
-import Results from 'components/results';
 import { namespaceChanged } from 'modules/namespace';
 import { viewChanged } from 'modules/view';
 import { copyToClipboard } from 'modules/clipboard';
-import { executePipeline } from 'modules/results';
 import { sampleChanged, sampleToggled } from 'modules/sample';
 import {
   stageAdded,
@@ -29,7 +27,6 @@ class Aggregations extends Component {
 
   static propTypes = {
     namespaceChanged: PropTypes.func.isRequired,
-    executePipeline: PropTypes.func.isRequired,
     fields: PropTypes.array.isRequired,
     sample: PropTypes.object.isRequired,
     stages: PropTypes.array.isRequired,
@@ -56,7 +53,6 @@ class Aggregations extends Component {
     return (
       <div className={classnames(styles.aggregations)}>
         <Pipeline {...this.props} />
-        <Results {...this.props} />
       </div>
     );
   }
@@ -72,7 +68,6 @@ class Aggregations extends Component {
 const mapStateToProps = (state) => ({
   fields: state.fields,
   namespace: state.namespace,
-  results: state.results,
   sample: state.sample,
   serverVersion: state.serverVersion,
   stages: state.stages,
@@ -85,7 +80,6 @@ const mapStateToProps = (state) => ({
 const MappedAggregations = connect(
   mapStateToProps,
   {
-    executePipeline,
     namespaceChanged,
     sampleChanged,
     sampleToggled,
