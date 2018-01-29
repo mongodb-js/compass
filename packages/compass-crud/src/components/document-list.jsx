@@ -13,17 +13,6 @@ const Toolbar = require('./toolbar');
 class DocumentList extends React.Component {
 
   /**
-   * The component constructor.
-   *
-   * @param {Object} props - The properties.
-   */
-  constructor(props) {
-    super(props);
-    const appRegistry = global.hadronApp.appRegistry;
-    this.queryBar = appRegistry.getComponent('Query.QueryBar');
-  }
-
-  /**
    * Handle opening of the insert dialog.
    */
   handleOpenInsert() {
@@ -88,7 +77,8 @@ class DocumentList extends React.Component {
    */
   renderQueryBar() {
     if (this.props.isExportable) {
-      return (<this.queryBar buttonLabel="Find" />);
+      const QueryBar = global.hadronApp.appRegistry.getComponent('Query.QueryBar');
+      return (<QueryBar buttonLabel="Find" />);
     }
   }
 
