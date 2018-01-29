@@ -1,16 +1,7 @@
 const React = require('react');
 const PropTypes = require('prop-types');
 const { AnimatedIconTextButton, IconButton } = require('hadron-react-buttons');
-const { InfoSprinkle, ViewSwitcher } = require('hadron-react-components');
-const { shell } = require('electron');
-
-/**
- * The help URLs for things like the Documents tab.
- */
-const HELP_URLS = Object.freeze({
-  DOCUMENTS: 'https://docs.mongodb.com/compass/master/documents/',
-  SCHEMA_SAMPLING: 'https://docs.mongodb.com/compass/current/faq/#what-is-sampling-and-why-is-it-used'
-});
+const { ViewSwitcher } = require('hadron-react-components');
 
 const BASE_CLASS = 'document-list';
 const ACTION_BAR_CLASS = `${BASE_CLASS}-action-bar`;
@@ -169,10 +160,6 @@ class Toolbar extends React.Component {
           <div className={CONTAINER_CLASS}>
             <div className={MESSAGE_CLASS}>
               {this._loadedMessage()}
-              <InfoSprinkle
-                helpLink={HELP_URLS.DOCUMENTS}
-                onClickHandler={shell.openExternal}
-              />
             </div>
             {this.renderPageButtons()}
             <div className={REFRESH_CLASS}>
