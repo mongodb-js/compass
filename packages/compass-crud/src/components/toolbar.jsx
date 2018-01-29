@@ -17,21 +17,6 @@ const VIEW_SWITCHER_CLASS = `${ACTION_BAR_CLASS}-view-switcher`;
 class Toolbar extends React.Component {
 
   /**
-   * The component constructor.
-   *
-   * state.count is the total number of documents available to this query.
-   * state.loaded is the total number of documents that have been loaded already.
-   * state.start is the first document being shown. For list view, it will always
-   * be 1 and for table view it will be state.loaded - 20 (or 0).
-   *
-   * @param {Object} props - The properties.
-   */
-  constructor(props) {
-    super(props);
-    this.TextWriteButton = global.hadronApp.appRegistry.getComponent('DeploymentAwareness.TextWriteButton');
-  }
-
-  /**
    * Handle refreshing the document list.
    */
   handleRefreshDocuments() {
@@ -101,8 +86,10 @@ class Toolbar extends React.Component {
 
   renderInsertButton() {
     if (!this.props.readonly) {
+      const TextWriteButton = global.hadronApp.appRegistry.
+        getComponent('DeploymentAwareness.TextWriteButton');
       return (
-        <this.TextWriteButton
+        <TextWriteButton
           className="btn btn-primary btn-xs open-insert"
           dataTestId="open-insert-document-modal-button"
           isCollectionLevel
