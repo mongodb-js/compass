@@ -64,7 +64,7 @@
     "mocha": "^2.5.3",
     "moment": "^2.18.1",
     "mongodb-connection-model": "^12.0.1",
-    "mongodb-data-service": "^11.0.1",
+    "mongodb-data-service": "^11.0.4",
     "mongodb-js-fmt": "^0.0.3",
     "mongodb-js-precommit": "^0.2.8",
     "mongodb-ns": "^2.0.0",
