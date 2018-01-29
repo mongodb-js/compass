@@ -1,5 +1,4 @@
 const Document = require('./lib/components/document');
-const ConnectedDocumentList = require('./lib/components');
 const DocumentList = require('./lib/components/document-list');
 const InsertDocumentDialog = require('./lib/components/insert-document-dialog');
 
@@ -14,12 +13,7 @@ const {
   ObjectIDEditor
 } = require('./lib/components/editor');
 
-const COLLECTION_TAB_ROLE = {
-  component: ConnectedDocumentList,
-  name: 'Documents',
-  hasQueryHistory: true,
-  order: 1
-};
+let COLLECTION_TAB_ROLE;
 
 const DOCUMENT_ROLE = {
   component: Document,
@@ -65,8 +59,16 @@ const OBJECT_ID_EDITOR_ROLE = {
  * @param {AppRegistry} appRegistry - The app registry.
  */
 const activate = (appRegistry) => {
+  const ConnectedDocumentList = require('./lib/components');
   const Actions = require('./lib/actions');
   const CRUDStore = require('./lib/stores/crud-store');
+
+  COLLECTION_TAB_ROLE = {
+    component: ConnectedDocumentList,
+    name: 'Documents',
+    hasQueryHistory: true,
+    order: 1
+  };
 
   appRegistry.registerRole('Collection.Tab', COLLECTION_TAB_ROLE);
   appRegistry.registerRole('CRUD.Document', DOCUMENT_ROLE);
