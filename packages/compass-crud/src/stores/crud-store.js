@@ -4,7 +4,6 @@ const toPairs = require('lodash.topairs');
 const findIndex = require('lodash.findindex');
 const StateMixin = require('reflux-state-mixin');
 const HadronDocument = require('hadron-document');
-const { ObjectId } = require('bson');
 const Actions = require('../actions');
 
 /**
@@ -38,16 +37,6 @@ const DELETE_ERROR = new Error('Cannot delete documents that do not have an _id 
 const CRUDStore = Reflux.createStore({
   mixins: [StateMixin.store],
   listenables: Actions,
-
-  /**
-   * Listen for IPC events after init.
-   */
-  init() {
-    const ipc = require('hadron-ipc');
-    ipc.on('window:menu-open-insert-document-dialog', () => {
-      this.openInsertDocumentDialog({ _id: new ObjectId(), '': '' }, false);
-    });
-  },
 
   /**
    * Get the initial state of the store.
