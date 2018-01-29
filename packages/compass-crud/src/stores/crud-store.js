@@ -1,6 +1,5 @@
 const Reflux = require('reflux');
 const toNS = require('mongodb-ns');
-const ipc = require('hadron-ipc');
 const toPairs = require('lodash.topairs');
 const findIndex = require('lodash.findindex');
 const StateMixin = require('reflux-state-mixin');
@@ -44,6 +43,7 @@ const CRUDStore = Reflux.createStore({
    * Listen for IPC events after init.
    */
   init() {
+    const ipc = require('hadron-ipc');
     ipc.on('window:menu-open-insert-document-dialog', () => {
       this.openInsertDocumentDialog({ _id: new ObjectId(), '': '' }, false);
     });
