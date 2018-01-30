@@ -7,13 +7,17 @@ import {
   stageDeleted,
   stageAdded,
   stageToggled } from 'modules/stages';
-import { INITIAL_STATE } from '../modules/index';
+import { reset, INITIAL_STATE } from '../modules/index';
 
 describe('Aggregation Store', () => {
+  beforeEach(() => {
+    store.dispatch(reset());
+  });
+
   describe('#onActivated', () => {
     const appRegistry = new AppRegistry();
 
-    before(() => {
+    beforeEach(() => {
       activate(appRegistry);
       store.onActivated(appRegistry);
     });
@@ -23,20 +27,22 @@ describe('Aggregation Store', () => {
         { _id: 1, name: 'Aphex Twin' }
       ];
 
-      before(() => {
-        FieldStore.processDocuments(docs);
-      });
+      it('updates the namespace in the store', (done) => {
+        const unsubscribe = store.subscribe(() => {
+          unsubscribe();
+          expect(store.getState().fields).to.deep.equal([
+            { name: '_id', value: '_id', score: 1, meta: 'field', version: '0.0.0' },
+            { name: 'name', value: 'name', score: 1, meta: 'field', version: '0.0.0' }
+          ]);
+          done();
+        });
 
-      it('updates the namespace in the store', () => {
-        expect(store.getState().fields).to.deep.equal([
-          { name: '_id', value: '_id', score: 1, meta: 'field', version: '0.0.0' },
-          { name: 'name', value: 'name', score: 1, meta: 'field', version: '0.0.0' }
-        ]);
+        FieldStore.processDocuments(docs);
       });
     });
 
     context('when the data service is connected', () => {
-      before(() => {
+      beforeEach(() => {
         appRegistry.emit('data-service-connected', 'error', 'ds');
       });
 
@@ -55,7 +61,7 @@ describe('Aggregation Store', () => {
       it('returns the initial state', (done) => {
         const unsubscribe = store.subscribe(() => {
           unsubscribe();
-          expect(store.getState().stages[0].stage).to.equal('{\n  \n}');
+          expect(store.getState().stages[0].stage).to.equal('');
           done();
         });
         store.dispatch({ type: 'UNKNOWN' });
@@ -90,7 +96,7 @@ describe('Aggregation Store', () => {
       it('updates the stage in state', (done) => {
         const unsubscribe = store.subscribe(() => {
           unsubscribe();
-          expect(store.getState().stages.length).to.equal(1);
+          expect(store.getState().stages.length).to.equal(2);
           done();
         });
         store.dispatch(stageAdded());
@@ -119,11 +125,10 @@ describe('Aggregation Store', () => {
       });
     });
 
-    /* Note: this test must stay last */
     context('when the collection changes', () => {
       const appRegistry = new AppRegistry();
 
-      before(() => {
+      beforeEach(() => {
         store.onActivated(appRegistry);
         appRegistry.emit('collection-changed', 'db.coll');
       });

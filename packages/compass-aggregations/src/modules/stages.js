@@ -105,7 +105,7 @@ const changeStage = (state, action) => {
  */
 const addStage = (state) => {
   const newState = copyState(state);
-  const newStage = EMPTY_STAGE;
+  const newStage = { ...EMPTY_STAGE };
   newStage.id = new Date().getTime();
   newState.push(newStage);
   return newState;

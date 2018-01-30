@@ -22,6 +22,11 @@ export const INITIAL_STATE = {
 };
 
 /**
+ * Reset action constant.
+ */
+export const RESET = 'aggregations/reset';
+
+/**
  * The main application reducer.
  *
  * @returns {Function} The reducer function.
@@ -48,10 +53,23 @@ const appReducer = combineReducers({
  * @returns {Function} The reducer.
  */
 const rootReducer = (state, action) => {
-  if (action.type === NAMESPACE_CHANGED) {
-    return appReducer(INITIAL_STATE, action);
+  switch (action.type) {
+    case NAMESPACE_CHANGED:
+      return appReducer(INITIAL_STATE, action);
+    case RESET:
+      return { ...INITIAL_STATE };
+    default:
+      return appReducer(state, action);
   }
-  return appReducer(state, action);
 };
 
 export default rootReducer;
+
+/**
+ * Reset the entire state.
+ *
+ * @returns {Object} The action.
+ */
+export const reset = () => ({
+  type: RESET
+});
