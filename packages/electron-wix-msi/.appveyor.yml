@@ -1,6 +1,5 @@
 install:
-  # Latest version of Node
-  - ps: Install-Product node ''
+  - ps: Install-Product node '6'
   - npm config set spin false
   - npm install
 test_script:

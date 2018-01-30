@@ -1,5 +1,5 @@
 import { SpawnOptions } from 'child_process';
-import * as fs from 'graceful-fs';
+import * as fs from 'fs-extra';
 import * as mockFs from 'mock-fs';
 import * as os from 'os';
 import * as path from 'path';
@@ -82,7 +82,7 @@ test('MSICreator create() creates a basic Wix file', async () => {
   const msiCreator = new MSICreator(defaultOptions);
 
   const { wxsFile } = await msiCreator.create();
-  wxsContent = fs.readFileSync(wxsFile, 'utf-8');
+  wxsContent = await fs.readFile(wxsFile, 'utf-8');
   expect(wxsFile).toBeTruthy();
 });
 
@@ -121,7 +121,7 @@ test('MSICreator create() creates Wix file with UI properties', async () => {
   const msiCreator = new MSICreator({ ...defaultOptions, ui });
 
   const { wxsFile } = await msiCreator.create();
-  wxsContent = fs.readFileSync(wxsFile, 'utf-8');
+  wxsContent = await fs.readFile(wxsFile, 'utf-8');
   expect(wxsFile).toBeTruthy();
 });
 
@@ -154,7 +154,7 @@ test('MSICreator create() does not throw if properties are weird', async () => {
   const msiCreator = new MSICreator({ ...defaultOptions, ui });
 
   const { wxsFile } = await msiCreator.create();
-  wxsContent = fs.readFileSync(wxsFile, 'utf-8');
+  wxsContent = await fs.readFile(wxsFile, 'utf-8');
   expect(wxsFile).toBeTruthy();
 });
 
@@ -162,7 +162,7 @@ test('MSICreator create() does not throw if UI is just true', async () => {
   const msiCreator = new MSICreator({ ...defaultOptions, ui: true });
 
   const { wxsFile } = await msiCreator.create();
-  wxsContent = fs.readFileSync(wxsFile, 'utf-8');
+  wxsContent = await fs.readFile(wxsFile, 'utf-8');
   expect(wxsFile).toBeTruthy();
 });
 
@@ -170,7 +170,7 @@ test('MSICreator create() does not throw if UI is just false', async () => {
   const msiCreator = new MSICreator({ ...defaultOptions, ui: true });
 
   const { wxsFile } = await msiCreator.create();
-  wxsContent = fs.readFileSync(wxsFile, 'utf-8');
+  wxsContent = await fs.readFile(wxsFile, 'utf-8');
   expect(wxsFile).toBeTruthy();
 });
 
@@ -178,7 +178,7 @@ test('MSICreator create() does not throw if UI is just an object', async () => {
   const msiCreator = new MSICreator({ ...defaultOptions, ui: { chooseDirectory: true } });
 
   const { wxsFile } = await msiCreator.create();
-  wxsContent = fs.readFileSync(wxsFile, 'utf-8');
+  wxsContent = await fs.readFile(wxsFile, 'utf-8');
   expect(wxsFile).toBeTruthy();
 });
 
@@ -186,8 +186,8 @@ test('MSICreator create() sets the appUserModelId', async () => {
   const msiCreator = new MSICreator({ ...defaultOptions, appUserModelId: 'Hi' });
 
   const { wxsFile } = await msiCreator.create();
-  wxsContent = fs.readFileSync(wxsFile, 'utf-8');
   expect(wxsFile).toBeTruthy();
+  wxsContent = await fs.readFile(wxsFile, 'utf-8');
   expect(wxsContent.includes(`Key="System.AppUserModel.ID" Value="Hi"`)).toBeTruthy();
 });
 
