@@ -251,9 +251,13 @@ export class MSICreator {
     const { certificatePassword, certificateFile, signWithParams } = this;
     const signToolPath = path.join(__dirname, '../vendor/signtool.exe');
 
-    if (!certificateFile && !signWithParams) {
-      debug(`Signing not necessary, no certificate file or parameters given`);
-      return;
+    if (!certificateFile) {
+      if (signWithParams) {
+        throw new Error('Cannot sign MSI without certificateFile set');
+      } else {
+        debug('Signing not necessary, no certificate file or parameters given');
+        return;
+      }
     }
 
     const args: Array<string> = signWithParams
