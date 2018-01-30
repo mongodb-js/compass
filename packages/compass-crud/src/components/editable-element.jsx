@@ -1,12 +1,12 @@
-const React = require('react');
-const PropTypes = require('prop-types');
-const getComponent = require('hadron-react-bson');
-const { Element } = require('hadron-document');
-const EditableKey = require('./editable-key');
-const EditableValue = require('./editable-value');
-const ElementAction = require('./element-action');
-const LineNumber = require('./line-number');
-const Types = require('./types');
+import React from 'react';
+import PropTypes from 'prop-types';
+import getComponent from 'hadron-react-bson';
+import { Element } from 'hadron-document';
+import EditableKey from 'components/editable-key';
+import EditableValue from 'components/editable-value';
+import ElementAction from 'components/element-action';
+import LineNumber from 'components/line-number';
+import Types from 'components/types';
 
 /**
  * The BEM base style name for the element.
@@ -423,4 +423,4 @@ EditableElement.propTypes = {
   expandAll: PropTypes.bool
 };
 
-module.exports = EditableElement;
+export default EditableElement;

@@ -1,12 +1,7 @@
 const electron = require('electron');
 const app = electron.app;
 const BrowserWindow = electron.BrowserWindow;
-const exec = require('child_process').exec;
-const path = require('path');
 const runner = require('mongodb-runner');
-
-const ROOT_DIR = path.resolve(`${__dirname}/../..`);
-const SRC_DIR = path.join(ROOT_DIR, 'src');
 
 let mainWindow;
 

@@ -1,10 +1,9 @@
 /* eslint-disable react/sort-comp */
-const React = require('react');
-const PropTypes = require('prop-types');
-const getComponent = require('hadron-react-bson');
-const { Element } = require('hadron-document');
-
-const initEditors = require('../editor/');
+import React from 'react';
+import PropTypes from 'prop-types';
+import getComponent from 'hadron-react-bson';
+import { Element } from 'hadron-document';
+import initEditors from 'components/editor';
 
 /**
  * The BEM base style name for the cell.
@@ -295,4 +294,4 @@ CellRenderer.propTypes = {
 
 CellRenderer.displayName = 'CellRenderer';
 
-module.exports = CellRenderer;
+export default CellRenderer;

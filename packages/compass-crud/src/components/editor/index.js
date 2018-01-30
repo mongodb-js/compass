@@ -1,11 +1,11 @@
-const StandardEditor = require('./standard');
-const StringEditor = require('./string');
-const Int32Editor = require('./int32');
-const DoubleEditor = require('./double');
-const DateEditor = require('./date');
-const NullEditor = require('./null');
-const UndefinedEditor = require('./undefined');
-const ObjectIdEditor = require('./objectid');
+import StandardEditor from './standard';
+import StringEditor from './string';
+import Int32Editor from './int32';
+import DoubleEditor from './double';
+import DateEditor from './date';
+import NullEditor from './null';
+import UndefinedEditor from './undefined';
+import ObjectIdEditor from './objectid';
 
 const init = (element) => {
   return {
@@ -20,12 +20,14 @@ const init = (element) => {
   };
 };
 
-module.exports = init;
-module.exports.DateEditor = DateEditor;
-module.exports.StandardEditor = StandardEditor;
-module.exports.StringEditor = StringEditor;
-module.exports.DoubleEditor = DoubleEditor;
-module.exports.Int32Editor = Int32Editor;
-module.exports.NullEditor = NullEditor;
-module.exports.UndefinedEditor = UndefinedEditor;
-module.exports.ObjectIdEditor = ObjectIdEditor;
+export default init;
+export {
+  DateEditor,
+  StandardEditor,
+  StringEditor,
+  DoubleEditor,
+  Int32Editor,
+  NullEditor,
+  UndefinedEditor,
+  ObjectIdEditor
+};

@@ -1,11 +1,11 @@
-const PropTypes = require('prop-types');
-const React = require('react');
-const ObjectId = require('bson').ObjectId;
-const { StatusRow } = require('hadron-react-components');
-const InsertDocumentDialog = require('./insert-document-dialog');
-const DocumentListView = require('./document-list-view');
-const DocumentTableView = require('./document-table-view');
-const Toolbar = require('./toolbar');
+import PropTypes from 'prop-types';
+import React from 'react';
+import { ObjectId } from 'bson';
+import { StatusRow } from 'hadron-react-components';
+import InsertDocumentDialog from 'components/insert-document-dialog';
+import DocumentListView from 'components/document-list-view';
+import DocumentTableView from 'components/document-table-view';
+import Toolbar from 'components/toolbar';
 
 /**
  * Component for the entire document list.
@@ -130,4 +130,4 @@ DocumentList.defaultProps = {
 
 DocumentList.Document = Document;
 
-module.exports = DocumentList;
+export default DocumentList;

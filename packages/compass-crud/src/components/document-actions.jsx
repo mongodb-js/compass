@@ -1,6 +1,6 @@
-const React = require('react');
-const PropTypes = require('prop-types');
-const { IconButton } = require('hadron-react-buttons');
+import React from 'react';
+import PropTypes from 'prop-types';
+import { IconButton } from 'hadron-react-buttons';
 
 /**
  * Override once the button to be able to update.
@@ -114,4 +114,4 @@ DocumentActions.propTypes = {
   expandAll: PropTypes.func.isRequired
 };
 
-module.exports = DocumentActions;
+export default DocumentActions;

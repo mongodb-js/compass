@@ -1,5 +1,5 @@
-const React = require('react');
-const PropTypes = require('prop-types');
+import React from 'react';
+import PropTypes from 'prop-types';
 
 /**
  * The expander class.
@@ -134,4 +134,4 @@ ExpansionBar.defaultProps = {
   perClickSize: MAX_EXTRA_ELEMENTS
 };
 
-module.exports = ExpansionBar;
+export default ExpansionBar;

@@ -1,4 +1,4 @@
-const StandardEditor = require('./standard');
+import StandardEditor from './standard';
 
 /**
  * Undefined is always 'undefined'
@@ -40,4 +40,4 @@ class UndefinedEditor extends StandardEditor {
   }
 }
 
-module.exports = UndefinedEditor;
+export default UndefinedEditor;

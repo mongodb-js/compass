@@ -1,11 +1,10 @@
 /* eslint-disable complexity */
-const Reflux = require('reflux');
-const isEmpty = require('lodash.isempty');
-const cloneDeep = require('lodash.clonedeep');
-const forEach = require('lodash.foreach');
-
-const Actions = require('../actions');
-const TypeChecker = require('hadron-type-checker');
+import Reflux from 'reflux';
+import isEmpty from 'lodash.isempty';
+import cloneDeep from 'lodash.clonedeep';
+import forEach from 'lodash.foreach';
+import Actions from 'actions';
+import TypeChecker from 'hadron-type-checker';
 
 const MIXED = 'Mixed';
 
@@ -470,4 +469,4 @@ const GridStore = Reflux.createStore( {
   }
 });
 
-module.exports = GridStore;
+export default GridStore;

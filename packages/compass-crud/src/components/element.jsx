@@ -1,6 +1,6 @@
-const React = require('react');
-const PropTypes = require('prop-types');
-const getComponent = require('hadron-react-bson');
+import React from 'react';
+import PropTypes from 'prop-types';
+import getComponent from 'hadron-react-bson';
 
 /**
  * The base class.
@@ -183,4 +183,4 @@ Element.propTypes = {
   tz: PropTypes.string
 };
 
-module.exports = Element;
+export default Element;

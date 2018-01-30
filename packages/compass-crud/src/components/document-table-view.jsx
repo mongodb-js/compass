@@ -1,21 +1,18 @@
 /* eslint-disable no-loop-func */
-const React = require('react');
-const PropTypes = require('prop-types');
-const {AgGridReact} = require('ag-grid-react');
-const map = require('lodash.map');
-
-const HadronDocument = require('hadron-document');
-const mongodbns = require('mongodb-ns');
-
-const GridStore = require('../stores/grid-store');
-
-const BreadcrumbComponent = require('./breadcrumb');
-const CellRenderer = require('./table-view/cell-renderer');
-const RowNumberRenderer = require('./table-view/row-number-renderer');
-const FullWidthCellRenderer = require('./table-view/full-width-cell-renderer');
-const RowActionsRenderer = require('./table-view/row-actions-renderer');
-const HeaderComponent = require('./table-view/header-cell-renderer');
-const CellEditor = require('./table-view/cell-editor');
+import React from 'react';
+import PropTypes from 'prop-types';
+import {AgGridReact} from 'ag-grid-react';
+import map from 'lodash.map';
+import HadronDocument from 'hadron-document';
+import mongodbns from 'mongodb-ns';
+import GridStore from 'stores/grid-store';
+import BreadcrumbComponent from 'components/breadcrumb';
+import CellRenderer from 'components/table-view/cell-renderer';
+import RowNumberRenderer from 'components/table-view/row-number-renderer';
+import FullWidthCellRenderer from 'components/table-view/full-width-cell-renderer';
+import RowActionsRenderer from 'components/table-view/row-actions-renderer';
+import HeaderComponent from 'components/table-view/header-cell-renderer';
+import CellEditor from 'components/table-view/cell-editor';
 
 /* eslint react/sort-comp:0 */
 
@@ -882,4 +879,4 @@ DocumentTableView.propTypes = {
 
 DocumentTableView.displayName = 'DocumentTableView';
 
-module.exports = DocumentTableView;
+export default DocumentTableView;

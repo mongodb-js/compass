@@ -1,7 +1,7 @@
-const React = require('react');
-const PropTypes = require('prop-types');
-const outsideClickable = require('react-click-outside');
-const getComponent = require('hadron-react-bson');
+import React from 'react';
+import PropTypes from 'prop-types';
+import outsideClickable from 'react-click-outside';
+import getComponent from 'hadron-react-bson';
 
 /**
  * The BEM base style name for the element.
@@ -319,4 +319,4 @@ LineNumber.propTypes = {
   closeAllMenus: PropTypes.func.isRequired
 };
 
-module.exports = outsideClickable(LineNumber);
+export default outsideClickable(LineNumber);

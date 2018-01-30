@@ -1,6 +1,6 @@
-const React = require('react');
-const PropTypes = require('prop-types');
-const Document = require('./document');
+import React from 'react';
+import PropTypes from 'prop-types';
+import Document from 'components/document';
 
 /**
  * The full document list container class.
@@ -71,4 +71,4 @@ DocumentListView.propTypes = {
 
 DocumentListView.displayName = 'DocumentListView';
 
-module.exports = DocumentListView;
+export default DocumentListView;

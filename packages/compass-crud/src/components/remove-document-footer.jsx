@@ -1,6 +1,6 @@
-const React = require('react');
-const PropTypes = require('prop-types');
-const { TextButton } = require('hadron-react-buttons');
+import React from 'react';
+import PropTypes from 'prop-types';
+import { TextButton } from 'hadron-react-buttons';
 
 /**
  * The progress mode.
@@ -156,4 +156,4 @@ RemoveDocumentFooter.propTypes = {
   api: PropTypes.any
 };
 
-module.exports = RemoveDocumentFooter;
+export default RemoveDocumentFooter;

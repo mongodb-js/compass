@@ -1,8 +1,8 @@
-const moment = require('moment');
-const TypeChecker = require('hadron-type-checker');
-const { Element } = require('hadron-document');
-const chars = require('../utils');
-const StandardEditor = require('./standard');
+import moment from 'moment';
+import TypeChecker from 'hadron-type-checker';
+import { Element } from 'hadron-document';
+import chars from 'utils';
+import StandardEditor from './standard';
 
 /**
  * The date format.
@@ -99,4 +99,4 @@ class DateEditor extends StandardEditor {
   }
 }
 
-module.exports = DateEditor;
+export default DateEditor;

@@ -1,7 +1,7 @@
-const React = require('react');
-const PropTypes = require('prop-types');
-const { AnimatedIconTextButton, IconButton } = require('hadron-react-buttons');
-const { ViewSwitcher } = require('hadron-react-components');
+import React from 'react';
+import PropTypes from 'prop-types';
+import { AnimatedIconTextButton, IconButton } from 'hadron-react-buttons';
+import { ViewSwitcher } from 'hadron-react-components';
 
 const BASE_CLASS = 'document-list';
 const ACTION_BAR_CLASS = `${BASE_CLASS}-action-bar`;
@@ -189,4 +189,4 @@ Toolbar.propTypes = {
   pageLoadedListenable: PropTypes.object.isRequired
 };
 
-module.exports = Toolbar;
+export default Toolbar;

@@ -1,9 +1,9 @@
-const pull = require('lodash.pull');
-const includes = require('lodash.includes');
-const React = require('react');
-const PropTypes = require('prop-types');
-const { Element } = require('hadron-document');
-const { TextButton } = require('hadron-react-buttons');
+import pull from 'lodash.pull';
+import includes from 'lodash.includes';
+import React from 'react';
+import PropTypes from 'prop-types';
+import { Element } from 'hadron-document';
+import { TextButton } from 'hadron-react-buttons';
 
 /**
  * The progress mode.
@@ -255,4 +255,4 @@ DocumentFooter.propTypes = {
   api: PropTypes.any
 };
 
-module.exports = DocumentFooter;
+export default DocumentFooter;

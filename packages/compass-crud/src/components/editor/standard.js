@@ -1,6 +1,6 @@
-const TypeChecker = require('hadron-type-checker');
-const { Element } = require('hadron-document');
-const chars = require('../utils');
+import TypeChecker from 'hadron-type-checker';
+import { Element } from 'hadron-document';
+import chars from 'utils';
 
 /**
  * Regex to match an array or object string.
@@ -76,4 +76,4 @@ class StandardEditor {
   complete() {}
 }
 
-module.exports = StandardEditor;
+export default StandardEditor;

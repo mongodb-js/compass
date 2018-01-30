@@ -1,9 +1,6 @@
-const React = require('react');
-const PropTypes = require('prop-types');
-
-const clipboard = require('electron').clipboard;
-
-const { IconButton } = require('hadron-react-buttons');
+import React from 'react';
+import PropTypes from 'prop-types';
+import { IconButton } from 'hadron-react-buttons';
 
 const BEM_BASE = 'table-view-row-actions';
 
@@ -28,8 +25,7 @@ class RowActionsRenderer extends React.Component {
   }
 
   handleCopy() {
-    const documentJSON = JSON.stringify(this.props.data.hadronDocument.generateObject());
-    clipboard.writeText(documentJSON);
+    this.props.copyToClipboard(this.props.data.hadronDocument);
   }
 
   renderTopLevelActions() {
@@ -85,9 +81,10 @@ RowActionsRenderer.propTypes = {
   node: PropTypes.any,
   context: PropTypes.any,
   data: PropTypes.any,
-  nested: PropTypes.bool
+  nested: PropTypes.bool,
+  copyToClipboard: PropTypes.func.isRequired
 };
 
 RowActionsRenderer.displayName = 'RowActionsRenderer';
 
-module.exports = RowActionsRenderer;
+export default RowActionsRenderer;

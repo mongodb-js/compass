@@ -1,5 +1,5 @@
-const React = require('react');
-const PropTypes = require('prop-types');
+import React from 'react';
+import PropTypes from 'prop-types';
 
 /**
  Custom cell renderer for the row numbers. Required because we can't rely on
@@ -7,10 +7,6 @@ const PropTypes = require('prop-types');
  is the last pinned column.
  */
 class RowNumberRenderer extends React.Component {
-
-  constructor(props) {
-    super(props);
-  }
 
   render() {
     return (
@@ -27,4 +23,4 @@ RowNumberRenderer.propTypes = {
 
 RowNumberRenderer.displayName = 'RowNumberRenderer';
 
-module.exports = RowNumberRenderer;
+export default RowNumberRenderer;

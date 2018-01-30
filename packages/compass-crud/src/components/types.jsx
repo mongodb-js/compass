@@ -1,7 +1,7 @@
-const React = require('react');
-const PropTypes = require('prop-types');
-const TypeChecker = require('hadron-type-checker');
-const { DateEditor } = require('./editor');
+import React from 'react';
+import PropTypes from 'prop-types';
+import TypeChecker from 'hadron-type-checker';
+import { DateEditor } from 'components/editor';
 
 /**
  * Object constant.
@@ -167,4 +167,4 @@ Types.propTypes = {
   buttonRef: PropTypes.any
 };
 
-module.exports = Types;
+export default Types;

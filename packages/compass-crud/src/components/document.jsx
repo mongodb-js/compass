@@ -1,7 +1,7 @@
-const React = require('react');
-const PropTypes = require('prop-types');
-const EditableDocument = require('./editable-document');
-const ReadonlyDocument = require('./readonly-document');
+import React from 'react';
+import PropTypes from 'prop-types';
+import EditableDocument from 'components/editable-document';
+import ReadonlyDocument from 'components/readonly-document';
 
 /**
  * Component for a single document in a list of documents.
@@ -37,4 +37,4 @@ Document.propTypes = {
   closeAllMenus: PropTypes.func
 };
 
-module.exports = Document;
+export default Document;

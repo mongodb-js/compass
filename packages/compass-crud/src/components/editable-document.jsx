@@ -1,13 +1,11 @@
-const React = require('react');
-const PropTypes = require('prop-types');
-const HadronDocument = require('hadron-document');
-const Element = HadronDocument.Element;
-const ExpansionBar = require('./expansion-bar');
-const EditableElement = require('./editable-element');
-const DocumentActions = require('./document-actions');
-const DocumentFooter = require('./document-footer');
-const RemoveDocumentFooter = require('./remove-document-footer');
-const clipboard = require('electron').clipboard;
+import React from 'react';
+import PropTypes from 'prop-types';
+import HadronDocument, { Element } from 'hadron-document';
+import ExpansionBar from 'components/expansion-bar';
+import EditableElement from 'components/editable-element';
+import DocumentActions from 'components/document-actions';
+import DocumentFooter from 'components/document-footer';
+import RemoveDocumentFooter from 'components/remove-document-footer';
 
 /**
  * The base class.
@@ -155,8 +153,7 @@ class EditableDocument extends React.Component {
    * Handle copying JSON to clipboard of the document.
    */
   handleCopy() {
-    const documentJSON = JSON.stringify(this.props.doc.generateObject());
-    clipboard.writeText(documentJSON);
+    this.props.copyToClipboard(this.props.doc);
   }
 
   /**
@@ -340,7 +337,8 @@ EditableDocument.propTypes = {
   updateDocument: PropTypes.func.isRequired,
   editable: PropTypes.bool,
   expandAll: PropTypes.bool,
-  openInsertDocumentDialog: PropTypes.func.isRequired
+  openInsertDocumentDialog: PropTypes.func.isRequired,
+  copyToClipboard: PropTypes.func.isRequired
 };
 
-module.exports = EditableDocument;
+export default EditableDocument;

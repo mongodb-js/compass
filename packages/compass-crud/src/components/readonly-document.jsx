@@ -1,7 +1,7 @@
-const React = require('react');
-const PropTypes = require('prop-types');
-const Element = require('./element');
-const ExpansionBar = require('./expansion-bar');
+import React from 'react';
+import PropTypes from 'prop-types';
+import Element from 'components/element';
+import ExpansionBar from 'components/expansion-bar';
 
 /**
  * The base class.
@@ -125,4 +125,4 @@ ReadonlyDocument.propTypes = {
   tz: PropTypes.string
 };
 
-module.exports = ReadonlyDocument;
+export default ReadonlyDocument;

@@ -1,6 +1,6 @@
-const TypeChecker = require('hadron-type-checker');
-const { Element } = require('hadron-document');
-const chars = require('../utils');
+import TypeChecker from 'hadron-type-checker';
+import { Element } from 'hadron-document';
+import chars from 'utils';
 
 /**
  * CRUD editor for object id values.
@@ -70,4 +70,4 @@ class ObjectIdEditor {
   }
 }
 
-module.exports = ObjectIdEditor;
+export default ObjectIdEditor;

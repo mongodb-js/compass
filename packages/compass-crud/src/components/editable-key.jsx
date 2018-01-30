@@ -1,6 +1,6 @@
-const React = require('react');
-const PropTypes = require('prop-types');
-const chars = require('./utils');
+import React from 'react';
+import PropTypes from 'prop-types';
+import chars from 'utils';
 
 /* eslint no-return-assign:0 */
 
@@ -231,4 +231,4 @@ EditableKey.propTypes = {
   isFocused: PropTypes.bool.isRequired
 };
 
-module.exports = EditableKey;
+export default EditableKey;

@@ -1,4 +1,4 @@
-const StandardEditor = require('./standard');
+import StandardEditor from './standard';
 
 /**
  * Null is always 'null'
@@ -40,4 +40,4 @@ class NullEditor extends StandardEditor {
   }
 }
 
-module.exports = NullEditor;
+export default NullEditor;

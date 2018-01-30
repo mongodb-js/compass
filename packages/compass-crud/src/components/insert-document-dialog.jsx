@@ -1,12 +1,12 @@
-const includes = require('lodash.includes');
-const pull = require('lodash.pull');
-const React = require('react');
-const PropTypes = require('prop-types');
-const Modal = require('react-bootstrap').Modal;
-const InsertDocument = require('./insert-document');
-const InsertDocumentFooter = require('./insert-document-footer');
-const { TextButton } = require('hadron-react-buttons');
-const { Element } = require('hadron-document');
+import includes from 'lodash.includes';
+import pull from 'lodash.pull';
+import React from 'react';
+import PropTypes from 'prop-types';
+import { Modal } from 'react-bootstrap';
+import InsertDocument from 'components/insert-document';
+import InsertDocumentFooter from 'components/insert-document-footer';
+import { TextButton } from 'hadron-react-buttons';
+import { Element } from 'hadron-document';
 
 /**
  * The insert invalid message.
@@ -178,4 +178,4 @@ InsertDocumentDialog.propTypes = {
   doc: PropTypes.object
 };
 
-module.exports = InsertDocumentDialog;
+export default InsertDocumentDialog;

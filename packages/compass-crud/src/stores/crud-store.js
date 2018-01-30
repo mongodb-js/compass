@@ -1,10 +1,10 @@
-const Reflux = require('reflux');
-const toNS = require('mongodb-ns');
-const toPairs = require('lodash.topairs');
-const findIndex = require('lodash.findindex');
-const StateMixin = require('reflux-state-mixin');
-const HadronDocument = require('hadron-document');
-const Actions = require('../actions');
+import Reflux from 'reflux';
+import toNS from 'mongodb-ns';
+import toPairs from 'lodash.topairs';
+import findIndex from 'lodash.findindex';
+import StateMixin from 'reflux-state-mixin';
+import HadronDocument from 'hadron-document';
+import Actions from 'actions';
 
 /**
  * Number of docs per page.
@@ -25,6 +25,31 @@ const MODIFYING = 'modifying';
  * The list view constant.
  */
 const LIST = 'List';
+
+/**
+ * Input type.
+ */
+const TYPE = 'text';
+
+/**
+ * Styles attribute.
+ */
+const STYLES = 'styles';
+
+/**
+ * Input display.
+ */
+const DISPLAY = 'display: none;';
+
+/**
+ * Input type.
+ */
+const INPUT = 'input';
+
+/**
+ * Copy command.
+ */
+const COPY = 'copy';
 
 /**
  * The delete error message.
@@ -182,6 +207,27 @@ const CRUDStore = Reflux.createStore({
    */
   openImport() {
     this.appRegistry.emit('open-import', this.state.ns);
+  },
+
+  /**
+   * Copy the document to the clipboard.
+   *
+   * @param {HadronDocument} doc - The document.
+   *
+   * @returns {Boolean} If the copy succeeded.
+   */
+  copyToClipboard(doc) {
+    const documentJSON = JSON.stringify(doc.generateObject());
+    let input = document.createElement(INPUT);
+    input.type = TYPE;
+    input.setAttribute(STYLES, DISPLAY);
+    input.value = documentJSON;
+    document.body.appendChild(input);
+    input.select();
+    const success = document.execCommand(COPY);
+    document.body.removeChild(input);
+    input = null;
+    return success;
   },
 
   /**
@@ -500,4 +546,4 @@ const CRUDStore = Reflux.createStore({
   }
 });
 
-module.exports = CRUDStore;
+export default CRUDStore;

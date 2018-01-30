@@ -1,5 +1,5 @@
-const chars = require('../utils');
-const StandardEditor = require('./standard');
+import chars from 'utils';
+import StandardEditor from './standard';
 
 /**
  * CRUD editor for double values.
@@ -27,4 +27,4 @@ class DoubleEditor extends StandardEditor {
   }
 }
 
-module.exports = DoubleEditor;
+export default DoubleEditor;

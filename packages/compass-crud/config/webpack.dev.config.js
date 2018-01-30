@@ -42,6 +42,7 @@ module.exports = {
     modules: ['node_modules'],
     extensions: ['.js', '.jsx', '.json', 'less'],
     alias: {
+      actions: path.join(project.path.src, 'actions'),
       components: path.join(project.path.src, 'components'),
       constants: path.join(project.path.src, 'constants'),
       fonts: path.join(project.path.src, 'assets/fonts'),
@@ -49,8 +50,6 @@ module.exports = {
       less: path.join(project.path.src, 'assets/less'),
       models: path.join(project.path.src, 'models'),
       modules: path.join(project.path.src, 'modules'),
-      reducers: path.join(project.path.src, 'reducers'),
-      'action-creators': path.join(project.path.src, 'action-creators'),
       plugin: path.join(project.path.src, 'index.js'),
       stores: path.join(project.path.src, 'stores'),
       storybook: project.path.storybook,

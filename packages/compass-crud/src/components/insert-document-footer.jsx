@@ -1,5 +1,5 @@
-const React = require('react');
-const PropTypes = require('prop-types');
+import React from 'react';
+import PropTypes from 'prop-types';
 
 /**
  * BEM prefix.
@@ -42,4 +42,4 @@ InsertDocumentFooter.propTypes = {
   mode: PropTypes.string.isRequired
 };
 
-module.exports = InsertDocumentFooter;
+export default InsertDocumentFooter;

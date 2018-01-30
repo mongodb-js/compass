@@ -1,6 +1,6 @@
-const React = require('react');
-const PropTypes = require('prop-types');
-const FontAwesome = require('react-fontawesome');
+import React from 'react';
+import PropTypes from 'prop-types';
+import FontAwesome from 'react-fontawesome';
 
 const BEM_BASE = 'ag-header-breadcrumb';
 const ICON_TYPE = {Array: '[ ]', Object: '{ }' };
@@ -70,4 +70,4 @@ BreadcrumbComponent.defaultPropTypes = {
 
 BreadcrumbComponent.displayName = 'BreadcrumbComponent';
 
-module.exports = BreadcrumbComponent;
+export default BreadcrumbComponent;

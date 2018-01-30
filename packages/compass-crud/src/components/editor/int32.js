@@ -1,5 +1,5 @@
-const chars = require('../utils');
-const StandardEditor = require('./standard');
+import chars from 'utils';
+import StandardEditor from './standard';
 
 /**
  * CRUD editor for int32 values.
@@ -27,4 +27,4 @@ class Int32Editor extends StandardEditor {
   }
 }
 
-module.exports = Int32Editor;
+export default Int32Editor;

@@ -1,7 +1,7 @@
-const React = require('react');
-const PropTypes = require('prop-types');
-const Element = require('hadron-document').Element;
-const EditableElement = require('./editable-element');
+import React from 'react';
+import PropTypes from 'prop-types';
+import { Element } from 'hadron-document';
+import EditableElement from 'components/editable-element';
 
 /**
  * The class for the document itself.
@@ -97,4 +97,4 @@ InsertDocument.propTypes = {
   closeAllMenus: PropTypes.func.isRequired
 };
 
-module.exports = InsertDocument;
+export default InsertDocument;

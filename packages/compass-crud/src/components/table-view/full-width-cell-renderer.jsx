@@ -1,8 +1,7 @@
-const React = require('react');
-const PropTypes = require('prop-types');
-
-const DocumentFooter = require('../document-footer');
-const RemoveDocumentFooter = require('../remove-document-footer');
+import React from 'react';
+import PropTypes from 'prop-types';
+import DocumentFooter from 'components/document-footer';
+import RemoveDocumentFooter from 'components/remove-document-footer';
 
 /**
  * The custom full-width cell renderer that renders the update/cancel bar
@@ -124,4 +123,4 @@ FullWidthCellRenderer.propTypes = {
 
 FullWidthCellRenderer.displayName = 'FullWidthCellRenderer';
 
-module.exports = FullWidthCellRenderer;
+export default FullWidthCellRenderer;

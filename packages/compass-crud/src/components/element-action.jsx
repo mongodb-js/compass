@@ -1,8 +1,8 @@
-const React = require('react');
-const PropTypes = require('prop-types');
-const RevertAction = require('./revert-action');
-const RemoveAction = require('./remove-action');
-const NoAction = require('./no-action');
+import React from 'react';
+import PropTypes from 'prop-types';
+import RevertAction from 'components/revert-action';
+import RemoveAction from 'components/remove-action';
+import NoAction from 'components/no-action';
 
 /**
  * Component to render the available action for an element.
@@ -30,4 +30,4 @@ ElementAction.propTypes = {
   element: PropTypes.object.isRequired
 };
 
-module.exports = ElementAction;
+export default ElementAction;

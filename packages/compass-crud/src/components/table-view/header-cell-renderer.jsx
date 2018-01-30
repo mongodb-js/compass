@@ -1,6 +1,6 @@
-const React = require('react');
-const PropTypes = require('prop-types');
-const classNames = require('classnames');
+import React from 'react';
+import PropTypes from 'prop-types';
+import classNames from 'classnames';
 
 /**
   Custom cell renderer for the headers.
@@ -36,4 +36,4 @@ HeaderCellRenderer.propTypes = {
 
 HeaderCellRenderer.displayName = 'HeaderCellRenderer';
 
-module.exports = HeaderCellRenderer;
+export default HeaderCellRenderer;

@@ -1,7 +1,7 @@
-const React = require('react');
-const PropTypes = require('prop-types');
-const { Tooltip } = require('hadron-react-components');
-const initEditors = require('./editor/');
+import React from 'react';
+import PropTypes from 'prop-types';
+import { Tooltip } from 'hadron-react-components';
+import initEditors from 'components/editor';
 
 /* eslint no-return-assign:0 */
 
@@ -273,4 +273,4 @@ EditableValue.propTypes = {
   isFocused: PropTypes.bool.isRequired
 };
 
-module.exports = EditableValue;
+export default EditableValue;

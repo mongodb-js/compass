@@ -10,4 +10,4 @@ const size = (value) => {
   return length === 0 ? 1 : length;
 };
 
-module.exports = size;
+export default size;

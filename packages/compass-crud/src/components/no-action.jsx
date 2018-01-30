@@ -1,4 +1,4 @@
-const React = require('react');
+import React from 'react';
 
 /**
  * The actions class.
@@ -24,4 +24,4 @@ class NoAction extends React.Component {
 
 NoAction.displayName = 'NoAction';
 
-module.exports = NoAction;
+export default NoAction;

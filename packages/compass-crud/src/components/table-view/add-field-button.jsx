@@ -1,8 +1,8 @@
-const React = require('react');
-const PropTypes = require('prop-types');
-const FontAwesome = require('react-fontawesome');
-const outsideClickable = require('react-click-outside');
-const getComponent = require('hadron-react-bson');
+import React from 'react';
+import PropTypes from 'prop-types';
+import FontAwesome from 'react-fontawesome';
+import outsideClickable from 'react-click-outside';
+import getComponent from 'hadron-react-bson';
 
 /**
  * The BEM base style name for the element.
@@ -367,4 +367,4 @@ AddFieldButton.propTypes = {
   buttonRef: PropTypes.any.isRequired
 };
 
-module.exports = outsideClickable(AddFieldButton);
+export default outsideClickable(AddFieldButton);

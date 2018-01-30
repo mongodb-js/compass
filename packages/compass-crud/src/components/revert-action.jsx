@@ -1,5 +1,5 @@
-const React = require('react');
-const PropTypes = require('prop-types');
+import React from 'react';
+import PropTypes from 'prop-types';
 
 /**
  * The actions class.
@@ -48,4 +48,4 @@ RevertAction.propTypes = {
   element: PropTypes.object.isRequired
 };
 
-module.exports = RevertAction;
+export default RevertAction;

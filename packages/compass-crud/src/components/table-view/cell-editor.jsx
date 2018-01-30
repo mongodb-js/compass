@@ -1,15 +1,13 @@
 /* eslint-disable react/sort-comp */
-const React = require('react');
-const ReactDOM = require('react-dom');
-const PropTypes = require('prop-types');
-const FontAwesome = require('react-fontawesome');
-
-const { Tooltip } = require('hadron-react-components');
-const TypeChecker = require('hadron-type-checker');
-
-const initEditors = require('../editor/');
-const Types = require('../types');
-const AddFieldButton = require('./add-field-button');
+import React from 'react';
+import ReactDOM from 'react-dom';
+import PropTypes from 'prop-types';
+import FontAwesome from 'react-fontawesome';
+import { Tooltip } from 'hadron-react-components';
+import TypeChecker from 'hadron-type-checker';
+import initEditors from 'components/editor';
+import Types from 'components/types';
+import AddFieldButton from 'components/table-view/add-field-button';
 
 const EMPTY_TYPE = {
   Array: [], Object: {},
@@ -570,4 +568,4 @@ CellEditor.propTypes = {
 
 CellEditor.displayName = 'CellEditor';
 
-module.exports = CellEditor;
+export default CellEditor;
