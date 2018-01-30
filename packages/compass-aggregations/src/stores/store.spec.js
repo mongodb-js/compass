@@ -6,7 +6,7 @@ import {
   stageCollapseToggled,
   stageDeleted,
   stageAdded,
-  stageToggled } from 'modules/stages';
+  stageToggled } from 'modules/pipeline';
 import { reset, INITIAL_STATE } from '../modules/index';
 
 describe('Aggregation Store', () => {
@@ -61,7 +61,7 @@ describe('Aggregation Store', () => {
       it('returns the initial state', (done) => {
         const unsubscribe = store.subscribe(() => {
           unsubscribe();
-          expect(store.getState().stages[0].stage).to.equal('');
+          expect(store.getState().pipeline[0].stage).to.equal('');
           done();
         });
         store.dispatch({ type: 'UNKNOWN' });
@@ -74,7 +74,7 @@ describe('Aggregation Store', () => {
       it('updates the stage in state', (done) => {
         const unsubscribe = store.subscribe(() => {
           unsubscribe();
-          expect(store.getState().stages[0].stage).to.equal(stage);
+          expect(store.getState().pipeline[0].stage).to.equal(stage);
           done();
         });
         store.dispatch(stageChanged(stage, 0));
@@ -85,7 +85,7 @@ describe('Aggregation Store', () => {
       it('deletes the stage in state', (done) => {
         const unsubscribe = store.subscribe(() => {
           unsubscribe();
-          expect(store.getState().stages).to.deep.equal([]);
+          expect(store.getState().pipeline).to.deep.equal([]);
           done();
         });
         store.dispatch(stageDeleted(0));
@@ -96,7 +96,7 @@ describe('Aggregation Store', () => {
       it('updates the stage in state', (done) => {
         const unsubscribe = store.subscribe(() => {
           unsubscribe();
-          expect(store.getState().stages.length).to.equal(2);
+          expect(store.getState().pipeline.length).to.equal(2);
           done();
         });
         store.dispatch(stageAdded());
@@ -107,7 +107,7 @@ describe('Aggregation Store', () => {
       it('updates the stage in state', (done) => {
         const unsubscribe = store.subscribe(() => {
           unsubscribe();
-          expect(store.getState().stages[0].isEnabled).to.equal(false);
+          expect(store.getState().pipeline[0].isEnabled).to.equal(false);
           done();
         });
         store.dispatch(stageToggled(0));
@@ -118,7 +118,7 @@ describe('Aggregation Store', () => {
       it('updates the stage in state', (done) => {
         const unsubscribe = store.subscribe(() => {
           unsubscribe();
-          expect(store.getState().stages[0].isExpanded).to.equal(false);
+          expect(store.getState().pipeline[0].isExpanded).to.equal(false);
           done();
         });
         store.dispatch(stageCollapseToggled(0));
@@ -172,7 +172,7 @@ describe('Aggregation Store', () => {
             fields: INITIAL_STATE.fields,
             inputDocuments: INITIAL_STATE.inputDocuments,
             serverVersion: INITIAL_STATE.serverVersion,
-            stages: INITIAL_STATE.stages,
+            pipeline: INITIAL_STATE.pipeline,
             view: INITIAL_STATE.view
           });
         });

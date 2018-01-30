@@ -124,6 +124,8 @@
     "mongodb-ace-mode": "0.0.1",
     "mongodb-ace-theme": "0.0.1",
     "nanoidb": "^1.2.0",
+    "mongodb-extended-json": "^1.10.0",
+    "mongodb-query-parser": "^1.0.1",
     "react-ace": "^5.7.0",
     "react-bootstrap": "^0.32.1",
     "react-dnd": "^2.5.4",

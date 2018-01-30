@@ -36,7 +36,7 @@ class Completer {
    * @returns {Array} The accumulators.
    */
   accumulators() {
-    const stage = store.getState().stages[this.index];
+    const stage = store.getState().pipeline[this.index];
     if (stage) {
       const stageOperator = stage.stageOperator;
       if (stageOperator) {

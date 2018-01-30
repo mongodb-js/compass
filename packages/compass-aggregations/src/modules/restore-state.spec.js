@@ -24,7 +24,7 @@ describe('restore previous state', () => {
         'dataService',
         'namespace',
         'fields',
-        'stages',
+        'pipeline',
         'view'
       );
     });

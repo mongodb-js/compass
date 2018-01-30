@@ -1,9 +1,10 @@
 import STAGE_OPERATORS from 'constants/stage-operators';
+import generateStage from 'modules/stage';
 
 /**
  * Action name prefix.
  */
-const PREFIX = 'aggregations/stages';
+const PREFIX = 'aggregations/pipeline';
 
 /**
  * Stage added action name.
@@ -174,6 +175,7 @@ const selectStageOperator = (state, action) => {
 const toggleStage = (state, action) => {
   const newState = copyState(state);
   newState[action.index].isEnabled = !newState[action.index].isEnabled;
+  generateStage(newState[action.index]);
   return newState;
 };
 
@@ -207,9 +209,9 @@ MAPPINGS[STAGE_COLLAPSE_TOGGLED] = toggleStageCollapse;
 Object.freeze(MAPPINGS);
 
 /**
- * Reducer function for handle state changes to stages.
+ * Reducer function for handle state changes to pipeline.
  *
- * @param {Array} state - The stages state.
+ * @param {Array} state - The pipeline state.
  * @param {Object} action - The action.
  *
  * @returns {Array} The new state.

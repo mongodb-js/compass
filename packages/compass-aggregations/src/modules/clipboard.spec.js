@@ -10,7 +10,7 @@ describe('clipboard module', () => {
   describe('#generateClipboardText', () => {
     context('when the stages are enabled', () => {
       const state = {
-        stages: [{
+        pipeline: [{
           isEnabled: true,
           stageOperator: '$match',
           stage: '{ name: "testing" }'
@@ -24,7 +24,7 @@ describe('clipboard module', () => {
 
     context('when a stage is not enabled', () => {
       const state = {
-        stages: [{
+        pipeline: [{
           isEnabled: false,
           stageOperator: '$match',
           stage: '{ name: "testing" }'
@@ -38,7 +38,7 @@ describe('clipboard module', () => {
 
     context('when a stage has no stage operator', () => {
       const state = {
-        stages: [{
+        pipeline: [{
           isEnabled: true,
           stageOperator: null,
           stage: '{ name: "testing" }'
@@ -52,7 +52,7 @@ describe('clipboard module', () => {
 
     context('when there are multiple stages', () => {
       const state = {
-        stages: [
+        pipeline: [
           {
             isEnabled: true,
             stageOperator: '$match',

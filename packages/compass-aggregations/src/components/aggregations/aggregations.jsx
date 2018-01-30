@@ -19,8 +19,7 @@ import {
   stageMoved,
   stageOperatorSelected,
   stageToggled
-} from 'modules/stages';
-
+} from 'modules/pipeline';
 import {
   savedPipelinesListToggle,
   savePipelineModalToggle,
@@ -66,7 +65,7 @@ const mapStateToProps = (state) => ({
   inputDocuments: state.inputDocuments,
   namespace: state.namespace,
   serverVersion: state.serverVersion,
-  stages: state.stages,
+  pipeline: state.pipeline,
   view: state.view,
   savedPipelines: state.savedPipelines
 });

@@ -15,7 +15,7 @@ class Pipeline extends PureComponent {
   static displayName = 'PipelineComponent';
 
   static propTypes = {
-    stages: PropTypes.array.isRequired,
+    pipeline: PropTypes.array.isRequired,
     serverVersion: PropTypes.string.isRequired,
     stageAdded: PropTypes.func.isRequired,
     stageChanged: PropTypes.func.isRequired,

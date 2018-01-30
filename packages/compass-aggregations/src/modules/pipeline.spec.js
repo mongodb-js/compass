@@ -12,9 +12,9 @@ import reducer, {
   STAGE_DELETED,
   STAGE_MOVED,
   STAGE_OPERATOR_SELECTED,
-  STAGE_TOGGLED } from 'modules/stages';
+  STAGE_TOGGLED } from 'modules/pipeline';
 
-describe('stages module', () => {
+describe('pipeline module', () => {
   describe('#reducer', () => {
     context('when the action is undefined', () => {
       it('returns the default state', () => {
@@ -107,7 +107,7 @@ describe('stages module', () => {
         context('when not moving to the end', () => {
           const result = reducer(state, stageMoved(0, 1));
 
-          it('shifts the stages from the toIndex lower', () => {
+          it('shifts the pipeline from the toIndex lower', () => {
             expect(result[0].stage).to.equal('{ name: 1 }');
             expect(result[1].stage).to.equal('{}');
           });
@@ -116,7 +116,7 @@ describe('stages module', () => {
         context('when moving to the end', () => {
           const result = reducer(state, stageMoved(0, 2));
 
-          it('shifts the stages from the toIndex lower', () => {
+          it('shifts the pipeline from the toIndex lower', () => {
             expect(result[0].stage).to.equal('{ name: 1 }');
             expect(result[2].stage).to.equal('{}');
           });
@@ -125,7 +125,7 @@ describe('stages module', () => {
 
       context('when moving to a lower position', () => {
         context('when the position is not the first', () => {
-          it('shifts the stages from the toIndex higher', () => {
+          it('shifts the pipeline from the toIndex higher', () => {
             expect(reducer(state, stageMoved(2, 1))).to.deep.equal([
               {
                 stage: '{}',
@@ -153,7 +153,7 @@ describe('stages module', () => {
         });
 
         context('when the position is the first', () => {
-          it('shifts the stages from the toIndex higher', () => {
+          it('shifts the pipeline from the toIndex higher', () => {
             expect(reducer(state, stageMoved(2, 0))).to.deep.equal([
               {
                 stage: '{ name: -1 }',

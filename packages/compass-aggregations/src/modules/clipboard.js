@@ -51,9 +51,9 @@ const generateStageText = (stage) => {
  */
 export const generateClipboardText = (state) => {
   let pipeline = '';
-  state.stages.forEach((stage, i) => {
+  state.pipeline.forEach((stage, i) => {
     pipeline += generateStageText(stage);
-    if (i < state.stages.length - 1) {
+    if (i < state.pipeline.length - 1) {
       pipeline += SEPARATOR;
     }
   });

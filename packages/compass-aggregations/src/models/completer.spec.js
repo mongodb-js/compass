@@ -3,7 +3,7 @@ import ace from 'brace';
 import Completer from 'models/completer';
 import EXPRESSION_OPERATORS from 'constants/expression-operators';
 import store from 'stores';
-import { stageOperatorSelected } from 'modules/stages';
+import { stageOperatorSelected } from 'modules/pipeline';
 
 import 'brace/mode/javascript';
 const { Mode } = ace.acequire('ace/mode/javascript');

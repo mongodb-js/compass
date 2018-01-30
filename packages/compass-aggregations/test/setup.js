@@ -12,7 +12,8 @@ require('jsdom-global')('', {
     win.URL = {
       createObjectURL: () => {}
     };
-  }
+  },
+  runScripts: 'dangerously'
 });
 
 global.sinon = require('sinon');
