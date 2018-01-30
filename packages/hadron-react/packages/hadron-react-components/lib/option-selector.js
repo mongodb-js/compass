@@ -1,6 +1,19 @@
-const React = require('react');
-const PropTypes = require('prop-types');
-const { DropdownButton, MenuItem } = require('react-bootstrap');
+'use strict';
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+var React = require('react');
+var PropTypes = require('prop-types');
+
+var _require = require('react-bootstrap'),
+    DropdownButton = _require.DropdownButton,
+    MenuItem = _require.MenuItem;
 
 /**
  * An OptionSelector component is composed of a few components:
@@ -11,53 +24,70 @@ const { DropdownButton, MenuItem } = require('react-bootstrap');
  *  3. An ordered object of key-value pairs, which populate the
  *     MenuItem list when the dropdown is activated.
  */
-class OptionSelector extends React.Component {
 
-  static renderLabel(label, id) {
-    return label ? React.createElement(
-      'label',
-      { className: 'option-selector-label', htmlFor: id },
-      label
-    ) : null;
+
+var OptionSelector = function (_React$Component) {
+  _inherits(OptionSelector, _React$Component);
+
+  function OptionSelector() {
+    _classCallCheck(this, OptionSelector);
+
+    return _possibleConstructorReturn(this, (OptionSelector.__proto__ || Object.getPrototypeOf(OptionSelector)).apply(this, arguments));
   }
 
-  /**
-   * Renders the Option Selector component.
-   *
-   * @returns {React.Component} The component.
-   */
-  render() {
-    const htmlLabel = this.constructor.renderLabel(this.props.label, this.props.id);
+  _createClass(OptionSelector, [{
+    key: 'render',
 
-    const menuItems = [];
-    for (let key in this.props.options) {
-      if (this.props.options.hasOwnProperty(key)) {
-        let label = this.props.options[key];
-        menuItems.push(React.createElement(
-          MenuItem,
-          { key: key, eventKey: key, href: '#' },
-          label
-        ));
+
+    /**
+     * Renders the Option Selector component.
+     *
+     * @returns {React.Component} The component.
+     */
+    value: function render() {
+      var htmlLabel = this.constructor.renderLabel(this.props.label, this.props.id);
+
+      var menuItems = [];
+      for (var key in this.props.options) {
+        if (this.props.options.hasOwnProperty(key)) {
+          var label = this.props.options[key];
+          menuItems.push(React.createElement(
+            MenuItem,
+            { key: key, eventKey: key, href: '#' },
+            label
+          ));
+        }
       }
-    }
 
-    return React.createElement(
-      'div',
-      { className: 'option-selector' },
-      htmlLabel,
-      React.createElement(
-        DropdownButton,
-        {
-          bsSize: this.props.bsSize,
-          id: this.props.id,
-          onSelect: this.props.onSelect,
-          title: this.props.title,
-          disabled: this.props.disabled },
-        menuItems
-      )
-    );
-  }
-}
+      return React.createElement(
+        'div',
+        { className: 'option-selector' },
+        htmlLabel,
+        React.createElement(
+          DropdownButton,
+          {
+            bsSize: this.props.bsSize,
+            id: this.props.id,
+            onSelect: this.props.onSelect,
+            title: this.props.title,
+            disabled: this.props.disabled },
+          menuItems
+        )
+      );
+    }
+  }], [{
+    key: 'renderLabel',
+    value: function renderLabel(label, id) {
+      return label ? React.createElement(
+        'label',
+        { className: 'option-selector-label', htmlFor: id },
+        label
+      ) : null;
+    }
+  }]);
+
+  return OptionSelector;
+}(React.Component);
 
 OptionSelector.propTypes = {
   id: PropTypes.string.isRequired,
@@ -72,7 +102,7 @@ OptionSelector.propTypes = {
 OptionSelector.defaultProps = {
   label: '',
   title: 'Select an option',
-  onSelect: () => {},
+  onSelect: function onSelect() {},
   disabled: false
 };
 

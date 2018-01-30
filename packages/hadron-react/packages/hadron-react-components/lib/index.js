@@ -1,3 +1,5 @@
+'use strict';
+
 module.exports.FormInput = require('./form-input');
 module.exports.InfoSprinkle = require('./info-sprinkle');
 module.exports.ModalStatusMessage = require('./modal-status-message');

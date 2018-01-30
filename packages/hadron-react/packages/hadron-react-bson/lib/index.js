@@ -1,19 +1,21 @@
-const Value = require('./value');
-const BinaryValue = require('./binary-value');
-const CodeValue = require('./code-value');
-const DateValue = require('./date-value');
-const DoubleValue = require('./double-value');
-const Int32Value = require('./int32-value');
-const KeyValue = require('./key-value');
-const RegexValue = require('./regex-value');
-const DBRefValue = require('./dbref-value');
-const StringValue = require('./string-value');
+'use strict';
+
+var Value = require('./value');
+var BinaryValue = require('./binary-value');
+var CodeValue = require('./code-value');
+var DateValue = require('./date-value');
+var DoubleValue = require('./double-value');
+var Int32Value = require('./int32-value');
+var KeyValue = require('./key-value');
+var RegexValue = require('./regex-value');
+var DBRefValue = require('./dbref-value');
+var StringValue = require('./string-value');
 
 /**
  * The mappings from the BSON type to the value component
  * that renders it.
  */
-const MAPPINGS = {
+var MAPPINGS = {
   'Binary': BinaryValue,
   'Code': CodeValue,
   'Date': DateValue,
@@ -39,7 +41,7 @@ const MAPPINGS = {
  *
  * @returns {React.Component} The react component.
  */
-const getComponent = type => {
+var getComponent = function getComponent(type) {
   return MAPPINGS[type] || Value;
 };
 

@@ -1,228 +1,278 @@
-const React = require('react');
-const PropTypes = require('prop-types');
-const FontAwesome = require('react-fontawesome');
-const Button = require('react-bootstrap').Button;
-const map = require('lodash.map');
-const fill = require('lodash.fill');
-const get = require('lodash.get');
-const isString = require('lodash.isstring');
-const isArray = require('lodash.isarray');
-const isPlainObject = require('lodash.isplainobject');
-const isNumber = require('lodash.isnumber');
+'use strict';
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+var React = require('react');
+var PropTypes = require('prop-types');
+var FontAwesome = require('react-fontawesome');
+var Button = require('react-bootstrap').Button;
+var map = require('lodash.map');
+var fill = require('lodash.fill');
+var get = require('lodash.get');
+var isString = require('lodash.isstring');
+var isArray = require('lodash.isarray');
+var isPlainObject = require('lodash.isplainobject');
+var isNumber = require('lodash.isnumber');
 
 /**
  * The base for the classes.
  */
-const BASE = 'sortable-table';
+var BASE = 'sortable-table';
 
 /**
  * Ascending class.
  */
-const ASC = 'asc';
+var ASC = 'asc';
 
 /**
  * Descending class.
  */
-const DESC = 'desc';
+var DESC = 'desc';
 
 /**
  * Represents a sortable table.
  */
-class SortableTable extends React.Component {
 
-  /**
-   * Fires when the user's mouse cursor hovers over a <tr>.
-   *
-   * @param {Number} index - The row's index in the table.
-   * @param {SyntheticEvent} event
-   * @see https://reactjs.org/docs/events.html#mouse-events
-   */
-  onBodyRowMouseEnter(index, event) {
-    this.props.onBodyRowMouseEnter(index, event);
+var SortableTable = function (_React$Component) {
+  _inherits(SortableTable, _React$Component);
+
+  function SortableTable() {
+    _classCallCheck(this, SortableTable);
+
+    return _possibleConstructorReturn(this, (SortableTable.__proto__ || Object.getPrototypeOf(SortableTable)).apply(this, arguments));
   }
 
-  /**
-   * Fires when the user's mouse cursor stops hovering over a <tr>.
-   *
-   * @param {Number} index - The row's index in the table.
-   * @param {SyntheticEvent} event
-   * @see https://reactjs.org/docs/events.html#mouse-events
-   */
-  onBodyRowMouseLeave(index, event) {
-    this.props.onBodyRowMouseLeave(index, event);
-  }
+  _createClass(SortableTable, [{
+    key: 'onBodyRowMouseEnter',
 
-  /**
-   * Fires when a column header is clicked.
-   *
-   * @param {Number} idx - The index.
-   * @param {Event} evt - The event.
-   */
-  onColumnHeaderClicked(idx, evt) {
-    evt.preventDefault();
-    let sortOrder = this.props.sortOrder;
-    if (this._sortColumnMatch(idx, this.props.sortColumn)) {
-      sortOrder = sortOrder === ASC ? DESC : ASC;
+
+    /**
+     * Fires when the user's mouse cursor hovers over a <tr>.
+     *
+     * @param {Number} index - The row's index in the table.
+     * @param {SyntheticEvent} event
+     * @see https://reactjs.org/docs/events.html#mouse-events
+     */
+    value: function onBodyRowMouseEnter(index, event) {
+      this.props.onBodyRowMouseEnter(index, event);
     }
-    if (this.props.onColumnHeaderClicked) {
-      this.props.onColumnHeaderClicked(this.props.columns[idx], sortOrder);
-    }
-  }
 
-  /**
-   * Fires when the row delete button is clicked.
-   *
-   * @param {Number} idx - The index.
-   * @param {Object} value - The value.
-   * @param {Event} evt - The event.
-   */
-  onRowDeleteButtonClicked(idx, value, evt) {
-    evt.preventDefault();
-    if (this.props.onRowDeleteButtonClicked) {
-      this.props.onRowDeleteButtonClicked(idx, value);
-    }
-  }
+    /**
+     * Fires when the user's mouse cursor stops hovering over a <tr>.
+     *
+     * @param {Number} index - The row's index in the table.
+     * @param {SyntheticEvent} event
+     * @see https://reactjs.org/docs/events.html#mouse-events
+     */
 
-  /**
-   * compares either a column index (number) or a column name (string) with
-   * another column name and returns whether they are a match. This abstraction
-   * allows the user to enter either an index or column name for the
-   * `sortColumn` prop.
-   *
-   * @param {Number|String} idxOrName    column index or name to compare with
-   * @param {String} column              column name
-   *
-   * @return {Boolean}                   whether or not they are a match
-   */
-  _sortColumnMatch(idxOrName, column) {
-    if (isNumber(idxOrName)) {
-      return this.props.columns[idxOrName] === column;
+  }, {
+    key: 'onBodyRowMouseLeave',
+    value: function onBodyRowMouseLeave(index, event) {
+      this.props.onBodyRowMouseLeave(index, event);
     }
-    return idxOrName === column;
-  }
 
-  /**
-   * Render the table header.
-   *
-   * @returns {React.Component} The table header.
-   */
-  renderHeader() {
-    const sortClass = `sort-${this.props.sortOrder.toLowerCase()}`;
-    const cells = map(this.props.columns, (col, idx) => {
-      const active = this._sortColumnMatch(this.props.sortColumn, col) ? ` ${BASE}-th-is-active` : '';
-      const sortIcon = this.props.sortable ? React.createElement(FontAwesome, { className: `${BASE}-sort-icon`, name: sortClass, fixedWidth: true }) : null;
-      return React.createElement(
-        'th',
-        { className: `sortable-table-th${active}`, key: `th-${idx}`, onClick: this.onColumnHeaderClicked.bind(this, idx) },
-        col,
-        sortIcon
-      );
-    });
-    if (this.props.removable) {
-      cells.push(React.createElement('th', { key: 'th-delete', className: `${BASE}-th ${BASE}-th-is-last-col` }));
-    }
-    return cells;
-  }
+    /**
+     * Fires when a column header is clicked.
+     *
+     * @param {Number} idx - The index.
+     * @param {Event} evt - The event.
+     */
 
-  /**
-   * Render the table rows.
-   *
-   * @returns {React.Component} The rows.
-   */
-  renderRows() {
-    return map(this.props.rows, (row, rowIndex) => {
-      // allow both objects and arrays as rows. if object, convert to array
-      // in sort order of column names (column names must match exactly).
-      if (isPlainObject(row)) {
-        // turn into array sorted by the column name keys
-        row = map(this.props.columns, col => {
-          return get(row, col, '');
-        });
+  }, {
+    key: 'onColumnHeaderClicked',
+    value: function onColumnHeaderClicked(idx, evt) {
+      evt.preventDefault();
+      var sortOrder = this.props.sortOrder;
+      if (this._sortColumnMatch(idx, this.props.sortColumn)) {
+        sortOrder = sortOrder === ASC ? DESC : ASC;
       }
-      if (!isArray(row)) {
-        row = [];
+      if (this.props.onColumnHeaderClicked) {
+        this.props.onColumnHeaderClicked(this.props.columns[idx], sortOrder);
       }
-      if (row.length < this.props.columns.length) {
-        // pad the array with empty strings at the end if it's not as long as
-        // the columns array
-        row = row.concat(fill(Array(this.props.columns.length - row.length)));
-      } else if (row.length > this.props.columns.length) {
-        row = row.slice(0, this.props.columns.length);
+    }
+
+    /**
+     * Fires when the row delete button is clicked.
+     *
+     * @param {Number} idx - The index.
+     * @param {Object} value - The value.
+     * @param {Event} evt - The event.
+     */
+
+  }, {
+    key: 'onRowDeleteButtonClicked',
+    value: function onRowDeleteButtonClicked(idx, value, evt) {
+      evt.preventDefault();
+      if (this.props.onRowDeleteButtonClicked) {
+        this.props.onRowDeleteButtonClicked(idx, value);
       }
-      const cells = map(row, (cell, columnIndex) => {
-        const title = isString(cell) ? cell : get(cell, 'props.children', '');
+    }
+
+    /**
+     * compares either a column index (number) or a column name (string) with
+     * another column name and returns whether they are a match. This abstraction
+     * allows the user to enter either an index or column name for the
+     * `sortColumn` prop.
+     *
+     * @param {Number|String} idxOrName    column index or name to compare with
+     * @param {String} column              column name
+     *
+     * @return {Boolean}                   whether or not they are a match
+     */
+
+  }, {
+    key: '_sortColumnMatch',
+    value: function _sortColumnMatch(idxOrName, column) {
+      if (isNumber(idxOrName)) {
+        return this.props.columns[idxOrName] === column;
+      }
+      return idxOrName === column;
+    }
+
+    /**
+     * Render the table header.
+     *
+     * @returns {React.Component} The table header.
+     */
+
+  }, {
+    key: 'renderHeader',
+    value: function renderHeader() {
+      var _this2 = this;
+
+      var sortClass = 'sort-' + this.props.sortOrder.toLowerCase();
+      var cells = map(this.props.columns, function (col, idx) {
+        var active = _this2._sortColumnMatch(_this2.props.sortColumn, col) ? ' ' + BASE + '-th-is-active' : '';
+        var sortIcon = _this2.props.sortable ? React.createElement(FontAwesome, { className: BASE + '-sort-icon', name: sortClass, fixedWidth: true }) : null;
         return React.createElement(
-          'td',
-          {
-            className: `${BASE}-td`,
-            'data-test-id': `${BASE}-column-${columnIndex}`,
-            title: title,
-            key: `td-${columnIndex}` },
-          cell
+          'th',
+          { className: 'sortable-table-th' + active, key: 'th-' + idx, onClick: _this2.onColumnHeaderClicked.bind(_this2, idx) },
+          col,
+          sortIcon
         );
       });
       if (this.props.removable) {
-        // add a column with a delete button if the `removable` prop was set
-        const valueCell = row[this.props.valueIndex];
-        const valueStr = isString(valueCell) ? valueCell : get(valueCell, 'props.children', '');
-        cells.push(React.createElement(
-          'td',
-          {
-            className: `${BASE}-td`,
-            key: 'td-delete',
-            'data-test-id': `${BASE}-delete`,
-            title: `Delete ${valueStr}` },
-          React.createElement(
-            Button,
-            {
-              className: `${BASE}-trash-button`,
-              bsSize: 'sm',
-              onClick: this.onRowDeleteButtonClicked.bind(this, rowIndex, valueStr) },
-            React.createElement(FontAwesome, { className: `${BASE}-trash-icon`, name: 'trash-o' })
-          )
-        ));
+        cells.push(React.createElement('th', { key: 'th-delete', className: BASE + '-th ' + BASE + '-th-is-last-col' }));
       }
-      return React.createElement(
-        'tr',
-        {
-          className: `${BASE}-tbody-tr`, key: `tr-${rowIndex}`,
-          onMouseEnter: this.onBodyRowMouseEnter.bind(this, rowIndex),
-          onMouseLeave: this.onBodyRowMouseLeave.bind(this, rowIndex) },
-        cells
-      );
-    });
-  }
+      return cells;
+    }
 
-  /**
-   * Render the component.
-   *
-   * @returns {React.Component} The table component.
-   */
-  render() {
-    return React.createElement(
-      'div',
-      { className: `${BASE} ${BASE}-is-${this.props.theme}-theme` },
-      React.createElement(
-        'table',
-        { className: `${BASE}-table` },
+    /**
+     * Render the table rows.
+     *
+     * @returns {React.Component} The rows.
+     */
+
+  }, {
+    key: 'renderRows',
+    value: function renderRows() {
+      var _this3 = this;
+
+      return map(this.props.rows, function (row, rowIndex) {
+        // allow both objects and arrays as rows. if object, convert to array
+        // in sort order of column names (column names must match exactly).
+        if (isPlainObject(row)) {
+          // turn into array sorted by the column name keys
+          row = map(_this3.props.columns, function (col) {
+            return get(row, col, '');
+          });
+        }
+        if (!isArray(row)) {
+          row = [];
+        }
+        if (row.length < _this3.props.columns.length) {
+          // pad the array with empty strings at the end if it's not as long as
+          // the columns array
+          row = row.concat(fill(Array(_this3.props.columns.length - row.length)));
+        } else if (row.length > _this3.props.columns.length) {
+          row = row.slice(0, _this3.props.columns.length);
+        }
+        var cells = map(row, function (cell, columnIndex) {
+          var title = isString(cell) ? cell : get(cell, 'props.children', '');
+          return React.createElement(
+            'td',
+            {
+              className: BASE + '-td',
+              'data-test-id': BASE + '-column-' + columnIndex,
+              title: title,
+              key: 'td-' + columnIndex },
+            cell
+          );
+        });
+        if (_this3.props.removable) {
+          // add a column with a delete button if the `removable` prop was set
+          var valueCell = row[_this3.props.valueIndex];
+          var valueStr = isString(valueCell) ? valueCell : get(valueCell, 'props.children', '');
+          cells.push(React.createElement(
+            'td',
+            {
+              className: BASE + '-td',
+              key: 'td-delete',
+              'data-test-id': BASE + '-delete',
+              title: 'Delete ' + valueStr },
+            React.createElement(
+              Button,
+              {
+                className: BASE + '-trash-button',
+                bsSize: 'sm',
+                onClick: _this3.onRowDeleteButtonClicked.bind(_this3, rowIndex, valueStr) },
+              React.createElement(FontAwesome, { className: BASE + '-trash-icon', name: 'trash-o' })
+            )
+          ));
+        }
+        return React.createElement(
+          'tr',
+          {
+            className: BASE + '-tbody-tr', key: 'tr-' + rowIndex,
+            onMouseEnter: _this3.onBodyRowMouseEnter.bind(_this3, rowIndex),
+            onMouseLeave: _this3.onBodyRowMouseLeave.bind(_this3, rowIndex) },
+          cells
+        );
+      });
+    }
+
+    /**
+     * Render the component.
+     *
+     * @returns {React.Component} The table component.
+     */
+
+  }, {
+    key: 'render',
+    value: function render() {
+      return React.createElement(
+        'div',
+        { className: BASE + ' ' + BASE + '-is-' + this.props.theme + '-theme' },
         React.createElement(
-          'thead',
-          null,
+          'table',
+          { className: BASE + '-table' },
           React.createElement(
-            'tr',
-            { className: `${BASE}-thead-tr` },
-            this.renderHeader()
+            'thead',
+            null,
+            React.createElement(
+              'tr',
+              { className: BASE + '-thead-tr' },
+              this.renderHeader()
+            )
+          ),
+          React.createElement(
+            'tbody',
+            null,
+            this.renderRows()
           )
-        ),
-        React.createElement(
-          'tbody',
-          null,
-          this.renderRows()
         )
-      )
-    );
-  }
-}
+      );
+    }
+  }]);
+
+  return SortableTable;
+}(React.Component);
 
 SortableTable.propTypes = {
   /**
@@ -294,8 +344,8 @@ SortableTable.propTypes = {
 };
 
 SortableTable.defaultProps = {
-  onBodyRowMouseEnter: () => {},
-  onBodyRowMouseLeave: () => {},
+  onBodyRowMouseEnter: function onBodyRowMouseEnter() {},
+  onBodyRowMouseLeave: function onBodyRowMouseLeave() {},
   theme: 'light',
   rows: [],
   sortable: true,
