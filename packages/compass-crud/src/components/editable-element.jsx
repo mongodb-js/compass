@@ -8,6 +8,9 @@ import ElementAction from 'components/element-action';
 import LineNumber from 'components/line-number';
 import Types from 'components/types';
 
+import classnames from 'classnames';
+import styles from './editable-element.less';
+
 /**
  * The BEM base style name for the element.
  */
@@ -303,7 +306,9 @@ class EditableElement extends React.Component {
     }
     const onDoubleClick = this.element.isKeyEditable() ? null : this.focusEditKey.bind(this);
     return (
-      <div className={FIELD_CLASS} onClick={this.toggleExpandable.bind(this)} onDoubleClick={onDoubleClick}>
+      <div
+        className={classnames(styles[FIELD_CLASS])}
+        onClick={this.toggleExpandable.bind(this)} onDoubleClick={onDoubleClick}>
         {this.element.parent.currentType === 'Array' ? this.props.index : this.element.currentKey}
       </div>
     );
@@ -319,7 +324,7 @@ class EditableElement extends React.Component {
 
     return (
       <div
-        className={`editable-element-expand-button ${HEADER_TOGGLE}`}
+        className={`${classnames(styles['editable-element-expand-button'])} ${HEADER_TOGGLE}`}
         style={this.inlineToggleStyle()}
         onClick={this.toggleExpandable.bind(this)}>
       </div>
@@ -333,7 +338,9 @@ class EditableElement extends React.Component {
    */
   renderLabel() {
     return (
-      <div className={HEADER_LABEL} onClick={this.toggleExpandable.bind(this)}>
+      <div
+        className={classnames(styles[HEADER_LABEL])}
+        onClick={this.toggleExpandable.bind(this)}>
         {this.element.currentType}
       </div>
     );
@@ -356,7 +363,11 @@ class EditableElement extends React.Component {
       { type: this.element.currentType, value: this.element.currentValue }
     );
 
-    return <span className={WRAPPER} onDoubleClick={this.focusEditValue.bind(this)}>{reactComponent}</span>;
+    return (
+      <span
+        className={classnames(styles[WRAPPER])}
+        onDoubleClick={this.focusEditValue.bind(this)}>{reactComponent}</span>
+    );
   }
 
   /**

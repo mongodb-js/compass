@@ -7,6 +7,9 @@ import DocumentListView from 'components/document-list-view';
 import DocumentTableView from 'components/document-table-view';
 import Toolbar from 'components/toolbar';
 
+import classnames from 'classnames';
+import styles from './document-list.less';
+
 /**
  * Component for the entire document list.
  */
@@ -88,9 +91,15 @@ class DocumentList extends React.Component {
    * @returns {React.Component} The document list.
    */
   render() {
+    const className = classnames(
+      styles['content-container'],
+      styles['content-container-documents'],
+      styles['compass-documents']
+    );
+    const controlClassName = classnames(styles['controls-container']);
     return (
-      <div className="content-container content-container-documents compass-documents">
-        <div className="controls-container">
+      <div className={className}>
+        <div className={controlClassName}>
           {this.renderQueryBar()}
           <Toolbar
             readonly={!this.props.isEditable}

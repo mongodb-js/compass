@@ -4,6 +4,9 @@ import chars from 'utils';
 
 /* eslint no-return-assign:0 */
 
+import classnames from 'classnames';
+import styles from './editable-key.less';
+
 /**
  * The editing class constant.
  */
@@ -167,14 +170,11 @@ class EditableKey extends React.Component {
    * @returns {String} The key style.
    */
   style() {
-    let style = KEY_CLASS;
-    if (this.state.editing) {
-      style = style.concat(` ${EDITING}`);
-    }
-    if (this.state.duplicate) {
-      style = style.concat(` ${DUPLICATE}`);
-    }
-    return style;
+    return classnames({
+      [ styles[KEY_CLASS] ]: true,
+      [ styles[EDITING] ]: this.state.editing,
+      [ styles[DUPLICATE] ]: this.state.duplicate
+    });
   }
 
   /**

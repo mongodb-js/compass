@@ -3,6 +3,9 @@ import PropTypes from 'prop-types';
 import { Element } from 'hadron-document';
 import EditableElement from 'components/editable-element';
 
+import classnames from 'classnames';
+import styles from './document.less';
+
 /**
  * The class for the document itself.
  */
@@ -81,8 +84,8 @@ class InsertDocument extends React.PureComponent {
    */
   render() {
     return (
-      <div className={DOCUMENT} data-test-id="insert-document-modal">
-        <ol className={DOCUMENT_ELEMENTS}>
+      <div className={classnames(styles[DOCUMENT])} data-test-id="insert-document-modal">
+        <ol className={classnames(styles[DOCUMENT_ELEMENTS])}>
           {this.renderElements(this.props.doc)}
         </ol>
       </div>

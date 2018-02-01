@@ -3,13 +3,8 @@ import PropTypes from 'prop-types';
 import { AnimatedIconTextButton, IconButton } from 'hadron-react-buttons';
 import { ViewSwitcher } from 'hadron-react-components';
 
-const BASE_CLASS = 'document-list';
-const ACTION_BAR_CLASS = `${BASE_CLASS}-action-bar`;
-const CONTAINER_CLASS = `${ACTION_BAR_CLASS}-container`;
-const MESSAGE_CLASS = `${ACTION_BAR_CLASS}-message`;
-const REFRESH_CLASS = `${ACTION_BAR_CLASS}-refresh`;
-const PAGINATION_CLASS = `${ACTION_BAR_CLASS}-pagination`;
-const VIEW_SWITCHER_CLASS = `${ACTION_BAR_CLASS}-view-switcher`;
+import classnames from 'classnames';
+import styles from './toolbar.less';
 
 /**
  * Component for the CRUD toolbar.
@@ -61,13 +56,17 @@ class Toolbar extends React.Component {
   renderPageButtons() {
     const prevButtonDisabled = this.props.page === 0;
     const nextButtonDisabled = 20 * (this.props.page + 1) >= this.props.count;
+    const paginationClassName = classnames(styles['toolbar-pagination']);
+    const paginationButtonClassName = classnames(styles['toolbar-pagination-button']);
+    const paginationButtonLeftClassName = classnames(styles['toolbar-pagination-button-left']);
+    const paginationButtonRightClassName = classnames(styles['toolbar-pagination-button-right']);
 
     return (
-      <div className={PAGINATION_CLASS}>
+      <div className={paginationClassName}>
         <AnimatedIconTextButton
           clickHandler={this.handlePrevPage.bind(this)}
           stopAnimationListenable={this.props.pageLoadedListenable}
-          className={`btn btn-default btn-xs ${PAGINATION_CLASS}-button ${PAGINATION_CLASS}-button-left`}
+          className={`btn btn-default btn-xs ${paginationButtonClassName} ${paginationButtonLeftClassName}`}
           iconClassName="fa fa-chevron-left"
           animatingIconClassName="fa fa-spinner fa-spin"
           disabled={prevButtonDisabled}
@@ -75,7 +74,7 @@ class Toolbar extends React.Component {
         <AnimatedIconTextButton
           clickHandler={this.handleNextPage.bind(this)}
           stopAnimationListenable={this.props.pageLoadedListenable}
-          className={`btn btn-default btn-xs ${PAGINATION_CLASS}-button ${PAGINATION_CLASS}-button-right`}
+          className={`btn btn-default btn-xs ${paginationButtonClassName} ${paginationButtonRightClassName}`}
           iconClassName="fa fa-chevron-right"
           animatingIconClassName="fa fa-spinner fa-spin"
           disabled={nextButtonDisabled}
@@ -130,12 +129,17 @@ class Toolbar extends React.Component {
    * @returns {React.Component} The component.
    */
   render() {
+    const actionBarClassName = classnames(styles['toolbar-action-bar']);
+    const containerClassName = classnames(styles['toolbar-container']);
+    const messageClassName = classnames(styles['toolbar-message']);
+    const refreshClassName = classnames(styles['toolbar-refresh']);
+    const viewSwitcherClassName = classnames(styles['toolbar-view-switcher']);
     return (
       <div>
-        <div className={ACTION_BAR_CLASS}>
-          <div className={CONTAINER_CLASS}>
+        <div className={actionBarClassName}>
+          <div className={containerClassName}>
             {this.renderInsertButton()}
-            <div className={VIEW_SWITCHER_CLASS}>
+            <div className={viewSwitcherClassName}>
               <ViewSwitcher
                 label="View"
                 buttonLabels={['List', 'Table']}
@@ -144,12 +148,12 @@ class Toolbar extends React.Component {
                 onClick={this.switchDocumentView.bind(this)} />
             </div>
           </div>
-          <div className={CONTAINER_CLASS}>
-            <div className={MESSAGE_CLASS}>
+          <div className={containerClassName}>
+            <div className={messageClassName}>
               {this._loadedMessage()}
             </div>
             {this.renderPageButtons()}
-            <div className={REFRESH_CLASS}>
+            <div className={refreshClassName}>
               <AnimatedIconTextButton
                 clickHandler={this.handleRefreshDocuments.bind(this)}
                 stopAnimationListenable={this.props.pageLoadedListenable}
