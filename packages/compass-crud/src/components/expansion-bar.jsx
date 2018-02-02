@@ -1,5 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import classnames from 'classnames';
+import styles from './expansion-bar.less';
 
 /**
  * The expander class.
@@ -28,13 +30,6 @@ class ExpansionBar extends React.PureComponent {
    * Handle clicking the "Hide N fields" button.
    */
   handleHideClick() {
-    if (this.onHideScrollParentIntoView) {
-      const parent = this.onHideScrollParentIntoView.parentElement;
-      if (typeof(parent.scrollIntoView) === 'function') {
-        // Avoid loading more documents on clicking the Hide button
-        parent.scrollIntoView();
-      }
-    }
     this.props.setRenderSize(this.props.initialSize);
   }
 
@@ -59,8 +54,7 @@ class ExpansionBar extends React.PureComponent {
       <button
         key="EXPANSION_BAR_SHOW"
         className={EXPANDER}
-        onClick={this.handleShowClick.bind(this)}
-      >
+        onClick={this.handleShowClick.bind(this)}>
         <i className={ARROW_DOWN} aria-hidden="true" />
         <span>{showText}</span>
       </button>
@@ -79,8 +73,7 @@ class ExpansionBar extends React.PureComponent {
       <button
         key="EXPANSION_BAR_HIDE"
         className={EXPANDER}
-        onClick={this.handleHideClick.bind(this)}
-      >
+        onClick={this.handleHideClick.bind(this)}>
         <i className={ARROW_UP} aria-hidden="true" />
         <span>{hideText}</span>
       </button>
@@ -110,10 +103,7 @@ class ExpansionBar extends React.PureComponent {
       }
     }
     return (
-      <div
-        ref={(div) => { this.onHideScrollParentIntoView = div; }}
-        className="expansion-bar"
-      >
+      <div className={classnames(styles['expansion-bar'])}>
         {components}
       </div>
     );

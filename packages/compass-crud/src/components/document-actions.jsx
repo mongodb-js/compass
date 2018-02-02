@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { IconButton } from 'hadron-react-buttons';
 import UpdatableIconButton from 'components/updatable-icon-button';
 import classnames from 'classnames';
-import styles from './document-list.less';
+import styles from './document-actions.less';
 
 /**
  * Component for actions on the document.
@@ -61,33 +61,33 @@ class DocumentActions extends React.Component {
    */
   render() {
     return (
-      <div className="document-actions">
-        <div className="document-actions-left">
+      <div className={classnames(styles['document-actions'])}>
+        <div className={classnames(styles['document-actions-left'])}>
           {this.renderExpandAll()}
         </div>
-        <div className="document-actions-right">
+        <div className={classnames(styles['document-actions-right'])}>
           <IconButton
             title="Edit Document"
-            className="document-actions-button btn btn-default btn-xs"
-            iconClassName="document-actions-button-icon fa fa-pencil"
+            className={`${classnames(styles['document-actions-button'])} btn btn-default btn-xs`}
+            iconClassName={`${classnames(styles['document-actions-button-icon'])} fa fa-pencil`}
             dataTestId="edit-document-button"
             clickHandler={this.props.edit} />
           <IconButton
             title="Copy Document"
-            className="document-actions-button document-actions-button-copy btn btn-default btn-xs"
-            iconClassName="document-actions-button-icon fa fa-copy"
+            className={`${classnames(styles['document-actions-button'])} btn btn-default btn-xs`}
+            iconClassName={`${classnames(styles['document-actions-button-icon'])} fa fa-copy`}
             dataTestId="copy-document-button"
             clickHandler={this.props.copy} />
           <IconButton
             title="Clone Document"
-            className="document-actions-button btn btn-default btn-xs"
-            iconClassName="document-actions-button-icon fa fa-clone"
+            className={`${classnames(styles['document-actions-button'])} btn btn-default btn-xs`}
+            iconClassName={`${classnames(styles['document-actions-button-icon'])} fa fa-clone`}
             dataTestId="clone-document-button"
             clickHandler={this.props.clone} />
           <IconButton
             title="Delete Document"
-            className="document-actions-button btn btn-default btn-xs"
-            iconClassName="document-actions-button-icon fa fa-trash-o"
+            className={`${classnames(styles['document-actions-button'])} btn btn-default btn-xs`}
+            iconClassName={`${classnames(styles['document-actions-button-icon'])} fa fa-trash-o`}
             dataTestId="delete-document-button"
             clickHandler={this.props.remove} />
         </div>

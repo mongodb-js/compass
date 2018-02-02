@@ -16,55 +16,6 @@
     vertical-align: top;
     -webkit-user-select: text;
   }
-
-  &-value {
-    display: inline-block;
-    vertical-align: top;
-    -webkit-user-select: text;
-    flex-grow: 3;
-    z-index: 50;
-    position: relative;
-
-    &-is-string {
-      color: steelblue;
-      white-space: pre-line;
-      word-break: break-all;
-    }
-
-    &-is-int32 {
-      color: #145a32;
-    }
-
-    &-is-int64 {
-      color: #196f3d;
-    }
-
-    &-is-double {
-      color: #1e8449;
-    }
-
-    &-is-decimal128 {
-      color: #229954;
-    }
-
-    &-is-date {
-      color: firebrick;
-    }
-
-    &-is-boolean {
-      color: purple;
-    }
-
-    &-is-objectid {
-      color: orangered;
-      &::before {
-        content: 'ObjectId("';
-      }
-      &::after {
-        content: '")';
-      }
-    }
-  }
 }
 
 .expandable-element {
@@ -120,3 +71,56 @@
     }
   }
 }
+
+:global {
+
+  .element-value {
+    display: inline-block;
+    vertical-align: top;
+    -webkit-user-select: text;
+    flex-grow: 3;
+    z-index: 50;
+    position: relative;
+
+    &-is-string {
+      color: steelblue;
+      white-space: pre-line;
+      word-break: break-all;
+    }
+
+    &-is-int32 {
+      color: #145a32;
+    }
+
+    &-is-int64 {
+      color: #196f3d;
+    }
+
+    &-is-double {
+      color: #1e8449;
+    }
+
+    &-is-decimal128 {
+      color: #229954;
+    }
+
+    &-is-date {
+      color: firebrick;
+    }
+
+    &-is-boolean {
+      color: purple;
+    }
+
+    &-is-objectid {
+      color: orangered;
+      &::before {
+        content: 'ObjectId("';
+      }
+      &::after {
+        content: '")';
+      }
+    }
+  }
+}
+

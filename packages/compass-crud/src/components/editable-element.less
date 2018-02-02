@@ -290,6 +290,30 @@
     position: relative;
     vertical-align: top;
     z-index: 1;
+
+    &-wrapper {
+      flex-grow: 3;
+
+      &-is-string {
+        color: steelblue;
+        &::before {
+          content: "\"";
+        }
+        &::after {
+          content: "\"";
+        }
+      }
+
+      &-is-objectid {
+        color: orangered;
+        &::before {
+          content: 'ObjectId("';
+        }
+        &::after {
+          content: '")';
+        }
+      }
+    }
   }
 
   &-field {

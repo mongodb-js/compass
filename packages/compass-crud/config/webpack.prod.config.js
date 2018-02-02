@@ -27,7 +27,7 @@ module.exports = {
     publicPath: './',
     filename: '[name].js',
     // Export our plugin as a UMD library (compatible with all module definitions - CommonJS, AMD and global variable)
-    library: 'AggregationsPlugin',
+    library: 'CRUDPlugin',
     libraryTarget: 'umd'
   },
   resolve: {
@@ -102,7 +102,7 @@ module.exports = {
             options: {
               modules: true,
               importLoaders: 1,
-              localIdentName: 'AggregationsPlugin_[name]-[local]__[hash:base64:5]'
+              localIdentName: 'CRUDPlugin_[name]-[local]__[hash:base64:5]'
             }
           },
           {

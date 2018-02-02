@@ -64,7 +64,7 @@ const HEADER_LABEL = `${HEADER}-label`;
 /**
  * The separator style.
  */
-const SEPARATOR = 'element-separator';
+const SEPARATOR = 'editable-element-separator';
 
 /**
  * The field class.
@@ -195,21 +195,14 @@ class EditableElement extends React.Component {
    * @returns {String} The element style.
    */
   style(base = BEM_BASE) {
-    let style = base;
-    if (this.props.editing) {
-      style = style.concat(` ${base}-${EDITING}`);
-      if (this.element.isAdded()) {
-        style = style.concat(` ${base}-${ADDED}`);
-      } else if (this.element.isEdited()) {
-        style = style.concat(` ${base}-${EDITED}`);
-      } else if (this.element.isRemoved()) {
-        style = style.concat(` ${base}-${REMOVED}`);
-      }
-    }
-    if (this.state.expanded) {
-      style = style.concat(` ${base}-${EXPANDED}`);
-    }
-    return style;
+    return classnames({
+      [ styles[base] ]: true,
+      [ styles[`${base}-${EDITING}`] ]: this.props.editing,
+      [ styles[`${base}-${ADDED}`] ]: this.props.editing && this.element.isAdded(),
+      [ styles[`${base}-${EDITED}`] ]: this.props.editing && this.element.isEdited(),
+      [ styles[`${base}-${REMOVED}`] ]: this.props.editing && this.element.isRemoved(),
+      [ styles[`${base}-${EXPANDED}`] ]: this.state.expanded
+    });
   }
 
   focusEditKey() {
@@ -280,7 +273,7 @@ class EditableElement extends React.Component {
    * @returns {React.Component} The component.
    */
   renderSeparator() {
-    return (<span className={SEPARATOR}>:</span>);
+    return (<span className={classnames(styles[SEPARATOR])}>:</span>);
   }
 
   /**
