@@ -1,6 +1,9 @@
 import Document from 'components/document';
 import DocumentList from 'components/document-list';
 import InsertDocumentDialog from 'components/insert-document-dialog';
+import ConnectedDocumentList from 'components/connected-document-list';
+import Actions from 'actions';
+import CRUDStore from 'stores/crud-store';
 
 import {
   StandardEditor,
@@ -59,10 +62,6 @@ const OBJECT_ID_EDITOR_ROLE = {
  * @param {AppRegistry} appRegistry - The app registry.
  */
 const activate = (appRegistry) => {
-  const ConnectedDocumentList = require('components/connected-document-list');
-  const Actions = require('actions');
-  const CRUDStore = require('stores/crud-store');
-
   COLLECTION_TAB_ROLE = {
     component: ConnectedDocumentList,
     name: 'Documents',

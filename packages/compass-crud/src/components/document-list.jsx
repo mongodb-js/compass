@@ -81,7 +81,9 @@ class DocumentList extends React.Component {
   renderQueryBar() {
     if (this.props.isExportable) {
       const QueryBar = global.hadronApp.appRegistry.getComponent('Query.QueryBar');
-      return (<QueryBar buttonLabel="Find" />);
+      if (QueryBar) {
+        return (<QueryBar buttonLabel="Find" />);
+      }
     }
   }
 
