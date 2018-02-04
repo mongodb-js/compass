@@ -2,11 +2,6 @@ import React from 'react';
 import PropTypes from 'prop-types';
 
 /**
- * The actions class.
- */
-const ACTIONS = 'editable-element-actions';
-
-/**
  * General element action component.
  */
 class RevertAction extends React.Component {
@@ -35,7 +30,7 @@ class RevertAction extends React.Component {
    */
   render() {
     return (
-      <div className={ACTIONS} onClick={this.handleClick.bind(this)}>
+      <div className={this.props.className} onClick={this.handleClick.bind(this)}>
         <i className="fa fa-rotate-left" aria-hidden />
       </div>
     );
@@ -45,7 +40,8 @@ class RevertAction extends React.Component {
 RevertAction.displayName = 'RevertAction';
 
 RevertAction.propTypes = {
-  element: PropTypes.object.isRequired
+  element: PropTypes.object.isRequired,
+  className: PropTypes.string.isRequired
 };
 
 export default RevertAction;

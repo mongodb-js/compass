@@ -1,27 +1,21 @@
 import React from 'react';
-
-/**
- * The actions class.
- */
-const ACTIONS = 'editable-element-actions';
+import PropTypes from 'prop-types';
 
 /**
  * General element action component.
+ *
+ * @param {Object} props - The props.
+ *
+ * @returns {React.Component} The component.
  */
-class NoAction extends React.Component {
-
-  /**
-   * Render a single editable key.
-   *
-   * @returns {React.Component} The element component.
-   */
-  render() {
-    return (
-      <div className={ACTIONS}></div>
-    );
-  }
-}
+const NoAction = (props) => {
+  return (<div className={props.className}></div>);
+};
 
 NoAction.displayName = 'NoAction';
+
+NoAction.propTypes = {
+  className: PropTypes.string.isRequired
+};
 
 export default NoAction;

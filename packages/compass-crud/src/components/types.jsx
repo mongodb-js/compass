@@ -118,8 +118,7 @@ class Types extends React.Component {
           aria-haspopup="true"
           aria-expanded="false"
           onBlur={this.removeOpenClass.bind(this)}
-          ref={this.props.buttonRef ? this.props.buttonRef : () => {}}
-        >
+          ref={this.props.buttonRef ? this.props.buttonRef : () => {}}>
           {this.element.currentType}
           <span className="caret"></span>
         </button>

@@ -48,8 +48,8 @@ class DocumentList extends React.Component {
       );
     }
     return (
-      <div className="column-container">
-        <div className="column main">
+      <div className={classnames(styles['column-container'])}>
+        <div className={classnames(styles.column, styles.main)}>
           {this.renderViews()}
         </div>
       </div>
