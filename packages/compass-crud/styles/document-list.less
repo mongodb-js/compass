@@ -1,4 +1,21 @@
-.toolbar {
+.document-list {
+  padding: 0 15px;
+  list-style: none;
+  position: relative;
+
+  &-item {
+    position: relative;
+    font-family: Menlo, Monaco, Consolas, "Courier New", monospace;
+    font-size: 11px;
+    margin-bottom: 5px;
+    background: #FFFFFF;
+
+    &:last-child {
+      margin-bottom: 0;
+      border-bottom: 0 solid transparent;
+    }
+  }
+
   &-action-bar {
     display: flex;
     flex-direction: row;

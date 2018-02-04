@@ -4,8 +4,6 @@ import { Tooltip } from 'hadron-react-components';
 import initEditors from 'components/editor';
 
 /* eslint no-return-assign:0 */
-import classnames from 'classnames';
-import styles from './editable-value.less';
 
 /**
  * Escape key code.
@@ -217,12 +215,14 @@ class EditableValue extends React.Component {
    * @returns {String} The value style.
    */
   style() {
-    return classnames({
-      [ styles[VALUE_CLASS] ]: true,
-      [ styles[`${VALUE_CLASS}-is-${this.element.currentType.toLowerCase()}`] ]: true,
-      [ styles[INVALID] ]: !this.element.isCurrentTypeValid(),
-      [ styles[`${VALUE_CLASS}-${EDITING}`] ]: this.state.editing
-    });
+    let typeClass = `${VALUE_CLASS}-is-${this.element.currentType.toLowerCase()}`;
+    if (!this.element.isCurrentTypeValid()) {
+      typeClass = `${typeClass} ${INVALID}`;
+    }
+    if (this.state.editing) {
+      return `${VALUE_CLASS} ${VALUE_CLASS}-${EDITING} ${typeClass}`;
+    }
+    return `${VALUE_CLASS} ${typeClass}`;
   }
 
   /**
@@ -231,10 +231,7 @@ class EditableValue extends React.Component {
    * @returns {String} The class name.
    */
   wrapperStyle() {
-    return classnames({
-      [ styles[`${VALUE_CLASS}-wrapper`] ]: true,
-      [ styles[`${VALUE_CLASS}-wrapper-is-${this.element.currentType.toLowerCase()}`] ]: true
-    });
+    return `${VALUE_CLASS}-wrapper ${VALUE_CLASS}-wrapper-is-${this.element.currentType.toLowerCase()}`;
   }
 
   /**
@@ -248,7 +245,7 @@ class EditableValue extends React.Component {
       <span className={this.wrapperStyle()}>
         <Tooltip
           id={this.element.uuid}
-          className={classnames(styles['editable-element-value-tooltip'])}
+          className="editable-element-value-tooltip"
           border
           getContent={() => { return this.element.invalidTypeMessage; }}/>
         <input

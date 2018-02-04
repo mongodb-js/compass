@@ -1,8 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { IconButton } from 'hadron-react-buttons';
-import classnames from 'classnames';
-import styles from './document-list.less';
 
 /**
  * Override once the button to be able to update.
@@ -53,17 +51,12 @@ class DocumentActions extends React.Component {
   renderExpandAll() {
     const title = this.state.allExpanded ? 'Collapse All' : 'Expand All';
     const iconClass = this.state.allExpanded ? 'fa-angle-down' : 'fa-angle-right';
-    const className = classnames(
-      styles['document-actions-button'],
-      styles['document-actions-expand-button']
-    );
-    const iconClassName = classnames(styles['document-actions-button-icon']);
     return (
       <UpdatableIconButton
         title={title}
         clickHandler={this.props.expandAll}
-        className={`${className} btn btn-default btn-xs`}
-        iconClassName={`${iconClassName} fa ${iconClass}`}
+        className="document-actions-button document-actions-expand-button btn btn-default btn-xs"
+        iconClassName={`document-actions-button-icon fa ${iconClass}`}
         dataTestId="expand-all-button" />
     );
   }

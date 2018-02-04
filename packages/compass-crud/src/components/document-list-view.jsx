@@ -2,13 +2,20 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import Document from 'components/document';
 
-import classnames from 'classnames';
-import styles from './document-list-view.less';
+/**
+ * The full document list container class.
+ */
+const LIST_CLASS = 'document-list';
+
+/**
+ * The list item class.
+ */
+const LIST_ITEM_CLASS = `${LIST_CLASS}-item`;
 
 /**
  * The list item test id.
  */
-const LIST_ITEM_TEST_ID = 'document-list-item';
+const LIST_ITEM_TEST_ID = LIST_ITEM_CLASS;
 
 /**
  * Represents the list view of the documents tab.
@@ -23,10 +30,9 @@ class DocumentListView extends React.Component {
    * @return {Array} The document list item components.
    */
   renderDocuments() {
-    const className = classnames(styles['document-list-item']);
     return this.props.docs.map((doc, i) => {
       return (
-        <li className={className} data-test-id={LIST_ITEM_TEST_ID} key={i}>
+        <li className={LIST_ITEM_CLASS} data-test-id={LIST_ITEM_TEST_ID} key={i}>
           <Document
             doc={doc}
             key={i}
@@ -46,9 +52,8 @@ class DocumentListView extends React.Component {
    * @returns {React.Component} The component.
    */
   render() {
-    const className = classnames(styles['document-list']);
     return (
-      <ol className={className}>
+      <ol className={LIST_CLASS}>
         {this.renderDocuments()}
       </ol>
     );

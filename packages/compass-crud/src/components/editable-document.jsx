@@ -7,9 +7,6 @@ import DocumentActions from 'components/document-actions';
 import DocumentFooter from 'components/document-footer';
 import RemoveDocumentFooter from 'components/remove-document-footer';
 
-import classnames from 'classnames';
-import styles from './document.less';
-
 /**
  * The base class.
  */
@@ -318,8 +315,8 @@ class EditableDocument extends React.Component {
   render() {
     return (
       <div className={this.style()} data-test-id={TEST_ID}>
-        <div className={classnames(styles[CONTENTS])}>
-          <ol className={classnames(styles[ELEMENTS])}>
+        <div className={CONTENTS}>
+          <ol className={ELEMENTS}>
             {this.renderElements()}
           </ol>
           {this.renderExpansion()}

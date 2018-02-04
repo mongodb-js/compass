@@ -1,0 +1,32 @@
+.document {
+  font-family: Menlo, Monaco, Consolas, "Courier New", monospace;
+  font-size: 11px;
+  list-style: none;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 100%;
+
+  &-contents {
+    padding-top: 20px;
+    padding-bottom: 20px;
+  }
+
+  &-elements {
+    position: relative;
+  }
+
+  &-is-deleting {
+    box-shadow: 2px 5px 8px rgba(0, 0, 0, 0.2);
+    border: 1px solid #ef4c4c;
+  }
+
+  &-is-editing {
+    box-shadow: 2px 5px 8px rgba(0, 0, 0, 0.2);
+  }
+
+  &:hover {
+    .document-actions-button {
+      visibility: visible;
+    }
+  }
+}

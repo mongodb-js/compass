@@ -66,6 +66,9 @@ const render = Component => {
 // // Application was initialized.
 // appRegistry.emit('application-initialized', '1.11.0-dev');
 
+// Render our plugin - don't remove the following line.
+render(ConnectedDocumentList);
+
 // // Data service initialization and connection.
 import Connection from 'mongodb-connection-model';
 import DataService from 'mongodb-data-service';
@@ -89,9 +92,6 @@ dataService.connect((error, ds) => {
   QueryChangedStore.onQueryStoreChanged({ ns: `${DB}.${COLL}` });
   appRegistry.emit('query-changed', { ns: `${DB}.${COLL}` });
 });
-
-// Render our plugin - don't remove the following line.
-render(ConnectedDocumentList);
 
 // For automatic switching to specific namespaces, uncomment below as needed.
 // appRegistry.emit('database-changed', 'database');
