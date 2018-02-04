@@ -1,9 +1,23 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { IconButton } from 'hadron-react-buttons';
-import UpdatableIconButton from 'components/updatable-icon-button';
 import classnames from 'classnames';
 import styles from './document-list.less';
+
+/**
+ * Override once the button to be able to update.
+ */
+class UpdatableIconButton extends IconButton {
+
+  /**
+   * By default should always need to to re-render itself.
+   *
+   * @returns {Boolean} Always true.
+   */
+  shouldComponentUpdate() {
+    return true;
+  }
+}
 
 /**
  * Component for actions on the document.

@@ -33,7 +33,6 @@ class DocumentListView extends React.Component {
             editable={this.props.isEditable}
             removeDocument={this.props.removeDocument}
             updateDocument={this.props.updateDocument}
-            copyToClipboard={this.props.copyToClipboard}
             openInsertDocumentDialog={this.props.openInsertDocumentDialog}
             closeAllMenus={this.props.closeAllMenus} />
         </li>
@@ -62,7 +61,6 @@ DocumentListView.propTypes = {
   removeDocument: PropTypes.func,
   updateDocument: PropTypes.func,
   openInsertDocumentDialog: PropTypes.func,
-  copyToClipboard: PropTypes.func,
   closeAllMenus: PropTypes.func
 };
 

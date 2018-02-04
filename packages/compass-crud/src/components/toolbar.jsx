@@ -130,10 +130,10 @@ class Toolbar extends React.Component {
    */
   render() {
     const actionBarClassName = classnames(styles['toolbar-action-bar']);
-    const containerClassName = classnames(styles['toolbar-action-bar-container']);
-    const messageClassName = classnames(styles['toolbar-action-bar-message']);
+    const containerClassName = classnames(styles['toolbar-container']);
+    const messageClassName = classnames(styles['toolbar-message']);
     const refreshClassName = classnames(styles['toolbar-refresh']);
-    const viewSwitcherClassName = classnames(styles['toolbar-action-bar-view-switcher']);
+    const viewSwitcherClassName = classnames(styles['toolbar-view-switcher']);
     return (
       <div>
         <div className={actionBarClassName}>

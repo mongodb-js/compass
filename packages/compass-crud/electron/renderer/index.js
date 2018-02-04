@@ -32,10 +32,12 @@ global.hadronApp.instance = {
 const CollectionStore = require('./stores/collection-store');
 const NamespaceStore = require('./stores/namespace-store');
 const QueryChangedStore = require('./stores/query-changed-store');
+const QueryBar = require('./components/query-bar');
 const TextWriteButton = require('./components/text-write-button');
 appRegistry.registerStore('App.NamespaceStore', NamespaceStore);
 appRegistry.registerStore('App.CollectionStore', CollectionStore);
 appRegistry.registerStore('Query.ChangedStore', QueryChangedStore);
+appRegistry.registerComponent('Query.QueryBar', QueryBar);
 appRegistry.registerComponent('DeploymentAwareness.TextWriteButton', TextWriteButton);
 
 activate(appRegistry);
