@@ -3,9 +3,6 @@ import PropTypes from 'prop-types';
 import outsideClickable from 'react-click-outside';
 import getComponent from 'hadron-react-bson';
 
-import classnames from 'classnames';
-import styles from './line-number.less';
-
 /**
  * The BEM base style name for the element.
  */
@@ -86,10 +83,7 @@ class LineNumber extends React.Component {
    * @returns {String} The class name.
    */
   divClassName() {
-    return classnames({
-      [ styles[BEM_BASE] ]: true,
-      [ styles[`${BEM_BASE}-is-selected`] ]: this.state.menu
-    });
+    return this.state.menu ? `${BEM_BASE} ${BEM_BASE}-is-selected` : BEM_BASE;
   }
 
   /**
@@ -184,11 +178,8 @@ class LineNumber extends React.Component {
    * @returns {String} The class name.
    */
   menuClassName() {
-    return classnames({
-      [ styles[MENU_CLASS] ]: true,
-      [ styles[`${MENU_CLASS}-is-visible`] ]: this.state.menu,
-      [ styles['dropdown-menu'] ]: true
-    });
+    return this.state.menu ?
+      `${MENU_CLASS} ${MENU_CLASS}-is-visible dropdown-menu` : `${MENU_CLASS} dropdown-menu`;
   }
 
   /**
@@ -199,7 +190,7 @@ class LineNumber extends React.Component {
   renderArrayItem() {
     if (this.isElementArray() && this.props.element.isValueEditable()) {
       return this.renderMenuItem(
-        classnames(styles[ADD_CHILD_ICON]),
+        ADD_CHILD_ICON,
         ARRAY_TEXT,
         this.handleAddChildClick.bind(this),
         'add-element-to-array'
@@ -215,7 +206,7 @@ class LineNumber extends React.Component {
   renderDefaultItem() {
     const text = this.isParentArray() ? ARRAY_ELEMENT_TEXT : DEFAULT_TEXT;
     return this.renderMenuItem(
-      classnames(styles[ADD_FIELD_ICON]),
+      ADD_FIELD_ICON,
       text,
       this.handleAddFieldClick.bind(this),
       'add-field-after'
@@ -280,7 +271,7 @@ class LineNumber extends React.Component {
   renderObjectItem() {
     if (this.isElementObject() && this.props.element.isValueEditable()) {
       return this.renderMenuItem(
-        classnames(styles[ADD_CHILD_ICON]),
+        ADD_CHILD_ICON,
         OBJECT_TEXT,
         this.handleAddChildClick.bind(this),
         'add-child-to-object'

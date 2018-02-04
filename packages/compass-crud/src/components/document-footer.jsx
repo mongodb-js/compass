@@ -5,9 +5,6 @@ import PropTypes from 'prop-types';
 import { Element } from 'hadron-document';
 import { TextButton } from 'hadron-react-buttons';
 
-import classnames from 'classnames';
-import styles from './document-footer.less';
-
 /**
  * The progress mode.
  */
@@ -214,10 +211,7 @@ class DocumentFooter extends React.Component {
    * @returns {String} The style.
    */
   style() {
-    return classnames({
-      [ styles['document-footer'] ]: true,
-      [ styles[`document-footer-${MODES[this.state.mode]}`] ]: true
-    });
+    return `document-footer document-footer-${MODES[this.state.mode]}`;
   }
 
   /**
@@ -230,11 +224,11 @@ class DocumentFooter extends React.Component {
       <div className={this.style()}>
         <div
           data-test-id="document-message"
-          className={classnames(styles['document-footer-message'])}
+          className="document-footer-message"
           title={this.state.message}>
           {this.state.message}
         </div>
-        <div className={classnames(styles['document-footer-actions'])}>
+        <div className="document-footer-actions">
           <TextButton
             className="btn btn-borderless btn-xs cancel"
             text="Cancel"

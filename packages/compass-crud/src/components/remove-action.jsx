@@ -2,6 +2,11 @@ import React from 'react';
 import PropTypes from 'prop-types';
 
 /**
+ * The actions class.
+ */
+const ACTIONS = 'editable-element-actions';
+
+/**
  * General element action component.
  */
 class RemoveAction extends React.Component {
@@ -30,7 +35,7 @@ class RemoveAction extends React.Component {
    */
   render() {
     return (
-      <div className={this.props.className} onClick={this.handleClick.bind(this)}>
+      <div className={ACTIONS} onClick={this.handleClick.bind(this)}>
         <i className="fa fa-times-circle" aria-hidden />
       </div>
     );
@@ -40,8 +45,7 @@ class RemoveAction extends React.Component {
 RemoveAction.displayName = 'RemoveAction';
 
 RemoveAction.propTypes = {
-  element: PropTypes.object.isRequired,
-  className: PropTypes.string.isRequired
+  element: PropTypes.object.isRequired
 };
 
 export default RemoveAction;
