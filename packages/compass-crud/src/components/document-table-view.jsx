@@ -797,7 +797,8 @@ class DocumentTableView extends React.Component {
       cellRendererFramework: RowActionsRenderer,
       cellRendererParams: {
         nested: (path.length !== 0),
-        isEditable: this.props.isEditable
+        isEditable: this.props.isEditable,
+        copyToClipboard: this.props.copyToClipboard
       },
       editable: false,
       pinned: 'right',
@@ -868,6 +869,7 @@ DocumentTableView.propTypes = {
   openInsertDocumentDialog: PropTypes.func,
   pathChanged: PropTypes.func.isRequired,
   removeColumn: PropTypes.func,
+  copyToClipboard: PropTypes.func,
   renameColumn: PropTypes.func,
   replaceDoc: PropTypes.func,
   resetHeaders: PropTypes.func,

@@ -59,9 +59,9 @@ const OBJECT_ID_EDITOR_ROLE = {
  * @param {AppRegistry} appRegistry - The app registry.
  */
 const activate = (appRegistry) => {
-  const ConnectedDocumentList = require('components/connected-document-list');
-  const Actions = require('actions');
-  const CRUDStore = require('stores/crud-store');
+  const ConnectedDocumentList = require('components/connected-document-list').default;
+  const Actions = require('actions').default;
+  const CRUDStore = require('stores/crud-store').default;
 
   COLLECTION_TAB_ROLE = {
     component: ConnectedDocumentList,
