@@ -110,7 +110,7 @@ module.exports = {
             options: {
               modules: true,
               importLoaders: 1,
-              localIdentName: 'CRUDPlugin_[name]-[local]__[hash:base64:5]'
+              localIdentName: 'AggregationsPlugin_[name]-[local]__[hash:base64:5]'
             }
           },
           {

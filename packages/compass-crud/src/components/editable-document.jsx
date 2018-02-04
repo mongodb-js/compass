@@ -204,11 +204,14 @@ class EditableDocument extends React.Component {
    * @returns {String} The document class name.
    */
   style() {
-    return classnames({
-      [ styles[BASE] ]: true,
-      [ styles['document-is-editing'] ]: this.state.editing,
-      [ styles['document-is-deleting'] ]: this.state.deleting && !this.state.deleteFinished
-    });
+    let style = BASE;
+    if (this.state.editing) {
+      style = style.concat(' document-is-editing');
+    }
+    if (this.state.deleting && !this.state.deleteFinished) {
+      style = style.concat(' document-is-deleting');
+    }
+    return style;
   }
 
   /**

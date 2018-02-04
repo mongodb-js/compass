@@ -1,8 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import getComponent from 'hadron-react-bson';
-import classnames from 'classnames';
-import styles from './element.less';
 
 /**
  * The base class.
@@ -77,10 +75,10 @@ class Element extends React.Component {
    * @returns {String} The full class name.
    */
   getClassName(base) {
-    return classnames({
-      [ styles[base] ]: true,
-      [ styles[`${base}-is-expanded`] ]: this.state.expanded
-    });
+    if (this.state.expanded) {
+      return `${base} ${base}-is-expanded`;
+    }
+    return base;
   }
 
   /**
@@ -117,11 +115,11 @@ class Element extends React.Component {
    */
   renderElement() {
     return (
-      <li className={classnames(styles[CLASS])}>
-        <div className={classnames(styles[FIELD])}>
+      <li className={CLASS}>
+        <div className={FIELD}>
           {this.props.element.currentKey}
         </div>
-        <span className={classnames(styles[SEPARATOR])}>:</span>
+        <span className={SEPARATOR}>:</span>
         {this.renderValue()}
       </li>
     );
@@ -134,12 +132,12 @@ class Element extends React.Component {
    */
   renderExpandableElement() {
     return (
-      <li className={classnames(styles[EXP_CLASS])}>
+      <li className={EXP_CLASS}>
         <div className={this.getClassName(EXP_HEADER)} onClick={this.toggleExpandable.bind(this)}>
-          <div className={classnames(styles[EXP_TOGGLE])}></div>
-          <div className={classnames(styles[EXP_FIELD])}>{this.props.element.currentKey}</div>
-          <span className={classnames(styles[EXP_SEPARATOR])}>:</span>
-          <div className={classnames(styles[EXP_LABEL])}>
+          <div className={EXP_TOGGLE}></div>
+          <div className={EXP_FIELD}>{this.props.element.currentKey}</div>
+          <span className={EXP_SEPARATOR}>:</span>
+          <div className={EXP_LABEL}>
             {this.props.element.currentType}
           </div>
         </div>
