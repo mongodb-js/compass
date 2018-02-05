@@ -1,12 +1,7 @@
-const React = require('react');
-const chai = require('chai');
-const expect = chai.expect;
-const chaiEnzyme = require('chai-enzyme');
-const { mount } = require('enzyme');
-const { Element } = require('hadron-document');
-const RevertAction = require('../../src/components/revert-action');
-
-chai.use(chaiEnzyme());
+import React from 'react';
+import { mount } from 'enzyme';
+import { Element } from 'hadron-document';
+import RevertAction from 'components/revert-action';
 
 describe('<RevertAction />', () => {
   describe('#render', () => {

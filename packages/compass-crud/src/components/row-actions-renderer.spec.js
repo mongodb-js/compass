@@ -1,13 +1,8 @@
 /* eslint react/jsx-boolean-value:0 */
-const React = require('react');
-const chai = require('chai');
-const expect = chai.expect;
-const chaiEnzyme = require('chai-enzyme');
-const { mount } = require('enzyme');
-const {getNode, getApi, getContext, notCalledExcept} = require('../aggrid-helper');
-const RowActionsRenderer = require('../../src/components/table-view/row-actions-renderer');
-
-chai.use(chaiEnzyme());
+import React from 'react';
+import { mount } from 'enzyme';
+import { getNode, getApi, getContext, notCalledExcept } from '../../test/aggrid-helper';
+import RowActionsRenderer from 'components/table-view/row-actions-renderer';
 
 describe('<RowActionsRenderer />', () => {
   const api = getApi();

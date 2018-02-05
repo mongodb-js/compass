@@ -1,7 +1,6 @@
-const { expect } = require('chai');
-const { Element } = require('hadron-document');
-const { Int32 } = require('bson');
-const { Int32Editor } = require('../../../../lib/components/editor');
+import { Element } from 'hadron-document';
+import { Int32 } from 'bson';
+import { Int32Editor } from 'components/editor';
 
 describe('Int32Editor', () => {
   describe('#size', () => {

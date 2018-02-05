@@ -1,15 +1,10 @@
-const React = require('react');
-const chai = require('chai');
-const expect = chai.expect;
-const chaiEnzyme = require('chai-enzyme');
-const { mount } = require('enzyme');
-const { getNode, getApi, getColumn, getActions,
-  getColumnApi, getContext, notCalledExcept} = require('../aggrid-helper');
-const AddFieldButton = require('../../src/components/table-view/add-field-button');
-const AppRegistry = require('hadron-app-registry');
-const app = require('hadron-app');
-
-chai.use(chaiEnzyme());
+import React from 'react';
+import { mount } from 'enzyme';
+import { getNode, getApi, getColumn, getActions,
+  getColumnApi, getContext, notCalledExcept} from '../../test/aggrid-helper';
+import AddFieldButton from 'components/table-view/add-field-button';
+import AppRegistry from 'hadron-app-registry';
+import app from 'hadron-app';
 
 describe('<AddFieldButton />', () => {
   before(() => {

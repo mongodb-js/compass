@@ -1,6 +1,5 @@
-const { expect } = require('chai');
-const { Element } = require('hadron-document');
-const { StandardEditor } = require('../../../../lib/components/editor');
+import { Element } from 'hadron-document';
+import { StandardEditor } from 'components/editor';
 
 describe('StandardEditor', () => {
   describe('#start', () => {

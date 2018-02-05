@@ -1,13 +1,8 @@
-const React = require('react');
-const chai = require('chai');
-const expect = chai.expect;
-const chaiEnzyme = require('chai-enzyme');
-const { mount } = require('enzyme');
-const app = require('hadron-app');
-const { Element } = require('hadron-document');
-const EditableValue = require('../../src/components/editable-value');
-
-chai.use(chaiEnzyme());
+import React from 'react';
+import { mount } from 'enzyme';
+import app from 'hadron-app';
+import { Element } from 'hadron-document';
+import EditableValue from 'components/editable-value';
 
 describe('<EditableValue />', () => {
   before(() => {

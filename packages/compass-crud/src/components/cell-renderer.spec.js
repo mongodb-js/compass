@@ -1,13 +1,8 @@
-const React = require('react');
-const chai = require('chai');
-const expect = chai.expect;
-const chaiEnzyme = require('chai-enzyme');
-const { mount } = require('enzyme');
-const { getNode, getApi, getColumn, getActions,
-        notCalledExcept, getContext} = require('../aggrid-helper');
-const CellRenderer = require('../../src/components/table-view/cell-renderer');
-
-chai.use(chaiEnzyme());
+import React from 'react';
+import { mount } from 'enzyme';
+import { getNode, getApi, getColumn, getActions,
+        notCalledExcept, getContext} from '../../test/aggrid-helper';
+import CellRenderer from 'components/table-view/cell-renderer';
 
 describe('<CellRenderer />', () => {
   describe('#render', () => {

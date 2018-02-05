@@ -1,16 +1,11 @@
-const React = require('react');
-const chai = require('chai');
-const expect = chai.expect;
-const chaiEnzyme = require('chai-enzyme');
-const { mount } = require('enzyme');
-const { getNode, getApi, getColumn, getActions,
-        getColumnApi, getContext, notCalledExcept} = require('../aggrid-helper');
-const CellEditor = require('../../src/components/table-view/cell-editor');
-const AppRegistry = require('hadron-app-registry');
-const ObjectId = require('bson').ObjectId;
-const app = require('hadron-app');
-
-chai.use(chaiEnzyme());
+import React from 'react';
+import { mount } from 'enzyme';
+import { getNode, getApi, getColumn, getActions,
+  getColumnApi, getContext, notCalledExcept} from '../../test/aggrid-helper';
+import CellEditor from 'components/table-view/cell-editor';
+import AppRegistry from 'hadron-app-registry';
+import { ObjectId } from 'bson';
+import app from 'hadron-app');
 
 describe('<CellEditor />', () => {
   before(() => {

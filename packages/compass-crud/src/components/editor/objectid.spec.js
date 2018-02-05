@@ -1,7 +1,6 @@
-const { expect } = require('chai');
-const { Element } = require('hadron-document');
-const { ObjectId } = require('bson');
-const { ObjectIdEditor } = require('../../../../lib/components/editor');
+import { Element } from 'hadron-document';
+import { ObjectId } from 'bson';
+import { ObjectIdEditor } from 'components/editor';
 
 describe('ObjectIdEditor', () => {
   describe('#start', () => {

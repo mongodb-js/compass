@@ -1,12 +1,7 @@
-const React = require('react');
-const chai = require('chai');
-const expect = chai.expect;
-const chaiEnzyme = require('chai-enzyme');
-const { mount } = require('enzyme');
-const {getActions, notCalledExcept} = require('../aggrid-helper');
-const BreadcrumbComponent = require('../../src/components/breadcrumb');
-
-chai.use(chaiEnzyme());
+import React from 'react';
+import { mount } from 'enzyme';
+import {getActions, notCalledExcept} from '../../test/aggrid-helper';
+import BreadcrumbComponent from 'components/breadcrumb';
 
 describe('<BreadcrumbComponent />', () => {
   describe('#render', () => {

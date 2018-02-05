@@ -1,6 +1,5 @@
-const { expect } = require('chai');
-const { Element } = require('hadron-document');
-const { DateEditor } = require('../../../../lib/components/editor');
+import { Element } from 'hadron-document';
+import { DateEditor } from 'components/editor';
 
 describe('DateEditor', () => {
   describe('#start', () => {

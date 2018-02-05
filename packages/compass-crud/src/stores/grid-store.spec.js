@@ -1,7 +1,5 @@
 /* eslint guard-for-in: 0 */
-
-const { expect, assert } = require('chai');
-const GridStore = require('../../../lib/stores/grid-store');
+import GridStore from 'stores/grid-store';
 
 describe('GridStore', () => {
   const showing = {

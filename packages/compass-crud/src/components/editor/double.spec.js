@@ -1,7 +1,6 @@
-const { expect } = require('chai');
-const { Element } = require('hadron-document');
-const { Double } = require('bson');
-const { DoubleEditor } = require('../../../../lib/components/editor');
+import { Element } from 'hadron-document';
+import { Double } from 'bson';
+import { DoubleEditor } from 'components/editor';
 
 describe('DoubleEditor', () => {
   describe('#size', () => {

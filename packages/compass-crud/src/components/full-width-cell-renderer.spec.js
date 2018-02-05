@@ -1,15 +1,10 @@
-const React = require('react');
-const chai = require('chai');
-const expect = chai.expect;
-const chaiEnzyme = require('chai-enzyme');
-const { mount } = require('enzyme');
-const { getNode, getApi, getActions, getContext, notCalledExcept } = require('../aggrid-helper');
-const FullWidthCellRenderer = require('../../src/components/table-view/full-width-cell-renderer');
-const AppRegistry = require('hadron-app-registry');
-const app = require('hadron-app');
-const ObjectId = require('bson').ObjectId;
-
-chai.use(chaiEnzyme());
+import React from 'react';
+import { mount } from 'enzyme';
+import { getNode, getApi, getActions, getContext, notCalledExcept } from '../../test/aggrid-helper';
+import FullWidthCellRenderer from 'components/table-view/full-width-cell-renderer';
+import AppRegistry from 'hadron-app-registry'
+import app from 'hadron-app';
+import { ObjectId } from 'bson'.ObjectId;
 
 describe('<FullWidthCellRenderer />', () => {
   before(() => {

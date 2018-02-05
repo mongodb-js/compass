@@ -1,12 +1,7 @@
-const React = require('react');
-const chai = require('chai');
-const expect = chai.expect;
-const chaiEnzyme = require('chai-enzyme');
-const { mount } = require('enzyme');
-const sinon = require('sinon');
-const ExpansionBar = require('../../src/components/expansion-bar');
-
-chai.use(chaiEnzyme());
+import React from 'react';
+import { mount } from 'enzyme';
+import sinon from 'sinon';
+import ExpansionBar from 'components/expansion-bar';
 
 describe('<ExpansionBar />', () => {
   describe('#render', () => {

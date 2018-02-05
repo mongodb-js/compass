@@ -19,7 +19,10 @@ module.exports = {
     electron: path.join(__dirname, '/../electron'),
 
     // The path to the storybook directory
-    storybook: path.join(__dirname, '/../.storybook')
+    storybook: path.join(__dirname, '/../.storybook'),
+
+    // The path to the test directory.
+    test: path.join(__dirname, '/../test'),
   },
   plugin: {
     autoprefixer: autoprefixer(`electron ${electronVersion}`)

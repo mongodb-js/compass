@@ -1,18 +1,12 @@
-const React = require('react');
-const Reflux = require('reflux');
-const chai = require('chai');
-const expect = chai.expect;
-const chaiEnzyme = require('chai-enzyme');
-const app = require('hadron-app');
-const AppRegistry = require('hadron-app-registry');
-const { mount } = require('enzyme');
-const sinon = require('sinon');
-const HadronDocument = require('hadron-document');
-const EditableDocument = require('../../src/components/editable-document');
-const EditableElement = require('../../src/components/editable-element');
-const EditableValue = require('../../src/components/editable-value');
-
-chai.use(chaiEnzyme());
+import React from 'react';
+import Reflux from 'reflux';
+import app from 'hadron-app';
+import AppRegistry from 'hadron-app-registry';
+import { mount } from 'enzyme';
+import HadronDocument from 'hadron-document';
+import EditableDocument from 'components/editable-document';
+import EditableElement from 'components/editable-element';
+import EditableValue from 'components/editable-value';
 
 describe('<EditableDocument />', () => {
   before(() => {

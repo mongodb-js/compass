@@ -1,12 +1,10 @@
-const { expect } = require('chai');
-const Connection = require('mongodb-connection-model');
-const DataService = require('mongodb-data-service');
-const AppRegistry = require('hadron-app-registry');
-const HadronDocument = require('hadron-document');
-const sinon = require('sinon');
-const Element = HadronDocument.Element;
-const { expectedDocs, checkPageRange, NUM_DOCS } = require('../../aggrid-helper');
-const CRUDStore = require('../../../lib/stores/crud-store');
+import Connection from 'mongodb-connection-model';
+import DataService from 'mongodb-data-service';
+import AppRegistry from 'hadron-app-registry';
+import HadronDocument from 'hadron-document';
+import Element = HadronDocument.Element;
+import { expectedDocs, checkPageRange, NUM_DOCS } from '../../test/aggrid-helper';
+import CRUDStore from 'stores/crud-store';
 
 const CONNECTION = new Connection({
   hostname: '127.0.0.1',

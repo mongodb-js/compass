@@ -1,12 +1,7 @@
-const React = require('react');
-const chai = require('chai');
-const expect = chai.expect;
-const chaiEnzyme = require('chai-enzyme');
-const { mount } = require('enzyme');
-const { Element } = require('hadron-document');
-const RemoveAction = require('../../src/components/remove-action');
-
-chai.use(chaiEnzyme());
+import React from 'react';
+import { mount } from 'enzyme';
+import { Element } from 'hadron-document';
+import RemoveAction from 'components/remove-action';
 
 describe('<RemoveAction />', () => {
   describe('#render', () => {

@@ -1,13 +1,8 @@
-const React = require('react');
-const chai = require('chai');
-const expect = chai.expect;
-const chaiEnzyme = require('chai-enzyme');
-const app = require('hadron-app');
-const { mount } = require('enzyme');
-const { Element } = require('hadron-document');
-const Types = require('../../src/components/types');
-
-chai.use(chaiEnzyme());
+import React from 'react';
+import app from 'hadron-app';
+import { mount } from 'enzyme';
+import { Element } from 'hadron-document';
+import Types from 'components/types';
 
 describe('<Types />', () => {
   before(() => {

@@ -1,13 +1,7 @@
-const React = require('react');
-const chai = require('chai');
-const expect = chai.expect;
-const chaiEnzyme = require('chai-enzyme');
-const { mount } = require('enzyme');
-const sinon = require('sinon');
-const HadronDocument = require('hadron-document');
-const DocumentListView = require('../../src/components/document-list-view');
-
-chai.use(chaiEnzyme());
+import React from 'react';
+import { mount } from 'enzyme';
+import HadronDocument from 'hadron-document';
+import DocumentListView from 'components/document-list-view';
 
 describe('<DocumentListView />', () => {
   describe('#render', () => {
