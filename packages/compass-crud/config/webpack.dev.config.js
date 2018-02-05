@@ -9,7 +9,6 @@ const GLOBALS = {
   'process.env': {
     'NODE_ENV': JSON.stringify('development')
   },
-  jQuery: require('jquery'),
   __DEV__: JSON.stringify(JSON.parse('true'))
 };
 
@@ -186,7 +185,13 @@ module.exports = {
     new HtmlWebpackPlugin(),
 
     // Defines global variables
-    new webpack.DefinePlugin(GLOBALS)
+    new webpack.DefinePlugin(GLOBALS),
+
+    new webpack.ProvidePlugin({
+      jQuery: 'jquery',
+      $: 'jquery',
+      jquery: 'jquery'
+    })
   ],
   devServer: {
     host: '0.0.0.0',

@@ -175,7 +175,13 @@ module.exports = {
     new webpack.NoEmitOnErrorsPlugin(),
 
     // Defines global variables
-    new webpack.DefinePlugin(GLOBALS)
+    new webpack.DefinePlugin(GLOBALS),
+
+    new webpack.ProvidePlugin({
+      jQuery: 'jquery',
+      $: 'jquery',
+      jquery: 'jquery'
+    })
   ],
   stats: {
     colors: true,

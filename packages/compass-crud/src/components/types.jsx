@@ -3,6 +3,8 @@ import PropTypes from 'prop-types';
 import TypeChecker from 'hadron-type-checker';
 import { DateEditor } from 'components/editor';
 
+import 'bootstrap/js/dropdown';
+
 /**
  * Object constant.
  */
@@ -30,7 +32,6 @@ class Types extends React.Component {
    */
   constructor(props) {
     super(props);
-    require('bootstrap/js/dropdown');
     this.state = { isOpen: false };
     this.element = props.element;
     this._version = global.hadronApp.instance.build.version;

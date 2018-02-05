@@ -187,10 +187,15 @@ module.exports = {
 
     // An ES6+ aware minifier, results in smaller output compared to UglifyJS given that
     // Chromium in electron supports the majority of ES6 features out of the box.
-    new MinifyPlugin()
+    new MinifyPlugin(),
 
     // Uncomment to Analyze the output bundle size of the plugin. Useful for optimizing the build.
     // new BundleAnalyzerPlugin()
+    new webpack.ProvidePlugin({
+      jQuery: 'jquery',
+      $: 'jquery',
+      jquery: 'jquery'
+    })
   ],
   stats: {
     colors: true,
