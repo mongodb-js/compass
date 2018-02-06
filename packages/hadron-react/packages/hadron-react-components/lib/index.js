@@ -11,3 +11,4 @@ module.exports.StoreConnector = require('./store-connector');
 module.exports.Tooltip = require('./tooltip');
 module.exports.ViewSwitcher = require('./view-switcher');
 module.exports.ZeroState = require('./zero-state');
+module.exports.UnsafeComponent = require('./unsafe-component');
