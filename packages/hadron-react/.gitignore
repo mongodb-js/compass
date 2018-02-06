@@ -6,4 +6,5 @@ coverage
 .lock-wscript
 .idea/
 *.iml
+*.swp
 lerna-debug.log
