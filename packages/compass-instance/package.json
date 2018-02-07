@@ -1,7 +1,7 @@
 {
   "name": "compass-instance",
   "productName": "Instance plugin",
-  "version": "0.0.0",
+  "version": "0.0.1",
   "apiVersion": "1.0.0",
   "description": "compass instance plugin",
   "main": "lib/index.js",
