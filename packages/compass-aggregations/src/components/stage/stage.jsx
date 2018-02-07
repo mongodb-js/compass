@@ -89,12 +89,13 @@ class Stage extends Component {
    * @returns {Component} The component.
    */
   render() {
+    const workspace = this.props.stage.isExpanded ? <StageWorkspace {...this.props} /> : null;
     const opacity = this.props.isDragging ? 0 : 1;
     return this.props.connectDragSource(
       this.props.connectDropTarget(
         <div className={classnames(styles.stage)} style={{ opacity }}>
           <StageToolbar {...this.props} />
-          <StageWorkspace {...this.props} />
+          {workspace}
         </div>
       )
     );
