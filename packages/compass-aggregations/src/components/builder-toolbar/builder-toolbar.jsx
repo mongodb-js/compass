@@ -26,6 +26,19 @@ class BuilderToolbar extends PureComponent {
    * @returns {React.Component} The component.
    */
   render() {
+    const addStageClassName = classnames({
+      'btn': true,
+      'btn-xs': true,
+      'btn-default': true,
+      [ styles['builder-toolbar-add-stage-button'] ]: true
+    });
+
+    const copyToClipboardClassName = classnames({
+      'btn': true,
+      'btn-xs': true,
+      'btn-default': true,
+      [ styles['builder-toolbar-copy-to-clipboard-button'] ]: true
+    });
     return (
       <div className={classnames(styles['builder-toolbar'])}>
         <ViewSwitcher
@@ -35,11 +48,11 @@ class BuilderToolbar extends PureComponent {
           onClick={this.props.viewChanged} />
         <TextButton
           text="Add Stage"
-          className="btn btn-xs btn-default"
+          className={addStageClassName}
           clickHandler={this.props.stageAdded} />
         <IconButton
           title="Copy to Clipboard"
-          className="btn btn-default btn-xs pipeline-header-copy-to-clipboard"
+          className={copyToClipboardClassName}
           iconClassName="fa fa-clipboard"
           clickHandler={this.props.copyToClipboard} />
       </div>

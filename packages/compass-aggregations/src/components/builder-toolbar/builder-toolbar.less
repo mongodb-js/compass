@@ -16,22 +16,20 @@
     .view-switcher {
       flex-shrink: 0;
       flex-grow: 2;
+
+      &-label {
+        text-transform: uppercase;
+        color: #494747;
+        padding-right: 5px;
+        font-size: 11px;
+        vertical-align: middle;
+        padding-top: 2px;
+        display: inline-block;
+      }
     }
   }
 
-  span {
-    text-transform: uppercase;
-    color: #494747;
-    padding-right: 5px;
-    font-size: 11px;
-    vertical-align: middle;
-    padding-top: 2px;
-    display: inline-block;
-  }
-
-  :global {
-    .btn {
-      margin-left: 5px;
-    }
+  &-add-stage-button, &-copy-to-clipboard-button {
+    margin-left: 5px;
   }
 }
