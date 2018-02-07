@@ -1,6 +1,6 @@
 import React from 'react';
 import { shallow } from 'enzyme';
-import AppRegistry from 'hadron-app-registry'
+import AppRegistry from 'hadron-app-registry';
 import InstancePlugin from './plugin';
 
 describe('Instance [Plugin]', () => {
@@ -39,22 +39,22 @@ describe('Instance [Plugin]', () => {
   });
 
   it('should return an array of views', () => {
-    var instance = component.instance();
+    const instance = component.instance();
     expect(instance.views).to.be.an('array');
   });
 
   it('a view should have a component props', () => {
-    var instance = component.instance();
+    const instance = component.instance();
     expect(instance.views[0].props.component).to.be.equal(databaseRole.component);
   });
 
   it('a view should have a displayName of UnsafeComponent', () => {
-    var instance = component.instance();
+    const instance = component.instance();
     expect(instance.views[0].type.displayName).to.be.equal('UnsafeComponent');
   });
 
   it('should return database and perfromance tabs', () => {
-    var instance = component.instance();
-    expect(instance.tabs).to.deep.equal(['database', 'performance'])
+    const instance = component.instance();
+    expect(instance.tabs).to.deep.equal(['database', 'performance']);
   });
 });

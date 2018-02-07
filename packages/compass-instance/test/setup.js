@@ -1,7 +1,7 @@
 const chai = require('chai');
 const chaiEnzyme = require('chai-enzyme');
 const sinonChai = require('sinon-chai');
-const app = require('hadron-app')
+const app = require('hadron-app');
 
 require('jsdom-global')('', {
   beforeParse(win) {
