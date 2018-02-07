@@ -3,7 +3,7 @@ const React = require('react');
 const PropTypes = require('prop-types');
 const app = require('hadron-app');
 const semver = require('semver');
-const { TabNavBar } = require('hadron-react-components');
+const { TabNavBar, UnsafeComponent } = require('hadron-react-components');
 const toNS = require('mongodb-ns');
 const ipc = require('hadron-ipc');
 
@@ -18,7 +18,6 @@ class Collection extends React.Component {
     this.NamespaceStore = app.appRegistry.getStore('App.NamespaceStore');
     this.QueryActions = app.appRegistry.getAction('Query.Actions');
     this.QueryHistoryActions = app.appRegistry.getAction('QueryHistory.Actions');
-    this.UnsafeComponent = app.appRegistry.getComponent('Home.UnsafeComponent');
     this.setupTabs();
   }
 
@@ -66,7 +65,7 @@ class Collection extends React.Component {
     const tabs = _.map(roles, 'name');
     const views = _.map(roles, (role, i) => {
       return (
-        <this.UnsafeComponent component={role.component} key={i} />
+        <UnsafeComponent component={role.component} key={i} />
       );
     });
     const queryHistoryIndexes = _.map(roles, (role, index) => {
