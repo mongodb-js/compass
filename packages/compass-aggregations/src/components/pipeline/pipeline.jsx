@@ -2,6 +2,7 @@ import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import classnames from 'classnames';
 import Toolbar from 'components/toolbar';
+import PipelineWorkspace from 'components/pipeline-workspace';
 
 import styles from './pipeline.less';
 
@@ -38,6 +39,7 @@ class Pipeline extends PureComponent {
     return (
       <div className={classnames(styles.pipeline)}>
         <Toolbar {...this.props} />
+        <PipelineWorkspace {...this.props} />
       </div>
     );
   }
