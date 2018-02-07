@@ -1,5 +1,7 @@
 import React, { PureComponent } from 'react';
 import classnames from 'classnames';
+import StageEditor from 'components/stage-editor';
+import StagePreview from 'components/stage-preview';
 
 import styles from './stage-workspace.less';
 
@@ -17,6 +19,8 @@ class StageWorkspace extends PureComponent {
   render() {
     return (
       <div className={classnames(styles['stage-workspace'])}>
+        <StageEditor {...this.props} />
+        <StagePreview {...this.props} />
       </div>
     );
   }

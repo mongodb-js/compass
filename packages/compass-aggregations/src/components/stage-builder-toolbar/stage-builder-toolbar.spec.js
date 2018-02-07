@@ -6,9 +6,26 @@ import styles from './stage-builder-toolbar.less';
 
 describe('StageBuilderToolbar [Component]', () => {
   let component;
+  let stageCollapseToggledSpy;
+  let stageOperatorSelectedSpy;
+  let stageToggledSpy;
+  let stageDeletedSpy;
 
   beforeEach(() => {
-    component = shallow(<StageBuilderToolbar />);
+    stageCollapseToggledSpy = sinon.spy();
+    stageOperatorSelectedSpy = sinon.spy();
+    stageToggledSpy = sinon.spy();
+    stageDeletedSpy = sinon.spy();
+
+    component = shallow(
+      <StageBuilderToolbar
+        stage={{}}
+        index={0}
+        stageCollapseToggled={stageCollapseToggledSpy}
+        stageOperatorSelected={stageOperatorSelectedSpy}
+        stageToggled={stageToggledSpy}
+        stageDeleted={stageDeletedSpy} />
+    );
   });
 
   afterEach(() => {

@@ -1,4 +1,18 @@
+@import (reference) "~less/compass/_theme.less";
+
 .stage-builder-toolbar {
-  width: 400px;
+  width: 374px;
   flex-shrink: 0;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  position: relative;
+  background: #FFFFFF;
+  height: 30px;
+  cursor: move;
+  cursor: grab;
+
+  &:active {
+    cursor: grabbing;
+  }
 }

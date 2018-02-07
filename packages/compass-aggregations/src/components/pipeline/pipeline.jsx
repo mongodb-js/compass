@@ -39,6 +39,7 @@ class Pipeline extends PureComponent {
     return (
       <div className={classnames(styles.pipeline)}>
         <Toolbar {...this.props} />
+        <div className={classnames(styles['pipeline-separator'])}></div>
         <PipelineWorkspace {...this.props} />
       </div>
     );

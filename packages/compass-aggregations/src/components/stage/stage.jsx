@@ -3,8 +3,8 @@ import { findDOMNode } from 'react-dom';
 import { DragSource, DropTarget } from 'react-dnd';
 import PropTypes from 'prop-types';
 import classnames from 'classnames';
-import StageHeader from 'components/stage-header';
-import StageEditor from 'components/stage-editor';
+import StageToolbar from 'components/stage-toolbar';
+import StageWorkspace from 'components/stage-workspace';
 
 import styles from './stage.less';
 
@@ -89,13 +89,12 @@ class Stage extends Component {
    * @returns {Component} The component.
    */
   render() {
-    const editor = this.props.stage.isExpanded ? <StageEditor {...this.props} /> : null;
     const opacity = this.props.isDragging ? 0 : 1;
     return this.props.connectDragSource(
       this.props.connectDropTarget(
         <div className={classnames(styles.stage)} style={{ opacity }}>
-          <StageHeader {...this.props} />
-          {editor}
+          <StageToolbar {...this.props} />
+          <StageWorkspace {...this.props} />
         </div>
       )
     );
