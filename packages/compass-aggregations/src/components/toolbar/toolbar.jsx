@@ -1,5 +1,7 @@
 import React, { PureComponent } from 'react';
 import classnames from 'classnames';
+import BuilderToolbar from 'components/builder-toolbar';
+import PreviewToolbar from 'components/preview-toolbar';
 
 import styles from './toolbar.less';
 
@@ -17,6 +19,8 @@ class Toolbar extends PureComponent {
   render() {
     return (
       <div className={classnames(styles.toolbar)}>
+        <BuilderToolbar />
+        <PreviewToolbar />
       </div>
     );
   }
