@@ -4,6 +4,7 @@ dist/
 node_modules
 .DS_Store
 .idea/
+*.swp
 *.iml
 .cache*
 src/app/templates.js

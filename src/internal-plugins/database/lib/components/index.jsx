@@ -1,14 +1,13 @@
 const _ = require('lodash');
 const app = require('hadron-app');
 const React = require('react');
-const { TabNavBar } = require('hadron-react-components');
+const { TabNavBar, UnsafeComponent } = require('hadron-react-components');
 
 class DatabaseView extends React.Component {
 
   constructor(props) {
     super(props);
     this.state = { activeTab: 0 };
-    this.UnsafeComponent = app.appRegistry.getComponent('Home.UnsafeComponent');
     this.setupTabs();
   }
 
@@ -33,7 +32,7 @@ class DatabaseView extends React.Component {
     const tabs = _.map(roles, 'name');
     const views = _.map(roles, (role) => {
       return (
-        <this.UnsafeComponent component={role.component} />
+        <UnsafeComponent component={role.component} />
       );
     });
 

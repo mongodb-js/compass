@@ -43,7 +43,7 @@ class Home extends React.Component {
     /**
      * TODO (imlucas) Handle state when rtss permissions not available.
      */
-    this.instanceView = app.appRegistry.getComponent('Instance.Instance');
+    this.instanceView = app.appRegistry.getRole('Instance.Workspace')[0].component;
     this.connectView = app.appRegistry.getRole('Application.Connect')[0].component;
     this.CreateDatabaseDialog = app.appRegistry.getComponent('DatabaseDDL.CreateDatabaseDialog');
     this.DropDatabaseDialog = app.appRegistry.getComponent('DatabaseDDL.DropDatabaseDialog');
