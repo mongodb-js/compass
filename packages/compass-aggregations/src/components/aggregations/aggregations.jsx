@@ -6,7 +6,6 @@ import Pipeline from 'components/pipeline';
 import { namespaceChanged } from 'modules/namespace';
 import { viewChanged } from 'modules/view';
 import { copyToClipboard } from 'modules/clipboard';
-import { sampleChanged, sampleToggled } from 'modules/sample';
 import {
   stageAdded,
   stageChanged,
@@ -28,11 +27,8 @@ class Aggregations extends Component {
   static propTypes = {
     namespaceChanged: PropTypes.func.isRequired,
     fields: PropTypes.array.isRequired,
-    sample: PropTypes.object.isRequired,
     stages: PropTypes.array.isRequired,
     serverVersion: PropTypes.string.isRequired,
-    sampleChanged: PropTypes.func.isRequired,
-    sampleToggled: PropTypes.func.isRequired,
     stageAdded: PropTypes.func.isRequired,
     stageChanged: PropTypes.func.isRequired,
     stageCollapseToggled: PropTypes.func.isRequired,
@@ -68,7 +64,6 @@ class Aggregations extends Component {
 const mapStateToProps = (state) => ({
   fields: state.fields,
   namespace: state.namespace,
-  sample: state.sample,
   serverVersion: state.serverVersion,
   stages: state.stages,
   view: state.view
@@ -81,8 +76,6 @@ const MappedAggregations = connect(
   mapStateToProps,
   {
     namespaceChanged,
-    sampleChanged,
-    sampleToggled,
     stageAdded,
     stageChanged,
     stageCollapseToggled,

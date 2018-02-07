@@ -142,7 +142,6 @@ describe('Aggregation Store', () => {
           namespace: 'db.coll',
           dataService: INITIAL_STATE.dataService,
           fields: INITIAL_STATE.fields,
-          sample: INITIAL_STATE.sample,
           serverVersion: INITIAL_STATE.serverVersion,
           stages: INITIAL_STATE.stages,
           view: INITIAL_STATE.view
