@@ -1,8 +1,7 @@
 import Connection from 'mongodb-connection-model';
 import DataService from 'mongodb-data-service';
 import AppRegistry from 'hadron-app-registry';
-import HadronDocument from 'hadron-document';
-import Element = HadronDocument.Element;
+import HadronDocument, { Element } from 'hadron-document';
 import { expectedDocs, checkPageRange, NUM_DOCS } from '../../test/aggrid-helper';
 import CRUDStore from 'stores/crud-store';
 

@@ -1,6 +1,6 @@
-const React from 'react';
-const { shallow } from 'enzyme';
-const NoAction from 'components/no-action';
+import React from 'react';
+import { shallow } from 'enzyme';
+import NoAction from 'components/no-action';
 
 describe('<NoAction />', () => {
   describe('#render', () => {

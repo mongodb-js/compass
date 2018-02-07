@@ -5,7 +5,7 @@ import { getNode, getApi, getColumn, getActions,
 import CellEditor from 'components/table-view/cell-editor';
 import AppRegistry from 'hadron-app-registry';
 import { ObjectId } from 'bson';
-import app from 'hadron-app');
+import app from 'hadron-app';
 
 describe('<CellEditor />', () => {
   before(() => {

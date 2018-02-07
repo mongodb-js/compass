@@ -1,5 +1,6 @@
 /* eslint guard-for-in: 0 */
 import GridStore from 'stores/grid-store';
+import { assert } from 'chai';
 
 describe('GridStore', () => {
   const showing = {

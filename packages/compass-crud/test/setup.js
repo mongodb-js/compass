@@ -12,6 +12,7 @@ require('jsdom-global')('', {
 
 global.sinon = require('sinon');
 global.expect = chai.expect;
+global.jQuery = require('jquery');
 
 class Worker {
   postMessage() {

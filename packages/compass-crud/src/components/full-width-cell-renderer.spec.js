@@ -2,9 +2,9 @@ import React from 'react';
 import { mount } from 'enzyme';
 import { getNode, getApi, getActions, getContext, notCalledExcept } from '../../test/aggrid-helper';
 import FullWidthCellRenderer from 'components/table-view/full-width-cell-renderer';
-import AppRegistry from 'hadron-app-registry'
+import AppRegistry from 'hadron-app-registry';
 import app from 'hadron-app';
-import { ObjectId } from 'bson'.ObjectId;
+import { ObjectId } from 'bson';
 
 describe('<FullWidthCellRenderer />', () => {
   before(() => {
