@@ -1,5 +1,6 @@
 import React from 'react';
 import { shallow } from 'enzyme';
+import { CODE } from 'modules/view';
 
 import Toolbar from 'components/toolbar';
 import BuilderToolbar from 'components/builder-toolbar';
@@ -9,9 +10,22 @@ import styles from './toolbar.less';
 
 describe('Toolbar [Component]', () => {
   let component;
+  let stageAddedSpy;
+  let viewChangedSpy;
+  let copyToClipboardSpy;
 
   beforeEach(() => {
-    component = shallow(<Toolbar />);
+    stageAddedSpy = sinon.spy();
+    viewChangedSpy = sinon.spy();
+    copyToClipboardSpy = sinon.spy();
+
+    component = shallow(
+      <Toolbar
+        view={CODE}
+        stageAdded={stageAddedSpy}
+        viewChanged={viewChangedSpy}
+        copyToClipboard={copyToClipboardSpy} />
+    );
   });
 
   afterEach(() => {

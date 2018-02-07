@@ -1,14 +1,28 @@
 import React from 'react';
 import { shallow } from 'enzyme';
+import { CODE } from 'modules/view';
 
 import BuilderToolbar from 'components/builder-toolbar';
 import styles from './builder-toolbar.less';
 
 describe('BuilderToolbar [Component]', () => {
   let component;
+  let stageAddedSpy;
+  let viewChangedSpy;
+  let copyToClipboardSpy;
 
   beforeEach(() => {
-    component = shallow(<BuilderToolbar />);
+    stageAddedSpy = sinon.spy();
+    viewChangedSpy = sinon.spy();
+    copyToClipboardSpy = sinon.spy();
+
+    component = shallow(
+      <BuilderToolbar
+        view={CODE}
+        stageAdded={stageAddedSpy}
+        viewChanged={viewChangedSpy}
+        copyToClipboard={copyToClipboardSpy} />
+    );
   });
 
   afterEach(() => {

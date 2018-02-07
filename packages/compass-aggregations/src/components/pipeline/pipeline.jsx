@@ -1,11 +1,7 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import classnames from 'classnames';
-import { CODE } from 'modules/view';
-import BasicBuilder from 'components/basic-builder';
-import AdvancedBuilder from 'components/advanced-builder';
-import PipelineHeader from 'components/pipeline-header';
-import PipelineFooter from 'components/pipeline-footer';
+import Toolbar from 'components/toolbar';
 
 import styles from './pipeline.less';
 
@@ -39,14 +35,9 @@ class Pipeline extends PureComponent {
    * @returns {Component} The component.
    */
   render() {
-    const builder = this.props.view === CODE ?
-      <AdvancedBuilder {...this.props } /> :
-      <BasicBuilder {...this.props} />;
     return (
       <div className={classnames(styles.pipeline)}>
-        <PipelineHeader {...this.props} />
-        {builder}
-        <PipelineFooter {...this.props} />
+        <Toolbar {...this.props} />
       </div>
     );
   }

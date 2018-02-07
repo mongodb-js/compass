@@ -19,7 +19,7 @@ class Toolbar extends PureComponent {
   render() {
     return (
       <div className={classnames(styles.toolbar)}>
-        <BuilderToolbar />
+        <BuilderToolbar {...this.props} />
         <PreviewToolbar />
       </div>
     );
