@@ -82,8 +82,8 @@ For completeness, below is a list of directories present in this module:
 
 Apache 2.0
 
-[travis_img]: https://travis-ci.com/10gen/10gen/instance.svg?style=flat-square
-[travis_url]: https://travis-ci.com/10gen/compass-instance
+[travis_img]: https://travis-ci.org/mongodb-js/mongodb-js/compass-instance.svg?style=flat-square
+[travis_url]: https://travis-ci.org/mongodb-js/compass-instance 
 [react-storybook]: https://github.com/kadirahq/react-storybook
 [enzyme]: http://airbnb.io/enzyme/
 [enzyme-chai]: https://github.com/producthunt/chai-enzyme
