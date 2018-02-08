@@ -4,6 +4,7 @@ import classnames from 'classnames';
 import { DragDropContext } from 'react-dnd';
 import HTML5Backend from 'react-dnd-html5-backend';
 import Stage from 'components/stage';
+import Input from 'components/input';
 
 import styles from './pipeline-workspace.less';
 
@@ -29,6 +30,7 @@ class PipelineWorkspace extends PureComponent {
     });
     return (
       <div className={classnames(styles['pipeline-workspace'])}>
+        <Input {...this.props} />
         {stages}
       </div>
     );
