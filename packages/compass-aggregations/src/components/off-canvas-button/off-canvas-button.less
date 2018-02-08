@@ -1,0 +1,17 @@
+@import (reference) "~less/compass/_theme.less";
+
+.off-canvas-button {
+  border-bottom: 1px solid rgba(0, 0, 0, 0.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 35px;
+  cursor: pointer;
+
+  &-is-selected {
+    border-right: 1px solid @green0;
+    border-bottom: 2px solid @green0;
+    box-shadow: 1px 2px 2px @green2;
+  }
+}

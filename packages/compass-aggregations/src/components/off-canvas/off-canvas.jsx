@@ -1,5 +1,6 @@
 import React, { PureComponent } from 'react';
 import classnames from 'classnames';
+import OffCanvasButton from 'components/off-canvas-button';
 
 import styles from './off-canvas.less';
 
@@ -9,6 +10,9 @@ import styles from './off-canvas.less';
 class OffCanvas extends PureComponent {
   static displayName = 'OffCanvasComponent';
 
+  clickOpenSave = () => {
+  }
+
   /**
    * Render the off canvas component.
    *
@@ -17,6 +21,10 @@ class OffCanvas extends PureComponent {
   render() {
     return (
       <div className={classnames(styles['off-canvas'])}>
+        <OffCanvasButton
+          onClick={this.clickOpenSave}
+          iconClassName="fa fa-floppy-o"
+          isSelected />
       </div>
     );
   }
