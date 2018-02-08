@@ -6,6 +6,7 @@ lib-cov
 coverage
 .lock-wscript
 .idea/
+*.swp
 *.iml
 .nvmrc
 .nyc_output
