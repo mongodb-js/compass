@@ -3,12 +3,12 @@ import classnames from 'classnames';
 import BuilderToolbar from 'components/builder-toolbar';
 import PreviewToolbar from 'components/preview-toolbar';
 
-import styles from './toolbar.less';
+import styles from './pipeline-toolbar.less';
 
 /**
  * The toolbar component.
  */
-class Toolbar extends PureComponent {
+class PipelineToolbar extends PureComponent {
   static displayName = 'ToolbarComponent';
 
   /**
@@ -18,7 +18,7 @@ class Toolbar extends PureComponent {
    */
   render() {
     return (
-      <div className={classnames(styles.toolbar)}>
+      <div className={classnames(styles['pipeline-toolbar'])}>
         <BuilderToolbar {...this.props} />
         <PreviewToolbar />
       </div>
@@ -26,4 +26,4 @@ class Toolbar extends PureComponent {
   }
 }
 
-export default Toolbar;
+export default PipelineToolbar;

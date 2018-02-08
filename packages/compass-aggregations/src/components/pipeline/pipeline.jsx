@@ -1,7 +1,7 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import classnames from 'classnames';
-import Toolbar from 'components/toolbar';
+import PipelineToolbar from 'components/pipeline-toolbar';
 import PipelineWorkspace from 'components/pipeline-workspace';
 
 import styles from './pipeline.less';
@@ -35,7 +35,7 @@ class Pipeline extends PureComponent {
   render() {
     return (
       <div className={classnames(styles.pipeline)}>
-        <Toolbar {...this.props} />
+        <PipelineToolbar {...this.props} />
         <div className={classnames(styles['pipeline-separator'])}></div>
         <PipelineWorkspace {...this.props} />
       </div>

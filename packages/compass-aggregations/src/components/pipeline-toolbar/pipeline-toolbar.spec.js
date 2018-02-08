@@ -2,13 +2,13 @@ import React from 'react';
 import { shallow } from 'enzyme';
 import { CODE } from 'modules/view';
 
-import Toolbar from 'components/toolbar';
+import PipelineToolbar from 'components/pipeline-toolbar';
 import BuilderToolbar from 'components/builder-toolbar';
 import PreviewToolbar from 'components/preview-toolbar';
 
-import styles from './toolbar.less';
+import styles from './pipeline-toolbar.less';
 
-describe('Toolbar [Component]', () => {
+describe('PipelineToolbar [Component]', () => {
   let component;
   let stageAddedSpy;
   let viewChangedSpy;
@@ -20,7 +20,7 @@ describe('Toolbar [Component]', () => {
     copyToClipboardSpy = sinon.spy();
 
     component = shallow(
-      <Toolbar
+      <PipelineToolbar
         view={CODE}
         stageAdded={stageAddedSpy}
         viewChanged={viewChangedSpy}
@@ -33,14 +33,14 @@ describe('Toolbar [Component]', () => {
   });
 
   it('renders the wrapper div', () => {
-    expect(component.find(`.${styles.toolbar}`)).to.be.present();
+    expect(component.find(`.${styles['pipeline-toolbar']}`)).to.be.present();
   });
 
   it('renders the builder toolbar', () => {
-    expect(component.find(`.${styles.toolbar}`)).to.have.descendants(BuilderToolbar);
+    expect(component.find(`.${styles['pipeline-toolbar']}`)).to.have.descendants(BuilderToolbar);
   });
 
   it('renders the preview toolbar', () => {
-    expect(component.find(`.${styles.toolbar}`)).to.have.descendants(PreviewToolbar);
+    expect(component.find(`.${styles['pipeline-toolbar']}`)).to.have.descendants(PreviewToolbar);
   });
 });
