@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import classnames from 'classnames';
+import InputToolbar from 'components/input-toolbar';
 
 import styles from './input.less';
 
@@ -14,6 +15,7 @@ class Input extends Component {
   render() {
     return (
       <div className={classnames(styles.input)}>
+        <InputToolbar {...this.props} />
       </div>
     );
   }
