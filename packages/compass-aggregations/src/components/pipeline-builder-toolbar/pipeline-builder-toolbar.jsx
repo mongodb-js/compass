@@ -5,13 +5,13 @@ import { ViewSwitcher } from 'hadron-react-components';
 import { TextButton, IconButton } from 'hadron-react-buttons';
 import { CODE, BUILDER } from 'modules/view';
 
-import styles from './builder-toolbar.less';
+import styles from './pipeline-builder-toolbar.less';
 
 /**
- * The builder toolbar component.
+ * The pipeline builder toolbar component.
  */
-class BuilderToolbar extends PureComponent {
-  static displayName = 'BuilderToolbarComponent';
+class PipelineBuilderToolbar extends PureComponent {
+  static displayName = 'PipelineBuilderToolbarComponent';
 
   static propTypes = {
     view: PropTypes.string.isRequired,
@@ -21,7 +21,7 @@ class BuilderToolbar extends PureComponent {
   }
 
   /**
-   * Renders the builder toolbar.
+   * Renders the pipeline builder toolbar.
    *
    * @returns {React.Component} The component.
    */
@@ -30,17 +30,17 @@ class BuilderToolbar extends PureComponent {
       'btn': true,
       'btn-xs': true,
       'btn-default': true,
-      [ styles['builder-toolbar-add-stage-button'] ]: true
+      [ styles['pipeline-builder-toolbar-add-stage-button'] ]: true
     });
 
     const copyToClipboardClassName = classnames({
       'btn': true,
       'btn-xs': true,
       'btn-default': true,
-      [ styles['builder-toolbar-copy-to-clipboard-button'] ]: true
+      [ styles['pipeline-builder-toolbar-copy-to-clipboard-button'] ]: true
     });
     return (
-      <div className={classnames(styles['builder-toolbar'])}>
+      <div className={classnames(styles['pipeline-builder-toolbar'])}>
         <ViewSwitcher
           label="VIEW"
           buttonLabels={[ CODE, BUILDER ]}
@@ -60,4 +60,4 @@ class BuilderToolbar extends PureComponent {
   }
 }
 
-export default BuilderToolbar;
+export default PipelineBuilderToolbar;

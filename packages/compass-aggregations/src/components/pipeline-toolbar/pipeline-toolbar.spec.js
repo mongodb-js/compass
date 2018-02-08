@@ -3,8 +3,8 @@ import { shallow } from 'enzyme';
 import { CODE } from 'modules/view';
 
 import PipelineToolbar from 'components/pipeline-toolbar';
-import BuilderToolbar from 'components/builder-toolbar';
-import PreviewToolbar from 'components/preview-toolbar';
+import PipelineBuilderToolbar from 'components/pipeline-builder-toolbar';
+import PipelinePreviewToolbar from 'components/pipeline-preview-toolbar';
 
 import styles from './pipeline-toolbar.less';
 
@@ -37,10 +37,10 @@ describe('PipelineToolbar [Component]', () => {
   });
 
   it('renders the builder toolbar', () => {
-    expect(component.find(`.${styles['pipeline-toolbar']}`)).to.have.descendants(BuilderToolbar);
+    expect(component.find(`.${styles['pipeline-toolbar']}`)).to.have.descendants(PipelineBuilderToolbar);
   });
 
   it('renders the preview toolbar', () => {
-    expect(component.find(`.${styles['pipeline-toolbar']}`)).to.have.descendants(PreviewToolbar);
+    expect(component.find(`.${styles['pipeline-toolbar']}`)).to.have.descendants(PipelinePreviewToolbar);
   });
 });

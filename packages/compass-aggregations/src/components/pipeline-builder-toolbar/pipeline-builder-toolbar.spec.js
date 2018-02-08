@@ -2,10 +2,10 @@ import React from 'react';
 import { mount } from 'enzyme';
 import { CODE } from 'modules/view';
 
-import BuilderToolbar from 'components/builder-toolbar';
-import styles from './builder-toolbar.less';
+import PipelineBuilderToolbar from 'components/pipeline-builder-toolbar';
+import styles from './pipeline-builder-toolbar.less';
 
-describe('BuilderToolbar [Component]', () => {
+describe('PipelineBuilderToolbar [Component]', () => {
   let component;
   let stageAddedSpy;
   let viewChangedSpy;
@@ -17,7 +17,7 @@ describe('BuilderToolbar [Component]', () => {
     copyToClipboardSpy = sinon.spy();
 
     component = mount(
-      <BuilderToolbar
+      <PipelineBuilderToolbar
         view={CODE}
         stageAdded={stageAddedSpy}
         viewChanged={viewChangedSpy}
@@ -30,7 +30,7 @@ describe('BuilderToolbar [Component]', () => {
   });
 
   it('renders the wrapper div', () => {
-    expect(component.find(`.${styles['builder-toolbar']}`)).to.be.present();
+    expect(component.find(`.${styles['pipeline-builder-toolbar']}`)).to.be.present();
   });
 
   it('renders the view switcher', () => {
@@ -38,12 +38,12 @@ describe('BuilderToolbar [Component]', () => {
   });
 
   it('renders the add stage button', () => {
-    expect(component.find(`.${styles['builder-toolbar-add-stage-button']}`)).
+    expect(component.find(`.${styles['pipeline-builder-toolbar-add-stage-button']}`)).
       to.have.text('Add Stage');
   });
 
   it('renders the copy to clipboard button', () => {
-    expect(component.find(`.${styles['builder-toolbar-copy-to-clipboard-button']}`)).
+    expect(component.find(`.${styles['pipeline-builder-toolbar-copy-to-clipboard-button']}`)).
       to.be.present();
   });
 });

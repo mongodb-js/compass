@@ -1,7 +1,7 @@
 import React, { PureComponent } from 'react';
 import classnames from 'classnames';
-import BuilderToolbar from 'components/builder-toolbar';
-import PreviewToolbar from 'components/preview-toolbar';
+import PipelineBuilderToolbar from 'components/pipeline-builder-toolbar';
+import PipelinePreviewToolbar from 'components/pipeline-preview-toolbar';
 
 import styles from './pipeline-toolbar.less';
 
@@ -19,8 +19,8 @@ class PipelineToolbar extends PureComponent {
   render() {
     return (
       <div className={classnames(styles['pipeline-toolbar'])}>
-        <BuilderToolbar {...this.props} />
-        <PreviewToolbar />
+        <PipelineBuilderToolbar {...this.props} />
+        <PipelinePreviewToolbar />
       </div>
     );
   }
