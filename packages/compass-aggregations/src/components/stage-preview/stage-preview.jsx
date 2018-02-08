@@ -15,8 +15,14 @@ class StagePreview extends PureComponent {
    * @returns {React.Component} The component.
    */
   render() {
+    const iconClassName = classnames({
+      'fa': true,
+      'fa-angle-double-right': true,
+      [ styles['stage-preview-arrow'] ]: true
+    });
     return (
       <div className={classnames(styles['stage-preview'])}>
+        <i className={iconClassName} aria-hidden />
       </div>
     );
   }

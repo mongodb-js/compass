@@ -4,6 +4,11 @@ import classnames from 'classnames';
 import styles from './input-preview-toolbar.less';
 
 /**
+ * The static text.
+ */
+const TEXT = 'Preview of Input Documents';
+
+/**
  * The input preview toolbar component.
  */
 class InputPreviewToolbar extends PureComponent {
@@ -17,6 +22,9 @@ class InputPreviewToolbar extends PureComponent {
   render() {
     return (
       <div className={classnames(styles['input-preview-toolbar'])}>
+        <div className={classnames(styles['input-preview-toolbar-text'])}>
+          {TEXT}
+        </div>
       </div>
     );
   }

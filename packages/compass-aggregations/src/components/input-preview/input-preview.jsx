@@ -15,8 +15,14 @@ class InputPreview extends PureComponent {
    * @returns {React.Component} The component.
    */
   render() {
+    const iconClassName = classnames({
+      'fa': true,
+      'fa-angle-double-right': true,
+      [ styles['input-preview-arrow'] ]: true
+    });
     return (
       <div className={classnames(styles['input-preview'])}>
+        <i className={iconClassName} aria-hidden />
       </div>
     );
   }
