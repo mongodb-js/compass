@@ -9,9 +9,21 @@ import styles from './input-toolbar.less';
 
 describe('InputToolbar [Component]', () => {
   let component;
+  let toggleSpy;
+
+  const inputDocuments = {
+    documents: [],
+    isExpanded: true,
+    count: 0
+  };
 
   beforeEach(() => {
-    component = shallow(<InputToolbar />);
+    toggleSpy = sinon.spy();
+    component = shallow(
+      <InputToolbar
+        inputDocuments={inputDocuments}
+        toggleInputDocumentsCollapsed={toggleSpy} />
+    );
   });
 
   afterEach(() => {

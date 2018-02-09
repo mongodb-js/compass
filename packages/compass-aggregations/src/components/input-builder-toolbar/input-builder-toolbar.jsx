@@ -12,7 +12,7 @@ class InputBuilderToolbar extends PureComponent {
   static displayName = 'InputBuilderToolbar';
 
   static propTypes = {
-    inputCollapseToggled: PropTypes.func.isRequired,
+    toggleInputDocumentsCollapsed: PropTypes.func.isRequired,
     isExpanded: PropTypes.bool.isRequired,
     count: PropTypes.number.isRequired
   }
@@ -31,7 +31,7 @@ class InputBuilderToolbar extends PureComponent {
     return (
       <div className={classnames(styles['input-builder-toolbar'])}>
         <InputCollapser
-          inputCollapseToggled={this.props.inputCollapseToggled}
+          toggleInputDocumentsCollapsed={this.props.toggleInputDocumentsCollapsed}
           isExpanded={this.props.isExpanded} />
         <i className={iconClassName} aria-hidden />
         <div className={classnames(styles['input-builder-toolbar-count'])}>

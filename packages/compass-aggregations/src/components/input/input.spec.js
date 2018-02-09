@@ -7,9 +7,19 @@ import styles from './input.less';
 
 describe('Input [Component]', () => {
   let component;
+  let toggleSpy;
+
+  const inputDocuments = {
+    documents: [],
+    isExpanded: true,
+    count: 0
+  };
 
   beforeEach(() => {
-    component = shallow(<Input />);
+    toggleSpy = sinon.spy();
+    component = shallow(
+      <Input toggleInputDocumentsCollapsed={toggleSpy} inputDocuments={inputDocuments} />
+    );
   });
 
   afterEach(() => {

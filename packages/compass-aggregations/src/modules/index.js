@@ -2,6 +2,7 @@ import { combineReducers } from 'redux';
 
 import dataService, { INITIAL_STATE as DS_INITIAL_STATE } from './data-service';
 import fields, { INITIAL_STATE as FIELDS_INITIAL_STATE } from './fields';
+import inputDocuments, { INITIAL_STATE as INPUT_INITIAL_STATE } from './input-documents';
 import namespace, { INITIAL_STATE as NS_INITIAL_STATE, NAMESPACE_CHANGED } from './namespace';
 import serverVersion, { INITIAL_STATE as SV_INITIAL_STATE } from './server-version';
 import stages, { INITIAL_STATE as STAGE_INITIAL_STATE } from './stages';
@@ -13,6 +14,7 @@ import view, { INITIAL_STATE as VIEW_INITIAL_STATE } from './view';
 export const INITIAL_STATE = {
   dataService: DS_INITIAL_STATE,
   fields: FIELDS_INITIAL_STATE,
+  inputDocuments: INPUT_INITIAL_STATE,
   namespace: NS_INITIAL_STATE,
   serverVersion: SV_INITIAL_STATE,
   stages: STAGE_INITIAL_STATE,
@@ -32,6 +34,7 @@ export const RESET = 'aggregations/reset';
 const appReducer = combineReducers({
   dataService,
   fields,
+  inputDocuments,
   namespace,
   serverVersion,
   stages,

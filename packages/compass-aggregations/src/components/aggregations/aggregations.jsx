@@ -1,10 +1,10 @@
 import React, { Component } from 'react';
-import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import classnames from 'classnames';
 import OffCanvas from 'components/off-canvas';
 import Pipeline from 'components/pipeline';
 import { namespaceChanged } from 'modules/namespace';
+import { toggleInputDocumentsCollapsed } from 'modules/input-documents';
 import { viewChanged } from 'modules/view';
 import { copyToClipboard } from 'modules/clipboard';
 import {
@@ -24,22 +24,6 @@ import styles from './aggregations.less';
  */
 class Aggregations extends Component {
   static displayName = 'AggregationsComponent';
-
-  static propTypes = {
-    namespaceChanged: PropTypes.func.isRequired,
-    fields: PropTypes.array.isRequired,
-    stages: PropTypes.array.isRequired,
-    serverVersion: PropTypes.string.isRequired,
-    stageAdded: PropTypes.func.isRequired,
-    stageChanged: PropTypes.func.isRequired,
-    stageCollapseToggled: PropTypes.func.isRequired,
-    stageDeleted: PropTypes.func.isRequired,
-    stageMoved: PropTypes.func.isRequired,
-    stageOperatorSelected: PropTypes.func.isRequired,
-    stageToggled: PropTypes.func.isRequired,
-    viewChanged: PropTypes.func.isRequired,
-    copyToClipboard: PropTypes.func.isRequired
-  }
 
   /**
    * Render Aggregations component.
@@ -65,6 +49,7 @@ class Aggregations extends Component {
  */
 const mapStateToProps = (state) => ({
   fields: state.fields,
+  inputDocuments: state.inputDocuments,
   namespace: state.namespace,
   serverVersion: state.serverVersion,
   stages: state.stages,
@@ -78,6 +63,7 @@ const MappedAggregations = connect(
   mapStateToProps,
   {
     namespaceChanged,
+    toggleInputDocumentsCollapsed,
     stageAdded,
     stageChanged,
     stageCollapseToggled,
