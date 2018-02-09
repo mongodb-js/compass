@@ -1,16 +1,20 @@
+import OffCanvasButton from 'components/off-canvas-button';
 import React, { PureComponent } from 'react';
 import classnames from 'classnames';
-import OffCanvasButton from 'components/off-canvas-button';
+import PropTypes from 'prop-types';
 
 import styles from './off-canvas.less';
 
 /**
- * Off canvas component.
+ * Off canvas componentt.
  */
 class OffCanvas extends PureComponent {
   static displayName = 'OffCanvasComponent';
 
-  clickOpenSave = () => {
+  static propTypes = {
+    openSavedPipelines: PropTypes.func.isRequired,
+    closeSavedPipelines: PropTypes.func.isRequired,
+    savedPipelines: PropTypes.object.isRequired
   }
 
   /**
@@ -19,12 +23,15 @@ class OffCanvas extends PureComponent {
    * @returns {Component} The component.
    */
   render() {
+    const clickHandler = this.props.savedPipelines.isVisible
+      ? this.props.closeSavedPipelines
+      : this.props.openSavedPipelines;
     return (
       <div className={classnames(styles['off-canvas'])}>
         <OffCanvasButton
-          onClick={this.clickOpenSave}
+          onClick={clickHandler}
           iconClassName="fa fa-floppy-o"
-          isSelected />
+          isVisible={this.props.savedPipelines.isVisible} />
       </div>
     );
   }

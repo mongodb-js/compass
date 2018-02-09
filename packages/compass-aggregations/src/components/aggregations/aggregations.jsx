@@ -16,6 +16,10 @@ import {
   stageOperatorSelected,
   stageToggled
 } from 'modules/stages';
+import {
+  closeSavedPipelines,
+  openSavedPipelines
+} from 'modules/saved-pipelines';
 
 import styles from './aggregations.less';
 
@@ -53,11 +57,13 @@ const mapStateToProps = (state) => ({
   namespace: state.namespace,
   serverVersion: state.serverVersion,
   stages: state.stages,
-  view: state.view
+  view: state.view,
+  savedPipelines: state.savedPipelines
 });
 
 /**
  * Connect the redux store to the component.
+ * (dispatch)
  */
 const MappedAggregations = connect(
   mapStateToProps,
@@ -72,7 +78,9 @@ const MappedAggregations = connect(
     stageOperatorSelected,
     stageToggled,
     viewChanged,
-    copyToClipboard
+    copyToClipboard,
+    openSavedPipelines,
+    closeSavedPipelines
   },
 )(Aggregations);
 

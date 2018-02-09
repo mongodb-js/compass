@@ -6,6 +6,7 @@ import inputDocuments, { INITIAL_STATE as INPUT_INITIAL_STATE } from './input-do
 import namespace, { INITIAL_STATE as NS_INITIAL_STATE, NAMESPACE_CHANGED } from './namespace';
 import serverVersion, { INITIAL_STATE as SV_INITIAL_STATE } from './server-version';
 import stages, { INITIAL_STATE as STAGE_INITIAL_STATE } from './stages';
+import savedPipelines, { INITIAL_STATE as SP_INITIAL_STATE } from './saved-pipelines';
 import view, { INITIAL_STATE as VIEW_INITIAL_STATE } from './view';
 
 /**
@@ -18,6 +19,7 @@ export const INITIAL_STATE = {
   namespace: NS_INITIAL_STATE,
   serverVersion: SV_INITIAL_STATE,
   stages: STAGE_INITIAL_STATE,
+  savedPipelines: SP_INITIAL_STATE,
   view: VIEW_INITIAL_STATE
 };
 
@@ -37,6 +39,7 @@ const appReducer = combineReducers({
   inputDocuments,
   namespace,
   serverVersion,
+  savedPipelines,
   stages,
   view
 });

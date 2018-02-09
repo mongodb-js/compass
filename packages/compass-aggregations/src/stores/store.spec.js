@@ -140,6 +140,7 @@ describe('Aggregation Store', () => {
       it('resets the rest of the state to initial state', () => {
         expect(store.getState()).to.deep.equal({
           namespace: 'db.coll',
+          savedPipelines: INITIAL_STATE.savedPipelines,
           dataService: INITIAL_STATE.dataService,
           fields: INITIAL_STATE.fields,
           inputDocuments: INITIAL_STATE.inputDocuments,

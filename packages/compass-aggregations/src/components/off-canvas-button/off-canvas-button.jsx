@@ -7,14 +7,18 @@ import styles from './off-canvas-button.less';
 /**
  * Off canvas button component.
  */
-class OffCanvas extends PureComponent {
+class OffCanvasButton extends PureComponent {
   static displayName = 'OffCanvasButtonComponent';
 
   static propTypes = {
     iconClassName: PropTypes.string.isRequired,
     onClick: PropTypes.func.isRequired,
-    isSelected: PropTypes.bool.isRequired
+    isVisible: PropTypes.bool.isRequired
   }
+
+  // clicking on a button should call the open action clear to save pipeline
+  // open action creator should also pull up the saved pipelines window component
+  // there should be an 'x' in window component to call close action creator
 
   /**
    * Render the off canvas button component.
@@ -24,7 +28,7 @@ class OffCanvas extends PureComponent {
   render() {
     const className = classnames({
       [ styles['off-canvas-button'] ]: true,
-      [ styles['off-canvas-button-is-selected'] ]: this.props.isSelected
+      [ styles['off-canvas-button-is-selected'] ]: this.props.isVisible
     });
     return (
       <div
@@ -36,4 +40,4 @@ class OffCanvas extends PureComponent {
   }
 }
 
-export default OffCanvas;
+export default OffCanvasButton;
