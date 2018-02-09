@@ -302,7 +302,7 @@ class EditableDocument extends React.Component {
         <RemoveDocumentFooter
           doc={this.props.doc}
           removeDocument={this.props.removeDocument}
-          cancelHandler={this.handleCancelRemove} />
+          cancelHandler={this.handleCancelRemove.bind(this)} />
       );
     }
   }
