@@ -4,7 +4,10 @@ import classnames from 'classnames';
 import OffCanvas from 'components/off-canvas';
 import Pipeline from 'components/pipeline';
 import { namespaceChanged } from 'modules/namespace';
-import { toggleInputDocumentsCollapsed } from 'modules/input-documents';
+import {
+  toggleInputDocumentsCollapsed,
+  refreshInputDocuments
+} from 'modules/input-documents';
 import { viewChanged } from 'modules/view';
 import { copyToClipboard } from 'modules/clipboard';
 import {
@@ -70,6 +73,7 @@ const MappedAggregations = connect(
   {
     namespaceChanged,
     toggleInputDocumentsCollapsed,
+    refreshInputDocuments,
     stageAdded,
     stageChanged,
     stageCollapseToggled,

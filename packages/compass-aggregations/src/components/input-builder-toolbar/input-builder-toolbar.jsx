@@ -2,6 +2,8 @@ import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import classnames from 'classnames';
 import InputCollapser from 'components/input-collapser';
+import InputDocumentsCount from 'components/input-documents-count';
+import InputRefresh from 'components/input-refresh';
 
 import styles from './input-builder-toolbar.less';
 
@@ -13,6 +15,7 @@ class InputBuilderToolbar extends PureComponent {
 
   static propTypes = {
     toggleInputDocumentsCollapsed: PropTypes.func.isRequired,
+    refreshInputDocuments: PropTypes.func.isRequired,
     isExpanded: PropTypes.bool.isRequired,
     count: PropTypes.number.isRequired
   }
@@ -23,20 +26,13 @@ class InputBuilderToolbar extends PureComponent {
    * @returns {React.Component} The component.
    */
   render() {
-    const iconClassName = classnames({
-      'fa': true,
-      'fa-database': true,
-      [ styles['input-builder-toolbar-db'] ]: true
-    });
     return (
       <div className={classnames(styles['input-builder-toolbar'])}>
         <InputCollapser
           toggleInputDocumentsCollapsed={this.props.toggleInputDocumentsCollapsed}
           isExpanded={this.props.isExpanded} />
-        <i className={iconClassName} aria-hidden />
-        <div className={classnames(styles['input-builder-toolbar-count'])}>
-          {this.props.count} Input Documents
-        </div>
+        <InputDocumentsCount count={this.props.count} />
+        <InputRefresh refreshInputDocuments={this.props.refreshInputDocuments} />
       </div>
     );
   }

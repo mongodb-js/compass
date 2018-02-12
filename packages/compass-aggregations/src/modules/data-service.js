@@ -6,7 +6,7 @@ const PREFIX = 'aggregations/data-service';
 /**
  * Data service connected.
  */
-export const DATA_SERVICE_CONNECTED = `${PREFIX}/data-service-connected`;
+export const DATA_SERVICE_CONNECTED = `${PREFIX}/DATA_SERVICE_CONNECTED`;
 
 /**
  * The initial state.

@@ -53,6 +53,8 @@ const appReducer = combineReducers({
  * @note Handle actions that need to operate
  *  on more than one area of the state here.
  *
+ * @todo: Durran Don't wipe out data service when namespace changes.
+ *
  * @returns {Function} The reducer.
  */
 const rootReducer = (state, action) => {

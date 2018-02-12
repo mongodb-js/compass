@@ -49,24 +49,24 @@ const render = Component => {
 render(AggregationsPlugin);
 
 // // Data service initialization and connection.
-// import Connection from 'mongodb-connection-model';
-// import DataService from 'mongodb-data-service';
+import Connection from 'mongodb-connection-model';
+import DataService from 'mongodb-data-service';
 
-// const connection = new Connection({
-  // hostname: '127.0.0.1',
-  // port: 27017,
-  // ns: 'compass-aggregations'
-// });
-// const dataService = new DataService(connection);
+const connection = new Connection({
+  hostname: '127.0.0.1',
+  port: 27017,
+  ns: 'compass-aggregations'
+});
+const dataService = new DataService(connection);
 
-// appRegistry.emit('data-service-initialized', dataService);
+appRegistry.emit('data-service-initialized', dataService);
 
-// dataService.connect((error, ds) => {
-  // appRegistry.emit('data-service-connected', error, ds);
-// });
+dataService.connect((error, ds) => {
+  appRegistry.emit('data-service-connected', error, ds);
+  appRegistry.emit('collection-changed', 'compass-aggregations.dev');
+});
 
 // For automatic switching to specific namespaces, uncomment below as needed.
-appRegistry.emit('collection-changed', 'compass-aggregations.myCollection');
 // appRegistry.emit('database-changed', 'database');
 
 // For plugins based on query execution, comment out below:
