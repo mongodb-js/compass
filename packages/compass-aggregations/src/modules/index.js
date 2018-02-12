@@ -29,6 +29,11 @@ export const INITIAL_STATE = {
 export const RESET = 'aggregations/reset';
 
 /**
+ * constant for saving current state
+ */
+export const SAVE_STATE = 'aggregations/save-state';
+
+/**
  * The main application reducer.
  *
  * @returns {Function} The reducer function.
@@ -43,6 +48,22 @@ const appReducer = combineReducers({
   stages,
   view
 });
+
+/**
+ * @param {Object} state - current state
+ *
+ * @returns {object} state - adjusted copy of the current state for indexeddb
+ * to save
+ */
+export const savedState = (state = INITIAL_STATE) => {
+  return Object.assign({}
+    , { inputDocuments: state.inputDocuments }
+    , { savedPipelines: state.savedPipelines }
+    , { namespace: state.namespace }
+    , { stages: state.stages }
+    , { view: state.view }
+  );
+};
 
 /**
  * The root reducer.
@@ -64,6 +85,8 @@ const rootReducer = (state, action) => {
       return appReducer(newState, action);
     case RESET:
       return { ...INITIAL_STATE };
+    case SAVE_STATE:
+      return savedState(state);
     default:
       return appReducer(state, action);
   }
@@ -78,4 +101,13 @@ export default rootReducer;
  */
 export const reset = () => ({
   type: RESET
+});
+
+/**
+ * Save the current state of your pipeline
+ *
+ * @returns {Object} The action.
+ */
+export const saveState = () => ({
+  type: SAVE_STATE
 });
