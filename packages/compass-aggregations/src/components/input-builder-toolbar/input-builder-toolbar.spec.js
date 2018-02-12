@@ -8,11 +8,15 @@ import styles from './input-builder-toolbar.less';
 describe('InputBuilderToolbar [Component]', () => {
   let component;
   let toggleSpy;
+  let refreshSpy;
 
   beforeEach(() => {
     toggleSpy = sinon.spy();
+    refreshSpy = sinon.spy();
+
     component = shallow(
       <InputBuilderToolbar
+        refreshInputDocuments={refreshSpy}
         toggleInputDocumentsCollapsed={toggleSpy}
         isExpanded
         count={20} />

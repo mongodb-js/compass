@@ -4,10 +4,31 @@
   display: flex;
   align-items: center;
   width: 100%;
+  overflow-y: scroll;
 
   &-arrow {
     font-size: 20px;
     padding-left: 10px;
     color: @gray5;
+  }
+
+  &-documents {
+    display: flex;
+    align-items: flex-start;
+    overflow-y: scroll;
+    margin: 0px 15px 0px 15px;
+
+    :global {
+      .document {
+        background-color: #FFFFFF;
+        margin: 10px;
+        padding: 10px 20px 10px 20px;
+        box-shadow: 1px 1px 3px #dee0e3;
+
+        &-elements {
+          padding: 0px;
+        }
+      }
+    }
   }
 }

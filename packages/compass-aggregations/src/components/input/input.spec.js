@@ -8,6 +8,7 @@ import styles from './input.less';
 describe('Input [Component]', () => {
   let component;
   let toggleSpy;
+  let refreshSpy;
 
   const inputDocuments = {
     documents: [],
@@ -17,8 +18,13 @@ describe('Input [Component]', () => {
 
   beforeEach(() => {
     toggleSpy = sinon.spy();
+    refreshSpy = sinon.spy();
+
     component = shallow(
-      <Input toggleInputDocumentsCollapsed={toggleSpy} inputDocuments={inputDocuments} />
+      <Input
+        refreshInputDocuments={refreshSpy}
+        toggleInputDocumentsCollapsed={toggleSpy}
+        inputDocuments={inputDocuments} />
     );
   });
 

@@ -53,6 +53,7 @@ module.exports = {
     rules: [
       {
         test: /\.css$/,
+        exclude: [/compass-crud/],
         use: [
           { loader: 'style-loader'},
           { loader: 'css-loader' }
