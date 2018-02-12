@@ -60,7 +60,8 @@ const appReducer = combineReducers({
 const rootReducer = (state, action) => {
   switch (action.type) {
     case NAMESPACE_CHANGED:
-      return appReducer(INITIAL_STATE, action);
+      const newState = { ...INITIAL_STATE, dataService: state.dataService };
+      return appReducer(newState, action);
     case RESET:
       return { ...INITIAL_STATE };
     default:

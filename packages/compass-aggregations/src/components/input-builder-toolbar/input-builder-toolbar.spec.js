@@ -31,9 +31,4 @@ describe('InputBuilderToolbar [Component]', () => {
     expect(component.find(`.${styles['input-builder-toolbar']}`)).
       to.have.descendants(InputCollapser);
   });
-
-  it('renders the input count', () => {
-    expect(component.find(`.${styles['input-builder-toolbar-count']}`)).
-      to.have.text('20 Input Documents');
-  });
 });

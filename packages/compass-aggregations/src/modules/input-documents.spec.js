@@ -47,6 +47,7 @@ describe('input documents module', () => {
       it('returns the default state', () => {
         expect(reducer(undefined, { type: 'test' })).to.deep.equal({
           documents: [],
+          error: null,
           isExpanded: true,
           count: 0
         });
@@ -57,6 +58,7 @@ describe('input documents module', () => {
       it('returns the new state', () => {
         expect(reducer(undefined, toggleInputDocumentsCollapsed())).to.deep.equal({
           documents: [],
+          error: null,
           isExpanded: false,
           count: 0
         });

@@ -26,15 +26,16 @@ const OPTIONS = Object.freeze({});
 /**
  * The sample pipeline.
  */
-const SAMPLE = [ Object.freeze({ '$sample': 20 }) ];
+const SAMPLE = [ Object.freeze({ '$sample': { 'size': 20 }}) ];
 
 /**
  * The initial state.
  */
 export const INITIAL_STATE = {
+  count: 0,
   documents: [],
-  isExpanded: true,
-  count: 0
+  error: null,
+  isExpanded: true
 };
 
 /**
@@ -48,6 +49,13 @@ export const INITIAL_STATE = {
 export default function reducer(state = INITIAL_STATE, action) {
   if (action.type === TOGGLE_INPUT_COLLAPSED) {
     return { ...state, isExpanded: !state.isExpanded };
+  } else if (action.type === UPDATE_INPUT_DOCUMENTS) {
+    return {
+      ...state,
+      count: action.count,
+      documents: action.documents,
+      error: action.error
+    };
   }
   return state;
 }
@@ -62,6 +70,21 @@ export const toggleInputDocumentsCollapsed = () => ({
 });
 
 /**
+ * Update the input documents.
+ *
+ * @param {Number} count - The count.
+ * @param {Array} documents - The documents.
+ *
+ * @returns {Object} The update input documents action.
+ */
+export const updateInputDocuments = (count, documents, error) => ({
+  type: UPDATE_INPUT_DOCUMENTS,
+  count: count,
+  documents: documents,
+  error: error
+});
+
+/**
  * Refresh the input documents.
  *
  * @returns {Function} The function.
@@ -72,25 +95,13 @@ export const refreshInputDocuments = () => {
     const dataService = state.dataService.dataService;
     const ns = state.namespace;
     dataService.count(ns, FILTER, OPTIONS, (error, count) => {
+      if (error) return dispatch(updateInputDocuments(0, [], error));
       dataService.aggregate(ns, SAMPLE, OPTIONS, (err, cursor) => {
+        if (err) return dispatch(updateInputDocuments(count, [], err));
         cursor.toArray((e, docs) => {
-          dispatch(updateInputDocuments(count, docs));
+          dispatch(updateInputDocuments(count, docs, e));
         });
       });
     });
   };
 };
-
-/**
- * Update the input documents.
- *
- * @param {Number} count - The count.
- * @param {Array} documents - The documents.
- *
- * @returns {Object} The update input documents action.
- */
-export const updateInputDocuments = (count, documents) => ({
-  type: UPDATE_INPUT_DOCUMENTS,
-  count: count,
-  documents: documents
-});
