@@ -27,6 +27,68 @@ module.exports = {
           { loader: 'style-loader' },
           { loader: 'css-loader' }
         ]
+      },
+      // For styles that have to be global (see https://github.com/css-modules/css-modules/pull/65)
+      {
+        test: /\.less$/,
+        include: [/\.global/, /bootstrap/],
+        use: [
+          { loader: 'style-loader' },
+          {
+            loader: 'css-loader',
+            options: {
+              modules: false
+            }
+          },
+          {
+            loader: 'postcss-loader',
+            options: {
+              plugins: function() {
+                return [
+                  project.plugin.autoprefixer
+                ];
+              }
+            }
+          },
+          {
+            loader: 'less-loader',
+            options: {
+              noIeCompat: true
+            }
+          }
+        ]
+      },
+      // For CSS-Modules locally scoped styles
+      {
+        test: /\.less$/,
+        exclude: [/\.global/, /bootstrap/, /node_modules/],
+        use: [
+          { loader: 'style-loader' },
+          {
+            loader: 'css-loader',
+            options: {
+              modules: true,
+              importLoaders: 1,
+              localIdentName: 'AggregationsPlugin_[name]-[local]__[hash:base64:5]'
+            }
+          },
+          {
+            loader: 'postcss-loader',
+            options: {
+              plugins: function() {
+                return [
+                  project.plugin.autoprefixer
+                ];
+              }
+            }
+          },
+          {
+            loader: 'less-loader',
+            options: {
+              noIeCompat: true
+            }
+          }
+        ]
       }
     ]
   }
