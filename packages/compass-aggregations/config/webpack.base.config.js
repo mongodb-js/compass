@@ -18,5 +18,16 @@ module.exports = {
       storybook: project.path.storybook,
       utils: path.join(project.path.src, 'utils')
     }
+  },
+  module: {
+    rules: [
+      {
+        test: /\.css$/,
+        use: [
+          { loader: 'style-loader' },
+          { loader: 'css-loader' }
+        ]
+      }
+    ]
   }
 };

@@ -35,14 +35,6 @@ const config = {
   module: {
     rules: [
       {
-        test: /\.css$/,
-        exclude: [/compass-crud/],
-        use: [
-          { loader: 'style-loader'},
-          { loader: 'css-loader' }
-        ]
-      },
-      {
         test: /\.node$/,
         use: 'node-loader'
       },

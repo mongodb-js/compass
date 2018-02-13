@@ -15,13 +15,6 @@ const config = {
   },
   module: {
     rules: [
-      {
-        test: /\.css$/,
-        use: [
-          { loader: 'style-loader'},
-          { loader: 'css-loader' }
-        ]
-      },
       // For styles that have to be global (see https://github.com/css-modules/css-modules/pull/65)
       {
         test: /\.less$/,
