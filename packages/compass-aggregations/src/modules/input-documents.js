@@ -94,14 +94,16 @@ export const refreshInputDocuments = () => {
     const state = getState();
     const dataService = state.dataService.dataService;
     const ns = state.namespace;
-    dataService.count(ns, FILTER, OPTIONS, (error, count) => {
-      if (error) return dispatch(updateInputDocuments(0, [], error));
-      dataService.aggregate(ns, SAMPLE, OPTIONS, (err, cursor) => {
-        if (err) return dispatch(updateInputDocuments(count, [], err));
-        cursor.toArray((e, docs) => {
-          dispatch(updateInputDocuments(count, docs, e));
+    if (dataService) {
+      dataService.count(ns, FILTER, OPTIONS, (error, count) => {
+        if (error) return dispatch(updateInputDocuments(0, [], error));
+        dataService.aggregate(ns, SAMPLE, OPTIONS, (err, cursor) => {
+          if (err) return dispatch(updateInputDocuments(count, [], err));
+          cursor.toArray((e, docs) => {
+            dispatch(updateInputDocuments(count, docs, e));
+          });
         });
       });
-    });
+    }
   };
 };

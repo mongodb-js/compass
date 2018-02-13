@@ -89,6 +89,15 @@ module.exports = {
             }
           }
         ]
+      },
+      // For native modules to be able to be loaded.
+      {
+        test: /\.node$/,
+        use: 'node-loader'
+      },
+      {
+        test: /node_modules[\\\/]JSONStream[\\\/]index\.js/,
+        use: [{ loader: 'shebang-loader' }]
       }
     ]
   }

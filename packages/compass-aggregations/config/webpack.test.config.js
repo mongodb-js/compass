@@ -14,14 +14,6 @@ const config = {
   module: {
     rules: [
       {
-        test: /\.node$/,
-        use: 'node-loader'
-      },
-      {
-        test: /node_modules[\\\/]JSONStream[\\\/]index\.js/,
-        use: [{ loader: 'shebang-loader' }]
-      },
-      {
         test: /\.(js|jsx)$/,
         use: [{
           loader: 'babel-loader',
