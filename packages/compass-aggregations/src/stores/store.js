@@ -4,6 +4,7 @@ import reducer from 'modules';
 import { namespaceChanged } from 'modules/namespace';
 import { dataServiceConnected } from 'modules/data-service';
 import { fieldsChanged } from 'modules/fields';
+import { refreshInputDocuments } from 'modules/input-documents';
 
 /**
  * The store has a combined pipeline reducer plus the thunk middleware.
@@ -23,6 +24,7 @@ store.onActivated = (appRegistry) => {
    */
   appRegistry.on('collection-changed', (ns) => {
     store.dispatch(namespaceChanged(ns));
+    store.dispatch(refreshInputDocuments());
   });
 
   /**
