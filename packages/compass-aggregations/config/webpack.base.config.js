@@ -98,6 +98,19 @@ module.exports = {
       {
         test: /node_modules[\\\/]JSONStream[\\\/]index\.js/,
         use: [{ loader: 'shebang-loader' }]
+      },
+      {
+        test: /\.(js|jsx)$/,
+        use: [{
+          loader: 'babel-loader',
+          query: {
+            cacheDirectory: true,
+            plugins: [
+              'transform-decorators-legacy'
+            ]
+          }
+        }],
+        exclude: /(node_modules)/
       }
     ]
   }

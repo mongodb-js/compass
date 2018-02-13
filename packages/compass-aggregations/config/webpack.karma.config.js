@@ -15,19 +15,6 @@ const config = {
   module: {
     rules: [
       {
-        test: /\.(js|jsx)$/,
-        use: [{
-          loader: 'babel-loader',
-          query: {
-            cacheDirectory: true,
-            plugins: [
-              'transform-decorators-legacy'
-            ]
-          }
-        }],
-        exclude: /(node_modules)/
-      },
-      {
         test: /\.(png|jpg|jpeg|gif|svg)$/,
         use: [{ loader: 'ignore-loader' }]
       },

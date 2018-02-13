@@ -14,19 +14,6 @@ const config = {
   module: {
     rules: [
       {
-        test: /\.(js|jsx)$/,
-        use: [{
-          loader: 'babel-loader',
-          query: {
-            cacheDirectory: true,
-            plugins: [
-              'transform-decorators-legacy'
-            ]
-          }
-        }],
-        exclude: /(node_modules)/
-      },
-      {
         test: /\.(js|jsx)/,
         enforce: 'post', // Enforce as a post step so babel can do its compilation prior to instrumenting code
         exclude: [
