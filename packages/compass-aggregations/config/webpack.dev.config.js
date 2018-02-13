@@ -1,8 +1,10 @@
 const webpack = require('webpack');
+const merge = require('webpack-merge');
 const path = require('path');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const { spawn } = require('child_process');
 
+const baseWebpackConfig = require('./webpack.base.config');
 const project = require('./project');
 
 const GLOBALS = {
@@ -13,7 +15,7 @@ const GLOBALS = {
   __DEV__: JSON.stringify(JSON.parse('true'))
 };
 
-module.exports = {
+const config = {
   target: 'electron-renderer',
   devtool: 'eval-source-map',
   entry: {
@@ -37,25 +39,6 @@ module.exports = {
     path: project.path.output,
     publicPath: '/',
     filename: '[name].js'
-  },
-  resolve: {
-    modules: ['node_modules'],
-    extensions: ['.js', '.jsx', '.json', 'less'],
-    alias: {
-      components: path.join(project.path.src, 'components'),
-      constants: path.join(project.path.src, 'constants'),
-      fonts: path.join(project.path.src, 'assets/fonts'),
-      images: path.join(project.path.src, 'assets/images'),
-      less: path.join(project.path.src, 'assets/less'),
-      models: path.join(project.path.src, 'models'),
-      modules: path.join(project.path.src, 'modules'),
-      reducers: path.join(project.path.src, 'reducers'),
-      'action-creators': path.join(project.path.src, 'action-creators'),
-      plugin: path.join(project.path.src, 'index.js'),
-      stores: path.join(project.path.src, 'stores'),
-      storybook: project.path.storybook,
-      utils: path.join(project.path.src, 'utils')
-    }
   },
   module: {
     rules: [
@@ -205,3 +188,5 @@ module.exports = {
     }
   }
 };
+
+module.exports = merge.smart(baseWebpackConfig, config);

@@ -1,7 +1,9 @@
 const webpack = require('webpack');
+const merge = require('webpack-merge');
 const path = require('path');
 const PeerDepsExternalsPlugin = require('peer-deps-externals-webpack-plugin');
 
+const baseWebpackConfig = require('./webpack.base.config');
 const project = require('./project');
 
 const GLOBALS = {
@@ -11,7 +13,7 @@ const GLOBALS = {
   __DEV__: JSON.stringify(JSON.parse(process.env.DEBUG || 'true'))
 };
 
-module.exports = {
+const config = {
   target: 'electron-renderer',
   devtool: 'source-map',
   watch: true,
@@ -26,25 +28,6 @@ module.exports = {
     // Export our plugin as a UMD library (compatible with all module definitions - CommonJS, AMD and global variable)
     library: 'AggregationsPlugin',
     libraryTarget: 'umd'
-  },
-  resolve: {
-    modules: ['node_modules'],
-    extensions: ['.js', '.jsx', '.json', 'less'],
-    alias: {
-      components: path.join(project.path.src, 'components'),
-      constants: path.join(project.path.src, 'constants'),
-      fonts: path.join(project.path.src, 'assets/fonts'),
-      images: path.join(project.path.src, 'assets/images'),
-      less: path.join(project.path.src, 'assets/less'),
-      models: path.join(project.path.src, 'models'),
-      modules: path.join(project.path.src, 'modules'),
-      reducers: path.join(project.path.src, 'reducers'),
-      'action-creators': path.join(project.path.src, 'action-creators'),
-      plugin: path.join(project.path.src, 'index.js'),
-      stores: path.join(project.path.src, 'stores'),
-      storybook: project.path.storybook,
-      utils: path.join(project.path.src, 'utils')
-    }
   },
   module: {
     rules: [
@@ -185,3 +168,5 @@ module.exports = {
     modules: false
   }
 };
+
+module.exports = merge.smart(baseWebpackConfig, config);

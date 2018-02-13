@@ -1,7 +1,8 @@
-const path = require('path');
+const merge = require('webpack-merge');
+const baseWebpackConfig = require('./webpack.base.config');
 const project = require('./project');
 
-module.exports = {
+const config = {
   target: 'electron-renderer', // webpack should compile node compatible code for tests
   devtool: 'eval-source-map',
   stats: 'errors-only',
@@ -11,25 +12,6 @@ module.exports = {
     'react/lib/ExecutionEnvironment': 'react',
     'react/lib/ReactContext': 'react',
     'react-addons-test-utils': 'react-dom'
-  },
-  resolve: {
-    modules: ['node_modules'],
-    extensions: ['.js', '.jsx', '.json', 'less'],
-    alias: {
-      components: path.join(project.path.src, 'components'),
-      constants: path.join(project.path.src, 'constants'),
-      fonts: path.join(project.path.src, 'assets/fonts'),
-      images: path.join(project.path.src, 'assets/images'),
-      less: path.join(project.path.src, 'assets/less'),
-      models: path.join(project.path.src, 'models'),
-      modules: path.join(project.path.src, 'modules'),
-      reducers: path.join(project.path.src, 'reducers'),
-      'action-creators': path.join(project.path.src, 'action-creators'),
-      plugin: path.join(project.path.src, 'index.js'),
-      stores: path.join(project.path.src, 'stores'),
-      storybook: project.path.storybook,
-      utils: path.join(project.path.src, 'utils')
-    }
   },
   module: {
     rules: [
@@ -134,3 +116,5 @@ module.exports = {
     ]
   }
 };
+
+module.exports = merge.smart(baseWebpackConfig, config);
