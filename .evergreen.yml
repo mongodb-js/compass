@@ -289,7 +289,7 @@ tasks:
         # Get precompiled
         curl -fs \
           -o ".deps/${fetch_npm_tarball}" \
-          --url "https://nodejs.org/download/release/v7.9.0/${fetch_npm_tarball}"
+          --url "https://nodejs.org/download/release/v8.2.1/${fetch_npm_tarball}"
         cd .deps
         tar xzf ${fetch_npm_tarball} --strip-components=1
 
@@ -319,11 +319,11 @@ tasks:
         # Get precompiled
         curl -fs \
           -o ".deps/${fetch_npm_tarball}" \
-          --url "https://nodejs.org/download/release/v7.9.0/${fetch_npm_tarball}"
+          --url "https://nodejs.org/download/release/v8.2.1/${fetch_npm_tarball}"
         cd .deps
         unzip ${fetch_npm_tarball}
-        mv node-v7.9.0-win-x64/* .
-        rm -rf node-v7.9.0-win-x64
+        mv node-v8.2.1-win-x64/* .
+        rm -rf node-v8.2.1-win-x64
 
         chmod +x npm.cmd || true
         chmod +x npm || true
@@ -414,7 +414,7 @@ buildvariants:
   - "osx-1010-compass"
   expansions:
     build_via_local_tunnel: true
-    fetch_npm_tarball: node-v7.9.0-darwin-x64.tar.gz
+    fetch_npm_tarball: node-v8.2.1-darwin-x64.tar.gz
     node_path: "$(pwd)/.deps/bin"
     num_cores: $(sysctl -n hw.logicalcpu)
     compass_distribution: compass
@@ -428,7 +428,7 @@ buildvariants:
   - "osx-1010-compass"
   expansions:
     build_via_local_tunnel: true
-    fetch_npm_tarball: node-v7.9.0-darwin-x64.tar.gz
+    fetch_npm_tarball: node-v8.2.1-darwin-x64.tar.gz
     node_path: "$(pwd)/.deps/bin"
     num_cores: $(sysctl -n hw.logicalcpu)
     compass_distribution: compass-community
@@ -442,7 +442,7 @@ buildvariants:
   - "osx-1010-compass"
   expansions:
     build_via_local_tunnel: true
-    fetch_npm_tarball: node-v7.9.0-darwin-x64.tar.gz
+    fetch_npm_tarball: node-v8.2.1-darwin-x64.tar.gz
     node_path: "$(pwd)/.deps/bin"
     num_cores: $(sysctl -n hw.logicalcpu)
     compass_distribution: compass-readonly
@@ -456,7 +456,7 @@ buildvariants:
   - "osx-1010-compass"
   expansions:
     build_via_local_tunnel: true
-    fetch_npm_tarball: node-v7.9.0-darwin-x64.tar.gz
+    fetch_npm_tarball: node-v8.2.1-darwin-x64.tar.gz
     node_path: "$(pwd)/.deps/bin"
     num_cores: $(sysctl -n hw.logicalcpu)
     compass_distribution: compass-lockdown
@@ -469,7 +469,7 @@ buildvariants:
   run_on:
   - "windows-64-vs2013-test"
   expansions:
-    fetch_npm_tarball: node-v7.9.0-win-x64.zip
+    fetch_npm_tarball: node-v8.2.1-win-x64.zip
     node_path: "$(pwd)/.deps"
     num_cores: $(grep -c ^processor /proc/cpuinfo)
     add_env_appdata: Z:\
@@ -483,7 +483,7 @@ buildvariants:
   run_on:
   - "windows-64-vs2013-test"
   expansions:
-    fetch_npm_tarball: node-v7.9.0-win-x64.zip
+    fetch_npm_tarball: node-v8.2.1-win-x64.zip
     node_path: "$(pwd)/.deps"
     num_cores: $(grep -c ^processor /proc/cpuinfo)
     add_env_appdata: Z:\
@@ -497,7 +497,7 @@ buildvariants:
   run_on:
   - "windows-64-vs2013-test"
   expansions:
-    fetch_npm_tarball: node-v7.9.0-win-x64.zip
+    fetch_npm_tarball: node-v8.2.1-win-x64.zip
     node_path: "$(pwd)/.deps"
     num_cores: $(grep -c ^processor /proc/cpuinfo)
     add_env_appdata: Z:\
@@ -511,7 +511,7 @@ buildvariants:
   run_on:
   - "windows-64-vs2013-test"
   expansions:
-    fetch_npm_tarball: node-v7.9.0-win-x64.zip
+    fetch_npm_tarball: node-v8.2.1-win-x64.zip
     node_path: "$(pwd)/.deps"
     num_cores: $(grep -c ^processor /proc/cpuinfo)
     add_env_appdata: Z:\
@@ -525,7 +525,7 @@ buildvariants:
   run_on:
   - "ubuntu1404-test"
   expansions:
-    fetch_npm_tarball: node-v7.9.0-linux-x64.tar.gz
+    fetch_npm_tarball: node-v8.2.1-linux-x64.tar.gz
     node_path: "$(pwd)/.deps/bin"
     compile_env: CC=/opt/mongodbtoolchain/bin/gcc CXX=/opt/mongodbtoolchain/bin/g++
     num_cores: $(grep -c ^processor /proc/cpuinfo)
@@ -539,7 +539,7 @@ buildvariants:
   run_on:
   - "ubuntu1404-test"
   expansions:
-    fetch_npm_tarball: node-v7.9.0-linux-x64.tar.gz
+    fetch_npm_tarball: node-v8.2.1-linux-x64.tar.gz
     node_path: "$(pwd)/.deps/bin"
     compile_env: CC=/opt/mongodbtoolchain/bin/gcc CXX=/opt/mongodbtoolchain/bin/g++
     num_cores: $(grep -c ^processor /proc/cpuinfo)
@@ -553,7 +553,7 @@ buildvariants:
   run_on:
   - "ubuntu1404-test"
   expansions:
-    fetch_npm_tarball: node-v7.9.0-linux-x64.tar.gz
+    fetch_npm_tarball: node-v8.2.1-linux-x64.tar.gz
     node_path: "$(pwd)/.deps/bin"
     compile_env: CC=/opt/mongodbtoolchain/bin/gcc CXX=/opt/mongodbtoolchain/bin/g++
     num_cores: $(grep -c ^processor /proc/cpuinfo)
@@ -567,7 +567,7 @@ buildvariants:
   run_on:
   - "ubuntu1404-test"
   expansions:
-    fetch_npm_tarball: node-v7.9.0-linux-x64.tar.gz
+    fetch_npm_tarball: node-v8.2.1-linux-x64.tar.gz
     node_path: "$(pwd)/.deps/bin"
     compile_env: CC=/opt/mongodbtoolchain/bin/gcc CXX=/opt/mongodbtoolchain/bin/g++
     num_cores: $(grep -c ^processor /proc/cpuinfo)
@@ -581,7 +581,7 @@ buildvariants:
   run_on:
   - "rhel70"
   expansions:
-    fetch_npm_tarball: node-v7.9.0-linux-x64.tar.gz
+    fetch_npm_tarball: node-v8.2.1-linux-x64.tar.gz
     node_path: "$(pwd)/.deps/bin"
     compile_env: CC=/opt/mongodbtoolchain/bin/gcc CXX=/opt/mongodbtoolchain/bin/g++
     num_cores: $(grep -c ^processor /proc/cpuinfo)
@@ -595,7 +595,7 @@ buildvariants:
   run_on:
   - "rhel70"
   expansions:
-    fetch_npm_tarball: node-v7.9.0-linux-x64.tar.gz
+    fetch_npm_tarball: node-v8.2.1-linux-x64.tar.gz
     node_path: "$(pwd)/.deps/bin"
     compile_env: CC=/opt/mongodbtoolchain/bin/gcc CXX=/opt/mongodbtoolchain/bin/g++
     num_cores: $(grep -c ^processor /proc/cpuinfo)
@@ -609,7 +609,7 @@ buildvariants:
   run_on:
   - "rhel70"
   expansions:
-    fetch_npm_tarball: node-v7.9.0-linux-x64.tar.gz
+    fetch_npm_tarball: node-v8.2.1-linux-x64.tar.gz
     node_path: "$(pwd)/.deps/bin"
     compile_env: CC=/opt/mongodbtoolchain/bin/gcc CXX=/opt/mongodbtoolchain/bin/g++
     num_cores: $(grep -c ^processor /proc/cpuinfo)
@@ -623,7 +623,7 @@ buildvariants:
   run_on:
   - "rhel70"
   expansions:
-    fetch_npm_tarball: node-v7.9.0-linux-x64.tar.gz
+    fetch_npm_tarball: node-v8.2.1-linux-x64.tar.gz
     node_path: "$(pwd)/.deps/bin"
     compile_env: CC=/opt/mongodbtoolchain/bin/gcc CXX=/opt/mongodbtoolchain/bin/g++
     num_cores: $(grep -c ^processor /proc/cpuinfo)
