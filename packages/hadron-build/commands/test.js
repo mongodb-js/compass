@@ -150,7 +150,7 @@ exports.handler = (argv) => {
       console.log(`Running ${suite} tests.`);
       const proc = spawn(ELECTRON_MOCHA, args, {
         env: process.env,
-        cwd: process.cwd
+        cwd: process.cwd()
       });
       proc.stderr.pipe(process.stderr);
       proc.stdout.pipe(process.stdout);
@@ -166,7 +166,7 @@ exports.handler = (argv) => {
     const mochaArgs = exports.getMochaArgs(argv);
     const proc = spawn(ELECTRON_MOCHA, mochaArgs, {
       env: process.env,
-      cwd: process.cwd
+      cwd: process.cwd()
     });
     proc.stderr.pipe(process.stderr);
     proc.stdout.pipe(process.stdout);
