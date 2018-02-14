@@ -9,6 +9,8 @@ import stages, { INITIAL_STATE as STAGE_INITIAL_STATE } from './stages';
 import savedPipelines, { INITIAL_STATE as SP_INITIAL_STATE } from './saved-pipelines';
 import view, { INITIAL_STATE as VIEW_INITIAL_STATE } from './view';
 
+import { restoreState, saveState, RESTORE_STATE, SAVE_STATE } from './save-state';
+
 /**
  * The intial state of the root reducer.
  */
@@ -29,17 +31,10 @@ export const INITIAL_STATE = {
 export const RESET = 'aggregations/reset';
 
 /**
- * constant for saving current state
- */
-export const SAVE_STATE = 'aggregations/save-state';
-
-/**
- * constant for restoring previous state
- */
-export const RESTORE_STATE = 'aggregations/restore-state';
-
-/**
  * The main application reducer.
+ *
+ * this does not include save state and restore state reducers as those need to
+ * be handled differently in the default reducer
  *
  * @returns {Function} The reducer function.
  */
@@ -53,44 +48,6 @@ const appReducer = combineReducers({
   stages,
   view
 });
-
-/**
- * @param {Object} state - current state
- *
- * @returns {object} state - adjusted copy of the current state for indexeddb
- * to save
- */
-export const savedState = (state = INITIAL_STATE) => {
-  return Object.assign({}
-    , { inputDocuments: state.inputDocuments }
-    , { savedPipelines: state.savedPipelines }
-    , { namespace: state.namespace }
-    , { stages: state.stages }
-    , { view: state.view }
-  );
-};
-
-/**
- * Given stateId, query indexeddb and get the current state object
- * @param {Object} state - current state
- * @param {string} stateId - the id of the state you want to restore
- *
- * @returns {object} state - adjusted copy of the current state for indexeddb
- * to save
- */
-export const restoredState = (state = INITIAL_STATE, stateId) => {
-  // this is what the object would look like as we get it from indexeddb
-  const saved = {
-    inputDocuments: {},
-    savedPipelines: {},
-    namespace: {},
-    stages: {},
-    view: '',
-    stateId: stateId
-  };
-
-  return Object.assign({}, state, saved);
-};
 
 /**
  * The root reducer.
@@ -113,9 +70,9 @@ const rootReducer = (state, action) => {
     case RESET:
       return { ...INITIAL_STATE };
     case RESTORE_STATE:
-      return restoredState(INITIAL_STATE, action.stateId);
+      return restoreState(state, action.stateId);
     case SAVE_STATE:
-      return savedState(state);
+      return saveState(state);
     default:
       return appReducer(state, action);
   }
@@ -130,25 +87,4 @@ export default rootReducer;
  */
 export const reset = () => ({
   type: RESET
-});
-
-/**
- * Save the current state of your pipeline
- *
- * @returns {Object} The action.
- */
-export const saveState = () => ({
-  type: SAVE_STATE
-});
-
-/**
- * Restore the state we get from indexeddb
- *
- * @param {string} stateId - key to retrieve the object from indexeddb
- *
- * @returns {Object} The action.
- */
-export const restoreState = (stateId) => ({
-  type: RESTORE_STATE,
-  stateId: stateId
 });
