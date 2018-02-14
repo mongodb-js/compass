@@ -176,13 +176,13 @@ class Target {
       dir: this.dir,
       out: this.out,
       overwrite: true,
-      'app-copyright': `${new Date().getFullYear()} ${this.author}`,
-      'build-version': this.version,
-      'app-version': this.version,
+      appCopyright: `${new Date().getFullYear()} ${this.author}`,
+      buildVersion: this.version,
+      appVersion: this.version,
       ignore: 'node_modules/|.cache/|dist/|test/|.user-data|.deps/',
       platform: this.platform,
       arch: this.arch,
-      version: this.electronVersion,
+      electronVersion: this.electronVersion,
       sign: null,
       afterExtract: [
         ffmpegAfterExtract
@@ -362,13 +362,13 @@ class Target {
     Object.assign(this.packagerOptions, {
       name: this.productName,
       icon: this.src(platformSettings.icon),
-      'app-bundle-id': this.bundleId,
-      'app-category-type': platformSettings.app_category_type,
+      appBundleId: this.bundleId,
+      appCategoryType: platformSettings.app_category_type,
       protocols: _.get(this, 'config.hadron.protocols', [])
     });
 
     if (this.channel !== 'stable') {
-      this.packagerOptions['app-bundle-id'] += `.${this.channel}`;
+      this.packagerOptions.appBundleId += `.${this.channel}`;
     }
 
     this.osx_dmg_label = this.osx_dmg_filename = `${this.productName}.dmg`;
