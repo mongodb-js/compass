@@ -41,6 +41,8 @@ export default function reducer(state) {
   });
 
   db.on('open', (stores) => {
+    putOp(stores[SAVED_STATE_OBJECT_STORE]);
+
     function putOp(store) {
       store.put(key, stateRecord, (err) => {
         // how do we store/handle errors?
@@ -49,8 +51,6 @@ export default function reducer(state) {
         return console.log('written a thing!');
       });
     }
-
-    putOp(stores[SAVED_STATE_OBJECT_STORE]);
   });
 
   return state;
