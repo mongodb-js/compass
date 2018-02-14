@@ -17,7 +17,8 @@ class PipelineBuilderToolbar extends PureComponent {
     view: PropTypes.string.isRequired,
     stageAdded: PropTypes.func.isRequired,
     viewChanged: PropTypes.func.isRequired,
-    copyToClipboard: PropTypes.func.isRequired
+    copyToClipboard: PropTypes.func.isRequired,
+    saveState: PropTypes.func.isRequired
   }
 
   /**
@@ -39,6 +40,12 @@ class PipelineBuilderToolbar extends PureComponent {
       'btn-default': true,
       [ styles['pipeline-builder-toolbar-copy-to-clipboard-button'] ]: true
     });
+    const saveStateClassName = classnames({
+      'btn': true,
+      'btn-xs': true,
+      'btn-default': true,
+      [ styles['pipeline-builder-toolbar-save-state'] ]: true
+    });
     return (
       <div className={classnames(styles['pipeline-builder-toolbar'])}>
         <ViewSwitcher
@@ -55,6 +62,11 @@ class PipelineBuilderToolbar extends PureComponent {
           className={copyToClipboardClassName}
           iconClassName="fa fa-clipboard"
           clickHandler={this.props.copyToClipboard} />
+        <IconButton
+          title="Save State"
+          className={saveStateClassName}
+          iconClassName="fa fa-save"
+          clickHandler={this.props.saveState} />
       </div>
     );
   }

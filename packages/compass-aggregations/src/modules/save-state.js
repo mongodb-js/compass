@@ -1,4 +1,5 @@
-// import Nanoidb from 'nanoidb';
+const Nanoidb = require('nanoidb');
+const BSON = require('bson');
 
 /**
  * constant for saving current state
@@ -6,28 +7,23 @@
 export const SAVE_STATE = 'aggregations/save-state';
 
 /**
- * constant for restoring previous state
+ * constant for indexeddb object store
  */
-export const RESTORE_STATE = 'aggregations/restore-state';
+export const SAVED_STATE_OBJECT_STORE = 'aggregation-pipeline-plugin-saved-state';
 
 /**
  * constant for indexeddb object store
  */
-// const SAVED_STATE_OBJECT_STORE = 'aggregation-pipeline-plugin-saved-state';
-
-/**
- * constant for indexeddb object store
- */
-// const INDEXED_DB = 'aggregation-pipeline-plugin';
+export const INDEXED_DB = 'aggregation-pipeline-plugin';
 
 /**
  * @param {Object} state - current state
  *
- * @returns {object} state - adjusted copy of the current state for indexeddb
- * to save
+ * @return {Object} state - since we are not modifying the current state, just
+ * return whatever the state we are passed
  */
-export const saveState = (state) => {
-  return Object.assign({}
+export default function reducer(state) {
+  const stateRecord = Object.assign({}
     , { inputDocuments: state.inputDocuments }
     , { savedPipelines: state.savedPipelines }
     , { namespace: state.namespace }
@@ -35,64 +31,36 @@ export const saveState = (state) => {
     , { view: state.view }
   );
 
-  // const db = Nanoidb(INDEXED_DB, 1);
+  const db = Nanoidb(INDEXED_DB, 1);
 
-  // db.on('upgrade', (diffdata) => {
-  //   diffdata.db.createobjectstore(SAVED_STATE_OBJECT_STORE);
-  // });
+  const ObjectID = BSON.ObjectID;
+  const key = ObjectID(100).toHexString();
 
-  // db.on('open', (stores) => {
-  //   putOp(stores.SAVED_STATE_OBJECT_STORE);
+  db.on('upgrade', (diffData) => {
+    diffData.db.createObjectStore(SAVED_STATE_OBJECT_STORE);
+  });
 
-  //   function putOp (store) {
-  //     store.put('key', stateRecord, (err) => {
-  //       if (err) console.log(err);
-  //       // how do we store/handle errors?
-  //       console.log('written a thing!');
-  //     });
-  //   }
-  // });
-};
+  db.on('open', (stores) => {
+    function putOp(store) {
+      store.put(key, stateRecord, (err) => {
+        // how do we store/handle errors?
+        if (err) return console.log(err);
+        // how do we handle success messages
+        return console.log('written a thing!');
+      });
+    }
 
-/**
- * Given stateId, query indexeddb and get the current state object
- * @param {Object} state - current state
- * @param {string} stateId - the id of the state you want to restore
- *
- * @returns {object} state - adjusted copy of the current state for indexeddb
- * to save
- */
-export const restoreState = (state, stateId) => {
-  // this is what the object would look like as we get it from indexeddb
-  const saved = {
-    inputDocuments: {},
-    savedPipelines: {},
-    namespace: {},
-    stages: {},
-    view: '',
-    stateId: stateId
-  };
+    putOp(stores[SAVED_STATE_OBJECT_STORE]);
+  });
 
-  return Object.assign({}, state, saved);
-};
+  return state;
+}
 
 /**
  * Save the current state of your pipeline
  *
  * @returns {Object} The action.
  */
-export const saveStateCreator = () => ({
+export const saveState = () => ({
   type: SAVE_STATE
-});
-
-/**
- * Restore the state we get from indexeddb
- *
- * @param {string} stateId - key to retrieve the object from indexeddb
- *
- * @returns {Object} The action.
- */
-export const restoreStateCreator = (stateId) => ({
-  type: RESTORE_STATE,
-  stateId: stateId
 });

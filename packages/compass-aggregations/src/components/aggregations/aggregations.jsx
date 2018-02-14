@@ -24,6 +24,9 @@ import {
   openSavedPipelines
 } from 'modules/saved-pipelines';
 
+import { saveState } from 'modules/save-state';
+import { restoreState } from 'modules/restore-state';
+
 import styles from './aggregations.less';
 
 /**
@@ -84,7 +87,9 @@ const MappedAggregations = connect(
     viewChanged,
     copyToClipboard,
     openSavedPipelines,
-    closeSavedPipelines
+    closeSavedPipelines,
+    saveState,
+    restoreState
   },
 )(Aggregations);
 

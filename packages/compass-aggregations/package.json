@@ -117,6 +117,7 @@
     "webpack-sources": "1.0.1"
   },
   "dependencies": {
+    "bson": "^1.0.4",
     "hadron-react-buttons": "^1.10.1",
     "hadron-react-components": "^1.9.1",
     "mongodb-ace-mode": "0.0.1",
