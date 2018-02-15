@@ -8,6 +8,7 @@ import {
   toggleInputDocumentsCollapsed,
   refreshInputDocuments
 } from 'modules/input-documents';
+
 import { viewChanged } from 'modules/view';
 import { copyToClipboard } from 'modules/clipboard';
 import {
@@ -19,14 +20,18 @@ import {
   stageOperatorSelected,
   stageToggled
 } from 'modules/stages';
+
 import {
+  saveStateModalClose,
   closeSavedPipelines,
-  openSavedPipelines
+  saveStateModalOpen,
+  openSavedPipelines,
+  saveErrorClose,
+  saveErrorOpen,
+  saveState
 } from 'modules/saved-pipelines';
 
-import { saveState } from 'modules/save-state';
 import { restoreState } from 'modules/restore-state';
-
 import styles from './aggregations.less';
 
 /**
@@ -88,6 +93,10 @@ const MappedAggregations = connect(
     copyToClipboard,
     openSavedPipelines,
     closeSavedPipelines,
+    saveStateModalOpen,
+    saveStateModalClose,
+    saveErrorClose,
+    saveErrorOpen,
     saveState,
     restoreState
   },

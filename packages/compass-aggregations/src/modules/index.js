@@ -9,7 +9,6 @@ import stages, { INITIAL_STATE as STAGE_INITIAL_STATE } from './stages';
 import savedPipelines, { INITIAL_STATE as SP_INITIAL_STATE } from './saved-pipelines';
 import view, { INITIAL_STATE as VIEW_INITIAL_STATE } from './view';
 
-import saveStateReducer, { SAVE_STATE } from './save-state';
 import restoreStateReducer, { RESTORE_STATE } from './restore-state';
 
 /**
@@ -72,8 +71,6 @@ const rootReducer = (state, action) => {
       return { ...INITIAL_STATE };
     case RESTORE_STATE:
       return restoreStateReducer(state, action.stateId);
-    case SAVE_STATE:
-      return saveStateReducer(state);
     default:
       return appReducer(state, action);
   }

@@ -4,6 +4,7 @@ import classnames from 'classnames';
 import PipelineToolbar from 'components/pipeline-toolbar';
 import PipelineWorkspace from 'components/pipeline-workspace';
 import SavePipeline from 'components/save-pipeline';
+import SaveStateModal from 'components/save-state-modal';
 
 import styles from './pipeline.less';
 
@@ -36,6 +37,7 @@ class Pipeline extends PureComponent {
    */
   render() {
     const savePipeline = this.props.savedPipelines.isVisible ? <SavePipeline {...this.props} /> : null;
+    const saveStateModal = this.props.savedPipelines.isModalVisible ? <SaveStateModal {...this.props} /> : null;
 
     return (
       <div className={classnames(styles.pipeline)}>
@@ -43,6 +45,7 @@ class Pipeline extends PureComponent {
         <div className={classnames(styles['pipeline-separator'])}></div>
         <PipelineWorkspace {...this.props} />
         { savePipeline }
+        { saveStateModal }
       </div>
     );
   }
