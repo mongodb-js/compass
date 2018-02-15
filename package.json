@@ -38,6 +38,7 @@
           "bundleId": "com.mongodb.compass",
           "plugins-directory": ".mongodb/compass/plugins",
           "plugins": [
+            "node_modules/@mongodb-js/compass-aggregations",
             "node_modules/@mongodb-js/compass-crud",
             "node_modules/@mongodb-js/compass-collection-stats",
             "node_modules/@mongodb-js/compass-connect",
@@ -175,6 +176,7 @@
     ]
   },
   "scripts": {
+    "prestart": "rm -rf .compiled-sources",
     "start": "hadron-build develop",
     "pretest": "mongodb-runner install && mongodb-runner start --port 27017",
     "test": "hadron-build test",
@@ -204,6 +206,7 @@
     "@mongodb-js/compass-auth-kerberos": "^0.1.0",
     "@mongodb-js/compass-auth-ldap": "^0.1.0",
     "@mongodb-js/compass-auth-x509": "^0.1.0",
+    "@mongodb-js/compass-aggregations": "^0.0.13",
     "@mongodb-js/compass-collection-stats": "^2.0.1",
     "@mongodb-js/compass-connect": "^2.0.2",
     "@mongodb-js/compass-crud": "^3.0.3",
