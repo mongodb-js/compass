@@ -10,12 +10,6 @@ describe('Input [Component]', () => {
   let toggleSpy;
   let refreshSpy;
 
-  const inputDocuments = {
-    documents: [],
-    isExpanded: true,
-    count: 0
-  };
-
   beforeEach(() => {
     toggleSpy = sinon.spy();
     refreshSpy = sinon.spy();
@@ -24,7 +18,10 @@ describe('Input [Component]', () => {
       <Input
         refreshInputDocuments={refreshSpy}
         toggleInputDocumentsCollapsed={toggleSpy}
-        inputDocuments={inputDocuments} />
+        documents={[]}
+        isExpanded
+        isLoading
+        count={0} />
     );
   });
 

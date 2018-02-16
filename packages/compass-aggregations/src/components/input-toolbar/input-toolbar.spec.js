@@ -12,19 +12,14 @@ describe('InputToolbar [Component]', () => {
   let toggleSpy;
   let refreshSpy;
 
-  const inputDocuments = {
-    documents: [],
-    isExpanded: true,
-    count: 0
-  };
-
   beforeEach(() => {
     toggleSpy = sinon.spy();
     refreshSpy = sinon.spy();
 
     component = shallow(
       <InputToolbar
-        inputDocuments={inputDocuments}
+        isExpanded
+        count={0}
         refreshInputDocuments={refreshSpy}
         toggleInputDocumentsCollapsed={toggleSpy} />
     );

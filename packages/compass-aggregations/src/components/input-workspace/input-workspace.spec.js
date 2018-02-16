@@ -6,14 +6,14 @@ import styles from './input-workspace.less';
 
 describe('InputWorkspace [Component]', () => {
   let component;
-  const inputDocs = {
-    count: 10,
-    documents: []
-  };
 
   beforeEach(() => {
     component = shallow(
-      <InputWorkspace inputDocuments={inputDocs} />
+      <InputWorkspace
+        documents={[]}
+        isLoading
+        isExpanded
+        count={10} />
     );
   });
 

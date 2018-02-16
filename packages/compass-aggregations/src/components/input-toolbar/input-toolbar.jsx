@@ -15,7 +15,8 @@ class InputToolbar extends PureComponent {
   static propTypes = {
     toggleInputDocumentsCollapsed: PropTypes.func.isRequired,
     refreshInputDocuments: PropTypes.func.isRequired,
-    inputDocuments: PropTypes.object.isRequired
+    isExpanded: PropTypes.bool.isRequired,
+    count: PropTypes.number.isRequired
   }
 
   /**
@@ -29,8 +30,8 @@ class InputToolbar extends PureComponent {
         <InputBuilderToolbar
           toggleInputDocumentsCollapsed={this.props.toggleInputDocumentsCollapsed}
           refreshInputDocuments={this.props.refreshInputDocuments}
-          isExpanded={this.props.inputDocuments.isExpanded}
-          count={this.props.inputDocuments.count} />
+          isExpanded={this.props.isExpanded}
+          count={this.props.count} />
         <InputPreviewToolbar />
       </div>
     );

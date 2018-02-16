@@ -16,7 +16,10 @@ class PipelineWorkspace extends PureComponent {
   static displayName = 'PipelineWorkspace';
 
   static propTypes = {
-    stages: PropTypes.array.isRequired
+    stages: PropTypes.array.isRequired,
+    toggleInputDocumentsCollapsed: PropTypes.func.isRequired,
+    refreshInputDocuments: PropTypes.func.isRequired,
+    inputDocuments: PropTypes.object.isRequired
   }
 
   /**
@@ -25,12 +28,19 @@ class PipelineWorkspace extends PureComponent {
    * @returns {React.Component} The component.
    */
   render() {
+    const inputDocuments = this.props.inputDocuments;
     const stages = this.props.stages.map((stage, i) => {
       return (<Stage {...this.props} stage={stage} index={i} key={stage.id} />);
     });
     return (
       <div className={classnames(styles['pipeline-workspace'])}>
-        <Input {...this.props} />
+        <Input
+          toggleInputDocumentsCollapsed={this.props.toggleInputDocumentsCollapsed}
+          refreshInputDocuments={this.props.refreshInputDocuments}
+          documents={inputDocuments.documents}
+          isLoading={inputDocuments.isLoading}
+          isExpanded={inputDocuments.isExpanded}
+          count={inputDocuments.count} />
         {stages}
       </div>
     );

@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import classnames from 'classnames';
 import InputToolbar from 'components/input-toolbar';
@@ -6,11 +6,16 @@ import InputWorkspace from 'components/input-workspace';
 
 import styles from './input.less';
 
-class Input extends Component {
+class Input extends PureComponent {
   static displayName = 'InputComponent';
 
   static propTypes = {
-    inputDocuments: PropTypes.object.isRequired
+    toggleInputDocumentsCollapsed: PropTypes.func.isRequired,
+    refreshInputDocuments: PropTypes.func.isRequired,
+    documents: PropTypes.array.isRequired,
+    isLoading: PropTypes.bool.isRequired,
+    isExpanded: PropTypes.bool.isRequired,
+    count: PropTypes.number.isRequired
   }
 
   /**
@@ -19,14 +24,17 @@ class Input extends Component {
    * @returns {Component} The component.
    */
   render() {
-    const inputDocuments = this.props.inputDocuments;
-    const workspace = inputDocuments.isExpanded ?
+    const workspace = this.props.isExpanded ?
       (<InputWorkspace
-        documents={inputDocuments.documents}
-        isLoading={inputDocuments.isLoading} />) : null;
+        documents={this.props.documents}
+        isLoading={this.props.isLoading} />) : null;
     return (
       <div className={classnames(styles.input)}>
-        <InputToolbar {...this.props} />
+        <InputToolbar
+          toggleInputDocumentsCollapsed={this.props.toggleInputDocumentsCollapsed}
+          refreshInputDocuments={this.props.refreshInputDocuments}
+          isExpanded={this.props.isExpanded}
+          count={this.props.count} />
         {workspace}
       </div>
     );
