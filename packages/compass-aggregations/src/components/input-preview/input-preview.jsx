@@ -14,7 +14,8 @@ class InputPreview extends PureComponent {
   static displayName = 'InputPreview';
 
   static propTypes = {
-    inputDocuments: PropTypes.object.isRequired
+    documents: PropTypes.array.isRequired,
+    isLoading: PropTypes.bool.isRequired
   }
 
   /**
@@ -28,7 +29,7 @@ class InputPreview extends PureComponent {
       'fa-angle-double-right': true,
       [ styles['input-preview-arrow'] ]: true
     });
-    const documents = this.props.inputDocuments.documents.map((doc, i) => {
+    const documents = this.props.documents.map((doc, i) => {
       return (
         <Document
           doc={new HadronDocument(doc)}
@@ -37,7 +38,7 @@ class InputPreview extends PureComponent {
     });
     return (
       <div className={classnames(styles['input-preview'])}>
-        { this.props.inputDocuments.isLoading ?
+        { this.props.isLoading ?
           <LoadingOverlay text="Sampling Input Documents..." /> :
           null
         }

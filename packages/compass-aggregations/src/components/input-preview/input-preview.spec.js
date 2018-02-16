@@ -6,14 +6,9 @@ import styles from './input-preview.less';
 
 describe('InputPreview [Component]', () => {
   let component;
-  const inputDocs = {
-    count: 0,
-    documents: [],
-    error: null
-  };
 
   beforeEach(() => {
-    component = shallow(<InputPreview inputDocuments={inputDocs} />);
+    component = shallow(<InputPreview documents={[]} isLoading={false} />);
   });
 
   afterEach(() => {

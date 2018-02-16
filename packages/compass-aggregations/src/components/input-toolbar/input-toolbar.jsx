@@ -31,7 +31,7 @@ class InputToolbar extends PureComponent {
           refreshInputDocuments={this.props.refreshInputDocuments}
           isExpanded={this.props.inputDocuments.isExpanded}
           count={this.props.inputDocuments.count} />
-        <InputPreviewToolbar {...this.props} />
+        <InputPreviewToolbar />
       </div>
     );
   }

@@ -1,4 +1,5 @@
 import React, { PureComponent } from 'react';
+import PropTypes from 'prop-types';
 import classnames from 'classnames';
 import InputBuilder from 'components/input-builder';
 import InputPreview from 'components/input-preview';
@@ -11,6 +12,11 @@ import styles from './input-workspace.less';
 class InputWorkspace extends PureComponent {
   static displayName = 'InputWorkspace';
 
+  static propTypes = {
+    documents: PropTypes.array.isRequired,
+    isLoading: PropTypes.bool.isRequired
+  }
+
   /**
    * Renders the input workspace.
    *
@@ -19,8 +25,8 @@ class InputWorkspace extends PureComponent {
   render() {
     return (
       <div className={classnames(styles['input-workspace'])}>
-        <InputBuilder {...this.props} />
-        <InputPreview {...this.props} />
+        <InputBuilder />
+        <InputPreview documents={this.props.documents} isLoading={this.props.isLoading} />
       </div>
     );
   }

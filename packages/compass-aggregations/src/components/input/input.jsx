@@ -19,8 +19,11 @@ class Input extends Component {
    * @returns {Component} The component.
    */
   render() {
-    const workspace = this.props.inputDocuments.isExpanded ?
-      <InputWorkspace {...this.props} /> : null;
+    const inputDocuments = this.props.inputDocuments;
+    const workspace = inputDocuments.isExpanded ?
+      (<InputWorkspace
+        documents={inputDocuments.documents}
+        isLoading={inputDocuments.isLoading} />) : null;
     return (
       <div className={classnames(styles.input)}>
         <InputToolbar {...this.props} />

@@ -1,25 +1,19 @@
-import React, { PureComponent } from 'react';
+import React from 'react';
 import classnames from 'classnames';
 
 import styles from './input-builder.less';
 
 /**
- * Input builder component
+ * Input builder component.
+ *
+ * @returns {React.Component} The component.
  */
-class InputBuilder extends PureComponent {
-  static displayName = 'InputBuilderComponent';
+const InputBuilder = () => {
+  return (
+    <div className={classnames(styles['input-builder'])}></div>
+  );
+};
 
-  /**
-   * Render the input builder component.
-   *
-   * @returns {Component} The component.
-   */
-  render() {
-    return (
-      <div className={classnames(styles['input-builder'])}>
-      </div>
-    );
-  }
-}
+InputBuilder.displayName = 'InputBuilderComponent';
 
 export default InputBuilder;
