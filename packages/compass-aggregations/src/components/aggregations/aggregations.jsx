@@ -26,6 +26,8 @@ import {
   closeSavedPipelines,
   saveStateModalOpen,
   openSavedPipelines,
+  getSavedPipelines,
+  addSavedPipelines,
   saveErrorClose,
   saveErrorOpen,
   saveState
@@ -93,6 +95,8 @@ const MappedAggregations = connect(
     copyToClipboard,
     openSavedPipelines,
     closeSavedPipelines,
+    getSavedPipelines,
+    addSavedPipelines,
     saveStateModalOpen,
     saveStateModalClose,
     saveErrorClose,

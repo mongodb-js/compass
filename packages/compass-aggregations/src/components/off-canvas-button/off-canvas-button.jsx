@@ -16,10 +16,6 @@ class OffCanvasButton extends PureComponent {
     isVisible: PropTypes.bool.isRequired
   }
 
-  // clicking on a button should call the open action clear to save pipeline
-  // open action creator should also pull up the saved pipelines window component
-  // there should be an 'x' in window component to call close action creator
-
   /**
    * Render the off canvas button component.
    *

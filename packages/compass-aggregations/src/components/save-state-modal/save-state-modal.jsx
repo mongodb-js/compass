@@ -9,7 +9,7 @@ class SaveStateModal extends Component {
   static propTypes = {
     saveStateModalClose: PropTypes.func.isRequired,
     saveStateModalOpen: PropTypes.func.isRequired,
-    savedPipelines: PropTypes.func.isRequired,
+    savedPipelines: PropTypes.object.isRequired,
     saveErrorClose: PropTypes.func.isRequired,
     saveErrorOpen: PropTypes.func.isRequired,
     saveState: PropTypes.func.isRequired
