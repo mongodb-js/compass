@@ -14,6 +14,11 @@ export const TOGGLE_INPUT_COLLAPSED = `${PREFIX}/TOGGLE_INPUT_COLLAPSED`;
 export const UPDATE_INPUT_DOCUMENTS = `${PREFIX}/UPDATE_INPUT_DOCUMENTS`;
 
 /**
+ * Loading input documents aciton name.
+ */
+export const LOADING_INPUT_DOCUMENTS = `${PREFIX}/LOADING_INPUT_DOCUMENTS`;
+
+/**
  * The filter constant.
  */
 const FILTER = Object.freeze({});
@@ -35,7 +40,8 @@ export const INITIAL_STATE = {
   count: 0,
   documents: [],
   error: null,
-  isExpanded: true
+  isExpanded: true,
+  isLoading: false
 };
 
 /**
@@ -46,19 +52,24 @@ export const INITIAL_STATE = {
  *
  * @returns {Object} The new state.
  */
-export default function reducer(state = INITIAL_STATE, action) {
+const reducer = (state = INITIAL_STATE, action) => {
   if (action.type === TOGGLE_INPUT_COLLAPSED) {
     return { ...state, isExpanded: !state.isExpanded };
+  } else if (action.type === LOADING_INPUT_DOCUMENTS && !state.isLoading) {
+    return { ...state, isLoading: true };
   } else if (action.type === UPDATE_INPUT_DOCUMENTS) {
     return {
       ...state,
       count: action.count,
       documents: action.documents,
-      error: action.error
+      error: action.error,
+      isLoading: false
     };
   }
   return state;
-}
+};
+
+export default reducer;
 
 /**
  * Action creator for namespace changed events.
@@ -74,6 +85,7 @@ export const toggleInputDocumentsCollapsed = () => ({
  *
  * @param {Number} count - The count.
  * @param {Array} documents - The documents.
+ * @param {Error} error - The error.
  *
  * @returns {Object} The update input documents action.
  */
@@ -85,12 +97,22 @@ export const updateInputDocuments = (count, documents, error) => ({
 });
 
 /**
+ * The loading input documents action.
+ *
+ * @returns {Object} The action.
+ */
+export const loadingInputDocuments = () => ({
+  type: LOADING_INPUT_DOCUMENTS
+});
+
+/**
  * Refresh the input documents.
  *
  * @returns {Function} The function.
  */
 export const refreshInputDocuments = () => {
   return (dispatch, getState) => {
+    dispatch(loadingInputDocuments());
     const state = getState();
     const dataService = state.dataService.dataService;
     const ns = state.namespace;
@@ -99,9 +121,7 @@ export const refreshInputDocuments = () => {
         if (error) return dispatch(updateInputDocuments(0, [], error));
         dataService.aggregate(ns, SAMPLE, OPTIONS, (err, cursor) => {
           if (err) return dispatch(updateInputDocuments(count, [], err));
-          cursor.toArray((e, docs) => {
-            dispatch(updateInputDocuments(count, docs, e));
-          });
+          cursor.toArray((e, docs) => dispatch(updateInputDocuments(count, docs, e)));
         });
       });
     }

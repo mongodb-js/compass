@@ -1,6 +1,10 @@
 import reducer, {
   toggleInputDocumentsCollapsed,
-  TOGGLE_INPUT_COLLAPSED
+  updateInputDocuments,
+  loadingInputDocuments,
+  TOGGLE_INPUT_COLLAPSED,
+  UPDATE_INPUT_DOCUMENTS,
+  LOADING_INPUT_DOCUMENTS
 } from 'modules/input-documents';
 
 describe('input documents module', () => {
@@ -8,6 +12,25 @@ describe('input documents module', () => {
     it('returns the TOGGLE_INPUT_COLLAPSED action', () => {
       expect(toggleInputDocumentsCollapsed()).to.deep.equal({
         type: TOGGLE_INPUT_COLLAPSED
+      });
+    });
+  });
+
+  describe('#loadingInputDocuments', () => {
+    it('returns the LOADING_INPUT_DOCUMENTS action', () => {
+      expect(loadingInputDocuments()).to.deep.equal({
+        type: LOADING_INPUT_DOCUMENTS
+      });
+    });
+  });
+
+  describe('#updateInputDocuments', () => {
+    it('returns the TOGGLE_INPUT_COLLAPSED action', () => {
+      expect(updateInputDocuments(10, [], null)).to.deep.equal({
+        type: UPDATE_INPUT_DOCUMENTS,
+        count: 10,
+        documents: [],
+        error: null
       });
     });
   });
@@ -49,7 +72,8 @@ describe('input documents module', () => {
           documents: [],
           error: null,
           isExpanded: true,
-          count: 0
+          count: 0,
+          isLoading: false
         });
       });
     });
@@ -60,7 +84,8 @@ describe('input documents module', () => {
           documents: [],
           error: null,
           isExpanded: false,
-          count: 0
+          count: 0,
+          isLoading: false
         });
       });
     });
