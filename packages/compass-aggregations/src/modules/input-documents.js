@@ -55,7 +55,7 @@ export const INITIAL_STATE = {
 const reducer = (state = INITIAL_STATE, action) => {
   if (action.type === TOGGLE_INPUT_COLLAPSED) {
     return { ...state, isExpanded: !state.isExpanded };
-  } else if (action.type === LOADING_INPUT_DOCUMENTS && !state.isLoading) {
+  } else if (action.type === LOADING_INPUT_DOCUMENTS) {
     return { ...state, isLoading: true };
   } else if (action.type === UPDATE_INPUT_DOCUMENTS) {
     return {
@@ -112,11 +112,11 @@ export const loadingInputDocuments = () => ({
  */
 export const refreshInputDocuments = () => {
   return (dispatch, getState) => {
-    dispatch(loadingInputDocuments());
     const state = getState();
     const dataService = state.dataService.dataService;
     const ns = state.namespace;
     if (dataService) {
+      dispatch(loadingInputDocuments());
       dataService.count(ns, FILTER, OPTIONS, (error, count) => {
         if (error) return dispatch(updateInputDocuments(0, [], error));
         dataService.aggregate(ns, SAMPLE, OPTIONS, (err, cursor) => {
