@@ -467,7 +467,7 @@ buildvariants:
   display_name: Windows (Compass)
   modules: ~
   run_on:
-  - "windows-64-vs2013-test"
+  - "windows-64-vs2015-test"
   expansions:
     fetch_npm_tarball: node-v8.2.1-win-x64.zip
     node_path: "$(pwd)/.deps"
@@ -481,7 +481,7 @@ buildvariants:
   display_name: Windows (Compass Community)
   modules: ~
   run_on:
-  - "windows-64-vs2013-test"
+  - "windows-64-vs2015-test"
   expansions:
     fetch_npm_tarball: node-v8.2.1-win-x64.zip
     node_path: "$(pwd)/.deps"
@@ -495,7 +495,7 @@ buildvariants:
   display_name: Windows (Compass Readonly)
   modules: ~
   run_on:
-  - "windows-64-vs2013-test"
+  - "windows-64-vs2015-test"
   expansions:
     fetch_npm_tarball: node-v8.2.1-win-x64.zip
     node_path: "$(pwd)/.deps"
@@ -509,7 +509,7 @@ buildvariants:
   display_name: Windows (Compass Lockdown)
   modules: ~
   run_on:
-  - "windows-64-vs2013-test"
+  - "windows-64-vs2015-test"
   expansions:
     fetch_npm_tarball: node-v8.2.1-win-x64.zip
     node_path: "$(pwd)/.deps"
