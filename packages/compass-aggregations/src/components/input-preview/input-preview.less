@@ -4,8 +4,8 @@
   position: relative;
   display: flex;
   align-items: center;
+  overflow: auto;
   width: 100%;
-  overflow-y: scroll;
 
   &-arrow {
     font-size: 20px;
@@ -39,5 +39,9 @@
 }
 
 .input-preview::-webkit-scrollbar {
+  display:none;
+}
+
+.input-preview-documents::-webkit-scrollbar {
   display:none;
 }
