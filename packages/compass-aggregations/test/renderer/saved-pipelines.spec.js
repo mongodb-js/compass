@@ -3,11 +3,17 @@ import reducer, {
   closeSavedPipelines,
   saveStateModalOpen,
   saveStateModalClose,
+  saveErrorOpen,
+  saveErrorClose,
+  addSavedPipelines,
   SAVED_PIPELINES_OPEN,
   SAVED_PIPELINES_CLOSE,
   SAVE_STATE_MODAL_OPEN,
-  SAVE_STATE_MODAL_CLOSE
-} from 'modules/saved-pipelines';
+  SAVE_STATE_MODAL_CLOSE,
+  ADD_SAVED_PIPELINES,
+  SAVE_ERROR_OPEN,
+  SAVE_ERROR_CLOSE
+} from '../../src/modules/saved-pipelines';
 
 describe('saved pipelines module', () => {
   describe('#openSavedPipelines', () => {
@@ -42,6 +48,31 @@ describe('saved pipelines module', () => {
     });
   });
 
+  describe('#saveErrorOpen', () => {
+    it('returns an open error action type', () => {
+      expect(saveErrorOpen()).to.deep.equal({
+        type: SAVE_ERROR_OPEN
+      });
+    });
+  });
+
+  describe('#saveErrorClose', () => {
+    it('returns a close error action type', () => {
+      expect(saveErrorClose()).to.deep.equal({
+        type: SAVE_ERROR_CLOSE
+      });
+    });
+  });
+
+  describe('#addSavedPipelines', () => {
+    it('returns an add saved pipelines action type', () => {
+      expect(addSavedPipelines({})).to.deep.equal({
+        pipelines: {},
+        type: ADD_SAVED_PIPELINES
+      });
+    });
+  });
+
   describe('#reducer', () => {
     context('action type is close saved pipelines', () => {
       it('isVisible is set to false', () => {
@@ -49,7 +80,7 @@ describe('saved pipelines module', () => {
           pipelines: [],
           isVisible: false,
           isModalVisible: false,
-          saveError: false
+          modalError: false
         });
       });
     });
@@ -60,18 +91,18 @@ describe('saved pipelines module', () => {
           pipelines: [],
           isVisible: true,
           isModalVisible: false,
-          saveError: false
+          modalError: false
         });
       });
     });
 
-    context('action type is neither open or close saved pipeline list', () => {
+    context('an empty action type returns an initial state', () => {
       it('isVisible is set to true', () => {
         expect(reducer(undefined, {})).to.deep.equal({
           pipelines: [],
           isVisible: false,
           isModalVisible: false,
-          saveError: false
+          modalError: false
         });
       });
     });
@@ -82,7 +113,7 @@ describe('saved pipelines module', () => {
           pipelines: [],
           isVisible: false,
           isModalVisible: false,
-          saveError: false
+          modalError: false
         });
       });
     });
@@ -93,18 +124,41 @@ describe('saved pipelines module', () => {
           pipelines: [],
           isVisible: false,
           isModalVisible: true,
-          saveError: false
+          modalError: false
         });
       });
     });
 
-    context('action type is neither open or close modal', () => {
-      it('isModalVisible is set to false', () => {
-        expect(reducer(undefined, {})).to.deep.equal({
+    context('action type is save error open', () => {
+      it('saveError is set to true', () => {
+        expect(reducer(undefined, saveErrorOpen())).to.deep.equal({
           pipelines: [],
           isVisible: false,
           isModalVisible: false,
-          saveError: false
+          modalError: true
+        });
+      });
+    });
+
+    context('action type is save error close', () => {
+      it('saveError is set to false', () => {
+        expect(reducer(undefined, saveErrorClose())).to.deep.equal({
+          pipelines: [],
+          isVisible: false,
+          isModalVisible: false,
+          modalError: false
+        });
+      });
+    });
+
+    context('action type is add saved pipelines', () => {
+      it('returns new state with an additional pipeline item ', () => {
+        const pipelines = [ { name: 'newPipeline' } ];
+        expect(reducer(undefined, addSavedPipelines(pipelines))).to.deep.equal({
+          pipelines: pipelines,
+          isVisible: false,
+          isModalVisible: false,
+          modalError: false
         });
       });
     });

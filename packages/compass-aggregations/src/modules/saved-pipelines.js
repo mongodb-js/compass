@@ -20,7 +20,7 @@ export const INITIAL_STATE = {
   pipelines: [],
   isVisible: false,
   isModalVisible: false,
-  saveError: false
+  modalError: false
 };
 
 export default function reducer(state = INITIAL_STATE, action) {
