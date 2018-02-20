@@ -30,7 +30,7 @@ class SavePipeline extends Component {
     return (
       <div className={classnames(styles['save-pipeline'])}>
         <div className={classnames(styles['save-pipeline-header'])}>
-          <div>Saved Pipelines</div>
+          <div id="saved-pipeline-header-title">Saved Pipelines</div>
           <div className="fa fa-times" onClick={this.handleSavedPipelinesClose}></div>
         </div>
         <div className={classnames(styles['save-pipeline-cards'])}>{pipelines}</div>
