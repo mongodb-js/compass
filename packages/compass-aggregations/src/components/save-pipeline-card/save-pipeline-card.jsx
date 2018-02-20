@@ -11,9 +11,8 @@ class SavePipelineCard extends PureComponent {
   static displayName = 'SavePipelineCardComponent';
 
   static propTypes = {
-    name: PropTypes.string.isRequired,
     objectid: PropTypes.string.isRequired,
-    key: PropTypes.string.isRequired
+    name: PropTypes.string.isRequired
   }
 
   /**

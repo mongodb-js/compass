@@ -18,8 +18,12 @@ class PipelineBuilderToolbar extends PureComponent {
     stageAdded: PropTypes.func.isRequired,
     viewChanged: PropTypes.func.isRequired,
     copyToClipboard: PropTypes.func.isRequired,
-    saveStateModalOpen: PropTypes.func.isRequired
+    savePipelineModalToggle: PropTypes.func.isRequired
   }
+
+  onSavePipelineModalToggle = () => {
+    this.props.savePipelineModalToggle(1);
+  };
 
   /**
    * Renders the pipeline builder toolbar.
@@ -66,7 +70,7 @@ class PipelineBuilderToolbar extends PureComponent {
           title="Save State"
           className={saveStateClassName}
           iconClassName="fa fa-save"
-          clickHandler={this.props.saveStateModalOpen} />
+          clickHandler={this.onSavePipelineModalToggle} />
       </div>
     );
   }

@@ -7,12 +7,10 @@ class SaveStateModal extends Component {
   static displayName = 'SaveStateModalComponent';
 
   static propTypes = {
-    saveStateModalClose: PropTypes.func.isRequired,
-    saveStateModalOpen: PropTypes.func.isRequired,
-    savedPipelines: PropTypes.object.isRequired,
-    saveErrorClose: PropTypes.func.isRequired,
-    saveErrorOpen: PropTypes.func.isRequired,
-    saveState: PropTypes.func.isRequired
+    savePipelineModalToggle: PropTypes.func.isRequired,
+    saveModalErrorToggle: PropTypes.func.isRequired,
+    saveCurrentPipeline: PropTypes.func.isRequired,
+    savedPipelines: PropTypes.object.isRequired
   }
 
   // store the input value for pipeline name inside the component before
@@ -20,6 +18,10 @@ class SaveStateModal extends Component {
   state = {
     inputValue: ''
   }
+
+  onSavePipelineModalToggle = () => {
+    this.props.savePipelineModalToggle(0);
+  };
 
   savePipelineChangeEvent = (evt) => {
     this.setState({
@@ -29,7 +31,7 @@ class SaveStateModal extends Component {
 
   // save state, and pass in the input name
   handleSave = () => {
-    this.props.saveState(this.state.inputValue);
+    this.props.saveCurrentPipeline(this.state.inputValue);
   }
 
   /**
@@ -42,7 +44,7 @@ class SaveStateModal extends Component {
       <Modal
         show={this.props.savedPipelines.isModalVisible}
         backdrop="static"
-        onHide={this.props.saveStateModalClose}
+        onHide={this.onSavePipelineModalToggle}
         dialogClassName="save-state-dialog">
 
         <Modal.Header>
@@ -71,7 +73,7 @@ class SaveStateModal extends Component {
           <TextButton
             className="btn btn-default btn-sm"
             text="Cancel"
-            clickHandler={this.props.saveStateModalClose} />
+            clickHandler={this.onSavePipelineModalToggle} />
           <TextButton
             className="btn btn-primary btn-sm"
             dataTestId="create-database-button"

@@ -12,9 +12,18 @@ class OffCanvas extends PureComponent {
   static displayName = 'OffCanvasComponent';
 
   static propTypes = {
-    openSavedPipelines: PropTypes.func.isRequired,
-    closeSavedPipelines: PropTypes.func.isRequired,
+    savedPipelinesListToggle: PropTypes.func.isRequired,
+    getSavedPipelines: PropTypes.func.isRequired,
     savedPipelines: PropTypes.object.isRequired
+  }
+
+  handleSavedPipelinesOpen = () => {
+    this.props.getSavedPipelines();
+    this.props.savedPipelinesListToggle(1);
+  }
+
+  handleSavedPipelinesClose = () => {
+    this.props.savedPipelinesListToggle(0);
   }
 
   /**
@@ -23,15 +32,15 @@ class OffCanvas extends PureComponent {
    * @returns {Component} The component.
    */
   render() {
-    const clickHandler = this.props.savedPipelines.isVisible
-      ? this.props.closeSavedPipelines
-      : this.props.openSavedPipelines;
+    const clickHandler = this.props.savedPipelines.isListVisible
+      ? this.handleSavedPipelinesClose
+      : this.handleSavedPipelinesOpen;
     return (
       <div className={classnames(styles['off-canvas'])}>
         <OffCanvasButton
           onClick={clickHandler}
           iconClassName="fa fa-floppy-o"
-          isVisible={this.props.savedPipelines.isVisible} />
+          isVisible={this.props.savedPipelines.isListVisible} />
       </div>
     );
   }

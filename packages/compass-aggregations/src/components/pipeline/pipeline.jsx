@@ -36,7 +36,7 @@ class Pipeline extends PureComponent {
    * @returns {Component} The component.
    */
   render() {
-    const savePipeline = this.props.savedPipelines.isVisible ? <SavePipeline {...this.props} /> : null;
+    const savePipeline = this.props.savedPipelines.isListVisible ? <SavePipeline {...this.props} /> : null;
     const saveStateModal = this.props.savedPipelines.isModalVisible ? <SaveStateModal {...this.props} /> : null;
 
     return (

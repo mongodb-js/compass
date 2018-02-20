@@ -22,15 +22,12 @@ import {
 } from 'modules/stages';
 
 import {
-  saveStateModalClose,
-  closeSavedPipelines,
-  saveStateModalOpen,
-  openSavedPipelines,
-  getSavedPipelines,
-  addSavedPipelines,
-  saveErrorClose,
-  saveErrorOpen,
-  saveState
+  savedPipelinesListToggle,
+  savePipelineModalToggle,
+  saveModalErrorToggle,
+  saveCurrentPipeline,
+  savedPipelinesAdd,
+  getSavedPipelines
 } from 'modules/saved-pipelines';
 
 import { restoreState } from 'modules/restore-state';
@@ -93,15 +90,12 @@ const MappedAggregations = connect(
     stageToggled,
     viewChanged,
     copyToClipboard,
-    openSavedPipelines,
-    closeSavedPipelines,
+    savedPipelinesListToggle,
+    savePipelineModalToggle,
+    saveModalErrorToggle,
+    saveCurrentPipeline,
+    savedPipelinesAdd,
     getSavedPipelines,
-    addSavedPipelines,
-    saveStateModalOpen,
-    saveStateModalClose,
-    saveErrorClose,
-    saveErrorOpen,
-    saveState,
     restoreState
   },
 )(Aggregations);
