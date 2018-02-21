@@ -386,6 +386,19 @@ class DataService extends EventEmitter {
   }
 
   /**
+   * Inserts multiple documents into the collection.
+   *
+   * @param {String} ns - The namespace.
+   * @param {Array} docs - The documents to insert.
+   * @param {Object} options - The options.
+   *
+   * @returns {Promise} The promise.
+   */
+  putMany(ns, docs, options) {
+    return this.client.putMany(ns, docs, options);
+  }
+
+  /**
    * Sample documents from the collection.
    *
    * @param {String} ns - The namespace to sample.

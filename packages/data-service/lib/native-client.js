@@ -607,6 +607,19 @@ class NativeClient extends EventEmitter {
   }
 
   /**
+   * Inserts multiple documents into the database.
+   *
+   * @param {String} ns - The namespace.
+   * @param {Array} docs - The documents to insert.
+   * @param {Object} options - The options.
+   *
+   * @returns {Promise} The promise.
+   */
+  putMany(ns, docs, options) {
+    return this._collection(ns).insertMany(docs, options);
+  }
+
+  /**
    * Get the current instance details.
    *
    * @param {function} callback - The callback function.
