@@ -1,4 +1,5 @@
 import React, { PureComponent } from 'react';
+import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import classnames from 'classnames';
 import {
@@ -9,6 +10,12 @@ import fileOpenDialog from 'utils/file-open-dialog';
 import PROCESS_STATUS, { FINISHED_STATUSES } from 'constants/process-status';
 import FILE_TYPES from 'constants/file-types';
 import CancelButton from 'components/cancel-button';
+import {
+  importAction,
+  selectImportFileType,
+  selectImportFileName,
+  closeImport
+} from 'modules/import';
 
 import styles from './import-modal.less';
 
@@ -155,4 +162,32 @@ class ImportModal extends PureComponent {
   }
 }
 
-export default ImportModal;
+/**
+ * Map the state of the store to component properties.
+ *
+ * @param {Object} state - The state.
+ *
+ * @returns {Object} The mapped properties.
+ */
+const mapStateToProps = (state) => ({
+  ns: state.ns,
+  progress: state.importData.progress,
+  open: state.importData.isOpen,
+  error: state.importData.error,
+  fileType: state.importData.fileType,
+  fileName: state.importData.fileName,
+  status: state.importData.status
+});
+
+/**
+ * Export the connected component as the default.
+ */
+export default connect(
+  mapStateToProps,
+  {
+    importAction,
+    selectImportFileType,
+    selectImportFileName,
+    closeImport
+  }
+)(ImportModal);

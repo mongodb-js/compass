@@ -1,4 +1,5 @@
 import React, { PureComponent } from 'react';
+import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import classnames from 'classnames';
 import {
@@ -10,6 +11,12 @@ import fileOpenDialog from 'utils/file-open-dialog';
 import PROCESS_STATUS from 'constants/process-status';
 import FILE_TYPES from 'constants/file-types';
 import CancelButton from 'components/cancel-button';
+import {
+  exportAction,
+  selectExportFileType,
+  selectExportFileName,
+  closeExport
+} from 'modules/export';
 
 import styles from './export-modal.less';
 
@@ -158,4 +165,34 @@ class ExportModal extends PureComponent {
   }
 }
 
-export default ExportModal;
+/**
+ * Map the state of the store to component properties.
+ *
+ * @param {Object} state - The state.
+ *
+ * @returns {Object} The mapped properties.
+ */
+const mapStateToProps = (state) => ({
+  ns: state.ns,
+  progress: state.exportData.progress,
+  count: state.stats.rawDocumentCount,
+  query: state.exportData.query,
+  open: state.exportData.isOpen,
+  error: state.exportData.error,
+  fileType: state.exportData.fileType,
+  fileName: state.exportData.fileName,
+  status: state.exportData.status
+});
+
+/**
+ * Export the connected component as the default.
+ */
+export default connect(
+  mapStateToProps,
+  {
+    exportAction,
+    selectExportFileType,
+    selectExportFileName,
+    closeExport
+  }
+)(ExportModal);

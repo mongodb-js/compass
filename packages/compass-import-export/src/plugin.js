@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import ImportExport from 'components/import-export';
-import { Provider } from 'react-redux';
-import store from 'stores';
+import ImportPlugin from './import-plugin';
+import ExportPlugin from './export-plugin';
 
 class Plugin extends Component {
   static displayName = 'ImportExportPlugin';
@@ -13,9 +13,11 @@ class Plugin extends Component {
    */
   render() {
     return (
-      <Provider store={store}>
+      <div>
         <ImportExport />
-      </Provider>
+        <ImportPlugin />
+        <ExportPlugin />
+      </div>
     );
   }
 }

@@ -2,14 +2,24 @@ import 'any-observable/register/rxjs';
 import './rx-operators';
 
 import ImportExportPlugin from './plugin';
+import ImportPlugin from './import-plugin';
+import ExportPlugin from './export-plugin';
 import ImportExportStore from 'stores';
 
 /**
- * A sample role for the component.
+ * The import plugin.
  */
-const ROLE = {
-  name: 'Import/Export',
-  component: ImportExportPlugin
+const IMPORT_ROLE = {
+  name: 'Import',
+  component: ImportPlugin
+};
+
+/**
+ * The export plugin.
+ */
+const EXPORT_ROLE = {
+  name: 'Export',
+  component: ExportPlugin
 };
 
 /**
@@ -17,7 +27,8 @@ const ROLE = {
  * @param {Object} appRegistry - The Hadron appRegisrty to activate this plugin with.
  **/
 function activate(appRegistry) {
-  appRegistry.registerRole('ImportExport.Control', ROLE);
+  appRegistry.registerRole('Import.Modal', IMPORT_ROLE);
+  appRegistry.registerRole('Export.Modal', EXPORT_ROLE);
   appRegistry.registerStore('ImportExport.Store', ImportExportStore);
 }
 
@@ -26,9 +37,10 @@ function activate(appRegistry) {
  * @param {Object} appRegistry - The Hadron appRegisrty to deactivate this plugin with.
  **/
 function deactivate(appRegistry) {
-  appRegistry.deregisterRole('ImportExport.Control', ROLE);
+  appRegistry.deregisterRole('Import.Modal', IMPORT_ROLE);
+  appRegistry.deregisterRole('Export.Modal', EXPORT_ROLE);
   appRegistry.deregisterStore('ImportExport.Store');
 }
 
 export default ImportExportPlugin;
-export { activate, deactivate };
+export { activate, deactivate, ImportPlugin, ExportPlugin };
