@@ -2,4 +2,5 @@
 .jsfmtrc
 .travis.yml
 .zuul.yml
+.babelrc
 test/
