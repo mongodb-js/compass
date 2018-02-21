@@ -15,9 +15,7 @@ const INITIAL_STATE = '';
  *
  * @returns {Object} The action.
  */
-const nsChanged = (ns) => {
-  return { type: NS_CHANGED, ns: ns };
-};
+const nsChanged = ns => ({ type: NS_CHANGED, ns });
 
 /**
  * Handle ns changes on the state.

@@ -4,12 +4,16 @@ import app from 'hadron-app';
 import AppRegistry from 'hadron-app-registry';
 import { AppContainer } from 'react-hot-loader';
 import ImportExportPlugin, { activate } from 'plugin';
+import { activate as activateStats } from '@mongodb-js/compass-collection-stats';
+import CollectionStore from './stores/collection-store';
 
 // Import global less file. Note: these styles WILL NOT be used in compass, as compass provides its own set
 // of global styles. If you are wishing to style a given component, you should be writing a less file per
 // component as per the CSS Modules ICSS spec. @see src/components/toggle-button for an example.
 import 'bootstrap/less/bootstrap.less';
 import 'less/index.less';
+
+const NS = 'import-export.users';
 
 const appRegistry = new AppRegistry();
 
@@ -18,6 +22,8 @@ global.hadronApp.appRegistry = appRegistry;
 
 // Activate our plugin with the Hadron App Registry
 activate(appRegistry);
+activateStats(appRegistry);
+appRegistry.registerStore('App.CollectionStore', CollectionStore);
 appRegistry.onActivated();
 
 // Since we are using HtmlWebpackPlugin WITHOUT a template,
@@ -60,24 +66,24 @@ const dataService = new DataService(connection);
 
 appRegistry.emit('data-service-initialized', dataService);
 dataService.connect((error, ds) => {
-   appRegistry.emit('data-service-connected', error, ds);
+  appRegistry.emit('data-service-connected', error, ds);
+  appRegistry.emit('collection-changed', NS);
 });
 
 // For automatic switching to specific namespaces, uncomment below as needed.
-appRegistry.emit('collection-changed', 'import-export.test');
 
 // appRegistry.emit('database-changed', 'database');
 
 // For plugins based on query execution, comment out below:
-const query = {
-  filter: { name: 'testing' },
-  project: { name: 1 },
-  sort: { name: -1 },
-  skip: 0,
-  limit: 20,
-  ns: 'import-export.test'
-}
-appRegistry.emit('query-applied', query);
+// const query = {
+  // filter: { name: 'testing' },
+  // project: { name: 1 },
+  // sort: [[ name, -1 ]],
+  // skip: 0,
+  // limit: 20,
+  // ns: NS
+// };
+// appRegistry.emit('query-applied', query);
 
 if (module.hot) {
   /**

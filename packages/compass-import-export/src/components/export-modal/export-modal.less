@@ -1,0 +1,60 @@
+@import (reference) "~less/compass/_theme.less";
+
+.export-modal {
+  &-error {
+    display: none;
+
+    &-has-error {
+      display: block;
+    }
+  }
+
+  &-progress {
+    display: flex;
+    height: 20px;
+    width: 100%;
+
+    &-bar {
+      flex-grow: 4;
+    }
+
+    &-cancel {
+      flex-grow: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 30px;
+
+      i {
+        cursor: pointer;
+        color: @gray5;
+      }
+    }
+  }
+
+  &-output {
+    font-weight: bold;
+    font-size: 14px;
+  }
+
+  &-file {
+    font-weight: bold;
+    font-size: 14px;
+  }
+
+  &-type-selector {
+    button {
+      outline: none;
+      margin-right: 20px;
+      width: 150px;
+    }
+
+    button:focus {
+      outline: none;
+    }
+
+    .selected.selected {
+      border: 2px solid #6BA442;
+    }
+  }
+}

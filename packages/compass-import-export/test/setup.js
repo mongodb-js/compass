@@ -4,6 +4,9 @@ const sinonChai = require('sinon-chai');
 
 require('jsdom-global')();
 
+window.Object = Object;
+window.Math = Math;
+
 global.sinon = require('sinon');
 global.expect = chai.expect;
 
