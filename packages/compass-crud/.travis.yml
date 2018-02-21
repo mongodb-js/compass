@@ -2,7 +2,7 @@ sudo: required
 dist: trusty
 language: node_js
 node_js:
-  - 7.9
+  - 8.2.1
 env:
   matrix:
     - MONGODB_VERSION=3.6.x MONGODB_TOPOLOGY=standalone
