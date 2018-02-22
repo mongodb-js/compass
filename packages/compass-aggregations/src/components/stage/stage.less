@@ -7,15 +7,20 @@
   border-radius: 4px;
   box-shadow: 1px 1px 1px @gray6;
   background: #FFFFFF;
+  z-index:1;
   &-invalid {
-    border: 1px solid red;
+    border: 1px solid #ff473a;
+    border-radius: 2px;
     margin: 15px 55px 0px 15px;
   }
   &-errormsg {
-    background: red;
+    background: #ff473a;
     height: 18px;
     text-align: left;
     vertical-align: middle;
     padding-left: 10px;
+    position: relative;
+    z-index:501;
+    color: black;
   }
 }
