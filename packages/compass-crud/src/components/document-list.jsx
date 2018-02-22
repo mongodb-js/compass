@@ -68,6 +68,7 @@ class DocumentList extends React.Component {
           closeInsertDocumentDialog={this.props.closeInsertDocumentDialog}
           closeAllMenus={this.props.closeAllMenus}
           insertDocument={this.props.insertDocument}
+          version={this.props.version}
           {...this.props.insert} />
       );
     }
@@ -121,12 +122,14 @@ DocumentList.propTypes = {
   isExportable: PropTypes.bool.isRequired,
   openInsertDocumentDialog: PropTypes.func,
   view: PropTypes.string.isRequired,
+  version: PropTypes.string.isRequired,
   viewChanged: PropTypes.func.isRequired
 };
 
 DocumentList.defaultProps = {
   error: null,
   view: 'List',
+  version: '3.4.0',
   isEditable: true,
   insert: {}
 };

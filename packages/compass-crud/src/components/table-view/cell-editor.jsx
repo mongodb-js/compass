@@ -416,7 +416,7 @@ class CellEditor extends React.Component {
       <div className={`${BEM_BASE}-input-types`}
            onBlur={this.handleTypeChange.bind(this)}
            onClick={() => {this.nodeIndex = 3;}}>
-        <Types element={this.element} className={`${BEM_BASE}-types btn btn-default btn-xs`}
+        <Types element={this.element} version={this.props.version} className={`${BEM_BASE}-types btn btn-default btn-xs`}
                buttonRef={(c) => { this.typesNode = c; }}/>
       </div>
     );
@@ -556,6 +556,7 @@ CellEditor.propTypes = {
   columnApi: PropTypes.any,
   context: PropTypes.any,
   addColumn: PropTypes.func.isRequired,
+  version: PropTypes.string.isRequired,
   removeColumn: PropTypes.func.isRequired,
   renameColumn: PropTypes.func.isRequired,
   elementAdded: PropTypes.func.isRequired,

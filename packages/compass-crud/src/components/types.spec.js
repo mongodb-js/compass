@@ -15,12 +15,7 @@ describe('<Types />', () => {
       const element = new Element('name', 1, false);
 
       before(() => {
-        global.hadronApp.instance = {
-          build: {
-            version: '3.4.0'
-          }
-        };
-        wrapper = mount(<Types element={element} />);
+        wrapper = mount(<Types element={element} version="3.4.0" />);
       });
 
       it('renders the wrapper div', () => {
@@ -98,12 +93,7 @@ describe('<Types />', () => {
       const element = new Element('name', 1, false);
 
       before(() => {
-        global.hadronApp.instance = {
-          build: {
-            version: '3.0.0'
-          }
-        };
-        wrapper = mount(<Types element={element} />);
+        wrapper = mount(<Types element={element} version="3.0.0" />);
       });
 
       it('renders the type list without decimal 128', () => {

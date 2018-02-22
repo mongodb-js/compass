@@ -76,6 +76,7 @@ const CRUDStore = Reflux.createStore({
       docs: [],
       counter: 0,
       start: 0,
+      version: '3.4.0',
       end: 0,
       page: 0,
       isEditable: true,
@@ -139,8 +140,18 @@ const CRUDStore = Reflux.createStore({
     appRegistry.on('collection-changed', this.onCollectionChanged.bind(this));
     appRegistry.on('query-changed', this.onQueryChanged.bind(this));
     appRegistry.on('data-service-connected', this.setDataService.bind(this));
+    appRegistry.on('instance-changed', this.onInstanceChanged.bind(this));
     this.CollectionStore = appRegistry.getStore('App.CollectionStore');
     this.appRegistry = appRegistry;
+  },
+
+  /**
+   * Handle the instance changing.
+   *
+   * @param {Object} instance - The instance.
+   */
+  onInstanceChanged(instance) {
+    this.setState({ version: instance.build.version });
   },
 
   /**

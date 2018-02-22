@@ -29,6 +29,7 @@ describe('<EditableDocument />', () => {
                         closeAllMenus={sinon.spy(action)}
                         removeDocument={sinon.spy(action)}
                         updateDocument={sinon.spy(action)}
+                        version="3.4.0"
                         openInsertDocumentDialog={sinon.spy(action)} />);
     });
 
@@ -66,11 +67,10 @@ describe('<EditableDocument />', () => {
                           closeAllMenus={sinon.spy(action)}
                           removeDocument={sinon.spy(action)}
                           updateDocument={sinon.spy(action)}
+                          version="3.4.0"
                           openInsertDocumentDialog={sinon.spy(action)} />);
 
         // Set build version, so setState does not throw an error
-        _instance = global.hadronApp.instance;
-        global.hadronApp.instance = {build: {version: '3.4.7'}};
         wrapper.setState({
           editing: true,
           expandAll: true

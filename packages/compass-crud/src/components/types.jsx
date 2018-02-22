@@ -34,7 +34,6 @@ class Types extends React.Component {
     super(props);
     this.state = { isOpen: false };
     this.element = props.element;
-    this._version = global.hadronApp.instance.build.version;
     this.className = props.className ? props.className : 'editable-element';
   }
 
@@ -95,7 +94,7 @@ class Types extends React.Component {
    * @returns {boolean} if high precision values are available.
    */
   isHighPrecision() {
-    return this._version >= HP_VERSION;
+    return this.props.version >= HP_VERSION;
   }
 
   removeOpenClass() {
@@ -163,6 +162,7 @@ Types.displayName = 'Types';
 
 Types.propTypes = {
   element: PropTypes.object.isRequired,
+  version: PropTypes.string.isRequired,
   className: PropTypes.string,
   buttonRef: PropTypes.any
 };

@@ -287,7 +287,7 @@ class EditableElement extends React.Component {
    */
   renderTypes() {
     if (this.props.editing) {
-      return (<Types element={this.element} />);
+      return (<Types element={this.element} version={this.props.version} />);
     }
   }
 
@@ -418,6 +418,7 @@ EditableElement.propTypes = {
   edit: PropTypes.func,
   element: PropTypes.object.isRequired,
   closeAllMenus: PropTypes.func.isRequired,
+  version: PropTypes.string.isRequired,
   index: PropTypes.number,
   indent: PropTypes.number,
   expandAll: PropTypes.bool

@@ -688,6 +688,7 @@ class DocumentTableView extends React.Component {
         renameColumn: this.props.renameColumn,
         elementAdded: this.props.elementAdded,
         elementRemoved: this.props.elementRemoved,
+        version: this.props.version,
         elementTypeChanged: this.props.elementTypeChanged,
         elementMarkRemoved: this.props.elementMarkRemoved,
         drillDown: this.props.drillDown
@@ -866,6 +867,7 @@ DocumentTableView.propTypes = {
   error: PropTypes.object,
   isEditable: PropTypes.bool.isRequired,
   ns: PropTypes.string.isRequired,
+  version: PropTypes.string.isRequired,
   openInsertDocumentDialog: PropTypes.func,
   pathChanged: PropTypes.func.isRequired,
   removeColumn: PropTypes.func,

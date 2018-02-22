@@ -68,6 +68,7 @@ class InsertDocument extends React.PureComponent {
           key={element.uuid}
           element={element}
           closeAllMenus={this.props.closeAllMenus}
+          version={this.props.version}
           indent={0}
           editing />);
     }
@@ -94,6 +95,7 @@ InsertDocument.displayName = 'InsertDocument';
 
 InsertDocument.propTypes = {
   doc: PropTypes.object.isRequired,
+  version: PropTypes.string.isRequired,
   closeAllMenus: PropTypes.func.isRequired
 };
 
