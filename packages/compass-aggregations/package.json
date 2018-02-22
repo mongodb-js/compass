@@ -118,14 +118,16 @@
     "webpack-sources": "1.0.1"
   },
   "dependencies": {
+    "babel-preset-es2015": "^6.24.1",
     "bson": "^1.0.4",
     "hadron-react-buttons": "^1.13.2",
     "hadron-react-components": "^1.14.1",
     "mongodb-ace-mode": "0.0.1",
     "mongodb-ace-theme": "0.0.1",
-    "nanoidb": "^1.2.0",
     "mongodb-extended-json": "^1.10.0",
     "mongodb-query-parser": "^1.0.1",
+    "mongodb-stage-validator": "file:../stage-validator",
+    "nanoidb": "^1.2.0",
     "react-ace": "^5.7.0",
     "react-bootstrap": "^0.32.1",
     "react-dnd": "^2.5.4",

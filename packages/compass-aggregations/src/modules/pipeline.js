@@ -94,6 +94,7 @@ const getStageOperator = (name) => {
 const changeStage = (state, action) => {
   const newState = copyState(state);
   newState[action.index].stage = action.stage;
+  generateStage(newState[action.index]);
   return newState;
 };
 
@@ -175,7 +176,6 @@ const selectStageOperator = (state, action) => {
 const toggleStage = (state, action) => {
   const newState = copyState(state);
   newState[action.index].isEnabled = !newState[action.index].isEnabled;
-  generateStage(newState[action.index]);
   return newState;
 };
 

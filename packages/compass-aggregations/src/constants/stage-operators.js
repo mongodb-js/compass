@@ -50,7 +50,7 @@ const STAGE_OPERATORS = [
     meta: 'stage',
     version: '2.2.0',
     description: 'Returns a count of the number of documents at this stage of the aggregation pipeline.',
-    snippet: '${1:0}'
+    snippet: '${1:""}'
   },
   {
     name: '$currentOp',

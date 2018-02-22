@@ -83,6 +83,17 @@ class Stage extends Component {
     fields: PropTypes.array.isRequired
   }
 
+  renderError() {
+    if (this.props.stage.isValid) {
+      return null;
+    }
+    return (
+      <div className={classnames(styles['stage-errormsg'])}>
+        {this.props.stage.error}
+      </div>
+    );
+  }
+
   /**
    * Render the stage component.
    *
@@ -91,11 +102,13 @@ class Stage extends Component {
   render() {
     const workspace = this.props.stage.isExpanded ? <StageWorkspace {...this.props} /> : null;
     const opacity = this.props.isDragging ? 0 : 1;
+    const valid = this.props.stage.isValid ? 'stage' : 'stage-invalid';
     return this.props.connectDragSource(
       this.props.connectDropTarget(
-        <div className={classnames(styles.stage)} style={{ opacity }}>
+        <div className={classnames(styles[valid])} style={{ opacity }}>
           <StageToolbar {...this.props} />
           {workspace}
+          {this.renderError()}
         </div>
       )
     );
