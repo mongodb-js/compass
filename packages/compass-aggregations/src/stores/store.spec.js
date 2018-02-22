@@ -126,27 +126,55 @@ describe('Aggregation Store', () => {
     });
 
     context('when the collection changes', () => {
-      const appRegistry = new AppRegistry();
+      context('when there is no collection', () => {
+        const appRegistry = new AppRegistry();
 
-      beforeEach(() => {
-        store.onActivated(appRegistry);
-        appRegistry.emit('collection-changed', 'db.coll');
+        beforeEach(() => {
+          store.onActivated(appRegistry);
+          appRegistry.emit('collection-changed', 'db');
+        });
+
+        it('does not update the namespace in the store', () => {
+          expect(store.getState().namespace).to.equal('');
+        });
+
+        it('resets the rest of the state to initial state', () => {
+          expect(store.getState()).to.deep.equal({
+            namespace: '',
+            savedPipelines: INITIAL_STATE.savedPipelines,
+            dataService: INITIAL_STATE.dataService,
+            fields: INITIAL_STATE.fields,
+            inputDocuments: INITIAL_STATE.inputDocuments,
+            serverVersion: INITIAL_STATE.serverVersion,
+            stages: INITIAL_STATE.stages,
+            view: INITIAL_STATE.view
+          });
+        });
       });
 
-      it('updates the namespace in the store', () => {
-        expect(store.getState().namespace).to.equal('db.coll');
-      });
+      context('when there is a collection', () => {
+        const appRegistry = new AppRegistry();
 
-      it('resets the rest of the state to initial state', () => {
-        expect(store.getState()).to.deep.equal({
-          namespace: 'db.coll',
-          savedPipelines: INITIAL_STATE.savedPipelines,
-          dataService: INITIAL_STATE.dataService,
-          fields: INITIAL_STATE.fields,
-          inputDocuments: INITIAL_STATE.inputDocuments,
-          serverVersion: INITIAL_STATE.serverVersion,
-          stages: INITIAL_STATE.stages,
-          view: INITIAL_STATE.view
+        beforeEach(() => {
+          store.onActivated(appRegistry);
+          appRegistry.emit('collection-changed', 'db.coll');
+        });
+
+        it('updates the namespace in the store', () => {
+          expect(store.getState().namespace).to.equal('db.coll');
+        });
+
+        it('resets the rest of the state to initial state', () => {
+          expect(store.getState()).to.deep.equal({
+            namespace: 'db.coll',
+            savedPipelines: INITIAL_STATE.savedPipelines,
+            dataService: INITIAL_STATE.dataService,
+            fields: INITIAL_STATE.fields,
+            inputDocuments: INITIAL_STATE.inputDocuments,
+            serverVersion: INITIAL_STATE.serverVersion,
+            stages: INITIAL_STATE.stages,
+            view: INITIAL_STATE.view
+          });
         });
       });
     });

@@ -1,6 +1,7 @@
 import { createStore, applyMiddleware } from 'redux';
 import thunk from 'redux-thunk';
 import reducer from 'modules';
+import toNS from 'mongodb-ns';
 import { namespaceChanged } from 'modules/namespace';
 import { dataServiceConnected } from 'modules/data-service';
 import { fieldsChanged } from 'modules/fields';
@@ -23,8 +24,11 @@ store.onActivated = (appRegistry) => {
    * @param {String} ns - The full namespace.
    */
   appRegistry.on('collection-changed', (ns) => {
-    store.dispatch(namespaceChanged(ns));
-    store.dispatch(refreshInputDocuments());
+    const namespace = toNS(ns);
+    if (namespace.collection) {
+      store.dispatch(namespaceChanged(ns));
+      store.dispatch(refreshInputDocuments());
+    }
   });
 
   /**
