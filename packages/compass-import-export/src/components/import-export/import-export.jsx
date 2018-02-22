@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import classnames from 'classnames';
 import { TextButton } from 'hadron-react-buttons';
@@ -41,4 +42,22 @@ class ImportExport extends Component {
   }
 }
 
-export default ImportExport;
+
+/**
+ * Map the state of the store to component properties.
+ *
+ * @param {Object} state - The state.
+ *
+ * @returns {Object} The mapped properties.
+ */
+const mapStateToProps = (state) => ({
+  ns: state.ns
+});
+
+/**
+ * Export the connected component as the default.
+ */
+export default connect(
+  mapStateToProps,
+  {}
+)(ImportExport);

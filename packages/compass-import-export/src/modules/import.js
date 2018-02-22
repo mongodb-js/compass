@@ -134,7 +134,6 @@ export const importStartedEpic = (action$, store) =>
       const fileSizeInBytes = stats.size;
       const frs = fs.createReadStream(fileName, 'utf8');
       const splitLines = new SplitLines(fileType);
-
       frs.pipe(splitLines);
       return streamToObservable(splitLines)
         .map((docs) => {

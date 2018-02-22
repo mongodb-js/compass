@@ -1,5 +1,7 @@
 import React, { Component } from 'react';
 import ImportExport from 'components/import-export';
+import store from 'stores';
+import { Provider } from 'react-redux';
 import ImportPlugin from './import-plugin';
 import ExportPlugin from './export-plugin';
 
@@ -13,11 +15,13 @@ class Plugin extends Component {
    */
   render() {
     return (
-      <div>
-        <ImportExport />
-        <ImportPlugin />
-        <ExportPlugin />
-      </div>
+      <Provider store={store}>
+        <div>
+          <ImportExport />
+          <ImportPlugin />
+          <ExportPlugin />
+        </div>
+      </Provider>
     );
   }
 }
