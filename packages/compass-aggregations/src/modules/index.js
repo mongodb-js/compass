@@ -1,4 +1,5 @@
 import { combineReducers } from 'redux';
+import Nanoidb from 'nanoidb';
 
 import dataService, { INITIAL_STATE as DS_INITIAL_STATE } from './data-service';
 import fields, { INITIAL_STATE as FIELDS_INITIAL_STATE } from './fields';
@@ -6,10 +7,12 @@ import inputDocuments, { INITIAL_STATE as INPUT_INITIAL_STATE } from './input-do
 import namespace, { INITIAL_STATE as NS_INITIAL_STATE, NAMESPACE_CHANGED } from './namespace';
 import serverVersion, { INITIAL_STATE as SV_INITIAL_STATE } from './server-version';
 import pipeline, { INITIAL_STATE as PIPELINE_INITIAL_STATE } from './pipeline';
-import savedPipelines, { INITIAL_STATE as SP_INITIAL_STATE } from './saved-pipelines';
 import view, { INITIAL_STATE as VIEW_INITIAL_STATE } from './view';
-
-import restoreStateReducer, { RESTORE_STATE } from './restore-state';
+import savedPipelines, {
+  INITIAL_STATE as SP_INITIAL_STATE,
+  SAVED_STATE_OBJECT_STORE,
+  INDEXED_DB
+} from './saved-pipelines';
 
 /**
  * The intial state of the root reducer.
@@ -29,6 +32,10 @@ export const INITIAL_STATE = {
  * Reset action constant.
  */
 export const RESET = 'aggregations/reset';
+/**
+ * Restore action constant.
+ */
+export const RESTORE_PIPELINE = 'aggregations/RESTORE_PIPELINE';
 
 /**
  * The main application reducer.
@@ -69,8 +76,8 @@ const rootReducer = (state, action) => {
       return appReducer(newState, action);
     case RESET:
       return { ...INITIAL_STATE };
-    case RESTORE_STATE:
-      return restoreStateReducer(state, action.stateId);
+    case RESTORE_PIPELINE:
+      return Object.assign({}, state, action.restoreState);
     default:
       return appReducer(state, action);
   }
@@ -86,3 +93,32 @@ export default rootReducer;
 export const reset = () => ({
   type: RESET
 });
+
+export const restoreSavedPipeline = (restoreState) => ({
+  type: RESTORE_PIPELINE,
+  restoreState: restoreState
+});
+
+export const getPipelineFromIndexedDB = (stateId) => {
+  return (dispatch) => {
+    const db = Nanoidb(INDEXED_DB, 1);
+
+    db.on('upgrade', (diffData) => {
+      diffData.db.createObjectStore(SAVED_STATE_OBJECT_STORE);
+    });
+
+    db.on('open', (stores) => {
+      getOp(stores[SAVED_STATE_OBJECT_STORE]);
+
+      function getOp(store) {
+        store.get(stateId, (err, result) => {
+          if (err) console.log(err);
+          // TODO: might want to delete result.pipelineName, since it's not in
+          // the original state and we don't use it anywhere in the main state
+          // scope
+          dispatch(restoreSavedPipeline(result));
+        });
+      }
+    });
+  };
+};
