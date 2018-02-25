@@ -16,8 +16,7 @@ describe('<DocumentListView />', () => {
           isEditable={false}
           removeDocument={sinon.spy()}
           updateDocument={sinon.spy()}
-          openInsertDocumentDialog={sinon.spy()}
-          closeAllMenus={sinon.spy()} />
+          openInsertDocumentDialog={sinon.spy()} />
       );
 
       it('renders all the documents', () => {

@@ -172,7 +172,6 @@ Toolbar.displayName = 'Toolbar';
 
 Toolbar.propTypes = {
   activeDocumentView: PropTypes.string.isRequired,
-  closeAllMenus: PropTypes.func,
   count: PropTypes.number.isRequired,
   end: PropTypes.number.isRequired,
   getNextPage: PropTypes.func.isRequired,

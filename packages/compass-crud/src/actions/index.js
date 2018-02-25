@@ -3,7 +3,6 @@ import Reflux from 'reflux';
 const Actions = Reflux.createActions([
   'addColumn',
   'cleanCols',
-  'closeAllMenus',
   'closeInsertDocumentDialog',
   'copyToClipboard',
   'documentRemoved',

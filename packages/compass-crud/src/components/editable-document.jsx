@@ -247,7 +247,6 @@ class EditableDocument extends React.Component {
           indent={0}
           version={this.props.version}
           editing={this.state.editing}
-          closeAllMenus={this.props.closeAllMenus}
           edit={this.handleEdit.bind(this)}
           expandAll={this.state.expandAll}
         />
@@ -332,7 +331,6 @@ class EditableDocument extends React.Component {
 EditableDocument.displayName = 'EditableDocument';
 
 EditableDocument.propTypes = {
-  closeAllMenus: PropTypes.func.isRequired,
   doc: PropTypes.object.isRequired,
   removeDocument: PropTypes.func.isRequired,
   updateDocument: PropTypes.func.isRequired,

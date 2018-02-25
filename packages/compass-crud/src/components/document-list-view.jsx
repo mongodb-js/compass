@@ -41,8 +41,7 @@ class DocumentListView extends React.Component {
             copyToClipboard={this.props.copyToClipboard}
             removeDocument={this.props.removeDocument}
             updateDocument={this.props.updateDocument}
-            openInsertDocumentDialog={this.props.openInsertDocumentDialog}
-            closeAllMenus={this.props.closeAllMenus} />
+            openInsertDocumentDialog={this.props.openInsertDocumentDialog} />
         </li>
       );
     });
@@ -69,8 +68,7 @@ DocumentListView.propTypes = {
   removeDocument: PropTypes.func,
   updateDocument: PropTypes.func,
   version: PropTypes.string.isRequired,
-  openInsertDocumentDialog: PropTypes.func,
-  closeAllMenus: PropTypes.func
+  openInsertDocumentDialog: PropTypes.func
 };
 
 DocumentListView.displayName = 'DocumentListView';

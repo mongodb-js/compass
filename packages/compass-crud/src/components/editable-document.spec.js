@@ -26,7 +26,6 @@ describe('<EditableDocument />', () => {
     before(() => {
       wrapper = mount(<EditableDocument
                         doc={new HadronDocument(doc)}
-                        closeAllMenus={sinon.spy(action)}
                         removeDocument={sinon.spy(action)}
                         updateDocument={sinon.spy(action)}
                         version="3.4.0"
@@ -64,7 +63,6 @@ describe('<EditableDocument />', () => {
         };
         wrapper = mount(<EditableDocument
                           doc={new HadronDocument(arrayDoc)}
-                          closeAllMenus={sinon.spy(action)}
                           removeDocument={sinon.spy(action)}
                           updateDocument={sinon.spy(action)}
                           version="3.4.0"

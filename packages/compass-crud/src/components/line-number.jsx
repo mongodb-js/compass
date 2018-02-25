@@ -64,20 +64,6 @@ class LineNumber extends React.Component {
   }
 
   /**
-   * Subscribe to the close menu action.
-   */
-  componentDidMount() {
-    this.unsubscribeClose = this.props.closeAllMenus.listen(this.handleCloseAllMenus.bind(this));
-  }
-
-  /**
-   * Unsubscribe from the close menu action.
-   */
-  componentWillUnmount() {
-    this.unsubscribeClose();
-  }
-
-  /**
    * Class name for line number div.
    *
    * @returns {String} The class name.
@@ -92,7 +78,6 @@ class LineNumber extends React.Component {
   handleClick() {
   // Provide menu for _id because it's top-level, but not for any potential children.
     if (this.props.element.isParentEditable()) {
-      this.props.closeAllMenus(this);
       this.setState({menu: !this.state.menu});
     }
   }
@@ -104,7 +89,6 @@ class LineNumber extends React.Component {
    */
   handleKeyPress(event) {
     if (event.key === 'Enter' && this.props.element.isParentEditable()) {
-      this.props.closeAllMenus(this);
       this.setState({menu: !this.state.menu});
     }
   }
@@ -131,18 +115,6 @@ class LineNumber extends React.Component {
     this.props.element.insertPlaceholder();
     this.setState({ menu: false });
   }
-
-  /**
-   * Handle the close all menus action.
-   *
-   * @param {React.Component} component - The component that called the action.
-   */
-  handleCloseAllMenus(component) {
-    if (component !== this) {
-      this.setState({ menu: false });
-    }
-  }
-
 
   /**
    * Is the current element an object?
@@ -315,8 +287,7 @@ class LineNumber extends React.Component {
 LineNumber.displayName = 'LineNumber';
 
 LineNumber.propTypes = {
-  element: PropTypes.object.isRequired,
-  closeAllMenus: PropTypes.func.isRequired
+  element: PropTypes.object.isRequired
 };
 
 export default outsideClickable(LineNumber);

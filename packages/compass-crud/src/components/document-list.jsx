@@ -66,7 +66,6 @@ class DocumentList extends React.Component {
       return (
         <InsertDocumentDialog
           closeInsertDocumentDialog={this.props.closeInsertDocumentDialog}
-          closeAllMenus={this.props.closeAllMenus}
           insertDocument={this.props.insertDocument}
           version={this.props.version}
           {...this.props.insert} />
@@ -113,7 +112,6 @@ class DocumentList extends React.Component {
 DocumentList.displayName = 'DocumentList';
 
 DocumentList.propTypes = {
-  closeAllMenus: PropTypes.func,
   closeInsertDocumentDialog: PropTypes.func,
   error: PropTypes.object,
   insert: PropTypes.object,
