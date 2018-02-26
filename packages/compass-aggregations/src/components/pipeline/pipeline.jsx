@@ -4,7 +4,8 @@ import classnames from 'classnames';
 import PipelineToolbar from 'components/pipeline-toolbar';
 import PipelineWorkspace from 'components/pipeline-workspace';
 import SavePipeline from 'components/save-pipeline';
-import SaveStateModal from 'components/save-state-modal';
+import SavePipelineModal from 'components/save-pipeline-modal';
+import RestorePipelineModal from 'components/restore-pipeline-modal';
 
 import styles from './pipeline.less';
 
@@ -24,7 +25,8 @@ class Pipeline extends PureComponent {
     stageMoved: PropTypes.func.isRequired,
     stageOperatorSelected: PropTypes.func.isRequired,
     stageToggled: PropTypes.func.isRequired,
-    savedPipelines: PropTypes.object.isRequired,
+    savedPipeline: PropTypes.object.isRequired,
+    restorePipeline: PropTypes.object.isRequired,
     copyToClipboard: PropTypes.func.isRequired,
     view: PropTypes.string.isRequired,
     fields: PropTypes.array.isRequired
@@ -36,8 +38,9 @@ class Pipeline extends PureComponent {
    * @returns {Component} The component.
    */
   render() {
-    const savePipeline = this.props.savedPipelines.isListVisible ? <SavePipeline {...this.props} /> : null;
-    const saveStateModal = this.props.savedPipelines.isModalVisible ? <SaveStateModal {...this.props} /> : null;
+    const savePipeline = this.props.savedPipeline.isListVisible ? <SavePipeline {...this.props} /> : null;
+    const savePipelineModal = this.props.savedPipeline.isModalVisible ? <SavePipelineModal {...this.props} /> : null;
+    const restorePipelineModal = this.props.restorePipeline.isModalVisible ? <RestorePipelineModal {...this.props} /> : null;
 
     return (
       <div className={classnames(styles.pipeline)}>
@@ -45,7 +48,8 @@ class Pipeline extends PureComponent {
         <div className={classnames(styles['pipeline-separator'])}></div>
         <PipelineWorkspace {...this.props} />
         { savePipeline }
-        { saveStateModal }
+        { savePipelineModal }
+        { restorePipelineModal }
       </div>
     );
   }

@@ -7,7 +7,7 @@ import styles from './save-pipeline.less';
 describe('SavePipeline [Component]', () => {
   context('when the component is rendered', () => {
     let component;
-    const savedPipelines = {
+    const savedPipeline = {
       pipelines: [],
       isListVisible: false,
       isModalVisible: false,
@@ -16,7 +16,7 @@ describe('SavePipeline [Component]', () => {
     const spy = sinon.spy();
 
     beforeEach(() => {
-      component = mount(<SavePipeline savedPipelines={savedPipelines} savedPipelinesListToggle={spy} />);
+      component = mount(<SavePipeline savedPipeline={savedPipeline} savedPipelineListToggle={spy} />);
     });
 
     afterEach(() => {
@@ -42,7 +42,7 @@ describe('SavePipeline [Component]', () => {
 
   context('when clicking on the button', () => {
     let component;
-    const savedPipelines = {
+    const savedPipeline = {
       pipelines: [],
       isListVisible: false,
       isModalVisible: false,
@@ -51,7 +51,7 @@ describe('SavePipeline [Component]', () => {
     const spy = sinon.spy();
 
     beforeEach(() => {
-      component = mount(<SavePipeline savedPipelines={savedPipelines} savedPipelinesListToggle={spy} />);
+      component = mount(<SavePipeline savedPipeline={savedPipeline} savedPipelinesListToggle={spy} />);
     });
 
     afterEach(() => {

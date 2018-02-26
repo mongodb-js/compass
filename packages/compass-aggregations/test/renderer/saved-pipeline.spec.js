@@ -2,12 +2,12 @@ import reducer, {
   savedPipelinesListToggle,
   savePipelineModalToggle,
   saveModalErrorToggle,
-  savedPipelinesAdd,
+  savedPipelineAdd,
   SAVED_PIPELINES_LIST_TOGGLED,
   SAVE_PIPELINE_MODAL_TOGGLED,
   SAVE_MODAL_ERROR_TOGGLED,
-  SAVED_PIPELINES_ADD
-} from '../../src/modules/saved-pipelines';
+  SAVED_PIPELINE_ADD
+} from '../../src/modules/saved-pipeline';
 
 describe('saved pipelines module', () => {
   describe('#openSavedPipelines', () => {
@@ -40,9 +40,9 @@ describe('saved pipelines module', () => {
 
   describe('#addSavedPipelines', () => {
     it('returns an add saved pipelines action type', () => {
-      expect(savedPipelinesAdd({})).to.deep.equal({
+      expect(savedPipelineAdd({})).to.deep.equal({
         pipelines: {},
-        type: SAVED_PIPELINES_ADD
+        type: SAVED_PIPELINE_ADD
       });
     });
   });
@@ -128,7 +128,7 @@ describe('saved pipelines module', () => {
     context('action type is add saved pipelines', () => {
       it('returns new state with an additional pipeline item ', () => {
         const pipelines = [ { name: 'newPipeline' } ];
-        expect(reducer(undefined, savedPipelinesAdd(pipelines))).to.deep.equal({
+        expect(reducer(undefined, savedPipelineAdd(pipelines))).to.deep.equal({
           pipelines: pipelines,
           isListVisible: false,
           isModalVisible: false,

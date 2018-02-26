@@ -12,10 +12,9 @@ class SavePipelineCard extends PureComponent {
   static displayName = 'SavePipelineCardComponent';
 
   static propTypes = {
-    restorePipelineViewToggle: PropTypes.func.isRequired,
-    getPipelineFromIndexedDB: PropTypes.func.isRequired,
-    restorePipelines: PropTypes.object.isRequired,
-    objectid: PropTypes.string.isRequired,
+    restorePipelineModalToggle: PropTypes.func.isRequired,
+    restorePipelineObjectID: PropTypes.func.isRequired,
+    objectID: PropTypes.string.isRequired,
     name: PropTypes.string.isRequired
   }
 
@@ -28,7 +27,8 @@ class SavePipelineCard extends PureComponent {
   }
 
   restoreClickHandler = () => {
-    this.props.getPipelineFromIndexedDB(this.props.objectid);
+    this.props.restorePipelineObjectID(this.props.objectID);
+    this.props.restorePipelineModalToggle(1);
   }
 
   /**
@@ -37,13 +37,13 @@ class SavePipelineCard extends PureComponent {
    * @returns {Component} The component.
    */
   render() {
-    const openView = this.state.isVisible ? <RestoreButton clickHandler={this.restoreClickHandler} /> : null;
+    const openView = this.state.isVisible ? <RestoreButton clickHandler={this.restoreClickHandler}/> : null;
     return (
       <div
         className={classnames(styles['save-pipeline-card'])}
         onMouseEnter={this.handleMouseMovement}
         onMouseLeave={this.handleMouseMovement}
-        data-pipeline-object-id={this.props.objectid}>
+        data-pipeline-object-id={this.props.objectID}>
         <div className={classnames(styles['save-pipeline-card-title'])}>
           {this.props.name}
         </div>

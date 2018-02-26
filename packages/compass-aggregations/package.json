@@ -120,6 +120,7 @@
   "dependencies": {
     "babel-preset-es2015": "^6.24.1",
     "bson": "^1.0.4",
+    "deepmerge": "^2.0.1",
     "hadron-react-buttons": "^1.13.2",
     "hadron-react-components": "^1.14.1",
     "mongodb-ace-mode": "0.0.1",

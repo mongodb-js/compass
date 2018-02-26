@@ -8,11 +8,11 @@ describe('SavePipelineCard [Component]', () => {
   context('when the component is rendered', () => {
     let component;
 
-    const objectid = '0000006479e3bfa949f4ca6c';
+    const objectID = '0000006479e3bfa949f4ca6c';
     const name = 'Return average number of currywurst eaten in Berlin sorted by districts';
 
     beforeEach(() => {
-      component = mount(<SavePipelineCard objectid={objectid} name={name} />);
+      component = mount(<SavePipelineCard objectID={objectID} name={name} />);
     });
 
     afterEach(() => {
@@ -32,7 +32,7 @@ describe('SavePipelineCard [Component]', () => {
     });
 
     it('data-object-id selector value matches the passed in object id', () => {
-      expect(component.find(`.${styles['save-pipeline-card']}`)).to.have.data('object-id').equal(objectid);
+      expect(component.find(`.${styles['save-pipeline-card']}`)).to.have.data('pipeline-object-id').equal(objectID);
     });
   });
 });

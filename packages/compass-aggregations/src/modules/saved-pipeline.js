@@ -1,14 +1,14 @@
 const Nanoidb = require('nanoidb');
 const BSON = require('bson');
 
-const PREFIX = 'aggregations/saved-pipelines';
+const PREFIX = 'aggregations/saved-pipeline';
 
 // constants for save state modal
-export const SAVED_PIPELINES_LIST_TOGGLED = `${PREFIX}/SAVED_PIPELINES_LIST_TOGGLED`;
-export const SAVE_PIPELINE_MODAL_TOGGLED = `${PREFIX}/SAVE_PIPELINE_MODAL_TOGGLED`;
-export const SAVE_MODAL_ERROR_TOGGLED = `${PREFIX}/SAVE_MODAL_ERROR_TOGGLED`;
+export const SAVED_PIPELINES_LIST_TOGGLED = `${PREFIX}/LIST_TOGGLED`;
+export const SAVE_PIPELINE_MODAL_TOGGLED = `${PREFIX}/MODAL_TOGGLED`;
+export const SAVE_MODAL_ERROR_TOGGLED = `${PREFIX}/ERROR_TOGGLED`;
 
-export const SAVED_PIPELINES_ADD = `${PREFIX}/ADD_SAVED_PIPELINES`;
+export const SAVED_PIPELINE_ADD = `${PREFIX}/ADD`;
 
 // constants for indexeddb
 export const SAVED_STATE_OBJECT_STORE = 'aggregation-pipeline-plugin-saved-state';
@@ -41,7 +41,7 @@ const toggleSaveModalError = (state, action) => {
   return newState;
 };
 
-const addSavedPipelines = (state, action) => {
+const addSavedPipeline = (state, action) => {
   return { ...state, pipelines: action.pipelines };
 };
 
@@ -50,7 +50,7 @@ const MAPPINGS = {};
 MAPPINGS[SAVED_PIPELINES_LIST_TOGGLED] = toggleSavedPipelinesList;
 MAPPINGS[SAVE_PIPELINE_MODAL_TOGGLED] = toggleSavePipelineModal;
 MAPPINGS[SAVE_MODAL_ERROR_TOGGLED] = toggleSaveModalError;
-MAPPINGS[SAVED_PIPELINES_ADD] = addSavedPipelines;
+MAPPINGS[SAVED_PIPELINE_ADD] = addSavedPipeline;
 
 export default function reducer(state = INITIAL_STATE, action) {
   const fn = MAPPINGS[action.type];
@@ -78,8 +78,8 @@ export const saveModalErrorToggle = (index, err) => ({
   error: err
 });
 
-export const savedPipelinesAdd = (pipelines) => ({
-  type: SAVED_PIPELINES_ADD,
+export const savedPipelineAdd = (pipelines) => ({
+  type: SAVED_PIPELINE_ADD,
   pipelines: pipelines
 });
 
@@ -107,7 +107,7 @@ export const getSavedPipelines = () => {
             pipelines.push(pipeline);
           });
 
-          dispatch(savedPipelinesAdd(pipelines));
+          dispatch(savedPipelineAdd(pipelines));
         });
       }
     });
@@ -122,6 +122,9 @@ export const getSavedPipelines = () => {
 export const saveCurrentPipeline = (pipelineName) => {
   return (dispatch, getState) => {
     const state = getState();
+    // don't want the modal that triggers this save to show up when the user
+    // restores the pipeline o/
+    state.savedPipeline.isModalVisible = false;
 
     const db = Nanoidb(INDEXED_DB, 1);
 
@@ -130,7 +133,7 @@ export const saveCurrentPipeline = (pipelineName) => {
 
     const stateRecord = Object.assign({}
       , { inputDocuments: state.inputDocuments }
-      , { savedPipelines: state.savedPipelines }
+      , { savedPipeline: state.savedPipeline }
       , { namespace: state.namespace }
       , { stages: state.stages }
       , { view: state.view }
@@ -147,15 +150,10 @@ export const saveCurrentPipeline = (pipelineName) => {
 
       function putOp(store) {
         store.put(key, stateRecord, (err) => {
-          // how do we store/handle errors?
           if (err) return dispatch(saveModalErrorToggle(1, err));
-          // how do we handle success messages
-          // no error should do two things: call close modal action-creator and saved pipelines in open action creator
           dispatch(savedPipelinesListToggle(1));
           dispatch(savePipelineModalToggle(0));
           dispatch(getSavedPipelines());
-          // do a get request to indexeddb to get all the info
-          // do a dispatch to write info to initial state's pipeline array
         });
       }
     });

@@ -32,7 +32,6 @@ class PipelineWorkspace extends PureComponent {
     const stages = this.props.pipeline.map((stage, i) => {
       return (<Stage {...this.props} stage={stage} index={i} key={stage.id} />);
     });
-    console.log(this.props);
     return (
       <div className={classnames(styles['pipeline-workspace'])}>
         <Input

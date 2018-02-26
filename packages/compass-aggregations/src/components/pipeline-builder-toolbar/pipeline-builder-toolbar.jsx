@@ -44,7 +44,7 @@ class PipelineBuilderToolbar extends PureComponent {
       'btn-default': true,
       [ styles['pipeline-builder-toolbar-copy-to-clipboard-button'] ]: true
     });
-    const saveStateClassName = classnames({
+    const savePipelineClassName = classnames({
       'btn': true,
       'btn-xs': true,
       'btn-default': true,
@@ -68,7 +68,7 @@ class PipelineBuilderToolbar extends PureComponent {
           clickHandler={this.props.copyToClipboard} />
         <IconButton
           title="Save State"
-          className={saveStateClassName}
+          className={savePipelineClassName}
           iconClassName="fa fa-save"
           clickHandler={this.onSavePipelineModalToggle} />
       </div>

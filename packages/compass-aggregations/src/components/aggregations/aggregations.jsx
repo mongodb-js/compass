@@ -25,12 +25,12 @@ import {
   savePipelineModalToggle,
   saveModalErrorToggle,
   saveCurrentPipeline,
-  savedPipelinesAdd,
+  savedPipelineAdd,
   getSavedPipelines
-} from 'modules/saved-pipelines';
+} from 'modules/saved-pipeline';
 
 import { restoreSavedPipeline, getPipelineFromIndexedDB } from 'modules/index';
-import { restorePipelineViewToggle } from 'modules/restore-state';
+import { restorePipelineModalToggle, restorePipelineObjectID } from 'modules/restore-pipeline';
 import styles from './aggregations.less';
 
 /**
@@ -68,8 +68,8 @@ const mapStateToProps = (state) => ({
   serverVersion: state.serverVersion,
   pipeline: state.pipeline,
   view: state.view,
-  savedPipelines: state.savedPipelines,
-  restorePipelines: state.restorePipelines
+  savedPipeline: state.savedPipeline,
+  restorePipeline: state.restorePipeline
 });
 
 /**
@@ -95,9 +95,10 @@ const MappedAggregations = connect(
     savePipelineModalToggle,
     saveModalErrorToggle,
     saveCurrentPipeline,
-    savedPipelinesAdd,
+    savedPipelineAdd,
     getSavedPipelines,
-    restorePipelineViewToggle,
+    restorePipelineModalToggle,
+    restorePipelineObjectID,
     restoreSavedPipeline,
     getPipelineFromIndexedDB
   },

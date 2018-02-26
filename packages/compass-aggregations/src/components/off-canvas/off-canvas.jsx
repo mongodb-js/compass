@@ -14,7 +14,7 @@ class OffCanvas extends PureComponent {
   static propTypes = {
     savedPipelinesListToggle: PropTypes.func.isRequired,
     getSavedPipelines: PropTypes.func.isRequired,
-    savedPipelines: PropTypes.object.isRequired
+    savedPipeline: PropTypes.object.isRequired
   }
 
   handleSavedPipelinesOpen = () => {
@@ -32,7 +32,7 @@ class OffCanvas extends PureComponent {
    * @returns {Component} The component.
    */
   render() {
-    const clickHandler = this.props.savedPipelines.isListVisible
+    const clickHandler = this.props.savedPipeline.isListVisible
       ? this.handleSavedPipelinesClose
       : this.handleSavedPipelinesOpen;
     return (
@@ -40,7 +40,7 @@ class OffCanvas extends PureComponent {
         <OffCanvasButton
           onClick={clickHandler}
           iconClassName="fa fa-floppy-o"
-          isVisible={this.props.savedPipelines.isListVisible} />
+          isVisible={this.props.savedPipeline.isListVisible} />
       </div>
     );
   }

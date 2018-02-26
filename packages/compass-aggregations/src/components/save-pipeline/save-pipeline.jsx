@@ -9,7 +9,7 @@ class SavePipeline extends Component {
 
   static propTypes = {
     savedPipelinesListToggle: PropTypes.func.isRequired,
-    savedPipelines: PropTypes.object.isRequired
+    savedPipeline: PropTypes.object.isRequired
   }
 
   handleSavedPipelinesClose = () => {
@@ -22,9 +22,9 @@ class SavePipeline extends Component {
    * @returns {Component} The component.
    */
   render() {
-    const pipelines = this.props.savedPipelines.pipelines.map((pipeline, i) => {
-      const iterator = `saved-pipelines-${i}`;
-      return (<SavePipelineCard {...this.props} name={pipeline.pipelineName} objectid={pipeline.recordKey} key={iterator}/>);
+    const pipelines = this.props.savedPipeline.pipelines.map((pipeline, i) => {
+      const iterator = `saved-pipeline-${i}`;
+      return (<SavePipelineCard {...this.props} name={pipeline.pipelineName} objectID={pipeline.recordKey} key={iterator}/>);
     });
 
     return (

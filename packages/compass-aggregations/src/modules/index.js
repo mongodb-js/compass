@@ -1,4 +1,5 @@
 import { combineReducers } from 'redux';
+import deepMerge from 'deepmerge';
 import Nanoidb from 'nanoidb';
 
 import dataService, { INITIAL_STATE as DS_INITIAL_STATE } from './data-service';
@@ -8,13 +9,13 @@ import namespace, { INITIAL_STATE as NS_INITIAL_STATE, NAMESPACE_CHANGED } from 
 import serverVersion, { INITIAL_STATE as SV_INITIAL_STATE } from './server-version';
 import pipeline, { INITIAL_STATE as PIPELINE_INITIAL_STATE } from './pipeline';
 import view, { INITIAL_STATE as VIEW_INITIAL_STATE } from './view';
-import savedPipelines, {
+import savedPipeline, {
   INITIAL_STATE as SP_INITIAL_STATE,
   SAVED_STATE_OBJECT_STORE,
   INDEXED_DB
-} from './saved-pipelines';
+} from './saved-pipeline';
 
-import restorePipelines, { INITIAL_STATE as RESTORE_PIPELINE_STATE} from './restore-state';
+import restorePipeline, { INITIAL_STATE as RESTORE_PIPELINE_STATE} from './restore-pipeline';
 
 /**
  * The intial state of the root reducer.
@@ -26,9 +27,9 @@ export const INITIAL_STATE = {
   namespace: NS_INITIAL_STATE,
   serverVersion: SV_INITIAL_STATE,
   pipeline: PIPELINE_INITIAL_STATE,
-  savedPipelines: SP_INITIAL_STATE,
+  savedPipeline: SP_INITIAL_STATE,
   view: VIEW_INITIAL_STATE,
-  restorePipelines: RESTORE_PIPELINE_STATE
+  restorePipeline: RESTORE_PIPELINE_STATE
 };
 
 /**
@@ -54,9 +55,9 @@ const appReducer = combineReducers({
   inputDocuments,
   namespace,
   serverVersion,
-  savedPipelines,
+  savedPipeline,
+  restorePipeline,
   pipeline,
-  restorePipelines,
   view
 });
 
@@ -81,7 +82,7 @@ const rootReducer = (state, action) => {
     case RESET:
       return { ...INITIAL_STATE };
     case RESTORE_PIPELINE:
-      return Object.assign({}, INITIAL_STATE, action.restoreState);
+      return deepMerge(INITIAL_STATE, action.restoreState);
     default:
       return appReducer(state, action);
   }

@@ -1,16 +1,19 @@
 import { TextButton } from 'hadron-react-buttons';
 import React, { Component } from 'react';
 import { Modal } from 'react-bootstrap';
+import classnames from 'classnames';
 import PropTypes from 'prop-types';
 
-class SaveStateModal extends Component {
-  static displayName = 'SaveStateModalComponent';
+import styles from './save-pipeline-modal.less';
+
+class SavePipelineModal extends Component {
+  static displayName = 'SavePipelineModalComponent';
 
   static propTypes = {
     savePipelineModalToggle: PropTypes.func.isRequired,
     saveModalErrorToggle: PropTypes.func.isRequired,
     saveCurrentPipeline: PropTypes.func.isRequired,
-    savedPipelines: PropTypes.object.isRequired
+    savedPipeline: PropTypes.object.isRequired
   }
 
   // store the input value for pipeline name inside the component before
@@ -42,16 +45,16 @@ class SaveStateModal extends Component {
   render() {
     return (
       <Modal
-        show={this.props.savedPipelines.isModalVisible}
+        show={this.props.savedPipeline.isModalVisible}
         backdrop="static"
         onHide={this.onSavePipelineModalToggle}
-        dialogClassName="save-state-dialog">
+        dialogClassName={classnames(styles['save-pipeline-modal'])}>
 
-        <Modal.Header>
+        <Modal.Header className={classnames(styles['save-pipeline-modal-header'])}>
           <Modal.Title>Save Current Pipeline</Modal.Title>
         </Modal.Header>
 
-        <Modal.Body>
+        <Modal.Body className={classnames(styles['save-pipeline-modal-body'])}>
           <form name="save-state-form"
               onSubmit={this.handleSave}
               data-test-id="save-state">
@@ -69,7 +72,7 @@ class SaveStateModal extends Component {
           </form>
         </Modal.Body>
 
-        <Modal.Footer>
+        <Modal.Footer className={classnames(styles['save-pipeline-modal-footer'])}>
           <TextButton
             className="btn btn-default btn-sm"
             text="Cancel"
@@ -85,4 +88,4 @@ class SaveStateModal extends Component {
   }
 }
 
-export default SaveStateModal;
+export default SavePipelineModal;
