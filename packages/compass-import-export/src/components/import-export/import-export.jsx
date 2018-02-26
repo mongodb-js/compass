@@ -14,11 +14,11 @@ class ImportExport extends Component {
   };
 
   handleExportModalOpen = () => {
-    global.hadronApp.appRegistry.emit('open-export', this.props.ns, { filter: {}});
+    global.hadronApp.appRegistry.emit('open-export');
   };
 
   handleImportModalOpen = () => {
-    global.hadronApp.appRegistry.emit('open-import', this.props.ns);
+    global.hadronApp.appRegistry.emit('open-import');
   };
 
   /**

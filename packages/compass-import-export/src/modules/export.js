@@ -56,6 +56,11 @@ export const OPEN_EXPORT = `${PREFIX}/OPEN_EXPORT`;
 export const CLOSE_EXPORT = `${PREFIX}/CLOSE_EXPORT`;
 
 /**
+ * The query changed action name.
+ */
+export const QUERY_CHANGED = `${PREFIX}/QUERY_CHANGED`;
+
+/**
  * The initial state.
  */
 const INITIAL_STATE = {
@@ -107,15 +112,24 @@ export const selectExportFileName = (fileName) => ({
 });
 
 /**
- * Open the export modal.
+ * Change the query.
  *
  * @param {Object} query - The query.
  *
  * @returns {Object} The action.
  */
-export const openExport = (query) => ({
-  type: OPEN_EXPORT,
+export const queryChanged = (query) => ({
+  type: QUERY_CHANGED,
   query: query
+});
+
+/**
+ * Open the export modal.
+ *
+ * @returns {Object} The action.
+ */
+export const openExport = () => ({
+  type: OPEN_EXPORT
 });
 
 /**
@@ -246,10 +260,15 @@ const reducer = (state = INITIAL_STATE, action) => {
         ...state,
         fileName: action.fileName
       };
+    case QUERY_CHANGED:
+      return {
+        ...state,
+        query: action.query
+      };
     case OPEN_EXPORT:
       return {
         ...INITIAL_STATE,
-        query: action.query,
+        query: state.query,
         isOpen: true
       };
     case CLOSE_EXPORT:

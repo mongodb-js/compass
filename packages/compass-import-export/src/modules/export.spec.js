@@ -68,14 +68,13 @@ describe('export [ducks module]', () => {
     });
 
     context('when the action type is OPEN_EXPORT', () => {
-      const query = { filter: {}};
-      const action = actions.openExport(query);
+      const action = actions.openExport();
 
       it('returns the new state', () => {
         expect(reducer(undefined, action)).to.deep.equal({
           isOpen: true,
           progress: 0,
-          query: query,
+          query: {},
           error: null,
           fileName: '',
           fileType: 'json',
@@ -116,12 +115,9 @@ describe('export [ducks module]', () => {
   });
 
   describe('#openExport', () => {
-    const query = { filter: {}};
-
     it('returns the action', () => {
-      expect(actions.openExport(query)).to.deep.equal({
-        type: actions.OPEN_EXPORT,
-        query: query
+      expect(actions.openExport()).to.deep.equal({
+        type: actions.OPEN_EXPORT
       });
     });
   });

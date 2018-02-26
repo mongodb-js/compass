@@ -68,6 +68,7 @@ appRegistry.emit('data-service-initialized', dataService);
 dataService.connect((error, ds) => {
   appRegistry.emit('data-service-connected', error, ds);
   appRegistry.emit('collection-changed', NS);
+  appRegistry.emit('query-applied', { filter: {}});
 });
 
 // For automatic switching to specific namespaces, uncomment below as needed.

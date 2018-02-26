@@ -4,10 +4,12 @@ import { createEpicMiddleware } from 'redux-observable';
 import { rootReducer, rootEpic } from 'modules';
 
 import { nsChanged } from 'modules/ns';
-import { openExport } from 'modules/export';
+import { openExport, queryChanged } from 'modules/export';
 import { openImport } from 'modules/import';
 import { dataServiceConnected } from 'modules/data-service';
 import { statsRecieved } from 'modules/stats';
+
+import { ipcRenderer } from 'electron';
 
 const epicMiddleware = createEpicMiddleware(rootEpic);
 
@@ -21,8 +23,8 @@ const store = createStore(
   )
 );
 
+// Enable Webpack hot module replacement for reducers
 if (module.hot) {
-  // Enable Webpack hot module replacement for reducers
   module.hot.accept('../modules', () => {
     const { rootReducer: nextRootReducer, rootEpic: nextRootEpic } = require('../modules');
     store.replaceReducer(nextRootReducer);
@@ -38,11 +40,27 @@ if (module.hot) {
 store.onActivated = (appRegistry) => {
   appRegistry.on('collection-changed', ns => store.dispatch(nsChanged(ns)));
   appRegistry.on('data-service-connected', (err, ds) => store.dispatch(dataServiceConnected(err, ds)));
-  appRegistry.on('open-export', (ns, query) => store.dispatch(openExport(query)));
+  appRegistry.on('query-applied', (query) => store.dispatch(queryChanged(query)));
   appRegistry.on('open-import', () => store.dispatch(openImport()));
+  appRegistry.on('open-export', () => store.dispatch(openExport()));
   appRegistry.getStore('CollectionStats.Store').listen((stats) => {
     store.dispatch(statsRecieved(stats));
   });
 };
 
+if (ipcRenderer) {
+  /**
+   * Listen for compass:open-export messages.
+   */
+  ipcRenderer.on('compass:open-export', () => {
+    store.dispatch(openExport());
+  });
+
+  /**
+   * Listen for compass:open-import messages.
+   */
+  ipcRenderer.on('compass:open-import', () => {
+    store.dispatch(openImport());
+  });
+}
 export default store;
