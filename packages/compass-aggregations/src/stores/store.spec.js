@@ -146,7 +146,7 @@ describe('Aggregation Store', () => {
             fields: INITIAL_STATE.fields,
             inputDocuments: INITIAL_STATE.inputDocuments,
             serverVersion: INITIAL_STATE.serverVersion,
-            stages: INITIAL_STATE.stages,
+            pipeline: INITIAL_STATE.pipeline,
             view: INITIAL_STATE.view
           });
         });

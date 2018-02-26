@@ -85,9 +85,9 @@ describe('Stage module', () => {
       const stage = {
         id: 0, isEnabled: true, isExpanded: true, isValid: true, snippet: '',
         stageOperator: '$count',
-        stage: '100'
+        stage: '"fieldname"'
       };
-      expect(generateStage(stage)).to.deep.equal({'$count': 100});
+      expect(generateStage(stage)).to.deep.equal({'$count': 'fieldname'});
     });
     it('handles BSON types', () => {
       const stage = {
