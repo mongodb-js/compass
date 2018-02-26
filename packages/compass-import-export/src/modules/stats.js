@@ -1,7 +1,7 @@
 /**
  * Action for the stats connection.
  */
-const STATS_RECIEVED = 'import-export/stats/STATS_RECIEVED';
+const STATS_RECEIVED = 'import-export/stats/STATS_RECEIVED';
 
 /**
  * The initial stats state.
@@ -15,11 +15,10 @@ const INITIAL_STATE = {};
  *
  * @returns {Object} The action.
  */
-const statsRecieved = stats => ({
-  type: STATS_RECIEVED,
+const statsReceived = stats => ({
+  type: STATS_RECEIVED,
   stats
 });
-
 
 /**
  * Handle stats changes on the state.
@@ -30,7 +29,7 @@ const statsRecieved = stats => ({
  * @returns {String} The state.
  */
 const reducer = (state = INITIAL_STATE, action) => {
-  if (action.type === STATS_RECIEVED) {
+  if (action.type === STATS_RECEIVED) {
     return action.stats;
   }
   return state;
@@ -38,6 +37,6 @@ const reducer = (state = INITIAL_STATE, action) => {
 
 export default reducer;
 export {
-  statsRecieved,
-  STATS_RECIEVED
+  statsReceived,
+  STATS_RECEIVED
 };

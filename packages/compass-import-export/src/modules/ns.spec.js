@@ -1,6 +1,6 @@
 import reducer, * as actions from 'modules/ns';
 
-describe('ns [ducks module]', () => {
+describe('ns [module]', () => {
   describe('#reducer', () => {
     context('when the action type is NS_CHANGED', () => {
       const action = actions.nsChanged('db.coll');

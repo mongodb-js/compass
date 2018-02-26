@@ -1,6 +1,6 @@
 import reducer, * as actions from 'modules/export';
 
-describe('export [ducks module]', () => {
+describe('export [module]', () => {
   describe('#reducer', () => {
     context('when the action type is EXPORT_PROGRESS', () => {
       const action = actions.exportProgress(55);

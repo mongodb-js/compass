@@ -7,7 +7,7 @@ import { nsChanged } from 'modules/ns';
 import { openExport, queryChanged } from 'modules/export';
 import { openImport } from 'modules/import';
 import { dataServiceConnected } from 'modules/data-service';
-import { statsRecieved } from 'modules/stats';
+import { statsReceived } from 'modules/stats';
 
 import { ipcRenderer } from 'electron';
 
@@ -44,7 +44,7 @@ store.onActivated = (appRegistry) => {
   appRegistry.on('open-import', () => store.dispatch(openImport()));
   appRegistry.on('open-export', () => store.dispatch(openExport()));
   appRegistry.getStore('CollectionStats.Store').listen((stats) => {
-    store.dispatch(statsRecieved(stats));
+    store.dispatch(statsReceived(stats));
   });
 };
 
