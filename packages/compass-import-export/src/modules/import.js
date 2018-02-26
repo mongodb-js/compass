@@ -5,18 +5,59 @@ import SplitLines from 'utils/split-lines-transform';
 import PROCESS_STATUS from 'constants/process-status';
 import FILE_TYPES from 'constants/file-types';
 
+/**
+ * The prefix.
+ */
 const PREFIX = 'import-export/import';
 
+/**
+ * Import action name.
+ */
 const IMPORT_ACTION = `${PREFIX}/IMPORT_ACTION`;
+
+/**
+ * Progress action name.
+ */
 const IMPORT_PROGRESS = `${PREFIX}/IMPORT_PROGRESS`;
+
+/**
+ * Completed action name.
+ */
 const IMPORT_COMPLETED = `${PREFIX}/IMPORT_COMPLETED`;
+
+/**
+ * Canceled action name.
+ */
 const IMPORT_CANCELED = `${PREFIX}/IMPORT_CANCELED`;
+
+/**
+ * Failed action name.
+ */
 const IMPORT_FAILED = `${PREFIX}/IMPORT_FAILED`;
+
+/**
+ * Select file type action name.
+ */
 const SELECT_IMPORT_FILE_TYPE = `${PREFIX}/SELECT_IMPORT_FILE_TYPE`;
+
+/**
+ * Select file name action name.
+ */
 const SELECT_IMPORT_FILE_NAME = `${PREFIX}/SELECT_IMPORT_FILE_NAME`;
+
+/**
+ * Open action name.
+ */
 const OPEN_IMPORT = `${PREFIX}/OPEN_IMPORT`;
+
+/**
+ * Close action name.
+ */
 const CLOSE_IMPORT = `${PREFIX}/CLOSE_IMPORT`;
 
+/**
+ * Initial state.
+ */
 const INITIAL_STATE = {
   isOpen: false,
   progress: 0,
@@ -115,6 +156,12 @@ const importFailed = (error) => ({
   error: error
 });
 
+/**
+ * Epic for handling the start of an import.
+ *
+ * @param {ActionsObservable} action$ - The actions observable.
+ * @param {Store} store - The store.
+ */
 export const importStartedEpic = (action$, store) =>
   action$.ofType(IMPORT_ACTION)
     .flatMap(action => {
@@ -127,8 +174,7 @@ export const importStartedEpic = (action$, store) =>
       const { ns, dataService, importData } = store.getState();
       const { fileName, fileType } = importData;
       if (!fs.existsSync(fileName)) {
-        store.dispatch(importFailed(`File ${fileName} not found`));
-        return Observable.empty();
+        return Observable.of(importFailed(`File ${fileName} not found`));
       }
       const stats = fs.statSync(fileName);
       const fileSizeInBytes = stats.size;
@@ -136,15 +182,11 @@ export const importStartedEpic = (action$, store) =>
       const splitLines = new SplitLines(fileType);
       frs.pipe(splitLines);
       return streamToObservable(splitLines)
-        .map((docs) => {
-          return dataService.putMany(ns, docs, { ordered: false }).catch((e) => {
-            store.dispatch(importFailed(e));
-          });
-        })
+        .map((docs) => dataService.putMany(ns, docs, { ordered: false }))
+        .catch(importFailed)
         .takeWhile(() => importStatus !== PROCESS_STATUS.CANCELLED)
         .map(() => importProgress((frs.bytesRead * 100) / fileSizeInBytes))
-        .catch(importFailed)
-        .concat(Observable.of('').map(() => importFinished()))
+        .concat(Observable.of(importFinished()))
         .finally(() => {
           splitLines.end();
           frs.close();
