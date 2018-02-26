@@ -15,31 +15,47 @@ const PREFIX = 'import-export/export';
 /**
  * Export action name.
  */
-const EXPORT_ACTION = `${PREFIX}/EXPORT_ACTION`;
+export const EXPORT_ACTION = `${PREFIX}/EXPORT_ACTION`;
 
 /**
  * Export progress action name.
  */
-const EXPORT_PROGRESS = `${PREFIX}/EXPORT_PROGRESS`;
+export const EXPORT_PROGRESS = `${PREFIX}/EXPORT_PROGRESS`;
 
 /**
  * Export completed action name.
  */
-const EXPORT_COMPLETED = `${PREFIX}/EXPORT_COMPLETED`;
+export const EXPORT_COMPLETED = `${PREFIX}/EXPORT_COMPLETED`;
 
 /**
  * Export canceled action name.
  */
-const EXPORT_CANCELED = `${PREFIX}/EXPORT_CANCELED`;
+export const EXPORT_CANCELED = `${PREFIX}/EXPORT_CANCELED`;
 
 /**
  * Export failed action name.
  */
-const EXPORT_FAILED = `${PREFIX}/EXPORT_FAILED`;
-const SELECT_EXPORT_FILE_TYPE = `${PREFIX}/SELECT_EXPORT_FILE_TYPE`;
-const SELECT_EXPORT_FILE_NAME = `${PREFIX}/SELECT_EXPORT_FILE_NAME`;
-const OPEN_EXPORT = `${PREFIX}/OPEN_EXPORT`;
-const CLOSE_EXPORT = `${PREFIX}/CLOSE_EXPORT`;
+export const EXPORT_FAILED = `${PREFIX}/EXPORT_FAILED`;
+
+/**
+ * Select export file type action name.
+ */
+export const SELECT_EXPORT_FILE_TYPE = `${PREFIX}/SELECT_EXPORT_FILE_TYPE`;
+
+/**
+ * Select export file name action name.
+ */
+export const SELECT_EXPORT_FILE_NAME = `${PREFIX}/SELECT_EXPORT_FILE_NAME`;
+
+/**
+ * Open export action name.
+ */
+export const OPEN_EXPORT = `${PREFIX}/OPEN_EXPORT`;
+
+/**
+ * Close export action name.
+ */
+export const CLOSE_EXPORT = `${PREFIX}/CLOSE_EXPORT`;
 
 /**
  * The initial state.
@@ -120,7 +136,7 @@ export const closeExport = () => ({
  *
  * @returns {Object} The action.
  */
-const exportProgress = (progress) => ({
+export const exportProgress = (progress) => ({
   type: EXPORT_PROGRESS,
   progress: progress
 });
@@ -141,7 +157,7 @@ const exportFinished = () => ({
  *
  * @returns {Object} The action.
  */
-const exportFailed = (error) => ({
+export const exportFailed = (error) => ({
   type: EXPORT_FAILED,
   error: error
 });
