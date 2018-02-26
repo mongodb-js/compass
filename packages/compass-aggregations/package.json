@@ -126,7 +126,7 @@
     "mongodb-ace-theme": "0.0.1",
     "mongodb-extended-json": "^1.10.0",
     "mongodb-query-parser": "^1.0.1",
-    "mongodb-stage-validator": "file:../stage-validator",
+    "mongodb-stage-validator": "^0.0.1",
     "nanoidb": "^1.2.0",
     "react-ace": "^5.7.0",
     "react-bootstrap": "^0.32.1",
