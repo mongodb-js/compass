@@ -7,11 +7,6 @@ import EditableValue from 'components/editable-value';
 describe('<EditableValue />', () => {
   before(() => {
     global.hadronApp = app;
-    global.hadronApp.instance = {
-      build: {
-        version: '3.4.0'
-      }
-    };
   });
 
   after(() => {

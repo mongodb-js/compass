@@ -22,12 +22,6 @@ const appRegistry = new AppRegistry();
 global.hadronApp = app;
 global.hadronApp.appRegistry = appRegistry;
 
-global.hadronApp.instance = {
-  build: {
-    version: '3.4.0'
-  }
-};
-
 // Activate our plugin with the Hadron App Registry
 const CollectionStore = require('./stores/collection-store');
 const NamespaceStore = require('./stores/namespace-store');

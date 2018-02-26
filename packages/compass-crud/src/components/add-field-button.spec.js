@@ -10,11 +10,6 @@ describe('<AddFieldButton />', () => {
   before(() => {
     global.hadronApp = app;
     global.hadronApp.appRegistry = new AppRegistry();
-    global.hadronApp.instance = {
-      build: {
-        version: '3.4.0'
-      }
-    };
   });
 
   after(() => {

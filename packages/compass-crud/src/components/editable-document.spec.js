@@ -52,7 +52,6 @@ describe('<EditableDocument />', () => {
       // element, jump straight to the last array element
       const _focus = window.HTMLElement.prototype.focus;
       let spy;
-      let _instance;
       let secondLastInput;
       let lastInput;
       before(() => {
@@ -82,7 +81,6 @@ describe('<EditableDocument />', () => {
 
       after(() => {
         // Restore global variables so they shouldn't leak into other tests
-        global.hadronApp.instance = _instance;
         window.HTMLElement.prototype.focus = _focus;
       });
 
