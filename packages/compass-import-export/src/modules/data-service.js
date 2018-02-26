@@ -6,7 +6,7 @@ const DATA_SERVICE_CONNECTED = 'import-export/ns/DATA_SERVICE_CONNECTED';
 /**
  * The initial dataService state.
  */
-const INITIAL_STATE = {};
+const INITIAL_STATE = null;
 
 /**
  * Create a ns changed action.
