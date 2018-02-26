@@ -3,10 +3,28 @@
 .export-modal {
   &-error {
     display: none;
+    background: #ef4c4c;
+    color: #fff;
+    margin: 5px 0px 5px 0px;
+    padding: 7px;
+    border-radius: 4px;
+    overflow: auto;
+    font-weight: bold;
+
+    i {
+      font-size: 20px;
+      font-weight: bold;
+      padding-right: 5px;
+    }
 
     &-has-error {
-      display: block;
+      display: flex;
+      align-items: center;
     }
+  }
+
+  &-query {
+    padding: 5px 0px 5px 0px;
   }
 
   &-progress {
@@ -33,16 +51,14 @@
   }
 
   &-output {
-    font-weight: bold;
-    font-size: 14px;
-  }
-
-  &-file {
+    padding: 5px 0px 5px 0px;
     font-weight: bold;
     font-size: 14px;
   }
 
   &-type-selector {
+    padding: 0px 0px 5px 0px;
+
     button {
       outline: none;
       margin-right: 20px;

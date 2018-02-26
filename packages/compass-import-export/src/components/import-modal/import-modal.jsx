@@ -20,11 +20,6 @@ import {
 import styles from './import-modal.less';
 
 /**
- * The error message.
- */
-const ERROR = 'Import ran with errors:';
-
-/**
  * The import collection modal.
  */
 class ImportModal extends PureComponent {
@@ -92,6 +87,28 @@ class ImportModal extends PureComponent {
   }
 
   /**
+   * Render the progress bar.
+   *
+   * @returns {React.Component} The component.
+   */
+  renderProgressBar = () => {
+    if (this.props.status !== PROCESS_STATUS.UNSPECIFIED) {
+      return (
+        <div className={classnames(styles['import-modal-progress'])}>
+          <div className={classnames(styles['import-modal-progress-bar'])}>
+            <ProgressBar
+              now={this.props.progress}
+              bsStyle={this.getProgressStyle()} />
+          </div>
+          <div className={classnames(styles['import-modal-progress-cancel'])}>
+            <CancelButton onClick={ this.handleCancel } />
+          </div>
+        </div>
+      );
+    }
+  }
+
+  /**
    * Render the component.
    *
    * @returns {React.Component} The component.
@@ -132,18 +149,10 @@ class ImportModal extends PureComponent {
               </InputGroup>
             </FormGroup>
           </form>
-          <div className={classnames(styles['import-modal-progress'])}>
-            <div className={classnames(styles['import-modal-progress-bar'])}>
-              <ProgressBar
-                now={this.props.progress}
-                bsStyle={this.getProgressStyle()} />
-            </div>
-            <div className={classnames(styles['import-modal-progress-cancel'])}>
-              <CancelButton onClick={this.handleCancel} />
-            </div>
-          </div>
+          {this.renderProgressBar()}
           <div className={errorClassName}>
-            {this.props.error ? `${ERROR} ${this.props.error.message}` : null}
+            <i className="fa fa-times" />
+            {this.props.error ? this.props.error.message : null}
           </div>
         </Modal.Body>
         <Modal.Footer>

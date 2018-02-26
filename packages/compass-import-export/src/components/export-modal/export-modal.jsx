@@ -7,7 +7,7 @@ import {
 } from 'react-bootstrap';
 import { TextButton } from 'hadron-react-buttons';
 import QueryViewer from 'components/query-viewer';
-import fileOpenDialog from 'utils/file-open-dialog';
+import fileSaveDialog from 'utils/file-save-dialog';
 import PROCESS_STATUS from 'constants/process-status';
 import FILE_TYPES from 'constants/file-types';
 import CancelButton from 'components/cancel-button';
@@ -50,15 +50,16 @@ class ExportModal extends PureComponent {
     if (this.props.status === PROCESS_STATUS.STARTED) return 'info';
     if (this.props.status === PROCESS_STATUS.COMPLETED) return 'success';
     if (this.props.status === PROCESS_STATUS.CANCELED) return 'warning';
+    if (this.props.status === PROCESS_STATUS.FAILED) return 'warning';
   }
 
   /**
    * Handle choosing a file from the file dialog.
    */
   handleChooseFile = () => {
-    const file = fileOpenDialog(this.props.fileType);
+    const file = fileSaveDialog(this.props.fileType);
     if (file) {
-      this.props.selectExportFileName(file[0]);
+      this.props.selectExportFileName(file);
     }
   }
 
@@ -89,6 +90,28 @@ class ExportModal extends PureComponent {
   }
 
   /**
+   * Render the progress bar.
+   *
+   * @returns {React.Component} The component.
+   */
+  renderProgressBar = () => {
+    if (this.props.status !== PROCESS_STATUS.UNSPECIFIED) {
+      return (
+        <div className={classnames(styles['export-modal-progress'])}>
+          <div className={classnames(styles['export-modal-progress-bar'])}>
+            <ProgressBar
+              now={this.props.progress}
+              bsStyle={this.getProgressStyle()} />
+          </div>
+          <div className={classnames(styles['export-modal-progress-cancel'])}>
+            <CancelButton onClick={ this.handleCancel } />
+          </div>
+        </div>
+      );
+    }
+  }
+
+  /**
    * Render the component.
    *
    * @returns {React.Component} The component.
@@ -104,7 +127,7 @@ class ExportModal extends PureComponent {
           Export Collection {this.props.ns}
         </Modal.Header>
         <Modal.Body>
-          <div>
+          <div className={classnames(styles['export-modal-query'])}>
             Exporting {this.props.count} documents returned by the following query:
           </div>
           <div>
@@ -135,17 +158,9 @@ class ExportModal extends PureComponent {
               </InputGroup>
             </FormGroup>
           </form>
-          <div className={classnames(styles['export-modal-progress'])}>
-            <div className={classnames(styles['export-modal-progress-bar'])}>
-              <ProgressBar
-                now={this.props.progress}
-                bsStyle={this.getProgressStyle()} />
-            </div>
-            <div className={classnames(styles['export-modal-progress-cancel'])}>
-              <CancelButton onClick={ this.handleCancel } />
-            </div>
-          </div>
+          {this.renderProgressBar()}
           <div className={errorClassName}>
+            <i className="fa fa-times" />
             {this.props.error ? this.props.error.message : null}
           </div>
         </Modal.Body>
