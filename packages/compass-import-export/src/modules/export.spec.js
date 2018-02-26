@@ -25,7 +25,7 @@ describe('export [ducks module]', () => {
       it('returns the new state', () => {
         expect(reducer(undefined, action)).to.deep.equal({
           isOpen: false,
-          progress: 0,
+          progress: 100,
           query: {},
           error: error,
           fileName: '',

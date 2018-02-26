@@ -1,9 +1,7 @@
 import fs from 'fs';
 import { Observable } from 'rxjs/Observable';
 import streamToObservable from 'stream-to-observable';
-
 import exportCollection from 'utils/export';
-
 import PROCESS_STATUS from 'constants/process-status';
 import FILE_TYPES from 'constants/file-types';
 
@@ -171,31 +169,32 @@ export const exportFailed = (error) => ({
  * @returns {Epic} The epic.
  */
 export const exportStartedEpic = (action$, store) =>
-  action$.ofType(EXPORT_ACTION)
-    .flatMap(act => {
-      exportStatus = act.status;
-      if (exportStatus === PROCESS_STATUS.CANCELLED) {
-        return Observable.empty();
-      }
+  action$.ofType(EXPORT_ACTION).flatMap(act => {
+    exportStatus = act.status;
+    if (exportStatus === PROCESS_STATUS.CANCELLED) {
+      return Observable.empty();
+    }
 
-      const { stats, ns, exportData, dataService } = store.getState();
-      const fws = fs.createWriteStream(exportData.fileName);
-      const { cursor, docTransform } = exportCollection(dataService, ns, exportData.fileType);
+    const { stats, ns, exportData, dataService } = store.getState();
+    const fws = fs.createWriteStream(exportData.fileName);
+    const { cursor, docTransform } = exportCollection(
+      dataService, ns, exportData.query, exportData.fileType
+    );
 
-      docTransform.pipe(fws);
-      return streamToObservable(docTransform)
-        .map(() => exportProgress((fws.bytesWritten * 100) / stats.rawTotalDocumentSize))
-        .takeWhile(() => exportStatus !== PROCESS_STATUS.CANCELLED)
-        .catch(exportFailed)
-        .concat(Observable.of('').map(() => {
-          return exportFinished();
-        }))
-        .finally(() => {
-          cursor.close();
-          docTransform.end();
-          fws.end();
-        });
-    });
+    docTransform.pipe(fws);
+    return streamToObservable(docTransform)
+      .map(() => exportProgress((fws.bytesWritten * 100) / stats.rawTotalDocumentSize))
+      .takeWhile(() => exportStatus !== PROCESS_STATUS.CANCELLED)
+      .catch(exportFailed)
+      .concat(Observable.of('').map(() => {
+        return exportFinished();
+      }))
+      .finally(() => {
+        cursor.close();
+        docTransform.end();
+        fws.end();
+      });
+  });
 
 /**
  * The export reducer.
@@ -227,13 +226,14 @@ const reducer = (state = INITIAL_STATE, action) => {
     case EXPORT_CANCELED:
       return {
         ...state,
-        progress: 0,
+        progress: 100,
         status: PROCESS_STATUS.CANCELED
       };
     case EXPORT_FAILED:
       return {
         ...state,
         error: action.error,
+        progress: 100,
         status: PROCESS_STATUS.FAILED
       };
     case SELECT_EXPORT_FILE_TYPE:

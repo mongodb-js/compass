@@ -3,13 +3,13 @@ import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import classnames from 'classnames';
 import {
-  Modal, Button, FormGroup, InputGroup, FormControl, ControlLabel, ProgressBar
+  Modal, Button, FormGroup, InputGroup, FormControl, ControlLabel
 } from 'react-bootstrap';
 import { TextButton } from 'hadron-react-buttons';
 import fileOpenDialog from 'utils/file-open-dialog';
 import PROCESS_STATUS, { FINISHED_STATUSES } from 'constants/process-status';
 import FILE_TYPES from 'constants/file-types';
-import CancelButton from 'components/cancel-button';
+import ProgressBar from 'components/progress-bar';
 import {
   importAction,
   selectImportFileType,
@@ -18,6 +18,15 @@ import {
 } from 'modules/import';
 
 import styles from './import-modal.less';
+
+/**
+ * Progress messages.
+ */
+const MESSAGES = {
+  [ PROCESS_STATUS.STARTED ]: 'Importing...',
+  [ PROCESS_STATUS.CANCELED ]: 'Import canceled.',
+  [ PROCESS_STATUS.COMPLETED ]: 'Import completed!'
+};
 
 /**
  * The import collection modal.
@@ -39,15 +48,12 @@ class ImportModal extends PureComponent {
   };
 
   /**
-   * Get the bootstrap progress bar style.
+   * Get the status message.
    *
-   * @returns {String} The style.
+   * @returns {String} The status message.
    */
-  getProgressStyle() {
-    if (this.props.status === PROCESS_STATUS.STARTED) return 'info';
-    if (this.props.status === PROCESS_STATUS.COMPLETED) return 'success';
-    if (this.props.status === PROCESS_STATUS.CANCELED) return 'warning';
-    if (this.props.status === PROCESS_STATUS.FAILED) return 'warning';
+  getStatusMessage = () => {
+    return MESSAGES[this.props.status] || (this.props.error ? this.props.error.message : '');
   }
 
   /**
@@ -94,16 +100,11 @@ class ImportModal extends PureComponent {
   renderProgressBar = () => {
     if (this.props.status !== PROCESS_STATUS.UNSPECIFIED) {
       return (
-        <div className={classnames(styles['import-modal-progress'])}>
-          <div className={classnames(styles['import-modal-progress-bar'])}>
-            <ProgressBar
-              now={this.props.progress}
-              bsStyle={this.getProgressStyle()} />
-          </div>
-          <div className={classnames(styles['import-modal-progress-cancel'])}>
-            <CancelButton onClick={ this.handleCancel } />
-          </div>
-        </div>
+        <ProgressBar
+          progress={this.props.progress}
+          status={this.props.status}
+          message={this.getStatusMessage()}
+          action={this.props.importAction} />
       );
     }
   }
@@ -114,10 +115,6 @@ class ImportModal extends PureComponent {
    * @returns {React.Component} The component.
    */
   render() {
-    const errorClassName = classnames({
-      [ styles['import-modal-error'] ]: true,
-      [ styles['import-modal-error-has-error'] ]: this.props.error ? true : false
-    });
     return (
       <Modal show={this.props.open} onHide={this.handleClose} >
         <Modal.Header closeButton>
@@ -150,10 +147,6 @@ class ImportModal extends PureComponent {
             </FormGroup>
           </form>
           {this.renderProgressBar()}
-          <div className={errorClassName}>
-            <i className="fa fa-times" />
-            {this.props.error ? this.props.error.message : null}
-          </div>
         </Modal.Body>
         <Modal.Footer>
           <TextButton

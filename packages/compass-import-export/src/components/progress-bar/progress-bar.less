@@ -1,0 +1,43 @@
+@import (reference) "~less/compass/_theme.less";
+
+.progress-bar {
+  position: relative;
+  border-radius: 4px;
+
+  &-cancel {
+    position: absolute;
+    right: 0;
+    color: #0d47a1;
+    text-transform: uppercase;
+    font-weight: bold;
+    font-size: 12px;
+    padding: 9px 12px 0px 0px;
+    cursor: pointer;
+  }
+
+  &-is-started {
+    display: flex;
+    background-color: #e1f5fe;
+  }
+
+  &-bar {
+    padding: 8px;
+    display: flex;
+    color: #FFFFFF;
+
+    &-is-started {
+      border-radius: 4px 0px 0px 4px;
+      background-color: #03a9f4;
+    }
+
+    &-is-canceled, &-is-failed {
+      border-radius: 4px;
+      background: #ef4c4c;
+    }
+
+    &-is-completed {
+      border-radius: 4px;
+      background-color: #6BA442;
+    }
+  }
+}
