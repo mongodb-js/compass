@@ -207,20 +207,6 @@ const CRUDStore = Reflux.createStore({
   },
 
   /**
-   * Request the export modal be opened.
-   */
-  openExport() {
-    this.appRegistry.emit('open-export', this.state.ns, this.state.query);
-  },
-
-  /**
-   * Request the import modal be opened.
-   */
-  openImport() {
-    this.appRegistry.emit('open-import', this.state.ns);
-  },
-
-  /**
    * Copy the document to the clipboard.
    *
    * @param {HadronDocument} doc - The document.

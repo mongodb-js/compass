@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { AnimatedIconTextButton, IconButton } from 'hadron-react-buttons';
+import { AnimatedIconTextButton } from 'hadron-react-buttons';
 import { ViewSwitcher } from 'hadron-react-components';
 
 const BASE_CLASS = 'document-list';
@@ -100,30 +100,6 @@ class Toolbar extends React.Component {
     }
   }
 
-  renderImportButton() {
-    if (this.props.isExportable) {
-      return (
-        <IconButton
-          title="Import to Collection"
-          className="btn btn-default btn-xs"
-          iconClassName="fa fa-upload"
-          clickHandler={this.props.openImport} />
-      );
-    }
-  }
-
-  renderExportButton() {
-    if (this.props.isExportable) {
-      return (
-        <IconButton
-          title="Export Collection"
-          className="btn btn-default btn-xs"
-          iconClassName="fa fa-download"
-          clickHandler={this.props.openExport} />
-      );
-    }
-  }
-
   /**
    * If we are on the documents tab, just display the count and insert button.
    *
@@ -159,8 +135,6 @@ class Toolbar extends React.Component {
                 animatingIconClassName="fa fa-refresh fa-spin"
                 />
             </div>
-            {this.renderImportButton()}
-            {this.renderExportButton()}
           </div>
         </div>
       </div>
@@ -178,8 +152,6 @@ Toolbar.propTypes = {
   getPrevPage: PropTypes.func.isRequired,
   insertHandler: PropTypes.func,
   isExportable: PropTypes.bool.isRequired,
-  openExport: PropTypes.func,
-  openImport: PropTypes.func,
   page: PropTypes.number.isRequired,
   readonly: PropTypes.bool.isRequired,
   refreshDocuments: PropTypes.func.isRequired,
