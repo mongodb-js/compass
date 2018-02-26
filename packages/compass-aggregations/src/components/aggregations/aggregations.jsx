@@ -29,7 +29,8 @@ import {
   getSavedPipelines
 } from 'modules/saved-pipelines';
 
-import { restoreState } from 'modules/restore-state';
+import { restoreSavedPipeline, getPipelineFromIndexedDB } from 'modules/index';
+import { restorePipelineViewToggle } from 'modules/restore-state';
 import styles from './aggregations.less';
 
 /**
@@ -67,7 +68,8 @@ const mapStateToProps = (state) => ({
   serverVersion: state.serverVersion,
   pipeline: state.pipeline,
   view: state.view,
-  savedPipelines: state.savedPipelines
+  savedPipelines: state.savedPipelines,
+  restorePipelines: state.restorePipelines
 });
 
 /**
@@ -95,7 +97,9 @@ const MappedAggregations = connect(
     saveCurrentPipeline,
     savedPipelinesAdd,
     getSavedPipelines,
-    restoreState
+    restorePipelineViewToggle,
+    restoreSavedPipeline,
+    getPipelineFromIndexedDB
   },
 )(Aggregations);
 

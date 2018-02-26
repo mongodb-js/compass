@@ -14,6 +14,8 @@ import savedPipelines, {
   INDEXED_DB
 } from './saved-pipelines';
 
+import restorePipelines, { INITIAL_STATE as RESTORE_PIPELINE_STATE} from './restore-state';
+
 /**
  * The intial state of the root reducer.
  */
@@ -25,7 +27,8 @@ export const INITIAL_STATE = {
   serverVersion: SV_INITIAL_STATE,
   pipeline: PIPELINE_INITIAL_STATE,
   savedPipelines: SP_INITIAL_STATE,
-  view: VIEW_INITIAL_STATE
+  view: VIEW_INITIAL_STATE,
+  restorePipelines: RESTORE_PIPELINE_STATE
 };
 
 /**
@@ -53,6 +56,7 @@ const appReducer = combineReducers({
   serverVersion,
   savedPipelines,
   pipeline,
+  restorePipelines,
   view
 });
 
@@ -77,7 +81,7 @@ const rootReducer = (state, action) => {
     case RESET:
       return { ...INITIAL_STATE };
     case RESTORE_PIPELINE:
-      return Object.assign({}, state, action.restoreState);
+      return Object.assign({}, INITIAL_STATE, action.restoreState);
     default:
       return appReducer(state, action);
   }
@@ -113,9 +117,8 @@ export const getPipelineFromIndexedDB = (stateId) => {
       function getOp(store) {
         store.get(stateId, (err, result) => {
           if (err) console.log(err);
-          // TODO: might want to delete result.pipelineName, since it's not in
-          // the original state and we don't use it anywhere in the main state
-          // scope
+          delete result.pipelineName;
+          delete result.recordKey;
           dispatch(restoreSavedPipeline(result));
         });
       }
