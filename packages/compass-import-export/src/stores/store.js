@@ -7,6 +7,7 @@ import { nsChanged } from 'modules/ns';
 import { openExport, queryChanged } from 'modules/export';
 import { openImport } from 'modules/import';
 import { dataServiceConnected } from 'modules/data-service';
+import { appRegistryActivated } from 'modules/app-registry';
 import { statsReceived } from 'modules/stats';
 
 import { ipcRenderer } from 'electron';
@@ -38,6 +39,8 @@ if (module.hot) {
  * @param {AppRegistry} appRegistry - The app registry.
  */
 store.onActivated = (appRegistry) => {
+  store.dispatch(appRegistryActivated(appRegistry));
+
   appRegistry.on('collection-changed', ns => store.dispatch(nsChanged(ns)));
   appRegistry.on('data-service-connected', (err, ds) => store.dispatch(dataServiceConnected(err, ds)));
   appRegistry.on('query-applied', (query) => store.dispatch(queryChanged(query)));
