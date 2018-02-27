@@ -11,7 +11,7 @@ describe('StageToolbar [Component]', () => {
   let component;
 
   beforeEach(() => {
-    component = shallow(<StageToolbar />);
+    component = shallow(<StageToolbar stage={{isValid: true}}/>);
   });
 
   afterEach(() => {
