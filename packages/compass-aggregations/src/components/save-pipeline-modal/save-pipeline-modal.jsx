@@ -30,7 +30,8 @@ class SavePipelineModal extends Component {
   }
 
   // save state, and pass in the input name
-  handleSave = () => {
+  handleSave = (evt) => {
+    evt.preventDefault();
     this.props.saveCurrentPipeline(this.state.inputValue);
   }
 
