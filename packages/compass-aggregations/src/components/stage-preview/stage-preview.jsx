@@ -1,4 +1,5 @@
 import React, { PureComponent } from 'react';
+import PropTypes from 'prop-types';
 import classnames from 'classnames';
 
 import styles from './stage-preview.less';
@@ -8,6 +9,20 @@ import styles from './stage-preview.less';
  */
 class StagePreview extends PureComponent {
   static displayName = 'StagePreview';
+  static propTypes = {
+    stage: PropTypes.object.isRequired
+  }
+
+  renderError() {
+    if (this.props.stage.isValid) {
+      return null;
+    }
+    return (
+      <div className={classnames(styles['stage-preview-invalid'])}>
+        <i>Error: No Preview Document</i>
+      </div>
+    );
+  }
 
   /**
    * Renders the stage preview.
@@ -23,6 +38,7 @@ class StagePreview extends PureComponent {
     return (
       <div className={classnames(styles['stage-preview'])}>
         <i className={iconClassName} aria-hidden />
+        {this.renderError()}
       </div>
     );
   }

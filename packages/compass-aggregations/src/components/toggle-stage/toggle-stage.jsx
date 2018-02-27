@@ -24,6 +24,18 @@ class ToggleStage extends PureComponent {
     this.props.stageToggled(this.props.index);
   }
 
+  renderToggle() {
+    if (!this.props.stage.isValid) {
+      return null;
+    }
+    return (
+      <Switch
+        checked={this.props.stage.isEnabled}
+        onChange={this.onStageToggled}
+        className={classnames(styles['toggle-stage-button'])} />
+    );
+  }
+
   /**
    * Render the button component.
    *
@@ -32,10 +44,7 @@ class ToggleStage extends PureComponent {
   render() {
     return (
       <div className={classnames(styles['toggle-stage'])}>
-        <Switch
-          checked={this.props.stage.isEnabled}
-          onChange={this.onStageToggled}
-          className={classnames(styles['toggle-stage-button'])} />
+        {this.renderToggle()}
       </div>
     );
   }

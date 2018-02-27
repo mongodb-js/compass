@@ -83,17 +83,6 @@ class Stage extends Component {
     fields: PropTypes.array.isRequired
   }
 
-  renderError() {
-    if (this.props.stage.isValid) {
-      return null;
-    }
-    return (
-      <div className={classnames(styles['stage-errormsg'])}>
-        {this.props.stage.error}
-      </div>
-    );
-  }
-
   /**
    * Render the stage component.
    *
@@ -108,7 +97,6 @@ class Stage extends Component {
         <div className={classnames(styles[valid])} style={{ opacity }}>
           <StageToolbar {...this.props} />
           {workspace}
-          {this.renderError()}
         </div>
       )
     );

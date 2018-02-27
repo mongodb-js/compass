@@ -89,6 +89,17 @@ class StageEditor extends PureComponent {
     this.props.stageChanged(value, this.props.index);
   }
 
+  renderError() {
+    if (this.props.stage.isValid) {
+      return null;
+    }
+    return (
+      <div className={classnames(styles['stage-editor-errormsg'])}>
+        {this.props.stage.error}
+      </div>
+    );
+  }
+
   /**
    * Render the stage editor component.
    *
@@ -96,6 +107,7 @@ class StageEditor extends PureComponent {
    */
   render() {
     return (
+      <div>
       <div className={classnames(styles['stage-editor'])}>
         <AceEditor
           mode="mongodb"
@@ -110,6 +122,8 @@ class StageEditor extends PureComponent {
             this.editor = editor;
           }}
         />
+      </div>
+        {this.renderError()}
       </div>
     );
   }

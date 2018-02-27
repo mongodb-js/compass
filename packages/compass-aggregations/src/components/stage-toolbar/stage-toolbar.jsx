@@ -1,4 +1,5 @@
 import React, { PureComponent } from 'react';
+import PropTypes from 'prop-types';
 import classnames from 'classnames';
 import StageBuilderToolbar from 'components/stage-builder-toolbar';
 import StagePreviewToolbar from 'components/stage-preview-toolbar';
@@ -10,6 +11,9 @@ import styles from './stage-toolbar.less';
  */
 class StageToolbar extends PureComponent {
   static displayName = 'StageToolbar';
+  static propTypes = {
+    stage: PropTypes.object.isRequired
+  }
 
   /**
    * Renders the stage toolbar.
@@ -17,8 +21,9 @@ class StageToolbar extends PureComponent {
    * @returns {React.Component} The component.
    */
   render() {
+    const valid = this.props.stage.isValid ? 'stage-toolbar' : 'stage-toolbar-invalid';
     return (
-      <div className={classnames(styles['stage-toolbar'])}>
+      <div className={classnames(styles[valid])}>
         <StageBuilderToolbar {...this.props} />
         <StagePreviewToolbar {...this.props} />
       </div>
