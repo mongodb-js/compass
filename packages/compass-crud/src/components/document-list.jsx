@@ -132,6 +132,4 @@ DocumentList.defaultProps = {
   insert: {}
 };
 
-DocumentList.Document = Document;
-
 export default DocumentList;
