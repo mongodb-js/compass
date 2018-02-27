@@ -213,6 +213,19 @@ function collectionSubMenu() {
         click: function() {
           ipc.broadcast('window:menu-share-schema-json');
         }
+      },
+      separator(),
+      {
+        label: '&Import Data',
+        click: function() {
+          ipc.broadcast('compass:open-import');
+        }
+      },
+      {
+        label: '&Export Collection',
+        click: function() {
+          ipc.broadcast('compass:open-export');
+        }
       }
     ]
   };
