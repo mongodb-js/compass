@@ -1,10 +1,7 @@
 import { TextButton } from 'hadron-react-buttons';
 import React, { Component } from 'react';
 import { Modal } from 'react-bootstrap';
-import classnames from 'classnames';
 import PropTypes from 'prop-types';
-
-import styles from './save-pipeline-modal.less';
 
 class SavePipelineModal extends Component {
   static displayName = 'SavePipelineModalComponent';
@@ -47,14 +44,15 @@ class SavePipelineModal extends Component {
       <Modal
         show={this.props.savedPipeline.isModalVisible}
         backdrop="static"
+        bsSize="small"
         onHide={this.onSavePipelineModalToggle}
-        dialogClassName={classnames(styles['save-pipeline-modal'])}>
+        dialogClassName="save-pipeline-modal">
 
-        <Modal.Header className={classnames(styles['save-pipeline-modal-header'])}>
+        <Modal.Header>
           <Modal.Title>Save Current Pipeline</Modal.Title>
         </Modal.Header>
 
-        <Modal.Body className={classnames(styles['save-pipeline-modal-body'])}>
+        <Modal.Body>
           <form name="save-state-form"
               onSubmit={this.handleSave}
               data-test-id="save-state">
@@ -72,7 +70,7 @@ class SavePipelineModal extends Component {
           </form>
         </Modal.Body>
 
-        <Modal.Footer className={classnames(styles['save-pipeline-modal-footer'])}>
+        <Modal.Footer>
           <TextButton
             className="btn btn-default btn-sm"
             text="Cancel"

@@ -34,6 +34,7 @@ class RestorePipelineModal extends Component {
       <Modal
         show={this.props.restorePipeline.isModalVisible}
         backdrop="static"
+        bsSize="small"
         onHide={this.onRestorePipelineModalToggle}
         dialogClassName={classnames(styles['restore-pipeline-modal'])}>
 

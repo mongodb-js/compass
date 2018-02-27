@@ -4,6 +4,8 @@
   border: 1px solid @gray6;
   box-shadow: 0 0 3px @gray6;
   margin: 10px;
+  display: flex;
+  align-items: center;
   background: #fff; 
 
   &-title {
@@ -11,12 +13,7 @@
     padding: 8px;
     line-height: 20px;
     font-weight: bold;
+    flex-grow: 5;
     color: @gray1;
-  }
-
-  &-button-blur {
-    position: absolute;
-    margin: -30px 20px;
-    filter: blur(1px);
   }
 }
