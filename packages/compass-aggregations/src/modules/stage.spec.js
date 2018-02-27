@@ -100,10 +100,12 @@ describe('Stage module', () => {
         '  dbref: DBRef(\'db.coll\', \'1\'),\n' +
         '  nl: NumberLong(\'3\'),\n' +
         '  nd: NumberDecimal(\'5.00000001\'),\n' +
+        '  ni: NumberInt(\'5\'),\n' +
         '  minkey: MinKey(),\n' +
         '  maxkey: MaxKey(),\n' +
         '  isodate: ISODate(\'1999-01-01\'),\n' +
-        '  regexp: RegExp(\'/^[a-z0-9_-]{3,16}$/\')\n' +
+        '  regexp: RegExp(\'/^[a-z0-9_-]{3,16}$/\'),\n' +
+        '  ts: Timestamp(10, 100)\n' +
         '}'
       };
       expect(generateStage(stage)).to.deep.equal({
@@ -114,37 +116,14 @@ describe('Stage module', () => {
           dbref: bson.DBRef('db.coll', '1'),
           nl: bson.Long('3'),
           nd: new bson.Decimal128.fromString('5.00000001'),
+          ni: 5,
           minkey: bson.MinKey(),
           maxkey: bson.MaxKey(),
           isodate: new Date('1999-01-01'),
-          regexp: new RegExp('/^[a-z0-9_-]{3,16}$/')
+          regexp: new RegExp('/^[a-z0-9_-]{3,16}$/'),
+          ts: bson.Timestamp(10, 100)
         }
       });
-    });
-    /* TODO: Problems
-       Timestamp throws an error when not given arguments.
-       NumberInt is just not implemented in query-parser
-    */
-    it('handles Timestamp', () => {
-      // const stage = {
-      //   id: 0, isEnabled: true, isExpanded: true, isValid: true, snippet: '',
-      //   stageOperator: '$match',
-      //   stage: '"{\n' +
-      //   '  ts: Timestamp(100)\n' +
-      //   '}"'
-      // };
-      // expect(generateStage(stage)).to.deep.equal({
-      //   '$match': {ts: bson.Timestamp(100)}
-      // });
-    });
-
-    it('handles NumberInt', () => {
-      // const stage = {
-      //   id: 0, isEnabled: true, isExpanded: true, isValid: true, snippet: '',
-      //   stageOperator: '$match',
-      //   stage: '{\n  ni: NumberInt(1)\n}'
-      // };
-      // expect(generateStage(stage)).to.deep.equal({ni: 1});
     });
   });
 });
