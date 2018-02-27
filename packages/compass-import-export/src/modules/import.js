@@ -67,6 +67,15 @@ const INITIAL_STATE = {
   status: PROCESS_STATUS.UNSPECIFIED
 };
 
+/**
+ * Finished statuses.
+ */
+const FINISHED_STATUS = [
+  PROCESS_STATUS.COMPLETED,
+  PROCESS_STATUS.CANCELED,
+  PROCESS_STATUS.FAILED
+];
+
 let importStatus = PROCESS_STATUS.UNSPECIFIED;
 
 /**
@@ -157,6 +166,15 @@ const importFailed = (error) => ({
 });
 
 /**
+ * Is the import finished?
+ *
+ * @returns {Boolean} If the import is finished.
+ */
+const isFinished = () => {
+  return FINISHED_STATUS.includes(importStatus);
+};
+
+/**
  * Epic for handling the start of an import.
  *
  * @param {ActionsObservable} action$ - The actions observable.
@@ -166,8 +184,7 @@ export const importStartedEpic = (action$, store) =>
   action$.ofType(IMPORT_ACTION)
     .flatMap(action => {
       importStatus = action.status;
-      if (importStatus === PROCESS_STATUS.CANCELLED ||
-          importStatus === PROCESS_STATUS.FAILED) {
+      if (isFinished()) {
         return Observable.empty();
       }
 
@@ -182,11 +199,23 @@ export const importStartedEpic = (action$, store) =>
       const splitLines = new SplitLines(fileType);
       frs.pipe(splitLines);
       return streamToObservable(splitLines)
-        .map((docs) => dataService.putMany(ns, docs, { ordered: false }))
-        .catch(importFailed)
-        .takeWhile(() => importStatus !== PROCESS_STATUS.CANCELLED)
-        .map(() => importProgress((frs.bytesRead * 100) / fileSizeInBytes))
-        .concat(Observable.of(importFinished()))
+        .switchMap((docs) => {
+          return dataService.putMany(ns, docs, { ordered: false })
+            .then(() => {
+              return importProgress((frs.bytesRead * 100) / fileSizeInBytes);
+            });
+        })
+        .takeWhile(() => {
+          return importStatus !== PROCESS_STATUS.CANCELLED;
+        })
+        .catch((v) => {
+          return Observable.of(importFailed(v));
+        })
+        .concat(() => {
+          return Observable.of('').map(() => {
+            return importFinished();
+          });
+        })
         .finally(() => {
           splitLines.end();
           frs.close();
@@ -222,6 +251,7 @@ const reducer = (state = INITIAL_STATE, action) => {
       return {
         ...state,
         error: action.error,
+        progress: 100,
         status: PROCESS_STATUS.FAILED
       };
     case SELECT_IMPORT_FILE_TYPE:

@@ -13,7 +13,7 @@ import CollectionStore from './stores/collection-store';
 import 'bootstrap/less/bootstrap.less';
 import 'less/index.less';
 
-const NS = 'import-export.users';
+const NS = 'import-export.users10';
 
 const appRegistry = new AppRegistry();
 
