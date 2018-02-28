@@ -82,11 +82,16 @@ const rootReducer = (state, action) => {
     case RESET:
       return { ...INITIAL_STATE };
     case RESTORE_PIPELINE:
-      return deepMerge(INITIAL_STATE, action.restoreState);
+      return deepMerge(INITIAL_STATE, action.restoreState, { arrayMerge: overwriteMerge });
     default:
       return appReducer(state, action);
   }
 };
+
+// when restoring the pipeline, don't merge arrays (in our case, stages array)
+function overwriteMerge(dest, src) {
+  return src;
+}
 
 export default rootReducer;
 
