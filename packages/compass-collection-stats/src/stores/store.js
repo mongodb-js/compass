@@ -36,6 +36,7 @@ const CollectionStatsStore = Reflux.createStore({
     this.CollectionStore = appRegistry.getStore('App.CollectionStore');
     appRegistry.on('document-deleted', this.onDocumentsModified.bind(this));
     appRegistry.on('document-inserted', this.onDocumentsModified.bind(this));
+    appRegistry.on('import-finished', this.onDocumentsModified.bind(this));
     appRegistry.on('data-service-connected', this.onConnected.bind(this));
     appRegistry.on('collection-changed', this.onCollectionChanged.bind(this));
   },
