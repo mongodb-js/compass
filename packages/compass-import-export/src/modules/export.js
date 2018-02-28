@@ -238,79 +238,177 @@ export const exportStartedEpic = (action$, store) =>
   });
 
 /**
- * The export reducer.
+ * Return the state after the export action.
  *
  * @param {Object} state - The state.
  * @param {Object} action - The action.
  *
- * @returns {Object} state - The new state.
+ * @returns {Object} The new state.
+ */
+const doExportAction = (state, action) => ({
+  ...state,
+  progress: 0,
+  status: action.status
+});
+
+/**
+ * Return the state after the progress action.
+ *
+ * @param {Object} state - The state.
+ * @param {Object} action - The action.
+ *
+ * @returns {Object} The new state.
+ */
+const doExportProgress = (state, action) => ({
+  ...state,
+  progress: Number(action.progress.toFixed(2))
+});
+
+/**
+ * Return the state after the completed action.
+ *
+ * @param {Object} state - The state.
+ *
+ * @returns {Object} The new state.
+ */
+const doExportCompleted = (state) => ({
+  ...state,
+  progress: 100,
+  status: PROCESS_STATUS.COMPLETED
+});
+
+/**
+ * Return the state after the canceled action.
+ *
+ * @param {Object} state - The state.
+ *
+ * @returns {Object} The new state.
+ */
+const doExportCanceled = (state) => ({
+  ...state,
+  progress: 100,
+  status: PROCESS_STATUS.CANCELED
+});
+
+/**
+ * Return the state after the failed action.
+ *
+ * @param {Object} state - The state.
+ * @param {Object} action - The action.
+ *
+ * @returns {Object} The new state.
+ */
+const doExportFailed = (state, action) => ({
+  ...state,
+  error: action.error,
+  progress: 100,
+  status: PROCESS_STATUS.FAILED
+});
+
+/**
+ * Return the state after the file type selected action.
+ *
+ * @param {Object} state - The state.
+ * @param {Object} action - The action.
+ *
+ * @returns {Object} The new state.
+ */
+const doExportFileTypeSelected = (state, action) => ({
+  ...state,
+  fileType: action.fileType
+});
+
+/**
+ * Return the state after the file name selected action.
+ *
+ * @param {Object} state - The state.
+ * @param {Object} action - The action.
+ *
+ * @returns {Object} The new state.
+ */
+const doExportFileNameSelected = (state, action) => ({
+  ...state,
+  fileName: action.fileName
+});
+
+/**
+ * Return the state after the open action.
+ *
+ * @param {Object} state - The state.
+ *
+ * @returns {Object} The new state.
+ */
+const doOpenExport = (state) => ({
+  ...INITIAL_STATE,
+  query: state.query,
+  isOpen: true
+});
+
+/**
+ * Return the state after the close action.
+ *
+ * @param {Object} state - The state.
+ *
+ * @returns {Object} The new state.
+ */
+const doCloseExport = (state) => ({
+  ...state,
+  isOpen: false
+});
+
+/**
+ * Return the state after the query changed action.
+ *
+ * @param {Object} state - The state.
+ * @param {Object} action - The action.
+ *
+ * @returns {Object} The new state.
+ */
+const doQueryChanged = (state, action) => ({
+  ...state,
+  query: action.query
+});
+
+/**
+ * Return the state after the toggle full collection action.
+ *
+ * @param {Object} state - The state.
+ *
+ * @returns {Object} The new state.
+ */
+const doToggleFullCollection = (state) => ({
+  ...state,
+  isFullCollection: !state.isFullCollection
+});
+
+/**
+ * The reducer function mappings.
+ */
+const MAPPINGS = {
+  [EXPORT_ACTION]: doExportAction,
+  [EXPORT_PROGRESS]: doExportProgress,
+  [EXPORT_COMPLETED]: doExportCompleted,
+  [EXPORT_CANCELED]: doExportCanceled,
+  [EXPORT_FAILED]: doExportFailed,
+  [SELECT_EXPORT_FILE_TYPE]: doExportFileTypeSelected,
+  [SELECT_EXPORT_FILE_NAME]: doExportFileNameSelected,
+  [OPEN_EXPORT]: doOpenExport,
+  [CLOSE_EXPORT]: doCloseExport,
+  [QUERY_CHANGED]: doQueryChanged,
+  [TOGGLE_FULL_COLLECTION]: doToggleFullCollection
+};
+
+/**
+ * The export module reducer.
+ *
+ * @param {Object} state - The state.
+ * @param {Object} action - The action.
+ *
+ * @returns {Object} The state.
  */
 const reducer = (state = INITIAL_STATE, action) => {
-  switch (action.type) {
-    case EXPORT_ACTION:
-      return {
-        ...state,
-        progress: 0,
-        status: action.status
-      };
-    case EXPORT_PROGRESS:
-      return {
-        ...state,
-        progress: Number(action.progress.toFixed(2))
-      };
-    case EXPORT_COMPLETED:
-      return {
-        ...state,
-        progress: 100,
-        status: PROCESS_STATUS.COMPLETED
-      };
-    case EXPORT_CANCELED:
-      return {
-        ...state,
-        progress: 100,
-        status: PROCESS_STATUS.CANCELED
-      };
-    case EXPORT_FAILED:
-      return {
-        ...state,
-        error: action.error,
-        progress: 100,
-        status: PROCESS_STATUS.FAILED
-      };
-    case SELECT_EXPORT_FILE_TYPE:
-      return {
-        ...state,
-        fileType: action.fileType
-      };
-    case SELECT_EXPORT_FILE_NAME:
-      return {
-        ...state,
-        fileName: action.fileName
-      };
-    case QUERY_CHANGED:
-      return {
-        ...state,
-        query: action.query
-      };
-    case OPEN_EXPORT:
-      return {
-        ...INITIAL_STATE,
-        query: state.query,
-        isOpen: true
-      };
-    case CLOSE_EXPORT:
-      return {
-        ...state,
-        isOpen: false
-      };
-    case TOGGLE_FULL_COLLECTION:
-      return {
-        ...state,
-        isFullCollection: !state.isFullCollection
-      };
-    default:
-      return state;
-  }
+  const fn = MAPPINGS[action.type];
+  return fn ? fn(state, action) : state;
 };
 
 export default reducer;
