@@ -199,7 +199,7 @@ export const importStartedEpic = (action$, store) =>
       const splitLines = new SplitLines(fileType);
       frs.pipe(splitLines);
       return streamToObservable(splitLines)
-        .switchMap((docs) => {
+        .concatMap((docs) => {
           return dataService.putMany(ns, docs, { ordered: false })
             .then(() => {
               return importProgress((frs.bytesRead * 100) / fileSizeInBytes);
@@ -208,14 +208,12 @@ export const importStartedEpic = (action$, store) =>
         .takeWhile(() => {
           return importStatus !== PROCESS_STATUS.CANCELLED;
         })
-        .catch((v) => {
-          return Observable.of(importFailed(v));
+        .catch((error) => {
+          return Observable.of(importFailed(error));
         })
-        .concat(() => {
-          return Observable.of('').map(() => {
-            return importFinished();
-          });
-        })
+        .concat(Observable.of('').map(() => {
+          return importFinished();
+        }))
         .finally(() => {
           splitLines.end();
           frs.close();
@@ -239,7 +237,7 @@ const reducer = (state = INITIAL_STATE, action) => {
       return {
         ...state,
         progress: 100,
-        status: PROCESS_STATUS.COMPLETED
+        status: state.status === PROCESS_STATUS.FAILED ? PROCESS_STATUS.FAILED : PROCESS_STATUS.COMPLETED
       };
     case IMPORT_CANCELED:
       return {
