@@ -5,7 +5,7 @@ import classnames from 'classnames';
 import {
   Modal, Button, FormGroup, InputGroup, FormControl, ControlLabel
 } from 'react-bootstrap';
-import { TextButton } from 'hadron-react-buttons';
+import { TextButton, IconTextButton } from 'hadron-react-buttons';
 import fileOpenDialog from 'utils/file-open-dialog';
 import PROCESS_STATUS, { FINISHED_STATUSES } from 'constants/process-status';
 import FILE_TYPES from 'constants/file-types';
@@ -138,11 +138,13 @@ class ImportModal extends PureComponent {
           <form>
             <FormGroup controlId="import-file">
               <ControlLabel>Select File</ControlLabel>
-              <InputGroup>
+              <InputGroup bsClass={classnames(styles['import-modal-browse-group'])}>
                 <FormControl type="text" value={this.props.fileName} readOnly />
-                <InputGroup.Button>
-                  <Button onClick={this.handleChooseFile}>Browse</Button>
-                </InputGroup.Button>
+                <IconTextButton
+                  text="Browse"
+                  clickHandler={this.handleChooseFile}
+                  className={classnames(styles['import-modal-browse-button'])}
+                  iconClassName="fa fa-folder-open-o" />
               </InputGroup>
             </FormGroup>
           </form>

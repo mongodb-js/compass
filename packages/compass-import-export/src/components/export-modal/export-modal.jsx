@@ -6,7 +6,7 @@ import classnames from 'classnames';
 import {
   Modal, Button, FormGroup, InputGroup, FormControl, ControlLabel
 } from 'react-bootstrap';
-import { TextButton } from 'hadron-react-buttons';
+import { TextButton, IconTextButton } from 'hadron-react-buttons';
 import QueryViewer from 'components/query-viewer';
 import ProgressBar from 'components/progress-bar';
 import fileSaveDialog from 'utils/file-save-dialog';
@@ -164,11 +164,13 @@ class ExportModal extends PureComponent {
           <form>
             <FormGroup controlId="export-file">
               <ControlLabel>Select File</ControlLabel>
-              <InputGroup>
+              <InputGroup bsClass={classnames(styles['export-modal-browse-group'])}>
                 <FormControl type="text" value={this.props.fileName} readOnly />
-                <InputGroup.Button>
-                  <Button onClick={this.handleChooseFile}>Browse</Button>
-                </InputGroup.Button>
+                <IconTextButton
+                  text="Browse"
+                  clickHandler={this.handleChooseFile}
+                  className={classnames(styles['export-modal-browse-button'])}
+                  iconClassName="fa fa-folder-open-o" />
               </InputGroup>
             </FormGroup>
           </form>
