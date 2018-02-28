@@ -1,6 +1,7 @@
 import { combineReducers } from 'redux';
 import { combineEpics } from 'redux-observable';
 
+import appRegistry from './app-registry';
 import ns from './ns';
 import dataService from './data-service';
 import stats from './stats';
@@ -17,7 +18,8 @@ export const rootReducer = combineReducers({
   dataService,
   stats,
   exportData,
-  importData
+  importData,
+  appRegistry
 });
 
 /**
