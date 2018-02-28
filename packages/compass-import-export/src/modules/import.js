@@ -4,6 +4,7 @@ import streamToObservable from 'stream-to-observable';
 import SplitLines from 'utils/split-lines-transform';
 import PROCESS_STATUS from 'constants/process-status';
 import FILE_TYPES from 'constants/file-types';
+import { appRegistryEmit } from 'modules/app-registry';
 
 /**
  * The prefix.
@@ -213,6 +214,9 @@ export const importStartedEpic = (action$, store) =>
         })
         .concat(Observable.of('').map(() => {
           return importFinished();
+        }))
+        .concat(Observable.of('').map(() => {
+          return appRegistryEmit('import-finished');
         }))
         .finally(() => {
           splitLines.end();
