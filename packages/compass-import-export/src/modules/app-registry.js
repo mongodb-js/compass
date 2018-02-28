@@ -12,6 +12,7 @@ export const APP_REGISTRY_ACTIVATED = `${PREFIX}/APP_REGISTRY_ACTIVATED`;
  * Action for emitting on the app registry.
  */
 export const APP_REGISTRY_EMIT = `${PREFIX}/APP_REGISTRY_EMIT`;
+export const APP_REGISTRY_EVENT_EMITTED = `${PREFIX}/APP_REGISTRY_EVENT_EMITTED`;
 
 /**
  * The initial ns state.
@@ -44,6 +45,25 @@ export const appRegistryEmit = (name, ...args) => ({
   args: args
 });
 
+export const appRegistryEventEmitted = () => ({
+  type: APP_REGISTRY_EVENT_EMITTED
+});
+
+/**
+ * The app registry epic handles only firing on the app registry.
+ *
+ * @param {Object} action$ - The action.
+ * @param {Store} store - The store.
+ */
+export const appRegistryEpic = (action$, store) =>
+  action$.ofType(APP_REGISTRY_EMIT).map(action => {
+    const appRegistry = store.getState().appRegistry;
+    if (appRegistry) {
+      appRegistry.emit(action.name, ...action.args);
+    }
+    return appRegistryEventEmitted();
+  });
+
 /**
  * Handle changes to the state.
  *
@@ -55,9 +75,6 @@ export const appRegistryEmit = (name, ...args) => ({
 const reducer = (state = INITIAL_STATE, action) => {
   if (action.type === APP_REGISTRY_ACTIVATED) {
     return action.appRegistry;
-  } else if (action.type === APP_REGISTRY_EMIT) {
-    state.emit(action.name, ...action.args);
-    return state;
   }
   return state;
 };

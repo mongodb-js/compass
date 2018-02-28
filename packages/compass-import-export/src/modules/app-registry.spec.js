@@ -12,17 +12,6 @@ describe('app-registry [module]', () => {
       });
     });
 
-    context('when the action type is APP_REGISTRY_EMIT', () => {
-      const emitSpy = sinon.spy();
-      const registry = { emit: emitSpy };
-      const action = actions.appRegistryEmit('refresh-documents', spy);
-
-      it('returns the new state and emits the event', () => {
-        expect(reducer(registry, action)).to.equal(registry);
-        expect(emitSpy.calledWith('refresh-documents', spy)).to.equal(true);
-      });
-    });
-
     context('when the action type is not recognised', () => {
       it('returns the initial state', () => {
         expect(reducer(undefined, {})).to.deep.equal(null);
