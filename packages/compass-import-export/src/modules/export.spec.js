@@ -9,7 +9,8 @@ describe('export [module]', () => {
         expect(reducer(undefined, action)).to.deep.equal({
           isOpen: false,
           progress: 55,
-          query: {},
+          isFullCollection: false,
+          query: { filter: {}},
           error: null,
           fileName: '',
           fileType: 'json',
@@ -26,7 +27,8 @@ describe('export [module]', () => {
         expect(reducer(undefined, action)).to.deep.equal({
           isOpen: false,
           progress: 100,
-          query: {},
+          isFullCollection: false,
+          query: { filter: {}},
           error: error,
           fileName: '',
           fileType: 'json',
@@ -42,7 +44,8 @@ describe('export [module]', () => {
         expect(reducer(undefined, action)).to.deep.equal({
           isOpen: false,
           progress: 0,
-          query: {},
+          isFullCollection: false,
+          query: { filter: {}},
           error: null,
           fileName: '',
           fileType: 'csv',
@@ -58,7 +61,8 @@ describe('export [module]', () => {
         expect(reducer(undefined, action)).to.deep.equal({
           isOpen: false,
           progress: 0,
-          query: {},
+          isFullCollection: false,
+          query: { filter: {}},
           error: null,
           fileName: 'testing.json',
           fileType: 'json',
@@ -74,7 +78,8 @@ describe('export [module]', () => {
         expect(reducer(undefined, action)).to.deep.equal({
           isOpen: true,
           progress: 0,
-          query: {},
+          isFullCollection: false,
+          query: { filter: {}},
           error: null,
           fileName: '',
           fileType: 'json',
@@ -90,7 +95,8 @@ describe('export [module]', () => {
         expect(reducer(undefined, action)).to.deep.equal({
           isOpen: false,
           progress: 0,
-          query: {},
+          isFullCollection: false,
+          query: { filter: {}},
           error: null,
           fileName: '',
           fileType: 'json',

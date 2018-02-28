@@ -61,12 +61,25 @@ export const CLOSE_EXPORT = `${PREFIX}/CLOSE_EXPORT`;
 export const QUERY_CHANGED = `${PREFIX}/QUERY_CHANGED`;
 
 /**
+ * Toggle full collection name.
+ */
+export const TOGGLE_FULL_COLLECTION = `${PREFIX}/TOGGLE_FULL_COLLECTION`;
+
+/**
+ * A full collection query.
+ */
+const FULL_QUERY = {
+  filter: {}
+};
+
+/**
  * The initial state.
  */
 const INITIAL_STATE = {
   isOpen: false,
+  isFullCollection: false,
   progress: 0,
-  query: {},
+  query: FULL_QUERY,
   error: null,
   fileName: '',
   fileType: FILE_TYPES.JSON,
@@ -85,6 +98,15 @@ let exportStatus = PROCESS_STATUS.UNSPECIFIED;
 export const exportAction = (status) => ({
   type: EXPORT_ACTION,
   status: status
+});
+
+/**
+ * Toggle the full collection flag.
+ *
+ * @returns {Object} The action.
+ */
+export const toggleFullCollection = () => ({
+  type: TOGGLE_FULL_COLLECTION
 });
 
 /**
@@ -174,6 +196,8 @@ export const exportFailed = (error) => ({
   error: error
 });
 
+/* eslint complexity: 0 */
+
 /**
  * The export epic.
  *
@@ -192,7 +216,10 @@ export const exportStartedEpic = (action$, store) =>
     const { stats, ns, exportData, dataService } = store.getState();
     const fws = fs.createWriteStream(exportData.fileName);
     const { cursor, docTransform } = exportCollection(
-      dataService, ns, exportData.query, exportData.fileType
+      dataService,
+      ns,
+      exportData.isFullCollection ? FULL_QUERY : exportData.query,
+      exportData.fileType
     );
 
     docTransform.pipe(fws);
@@ -275,6 +302,11 @@ const reducer = (state = INITIAL_STATE, action) => {
       return {
         ...state,
         isOpen: false
+      };
+    case TOGGLE_FULL_COLLECTION:
+      return {
+        ...state,
+        isFullCollection: !state.isFullCollection
       };
     default:
       return state;

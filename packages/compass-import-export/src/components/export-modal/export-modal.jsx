@@ -1,6 +1,7 @@
 import React, { PureComponent } from 'react';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
+import Switch from 'react-ios-switch';
 import classnames from 'classnames';
 import {
   Modal, Button, FormGroup, InputGroup, FormControl, ControlLabel
@@ -13,6 +14,7 @@ import PROCESS_STATUS from 'constants/process-status';
 import FILE_TYPES from 'constants/file-types';
 import {
   exportAction,
+  toggleFullCollection,
   selectExportFileType,
   selectExportFileName,
   closeExport
@@ -44,6 +46,8 @@ class ExportModal extends PureComponent {
     error: PropTypes.object,
     exportAction: PropTypes.func.isRequired,
     closeExport: PropTypes.func.isRequired,
+    isFullCollection: PropTypes.bool.isRequired,
+    toggleFullCollection: PropTypes.func.isRequired,
     selectExportFileType: PropTypes.func.isRequired,
     selectExportFileName: PropTypes.func.isRequired,
     fileType: PropTypes.string,
@@ -118,17 +122,30 @@ class ExportModal extends PureComponent {
    * @returns {React.Component} The component.
    */
   render() {
+    const queryClassName = classnames({
+      [ styles['export-modal-query'] ]: true,
+      [ styles['export-modal-query-is-disabled'] ]: this.props.isFullCollection
+    });
     return (
-      <Modal show={this.props.open} onHide={this.handleClose} >
+      <Modal show={this.props.open} onHide={this.handleClose}>
         <Modal.Header closeButton>
           Export Collection {this.props.ns}
         </Modal.Header>
         <Modal.Body>
-          <div className={classnames(styles['export-modal-query'])}>
+          <div className={queryClassName}>
             Exporting {this.props.count} documents returned by the following query:
           </div>
           <div>
-            <QueryViewer query={this.props.query} />
+            <QueryViewer query={this.props.query} disabled={this.props.isFullCollection} />
+          </div>
+          <div className={classnames(styles['export-modal-toggle-full'])}>
+            <Switch
+              checked={this.props.isFullCollection}
+              onChange={this.props.toggleFullCollection}
+              className={classnames(styles['export-modal-toggle-button'])} />
+            <div className={classnames(styles['export-modal-toggle-text'])}>
+              Export Full Collection
+            </div>
           </div>
           <div className={classnames(styles['export-modal-output'])}>
             Select Output File Type
@@ -185,6 +202,7 @@ const mapStateToProps = (state) => ({
   progress: state.exportData.progress,
   count: state.stats.rawDocumentCount,
   query: state.exportData.query,
+  isFullCollection: state.exportData.isFullCollection,
   open: state.exportData.isOpen,
   error: state.exportData.error,
   fileType: state.exportData.fileType,
@@ -199,6 +217,7 @@ export default connect(
   mapStateToProps,
   {
     exportAction,
+    toggleFullCollection,
     selectExportFileType,
     selectExportFileName,
     closeExport

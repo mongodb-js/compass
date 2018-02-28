@@ -25,6 +25,34 @@
 
   &-query {
     padding: 5px 0px 5px 0px;
+
+    &-is-disabled {
+      color: @gray5;
+    }
+  }
+
+  &-toggle {
+    &-full {
+      padding: 10px 0px 5px 0px;
+      display: flex;
+      align-items: center;
+    }
+
+    &-button {
+      height: 22px !important;
+      width: 42px !important;
+      cursor: pointer !important;
+
+      span {
+        height: 20px !important;
+        width: 20px !important;
+        cursor: pointer !important;
+      }
+    }
+
+    &-text {
+      padding-left: 5px;
+    }
   }
 
   &-progress {

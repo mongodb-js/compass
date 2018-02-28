@@ -31,7 +31,8 @@ class QueryViewer extends PureComponent {
   static displayName = 'QueryViewerComponent';
 
   static propTypes = {
-    query: PropTypes.object.isRequired
+    query: PropTypes.object.isRequired,
+    disabled: PropTypes.bool.isRequired
   }
 
   /**
