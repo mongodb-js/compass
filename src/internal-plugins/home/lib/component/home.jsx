@@ -51,7 +51,8 @@ class Home extends React.Component {
     this.DropCollectionDialog = app.appRegistry.getComponent('Database.DropCollectionDialog');
     this.InstanceHeader = app.appRegistry.getComponent('InstanceHeader.Component');
     this.SchemaActions = app.appRegistry.getAction('Schema.Actions');
-    this.importExportRole = app.appRegistry.getRole('ImportExport.Control');
+    this.importRole = app.appRegistry.getRole('Import.Modal');
+    this.exportRole = app.appRegistry.getRole('Export.Modal');
   }
 
   componentWillMount() {
@@ -121,10 +122,17 @@ class Home extends React.Component {
     );
   }
 
-  renderImportExportControl() {
-    if (this.importExportRole) {
-      const ImportExport = this.importExportRole[0].component;
-      return (<ImportExport />);
+  renderImportModal() {
+    if (this.importRole) {
+      const Import = this.importRole[0].component;
+      return (<Import />);
+    }
+  }
+
+  renderExportModal() {
+    if (this.exportRole) {
+      const Export = this.exportRole[0].component;
+      return (<Export />);
     }
   }
 
@@ -142,7 +150,8 @@ class Home extends React.Component {
           <this.DropDatabaseDialog />
           <this.CreateCollectionDialog />
           <this.DropCollectionDialog />
-          {this.renderImportExportControl()}
+          {this.renderImportModal()}
+          {this.renderExportModal()}
         </div>
       </div>
     );
