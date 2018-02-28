@@ -33,6 +33,42 @@ describe('<Types />', () => {
         expect(types.children().length).to.equal(19);
       });
 
+      it('sets the dropdown to closed', () => {
+        expect(wrapper.hasClass('closed')).to.be.true;
+      });
+
+      context('when clicking the button', () => {
+        beforeEach(() => {
+          const button = wrapper.find('#types-dropdown');
+          button.simulate('click');
+        });
+
+        afterEach(() => {
+          const button = wrapper.find('#types-dropdown');
+          button.simulate('click');
+        });
+
+        it('sets the dropdown to open', () => {
+          expect(wrapper.hasClass('open')).to.be.true;
+        });
+
+        context('when clicking the button again', () => {
+          beforeEach(() => {
+            const button = wrapper.find('#types-dropdown');
+            button.simulate('click');
+          });
+
+          afterEach(() => {
+            const button = wrapper.find('#types-dropdown');
+            button.simulate('click');
+          });
+
+          it('sets the dropdown to closed', () => {
+            expect(wrapper.hasClass('closed')).to.be.true;
+          });
+        });
+      });
+
       context('when selecting a type', () => {
         context('when the new type requires no special handling', () => {
           before(() => {

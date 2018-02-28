@@ -47,7 +47,7 @@ class Types extends React.Component {
     if (this.element.currentType !== this.element.type) {
       className = `${className} editable-element-types-is-edited`;
     }
-    return this.state.isOpen ? `${className}` : `${className} closed`;
+    return this.state.isOpen ? `${className} open` : `${className} closed`;
   }
 
   /**
@@ -97,8 +97,8 @@ class Types extends React.Component {
     return this.props.version >= HP_VERSION;
   }
 
-  removeOpenClass() {
-    this.setState({ isOpen: !this.state.isOpen });
+  toggleOpenClass(isOpen = !this.state.isOpen) {
+    this.setState({ isOpen });
   }
 
   /**
@@ -116,8 +116,9 @@ class Types extends React.Component {
           id="types-dropdown"
           data-toggle="dropdown"
           aria-haspopup="true"
-          aria-expanded="false"
-          onBlur={this.removeOpenClass.bind(this)}
+          aria-expanded={this.state.isOpen}
+          onClick={() => this.toggleOpenClass()}
+          onBlur={() => this.toggleOpenClass(false)}
           ref={this.props.buttonRef ? this.props.buttonRef : () => {}}>
           {this.element.currentType}
           <span className="caret"></span>
