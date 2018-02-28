@@ -220,61 +220,150 @@ export const importStartedEpic = (action$, store) =>
         });
     });
 
+/**
+ * Returns the state after the import action.
+ *
+ * @param {Object} state - The state.
+ * @param {Object} action - The action.
+ *
+ * @returns {Object} The new state.
+ */
+const doImportAction = (state, action) => ({
+  ...state,
+  progress: 0,
+  status: action.status
+});
+
+/**
+ * Returns the state after the import progress action.
+ *
+ * @param {Object} state - The state.
+ * @param {Object} action - The action.
+ *
+ * @returns {Object} The new state.
+ */
+const doImportProgress = (state, action) => ({
+  ...state,
+  progress: Number(action.progress.toFixed(2))
+});
+
+/**
+ * Returns the state after the import completed action.
+ *
+ * @param {Object} state - The state.
+ *
+ * @returns {Object} The new state.
+ */
+const doImportCompleted = (state) => ({
+  ...state,
+  progress: 100,
+  status: state.status === PROCESS_STATUS.FAILED
+    ? PROCESS_STATUS.FAILED
+    : PROCESS_STATUS.COMPLETED
+});
+
+/**
+ * Returns the state after the import canceled action.
+ *
+ * @param {Object} state - The state.
+ *
+ * @returns {Object} The new state.
+ */
+const doImportCanceled = (state) => ({
+  ...state,
+  progress: 0,
+  status: PROCESS_STATUS.CANCELED
+});
+
+/**
+ * Returns the state after the import failed action.
+ *
+ * @param {Object} state - The state.
+ * @param {Object} action - The action.
+ *
+ * @returns {Object} The new state.
+ */
+const doImportFailed = (state, action) => ({
+  ...state,
+  error: action.error,
+  progress: 100,
+  status: PROCESS_STATUS.FAILED
+});
+
+/**
+ * Returns the state after the file type selected action.
+ *
+ * @param {Object} state - The state.
+ * @param {Object} action - The action.
+ *
+ * @returns {Object} The new state.
+ */
+const doImportFileTypeSelected = (state, action) => ({
+  ...state,
+  fileType: action.fileType
+});
+
+/**
+ * Returns the state after the file name selected action.
+ *
+ * @param {Object} state - The state.
+ * @param {Object} action - The action.
+ *
+ * @returns {Object} The new state.
+ */
+const doImportFileNameSelected = (state, action) => ({
+  ...state,
+  fileName: action.fileName
+});
+
+/**
+ * Returns the state after the open action.
+ *
+ * @returns {Object} The new state.
+ */
+const doOpenImport = () => ({
+  ...INITIAL_STATE,
+  isOpen: true
+});
+
+/**
+ * Returns the state after the close action.
+ *
+ * @param {Object} state - The state.
+ *
+ * @returns {Object} The new state.
+ */
+const doCloseImport = (state) => ({
+  ...state,
+  isOpen: false
+});
+
+/**
+ * The reducer function mappings.
+ */
+const MAPPINGS = {
+  [IMPORT_ACTION]: doImportAction,
+  [IMPORT_PROGRESS]: doImportProgress,
+  [IMPORT_COMPLETED]: doImportCompleted,
+  [IMPORT_CANCELED]: doImportCanceled,
+  [IMPORT_FAILED]: doImportFailed,
+  [SELECT_IMPORT_FILE_TYPE]: doImportFileTypeSelected,
+  [SELECT_IMPORT_FILE_NAME]: doImportFileNameSelected,
+  [OPEN_IMPORT]: doOpenImport,
+  [CLOSE_IMPORT]: doCloseImport
+};
+
+/**
+ * The import module reducer.
+ *
+ * @param {Object} state - The state.
+ * @param {Object} action - The action.
+ *
+ * @returns {Object} The state.
+ */
 const reducer = (state = INITIAL_STATE, action) => {
-  switch (action.type) {
-    case IMPORT_ACTION:
-      return {
-        ...state,
-        progress: 0,
-        status: action.status
-      };
-    case IMPORT_PROGRESS:
-      return {
-        ...state,
-        progress: Number(action.progress.toFixed(2))
-      };
-    case IMPORT_COMPLETED:
-      return {
-        ...state,
-        progress: 100,
-        status: state.status === PROCESS_STATUS.FAILED ? PROCESS_STATUS.FAILED : PROCESS_STATUS.COMPLETED
-      };
-    case IMPORT_CANCELED:
-      return {
-        ...state,
-        progress: 0,
-        status: PROCESS_STATUS.CANCELED
-      };
-    case IMPORT_FAILED:
-      return {
-        ...state,
-        error: action.error,
-        progress: 100,
-        status: PROCESS_STATUS.FAILED
-      };
-    case SELECT_IMPORT_FILE_TYPE:
-      return {
-        ...state,
-        fileType: action.fileType
-      };
-    case SELECT_IMPORT_FILE_NAME:
-      return {
-        ...state,
-        fileName: action.fileName
-      };
-    case OPEN_IMPORT:
-      return {
-        ...INITIAL_STATE,
-        isOpen: true
-      };
-    case CLOSE_IMPORT:
-      return {
-        ...state,
-        isOpen: false
-      };
-    default:
-      return state;
-  }
+  const fn = MAPPINGS[action.type];
+  return fn ? fn(state, action) : state;
 };
 
 export default reducer;
