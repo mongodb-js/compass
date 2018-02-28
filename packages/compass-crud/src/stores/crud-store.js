@@ -141,6 +141,7 @@ const CRUDStore = Reflux.createStore({
     appRegistry.on('query-changed', this.onQueryChanged.bind(this));
     appRegistry.on('data-service-connected', this.setDataService.bind(this));
     appRegistry.on('instance-changed', this.onInstanceChanged.bind(this));
+    appRegistry.on('import-finished', this.refreshDocuments.bind(this));
     this.CollectionStore = appRegistry.getStore('App.CollectionStore');
     this.appRegistry = appRegistry;
   },
