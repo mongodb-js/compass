@@ -126,6 +126,11 @@ class ExportModal extends PureComponent {
       [ styles['export-modal-query'] ]: true,
       [ styles['export-modal-query-is-disabled'] ]: this.props.isFullCollection
     });
+    const queryViewerClassName = classnames({
+      [ styles['export-modal-query-viewer'] ]: true,
+      [ styles['export-modal-query-viewer-is-disabled'] ]: this.props.isFullCollection
+    });
+
     return (
       <Modal show={this.props.open} onHide={this.handleClose}>
         <Modal.Header closeButton>
@@ -135,7 +140,7 @@ class ExportModal extends PureComponent {
           <div className={queryClassName}>
             Exporting {this.props.count} documents returned by the following query:
           </div>
-          <div>
+          <div className={queryViewerClassName}>
             <QueryViewer query={this.props.query} disabled={this.props.isFullCollection} />
           </div>
           <div className={classnames(styles['export-modal-toggle-full'])}>
