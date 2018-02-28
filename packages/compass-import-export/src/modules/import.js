@@ -13,47 +13,47 @@ const PREFIX = 'import-export/import';
 /**
  * Import action name.
  */
-const IMPORT_ACTION = `${PREFIX}/IMPORT_ACTION`;
+export const IMPORT_ACTION = `${PREFIX}/IMPORT_ACTION`;
 
 /**
  * Progress action name.
  */
-const IMPORT_PROGRESS = `${PREFIX}/IMPORT_PROGRESS`;
+export const IMPORT_PROGRESS = `${PREFIX}/IMPORT_PROGRESS`;
 
 /**
  * Completed action name.
  */
-const IMPORT_COMPLETED = `${PREFIX}/IMPORT_COMPLETED`;
+export const IMPORT_COMPLETED = `${PREFIX}/IMPORT_COMPLETED`;
 
 /**
  * Canceled action name.
  */
-const IMPORT_CANCELED = `${PREFIX}/IMPORT_CANCELED`;
+export const IMPORT_CANCELED = `${PREFIX}/IMPORT_CANCELED`;
 
 /**
  * Failed action name.
  */
-const IMPORT_FAILED = `${PREFIX}/IMPORT_FAILED`;
+export const IMPORT_FAILED = `${PREFIX}/IMPORT_FAILED`;
 
 /**
  * Select file type action name.
  */
-const SELECT_IMPORT_FILE_TYPE = `${PREFIX}/SELECT_IMPORT_FILE_TYPE`;
+export const SELECT_IMPORT_FILE_TYPE = `${PREFIX}/SELECT_IMPORT_FILE_TYPE`;
 
 /**
  * Select file name action name.
  */
-const SELECT_IMPORT_FILE_NAME = `${PREFIX}/SELECT_IMPORT_FILE_NAME`;
+export const SELECT_IMPORT_FILE_NAME = `${PREFIX}/SELECT_IMPORT_FILE_NAME`;
 
 /**
  * Open action name.
  */
-const OPEN_IMPORT = `${PREFIX}/OPEN_IMPORT`;
+export const OPEN_IMPORT = `${PREFIX}/OPEN_IMPORT`;
 
 /**
  * Close action name.
  */
-const CLOSE_IMPORT = `${PREFIX}/CLOSE_IMPORT`;
+export const CLOSE_IMPORT = `${PREFIX}/CLOSE_IMPORT`;
 
 /**
  * Initial state.
@@ -139,7 +139,7 @@ export const closeImport = () => ({
  *
  * @returns {Object} The action.
  */
-const importProgress = (progress) => ({
+export const importProgress = (progress) => ({
   type: IMPORT_PROGRESS,
   progress: progress
 });
@@ -149,7 +149,7 @@ const importProgress = (progress) => ({
  *
  * @returns {Object} The action.
  */
-const importFinished = () => ({
+export const importFinished = () => ({
   type: importStatus !== PROCESS_STATUS.CANCELLED ? IMPORT_COMPLETED : IMPORT_CANCELED
 });
 
@@ -160,7 +160,7 @@ const importFinished = () => ({
  *
  * @returns {Object} The action.
  */
-const importFailed = (error) => ({
+export const importFailed = (error) => ({
   type: IMPORT_FAILED,
   error: error
 });
@@ -228,7 +228,7 @@ export const importStartedEpic = (action$, store) =>
  *
  * @returns {Object} The new state.
  */
-const doImportAction = (state, action) => ({
+export const doImportAction = (state, action) => ({
   ...state,
   progress: 0,
   status: action.status
@@ -242,7 +242,7 @@ const doImportAction = (state, action) => ({
  *
  * @returns {Object} The new state.
  */
-const doImportProgress = (state, action) => ({
+export const doImportProgress = (state, action) => ({
   ...state,
   progress: Number(action.progress.toFixed(2))
 });
@@ -254,7 +254,7 @@ const doImportProgress = (state, action) => ({
  *
  * @returns {Object} The new state.
  */
-const doImportCompleted = (state) => ({
+export const doImportCompleted = (state) => ({
   ...state,
   progress: 100,
   status: state.status === PROCESS_STATUS.FAILED
@@ -269,7 +269,7 @@ const doImportCompleted = (state) => ({
  *
  * @returns {Object} The new state.
  */
-const doImportCanceled = (state) => ({
+export const doImportCanceled = (state) => ({
   ...state,
   progress: 0,
   status: PROCESS_STATUS.CANCELED
@@ -283,7 +283,7 @@ const doImportCanceled = (state) => ({
  *
  * @returns {Object} The new state.
  */
-const doImportFailed = (state, action) => ({
+export const doImportFailed = (state, action) => ({
   ...state,
   error: action.error,
   progress: 100,
@@ -298,7 +298,7 @@ const doImportFailed = (state, action) => ({
  *
  * @returns {Object} The new state.
  */
-const doImportFileTypeSelected = (state, action) => ({
+export const doImportFileTypeSelected = (state, action) => ({
   ...state,
   fileType: action.fileType
 });
@@ -311,7 +311,7 @@ const doImportFileTypeSelected = (state, action) => ({
  *
  * @returns {Object} The new state.
  */
-const doImportFileNameSelected = (state, action) => ({
+export const doImportFileNameSelected = (state, action) => ({
   ...state,
   fileName: action.fileName
 });
@@ -321,7 +321,7 @@ const doImportFileNameSelected = (state, action) => ({
  *
  * @returns {Object} The new state.
  */
-const doOpenImport = () => ({
+export const doOpenImport = () => ({
   ...INITIAL_STATE,
   isOpen: true
 });
@@ -333,7 +333,7 @@ const doOpenImport = () => ({
  *
  * @returns {Object} The new state.
  */
-const doCloseImport = (state) => ({
+export const doCloseImport = (state) => ({
   ...state,
   isOpen: false
 });
