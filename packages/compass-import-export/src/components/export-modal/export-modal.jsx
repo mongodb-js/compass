@@ -164,8 +164,8 @@ class ExportModal extends PureComponent {
             clickHandler={this.handleClose} />
           <TextButton
             className="btn btn-primary btn-sm"
-            dataTestId="insert-document-button"
             text="Export"
+            disabled={this.props.status === PROCESS_STATUS.STARTED}
             clickHandler={this.handleExport} />
         </Modal.Footer>
       </Modal>

@@ -155,8 +155,8 @@ class ImportModal extends PureComponent {
             clickHandler={this.handleClose} />
           <TextButton
             className="btn btn-primary btn-sm"
-            dataTestId="insert-document-button"
             text="Import"
+            disabled={this.props.status === PROCESS_STATUS.STARTED}
             clickHandler={this.handleImport} />
         </Modal.Footer>
       </Modal>
