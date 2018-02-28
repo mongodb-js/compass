@@ -122,6 +122,9 @@ class RemoveDocumentFooter extends React.Component {
    * @returns {Component} The footer component.
    */
   render() {
+    const { mode } = this.state;
+    const showCancel = [DELETING, ERROR].includes(mode);
+    const showDelete = mode === DELETING;
     return (
       <div className={this.style()}>
         <div
@@ -131,16 +134,20 @@ class RemoveDocumentFooter extends React.Component {
           {this.state.message}
         </div>
         <div className="document-footer-actions">
-          <TextButton
-            className="btn btn-borderless btn-xs cancel"
-            text="Cancel"
-            dataTestId="cancel-document-button"
-            clickHandler={this.props.cancelHandler} />
-          <TextButton
-            className="btn btn-default btn-xs error"
-            text="Delete"
-            dataTestId="confirm-delete-document-button"
-            clickHandler={this.handleRemove.bind(this)} />
+          {showCancel && (
+            <TextButton
+              className="btn btn-borderless btn-xs cancel"
+              text={mode === ERROR ? 'Ok' : 'Cancel'}
+              dataTestId="cancel-document-button"
+              clickHandler={this.props.cancelHandler} />
+          )}
+          {showDelete && (
+            <TextButton
+              className="btn btn-default btn-xs error"
+              text="Delete"
+              dataTestId="confirm-delete-document-button"
+              clickHandler={this.handleRemove.bind(this)} />
+          )}
         </div>
       </div>
     );
