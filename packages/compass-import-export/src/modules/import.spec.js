@@ -93,10 +93,56 @@ describe('import [module]', () => {
     });
   });
 
+  describe('#openImport', () => {
+    it('returns the action', () => {
+      expect(actions.openImport()).to.deep.equal({
+        type: actions.OPEN_IMPORT
+      });
+    });
+  });
+
   describe('#closeImport', () => {
     it('returns the action', () => {
       expect(actions.closeImport()).to.deep.equal({
         type: actions.CLOSE_IMPORT
+      });
+    });
+  });
+
+  describe('#importFailed', () => {
+    const error = new Error('failed');
+
+    it('returns the action', () => {
+      expect(actions.importFailed(error)).to.deep.equal({
+        type: actions.IMPORT_FAILED,
+        error: error
+      });
+    });
+  });
+
+  describe('#importProgress', () => {
+    it('returns the action', () => {
+      expect(actions.importProgress(34)).to.deep.equal({
+        type: actions.IMPORT_PROGRESS,
+        progress: 34
+      });
+    });
+  });
+
+  describe('#selectImportFileName', () => {
+    it('returns the action', () => {
+      expect(actions.selectImportFileName('test.json')).to.deep.equal({
+        type: actions.SELECT_IMPORT_FILE_NAME,
+        fileName: 'test.json'
+      });
+    });
+  });
+
+  describe('#selectImportFileType', () => {
+    it('returns the action', () => {
+      expect(actions.selectImportFileType('csv')).to.deep.equal({
+        type: actions.SELECT_IMPORT_FILE_TYPE,
+        fileType: 'csv'
       });
     });
   });
