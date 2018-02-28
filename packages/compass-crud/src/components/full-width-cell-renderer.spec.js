@@ -48,10 +48,10 @@ describe('<FullWidthCellRenderer />', () => {
             'data-test-id': 'cancel-document-button'
           })).to.be.present();
         });
-        it('renders the update button', () => {
+        it('does render the update button', () => {
           expect(component.find({
             'data-test-id': 'update-document-button'
-          })).to.be.present();
+          })).to.not.be.present();
         });
       });
       describe('modified', () => {
