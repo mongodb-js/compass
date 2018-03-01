@@ -1,5 +1,5 @@
 import { Transform } from 'stream';
-import EJSON from 'mongodb-extended-json';
+import EJSON from 'mongodb-extjson';
 
 import FILE_TYPES from 'constants/file-types';
 

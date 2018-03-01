@@ -123,7 +123,7 @@
     "any-observable": "^0.2.0",
     "javascript-stringify": "^1.6.0",
     "mongodb-ace-theme": "0.0.1",
-    "mongodb-extended-json": "^1.10.0",
+    "mongodb-extjson": "^2.1.0",
     "react-ace": "^5.7.0",
     "react-ios-switch": "^0.1.19",
     "redux-observable": "^0.17.0",
