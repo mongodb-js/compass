@@ -3,8 +3,6 @@ import PropTypes from 'prop-types';
 import TypeChecker from 'hadron-type-checker';
 import { DateEditor } from 'components/editor';
 
-import 'bootstrap/js/dropdown';
-
 /**
  * Object constant.
  */
