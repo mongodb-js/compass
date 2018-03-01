@@ -43,7 +43,7 @@ class SplitLines extends Transform {
   }
 
   parseJsonLine(line) {
-    return EJSON.parse(line, null, 'strict');
+    return EJSON.parse(line);
   }
 
   _transform(chunk, encoding, callback) {
