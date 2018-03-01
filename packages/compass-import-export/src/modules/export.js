@@ -181,7 +181,7 @@ export const exportProgress = (progress) => ({
  * @returns {Object} The action.
  */
 const exportFinished = () => ({
-  type: exportStatus !== PROCESS_STATUS.CANCELLED ? EXPORT_COMPLETED : EXPORT_CANCELED
+  type: exportStatus !== PROCESS_STATUS.CANCELED ? EXPORT_COMPLETED : EXPORT_CANCELED
 });
 
 /**
@@ -209,7 +209,7 @@ export const exportFailed = (error) => ({
 export const exportStartedEpic = (action$, store) =>
   action$.ofType(EXPORT_ACTION).flatMap(act => {
     exportStatus = act.status;
-    if (exportStatus === PROCESS_STATUS.CANCELLED) {
+    if (exportStatus === PROCESS_STATUS.CANCELED) {
       return Observable.empty();
     }
 
@@ -225,7 +225,7 @@ export const exportStartedEpic = (action$, store) =>
     docTransform.pipe(fws);
     return streamToObservable(docTransform)
       .map(() => exportProgress((fws.bytesWritten * 100) / stats.rawTotalDocumentSize))
-      .takeWhile(() => exportStatus !== PROCESS_STATUS.CANCELLED)
+      .takeWhile(() => exportStatus !== PROCESS_STATUS.CANCELED)
       .catch(exportFailed)
       .concat(Observable.of('').map(() => {
         return exportFinished();
@@ -233,7 +233,7 @@ export const exportStartedEpic = (action$, store) =>
       .finally(() => {
         cursor.close();
         docTransform.end();
-        fws.end();
+        fws.close();
       });
   });
 

@@ -64,7 +64,7 @@ class ProgressBar extends PureComponent {
    * Handle clicking the cancel button.
    */
   handleCancel = () => {
-    this.props.action(PROCESS_STATUS.CANCELLED);
+    this.props.action(PROCESS_STATUS.CANCELED);
   }
 
   /**

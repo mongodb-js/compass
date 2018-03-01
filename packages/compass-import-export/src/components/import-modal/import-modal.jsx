@@ -71,7 +71,7 @@ class ImportModal extends PureComponent {
    */
   handleCancel = () => {
     if (this.props.status === PROCESS_STATUS.STARTED) {
-      this.props.importAction(PROCESS_STATUS.CANCELLED);
+      this.props.importAction(PROCESS_STATUS.CANCELED);
     }
   }
 

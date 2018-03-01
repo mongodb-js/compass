@@ -151,7 +151,7 @@ export const importProgress = (progress) => ({
  * @returns {Object} The action.
  */
 export const importFinished = () => ({
-  type: importStatus !== PROCESS_STATUS.CANCELLED ? IMPORT_COMPLETED : IMPORT_CANCELED
+  type: importStatus !== PROCESS_STATUS.CANCELED ? IMPORT_COMPLETED : IMPORT_CANCELED
 });
 
 /**
@@ -207,7 +207,7 @@ export const importStartedEpic = (action$, store) =>
             });
         })
         .takeWhile(() => {
-          return importStatus !== PROCESS_STATUS.CANCELLED;
+          return importStatus !== PROCESS_STATUS.CANCELED;
         })
         .catch((error) => {
           return Observable.of(importFailed(error));
@@ -275,7 +275,7 @@ export const doImportCompleted = (state) => ({
  */
 export const doImportCanceled = (state) => ({
   ...state,
-  progress: 0,
+  progress: 100,
   status: PROCESS_STATUS.CANCELED
 });
 
