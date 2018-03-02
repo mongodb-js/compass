@@ -233,7 +233,11 @@ export const exportStartedEpic = (action$, store) =>
       .finally(() => {
         cursor.close();
         docTransform.end();
-        fws.close();
+        if (exportStatus === PROCESS_STATUS.CANCELED) {
+          fws.close();
+        } else {
+          fws.end();
+        }
       });
   });
 
