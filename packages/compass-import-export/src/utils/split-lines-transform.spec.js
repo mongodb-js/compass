@@ -238,6 +238,19 @@ describe('SplitLinesTransform', () => {
         });
       });
 
+      context('when the document has a number', () => {
+        const transform = new SplitLinesTransform('json');
+        const input = '{"field":12345}\n';
+
+        it('returns the int32 document', (done) => {
+          transform._transform(input, null, (error, data) => {
+            expect(error).to.equal(null);
+            expect(data[0].field.value).to.equal(12345);
+            done();
+          });
+        });
+      });
+
       context('when there are multiple documents', () => {
         const transform = new SplitLinesTransform('json');
         const input = '{"f1":"v1"}\n{"f2":"v2"}\n{"f3":"v3"}\n';
