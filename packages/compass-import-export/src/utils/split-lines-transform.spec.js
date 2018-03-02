@@ -210,6 +210,33 @@ describe('SplitLinesTransform', () => {
           });
         });
       });
+
+      context('when the document has a timestamp', () => {
+        const transform = new SplitLinesTransform('json');
+        const val = bson.Timestamp.fromInt(10);
+        const input = '{"field":{"$timestamp":{"t":0,"i":10}}}\n';
+
+        it('returns the timestamp document', (done) => {
+          transform._transform(input, null, (error, data) => {
+            expect(error).to.equal(null);
+            expect(data[0].field).to.deep.equal(val);
+            done();
+          });
+        });
+      });
+
+      context('when the document has an undefined', () => {
+        const transform = new SplitLinesTransform('json');
+        const input = '{"field":null}\n';
+
+        it('returns the null document', (done) => {
+          transform._transform(input, null, (error, data) => {
+            expect(error).to.equal(null);
+            expect(data[0].field).to.equal(null);
+            done();
+          });
+        });
+      });
     });
 
     context('when the type is csv', () => {
