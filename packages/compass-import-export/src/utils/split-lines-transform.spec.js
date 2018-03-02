@@ -169,6 +169,47 @@ describe('SplitLinesTransform', () => {
           });
         });
       });
+
+      context('when the document has a null', () => {
+        const transform = new SplitLinesTransform('json');
+        const input = '{"field":null}\n';
+
+        it('returns the null document', (done) => {
+          transform._transform(input, null, (error, data) => {
+            expect(error).to.equal(null);
+            expect(data[0].field).to.equal(null);
+            done();
+          });
+        });
+      });
+
+      context('when the document has an object', () => {
+        const transform = new SplitLinesTransform('json');
+        const val = { name: 'test' };
+        const input = '{"field":{"name":"test"}}\n';
+
+        it('returns the embedded object document', (done) => {
+          transform._transform(input, null, (error, data) => {
+            expect(error).to.equal(null);
+            expect(data[0].field).to.deep.equal(val);
+            done();
+          });
+        });
+      });
+
+      context('when the document has a regex', () => {
+        const transform = new SplitLinesTransform('json');
+        const val = new bson.BSONRegExp('/test/');
+        const input = '{"field":{"$regularExpression":{"pattern":"/test/","options":""}}}\n';
+
+        it('returns the regex document', (done) => {
+          transform._transform(input, null, (error, data) => {
+            expect(error).to.equal(null);
+            expect(data[0].field).to.deep.equal(val);
+            done();
+          });
+        });
+      });
     });
 
     context('when the type is csv', () => {
