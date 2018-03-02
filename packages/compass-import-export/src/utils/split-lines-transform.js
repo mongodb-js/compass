@@ -23,6 +23,38 @@ class SplitLines extends Transform {
     this.isFirstRecord = true;
   }
 
+  /**
+   * Transform the chunk into an array of documents.
+   *
+   * @param {String} chunk - The next chunk.
+   * @param {String} encoding - The encoding.
+   * @param {Function} callback - The callback.
+   *
+   * @returns {Object} The result of the callback.
+   */
+  _transform(chunk, encoding, callback) {
+    this[kSource] = this[kSource].concat(chunk);
+    if (this.isFirstRecord) {
+      this.keys = this[kSource]
+        .split('\n')[0]
+        .split(',');
+      this.isFirstRecord = false;
+    }
+    if (this[kSource].indexOf('\n') > -1) {
+      const lines = this[kSource].split('\n').filter(Boolean);
+
+      if (this.isLastLineComplete(lines[lines.length - 1])) {
+        this[kSource] = '';
+        const parsedLines = this.type === FILE_TYPES.JSON ? lines.map(this.parseJsonLine) : lines.map(this.toCSV);
+        return callback(null, parsedLines);
+      }
+      const linesToWrite = lines.splice(0, lines.length - 1);
+      this[kSource] = lines[0];
+      const parsedLines = this.type === FILE_TYPES.JSON ? linesToWrite.map(this.parseJsonLine) : linesToWrite.map(this.toCSV);
+      return callback(null, parsedLines);
+    }
+  }
+
   isJSON(line) {
     let o;
     try {
@@ -53,31 +85,6 @@ class SplitLines extends Transform {
 
   parseJsonLine(line) {
     return EJSON.parse(line);
-  }
-
-  _transform(chunk, encoding, callback) {
-    this[kSource] = this[kSource].concat(chunk);
-    if (this.isFirstRecord) {
-      this.keys = this[kSource]
-        .split('\n')[0]
-        .split(',');
-      this.isFirstRecord = false;
-    }
-    if (this[kSource].indexOf('\n') > -1) {
-      const lines = this[kSource]
-        .split('\n')
-        .filter(Boolean);
-
-      if (this.isLastLineComplete(lines[lines.length - 1])) {
-        this[kSource] = '';
-        const parsedLines = this.type === FILE_TYPES.JSON ? lines.map(this.parseJsonLine) : lines.map(this.toCSV);
-        return callback(null, parsedLines);
-      }
-      const linesToWrite = lines.splice(0, lines.length - 1);
-      this[kSource] = lines[0];
-      const parsedLines = this.type === FILE_TYPES.JSON ? linesToWrite.map(this.parseJsonLine) : linesToWrite.map(this.toCSV);
-      return callback(null, parsedLines);
-    }
   }
 }
 

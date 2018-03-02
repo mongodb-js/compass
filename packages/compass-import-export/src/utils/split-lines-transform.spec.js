@@ -237,6 +237,19 @@ describe('SplitLinesTransform', () => {
           });
         });
       });
+
+      context('when there are multiple documents', () => {
+        const transform = new SplitLinesTransform('json');
+        const input = '{"f1":"v1"}\n{"f2":"v2"}\n{"f3":"v3"}\n';
+
+        it('returns the documents', (done) => {
+          transform._transform(input, null, (error, data) => {
+            expect(error).to.equal(null);
+            expect(data.length).to.equal(3);
+            done();
+          });
+        });
+      });
     });
 
     context('when the type is csv', () => {
