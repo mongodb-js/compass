@@ -85,6 +85,48 @@ describe('SplitLinesTransform', () => {
           });
         });
       });
+
+      context('when the document has a decimal 128', () => {
+        const transform = new SplitLinesTransform('json');
+        const num = bson.Decimal128.fromString('123.45');
+        const input = '{"field":{"$numberDecimal":"123.45"}}\n';
+
+        it('returns the decimal 128 document', (done) => {
+          transform._transform(input, null, (error, data) => {
+            expect(error).to.equal(null);
+            expect(data[0].field).to.deep.equal(num);
+            done();
+          });
+        });
+      });
+
+      context('when the document has a double', () => {
+        const transform = new SplitLinesTransform('json');
+        const num = new bson.Double(123.45);
+        const input = '{"field":{"$numberDouble":"123.45"}}\n';
+
+        it('returns the double document', (done) => {
+          transform._transform(input, null, (error, data) => {
+            expect(error).to.equal(null);
+            expect(data[0].field).to.deep.equal(num);
+            done();
+          });
+        });
+      });
+
+      context('when the document has an int32', () => {
+        const transform = new SplitLinesTransform('json');
+        const num = new bson.Int32('123');
+        const input = '{"field":{"$numberInt":"123"}}\n';
+
+        it('returns the int32 document', (done) => {
+          transform._transform(input, null, (error, data) => {
+            expect(error).to.equal(null);
+            expect(data[0].field).to.deep.equal(num);
+            done();
+          });
+        });
+      });
     });
 
     context('when the type is csv', () => {

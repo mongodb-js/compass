@@ -5,7 +5,16 @@ import FILE_TYPES from 'constants/file-types';
 
 const kSource = global.Symbol('source');
 
+/**
+ * Transforms lines of JSON or CSV into documents.
+ */
 class SplitLines extends Transform {
+
+  /**
+   * Create the new transform.
+   *
+   * @param {String} type - The file type.
+   */
   constructor(type) {
     super({ writableObjectMode: true, readableObjectMode: true });
     this[kSource] = '';
