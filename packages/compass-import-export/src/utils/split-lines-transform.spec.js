@@ -127,6 +127,48 @@ describe('SplitLinesTransform', () => {
           });
         });
       });
+
+      context('when the document has an int64', () => {
+        const transform = new SplitLinesTransform('json');
+        const num = new bson.Long(123);
+        const input = '{"field":{"$numberLong":"123"}}\n';
+
+        it('returns the int64 document', (done) => {
+          transform._transform(input, null, (error, data) => {
+            expect(error).to.equal(null);
+            expect(data[0].field).to.deep.equal(num);
+            done();
+          });
+        });
+      });
+
+      context('when the document has a max key', () => {
+        const transform = new SplitLinesTransform('json');
+        const val = new bson.MaxKey();
+        const input = '{"field":{"$maxKey":1}}\n';
+
+        it('returns the max key document', (done) => {
+          transform._transform(input, null, (error, data) => {
+            expect(error).to.equal(null);
+            expect(data[0].field).to.deep.equal(val);
+            done();
+          });
+        });
+      });
+
+      context('when the document has a min key', () => {
+        const transform = new SplitLinesTransform('json');
+        const val = new bson.MinKey();
+        const input = '{"field":{"$minKey":1}}\n';
+
+        it('returns the min key document', (done) => {
+          transform._transform(input, null, (error, data) => {
+            expect(error).to.equal(null);
+            expect(data[0].field).to.deep.equal(val);
+            done();
+          });
+        });
+      });
     });
 
     context('when the type is csv', () => {
