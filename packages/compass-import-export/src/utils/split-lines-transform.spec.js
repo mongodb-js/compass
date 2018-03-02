@@ -266,7 +266,6 @@ describe('SplitLinesTransform', () => {
     });
 
     context('when the type is csv', () => {
-
     });
   });
 });

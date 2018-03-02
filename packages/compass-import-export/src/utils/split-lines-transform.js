@@ -1,6 +1,5 @@
 import { Transform } from 'stream';
 import EJSON from 'mongodb-extjson';
-
 import FILE_TYPES from 'constants/file-types';
 
 const kSource = global.Symbol('source');
@@ -36,10 +35,8 @@ class SplitLines extends Transform {
    */
   _transform(chunk, encoding, callback) {
     this[kSource] = this[kSource].concat(chunk);
-    if (this.isFirstRecord) {
-      this.keys = this[kSource]
-        .split('\n')[0]
-        .split(',');
+    if (this.isFirstRecord && this.type === FILE_TYPES.CSV) {
+      this.keys = this[kSource].split('\n')[0].split(',');
       this.isFirstRecord = false;
     }
     if (this[kSource].indexOf('\n') > -1) {
