@@ -220,9 +220,6 @@ class DocumentFooter extends React.Component {
    * @returns {Component} The footer component.
    */
   render() {
-    const { mode } = this.state;
-    const showCancel = [EDITING, VIEWING, ERROR].includes(mode);
-    const showUpdate = mode === EDITING;
     return (
       <div className={this.style()}>
         <div
@@ -232,21 +229,17 @@ class DocumentFooter extends React.Component {
           {this.state.message}
         </div>
         <div className="document-footer-actions">
-          {showCancel && (
-            <TextButton
-              className="btn btn-borderless btn-xs cancel"
-              text={mode === ERROR ? 'Ok' : 'Cancel'}
-              dataTestId="cancel-document-button"
-              clickHandler={this.boundHandleCancel} />
-          )}
-          {showUpdate && (
-            <TextButton
-              className="btn btn-default btn-xs"
-              text="Update"
-              disabled={this.hasErrors()}
-              dataTestId="update-document-button"
-              clickHandler={this.handleUpdate.bind(this)} />
-          )}
+          <TextButton
+            className="btn btn-borderless btn-xs cancel"
+            text="Cancel"
+            dataTestId="cancel-document-button"
+            clickHandler={this.boundHandleCancel} />
+          <TextButton
+            className="btn btn-default btn-xs"
+            text="Update"
+            disabled={this.hasErrors()}
+            dataTestId="update-document-button"
+            clickHandler={this.handleUpdate.bind(this)} />
         </div>
       </div>
     );
