@@ -45,6 +45,11 @@ export const appRegistryEmit = (name, ...args) => ({
   args: args
 });
 
+/**
+ * App registry event emitted action.
+ *
+ * @returns {Object} The action.
+ */
 export const appRegistryEventEmitted = () => ({
   type: APP_REGISTRY_EVENT_EMITTED
 });
@@ -54,6 +59,8 @@ export const appRegistryEventEmitted = () => ({
  *
  * @param {Object} action$ - The action.
  * @param {Store} store - The store.
+ *
+ * @returns {Epic} The epic.
  */
 export const appRegistryEpic = (action$, store) =>
   action$.ofType(APP_REGISTRY_EMIT).map(action => {
