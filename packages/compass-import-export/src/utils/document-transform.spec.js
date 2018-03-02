@@ -265,7 +265,7 @@ describe('DocumentTransform', () => {
             it('returns the extended json with line break', (done) => {
               transform._transform(object, null, (error, data) => {
                 expect(error).to.equal(null);
-                expect(data).to.equal('Binary("test",0)\n');
+                expect(data).to.equal('Binary("test"|0)\n');
                 done();
               });
             });
@@ -290,7 +290,7 @@ describe('DocumentTransform', () => {
             it('returns the extended json with line break', (done) => {
               transform._transform(object, null, (error, data) => {
                 expect(error).to.equal(null);
-                expect(data).to.equal('Code("test",{})\n');
+                expect(data).to.equal('Code("test"|{})\n');
                 done();
               });
             });

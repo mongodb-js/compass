@@ -27,7 +27,7 @@ const objectIdToCSVString = (value) => {
  * @returns {String} The CSV string.
  */
 const binaryToCSVString = (value) => {
-  return `Binary("${value.toString()}",${value.sub_type})`;
+  return `Binary("${value.toString()}"|${value.sub_type})`;
 };
 
 /**
@@ -38,7 +38,7 @@ const binaryToCSVString = (value) => {
  * @returns {String} The CSV string.
  */
 const codeToCSVString = (value) => {
-  return `Code("${value.code}",${JSON.stringify(value.scope)})`;
+  return `Code("${value.code}"|${JSON.stringify(value.scope)})`;
 };
 
 /**
@@ -104,7 +104,7 @@ const regexpToCSVString = (value) => {
  * @returns {String} The CSV string.
  */
 const dbRefToCSVString = value => {
-  return `"${JSON.stringify(value)}"`;
+  return `""${JSON.stringify(value)}""`;
 };
 
 /**
@@ -167,7 +167,7 @@ class DocumentTransform extends Transform {
    * @returns {String} The CSV String.
    */
   toCSV(obj) {
-    let output = EMPTY;
+    let output = '';
     if (this.header === null) {
       this.header = Object.keys(obj);
       output = `${this.header.join(',')}\n`;
