@@ -2,7 +2,6 @@
 import { Transform } from 'stream';
 import EJSON from 'mongodb-extjson';
 import FILE_TYPES from 'constants/file-types';
-import bson from 'bson';
 
 /**
  * An empty string.
@@ -12,127 +11,118 @@ const EMPTY = '';
 /**
  * Adding CSV functionality.
  *
+ * @param {Object} value - The value.
+ *
  * @returns {String} The CSV string.
  */
-bson.ObjectId.prototype.toCSVString = function() {
-  return `ObjectId("${this.toHexString()}")`;
+const objectIdToCSVString = (value) => {
+  return `ObjectId("${value.toHexString()}")`;
 };
 
 /**
  * Adding CSV functionality.
  *
+ * @param {Object} value - The value.
+ *
  * @returns {String} The CSV string.
  */
-bson.Binary.prototype.toCSVString = function() {
-  return `Binary("${this.toString()}",${this.sub_type})`;
+const binaryToCSVString = (value) => {
+  return `Binary("${value.toString()}",${value.sub_type})`;
 };
 
 /**
  * Adding CSV functionality.
  *
+ * @param {Object} value - The value.
+ *
  * @returns {String} The CSV string.
  */
-bson.Code.prototype.toCSVString = function() {
-  return `Code("${this.code}",${JSON.stringify(this.scope)})`;
+const codeToCSVString = (value) => {
+  return `Code("${value.code}",${JSON.stringify(value.scope)})`;
 };
 
 /**
  * Adding CSV functionality.
  *
+ * @param {Object} value - The value.
+ *
  * @returns {String} The CSV string.
  */
-bson.Decimal128.prototype.toCSVString = function() {
-  return this.toString();
+const stringifyableToCSVString = (value) => {
+  return value.toString();
 };
 
 /**
  * Adding CSV functionality.
  *
+ * @param {Object} value - The value.
+ *
  * @returns {String} The CSV string.
  */
-bson.Double.prototype.toCSVString = function() {
-  return this.value;
+const valueToCSVString = (value) => {
+  return value.value;
 };
 
 /**
  * Adding CSV functionality.
  *
- * @returns {String} The CSV string.
- */
-bson.Int32.prototype.toCSVString = function() {
-  return this.value;
-};
-
-/**
- * Adding CSV functionality.
+ * @param {Object} value - The value.
  *
  * @returns {String} The CSV string.
  */
-bson.MaxKey.prototype.toCSVString = function() {
+const maxKeyToCSVString = () => {
   return 'MaxKey()';
 };
 
 /**
  * Adding CSV functionality.
  *
+ * @param {Object} value - The value.
+ *
  * @returns {String} The CSV string.
  */
-bson.MinKey.prototype.toCSVString = function() {
+const minKeyToCSVString = () => {
   return 'MinKey()';
 };
 
 /**
  * Adding CSV functionality.
  *
+ * @param {Object} value - The value.
+ *
  * @returns {String} The CSV string.
  */
-bson.Long.prototype.toCSVString = function() {
-  return this.toString();
+const regexpToCSVString = (value) => {
+  return `${value.pattern}${value.options}`;
 };
 
 /**
  * Adding CSV functionality.
  *
- * @returns {String} The CSV string.
- */
-bson.BSONRegExp.prototype.toCSVString = function() {
-  return `${this.pattern}${this.options}`;
-};
-
-/**
- * Adding CSV functionality.
+ * @param {Object} value - The value.
  *
  * @returns {String} The CSV string.
  */
-String.prototype.toCSVString = function() {
-  return this;
+const dbRefToCSVString = value => {
+  return `"${JSON.stringify(value)}"`;
 };
 
 /**
- * Adding CSV functionality.
- *
- * @returns {String} The CSV string.
+ * Mappings of bson types to CSV string generators.
  */
-Boolean.prototype.toCSVString = function() {
-  return this;
-};
-
-/**
- * Adding CSV functionality.
- *
- * @returns {String} The CSV string.
- */
-Date.prototype.toCSVString = function() {
-  return this.toISOString();
-};
-
-/**
- * Adding CSV functionality.
- *
- * @returns {String} The CSV string.
- */
-Object.prototype.toCSVString = function() {
-  return `"${JSON.stringify(this)}"`;
+const CSV_MAPPINGS = {
+  'Binary': binaryToCSVString,
+  'Code': codeToCSVString,
+  'DBRef': dbRefToCSVString,
+  'Decimal128': stringifyableToCSVString,
+  'Double': valueToCSVString,
+  'Int32': valueToCSVString,
+  'Long': stringifyableToCSVString,
+  'MaxKey': maxKeyToCSVString,
+  'MinKey': minKeyToCSVString,
+  'ObjectID': objectIdToCSVString,
+  'BSONRegExp': regexpToCSVString,
+  'Timestamp': stringifyableToCSVString
 };
 
 /**
@@ -148,7 +138,7 @@ class DocumentTransform extends Transform {
   constructor(type) {
     super({ writableObjectMode: true, encoding: 'utf8' });
     this.type = type;
-    this.isFirstRecord = true;
+    this.header = null;
   }
 
   /**
@@ -166,7 +156,6 @@ class DocumentTransform extends Transform {
       return callback(null, `${data}\n`);
     }
     const data = this.toCSV(chunk);
-    this.isFirstRecord = false;
     return callback(null, `${data}\n`);
   }
 
@@ -178,8 +167,12 @@ class DocumentTransform extends Transform {
    * @returns {String} The CSV String.
    */
   toCSV(obj) {
-    const csv = this.isFirstRecord ? Object.keys(obj).join(',') + '\n' : EMPTY;
-    return `${csv}${Object.values(obj).map((v) => this.toCSVString(v)).join(',')}`;
+    let output = EMPTY;
+    if (this.header === null) {
+      this.header = Object.keys(obj);
+      output = `${this.header.join(',')}\n`;
+    }
+    return `${output}${this.header.map((v) => this.toCSVString(obj[v])).join(',')}`;
   }
 
   /**
@@ -190,7 +183,16 @@ class DocumentTransform extends Transform {
    * @returns {String} The CSV String.
    */
   toCSVString(value) {
-    return (value === null || value === undefined) ? EMPTY : value.toCSVString();
+    if (value === null || value === undefined) {
+      return EMPTY;
+    }
+    if (value.hasOwnProperty('_bsontype')) {
+      return CSV_MAPPINGS[value._bsontype](value);
+    }
+    if (typeof value === 'object') {
+      return `"${JSON.stringify(value)}"`;
+    }
+    return value;
   }
 }
 
