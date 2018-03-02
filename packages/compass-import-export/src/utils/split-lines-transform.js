@@ -7,6 +7,8 @@ const kSource = global.Symbol('source');
 
 /**
  * Transforms lines of JSON or CSV into documents.
+ *
+ * @returns {SplitLines} The object.
  */
 class SplitLines extends Transform {
 
