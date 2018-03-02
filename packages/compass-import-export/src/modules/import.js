@@ -180,6 +180,8 @@ const isFinished = () => {
  *
  * @param {ActionsObservable} action$ - The actions observable.
  * @param {Store} store - The store.
+ *
+ * @returns {Epic} The epic.
  */
 export const importStartedEpic = (action$, store) =>
   action$.ofType(IMPORT_ACTION)
