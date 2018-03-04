@@ -21,14 +21,9 @@ export const EXPORT_ACTION = `${PREFIX}/EXPORT_ACTION`;
 export const EXPORT_PROGRESS = `${PREFIX}/EXPORT_PROGRESS`;
 
 /**
- * Export completed action name.
+ * Export finished action name.
  */
-export const EXPORT_COMPLETED = `${PREFIX}/EXPORT_COMPLETED`;
-
-/**
- * Export canceled action name.
- */
-export const EXPORT_CANCELED = `${PREFIX}/EXPORT_CANCELED`;
+export const EXPORT_FINISHED = `${PREFIX}/EXPORT_FINISHED`;
 
 /**
  * Export failed action name.
@@ -180,8 +175,8 @@ export const exportProgress = (progress) => ({
  *
  * @returns {Object} The action.
  */
-const exportFinished = () => ({
-  type: exportStatus !== PROCESS_STATUS.CANCELED ? EXPORT_COMPLETED : EXPORT_CANCELED
+export const exportFinished = () => ({
+  type: EXPORT_FINISHED
 });
 
 /**
@@ -275,24 +270,17 @@ const doExportProgress = (state, action) => ({
  *
  * @returns {Object} The new state.
  */
-const doExportCompleted = (state) => ({
-  ...state,
-  progress: 100,
-  status: PROCESS_STATUS.COMPLETED
-});
-
-/**
- * Return the state after the canceled action.
- *
- * @param {Object} state - The state.
- *
- * @returns {Object} The new state.
- */
-const doExportCanceled = (state) => ({
-  ...state,
-  progress: 100,
-  status: PROCESS_STATUS.CANCELED
-});
+const doExportFinished = (state) => {
+  const isNotComplete = state.error ||
+    state.status === PROCESS_STATUS.CANCELED ||
+    state.status === PROCESS_STATUS.FAILED;
+  return {
+    ...state,
+    progress: 100,
+    isOpen: isNotComplete ? true : false,
+    status: (state.status === PROCESS_STATUS.STARTED) ? PROCESS_STATUS.COMPLETED : state.status
+  };
+};
 
 /**
  * Return the state after the failed action.
@@ -391,8 +379,7 @@ const doToggleFullCollection = (state) => ({
 const MAPPINGS = {
   [EXPORT_ACTION]: doExportAction,
   [EXPORT_PROGRESS]: doExportProgress,
-  [EXPORT_COMPLETED]: doExportCompleted,
-  [EXPORT_CANCELED]: doExportCanceled,
+  [EXPORT_FINISHED]: doExportFinished,
   [EXPORT_FAILED]: doExportFailed,
   [SELECT_EXPORT_FILE_TYPE]: doExportFileTypeSelected,
   [SELECT_EXPORT_FILE_NAME]: doExportFileNameSelected,

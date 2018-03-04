@@ -1,7 +1,71 @@
 import reducer, * as actions from 'modules/export';
+import PROCESS_STATUS from 'constants/process-status';
 
 describe('export [module]', () => {
   describe('#reducer', () => {
+    context('when the action type is EXPORT_FINISHED', () => {
+      context('when the state has an error', () => {
+        const action = actions.exportFinished();
+
+        it('returns the new state and stays open', () => {
+          expect(reducer({ error: true, isOpen: false }, action)).to.deep.equal({
+            isOpen: true,
+            progress: 100,
+            error: true,
+            status: undefined
+          });
+        });
+      });
+
+      context('when the state has no error', () => {
+        const action = actions.exportFinished();
+
+        it('returns the new state and closes', () => {
+          expect(reducer({ isOpen: true }, action)).to.deep.equal({
+            isOpen: false,
+            progress: 100,
+            status: undefined
+          });
+        });
+      });
+
+      context('when the status is started', () => {
+        const action = actions.exportFinished();
+
+        it('sets the status to completed', () => {
+          expect(reducer({ status: PROCESS_STATUS.STARTED }, action)).to.deep.equal({
+            isOpen: false,
+            progress: 100,
+            status: PROCESS_STATUS.COMPLETED
+          });
+        });
+      });
+
+      context('when the status is canceled', () => {
+        const action = actions.exportFinished();
+
+        it('keeps the same status', () => {
+          expect(reducer({ status: PROCESS_STATUS.CANCELED }, action)).to.deep.equal({
+            isOpen: true,
+            progress: 100,
+            status: PROCESS_STATUS.CANCELED
+          });
+        });
+      });
+
+      context('when the status is failed', () => {
+        const action = actions.exportFinished();
+
+        it('keeps the same status', () => {
+          expect(reducer({ status: PROCESS_STATUS.FAILED }, action)).to.deep.equal({
+            isOpen: true,
+            progress: 100,
+            status: PROCESS_STATUS.FAILED
+          });
+        });
+      });
+    });
+
     context('when the action type is EXPORT_PROGRESS', () => {
       const action = actions.exportProgress(55);
 
