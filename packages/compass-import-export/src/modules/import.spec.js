@@ -1,7 +1,71 @@
 import reducer, * as actions from 'modules/import';
+import PROCESS_STATUS from 'constants/process-status';
 
 describe('import [module]', () => {
   describe('#reducer', () => {
+    context('when the action type is IMPORT_FINISHED', () => {
+      context('when the state has an error', () => {
+        const action = actions.importFinished();
+
+        it('returns the new state and stays open', () => {
+          expect(reducer({ error: true, isOpen: false }, action)).to.deep.equal({
+            isOpen: true,
+            progress: 100,
+            error: true,
+            status: undefined
+          });
+        });
+      });
+
+      context('when the state has no error', () => {
+        const action = actions.importFinished();
+
+        it('returns the new state and closes', () => {
+          expect(reducer({ isOpen: true }, action)).to.deep.equal({
+            isOpen: false,
+            progress: 100,
+            status: undefined
+          });
+        });
+      });
+
+      context('when the status is started', () => {
+        const action = actions.importFinished();
+
+        it('sets the status to completed', () => {
+          expect(reducer({ status: PROCESS_STATUS.STARTED }, action)).to.deep.equal({
+            isOpen: false,
+            progress: 100,
+            status: PROCESS_STATUS.COMPLETED
+          });
+        });
+      });
+
+      context('when the status is canceled', () => {
+        const action = actions.importFinished();
+
+        it('keeps the same status', () => {
+          expect(reducer({ status: PROCESS_STATUS.CANCELED }, action)).to.deep.equal({
+            isOpen: true,
+            progress: 100,
+            status: PROCESS_STATUS.CANCELED
+          });
+        });
+      });
+
+      context('when the status is failed', () => {
+        const action = actions.importFinished();
+
+        it('keeps the same status', () => {
+          expect(reducer({ status: PROCESS_STATUS.FAILED }, action)).to.deep.equal({
+            isOpen: true,
+            progress: 100,
+            status: PROCESS_STATUS.FAILED
+          });
+        });
+      });
+    });
+
     context('when the action type is IMPORT_PROGRESS', () => {
       const action = actions.importProgress(55);
 
@@ -120,11 +184,20 @@ describe('import [module]', () => {
     });
   });
 
+  describe('#importFinished', () => {
+    it('returns the action', () => {
+      expect(actions.importFinished()).to.deep.equal({
+        type: actions.IMPORT_FINISHED
+      });
+    });
+  });
+
   describe('#importProgress', () => {
     it('returns the action', () => {
       expect(actions.importProgress(34)).to.deep.equal({
         type: actions.IMPORT_PROGRESS,
-        progress: 34
+        progress: 34,
+        error: null
       });
     });
   });

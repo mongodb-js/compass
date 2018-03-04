@@ -22,14 +22,9 @@ export const IMPORT_ACTION = `${PREFIX}/IMPORT_ACTION`;
 export const IMPORT_PROGRESS = `${PREFIX}/IMPORT_PROGRESS`;
 
 /**
- * Completed action name.
+ * Finised action name.
  */
-export const IMPORT_COMPLETED = `${PREFIX}/IMPORT_COMPLETED`;
-
-/**
- * Canceled action name.
- */
-export const IMPORT_CANCELED = `${PREFIX}/IMPORT_CANCELED`;
+export const IMPORT_FINISHED = `${PREFIX}/IMPORT_FINISHED`;
 
 /**
  * Failed action name.
@@ -142,7 +137,8 @@ export const closeImport = () => ({
  */
 export const importProgress = (progress) => ({
   type: IMPORT_PROGRESS,
-  progress: progress
+  progress: progress,
+  error: null
 });
 
 /**
@@ -151,7 +147,7 @@ export const importProgress = (progress) => ({
  * @returns {Object} The action.
  */
 export const importFinished = () => ({
-  type: importStatus !== PROCESS_STATUS.CANCELED ? IMPORT_COMPLETED : IMPORT_CANCELED
+  type: IMPORT_FINISHED
 });
 
 /**
@@ -194,7 +190,7 @@ export const importStartedEpic = (action$, store) =>
       const { ns, dataService, importData } = store.getState();
       const { fileName, fileType } = importData;
       if (!fs.existsSync(fileName)) {
-        return Observable.of(importFailed(`File ${fileName} not found`));
+        return Observable.of(importFailed(new Error(`File ${fileName} not found`)));
       }
       const stats = fs.statSync(fileName);
       const fileSizeInBytes = stats.size;
@@ -260,26 +256,17 @@ export const doImportProgress = (state, action) => ({
  *
  * @returns {Object} The new state.
  */
-export const doImportCompleted = (state) => ({
-  ...state,
-  progress: 100,
-  status: state.status === PROCESS_STATUS.FAILED
-    ? PROCESS_STATUS.FAILED
-    : PROCESS_STATUS.COMPLETED
-});
-
-/**
- * Returns the state after the import canceled action.
- *
- * @param {Object} state - The state.
- *
- * @returns {Object} The new state.
- */
-export const doImportCanceled = (state) => ({
-  ...state,
-  progress: 100,
-  status: PROCESS_STATUS.CANCELED
-});
+export const doImportFinished = (state) => {
+  const isNotComplete = state.error ||
+    state.status === PROCESS_STATUS.CANCELED ||
+    state.status === PROCESS_STATUS.FAILED;
+  return {
+    ...state,
+    progress: 100,
+    isOpen: isNotComplete ? true : false,
+    status: (state.status === PROCESS_STATUS.STARTED) ? PROCESS_STATUS.COMPLETED : state.status
+  };
+};
 
 /**
  * Returns the state after the import failed action.
@@ -350,8 +337,7 @@ export const doCloseImport = (state) => ({
 const MAPPINGS = {
   [IMPORT_ACTION]: doImportAction,
   [IMPORT_PROGRESS]: doImportProgress,
-  [IMPORT_COMPLETED]: doImportCompleted,
-  [IMPORT_CANCELED]: doImportCanceled,
+  [IMPORT_FINISHED]: doImportFinished,
   [IMPORT_FAILED]: doImportFailed,
   [SELECT_IMPORT_FILE_TYPE]: doImportFileTypeSelected,
   [SELECT_IMPORT_FILE_NAME]: doImportFileNameSelected,
