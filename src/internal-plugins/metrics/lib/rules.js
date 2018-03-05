@@ -160,9 +160,23 @@ module.exports = [
     metadata: () => ({})
   },
   {
+    registryEvent: 'export-finished',
+    resource: 'Export',
+    action: 'completed',
+    condition: () => true,
+    metadata: () => ({})
+  },
+  {
     registryEvent: 'open-import',
     resource: 'Import',
     action: 'opened',
+    condition: () => true,
+    metadata: () => ({})
+  },
+  {
+    registryEvent: 'import-finished',
+    resource: 'Import',
+    action: 'completed',
     condition: () => true,
     metadata: () => ({})
   },
