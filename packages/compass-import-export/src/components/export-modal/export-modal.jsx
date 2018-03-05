@@ -77,7 +77,7 @@ class ExportModal extends PureComponent {
    * Handle clicking the cancel button.
    */
   handleCancel = () => {
-    if (this.props.status !== PROCESS_STATUS.COMPLETED) {
+    if (this.props.status === PROCESS_STATUS.STARTED) {
       this.props.exportAction(PROCESS_STATUS.CANCELED);
     }
   }
