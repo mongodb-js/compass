@@ -13,6 +13,10 @@ var debug = require('debug')('mongodb-compass:menu');
 
 const COMPASS_HELP = 'https://docs.mongodb.com/compass/';
 
+function isReadonlyDistro() {
+  return process.env.HADRON_READONLY === 'true';
+}
+
 // submenu related
 function separator() {
   return {
@@ -204,30 +208,32 @@ function helpSubMenu() {
 }
 
 function collectionSubMenu() {
+  var subMenu = [];
+  subMenu.push({
+    label: '&Share Schema as JSON',
+    accelerator: 'Alt+CmdOrCtrl+S',
+    click: function() {
+      ipc.broadcast('window:menu-share-schema-json');
+    }
+  });
+  subMenu.push(separator());
+  if (!isReadonlyDistro()) {
+    subMenu.push({
+      label: '&Import Data',
+      click: function() {
+        ipc.broadcast('compass:open-import');
+      }
+    });
+  }
+  subMenu.push({
+    label: '&Export Collection',
+    click: function() {
+      ipc.broadcast('compass:open-export');
+    }
+  });
   return {
     label: '&Collection',
-    submenu: [
-      {
-        label: '&Share Schema as JSON',
-        accelerator: 'Alt+CmdOrCtrl+S',
-        click: function() {
-          ipc.broadcast('window:menu-share-schema-json');
-        }
-      },
-      separator(),
-      {
-        label: '&Import Data',
-        click: function() {
-          ipc.broadcast('compass:open-import');
-        }
-      },
-      {
-        label: '&Export Collection',
-        click: function() {
-          ipc.broadcast('compass:open-export');
-        }
-      }
-    ]
+    submenu: subMenu
   };
 }
 
