@@ -4,6 +4,7 @@ import streamToObservable from 'stream-to-observable';
 import exportCollection from 'utils/export';
 import PROCESS_STATUS from 'constants/process-status';
 import FILE_TYPES from 'constants/file-types';
+import { appRegistryEmit } from 'modules/app-registry';
 
 /**
  * Export action prefix.
@@ -224,6 +225,9 @@ export const exportStartedEpic = (action$, store) =>
       .catch(exportFailed)
       .concat(Observable.of('').map(() => {
         return exportFinished();
+      }))
+      .concat(Observable.of('').map(() => {
+        return appRegistryEmit('export-finished');
       }))
       .finally(() => {
         cursor.close();
