@@ -158,6 +158,11 @@ export const reset = () => ({
   type: RESET
 });
 
+/**
+ * The clear pipeline action.
+ *
+ * @returns {Object} The action.
+ */
 export const clearPipeline = () => ({
   type: CLEAR_PIPELINE
 });
