@@ -214,7 +214,7 @@ export const importStartedEpic = (action$, store) =>
           return importFinished();
         }))
         .concat(Observable.of('').map(() => {
-          return appRegistryEmit('import-finished');
+          return appRegistryEmit('import-finished', fileSizeInBytes);
         }))
         .finally(() => {
           splitLines.end();

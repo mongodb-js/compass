@@ -227,7 +227,7 @@ export const exportStartedEpic = (action$, store) =>
         return exportFinished();
       }))
       .concat(Observable.of('').map(() => {
-        return appRegistryEmit('export-finished');
+        return appRegistryEmit('export-finished', stats.rawTotalDocumentSize);
       }))
       .finally(() => {
         cursor.close();
