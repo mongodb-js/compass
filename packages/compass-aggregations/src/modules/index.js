@@ -11,7 +11,6 @@ import pipeline, { INITIAL_STATE as PIPELINE_INITIAL_STATE } from './pipeline';
 import view, { INITIAL_STATE as VIEW_INITIAL_STATE } from './view';
 import savedPipeline, {
   INITIAL_STATE as SP_INITIAL_STATE,
-  SAVED_STATE_OBJECT_STORE,
   INDEXED_DB
 } from './saved-pipeline';
 
@@ -110,15 +109,18 @@ export const restoreSavedPipeline = (restoreState) => ({
 });
 
 export const getPipelineFromIndexedDB = (stateId) => {
-  return (dispatch) => {
+  return (dispatch, getState) => {
     const db = Nanoidb(INDEXED_DB, 1);
+    const state = getState();
+    const objectStore = state.namespace;
 
     db.on('upgrade', (diffData) => {
-      diffData.db.createObjectStore(SAVED_STATE_OBJECT_STORE);
+      diffData.db.createObjectStore(objectStore);
     });
 
     db.on('open', (stores) => {
-      getOp(stores[SAVED_STATE_OBJECT_STORE]);
+      // TODO: if stores[objectStore] is undefined, send back an error message
+      getOp(stores[objectStore]);
 
       function getOp(store) {
         store.get(stateId, (err, result) => {

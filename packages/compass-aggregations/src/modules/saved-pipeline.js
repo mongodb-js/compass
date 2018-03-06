@@ -11,7 +11,6 @@ export const SAVE_MODAL_ERROR_TOGGLED = `${PREFIX}/ERROR_TOGGLED`;
 export const SAVED_PIPELINE_ADD = `${PREFIX}/ADD`;
 
 // constants for indexeddb
-export const SAVED_STATE_OBJECT_STORE = 'aggregation-pipeline-plugin-saved-state';
 export const INDEXED_DB = 'aggregation-pipeline-plugin';
 
 export const INITIAL_STATE = {
@@ -84,21 +83,27 @@ export const savedPipelineAdd = (pipelines) => ({
 });
 
 export const getSavedPipelines = () => {
-  return (dispatch) => {
+  return (dispatch, getState) => {
     const db = Nanoidb(INDEXED_DB, 1);
+    const state = getState();
+    const objectStore = state.namespace;
 
     db.on('upgrade', (diffData) => {
-      diffData.db.createObjectStore(SAVED_STATE_OBJECT_STORE);
+      diffData.db.createObjectStore(objectStore);
     });
 
     db.on('open', (stores) => {
-      getAllOp(stores[SAVED_STATE_OBJECT_STORE]);
+      // check if the object store for this namespace exists
+      if (!stores[objectStore]) return;
+      getAllOp(stores[objectStore]);
 
       function getAllOp(store) {
         store.getAll((err, results) => {
           if (err) console.log(err);
 
           const pipelines = [];
+          if (!Array.isArray(results)) return dispatch(savedPipelineAdd(pipelines));
+
           results.forEach((result) => {
             const pipeline = {
               recordKey: result.recordKey,
@@ -125,11 +130,13 @@ export const saveCurrentPipeline = (pipelineName) => {
     // don't want the modal that triggers this save to show up when the user
     // restores the pipeline o/
     state.savedPipeline.isModalVisible = false;
+    const ver = 1;
 
-    const db = Nanoidb(INDEXED_DB, 1);
+    const db = Nanoidb(INDEXED_DB, ver);
 
     const ObjectID = BSON.ObjectID;
     const key = ObjectID(100).toHexString();
+    const objectStore = state.namespace;
 
     const stateRecord = Object.assign({}
       , { inputDocuments: state.inputDocuments }
@@ -142,11 +149,16 @@ export const saveCurrentPipeline = (pipelineName) => {
     );
 
     db.on('upgrade', (diffData) => {
-      diffData.db.createObjectStore(SAVED_STATE_OBJECT_STORE);
+      diffData.db.createObjectStore(objectStore);
     });
 
     db.on('open', (stores) => {
-      putOp(stores[SAVED_STATE_OBJECT_STORE]);
+      // if the current object store doesnt exist, create a new one to create a
+      // new object store indexeddb needs to trigger an update event
+      // the below, however, goes into an infinite loop since the the upgrade event never gets resolved
+      // if (!stores[objectStore]) db.upgrade(ver + 1);
+
+      putOp(stores[objectStore]);
 
       function putOp(store) {
         store.put(key, stateRecord, (err) => {
