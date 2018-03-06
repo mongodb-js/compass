@@ -1,7 +1,8 @@
-import RestoreButton from 'components/restore-pipeline-button';
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import classnames from 'classnames';
+import RestoreButton from 'components/restore-pipeline-button';
+import DeleteButton from 'components/delete-pipeline-button';
 
 import styles from './save-pipeline-card.less';
 
@@ -14,12 +15,17 @@ class SavePipelineCard extends PureComponent {
   static propTypes = {
     restorePipelineModalToggle: PropTypes.func.isRequired,
     restorePipelineObjectID: PropTypes.func.isRequired,
+    deletePipeline: PropTypes.func.isRequired,
     objectID: PropTypes.string.isRequired,
     name: PropTypes.string.isRequired
   }
 
   state = {
     isVisible: false
+  }
+
+  handleDelete = () => {
+    this.props.deletePipeline(this.props.objectID);
   }
 
   handleMouseMovement = () => {
@@ -37,7 +43,12 @@ class SavePipelineCard extends PureComponent {
    * @returns {Component} The component.
    */
   render() {
-    const openView = this.state.isVisible ? <RestoreButton clickHandler={this.restoreClickHandler}/> : null;
+    const openView = this.state.isVisible
+      ? <RestoreButton clickHandler={this.restoreClickHandler} />
+      : null;
+    const deleteButton = this.state.isVisible
+      ? <DeleteButton clickHandler={this.handleDelete} />
+      : null;
     return (
       <div
         className={classnames(styles['save-pipeline-card'])}
@@ -48,6 +59,7 @@ class SavePipelineCard extends PureComponent {
           {this.props.name}
         </div>
         { openView }
+        { deleteButton }
       </div>
     );
   }

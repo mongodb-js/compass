@@ -9,12 +9,11 @@ import serverVersion, { INITIAL_STATE as SV_INITIAL_STATE } from './server-versi
 import pipeline, { INITIAL_STATE as PIPELINE_INITIAL_STATE } from './pipeline';
 import view, { INITIAL_STATE as VIEW_INITIAL_STATE } from './view';
 import savedPipeline, {
-  INITIAL_STATE as SP_INITIAL_STATE,
-  INDEXED_DB,
-  PIPELINES
+  updatePipelineList,
+  INITIAL_STATE as SP_INITIAL_STATE
 } from './saved-pipeline';
-
 import restorePipeline, { INITIAL_STATE as RESTORE_PIPELINE_STATE} from './restore-pipeline';
+import { getObjectStore } from 'utils/indexed-db';
 
 /**
  * The intial state of the root reducer.
@@ -35,6 +34,9 @@ export const INITIAL_STATE = {
  * Reset action constant.
  */
 export const RESET = 'aggregations/reset';
+
+export const CLEAR_PIPELINE = 'aggregations/CLEAR_PIPELINE';
+
 /**
  * Restore action constant.
  */
@@ -82,6 +84,15 @@ const rootReducer = (state, action) => {
       return { ...INITIAL_STATE };
     case RESTORE_PIPELINE:
       return deepMerge(INITIAL_STATE, action.restoreState, { arrayMerge: overwriteMerge });
+    case CLEAR_PIPELINE:
+      return {
+        ...state,
+        pipeline: PIPELINE_INITIAL_STATE,
+        savedPipeline: {
+          ...state.savedPipeline,
+          isListVisible: true
+        }
+      };
     default:
       return appReducer(state, action);
   }
@@ -103,24 +114,56 @@ export const reset = () => ({
   type: RESET
 });
 
+export const clearPipeline = () => ({
+  type: CLEAR_PIPELINE
+});
+
+/**
+ * Get the restore action.
+ *
+ * @param {Object} state - The state.
+ *
+ * @returns {Object} The action.
+ */
 export const restoreSavedPipeline = (restoreState) => ({
   type: RESTORE_PIPELINE,
   restoreState: restoreState
 });
 
-export const getPipelineFromIndexedDB = (stateId) => {
+/**
+ * Get the delete action.
+ *
+ * @param {String} id - The pipeline id.
+ *
+ * @returns {Function} The thunk function.
+ */
+export const deletePipeline = (id) => {
   return (dispatch) => {
-    const request = window.indexedDB.open(INDEXED_DB, 1);
-    request.onsuccess = (evt) => {
-      const db = evt.target.result;
-      const transaction = db.transaction(PIPELINES, 'readonly');
-      const objectStore = transaction.objectStore(PIPELINES);
-      objectStore.get(stateId).onsuccess = (e) => {
+    getObjectStore('readwrite', (store) => {
+      store.delete(id).onsuccess = () => {
+        dispatch(updatePipelineList());
+        dispatch(clearPipeline());
+      };
+    });
+  };
+};
+
+/**
+ * Get a pipeline from the db.
+ *
+ * @param {String} id - The id.
+ *
+ * @returns {Function} The thunk function.
+ */
+export const getPipelineFromIndexedDB = (id) => {
+  return (dispatch) => {
+    getObjectStore('readwrite', (store) => {
+      store.get(id).onsuccess = (e) => {
         const pipe = e.target.result;
         delete pipe.id;
         delete pipe.pipelineName;
         dispatch(restoreSavedPipeline(pipe));
       };
-    };
+    });
   };
 };

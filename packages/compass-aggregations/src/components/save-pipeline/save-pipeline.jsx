@@ -22,6 +22,11 @@ class SavePipeline extends Component {
    * @returns {Component} The component.
    */
   render() {
+    const closeClassName = classnames({
+      'fa': true,
+      'fa-times': true,
+      [ styles['save-pipeline-close'] ]: true
+    });
     const pipelines = this.props.savedPipeline.pipelines.map((pipeline, i) => {
       return (
         <SavePipelineCard
@@ -36,7 +41,7 @@ class SavePipeline extends Component {
       <div className={classnames(styles['save-pipeline'])}>
         <div className={classnames(styles['save-pipeline-header'])}>
           <div id="saved-pipeline-header-title">Saved Pipelines</div>
-          <div className="fa fa-times" onClick={this.handleSavedPipelinesClose}></div>
+          <div className={closeClassName} onClick={this.handleSavedPipelinesClose}></div>
         </div>
         <div className={classnames(styles['save-pipeline-cards'])}>{pipelines}</div>
       </div>

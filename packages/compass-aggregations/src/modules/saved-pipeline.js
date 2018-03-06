@@ -1,4 +1,5 @@
-const BSON = require('bson');
+import BSON from 'bson';
+import { getObjectStore } from 'utils/indexed-db';
 
 const PREFIX = 'aggregations/saved-pipeline';
 
@@ -8,10 +9,6 @@ export const SAVE_PIPELINE_MODAL_TOGGLED = `${PREFIX}/MODAL_TOGGLED`;
 export const SAVE_MODAL_ERROR_TOGGLED = `${PREFIX}/ERROR_TOGGLED`;
 
 export const SAVED_PIPELINE_ADD = `${PREFIX}/ADD`;
-
-// constants for indexeddb
-export const INDEXED_DB = 'compass-aggregations';
-export const PIPELINES = 'pipelines';
 
 export const INITIAL_STATE = {
   pipelines: [],
@@ -83,11 +80,6 @@ export const savedPipelineAdd = (pipelines) => ({
   pipelines: pipelines
 });
 
-export const upgradeDb = (db) => {
-  const store = db.createObjectStore(PIPELINES);
-  store.createIndex('namespace', 'namespace', { unique: false });
-};
-
 export const getSavedPipelines = () => {
   return (dispatch, getState) => {
     if (!getState().savedPipeline.isLoaded) {
@@ -96,25 +88,22 @@ export const getSavedPipelines = () => {
   };
 };
 
+/**
+ * Update the pipeline list.
+ *
+ * @returns {Function} The thunk function.
+ */
 export const updatePipelineList = () => {
   return (dispatch, getState) => {
     const state = getState();
 
-    const request = window.indexedDB.open(INDEXED_DB, 1);
-    request.onsuccess = (evt) => {
-      const db = evt.target.result;
-      const transaction = db.transaction(PIPELINES, 'readonly');
-      const objectStore = transaction.objectStore(PIPELINES);
-      const index = objectStore.index('namespace');
+    getObjectStore('readwrite', (store) => {
+      const index = store.index('namespace');
       index.getAll(state.namespace).onsuccess = (e) => {
         const pipelines = e.target.result;
         dispatch(savedPipelineAdd(pipelines));
       };
-    };
-
-    request.onupgradeneeded = (evt) => {
-      upgradeDb(evt.target.result);
-    };
+    });
   };
 };
 
@@ -129,7 +118,6 @@ export const saveCurrentPipeline = (pipelineName) => {
     // don't want the modal that triggers this save to show up when the user
     // restores the pipeline o/
     state.savedPipeline.isModalVisible = false;
-    const request = window.indexedDB.open(INDEXED_DB, 1);
     const id = state.id || BSON.ObjectID(100).toHexString();
 
     const stateRecord = Object.assign({}
@@ -140,11 +128,8 @@ export const saveCurrentPipeline = (pipelineName) => {
       , { id: id }
     );
 
-    request.onsuccess = (evt) => {
-      const db = evt.target.result;
-      const transaction = db.transaction(PIPELINES, 'readwrite');
-      const objectStore = transaction.objectStore(PIPELINES);
-      const putRequest = objectStore.put(stateRecord, id);
+    getObjectStore('readwrite', (store) => {
+      const putRequest = store.put(stateRecord, id);
 
       putRequest.onsuccess = () => {
         dispatch(savedPipelinesListToggle(1));
@@ -155,10 +140,6 @@ export const saveCurrentPipeline = (pipelineName) => {
       putRequest.onerror = (error) => {
         dispatch(saveModalErrorToggle(1, error));
       };
-    };
-
-    request.onupgradeneeded = (evt) => {
-      upgradeDb(evt.target.result);
-    };
+    });
   };
 };
