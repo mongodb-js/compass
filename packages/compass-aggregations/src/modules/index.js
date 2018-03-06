@@ -1,6 +1,5 @@
 import { combineReducers } from 'redux';
 import deepMerge from 'deepmerge';
-import Nanoidb from 'nanoidb';
 
 import dataService, { INITIAL_STATE as DS_INITIAL_STATE } from './data-service';
 import fields, { INITIAL_STATE as FIELDS_INITIAL_STATE } from './fields';
@@ -11,7 +10,8 @@ import pipeline, { INITIAL_STATE as PIPELINE_INITIAL_STATE } from './pipeline';
 import view, { INITIAL_STATE as VIEW_INITIAL_STATE } from './view';
 import savedPipeline, {
   INITIAL_STATE as SP_INITIAL_STATE,
-  INDEXED_DB
+  INDEXED_DB,
+  PIPELINES
 } from './saved-pipeline';
 
 import restorePipeline, { INITIAL_STATE as RESTORE_PIPELINE_STATE} from './restore-pipeline';
@@ -109,27 +109,18 @@ export const restoreSavedPipeline = (restoreState) => ({
 });
 
 export const getPipelineFromIndexedDB = (stateId) => {
-  return (dispatch, getState) => {
-    const db = Nanoidb(INDEXED_DB, 1);
-    const state = getState();
-    const objectStore = state.namespace;
-
-    db.on('upgrade', (diffData) => {
-      diffData.db.createObjectStore(objectStore);
-    });
-
-    db.on('open', (stores) => {
-      // TODO: if stores[objectStore] is undefined, send back an error message
-      getOp(stores[objectStore]);
-
-      function getOp(store) {
-        store.get(stateId, (err, result) => {
-          if (err) console.log(err);
-          delete result.pipelineName;
-          delete result.recordKey;
-          dispatch(restoreSavedPipeline(result));
-        });
-      }
-    });
+  return (dispatch) => {
+    const request = window.indexedDB.open(INDEXED_DB, 1);
+    request.onsuccess = (evt) => {
+      const db = evt.target.result;
+      const transaction = db.transaction(PIPELINES, 'readonly');
+      const objectStore = transaction.objectStore(PIPELINES);
+      objectStore.get(stateId).onsuccess = (e) => {
+        const pipe = e.target.result;
+        delete pipe.id;
+        delete pipe.pipelineName;
+        dispatch(restoreSavedPipeline(pipe));
+      };
+    };
   };
 };

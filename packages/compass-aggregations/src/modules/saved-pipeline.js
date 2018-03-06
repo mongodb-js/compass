@@ -1,4 +1,3 @@
-const Nanoidb = require('nanoidb');
 const BSON = require('bson');
 
 const PREFIX = 'aggregations/saved-pipeline';
@@ -11,10 +10,12 @@ export const SAVE_MODAL_ERROR_TOGGLED = `${PREFIX}/ERROR_TOGGLED`;
 export const SAVED_PIPELINE_ADD = `${PREFIX}/ADD`;
 
 // constants for indexeddb
-export const INDEXED_DB = 'aggregation-pipeline-plugin';
+export const INDEXED_DB = 'compass-aggregations';
+export const PIPELINES = 'pipelines';
 
 export const INITIAL_STATE = {
   pipelines: [],
+  isLoaded: false,
   isListVisible: false,
   isModalVisible: false,
   isModalError: false
@@ -41,7 +42,7 @@ const toggleSaveModalError = (state, action) => {
 };
 
 const addSavedPipeline = (state, action) => {
-  return { ...state, pipelines: action.pipelines };
+  return { ...state, pipelines: action.pipelines, isLoaded: true };
 };
 
 const MAPPINGS = {};
@@ -82,40 +83,38 @@ export const savedPipelineAdd = (pipelines) => ({
   pipelines: pipelines
 });
 
+export const upgradeDb = (db) => {
+  const store = db.createObjectStore(PIPELINES);
+  store.createIndex('namespace', 'namespace', { unique: false });
+};
+
 export const getSavedPipelines = () => {
   return (dispatch, getState) => {
-    const db = Nanoidb(INDEXED_DB, 1);
+    if (!getState().savedPipeline.isLoaded) {
+      dispatch(updatePipelineList());
+    }
+  };
+};
+
+export const updatePipelineList = () => {
+  return (dispatch, getState) => {
     const state = getState();
-    const objectStore = state.namespace;
 
-    db.on('upgrade', (diffData) => {
-      diffData.db.createObjectStore(objectStore);
-    });
+    const request = window.indexedDB.open(INDEXED_DB, 1);
+    request.onsuccess = (evt) => {
+      const db = evt.target.result;
+      const transaction = db.transaction(PIPELINES, 'readonly');
+      const objectStore = transaction.objectStore(PIPELINES);
+      const index = objectStore.index('namespace');
+      index.getAll(state.namespace).onsuccess = (e) => {
+        const pipelines = e.target.result;
+        dispatch(savedPipelineAdd(pipelines));
+      };
+    };
 
-    db.on('open', (stores) => {
-      // check if the object store for this namespace exists
-      if (!stores[objectStore]) return;
-      getAllOp(stores[objectStore]);
-
-      function getAllOp(store) {
-        store.getAll((err, results) => {
-          if (err) console.log(err);
-
-          const pipelines = [];
-          if (!Array.isArray(results)) return dispatch(savedPipelineAdd(pipelines));
-
-          results.forEach((result) => {
-            const pipeline = {
-              recordKey: result.recordKey,
-              pipelineName: result.pipelineName
-            };
-            pipelines.push(pipeline);
-          });
-
-          dispatch(savedPipelineAdd(pipelines));
-        });
-      }
-    });
+    request.onupgradeneeded = (evt) => {
+      upgradeDb(evt.target.result);
+    };
   };
 };
 
@@ -130,44 +129,36 @@ export const saveCurrentPipeline = (pipelineName) => {
     // don't want the modal that triggers this save to show up when the user
     // restores the pipeline o/
     state.savedPipeline.isModalVisible = false;
-    const ver = 1;
-
-    const db = Nanoidb(INDEXED_DB, ver);
-
-    const ObjectID = BSON.ObjectID;
-    const key = ObjectID(100).toHexString();
-    const objectStore = state.namespace;
+    const request = window.indexedDB.open(INDEXED_DB, 1);
+    const id = state.id || BSON.ObjectID(100).toHexString();
 
     const stateRecord = Object.assign({}
-      , { inputDocuments: state.inputDocuments }
-      , { savedPipeline: state.savedPipeline }
       , { namespace: state.namespace }
-      , { stages: state.stages }
+      , { pipeline: state.pipeline }
       , { view: state.view }
       , { pipelineName: pipelineName }
-      , { recordKey: key }
+      , { id: id }
     );
 
-    db.on('upgrade', (diffData) => {
-      diffData.db.createObjectStore(objectStore);
-    });
+    request.onsuccess = (evt) => {
+      const db = evt.target.result;
+      const transaction = db.transaction(PIPELINES, 'readwrite');
+      const objectStore = transaction.objectStore(PIPELINES);
+      const putRequest = objectStore.put(stateRecord, id);
 
-    db.on('open', (stores) => {
-      // if the current object store doesnt exist, create a new one to create a
-      // new object store indexeddb needs to trigger an update event
-      // the below, however, goes into an infinite loop since the the upgrade event never gets resolved
-      // if (!stores[objectStore]) db.upgrade(ver + 1);
+      putRequest.onsuccess = () => {
+        dispatch(savedPipelinesListToggle(1));
+        dispatch(savePipelineModalToggle(0));
+        dispatch(updatePipelineList());
+      };
 
-      putOp(stores[objectStore]);
+      putRequest.onerror = (error) => {
+        dispatch(saveModalErrorToggle(1, error));
+      };
+    };
 
-      function putOp(store) {
-        store.put(key, stateRecord, (err) => {
-          if (err) return dispatch(saveModalErrorToggle(1, err));
-          dispatch(savedPipelinesListToggle(1));
-          dispatch(savePipelineModalToggle(0));
-          dispatch(getSavedPipelines());
-        });
-      }
-    });
+    request.onupgradeneeded = (evt) => {
+      upgradeDb(evt.target.result);
+    };
   };
 };

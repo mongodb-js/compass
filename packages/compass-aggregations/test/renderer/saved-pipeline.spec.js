@@ -52,6 +52,7 @@ describe('saved pipelines module', () => {
       it('isListVisible is set to false', () => {
         expect(reducer(undefined, savedPipelinesListToggle(0))).to.deep.equal({
           pipelines: [],
+          isLoaded: false,
           isListVisible: false,
           isModalVisible: false,
           isModalError: false
@@ -63,6 +64,7 @@ describe('saved pipelines module', () => {
       it('isListVisible is set to true', () => {
         expect(reducer(undefined, savedPipelinesListToggle(1))).to.deep.equal({
           pipelines: [],
+          isLoaded: false,
           isListVisible: true,
           isModalVisible: false,
           isModalError: false
@@ -74,6 +76,7 @@ describe('saved pipelines module', () => {
       it('isListVisible is set to true', () => {
         expect(reducer(undefined, {})).to.deep.equal({
           pipelines: [],
+          isLoaded: false,
           isListVisible: false,
           isModalVisible: false,
           isModalError: false
@@ -85,6 +88,7 @@ describe('saved pipelines module', () => {
       it('isModalVisible is set to false', () => {
         expect(reducer(undefined, savePipelineModalToggle(0))).to.deep.equal({
           pipelines: [],
+          isLoaded: false,
           isListVisible: false,
           isModalVisible: false,
           isModalError: false
@@ -96,6 +100,7 @@ describe('saved pipelines module', () => {
       it('isModalVisible is set to false', () => {
         expect(reducer(undefined, savePipelineModalToggle(1))).to.deep.equal({
           pipelines: [],
+          isLoaded: false,
           isListVisible: false,
           isModalVisible: true,
           isModalError: false
@@ -107,6 +112,7 @@ describe('saved pipelines module', () => {
       it('saveError is set to true', () => {
         expect(reducer(undefined, saveModalErrorToggle(1))).to.deep.equal({
           pipelines: [],
+          isLoaded: false,
           isListVisible: false,
           isModalVisible: false,
           isModalError: true
@@ -118,6 +124,7 @@ describe('saved pipelines module', () => {
       it('saveError is set to false', () => {
         expect(reducer(undefined, saveModalErrorToggle(0))).to.deep.equal({
           pipelines: [],
+          isLoaded: false,
           isListVisible: false,
           isModalVisible: false,
           isModalError: false
@@ -130,6 +137,7 @@ describe('saved pipelines module', () => {
         const pipelines = [ { name: 'newPipeline' } ];
         expect(reducer(undefined, savedPipelineAdd(pipelines))).to.deep.equal({
           pipelines: pipelines,
+          isLoaded: true,
           isListVisible: false,
           isModalVisible: false,
           isModalError: false

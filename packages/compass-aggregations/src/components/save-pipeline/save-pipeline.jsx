@@ -23,8 +23,13 @@ class SavePipeline extends Component {
    */
   render() {
     const pipelines = this.props.savedPipeline.pipelines.map((pipeline, i) => {
-      const iterator = `saved-pipeline-${i}`;
-      return (<SavePipelineCard {...this.props} name={pipeline.pipelineName} objectID={pipeline.recordKey} key={iterator}/>);
+      return (
+        <SavePipelineCard
+          {...this.props}
+          name={pipeline.pipelineName}
+          objectID={pipeline.id}
+          key={i}/>
+      );
     });
 
     return (
