@@ -35,6 +35,9 @@ export const INITIAL_STATE = {
  */
 export const RESET = 'aggregations/reset';
 
+/**
+ * Clear the pipeline name.
+ */
 export const CLEAR_PIPELINE = 'aggregations/CLEAR_PIPELINE';
 
 /**
@@ -63,39 +66,80 @@ const appReducer = combineReducers({
 });
 
 /**
+ * Handle the namespace change.
+ *
+ * @param {Object} state - The state.
+ * @param {Object} action - The action.
+ *
+ * @returns {Object} The new state.
+ */
+const doNamespaceChanged = (state, action) => {
+  const newState = { ...INITIAL_STATE, dataService: state.dataService };
+  return appReducer(newState, action);
+};
+
+/**
+ * Handle the reset.
+ *
+ * @returns {Object} The new state.
+ */
+const doReset = () => ({
+  ...INITIAL_STATE
+});
+
+/**
+ * Handle the pipeline restore.
+ *
+ * @param {Object} state - The state.
+ * @param {Object} action - The action.
+ *
+ * @returns {Object} The new state.
+ */
+const doRestorePipeline = (state, action) => {
+  return deepMerge(
+    INITIAL_STATE,
+    action.restoreState,
+    { arrayMerge: overwriteMerge }
+  );
+};
+
+/**
+ * Handle the pipeline clear.
+ *
+ * @param {Object} state - The state.
+ *
+ * @returns {Object} The new state.
+ */
+const doClearPipeline = (state) => ({
+  ...state,
+  pipeline: PIPELINE_INITIAL_STATE,
+  savedPipeline: {
+    ...state.savedPipeline,
+    isListVisible: true
+  }
+});
+
+/**
+ * The action to state modifier mappings.
+ */
+const MAPPINGS = {
+  [ NAMESPACE_CHANGED ]: doNamespaceChanged,
+  [ RESET ]: doReset,
+  [ RESTORE_PIPELINE ]: doRestorePipeline,
+  [ CLEAR_PIPELINE ]: doClearPipeline
+};
+
+/**
  * The root reducer.
  *
  * @param {Object} state - The state.
  * @param {Object} action - The action.
  *
- * @note Handle actions that need to operate
- *  on more than one area of the state here.
- *
- * @todo: Durran Don't wipe out data service when namespace changes.
- *
- * @returns {Function} The reducer.
+ * @returns {Object} The new state.
  */
 const rootReducer = (state, action) => {
-  switch (action.type) {
-    case NAMESPACE_CHANGED:
-      const newState = { ...INITIAL_STATE, dataService: state.dataService };
-      return appReducer(newState, action);
-    case RESET:
-      return { ...INITIAL_STATE };
-    case RESTORE_PIPELINE:
-      return deepMerge(INITIAL_STATE, action.restoreState, { arrayMerge: overwriteMerge });
-    case CLEAR_PIPELINE:
-      return {
-        ...state,
-        pipeline: PIPELINE_INITIAL_STATE,
-        savedPipeline: {
-          ...state.savedPipeline,
-          isListVisible: true
-        }
-      };
-    default:
-      return appReducer(state, action);
-  }
+  const fn = MAPPINGS[action.type];
+  return fn ? fn(state, action) : appReducer(state, action);
 };
 
 // when restoring the pipeline, don't merge arrays (in our case, stages array)
