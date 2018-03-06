@@ -1,4 +1,5 @@
 .DS_Store
+grammars/.antlr/
 npm-debug.log
 node_modules/
 lib/
@@ -8,3 +9,4 @@ coverage
 .idea/
 *.iml
 .nvmrc
+package-lock.json

@@ -4,6 +4,7 @@ const ECMAScriptParser = require('./lib/ECMAScriptParser.js');
 const ECMAScriptListener = require('./lib/ECMAScriptListener.js');
 const ECMAScriptTransformer = require('./transformers/ECMAScriptTransformer.js');
 const ECMAScriptVisitor = require('./codegeneration/ECMAScriptVisitor.js');
+// const ECMAScriptListener = require('./codegeneration/ECMAScriptListener.js');
 
 /**
  * Compiles an ECMAScript string into... an ECMAScript string.
@@ -17,32 +18,22 @@ const compileECMAScript = function(input) {
   const lexer = new ECMAScriptLexer.ECMAScriptLexer(chars);
   const tokens = new antlr4.CommonTokenStream(lexer);
   const parser = new ECMAScriptParser.ECMAScriptParser(tokens);
+
   parser.buildParseTrees = true;
+
   const tree = parser.program();
+  const transformer = new ECMAScriptTransformer();
 
   // Generate AST
-  const transformer = new ECMAScriptTransformer();
-  transformer.visit(tree);
-  
+  const AST = transformer.visitProgram(tree);
+
+  console.log('AST----------------------');
+  console.log(JSON.stringify(AST, null, 2));
+  console.log('----------------------');
 
   // Generate code
   // const visitor = new ECMAScriptVisitor();
   // return visitor.visitProgram(tree);
-  function CustomListener() {
-    ECMAScriptListener.ECMAScriptListener.call(this);
-  };
-  
-  CustomListener.prototype = ECMAScriptListener.ECMAScriptListener.prototype
-  CustomListener.prototype.constructor = CustomListener
-  
-  CustomListener.prototype.enterEveryRule = (ctx) => {
-    console.log(`enter ${parser.ruleNames[ctx.ruleIndex]}: ${ctx.getText()}`);
-  };
-  
-  const listener = new CustomListener();
-  
-  antlr4.tree.ParseTreeWalker.DEFAULT.walk(listener, tree);
-  
 };
 
 const input = '999 + 888';
