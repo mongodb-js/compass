@@ -164,7 +164,10 @@ module.exports = [
     resource: 'Export',
     action: 'completed',
     condition: () => true,
-    metadata: () => ({})
+    metadata: (size, fileType) => ({
+      'size': size,
+      'file type': fileType
+    })
   },
   {
     registryEvent: 'open-import',
@@ -178,7 +181,10 @@ module.exports = [
     resource: 'Import',
     action: 'completed',
     condition: () => true,
-    metadata: () => ({})
+    metadata: (size, fileType) => ({
+      'size': size,
+      'file type': fileType
+    })
   },
   {
     registryEvent: 'document-deleted',
