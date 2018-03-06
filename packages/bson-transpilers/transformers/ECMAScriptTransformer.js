@@ -19,80 +19,81 @@ Translator.prototype.visitProgram = function(ctx) {
 };
 
 Translator.prototype.skipNode = function(ctx) {
-  const child = ctx.getChild(0);
   const parent = ctx.parentCtx;
-  parent.removeLastChild();
-  child.parentCtx = parent;
-  parent.addChild(child);
-  return this.visit(child);
+  const index = parent.children.indexOf(ctx);
+  parent.children.splice(index, 1);
+
+  const numChildren = ctx.getChildCount();
+  for(let i = 0; i < numChildren; i++) {
+    const child = ctx.getChild(i);
+    child.parentCtx = parent;
+    parent.addChild(child);
+  }
+  return this.visitChildren(ctx);
 };
 
+Translator.prototype.deleteNode = function(ctx) {
+  const parent = ctx.parentCtx;
+  const index = parent.children.indexOf(ctx);
+  parent.children.splice(index, 1);
+}
+
 Translator.prototype.visitSourceElement = function(ctx) {
+  console.log("source element");
+  return this.skipNode(ctx);
+};
+
+/* Since we are only supporting one statement */
+Translator.prototype.visitSourceElements = function(ctx) {
+  ctx.parentCtx.removeLastChild(); // remove EOL
   return this.skipNode(ctx);
 };
 
 Translator.prototype.visitStatement = function(ctx) {
+  console.log('statement');
   return this.skipNode(ctx);
 };
 
-Translator.prototype.visitExpressionStatement = function(ctx) {
+// Translator.prototype.visitExpressionStatement = function(ctx) {
+//   return this.skipNode(ctx);
+// };
+
+// Translator.prototype.visitExpressionSequence = function(ctx) {
+//   return this.skipNode(ctx);
+// };
+
+Translator.prototype.visitNumericLiteral = function(ctx) {
   return this.skipNode(ctx);
 };
 
-Translator.prototype.visitExpressionSequence = function(ctx) {
+Translator.prototype.visitLiteralExpression = function(ctx) {
   return this.skipNode(ctx);
 };
 
-Translator.prototype.visitExpression = function(ctx) {
+Translator.prototype.visitEmptyStatement = function(ctx) {
+  this.deleteNode(ctx);
+};
+
+Translator.prototype.visitArrayLiteralExpression = function(ctx) {
   return this.skipNode(ctx);
 };
 
-Translator.prototype.visitLiteral = function(ctx) {
+Translator.prototype.visitArrayLiteral = function(ctx) {
+  // remove [ ]
+  ctx.children.splice(0, 1);
+  ctx.removeLastChild();
+  return this.visitChildren(ctx);
+};
+
+Translator.prototype.visitObjectLiteralExpression = function(ctx) {
   return this.skipNode(ctx);
 };
 
+Translator.prototype.visitElementList = function(ctx) {
+  return this.skipNode(ctx);
+};
+
+
+// TODO: Objects are parsed as "Block" instead of as ObjectLiteral
 
 module.exports = Translator;
-// Translator.prototype.visitProgram = function(ctx) {
-//   return {
-//     type: 'START',
-//     children: this.visitChildren(ctx).filter((item) => (item !== undefined))
-//   };
-// };
-//
-// Translator.prototype.visitAdditiveExpression = function(ctx) {
-//   return {
-//     type: 'ADD',
-//     children: this.visitChildren(ctx).filter((item) => (item !== undefined))
-//   };
-// };
-//
-// Translator.prototype.visitLiteral = function(ctx) {
-//   return ctx.getText();
-// };
-//
-// Translator.prototype.visitSourceElements = function(ctx) {
-//   return this.visitChildren(ctx)[0];
-// };
-//
-// Translator.prototype.visitSourceElement = function(ctx) {
-//   return this.visitChildren(ctx)[0];
-// };
-//
-// Translator.prototype.visitStatement = function(ctx) {
-//   return this.visitChildren(ctx)[0];
-// };
-//
-// Translator.prototype.visitExpressionStatement = function(ctx) {
-//   return this.visitChildren(ctx)[0];
-// };
-//
-// Translator.prototype.visitExpressionSequence = function(ctx) {
-//   return this.visitChildren(ctx)[0];
-// };
-//
-// Translator.prototype.visitLiteralExpression = function(ctx) {
-//   return this.visitChildren(ctx)[0];
-// };
-//
-// module.exports = Translator;

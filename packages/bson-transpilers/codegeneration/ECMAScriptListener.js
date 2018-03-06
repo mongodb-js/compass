@@ -25,16 +25,16 @@ Listener.prototype.buildAST = function(tree, ruleNames) {
     return s;
   }
 
-  const res = {type: s};
+  const res = {type: s, node: tree.constructor.name};
 
   if (c > 0) {
     s = this.buildAST(tree.getChild(0), ruleNames);
-    res.arguments = [...(res.arguments || []), s];
+    res.children = [...(res.children || []), s];
   }
 
   for (let i = 1; i < c; i++) {
     s = this.buildAST(tree.getChild(i), ruleNames);
-    res.arguments = [...(res.arguments || []), s];
+    res.children = [...(res.children || []), s];
   }
 
   return res;

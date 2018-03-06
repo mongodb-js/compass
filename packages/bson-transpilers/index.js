@@ -1,10 +1,9 @@
 const antlr4 = require('antlr4');
 const ECMAScriptLexer = require('./lib/ECMAScriptLexer.js');
 const ECMAScriptParser = require('./lib/ECMAScriptParser.js');
-const ECMAScriptListener = require('./lib/ECMAScriptListener.js');
 const ECMAScriptTransformer = require('./transformers/ECMAScriptTransformer.js');
-const ECMAScriptVisitor = require('./codegeneration/ECMAScriptVisitor.js');
-// const ECMAScriptListener = require('./codegeneration/ECMAScriptListener.js');
+const PrintListener = require('./codegeneration/ECMAScriptListener.js');
+// const ECMAScriptVisitor = require('./codegeneration/ECMAScriptVisitor.js');
 
 /**
  * Compiles an ECMAScript string into... an ECMAScript string.
@@ -21,11 +20,18 @@ const compileECMAScript = function(input) {
 
   parser.buildParseTrees = true;
 
-  const tree = parser.program();
+  const tree = parser.expressionSequence();
   const transformer = new ECMAScriptTransformer();
 
   // Generate AST
-  const AST = transformer.visitProgram(tree);
+
+  // TODO: Maybe start somewhere other than program
+  transformer.visitExpressionSequence(tree);
+
+  // Print
+  const listener = new PrintListener();
+  const AST = listener.buildAST(tree, parser.ruleNames);
+
 
   console.log('AST----------------------');
   console.log(JSON.stringify(AST, null, 2));
@@ -36,7 +42,7 @@ const compileECMAScript = function(input) {
   // return visitor.visitProgram(tree);
 };
 
-const input = '999 + 888';
+const input = '{x: 1, y: 2}';
 
 compileECMAScript(input);
 
