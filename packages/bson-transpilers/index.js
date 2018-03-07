@@ -1,7 +1,8 @@
 const antlr4 = require('antlr4');
 const ECMAScriptLexer = require('./lib/ECMAScriptLexer.js');
 const ECMAScriptParser = require('./lib/ECMAScriptParser.js');
-const ECMAScriptVisitor = require('./codegeneration/ECMAScriptVisitor');
+const ECMAScriptPrinter = require('./printers/ECMAScriptListener.js');
+const ECMAScriptGenerator = require('./codegeneration/ECMAScriptGenerator.js');
 
 const JavaLexer = require('./lib/JavaLexer.js');
 const JavaParser = require('./lib/JavaParser.js');
@@ -27,8 +28,15 @@ const compileECMAScript = function(input) {
   parser.buildParseTrees = true;
   const tree = parser.expressionSequence();
 
+  // Print
+  const listener = new ECMAScriptPrinter();
+  const AST = listener.buildAST(tree, parser.ruleNames);
+  console.log('ECMAScript AST----------------------');
+  console.log(JSON.stringify(AST, null, 2));
+  console.log('----------------------');
+
   // Generate Code
-  const visitor = new ECMAScriptVisitor();
+  const visitor = new ECMAScriptGenerator();
   console.log(visitor.visit(tree));
 };
 
@@ -42,7 +50,7 @@ const compileJava = function(input) {
   const tree = parser.expression();
 
   // Generate Code
-  const visitor = new ECMAScriptVisitor();
+  const visitor = new ECMAScriptGenerator();
   console.log(visitor.visit(tree));
 };
 
@@ -56,7 +64,7 @@ const compileCSharp = function(input) {
   const tree = parser.expression();
 
   // Generate Сode
-  const visitor = new ECMAScriptVisitor();
+  const visitor = new ECMAScriptGenerator();
   console.log(visitor.visit(tree));
 };
 
@@ -71,13 +79,10 @@ const compilePython = function(input) {
   const tree = parser.single_input();
 
   // Generate Сode
-  const visitor = new ECMAScriptVisitor();
+  const visitor = new ECMAScriptGenerator();
   console.log(visitor.visit(tree));
 };
 
-const input = '1 + 2\n';
+const input = '{x: 1}\n';
 
 compileECMAScript(input);
-compileJava(input);
-compileCSharp(input);
-compilePython(input);

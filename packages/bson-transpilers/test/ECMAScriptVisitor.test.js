@@ -3,7 +3,7 @@ const expect = chai.expect;
 const antlr4 = require('antlr4');
 const ECMAScriptLexer = require('../lib/ECMAScriptLexer.js');
 const ECMAScriptParser = require('../lib/ECMAScriptParser.js');
-const ECMAScriptVisitor = require('../codegeneration/ECMAScriptVisitor.js');
+const ECMAScriptGenerator = require('../codegeneration/ECMAScriptGenerator.js');
 
 describe('Generate ECMAScript AST', function() {
   const generate = function(input) {
@@ -14,7 +14,7 @@ describe('Generate ECMAScript AST', function() {
     parser.buildParseTrees = true;
     const tree = parser.expressionSequence();
 
-    const visitor = new ECMAScriptVisitor();
+    const visitor = new ECMAScriptGenerator();
     return visitor.visitExpressionSequence(tree);
   };
 
