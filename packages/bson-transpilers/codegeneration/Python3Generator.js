@@ -36,13 +36,21 @@ const bson_symbol_table = {
   TimeStamp: 'TimeStamp'
 };
 
-// Nodes that differ in syntax have to be visited here
+/////////////////////////////////
+// Nodes that differ in syntax //
+/////////////////////////////////
 
-// Far Away TODO: PropertyName used also in getters/setters
+/**
+ * Because python dict's need the keys to be strings.
+ * Far Away TODO: PropertyName used also in getters/setters
+ */
 Visitor.prototype.visitPropertyName = function(ctx) {
   return '\'' + this.visitChildren(ctx) + '\'';
 };
 
+/**
+ * Because python doesn't need New
+ */
 Visitor.prototype.visitNewExpression = function(ctx) {
   let code = '';
   for (let i = 1; i < ctx.getChildCount(); i++) {
@@ -51,6 +59,9 @@ Visitor.prototype.visitNewExpression = function(ctx) {
   return code.trim();
 };
 
+/**
+ * BSON Type construction or function calls
+ */
 Visitor.prototype.visitArgumentsExpression = function(ctx) {
   const id = this.visit(ctx.getChild(0));
   if (!(id in bson_symbol_table)) {
