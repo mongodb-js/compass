@@ -4,7 +4,7 @@ const antlr4 = require('antlr4');
 const ECMAScriptLexer = require('../lib/ECMAScriptLexer.js');
 const ECMAScriptParser = require('../lib/ECMAScriptParser.js');
 const ECMAScriptTransformer = require('../transformers/ECMAScriptTransformer.js');
-const PrintListener = require('../codegeneration/ECMAScriptListener.js');
+const PrintListener = require('../printers/ECMAScriptListener.js');
 
 describe('Generate ECMAScript AST', function() {
   const generate = function(input) {
