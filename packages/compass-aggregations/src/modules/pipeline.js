@@ -41,6 +41,8 @@ export const STAGE_OPERATOR_SELECTED = `${PREFIX}/STAGE_OPERATOR_SELECTED`;
  */
 export const STAGE_TOGGLED = `${PREFIX}/STAGE_TOGGLED`;
 
+export const STAGE_PREVIEW_UPDATED = `${PREFIX}/STAGE_PREVIEW_UPDATED`;
+
 /**
  * An initial stage.
  */
@@ -50,7 +52,9 @@ const EMPTY_STAGE = {
   stage: '',
   isValid: true,
   isEnabled: true,
-  isExpanded: true
+  isExpanded: true,
+  previewDocuments: [],
+  previewError: null
 };
 
 /**
@@ -94,7 +98,7 @@ const getStageOperator = (name) => {
 const changeStage = (state, action) => {
   const newState = copyState(state);
   newState[action.index].stage = action.stage;
-  generateStage(newState[action.index]);
+  newState[action.index].executor = generateStage(newState[action.index]);
   return newState;
 };
 
@@ -193,6 +197,13 @@ const toggleStageCollapse = (state, action) => {
   return newState;
 };
 
+const updateStagePreview = (state, action) => {
+  const newState = copyState(state);
+  newState[action.index].previewDocuments = action.documents;
+  newState[action.index].previewError = action.error;
+  return newState;
+};
+
 /**
  * To not have a huge switch statement in the reducer.
  */
@@ -205,6 +216,7 @@ MAPPINGS[STAGE_MOVED] = moveStage;
 MAPPINGS[STAGE_OPERATOR_SELECTED] = selectStageOperator;
 MAPPINGS[STAGE_TOGGLED] = toggleStage;
 MAPPINGS[STAGE_COLLAPSE_TOGGLED] = toggleStageCollapse;
+MAPPINGS[STAGE_PREVIEW_UPDATED] = updateStagePreview;
 
 Object.freeze(MAPPINGS);
 
@@ -307,3 +319,56 @@ export const stageToggled = (index) => ({
   type: STAGE_TOGGLED,
   index: index
 });
+
+/**
+ * The options constant.
+ */
+const OPTIONS = Object.freeze({});
+
+const generatePipeline = (state, index) => {
+  const pipeline = [];
+  state.pipeline.forEach((stage, i) => {
+    if (i <= index) {
+      pipeline.push(stage.executor);
+    } else {
+      return;
+    }
+  });
+  return pipeline;
+};
+
+export const stagePreviewUpdated = (docs, index, error) => ({
+  type: STAGE_PREVIEW_UPDATED,
+  documents: docs,
+  index: index,
+  error: error
+});
+
+/**
+ * Run the stage.
+ *
+ * @param {Number} index - The index of the stage that changed.
+ *
+ * @returns {Function} The thunk function.
+ */
+export const runStage = (index) => {
+  return (dispatch, getState) => {
+    const state = getState();
+    const dataService = state.dataService.dataService;
+    const ns = state.namespace;
+    if (dataService) {
+      // dispatch(loadingStageResults(index));
+      if (state.pipeline[index].isValid) {
+        const pipeline = generatePipeline(state, index);
+        dataService.aggregate(ns, pipeline, OPTIONS, (err, cursor) => {
+          if (err) return dispatch(stagePreviewUpdated([], index, err));
+          cursor.batchSize(20).limit(20).toArray((e, docs) => {
+            console.log(docs);
+            dispatch(stagePreviewUpdated(docs, index, e));
+            cursor.close();
+          });
+        });
+      }
+    }
+  };
+};

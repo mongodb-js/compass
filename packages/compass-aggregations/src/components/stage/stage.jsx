@@ -73,6 +73,7 @@ class Stage extends Component {
     connectDragSource: PropTypes.func.isRequired,
     connectDropTarget: PropTypes.func.isRequired,
     isDragging: PropTypes.bool.isRequired,
+    runStage: PropTypes.func.isRequired,
     serverVersion: PropTypes.string.isRequired,
     stageChanged: PropTypes.func.isRequired,
     stageCollapseToggled: PropTypes.func.isRequired,
@@ -84,19 +85,37 @@ class Stage extends Component {
   }
 
   /**
+   * Render the workspace.
+   *
+   * @returns {React.Component} The workspace.
+   */
+  renderWorkspace() {
+    if (this.props.stage.isExpanded) {
+      return (
+        <StageWorkspace
+          stage={this.props.stage}
+          runStage={this.props.runStage}
+          index={this.props.index}
+          serverVersion={this.props.serverVersion}
+          fields={this.props.fields}
+          stageChanged={this.props.stageChanged} />
+      );
+    }
+  }
+
+  /**
    * Render the stage component.
    *
    * @returns {Component} The component.
    */
   render() {
-    const workspace = this.props.stage.isExpanded ? <StageWorkspace {...this.props} /> : null;
     const opacity = this.props.isDragging ? 0 : 1;
     const valid = this.props.stage.isValid ? 'stage' : 'stage-invalid';
     return this.props.connectDragSource(
       this.props.connectDropTarget(
         <div className={classnames(styles[valid])} style={{ opacity }}>
           <StageToolbar {...this.props} />
-          {workspace}
+          {this.renderWorkspace()}
         </div>
       )
     );

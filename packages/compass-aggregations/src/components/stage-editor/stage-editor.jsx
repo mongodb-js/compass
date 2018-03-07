@@ -32,6 +32,7 @@ class StageEditor extends PureComponent {
 
   static propTypes = {
     stage: PropTypes.object.isRequired,
+    runStage: PropTypes.func.isRequired,
     index: PropTypes.number.isRequired,
     serverVersion: PropTypes.string.isRequired,
     fields: PropTypes.array.isRequired,
@@ -89,10 +90,21 @@ class StageEditor extends PureComponent {
     this.props.stageChanged(value, this.props.index);
   }
 
+  /**
+   * Need to decorate the change event with the stage index before
+   * dispatching.
+   */
+  onStageBlur = () => {
+    this.props.runStage(this.props.index);
+  }
+
+  /**
+   * Render the error.
+   *
+   * @returns {React.Component} The component.
+   */
   renderError() {
-    if (this.props.stage.isValid) {
-      return null;
-    }
+    if (this.props.stage.isValid) return null;
     return (
       <div className={classnames(styles['stage-editor-errormsg'])}>
         {this.props.stage.error}
@@ -115,6 +127,7 @@ class StageEditor extends PureComponent {
           width="100%"
           value={this.props.stage.stage}
           onChange={this.onStageChange}
+          onBlur={this.onStageBlur}
           editorProps={{ $blockScrolling: Infinity }}
           name={`aggregations-stage-editor-${this.props.index}`}
           setOptions={OPTIONS}

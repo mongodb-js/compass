@@ -63,7 +63,7 @@ appRegistry.emit('data-service-initialized', dataService);
 
 dataService.connect((error, ds) => {
   appRegistry.emit('data-service-connected', error, ds);
-  appRegistry.emit('collection-changed', 'compass-aggregations.dev2');
+  appRegistry.emit('collection-changed', 'compass-aggregations.dev');
 
   const docs = [{ _id: 1, name: 'Aphex Twin', loc: 'London', members: 1, newestAlbum: 'Cheetah' }];
   FieldStore.processDocuments(docs);

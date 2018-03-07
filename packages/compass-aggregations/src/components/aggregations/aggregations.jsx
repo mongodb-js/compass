@@ -13,6 +13,7 @@ import { viewChanged } from 'modules/view';
 import { copyToClipboard } from 'modules/clipboard';
 import { deletePipeline } from 'modules';
 import {
+  runStage,
   stageAdded,
   stageChanged,
   stageCollapseToggled,
@@ -84,6 +85,7 @@ const MappedAggregations = connect(
     toggleInputDocumentsCollapsed,
     refreshInputDocuments,
     deletePipeline,
+    runStage,
     stageAdded,
     stageChanged,
     stageCollapseToggled,
