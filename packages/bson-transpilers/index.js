@@ -9,6 +9,9 @@ const JavaParser = require('./lib/JavaParser.js');
 const CSharpLexer = require('./lib/CSharpLexer.js');
 const CSharpParser = require('./lib/CSharpParser.js');
 
+const Python3Lexer = require('./lib/Python3Lexer.js');
+const Python3Parser = require('./lib/Python3Parser.js');
+
 /**
  * Compiles an ECMAScript string into... an ECMAScript string.
  *
@@ -40,7 +43,7 @@ const compileJava = function(input) {
 
   // Generate Code
   const visitor = new ECMAScriptVisitor();
-  console.log(visitor.visitExpression(tree));
+  console.log(visitor.visit(tree));
 };
 
 const compileCSharp = function(input) {
@@ -54,11 +57,27 @@ const compileCSharp = function(input) {
 
   // Generate Сode
   const visitor = new ECMAScriptVisitor();
-  console.log(visitor.visitExpression(tree));
+  console.log(visitor.visit(tree));
 };
 
-const input = '1 + 2';
+const compilePython = function(input) {
+  // Create parse tree
+  const chars = new antlr4.InputStream(input);
+  const lexer = new Python3Lexer.Python3Lexer(chars);
+  const tokens = new antlr4.CommonTokenStream(lexer);
+  const parser = new Python3Parser.Python3Parser(tokens);
+
+  parser.buildParseTrees = true;
+  const tree = parser.single_input();
+
+  // Generate Сode
+  const visitor = new ECMAScriptVisitor();
+  console.log(visitor.visit(tree));
+};
+
+const input = '1 + 2\n';
 
 compileECMAScript(input);
 compileJava(input);
 compileCSharp(input);
+compilePython(input);

@@ -8,10 +8,11 @@
   "main": "index.js",
   "scripts": {
     "start": "node index.js",
-    "compile": "npm run antlr4-js && npm run antlr4-java && npm run antlr4-cs",
+    "compile": "npm run antlr4-js && npm run antlr4-java && npm run antlr4-cs && npm run antlr4-py",
     "antlr4-js": "java -Xmx500M -cp '/usr/local/lib/antlr-4.7.1-complete.jar:$CLASSPATH' org.antlr.v4.Tool  -Dlanguage=JavaScript -lib grammars -o lib -visitor -Xexact-output-dir grammars/ECMAScript.g4",
     "antlr4-cs": "java -Xmx500M -cp '/usr/local/lib/antlr-4.7.1-complete.jar:$CLASSPATH' org.antlr.v4.Tool  -Dlanguage=JavaScript -lib grammars -o lib -visitor -Xexact-output-dir grammars/CSharpLexer.g4 -Xexact-output-dir grammars/CSharpParser.g4",
     "antlr4-java": "java -Xmx500M -cp '/usr/local/lib/antlr-4.7.1-complete.jar:$CLASSPATH' org.antlr.v4.Tool  -Dlanguage=JavaScript -lib grammars -o lib -visitor  -Xexact-output-dir grammars/JavaLexer.g4 grammars/JavaParser.g4",
+    "antlr4-py": "java -Xmx500M -cp '/usr/local/lib/antlr-4.7.1-complete.jar:$CLASSPATH' org.antlr.v4.Tool  -Dlanguage=JavaScript -lib grammars -o lib -visitor -Xexact-output-dir grammars/Python3.g4",
     "test": "mocha",
     "prepublish": "npm run compile",
     "check": "mongodb-js-precommit './src/**/*{.js,.jsx}' './test/**/*.js' index.js"
