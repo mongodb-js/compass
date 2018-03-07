@@ -11,9 +11,22 @@ function Visitor() {
 Visitor.prototype = Object.create(ECMAScriptVisitor.prototype);
 Visitor.prototype.constructor = Visitor;
 
-Visitor.prototype.visitProgram = function(ctx) {
-  console.log(ctx.constructor);
-  return this.visitChildren(ctx);
+Visitor.prototype.visitExpression = function(ctx) {
+  let code = '';
+  for (let i = 0; i < ctx.getChildCount(); i++) {
+    code += this.visit(ctx.getChild(i));
+  }
+  return code;
+};
+
+// synonyms of nodes
+Visitor.prototype.visitAdditiveExpression = Visitor.prototype.visitExpression;
+Visitor.prototype.visitAdd = Visitor.prototype.visitExpression;
+Visitor.prototype.visitParenthesizedExpression = Visitor.prototype.visitExpression;
+Visitor.prototype.visitPrimary = Visitor.prototype.visitExpression;
+
+Visitor.prototype.visitTerminal = function(ctx) {
+  return ctx.getText();
 };
 
 module.exports = Visitor;

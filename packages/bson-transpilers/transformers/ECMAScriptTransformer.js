@@ -13,8 +13,6 @@ Translator.prototype = Object.create(ECMAScriptVisitor.prototype);
 Translator.prototype.constructor = Translator;
 
 Translator.prototype.visitProgram = function(ctx) {
-  console.log('visitProgram');
-
   return this.visitChildren(ctx);
 };
 
@@ -38,25 +36,9 @@ Translator.prototype.deleteNode = function(ctx) {
   parent.children.splice(index, 1);
 }
 
-Translator.prototype.visitSourceElement = function(ctx) {
-  console.log("source element");
+Translator.prototype.visitExpressionStatement = function(ctx) {
   return this.skipNode(ctx);
 };
-
-/* Since we are only supporting one statement */
-Translator.prototype.visitSourceElements = function(ctx) {
-  ctx.parentCtx.removeLastChild(); // remove EOL
-  return this.skipNode(ctx);
-};
-
-Translator.prototype.visitStatement = function(ctx) {
-  console.log('statement');
-  return this.skipNode(ctx);
-};
-
-// Translator.prototype.visitExpressionStatement = function(ctx) {
-//   return this.skipNode(ctx);
-// };
 
 // Translator.prototype.visitExpressionSequence = function(ctx) {
 //   return this.skipNode(ctx);

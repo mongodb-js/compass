@@ -13,8 +13,6 @@ Translator.prototype = Object.create(JavaVisitor.prototype);
 Translator.prototype.constructor = Translator;
 
 Translator.prototype.visitExpression = function(ctx) {
-  console.log('visitExpr');
-
   return this.visitChildren(ctx);
 };
 
