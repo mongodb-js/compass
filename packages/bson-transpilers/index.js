@@ -2,7 +2,7 @@ const antlr4 = require('antlr4');
 const ECMAScriptLexer = require('./lib/ECMAScriptLexer.js');
 const ECMAScriptParser = require('./lib/ECMAScriptParser.js');
 const ECMAScriptPrinter = require('./printers/ECMAScriptListener.js');
-const ECMAScriptVistor = require('./codegeneration/ECMAScriptVisitor');
+const ECMAScriptVisitor = require('./codegeneration/ECMAScriptVisitor');
 
 const JavaLexer = require('./lib/JavaLexer.js');
 const JavaParser = require('./lib/JavaParser.js');
@@ -30,7 +30,7 @@ const compileECMAScript = function(input) {
   console.log('----------------------');
 
   // Generate Code
-  const visitor = new ECMAScriptVistor();
+  const visitor = new ECMAScriptVisitor();
   console.log(visitor.visit(tree));
 };
 
@@ -50,7 +50,7 @@ const compileJava = function(input) {
   console.log('----------------------');
 
   // Generate Code
-  const visitor = new ECMAScriptVistor();
+  const visitor = new ECMAScriptVisitor();
   console.log(visitor.visitExpression(tree));
 };
 
