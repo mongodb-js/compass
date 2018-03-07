@@ -15,7 +15,6 @@ Object.assign(Visitor.prototype, JavaVisitor.prototype);
 // For every input language, can "inherit" the generated visitNode methods.
 
 Visitor.prototype.constructor = Visitor;
-
 Visitor.prototype.visitChildren = function(ctx) {
   let code = '';
   for (let i = 0; i < ctx.getChildCount(); i++) {
@@ -24,7 +23,46 @@ Visitor.prototype.visitChildren = function(ctx) {
   return code.trim();
 };
 
-Visitor.prototype.
+const bson_symbol_table = {
+  ObjectId: 'ObjectId',
+  Code: 'Code',
+  Binary: 'Binary',
+  DBRef: 'DBRef',
+  Long: 'Int64', // TODO: do they take the same types?
+  Decimal128: 'Decimal128',
+  MinKey: 'MinKey', MaxKey: 'MaxKey',
+  ISODate: 'datetime.date', // TODO: do they take the same types?
+  Regexp: 'Regexp',
+  TimeStamp: 'TimeStamp'
+};
+
+// Nodes that differ in syntax have to be visited here
+
+// Far Away TODO: PropertyName used also in getters/setters
+Visitor.prototype.visitPropertyName = function(ctx) {
+  return '\'' + this.visitChildren(ctx) + '\'';
+};
+
+Visitor.prototype.visitNewExpression = function(ctx) {
+  let code = '';
+  for (let i = 1; i < ctx.getChildCount(); i++) {
+    code += this.visit(ctx.getChild(i));
+  }
+  return code.trim();
+};
+
+Visitor.prototype.visitArgumentsExpression = function(ctx) {
+  const id = this.visit(ctx.getChild(0));
+  if (!(id in bson_symbol_table)) {
+    // TODO: handle errors
+  } else {
+    let code = bson_symbol_table[id];
+    for (let i = 1; i < ctx.getChildCount(); i++) {
+      code += this.visit(ctx.getChild(i));
+    }
+    return code.trim();
+  }
+};
 
 Visitor.prototype.visitTerminal = function(ctx) {
   return ctx.getText();

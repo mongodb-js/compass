@@ -1,17 +1,16 @@
+/* eslint no-unused-vars: 0*/
 const antlr4 = require('antlr4');
 const ECMAScriptLexer = require('./lib/ECMAScriptLexer.js');
 const ECMAScriptParser = require('./lib/ECMAScriptParser.js');
-const ECMAScriptPrinter = require('./printers/ECMAScriptListener.js');
-const ECMAScriptGenerator = require('./codegeneration/ECMAScriptGenerator.js');
-
 const JavaLexer = require('./lib/JavaLexer.js');
 const JavaParser = require('./lib/JavaParser.js');
-
 const CSharpLexer = require('./lib/CSharpLexer.js');
 const CSharpParser = require('./lib/CSharpParser.js');
-
 const Python3Lexer = require('./lib/Python3Lexer.js');
 const Python3Parser = require('./lib/Python3Parser.js');
+
+const Python3Generator = require('./codegeneration/Python3Generator.js');
+const ECMAScriptGenerator = require('./codegeneration/ECMAScriptGenerator.js');
 
 /**
  * Compiles an ECMAScript string into... an ECMAScript string.
@@ -29,15 +28,15 @@ const compileECMAScript = function(input) {
   const tree = parser.expressionSequence();
 
   // Print
-  const listener = new ECMAScriptPrinter();
-  const AST = listener.buildAST(tree, parser.ruleNames);
-  console.log('ECMAScript AST----------------------');
-  console.log(JSON.stringify(AST, null, 2));
-  console.log('----------------------');
+  // const listener = new ECMAScriptPrinter();
+  // const AST = listener.buildAST(tree, parser.ruleNames);
+  // console.log('ECMAScript AST----------------------');
+  // console.log(JSON.stringify(AST, null, 2));
+  // console.log('----------------------');
 
   // Generate Code
-  const visitor = new ECMAScriptGenerator();
-  console.log(visitor.visit(tree));
+  const visitor = new Python3Generator();
+  console.log(visitor.visitExpressionSequence(tree));
 };
 
 const compileJava = function(input) {
@@ -83,6 +82,6 @@ const compilePython = function(input) {
   console.log(visitor.visit(tree));
 };
 
-const input = '{x: 1}\n';
+const input = 'new Long(\'12345678912\')';
 
 compileECMAScript(input);
