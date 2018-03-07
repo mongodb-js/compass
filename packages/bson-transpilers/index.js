@@ -1,13 +1,11 @@
 const antlr4 = require('antlr4');
 const ECMAScriptLexer = require('./lib/ECMAScriptLexer.js');
 const ECMAScriptParser = require('./lib/ECMAScriptParser.js');
-const ECMAScriptTransformer = require('./transformers/ECMAScriptTransformer.js');
 const ECMAScriptPrinter = require('./printers/ECMAScriptListener.js');
-const Vistor = require('./codegeneration/ECMAScriptVisitor');
+const ECMAScriptVistor = require('./codegeneration/ECMAScriptVisitor');
 
 const JavaLexer = require('./lib/JavaLexer.js');
 const JavaParser = require('./lib/JavaParser.js');
-const JavaTransformer = require('./transformers/JavaTransformer.js');
 const JavaPrinter = require('./printers/JavaListener.js');
 
 /**
@@ -24,20 +22,16 @@ const compileECMAScript = function(input) {
   const parser = new ECMAScriptParser.ECMAScriptParser(tokens);
   parser.buildParseTrees = true;
   const tree = parser.expressionSequence();
-  const transformer = new ECMAScriptTransformer();
-
-  // Generate AST
-  // transformer.visitExpressionSequence(tree);
 
   const listener = new ECMAScriptPrinter();
   const AST = listener.buildAST(tree, parser.ruleNames);
   console.log('ECMAScript AST----------------------');
   console.log(JSON.stringify(AST, null, 2));
   console.log('----------------------');
-  
+
   // Generate Code
-  const visitor = new Vistor();
-  console.log(visitor.visitExpression(tree));
+  const visitor = new ECMAScriptVistor();
+  console.log(visitor.visit(tree));
 };
 
 const compileJava = function(input) {
@@ -48,24 +42,19 @@ const compileJava = function(input) {
   const parser = new JavaParser.JavaParser(tokens);
   parser.buildParseTrees = true;
   const tree = parser.expression();
-  const transformer = new JavaTransformer();
 
-  // Generate AST
-  // transformer.visit(tree);
-
-  // Print
   const listener = new JavaPrinter();
   const AST = listener.buildAST(tree, parser.ruleNames);
   console.log('Java AST----------------------');
   console.log(JSON.stringify(AST, null, 2));
   console.log('----------------------');
-  
+
   // Generate Code
-  const visitor = new Vistor();
+  const visitor = new ECMAScriptVistor();
   console.log(visitor.visitExpression(tree));
 };
 
-const input = '1 + 2';
+const input = '[1, 2, 3]';
 
 compileECMAScript(input);
 compileJava(input);
