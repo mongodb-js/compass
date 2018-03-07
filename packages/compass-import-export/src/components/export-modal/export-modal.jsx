@@ -138,7 +138,7 @@ class ExportModal extends PureComponent {
         </Modal.Header>
         <Modal.Body>
           <div className={queryClassName}>
-            Exporting {this.props.count} documents returned by the following query:
+            There are {this.props.count} documents in the collection. Exporting with the query:
           </div>
           <div className={queryViewerClassName}>
             <QueryViewer query={this.props.query} disabled={this.props.isFullCollection} />
