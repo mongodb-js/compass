@@ -44,13 +44,25 @@ class SplitLines extends Transform {
 
       if (this.isLastLineComplete(lines[lines.length - 1])) {
         this[kSource] = '';
-        const parsedLines = this.type === FILE_TYPES.JSON ? lines.map(this.parseJsonLine) : lines.map(this.toCSV);
-        return callback(null, parsedLines);
+        try {
+          const parsedLines = (this.type === FILE_TYPES.JSON)
+            ? lines.map(this.parseJsonLine)
+            : lines.map(this.toCSV);
+          return callback(null, parsedLines);
+        } catch (e) {
+          return callback(e, []);
+        }
       }
       const linesToWrite = lines.splice(0, lines.length - 1);
       this[kSource] = lines[0];
-      const parsedLines = this.type === FILE_TYPES.JSON ? linesToWrite.map(this.parseJsonLine) : linesToWrite.map(this.toCSV);
-      return callback(null, parsedLines);
+      try {
+        const parsedLines = (this.type === FILE_TYPES.JSON)
+          ? linesToWrite.map(this.parseJsonLine)
+          : linesToWrite.map(this.toCSV);
+        return callback(null, parsedLines);
+      } catch (e) {
+        return callback(e, []);
+      }
     }
   }
 
