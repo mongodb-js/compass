@@ -14,11 +14,12 @@ const FormActions = require('./form-actions');
 class ConnectForm extends React.Component {
 
   render() {
+    const isSrv = this.props.currentConnection.isSrvRecord;
     return (
       <form data-test-id="connect-form">
         <FormGroup id="host-port" separator>
           <HostInput {...this.props} />
-          <PortInput {...this.props} />
+          { isSrv ? null : <PortInput {...this.props} />}
           <SRVInput {...this.props} />
         </FormGroup>
         <Authentication {...this.props} />
