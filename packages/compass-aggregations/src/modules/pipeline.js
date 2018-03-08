@@ -321,28 +321,65 @@ export const stageToggled = (index) => ({
 });
 
 /**
- * The options constant.
+ * Update the stage preview section aciton.
+ *
+ * @param {Array} docs - The documents.
+ * @param {Number} index - The index.
+ * @param {Error} error - The error.
+ *
+ * @returns {Object} The action.
  */
-const OPTIONS = Object.freeze({});
-
-const generatePipeline = (state, index) => {
-  const pipeline = [];
-  state.pipeline.forEach((stage, i) => {
-    if (i <= index) {
-      pipeline.push(stage.executor);
-    } else {
-      return;
-    }
-  });
-  return pipeline;
-};
-
 export const stagePreviewUpdated = (docs, index, error) => ({
   type: STAGE_PREVIEW_UPDATED,
   documents: docs,
   index: index,
   error: error
 });
+
+/**
+ * The options constant.
+ */
+const OPTIONS = Object.freeze({});
+
+/**
+ * Generate the aggregation pipeline for the index.
+ *
+ * Will add all previous stages up to the current index.
+ *
+ * @param {Object} state - The state.
+ * @param {Number} index - The stage index.
+ *
+ * @returns {Array} The pipeline.
+ */
+export const generatePipeline = (state, index) => {
+  return state.pipeline.reduce((results, stage, i) => {
+    if (i <= index) results.push(stage.executor);
+    return results;
+  }, []);
+};
+
+/**
+ * Execute the aggregation pipeline at the provided index.
+ *
+ * @param {DataService} dataService - The data service.
+ * @param {String} ns - The namespace.
+ * @param {Function} dispatch - The dispatch function.
+ * @param {Object} state - The state.
+ * @param {Number} index - The current index.
+ */
+const executeAggregation = (dataService, ns, dispatch, state, index) => {
+  if (state.pipeline[index].isValid) {
+    // dispatch(loadingStageResults(index));
+    const pipeline = generatePipeline(state, index);
+    dataService.aggregate(ns, pipeline, OPTIONS, (err, cursor) => {
+      if (err) return dispatch(stagePreviewUpdated([], index, err));
+      cursor.batchSize(20).limit(20).toArray((e, docs) => {
+        dispatch(stagePreviewUpdated(docs, index, e));
+        cursor.close();
+      });
+    });
+  }
+};
 
 /**
  * Run the stage.
@@ -356,19 +393,8 @@ export const runStage = (index) => {
     const state = getState();
     const dataService = state.dataService.dataService;
     const ns = state.namespace;
-    if (dataService) {
-      // dispatch(loadingStageResults(index));
-      if (state.pipeline[index].isValid) {
-        const pipeline = generatePipeline(state, index);
-        dataService.aggregate(ns, pipeline, OPTIONS, (err, cursor) => {
-          if (err) return dispatch(stagePreviewUpdated([], index, err));
-          cursor.batchSize(20).limit(20).toArray((e, docs) => {
-            console.log(docs);
-            dispatch(stagePreviewUpdated(docs, index, e));
-            cursor.close();
-          });
-        });
-      }
+    for (let i = index; i < state.pipeline.length; i++) {
+      executeAggregation(dataService, ns, dispatch, state, i);
     }
   };
 };

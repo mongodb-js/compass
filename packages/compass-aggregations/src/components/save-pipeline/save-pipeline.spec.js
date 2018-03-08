@@ -16,7 +16,7 @@ describe('SavePipeline [Component]', () => {
     const spy = sinon.spy();
 
     beforeEach(() => {
-      component = mount(<SavePipeline savedPipeline={savedPipeline} savedPipelineListToggle={spy} />);
+      component = mount(<SavePipeline savedPipeline={savedPipeline} savedPipelinesListToggle={spy} />);
     });
 
     afterEach(() => {

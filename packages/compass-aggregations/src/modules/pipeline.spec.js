@@ -6,6 +6,7 @@ import reducer, {
   stageMoved,
   stageOperatorSelected,
   stageToggled,
+  generatePipeline,
   STAGE_ADDED,
   STAGE_CHANGED,
   STAGE_COLLAPSE_TOGGLED,
@@ -250,6 +251,46 @@ describe('pipeline module', () => {
         type: STAGE_MOVED,
         fromIndex: 0,
         toIndex: 5
+      });
+    });
+  });
+
+  describe('#generatePipeline', () => {
+    context('when the index is the first', () => {
+      const stage = { executor: { $match: { name: 'test' }}};
+      const state = { pipeline: [ stage ]};
+
+      it('returns the pipeline with only the current stage', () => {
+        expect(generatePipeline(state, 0)).to.deep.equal([ stage.executor ]);
+      });
+    });
+
+    context('when the index has prior stages', () => {
+      const stage0 = { executor: { $match: { name: 'test' }}};
+      const stage1 = { executor: { $project: { name: 1 }}};
+      const stage2 = { executor: { $sort: { name: 1 }}};
+      const state = { pipeline: [ stage0, stage1, stage2 ]};
+
+      it('returns the pipeline with the current and all previous stages', () => {
+        expect(generatePipeline(state, 2)).to.deep.equal([
+          stage0.executor,
+          stage1.executor,
+          stage2.executor
+        ]);
+      });
+    });
+
+    context('when the index has stages after', () => {
+      const stage0 = { executor: { $match: { name: 'test' }}};
+      const stage1 = { executor: { $project: { name: 1 }}};
+      const stage2 = { executor: { $sort: { name: 1 }}};
+      const state = { pipeline: [ stage0, stage1, stage2 ]};
+
+      it('returns the pipeline with the current and all previous stages', () => {
+        expect(generatePipeline(state, 1)).to.deep.equal([
+          stage0.executor,
+          stage1.executor
+        ]);
       });
     });
   });

@@ -7,9 +7,11 @@ import styles from './stage-workspace.less';
 describe('StageWorkspace [Component]', () => {
   let component;
   let stageChangedSpy;
+  let runStageSpy;
 
   beforeEach(() => {
     stageChangedSpy = sinon.spy();
+    runStageSpy = sinon.spy();
 
     component = shallow(
       <StageWorkspace
@@ -17,6 +19,7 @@ describe('StageWorkspace [Component]', () => {
         index={0}
         serverVersion="3.6.0"
         fields={[]}
+        runStage={runStageSpy}
         stageChanged={stageChangedSpy} />
     );
   });

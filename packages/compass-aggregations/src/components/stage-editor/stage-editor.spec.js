@@ -7,6 +7,7 @@ import styles from './stage-editor.less';
 describe('StageEditor [Component]', () => {
   let component;
   const spy = sinon.spy();
+  const runStageSpy = sinon.spy();
   const stage = {
     stage: '{ name: "testing" }',
     stageOperator: '$match',
@@ -23,6 +24,7 @@ describe('StageEditor [Component]', () => {
         index={0}
         fields={[]}
         serverVersion="3.6.0"
+        runStage={runStageSpy}
         stageChanged={spy} />
     );
   });
