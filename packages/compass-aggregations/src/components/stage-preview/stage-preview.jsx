@@ -2,7 +2,7 @@ import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import { Document } from '@mongodb-js/compass-crud';
 import HadronDocument from 'hadron-document';
-// import LoadingOverlay from 'components/loading-overlay';
+import LoadingOverlay from 'components/loading-overlay';
 import classnames from 'classnames';
 
 import styles from './stage-preview.less';
@@ -50,6 +50,10 @@ class StagePreview extends PureComponent {
     });
     return (
       <div className={classnames(styles['stage-preview'])}>
+        { this.props.isLoading ?
+          <LoadingOverlay text="Loading Preview Documents..." /> :
+          null
+        }
         <i className={iconClassName} aria-hidden />
         {this.renderPreview()}
       </div>
