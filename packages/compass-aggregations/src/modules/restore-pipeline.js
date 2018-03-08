@@ -28,7 +28,7 @@ export const restorePipelineModalToggle = (index) => ({
 });
 
 // store the current pipeline id we want to restore
-export const restorePipeline = (objectID) => ({
+export const restorePipelineFrom = (objectID) => ({
   type: RESTORE_PIPELINE_OBJECT_ID,
   objectID: objectID
 });

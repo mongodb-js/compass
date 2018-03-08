@@ -22,7 +22,7 @@ describe('SavePipelineCard [Component]', () => {
       component = mount(
         <SavePipelineCard
           objectID={objectID}
-          restorePipeline={restoreSpy}
+          restorePipelineFrom={restoreSpy}
           restorePipelineModalToggle={toggleSpy}
           deletePipeline={deleteSpy}
           name={name} />

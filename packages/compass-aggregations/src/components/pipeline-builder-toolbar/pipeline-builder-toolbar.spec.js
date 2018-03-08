@@ -10,17 +10,20 @@ describe('PipelineBuilderToolbar [Component]', () => {
   let stageAddedSpy;
   let viewChangedSpy;
   let copyToClipboardSpy;
+  let saveSpy;
 
   beforeEach(() => {
     stageAddedSpy = sinon.spy();
     viewChangedSpy = sinon.spy();
     copyToClipboardSpy = sinon.spy();
+    saveSpy = sinon.spy();
 
     component = mount(
       <PipelineBuilderToolbar
         view={CODE}
         stageAdded={stageAddedSpy}
         viewChanged={viewChangedSpy}
+        savePipelineModalToggle={saveSpy}
         copyToClipboard={copyToClipboardSpy} />
     );
   });
