@@ -20,16 +20,8 @@ class SavePipelineCard extends PureComponent {
     name: PropTypes.string.isRequired
   }
 
-  state = {
-    isVisible: false
-  }
-
   handleDelete = () => {
     this.props.deletePipeline(this.props.objectID);
-  }
-
-  handleMouseMovement = () => {
-    this.setState({ isVisible: !this.state.isVisible });
   }
 
   restoreClickHandler = () => {
@@ -43,23 +35,15 @@ class SavePipelineCard extends PureComponent {
    * @returns {Component} The component.
    */
   render() {
-    const openView = this.state.isVisible
-      ? <RestoreButton clickHandler={this.restoreClickHandler} />
-      : null;
-    const deleteButton = this.state.isVisible
-      ? <DeleteButton clickHandler={this.handleDelete} />
-      : null;
     return (
       <div
         className={classnames(styles['save-pipeline-card'])}
-        onMouseEnter={this.handleMouseMovement}
-        onMouseLeave={this.handleMouseMovement}
         data-pipeline-object-id={this.props.objectID}>
         <div className={classnames(styles['save-pipeline-card-title'])}>
           {this.props.name}
         </div>
-        { openView }
-        { deleteButton }
+        <RestoreButton clickHandler={this.restoreClickHandler} />
+        <DeleteButton clickHandler={this.handleDelete} />
       </div>
     );
   }

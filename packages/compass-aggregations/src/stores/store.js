@@ -32,6 +32,13 @@ store.onActivated = (appRegistry) => {
   });
 
   /**
+   * When the collection is changed, update the store.
+   */
+  appRegistry.on('import-finished', () => {
+    store.dispatch(refreshInputDocuments());
+  });
+
+  /**
    * Set the data service in the store when connected.
    *
    * @param {Error} error - The error.
