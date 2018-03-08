@@ -59,7 +59,7 @@ describe('mongodb-connection-model', function() {
       const c = new Connection({ isSrvRecord: true });
 
       it('changes the uri scheme', function() {
-        assert.equal(c.driver_url, 'mongodb+srv://localhost:27017/?readPreference=primary');
+        assert.equal(c.driver_url, 'mongodb+srv://localhost/?readPreference=primary');
       });
     });
   });
@@ -320,14 +320,14 @@ describe('mongodb-connection-model', function() {
     });
 
     describe('SRV Records', function() {
-      const c = Connection.from('mongodb+srv://123.45.67.8:27018/admin');
+      const c = Connection.from('mongodb+srv://123.45.67.8/admin');
 
       it('sets isSrvRecord to true', function() {
         assert.equal(c.isSrvRecord, true);
       });
 
       it('regenerates the correct URI', function() {
-        assert.equal(c.driver_url, 'mongodb+srv://123.45.67.8:27018/admin?readPreference=primary');
+        assert.equal(c.driver_url, 'mongodb+srv://123.45.67.8/admin?readPreference=primary');
       });
     });
 

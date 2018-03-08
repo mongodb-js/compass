@@ -616,7 +616,7 @@ assign(derived, {
         protocol: this.isSrvRecord ? 'mongodb+srv' : 'mongodb',
         slashes: true,
         hostname: this.hostname,
-        port: this.port,
+        port: this.isSrvRecord ? null : this.port,
         pathname: '/',
         query: {}
       };
