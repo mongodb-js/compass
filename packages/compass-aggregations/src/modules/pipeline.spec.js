@@ -92,6 +92,14 @@ describe('pipeline module', () => {
       });
     });
 
+    context('when the action is loading stage results', () => {
+      const action = loadingStageResults(0);
+
+      it('sets the loading flag for the stage', () => {
+        expect(reducer(undefined, action)[0].isLoading).to.equal(true);
+      });
+    });
+
     context('when the action is stage moved', () => {
       const state = [
         {
