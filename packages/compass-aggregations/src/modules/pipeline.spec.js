@@ -5,6 +5,7 @@ import reducer, {
   stageDeleted,
   stageMoved,
   stageOperatorSelected,
+  stagePreviewUpdated,
   stageToggled,
   generatePipeline,
   STAGE_ADDED,
@@ -13,6 +14,7 @@ import reducer, {
   STAGE_DELETED,
   STAGE_MOVED,
   STAGE_OPERATOR_SELECTED,
+  STAGE_PREVIEW_UPDATED,
   STAGE_TOGGLED } from 'modules/pipeline';
 
 describe('pipeline module', () => {
@@ -252,6 +254,30 @@ describe('pipeline module', () => {
         fromIndex: 0,
         toIndex: 5
       });
+    });
+  });
+
+  describe('#stagePreviewUpdated', () => {
+    const docs = [];
+    const error = new Error('test');
+
+    it('returns the STAGE_PREVIEW_UPDATED action', () => {
+      expect(stagePreviewUpdated(docs, 3, error)).to.deep.equal({
+        type: STAGE_PREVIEW_UPDATED,
+        documents: docs,
+        index: 3,
+        error: error
+      });
+    });
+  });
+
+  describe('#executeAggregation', () => {
+    context('when no error occurs', () => {
+
+    });
+
+    context('when an error occurs', () => {
+
     });
   });
 

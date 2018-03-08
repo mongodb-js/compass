@@ -41,6 +41,9 @@ export const STAGE_OPERATOR_SELECTED = `${PREFIX}/STAGE_OPERATOR_SELECTED`;
  */
 export const STAGE_TOGGLED = `${PREFIX}/STAGE_TOGGLED`;
 
+/**
+ * Stage preview updated action name.
+ */
 export const STAGE_PREVIEW_UPDATED = `${PREFIX}/STAGE_PREVIEW_UPDATED`;
 
 /**
