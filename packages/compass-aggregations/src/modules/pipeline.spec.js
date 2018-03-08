@@ -8,6 +8,7 @@ import reducer, {
   stagePreviewUpdated,
   stageToggled,
   generatePipeline,
+  loadingStageResults,
   STAGE_ADDED,
   STAGE_CHANGED,
   STAGE_COLLAPSE_TOGGLED,
@@ -15,6 +16,7 @@ import reducer, {
   STAGE_MOVED,
   STAGE_OPERATOR_SELECTED,
   STAGE_PREVIEW_UPDATED,
+  LOADING_STAGE_RESULTS,
   STAGE_TOGGLED } from 'modules/pipeline';
 
 describe('pipeline module', () => {
@@ -276,6 +278,15 @@ describe('pipeline module', () => {
         documents: docs,
         index: 3,
         error: error
+      });
+    });
+  });
+
+  describe('#loadingStageResults', () => {
+    it('returns the LOADING_STAGE_RESULTS action', () => {
+      expect(loadingStageResults(2)).to.deep.equal({
+        type: LOADING_STAGE_RESULTS,
+        index: 2
       });
     });
   });

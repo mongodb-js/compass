@@ -47,6 +47,11 @@ export const STAGE_TOGGLED = `${PREFIX}/STAGE_TOGGLED`;
 export const STAGE_PREVIEW_UPDATED = `${PREFIX}/STAGE_PREVIEW_UPDATED`;
 
 /**
+ * Loading stage results aciton name.
+ */
+export const LOADING_STAGE_RESULTS = `${PREFIX}/LOADING_STAGE_RESULTS`;
+
+/**
  * An initial stage.
  */
 const EMPTY_STAGE = {
@@ -56,6 +61,7 @@ const EMPTY_STAGE = {
   isValid: true,
   isEnabled: true,
   isExpanded: true,
+  isLoading: false,
   previewDocuments: [],
   previewError: null
 };
@@ -200,10 +206,33 @@ const toggleStageCollapse = (state, action) => {
   return newState;
 };
 
+/**
+ * Update the stage preview.
+ *
+ * @param {Object} state - The state.
+ * @param {Object} action - The action.
+ *
+ * @returns {Object} The new state.
+ */
 const updateStagePreview = (state, action) => {
   const newState = copyState(state);
   newState[action.index].previewDocuments = action.documents;
   newState[action.index].previewError = action.error;
+  newState[action.index].isLoading = false;
+  return newState;
+};
+
+/**
+ * Set stage results loading.
+ *
+ * @param {Object} state - The state.
+ * @param {Object} action - The action.
+ *
+ * @returns {Object} The new state.
+ */
+const stageResultsLoading = (state, action) => {
+  const newState = copyState(state);
+  newState[action.index].isLoading = true;
   return newState;
 };
 
@@ -220,6 +249,7 @@ MAPPINGS[STAGE_OPERATOR_SELECTED] = selectStageOperator;
 MAPPINGS[STAGE_TOGGLED] = toggleStage;
 MAPPINGS[STAGE_COLLAPSE_TOGGLED] = toggleStageCollapse;
 MAPPINGS[STAGE_PREVIEW_UPDATED] = updateStagePreview;
+MAPPINGS[LOADING_STAGE_RESULTS] = stageResultsLoading;
 
 Object.freeze(MAPPINGS);
 
@@ -340,6 +370,18 @@ export const stagePreviewUpdated = (docs, index, error) => ({
 });
 
 /**
+ * The loading stage results action.
+ *
+ * @param {Number} index - The stage index.
+ *
+ * @returns {Object} The action.
+ */
+export const loadingStageResults = (index) => ({
+  type: LOADING_STAGE_RESULTS,
+  index: index
+});
+
+/**
  * The options constant.
  */
 const OPTIONS = Object.freeze({});
@@ -372,7 +414,7 @@ export const generatePipeline = (state, index) => {
  */
 const executeAggregation = (dataService, ns, dispatch, state, index) => {
   if (state.pipeline[index].isValid) {
-    // dispatch(loadingStageResults(index));
+    dispatch(loadingStageResults(index));
     const pipeline = generatePipeline(state, index);
     dataService.aggregate(ns, pipeline, OPTIONS, (err, cursor) => {
       if (err) return dispatch(stagePreviewUpdated([], index, err));
