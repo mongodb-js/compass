@@ -8,7 +8,12 @@ describe('StagePreview [Component]', () => {
   let component;
 
   beforeEach(() => {
-    component = shallow(<StagePreview stage={{isValid: true, previewDocuments: []}}/>);
+    component = shallow(
+      <StagePreview
+        documents={[]}
+        isValid
+        isLoading={false} />
+    );
   });
 
   afterEach(() => {

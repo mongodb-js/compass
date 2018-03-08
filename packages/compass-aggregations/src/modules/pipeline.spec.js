@@ -299,16 +299,6 @@ describe('pipeline module', () => {
     });
   });
 
-  describe('#executeAggregation', () => {
-    context('when no error occurs', () => {
-
-    });
-
-    context('when an error occurs', () => {
-
-    });
-  });
-
   describe('#generatePipeline', () => {
     context('when the index is the first', () => {
       const stage = { executor: { $match: { name: 'test' }}};

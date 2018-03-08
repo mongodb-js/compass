@@ -2,7 +2,7 @@ import reducer, {
   RESTORE_PIPELINE_MODAL_TOGGLE,
   restorePipelineModalToggle,
   RESTORE_PIPELINE_OBJECT_ID,
-  restorePipelineObjectID
+  restorePipeline
 } from 'modules/restore-pipeline';
 
 describe('restore previous pipeline', () => {
@@ -15,9 +15,9 @@ describe('restore previous pipeline', () => {
     });
   });
 
-  describe('#restorePipelineObjectID', () => {
+  describe('#restorePipeline', () => {
     it('returns a restore pipeline object id action type', () => {
-      expect(restorePipelineObjectID('00ff84b')).to.deep.equal({
+      expect(restorePipeline('00ff84b')).to.deep.equal({
         type: RESTORE_PIPELINE_OBJECT_ID,
         objectID: '00ff84b'
       });
@@ -43,7 +43,7 @@ describe('restore previous pipeline', () => {
 
     context('action type is restore pipeline object id', () => {
       it('pipelineObjectId is set', () => {
-        expect(reducer(undefined, restorePipelineObjectID('823nds8'))).to.deep.equal({
+        expect(reducer(undefined, restorePipeline('823nds8'))).to.deep.equal({
           isModalVisible: false,
           pipelineObjectID: '823nds8'
         });

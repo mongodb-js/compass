@@ -14,7 +14,7 @@ class SavePipelineCard extends PureComponent {
 
   static propTypes = {
     restorePipelineModalToggle: PropTypes.func.isRequired,
-    restorePipelineObjectID: PropTypes.func.isRequired,
+    restorePipeline: PropTypes.func.isRequired,
     deletePipeline: PropTypes.func.isRequired,
     objectID: PropTypes.string.isRequired,
     name: PropTypes.string.isRequired
@@ -25,7 +25,7 @@ class SavePipelineCard extends PureComponent {
   }
 
   restoreClickHandler = () => {
-    this.props.restorePipelineObjectID(this.props.objectID);
+    this.props.restorePipeline(this.props.objectID);
     this.props.restorePipelineModalToggle(1);
   }
 

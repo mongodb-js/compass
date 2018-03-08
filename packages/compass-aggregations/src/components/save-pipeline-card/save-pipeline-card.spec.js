@@ -7,12 +7,26 @@ import styles from './save-pipeline-card.less';
 describe('SavePipelineCard [Component]', () => {
   context('when the component is rendered', () => {
     let component;
+    let toggleSpy;
+    let deleteSpy;
+    let restoreSpy;
 
     const objectID = '0000006479e3bfa949f4ca6c';
     const name = 'Return average number of currywurst eaten in Berlin sorted by districts';
 
     beforeEach(() => {
-      component = mount(<SavePipelineCard objectID={objectID} name={name} />);
+      toggleSpy = sinon.spy();
+      deleteSpy = sinon.spy();
+      restoreSpy = sinon.spy();
+
+      component = mount(
+        <SavePipelineCard
+          objectID={objectID}
+          restorePipeline={restoreSpy}
+          restorePipelineModalToggle={toggleSpy}
+          deletePipeline={deleteSpy}
+          name={name} />
+      );
     });
 
     afterEach(() => {

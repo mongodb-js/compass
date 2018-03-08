@@ -14,12 +14,14 @@ class StagePreview extends PureComponent {
   static displayName = 'StagePreview';
 
   static propTypes = {
-    stage: PropTypes.object.isRequired
+    documents: PropTypes.array.isRequired,
+    isValid: PropTypes.bool.isRequired,
+    isLoading: PropTypes.bool.isRequired
   }
 
   renderPreview() {
-    if (this.props.stage.isValid) {
-      const documents = this.props.stage.previewDocuments.map((doc, i) => {
+    if (this.props.isValid) {
+      const documents = this.props.documents.map((doc, i) => {
         return (<Document doc={new HadronDocument(doc)} editable={false} key={i} />);
       });
       return (

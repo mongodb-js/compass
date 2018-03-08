@@ -32,7 +32,7 @@ import {
 } from 'modules/saved-pipeline';
 
 import { restoreSavedPipeline, getPipelineFromIndexedDB } from 'modules/index';
-import { restorePipelineModalToggle, restorePipelineObjectID } from 'modules/restore-pipeline';
+import { restorePipelineModalToggle, restorePipeline } from 'modules/restore-pipeline';
 import styles from './aggregations.less';
 
 /**
@@ -102,7 +102,7 @@ const MappedAggregations = connect(
     savedPipelineAdd,
     getSavedPipelines,
     restorePipelineModalToggle,
-    restorePipelineObjectID,
+    restorePipeline,
     restoreSavedPipeline,
     getPipelineFromIndexedDB
   },
