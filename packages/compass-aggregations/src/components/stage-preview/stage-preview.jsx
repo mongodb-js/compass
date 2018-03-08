@@ -51,9 +51,7 @@ class StagePreview extends PureComponent {
     return (
       <div className={classnames(styles['stage-preview'])}>
         <i className={iconClassName} aria-hidden />
-        <div className={classnames(styles['stage-preview-documents'])}>
-          {this.renderPreview()}
-        </div>
+        {this.renderPreview()}
       </div>
     );
   }
