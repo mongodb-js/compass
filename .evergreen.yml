@@ -294,6 +294,8 @@ tasks:
         tar xzf ${fetch_npm_tarball} --strip-components=1
 
         chmod +x npm.cmd || true
+
+        npm install npm@5.6 -g
     variants:
       - macos-compass
       - macos-compass-community
@@ -328,6 +330,8 @@ tasks:
         chmod +x npm.cmd || true
         chmod +x npm || true
         chmod +x node.exe || true
+
+        npm install npm@5.6 -g
     variants:
       - windows-compass
       - windows-compass-community
