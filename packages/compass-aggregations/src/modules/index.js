@@ -112,7 +112,6 @@ const doRestorePipeline = (state, action) => {
  */
 const doClearPipeline = (state) => ({
   ...state,
-  pipeline: PIPELINE_INITIAL_STATE,
   savedPipeline: {
     ...state.savedPipeline,
     isListVisible: true
