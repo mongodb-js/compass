@@ -81,6 +81,15 @@ describe('pipeline module', () => {
       });
     });
 
+    context('when the action is stage preview updated', () => {
+      const docs = [{ name: 'test' }];
+      const action = stagePreviewUpdated(docs, 0, null);
+
+      it('sets the preview documents', () => {
+        expect(reducer(undefined, action)[0].previewDocuments).to.deep.equal(docs);
+      });
+    });
+
     context('when the action is stage moved', () => {
       const state = [
         {

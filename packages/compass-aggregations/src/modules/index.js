@@ -169,7 +169,7 @@ export const clearPipeline = () => ({
 /**
  * Get the restore action.
  *
- * @param {Object} state - The state.
+ * @param {Object} restoreState - The state.
  *
  * @returns {Object} The action.
  */
