@@ -413,7 +413,8 @@ export const generatePipeline = (state, index) => {
  * @param {Number} index - The current index.
  */
 const executeAggregation = (dataService, ns, dispatch, state, index) => {
-  if (state.pipeline[index].isValid) {
+  const stage = state.pipeline[index];
+  if (stage.isValid && stage.stageOperator) {
     dispatch(loadingStageResults(index));
     const pipeline = generatePipeline(state, index);
     dataService.aggregate(ns, pipeline, OPTIONS, (err, cursor) => {
