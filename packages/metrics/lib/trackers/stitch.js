@@ -98,17 +98,18 @@ var StitchTracker = State.extend({
     this._usersDatabaseName = usersNS.database;
     this._usersCollectionName = usersNS.collection;
 
+    var self = this;
     stitch.StitchClientFactory.create(this.appId)
       .then(function(client) {
         client.login().then(function() {
-          this._client = client;
+          self._client = client;
 
           debug('setup client', {
-            _client: this._client,
-            _eventsDatabaseName: this._eventsDatabaseName,
-            _eventsCollectionName: this._eventsCollectionName,
-            _usersDatabaseName: this._usersDatabaseName,
-            _usersCollectionName: this._usersCollectionName
+            _client: self._client,
+            _eventsDatabaseName: self._eventsDatabaseName,
+            _eventsCollectionName: self._eventsCollectionName,
+            _usersDatabaseName: self._usersDatabaseName,
+            _usersCollectionName: self._usersCollectionName
           });
         }).catch(function(e) {
           debug('error logging in via stitch: %s', e.message);
