@@ -2,23 +2,17 @@
 const antlr4 = require('antlr4');
 const ECMAScriptLexer = require('./lib/ECMAScriptLexer.js');
 const ECMAScriptParser = require('./lib/ECMAScriptParser.js');
-const JavaLexer = require('./lib/JavaLexer.js');
-const JavaParser = require('./lib/JavaParser.js');
-const CSharpLexer = require('./lib/CSharpLexer.js');
-const CSharpParser = require('./lib/CSharpParser.js');
-const Python3Lexer = require('./lib/Python3Lexer.js');
-const Python3Parser = require('./lib/Python3Parser.js');
 
 const Python3Generator = require('./codegeneration/Python3Generator.js');
-const ECMAScriptGenerator = require('./codegeneration/ECMAScriptGenerator.js');
 
 /**
- * Compiles an ECMAScript string into... an ECMAScript string.
+ * Compiles an ECMAScript string into another language.
  *
  * @param {String} input
+ * @param {antlr4.tree.ParseTreeVisitor} Code generator
  * @returns {String}
  */
-const compileECMAScript = function(input) {
+const compileECMAScript = function(input, generator) {
   // Create parse tree
   const chars = new antlr4.InputStream(input);
   const lexer = new ECMAScriptLexer.ECMAScriptLexer(chars);
@@ -35,53 +29,10 @@ const compileECMAScript = function(input) {
   // console.log('----------------------');
 
   // Generate Code
-  const visitor = new Python3Generator();
-  console.log(visitor.visitExpressionSequence(tree));
-};
-
-const compileJava = function(input) {
-  // Create parse tree
-  const chars = new antlr4.InputStream(input);
-  const lexer = new JavaLexer.JavaLexer(chars);
-  const tokens = new antlr4.CommonTokenStream(lexer);
-  const parser = new JavaParser.JavaParser(tokens);
-  parser.buildParseTrees = true;
-  const tree = parser.expression();
-
-  // Generate Code
-  const visitor = new ECMAScriptGenerator();
-  console.log(visitor.visit(tree));
-};
-
-const compileCSharp = function(input) {
-  // Create parse tree
-  const chars = new antlr4.InputStream(input);
-  const lexer = new CSharpLexer.CSharpLexer(chars);
-  const tokens = new antlr4.CommonTokenStream(lexer);
-  const parser = new CSharpParser.CSharpParser(tokens);
-  parser.buildParseTrees = true;
-  const tree = parser.expression();
-
-  // Generate Сode
-  const visitor = new ECMAScriptGenerator();
-  console.log(visitor.visit(tree));
-};
-
-const compilePython = function(input) {
-  // Create parse tree
-  const chars = new antlr4.InputStream(input);
-  const lexer = new Python3Lexer.Python3Lexer(chars);
-  const tokens = new antlr4.CommonTokenStream(lexer);
-  const parser = new Python3Parser.Python3Parser(tokens);
-
-  parser.buildParseTrees = true;
-  const tree = parser.single_input();
-
-  // Generate Сode
-  const visitor = new ECMAScriptGenerator();
-  console.log(visitor.visit(tree));
+  console.log(generator.visitExpressionSequence(tree));
 };
 
 const input = 'new Long(\'12345678912\')';
+const visitor = new Python3Generator();
 
-compileECMAScript(input);
+compileECMAScript(input, visitor);
