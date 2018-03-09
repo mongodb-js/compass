@@ -87,6 +87,8 @@ functions:
         # Load environment variables
         . ~/compass_env.sh
 
+        npm cache clean --force
+
         # Run static analysis on code and project configuration
         npm run check;
 
