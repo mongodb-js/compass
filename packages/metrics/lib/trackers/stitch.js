@@ -98,14 +98,22 @@ var StitchTracker = State.extend({
     this._usersDatabaseName = usersNS.database;
     this._usersCollectionName = usersNS.collection;
 
-    this._client = new stitch.StitchClient(this.appId);
-    debug('setup client', {
-      _client: this._client,
-      _eventsDatabaseName: this._eventsDatabaseName,
-      _eventsCollectionName: this._eventsCollectionName,
-      _usersDatabaseName: this._usersDatabaseName,
-      _usersCollectionName: this._usersCollectionName
-    });
+    stitch.StitchClientFactory.create(this.appId)
+      .then(function(client) {
+        client.login().then(function() {
+          this._client = client;
+
+          debug('setup client', {
+            _client: this._client,
+            _eventsDatabaseName: this._eventsDatabaseName,
+            _eventsCollectionName: this._eventsCollectionName,
+            _usersDatabaseName: this._usersDatabaseName,
+            _usersCollectionName: this._usersCollectionName
+          });
+        }).catch(function(e) {
+          debug('error logging in via stitch: %s', e.message);
+        });
+      });
   },
   _identify: function() {
     // this is only used when a user is first created ($setOnInsert)
@@ -156,21 +164,12 @@ var StitchTracker = State.extend({
     );
   },
   _getCollection: function(db, name, fn) {
-    if (!this.enabledAndConfigured) {
+    if (!this.enabledAndConfigured || !this._client) {
       return fn(new Error('stitch tracker not configured yet.'));
     }
-    return this._client.login()
-      .then(function() {
-        var collection = this._client
-          .service('mongodb', 'mongodb-atlas')
-          .db(db)
-          .collection(name);
-        return fn(null, collection);
-      }.bind(this))
-      .catch(function(err) {
-        return fn(err);
-      });
+    return fn(null, this._client.service('mongodb', 'mongodb-atlas').db(db).collection(name));
   },
+
   /**
    * Sends an event to Stitch and attached metadata. The toplevel fields are
    *

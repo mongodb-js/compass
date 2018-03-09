@@ -56,7 +56,6 @@ describe('Stitch Tracker', function() {
       assert.ok(stitchTracker.appId);
       assert.ok(stitchTracker.userId);
       assert.ok(stitchTracker.enabledAndConfigured);
-      assert.ok(stitchTracker._client);
       done();
     });
   });
