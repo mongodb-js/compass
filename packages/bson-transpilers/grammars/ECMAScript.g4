@@ -632,18 +632,17 @@ assignmentOperator
  ;
 
 literal
- : ( NullLiteral 
-   | BooleanLiteral
-   | StringLiteral
-   | RegularExpressionLiteral
-   )
- | numericLiteral
+ : NullLiteral                    #NullLiteral
+ | BooleanLiteral                 #BooleanLiteral
+ | StringLiteral                  #StringLiteral
+ | RegularExpressionLiteral       #RegularExpressionLiteral
+ | numericLiteral                 #NumericLiteralNode
  ;
 
 numericLiteral
- : DecimalLiteral
- | HexIntegerLiteral
- | OctalIntegerLiteral
+ : DecimalLiteral                #DecimalLiteral
+ | HexIntegerLiteral             #HexIntegerLiteral
+ | OctalIntegerLiteral           #OctalIntegerLiteral
  ;
 
 identifierName

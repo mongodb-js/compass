@@ -3,7 +3,7 @@ const expect = chai.expect;
 const antlr4 = require('antlr4');
 const ECMAScriptLexer = require('../lib/ECMAScriptLexer.js');
 const ECMAScriptParser = require('../lib/ECMAScriptParser.js');
-const Python3Generator = require('../codegeneration/Python3Generator.js');
+const JavaGenerator = require('../codegeneration/JavaGenerator.js');
 
 describe('Generate ECMAScript AST', () => {
   const generate = (input) => {
@@ -14,19 +14,22 @@ describe('Generate ECMAScript AST', () => {
     parser.buildParseTrees = true;
     const tree = parser.expressionSequence();
 
-    const visitor = new Python3Generator();
+    const visitor = new JavaGenerator();
     return visitor.visitExpressionSequence(tree);
   };
 
   describe('literals', () => {
     const literals = [
-      '"string"', '\'string\'', 'null', 'undefined', 'true', 'false', '0',
+      '"string"', 'null', 'undefined', 'true', 'false', '0',
       '1.99001', '0x4ac1', '0.12323', '/ab+c/'
     ];
     literals.map((v) => {
       it(v, () => {
         expect(generate(v)).to.equal(v);
       });
+    });
+    it('\'string\'', () => {
+      expect(generate('\'string\'')).to.equal('"string"');
     });
   });
 
@@ -50,41 +53,38 @@ describe('Generate ECMAScript AST', () => {
     });
   });
 
+  describe('object', () => {
+    const objs = [
+      '{k: "v"}',
+      '{\'k\': "v"}',
+      '{"k": "v"}',
+      '{"k1": 1, \'k2\': \'test\', k3: {x: 1}}'
+    ];
+    const javaobjs = [
+      'new Document().append("k", "v")',
+      'new Document().append("k", "v")',
+      'new Document().append("k", "v")',
+      'new Document().append("k1", 1).append("k2", "test").append("k3", new Document().append("x", 1))'
+    ];
+    objs.map(function(v, i) {
+      it(v, () => {
+        expect(generate(v)).to.equal(javaobjs[i]);
+      });
+    });
+  });
+
   describe('array', () => {
     const arrays = [
       '[1,2,3]', '[[1,2],[3,4]]'
     ];
-    arrays.map((v) => {
-      it(v, () => {
-        expect(generate(v)).to.equal(v);
-      });
-    });
-  });
-
-  describe('object', () => {
-    const objs = [
-      '{k:1}', '{k:[1,2]}', '{k:{k2:1}}', '[{k:1},{k2:2}]', '{k:{k2:{k3:{k4:1,k5:2}}}}'
+    const javaarrays = [
+      'Arrays.asList(1,2,3)',
+      'Arrays.asList(Arrays.asList(1,2),Arrays.asList(3,4))'
     ];
-    const pyobjs = [
-      '{\'k\':1}', '{\'k\':[1,2]}', '{\'k\':{\'k2\':1}}', '[{\'k\':1},{\'k2\':2}]',
-      '{\'k\':{\'k2\':{\'k3\':{\'k4\':1,\'k5\':2}}}}'
-    ];
-    objs.map(function(v, i) {
+    arrays.map((v, i) => {
       it(v, () => {
-        expect(generate(v)).to.equal(pyobjs[i]);
+        expect(generate(v)).to.equal(javaarrays[i]);
       });
-    });
-  });
-
-  describe('BSON classes', () => {
-    it('new', () => {
-      expect(generate('new ObjectId()')).to.equal('ObjectId()');
-    });
-    it('Long --> Int64', () => {
-      expect(generate('Long(1)')).to.equal('Int64(1)');
-    });
-    it('ISODate --> datetime.date', () => {
-      expect(generate('ISODate(\'1982-09-09\')')).to.equal('datetime.date(\'1982-09-09\')');
     });
   });
 });
