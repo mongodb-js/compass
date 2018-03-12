@@ -198,6 +198,24 @@ const AutoUpdateResource = BaseResource.extend({
   }
 });
 
+// Import Resource
+const ImportResource = BaseResource.extend({
+  id: 'Import',
+  eventTrackers: ['stitch'],
+  completed: function(metadata, callback) {
+    this._send_event(metadata, callback);
+  }
+});
+
+// Export Resource
+const ExportResource = BaseResource.extend({
+  id: 'Export',
+  eventTrackers: ['stitch'],
+  completed: function(metadata, callback) {
+    this._send_event(metadata, callback);
+  }
+});
+
 featureResources['Geo Data'] = new GeoDataResource();
 featureResources['Auto Update'] = new AutoUpdateResource();
 featureResources.Collection = new CollectionResource();
@@ -210,6 +228,8 @@ featureResources.Query = new QueryResource();
 featureResources.Application = new ApplicationResource();
 featureResources['Validation Rules'] = new ValidationRulesResource();
 featureResources.Explain = new ExplainResource();
+featureResources.Import = new ImportResource();
+featureResources.Export = new ExportResource();
 featureResources.Document = new DocumentResource();
 featureResources.Documents = new DocumentsResource();
 featureResources.DocumentsListView = new DocumentsListViewResource();
