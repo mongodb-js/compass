@@ -1,4 +1,4 @@
-import BSON from 'bson';
+import { ObjectId } from 'bson';
 import { getObjectStore } from 'utils/indexed-db';
 
 const PREFIX = 'aggregations/saved-pipeline';
@@ -118,13 +118,17 @@ export const saveCurrentPipeline = (pipelineName) => {
     // don't want the modal that triggers this save to show up when the user
     // restores the pipeline o/
     state.savedPipeline.isModalVisible = false;
-    const id = state.id || BSON.ObjectID(100).toHexString();
+    const id = state.id || new ObjectId().toHexString();
+
+    const pipeline = state.pipeline.map((stage) => {
+      return { ...stage, previewDocuments: [] };
+    });
 
     const stateRecord = Object.assign({}
       , { namespace: state.namespace }
-      , { pipeline: state.pipeline }
+      , { pipeline: pipeline }
       , { view: state.view }
-      , { pipelineName: pipelineName }
+      , { name: pipelineName }
       , { id: id }
     );
 

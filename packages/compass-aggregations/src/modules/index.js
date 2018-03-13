@@ -8,6 +8,8 @@ import namespace, { INITIAL_STATE as NS_INITIAL_STATE, NAMESPACE_CHANGED } from 
 import serverVersion, { INITIAL_STATE as SV_INITIAL_STATE } from './server-version';
 import pipeline, { INITIAL_STATE as PIPELINE_INITIAL_STATE } from './pipeline';
 import view, { INITIAL_STATE as VIEW_INITIAL_STATE } from './view';
+import name, { INITIAL_STATE as NAME_INITIAL_STATE } from './name';
+import id, { INITIAL_STATE as ID_INITIAL_STATE } from './id';
 import savedPipeline, {
   updatePipelineList,
   INITIAL_STATE as SP_INITIAL_STATE
@@ -27,7 +29,9 @@ export const INITIAL_STATE = {
   pipeline: PIPELINE_INITIAL_STATE,
   savedPipeline: SP_INITIAL_STATE,
   view: VIEW_INITIAL_STATE,
-  restorePipeline: RESTORE_PIPELINE_STATE
+  restorePipeline: RESTORE_PIPELINE_STATE,
+  name: NAME_INITIAL_STATE,
+  id: ID_INITIAL_STATE
 };
 
 /**
@@ -62,7 +66,9 @@ const appReducer = combineReducers({
   savedPipeline,
   restorePipeline,
   pipeline,
-  view
+  view,
+  name,
+  id
 });
 
 /**
@@ -181,14 +187,14 @@ export const restoreSavedPipeline = (restoreState) => ({
 /**
  * Get the delete action.
  *
- * @param {String} id - The pipeline id.
+ * @param {String} pipelineId - The pipeline id.
  *
  * @returns {Function} The thunk function.
  */
-export const deletePipeline = (id) => {
+export const deletePipeline = (pipelineId) => {
   return (dispatch) => {
     getObjectStore('readwrite', (store) => {
-      store.delete(id).onsuccess = () => {
+      store.delete(pipelineId).onsuccess = () => {
         dispatch(updatePipelineList());
         dispatch(clearPipeline());
       };
@@ -199,18 +205,15 @@ export const deletePipeline = (id) => {
 /**
  * Get a pipeline from the db.
  *
- * @param {String} id - The id.
+ * @param {String} pipelineId - The id.
  *
  * @returns {Function} The thunk function.
  */
-export const getPipelineFromIndexedDB = (id) => {
+export const getPipelineFromIndexedDB = (pipelineId) => {
   return (dispatch) => {
     getObjectStore('readwrite', (store) => {
-      store.get(id).onsuccess = (e) => {
+      store.get(pipelineId).onsuccess = (e) => {
         const pipe = e.target.result;
-        console.log(pipe);
-        delete pipe.id;
-        delete pipe.pipelineName;
         dispatch(restoreSavedPipeline(pipe));
       };
     });
