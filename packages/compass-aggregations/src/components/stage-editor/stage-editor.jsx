@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import AceEditor from 'react-ace';
 import ace from 'brace';
 import classnames from 'classnames';
+import debounce from 'lodash.debounce';
 import Completer from 'models/completer';
 
 import styles from './stage-editor.less';
@@ -55,6 +56,7 @@ class StageEditor extends PureComponent {
       this.props.fields
     );
     tools.setCompleters([ this.completer ]);
+    this.debounceChange = debounce(this.onStageBlur, 500);
   }
 
   /**
@@ -88,6 +90,7 @@ class StageEditor extends PureComponent {
    */
   onStageChange = (value) => {
     this.props.stageChanged(value, this.props.index);
+    this.debounceChange();
   }
 
   /**
