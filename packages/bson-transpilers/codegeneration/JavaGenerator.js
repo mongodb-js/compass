@@ -17,6 +17,7 @@ Visitor.prototype.constructor = Visitor;
 /////////////////////////////////
 
 Visitor.prototype.visitStringLiteral = function(ctx) {
+  ctx.type = this.types.STRING;
   return this.doubleQuoteStringify(this.visitChildren(ctx));
 };
 
@@ -26,6 +27,7 @@ Visitor.prototype.visitObjectLiteral = function(ctx) {
   for (let i = 1; i < ctx.getChildCount() - 1; i++) {
     doc += this.visit(ctx.getChild(i));
   }
+  ctx.type = this.types.OBJECT;
   return doc;
 };
 
@@ -39,8 +41,8 @@ Visitor.prototype.visitPropertyExpressionAssignment = function(ctx) {
   return `.append(${key}, ${value})`;
 };
 
-// Arrays.asList(1, 2))
 Visitor.prototype.visitArrayLiteral = function(ctx) {
+  ctx.type = this.types.ARRAY;
   return 'Arrays.asList(' + this.visit(ctx.getChild(1)) + ')';
 };
 module.exports = Visitor;
