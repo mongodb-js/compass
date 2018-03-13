@@ -116,6 +116,8 @@ ECMAScriptLexer.prototype.isRegexPossible = function() {
             return false;
         case ECMAScriptLexer.OctalIntegerLiteral:
             return false;
+        case ECMAScriptLexer.IntegerLiteral:
+            return false;
         case ECMAScriptLexer.DecimalLiteral:
             return false;
         case ECMAScriptLexer.HexIntegerLiteral:
@@ -645,17 +647,18 @@ assignmentOperator
  ;
 
 literal
- : NullLiteral                    #NullLiteral
- | BooleanLiteral                 #BooleanLiteral
- | StringLiteral                  #StringLiteral
- | RegularExpressionLiteral       #RegularExpressionLiteral
- | numericLiteral                 #NumericLiteralNode
+ : NullLiteral                    # NullLiteral
+ | BooleanLiteral                 # BooleanLiteral
+ | StringLiteral                  # StringLiteral
+ | RegularExpressionLiteral       # RegularExpressionLiteral
+ | numericLiteral                 # NumericLiteralWrapper
  ;
 
 numericLiteral
- : DecimalLiteral                #DecimalLiteral
- | HexIntegerLiteral             #HexIntegerLiteral
- | OctalIntegerLiteral           #OctalIntegerLiteral
+ : IntegerLiteral                # IntegerLiteral
+ | DecimalLiteral                # DecimalLiteral
+ | HexIntegerLiteral             # HexIntegerLiteral
+ | OctalIntegerLiteral           # OctalIntegerLiteral
  ;
 
 identifierName
@@ -810,10 +813,13 @@ BooleanLiteral
  ;
 
 /// 7.8.3 Numeric Literals
+IntegerLiteral
+ : DecimalIntegerLiteral ExponentPart?
+ ;
+
 DecimalLiteral
  : DecimalIntegerLiteral '.' DecimalDigit* ExponentPart?
  | '.' DecimalDigit+ ExponentPart?
- | DecimalIntegerLiteral ExponentPart?
  ;
 
 /// 7.8.3 Numeric Literals
