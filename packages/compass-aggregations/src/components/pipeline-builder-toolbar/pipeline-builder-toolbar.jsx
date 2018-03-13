@@ -1,9 +1,7 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import classnames from 'classnames';
-import { ViewSwitcher } from 'hadron-react-components';
 import { TextButton, IconButton } from 'hadron-react-buttons';
-import { CODE, BUILDER } from 'modules/view';
 
 import styles from './pipeline-builder-toolbar.less';
 
@@ -14,7 +12,6 @@ class PipelineBuilderToolbar extends PureComponent {
   static displayName = 'PipelineBuilderToolbarComponent';
 
   static propTypes = {
-    view: PropTypes.string.isRequired,
     stageAdded: PropTypes.func.isRequired,
     viewChanged: PropTypes.func.isRequired,
     copyToClipboard: PropTypes.func.isRequired,
@@ -37,7 +34,6 @@ class PipelineBuilderToolbar extends PureComponent {
       'btn-default': true,
       [ styles['pipeline-builder-toolbar-add-stage-button'] ]: true
     });
-
     const copyToClipboardClassName = classnames({
       'btn': true,
       'btn-xs': true,
@@ -50,24 +46,27 @@ class PipelineBuilderToolbar extends PureComponent {
       'btn-default': true,
       [ styles['pipeline-builder-toolbar-save-state'] ]: true
     });
+
     return (
       <div className={classnames(styles['pipeline-builder-toolbar'])}>
-        <ViewSwitcher
-          label="VIEW"
-          buttonLabels={[ CODE, BUILDER ]}
-          activeButton={this.props.view}
-          onClick={this.props.viewChanged} />
-        <TextButton
-          text="Add Stage"
-          className={addStageClassName}
-          clickHandler={this.props.stageAdded} />
+        <div className={classnames(styles['pipeline-builder-toolbar-add-wrapper'])}>
+          <TextButton
+            text="Add Stage"
+            className={addStageClassName}
+            clickHandler={this.props.stageAdded} />
+        </div>
         <IconButton
           title="Copy to Clipboard"
           className={copyToClipboardClassName}
           iconClassName="fa fa-clipboard"
           clickHandler={this.props.copyToClipboard} />
         <IconButton
-          title="Save State"
+          title="New Pipeline"
+          className={savePipelineClassName}
+          iconClassName="fa fa-file-o"
+          clickHandler={this.onSavePipelineModalToggle} />
+        <IconButton
+          title="Save Pipeline"
           className={savePipelineClassName}
           iconClassName="fa fa-save"
           clickHandler={this.onSavePipelineModalToggle} />

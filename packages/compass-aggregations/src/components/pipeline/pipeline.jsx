@@ -47,8 +47,8 @@ class Pipeline extends PureComponent {
     const savePipelineModal = this.props.savedPipeline.isModalVisible
       ? <SavePipelineModal {...this.props} />
       : null;
-    const restorePipelineModal = this.props.restorePipeline.isModalVisible ?
-      <RestorePipelineModal {...this.props} />
+    const restorePipelineModal = this.props.restorePipeline.isModalVisible
+      ? <RestorePipelineModal {...this.props} />
       : null;
 
     return (

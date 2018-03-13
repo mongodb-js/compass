@@ -1,6 +1,5 @@
 import React from 'react';
 import { mount } from 'enzyme';
-import { CODE } from 'modules/view';
 
 import PipelineBuilderToolbar from 'components/pipeline-builder-toolbar';
 import styles from './pipeline-builder-toolbar.less';
@@ -20,7 +19,6 @@ describe('PipelineBuilderToolbar [Component]', () => {
 
     component = mount(
       <PipelineBuilderToolbar
-        view={CODE}
         stageAdded={stageAddedSpy}
         viewChanged={viewChangedSpy}
         savePipelineModalToggle={saveSpy}
@@ -34,10 +32,6 @@ describe('PipelineBuilderToolbar [Component]', () => {
 
   it('renders the wrapper div', () => {
     expect(component.find(`.${styles['pipeline-builder-toolbar']}`)).to.be.present();
-  });
-
-  it('renders the view switcher', () => {
-    expect(component.find('.view-switcher-label')).to.have.text('VIEW');
   });
 
   it('renders the add stage button', () => {
