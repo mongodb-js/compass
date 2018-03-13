@@ -208,6 +208,7 @@ export const getPipelineFromIndexedDB = (id) => {
     getObjectStore('readwrite', (store) => {
       store.get(id).onsuccess = (e) => {
         const pipe = e.target.result;
+        console.log(pipe);
         delete pipe.id;
         delete pipe.pipelineName;
         dispatch(restoreSavedPipeline(pipe));

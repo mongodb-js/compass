@@ -26,10 +26,13 @@ class Pipeline extends PureComponent {
     stageOperatorSelected: PropTypes.func.isRequired,
     stageToggled: PropTypes.func.isRequired,
     savedPipeline: PropTypes.object.isRequired,
+    savePipelineModalToggle: PropTypes.func.isRequired,
     restorePipeline: PropTypes.object.isRequired,
     copyToClipboard: PropTypes.func.isRequired,
+    viewChanged: PropTypes.func.isRequired,
     view: PropTypes.string.isRequired,
-    fields: PropTypes.array.isRequired
+    fields: PropTypes.array.isRequired,
+    name: PropTypes.string
   }
 
   /**
@@ -38,13 +41,25 @@ class Pipeline extends PureComponent {
    * @returns {Component} The component.
    */
   render() {
-    const savePipeline = this.props.savedPipeline.isListVisible ? <SavePipeline {...this.props} /> : null;
-    const savePipelineModal = this.props.savedPipeline.isModalVisible ? <SavePipelineModal {...this.props} /> : null;
-    const restorePipelineModal = this.props.restorePipeline.isModalVisible ? <RestorePipelineModal {...this.props} /> : null;
+    const savePipeline = this.props.savedPipeline.isListVisible
+      ? <SavePipeline {...this.props} />
+      : null;
+    const savePipelineModal = this.props.savedPipeline.isModalVisible
+      ? <SavePipelineModal {...this.props} />
+      : null;
+    const restorePipelineModal = this.props.restorePipeline.isModalVisible ?
+      <RestorePipelineModal {...this.props} />
+      : null;
 
     return (
       <div className={classnames(styles.pipeline)}>
-        <PipelineToolbar {...this.props} />
+        <PipelineToolbar
+          view={this.props.view}
+          stageAdded={this.props.stageAdded}
+          viewChanged={this.props.viewChanged}
+          copyToClipboard={this.props.copyToClipboard}
+          savePipelineModalToggle={this.props.savePipelineModalToggle}
+          name={this.props.name} />
         <div className={classnames(styles['pipeline-separator'])}></div>
         <PipelineWorkspace {...this.props} />
         { savePipeline }

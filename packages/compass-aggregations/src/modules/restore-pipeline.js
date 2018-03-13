@@ -18,7 +18,6 @@ export default function reducer(state = INITIAL_STATE, action) {
   } else if (action.type === RESTORE_PIPELINE_OBJECT_ID) {
     return { ...state, pipelineObjectID: action.objectID };
   }
-
   return state;
 }
 
