@@ -1,0 +1,100 @@
+{
+  "languages": [
+    "javascript",
+    "python",
+    "java",
+    "csharp"
+  ],
+  "bsonTypes": [
+    "code": {
+      "javascript": "Code('some code')",
+      "python": "Code('some code')",
+      "java": ".append(\"code\", new Code(\"some code\"))",
+      "csharp": ""
+    },
+    "oid": {
+      "javascript": "Code('some code')",
+      "python": "Code('some code')",
+      "java": ".append(\"code\", new Code(\"some code\"))",
+      "csharp": ""
+    },
+    "bin": {
+      "javascript": "Code('some code')",
+      "python": "Code('some code')",
+      "java": ".append(\"code\", new Code(\"some code\"))",
+      "csharp": ""
+    },
+    "dbref": {
+      "javascript": "Code('some code')",
+      "python": "Code('some code')",
+      "java": ".append(\"code\", new Code(\"some code\"))",
+      "csharp": ""
+    },
+    "nd": {
+      "javascript": "Code('some code')",
+      "python": "Code('some code')",
+      "java": ".append(\"code\", new Code(\"some code\"))",
+      "csharp": ""
+    },
+    "nl": {
+      "javascript": "Code('some code')",
+      "python": "Code('some code')",
+      "java": ".append(\"code\", new Code(\"some code\"))",
+      "csharp": ""
+    },
+    "ni": {
+      "javascript": "Code('some code')",
+      "python": "Code('some code')",
+      "java": ".append(\"code\", new Code(\"some code\"))",
+      "csharp": ""
+    },
+    "dec128": {
+      "javascript": "Code('some code')",
+      "python": "Code('some code')",
+      "java": ".append(\"code\", new Code(\"some code\"))",
+      "csharp": ""
+    },
+    "minkey": {
+      "javascript": "Code('some code')",
+      "python": "Code('some code')",
+      "java": ".append(\"code\", new Code(\"some code\"))",
+      "csharp": ""
+    },
+    "maxkey": {
+      "javascript": "Code('some code')",
+      "python": "Code('some code')",
+      "java": ".append(\"code\", new Code(\"some code\"))",
+      "csharp": ""
+    },
+    "isodate": {
+      "javascript": "Code('some code')",
+      "python": "Code('some code')",
+      "java": ".append(\"code\", new Code(\"some code\"))",
+      "csharp": ""
+    },
+    "regexp": {
+      "javascript": "Code('some code')",
+      "python": "Code('some code')",
+      "java": ".append(\"code\", new Code(\"some code\"))",
+      "csharp": ""
+    },
+    "ts": {
+      "javascript": "Code('some code')",
+      "python": "Code('some code')",
+      "java": ".append(\"code\", new Code(\"some code\"))",
+      "csharp": ""
+    },
+    "subdoc": {
+      "javascript": "Code('some code')",
+      "python": "Code('some code')",
+      "java": ".append(\"code\", new Code(\"some code\"))",
+      "csharp": ""
+    },
+    "subarray": {
+      "javascript": "Code('some code')",
+      "python": "Code('some code')",
+      "java": ".append(\"code\", new Code(\"some code\"))",
+      "csharp": ""
+    }
+  ]
+}

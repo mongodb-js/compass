@@ -9,4 +9,6 @@ coverage
 .idea/
 *.iml
 .nvmrc
+.vscode
+.swp
 package-lock.json
