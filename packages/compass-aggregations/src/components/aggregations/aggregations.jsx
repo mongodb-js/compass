@@ -71,7 +71,8 @@ const mapStateToProps = (state) => ({
   pipeline: state.pipeline,
   view: state.view,
   savedPipeline: state.savedPipeline,
-  restorePipeline: state.restorePipeline
+  restorePipeline: state.restorePipeline,
+  name: state.name
 });
 
 /**

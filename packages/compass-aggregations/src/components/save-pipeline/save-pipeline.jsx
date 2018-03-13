@@ -31,7 +31,7 @@ class SavePipeline extends Component {
       return (
         <SavePipelineCard
           {...this.props}
-          name={pipeline.pipelineName}
+          name={pipeline.name}
           objectID={pipeline.id}
           key={i}/>
       );
