@@ -98,23 +98,8 @@ Visitor.prototype.visitRegularExpressionLiteral = function(ctx) {
  * @returns {string}
  */
 Visitor.prototype.visitTerminal = function(ctx) {
-  const str = ctx.getText();
-  if (!isNaN(str)) {
-    ctx.type = this.types.NUMBER;
-  } else if (str === 'true' || str === 'false') {
-    ctx.type = this.types.BOOL;
-  } else if (str === 'null') {
-    ctx.type = this.types.NULL;
-  } else if (str === 'undefined') {
-    ctx.type = this.types.NULL;
-  } else if ( // TODO: need to make sure second-to-last isn't escape?
-    (str.charAt(0) === '\'' && str.charAt(str.length - 1) === '\'') ||
-    (str.charAt(0) === '"' && str.charAt(str.length - 1) === '"')) {
-    ctx.type = this.types.STRING;
-  } else {
-    ctx.type = this.types.VARIABLE;
-  }
-  return str;
+  // TODO: set type here, or always set by the visitXLiteral methods?
+  return ctx.getText();
 };
 
 /////////////
