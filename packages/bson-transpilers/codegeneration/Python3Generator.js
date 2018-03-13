@@ -37,18 +37,14 @@ const bson_symbol_table = {
  * Far-Away-TODO: PropertyName used also in getters/setters.
  */
 Visitor.prototype.visitPropertyName = function(ctx) {
-  return '\'' + this.visitChildren(ctx) + '\'';
+  return this.singleQuoteStringify(this.visitChildren(ctx));
 };
 
 /**
  * Because python doesn't need `New`, we can skip the first child.
  */
 Visitor.prototype.visitNewExpression = function(ctx) {
-  let code = '';
-  for (let i = 1; i < ctx.getChildCount(); i++) {
-    code += this.visit(ctx.getChild(i));
-  }
-  return code.trim();
+  return this.visitChildren(ctx, { start: 1 });
 };
 
 /**
@@ -60,11 +56,7 @@ Visitor.prototype.visitArgumentsExpression = function(ctx) {
   if (!(funcName in bson_symbol_table)) {
     // TODO: handle errors
   } else {
-    let code = bson_symbol_table[funcName];
-    for (let i = 1; i < ctx.getChildCount(); i++) {
-      code += this.visit(ctx.getChild(i));
-    }
-    return code.trim();
+    return bson_symbol_table[funcName] + this.visitChildren(ctx, { start: 1 });
   }
 };
 
