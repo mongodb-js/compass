@@ -80,9 +80,9 @@ describe('Generate ECMAScript AST', () => {
     it('new', () => {
       expect(generate('new ObjectId()')).to.equal('ObjectId()');
     });
-    it('Long --> Int64', () => {
-      expect(generate('Long(1)')).to.equal('Int64(1)');
-    });
+    // it('Long --> Int64', () => {
+    //   expect(generate('Long(1)')).to.equal('Int64(1)');
+    // });
     it('ISODate --> datetime.date', () => {
       expect(generate('ISODate(\'1982-09-09\')')).to.equal('datetime.date(\'1982-09-09\')');
     });

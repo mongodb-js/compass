@@ -1,4 +1,6 @@
 const ECMAScriptVisitor = require('../lib/ECMAScriptVisitor').ECMAScriptVisitor;
+const bson = require('bson');
+const Context = require('context-eval');
 
 /**
  * This is a Visitor superclass where helper methods used by all language
@@ -140,6 +142,49 @@ Visitor.prototype.singleQuoteStringify = function(str) {
     newStr = '\'' + str + '\'';
   }
   return newStr;
+};
+
+Visitor.prototype.executeJavascript = function(input) {
+  const sandbox = {
+    RegExp: RegExp,
+    Binary: bson.Binary,
+    DBRef: bson.DBRef,
+    Decimal128: bson.Decimal128,
+    Double: bson.Double,
+    Int32: bson.Int32,
+    Long: bson.Long,
+    Int64: bson.Long,
+    Map: bson.Map,
+    MaxKey: bson.MaxKey,
+    MinKey: bson.MinKey,
+    ObjectID: bson.ObjectID,
+    ObjectId: bson.ObjectID,
+    Symbol: bson.Symbol,
+    Timestamp: bson.Timestamp,
+    Code: function(c, s) {
+      return new bson.Code(c, s);
+    },
+    NumberDecimal: function(s) {
+      return bson.Decimal128.fromString(s);
+    },
+    NumberInt: function(s) {
+      return parseInt(s, 10);
+    },
+    NumberLong: function(v) {
+      return bson.Long.fromNumber(v);
+    },
+    ISODate: function(s) {
+      return new Date(s);
+    },
+    Date: function(s) {
+      return new Date(s);
+    },
+    __result: {}
+  };
+  const ctx = new Context(sandbox);
+  const res = ctx.evaluate('__result = ' + input);
+  ctx.destroy();
+  return res;
 };
 
 module.exports = Visitor;

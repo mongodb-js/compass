@@ -56,7 +56,6 @@ Visitor.prototype.visitNewExpression = function(ctx) {
 
 Visitor.prototype.visitBSONCodeConstructor = function(ctx) {
   const arguments = ctx.getChild(1);
-
   if(arguments.getChildCount() !== 3) {
     return "Error: Code requires one argument";
   }
@@ -68,6 +67,30 @@ Visitor.prototype.visitBSONCodeConstructor = function(ctx) {
     return "Error: Code requires a string argument";
   }
   return 'new Code(' + args + ')';
+};
+
+/**
+ *  This evaluates the code in a sandbox and gets the hex string out of the
+ *  ObjectId.
+ */
+Visitor.prototype.visitBSONObjectIdConstructor = function(ctx) {
+  const code = 'new ObjectId(';
+  const arguments = ctx.getChild(1);
+  if(arguments.getChildCount() === 2) {
+    return code + ')';
+  }
+  if(arguments.getChildCount() !== 3) {
+    return "Error: ObjectId requires zero or one argument";
+  }
+  // TODO: do we even have to visit the children? this.visit(arguments.getChild(1));
+  let hexstr;
+  try {
+    hexstr = this.executeJavascript(ctx.getText()).toHexString();
+    console.log(hexstr);
+  } catch (error) {
+    return error.message;
+  }
+  return 'new ObjectId(' + this.doubleQuoteStringify(hexstr) + ')';
 };
 
 module.exports = Visitor;

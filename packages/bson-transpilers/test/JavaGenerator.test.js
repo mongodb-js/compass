@@ -87,4 +87,25 @@ describe('Generate ECMAScript AST', () => {
       });
     });
   });
+
+  describe('BSON Types', () => {
+    const js = [
+      "new Code('string')", 'new Code("string")', 'Code("string")',
+
+      'new ObjectId()', 'ObjectId()', "ObjectId('00000001d794e4d3323b45f1')",
+      "new ObjectId('00000001d794e4d3323b45f1')"
+    ];
+    const java = [
+      'new Code("string")', 'new Code("string")', 'new Code("string")',
+
+      'new ObjectId()', 'new ObjectId()',
+      'new ObjectId("00000001d794e4d3323b45f1")',
+      'new ObjectId("00000001d794e4d3323b45f1")'
+    ];
+    js.map((v, i) => {
+      it(v, () => {
+        expect(generate(v)).to.equal(java[i]);
+      });
+    });
+  });
 });
