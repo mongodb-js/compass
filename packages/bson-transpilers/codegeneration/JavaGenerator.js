@@ -45,4 +45,29 @@ Visitor.prototype.visitArrayLiteral = function(ctx) {
   ctx.type = this.types.ARRAY;
   return 'Arrays.asList(' + this.visit(ctx.getChild(1)) + ')';
 };
+
+/**
+ * Ignore the new keyword because JS could either have it or not, but we always
+ * need it in Java so we'll add it when we call constructors.
+ */
+Visitor.prototype.visitNewExpression = function(ctx) {
+  return this.visitChildren(ctx, { start: 1 });
+};
+
+Visitor.prototype.visitBSONCodeConstructor = function(ctx) {
+  const arguments = ctx.getChild(1);
+
+  if(arguments.getChildCount() !== 3) {
+    return "Error: Code requires one argument";
+  }
+  /* NOTE: we have to visit the subtree first before type checking or type may
+     not be set. We might have to just suck it up and do two passes, but maybe
+     we can avoid it for now. */
+  const args = this.visit(arguments.getChild(1));
+  if(arguments.getChild(1).type !== this.types.STRING) {
+    return "Error: Code requires a string argument";
+  }
+  return 'new Code(' + args + ')';
+};
+
 module.exports = Visitor;

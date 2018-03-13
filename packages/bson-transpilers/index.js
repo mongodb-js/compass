@@ -4,6 +4,7 @@ const ECMAScriptLexer = require('./lib/ECMAScriptLexer.js');
 const ECMAScriptParser = require('./lib/ECMAScriptParser.js');
 
 const Python3Generator = require('./codegeneration/Python3Generator.js');
+const JavaGenerator = require('./codegeneration/JavaGenerator.js');
 
 /**
  * Compiles an ECMAScript string into another language.
@@ -32,7 +33,8 @@ const compileECMAScript = function(input, generator) {
   console.log(generator.visitExpressionSequence(tree));
 };
 
-const input = 'new Binary(\'12345678912\')';
+const input = 'new Code("string")';
 const visitor = new Python3Generator();
+const visitor2 = new JavaGenerator();
 
-compileECMAScript(input, visitor);
+compileECMAScript(input, visitor2);

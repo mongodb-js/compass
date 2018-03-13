@@ -50,7 +50,7 @@ Visitor.prototype.visitChildren = function(ctx, options) {
   }
   /* Set the node's type to the first child, if it's not already set.
      More often than not, type will be set directly by the visitNode method. */
-  if (ctx.type !== undefined) {
+  if (ctx.type === undefined) {
     ctx.type = ctx.children.length ? ctx.getChild(0).type : this.types.UNDEFINED;
   }
   return code.trim();
@@ -88,6 +88,11 @@ Visitor.prototype.visitOctalIntegerLiteral = function(ctx) {
 
 Visitor.prototype.visitRegularExpressionLiteral = function(ctx) {
   ctx.type = this.types.REGEX;
+  return this.visitChildren(ctx);
+};
+
+Visitor.prototype.visitBSONConstructorExpression = function(ctx) {
+  ctx.type = this.types.OBJECT;
   return this.visitChildren(ctx);
 };
 
