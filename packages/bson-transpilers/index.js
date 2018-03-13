@@ -32,7 +32,7 @@ const compileECMAScript = function(input, generator) {
   console.log(generator.visitExpressionSequence(tree));
 };
 
-const input = 'new Long(\'12345678912\')';
+const input = 'new Binary(\'12345678912\')';
 const visitor = new Python3Generator();
 
 compileECMAScript(input, visitor);

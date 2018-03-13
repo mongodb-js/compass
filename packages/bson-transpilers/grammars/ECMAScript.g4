@@ -613,6 +613,19 @@ singleExpression
  | arrayLiteral                                                           # ArrayLiteralExpression
  | objectLiteral                                                          # ObjectLiteralExpression
  | '(' expressionSequence ')'                                             # ParenthesizedExpression
+ | bsonConstructor                                                        # BSONConstructorExpression
+ ;
+
+bsonConstructor
+ : BSONObjectId arguments            # BSONObjectIdConstructor
+ | BSONCode arguments                # BSONCodeConstructor
+ | BSONBinary arguments              # BSONBinaryConstructor
+ | BSONLong arguments                # BSONLongConstructor
+ | BSONDouble arguments              # BSONDoubleConstructor
+ | BSONDecimal128 arguments          # BSONDecimal128Constructor
+ | BSONMinKey arguments              # BSONMinKeyConstructor
+ | BSONMaxKey arguments              # BSONMaxKeyConstructor
+ | BSONTimestamp arguments           # BSONTimestampConstructor
  ;
 
 /// AssignmentOperator : one of
@@ -860,6 +873,17 @@ Package    : {this.strictMode}? 'package';
 Protected  : {this.strictMode}? 'protected';
 Static     : {this.strictMode}? 'static';
 Yield      : {this.strictMode}? 'yield';
+
+/// BSON object keywords
+BSONObjectId    :   'ObjectId';
+BSONCode        :   'Code';
+BSONBinary      :   'Binary';
+BSONLong        :   'Long';
+BSONDouble      :   'Double';
+BSONDecimal128  :   'Decimal128';
+BSONMinKey      :   'MinKey';
+BSONMaxKey      :   'MaxKey';
+BSONTimestamp   :   'Timestamp';
 
 /// 7.6 Identifier Names and Identifiers
 Identifier

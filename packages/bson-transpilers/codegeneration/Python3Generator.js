@@ -91,4 +91,8 @@ Visitor.prototype.visitArgumentsExpression = function(ctx) {
   }
 };
 
+Visitor.prototype.visitBSONBinaryConstructor = function(ctx) {
+  return this.visitChildren(ctx);
+};
+
 module.exports = Visitor;
