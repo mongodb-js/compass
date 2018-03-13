@@ -13,16 +13,27 @@ Visitor.prototype = Object.create(ECMAScriptVisitor.prototype);
 Visitor.prototype.constructor = Visitor;
 
 /**
- * Instead of returning nodes, we want our tree to return a string built from
- * visiting each child.
+ * Selectively visits children of a node.
  *
- * @param {object} ctx
+ * @param ctx
+ * @param {Object} options:
+ *    start - child index to start iterating at.
+ *    end - child index to end iterating after.
+ *    step - how many children to increment each step, 1 visits all children.
+ *    separator - a string separator to go between children.
+ *    ignore - an array of child indexes to skip.
  * @returns {string}
  */
-Visitor.prototype.visitChildren = function(ctx) {
+Visitor.prototype.visitChildren = function(ctx, options) {
+  const opts = {
+    start: 0, end: ctx.getChildCount() - 1, step: 1, separator: '', ignore: []
+  };
+  Object.assign(opts, options? options : {});
   let code = '';
-  for (let i = 0; i < ctx.getChildCount(); i++) {
-    code += this.visit(ctx.getChild(i));
+  for (let i = opts.start; i <= opts.end; i+=opts.step) {
+    if (opts.ignore.indexOf(i) === -1) {
+      code += this.visit(ctx.getChild(i)) + (i === opts.end ? '' : opts.separator);
+    }
   }
   return code.trim();
 };
@@ -55,33 +66,6 @@ Visitor.prototype.stringify = function(str) {
   }
   return newStr;
 };
-
-/**
- * Selectively visits children of a node.
- *
- * @param ctx
- * @param {Object} options:
- *    start - child to start iterating at.
- *    end - child to end iterating before.
- *    step - how many children to increment each step.
- *    separator - a string separator
- *    ignore - an array of indexes to skip
- * @returns {string}
- */
-Visitor.prototype.visitChildren = function(ctx, options) {
-  const opts = {
-    start: 0, end: ctx.getChildCount() - 1, step: 1, separator: '', ignore: []
-  };
-  Object.assign(opts, options? options : {});
-  let code = '';
-  for (let i = opts.start; i <= opts.end; i+=opts.step) {
-    if (opts.ignore.indexOf(i) === -1) {
-      code += this.visit(ctx.getChild(i)) + (i === opts.end ? '' : opts.separator);
-    }
-  }
-  return code.trim();
-};
-
 
 /////////////////////////////////
 // Nodes that differ in syntax //
