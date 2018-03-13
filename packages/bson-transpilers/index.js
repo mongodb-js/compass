@@ -13,7 +13,7 @@ const JavaGenerator = require('./codegeneration/JavaGenerator.js');
  * @param {antlr4.tree.ParseTreeVisitor} Code generator
  * @returns {String}
  */
-const compileECMAScript = function(input, generator) {
+module.exports = function compileECMAScript(input, generator) {
   // Create parse tree
   const chars = new antlr4.InputStream(input);
   const lexer = new ECMAScriptLexer.ECMAScriptLexer(chars);
@@ -30,11 +30,5 @@ const compileECMAScript = function(input, generator) {
   // console.log('----------------------');
 
   // Generate Code
-  console.log(generator.visitExpressionSequence(tree));
+  return generator.visitExpressionSequence(tree);
 };
-
-const input = '/\\w+\\s/g';
-const visitor = new Python3Generator();
-const visitor2 = new JavaGenerator();
-
-compileECMAScript(input, visitor2);
