@@ -56,7 +56,7 @@ class StageEditor extends PureComponent {
       this.props.fields
     );
     tools.setCompleters([ this.completer ]);
-    this.debounceChange = debounce(this.onStageBlur, 500);
+    this.debounceRun = debounce(this.onRunStage, 500);
   }
 
   /**
@@ -90,14 +90,14 @@ class StageEditor extends PureComponent {
    */
   onStageChange = (value) => {
     this.props.stageChanged(value, this.props.index);
-    this.debounceChange();
+    this.debounceRun();
   }
 
   /**
    * Need to decorate the change event with the stage index before
    * dispatching.
    */
-  onStageBlur = () => {
+  onRunStage = () => {
     this.props.runStage(this.props.index);
   }
 
@@ -130,7 +130,6 @@ class StageEditor extends PureComponent {
           width="100%"
           value={this.props.stage.stage}
           onChange={this.onStageChange}
-          onBlur={this.onStageBlur}
           editorProps={{ $blockScrolling: Infinity }}
           name={`aggregations-stage-editor-${this.props.index}`}
           setOptions={OPTIONS}
