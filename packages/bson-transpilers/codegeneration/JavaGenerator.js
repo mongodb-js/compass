@@ -79,10 +79,7 @@ Visitor.prototype.visitBSONObjectIdConstructor = function(ctx) {
   if(arguments.getChildCount() === 2) {
     return code + ')';
   }
-  if(arguments.getChildCount() !== 3) {
-    return "Error: ObjectId requires zero or one argument";
-  }
-  // TODO: do we even have to visit the children? this.visit(arguments.getChild(1));
+  // TODO: do we even have to visit the children?
   let hexstr;
   try {
     hexstr = this.executeJavascript(ctx.getText()).toHexString();
