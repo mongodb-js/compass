@@ -5,7 +5,7 @@
     "java",
     "csharp"
   ],
-  "bsonTypes": [
+  "bsonTypes": {
     "code": {
       "javascript": "Code('some code')",
       "python": "Code('some code')",
@@ -96,5 +96,5 @@
       "java": ".append(\"code\", new Code(\"some code\"))",
       "csharp": ""
     }
-  ]
+  }
 }
