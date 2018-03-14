@@ -414,7 +414,7 @@ export const generatePipeline = (state, index) => {
  */
 const executeAggregation = (dataService, ns, dispatch, state, index) => {
   const stage = state.pipeline[index];
-  if (stage.isValid && stage.stageOperator) {
+  if (stage.isValid && stage.isEnabled && stage.stageOperator) {
     dispatch(loadingStageResults(index));
     const pipeline = generatePipeline(state, index);
     dataService.aggregate(ns, pipeline, OPTIONS, (err, cursor) => {
@@ -424,6 +424,8 @@ const executeAggregation = (dataService, ns, dispatch, state, index) => {
         cursor.close();
       });
     });
+  } else {
+    dispatch(stagePreviewUpdated([], index, null));
   }
 };
 
