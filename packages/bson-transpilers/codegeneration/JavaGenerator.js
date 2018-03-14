@@ -54,19 +54,36 @@ Visitor.prototype.visitNewExpression = function(ctx) {
   return this.visitChildren(ctx, { start: 1 });
 };
 
+/**
+ * The arguments to Code can be either a string or actual javascript code.
+ * TODO: should we bother actually visiting the code argument subtree? Or just
+ * pass it through as a string directly.
+ *
+ * @param ctx
+ * @returns {*}
+ */
 Visitor.prototype.visitBSONCodeConstructor = function(ctx) {
   const arguments = ctx.getChild(1);
-  if(arguments.getChildCount() !== 3) {
-    return "Error: Code requires one argument";
+  if (arguments.getChildCount() === 2) {
+    return "Error: Code requires one or two arguments";
   }
-  /* NOTE: we have to visit the subtree first before type checking or type may
-     not be set. We might have to just suck it up and do two passes, but maybe
-     we can avoid it for now. */
-  const args = this.visit(arguments.getChild(1));
-  if(arguments.getChild(1).type !== this.types.STRING) {
-    return "Error: Code requires a string argument";
+  const argList = arguments.getChild(1);
+  const code = this.doubleQuoteStringify(argList.getChild(0).getText());
+
+  if(argList.getChildCount() === 3) {
+    /* NOTE: we have to visit the subtree first before type checking or type may
+       not be set. We might have to just suck it up and do two passes, but maybe
+       we can avoid it for now. */
+    const scope = this.visit(argList.getChild(2));
+    if(argList.getChild(2).type !== this.types.OBJECT) {
+      return "Error: Code requires scope to be an object";
+    }
+    return `new CodeWithScope(${code}, ${scope})`;
+  } else if (argList.getChildCount() === 1) {
+    return `new Code(${code})`;
+  } else {
+    return "Error: too many arguments to Code";
   }
-  return 'new Code(' + args + ')';
 };
 
 /**
@@ -79,7 +96,6 @@ Visitor.prototype.visitBSONObjectIdConstructor = function(ctx) {
   if(arguments.getChildCount() === 2) {
     return code + ')';
   }
-  // TODO: do we even have to visit the children?
   let hexstr;
   try {
     hexstr = this.executeJavascript(ctx.getText()).toHexString();
