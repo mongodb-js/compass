@@ -583,8 +583,8 @@ singleExpression
  | singleExpression '.' identifierName                                    # MemberDotExpression
  | singleExpression arguments                                             # ArgumentsExpression
  | New singleExpression arguments?                                        # NewExpression
- | singleExpression {!this.here(ECMAScriptParser.LineTerminator)}? '++'                         # PostIncrementExpression
- | singleExpression {!this.here(ECMAScriptParser.LineTerminator)}? '--'                         # PostDecreaseExpression
+ | singleExpression {!this.here(ECMAScriptParser.LineTerminator)}? '++'   # PostIncrementExpression
+ | singleExpression {!this.here(ECMAScriptParser.LineTerminator)}? '--'   # PostDecreaseExpression
  | Delete singleExpression                                                # DeleteExpression
  | Void singleExpression                                                  # VoidExpression
  | Typeof singleExpression                                                # TypeofExpression
@@ -616,6 +616,7 @@ singleExpression
  | objectLiteral                                                          # ObjectLiteralExpression
  | '(' expressionSequence ')'                                             # ParenthesizedExpression
  | bsonConstructor                                                        # BSONConstructorExpression
+ | bsonConstant                                                           # BSONConstantExpression
  ;
 
 bsonConstructor
@@ -628,6 +629,19 @@ bsonConstructor
  | BSONMinKey arguments              # BSONMinKeyConstructor
  | BSONMaxKey arguments              # BSONMaxKeyConstructor
  | BSONTimestamp arguments           # BSONTimestampConstructor
+ ;
+
+bsonConstant
+ : BSONBinary '.' BSONBinaryConstant
+ ;
+
+BSONBinaryConstant
+ : BinaryTypeDefault
+ | BinaryTypeFunction
+ | BinaryTypeByteArray
+ | BinaryTypeUUID
+ | BinaryTypeMD5
+ | BinaryTypeUDEF
  ;
 
 /// AssignmentOperator : one of
@@ -890,6 +904,13 @@ BSONDecimal128  :   'Decimal128';
 BSONMinKey      :   'MinKey';
 BSONMaxKey      :   'MaxKey';
 BSONTimestamp   :   'Timestamp';
+
+BinaryTypeDefault       : 'SUBTYPE_DEFAULT';
+BinaryTypeFunction      : 'SUBTYPE_FUNCTION';
+BinaryTypeByteArray     : 'SUBTYPE_BYTE_ARRAY';
+BinaryTypeUUID          : 'SUBTYPE_UUID';
+BinaryTypeMD5           : 'SUBTYPE_MD5';
+BinaryTypeUDEF          : 'SUBTYPE_USER_DEFINED';
 
 /// 7.6 Identifier Names and Identifiers
 Identifier

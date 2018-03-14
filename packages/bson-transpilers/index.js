@@ -33,7 +33,7 @@ const compileECMAScript = function(input, generator) {
   console.log(generator.visitExpressionSequence(tree));
 };
 
-const input = 'new ObjectId(1)';
+const input = 'new Binary(Buffer.from("string"), Binary.SUBTYPE_UUID)';
 const visitor = new Python3Generator();
 const visitor2 = new JavaGenerator();
 

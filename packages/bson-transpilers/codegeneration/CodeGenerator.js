@@ -179,6 +179,7 @@ Visitor.prototype.executeJavascript = function(input) {
     Date: function(s) {
       return new Date(s);
     },
+    Buffer: Buffer,
     __result: {}
   };
   const ctx = new Context(sandbox);

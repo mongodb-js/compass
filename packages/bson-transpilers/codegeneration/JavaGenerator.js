@@ -83,11 +83,34 @@ Visitor.prototype.visitBSONObjectIdConstructor = function(ctx) {
   let hexstr;
   try {
     hexstr = this.executeJavascript(ctx.getText()).toHexString();
-    console.log(hexstr);
   } catch (error) {
     return error.message;
   }
   return 'new ObjectId(' + this.doubleQuoteStringify(hexstr) + ')';
+};
+
+Visitor.prototype.visitBSONBinaryConstructor = function(ctx) {
+  let type;
+  let binobj;
+  try {
+    binobj = this.executeJavascript(ctx.getText());
+    console.log(binobj);
+    type = binobj.sub_type;
+  } catch (error) {
+    return error.message;
+  }
+  const subtypes = {
+    0 : 	'org.bson.BsonBinarySubType.BINARY',
+  	1 : 	'org.bson.BsonBinarySubType.FUNCTION',
+  	2 : 	'org.bson.BsonBinarySubType.BINARY',
+  	3 : 	'org.bson.BsonBinarySubType.UUID_LEGACY',
+  	4 :	  'org.bson.BsonBinarySubType.UUID',
+    5 :	  'org.bson.BsonBinarySubType.MD5',
+  	128 : 'org.bson.BsonBinarySubType.USER_DEFINED'
+  };
+  
+  const bytes = this.doubleQuoteStringify(binobj.toString());
+  return `new Binary(${subtypes[type]}, ${bytes}.getBytes("UTF-8"))`
 };
 
 module.exports = Visitor;
