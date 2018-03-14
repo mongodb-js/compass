@@ -21,7 +21,7 @@ describe('Generate ECMAScript AST', () => {
   describe('literals', () => {
     const literals = [
       '"string"', 'null', 'undefined', 'true', 'false', '0',
-      '1.99001', '0x4ac1', '0.12323', '/ab+c/'
+      '1.99001', '0x4ac1', '0.12323'
     ];
     literals.map((v) => {
       it(v, () => {
@@ -91,16 +91,50 @@ describe('Generate ECMAScript AST', () => {
   describe('BSON Types', () => {
     const js = [
       "new Code('string')", 'new Code("string")', 'Code("string")',
+      'Code(function(test) { console.log(test); })', "Code('string', {x: 1})",
 
       'new ObjectId()', 'ObjectId()', "ObjectId('00000001d794e4d3323b45f1')",
-      "new ObjectId('00000001d794e4d3323b45f1')"
+      "new ObjectId('00000001d794e4d3323b45f1')",
+      
+      'new Binary(Buffer.from("a string"))', 'new Binary(Buffer.from("a string"), Binary.SUBTYPE_UUID)',
+      'Binary(Buffer.from("a string"), 4)',
+      
+      'new DBRef("coll", new ObjectId())', 'DBRef("coll", ObjectId(), "db")',
+      
+      'new Double(1)', 'Double("1")',
+      
+      'new Long(-1, 2147483647)',
+      
+      'new MinKey()', 'new MaxKey()', 'MinKey()', 'MaxKey()',
+      
+      'new Date(\'December 17, 1995 03:24:00\')', 'new Date(819167040000)',
+  
+      // "new RegExp('\\w+')", "'\\w+'",
     ];
     const java = [
       'new Code("string")', 'new Code("string")', 'new Code("string")',
+      'new Code("function(test){console.log(test);}")',
+      'new CodeWithScope("string", new Document().append("x", 1))',
 
       'new ObjectId()', 'new ObjectId()',
       'new ObjectId("00000001d794e4d3323b45f1")',
-      'new ObjectId("00000001d794e4d3323b45f1")'
+      'new ObjectId("00000001d794e4d3323b45f1")',
+      
+      'new Binary(org.bson.BsonBinarySubType.BINARY, "a string".getBytes("UTF-8"))',
+      'new Binary(org.bson.BsonBinarySubType.UUID, "a string".getBytes("UTF-8"))',
+      'new Binary(org.bson.BsonBinarySubType.UUID, "a string".getBytes("UTF-8"))',
+      
+      'new DBRef("coll", new ObjectId())', 'new DBRef("coll", new ObjectId(), "db")',
+      
+      'new java.lang.Double(1)', 'new java.lang.Double("1")',
+      
+      'new java.lang.Long("9223372036854775807")',
+      
+      'new MinKey()', 'new MaxKey()', 'new MinKey()', 'new MaxKey()',
+      
+      'new java.util.Date(819167040000)', 'new java.util.Date(819167040000)',
+      
+      // "Pattern.compile('\w+')", "Pattern.compile('\w+')",
     ];
     js.map((v, i) => {
       it(v, () => {

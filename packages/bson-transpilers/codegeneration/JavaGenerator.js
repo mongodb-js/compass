@@ -51,7 +51,9 @@ Visitor.prototype.visitArrayLiteral = function(ctx) {
  * need it in Java so we'll add it when we call constructors.
  */
 Visitor.prototype.visitNewExpression = function(ctx) {
-  return this.visitChildren(ctx, { start: 1 });
+  const child = this.visitChildren(ctx, { start: 1 });
+  ctx.type = ctx.getChild(1).type;
+  return child;
 };
 
 /**
@@ -64,7 +66,9 @@ Visitor.prototype.visitNewExpression = function(ctx) {
  */
 Visitor.prototype.visitBSONCodeConstructor = function(ctx) {
   const arguments = ctx.getChild(1);
-  if (arguments.getChildCount() === 2) {
+  if (arguments.getChildCount() === 2 ||
+     !(arguments.getChild(1).getChildCount() === 3 ||
+       arguments.getChild(1).getChildCount() === 1)) {
     return "Error: Code requires one or two arguments";
   }
   const argList = arguments.getChild(1);
@@ -79,11 +83,8 @@ Visitor.prototype.visitBSONCodeConstructor = function(ctx) {
       return "Error: Code requires scope to be an object";
     }
     return `new CodeWithScope(${code}, ${scope})`;
-  } else if (argList.getChildCount() === 1) {
-    return `new Code(${code})`;
-  } else {
-    return "Error: too many arguments to Code";
   }
+  return `new Code(${code})`;
 };
 
 /**
@@ -102,7 +103,7 @@ Visitor.prototype.visitBSONObjectIdConstructor = function(ctx) {
   } catch (error) {
     return error.message;
   }
-  return 'new ObjectId(' + this.doubleQuoteStringify(hexstr) + ')';
+  return code + this.doubleQuoteStringify(hexstr) + ')';
 };
 
 Visitor.prototype.visitBSONBinaryConstructor = function(ctx) {
@@ -127,6 +128,96 @@ Visitor.prototype.visitBSONBinaryConstructor = function(ctx) {
   
   const bytes = this.doubleQuoteStringify(binobj.toString());
   return `new Binary(${subtypes[type]}, ${bytes}.getBytes("UTF-8"))`
+};
+
+// TODO: should we even support DBRef bc deprecated?
+Visitor.prototype.visitBSONDBRefConstructor = function(ctx) {
+  const arguments = ctx.getChild(1);
+  if (arguments.getChildCount() === 2 ||
+    !(arguments.getChild(1).getChildCount() === 5 ||
+      arguments.getChild(1).getChildCount() === 3)) {
+    return "Error: DBRef requires two or three arguments";
+  }
+  // TODO: Should we check types or implicitly case to Java expected type?
+  const argList = arguments.getChild(1);
+  const ns = this.visit(argList.getChild(0));
+  if(argList.getChild(0).type !== this.types.STRING) {
+    return "Error: DBRef requires string namespace";
+  }
+  const oid = this.visit(argList.getChild(2));
+  if(argList.getChild(2).type !== this.types.OBJECT) {
+    return "Error: DBRef requires object OID";
+  }
+  
+  if(argList.getChildCount() === 5) {
+    const db = this.visit(argList.getChild(4));
+    if (argList.getChild(4).type !== this.types.STRING) {
+      return "Error: DbRef requires string collection";
+    }
+    return `new DBRef(${ns}, ${oid}, ${db})`;
+  }
+  return `new DBRef(${ns}, ${oid})`;
+};
+
+Visitor.prototype.visitBSONDoubleConstructor = function(ctx) {
+  const arguments = ctx.getChild(1);
+  if (arguments.getChildCount() === 2 || arguments.getChild(1).getChildCount() !== 1) {
+    return "Error: Double requires one argument";
+  }
+  const arg = arguments.getChild(1).getChild(0);
+  const value = this.visit(arg);
+  if(arg.type !== this.types.STRING && !this.isNumericType(arg)) {
+    // This is actually what java accepts
+    return "Error: Double requires either string or number";
+  }
+  return `new java.lang.Double(${value})`;
+};
+
+Visitor.prototype.visitBSONLongConstructor = function(ctx) {
+  let longstr;
+  try {
+    longstr = this.executeJavascript(ctx.getText()).toString();
+  } catch (error) {
+    return error.message;
+  }
+  return `new java.lang.Long(${this.doubleQuoteStringify(longstr)})`;
+};
+
+Visitor.prototype.visitBSONMaxKeyConstructor = function(ctx) {
+  return 'new MaxKey()';
+};
+
+Visitor.prototype.visitBSONMinKeyConstructor = function(ctx) {
+  return 'new MinKey()';
+};
+
+Visitor.prototype.visitBSONRegExpConstructor = function(ctx) {
+
+}
+
+Visitor.prototype.visitDateConstructor = function(ctx) {
+  // TODO: any Date.now() calls should stay as now calls in java
+  // TODO: test JS input formats
+  let epoch;
+  try {
+    epoch = this.executeJavascript(ctx.getText()).getTime();
+  } catch (error) {
+    return error.message;
+  }
+  return `new java.util.Date(${epoch})`;
+};
+
+Visitor.prototype.visitRegularExpressionLiteral = function(ctx) {
+  let pattern;
+  let flags;
+  try {
+    const regexobj = this.executeJavascript(ctx.getText());
+    pattern = regexobj.pattern;
+    flags = regexobj.flags;
+  } catch (error) {
+    return error.message;
+  }
+  return `Pattern.compile(${pattern}, ${flags})`;
 };
 
 module.exports = Visitor;
