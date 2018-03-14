@@ -14,6 +14,7 @@ class ToggleStage extends PureComponent {
   static propTypes = {
     stage: PropTypes.object.isRequired,
     index: PropTypes.number.isRequired,
+    runStage: PropTypes.func.isRequired,
     stageToggled: PropTypes.func.isRequired
   }
 
@@ -22,6 +23,7 @@ class ToggleStage extends PureComponent {
    */
   onStageToggled = () => {
     this.props.stageToggled(this.props.index);
+    this.props.runStage(this.props.index);
   }
 
   renderToggle() {

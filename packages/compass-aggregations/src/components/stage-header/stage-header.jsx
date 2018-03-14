@@ -18,6 +18,7 @@ class StageHeader extends PureComponent {
   static propTypes = {
     stage: PropTypes.object.isRequired,
     index: PropTypes.number.isRequired,
+    runStage: PropTypes.func.isRequired,
     stageCollapseToggled: PropTypes.func.isRequired,
     stageDeleted: PropTypes.func.isRequired,
     stageOperatorSelected: PropTypes.func.isRequired,
@@ -33,10 +34,23 @@ class StageHeader extends PureComponent {
     return (
       <div className={classnames(styles['stage-header'])}>
         <StageGrabber />
-        <StageCollapser {...this.props} />
-        <StageOperatorSelect {...this.props } />
-        <ToggleStage {...this.props} />
-        <DeleteStage {...this.props} />
+        <StageCollapser
+          stage={this.props.stage}
+          index={this.props.index}
+          stageCollapseToggled={this.props.stageCollapseToggled} />
+        <StageOperatorSelect
+          stage={this.props.stage}
+          index={this.props.index}
+          stageOperatorSelected={this.props.stageOperatorSelected} />
+        <ToggleStage
+          stage={this.props.stage}
+          index={this.props.index}
+          runStage={this.props.runStage}
+          stageToggled={this.props.stageToggled} />
+        <DeleteStage
+          stage={this.props.stage}
+          index={this.props.index}
+          stageDeleted={this.props.stageDeleted} />
       </div>
     );
   }
