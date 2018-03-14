@@ -398,7 +398,7 @@ const OPTIONS = Object.freeze({});
  */
 export const generatePipeline = (state, index) => {
   return state.pipeline.reduce((results, stage, i) => {
-    if (i <= index) results.push(stage.executor);
+    if (i <= index && stage.isEnabled) results.push(stage.executor);
     return results;
   }, []);
 };

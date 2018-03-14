@@ -301,7 +301,7 @@ describe('pipeline module', () => {
 
   describe('#generatePipeline', () => {
     context('when the index is the first', () => {
-      const stage = { executor: { $match: { name: 'test' }}};
+      const stage = { isEnabled: true, executor: { $match: { name: 'test' }}};
       const state = { pipeline: [ stage ]};
 
       it('returns the pipeline with only the current stage', () => {
@@ -310,9 +310,9 @@ describe('pipeline module', () => {
     });
 
     context('when the index has prior stages', () => {
-      const stage0 = { executor: { $match: { name: 'test' }}};
-      const stage1 = { executor: { $project: { name: 1 }}};
-      const stage2 = { executor: { $sort: { name: 1 }}};
+      const stage0 = { isEnabled: true, executor: { $match: { name: 'test' }}};
+      const stage1 = { isEnabled: true, executor: { $project: { name: 1 }}};
+      const stage2 = { isEnabled: true, executor: { $sort: { name: 1 }}};
       const state = { pipeline: [ stage0, stage1, stage2 ]};
 
       it('returns the pipeline with the current and all previous stages', () => {
@@ -325,15 +325,29 @@ describe('pipeline module', () => {
     });
 
     context('when the index has stages after', () => {
-      const stage0 = { executor: { $match: { name: 'test' }}};
-      const stage1 = { executor: { $project: { name: 1 }}};
-      const stage2 = { executor: { $sort: { name: 1 }}};
+      const stage0 = { isEnabled: true, executor: { $match: { name: 'test' }}};
+      const stage1 = { isEnabled: true, executor: { $project: { name: 1 }}};
+      const stage2 = { isEnabled: true, executor: { $sort: { name: 1 }}};
       const state = { pipeline: [ stage0, stage1, stage2 ]};
 
       it('returns the pipeline with the current and all previous stages', () => {
         expect(generatePipeline(state, 1)).to.deep.equal([
           stage0.executor,
           stage1.executor
+        ]);
+      });
+    });
+
+    context('when a stage is disabled', () => {
+      const stage0 = { isEnabled: false, executor: { $match: { name: 'test' }}};
+      const stage1 = { isEnabled: true, executor: { $project: { name: 1 }}};
+      const stage2 = { isEnabled: true, executor: { $sort: { name: 1 }}};
+      const state = { pipeline: [ stage0, stage1, stage2 ]};
+
+      it('returns the pipeline with the current and all previous stages', () => {
+        expect(generatePipeline(state, 2)).to.deep.equal([
+          stage1.executor,
+          stage2.executor
         ]);
       });
     });
