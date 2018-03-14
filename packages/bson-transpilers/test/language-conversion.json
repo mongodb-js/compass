@@ -13,87 +13,87 @@
       "csharp": ""
     },
     "oid": {
-      "javascript": "Code('some code')",
-      "python": "Code('some code')",
-      "java": ".append(\"code\", new Code(\"some code\"))",
+      "javascript": "ObjectId('5a7382114ec1f67ae445f778')",
+      "python": "ObjectId('5a7382114ec1f67ae445f778')",
+      "java": ".append(\"oid\", new ObjectId(\"5a7382114ec1f67ae445f778\")",
       "csharp": ""
     },
     "bin": {
-      "javascript": "Code('some code')",
-      "python": "Code('some code')",
-      "java": ".append(\"code\", new Code(\"some code\"))",
+      "javascript": "Binary('aakjadfjadfldksjfadf', '1')",
+      "python": "Binary('aakjadfjadfldksjfadf', '1')",
+      "java": ".append(\"bin\", new Binary(\"aakjadfjadfldksjdf\".getBytes()))",
       "csharp": ""
     },
     "dbref": {
-      "javascript": "Code('some code')",
-      "python": "Code('some code')",
-      "java": ".append(\"code\", new Code(\"some code\"))",
+      "javascript": "DBRef('collection', 'objectID', 'dbString')",
+      "python": "DBRef('collection', 'objectID', 'dbString')",
+      "java": "",
       "csharp": ""
     },
     "nd": {
-      "javascript": "Code('some code')",
-      "python": "Code('some code')",
-      "java": ".append(\"code\", new Code(\"some code\"))",
+      "javascript": "Double(3)",
+      "python": "float(3)",
+      "java": ".append(\"nd\", new java.lang.Double(3.00))",
       "csharp": ""
     },
     "nl": {
-      "javascript": "Code('some code')",
-      "python": "Code('some code')",
-      "java": ".append(\"code\", new Code(\"some code\"))",
+      "javascript": "Long(3, 3)",
+      "python": "Int64(3, 3)",
+      "java": ".append(\"nl\", new java.lang.Long(3))",
       "csharp": ""
     },
     "ni": {
-      "javascript": "Code('some code')",
-      "python": "Code('some code')",
-      "java": ".append(\"code\", new Code(\"some code\"))",
+      "javascript": "new Number(2)",
+      "python": "int(2)",
+      "java": ".append(\"ni\", new java.lang.Integer(2))",
       "csharp": ""
     },
     "dec128": {
-      "javascript": "Code('some code')",
-      "python": "Code('some code')",
-      "java": ".append(\"code\", new Code(\"some code\"))",
+      "javascript": "new Decimal128.fromString('5.00000001')",
+      "python": "Decimal128('5.00000001')",
+      "java": ".append(\"dec128\", new Decimal128(5.00000001))",
       "csharp": ""
     },
     "minkey": {
-      "javascript": "Code('some code')",
-      "python": "Code('some code')",
-      "java": ".append(\"code\", new Code(\"some code\"))",
+      "javascript": "MinKey()",
+      "python": "MinKey()",
+      "java": ".append(\"minKey\", new MinKey())",
       "csharp": ""
     },
     "maxkey": {
-      "javascript": "Code('some code')",
-      "python": "Code('some code')",
-      "java": ".append(\"code\", new Code(\"some code\"))",
+      "javascript": "MaxKey()",
+      "python": "MaxKey()",
+      "java": ".append(\"maxKey\", new MaxKey())",
       "csharp": ""
     },
     "isodate": {
-      "javascript": "Code('some code')",
-      "python": "Code('some code')",
-      "java": ".append(\"code\", new Code(\"some code\"))",
+      "javascript": "new Date('1995-12-17T03:24:00')",
+      "python": "datetime.date(1995, 11, 17)",
+      "java": ".append(\"isodate\", new java.util.Date(1995, 11, 17))",
       "csharp": ""
     },
     "regexp": {
-      "javascript": "Code('some code')",
-      "python": "Code('some code')",
-      "java": ".append(\"code\", new Code(\"some code\"))",
+      "javascript": "new RegExp('/^[a-z0-9_-]{3,16}$/')",
+      "python": "RegExp('/^[a-z0-9_-]{3,16}$/')",
+      "java": ".append(\"regexp\", Pattern.compile(\"/^[a-z0-9_-]{3,16}$/\"))",
       "csharp": ""
     },
     "ts": {
-      "javascript": "Code('some code')",
-      "python": "Code('some code')",
-      "java": ".append(\"code\", new Code(\"some code\"))",
+      "javascript": "Timestamp(10, 100)",
+      "python": "Timestamp(10, 100)",
+      "java": ".append(\"ts\", new BSONTimestamp(10, 100))",
       "csharp": ""
     },
     "subdoc": {
-      "javascript": "Code('some code')",
-      "python": "Code('some code')",
-      "java": ".append(\"code\", new Code(\"some code\"))",
+      "javascript": "{x: 1}",
+      "python": "{'x': 1}",
+      "java": ".append(\"subDoc\", new Document(\"x\", 1))",
       "csharp": ""
     },
     "subarray": {
-      "javascript": "Code('some code')",
-      "python": "Code('some code')",
-      "java": ".append(\"code\", new Code(\"some code\"))",
+      "javascript": "[1, 2]",
+      "python": "[1, 2]",
+      "java": ".append(\"subArr\", Arrays.asList(1, 2));",
       "csharp": ""
     }
   }
