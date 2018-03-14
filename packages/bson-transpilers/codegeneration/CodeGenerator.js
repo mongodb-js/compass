@@ -147,6 +147,7 @@ Visitor.prototype.singleQuoteStringify = function(str) {
 Visitor.prototype.executeJavascript = function(input) {
   const sandbox = {
     RegExp: RegExp,
+    BSONRegExp: bson.BSONRegExp,
     Binary: bson.Binary,
     DBRef: bson.DBRef,
     Decimal128: bson.Decimal128,

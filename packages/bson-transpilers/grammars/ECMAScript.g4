@@ -617,7 +617,8 @@ singleExpression
  | '(' expressionSequence ')'                                             # ParenthesizedExpression
  | bsonConstructor                                                        # BSONConstructorExpression
  | bsonConstant                                                           # BSONConstantExpression
- | Date arguments                                                         # DateConstructor
+ | Date arguments                                                         # DateConstructorExpression
+ | RegExp arguments                                                       # RegExpConstructorExpression
  ;
 
 bsonConstructor
@@ -631,7 +632,8 @@ bsonConstructor
  | BSONMinKey arguments              # BSONMinKeyConstructor
  | BSONMaxKey arguments              # BSONMaxKeyConstructor
  | BSONTimestamp arguments           # BSONTimestampConstructor
- | BSONRegExp arguments             # BSONRegExpConstructor
+ | BSONRegExp arguments              # BSONRegExpConstructor
+ | BSONSymbol arguments              # BSONSymbolConstructor
  ;
 
 bsonConstant
@@ -909,6 +911,7 @@ BSONMinKey      :   'MinKey';
 BSONMaxKey      :   'MaxKey';
 BSONTimestamp   :   'Timestamp';
 BSONRegExp      :   'BSONRegExp';
+BSONSymbol      :   'Symbol';
 
 // BSON constant keywords
 BinaryTypeDefault       : 'SUBTYPE_DEFAULT';
@@ -920,6 +923,7 @@ BinaryTypeUDEF          : 'SUBTYPE_USER_DEFINED';
 
 // Built-in type keywords
 Date    :   'Date';
+RegExp  :   'RegExp';
 
 /// 7.6 Identifier Names and Identifiers
 Identifier

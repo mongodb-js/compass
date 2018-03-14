@@ -111,7 +111,6 @@ Visitor.prototype.visitBSONBinaryConstructor = function(ctx) {
   let binobj;
   try {
     binobj = this.executeJavascript(ctx.getText());
-    console.log(binobj);
     type = binobj.sub_type;
   } catch (error) {
     return error.message;
@@ -191,11 +190,7 @@ Visitor.prototype.visitBSONMinKeyConstructor = function(ctx) {
   return 'new MinKey()';
 };
 
-Visitor.prototype.visitBSONRegExpConstructor = function(ctx) {
-
-}
-
-Visitor.prototype.visitDateConstructor = function(ctx) {
+Visitor.prototype.visitDateConstructorExpression = function(ctx) {
   // TODO: any Date.now() calls should stay as now calls in java
   // TODO: test JS input formats
   let epoch;
@@ -207,7 +202,24 @@ Visitor.prototype.visitDateConstructor = function(ctx) {
   return `new java.util.Date(${epoch})`;
 };
 
+
+// TODO: RegExps are unfinished
 Visitor.prototype.visitRegularExpressionLiteral = function(ctx) {
+  let pattern;
+  let flags;
+  try {
+    const regexobj = this.executeJavascript(ctx.getText());
+    pattern = regexobj.source;
+    flags = regexobj.flags;
+  } catch (error) {
+    return error.message;
+  }
+  return `Pattern.compile(${this.doubleQuoteStringify(pattern)}, ${flags})`;
+};
+
+Visitor.prototype.visitRegExpConstructorExpression = Visitor.prototype.visitRegularExpressionLiteral;
+
+Visitor.prototype.visitBSONRegExpConstructor = function(ctx) {
   let pattern;
   let flags;
   try {
@@ -217,7 +229,38 @@ Visitor.prototype.visitRegularExpressionLiteral = function(ctx) {
   } catch (error) {
     return error.message;
   }
-  return `Pattern.compile(${pattern}, ${flags})`;
+  return `Pattern.compile(${this.doubleQuoteStringify(pattern)}, ${flags})`;
 };
+
+Visitor.prototype.visitBSONSymbolConstructor = function(ctx) {
+  const arguments = ctx.getChild(1);
+  if (arguments.getChildCount() === 2 || arguments.getChild(1).getChildCount() !== 1) {
+    return "Error: Symbol requires one argument";
+  }
+  const arg = arguments.getChild(1).getChild(0);
+  const symbol = this.visit(arg);
+  if(arg.type !== this.types.STRING) {
+    return "Error: Symbol requires a string argument";
+  }
+  return `new Symbol(${symbol})`;
+};
+
+// TODO: is high/low the same as time/increment?
+Visitor.prototype.visitBSONTimestampConstructor = function(ctx) {
+  let high;
+  let low;
+  try {
+    const tsobj = this.executeJavascript(ctx.getText());
+    high = tsobj.getHighBits();
+    low = tsobj.getLowBits();
+  } catch (error) {
+    return error.message;
+  }
+  return `BSONTimestamp(${high}, ${low})`;
+};
+
+// TODO
+// Visitor.prototype.visitBSONDecimal128Constructor = function(ctx) {
+// };
 
 module.exports = Visitor;

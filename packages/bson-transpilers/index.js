@@ -33,7 +33,7 @@ const compileECMAScript = function(input, generator) {
   console.log(generator.visitExpressionSequence(tree));
 };
 
-const input = 'new DBRef("coll", new ObjectId())';
+const input = '/\\w+\\s/g';
 const visitor = new Python3Generator();
 const visitor2 = new JavaGenerator();
 

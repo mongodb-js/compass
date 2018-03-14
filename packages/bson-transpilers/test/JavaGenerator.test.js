@@ -95,21 +95,25 @@ describe('Generate ECMAScript AST', () => {
 
       'new ObjectId()', 'ObjectId()', "ObjectId('00000001d794e4d3323b45f1')",
       "new ObjectId('00000001d794e4d3323b45f1')",
-      
+
       'new Binary(Buffer.from("a string"))', 'new Binary(Buffer.from("a string"), Binary.SUBTYPE_UUID)',
       'Binary(Buffer.from("a string"), 4)',
-      
+
       'new DBRef("coll", new ObjectId())', 'DBRef("coll", ObjectId(), "db")',
-      
+
       'new Double(1)', 'Double("1")',
-      
+
       'new Long(-1, 2147483647)',
-      
+
       'new MinKey()', 'new MaxKey()', 'MinKey()', 'MaxKey()',
-      
+
       'new Date(\'December 17, 1995 03:24:00\')', 'new Date(819167040000)',
-  
-      // "new RegExp('\\w+')", "'\\w+'",
+
+      // "new RegExp(/[-a-zA-Z0-9@:%_\\+.~#?&//=]{2,256}\\.[a-z]{2,4}\\b(\\/[-a-zA-Z0-9@:%_\\+.~#?&//=]*)?/gi)",
+      // "/[-a-zA-Z0-9@:%_\\+.~#?&//=]{2,256}\\.[a-z]{2,4}\\b(\\/[-a-zA-Z0-9@:%_\\+.~#?&//=]*)?/gi",
+      // "new BSONRegExp(/[-a-zA-Z0-9@:%_\\+.~#?&//=]{2,256}\\.[a-z]{2,4}\\b(\\/[-a-zA-Z0-9@:%_\\+.~#?&//=]*)?/gi)",
+
+      'new Symbol(\'test\')', 'Symbol("test")'
     ];
     const java = [
       'new Code("string")', 'new Code("string")', 'new Code("string")',
@@ -119,22 +123,27 @@ describe('Generate ECMAScript AST', () => {
       'new ObjectId()', 'new ObjectId()',
       'new ObjectId("00000001d794e4d3323b45f1")',
       'new ObjectId("00000001d794e4d3323b45f1")',
-      
+
       'new Binary(org.bson.BsonBinarySubType.BINARY, "a string".getBytes("UTF-8"))',
       'new Binary(org.bson.BsonBinarySubType.UUID, "a string".getBytes("UTF-8"))',
       'new Binary(org.bson.BsonBinarySubType.UUID, "a string".getBytes("UTF-8"))',
-      
+
       'new DBRef("coll", new ObjectId())', 'new DBRef("coll", new ObjectId(), "db")',
-      
+
       'new java.lang.Double(1)', 'new java.lang.Double("1")',
-      
+
       'new java.lang.Long("9223372036854775807")',
-      
+
       'new MinKey()', 'new MaxKey()', 'new MinKey()', 'new MaxKey()',
-      
+
       'new java.util.Date(819167040000)', 'new java.util.Date(819167040000)',
-      
-      // "Pattern.compile('\w+')", "Pattern.compile('\w+')",
+
+      // 'Pattern.compile("/[-a-zA-Z0-9@:%_\\+.~#?&//=]{2,256}\\.[a-z]{2,4}\\b(\\/[-a-zA-Z0-9@:%_\\+.~#?&//=]*)?/gi", "gi")',
+      // 'Pattern.compile("/[-a-zA-Z0-9@:%_\\+.~#?&//=]{2,256}\\.[a-z]{2,4}\\b(\\/[-a-zA-Z0-9@:%_\\+.~#?&//=]*)?/gi", "gi")',
+      // 'Pattern.compile("/[-a-zA-Z0-9@:%_\\+.~#?&//=]{2,256}\\.[a-z]{2,4}\\b(\\/[-a-zA-Z0-9@:%_\\+.~#?&//=]*)?/gi", "gi")',
+
+      'new Symbol("test")', 'new Symbol("test")'
+
     ];
     js.map((v, i) => {
       it(v, () => {
