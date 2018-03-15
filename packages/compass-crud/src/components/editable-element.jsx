@@ -210,12 +210,16 @@ class EditableElement extends React.Component {
   }
 
   focusEditKey() {
-    this.props.edit();
+    if (this.props.edit) {
+      this.props.edit();
+    }
     this.setState({focusKey: true});
   }
 
   focusEditValue() {
-    this.props.edit();
+    if (this.props.edit) {
+      this.props.edit();
+    }
     this.setState({focusValue: true});
   }
 
