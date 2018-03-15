@@ -1,5 +1,5 @@
 {
-  "languages": [
+  "inputLanguages": [
     "javascript",
     "python",
     "java",
@@ -26,7 +26,7 @@
     },
     "codeWithFunction": {
       "javascript": "Code(function(test) { console.log(test);  })",
-      "python": "",
+      "python": "Code(def f (test): print f(test))",
       "java": "new Code(\"function(test){console.log(test);}\")",
       "csharp": ""
     },
@@ -49,15 +49,33 @@
       "csharp": ""
     },
     "bin": {
-      "javascript": "Binary('aakjadfjadfldksjfadf', '1')",
-      "python": "Binary('aakjadfjadfldksjfadf', '1')",
-      "java": "new Binary(\"aakjadfjadfldksjdf\".getBytes())",
+      "javascript": "Binary(Buffer.from('a string'))",
+      "python": "Binary('a string')",
+      "java": "new Binary(org.bson.BsonBinarySubType.BINARY, \"a string\".getBytes(\"UTF-8\"))",
+      "csharp": ""
+    },
+    "binWithSubtype": {
+      "javascript": "new Binary(Buffer.from(\"a string\"), Binary.SUBTYPE_UUID)",
+      "python": "Binary('a string', Binary.subtype_uuid)",
+      "java": "new Binary(org.bson.BsonBinarySubType.UUID, \"a string\".getBytes(\"UTF-8\"))",
+      "csharp": ""
+    },
+    "binWithSubtypeNumber": {
+      "javascript": "Binary(Buffer.from('a string'), '1')",
+      "python": "Binary('a string', '1')",
+      "java": "new Binary(org.bson.BsonBinarySubType.UUID, \"a string\".getBytes(\"UTF-8\"))",
       "csharp": ""
     },
     "dbref": {
-      "javascript": "DBRef('collection', 'objectID', 'dbString')",
-      "python": "DBRef('collection', 'objectID', 'dbString')",
-      "java": "",
+      "javascript": "new DBRef('coll', new ObjectId())",
+      "python": "DBRef('collection', 'objectID')",
+      "java": "new DBRef(\"coll\", new ObjectId())",
+      "csharp": ""
+    },
+    "dbrefWithDB": {
+      "javascript": "new DBRef('coll', ObjectId()), 'db'",
+      "python": "DBRef('collection', 'objectID', 'db')",
+      "java": "new DBRef(\"coll\", new ObjectId(), \"db\")",
       "csharp": ""
     },
     "nd": {
@@ -66,10 +84,16 @@
       "java": "new java.lang.Double(3.00)",
       "csharp": ""
     },
+    "ndAsString": {
+      "javascript": "Double('3')",
+      "python": "float(3)",
+      "java": "new java.lang.Double(\"3\")",
+      "csharp": ""
+    },
     "nl": {
-      "javascript": "Long(3, 3)",
-      "python": "Int64(3, 3)",
-      "java": "new java.lang.Long(3)",
+      "javascript": "new Long(-1, 2147483647)",
+      "python": "Int64(-1, 2147483647)",
+      "java": "new java.lang.Long(\"9223372036854775807\")",
       "csharp": ""
     },
     "ni": {
@@ -85,7 +109,7 @@
       "csharp": ""
     },
     "dec128": {
-      "javascript": "new Decimal128.fromString('5.00000001')",
+      "javascript": "new Decimal128('5.00000001')",
       "python": "Decimal128('5.00000001')",
       "java": "new Decimal128(5.00000001)",
       "csharp": ""
@@ -96,16 +120,34 @@
       "java": "new MinKey()",
       "csharp": ""
     },
+    "minkeyWithNew": {
+      "javascript": "new MinKey()",
+      "python": "MinKey()",
+      "java": "new MinKey()",
+      "csharp": ""
+    },
     "maxkey": {
       "javascript": "MaxKey()",
       "python": "MaxKey()",
       "java": "new MaxKey()",
       "csharp": ""
     },
-    "isodate": {
-      "javascript": "new Date('1995-12-17T03:24:00')",
+    "maxkeyWithNew": {
+      "javascript": "new MaxKey()",
+      "python": "MaxKey()",
+      "java": "new MaxKey()",
+      "csharp": ""
+    },
+    "isodateAsDate": {
+      "javascript": "new Date('December 17, 1995 03:24:00')",
       "python": "datetime.date(1995, 11, 17)",
-      "java": "new java.util.Date(1995, 11, 17)",
+      "java": "new java.util.Date(819167040000)",
+      "csharp": ""
+    },
+    "isodate": {
+      "javascript": "new Date(819167040000)",
+      "python": "datetime.date(1995, 11, 17)",
+      "java": "new java.util.Date(819167040000)",
       "csharp": ""
     },
     "regexp": {

@@ -15,7 +15,7 @@ const parseResult = parse(fs.readFileSync(path.join(__dirname, './language-conve
 if (parseResult.err) throw new Error(parseResult.err.message);
 const constructorJSON = parseResult.value;
 
-const languages = constructorJSON.languages;
+const languages = constructorJSON.inputLanguages;
 const bsonTypes = constructorJSON.bsonTypes;
 
 languages.forEach((lang) => {
