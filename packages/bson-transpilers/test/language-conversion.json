@@ -7,20 +7,38 @@
   ],
   "bsonTypes": {
     "code": {
+      "javascript": "new Code('some code')",
+      "python": "Code('some code')",
+      "java": "new Code(\"some code\")",
+      "csharp": ""
+    },
+    "codeWithoutNew": {
       "javascript": "Code('some code')",
       "python": "Code('some code')",
       "java": "new Code(\"some code\")",
       "csharp": ""
     },
     "codeWithScope": {
-      "javascript": "Code('some code', {})",
-      "python": "Code('some code', {})",
-      "java": "new Code(\"some code\", new Document())",
+      "javascript": "Code('string', {x: 1})",
+      "python": "Code('string', {'x': 1})",
+      "java": "new CodeWithScope(\"string\", new Document().append(\"x\", 1))",
       "csharp": ""
     },
-    "oidWithId": {
+    "codeWithFunction": {
+      "javascript": "Code(function(test) { console.log(test);  })",
+      "python": "",
+      "java": "new Code(\"function(test){console.log(test);}\")",
+      "csharp": ""
+    },
+    "oid": {
       "javascript": "ObjectId()",
       "python": "ObjectId()",
+      "java": "new ObjectId()",
+      "csharp": ""
+    },
+    "oidWithNew": {
+      "javascript": "new ObjectId()",
+      "python": "new ObjectId()",
       "java": "new ObjectId()",
       "csharp": ""
     },
