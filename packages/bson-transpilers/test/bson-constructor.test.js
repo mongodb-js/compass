@@ -15,16 +15,16 @@ const parseResult = parse(fs.readFileSync(path.join(__dirname, './language-conve
 if (parseResult.err) throw new Error(parseResult.err.message);
 const constructorJSON = parseResult.value;
 
-const languages = constructorJSON.inputLanguages;
+const languages = constructorJSON.languages;
 const bsonTypes = constructorJSON.bsonTypes;
 
 languages.forEach((lang) => {
   if (lang === 'python') {
     const generator = pythonVisitor;
-    runConstructorTests('javascript', lang, generator);
+    runConstructorTests('query', lang, generator);
   } else if (lang === 'java') {
     const generator = javaVisitor;
-    runConstructorTests('javascript', lang, generator);
+    runConstructorTests('query', lang, generator);
   }
 });
 

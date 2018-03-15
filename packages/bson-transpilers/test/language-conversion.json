@@ -1,207 +1,206 @@
 {
-  "inputLanguages": [
-    "javascript",
+  "languages": [
     "python",
     "java",
     "csharp"
   ],
   "bsonTypes": {
     "code": {
-      "javascript": "new Code('some code')",
+      "query": "new Code('some code')",
       "python": "Code('some code')",
       "java": "new Code(\"some code\")",
       "csharp": ""
     },
     "codeWithoutNew": {
-      "javascript": "Code('some code')",
+      "query": "Code('some code')",
       "python": "Code('some code')",
       "java": "new Code(\"some code\")",
       "csharp": ""
     },
     "codeWithScope": {
-      "javascript": "Code('string', {x: 1})",
-      "python": "Code('string', {'x': 1})",
+      "query": "Code('string', {x: 1})",
+      "python": "Code('string',{'x': 1})",
       "java": "new CodeWithScope(\"string\", new Document().append(\"x\", 1))",
       "csharp": ""
     },
     "codeWithFunction": {
-      "javascript": "Code(function(test) { console.log(test);  })",
+      "query": "Code(function(test) { console.log(test);  })",
       "python": "Code(def f (test): print f(test))",
       "java": "new Code(\"function(test){console.log(test);}\")",
       "csharp": ""
     },
     "oid": {
-      "javascript": "ObjectId()",
+      "query": "ObjectId()",
       "python": "ObjectId()",
       "java": "new ObjectId()",
       "csharp": ""
     },
     "oidWithNew": {
-      "javascript": "new ObjectId()",
-      "python": "new ObjectId()",
+      "query": "new ObjectId()",
+      "python": "ObjectId()",
       "java": "new ObjectId()",
       "csharp": ""
     },
     "oidWithId": {
-      "javascript": "ObjectId('5a7382114ec1f67ae445f778')",
+      "query": "ObjectId('5a7382114ec1f67ae445f778')",
       "python": "ObjectId('5a7382114ec1f67ae445f778')",
       "java": "new ObjectId(\"5a7382114ec1f67ae445f778\")",
       "csharp": ""
     },
     "bin": {
-      "javascript": "Binary(Buffer.from('a string'))",
+      "query": "Binary(Buffer.from('a string'))",
       "python": "Binary('a string')",
       "java": "new Binary(org.bson.BsonBinarySubType.BINARY, \"a string\".getBytes(\"UTF-8\"))",
       "csharp": ""
     },
     "binWithSubtype": {
-      "javascript": "new Binary(Buffer.from(\"a string\"), Binary.SUBTYPE_UUID)",
+      "query": "new Binary(Buffer.from(\"a string\"), Binary.SUBTYPE_UUID)",
       "python": "Binary('a string', Binary.subtype_uuid)",
       "java": "new Binary(org.bson.BsonBinarySubType.UUID, \"a string\".getBytes(\"UTF-8\"))",
       "csharp": ""
     },
     "binWithSubtypeNumber": {
-      "javascript": "Binary(Buffer.from('a string'), '1')",
+      "query": "Binary(Buffer.from('a string'), '1')",
       "python": "Binary('a string', '1')",
       "java": "new Binary(org.bson.BsonBinarySubType.UUID, \"a string\".getBytes(\"UTF-8\"))",
       "csharp": ""
     },
     "dbref": {
-      "javascript": "new DBRef('coll', new ObjectId())",
-      "python": "DBRef('collection', 'objectID')",
-      "java": "new DBRef(\"coll\", new ObjectId())",
+      "query": "new DBRef('coll', new ObjectId())",
+      "python": "DBRef('collection','objectID')",
+      "java": "new DBRef(\"coll\",new ObjectId())",
       "csharp": ""
     },
     "dbrefWithDB": {
-      "javascript": "new DBRef('coll', ObjectId()), 'db'",
-      "python": "DBRef('collection', 'objectID', 'db')",
+      "query": "new DBRef('coll', ObjectId()), 'db'",
+      "python": "DBRef('collection','objectID','db')",
       "java": "new DBRef(\"coll\", new ObjectId(), \"db\")",
       "csharp": ""
     },
     "nd": {
-      "javascript": "Double(3)",
+      "query": "Double(3)",
       "python": "float(3)",
-      "java": "new java.lang.Double(3.00)",
+      "java": "new java.lang.Double(3)",
       "csharp": ""
     },
     "ndAsString": {
-      "javascript": "Double('3')",
+      "query": "Double('3')",
       "python": "float(3)",
       "java": "new java.lang.Double(\"3\")",
       "csharp": ""
     },
     "nl": {
-      "javascript": "new Long(-1, 2147483647)",
+      "query": "new Long(-1, 2147483647)",
       "python": "Int64(-1, 2147483647)",
       "java": "new java.lang.Long(\"9223372036854775807\")",
       "csharp": ""
     },
     "ni": {
-      "javascript": "new Number(2)",
+      "query": "new Number(2)",
       "python": "int(2)",
       "java": "new java.lang.Integer(2)",
       "csharp": ""
     },
     "integerLiteral": {
-      "javascript": "2",
+      "query": "2",
       "python": "2",
       "java": "2",
       "csharp": ""
     },
     "dec128": {
-      "javascript": "new Decimal128('5.00000001')",
+      "query": "new Decimal128('5.00000001')",
       "python": "Decimal128('5.00000001')",
       "java": "new Decimal128(5.00000001)",
       "csharp": ""
     },
     "minkey": {
-      "javascript": "MinKey()",
+      "query": "MinKey()",
       "python": "MinKey()",
       "java": "new MinKey()",
       "csharp": ""
     },
     "minkeyWithNew": {
-      "javascript": "new MinKey()",
+      "query": "new MinKey()",
       "python": "MinKey()",
       "java": "new MinKey()",
       "csharp": ""
     },
     "maxkey": {
-      "javascript": "MaxKey()",
+      "query": "MaxKey()",
       "python": "MaxKey()",
       "java": "new MaxKey()",
       "csharp": ""
     },
     "maxkeyWithNew": {
-      "javascript": "new MaxKey()",
+      "query": "new MaxKey()",
       "python": "MaxKey()",
       "java": "new MaxKey()",
       "csharp": ""
     },
     "isodateAsDate": {
-      "javascript": "new Date('December 17, 1995 03:24:00')",
+      "query": "new Date('December 17, 1995 03:24:00')",
       "python": "datetime.date(1995, 11, 17)",
       "java": "new java.util.Date(819167040000)",
       "csharp": ""
     },
     "isodate": {
-      "javascript": "new Date(819167040000)",
+      "query": "new Date(819167040000)",
       "python": "datetime.date(1995, 11, 17)",
       "java": "new java.util.Date(819167040000)",
       "csharp": ""
     },
     "regexp": {
-      "javascript": "new RegExp('/^[a-z0-9_-]{3,16}$/')",
+      "query": "new RegExp('/^[a-z0-9_-]{3,16}$/')",
       "python": "RegExp('/^[a-z0-9_-]{3,16}$/')",
       "java": "Pattern.compile(\"/^[a-z0-9_-]{3,16}$/\")",
       "csharp": ""
     },
     "bsonRegexp": {
-      "javascript": "new BSONRegExp('/^[a-z0-9_-]{3,16}$/')",
+      "query": "new BSONRegExp('/^[a-z0-9_-]{3,16}$/')",
       "python": "RegExp('/^[a-z0-9_-]{3,16}$/')",
       "java": "Pattern.compile(\"/^[a-z0-9_-]{3,16}$/\")",
       "csharp": ""
     },
     "ts": {
-      "javascript": "Timestamp(10, 100)",
-      "python": "Timestamp(10, 100)",
-      "java": "new BSONTimestamp(10, 100)",
+      "query": "Timestamp(10, 100)",
+      "python": "Timestamp(10,100)",
+      "java": "Timestamp(10, 100)",
       "csharp": ""
     },
     "subdoc": {
-      "javascript": "{x: 1}",
-      "python": "{'x': 1}",
-      "java": "new Document(\"x\", 1)",
+      "query": "{x: 1}",
+      "python": "{'x':1}",
+      "java": "new Document().append(\"x\", 1)",
       "csharp": ""
     },
     "subdocNestedArray": {
-      "javascript": "{x: [1, 2]}",
-      "python": "{'x': [1, 2]}",
-      "java": "new Document(\"x\", Arrays.asList(1, 2))",
+      "query": "{x: [1, 2]}",
+      "python": "{'x':[1,2]}",
+      "java": "new Document().append(\"x\", Arrays.asList(1,2))",
       "csharp": ""
     },
     "subdocNestedDocument": {
-      "javascript": "{x: {y: 2}}",
-      "python": "{'x': {'y': 2}}",
-      "java": "new Document(\"x\", new Document(\"y\", 2))",
+      "query": "{x: {y: 2}}",
+      "python": "{'x':{'y':2}}",
+      "java": "new Document().append(\"x\", new Document().append(\"y\", 2))",
       "csharp": ""
     },
     "subarray": {
-      "javascript": "[1, 2]",
-      "python": "[1, 2]",
-      "java": "Arrays.asList(1, 2)",
+      "query": "[1, 2]",
+      "python": "[1,2]",
+      "java": "Arrays.asList(1,2)",
       "csharp": ""
     },
     "subarrayNestedDocument": {
-      "javascript": "[1, { settings: 'http2' }]",
-      "python": "[1, { 'settings': 'http2' }]",
-      "java": "Arrays.asList(1, new Document(\"settings\", \"http2\"))",
+      "query": "[1, { settings: 'http2' }]",
+      "python": "[1,{'settings':'http2'}]",
+      "java": "Arrays.asList(1,new Document().append(\"settings\", \"http2\"))",
       "csharp": ""
     },
     "subarrayNestedArray": {
-      "javascript": "[1, [2, 3]]",
-      "python": "[1, [2, 3]]",
-      "java": "Arrays.asList(1, Array.asList(2, 3)",
+      "query": "[1, [2, 3]]",
+      "python": "[1,[2,3]]",
+      "java": "Arrays.asList(1,Arrays.asList(2,3))",
       "csharp": ""
     }
   }
