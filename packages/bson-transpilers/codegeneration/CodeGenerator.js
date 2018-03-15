@@ -144,6 +144,25 @@ Visitor.prototype.singleQuoteStringify = function(str) {
   return newStr;
 };
 
+/**
+ * Remove quotes from string
+ *
+ * @param {String} str
+ * @returns {String}
+ */
+Visitor.prototype.removeQuotes = function(str) {
+  let newStr = str;
+
+  if (
+    (str.charAt(0) === '"' && str.charAt(str.length - 1) === '"') ||
+    (str.charAt(0) === '\'' && str.charAt(str.length - 1) === '\'')
+  ) {
+    newStr = str.substr(1, str.length - 2);
+  }
+
+  return newStr;
+};
+
 Visitor.prototype.executeJavascript = function(input) {
   const sandbox = {
     RegExp: RegExp,

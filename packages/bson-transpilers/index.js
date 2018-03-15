@@ -10,10 +10,9 @@ const JavaGenerator = require('./codegeneration/JavaGenerator.js');
  * Compiles an ECMAScript string into another language.
  *
  * @param {String} input
- * @param {antlr4.tree.ParseTreeVisitor} Code generator
- * @returns {String}
+ * @param {antlr4.tree.ParseTreeVisitor} generator
  */
-module.exports = function compileECMAScript(input, generator) {
+const compileECMAScript = function(input, generator) {
   // Create parse tree
   const chars = new antlr4.InputStream(input);
   const lexer = new ECMAScriptLexer.ECMAScriptLexer(chars);
@@ -32,3 +31,15 @@ module.exports = function compileECMAScript(input, generator) {
   // Generate Code
   return generator.visitExpressionSequence(tree);
 };
+
+const input = 'new Code(\'some code\')';
+// const input = '/\\w+\\s/g';
+const visitor = new Python3Generator();
+const visitor2 = new JavaGenerator();
+
+console.log('input:');
+console.log(input);
+console.log('output:');
+console.log(compileECMAScript(input, visitor));
+
+module.exports = compileECMAScript;
