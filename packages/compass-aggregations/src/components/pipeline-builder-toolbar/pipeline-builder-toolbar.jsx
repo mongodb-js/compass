@@ -15,12 +15,8 @@ class PipelineBuilderToolbar extends PureComponent {
     stageAdded: PropTypes.func.isRequired,
     viewChanged: PropTypes.func.isRequired,
     copyToClipboard: PropTypes.func.isRequired,
-    savePipelineModalToggle: PropTypes.func.isRequired
+    saveCurrentPipeline: PropTypes.func.isRequired
   }
-
-  onSavePipelineModalToggle = () => {
-    this.props.savePipelineModalToggle(1);
-  };
 
   /**
    * Renders the pipeline builder toolbar.
@@ -64,12 +60,17 @@ class PipelineBuilderToolbar extends PureComponent {
           title="New Pipeline"
           className={savePipelineClassName}
           iconClassName="fa fa-file-o"
-          clickHandler={this.onSavePipelineModalToggle} />
+          clickHandler={this.props.saveCurrentPipeline} />
+        <IconButton
+          title="Clone Pipeline"
+          className={savePipelineClassName}
+          iconClassName="fa fa-clone"
+          clickHandler={this.props.saveCurrentPipeline} />
         <IconButton
           title="Save Pipeline"
           className={savePipelineClassName}
           iconClassName="fa fa-save"
-          clickHandler={this.onSavePipelineModalToggle} />
+          clickHandler={this.props.saveCurrentPipeline} />
       </div>
     );
   }

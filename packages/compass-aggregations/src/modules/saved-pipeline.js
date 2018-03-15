@@ -5,8 +5,7 @@ const PREFIX = 'aggregations/saved-pipeline';
 
 // constants for save state modal
 export const SAVED_PIPELINES_LIST_TOGGLED = `${PREFIX}/LIST_TOGGLED`;
-export const SAVE_PIPELINE_MODAL_TOGGLED = `${PREFIX}/MODAL_TOGGLED`;
-export const SAVE_MODAL_ERROR_TOGGLED = `${PREFIX}/ERROR_TOGGLED`;
+export const PIPELINE_NAME_INVALID = `${PREFIX}/PIPELINE_NAME_INVALID`;
 
 export const SAVED_PIPELINE_ADD = `${PREFIX}/ADD`;
 
@@ -14,8 +13,7 @@ export const INITIAL_STATE = {
   pipelines: [],
   isLoaded: false,
   isListVisible: false,
-  isModalVisible: false,
-  isModalError: false
+  isNameValid: true
 };
 
 const copyState = (state) => Object.assign({}, state);
@@ -26,16 +24,8 @@ const toggleSavedPipelinesList = (state, action) => {
   return newState;
 };
 
-const toggleSavePipelineModal = (state, action) => {
-  const newState = copyState(state);
-  newState.isModalVisible = !!action.index;
-  return newState;
-};
-
-const toggleSaveModalError = (state, action) => {
-  const newState = copyState(state);
-  newState.isModalError = !!action.index;
-  return newState;
+const doPipelineNameInvalid = (state, action) => {
+  return { ...state, isNameValid: action.isValid };
 };
 
 const addSavedPipeline = (state, action) => {
@@ -45,9 +35,8 @@ const addSavedPipeline = (state, action) => {
 const MAPPINGS = {};
 
 MAPPINGS[SAVED_PIPELINES_LIST_TOGGLED] = toggleSavedPipelinesList;
-MAPPINGS[SAVE_PIPELINE_MODAL_TOGGLED] = toggleSavePipelineModal;
-MAPPINGS[SAVE_MODAL_ERROR_TOGGLED] = toggleSaveModalError;
 MAPPINGS[SAVED_PIPELINE_ADD] = addSavedPipeline;
+MAPPINGS[PIPELINE_NAME_INVALID] = doPipelineNameInvalid;
 
 export default function reducer(state = INITIAL_STATE, action) {
   const fn = MAPPINGS[action.type];
@@ -64,20 +53,14 @@ export const savedPipelinesListToggle = (index) => ({
   index: index
 });
 
-export const savePipelineModalToggle = (index) => ({
-  type: SAVE_PIPELINE_MODAL_TOGGLED,
-  index: index
-});
-
-export const saveModalErrorToggle = (index, err) => ({
-  type: SAVE_MODAL_ERROR_TOGGLED,
-  index: index,
-  error: err
-});
-
 export const savedPipelineAdd = (pipelines) => ({
   type: SAVED_PIPELINE_ADD,
   pipelines: pipelines
+});
+
+export const pipelineNameValid = (isValid) => ({
+  type: PIPELINE_NAME_INVALID,
+  isValid: isValid
 });
 
 export const getSavedPipelines = () => {
@@ -112,12 +95,15 @@ export const updatePipelineList = () => {
  *
  * @returns {Object} The action.
  */
-export const saveCurrentPipeline = (pipelineName) => {
+export const saveCurrentPipeline = () => {
   return (dispatch, getState) => {
     const state = getState();
-    // don't want the modal that triggers this save to show up when the user
-    // restores the pipeline o/
-    state.savedPipeline.isModalVisible = false;
+
+    if (state.name.trim() === '') {
+      return dispatch(pipelineNameValid(false));
+    }
+    dispatch(pipelineNameValid(true));
+
     const id = state.id || new ObjectId().toHexString();
 
     const pipeline = state.pipeline.map((stage) => {
@@ -128,7 +114,7 @@ export const saveCurrentPipeline = (pipelineName) => {
       , { namespace: state.namespace }
       , { pipeline: pipeline }
       , { view: state.view }
-      , { name: pipelineName }
+      , { name: state.name }
       , { id: id }
     );
 
@@ -136,13 +122,7 @@ export const saveCurrentPipeline = (pipelineName) => {
       const putRequest = store.put(stateRecord, id);
 
       putRequest.onsuccess = () => {
-        dispatch(savedPipelinesListToggle(1));
-        dispatch(savePipelineModalToggle(0));
         dispatch(updatePipelineList());
-      };
-
-      putRequest.onerror = (error) => {
-        dispatch(saveModalErrorToggle(1, error));
       };
     });
   };

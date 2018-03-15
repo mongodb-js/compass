@@ -4,7 +4,6 @@ import classnames from 'classnames';
 import PipelineToolbar from 'components/pipeline-toolbar';
 import PipelineWorkspace from 'components/pipeline-workspace';
 import SavePipeline from 'components/save-pipeline';
-import SavePipelineModal from 'components/save-pipeline-modal';
 import RestorePipelineModal from 'components/restore-pipeline-modal';
 
 import styles from './pipeline.less';
@@ -26,12 +25,13 @@ class Pipeline extends PureComponent {
     stageOperatorSelected: PropTypes.func.isRequired,
     stageToggled: PropTypes.func.isRequired,
     savedPipeline: PropTypes.object.isRequired,
-    savePipelineModalToggle: PropTypes.func.isRequired,
+    saveCurrentPipeline: PropTypes.func.isRequired,
     restorePipeline: PropTypes.object.isRequired,
     copyToClipboard: PropTypes.func.isRequired,
     viewChanged: PropTypes.func.isRequired,
     view: PropTypes.string.isRequired,
     fields: PropTypes.array.isRequired,
+    nameChanged: PropTypes.func.isRequired,
     name: PropTypes.string
   }
 
@@ -44,9 +44,6 @@ class Pipeline extends PureComponent {
     const savePipeline = this.props.savedPipeline.isListVisible
       ? <SavePipeline {...this.props} />
       : null;
-    const savePipelineModal = this.props.savedPipeline.isModalVisible
-      ? <SavePipelineModal {...this.props} />
-      : null;
     const restorePipelineModal = this.props.restorePipeline.isModalVisible
       ? <RestorePipelineModal {...this.props} />
       : null;
@@ -58,12 +55,13 @@ class Pipeline extends PureComponent {
           stageAdded={this.props.stageAdded}
           viewChanged={this.props.viewChanged}
           copyToClipboard={this.props.copyToClipboard}
-          savePipelineModalToggle={this.props.savePipelineModalToggle}
+          saveCurrentPipeline={this.props.saveCurrentPipeline}
+          savedPipeline={this.props.savedPipeline}
+          nameChanged={this.props.nameChanged}
           name={this.props.name} />
         <div className={classnames(styles['pipeline-separator'])}></div>
         <PipelineWorkspace {...this.props} />
         { savePipeline }
-        { savePipelineModal }
         { restorePipelineModal }
       </div>
     );

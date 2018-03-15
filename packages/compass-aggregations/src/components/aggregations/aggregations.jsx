@@ -4,6 +4,7 @@ import classnames from 'classnames';
 import OffCanvas from 'components/off-canvas';
 import Pipeline from 'components/pipeline';
 import { namespaceChanged } from 'modules/namespace';
+import { nameChanged } from 'modules/name';
 import {
   toggleInputDocumentsCollapsed,
   refreshInputDocuments
@@ -24,8 +25,6 @@ import {
 } from 'modules/pipeline';
 import {
   savedPipelinesListToggle,
-  savePipelineModalToggle,
-  saveModalErrorToggle,
   saveCurrentPipeline,
   savedPipelineAdd,
   getSavedPipelines
@@ -83,6 +82,7 @@ const MappedAggregations = connect(
   mapStateToProps,
   {
     namespaceChanged,
+    nameChanged,
     toggleInputDocumentsCollapsed,
     refreshInputDocuments,
     deletePipeline,
@@ -97,8 +97,6 @@ const MappedAggregations = connect(
     viewChanged,
     copyToClipboard,
     savedPipelinesListToggle,
-    savePipelineModalToggle,
-    saveModalErrorToggle,
     saveCurrentPipeline,
     savedPipelineAdd,
     getSavedPipelines,

@@ -26,7 +26,8 @@ describe('PipelineToolbar [Component]', () => {
         view={CODE}
         stageAdded={stageAddedSpy}
         viewChanged={viewChangedSpy}
-        savePipelineModalToggle={saveSpy}
+        saveCurrentPipeline={saveSpy}
+        savedPipeline={{ isNameValid: true }}
         copyToClipboard={copyToClipboardSpy} />
     );
   });

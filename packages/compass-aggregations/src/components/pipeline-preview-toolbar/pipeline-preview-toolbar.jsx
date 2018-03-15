@@ -9,8 +9,15 @@ import styles from './pipeline-preview-toolbar.less';
  */
 class PipelinePreviewToolbar extends PureComponent {
   static displayName = 'PipelinePreviewToolbarComponent';
+
   static propTypes = {
-    name: PropTypes.string
+    nameChanged: PropTypes.func.isRequired,
+    name: PropTypes.string.isRequired,
+    isValid: PropTypes.bool.isRequired
+  }
+
+  onNameChange = (evt) => {
+    this.props.nameChanged(evt.target.value);
   }
 
   /**
@@ -19,9 +26,19 @@ class PipelinePreviewToolbar extends PureComponent {
    * @returns {React.Component} The component.
    */
   render() {
+    const inputClassName = classnames({
+      [ styles['pipeline-preview-toolbar-name']]: true,
+      [ styles['pipeline-preview-toolbar-name-is-invalid']]: !this.props.isValid
+    });
     return (
       <div className={classnames(styles['pipeline-preview-toolbar'])}>
-        {this.props.name}
+        <input
+          placeholder="Enter a pipeline name to save..."
+          onChange={this.onNameChange}
+          className={inputClassName}
+          type="text"
+          value={this.props.name} />
+        <div className={classnames(styles['pipeline-preview-toolbar-spacer'])}></div>
       </div>
     );
   }

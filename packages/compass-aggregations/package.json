@@ -28,7 +28,6 @@
   "license": "Apache-2.0",
   "peerDependencies": {
     "@mongodb-js/compass-crud": "^3.0.1",
-    "hadron-react-components": "^1.9.1",
     "prop-types": "^15.5.8",
     "react": "^15.5.4",
     "react-bootstrap": "0.31.0",
@@ -66,7 +65,6 @@
     "font-awesome": "^4.7.0",
     "hadron-app": "^2.2.0",
     "hadron-app-registry": "^7.1.0",
-    "hadron-react-components": "^1.9.1",
     "html-webpack-plugin": "^2.28.0",
     "ignore-loader": "^0.1.2",
     "istanbul-instrumenter-loader": "^3.0.0",
