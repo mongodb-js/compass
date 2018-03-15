@@ -137,7 +137,6 @@ Visitor.prototype.visitBSONDBRefConstructor = function(ctx) {
       arguments.getChild(1).getChildCount() === 3)) {
     return "Error: DBRef requires two or three arguments";
   }
-  // TODO: Should we check types or implicitly case to Java expected type?
   const argList = arguments.getChild(1);
   const ns = this.visit(argList.getChild(0));
   if(argList.getChild(0).type !== this.types.STRING) {
@@ -191,8 +190,10 @@ Visitor.prototype.visitBSONMinKeyConstructor = function(ctx) {
 };
 
 Visitor.prototype.visitDateConstructorExpression = function(ctx) {
-  // TODO: any Date.now() calls should stay as now calls in java
-  // TODO: test JS input formats
+  const arguments = ctx.getChild(1);
+  if(arguments.getChildCount() === 2) {
+    return 'new Date()';
+  }
   let epoch;
   try {
     epoch = this.executeJavascript(ctx.getText()).getTime();
