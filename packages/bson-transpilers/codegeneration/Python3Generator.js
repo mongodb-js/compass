@@ -100,7 +100,7 @@ Visitor.prototype.visitBSONCodeConstructor = function(ctx) {
       return 'Error: Code requires scope to be an object';
     }
 
-    return `new Code(${code}, ${scope})`;
+    return `Code(${code}, ${scope})`;
   }
 
   return `Code(${code})`;
@@ -180,10 +180,10 @@ Visitor.prototype.visitBSONBinaryConstructor = function(ctx) {
   const bytes = this.singleQuoteStringify(binobj.toString());
 
   if (args.getChild(1).getChildCount() === 1) {
-    return `new Binary(bytes(${bytes}, 'utf-8'))`;
+    return `Binary(bytes(${bytes}, 'utf-8'))`;
   }
 
-  return `new Binary(bytes(${bytes}, 'utf-8'), ${subtypes[type]})`;
+  return `Binary(bytes(${bytes}, 'utf-8'), ${subtypes[type]})`;
 };
 
 /**

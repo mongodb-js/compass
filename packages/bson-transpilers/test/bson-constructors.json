@@ -23,14 +23,14 @@
       {
         "description": "Code with string code and object scope",
         "query": "Code('string', {x: 1})",
-        "python": "Code('string',{'x': 1})",
+        "python": "Code('string', {'x': 1})",
         "java": "new CodeWithScope(\"string\", new Document().append(\"x\", 1))",
         "csharp": ""
       },
       {
         "description": "Code with function code",
         "query": "Code(function(test) { console.log(test);  })",
-        "python": "Code(def f (test): print f(test))",
+        "python": "Code('function(test){console.log(test);}')",
         "java": "new Code(\"function(test){console.log(test);}\")",
         "csharp": ""
       }
@@ -62,21 +62,21 @@
       {
         "description": "Binary with ascii buffer arg",
         "query": "Binary(Buffer.from('a string'))",
-        "python": "Binary('a string')",
+        "python": "Binary(bytes('a string', 'utf-8'))",
         "java": "new Binary(org.bson.BsonBinarySubType.BINARY, \"a string\".getBytes(\"UTF-8\"))",
         "csharp": ""
       },
       {
         "description": "new Binary with (ascii buffer, UUID subtype enum) args",
         "query": "new Binary(Buffer.from(\"a string\"), Binary.SUBTYPE_UUID)",
-        "python": "Binary('a string', Binary.subtype_uuid)",
+        "python": "Binary(bytes('a string', 'utf-8'), bson.binary.UUID_SUBTYPE)",
         "java": "new Binary(org.bson.BsonBinarySubType.UUID, \"a string\".getBytes(\"UTF-8\"))",
         "csharp": ""
       },
       {
         "description": "Binary with (ascii buffer, number) args",
         "query": "Binary(Buffer.from('a string'), '1')",
-        "python": "Binary('a string', '1')",
+        "python": "Binary(bytes('a string', 'utf-8'), bson.binary.FUNCTION_SUBTYPE)",
         "java": "new Binary(org.bson.BsonBinarySubType.FUNCTION, \"a string\".getBytes(\"UTF-8\"))",
         "csharp": ""
       }
@@ -85,14 +85,14 @@
       {
         "description": "new DBRef with (string, ObjectID) args",
         "query": "new DBRef('coll', new ObjectId())",
-        "python": "DBRef('collection','objectID')",
-        "java": "new DBRef(\"coll\",new ObjectId())",
+        "python": "DBRef('coll', ObjectID())",
+        "java": "new DBRef(\"coll\", new ObjectId())",
         "csharp": ""
       },
       {
         "description": "new DBRef with (string, ObjectId, string) args",
-        "query": "new DBRef('coll', ObjectId()), 'db'",
-        "python": "DBRef('collection','objectID','db')",
+        "query": "new DBRef('coll', ObjectId(), 'db'",
+        "python": "DBRef('collection', 'objectID', 'db')",
         "java": "new DBRef(\"coll\", new ObjectId(), \"db\")",
         "csharp": ""
       }
@@ -117,7 +117,7 @@
       {
         "description": "Long with two number args",
         "query": "new Long(-1, 2147483647)",
-        "python": "Int64(-1, 2147483647)",
+        "python": "Int64(9223372036854775807)",
         "java": "new java.lang.Long(\"9223372036854775807\")",
         "csharp": ""
       }
