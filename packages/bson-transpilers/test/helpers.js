@@ -17,7 +17,7 @@ const generators = {
 const unsupported = {
   java: [
     'RegExp', 'BsonRegExp', 'Decimal128', 'Timestamp',
-    'Number'
+    'Number', 'Date'
   ],
   python: [
     'RegExp', 'BsonRegExp', 'DBRef', 'Decimal128', 'Timestamp', 'Symbol',
