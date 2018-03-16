@@ -144,7 +144,7 @@ module.exports = [
       'is multi key': state.isMultiKey,
       'is sharded': state.isSharded,
       'index type': state.indexType,
-      'index': state.index,
+      'index': state.index ? state.index.serialize() : null,
       'number of docs returned': state.nReturned,
       'number of shards': state.numShards,
       'total docs examined': state.totalDocsExamined,
