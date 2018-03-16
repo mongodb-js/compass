@@ -204,9 +204,16 @@
     ],
     "Array": [
       {
-        "description": "[1, 2}",
+        "description": "[1, 2]",
         "query": "[1, 2]",
         "python": "[1, 2]",
+        "java": "Arrays.asList(1, 2)",
+        "csharp": ""
+      },
+      {
+        "description": "arrat with trailing comma",
+        "query": "[1, 2,]",
+        "python": "[1, 2,]",
         "java": "Arrays.asList(1, 2)",
         "csharp": ""
       },

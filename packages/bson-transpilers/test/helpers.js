@@ -15,8 +15,14 @@ const generators = {
 
 // Need a way to have test pass while developing
 const unsupported = {
-  java: ['RegExp', 'BsonRegExp', 'Decimal128', 'Timestamp'],
-  python: ['RegExp', 'BsonRegExp', 'DBRef', 'Decimal128', 'Timestamp', 'Symbol']
+  java: [
+    'RegExp', 'BsonRegExp', 'Decimal128', 'Timestamp',
+    'Number'
+  ],
+  python: [
+    'RegExp', 'BsonRegExp', 'DBRef', 'Decimal128', 'Timestamp', 'Symbol',
+    'Number', 'Date'
+  ]
 };
 
 const readJSON = (filename) => {
