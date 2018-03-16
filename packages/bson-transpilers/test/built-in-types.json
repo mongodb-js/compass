@@ -1,0 +1,96 @@
+{
+  "languages": [
+    "python",
+    "java",
+    "csharp"
+  ],
+  "types": {
+    "Number": [
+      {
+        "query": "new Number(2)",
+        "python": "int(2)",
+        "java": "new java.lang.Integer(2)",
+        "csharp": ""
+      }
+    ],
+    "Number literals": [
+      {
+        "query": "2",
+        "python": "2",
+        "java": "2",
+        "csharp": ""
+      }
+    ],
+    "Date": [
+      {
+        "description": "new Date with ISO String",
+        "query": "new Date('December 17, 1995 03:24:00')",
+        "python": "datetime.date(1995, 11, 17)",
+        "java": "new java.util.Date(819167040000)",
+        "csharp": ""
+      },
+      {
+        "description": "new Date with UTC number",
+        "query": "new Date(819167040000)",
+        "python": "datetime.date(1995, 11, 17)",
+        "java": "new java.util.Date(819167040000)",
+        "csharp": ""
+      }
+    ],
+    "RegExp": [
+      {
+        "description": "new RegExp with string arg",
+        "query": "new RegExp('/^[a-z0-9_-]{3,16}$/')",
+        "python": "RegExp('/^[a-z0-9_-]{3,16}$/')",
+        "java": "Pattern.compile(\"/^[a-z0-9_-]{3,16}$/\")",
+        "csharp": ""
+      }
+    ],
+    "Document": [
+      {
+        "description": "{x: 1}",
+        "query": "{x: 1}",
+        "python": "{'x':1}",
+        "java": "new Document().append(\"x\", 1)",
+        "csharp": ""
+      },
+      {
+        "description": "Doc with array",
+        "query": "{x: [1, 2]}",
+        "python": "{'x':[1,2]}",
+        "java": "new Document().append(\"x\", Arrays.asList(1,2))",
+        "csharp": ""
+      },
+      {
+        "description": "Doc with subdoc",
+        "query": "{x: {y: 2}}",
+        "python": "{'x':{'y':2}}",
+        "java": "new Document().append(\"x\", new Document().append(\"y\", 2))",
+        "csharp": ""
+      }
+    ],
+    "Array": [
+      {
+        "description": "[1, 2}",
+        "query": "[1, 2]",
+        "python": "[1,2]",
+        "java": "Arrays.asList(1,2)",
+        "csharp": ""
+      },
+      {
+        "description": "Array with subdoc",
+        "query": "[1, { settings: 'http2' }]",
+        "python": "[1,{'settings':'http2'}]",
+        "java": "Arrays.asList(1,new Document().append(\"settings\", \"http2\"))",
+        "csharp": ""
+      },
+      {
+        "description": "Array with subarray",
+        "query": "[1, [2, 3]]",
+        "python": "[1,[2,3]]",
+        "java": "Arrays.asList(1,Arrays.asList(2,3))",
+        "csharp": ""
+      }
+    ]
+  }
+}

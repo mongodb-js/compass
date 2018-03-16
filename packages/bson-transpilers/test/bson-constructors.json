@@ -1,0 +1,183 @@
+{
+  "languages": [
+    "python",
+    "java",
+    "csharp"
+  ],
+  "bsonTypes": {
+    "Code": [
+      {
+        "description": "new Code with string arg",
+        "query": "new Code('some code')",
+        "python": "Code('some code')",
+        "java": "new Code(\"some code\")",
+        "csharp": ""
+      },
+      {
+        "description": "Code with string code",
+        "query": "Code('some code')",
+        "python": "Code('some code')",
+        "java": "new Code(\"some code\")",
+        "csharp": ""
+      },
+      {
+        "description": "Code with string code and object scope",
+        "query": "Code('string', {x: 1})",
+        "python": "Code('string',{'x': 1})",
+        "java": "new CodeWithScope(\"string\", new Document().append(\"x\", 1))",
+        "csharp": ""
+      },
+      {
+        "description": "Code with function code",
+        "query": "Code(function(test) { console.log(test);  })",
+        "python": "Code(def f (test): print f(test))",
+        "java": "new Code(\"function(test){console.log(test);}\")",
+        "csharp": ""
+      }
+    ],
+    "ObjectId": [
+      {
+        "description": "ObjectId with no arg",
+        "query": "ObjectId()",
+        "python": "ObjectId()",
+        "java": "new ObjectId()",
+        "csharp": ""
+      },
+      {
+        "description": "new ObjectId with no arg",
+        "query": "new ObjectId()",
+        "python": "ObjectId()",
+        "java": "new ObjectId()",
+        "csharp": ""
+      },
+      {
+        "description": "ObjectId with hex string arg",
+        "query": "ObjectId('5a7382114ec1f67ae445f778')",
+        "python": "ObjectId('5a7382114ec1f67ae445f778')",
+        "java": "new ObjectId(\"5a7382114ec1f67ae445f778\")",
+        "csharp": ""
+      }
+    ],
+    "Binary": [
+      {
+        "description": "Binary with ascii buffer arg",
+        "query": "Binary(Buffer.from('a string'))",
+        "python": "Binary('a string')",
+        "java": "new Binary(org.bson.BsonBinarySubType.BINARY, \"a string\".getBytes(\"UTF-8\"))",
+        "csharp": ""
+      },
+      {
+        "description": "new Binary with (ascii buffer, UUID subtype enum) args",
+        "query": "new Binary(Buffer.from(\"a string\"), Binary.SUBTYPE_UUID)",
+        "python": "Binary('a string', Binary.subtype_uuid)",
+        "java": "new Binary(org.bson.BsonBinarySubType.UUID, \"a string\".getBytes(\"UTF-8\"))",
+        "csharp": ""
+      },
+      {
+        "description": "Binary with (ascii buffer, number) args",
+        "query": "Binary(Buffer.from('a string'), '1')",
+        "python": "Binary('a string', '1')",
+        "java": "new Binary(org.bson.BsonBinarySubType.FUNCTION, \"a string\".getBytes(\"UTF-8\"))",
+        "csharp": ""
+      }
+    ],
+    "DBRef": [
+      {
+        "description": "new DBRef with (string, ObjectID) args",
+        "query": "new DBRef('coll', new ObjectId())",
+        "python": "DBRef('collection','objectID')",
+        "java": "new DBRef(\"coll\",new ObjectId())",
+        "csharp": ""
+      },
+      {
+        "description": "new DBRef with (string, ObjectId, string) args",
+        "query": "new DBRef('coll', ObjectId()), 'db'",
+        "python": "DBRef('collection','objectID','db')",
+        "java": "new DBRef(\"coll\", new ObjectId(), \"db\")",
+        "csharp": ""
+      }
+    ],
+    "Double": [
+      {
+        "description": "Double with number arg",
+        "query": "Double(3)",
+        "python": "float(3)",
+        "java": "new java.lang.Double(3)",
+        "csharp": ""
+      },
+      {
+        "description": "Double with valid string arg",
+        "query": "Double('3')",
+        "python": "float(3)",
+        "java": "new java.lang.Double(\"3\")",
+        "csharp": ""
+      }
+    ],
+    "Long": [
+      {
+        "description": "Long with two number args",
+        "query": "new Long(-1, 2147483647)",
+        "python": "Int64(-1, 2147483647)",
+        "java": "new java.lang.Long(\"9223372036854775807\")",
+        "csharp": ""
+      }
+    ],
+    "Decimal128": [
+      {
+        "description": "new Decimal128 with string arg",
+        "query": "new Decimal128('5.00000001')",
+        "python": "Decimal128('5.00000001')",
+        "java": "new Decimal128(5.00000001)",
+        "csharp": ""
+      }
+    ],
+    "MinKey/MaxKey": [
+      {
+        "description": "MinKey",
+        "query": "MinKey()",
+        "python": "MinKey()",
+        "java": "new MinKey()",
+        "csharp": ""
+      },
+      {
+        "description": "new MinKey",
+        "query": "new MinKey()",
+        "python": "MinKey()",
+        "java": "new MinKey()",
+        "csharp": ""
+      },
+      {
+        "description": "maxKey",
+        "query": "MaxKey()",
+        "python": "MaxKey()",
+        "java": "new MaxKey()",
+        "csharp": ""
+      },
+      {
+        "description": "new MaxKey",
+        "query": "new MaxKey()",
+        "python": "MaxKey()",
+        "java": "new MaxKey()",
+        "csharp": ""
+      }
+    ],
+    "BsonRegExp": [
+      {
+        "description": "new BSONRegExp with string arg",
+        "query": "new BSONRegExp('/^[a-z0-9_-]{3,16}$/')",
+        "python": "RegExp('/^[a-z0-9_-]{3,16}$/')",
+        "java": "Pattern.compile(\"/^[a-z0-9_-]{3,16}$/\")",
+        "csharp": ""
+      }
+    ],
+    "Timestamp": [
+      {
+        "description": "Timestamp with two number args",
+        "query": "Timestamp(10, 100)",
+        "python": "Timestamp(10,100)",
+        "java": "Timestamp(10, 100)",
+        "csharp": ""
+      }
+    ]
+  }
+}
