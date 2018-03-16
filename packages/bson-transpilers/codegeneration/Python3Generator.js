@@ -68,6 +68,10 @@ Visitor.prototype.visitObjectLiteral = function(ctx) {
   return this.visitChildren(ctx);
 };
 
+Visitor.prototype.visitElementList = function(ctx) {
+  return this.visitChildren(ctx, { step: 2, separator: ', '});
+};
+
 /**
  * Visit Code Constructor
  *

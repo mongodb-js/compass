@@ -32,4 +32,7 @@ const compileECMAScript = function(input, generator) {
   return generator.visitExpressionSequence(tree);
 };
 
+const input = '[1, 2]';
+console.log(compileECMAScript(input, new JavaGenerator()));
+
 module.exports = compileECMAScript;

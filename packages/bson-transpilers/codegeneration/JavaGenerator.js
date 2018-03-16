@@ -35,6 +35,10 @@ Visitor.prototype.visitPropertyNameAndValueList = function(ctx) {
   return this.visitChildren(ctx, {step: 2});
 };
 
+Visitor.prototype.visitElementList = function(ctx) {
+  return this.visitChildren(ctx, { step: 2, separator: ', '});
+};
+
 Visitor.prototype.visitPropertyExpressionAssignment = function(ctx) {
   const key = this.doubleQuoteStringify(this.visit(ctx.getChild(0)));
   const value = this.visit(ctx.getChild(2));

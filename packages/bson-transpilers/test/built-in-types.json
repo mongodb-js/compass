@@ -45,52 +45,6 @@
         "java": "Pattern.compile(\"/^[a-z0-9_-]{3,16}$/\")",
         "csharp": ""
       }
-    ],
-    "Document": [
-      {
-        "description": "{x: 1}",
-        "query": "{x: 1}",
-        "python": "{'x':1}",
-        "java": "new Document().append(\"x\", 1)",
-        "csharp": ""
-      },
-      {
-        "description": "Doc with array",
-        "query": "{x: [1, 2]}",
-        "python": "{'x':[1,2]}",
-        "java": "new Document().append(\"x\", Arrays.asList(1,2))",
-        "csharp": ""
-      },
-      {
-        "description": "Doc with subdoc",
-        "query": "{x: {y: 2}}",
-        "python": "{'x':{'y':2}}",
-        "java": "new Document().append(\"x\", new Document().append(\"y\", 2))",
-        "csharp": ""
-      }
-    ],
-    "Array": [
-      {
-        "description": "[1, 2}",
-        "query": "[1, 2]",
-        "python": "[1,2]",
-        "java": "Arrays.asList(1,2)",
-        "csharp": ""
-      },
-      {
-        "description": "Array with subdoc",
-        "query": "[1, { settings: 'http2' }]",
-        "python": "[1,{'settings':'http2'}]",
-        "java": "Arrays.asList(1,new Document().append(\"settings\", \"http2\"))",
-        "csharp": ""
-      },
-      {
-        "description": "Array with subarray",
-        "query": "[1, [2, 3]]",
-        "python": "[1,[2,3]]",
-        "java": "Arrays.asList(1,Arrays.asList(2,3))",
-        "csharp": ""
-      }
     ]
   }
 }
