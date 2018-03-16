@@ -135,24 +135,22 @@ module.exports = [
     resource: 'Explain',
     action: 'fetched',
     condition: () => true,
-    metadata: (state) => {
-      return {
-        'view mode': state.viewType,
-        'execution time ms': state.executionTimeMillis,
-        'in memory sort': state.inMemorySort,
-        'is collection scan': state.isCollectionScan,
-        'is covered': state.isCovered,
-        'is multi key': state.isMultiKey,
-        'is sharded': state.isSharded,
-        'index type': state.indexType,
-        'index': state.index ? state.index.serialize() : null,
-        'number of docs returned': state.nReturned,
-        'number of shards': state.numShards,
-        'total docs examined': state.totalDocsExamined,
-        'total keys examined': state.totalKeysExamined,
-        'index used': state.usedIndex
-      }
-    }
+    metadata: (state) => ({
+      'view mode': state.viewType,
+      'execution time ms': state.executionTimeMillis,
+      'in memory sort': state.inMemorySort,
+      'is collection scan': state.isCollectionScan,
+      'is covered': state.isCovered,
+      'is multi key': state.isMultiKey,
+      'is sharded': state.isSharded,
+      'index type': state.indexType,
+      'index': state.index ? state.index.serialize() : null,
+      'number of docs returned': state.nReturned,
+      'number of shards': state.numShards,
+      'total docs examined': state.totalDocsExamined,
+      'total keys examined': state.totalKeysExamined,
+      'index used': state.usedIndex
+    })
   },
   {
     registryEvent: 'open-export',
