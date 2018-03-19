@@ -15,6 +15,8 @@ function Visitor() {
 Visitor.prototype = Object.create(ECMAScriptVisitor.prototype);
 Visitor.prototype.constructor = Visitor;
 
+Visitor.prototype.start = Visitor.prototype.visitExpressionSequence;
+
 Visitor.prototype.types = Object.freeze({
   STRING: 0, REGEX: 1,
   BOOL: 10,
