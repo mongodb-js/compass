@@ -161,12 +161,19 @@
         "csharp": ""
       }
     ],
-    "BsonRegExp": [
+    "BSONRegExp": [
       {
         "description": "new BSONRegExp with string arg",
-        "query": "new BSONRegExp('/^[a-z0-9_-]{3,16}$/')",
-        "python": "RegExp('/^[a-z0-9_-]{3,16}$/')",
-        "java": "Pattern.compile(\"/^[a-z0-9_-]{3,16}$/\")",
+        "query": "new BSONRegExp('^[a-z0-9_-]{3,16}$')",
+        "python": "",
+        "java": "new BsonRegularExpression(\"^[a-z0-9_-]{3,16}$\")",
+        "csharp": ""
+      },
+      {
+        "description": "new BSONRegExp with string arg and flags",
+        "query": "new BSONRegExp('^[a-z0-9_-]{3,16}$', 'imuxls')",
+        "python": "",
+        "java": "new BsonRegularExpression(\"^[a-z0-9_-]{3,16}$\", \"imuxls\")",
         "csharp": ""
       }
     ],

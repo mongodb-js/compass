@@ -118,34 +118,34 @@ Visitor.prototype.visitTerminal = function(ctx) {
 // //////////
 /**
  * Takes in an identifier that may or may not be a string and returns a string
- * with double quotes.
+ * with double quotes. Replace any non-escaped double quotes with \"
  * @param {String} str
  * @returns {String}
  */
 Visitor.prototype.doubleQuoteStringify = function(str) {
   let newStr = str;
-  if (str.charAt(0) === '\'' && str.charAt(str.length - 1) === '\'') {
-    newStr = `"${str.substr(1, str.length - 2)}"`;
-  } else if (str.charAt(0) !== '"' && str.charAt(str.length - 1) !== '"') {
-    newStr = `"${str}"`;
+  if (
+    (str.charAt(0) === '\'' && str.charAt(str.length - 1) === '\'') ||
+    (str.charAt(0) === '"' && str.charAt(str.length - 1) === '"')) {
+    newStr = str.substr(1, str.length - 2);
   }
-  return newStr;
+  return `"${newStr.replace(/\\([\s\S])|(")/g, '\\$1$2')}"`;
 };
 
 /**
  * Takes in an identifier that may or may not be a string and returns a string
- * with single quotes.
+ * with single quotes. Replace any non-escaped single quotes with \"
  * @param {String} str
  * @returns {String}
  */
 Visitor.prototype.singleQuoteStringify = function(str) {
   let newStr = str;
-  if (str.charAt(0) === '"' && str.charAt(str.length - 1) === '"') {
-    newStr = `'${str.substr(1, str.length - 2)}'`;
-  } else if (str.charAt(0) !== '\'' && str.charAt(str.length - 1) !== '\'') {
-    newStr = `'${str}'`;
+  if (
+    (str.charAt(0) === '\'' && str.charAt(str.length - 1) === '\'') ||
+    (str.charAt(0) === '"' && str.charAt(str.length - 1) === '"')) {
+    newStr = str.substr(1, str.length - 2);
   }
-  return newStr;
+  return `'${newStr.replace(/\\([\s\S])|(')/g, '\\$1$2')}'`;
 };
 
 /**
@@ -163,7 +163,6 @@ Visitor.prototype.removeQuotes = function(str) {
   ) {
     newStr = str.substr(1, str.length - 2);
   }
-
   return newStr;
 };
 
