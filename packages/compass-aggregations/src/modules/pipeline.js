@@ -418,7 +418,7 @@ const executeAggregation = (dataService, ns, dispatch, state, index) => {
     dataService.aggregate(ns, pipeline, OPTIONS, (err, cursor) => {
       if (err) return dispatch(stagePreviewUpdated([], index, err));
       cursor.batchSize(20).limit(20).toArray((e, docs) => {
-        dispatch(stagePreviewUpdated(docs, index, e));
+        dispatch(stagePreviewUpdated(docs || [], index, e));
         cursor.close();
       });
     });

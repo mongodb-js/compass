@@ -1,5 +1,6 @@
 import EXPRESSION_OPERATORS from 'constants/expression-operators';
 import ACCUMULATORS from 'constants/accumulators';
+import QUERY_OPERATORS from 'constants/query-operators';
 import BSON_TYPES from 'constants/bson-types';
 import semver from 'semver';
 import store from 'stores';
@@ -18,6 +19,11 @@ const PROJECT = '$project';
  * The group stage operator.
  */
 const GROUP = '$group';
+
+/**
+ * The match operator.
+ */
+const MATCH = '$match';
 
 /**
  * The base completions.
@@ -47,6 +53,8 @@ class Completer {
           });
         } else if (stageOperator === GROUP) {
           return ACCUMULATORS;
+        } else if (stageOperator === MATCH) {
+          return QUERY_OPERATORS;
         }
       }
     }
