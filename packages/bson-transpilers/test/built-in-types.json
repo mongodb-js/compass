@@ -17,7 +17,7 @@
         "description": "Number with valid string arg",
         "query": "new Number('2')",
         "python": "int(2)",
-        "java": "new java.lang.Integer(2)",
+        "java": "new java.lang.Integer(\"2\")",
         "csharp": ""
       }
     ],

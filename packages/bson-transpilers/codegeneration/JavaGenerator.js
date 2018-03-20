@@ -46,6 +46,29 @@ Visitor.prototype.visitOctalIntegerLiteral = function(ctx) {
   return oct;
 };
 
+Visitor.prototype.visitNumberConstructorExpression = function(ctx) {
+  const args = ctx.getChild(1);
+
+  if (args.getChildCount() !== 3 || args.getChild(1).getChildCount() !== 1) {
+    return 'Error: Number requires one argument';
+  }
+
+  const number = this.visit(args.getChild(1));
+
+  if (
+    (
+      args.getChild(1).type !== this.types.STRING &&
+      args.getChild(1).type !== this.types.DECIMAL &&
+      args.getChild(1).type !== this.types.INTEGER
+    ) ||
+    isNaN(parseInt(this.removeQuotes(number), 10))
+  ) {
+    return 'Error: Number requires a number or a string argument';
+  }
+
+  return `new java.lang.Integer(${number})`;
+};
+
 Visitor.prototype.visitPropertyNameAndValueList = function(ctx) {
   return this.visitChildren(ctx, {step: 2});
 };
