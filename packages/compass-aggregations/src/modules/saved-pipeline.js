@@ -1,5 +1,5 @@
-import { ObjectId } from 'bson';
 import { getObjectStore } from 'utils/indexed-db';
+import { createId } from 'modules/id';
 
 const PREFIX = 'aggregations/saved-pipeline';
 
@@ -104,7 +104,10 @@ export const saveCurrentPipeline = () => {
     }
     dispatch(pipelineNameValid(true));
 
-    const id = state.id || new ObjectId().toHexString();
+    if (state.id === '') {
+      dispatch(createId());
+    }
+    const id = getState().id;
 
     const pipeline = state.pipeline.map((stage) => {
       return { ...stage, previewDocuments: [] };

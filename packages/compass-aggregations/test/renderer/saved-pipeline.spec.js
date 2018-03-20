@@ -1,11 +1,7 @@
 import reducer, {
   savedPipelinesListToggle,
-  savePipelineModalToggle,
-  saveModalErrorToggle,
   savedPipelineAdd,
   SAVED_PIPELINES_LIST_TOGGLED,
-  SAVE_PIPELINE_MODAL_TOGGLED,
-  SAVE_MODAL_ERROR_TOGGLED,
   SAVED_PIPELINE_ADD
 } from '../../src/modules/saved-pipeline';
 
@@ -15,25 +11,6 @@ describe('saved pipelines module', () => {
       expect(savedPipelinesListToggle(0)).to.deep.equal({
         type: SAVED_PIPELINES_LIST_TOGGLED,
         index: 0
-      });
-    });
-  });
-
-  describe('#saveStateModalOpen', () => {
-    it('returns open modal action type', () => {
-      expect(savePipelineModalToggle(1)).to.deep.equal({
-        type: SAVE_PIPELINE_MODAL_TOGGLED,
-        index: 1
-      });
-    });
-  });
-
-  describe('#saveErrorOpen', () => {
-    it('returns an open error action type', () => {
-      expect(saveModalErrorToggle(1, {})).to.deep.equal({
-        type: SAVE_MODAL_ERROR_TOGGLED,
-        index: 1,
-        error: {}
       });
     });
   });
@@ -54,8 +31,7 @@ describe('saved pipelines module', () => {
           pipelines: [],
           isLoaded: false,
           isListVisible: false,
-          isModalVisible: false,
-          isModalError: false
+          isNameValid: true
         });
       });
     });
@@ -66,8 +42,7 @@ describe('saved pipelines module', () => {
           pipelines: [],
           isLoaded: false,
           isListVisible: true,
-          isModalVisible: false,
-          isModalError: false
+          isNameValid: true
         });
       });
     });
@@ -78,56 +53,7 @@ describe('saved pipelines module', () => {
           pipelines: [],
           isLoaded: false,
           isListVisible: false,
-          isModalVisible: false,
-          isModalError: false
-        });
-      });
-    });
-
-    context('action type is close save modal', () => {
-      it('isModalVisible is set to false', () => {
-        expect(reducer(undefined, savePipelineModalToggle(0))).to.deep.equal({
-          pipelines: [],
-          isLoaded: false,
-          isListVisible: false,
-          isModalVisible: false,
-          isModalError: false
-        });
-      });
-    });
-
-    context('action type is open save modal', () => {
-      it('isModalVisible is set to false', () => {
-        expect(reducer(undefined, savePipelineModalToggle(1))).to.deep.equal({
-          pipelines: [],
-          isLoaded: false,
-          isListVisible: false,
-          isModalVisible: true,
-          isModalError: false
-        });
-      });
-    });
-
-    context('action type is save error open', () => {
-      it('saveError is set to true', () => {
-        expect(reducer(undefined, saveModalErrorToggle(1))).to.deep.equal({
-          pipelines: [],
-          isLoaded: false,
-          isListVisible: false,
-          isModalVisible: false,
-          isModalError: true
-        });
-      });
-    });
-
-    context('action type is save error close', () => {
-      it('saveError is set to false', () => {
-        expect(reducer(undefined, saveModalErrorToggle(0))).to.deep.equal({
-          pipelines: [],
-          isLoaded: false,
-          isListVisible: false,
-          isModalVisible: false,
-          isModalError: false
+          isNameValid: true
         });
       });
     });
@@ -139,8 +65,7 @@ describe('saved pipelines module', () => {
           pipelines: pipelines,
           isLoaded: true,
           isListVisible: false,
-          isModalVisible: false,
-          isModalError: false
+          isNameValid: true
         });
       });
     });
