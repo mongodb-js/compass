@@ -533,6 +533,24 @@ ECMAScriptListener.prototype.exitNotExpression = function(ctx) {
 };
 
 
+// Enter a parse tree produced by ECMAScriptParser#DateNowConstructorExpression.
+ECMAScriptListener.prototype.enterDateNowConstructorExpression = function(ctx) {
+};
+
+// Exit a parse tree produced by ECMAScriptParser#DateNowConstructorExpression.
+ECMAScriptListener.prototype.exitDateNowConstructorExpression = function(ctx) {
+};
+
+
+// Enter a parse tree produced by ECMAScriptParser#NumberConstructorExpression.
+ECMAScriptListener.prototype.enterNumberConstructorExpression = function(ctx) {
+};
+
+// Exit a parse tree produced by ECMAScriptParser#NumberConstructorExpression.
+ECMAScriptListener.prototype.exitNumberConstructorExpression = function(ctx) {
+};
+
+
 // Enter a parse tree produced by ECMAScriptParser#PreDecreaseExpression.
 ECMAScriptListener.prototype.enterPreDecreaseExpression = function(ctx) {
 };
@@ -800,6 +818,15 @@ ECMAScriptListener.prototype.enterBitAndExpression = function(ctx) {
 
 // Exit a parse tree produced by ECMAScriptParser#BitAndExpression.
 ECMAScriptListener.prototype.exitBitAndExpression = function(ctx) {
+};
+
+
+// Enter a parse tree produced by ECMAScriptParser#ObjectCreateConstructorExpression.
+ECMAScriptListener.prototype.enterObjectCreateConstructorExpression = function(ctx) {
+};
+
+// Exit a parse tree produced by ECMAScriptParser#ObjectCreateConstructorExpression.
+ECMAScriptListener.prototype.exitObjectCreateConstructorExpression = function(ctx) {
 };
 
 

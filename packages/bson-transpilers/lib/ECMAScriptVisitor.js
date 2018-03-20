@@ -360,6 +360,18 @@ ECMAScriptVisitor.prototype.visitNotExpression = function(ctx) {
 };
 
 
+// Visit a parse tree produced by ECMAScriptParser#DateNowConstructorExpression.
+ECMAScriptVisitor.prototype.visitDateNowConstructorExpression = function(ctx) {
+  return this.visitChildren(ctx);
+};
+
+
+// Visit a parse tree produced by ECMAScriptParser#NumberConstructorExpression.
+ECMAScriptVisitor.prototype.visitNumberConstructorExpression = function(ctx) {
+  return this.visitChildren(ctx);
+};
+
+
 // Visit a parse tree produced by ECMAScriptParser#PreDecreaseExpression.
 ECMAScriptVisitor.prototype.visitPreDecreaseExpression = function(ctx) {
   return this.visitChildren(ctx);
@@ -536,6 +548,12 @@ ECMAScriptVisitor.prototype.visitIdentifierExpression = function(ctx) {
 
 // Visit a parse tree produced by ECMAScriptParser#BitAndExpression.
 ECMAScriptVisitor.prototype.visitBitAndExpression = function(ctx) {
+  return this.visitChildren(ctx);
+};
+
+
+// Visit a parse tree produced by ECMAScriptParser#ObjectCreateConstructorExpression.
+ECMAScriptVisitor.prototype.visitObjectCreateConstructorExpression = function(ctx) {
   return this.visitChildren(ctx);
 };
 

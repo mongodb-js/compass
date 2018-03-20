@@ -231,6 +231,15 @@
         "java": "Arrays.asList(1, Arrays.asList(2, 3))",
         "csharp": ""
       }
+    ],
+    "Symbol": [
+      {
+        "description": "Symbol from string",
+        "query": "Symbol('2')",
+        "python": "unicode('2', 'utf-8')",
+        "java": "new Symbol(\"2\")",
+        "csharp": ""
+      }
     ]
   }
 }
