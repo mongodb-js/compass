@@ -26,6 +26,7 @@ class Pipeline extends PureComponent {
     stageToggled: PropTypes.func.isRequired,
     savedPipeline: PropTypes.object.isRequired,
     saveCurrentPipeline: PropTypes.func.isRequired,
+    newPipeline: PropTypes.func.isRequired,
     restorePipeline: PropTypes.object.isRequired,
     copyToClipboard: PropTypes.func.isRequired,
     viewChanged: PropTypes.func.isRequired,
@@ -57,6 +58,7 @@ class Pipeline extends PureComponent {
           copyToClipboard={this.props.copyToClipboard}
           saveCurrentPipeline={this.props.saveCurrentPipeline}
           savedPipeline={this.props.savedPipeline}
+          newPipeline={this.props.newPipeline}
           nameChanged={this.props.nameChanged}
           name={this.props.name} />
         <div className={classnames(styles['pipeline-separator'])}></div>

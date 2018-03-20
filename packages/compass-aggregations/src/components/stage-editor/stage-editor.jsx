@@ -77,7 +77,7 @@ class StageEditor extends PureComponent {
   componentDidUpdate(prevProps) {
     if (this.props.stage.stageOperator !== prevProps.stage.stageOperator && this.editor) {
       this.editor.setValue('');
-      this.editor.insertSnippet(this.props.stage.snippet);
+      this.editor.insertSnippet(this.props.stage.snippet || '');
       this.editor.focus();
     }
   }

@@ -21,7 +21,8 @@ import {
   stageDeleted,
   stageMoved,
   stageOperatorSelected,
-  stageToggled
+  stageToggled,
+  newPipeline
 } from 'modules/pipeline';
 import {
   savedPipelinesListToggle,
@@ -103,6 +104,7 @@ const MappedAggregations = connect(
     restorePipelineModalToggle,
     restorePipelineFrom,
     restoreSavedPipeline,
+    newPipeline,
     getPipelineFromIndexedDB
   },
 )(Aggregations);
