@@ -15,6 +15,7 @@ const JavaGenerator = require('./codegeneration/JavaGenerator.js');
 const compileECMAScript = function(input, generator) {
   const chars = new antlr4.InputStream(input);
   const lexer = new ECMAScriptLexer.ECMAScriptLexer(chars);
+  lexer.strictMode = false;
   const tokens = new antlr4.CommonTokenStream(lexer);
   const parser = new ECMAScriptParser.ECMAScriptParser(tokens);
   parser.buildParseTrees = true;

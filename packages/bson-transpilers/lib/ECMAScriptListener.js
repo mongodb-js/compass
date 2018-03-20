@@ -992,6 +992,15 @@ ECMAScriptListener.prototype.exitNullLiteral = function(ctx) {
 };
 
 
+// Enter a parse tree produced by ECMAScriptParser#UndefinedLiteral.
+ECMAScriptListener.prototype.enterUndefinedLiteral = function(ctx) {
+};
+
+// Exit a parse tree produced by ECMAScriptParser#UndefinedLiteral.
+ECMAScriptListener.prototype.exitUndefinedLiteral = function(ctx) {
+};
+
+
 // Enter a parse tree produced by ECMAScriptParser#BooleanLiteral.
 ECMAScriptListener.prototype.enterBooleanLiteral = function(ctx) {
 };

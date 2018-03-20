@@ -106,6 +106,8 @@ ECMAScriptLexer.prototype.isRegexPossible = function() {
             return false;
         case ECMAScriptLexer.NullLiteral:
             return false;
+        case ECMAScriptLexer.UndefinedLiteral:
+            return false;
         case ECMAScriptLexer.BooleanLiteral:
             return false;
         case ECMAScriptLexer.This:
@@ -670,6 +672,7 @@ assignmentOperator
 
 literal
  : NullLiteral                    # NullLiteral
+ | UndefinedLiteral               # UndefinedLiteral
  | BooleanLiteral                 # BooleanLiteral
  | StringLiteral                  # StringLiteral
  | RegularExpressionLiteral       # RegularExpressionLiteral
@@ -828,6 +831,11 @@ NullLiteral
  : 'null'
  ;
 
+/// Undefined Literal
+UndefinedLiteral
+ : 'undefined'
+ ;
+
 /// 7.8.2 Boolean Literals
 BooleanLiteral
  : 'true'
@@ -851,6 +859,7 @@ HexIntegerLiteral
 
 OctalIntegerLiteral
  : {!this.strictMode}? '0' OctalDigit+
+ | {!this.strictMode}? '0' [oO] OctalDigit+
  ;
 
 /// 7.6.1.1 Keywords

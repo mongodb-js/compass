@@ -17,7 +17,9 @@ const unsupported = {
     'RegExp', 'BsonRegExp', 'Decimal128',
     'Number', 'DateObject', 'Object'
   ],
-  python: ['RegExp', 'BsonRegExp', 'DBRef', 'Decimal128', 'Timestamp']
+  python: [
+    'RegExp', 'BsonRegExp', 'DBRef', 'Decimal128', 'Timestamp', 'literals'
+  ]
 };
 
 const readJSON = (filename) => {

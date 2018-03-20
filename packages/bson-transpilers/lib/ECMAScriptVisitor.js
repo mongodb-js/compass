@@ -666,6 +666,12 @@ ECMAScriptVisitor.prototype.visitNullLiteral = function(ctx) {
 };
 
 
+// Visit a parse tree produced by ECMAScriptParser#UndefinedLiteral.
+ECMAScriptVisitor.prototype.visitUndefinedLiteral = function(ctx) {
+  return this.visitChildren(ctx);
+};
+
+
 // Visit a parse tree produced by ECMAScriptParser#BooleanLiteral.
 ECMAScriptVisitor.prototype.visitBooleanLiteral = function(ctx) {
   return this.visitChildren(ctx);

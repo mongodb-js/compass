@@ -12,14 +12,112 @@
         "python": "int(2)",
         "java": "new java.lang.Integer(2)",
         "csharp": ""
+      },
+      {
+        "description": "Number with valid string arg",
+        "query": "new Number('2')",
+        "python": "int(2)",
+        "java": "new java.lang.Integer(2)",
+        "csharp": ""
       }
     ],
-    "NumberLiterals": [
+    "literals": [
       {
-        "description": "Literal 2",
+        "description": "Integer 2",
         "query": "2",
         "python": "2",
         "java": "2",
+        "csharp": "2"
+      },
+      {
+        "description": "Decimal 2.001",
+        "query": "2.001",
+        "python": "2.001",
+        "java": "2.001",
+        "csharp": "2.001"
+      },
+      {
+        "description": "Hex number caps",
+        "query": "0X123ABC",
+        "python": "0X123ABC",
+        "java": "0X123ABC",
+        "csharp": ""
+      },
+      {
+        "description": "Hex number lower",
+        "query": "0x123abc",
+        "python": "0x123abc",
+        "java": "0x123abc",
+        "csharp": ""
+      },
+      {
+        "description": "Octal 0-prefix number",
+        "query": "01234567",
+        "python": "0o1234567",
+        "java": "01234567",
+        "csharp": ""
+      },
+      {
+        "description": "Octal 00-prefix number",
+        "query": "001234567",
+        "python": "0o1234567",
+        "java": "01234567",
+        "csharp": ""
+      },
+      {
+        "description": "Octal 0o-prefix number",
+        "query": "0o1234567",
+        "python": "0o1234567",
+        "java": "01234567",
+        "csharp": ""
+      },
+      {
+        "description": "Octal 0O-prefix number",
+        "query": "0o1234567",
+        "python": "0o1234567",
+        "java": "01234567",
+        "csharp": ""
+      },
+      {
+        "description": "Single-quote string",
+        "query": "'string'",
+        "python": "'string'",
+        "java": "\"string\"",
+        "csharp": ""
+      },
+      {
+        "description": "Double-quote string",
+        "query": "\"string\"",
+        "python": "'string'",
+        "java": "\"string\"",
+        "csharp": ""
+      },
+      {
+        "description": "null",
+        "query": "null",
+        "python": "None",
+        "java": "null",
+        "csharp": ""
+      },
+      {
+        "description": "undefined",
+        "query": "undefined",
+        "python": "None",
+        "java": "null",
+        "csharp": ""
+      },
+      {
+        "description": "true",
+        "query": "true",
+        "python": "True",
+        "java": "true",
+        "csharp": ""
+      },
+      {
+        "description": "false",
+        "query": "false",
+        "python": "False",
+        "java": "false",
         "csharp": ""
       }
     ],

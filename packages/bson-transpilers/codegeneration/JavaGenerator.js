@@ -31,6 +31,21 @@ Visitor.prototype.visitObjectLiteral = function(ctx) {
   return doc;
 };
 
+Visitor.prototype.visitUndefinedLiteral = function(ctx) {
+  ctx.type = this.types.UNDEFINED;
+  return 'null';
+};
+
+Visitor.prototype.visitOctalIntegerLiteral = function(ctx) {
+  ctx.type = this.types.OCTAL;
+  let oct = this.visitChildren(ctx);
+  if ((oct.charAt(0) === '0' && oct.charAt(1) === '0') ||
+    (oct.charAt(0) === '0' && (oct.charAt(1) === 'o' || oct.charAt(1) === 'O'))) {
+    oct = '0' + oct.substr(2, oct.length - 1);
+  }
+  return oct;
+};
+
 Visitor.prototype.visitPropertyNameAndValueList = function(ctx) {
   return this.visitChildren(ctx, {step: 2});
 };
