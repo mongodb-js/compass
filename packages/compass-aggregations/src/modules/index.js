@@ -1,12 +1,11 @@
 import { combineReducers } from 'redux';
-import deepMerge from 'deepmerge';
 
 import dataService, { INITIAL_STATE as DS_INITIAL_STATE } from './data-service';
 import fields, { INITIAL_STATE as FIELDS_INITIAL_STATE } from './fields';
 import inputDocuments, { INITIAL_STATE as INPUT_INITIAL_STATE } from './input-documents';
 import namespace, { INITIAL_STATE as NS_INITIAL_STATE, NAMESPACE_CHANGED } from './namespace';
 import serverVersion, { INITIAL_STATE as SV_INITIAL_STATE } from './server-version';
-import pipeline, { INITIAL_STATE as PIPELINE_INITIAL_STATE } from './pipeline';
+import pipeline, { runStage, INITIAL_STATE as PIPELINE_INITIAL_STATE } from './pipeline';
 import view, { INITIAL_STATE as VIEW_INITIAL_STATE } from './view';
 import name, { INITIAL_STATE as NAME_INITIAL_STATE } from './name';
 import id, { INITIAL_STATE as ID_INITIAL_STATE } from './id';
@@ -112,11 +111,27 @@ const doReset = () => ({
  * @returns {Object} The new state.
  */
 const doRestorePipeline = (state, action) => {
-  return deepMerge(
-    INITIAL_STATE,
-    action.restoreState,
-    { arrayMerge: overwriteMerge }
-  );
+  const savedState = action.restoreState;
+  return {
+    ...INITIAL_STATE,
+    namespace: savedState.namespace,
+    pipeline: savedState.pipeline,
+    view: savedState.view,
+    name: savedState.name,
+    id: savedState.id,
+    fields: state.fields,
+    serverVersion: state.serverVersion,
+    dataService: state.dataService,
+    inputDocuments: state.inputDocuments,
+    savedPipeline: {
+      ...state.savedPipeline,
+      isListVisible: false
+    },
+    restorePipeline: {
+      isModalVisible: false,
+      pipelineObjectID: ''
+    }
+  };
 };
 
 /**
@@ -179,11 +194,6 @@ const rootReducer = (state, action) => {
   const fn = MAPPINGS[action.type];
   return fn ? fn(state, action) : appReducer(state, action);
 };
-
-// when restoring the pipeline, don't merge arrays (in our case, stages array)
-function overwriteMerge(dest, src) {
-  return src;
-}
 
 export default rootReducer;
 
@@ -266,6 +276,7 @@ export const getPipelineFromIndexedDB = (pipelineId) => {
       store.get(pipelineId).onsuccess = (e) => {
         const pipe = e.target.result;
         dispatch(restoreSavedPipeline(pipe));
+        dispatch(runStage(0));
       };
     });
   };
