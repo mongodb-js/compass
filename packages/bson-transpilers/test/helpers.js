@@ -14,8 +14,7 @@ const compile = {
 // Need a way to have test pass while developing
 const unsupported = {
   java: [
-    'RegExp', 'BsonRegExp', 'Decimal128',
-    'DateObject'
+    'RegExp', 'BsonRegExp', 'Decimal128'
   ],
   python: [
     'RegExp', 'BsonRegExp', 'DBRef', 'Decimal128', 'Timestamp', 'literals'

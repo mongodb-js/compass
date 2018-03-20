@@ -140,7 +140,7 @@
         "description": "Current date",
         "query": "new Date()",
         "python": "datetime.datetime.utcnow().date()",
-        "java": "new Date()",
+        "java": "new java.util.Date()",
         "csharp": ""
       },
       {
@@ -158,12 +158,12 @@
         "csharp": ""
       }
     ],
-    "DateObject": [
+    "DateNow": [
       {
         "description": "Current time",
         "query": "Date.now()",
         "python": "datetime.datetime.utcnow()",
-        "java": "",
+        "java": "new java.util.Date()",
         "csharp": ""
       }
     ],

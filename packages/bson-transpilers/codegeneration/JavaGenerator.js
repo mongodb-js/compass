@@ -245,7 +245,7 @@ Visitor.prototype.visitBSONMinKeyConstructor = function() {
 Visitor.prototype.visitDateConstructorExpression = function(ctx) {
   const args = ctx.getChild(1);
   if (args.getChildCount() === 2) {
-    return 'new Date()';
+    return 'new java.util.Date()';
   }
   let epoch;
   try {
@@ -254,6 +254,10 @@ Visitor.prototype.visitDateConstructorExpression = function(ctx) {
     return error.message;
   }
   return `new java.util.Date(${epoch})`;
+};
+
+Visitor.prototype.visitDateNowConstructorExpression = function() {
+  return 'new java.util.Date()';
 };
 
 
