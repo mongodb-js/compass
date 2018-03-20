@@ -9,6 +9,7 @@ import reducer, {
   stageToggled,
   generatePipeline,
   loadingStageResults,
+  newPipeline,
   STAGE_ADDED,
   STAGE_CHANGED,
   STAGE_COLLAPSE_TOGGLED,
@@ -17,6 +18,7 @@ import reducer, {
   STAGE_OPERATOR_SELECTED,
   STAGE_PREVIEW_UPDATED,
   LOADING_STAGE_RESULTS,
+  NEW_PIPELINE,
   STAGE_TOGGLED } from 'modules/pipeline';
 
 describe('pipeline module', () => {
@@ -97,6 +99,12 @@ describe('pipeline module', () => {
 
       it('sets the loading flag for the stage', () => {
         expect(reducer(undefined, action)[0].isLoading).to.equal(true);
+      });
+    });
+
+    context('when the action is new pipeline', () => {
+      it('returns the initial state', () => {
+        expect(reducer(undefined, newPipeline())[0].stageOperator).to.equal(null);
       });
     });
 
@@ -272,6 +280,14 @@ describe('pipeline module', () => {
         type: STAGE_MOVED,
         fromIndex: 0,
         toIndex: 5
+      });
+    });
+  });
+
+  describe('#newPipeline', () => {
+    it('returns the NEW_PIPELINE action', () => {
+      expect(newPipeline()).to.deep.equal({
+        type: NEW_PIPELINE
       });
     });
   });

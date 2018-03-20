@@ -52,6 +52,11 @@ export const STAGE_PREVIEW_UPDATED = `${PREFIX}/STAGE_PREVIEW_UPDATED`;
 export const LOADING_STAGE_RESULTS = `${PREFIX}/LOADING_STAGE_RESULTS`;
 
 /**
+ * New pipeline action name.
+ */
+export const NEW_PIPELINE = `${PREFIX}/NEW_PIPELINE`;
+
+/**
  * An initial stage.
  */
 const EMPTY_STAGE = {
@@ -237,6 +242,15 @@ const stageResultsLoading = (state, action) => {
 };
 
 /**
+ * Create a new pipeline.
+ *
+ * @returns {Object} The new state.
+ */
+const createNewPipeline = () => {
+  return copyState(INITIAL_STATE);
+};
+
+/**
  * To not have a huge switch statement in the reducer.
  */
 const MAPPINGS = {};
@@ -250,8 +264,7 @@ MAPPINGS[STAGE_TOGGLED] = toggleStage;
 MAPPINGS[STAGE_COLLAPSE_TOGGLED] = toggleStageCollapse;
 MAPPINGS[STAGE_PREVIEW_UPDATED] = updateStagePreview;
 MAPPINGS[LOADING_STAGE_RESULTS] = stageResultsLoading;
-
-Object.freeze(MAPPINGS);
+MAPPINGS[NEW_PIPELINE] = createNewPipeline;
 
 /**
  * Reducer function for handle state changes to pipeline.
@@ -379,6 +392,15 @@ export const stagePreviewUpdated = (docs, index, error) => ({
 export const loadingStageResults = (index) => ({
   type: LOADING_STAGE_RESULTS,
   index: index
+});
+
+/**
+ * The new pipeline action.
+ *
+ * @returns {Object} The action.
+ */
+export const newPipeline = () => ({
+  type: NEW_PIPELINE
 });
 
 /**
