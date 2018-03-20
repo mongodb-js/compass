@@ -31,6 +31,23 @@ Visitor.prototype.visitObjectLiteral = function(ctx) {
   return doc;
 };
 
+Visitor.prototype.visitObjectCreateConstructorExpression = function(ctx) {
+  const args = ctx.getChild(1);
+
+  if (args.getChildCount() === 2 || args.getChild(1).getChildCount() !== 1) {
+    return 'Error: Object.create() requires one argument';
+  }
+
+  const arg = args.getChild(1).getChild(0);
+  const obj = this.visit(arg);
+
+  if (arg.type !== this.types.OBJECT) {
+    return 'Error: Object.create() requires an object argument';
+  }
+
+  return obj;
+};
+
 Visitor.prototype.visitUndefinedLiteral = function(ctx) {
   ctx.type = this.types.UNDEFINED;
   return 'null';

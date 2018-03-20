@@ -15,7 +15,7 @@ const compile = {
 const unsupported = {
   java: [
     'RegExp', 'BsonRegExp', 'Decimal128',
-    'DateObject', 'Object'
+    'DateObject'
   ],
   python: [
     'RegExp', 'BsonRegExp', 'DBRef', 'Decimal128', 'Timestamp', 'literals'

@@ -175,15 +175,6 @@
         "java": "Pattern.compile(\"/^[a-z0-9_-]{3,16}$/\")",
         "csharp": ""
       }
-    ],
-    "Object": [
-      {
-        "description": "Object.create()",
-        "query": "Object.create({x: 1})",
-        "python": "{'x': 1}",
-        "java": "new Document().append(\"x\", 1)",
-        "csharp": ""
-      }
     ]
   }
 }

@@ -207,6 +207,13 @@
         "python": "{'x': {'y': 2}}",
         "java": "new Document().append(\"x\", new Document().append(\"y\", 2))",
         "csharp": ""
+      },
+      {
+        "description": "Object.create()",
+        "query": "Object.create({x: 1})",
+        "python": "{'x': 1}",
+        "java": "new Document().append(\"x\", 1)",
+        "csharp": ""
       }
     ],
     "Array": [
