@@ -25,7 +25,7 @@ class StageToolbar extends PureComponent {
     return (
       <div className={classnames(styles[valid])}>
         <StageBuilderToolbar {...this.props} />
-        <StagePreviewToolbar {...this.props} />
+        <StagePreviewToolbar stageOperator={this.props.stage.stageOperator} />
       </div>
     );
   }

@@ -1,4 +1,5 @@
 import React, { PureComponent } from 'react';
+import PropTypes from 'prop-types';
 import classnames from 'classnames';
 
 import styles from './stage-preview-toolbar.less';
@@ -8,6 +9,9 @@ import styles from './stage-preview-toolbar.less';
  */
 class StagePreviewToolbar extends PureComponent {
   static displayName = 'StagePreviewToolbar';
+  static propTypes = {
+    stageOperator: PropTypes.string
+  }
 
   /**
    * Renders the stage preview toolbar.
@@ -15,8 +19,12 @@ class StagePreviewToolbar extends PureComponent {
    * @returns {React.Component} The component.
    */
   render() {
+    const text = this.props.stageOperator
+      ? `Sample of Documents after the ${this.props.stageOperator} stage`
+      : null;
     return (
       <div className={classnames(styles['stage-preview-toolbar'])}>
+        {text}
       </div>
     );
   }
