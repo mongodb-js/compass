@@ -50,6 +50,16 @@ export const CLEAR_PIPELINE = 'aggregations/CLEAR_PIPELINE';
 export const RESTORE_PIPELINE = 'aggregations/RESTORE_PIPELINE';
 
 /**
+ * New pipeline action name.
+ */
+export const NEW_PIPELINE = 'aggregations/NEW_PIPELINE';
+
+/**
+ * Clone pipeline action name.
+ */
+export const CLONE_PIPELINE = 'aggregations/CLONE_PIPELINE';
+
+/**
  * The main application reducer.
  *
  * this does not include save state and restore state reducers as those need to
@@ -125,13 +135,36 @@ const doClearPipeline = (state) => ({
 });
 
 /**
+ * Create a new pipeline.
+ *
+ * @returns {Object} The new state.
+ */
+const createNewPipeline = () => ({
+  ...INITIAL_STATE
+});
+
+/**
+ * Create a cloned pipeline.
+ *
+ * @param {Object} state - The state.
+ *
+ * @returns {Object} The new state.
+ */
+const createClonedPipeline = (state) => ({
+  ...state,
+  name: `${state.name} (copy)`
+});
+
+/**
  * The action to state modifier mappings.
  */
 const MAPPINGS = {
   [ NAMESPACE_CHANGED ]: doNamespaceChanged,
   [ RESET ]: doReset,
   [ RESTORE_PIPELINE ]: doRestorePipeline,
-  [ CLEAR_PIPELINE ]: doClearPipeline
+  [ CLEAR_PIPELINE ]: doClearPipeline,
+  [ NEW_PIPELINE ]: createNewPipeline,
+  [ CLONE_PIPELINE ]: createClonedPipeline
 };
 
 /**
@@ -182,6 +215,24 @@ export const clearPipeline = () => ({
 export const restoreSavedPipeline = (restoreState) => ({
   type: RESTORE_PIPELINE,
   restoreState: restoreState
+});
+
+/**
+ * The new pipeline action.
+ *
+ * @returns {Object} The action.
+ */
+export const newPipeline = () => ({
+  type: NEW_PIPELINE
+});
+
+/**
+ * The clone pipeline action.
+ *
+ * @returns {Object} The action.
+ */
+export const clonePipeline = () => ({
+  type: CLONE_PIPELINE
 });
 
 /**

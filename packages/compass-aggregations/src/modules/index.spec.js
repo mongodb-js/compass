@@ -2,9 +2,11 @@ import {
   reset,
   clearPipeline,
   restoreSavedPipeline,
+  newPipeline,
   RESET,
   CLEAR_PIPELINE,
-  RESTORE_PIPELINE
+  RESTORE_PIPELINE,
+  NEW_PIPELINE
 } from 'modules';
 
 describe('root [ module ]', () => {
@@ -29,6 +31,14 @@ describe('root [ module ]', () => {
       expect(restoreSavedPipeline({ name: 'test' })).to.deep.equal({
         type: RESTORE_PIPELINE,
         restoreState: { name: 'test' }
+      });
+    });
+  });
+
+  describe('#newPipeline', () => {
+    it('returns the NEW_PIPELINE action', () => {
+      expect(newPipeline()).to.deep.equal({
+        type: NEW_PIPELINE
       });
     });
   });

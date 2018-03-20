@@ -17,6 +17,7 @@ class PipelineToolbar extends PureComponent {
     stageAdded: PropTypes.func.isRequired,
     viewChanged: PropTypes.func.isRequired,
     newPipeline: PropTypes.func.isRequired,
+    clonePipeline: PropTypes.func.isRequired,
     copyToClipboard: PropTypes.func.isRequired,
     saveCurrentPipeline: PropTypes.func.isRequired,
     savedPipeline: PropTypes.object.isRequired,
@@ -36,6 +37,7 @@ class PipelineToolbar extends PureComponent {
           view={this.props.view}
           stageAdded={this.props.stageAdded}
           viewChanged={this.props.viewChanged}
+          clonePipeline={this.props.clonePipeline}
           newPipeline={this.props.newPipeline}
           copyToClipboard={this.props.copyToClipboard}
           saveCurrentPipeline={this.props.saveCurrentPipeline} />

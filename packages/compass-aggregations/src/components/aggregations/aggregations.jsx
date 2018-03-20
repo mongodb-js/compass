@@ -12,7 +12,11 @@ import {
 
 import { viewChanged } from 'modules/view';
 import { copyToClipboard } from 'modules/clipboard';
-import { deletePipeline } from 'modules';
+import {
+  deletePipeline,
+  newPipeline,
+  clonePipeline
+} from 'modules';
 import {
   runStage,
   stageAdded,
@@ -21,8 +25,7 @@ import {
   stageDeleted,
   stageMoved,
   stageOperatorSelected,
-  stageToggled,
-  newPipeline
+  stageToggled
 } from 'modules/pipeline';
 import {
   savedPipelinesListToggle,
@@ -105,6 +108,7 @@ const MappedAggregations = connect(
     restorePipelineFrom,
     restoreSavedPipeline,
     newPipeline,
+    clonePipeline,
     getPipelineFromIndexedDB
   },
 )(Aggregations);
