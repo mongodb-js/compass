@@ -26,7 +26,7 @@ Visitor.prototype.types = Object.freeze({
   VARIABLE: 50 // TODO? FCALL, FDEF, VARDEF
 });
 Visitor.prototype.isNumericType = function(ctx) {
-  return ctx.type >= 20 && ctx.type <=29;
+  return ctx.type >= 20 && ctx.type <= 29;
 };
 
 /**
@@ -45,9 +45,9 @@ Visitor.prototype.visitChildren = function(ctx, options) {
   const opts = {
     start: 0, end: ctx.getChildCount() - 1, step: 1, separator: '', ignore: []
   };
-  Object.assign(opts, options? options : {});
+  Object.assign(opts, options ? options : {});
   let code = '';
-  for (let i = opts.start; i <= opts.end; i+=opts.step) {
+  for (let i = opts.start; i <= opts.end; i += opts.step) {
     if (opts.ignore.indexOf(i) === -1) {
       code += this.visit(ctx.getChild(i)) + (i === opts.end ? '' : opts.separator);
     }
@@ -111,9 +111,9 @@ Visitor.prototype.visitTerminal = function(ctx) {
   return ctx.getText();
 };
 
-/////////////
+// //////////
 // Helpers //
-/////////////
+// //////////
 /**
  * Takes in an identifier that may or may not be a string and returns a string
  * with double quotes.
@@ -122,10 +122,10 @@ Visitor.prototype.visitTerminal = function(ctx) {
  */
 Visitor.prototype.doubleQuoteStringify = function(str) {
   let newStr = str;
-  if(str.charAt(0) === '\'' && str.charAt(str.length - 1) === '\'') {
-    newStr = '"' + str.substr(1, str.length - 2) + '"';
+  if (str.charAt(0) === '\'' && str.charAt(str.length - 1) === '\'') {
+    newStr = `"${str.substr(1, str.length - 2)}"`;
   } else if (str.charAt(0) !== '"' && str.charAt(str.length - 1) !== '"') {
-    newStr = '"' + str + '"';
+    newStr = `"${str}"`;
   }
   return newStr;
 };
@@ -138,10 +138,10 @@ Visitor.prototype.doubleQuoteStringify = function(str) {
  */
 Visitor.prototype.singleQuoteStringify = function(str) {
   let newStr = str;
-  if(str.charAt(0) === '"' && str.charAt(str.length - 1) === '"') {
-    newStr = '\'' + str.substr(1, str.length - 2) + '\'';
+  if (str.charAt(0) === '"' && str.charAt(str.length - 1) === '"') {
+    newStr = `'${str.substr(1, str.length - 2)}'`;
   } else if (str.charAt(0) !== '\'' && str.charAt(str.length - 1) !== '\'') {
-    newStr = '\'' + str + '\'';
+    newStr = `'${str}'`;
   }
   return newStr;
 };
