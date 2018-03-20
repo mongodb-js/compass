@@ -771,7 +771,7 @@ describe('Completer', () => {
             const position = { row: 0, column: 4 };
 
             beforeEach(() => {
-              store.dispatch(stageOperatorSelected(0, '$match'));
+              store.dispatch(stageOperatorSelected(0, '$addFields'));
             });
 
             it('returns matching expression operators for the version', () => {
@@ -803,7 +803,7 @@ describe('Completer', () => {
             const position = { row: 0, column: 4 };
 
             beforeEach(() => {
-              store.dispatch(stageOperatorSelected(0, '$match'));
+              store.dispatch(stageOperatorSelected(0, '$addFields'));
             });
 
             it('returns matchin expression operators for the version', () => {

@@ -41,8 +41,7 @@ class Completer {
    *
    * @returns {Array} The accumulators.
    */
-  accumulators() {
-    const stage = store.getState().pipeline[this.index];
+  accumulators(stage) {
     if (stage) {
       const stageOperator = stage.stageOperator;
       if (stageOperator) {
@@ -53,8 +52,6 @@ class Completer {
           });
         } else if (stageOperator === GROUP) {
           return ACCUMULATORS;
-        } else if (stageOperator === MATCH) {
-          return QUERY_OPERATORS;
         }
       }
     }
@@ -100,8 +97,13 @@ class Completer {
     }
     // If the current token is not a string, then we proceed as normal to suggest
     // operators to the user.
-    const expressions = BASE_COMPLETIONS.concat(this.accumulators()).concat(this.fields);
-    done(null, this._filter(expressions, prefix));
+    const stage = store.getState().pipeline[this.index];
+    if (stage && stage.stageOperator === MATCH) {
+      done(null, this._filter(QUERY_OPERATORS, prefix));
+    } else {
+      const expressions = BASE_COMPLETIONS.concat(this.accumulators(stage)).concat(this.fields);
+      done(null, this._filter(expressions, prefix));
+    }
   }
 
   /**
