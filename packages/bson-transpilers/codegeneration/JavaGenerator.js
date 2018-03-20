@@ -244,18 +244,22 @@ Visitor.prototype.visitBSONSymbolConstructor = function(ctx) {
   return `new Symbol(${symbol})`;
 };
 
-// TODO: is high/low the same as time/increment?
 Visitor.prototype.visitBSONTimestampConstructor = function(ctx) {
-  let high;
-  let low;
-  try {
-    const tsobj = this.executeJavascript(ctx.getText());
-    high = tsobj.getHighBits();
-    low = tsobj.getLowBits();
-  } catch (error) {
-    return error.message;
+  const args = ctx.getChild(1);
+  if (args.getChildCount() === 2 ||
+      !(args.getChild(1).getChildCount() === 3)) {
+    return 'Error: Timestamp requires two arguments';
   }
-  return `BSONTimestamp(${high}, ${low})`;
+  const argList = args.getChild(1);
+  const low = this.visit(argList.getChild(0));
+  if (argList.getChild(0).type !== this.types.INTEGER) {
+    return 'Error: Timestamp requires integer arguments';
+  }
+  const high = this.visit(argList.getChild(2));
+  if (argList.getChild(2).type !== this.types.INTEGER) {
+    return 'Error: Timestamp requires integer arguments';
+  }
+  return `new BSONTimestamp(${low}, ${high})`;
 };
 
 // TODO
