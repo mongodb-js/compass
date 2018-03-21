@@ -23,7 +23,7 @@ Visitor.prototype.types = Object.freeze({
   INTEGER: 20, DECIMAL: 21, HEXADECIMAL: 22, OCTAL: 23,
   OBJECT: 30, ARRAY: 31,
   NULL: 40, UNDEFINED: 41,
-  VARIABLE: 50 // TODO? FCALL, FDEF, VARDEF
+  IDENTIFIER: 50, FCALL: 51 // FDEF, VARDEF
 });
 Visitor.prototype.isNumericType = function(ctx) {
   return ctx.type >= 20 && ctx.type <= 29;

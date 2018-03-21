@@ -12,10 +12,23 @@ function Visitor() {
 Visitor.prototype = Object.create(CodeGenerator.prototype);
 Visitor.prototype.constructor = Visitor;
 
-// ///////////////////////////////
-// Nodes that differ in syntax  //
-// ///////////////////////////////
+Visitor.prototype.visitPropertyNameAndValueList = function(ctx) {
+  return this.visitChildren(ctx, {step: 2});
+};
 
+Visitor.prototype.visitElementList = function(ctx) {
+  return this.visitChildren(ctx, { step: 2, separator: ', '});
+};
+
+/* Ignore the new keyword because JS could either have it or not, but we always
+   need it in Java so we'll add it when we call constructors. */
+Visitor.prototype.visitNewExpression = function(ctx) {
+  const child = this.visitChildren(ctx, { start: 1 });
+  ctx.type = ctx.getChild(1).type;
+  return child;
+};
+
+/* ************** Literals **************** */
 Visitor.prototype.visitStringLiteral = function(ctx) {
   ctx.type = this.types.STRING;
   return this.doubleQuoteStringify(this.visitChildren(ctx));
@@ -31,21 +44,16 @@ Visitor.prototype.visitObjectLiteral = function(ctx) {
   return doc;
 };
 
-Visitor.prototype.visitObjectCreateConstructorExpression = function(ctx) {
-  const args = ctx.getChild(1);
+/* Convert each element in an object definition */
+Visitor.prototype.visitPropertyExpressionAssignment = function(ctx) {
+  const key = this.doubleQuoteStringify(this.visit(ctx.getChild(0)));
+  const value = this.visit(ctx.getChild(2));
+  return `.append(${key}, ${value})`;
+};
 
-  if (args.getChildCount() === 2 || args.getChild(1).getChildCount() !== 1) {
-    return 'Error: Object.create() requires one argument';
-  }
-
-  const arg = args.getChild(1).getChild(0);
-  const obj = this.visit(arg);
-
-  if (arg.type !== this.types.OBJECT) {
-    return 'Error: Object.create() requires an object argument';
-  }
-
-  return obj;
+Visitor.prototype.visitArrayLiteral = function(ctx) {
+  ctx.type = this.types.ARRAY;
+  return `Arrays.asList(${this.visit(ctx.getChild(1))})`;
 };
 
 Visitor.prototype.visitUndefinedLiteral = function(ctx) {
@@ -61,6 +69,24 @@ Visitor.prototype.visitOctalIntegerLiteral = function(ctx) {
     oct = '0' + oct.substr(2, oct.length - 1);
   }
   return oct;
+};
+
+/*  ************** Built-in JS Identifiers **************** */
+Visitor.prototype.visitObjectCreateConstructorExpression = function(ctx) {
+  const args = ctx.getChild(1);
+
+  if (args.getChildCount() === 2 || args.getChild(1).getChildCount() !== 1) {
+    return 'Error: Object.create() requires one argument';
+  }
+
+  const arg = args.getChild(1).getChild(0);
+  const obj = this.visit(arg);
+
+  if (arg.type !== this.types.OBJECT) {
+    return 'Error: Object.create() requires an object argument';
+  }
+
+  return obj;
 };
 
 Visitor.prototype.visitNumberConstructorExpression = function(ctx) {
@@ -86,38 +112,42 @@ Visitor.prototype.visitNumberConstructorExpression = function(ctx) {
   return `new java.lang.Integer(${number})`;
 };
 
-Visitor.prototype.visitPropertyNameAndValueList = function(ctx) {
-  return this.visitChildren(ctx, {step: 2});
+Visitor.prototype.visitDateConstructorExpression = function(ctx) {
+  const args = ctx.getChild(1);
+  if (args.getChildCount() === 2) {
+    return 'new java.util.Date()';
+  }
+  let epoch;
+  try {
+    epoch = this.executeJavascript(ctx.getText()).getTime();
+  } catch (error) {
+    return error.message;
+  }
+  return `new java.util.Date(${epoch})`;
 };
 
-Visitor.prototype.visitElementList = function(ctx) {
-  return this.visitChildren(ctx, { step: 2, separator: ', '});
+Visitor.prototype.visitDateNowConstructorExpression = function() {
+  return 'new java.util.Date()';
 };
 
-Visitor.prototype.visitPropertyExpressionAssignment = function(ctx) {
-  const key = this.doubleQuoteStringify(this.visit(ctx.getChild(0)));
-  const value = this.visit(ctx.getChild(2));
-  return `.append(${key}, ${value})`;
+// TODO: RegExps are unfinished
+Visitor.prototype.visitRegExpConstructorExpression =
+Visitor.prototype.visitRegularExpressionLiteral = function(ctx) {
+  let pattern;
+  let flags;
+  try {
+    const regexobj = this.executeJavascript(ctx.getText());
+    pattern = regexobj.source;
+    flags = regexobj.flags;
+  } catch (error) {
+    return error.message;
+  }
+  return `Pattern.compile(${this.doubleQuoteStringify(pattern)}, ${flags})`;
 };
 
-Visitor.prototype.visitArrayLiteral = function(ctx) {
-  ctx.type = this.types.ARRAY;
-  return `Arrays.asList(${this.visit(ctx.getChild(1))})`;
-};
+/*  ************** BSON Constructors **************** */
 
-/**
- * Ignore the new keyword because JS could either have it or not, but we always
- * need it in Java so we'll add it when we call constructors.
- */
-Visitor.prototype.visitNewExpression = function(ctx) {
-  const child = this.visitChildren(ctx, { start: 1 });
-  ctx.type = ctx.getChild(1).type;
-  return child;
-};
-
-/**
- * The arguments to Code can be either a string or actual javascript code.
- */
+/* The arguments to Code can be either a string or actual javascript code. */
 Visitor.prototype.visitBSONCodeConstructor = function(ctx) {
   const args = ctx.getChild(1);
   if (args.getChildCount() === 2 ||
@@ -141,10 +171,8 @@ Visitor.prototype.visitBSONCodeConstructor = function(ctx) {
   return `new Code(${code})`;
 };
 
-/**
- *  This evaluates the code in a sandbox and gets the hex string out of the
- *  ObjectId.
- */
+/* This evaluates the code in a sandbox and gets the hex string out of the
+   ObjectId. */
 Visitor.prototype.visitBSONObjectIdConstructor = function(ctx) {
   const args = ctx.getChild(1);
   if (args.getChildCount() === 2) {
@@ -182,7 +210,6 @@ Visitor.prototype.visitBSONBinaryConstructor = function(ctx) {
   return `new Binary(${subtypes[type]}, ${bytes}.getBytes("UTF-8"))`;
 };
 
-// TODO: should we even support DBRef bc deprecated?
 Visitor.prototype.visitBSONDBRefConstructor = function(ctx) {
   const args = ctx.getChild(1);
   if (args.getChildCount() === 2 ||
@@ -241,41 +268,6 @@ Visitor.prototype.visitBSONMaxKeyConstructor = function() {
 Visitor.prototype.visitBSONMinKeyConstructor = function() {
   return 'new MinKey()';
 };
-
-Visitor.prototype.visitDateConstructorExpression = function(ctx) {
-  const args = ctx.getChild(1);
-  if (args.getChildCount() === 2) {
-    return 'new java.util.Date()';
-  }
-  let epoch;
-  try {
-    epoch = this.executeJavascript(ctx.getText()).getTime();
-  } catch (error) {
-    return error.message;
-  }
-  return `new java.util.Date(${epoch})`;
-};
-
-Visitor.prototype.visitDateNowConstructorExpression = function() {
-  return 'new java.util.Date()';
-};
-
-
-// TODO: RegExps are unfinished
-Visitor.prototype.visitRegularExpressionLiteral = function(ctx) {
-  let pattern;
-  let flags;
-  try {
-    const regexobj = this.executeJavascript(ctx.getText());
-    pattern = regexobj.source;
-    flags = regexobj.flags;
-  } catch (error) {
-    return error.message;
-  }
-  return `Pattern.compile(${this.doubleQuoteStringify(pattern)}, ${flags})`;
-};
-
-Visitor.prototype.visitRegExpConstructorExpression = Visitor.prototype.visitRegularExpressionLiteral;
 
 Visitor.prototype.visitBSONRegExpConstructor = function(ctx) {
   let pattern;
