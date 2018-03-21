@@ -225,7 +225,7 @@
         "csharp": ""
       },
       {
-        "description": "arrat with trailing comma",
+        "description": "array with trailing comma",
         "query": "[1, 2,]",
         "python": "[1, 2,]",
         "java": "Arrays.asList(1, 2)",
@@ -243,6 +243,43 @@
         "query": "[1, [2, 3]]",
         "python": "[1, [2, 3]]",
         "java": "Arrays.asList(1, Arrays.asList(2, 3))",
+        "csharp": ""
+      },
+      {
+        "description": "Empty array",
+        "query": "[]",
+        "python": "[]",
+        "java": "Arrays.asList()",
+        "csharp": ""
+      }
+    ],
+    "ArrayElision": [
+      {
+        "description": "array with leading elision",
+        "query": "[,1, 2,]",
+        "python": "[None, 1, 2,]",
+        "java": "Arrays.asList(null, 1, 2)",
+        "csharp": ""
+      },
+      {
+        "description": "Array with one elision",
+        "query": "[,]",
+        "python": "[None]",
+        "java": "Arrays.asList(null)",
+        "csharp": ""
+      },
+      {
+        "description": "Array with 2 elision",
+        "query": "[,,]",
+        "python": "[None, None]",
+        "java": "Arrays.asList(null, null)",
+        "csharp": ""
+      },
+      {
+        "description": "Array with elision in the middle",
+        "query": "[1,,,,2]",
+        "python": "[1, None, None, None, 2]",
+        "java": "Arrays.asList(1, null, null, null, 2)",
         "csharp": ""
       }
     ],

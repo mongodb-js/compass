@@ -383,25 +383,27 @@ functionBody
  ;
 
 /// ArrayLiteral :
-///     [ Elision? ]
-///     [ ElementList ]
+///     [ Elision* ]
+///     [ ElementList ,? ]
 ///     [ ElementList , Elision? ]
 arrayLiteral
- : '[' elementList? ','? elision? ']'
+ : '[' ']'
+ | '[' elementList ','? ']'
  ;
 
 /// ElementList :
 ///     Elision? AssignmentExpression
 ///     ElementList , Elision? AssignmentExpression
 elementList
- : elision? singleExpression ( ',' elision? singleExpression )*
+ : elision*
+ | elision* singleExpression ( ',' elision* singleExpression? )*
  ;
 
 /// Elision :
 ///     ,
 ///     Elision ,
 elision
- : ','+
+ : ','
  ;
 
 /// ObjectLiteral :

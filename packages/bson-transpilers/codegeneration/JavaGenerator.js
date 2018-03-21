@@ -17,14 +17,19 @@ Visitor.prototype.visitPropertyNameAndValueList = function(ctx) {
 };
 
 Visitor.prototype.visitElementList = function(ctx) {
-  return this.visitChildren(ctx, { step: 2, separator: ', '});
+  const children = ctx.children.filter((child) => {
+    return child.constructor.name !== 'TerminalNodeImpl';
+  });
+  return this.visitChildren(ctx,
+    { children: children, separator: ', '}
+  );
 };
 
 /* Ignore the new keyword because JS could either have it or not, but we always
    need it in Java so we'll add it when we call constructors. */
 Visitor.prototype.visitNewExpression = function(ctx) {
   const child = this.visitChildren(ctx, { start: 1 });
-  ctx.type = ctx.getChild(1).type;
+  ctx.type = ctx.singleExpression().type;
   return child;
 };
 
@@ -46,18 +51,26 @@ Visitor.prototype.visitObjectLiteral = function(ctx) {
 
 /* Convert each element in an object definition */
 Visitor.prototype.visitPropertyExpressionAssignment = function(ctx) {
-  const key = this.doubleQuoteStringify(this.visit(ctx.getChild(0)));
-  const value = this.visit(ctx.getChild(2));
+  const key = this.doubleQuoteStringify(this.visit(ctx.propertyName()));
+  const value = this.visit(ctx.singleExpression());
   return `.append(${key}, ${value})`;
 };
 
 Visitor.prototype.visitArrayLiteral = function(ctx) {
   ctx.type = this.types.ARRAY;
-  return `Arrays.asList(${this.visit(ctx.getChild(1))})`;
+  if (!ctx.elementList()) {
+    return 'Arrays.asList()';
+  }
+  return `Arrays.asList(${this.visit(ctx.elementList())})`;
 };
 
 Visitor.prototype.visitUndefinedLiteral = function(ctx) {
   ctx.type = this.types.UNDEFINED;
+  return 'null';
+};
+
+Visitor.prototype.visitElision = function(ctx) {
+  ctx.type = this.types.NULL;
   return 'null';
 };
 

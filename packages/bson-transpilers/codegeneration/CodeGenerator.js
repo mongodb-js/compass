@@ -39,23 +39,26 @@ Visitor.prototype.isNumericType = function(ctx) {
  *    step - how many children to increment each step, 1 visits all children.
  *    separator - a string separator to go between children.
  *    ignore - an array of child indexes to skip.
+ *    children - the set of children to visit.
  * @returns {string}
  */
 Visitor.prototype.visitChildren = function(ctx, options) {
   const opts = {
-    start: 0, end: ctx.getChildCount() - 1, step: 1, separator: '', ignore: []
+    start: 0, step: 1, separator: '', ignore: [], children: ctx.children
   };
   Object.assign(opts, options ? options : {});
+  opts.end = ('end' in opts) ? opts.end : opts.children.length - 1;
+
   let code = '';
   for (let i = opts.start; i <= opts.end; i += opts.step) {
     if (opts.ignore.indexOf(i) === -1) {
-      code += this.visit(ctx.getChild(i)) + (i === opts.end ? '' : opts.separator);
+      code += this.visit(opts.children[i]) + (i === opts.end ? '' : opts.separator);
     }
   }
   /* Set the node's type to the first child, if it's not already set.
      More often than not, type will be set directly by the visitNode method. */
   if (ctx.type === undefined) {
-    ctx.type = ctx.children.length ? ctx.getChild(0).type : this.types.UNDEFINED;
+    ctx.type = opts.children.length ? opts.children[0].type : this.types.UNDEFINED;
   }
   return code.trim();
 };

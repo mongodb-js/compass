@@ -17,7 +17,7 @@ const unsupported = {
     'RegExp', 'BsonRegExp', 'Decimal128'
   ],
   python: [
-    'RegExp', 'BsonRegExp', 'DBRef', 'Decimal128', 'Timestamp', 'literals'
+    'RegExp', 'BsonRegExp', 'DBRef', 'Decimal128', 'Timestamp', 'literals', 'ArrayElision'
   ]
 };
 
