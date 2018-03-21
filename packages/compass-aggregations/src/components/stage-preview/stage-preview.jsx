@@ -20,7 +20,7 @@ class StagePreview extends PureComponent {
   }
 
   renderPreview() {
-    if (this.props.isValid) {
+    if (this.props.isValid && this.props.documents.length > 1) {
       const documents = this.props.documents.map((doc, i) => {
         return (<Document doc={new HadronDocument(doc)} editable={false} key={i} />);
       });
@@ -32,7 +32,7 @@ class StagePreview extends PureComponent {
     }
     return (
       <div className={classnames(styles['stage-preview-invalid'])}>
-        <i>Error: No Preview Document</i>
+        <i>No Preview Documents</i>
       </div>
     );
   }

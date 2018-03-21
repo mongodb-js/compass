@@ -10,6 +10,7 @@ import styles from './stage-preview-toolbar.less';
 class StagePreviewToolbar extends PureComponent {
   static displayName = 'StagePreviewToolbar';
   static propTypes = {
+    isEnabled: PropTypes.bool.isRequired,
     stageOperator: PropTypes.string
   }
 
@@ -19,7 +20,7 @@ class StagePreviewToolbar extends PureComponent {
    * @returns {React.Component} The component.
    */
   render() {
-    const text = this.props.stageOperator
+    const text = this.props.stageOperator && this.props.isEnabled
       ? `Sample of Documents after the ${this.props.stageOperator} stage`
       : null;
     return (
