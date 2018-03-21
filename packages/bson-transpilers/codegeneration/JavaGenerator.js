@@ -70,6 +70,21 @@ Visitor.prototype.visitNewExpression = function(ctx) {
   return expr;
 };
 
+Visitor.prototype.visitFuncCallExpression = function(ctx) {
+  const funcId = this.visit(ctx.singleExpression());
+  console.log(funcId);
+  const args = this.visit(ctx.arguments());
+  console.log(args);
+};
+
+Visitor.prototype.visitIdentifierExpression = function(ctx) {
+
+};
+
+Visitor.prototype.visitMemberDotExpression = function(ctx) {
+
+};
+
 /* ************** Literals **************** */
 
 /**

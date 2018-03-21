@@ -585,7 +585,7 @@ singleExpression
  : Function Identifier? '(' formalParameterList? ')' '{' functionBody '}' # FunctionExpression
  | singleExpression '[' expressionSequence ']'                            # MemberIndexExpression
  | singleExpression '.' identifierName                                    # MemberDotExpression
- | singleExpression arguments                                             # ArgumentsExpression
+ | singleExpression arguments                                             # FuncCallExpression
  | New singleExpression arguments?                                        # NewExpression
  | singleExpression {!this.here(ECMAScriptParser.LineTerminator)}? '++'   # PostIncrementExpression
  | singleExpression {!this.here(ECMAScriptParser.LineTerminator)}? '--'   # PostDecreaseExpression
@@ -619,29 +619,52 @@ singleExpression
  | arrayLiteral                                                           # ArrayLiteralExpression
  | objectLiteral                                                          # ObjectLiteralExpression
  | '(' expressionSequence ')'                                             # ParenthesizedExpression
- | bsonConstructor                                                        # BSONConstructorExpression
- | bsonConstant                                                           # BSONConstantExpression
- | 'Date.now' arguments                                                   # DateNowConstructorExpression
- | Date arguments                                                         # DateConstructorExpression
- | RegExp arguments                                                       # RegExpConstructorExpression
- | Number arguments                                                       # NumberConstructorExpression
- | 'Object.create' arguments                                              # ObjectCreateConstructorExpression
+ | bsonType                                                               # BSONIdentifierExpression
+ | jsType                                                                 # JSIdentifierExpression
+// | Date arguments                                                         # DateConstructorExpression
+// | RegExp arguments                                                       # RegExpConstructorExpression
+// | Number arguments                                                       # NumberConstructorExpression
+// | 'Object.create' arguments                                              # ObjectCreateConstructorExpression
  ;
 
-bsonConstructor
- : BSONObjectId arguments            # BSONObjectIdConstructor
- | BSONCode arguments                # BSONCodeConstructor
- | BSONBinary arguments              # BSONBinaryConstructor
- | BSONDBRef arguments               # BSONDBRefConstructor
- | BSONLong arguments                # BSONLongConstructor
- | BSONDouble arguments              # BSONDoubleConstructor
- | BSONDecimal128 arguments          # BSONDecimal128Constructor
- | BSONMinKey arguments              # BSONMinKeyConstructor
- | BSONMaxKey arguments              # BSONMaxKeyConstructor
- | BSONTimestamp arguments           # BSONTimestampConstructor
- | BSONRegExp arguments              # BSONRegExpConstructor
- | BSONSymbol arguments              # BSONSymbolConstructor
+bsonType
+ : BSONObjectId                      # BSONObjectId
+ | BSONCode                          # BSONCode
+ | BSONBinary                        # BSONBinary
+ | BSONDBRef                         # BSONDBRef
+ | BSONLong                          # BSONLong
+ | BSONDouble                        # BSONDouble
+ | BSONDecimal128                    # BSONDecimal128
+ | BSONMinKey                        # BSONMinKey
+ | BSONMaxKey                        # BSONMaxKey
+ | BSONTimestamp                     # BSONTimestamp
+ | BSONRegExp                        # BSONRegExp
+ | BSONSymbol                        # BSONSymbol
  ;
+
+jsType
+ : Date
+ | RegExp
+ | Number
+ | ObjectCreate
+ ;
+
+
+
+//bsonConstructor
+// : BSONObjectId arguments            # BSONObjectIdConstructor
+// | BSONCode arguments                # BSONCodeConstructor
+// | BSONBinary arguments              # BSONBinaryConstructor
+// | BSONDBRef arguments               # BSONDBRefConstructor
+// | BSONLong arguments                # BSONLongConstructor
+// | BSONDouble arguments              # BSONDoubleConstructor
+// | BSONDecimal128 arguments          # BSONDecimal128Constructor
+// | BSONMinKey arguments              # BSONMinKeyConstructor
+// | BSONMaxKey arguments              # BSONMaxKeyConstructor
+// | BSONTimestamp arguments           # BSONTimestampConstructor
+// | BSONRegExp arguments              # BSONRegExpConstructor
+// | BSONSymbol arguments              # BSONSymbolConstructor
+// ;
 
 bsonConstant
  : BSONBinary '.' BSONBinaryConstant
@@ -936,9 +959,10 @@ BinaryTypeMD5           : 'SUBTYPE_MD5';
 BinaryTypeUDEF          : 'SUBTYPE_USER_DEFINED';
 
 // Built-in type keywords
-Date    :   'Date';
-RegExp  :   'RegExp';
-Number  :   'Number';
+Date            :   'Date';
+RegExp          :   'RegExp';
+Number          :   'Number';
+ObjectCreate    :   'Object.Create';
 
 /// 7.6 Identifier Names and Identifiers
 Identifier
