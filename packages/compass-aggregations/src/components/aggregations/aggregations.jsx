@@ -10,7 +10,6 @@ import {
   refreshInputDocuments
 } from 'modules/input-documents';
 
-import { viewChanged } from 'modules/view';
 import { copyToClipboard } from 'modules/clipboard';
 import {
   deletePipeline,
@@ -72,7 +71,6 @@ const mapStateToProps = (state) => ({
   namespace: state.namespace,
   serverVersion: state.serverVersion,
   pipeline: state.pipeline,
-  view: state.view,
   savedPipeline: state.savedPipeline,
   restorePipeline: state.restorePipeline,
   name: state.name
@@ -98,7 +96,6 @@ const MappedAggregations = connect(
     stageMoved,
     stageOperatorSelected,
     stageToggled,
-    viewChanged,
     copyToClipboard,
     savedPipelinesListToggle,
     saveCurrentPipeline,

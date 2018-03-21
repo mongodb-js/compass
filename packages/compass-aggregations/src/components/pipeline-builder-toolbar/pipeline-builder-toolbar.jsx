@@ -13,7 +13,6 @@ class PipelineBuilderToolbar extends PureComponent {
 
   static propTypes = {
     stageAdded: PropTypes.func.isRequired,
-    viewChanged: PropTypes.func.isRequired,
     copyToClipboard: PropTypes.func.isRequired,
     newPipeline: PropTypes.func.isRequired,
     clonePipeline: PropTypes.func.isRequired,

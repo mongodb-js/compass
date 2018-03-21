@@ -13,9 +13,7 @@ class PipelineToolbar extends PureComponent {
   static displayName = 'ToolbarComponent';
 
   static propTypes = {
-    view: PropTypes.string.isRequired,
     stageAdded: PropTypes.func.isRequired,
-    viewChanged: PropTypes.func.isRequired,
     newPipeline: PropTypes.func.isRequired,
     clonePipeline: PropTypes.func.isRequired,
     copyToClipboard: PropTypes.func.isRequired,
@@ -34,9 +32,7 @@ class PipelineToolbar extends PureComponent {
     return (
       <div className={classnames(styles['pipeline-toolbar'])}>
         <PipelineBuilderToolbar
-          view={this.props.view}
           stageAdded={this.props.stageAdded}
-          viewChanged={this.props.viewChanged}
           clonePipeline={this.props.clonePipeline}
           newPipeline={this.props.newPipeline}
           copyToClipboard={this.props.copyToClipboard}

@@ -149,8 +149,7 @@ describe('Aggregation Store', () => {
             fields: INITIAL_STATE.fields,
             inputDocuments: INITIAL_STATE.inputDocuments,
             serverVersion: INITIAL_STATE.serverVersion,
-            pipeline: INITIAL_STATE.pipeline,
-            view: INITIAL_STATE.view
+            pipeline: INITIAL_STATE.pipeline
           });
         });
       });
@@ -178,8 +177,7 @@ describe('Aggregation Store', () => {
             fields: INITIAL_STATE.fields,
             inputDocuments: INITIAL_STATE.inputDocuments,
             serverVersion: INITIAL_STATE.serverVersion,
-            pipeline: INITIAL_STATE.pipeline,
-            view: INITIAL_STATE.view
+            pipeline: INITIAL_STATE.pipeline
           });
         });
       });

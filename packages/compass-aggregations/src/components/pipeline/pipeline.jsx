@@ -30,8 +30,6 @@ class Pipeline extends PureComponent {
     clonePipeline: PropTypes.func.isRequired,
     restorePipeline: PropTypes.object.isRequired,
     copyToClipboard: PropTypes.func.isRequired,
-    viewChanged: PropTypes.func.isRequired,
-    view: PropTypes.string.isRequired,
     fields: PropTypes.array.isRequired,
     nameChanged: PropTypes.func.isRequired,
     name: PropTypes.string
@@ -53,9 +51,7 @@ class Pipeline extends PureComponent {
     return (
       <div className={classnames(styles.pipeline)}>
         <PipelineToolbar
-          view={this.props.view}
           stageAdded={this.props.stageAdded}
-          viewChanged={this.props.viewChanged}
           copyToClipboard={this.props.copyToClipboard}
           saveCurrentPipeline={this.props.saveCurrentPipeline}
           savedPipeline={this.props.savedPipeline}

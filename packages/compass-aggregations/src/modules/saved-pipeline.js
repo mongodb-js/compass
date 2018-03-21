@@ -116,7 +116,6 @@ export const saveCurrentPipeline = () => {
     const stateRecord = Object.assign({}
       , { namespace: state.namespace }
       , { pipeline: pipeline }
-      , { view: state.view }
       , { name: state.name }
       , { id: id }
     );

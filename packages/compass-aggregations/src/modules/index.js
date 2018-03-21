@@ -6,7 +6,6 @@ import inputDocuments, { INITIAL_STATE as INPUT_INITIAL_STATE } from './input-do
 import namespace, { INITIAL_STATE as NS_INITIAL_STATE, NAMESPACE_CHANGED } from './namespace';
 import serverVersion, { INITIAL_STATE as SV_INITIAL_STATE } from './server-version';
 import pipeline, { runStage, INITIAL_STATE as PIPELINE_INITIAL_STATE } from './pipeline';
-import view, { INITIAL_STATE as VIEW_INITIAL_STATE } from './view';
 import name, { INITIAL_STATE as NAME_INITIAL_STATE } from './name';
 import id, { INITIAL_STATE as ID_INITIAL_STATE } from './id';
 import savedPipeline, {
@@ -27,7 +26,6 @@ export const INITIAL_STATE = {
   serverVersion: SV_INITIAL_STATE,
   pipeline: PIPELINE_INITIAL_STATE,
   savedPipeline: SP_INITIAL_STATE,
-  view: VIEW_INITIAL_STATE,
   restorePipeline: RESTORE_PIPELINE_STATE,
   name: NAME_INITIAL_STATE,
   id: ID_INITIAL_STATE
@@ -75,7 +73,6 @@ const appReducer = combineReducers({
   savedPipeline,
   restorePipeline,
   pipeline,
-  view,
   name,
   id
 });
@@ -116,7 +113,6 @@ const doRestorePipeline = (state, action) => {
     ...INITIAL_STATE,
     namespace: savedState.namespace,
     pipeline: savedState.pipeline,
-    view: savedState.view,
     name: savedState.name,
     id: savedState.id,
     fields: state.fields,

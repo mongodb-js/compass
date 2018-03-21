@@ -1,6 +1,5 @@
 import React from 'react';
 import { shallow } from 'enzyme';
-import { CODE } from 'modules/view';
 
 import PipelineToolbar from 'components/pipeline-toolbar';
 import PipelineBuilderToolbar from 'components/pipeline-builder-toolbar';
@@ -11,21 +10,17 @@ import styles from './pipeline-toolbar.less';
 describe('PipelineToolbar [Component]', () => {
   let component;
   let stageAddedSpy;
-  let viewChangedSpy;
   let copyToClipboardSpy;
   let saveSpy;
 
   beforeEach(() => {
     stageAddedSpy = sinon.spy();
-    viewChangedSpy = sinon.spy();
     copyToClipboardSpy = sinon.spy();
     saveSpy = sinon.spy();
 
     component = shallow(
       <PipelineToolbar
-        view={CODE}
         stageAdded={stageAddedSpy}
-        viewChanged={viewChangedSpy}
         saveCurrentPipeline={saveSpy}
         savedPipeline={{ isNameValid: true }}
         copyToClipboard={copyToClipboardSpy} />
