@@ -52,6 +52,11 @@ export const STAGE_PREVIEW_UPDATED = `${PREFIX}/STAGE_PREVIEW_UPDATED`;
 export const LOADING_STAGE_RESULTS = `${PREFIX}/LOADING_STAGE_RESULTS`;
 
 /**
+ * Limit constant.
+ */
+export const LIMIT = Object.freeze({ $limit: 20 });
+
+/**
  * An initial stage.
  */
 const EMPTY_STAGE = {
@@ -395,10 +400,12 @@ const OPTIONS = Object.freeze({});
  * @returns {Array} The pipeline.
  */
 export const generatePipeline = (state, index) => {
-  return state.pipeline.reduce((results, stage, i) => {
+  const stages = state.pipeline.reduce((results, stage, i) => {
     if (i <= index && stage.isEnabled) results.push(stage.executor);
     return results;
   }, []);
+  if (stages.length > 0) stages.push(LIMIT);
+  return stages;
 };
 
 /**
@@ -417,7 +424,7 @@ const executeAggregation = (dataService, ns, dispatch, state, index) => {
     const pipeline = generatePipeline(state, index);
     dataService.aggregate(ns, pipeline, OPTIONS, (err, cursor) => {
       if (err) return dispatch(stagePreviewUpdated([], index, err));
-      cursor.batchSize(20).limit(20).toArray((e, docs) => {
+      cursor.toArray((e, docs) => {
         dispatch(stagePreviewUpdated(docs || [], index, e));
         cursor.close();
       });

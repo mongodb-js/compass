@@ -121,7 +121,10 @@ export const refreshInputDocuments = () => {
         if (error) return dispatch(updateInputDocuments(0, [], error));
         dataService.aggregate(ns, SAMPLE, OPTIONS, (err, cursor) => {
           if (err) return dispatch(updateInputDocuments(count, [], err));
-          cursor.toArray((e, docs) => dispatch(updateInputDocuments(count, docs, e)));
+          cursor.toArray((e, docs) => {
+            dispatch(updateInputDocuments(count, docs, e));
+            cursor.close();
+          });
         });
       });
     }

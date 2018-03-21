@@ -300,12 +300,17 @@ describe('pipeline module', () => {
   });
 
   describe('#generatePipeline', () => {
+    const limit = { $limit: 20 };
+
     context('when the index is the first', () => {
       const stage = { isEnabled: true, executor: { $match: { name: 'test' }}};
       const state = { pipeline: [ stage ]};
 
       it('returns the pipeline with only the current stage', () => {
-        expect(generatePipeline(state, 0)).to.deep.equal([ stage.executor ]);
+        expect(generatePipeline(state, 0)).to.deep.equal([
+          stage.executor,
+          limit
+        ]);
       });
     });
 
@@ -319,7 +324,8 @@ describe('pipeline module', () => {
         expect(generatePipeline(state, 2)).to.deep.equal([
           stage0.executor,
           stage1.executor,
-          stage2.executor
+          stage2.executor,
+          limit
         ]);
       });
     });
@@ -333,7 +339,8 @@ describe('pipeline module', () => {
       it('returns the pipeline with the current and all previous stages', () => {
         expect(generatePipeline(state, 1)).to.deep.equal([
           stage0.executor,
-          stage1.executor
+          stage1.executor,
+          limit
         ]);
       });
     });
@@ -347,7 +354,8 @@ describe('pipeline module', () => {
       it('returns the pipeline with the current and all previous stages', () => {
         expect(generatePipeline(state, 2)).to.deep.equal([
           stage1.executor,
-          stage2.executor
+          stage2.executor,
+          limit
         ]);
       });
     });
