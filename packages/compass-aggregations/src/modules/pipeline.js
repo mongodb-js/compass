@@ -86,7 +86,7 @@ const EMPTY_STAGE = {
   isExpanded: true,
   isLoading: false,
   previewDocuments: [],
-  previewError: null
+  error: null
 };
 
 /**
@@ -240,8 +240,9 @@ const toggleStageCollapse = (state, action) => {
 const updateStagePreview = (state, action) => {
   const newState = copyState(state);
   newState[action.index].previewDocuments = action.documents;
-  newState[action.index].previewError = action.error;
+  newState[action.index].error = action.error ? action.error.message : null;
   newState[action.index].isLoading = false;
+  newState[action.index].isValid = (action.error === null);
   return newState;
 };
 

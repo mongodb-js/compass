@@ -123,21 +123,21 @@ class StageEditor extends PureComponent {
   render() {
     return (
       <div>
-      <div className={classnames(styles['stage-editor'])}>
-        <AceEditor
-          mode="mongodb"
-          theme="mongodb"
-          width="100%"
-          value={this.props.stage.stage}
-          onChange={this.onStageChange}
-          editorProps={{ $blockScrolling: Infinity }}
-          name={`aggregations-stage-editor-${this.props.index}`}
-          setOptions={OPTIONS}
-          onLoad={(editor) => {
-            this.editor = editor;
-          }}
-        />
-      </div>
+        <div className={classnames(styles['stage-editor'])}>
+          <AceEditor
+            mode="mongodb"
+            theme="mongodb"
+            width="100%"
+            value={this.props.stage.stage}
+            onChange={this.onStageChange}
+            editorProps={{ $blockScrolling: Infinity }}
+            name={`aggregations-stage-editor-${this.props.index}`}
+            setOptions={OPTIONS}
+            onLoad={(editor) => {
+              this.editor = editor;
+            }}
+          />
+        </div>
         {this.renderError()}
       </div>
     );
