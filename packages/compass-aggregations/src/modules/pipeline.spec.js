@@ -384,5 +384,29 @@ describe('pipeline module', () => {
         ]);
       });
     });
+
+    context('when the stage is required to be the first', () => {
+      context('when the stage is $collStats', () => {
+        const stage0 = { isEnabled: true, executor: { $collStats: {}}, stageOperator: '$collStats' };
+        const state = { inputDocuments: { count: 10000 }, pipeline: [ stage0 ]};
+
+        it('returns the pipeline with the current and all previous stages', () => {
+          expect(generatePipeline(state, 0)).to.deep.equal([
+            stage0.executor
+          ]);
+        });
+      });
+
+      context('when the stage is $indexStats', () => {
+        const stage0 = { isEnabled: true, executor: { $collStats: {}}, stageOperator: '$indexStats' };
+        const state = { inputDocuments: { count: 10000 }, pipeline: [ stage0 ]};
+
+        it('returns the pipeline with the current and all previous stages', () => {
+          expect(generatePipeline(state, 0)).to.deep.equal([
+            stage0.executor
+          ]);
+        });
+      });
+    });
   });
 });

@@ -40,7 +40,7 @@ const STAGE_OPERATORS = [
     meta: 'stage',
     version: '3.4.0',
     description: 'Returns statistics regarding a collection or view.',
-    snippet: '{\n  latencyStats: {\n    histograms: ${1:false}\n  },\n  storageStats: {${2:}},\n  count: {${3}}\n}'
+    snippet: '{\n  latencyStats: {\n    histograms: ${1:false}\n  },\n  storageStats: {${2:}},\n}'
   },
   {
     name: '$count',

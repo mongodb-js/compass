@@ -20,7 +20,7 @@ class StagePreview extends PureComponent {
   }
 
   renderPreview() {
-    if (this.props.isValid && this.props.documents.length > 1) {
+    if (this.props.isValid && this.props.documents.length > 0) {
       const documents = this.props.documents.map((doc, i) => {
         return (<Document doc={new HadronDocument(doc)} editable={false} key={i} />);
       });

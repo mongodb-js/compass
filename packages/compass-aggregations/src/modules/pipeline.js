@@ -67,6 +67,14 @@ export const STAGE_SAMPLE_SIZE = 10000;
 export const MAX_SCAN_COLL_SIZE = 200000;
 
 /**
+ * Stage operators that are required to be the first stage.
+ */
+export const REQUIRED_AS_FIRST_STAGE = [
+  '$collStats',
+  '$indexStats'
+];
+
+/**
  * An initial stage.
  */
 const EMPTY_STAGE = {
@@ -414,6 +422,7 @@ export const generatePipeline = (state, index) => {
     if (i <= index && stage.isEnabled) results.push(stage.executor);
     return results;
   }, []);
+  // REQUIRED_AS_FIRST_STAGE
   if (stages.length > 0) {
     const count = state.inputDocuments.count;
     // @note If the $sample is over 5% of the total collection size then it
@@ -425,8 +434,10 @@ export const generatePipeline = (state, index) => {
     //   that we will sample based on the 5% rule.
     const sampleSize = count > MAX_SCAN_COLL_SIZE ? noCollScanNumber : STAGE_SAMPLE_SIZE;
 
-    stages.unshift({ $sample: { size: sampleSize }});
-    stages.push(LIMIT);
+    if (!REQUIRED_AS_FIRST_STAGE.includes(state.pipeline[0].stageOperator)) {
+      stages.unshift({ $sample: { size: sampleSize }});
+      stages.push(LIMIT);
+    }
   }
   return stages;
 };
