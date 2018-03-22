@@ -1,4 +1,5 @@
 import { combineReducers } from 'redux';
+import { ObjectId } from 'bson';
 
 import dataService, { INITIAL_STATE as DS_INITIAL_STATE } from './data-service';
 import fields, { INITIAL_STATE as FIELDS_INITIAL_STATE } from './fields';
@@ -150,8 +151,13 @@ const doClearPipeline = (state) => ({
  *
  * @returns {Object} The new state.
  */
-const createNewPipeline = () => ({
-  ...INITIAL_STATE
+const createNewPipeline = (state) => ({
+  ...INITIAL_STATE,
+  namespace: state.namespace,
+  fields: state.fields,
+  serverVersion: state.serverVersion,
+  dataService: state.dataService,
+  inputDocuments: state.inputDocuments
 });
 
 /**
@@ -163,6 +169,7 @@ const createNewPipeline = () => ({
  */
 const createClonedPipeline = (state) => ({
   ...state,
+  id: new ObjectId().toHexString(),
   name: `${state.name} (copy)`
 });
 
