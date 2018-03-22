@@ -1,6 +1,7 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import classnames from 'classnames';
+import semver from 'semver';
 import Select from 'react-select-plus';
 import STAGE_OPERATORS from 'constants/stage-operators';
 
@@ -13,9 +14,10 @@ class StageOperatorSelect extends PureComponent {
   static displayName = 'StageOperatorSelectComponent';
 
   static propTypes = {
-    stage: PropTypes.object.isRequired,
+    stageOperator: PropTypes.string,
     index: PropTypes.number.isRequired,
-    stageOperatorSelected: PropTypes.func.isRequired
+    stageOperatorSelected: PropTypes.func.isRequired,
+    serverVersion: PropTypes.string.isRequired
   }
 
   /**
@@ -33,6 +35,9 @@ class StageOperatorSelect extends PureComponent {
    * @returns {Component} The component.
    */
   render() {
+    const operators = STAGE_OPERATORS.filter((o) => {
+      return semver.gte(this.props.serverVersion, o.version);
+    });
     return (
       <div className={classnames(styles['stage-operator-select'])}>
         <Select
@@ -41,8 +46,8 @@ class StageOperatorSelect extends PureComponent {
           openOnClick
           clearable={false}
           className={classnames(styles['stage-operator-select-control'])}
-          options={STAGE_OPERATORS}
-          value={this.props.stage.stageOperator}
+          options={operators}
+          value={this.props.stageOperator}
           onChange={this.onStageOperatorSelected} />
       </div>
     );

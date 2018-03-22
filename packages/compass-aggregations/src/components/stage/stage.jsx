@@ -114,7 +114,15 @@ class Stage extends Component {
     return this.props.connectDragSource(
       this.props.connectDropTarget(
         <div className={classnames(styles[valid])} style={{ opacity }}>
-          <StageToolbar {...this.props} />
+          <StageToolbar
+            stage={this.props.stage}
+            index={this.props.index}
+            serverVersion={this.props.serverVersion}
+            stageOperatorSelected={this.props.stageOperatorSelected}
+            stageToggled={this.props.stageToggled}
+            stageDeleted={this.props.stageDeleted}
+            runStage={this.props.runStage}
+            stageCollapseToggled={this.props.stageCollapseToggled} />
           {this.renderWorkspace()}
         </div>
       )

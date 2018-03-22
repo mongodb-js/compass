@@ -21,6 +21,7 @@ describe('StageOperatorSelect [Component]', () => {
       <StageOperatorSelect
         stage={stage}
         index={0}
+        serverVersion="3.4.0"
         stageOperatorSelected={spy} />
     );
   });

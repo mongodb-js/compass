@@ -12,7 +12,14 @@ import styles from './stage-toolbar.less';
 class StageToolbar extends PureComponent {
   static displayName = 'StageToolbar';
   static propTypes = {
-    stage: PropTypes.object.isRequired
+    stage: PropTypes.object.isRequired,
+    index: PropTypes.number.isRequired,
+    serverVersion: PropTypes.string.isRequired,
+    stageOperatorSelected: PropTypes.func.isRequired,
+    stageToggled: PropTypes.func.isRequired,
+    runStage: PropTypes.func.isRequired,
+    stageDeleted: PropTypes.func.isRequired,
+    stageCollapseToggled: PropTypes.func.isRequired
   }
 
   /**
@@ -24,7 +31,15 @@ class StageToolbar extends PureComponent {
     const valid = this.props.stage.isValid ? 'stage-toolbar' : 'stage-toolbar-invalid';
     return (
       <div className={classnames(styles[valid])}>
-        <StageBuilderToolbar {...this.props} />
+        <StageBuilderToolbar
+          stage={this.props.stage}
+          index={this.props.index}
+          stageOperatorSelected={this.props.stageOperatorSelected}
+          stageCollapseToggled={this.props.stageCollapseToggled}
+          stageToggled={this.props.stageToggled}
+          runStage={this.props.runStage}
+          stageDeleted={this.props.stageDeleted}
+          serverVersion={this.props.serverVersion} />
         <StagePreviewToolbar
           isEnabled={this.props.stage.isEnabled}
           stageOperator={this.props.stage.stageOperator} />
