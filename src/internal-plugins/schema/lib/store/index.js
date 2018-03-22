@@ -60,6 +60,13 @@ const SchemaStore = Reflux.createStore({
     });
   },
 
+  getShareText() {
+    if (this.state.schema !== null) {
+      return `The schema definition of ${this.ns} has been copied to your clipboard in JSON format.`;
+    }
+    return 'Please Analyze the Schema First from the Schema Tab.'
+  },
+
   handleSchemaShare() {
     const dialog = remote.dialog;
     const BrowserWindow = remote.BrowserWindow;
@@ -67,14 +74,11 @@ const SchemaStore = Reflux.createStore({
 
     clipboard.writeText(JSON.stringify(this.state.schema, null, '  '));
 
-    const detail = `The schema definition of ${this.ns} has been copied to your `
-      + 'clipboard in JSON format.';
-
     dialog.showMessageBox(BrowserWindow.getFocusedWindow(), {
       type: 'info',
       icon: COMPASS_ICON_PATH,
       message: 'Share Schema',
-      detail: detail,
+      detail: this.getShareText(),
       buttons: ['OK']
     });
   },
