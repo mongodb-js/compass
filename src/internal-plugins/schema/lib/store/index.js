@@ -64,7 +64,7 @@ const SchemaStore = Reflux.createStore({
     if (this.state.schema !== null) {
       return `The schema definition of ${this.ns} has been copied to your clipboard in JSON format.`;
     }
-    return 'Please Analyze the Schema First from the Schema Tab.'
+    return 'Please Analyze the Schema First from the Schema Tab.';
   },
 
   handleSchemaShare() {
