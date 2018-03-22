@@ -300,14 +300,16 @@ describe('pipeline module', () => {
   });
 
   describe('#generatePipeline', () => {
+    const sample = { $sample: { size: 10000 }};
     const limit = { $limit: 20 };
 
     context('when the index is the first', () => {
       const stage = { isEnabled: true, executor: { $match: { name: 'test' }}};
-      const state = { pipeline: [ stage ]};
+      const state = { inputDocuments: { count: 10000 }, pipeline: [ stage ]};
 
       it('returns the pipeline with only the current stage', () => {
         expect(generatePipeline(state, 0)).to.deep.equal([
+          sample,
           stage.executor,
           limit
         ]);
@@ -318,10 +320,11 @@ describe('pipeline module', () => {
       const stage0 = { isEnabled: true, executor: { $match: { name: 'test' }}};
       const stage1 = { isEnabled: true, executor: { $project: { name: 1 }}};
       const stage2 = { isEnabled: true, executor: { $sort: { name: 1 }}};
-      const state = { pipeline: [ stage0, stage1, stage2 ]};
+      const state = { inputDocuments: { count: 10000 }, pipeline: [ stage0, stage1, stage2 ]};
 
       it('returns the pipeline with the current and all previous stages', () => {
         expect(generatePipeline(state, 2)).to.deep.equal([
+          sample,
           stage0.executor,
           stage1.executor,
           stage2.executor,
@@ -334,10 +337,11 @@ describe('pipeline module', () => {
       const stage0 = { isEnabled: true, executor: { $match: { name: 'test' }}};
       const stage1 = { isEnabled: true, executor: { $project: { name: 1 }}};
       const stage2 = { isEnabled: true, executor: { $sort: { name: 1 }}};
-      const state = { pipeline: [ stage0, stage1, stage2 ]};
+      const state = { inputDocuments: { count: 10000 }, pipeline: [ stage0, stage1, stage2 ]};
 
       it('returns the pipeline with the current and all previous stages', () => {
         expect(generatePipeline(state, 1)).to.deep.equal([
+          sample,
           stage0.executor,
           stage1.executor,
           limit
@@ -349,12 +353,33 @@ describe('pipeline module', () => {
       const stage0 = { isEnabled: false, executor: { $match: { name: 'test' }}};
       const stage1 = { isEnabled: true, executor: { $project: { name: 1 }}};
       const stage2 = { isEnabled: true, executor: { $sort: { name: 1 }}};
-      const state = { pipeline: [ stage0, stage1, stage2 ]};
+      const state = { inputDocuments: { count: 10000 }, pipeline: [ stage0, stage1, stage2 ]};
 
       it('returns the pipeline with the current and all previous stages', () => {
         expect(generatePipeline(state, 2)).to.deep.equal([
+          sample,
           stage1.executor,
           stage2.executor,
+          limit
+        ]);
+      });
+    });
+
+    context('when there are no stages', () => {
+      it('returns an empty pipeline', () => {
+        expect(generatePipeline({ pipeline: [] }, 0)).to.deep.equal([]);
+      });
+    });
+
+    context('when the collection size is over the max threshold', () => {
+      const highSample = { $sample: { size: 48000 }};
+      const stage0 = { isEnabled: true, executor: { $match: { name: 'test' }}};
+      const state = { inputDocuments: { count: 1000000 }, pipeline: [ stage0 ]};
+
+      it('sets the sample size to 0.048 of the collection count', () => {
+        expect(generatePipeline(state, 0)).to.deep.equal([
+          highSample,
+          stage0.executor,
           limit
         ]);
       });

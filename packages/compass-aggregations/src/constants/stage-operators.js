@@ -230,7 +230,7 @@ const STAGE_OPERATORS = [
     meta: 'stage',
     version: '2.2.0',
     description: 'Skips the first n documents where n is the specified skip number and passes the remaining documents unmodified to the pipeline.',
-    snippet: '{\n  ${1}\n}'
+    snippet: '${1:integer}'
   },
   {
     name: '$sort',

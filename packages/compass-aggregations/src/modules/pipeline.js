@@ -57,6 +57,16 @@ export const LOADING_STAGE_RESULTS = `${PREFIX}/LOADING_STAGE_RESULTS`;
 export const LIMIT = Object.freeze({ $limit: 20 });
 
 /**
+ * Our magic sweet spot for sample size.
+ */
+export const STAGE_SAMPLE_SIZE = 10000;
+
+/**
+ * Our maximum collection size to allow a full scan.
+ */
+export const MAX_SCAN_COLL_SIZE = 200000;
+
+/**
  * An initial stage.
  */
 const EMPTY_STAGE = {
@@ -404,7 +414,20 @@ export const generatePipeline = (state, index) => {
     if (i <= index && stage.isEnabled) results.push(stage.executor);
     return results;
   }, []);
-  if (stages.length > 0) stages.push(LIMIT);
+  if (stages.length > 0) {
+    const count = state.inputDocuments.count;
+    // @note If the $sample is over 5% of the total collection size then it
+    //   will generate a full collection scan. To be on the safe side (since
+    //   documents could be getting deleted, we drop this number to a bit less.)
+    const noCollScanNumber = Math.round(count * 0.048);
+
+    // @note We will allow a full collection scan up to a certain size, and over
+    //   that we will sample based on the 5% rule.
+    const sampleSize = count > MAX_SCAN_COLL_SIZE ? noCollScanNumber : STAGE_SAMPLE_SIZE;
+
+    stages.unshift({ $sample: { size: sampleSize }});
+    stages.push(LIMIT);
+  }
   return stages;
 };
 
