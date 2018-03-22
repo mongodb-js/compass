@@ -93,5 +93,26 @@ describe('root [ module ]', () => {
         expect(state.id).to.equal('');
       });
     });
+
+    context('when the action is CLONE_PIPELINE', () => {
+      const prevState = {
+        id: 'testing',
+        name: 'test'
+      };
+
+      let state;
+
+      before(() => {
+        state = reducer(prevState, clonePipeline());
+      });
+
+      it('sets id to a new id', () => {
+        expect(state.id).to.not.equal('testing');
+      });
+
+      it('updates the name', () => {
+        expect(state.name).to.equal('test (copy)');
+      });
+    });
   });
 });
