@@ -389,12 +389,12 @@ ECMAScriptListener.prototype.exitPropertyNameAndValueList = function(ctx) {
 };
 
 
-// Enter a parse tree produced by ECMAScriptParser#PropertyExpressionAssignment.
-ECMAScriptListener.prototype.enterPropertyExpressionAssignment = function(ctx) {
+// Enter a parse tree produced by ECMAScriptParser#PropertyAssignmentExpression.
+ECMAScriptListener.prototype.enterPropertyAssignmentExpression = function(ctx) {
 };
 
-// Exit a parse tree produced by ECMAScriptParser#PropertyExpressionAssignment.
-ECMAScriptListener.prototype.exitPropertyExpressionAssignment = function(ctx) {
+// Exit a parse tree produced by ECMAScriptParser#PropertyAssignmentExpression.
+ECMAScriptListener.prototype.exitPropertyAssignmentExpression = function(ctx) {
 };
 
 

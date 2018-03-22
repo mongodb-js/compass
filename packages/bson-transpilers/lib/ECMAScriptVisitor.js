@@ -264,8 +264,8 @@ ECMAScriptVisitor.prototype.visitPropertyNameAndValueList = function(ctx) {
 };
 
 
-// Visit a parse tree produced by ECMAScriptParser#PropertyExpressionAssignment.
-ECMAScriptVisitor.prototype.visitPropertyExpressionAssignment = function(ctx) {
+// Visit a parse tree produced by ECMAScriptParser#PropertyAssignmentExpression.
+ECMAScriptVisitor.prototype.visitPropertyAssignmentExpression = function(ctx) {
   return this.visitChildren(ctx);
 };
 

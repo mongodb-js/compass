@@ -30,12 +30,12 @@ Visitor.prototype.visitStringLiteral = function(ctx) {
 };
 
 /**
- * Visit Property Expression Assignment
+ * Visit Property Assignment Expression
  *
  * @param {object} ctx
  * @returns {string}
  */
-Visitor.prototype.visitPropertyExpressionAssignment = function(ctx) {
+Visitor.prototype.visitPropertyAssignmentExpression = function(ctx) {
   const key = this.singleQuoteStringify(this.visit(ctx.getChild(0)));
   const value = this.visit(ctx.getChild(2));
 

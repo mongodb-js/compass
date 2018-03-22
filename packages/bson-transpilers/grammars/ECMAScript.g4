@@ -427,7 +427,7 @@ propertyNameAndValueList
 ///     get PropertyName ( ) { FunctionBody }
 ///     set PropertyName ( PropertySetParameterList ) { FunctionBody }
 propertyAssignment
- : propertyName ':' singleExpression                            # PropertyExpressionAssignment
+ : propertyName ':' singleExpression                            # PropertyAssignmentExpression
  | getter '(' ')' '{' functionBody '}'                          # PropertyGetter
  | setter '(' propertySetParameterList ')' '{' functionBody '}' # PropertySetter
  ;

@@ -195,6 +195,13 @@
         "csharp": ""
       },
       {
+        "description": "Doc with trailing comma",
+        "query": "{x: 1,}",
+        "python": "{'x': 1,}",
+        "java": "new Document().append(\"x\", 1)",
+        "csharp": ""
+      },
+      {
         "description": "Doc with array",
         "query": "{x: [1, 2]}",
         "python": "{'x': [1, 2]}",

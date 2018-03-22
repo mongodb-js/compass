@@ -32,7 +32,7 @@ Visitor.prototype.isNumericType = function(ctx) {
 /**
  * Selectively visits children of a node.
  *
- * @param ctx
+ * @param {ParserRuleContext} ctx
  * @param {Object} options:
  *    start - child index to start iterating at.
  *    end - child index to end iterating after.
@@ -40,7 +40,7 @@ Visitor.prototype.isNumericType = function(ctx) {
  *    separator - a string separator to go between children.
  *    ignore - an array of child indexes to skip.
  *    children - the set of children to visit.
- * @returns {string}
+ * @returns {String}
  */
 Visitor.prototype.visitChildren = function(ctx, options) {
   const opts = {
@@ -106,11 +106,10 @@ Visitor.prototype.visitBSONConstructorExpression = function(ctx) {
 /**
  * Visit a leaf node and return a string.
  * *
- * @param {object} ctx
- * @returns {string}
+ * @param {ParserRuleContext} ctx
+ * @returns {String}
  */
 Visitor.prototype.visitTerminal = function(ctx) {
-  // TODO: set type here, or always set by the visitXLiteral methods?
   return ctx.getText();
 };
 

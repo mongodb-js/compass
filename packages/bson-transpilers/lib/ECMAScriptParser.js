@@ -4546,45 +4546,6 @@ PropertyAssignmentContext.prototype.copyFrom = function(ctx) {
 };
 
 
-function PropertyExpressionAssignmentContext(parser, ctx) {
-	PropertyAssignmentContext.call(this, parser);
-    PropertyAssignmentContext.prototype.copyFrom.call(this, ctx);
-    return this;
-}
-
-PropertyExpressionAssignmentContext.prototype = Object.create(PropertyAssignmentContext.prototype);
-PropertyExpressionAssignmentContext.prototype.constructor = PropertyExpressionAssignmentContext;
-
-ECMAScriptParser.PropertyExpressionAssignmentContext = PropertyExpressionAssignmentContext;
-
-PropertyExpressionAssignmentContext.prototype.propertyName = function() {
-    return this.getTypedRuleContext(PropertyNameContext,0);
-};
-
-PropertyExpressionAssignmentContext.prototype.singleExpression = function() {
-    return this.getTypedRuleContext(SingleExpressionContext,0);
-};
-PropertyExpressionAssignmentContext.prototype.enterRule = function(listener) {
-    if(listener instanceof ECMAScriptListener ) {
-        listener.enterPropertyExpressionAssignment(this);
-	}
-};
-
-PropertyExpressionAssignmentContext.prototype.exitRule = function(listener) {
-    if(listener instanceof ECMAScriptListener ) {
-        listener.exitPropertyExpressionAssignment(this);
-	}
-};
-
-PropertyExpressionAssignmentContext.prototype.accept = function(visitor) {
-    if ( visitor instanceof ECMAScriptVisitor ) {
-        return visitor.visitPropertyExpressionAssignment(this);
-    } else {
-        return visitor.visitChildren(this);
-    }
-};
-
-
 function PropertySetterContext(parser, ctx) {
 	PropertyAssignmentContext.call(this, parser);
     PropertyAssignmentContext.prototype.copyFrom.call(this, ctx);
@@ -4622,6 +4583,45 @@ PropertySetterContext.prototype.exitRule = function(listener) {
 PropertySetterContext.prototype.accept = function(visitor) {
     if ( visitor instanceof ECMAScriptVisitor ) {
         return visitor.visitPropertySetter(this);
+    } else {
+        return visitor.visitChildren(this);
+    }
+};
+
+
+function PropertyAssignmentExpressionContext(parser, ctx) {
+	PropertyAssignmentContext.call(this, parser);
+    PropertyAssignmentContext.prototype.copyFrom.call(this, ctx);
+    return this;
+}
+
+PropertyAssignmentExpressionContext.prototype = Object.create(PropertyAssignmentContext.prototype);
+PropertyAssignmentExpressionContext.prototype.constructor = PropertyAssignmentExpressionContext;
+
+ECMAScriptParser.PropertyAssignmentExpressionContext = PropertyAssignmentExpressionContext;
+
+PropertyAssignmentExpressionContext.prototype.propertyName = function() {
+    return this.getTypedRuleContext(PropertyNameContext,0);
+};
+
+PropertyAssignmentExpressionContext.prototype.singleExpression = function() {
+    return this.getTypedRuleContext(SingleExpressionContext,0);
+};
+PropertyAssignmentExpressionContext.prototype.enterRule = function(listener) {
+    if(listener instanceof ECMAScriptListener ) {
+        listener.enterPropertyAssignmentExpression(this);
+	}
+};
+
+PropertyAssignmentExpressionContext.prototype.exitRule = function(listener) {
+    if(listener instanceof ECMAScriptListener ) {
+        listener.exitPropertyAssignmentExpression(this);
+	}
+};
+
+PropertyAssignmentExpressionContext.prototype.accept = function(visitor) {
+    if ( visitor instanceof ECMAScriptVisitor ) {
+        return visitor.visitPropertyAssignmentExpression(this);
     } else {
         return visitor.visitChildren(this);
     }
@@ -4680,7 +4680,7 @@ ECMAScriptParser.prototype.propertyAssignment = function() {
         var la_ = this._interp.adaptivePredict(this._input,39,this._ctx);
         switch(la_) {
         case 1:
-            localctx = new PropertyExpressionAssignmentContext(this, localctx);
+            localctx = new PropertyAssignmentExpressionContext(this, localctx);
             this.enterOuterAlt(localctx, 1);
             this.state = 432;
             this.propertyName();
