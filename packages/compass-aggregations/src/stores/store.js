@@ -6,6 +6,7 @@ import { namespaceChanged } from 'modules/namespace';
 import { dataServiceConnected } from 'modules/data-service';
 import { fieldsChanged } from 'modules/fields';
 import { refreshInputDocuments } from 'modules/input-documents';
+import { serverVersionChanged } from 'modules/server-version';
 
 /**
  * The store has a combined pipeline reducer plus the thunk middleware.
@@ -56,6 +57,15 @@ store.onActivated = (appRegistry) => {
    */
   appRegistry.getStore('Field.Store').listen((fields) => {
     store.dispatch(fieldsChanged(fields.fields));
+  });
+
+  /**
+   * When the instance is loaded, set our server version.
+   *
+   * @param {Object} state - The store state.
+   */
+  appRegistry.getStore('App.InstanceStore').listen((state) => {
+    store.dispatch(serverVersionChanged(state.instance.build.version));
   });
 };
 
