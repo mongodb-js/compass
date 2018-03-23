@@ -62,10 +62,10 @@ store.onActivated = (appRegistry) => {
   /**
    * When the instance is loaded, set our server version.
    *
-   * @param {Object} state - The store state.
+   * @param {String} version - The version.
    */
-  appRegistry.getStore('App.InstanceStore').listen((state) => {
-    store.dispatch(serverVersionChanged(state.instance.build.version));
+  appRegistry.on('server-version-changed', (version) => {
+    store.dispatch(serverVersionChanged(version));
   });
 };
 
