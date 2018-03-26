@@ -515,7 +515,7 @@ Visitor.prototype.visitBSONSymbolConstructor = function(ctx) {
     return 'Error: Symbol requires a string argument';
   }
 
-  return `unicode(${symbol}, 'utf-8')`;
+  return `new BsonString(${symbol})`;
 };
 
 
