@@ -11,28 +11,28 @@
         "query": "new Code('some code')",
         "python": "Code('some code')",
         "java": "new Code(\"some code\")",
-        "csharp": ""
+        "csharp": "new BsonJavaScript(@\"some code\")"
       },
       {
         "description": "Code with string code",
         "query": "Code('some code')",
         "python": "Code('some code')",
         "java": "new Code(\"some code\")",
-        "csharp": ""
+        "csharp": "new BsonJavaScript(@\"some code\")"
       },
       {
         "description": "Code with string code and object scope",
         "query": "Code('string', {x: 1})",
         "python": "Code('string', {'x': 1})",
         "java": "new CodeWithScope(\"string\", new Document().append(\"x\", 1))",
-        "csharp": ""
+        "csharp": "new BsonJavaScriptWithScope(@\"string\", new BsonDocument({\"x\", \"1\"}))"
       },
       {
         "description": "Code with function code",
         "query": "Code(function(test) { console.log(test);  })",
         "python": "Code('function(test){console.log(test);}')",
         "java": "new Code(\"function(test){console.log(test);}\")",
-        "csharp": ""
+        "csharp": "new BsonJavaScript(@\"function(test){console.log(test);}\")"
       }
     ],
     "ObjectId": [

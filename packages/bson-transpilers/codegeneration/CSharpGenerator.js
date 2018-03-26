@@ -118,13 +118,75 @@ Visitor.prototype.visitBSONRegExpConstructor = function(ctx) {
       if (unsuppotedFlags.length > 0) {
         return `Error: the regular expression contains unsuppoted '${unsuppotedFlags.join('')}' flag`;
       }
-    }
 
-    flags = this.doubleQuoteStringify(flags.join(''));
+      flags = this.doubleQuoteStringify(flags.join(''));
+    }
 
     return `new BsonRegularExpression(@${pattern}, ${flags})`;
   }
   return `new BsonRegularExpression(@${pattern})`;
+};
+
+/**
+ * Child nodes: propertyName singleExpression
+ * @param {PropertyAssignmentExpressionContext} ctx
+ * @return {String}
+ */
+Visitor.prototype.visitPropertyAssignmentExpression = function(ctx) {
+  const key = this.doubleQuoteStringify(this.visit(ctx.propertyName()));
+  const value = this.doubleQuoteStringify(this.visit(ctx.singleExpression()));
+
+  return `${key}, ${value}`;
+};
+
+/**
+ * Visit Object Literal
+ *
+ * @param {object} ctx
+ * @returns {string}
+ */
+Visitor.prototype.visitObjectLiteral = function(ctx) {
+  ctx.type = this.types.OBJECT;
+
+  return `new BsonDocument(${this.visitChildren(ctx)})`;
+};
+
+/**
+ * Visit Code Constructor
+ *
+ * @param {object} ctx
+ * @returns {string}
+ */
+Visitor.prototype.visitBSONCodeConstructor = function(ctx) {
+  const args = ctx.arguments();
+
+  if (
+    args.argumentList() === null ||
+    (
+      args.argumentList().getChildCount() !== 1 &&
+      args.argumentList().getChildCount() !== 3
+    )
+  ) {
+    return 'Error: Code requires one or two arguments';
+  }
+
+  const argList = args.argumentList().singleExpression();
+  const code = this.doubleQuoteStringify(argList[0].getText());
+
+  if (argList.length === 2) {
+    /* NOTE: we have to visit the subtree first before type checking or type may
+     not be set. We might have to just suck it up and do two passes, but maybe
+     we can avoid it for now. */
+    const scope = this.visit(argList[1]);
+
+    if (argList[1].type !== this.types.OBJECT) {
+      return 'Error: Code requires scope to be an object';
+    }
+
+    return `new BsonJavaScriptWithScope(@${code}, ${scope})`;
+  }
+
+  return `new BsonJavaScript(@${code})`;
 };
 
 module.exports = Visitor;
