@@ -120,7 +120,7 @@ const BSON_TYPES = [
     meta: 'bson',
     version: '0.0.0',
     description: 'BSON Regex type',
-    snippet: "RegExp('${1:source}, ${2:opts}')"
+    snippet: "RegExp('${1:source}', '${2:opts}')"
   }
 ];
 

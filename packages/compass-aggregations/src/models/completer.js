@@ -31,6 +31,11 @@ const MATCH = '$match';
 const BASE_COMPLETIONS = EXPRESSION_OPERATORS.concat(BSON_TYPES);
 
 /**
+ * The match completions.
+ */
+const MATCH_COMPLETIONS = QUERY_OPERATORS.concat(BSON_TYPES);
+
+/**
  * Adds autocomplete suggestions based on the aggregation pipeline
  * operators.
  */
@@ -99,7 +104,7 @@ class Completer {
     // operators to the user.
     const stage = store.getState().pipeline[this.index];
     if (stage && stage.stageOperator === MATCH) {
-      done(null, this._filter(QUERY_OPERATORS, prefix));
+      done(null, this._filter(MATCH_COMPLETIONS, prefix));
     } else {
       const expressions = BASE_COMPLETIONS.concat(this.accumulators(stage)).concat(this.fields);
       done(null, this._filter(expressions, prefix));
