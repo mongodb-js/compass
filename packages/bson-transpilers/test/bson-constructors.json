@@ -137,28 +137,28 @@
         "query": "MinKey()",
         "python": "MinKey()",
         "java": "new MinKey()",
-        "csharp": ""
+        "csharp": "BsonMinKey.Value"
       },
       {
         "description": "new MinKey",
         "query": "new MinKey()",
         "python": "MinKey()",
         "java": "new MinKey()",
-        "csharp": ""
+        "csharp": "BsonMinKey.Value"
       },
       {
         "description": "maxKey",
         "query": "MaxKey()",
         "python": "MaxKey()",
         "java": "new MaxKey()",
-        "csharp": ""
+        "csharp": "BsonMaxKey.Value"
       },
       {
         "description": "new MaxKey",
         "query": "new MaxKey()",
         "python": "MaxKey()",
         "java": "new MaxKey()",
-        "csharp": ""
+        "csharp": "BsonMaxKey.Value"
       }
     ],
     "BSONRegExp": [

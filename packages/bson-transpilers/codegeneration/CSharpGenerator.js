@@ -322,4 +322,24 @@ Visitor.prototype.visitBSONLongConstructor = function(ctx) {
   return `new BsonInt64(Convert.ToInt32(${longstr}))`;
 };
 
+/**
+ * Visit MaxKey Constructor
+ *
+ * @param {object} ctx
+ * @returns {string}
+ */
+Visitor.prototype.visitBSONMaxKeyConstructor = function() {
+  return 'BsonMaxKey.Value';
+};
+
+/**
+ * Visit MinKey Constructor
+ *
+ * @param {object} ctx
+ * @returns {string}
+ */
+Visitor.prototype.visitBSONMinKeyConstructor = function() {
+  return 'BsonMinKey.Value';
+};
+
 module.exports = Visitor;
