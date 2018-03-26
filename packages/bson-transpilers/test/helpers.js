@@ -4,11 +4,12 @@ const fs = require('fs');
 const chai = require('chai');
 const expect = chai.expect;
 
-const { toJava, toPython } = require('../');
+const { toJava, toPython, toCSharp } = require('../');
 
 const compile = {
   java: toJava,
-  python: toPython
+  python: toPython,
+  csharp: toCSharp
 };
 
 // Need a way to have test pass while developing
@@ -18,6 +19,9 @@ const unsupported = {
   ],
   python: [
     'RegExp', 'BSONRegExp', 'DBRef', 'Decimal128', 'Timestamp', 'literals', 'ArrayElision'
+  ],
+  csharp: [
+    'RegExp', 'BSONRegExp', 'DBRef', 'Decimal128', 'Code', 'ObjectId', 'Binary', 'Double', 'Long', 'Decimal128', 'MinKey/MaxKey', 'Timestamp', 'Document', 'Array', 'ArrayElision', 'Symbol', 'Date', 'DateNow', 'RegExp'
   ]
 };
 

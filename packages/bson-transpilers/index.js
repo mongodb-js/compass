@@ -3,6 +3,7 @@ const ECMAScriptLexer = require('./lib/ECMAScriptLexer.js');
 const ECMAScriptParser = require('./lib/ECMAScriptParser.js');
 
 const Python3Generator = require('./codegeneration/Python3Generator.js');
+const CSharpGenerator = require('./codegeneration/CSharpGenerator.js');
 const JavaGenerator = require('./codegeneration/JavaGenerator.js');
 
 /**
@@ -25,5 +26,6 @@ const compileECMAScript = function(input, generator) {
 
 module.exports = {
   toJava: (input) => { return compileECMAScript(input, new JavaGenerator()); },
+  toCSharp: (input) => { return compileECMAScript(input, new CSharpGenerator()); },
   toPython: (input) => { return compileECMAScript(input, new Python3Generator()); }
 };

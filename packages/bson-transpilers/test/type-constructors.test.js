@@ -1,6 +1,6 @@
 const { readJSON, runTest } = require('./helpers');
 
-const languages = ['java', 'python'];
+const languages = ['java', 'python', 'csharp'];
 const inputLang = 'query';
 
 describe('BSONConstructors', () => {

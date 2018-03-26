@@ -5,20 +5,36 @@
     "csharp"
   ],
   "types": {
+    "math": [
+      {
+        "description": "simple addition",
+        "query": "2+5",
+        "python": "2+5",
+        "java": "2+5",
+        "csharp": "2+5"
+      },
+      {
+        "description": "multiplication and division",
+        "query": "2+(4*36)/3",
+        "python": "2+(4*36)/3",
+        "java": "2+(4*36)/3",
+        "csharp": "2+(4*36)/3"
+      }
+    ],
     "Number": [
       {
         "description": "Number with number arg",
         "query": "new Number(2)",
         "python": "int(2)",
         "java": "new java.lang.Integer(2)",
-        "csharp": ""
+        "csharp": "new int(2)"
       },
       {
         "description": "Number with valid string arg",
         "query": "new Number('2')",
         "python": "int(2)",
         "java": "new java.lang.Integer(\"2\")",
-        "csharp": ""
+        "csharp": "new int(2)"
       }
     ],
     "literals": [
@@ -41,84 +57,84 @@
         "query": "0X123ABC",
         "python": "0X123ABC",
         "java": "0X123ABC",
-        "csharp": ""
+        "csharp": "0X123ABC"
       },
       {
         "description": "Hex number lower",
         "query": "0x123abc",
         "python": "0x123abc",
         "java": "0x123abc",
-        "csharp": ""
+        "csharp": "0x123abc"
       },
       {
         "description": "Octal 0-prefix number",
         "query": "01234567",
         "python": "0o1234567",
         "java": "01234567",
-        "csharp": ""
+        "csharp": "1234567"
       },
       {
         "description": "Octal 00-prefix number",
         "query": "001234567",
         "python": "0o1234567",
         "java": "01234567",
-        "csharp": ""
+        "csharp": "1234567"
       },
       {
         "description": "Octal 0o-prefix number",
         "query": "0o1234567",
         "python": "0o1234567",
         "java": "01234567",
-        "csharp": ""
+        "csharp": "0"
       },
       {
         "description": "Octal 0O-prefix number",
         "query": "0o1234567",
         "python": "0o1234567",
         "java": "01234567",
-        "csharp": ""
+        "csharp": "0"
       },
       {
         "description": "Single-quote string",
         "query": "'string'",
         "python": "'string'",
         "java": "\"string\"",
-        "csharp": ""
+        "csharp": "\"string\""
       },
       {
         "description": "Double-quote string",
         "query": "\"string\"",
         "python": "'string'",
         "java": "\"string\"",
-        "csharp": ""
+        "csharp": "\"string\""
       },
       {
         "description": "null",
         "query": "null",
         "python": "None",
         "java": "null",
-        "csharp": ""
+        "csharp": "null"
       },
       {
         "description": "undefined",
         "query": "undefined",
         "python": "None",
         "java": "null",
-        "csharp": ""
+        "csharp": "null"
       },
       {
         "description": "true",
         "query": "true",
         "python": "True",
         "java": "true",
-        "csharp": ""
+        "csharp": "true"
       },
       {
         "description": "false",
         "query": "false",
         "python": "False",
         "java": "false",
-        "csharp": ""
+        "csharp": "false"
       }
     ],
     "Date": [
