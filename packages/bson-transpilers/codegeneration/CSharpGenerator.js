@@ -292,4 +292,34 @@ Visitor.prototype.visitBSONDoubleConstructor = function(ctx) {
   return `new BsonDouble(Convert.ToDouble(${double}))`;
 };
 
+/**
+ * Visit Long Constructor
+ *
+ * @param {object} ctx
+ * @returns {string}
+ */
+Visitor.prototype.visitBSONLongConstructor = function(ctx) {
+  const args = ctx.arguments();
+
+  if (
+    args.argumentList() === null ||
+    (
+      args.argumentList().getChildCount() !== 1 &&
+      args.argumentList().getChildCount() !== 3
+    )
+  ) {
+    return 'Error: Long requires one or two argument';
+  }
+
+  let longstr = '';
+
+  try {
+    longstr = this.executeJavascript(ctx.getText()).toString();
+  } catch (error) {
+    return error.message;
+  }
+
+  return `new BsonInt64(Convert.ToInt32(${longstr}))`;
+};
+
 module.exports = Visitor;
