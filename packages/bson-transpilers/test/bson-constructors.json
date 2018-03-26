@@ -25,7 +25,7 @@
         "query": "Code('string', {x: 1})",
         "python": "Code('string', {'x': 1})",
         "java": "new CodeWithScope(\"string\", new Document().append(\"x\", 1))",
-        "csharp": "new BsonJavaScriptWithScope(@\"string\", new BsonDocument({\"x\", \"1\"}))"
+        "csharp": "new BsonJavaScriptWithScope(@\"string\", new BsonDocument(\"x\", \"1\"))"
       },
       {
         "description": "Code with function code",
@@ -199,35 +199,35 @@
         "query": "{x: 1}",
         "python": "{'x': 1}",
         "java": "new Document().append(\"x\", 1)",
-        "csharp": ""
+        "csharp": "new BsonDocument(\"x\", \"1\")"
       },
       {
         "description": "Doc with trailing comma",
         "query": "{x: 1,}",
         "python": "{'x': 1,}",
         "java": "new Document().append(\"x\", 1)",
-        "csharp": ""
+        "csharp": "new BsonDocument(\"x\", \"1\")"
       },
       {
         "description": "Doc with array",
         "query": "{x: [1, 2]}",
         "python": "{'x': [1, 2]}",
         "java": "new Document().append(\"x\", Arrays.asList(1, 2))",
-        "csharp": ""
+        "csharp": "new BsonDocument(\"x\", new BsonArray {1, 2})"
       },
       {
         "description": "Doc with subdoc",
         "query": "{x: {y: 2}}",
         "python": "{'x': {'y': 2}}",
         "java": "new Document().append(\"x\", new Document().append(\"y\", 2))",
-        "csharp": ""
+        "csharp": "new BsonDocument(\"x\", new BsonDocument(\"y\", \"2\"))"
       },
       {
         "description": "Object.create()",
         "query": "Object.create({x: 1})",
         "python": "{'x': 1}",
         "java": "new Document().append(\"x\", 1)",
-        "csharp": ""
+        "csharp": "new BsonDocument(\"x\", \"1\")"
       }
     ],
     "Array": [

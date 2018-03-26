@@ -134,7 +134,12 @@ Visitor.prototype.visitBSONRegExpConstructor = function(ctx) {
  */
 Visitor.prototype.visitPropertyAssignmentExpression = function(ctx) {
   const key = this.doubleQuoteStringify(this.visit(ctx.propertyName()));
-  const value = this.doubleQuoteStringify(this.visit(ctx.singleExpression()));
+  let value = this.visit(ctx.singleExpression());
+  const arg = ctx.singleExpression();
+
+  if (this.isNumericType(arg) === true) {
+    value = this.doubleQuoteStringify(value);
+  }
 
   return `${key}, ${value}`;
 };
@@ -148,7 +153,7 @@ Visitor.prototype.visitPropertyAssignmentExpression = function(ctx) {
 Visitor.prototype.visitObjectLiteral = function(ctx) {
   ctx.type = this.types.OBJECT;
 
-  return `new BsonDocument(${this.visitChildren(ctx)})`;
+  return `new BsonDocument(${this.visit(ctx.propertyNameAndValueList())})`;
 };
 
 /**
@@ -371,6 +376,58 @@ Visitor.prototype.visitBSONTimestampConstructor = function(ctx) {
   }
 
   return `new BsonTimestamp(${low}, ${high})`;
+};
+
+/**
+ * Visit Object.create() Constructor
+ *
+ * @param {object} ctx
+ * @returns {string}
+ */
+Visitor.prototype.visitObjectCreateConstructorExpression = function(ctx) {
+  const args = ctx.arguments();
+
+  if (
+    args.argumentList() === null || args.argumentList().getChildCount() !== 1
+  ) {
+    return 'Error: Object.create() requires one argument';
+  }
+
+  const arg = args.argumentList().singleExpression()[0];
+  const obj = this.visit(arg);
+
+  if (arg.type !== this.types.OBJECT) {
+    return 'Error: Object.create() requires an object argument';
+  }
+
+  return obj;
+};
+
+/**
+ * TODO: Is it okay to sort by terminal?
+ * Child nodes: (elision* singleExpression*)+
+ *
+ * @param {ElementListContext} ctx
+ * @return {String}
+ */
+Visitor.prototype.visitElementList = function(ctx) {
+  const children = ctx.children.filter((child) => (
+    child.constructor.name !== 'TerminalNodeImpl'
+  ));
+
+  return this.visitChildren(ctx, {children, separator: ', '});
+};
+
+/**
+ * Visit Array Literal
+ *
+ * @param {object} ctx
+ * @returns {string}
+ */
+Visitor.prototype.visitArrayLiteral = function(ctx) {
+  ctx.type = this.types.ARRAY;
+
+  return `new BsonArray {${this.visit(ctx.elementList())}}`;
 };
 
 module.exports = Visitor;
