@@ -438,4 +438,16 @@ Visitor.prototype.visitArrayLiteral = function(ctx) {
   return `new BsonArray {${this.visit(ctx.elementList())}}`;
 };
 
+/**
+ * Visit Elision Literal
+ *
+ * @param {object} ctx
+ * @returns {string}
+ */
+Visitor.prototype.visitElision = function(ctx) {
+  ctx.type = this.types.NULL;
+
+  return 'null';
+};
+
 module.exports = Visitor;

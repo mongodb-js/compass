@@ -280,28 +280,28 @@
         "query": "[,1, 2,]",
         "python": "[None, 1, 2,]",
         "java": "Arrays.asList(null, 1, 2)",
-        "csharp": ""
+        "csharp": "new BsonArray {null, 1, 2}"
       },
       {
         "description": "Array with one elision",
         "query": "[,]",
         "python": "[None]",
         "java": "Arrays.asList(null)",
-        "csharp": ""
+        "csharp": "new BsonArray {null}"
       },
       {
         "description": "Array with 2 elision",
         "query": "[,,]",
         "python": "[None, None]",
         "java": "Arrays.asList(null, null)",
-        "csharp": ""
+        "csharp": "new BsonArray {null, null}"
       },
       {
         "description": "Array with elision in the middle",
         "query": "[1,,,,2]",
         "python": "[1, None, None, None, 2]",
         "java": "Arrays.asList(1, null, null, null, 2)",
-        "csharp": ""
+        "csharp": "new BsonArray {1, null, null, null, 2}"
       }
     ],
     "Symbol": [
