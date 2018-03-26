@@ -228,6 +228,13 @@
         "python": "{'x': 1}",
         "java": "new Document().append(\"x\", 1)",
         "csharp": "new BsonDocument(\"x\", \"1\")"
+      },
+      {
+        "description": "Empty object",
+        "query": "{}",
+        "python": "{}",
+        "java": "new Document()",
+        "csharp": "new BsonDocument()"
       }
     ],
     "Array": [
@@ -236,35 +243,35 @@
         "query": "[1, 2]",
         "python": "[1, 2]",
         "java": "Arrays.asList(1, 2)",
-        "csharp": ""
+        "csharp": "new BsonArray {1, 2}"
       },
       {
         "description": "array with trailing comma",
         "query": "[1, 2,]",
         "python": "[1, 2,]",
         "java": "Arrays.asList(1, 2)",
-        "csharp": ""
+        "csharp": "new BsonArray {1, 2}"
       },
       {
         "description": "Array with subdoc",
         "query": "[1, { settings: 'http2' }]",
         "python": "[1, {'settings': 'http2'}]",
         "java": "Arrays.asList(1, new Document().append(\"settings\", \"http2\"))",
-        "csharp": ""
+        "csharp": "new BsonArray {1, new BsonDocument(\"settings\", \"http2\")}"
       },
       {
         "description": "Array with subarray",
         "query": "[1, [2, 3]]",
         "python": "[1, [2, 3]]",
         "java": "Arrays.asList(1, Arrays.asList(2, 3))",
-        "csharp": ""
+        "csharp": "new BsonArray {1, new BsonArray {2, 3}}"
       },
       {
         "description": "Empty array",
         "query": "[]",
         "python": "[]",
         "java": "Arrays.asList()",
-        "csharp": ""
+        "csharp": "new BsonArray()"
       }
     ],
     "ArrayElision": [

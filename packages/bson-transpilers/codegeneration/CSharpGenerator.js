@@ -153,6 +153,10 @@ Visitor.prototype.visitPropertyAssignmentExpression = function(ctx) {
 Visitor.prototype.visitObjectLiteral = function(ctx) {
   ctx.type = this.types.OBJECT;
 
+  if (ctx.getChildCount() === 2) {
+    return 'new BsonDocument()';
+  }
+
   return `new BsonDocument(${this.visit(ctx.propertyNameAndValueList())})`;
 };
 
@@ -426,6 +430,10 @@ Visitor.prototype.visitElementList = function(ctx) {
  */
 Visitor.prototype.visitArrayLiteral = function(ctx) {
   ctx.type = this.types.ARRAY;
+
+  if (ctx.getChildCount() === 2) {
+    return 'new BsonArray()';
+  }
 
   return `new BsonArray {${this.visit(ctx.elementList())}}`;
 };
