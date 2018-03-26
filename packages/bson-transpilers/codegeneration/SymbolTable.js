@@ -1,9 +1,11 @@
 /* eslint key-spacing:0, no-multi-spaces:0 */
 
+const SYMBOL_TYPE = { VAR: 0, CONSTRUCTOR: 1, FUNC: 2 };
+
 /**
  * Symbols represent classes, variables, and functions.
  * @param {String} id - identifier. TODO: for now, internals start with _
- * @param {Boolean} callable - if it's a function
+ * @param {Number} callable - if it's a function, constructor, or variable.
  * @param {Array} args - arguments if its callable. An array of tuples where
  * each tuple has each possible type for the argument at that index.
  * @param {Symbol} type - the type the symbol returns. Could be a Symbol or a type enum.
@@ -14,7 +16,7 @@
 function Symbol(id, callable, args, type, attrs) {
   return {
     id: id,
-    callable: callable, // TODO: set if constructor
+    callable: callable,
     args: args,
     type: type,
     attr: attrs
@@ -56,19 +58,18 @@ const types = Object.freeze({
  * expanded to include built-in functions for each type.
  */
 Types = new Scope({
-  _string:    new Symbol('_string',     false, null, types.STRING,       new Scope({})),
-  _regex:     new Symbol('_regex',      false, null, types.REGEX,        new Scope({})),
-  _bool:      new Symbol('_bool',       false, null, types.BOOL,         new Scope({})),
-  _integer:   new Symbol('_integer',    false, null, types.INTEGER,      new Scope({})),
-  _decimal:   new Symbol('_decimal',    false, null, types.DECIMAL,      new Scope({})),
-  _hex:       new Symbol('_hex',        false, null, types.HEXADECIMAL,  new Scope({})),
-  _octal:     new Symbol('_octal',      false, null, types.OCTAL,        new Scope({})),
-  _numeric:   new Symbol('_numeric',    false, null, types.INTEGER,      new Scope({})), // TODO: type for all numeric vals
-  _array:     new Symbol('_array',      false, null, types.ARRAY,        new Scope({})),
-  _object:    new Symbol('_object',     false, null, types.OBJECT,       new Scope({})),
-  _null:      new Symbol('_null',       false, null, types.NULL,         new Scope({})),
-  _undefined: new Symbol('_undefined',  false, null, types.UNDEFINED,    new Scope({})),
-  _anything:  new Symbol('_anything',   false, null, -1,                 new Scope({})) // Special type only for first argument of BSON Code
+  _string:    new Symbol('_string',     SYMBOL_TYPE.VAR, null, types.STRING,       new Scope({})),
+  _regex:     new Symbol('_regex',      SYMBOL_TYPE.VAR, null, types.REGEX,        new Scope({})),
+  _bool:      new Symbol('_bool',       SYMBOL_TYPE.VAR, null, types.BOOL,         new Scope({})),
+  _integer:   new Symbol('_integer',    SYMBOL_TYPE.VAR, null, types.INTEGER,      new Scope({})),
+  _decimal:   new Symbol('_decimal',    SYMBOL_TYPE.VAR, null, types.DECIMAL,      new Scope({})),
+  _hex:       new Symbol('_hex',        SYMBOL_TYPE.VAR, null, types.HEXADECIMAL,  new Scope({})),
+  _octal:     new Symbol('_octal',      SYMBOL_TYPE.VAR, null, types.OCTAL,        new Scope({})),
+  _numeric:   new Symbol('_numeric',    SYMBOL_TYPE.VAR, null, types.INTEGER,      new Scope({})),
+  _array:     new Symbol('_array',      SYMBOL_TYPE.VAR, null, types.ARRAY,        new Scope({})),
+  _object:    new Symbol('_object',     SYMBOL_TYPE.VAR, null, types.OBJECT,       new Scope({})),
+  _null:      new Symbol('_null',       SYMBOL_TYPE.VAR, null, types.NULL,         new Scope({})),
+  _undefined: new Symbol('_undefined',  SYMBOL_TYPE.VAR, null, types.UNDEFINED,    new Scope({}))
 });
 
 /**
@@ -79,77 +80,81 @@ Types = new Scope({
 BsonClasses = new Scope({
   Code: new Symbol(
     'Code',
-    false, null, Types._object, // not sure this makes sense
+    SYMBOL_TYPE.VAR, null, Types._object, // not sure this makes sense
     new Scope({
-      toJSON:           Symbol('toJSON',            true,   [],                           Types._object,        new Scope({}))
+      toJSON:           Symbol('toJSON',            SYMBOL_TYPE.FUNC,   [],                           Types._object,        new Scope({}))
     }),
   ),
   ObjectId: new Symbol(
     'ObjectId',
-    false, null, Types._object, // not sure this makes sense
+    SYMBOL_TYPE.VAR, null, Types._object, // not sure this makes sense
     new Scope({
-      toHexString:      Symbol('toHexString',       true,   [],                           Types._string,        new Scope({})),
-      toString:         Symbol('toString',          true,   [],                           Types._string,        new Scope({})),
-      toJSON:           Symbol('toJSON',            true,   [],                           Types._object,        new Scope({})),
-      equals:           Symbol('equals',            true,   [ [BsonClasses.ObjectId] ],   Types._bool,          new Scope({})),
-      generate:         Symbol('generate',          true,   [],                           BsonClasses.ObjectId, new Scope({}))
+      toHexString:      Symbol('toHexString',       SYMBOL_TYPE.FUNC,   [],                           Types._string,        new Scope({})),
+      toString:         Symbol('toString',          SYMBOL_TYPE.FUNC,   [],                           Types._string,        new Scope({})),
+      toJSON:           Symbol('toJSON',            SYMBOL_TYPE.FUNC,   [],                           Types._object,        new Scope({})),
+      equals:           Symbol('equals',            SYMBOL_TYPE.FUNC,   [ [BsonClasses.ObjectId] ],   Types._bool,          new Scope({})),
+      generate:         Symbol('generate',          SYMBOL_TYPE.FUNC,   [],                           BsonClasses.ObjectId, new Scope({}))
     })
   ),
   Binary: new Symbol(
     'Binary',
-    false, null, Types._object, // not sure this makes sense
+    SYMBOL_TYPE.VAR, null, Types._object, // not sure this makes sense
     new Scope({
-      put:              Symbol('put',               true,   [ [Types._string] ],                    null,           new Scope({})),
-      write:            Symbol('write',             true,   [ [Types._string, Types._object],
-                                                              [Types._integer] ],                   null,           new Scope({})),
-      read:             Symbol('read',              true,   [ [Types._integer], [Types._integer] ], Types._object,  new Scope({})),
-      value:            Symbol('value',             true,   [],                                     Types._string,  new Scope({})),
-      length:           Symbol('length',            true,   [],                                     Types._integer, new Scope({})),
-      toString:         Symbol('toString',          true,   [],                                     Types._string,  new Scope({})),
-      toJSON:           Symbol('toJSON',            true,   [],                                     Types._object,  new Scope({}))
+      put:              Symbol('put',               SYMBOL_TYPE.FUNC,   [ [Types._string] ],                    null,           new Scope({})),
+      write:            Symbol('write',             SYMBOL_TYPE.FUNC,   [ [Types._string, Types._object],
+                                                                          [Types._integer] ],                   null,           new Scope({})),
+      read:             Symbol('read',              SYMBOL_TYPE.FUNC,   [ [Types._integer], [Types._integer] ], Types._object,  new Scope({})),
+      value:            Symbol('value',             SYMBOL_TYPE.FUNC,   [],                                     Types._string,  new Scope({})),
+      length:           Symbol('length',            SYMBOL_TYPE.FUNC,   [],                                     Types._integer, new Scope({})),
+      toString:         Symbol('toString',          SYMBOL_TYPE.FUNC,   [],                                     Types._string,  new Scope({})),
+      toJSON:           Symbol('toJSON',            SYMBOL_TYPE.FUNC,   [],                                     Types._object,  new Scope({}))
     }),
   ),
   DBRef: new Symbol(
     'DBRef',
-    false, null, Types._object, // not sure this makes sense
+    SYMBOL_TYPE.VAR, null, Types._object, // not sure this makes sense
     new Scope({}) // TODO
   ),
   Double: new Symbol(
     'Double',
-    false, null, Types._object, // not sure this makes sense
+    SYMBOL_TYPE.VAR, null, Types._object, // not sure this makes sense
+    new Scope({}) // TODO
+  ),
+  Int32: new Symbol(
+    'Int32',
+    SYMBOL_TYPE.VAR, null, Types._object, // not sure this makes sense
     new Scope({}) // TODO
   ),
   Long: new Symbol(
     'Long',
-    false, null, Types._object, // not sure this makes sense
+    SYMBOL_TYPE.VAR, null, Types._object, // not sure this makes sense
     new Scope({}) // TODO
   ),
   MinKey: new Symbol(
     'MinKey',
-    false, null, Types._object, // not sure this makes sense
+    SYMBOL_TYPE.VAR, null, Types._object, // not sure this makes sense
     new Scope({}) // TODO
   ),
   MaxKey: new Symbol(
     'MaxKey',
-    false, null, Types._object, // not sure this makes sense
+    SYMBOL_TYPE.VAR, null, Types._object, // not sure this makes sense
     new Scope({}) // TODO
   ),
   BSONRegExp: new Symbol(
     'BsonRegExp',
-    false, null, Types._object, // not sure this makes sense
+    SYMBOL_TYPE.VAR, null, Types._object, // not sure this makes sense
     new Scope({}) // TODO
   ),
   Timestamp: new Symbol(
     'Timestamp',
-    false, null, Types._object, // not sure this makes sense
+    SYMBOL_TYPE.VAR, null, Types._object, // not sure this makes sense
     new Scope({}) // TODO
   ),
   Symbol: new Symbol(
     'Symbol',
-    false, null, Types._object, // not sure this makes sense
+    SYMBOL_TYPE.VAR, null, Types._object, // not sure this makes sense
     new Scope({}) // TODO
-  ),
-
+  )
 });
 
 /**
@@ -165,99 +170,114 @@ JSClasses = new Scope({});
 BsonSymbols = new Scope({
   Code: new Symbol(
     'Code',
-    true,
-    [ [Types._string, Types._anything], [Types._object, null] ],
+    SYMBOL_TYPE.CONSTRUCTOR,
+    [ [Types._string], [Types._object, null] ],
     BsonClasses.Code,
     new Scope({})
   ),
   ObjectId: new Symbol(
     'ObjectId',
-    true,
+    SYMBOL_TYPE.CONSTRUCTOR,
     [ [null, Types._string, Types._numeric] ],
     BsonClasses.ObjectId,
     new Scope({
-      createFromHexStr: Symbol('createFromHexStr',    true,   [ [Types._string] ],    BsonClasses.ObjectId,  new Scope({})),
-      createFromTime:   Symbol('createFromTime',      true,   [ [Types._numeric] ],   BsonClasses.ObjectId,  new Scope({})),
-      isValid:          Symbol('isValid',             true,   [],                     Types._bool,           new Scope({}))
+      createFromHexStr: Symbol('createFromHexStr',    SYMBOL_TYPE.FUNC,   [ [Types._string] ],    BsonClasses.ObjectId,  new Scope({})),
+      createFromTime:   Symbol('createFromTime',      SYMBOL_TYPE.FUNC,   [ [Types._numeric] ],   BsonClasses.ObjectId,  new Scope({})),
+      isValid:          Symbol('isValid',             SYMBOL_TYPE.FUNC,   [],                     Types._bool,           new Scope({}))
     })
   ),
   Binary: new Symbol(
     'Binary',
-    true,
+    SYMBOL_TYPE.CONSTRUCTOR,
     [ [Types._string, Types._numeric, Types._object], [Types._numeric, null] ],
     BsonClasses.Binary,
     new Scope({
-      SUBTYPE_DEFAULT:    Symbol('SUBTYPE_DEFAULT',   false,  null,            Types._integer,  new Scope({})),
-      SUBTYPE_FUNCTION:   Symbol('SUBTYPE_DEFAULT',   false,  null,            Types._integer,  new Scope({})),
-      SUBTYPE_BYTE_ARRAY: Symbol('SUBTYPE_DEFAULT',   false,  null,            Types._integer,  new Scope({})),
-      SUBTYPE_UUID_OLD:   Symbol('SUBTYPE_DEFAULT',   false,  null,            Types._integer,  new Scope({})),
-      SUBTYPE_UUID:       Symbol('SUBTYPE_DEFAULT',   false,  null,            Types._integer,  new Scope({})),
-      SUBTYPE_MD5:        Symbol('SUBTYPE_DEFAULT',   false,  null,            Types._integer,  new Scope({})),
-      SUBTYPE_USER_DEFINED: Symbol('SUBTYPE_DEFAULT', false,  null,            Types._integer,  new Scope({}))
+      SUBTYPE_DEFAULT:    Symbol('SUBTYPE_DEFAULT',   SYMBOL_TYPE.VAR,  null,            Types._integer,  new Scope({})),
+      SUBTYPE_FUNCTION:   Symbol('SUBTYPE_DEFAULT',   SYMBOL_TYPE.VAR,  null,            Types._integer,  new Scope({})),
+      SUBTYPE_BYTE_ARRAY: Symbol('SUBTYPE_DEFAULT',   SYMBOL_TYPE.VAR,  null,            Types._integer,  new Scope({})),
+      SUBTYPE_UUID_OLD:   Symbol('SUBTYPE_DEFAULT',   SYMBOL_TYPE.VAR,  null,            Types._integer,  new Scope({})),
+      SUBTYPE_UUID:       Symbol('SUBTYPE_DEFAULT',   SYMBOL_TYPE.VAR,  null,            Types._integer,  new Scope({})),
+      SUBTYPE_MD5:        Symbol('SUBTYPE_DEFAULT',   SYMBOL_TYPE.VAR,  null,            Types._integer,  new Scope({})),
+      SUBTYPE_USER_DEFINED: Symbol('SUBTYPE_DEFAULT', SYMBOL_TYPE.VAR,  null,            Types._integer,  new Scope({}))
     })
   ),
   DBRef: new Symbol(
     'DBRef',
-    true,
+    SYMBOL_TYPE.CONSTRUCTOR,
     [ [Types._string], [BsonClasses.ObjectId], [Types._string, null] ],
     BsonClasses.DBRef,
     new Scope({}) // TODO
   ),
   Double: new Symbol(
     'Double',
-    true,
-    [ [Types._numeric] ],
+    SYMBOL_TYPE.CONSTRUCTOR,
+    [ [Types._numeric, Types._string] ],
     BsonClasses.Double,
+    new Scope({}) // TODO
+  ),
+  Int32: new Symbol(
+    'Int32',
+    SYMBOL_TYPE.CONSTRUCTOR,
+    [ [Types._numeric, Types._string] ],
+    BsonClasses.Int32,
     new Scope({}) // TODO
   ),
   Long: new Symbol(
     'Long',
-    true,
+    SYMBOL_TYPE.CONSTRUCTOR,
     [ [Types._numeric], [Types._numeric] ],
     BsonClasses.Long,
     new Scope({}) // TODO
   ),
   MinKey: new Symbol(
     'MinKey',
-    true,
+    SYMBOL_TYPE.CONSTRUCTOR,
     [],
     BsonClasses.MinKey,
     new Scope({}) // TODO
   ),
   MaxKey: new Symbol(
     'MaxKey',
-    true,
+    SYMBOL_TYPE.CONSTRUCTOR,
     [],
     BsonClasses.MaxKey,
     new Scope({}) // TODO
   ),
   Timestamp: new Symbol(
     'Timestamp',
-    true,
-    [ [Types._numeric ], [BsonClasses._numeric] ],
+    SYMBOL_TYPE.CONSTRUCTOR,
+    [ [Types._numeric ], [Types._numeric] ],
     BsonClasses.Timestamp,
     new Scope({}) // TODO
   ),
   Symbol: new Symbol(
     'Symbol',
-    true,
+    SYMBOL_TYPE.CONSTRUCTOR,
     [ [Types._string] ],
     BsonClasses.Symbol,
     new Scope({}) // TODO
   ),
   BSONRegExp: new Symbol(
     'BSONRegExp',
-    true,
+    SYMBOL_TYPE.CONSTRUCTOR,
     [ [Types._string], [BsonClasses._string, null] ],
     BsonClasses.BSONRegExp,
     new Scope({}) // TODO
-  ),
+  )
 });
 
 /**
  * TODO: JS Symbols
  */
-JSSymbols = new Scope({});
+JSSymbols = new Scope({
+  'Object.Create': new Symbol(
+    'ObjectCreate',
+    SYMBOL_TYPE.FUNC,
+    [ [Types._object] ],
+    Types._object,
+    new Scope({})
+  )
+});
 
 /**
  * This is the global scope object. Eventually it will include the built-in
@@ -272,6 +292,7 @@ module.exports = {
   JSClasses,
   BsonSymbols,
   JSSymbols,
-  Symbols
+  Symbols,
+  SYMBOL_TYPE
 };
 

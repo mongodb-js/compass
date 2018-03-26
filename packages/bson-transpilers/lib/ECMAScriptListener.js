@@ -479,6 +479,15 @@ ECMAScriptListener.prototype.exitLogicalAndExpression = function(ctx) {
 };
 
 
+// Enter a parse tree produced by ECMAScriptParser#FuncDefExpression.
+ECMAScriptListener.prototype.enterFuncDefExpression = function(ctx) {
+};
+
+// Exit a parse tree produced by ECMAScriptParser#FuncDefExpression.
+ECMAScriptListener.prototype.exitFuncDefExpression = function(ctx) {
+};
+
+
 // Enter a parse tree produced by ECMAScriptParser#PreIncrementExpression.
 ECMAScriptListener.prototype.enterPreIncrementExpression = function(ctx) {
 };
@@ -539,15 +548,6 @@ ECMAScriptListener.prototype.enterThisExpression = function(ctx) {
 
 // Exit a parse tree produced by ECMAScriptParser#ThisExpression.
 ECMAScriptListener.prototype.exitThisExpression = function(ctx) {
-};
-
-
-// Enter a parse tree produced by ECMAScriptParser#FunctionExpression.
-ECMAScriptListener.prototype.enterFunctionExpression = function(ctx) {
-};
-
-// Exit a parse tree produced by ECMAScriptParser#FunctionExpression.
-ECMAScriptListener.prototype.exitFunctionExpression = function(ctx) {
 };
 
 
@@ -926,15 +926,6 @@ ECMAScriptListener.prototype.enterJsType = function(ctx) {
 
 // Exit a parse tree produced by ECMAScriptParser#jsType.
 ECMAScriptListener.prototype.exitJsType = function(ctx) {
-};
-
-
-// Enter a parse tree produced by ECMAScriptParser#bsonConstant.
-ECMAScriptListener.prototype.enterBsonConstant = function(ctx) {
-};
-
-// Exit a parse tree produced by ECMAScriptParser#bsonConstant.
-ECMAScriptListener.prototype.exitBsonConstant = function(ctx) {
 };
 
 

@@ -324,6 +324,12 @@ ECMAScriptVisitor.prototype.visitLogicalAndExpression = function(ctx) {
 };
 
 
+// Visit a parse tree produced by ECMAScriptParser#FuncDefExpression.
+ECMAScriptVisitor.prototype.visitFuncDefExpression = function(ctx) {
+  return this.visitChildren(ctx);
+};
+
+
 // Visit a parse tree produced by ECMAScriptParser#PreIncrementExpression.
 ECMAScriptVisitor.prototype.visitPreIncrementExpression = function(ctx) {
   return this.visitChildren(ctx);
@@ -362,12 +368,6 @@ ECMAScriptVisitor.prototype.visitPreDecreaseExpression = function(ctx) {
 
 // Visit a parse tree produced by ECMAScriptParser#ThisExpression.
 ECMAScriptVisitor.prototype.visitThisExpression = function(ctx) {
-  return this.visitChildren(ctx);
-};
-
-
-// Visit a parse tree produced by ECMAScriptParser#FunctionExpression.
-ECMAScriptVisitor.prototype.visitFunctionExpression = function(ctx) {
   return this.visitChildren(ctx);
 };
 
@@ -620,12 +620,6 @@ ECMAScriptVisitor.prototype.visitBSONSymbol = function(ctx) {
 
 // Visit a parse tree produced by ECMAScriptParser#jsType.
 ECMAScriptVisitor.prototype.visitJsType = function(ctx) {
-  return this.visitChildren(ctx);
-};
-
-
-// Visit a parse tree produced by ECMAScriptParser#bsonConstant.
-ECMAScriptVisitor.prototype.visitBsonConstant = function(ctx) {
   return this.visitChildren(ctx);
 };
 

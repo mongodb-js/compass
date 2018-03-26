@@ -118,6 +118,22 @@
         "csharp": ""
       }
     ],
+    "Int32": [
+      {
+        "description": "Int32 with number arg",
+        "query": "Int32(3)",
+        "python": "int(3)",
+        "java": "new java.lang.Integer(3)",
+        "csharp": ""
+      },
+      {
+        "description": "Int32 with valid string arg",
+        "query": "Int32('3')",
+        "python": "int(3)",
+        "java": "new java.lang.Integer(\"3\")",
+        "csharp": ""
+      }
+    ],
     "Double": [
       {
         "description": "Double with number arg",

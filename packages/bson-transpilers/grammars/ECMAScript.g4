@@ -452,7 +452,7 @@ propertySetParameterList
 ///     ( )
 ///     ( ArgumentList )
 arguments
- : '(' argumentList? ')'
+ : '(' argumentList? ','? ')'
  ;
 
 /// ArgumentList :
@@ -619,12 +619,8 @@ singleExpression
  | arrayLiteral                                                           # ArrayLiteralExpression
  | objectLiteral                                                          # ObjectLiteralExpression
  | '(' expressionSequence ')'                                             # ParenthesizedExpression
-// | bsonType                                                               # BSONIdentifierExpression
-// | jsType                                                                 # JSIdentifierExpression
-// | Date arguments                                                         # DateConstructorExpression
-// | RegExp arguments                                                       # RegExpConstructorExpression
-// | Number arguments                                                       # NumberConstructorExpression
-// | 'Object.create' arguments                                              # ObjectCreateConstructorExpression
+ | bsonType                                                               # BSONIdentifierExpression
+ | jsType                                                                 # JSIdentifierExpression
  ;
 
 bsonType
@@ -919,14 +915,6 @@ BSONMaxKey      :   'MaxKey';
 BSONTimestamp   :   'Timestamp';
 BSONRegExp      :   'BSONRegExp';
 BSONSymbol      :   'Symbol';
-
-// BSON constant keywords
-BinaryTypeDefault       : 'SUBTYPE_DEFAULT';
-BinaryTypeFunction      : 'SUBTYPE_FUNCTION';
-BinaryTypeByteArray     : 'SUBTYPE_BYTE_ARRAY';
-BinaryTypeUUID          : 'SUBTYPE_UUID';
-BinaryTypeMD5           : 'SUBTYPE_MD5';
-BinaryTypeUDEF          : 'SUBTYPE_USER_DEFINED';
 
 // Built-in type keywords
 Date            :   'Date';

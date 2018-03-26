@@ -1,7 +1,8 @@
+/* eslint complexity: 0 */
 const ECMAScriptVisitor = require('../lib/ECMAScriptVisitor').ECMAScriptVisitor;
 const bson = require('bson');
 const Context = require('context-eval');
-const { Types } = require('./SymbolTable');
+const { Types, SYMBOL_TYPE } = require('./SymbolTable');
 
 /**
  * This is a Visitor superclass where helper methods used by all language
@@ -228,11 +229,10 @@ Visitor.prototype.executeJavascript = function(input) {
 Visitor.prototype.checkArguments = function(expected, argumentList) {
   let argStr = '';
   if (!argumentList) {
-    if(expected.length === 0) {
+    if (expected.length === 0) {
       return argStr;
-    } else {
-      throw 'Error: arguments required';
     }
+    throw 'Error: arguments required';
   }
   const args = argumentList.singleExpression();
   if (args.length > expected.length) {
@@ -242,9 +242,8 @@ Visitor.prototype.checkArguments = function(expected, argumentList) {
     if (args[i] === undefined) {
       if (expected[i].indexOf(null) !== -1) {
         return argStr;
-      } else {
-        throw 'Error: too few arguments';
       }
+      throw 'Error: too few arguments';
     }
     if (i !== 0) {
       argStr += ', ';
@@ -257,13 +256,12 @@ Visitor.prototype.checkArguments = function(expected, argumentList) {
         args[i].type === Types._octal)) {
       continue;
     }
-    if(expected[i].indexOf(args[i].type) === -1) {
+    if (expected[i].indexOf(args[i].type) === -1) {
       throw `Error: expected types ${expected[i].map((e) => {
         if (e !== null) {
           return e.id;
-        } else {
-          return "?";
         }
+        return '?';
       })} but got type ${args[i].type.id} for argument at index ${i}`;
     }
   }
@@ -276,7 +274,6 @@ Visitor.prototype.checkArguments = function(expected, argumentList) {
  * @return {String}
  */
 Visitor.prototype.emitType = function(output, ctx) {
-  const lhs = this.visit(ctx.singleExpression());
   const lhsType = ctx.singleExpression().type;
 
   ctx.type = lhsType.type;
@@ -284,8 +281,10 @@ Visitor.prototype.emitType = function(output, ctx) {
     throw `Error: ${lhsType.id} is not callable`;
   }
 
+  const newStr = lhsType.callable === SYMBOL_TYPE.CONSTRUCTOR ? 'new ' : '';
+
   const expectedArgs = lhsType.args;
-  return `${lhs}(${this.checkArguments(expectedArgs, ctx.arguments().argumentList())})`;
+  return `${newStr}${output}(${this.checkArguments(expectedArgs, ctx.arguments().argumentList())})`;
 };
 
 

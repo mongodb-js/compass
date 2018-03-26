@@ -1,6 +1,6 @@
 const CodeGenerator = require('./CodeGenerator.js');
 const {
-  Types,
+  Types
 } = require('./SymbolTable');
 
 /**
