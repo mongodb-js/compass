@@ -71,6 +71,7 @@ export const MAX_SCAN_COLL_SIZE = 200000;
  */
 export const REQUIRED_AS_FIRST_STAGE = [
   '$collStats',
+  '$currentOp',
   '$indexStats',
   '$listLocalSessions',
   '$listSessions'

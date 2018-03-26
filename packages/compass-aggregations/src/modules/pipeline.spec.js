@@ -397,8 +397,41 @@ describe('pipeline module', () => {
         });
       });
 
+      context('when the stage is $currentOp', () => {
+        const stage0 = { isEnabled: true, executor: { $currentOp: {}}, stageOperator: '$currentOp' };
+        const state = { inputDocuments: { count: 10000 }, pipeline: [ stage0 ]};
+
+        it('returns the pipeline with the current and all previous stages', () => {
+          expect(generatePipeline(state, 0)).to.deep.equal([
+            stage0.executor
+          ]);
+        });
+      });
+
       context('when the stage is $indexStats', () => {
         const stage0 = { isEnabled: true, executor: { $collStats: {}}, stageOperator: '$indexStats' };
+        const state = { inputDocuments: { count: 10000 }, pipeline: [ stage0 ]};
+
+        it('returns the pipeline with the current and all previous stages', () => {
+          expect(generatePipeline(state, 0)).to.deep.equal([
+            stage0.executor
+          ]);
+        });
+      });
+
+      context('when the stage is $listLocalSessions', () => {
+        const stage0 = { isEnabled: true, executor: { $listLocalSessions: {}}, stageOperator: '$listLocalSessions' };
+        const state = { inputDocuments: { count: 10000 }, pipeline: [ stage0 ]};
+
+        it('returns the pipeline with the current and all previous stages', () => {
+          expect(generatePipeline(state, 0)).to.deep.equal([
+            stage0.executor
+          ]);
+        });
+      });
+
+      context('when the stage is $listSessions', () => {
+        const stage0 = { isEnabled: true, executor: { $listSessions: {}}, stageOperator: '$listSessions' };
         const state = { inputDocuments: { count: 10000 }, pipeline: [ stage0 ]};
 
         it('returns the pipeline with the current and all previous stages', () => {
