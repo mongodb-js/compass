@@ -1,5 +1,13 @@
 /* eslint complexity: 0 */
 const CodeGenerator = require('./CodeGenerator.js');
+const {
+  Types,
+  JSClasses,
+  BsonClasses,
+  BsonSymbols,
+  JSSymbols,
+  Symbols
+} = require('./SymbolTable');
 
 const JAVA_REGEX_FLAGS = {
   i: 'i', m: 'm', u: 'u', y: '', g: ''
@@ -39,8 +47,6 @@ Visitor.prototype.visitPropertyNameAndValueList = function(ctx) {
 };
 
 /**
- * TODO: Is it okay to sort by terminal?
- *
  * Child nodes: (elision* singleExpression*)+
  * @param {ElementListContext} ctx
  * @return {String}
@@ -71,18 +77,47 @@ Visitor.prototype.visitNewExpression = function(ctx) {
 };
 
 Visitor.prototype.visitFuncCallExpression = function(ctx) {
-  const funcId = this.visit(ctx.singleExpression());
-  console.log(funcId);
-  const args = this.visit(ctx.arguments());
-  console.log(args);
+  this.visit(ctx.singleExpression());
+  const lhsType = ctx.singleExpression().type;
+
+  // Special case types
+  if (`emit${lhsType.id}` in this) {
+    return this[`emit${lhsType.id}`](ctx);
+  }
+
+  // This is where, if the target language func id is different from the input language, it can be switched out.
+  return this.emitType(lhsType.id, ctx);
+};
+
+Visitor.prototype.visitBSONIdentifierExpression = function(ctx) {
+  const name = this.visitChildren(ctx);
+  ctx.type = BsonSymbols[name];
+  return name;
+};
+
+Visitor.prototype.visitJSIdentifierExpression = function(ctx) {
+  const name = this.visitChildren(ctx);
+  ctx.type = JSSymbols[name];
+  return name;
 };
 
 Visitor.prototype.visitIdentifierExpression = function(ctx) {
-
+  const name = this.visitChildren(ctx);
+  ctx.type = Symbols[name];
+  return name;
 };
 
 Visitor.prototype.visitMemberDotExpression = function(ctx) {
+  const lhs = this.visit(ctx.singleExpression());
+  const lhsType = ctx.singleExpression().type;
 
+  const rhs = this.visit(ctx.identifierName());
+
+  if (!(rhs in lhsType.attr)) {
+    throw `Error: ${rhs} not an attribute of ${lhsType.id}`;
+  }
+  ctx.type = lhsType.attr[rhs];
+  return `${lhs}.${rhs}`;
 };
 
 /* ************** Literals **************** */
@@ -93,7 +128,7 @@ Visitor.prototype.visitMemberDotExpression = function(ctx) {
  * @return {String}
  */
 Visitor.prototype.visitStringLiteral = function(ctx) {
-  ctx.type = this.types.STRING;
+  ctx.type = Types._string;
   return this.doubleQuoteStringify(this.visitChildren(ctx));
 };
 
@@ -103,7 +138,7 @@ Visitor.prototype.visitStringLiteral = function(ctx) {
  * @return {String}
  */
 Visitor.prototype.visitObjectLiteral = function(ctx) {
-  ctx.type = this.types.OBJECT;
+  ctx.type = Types._object;
   let chain = '';
   if (ctx.propertyNameAndValueList()) {
     chain = this.visit(ctx.propertyNameAndValueList());
@@ -128,7 +163,7 @@ Visitor.prototype.visitPropertyAssignmentExpression = function(ctx) {
  * @return {String}
  */
 Visitor.prototype.visitArrayLiteral = function(ctx) {
-  ctx.type = this.types.ARRAY;
+  ctx.type = Types._array;
   if (!ctx.elementList()) {
     return 'Arrays.asList()';
   }
@@ -141,7 +176,7 @@ Visitor.prototype.visitArrayLiteral = function(ctx) {
  * @return {String}
  */
 Visitor.prototype.visitUndefinedLiteral = function(ctx) {
-  ctx.type = this.types.UNDEFINED;
+  ctx.type = Types._undefined;
   return 'null';
 };
 
@@ -151,7 +186,7 @@ Visitor.prototype.visitUndefinedLiteral = function(ctx) {
  * @return {String}
  */
 Visitor.prototype.visitElision = function(ctx) {
-  ctx.type = this.types.NULL;
+  ctx.type = Types._null;
   return 'null';
 };
 
@@ -161,7 +196,7 @@ Visitor.prototype.visitElision = function(ctx) {
  * @return {String}
  */
 Visitor.prototype.visitOctalIntegerLiteral = function(ctx) {
-  ctx.type = this.types.OCTAL;
+  ctx.type = Types._octal;
   let oct = this.visitChildren(ctx);
   if ((oct.charAt(0) === '0' && oct.charAt(1) === '0') ||
     (oct.charAt(0) === '0' && (oct.charAt(1) === 'o' || oct.charAt(1) === 'O'))) {
@@ -180,6 +215,7 @@ Visitor.prototype.visitOctalIntegerLiteral = function(ctx) {
  * @return {String}
  */
 Visitor.prototype.visitObjectCreateConstructorExpression = function(ctx) {
+  ctx.type = Types._object;
   const argList = ctx.arguments().argumentList();
 
   if (!argList || argList.singleExpression().length !== 1) {
@@ -189,7 +225,7 @@ Visitor.prototype.visitObjectCreateConstructorExpression = function(ctx) {
   const arg = argList.singleExpression()[0];
   const obj = this.visit(arg);
 
-  if (arg.type !== this.types.OBJECT) {
+  if (arg.type !== Types._object) {
     return 'Error: Object.create() requires an object argument';
   }
 
@@ -204,6 +240,7 @@ Visitor.prototype.visitObjectCreateConstructorExpression = function(ctx) {
  * @return {String}
  */
 Visitor.prototype.visitNumberConstructorExpression = function(ctx) {
+  ctx.type = JSClasses.Number;
   const argList = ctx.arguments().argumentList();
 
   if (!argList || argList.singleExpression().length !== 1) {
@@ -215,9 +252,9 @@ Visitor.prototype.visitNumberConstructorExpression = function(ctx) {
 
   if (
     (
-      arg.type !== this.types.STRING &&
-      arg.type !== this.types.DECIMAL &&
-      arg.type !== this.types.INTEGER
+      arg.type !== Types._string &&
+      arg.type !== Types._decimal &&
+      arg.type !== Types._integer
     ) ||
     isNaN(parseInt(this.removeQuotes(number), 10))
   ) {
@@ -235,6 +272,7 @@ Visitor.prototype.visitNumberConstructorExpression = function(ctx) {
  * @return {String}
  */
 Visitor.prototype.visitDateConstructorExpression = function(ctx) {
+  ctx.type = JSClasses.Date;
   const args = ctx.arguments();
   if (!args.argumentList()) {
     return 'new java.util.Date()';
@@ -248,9 +286,9 @@ Visitor.prototype.visitDateConstructorExpression = function(ctx) {
   return `new java.util.Date(${epoch})`;
 };
 
-Visitor.prototype.visitDateNowConstructorExpression = function() {
-  return 'new java.util.Date()';
-};
+// Visitor.prototype.visitDateNowConstructorExpression = function() {
+//   return 'new java.util.Date()';
+// };
 
 /**
  * child nodes: arguments
@@ -261,6 +299,7 @@ Visitor.prototype.visitDateNowConstructorExpression = function() {
  */
 Visitor.prototype.visitRegExpConstructorExpression =
 Visitor.prototype.visitRegularExpressionLiteral = function(ctx) {
+  ctx.type = JSClasses.Regex;
   let pattern;
   let flags;
   try {
@@ -288,10 +327,11 @@ Visitor.prototype.visitRegularExpressionLiteral = function(ctx) {
  * child nodes: arguments
  * grandchild nodes: argumentList?
  * great-grandchild nodes: singleExpression+
- * @param {BSONCodeConstructorContext} ctx
+ * @param {FuncCallExpressionContext} ctx
  * @return {String}
  */
-Visitor.prototype.visitBSONCodeConstructor = function(ctx) {
+Visitor.prototype.emitCode = function(ctx) {
+  ctx.type = BsonClasses.Code;
   const argList = ctx.arguments().argumentList();
   if (!argList ||
      !(argList.singleExpression().length === 1 ||
@@ -306,11 +346,12 @@ Visitor.prototype.visitBSONCodeConstructor = function(ctx) {
        not be set. We might have to just suck it up and do two passes, but maybe
        we can avoid it for now. */
     const scope = this.visit(args[1]);
-    if (args[1].type !== this.types.OBJECT) {
+    if (args[1].type !== Types._object) {
       return 'Error: Code requires scope to be an object';
     }
     return `new CodeWithScope(${code}, ${scope})`;
   }
+
   return `new Code(${code})`;
 };
 
@@ -318,10 +359,11 @@ Visitor.prototype.visitBSONCodeConstructor = function(ctx) {
  * child nodes: arguments
  * grandchild nodes: argumentList?
  * great-grandchild nodes: singleExpression+
- * @param {BSONObjectIdConstructorContext} ctx
+ * @param {FuncCallExpressionContext} ctx
  * @return {String}
  */
-Visitor.prototype.visitBSONObjectIdConstructor = function(ctx) {
+Visitor.prototype.emitObjectId = function(ctx) {
+  ctx.type = BsonClasses.ObjectId;
   const argList = ctx.arguments().argumentList();
   if (!argList) {
     return 'new ObjectId()';
@@ -339,10 +381,11 @@ Visitor.prototype.visitBSONObjectIdConstructor = function(ctx) {
  * child nodes: arguments
  * grandchild nodes: argumentList?
  * great-grandchild nodes: singleExpression+
- * @param {BSONBinaryConstructorContext} ctx
+ * @param {FuncCallExpressionContext} ctx
  * @return {String}
  */
-Visitor.prototype.visitBSONBinaryConstructor = function(ctx) {
+Visitor.prototype.emitBinary = function(ctx) {
+  ctx.type = BsonClasses.Binary;
   let type;
   let binobj;
   try {
@@ -355,69 +398,72 @@ Visitor.prototype.visitBSONBinaryConstructor = function(ctx) {
   return `new Binary(${JAVA_BINARY_SUBTYPES[type]}, ${bytes}.getBytes("UTF-8"))`;
 };
 
+// /**
+//  * child nodes: arguments
+//  * grandchild nodes: argumentList?
+//  * great-grandchild nodes: singleExpression+
+//  * @param {BSONDBRefConstructorContext} ctx
+//  * @return {String}
+//  */
+// Visitor.prototype.visitBSONDBRefConstructor = function(ctx) {
+//   ctx.type = BsonClasses.DBRef;
+//   const argList = ctx.arguments().argumentList();
+//   if (!argList ||
+//       !(argList.singleExpression().length === 2 ||
+//         argList.singleExpression().length === 3)) {
+//     return 'Error: DBRef requires two or three arguments';
+//   }
+//   const args = argList.singleExpression();
+//   const ns = this.visit(args[0]);
+//   if (args[0].type !== Types._string) {
+//     return 'Error: DBRef requires string namespace';
+//   }
+//   const oid = this.visit(args[1]);
+//   if (args[1].type !== Types._string) {
+//     return 'Error: DBRef requires object OID';
+//   }
+//
+//   if (args.length === 3) {
+//     const db = this.visit(args[2]);
+//     if (args[2].type !== Types._string) {
+//       return 'Error: DbRef requires string collection';
+//     }
+//     return `new DBRef(${ns}, ${oid}, ${db})`;
+//   }
+//   return `new DBRef(${ns}, ${oid})`;
+// };
+//
+// /**
+//  * child nodes: arguments
+//  * grandchild nodes: argumentList?
+//  * great-grandchild nodes: singleExpression+
+//  * @param {BSONDoubleConstructorContext} ctx
+//  * @return {String}
+//  */
+// Visitor.prototype.visitBSONDoubleConstructor = function(ctx) {
+//   ctx.type = BsonClasses.Double;
+//   const argList = ctx.arguments().argumentList();
+//   if (!argList || argList.singleExpression().length !== 1) {
+//     return 'Error: Double requires one argument';
+//   }
+//   const arg = argList.singleExpression()[0];
+//   const value = this.visit(arg);
+//   if (arg.type !== Types._string && !this.isNumericType(arg)) {
+//     // This is actually what java accepts
+//     return 'Error: Double requires either string or number';
+//   }
+//   return `new java.lang.Double(${value})`;
+// };
+
 /**
  * child nodes: arguments
  * grandchild nodes: argumentList?
  * great-grandchild nodes: singleExpression+
- * @param {BSONDBRefConstructorContext} ctx
+ * @param {FuncCallExpressionContext} ctx
  * @return {String}
  */
-Visitor.prototype.visitBSONDBRefConstructor = function(ctx) {
-  const argList = ctx.arguments().argumentList();
-  if (!argList ||
-      !(argList.singleExpression().length === 2 ||
-        argList.singleExpression().length === 3)) {
-    return 'Error: DBRef requires two or three arguments';
-  }
-  const args = argList.singleExpression();
-  const ns = this.visit(args[0]);
-  if (args[0].type !== this.types.STRING) {
-    return 'Error: DBRef requires string namespace';
-  }
-  const oid = this.visit(args[1]);
-  if (args[1].type !== this.types.OBJECT) {
-    return 'Error: DBRef requires object OID';
-  }
-
-  if (args.length === 3) {
-    const db = this.visit(args[2]);
-    if (args[2].type !== this.types.STRING) {
-      return 'Error: DbRef requires string collection';
-    }
-    return `new DBRef(${ns}, ${oid}, ${db})`;
-  }
-  return `new DBRef(${ns}, ${oid})`;
-};
-
-/**
- * child nodes: arguments
- * grandchild nodes: argumentList?
- * great-grandchild nodes: singleExpression+
- * @param {BSONDoubleConstructorContext} ctx
- * @return {String}
- */
-Visitor.prototype.visitBSONDoubleConstructor = function(ctx) {
-  const argList = ctx.arguments().argumentList();
-  if (!argList || argList.singleExpression().length !== 1) {
-    return 'Error: Double requires one argument';
-  }
-  const arg = argList.singleExpression()[0];
-  const value = this.visit(arg);
-  if (arg.type !== this.types.STRING && !this.isNumericType(arg)) {
-    // This is actually what java accepts
-    return 'Error: Double requires either string or number';
-  }
-  return `new java.lang.Double(${value})`;
-};
-
-/**
- * child nodes: arguments
- * grandchild nodes: argumentList?
- * great-grandchild nodes: singleExpression+
- * @param {BSONLongConstructorContext} ctx
- * @return {String}
- */
-Visitor.prototype.visitBSONLongConstructor = function(ctx) {
+Visitor.prototype.emitLong = function(ctx) {
+  ctx.type = BsonClasses.Long;
   let longstr;
   try {
     longstr = this.executeJavascript(ctx.getText()).toString();
@@ -427,13 +473,15 @@ Visitor.prototype.visitBSONLongConstructor = function(ctx) {
   return `new java.lang.Long(${this.doubleQuoteStringify(longstr)})`;
 };
 
-Visitor.prototype.visitBSONMaxKeyConstructor = function() {
-  return 'new MaxKey()';
-};
-
-Visitor.prototype.visitBSONMinKeyConstructor = function() {
-  return 'new MinKey()';
-};
+// Visitor.prototype.visitBSONMaxKeyConstructor = function(ctx) {
+//   ctx.type = BsonClasses.MaxKey;
+//   return 'new MaxKey()';
+// };
+//
+// Visitor.prototype.visitBSONMinKeyConstructor = function(ctx) {
+//   ctx.type = BsonClasses.MinKey;
+//   return 'new MinKey()';
+// };
 
 /**
  * Expects two strings as arguments, the second must contain any of "imxlsu"
@@ -441,10 +489,11 @@ Visitor.prototype.visitBSONMinKeyConstructor = function() {
  * child nodes: arguments
  * grandchild nodes: argumentList?
  * great-grandchild nodes: singleExpression+
- * @param {BSONRegExpConstructorContext} ctx
+ * @param {FuncCallExpressionContext} ctx
  * @return {String}
  */
-Visitor.prototype.visitBSONRegExpConstructor = function(ctx) {
+Visitor.prototype.emitBSONRegExp = function(ctx) {
+  ctx.type = BsonClasses.RegExp;
   const argList = ctx.arguments().argumentList();
   if (!argList ||
       !(argList.singleExpression().length === 1 ||
@@ -453,13 +502,13 @@ Visitor.prototype.visitBSONRegExpConstructor = function(ctx) {
   }
   const args = argList.singleExpression();
   const pattern = this.visit(args[0]);
-  if (args[0].type !== this.types.STRING) {
+  if (args[0].type !== Types._string) {
     return 'Error: BSONRegExp requires pattern to be a string';
   }
 
   if (args.length === 2) {
     const flags = this.visit(args[1]);
-    if (args[1].type !== this.types.STRING) {
+    if (args[1].type !== Types._string) {
       return 'Error: BSONRegExp requires flags to be a string';
     }
     for (let i = 1; i < flags.length - 1; i++) {
@@ -481,49 +530,51 @@ Visitor.prototype.visitBSONRegExpConstructor = function(ctx) {
   return `new BsonRegularExpression(${pattern})`;
 };
 
-/**
- * child nodes: arguments
- * grandchild nodes: argumentList?
- * great-grandchild nodes: singleExpression+
- * @param {BSONSymbolConstructorContext} ctx
- * @return {String}
- */
-Visitor.prototype.visitBSONSymbolConstructor = function(ctx) {
-  const argList = ctx.arguments().argumentList();
-  if (!argList || argList.singleExpression().length !== 1) {
-    return 'Error: Symbol requires one argument';
-  }
-  const arg = argList.singleExpression()[0];
-  const symbol = this.visit(arg);
-  if (arg.type !== this.types.STRING) {
-    return 'Error: Symbol requires a string argument';
-  }
-  return `new Symbol(${symbol})`;
-};
-
-/**
- * child nodes: arguments
- * grandchild nodes: argumentList?
- * great-grandchild nodes: singleExpression+
- * @param {BSONTimestampConstructorContext} ctx
- * @return {String}
- */
-Visitor.prototype.visitBSONTimestampConstructor = function(ctx) {
-  const argList = ctx.arguments().argumentList();
-  if (!argList || argList.singleExpression().length !== 2) {
-    return 'Error: Timestamp requires two arguments';
-  }
-  const args = argList.singleExpression();
-  const low = this.visit(args[0]);
-  if (args[0].type !== this.types.INTEGER) {
-    return 'Error: Timestamp requires integer arguments';
-  }
-  const high = this.visit(args[1]);
-  if (args[1].type !== this.types.INTEGER) {
-    return 'Error: Timestamp requires integer arguments';
-  }
-  return `new BSONTimestamp(${low}, ${high})`;
-};
+// /**
+//  * child nodes: arguments
+//  * grandchild nodes: argumentList?
+//  * great-grandchild nodes: singleExpression+
+//  * @param {BSONSymbolConstructorContext} ctx
+//  * @return {String}
+//  */
+// Visitor.prototype.visitBSONSymbolConstructor = function(ctx) {
+//   ctx.type = BsonClasses.Symbol;
+//   const argList = ctx.arguments().argumentList();
+//   if (!argList || argList.singleExpression().length !== 1) {
+//     return 'Error: Symbol requires one argument';
+//   }
+//   const arg = argList.singleExpression()[0];
+//   const symbol = this.visit(arg);
+//   if (arg.type !== Types._string) {
+//     return 'Error: Symbol requires a string argument';
+//   }
+//   return `new Symbol(${symbol})`;
+// };
+//
+// /**
+//  * child nodes: arguments
+//  * grandchild nodes: argumentList?
+//  * great-grandchild nodes: singleExpression+
+//  * @param {BSONTimestampConstructorContext} ctx
+//  * @return {String}
+//  */
+// Visitor.prototype.visitBSONTimestampConstructor = function(ctx) {
+//   ctx.type = BsonClasses.Timestamp;
+//   const argList = ctx.arguments().argumentList();
+//   if (!argList || argList.singleExpression().length !== 2) {
+//     return 'Error: Timestamp requires two arguments';
+//   }
+//   const args = argList.singleExpression();
+//   const low = this.visit(args[0]);
+//   if (args[0].type !== Types._integer) {
+//     return 'Error: Timestamp requires integer arguments';
+//   }
+//   const high = this.visit(args[1]);
+//   if (args[1].type !== Types._integer) {
+//     return 'Error: Timestamp requires integer arguments';
+//   }
+//   return `new BSONTimestamp(${low}, ${high})`;
+// };
 
 // TODO
 // Visitor.prototype.visitBSONDecimal128Constructor = function(ctx) {

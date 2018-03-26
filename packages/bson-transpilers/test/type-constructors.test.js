@@ -10,11 +10,11 @@ describe('BSONConstructors', () => {
   });
 });
 
-describe('Built-in Object Constructors', () => {
-  const tests = readJSON('./built-in-types.json').types;
-  languages.forEach((outputLang) => {
-    runTest(inputLang, outputLang, tests);
-  });
-});
+// describe('Built-in Object Constructors', () => {
+//   const tests = readJSON('./built-in-types.json').types;
+//   languages.forEach((outputLang) => {
+//     runTest(inputLang, outputLang, tests);
+//   });
+// });
 
 

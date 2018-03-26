@@ -24,7 +24,9 @@ const compileECMAScript = function(input, generator) {
   return generator.start(tree);
 };
 
-console.log(compileECMAScript("ObjectId()", new JavaGenerator()));
+// console.log(compileECMAScript('ObjectId.createFromHexStr().toString()', new JavaGenerator()));
+// console.log(compileECMAScript('DBRef("string", ObjectId(), "exra")', new JavaGenerator()));
+console.log(compileECMAScript('new Binary(Buffer.from(\"a string\"), Binary.SUBTYPE_UUID)', new JavaGenerator()));
 
 module.exports = {
   toJava: (input) => { return compileECMAScript(input, new JavaGenerator()); },

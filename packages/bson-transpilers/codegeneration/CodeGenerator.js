@@ -1,6 +1,7 @@
 const ECMAScriptVisitor = require('../lib/ECMAScriptVisitor').ECMAScriptVisitor;
 const bson = require('bson');
 const Context = require('context-eval');
+const { Types } = require('./SymbolTable');
 
 /**
  * This is a Visitor superclass where helper methods used by all language
@@ -17,17 +18,17 @@ Visitor.prototype.constructor = Visitor;
 
 Visitor.prototype.start = Visitor.prototype.visitExpressionSequence;
 
-Visitor.prototype.types = Object.freeze({
-  STRING: 0, REGEX: 1,
-  BOOL: 10,
-  INTEGER: 20, DECIMAL: 21, HEXADECIMAL: 22, OCTAL: 23,
-  OBJECT: 30, ARRAY: 31,
-  NULL: 40, UNDEFINED: 41,
-  IDENTIFIER: 50, FCALL: 51 // FDEF, VARDEF
-});
-Visitor.prototype.isNumericType = function(ctx) {
-  return ctx.type >= 20 && ctx.type <= 29;
-};
+// Visitor.prototype.types = Object.freeze({
+//   STRING: 0, REGEX: 1,
+//   BOOL: 10,
+//   INTEGER: 20, DECIMAL: 21, HEXADECIMAL: 22, OCTAL: 23,
+//   OBJECT: 30, ARRAY: 31,
+//   NULL: 40, UNDEFINED: 41,
+//   IDENTIFIER: 50, FCALL: 51 // FDEF, VARDEF
+// });
+// Visitor.prototype.isNumericType = function(ctx) {
+//   return ctx.type >= 20 && ctx.type <= 29;
+// };
 
 /**
  * Selectively visits children of a node.
@@ -58,50 +59,50 @@ Visitor.prototype.visitChildren = function(ctx, options) {
   /* Set the node's type to the first child, if it's not already set.
      More often than not, type will be set directly by the visitNode method. */
   if (ctx.type === undefined) {
-    ctx.type = opts.children.length ? opts.children[0].type : this.types.UNDEFINED;
+    ctx.type = opts.children.length ? opts.children[0].type : Types._undefined;
   }
   return code.trim();
 };
 
 Visitor.prototype.visitNullLiteral = function(ctx) {
-  ctx.type = this.types.NULL;
+  ctx.type = Types._null;
   return this.visitChildren(ctx);
 };
 
 Visitor.prototype.visitBooleanLiteral = function(ctx) {
-  ctx.type = this.types.BOOL;
+  ctx.type = Types._bool;
   return this.visitChildren(ctx);
 };
 
 Visitor.prototype.visitIntegerLiteral = function(ctx) {
-  ctx.type = this.types.INTEGER;
+  ctx.type = Types._integer;
   return this.visitChildren(ctx);
 };
 
 Visitor.prototype.visitDecimalLiteral = function(ctx) {
-  ctx.type = this.types.DECIMAL;
+  ctx.type = Types._decimal;
   return this.visitChildren(ctx);
 };
 
 Visitor.prototype.visitHexIntegerLiteral = function(ctx) {
-  ctx.type = this.types.HEXADECIMAL;
+  ctx.type = Types._hex;
   return this.visitChildren(ctx);
 };
 
 Visitor.prototype.visitOctalIntegerLiteral = function(ctx) {
-  ctx.type = this.types.OCTAL;
+  ctx.type = Types._octal;
   return this.visitChildren(ctx);
 };
 
 Visitor.prototype.visitRegularExpressionLiteral = function(ctx) {
-  ctx.type = this.types.REGEX;
+  ctx.type = Types._regex;
   return this.visitChildren(ctx);
 };
 
-Visitor.prototype.visitBSONConstructorExpression = function(ctx) {
-  ctx.type = this.types.OBJECT;
-  return this.visitChildren(ctx);
-};
+// Visitor.prototype.visitBSONConstructorExpression = function(ctx) {
+//   ctx.type = Types.OBJECT;
+//   return this.visitChildren(ctx);
+// };
 
 /**
  * Visit a leaf node and return a string.
@@ -216,5 +217,76 @@ Visitor.prototype.executeJavascript = function(input) {
   ctx.destroy();
   return res;
 };
+
+/**
+ *
+ * @param {Array} expected - An array of tuples where each tuple represents possible argument types for that index.
+ * @param {ArgumentListContext} argumentList - null if empty.
+ *
+ * @returns {String}
+ */
+Visitor.prototype.checkArguments = function(expected, argumentList) {
+  let argStr = '';
+  if (!argumentList) {
+    if(expected.length === 0) {
+      return argStr;
+    } else {
+      throw 'Error: arguments required';
+    }
+  }
+  const args = argumentList.singleExpression();
+  if (args.length > expected.length) {
+    throw 'Error: too many arguments';
+  }
+  for (let i = 0; i < expected.length; i++) {
+    if (args[i] === undefined) {
+      if (expected[i].indexOf(null) !== -1) {
+        return argStr;
+      } else {
+        throw 'Error: too few arguments';
+      }
+    }
+    if (i !== 0) {
+      argStr += ', ';
+    }
+    argStr += this.visit(args[i]);
+    if (expected[i].indexOf(Types._numeric) !== -1 && (
+        args[i].type === Types._integer ||
+        args[i].type === Types._decimal ||
+        args[i].type === Types._hex ||
+        args[i].type === Types._octal)) {
+      continue;
+    }
+    if(expected[i].indexOf(args[i].type) === -1) {
+      throw `Error: expected types ${expected[i].map((e) => {
+        if (e !== null) {
+          return e.id;
+        } else {
+          return "?";
+        }
+      })} but got type ${args[i].type.id} for argument at index ${i}`;
+    }
+  }
+  return argStr;
+};
+
+/**
+ * @param {String} output - The name of the func in the target language.
+ * @param {FuncCallExpressionContext} ctx
+ * @return {String}
+ */
+Visitor.prototype.emitType = function(output, ctx) {
+  const lhs = this.visit(ctx.singleExpression());
+  const lhsType = ctx.singleExpression().type;
+
+  ctx.type = lhsType.type;
+  if (!lhsType.callable) {
+    throw `Error: ${lhsType.id} is not callable`;
+  }
+
+  const expectedArgs = lhsType.args;
+  return `${lhs}(${this.checkArguments(expectedArgs, ctx.arguments().argumentList())})`;
+};
+
 
 module.exports = Visitor;

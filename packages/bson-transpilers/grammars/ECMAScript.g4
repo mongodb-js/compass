@@ -582,7 +582,7 @@ expressionSequence
  ;
 
 singleExpression
- : Function Identifier? '(' formalParameterList? ')' '{' functionBody '}' # FunctionExpression
+ : Function Identifier? '(' formalParameterList? ')' '{' functionBody '}' # FuncDefExpression
  | singleExpression '[' expressionSequence ']'                            # MemberIndexExpression
  | singleExpression '.' identifierName                                    # MemberDotExpression
  | singleExpression arguments                                             # FuncCallExpression
@@ -619,8 +619,8 @@ singleExpression
  | arrayLiteral                                                           # ArrayLiteralExpression
  | objectLiteral                                                          # ObjectLiteralExpression
  | '(' expressionSequence ')'                                             # ParenthesizedExpression
- | bsonType                                                               # BSONIdentifierExpression
- | jsType                                                                 # JSIdentifierExpression
+// | bsonType                                                               # BSONIdentifierExpression
+// | jsType                                                                 # JSIdentifierExpression
 // | Date arguments                                                         # DateConstructorExpression
 // | RegExp arguments                                                       # RegExpConstructorExpression
 // | Number arguments                                                       # NumberConstructorExpression
@@ -647,36 +647,6 @@ jsType
  | RegExp
  | Number
  | ObjectCreate
- ;
-
-
-
-//bsonConstructor
-// : BSONObjectId arguments            # BSONObjectIdConstructor
-// | BSONCode arguments                # BSONCodeConstructor
-// | BSONBinary arguments              # BSONBinaryConstructor
-// | BSONDBRef arguments               # BSONDBRefConstructor
-// | BSONLong arguments                # BSONLongConstructor
-// | BSONDouble arguments              # BSONDoubleConstructor
-// | BSONDecimal128 arguments          # BSONDecimal128Constructor
-// | BSONMinKey arguments              # BSONMinKeyConstructor
-// | BSONMaxKey arguments              # BSONMaxKeyConstructor
-// | BSONTimestamp arguments           # BSONTimestampConstructor
-// | BSONRegExp arguments              # BSONRegExpConstructor
-// | BSONSymbol arguments              # BSONSymbolConstructor
-// ;
-
-bsonConstant
- : BSONBinary '.' BSONBinaryConstant
- ;
-
-BSONBinaryConstant
- : BinaryTypeDefault
- | BinaryTypeFunction
- | BinaryTypeByteArray
- | BinaryTypeUUID
- | BinaryTypeMD5
- | BinaryTypeUDEF
  ;
 
 /// AssignmentOperator : one of
