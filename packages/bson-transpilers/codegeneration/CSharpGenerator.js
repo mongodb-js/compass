@@ -19,7 +19,8 @@ Visitor.prototype.visitStringLiteral = function(ctx) {
 // there is no undefined in c#
 Visitor.prototype.visitUndefinedLiteral = function(ctx) {
   ctx.type = this.types.UNDEFINED;
-  return 'null';
+
+  return 'BsonUndefined.Value';
 };
 
 // similar to java, we also want to ignore js's `new` expression, and c# always
@@ -132,16 +133,40 @@ Visitor.prototype.visitBSONRegExpConstructor = function(ctx) {
  * @param {PropertyAssignmentExpressionContext} ctx
  * @return {String}
  */
+Visitor.prototype.propertyNameAndValueList = function(ctx) {
+  const children = ctx.children.filter((child) => (
+    child.constructor.name !== 'TerminalNodeImpl'
+  ));
+
+  return this.visitChildren(ctx, {children});
+};
+
+/**
+ * Child nodes: propertyName singleExpression
+ * @param {PropertyAssignmentExpressionContext} ctx
+ * @return {String}
+ */
 Visitor.prototype.visitPropertyAssignmentExpression = function(ctx) {
   const key = this.doubleQuoteStringify(this.visit(ctx.propertyName()));
-  let value = this.visit(ctx.singleExpression());
-  const arg = ctx.singleExpression();
-
-  if (this.isNumericType(arg) === true) {
-    value = this.doubleQuoteStringify(value);
-  }
+  const value = this.visit(ctx.singleExpression());
 
   return `${key}, ${value}`;
+};
+
+Visitor.prototype.visitPropertyNameAndValueList = function(ctx) {
+  const childCount = ctx.getChildCount();
+
+  if (childCount === 1) {
+    return this.visitChildren(ctx);
+  }
+
+  const props = [];
+
+  for (let i = 0; i < childCount; i += 2) {
+    props.push(`{ ${this.visit(ctx.children[i])} }`);
+  }
+
+  return props.join(', ');
 };
 
 /**
@@ -157,7 +182,13 @@ Visitor.prototype.visitObjectLiteral = function(ctx) {
     return 'new BsonDocument()';
   }
 
-  return `new BsonDocument(${this.visit(ctx.propertyNameAndValueList())})`;
+  if (ctx.propertyNameAndValueList().getChildCount() === 1) {
+    return `new BsonDocument(${this.visit(ctx.propertyNameAndValueList())})`;
+  }
+
+  const props = this.visit(ctx.propertyNameAndValueList());
+
+  return `new BsonDocument { ${props} }`;
 };
 
 /**
@@ -447,7 +478,45 @@ Visitor.prototype.visitArrayLiteral = function(ctx) {
 Visitor.prototype.visitElision = function(ctx) {
   ctx.type = this.types.NULL;
 
-  return 'null';
+  return 'BsonNull.Value';
 };
+
+/**
+ * Visit Null Literal
+ *
+ * @param {object} ctx
+ * @returns {string}
+ */
+Visitor.prototype.visitNullLiteral = function(ctx) {
+  ctx.type = this.types.NULL;
+
+  return 'BsonNull.Value';
+};
+
+/**
+ * Visit Symbol Constructor
+ *
+ * @param {object} ctx
+ * @returns {string}
+ */
+Visitor.prototype.visitBSONSymbolConstructor = function(ctx) {
+  const args = ctx.arguments();
+
+  if (
+    args.argumentList() === null || args.argumentList().getChildCount() !== 1
+  ) {
+    return 'Error: Symbol requires one argument';
+  }
+
+  const arg = args.argumentList().singleExpression()[0];
+  const symbol = this.visit(arg);
+
+  if (arg.type !== this.types.STRING) {
+    return 'Error: Symbol requires a string argument';
+  }
+
+  return `unicode(${symbol}, 'utf-8')`;
+};
+
 
 module.exports = Visitor;

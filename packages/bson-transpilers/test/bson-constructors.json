@@ -25,7 +25,7 @@
         "query": "Code('string', {x: 1})",
         "python": "Code('string', {'x': 1})",
         "java": "new CodeWithScope(\"string\", new Document().append(\"x\", 1))",
-        "csharp": "new BsonJavaScriptWithScope(@\"string\", new BsonDocument(\"x\", \"1\"))"
+        "csharp": "new BsonJavaScriptWithScope(@\"string\", new BsonDocument(\"x\", 1))"
       },
       {
         "description": "Code with function code",
@@ -199,14 +199,14 @@
         "query": "{x: 1}",
         "python": "{'x': 1}",
         "java": "new Document().append(\"x\", 1)",
-        "csharp": "new BsonDocument(\"x\", \"1\")"
+        "csharp": "new BsonDocument(\"x\", 1)"
       },
       {
         "description": "Doc with trailing comma",
         "query": "{x: 1,}",
         "python": "{'x': 1,}",
         "java": "new Document().append(\"x\", 1)",
-        "csharp": "new BsonDocument(\"x\", \"1\")"
+        "csharp": "new BsonDocument(\"x\", 1)"
       },
       {
         "description": "Doc with array",
@@ -220,14 +220,14 @@
         "query": "{x: {y: 2}}",
         "python": "{'x': {'y': 2}}",
         "java": "new Document().append(\"x\", new Document().append(\"y\", 2))",
-        "csharp": "new BsonDocument(\"x\", new BsonDocument(\"y\", \"2\"))"
+        "csharp": "new BsonDocument(\"x\", new BsonDocument(\"y\", 2))"
       },
       {
         "description": "Object.create()",
         "query": "Object.create({x: 1})",
         "python": "{'x': 1}",
         "java": "new Document().append(\"x\", 1)",
-        "csharp": "new BsonDocument(\"x\", \"1\")"
+        "csharp": "new BsonDocument(\"x\", 1)"
       },
       {
         "description": "Empty object",
@@ -235,6 +235,13 @@
         "python": "{}",
         "java": "new Document()",
         "csharp": "new BsonDocument()"
+      },
+      {
+        "description": "Two items in document",
+        "query": "{x: 1, n: 4}",
+        "python": "{'x': 1,'n': 4}",
+        "java": "new Document().append(\"x\", 1).append(\"n\", 4)",
+        "csharp": "new BsonDocument { { \"x\", 1 }, { \"n\", 4 } }"
       }
     ],
     "Array": [
@@ -280,28 +287,28 @@
         "query": "[,1, 2,]",
         "python": "[None, 1, 2,]",
         "java": "Arrays.asList(null, 1, 2)",
-        "csharp": "new BsonArray {null, 1, 2}"
+        "csharp": "new BsonArray {BsonNull.Value, 1, 2}"
       },
       {
         "description": "Array with one elision",
         "query": "[,]",
         "python": "[None]",
         "java": "Arrays.asList(null)",
-        "csharp": "new BsonArray {null}"
+        "csharp": "new BsonArray {BsonNull.Value}"
       },
       {
         "description": "Array with 2 elision",
         "query": "[,,]",
         "python": "[None, None]",
         "java": "Arrays.asList(null, null)",
-        "csharp": "new BsonArray {null, null}"
+        "csharp": "new BsonArray {BsonNull.Value, BsonNull.Value}"
       },
       {
         "description": "Array with elision in the middle",
         "query": "[1,,,,2]",
         "python": "[1, None, None, None, 2]",
         "java": "Arrays.asList(1, null, null, null, 2)",
-        "csharp": "new BsonArray {1, null, null, null, 2}"
+        "csharp": "new BsonArray {1, BsonNull.Value, BsonNull.Value, BsonNull.Value, 2}"
       }
     ],
     "Symbol": [

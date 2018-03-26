@@ -113,14 +113,14 @@
         "query": "null",
         "python": "None",
         "java": "null",
-        "csharp": "null"
+        "csharp": "BsonNull.Value"
       },
       {
         "description": "undefined",
         "query": "undefined",
         "python": "None",
         "java": "null",
-        "csharp": "null"
+        "csharp": "BsonUndefined.Value"
       },
       {
         "description": "true",
