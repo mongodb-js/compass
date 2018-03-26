@@ -218,4 +218,51 @@ Visitor.prototype.visitBSONObjectIdConstructor = function(ctx) {
   return `new BsonObjectId(${this.doubleQuoteStringify(hexstr)})`;
 };
 
+/**
+ * Visit Binary Constructor
+ *
+ * @param {object} ctx
+ * @returns {string}
+ */
+Visitor.prototype.visitBSONBinaryConstructor = function(ctx) {
+  const args = ctx.arguments();
+  let type = '';
+  let binobj = {};
+  const subtypes = {
+    0: 'BsonBinarySubType.Binary',
+    1: 'BsonBinarySubType.Function',
+    2: 'BsonBinarySubType.OldBinary',
+    3: 'BsonBinarySubType.UuidLegacy',
+    4: 'BsonBinarySubType.UuidStandard',
+    5: 'BsonBinarySubType.MD5',
+    128: 'BsonBinarySubType.UserDefined'
+  };
+
+  if (
+    args.argumentList() === null ||
+    (
+      args.argumentList().getChildCount() !== 1 &&
+      args.argumentList().getChildCount() !== 3
+    )
+  ) {
+    return 'Error: Binary requires one or two argument';
+  }
+
+  try {
+    binobj = this.executeJavascript(ctx.getText());
+    type = binobj.sub_type;
+  } catch (error) {
+    return error.message;
+  }
+
+  const argList = args.argumentList().singleExpression();
+  const bytes = this.doubleQuoteStringify(binobj.toString());
+
+  if (argList.length === 1) {
+    return `new BsonBinaryData(System.Text.Encoding.ASCII.GetBytes(${bytes}))`;
+  }
+
+  return `new BsonBinaryData(System.Text.Encoding.ASCII.GetBytes(${bytes}), ${subtypes[type]})`;
+};
+
 module.exports = Visitor;

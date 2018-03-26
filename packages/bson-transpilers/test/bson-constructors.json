@@ -64,21 +64,21 @@
         "query": "Binary(Buffer.from('a string'))",
         "python": "Binary(bytes('a string', 'utf-8'))",
         "java": "new Binary(org.bson.BsonBinarySubType.BINARY, \"a string\".getBytes(\"UTF-8\"))",
-        "csharp": ""
+        "csharp": "new BsonBinaryData(System.Text.Encoding.ASCII.GetBytes(\"a string\"))"
       },
       {
         "description": "new Binary with (ascii buffer, UUID subtype enum) args",
         "query": "new Binary(Buffer.from(\"a string\"), Binary.SUBTYPE_UUID)",
         "python": "Binary(bytes('a string', 'utf-8'), bson.binary.UUID_SUBTYPE)",
         "java": "new Binary(org.bson.BsonBinarySubType.UUID, \"a string\".getBytes(\"UTF-8\"))",
-        "csharp": ""
+        "csharp": "new BsonBinaryData(System.Text.Encoding.ASCII.GetBytes(\"a string\"), BsonBinarySubType.UuidStandard)"
       },
       {
         "description": "Binary with (ascii buffer, number) args",
         "query": "Binary(Buffer.from('a string'), '1')",
         "python": "Binary(bytes('a string', 'utf-8'), bson.binary.FUNCTION_SUBTYPE)",
         "java": "new Binary(org.bson.BsonBinarySubType.FUNCTION, \"a string\".getBytes(\"UTF-8\"))",
-        "csharp": ""
+        "csharp": "new BsonBinaryData(System.Text.Encoding.ASCII.GetBytes(\"a string\"), BsonBinarySubType.Function)"
       }
     ],
     "DBRef": [
