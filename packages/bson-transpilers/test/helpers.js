@@ -20,7 +20,7 @@ const unsupported = {
     'ArrayElision'
   ],
   csharp: [
-    'RegExp', 'DBRef', 'Decimal128', 'ObjectId', 'Binary', 'Double', 'Long', 'Decimal128', 'MinKey/MaxKey', 'Timestamp', 'Document', 'Array', 'ArrayElision', 'Symbol', 'Date', 'DateNow', 'RegExp'
+    'RegExp', 'DBRef', 'Decimal128', 'Binary', 'Double', 'Long', 'Decimal128', 'MinKey/MaxKey', 'Timestamp', 'Document', 'Array', 'ArrayElision', 'Symbol', 'Date', 'DateNow', 'RegExp'
   ]
 };
 

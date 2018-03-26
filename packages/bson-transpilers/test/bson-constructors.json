@@ -41,21 +41,21 @@
         "query": "ObjectId()",
         "python": "ObjectId()",
         "java": "new ObjectId()",
-        "csharp": ""
+        "csharp": "new BsonObjectId()"
       },
       {
         "description": "new ObjectId with no arg",
         "query": "new ObjectId()",
         "python": "ObjectId()",
         "java": "new ObjectId()",
-        "csharp": ""
+        "csharp": "new BsonObjectId()"
       },
       {
         "description": "ObjectId with hex string arg",
         "query": "ObjectId('5a7382114ec1f67ae445f778')",
         "python": "ObjectId('5a7382114ec1f67ae445f778')",
         "java": "new ObjectId(\"5a7382114ec1f67ae445f778\")",
-        "csharp": ""
+        "csharp": "new BsonObjectId(\"5a7382114ec1f67ae445f778\")"
       }
     ],
     "Binary": [

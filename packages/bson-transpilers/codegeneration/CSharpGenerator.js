@@ -189,4 +189,33 @@ Visitor.prototype.visitBSONCodeConstructor = function(ctx) {
   return `new BsonJavaScript(@${code})`;
 };
 
+/**
+ * This evaluates the code in a sandbox and gets the hex string out of the
+ * ObjectId.
+ *
+ * @param {object} ctx
+ * @returns {string}
+ */
+Visitor.prototype.visitBSONObjectIdConstructor = function(ctx) {
+  const args = ctx.arguments();
+
+  if (args.argumentList() === null) {
+    return 'new BsonObjectId()';
+  }
+
+  if (args.argumentList().getChildCount() !== 1) {
+    return 'Error: ObjectId requires zero or one argument';
+  }
+
+  let hexstr;
+
+  try {
+    hexstr = this.executeJavascript(ctx.getText()).toHexString();
+  } catch (error) {
+    return error.message;
+  }
+
+  return `new BsonObjectId(${this.doubleQuoteStringify(hexstr)})`;
+};
+
 module.exports = Visitor;
