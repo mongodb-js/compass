@@ -183,7 +183,7 @@ describe('#query-bar', function() {
       });
 
       context('when applying a projection', function() {
-        it('includes projection in the winning plan', function() {
+        it.skip('includes projection in the winning plan', function() {
           return client
             .waitForStatusBar()
             .inputProjectFromExplainPlanTab('{age: 1}')
