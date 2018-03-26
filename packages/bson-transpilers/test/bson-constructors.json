@@ -167,14 +167,14 @@
         "query": "new BSONRegExp('^[a-z0-9_-]{3,16}$')",
         "python": "",
         "java": "new BsonRegularExpression(\"^[a-z0-9_-]{3,16}$\")",
-        "csharp": ""
+        "csharp": "new BsonRegularExpression(@\"^[a-z0-9_-]{3,16}$\")"
       },
       {
         "description": "new BSONRegExp with string arg and flags",
         "query": "new BSONRegExp('^[a-z0-9_-]{3,16}$', 'imuxls')",
         "python": "",
         "java": "new BsonRegularExpression(\"^[a-z0-9_-]{3,16}$\", \"imuxls\")",
-        "csharp": ""
+        "csharp": "new BsonRegularExpression(@\"^[a-z0-9_-]{3,16}$\", \"imxs\")"
       }
     ],
     "Timestamp": [

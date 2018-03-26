@@ -14,14 +14,13 @@ const compile = {
 
 // Need a way to have test pass while developing
 const unsupported = {
-  java: [
-    'Decimal128'
-  ],
+  java: ['Decimal128'],
   python: [
-    'RegExp', 'BSONRegExp', 'DBRef', 'Decimal128', 'Timestamp', 'literals', 'ArrayElision'
+    'RegExp', 'BSONRegExp', 'DBRef', 'Decimal128', 'Timestamp', 'literals',
+    'ArrayElision'
   ],
   csharp: [
-    'RegExp', 'BSONRegExp', 'DBRef', 'Decimal128', 'Code', 'ObjectId', 'Binary', 'Double', 'Long', 'Decimal128', 'MinKey/MaxKey', 'Timestamp', 'Document', 'Array', 'ArrayElision', 'Symbol', 'Date', 'DateNow', 'RegExp'
+    'RegExp', 'DBRef', 'Decimal128', 'Code', 'ObjectId', 'Binary', 'Double', 'Long', 'Decimal128', 'MinKey/MaxKey', 'Timestamp', 'Document', 'Array', 'ArrayElision', 'Symbol', 'Date', 'DateNow', 'RegExp'
   ]
 };
 
