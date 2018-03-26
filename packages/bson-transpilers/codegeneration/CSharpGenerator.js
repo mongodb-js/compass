@@ -265,4 +265,31 @@ Visitor.prototype.visitBSONBinaryConstructor = function(ctx) {
   return `new BsonBinaryData(System.Text.Encoding.ASCII.GetBytes(${bytes}), ${subtypes[type]})`;
 };
 
+/**
+ * Visit Double Constructor
+ *
+ * @param {object} ctx
+ * @returns {string}
+ */
+Visitor.prototype.visitBSONDoubleConstructor = function(ctx) {
+  const args = ctx.arguments();
+
+  if (
+    args.argumentList() === null || args.argumentList().getChildCount() !== 1
+  ) {
+    return 'Error: Double requires one argument';
+  }
+
+  const arg = args.argumentList().singleExpression()[0];
+  let double = this.removeQuotes(this.visit(arg));
+
+  if (arg.type !== this.types.STRING && this.isNumericType(arg) === false) {
+    return 'Error: Double requires a number or a string argument';
+  }
+
+  double = this.doubleQuoteStringify(double);
+
+  return `new BsonDouble(Convert.ToDouble(${double}))`;
+};
+
 module.exports = Visitor;

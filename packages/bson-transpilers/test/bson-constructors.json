@@ -103,14 +103,14 @@
         "query": "Double(3)",
         "python": "float(3)",
         "java": "new java.lang.Double(3)",
-        "csharp": ""
+        "csharp": "new BsonDouble(Convert.ToDouble(\"3\"))"
       },
       {
         "description": "Double with valid string arg",
         "query": "Double('3')",
         "python": "float(3)",
         "java": "new java.lang.Double(\"3\")",
-        "csharp": ""
+        "csharp": "new BsonDouble(Convert.ToDouble(\"3\"))"
       }
     ],
     "Long": [
