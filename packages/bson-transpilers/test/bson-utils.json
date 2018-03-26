@@ -1,0 +1,164 @@
+{
+  "languages": [
+    "python",
+    "java",
+    "csharp"
+  ],
+  "tests": {
+    "ObjectId": [
+      {
+        "description": "createFromHexString",
+        "query": "ObjectId.createFromHexString('5ab901c29ee65f5c8550c5b9')",
+        "python": "",
+        "java": "new ObjectId(\"5ab901c29ee65f5c8550c5b9\")",
+        "csharp": ""
+      },
+      {
+        "description": "createFromTime",
+        "query": "ObjectId.createFromTime(1522075031642)",
+        "python": "",
+        "java": "new ObjectId(new java.lang.Date(1522075031642))",
+        "csharp": ""
+      },
+      {
+        "description": "isValid",
+        "query": "ObjectId.isValid('5ab901c29ee65f5c8550c5b9')",
+        "python": "",
+        "java": "new ObjectId().isValid('5ab901c29ee65f5c8550c5b9')",
+        "csharp": ""
+      }
+    ],
+    "Binary": [
+      {
+        "description": "subtype default",
+        "query": "Binary.SUBTYPE_DEFAULT",
+        "python": "",
+        "java": "org.bson.BsonBinarySubType.BINARY",
+        "csharp": ""
+      },
+      {
+        "description": "subtype function",
+        "query": "Binary.SUBTYPE_FUNCTION",
+        "python": "",
+        "java": "org.bson.BsonBinarySubType.FUNCTION",
+        "csharp": ""
+      },
+      {
+        "description": "subtype byte array",
+        "query": "Binary.BYTE_ARRAY",
+        "python": "",
+        "java": "org.bson.BsonBinarySubType.BYTE_ARRAY",
+        "csharp": ""
+      },
+      {
+        "description": "subtype uuid old",
+        "query": "Binary.UUID_OLD",
+        "python": "",
+        "java": "org.bson.BsonBinarySubType.UUID_OLD",
+        "csharp": ""
+      },
+      {
+        "description": "subtype uuid",
+        "query": "Binary.UUID",
+        "python": "",
+        "java": "org.bson.BsonBinarySubType.UUID",
+        "csharp": ""
+      },
+      {
+        "description": "subtype md5",
+        "query": "Binary.MD5",
+        "python": "",
+        "java": "org.bson.BsonBinarySubType.MD5",
+        "csharp": ""
+      },
+      {
+        "description": "subtype udef",
+        "query": "Binary.USER_DEFINED",
+        "python": "",
+        "java": "org.bson.BsonBinarySubType.USER_DEFINED",
+        "csharp": ""
+      }
+    ],
+    "DBRef": [
+      {
+        "description": "",
+        "query": "",
+        "python": "",
+        "java": "",
+        "csharp": ""
+      }
+    ],
+    "Int32": [
+      {
+        "description": "",
+        "query": "",
+        "python": "",
+        "java": "",
+        "csharp": ""
+      }
+    ],
+    "Double": [
+      {
+        "description": "",
+        "query": "",
+        "python": "",
+        "java": "",
+        "csharp": ""
+      }
+    ],
+    "Long": [
+      {
+        "description": "",
+        "query": "",
+        "python": "",
+        "java": "",
+        "csharp": ""
+      }
+    ],
+    "Decimal128": [
+      {
+        "description": "",
+        "query": "",
+        "python": "",
+        "java": "",
+        "csharp": ""
+      }
+    ],
+    "MinKey/MaxKey": [
+      {
+        "description": "",
+        "query": "",
+        "python": "",
+        "java": "",
+        "csharp": ""
+      }
+    ],
+    "BSONRegExp": [
+      {
+        "description": "",
+        "query": "",
+        "python": "",
+        "java": "",
+        "csharp": ""
+      }
+    ],
+    "Timestamp": [
+      {
+        "description": "",
+        "query": "",
+        "python": "",
+        "java": "",
+        "csharp": ""
+      }
+    ],
+    "Symbol": [
+      {
+        "description": "",
+        "query": "",
+        "python": "",
+        "java": "",
+        "csharp": ""
+      }
+    ]
+  }
+}

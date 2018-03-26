@@ -644,7 +644,7 @@ var serializedATN = ["\u0003\u608b\ua72a\u8133\ub9ed\u417c\u3be7\u7786\u5964",
     "\u00e6\u0003\u0002\u0002\u0002\u0392\u0393\u0007Q\u0002\u0002\u0393",
     "\u0394\u0007d\u0002\u0002\u0394\u0395\u0007l\u0002\u0002\u0395\u0396",
     "\u0007g\u0002\u0002\u0396\u0397\u0007e\u0002\u0002\u0397\u0398\u0007",
-    "v\u0002\u0002\u0398\u0399\u00070\u0002\u0002\u0399\u039a\u0007E\u0002",
+    "v\u0002\u0002\u0398\u0399\u00070\u0002\u0002\u0399\u039a\u0007e\u0002",
     "\u0002\u039a\u039b\u0007t\u0002\u0002\u039b\u039c\u0007g\u0002\u0002",
     "\u039c\u039d\u0007c\u0002\u0002\u039d\u039e\u0007v\u0002\u0002\u039e",
     "\u039f\u0007g\u0002\u0002\u039f\u00e8\u0003\u0002\u0002\u0002\u03a0",
@@ -949,7 +949,7 @@ ECMAScriptLexer.prototype.literalNames = [ null, null, null, "'['", "']'",
                                            "'Long'", "'Double'", "'Decimal128'", 
                                            "'MinKey'", "'MaxKey'", "'Timestamp'", 
                                            "'BSONRegExp'", "'Symbol'", "'Date'", 
-                                           "'RegExp'", "'Number'", "'Object.Create'" ];
+                                           "'RegExp'", "'Number'", "'Object.create'" ];
 
 ECMAScriptLexer.prototype.symbolicNames = [ null, "RegularExpressionLiteral", 
                                             "LineTerminator", "OpenBracket", 

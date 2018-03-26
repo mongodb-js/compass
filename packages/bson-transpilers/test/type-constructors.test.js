@@ -4,17 +4,34 @@ const languages = ['java', 'python', 'csharp'];
 const inputLang = 'query';
 
 describe('BSONConstructors', () => {
-  const tests = readJSON('./bson-constructors.json').bsonTypes;
+  const file = 'bson-constructors';
+  const tests = readJSON(`./${file}.json`).tests;
   languages.forEach((outputLang) => {
-    runTest(inputLang, outputLang, tests);
+    runTest(file, inputLang, outputLang, tests);
   });
 });
 
-// describe('Built-in Object Constructors', () => {
-//   const tests = readJSON('./built-in-types.json').types;
-//   languages.forEach((outputLang) => {
-//     runTest(inputLang, outputLang, tests);
-//   });
-// });
+describe('Built-in Object Constructors', () => {
+  const file = 'built-in-types';
+  const tests = readJSON(`./${file}.json`).tests;
+  languages.forEach((outputLang) => {
+    runTest(file, inputLang, outputLang, tests);
+  });
+});
 
+describe('BSONObjectMethods', () => {
+  const file = 'bson-object-methods';
+  const tests = readJSON(`./${file}.json`).tests;
+  languages.forEach((outputLang) => {
+    runTest(file, inputLang, outputLang, tests);
+  });
+});
+
+describe('BSONUtils', () => {
+  const file = 'bson-utils';
+  const tests = readJSON(`./${file}.json`).tests;
+  languages.forEach((outputLang) => {
+    runTest(file, inputLang, outputLang, tests);
+  });
+});
 

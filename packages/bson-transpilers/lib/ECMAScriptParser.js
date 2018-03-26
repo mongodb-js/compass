@@ -476,7 +476,7 @@ var literalNames = [ null, null, null, "'['", "']'", "'('", "')'", "'{'",
                      null, null, null, null, null, null, "'ObjectId'", "'Code'", 
                      "'Binary'", "'DBRef'", "'Long'", "'Double'", "'Decimal128'", 
                      "'MinKey'", "'MaxKey'", "'Timestamp'", "'BSONRegExp'", 
-                     "'Symbol'", "'Date'", "'RegExp'", "'Number'", "'Object.Create'" ];
+                     "'Symbol'", "'Date'", "'RegExp'", "'Number'", "'Object.create'" ];
 
 var symbolicNames = [ null, "RegularExpressionLiteral", "LineTerminator", 
                       "OpenBracket", "CloseBracket", "OpenParen", "CloseParen", 

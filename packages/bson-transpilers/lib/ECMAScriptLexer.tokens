@@ -217,4 +217,4 @@ UnexpectedCharacter=121
 'Date'=112
 'RegExp'=113
 'Number'=114
-'Object.Create'=115
+'Object.create'=115

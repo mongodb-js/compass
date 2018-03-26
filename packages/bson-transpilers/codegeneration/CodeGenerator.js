@@ -19,18 +19,6 @@ Visitor.prototype.constructor = Visitor;
 
 Visitor.prototype.start = Visitor.prototype.visitExpressionSequence;
 
-// Visitor.prototype.types = Object.freeze({
-//   STRING: 0, REGEX: 1,
-//   BOOL: 10,
-//   INTEGER: 20, DECIMAL: 21, HEXADECIMAL: 22, OCTAL: 23,
-//   OBJECT: 30, ARRAY: 31,
-//   NULL: 40, UNDEFINED: 41,
-//   IDENTIFIER: 50, FCALL: 51 // FDEF, VARDEF
-// });
-// Visitor.prototype.isNumericType = function(ctx) {
-//   return ctx.type >= 20 && ctx.type <= 29;
-// };
-
 /**
  * Selectively visits children of a node.
  *
@@ -99,11 +87,6 @@ Visitor.prototype.visitRegularExpressionLiteral = function(ctx) {
   ctx.type = Types._regex;
   return this.visitChildren(ctx);
 };
-
-// Visitor.prototype.visitBSONConstructorExpression = function(ctx) {
-//   ctx.type = Types.OBJECT;
-//   return this.visitChildren(ctx);
-// };
 
 /**
  * Visit a leaf node and return a string.

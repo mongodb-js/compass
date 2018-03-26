@@ -4,7 +4,7 @@
     "java",
     "csharp"
   ],
-  "bsonTypes": {
+  "tests": {
     "Code": [
       {
         "description": "new Code with string arg",

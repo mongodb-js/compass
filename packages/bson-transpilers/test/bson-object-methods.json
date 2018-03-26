@@ -1,0 +1,187 @@
+{
+  "languages": [
+    "python",
+    "java",
+    "csharp"
+  ],
+  "tests": {
+    "Code": [
+      {
+        "description": "CodeWithScope toJSON",
+        "query": "Code('test code', {x: 1}).toJSON()",
+        "python": "",
+        "java": "new Document().append(\"scope\", \"test code\").append(\"scope\", new Document().append(\"x\", 1))",
+        "csharp": ""
+      },
+      {
+        "description": "Code toJSON",
+        "query": "Code('test code').toJSON()",
+        "python": "",
+        "java": "new Document().append(\"scope\", \"test code\").append(\"scope\", null)",
+        "csharp": ""
+      }
+    ],
+    "ObjectId": [
+      {
+        "description": "no arguments toJSON",
+        "query": "ObjectId().toJSON()",
+        "python": "",
+        "java": "new ObjectId().toHexString()",
+        "csharp": ""
+      },
+      {
+        "description": "hex arg toJSON",
+        "query": "ObjectId('5ab901c29ee65f5c8550c5b9').toJSON()",
+        "python": "",
+        "java": "new ObjectId(\"5ab901c29ee65f5c8550c5b9\").toHexString()",
+        "csharp": ""
+      },
+      {
+        "description": "no arg toString",
+        "query": "ObjectId().toString()",
+        "python": "",
+        "java": "ObjectId().toString()",
+        "csharp": ""
+      },
+      {
+        "description": "hex arg toString",
+        "query": "ObjectId('5ab901c29ee65f5c8550c5b9').toString()",
+        "python": "",
+        "java": "new ObjectId(\"5ab901c29ee65f5c8550c5b9\").toString()",
+        "csharp": ""
+      },
+      {
+        "description": "getTimestamp",
+        "query": "ObjectId('5ab901c29ee65f5c8550c5b9').getTimestamp()",
+        "python": "",
+        "java": "new ObjectId(\"5ab901c29ee65f5c8550c5b9\").getTimestamp()",
+        "csharp": ""
+      },
+      {
+        "description": "equals",
+        "query": "ObjectId().equals(ObjectId())",
+        "python": "",
+        "java": "new ObjectId().equals(new ObjectId())",
+        "csharp": ""
+      },
+      {
+        "description": "generate",
+        "query": "ObjectId().generate()",
+        "python": "",
+        "java": "new ObjectId().get()",
+        "csharp": ""
+      }
+    ],
+    "Binary": [
+      {
+        "description": "length",
+        "query": "Binary(Buffer.from('a string')).length()",
+        "python": "",
+        "java": "new Binary(org.bson.BsonBinarySubType.BINARY, \"a string\".getBytes(\"UTF-8\")).length()",
+        "csharp": ""
+      },
+      {
+        "description": "value",
+        "query": "Binary(Buffer.from('a string')).value()",
+        "python": "",
+        "java": "new Binary(org.bson.BsonBinarySubType.BINARY, \"a string\".getBytes(\"UTF-8\")).getData()",
+        "csharp": ""
+      },
+      {
+        "description": "toString",
+        "query": "Binary(Buffer.from('a string')).toString()",
+        "python": "",
+        "java": "new Binary(org.bson.BsonBinarySubType.BINARY, \"a string\".getBytes(\"UTF-8\")).getData()",
+        "csharp": ""
+      },
+      {
+        "description": "toJSON",
+        "query": "Binary(Buffer.from('a string')).toJSON()",
+        "python": "",
+        "java": "new Binary(org.bson.BsonBinarySubType.BINARY, \"a string\".getBytes(\"UTF-8\")).getData()",
+        "csharp": ""
+      }
+    ],
+    "DBRef": [
+      {
+        "description": "",
+        "query": "",
+        "python": "",
+        "java": "",
+        "csharp": ""
+      }
+    ],
+    "Int32": [
+      {
+        "description": "",
+        "query": "",
+        "python": "",
+        "java": "",
+        "csharp": ""
+      }
+    ],
+    "Double": [
+      {
+        "description": "",
+        "query": "",
+        "python": "",
+        "java": "",
+        "csharp": ""
+      }
+    ],
+    "Long": [
+      {
+        "description": "",
+        "query": "",
+        "python": "",
+        "java": "",
+        "csharp": ""
+      }
+    ],
+    "Decimal128": [
+      {
+        "description": "",
+        "query": "",
+        "python": "",
+        "java": "",
+        "csharp": ""
+      }
+    ],
+    "MinKey/MaxKey": [
+      {
+        "description": "",
+        "query": "",
+        "python": "",
+        "java": "",
+        "csharp": ""
+      }
+    ],
+    "BSONRegExp": [
+      {
+        "description": "",
+        "query": "",
+        "python": "",
+        "java": "",
+        "csharp": ""
+      }
+    ],
+    "Timestamp": [
+      {
+        "description": "",
+        "query": "",
+        "python": "",
+        "java": "",
+        "csharp": ""
+      }
+    ],
+    "Symbol": [
+      {
+        "description": "",
+        "query": "",
+        "python": "",
+        "java": "",
+        "csharp": ""
+      }
+    ]
+  }
+}

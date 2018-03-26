@@ -270,7 +270,7 @@ BsonSymbols = new Scope({
  * TODO: JS Symbols
  */
 JSSymbols = new Scope({
-  'Object.Create': new Symbol(
+  'Object.create': new Symbol(
     'ObjectCreate',
     SYMBOL_TYPE.FUNC,
     [ [Types._object] ],

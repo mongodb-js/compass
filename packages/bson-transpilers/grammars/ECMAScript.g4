@@ -920,7 +920,7 @@ BSONSymbol      :   'Symbol';
 Date            :   'Date';
 RegExp          :   'RegExp';
 Number          :   'Number';
-ObjectCreate    :   'Object.Create';
+ObjectCreate    :   'Object.create';
 
 /// 7.6 Identifier Names and Identifiers
 Identifier

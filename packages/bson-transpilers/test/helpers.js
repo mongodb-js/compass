@@ -14,9 +14,24 @@ const compile = {
 
 // Need a way to have test pass while developing
 const unsupported = {
-  java: ['Decimal128'],
-  python: ['Decimal128'],
-  csharp: ['RegExp', 'DBRef', 'Decimal128']
+  java: {
+    'bson-constructors': ['Decimal128'],
+    'built-in-types': [ '*' ],
+    'bson-object-methods': [ 'DBRef', 'Double', 'Long', 'In32', 'MinKey', 'MaxKey', 'BSONRegExp', 'Timestamp', 'Symbol', 'Decimal128'],
+    'bson-utils': [ '*' ]
+  },
+  python: {
+    'bson-constructors': [ '*' ],
+    'built-in-types': [ '*' ],
+    'bson-object-methods': [ '*' ],
+    'bson-utils': [ '*' ]
+  },
+  csharp: {
+    'bson-constructors': [ '*' ],
+    'built-in-types': [ '*' ],
+    'bson-object-methods': [ '*' ],
+    'bson-utils': [ '*' ]
+  }
 };
 
 const readJSON = (filename) => {
@@ -26,12 +41,12 @@ const readJSON = (filename) => {
   return parseResult.value;
 };
 
-const runTest = (inputLang, outputLang, tests) => {
+const runTest = (testname, inputLang, outputLang, tests) => {
   describe(`${inputLang} ==> ${outputLang}`, () => {
     Object.keys(tests).forEach((key) => {
       describe(key, () => {
         tests[key].map((test) => {
-          const skip = unsupported[outputLang].indexOf(key) !== -1;
+          const skip = unsupported[outputLang][testname].indexOf('*') !== -1 || unsupported[outputLang][testname].indexOf(key) !== -1;
           (skip ? xit : it)(test.description, () => {
             expect(compile[outputLang](test[inputLang])).to.equal(test[outputLang]);
           });

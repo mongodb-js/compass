@@ -4,7 +4,7 @@
     "java",
     "csharp"
   ],
-  "types": {
+  "tests": {
     "math": [
       {
         "description": "simple addition",
