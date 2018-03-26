@@ -19,9 +19,7 @@ const unsupported = {
     'RegExp', 'BSONRegExp', 'DBRef', 'Decimal128', 'Timestamp', 'literals',
     'ArrayElision'
   ],
-  csharp: [
-    'RegExp', 'DBRef', 'Decimal128', 'Date', 'DateNow', 'RegExp'
-  ]
+  csharp: ['RegExp', 'DBRef', 'Decimal128', 'Date', 'DateNow']
 };
 
 const readJSON = (filename) => {
