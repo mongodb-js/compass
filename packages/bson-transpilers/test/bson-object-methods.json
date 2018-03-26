@@ -10,14 +10,14 @@
         "description": "CodeWithScope toJSON",
         "query": "Code('test code', {x: 1}).toJSON()",
         "python": "",
-        "java": "new Document().append(\"scope\", \"test code\").append(\"scope\", new Document().append(\"x\", 1))",
+        "java": "new Document().append(\"code\", \"test code\").append(\"scope\", new Document().append(\"x\", 1))",
         "csharp": ""
       },
       {
         "description": "Code toJSON",
         "query": "Code('test code').toJSON()",
         "python": "",
-        "java": "new Document().append(\"scope\", \"test code\").append(\"scope\", null)",
+        "java": "new Document().append(\"code\", \"test code\").append(\"scope\", undefined)",
         "csharp": ""
       }
     ],
@@ -40,7 +40,7 @@
         "description": "no arg toString",
         "query": "ObjectId().toString()",
         "python": "",
-        "java": "ObjectId().toString()",
+        "java": "new ObjectId().toString()",
         "csharp": ""
       },
       {
@@ -63,13 +63,6 @@
         "python": "",
         "java": "new ObjectId().equals(new ObjectId())",
         "csharp": ""
-      },
-      {
-        "description": "generate",
-        "query": "ObjectId().generate()",
-        "python": "",
-        "java": "new ObjectId().get()",
-        "csharp": ""
       }
     ],
     "Binary": [
@@ -91,14 +84,14 @@
         "description": "toString",
         "query": "Binary(Buffer.from('a string')).toString()",
         "python": "",
-        "java": "new Binary(org.bson.BsonBinarySubType.BINARY, \"a string\".getBytes(\"UTF-8\")).getData()",
+        "java": "new Binary(org.bson.BsonBinarySubType.BINARY, \"a string\".getBytes(\"UTF-8\")).toString()",
         "csharp": ""
       },
       {
         "description": "toJSON",
         "query": "Binary(Buffer.from('a string')).toJSON()",
         "python": "",
-        "java": "new Binary(org.bson.BsonBinarySubType.BINARY, \"a string\".getBytes(\"UTF-8\")).getData()",
+        "java": "new Binary(org.bson.BsonBinarySubType.BINARY, \"a string\".getBytes(\"UTF-8\")).toString()",
         "csharp": ""
       }
     ],

@@ -2,7 +2,13 @@
 const ECMAScriptVisitor = require('../lib/ECMAScriptVisitor').ECMAScriptVisitor;
 const bson = require('bson');
 const Context = require('context-eval');
-const { Types, SYMBOL_TYPE } = require('./SymbolTable');
+const {
+  Types,
+  SYMBOL_TYPE,
+  BsonSymbols,
+  JSSymbols,
+  Symbols
+} = require('./SymbolTable');
 
 /**
  * This is a Visitor superclass where helper methods used by all language
@@ -239,12 +245,9 @@ Visitor.prototype.checkArguments = function(expected, argumentList) {
         args[i].type === Types._octal)) {
       continue;
     }
-    if (expected[i].indexOf(args[i].type) === -1) {
+    if (expected[i].indexOf(args[i].type) === -1 && expected[i].indexOf(args[i].type.id) === -1) {
       throw `Error: expected types ${expected[i].map((e) => {
-        if (e !== null) {
-          return e.id;
-        }
-        return '?';
+        return e.id ? e.id : e;
       })} but got type ${args[i].type.id} for argument at index ${i}`;
     }
   }
@@ -256,18 +259,71 @@ Visitor.prototype.checkArguments = function(expected, argumentList) {
  * @param {FuncCallExpressionContext} ctx
  * @return {String}
  */
-Visitor.prototype.emitType = function(output, ctx) {
+Visitor.prototype.emitType = function(ctx) {
+  const lhs = this.visit(ctx.singleExpression());
   const lhsType = ctx.singleExpression().type;
+  const expectedArgs = lhsType.args;
+  const rhs = this.checkArguments(expectedArgs, ctx.arguments().argumentList());
 
   ctx.type = lhsType.type;
   if (!lhsType.callable) {
     throw `Error: ${lhsType.id} is not callable`;
   }
-
   const newStr = lhsType.callable === SYMBOL_TYPE.CONSTRUCTOR ? 'new ' : '';
 
-  const expectedArgs = lhsType.args;
-  return `${newStr}${output}(${this.checkArguments(expectedArgs, ctx.arguments().argumentList())})`;
+
+  return `${newStr}${lhs}(${rhs})`;
+};
+
+Visitor.prototype.visitFuncCallExpression = function(ctx) {
+  this.visit(ctx.singleExpression());
+  const lhsType = ctx.singleExpression().type;
+
+  // Special case types
+  if (`emit${lhsType.id}` in this) {
+    return this[`emit${lhsType.id}`](ctx);
+  }
+
+  return this.emitType(ctx);
+};
+
+Visitor.prototype.visitBSONIdentifierExpression = function(ctx) {
+  const name = this.visitChildren(ctx);
+  ctx.type = BsonSymbols[name];
+  if (ctx.type.template) {
+    return ctx.type.template();
+  }
+
+  return name;
+};
+
+Visitor.prototype.visitJSIdentifierExpression = function(ctx) {
+  const name = this.visitChildren(ctx);
+  ctx.type = JSSymbols[name];
+  return name;
+};
+
+Visitor.prototype.visitIdentifierExpression = function(ctx) {
+  const name = this.visitChildren(ctx);
+  ctx.type = Symbols[name];
+  return name;
+};
+
+Visitor.prototype.visitMemberDotExpression = function(ctx) {
+  const lhs = this.visit(ctx.singleExpression());
+  const lhsType = ctx.singleExpression().type;
+
+  const rhs = this.visit(ctx.identifierName());
+
+  if (!(rhs in lhsType.attr)) {
+    throw `Error: ${rhs} not an attribute of ${lhsType.id}`;
+  }
+  ctx.type = lhsType.attr[rhs];
+  if (lhsType.attr[rhs].template) {
+    return lhsType.attr[rhs].template(lhs, rhs);
+  }
+
+  return `${lhs}.${rhs}`;
 };
 
 

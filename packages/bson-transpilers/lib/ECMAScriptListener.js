@@ -866,6 +866,15 @@ ECMAScriptListener.prototype.exitBSONDouble = function(ctx) {
 };
 
 
+// Enter a parse tree produced by ECMAScriptParser#BSONInt32.
+ECMAScriptListener.prototype.enterBSONInt32 = function(ctx) {
+};
+
+// Exit a parse tree produced by ECMAScriptParser#BSONInt32.
+ECMAScriptListener.prototype.exitBSONInt32 = function(ctx) {
+};
+
+
 // Enter a parse tree produced by ECMAScriptParser#BSONDecimal128.
 ECMAScriptListener.prototype.enterBSONDecimal128 = function(ctx) {
 };

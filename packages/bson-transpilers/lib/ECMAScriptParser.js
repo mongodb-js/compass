@@ -7,7 +7,7 @@ var ECMAScriptVisitor = require('./ECMAScriptVisitor').ECMAScriptVisitor;
 var grammarFileName = "ECMAScript.g4";
 
 var serializedATN = ["\u0003\u608b\ua72a\u8133\ub9ed\u417c\u3be7\u7786\u5964",
-    "\u0003{\u029d\u0004\u0002\t\u0002\u0004\u0003\t\u0003\u0004\u0004\t",
+    "\u0003|\u029e\u0004\u0002\t\u0002\u0004\u0003\t\u0003\u0004\u0004\t",
     "\u0004\u0004\u0005\t\u0005\u0004\u0006\t\u0006\u0004\u0007\t\u0007\u0004",
     "\b\t\b\u0004\t\t\t\u0004\n\t\n\u0004\u000b\t\u000b\u0004\f\t\f\u0004",
     "\r\t\r\u0004\u000e\t\u000e\u0004\u000f\t\u000f\u0004\u0010\t\u0010\u0004",
@@ -87,17 +87,17 @@ var serializedATN = ["\u0003\u608b\ua72a\u8133\ub9ed\u417c\u3be7\u7786\u5964",
     "-\u0003-\u0003-\u0003-\u0003-\u0003-\u0003-\u0003-\u0003-\u0003-\u0003",
     "-\u0003-\u0003-\u0003-\u0003-\u0003-\u0003-\u0003-\u0003-\u0003-\u0003",
     "-\u0003-\u0007-\u025b\n-\f-\u000e-\u025e\u000b-\u0003.\u0003.\u0003",
-    ".\u0003.\u0003.\u0003.\u0003.\u0003.\u0003.\u0003.\u0003.\u0003.\u0005",
-    ".\u026c\n.\u0003/\u0003/\u00030\u00030\u00031\u00031\u00031\u00031\u0003",
-    "1\u00031\u00051\u0278\n1\u00032\u00032\u00032\u00032\u00052\u027e\n",
-    "2\u00033\u00033\u00053\u0282\n3\u00034\u00034\u00034\u00054\u0287\n",
-    "4\u00035\u00035\u00036\u00036\u00037\u00037\u00037\u00037\u00038\u0003",
-    "8\u00038\u00038\u00039\u00039\u00039\u00039\u00059\u0299\n9\u0003:\u0003",
+    ".\u0003.\u0003.\u0003.\u0003.\u0003.\u0003.\u0003.\u0003.\u0003.\u0003",
+    ".\u0005.\u026d\n.\u0003/\u0003/\u00030\u00030\u00031\u00031\u00031\u0003",
+    "1\u00031\u00031\u00051\u0279\n1\u00032\u00032\u00032\u00032\u00052\u027f",
+    "\n2\u00033\u00033\u00053\u0283\n3\u00034\u00034\u00034\u00054\u0288",
+    "\n4\u00035\u00035\u00036\u00036\u00037\u00037\u00037\u00037\u00038\u0003",
+    "8\u00038\u00038\u00039\u00039\u00039\u00039\u00059\u029a\n9\u0003:\u0003",
     ":\u0003:\u0002\u0003X;\u0002\u0004\u0006\b\n\f\u000e\u0010\u0012\u0014",
     "\u0016\u0018\u001a\u001c\u001e \"$&(*,.02468:<>@BDFHJLNPRTVXZ\\^`bd",
     "fhjlnpr\u0002\f\u0003\u0002\u0017\u0019\u0003\u0002\u0013\u0014\u0003",
-    "\u0002\u001a\u001c\u0003\u0002\u001d \u0003\u0002!$\u0003\u0002ru\u0003",
-    "\u0002*4\u0004\u00025577\u0003\u0002<U\u0003\u0002Ve\u0002\u02e6\u0002",
+    "\u0002\u001a\u001c\u0003\u0002\u001d \u0003\u0002!$\u0003\u0002sv\u0003",
+    "\u0002*4\u0004\u00025577\u0003\u0002<U\u0003\u0002Ve\u0002\u02e8\u0002",
     "u\u0003\u0002\u0002\u0002\u0004z\u0003\u0002\u0002\u0002\u0006\u0080",
     "\u0003\u0002\u0002\u0002\b\u0091\u0003\u0002\u0002\u0002\n\u0093\u0003",
     "\u0002\u0002\u0002\f\u009a\u0003\u0002\u0002\u0002\u000e\u009e\u0003",
@@ -118,12 +118,12 @@ var serializedATN = ["\u0003\u608b\ua72a\u8133\ub9ed\u417c\u3be7\u7786\u5964",
     "\u0002\u0002\u0002L\u01c5\u0003\u0002\u0002\u0002N\u01ca\u0003\u0002",
     "\u0002\u0002P\u01cc\u0003\u0002\u0002\u0002R\u01ce\u0003\u0002\u0002",
     "\u0002T\u01d7\u0003\u0002\u0002\u0002V\u01df\u0003\u0002\u0002\u0002",
-    "X\u0217\u0003\u0002\u0002\u0002Z\u026b\u0003\u0002\u0002\u0002\\\u026d",
-    "\u0003\u0002\u0002\u0002^\u026f\u0003\u0002\u0002\u0002`\u0277\u0003",
-    "\u0002\u0002\u0002b\u027d\u0003\u0002\u0002\u0002d\u0281\u0003\u0002",
-    "\u0002\u0002f\u0286\u0003\u0002\u0002\u0002h\u0288\u0003\u0002\u0002",
-    "\u0002j\u028a\u0003\u0002\u0002\u0002l\u028c\u0003\u0002\u0002\u0002",
-    "n\u0290\u0003\u0002\u0002\u0002p\u0298\u0003\u0002\u0002\u0002r\u029a",
+    "X\u0217\u0003\u0002\u0002\u0002Z\u026c\u0003\u0002\u0002\u0002\\\u026e",
+    "\u0003\u0002\u0002\u0002^\u0270\u0003\u0002\u0002\u0002`\u0278\u0003",
+    "\u0002\u0002\u0002b\u027e\u0003\u0002\u0002\u0002d\u0282\u0003\u0002",
+    "\u0002\u0002f\u0287\u0003\u0002\u0002\u0002h\u0289\u0003\u0002\u0002",
+    "\u0002j\u028b\u0003\u0002\u0002\u0002l\u028d\u0003\u0002\u0002\u0002",
+    "n\u0291\u0003\u0002\u0002\u0002p\u0299\u0003\u0002\u0002\u0002r\u029b",
     "\u0003\u0002\u0002\u0002tv\u0005\u0004\u0003\u0002ut\u0003\u0002\u0002",
     "\u0002uv\u0003\u0002\u0002\u0002vw\u0003\u0002\u0002\u0002wx\u0007\u0002",
     "\u0002\u0003x\u0003\u0003\u0002\u0002\u0002y{\u0005\u0006\u0004\u0002",
@@ -159,7 +159,7 @@ var serializedATN = ["\u0003\u608b\ua72a\u8133\ub9ed\u417c\u3be7\u7786\u5964",
     "\u00a3\u0003\u0002\u0002\u0002\u00a6\u00a9\u0003\u0002\u0002\u0002\u00a7",
     "\u00a5\u0003\u0002\u0002\u0002\u00a7\u00a8\u0003\u0002\u0002\u0002\u00a8",
     "\u0011\u0003\u0002\u0002\u0002\u00a9\u00a7\u0003\u0002\u0002\u0002\u00aa",
-    "\u00ac\u0007v\u0002\u0002\u00ab\u00ad\u0005\u0014\u000b\u0002\u00ac",
+    "\u00ac\u0007w\u0002\u0002\u00ab\u00ad\u0005\u0014\u000b\u0002\u00ac",
     "\u00ab\u0003\u0002\u0002\u0002\u00ac\u00ad\u0003\u0002\u0002\u0002\u00ad",
     "\u0013\u0003\u0002\u0002\u0002\u00ae\u00af\u0007\r\u0002\u0002\u00af",
     "\u00b0\u0005X-\u0002\u00b0\u0015\u0003\u0002\u0002\u0002\u00b1\u00b2",
@@ -205,11 +205,11 @@ var serializedATN = ["\u0003\u608b\ua72a\u8133\ub9ed\u417c\u3be7\u7786\u5964",
     "\u0002\u0002\u0002\u00fb\u00db\u0003\u0002\u0002\u0002\u00fb\u00ea\u0003",
     "\u0002\u0002\u0002\u00fb\u00f2\u0003\u0002\u0002\u0002\u00fc\u001d\u0003",
     "\u0002\u0002\u0002\u00fd\u0100\u0007H\u0002\u0002\u00fe\u00ff\u0006",
-    "\u0010\u0002\u0002\u00ff\u0101\u0007v\u0002\u0002\u0100\u00fe\u0003",
+    "\u0010\u0002\u0002\u00ff\u0101\u0007w\u0002\u0002\u0100\u00fe\u0003",
     "\u0002\u0002\u0002\u0100\u0101\u0003\u0002\u0002\u0002\u0101\u0102\u0003",
     "\u0002\u0002\u0002\u0102\u0103\u0005p9\u0002\u0103\u001f\u0003\u0002",
     "\u0002\u0002\u0104\u0107\u0007<\u0002\u0002\u0105\u0106\u0006\u0011",
-    "\u0003\u0002\u0106\u0108\u0007v\u0002\u0002\u0107\u0105\u0003\u0002",
+    "\u0003\u0002\u0106\u0108\u0007w\u0002\u0002\u0107\u0105\u0003\u0002",
     "\u0002\u0002\u0107\u0108\u0003\u0002\u0002\u0002\u0108\u0109\u0003\u0002",
     "\u0002\u0002\u0109\u010a\u0005p9\u0002\u010a!\u0003\u0002\u0002\u0002",
     "\u010b\u010e\u0007F\u0002\u0002\u010c\u010d\u0006\u0012\u0004\u0002",
@@ -238,7 +238,7 @@ var serializedATN = ["\u0003\u608b\ua72a\u8133\ub9ed\u417c\u3be7\u7786\u5964",
     "\u0007P\u0002\u0002\u0136\u0138\u0007\u000f\u0002\u0002\u0137\u0139",
     "\u0005\f\u0007\u0002\u0138\u0137\u0003\u0002\u0002\u0002\u0138\u0139",
     "\u0003\u0002\u0002\u0002\u0139/\u0003\u0002\u0002\u0002\u013a\u013b",
-    "\u0007v\u0002\u0002\u013b\u013c\u0007\u000f\u0002\u0002\u013c\u013d",
+    "\u0007w\u0002\u0002\u013b\u013c\u0007\u000f\u0002\u0002\u013c\u013d",
     "\u0005\b\u0005\u0002\u013d1\u0003\u0002\u0002\u0002\u013e\u013f\u0007",
     "R\u0002\u0002\u013f\u0140\u0006\u001a\u0005\u0002\u0140\u0141\u0005",
     "V,\u0002\u0141\u0142\u0005p9\u0002\u01423\u0003\u0002\u0002\u0002\u0143",
@@ -251,18 +251,18 @@ var serializedATN = ["\u0003\u608b\ua72a\u8133\ub9ed\u417c\u3be7\u7786\u5964",
     "\u0002\u0150\u0143\u0003\u0002\u0002\u0002\u0150\u0147\u0003\u0002\u0002",
     "\u0002\u0150\u014b\u0003\u0002\u0002\u0002\u01515\u0003\u0002\u0002",
     "\u0002\u0152\u0153\u0007D\u0002\u0002\u0153\u0154\u0007\u0007\u0002",
-    "\u0002\u0154\u0155\u0007v\u0002\u0002\u0155\u0156\u0007\b\u0002\u0002",
+    "\u0002\u0154\u0155\u0007w\u0002\u0002\u0155\u0156\u0007\b\u0002\u0002",
     "\u0156\u0157\u0005\n\u0006\u0002\u01577\u0003\u0002\u0002\u0002\u0158",
     "\u0159\u0007E\u0002\u0002\u0159\u015a\u0005\n\u0006\u0002\u015a9\u0003",
     "\u0002\u0002\u0002\u015b\u015c\u0007L\u0002\u0002\u015c\u015d\u0005",
     "p9\u0002\u015d;\u0003\u0002\u0002\u0002\u015e\u015f\u0007M\u0002\u0002",
-    "\u015f\u0160\u0007v\u0002\u0002\u0160\u0162\u0007\u0007\u0002\u0002",
+    "\u015f\u0160\u0007w\u0002\u0002\u0160\u0162\u0007\u0007\u0002\u0002",
     "\u0161\u0163\u0005> \u0002\u0162\u0161\u0003\u0002\u0002\u0002\u0162",
     "\u0163\u0003\u0002\u0002\u0002\u0163\u0164\u0003\u0002\u0002\u0002\u0164",
     "\u0165\u0007\b\u0002\u0002\u0165\u0166\u0007\t\u0002\u0002\u0166\u0167",
     "\u0005@!\u0002\u0167\u0168\u0007\n\u0002\u0002\u0168=\u0003\u0002\u0002",
-    "\u0002\u0169\u016e\u0007v\u0002\u0002\u016a\u016b\u0007\f\u0002\u0002",
-    "\u016b\u016d\u0007v\u0002\u0002\u016c\u016a\u0003\u0002\u0002\u0002",
+    "\u0002\u0169\u016e\u0007w\u0002\u0002\u016a\u016b\u0007\f\u0002\u0002",
+    "\u016b\u016d\u0007w\u0002\u0002\u016c\u016a\u0003\u0002\u0002\u0002",
     "\u016d\u0170\u0003\u0002\u0002\u0002\u016e\u016c\u0003\u0002\u0002\u0002",
     "\u016e\u016f\u0003\u0002\u0002\u0002\u016f?\u0003\u0002\u0002\u0002",
     "\u0170\u016e\u0003\u0002\u0002\u0002\u0171\u0173\u0005\u0004\u0003\u0002",
@@ -313,10 +313,10 @@ var serializedATN = ["\u0003\u608b\ua72a\u8133\ub9ed\u417c\u3be7\u7786\u5964",
     "\u01c3\u0005@!\u0002\u01c3\u01c4\u0007\n\u0002\u0002\u01c4\u01c6\u0003",
     "\u0002\u0002\u0002\u01c5\u01b2\u0003\u0002\u0002\u0002\u01c5\u01b6\u0003",
     "\u0002\u0002\u0002\u01c5\u01bd\u0003\u0002\u0002\u0002\u01c6M\u0003",
-    "\u0002\u0002\u0002\u01c7\u01cb\u0005d3\u0002\u01c8\u01cb\u0007w\u0002",
+    "\u0002\u0002\u0002\u01c7\u01cb\u0005d3\u0002\u01c8\u01cb\u0007x\u0002",
     "\u0002\u01c9\u01cb\u0005b2\u0002\u01ca\u01c7\u0003\u0002\u0002\u0002",
     "\u01ca\u01c8\u0003\u0002\u0002\u0002\u01ca\u01c9\u0003\u0002\u0002\u0002",
-    "\u01cbO\u0003\u0002\u0002\u0002\u01cc\u01cd\u0007v\u0002\u0002\u01cd",
+    "\u01cbO\u0003\u0002\u0002\u0002\u01cc\u01cd\u0007w\u0002\u0002\u01cd",
     "Q\u0003\u0002\u0002\u0002\u01ce\u01d0\u0007\u0007\u0002\u0002\u01cf",
     "\u01d1\u0005T+\u0002\u01d0\u01cf\u0003\u0002\u0002\u0002\u01d0\u01d1",
     "\u0003\u0002\u0002\u0002\u01d1\u01d3\u0003\u0002\u0002\u0002\u01d2\u01d4",
@@ -332,7 +332,7 @@ var serializedATN = ["\u0003\u608b\ua72a\u8133\ub9ed\u417c\u3be7\u7786\u5964",
     "\u0002\u0002\u01e4\u01e2\u0003\u0002\u0002\u0002\u01e4\u01e5\u0003\u0002",
     "\u0002\u0002\u01e5W\u0003\u0002\u0002\u0002\u01e6\u01e4\u0003\u0002",
     "\u0002\u0002\u01e7\u01e8\b-\u0001\u0002\u01e8\u01ea\u0007M\u0002\u0002",
-    "\u01e9\u01eb\u0007v\u0002\u0002\u01ea\u01e9\u0003\u0002\u0002\u0002",
+    "\u01e9\u01eb\u0007w\u0002\u0002\u01ea\u01e9\u0003\u0002\u0002\u0002",
     "\u01ea\u01eb\u0003\u0002\u0002\u0002\u01eb\u01ec\u0003\u0002\u0002\u0002",
     "\u01ec\u01ee\u0007\u0007\u0002\u0002\u01ed\u01ef\u0005> \u0002\u01ee",
     "\u01ed\u0003\u0002\u0002\u0002\u01ee\u01ef\u0003\u0002\u0002\u0002\u01ef",
@@ -349,7 +349,7 @@ var serializedATN = ["\u0003\u608b\ua72a\u8133\ub9ed\u417c\u3be7\u7786\u5964",
     "\u0002\u0205\u0218\u0005X-\u001d\u0206\u0207\u0007\u0014\u0002\u0002",
     "\u0207\u0218\u0005X-\u001c\u0208\u0209\u0007\u0015\u0002\u0002\u0209",
     "\u0218\u0005X-\u001b\u020a\u020b\u0007\u0016\u0002\u0002\u020b\u0218",
-    "\u0005X-\u001a\u020c\u0218\u0007N\u0002\u0002\u020d\u0218\u0007v\u0002",
+    "\u0005X-\u001a\u020c\u0218\u0007N\u0002\u0002\u020d\u0218\u0007w\u0002",
     "\u0002\u020e\u0218\u0005`1\u0002\u020f\u0218\u0005B\"\u0002\u0210\u0218",
     "\u0005H%\u0002\u0211\u0212\u0007\u0007\u0002\u0002\u0212\u0213\u0005",
     "V,\u0002\u0213\u0214\u0007\b\u0002\u0002\u0214\u0218\u0003\u0002\u0002",
@@ -404,52 +404,53 @@ var serializedATN = ["\u0003\u608b\ua72a\u8133\ub9ed\u417c\u3be7\u7786\u5964",
     "\u0003\u0002\u0002\u0002\u025a\u0256\u0003\u0002\u0002\u0002\u025b\u025e",
     "\u0003\u0002\u0002\u0002\u025c\u025a\u0003\u0002\u0002\u0002\u025c\u025d",
     "\u0003\u0002\u0002\u0002\u025dY\u0003\u0002\u0002\u0002\u025e\u025c",
-    "\u0003\u0002\u0002\u0002\u025f\u026c\u0007f\u0002\u0002\u0260\u026c",
-    "\u0007g\u0002\u0002\u0261\u026c\u0007h\u0002\u0002\u0262\u026c\u0007",
-    "i\u0002\u0002\u0263\u026c\u0007j\u0002\u0002\u0264\u026c\u0007k\u0002",
-    "\u0002\u0265\u026c\u0007l\u0002\u0002\u0266\u026c\u0007m\u0002\u0002",
-    "\u0267\u026c\u0007n\u0002\u0002\u0268\u026c\u0007o\u0002\u0002\u0269",
-    "\u026c\u0007p\u0002\u0002\u026a\u026c\u0007q\u0002\u0002\u026b\u025f",
-    "\u0003\u0002\u0002\u0002\u026b\u0260\u0003\u0002\u0002\u0002\u026b\u0261",
-    "\u0003\u0002\u0002\u0002\u026b\u0262\u0003\u0002\u0002\u0002\u026b\u0263",
-    "\u0003\u0002\u0002\u0002\u026b\u0264\u0003\u0002\u0002\u0002\u026b\u0265",
-    "\u0003\u0002\u0002\u0002\u026b\u0266\u0003\u0002\u0002\u0002\u026b\u0267",
-    "\u0003\u0002\u0002\u0002\u026b\u0268\u0003\u0002\u0002\u0002\u026b\u0269",
-    "\u0003\u0002\u0002\u0002\u026b\u026a\u0003\u0002\u0002\u0002\u026c[",
-    "\u0003\u0002\u0002\u0002\u026d\u026e\t\u0007\u0002\u0002\u026e]\u0003",
-    "\u0002\u0002\u0002\u026f\u0270\t\b\u0002\u0002\u0270_\u0003\u0002\u0002",
-    "\u0002\u0271\u0278\u00075\u0002\u0002\u0272\u0278\u00076\u0002\u0002",
-    "\u0273\u0278\u00077\u0002\u0002\u0274\u0278\u0007w\u0002\u0002\u0275",
-    "\u0278\u0007\u0003\u0002\u0002\u0276\u0278\u0005b2\u0002\u0277\u0271",
-    "\u0003\u0002\u0002\u0002\u0277\u0272\u0003\u0002\u0002\u0002\u0277\u0273",
-    "\u0003\u0002\u0002\u0002\u0277\u0274\u0003\u0002\u0002\u0002\u0277\u0275",
-    "\u0003\u0002\u0002\u0002\u0277\u0276\u0003\u0002\u0002\u0002\u0278a",
-    "\u0003\u0002\u0002\u0002\u0279\u027e\u00078\u0002\u0002\u027a\u027e",
-    "\u00079\u0002\u0002\u027b\u027e\u0007:\u0002\u0002\u027c\u027e\u0007",
-    ";\u0002\u0002\u027d\u0279\u0003\u0002\u0002\u0002\u027d\u027a\u0003",
-    "\u0002\u0002\u0002\u027d\u027b\u0003\u0002\u0002\u0002\u027d\u027c\u0003",
-    "\u0002\u0002\u0002\u027ec\u0003\u0002\u0002\u0002\u027f\u0282\u0007",
-    "v\u0002\u0002\u0280\u0282\u0005f4\u0002\u0281\u027f\u0003\u0002\u0002",
-    "\u0002\u0281\u0280\u0003\u0002\u0002\u0002\u0282e\u0003\u0002\u0002",
-    "\u0002\u0283\u0287\u0005h5\u0002\u0284\u0287\u0005j6\u0002\u0285\u0287",
-    "\t\t\u0002\u0002\u0286\u0283\u0003\u0002\u0002\u0002\u0286\u0284\u0003",
-    "\u0002\u0002\u0002\u0286\u0285\u0003\u0002\u0002\u0002\u0287g\u0003",
-    "\u0002\u0002\u0002\u0288\u0289\t\n\u0002\u0002\u0289i\u0003\u0002\u0002",
-    "\u0002\u028a\u028b\t\u000b\u0002\u0002\u028bk\u0003\u0002\u0002\u0002",
-    "\u028c\u028d\u00067\u001c\u0002\u028d\u028e\u0007v\u0002\u0002\u028e",
-    "\u028f\u0005N(\u0002\u028fm\u0003\u0002\u0002\u0002\u0290\u0291\u0006",
-    "8\u001d\u0002\u0291\u0292\u0007v\u0002\u0002\u0292\u0293\u0005N(\u0002",
-    "\u0293o\u0003\u0002\u0002\u0002\u0294\u0299\u0007\u000b\u0002\u0002",
-    "\u0295\u0299\u0007\u0002\u0002\u0003\u0296\u0299\u00069\u001e\u0002",
-    "\u0297\u0299\u00069\u001f\u0002\u0298\u0294\u0003\u0002\u0002\u0002",
-    "\u0298\u0295\u0003\u0002\u0002\u0002\u0298\u0296\u0003\u0002\u0002\u0002",
-    "\u0298\u0297\u0003\u0002\u0002\u0002\u0299q\u0003\u0002\u0002\u0002",
-    "\u029a\u029b\u0007\u0002\u0002\u0003\u029bs\u0003\u0002\u0002\u0002",
+    "\u0003\u0002\u0002\u0002\u025f\u026d\u0007f\u0002\u0002\u0260\u026d",
+    "\u0007g\u0002\u0002\u0261\u026d\u0007h\u0002\u0002\u0262\u026d\u0007",
+    "i\u0002\u0002\u0263\u026d\u0007j\u0002\u0002\u0264\u026d\u0007k\u0002",
+    "\u0002\u0265\u026d\u0007l\u0002\u0002\u0266\u026d\u0007m\u0002\u0002",
+    "\u0267\u026d\u0007n\u0002\u0002\u0268\u026d\u0007o\u0002\u0002\u0269",
+    "\u026d\u0007p\u0002\u0002\u026a\u026d\u0007q\u0002\u0002\u026b\u026d",
+    "\u0007r\u0002\u0002\u026c\u025f\u0003\u0002\u0002\u0002\u026c\u0260",
+    "\u0003\u0002\u0002\u0002\u026c\u0261\u0003\u0002\u0002\u0002\u026c\u0262",
+    "\u0003\u0002\u0002\u0002\u026c\u0263\u0003\u0002\u0002\u0002\u026c\u0264",
+    "\u0003\u0002\u0002\u0002\u026c\u0265\u0003\u0002\u0002\u0002\u026c\u0266",
+    "\u0003\u0002\u0002\u0002\u026c\u0267\u0003\u0002\u0002\u0002\u026c\u0268",
+    "\u0003\u0002\u0002\u0002\u026c\u0269\u0003\u0002\u0002\u0002\u026c\u026a",
+    "\u0003\u0002\u0002\u0002\u026c\u026b\u0003\u0002\u0002\u0002\u026d[",
+    "\u0003\u0002\u0002\u0002\u026e\u026f\t\u0007\u0002\u0002\u026f]\u0003",
+    "\u0002\u0002\u0002\u0270\u0271\t\b\u0002\u0002\u0271_\u0003\u0002\u0002",
+    "\u0002\u0272\u0279\u00075\u0002\u0002\u0273\u0279\u00076\u0002\u0002",
+    "\u0274\u0279\u00077\u0002\u0002\u0275\u0279\u0007x\u0002\u0002\u0276",
+    "\u0279\u0007\u0003\u0002\u0002\u0277\u0279\u0005b2\u0002\u0278\u0272",
+    "\u0003\u0002\u0002\u0002\u0278\u0273\u0003\u0002\u0002\u0002\u0278\u0274",
+    "\u0003\u0002\u0002\u0002\u0278\u0275\u0003\u0002\u0002\u0002\u0278\u0276",
+    "\u0003\u0002\u0002\u0002\u0278\u0277\u0003\u0002\u0002\u0002\u0279a",
+    "\u0003\u0002\u0002\u0002\u027a\u027f\u00078\u0002\u0002\u027b\u027f",
+    "\u00079\u0002\u0002\u027c\u027f\u0007:\u0002\u0002\u027d\u027f\u0007",
+    ";\u0002\u0002\u027e\u027a\u0003\u0002\u0002\u0002\u027e\u027b\u0003",
+    "\u0002\u0002\u0002\u027e\u027c\u0003\u0002\u0002\u0002\u027e\u027d\u0003",
+    "\u0002\u0002\u0002\u027fc\u0003\u0002\u0002\u0002\u0280\u0283\u0007",
+    "w\u0002\u0002\u0281\u0283\u0005f4\u0002\u0282\u0280\u0003\u0002\u0002",
+    "\u0002\u0282\u0281\u0003\u0002\u0002\u0002\u0283e\u0003\u0002\u0002",
+    "\u0002\u0284\u0288\u0005h5\u0002\u0285\u0288\u0005j6\u0002\u0286\u0288",
+    "\t\t\u0002\u0002\u0287\u0284\u0003\u0002\u0002\u0002\u0287\u0285\u0003",
+    "\u0002\u0002\u0002\u0287\u0286\u0003\u0002\u0002\u0002\u0288g\u0003",
+    "\u0002\u0002\u0002\u0289\u028a\t\n\u0002\u0002\u028ai\u0003\u0002\u0002",
+    "\u0002\u028b\u028c\t\u000b\u0002\u0002\u028ck\u0003\u0002\u0002\u0002",
+    "\u028d\u028e\u00067\u001c\u0002\u028e\u028f\u0007w\u0002\u0002\u028f",
+    "\u0290\u0005N(\u0002\u0290m\u0003\u0002\u0002\u0002\u0291\u0292\u0006",
+    "8\u001d\u0002\u0292\u0293\u0007w\u0002\u0002\u0293\u0294\u0005N(\u0002",
+    "\u0294o\u0003\u0002\u0002\u0002\u0295\u029a\u0007\u000b\u0002\u0002",
+    "\u0296\u029a\u0007\u0002\u0002\u0003\u0297\u029a\u00069\u001e\u0002",
+    "\u0298\u029a\u00069\u001f\u0002\u0299\u0295\u0003\u0002\u0002\u0002",
+    "\u0299\u0296\u0003\u0002\u0002\u0002\u0299\u0297\u0003\u0002\u0002\u0002",
+    "\u0299\u0298\u0003\u0002\u0002\u0002\u029aq\u0003\u0002\u0002\u0002",
+    "\u029b\u029c\u0007\u0002\u0002\u0003\u029cs\u0003\u0002\u0002\u0002",
     ";u|\u0080\u0091\u0095\u009c\u00a7\u00ac\u00bc\u00cf\u00d3\u00d7\u00e1",
     "\u00e5\u00fb\u0100\u0107\u010e\u0120\u0124\u0126\u012d\u0133\u0138\u0150",
     "\u0162\u016e\u0172\u0179\u017d\u0182\u0188\u0190\u0194\u0198\u019b\u01a4",
     "\u01a8\u01af\u01c5\u01ca\u01d0\u01d3\u01dc\u01e4\u01ea\u01ee\u01f8\u0217",
-    "\u025a\u025c\u026b\u0277\u027d\u0281\u0286\u0298"].join("");
+    "\u025a\u025c\u026c\u0278\u027e\u0282\u0287\u0299"].join("");
 
 
 var atn = new antlr4.atn.ATNDeserializer().deserialize(serializedATN);
@@ -474,9 +475,10 @@ var literalNames = [ null, null, null, "'['", "']'", "'('", "')'", "'{'",
                      "'try'", "'class'", "'enum'", "'extends'", "'super'", 
                      "'const'", "'export'", "'import'", null, null, null, 
                      null, null, null, null, null, null, "'ObjectId'", "'Code'", 
-                     "'Binary'", "'DBRef'", "'Long'", "'Double'", "'Decimal128'", 
-                     "'MinKey'", "'MaxKey'", "'Timestamp'", "'BSONRegExp'", 
-                     "'Symbol'", "'Date'", "'RegExp'", "'Number'", "'Object.create'" ];
+                     "'Binary'", "'DBRef'", "'Long'", "'Double'", "'Int32'", 
+                     "'Decimal128'", "'MinKey'", "'MaxKey'", "'Timestamp'", 
+                     "'BSONRegExp'", "'Symbol'", "'Date'", "'RegExp'", "'Number'", 
+                     "'Object.create'" ];
 
 var symbolicNames = [ null, "RegularExpressionLiteral", "LineTerminator", 
                       "OpenBracket", "CloseBracket", "OpenParen", "CloseParen", 
@@ -502,10 +504,11 @@ var symbolicNames = [ null, "RegularExpressionLiteral", "LineTerminator",
                       "Let", "Private", "Public", "Interface", "Package", 
                       "Protected", "Static", "Yield", "BSONObjectId", "BSONCode", 
                       "BSONBinary", "BSONDBRef", "BSONLong", "BSONDouble", 
-                      "BSONDecimal128", "BSONMinKey", "BSONMaxKey", "BSONTimestamp", 
-                      "BSONRegExp", "BSONSymbol", "Date", "RegExp", "Number", 
-                      "ObjectCreate", "Identifier", "StringLiteral", "WhiteSpaces", 
-                      "MultiLineComment", "SingleLineComment", "UnexpectedCharacter" ];
+                      "BSONInt32", "BSONDecimal128", "BSONMinKey", "BSONMaxKey", 
+                      "BSONTimestamp", "BSONRegExp", "BSONSymbol", "Date", 
+                      "RegExp", "Number", "ObjectCreate", "Identifier", 
+                      "StringLiteral", "WhiteSpaces", "MultiLineComment", 
+                      "SingleLineComment", "UnexpectedCharacter" ];
 
 var ruleNames =  [ "program", "sourceElements", "sourceElement", "statement", 
                    "block", "statementList", "variableStatement", "variableDeclarationList", 
@@ -679,22 +682,23 @@ ECMAScriptParser.BSONBinary = 102;
 ECMAScriptParser.BSONDBRef = 103;
 ECMAScriptParser.BSONLong = 104;
 ECMAScriptParser.BSONDouble = 105;
-ECMAScriptParser.BSONDecimal128 = 106;
-ECMAScriptParser.BSONMinKey = 107;
-ECMAScriptParser.BSONMaxKey = 108;
-ECMAScriptParser.BSONTimestamp = 109;
-ECMAScriptParser.BSONRegExp = 110;
-ECMAScriptParser.BSONSymbol = 111;
-ECMAScriptParser.Date = 112;
-ECMAScriptParser.RegExp = 113;
-ECMAScriptParser.Number = 114;
-ECMAScriptParser.ObjectCreate = 115;
-ECMAScriptParser.Identifier = 116;
-ECMAScriptParser.StringLiteral = 117;
-ECMAScriptParser.WhiteSpaces = 118;
-ECMAScriptParser.MultiLineComment = 119;
-ECMAScriptParser.SingleLineComment = 120;
-ECMAScriptParser.UnexpectedCharacter = 121;
+ECMAScriptParser.BSONInt32 = 106;
+ECMAScriptParser.BSONDecimal128 = 107;
+ECMAScriptParser.BSONMinKey = 108;
+ECMAScriptParser.BSONMaxKey = 109;
+ECMAScriptParser.BSONTimestamp = 110;
+ECMAScriptParser.BSONRegExp = 111;
+ECMAScriptParser.BSONSymbol = 112;
+ECMAScriptParser.Date = 113;
+ECMAScriptParser.RegExp = 114;
+ECMAScriptParser.Number = 115;
+ECMAScriptParser.ObjectCreate = 116;
+ECMAScriptParser.Identifier = 117;
+ECMAScriptParser.StringLiteral = 118;
+ECMAScriptParser.WhiteSpaces = 119;
+ECMAScriptParser.MultiLineComment = 120;
+ECMAScriptParser.SingleLineComment = 121;
+ECMAScriptParser.UnexpectedCharacter = 122;
 
 ECMAScriptParser.RULE_program = 0;
 ECMAScriptParser.RULE_sourceElements = 1;
@@ -813,7 +817,7 @@ ECMAScriptParser.prototype.program = function() {
         this.state = 115;
         this._errHandler.sync(this);
         _la = this._input.LA(1);
-        if((((_la) & ~0x1f) == 0 && ((1 << _la) & ((1 << ECMAScriptParser.RegularExpressionLiteral) | (1 << ECMAScriptParser.OpenBracket) | (1 << ECMAScriptParser.OpenParen) | (1 << ECMAScriptParser.OpenBrace) | (1 << ECMAScriptParser.SemiColon) | (1 << ECMAScriptParser.PlusPlus) | (1 << ECMAScriptParser.MinusMinus) | (1 << ECMAScriptParser.Plus) | (1 << ECMAScriptParser.Minus) | (1 << ECMAScriptParser.BitNot) | (1 << ECMAScriptParser.Not))) !== 0) || ((((_la - 51)) & ~0x1f) == 0 && ((1 << (_la - 51)) & ((1 << (ECMAScriptParser.NullLiteral - 51)) | (1 << (ECMAScriptParser.UndefinedLiteral - 51)) | (1 << (ECMAScriptParser.BooleanLiteral - 51)) | (1 << (ECMAScriptParser.IntegerLiteral - 51)) | (1 << (ECMAScriptParser.DecimalLiteral - 51)) | (1 << (ECMAScriptParser.HexIntegerLiteral - 51)) | (1 << (ECMAScriptParser.OctalIntegerLiteral - 51)) | (1 << (ECMAScriptParser.Break - 51)) | (1 << (ECMAScriptParser.Do - 51)) | (1 << (ECMAScriptParser.Typeof - 51)) | (1 << (ECMAScriptParser.New - 51)) | (1 << (ECMAScriptParser.Var - 51)) | (1 << (ECMAScriptParser.Return - 51)) | (1 << (ECMAScriptParser.Void - 51)) | (1 << (ECMAScriptParser.Continue - 51)) | (1 << (ECMAScriptParser.For - 51)) | (1 << (ECMAScriptParser.Switch - 51)) | (1 << (ECMAScriptParser.While - 51)) | (1 << (ECMAScriptParser.Debugger - 51)) | (1 << (ECMAScriptParser.Function - 51)) | (1 << (ECMAScriptParser.This - 51)) | (1 << (ECMAScriptParser.With - 51)) | (1 << (ECMAScriptParser.If - 51)) | (1 << (ECMAScriptParser.Throw - 51)) | (1 << (ECMAScriptParser.Delete - 51)))) !== 0) || ((((_la - 83)) & ~0x1f) == 0 && ((1 << (_la - 83)) & ((1 << (ECMAScriptParser.Try - 83)) | (1 << (ECMAScriptParser.BSONObjectId - 83)) | (1 << (ECMAScriptParser.BSONCode - 83)) | (1 << (ECMAScriptParser.BSONBinary - 83)) | (1 << (ECMAScriptParser.BSONDBRef - 83)) | (1 << (ECMAScriptParser.BSONLong - 83)) | (1 << (ECMAScriptParser.BSONDouble - 83)) | (1 << (ECMAScriptParser.BSONDecimal128 - 83)) | (1 << (ECMAScriptParser.BSONMinKey - 83)) | (1 << (ECMAScriptParser.BSONMaxKey - 83)) | (1 << (ECMAScriptParser.BSONTimestamp - 83)) | (1 << (ECMAScriptParser.BSONRegExp - 83)) | (1 << (ECMAScriptParser.BSONSymbol - 83)) | (1 << (ECMAScriptParser.Date - 83)) | (1 << (ECMAScriptParser.RegExp - 83)) | (1 << (ECMAScriptParser.Number - 83)))) !== 0) || ((((_la - 115)) & ~0x1f) == 0 && ((1 << (_la - 115)) & ((1 << (ECMAScriptParser.ObjectCreate - 115)) | (1 << (ECMAScriptParser.Identifier - 115)) | (1 << (ECMAScriptParser.StringLiteral - 115)))) !== 0)) {
+        if((((_la) & ~0x1f) == 0 && ((1 << _la) & ((1 << ECMAScriptParser.RegularExpressionLiteral) | (1 << ECMAScriptParser.OpenBracket) | (1 << ECMAScriptParser.OpenParen) | (1 << ECMAScriptParser.OpenBrace) | (1 << ECMAScriptParser.SemiColon) | (1 << ECMAScriptParser.PlusPlus) | (1 << ECMAScriptParser.MinusMinus) | (1 << ECMAScriptParser.Plus) | (1 << ECMAScriptParser.Minus) | (1 << ECMAScriptParser.BitNot) | (1 << ECMAScriptParser.Not))) !== 0) || ((((_la - 51)) & ~0x1f) == 0 && ((1 << (_la - 51)) & ((1 << (ECMAScriptParser.NullLiteral - 51)) | (1 << (ECMAScriptParser.UndefinedLiteral - 51)) | (1 << (ECMAScriptParser.BooleanLiteral - 51)) | (1 << (ECMAScriptParser.IntegerLiteral - 51)) | (1 << (ECMAScriptParser.DecimalLiteral - 51)) | (1 << (ECMAScriptParser.HexIntegerLiteral - 51)) | (1 << (ECMAScriptParser.OctalIntegerLiteral - 51)) | (1 << (ECMAScriptParser.Break - 51)) | (1 << (ECMAScriptParser.Do - 51)) | (1 << (ECMAScriptParser.Typeof - 51)) | (1 << (ECMAScriptParser.New - 51)) | (1 << (ECMAScriptParser.Var - 51)) | (1 << (ECMAScriptParser.Return - 51)) | (1 << (ECMAScriptParser.Void - 51)) | (1 << (ECMAScriptParser.Continue - 51)) | (1 << (ECMAScriptParser.For - 51)) | (1 << (ECMAScriptParser.Switch - 51)) | (1 << (ECMAScriptParser.While - 51)) | (1 << (ECMAScriptParser.Debugger - 51)) | (1 << (ECMAScriptParser.Function - 51)) | (1 << (ECMAScriptParser.This - 51)) | (1 << (ECMAScriptParser.With - 51)) | (1 << (ECMAScriptParser.If - 51)) | (1 << (ECMAScriptParser.Throw - 51)) | (1 << (ECMAScriptParser.Delete - 51)))) !== 0) || ((((_la - 83)) & ~0x1f) == 0 && ((1 << (_la - 83)) & ((1 << (ECMAScriptParser.Try - 83)) | (1 << (ECMAScriptParser.BSONObjectId - 83)) | (1 << (ECMAScriptParser.BSONCode - 83)) | (1 << (ECMAScriptParser.BSONBinary - 83)) | (1 << (ECMAScriptParser.BSONDBRef - 83)) | (1 << (ECMAScriptParser.BSONLong - 83)) | (1 << (ECMAScriptParser.BSONDouble - 83)) | (1 << (ECMAScriptParser.BSONInt32 - 83)) | (1 << (ECMAScriptParser.BSONDecimal128 - 83)) | (1 << (ECMAScriptParser.BSONMinKey - 83)) | (1 << (ECMAScriptParser.BSONMaxKey - 83)) | (1 << (ECMAScriptParser.BSONTimestamp - 83)) | (1 << (ECMAScriptParser.BSONRegExp - 83)) | (1 << (ECMAScriptParser.BSONSymbol - 83)) | (1 << (ECMAScriptParser.Date - 83)) | (1 << (ECMAScriptParser.RegExp - 83)))) !== 0) || ((((_la - 115)) & ~0x1f) == 0 && ((1 << (_la - 115)) & ((1 << (ECMAScriptParser.Number - 115)) | (1 << (ECMAScriptParser.ObjectCreate - 115)) | (1 << (ECMAScriptParser.Identifier - 115)) | (1 << (ECMAScriptParser.StringLiteral - 115)))) !== 0)) {
             this.state = 114;
             this.sourceElements();
         }
@@ -902,7 +906,7 @@ ECMAScriptParser.prototype.sourceElements = function() {
             this.state = 122; 
             this._errHandler.sync(this);
             _la = this._input.LA(1);
-        } while((((_la) & ~0x1f) == 0 && ((1 << _la) & ((1 << ECMAScriptParser.RegularExpressionLiteral) | (1 << ECMAScriptParser.OpenBracket) | (1 << ECMAScriptParser.OpenParen) | (1 << ECMAScriptParser.OpenBrace) | (1 << ECMAScriptParser.SemiColon) | (1 << ECMAScriptParser.PlusPlus) | (1 << ECMAScriptParser.MinusMinus) | (1 << ECMAScriptParser.Plus) | (1 << ECMAScriptParser.Minus) | (1 << ECMAScriptParser.BitNot) | (1 << ECMAScriptParser.Not))) !== 0) || ((((_la - 51)) & ~0x1f) == 0 && ((1 << (_la - 51)) & ((1 << (ECMAScriptParser.NullLiteral - 51)) | (1 << (ECMAScriptParser.UndefinedLiteral - 51)) | (1 << (ECMAScriptParser.BooleanLiteral - 51)) | (1 << (ECMAScriptParser.IntegerLiteral - 51)) | (1 << (ECMAScriptParser.DecimalLiteral - 51)) | (1 << (ECMAScriptParser.HexIntegerLiteral - 51)) | (1 << (ECMAScriptParser.OctalIntegerLiteral - 51)) | (1 << (ECMAScriptParser.Break - 51)) | (1 << (ECMAScriptParser.Do - 51)) | (1 << (ECMAScriptParser.Typeof - 51)) | (1 << (ECMAScriptParser.New - 51)) | (1 << (ECMAScriptParser.Var - 51)) | (1 << (ECMAScriptParser.Return - 51)) | (1 << (ECMAScriptParser.Void - 51)) | (1 << (ECMAScriptParser.Continue - 51)) | (1 << (ECMAScriptParser.For - 51)) | (1 << (ECMAScriptParser.Switch - 51)) | (1 << (ECMAScriptParser.While - 51)) | (1 << (ECMAScriptParser.Debugger - 51)) | (1 << (ECMAScriptParser.Function - 51)) | (1 << (ECMAScriptParser.This - 51)) | (1 << (ECMAScriptParser.With - 51)) | (1 << (ECMAScriptParser.If - 51)) | (1 << (ECMAScriptParser.Throw - 51)) | (1 << (ECMAScriptParser.Delete - 51)))) !== 0) || ((((_la - 83)) & ~0x1f) == 0 && ((1 << (_la - 83)) & ((1 << (ECMAScriptParser.Try - 83)) | (1 << (ECMAScriptParser.BSONObjectId - 83)) | (1 << (ECMAScriptParser.BSONCode - 83)) | (1 << (ECMAScriptParser.BSONBinary - 83)) | (1 << (ECMAScriptParser.BSONDBRef - 83)) | (1 << (ECMAScriptParser.BSONLong - 83)) | (1 << (ECMAScriptParser.BSONDouble - 83)) | (1 << (ECMAScriptParser.BSONDecimal128 - 83)) | (1 << (ECMAScriptParser.BSONMinKey - 83)) | (1 << (ECMAScriptParser.BSONMaxKey - 83)) | (1 << (ECMAScriptParser.BSONTimestamp - 83)) | (1 << (ECMAScriptParser.BSONRegExp - 83)) | (1 << (ECMAScriptParser.BSONSymbol - 83)) | (1 << (ECMAScriptParser.Date - 83)) | (1 << (ECMAScriptParser.RegExp - 83)) | (1 << (ECMAScriptParser.Number - 83)))) !== 0) || ((((_la - 115)) & ~0x1f) == 0 && ((1 << (_la - 115)) & ((1 << (ECMAScriptParser.ObjectCreate - 115)) | (1 << (ECMAScriptParser.Identifier - 115)) | (1 << (ECMAScriptParser.StringLiteral - 115)))) !== 0));
+        } while((((_la) & ~0x1f) == 0 && ((1 << _la) & ((1 << ECMAScriptParser.RegularExpressionLiteral) | (1 << ECMAScriptParser.OpenBracket) | (1 << ECMAScriptParser.OpenParen) | (1 << ECMAScriptParser.OpenBrace) | (1 << ECMAScriptParser.SemiColon) | (1 << ECMAScriptParser.PlusPlus) | (1 << ECMAScriptParser.MinusMinus) | (1 << ECMAScriptParser.Plus) | (1 << ECMAScriptParser.Minus) | (1 << ECMAScriptParser.BitNot) | (1 << ECMAScriptParser.Not))) !== 0) || ((((_la - 51)) & ~0x1f) == 0 && ((1 << (_la - 51)) & ((1 << (ECMAScriptParser.NullLiteral - 51)) | (1 << (ECMAScriptParser.UndefinedLiteral - 51)) | (1 << (ECMAScriptParser.BooleanLiteral - 51)) | (1 << (ECMAScriptParser.IntegerLiteral - 51)) | (1 << (ECMAScriptParser.DecimalLiteral - 51)) | (1 << (ECMAScriptParser.HexIntegerLiteral - 51)) | (1 << (ECMAScriptParser.OctalIntegerLiteral - 51)) | (1 << (ECMAScriptParser.Break - 51)) | (1 << (ECMAScriptParser.Do - 51)) | (1 << (ECMAScriptParser.Typeof - 51)) | (1 << (ECMAScriptParser.New - 51)) | (1 << (ECMAScriptParser.Var - 51)) | (1 << (ECMAScriptParser.Return - 51)) | (1 << (ECMAScriptParser.Void - 51)) | (1 << (ECMAScriptParser.Continue - 51)) | (1 << (ECMAScriptParser.For - 51)) | (1 << (ECMAScriptParser.Switch - 51)) | (1 << (ECMAScriptParser.While - 51)) | (1 << (ECMAScriptParser.Debugger - 51)) | (1 << (ECMAScriptParser.Function - 51)) | (1 << (ECMAScriptParser.This - 51)) | (1 << (ECMAScriptParser.With - 51)) | (1 << (ECMAScriptParser.If - 51)) | (1 << (ECMAScriptParser.Throw - 51)) | (1 << (ECMAScriptParser.Delete - 51)))) !== 0) || ((((_la - 83)) & ~0x1f) == 0 && ((1 << (_la - 83)) & ((1 << (ECMAScriptParser.Try - 83)) | (1 << (ECMAScriptParser.BSONObjectId - 83)) | (1 << (ECMAScriptParser.BSONCode - 83)) | (1 << (ECMAScriptParser.BSONBinary - 83)) | (1 << (ECMAScriptParser.BSONDBRef - 83)) | (1 << (ECMAScriptParser.BSONLong - 83)) | (1 << (ECMAScriptParser.BSONDouble - 83)) | (1 << (ECMAScriptParser.BSONInt32 - 83)) | (1 << (ECMAScriptParser.BSONDecimal128 - 83)) | (1 << (ECMAScriptParser.BSONMinKey - 83)) | (1 << (ECMAScriptParser.BSONMaxKey - 83)) | (1 << (ECMAScriptParser.BSONTimestamp - 83)) | (1 << (ECMAScriptParser.BSONRegExp - 83)) | (1 << (ECMAScriptParser.BSONSymbol - 83)) | (1 << (ECMAScriptParser.Date - 83)) | (1 << (ECMAScriptParser.RegExp - 83)))) !== 0) || ((((_la - 115)) & ~0x1f) == 0 && ((1 << (_la - 115)) & ((1 << (ECMAScriptParser.Number - 115)) | (1 << (ECMAScriptParser.ObjectCreate - 115)) | (1 << (ECMAScriptParser.Identifier - 115)) | (1 << (ECMAScriptParser.StringLiteral - 115)))) !== 0));
     } catch (re) {
     	if(re instanceof antlr4.error.RecognitionException) {
 	        localctx.exception = re;
@@ -1274,7 +1278,7 @@ ECMAScriptParser.prototype.block = function() {
         this.state = 147;
         this._errHandler.sync(this);
         _la = this._input.LA(1);
-        if((((_la) & ~0x1f) == 0 && ((1 << _la) & ((1 << ECMAScriptParser.RegularExpressionLiteral) | (1 << ECMAScriptParser.OpenBracket) | (1 << ECMAScriptParser.OpenParen) | (1 << ECMAScriptParser.OpenBrace) | (1 << ECMAScriptParser.SemiColon) | (1 << ECMAScriptParser.PlusPlus) | (1 << ECMAScriptParser.MinusMinus) | (1 << ECMAScriptParser.Plus) | (1 << ECMAScriptParser.Minus) | (1 << ECMAScriptParser.BitNot) | (1 << ECMAScriptParser.Not))) !== 0) || ((((_la - 51)) & ~0x1f) == 0 && ((1 << (_la - 51)) & ((1 << (ECMAScriptParser.NullLiteral - 51)) | (1 << (ECMAScriptParser.UndefinedLiteral - 51)) | (1 << (ECMAScriptParser.BooleanLiteral - 51)) | (1 << (ECMAScriptParser.IntegerLiteral - 51)) | (1 << (ECMAScriptParser.DecimalLiteral - 51)) | (1 << (ECMAScriptParser.HexIntegerLiteral - 51)) | (1 << (ECMAScriptParser.OctalIntegerLiteral - 51)) | (1 << (ECMAScriptParser.Break - 51)) | (1 << (ECMAScriptParser.Do - 51)) | (1 << (ECMAScriptParser.Typeof - 51)) | (1 << (ECMAScriptParser.New - 51)) | (1 << (ECMAScriptParser.Var - 51)) | (1 << (ECMAScriptParser.Return - 51)) | (1 << (ECMAScriptParser.Void - 51)) | (1 << (ECMAScriptParser.Continue - 51)) | (1 << (ECMAScriptParser.For - 51)) | (1 << (ECMAScriptParser.Switch - 51)) | (1 << (ECMAScriptParser.While - 51)) | (1 << (ECMAScriptParser.Debugger - 51)) | (1 << (ECMAScriptParser.Function - 51)) | (1 << (ECMAScriptParser.This - 51)) | (1 << (ECMAScriptParser.With - 51)) | (1 << (ECMAScriptParser.If - 51)) | (1 << (ECMAScriptParser.Throw - 51)) | (1 << (ECMAScriptParser.Delete - 51)))) !== 0) || ((((_la - 83)) & ~0x1f) == 0 && ((1 << (_la - 83)) & ((1 << (ECMAScriptParser.Try - 83)) | (1 << (ECMAScriptParser.BSONObjectId - 83)) | (1 << (ECMAScriptParser.BSONCode - 83)) | (1 << (ECMAScriptParser.BSONBinary - 83)) | (1 << (ECMAScriptParser.BSONDBRef - 83)) | (1 << (ECMAScriptParser.BSONLong - 83)) | (1 << (ECMAScriptParser.BSONDouble - 83)) | (1 << (ECMAScriptParser.BSONDecimal128 - 83)) | (1 << (ECMAScriptParser.BSONMinKey - 83)) | (1 << (ECMAScriptParser.BSONMaxKey - 83)) | (1 << (ECMAScriptParser.BSONTimestamp - 83)) | (1 << (ECMAScriptParser.BSONRegExp - 83)) | (1 << (ECMAScriptParser.BSONSymbol - 83)) | (1 << (ECMAScriptParser.Date - 83)) | (1 << (ECMAScriptParser.RegExp - 83)) | (1 << (ECMAScriptParser.Number - 83)))) !== 0) || ((((_la - 115)) & ~0x1f) == 0 && ((1 << (_la - 115)) & ((1 << (ECMAScriptParser.ObjectCreate - 115)) | (1 << (ECMAScriptParser.Identifier - 115)) | (1 << (ECMAScriptParser.StringLiteral - 115)))) !== 0)) {
+        if((((_la) & ~0x1f) == 0 && ((1 << _la) & ((1 << ECMAScriptParser.RegularExpressionLiteral) | (1 << ECMAScriptParser.OpenBracket) | (1 << ECMAScriptParser.OpenParen) | (1 << ECMAScriptParser.OpenBrace) | (1 << ECMAScriptParser.SemiColon) | (1 << ECMAScriptParser.PlusPlus) | (1 << ECMAScriptParser.MinusMinus) | (1 << ECMAScriptParser.Plus) | (1 << ECMAScriptParser.Minus) | (1 << ECMAScriptParser.BitNot) | (1 << ECMAScriptParser.Not))) !== 0) || ((((_la - 51)) & ~0x1f) == 0 && ((1 << (_la - 51)) & ((1 << (ECMAScriptParser.NullLiteral - 51)) | (1 << (ECMAScriptParser.UndefinedLiteral - 51)) | (1 << (ECMAScriptParser.BooleanLiteral - 51)) | (1 << (ECMAScriptParser.IntegerLiteral - 51)) | (1 << (ECMAScriptParser.DecimalLiteral - 51)) | (1 << (ECMAScriptParser.HexIntegerLiteral - 51)) | (1 << (ECMAScriptParser.OctalIntegerLiteral - 51)) | (1 << (ECMAScriptParser.Break - 51)) | (1 << (ECMAScriptParser.Do - 51)) | (1 << (ECMAScriptParser.Typeof - 51)) | (1 << (ECMAScriptParser.New - 51)) | (1 << (ECMAScriptParser.Var - 51)) | (1 << (ECMAScriptParser.Return - 51)) | (1 << (ECMAScriptParser.Void - 51)) | (1 << (ECMAScriptParser.Continue - 51)) | (1 << (ECMAScriptParser.For - 51)) | (1 << (ECMAScriptParser.Switch - 51)) | (1 << (ECMAScriptParser.While - 51)) | (1 << (ECMAScriptParser.Debugger - 51)) | (1 << (ECMAScriptParser.Function - 51)) | (1 << (ECMAScriptParser.This - 51)) | (1 << (ECMAScriptParser.With - 51)) | (1 << (ECMAScriptParser.If - 51)) | (1 << (ECMAScriptParser.Throw - 51)) | (1 << (ECMAScriptParser.Delete - 51)))) !== 0) || ((((_la - 83)) & ~0x1f) == 0 && ((1 << (_la - 83)) & ((1 << (ECMAScriptParser.Try - 83)) | (1 << (ECMAScriptParser.BSONObjectId - 83)) | (1 << (ECMAScriptParser.BSONCode - 83)) | (1 << (ECMAScriptParser.BSONBinary - 83)) | (1 << (ECMAScriptParser.BSONDBRef - 83)) | (1 << (ECMAScriptParser.BSONLong - 83)) | (1 << (ECMAScriptParser.BSONDouble - 83)) | (1 << (ECMAScriptParser.BSONInt32 - 83)) | (1 << (ECMAScriptParser.BSONDecimal128 - 83)) | (1 << (ECMAScriptParser.BSONMinKey - 83)) | (1 << (ECMAScriptParser.BSONMaxKey - 83)) | (1 << (ECMAScriptParser.BSONTimestamp - 83)) | (1 << (ECMAScriptParser.BSONRegExp - 83)) | (1 << (ECMAScriptParser.BSONSymbol - 83)) | (1 << (ECMAScriptParser.Date - 83)) | (1 << (ECMAScriptParser.RegExp - 83)))) !== 0) || ((((_la - 115)) & ~0x1f) == 0 && ((1 << (_la - 115)) & ((1 << (ECMAScriptParser.Number - 115)) | (1 << (ECMAScriptParser.ObjectCreate - 115)) | (1 << (ECMAScriptParser.Identifier - 115)) | (1 << (ECMAScriptParser.StringLiteral - 115)))) !== 0)) {
             this.state = 146;
             this.statementList();
         }
@@ -1363,7 +1367,7 @@ ECMAScriptParser.prototype.statementList = function() {
             this.state = 154; 
             this._errHandler.sync(this);
             _la = this._input.LA(1);
-        } while((((_la) & ~0x1f) == 0 && ((1 << _la) & ((1 << ECMAScriptParser.RegularExpressionLiteral) | (1 << ECMAScriptParser.OpenBracket) | (1 << ECMAScriptParser.OpenParen) | (1 << ECMAScriptParser.OpenBrace) | (1 << ECMAScriptParser.SemiColon) | (1 << ECMAScriptParser.PlusPlus) | (1 << ECMAScriptParser.MinusMinus) | (1 << ECMAScriptParser.Plus) | (1 << ECMAScriptParser.Minus) | (1 << ECMAScriptParser.BitNot) | (1 << ECMAScriptParser.Not))) !== 0) || ((((_la - 51)) & ~0x1f) == 0 && ((1 << (_la - 51)) & ((1 << (ECMAScriptParser.NullLiteral - 51)) | (1 << (ECMAScriptParser.UndefinedLiteral - 51)) | (1 << (ECMAScriptParser.BooleanLiteral - 51)) | (1 << (ECMAScriptParser.IntegerLiteral - 51)) | (1 << (ECMAScriptParser.DecimalLiteral - 51)) | (1 << (ECMAScriptParser.HexIntegerLiteral - 51)) | (1 << (ECMAScriptParser.OctalIntegerLiteral - 51)) | (1 << (ECMAScriptParser.Break - 51)) | (1 << (ECMAScriptParser.Do - 51)) | (1 << (ECMAScriptParser.Typeof - 51)) | (1 << (ECMAScriptParser.New - 51)) | (1 << (ECMAScriptParser.Var - 51)) | (1 << (ECMAScriptParser.Return - 51)) | (1 << (ECMAScriptParser.Void - 51)) | (1 << (ECMAScriptParser.Continue - 51)) | (1 << (ECMAScriptParser.For - 51)) | (1 << (ECMAScriptParser.Switch - 51)) | (1 << (ECMAScriptParser.While - 51)) | (1 << (ECMAScriptParser.Debugger - 51)) | (1 << (ECMAScriptParser.Function - 51)) | (1 << (ECMAScriptParser.This - 51)) | (1 << (ECMAScriptParser.With - 51)) | (1 << (ECMAScriptParser.If - 51)) | (1 << (ECMAScriptParser.Throw - 51)) | (1 << (ECMAScriptParser.Delete - 51)))) !== 0) || ((((_la - 83)) & ~0x1f) == 0 && ((1 << (_la - 83)) & ((1 << (ECMAScriptParser.Try - 83)) | (1 << (ECMAScriptParser.BSONObjectId - 83)) | (1 << (ECMAScriptParser.BSONCode - 83)) | (1 << (ECMAScriptParser.BSONBinary - 83)) | (1 << (ECMAScriptParser.BSONDBRef - 83)) | (1 << (ECMAScriptParser.BSONLong - 83)) | (1 << (ECMAScriptParser.BSONDouble - 83)) | (1 << (ECMAScriptParser.BSONDecimal128 - 83)) | (1 << (ECMAScriptParser.BSONMinKey - 83)) | (1 << (ECMAScriptParser.BSONMaxKey - 83)) | (1 << (ECMAScriptParser.BSONTimestamp - 83)) | (1 << (ECMAScriptParser.BSONRegExp - 83)) | (1 << (ECMAScriptParser.BSONSymbol - 83)) | (1 << (ECMAScriptParser.Date - 83)) | (1 << (ECMAScriptParser.RegExp - 83)) | (1 << (ECMAScriptParser.Number - 83)))) !== 0) || ((((_la - 115)) & ~0x1f) == 0 && ((1 << (_la - 115)) & ((1 << (ECMAScriptParser.ObjectCreate - 115)) | (1 << (ECMAScriptParser.Identifier - 115)) | (1 << (ECMAScriptParser.StringLiteral - 115)))) !== 0));
+        } while((((_la) & ~0x1f) == 0 && ((1 << _la) & ((1 << ECMAScriptParser.RegularExpressionLiteral) | (1 << ECMAScriptParser.OpenBracket) | (1 << ECMAScriptParser.OpenParen) | (1 << ECMAScriptParser.OpenBrace) | (1 << ECMAScriptParser.SemiColon) | (1 << ECMAScriptParser.PlusPlus) | (1 << ECMAScriptParser.MinusMinus) | (1 << ECMAScriptParser.Plus) | (1 << ECMAScriptParser.Minus) | (1 << ECMAScriptParser.BitNot) | (1 << ECMAScriptParser.Not))) !== 0) || ((((_la - 51)) & ~0x1f) == 0 && ((1 << (_la - 51)) & ((1 << (ECMAScriptParser.NullLiteral - 51)) | (1 << (ECMAScriptParser.UndefinedLiteral - 51)) | (1 << (ECMAScriptParser.BooleanLiteral - 51)) | (1 << (ECMAScriptParser.IntegerLiteral - 51)) | (1 << (ECMAScriptParser.DecimalLiteral - 51)) | (1 << (ECMAScriptParser.HexIntegerLiteral - 51)) | (1 << (ECMAScriptParser.OctalIntegerLiteral - 51)) | (1 << (ECMAScriptParser.Break - 51)) | (1 << (ECMAScriptParser.Do - 51)) | (1 << (ECMAScriptParser.Typeof - 51)) | (1 << (ECMAScriptParser.New - 51)) | (1 << (ECMAScriptParser.Var - 51)) | (1 << (ECMAScriptParser.Return - 51)) | (1 << (ECMAScriptParser.Void - 51)) | (1 << (ECMAScriptParser.Continue - 51)) | (1 << (ECMAScriptParser.For - 51)) | (1 << (ECMAScriptParser.Switch - 51)) | (1 << (ECMAScriptParser.While - 51)) | (1 << (ECMAScriptParser.Debugger - 51)) | (1 << (ECMAScriptParser.Function - 51)) | (1 << (ECMAScriptParser.This - 51)) | (1 << (ECMAScriptParser.With - 51)) | (1 << (ECMAScriptParser.If - 51)) | (1 << (ECMAScriptParser.Throw - 51)) | (1 << (ECMAScriptParser.Delete - 51)))) !== 0) || ((((_la - 83)) & ~0x1f) == 0 && ((1 << (_la - 83)) & ((1 << (ECMAScriptParser.Try - 83)) | (1 << (ECMAScriptParser.BSONObjectId - 83)) | (1 << (ECMAScriptParser.BSONCode - 83)) | (1 << (ECMAScriptParser.BSONBinary - 83)) | (1 << (ECMAScriptParser.BSONDBRef - 83)) | (1 << (ECMAScriptParser.BSONLong - 83)) | (1 << (ECMAScriptParser.BSONDouble - 83)) | (1 << (ECMAScriptParser.BSONInt32 - 83)) | (1 << (ECMAScriptParser.BSONDecimal128 - 83)) | (1 << (ECMAScriptParser.BSONMinKey - 83)) | (1 << (ECMAScriptParser.BSONMaxKey - 83)) | (1 << (ECMAScriptParser.BSONTimestamp - 83)) | (1 << (ECMAScriptParser.BSONRegExp - 83)) | (1 << (ECMAScriptParser.BSONSymbol - 83)) | (1 << (ECMAScriptParser.Date - 83)) | (1 << (ECMAScriptParser.RegExp - 83)))) !== 0) || ((((_la - 115)) & ~0x1f) == 0 && ((1 << (_la - 115)) & ((1 << (ECMAScriptParser.Number - 115)) | (1 << (ECMAScriptParser.ObjectCreate - 115)) | (1 << (ECMAScriptParser.Identifier - 115)) | (1 << (ECMAScriptParser.StringLiteral - 115)))) !== 0));
     } catch (re) {
     	if(re instanceof antlr4.error.RecognitionException) {
 	        localctx.exception = re;
@@ -2320,7 +2324,7 @@ ECMAScriptParser.prototype.iterationStatement = function() {
             this.state = 205;
             this._errHandler.sync(this);
             _la = this._input.LA(1);
-            if((((_la) & ~0x1f) == 0 && ((1 << _la) & ((1 << ECMAScriptParser.RegularExpressionLiteral) | (1 << ECMAScriptParser.OpenBracket) | (1 << ECMAScriptParser.OpenParen) | (1 << ECMAScriptParser.OpenBrace) | (1 << ECMAScriptParser.PlusPlus) | (1 << ECMAScriptParser.MinusMinus) | (1 << ECMAScriptParser.Plus) | (1 << ECMAScriptParser.Minus) | (1 << ECMAScriptParser.BitNot) | (1 << ECMAScriptParser.Not))) !== 0) || ((((_la - 51)) & ~0x1f) == 0 && ((1 << (_la - 51)) & ((1 << (ECMAScriptParser.NullLiteral - 51)) | (1 << (ECMAScriptParser.UndefinedLiteral - 51)) | (1 << (ECMAScriptParser.BooleanLiteral - 51)) | (1 << (ECMAScriptParser.IntegerLiteral - 51)) | (1 << (ECMAScriptParser.DecimalLiteral - 51)) | (1 << (ECMAScriptParser.HexIntegerLiteral - 51)) | (1 << (ECMAScriptParser.OctalIntegerLiteral - 51)) | (1 << (ECMAScriptParser.Typeof - 51)) | (1 << (ECMAScriptParser.New - 51)) | (1 << (ECMAScriptParser.Void - 51)) | (1 << (ECMAScriptParser.Function - 51)) | (1 << (ECMAScriptParser.This - 51)) | (1 << (ECMAScriptParser.Delete - 51)))) !== 0) || ((((_la - 100)) & ~0x1f) == 0 && ((1 << (_la - 100)) & ((1 << (ECMAScriptParser.BSONObjectId - 100)) | (1 << (ECMAScriptParser.BSONCode - 100)) | (1 << (ECMAScriptParser.BSONBinary - 100)) | (1 << (ECMAScriptParser.BSONDBRef - 100)) | (1 << (ECMAScriptParser.BSONLong - 100)) | (1 << (ECMAScriptParser.BSONDouble - 100)) | (1 << (ECMAScriptParser.BSONDecimal128 - 100)) | (1 << (ECMAScriptParser.BSONMinKey - 100)) | (1 << (ECMAScriptParser.BSONMaxKey - 100)) | (1 << (ECMAScriptParser.BSONTimestamp - 100)) | (1 << (ECMAScriptParser.BSONRegExp - 100)) | (1 << (ECMAScriptParser.BSONSymbol - 100)) | (1 << (ECMAScriptParser.Date - 100)) | (1 << (ECMAScriptParser.RegExp - 100)) | (1 << (ECMAScriptParser.Number - 100)) | (1 << (ECMAScriptParser.ObjectCreate - 100)) | (1 << (ECMAScriptParser.Identifier - 100)) | (1 << (ECMAScriptParser.StringLiteral - 100)))) !== 0)) {
+            if((((_la) & ~0x1f) == 0 && ((1 << _la) & ((1 << ECMAScriptParser.RegularExpressionLiteral) | (1 << ECMAScriptParser.OpenBracket) | (1 << ECMAScriptParser.OpenParen) | (1 << ECMAScriptParser.OpenBrace) | (1 << ECMAScriptParser.PlusPlus) | (1 << ECMAScriptParser.MinusMinus) | (1 << ECMAScriptParser.Plus) | (1 << ECMAScriptParser.Minus) | (1 << ECMAScriptParser.BitNot) | (1 << ECMAScriptParser.Not))) !== 0) || ((((_la - 51)) & ~0x1f) == 0 && ((1 << (_la - 51)) & ((1 << (ECMAScriptParser.NullLiteral - 51)) | (1 << (ECMAScriptParser.UndefinedLiteral - 51)) | (1 << (ECMAScriptParser.BooleanLiteral - 51)) | (1 << (ECMAScriptParser.IntegerLiteral - 51)) | (1 << (ECMAScriptParser.DecimalLiteral - 51)) | (1 << (ECMAScriptParser.HexIntegerLiteral - 51)) | (1 << (ECMAScriptParser.OctalIntegerLiteral - 51)) | (1 << (ECMAScriptParser.Typeof - 51)) | (1 << (ECMAScriptParser.New - 51)) | (1 << (ECMAScriptParser.Void - 51)) | (1 << (ECMAScriptParser.Function - 51)) | (1 << (ECMAScriptParser.This - 51)) | (1 << (ECMAScriptParser.Delete - 51)))) !== 0) || ((((_la - 100)) & ~0x1f) == 0 && ((1 << (_la - 100)) & ((1 << (ECMAScriptParser.BSONObjectId - 100)) | (1 << (ECMAScriptParser.BSONCode - 100)) | (1 << (ECMAScriptParser.BSONBinary - 100)) | (1 << (ECMAScriptParser.BSONDBRef - 100)) | (1 << (ECMAScriptParser.BSONLong - 100)) | (1 << (ECMAScriptParser.BSONDouble - 100)) | (1 << (ECMAScriptParser.BSONInt32 - 100)) | (1 << (ECMAScriptParser.BSONDecimal128 - 100)) | (1 << (ECMAScriptParser.BSONMinKey - 100)) | (1 << (ECMAScriptParser.BSONMaxKey - 100)) | (1 << (ECMAScriptParser.BSONTimestamp - 100)) | (1 << (ECMAScriptParser.BSONRegExp - 100)) | (1 << (ECMAScriptParser.BSONSymbol - 100)) | (1 << (ECMAScriptParser.Date - 100)) | (1 << (ECMAScriptParser.RegExp - 100)) | (1 << (ECMAScriptParser.Number - 100)) | (1 << (ECMAScriptParser.ObjectCreate - 100)) | (1 << (ECMAScriptParser.Identifier - 100)) | (1 << (ECMAScriptParser.StringLiteral - 100)))) !== 0)) {
                 this.state = 204;
                 this.expressionSequence();
             }
@@ -2330,7 +2334,7 @@ ECMAScriptParser.prototype.iterationStatement = function() {
             this.state = 209;
             this._errHandler.sync(this);
             _la = this._input.LA(1);
-            if((((_la) & ~0x1f) == 0 && ((1 << _la) & ((1 << ECMAScriptParser.RegularExpressionLiteral) | (1 << ECMAScriptParser.OpenBracket) | (1 << ECMAScriptParser.OpenParen) | (1 << ECMAScriptParser.OpenBrace) | (1 << ECMAScriptParser.PlusPlus) | (1 << ECMAScriptParser.MinusMinus) | (1 << ECMAScriptParser.Plus) | (1 << ECMAScriptParser.Minus) | (1 << ECMAScriptParser.BitNot) | (1 << ECMAScriptParser.Not))) !== 0) || ((((_la - 51)) & ~0x1f) == 0 && ((1 << (_la - 51)) & ((1 << (ECMAScriptParser.NullLiteral - 51)) | (1 << (ECMAScriptParser.UndefinedLiteral - 51)) | (1 << (ECMAScriptParser.BooleanLiteral - 51)) | (1 << (ECMAScriptParser.IntegerLiteral - 51)) | (1 << (ECMAScriptParser.DecimalLiteral - 51)) | (1 << (ECMAScriptParser.HexIntegerLiteral - 51)) | (1 << (ECMAScriptParser.OctalIntegerLiteral - 51)) | (1 << (ECMAScriptParser.Typeof - 51)) | (1 << (ECMAScriptParser.New - 51)) | (1 << (ECMAScriptParser.Void - 51)) | (1 << (ECMAScriptParser.Function - 51)) | (1 << (ECMAScriptParser.This - 51)) | (1 << (ECMAScriptParser.Delete - 51)))) !== 0) || ((((_la - 100)) & ~0x1f) == 0 && ((1 << (_la - 100)) & ((1 << (ECMAScriptParser.BSONObjectId - 100)) | (1 << (ECMAScriptParser.BSONCode - 100)) | (1 << (ECMAScriptParser.BSONBinary - 100)) | (1 << (ECMAScriptParser.BSONDBRef - 100)) | (1 << (ECMAScriptParser.BSONLong - 100)) | (1 << (ECMAScriptParser.BSONDouble - 100)) | (1 << (ECMAScriptParser.BSONDecimal128 - 100)) | (1 << (ECMAScriptParser.BSONMinKey - 100)) | (1 << (ECMAScriptParser.BSONMaxKey - 100)) | (1 << (ECMAScriptParser.BSONTimestamp - 100)) | (1 << (ECMAScriptParser.BSONRegExp - 100)) | (1 << (ECMAScriptParser.BSONSymbol - 100)) | (1 << (ECMAScriptParser.Date - 100)) | (1 << (ECMAScriptParser.RegExp - 100)) | (1 << (ECMAScriptParser.Number - 100)) | (1 << (ECMAScriptParser.ObjectCreate - 100)) | (1 << (ECMAScriptParser.Identifier - 100)) | (1 << (ECMAScriptParser.StringLiteral - 100)))) !== 0)) {
+            if((((_la) & ~0x1f) == 0 && ((1 << _la) & ((1 << ECMAScriptParser.RegularExpressionLiteral) | (1 << ECMAScriptParser.OpenBracket) | (1 << ECMAScriptParser.OpenParen) | (1 << ECMAScriptParser.OpenBrace) | (1 << ECMAScriptParser.PlusPlus) | (1 << ECMAScriptParser.MinusMinus) | (1 << ECMAScriptParser.Plus) | (1 << ECMAScriptParser.Minus) | (1 << ECMAScriptParser.BitNot) | (1 << ECMAScriptParser.Not))) !== 0) || ((((_la - 51)) & ~0x1f) == 0 && ((1 << (_la - 51)) & ((1 << (ECMAScriptParser.NullLiteral - 51)) | (1 << (ECMAScriptParser.UndefinedLiteral - 51)) | (1 << (ECMAScriptParser.BooleanLiteral - 51)) | (1 << (ECMAScriptParser.IntegerLiteral - 51)) | (1 << (ECMAScriptParser.DecimalLiteral - 51)) | (1 << (ECMAScriptParser.HexIntegerLiteral - 51)) | (1 << (ECMAScriptParser.OctalIntegerLiteral - 51)) | (1 << (ECMAScriptParser.Typeof - 51)) | (1 << (ECMAScriptParser.New - 51)) | (1 << (ECMAScriptParser.Void - 51)) | (1 << (ECMAScriptParser.Function - 51)) | (1 << (ECMAScriptParser.This - 51)) | (1 << (ECMAScriptParser.Delete - 51)))) !== 0) || ((((_la - 100)) & ~0x1f) == 0 && ((1 << (_la - 100)) & ((1 << (ECMAScriptParser.BSONObjectId - 100)) | (1 << (ECMAScriptParser.BSONCode - 100)) | (1 << (ECMAScriptParser.BSONBinary - 100)) | (1 << (ECMAScriptParser.BSONDBRef - 100)) | (1 << (ECMAScriptParser.BSONLong - 100)) | (1 << (ECMAScriptParser.BSONDouble - 100)) | (1 << (ECMAScriptParser.BSONInt32 - 100)) | (1 << (ECMAScriptParser.BSONDecimal128 - 100)) | (1 << (ECMAScriptParser.BSONMinKey - 100)) | (1 << (ECMAScriptParser.BSONMaxKey - 100)) | (1 << (ECMAScriptParser.BSONTimestamp - 100)) | (1 << (ECMAScriptParser.BSONRegExp - 100)) | (1 << (ECMAScriptParser.BSONSymbol - 100)) | (1 << (ECMAScriptParser.Date - 100)) | (1 << (ECMAScriptParser.RegExp - 100)) | (1 << (ECMAScriptParser.Number - 100)) | (1 << (ECMAScriptParser.ObjectCreate - 100)) | (1 << (ECMAScriptParser.Identifier - 100)) | (1 << (ECMAScriptParser.StringLiteral - 100)))) !== 0)) {
                 this.state = 208;
                 this.expressionSequence();
             }
@@ -2340,7 +2344,7 @@ ECMAScriptParser.prototype.iterationStatement = function() {
             this.state = 213;
             this._errHandler.sync(this);
             _la = this._input.LA(1);
-            if((((_la) & ~0x1f) == 0 && ((1 << _la) & ((1 << ECMAScriptParser.RegularExpressionLiteral) | (1 << ECMAScriptParser.OpenBracket) | (1 << ECMAScriptParser.OpenParen) | (1 << ECMAScriptParser.OpenBrace) | (1 << ECMAScriptParser.PlusPlus) | (1 << ECMAScriptParser.MinusMinus) | (1 << ECMAScriptParser.Plus) | (1 << ECMAScriptParser.Minus) | (1 << ECMAScriptParser.BitNot) | (1 << ECMAScriptParser.Not))) !== 0) || ((((_la - 51)) & ~0x1f) == 0 && ((1 << (_la - 51)) & ((1 << (ECMAScriptParser.NullLiteral - 51)) | (1 << (ECMAScriptParser.UndefinedLiteral - 51)) | (1 << (ECMAScriptParser.BooleanLiteral - 51)) | (1 << (ECMAScriptParser.IntegerLiteral - 51)) | (1 << (ECMAScriptParser.DecimalLiteral - 51)) | (1 << (ECMAScriptParser.HexIntegerLiteral - 51)) | (1 << (ECMAScriptParser.OctalIntegerLiteral - 51)) | (1 << (ECMAScriptParser.Typeof - 51)) | (1 << (ECMAScriptParser.New - 51)) | (1 << (ECMAScriptParser.Void - 51)) | (1 << (ECMAScriptParser.Function - 51)) | (1 << (ECMAScriptParser.This - 51)) | (1 << (ECMAScriptParser.Delete - 51)))) !== 0) || ((((_la - 100)) & ~0x1f) == 0 && ((1 << (_la - 100)) & ((1 << (ECMAScriptParser.BSONObjectId - 100)) | (1 << (ECMAScriptParser.BSONCode - 100)) | (1 << (ECMAScriptParser.BSONBinary - 100)) | (1 << (ECMAScriptParser.BSONDBRef - 100)) | (1 << (ECMAScriptParser.BSONLong - 100)) | (1 << (ECMAScriptParser.BSONDouble - 100)) | (1 << (ECMAScriptParser.BSONDecimal128 - 100)) | (1 << (ECMAScriptParser.BSONMinKey - 100)) | (1 << (ECMAScriptParser.BSONMaxKey - 100)) | (1 << (ECMAScriptParser.BSONTimestamp - 100)) | (1 << (ECMAScriptParser.BSONRegExp - 100)) | (1 << (ECMAScriptParser.BSONSymbol - 100)) | (1 << (ECMAScriptParser.Date - 100)) | (1 << (ECMAScriptParser.RegExp - 100)) | (1 << (ECMAScriptParser.Number - 100)) | (1 << (ECMAScriptParser.ObjectCreate - 100)) | (1 << (ECMAScriptParser.Identifier - 100)) | (1 << (ECMAScriptParser.StringLiteral - 100)))) !== 0)) {
+            if((((_la) & ~0x1f) == 0 && ((1 << _la) & ((1 << ECMAScriptParser.RegularExpressionLiteral) | (1 << ECMAScriptParser.OpenBracket) | (1 << ECMAScriptParser.OpenParen) | (1 << ECMAScriptParser.OpenBrace) | (1 << ECMAScriptParser.PlusPlus) | (1 << ECMAScriptParser.MinusMinus) | (1 << ECMAScriptParser.Plus) | (1 << ECMAScriptParser.Minus) | (1 << ECMAScriptParser.BitNot) | (1 << ECMAScriptParser.Not))) !== 0) || ((((_la - 51)) & ~0x1f) == 0 && ((1 << (_la - 51)) & ((1 << (ECMAScriptParser.NullLiteral - 51)) | (1 << (ECMAScriptParser.UndefinedLiteral - 51)) | (1 << (ECMAScriptParser.BooleanLiteral - 51)) | (1 << (ECMAScriptParser.IntegerLiteral - 51)) | (1 << (ECMAScriptParser.DecimalLiteral - 51)) | (1 << (ECMAScriptParser.HexIntegerLiteral - 51)) | (1 << (ECMAScriptParser.OctalIntegerLiteral - 51)) | (1 << (ECMAScriptParser.Typeof - 51)) | (1 << (ECMAScriptParser.New - 51)) | (1 << (ECMAScriptParser.Void - 51)) | (1 << (ECMAScriptParser.Function - 51)) | (1 << (ECMAScriptParser.This - 51)) | (1 << (ECMAScriptParser.Delete - 51)))) !== 0) || ((((_la - 100)) & ~0x1f) == 0 && ((1 << (_la - 100)) & ((1 << (ECMAScriptParser.BSONObjectId - 100)) | (1 << (ECMAScriptParser.BSONCode - 100)) | (1 << (ECMAScriptParser.BSONBinary - 100)) | (1 << (ECMAScriptParser.BSONDBRef - 100)) | (1 << (ECMAScriptParser.BSONLong - 100)) | (1 << (ECMAScriptParser.BSONDouble - 100)) | (1 << (ECMAScriptParser.BSONInt32 - 100)) | (1 << (ECMAScriptParser.BSONDecimal128 - 100)) | (1 << (ECMAScriptParser.BSONMinKey - 100)) | (1 << (ECMAScriptParser.BSONMaxKey - 100)) | (1 << (ECMAScriptParser.BSONTimestamp - 100)) | (1 << (ECMAScriptParser.BSONRegExp - 100)) | (1 << (ECMAScriptParser.BSONSymbol - 100)) | (1 << (ECMAScriptParser.Date - 100)) | (1 << (ECMAScriptParser.RegExp - 100)) | (1 << (ECMAScriptParser.Number - 100)) | (1 << (ECMAScriptParser.ObjectCreate - 100)) | (1 << (ECMAScriptParser.Identifier - 100)) | (1 << (ECMAScriptParser.StringLiteral - 100)))) !== 0)) {
                 this.state = 212;
                 this.expressionSequence();
             }
@@ -2367,7 +2371,7 @@ ECMAScriptParser.prototype.iterationStatement = function() {
             this.state = 223;
             this._errHandler.sync(this);
             _la = this._input.LA(1);
-            if((((_la) & ~0x1f) == 0 && ((1 << _la) & ((1 << ECMAScriptParser.RegularExpressionLiteral) | (1 << ECMAScriptParser.OpenBracket) | (1 << ECMAScriptParser.OpenParen) | (1 << ECMAScriptParser.OpenBrace) | (1 << ECMAScriptParser.PlusPlus) | (1 << ECMAScriptParser.MinusMinus) | (1 << ECMAScriptParser.Plus) | (1 << ECMAScriptParser.Minus) | (1 << ECMAScriptParser.BitNot) | (1 << ECMAScriptParser.Not))) !== 0) || ((((_la - 51)) & ~0x1f) == 0 && ((1 << (_la - 51)) & ((1 << (ECMAScriptParser.NullLiteral - 51)) | (1 << (ECMAScriptParser.UndefinedLiteral - 51)) | (1 << (ECMAScriptParser.BooleanLiteral - 51)) | (1 << (ECMAScriptParser.IntegerLiteral - 51)) | (1 << (ECMAScriptParser.DecimalLiteral - 51)) | (1 << (ECMAScriptParser.HexIntegerLiteral - 51)) | (1 << (ECMAScriptParser.OctalIntegerLiteral - 51)) | (1 << (ECMAScriptParser.Typeof - 51)) | (1 << (ECMAScriptParser.New - 51)) | (1 << (ECMAScriptParser.Void - 51)) | (1 << (ECMAScriptParser.Function - 51)) | (1 << (ECMAScriptParser.This - 51)) | (1 << (ECMAScriptParser.Delete - 51)))) !== 0) || ((((_la - 100)) & ~0x1f) == 0 && ((1 << (_la - 100)) & ((1 << (ECMAScriptParser.BSONObjectId - 100)) | (1 << (ECMAScriptParser.BSONCode - 100)) | (1 << (ECMAScriptParser.BSONBinary - 100)) | (1 << (ECMAScriptParser.BSONDBRef - 100)) | (1 << (ECMAScriptParser.BSONLong - 100)) | (1 << (ECMAScriptParser.BSONDouble - 100)) | (1 << (ECMAScriptParser.BSONDecimal128 - 100)) | (1 << (ECMAScriptParser.BSONMinKey - 100)) | (1 << (ECMAScriptParser.BSONMaxKey - 100)) | (1 << (ECMAScriptParser.BSONTimestamp - 100)) | (1 << (ECMAScriptParser.BSONRegExp - 100)) | (1 << (ECMAScriptParser.BSONSymbol - 100)) | (1 << (ECMAScriptParser.Date - 100)) | (1 << (ECMAScriptParser.RegExp - 100)) | (1 << (ECMAScriptParser.Number - 100)) | (1 << (ECMAScriptParser.ObjectCreate - 100)) | (1 << (ECMAScriptParser.Identifier - 100)) | (1 << (ECMAScriptParser.StringLiteral - 100)))) !== 0)) {
+            if((((_la) & ~0x1f) == 0 && ((1 << _la) & ((1 << ECMAScriptParser.RegularExpressionLiteral) | (1 << ECMAScriptParser.OpenBracket) | (1 << ECMAScriptParser.OpenParen) | (1 << ECMAScriptParser.OpenBrace) | (1 << ECMAScriptParser.PlusPlus) | (1 << ECMAScriptParser.MinusMinus) | (1 << ECMAScriptParser.Plus) | (1 << ECMAScriptParser.Minus) | (1 << ECMAScriptParser.BitNot) | (1 << ECMAScriptParser.Not))) !== 0) || ((((_la - 51)) & ~0x1f) == 0 && ((1 << (_la - 51)) & ((1 << (ECMAScriptParser.NullLiteral - 51)) | (1 << (ECMAScriptParser.UndefinedLiteral - 51)) | (1 << (ECMAScriptParser.BooleanLiteral - 51)) | (1 << (ECMAScriptParser.IntegerLiteral - 51)) | (1 << (ECMAScriptParser.DecimalLiteral - 51)) | (1 << (ECMAScriptParser.HexIntegerLiteral - 51)) | (1 << (ECMAScriptParser.OctalIntegerLiteral - 51)) | (1 << (ECMAScriptParser.Typeof - 51)) | (1 << (ECMAScriptParser.New - 51)) | (1 << (ECMAScriptParser.Void - 51)) | (1 << (ECMAScriptParser.Function - 51)) | (1 << (ECMAScriptParser.This - 51)) | (1 << (ECMAScriptParser.Delete - 51)))) !== 0) || ((((_la - 100)) & ~0x1f) == 0 && ((1 << (_la - 100)) & ((1 << (ECMAScriptParser.BSONObjectId - 100)) | (1 << (ECMAScriptParser.BSONCode - 100)) | (1 << (ECMAScriptParser.BSONBinary - 100)) | (1 << (ECMAScriptParser.BSONDBRef - 100)) | (1 << (ECMAScriptParser.BSONLong - 100)) | (1 << (ECMAScriptParser.BSONDouble - 100)) | (1 << (ECMAScriptParser.BSONInt32 - 100)) | (1 << (ECMAScriptParser.BSONDecimal128 - 100)) | (1 << (ECMAScriptParser.BSONMinKey - 100)) | (1 << (ECMAScriptParser.BSONMaxKey - 100)) | (1 << (ECMAScriptParser.BSONTimestamp - 100)) | (1 << (ECMAScriptParser.BSONRegExp - 100)) | (1 << (ECMAScriptParser.BSONSymbol - 100)) | (1 << (ECMAScriptParser.Date - 100)) | (1 << (ECMAScriptParser.RegExp - 100)) | (1 << (ECMAScriptParser.Number - 100)) | (1 << (ECMAScriptParser.ObjectCreate - 100)) | (1 << (ECMAScriptParser.Identifier - 100)) | (1 << (ECMAScriptParser.StringLiteral - 100)))) !== 0)) {
                 this.state = 222;
                 this.expressionSequence();
             }
@@ -2377,7 +2381,7 @@ ECMAScriptParser.prototype.iterationStatement = function() {
             this.state = 227;
             this._errHandler.sync(this);
             _la = this._input.LA(1);
-            if((((_la) & ~0x1f) == 0 && ((1 << _la) & ((1 << ECMAScriptParser.RegularExpressionLiteral) | (1 << ECMAScriptParser.OpenBracket) | (1 << ECMAScriptParser.OpenParen) | (1 << ECMAScriptParser.OpenBrace) | (1 << ECMAScriptParser.PlusPlus) | (1 << ECMAScriptParser.MinusMinus) | (1 << ECMAScriptParser.Plus) | (1 << ECMAScriptParser.Minus) | (1 << ECMAScriptParser.BitNot) | (1 << ECMAScriptParser.Not))) !== 0) || ((((_la - 51)) & ~0x1f) == 0 && ((1 << (_la - 51)) & ((1 << (ECMAScriptParser.NullLiteral - 51)) | (1 << (ECMAScriptParser.UndefinedLiteral - 51)) | (1 << (ECMAScriptParser.BooleanLiteral - 51)) | (1 << (ECMAScriptParser.IntegerLiteral - 51)) | (1 << (ECMAScriptParser.DecimalLiteral - 51)) | (1 << (ECMAScriptParser.HexIntegerLiteral - 51)) | (1 << (ECMAScriptParser.OctalIntegerLiteral - 51)) | (1 << (ECMAScriptParser.Typeof - 51)) | (1 << (ECMAScriptParser.New - 51)) | (1 << (ECMAScriptParser.Void - 51)) | (1 << (ECMAScriptParser.Function - 51)) | (1 << (ECMAScriptParser.This - 51)) | (1 << (ECMAScriptParser.Delete - 51)))) !== 0) || ((((_la - 100)) & ~0x1f) == 0 && ((1 << (_la - 100)) & ((1 << (ECMAScriptParser.BSONObjectId - 100)) | (1 << (ECMAScriptParser.BSONCode - 100)) | (1 << (ECMAScriptParser.BSONBinary - 100)) | (1 << (ECMAScriptParser.BSONDBRef - 100)) | (1 << (ECMAScriptParser.BSONLong - 100)) | (1 << (ECMAScriptParser.BSONDouble - 100)) | (1 << (ECMAScriptParser.BSONDecimal128 - 100)) | (1 << (ECMAScriptParser.BSONMinKey - 100)) | (1 << (ECMAScriptParser.BSONMaxKey - 100)) | (1 << (ECMAScriptParser.BSONTimestamp - 100)) | (1 << (ECMAScriptParser.BSONRegExp - 100)) | (1 << (ECMAScriptParser.BSONSymbol - 100)) | (1 << (ECMAScriptParser.Date - 100)) | (1 << (ECMAScriptParser.RegExp - 100)) | (1 << (ECMAScriptParser.Number - 100)) | (1 << (ECMAScriptParser.ObjectCreate - 100)) | (1 << (ECMAScriptParser.Identifier - 100)) | (1 << (ECMAScriptParser.StringLiteral - 100)))) !== 0)) {
+            if((((_la) & ~0x1f) == 0 && ((1 << _la) & ((1 << ECMAScriptParser.RegularExpressionLiteral) | (1 << ECMAScriptParser.OpenBracket) | (1 << ECMAScriptParser.OpenParen) | (1 << ECMAScriptParser.OpenBrace) | (1 << ECMAScriptParser.PlusPlus) | (1 << ECMAScriptParser.MinusMinus) | (1 << ECMAScriptParser.Plus) | (1 << ECMAScriptParser.Minus) | (1 << ECMAScriptParser.BitNot) | (1 << ECMAScriptParser.Not))) !== 0) || ((((_la - 51)) & ~0x1f) == 0 && ((1 << (_la - 51)) & ((1 << (ECMAScriptParser.NullLiteral - 51)) | (1 << (ECMAScriptParser.UndefinedLiteral - 51)) | (1 << (ECMAScriptParser.BooleanLiteral - 51)) | (1 << (ECMAScriptParser.IntegerLiteral - 51)) | (1 << (ECMAScriptParser.DecimalLiteral - 51)) | (1 << (ECMAScriptParser.HexIntegerLiteral - 51)) | (1 << (ECMAScriptParser.OctalIntegerLiteral - 51)) | (1 << (ECMAScriptParser.Typeof - 51)) | (1 << (ECMAScriptParser.New - 51)) | (1 << (ECMAScriptParser.Void - 51)) | (1 << (ECMAScriptParser.Function - 51)) | (1 << (ECMAScriptParser.This - 51)) | (1 << (ECMAScriptParser.Delete - 51)))) !== 0) || ((((_la - 100)) & ~0x1f) == 0 && ((1 << (_la - 100)) & ((1 << (ECMAScriptParser.BSONObjectId - 100)) | (1 << (ECMAScriptParser.BSONCode - 100)) | (1 << (ECMAScriptParser.BSONBinary - 100)) | (1 << (ECMAScriptParser.BSONDBRef - 100)) | (1 << (ECMAScriptParser.BSONLong - 100)) | (1 << (ECMAScriptParser.BSONDouble - 100)) | (1 << (ECMAScriptParser.BSONInt32 - 100)) | (1 << (ECMAScriptParser.BSONDecimal128 - 100)) | (1 << (ECMAScriptParser.BSONMinKey - 100)) | (1 << (ECMAScriptParser.BSONMaxKey - 100)) | (1 << (ECMAScriptParser.BSONTimestamp - 100)) | (1 << (ECMAScriptParser.BSONRegExp - 100)) | (1 << (ECMAScriptParser.BSONSymbol - 100)) | (1 << (ECMAScriptParser.Date - 100)) | (1 << (ECMAScriptParser.RegExp - 100)) | (1 << (ECMAScriptParser.Number - 100)) | (1 << (ECMAScriptParser.ObjectCreate - 100)) | (1 << (ECMAScriptParser.Identifier - 100)) | (1 << (ECMAScriptParser.StringLiteral - 100)))) !== 0)) {
                 this.state = 226;
                 this.expressionSequence();
             }
@@ -3133,7 +3137,7 @@ ECMAScriptParser.prototype.caseClause = function() {
         this.state = 305;
         this._errHandler.sync(this);
         _la = this._input.LA(1);
-        if((((_la) & ~0x1f) == 0 && ((1 << _la) & ((1 << ECMAScriptParser.RegularExpressionLiteral) | (1 << ECMAScriptParser.OpenBracket) | (1 << ECMAScriptParser.OpenParen) | (1 << ECMAScriptParser.OpenBrace) | (1 << ECMAScriptParser.SemiColon) | (1 << ECMAScriptParser.PlusPlus) | (1 << ECMAScriptParser.MinusMinus) | (1 << ECMAScriptParser.Plus) | (1 << ECMAScriptParser.Minus) | (1 << ECMAScriptParser.BitNot) | (1 << ECMAScriptParser.Not))) !== 0) || ((((_la - 51)) & ~0x1f) == 0 && ((1 << (_la - 51)) & ((1 << (ECMAScriptParser.NullLiteral - 51)) | (1 << (ECMAScriptParser.UndefinedLiteral - 51)) | (1 << (ECMAScriptParser.BooleanLiteral - 51)) | (1 << (ECMAScriptParser.IntegerLiteral - 51)) | (1 << (ECMAScriptParser.DecimalLiteral - 51)) | (1 << (ECMAScriptParser.HexIntegerLiteral - 51)) | (1 << (ECMAScriptParser.OctalIntegerLiteral - 51)) | (1 << (ECMAScriptParser.Break - 51)) | (1 << (ECMAScriptParser.Do - 51)) | (1 << (ECMAScriptParser.Typeof - 51)) | (1 << (ECMAScriptParser.New - 51)) | (1 << (ECMAScriptParser.Var - 51)) | (1 << (ECMAScriptParser.Return - 51)) | (1 << (ECMAScriptParser.Void - 51)) | (1 << (ECMAScriptParser.Continue - 51)) | (1 << (ECMAScriptParser.For - 51)) | (1 << (ECMAScriptParser.Switch - 51)) | (1 << (ECMAScriptParser.While - 51)) | (1 << (ECMAScriptParser.Debugger - 51)) | (1 << (ECMAScriptParser.Function - 51)) | (1 << (ECMAScriptParser.This - 51)) | (1 << (ECMAScriptParser.With - 51)) | (1 << (ECMAScriptParser.If - 51)) | (1 << (ECMAScriptParser.Throw - 51)) | (1 << (ECMAScriptParser.Delete - 51)))) !== 0) || ((((_la - 83)) & ~0x1f) == 0 && ((1 << (_la - 83)) & ((1 << (ECMAScriptParser.Try - 83)) | (1 << (ECMAScriptParser.BSONObjectId - 83)) | (1 << (ECMAScriptParser.BSONCode - 83)) | (1 << (ECMAScriptParser.BSONBinary - 83)) | (1 << (ECMAScriptParser.BSONDBRef - 83)) | (1 << (ECMAScriptParser.BSONLong - 83)) | (1 << (ECMAScriptParser.BSONDouble - 83)) | (1 << (ECMAScriptParser.BSONDecimal128 - 83)) | (1 << (ECMAScriptParser.BSONMinKey - 83)) | (1 << (ECMAScriptParser.BSONMaxKey - 83)) | (1 << (ECMAScriptParser.BSONTimestamp - 83)) | (1 << (ECMAScriptParser.BSONRegExp - 83)) | (1 << (ECMAScriptParser.BSONSymbol - 83)) | (1 << (ECMAScriptParser.Date - 83)) | (1 << (ECMAScriptParser.RegExp - 83)) | (1 << (ECMAScriptParser.Number - 83)))) !== 0) || ((((_la - 115)) & ~0x1f) == 0 && ((1 << (_la - 115)) & ((1 << (ECMAScriptParser.ObjectCreate - 115)) | (1 << (ECMAScriptParser.Identifier - 115)) | (1 << (ECMAScriptParser.StringLiteral - 115)))) !== 0)) {
+        if((((_la) & ~0x1f) == 0 && ((1 << _la) & ((1 << ECMAScriptParser.RegularExpressionLiteral) | (1 << ECMAScriptParser.OpenBracket) | (1 << ECMAScriptParser.OpenParen) | (1 << ECMAScriptParser.OpenBrace) | (1 << ECMAScriptParser.SemiColon) | (1 << ECMAScriptParser.PlusPlus) | (1 << ECMAScriptParser.MinusMinus) | (1 << ECMAScriptParser.Plus) | (1 << ECMAScriptParser.Minus) | (1 << ECMAScriptParser.BitNot) | (1 << ECMAScriptParser.Not))) !== 0) || ((((_la - 51)) & ~0x1f) == 0 && ((1 << (_la - 51)) & ((1 << (ECMAScriptParser.NullLiteral - 51)) | (1 << (ECMAScriptParser.UndefinedLiteral - 51)) | (1 << (ECMAScriptParser.BooleanLiteral - 51)) | (1 << (ECMAScriptParser.IntegerLiteral - 51)) | (1 << (ECMAScriptParser.DecimalLiteral - 51)) | (1 << (ECMAScriptParser.HexIntegerLiteral - 51)) | (1 << (ECMAScriptParser.OctalIntegerLiteral - 51)) | (1 << (ECMAScriptParser.Break - 51)) | (1 << (ECMAScriptParser.Do - 51)) | (1 << (ECMAScriptParser.Typeof - 51)) | (1 << (ECMAScriptParser.New - 51)) | (1 << (ECMAScriptParser.Var - 51)) | (1 << (ECMAScriptParser.Return - 51)) | (1 << (ECMAScriptParser.Void - 51)) | (1 << (ECMAScriptParser.Continue - 51)) | (1 << (ECMAScriptParser.For - 51)) | (1 << (ECMAScriptParser.Switch - 51)) | (1 << (ECMAScriptParser.While - 51)) | (1 << (ECMAScriptParser.Debugger - 51)) | (1 << (ECMAScriptParser.Function - 51)) | (1 << (ECMAScriptParser.This - 51)) | (1 << (ECMAScriptParser.With - 51)) | (1 << (ECMAScriptParser.If - 51)) | (1 << (ECMAScriptParser.Throw - 51)) | (1 << (ECMAScriptParser.Delete - 51)))) !== 0) || ((((_la - 83)) & ~0x1f) == 0 && ((1 << (_la - 83)) & ((1 << (ECMAScriptParser.Try - 83)) | (1 << (ECMAScriptParser.BSONObjectId - 83)) | (1 << (ECMAScriptParser.BSONCode - 83)) | (1 << (ECMAScriptParser.BSONBinary - 83)) | (1 << (ECMAScriptParser.BSONDBRef - 83)) | (1 << (ECMAScriptParser.BSONLong - 83)) | (1 << (ECMAScriptParser.BSONDouble - 83)) | (1 << (ECMAScriptParser.BSONInt32 - 83)) | (1 << (ECMAScriptParser.BSONDecimal128 - 83)) | (1 << (ECMAScriptParser.BSONMinKey - 83)) | (1 << (ECMAScriptParser.BSONMaxKey - 83)) | (1 << (ECMAScriptParser.BSONTimestamp - 83)) | (1 << (ECMAScriptParser.BSONRegExp - 83)) | (1 << (ECMAScriptParser.BSONSymbol - 83)) | (1 << (ECMAScriptParser.Date - 83)) | (1 << (ECMAScriptParser.RegExp - 83)))) !== 0) || ((((_la - 115)) & ~0x1f) == 0 && ((1 << (_la - 115)) & ((1 << (ECMAScriptParser.Number - 115)) | (1 << (ECMAScriptParser.ObjectCreate - 115)) | (1 << (ECMAScriptParser.Identifier - 115)) | (1 << (ECMAScriptParser.StringLiteral - 115)))) !== 0)) {
             this.state = 304;
             this.statementList();
         }
@@ -3215,7 +3219,7 @@ ECMAScriptParser.prototype.defaultClause = function() {
         this.state = 310;
         this._errHandler.sync(this);
         _la = this._input.LA(1);
-        if((((_la) & ~0x1f) == 0 && ((1 << _la) & ((1 << ECMAScriptParser.RegularExpressionLiteral) | (1 << ECMAScriptParser.OpenBracket) | (1 << ECMAScriptParser.OpenParen) | (1 << ECMAScriptParser.OpenBrace) | (1 << ECMAScriptParser.SemiColon) | (1 << ECMAScriptParser.PlusPlus) | (1 << ECMAScriptParser.MinusMinus) | (1 << ECMAScriptParser.Plus) | (1 << ECMAScriptParser.Minus) | (1 << ECMAScriptParser.BitNot) | (1 << ECMAScriptParser.Not))) !== 0) || ((((_la - 51)) & ~0x1f) == 0 && ((1 << (_la - 51)) & ((1 << (ECMAScriptParser.NullLiteral - 51)) | (1 << (ECMAScriptParser.UndefinedLiteral - 51)) | (1 << (ECMAScriptParser.BooleanLiteral - 51)) | (1 << (ECMAScriptParser.IntegerLiteral - 51)) | (1 << (ECMAScriptParser.DecimalLiteral - 51)) | (1 << (ECMAScriptParser.HexIntegerLiteral - 51)) | (1 << (ECMAScriptParser.OctalIntegerLiteral - 51)) | (1 << (ECMAScriptParser.Break - 51)) | (1 << (ECMAScriptParser.Do - 51)) | (1 << (ECMAScriptParser.Typeof - 51)) | (1 << (ECMAScriptParser.New - 51)) | (1 << (ECMAScriptParser.Var - 51)) | (1 << (ECMAScriptParser.Return - 51)) | (1 << (ECMAScriptParser.Void - 51)) | (1 << (ECMAScriptParser.Continue - 51)) | (1 << (ECMAScriptParser.For - 51)) | (1 << (ECMAScriptParser.Switch - 51)) | (1 << (ECMAScriptParser.While - 51)) | (1 << (ECMAScriptParser.Debugger - 51)) | (1 << (ECMAScriptParser.Function - 51)) | (1 << (ECMAScriptParser.This - 51)) | (1 << (ECMAScriptParser.With - 51)) | (1 << (ECMAScriptParser.If - 51)) | (1 << (ECMAScriptParser.Throw - 51)) | (1 << (ECMAScriptParser.Delete - 51)))) !== 0) || ((((_la - 83)) & ~0x1f) == 0 && ((1 << (_la - 83)) & ((1 << (ECMAScriptParser.Try - 83)) | (1 << (ECMAScriptParser.BSONObjectId - 83)) | (1 << (ECMAScriptParser.BSONCode - 83)) | (1 << (ECMAScriptParser.BSONBinary - 83)) | (1 << (ECMAScriptParser.BSONDBRef - 83)) | (1 << (ECMAScriptParser.BSONLong - 83)) | (1 << (ECMAScriptParser.BSONDouble - 83)) | (1 << (ECMAScriptParser.BSONDecimal128 - 83)) | (1 << (ECMAScriptParser.BSONMinKey - 83)) | (1 << (ECMAScriptParser.BSONMaxKey - 83)) | (1 << (ECMAScriptParser.BSONTimestamp - 83)) | (1 << (ECMAScriptParser.BSONRegExp - 83)) | (1 << (ECMAScriptParser.BSONSymbol - 83)) | (1 << (ECMAScriptParser.Date - 83)) | (1 << (ECMAScriptParser.RegExp - 83)) | (1 << (ECMAScriptParser.Number - 83)))) !== 0) || ((((_la - 115)) & ~0x1f) == 0 && ((1 << (_la - 115)) & ((1 << (ECMAScriptParser.ObjectCreate - 115)) | (1 << (ECMAScriptParser.Identifier - 115)) | (1 << (ECMAScriptParser.StringLiteral - 115)))) !== 0)) {
+        if((((_la) & ~0x1f) == 0 && ((1 << _la) & ((1 << ECMAScriptParser.RegularExpressionLiteral) | (1 << ECMAScriptParser.OpenBracket) | (1 << ECMAScriptParser.OpenParen) | (1 << ECMAScriptParser.OpenBrace) | (1 << ECMAScriptParser.SemiColon) | (1 << ECMAScriptParser.PlusPlus) | (1 << ECMAScriptParser.MinusMinus) | (1 << ECMAScriptParser.Plus) | (1 << ECMAScriptParser.Minus) | (1 << ECMAScriptParser.BitNot) | (1 << ECMAScriptParser.Not))) !== 0) || ((((_la - 51)) & ~0x1f) == 0 && ((1 << (_la - 51)) & ((1 << (ECMAScriptParser.NullLiteral - 51)) | (1 << (ECMAScriptParser.UndefinedLiteral - 51)) | (1 << (ECMAScriptParser.BooleanLiteral - 51)) | (1 << (ECMAScriptParser.IntegerLiteral - 51)) | (1 << (ECMAScriptParser.DecimalLiteral - 51)) | (1 << (ECMAScriptParser.HexIntegerLiteral - 51)) | (1 << (ECMAScriptParser.OctalIntegerLiteral - 51)) | (1 << (ECMAScriptParser.Break - 51)) | (1 << (ECMAScriptParser.Do - 51)) | (1 << (ECMAScriptParser.Typeof - 51)) | (1 << (ECMAScriptParser.New - 51)) | (1 << (ECMAScriptParser.Var - 51)) | (1 << (ECMAScriptParser.Return - 51)) | (1 << (ECMAScriptParser.Void - 51)) | (1 << (ECMAScriptParser.Continue - 51)) | (1 << (ECMAScriptParser.For - 51)) | (1 << (ECMAScriptParser.Switch - 51)) | (1 << (ECMAScriptParser.While - 51)) | (1 << (ECMAScriptParser.Debugger - 51)) | (1 << (ECMAScriptParser.Function - 51)) | (1 << (ECMAScriptParser.This - 51)) | (1 << (ECMAScriptParser.With - 51)) | (1 << (ECMAScriptParser.If - 51)) | (1 << (ECMAScriptParser.Throw - 51)) | (1 << (ECMAScriptParser.Delete - 51)))) !== 0) || ((((_la - 83)) & ~0x1f) == 0 && ((1 << (_la - 83)) & ((1 << (ECMAScriptParser.Try - 83)) | (1 << (ECMAScriptParser.BSONObjectId - 83)) | (1 << (ECMAScriptParser.BSONCode - 83)) | (1 << (ECMAScriptParser.BSONBinary - 83)) | (1 << (ECMAScriptParser.BSONDBRef - 83)) | (1 << (ECMAScriptParser.BSONLong - 83)) | (1 << (ECMAScriptParser.BSONDouble - 83)) | (1 << (ECMAScriptParser.BSONInt32 - 83)) | (1 << (ECMAScriptParser.BSONDecimal128 - 83)) | (1 << (ECMAScriptParser.BSONMinKey - 83)) | (1 << (ECMAScriptParser.BSONMaxKey - 83)) | (1 << (ECMAScriptParser.BSONTimestamp - 83)) | (1 << (ECMAScriptParser.BSONRegExp - 83)) | (1 << (ECMAScriptParser.BSONSymbol - 83)) | (1 << (ECMAScriptParser.Date - 83)) | (1 << (ECMAScriptParser.RegExp - 83)))) !== 0) || ((((_la - 115)) & ~0x1f) == 0 && ((1 << (_la - 115)) & ((1 << (ECMAScriptParser.Number - 115)) | (1 << (ECMAScriptParser.ObjectCreate - 115)) | (1 << (ECMAScriptParser.Identifier - 115)) | (1 << (ECMAScriptParser.StringLiteral - 115)))) !== 0)) {
             this.state = 309;
             this.statementList();
         }
@@ -3977,7 +3981,7 @@ ECMAScriptParser.prototype.functionBody = function() {
         this.state = 368;
         this._errHandler.sync(this);
         _la = this._input.LA(1);
-        if((((_la) & ~0x1f) == 0 && ((1 << _la) & ((1 << ECMAScriptParser.RegularExpressionLiteral) | (1 << ECMAScriptParser.OpenBracket) | (1 << ECMAScriptParser.OpenParen) | (1 << ECMAScriptParser.OpenBrace) | (1 << ECMAScriptParser.SemiColon) | (1 << ECMAScriptParser.PlusPlus) | (1 << ECMAScriptParser.MinusMinus) | (1 << ECMAScriptParser.Plus) | (1 << ECMAScriptParser.Minus) | (1 << ECMAScriptParser.BitNot) | (1 << ECMAScriptParser.Not))) !== 0) || ((((_la - 51)) & ~0x1f) == 0 && ((1 << (_la - 51)) & ((1 << (ECMAScriptParser.NullLiteral - 51)) | (1 << (ECMAScriptParser.UndefinedLiteral - 51)) | (1 << (ECMAScriptParser.BooleanLiteral - 51)) | (1 << (ECMAScriptParser.IntegerLiteral - 51)) | (1 << (ECMAScriptParser.DecimalLiteral - 51)) | (1 << (ECMAScriptParser.HexIntegerLiteral - 51)) | (1 << (ECMAScriptParser.OctalIntegerLiteral - 51)) | (1 << (ECMAScriptParser.Break - 51)) | (1 << (ECMAScriptParser.Do - 51)) | (1 << (ECMAScriptParser.Typeof - 51)) | (1 << (ECMAScriptParser.New - 51)) | (1 << (ECMAScriptParser.Var - 51)) | (1 << (ECMAScriptParser.Return - 51)) | (1 << (ECMAScriptParser.Void - 51)) | (1 << (ECMAScriptParser.Continue - 51)) | (1 << (ECMAScriptParser.For - 51)) | (1 << (ECMAScriptParser.Switch - 51)) | (1 << (ECMAScriptParser.While - 51)) | (1 << (ECMAScriptParser.Debugger - 51)) | (1 << (ECMAScriptParser.Function - 51)) | (1 << (ECMAScriptParser.This - 51)) | (1 << (ECMAScriptParser.With - 51)) | (1 << (ECMAScriptParser.If - 51)) | (1 << (ECMAScriptParser.Throw - 51)) | (1 << (ECMAScriptParser.Delete - 51)))) !== 0) || ((((_la - 83)) & ~0x1f) == 0 && ((1 << (_la - 83)) & ((1 << (ECMAScriptParser.Try - 83)) | (1 << (ECMAScriptParser.BSONObjectId - 83)) | (1 << (ECMAScriptParser.BSONCode - 83)) | (1 << (ECMAScriptParser.BSONBinary - 83)) | (1 << (ECMAScriptParser.BSONDBRef - 83)) | (1 << (ECMAScriptParser.BSONLong - 83)) | (1 << (ECMAScriptParser.BSONDouble - 83)) | (1 << (ECMAScriptParser.BSONDecimal128 - 83)) | (1 << (ECMAScriptParser.BSONMinKey - 83)) | (1 << (ECMAScriptParser.BSONMaxKey - 83)) | (1 << (ECMAScriptParser.BSONTimestamp - 83)) | (1 << (ECMAScriptParser.BSONRegExp - 83)) | (1 << (ECMAScriptParser.BSONSymbol - 83)) | (1 << (ECMAScriptParser.Date - 83)) | (1 << (ECMAScriptParser.RegExp - 83)) | (1 << (ECMAScriptParser.Number - 83)))) !== 0) || ((((_la - 115)) & ~0x1f) == 0 && ((1 << (_la - 115)) & ((1 << (ECMAScriptParser.ObjectCreate - 115)) | (1 << (ECMAScriptParser.Identifier - 115)) | (1 << (ECMAScriptParser.StringLiteral - 115)))) !== 0)) {
+        if((((_la) & ~0x1f) == 0 && ((1 << _la) & ((1 << ECMAScriptParser.RegularExpressionLiteral) | (1 << ECMAScriptParser.OpenBracket) | (1 << ECMAScriptParser.OpenParen) | (1 << ECMAScriptParser.OpenBrace) | (1 << ECMAScriptParser.SemiColon) | (1 << ECMAScriptParser.PlusPlus) | (1 << ECMAScriptParser.MinusMinus) | (1 << ECMAScriptParser.Plus) | (1 << ECMAScriptParser.Minus) | (1 << ECMAScriptParser.BitNot) | (1 << ECMAScriptParser.Not))) !== 0) || ((((_la - 51)) & ~0x1f) == 0 && ((1 << (_la - 51)) & ((1 << (ECMAScriptParser.NullLiteral - 51)) | (1 << (ECMAScriptParser.UndefinedLiteral - 51)) | (1 << (ECMAScriptParser.BooleanLiteral - 51)) | (1 << (ECMAScriptParser.IntegerLiteral - 51)) | (1 << (ECMAScriptParser.DecimalLiteral - 51)) | (1 << (ECMAScriptParser.HexIntegerLiteral - 51)) | (1 << (ECMAScriptParser.OctalIntegerLiteral - 51)) | (1 << (ECMAScriptParser.Break - 51)) | (1 << (ECMAScriptParser.Do - 51)) | (1 << (ECMAScriptParser.Typeof - 51)) | (1 << (ECMAScriptParser.New - 51)) | (1 << (ECMAScriptParser.Var - 51)) | (1 << (ECMAScriptParser.Return - 51)) | (1 << (ECMAScriptParser.Void - 51)) | (1 << (ECMAScriptParser.Continue - 51)) | (1 << (ECMAScriptParser.For - 51)) | (1 << (ECMAScriptParser.Switch - 51)) | (1 << (ECMAScriptParser.While - 51)) | (1 << (ECMAScriptParser.Debugger - 51)) | (1 << (ECMAScriptParser.Function - 51)) | (1 << (ECMAScriptParser.This - 51)) | (1 << (ECMAScriptParser.With - 51)) | (1 << (ECMAScriptParser.If - 51)) | (1 << (ECMAScriptParser.Throw - 51)) | (1 << (ECMAScriptParser.Delete - 51)))) !== 0) || ((((_la - 83)) & ~0x1f) == 0 && ((1 << (_la - 83)) & ((1 << (ECMAScriptParser.Try - 83)) | (1 << (ECMAScriptParser.BSONObjectId - 83)) | (1 << (ECMAScriptParser.BSONCode - 83)) | (1 << (ECMAScriptParser.BSONBinary - 83)) | (1 << (ECMAScriptParser.BSONDBRef - 83)) | (1 << (ECMAScriptParser.BSONLong - 83)) | (1 << (ECMAScriptParser.BSONDouble - 83)) | (1 << (ECMAScriptParser.BSONInt32 - 83)) | (1 << (ECMAScriptParser.BSONDecimal128 - 83)) | (1 << (ECMAScriptParser.BSONMinKey - 83)) | (1 << (ECMAScriptParser.BSONMaxKey - 83)) | (1 << (ECMAScriptParser.BSONTimestamp - 83)) | (1 << (ECMAScriptParser.BSONRegExp - 83)) | (1 << (ECMAScriptParser.BSONSymbol - 83)) | (1 << (ECMAScriptParser.Date - 83)) | (1 << (ECMAScriptParser.RegExp - 83)))) !== 0) || ((((_la - 115)) & ~0x1f) == 0 && ((1 << (_la - 115)) & ((1 << (ECMAScriptParser.Number - 115)) | (1 << (ECMAScriptParser.ObjectCreate - 115)) | (1 << (ECMAScriptParser.Identifier - 115)) | (1 << (ECMAScriptParser.StringLiteral - 115)))) !== 0)) {
             this.state = 367;
             this.sourceElements();
         }
@@ -4219,7 +4223,7 @@ ECMAScriptParser.prototype.elementList = function() {
                     this.state = 402;
                     this._errHandler.sync(this);
                     _la = this._input.LA(1);
-                    if((((_la) & ~0x1f) == 0 && ((1 << _la) & ((1 << ECMAScriptParser.RegularExpressionLiteral) | (1 << ECMAScriptParser.OpenBracket) | (1 << ECMAScriptParser.OpenParen) | (1 << ECMAScriptParser.OpenBrace) | (1 << ECMAScriptParser.PlusPlus) | (1 << ECMAScriptParser.MinusMinus) | (1 << ECMAScriptParser.Plus) | (1 << ECMAScriptParser.Minus) | (1 << ECMAScriptParser.BitNot) | (1 << ECMAScriptParser.Not))) !== 0) || ((((_la - 51)) & ~0x1f) == 0 && ((1 << (_la - 51)) & ((1 << (ECMAScriptParser.NullLiteral - 51)) | (1 << (ECMAScriptParser.UndefinedLiteral - 51)) | (1 << (ECMAScriptParser.BooleanLiteral - 51)) | (1 << (ECMAScriptParser.IntegerLiteral - 51)) | (1 << (ECMAScriptParser.DecimalLiteral - 51)) | (1 << (ECMAScriptParser.HexIntegerLiteral - 51)) | (1 << (ECMAScriptParser.OctalIntegerLiteral - 51)) | (1 << (ECMAScriptParser.Typeof - 51)) | (1 << (ECMAScriptParser.New - 51)) | (1 << (ECMAScriptParser.Void - 51)) | (1 << (ECMAScriptParser.Function - 51)) | (1 << (ECMAScriptParser.This - 51)) | (1 << (ECMAScriptParser.Delete - 51)))) !== 0) || ((((_la - 100)) & ~0x1f) == 0 && ((1 << (_la - 100)) & ((1 << (ECMAScriptParser.BSONObjectId - 100)) | (1 << (ECMAScriptParser.BSONCode - 100)) | (1 << (ECMAScriptParser.BSONBinary - 100)) | (1 << (ECMAScriptParser.BSONDBRef - 100)) | (1 << (ECMAScriptParser.BSONLong - 100)) | (1 << (ECMAScriptParser.BSONDouble - 100)) | (1 << (ECMAScriptParser.BSONDecimal128 - 100)) | (1 << (ECMAScriptParser.BSONMinKey - 100)) | (1 << (ECMAScriptParser.BSONMaxKey - 100)) | (1 << (ECMAScriptParser.BSONTimestamp - 100)) | (1 << (ECMAScriptParser.BSONRegExp - 100)) | (1 << (ECMAScriptParser.BSONSymbol - 100)) | (1 << (ECMAScriptParser.Date - 100)) | (1 << (ECMAScriptParser.RegExp - 100)) | (1 << (ECMAScriptParser.Number - 100)) | (1 << (ECMAScriptParser.ObjectCreate - 100)) | (1 << (ECMAScriptParser.Identifier - 100)) | (1 << (ECMAScriptParser.StringLiteral - 100)))) !== 0)) {
+                    if((((_la) & ~0x1f) == 0 && ((1 << _la) & ((1 << ECMAScriptParser.RegularExpressionLiteral) | (1 << ECMAScriptParser.OpenBracket) | (1 << ECMAScriptParser.OpenParen) | (1 << ECMAScriptParser.OpenBrace) | (1 << ECMAScriptParser.PlusPlus) | (1 << ECMAScriptParser.MinusMinus) | (1 << ECMAScriptParser.Plus) | (1 << ECMAScriptParser.Minus) | (1 << ECMAScriptParser.BitNot) | (1 << ECMAScriptParser.Not))) !== 0) || ((((_la - 51)) & ~0x1f) == 0 && ((1 << (_la - 51)) & ((1 << (ECMAScriptParser.NullLiteral - 51)) | (1 << (ECMAScriptParser.UndefinedLiteral - 51)) | (1 << (ECMAScriptParser.BooleanLiteral - 51)) | (1 << (ECMAScriptParser.IntegerLiteral - 51)) | (1 << (ECMAScriptParser.DecimalLiteral - 51)) | (1 << (ECMAScriptParser.HexIntegerLiteral - 51)) | (1 << (ECMAScriptParser.OctalIntegerLiteral - 51)) | (1 << (ECMAScriptParser.Typeof - 51)) | (1 << (ECMAScriptParser.New - 51)) | (1 << (ECMAScriptParser.Void - 51)) | (1 << (ECMAScriptParser.Function - 51)) | (1 << (ECMAScriptParser.This - 51)) | (1 << (ECMAScriptParser.Delete - 51)))) !== 0) || ((((_la - 100)) & ~0x1f) == 0 && ((1 << (_la - 100)) & ((1 << (ECMAScriptParser.BSONObjectId - 100)) | (1 << (ECMAScriptParser.BSONCode - 100)) | (1 << (ECMAScriptParser.BSONBinary - 100)) | (1 << (ECMAScriptParser.BSONDBRef - 100)) | (1 << (ECMAScriptParser.BSONLong - 100)) | (1 << (ECMAScriptParser.BSONDouble - 100)) | (1 << (ECMAScriptParser.BSONInt32 - 100)) | (1 << (ECMAScriptParser.BSONDecimal128 - 100)) | (1 << (ECMAScriptParser.BSONMinKey - 100)) | (1 << (ECMAScriptParser.BSONMaxKey - 100)) | (1 << (ECMAScriptParser.BSONTimestamp - 100)) | (1 << (ECMAScriptParser.BSONRegExp - 100)) | (1 << (ECMAScriptParser.BSONSymbol - 100)) | (1 << (ECMAScriptParser.Date - 100)) | (1 << (ECMAScriptParser.RegExp - 100)) | (1 << (ECMAScriptParser.Number - 100)) | (1 << (ECMAScriptParser.ObjectCreate - 100)) | (1 << (ECMAScriptParser.Identifier - 100)) | (1 << (ECMAScriptParser.StringLiteral - 100)))) !== 0)) {
                         this.state = 401;
                         this.singleExpression(0);
                     }
@@ -4978,7 +4982,7 @@ ECMAScriptParser.prototype.arguments = function() {
         this.state = 462;
         this._errHandler.sync(this);
         _la = this._input.LA(1);
-        if((((_la) & ~0x1f) == 0 && ((1 << _la) & ((1 << ECMAScriptParser.RegularExpressionLiteral) | (1 << ECMAScriptParser.OpenBracket) | (1 << ECMAScriptParser.OpenParen) | (1 << ECMAScriptParser.OpenBrace) | (1 << ECMAScriptParser.PlusPlus) | (1 << ECMAScriptParser.MinusMinus) | (1 << ECMAScriptParser.Plus) | (1 << ECMAScriptParser.Minus) | (1 << ECMAScriptParser.BitNot) | (1 << ECMAScriptParser.Not))) !== 0) || ((((_la - 51)) & ~0x1f) == 0 && ((1 << (_la - 51)) & ((1 << (ECMAScriptParser.NullLiteral - 51)) | (1 << (ECMAScriptParser.UndefinedLiteral - 51)) | (1 << (ECMAScriptParser.BooleanLiteral - 51)) | (1 << (ECMAScriptParser.IntegerLiteral - 51)) | (1 << (ECMAScriptParser.DecimalLiteral - 51)) | (1 << (ECMAScriptParser.HexIntegerLiteral - 51)) | (1 << (ECMAScriptParser.OctalIntegerLiteral - 51)) | (1 << (ECMAScriptParser.Typeof - 51)) | (1 << (ECMAScriptParser.New - 51)) | (1 << (ECMAScriptParser.Void - 51)) | (1 << (ECMAScriptParser.Function - 51)) | (1 << (ECMAScriptParser.This - 51)) | (1 << (ECMAScriptParser.Delete - 51)))) !== 0) || ((((_la - 100)) & ~0x1f) == 0 && ((1 << (_la - 100)) & ((1 << (ECMAScriptParser.BSONObjectId - 100)) | (1 << (ECMAScriptParser.BSONCode - 100)) | (1 << (ECMAScriptParser.BSONBinary - 100)) | (1 << (ECMAScriptParser.BSONDBRef - 100)) | (1 << (ECMAScriptParser.BSONLong - 100)) | (1 << (ECMAScriptParser.BSONDouble - 100)) | (1 << (ECMAScriptParser.BSONDecimal128 - 100)) | (1 << (ECMAScriptParser.BSONMinKey - 100)) | (1 << (ECMAScriptParser.BSONMaxKey - 100)) | (1 << (ECMAScriptParser.BSONTimestamp - 100)) | (1 << (ECMAScriptParser.BSONRegExp - 100)) | (1 << (ECMAScriptParser.BSONSymbol - 100)) | (1 << (ECMAScriptParser.Date - 100)) | (1 << (ECMAScriptParser.RegExp - 100)) | (1 << (ECMAScriptParser.Number - 100)) | (1 << (ECMAScriptParser.ObjectCreate - 100)) | (1 << (ECMAScriptParser.Identifier - 100)) | (1 << (ECMAScriptParser.StringLiteral - 100)))) !== 0)) {
+        if((((_la) & ~0x1f) == 0 && ((1 << _la) & ((1 << ECMAScriptParser.RegularExpressionLiteral) | (1 << ECMAScriptParser.OpenBracket) | (1 << ECMAScriptParser.OpenParen) | (1 << ECMAScriptParser.OpenBrace) | (1 << ECMAScriptParser.PlusPlus) | (1 << ECMAScriptParser.MinusMinus) | (1 << ECMAScriptParser.Plus) | (1 << ECMAScriptParser.Minus) | (1 << ECMAScriptParser.BitNot) | (1 << ECMAScriptParser.Not))) !== 0) || ((((_la - 51)) & ~0x1f) == 0 && ((1 << (_la - 51)) & ((1 << (ECMAScriptParser.NullLiteral - 51)) | (1 << (ECMAScriptParser.UndefinedLiteral - 51)) | (1 << (ECMAScriptParser.BooleanLiteral - 51)) | (1 << (ECMAScriptParser.IntegerLiteral - 51)) | (1 << (ECMAScriptParser.DecimalLiteral - 51)) | (1 << (ECMAScriptParser.HexIntegerLiteral - 51)) | (1 << (ECMAScriptParser.OctalIntegerLiteral - 51)) | (1 << (ECMAScriptParser.Typeof - 51)) | (1 << (ECMAScriptParser.New - 51)) | (1 << (ECMAScriptParser.Void - 51)) | (1 << (ECMAScriptParser.Function - 51)) | (1 << (ECMAScriptParser.This - 51)) | (1 << (ECMAScriptParser.Delete - 51)))) !== 0) || ((((_la - 100)) & ~0x1f) == 0 && ((1 << (_la - 100)) & ((1 << (ECMAScriptParser.BSONObjectId - 100)) | (1 << (ECMAScriptParser.BSONCode - 100)) | (1 << (ECMAScriptParser.BSONBinary - 100)) | (1 << (ECMAScriptParser.BSONDBRef - 100)) | (1 << (ECMAScriptParser.BSONLong - 100)) | (1 << (ECMAScriptParser.BSONDouble - 100)) | (1 << (ECMAScriptParser.BSONInt32 - 100)) | (1 << (ECMAScriptParser.BSONDecimal128 - 100)) | (1 << (ECMAScriptParser.BSONMinKey - 100)) | (1 << (ECMAScriptParser.BSONMaxKey - 100)) | (1 << (ECMAScriptParser.BSONTimestamp - 100)) | (1 << (ECMAScriptParser.BSONRegExp - 100)) | (1 << (ECMAScriptParser.BSONSymbol - 100)) | (1 << (ECMAScriptParser.Date - 100)) | (1 << (ECMAScriptParser.RegExp - 100)) | (1 << (ECMAScriptParser.Number - 100)) | (1 << (ECMAScriptParser.ObjectCreate - 100)) | (1 << (ECMAScriptParser.Identifier - 100)) | (1 << (ECMAScriptParser.StringLiteral - 100)))) !== 0)) {
             this.state = 461;
             this.argumentList();
         }
@@ -6936,6 +6940,7 @@ ECMAScriptParser.prototype.singleExpression = function(_p) {
         case ECMAScriptParser.BSONDBRef:
         case ECMAScriptParser.BSONLong:
         case ECMAScriptParser.BSONDouble:
+        case ECMAScriptParser.BSONInt32:
         case ECMAScriptParser.BSONDecimal128:
         case ECMAScriptParser.BSONMinKey:
         case ECMAScriptParser.BSONMaxKey:
@@ -7322,41 +7327,6 @@ BsonTypeContext.prototype.copyFrom = function(ctx) {
 };
 
 
-function BSONCodeContext(parser, ctx) {
-	BsonTypeContext.call(this, parser);
-    BsonTypeContext.prototype.copyFrom.call(this, ctx);
-    return this;
-}
-
-BSONCodeContext.prototype = Object.create(BsonTypeContext.prototype);
-BSONCodeContext.prototype.constructor = BSONCodeContext;
-
-ECMAScriptParser.BSONCodeContext = BSONCodeContext;
-
-BSONCodeContext.prototype.BSONCode = function() {
-    return this.getToken(ECMAScriptParser.BSONCode, 0);
-};
-BSONCodeContext.prototype.enterRule = function(listener) {
-    if(listener instanceof ECMAScriptListener ) {
-        listener.enterBSONCode(this);
-	}
-};
-
-BSONCodeContext.prototype.exitRule = function(listener) {
-    if(listener instanceof ECMAScriptListener ) {
-        listener.exitBSONCode(this);
-	}
-};
-
-BSONCodeContext.prototype.accept = function(visitor) {
-    if ( visitor instanceof ECMAScriptVisitor ) {
-        return visitor.visitBSONCode(this);
-    } else {
-        return visitor.visitChildren(this);
-    }
-};
-
-
 function BSONDecimal128Context(parser, ctx) {
 	BsonTypeContext.call(this, parser);
     BsonTypeContext.prototype.copyFrom.call(this, ctx);
@@ -7386,41 +7356,6 @@ BSONDecimal128Context.prototype.exitRule = function(listener) {
 BSONDecimal128Context.prototype.accept = function(visitor) {
     if ( visitor instanceof ECMAScriptVisitor ) {
         return visitor.visitBSONDecimal128(this);
-    } else {
-        return visitor.visitChildren(this);
-    }
-};
-
-
-function BSONRegExpContext(parser, ctx) {
-	BsonTypeContext.call(this, parser);
-    BsonTypeContext.prototype.copyFrom.call(this, ctx);
-    return this;
-}
-
-BSONRegExpContext.prototype = Object.create(BsonTypeContext.prototype);
-BSONRegExpContext.prototype.constructor = BSONRegExpContext;
-
-ECMAScriptParser.BSONRegExpContext = BSONRegExpContext;
-
-BSONRegExpContext.prototype.BSONRegExp = function() {
-    return this.getToken(ECMAScriptParser.BSONRegExp, 0);
-};
-BSONRegExpContext.prototype.enterRule = function(listener) {
-    if(listener instanceof ECMAScriptListener ) {
-        listener.enterBSONRegExp(this);
-	}
-};
-
-BSONRegExpContext.prototype.exitRule = function(listener) {
-    if(listener instanceof ECMAScriptListener ) {
-        listener.exitBSONRegExp(this);
-	}
-};
-
-BSONRegExpContext.prototype.accept = function(visitor) {
-    if ( visitor instanceof ECMAScriptVisitor ) {
-        return visitor.visitBSONRegExp(this);
     } else {
         return visitor.visitChildren(this);
     }
@@ -7561,6 +7496,111 @@ BSONDBRefContext.prototype.exitRule = function(listener) {
 BSONDBRefContext.prototype.accept = function(visitor) {
     if ( visitor instanceof ECMAScriptVisitor ) {
         return visitor.visitBSONDBRef(this);
+    } else {
+        return visitor.visitChildren(this);
+    }
+};
+
+
+function BSONCodeContext(parser, ctx) {
+	BsonTypeContext.call(this, parser);
+    BsonTypeContext.prototype.copyFrom.call(this, ctx);
+    return this;
+}
+
+BSONCodeContext.prototype = Object.create(BsonTypeContext.prototype);
+BSONCodeContext.prototype.constructor = BSONCodeContext;
+
+ECMAScriptParser.BSONCodeContext = BSONCodeContext;
+
+BSONCodeContext.prototype.BSONCode = function() {
+    return this.getToken(ECMAScriptParser.BSONCode, 0);
+};
+BSONCodeContext.prototype.enterRule = function(listener) {
+    if(listener instanceof ECMAScriptListener ) {
+        listener.enterBSONCode(this);
+	}
+};
+
+BSONCodeContext.prototype.exitRule = function(listener) {
+    if(listener instanceof ECMAScriptListener ) {
+        listener.exitBSONCode(this);
+	}
+};
+
+BSONCodeContext.prototype.accept = function(visitor) {
+    if ( visitor instanceof ECMAScriptVisitor ) {
+        return visitor.visitBSONCode(this);
+    } else {
+        return visitor.visitChildren(this);
+    }
+};
+
+
+function BSONRegExpContext(parser, ctx) {
+	BsonTypeContext.call(this, parser);
+    BsonTypeContext.prototype.copyFrom.call(this, ctx);
+    return this;
+}
+
+BSONRegExpContext.prototype = Object.create(BsonTypeContext.prototype);
+BSONRegExpContext.prototype.constructor = BSONRegExpContext;
+
+ECMAScriptParser.BSONRegExpContext = BSONRegExpContext;
+
+BSONRegExpContext.prototype.BSONRegExp = function() {
+    return this.getToken(ECMAScriptParser.BSONRegExp, 0);
+};
+BSONRegExpContext.prototype.enterRule = function(listener) {
+    if(listener instanceof ECMAScriptListener ) {
+        listener.enterBSONRegExp(this);
+	}
+};
+
+BSONRegExpContext.prototype.exitRule = function(listener) {
+    if(listener instanceof ECMAScriptListener ) {
+        listener.exitBSONRegExp(this);
+	}
+};
+
+BSONRegExpContext.prototype.accept = function(visitor) {
+    if ( visitor instanceof ECMAScriptVisitor ) {
+        return visitor.visitBSONRegExp(this);
+    } else {
+        return visitor.visitChildren(this);
+    }
+};
+
+
+function BSONInt32Context(parser, ctx) {
+	BsonTypeContext.call(this, parser);
+    BsonTypeContext.prototype.copyFrom.call(this, ctx);
+    return this;
+}
+
+BSONInt32Context.prototype = Object.create(BsonTypeContext.prototype);
+BSONInt32Context.prototype.constructor = BSONInt32Context;
+
+ECMAScriptParser.BSONInt32Context = BSONInt32Context;
+
+BSONInt32Context.prototype.BSONInt32 = function() {
+    return this.getToken(ECMAScriptParser.BSONInt32, 0);
+};
+BSONInt32Context.prototype.enterRule = function(listener) {
+    if(listener instanceof ECMAScriptListener ) {
+        listener.enterBSONInt32(this);
+	}
+};
+
+BSONInt32Context.prototype.exitRule = function(listener) {
+    if(listener instanceof ECMAScriptListener ) {
+        listener.exitBSONInt32(this);
+	}
+};
+
+BSONInt32Context.prototype.accept = function(visitor) {
+    if ( visitor instanceof ECMAScriptVisitor ) {
+        return visitor.visitBSONInt32(this);
     } else {
         return visitor.visitChildren(this);
     }
@@ -7750,7 +7790,7 @@ ECMAScriptParser.prototype.bsonType = function() {
     var localctx = new BsonTypeContext(this, this._ctx, this.state);
     this.enterRule(localctx, 88, ECMAScriptParser.RULE_bsonType);
     try {
-        this.state = 617;
+        this.state = 618;
         this._errHandler.sync(this);
         switch(this._input.LA(1)) {
         case ECMAScriptParser.BSONObjectId:
@@ -7789,40 +7829,46 @@ ECMAScriptParser.prototype.bsonType = function() {
             this.state = 610;
             this.match(ECMAScriptParser.BSONDouble);
             break;
-        case ECMAScriptParser.BSONDecimal128:
-            localctx = new BSONDecimal128Context(this, localctx);
+        case ECMAScriptParser.BSONInt32:
+            localctx = new BSONInt32Context(this, localctx);
             this.enterOuterAlt(localctx, 7);
             this.state = 611;
+            this.match(ECMAScriptParser.BSONInt32);
+            break;
+        case ECMAScriptParser.BSONDecimal128:
+            localctx = new BSONDecimal128Context(this, localctx);
+            this.enterOuterAlt(localctx, 8);
+            this.state = 612;
             this.match(ECMAScriptParser.BSONDecimal128);
             break;
         case ECMAScriptParser.BSONMinKey:
             localctx = new BSONMinKeyContext(this, localctx);
-            this.enterOuterAlt(localctx, 8);
-            this.state = 612;
+            this.enterOuterAlt(localctx, 9);
+            this.state = 613;
             this.match(ECMAScriptParser.BSONMinKey);
             break;
         case ECMAScriptParser.BSONMaxKey:
             localctx = new BSONMaxKeyContext(this, localctx);
-            this.enterOuterAlt(localctx, 9);
-            this.state = 613;
+            this.enterOuterAlt(localctx, 10);
+            this.state = 614;
             this.match(ECMAScriptParser.BSONMaxKey);
             break;
         case ECMAScriptParser.BSONTimestamp:
             localctx = new BSONTimestampContext(this, localctx);
-            this.enterOuterAlt(localctx, 10);
-            this.state = 614;
+            this.enterOuterAlt(localctx, 11);
+            this.state = 615;
             this.match(ECMAScriptParser.BSONTimestamp);
             break;
         case ECMAScriptParser.BSONRegExp:
             localctx = new BSONRegExpContext(this, localctx);
-            this.enterOuterAlt(localctx, 11);
-            this.state = 615;
+            this.enterOuterAlt(localctx, 12);
+            this.state = 616;
             this.match(ECMAScriptParser.BSONRegExp);
             break;
         case ECMAScriptParser.BSONSymbol:
             localctx = new BSONSymbolContext(this, localctx);
-            this.enterOuterAlt(localctx, 12);
-            this.state = 616;
+            this.enterOuterAlt(localctx, 13);
+            this.state = 617;
             this.match(ECMAScriptParser.BSONSymbol);
             break;
         default:
@@ -7906,9 +7952,9 @@ ECMAScriptParser.prototype.jsType = function() {
     var _la = 0; // Token type
     try {
         this.enterOuterAlt(localctx, 1);
-        this.state = 619;
+        this.state = 620;
         _la = this._input.LA(1);
-        if(!(((((_la - 112)) & ~0x1f) == 0 && ((1 << (_la - 112)) & ((1 << (ECMAScriptParser.Date - 112)) | (1 << (ECMAScriptParser.RegExp - 112)) | (1 << (ECMAScriptParser.Number - 112)) | (1 << (ECMAScriptParser.ObjectCreate - 112)))) !== 0))) {
+        if(!(((((_la - 113)) & ~0x1f) == 0 && ((1 << (_la - 113)) & ((1 << (ECMAScriptParser.Date - 113)) | (1 << (ECMAScriptParser.RegExp - 113)) | (1 << (ECMAScriptParser.Number - 113)) | (1 << (ECMAScriptParser.ObjectCreate - 113)))) !== 0))) {
         this._errHandler.recoverInline(this);
         }
         else {
@@ -7978,7 +8024,7 @@ ECMAScriptParser.prototype.assignmentOperator = function() {
     var _la = 0; // Token type
     try {
         this.enterOuterAlt(localctx, 1);
-        this.state = 621;
+        this.state = 622;
         _la = this._input.LA(1);
         if(!(((((_la - 40)) & ~0x1f) == 0 && ((1 << (_la - 40)) & ((1 << (ECMAScriptParser.MultiplyAssign - 40)) | (1 << (ECMAScriptParser.DivideAssign - 40)) | (1 << (ECMAScriptParser.ModulusAssign - 40)) | (1 << (ECMAScriptParser.PlusAssign - 40)) | (1 << (ECMAScriptParser.MinusAssign - 40)) | (1 << (ECMAScriptParser.LeftShiftArithmeticAssign - 40)) | (1 << (ECMAScriptParser.RightShiftArithmeticAssign - 40)) | (1 << (ECMAScriptParser.RightShiftLogicalAssign - 40)) | (1 << (ECMAScriptParser.BitAndAssign - 40)) | (1 << (ECMAScriptParser.BitXorAssign - 40)) | (1 << (ECMAScriptParser.BitOrAssign - 40)))) !== 0))) {
         this._errHandler.recoverInline(this);
@@ -8242,37 +8288,37 @@ ECMAScriptParser.prototype.literal = function() {
     var localctx = new LiteralContext(this, this._ctx, this.state);
     this.enterRule(localctx, 94, ECMAScriptParser.RULE_literal);
     try {
-        this.state = 629;
+        this.state = 630;
         this._errHandler.sync(this);
         switch(this._input.LA(1)) {
         case ECMAScriptParser.NullLiteral:
             localctx = new NullLiteralContext(this, localctx);
             this.enterOuterAlt(localctx, 1);
-            this.state = 623;
+            this.state = 624;
             this.match(ECMAScriptParser.NullLiteral);
             break;
         case ECMAScriptParser.UndefinedLiteral:
             localctx = new UndefinedLiteralContext(this, localctx);
             this.enterOuterAlt(localctx, 2);
-            this.state = 624;
+            this.state = 625;
             this.match(ECMAScriptParser.UndefinedLiteral);
             break;
         case ECMAScriptParser.BooleanLiteral:
             localctx = new BooleanLiteralContext(this, localctx);
             this.enterOuterAlt(localctx, 3);
-            this.state = 625;
+            this.state = 626;
             this.match(ECMAScriptParser.BooleanLiteral);
             break;
         case ECMAScriptParser.StringLiteral:
             localctx = new StringLiteralContext(this, localctx);
             this.enterOuterAlt(localctx, 4);
-            this.state = 626;
+            this.state = 627;
             this.match(ECMAScriptParser.StringLiteral);
             break;
         case ECMAScriptParser.RegularExpressionLiteral:
             localctx = new RegularExpressionLiteralContext(this, localctx);
             this.enterOuterAlt(localctx, 5);
-            this.state = 627;
+            this.state = 628;
             this.match(ECMAScriptParser.RegularExpressionLiteral);
             break;
         case ECMAScriptParser.IntegerLiteral:
@@ -8281,7 +8327,7 @@ ECMAScriptParser.prototype.literal = function() {
         case ECMAScriptParser.OctalIntegerLiteral:
             localctx = new NumericLiteralWrapperContext(this, localctx);
             this.enterOuterAlt(localctx, 6);
-            this.state = 628;
+            this.state = 629;
             this.numericLiteral();
             break;
         default:
@@ -8472,31 +8518,31 @@ ECMAScriptParser.prototype.numericLiteral = function() {
     var localctx = new NumericLiteralContext(this, this._ctx, this.state);
     this.enterRule(localctx, 96, ECMAScriptParser.RULE_numericLiteral);
     try {
-        this.state = 635;
+        this.state = 636;
         this._errHandler.sync(this);
         switch(this._input.LA(1)) {
         case ECMAScriptParser.IntegerLiteral:
             localctx = new IntegerLiteralContext(this, localctx);
             this.enterOuterAlt(localctx, 1);
-            this.state = 631;
+            this.state = 632;
             this.match(ECMAScriptParser.IntegerLiteral);
             break;
         case ECMAScriptParser.DecimalLiteral:
             localctx = new DecimalLiteralContext(this, localctx);
             this.enterOuterAlt(localctx, 2);
-            this.state = 632;
+            this.state = 633;
             this.match(ECMAScriptParser.DecimalLiteral);
             break;
         case ECMAScriptParser.HexIntegerLiteral:
             localctx = new HexIntegerLiteralContext(this, localctx);
             this.enterOuterAlt(localctx, 3);
-            this.state = 633;
+            this.state = 634;
             this.match(ECMAScriptParser.HexIntegerLiteral);
             break;
         case ECMAScriptParser.OctalIntegerLiteral:
             localctx = new OctalIntegerLiteralContext(this, localctx);
             this.enterOuterAlt(localctx, 4);
-            this.state = 634;
+            this.state = 635;
             this.match(ECMAScriptParser.OctalIntegerLiteral);
             break;
         default:
@@ -8570,12 +8616,12 @@ ECMAScriptParser.prototype.identifierName = function() {
     var localctx = new IdentifierNameContext(this, this._ctx, this.state);
     this.enterRule(localctx, 98, ECMAScriptParser.RULE_identifierName);
     try {
-        this.state = 639;
+        this.state = 640;
         this._errHandler.sync(this);
         switch(this._input.LA(1)) {
         case ECMAScriptParser.Identifier:
             this.enterOuterAlt(localctx, 1);
-            this.state = 637;
+            this.state = 638;
             this.match(ECMAScriptParser.Identifier);
             break;
         case ECMAScriptParser.NullLiteral:
@@ -8623,7 +8669,7 @@ ECMAScriptParser.prototype.identifierName = function() {
         case ECMAScriptParser.Static:
         case ECMAScriptParser.Yield:
             this.enterOuterAlt(localctx, 2);
-            this.state = 638;
+            this.state = 639;
             this.reservedWord();
             break;
         default:
@@ -8706,7 +8752,7 @@ ECMAScriptParser.prototype.reservedWord = function() {
     this.enterRule(localctx, 100, ECMAScriptParser.RULE_reservedWord);
     var _la = 0; // Token type
     try {
-        this.state = 644;
+        this.state = 645;
         this._errHandler.sync(this);
         switch(this._input.LA(1)) {
         case ECMAScriptParser.Break:
@@ -8736,7 +8782,7 @@ ECMAScriptParser.prototype.reservedWord = function() {
         case ECMAScriptParser.In:
         case ECMAScriptParser.Try:
             this.enterOuterAlt(localctx, 1);
-            this.state = 641;
+            this.state = 642;
             this.keyword();
             break;
         case ECMAScriptParser.Class:
@@ -8756,13 +8802,13 @@ ECMAScriptParser.prototype.reservedWord = function() {
         case ECMAScriptParser.Static:
         case ECMAScriptParser.Yield:
             this.enterOuterAlt(localctx, 2);
-            this.state = 642;
+            this.state = 643;
             this.futureReservedWord();
             break;
         case ECMAScriptParser.NullLiteral:
         case ECMAScriptParser.BooleanLiteral:
             this.enterOuterAlt(localctx, 3);
-            this.state = 643;
+            this.state = 644;
             _la = this._input.LA(1);
             if(!(_la===ECMAScriptParser.NullLiteral || _la===ECMAScriptParser.BooleanLiteral)) {
             this._errHandler.recoverInline(this);
@@ -8941,7 +8987,7 @@ ECMAScriptParser.prototype.keyword = function() {
     var _la = 0; // Token type
     try {
         this.enterOuterAlt(localctx, 1);
-        this.state = 646;
+        this.state = 647;
         _la = this._input.LA(1);
         if(!(((((_la - 58)) & ~0x1f) == 0 && ((1 << (_la - 58)) & ((1 << (ECMAScriptParser.Break - 58)) | (1 << (ECMAScriptParser.Do - 58)) | (1 << (ECMAScriptParser.Instanceof - 58)) | (1 << (ECMAScriptParser.Typeof - 58)) | (1 << (ECMAScriptParser.Case - 58)) | (1 << (ECMAScriptParser.Else - 58)) | (1 << (ECMAScriptParser.New - 58)) | (1 << (ECMAScriptParser.Var - 58)) | (1 << (ECMAScriptParser.Catch - 58)) | (1 << (ECMAScriptParser.Finally - 58)) | (1 << (ECMAScriptParser.Return - 58)) | (1 << (ECMAScriptParser.Void - 58)) | (1 << (ECMAScriptParser.Continue - 58)) | (1 << (ECMAScriptParser.For - 58)) | (1 << (ECMAScriptParser.Switch - 58)) | (1 << (ECMAScriptParser.While - 58)) | (1 << (ECMAScriptParser.Debugger - 58)) | (1 << (ECMAScriptParser.Function - 58)) | (1 << (ECMAScriptParser.This - 58)) | (1 << (ECMAScriptParser.With - 58)) | (1 << (ECMAScriptParser.Default - 58)) | (1 << (ECMAScriptParser.If - 58)) | (1 << (ECMAScriptParser.Throw - 58)) | (1 << (ECMAScriptParser.Delete - 58)) | (1 << (ECMAScriptParser.In - 58)) | (1 << (ECMAScriptParser.Try - 58)))) !== 0))) {
         this._errHandler.recoverInline(this);
@@ -9076,7 +9122,7 @@ ECMAScriptParser.prototype.futureReservedWord = function() {
     var _la = 0; // Token type
     try {
         this.enterOuterAlt(localctx, 1);
-        this.state = 648;
+        this.state = 649;
         _la = this._input.LA(1);
         if(!(((((_la - 84)) & ~0x1f) == 0 && ((1 << (_la - 84)) & ((1 << (ECMAScriptParser.Class - 84)) | (1 << (ECMAScriptParser.Enum - 84)) | (1 << (ECMAScriptParser.Extends - 84)) | (1 << (ECMAScriptParser.Super - 84)) | (1 << (ECMAScriptParser.Const - 84)) | (1 << (ECMAScriptParser.Export - 84)) | (1 << (ECMAScriptParser.Import - 84)) | (1 << (ECMAScriptParser.Implements - 84)) | (1 << (ECMAScriptParser.Let - 84)) | (1 << (ECMAScriptParser.Private - 84)) | (1 << (ECMAScriptParser.Public - 84)) | (1 << (ECMAScriptParser.Interface - 84)) | (1 << (ECMAScriptParser.Package - 84)) | (1 << (ECMAScriptParser.Protected - 84)) | (1 << (ECMAScriptParser.Static - 84)) | (1 << (ECMAScriptParser.Yield - 84)))) !== 0))) {
         this._errHandler.recoverInline(this);
@@ -9154,13 +9200,13 @@ ECMAScriptParser.prototype.getter = function() {
     this.enterRule(localctx, 106, ECMAScriptParser.RULE_getter);
     try {
         this.enterOuterAlt(localctx, 1);
-        this.state = 650;
+        this.state = 651;
         if (!( this._input.LT(1).text.startsWith("get"))) {
             throw new antlr4.error.FailedPredicateException(this, "this._input.LT(1).text.startsWith(\"get\")");
         }
-        this.state = 651;
-        this.match(ECMAScriptParser.Identifier);
         this.state = 652;
+        this.match(ECMAScriptParser.Identifier);
+        this.state = 653;
         this.propertyName();
     } catch (re) {
     	if(re instanceof antlr4.error.RecognitionException) {
@@ -9231,13 +9277,13 @@ ECMAScriptParser.prototype.setter = function() {
     this.enterRule(localctx, 108, ECMAScriptParser.RULE_setter);
     try {
         this.enterOuterAlt(localctx, 1);
-        this.state = 654;
+        this.state = 655;
         if (!( this._input.LT(1).text.startsWith("set"))) {
             throw new antlr4.error.FailedPredicateException(this, "this._input.LT(1).text.startsWith(\"set\")");
         }
-        this.state = 655;
-        this.match(ECMAScriptParser.Identifier);
         this.state = 656;
+        this.match(ECMAScriptParser.Identifier);
+        this.state = 657;
         this.propertyName();
     } catch (re) {
     	if(re instanceof antlr4.error.RecognitionException) {
@@ -9307,25 +9353,25 @@ ECMAScriptParser.prototype.eos = function() {
     var localctx = new EosContext(this, this._ctx, this.state);
     this.enterRule(localctx, 110, ECMAScriptParser.RULE_eos);
     try {
-        this.state = 662;
+        this.state = 663;
         this._errHandler.sync(this);
         var la_ = this._interp.adaptivePredict(this._input,56,this._ctx);
         switch(la_) {
         case 1:
             this.enterOuterAlt(localctx, 1);
-            this.state = 658;
+            this.state = 659;
             this.match(ECMAScriptParser.SemiColon);
             break;
 
         case 2:
             this.enterOuterAlt(localctx, 2);
-            this.state = 659;
+            this.state = 660;
             this.match(ECMAScriptParser.EOF);
             break;
 
         case 3:
             this.enterOuterAlt(localctx, 3);
-            this.state = 660;
+            this.state = 661;
             if (!( this.lineTerminatorAhead())) {
                 throw new antlr4.error.FailedPredicateException(this, "this.lineTerminatorAhead()");
             }
@@ -9333,7 +9379,7 @@ ECMAScriptParser.prototype.eos = function() {
 
         case 4:
             this.enterOuterAlt(localctx, 4);
-            this.state = 661;
+            this.state = 662;
             if (!( this._input.LT(1).type == ECMAScriptParser.CloseBrace)) {
                 throw new antlr4.error.FailedPredicateException(this, "this._input.LT(1).type == ECMAScriptParser.CloseBrace");
             }
@@ -9405,7 +9451,7 @@ ECMAScriptParser.prototype.eof = function() {
     this.enterRule(localctx, 112, ECMAScriptParser.RULE_eof);
     try {
         this.enterOuterAlt(localctx, 1);
-        this.state = 664;
+        this.state = 665;
         this.match(ECMAScriptParser.EOF);
     } catch (re) {
     	if(re instanceof antlr4.error.RecognitionException) {

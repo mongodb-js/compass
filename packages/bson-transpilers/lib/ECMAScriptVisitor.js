@@ -582,6 +582,12 @@ ECMAScriptVisitor.prototype.visitBSONDouble = function(ctx) {
 };
 
 
+// Visit a parse tree produced by ECMAScriptParser#BSONInt32.
+ECMAScriptVisitor.prototype.visitBSONInt32 = function(ctx) {
+  return this.visitChildren(ctx);
+};
+
+
 // Visit a parse tree produced by ECMAScriptParser#BSONDecimal128.
 ECMAScriptVisitor.prototype.visitBSONDecimal128 = function(ctx) {
   return this.visitChildren(ctx);

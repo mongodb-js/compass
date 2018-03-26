@@ -17,14 +17,14 @@
         "description": "createFromTime",
         "query": "ObjectId.createFromTime(1522075031642)",
         "python": "",
-        "java": "new ObjectId(new java.lang.Date(1522075031642))",
+        "java": "new ObjectId(new java.util.Date(1522075031642))",
         "csharp": ""
       },
       {
         "description": "isValid",
         "query": "ObjectId.isValid('5ab901c29ee65f5c8550c5b9')",
         "python": "",
-        "java": "new ObjectId().isValid('5ab901c29ee65f5c8550c5b9')",
+        "java": "ObjectId.isValid(\"5ab901c29ee65f5c8550c5b9\")",
         "csharp": ""
       }
     ],
@@ -45,35 +45,35 @@
       },
       {
         "description": "subtype byte array",
-        "query": "Binary.BYTE_ARRAY",
+        "query": "Binary.SUBTYPE_BYTE_ARRAY",
         "python": "",
-        "java": "org.bson.BsonBinarySubType.BYTE_ARRAY",
+        "java": "org.bson.BsonBinarySubType.OLD_BINARY",
         "csharp": ""
       },
       {
         "description": "subtype uuid old",
-        "query": "Binary.UUID_OLD",
+        "query": "Binary.SUBTYPE_UUID_OLD",
         "python": "",
-        "java": "org.bson.BsonBinarySubType.UUID_OLD",
+        "java": "org.bson.BsonBinarySubType.UUID_LEGACY",
         "csharp": ""
       },
       {
         "description": "subtype uuid",
-        "query": "Binary.UUID",
+        "query": "Binary.SUBTYPE_UUID",
         "python": "",
         "java": "org.bson.BsonBinarySubType.UUID",
         "csharp": ""
       },
       {
         "description": "subtype md5",
-        "query": "Binary.MD5",
+        "query": "Binary.SUBTYPE_MD5",
         "python": "",
         "java": "org.bson.BsonBinarySubType.MD5",
         "csharp": ""
       },
       {
         "description": "subtype udef",
-        "query": "Binary.USER_DEFINED",
+        "query": "Binary.SUBTYPE_USER_DEFINED",
         "python": "",
         "java": "org.bson.BsonBinarySubType.USER_DEFINED",
         "csharp": ""

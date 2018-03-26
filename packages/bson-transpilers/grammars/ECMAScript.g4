@@ -630,6 +630,7 @@ bsonType
  | BSONDBRef                         # BSONDBRef
  | BSONLong                          # BSONLong
  | BSONDouble                        # BSONDouble
+ | BSONInt32                         # BSONInt32
  | BSONDecimal128                    # BSONDecimal128
  | BSONMinKey                        # BSONMinKey
  | BSONMaxKey                        # BSONMaxKey
@@ -909,6 +910,7 @@ BSONBinary      :   'Binary';
 BSONDBRef       :   'DBRef';
 BSONLong        :   'Long';
 BSONDouble      :   'Double';
+BSONInt32       :   'Int32';
 BSONDecimal128  :   'Decimal128';
 BSONMinKey      :   'MinKey';
 BSONMaxKey      :   'MaxKey';
