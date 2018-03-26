@@ -342,4 +342,35 @@ Visitor.prototype.visitBSONMinKeyConstructor = function() {
   return 'BsonMinKey.Value';
 };
 
+/**
+ * Visit BSON Timestamp Constructor
+ *
+ * @param {object} ctx
+ * @returns {string}
+ */
+Visitor.prototype.visitBSONTimestampConstructor = function(ctx) {
+  const args = ctx.arguments();
+
+  if (
+    args.argumentList() === null || args.argumentList().getChildCount() !== 3
+  ) {
+    return 'Error: Timestamp requires two arguments';
+  }
+
+  const argList = args.argumentList().singleExpression();
+  const low = this.visit(argList[0]);
+
+  if (argList[0].type !== this.types.INTEGER) {
+    return 'Error: Timestamp first argument requires integer arguments';
+  }
+
+  const high = this.visit(argList[1]);
+
+  if (argList[1].type !== this.types.INTEGER) {
+    return 'Error: Timestamp second argument requires integer arguments';
+  }
+
+  return `new BsonTimestamp(${low}, ${high})`;
+};
+
 module.exports = Visitor;

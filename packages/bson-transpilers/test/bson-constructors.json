@@ -183,14 +183,14 @@
         "query": "Timestamp(10, 100)",
         "python": "Timestamp(10, 100)",
         "java": "new BSONTimestamp(10, 100)",
-        "csharp": ""
+        "csharp": "new BsonTimestamp(10, 100)"
       },
       {
         "description": "new Timestamp with two number args",
         "query": "new Timestamp(10, 100)",
         "python": "Timestamp(10, 100)",
         "java": "new BSONTimestamp(10, 100)",
-        "csharp": ""
+        "csharp": "new BsonTimestamp(10, 100)"
       }
     ],
     "Document": [
