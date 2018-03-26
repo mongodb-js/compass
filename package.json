@@ -38,6 +38,7 @@
           "bundleId": "com.mongodb.compass",
           "plugins-directory": ".mongodb/compass/plugins",
           "plugins": [
+            "node_modules/@mongodb-js/compass-aggregations",
             "node_modules/@mongodb-js/compass-crud",
             "node_modules/@mongodb-js/compass-import-export",
             "node_modules/@mongodb-js/compass-collection-stats",
@@ -65,6 +66,7 @@
           "bundleId": "com.mongodb.compass-community",
           "plugins-directory": ".mongodb/compass-community/plugins",
           "plugins": [
+            "node_modules/@mongodb-js/compass-aggregations",
             "node_modules/@mongodb-js/compass-collection-stats",
             "node_modules/@mongodb-js/compass-connect",
             "node_modules/@mongodb-js/compass-crud",
@@ -89,6 +91,7 @@
           "plugins-directory": ".mongodb/compass-readonly/plugins",
           "readonly": true,
           "plugins": [
+            "node_modules/@mongodb-js/compass-aggregations",
             "node_modules/@mongodb-js/compass-crud",
             "node_modules/@mongodb-js/compass-import-export",
             "node_modules/@mongodb-js/compass-collection-stats",
@@ -117,6 +120,7 @@
           "plugins-directory": ".mongodb/compass-lockdown/plugins",
           "lockdown": true,
           "plugins": [
+            "node_modules/@mongodb-js/compass-aggregations",
             "node_modules/@mongodb-js/compass-crud",
             "node_modules/@mongodb-js/compass-import-export",
             "node_modules/@mongodb-js/compass-collection-stats",
@@ -206,12 +210,13 @@
     "url": "git://github.com/10gen/compass.git"
   },
   "dependencies": {
+    "@mongodb-js/compass-aggregations": "^0.0.24",
     "@mongodb-js/compass-auth-kerberos": "^0.1.0",
     "@mongodb-js/compass-auth-ldap": "^0.1.0",
     "@mongodb-js/compass-auth-x509": "^0.1.0",
     "@mongodb-js/compass-collection-stats": "^2.0.3",
     "@mongodb-js/compass-connect": "^2.0.3",
-    "@mongodb-js/compass-crud": "^4.0.0",
+    "@mongodb-js/compass-crud": "^4.1.0",
     "@mongodb-js/compass-deployment-awareness": "^5.1.1",
     "@mongodb-js/compass-document-validation": "^7.2.1",
     "@mongodb-js/compass-import-export": "^0.1.0",
