@@ -1,0 +1,13 @@
+{
+  "tests": {
+    "Date": [
+      {
+        "description": "Current time",
+        "query": "Date.now()",
+        "python": "datetime.datetime.utcnow()",
+        "java": "new java.util.Date()",
+        "csharp": ""
+      }
+    ]
+  }
+}

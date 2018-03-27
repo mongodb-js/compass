@@ -169,15 +169,6 @@
         "csharp": "new DateTime(1995, 12, 17, 3, 24, 0)"
       }
     ],
-    "DateNow": [
-      {
-        "description": "Current time",
-        "query": "Date.now()",
-        "python": "datetime.datetime.utcnow()",
-        "java": "new java.util.Date()",
-        "csharp": "DateTime.Now"
-      }
-    ],
     "RegExp": [
       {
         "description": "empty RegExp",

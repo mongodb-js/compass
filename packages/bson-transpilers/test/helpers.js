@@ -17,19 +17,22 @@ const unsupported = {
     'bson-constructors': ['Decimal128'],
     'js-constructors': [ 'Number', 'Date', 'RegExp' ],
     'bson-object-methods': ['DBRef', 'Double', 'Long', 'Int32', 'MinKey/MaxKey', 'BSONRegExp', 'Timestamp', 'Symbol', 'Decimal128'],
-    'bson-utils': ['DBRef', 'Double', 'Long', 'Int32', 'MinKey/MaxKey', 'BSONRegExp', 'Timestamp', 'Symbol', 'Decimal128']
+    'bson-utils': ['DBRef', 'Double', 'Long', 'Int32', 'MinKey/MaxKey', 'BSONRegExp', 'Timestamp', 'Symbol', 'Decimal128'],
+    'js-utils': [ '*' ]
   },
   python: {
     'bson-constructors': [ '*' ],
     'js-constructors': [ '*' ],
     'bson-object-methods': [ '*' ],
-    'bson-utils': [ '*' ]
+    'bson-utils': [ '*' ],
+    'js-utils': [ '*' ]
   },
   csharp: {
     'bson-constructors': [ '*' ],
     'js-constructors': [ '*' ],
     'bson-object-methods': [ '*' ],
-    'bson-utils': [ '*' ]
+    'bson-utils': [ '*' ],
+    'js-utils': [ '*' ]
   }
 };
 
@@ -45,7 +48,11 @@ const runTest = (testname, inputLang, outputLang, tests) => {
     Object.keys(tests).forEach((key) => {
       describe(key, () => {
         tests[key].map((test) => {
-          const skip = unsupported[outputLang][testname].indexOf('*') !== -1 || unsupported[outputLang][testname].indexOf(key) !== -1;
+          const skip = (
+            testname in unsupported[outputLang] &&
+            (unsupported[outputLang][testname].indexOf('*') !== -1 ||
+             unsupported[outputLang][testname].indexOf(key) !== -1)
+          );
           (skip ? xit : it)(test.description, () => {
             expect(compile[outputLang](test[inputLang])).to.equal(test[outputLang]);
           });
