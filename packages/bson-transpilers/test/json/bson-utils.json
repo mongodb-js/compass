@@ -76,10 +76,66 @@
     ],
     "Long": [
       {
-        "description": "",
-        "query": "",
+        "description": "MAX_VALUE",
+        "query": "Long.MAX_VALUE",
         "python": "",
-        "java": "",
+        "java": "java.lang.Long.MAX_VALUE",
+        "csharp": ""
+      },
+      {
+        "description": "MIN_VALUE",
+        "query": "Long.MIN_VALUE",
+        "python": "",
+        "java": "java.lang.Long.MIN_VALUE",
+        "csharp": ""
+      },
+      {
+        "description": "ZERO",
+        "query": "Long.ZERO",
+        "python": "",
+        "java": "new java.lang.Long(0)",
+        "csharp": ""
+      },
+      {
+        "description": "ONE",
+        "query": "Long.ONE",
+        "python": "",
+        "java": "new java.lang.Long(1)",
+        "csharp": ""
+      },
+      {
+        "description": "NEG_ONE",
+        "query": "Long.NEG_ONE",
+        "python": "",
+        "java": "new java.lang.Long(-1)",
+        "csharp": ""
+      },
+      {
+        "description": "fromInt",
+        "query": "Long.fromInt(5)",
+        "python": "",
+        "java": "new java.lang.Long(5)",
+        "csharp": ""
+      },
+      {
+        "description": "fromString without radix",
+        "query": "Long.fromString('5')",
+        "python": "",
+        "java": "java.lang.Long.parseLong(\"5\")",
+        "csharp": ""
+      },
+      {
+        "description": "fromString with radix",
+        "query": "Long.fromString('5', 10)",
+        "python": "",
+        "java": "java.lang.Long.parseLong(\"5\", 10)",
+        "csharp": ""
+      },
+      {
+        "description": "fromBits",
+        "query": "Long.fromBits(-1, 2147483647)",
+        "python": "",
+        "java": "new java.lang.Long(\"9223372036854775807\")",
         "csharp": ""
       }
     ],

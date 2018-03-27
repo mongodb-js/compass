@@ -14,8 +14,8 @@ const compile = {
 // Need a way to have test pass while developing
 const unsupported = {
   java: {
-    'bson-object-methods': ['Long', 'Timestamp'],
-    'bson-utils': ['Long', 'Timestamp']
+    'bson-object-methods': ['Timestamp'],
+    'bson-utils': ['Timestamp']
   },
   python: {
     'bson-constructors': [ '*' ],

@@ -24,7 +24,7 @@ const compileECMAScript = function(input, generator) {
   return generator.start(tree);
 };
 
-console.log(compileECMAScript('Symbol(\'2\').toString()', new JavaGenerator()));
+console.log(compileECMAScript('Long(1, 100).lessThanOrEqual(Long(1, 100))', new JavaGenerator()));
 
 module.exports = {
   toJava: (input) => { return compileECMAScript(input, new JavaGenerator()); },

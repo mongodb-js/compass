@@ -140,10 +140,192 @@
     ],
     "Long": [
       {
-        "description": "",
-        "query": "",
+        "description": "toJSON",
+        "query": "Long(1, 100).toJSON()",
         "python": "",
-        "java": "",
+        "java": "new java.lang.Long(\"429496729601\").toString()",
+        "csharp": ""
+      },
+      {
+        "description": "toInt",
+        "query": "Long(1, 100).toInt()",
+        "python": "",
+        "java": "new java.lang.Long(\"429496729601\").intValue()",
+        "csharp": ""
+      },
+      {
+        "description": "toNumber",
+        "query": "Long(1, 100).toNumber()",
+        "python": "",
+        "java": "new java.lang.Long(\"429496729601\").floatValue()",
+        "csharp": ""
+      },
+      {
+        "description": "toString without radix",
+        "query": "Long(1, 100).toString()",
+        "python": "",
+        "java": "java.lang.Long.toString(429496729601)",
+        "csharp": ""
+      },
+      {
+        "description": "toString with radix",
+        "query": "Long(1, 100).toString(10)",
+        "python": "",
+        "java": "java.lang.Long.toString(429496729601, 10)",
+        "csharp": ""
+      },
+      {
+        "description": "isZero",
+        "query": "Long(1, 100).isZero()",
+        "python": "",
+        "java": "new java.lang.Long(\"429496729601\").equals(new java.lang.Long(0))",
+        "csharp": ""
+      },
+      {
+        "description": "isNegative",
+        "query": "Long(1, 100).isNegative()",
+        "python": "",
+        "java": "new java.lang.Long(\"429496729601\").compareTo(new java.lang.Long(0)) < 0",
+        "csharp": ""
+      },
+      {
+        "description": "isOdd",
+        "query": "Long(1, 100).isOdd()",
+        "python": "",
+        "java": "(new java.lang.Long(\"429496729601\") % 2) == 0",
+        "csharp": ""
+      },
+      {
+        "description": "equals",
+        "query": "Long(1, 100).equals(Long(9, 1))",
+        "python": "",
+        "java": "new java.lang.Long(\"429496729601\").equals(new java.lang.Long(\"4294967305\"))",
+        "csharp": ""
+      },
+      {
+        "description": "notEquals",
+        "query": "Long(1, 100).notEquals(Long(9, 1))",
+        "python": "",
+        "java": "new java.lang.Long(\"429496729601\").compareTo(new java.lang.Long(\"4294967305\")) != 0",
+        "csharp": ""
+      },
+      {
+        "description": "compare",
+        "query": "Long(1, 100).compare(Long(9, 1))",
+        "python": "",
+        "java": "new java.lang.Long(\"429496729601\").compareTo(new java.lang.Long(\"4294967305\"))",
+        "csharp": ""
+      },
+      {
+        "description": "greaterThan",
+        "query": "Long(1, 100).greaterThan(Long(9, 1))",
+        "python": "",
+        "java": "new java.lang.Long(\"429496729601\").compareTo(new java.lang.Long(\"4294967305\")) > 0",
+        "csharp": ""
+      },
+      {
+        "description": "greaterThanOrEqual",
+        "query": "Long(1, 100).greaterThanOrEqual(Long(9, 1))",
+        "python": "",
+        "java": "new java.lang.Long(\"429496729601\").compareTo(new java.lang.Long(\"4294967305\")) >= 0",
+        "csharp": ""
+      },
+      {
+        "description": "lessThan",
+        "query": "Long(1, 100).lessThan(Long(9, 1))",
+        "python": "",
+        "java": "new java.lang.Long(\"429496729601\").compareTo(new java.lang.Long(\"4294967305\")) < 0",
+        "csharp": ""
+      },
+      {
+        "description": "lessThanOrEqual",
+        "query": "Long(1, 100).lessThanOrEqual(Long(9, 1))",
+        "python": "",
+        "java": "new java.lang.Long(\"429496729601\").compareTo(new java.lang.Long(\"4294967305\")) <= 0",
+        "csharp": ""
+      },
+      {
+        "description": "negate",
+        "query": "Long(1, 100).negate())",
+        "python": "",
+        "java": "-new java.lang.Long(\"429496729601\")",
+        "csharp": ""
+      },
+      {
+        "description": "add",
+        "query": "Long(1, 100).add(Long(9, 1))",
+        "python": "",
+        "java": "new java.lang.Long(\"429496729601\") + new java.lang.Long(\"4294967305\")",
+        "csharp": ""
+      },
+      {
+        "description": "subtract",
+        "query": "Long(1, 100).subtract(Long(9, 1))",
+        "python": "",
+        "java": "new java.lang.Long(\"429496729601\") - new java.lang.Long(\"4294967305\")",
+        "csharp": ""
+      },
+      {
+        "description": "multiply",
+        "query": "Long(1, 100).multiply(Long(9, 1))",
+        "python": "",
+        "java": "new java.lang.Long(\"429496729601\") * new java.lang.Long(\"4294967305\")",
+        "csharp": ""
+      },
+      {
+        "description": "div",
+        "query": "Long(1, 100).div(Long(9, 1))",
+        "python": "",
+        "java": "new java.lang.Long(\"429496729601\") / new java.lang.Long(\"4294967305\")",
+        "csharp": ""
+      },
+      {
+        "description": "modulo",
+        "query": "Long(1, 100).modulo(Long(9, 1))",
+        "python": "",
+        "java": "new java.lang.Long(\"429496729601\") % new java.lang.Long(\"4294967305\")",
+        "csharp": ""
+      },
+      {
+        "description": "not",
+        "query": "Long(1, 100).not()",
+        "python": "",
+        "java": "!new java.lang.Long(\"429496729601\")",
+        "csharp": ""
+      },
+      {
+        "description": "and",
+        "query": "Long(1, 100).and(Long(9, 1))",
+        "python": "",
+        "java": "new java.lang.Long(\"429496729601\") & new java.lang.Long(\"4294967305\")",
+        "csharp": ""
+      },
+      {
+        "description": "or",
+        "query": "Long(1, 100).or(Long(9, 1))",
+        "python": "",
+        "java": "new java.lang.Long(\"429496729601\") | new java.lang.Long(\"4294967305\")",
+        "csharp": ""
+      },
+      {
+        "description": "xor",
+        "query": "Long(1, 100).xor(Long(9, 1))",
+        "python": "",
+        "java": "new java.lang.Long(\"429496729601\") ^ new java.lang.Long(\"4294967305\")",
+        "csharp": ""
+      },
+      {
+        "description": "shiftLeft",
+        "query": "Long(1, 100).shiftLeft(10)",
+        "python": "",
+        "java": "java.lang.Long.rotateLeft(new java.lang.Long(\"429496729601\"), 10)",
+        "csharp": ""
+      },
+      {
+        "description": "shiftRight",
+        "query": "Long(1, 100).shiftRight(10)",
+        "python": "",
+        "java": "java.lang.Long.rotateRight(new java.lang.Long(\"429496729601\"), 10)",
         "csharp": ""
       }
     ],

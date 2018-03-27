@@ -399,5 +399,36 @@ Visitor.prototype.emitDBReftoJSON = function(ctx) {
   return `new Document().append("$ref", ${ns}).append("$id", ${oid}).append(\"$db\", ${db})`;
 };
 
+Visitor.prototype.emitLongfromBits = Visitor.prototype.emitLong;
+
+Visitor.prototype.emitLongtoString = function(ctx) {
+  const long = ctx.singleExpression().singleExpression();
+  let longstr;
+  try {
+    longstr = this.executeJavascript(long.getText()).toString();
+  } catch (error) {
+    throw new CodeGenerationError(error.message);
+  }
+  const stringArgs = ctx.arguments().argumentList();
+  if (!stringArgs) {
+    return `java.lang.Long.toString(${longstr})`;
+  }
+  if (stringArgs.singleExpression().length !== 1) {
+    throw new CodeGenerationError('Long.toString requires only one argument');
+  }
+  const arg = this.visit(stringArgs.singleExpression()[0]);
+  if (stringArgs.singleExpression()[0].type !== Types._integer) {
+    throw new CodeGenerationError('Long.toString must have integer radix argument');
+  }
+  return `java.lang.Long.toString(${longstr}, ${arg})`;
+};
+
+Visitor.prototype.emitLongFunc = function(ctx) {
+  const lhs = this.visit(ctx.singleExpression().singleExpression());
+  const lhsType = ctx.singleExpression().type;
+  const arg = this.checkArguments(lhsType.args, ctx.arguments().argumentList());
+  return lhsType.template(lhs, arg);
+};
+
 
 module.exports = Visitor;
