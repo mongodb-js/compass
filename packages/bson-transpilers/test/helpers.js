@@ -16,7 +16,7 @@ const compile = {
 const unsupported = {
   java: ['Decimal128'],
   python: ['Decimal128'],
-  csharp: ['RegExp', 'DBRef', 'Decimal128', 'Date', 'DateNow']
+  csharp: ['RegExp', 'DBRef', 'Decimal128']
 };
 
 const readJSON = (filename) => {

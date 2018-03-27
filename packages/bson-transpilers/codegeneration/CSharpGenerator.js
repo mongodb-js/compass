@@ -62,6 +62,36 @@ Visitor.prototype.visitNumberConstructorExpression = function(ctx) {
   return `new int(${number})`;
 };
 
+Visitor.prototype.visitDateConstructorExpression = function(ctx) {
+  const args = ctx.arguments();
+  if (!args.argumentList()) return 'DateTime.Now';
+
+  let dateStr;
+  try {
+    const epoch = this.executeJavascript(ctx.getText());
+
+    dateStr = [
+      epoch.getUTCFullYear(),
+      (epoch.getUTCMonth() + 1),
+      epoch.getUTCDate(),
+      epoch.getUTCHours(),
+      epoch.getUTCMinutes(),
+      epoch.getUTCSeconds()
+    ].join(', ');
+  } catch (error) {
+    return error.message;
+  }
+
+  return `new DateTime(${dateStr})`;
+};
+
+
+// csharp doesn't allow for current time to be set on new instance, so it's
+// just DateTime.Now
+Visitor.prototype.visitDateNowConstructorExpression = function() {
+  return 'DateTime.Now';
+};
+
 /**
  * Expects two strings as arguments, the second must be valid flag
  *
