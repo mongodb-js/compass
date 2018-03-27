@@ -76,8 +76,6 @@ Visitor.prototype.visitNewExpression = function(ctx) {
   return expr;
 };
 
-/* ************** Literals **************** */
-
 /**
  * Child nodes: propertyNameAndValueList?
  * @param {ObjectLiteralContext} ctx
@@ -126,7 +124,35 @@ Visitor.prototype.visitElision = function(ctx) {
   return 'null';
 };
 
-/*  ************** Built-in JS Identifiers **************** */
+/**
+ * child nodes: arguments
+ * grandchild nodes: argumentList?
+ * great-grandchild nodes: singleExpression+
+ * @param {FuncCallExpressionContext} ctx
+ * @return {String}
+ */
+Visitor.prototype.visitRegularExpressionLiteral = function(ctx) {
+  ctx.type = JSClasses.Regex;
+  let pattern;
+  let flags;
+  try {
+    const regexobj = this.executeJavascript(ctx.getText());
+    pattern = regexobj.source;
+    flags = regexobj.flags;
+  } catch (error) {
+    return error.message;
+  }
+
+  let javaflags = flags.replace(/[imuyg]/g, m => JAVA_REGEX_FLAGS[m]);
+  javaflags = javaflags === '' ? '' : `(?${javaflags})`;
+
+  // Double escape characters except for slashes
+  const escaped = pattern.replace(/\\(?!\/)/, '\\\\');
+
+  return `Pattern.compile(${doubleQuoteStringify(escaped + javaflags)})`;
+};
+
+/*  ************** Emit Helpers **************** */
 
 /**
  * child nodes: arguments
@@ -175,36 +201,7 @@ Visitor.prototype.emitDate = function(ctx) {
   return `new java.util.Date(${epoch})`;
 };
 
-/**
- * child nodes: arguments
- * grandchild nodes: argumentList?
- * great-grandchild nodes: singleExpression+
- * @param {FuncCallExpressionContext} ctx
- * @return {String}
- */
-Visitor.prototype.emitRegExp =
-Visitor.prototype.visitRegularExpressionLiteral = function(ctx) {
-  ctx.type = JSClasses.Regex;
-  let pattern;
-  let flags;
-  try {
-    const regexobj = this.executeJavascript(ctx.getText());
-    pattern = regexobj.source;
-    flags = regexobj.flags;
-  } catch (error) {
-    return error.message;
-  }
-
-  let javaflags = flags.replace(/[imuyg]/g, m => JAVA_REGEX_FLAGS[m]);
-  javaflags = javaflags === '' ? '' : `(?${javaflags})`;
-
-  // Double escape characters except for slashes
-  const escaped = pattern.replace(/\\(?!\/)/, '\\\\');
-
-  return `Pattern.compile(${doubleQuoteStringify(escaped + javaflags)})`;
-};
-
-/*  ************** BSON Constructors **************** */
+Visitor.prototype.emitRegExp = Visitor.prototype.visitRegularExpressionLiteral;
 
 /**
  * The arguments to Code can be either a string or actual javascript code.
@@ -353,7 +350,7 @@ Visitor.prototype.emitBSONRegExp = function(ctx) {
 // };
 
 
-/*  ************** BSON methods **************** */
+/*  ************** Object methods **************** */
 
 Visitor.prototype.emitCodetoJSON = function(ctx) {
   const argsList = ctx.singleExpression().singleExpression().arguments();
