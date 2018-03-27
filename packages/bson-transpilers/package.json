@@ -4,7 +4,11 @@
   "apiVersion": "0.0.1",
   "productName": "BSON Compilers",
   "description": "Source to source compilers using ANTLR",
-  "author": "Anna Herlihy <anna@mongodb.com>",
+  "contributors": [
+    "Anna Herlihy <anna@mongodb.com>",
+    "Alena Khineika <alena.khineika@mongodb.com>",
+    "Irina Shestak <irina.shestak@mongodb.com>"
+  ],
   "main": "index.js",
   "scripts": {
     "start": "node index.js",

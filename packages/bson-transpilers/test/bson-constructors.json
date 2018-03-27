@@ -29,10 +29,17 @@
       },
       {
         "description": "Code with function code",
-        "query": "Code(function(test) { console.log(test);  })",
+        "query": "Code(function(test) { console.log(test); })",
         "python": "Code('function(test){console.log(test);}')",
         "java": "new Code(\"function(test){console.log(test);}\")",
         "csharp": "new BsonJavaScript(@\"function(test){console.log(test);}\")"
+      },
+      {
+        "description": "Code with where code",
+        "query": "new Code('this.a > i', { i: 1 })",
+        "python": "Code('this.a > i', {'i': 1})",
+        "java": "new CodeWithScope(\"this.a > i\", new Document().append(\"i\", 1))",
+        "csharp": "new BsonJavaScriptWithScope(@\"this.a > i\", new BsonDocument(\"i\", 1))"
       }
     ],
     "ObjectId": [
@@ -79,20 +86,34 @@
         "python": "Binary(bytes('a string', 'utf-8'), bson.binary.FUNCTION_SUBTYPE)",
         "java": "new Binary(org.bson.BsonBinarySubType.FUNCTION, \"a string\".getBytes(\"UTF-8\"))",
         "csharp": "new BsonBinaryData(System.Text.Encoding.ASCII.GetBytes(\"a string\"), BsonBinarySubType.Function)"
+      },
+      {
+        "description": "Binary with string args",
+        "query": "Binary('a string')",
+        "python": "Binary(bytes('a string', 'utf-8'))",
+        "java": "new Binary(org.bson.BsonBinarySubType.BINARY, \"a string\".getBytes(\"UTF-8\"))",
+        "csharp": "new BsonBinaryData(System.Text.Encoding.ASCII.GetBytes(\"a string\"))"
+      },
+      {
+        "description": "Binary with (string, string) args",
+        "query": "Binary('a string', '1')",
+        "python": "Binary(bytes('a string', 'utf-8'), bson.binary.FUNCTION_SUBTYPE)",
+        "java": "new Binary(org.bson.BsonBinarySubType.FUNCTION, \"a string\".getBytes(\"UTF-8\"))",
+        "csharp": "new BsonBinaryData(System.Text.Encoding.ASCII.GetBytes(\"a string\"), BsonBinarySubType.Function)"
       }
     ],
     "DBRef": [
       {
         "description": "new DBRef with (string, ObjectID) args",
         "query": "new DBRef('coll', new ObjectId())",
-        "python": "DBRef('coll', ObjectID())",
+        "python": "DBRef('coll', ObjectId())",
         "java": "new DBRef(\"coll\", new ObjectId())",
         "csharp": ""
       },
       {
         "description": "new DBRef with (string, ObjectId, string) args",
-        "query": "new DBRef('coll', ObjectId(), 'db'",
-        "python": "DBRef('collection', 'objectID', 'db')",
+        "query": "new DBRef('coll', ObjectId(), 'db')",
+        "python": "DBRef('coll', ObjectId(), 'db')",
         "java": "new DBRef(\"coll\", new ObjectId(), \"db\")",
         "csharp": ""
       }
@@ -101,6 +122,13 @@
       {
         "description": "Double with number arg",
         "query": "Double(3)",
+        "python": "float(3)",
+        "java": "new java.lang.Double(3)",
+        "csharp": "new BsonDouble(Convert.ToDouble(\"3\"))"
+      },
+      {
+        "description": "new Double with number arg",
+        "query": "new Double(3)",
         "python": "float(3)",
         "java": "new java.lang.Double(3)",
         "csharp": "new BsonDouble(Convert.ToDouble(\"3\"))"
@@ -165,14 +193,14 @@
       {
         "description": "new BSONRegExp with string arg",
         "query": "new BSONRegExp('^[a-z0-9_-]{3,16}$')",
-        "python": "",
+        "python": "RegExp('^[a-z0-9_-]{3,16}$')",
         "java": "new BsonRegularExpression(\"^[a-z0-9_-]{3,16}$\")",
         "csharp": "new BsonRegularExpression(@\"^[a-z0-9_-]{3,16}$\")"
       },
       {
         "description": "new BSONRegExp with string arg and flags",
         "query": "new BSONRegExp('^[a-z0-9_-]{3,16}$', 'imuxls')",
-        "python": "",
+        "python": "RegExp('^[a-z0-9_-]{3,16}$', 'imuxls')",
         "java": "new BsonRegularExpression(\"^[a-z0-9_-]{3,16}$\", \"imuxls\")",
         "csharp": "new BsonRegularExpression(@\"^[a-z0-9_-]{3,16}$\", \"imxs\")"
       }
@@ -239,7 +267,7 @@
       {
         "description": "Two items in document",
         "query": "{x: 1, n: 4}",
-        "python": "{'x': 1,'n': 4}",
+        "python": "{'x': 1, 'n': 4}",
         "java": "new Document().append(\"x\", 1).append(\"n\", 4)",
         "csharp": "new BsonDocument { { \"x\", 1 }, { \"n\", 4 } }"
       }
@@ -255,7 +283,7 @@
       {
         "description": "array with trailing comma",
         "query": "[1, 2,]",
-        "python": "[1, 2,]",
+        "python": "[1, 2]",
         "java": "Arrays.asList(1, 2)",
         "csharp": "new BsonArray {1, 2}"
       },
@@ -285,7 +313,7 @@
       {
         "description": "array with leading elision",
         "query": "[,1, 2,]",
-        "python": "[None, 1, 2,]",
+        "python": "[None, 1, 2]",
         "java": "Arrays.asList(null, 1, 2)",
         "csharp": "new BsonArray {BsonNull.Value, 1, 2}"
       },
@@ -315,6 +343,13 @@
       {
         "description": "Symbol from string",
         "query": "Symbol('2')",
+        "python": "unicode('2', 'utf-8')",
+        "java": "new Symbol(\"2\")",
+        "csharp": "new BsonString(\"2\")"
+      },
+      {
+        "description": "new Symbol from string",
+        "query": "new Symbol('2')",
         "python": "unicode('2', 'utf-8')",
         "java": "new Symbol(\"2\")",
         "csharp": "new BsonString(\"2\")"
