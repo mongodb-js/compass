@@ -92,28 +92,49 @@
     ],
     "DBRef": [
       {
-        "description": "",
-        "query": "",
+        "description": "toJSON with two args",
+        "query": "new DBRef('coll', new ObjectId()).toJSON()",
         "python": "",
-        "java": "",
+        "java": "new Document().append(\"$ref\", \"coll\").append(\"$id\", new ObjectId()).append(\"$db\", \"\")",
+        "csharp": ""
+      },
+      {
+        "description": "toJSON with three args",
+        "query": "new DBRef('coll', new ObjectId(), 'db').toJSON()",
+        "python": "",
+        "java": "new Document().append(\"$ref\", \"coll\").append(\"$id\", new ObjectId()).append(\"$db\", \"db\")",
         "csharp": ""
       }
     ],
     "Int32": [
       {
-        "description": "",
-        "query": "",
+        "description": "toJSON",
+        "query": "Int32(3).toJSON()",
         "python": "",
-        "java": "",
+        "java": "new java.lang.Integer(3).intValue()",
+        "csharp": ""
+      },
+      {
+        "description": "valueOf",
+        "query": "Int32(3).valueOf()",
+        "python": "",
+        "java": "new java.lang.Integer(3).intValue()",
         "csharp": ""
       }
     ],
     "Double": [
       {
-        "description": "",
-        "query": "",
+        "description": "toJSON",
+        "query": "Double(3).toJSON()",
         "python": "",
-        "java": "",
+        "java": "new java.lang.Double(3).doubleValue()",
+        "csharp": ""
+      },
+      {
+        "description": "valueOf",
+        "query": "Double(3).valueOf()",
+        "python": "",
+        "java": "new java.lang.Double(3).doubleValue()",
         "csharp": ""
       }
     ],
@@ -128,28 +149,17 @@
     ],
     "Decimal128": [
       {
-        "description": "",
-        "query": "",
+        "description": "toString",
+        "query": "new Decimal128(Buffer.from('5')).toString()",
         "python": "",
-        "java": "",
+        "java": "Decimal128.parse(\"5.3E-6175\").toString()",
         "csharp": ""
-      }
-    ],
-    "MinKey/MaxKey": [
+      },
       {
-        "description": "",
-        "query": "",
+        "description": "toJSON",
+        "query": "new Decimal128(Buffer.from('5')).toJSON()",
         "python": "",
-        "java": "",
-        "csharp": ""
-      }
-    ],
-    "BSONRegExp": [
-      {
-        "description": "",
-        "query": "",
-        "python": "",
-        "java": "",
+        "java": "new Document().append(\"$numberDecimal\", Decimal128.parse(\"5.3E-6175\").toString())",
         "csharp": ""
       }
     ],
@@ -164,10 +174,31 @@
     ],
     "Symbol": [
       {
-        "description": "",
-        "query": "",
+        "description": "valueOf",
+        "query": "Symbol('2').valueOf()",
         "python": "",
-        "java": "",
+        "java": "new Symbol(\"2\").getSymbol()",
+        "csharp": ""
+      },
+      {
+        "description": "toString",
+        "query": "Symbol('2').toString()",
+        "python": "",
+        "java": "new Symbol(\"2\").toString()",
+        "csharp": ""
+      },
+      {
+        "description": "inspect",
+        "query": "Symbol('2').inspect()",
+        "python": "",
+        "java": "new Symbol(\"2\").getSymbol()",
+        "csharp": ""
+      },
+      {
+        "description": "toJSON",
+        "query": "Symbol('2').toJSON()",
+        "python": "",
+        "java": "new Symbol(\"2\").toString()",
         "csharp": ""
       }
     ]

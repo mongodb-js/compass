@@ -129,7 +129,7 @@ Visitor.prototype.visitMemberDotExpression = function(ctx) {
 
   const rhs = this.visit(ctx.identifierName());
 
-  if (!(rhs in lhsType.attr)) {
+  if (!(lhsType.attr.hasOwnProperty(rhs))) {
     throw new CodeGenerationError(`${rhs} not an attribute of ${lhsType.id}`);
   }
   ctx.type = lhsType.attr[rhs];

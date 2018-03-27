@@ -14,9 +14,8 @@ const compile = {
 // Need a way to have test pass while developing
 const unsupported = {
   java: {
-    'bson-constructors': ['Decimal128'],
-    'bson-object-methods': ['DBRef', 'Double', 'Long', 'Int32', 'MinKey/MaxKey', 'BSONRegExp', 'Timestamp', 'Symbol', 'Decimal128'],
-    'bson-utils': ['DBRef', 'Double', 'Long', 'Int32', 'MinKey/MaxKey', 'BSONRegExp', 'Timestamp', 'Symbol', 'Decimal128']
+    'bson-object-methods': ['Long', 'Timestamp'],
+    'bson-utils': ['Long', 'Timestamp']
   },
   python: {
     'bson-constructors': [ '*' ],
@@ -42,7 +41,7 @@ const readJSON = (filename) => {
 };
 
 const runTest = (testname, inputLang, outputLang, tests) => {
-  describe(`${inputLang} ==> ${outputLang}`, () => {
+  describe(`${testname}:${inputLang} ==> ${outputLang}`, () => {
     Object.keys(tests).forEach((key) => {
       describe(key, () => {
         tests[key].map((test) => {

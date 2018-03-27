@@ -111,17 +111,25 @@ const BsonClasses = new Scope({
   DBRef: new Symbol(
     'DBRef',
     SYMBOL_TYPE.VAR, null, Types._object, // not sure this makes sense
-    new Scope({}) // TODO
+    new Scope({
+      toJSON:           Symbol('DBReftoJSON',       SYMBOL_TYPE.FUNC,   [],                   Types._object,  new Scope({}),  (lhs) => { return `${lhs}.toString`; })
+    })
   ),
   Double: new Symbol(
     'Double',
     SYMBOL_TYPE.VAR, null, Types._object, // not sure this makes sense
-    new Scope({}) // TODO
+    new Scope({
+      valueOf:         Symbol('valueOf',            SYMBOL_TYPE.FUNC,   [],                   Types._string,  new Scope({}), (lhs) => { return `${lhs}.doubleValue`; }),
+      toJSON:          Symbol('toJSON',             SYMBOL_TYPE.FUNC,   [],                   Types._object,  new Scope({}), (lhs) => { return `${lhs}.doubleValue`; })
+    })
   ),
   Int32: new Symbol(
     'Int32',
     SYMBOL_TYPE.VAR, null, Types._object, // not sure this makes sense
-    new Scope({}) // TODO
+    new Scope({
+      valueOf:         Symbol('valueOf',            SYMBOL_TYPE.FUNC,   [],                   Types._string,  new Scope({}), (lhs) => { return `${lhs}.intValue`; }),
+      toJSON:          Symbol('toJSON',             SYMBOL_TYPE.FUNC,   [],                   Types._object,  new Scope({}), (lhs) => { return `${lhs}.intValue`; })
+    })
   ),
   Long: new Symbol(
     'Long',
@@ -131,17 +139,17 @@ const BsonClasses = new Scope({
   MinKey: new Symbol(
     'MinKey',
     SYMBOL_TYPE.VAR, null, Types._object, // not sure this makes sense
-    new Scope({}) // TODO
+    new Scope({})
   ),
   MaxKey: new Symbol(
     'MaxKey',
     SYMBOL_TYPE.VAR, null, Types._object, // not sure this makes sense
-    new Scope({}) // TODO
+    new Scope({})
   ),
   BSONRegExp: new Symbol(
     'BsonRegExp',
     SYMBOL_TYPE.VAR, null, Types._object, // not sure this makes sense
-    new Scope({}) // TODO
+    new Scope({})
   ),
   Timestamp: new Symbol(
     'Timestamp',
@@ -151,7 +159,20 @@ const BsonClasses = new Scope({
   Symbol: new Symbol(
     'Symbol',
     SYMBOL_TYPE.VAR, null, Types._object, // not sure this makes sense
-    new Scope({}) // TODO
+    new Scope({
+      valueOf:         Symbol('valueOf',            SYMBOL_TYPE.FUNC,   [],                   Types._string,  new Scope({}), (lhs) => { return `${lhs}.getSymbol`; }),
+      inspect:         Symbol('inspect',            SYMBOL_TYPE.FUNC,   [],                   Types._string,  new Scope({}), (lhs) => { return `${lhs}.getSymbol`; }),
+      toJSON:          Symbol('toJSON',             SYMBOL_TYPE.FUNC,   [],                   Types._object,  new Scope({}), (lhs) => { return `${lhs}.toString`; }),
+      toString:        Symbol('toString',           SYMBOL_TYPE.FUNC,   [],                   Types._object,  new Scope({}), (lhs) => { return `${lhs}.toString`; })
+    })
+  ),
+  Decimal128: new Symbol(
+    'Decimal128',
+    SYMBOL_TYPE.VAR, null, Types._object,
+    new Scope({
+      toString:         Symbol('toString',          SYMBOL_TYPE.FUNC,   [],                   Types._string,  new Scope({})),
+      toJSON:           Symbol('Decimal128toJSON',  SYMBOL_TYPE.FUNC,   [],                   Types._object,  new Scope({}))
+    })
   )
 });
 
@@ -275,6 +296,15 @@ const BsonSymbols = new Scope({
     [ [Types._string], [BsonClasses._string, null] ],
     BsonClasses.BSONRegExp,
     new Scope({}) // TODO
+  ),
+  Decimal128: new Symbol(
+    'Decimal128',
+    SYMBOL_TYPE.CONSTRUCTOR,
+    [ [Types._object] ],
+    BsonClasses.Decimal128,
+    new Scope({
+      fromString:           Symbol('fromString',            SYMBOL_TYPE.FUNC,   [ [Types._string] ],    BsonClasses.Decimal128, new Scope({}), (lhs) => { return `${lhs}.parse`; })
+    })
   )
 });
 

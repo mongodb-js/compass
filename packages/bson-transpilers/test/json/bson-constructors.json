@@ -164,9 +164,9 @@
     "Decimal128": [
       {
         "description": "new Decimal128 with string arg",
-        "query": "new Decimal128('5.00000001')",
-        "python": "Decimal128('5.00000001')",
-        "java": "new Decimal128(5.00000001)",
+        "query": "new Decimal128(Buffer.from('5'))",
+        "python": "Decimal128('5')",
+        "java": "Decimal128.parse(\"5.3E-6175\")",
         "csharp": ""
       }
     ],

@@ -74,33 +74,6 @@
         "csharp": ""
       }
     ],
-    "DBRef": [
-      {
-        "description": "",
-        "query": "",
-        "python": "",
-        "java": "",
-        "csharp": ""
-      }
-    ],
-    "Int32": [
-      {
-        "description": "",
-        "query": "",
-        "python": "",
-        "java": "",
-        "csharp": ""
-      }
-    ],
-    "Double": [
-      {
-        "description": "",
-        "query": "",
-        "python": "",
-        "java": "",
-        "csharp": ""
-      }
-    ],
     "Long": [
       {
         "description": "",
@@ -112,41 +85,14 @@
     ],
     "Decimal128": [
       {
-        "description": "",
-        "query": "",
+        "description": "fromString",
+        "query": "Decimal128.fromString(\"5\")",
         "python": "",
-        "java": "",
-        "csharp": ""
-      }
-    ],
-    "MinKey/MaxKey": [
-      {
-        "description": "",
-        "query": "",
-        "python": "",
-        "java": "",
-        "csharp": ""
-      }
-    ],
-    "BSONRegExp": [
-      {
-        "description": "",
-        "query": "",
-        "python": "",
-        "java": "",
+        "java": "Decimal128.parse(\"5\")",
         "csharp": ""
       }
     ],
     "Timestamp": [
-      {
-        "description": "",
-        "query": "",
-        "python": "",
-        "java": "",
-        "csharp": ""
-      }
-    ],
-    "Symbol": [
       {
         "description": "",
         "query": "",

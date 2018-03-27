@@ -24,6 +24,8 @@ const compileECMAScript = function(input, generator) {
   return generator.start(tree);
 };
 
+console.log(compileECMAScript('Symbol(\'2\').toString()', new JavaGenerator()));
+
 module.exports = {
   toJava: (input) => { return compileECMAScript(input, new JavaGenerator()); },
   toCSharp: (input) => { return compileECMAScript(input, new CSharpGenerator()); },
