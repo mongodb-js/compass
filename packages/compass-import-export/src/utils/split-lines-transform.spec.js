@@ -263,9 +263,84 @@ describe('SplitLinesTransform', () => {
           });
         });
       });
+
+      context('when there is no line break on the last line', () => {
+        const transform = new SplitLinesTransform('json');
+        const input = '{"f1":"v1"}\n{"f2":"v2"}\n{"f3":"v3"}';
+
+        it('returns the documents', (done) => {
+          transform._transform(input, null, (error, data) => {
+            expect(error).to.equal(null);
+            expect(data.length).to.equal(3);
+            done();
+          });
+        });
+      });
     });
 
     context('when the type is csv', () => {
+      context('when the transform is on the first line', () => {
+        context('when there are no trailing commas', () => {
+          const transform = new SplitLinesTransform('csv');
+          const input = 'f1,f2,f3\nval1,val2,val3\nval4,val5,val6\n';
+
+          it('does not import the header row as a document', (done) => {
+            transform._transform(input, null, (error, data) => {
+              expect(data[0]).to.deep.equal({
+                f1: 'val1',
+                f2: 'val2',
+                f3: 'val3'
+              });
+              expect(data[1]).to.deep.equal({
+                f1: 'val4',
+                f2: 'val5',
+                f3: 'val6'
+              });
+              expect(error).to.equal(null);
+              done();
+            });
+          });
+        });
+
+        context('when there are trailing commas', () => {
+          const transform = new SplitLinesTransform('csv');
+          const input = 'f1,f2,f3,\nval1,val2,val3,\nval4,val5,val6,\n';
+
+          it('does not import the header row as a document', (done) => {
+            transform._transform(input, null, (error, data) => {
+              expect(data[0]).to.deep.equal({
+                f1: 'val1',
+                f2: 'val2',
+                f3: 'val3'
+              });
+              expect(data[1]).to.deep.equal({
+                f1: 'val4',
+                f2: 'val5',
+                f3: 'val6'
+              });
+              expect(error).to.equal(null);
+              done();
+            });
+          });
+        });
+
+        context('when the line is incomplete', () => {
+          const transform = new SplitLinesTransform('csv');
+          const input = 'f1,f2,f3,\nval1,val2,val3,\nval4';
+
+          it('sets the unfinished line as the source for the next call', (done) => {
+            transform._transform(input, null, (error, data) => {
+              expect(data[0]).to.deep.equal({
+                f1: 'val1',
+                f2: 'val2',
+                f3: 'val3'
+              });
+              expect(error).to.equal(null);
+              done();
+            });
+          });
+        });
+      });
     });
   });
 });
