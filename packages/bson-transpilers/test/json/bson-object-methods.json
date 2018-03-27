@@ -364,49 +364,49 @@
         "description": "equals",
         "query": "Timestamp(1, 100).equals(Timestamp(2, 99))",
         "python": "",
-        "java": "new BSONTimestamp(1, 100).equals(new Timestamp(2, 99))",
+        "java": "new BSONTimestamp(1, 100).equals(new BSONTimestamp(2, 99))",
         "csharp": ""
       },
       {
         "description": "compare",
         "query": "Timestamp(1, 100).compare(Timestamp(2, 99))",
         "python": "",
-        "java": "new BSONTimestamp(1, 100).compareTo(new Timestamp(2, 99))",
+        "java": "new BSONTimestamp(1, 100).compareTo(new BSONTimestamp(2, 99))",
         "csharp": ""
       },
       {
         "description": "notEquals",
         "query": "Timestamp(1, 100).notEquals(Timestamp(2, 99))",
         "python": "",
-        "java": "new BSONTimestamp(1, 100).compareTo(new Timestamp(2, 99)) !== 0",
+        "java": "new BSONTimestamp(1, 100).compareTo(new BSONTimestamp(2, 99)) != 0",
         "csharp": ""
       },
       {
         "description": "greaterThan",
         "query": "Timestamp(1, 100).greaterThan(Timestamp(2, 99))",
         "python": "",
-        "java": "new BSONTimestamp(1, 100).compareTo(new Timestamp(2, 99)) > 0",
+        "java": "new BSONTimestamp(1, 100).compareTo(new BSONTimestamp(2, 99)) > 0",
         "csharp": ""
       },
       {
         "description": "greaterThanOrEqual",
         "query": "Timestamp(1, 100).greaterThanOrEqual(Timestamp(2, 99))",
         "python": "",
-        "java": "new BSONTimestamp(1, 100).compareTo(new Timestamp(2, 99)) >= 0",
+        "java": "new BSONTimestamp(1, 100).compareTo(new BSONTimestamp(2, 99)) >= 0",
         "csharp": ""
       },
       {
         "description": "lessThan",
         "query": "Timestamp(1, 100).lessThan(Timestamp(2, 99))",
         "python": "",
-        "java": "new BSONTimestamp(1, 100).compareTo(new Timestamp(2, 99)) < 0",
+        "java": "new BSONTimestamp(1, 100).compareTo(new BSONTimestamp(2, 99)) < 0",
         "csharp": ""
       },
       {
         "description": "lessThanOrEqual",
         "query": "Timestamp(1, 100).lessThanOrEqual(Timestamp(2, 99))",
         "python": "",
-        "java": "new BSONTimestamp(1, 100).compareTo(new Timestamp(2, 99)) <= 0",
+        "java": "new BSONTimestamp(1, 100).compareTo(new BSONTimestamp(2, 99)) <= 0",
         "csharp": ""
       },
       {
