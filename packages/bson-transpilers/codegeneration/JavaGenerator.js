@@ -7,7 +7,8 @@ const {
 } = require('./SymbolTable');
 
 const {
-  doubleQuoteStringify
+  doubleQuoteStringify,
+  CodeGenerationError
 } = require('./helpers');
 
 const JAVA_REGEX_FLAGS = {
@@ -140,7 +141,7 @@ Visitor.prototype.visitRegularExpressionLiteral = function(ctx) {
     pattern = regexobj.source;
     flags = regexobj.flags;
   } catch (error) {
-    return error.message;
+    throw new CodeGenerationError(error.message);
   }
 
   let javaflags = flags.replace(/[imuyg]/g, m => JAVA_REGEX_FLAGS[m]);
@@ -166,14 +167,14 @@ Visitor.prototype.emitObjectCreate = function(ctx) {
   const argList = ctx.arguments().argumentList();
 
   if (!argList || argList.singleExpression().length !== 1) {
-    return 'Error: Object.create() requires one argument';
+    throw new CodeGenerationError('Object.create() requires one argument');
   }
 
   const arg = argList.singleExpression()[0];
   const obj = this.visit(arg);
 
   if (arg.type !== Types._object) {
-    return 'Error: Object.create() requires an object argument';
+    throw new CodeGenerationError('Object.create() requires an object argument');
   }
 
   return obj;
@@ -196,7 +197,7 @@ Visitor.prototype.emitDate = function(ctx) {
   try {
     epoch = this.executeJavascript(ctx.getText()).getTime();
   } catch (error) {
-    return error.message;
+    throw new CodeGenerationError(error.message);
   }
   return `new java.util.Date(${epoch})`;
 };
@@ -218,7 +219,7 @@ Visitor.prototype.emitCode = function(ctx) {
   if (!argList ||
      !(argList.singleExpression().length === 1 ||
        argList.singleExpression().length === 2)) {
-    return 'Error: Code requires one or two arguments';
+    throw new CodeGenerationError('Code requires one or two arguments');
   }
   const args = argList.singleExpression();
   const code = doubleQuoteStringify(args[0].getText());
@@ -229,7 +230,7 @@ Visitor.prototype.emitCode = function(ctx) {
        we can avoid it for now. */
     const scope = this.visit(args[1]);
     if (args[1].type !== Types._object) {
-      return 'Error: Code requires scope to be an object';
+      throw new CodeGenerationError('Code requires scope to be an object');
     }
     return `new CodeWithScope(${code}, ${scope})`;
   }
@@ -254,7 +255,7 @@ Visitor.prototype.emitObjectId = function(ctx) {
   try {
     hexstr = this.executeJavascript(ctx.getText()).toHexString();
   } catch (error) {
-    return error.message;
+    throw new CodeGenerationError(error.message);
   }
   return `new ObjectId(${doubleQuoteStringify(hexstr)})`;
 };
@@ -274,7 +275,7 @@ Visitor.prototype.emitBinary = function(ctx) {
     binobj = this.executeJavascript(ctx.getText());
     type = binobj.sub_type;
   } catch (error) {
-    return error.message;
+    throw new CodeGenerationError(error.message);
   }
   const bytes = doubleQuoteStringify(binobj.toString());
   return `new Binary(${JAVA_BINARY_SUBTYPES[type]}, ${bytes}.getBytes("UTF-8"))`;
@@ -293,7 +294,7 @@ Visitor.prototype.emitLong = function(ctx) {
   try {
     longstr = this.executeJavascript(ctx.getText()).toString();
   } catch (error) {
-    return error.message;
+    throw new CodeGenerationError(error.message);
   }
   return `new java.lang.Long(${doubleQuoteStringify(longstr)})`;
 };
@@ -313,18 +314,18 @@ Visitor.prototype.emitBSONRegExp = function(ctx) {
   if (!argList ||
       !(argList.singleExpression().length === 1 ||
         argList.singleExpression().length === 2)) {
-    return 'Error: BSONRegExp requires one or two arguments';
+    throw new CodeGenerationError('BSONRegExp requires one or two arguments');
   }
   const args = argList.singleExpression();
   const pattern = this.visit(args[0]);
   if (args[0].type !== Types._string) {
-    return 'Error: BSONRegExp requires pattern to be a string';
+    throw new CodeGenerationError('BSONRegExp requires pattern to be a string');
   }
 
   if (args.length === 2) {
     const flags = this.visit(args[1]);
     if (args[1].type !== Types._string) {
-      return 'Error: BSONRegExp requires flags to be a string';
+      throw new CodeGenerationError('BSONRegExp requires flags to be a string');
     }
     for (let i = 1; i < flags.length - 1; i++) {
       if (

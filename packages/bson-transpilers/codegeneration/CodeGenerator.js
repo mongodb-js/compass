@@ -9,6 +9,7 @@ const {
   JSSymbols,
   Symbols
 } = require('./SymbolTable');
+const { CodeGenerationError } = require('./helpers');
 
 /**
  * This is a Visitor superclass where helper methods used by all language
@@ -89,7 +90,7 @@ Visitor.prototype.visitBSONIdentifierExpression = function(ctx) {
   const name = this.visitChildren(ctx);
   ctx.type = BsonSymbols[name];
   if (ctx.type === undefined) {
-    throw `Error: symbol "${name}" is undefined`;
+    throw new CodeGenerationError(`symbol "${name}" is undefined`);
   }
   if (ctx.type.template) {
     return ctx.type.template();
@@ -101,7 +102,7 @@ Visitor.prototype.visitJSIdentifierExpression = function(ctx) {
   const name = this.visitChildren(ctx);
   ctx.type = JSSymbols[name];
   if (ctx.type === undefined) {
-    throw `Error: symbol '${name}' is undefined`;
+    throw new CodeGenerationError(`symbol '${name}' is undefined`);
   }
   if (ctx.type.template) {
     return ctx.type.template();
@@ -113,7 +114,7 @@ Visitor.prototype.visitIdentifierExpression = function(ctx) {
   const name = this.visitChildren(ctx);
   ctx.type = Symbols[name];
   if (ctx.type === undefined) {
-    throw `Error: symbol "${name}" is undefined`;
+    throw new CodeGenerationError(`symbol "${name}" is undefined`);
   }
   if (ctx.type.template) {
     return ctx.type.template();
@@ -129,7 +130,7 @@ Visitor.prototype.visitMemberDotExpression = function(ctx) {
   const rhs = this.visit(ctx.identifierName());
 
   if (!(rhs in lhsType.attr)) {
-    throw `Error: ${rhs} not an attribute of ${lhsType.id}`;
+    throw new CodeGenerationError(`${rhs} not an attribute of ${lhsType.id}`);
   }
   ctx.type = lhsType.attr[rhs];
   if (lhsType.attr[rhs].template) {
@@ -257,18 +258,18 @@ Visitor.prototype.checkArguments = function(expected, argumentList) {
     if (expected.length === 0) {
       return argStr;
     }
-    throw 'Error: arguments required';
+    throw new CodeGenerationError('arguments required');
   }
   const args = argumentList.singleExpression();
   if (args.length > expected.length) {
-    throw 'Error: too many arguments';
+    throw new CodeGenerationError('too many arguments');
   }
   for (let i = 0; i < expected.length; i++) {
     if (args[i] === undefined) {
       if (expected[i].indexOf(null) !== -1) {
         return argStr;
       }
-      throw 'Error: too few arguments';
+      throw new CodeGenerationError('too few arguments');
     }
     if (i !== 0) {
       argStr += ', ';
@@ -282,9 +283,9 @@ Visitor.prototype.checkArguments = function(expected, argumentList) {
       continue;
     }
     if (expected[i].indexOf(args[i].type) === -1 && expected[i].indexOf(args[i].type.id) === -1) {
-      throw `Error: expected types ${expected[i].map((e) => {
+      throw new CodeGenerationError(`expected types ${expected[i].map((e) => {
         return e.id ? e.id : e;
-      })} but got type ${args[i].type.id} for argument at index ${i}`;
+      })} but got type ${args[i].type.id} for argument at index ${i}`);
     }
   }
   return argStr;
@@ -305,7 +306,7 @@ Visitor.prototype.emitType = function(ctx) {
 
   ctx.type = lhsType.type;
   if (!lhsType.callable) {
-    throw `Error: ${lhsType.id} is not callable`;
+    throw new CodeGenerationError(`${lhsType.id} is not callable`);
   }
   const newStr = lhsType.callable === SYMBOL_TYPE.CONSTRUCTOR ? 'new ' : '';
 

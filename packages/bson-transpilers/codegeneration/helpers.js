@@ -48,9 +48,21 @@ const removeQuotes = function(str) {
   return newStr;
 };
 
+/**
+ * TODO: Expand to more specific errors, make sure we're giving good messages.
+ * @param {String} message
+ */
+function CodeGenerationError(message) {
+  this.message = message;
+}
+
+CodeGenerationError.prototype = Object.create(Error.prototype);
+CodeGenerationError.prototype.name = 'CodeGenerationError';
+CodeGenerationError.prototype.constructor = CodeGenerationError;
 
 module.exports = {
   doubleQuoteStringify,
   singleQuoteStringify,
-  removeQuotes
+  removeQuotes,
+  CodeGenerationError
 };

@@ -16,7 +16,7 @@ const unsupported = {
   java: {
     'bson-constructors': ['Decimal128'],
     'bson-object-methods': ['DBRef', 'Double', 'Long', 'Int32', 'MinKey/MaxKey', 'BSONRegExp', 'Timestamp', 'Symbol', 'Decimal128'],
-    'bson-utils': ['DBRef', 'Double', 'Long', 'Int32', 'MinKey/MaxKey', 'BSONRegExp', 'Timestamp', 'Symbol', 'Decimal128'],
+    'bson-utils': ['DBRef', 'Double', 'Long', 'Int32', 'MinKey/MaxKey', 'BSONRegExp', 'Timestamp', 'Symbol', 'Decimal128']
   },
   python: {
     'bson-constructors': [ '*' ],
