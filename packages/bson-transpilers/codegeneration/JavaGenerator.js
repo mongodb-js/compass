@@ -184,88 +184,88 @@ Visitor.prototype.emitObjectCreate = function(ctx) {
   return obj;
 };
 
-/**
- * child nodes: arguments
- * grandchild nodes: argumentList?
- * great-grandchild nodes: singleExpression+
- * @param {ObjectCreateConstructorExpressionContext} ctx
- * @return {String}
- */
-Visitor.prototype.visitNumberConstructorExpression = function(ctx) {
-  ctx.type = JSClasses.Number;
-  const argList = ctx.arguments().argumentList();
-
-  if (!argList || argList.singleExpression().length !== 1) {
-    return 'Error: Number requires one argument';
-  }
-
-  const arg = argList.singleExpression()[0];
-  const number = this.visit(arg);
-
-  if (
-    (
-      arg.type !== Types._string &&
-      arg.type !== Types._decimal &&
-      arg.type !== Types._integer
-    ) ||
-    isNaN(parseInt(this.removeQuotes(number), 10))
-  ) {
-    return 'Error: Number requires a number or a string argument';
-  }
-
-  return `new java.lang.Integer(${number})`;
-};
-
-/**
- * child nodes: arguments
- * grandchild nodes: argumentList?
- * great-grandchild nodes: singleExpression+
- * @param {DateConstructorExpressionContext} ctx
- * @return {String}
- */
-Visitor.prototype.visitDateConstructorExpression = function(ctx) {
-  ctx.type = JSClasses.Date;
-  const args = ctx.arguments();
-  if (!args.argumentList()) {
-    return 'new java.util.Date()';
-  }
-  let epoch;
-  try {
-    epoch = this.executeJavascript(ctx.getText()).getTime();
-  } catch (error) {
-    return error.message;
-  }
-  return `new java.util.Date(${epoch})`;
-};
-
-/**
- * child nodes: arguments
- * grandchild nodes: argumentList?
- * great-grandchild nodes: singleExpression+
- * @param {RegExpConstructorExpressionContext} ctx
- * @return {String}
- */
-Visitor.prototype.visitRegExpConstructorExpression =
-Visitor.prototype.visitRegularExpressionLiteral = function(ctx) {
-  ctx.type = JSClasses.Regex;
-  let pattern;
-  let flags;
-  try {
-    const regexobj = this.executeJavascript(ctx.getText());
-    pattern = regexobj.source;
-    flags = regexobj.flags;
-  } catch (error) {
-    return error.message;
-  }
-
-  let javaflags = flags.replace(/[imuyg]/g, m => JAVA_REGEX_FLAGS[m]);
-  javaflags = javaflags === '' ? '' : `(?${javaflags})`;
-
-  // Double escape characters except for slashes
-  const escaped = pattern.replace(/\\(?!\/)/, '\\\\');
-
-  return `Pattern.compile(${this.doubleQuoteStringify(escaped + javaflags)})`;
-};
+// /**
+//  * child nodes: arguments
+//  * grandchild nodes: argumentList?
+//  * great-grandchild nodes: singleExpression+
+//  * @param {ObjectCreateConstructorExpressionContext} ctx
+//  * @return {String}
+//  */
+// Visitor.prototype.visitNumberConstructorExpression = function(ctx) {
+//   ctx.type = JSClasses.Number;
+//   const argList = ctx.arguments().argumentList();
+//
+//   if (!argList || argList.singleExpression().length !== 1) {
+//     return 'Error: Number requires one argument';
+//   }
+//
+//   const arg = argList.singleExpression()[0];
+//   const number = this.visit(arg);
+//
+//   if (
+//     (
+//       arg.type !== Types._string &&
+//       arg.type !== Types._decimal &&
+//       arg.type !== Types._integer
+//     ) ||
+//     isNaN(parseInt(this.removeQuotes(number), 10))
+//   ) {
+//     return 'Error: Number requires a number or a string argument';
+//   }
+//
+//   return `new java.lang.Integer(${number})`;
+// };
+//
+// /**
+//  * child nodes: arguments
+//  * grandchild nodes: argumentList?
+//  * great-grandchild nodes: singleExpression+
+//  * @param {DateConstructorExpressionContext} ctx
+//  * @return {String}
+//  */
+// Visitor.prototype.visitDateConstructorExpression = function(ctx) {
+//   ctx.type = JSClasses.Date;
+//   const args = ctx.arguments();
+//   if (!args.argumentList()) {
+//     return 'new java.util.Date()';
+//   }
+//   let epoch;
+//   try {
+//     epoch = this.executeJavascript(ctx.getText()).getTime();
+//   } catch (error) {
+//     return error.message;
+//   }
+//   return `new java.util.Date(${epoch})`;
+// };
+//
+// /**
+//  * child nodes: arguments
+//  * grandchild nodes: argumentList?
+//  * great-grandchild nodes: singleExpression+
+//  * @param {RegExpConstructorExpressionContext} ctx
+//  * @return {String}
+//  */
+// Visitor.prototype.visitRegExpConstructorExpression =
+// Visitor.prototype.visitRegularExpressionLiteral = function(ctx) {
+//   ctx.type = JSClasses.Regex;
+//   let pattern;
+//   let flags;
+//   try {
+//     const regexobj = this.executeJavascript(ctx.getText());
+//     pattern = regexobj.source;
+//     flags = regexobj.flags;
+//   } catch (error) {
+//     return error.message;
+//   }
+//
+//   let javaflags = flags.replace(/[imuyg]/g, m => JAVA_REGEX_FLAGS[m]);
+//   javaflags = javaflags === '' ? '' : `(?${javaflags})`;
+//
+//   // Double escape characters except for slashes
+//   const escaped = pattern.replace(/\\(?!\/)/, '\\\\');
+//
+//   return `Pattern.compile(${this.doubleQuoteStringify(escaped + javaflags)})`;
+// };
 
 /*  ************** BSON Constructors **************** */
 
@@ -416,7 +416,7 @@ Visitor.prototype.emitBSONRegExp = function(ctx) {
 // };
 
 
-/*  ************** BSON Constructors **************** */
+/*  ************** BSON methods **************** */
 Visitor.prototype.emitCodetoJSON = function(ctx) {
   const argsList = ctx.singleExpression().singleExpression().arguments();
   const args = argsList.argumentList().singleExpression();

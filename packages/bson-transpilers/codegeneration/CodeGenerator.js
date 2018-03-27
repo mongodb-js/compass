@@ -255,7 +255,6 @@ Visitor.prototype.checkArguments = function(expected, argumentList) {
 };
 
 /**
- * @param {String} output - The name of the func in the target language.
  * @param {FuncCallExpressionContext} ctx
  * @return {String}
  */
@@ -270,7 +269,6 @@ Visitor.prototype.emitType = function(ctx) {
     throw `Error: ${lhsType.id} is not callable`;
   }
   const newStr = lhsType.callable === SYMBOL_TYPE.CONSTRUCTOR ? 'new ' : '';
-
 
   return `${newStr}${lhs}(${rhs})`;
 };
