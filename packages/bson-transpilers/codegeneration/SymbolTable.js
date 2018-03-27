@@ -1,4 +1,5 @@
 /* eslint key-spacing:0, no-multi-spaces:0 */
+const { doubleQuoteStringify } = require('./helpers');
 
 const SYMBOL_TYPE = { VAR: 0, CONSTRUCTOR: 1, FUNC: 2 };
 
@@ -12,7 +13,7 @@ const SYMBOL_TYPE = { VAR: 0, CONSTRUCTOR: 1, FUNC: 2 };
  * @param {Symbol} type - the type the symbol returns. Could be a Symbol or
  * 0 if it's a primitive type.
  * @param {Scope} attrs - the attributes of the returned type. TODO: do we want to strictly check all objs or just BSON/Built-in.
- * @param {String} template - the string template for this type. This is the first
+ * @param {Function} template - the string template for this type. This is the first
  * step in (slowly) extracting any language-specific code out of the visitor so that
  * we can use the same visitor for every export language. Eventually, each type that
  * needs translation will include a string template that we can swap out depending
@@ -50,18 +51,24 @@ function Scope(attrs) {
  * expanded to include built-in functions for each type.
  */
 const Types = new Scope({
-  _string:    new Symbol('_string',     SYMBOL_TYPE.VAR, null, 0, new Scope({})),
+  _string:    new Symbol('_string',     SYMBOL_TYPE.VAR, null, 0, new Scope({}), (literal) => { return `${doubleQuoteStringify(literal)}`; }),
   _regex:     new Symbol('_regex',      SYMBOL_TYPE.VAR, null, 0, new Scope({})),
   _bool:      new Symbol('_bool',       SYMBOL_TYPE.VAR, null, 0, new Scope({})),
   _integer:   new Symbol('_integer',    SYMBOL_TYPE.VAR, null, 0, new Scope({})),
   _decimal:   new Symbol('_decimal',    SYMBOL_TYPE.VAR, null, 0, new Scope({})),
   _hex:       new Symbol('_hex',        SYMBOL_TYPE.VAR, null, 0, new Scope({})),
-  _octal:     new Symbol('_octal',      SYMBOL_TYPE.VAR, null, 0, new Scope({})),
+  _octal:     new Symbol('_octal',      SYMBOL_TYPE.VAR, null, 0, new Scope({}), (literal) => {
+    if ((literal.charAt(0) === '0' && literal.charAt(1) === '0') ||
+        (literal.charAt(0) === '0' && (literal.charAt(1) === 'o' || literal.charAt(1) === 'O'))) {
+      return `0${literal.substr(2, literal.length - 1)}`;
+    }
+    return literal;
+  }),
   _numeric:   new Symbol('_numeric',    SYMBOL_TYPE.VAR, null, 0, new Scope({})),
   _array:     new Symbol('_array',      SYMBOL_TYPE.VAR, null, 0, new Scope({})),
   _object:    new Symbol('_object',     SYMBOL_TYPE.VAR, null, 0, new Scope({})),
   _null:      new Symbol('_null',       SYMBOL_TYPE.VAR, null, 0, new Scope({})),
-  _undefined: new Symbol('_undefined',  SYMBOL_TYPE.VAR, null, 0, new Scope({}))
+  _undefined: new Symbol('_undefined',  SYMBOL_TYPE.VAR, null, 0, new Scope({}), () => { return 'null'; })
 });
 
 /**

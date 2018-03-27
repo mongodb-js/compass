@@ -6,6 +6,10 @@ const {
   BsonClasses
 } = require('./SymbolTable');
 
+const {
+  doubleQuoteStringify
+} = require('./helpers');
+
 const JAVA_REGEX_FLAGS = {
   i: 'i', m: 'm', u: 'u', y: '', g: ''
 };
@@ -75,16 +79,6 @@ Visitor.prototype.visitNewExpression = function(ctx) {
 /* ************** Literals **************** */
 
 /**
- * Child nodes: DoubleStringCharacter* | SingleStringCharacter*
- * @param {StringLiteralContext} ctx
- * @return {String}
- */
-Visitor.prototype.visitStringLiteral = function(ctx) {
-  ctx.type = Types._string;
-  return this.doubleQuoteStringify(this.visitChildren(ctx));
-};
-
-/**
  * Child nodes: propertyNameAndValueList?
  * @param {ObjectLiteralContext} ctx
  * @return {String}
@@ -104,7 +98,7 @@ Visitor.prototype.visitObjectLiteral = function(ctx) {
  * @return {String}
  */
 Visitor.prototype.visitPropertyAssignmentExpression = function(ctx) {
-  const key = this.doubleQuoteStringify(this.visit(ctx.propertyName()));
+  const key = doubleQuoteStringify(this.visit(ctx.propertyName()));
   const value = this.visit(ctx.singleExpression());
   return `.append(${key}, ${value})`;
 };
@@ -124,37 +118,12 @@ Visitor.prototype.visitArrayLiteral = function(ctx) {
 
 /**
  * One terminal child.
- * @param {UndefinedLiteralContext} ctx
- * @return {String}
- */
-Visitor.prototype.visitUndefinedLiteral = function(ctx) {
-  ctx.type = Types._undefined;
-  return 'null';
-};
-
-/**
- * One terminal child.
  * @param {ElisionContext} ctx
  * @return {String}
  */
 Visitor.prototype.visitElision = function(ctx) {
   ctx.type = Types._null;
   return 'null';
-};
-
-/**
- * One terminal child.
- * @param {OctalIntegerLiteralContext} ctx
- * @return {String}
- */
-Visitor.prototype.visitOctalIntegerLiteral = function(ctx) {
-  ctx.type = Types._octal;
-  let oct = this.visitChildren(ctx);
-  if ((oct.charAt(0) === '0' && oct.charAt(1) === '0') ||
-    (oct.charAt(0) === '0' && (oct.charAt(1) === 'o' || oct.charAt(1) === 'O'))) {
-    oct = '0' + oct.substr(2, oct.length - 1);
-  }
-  return oct;
 };
 
 /*  ************** Built-in JS Identifiers **************** */
@@ -264,7 +233,7 @@ Visitor.prototype.emitObjectCreate = function(ctx) {
 //   // Double escape characters except for slashes
 //   const escaped = pattern.replace(/\\(?!\/)/, '\\\\');
 //
-//   return `Pattern.compile(${this.doubleQuoteStringify(escaped + javaflags)})`;
+//   return `Pattern.compile(${doubleQuoteStringify(escaped + javaflags)})`;
 // };
 
 /*  ************** BSON Constructors **************** */
@@ -287,7 +256,7 @@ Visitor.prototype.emitCode = function(ctx) {
     return 'Error: Code requires one or two arguments';
   }
   const args = argList.singleExpression();
-  const code = this.doubleQuoteStringify(args[0].getText());
+  const code = doubleQuoteStringify(args[0].getText());
 
   if (args.length === 2) {
     /* NOTE: we have to visit the subtree first before type checking or type may
@@ -322,7 +291,7 @@ Visitor.prototype.emitObjectId = function(ctx) {
   } catch (error) {
     return error.message;
   }
-  return `new ObjectId(${this.doubleQuoteStringify(hexstr)})`;
+  return `new ObjectId(${doubleQuoteStringify(hexstr)})`;
 };
 
 /**
@@ -342,7 +311,7 @@ Visitor.prototype.emitBinary = function(ctx) {
   } catch (error) {
     return error.message;
   }
-  const bytes = this.doubleQuoteStringify(binobj.toString());
+  const bytes = doubleQuoteStringify(binobj.toString());
   return `new Binary(${JAVA_BINARY_SUBTYPES[type]}, ${bytes}.getBytes("UTF-8"))`;
 };
 
@@ -361,7 +330,7 @@ Visitor.prototype.emitLong = function(ctx) {
   } catch (error) {
     return error.message;
   }
-  return `new java.lang.Long(${this.doubleQuoteStringify(longstr)})`;
+  return `new java.lang.Long(${doubleQuoteStringify(longstr)})`;
 };
 
 /**
@@ -417,10 +386,11 @@ Visitor.prototype.emitBSONRegExp = function(ctx) {
 
 
 /*  ************** BSON methods **************** */
+
 Visitor.prototype.emitCodetoJSON = function(ctx) {
   const argsList = ctx.singleExpression().singleExpression().arguments();
   const args = argsList.argumentList().singleExpression();
-  const code = this.doubleQuoteStringify(args[0].getText());
+  const code = doubleQuoteStringify(args[0].getText());
   let scope = 'undefined';
 
   if (args.length === 2) {

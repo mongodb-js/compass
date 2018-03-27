@@ -59,40 +59,71 @@ Visitor.prototype.visitChildren = function(ctx, options) {
   return code.trim();
 };
 
-Visitor.prototype.visitNullLiteral = function(ctx) {
-  ctx.type = Types._null;
+Visitor.prototype.visitLiteralExpression = function(ctx) {
+  ctx.type = this.getPrimitiveType(ctx.literal());
+
+  if (`emit${ctx.type.id}` in this) {
+    return this[`emit${ctx.type.id}`](ctx);
+  }
+
+  if (ctx.type.template) {
+    return ctx.type.template(this.visitChildren(ctx));
+  }
+
   return this.visitChildren(ctx);
 };
 
-Visitor.prototype.visitBooleanLiteral = function(ctx) {
-  ctx.type = Types._bool;
-  return this.visitChildren(ctx);
+Visitor.prototype.visitFuncCallExpression = function(ctx) {
+  this.visit(ctx.singleExpression());
+  const lhsType = ctx.singleExpression().type;
+
+  // Special case types
+  if (`emit${lhsType.id}` in this) {
+    return this[`emit${lhsType.id}`](ctx);
+  }
+
+  return this.emitType(ctx);
 };
 
-Visitor.prototype.visitIntegerLiteral = function(ctx) {
-  ctx.type = Types._integer;
-  return this.visitChildren(ctx);
+Visitor.prototype.visitBSONIdentifierExpression = function(ctx) {
+  const name = this.visitChildren(ctx);
+  ctx.type = BsonSymbols[name];
+  if (ctx.type.template) {
+    return ctx.type.template();
+  }
+
+  return name;
 };
 
-Visitor.prototype.visitDecimalLiteral = function(ctx) {
-  ctx.type = Types._decimal;
-  return this.visitChildren(ctx);
+Visitor.prototype.visitJSIdentifierExpression = function(ctx) {
+  const name = this.visitChildren(ctx);
+  ctx.type = JSSymbols[name];
+  return name;
 };
 
-Visitor.prototype.visitHexIntegerLiteral = function(ctx) {
-  ctx.type = Types._hex;
-  return this.visitChildren(ctx);
+Visitor.prototype.visitIdentifierExpression = function(ctx) {
+  const name = this.visitChildren(ctx);
+  ctx.type = Symbols[name];
+  return name;
 };
 
-Visitor.prototype.visitOctalIntegerLiteral = function(ctx) {
-  ctx.type = Types._octal;
-  return this.visitChildren(ctx);
+Visitor.prototype.visitMemberDotExpression = function(ctx) {
+  const lhs = this.visit(ctx.singleExpression());
+  const lhsType = ctx.singleExpression().type;
+
+  const rhs = this.visit(ctx.identifierName());
+
+  if (!(rhs in lhsType.attr)) {
+    throw `Error: ${rhs} not an attribute of ${lhsType.id}`;
+  }
+  ctx.type = lhsType.attr[rhs];
+  if (lhsType.attr[rhs].template) {
+    return lhsType.attr[rhs].template(lhs, rhs);
+  }
+
+  return `${lhs}.${rhs}`;
 };
 
-Visitor.prototype.visitRegularExpressionLiteral = function(ctx) {
-  ctx.type = Types._regex;
-  return this.visitChildren(ctx);
-};
 
 /**
  * Visit a leaf node and return a string.
@@ -108,53 +139,43 @@ Visitor.prototype.visitTerminal = function(ctx) {
 // Helpers //
 // //////////
 /**
- * Takes in an identifier that may or may not be a string and returns a string
- * with double quotes. Replace any non-escaped double quotes with \"
- * @param {String} str
- * @returns {String}
+ * Get the type of a node. TODO: nicer way to write it?
+ * @param {LiteralContext} ctx
+ * @return {Symbol}
  */
-Visitor.prototype.doubleQuoteStringify = function(str) {
-  let newStr = str;
-  if (
-    (str.charAt(0) === '\'' && str.charAt(str.length - 1) === '\'') ||
-    (str.charAt(0) === '"' && str.charAt(str.length - 1) === '"')) {
-    newStr = str.substr(1, str.length - 2);
+Visitor.prototype.getPrimitiveType = function(ctx) {
+  if ('NullLiteral' in ctx) {
+    return Types._null;
   }
-  return `"${newStr.replace(/\\([\s\S])|(")/g, '\\$1$2')}"`;
-};
-
-/**
- * Takes in an identifier that may or may not be a string and returns a string
- * with single quotes. Replace any non-escaped single quotes with \"
- * @param {String} str
- * @returns {String}
- */
-Visitor.prototype.singleQuoteStringify = function(str) {
-  let newStr = str;
-  if (
-    (str.charAt(0) === '\'' && str.charAt(str.length - 1) === '\'') ||
-    (str.charAt(0) === '"' && str.charAt(str.length - 1) === '"')) {
-    newStr = str.substr(1, str.length - 2);
+  if ('UndefinedLiteral' in ctx) {
+    return Types._undefined;
   }
-  return `'${newStr.replace(/\\([\s\S])|(')/g, '\\$1$2')}'`;
-};
-
-/**
- * Remove quotes from string
- *
- * @param {String} str
- * @returns {String}
- */
-Visitor.prototype.removeQuotes = function(str) {
-  let newStr = str;
-
-  if (
-    (str.charAt(0) === '"' && str.charAt(str.length - 1) === '"') ||
-    (str.charAt(0) === '\'' && str.charAt(str.length - 1) === '\'')
-  ) {
-    newStr = str.substr(1, str.length - 2);
+  if ('BooleanLiteral' in ctx) {
+    return Types._bool;
   }
-  return newStr;
+  if ('StringLiteral' in ctx) {
+    return Types._string;
+  }
+  if ('RegularExpressionLiteral' in ctx) {
+    return Types._regex;
+  }
+  if ('numericLiteral' in ctx) {
+    const number = ctx.numericLiteral();
+    if ('IntegerLiteral' in number) {
+      return Types._integer;
+    }
+    if ('DecimalLiteral' in number) {
+      return Types._decimal;
+    }
+    if ('HexIntegerLiteral' in number) {
+      return Types._hex;
+    }
+    if ('OctalIntegerLiteral' in number) {
+      return Types._octal;
+    }
+  }
+  // TODO: or raise error?
+  return Types._undefined;
 };
 
 Visitor.prototype.executeJavascript = function(input) {
@@ -254,6 +275,9 @@ Visitor.prototype.checkArguments = function(expected, argumentList) {
   return argStr;
 };
 
+// /////////////
+// Emit type  //
+// /////////////
 /**
  * @param {FuncCallExpressionContext} ctx
  * @return {String}
@@ -271,57 +295,6 @@ Visitor.prototype.emitType = function(ctx) {
   const newStr = lhsType.callable === SYMBOL_TYPE.CONSTRUCTOR ? 'new ' : '';
 
   return `${newStr}${lhs}(${rhs})`;
-};
-
-Visitor.prototype.visitFuncCallExpression = function(ctx) {
-  this.visit(ctx.singleExpression());
-  const lhsType = ctx.singleExpression().type;
-
-  // Special case types
-  if (`emit${lhsType.id}` in this) {
-    return this[`emit${lhsType.id}`](ctx);
-  }
-
-  return this.emitType(ctx);
-};
-
-Visitor.prototype.visitBSONIdentifierExpression = function(ctx) {
-  const name = this.visitChildren(ctx);
-  ctx.type = BsonSymbols[name];
-  if (ctx.type.template) {
-    return ctx.type.template();
-  }
-
-  return name;
-};
-
-Visitor.prototype.visitJSIdentifierExpression = function(ctx) {
-  const name = this.visitChildren(ctx);
-  ctx.type = JSSymbols[name];
-  return name;
-};
-
-Visitor.prototype.visitIdentifierExpression = function(ctx) {
-  const name = this.visitChildren(ctx);
-  ctx.type = Symbols[name];
-  return name;
-};
-
-Visitor.prototype.visitMemberDotExpression = function(ctx) {
-  const lhs = this.visit(ctx.singleExpression());
-  const lhsType = ctx.singleExpression().type;
-
-  const rhs = this.visit(ctx.identifierName());
-
-  if (!(rhs in lhsType.attr)) {
-    throw `Error: ${rhs} not an attribute of ${lhsType.id}`;
-  }
-  ctx.type = lhsType.attr[rhs];
-  if (lhsType.attr[rhs].template) {
-    return lhsType.attr[rhs].template(lhs, rhs);
-  }
-
-  return `${lhs}.${rhs}`;
 };
 
 
