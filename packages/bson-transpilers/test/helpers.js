@@ -15,10 +15,8 @@ const compile = {
 const unsupported = {
   java: {
     'bson-constructors': ['Decimal128'],
-    'js-constructors': [ 'Number', 'Date', 'RegExp' ],
     'bson-object-methods': ['DBRef', 'Double', 'Long', 'Int32', 'MinKey/MaxKey', 'BSONRegExp', 'Timestamp', 'Symbol', 'Decimal128'],
     'bson-utils': ['DBRef', 'Double', 'Long', 'Int32', 'MinKey/MaxKey', 'BSONRegExp', 'Timestamp', 'Symbol', 'Decimal128'],
-    'js-utils': [ '*' ]
   },
   python: {
     'bson-constructors': [ '*' ],

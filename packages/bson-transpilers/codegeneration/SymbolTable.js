@@ -158,7 +158,18 @@ const BsonClasses = new Scope({
 /**
  * TODO: JS TYPE SYMBOLS
  */
-const JSClasses = new Scope({});
+const JSClasses = new Scope({
+  Date: new Symbol(
+    'Date',
+    SYMBOL_TYPE.VAR, null, Types._object,
+    new Scope({})
+  ),
+  RegExp: new Symbol(
+    'RegExp',
+    SYMBOL_TYPE.VAR, null, Types._object,
+    new Scope({})
+  )
+});
 
 /**
  * Symbols representing the BSON symbols, so the built-in methods and utils
@@ -276,6 +287,30 @@ const JSSymbols = new Scope({
     SYMBOL_TYPE.FUNC,
     [ [Types._object] ],
     Types._object,
+    new Scope({})
+  ),
+  Number: new Symbol(
+    'Number',
+    SYMBOL_TYPE.CONSTRUCTOR,
+    [ [Types._numeric, Types._string] ],
+    Types._numeric,
+    new Scope({}),
+    () => { return 'java.lang.Integer'; }
+  ),
+  Date: new Symbol(
+    'Date',
+    SYMBOL_TYPE.CONSTRUCTOR,
+    [ [] ], // This isn't checked because it has an emit method
+    JSClasses.Date,
+    new Scope({
+      now: Symbol('now', SYMBOL_TYPE.FUNC, [], 'Date', new Scope({}), () => { return 'new java.util.Date'; })
+    })
+  ),
+  RegExp: new Symbol(
+    'RegExp',
+    SYMBOL_TYPE.CONSTRUCTOR,
+    [ [Types._string], [Types._string, null] ],
+    JSClasses.RegExp,
     new Scope({})
   )
 });

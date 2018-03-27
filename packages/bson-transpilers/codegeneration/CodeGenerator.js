@@ -88,25 +88,40 @@ Visitor.prototype.visitFuncCallExpression = function(ctx) {
 Visitor.prototype.visitBSONIdentifierExpression = function(ctx) {
   const name = this.visitChildren(ctx);
   ctx.type = BsonSymbols[name];
+  if (ctx.type === undefined) {
+    throw `Error: symbol "${name}" is undefined`;
+  }
   if (ctx.type.template) {
     return ctx.type.template();
   }
-
   return name;
 };
 
 Visitor.prototype.visitJSIdentifierExpression = function(ctx) {
   const name = this.visitChildren(ctx);
   ctx.type = JSSymbols[name];
+  if (ctx.type === undefined) {
+    throw `Error: symbol '${name}' is undefined`;
+  }
+  if (ctx.type.template) {
+    return ctx.type.template();
+  }
   return name;
 };
 
 Visitor.prototype.visitIdentifierExpression = function(ctx) {
   const name = this.visitChildren(ctx);
   ctx.type = Symbols[name];
+  if (ctx.type === undefined) {
+    throw `Error: symbol "${name}" is undefined`;
+  }
+  if (ctx.type.template) {
+    return ctx.type.template();
+  }
   return name;
 };
 
+// TODO: Attribute access: first check if key is in type.attr, if not then check if the type.type has attrs. Recur until type is a primitive type, if nothing there, then just emit directly unless BSON or JS type.
 Visitor.prototype.visitMemberDotExpression = function(ctx) {
   const lhs = this.visit(ctx.singleExpression());
   const lhsType = ctx.singleExpression().type;

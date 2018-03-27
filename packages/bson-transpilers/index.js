@@ -24,7 +24,7 @@ const compileECMAScript = function(input, generator) {
   return generator.start(tree);
 };
 
-// console.log(compileECMAScript('0o1', new JavaGenerator()));
+console.log(compileECMAScript('Number(1)', new JavaGenerator()));
 
 module.exports = {
   toJava: (input) => { return compileECMAScript(input, new JavaGenerator()); },
