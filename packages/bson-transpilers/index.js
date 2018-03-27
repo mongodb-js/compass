@@ -24,9 +24,6 @@ const compileECMAScript = function(input, generator) {
   return generator.start(tree);
 };
 
-console.log(compileECMAScript('ObjectId.isValid("str")', new JavaGenerator()));
-// console.log(compileECMAScript('ObjectId.createFromHexStr("1")', new JavaGenerator()));
-
 module.exports = {
   toJava: (input) => { return compileECMAScript(input, new JavaGenerator()); },
   toCSharp: (input) => { return compileECMAScript(input, new CSharpGenerator()); },
