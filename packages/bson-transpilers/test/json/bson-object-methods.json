@@ -65,28 +65,28 @@
         "description": "length",
         "query": "Binary(Buffer.from('a string')).length()",
         "python": "",
-        "java": "new Binary(org.bson.BsonBinarySubType.BINARY, \"a string\".getBytes(\"UTF-8\")).length()",
+        "java": "new Binary(\"a string\".getBytes(\"UTF-8\")).length()",
         "csharp": ""
       },
       {
         "description": "value",
         "query": "Binary(Buffer.from('a string')).value()",
         "python": "",
-        "java": "new Binary(org.bson.BsonBinarySubType.BINARY, \"a string\".getBytes(\"UTF-8\")).getData()",
+        "java": "new Binary(\"a string\".getBytes(\"UTF-8\")).getData()",
         "csharp": ""
       },
       {
         "description": "toString",
         "query": "Binary(Buffer.from('a string')).toString()",
         "python": "",
-        "java": "new Binary(org.bson.BsonBinarySubType.BINARY, \"a string\".getBytes(\"UTF-8\")).toString()",
+        "java": "new Binary(\"a string\".getBytes(\"UTF-8\")).toString()",
         "csharp": ""
       },
       {
         "description": "toJSON",
         "query": "Binary(Buffer.from('a string')).toJSON()",
         "python": "",
-        "java": "new Binary(org.bson.BsonBinarySubType.BINARY, \"a string\".getBytes(\"UTF-8\")).toString()",
+        "java": "new Binary(\"a string\".getBytes(\"UTF-8\")).toString()",
         "csharp": ""
       }
     ],

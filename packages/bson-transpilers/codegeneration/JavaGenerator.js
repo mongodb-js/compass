@@ -278,6 +278,10 @@ Visitor.prototype.emitBinary = function(ctx) {
     throw new CodeGenerationError(error.message);
   }
   const bytes = doubleQuoteStringify(binobj.toString());
+  const argList = ctx.arguments().argumentList().singleExpression();
+  if (argList.length === 1) {
+    return `new Binary(${bytes}.getBytes("UTF-8"))`;
+  }
   return `new Binary(${JAVA_BINARY_SUBTYPES[type]}, ${bytes}.getBytes("UTF-8"))`;
 };
 

@@ -65,7 +65,7 @@
         "description": "Binary with ascii buffer arg",
         "query": "Binary(Buffer.from('a string'))",
         "python": "Binary(bytes('a string', 'utf-8'))",
-        "java": "new Binary(org.bson.BsonBinarySubType.BINARY, \"a string\".getBytes(\"UTF-8\"))",
+        "java": "new Binary(\"a string\".getBytes(\"UTF-8\"))",
         "csharp": "new BsonBinaryData(System.Text.Encoding.ASCII.GetBytes(\"a string\"))"
       },
       {
@@ -86,7 +86,7 @@
         "description": "Binary with string args",
         "query": "Binary('a string')",
         "python": "Binary(bytes('a string', 'utf-8'))",
-        "java": "new Binary(org.bson.BsonBinarySubType.BINARY, \"a string\".getBytes(\"UTF-8\"))",
+        "java": "new Binary(\"a string\".getBytes(\"UTF-8\"))",
         "csharp": "new BsonBinaryData(System.Text.Encoding.ASCII.GetBytes(\"a string\"))"
       },
       {
