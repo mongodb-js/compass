@@ -84,7 +84,7 @@ const BsonClasses = new Scope({
     'Code',
     SYMBOL_TYPE.VAR, null, Types._object, // not sure this makes sense
     new Scope({
-      toJSON:           Symbol('CodetoJSON',            SYMBOL_TYPE.FUNC,   [], Types._object,  new Scope({}))
+      toJSON:           Symbol('CodetoJSON',        SYMBOL_TYPE.FUNC,   [], Types._object,  new Scope({}))
     }),
   ),
   ObjectId: new Symbol(
@@ -215,9 +215,6 @@ const BsonClasses = new Scope({
   )
 });
 
-/**
- * TODO: JS TYPE SYMBOLS
- */
 const JSClasses = new Scope({
   Date: new Symbol(
     'Date',
@@ -299,17 +296,17 @@ const BsonSymbols = new Scope({
     [ [Types._numeric], [Types._numeric] ],
     BsonClasses.Long,
     new Scope({
-      MAX_VALUE:    Symbol('MAX_VALUE',   SYMBOL_TYPE.VAR,  null,                     BsonClasses.Long,  new Scope({})),
-      MIN_VALUE:    Symbol('MIN_VALUE',   SYMBOL_TYPE.VAR,  null,                     BsonClasses.Long,  new Scope({})),
-      ZERO:         Symbol('ZERO',        SYMBOL_TYPE.VAR,  null,                     BsonClasses.Long,  new Scope({}), () => { return 'new java.lang.Long(0)'; }),
-      ONE:          Symbol('ONE',         SYMBOL_TYPE.VAR,  null,                     BsonClasses.Long,  new Scope({}), () => { return 'new java.lang.Long(1)'; }),
-      NEG_ONE:      Symbol('NEG_ONE',     SYMBOL_TYPE.VAR,  null,                     BsonClasses.Long,  new Scope({}), () => { return 'new java.lang.Long(-1)'; }),
-      fromBits:     Symbol('LongfromBits', SYMBOL_TYPE.FUNC, [ [Types._integer],
-                                                               [Types._integer] ],    BsonClasses.Long,  new Scope({})),
-      fromInt:      Symbol('fromInt',     SYMBOL_TYPE.FUNC,  [ [Types._integer] ],    BsonClasses.Long,  new Scope({}), () => { return 'new java.lang.Long'; }),
-      fromNumber:   Symbol('fromNumber',  SYMBOL_TYPE.FUNC,  [ [Types._numeric] ],    BsonClasses.Long,  new Scope({}), () => { return 'new java.lang.Long'; }),
-      fromString:   Symbol('fromString',  SYMBOL_TYPE.FUNC,  [ [Types._string],
-                                                               [Types._integer, null] ],     BsonClasses.Long,  new Scope({}), (lhs) => { return `${lhs}.parseLong`; })
+      MAX_VALUE:            Symbol('MAX_VALUE',             SYMBOL_TYPE.VAR,  null,                     BsonClasses.Long,  new Scope({})),
+      MIN_VALUE:            Symbol('MIN_VALUE',             SYMBOL_TYPE.VAR,  null,                     BsonClasses.Long,  new Scope({})),
+      ZERO:                 Symbol('ZERO',                  SYMBOL_TYPE.VAR,  null,                     BsonClasses.Long,  new Scope({}), () => { return 'new java.lang.Long(0)'; }),
+      ONE:                  Symbol('ONE',                   SYMBOL_TYPE.VAR,  null,                     BsonClasses.Long,  new Scope({}), () => { return 'new java.lang.Long(1)'; }),
+      NEG_ONE:              Symbol('NEG_ONE',               SYMBOL_TYPE.VAR,  null,                     BsonClasses.Long,  new Scope({}), () => { return 'new java.lang.Long(-1)'; }),
+      fromBits:             Symbol('LongfromBits',          SYMBOL_TYPE.FUNC, [ [Types._integer],
+                                                                                [Types._integer] ],    BsonClasses.Long,  new Scope({})),
+      fromInt:              Symbol('fromInt',               SYMBOL_TYPE.FUNC, [ [Types._integer] ],    BsonClasses.Long,  new Scope({}), () => { return 'new java.lang.Long'; }),
+      fromNumber:           Symbol('fromNumber',            SYMBOL_TYPE.FUNC, [ [Types._numeric] ],    BsonClasses.Long,  new Scope({}), () => { return 'new java.lang.Long'; }),
+      fromString:           Symbol('fromString',            SYMBOL_TYPE.FUNC, [ [Types._string],
+                                                                                [Types._integer, null] ], BsonClasses.Long, new Scope({}), (lhs) => { return `${lhs}.parseLong`; })
     }),
     () => { return 'java.lang.Long'; }
   ),
@@ -360,9 +357,6 @@ const BsonSymbols = new Scope({
   )
 });
 
-/**
- * TODO: JS Symbols
- */
 const JSSymbols = new Scope({
   'Object.create': new Symbol(
     'ObjectCreate',
