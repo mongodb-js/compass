@@ -214,7 +214,7 @@
     "@mongodb-js/compass-crud": "^4.0.0",
     "@mongodb-js/compass-deployment-awareness": "^5.1.1",
     "@mongodb-js/compass-document-validation": "^7.2.1",
-    "@mongodb-js/compass-import-export": "^0.1.0",
+    "@mongodb-js/compass-import-export": "^0.1.2",
     "@mongodb-js/compass-instance": "^0.0.2",
     "@mongodb-js/compass-license": "^0.1.1",
     "@mongodb-js/compass-query-history": "^2.2.2",
