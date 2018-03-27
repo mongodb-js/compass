@@ -1,9 +1,4 @@
 {
-  "languages": [
-    "python",
-    "java",
-    "csharp"
-  ],
   "tests": {
     "math": [
       {

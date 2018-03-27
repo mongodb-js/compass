@@ -1,5 +1,4 @@
 const parse = require('fast-json-parse');
-const path = require('path');
 const fs = require('fs');
 const chai = require('chai');
 const expect = chai.expect;
@@ -16,26 +15,26 @@ const compile = {
 const unsupported = {
   java: {
     'bson-constructors': ['Decimal128'],
-    'built-in-types': [ '*' ],
+    'js-constructors': [ 'Number', 'Date', 'RegExp' ],
     'bson-object-methods': ['DBRef', 'Double', 'Long', 'Int32', 'MinKey/MaxKey', 'BSONRegExp', 'Timestamp', 'Symbol', 'Decimal128'],
     'bson-utils': ['DBRef', 'Double', 'Long', 'Int32', 'MinKey/MaxKey', 'BSONRegExp', 'Timestamp', 'Symbol', 'Decimal128']
   },
   python: {
     'bson-constructors': [ '*' ],
-    'built-in-types': [ '*' ],
+    'js-constructors': [ '*' ],
     'bson-object-methods': [ '*' ],
     'bson-utils': [ '*' ]
   },
   csharp: {
     'bson-constructors': [ '*' ],
-    'built-in-types': [ '*' ],
+    'js-constructors': [ '*' ],
     'bson-object-methods': [ '*' ],
     'bson-utils': [ '*' ]
   }
 };
 
 const readJSON = (filename) => {
-  const parseResult = parse(fs.readFileSync(path.join(__dirname, filename)));
+  const parseResult = parse(fs.readFileSync(filename));
   // if an error is returned from parsing json, just throw it
   if (parseResult.err) throw new Error(parseResult.err.message);
   return parseResult.value;
