@@ -377,11 +377,6 @@ Visitor.prototype.emitCodetoJSON = function(ctx) {
   return `new Document().append("code", ${code}).append("scope", ${scope})`;
 };
 
-Visitor.prototype.emitObjectIdcreateFromTime = function(ctx) {
-  const arg = this.visit(ctx.arguments().argumentList().singleExpression()[0]);
-  return `new ObjectId(new java.util.Date(${arg}))`;
-};
-
 Visitor.prototype.emitDecimal128toJSON = function(ctx) {
   return `new Document().append("$numberDecimal", ${this.visit(ctx.singleExpression().singleExpression())}.toString())`;
 };
@@ -402,6 +397,7 @@ Visitor.prototype.emitDBReftoJSON = function(ctx) {
 Visitor.prototype.emitLongfromBits = Visitor.prototype.emitLong;
 
 Visitor.prototype.emitLongtoString = function(ctx) {
+  const lhsType = ctx.singleExpression().type;
   const long = ctx.singleExpression().singleExpression();
   let longstr;
   try {
@@ -413,17 +409,11 @@ Visitor.prototype.emitLongtoString = function(ctx) {
   if (!stringArgs) {
     return `java.lang.Long.toString(${longstr})`;
   }
-  if (stringArgs.singleExpression().length !== 1) {
-    throw new CodeGenerationError('Long.toString requires only one argument');
-  }
-  const arg = this.visit(stringArgs.singleExpression()[0]);
-  if (stringArgs.singleExpression()[0].type !== Types._integer) {
-    throw new CodeGenerationError('Long.toString must have integer radix argument');
-  }
+  const arg = this.checkArguments(lhsType.args, stringArgs);
   return `java.lang.Long.toString(${longstr}, ${arg})`;
 };
 
-Visitor.prototype.emitLongFunc = function(ctx) {
+Visitor.prototype.emitFuncWithArg = function(ctx) {
   const lhs = this.visit(ctx.singleExpression().singleExpression());
   const lhsType = ctx.singleExpression().type;
   const arg = this.checkArguments(lhsType.args, ctx.arguments().argumentList());
