@@ -51,24 +51,24 @@ function Scope(attrs) {
  * expanded to include built-in functions for each type.
  */
 const Types = new Scope({
-  _string:    new Symbol('_string',     SYMBOL_TYPE.VAR, null, 0, new Scope({}), (literal) => { return `${doubleQuoteStringify(literal)}`; }),
-  _regex:     new Symbol('_regex',      SYMBOL_TYPE.VAR, null, 0, new Scope({})),
-  _bool:      new Symbol('_bool',       SYMBOL_TYPE.VAR, null, 0, new Scope({})),
-  _integer:   new Symbol('_integer',    SYMBOL_TYPE.VAR, null, 0, new Scope({})),
-  _decimal:   new Symbol('_decimal',    SYMBOL_TYPE.VAR, null, 0, new Scope({})),
-  _hex:       new Symbol('_hex',        SYMBOL_TYPE.VAR, null, 0, new Scope({})),
-  _octal:     new Symbol('_octal',      SYMBOL_TYPE.VAR, null, 0, new Scope({}), (literal) => {
+  _string:    new Symbol('_string',     SYMBOL_TYPE.VAR, null, null, new Scope({}), (literal) => { return `${doubleQuoteStringify(literal)}`; }),
+  _regex:     new Symbol('_regex',      SYMBOL_TYPE.VAR, null, null, new Scope({})),
+  _bool:      new Symbol('_bool',       SYMBOL_TYPE.VAR, null, null, new Scope({})),
+  _integer:   new Symbol('_integer',    SYMBOL_TYPE.VAR, null, null, new Scope({})),
+  _decimal:   new Symbol('_decimal',    SYMBOL_TYPE.VAR, null, null, new Scope({})),
+  _hex:       new Symbol('_hex',        SYMBOL_TYPE.VAR, null, null, new Scope({})),
+  _octal:     new Symbol('_octal',      SYMBOL_TYPE.VAR, null, null, new Scope({}), (literal) => {
     if ((literal.charAt(0) === '0' && literal.charAt(1) === '0') ||
         (literal.charAt(0) === '0' && (literal.charAt(1) === 'o' || literal.charAt(1) === 'O'))) {
       return `0${literal.substr(2, literal.length - 1)}`;
     }
     return literal;
   }),
-  _numeric:   new Symbol('_numeric',    SYMBOL_TYPE.VAR, null, 0, new Scope({})),
-  _array:     new Symbol('_array',      SYMBOL_TYPE.VAR, null, 0, new Scope({})),
-  _object:    new Symbol('_object',     SYMBOL_TYPE.VAR, null, 0, new Scope({})),
-  _null:      new Symbol('_null',       SYMBOL_TYPE.VAR, null, 0, new Scope({})),
-  _undefined: new Symbol('_undefined',  SYMBOL_TYPE.VAR, null, 0, new Scope({}), () => { return 'null'; })
+  _numeric:   new Symbol('_numeric',    SYMBOL_TYPE.VAR, null, null, new Scope({})),
+  _array:     new Symbol('_array',      SYMBOL_TYPE.VAR, null, null, new Scope({})),
+  _object:    new Symbol('_object',     SYMBOL_TYPE.VAR, null, null, new Scope({})),
+  _null:      new Symbol('_null',       SYMBOL_TYPE.VAR, null, null, new Scope({})),
+  _undefined: new Symbol('_undefined',  SYMBOL_TYPE.VAR, null, null, new Scope({}), () => { return 'null'; })
 });
 
 /**
@@ -155,7 +155,7 @@ const BsonClasses = new Scope({
       multiply:        Symbol('FuncWithArg',        SYMBOL_TYPE.FUNC,   [ ['Long'] ],         'Long',       new Scope({}), (lhs, arg) => { return `${lhs} * ${arg}`; }),
       div:             Symbol('FuncWithArg',        SYMBOL_TYPE.FUNC,   [ ['Long'] ],         'Long',       new Scope({}), (lhs, arg) => { return `${lhs} / ${arg}`; }),
       modulo:          Symbol('FuncWithArg',        SYMBOL_TYPE.FUNC,   [ ['Long'] ],         'Long',       new Scope({}), (lhs, arg) => { return `${lhs} % ${arg}`; }),
-      not:             Symbol('FuncWithArg',        SYMBOL_TYPE.FUNC,   [],                   'Long',       new Scope({}), (lhs) => { return `!${lhs}`; }),
+      not:             Symbol('FuncWithArg',        SYMBOL_TYPE.FUNC,   [],                   'Long',       new Scope({}), (lhs) => { return `~${lhs}`; }),
       and:             Symbol('FuncWithArg',        SYMBOL_TYPE.FUNC,   [ ['Long'] ],         'Long',       new Scope({}), (lhs, arg) => { return `${lhs} & ${arg}`; }),
       or:              Symbol('FuncWithArg',        SYMBOL_TYPE.FUNC,   [ ['Long'] ],         'Long',       new Scope({}), (lhs, arg) => { return `${lhs} | ${arg}`; }),
       xor:             Symbol('FuncWithArg',        SYMBOL_TYPE.FUNC,   [ ['Long'] ],         'Long',       new Scope({}), (lhs, arg) => { return `${lhs} ^ ${arg}`; }),
@@ -212,19 +212,6 @@ const BsonClasses = new Scope({
       toString:         Symbol('toString',          SYMBOL_TYPE.FUNC,   [],                   Types._string,  new Scope({})),
       toJSON:           Symbol('Decimal128toJSON',  SYMBOL_TYPE.FUNC,   [],                   Types._object,  new Scope({}))
     })
-  )
-});
-
-const JSClasses = new Scope({
-  Date: new Symbol(
-    'Date',
-    SYMBOL_TYPE.VAR, null, Types._object,
-    new Scope({})
-  ),
-  RegExp: new Symbol(
-    'RegExp',
-    SYMBOL_TYPE.VAR, null, Types._object,
-    new Scope({})
   )
 });
 
@@ -357,6 +344,19 @@ const BsonSymbols = new Scope({
   )
 });
 
+const JSClasses = new Scope({
+  Date: new Symbol(
+    'Date',
+    SYMBOL_TYPE.VAR, null, Types._object,
+    new Scope({})
+  ),
+  RegExp: new Symbol(
+    'RegExp',
+    SYMBOL_TYPE.VAR, null, Types._object,
+    new Scope({})
+  )
+});
+
 const JSSymbols = new Scope({
   'Object.create': new Symbol(
     'ObjectCreate',
@@ -396,7 +396,8 @@ const JSSymbols = new Scope({
  * language types, the BSON types, and any user-defined types within a scope
  * object.
  */
-const Symbols = new Scope(Object.assign(BsonSymbols, JSSymbols));
+const Symbols = new Scope(Object.assign({}, BsonSymbols, JSSymbols));
+const AllTypes = new Scope(Object.assign({}, Types, BsonClasses, JSClasses));
 
 module.exports = {
   Types,
@@ -405,6 +406,7 @@ module.exports = {
   BsonSymbols,
   JSSymbols,
   Symbols,
-  SYMBOL_TYPE
+  SYMBOL_TYPE,
+  AllTypes
 };
 

@@ -7,7 +7,8 @@ const {
   SYMBOL_TYPE,
   BsonSymbols,
   JSSymbols,
-  Symbols
+  Symbols,
+  AllTypes
 } = require('./SymbolTable');
 const { CodeGenerationError } = require('./helpers');
 
@@ -76,7 +77,10 @@ Visitor.prototype.visitLiteralExpression = function(ctx) {
 
 Visitor.prototype.visitFuncCallExpression = function(ctx) {
   this.visit(ctx.singleExpression());
-  const lhsType = ctx.singleExpression().type;
+  let lhsType = ctx.singleExpression().type;
+  if (typeof lhsType === 'string') {
+    lhsType = AllTypes[lhsType];
+  }
 
   // Special case types
   if (`emit${lhsType.id}` in this) {
@@ -125,16 +129,33 @@ Visitor.prototype.visitIdentifierExpression = function(ctx) {
 // TODO: Attribute access: first check if key is in type.attr, if not then check if the type.type has attrs. Recur until type is a primitive type, if nothing there, then just emit directly unless BSON or JS type.
 Visitor.prototype.visitMemberDotExpression = function(ctx) {
   const lhs = this.visit(ctx.singleExpression());
-  const lhsType = ctx.singleExpression().type;
-
   const rhs = this.visit(ctx.identifierName());
 
-  if (!(lhsType.attr.hasOwnProperty(rhs))) {
-    throw new CodeGenerationError(`${rhs} not an attribute of ${lhsType.id}`);
+  let type = ctx.singleExpression().type;
+  if (typeof type === 'string') {
+    type = AllTypes[type];
   }
-  ctx.type = lhsType.attr[rhs];
-  if (lhsType.attr[rhs].template) {
-    return lhsType.attr[rhs].template(lhs, rhs);
+  while (type !== null) {
+    if (!(type.attr.hasOwnProperty(rhs))) {
+      if (type.id in BsonSymbols) {
+        throw new CodeGenerationError(`${rhs} not an attribute of ${type.id}`);
+      }
+      type = type.type;
+      if (typeof type === 'string') {
+        type = AllTypes[type];
+      }
+    } else {
+      break;
+    }
+  }
+  if (type === null) {
+    ctx.type = Types._undefined;
+    // TODO: how strict do we want to be?
+    return `${lhs}.${rhs}`;
+  }
+  ctx.type = type.attr[rhs];
+  if (type.attr[rhs].template) {
+    return type.attr[rhs].template(lhs, rhs);
   }
 
   return `${lhs}.${rhs}`;
@@ -300,7 +321,10 @@ Visitor.prototype.checkArguments = function(expected, argumentList) {
  */
 Visitor.prototype.emitType = function(ctx) {
   const lhs = this.visit(ctx.singleExpression());
-  const lhsType = ctx.singleExpression().type;
+  let lhsType = ctx.singleExpression().type;
+  if (typeof lhsType === 'string') {
+    lhsType = AllTypes[lhsType];
+  }
   const expectedArgs = lhsType.args;
   const rhs = this.checkArguments(expectedArgs, ctx.arguments().argumentList());
 

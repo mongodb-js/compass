@@ -24,8 +24,6 @@ const compileECMAScript = function(input, generator) {
   return generator.start(tree);
 };
 
-console.log(compileECMAScript('Long(1, 100).lessThanOrEqual(Long(1, 100))', new JavaGenerator()));
-
 module.exports = {
   toJava: (input) => { return compileECMAScript(input, new JavaGenerator()); },
   toCSharp: (input) => { return compileECMAScript(input, new CSharpGenerator()); },

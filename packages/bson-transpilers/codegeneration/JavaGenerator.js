@@ -3,7 +3,8 @@ const CodeGenerator = require('./CodeGenerator.js');
 const {
   Types,
   JSClasses,
-  BsonClasses
+  BsonClasses,
+  AllTypes
 } = require('./SymbolTable');
 
 const {
@@ -365,6 +366,7 @@ Visitor.prototype.emitDecimal128 = function(ctx) {
 /*  ************** Object methods **************** */
 
 Visitor.prototype.emitCodetoJSON = function(ctx) {
+  ctx.type = Types._object;
   const argsList = ctx.singleExpression().singleExpression().arguments();
   const args = argsList.argumentList().singleExpression();
   const code = doubleQuoteStringify(args[0].getText());
@@ -378,10 +380,12 @@ Visitor.prototype.emitCodetoJSON = function(ctx) {
 };
 
 Visitor.prototype.emitDecimal128toJSON = function(ctx) {
+  ctx.type = Types._object;
   return `new Document().append("$numberDecimal", ${this.visit(ctx.singleExpression().singleExpression())}.toString())`;
 };
 
 Visitor.prototype.emitDBReftoJSON = function(ctx) {
+  ctx.type = Types._object;
   const argsList = ctx.singleExpression().singleExpression().arguments();
   const args = argsList.argumentList().singleExpression();
 
@@ -397,6 +401,7 @@ Visitor.prototype.emitDBReftoJSON = function(ctx) {
 Visitor.prototype.emitLongfromBits = Visitor.prototype.emitLong;
 
 Visitor.prototype.emitLongtoString = function(ctx) {
+  ctx.type = Types._string;
   const lhsType = ctx.singleExpression().type;
   const long = ctx.singleExpression().singleExpression();
   let longstr;
@@ -415,7 +420,11 @@ Visitor.prototype.emitLongtoString = function(ctx) {
 
 Visitor.prototype.emitFuncWithArg = function(ctx) {
   const lhs = this.visit(ctx.singleExpression().singleExpression());
-  const lhsType = ctx.singleExpression().type;
+  let lhsType = ctx.singleExpression().type;
+  if (typeof lhsType === 'string') {
+    lhsType = AllTypes[lhsType];
+  }
+  ctx.type = lhsType.type;
   const arg = this.checkArguments(lhsType.args, ctx.arguments().argumentList());
   return lhsType.template(lhs, arg);
 };

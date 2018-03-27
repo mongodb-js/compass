@@ -290,7 +290,7 @@
         "description": "not",
         "query": "Long(1, 100).not()",
         "python": "",
-        "java": "!new java.lang.Long(\"429496729601\")",
+        "java": "~new java.lang.Long(\"429496729601\")",
         "csharp": ""
       },
       {
