@@ -22,11 +22,12 @@
     "debug": "^2.2.0",
     "is-electron-renderer": "^2.0.0",
     "is-promise": "^2.1.0",
-    "lodash": "^4.11.1"
+    "lodash.forin": "^4.4.0",
+    "lodash.isplainobject": "^4.0.6"
   },
   "devDependencies": {
-    "electron-mocha": "^3.1.1",
-    "electron-prebuilt": "^1.4.6",
+    "electron-mocha": "^6.0.1",
+    "electron": "^1.8.4",
     "eslint-config-mongodb-js": "^2.2.0",
     "mongodb-js-fmt": "^0.0.3",
     "mongodb-js-precommit": "^0.2.8",

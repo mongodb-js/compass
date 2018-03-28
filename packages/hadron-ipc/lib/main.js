@@ -1,7 +1,8 @@
 'use strict';
 
 const getResponseChannel = require('./common').getResponseChannel;
-const _ = require('lodash');
+const forIn = require('lodash.forin');
+const isPlainObject = require('lodash.isplainobject');
 const isPromise = require('is-promise');
 const electron = require('electron');
 const BrowserWindow = electron.BrowserWindow;
@@ -11,8 +12,8 @@ const debug = require('debug')('hadron-ipc:main');
 exports = ipcMain;
 
 exports.respondTo = (methodName, handler) => {
-  if (_.isPlainObject(methodName)) {
-    _.forIn(methodName, (methodHandler, name) => {
+  if (isPlainObject(methodName)) {
+    forIn(methodName, (methodHandler, name) => {
       exports.respondTo(name, methodHandler);
     });
     return exports;
@@ -54,6 +55,14 @@ exports.respondTo = (methodName, handler) => {
 exports.broadcast = (methodName, ...args) => {
   BrowserWindow.getAllWindows().forEach((_win) => {
     if (_win.webContents) {
+      _win.webContents.send(methodName, ...args);
+    }
+  });
+};
+
+exports.broadcastFocused = (methodName, ...args) => {
+  BrowserWindow.getAllWindows().forEach((_win) => {
+    if (_win.webContents && _win.isFocused()) {
       _win.webContents.send(methodName, ...args);
     }
   });
