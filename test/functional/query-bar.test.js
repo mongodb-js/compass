@@ -197,7 +197,7 @@ describe('#query-bar', function() {
       });
 
       context('when applying a sort', function() {
-        it('includes fetch in the winning plan', function() {
+        it.skip('includes fetch in the winning plan', function() {
           return client
             .waitForStatusBar()
             .inputSortFromExplainPlanTab('{name: 1}')
