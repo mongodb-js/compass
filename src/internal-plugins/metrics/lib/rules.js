@@ -21,7 +21,7 @@ module.exports = [
     store: 'App.InstanceStore',
     resource: 'Deployment',
     action: 'detected',
-    condition: () => true,
+    condition: (state) => (state.instance.databases !== null),
     metadata: (state) => ({
       'databases count': state.instance.databases.length,
       'namespaces count': state.instance.collections.length,
