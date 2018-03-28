@@ -213,7 +213,7 @@ function collectionSubMenu() {
     label: '&Share Schema as JSON',
     accelerator: 'Alt+CmdOrCtrl+S',
     click: function() {
-      ipc.broadcast('window:menu-share-schema-json');
+      ipc.broadcastFocused('window:menu-share-schema-json');
     }
   });
   subMenu.push(separator());
@@ -221,14 +221,14 @@ function collectionSubMenu() {
     subMenu.push({
       label: '&Import Data',
       click: function() {
-        ipc.broadcast('compass:open-import');
+        ipc.broadcastFocused('compass:open-import');
       }
     });
   }
   subMenu.push({
     label: '&Export Collection',
     click: function() {
-      ipc.broadcast('compass:open-export');
+      ipc.broadcastFocused('compass:open-export');
     }
   });
   return {
