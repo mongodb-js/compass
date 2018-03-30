@@ -235,7 +235,7 @@ const CRUDStore = Reflux.createStore({
    */
   removeDocument(doc) {
     const id = doc.getId();
-    if (id) {
+    if (id !== undefined) {
       this.dataService.deleteOne(this.state.ns, { _id: id }, {}, (error) => {
         if (error) {
           doc.emit('remove-error', error.message);

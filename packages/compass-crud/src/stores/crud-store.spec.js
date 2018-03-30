@@ -325,6 +325,29 @@ describe('CRUDStore', () => {
       });
     });
 
+    context('when the _id is null', () => {
+      const doc = { _id: null, name: 'Depeche Mode' };
+      const hadronDoc = new HadronDocument(doc);
+
+      beforeEach(() => {
+        CRUDStore.state.docs = [ hadronDoc ];
+        CRUDStore.state.count = 1;
+        CRUDStore.state.end = 1;
+      });
+
+      it('deletes the document from the collection', (done) => {
+        const unsubscribe = CRUDStore.listen((state) => {
+          expect(state.docs.length).to.equal(0);
+          expect(state.count).to.equal(0);
+          expect(state.end).to.equal(0);
+          unsubscribe();
+          done();
+        });
+
+        CRUDStore.removeDocument(hadronDoc);
+      });
+    });
+
     context('when the deletion errors', () => {
       const doc = { _id: 'testing', name: 'Depeche Mode' };
       const hadronDoc = new HadronDocument(doc);
