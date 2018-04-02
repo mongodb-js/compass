@@ -7,7 +7,7 @@ const Actions = require('../actions');
 const Connection = require('../models/connection');
 const ConnectionCollection = require('../models/connection-collection');
 const StateMixin = require('reflux-state-mixin');
-const electronApp = require('electron').remote.app;
+const ipc = require('hadron-ipc');
 
 /**
  * All the authentication related fields on the connection model, with
@@ -73,7 +73,7 @@ const ConnectStore = Reflux.createStore({
         this.trigger(this.state);
       }
     });
-    electronApp.on('app:disconnect', this.onDisconnect.bind(this));
+    ipc.on('app:disconnect', this.onDisconnect.bind(this));
   },
 
   /**

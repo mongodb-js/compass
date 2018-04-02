@@ -32,6 +32,9 @@
     "check"
   ],
   "license": "Apache-2.0",
+  "peerDependencies": {
+    "hadron-ipc": "^1.0.0"
+  },
   "devDependencies": {
     "@kadira/react-storybook-addon-info": "^3.2.1",
     "@kadira/storybook": "^2.3.0",
