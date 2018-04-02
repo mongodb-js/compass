@@ -42,13 +42,13 @@
     "lodash.uniq": "^4.5.0",
     "mongodb": "^3.0.4",
     "mongodb-collection-sample": "^3.0.0",
-    "mongodb-connection-model": "^12.0.3",
+    "mongodb-connection-model": "^12.0.4",
     "mongodb-index-model": "^2.0.1",
     "mongodb-js-errors": "^0.3.0",
     "mongodb-ns": "^2.0.0",
     "mongodb-security": "0.0.4",
     "mongodb-stitch": "^2.3.1",
-    "mongodb-url": "^3.0.0"
+    "mongodb-url": "^3.0.1"
   },
   "devDependencies": {
     "chai": "^3.4.1",
