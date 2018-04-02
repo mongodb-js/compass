@@ -40,7 +40,7 @@
     "lodash.omit": "^4.5.0",
     "mongodb": "^3.0.1",
     "mongodb-core": "^3.0.1",
-    "mongodb-url": "^3.0.0",
+    "mongodb-url": "^3.0.1",
     "ssh2": "^0.5.4"
   },
   "devDependencies": {
