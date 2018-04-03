@@ -1189,7 +1189,7 @@ Connection.isAtlas = function(str) {
 };
 
 Connection.isURI = function(str) {
-  return (str.indexOf('mongodb://') > -1) || (str.indexOf('mongodb+srv://') > -1);
+  return (str.startsWith('mongodb://')) || (str.startsWith('mongodb+srv://'));
 };
 
 Connection.AUTHENTICATION_VALUES = AUTHENTICATION_VALUES;

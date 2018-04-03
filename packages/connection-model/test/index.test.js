@@ -90,6 +90,12 @@ describe('mongodb-connection-model', function() {
         assert.equal(Connection.isURI('mongodb+somethign://localhost'), false);
       });
     });
+
+    context('when using a shell connection string', function() {
+      it('returns false', function() {
+        assert.equal(Connection.isURI('mongo "mongodb://localhost"'), false);
+      });
+    });
   });
 
   describe('authentication', function() {
