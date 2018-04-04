@@ -4,7 +4,7 @@ import AceEditor from 'react-ace';
 import ace from 'brace';
 import classnames from 'classnames';
 import debounce from 'lodash.debounce';
-import Completer from 'models/completer';
+import { StageAutoCompleter } from 'mongodb-ace-autocompleter';
 
 import styles from './stage-editor.less';
 
@@ -49,11 +49,12 @@ class StageEditor extends PureComponent {
     super(props);
     const tools = ace.acequire('ace/ext/language_tools');
     const textCompleter = tools.textCompleter;
-    this.completer = new Completer(
+    this.completer = new StageAutoCompleter(
       this.props.serverVersion,
       textCompleter,
       this.props.index,
-      this.props.fields
+      this.props.fields,
+      this.props.stage.stageOperator
     );
     tools.setCompleters([ this.completer ]);
     this.debounceRun = debounce(this.onRunStage, 500);
@@ -67,6 +68,7 @@ class StageEditor extends PureComponent {
   componentWillReceiveProps(nextProps) {
     this.completer.fields = nextProps.fields;
     this.completer.index = nextProps.index;
+    this.completer.stageOperator = nextProps.stage.stageOperator;
   }
 
   /**

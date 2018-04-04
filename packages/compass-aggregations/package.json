@@ -121,6 +121,7 @@
     "hadron-react-buttons": "^1.13.2",
     "hadron-react-components": "^1.14.1",
     "lodash.debounce": "^4.0.8",
+    "mongodb-ace-autocompleter": "0.0.1",
     "mongodb-ace-mode": "0.0.1",
     "mongodb-ace-theme": "0.0.1",
     "mongodb-extended-json": "^1.10.0",
