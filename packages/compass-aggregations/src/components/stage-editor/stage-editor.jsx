@@ -52,7 +52,6 @@ class StageEditor extends PureComponent {
     this.completer = new StageAutoCompleter(
       this.props.serverVersion,
       textCompleter,
-      this.props.index,
       this.props.fields,
       this.props.stage.stageOperator
     );
@@ -61,13 +60,12 @@ class StageEditor extends PureComponent {
   }
 
   /**
-   * Update the autocompleter index and fields.
+   * Update the autocompleter fields and stage operator.
    *
    * @param {Object} nextProps - The new properties.
    */
   componentWillReceiveProps(nextProps) {
     this.completer.fields = nextProps.fields;
-    this.completer.index = nextProps.index;
     this.completer.stageOperator = nextProps.stage.stageOperator;
   }
 
