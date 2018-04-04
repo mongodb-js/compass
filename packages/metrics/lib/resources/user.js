@@ -15,10 +15,7 @@ module.exports = BaseResource.extend({
     developer: 'boolean',
     twitter: 'string'
   },
-  login: function(callback) {
-    var options = {
-      userId: this.userId
-    };
+  login: function(options, callback) {
     this._send_event(options, callback);
   }
 });

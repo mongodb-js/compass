@@ -104,7 +104,7 @@ describe('metrics', function() {
       metrics.addResource(app);
       metrics.addResource(user);
 
-      metrics.track('User', 'login', function(err, res) {
+      metrics.track('User', 'login', { appName: 'test' }, function(err, res) {
         assert.ifError(err);
         var resp = res.ga[0][0];
         assert.equal(resp.statusCode, 200);

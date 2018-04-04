@@ -1,6 +1,8 @@
+var uuid = require('uuid');
 var metrics = require('../lib')();
 var resources = require('../lib/resources');
 var assert = require('assert');
+var sinon = require('sinon');
 var common = require('./common');
 
 // var debug = require('debug')('mongodb-js-metrics:test:user');
@@ -48,15 +50,18 @@ describe('User Resource', function() {
     assert.equal(metrics.trackers.get('ga').userId, '3c007a83-e8c3-4b52-9631-b5fd97950dce');
   });
 
-  it('should attach the right protocol parameters for a login event', function(done) {
+  it('should attach the right protocol parameters for a login event', function() {
+    sinon.stub(uuid, 'v4').returns('test_event_id');
     // mock function to intercept options
+    user._send_ga = sinon.stub();
     user._send_ga = function(options) {
       assert.equal(options.hitType, 'event');
-      assert.equal(options.eventCategory, 'User login');
-      assert.equal(options.eventLabel, common.userId);
-      done();
+      assert.equal(options.eventCategory, 'User');
+      assert.equal(options.eventAction, 'login');
+      assert.equal(options.eventLabel, 'test_event_id');
     };
     user.login();
+    uuid.v4.restore();
   });
   it('should default twitter to `undefined`', function() {
     var u = new resources.UserResource({

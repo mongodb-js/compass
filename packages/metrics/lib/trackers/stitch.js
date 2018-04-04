@@ -66,6 +66,7 @@ var StitchTracker = State.extend({
     _usersDatabaseName: 'any',
     _usersCollectionName: 'any',
     _client: 'any',
+    _callsQueue: ['array', true, function() { return []; }], // array of object with format: { fn: Function, args: Array }
     enabled: ['boolean', true, false],
     hasBooted: ['boolean', true, false]
   },
@@ -80,14 +81,29 @@ var StitchTracker = State.extend({
   initialize: function() {
     this._identify = this._identify.bind(this);
     this._enabledConfiguredChanged = this._enabledConfiguredChanged.bind(this);
+    this._trackFromQueue = this._trackFromQueue.bind(this);
 
     this.on('change:enabledAndConfigured', this._enabledConfiguredChanged);
   },
   _enabledConfiguredChanged: function() {
     if (this.enabledAndConfigured) {
-      this._setup();
-      this._identify();
+      // tracks all events from queue and calls _identify only when stitch client has been initialized
+      this._setup()
+        .then(function() {
+          this._trackFromQueue();
+          this._identify();
+        }.bind(this));
     }
+  },
+  _trackFromQueue: function() {
+    var callData;
+    while (this._callsQueue.length) {
+      callData = this._callsQueue.shift();
+      callData.fn.apply(this, callData.args);
+    }
+  },
+  _isTrackerReady: function() {
+    return this.enabledAndConfigured && this._client;
   },
   _setup: function() {
     var eventsNS = parseNamespaceString(this.events);
@@ -99,21 +115,22 @@ var StitchTracker = State.extend({
     this._usersCollectionName = usersNS.collection;
 
     var self = this;
-    stitch.StitchClientFactory.create(this.appId)
+    return stitch.StitchClientFactory.create(this.appId)
       .then(function(client) {
-        client.login().then(function() {
-          self._client = client;
+        return client.login()
+          .then(function() {
+            self._client = client;
 
-          debug('setup client', {
-            _client: self._client,
-            _eventsDatabaseName: self._eventsDatabaseName,
-            _eventsCollectionName: self._eventsCollectionName,
-            _usersDatabaseName: self._usersDatabaseName,
-            _usersCollectionName: self._usersCollectionName
+            debug('setup client', {
+              _client: self._client,
+              _eventsDatabaseName: self._eventsDatabaseName,
+              _eventsCollectionName: self._eventsCollectionName,
+              _usersDatabaseName: self._usersDatabaseName,
+              _usersCollectionName: self._usersCollectionName
+            });
+          }).catch(function(e) {
+            debug('error logging in via stitch: %s', e.message);
           });
-        }).catch(function(e) {
-          debug('error logging in via stitch: %s', e.message);
-        });
       });
   },
   _identify: function() {
@@ -165,7 +182,7 @@ var StitchTracker = State.extend({
     );
   },
   _getCollection: function(db, name, fn) {
-    if (!this.enabledAndConfigured || !this._client) {
+    if (!this._isTrackerReady()) {
       return fn(new Error('stitch tracker not configured yet.'));
     }
     return fn(null, this._client.service('mongodb', 'mongodb-atlas').db(db).collection(name));
@@ -202,18 +219,28 @@ var StitchTracker = State.extend({
     delete metadata['event id'];
     payload.metadata = snakeCase(redact(metadata));
 
+    var getCollectionCallback = function(err, collection) {
+      if (err) {
+        return debug('error sending event to stitch: %s', err.message);
+      }
+      payload.stitch_user_id = this._client.authedId();
+      debug('sending event `%s`', eventName, payload);
+      return collection.insertOne(payload);
+    }.bind(this);
+
+    if (!this._isTrackerReady()) {
+      this._callsQueue.push({
+        fn: this._getCollection,
+        args: [this._eventsDatabaseName, this._eventsCollectionName, getCollectionCallback]
+      });
+      return;
+    }
+
     // send payload
     return this._getCollection(
       this._eventsDatabaseName,
       this._eventsCollectionName,
-      function(err, collection) {
-        if (err) {
-          return debug('error sending event to stitch: %s', err.message);
-        }
-        payload.stitch_user_id = this._client.authedId();
-        debug('sending event `%s`', eventName, payload);
-        return collection.insertOne(payload);
-      }.bind(this)
+      getCollectionCallback
     );
   }
 });
