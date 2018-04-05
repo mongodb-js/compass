@@ -179,7 +179,7 @@ function securityItem() {
   return {
     label: '&Plugins',
     click: function() {
-      ipc.broadbastFocused('window:show-security-panel');
+      ipc.broadcastFocused('window:show-security-panel');
     }
   };
 }
