@@ -138,32 +138,32 @@ const BsonClasses = new Scope({
     'Long',
     SYMBOL_TYPE.VAR, null, Types._object, // not sure this makes sense
     new Scope({
-      toJSON:          Symbol('toJSON',             SYMBOL_TYPE.FUNC,   [],                   Types._string,  new Scope({}), (lhs) => { return `${lhs}.toString`; }),
-      toInt:           Symbol('toInt',              SYMBOL_TYPE.FUNC,   [],                   Types._integer,  new Scope({}), (lhs) => { return `${lhs}.intValue`; }),
-      toNumber:        Symbol('toNumber',           SYMBOL_TYPE.FUNC,   [],                   Types._decimal,  new Scope({}), (lhs) => { return `${lhs}.floatValue`; }),
-      toString:        Symbol('LongtoString',       SYMBOL_TYPE.FUNC,   [[Types._integer, null]], Types._string,  new Scope({})),
-      isZero:          Symbol('isZero',             SYMBOL_TYPE.FUNC,   [],                   Types._bool,  new Scope({}), (lhs) => { return `${lhs}.equals`; }, () => { return '(new java.lang.Long(0))'; }),
-      isNegative:      Symbol('isNegative',         SYMBOL_TYPE.FUNC,   [],                   Types._bool,  new Scope({}), (lhs) => { return `${lhs}.compareTo`; }, () => { return '(new java.lang.Long(0)) < 0'; }), // TODO
-      isOdd:           Symbol('isOdd',              SYMBOL_TYPE.FUNC,   [],                   Types._bool,  new Scope({}), (lhs) => { return `${lhs}`; }, () => { return ' % 2 == 0'; }),
-      equals:          Symbol('equals',             SYMBOL_TYPE.FUNC,   [ ['Long'] ],         Types._bool,  new Scope({})),
-      compare:         Symbol('compare',            SYMBOL_TYPE.FUNC,   [ ['Long'] ],         Types._bool,  new Scope({}), (lhs) => { return `${lhs}.compareTo`; }),
-      notEquals:       Symbol('notEquals',          SYMBOL_TYPE.FUNC,   [ ['Long'] ],         Types._bool,  new Scope({}), (lhs) => { return `${lhs}.compareTo`; }, (lhs, arg) => { return `(${arg}) != 0`; }),
-      greaterThan:     Symbol('greaterThan',        SYMBOL_TYPE.FUNC,   [ ['Long'] ],         Types._bool,  new Scope({}), (lhs) => { return `${lhs}.compareTo`; }, (lhs, arg) => { return `(${arg}) > 0`; }),
-      greaterThanOrEqual: Symbol('greaterThanOrEqual', SYMBOL_TYPE.FUNC, [ ['Long'] ],        Types._bool,  new Scope({}), (lhs) => { return `${lhs}.compareTo`; }, (lhs, arg) => { return `(${arg}) >= 0`; }),
-      lessThan:        Symbol('lessThan',           SYMBOL_TYPE.FUNC,   [ ['Long'] ],         Types._bool,  new Scope({}), (lhs) => { return `${lhs}.compareTo`; }, (lhs, arg) => { return `(${arg}) < 0`; }),
-      lessThanOrEqual: Symbol('lessThanOrEqual',    SYMBOL_TYPE.FUNC,   [ ['Long'] ],         Types._bool,  new Scope({}), (lhs) => { return `${lhs}.compareTo`; }, (lhs, arg) => { return `(${arg}) <= 0`; }),
-      negate:          Symbol('negate',             SYMBOL_TYPE.FUNC,   [],                   'Long',       new Scope({}), () => { return ''; }, (lhs) => { return `-${lhs}`; }), // TODO
-      add:             Symbol('add',                SYMBOL_TYPE.FUNC,   [ ['Long'] ],         'Long',       new Scope({}), (lhs, arg) => { return `${lhs} + ${arg}`; }, () => { return ''; }),
-      subtract:        Symbol('subtract',           SYMBOL_TYPE.FUNC,   [ ['Long'] ],         'Long',       new Scope({}), (lhs, arg) => { return `${lhs} - ${arg}`; }, () => { return ''; }),
-      multiply:        Symbol('multiply',           SYMBOL_TYPE.FUNC,   [ ['Long'] ],         'Long',       new Scope({}), (lhs, arg) => { return `${lhs} * ${arg}`; }, () => { return ''; }),
-      div:             Symbol('div',                SYMBOL_TYPE.FUNC,   [ ['Long'] ],         'Long',       new Scope({}), (lhs, arg) => { return `${lhs} / ${arg}`; }, () => { return ''; }),
-      modulo:          Symbol('modulo',             SYMBOL_TYPE.FUNC,   [ ['Long'] ],         'Long',       new Scope({}), (lhs, arg) => { return `${lhs} % ${arg}`; }, () => { return ''; }),
-      not:             Symbol('not',                SYMBOL_TYPE.FUNC,   [],                   'Long',       new Scope({}), (lhs) => { return `~${lhs}`; }, () => { return ''; }),
-      and:             Symbol('and',                SYMBOL_TYPE.FUNC,   [ ['Long'] ],         'Long',       new Scope({}), (lhs, arg) => { return `${lhs} & ${arg}`; }, () => { return ''; }),
-      or:              Symbol('or',                 SYMBOL_TYPE.FUNC,   [ ['Long'] ],         'Long',       new Scope({}), (lhs, arg) => { return `${lhs} | ${arg}`; }, () => { return ''; }),
-      xor:             Symbol('xor',                SYMBOL_TYPE.FUNC,   [ ['Long'] ],         'Long',       new Scope({}), (lhs, arg) => { return `${lhs} ^ ${arg}`; }, () => { return ''; }),
-      shiftLeft:       Symbol('shiftLeft',          SYMBOL_TYPE.FUNC,   [ [Types._integer] ], 'Long',       new Scope({}), () => { return 'java.lang.Long.rotateLeft'; }, (lhs, arg) => { return `(${lhs}, ${arg})`; }),
-      shiftRight:      Symbol('shiftRight',         SYMBOL_TYPE.FUNC,   [ [Types._integer] ], 'Long',       new Scope({}), () => { return 'java.lang.Long.rotateRight'; }, (lhs, arg) => { return `(${lhs}, ${arg})`; })
+      toString:        Symbol('LongtoString',       SYMBOL_TYPE.FUNC,   [[Types._integer, null]], Types._string, new Scope({})), // has emit method
+      equals:          Symbol('equals',             SYMBOL_TYPE.FUNC,   [ ['Long'] ],         Types._bool,      new Scope({})),
+      toJSON:          Symbol('toJSON',             SYMBOL_TYPE.FUNC,   [],                   Types._string,    new Scope({}), (lhs) => { return `${lhs}.toString`; }),
+      toInt:           Symbol('toInt',              SYMBOL_TYPE.FUNC,   [],                   Types._integer,   new Scope({}), (lhs) => { return `${lhs}.intValue`; }),
+      toNumber:        Symbol('toNumber',           SYMBOL_TYPE.FUNC,   [],                   Types._decimal,   new Scope({}), (lhs) => { return `${lhs}.floatValue`; }),
+      compare:         Symbol('compare',            SYMBOL_TYPE.FUNC,   [ ['Long'] ],         Types._bool,      new Scope({}), (lhs) => { return `${lhs}.compareTo`; }),
+      isOdd:           Symbol('isOdd',              SYMBOL_TYPE.FUNC,   [],                   Types._bool,      new Scope({}), (lhs) => { return `${lhs}`; },             () => { return ' % 2 == 0'; }),
+      isZero:          Symbol('isZero',             SYMBOL_TYPE.FUNC,   [],                   Types._bool,      new Scope({}), (lhs) => { return `${lhs}.equals`; },      () => { return '(new java.lang.Long(0))'; }),
+      isNegative:      Symbol('isNegative',         SYMBOL_TYPE.FUNC,   [],                   Types._bool,      new Scope({}), (lhs) => { return `${lhs}.compareTo`; },   () => { return '(new java.lang.Long(0)) < 0'; }),
+      negate:          Symbol('negate',             SYMBOL_TYPE.FUNC,   [],                   'Long',           new Scope({}), () => { return ''; },                      (lhs) => { return `-${lhs}`; }),
+      not:             Symbol('not',                SYMBOL_TYPE.FUNC,   [],                   'Long',           new Scope({}), () => { return ''; },                      (lhs) => { return `~${lhs}`; }),
+      notEquals:       Symbol('notEquals',          SYMBOL_TYPE.FUNC,   [ ['Long'] ],         Types._bool,      new Scope({}), (lhs) => { return `${lhs}.compareTo`; },   (lhs, arg) => { return `(${arg}) != 0`; }),
+      greaterThan:     Symbol('greaterThan',        SYMBOL_TYPE.FUNC,   [ ['Long'] ],         Types._bool,      new Scope({}), (lhs) => { return `${lhs}.compareTo`; },   (lhs, arg) => { return `(${arg}) > 0`; }),
+      greaterThanOrEqual: Symbol('greaterThanOrEqual', SYMBOL_TYPE.FUNC, [ ['Long'] ],        Types._bool,      new Scope({}), (lhs) => { return `${lhs}.compareTo`; },   (lhs, arg) => { return `(${arg}) >= 0`; }),
+      lessThan:        Symbol('lessThan',           SYMBOL_TYPE.FUNC,   [ ['Long'] ],         Types._bool,      new Scope({}), (lhs) => { return `${lhs}.compareTo`; },   (lhs, arg) => { return `(${arg}) < 0`; }),
+      lessThanOrEqual: Symbol('lessThanOrEqual',    SYMBOL_TYPE.FUNC,   [ ['Long'] ],         Types._bool,      new Scope({}), (lhs) => { return `${lhs}.compareTo`; },   (lhs, arg) => { return `(${arg}) <= 0`; }),
+      add:             Symbol('add',                SYMBOL_TYPE.FUNC,   [ ['Long'] ],         'Long',           new Scope({}), (lhs) => { return lhs; },                  (lhs, arg) => { return ` + ${arg}`; }),
+      subtract:        Symbol('subtract',           SYMBOL_TYPE.FUNC,   [ ['Long'] ],         'Long',           new Scope({}), (lhs) => { return lhs; },                  (lhs, arg) => { return ` - ${arg}`; }),
+      multiply:        Symbol('multiply',           SYMBOL_TYPE.FUNC,   [ ['Long'] ],         'Long',           new Scope({}), (lhs) => { return lhs; },                  (lhs, arg) => { return ` * ${arg}`; }),
+      div:             Symbol('div',                SYMBOL_TYPE.FUNC,   [ ['Long'] ],         'Long',           new Scope({}), (lhs) => { return lhs; },                  (lhs, arg) => { return ` / ${arg}`; }),
+      modulo:          Symbol('modulo',             SYMBOL_TYPE.FUNC,   [ ['Long'] ],         'Long',           new Scope({}), (lhs) => { return lhs; },                  (lhs, arg) => { return ` % ${arg}`; }),
+      and:             Symbol('and',                SYMBOL_TYPE.FUNC,   [ ['Long'] ],         'Long',           new Scope({}), (lhs) => { return lhs; },                  (lhs, arg) => { return ` & ${arg}`; }),
+      or:              Symbol('or',                 SYMBOL_TYPE.FUNC,   [ ['Long'] ],         'Long',           new Scope({}), (lhs) => { return lhs; },                  (lhs, arg) => { return ` | ${arg}`; }),
+      xor:             Symbol('xor',                SYMBOL_TYPE.FUNC,   [ ['Long'] ],         'Long',           new Scope({}), (lhs) => { return lhs; },                  (lhs, arg) => { return ` ^ ${arg}`; }),
+      shiftLeft:       Symbol('shiftLeft',          SYMBOL_TYPE.FUNC,   [ [Types._integer] ], 'Long',           new Scope({}), () => { return 'java.lang.Long.rotateLeft'; },   (lhs, arg) => { return `(${lhs}, ${arg})`; }),
+      shiftRight:      Symbol('shiftRight',         SYMBOL_TYPE.FUNC,   [ [Types._integer] ], 'Long',           new Scope({}), () => { return 'java.lang.Long.rotateRight'; },  (lhs, arg) => { return `(${lhs}, ${arg})`; })
     })
   ),
   MinKey: new Symbol(
@@ -185,35 +185,35 @@ const BsonClasses = new Scope({
     'Timestamp',
     SYMBOL_TYPE.VAR, null, Types._object, // not sure this makes sense
     new Scope({
-      toString:        Symbol('toString',           SYMBOL_TYPE.FUNC,   [],                        Types._string,  new Scope({})),
-      toJSON:          Symbol('toJSON',             SYMBOL_TYPE.FUNC,   [],                        Types._string,  new Scope({}), (lhs) => { return `${lhs}.toString`; }),
-      equals:          Symbol('equals',             SYMBOL_TYPE.FUNC,   [ ['Timestamp'] ],         Types._bool,    new Scope({})),
-      compare:         Symbol('compare',            SYMBOL_TYPE.FUNC,   [ ['Timestamp'] ],         Types._bool,    new Scope({}), (lhs) => { return `${lhs}.compareTo`; }),
-      notEquals:       Symbol('notEquals',          SYMBOL_TYPE.FUNC,   [ ['Timestamp'] ],         Types._bool,    new Scope({}), (lhs) => { return `${lhs}.compareTo`; }, (lhs, arg) => { return `(${arg}) != 0`; }),
-      greaterThan:     Symbol('greaterThan',        SYMBOL_TYPE.FUNC,   [ ['Timestamp'] ],         Types._bool,    new Scope({}), (lhs) => { return `${lhs}.compareTo`; }, (lhs, arg) => { return `(${arg}) > 0`; }),
-      greaterThanOrEqual: Symbol('greaterThanOrEqual', SYMBOL_TYPE.FUNC, [ ['Timestamp'] ],        Types._bool,    new Scope({}), (lhs) => { return `${lhs}.compareTo`; }, (lhs, arg) => { return `(${arg}) >= 0`; }),
-      lessThan:        Symbol('lessThan',           SYMBOL_TYPE.FUNC,   [ ['Timestamp'] ],         Types._bool,    new Scope({}), (lhs) => { return `${lhs}.compareTo`; }, (lhs, arg) => { return `(${arg}) < 0`; }),
-      lessThanOrEqual: Symbol('lessThanOrEqual',    SYMBOL_TYPE.FUNC,   [ ['Timestamp'] ],         Types._bool,    new Scope({}), (lhs) => { return `${lhs}.compareTo`; }, (lhs, arg) => { return `(${arg}) <= 0`; }),
-      getLowBits:      Symbol('getLowBits',         SYMBOL_TYPE.FUNC,   [],                        Types._integer, new Scope({}), (lhs) => { return `${lhs}.getTime`; }),
-      getHighBits:     Symbol('getHighBits',        SYMBOL_TYPE.FUNC,   [],                        Types._integer, new Scope({}), (lhs) => { return `${lhs}.getInc`; })
+      toString:        Symbol('toString',           SYMBOL_TYPE.FUNC,   [],                   Types._string,    new Scope({})),
+      equals:          Symbol('equals',             SYMBOL_TYPE.FUNC,   [ ['Timestamp'] ],    Types._bool,      new Scope({})),
+      toJSON:          Symbol('toJSON',             SYMBOL_TYPE.FUNC,   [],                   Types._string,    new Scope({}), (lhs) => { return `${lhs}.toString`; }),
+      getLowBits:      Symbol('getLowBits',         SYMBOL_TYPE.FUNC,   [],                   Types._integer,   new Scope({}), (lhs) => { return `${lhs}.getTime`; }),
+      getHighBits:     Symbol('getHighBits',        SYMBOL_TYPE.FUNC,   [],                   Types._integer,   new Scope({}), (lhs) => { return `${lhs}.getInc`; }),
+      compare:         Symbol('compare',            SYMBOL_TYPE.FUNC,   [ ['Timestamp'] ],    Types._bool,      new Scope({}), (lhs) => { return `${lhs}.compareTo`; }),
+      notEquals:       Symbol('notEquals',          SYMBOL_TYPE.FUNC,   [ ['Timestamp'] ],    Types._bool,      new Scope({}), (lhs) => { return `${lhs}.compareTo`; },   (lhs, arg) => { return `(${arg}) != 0`; }),
+      greaterThan:     Symbol('greaterThan',        SYMBOL_TYPE.FUNC,   [ ['Timestamp'] ],    Types._bool,      new Scope({}), (lhs) => { return `${lhs}.compareTo`; },   (lhs, arg) => { return `(${arg}) > 0`; }),
+      greaterThanOrEqual: Symbol('greaterThanOrEqual', SYMBOL_TYPE.FUNC, [ ['Timestamp'] ],   Types._bool,      new Scope({}), (lhs) => { return `${lhs}.compareTo`; },   (lhs, arg) => { return `(${arg}) >= 0`; }),
+      lessThan:        Symbol('lessThan',           SYMBOL_TYPE.FUNC,   [ ['Timestamp'] ],    Types._bool,      new Scope({}), (lhs) => { return `${lhs}.compareTo`; },   (lhs, arg) => { return `(${arg}) < 0`; }),
+      lessThanOrEqual: Symbol('lessThanOrEqual',    SYMBOL_TYPE.FUNC,   [ ['Timestamp'] ],    Types._bool,      new Scope({}), (lhs) => { return `${lhs}.compareTo`; },   (lhs, arg) => { return `(${arg}) <= 0`; })
     })
   ),
   Symbol: new Symbol(
     'Symbol',
     SYMBOL_TYPE.VAR, null, Types._object, // not sure this makes sense
     new Scope({
-      valueOf:         Symbol('valueOf',            SYMBOL_TYPE.FUNC,   [],                   Types._string,  new Scope({}), (lhs) => { return `${lhs}.getSymbol`; }),
-      inspect:         Symbol('inspect',            SYMBOL_TYPE.FUNC,   [],                   Types._string,  new Scope({}), (lhs) => { return `${lhs}.getSymbol`; }),
-      toJSON:          Symbol('toJSON',             SYMBOL_TYPE.FUNC,   [],                   Types._object,  new Scope({}), (lhs) => { return `${lhs}.toString`; }),
-      toString:        Symbol('toString',           SYMBOL_TYPE.FUNC,   [],                   Types._object,  new Scope({}), (lhs) => { return `${lhs}.toString`; })
+      valueOf:         Symbol('valueOf',            SYMBOL_TYPE.FUNC,   [],                   Types._string,    new Scope({}), (lhs) => { return `${lhs}.getSymbol`; }),
+      inspect:         Symbol('inspect',            SYMBOL_TYPE.FUNC,   [],                   Types._string,    new Scope({}), (lhs) => { return `${lhs}.getSymbol`; }),
+      toJSON:          Symbol('toJSON',             SYMBOL_TYPE.FUNC,   [],                   Types._object,    new Scope({}), (lhs) => { return `${lhs}.toString`; }),
+      toString:        Symbol('toString',           SYMBOL_TYPE.FUNC,   [],                   Types._object,    new Scope({}), (lhs) => { return `${lhs}.toString`; })
     })
   ),
   Decimal128: new Symbol(
     'Decimal128',
     SYMBOL_TYPE.VAR, null, Types._object,
     new Scope({
-      toString:         Symbol('toString',          SYMBOL_TYPE.FUNC,   [],                   Types._string,  new Scope({})),
-      toJSON:           Symbol('Decimal128toJSON',  SYMBOL_TYPE.FUNC,   [],                   Types._object,  new Scope({}))
+      toString:         Symbol('toString',          SYMBOL_TYPE.FUNC,   [],                   Types._string,    new Scope({})),
+      toJSON:           Symbol('Decimal128toJSON',  SYMBOL_TYPE.FUNC,   [],                   Types._object,    new Scope({}))
     })
   )
 });
@@ -237,9 +237,9 @@ const BsonSymbols = new Scope({
     [ [null, Types._string, Types._numeric] ],
     BsonClasses.ObjectId,
     new Scope({
-      createFromHexString: Symbol('createFromHexString',    SYMBOL_TYPE.FUNC,   [ [Types._string] ],    BsonClasses.ObjectId,  new Scope({}), () => { return ''; }, (lhs, arg) => { return `new ObjectId(${arg})`; }), // TODO: error here if not called
-      createFromTime:      Symbol('createFromTime',         SYMBOL_TYPE.FUNC,   [ [Types._numeric] ],   BsonClasses.ObjectId,  new Scope({}), () => { return ''; }, (lhs, arg) => { return `new ObjectId(new java.util.Date(${arg}))`; }),
-      isValid:             Symbol('isValid',                SYMBOL_TYPE.FUNC,   [ [Types._string] ],    Types._bool,           new Scope({}))
+      createFromHexString: Symbol('createFromHexString', SYMBOL_TYPE.FUNC, [ [Types._string] ],  BsonClasses.ObjectId,  new Scope({}), () => { return ''; }, (lhs, arg) => { return `new ObjectId(${arg})`; }),
+      createFromTime:      Symbol('createFromTime',      SYMBOL_TYPE.FUNC, [ [Types._numeric] ], BsonClasses.ObjectId,  new Scope({}), () => { return ''; }, (lhs, arg) => { return `new ObjectId(new java.util.Date(${arg}))`; }),
+      isValid:             Symbol('isValid',             SYMBOL_TYPE.FUNC, [ [Types._string] ],  Types._bool,           new Scope({}))
     })
   ),
   Binary: new Symbol(
@@ -248,13 +248,13 @@ const BsonSymbols = new Scope({
     [ [Types._string, Types._numeric, Types._object], [Types._numeric, null] ],
     BsonClasses.Binary,
     new Scope({
-      SUBTYPE_DEFAULT:    Symbol('SUBTYPE_DEFAULT',         SYMBOL_TYPE.VAR,  null, Types._integer,  new Scope({}), () => { return 'org.bson.BsonBinarySubType.BINARY'; }),
-      SUBTYPE_FUNCTION:   Symbol('SUBTYPE_FUNCTION',        SYMBOL_TYPE.VAR,  null, Types._integer,  new Scope({}), () => { return 'org.bson.BsonBinarySubType.FUNCTION'; }),
-      SUBTYPE_BYTE_ARRAY: Symbol('SUBTYPE_BYTE_ARRAY',      SYMBOL_TYPE.VAR,  null, Types._integer,  new Scope({}), () => { return 'org.bson.BsonBinarySubType.OLD_BINARY'; }),
-      SUBTYPE_UUID_OLD:   Symbol('SUBTYPE_UUID_OLD',        SYMBOL_TYPE.VAR,  null, Types._integer,  new Scope({}), () => { return 'org.bson.BsonBinarySubType.UUID_LEGACY'; }),
-      SUBTYPE_UUID:       Symbol('SUBTYPE_UUID',            SYMBOL_TYPE.VAR,  null, Types._integer,  new Scope({}), () => { return 'org.bson.BsonBinarySubType.UUID'; }),
-      SUBTYPE_MD5:        Symbol('SUBTYPE_MD5',             SYMBOL_TYPE.VAR,  null, Types._integer,  new Scope({}), () => { return 'org.bson.BsonBinarySubType.MD5'; }),
-      SUBTYPE_USER_DEFINED: Symbol('SUBTYPE_USER_DEFINED',  SYMBOL_TYPE.VAR,  null, Types._integer,  new Scope({}), () => { return 'org.bson.BsonBinarySubType.USER_DEFINED'; })
+      SUBTYPE_DEFAULT:    Symbol('SUBTYPE_DEFAULT',      SYMBOL_TYPE.VAR,   null,                 Types._integer,       new Scope({}), () => { return 'org.bson.BsonBinarySubType.BINARY'; }),
+      SUBTYPE_FUNCTION:   Symbol('SUBTYPE_FUNCTION',     SYMBOL_TYPE.VAR,   null,                 Types._integer,       new Scope({}), () => { return 'org.bson.BsonBinarySubType.FUNCTION'; }),
+      SUBTYPE_BYTE_ARRAY: Symbol('SUBTYPE_BYTE_ARRAY',   SYMBOL_TYPE.VAR,   null,                 Types._integer,       new Scope({}), () => { return 'org.bson.BsonBinarySubType.OLD_BINARY'; }),
+      SUBTYPE_UUID_OLD:   Symbol('SUBTYPE_UUID_OLD',     SYMBOL_TYPE.VAR,   null,                 Types._integer,       new Scope({}), () => { return 'org.bson.BsonBinarySubType.UUID_LEGACY'; }),
+      SUBTYPE_UUID:       Symbol('SUBTYPE_UUID',         SYMBOL_TYPE.VAR,   null,                 Types._integer,       new Scope({}), () => { return 'org.bson.BsonBinarySubType.UUID'; }),
+      SUBTYPE_MD5:        Symbol('SUBTYPE_MD5',          SYMBOL_TYPE.VAR,   null,                 Types._integer,       new Scope({}), () => { return 'org.bson.BsonBinarySubType.MD5'; }),
+      SUBTYPE_USER_DEFINED: Symbol('SUBTYPE_USER_DEFINED', SYMBOL_TYPE.VAR, null,                 Types._integer,       new Scope({}), () => { return 'org.bson.BsonBinarySubType.USER_DEFINED'; })
     })
   ),
   DBRef: new Symbol(
@@ -286,17 +286,16 @@ const BsonSymbols = new Scope({
     [ [Types._numeric], [Types._numeric] ],
     BsonClasses.Long,
     new Scope({
-      MAX_VALUE:            Symbol('MAX_VALUE',             SYMBOL_TYPE.VAR,  null,                     BsonClasses.Long,  new Scope({})),
-      MIN_VALUE:            Symbol('MIN_VALUE',             SYMBOL_TYPE.VAR,  null,                     BsonClasses.Long,  new Scope({})),
-      ZERO:                 Symbol('ZERO',                  SYMBOL_TYPE.VAR,  null,                     BsonClasses.Long,  new Scope({}), () => { return 'new java.lang.Long(0)'; }),
-      ONE:                  Symbol('ONE',                   SYMBOL_TYPE.VAR,  null,                     BsonClasses.Long,  new Scope({}), () => { return 'new java.lang.Long(1)'; }),
-      NEG_ONE:              Symbol('NEG_ONE',               SYMBOL_TYPE.VAR,  null,                     BsonClasses.Long,  new Scope({}), () => { return 'new java.lang.Long(-1)'; }),
-      fromBits:             Symbol('LongfromBits',          SYMBOL_TYPE.FUNC, [ [Types._integer],
-                                                                                [Types._integer] ],    BsonClasses.Long,  new Scope({})),
-      fromInt:              Symbol('fromInt',               SYMBOL_TYPE.FUNC, [ [Types._integer] ],    BsonClasses.Long,  new Scope({}), () => { return 'new java.lang.Long'; }),
-      fromNumber:           Symbol('fromNumber',            SYMBOL_TYPE.FUNC, [ [Types._numeric] ],    BsonClasses.Long,  new Scope({}), () => { return 'new java.lang.Long'; }),
-      fromString:           Symbol('fromString',            SYMBOL_TYPE.FUNC, [ [Types._string],
-                                                                                [Types._integer, null] ], BsonClasses.Long, new Scope({}), (lhs) => { return `${lhs}.parseLong`; })
+      MAX_VALUE:          Symbol('MAX_VALUE',            SYMBOL_TYPE.VAR,   null,                 BsonClasses.Long,     new Scope({})),
+      MIN_VALUE:          Symbol('MIN_VALUE',            SYMBOL_TYPE.VAR,   null,                 BsonClasses.Long,     new Scope({})),
+      ZERO:               Symbol('ZERO',                 SYMBOL_TYPE.VAR,   null,                 BsonClasses.Long,     new Scope({}), () => { return 'new java.lang.Long(0)'; }),
+      ONE:                Symbol('ONE',                  SYMBOL_TYPE.VAR,   null,                 BsonClasses.Long,     new Scope({}), () => { return 'new java.lang.Long(1)'; }),
+      NEG_ONE:            Symbol('NEG_ONE',              SYMBOL_TYPE.VAR,   null,                 BsonClasses.Long,     new Scope({}), () => { return 'new java.lang.Long(-1)'; }),
+      fromBits:           Symbol('LongfromBits',         SYMBOL_TYPE.FUNC,  [ [Types._integer],
+                                                                              [Types._integer] ], BsonClasses.Long,     new Scope({})),
+      fromInt:            Symbol('fromInt',              SYMBOL_TYPE.FUNC,  [ [Types._integer] ], BsonClasses.Long,     new Scope({}), () => { return 'new java.lang.Long'; }),
+      fromNumber:         Symbol('fromNumber',           SYMBOL_TYPE.FUNC,  [ [Types._numeric] ], BsonClasses.Long,     new Scope({}), () => { return 'new java.lang.Long'; }),
+      fromString:         Symbol('fromString',           SYMBOL_TYPE.FUNC,  [ [Types._string], [Types._integer, null] ], BsonClasses.Long, new Scope({}), (lhs) => { return `${lhs}.parseLong`; })
     }),
     () => { return 'java.lang.Long'; },
   ),
@@ -342,7 +341,7 @@ const BsonSymbols = new Scope({
     [ [Types._object] ],
     BsonClasses.Decimal128,
     new Scope({
-      fromString:           Symbol('fromString',            SYMBOL_TYPE.FUNC,   [ [Types._string] ],    BsonClasses.Decimal128, new Scope({}), (lhs) => { return `${lhs}.parse`; }, (lhs, arg) => { return `(${arg})`; })
+      fromString:         Symbol('fromString',           SYMBOL_TYPE.FUNC,  [ [Types._string] ],  BsonClasses.Decimal128, new Scope({}), (lhs) => { return `${lhs}.parse`; })
     })
   )
 });
@@ -382,7 +381,7 @@ const JSSymbols = new Scope({
     [ [] ], // This isn't checked because it has an emit method
     JSClasses.Date,
     new Scope({
-      now: Symbol('now', SYMBOL_TYPE.CONSTRUCTOR, [], 'Date', new Scope({}), () => { return 'java.util.Date'; })
+      now:                Symbol('now',                  SYMBOL_TYPE.CONSTRUCTOR, [],             'Date',                 new Scope({}), () => { return 'java.util.Date'; })
     })
   ),
   RegExp: new Symbol(

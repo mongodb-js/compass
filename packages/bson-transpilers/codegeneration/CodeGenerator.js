@@ -87,7 +87,7 @@ Visitor.prototype.visitFuncCallExpression = function(ctx) {
     return this[`emit${lhsType.id}`](ctx);
   }
 
-  return this.emitType(ctx);
+  return this.emitFuncCall(ctx);
 };
 
 Visitor.prototype.visitBSONIdentifierExpression = function(ctx) {
@@ -315,8 +315,9 @@ Visitor.prototype.checkArguments = function(expected, argumentList) {
  * @param {FuncCallExpressionContext} ctx
  * @return {String}
  */
-Visitor.prototype.emitType = function(ctx) {
-  let lhs = this.visit(ctx.singleExpression());
+Visitor.prototype.emitFuncCall = function(ctx) {
+  const lhs = this.visit(ctx.singleExpression());
+  let lhsStr = lhs;
   let lhsType = ctx.singleExpression().type;
   if (typeof lhsType === 'string') {
     lhsType = AllTypes[lhsType];
@@ -332,21 +333,22 @@ Visitor.prototype.emitType = function(ctx) {
   const newStr = lhsType.callable === SYMBOL_TYPE.CONSTRUCTOR ? 'new ' : '';
   if (lhsType.template) {
     // if LHS is a member attr
+    let l = lhs;
     if ('identifierName' in ctx.singleExpression()) {
-      lhs = this.visit(ctx.singleExpression().singleExpression());
+      l = this.visit(ctx.singleExpression().singleExpression());
     }
-    lhs = lhsType.template(lhs, ...rhs);
+    lhsStr = lhsType.template(l);
   }
   if (lhsType.argsTemplate) {
-    let lhs2 = lhs;
+    let l = lhs;
     if ('identifierName' in ctx.singleExpression()) {
-      lhs2 = this.visit(ctx.singleExpression().singleExpression());
+      l = this.visit(ctx.singleExpression().singleExpression());
     }
-    rhs = lhsType.argsTemplate(lhs2, ...rhs);
+    rhs = lhsType.argsTemplate(l, ...rhs);
   } else {
     rhs = `(${rhs.join(', ')})`;
   }
-  return `${newStr}${lhs}${rhs}`;
+  return `${newStr}${lhsStr}${rhs}`;
 };
 
 /**
