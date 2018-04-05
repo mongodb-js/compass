@@ -60,6 +60,11 @@ Visitor.prototype.visitChildren = function(ctx, options) {
   return code.trim();
 };
 
+/**
+ * Child nodes: literal
+ * @param {LiteralExpressionContext} ctx
+ * @return {String}
+ */
 Visitor.prototype.visitLiteralExpression = function(ctx) {
   ctx.type = this.getPrimitiveType(ctx.literal());
 
@@ -95,6 +100,48 @@ Visitor.prototype.visitObjectLiteral = function(ctx) {
   }
 };
 
+/**
+ * Child nodes: elementList*
+ * @param {ArrayLiteralContext} ctx
+ * @return {String}
+ */
+Visitor.prototype.visitArrayLiteral = function(ctx) {
+  ctx.type = Types._array;
+  let args = '';
+  if (ctx.elementList()) {
+    const children = ctx.elementList().children.filter((child) => {
+      return child.constructor.name !== 'TerminalNodeImpl';
+    });
+    if (ctx.type.argsTemplate) {
+      args = ctx.type.argsTemplate(children.map((c) => { return this.visit(c); }));
+    } else {
+      args = children.map((c) => { return this.visit(c); }).join(', ');
+    }
+  }
+  if (ctx.type.template) {
+    return ctx.type.template(args);
+  }
+};
+
+/**
+ * One terminal child.
+ * @param {ElisionContext} ctx
+ * @return {String}
+ */
+Visitor.prototype.visitElision = function(ctx) {
+  ctx.type = Types._null;
+  if (ctx.type.template) {
+    return ctx.type.template();
+  }
+  return 'null';
+};
+
+
+/**
+ * Child nodes: singleExpression arguments
+ * @param {FuncCallExpressionContext} ctx
+ * @return {String}
+ */
 Visitor.prototype.visitFuncCallExpression = function(ctx) {
   const lhs = this.visit(ctx.singleExpression());
   let lhsType = ctx.singleExpression().type;
@@ -144,6 +191,8 @@ Visitor.prototype.visitIdentifierExpression = function(ctx) {
  * This will check the type of the attribute, and error if it's a BSON symbol
  * or a JS Symbol and it is undefined. If it's not either of those symbols, it
  * doesn't error. TODO: should always error? never error?
+ *
+ * Child nodes: singleExpression identifierName
  * @param {GetAttributeExpressionContext} ctx
  * @return {String}
  */
@@ -288,7 +337,8 @@ Visitor.prototype.executeJavascript = function(input) {
 
 /**
  *
- * @param {Array} expected - An array of tuples where each tuple represents possible argument types for that index.
+ * @param {Array} expected - An array of arrays where each subarray represents
+ * possible argument types for that index.
  * @param {ArgumentListContext} argumentList - null if empty.
  *
  * @returns {Array}

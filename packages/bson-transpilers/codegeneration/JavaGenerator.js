@@ -38,27 +38,6 @@ Visitor.prototype = Object.create(CodeGenerator.prototype);
 Visitor.prototype.constructor = Visitor;
 
 /**
- * Child nodes: propertyAssignment+
- *
- * @param {PropertyNameAndValueListContext} ctx
- * @return {String}
- */
-
-/**
- * Child nodes: (elision* singleExpression*)+
- * @param {ElementListContext} ctx
- * @return {String}
- */
-Visitor.prototype.visitElementList = function(ctx) {
-  const children = ctx.children.filter((child) => {
-    return child.constructor.name !== 'TerminalNodeImpl';
-  });
-  return this.visitChildren(ctx,
-    { children: children, separator: ', '}
-  );
-};
-
-/**
  * Ignore the new keyword because JS could either have it or not, but we always
  * need it in Java so we'll add it when we call constructors.
  * TODO: do we ever need the second arguments expr?
@@ -72,29 +51,6 @@ Visitor.prototype.visitNewExpression = function(ctx) {
   const expr = this.visit(ctx.singleExpression());
   ctx.type = ctx.singleExpression().type;
   return expr;
-};
-
-/**
- * Child nodes: elementList*
- * @param {ArrayLiteralContext} ctx
- * @return {String}
- */
-Visitor.prototype.visitArrayLiteral = function(ctx) {
-  ctx.type = Types._array;
-  if (!ctx.elementList()) {
-    return 'Arrays.asList()';
-  }
-  return `Arrays.asList(${this.visit(ctx.elementList())})`;
-};
-
-/**
- * One terminal child.
- * @param {ElisionContext} ctx
- * @return {String}
- */
-Visitor.prototype.visitElision = function(ctx) {
-  ctx.type = Types._null;
-  return 'null';
 };
 
 /**
@@ -128,6 +84,9 @@ Visitor.prototype.visitRegularExpressionLiteral = function(ctx) {
 /*  ************** Emit Helpers **************** */
 
 /**
+ * Special cased because different target languages need different info out
+ * of the constructed date.
+ *
  * child nodes: arguments
  * grandchild nodes: argumentList?
  * great-grandchild nodes: singleExpression+
