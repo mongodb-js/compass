@@ -65,8 +65,7 @@ class StageEditor extends PureComponent {
    * @param {Object} nextProps - The new properties.
    */
   componentWillReceiveProps(nextProps) {
-    this.completer.fields = nextProps.fields;
-    this.completer.stageOperator = nextProps.stage.stageOperator;
+    this.completer.update(nextProps.fields, nextProps.stage.stageOperator);
   }
 
   /**
@@ -100,7 +99,9 @@ class StageEditor extends PureComponent {
    * dispatching.
    */
   onRunStage = () => {
-    this.props.runStage(this.props.index);
+    if (this.props.stage.isValid) {
+      this.props.runStage(this.props.index);
+    }
   }
 
   /**

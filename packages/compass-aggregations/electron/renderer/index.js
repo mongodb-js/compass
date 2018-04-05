@@ -65,7 +65,16 @@ dataService.connect((error, ds) => {
   appRegistry.emit('data-service-connected', error, ds);
   appRegistry.emit('collection-changed', 'import-export.users');
 
-  const docs = [{ _id: 1, name: 'Aphex Twin', loc: 'London', members: 1, newestAlbum: 'Cheetah' }];
+  const docs = [{
+    _id: 1,
+    name: 'Aphex Twin',
+    loc: 'London',
+    members: 1,
+    newestAlbum: 'Cheetah',
+    city: {
+      home: 'London'
+    }
+  }];
   FieldStore.processDocuments(docs);
 });
 
