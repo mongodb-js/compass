@@ -659,6 +659,15 @@ ECMAScriptListener.prototype.exitParenthesizedExpression = function(ctx) {
 };
 
 
+// Enter a parse tree produced by ECMAScriptParser#GetAttributeExpression.
+ECMAScriptListener.prototype.enterGetAttributeExpression = function(ctx) {
+};
+
+// Exit a parse tree produced by ECMAScriptParser#GetAttributeExpression.
+ECMAScriptListener.prototype.exitGetAttributeExpression = function(ctx) {
+};
+
+
 // Enter a parse tree produced by ECMAScriptParser#AdditiveExpression.
 ECMAScriptListener.prototype.enterAdditiveExpression = function(ctx) {
 };
@@ -737,15 +746,6 @@ ECMAScriptListener.prototype.enterArrayLiteralExpression = function(ctx) {
 
 // Exit a parse tree produced by ECMAScriptParser#ArrayLiteralExpression.
 ECMAScriptListener.prototype.exitArrayLiteralExpression = function(ctx) {
-};
-
-
-// Enter a parse tree produced by ECMAScriptParser#MemberDotExpression.
-ECMAScriptListener.prototype.enterMemberDotExpression = function(ctx) {
-};
-
-// Exit a parse tree produced by ECMAScriptParser#MemberDotExpression.
-ECMAScriptListener.prototype.exitMemberDotExpression = function(ctx) {
 };
 
 

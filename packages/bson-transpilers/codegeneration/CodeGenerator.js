@@ -96,9 +96,9 @@ Visitor.prototype.visitBSONIdentifierExpression = function(ctx) {
   if (ctx.type === undefined) {
     throw new CodeGenerationError(`symbol "${name}" is undefined`);
   }
-  if (ctx.type.template) {
-    return ctx.type.template();
-  }
+  // if (ctx.type.template) {
+  //   return ctx.type.template();
+  // }
   return name;
 };
 
@@ -108,9 +108,9 @@ Visitor.prototype.visitJSIdentifierExpression = function(ctx) {
   if (ctx.type === undefined) {
     throw new CodeGenerationError(`symbol '${name}' is undefined`);
   }
-  if (ctx.type.template) {
-    return ctx.type.template();
-  }
+  // if (ctx.type.template) {
+  //   return ctx.type.template();
+  // }
   return name;
 };
 
@@ -120,14 +120,13 @@ Visitor.prototype.visitIdentifierExpression = function(ctx) {
   if (ctx.type === undefined) {
     throw new CodeGenerationError(`symbol "${name}" is undefined`);
   }
-  if (ctx.type.template) {
-    return ctx.type.template();
-  }
+  // if (ctx.type.template) {
+  //   return ctx.type.template();
+  // }
   return name;
 };
 
-// TODO: Attribute access: first check if key is in type.attr, if not then check if the type.type has attrs. Recur until type is a primitive type, if nothing there, then just emit directly unless BSON or JS type.
-Visitor.prototype.visitMemberDotExpression = function(ctx) {
+Visitor.prototype.visitGetAttributeExpression = function(ctx) {
   const lhs = this.visit(ctx.singleExpression());
   const rhs = this.visit(ctx.identifierName());
 
@@ -271,10 +270,10 @@ Visitor.prototype.executeJavascript = function(input) {
  * @param {Array} expected - An array of tuples where each tuple represents possible argument types for that index.
  * @param {ArgumentListContext} argumentList - null if empty.
  *
- * @returns {String}
+ * @returns {Array}
  */
 Visitor.prototype.checkArguments = function(expected, argumentList) {
-  let argStr = '';
+  const argStr = [];
   if (!argumentList) {
     if (expected.length === 0) {
       return argStr;
@@ -292,10 +291,7 @@ Visitor.prototype.checkArguments = function(expected, argumentList) {
       }
       throw new CodeGenerationError('too few arguments');
     }
-    if (i !== 0) {
-      argStr += ', ';
-    }
-    argStr += this.visit(args[i]);
+    argStr.push(this.visit(args[i]));
     if (expected[i].indexOf(Types._numeric) !== -1 && (
         args[i].type === Types._integer ||
         args[i].type === Types._decimal ||
@@ -320,7 +316,7 @@ Visitor.prototype.checkArguments = function(expected, argumentList) {
  * @return {String}
  */
 Visitor.prototype.emitType = function(ctx) {
-  const lhs = this.visit(ctx.singleExpression());
+  let lhs = this.visit(ctx.singleExpression());
   let lhsType = ctx.singleExpression().type;
   if (typeof lhsType === 'string') {
     lhsType = AllTypes[lhsType];
@@ -332,9 +328,28 @@ Visitor.prototype.emitType = function(ctx) {
   if (!lhsType.callable) {
     throw new CodeGenerationError(`${lhsType.id} is not callable`);
   }
+  if (lhsType.template) {
+    // if LHS is a member attr
+    if ('identifierName' in ctx.singleExpression()) {
+      lhs = this.visit(ctx.singleExpression().singleExpression());
+    }
+    return lhsType.template(lhs, ...rhs);
+  }
   const newStr = lhsType.callable === SYMBOL_TYPE.CONSTRUCTOR ? 'new ' : '';
+  return `${newStr}${lhs}(${rhs.join(', ')})`;
+};
 
-  return `${newStr}${lhs}(${rhs})`;
+/**
+ * child nodes: arguments
+ * grandchild nodes: argumentList?
+ * great-grandchild nodes: singleExpression+
+ * @param {FuncCallExpressionContext} ctx
+ * @return {String}
+ */
+Visitor.prototype.emitObjectCreate = function(ctx) {
+  ctx.type = Types._object;
+  const argList = ctx.arguments().argumentList();
+  return this.checkArguments(JSSymbols['Object.create'].args, argList).join('');
 };
 
 

@@ -444,6 +444,12 @@ ECMAScriptVisitor.prototype.visitParenthesizedExpression = function(ctx) {
 };
 
 
+// Visit a parse tree produced by ECMAScriptParser#GetAttributeExpression.
+ECMAScriptVisitor.prototype.visitGetAttributeExpression = function(ctx) {
+  return this.visitChildren(ctx);
+};
+
+
 // Visit a parse tree produced by ECMAScriptParser#AdditiveExpression.
 ECMAScriptVisitor.prototype.visitAdditiveExpression = function(ctx) {
   return this.visitChildren(ctx);
@@ -494,12 +500,6 @@ ECMAScriptVisitor.prototype.visitJSIdentifierExpression = function(ctx) {
 
 // Visit a parse tree produced by ECMAScriptParser#ArrayLiteralExpression.
 ECMAScriptVisitor.prototype.visitArrayLiteralExpression = function(ctx) {
-  return this.visitChildren(ctx);
-};
-
-
-// Visit a parse tree produced by ECMAScriptParser#MemberDotExpression.
-ECMAScriptVisitor.prototype.visitMemberDotExpression = function(ctx) {
   return this.visitChildren(ctx);
 };
 

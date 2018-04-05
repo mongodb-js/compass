@@ -163,31 +163,6 @@ Visitor.prototype.visitRegularExpressionLiteral = function(ctx) {
  * @param {FuncCallExpressionContext} ctx
  * @return {String}
  */
-Visitor.prototype.emitObjectCreate = function(ctx) {
-  ctx.type = Types._object;
-  const argList = ctx.arguments().argumentList();
-
-  if (!argList || argList.singleExpression().length !== 1) {
-    throw new CodeGenerationError('Object.create() requires one argument');
-  }
-
-  const arg = argList.singleExpression()[0];
-  const obj = this.visit(arg);
-
-  if (arg.type !== Types._object) {
-    throw new CodeGenerationError('Object.create() requires an object argument');
-  }
-
-  return obj;
-};
-
-/**
- * child nodes: arguments
- * grandchild nodes: argumentList?
- * great-grandchild nodes: singleExpression+
- * @param {FuncCallExpressionContext} ctx
- * @return {String}
- */
 Visitor.prototype.emitDate = function(ctx) {
   ctx.type = JSClasses.Date;
   const args = ctx.arguments();
@@ -207,6 +182,8 @@ Visitor.prototype.emitRegExp = Visitor.prototype.visitRegularExpressionLiteral;
 
 /**
  * The arguments to Code can be either a string or actual javascript code.
+ * Manually check arguments here because first argument can be any JS, and we
+ * don't want to ever visit that node.
  *
  * child nodes: arguments
  * grandchild nodes: argumentList?
@@ -414,7 +391,7 @@ Visitor.prototype.emitLongtoString = function(ctx) {
   if (!stringArgs) {
     return `java.lang.Long.toString(${longstr})`;
   }
-  const arg = this.checkArguments(lhsType.args, stringArgs);
+  const arg = this.checkArguments(lhsType.args, stringArgs).join(', ');
   return `java.lang.Long.toString(${longstr}, ${arg})`;
 };
 
@@ -426,7 +403,7 @@ Visitor.prototype.emitFuncWithArg = function(ctx) {
   }
   ctx.type = lhsType.type;
   const arg = this.checkArguments(lhsType.args, ctx.arguments().argumentList());
-  return lhsType.template(lhs, arg);
+  return lhsType.template(lhs, ...arg);
 };
 
 

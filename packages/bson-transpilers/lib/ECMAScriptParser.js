@@ -6076,6 +6076,45 @@ ParenthesizedExpressionContext.prototype.accept = function(visitor) {
 };
 
 
+function GetAttributeExpressionContext(parser, ctx) {
+	SingleExpressionContext.call(this, parser);
+    SingleExpressionContext.prototype.copyFrom.call(this, ctx);
+    return this;
+}
+
+GetAttributeExpressionContext.prototype = Object.create(SingleExpressionContext.prototype);
+GetAttributeExpressionContext.prototype.constructor = GetAttributeExpressionContext;
+
+ECMAScriptParser.GetAttributeExpressionContext = GetAttributeExpressionContext;
+
+GetAttributeExpressionContext.prototype.singleExpression = function() {
+    return this.getTypedRuleContext(SingleExpressionContext,0);
+};
+
+GetAttributeExpressionContext.prototype.identifierName = function() {
+    return this.getTypedRuleContext(IdentifierNameContext,0);
+};
+GetAttributeExpressionContext.prototype.enterRule = function(listener) {
+    if(listener instanceof ECMAScriptListener ) {
+        listener.enterGetAttributeExpression(this);
+	}
+};
+
+GetAttributeExpressionContext.prototype.exitRule = function(listener) {
+    if(listener instanceof ECMAScriptListener ) {
+        listener.exitGetAttributeExpression(this);
+	}
+};
+
+GetAttributeExpressionContext.prototype.accept = function(visitor) {
+    if ( visitor instanceof ECMAScriptVisitor ) {
+        return visitor.visitGetAttributeExpression(this);
+    } else {
+        return visitor.visitChildren(this);
+    }
+};
+
+
 function AdditiveExpressionContext(parser, ctx) {
 	SingleExpressionContext.call(this, parser);
     SingleExpressionContext.prototype.copyFrom.call(this, ctx);
@@ -6411,45 +6450,6 @@ ArrayLiteralExpressionContext.prototype.exitRule = function(listener) {
 ArrayLiteralExpressionContext.prototype.accept = function(visitor) {
     if ( visitor instanceof ECMAScriptVisitor ) {
         return visitor.visitArrayLiteralExpression(this);
-    } else {
-        return visitor.visitChildren(this);
-    }
-};
-
-
-function MemberDotExpressionContext(parser, ctx) {
-	SingleExpressionContext.call(this, parser);
-    SingleExpressionContext.prototype.copyFrom.call(this, ctx);
-    return this;
-}
-
-MemberDotExpressionContext.prototype = Object.create(SingleExpressionContext.prototype);
-MemberDotExpressionContext.prototype.constructor = MemberDotExpressionContext;
-
-ECMAScriptParser.MemberDotExpressionContext = MemberDotExpressionContext;
-
-MemberDotExpressionContext.prototype.singleExpression = function() {
-    return this.getTypedRuleContext(SingleExpressionContext,0);
-};
-
-MemberDotExpressionContext.prototype.identifierName = function() {
-    return this.getTypedRuleContext(IdentifierNameContext,0);
-};
-MemberDotExpressionContext.prototype.enterRule = function(listener) {
-    if(listener instanceof ECMAScriptListener ) {
-        listener.enterMemberDotExpression(this);
-	}
-};
-
-MemberDotExpressionContext.prototype.exitRule = function(listener) {
-    if(listener instanceof ECMAScriptListener ) {
-        listener.exitMemberDotExpression(this);
-	}
-};
-
-MemberDotExpressionContext.prototype.accept = function(visitor) {
-    if ( visitor instanceof ECMAScriptVisitor ) {
-        return visitor.visitMemberDotExpression(this);
     } else {
         return visitor.visitChildren(this);
     }
@@ -7204,7 +7204,7 @@ ECMAScriptParser.prototype.singleExpression = function(_p) {
                     break;
 
                 case 15:
-                    localctx = new MemberDotExpressionContext(this, new SingleExpressionContext(this, _parentctx, _parentState));
+                    localctx = new GetAttributeExpressionContext(this, new SingleExpressionContext(this, _parentctx, _parentState));
                     this.pushNewRecursionContext(localctx, _startState, ECMAScriptParser.RULE_singleExpression);
                     this.state = 582;
                     if (!( this.precpred(this._ctx, 37))) {

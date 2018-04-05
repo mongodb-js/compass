@@ -584,7 +584,7 @@ expressionSequence
 singleExpression
  : Function Identifier? '(' formalParameterList? ')' '{' functionBody '}' # FuncDefExpression
  | singleExpression '[' expressionSequence ']'                            # MemberIndexExpression
- | singleExpression '.' identifierName                                    # MemberDotExpression
+ | singleExpression '.' identifierName                                    # GetAttributeExpression
  | singleExpression arguments                                             # FuncCallExpression
  | New singleExpression arguments?                                        # NewExpression
  | singleExpression {!this.here(ECMAScriptParser.LineTerminator)}? '++'   # PostIncrementExpression
