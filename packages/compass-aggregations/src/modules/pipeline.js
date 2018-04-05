@@ -410,7 +410,7 @@ export const loadingStageResults = (index) => ({
 /**
  * The options constant.
  */
-const OPTIONS = Object.freeze({});
+const OPTIONS = Object.freeze({ maxTimeMS: 5000 });
 
 /**
  * Generate the aggregation pipeline for the index.
