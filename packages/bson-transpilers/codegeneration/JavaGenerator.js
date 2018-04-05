@@ -54,6 +54,8 @@ Visitor.prototype.visitNewExpression = function(ctx) {
 };
 
 /**
+ * Special cased bc they're different in every lang.
+ *
  * child nodes: arguments
  * grandchild nodes: argumentList?
  * great-grandchild nodes: singleExpression+
@@ -108,12 +110,49 @@ Visitor.prototype.emitDate = function(ctx) {
   return `new java.util.Date(${epoch})`;
 };
 
+/**
+ * Expects two strings as arguments, the second must contain any of "imxlsu"
+ *
+ * child nodes: arguments
+ * grandchild nodes: argumentList?
+ * great-grandchild nodes: singleExpression+
+ * @param {FuncCallExpressionContext} ctx
+ * @return {String}
+ */
+Visitor.prototype.emitBSONRegExp = function(ctx) {
+  ctx.type = BsonClasses.RegExp;
+  const argList = ctx.arguments().argumentList();
+  const args = this.checkArguments([[Types._string], [Types._string, null]], argList);
+
+  if (args.length === 2) {
+    const flags = args[1];
+    for (let i = 1; i < flags.length - 1; i++) {
+      if (
+        !(
+          flags[i] === 'i' ||
+          flags[i] === 'm' ||
+          flags[i] === 'x' ||
+          flags[i] === 'l' ||
+          flags[i] === 's' ||
+          flags[i] === 'u'
+        )
+      ) {
+        return `Error: the regular expression options [${flags[i]}] is not supported`;
+      }
+    }
+    return `new BsonRegularExpression(${args[0]}, ${flags})`;
+  }
+  return `new BsonRegularExpression(${args[0]})`;
+};
+
 Visitor.prototype.emitRegExp = Visitor.prototype.visitRegularExpressionLiteral;
 
 /**
  * The arguments to Code can be either a string or actual javascript code.
  * Manually check arguments here because first argument can be any JS, and we
  * don't want to ever visit that node.
+ *
+ * TODO: could move this to CodeGenerator and use template.
  *
  * child nodes: arguments
  * grandchild nodes: argumentList?
@@ -147,6 +186,8 @@ Visitor.prototype.emitCode = function(ctx) {
 };
 
 /**
+ * TODO: Could move this to CodeGenerator and use template
+ *
  * child nodes: arguments
  * grandchild nodes: argumentList?
  * great-grandchild nodes: singleExpression+
@@ -169,6 +210,8 @@ Visitor.prototype.emitObjectId = function(ctx) {
 };
 
 /**
+ * TODO: Maybe move this to CodeGenerator and use template?
+ *
  * child nodes: arguments
  * grandchild nodes: argumentList?
  * great-grandchild nodes: singleExpression+
@@ -194,6 +237,8 @@ Visitor.prototype.emitBinary = function(ctx) {
 };
 
 /**
+ * TODO: Maybe move this to CodeGenerator and use template?
+ *
  * child nodes: arguments
  * grandchild nodes: argumentList?
  * great-grandchild nodes: singleExpression+
@@ -212,52 +257,11 @@ Visitor.prototype.emitLong = function(ctx) {
 };
 
 /**
- * Expects two strings as arguments, the second must contain any of "imxlsu"
+ * TODO: Could move this to CodeGenerator and use template
  *
- * child nodes: arguments
- * grandchild nodes: argumentList?
- * great-grandchild nodes: singleExpression+
  * @param {FuncCallExpressionContext} ctx
  * @return {String}
  */
-Visitor.prototype.emitBSONRegExp = function(ctx) {
-  ctx.type = BsonClasses.RegExp;
-  const argList = ctx.arguments().argumentList();
-  if (!argList ||
-      !(argList.singleExpression().length === 1 ||
-        argList.singleExpression().length === 2)) {
-    throw new CodeGenerationError('BSONRegExp requires one or two arguments');
-  }
-  const args = argList.singleExpression();
-  const pattern = this.visit(args[0]);
-  if (args[0].type !== Types._string) {
-    throw new CodeGenerationError('BSONRegExp requires pattern to be a string');
-  }
-
-  if (args.length === 2) {
-    const flags = this.visit(args[1]);
-    if (args[1].type !== Types._string) {
-      throw new CodeGenerationError('BSONRegExp requires flags to be a string');
-    }
-    for (let i = 1; i < flags.length - 1; i++) {
-      if (
-        !(
-          flags[i] === 'i' ||
-          flags[i] === 'm' ||
-          flags[i] === 'x' ||
-          flags[i] === 'l' ||
-          flags[i] === 's' ||
-          flags[i] === 'u'
-        )
-      ) {
-        return `Error: the regular expression options [${flags[i]}] is not supported`;
-      }
-    }
-    return `new BsonRegularExpression(${pattern}, ${flags})`;
-  }
-  return `new BsonRegularExpression(${pattern})`;
-};
-
 Visitor.prototype.emitDecimal128 = function(ctx) {
   ctx.type = BsonClasses.Decimal128;
   let decobj;

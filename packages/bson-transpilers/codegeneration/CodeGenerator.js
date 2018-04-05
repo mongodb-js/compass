@@ -162,6 +162,7 @@ Visitor.prototype.visitFuncCallExpression = function(ctx) {
     throw new CodeGenerationError(`${lhsType.id} is not callable`);
   }
 
+  // TODO: don't need for other languages
   const newStr = lhsType.callable === SYMBOL_TYPE.CONSTRUCTOR ? 'new ' : '';
   if (lhsType.argsTemplate) {
     let l = lhs;

@@ -227,7 +227,7 @@ const BsonSymbols = new Scope({
   Code: new Symbol(
     'Code',
     SYMBOL_TYPE.CONSTRUCTOR,
-    [ [Types._string], [Types._object, null] ],
+    [ [Types._string], [Types._object, null] ], // This isn't technically correct, since the first argument could be anything. It has an emit method though, so not checked.
     BsonClasses.Code,
     new Scope({})
   ),
@@ -378,7 +378,7 @@ const JSSymbols = new Scope({
   Date: new Symbol(
     'Date',
     SYMBOL_TYPE.CONSTRUCTOR,
-    [ [] ], // This isn't checked because it has an emit method
+    [ [] ], // This isn't set because it needs an emit method for each target language, and there are too many options.
     JSClasses.Date,
     new Scope({
       now:                Symbol('now',                  SYMBOL_TYPE.CONSTRUCTOR, [],             'Date',                 new Scope({}), () => { return 'java.util.Date'; })
