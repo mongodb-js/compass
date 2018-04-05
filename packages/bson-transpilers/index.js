@@ -24,6 +24,7 @@ const compileECMAScript = function(input, generator) {
   return generator.start(tree);
 };
 
+console.log(compileECMAScript("{x: 1, y: 2, z: ObjectId()}", new JavaGenerator()));
 module.exports = {
   toJava: (input) => { return compileECMAScript(input, new JavaGenerator()); },
   toCSharp: (input) => { return compileECMAScript(input, new CSharpGenerator()); },

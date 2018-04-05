@@ -74,6 +74,27 @@ Visitor.prototype.visitLiteralExpression = function(ctx) {
   return this.visitChildren(ctx);
 };
 
+/**
+ * Child nodes: propertyNameAndValueList?
+ * @param {ObjectLiteralContext} ctx
+ * @return {String}
+ */
+Visitor.prototype.visitObjectLiteral = function(ctx) {
+  ctx.type = Types._object;
+  let args = '';
+  if (ctx.propertyNameAndValueList()) {
+    const properties = ctx.propertyNameAndValueList().propertyAssignment();
+    if (ctx.type.argsTemplate) {
+      args = ctx.type.argsTemplate(...properties.map((pair) => {
+        return [this.visit(pair.propertyName()), this.visit(pair.singleExpression())];
+      }));
+    }
+  }
+  if (ctx.type.template) {
+    return ctx.type.template(args);
+  }
+};
+
 Visitor.prototype.visitFuncCallExpression = function(ctx) {
   const lhs = this.visit(ctx.singleExpression());
   let lhsType = ctx.singleExpression().type;

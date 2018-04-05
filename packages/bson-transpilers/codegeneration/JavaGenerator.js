@@ -43,9 +43,6 @@ Visitor.prototype.constructor = Visitor;
  * @param {PropertyNameAndValueListContext} ctx
  * @return {String}
  */
-Visitor.prototype.visitPropertyNameAndValueList = function(ctx) {
-  return this.visitChildren(ctx, {children: ctx.propertyAssignment()});
-};
 
 /**
  * Child nodes: (elision* singleExpression*)+
@@ -75,31 +72,6 @@ Visitor.prototype.visitNewExpression = function(ctx) {
   const expr = this.visit(ctx.singleExpression());
   ctx.type = ctx.singleExpression().type;
   return expr;
-};
-
-/**
- * Child nodes: propertyNameAndValueList?
- * @param {ObjectLiteralContext} ctx
- * @return {String}
- */
-Visitor.prototype.visitObjectLiteral = function(ctx) {
-  ctx.type = Types._object;
-  let chain = '';
-  if (ctx.propertyNameAndValueList()) {
-    chain = this.visit(ctx.propertyNameAndValueList());
-  }
-  return `new Document()${chain}`;
-};
-
-/**
- * Child nodes: propertyName singleExpression
- * @param {PropertyAssignmentExpressionContext} ctx
- * @return {String}
- */
-Visitor.prototype.visitPropertyAssignmentExpression = function(ctx) {
-  const key = doubleQuoteStringify(this.visit(ctx.propertyName()));
-  const value = this.visit(ctx.singleExpression());
-  return `.append(${key}, ${value})`;
 };
 
 /**

@@ -69,7 +69,7 @@ const Types = new Scope({
   }),
   _numeric:   new Symbol('_numeric',    SYMBOL_TYPE.VAR, null, null, new Scope({})),
   _array:     new Symbol('_array',      SYMBOL_TYPE.VAR, null, null, new Scope({})),
-  _object:    new Symbol('_object',     SYMBOL_TYPE.VAR, null, null, new Scope({})),
+  _object:    new Symbol('_object',     SYMBOL_TYPE.VAR, null, null, new Scope({}), (literal) => { return `new Document()${literal}`; }, (...args) => { return args.reduce((str, pair) => { return `${str}.append(${doubleQuoteStringify(pair[0])}, ${pair[1]})`; }, ''); }),
   _null:      new Symbol('_null',       SYMBOL_TYPE.VAR, null, null, new Scope({})),
   _undefined: new Symbol('_undefined',  SYMBOL_TYPE.VAR, null, null, new Scope({}), () => { return 'null'; })
 });
