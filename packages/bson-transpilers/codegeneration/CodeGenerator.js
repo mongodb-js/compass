@@ -23,6 +23,7 @@ function Visitor() {
 }
 Visitor.prototype = Object.create(ECMAScriptVisitor.prototype);
 Visitor.prototype.constructor = Visitor;
+Visitor.prototype.new = '';
 
 Visitor.prototype.start = Visitor.prototype.visitExpressionSequence;
 
@@ -163,7 +164,7 @@ Visitor.prototype.visitFuncCallExpression = function(ctx) {
   }
 
   // TODO: don't need for other languages
-  const newStr = lhsType.callable === SYMBOL_TYPE.CONSTRUCTOR ? 'new ' : '';
+  const newStr = lhsType.callable === SYMBOL_TYPE.CONSTRUCTOR ? this.new : '';
   if (lhsType.argsTemplate) {
     let l = lhs;
     if ('identifierName' in ctx.singleExpression()) {
