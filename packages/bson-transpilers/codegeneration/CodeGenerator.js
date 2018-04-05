@@ -317,7 +317,6 @@ Visitor.prototype.checkArguments = function(expected, argumentList) {
  */
 Visitor.prototype.emitFuncCall = function(ctx) {
   const lhs = this.visit(ctx.singleExpression());
-  let lhsStr = lhs;
   let lhsType = ctx.singleExpression().type;
   if (typeof lhsType === 'string') {
     lhsType = AllTypes[lhsType];
@@ -331,14 +330,6 @@ Visitor.prototype.emitFuncCall = function(ctx) {
   }
 
   const newStr = lhsType.callable === SYMBOL_TYPE.CONSTRUCTOR ? 'new ' : '';
-  if (lhsType.template) {
-    // if LHS is a member attr
-    let l = lhs;
-    if ('identifierName' in ctx.singleExpression()) {
-      l = this.visit(ctx.singleExpression().singleExpression());
-    }
-    lhsStr = lhsType.template(l);
-  }
   if (lhsType.argsTemplate) {
     let l = lhs;
     if ('identifierName' in ctx.singleExpression()) {
@@ -348,7 +339,7 @@ Visitor.prototype.emitFuncCall = function(ctx) {
   } else {
     rhs = `(${rhs.join(', ')})`;
   }
-  return `${newStr}${lhsStr}${rhs}`;
+  return `${newStr}${lhs}${rhs}`;
 };
 
 /**
