@@ -6,7 +6,6 @@ const {
   Types,
   SYMBOL_TYPE,
   BsonSymbols,
-  JSSymbols,
   Symbols,
   AllTypes
 } = require('./SymbolTable');
@@ -76,7 +75,7 @@ Visitor.prototype.visitLiteralExpression = function(ctx) {
 };
 
 Visitor.prototype.visitFuncCallExpression = function(ctx) {
-  this.visit(ctx.singleExpression());
+  const lhs = this.visit(ctx.singleExpression());
   let lhsType = ctx.singleExpression().type;
   if (typeof lhsType === 'string') {
     lhsType = AllTypes[lhsType];
@@ -87,31 +86,25 @@ Visitor.prototype.visitFuncCallExpression = function(ctx) {
     return this[`emit${lhsType.id}`](ctx);
   }
 
-  return this.emitFuncCall(ctx);
-};
+  const expectedArgs = lhsType.args;
+  let rhs = this.checkArguments(expectedArgs, ctx.arguments().argumentList());
 
-Visitor.prototype.visitBSONIdentifierExpression = function(ctx) {
-  const name = this.visitChildren(ctx);
-  ctx.type = BsonSymbols[name];
-  if (ctx.type === undefined) {
-    throw new CodeGenerationError(`symbol "${name}" is undefined`);
+  ctx.type = lhsType.type;
+  if (!lhsType.callable) {
+    throw new CodeGenerationError(`${lhsType.id} is not callable`);
   }
-  if (ctx.type.template) {
-    return ctx.type.template();
-  }
-  return name;
-};
 
-Visitor.prototype.visitJSIdentifierExpression = function(ctx) {
-  const name = this.visitChildren(ctx);
-  ctx.type = JSSymbols[name];
-  if (ctx.type === undefined) {
-    throw new CodeGenerationError(`symbol '${name}' is undefined`);
+  const newStr = lhsType.callable === SYMBOL_TYPE.CONSTRUCTOR ? 'new ' : '';
+  if (lhsType.argsTemplate) {
+    let l = lhs;
+    if ('identifierName' in ctx.singleExpression()) {
+      l = this.visit(ctx.singleExpression().singleExpression());
+    }
+    rhs = lhsType.argsTemplate(l, ...rhs);
+  } else {
+    rhs = `(${rhs.join(', ')})`;
   }
-  if (ctx.type.template) {
-    return ctx.type.template();
-  }
-  return name;
+  return `${newStr}${lhs}${rhs}`;
 };
 
 Visitor.prototype.visitIdentifierExpression = function(ctx) {
@@ -126,6 +119,13 @@ Visitor.prototype.visitIdentifierExpression = function(ctx) {
   return name;
 };
 
+/**
+ * This will check the type of the attribute, and error if it's a BSON symbol
+ * or a JS Symbol and it is undefined. If it's not either of those symbols, it
+ * doesn't error. TODO: should always error? never error?
+ * @param {GetAttributeExpressionContext} ctx
+ * @return {String}
+ */
 Visitor.prototype.visitGetAttributeExpression = function(ctx) {
   const lhs = this.visit(ctx.singleExpression());
   const rhs = this.visit(ctx.identifierName());
@@ -307,53 +307,5 @@ Visitor.prototype.checkArguments = function(expected, argumentList) {
   }
   return argStr;
 };
-
-// /////////////
-// Emit type  //
-// /////////////
-/**
- * @param {FuncCallExpressionContext} ctx
- * @return {String}
- */
-Visitor.prototype.emitFuncCall = function(ctx) {
-  const lhs = this.visit(ctx.singleExpression());
-  let lhsType = ctx.singleExpression().type;
-  if (typeof lhsType === 'string') {
-    lhsType = AllTypes[lhsType];
-  }
-  const expectedArgs = lhsType.args;
-  let rhs = this.checkArguments(expectedArgs, ctx.arguments().argumentList());
-
-  ctx.type = lhsType.type;
-  if (!lhsType.callable) {
-    throw new CodeGenerationError(`${lhsType.id} is not callable`);
-  }
-
-  const newStr = lhsType.callable === SYMBOL_TYPE.CONSTRUCTOR ? 'new ' : '';
-  if (lhsType.argsTemplate) {
-    let l = lhs;
-    if ('identifierName' in ctx.singleExpression()) {
-      l = this.visit(ctx.singleExpression().singleExpression());
-    }
-    rhs = lhsType.argsTemplate(l, ...rhs);
-  } else {
-    rhs = `(${rhs.join(', ')})`;
-  }
-  return `${newStr}${lhs}${rhs}`;
-};
-
-/**
- * child nodes: arguments
- * grandchild nodes: argumentList?
- * great-grandchild nodes: singleExpression+
- * @param {FuncCallExpressionContext} ctx
- * @return {String}
- */
-Visitor.prototype.emitObjectCreate = function(ctx) {
-  ctx.type = Types._object;
-  const argList = ctx.arguments().argumentList();
-  return this.checkArguments(JSSymbols['Object.create'].args, argList).join('');
-};
-
 
 module.exports = Visitor;

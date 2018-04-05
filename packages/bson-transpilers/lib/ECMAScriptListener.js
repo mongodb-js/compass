@@ -731,15 +731,6 @@ ECMAScriptListener.prototype.exitLiteralExpression = function(ctx) {
 };
 
 
-// Enter a parse tree produced by ECMAScriptParser#JSIdentifierExpression.
-ECMAScriptListener.prototype.enterJSIdentifierExpression = function(ctx) {
-};
-
-// Exit a parse tree produced by ECMAScriptParser#JSIdentifierExpression.
-ECMAScriptListener.prototype.exitJSIdentifierExpression = function(ctx) {
-};
-
-
 // Enter a parse tree produced by ECMAScriptParser#ArrayLiteralExpression.
 ECMAScriptListener.prototype.enterArrayLiteralExpression = function(ctx) {
 };
@@ -785,15 +776,6 @@ ECMAScriptListener.prototype.exitBitOrExpression = function(ctx) {
 };
 
 
-// Enter a parse tree produced by ECMAScriptParser#BSONIdentifierExpression.
-ECMAScriptListener.prototype.enterBSONIdentifierExpression = function(ctx) {
-};
-
-// Exit a parse tree produced by ECMAScriptParser#BSONIdentifierExpression.
-ECMAScriptListener.prototype.exitBSONIdentifierExpression = function(ctx) {
-};
-
-
 // Enter a parse tree produced by ECMAScriptParser#AssignmentOperatorExpression.
 ECMAScriptListener.prototype.enterAssignmentOperatorExpression = function(ctx) {
 };
@@ -809,132 +791,6 @@ ECMAScriptListener.prototype.enterVoidExpression = function(ctx) {
 
 // Exit a parse tree produced by ECMAScriptParser#VoidExpression.
 ECMAScriptListener.prototype.exitVoidExpression = function(ctx) {
-};
-
-
-// Enter a parse tree produced by ECMAScriptParser#BSONObjectId.
-ECMAScriptListener.prototype.enterBSONObjectId = function(ctx) {
-};
-
-// Exit a parse tree produced by ECMAScriptParser#BSONObjectId.
-ECMAScriptListener.prototype.exitBSONObjectId = function(ctx) {
-};
-
-
-// Enter a parse tree produced by ECMAScriptParser#BSONCode.
-ECMAScriptListener.prototype.enterBSONCode = function(ctx) {
-};
-
-// Exit a parse tree produced by ECMAScriptParser#BSONCode.
-ECMAScriptListener.prototype.exitBSONCode = function(ctx) {
-};
-
-
-// Enter a parse tree produced by ECMAScriptParser#BSONBinary.
-ECMAScriptListener.prototype.enterBSONBinary = function(ctx) {
-};
-
-// Exit a parse tree produced by ECMAScriptParser#BSONBinary.
-ECMAScriptListener.prototype.exitBSONBinary = function(ctx) {
-};
-
-
-// Enter a parse tree produced by ECMAScriptParser#BSONDBRef.
-ECMAScriptListener.prototype.enterBSONDBRef = function(ctx) {
-};
-
-// Exit a parse tree produced by ECMAScriptParser#BSONDBRef.
-ECMAScriptListener.prototype.exitBSONDBRef = function(ctx) {
-};
-
-
-// Enter a parse tree produced by ECMAScriptParser#BSONLong.
-ECMAScriptListener.prototype.enterBSONLong = function(ctx) {
-};
-
-// Exit a parse tree produced by ECMAScriptParser#BSONLong.
-ECMAScriptListener.prototype.exitBSONLong = function(ctx) {
-};
-
-
-// Enter a parse tree produced by ECMAScriptParser#BSONDouble.
-ECMAScriptListener.prototype.enterBSONDouble = function(ctx) {
-};
-
-// Exit a parse tree produced by ECMAScriptParser#BSONDouble.
-ECMAScriptListener.prototype.exitBSONDouble = function(ctx) {
-};
-
-
-// Enter a parse tree produced by ECMAScriptParser#BSONInt32.
-ECMAScriptListener.prototype.enterBSONInt32 = function(ctx) {
-};
-
-// Exit a parse tree produced by ECMAScriptParser#BSONInt32.
-ECMAScriptListener.prototype.exitBSONInt32 = function(ctx) {
-};
-
-
-// Enter a parse tree produced by ECMAScriptParser#BSONDecimal128.
-ECMAScriptListener.prototype.enterBSONDecimal128 = function(ctx) {
-};
-
-// Exit a parse tree produced by ECMAScriptParser#BSONDecimal128.
-ECMAScriptListener.prototype.exitBSONDecimal128 = function(ctx) {
-};
-
-
-// Enter a parse tree produced by ECMAScriptParser#BSONMinKey.
-ECMAScriptListener.prototype.enterBSONMinKey = function(ctx) {
-};
-
-// Exit a parse tree produced by ECMAScriptParser#BSONMinKey.
-ECMAScriptListener.prototype.exitBSONMinKey = function(ctx) {
-};
-
-
-// Enter a parse tree produced by ECMAScriptParser#BSONMaxKey.
-ECMAScriptListener.prototype.enterBSONMaxKey = function(ctx) {
-};
-
-// Exit a parse tree produced by ECMAScriptParser#BSONMaxKey.
-ECMAScriptListener.prototype.exitBSONMaxKey = function(ctx) {
-};
-
-
-// Enter a parse tree produced by ECMAScriptParser#BSONTimestamp.
-ECMAScriptListener.prototype.enterBSONTimestamp = function(ctx) {
-};
-
-// Exit a parse tree produced by ECMAScriptParser#BSONTimestamp.
-ECMAScriptListener.prototype.exitBSONTimestamp = function(ctx) {
-};
-
-
-// Enter a parse tree produced by ECMAScriptParser#BSONRegExp.
-ECMAScriptListener.prototype.enterBSONRegExp = function(ctx) {
-};
-
-// Exit a parse tree produced by ECMAScriptParser#BSONRegExp.
-ECMAScriptListener.prototype.exitBSONRegExp = function(ctx) {
-};
-
-
-// Enter a parse tree produced by ECMAScriptParser#BSONSymbol.
-ECMAScriptListener.prototype.enterBSONSymbol = function(ctx) {
-};
-
-// Exit a parse tree produced by ECMAScriptParser#BSONSymbol.
-ECMAScriptListener.prototype.exitBSONSymbol = function(ctx) {
-};
-
-
-// Enter a parse tree produced by ECMAScriptParser#jsType.
-ECMAScriptListener.prototype.enterJsType = function(ctx) {
-};
-
-// Exit a parse tree produced by ECMAScriptParser#jsType.
-ECMAScriptListener.prototype.exitJsType = function(ctx) {
 };
 
 

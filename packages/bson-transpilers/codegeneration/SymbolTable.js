@@ -360,12 +360,12 @@ const JSClasses = new Scope({
 });
 
 const JSSymbols = new Scope({
-  'Object.create': new Symbol(
-    'ObjectCreate',
-    SYMBOL_TYPE.FUNC,
-    [ [Types._object] ],
-    Types._object,
-    new Scope({})
+  'Object': new Symbol(
+    'Object',
+    SYMBOL_TYPE.VAR, null, Types._object,
+    new Scope({
+      create:             Symbol('create',               SYMBOL_TYPE.FUNC,        [ [Types._object] ], Types._object,     new Scope({}), () => { return ''; },    (lhs, arg) => { return arg; })
+    })
   ),
   Number: new Symbol(
     'Number',

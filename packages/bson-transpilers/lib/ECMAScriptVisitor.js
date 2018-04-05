@@ -492,12 +492,6 @@ ECMAScriptVisitor.prototype.visitLiteralExpression = function(ctx) {
 };
 
 
-// Visit a parse tree produced by ECMAScriptParser#JSIdentifierExpression.
-ECMAScriptVisitor.prototype.visitJSIdentifierExpression = function(ctx) {
-  return this.visitChildren(ctx);
-};
-
-
 // Visit a parse tree produced by ECMAScriptParser#ArrayLiteralExpression.
 ECMAScriptVisitor.prototype.visitArrayLiteralExpression = function(ctx) {
   return this.visitChildren(ctx);
@@ -528,12 +522,6 @@ ECMAScriptVisitor.prototype.visitBitOrExpression = function(ctx) {
 };
 
 
-// Visit a parse tree produced by ECMAScriptParser#BSONIdentifierExpression.
-ECMAScriptVisitor.prototype.visitBSONIdentifierExpression = function(ctx) {
-  return this.visitChildren(ctx);
-};
-
-
 // Visit a parse tree produced by ECMAScriptParser#AssignmentOperatorExpression.
 ECMAScriptVisitor.prototype.visitAssignmentOperatorExpression = function(ctx) {
   return this.visitChildren(ctx);
@@ -542,90 +530,6 @@ ECMAScriptVisitor.prototype.visitAssignmentOperatorExpression = function(ctx) {
 
 // Visit a parse tree produced by ECMAScriptParser#VoidExpression.
 ECMAScriptVisitor.prototype.visitVoidExpression = function(ctx) {
-  return this.visitChildren(ctx);
-};
-
-
-// Visit a parse tree produced by ECMAScriptParser#BSONObjectId.
-ECMAScriptVisitor.prototype.visitBSONObjectId = function(ctx) {
-  return this.visitChildren(ctx);
-};
-
-
-// Visit a parse tree produced by ECMAScriptParser#BSONCode.
-ECMAScriptVisitor.prototype.visitBSONCode = function(ctx) {
-  return this.visitChildren(ctx);
-};
-
-
-// Visit a parse tree produced by ECMAScriptParser#BSONBinary.
-ECMAScriptVisitor.prototype.visitBSONBinary = function(ctx) {
-  return this.visitChildren(ctx);
-};
-
-
-// Visit a parse tree produced by ECMAScriptParser#BSONDBRef.
-ECMAScriptVisitor.prototype.visitBSONDBRef = function(ctx) {
-  return this.visitChildren(ctx);
-};
-
-
-// Visit a parse tree produced by ECMAScriptParser#BSONLong.
-ECMAScriptVisitor.prototype.visitBSONLong = function(ctx) {
-  return this.visitChildren(ctx);
-};
-
-
-// Visit a parse tree produced by ECMAScriptParser#BSONDouble.
-ECMAScriptVisitor.prototype.visitBSONDouble = function(ctx) {
-  return this.visitChildren(ctx);
-};
-
-
-// Visit a parse tree produced by ECMAScriptParser#BSONInt32.
-ECMAScriptVisitor.prototype.visitBSONInt32 = function(ctx) {
-  return this.visitChildren(ctx);
-};
-
-
-// Visit a parse tree produced by ECMAScriptParser#BSONDecimal128.
-ECMAScriptVisitor.prototype.visitBSONDecimal128 = function(ctx) {
-  return this.visitChildren(ctx);
-};
-
-
-// Visit a parse tree produced by ECMAScriptParser#BSONMinKey.
-ECMAScriptVisitor.prototype.visitBSONMinKey = function(ctx) {
-  return this.visitChildren(ctx);
-};
-
-
-// Visit a parse tree produced by ECMAScriptParser#BSONMaxKey.
-ECMAScriptVisitor.prototype.visitBSONMaxKey = function(ctx) {
-  return this.visitChildren(ctx);
-};
-
-
-// Visit a parse tree produced by ECMAScriptParser#BSONTimestamp.
-ECMAScriptVisitor.prototype.visitBSONTimestamp = function(ctx) {
-  return this.visitChildren(ctx);
-};
-
-
-// Visit a parse tree produced by ECMAScriptParser#BSONRegExp.
-ECMAScriptVisitor.prototype.visitBSONRegExp = function(ctx) {
-  return this.visitChildren(ctx);
-};
-
-
-// Visit a parse tree produced by ECMAScriptParser#BSONSymbol.
-ECMAScriptVisitor.prototype.visitBSONSymbol = function(ctx) {
-  return this.visitChildren(ctx);
-};
-
-
-// Visit a parse tree produced by ECMAScriptParser#jsType.
-ECMAScriptVisitor.prototype.visitJsType = function(ctx) {
   return this.visitChildren(ctx);
 };
 

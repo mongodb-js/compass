@@ -619,31 +619,6 @@ singleExpression
  | arrayLiteral                                                           # ArrayLiteralExpression
  | objectLiteral                                                          # ObjectLiteralExpression
  | '(' expressionSequence ')'                                             # ParenthesizedExpression
- | bsonType                                                               # BSONIdentifierExpression
- | jsType                                                                 # JSIdentifierExpression
- ;
-
-bsonType
- : BSONObjectId                      # BSONObjectId
- | BSONCode                          # BSONCode
- | BSONBinary                        # BSONBinary
- | BSONDBRef                         # BSONDBRef
- | BSONLong                          # BSONLong
- | BSONDouble                        # BSONDouble
- | BSONInt32                         # BSONInt32
- | BSONDecimal128                    # BSONDecimal128
- | BSONMinKey                        # BSONMinKey
- | BSONMaxKey                        # BSONMaxKey
- | BSONTimestamp                     # BSONTimestamp
- | BSONRegExp                        # BSONRegExp
- | BSONSymbol                        # BSONSymbol
- ;
-
-jsType
- : Date
- | RegExp
- | Number
- | ObjectCreate
  ;
 
 /// AssignmentOperator : one of
@@ -902,27 +877,6 @@ Package    : {this.strictMode}? 'package';
 Protected  : {this.strictMode}? 'protected';
 Static     : {this.strictMode}? 'static';
 Yield      : {this.strictMode}? 'yield';
-
-/// BSON object keywords
-BSONObjectId    :   'ObjectId';
-BSONCode        :   'Code';
-BSONBinary      :   'Binary';
-BSONDBRef       :   'DBRef';
-BSONLong        :   'Long';
-BSONDouble      :   'Double';
-BSONInt32       :   'Int32';
-BSONDecimal128  :   'Decimal128';
-BSONMinKey      :   'MinKey';
-BSONMaxKey      :   'MaxKey';
-BSONTimestamp   :   'Timestamp';
-BSONRegExp      :   'BSONRegExp';
-BSONSymbol      :   'Symbol';
-
-// Built-in type keywords
-Date            :   'Date';
-RegExp          :   'RegExp';
-Number          :   'Number';
-ObjectCreate    :   'Object.create';
 
 /// 7.6 Identifier Names and Identifiers
 Identifier
