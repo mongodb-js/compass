@@ -192,7 +192,7 @@
         "description": "isOdd",
         "query": "Long(1, 100).isOdd()",
         "python": "",
-        "java": "(new java.lang.Long(\"429496729601\") % 2) == 0",
+        "java": "new java.lang.Long(\"429496729601\") % 2 == 0",
         "csharp": ""
       },
       {

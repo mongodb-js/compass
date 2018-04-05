@@ -96,9 +96,9 @@ Visitor.prototype.visitBSONIdentifierExpression = function(ctx) {
   if (ctx.type === undefined) {
     throw new CodeGenerationError(`symbol "${name}" is undefined`);
   }
-  // if (ctx.type.template) {
-  //   return ctx.type.template();
-  // }
+  if (ctx.type.template) {
+    return ctx.type.template();
+  }
   return name;
 };
 
@@ -108,9 +108,9 @@ Visitor.prototype.visitJSIdentifierExpression = function(ctx) {
   if (ctx.type === undefined) {
     throw new CodeGenerationError(`symbol '${name}' is undefined`);
   }
-  // if (ctx.type.template) {
-  //   return ctx.type.template();
-  // }
+  if (ctx.type.template) {
+    return ctx.type.template();
+  }
   return name;
 };
 
@@ -120,9 +120,9 @@ Visitor.prototype.visitIdentifierExpression = function(ctx) {
   if (ctx.type === undefined) {
     throw new CodeGenerationError(`symbol "${name}" is undefined`);
   }
-  // if (ctx.type.template) {
-  //   return ctx.type.template();
-  // }
+  if (ctx.type.template) {
+    return ctx.type.template();
+  }
   return name;
 };
 
@@ -322,21 +322,31 @@ Visitor.prototype.emitType = function(ctx) {
     lhsType = AllTypes[lhsType];
   }
   const expectedArgs = lhsType.args;
-  const rhs = this.checkArguments(expectedArgs, ctx.arguments().argumentList());
+  let rhs = this.checkArguments(expectedArgs, ctx.arguments().argumentList());
 
   ctx.type = lhsType.type;
   if (!lhsType.callable) {
     throw new CodeGenerationError(`${lhsType.id} is not callable`);
   }
+
+  const newStr = lhsType.callable === SYMBOL_TYPE.CONSTRUCTOR ? 'new ' : '';
   if (lhsType.template) {
     // if LHS is a member attr
     if ('identifierName' in ctx.singleExpression()) {
       lhs = this.visit(ctx.singleExpression().singleExpression());
     }
-    return lhsType.template(lhs, ...rhs);
+    lhs = lhsType.template(lhs, ...rhs);
   }
-  const newStr = lhsType.callable === SYMBOL_TYPE.CONSTRUCTOR ? 'new ' : '';
-  return `${newStr}${lhs}(${rhs.join(', ')})`;
+  if (lhsType.argsTemplate) {
+    let lhs2 = lhs;
+    if ('identifierName' in ctx.singleExpression()) {
+      lhs2 = this.visit(ctx.singleExpression().singleExpression());
+    }
+    rhs = lhsType.argsTemplate(lhs2, ...rhs);
+  } else {
+    rhs = `(${rhs.join(', ')})`;
+  }
+  return `${newStr}${lhs}${rhs}`;
 };
 
 /**
