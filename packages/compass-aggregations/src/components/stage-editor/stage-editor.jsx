@@ -90,7 +90,9 @@ class StageEditor extends PureComponent {
    */
   onStageChange = (value) => {
     this.props.stageChanged(value, this.props.index);
-    this.debounceRun();
+    if (this.props.stage.isValid) {
+      this.debounceRun();
+    }
   }
 
   /**
