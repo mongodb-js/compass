@@ -3,8 +3,7 @@ const CodeGenerator = require('./CodeGenerator.js');
 const {
   Types,
   JSClasses,
-  BsonClasses,
-  AllTypes
+  BsonClasses
 } = require('./SymbolTable');
 
 const {
@@ -394,17 +393,5 @@ Visitor.prototype.emitLongtoString = function(ctx) {
   const arg = this.checkArguments(lhsType.args, stringArgs).join(', ');
   return `java.lang.Long.toString(${longstr}, ${arg})`;
 };
-
-Visitor.prototype.emitFuncWithArg = function(ctx) {
-  const lhs = this.visit(ctx.singleExpression().singleExpression());
-  let lhsType = ctx.singleExpression().type;
-  if (typeof lhsType === 'string') {
-    lhsType = AllTypes[lhsType];
-  }
-  ctx.type = lhsType.type;
-  const arg = this.checkArguments(lhsType.args, ctx.arguments().argumentList());
-  return lhsType.template(lhs, ...arg);
-};
-
 
 module.exports = Visitor;
