@@ -55,7 +55,7 @@ import DataService from 'mongodb-data-service';
 const connection = new Connection({
   hostname: 'data.mongodb.parts',
   port: 27017,
-  ns: 'IMDB'
+  ns: '100YWeather'
 });
 const dataService = new DataService(connection);
 
@@ -63,7 +63,7 @@ appRegistry.emit('data-service-initialized', dataService);
 
 dataService.connect((error, ds) => {
   appRegistry.emit('data-service-connected', error, ds);
-  appRegistry.emit('collection-changed', 'IMDB.omdbFull');
+  appRegistry.emit('collection-changed', '100YWeather.data');
 
   const docs = [{
     _id: 1,

@@ -1,4 +1,4 @@
-import React, { PureComponent } from 'react';
+import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import classnames from 'classnames';
 import { Document } from '@mongodb-js/compass-crud';
@@ -10,12 +10,16 @@ import styles from './input-preview.less';
 /**
  * The input preview component.
  */
-class InputPreview extends PureComponent {
+class InputPreview extends Component {
   static displayName = 'InputPreview';
 
   static propTypes = {
     documents: PropTypes.array.isRequired,
     isLoading: PropTypes.bool.isRequired
+  }
+
+  shouldComponentUpdate(nextProps) {
+    return nextProps.isLoading !== this.props.isLoading;
   }
 
   /**

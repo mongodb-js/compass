@@ -1,4 +1,4 @@
-import React, { PureComponent } from 'react';
+import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { Document } from '@mongodb-js/compass-crud';
 import HadronDocument from 'hadron-document';
@@ -10,13 +10,17 @@ import styles from './stage-preview.less';
 /**
  * The stage preview component.
  */
-class StagePreview extends PureComponent {
+class StagePreview extends Component {
   static displayName = 'StagePreview';
 
   static propTypes = {
     documents: PropTypes.array.isRequired,
     isValid: PropTypes.bool.isRequired,
     isLoading: PropTypes.bool.isRequired
+  }
+
+  shouldComponentUpdate(nextProps) {
+    return nextProps.isLoading !== this.props.isLoading;
   }
 
   renderPreview() {
