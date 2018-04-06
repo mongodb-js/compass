@@ -39,7 +39,7 @@ class OffCanvas extends PureComponent {
       <div className={classnames(styles['off-canvas'])}>
         <OffCanvasButton
           onClick={clickHandler}
-          iconClassName="fa fa-floppy-o"
+          iconClassName="fa fa-list"
           isVisible={this.props.savedPipeline.isListVisible} />
       </div>
     );

@@ -31,7 +31,7 @@ const OPTIONS = Object.freeze({});
 /**
  * The sample pipeline.
  */
-const SAMPLE = [ Object.freeze({ '$sample': { 'size': 20 }}) ];
+const SAMPLE = [ Object.freeze({ '$limit': 20 }) ];
 
 /**
  * The initial state.

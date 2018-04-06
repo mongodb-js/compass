@@ -53,9 +53,9 @@ import Connection from 'mongodb-connection-model';
 import DataService from 'mongodb-data-service';
 
 const connection = new Connection({
-  hostname: '127.0.0.1',
+  hostname: 'data.mongodb.parts',
   port: 27017,
-  ns: 'compass-aggregations'
+  ns: 'IMDB'
 });
 const dataService = new DataService(connection);
 
@@ -63,7 +63,7 @@ appRegistry.emit('data-service-initialized', dataService);
 
 dataService.connect((error, ds) => {
   appRegistry.emit('data-service-connected', error, ds);
-  appRegistry.emit('collection-changed', 'import-export.users');
+  appRegistry.emit('collection-changed', 'IMDB.omdbFull');
 
   const docs = [{
     _id: 1,
