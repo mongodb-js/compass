@@ -300,7 +300,6 @@ describe('pipeline module', () => {
   });
 
   describe('#generatePipeline', () => {
-    const sample = { $sample: { size: 10000 }};
     const limit = { $limit: 20 };
 
     context('when the index is the first', () => {
@@ -309,7 +308,6 @@ describe('pipeline module', () => {
 
       it('returns the pipeline with only the current stage', () => {
         expect(generatePipeline(state, 0)).to.deep.equal([
-          sample,
           stage.executor,
           limit
         ]);
@@ -324,7 +322,6 @@ describe('pipeline module', () => {
 
       it('returns the pipeline with the current and all previous stages', () => {
         expect(generatePipeline(state, 2)).to.deep.equal([
-          sample,
           stage0.executor,
           stage1.executor,
           stage2.executor,
@@ -341,7 +338,6 @@ describe('pipeline module', () => {
 
       it('returns the pipeline with the current and all previous stages', () => {
         expect(generatePipeline(state, 1)).to.deep.equal([
-          sample,
           stage0.executor,
           stage1.executor,
           limit
@@ -357,7 +353,6 @@ describe('pipeline module', () => {
 
       it('returns the pipeline with the current and all previous stages', () => {
         expect(generatePipeline(state, 2)).to.deep.equal([
-          sample,
           stage1.executor,
           stage2.executor,
           limit
@@ -366,22 +361,58 @@ describe('pipeline module', () => {
     });
 
     context('when there are no stages', () => {
+      const state = { inputDocuments: { count: 10000 }, pipeline: []};
+
       it('returns an empty pipeline', () => {
-        expect(generatePipeline({ pipeline: [] }, 0)).to.deep.equal([]);
+        expect(generatePipeline(state, 0)).to.deep.equal([]);
       });
     });
 
     context('when the collection size is over the max threshold', () => {
-      const highSample = { $sample: { size: 48000 }};
-      const stage0 = { isEnabled: true, executor: { $match: { name: 'test' }}};
-      const state = { inputDocuments: { count: 1000000 }, pipeline: [ stage0 ]};
+      context('when the pipeline contains a $match', () => {
+        const stage0 = { isEnabled: true, executor: { $match: { name: 'test' }}};
+        const state = { inputDocuments: { count: 1000000 }, pipeline: [ stage0 ]};
 
-      it('sets the sample size to 0.048 of the collection count', () => {
-        expect(generatePipeline(state, 0)).to.deep.equal([
-          highSample,
-          stage0.executor,
-          limit
-        ]);
+        it('sets the limit on the end', () => {
+          expect(generatePipeline(state, 0)).to.deep.equal([
+            stage0.executor,
+            limit
+          ]);
+        });
+      });
+
+      context('when the pipeline contains a $group', () => {
+        const stage0 = {
+          isEnabled: true,
+          executor: { $group: { name: 'test' }},
+          stageOperator: '$group'
+        };
+        const state = { inputDocuments: { count: 1000000 }, pipeline: [ stage0 ]};
+
+        it('sets the limit on the end', () => {
+          expect(generatePipeline(state, 0)).to.deep.equal([
+            { $limit: 100000 },
+            stage0.executor,
+            limit
+          ]);
+        });
+      });
+
+      context('when the pipeline contains a $sort', () => {
+        const stage0 = {
+          isEnabled: true,
+          executor: { $sort: { name: 1 }},
+          stageOperator: '$sort'
+        };
+        const state = { inputDocuments: { count: 1000000 }, pipeline: [ stage0 ]};
+
+        it('sets the limit on the end', () => {
+          expect(generatePipeline(state, 0)).to.deep.equal([
+            { $limit: 100000 },
+            stage0.executor,
+            limit
+          ]);
+        });
       });
     });
 

@@ -57,14 +57,9 @@ export const LOADING_STAGE_RESULTS = `${PREFIX}/LOADING_STAGE_RESULTS`;
 export const LIMIT = Object.freeze({ $limit: 20 });
 
 /**
- * Our magic sweet spot for sample size.
+ * Large limit constant.
  */
-export const STAGE_SAMPLE_SIZE = 10000;
-
-/**
- * Our maximum collection size to allow a full scan.
- */
-export const MAX_SCAN_COLL_SIZE = 200000;
+export const LARGE_LIMIT = Object.freeze({ $limit: 100000 });
 
 /**
  * Stage operators that are required to be the first stage.
@@ -75,6 +70,15 @@ export const REQUIRED_AS_FIRST_STAGE = [
   '$indexStats',
   '$listLocalSessions',
   '$listSessions'
+];
+
+/**
+ * Ops that must scan the entire results before moving to the
+ * next stage.
+ */
+export const FULL_SCAN_OPS = [
+  '$group',
+  '$sort'
 ];
 
 /**
@@ -423,26 +427,21 @@ const OPTIONS = Object.freeze({ maxTimeMS: 5000, allowDiskUse: true });
  * @returns {Array} The pipeline.
  */
 export const generatePipeline = (state, index) => {
+  const count = state.inputDocuments.count;
   const stages = state.pipeline.reduce((results, stage, i) => {
-    if (i <= index && stage.isEnabled) results.push(stage.executor);
+    if (i <= index && stage.isEnabled) {
+      // If stage is a $groupBy or $sort it will scan the entire list, so
+      // prepend with $limit if the collection is large.
+      if (count > 100000 && FULL_SCAN_OPS.includes(stage.stageOperator)) {
+        results.push(LARGE_LIMIT);
+      }
+      results.push(stage.executor);
+    }
     return results;
   }, []);
-  // REQUIRED_AS_FIRST_STAGE
-  if (stages.length > 0) {
-    const count = state.inputDocuments.count;
-    // @note If the $sample is over 5% of the total collection size then it
-    //   will generate a full collection scan. To be on the safe side (since
-    //   documents could be getting deleted, we drop this number to a bit less.)
-    const noCollScanNumber = Math.round(count * 0.048);
-
-    // @note We will allow a full collection scan up to a certain size, and over
-    //   that we will sample based on the 5% rule.
-    const sampleSize = count > MAX_SCAN_COLL_SIZE ? noCollScanNumber : STAGE_SAMPLE_SIZE;
-
-    if (!REQUIRED_AS_FIRST_STAGE.includes(state.pipeline[0].stageOperator)) {
-      stages.unshift({ $sample: { size: sampleSize }});
-      stages.push(LIMIT);
-    }
+  const lastStage = state.pipeline[state.pipeline.length - 1];
+  if (stages.length > 0 && !REQUIRED_AS_FIRST_STAGE.includes(lastStage.stageOperator)) {
+    stages.push(LIMIT);
   }
   return stages;
 };
