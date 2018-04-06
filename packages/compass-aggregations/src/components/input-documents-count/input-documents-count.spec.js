@@ -23,7 +23,7 @@ describe('InputDocumentsCount [Component]', () => {
 
   it('renders the count', () => {
     expect(component.find(`.${styles['input-documents-count-label']}`)).to.have.text(
-      '20 Input Documents'
+      '20 Documents in the Collection'
     );
   });
 });

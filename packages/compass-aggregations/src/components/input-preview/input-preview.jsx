@@ -39,7 +39,7 @@ class InputPreview extends PureComponent {
     return (
       <div className={classnames(styles['input-preview'])}>
         { this.props.isLoading ?
-          <LoadingOverlay text="Sampling Input Documents..." /> :
+          <LoadingOverlay text="Sampling Documents..." /> :
           null
         }
         <i className={iconClassName} aria-hidden />

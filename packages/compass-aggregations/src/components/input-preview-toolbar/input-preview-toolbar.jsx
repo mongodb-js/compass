@@ -6,7 +6,7 @@ import styles from './input-preview-toolbar.less';
 /**
  * The static text.
  */
-const TEXT = 'Preview of Input Documents';
+const TEXT = 'Preview of Documents in the Collection';
 
 /**
  * The input preview toolbar component.

@@ -29,7 +29,7 @@ class InputDocumentsCount extends PureComponent {
       <div className={classnames(styles['input-documents-count'])}>
         <i className={iconClassName} aria-hidden />
         <div className={classnames(styles['input-documents-count-label'])}>
-          {this.props.count} Input Documents
+          {this.props.count} Documents in the Collection
         </div>
       </div>
     );
