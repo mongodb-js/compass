@@ -2,6 +2,7 @@
 const ECMAScriptVisitor = require('../lib/ECMAScriptVisitor').ECMAScriptVisitor;
 const bson = require('bson');
 const Context = require('context-eval');
+const path = require('path');
 const {
   Types,
   SYMBOL_TYPE,
@@ -9,7 +10,9 @@ const {
   Symbols,
   AllTypes
 } = require('./SymbolTable');
-const { CodeGenerationError } = require('./helpers');
+const {
+  SemanticArgumentCountMismatchError
+} = require(path.resolve('helper', 'error'));
 
 /**
  * This is a Visitor superclass where helper methods used by all language
@@ -160,7 +163,9 @@ Visitor.prototype.visitFuncCallExpression = function(ctx) {
 
   ctx.type = lhsType.type;
   if (!lhsType.callable) {
-    throw new CodeGenerationError(`${lhsType.id} is not callable`);
+    throw new SemanticArgumentCountMismatchError({
+      message: `${lhsType.id} is not callable`
+    });
   }
 
   // TODO: don't need for other languages
@@ -181,7 +186,9 @@ Visitor.prototype.visitIdentifierExpression = function(ctx) {
   const name = this.visitChildren(ctx);
   ctx.type = Symbols[name];
   if (ctx.type === undefined) {
-    throw new CodeGenerationError(`symbol "${name}" is undefined`);
+    throw new SemanticArgumentCountMismatchError({
+      message: `symbol "${name}" is undefined`
+    });
   }
   if (ctx.type.template) {
     return ctx.type.template();
@@ -209,7 +216,9 @@ Visitor.prototype.visitGetAttributeExpression = function(ctx) {
   while (type !== null) {
     if (!(type.attr.hasOwnProperty(rhs))) {
       if (type.id in BsonSymbols) {
-        throw new CodeGenerationError(`${rhs} not an attribute of ${type.id}`);
+        throw new SemanticArgumentCountMismatchError({
+          message: `${rhs} not an attribute of ${type.id}`
+        });
       }
       type = type.type;
       if (typeof type === 'string') {
@@ -351,18 +360,18 @@ Visitor.prototype.checkArguments = function(expected, argumentList) {
     if (expected.length === 0) {
       return argStr;
     }
-    throw new CodeGenerationError('arguments required');
+    throw new SemanticArgumentCountMismatchError({message: 'arguments required'});
   }
   const args = argumentList.singleExpression();
   if (args.length > expected.length) {
-    throw new CodeGenerationError('too many arguments');
+    throw new SemanticArgumentCountMismatchError({message: 'too many arguments'});
   }
   for (let i = 0; i < expected.length; i++) {
     if (args[i] === undefined) {
       if (expected[i].indexOf(null) !== -1) {
         return argStr;
       }
-      throw new CodeGenerationError('too few arguments');
+      throw new SemanticArgumentCountMismatchError({message: 'too few arguments'});
     }
     argStr.push(this.visit(args[i]));
     if (expected[i].indexOf(Types._numeric) !== -1 && (
@@ -373,9 +382,11 @@ Visitor.prototype.checkArguments = function(expected, argumentList) {
       continue;
     }
     if (expected[i].indexOf(args[i].type) === -1 && expected[i].indexOf(args[i].type.id) === -1) {
-      throw new CodeGenerationError(`expected types ${expected[i].map((e) => {
+      const message = `expected types ${expected[i].map((e) => {
         return e.id ? e.id : e;
-      })} but got type ${args[i].type.id} for argument at index ${i}`);
+      })} but got type ${args[i].type.id} for argument at index ${i}`;
+
+      throw new SemanticArgumentCountMismatchError({message});
     }
   }
   return argStr;

@@ -1,0 +1,14 @@
+{
+  "syntax": {
+    "generic": {"message": "Something went wrong"}
+  },
+  "semantic": {
+    "type": {"message": "Value is not of the expected type"},
+    "argumentCountMismatch": {"message": "Argument count mismatch"},
+    "undefinedSymbol": {"message": "Undefined Symbol"},
+    "generic": {"message": "Something went wrong"},
+    "notYetImplemented": {
+      "message": "Requested funcionality not yet implemented"
+    }
+  }
+}

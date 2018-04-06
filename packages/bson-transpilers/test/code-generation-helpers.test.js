@@ -1,10 +1,11 @@
+const path = require('path');
 const chai = require('chai');
 const expect = chai.expect;
 const {
   doubleQuoteStringify,
   singleQuoteStringify,
   removeQuotes
-} = require('../codegeneration/helpers');
+} = require(path.resolve('helper', 'format'));
 
 describe('CodeGeneration helper functions', () => {
   describe('doubleQuoteStringify', () => {

@@ -1,5 +1,6 @@
 /* eslint key-spacing:0, no-multi-spaces:0 */
-const { doubleQuoteStringify } = require('./helpers');
+const path = require('path');
+const { doubleQuoteStringify } = require(path.resolve('helper', 'format'));
 
 const SYMBOL_TYPE = { VAR: 0, CONSTRUCTOR: 1, FUNC: 2 };
 

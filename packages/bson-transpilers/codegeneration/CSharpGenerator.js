@@ -484,6 +484,21 @@ Visitor.prototype.visitElementList = function(ctx) {
 };
 
 /**
+ * TODO: Is it okay to sort by terminal?
+ * Child nodes: (elision* singleExpression*)+
+ *
+ * @param {ElementListContext} ctx
+ * @return {String}
+ */
+Visitor.prototype.visitArgumentList = function(ctx) {
+  const children = ctx.children.filter((child) => (
+    child.constructor.name !== 'TerminalNodeImpl'
+  ));
+
+  return this.visitChildren(ctx, {children, separator: ', '});
+};
+
+/**
  * Visit Array Literal
  *
  * @param {object} ctx
@@ -548,5 +563,25 @@ Visitor.prototype.visitBSONSymbolConstructor = function(ctx) {
   return `new BsonString(${symbol})`;
 };
 
+/**
+ * Visit BSON Decimal128 Constructor
+ *
+ * @param {object} ctx
+ * @returns {string}
+ */
+Visitor.prototype.visitBSONDecimal128Constructor = function(ctx) {
+  const args = ctx.arguments();
+
+  if (
+    args.argumentList() === null || args.argumentList().getChildCount() !== 1
+  ) {
+    return 'Error: Decimal128 requires one argument';
+  }
+
+  const arg = args.argumentList().singleExpression()[0];
+  const symbol = this.visit(arg);
+
+  return `new BsonString(${symbol})`;
+};
 
 module.exports = Visitor;

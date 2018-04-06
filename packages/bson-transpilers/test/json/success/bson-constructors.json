@@ -103,14 +103,14 @@
         "query": "new DBRef('coll', new ObjectId())",
         "python": "DBRef('coll', ObjectId())",
         "java": "new DBRef(\"coll\", new ObjectId())",
-        "csharp": ""
+        "csharp": "DBRef(\"coll\", new BsonObjectId())"
       },
       {
         "description": "new DBRef with (string, ObjectId, string) args",
         "query": "new DBRef('coll', ObjectId(), 'db')",
         "python": "DBRef('coll', ObjectId(), 'db')",
         "java": "new DBRef(\"coll\", new ObjectId(), \"db\")",
-        "csharp": ""
+        "csharp": "DBRef(\"coll\", new BsonObjectId(), \"db\")"
       }
     ],
     "Int32": [
@@ -165,9 +165,9 @@
       {
         "description": "new Decimal128 with string arg",
         "query": "new Decimal128(Buffer.from('5'))",
-        "python": "Decimal128('5')",
+        "python": "Decimal128(Decimal('5'))",
         "java": "Decimal128.parse(\"5.3E-6175\")",
-        "csharp": ""
+        "csharp": "new BsonString(\"5\")"
       }
     ],
     "MinKey/MaxKey": [
