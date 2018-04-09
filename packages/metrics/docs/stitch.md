@@ -64,7 +64,8 @@ Once you're in your Stitch console, click on `mongodb-atlas` under _Atlas Cluste
 
 *Users Collection*
 
-1. Click on your _users_ collection, and go to _Field Rules_. Select _Top-Level Document_. Ensure that all 3 boxes - Read, Write and Valid - are completely empty.
+1. Click on your _users_ collection, and choose the _Filters_ tab. Remove any existing default filters.
+2. Now go to the _Field Rules_ tab. Select _Top-Level Document_. Ensure that all 3 boxes - Read, Write and Valid - are completely empty.
 2. Add a new field (_+ Add_ button) called `_id`. Configure the Read rule as below:
 
     **Read**
@@ -99,7 +100,8 @@ Once you're in your Stitch console, click on `mongodb-atlas` under _Atlas Cluste
 
 *Events Collection*
 
-1. Click on your _events_ collection, and go to _Field Rules_. Select _Top-Level Document_. Configure the Read rule as below:
+1. Click on your _events_ collection, and choose the _Filters_ tab. Remove any existing default filters.
+2. Now go to the _Field Rules_ tab. Select _Top-Level Document_. Configure the Read rule as below:
 
     **Read**
     ```json
