@@ -1,10 +1,15 @@
+const path = require('path');
 const antlr4 = require('antlr4');
 const ECMAScriptLexer = require('./lib/ECMAScriptLexer.js');
 const ECMAScriptParser = require('./lib/ECMAScriptParser.js');
 
+const CodeGenerator = require(path.resolve('codegeneration', 'CodeGenerator'));
 const Python3Generator = require('./codegeneration/Python3Generator.js');
 const CSharpGenerator = require('./codegeneration/CSharpGenerator.js');
-const JavaGenerator = require('./codegeneration/JavaGenerator.js');
+
+const JavaGenerator = require('./codegeneration/JavaGenerator.js')(
+  CodeGenerator
+);
 
 const ErrorListener = require('./codegeneration/ErrorListener.js');
 

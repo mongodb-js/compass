@@ -116,16 +116,16 @@ class Visitor extends CodeGenerator {
       throw new SemanticArgumentCountMismatchError();
     }
 
-    const argList = argumentList.singleExpression();
-    const code = this.singleQuoteStringify(argList[0].getText());
+    const argumentListExpression = argumentList.singleExpression();
+    const code = this.singleQuoteStringify(argumentListExpression[0].getText());
 
-    if (argList.length === 2) {
+    if (argumentListExpression.length === 2) {
       /* NOTE: we have to visit the subtree first before type checking or type may
       not be set. We might have to just suck it up and do two passes, but maybe
       we can avoid it for now. */
-      const scope = this.visit(argList[1]);
+      const scope = this.visit(argumentListExpression[1]);
 
-      if (argList[1].type !== Types._object) {
+      if (argumentListExpression[1].type !== Types._object) {
         throw new SemanticTypeError({
           message: 'Code requires scope to be an object'
         });
@@ -205,10 +205,10 @@ class Visitor extends CodeGenerator {
       throw new SemanticGenericError({message: error.message});
     }
 
-    const argList = argumentList.singleExpression();
+    const argumentListExpression = argumentList.singleExpression();
     const bytes = this.singleQuoteStringify(binobj.toString());
 
-    if (argList.length === 1) {
+    if (argumentListExpression.length === 1) {
       return `Binary(bytes(${bytes}, 'utf-8'))`;
     }
 
@@ -515,18 +515,18 @@ class Visitor extends CodeGenerator {
       });
     }
 
-    const argList = argumentList.singleExpression();
-    const low = this.visit(argList[0]);
+    const argumentListExpression = argumentList.singleExpression();
+    const low = this.visit(argumentListExpression[0]);
 
-    if (argList[0].type !== Types._integer) {
+    if (argumentListExpression[0].type !== Types._integer) {
       throw new SemanticTypeError({
         message: 'Timestamp first argument requires integer arguments'
       });
     }
 
-    const high = this.visit(argList[1]);
+    const high = this.visit(argumentListExpression[1]);
 
-    if (argList[1].type !== Types._integer) {
+    if (argumentListExpression[1].type !== Types._integer) {
       throw new SemanticTypeError({
         message: 'Timestamp second argument requires integer arguments'
       });

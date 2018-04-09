@@ -9,6 +9,8 @@
     "generic": {"message": "Something went wrong"},
     "notYetImplemented": {
       "message": "Requested funcionality not yet implemented"
-    }
+    },
+    "reference": {"message": "Reference error"},
+    "attribute": {"message": "Attribute error"}
   }
 }
