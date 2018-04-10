@@ -46,7 +46,7 @@ describe('mongodb-connection-model', function() {
 
     it('sets the default read preference to primary preferred', function() {
       var c = new Connection({ app_name: 'My App' });
-      assert.deepEqual(c.driver_options.db, { readPreference: 'primary' });
+      assert.deepEqual(c.driver_options, { readPreference: 'primary', connectWithNoPrimary: true });
     });
 
     it('sets the replica set name', function() {
@@ -787,6 +787,7 @@ describe('mongodb-connection-model', function() {
       it('should include the extra_options in driver_options', function() {
         var options = _.clone(Connection.DRIVER_OPTIONS_DEFAULT);
         options.socketTimeoutMS = 1000;
+        options.readPreference = 'primary';
         assert.deepEqual(conn.driver_options, options);
       });
     });
@@ -797,19 +798,19 @@ describe('mongodb-connection-model', function() {
       var conn = new Connection();
 
       it('should not have promoteValues specified', function() {
-        assert.ok(!_.has(conn.driver_options.db.promoteValues));
+        assert.ok(!_.has(conn.driver_options.promoteValues));
       });
     });
     describe('when including promoteValues as true in connection', function() {
       var conn = new Connection({promote_values: true});
       it('should have the same value in driver options', function() {
-        assert.equal(conn.driver_options.db.promoteValues, true);
+        assert.equal(conn.driver_options.promoteValues, true);
       });
     });
     describe('when including promoteValues as false in connection', function() {
       var conn = new Connection({promote_values: false});
       it('should have the same value in driver options', function() {
-        assert.equal(conn.driver_options.db.promoteValues, false);
+        assert.equal(conn.driver_options.promoteValues, false);
       });
     });
   });
@@ -828,7 +829,7 @@ describe('mongodb-connection-model', function() {
           if (err) {
             return done(err);
           }
-          var opts = driverOptions.server;
+          var opts = driverOptions;
           assert.equal(opts.sslValidate, true);
           assert(Array.isArray(opts.sslCA));
           assert(Buffer.isBuffer(opts.sslCA[0]));
@@ -848,8 +849,9 @@ describe('mongodb-connection-model', function() {
         assert.equal(sslNone.driver_url, 'mongodb://localhost:27017/?readPreference=primary');
       });
       it('should produce the correct driver options', function() {
-        assert.deepEqual(sslNone.driver_options,
-          Connection.DRIVER_OPTIONS_DEFAULT);
+        const expected = _.clone(Connection.DRIVER_OPTIONS_DEFAULT);
+        expected.readPreference = 'primary';
+        assert.deepEqual(sslNone.driver_options, expected);
       });
     });
 
@@ -864,9 +866,11 @@ describe('mongodb-connection-model', function() {
       });
       it('should produce the correct driver options', function() {
         var options = _.clone(Connection.DRIVER_OPTIONS_DEFAULT);
-        options.server = {
+        options = {
           checkServerIdentity: false,
-          sslValidate: false
+          sslValidate: false,
+          readPreference: 'primary',
+          connectWithNoPrimary: true
         };
         assert.deepEqual(sslUnvalidated.driver_options, options);
       });
@@ -883,9 +887,11 @@ describe('mongodb-connection-model', function() {
       });
       it('should produce the correct driver options', function() {
         var options = _.clone(Connection.DRIVER_OPTIONS_DEFAULT);
-        options.server = {
+        options = {
           checkServerIdentity: true,
-          sslValidate: true
+          sslValidate: true,
+          readPreference: 'primary',
+          connectWithNoPrimary: true
         };
         assert.deepEqual(sslSystemCA.driver_options, options);
       });
@@ -902,9 +908,11 @@ describe('mongodb-connection-model', function() {
       });
       it('should produce the correct driver options', function() {
         var options = _.clone(Connection.DRIVER_OPTIONS_DEFAULT);
-        options.server = {
+        options = {
           checkServerIdentity: false,
-          sslValidate: true
+          sslValidate: true,
+          readPreference: 'primary',
+          connectWithNoPrimary: true
         };
         assert.deepEqual(sslUnvalidated.driver_options, options);
       });
@@ -922,9 +930,11 @@ describe('mongodb-connection-model', function() {
       });
       it('should produce the correct driver options', function() {
         var expected = _.clone(Connection.DRIVER_OPTIONS_DEFAULT);
-        expected.server = {
+        expected = {
           sslCA: [fixture.ssl.ca],
-          sslValidate: true
+          sslValidate: true,
+          readPreference: 'primary',
+          connectWithNoPrimary: true
         };
         assert.deepEqual(sslServer.driver_options, expected);
       });
@@ -959,12 +969,14 @@ describe('mongodb-connection-model', function() {
 
         it('should produce the correct driver_options', function() {
           var expected = _.clone(Connection.DRIVER_OPTIONS_DEFAULT);
-          expected.server = {
+          expected = {
             sslCA: [fixture.ssl.ca],
             sslCert: fixture.ssl.server,
             sslKey: fixture.ssl.server,
             checkServerIdentity: false,
-            sslValidate: false
+            sslValidate: false,
+            readPreference: 'primary',
+            connectWithNoPrimary: true
           };
           assert.deepEqual(c.driver_options, expected);
         });
@@ -987,11 +999,13 @@ describe('mongodb-connection-model', function() {
 
         it('should produce the correct driver_options', function() {
           var expected = _.clone(Connection.DRIVER_OPTIONS_DEFAULT);
-          expected.server = {
+          expected = {
             sslCA: [fixture.ssl.ca],
             sslCert: fixture.ssl.server,
             sslKey: fixture.ssl.server,
-            sslValidate: true
+            sslValidate: true,
+            readPreference: 'primary',
+            connectWithNoPrimary: true
           };
           assert.deepEqual(c.driver_options, expected);
         });
@@ -1002,14 +1016,16 @@ describe('mongodb-connection-model', function() {
             sslCA: [fs.readFileSync(fixture.ssl.ca)],
             sslCert: fs.readFileSync(fixture.ssl.server),
             sslKey: fs.readFileSync(fixture.ssl.server),
-            sslValidate: true
+            sslValidate: true,
+            connectWithNoPrimary: true,
+            readPreference: 'primary'
           };
           /* eslint-enable no-sync */
           const tasks = getTasks(c);
           // Trigger relevant side-effect, loading the SSL files into memory
           tasks['Load SSL files'](function() {  // eslint-disable-line new-cap
             // Read files into memory as the connect function does
-            assert.deepEqual(tasks.driver_options.server, expectAfterLoad);
+            assert.deepEqual(tasks.driver_options, expectAfterLoad);
             done();
           });
         });
@@ -1034,12 +1050,14 @@ describe('mongodb-connection-model', function() {
 
         it('should produce the correct driver_options', function() {
           var expected = _.clone(Connection.DRIVER_OPTIONS_DEFAULT);
-          expected.server = {
+          expected = {
             sslCA: [fixture.ssl.ca],
             sslCert: fixture.ssl.server,
             sslKey: fixture.ssl.server,
             sslPass: 'woof',
-            sslValidate: true
+            sslValidate: true,
+            connectWithNoPrimary: true,
+            readPreference: 'primary'
           };
           assert.deepEqual(c.driver_options, expected);
         });

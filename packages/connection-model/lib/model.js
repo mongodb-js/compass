@@ -595,10 +595,7 @@ assign(props, {
  * `MongoClient.connect(model.driver_url, model.driver_options)`.
  */
 var DRIVER_OPTIONS_DEFAULT = {
-  db: {},
-  replSet: {
-    connectWithNoPrimary: true
-  }
+  connectWithNoPrimary: true
 };
 
 assign(derived, {
@@ -725,49 +722,39 @@ assign(derived, {
       var opts = clone(DRIVER_OPTIONS_DEFAULT, true);
       if (this.ssl === 'SERVER') {
         assign(opts, {
-          server: {
-            sslValidate: true,
-            sslCA: this.ssl_ca
-          }
+          sslValidate: true,
+          sslCA: this.ssl_ca
         });
       } else if (this.ssl === 'ALL') {
         assign(opts, {
-          server: {
-            sslValidate: true,
-            sslCA: this.ssl_ca,
-            sslKey: this.ssl_private_key,
-            sslCert: this.ssl_certificate
-          }
+          sslValidate: true,
+          sslCA: this.ssl_ca,
+          sslKey: this.ssl_private_key,
+          sslCert: this.ssl_certificate
         });
 
         if (this.ssl_private_key_password) {
-          opts.server.sslPass = this.ssl_private_key_password;
+          opts.sslPass = this.ssl_private_key_password;
         }
 
         if (this.authentication === 'X509') {
-          opts.server.checkServerIdentity = false;
-          opts.server.sslValidate = false;
+          opts.checkServerIdentity = false;
+          opts.sslValidate = false;
         }
       } else if (this.ssl === 'UNVALIDATED') {
         assign(opts, {
-          server: {
-            checkServerIdentity: false,
-            sslValidate: false
-          }
+          checkServerIdentity: false,
+          sslValidate: false
         });
       } else if (this.ssl === 'SYSTEMCA') {
         assign(opts, {
-          server: {
-            checkServerIdentity: true,
-            sslValidate: true
-          }
+          checkServerIdentity: true,
+          sslValidate: true
         });
       } else if (this.ssl === 'IFAVAILABLE') {
         assign(opts, {
-          server: {
-            checkServerIdentity: false,
-            sslValidate: true
-          }
+          checkServerIdentity: false,
+          sslValidate: true
         });
       }
 
@@ -776,10 +763,10 @@ assign(derived, {
 
       // only set promoteValues if it is defined
       if (this.promote_values !== undefined) {
-        opts.db.promoteValues = this.promote_values;
+        opts.promoteValues = this.promote_values;
       }
 
-      opts.db.readPreference = this.read_preference;
+      opts.readPreference = this.read_preference;
 
       return opts;
     }

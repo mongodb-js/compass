@@ -27,16 +27,16 @@ function loadOptions(model, done) {
 
   var tasks = {};
   var opts = clone(model.driver_options, true);
-  Object.keys(opts.server).map(function(key) {
+  Object.keys(opts).map(function(key) {
     if (key.indexOf('ssl') === -1) {
       return;
     }
 
-    if (Array.isArray(opts.server[key])) {
-      opts.server[key].forEach(function(value) {
+    if (Array.isArray(opts[key])) {
+      opts[key].forEach(function(value) {
         if (typeof value === 'string') {
           tasks[key] = function(cb) {
-            async.parallel(opts.server[key].map(function(k) {
+            async.parallel(opts[key].map(function(k) {
               return fs.readFile.bind(null, k);
             }), cb);
           };
@@ -44,21 +44,21 @@ function loadOptions(model, done) {
       });
     }
 
-    if (typeof opts.server[key] !== 'string') {
+    if (typeof opts[key] !== 'string') {
       return;
     }
     if (key === 'sslPass') {
       return;
     }
 
-    tasks[key] = fs.readFile.bind(null, opts.server[key]);
+    tasks[key] = fs.readFile.bind(null, opts[key]);
   });
   async.parallel(tasks, function(err, res) {
     if (err) {
       return done(err);
     }
     Object.keys(res).map(function(key) {
-      opts.server[key] = res[key];
+      opts[key] = res[key];
     });
     done(null, opts);
   });
