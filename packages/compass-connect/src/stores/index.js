@@ -150,7 +150,7 @@ const ConnectStore = Reflux.createStore({
    * @param {String} hostname - The hostname.
    */
   onHostnameChanged(hostname) {
-    this.state.currentConnection.hostname = hostname;
+    this.state.currentConnection.hostname = hostname.trim();
     if (hostname.match(/mongodb\.net/i)) {
       this.state.currentConnection.ssl = 'SYSTEMCA';
     }
@@ -171,7 +171,7 @@ const ConnectStore = Reflux.createStore({
    * @param {String} port - The port.
    */
   onPortChanged(port) {
-    this.state.currentConnection.port = port;
+    this.state.currentConnection.port = port.trim();
     this.trigger(this.state);
   },
 
@@ -191,7 +191,7 @@ const ConnectStore = Reflux.createStore({
    * @param {String} replicaSetName - The replica set name.
    */
   onReplicaSetNameChanged(replicaSetName) {
-    this.state.currentConnection.replica_set_name = replicaSetName;
+    this.state.currentConnection.replica_set_name = replicaSetName.trim();
     this.trigger(this.state);
   },
 

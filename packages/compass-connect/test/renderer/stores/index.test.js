@@ -100,6 +100,17 @@ describe('IndexStore', function() {
         Actions.onHostnameChanged('mongodb.net');
       });
     });
+
+    context('when it contains trailing spaces', () => {
+      it('trims the whitespace', (done) => {
+        const unsubscribe = IndexStore.listen((state) => {
+          unsubscribe();
+          expect(state.currentConnection.hostname).to.equal('example.com');
+          done();
+        });
+        Actions.onHostnameChanged('example.com  ');
+      });
+    });
   });
 
   describe('#onSRVRecordToggle', () => {
@@ -126,6 +137,17 @@ describe('IndexStore', function() {
       });
       Actions.onPortChanged('27018');
     });
+
+    context('when it contains trailing spaces', () => {
+      it('trims the whitespace', (done) => {
+        const unsubscribe = IndexStore.listen((state) => {
+          unsubscribe();
+          expect(state.currentConnection.port).to.equal('27018');
+          done();
+        });
+        Actions.onPortChanged('27018  ');
+      });
+    });
   });
 
   describe('#onReplicaSetNameChanged', () => {
@@ -136,6 +158,17 @@ describe('IndexStore', function() {
         done();
       });
       Actions.onReplicaSetNameChanged('myreplicaset');
+    });
+
+    context('when it contains trailing spaces', () => {
+      it('trims the whitespace', (done) => {
+        const unsubscribe = IndexStore.listen((state) => {
+          unsubscribe();
+          expect(state.currentConnection.replica_set_name).to.equal('myreplicaset');
+          done();
+        });
+        Actions.onReplicaSetNameChanged('myreplicaset  ');
+      });
     });
   });
 

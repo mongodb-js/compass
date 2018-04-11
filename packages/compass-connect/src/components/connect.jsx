@@ -29,7 +29,7 @@ class Connect extends React.Component {
   }
 
   onCheckClipboard() {
-    let clipboardText = Clipboard.readText();
+    let clipboardText = (Clipboard.readText() || '').trim();
     const url = shellToURL(clipboardText);
 
     if (url) clipboardText = url;
