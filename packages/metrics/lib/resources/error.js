@@ -2,11 +2,17 @@ var BaseResource = require('./base');
 var _ = require('lodash');
 var callerId = require('caller-id');
 var format = require('util').format;
+var uuidv4 = require('uuid/v4');
 
 // var debug = require('debug')('mongodb-js-metrics:resources:error');
 
 module.exports = BaseResource.extend({
   id: 'Error',
+  props: {
+    eventTrackers: ['array', true, function() {
+      return ['ga', 'bugsnag', 'intercom'];
+    }]
+  },
   /**
    * prepare GA hit with a `exception` hitType.
    *
@@ -64,8 +70,26 @@ module.exports = BaseResource.extend({
    */
   error: function(err, metadata, callback) {
     // @todo redact error before sending to intercom
-    this._send_bugsnag(err, metadata);
-    this._send_ga_exception(err, metadata, callback);
-    this._send_intercom('Error', _.pick(err, ['name', 'message', 'lineno', 'stack']));
+    var that = this;
+    var payload = _.pick(err, ['name', 'message', 'lineno', 'stack']);
+    var trackersMap = {
+      ga: function() {
+        that._send_ga_exception(err, metadata, callback);
+      },
+      bugsnag: function() {
+        that._send_bugsnag(err, metadata);
+      },
+      intercom: function() {
+        that._send_intercom('Error', payload);
+      },
+      stitch: function() {
+        that._send_stitch('Error error', _.merge({}, payload, metadata, { 'event id': uuidv4() }));
+      }
+    };
+
+    _.forEach(this.eventTrackers, function(trackerName) {
+      var tracker = trackersMap[trackerName] || function() {};
+      tracker();
+    });
   }
 });

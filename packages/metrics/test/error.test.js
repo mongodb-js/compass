@@ -1,6 +1,7 @@
 var metrics = require('../lib')();
 var resources = require('../lib/resources');
 var assert = require('assert');
+var sinon = require('sinon');
 
 var debug = require('debug')('mongodb-js-metrics:test:error');
 var DEBUG = true;
@@ -60,6 +61,36 @@ describe('Error Resource', function() {
     error.lineno = 13;
     error.filename = 'index.js';
     errorResource.error(error);
+  });
+
+  describe('stitch error tracking', function() {
+    it('should not send an `Error error` event to stitch when it is not present in the eventTrackers list', function() {
+      errorResource._send_stitch = sinon.stub();
+      var error = new Error('foo bar');
+      error.lineno = 13;
+      error.filename = 'index.js';
+      errorResource.error(error);
+      assert.ok(errorResource._send_stitch.notCalled);
+    });
+
+    it('should send an `Error error` event to stitch when it presents in eventTrackers list', function() {
+      metrics.resources.reset();
+      errorResource = new resources.ErrorResource({
+        eventTrackers: ['ga', 'bugsnag', 'intercom', 'stitch']
+      });
+      metrics.addResource(errorResource);
+      errorResource._send_stitch = function(eventName, metadata) {
+        assert.equal(metadata.message, 'foo bar');
+        assert.equal(metadata.name, 'Error');
+        assert.equal(metadata.lineno, 13);
+        assert.equal(eventName, 'Error error');
+        assert.ok(typeof metadata.stack === 'string');
+      };
+      var error = new Error('foo bar');
+      error.lineno = 13;
+      error.filename = 'index.js';
+      errorResource.error(error);
+    });
   });
 
   it('should send an error to bugsnag', function(done) {
