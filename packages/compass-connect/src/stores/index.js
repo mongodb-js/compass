@@ -8,6 +8,7 @@ const Connection = require('../models/connection');
 const ConnectionCollection = require('../models/connection-collection');
 const StateMixin = require('reflux-state-mixin');
 const ipc = require('hadron-ipc');
+const { shell } = require('electron');
 
 /**
  * All the authentication related fields on the connection model, with
@@ -55,6 +56,11 @@ const SSH_TUNNEL_FIELDS = [
  * The role name for plugin extensions.
  */
 const EXTENSION = 'Connect.Extension';
+
+/**
+ * Atlas link.
+ */
+const ATLAS_LINK = 'https://cloud.mongodb.com/user#/atlas/register/accountProfile';
 
 /**
  * The store that backs the connect plugin.
@@ -429,6 +435,14 @@ const ConnectStore = Reflux.createStore({
     }
     this.setState({ isConnected: false, errorMessage: null, isValid: true });
     this.appRegistry.emit('data-service-disconnected');
+  },
+
+  /**
+   * Create an Atlas cluster.
+   */
+  onVisitAtlasLink() {
+    shell.openExternal(ATLAS_LINK);
+    this.appRegistry.emit('create-atlas-cluster-clicked');
   },
 
   /**
