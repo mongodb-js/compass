@@ -2,6 +2,7 @@ import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import classnames from 'classnames';
 import { TextButton, IconButton } from 'hadron-react-buttons';
+import { DropdownButton, MenuItem } from 'react-bootstrap';
 
 import styles from './pipeline-builder-toolbar.less';
 
@@ -46,17 +47,11 @@ class PipelineBuilderToolbar extends PureComponent {
       'btn-default': true,
       [ styles['pipeline-builder-toolbar-add-stage-button'] ]: true
     });
-    const copyToClipboardClassName = classnames({
-      'btn': true,
-      'btn-xs': true,
-      'btn-default': true,
-      [ styles['pipeline-builder-toolbar-copy-to-clipboard-button'] ]: true
-    });
     const savePipelineClassName = classnames({
       'btn': true,
       'btn-xs': true,
       'btn-default': true,
-      [ styles['pipeline-builder-toolbar-save-state'] ]: true
+      [ styles['pipeline-builder-toolbar-save-pipeline-button'] ]: true
     });
 
     return (
@@ -72,25 +67,15 @@ class PipelineBuilderToolbar extends PureComponent {
             className={addStageClassName}
             clickHandler={this.props.stageAdded} />
         </div>
-        <IconButton
-          title="Copy to Clipboard"
-          className={copyToClipboardClassName}
-          iconClassName="fa fa-clipboard"
-          clickHandler={this.props.copyToClipboard} />
-        <IconButton
-          title="New Pipeline"
-          className={savePipelineClassName}
-          iconClassName="fa fa-file-o"
-          clickHandler={this.props.newPipeline} />
-        <IconButton
-          title="Clone Pipeline"
-          className={savePipelineClassName}
-          iconClassName="fa fa-clone"
-          clickHandler={this.props.clonePipeline} />
         <TextButton
           text="Save Pipeline"
           className={savePipelineClassName}
           clickHandler={this.props.saveCurrentPipeline} />
+        <DropdownButton bsStyle="default" title="..." noCaret pullRight>
+          <MenuItem onClick={this.props.copyToClipboard}>Copy Pipeline to Clipboard</MenuItem>
+          <MenuItem onClick={this.props.clonePipeline}>Clone Pipeline</MenuItem>
+          <MenuItem onClick={this.props.newPipeline}>New Pipeline</MenuItem>
+        </DropdownButton>
       </div>
     );
   }

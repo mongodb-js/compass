@@ -40,8 +40,12 @@ describe('PipelineBuilderToolbar [Component]', () => {
       to.have.text('Add Stage');
   });
 
-  it('renders the copy to clipboard button', () => {
-    expect(component.find(`.${styles['pipeline-builder-toolbar-copy-to-clipboard-button']}`)).
+  it('renders the save pipeline button', () => {
+    expect(component.find(`.${styles['pipeline-builder-toolbar-save-pipeline-button']}`)).
       to.be.present();
+  });
+
+  it('renders the dropdown menu', () => {
+    expect(component.find('.dropdown-toggle')).to.be.present();
   });
 });
