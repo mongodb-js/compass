@@ -9,6 +9,9 @@ class SavePipeline extends Component {
   static displayName = 'SavePipelineComponent';
 
   static propTypes = {
+    restorePipelineModalToggle: PropTypes.func.isRequired,
+    restorePipelineFrom: PropTypes.func.isRequired,
+    deletePipeline: PropTypes.func.isRequired,
     savedPipelinesListToggle: PropTypes.func.isRequired,
     savedPipeline: PropTypes.object.isRequired
   }
@@ -26,7 +29,9 @@ class SavePipeline extends Component {
     const pipelines = this.props.savedPipeline.pipelines.map((pipeline, i) => {
       return (
         <SavePipelineCard
-          {...this.props}
+          restorePipelineModalToggle={this.props.restorePipelineModalToggle}
+          restorePipelineFrom={this.props.restorePipelineFrom}
+          deletePipeline={this.props.deletePipeline}
           name={pipeline.name}
           objectID={pipeline.id}
           key={i}/>

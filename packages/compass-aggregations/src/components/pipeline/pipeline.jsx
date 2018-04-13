@@ -15,8 +15,13 @@ class Pipeline extends PureComponent {
   static displayName = 'PipelineComponent';
 
   static propTypes = {
+    getPipelineFromIndexedDB: PropTypes.func.isRequired,
     savedPipelinesListToggle: PropTypes.func.isRequired,
     getSavedPipelines: PropTypes.func.isRequired,
+    restorePipelineModalToggle: PropTypes.func.isRequired,
+    restorePipelineFrom: PropTypes.func.isRequired,
+    restorePipeline: PropTypes.object.isRequired,
+    deletePipeline: PropTypes.func.isRequired,
     pipeline: PropTypes.array.isRequired,
     serverVersion: PropTypes.string.isRequired,
     stageAdded: PropTypes.func.isRequired,
@@ -30,7 +35,6 @@ class Pipeline extends PureComponent {
     saveCurrentPipeline: PropTypes.func.isRequired,
     newPipeline: PropTypes.func.isRequired,
     clonePipeline: PropTypes.func.isRequired,
-    restorePipeline: PropTypes.object.isRequired,
     copyToClipboard: PropTypes.func.isRequired,
     fields: PropTypes.array.isRequired,
     nameChanged: PropTypes.func.isRequired,
@@ -44,10 +48,18 @@ class Pipeline extends PureComponent {
    */
   render() {
     const savePipeline = this.props.savedPipeline.isListVisible
-      ? <SavePipeline {...this.props} />
+      ? (<SavePipeline
+          restorePipelineModalToggle={this.props.restorePipelineModalToggle}
+          restorePipelineFrom={this.props.restorePipelineFrom}
+          deletePipeline={this.props.deletePipeline}
+          savedPipelinesListToggle={this.props.savedPipelinesListToggle}
+          savedPipeline={this.props.savedPipeline} />)
       : null;
     const restorePipelineModal = this.props.restorePipeline.isModalVisible
-      ? <RestorePipelineModal {...this.props} />
+      ? (<RestorePipelineModal
+          restorePipelineModalToggle={this.props.restorePipelineModalToggle}
+          getPipelineFromIndexedDB={this.props.getPipelineFromIndexedDB}
+          restorePipeline={this.props.restorePipeline} />)
       : null;
 
     return (
