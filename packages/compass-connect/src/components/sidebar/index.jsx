@@ -3,6 +3,7 @@ const PropTypes = require('prop-types');
 const NewConnection = require('./new-connection');
 const Favorites = require('./favorites');
 const Recents = require('./recents');
+const AtlasLink = require('./atlas-link');
 
 class Sidebar extends React.Component {
 
@@ -10,6 +11,7 @@ class Sidebar extends React.Component {
     return (
       <div>
         <div className="connect-sidebar">
+          <AtlasLink />
           <NewConnection {...this.props} />
           <div className="connect-sidebar-connections">
             <Favorites {...this.props} />
