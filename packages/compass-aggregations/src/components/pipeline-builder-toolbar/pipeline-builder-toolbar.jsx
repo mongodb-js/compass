@@ -87,10 +87,9 @@ class PipelineBuilderToolbar extends PureComponent {
           className={savePipelineClassName}
           iconClassName="fa fa-clone"
           clickHandler={this.props.clonePipeline} />
-        <IconButton
-          title="Save Pipeline"
+        <TextButton
+          text="Save Pipeline"
           className={savePipelineClassName}
-          iconClassName="fa fa-save"
           clickHandler={this.props.saveCurrentPipeline} />
       </div>
     );
