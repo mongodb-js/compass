@@ -16,11 +16,16 @@ class PipelineBuilderToolbar extends PureComponent {
     savedPipelinesListToggle: PropTypes.func.isRequired,
     getSavedPipelines: PropTypes.func.isRequired,
     savedPipeline: PropTypes.object.isRequired,
-    stageAdded: PropTypes.func.isRequired,
     copyToClipboard: PropTypes.func.isRequired,
     newPipeline: PropTypes.func.isRequired,
     clonePipeline: PropTypes.func.isRequired,
+    nameChanged: PropTypes.func.isRequired,
+    name: PropTypes.string.isRequired,
     saveCurrentPipeline: PropTypes.func.isRequired
+  }
+
+  onNameChange = (evt) => {
+    this.props.nameChanged(evt.target.value);
   }
 
   handleSavedPipelinesOpen = () => {
@@ -41,23 +46,19 @@ class PipelineBuilderToolbar extends PureComponent {
     const clickHandler = this.props.savedPipeline.isListVisible
       ? this.handleSavedPipelinesClose
       : this.handleSavedPipelinesOpen;
-    const addStageClassName = classnames({
-      'btn': true,
-      'btn-xs': true,
-      'btn-primary': true,
-      [ styles['pipeline-builder-toolbar-add-stage-button'] ]: true
-    });
     const openPipelinesClassName = classnames({
       'btn': true,
       'btn-xs': true,
       'btn-default': true
     });
-
     const savePipelineClassName = classnames({
       'btn': true,
       'btn-xs': true,
       'btn-default': true,
       [ styles['pipeline-builder-toolbar-save-pipeline-button'] ]: true
+    });
+    const inputClassName = classnames({
+      [ styles['pipeline-builder-toolbar-name']]: true
     });
 
     return (
@@ -68,13 +69,16 @@ class PipelineBuilderToolbar extends PureComponent {
           iconClassName="fa fa-folder-open-o"
           clickHandler={clickHandler} />
         <div className={classnames(styles['pipeline-builder-toolbar-add-wrapper'])}>
-          <TextButton
-            text="Add Stage"
-            className={addStageClassName}
-            clickHandler={this.props.stageAdded} />
+          <input
+            placeholder="Enter a pipeline name..."
+            onChange={this.onNameChange}
+            className={inputClassName}
+            type="text"
+            value={this.props.name} />
         </div>
         <TextButton
           text="Save Pipeline"
+          disabled={this.props.name.trim() === ''}
           className={savePipelineClassName}
           clickHandler={this.props.saveCurrentPipeline} />
         <DropdownButton bsStyle="default" title="..." noCaret pullRight id="agg-pipeline-actions">

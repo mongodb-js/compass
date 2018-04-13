@@ -30,8 +30,7 @@ describe('saved pipelines module', () => {
         expect(reducer(undefined, savedPipelinesListToggle(0))).to.deep.equal({
           pipelines: [],
           isLoaded: false,
-          isListVisible: false,
-          isNameValid: true
+          isListVisible: false
         });
       });
     });
@@ -41,8 +40,7 @@ describe('saved pipelines module', () => {
         expect(reducer(undefined, savedPipelinesListToggle(1))).to.deep.equal({
           pipelines: [],
           isLoaded: false,
-          isListVisible: true,
-          isNameValid: true
+          isListVisible: true
         });
       });
     });
@@ -52,8 +50,7 @@ describe('saved pipelines module', () => {
         expect(reducer(undefined, {})).to.deep.equal({
           pipelines: [],
           isLoaded: false,
-          isListVisible: false,
-          isNameValid: true
+          isListVisible: false
         });
       });
     });
@@ -64,8 +61,7 @@ describe('saved pipelines module', () => {
         expect(reducer(undefined, savedPipelineAdd(pipelines))).to.deep.equal({
           pipelines: pipelines,
           isLoaded: true,
-          isListVisible: false,
-          isNameValid: true
+          isListVisible: false
         });
       });
     });

@@ -1,4 +1,5 @@
 import React, { PureComponent } from 'react';
+import { TextButton } from 'hadron-react-buttons';
 import PropTypes from 'prop-types';
 import classnames from 'classnames';
 
@@ -11,13 +12,7 @@ class PipelinePreviewToolbar extends PureComponent {
   static displayName = 'PipelinePreviewToolbarComponent';
 
   static propTypes = {
-    nameChanged: PropTypes.func.isRequired,
-    name: PropTypes.string.isRequired,
-    isValid: PropTypes.bool.isRequired
-  }
-
-  onNameChange = (evt) => {
-    this.props.nameChanged(evt.target.value);
+    stageAdded: PropTypes.func.isRequired
   }
 
   /**
@@ -26,19 +21,18 @@ class PipelinePreviewToolbar extends PureComponent {
    * @returns {React.Component} The component.
    */
   render() {
-    const inputClassName = classnames({
-      [ styles['pipeline-preview-toolbar-name']]: true,
-      [ styles['pipeline-preview-toolbar-name-is-invalid']]: !this.props.isValid
+    const addStageClassName = classnames({
+      'btn': true,
+      'btn-xs': true,
+      'btn-primary': true,
+      [ styles['pipeline-preview-toolbar-add-stage-button'] ]: true
     });
     return (
       <div className={classnames(styles['pipeline-preview-toolbar'])}>
-        <input
-          placeholder="Enter a pipeline name to save..."
-          onChange={this.onNameChange}
-          className={inputClassName}
-          type="text"
-          value={this.props.name} />
-        <div className={classnames(styles['pipeline-preview-toolbar-spacer'])}></div>
+      <TextButton
+        text="Add Stage"
+        className={addStageClassName}
+        clickHandler={this.props.stageAdded} />
       </div>
     );
   }

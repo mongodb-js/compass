@@ -23,6 +23,7 @@ describe('PipelineBuilderToolbar [Component]', () => {
         viewChanged={viewChangedSpy}
         savePipelineModalToggle={saveSpy}
         savedPipeline={{ isListVisible: true }}
+        name=""
         copyToClipboard={copyToClipboardSpy} />
     );
   });
@@ -33,11 +34,6 @@ describe('PipelineBuilderToolbar [Component]', () => {
 
   it('renders the wrapper div', () => {
     expect(component.find(`.${styles['pipeline-builder-toolbar']}`)).to.be.present();
-  });
-
-  it('renders the add stage button', () => {
-    expect(component.find(`.${styles['pipeline-builder-toolbar-add-stage-button']}`)).
-      to.have.text('Add Stage');
   });
 
   it('renders the save pipeline button', () => {

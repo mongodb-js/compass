@@ -37,15 +37,14 @@ class PipelineToolbar extends PureComponent {
           savedPipelinesListToggle={this.props.savedPipelinesListToggle}
           getSavedPipelines={this.props.getSavedPipelines}
           savedPipeline={this.props.savedPipeline}
-          stageAdded={this.props.stageAdded}
           clonePipeline={this.props.clonePipeline}
           newPipeline={this.props.newPipeline}
           copyToClipboard={this.props.copyToClipboard}
-          saveCurrentPipeline={this.props.saveCurrentPipeline} />
-        <PipelinePreviewToolbar
+          saveCurrentPipeline={this.props.saveCurrentPipeline}
           isValid={this.props.savedPipeline.isNameValid}
           nameChanged={this.props.nameChanged}
           name={this.props.name} />
+        <PipelinePreviewToolbar stageAdded={this.props.stageAdded} />
       </div>
     );
   }
