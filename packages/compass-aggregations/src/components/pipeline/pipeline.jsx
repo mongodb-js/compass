@@ -47,14 +47,6 @@ class Pipeline extends PureComponent {
    * @returns {Component} The component.
    */
   render() {
-    const savePipeline = this.props.savedPipeline.isListVisible
-      ? (<SavePipeline
-          restorePipelineModalToggle={this.props.restorePipelineModalToggle}
-          restorePipelineFrom={this.props.restorePipelineFrom}
-          deletePipeline={this.props.deletePipeline}
-          savedPipelinesListToggle={this.props.savedPipelinesListToggle}
-          savedPipeline={this.props.savedPipeline} />)
-      : null;
     const restorePipelineModal = this.props.restorePipeline.isModalVisible
       ? (<RestorePipelineModal
           restorePipelineModalToggle={this.props.restorePipelineModalToggle}
@@ -77,7 +69,12 @@ class Pipeline extends PureComponent {
           name={this.props.name} />
         <div className={classnames(styles['pipeline-separator'])}></div>
         <PipelineWorkspace {...this.props} />
-        { savePipeline }
+        <SavePipeline
+          restorePipelineModalToggle={this.props.restorePipelineModalToggle}
+          restorePipelineFrom={this.props.restorePipelineFrom}
+          deletePipeline={this.props.deletePipeline}
+          savedPipelinesListToggle={this.props.savedPipelinesListToggle}
+          savedPipeline={this.props.savedPipeline} />
         { restorePipelineModal }
       </div>
     );

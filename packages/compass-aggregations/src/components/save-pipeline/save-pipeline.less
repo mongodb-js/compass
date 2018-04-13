@@ -8,9 +8,15 @@
   width: 400px;
   height: 100%;
   top: 0;
-  left: 0;
+  left: -401px;
+  transition: left 0.20s ease-in-out;
   font-size: 1em;
   z-index: 500;
+
+  &-is-visible {
+    left: 0px;
+    transition: left 0.20s ease-in-out;
+  }
 
   &-header {
     height: 34px;

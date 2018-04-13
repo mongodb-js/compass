@@ -77,7 +77,7 @@ class PipelineBuilderToolbar extends PureComponent {
           text="Save Pipeline"
           className={savePipelineClassName}
           clickHandler={this.props.saveCurrentPipeline} />
-        <DropdownButton bsStyle="default" title="..." noCaret pullRight>
+        <DropdownButton bsStyle="default" title="..." noCaret pullRight id="agg-pipeline-actions">
           <MenuItem onClick={this.props.copyToClipboard}>Copy Pipeline to Clipboard</MenuItem>
           <MenuItem onClick={this.props.clonePipeline}>Clone Pipeline</MenuItem>
           <MenuItem onClick={this.props.newPipeline}>New Pipeline</MenuItem>

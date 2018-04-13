@@ -38,8 +38,13 @@ class SavePipeline extends Component {
       );
     });
 
+    const className = classnames({
+      [ styles['save-pipeline'] ]: true,
+      [ styles['save-pipeline-is-visible'] ]: this.props.savedPipeline.isListVisible
+    });
+
     return (
-      <div className={classnames(styles['save-pipeline'])}>
+      <div className={className}>
         <div className={classnames(styles['save-pipeline-header'])}>
           <div id="saved-pipeline-header-title">Saved Pipelines</div>
           <IconButton

@@ -53,9 +53,9 @@ import Connection from 'mongodb-connection-model';
 import DataService from 'mongodb-data-service';
 
 const connection = new Connection({
-  hostname: 'data.mongodb.parts',
+  hostname: '127.0.0.1',
   port: 27017,
-  ns: '100YWeather'
+  ns: 'import-export'
 });
 const dataService = new DataService(connection);
 
@@ -63,7 +63,7 @@ appRegistry.emit('data-service-initialized', dataService);
 
 dataService.connect((error, ds) => {
   appRegistry.emit('data-service-connected', error, ds);
-  appRegistry.emit('collection-changed', '100YWeather.data');
+  appRegistry.emit('collection-changed', 'import-export.users');
 
   const docs = [{
     _id: 1,
