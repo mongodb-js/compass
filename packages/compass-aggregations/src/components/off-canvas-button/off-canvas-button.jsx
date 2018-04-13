@@ -27,10 +27,14 @@ class OffCanvasButton extends PureComponent {
       [ styles['off-canvas-button-is-selected'] ]: this.props.isVisible
     });
     return (
-      <div
-        className={className}
-        onClick={this.props.onClick}>
-        <i className={this.props.iconClassName} aria-hidden />
+      <div className={className}>
+        <button
+          type="button"
+          title="Toggle Saved Pipelines"
+          className="btn btn-default btn-xs"
+          onClick={this.props.onClick}>
+          <i className={this.props.iconClassName} aria-hidden />
+        </button>
       </div>
     );
   }
