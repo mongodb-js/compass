@@ -15,6 +15,8 @@ class Pipeline extends PureComponent {
   static displayName = 'PipelineComponent';
 
   static propTypes = {
+    savedPipelinesListToggle: PropTypes.func.isRequired,
+    getSavedPipelines: PropTypes.func.isRequired,
     pipeline: PropTypes.array.isRequired,
     serverVersion: PropTypes.string.isRequired,
     stageAdded: PropTypes.func.isRequired,
@@ -51,6 +53,8 @@ class Pipeline extends PureComponent {
     return (
       <div className={classnames(styles.pipeline)}>
         <PipelineToolbar
+          savedPipelinesListToggle={this.props.savedPipelinesListToggle}
+          getSavedPipelines={this.props.getSavedPipelines}
           stageAdded={this.props.stageAdded}
           copyToClipboard={this.props.copyToClipboard}
           saveCurrentPipeline={this.props.saveCurrentPipeline}

@@ -12,11 +12,23 @@ class PipelineBuilderToolbar extends PureComponent {
   static displayName = 'PipelineBuilderToolbarComponent';
 
   static propTypes = {
+    savedPipelinesListToggle: PropTypes.func.isRequired,
+    getSavedPipelines: PropTypes.func.isRequired,
+    savedPipeline: PropTypes.object.isRequired,
     stageAdded: PropTypes.func.isRequired,
     copyToClipboard: PropTypes.func.isRequired,
     newPipeline: PropTypes.func.isRequired,
     clonePipeline: PropTypes.func.isRequired,
     saveCurrentPipeline: PropTypes.func.isRequired
+  }
+
+  handleSavedPipelinesOpen = () => {
+    this.props.getSavedPipelines();
+    this.props.savedPipelinesListToggle(1);
+  }
+
+  handleSavedPipelinesClose = () => {
+    this.props.savedPipelinesListToggle(0);
   }
 
   /**
@@ -25,6 +37,9 @@ class PipelineBuilderToolbar extends PureComponent {
    * @returns {React.Component} The component.
    */
   render() {
+    const clickHandler = this.props.savedPipeline.isListVisible
+      ? this.handleSavedPipelinesClose
+      : this.handleSavedPipelinesOpen;
     const addStageClassName = classnames({
       'btn': true,
       'btn-xs': true,
@@ -46,6 +61,11 @@ class PipelineBuilderToolbar extends PureComponent {
 
     return (
       <div className={classnames(styles['pipeline-builder-toolbar'])}>
+        <IconButton
+          title="Toggle Saved Pipelines"
+          className={savePipelineClassName}
+          iconClassName="fa fa-folder-open-o"
+          clickHandler={clickHandler} />
         <div className={classnames(styles['pipeline-builder-toolbar-add-wrapper'])}>
           <TextButton
             text="Add Stage"

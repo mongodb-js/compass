@@ -1,7 +1,6 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import classnames from 'classnames';
-import OffCanvas from 'components/off-canvas';
 import Pipeline from 'components/pipeline';
 import { namespaceChanged } from 'modules/namespace';
 import { nameChanged } from 'modules/name';
@@ -51,7 +50,6 @@ class Aggregations extends Component {
   render() {
     return (
       <div className={classnames(styles.aggregations)}>
-        <OffCanvas {...this.props} />
         <Pipeline {...this.props} />
       </div>
     );

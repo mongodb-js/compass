@@ -22,6 +22,7 @@ describe('PipelineBuilderToolbar [Component]', () => {
         stageAdded={stageAddedSpy}
         viewChanged={viewChangedSpy}
         savePipelineModalToggle={saveSpy}
+        savedPipeline={{ isListVisible: true }}
         copyToClipboard={copyToClipboardSpy} />
     );
   });
