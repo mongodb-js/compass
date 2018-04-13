@@ -139,6 +139,16 @@ const DocumentResource = BaseResource.extend({
   }
 });
 
+// Resource for the connect window.
+const ConnectResource = BaseResource.extend({
+  id: 'Connect',
+  eventTrackers: ['stitch'],
+  createAtlasCluster: function(metadata, callback) {
+    this._send_event(metadata, callback);
+  }
+});
+
+
 // Documents resources uses 'loaded' as action
 const DocumentsResource = BaseResource.extend({
   id: 'Documents',
@@ -219,6 +229,7 @@ const ExportResource = BaseResource.extend({
 featureResources['Geo Data'] = new GeoDataResource();
 featureResources['Auto Update'] = new AutoUpdateResource();
 featureResources.Collection = new CollectionResource();
+featureResources.Connect = new ConnectResource();
 featureResources.Deployment = new DeploymentResource();
 featureResources.Schema = new SchemaResource();
 featureResources.Indexes = new IndexesResource();

@@ -214,7 +214,7 @@ module.exports = [
     })
   },
   {
-    regestryEvent: 'documents-refreshed',
+    registryEvent: 'documents-refreshed',
     resource: 'Documents',
     action: 'refreshed',
     condition: () => true,
@@ -223,13 +223,20 @@ module.exports = [
     })
   },
   {
-    store: 'documents-paginated',
+    registryEvent: 'documents-paginated',
     resource: 'Documents',
     action: 'paginated',
     condition: () => true,
     metadata: (view) => ({
       'view': view
     })
+  },
+  {
+    registryEvent: 'create-atlas-cluster-clicked',
+    resource: 'Connect',
+    action: 'createAtlasCluster',
+    condition: () => true,
+    metadata: () => ({})
   },
   {
     store: 'License.Store',
