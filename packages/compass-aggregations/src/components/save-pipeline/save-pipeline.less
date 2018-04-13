@@ -5,28 +5,29 @@
   box-shadow: 1px 1px 1px @gray6;
   background: rgb(248, 248, 248);
   position: absolute;
-  width: 405px;
+  width: 400px;
   height: 100%;
   top: 0;
-  left: 40px;
+  left: 0;
   font-size: 1em;
   z-index: 500;
 
   &-header {
-    height: 34px; 
+    height: 34px;
     display: flex;
     padding: 10px;
     font-size: 12px;
     line-height: 20px;
     font-weight: bold;
     color: @gray1;
+    align-items: center;
     justify-content: space-between;
     border-bottom: 1px solid @gray6;
     box-shadow: 1px 1px 1px @gray6;
   }
 
   &-cards {
-    overflow-y: visible;
+    overflow-y: scroll;
   }
 
   &-close {

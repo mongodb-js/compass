@@ -1,8 +1,9 @@
-import SavePipelineCard from 'components/save-pipeline-card';
-import styles from './save-pipeline.less';
 import React, { Component } from 'react';
+import { IconButton } from 'hadron-react-buttons';
 import classnames from 'classnames';
 import PropTypes from 'prop-types';
+import SavePipelineCard from 'components/save-pipeline-card';
+import styles from './save-pipeline.less';
 
 class SavePipeline extends Component {
   static displayName = 'SavePipelineComponent';
@@ -22,11 +23,6 @@ class SavePipeline extends Component {
    * @returns {Component} The component.
    */
   render() {
-    const closeClassName = classnames({
-      'fa': true,
-      'fa-times': true,
-      [ styles['save-pipeline-close'] ]: true
-    });
     const pipelines = this.props.savedPipeline.pipelines.map((pipeline, i) => {
       return (
         <SavePipelineCard
@@ -41,7 +37,11 @@ class SavePipeline extends Component {
       <div className={classnames(styles['save-pipeline'])}>
         <div className={classnames(styles['save-pipeline-header'])}>
           <div id="saved-pipeline-header-title">Saved Pipelines</div>
-          <div className={closeClassName} onClick={this.handleSavedPipelinesClose}></div>
+          <IconButton
+            title="Close Saved Pipelines"
+            className="btn btn-xs btn-default"
+            iconClassName="fa fa-times"
+            clickHandler={this.handleSavedPipelinesClose} />
         </div>
         <div className={classnames(styles['save-pipeline-cards'])}>{pipelines}</div>
       </div>
