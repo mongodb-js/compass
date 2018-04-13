@@ -44,7 +44,7 @@ class PipelineBuilderToolbar extends PureComponent {
     const addStageClassName = classnames({
       'btn': true,
       'btn-xs': true,
-      'btn-default': true,
+      'btn-primary': true,
       [ styles['pipeline-builder-toolbar-add-stage-button'] ]: true
     });
     const savePipelineClassName = classnames({
