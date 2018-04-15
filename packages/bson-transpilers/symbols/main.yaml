@@ -17,8 +17,4 @@ __func: &__func
     attr: {}
     template: null
     argsTemplate: null
-function: !!js/function >
-    function foobar() {
-        return 'Wow! JS-YAML Rocks!';
-    }
 
