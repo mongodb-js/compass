@@ -46,10 +46,9 @@ const stageTarget = {
       }
 
       props.stageMoved(fromIndex, toIndex);
-      props.runStage(toIndex);
-
       // This prevents us from overloading the store with stageMoved actions.
       monitor.getItem().index = toIndex;
+      props.runStage(0);
     }
   }
 };
