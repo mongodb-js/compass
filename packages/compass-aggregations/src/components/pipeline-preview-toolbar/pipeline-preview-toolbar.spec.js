@@ -6,13 +6,16 @@ import styles from './pipeline-preview-toolbar.less';
 
 describe('PipelinePreviewToolbar [Component]', () => {
   let component;
+  let stageAddedSpy;
 
   beforeEach(() => {
-    component = mount(<PipelinePreviewToolbar />);
+    stageAddedSpy = sinon.spy();
+    component = mount(<PipelinePreviewToolbar stageAdded={stageAddedSpy} />);
   });
 
   afterEach(() => {
     component = null;
+    stageAddedSpy = null;
   });
 
   it('renders the wrapper div', () => {
@@ -22,5 +25,12 @@ describe('PipelinePreviewToolbar [Component]', () => {
   it('renders the add stage button', () => {
     expect(component.find(`.${styles['pipeline-preview-toolbar-add-stage-button']}`)).
       to.have.text('Add Stage');
+  });
+
+  context('when clicking the add stage button', () => {
+    it('calls the action', () => {
+      component.find(`.${styles['pipeline-preview-toolbar-add-stage-button']}`).simulate('click');
+      expect(stageAddedSpy.calledOnce).to.equal(true);
+    });
   });
 });
