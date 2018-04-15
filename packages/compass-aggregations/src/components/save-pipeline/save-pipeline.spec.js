@@ -14,9 +14,19 @@ describe('SavePipeline [Component]', () => {
       isModalError: false
     };
     const spy = sinon.spy();
+    const restorePipelineModalToggleSpy = sinon.spy();
+    const restorePipelineFromSpy = sinon.spy();
+    const deletePipelineSpy = sinon.spy();
 
     beforeEach(() => {
-      component = mount(<SavePipeline savedPipeline={savedPipeline} savedPipelinesListToggle={spy} />);
+      component = mount(
+        <SavePipeline
+          restorePipelineModalToggle={restorePipelineModalToggleSpy}
+          restorePipelineFrom={restorePipelineFromSpy}
+          deletePipeline={deletePipelineSpy}
+          savedPipeline={savedPipeline}
+          savedPipelinesListToggle={spy} />
+      );
     });
 
     afterEach(() => {
@@ -49,16 +59,26 @@ describe('SavePipeline [Component]', () => {
       isModalError: false
     };
     const spy = sinon.spy();
+    const restorePipelineModalToggleSpy = sinon.spy();
+    const restorePipelineFromSpy = sinon.spy();
+    const deletePipelineSpy = sinon.spy();
 
     beforeEach(() => {
-      component = mount(<SavePipeline savedPipeline={savedPipeline} savedPipelinesListToggle={spy} />);
+      component = mount(
+        <SavePipeline
+          restorePipelineModalToggle={restorePipelineModalToggleSpy}
+          restorePipelineFrom={restorePipelineFromSpy}
+          deletePipeline={deletePipelineSpy}
+          savedPipeline={savedPipeline}
+          savedPipelinesListToggle={spy} />
+      );
     });
 
     afterEach(() => {
       component = null;
     });
 
-    it('toggles the expansion', () => {
+    it('calls the action', () => {
       component.find('.fa.fa-times').simulate('click');
       expect(spy.calledOnce).to.equal(true);
     });
