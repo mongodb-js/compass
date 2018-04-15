@@ -9,20 +9,36 @@ import styles from './pipeline-toolbar.less';
 
 describe('PipelineToolbar [Component]', () => {
   let component;
+  let savedPipelinesListToggleSpy;
+  let getSavedPipelinesSpy;
+  let newPipelineSpy;
+  let clonePipelineSpy;
+  let nameChangedSpy;
   let stageAddedSpy;
   let copyToClipboardSpy;
   let saveSpy;
 
   beforeEach(() => {
+    savedPipelinesListToggleSpy = sinon.spy();
+    getSavedPipelinesSpy = sinon.spy();
     stageAddedSpy = sinon.spy();
     copyToClipboardSpy = sinon.spy();
+    newPipelineSpy = sinon.spy();
+    clonePipelineSpy = sinon.spy();
+    nameChangedSpy = sinon.spy();
     saveSpy = sinon.spy();
 
     component = shallow(
       <PipelineToolbar
+        savedPipelinesListToggle={savedPipelinesListToggleSpy}
+        getSavedPipelines={getSavedPipelinesSpy}
         stageAdded={stageAddedSpy}
         saveCurrentPipeline={saveSpy}
         savedPipeline={{ isNameValid: true }}
+        newPipeline={newPipelineSpy}
+        clonePipeline={clonePipelineSpy}
+        nameChanged={nameChangedSpy}
+        name=""
         copyToClipboard={copyToClipboardSpy} />
     );
   });
