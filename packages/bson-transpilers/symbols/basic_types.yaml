@@ -1,0 +1,54 @@
+# Universal types
+# Everything inherits from StringType because we haven't implemented any of them.
+BasicTypes:
+    # Universal basic types
+    _string: &StringType
+        <<: *__type
+        id: "_string"
+        template: *StringTypeTemplate
+    _regex: &RegexType
+        <<: *__type
+        id: "_regex"
+        template: *RegexTypeTemplate
+    _bool: &BoolType
+        <<: *__type
+        id: "_bool"
+        template: *BoolTypeTemplate
+    _integer: &IntegerType
+        <<: *__type
+        id: "_integer"
+        template: *IntegerTypeTemplate
+    _decimal: &DecimalType
+        <<: *__type
+        id: "_decimal"
+        template: *DecimalTypeTemplate
+    _hex: &HexType
+        <<: *__type
+        id: "_hex"
+        template: *HexTypeTemplate
+    _octal: &OctalType
+        <<: *__type
+        id: "_octal"
+        template: *OctalTypeTemplate
+    _numeric: &NumericType
+        <<: *__type
+        id: "_numeric"
+        template: *NumericTypeTemplate
+    _array: &ArrayType
+        <<: *__type
+        id: "_array"
+        template: *ArrayTypeTemplate
+    _object: &ObjectType
+        <<: *__type
+        id: "_object"
+        template: *ObjectTypeTemplate
+        argsTemplate: *ObjectTypeArgsTemplate
+    _null: &NullType
+        <<: *__type
+        id: "_null"
+        template: *NullTypeTemplate
+    _undefined: &UndefinedType
+        <<: *__type
+        id: "_undefined"
+        template: *UndefinedTypeTemplate
+

@@ -1,0 +1,428 @@
+BsonTypes:
+    Code: &CodeType
+        <<: *__type
+        id: "Code"
+        type: *ObjectType
+        attr:
+            toJSON:
+                <<: *__func
+                id: "CodetoJSON" # Needs emit method
+                type: *ObjectType
+        template: *CodeTypeTemplate
+    ObjectId: &ObjectIdType
+        <<: *__type
+        id: "ObjectId"
+        type: *ObjectType
+        attr:
+            toHexString:
+                <<: *__func
+                id: "toHexString"
+                type: *StringType
+            toString:
+                <<: *__func
+                type: *StringType
+            toJSON:
+                <<: *__func
+                type: *StringType
+                template: *ObjectIdToJSONTemplate
+            equals:
+                <<: *__func
+                args:
+                    - [ "ObjectId" ]
+                type: *BoolType
+            getTimestamp:
+                <<: *__func
+                type: *IntegerType
+    Binary: &BinaryType
+        <<: *__type
+        id: "Binary"
+        type: *ObjectType
+        attr:
+            value:
+                <<: *__func
+                id: "value"
+                type: *StringType
+                template: *BinaryValueTemplate
+            length:
+                <<: *__func
+                id: "length"
+                type: *IntegerType
+            toString:
+                <<: *__func
+                id: "toString"
+                type: *StringType
+            toJSON:
+                <<: *__func
+                id: "toJSON"
+                type: *StringType
+                template: *BinaryToJSONTemplate
+    DBRef: &DBRefType
+        <<: *__type
+        id: "DBRef"
+        type: *ObjectType
+        attr:
+            toJSON:
+                <<: *__func
+                id: "DBReftoJSON" # Needs emit method
+                type: *ObjectType
+    Double: &DoubleType
+        <<: *__type
+        id: "Double"
+        type: *ObjectType
+        attr:
+            valueOf:
+                <<: *__func
+                id: "valueOf"
+                type: *IntegerType
+                template: *DoubleValueOfTemplate
+            toJSON:
+                <<: *__func
+                id: "toJSON"
+                type: *IntegerType
+                template: *DoubleToJSONTemplate
+    Int32: &Int32Type
+        <<: *__type
+        id: "Int32"
+        type: *ObjectType
+        attr:
+            valueOf:
+                <<: *__func
+                id: "valueOf"
+                type: *Int32Type
+                template: *Int32ValueOfTemplate
+            toJSON:
+                <<: *__func
+                id: "toJSON"
+                type: *Int32Type
+                template: *Int32ToJSONTemplate
+    Long: &LongType
+        <<: *__type
+        id: "Long"
+        type: *ObjectType
+        attr:
+            toString:
+                <<: *__func
+                id: "LongtoString" # Needs emit method
+                args:
+                    - [ *IntegerType, null ]
+                type: *StringType
+            equals:
+                <<: *__func
+                id: "equals"
+                args:
+                    - [ "Long" ]
+                type: *BoolType
+            toJSON:
+                <<: *__func
+                id: "toJSON"
+                type: *StringType
+                template: *LongToJSONTemplate
+            toInt:
+                <<: *__func
+                id: "toInt"
+                type: *IntegerType
+                template: *LongToIntTemplate
+            toNumber:
+                <<: *__func
+                id: "toNumber"
+                type: *DecimalType
+                template: *LongToNumberTemplate
+            compare:
+                <<: *__func
+                id: "compare"
+                args:
+                    - [ "Long" ]
+                type: *StringType
+                template: *LongCompareTemplate
+            isOdd:
+                <<: *__func
+                id: "isOdd"
+                type: *BoolType
+                template: *LongIsOddTemplate
+                argsTemplate: *LongIsOddArgsTemplate
+            isZero:
+                <<: *__func
+                id: "isZero"
+                type: *BoolType
+                template: *LongIsZeroTemplate
+                argsTemplate: *LongIsZeroArgsTemplate
+            isNegative:
+                <<: *__func
+                id: "isNegative"
+                type: *BoolType
+                template: *LongIsNegativeTemplate
+                argsTemplate: *LongIsNegativeArgsTemplate
+            negate:
+                <<: *__func
+                id: "negate"
+                type: "Long"
+                template: *LongNegateTemplate
+                argsTemplate: *LongNegateArgsTemplate
+            not:
+                <<: *__func
+                id: "not"
+                type: "Long"
+                template: *LongNotTemplate
+                argsTemplate: *LongNotArgsTemplate
+            notEquals:
+                <<: *__func
+                id: "notEquals"
+                args:
+                    - [ "Long" ]
+                type: *BoolType
+                template: *LongNotEqualsTemplate
+                argsTemplate: *LongNotEqualsArgsTemplate
+            greaterThan:
+                <<: *__func
+                id: "greaterThan"
+                args:
+                    - [ "Long" ]
+                type: *BoolType
+                template: *LongGreaterThanTemplate
+                argsTemplate: *LongGreaterThanArgsTemplate
+            greaterThanOrEqual:
+                <<: *__func
+                id: "greaterThanOrEqual"
+                args:
+                    - [ "Long" ]
+                type: *BoolType
+                template: *LongGreaterThanOrEqualTemplate
+                argsTemplate: *LongGreaterThanOrEqualArgsTemplate
+            lessThan:
+                <<: *__func
+                id: "lessThan"
+                args:
+                    - [ "Long" ]
+                type: *BoolType
+                template: *LongLessThanTemplate
+                argsTemplate: *LongLessThanArgsTemplate
+            lessThanOrEqual:
+                <<: *__func
+                id: "lessThanOrEqual"
+                args:
+                    - [ "Long" ]
+                type: *BoolType
+                template: *LongLessThanOrEqualTemplate
+                argsTemplate: *LongLessThanOrEqualArgsTemplate
+            add:
+                <<: *__func
+                id: "add"
+                args:
+                    - [ "Long" ]
+                type: "Long"
+                template: *LongAddTemplate
+                argsTemplate: *LongAddArgsTemplate
+            subtract:
+                <<: *__func
+                id: "subtract"
+                args:
+                    - [ "Long" ]
+                type: "Long"
+                template: *LongSubtractTemplate
+                argsTemplate: *LongSubtractArgsTemplate
+            multiply:
+                <<: *__func
+                id: "multiply"
+                args:
+                    - [ "Long" ]
+                type: "Long"
+                template: *LongMultiplyTemplate
+                argsTemplate: *LongMultiplyArgsTemplate
+            div:
+                <<: *__func
+                id: "div"
+                args:
+                    - [ "Long" ]
+                type: "Long"
+                template: *LongDivTemplate
+                argsTemplate: *LongDivArgsTemplate
+            modulo:
+                <<: *__func
+                id: "modulo"
+                args:
+                    - [ "Long" ]
+                type: "Long"
+                template: *LongModuloTemplate
+                argsTemplate: *LongModuloArgsTemplate
+            and:
+                <<: *__func
+                id: "and"
+                args:
+                    - [ "Long" ]
+                type: "Long"
+                template: *LongAndTemplate
+                argsTemplate: *LongAndArgsTemplate
+            or:
+                <<: *__func
+                id: "or"
+                args:
+                    - [ "Long" ]
+                type: "Long"
+                template: *LongOrTemplate
+                argsTemplate: *LongOrArgsTemplate
+            xor:
+                <<: *__func
+                id: "xor"
+                args:
+                    - [ "Long" ]
+                type: "Long"
+                template: *LongXorTemplate
+                argsTemplate: *LongXorArgsTemplate
+            shiftLeft:
+                <<: *__func
+                id: "shiftLeft"
+                args:
+                    - [ *IntegerType ]
+                type: "Long"
+                template: *LongShiftLeftTemplate
+                argsTemplate: *LongShiftLeftArgsTemplate
+            shiftRight:
+                <<: *__func
+                id: "shiftRight"
+                args:
+                    - [ *IntegerType ]
+                type: "Long"
+                template: *LongShiftRightTemplate
+                argsTemplate: *LongShiftRightArgsTemplate
+    MinKeyType: &MinKeyType
+        <<: *__type
+        id: "MinKey"
+        type: *ObjectType
+    MaxKeyType: &MaxKeyType
+        <<: *__type
+        id: "MaxKey"
+        type: *ObjectType
+    BSONRegExpType: &BSONRegExpType
+        <<: *__type
+        id: "BSONRegExp"
+        type: *ObjectType
+    Timestamp: &TimestampType
+        <<: *__type
+        id: "Timestamp"
+        type: *ObjectType
+        attr:
+            toString:
+                <<: *__func
+                id: "toString"
+                type: *StringType
+            equals:
+                <<: *__func
+                id: "equals"
+                args:
+                    - [ "Timestamp" ]
+                type: *BoolType
+            getLowBits:
+                <<: *__func
+                id: "getLowBits"
+                type: *IntegerType
+                template: *TimestampGetLowBitsTemplate
+            getHighBits:
+                <<: *__func
+                id: "getHighBits"
+                type: *IntegerType
+                template: *TimestampGetHighBitsTemplate
+            toJSON:
+                <<: *__func
+                id: "toJSON"
+                type: *StringType
+                template: *TimestampToJSONTemplate
+            compare:
+                <<: *__func
+                id: "compare"
+                args:
+                    - [ "Timestamp" ]
+                type: *StringType
+                template: *TimestampCompareTemplate
+            notEquals:
+                <<: *__func
+                id: "notEquals"
+                args:
+                    - [ "Timestamp" ]
+                type: *BoolType
+                template: *TimestampNotEqualsTemplate
+                argsTemplate: *TimestampNotEqualsArgsTemplate
+            greaterThan:
+                <<: *__func
+                id: "greaterThan"
+                args:
+                    - [ "Timestamp" ]
+                type: *BoolType
+                template: *TimestampGreaterThanTemplate
+                argsTemplate: *TimestampGreaterThanArgsTemplate
+            greaterThanOrEqual:
+                <<: *__func
+                id: "greaterThanOrEqual"
+                args:
+                    - [ "Timestamp" ]
+                type: *BoolType
+                template: *TimestampGreaterThanOrEqualTemplate
+                argsTemplate: *TimestampGreaterThanOrEqualArgsTemplate
+            lessThan:
+                <<: *__func
+                id: "lessThan"
+                args:
+                    - [ "Timestamp" ]
+                type: *BoolType
+                template: *TimestampLessThanTemplate
+                argsTemplate: *TimestampLessThanArgsTemplate
+            lessThanOrEqual:
+                <<: *__func
+                id: "lessThanOrEqual"
+                args:
+                    - [ "Timestamp" ]
+                type: *BoolType
+                template: *TimestampLessThanOrEqualTemplate
+                argsTemplate: *TimestampLessThanOrEqualArgsTemplate
+    Symbol: &SymbolType
+        <<: *__type
+        id: "Symbol"
+        type: *ObjectType
+        attr:
+            valueOf:
+                <<: *__func
+                id: "valueOf"
+                type: *StringType
+                template: *SymbolValueOfTemplate
+            toString:
+                <<: *__func
+                id: "toString"
+                type: *StringType
+                template: *SymbolToStringTemplate
+            toJSON:
+                <<: *__func
+                id: "toJSON"
+                type: *StringType
+                template: *SymbolToJSONTemplate
+            inspect:
+                <<: *__func
+                id: "inspect"
+                type: *StringType
+                template: *SymbolInspectTemplate
+    Decimal128: &Decimal128Type
+        <<: *__type
+        id: "Decimal128"
+        type: *ObjectType
+        attr:
+            toString:
+                <<: *__func
+                id: "toString"
+                type: *StringType
+            toJSON:
+                <<: *__func
+                id: "Decimal128toJSON" # Needs emit method
+                type: *ObjectType
+JSTypes:
+    Date: &DateType
+        <<: *__type
+        id: "Date"
+        type: *ObjectType
+        attr: {} # TODO: no built-in date methods added yet
+    RegExp: &RegExpType
+        <<: *__type
+        id: "RegExp"
+        type: *ObjectType
+        attr: {}
+
+
+
+

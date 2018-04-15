@@ -1,0 +1,329 @@
+BsonSymbols:
+    Code: &CodeSymbol
+        id: "Code"
+        callable: *constructor
+        args:
+            - [ *StringType ]
+            - [ *ObjectType, null ]
+        type: *CodeType
+        attr: {}
+        template: *CodeSymbolTemplate
+        argsTemplate: *CodeSymbolArgsTemplate
+    ObjectId: &ObjectIdSymbol
+        id: "ObjectId"
+        callable: *constructor
+        args:
+            - [ *StringType, *NumericType, null ]
+        type: *ObjectIdType
+        attr:
+            createFromHexString:
+                <<: *__func
+                id: "createFromHexString"
+                args:
+                    - [ *StringType ]
+                type: *ObjectIdType
+                template: *ObjectIdCreateFromHexStringTemplate
+                argsTemplate: *ObjectIdCreateFromHexStringArgsTemplate
+            createFromTime:
+                <<: *__func
+                id: "createFromTime"
+                args:
+                    - [ *NumericType ]
+                type: *ObjectIdType
+                template: *ObjectIdCreateFromTimeTemplate
+                argsTemplate: *ObjectIdCreateFromTimeArgsTemplate
+            isValid:
+                <<: *__func
+                id: "isValid"
+                args:
+                    - [ *StringType ]
+                type: *BoolType
+        template: *ObjectIdSymbolTemplate
+        argsTemplate: *CodeSymbolArgsTemplate
+    Binary: &BinarySymbol
+        id: "Binary"
+        callable: *constructor
+        args:
+            - [ *StringType, *NumericType, *ObjectType ]
+            - [ *NumericType, null ]
+        type: *BinaryType
+        attr:
+            SUBTYPE_DEFAULT:
+                id: "SUBTYPE_DEFAULT"
+                callable: *var
+                args: null
+                type: *IntegerType
+                template: *BinarySymbolSubtypeDefaultTemplate
+            SUBTYPE_FUNCTION:
+                id: "SUBTYPE_FUNCTION"
+                callable: *var
+                args: null
+                type: *IntegerType
+                template: *BinarySymbolSubtypeFunctionTemplate
+            SUBTYPE_BYTE_ARRAY:
+                id: "SUBTYPE_BYTE_ARRAY"
+                callable: *var
+                args: null
+                type: *IntegerType
+                template: *BinarySymbolSubtypeByteArrayTemplate
+            SUBTYPE_UUID_OLD:
+                id: "SUBTYPE_UUID_OLD"
+                callable: *var
+                args: null
+                type: *IntegerType
+                template: *BinarySymbolSubtypeUuidOldTemplate
+            SUBTYPE_UUID:
+                id: "SUBTYPE_UUID"
+                callable: *var
+                args: null
+                type: *IntegerType
+                template: *BinarySymbolSubtypeUuidTemplate
+            SUBTYPE_MD5:
+                id: "SUBTYPE_MD5"
+                callable: *var
+                args: null
+                type: *IntegerType
+                template: *BinarySymbolSubtypeMd5Template
+            SUBTYPE_USER_DEFINED:
+                id: "SUBTYPE_USER_DEFINED"
+                callable: *var
+                args: null
+                type: *IntegerType
+                template: *BinarySymbolSubtypeUserDefinedTemplate
+        template: *BinarySymbolTemplate
+        argsTemplate: *BinarySymbolArgsTemplate
+    DBRef:
+        id: "DBRef"
+        callable: *constructor
+        args:
+            - [ *StringType ]
+            - [ *ObjectIdType ]
+            - [ *StringType, null ]
+        type: *DBRefType
+        attr: {}
+        template: *DBRefSymbolTemplate
+        argsTemplate: *DBRefSymbolArgsTemplate
+    Double:
+        id: "Double"
+        callable: *constructor
+        args:
+            - [ *NumericType, *StringType ]
+        type: *DoubleType
+        attr: {}
+        template: *DoubleSymbolTemplate
+        argsTemplate: *DoubleSymbolArgsTemplate
+    Int32:
+        id: "Int32"
+        callable: *constructor
+        args:
+            - [ *NumericType, *StringType ]
+        type: *Int32Type
+        attr: {}
+        template: *Int32SymbolTemplate
+        argsTemplate: *Int32SymbolArgsTemplate
+    Long:
+        id: "Long"
+        callable: *constructor
+        args:
+            - [ *NumericType ]
+            - [ *NumericType ]
+        type: *LongType
+        attr:
+            MAX_VALUE:
+                id: "MAX_VALUE"
+                callable: *var
+                args: null
+                type: *LongType
+                attr: {}
+                template: *LongSymbolMaxTemplate
+                argsTemplate: *LongSymbolMaxArgsTemplate
+            MIN_VALUE:
+                id: "MIN_VALUE"
+                callable: *var
+                args: null
+                type: *LongType
+                attr: {}
+                template: *LongSymbolMinTemplate
+                argsTemplate: *LongSymbolMinArgsTemplate
+            ZERO:
+                id: "ZERO"
+                callable: *var
+                args: null
+                type: *LongType
+                attr: {}
+                template: *LongSymbolZeroTemplate
+                argsTemplate: *LongSymbolZeroArgsTemplate
+            ONE:
+                id: "ONE"
+                callable: *var
+                args: null
+                type: *LongType
+                attr: {}
+                template: *LongSymbolOneTemplate
+                argsTemplate: *LongSymbolOneArgsTemplate
+            NEG_ONE:
+                id: "NEG_ONE"
+                callable: *var
+                args: null
+                type: *LongType
+                attr: {}
+                template: *LongSymbolNegOneTemplate
+                argsTemplate: *LongSymbolNegOneArgsTemplate
+            fromBits:
+                id: "LongfromBits" # Needs emit method
+                callable: *func
+                args:
+                    - [ *IntegerType ]
+                    - [ *IntegerType ]
+                type: *LongType
+                attr: {}
+                template: *LongSymbolFromBitsTemplate
+                argsTemplate: *LongSymbolFromBitsArgsTemplate
+            fromInt:
+                id: "fromInt"
+                callable: *func
+                args:
+                    - [ *IntegerType ]
+                type: *LongType
+                attr: {}
+                template: *LongSymbolFromIntTemplate
+                argsTemplate: *LongSymbolFromIntArgsTemplate
+            fromNumber:
+                id: "fromNumber"
+                callable: *func
+                args:
+                    - [ *NumericType ]
+                type: *LongType
+                attr: {}
+                template: *LongSymbolFromNumberTemplate
+                argsTemplate: *LongSymbolFromNumberArgsTemplate
+            fromString:
+                id: "fromString"
+                callable: *func
+                args:
+                    - [ *StringType ]
+                    - [ *IntegerType, null ]
+                type: *LongType
+                attr: {}
+                template: *LongSymbolFromStringTemplate
+                argsTemplate: *LongSymbolFromStringArgsTemplate
+        template: *LongSymbolTemplate
+        argsTemplate: *LongSymbolArgsTemplate
+    MinKey:
+        id: "MinKey"
+        callable: *constructor
+        args: []
+        type: *MinKeyType
+        attr: {}
+        template: *MinKeySymbolTemplate
+        argsTemplate: *MinKeySymbolArgsTemplate
+    MaxKey:
+        id: "MaxKey"
+        callable: *constructor
+        args: []
+        type: *MaxKeyType
+        attr: {}
+        template: *MaxKeySymbolTemplate
+        argsTemplate: *MaxKeySymbolArgsTemplate
+    Timestamp:
+        id: "Timestamp"
+        callable: *constructor
+        args:
+            - [ *NumericType ]
+            - [ *NumericType ]
+        type: *TimestampType
+        attr: {}
+        template: *TimestampSymbolTemplate
+        argsTemplate: *TimestampSymbolArgsTemplate
+    Symbol:
+        id: "Symbol"
+        callable: *constructor
+        args:
+            - [ *StringType ]
+        type: *SymbolType
+        attr: {}
+        template: *SymbolSymbolTemplate
+        argsTemplate: *SymbolSymbolArgsTemplate
+    BSONRegExp:
+        id: "BSONRegExp"
+        callable: *constructor
+        args:
+            - [ *StringType ]
+            - [ *StringType, null ]
+        type: *BSONRegExpType
+        attr: {}
+        template: *BSONRegExpSymbolTemplate
+        argsTemplate: *BSONRegExpSymbolArgsTemplate
+    Decimal128:
+        id: "Decimal128"
+        callable: *constructor
+        args:
+            - [ *ObjectType ]
+        type: *Decimal128Type
+        attr:
+            fromString:
+                id: "fromString"
+                callable: *func
+                args:
+                    - [ *StringType ]
+                type: *Decimal128Type
+                attr: {}
+                template: *Decimal128SymbolFromStringTemplate
+                argsTemplate: *Decimal128SymbolFromStringArgsTemplate
+        template: *Decimal128SymbolTemplate
+        argsTemplate: *Decimal128SymbolArgsTemplate
+
+JSSymbols:
+    Object:
+        id: "Object"
+        callable: *var
+        args: null
+        type: *ObjectType
+        attr:
+            create:
+                id: "create"
+                callable: *func
+                args:
+                    - [ *ObjectType ]
+                type: *ObjectType
+                attr: {}
+                template: *ObjectSymbolCreateTemplate
+                argsTemplate: *ObjectSymbolCreateArgsTemplate
+        template: *ObjectSymbolTemplate
+        argsTemplate: *ObjectSymbolArgsTemplate
+    Number:
+        id: "Number"
+        callable: *constructor
+        args:
+            - [ *NumericType, *StringType ]
+        type: *NumericType
+        attr: {} # TODO: no built-in number funcs added yet
+        template: *NumberSymbolTemplate
+        argsTemplate: *NumberSymbolArgsTemplate
+    Date: # Needs emit method
+        id: "Date"
+        callable: *constructor
+        args: null
+        type: *DateType
+        attr: # TODO: add more date funcs?
+            now:
+                id: "now"
+                callable: *constructor
+                args: []
+                type: *DateType
+                attr: {}
+                template: *DateSymbolNowTemplate
+                argsTemplate: *DateSymbolNowArgsTemplate
+        template: *DateSymbolTemplate
+        argsTemplate: *DateSymbolArgsTemplate
+    RegExp: # Needs emit method
+        id: "RegExp"
+        callable: *constructor
+        args:
+            - [ *StringType ]
+            - [ *StringType, null ]
+        type: *RegExpType
+        attr: {}
+        template: *RegExpSymbolTemplate
+        argsTemplate: *RegExpSymbolArgsTemplate
+

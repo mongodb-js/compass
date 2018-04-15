@@ -4,13 +4,6 @@ const bson = require('bson');
 const Context = require('context-eval');
 const path = require('path');
 const {
-  Types,
-  SYMBOL_TYPE,
-  BsonSymbols,
-  Symbols,
-  AllTypes
-} = require('./SymbolTable');
-const {
   SemanticArgumentCountMismatchError
 } = require(path.resolve('helper', 'error'));
 
@@ -59,7 +52,7 @@ Visitor.prototype.visitChildren = function(ctx, options) {
   /* Set the node's type to the first child, if it's not already set.
      More often than not, type will be set directly by the visitNode method. */
   if (ctx.type === undefined) {
-    ctx.type = opts.children.length ? opts.children[0].type : Types._undefined;
+    ctx.type = opts.children.length ? opts.children[0].type : this.Types._undefined;
   }
   return code.trim();
 };
@@ -89,12 +82,12 @@ Visitor.prototype.visitLiteralExpression = function(ctx) {
  * @return {String}
  */
 Visitor.prototype.visitObjectLiteral = function(ctx) {
-  ctx.type = Types._object;
+  ctx.type = this.Types._object;
   let args = '';
   if (ctx.propertyNameAndValueList()) {
     const properties = ctx.propertyNameAndValueList().propertyAssignment();
     if (ctx.type.argsTemplate) {
-      args = ctx.type.argsTemplate(...properties.map((pair) => {
+      args = ctx.type.argsTemplate(properties.map((pair) => {
         return [this.visit(pair.propertyName()), this.visit(pair.singleExpression())];
       }));
     }
@@ -110,7 +103,7 @@ Visitor.prototype.visitObjectLiteral = function(ctx) {
  * @return {String}
  */
 Visitor.prototype.visitArrayLiteral = function(ctx) {
-  ctx.type = Types._array;
+  ctx.type = this.Types._array;
   let args = '';
   if (ctx.elementList()) {
     const children = ctx.elementList().children.filter((child) => {
@@ -133,7 +126,7 @@ Visitor.prototype.visitArrayLiteral = function(ctx) {
  * @return {String}
  */
 Visitor.prototype.visitElision = function(ctx) {
-  ctx.type = Types._null;
+  ctx.type = this.Types._null;
   if (ctx.type.template) {
     return ctx.type.template();
   }
@@ -150,7 +143,7 @@ Visitor.prototype.visitFuncCallExpression = function(ctx) {
   const lhs = this.visit(ctx.singleExpression());
   let lhsType = ctx.singleExpression().type;
   if (typeof lhsType === 'string') {
-    lhsType = AllTypes[lhsType];
+    lhsType = this.Types[lhsType];
   }
 
   // Special case types
@@ -169,7 +162,7 @@ Visitor.prototype.visitFuncCallExpression = function(ctx) {
   }
 
   // TODO: don't need for other languages
-  const newStr = lhsType.callable === SYMBOL_TYPE.CONSTRUCTOR ? this.new : '';
+  const newStr = lhsType.callable === this.SYMBOL_TYPE.CONSTRUCTOR ? this.new : '';
   if (lhsType.argsTemplate) {
     let l = lhs;
     if ('identifierName' in ctx.singleExpression()) {
@@ -184,7 +177,7 @@ Visitor.prototype.visitFuncCallExpression = function(ctx) {
 
 Visitor.prototype.visitIdentifierExpression = function(ctx) {
   const name = this.visitChildren(ctx);
-  ctx.type = Symbols[name];
+  ctx.type = this.Symbols[name];
   if (ctx.type === undefined) {
     throw new SemanticArgumentCountMismatchError({
       message: `symbol "${name}" is undefined`
@@ -211,25 +204,25 @@ Visitor.prototype.visitGetAttributeExpression = function(ctx) {
 
   let type = ctx.singleExpression().type;
   if (typeof type === 'string') {
-    type = AllTypes[type];
+    type = this.Types[type];
   }
   while (type !== null) {
     if (!(type.attr.hasOwnProperty(rhs))) {
-      if (type.id in BsonSymbols) {
+      if (type.id in this.BsonSymbols && this.BsonSymbols.type.id !== null) {
         throw new SemanticArgumentCountMismatchError({
           message: `${rhs} not an attribute of ${type.id}`
         });
       }
       type = type.type;
       if (typeof type === 'string') {
-        type = AllTypes[type];
+        type = this.Types[type];
       }
     } else {
       break;
     }
   }
   if (type === null) {
-    ctx.type = Types._undefined;
+    ctx.type = this.Types._undefined;
     // TODO: how strict do we want to be?
     return `${lhs}.${rhs}`;
   }
@@ -262,37 +255,37 @@ Visitor.prototype.visitTerminal = function(ctx) {
  */
 Visitor.prototype.getPrimitiveType = function(ctx) {
   if ('NullLiteral' in ctx) {
-    return Types._null;
+    return this.Types._null;
   }
   if ('UndefinedLiteral' in ctx) {
-    return Types._undefined;
+    return this.Types._undefined;
   }
   if ('BooleanLiteral' in ctx) {
-    return Types._bool;
+    return this.Types._bool;
   }
   if ('StringLiteral' in ctx) {
-    return Types._string;
+    return this.Types._string;
   }
   if ('RegularExpressionLiteral' in ctx) {
-    return Types._regex;
+    return this.Types._regex;
   }
   if ('numericLiteral' in ctx) {
     const number = ctx.numericLiteral();
     if ('IntegerLiteral' in number) {
-      return Types._integer;
+      return this.Types._integer;
     }
     if ('DecimalLiteral' in number) {
-      return Types._decimal;
+      return this.Types._decimal;
     }
     if ('HexIntegerLiteral' in number) {
-      return Types._hex;
+      return this.Types._hex;
     }
     if ('OctalIntegerLiteral' in number) {
-      return Types._octal;
+      return this.Types._octal;
     }
   }
   // TODO: or raise error?
-  return Types._undefined;
+  return this.Types._undefined;
 };
 
 Visitor.prototype.executeJavascript = function(input) {
@@ -374,11 +367,11 @@ Visitor.prototype.checkArguments = function(expected, argumentList) {
       throw new SemanticArgumentCountMismatchError({message: 'too few arguments'});
     }
     argStr.push(this.visit(args[i]));
-    if (expected[i].indexOf(Types._numeric) !== -1 && (
-        args[i].type === Types._integer ||
-        args[i].type === Types._decimal ||
-        args[i].type === Types._hex ||
-        args[i].type === Types._octal)) {
+    if (expected[i].indexOf(this.Types._numeric) !== -1 && (
+        args[i].type === this.Types._integer ||
+        args[i].type === this.Types._decimal ||
+        args[i].type === this.Types._hex ||
+        args[i].type === this.Types._octal)) {
       continue;
     }
     if (expected[i].indexOf(args[i].type) === -1 && expected[i].indexOf(args[i].type.id) === -1) {

@@ -1,0 +1,24 @@
+SymbolTypes:
+    VAR: &var 0
+    CONSTRUCTOR: &constructor 1
+    FUNC: &func 2
+# Internal patterns to save typing
+__type: &__type
+    id: null
+    callable: *var
+    args: null
+    type: null
+    attr: {}
+    template: null
+    argsTemplate: null
+__func: &__func
+    callable: *func
+    args: []
+    attr: {}
+    template: null
+    argsTemplate: null
+function: !!js/function >
+    function foobar() {
+        return 'Wow! JS-YAML Rocks!';
+    }
+

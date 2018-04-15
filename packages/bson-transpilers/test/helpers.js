@@ -32,7 +32,7 @@ const unsupported = {
   },
   error: {
     java: {'bson-constructors': [ '*' ]},
-    python: {},
+    python: { 'bson-constructors': [ '*' ]},
     csharp: {'bson-constructors': [ '*' ]}
   }
 };
