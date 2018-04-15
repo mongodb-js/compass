@@ -6,23 +6,32 @@ import styles from './pipeline-builder-toolbar.less';
 
 describe('PipelineBuilderToolbar [Component]', () => {
   let component;
-  let stageAddedSpy;
-  let viewChangedSpy;
+  let savedPipelinesListToggleSpy;
+  let getSavedPipelinesSpy;
   let copyToClipboardSpy;
+  let newPipelineSpy;
+  let clonePipelineSpy;
+  let nameChangedSpy;
   let saveSpy;
 
   beforeEach(() => {
-    stageAddedSpy = sinon.spy();
-    viewChangedSpy = sinon.spy();
+    savedPipelinesListToggleSpy = sinon.spy();
+    getSavedPipelinesSpy = sinon.spy();
     copyToClipboardSpy = sinon.spy();
+    newPipelineSpy = sinon.spy();
+    clonePipelineSpy = sinon.spy();
+    nameChangedSpy = sinon.spy();
     saveSpy = sinon.spy();
 
     component = mount(
       <PipelineBuilderToolbar
-        stageAdded={stageAddedSpy}
-        viewChanged={viewChangedSpy}
-        savePipelineModalToggle={saveSpy}
+        savedPipelinesListToggle={savedPipelinesListToggleSpy}
+        getSavedPipelines={getSavedPipelinesSpy}
+        saveCurrentPipeline={saveSpy}
         savedPipeline={{ isListVisible: true }}
+        newPipeline={newPipelineSpy}
+        clonePipeline={clonePipelineSpy}
+        nameChanged={nameChangedSpy}
         name=""
         copyToClipboard={copyToClipboardSpy} />
     );
