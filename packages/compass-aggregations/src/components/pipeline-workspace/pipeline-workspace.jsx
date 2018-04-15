@@ -5,6 +5,7 @@ import { DragDropContext } from 'react-dnd';
 import HTML5Backend from 'react-dnd-html5-backend';
 import Stage from 'components/stage';
 import Input from 'components/input';
+import AddStage from 'components/add-stage';
 
 import styles from './pipeline-workspace.less';
 
@@ -19,6 +20,7 @@ class PipelineWorkspace extends PureComponent {
     pipeline: PropTypes.array.isRequired,
     toggleInputDocumentsCollapsed: PropTypes.func.isRequired,
     refreshInputDocuments: PropTypes.func.isRequired,
+    stageAdded: PropTypes.func.isRequired,
     inputDocuments: PropTypes.object.isRequired
   }
 
@@ -42,6 +44,7 @@ class PipelineWorkspace extends PureComponent {
           isExpanded={inputDocuments.isExpanded}
           count={inputDocuments.count} />
         {stages}
+        <AddStage stageAdded={this.props.stageAdded} />
       </div>
     );
   }
