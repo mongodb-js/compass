@@ -19,8 +19,7 @@ const loadGenerator = (inputLang, outputLang) => {
   if (!fs.existsSync(subFile + '.js')) {
     throw new Error(`${outputLang} not yet implemented as target language`);
   }
-  const getG = require(subFile);
-  const Generator = getG(visitor);
+  const Generator = require(subFile)(visitor);
 
   return new Generator();
 };

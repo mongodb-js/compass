@@ -43,6 +43,9 @@ const loadSymbolTable = (inputLang, outputLang) => {
     path.join(inputLang, 'symbols.yaml')
   ];
   const contents = files.reduce((str, file) => {
+    if (!fs.existsSync(path.join('symbols', file))) {
+      throw new Error(`${inputLang} not yet implemented as input language`);
+    }
     return str + fs.readFileSync(path.join('symbols', file));
   }, '');
 
