@@ -37,7 +37,7 @@ const compileECMAScript = (input, generator) => {
 
 const toJava = () => {
   const gen = new JavaGenerator();
-  const symbols = loadSymbolTable('ecmascript', 'java');
+  const symbols = loadSymbolTable('javascript', 'java');
   Object.assign(gen, symbols);
   return (input) => {
     return compileECMAScript(input, gen);
@@ -46,7 +46,7 @@ const toJava = () => {
 
 const toCSharp = () => {
   const gen = new CSharpGenerator();
-  const symbols = {}; // loadSymbolTable('ecmascript', 'csharp');
+  const symbols = {}; // loadSymbolTable('javascript', 'csharp');
   Object.assign(gen, symbols);
   return (input) => {
     return compileECMAScript(input, gen);
@@ -55,7 +55,7 @@ const toCSharp = () => {
 
 const toPython = () => {
   const gen = new Python3Generator();
-  const symbols = {}; // loadSymbolTable('ecmascript', 'python');
+  const symbols = {}; // loadSymbolTable('javascript', 'python');
   Object.assign(gen, symbols);
   return (input) => {
     return compileECMAScript(input, gen);
