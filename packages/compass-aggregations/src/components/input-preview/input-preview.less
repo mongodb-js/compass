@@ -10,14 +10,16 @@
     display: flex;
     align-items: flex-start;
     overflow-y: scroll;
-    margin: 0px 15px 0px 15px;
+    margin: 15px;
 
     :global {
       .document {
-        background-color: #FFFFFF;
+        background-color: @pw;
         margin: 10px;
         padding: 10px 20px 10px 20px;
-        box-shadow: 1px 1px 3px #dee0e3;
+        border: 1px solid @gray6;
+        border-radius: 4px;
+        box-shadow: 1px 1px 4px rgba(0, 0, 0, 0.1);
         width: 350px;
         height: 150px;
         overflow: scroll;
