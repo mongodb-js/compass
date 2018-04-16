@@ -45,7 +45,7 @@ Visitor.prototype.binary_subTypes = {
  * @param {NewExpressionContext} ctx
  * @return {String}
  */
-Visitor.prototype.visitNewExpression = function(ctx) {
+Visitor.prototype.emitNew = function(ctx) {
   const expr = this.visit(ctx.singleExpression());
   ctx.type = ctx.singleExpression().type;
   return expr;
@@ -60,7 +60,7 @@ Visitor.prototype.visitNewExpression = function(ctx) {
  * @param {FuncCallExpressionContext} ctx
  * @return {String}
  */
-Visitor.prototype.visitRegularExpressionLiteral = function(ctx) {
+Visitor.prototype.emitRegExp = function(ctx) {
   ctx.type = this.Types.Regex;
   let pattern;
   let flags;
@@ -80,8 +80,6 @@ Visitor.prototype.visitRegularExpressionLiteral = function(ctx) {
 
   return `Pattern.compile(${doubleQuoteStringify(escaped + javaflags)})`;
 };
-
-/*  ************** Emit Helpers **************** */
 
 /**
  * Special cased because different target languages need different info out
@@ -142,8 +140,6 @@ Visitor.prototype.emitBSONRegExp = function(ctx) {
   }
   return `new BsonRegularExpression(${args[0]})`;
 };
-
-Visitor.prototype.emitRegExp = Visitor.prototype.visitRegularExpressionLiteral;
 
 /**
  * The arguments to Code can be either a string or actual javascript code.

@@ -234,6 +234,20 @@ Visitor.prototype.visitGetAttributeExpression = function(ctx) {
   return `${lhs}.${rhs}`;
 };
 
+Visitor.prototype.visitNewExpression = function(ctx) {
+  if ('emitNew' in this) {
+    return this.emitNew(ctx);
+  }
+  return this.visitChildren(ctx);
+};
+
+Visitor.prototype.visitRegularExpressionLiteral = function(ctx) {
+  if ('emitRegExp' in this) {
+    return this.emitRegExp(ctx);
+  }
+  return this.visitChildren(ctx);
+};
+
 
 /**
  * Visit a leaf node and return a string.
