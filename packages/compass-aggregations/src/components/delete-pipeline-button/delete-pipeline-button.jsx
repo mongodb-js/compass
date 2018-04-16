@@ -1,5 +1,5 @@
 import React, { PureComponent } from 'react';
-import { TextButton } from 'hadron-react-buttons';
+import { IconButton } from 'hadron-react-buttons';
 import PropTypes from 'prop-types';
 import classnames from 'classnames';
 
@@ -25,9 +25,10 @@ class DeletePipelineButton extends PureComponent {
 
     return (
       <div className={classnames(styles['delete-pipeline'])}>
-        <TextButton
-          text="Delete"
+        <IconButton
+          title="Delete"
           className={deleteStateButton}
+          iconClassName="fa fa-trash-o"
           clickHandler={this.props.clickHandler} />
       </div>
     );

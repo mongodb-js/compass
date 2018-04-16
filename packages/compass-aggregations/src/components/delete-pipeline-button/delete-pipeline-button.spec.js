@@ -26,8 +26,8 @@ describe('DeletePipelineButton [Component]', () => {
       expect(component.find(`.${styles['delete-pipeline-button']}`)).to.be.present();
     });
 
-    it('button has "Open" text', () => {
-      expect(component.find(`.${styles['delete-pipeline-button']}`)).to.contain.text('Delete');
+    it('button has trash icon', () => {
+      expect(component.find('.fa-trash-o')).to.be.present();
     });
   });
 
