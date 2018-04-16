@@ -3,13 +3,9 @@ const antlr4 = require('antlr4');
 const ECMAScriptLexer = require('./lib/ECMAScriptLexer.js');
 const ECMAScriptParser = require('./lib/ECMAScriptParser.js');
 
-const CodeGenerator = require(path.resolve('codegeneration', 'CodeGenerator'));
-const Python3Generator = require('./codegeneration/Python3Generator.js');
-const CSharpGenerator = require('./codegeneration/CSharpGenerator.js');
-
-const JavaGenerator = require('./codegeneration/JavaGenerator.js')(
-  CodeGenerator
-);
+const Python3Generator = require('./codegeneration/python/Generator.js');
+const CSharpGenerator = require('./codegeneration/csharp/Generator.js');
+const JavaGenerator = require('./codegeneration/java/Generator.js');
 
 const ErrorListener = require('./codegeneration/ErrorListener.js');
 

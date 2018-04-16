@@ -1,5 +1,6 @@
 /* eslint complexity: 0 */
 const path = require('path');
+
 const {doubleQuoteStringify} = require(path.resolve('helper', 'format'));
 const {
   SemanticArgumentCountMismatchError,

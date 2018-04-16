@@ -1,5 +1,5 @@
 /* eslint complexity: 0 */
-const ECMAScriptVisitor = require('../lib/ECMAScriptVisitor').ECMAScriptVisitor;
+const ECMAScriptVisitor = require('../../lib/ECMAScriptVisitor').ECMAScriptVisitor;
 const bson = require('bson');
 const Context = require('context-eval');
 const path = require('path');

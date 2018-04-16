@@ -1,5 +1,5 @@
+const CodeGenerator = require('../javascript/Visitor.js');
 const path = require('path');
-const CodeGenerator = require('./CodeGenerator.js');
 
 const {
   SemanticArgumentCountMismatchError,
