@@ -13,6 +13,7 @@ describe('PipelineBuilderToolbar [Component]', () => {
   let clonePipelineSpy;
   let nameChangedSpy;
   let saveSpy;
+  let setIsModifiedSpy;
 
   beforeEach(() => {
     savedPipelinesListToggleSpy = sinon.spy();
@@ -22,6 +23,7 @@ describe('PipelineBuilderToolbar [Component]', () => {
     clonePipelineSpy = sinon.spy();
     nameChangedSpy = sinon.spy();
     saveSpy = sinon.spy();
+    setIsModifiedSpy = sinon.spy();
 
     component = mount(
       <PipelineBuilderToolbar
@@ -33,12 +35,22 @@ describe('PipelineBuilderToolbar [Component]', () => {
         clonePipeline={clonePipelineSpy}
         nameChanged={nameChangedSpy}
         name=""
+        isModified
+        setIsModified={setIsModifiedSpy}
         copyToClipboard={copyToClipboardSpy} />
     );
   });
 
   afterEach(() => {
     component = null;
+    savedPipelinesListToggleSpy = null;
+    getSavedPipelinesSpy = null;
+    copyToClipboardSpy = null;
+    newPipelineSpy = null;
+    clonePipelineSpy = null;
+    nameChangedSpy = null;
+    saveSpy = null;
+    setIsModifiedSpy = null;
   });
 
   it('renders the wrapper div', () => {

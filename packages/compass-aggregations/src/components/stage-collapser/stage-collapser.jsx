@@ -33,7 +33,8 @@ class StageCollapser extends PureComponent {
   static propTypes = {
     stage: PropTypes.object.isRequired,
     index: PropTypes.number.isRequired,
-    stageCollapseToggled: PropTypes.func.isRequired
+    stageCollapseToggled: PropTypes.func.isRequired,
+    setIsModified: PropTypes.func.isRequired
   }
 
   /**
@@ -41,6 +42,7 @@ class StageCollapser extends PureComponent {
    */
   onStageCollapseToggled = () => {
     this.props.stageCollapseToggled(this.props.index);
+    this.props.setIsModified(true);
   }
 
   /**

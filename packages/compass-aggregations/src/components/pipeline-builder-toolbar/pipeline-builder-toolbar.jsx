@@ -21,11 +21,14 @@ class PipelineBuilderToolbar extends PureComponent {
     clonePipeline: PropTypes.func.isRequired,
     nameChanged: PropTypes.func.isRequired,
     name: PropTypes.string.isRequired,
-    saveCurrentPipeline: PropTypes.func.isRequired
+    saveCurrentPipeline: PropTypes.func.isRequired,
+    setIsModified: PropTypes.func.isRequired,
+    isModified: PropTypes.bool.isRequired
   }
 
   onNameChange = (evt) => {
     this.props.nameChanged(evt.target.value);
+    this.props.setIsModified(true);
   }
 
   handleSavedPipelinesOpen = () => {
@@ -78,7 +81,7 @@ class PipelineBuilderToolbar extends PureComponent {
         </div>
         <TextButton
           text="Save Pipeline"
-          disabled={this.props.name.trim() === ''}
+          disabled={this.props.name.trim() === '' || !this.props.isModified}
           className={savePipelineClassName}
           clickHandler={this.props.saveCurrentPipeline} />
         <DropdownButton bsStyle="default" title="..." noCaret pullRight id="agg-pipeline-actions">

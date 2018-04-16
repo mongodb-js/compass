@@ -38,6 +38,8 @@ class Pipeline extends PureComponent {
     copyToClipboard: PropTypes.func.isRequired,
     fields: PropTypes.array.isRequired,
     nameChanged: PropTypes.func.isRequired,
+    isModified: PropTypes.bool.isRequired,
+    setIsModified: PropTypes.func.isRequired,
     name: PropTypes.string
   }
 
@@ -66,6 +68,8 @@ class Pipeline extends PureComponent {
           newPipeline={this.props.newPipeline}
           clonePipeline={this.props.clonePipeline}
           nameChanged={this.props.nameChanged}
+          setIsModified={this.props.setIsModified}
+          isModified={this.props.isModified}
           name={this.props.name} />
         <div className={classnames(styles['pipeline-separator'])}></div>
         <PipelineWorkspace {...this.props} />

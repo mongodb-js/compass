@@ -8,6 +8,7 @@ describe('StageEditor [Component]', () => {
   let component;
   const spy = sinon.spy();
   const runStageSpy = sinon.spy();
+  const setIsModifiedSpy = sinon.spy();
   const stage = {
     stage: '{ name: "testing" }',
     stageOperator: '$match',
@@ -25,6 +26,7 @@ describe('StageEditor [Component]', () => {
         fields={[]}
         serverVersion="3.6.0"
         runStage={runStageSpy}
+        setIsModified={setIsModifiedSpy}
         stageChanged={spy} />
     );
   });

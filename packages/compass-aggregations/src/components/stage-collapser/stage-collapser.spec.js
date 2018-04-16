@@ -9,12 +9,14 @@ describe('StageCollaper [Component]', () => {
     let component;
     const stage = { isExpanded: true };
     const spy = sinon.spy();
+    const setIsModifiedSpy = sinon.spy();
 
     beforeEach(() => {
       component = mount(
         <StageCollapser
           stage={stage}
           index={1}
+          setIsModified={setIsModifiedSpy}
           stageCollapseToggled={spy} />
       );
     });
@@ -40,12 +42,14 @@ describe('StageCollaper [Component]', () => {
     let component;
     const stage = { isExpanded: false };
     const spy = sinon.spy();
+    const setIsModifiedSpy = sinon.spy();
 
     beforeEach(() => {
       component = mount(
         <StageCollapser
           stage={stage}
           index={1}
+          setIsModified={setIsModifiedSpy}
           stageCollapseToggled={spy} />
       );
     });
@@ -67,12 +71,14 @@ describe('StageCollaper [Component]', () => {
     let component;
     const stage = { isExpanded: false };
     const spy = sinon.spy();
+    const setIsModifiedSpy = sinon.spy();
 
     beforeEach(() => {
       component = mount(
         <StageCollapser
           stage={stage}
           index={1}
+          setIsModified={setIsModifiedSpy}
           stageCollapseToggled={spy} />
       );
     });
@@ -81,9 +87,10 @@ describe('StageCollaper [Component]', () => {
       component = null;
     });
 
-    it('toggles the expansion', () => {
+    it('toggles the expansion and sets as modified', () => {
       component.find('button').simulate('click');
       expect(spy.calledWith(1)).to.equal(true);
+      expect(setIsModifiedSpy.calledOnce).to.equal(true);
     });
   });
 });

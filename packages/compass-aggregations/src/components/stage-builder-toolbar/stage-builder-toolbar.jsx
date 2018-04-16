@@ -22,6 +22,7 @@ class StageBuilderToolbar extends PureComponent {
     stageCollapseToggled: PropTypes.func.isRequired,
     stageToggled: PropTypes.func.isRequired,
     stageDeleted: PropTypes.func.isRequired,
+    setIsModified: PropTypes.func.isRequired,
     runStage: PropTypes.func.isRequired
   }
 
@@ -37,20 +38,24 @@ class StageBuilderToolbar extends PureComponent {
         <StageCollapser
           stage={this.props.stage}
           index={this.props.index}
+          setIsModified={this.props.setIsModified}
           stageCollapseToggled={this.props.stageCollapseToggled} />
         <StageOperatorSelect
           stageOperator={this.props.stage.stageOperator}
           index={this.props.index}
           stageOperatorSelected={this.props.stageOperatorSelected}
+          setIsModified={this.props.setIsModified}
           serverVersion={this.props.serverVersion} />
         <ToggleStage
           stage={this.props.stage}
           index={this.props.index}
           runStage={this.props.runStage}
+          setIsModified={this.props.setIsModified}
           stageToggled={this.props.stageToggled} />
         <DeleteStage
           stage={this.props.stage}
           index={this.props.index}
+          setIsModified={this.props.setIsModified}
           stageDeleted={this.props.stageDeleted} />
       </div>
     );

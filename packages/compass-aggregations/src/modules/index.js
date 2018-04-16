@@ -6,7 +6,11 @@ import fields, { INITIAL_STATE as FIELDS_INITIAL_STATE } from './fields';
 import inputDocuments, { INITIAL_STATE as INPUT_INITIAL_STATE } from './input-documents';
 import namespace, { INITIAL_STATE as NS_INITIAL_STATE, NAMESPACE_CHANGED } from './namespace';
 import serverVersion, { INITIAL_STATE as SV_INITIAL_STATE } from './server-version';
-import pipeline, { runStage, INITIAL_STATE as PIPELINE_INITIAL_STATE } from './pipeline';
+import isModified, { INITIAL_STATE as IS_MODIFIED_INITIAL_STATE } from './is-modified';
+import pipeline, {
+  runStage,
+  INITIAL_STATE as PIPELINE_INITIAL_STATE
+} from './pipeline';
 import name, { INITIAL_STATE as NAME_INITIAL_STATE } from './name';
 import id, { INITIAL_STATE as ID_INITIAL_STATE } from './id';
 import savedPipeline, {
@@ -29,7 +33,8 @@ export const INITIAL_STATE = {
   savedPipeline: SP_INITIAL_STATE,
   restorePipeline: RESTORE_PIPELINE_STATE,
   name: NAME_INITIAL_STATE,
-  id: ID_INITIAL_STATE
+  id: ID_INITIAL_STATE,
+  isModified: IS_MODIFIED_INITIAL_STATE
 };
 
 /**
@@ -75,7 +80,8 @@ const appReducer = combineReducers({
   restorePipeline,
   pipeline,
   name,
-  id
+  id,
+  isModified
 });
 
 /**

@@ -37,7 +37,8 @@ class StageEditor extends PureComponent {
     index: PropTypes.number.isRequired,
     serverVersion: PropTypes.string.isRequired,
     fields: PropTypes.array.isRequired,
-    stageChanged: PropTypes.func.isRequired
+    stageChanged: PropTypes.func.isRequired,
+    setIsModified: PropTypes.func.isRequired
   }
 
   /**
@@ -89,6 +90,7 @@ class StageEditor extends PureComponent {
    */
   onStageChange = (value) => {
     this.props.stageChanged(value, this.props.index);
+    this.props.setIsModified(true);
     if (this.props.stage.isValid) {
       this.debounceRun();
     }

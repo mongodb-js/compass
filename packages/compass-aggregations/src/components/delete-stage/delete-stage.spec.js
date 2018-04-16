@@ -9,9 +9,16 @@ describe('DeleteStage [Component]', () => {
     let component;
     const stage = {};
     const spy = sinon.spy();
+    const setIsModifiedSpy = sinon.spy();
 
     beforeEach(() => {
-      component = mount(<DeleteStage stage={stage} index={1} stageDeleted={spy} />);
+      component = mount(
+        <DeleteStage
+          stage={stage}
+          index={1}
+          setIsModified={setIsModifiedSpy}
+          stageDeleted={spy} />
+      );
     });
 
     afterEach(() => {
@@ -35,18 +42,26 @@ describe('DeleteStage [Component]', () => {
     let component;
     const stage = {};
     const spy = sinon.spy();
+    const setIsModifiedSpy = sinon.spy();
 
     beforeEach(() => {
-      component = mount(<DeleteStage stage={stage} index={1} stageDeleted={spy} />);
+      component = mount(
+        <DeleteStage
+          stage={stage}
+          index={1}
+          setIsModified={setIsModifiedSpy}
+          stageDeleted={spy} />
+      );
     });
 
     afterEach(() => {
       component = null;
     });
 
-    it('toggles the expansion', () => {
+    it('toggles the expansion and flags as modified', () => {
       component.find('button').simulate('click');
       expect(spy.calledWith(1)).to.equal(true);
+      expect(setIsModifiedSpy.calledOnce).to.equal(true);
     });
   });
 });

@@ -46,6 +46,7 @@ const stageTarget = {
       }
 
       props.stageMoved(fromIndex, toIndex);
+      props.setIsModified(true);
       // This prevents us from overloading the store with stageMoved actions.
       monitor.getItem().index = toIndex;
       props.runStage(0);
@@ -82,7 +83,8 @@ class Stage extends Component {
     stageMoved: PropTypes.func.isRequired,
     stageOperatorSelected: PropTypes.func.isRequired,
     stageToggled: PropTypes.func.isRequired,
-    fields: PropTypes.array.isRequired
+    fields: PropTypes.array.isRequired,
+    setIsModified: PropTypes.func.isRequired
   }
 
   /**
@@ -99,6 +101,7 @@ class Stage extends Component {
           index={this.props.index}
           serverVersion={this.props.serverVersion}
           fields={this.props.fields}
+          setIsModified={this.props.setIsModified}
           stageChanged={this.props.stageChanged} />
       );
     }
@@ -123,6 +126,7 @@ class Stage extends Component {
             stageToggled={this.props.stageToggled}
             stageDeleted={this.props.stageDeleted}
             runStage={this.props.runStage}
+            setIsModified={this.props.setIsModified}
             stageCollapseToggled={this.props.stageCollapseToggled} />
           {this.renderWorkspace()}
         </div>

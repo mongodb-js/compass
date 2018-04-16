@@ -22,6 +22,8 @@ class PipelineToolbar extends PureComponent {
     saveCurrentPipeline: PropTypes.func.isRequired,
     savedPipeline: PropTypes.object.isRequired,
     nameChanged: PropTypes.func.isRequired,
+    isModified: PropTypes.bool.isRequired,
+    setIsModified: PropTypes.func.isRequired,
     name: PropTypes.string
   }
 
@@ -43,6 +45,8 @@ class PipelineToolbar extends PureComponent {
           saveCurrentPipeline={this.props.saveCurrentPipeline}
           isValid={this.props.savedPipeline.isNameValid}
           nameChanged={this.props.nameChanged}
+          isModified={this.props.isModified}
+          setIsModified={this.props.setIsModified}
           name={this.props.name} />
         <PipelinePreviewToolbar stageAdded={this.props.stageAdded} />
       </div>

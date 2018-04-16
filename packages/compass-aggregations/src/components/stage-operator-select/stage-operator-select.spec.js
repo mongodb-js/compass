@@ -7,6 +7,7 @@ import styles from './stage-operator-select.less';
 describe('StageOperatorSelect [Component]', () => {
   let component;
   const spy = sinon.spy();
+  const setIsModifiedSpy = sinon.spy();
   const stage = {
     stage: '{ name: "testing" }',
     stageOperator: '$match',
@@ -22,6 +23,7 @@ describe('StageOperatorSelect [Component]', () => {
         stage={stage}
         index={0}
         serverVersion="3.4.0"
+        setIsModified={setIsModifiedSpy}
         stageOperatorSelected={spy} />
     );
   });

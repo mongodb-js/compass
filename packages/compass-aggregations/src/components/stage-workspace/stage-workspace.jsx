@@ -18,6 +18,7 @@ class StageWorkspace extends PureComponent {
     index: PropTypes.number.isRequired,
     serverVersion: PropTypes.string.isRequired,
     fields: PropTypes.array.isRequired,
+    setIsModified: PropTypes.func.isRequired,
     stageChanged: PropTypes.func.isRequired
   }
 
@@ -34,6 +35,7 @@ class StageWorkspace extends PureComponent {
           runStage={this.props.runStage}
           index={this.props.index}
           serverVersion={this.props.serverVersion}
+          setIsModified={this.props.setIsModified}
           fields={this.props.fields}
           stageChanged={this.props.stageChanged} />
         <StagePreview

@@ -21,6 +21,7 @@ class PipelineWorkspace extends PureComponent {
     toggleInputDocumentsCollapsed: PropTypes.func.isRequired,
     refreshInputDocuments: PropTypes.func.isRequired,
     stageAdded: PropTypes.func.isRequired,
+    setIsModified: PropTypes.func.isRequired,
     inputDocuments: PropTypes.object.isRequired
   }
 
@@ -44,7 +45,9 @@ class PipelineWorkspace extends PureComponent {
           isExpanded={inputDocuments.isExpanded}
           count={inputDocuments.count} />
         {stages}
-        <AddStage stageAdded={this.props.stageAdded} />
+        <AddStage
+          stageAdded={this.props.stageAdded}
+          setIsModified={this.props.setIsModified} />
       </div>
     );
   }

@@ -31,7 +31,7 @@ import {
   savedPipelineAdd,
   getSavedPipelines
 } from 'modules/saved-pipeline';
-
+import { setIsModified } from 'modules/is-modified';
 import { restoreSavedPipeline, getPipelineFromIndexedDB } from 'modules/index';
 import { restorePipelineModalToggle, restorePipelineFrom } from 'modules/restore-pipeline';
 import styles from './aggregations.less';
@@ -71,7 +71,8 @@ const mapStateToProps = (state) => ({
   pipeline: state.pipeline,
   savedPipeline: state.savedPipeline,
   restorePipeline: state.restorePipeline,
-  name: state.name
+  name: state.name,
+  isModified: state.isModified
 });
 
 /**
@@ -104,7 +105,8 @@ const MappedAggregations = connect(
     restoreSavedPipeline,
     newPipeline,
     clonePipeline,
-    getPipelineFromIndexedDB
+    getPipelineFromIndexedDB,
+    setIsModified
   },
 )(Aggregations);
 

@@ -1,5 +1,6 @@
 import { getObjectStore } from 'utils/indexed-db';
 import { createId } from 'modules/id';
+import { setIsModified } from 'modules/is-modified';
 
 const PREFIX = 'aggregations/saved-pipeline';
 
@@ -72,6 +73,7 @@ export const updatePipelineList = () => {
       const index = store.index('namespace');
       index.getAll(state.namespace).onsuccess = (e) => {
         const pipelines = e.target.result;
+        dispatch(setIsModified(false));
         dispatch(savedPipelineAdd(pipelines));
       };
     });
