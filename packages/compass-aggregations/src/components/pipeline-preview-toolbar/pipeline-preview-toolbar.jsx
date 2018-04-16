@@ -12,7 +12,8 @@ class PipelinePreviewToolbar extends PureComponent {
   static displayName = 'PipelinePreviewToolbarComponent';
 
   static propTypes = {
-    stageAdded: PropTypes.func.isRequired
+    stageAdded: PropTypes.func.isRequired,
+    isModified: PropTypes.bool.isRequired
   }
 
   /**
@@ -27,12 +28,19 @@ class PipelinePreviewToolbar extends PureComponent {
       'btn-primary': true,
       [ styles['pipeline-preview-toolbar-add-stage-button'] ]: true
     });
+    const isModifiedClassName = classnames({
+      [ styles['pipeline-preview-toolbar-indicator'] ]: true,
+      [ styles['pipeline-preview-toolbar-indicator-is-modified'] ]: this.props.isModified
+    });
     return (
       <div className={classnames(styles['pipeline-preview-toolbar'])}>
-      <TextButton
-        text="Add Stage"
-        className={addStageClassName}
-        clickHandler={this.props.stageAdded} />
+        <TextButton
+          text="Add Stage"
+          className={addStageClassName}
+          clickHandler={this.props.stageAdded} />
+        <div className={isModifiedClassName}>
+          <i className="fa fa-circle" aria-hidden />
+        </div>
       </div>
     );
   }

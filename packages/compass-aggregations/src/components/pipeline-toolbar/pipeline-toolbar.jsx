@@ -48,7 +48,9 @@ class PipelineToolbar extends PureComponent {
           isModified={this.props.isModified}
           setIsModified={this.props.setIsModified}
           name={this.props.name} />
-        <PipelinePreviewToolbar stageAdded={this.props.stageAdded} />
+        <PipelinePreviewToolbar
+          stageAdded={this.props.stageAdded}
+          isModified={this.props.isModified} />
       </div>
     );
   }

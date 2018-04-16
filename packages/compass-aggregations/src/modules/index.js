@@ -176,7 +176,8 @@ const createNewPipeline = (state) => ({
 const createClonedPipeline = (state) => ({
   ...state,
   id: new ObjectId().toHexString(),
-  name: `${state.name} (copy)`
+  name: `${state.name} (copy)`,
+  isModified: true
 });
 
 /**

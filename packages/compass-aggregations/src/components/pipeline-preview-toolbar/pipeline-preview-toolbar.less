@@ -4,12 +4,22 @@
   display: flex;
   width: 100%;
   align-items: center;
+  justify-content: space-between;
   font-weight: bold;
   box-shadow: 2px 0px @gray7;
 
-  &-spacer {
-    width: 38px;
-    flex-shrink: 0;
+  &-indicator {
+    padding-right: 15px;
+
+    i {
+      color: #67b144;
+    }
+
+    &-is-modified {
+      i {
+        color: #fbb129;
+      }
+    }
   }
 
   &-add-stage-button {
