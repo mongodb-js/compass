@@ -15,10 +15,9 @@ const { loadSymbolTable } = require('./codegeneration/SymbolTable');
  *
  * @param {String} input - Code to compile
  * @param {CodeGenerator} generator - Target language generator
- * @param {Object} symbols - Symbol table
  * @returns {String}
  */
-const compileECMAScript = (input, generator, symbols) => {
+const compileECMAScript = (input, generator) => {
   const chars = new antlr4.InputStream(input);
   const lexer = new ECMAScriptLexer.ECMAScriptLexer(chars);
   lexer.strictMode = false;
@@ -33,34 +32,33 @@ const compileECMAScript = (input, generator, symbols) => {
 
   const tree = parser.expressionSequence();
 
-  generator.SYMBOL_TYPE = symbols[0];
-  generator.BsonTypes = symbols[1];
-  generator.Symbols = symbols[2];
-  generator.Types = symbols[3];
   return generator.start(tree);
 };
 
 const toJava = () => {
   const gen = new JavaGenerator();
   const symbols = loadSymbolTable('ecmascript', 'java');
+  Object.assign(gen, symbols);
   return (input) => {
-    return compileECMAScript(input, gen, symbols);
+    return compileECMAScript(input, gen);
   };
 };
 
 const toCSharp = () => {
   const gen = new CSharpGenerator();
-  const symbols = []; // loadSymbolTable('ecmascript', 'csharp');
+  const symbols = {}; // loadSymbolTable('ecmascript', 'csharp');
+  Object.assign(gen, symbols);
   return (input) => {
-    return compileECMAScript(input, gen, symbols);
+    return compileECMAScript(input, gen);
   };
 };
 
 const toPython = () => {
   const gen = new Python3Generator();
-  const symbols = []; // loadSymbolTable('ecmascript', 'python');
+  const symbols = {}; // loadSymbolTable('ecmascript', 'python');
+  Object.assign(gen, symbols);
   return (input) => {
-    return compileECMAScript(input, gen, symbols);
+    return compileECMAScript(input, gen);
   };
 };
 

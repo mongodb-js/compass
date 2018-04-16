@@ -49,12 +49,12 @@ const loadSymbolTable = (inputLang, outputLang) => {
   // write a file so debugging is easier with linenumbers
   // fs.writeFileSync('concatted.yaml', contents);
   const doc = yaml.load(contents);
-  return [
-    doc.SymbolTypes,
-    doc.BsonTypes,
-    Object.assign({}, doc.BsonSymbols, doc.JSSymbols),
-    Object.assign({}, doc.BasicTypes, doc.BsonTypes, doc.JSTypes)
-  ];
+  return {
+    SYMBOL_TYPE: doc.SymbolTypes,
+    BsonTypes: doc.BsonTypes,
+    Symbols: Object.assign({}, doc.BsonSymbols, doc.JSSymbols),
+    Types: Object.assign({}, doc.BasicTypes, doc.BsonTypes, doc.JSTypes)
+  };
 };
 
 module.exports = { loadSymbolTable };
