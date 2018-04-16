@@ -9,13 +9,40 @@ import styles from './stage-toolbar.less';
 
 describe('StageToolbar [Component]', () => {
   let component;
+  let stageOperatorSelectedSpy;
+  let stageToggledSpy;
+  let runStageSpy;
+  let stageDeletedSpy;
+  let stageCollapseToggledSpy;
 
   beforeEach(() => {
-    component = shallow(<StageToolbar stage={{isValid: true}}/>);
+    stageOperatorSelectedSpy = sinon.spy();
+    stageToggledSpy = sinon.spy();
+    runStageSpy = sinon.spy();
+    stageDeletedSpy = sinon.spy();
+    stageCollapseToggledSpy = sinon.spy();
+
+    component = shallow(
+      <StageToolbar
+        stage={{ isValid: true, isEnabled: true }}
+        index={0}
+        serverVersion="3.6.0"
+        stageOperatorSelected={stageOperatorSelectedSpy}
+        stageToggled={stageToggledSpy}
+        runStage={runStageSpy}
+        stageDeleted={stageDeletedSpy}
+        stageCollapseToggled={stageCollapseToggledSpy}
+      />
+    );
   });
 
   afterEach(() => {
     component = null;
+    stageOperatorSelectedSpy = null;
+    stageToggledSpy = null;
+    runStageSpy = null;
+    stageDeletedSpy = null;
+    stageCollapseToggledSpy = null;
   });
 
   it('renders the wrapper div', () => {
