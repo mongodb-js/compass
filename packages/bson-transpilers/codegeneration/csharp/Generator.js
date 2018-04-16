@@ -1,4 +1,3 @@
-const CodeGenerator = require('../javascript/Visitor.js');
 const path = require('path');
 
 const {
@@ -8,7 +7,7 @@ const {
 } = require(path.resolve('helper', 'error'));
 const {Types} = require('../SymbolTable');
 
-class Visitor extends CodeGenerator {
+module.exports = (superclass) => class ExtendedVisitor extends superclass {
   // assign a string type to current ctx
   // get double quotes around the string
   visitStringLiteral(ctx) {
@@ -606,5 +605,5 @@ class Visitor extends CodeGenerator {
 
     return `new BsonString(${string})`;
   }
-}
+};
 
