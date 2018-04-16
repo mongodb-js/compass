@@ -2,6 +2,11 @@ import React from 'react';
 import { shallow } from 'enzyme';
 
 import StageBuilderToolbar from 'components/stage-builder-toolbar';
+import StageGrabber from 'components/stage-grabber';
+import StageCollapser from 'components/stage-collapser';
+import StageOperatorSelect from 'components/stage-operator-select';
+import ToggleStage from 'components/toggle-stage';
+import DeleteStage from 'components/delete-stage';
 import styles from './stage-builder-toolbar.less';
 
 describe('StageBuilderToolbar [Component]', () => {
@@ -10,12 +15,14 @@ describe('StageBuilderToolbar [Component]', () => {
   let stageOperatorSelectedSpy;
   let stageToggledSpy;
   let stageDeletedSpy;
+  let runStageSpy;
 
   beforeEach(() => {
     stageCollapseToggledSpy = sinon.spy();
     stageOperatorSelectedSpy = sinon.spy();
     stageToggledSpy = sinon.spy();
     stageDeletedSpy = sinon.spy();
+    runStageSpy = sinon.spy();
 
     component = shallow(
       <StageBuilderToolbar
@@ -23,6 +30,8 @@ describe('StageBuilderToolbar [Component]', () => {
         index={0}
         stageCollapseToggled={stageCollapseToggledSpy}
         stageOperatorSelected={stageOperatorSelectedSpy}
+        runStage={runStageSpy}
+        serverVersion="3.6.0"
         stageToggled={stageToggledSpy}
         stageDeleted={stageDeletedSpy} />
     );
@@ -34,5 +43,30 @@ describe('StageBuilderToolbar [Component]', () => {
 
   it('renders the wrapper div', () => {
     expect(component.find(`.${styles['stage-builder-toolbar']}`)).to.be.present();
+  });
+
+  it('renders the grabber', () => {
+    expect(component.find(`.${styles['stage-builder-toolbar']}`)).
+      to.have.descendants(StageGrabber);
+  });
+
+  it('renders the collapser', () => {
+    expect(component.find(`.${styles['stage-builder-toolbar']}`)).
+      to.have.descendants(StageCollapser);
+  });
+
+  it('renders the operator select', () => {
+    expect(component.find(`.${styles['stage-builder-toolbar']}`)).
+      to.have.descendants(StageOperatorSelect);
+  });
+
+  it('renders the toggle', () => {
+    expect(component.find(`.${styles['stage-builder-toolbar']}`)).
+      to.have.descendants(ToggleStage);
+  });
+
+  it('renders the delete button', () => {
+    expect(component.find(`.${styles['stage-builder-toolbar']}`)).
+      to.have.descendants(DeleteStage);
   });
 });
