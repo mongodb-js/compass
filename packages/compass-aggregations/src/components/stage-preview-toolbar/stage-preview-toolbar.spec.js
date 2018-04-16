@@ -5,17 +5,53 @@ import StagePreviewToolbar from 'components/stage-preview-toolbar';
 import styles from './stage-preview-toolbar.less';
 
 describe('StagePreviewToolbar [Component]', () => {
-  let component;
+  context('when the stage is enabled', () => {
+    let component;
 
-  beforeEach(() => {
-    component = shallow(<StagePreviewToolbar />);
+    beforeEach(() => {
+      component = shallow(
+        <StagePreviewToolbar
+          stageOperator="$match"
+          isEnabled />
+      );
+    });
+
+    afterEach(() => {
+      component = null;
+    });
+
+    it('renders the wrapper div', () => {
+      expect(component.find(`.${styles['stage-preview-toolbar']}`)).to.be.present();
+    });
+
+    it('renders the stage text', () => {
+      expect(component.find(`.${styles['stage-preview-toolbar']}`)).
+        to.have.text('Sample of Documents after the $match stage');
+    });
   });
 
-  afterEach(() => {
-    component = null;
-  });
+  context('when the stage is not enabled', () => {
+    let component;
 
-  it('renders the wrapper div', () => {
-    expect(component.find(`.${styles['stage-preview-toolbar']}`)).to.be.present();
+    beforeEach(() => {
+      component = shallow(
+        <StagePreviewToolbar
+          stageOperator="$match"
+          isEnabled={false} />
+      );
+    });
+
+    afterEach(() => {
+      component = null;
+    });
+
+    it('renders the wrapper div', () => {
+      expect(component.find(`.${styles['stage-preview-toolbar']}`)).to.be.present();
+    });
+
+    it('does not render the stage text', () => {
+      expect(component.find(`.${styles['stage-preview-toolbar']}`)).
+        to.have.text('');
+    });
   });
 });
