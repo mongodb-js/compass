@@ -608,4 +608,3 @@ class Visitor extends CodeGenerator {
   }
 }
 
-module.exports = Visitor;

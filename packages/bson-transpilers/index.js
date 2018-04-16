@@ -1,24 +1,32 @@
 const path = require('path');
+const fs = require('fs');
 const antlr4 = require('antlr4');
 const ECMAScriptLexer = require('./lib/ECMAScriptLexer.js');
 const ECMAScriptParser = require('./lib/ECMAScriptParser.js');
-
-const Python3Generator = require('./codegeneration/python/Generator.js');
-const CSharpGenerator = require('./codegeneration/csharp/Generator.js');
-const JavaGenerator = require('./codegeneration/java/Generator.js');
 
 const ErrorListener = require('./codegeneration/ErrorListener.js');
 
 const { loadSymbolTable } = require('./codegeneration/SymbolTable');
 
-/**
- * Compiles an ECMAScript string into another language.
- *
- * @param {String} input - Code to compile
- * @param {CodeGenerator} generator - Target language generator
- * @returns {String}
- */
-const compileECMAScript = (input, generator) => {
+const loadGenerator = (inputLang, outputLang) => {
+  const superFile = path.join(__dirname, 'codegeneration', inputLang, 'Visitor');
+  if (!fs.existsSync(superFile + '.js')) {
+    throw new Error(`${inputLang} not yet implemented as input language`);
+  }
+  const visitor = require(superFile);
+
+  const subFile = path.join(__dirname, 'codegeneration', outputLang, 'Generator');
+  if (!fs.existsSync(subFile + '.js')) {
+    throw new Error(`${outputLang} not yet implemented as target language`);
+  }
+  const getG = require(subFile);
+  const Generator = getG(visitor);
+
+  return new Generator();
+};
+
+const loadTree = (input) => {
+  // TODO: swap out lexer/parser/etc depending on input lang
   const chars = new antlr4.InputStream(input);
   const lexer = new ECMAScriptLexer.ECMAScriptLexer(chars);
   lexer.strictMode = false;
@@ -31,37 +39,40 @@ const compileECMAScript = (input, generator) => {
   parser.removeErrorListeners(); // Remove the default ConsoleErrorListener
   parser.addErrorListener(listener); // Add back a custom error listener
 
-  const tree = parser.expressionSequence();
+  return parser.expressionSequence();
+};
 
+const compile = (input, generator) => {
+  const tree = loadTree(input);
   return generator.start(tree);
 };
 
+const getCompiler = (inputLang, outputLang) => {
+  const generator = loadGenerator(inputLang, outputLang);
+  const symbols = loadSymbolTable(inputLang, outputLang);
+
+  Object.assign(generator, symbols);
+  return generator;
+};
+
 const toJava = () => {
-  const gen = new JavaGenerator();
-  const symbols = loadSymbolTable('javascript', 'java');
-  Object.assign(gen, symbols);
   return (input) => {
-    return compileECMAScript(input, gen);
+    return compile(input, getCompiler('javascript', 'java'));
   };
 };
 
 const toCSharp = () => {
-  const gen = new CSharpGenerator();
-  const symbols = {}; // loadSymbolTable('javascript', 'csharp');
-  Object.assign(gen, symbols);
   return (input) => {
-    return compileECMAScript(input, gen);
+    return compile(input, getCompiler('javascript', 'csharp'));
   };
 };
 
 const toPython = () => {
-  const gen = new Python3Generator();
-  const symbols = {}; // loadSymbolTable('javascript', 'python');
-  Object.assign(gen, symbols);
   return (input) => {
-    return compileECMAScript(input, gen);
+    return compile(input, getCompiler('javascript', 'python'));
   };
 };
+
 
 module.exports = {
   toJava: toJava(), toCSharp: toCSharp(), toPython: toPython()
