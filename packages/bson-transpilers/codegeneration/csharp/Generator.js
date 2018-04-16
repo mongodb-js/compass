@@ -6,7 +6,7 @@ const {
   SemanticGenericError,
   SemanticTypeError
 } = require(path.resolve('helper', 'error'));
-const {Types} = require('./SymbolTable');
+const {Types} = require('../SymbolTable');
 
 class Visitor extends CodeGenerator {
   // assign a string type to current ctx

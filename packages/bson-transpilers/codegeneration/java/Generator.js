@@ -77,8 +77,6 @@ module.exports = (superClass) => class ExtendedVisitor extends superClass {
     return `Pattern.compile(${doubleQuoteStringify(escaped + javaflags)})`;
   }
 
-  /*  ************** Emit Helpers **************** */
-
   /**
    * Special cased because different target languages need different info out
    * of the constructed date.
