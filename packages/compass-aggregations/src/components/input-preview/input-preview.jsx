@@ -28,11 +28,6 @@ class InputPreview extends Component {
    * @returns {React.Component} The component.
    */
   render() {
-    const iconClassName = classnames({
-      'fa': true,
-      'fa-angle-double-right': true,
-      [ styles['input-preview-arrow'] ]: true
-    });
     const documents = this.props.documents.map((doc, i) => {
       return (
         <Document
@@ -46,7 +41,6 @@ class InputPreview extends Component {
           <LoadingOverlay text="Sampling Documents..." /> :
           null
         }
-        <i className={iconClassName} aria-hidden />
         <div className={classnames(styles['input-preview-documents'])}>
           {documents}
         </div>

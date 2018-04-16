@@ -47,18 +47,12 @@ class StagePreview extends Component {
    * @returns {React.Component} The component.
    */
   render() {
-    const iconClassName = classnames({
-      'fa': true,
-      'fa-angle-double-right': true,
-      [ styles['stage-preview-arrow'] ]: true
-    });
     return (
       <div className={classnames(styles['stage-preview'])}>
         { this.props.isLoading ?
           <LoadingOverlay text="Loading Preview Documents..." /> :
           null
         }
-        <i className={iconClassName} aria-hidden />
         {this.renderPreview()}
       </div>
     );
