@@ -1,6 +1,6 @@
 {
-  "name": "@mongodb-js/bson-compilers",
-  "version": "0.0.0",
+  "name": "bson-compilers",
+  "version": "0.0.1",
   "apiVersion": "0.0.1",
   "productName": "BSON Compilers",
   "description": "Source to source compilers using ANTLR",
