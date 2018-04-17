@@ -3,13 +3,7 @@ const fs = require('fs');
 const chai = require('chai');
 const expect = chai.expect;
 
-const { toJava, toPython, toCSharp } = require('../');
-
-const compile = {
-  java: toJava,
-  python: toPython,
-  csharp: toCSharp
-};
+const compiler = require('../');
 
 // Need a way to have test pass while developing
 const unsupported = {
@@ -39,18 +33,18 @@ const unsupported = {
 
 const checkResults = {
   success: function(inputLang, outputLang, test) {
-    expect(compile[outputLang].bind(this, test[inputLang])).to.not.throw();
-    expect(compile[outputLang](test[inputLang])).to.equal(test[outputLang]);
+    expect(compiler[inputLang][outputLang].bind(this, test[inputLang])).to.not.throw();
+    expect(compiler[inputLang][outputLang](test[inputLang])).to.equal(test[outputLang]);
   },
 
   error: function(inputLang, outputLang, test) {
     try {
-      compile[outputLang](test[inputLang]);
+      compiler[outputLang](test[inputLang]);
     } catch (error) {
       expect(error.code).to.equal(test.errorCode);
     }
 
-    expect(compile[outputLang].bind(this, test[inputLang])).to.throw();
+    expect(compiler[inputLang][outputLang].bind(this, test[inputLang])).to.throw();
   }
 };
 

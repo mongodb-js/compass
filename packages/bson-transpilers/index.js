@@ -54,25 +54,22 @@ const getCompiler = (inputLang, outputLang) => {
   return generator;
 };
 
-const toJava = () => {
+const make = (inputLang, outputLang) => {
+  const comp = getCompiler(inputLang, outputLang);
   return (input) => {
-    return compile(input, getCompiler('javascript', 'java'));
+    return compile(input, comp);
   };
 };
-
-const toCSharp = () => {
-  return (input) => {
-    return compile(input, getCompiler('javascript', 'csharp'));
-  };
-};
-
-const toPython = () => {
-  return (input) => {
-    return compile(input, getCompiler('javascript', 'python'));
-  };
-};
-
 
 module.exports = {
-  toJava: toJava(), toCSharp: toCSharp(), toPython: toPython()
+  javascript: {
+    java: make('javascript', 'java')
+    // python: make('javascript', 'python'),
+    // csharp: make('javascript', 'csharp')
+  },
+  shell: {
+    java: make('shell', 'java')
+    // python: make('shell', 'python'),
+    // csharp: make('shell', 'csharp')
+  }
 };

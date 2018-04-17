@@ -2,8 +2,8 @@ const { readJSON, runTest } = require('./helpers');
 const fs = require('fs');
 const path = require('path');
 
-const languages = ['java', 'python', 'csharp'];
-const inputLang = 'query';
+const outputLanguages = ['java', 'python', 'csharp'];
+const inputLanguages = ['javascript'];
 
 describe('Test', () => {
   const pSuccess = path.join(__dirname, 'json', 'success');
@@ -16,8 +16,10 @@ describe('Test', () => {
     const tests = readJSON(path.join(pSuccess, file)).tests;
     const testname = file.replace('.json', '');
 
-    languages.forEach((outputLang) => {
-      runTest('success', testname, inputLang, outputLang, tests);
+    inputLanguages.forEach((inputLang) => {
+      outputLanguages.forEach((outputLang) => {
+        runTest('success', testname, inputLang, outputLang, tests);
+      });
     });
   });
 
@@ -25,8 +27,10 @@ describe('Test', () => {
     const tests = readJSON(path.join(pError, file)).tests;
     const testname = file.replace('.json', '');
 
-    languages.forEach((outputLang) => {
-      runTest('error', testname, inputLang, outputLang, tests);
+    inputLanguages.forEach((inputLang) => {
+      outputLanguages.forEach((outputLang) => {
+        runTest('error', testname, inputLang, outputLang, tests);
+      });
     });
   });
 });

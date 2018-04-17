@@ -3,11 +3,7 @@ BsonTypes:
         <<: *__type
         id: "Code"
         type: *ObjectType
-        attr:
-            toJSON:
-                <<: *__func
-                id: "CodetoJSON" # Needs emit method
-                type: *ObjectType
+        attr: {}
         template: *CodeTypeTemplate
     ObjectId: &ObjectIdType
         <<: *__type

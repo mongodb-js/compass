@@ -3,7 +3,7 @@
     "Date": [
       {
         "description": "Current time",
-        "query": "Date.now()",
+        "javascript": "Date.now()",
         "python": "datetime.datetime.utcnow()",
         "java": "new java.util.Date()",
         "csharp": ""

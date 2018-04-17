@@ -150,7 +150,7 @@ module.exports = (superClass) => class ExtendedVisitor extends superClass {
    * @param {FuncCallExpressionContext} ctx
    * @return {String}
    */
-  emitCode(ctx) {
+  emitCodeFromJS(ctx) {
     ctx.type = this.Types.Code;
     const argList = ctx.arguments().argumentList();
     if (!argList ||

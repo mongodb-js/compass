@@ -149,14 +149,12 @@ class Visitor extends ECMAScriptVisitor {
       lhsType = this.Types[lhsType];
     }
 
-    // Special case types
+    // Special case
     if (`emit${lhsType.id}` in this) {
       return this[`emit${lhsType.id}`](ctx);
     }
 
-    const expectedArgs = lhsType.args;
-    let rhs = this.checkArguments(expectedArgs, ctx.arguments().argumentList());
-
+    // Check if callable
     ctx.type = lhsType.type;
     if (!lhsType.callable) {
       throw new SemanticTypeError({
@@ -164,7 +162,11 @@ class Visitor extends ECMAScriptVisitor {
       });
     }
 
-    // TODO: don't need for other languages
+    // Check arguments
+    const expectedArgs = lhsType.args;
+    let rhs = this.checkArguments(expectedArgs, ctx.arguments().argumentList());
+
+    // Add new if needed
     const newStr = lhsType.callable === this.SYMBOL_TYPE.CONSTRUCTOR ? this.new : '';
     if (lhsType.argsTemplate) {
       let l = lhs;

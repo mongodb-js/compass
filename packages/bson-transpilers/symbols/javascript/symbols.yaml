@@ -1,6 +1,6 @@
 BsonSymbols:
     Code: &CodeSymbol
-        id: "Code"
+        id: "CodeFromJS"
         callable: *constructor
         args:
             - [ *StringType ]
