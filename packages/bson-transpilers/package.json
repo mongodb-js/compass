@@ -5,7 +5,7 @@
   "productName": "BSON Compilers",
   "description": "Source to source compilers using ANTLR",
   "contributors": [
-    "Anna Herlihy <anna@mongodb.com>",
+    "Anna Herlihy <herlihyap@gmail.com>",
     "Alena Khineika <alena.khineika@mongodb.com>",
     "Irina Shestak <irina.shestak@mongodb.com>"
   ],
