@@ -16,15 +16,17 @@ class StagePreview extends Component {
   static propTypes = {
     documents: PropTypes.array.isRequired,
     isValid: PropTypes.bool.isRequired,
+    isEnabled: PropTypes.bool.isRequired,
     isLoading: PropTypes.bool.isRequired
   }
 
   shouldComponentUpdate(nextProps) {
-    return nextProps.isLoading !== this.props.isLoading;
+    return nextProps.isLoading !== this.props.isLoading ||
+      nextProps.isEnabled !== this.props.isEnabled;
   }
 
   renderPreview() {
-    if (this.props.isValid && this.props.documents.length > 0) {
+    if (this.props.isValid && this.props.isEnabled && this.props.documents.length > 0) {
       const documents = this.props.documents.map((doc, i) => {
         return (<Document doc={new HadronDocument(doc)} editable={false} key={i} />);
       });

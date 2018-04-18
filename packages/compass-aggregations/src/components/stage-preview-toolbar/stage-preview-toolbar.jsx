@@ -15,17 +15,29 @@ class StagePreviewToolbar extends PureComponent {
   }
 
   /**
+   * Get the stage preview text.
+   *
+   * @returns {String} The text.
+   */
+  getText() {
+    if (this.props.isEnabled) {
+      if (this.props.stageOperator) {
+        return `Sample of Documents after the ${this.props.stageOperator} stage`;
+      }
+      return '';
+    }
+    return 'Stage is disabled. Results not passed in the pipeline.';
+  }
+
+  /**
    * Renders the stage preview toolbar.
    *
    * @returns {React.Component} The component.
    */
   render() {
-    const text = this.props.stageOperator && this.props.isEnabled
-      ? `Sample of Documents after the ${this.props.stageOperator} stage`
-      : null;
     return (
       <div className={classnames(styles['stage-preview-toolbar'])}>
-        {text}
+        {this.getText()}
       </div>
     );
   }

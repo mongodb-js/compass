@@ -1,19 +1,32 @@
-import React from 'react';
+import React, { PureComponent } from 'react';
+import PropTypes from 'prop-types';
 import classnames from 'classnames';
 
 import styles from './input-builder.less';
 
-/**
- * Input builder component.
- *
- * @returns {React.Component} The component.
- */
-const InputBuilder = () => {
-  return (
-    <div className={classnames(styles['input-builder'])}></div>
-  );
-};
+const LINK = 'https://docs.mongodb.com/manual/reference/operator/aggregation-pipeline/';
 
-InputBuilder.displayName = 'InputBuilderComponent';
+class InputBuilder extends PureComponent {
+  static displayName = 'InputBuilderComponent';
+
+  static propTypes = {
+    openLink: PropTypes.func.isRequired
+  }
+
+  learnMore = () => {
+    this.props.openLink(LINK);
+  }
+
+  render() {
+    return (
+      <div className={classnames(styles['input-builder'])}>
+        Select an operator to construct expressions used in the aggregation pipeline stages.
+        <span onClick={this.learnMore} className={classnames(styles['input-builder-link'])}>
+          Learn more.
+        </span>
+      </div>
+    );
+  }
+}
 
 export default InputBuilder;

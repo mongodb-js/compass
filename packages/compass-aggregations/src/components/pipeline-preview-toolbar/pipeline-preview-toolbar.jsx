@@ -16,6 +16,16 @@ class PipelinePreviewToolbar extends PureComponent {
     isModified: PropTypes.bool.isRequired
   }
 
+  modifiedText() {
+    if (this.props.isModified) {
+      return (
+        <div className={classnames(styles['pipeline-preview-toolbar-indicator-text'])}>
+          Unsaved changes
+        </div>
+      );
+    }
+  }
+
   /**
    * Renders the pipeline preview toolbar.
    *
@@ -39,6 +49,7 @@ class PipelinePreviewToolbar extends PureComponent {
           className={addStageClassName}
           clickHandler={this.props.stageAdded} />
         <div className={isModifiedClassName}>
+          {this.modifiedText()}
           <i className="fa fa-circle" aria-hidden />
         </div>
       </div>

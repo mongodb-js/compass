@@ -10,6 +10,7 @@ import {
 } from 'modules/input-documents';
 
 import { copyToClipboard } from 'modules/clipboard';
+import { openLink } from 'modules/link';
 import {
   deletePipeline,
   newPipeline,
@@ -105,6 +106,7 @@ const MappedAggregations = connect(
     restoreSavedPipeline,
     newPipeline,
     clonePipeline,
+    openLink,
     getPipelineFromIndexedDB,
     setIsModified
   },

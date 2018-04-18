@@ -22,6 +22,7 @@ class PipelineWorkspace extends PureComponent {
     refreshInputDocuments: PropTypes.func.isRequired,
     stageAdded: PropTypes.func.isRequired,
     setIsModified: PropTypes.func.isRequired,
+    openLink: PropTypes.func.isRequired,
     inputDocuments: PropTypes.object.isRequired
   }
 
@@ -43,6 +44,7 @@ class PipelineWorkspace extends PureComponent {
           documents={inputDocuments.documents}
           isLoading={inputDocuments.isLoading}
           isExpanded={inputDocuments.isExpanded}
+          openLink={this.props.openLink}
           count={inputDocuments.count} />
         {stages}
         <AddStage

@@ -113,7 +113,7 @@ class Stage extends Component {
    * @returns {Component} The component.
    */
   render() {
-    const opacity = this.props.isDragging ? 0 : 1;
+    const opacity = this.props.isDragging ? 0 : (this.props.stage.isEnabled ? 1 : 0.6);
     const valid = this.props.stage.isValid ? 'stage' : 'stage-invalid';
     return this.props.connectDragSource(
       this.props.connectDropTarget(

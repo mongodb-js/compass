@@ -8,7 +8,8 @@ import StageEditor from 'components/stage-editor';
  */
 const ROLE = {
   name: 'Aggregations',
-  component: AggregationsPlugin
+  component: AggregationsPlugin,
+  order: 2
 };
 
 /**

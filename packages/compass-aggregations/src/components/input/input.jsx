@@ -15,6 +15,7 @@ class Input extends PureComponent {
     documents: PropTypes.array.isRequired,
     isLoading: PropTypes.bool.isRequired,
     isExpanded: PropTypes.bool.isRequired,
+    openLink: PropTypes.func.isRequired,
     count: PropTypes.number.isRequired
   }
 
@@ -27,6 +28,7 @@ class Input extends PureComponent {
     const workspace = this.props.isExpanded ?
       (<InputWorkspace
         documents={this.props.documents}
+        openLink={this.props.openLink}
         isLoading={this.props.isLoading} />) : null;
     return (
       <div className={classnames(styles.input)}>

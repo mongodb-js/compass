@@ -133,6 +133,7 @@ class StageEditor extends PureComponent {
             mode="mongodb"
             theme="mongodb"
             width="100%"
+            readOnly={this.props.stage.stageOperator === null}
             value={this.props.stage.stage}
             onChange={this.onStageChange}
             editorProps={{ $blockScrolling: Infinity }}

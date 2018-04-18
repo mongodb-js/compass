@@ -9,6 +9,8 @@
   box-shadow: 2px 0px @gray7;
 
   &-indicator {
+    display: flex;
+    align-items: center;
     padding-right: 15px;
 
     i {
@@ -19,6 +21,12 @@
       i {
         color: @alertOrange;
       }
+    }
+
+    &-text {
+      padding-right: 5px;
+      color: @alertOrange;
+      font-size: 13px;
     }
   }
 

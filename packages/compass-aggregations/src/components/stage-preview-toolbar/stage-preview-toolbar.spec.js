@@ -51,7 +51,7 @@ describe('StagePreviewToolbar [Component]', () => {
 
     it('does not render the stage text', () => {
       expect(component.find(`.${styles['stage-preview-toolbar']}`)).
-        to.have.text('');
+        to.have.text('Stage is disabled. Results not passed in the pipeline.');
     });
   });
 });

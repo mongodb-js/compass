@@ -2,7 +2,7 @@ import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import classnames from 'classnames';
 import { TextButton, IconButton } from 'hadron-react-buttons';
-import { DropdownButton, MenuItem } from 'react-bootstrap';
+import { Dropdown, MenuItem } from 'react-bootstrap';
 
 import styles from './pipeline-builder-toolbar.less';
 
@@ -57,7 +57,8 @@ class PipelineBuilderToolbar extends PureComponent {
     const savePipelineClassName = classnames({
       'btn': true,
       'btn-xs': true,
-      'btn-default': true,
+      'btn-default': !this.props.isModified || this.props.name.trim() === '',
+      'btn-info': this.props.isModified && this.props.name.trim() !== '',
       [ styles['pipeline-builder-toolbar-save-pipeline-button'] ]: true
     });
     const inputClassName = classnames({
@@ -84,11 +85,16 @@ class PipelineBuilderToolbar extends PureComponent {
           disabled={this.props.name.trim() === '' || !this.props.isModified}
           className={savePipelineClassName}
           clickHandler={this.props.saveCurrentPipeline} />
-        <DropdownButton bsStyle="default" title="..." noCaret pullRight id="agg-pipeline-actions">
-          <MenuItem onClick={this.props.copyToClipboard}>Copy Pipeline to Clipboard</MenuItem>
-          <MenuItem onClick={this.props.clonePipeline}>Clone Pipeline</MenuItem>
-          <MenuItem onClick={this.props.newPipeline}>New Pipeline</MenuItem>
-        </DropdownButton>
+        <Dropdown pullRight id="agg-pipeline-actions">
+          <Dropdown.Toggle noCaret>
+            <i className="mms-icon-ellipsis" aria-hidden />
+          </Dropdown.Toggle>
+          <Dropdown.Menu>
+            <MenuItem onClick={this.props.copyToClipboard}>Copy Pipeline to Clipboard</MenuItem>
+            <MenuItem onClick={this.props.clonePipeline}>Clone Pipeline</MenuItem>
+            <MenuItem onClick={this.props.newPipeline}>New Pipeline</MenuItem>
+          </Dropdown.Menu>
+        </Dropdown>
       </div>
     );
   }

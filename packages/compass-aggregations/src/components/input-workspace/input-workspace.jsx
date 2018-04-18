@@ -14,6 +14,7 @@ class InputWorkspace extends PureComponent {
 
   static propTypes = {
     documents: PropTypes.array.isRequired,
+    openLink: PropTypes.func.isRequired,
     isLoading: PropTypes.bool.isRequired
   }
 
@@ -25,7 +26,7 @@ class InputWorkspace extends PureComponent {
   render() {
     return (
       <div className={classnames(styles['input-workspace'])}>
-        <InputBuilder />
+        <InputBuilder openLink={this.props.openLink} />
         <InputPreview documents={this.props.documents} isLoading={this.props.isLoading} />
       </div>
     );
