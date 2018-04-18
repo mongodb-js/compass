@@ -185,7 +185,7 @@ var Application = View.extend({
     this.securityComponent = app.appRegistry.getRole('Application.Security')[0].component;
     ReactDOM.render(React.createElement(this.securityComponent), this.queryByHook('security'));
 
-    if (process.env.HADRON_LOCKDOWN !== 'true') {
+    if (process.env.HADRON_ISOLATED !== 'true') {
       this.autoUpdate = new AutoUpdate({
         el: this.queryByHook('auto-update')
       });
@@ -239,7 +239,7 @@ var Application = View.extend({
     }
   },
   showOptIn: function() {
-    if (process.env.HADRON_LOCKDOWN !== 'true') {
+    if (process.env.HADRON_ISOLATED !== 'true') {
       const NetworkOptInView = require('./network-optin');
       const networkOptInView = new NetworkOptInView();
       this.renderSubview(networkOptInView, this.queryByHook('optin-container'));

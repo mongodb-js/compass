@@ -12,10 +12,10 @@ if (!process.env.HADRON_DISTRIBUTION) {
 const config = pkg.config.hadron.distributions[process.env.HADRON_DISTRIBUTION];
 const name = config.name;
 const readonly = config.readonly;
-const lockdown = config.lockdown;
+const isolated = config.isolated;
 process.env.HADRON_PRODUCT = name || 'mongodb-compass';
 process.env.HADRON_READONLY = readonly || false;
-process.env.HADRON_LOCKDOWN = lockdown || false;
+process.env.HADRON_ISOLATED = isolated || false;
 
 if (pkg.distribution) {
   process.env.NODE_ENV = 'production';

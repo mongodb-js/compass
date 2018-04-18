@@ -19,7 +19,7 @@ function Application() {
   this.setupJavaScriptArguments();
   this.setupLifecycleListeners();
 
-  if (process.env.HADRON_LOCKDOWN !== 'true') {
+  if (process.env.HADRON_ISOLATED !== 'true') {
     this.setupAutoUpdate();
   }
   this.setupApplicationMenu();

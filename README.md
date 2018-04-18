@@ -28,6 +28,7 @@ npm install
 npm start compass
 npm start compass-community
 npm start compass-readonly
+npm start compass-isolated
 ```
 
 ### Master is broken
