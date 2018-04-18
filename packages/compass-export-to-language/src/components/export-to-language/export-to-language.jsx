@@ -1,11 +1,7 @@
+import { runQuery, copyQuery, clearCopy} from 'modules/export-query';
 import ExportModal from 'components/export-modal';
 import React, { Component } from 'react';
-import { runQuery, copyToClipboard } from 'modules/export-query';
 import { connect } from 'react-redux';
-import classnames from 'classnames';
-import PropTypes from 'prop-types';
-
-import styles from './export-to-language.less';
 
 class ExportToLanguage extends Component {
   static displayName = 'ExportToLanguageComponent';
@@ -42,7 +38,8 @@ const mapStateToProps = (state) => ({
 const MappedExportToLanguage = connect(
   mapStateToProps,
   {
-    copyToClipboard,
+    copyQuery,
+    clearCopy,
     runQuery
   },
 )(ExportToLanguage);

@@ -3,13 +3,13 @@ import exportQuery, { INITIAL_STATE as EXPORT_INITIAL_STATE } from './export-que
 
 export const INITIAL_STATE = {
   exportQuery: EXPORT_INITIAL_STATE
-}
+};
 
 /**
  * The reducer.
  */
 const reducer = combineReducers({
-  exportQuery 
+  exportQuery
 });
 
 export default reducer;

@@ -28,7 +28,6 @@
   ],
   "license": "Apache-2.0",
   "peerDependencies": {
-    "debug": "^3.0.1",
     "prop-types": "^15.5.8",
     "react": "^15.5.4",
     "react-dom": "^15.5.4",
@@ -118,8 +117,10 @@
     "webpack-sources": "1.0.1"
   },
   "dependencies": {
+    "@mongodb-js/bson-compilers": "file:///Users/lrlna/code/bson-compilers",
     "hadron-react-buttons": "^1.13.2",
     "react-bootstrap": "^0.32.1",
-    "react-select-plus": "^1.2.0"
+    "react-select-plus": "^1.2.0",
+    "redux-thunk": "^2.2.0"
   }
 }

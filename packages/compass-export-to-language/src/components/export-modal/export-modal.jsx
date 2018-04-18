@@ -11,6 +11,7 @@ class ExportModal extends Component {
   static displayName = 'ExportModalComponent';
 
   static propTypes = {
+    copyQuery: PropTypes.func.isRequired,
     exportQuery: PropTypes.object.isRequired,
     runQuery: PropTypes.func.isRequired
   }
@@ -18,7 +19,7 @@ class ExportModal extends Component {
   // store the current query in state before we pass it to reducer
   state = {
     queryInputValue: '',
-    selectedLang: '' 
+    selectedLang: ''
   }
 
   queryInputEvent = (evt) => {
@@ -27,10 +28,17 @@ class ExportModal extends Component {
     });
   }
 
-  // save state, and pass in the current selected lang 
+  // save state, and pass in the current selected lang
   handleSelect = (selectedLang) => {
     this.setState({ selectedLang });
     this.props.runQuery(selectedLang.value, this.state.queryInputValue);
+  }
+
+  copyHandler = (evt) => {
+    evt.preventDefault();
+    const input = document.getElementById('export-to-lang-output-return');
+    console.log('input', input);
+    this.props.copyQuery(input);
   }
 
   /**
@@ -54,11 +62,10 @@ class ExportModal extends Component {
     });
 
     const selectedLang = this.state.selectedLang;
-    const selectedValue = selectedLang && selectedLang.value
+    const selectedValue = selectedLang && selectedLang.value;
 
     return (
       <Modal
-        show={true}
         backdrop="static"
         bsSize="large"
         onHide={this.onExportModalToggle}
@@ -86,22 +93,23 @@ class ExportModal extends Component {
               <p>Export Query To</p>
               <div className={classnames(styles['export-to-lang-output'])}>
                 <Select
-                  name="export-to-lang-output-select" 
+                  name="export-to-lang-output-select"
                   className={classnames(styles['export-to-lang-output-select'])}
                   searchable={false}
                   clearable={false}
                   placeholder="Java"
                   value={selectedValue}
                   onChange={this.handleSelect}
-                  options={langOptions}>
-                </Select>
-                <div className={classnames(styles['export-to-lang-output-return'])} >
-                  {this.props.exportQuery.returnQuery}
-                </div>
+                  options={langOptions}/>
+                <input
+                  type="text"
+                  className={classnames(styles['export-to-lang-output-return'])}
+                  id="export-to-lang-output-return"
+                  value={this.props.exportQuery.returnQuery}/>
                 <TextButton
                   className={copyButtonStyle}
                   text="Copy"
-                  clickHandler={this.props.copyToClipboard}/>
+                  clickHandler={this.copyHandler}/>
               </div>
             </div>
           </form>

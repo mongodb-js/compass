@@ -2,7 +2,6 @@ import React from 'react';
 import { mount } from 'enzyme';
 
 import ExportToLanguage from 'components/export-to-language';
-import store from 'stores';
 import styles from './export-to-language.less';
 
 describe('ExportToLanguage [Component]', () => {
