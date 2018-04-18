@@ -8,26 +8,58 @@ const compiler = require('../');
 // Need a way to have test pass while developing
 const unsupported = {
   success: {
-    java: {},
-    python: {
-      'bson-constructors': [ '*' ],
-      'js-constructors': [ '*' ],
-      'bson-object-methods': [ '*' ],
-      'bson-utils': [ '*' ],
-      'js-utils': [ '*' ]
+    javascript: {
+      java: {},
+      python: {
+        'bson-constructors': [ '*' ],
+        'js-constructors': [ '*' ],
+        'bson-object-methods': [ '*' ],
+        'bson-utils': [ '*' ],
+        'js-utils': [ '*' ]
+      },
+      csharp: {
+        'bson-constructors': [ '*' ],
+        'js-constructors': [ '*' ],
+        'bson-object-methods': [ '*' ],
+        'bson-utils': [ '*' ],
+        'js-utils': [ '*' ]
+      }
     },
-    csharp: {
-      'bson-constructors': [ '*' ],
-      'js-constructors': [ '*' ],
-      'bson-object-methods': [ '*' ],
-      'bson-utils': [ '*' ],
-      'js-utils': [ '*' ]
+    shell: {
+      java: {
+        'bson-constructors': [ 'Code', 'ObjectId', 'Binary', 'DBRef', 'Double', 'Int32', 'Long', 'MinKey/MaxKey', 'BSONRegExp', 'Timestamp', 'Decimal128', 'Symbol', 'ArrayElision', 'Document', 'Array'],
+        'js-constructors': [ '*' ],
+        'bson-object-methods': [ '*' ],
+        'bson-utils': [ '*' ],
+        'js-utils': [ '*' ]
+      },
+      python: {
+        'bson-constructors': [ '*' ],
+        'js-constructors': [ '*' ],
+        'bson-object-methods': [ '*' ],
+        'bson-utils': [ '*' ],
+        'js-utils': [ '*' ]
+      },
+      csharp: {
+        'bson-constructors': [ '*' ],
+        'js-constructors': [ '*' ],
+        'bson-object-methods': [ '*' ],
+        'bson-utils': [ '*' ],
+        'js-utils': [ '*' ]
+      }
     }
   },
   error: {
-    java: {'bson-constructors': [ '*' ]},
-    python: { 'bson-constructors': [ '*' ]},
-    csharp: {'bson-constructors': [ '*' ]}
+    javascript: {
+      java: {'bson-constructors': [ '*' ]},
+      python: { 'bson-constructors': [ '*' ]},
+      csharp: {'bson-constructors': [ '*' ]}
+    },
+    shell: {
+      java: {'bson-constructors': [ '*' ]},
+      python: { 'bson-constructors': [ '*' ]},
+      csharp: {'bson-constructors': [ '*' ]}
+    }
   }
 };
 
@@ -61,9 +93,9 @@ const runTest = function(mode, testname, inputLang, outputLang, tests) {
       describe(key, () => {
         tests[key].map((test) => {
           const skip = (
-            testname in unsupported[mode][outputLang] &&
-            (unsupported[mode][outputLang][testname].indexOf('*') !== -1 ||
-             unsupported[mode][outputLang][testname].indexOf(key) !== -1)
+            testname in unsupported[mode][inputLang][outputLang] &&
+            (unsupported[mode][inputLang][outputLang][testname].indexOf('*') !== -1 ||
+             unsupported[mode][inputLang][outputLang][testname].indexOf(key) !== -1)
           );
 
           (skip ? xit : it)(

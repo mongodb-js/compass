@@ -3,31 +3,28 @@ const fs = require('fs');
 const path = require('path');
 
 const outputLanguages = ['java', 'python', 'csharp'];
-const inputLanguages = ['javascript'];
+const inputLanguages = ['javascript', 'shell'];
 
 describe('Test', () => {
   const pSuccess = path.join(__dirname, 'json', 'success');
   const pError = path.join(__dirname, 'json', 'error');
 
-  const filesSuccess = fs.readdirSync(pSuccess);
-  const filesError = fs.readdirSync(pError);
+  inputLanguages.forEach((inputLang) => {
+    fs.readdirSync(path.join(pSuccess, inputLang)).map((file) => {
+      const tests = readJSON(path.join(pSuccess, inputLang, file)).tests;
+      const testname = file.replace('.json', '');
 
-  filesSuccess.map((file) => {
-    const tests = readJSON(path.join(pSuccess, file)).tests;
-    const testname = file.replace('.json', '');
-
-    inputLanguages.forEach((inputLang) => {
       outputLanguages.forEach((outputLang) => {
         runTest('success', testname, inputLang, outputLang, tests);
       });
     });
   });
 
-  filesError.map((file) => {
-    const tests = readJSON(path.join(pError, file)).tests;
-    const testname = file.replace('.json', '');
+  inputLanguages.forEach((inputLang) => {
+    fs.readdirSync(path.join(pError, inputLang)).map((file) => {
+      const tests = readJSON(path.join(pError, inputLang, file)).tests;
+      const testname = file.replace('.json', '');
 
-    inputLanguages.forEach((inputLang) => {
       outputLanguages.forEach((outputLang) => {
         runTest('error', testname, inputLang, outputLang, tests);
       });
