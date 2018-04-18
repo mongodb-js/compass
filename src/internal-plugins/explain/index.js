@@ -10,7 +10,7 @@ const COLLECTION_TAB_ROLE = {
   component: ExplainComponent,
   name: 'Explain Plan',
   hasQueryHistory: true,
-  order: 3
+  order: 4
 };
 
 /**

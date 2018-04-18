@@ -10,7 +10,7 @@ const COLLECTION_TAB_ROLE = {
   component: SchemaComponent,
   name: 'Schema',
   hasQueryHistory: true,
-  order: 2
+  order: 3
 };
 
 /**
