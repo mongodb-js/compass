@@ -20,6 +20,7 @@ class StageToolbar extends PureComponent {
     runStage: PropTypes.func.isRequired,
     stageDeleted: PropTypes.func.isRequired,
     setIsModified: PropTypes.func.isRequired,
+    openLink: PropTypes.func.isRequired,
     stageCollapseToggled: PropTypes.func.isRequired
   }
 
@@ -39,6 +40,7 @@ class StageToolbar extends PureComponent {
           stageCollapseToggled={this.props.stageCollapseToggled}
           stageToggled={this.props.stageToggled}
           runStage={this.props.runStage}
+          openLink={this.props.openLink}
           stageDeleted={this.props.stageDeleted}
           setIsModified={this.props.setIsModified}
           serverVersion={this.props.serverVersion} />
