@@ -117,8 +117,10 @@
     "webpack-sources": "1.0.1"
   },
   "dependencies": {
-    "@mongodb-js/bson-compilers": "file:///Users/lrlna/code/bson-compilers",
+    "bson-compilers": "file:///Users/lrlna/code/bson-compilers",
     "hadron-react-buttons": "^1.13.2",
+    "mongodb-ace-theme": "0.0.1",
+    "react-ace": "^6.0.0",
     "react-bootstrap": "^0.32.1",
     "react-select-plus": "^1.2.0",
     "redux-thunk": "^2.2.0"

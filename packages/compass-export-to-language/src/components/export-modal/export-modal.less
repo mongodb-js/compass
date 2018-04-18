@@ -1,27 +1,34 @@
 @import (reference) "~less/compass/_theme.less";
 
-.export-to-lang-output {
-  display: flex;
-  flex-direction: row;
-  justify-items: space-between;
-
-  &-select {
-    flex: 0.5 0 0;
-    text-transform: uppercase;
-    font-weight: 600;
+.export-to-lang-form {
+  &-alert {
+    background-color: #b1e0e6;
+    border-color: #b1e0e6;
+    padding: 10px;
   }
+  &-output {
+    display: flex;
+    flex-direction: row;
+    justify-items: space-between;
 
-  &-return {
-    flex: 3 0 0;
-    height: 33px;
-    margin-left: 10px;
-    padding: 6px 12px;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075);
-  } 
-  &-copy-btn {
-    height: 33px;
-    margin-left: 10px;
+    &-select {
+      flex: 0.5 0 0;
+      text-transform: uppercase;
+      font-weight: 600;
+    }
+
+    &-return {
+      flex: 3 0 0;
+      height: 33px;
+      margin-left: 10px;
+      padding: 6px 12px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075);
+    } 
+    &-copy-btn {
+      height: 33px;
+      margin-left: 10px;
+    }
   }
 }

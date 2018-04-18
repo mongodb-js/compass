@@ -1,11 +1,27 @@
 import { TextButton } from 'hadron-react-buttons';
+import { Modal, Alert } from 'react-bootstrap';
 import React, { Component } from 'react';
-import { Modal } from 'react-bootstrap';
 import Select from 'react-select-plus';
 import classnames from 'classnames';
 import PropTypes from 'prop-types';
+import AceEditor from 'react-ace';
+
+import 'brace/mode/javascript';
+import 'mongodb-ace-theme';
 
 import styles from './export-modal.less';
+
+const OPTIONS = {
+  tabSize: 2,
+  fontSize: 11,
+  minLines: 5,
+  maxLines: Infinity,
+  showGutter: true,
+  readOnly: false,
+  highlightActiveLine: false,
+  highlightGutterLine: false,
+  useWorker: false
+};
 
 class ExportModal extends Component {
   static displayName = 'ExportModalComponent';
@@ -36,7 +52,7 @@ class ExportModal extends Component {
 
   copyHandler = (evt) => {
     evt.preventDefault();
-    const input = document.getElementById('export-to-lang-output-return');
+    const input = document.getElementById('export-to-lang-form-output-return');
     console.log('input', input);
     this.props.copyQuery(input);
   }
@@ -58,7 +74,7 @@ class ExportModal extends Component {
       'btn': true,
       'btn-sm': true,
       'btn-primary': true,
-      [ styles['export-to-lang-output-copy-btn'] ]: true
+      [ styles['export-to-lang-form-output-copy-btn'] ]: true
     });
 
     const selectedLang = this.state.selectedLang;
@@ -66,6 +82,7 @@ class ExportModal extends Component {
 
     return (
       <Modal
+        show
         backdrop="static"
         bsSize="large"
         onHide={this.onExportModalToggle}
@@ -79,22 +96,33 @@ class ExportModal extends Component {
           <form name="export-to-lang-form"
               data-test-id="export-to-lang">
             <div className="form-group">
+              <Alert
+                level="info"
+                className={classnames(styles['export-to-lang-form-alert'])}
+                children="PROJECT, SORT, SKIP, LIMIT options are not included as part of the exported query."
+                dismissible="falsek"/>
               <p>My Query</p>
               <input
                 autoFocus
                 type="text"
                 className="form-control"
-                id="export-to-lang-query"
+                id="export-to-lang-form-query"
                 name="Query"
                 value={this.state.queryInputValue}
                 onChange={this.queryInputEvent} />
+              <AceEditor
+                mode="javascript"
+                theme="mongodb"
+                width="100%"
+                editorProps={{ $blockScrolling: Infinity }}
+                setOptions={OPTIONS}/>
             </div>
             <div>
               <p>Export Query To</p>
-              <div className={classnames(styles['export-to-lang-output'])}>
+              <div className={classnames(styles['export-to-lang-form-output'])}>
                 <Select
-                  name="export-to-lang-output-select"
-                  className={classnames(styles['export-to-lang-output-select'])}
+                  name="export-to-lang-form-output-select"
+                  className={classnames(styles['export-to-lang-form-output-select'])}
                   searchable={false}
                   clearable={false}
                   placeholder="Java"
@@ -103,8 +131,8 @@ class ExportModal extends Component {
                   options={langOptions}/>
                 <input
                   type="text"
-                  className={classnames(styles['export-to-lang-output-return'])}
-                  id="export-to-lang-output-return"
+                  className={classnames(styles['export-to-lang-form-output-return'])}
+                  id="export-to-lang-form-output-return"
                   value={this.props.exportQuery.returnQuery}/>
                 <TextButton
                   className={copyButtonStyle}

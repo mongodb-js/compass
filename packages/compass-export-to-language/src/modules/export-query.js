@@ -1,4 +1,4 @@
-// const compiler = require('@mongodb-js/bson-compilers');
+// const compiler = require('bson-compilers');
 
 const PREFIX = 'exportQuery';
 
