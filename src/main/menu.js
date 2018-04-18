@@ -34,7 +34,7 @@ function compassOverviewItem() {
   return {
     label: `${app.getName()} &Overview`,
     click: function() {
-      BrowserWindow.getFocusedWindow().webContents.send('window:show-compass-tour');
+      ipc.broadcastFocused('window:show-compass-tour');
     }
   };
 }
@@ -43,7 +43,7 @@ function networkOptInDialogItem() {
   return {
     label: '&Privacy Settings',
     click: function() {
-      BrowserWindow.getFocusedWindow().webContents.send('window:show-network-optin');
+      ipc.broadcastFocused('window:show-network-optin');
     }
   };
 }
@@ -91,7 +91,7 @@ function disconnectItem() {
   return {
     label: '&Disconnect',
     click: function() {
-      app.emit('app:disconnect');
+      ipc.broadcastFocused('app:disconnect');
     }
   };
 }
@@ -175,7 +175,7 @@ function securityItem() {
   return {
     label: '&Plugins',
     click: function() {
-      BrowserWindow.getFocusedWindow().webContents.send('window:show-security-panel');
+      ipc.broadcastFocused('window:show-security-panel');
     }
   };
 }
@@ -207,7 +207,7 @@ function collectionSubMenu() {
         label: '&Share Schema as JSON',
         accelerator: 'Alt+CmdOrCtrl+S',
         click: function() {
-          ipc.broadcast('window:menu-share-schema-json');
+          ipc.broadcastFocused('window:menu-share-schema-json');
         }
       }
     ]
