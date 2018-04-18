@@ -2,9 +2,7 @@
 const JavascriptVisitor = require('../javascript/Visitor');
 const bson = require('bson');
 const Context = require('context-eval');
-const path = require('path');
-const {
-} = require(path.resolve('helper', 'error'));
+// const { } = require('../../helper/error');
 
 /**
  * This is a Visitor superclass where helper methods used by all language

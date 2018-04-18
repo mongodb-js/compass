@@ -1,10 +1,8 @@
-const path = require('path');
-
 const {
   SemanticArgumentCountMismatchError,
   SemanticGenericError,
   SemanticTypeError
-} = require(path.resolve('helper', 'error'));
+} = require('../../helper/error');
 const {Types} = require('../SymbolTable');
 
 module.exports = (superclass) => class ExtendedVisitor extends superclass {

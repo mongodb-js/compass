@@ -1,5 +1,5 @@
 const path = require('path');
-const config = require(path.resolve('config', 'error.json'));
+const config = require('../config/error.json');
 const errors = {};
 
 Object.keys(config).forEach((group) => {

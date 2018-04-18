@@ -2,13 +2,12 @@
 const ECMAScriptVisitor = require('../../lib/ECMAScriptVisitor').ECMAScriptVisitor;
 const bson = require('bson');
 const Context = require('context-eval');
-const path = require('path');
 const {
   SemanticArgumentCountMismatchError,
   SemanticTypeError,
   SemanticReferenceError,
   SemanticAttributeError
-} = require(path.resolve('helper', 'error'));
+} = require('../../helper/error');
 
 /**
  * This is a Visitor superclass where helper methods used by all language
