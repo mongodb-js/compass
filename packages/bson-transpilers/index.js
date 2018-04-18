@@ -8,7 +8,17 @@ const ErrorListener = require('./codegeneration/ErrorListener.js');
 
 const { loadSymbolTable } = require('./codegeneration/SymbolTable');
 
-const loadGenerator = (inputLang, outputLang) => {
+/**
+ * Imports the visitor, per input language.
+ * Imports the generater, per output language.
+ *
+ * The generator inherits from the visitor.
+ *
+ * @param {String} inputLang
+ * @param {String} outputLang
+ * @return {antlr4.tree.ParseTreeVisitor} - The compiler, without symbols.
+ */
+const getCompiler = (inputLang, outputLang) => {
   const superFile = path.join(__dirname, 'codegeneration', inputLang, 'Visitor');
   if (!fs.existsSync(superFile + '.js')) {
     throw new Error(`${inputLang} not yet implemented as input language`);
@@ -24,6 +34,13 @@ const loadGenerator = (inputLang, outputLang) => {
   return new Generator();
 };
 
+/**
+ * Constructs the parse tree from the code given by the user.
+ *
+ * TODO: hardcoded to ECMAScriptLexer/Parser
+ * @param {String} input
+ * @return {antlr4.ParserRuleContext} - The parse tree.
+ */
 const loadTree = (input) => {
   // TODO: swap out lexer/parser/etc depending on input lang
   const chars = new antlr4.InputStream(input);
@@ -41,23 +58,34 @@ const loadTree = (input) => {
   return parser.expressionSequence();
 };
 
-const compile = (input, generator) => {
-  const tree = loadTree(input);
-  return generator.start(tree);
-};
-
-const getCompiler = (inputLang, outputLang) => {
-  const generator = loadGenerator(inputLang, outputLang);
+/**
+ * Puts everything together: Visitor, Generator, and Symbol table.
+ *
+ * @param {String} inputLang
+ * @param {String} outputLang
+ * @return {antlr4.tree.ParseTreeVisitor} - the compiler with a symbol table.
+ */
+const getCompilerWithSymbols = (inputLang, outputLang) => {
+  const generator = getCompiler(inputLang, outputLang);
   const symbols = loadSymbolTable(inputLang, outputLang);
 
   Object.assign(generator, symbols);
   return generator;
 };
 
+/**
+ * Generates a compiler for the input/export language, and returns a function
+ * that will compile input into the target language.
+ *
+ * @param {String} inputLang
+ * @param {String} outputLang
+ * @return {function(*=)}
+ */
 const make = (inputLang, outputLang) => {
-  const comp = getCompiler(inputLang, outputLang);
+  const compiler = getCompilerWithSymbols(inputLang, outputLang);
   return (input) => {
-    return compile(input, comp);
+    const tree = loadTree(input);
+    return compiler.start(tree);
   };
 };
 
@@ -65,11 +93,13 @@ module.exports = {
   javascript: {
     java: make('javascript', 'java')
     // python: make('javascript', 'python'),
-    // csharp: make('javascript', 'csharp')
+    // csharp: make('javascript', 'csharp'),
+    // shell: make('javascript', 'shell')
   },
   shell: {
     java: make('shell', 'java')
     // python: make('shell', 'python'),
-    // csharp: make('shell', 'csharp')
+    // csharp: make('shell', 'csharp'),
+    // javascript: make('shell', 'javascript')
   }
 };
