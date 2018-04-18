@@ -113,12 +113,12 @@
             "index"
           ]
         },
-        "compass-lockdown": {
-          "name": "mongodb-compass-lockdown",
-          "productName": "MongoDB Compass Lockdown",
-          "bundleId": "com.mongodb.compass.lockdown",
-          "plugins-directory": ".mongodb/compass-lockdown/plugins",
-          "lockdown": true,
+        "compass-isolated": {
+          "name": "mongodb-compass-isolated",
+          "productName": "MongoDB Compass Isolated Edition",
+          "bundleId": "com.mongodb.compass.isolated",
+          "plugins-directory": ".mongodb/compass-isolated/plugins",
+          "isolated": true,
           "plugins": [
             "node_modules/@mongodb-js/compass-aggregations",
             "node_modules/@mongodb-js/compass-crud",

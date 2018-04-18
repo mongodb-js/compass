@@ -273,7 +273,7 @@ tasks:
       - macos-compass
       - macos-compass-community
       - macos-compass-readonly
-      - macos-compass-lockdown
+      - macos-compass-isolated
   - command: git.get_project
     params:
       directory: src
@@ -301,15 +301,15 @@ tasks:
       - macos-compass
       - macos-compass-community
       - macos-compass-readonly
-      - macos-compass-lockdown
+      - macos-compass-isolated
       - rhel-compass
       - rhel-compass-community
       - rhel-compass-readonly
-      - rhel-compass-lockdown
+      - rhel-compass-isolated
       - ubuntu-compass
       - ubuntu-compass-community
       - ubuntu-compass-readonly
-      - ubuntu-compass-lockdown
+      - ubuntu-compass-isolated
   - command: shell.exec
     params:
       working_dir: src
@@ -335,7 +335,7 @@ tasks:
       - windows-compass
       - windows-compass-community
       - windows-compass-readonly
-      - windows-compass-lockdown
+      - windows-compass-isolated
   - command: shell.exec
     params:
       working_dir: src
@@ -350,7 +350,7 @@ tasks:
       - windows-compass
       - windows-compass-community
       - windows-compass-readonly
-      - windows-compass-lockdown
+      - windows-compass-isolated
   - command: shell.exec
     params:
       working_dir: src
@@ -363,7 +363,7 @@ tasks:
       - rhel-compass
       - rhel-compass-community
       - rhel-compass-readonly
-      - rhel-compass-lockdown
+      - rhel-compass-isolated
   - command: shell.exec
     params:
       working_dir: src
@@ -374,7 +374,7 @@ tasks:
       - ubuntu-compass
       - ubuntu-compass-community
       - ubuntu-compass-readonly
-      - ubuntu-compass-lockdown
+      - ubuntu-compass-isolated
   - func: "configure"
   - func: "install"
   - command: expansions.update
@@ -386,25 +386,25 @@ tasks:
       - windows-compass
       - windows-compass-community
       - windows-compass-readonly
-      - windows-compass-lockdown
+      - windows-compass-isolated
   - func: "save osx artifacts"
     variants:
       - macos-compass
       - macos-compass-community
       - macos-compass-readonly
-      - macos-compass-lockdown
+      - macos-compass-isolated
   - func: "save linux artifacts"
     variants:
       - ubuntu-compass
       - ubuntu-compass-community
       - ubuntu-compass-readonly
-      - ubuntu-compass-lockdown
+      - ubuntu-compass-isolated
   - func: "save rhel artifacts"
     variants:
       - rhel-compass
       - rhel-compass-community
       - rhel-compass-readonly
-      - rhel-compass-lockdown
+      - rhel-compass-isolated
 
 #######################################
 #           Buildvariants             #
@@ -452,8 +452,8 @@ buildvariants:
   tasks:
     - name: compile
 
-- name: macos-compass-lockdown
-  display_name: MacOS (Compass Lockdown)
+- name: macos-compass-isolated
+  display_name: MacOS (Compass Isolated Edition)
   modules: ~
   run_on:
   - "osx-1010-compass"
@@ -462,7 +462,7 @@ buildvariants:
     fetch_npm_tarball: node-v8.2.1-darwin-x64.tar.gz
     node_path: "$(pwd)/.deps/bin"
     num_cores: $(sysctl -n hw.logicalcpu)
-    compass_distribution: compass-lockdown
+    compass_distribution: compass-isolated
   tasks:
     - name: compile
 
@@ -508,8 +508,8 @@ buildvariants:
   tasks:
     - name: compile
 
-- name: windows-compass-lockdown
-  display_name: Windows (Compass Lockdown)
+- name: windows-compass-isolated
+  display_name: Windows (Compass Isolated Edition)
   modules: ~
   run_on:
   - "windows-64-vs2015-test"
@@ -518,7 +518,7 @@ buildvariants:
     node_path: "$(pwd)/.deps"
     num_cores: $(grep -c ^processor /proc/cpuinfo)
     add_env_appdata: Z:\
-    compass_distribution: compass-lockdown
+    compass_distribution: compass-isolated
   tasks:
     - name: compile
 
@@ -564,8 +564,8 @@ buildvariants:
   tasks:
     - name: compile
 
-- name: ubuntu-compass-lockdown
-  display_name: Ubuntu (Compass Lockdown)
+- name: ubuntu-compass-isolated
+  display_name: Ubuntu (Compass Isolated Edition)
   modules: ~
   run_on:
   - "ubuntu1404-test"
@@ -574,7 +574,7 @@ buildvariants:
     node_path: "$(pwd)/.deps/bin"
     compile_env: CC=/opt/mongodbtoolchain/bin/gcc CXX=/opt/mongodbtoolchain/bin/g++
     num_cores: $(grep -c ^processor /proc/cpuinfo)
-    compass_distribution: compass-lockdown
+    compass_distribution: compass-isolated
   tasks:
     - name: compile
 
@@ -620,8 +620,8 @@ buildvariants:
   tasks:
     - name: compile
 
-- name: rhel-compass-lockdown
-  display_name: RHEL (Compass Lockdown)
+- name: rhel-compass-isolated
+  display_name: RHEL (Compass Isolated Edition)
   modules: ~
   run_on:
   - "rhel70"
@@ -630,6 +630,6 @@ buildvariants:
     node_path: "$(pwd)/.deps/bin"
     compile_env: CC=/opt/mongodbtoolchain/bin/gcc CXX=/opt/mongodbtoolchain/bin/g++
     num_cores: $(grep -c ^processor /proc/cpuinfo)
-    compass_distribution: compass-lockdown
+    compass_distribution: compass-isolated
   tasks:
     - name: compile

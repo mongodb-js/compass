@@ -13,7 +13,7 @@ const MetricsStore = Reflux.createStore({
    */
   onActivated(appRegistry) {
     // set up listeners on external stores
-    if (process.env.HADRON_LOCKDOWN !== 'true') {
+    if (process.env.HADRON_ISOLATED !== 'true') {
       setupMetrics();
 
       // configure rules

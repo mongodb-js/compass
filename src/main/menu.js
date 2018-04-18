@@ -190,7 +190,7 @@ function helpSubMenu() {
 
   subMenu.push(compassOverviewItem());
 
-  if (process.env.HADRON_LOCKDOWN !== 'true') {
+  if (process.env.HADRON_ISOLATED !== 'true') {
     subMenu.push(networkOptInDialogItem());
   }
 

@@ -103,7 +103,7 @@ class Field extends React.Component {
    */
   getSemanticType(type) {
     // check if the type represents geo coordinates, if privacy settings allow
-    if (app.isFeatureEnabled('enableMaps') && process.env.HADRON_LOCKDOWN !== 'true') {
+    if (app.isFeatureEnabled('enableMaps') && process.env.HADRON_ISOLATED !== 'true') {
       const coords = detectCoordinates(type);
       if (coords) {
         type.name = 'Coordinates';
