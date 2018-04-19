@@ -3,20 +3,19 @@ const {
   SemanticGenericError,
   SemanticTypeError
 } = require('../../helper/error');
-const {Types} = require('../SymbolTable');
 
 module.exports = (superclass) => class ExtendedVisitor extends superclass {
   // assign a string type to current ctx
   // get double quotes around the string
   visitStringLiteral(ctx) {
-    ctx.type = Types._string;
+    ctx.type = this.Types._string;
 
     return this.doubleQuoteStringify(this.visitChildren(ctx));
   }
 
   // there is no undefined in c#
   visitUndefinedLiteral(ctx) {
-    ctx.type = Types._undefined;
+    ctx.type = this.Types._undefined;
 
     return 'BsonUndefined.Value';
   }
@@ -34,7 +33,7 @@ module.exports = (superclass) => class ExtendedVisitor extends superclass {
   // c# does not have octal numbers, so we need to convert it to reg integer
   // TODO: not sure if we should still set the type to OCTAL or INTEGER
   visitOctalIntegerLiteral(ctx) {
-    ctx.type = Types._octal;
+    ctx.type = this.Types._octal;
 
     return parseInt(this.visitChildren(ctx), 10);
   }
@@ -57,9 +56,9 @@ module.exports = (superclass) => class ExtendedVisitor extends superclass {
 
     if (
       (
-        arg.type !== Types._string &&
-        arg.type !== Types._decimal &&
-        arg.type !== Types._integer
+        arg.type !== this.Types._string &&
+        arg.type !== this.Types._decimal &&
+        arg.type !== this.Types._integer
       )
       || isNaN(Number(number))
     ) {
@@ -136,7 +135,7 @@ module.exports = (superclass) => class ExtendedVisitor extends superclass {
     const args = argumentList.singleExpression();
     const pattern = this.visit(args[0]);
 
-    if (args[0].type !== Types._string) {
+    if (args[0].type !== this.Types._string) {
       throw new SemanticTypeError({
         message: 'BSONRegExp requires pattern to be a string'
       });
@@ -145,7 +144,7 @@ module.exports = (superclass) => class ExtendedVisitor extends superclass {
     if (args.length === 2) {
       let flags = this.visit(args[1]);
 
-      if (args[1].type !== Types._string) {
+      if (args[1].type !== this.Types._string) {
         throw new SemanticTypeError({
           message: 'BSONRegExp requires flags to be a string'
         });
@@ -213,7 +212,7 @@ module.exports = (superclass) => class ExtendedVisitor extends superclass {
    * @returns {string}
    */
   visitObjectLiteral(ctx) {
-    ctx.type = Types._object;
+    ctx.type = this.Types._object;
 
     if (ctx.getChildCount() === 2) {
       return 'new BsonDocument()';
@@ -253,7 +252,7 @@ module.exports = (superclass) => class ExtendedVisitor extends superclass {
       we can avoid it for now. */
       const scope = this.visit(argumentListExpression[1]);
 
-      if (argumentListExpression[1].type !== Types._object) {
+      if (argumentListExpression[1].type !== this.Types._object) {
         throw new SemanticTypeError({
           message: 'Code requires scope to be an object'
         });
@@ -266,7 +265,7 @@ module.exports = (superclass) => class ExtendedVisitor extends superclass {
   }
 
   /**
-   * This evaluates the code in a sandbox and gets the hex string out of the
+   * this evaluates the code in a sandbox and gets the hex string out of the
    * ObjectId.
    *
    * @param {object} ctx
@@ -361,9 +360,9 @@ module.exports = (superclass) => class ExtendedVisitor extends superclass {
     let double = this.removeQuotes(this.visit(arg));
 
     if (
-      arg.type !== Types._string &&
-      arg.type !== Types._decimal &&
-      arg.type !== Types._integer
+      arg.type !== this.Types._string &&
+      arg.type !== this.Types._decimal &&
+      arg.type !== this.Types._integer
     ) {
       throw new SemanticTypeError({
         message: 'Double requires a number or a string argument'
@@ -442,7 +441,7 @@ module.exports = (superclass) => class ExtendedVisitor extends superclass {
     const argumentListExpression = argumentList.singleExpression();
     const low = this.visit(argumentListExpression[0]);
 
-    if (argumentListExpression[0].type !== Types._integer) {
+    if (argumentListExpression[0].type !== this.Types._integer) {
       throw new SemanticTypeError({
         message: 'Timestamp first argument requires integer arguments'
       });
@@ -450,7 +449,7 @@ module.exports = (superclass) => class ExtendedVisitor extends superclass {
 
     const high = this.visit(argumentListExpression[1]);
 
-    if (argumentListExpression[1].type !== Types._integer) {
+    if (argumentListExpression[1].type !== this.Types._integer) {
       throw new SemanticTypeError({
         message: 'Timestamp second argument requires integer arguments'
       });
@@ -477,7 +476,7 @@ module.exports = (superclass) => class ExtendedVisitor extends superclass {
     const arg = argumentList.singleExpression()[0];
     const obj = this.visit(arg);
 
-    if (arg.type !== Types._object) {
+    if (arg.type !== this.Types._object) {
       throw new SemanticTypeError({
         message: 'Object.create() requires an object argument'
       });
@@ -523,7 +522,7 @@ module.exports = (superclass) => class ExtendedVisitor extends superclass {
    * @returns {string}
    */
   visitArrayLiteral(ctx) {
-    ctx.type = Types._array;
+    ctx.type = this.Types._array;
 
     if (ctx.getChildCount() === 2) {
       return 'new BsonArray()';
@@ -539,7 +538,7 @@ module.exports = (superclass) => class ExtendedVisitor extends superclass {
    * @returns {string}
    */
   visitElision(ctx) {
-    ctx.type = Types._null;
+    ctx.type = this.Types._null;
 
     return 'BsonNull.Value';
   }
@@ -551,7 +550,7 @@ module.exports = (superclass) => class ExtendedVisitor extends superclass {
    * @returns {string}
    */
   visitNullLiteral(ctx) {
-    ctx.type = Types._null;
+    ctx.type = this.Types._null;
 
     return 'BsonNull.Value';
   }
@@ -574,7 +573,7 @@ module.exports = (superclass) => class ExtendedVisitor extends superclass {
     const arg = argumentList.singleExpression()[0];
     const symbol = this.visit(arg);
 
-    if (arg.type !== Types._string) {
+    if (arg.type !== this.Types._string) {
       throw new SemanticTypeError({
         message: 'Symbol requires a string argument'
       });

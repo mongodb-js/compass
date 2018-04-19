@@ -53,13 +53,15 @@ const loadSymbolTable = (dir, inputLang, outputLang) => {
 const loadAll = () => {
   const dir = path.join(__dirname, 'lib', 'symbol-table');
   const inputLangs = ['javascript', 'shell'];
-  const outputLangs = ['java'];
+  const outputLangs = ['java', 'shell', 'python', 'csharp', 'javascript'];
   if (!fs.existsSync(dir)) {
     fs.mkdirSync(dir);
   }
   inputLangs.forEach((input) => {
     outputLangs.forEach((output) => {
-      loadSymbolTable(dir, input, output);
+      if (input !== output) {
+        loadSymbolTable(dir, input, output);
+      }
     });
   });
 };

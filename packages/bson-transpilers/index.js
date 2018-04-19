@@ -1,5 +1,3 @@
-// const path = require('path');
-// const fs = require('fs');
 const antlr4 = require('antlr4');
 const ECMAScriptLexer = require('./lib/antlr/ECMAScriptLexer.js');
 const ECMAScriptParser = require('./lib/antlr/ECMAScriptParser.js');
@@ -9,9 +7,22 @@ const yaml = require('js-yaml');
 
 const JavascriptVisitor = require('./codegeneration/javascript/Visitor');
 const ShellVisitor = require('./codegeneration/shell/Visitor');
+
 const JavaGenerator = require('./codegeneration/java/Generator');
+const PythonGenerator = require('./codegeneration/python/Generator');
+const CsharpGenerator = require('./codegeneration/csharp/Generator');
+const ShellGenerator = require('./codegeneration/shell/Generator');
+const JavascriptGenerator = require('./codegeneration/javascript/Generator');
+
 const javascriptjavasymbols = require('./lib/symbol-table/javascripttojava');
+const javascriptpythonsymbols = require('./lib/symbol-table/javascripttopython');
+const javascriptcsharpsymbols = require('./lib/symbol-table/javascripttocsharp');
+const javascriptshellsymbols = require('./lib/symbol-table/javascripttoshell');
+
 const shelljavasymbols = require('./lib/symbol-table/shelltojava');
+const shellpythonsymbols = require('./lib/symbol-table/shelltopython');
+const shellcsharpsymbols = require('./lib/symbol-table/shelltocsharp');
+const shelljavascriptsymbols = require('./lib/symbol-table/shelltojavascript');
 
 /**
  * Constructs the parse tree from the code given by the user.
@@ -57,15 +68,15 @@ const getCompiler = (visitor, generator, symbols) => {
 
 module.exports = {
   javascript: {
-    java: getCompiler(JavascriptVisitor, JavaGenerator, javascriptjavasymbols)
-    // python: make('javascript', 'python'),
-    // csharp: make('javascript', 'csharp'),
-    // shell: make('javascript', 'shell')
+    java: getCompiler(JavascriptVisitor, JavaGenerator, javascriptjavasymbols),
+    python: getCompiler(JavascriptVisitor, PythonGenerator, javascriptpythonsymbols),
+    csharp: getCompiler(JavascriptVisitor, CsharpGenerator, javascriptcsharpsymbols),
+    shell: getCompiler(JavascriptVisitor, ShellGenerator, javascriptshellsymbols)
   },
   shell: {
-    java: getCompiler(ShellVisitor, JavaGenerator, shelljavasymbols)
-    // python: make('shell', 'python'),
-    // csharp: make('shell', 'csharp'),
-    // javascript: make('shell', 'javascript')
+    java: getCompiler(ShellVisitor, JavaGenerator, shelljavasymbols),
+    python: getCompiler(ShellVisitor, PythonGenerator, shellpythonsymbols),
+    csharp: getCompiler(ShellVisitor, CsharpGenerator, shellcsharpsymbols),
+    javascript: getCompiler(ShellVisitor, JavascriptGenerator, shelljavascriptsymbols)
   }
 };
