@@ -112,7 +112,7 @@ const shortcutJS = () => {
 };
 
 const shortcutShell = () => {
-  const visitor = require('./codegeneration/javascript/Visitor');
+  const visitor = require('./codegeneration/shell/Visitor');
   const generator = require('./codegeneration/java/Generator');
   const Compiler = generator(visitor);
   const compiler = new Compiler();
