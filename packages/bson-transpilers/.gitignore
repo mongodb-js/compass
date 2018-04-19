@@ -2,7 +2,6 @@
 grammars/.antlr/
 npm-debug.log
 node_modules/
-lib/
 lib-cov
 coverage
 .lock-wscript

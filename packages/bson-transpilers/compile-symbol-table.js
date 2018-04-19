@@ -1,6 +1,5 @@
 const path = require('path');
 
-const yaml = require('js-yaml');
 const fs = require('fs');
 
 /*
@@ -29,12 +28,12 @@ const fs = require('fs');
  * push/pop scopes, lookup variables, add variables to scope, and handle
  * collisions. For now it's just an object.
  *
+ * @param {String} dir - Directory to write to
  * @param {String} inputLang - Input language
  * @param {String} outputLang - Output language
- *
- * @returns {Object} SymbolTable
  */
-const loadSymbolTable = (inputLang, outputLang) => {
+const loadSymbolTable = (dir, inputLang, outputLang) => {
+  const outputFile = path.join(dir, `${inputLang}to${outputLang}.js`);
   const files = [
     'main.yaml',
     path.join(outputLang, 'templates.yaml'),
@@ -48,17 +47,21 @@ const loadSymbolTable = (inputLang, outputLang) => {
     }
     return str + fs.readFileSync(path.join('symbols', file));
   }, '');
-
-  // write a file so debugging is easier with linenumbers
-  // fs.writeFileSync('concatted.yaml', contents);
-  const doc = yaml.load(contents);
-  return {
-    SYMBOL_TYPE: doc.SymbolTypes,
-    BsonTypes: doc.BsonTypes,
-    Symbols: Object.assign({}, doc.BsonSymbols, doc.JSSymbols),
-    Types: Object.assign({}, doc.BasicTypes, doc.BsonTypes, doc.JSTypes)
-  };
+  fs.writeFileSync(outputFile, `module.exports=${JSON.stringify(contents)};\n`);
 };
 
-module.exports = { loadSymbolTable };
+const loadAll = () => {
+  const dir = path.join(__dirname, 'lib', 'symbol-table');
+  const inputLangs = ['javascript', 'shell'];
+  const outputLangs = ['java'];
+  if (!fs.existsSync(dir)) {
+    fs.mkdirSync(dir);
+  }
+  inputLangs.forEach((input) => {
+    outputLangs.forEach((output) => {
+      loadSymbolTable(dir, input, output);
+    });
+  });
+};
 
+loadAll();
