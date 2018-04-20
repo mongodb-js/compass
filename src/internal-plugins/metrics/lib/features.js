@@ -139,6 +139,21 @@ const DocumentResource = BaseResource.extend({
   }
 });
 
+// Aggregation resource.
+const AggregationResource = BaseResource.extend({
+  id: 'Aggregation',
+  eventTrackers: ['stitch'],
+  executed: function(metadata, callback) {
+    this._send_event(metadata, callback);
+  },
+  saved: function(metadata, callback) {
+    this._send_event(metadata, callback);
+  },
+  deleted: function(metadata, callback) {
+    this._send_event(metadata, callback);
+  }
+});
+
 // Resource for the connect window.
 const ConnectResource = BaseResource.extend({
   id: 'Connect',
@@ -241,6 +256,7 @@ featureResources['Validation Rules'] = new ValidationRulesResource();
 featureResources.Explain = new ExplainResource();
 featureResources.Import = new ImportResource();
 featureResources.Export = new ExportResource();
+featureResources.Aggregation = new AggregationResource();
 featureResources.Document = new DocumentResource();
 featureResources.Documents = new DocumentsResource();
 featureResources.DocumentsListView = new DocumentsListViewResource();

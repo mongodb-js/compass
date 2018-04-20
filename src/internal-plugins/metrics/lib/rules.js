@@ -239,6 +239,34 @@ module.exports = [
     metadata: () => ({})
   },
   {
+    registryEvent: 'agg-pipeline-executed',
+    resource: 'Aggregation',
+    action: 'executed',
+    condition: () => true,
+    metadata: (data) => ({
+      numStages: data.numStages,
+      stageOperators: data.stageOperators
+    })
+  },
+  {
+    registryEvent: 'agg-pipeline-saved',
+    resource: 'Aggregation',
+    action: 'saved',
+    condition: () => true,
+    metadata: (data) => ({
+      name: data.name
+    })
+  },
+  {
+    registryEvent: 'agg-pipeline-deleted',
+    resource: 'Aggregation',
+    action: 'deleted',
+    condition: () => true,
+    metadata: (data) => ({
+      name: data.name
+    })
+  },
+  {
     store: 'License.Store',
     resource: 'License',
     action: 'viewed',
