@@ -129,13 +129,6 @@ describe('NativeClient', function() {
     });
   });
 
-  describe('#new', function() {
-    it('sets the model on the instance', function() {
-      expect(client.model).to.equal(helper.connection);
-      expect(client.isWritable).to.equal(true);
-    });
-  });
-
   describe('#command', function() {
     it('executes the command', function(done) {
       client.command('data-service', { ping: 1 }, function(error, result) {

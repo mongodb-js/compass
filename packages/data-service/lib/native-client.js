@@ -18,7 +18,50 @@ const { getInstance } = require('./instance-detail-helper');
 /**
  * The constant for a mongos.
  */
-const SHARDED = 'isdbgrid';
+const SHARDED = 'Sharded';
+
+/**
+ * Single topology type.
+ */
+const SINGLE = 'Single';
+
+/**
+ * RS with primary.
+ */
+const RS_WITH_PRIMARY = 'ReplicaSetWithPrimary';
+
+/**
+ * Primary rs member.
+ */
+const RS_PRIMARY = 'RSPrimary';
+
+/**
+ * Standalone member.
+ */
+const STANDALONE = 'Standalone';
+
+/**
+ * Mongos.
+ */
+const MONGOS = 'Mongos';
+
+/**
+ * Writable server types.
+ */
+const WRITABLE_SERVER_TYPES = [
+  RS_PRIMARY,
+  STANDALONE,
+  MONGOS
+];
+
+/**
+ * Writable topology types.
+ */
+const WRITABLE_TYPES = [
+  SHARDED,
+  SINGLE,
+  RS_WITH_PRIMARY
+];
 
 /**
  * Error message sustring for view operations.
@@ -59,6 +102,8 @@ class NativeClient extends EventEmitter {
    */
   connect(done) {
     debug('connecting...');
+    this.isWritable = false;
+    this.isMongos = false;
     connect(this.model, this.setupListeners.bind(this), (err, mongoClient) => {
       this.client = mongoClient;
 
@@ -69,12 +114,7 @@ class NativeClient extends EventEmitter {
       debug('connected!');
       this.client.on('status', (evt) => this.emit('status', evt));
       this.database = this.client.db(this.model.ns || ADMIN);
-      this.database.admin().command({ ismaster: 1 }, (error, result) => {
-        const ismaster = error ? {} : result;
-        this.isWritable = this._isWritable(ismaster);
-        this.isMongos = this._isMongos(ismaster);
-        done(null, this);
-      });
+      done(null, this);
     });
     return this;
   }
@@ -107,6 +147,8 @@ class NativeClient extends EventEmitter {
       });
 
       client.on('topologyDescriptionChanged', (evt) => {
+        client.isWritable = this._isWritable(evt);
+        client.isMongos = this._isMongos(evt);
         this.emit('topologyDescriptionChanged', evt);
       });
 
@@ -926,23 +968,29 @@ class NativeClient extends EventEmitter {
   /**
    * Determine if the ismaster response is for a writable server.
    *
-   * @param {Object} ismaster - The ismaster response.
+   * @param {Object} evt - The topology description changed event.
    *
    * @returns {Boolean} If the server is writable.
    */
-  _isWritable(ismaster) {
-    return ismaster.ismaster === true || this._isMongos(ismaster);
+  _isWritable(evt) {
+    const topologyType = evt.newDescription.topologyType;
+    // If type is SINGLE we must be connected to primary, standalone or mongos.
+    if (topologyType === SINGLE) {
+      const server = evt.newDescription.servers[0];
+      return server && WRITABLE_SERVER_TYPES.includes(server.type);
+    }
+    return WRITABLE_TYPES.includes(topologyType);
   }
 
   /**
    * Determine if we are connected to a mongos
    *
-   * @param {Object} ismaster - The ismaster response.
+   * @param {Object} evt - The topology descriptiopn changed event.
    *
    * @returns {Boolean} If the server is a mongos.
    */
-  _isMongos(ismaster) {
-    return ismaster.msg === SHARDED;
+  _isMongos(evt) {
+    return evt.newDescription.topologyType === SHARDED;
   }
 
   /**
