@@ -304,9 +304,11 @@ module.exports = (superClass) => class ExtendedVisitor extends superClass {
     return this.emitLong(ctx);
   }
 
+  /*
+   * This is a bit weird because we can just convert to string directly.
+   */
   emitLongtoString(ctx) {
     ctx.type = this.Types._string;
-    const lhsType = ctx.singleExpression().type;
     const long = ctx.singleExpression().singleExpression();
     let longstr;
     try {
@@ -314,11 +316,6 @@ module.exports = (superClass) => class ExtendedVisitor extends superClass {
     } catch (error) {
       throw new SemanticGenericError({message: error.message});
     }
-    const stringArgs = ctx.arguments().argumentList();
-    if (!stringArgs) {
-      return `java.lang.Long.toString(${longstr})`;
-    }
-    const arg = this.checkArguments(lhsType.args, stringArgs).join(', ');
-    return `java.lang.Long.toString(${longstr}, ${arg})`;
+    return `"${longstr}"`;
   }
 };
