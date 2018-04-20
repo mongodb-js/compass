@@ -1,5 +1,6 @@
 import STAGE_OPERATORS from 'constants/stage-operators';
 import generateStage from 'modules/stage';
+import { appRegistryEmit } from 'modules/app-registry';
 
 /**
  * Action name prefix.
@@ -465,6 +466,15 @@ const executeAggregation = (dataService, ns, dispatch, state, index) => {
       cursor.toArray((e, docs) => {
         dispatch(stagePreviewUpdated(docs || [], index, e));
         cursor.close();
+        dispatch(
+          appRegistryEmit(
+            'agg-pipeline-executed',
+            {
+              numStages: state.pipeline.length,
+              stageOperators: state.pipeline.map(s => s.stageOperator)
+            }
+          )
+        );
       });
     });
   } else {

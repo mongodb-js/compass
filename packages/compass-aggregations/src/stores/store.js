@@ -7,6 +7,7 @@ import { dataServiceConnected } from 'modules/data-service';
 import { fieldsChanged } from 'modules/fields';
 import { refreshInputDocuments } from 'modules/input-documents';
 import { serverVersionChanged } from 'modules/server-version';
+import { appRegistryActivated } from 'modules/app-registry';
 
 /**
  * The store has a combined pipeline reducer plus the thunk middleware.
@@ -67,6 +68,11 @@ store.onActivated = (appRegistry) => {
   appRegistry.on('server-version-changed', (version) => {
     store.dispatch(serverVersionChanged(version));
   });
+
+  /**
+   * Set the app registry to use later.
+   */
+  store.dispatch(appRegistryActivated(appRegistry));
 };
 
 export default store;

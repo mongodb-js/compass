@@ -19,6 +19,7 @@ import savedPipeline, {
 } from './saved-pipeline';
 import restorePipeline, { INITIAL_STATE as RESTORE_PIPELINE_STATE} from './restore-pipeline';
 import { getObjectStore } from 'utils/indexed-db';
+import { appRegistryEmit } from 'modules/app-registry';
 
 /**
  * The intial state of the root reducer.
@@ -263,11 +264,12 @@ export const clonePipeline = () => ({
  * @returns {Function} The thunk function.
  */
 export const deletePipeline = (pipelineId) => {
-  return (dispatch) => {
+  return (dispatch, getState) => {
     getObjectStore('readwrite', (store) => {
       store.delete(pipelineId).onsuccess = () => {
         dispatch(updatePipelineList());
         dispatch(clearPipeline());
+        dispatch(appRegistryEmit('agg-pipeline-deleted', { name: getState().name }));
       };
     });
   };
