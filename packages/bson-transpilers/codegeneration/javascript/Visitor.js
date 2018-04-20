@@ -391,12 +391,15 @@ class Visitor extends ECMAScriptVisitor {
           args[i].type === this.Types._integer ||
           args[i].type === this.Types._decimal ||
           args[i].type === this.Types._hex ||
-          args[i].type === this.Types._octal)) {
+          args[i].type === this.Types._octal ||
+          args[i].type === this.Types.Double ||
+          args[i].type === this.Types.Int32 ||
+          args[i].type === this.Types.Long)) {
         continue;
       }
       if (expected[i].indexOf(args[i].type) === -1 && expected[i].indexOf(args[i].type.id) === -1) {
         const message = `expected types ${expected[i].map((e) => {
-          return e.id ? e.id : e;
+          return e ? e.id ? e.id : e : '[optional]';
         })} but got type ${args[i].type.id} for argument at index ${i}`;
 
         throw new SemanticTypeError({message});
