@@ -1,16 +1,17 @@
-// const compiler = require('bson-compilers');
+const compiler = require('bson-compilers');
 
 const PREFIX = 'exportQuery';
 
 export const RUN_QUERY = `${PREFIX}/RUN_QUERY`;
 export const COPY_QUERY = `${PREFIX}/COPY_QUERY`;
 export const CLEAR_COPY = `${PREFIX}/CLEAR_COPY`;
+export const QUERY_ERROR = `${PREFIX}/QUERY_ERROR`;
 
 export const INITIAL_STATE = {
-  compilerError: '',
   copySuccess: '',
   returnQuery: '',
-  copyError: ''
+  queryError: null,
+  copyError: null
 };
 
 function getClearCopy(state, action) {
@@ -22,7 +23,6 @@ function getClearCopy(state, action) {
 }
 
 function copyToClipboard(state, action) {
-  console.log('copying to clipboard');
   action.input.select();
   const copy = document.execCommand('copy');
   const newState = copy
@@ -32,34 +32,37 @@ function copyToClipboard(state, action) {
   return newState;
 }
 
-function getExportOutput(state, action) {
-  console.log('getting to export', action.outputLang, action.input);
-  // try {
-  //   var output = compiler.javascript[action.outputLang](action.input)
-  // } catch (e) {
-  //   console.log(e)
-  // }
+export const runQuery = (outputLang, input) => {
+  return (dispatch, getState) => {
+    const state = getState();
 
-  return { ...state, returnQuery: action.input };
-}
+    try {
+      const output = compiler.javascript[outputLang](input);
+      state.exportQuery.returnQuery = output;
+      state.exportQuery.queryError = null;
+      return state;
+    } catch (e) {
+      return dispatch(queryError(e.message));
+    }
+  };
+};
 
 export default function reducer(state = INITIAL_STATE, action) {
-  if (action.type === RUN_QUERY) return getExportOutput(state, action);
+  if (action.type === QUERY_ERROR) return { ...state, queryError: action.error };
   if (action.type === COPY_QUERY) return copyToClipboard(state, action);
   if (action.type === CLEAR_COPY) return getClearCopy(state, action);
 
   return state;
 }
 
-export const runQuery = (outputLang, input) => ({
-  outputLang: outputLang,
-  type: RUN_QUERY,
-  input: input
-});
-
 export const copyQuery = (input) => ({
   type: COPY_QUERY,
   input: input
+});
+
+export const queryError = (error) => ({
+  type: QUERY_ERROR,
+  error: error
 });
 
 export const clearCopy = (copyType) => ({

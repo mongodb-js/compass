@@ -6,13 +6,43 @@
     border-color: #b1e0e6;
     padding: 10px;
   }
+
+  &-error {
+    margin-top: 10px;
+    padding: 10px;
+  }
+
+  &-input-select {
+    width: 20%;
+    margin-bottom: 10px;
+    z-index: 100;
+    text-transform: uppercase;
+    font-weight: 600;
+  }
+
+  &-query {
+    padding: 10px 0;
+    overflow: hidden;
+    background: #f5f6f7;
+    border-radius: 3px;
+    border-left: 2px solid #E4E4E4;
+
+    &-error {
+      padding: 10px 0;
+      overflow: hidden;
+      background: #f5f6f7;
+      border-radius: 3px;
+      border: 1px solid #ff473a;
+    }
+  }
+
   &-output {
     display: flex;
     flex-direction: row;
     justify-items: space-between;
 
     &-select {
-      flex: 0.5 0 0;
+      flex: 0.9 0 0;
       text-transform: uppercase;
       font-weight: 600;
     }
@@ -26,6 +56,7 @@
       border-radius: 4px;
       box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075);
     } 
+
     &-copy-btn {
       height: 33px;
       margin-left: 10px;

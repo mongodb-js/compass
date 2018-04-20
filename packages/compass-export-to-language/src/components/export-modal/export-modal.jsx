@@ -35,25 +35,24 @@ class ExportModal extends Component {
   // store the current query in state before we pass it to reducer
   state = {
     queryInputValue: '',
-    selectedLang: ''
+    outputLang: ''
   }
 
-  queryInputEvent = (evt) => {
+  queryInputEvent = (value) => {
     this.setState({
-      queryInputValue: evt.target.value
+      queryInputValue: value
     });
   }
 
   // save state, and pass in the current selected lang
-  handleSelect = (selectedLang) => {
-    this.setState({ selectedLang });
-    this.props.runQuery(selectedLang.value, this.state.queryInputValue);
+  handleOutputSelect = (outputLang) => {
+    this.setState({ outputLang });
+    this.props.runQuery(outputLang.value, this.state.queryInputValue);
   }
 
   copyHandler = (evt) => {
     evt.preventDefault();
     const input = document.getElementById('export-to-lang-form-output-return');
-    console.log('input', input);
     this.props.copyQuery(input);
   }
 
@@ -63,7 +62,7 @@ class ExportModal extends Component {
    * @returns {Component} The component.
    */
   render() {
-    const langOptions = [
+    const langOuputOptions = [
       { value: 'java', label: 'Java' },
       { value: 'node', label: 'Node' },
       { value: 'csharp', label: 'C#' },
@@ -77,8 +76,16 @@ class ExportModal extends Component {
       [ styles['export-to-lang-form-output-copy-btn'] ]: true
     });
 
-    const selectedLang = this.state.selectedLang;
-    const selectedValue = selectedLang && selectedLang.value;
+    const queryStyle = this.props.exportQuery.queryError
+      ? classnames(styles['export-to-lang-form-query-error'])
+      : classnames(styles['export-to-lang-form-query']);
+
+    const outputLang = this.state.outputLang;
+    const selectedOutputValue = outputLang && outputLang.value;
+
+    const errorDiv = this.props.exportQuery.queryError
+      ? <Alert bsStyle="danger" className={classnames(styles['export-to-lang-form-error'])} children={this.props.exportQuery.queryError}/>
+      : '';
 
     return (
       <Modal
@@ -97,25 +104,21 @@ class ExportModal extends Component {
               data-test-id="export-to-lang">
             <div className="form-group">
               <Alert
-                level="info"
                 className={classnames(styles['export-to-lang-form-alert'])}
-                children="PROJECT, SORT, SKIP, LIMIT options are not included as part of the exported query."
-                dismissible="falsek"/>
+                children="PROJECT, SORT, SKIP, LIMIT options are not included as part of the exported query."/>
               <p>My Query</p>
-              <input
-                autoFocus
-                type="text"
-                className="form-control"
-                id="export-to-lang-form-query"
-                name="Query"
-                value={this.state.queryInputValue}
-                onChange={this.queryInputEvent} />
-              <AceEditor
-                mode="javascript"
-                theme="mongodb"
-                width="100%"
-                editorProps={{ $blockScrolling: Infinity }}
-                setOptions={OPTIONS}/>
+              <div className={queryStyle}>
+                <AceEditor
+                  mode="javascript"
+                  className="export-to-lang-form-query-input"
+                  theme="mongodb"
+                  value={this.state.queryInputValue}
+                  onChange={this.queryInputEvent}
+                  width="100%"
+                  editorProps={{$blockScrolling: Infinity}}
+                  setOptions={OPTIONS}/>
+              </div>
+              {errorDiv}
             </div>
             <div>
               <p>Export Query To</p>
@@ -126,9 +129,9 @@ class ExportModal extends Component {
                   searchable={false}
                   clearable={false}
                   placeholder="Java"
-                  value={selectedValue}
-                  onChange={this.handleSelect}
-                  options={langOptions}/>
+                  value={selectedOutputValue}
+                  onChange={this.handleOutputSelect}
+                  options={langOuputOptions}/>
                 <input
                   type="text"
                   className={classnames(styles['export-to-lang-form-output-return'])}
@@ -147,7 +150,7 @@ class ExportModal extends Component {
           <TextButton
             className="btn btn-default btn-sm"
             text="Close"
-            clickHandler={this.closeClickHandler} />
+            clickHandler={()=>{}} />
         </Modal.Footer>
       </Modal>
     );
