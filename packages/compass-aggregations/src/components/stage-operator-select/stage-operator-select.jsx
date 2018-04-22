@@ -46,6 +46,7 @@ class StageOperatorSelect extends PureComponent {
           simpleValue
           searchable
           openOnClick
+          openOnFocus
           clearable={false}
           className={classnames(styles['stage-operator-select-control'])}
           options={operators}
