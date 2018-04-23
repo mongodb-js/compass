@@ -476,7 +476,7 @@ Templates:
         }
     NumberSymbolTemplate: &NumberSymbolTemplate !!js/function >
         () => {
-            return 'java.lang.Integer';
+            return 'java.lang.Long';
         }
     NumberSymbolArgsTemplate: &NumberSymbolArgsTemplate null
     DateSymbolTemplate: &DateSymbolTemplate null

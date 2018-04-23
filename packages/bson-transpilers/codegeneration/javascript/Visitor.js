@@ -368,15 +368,17 @@ class Visitor extends ECMAScriptVisitor {
    */
   castType(expected, actual) {
     const result = this.visit(actual);
-    const numeric_types = [
-      this.Types._integer, this.Types._decimal, this.Types._hex, this.Types._octal, this.Types._long
-    ];
 
+    // If the types are exactly the same
     if (expected.indexOf(actual.type) !== -1 ||
         expected.indexOf(actual.type.id) !== -1) {
       return result;
     }
 
+    const numeric_types = [
+      this.Types._integer, this.Types._decimal, this.Types._hex, this.Types._octal, this.Types._long, this.Types._numeric
+    ];
+    // If the expected type is numeric, accept the numeric basic types + numeric bson types
     if (expected.indexOf(this.Types._numeric) !== -1 &&
        (numeric_types.indexOf(actual.type) !== -1 ||
          (actual.type.id === 'Long' ||
@@ -385,6 +387,7 @@ class Visitor extends ECMAScriptVisitor {
       return result;
     }
 
+    // Check if the arguments are both numeric. If so then cast to expected type.
     for (let i = 0; i < expected.length; i++) {
       if (numeric_types.indexOf(actual.type) !== -1 &&
         numeric_types.indexOf(expected[i]) !== -1) {

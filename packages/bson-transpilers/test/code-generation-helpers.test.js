@@ -63,7 +63,7 @@ describe('CodeGeneration helper functions', () => {
     compiler.Types = Object.assign({}, doc.BasicTypes, doc.BsonTypes);
     compiler.Symbols = Object.assign(
       { TestFunc: { callable: 2, args: [], template: null, argsTemplate: null, id: 'TestFunc', type: null }},
-      doc.BsonSymbols);
+      doc.BsonSymbols, doc.JSSymbols);
     compiler.SYMBOL_TYPE = doc.SymbolTypes;
     it('defaults to long', () => {
       const str = getTree('1');
@@ -89,10 +89,25 @@ describe('CodeGeneration helper functions', () => {
       ];
       expect(compiler.start(str)).to.equal('TestFunc(new java.lang.Long(10), new java.lang.Float(10.01), 0x6, 05)');
     });
+    it('casts long, dec, hex, octal, and Number to long', () => {
+      const str = getTree('TestFunc(10, 10.01, 0x6, 0o5, Number(99))');
+      compiler.Symbols.TestFunc.args = [
+        [compiler.Types._long],
+        [compiler.Types._long],
+        [compiler.Types._long],
+        [compiler.Types._long],
+        [compiler.Types._long]
+      ];
+      expect(compiler.start(str)).to.equal('TestFunc(new java.lang.Long(10), new java.lang.Long(10.01), new java.lang.Long(0x6), new java.lang.Long(0o5), new java.lang.Long(99))');
+    });
     it('casts with optional', () => {
       const str = getTree('TestFunc(100)');
       compiler.Symbols.TestFunc.args = [ [compiler.Types._decimal, null] ];
       expect(compiler.start(str)).to.equal('TestFunc(new java.lang.Float(100))');
+    });
+    it('accepts Number', () => {
+      const str = getTree('Number(1)');
+      expect(compiler.start(str)).to.equal('new java.lang.Long(1)');
     });
   });
 });
