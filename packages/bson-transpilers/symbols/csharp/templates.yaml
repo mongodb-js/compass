@@ -2,20 +2,72 @@
 Templates:
     # BSON Object Type templates
     CodeTypeTemplate: &CodeTypeTemplate null
-    StringTypeTemplate: &StringTypeTemplate null
+    StringTypeTemplate: &StringTypeTemplate !!js/function >
+        (str) => {
+          let newStr = str;
+          if (
+            (str.charAt(0) === '\'' && str.charAt(str.length - 1) === '\'') ||
+            (str.charAt(0) === '"' && str.charAt(str.length - 1) === '"')) {
+            newStr = str.substr(1, str.length - 2);
+          }
+          return `"${newStr.replace(/\\([\s\S])|(")/g, '\\$1$2')}"`;
+        }
     RegexTypeTemplate: &RegexTypeTemplate null
     BoolTypeTemplate: &BoolTypeTemplate null
     IntegerTypeTemplate: &IntegerTypeTemplate null
     DecimalTypeTemplate: &DecimalTypeTemplate null
     LongBasicTypeTemplate: &LongBasicTypeTemplate null
     HexTypeTemplate: &HexTypeTemplate null
-    OctalTypeTemplate: &OctalTypeTemplate null
+    OctalTypeTemplate: &OctalTypeTemplate !!js/function >
+        (literal) => {
+          if ((literal.charAt(0) === '0' && literal.charAt(1) === '0') ||
+            (literal.charAt(0) === '0' && (literal.charAt(1) === 'o' || literal.charAt(1) === 'O'))) {
+            return `0${literal.substr(2, literal.length - 1)}`;
+          }
+          return literal;
+        }
     NumericTypeTemplate: &NumericTypeTemplate null
-    ArrayTypeTemplate: &ArrayTypeTemplate null
-    NullTypeTemplate: &NullTypeTemplate null
-    UndefinedTypeTemplate: &UndefinedTypeTemplate null
-    ObjectTypeTemplate: &ObjectTypeTemplate null
-    ObjectTypeArgsTemplate: &ObjectTypeArgsTemplate null
+    ArrayTypeTemplate: &ArrayTypeTemplate !!js/function >
+        (literal) => {
+          return `new BsonArray{${literal}}`;
+        }
+    NullTypeTemplate: &NullTypeTemplate !!js/function >
+        () => {
+          return 'BsonNull.value';
+        }
+    UndefinedTypeTemplate: &UndefinedTypeTemplate !!js/function >
+        () => {
+          return 'BsonUndefined.Value';
+        }
+    ObjectTypeTemplate: &ObjectTypeTemplate !!js/function >
+        (literal) => {
+          console.log('literal', literal)
+          if (literal === '') {
+            return `new BsonDocument()`;
+          } else {
+            return `new BsonDocument${literal}`;
+          }
+        }
+    ObjectTypeArgsTemplate: &ObjectTypeArgsTemplate !!js/function >
+        (args) => {
+          return args.reduce((str, pair) => {
+
+            let newStr = pair[0];
+            if (
+                (pair[0].charAt(0) === '\'' && pair[0].charAt(pair[0].length - 1) === '\'') ||
+                (pair[0].charAt(0) === '"' && pair[0].charAt(pair[0].length - 1) === '"')) {
+                    newStr = pair[0].substr(1, pair[0].length - 2);
+                    console.log('new str in if', newStr)
+            }
+            newStr = `"${newStr.replace(/\\([\s\S])|(")/g, '\\$1$2')}"`;
+
+            if (str !== '') {
+              return `{ ${str.replace(/\((.*)\)/, "{ $1 }")}, { ${newStr}, ${pair[1]} } }`;
+            } else {
+              return `(${newStr}, ${pair[1]})`;
+            }
+          }, '');
+        }
     # BSON Object Method templates
     ObjectIdToStringTemplate: &ObjectIdToStringTemplate null
     ObjectIdToStringArgsTemplate: &ObjectIdToStringArgsTemplate null
@@ -187,7 +239,10 @@ Templates:
     # JS Symbol Templates
     ObjectSymbolTemplate: &ObjectSymbolTemplate null
     ObjectSymbolArgsTemplate: &ObjectSymbolArgsTemplate null
-    ObjectSymbolCreateTemplate: &ObjectSymbolCreateTemplate null
+    ObjectSymbolCreateTemplate: &ObjectSymbolCreateTemplate !!js/function >
+        () => {
+            return '';
+        }
     ObjectSymbolCreateArgsTemplate: &ObjectSymbolCreateArgsTemplate null
     NumberSymbolTemplate: &NumberSymbolTemplate null
     NumberSymbolArgsTemplate: &NumberSymbolArgsTemplate null

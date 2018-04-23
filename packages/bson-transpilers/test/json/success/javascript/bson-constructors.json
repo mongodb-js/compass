@@ -340,8 +340,7 @@
         "javascript": "{x: '1', n: '4'}",
         "python": "{'x': '1', 'n': '4'}",
         "java": "new Document().append(\"x\", \"1\").append(\"n\", \"4\")",
-        "csharp": "new BsonDocument { { \"x\", \"1\" }, { \"n\", \"4\" } }",
-        "shell": ""
+        "csharp": "new BsonDocument{ { \"x\", \"1\" }, { \"n\", \"4\" } }"
       }
     ],
     "Array": [

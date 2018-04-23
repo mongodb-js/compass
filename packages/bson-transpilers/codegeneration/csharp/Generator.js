@@ -1,3 +1,5 @@
+/* eslint complexity: 0 */
+const {doubleQuoteStringify} = require('../../helper/format');
 const {
   SemanticArgumentCountMismatchError,
   SemanticGenericError,
@@ -5,12 +7,33 @@ const {
 } = require('../../helper/error');
 
 module.exports = (superclass) => class ExtendedVisitor extends superclass {
+  constructor() {
+    super();
+    this.new = 'new ';
+    this.regex_flags = {
+      i: 'RegexOptions.IgnoreCase',
+      m: 'RegexOptions.Multiline',
+      u: '',
+      y: '',
+      g: ''
+    };
+    this.binary_subTypes = {
+      0: 'org.bson.BsonBinarySubType.BINARY',
+      1: 'org.bson.BsonBinarySubType.FUNCTION',
+      2: 'org.bson.BsonBinarySubType.BINARY',
+      3: 'org.bson.BsonBinarySubType.UUID_LEGACY',
+      4: 'org.bson.BsonBinarySubType.UUID',
+      5: 'org.bson.BsonBinarySubType.MD5',
+      128: 'org.bson.BsonBinarySubType.USER_DEFINED'
+    };
+  }
+
   // assign a string type to current ctx
   // get double quotes around the string
   visitStringLiteral(ctx) {
     ctx.type = this.Types._string;
 
-    return this.doubleQuoteStringify(this.visitChildren(ctx));
+    return doubleQuoteStringify(this.visitChildren(ctx));
   }
 
   // there is no undefined in c#
@@ -169,7 +192,7 @@ module.exports = (superclass) => class ExtendedVisitor extends superclass {
           });
         }
 
-        flags = this.doubleQuoteStringify(flags.join(''));
+        flags = doubleQuoteStringify(flags.join(''));
       }
 
       return `new BsonRegularExpression(@${pattern}, ${flags})`;
@@ -183,7 +206,7 @@ module.exports = (superclass) => class ExtendedVisitor extends superclass {
    * @return {String}
    */
   visitPropertyAssignmentExpression(ctx) {
-    const key = this.doubleQuoteStringify(this.visit(ctx.propertyName()));
+    const key = doubleQuoteStringify(this.visit(ctx.propertyName()));
     const value = this.visit(ctx.singleExpression());
 
     return `${key}, ${value}`;
@@ -206,28 +229,6 @@ module.exports = (superclass) => class ExtendedVisitor extends superclass {
   }
 
   /**
-   * Visit Object Literal
-   *
-   * @param {object} ctx
-   * @returns {string}
-   */
-  visitObjectLiteral(ctx) {
-    ctx.type = this.Types._object;
-
-    if (ctx.getChildCount() === 2) {
-      return 'new BsonDocument()';
-    }
-
-    if (ctx.propertyNameAndValueList().getChildCount() === 1) {
-      return `new BsonDocument(${this.visit(ctx.propertyNameAndValueList())})`;
-    }
-
-    const props = this.visit(ctx.propertyNameAndValueList());
-
-    return `new BsonDocument { ${props} }`;
-  }
-
-  /**
    * Visit Code Constructor
    *
    * @param {object} ctx
@@ -244,7 +245,7 @@ module.exports = (superclass) => class ExtendedVisitor extends superclass {
     }
 
     const argumentListExpression = argumentList.singleExpression();
-    const code = this.doubleQuoteStringify(argumentListExpression[0].getText());
+    const code = doubleQuoteStringify(argumentListExpression[0].getText());
 
     if (argumentListExpression.length === 2) {
       /* NOTE: we have to visit the subtree first before type checking or type may
@@ -292,7 +293,7 @@ module.exports = (superclass) => class ExtendedVisitor extends superclass {
       throw new SemanticGenericError({message: error.message});
     }
 
-    return `new BsonObjectId(${this.doubleQuoteStringify(hexstr)})`;
+    return `new BsonObjectId(${doubleQuoteStringify(hexstr)})`;
   }
 
   /**
@@ -332,7 +333,7 @@ module.exports = (superclass) => class ExtendedVisitor extends superclass {
     }
 
     const argumentListExpression = argumentList.singleExpression();
-    const bytes = this.doubleQuoteStringify(binobj.toString());
+    const bytes = doubleQuoteStringify(binobj.toString());
 
     if (argumentListExpression.length === 1) {
       return `new BsonBinaryData(System.Text.Encoding.ASCII.GetBytes(${bytes}))`;
@@ -369,7 +370,7 @@ module.exports = (superclass) => class ExtendedVisitor extends superclass {
       });
     }
 
-    double = this.doubleQuoteStringify(double);
+    double = doubleQuoteStringify(double);
 
     return `new BsonDouble(Convert.ToDouble(${double}))`;
   }
