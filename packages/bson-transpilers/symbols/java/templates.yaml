@@ -15,7 +15,10 @@ Templates:
     RegexTypeTemplate: &RegexTypeTemplate null
     BoolTypeTemplate: &BoolTypeTemplate null
     IntegerTypeTemplate: &IntegerTypeTemplate null
-    DecimalTypeTemplate: &DecimalTypeTemplate null
+    DecimalTypeTemplate: &DecimalTypeTemplate !!js/function >
+        (literal) => {
+            return `new java.lang.Float(${literal})`;
+        }
     HexTypeTemplate: &HexTypeTemplate null
     OctalTypeTemplate: &OctalTypeTemplate !!js/function >
         (literal) => {

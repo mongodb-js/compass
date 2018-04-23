@@ -12,7 +12,7 @@
         "description": "createFromTime",
         "javascript": "ObjectId.createFromTime(1522075031642)",
         "python": "",
-        "java": "new ObjectId(new java.util.Date(1522075031642))",
+        "java": "new ObjectId(new java.util.Date(new java.lang.Long(\"1522075031642\")))",
         "csharp": ""
       },
       {

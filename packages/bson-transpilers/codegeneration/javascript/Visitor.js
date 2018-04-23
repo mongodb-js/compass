@@ -64,7 +64,9 @@ class Visitor extends ECMAScriptVisitor {
    * @return {String}
    */
   visitLiteralExpression(ctx) {
-    ctx.type = this.getPrimitiveType(ctx.literal());
+    if (!ctx.type) {
+      ctx.type = this.getPrimitiveType(ctx.literal());
+    }
 
     if (`emit${ctx.type.id}` in this) {
       return this[`emit${ctx.type.id}`](ctx);
@@ -290,7 +292,7 @@ class Visitor extends ECMAScriptVisitor {
     if ('numericLiteral' in ctx) {
       const number = ctx.numericLiteral();
       if ('IntegerLiteral' in number) {
-        return this.Types._integer;
+        return this.Types.Long;
       }
       if ('DecimalLiteral' in number) {
         return this.Types._decimal;
@@ -358,6 +360,40 @@ class Visitor extends ECMAScriptVisitor {
   }
 
   /**
+   * Convert between types. TODO: add 'castTo' field to symbols?
+   * @param {Array} expected - types to cast to.
+   * @param {Symbol} actual - type to cast from, if valid.
+   *
+   * @returns {String} - visited result, or null on error.
+   */
+  castType(expected, actual) {
+    const result = this.visit(actual);
+    const numeric_types = [
+      this.Types._integer, this.Types._decimal, this.Types._hex, this.Types._octal,
+      this.Types.Double, this.Types.Int32, this.Types.Long
+    ];
+
+    if (expected.indexOf(actual.type) !== -1 ||
+        expected.indexOf(actual.type.id) !== -1) {
+      return result;
+    }
+
+    if (expected.indexOf(this.Types._numeric) !== -1 &&
+        numeric_types.indexOf(actual.type) !== -1) {
+      return result;
+    }
+
+    for (let i = 0; i < expected.length; i++) {
+      if (numeric_types.indexOf(actual.type) !== -1 &&
+        numeric_types.indexOf(expected[i]) !== -1) {
+        actual.type = expected[i];
+        return this.visit(actual);
+      }
+    }
+    return null;
+  }
+
+  /**
    *
    * @param {Array} expected - An array of arrays where each subarray represents
    * possible argument types for that index.
@@ -386,24 +422,15 @@ class Visitor extends ECMAScriptVisitor {
         }
         throw new SemanticArgumentCountMismatchError({message: 'too few arguments'});
       }
-      argStr.push(this.visit(args[i]));
-      if (expected[i].indexOf(this.Types._numeric) !== -1 && (
-          args[i].type === this.Types._integer ||
-          args[i].type === this.Types._decimal ||
-          args[i].type === this.Types._hex ||
-          args[i].type === this.Types._octal ||
-          args[i].type === this.Types.Double ||
-          args[i].type === this.Types.Int32 ||
-          args[i].type === this.Types.Long)) {
-        continue;
-      }
-      if (expected[i].indexOf(args[i].type) === -1 && expected[i].indexOf(args[i].type.id) === -1) {
+      const result = this.castType(expected[i], args[i]);
+      if (result === null) {
         const message = `expected types ${expected[i].map((e) => {
           return e ? e.id ? e.id : e : '[optional]';
         })} but got type ${args[i].type.id} for argument at index ${i}`;
 
         throw new SemanticTypeError({message});
       }
+      argStr.push(result);
     }
     return argStr;
   }

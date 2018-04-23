@@ -2,8 +2,8 @@ const { readJSON, runTest } = require('./helpers');
 const fs = require('fs');
 const path = require('path');
 
-const outputLanguages = ['java', 'python', 'csharp'];
-const inputLanguages = ['javascript', 'shell'];
+const outputLanguages = ['java'];
+const inputLanguages = ['javascript'];
 
 describe('Test', () => {
   const pSuccess = path.join(__dirname, 'json', 'success');

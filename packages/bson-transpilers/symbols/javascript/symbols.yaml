@@ -107,7 +107,7 @@ BsonSymbols:
         id: "Double"
         callable: *constructor
         args:
-            - [ *NumericType, *StringType ]
+            - [ *IntegerType, *StringType ]
         type: *DoubleType
         attr: {}
         template: *DoubleSymbolTemplate
@@ -116,7 +116,7 @@ BsonSymbols:
         id: "Int32"
         callable: *constructor
         args:
-            - [ *NumericType, *StringType ]
+            - [ *IntegerType, *StringType ]
         type: *Int32Type
         attr: {}
         template: *Int32SymbolTemplate
@@ -125,8 +125,8 @@ BsonSymbols:
         id: "Long"
         callable: *constructor
         args:
-            - [ *NumericType ]
-            - [ *NumericType ]
+            - [ *IntegerType ]
+            - [ *IntegerType ]
         type: *LongType
         attr:
             MAX_VALUE:
@@ -229,8 +229,8 @@ BsonSymbols:
         id: "Timestamp"
         callable: *constructor
         args:
-            - [ *NumericType ]
-            - [ *NumericType ]
+            - [ *IntegerType ]
+            - [ *IntegerType ]
         type: *TimestampType
         attr: {}
         template: *TimestampSymbolTemplate
@@ -295,7 +295,7 @@ JSSymbols:
         id: "Number"
         callable: *constructor
         args:
-            - [ *NumericType, *StringType ]
+            - [ *IntegerType, *StringType ]
         type: *NumericType
         attr: {} # TODO: no built-in number funcs added yet
         template: *NumberSymbolTemplate
