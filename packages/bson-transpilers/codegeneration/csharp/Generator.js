@@ -1,5 +1,9 @@
 /* eslint complexity: 0 */
+<<<<<<< HEAD
 const { doubleQuoteStringify, removeQuotes } = require('../../helper/format');
+=======
+const {doubleQuoteStringify} = require('../../helper/format');
+>>>>>>> work with objects and arrays
 const {
   SemanticArgumentCountMismatchError,
   SemanticGenericError,
