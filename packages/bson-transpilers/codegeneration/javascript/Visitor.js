@@ -292,7 +292,7 @@ class Visitor extends ECMAScriptVisitor {
     if ('numericLiteral' in ctx) {
       const number = ctx.numericLiteral();
       if ('IntegerLiteral' in number) {
-        return this.Types.Long;
+        return this.Types._long;
       }
       if ('DecimalLiteral' in number) {
         return this.Types._decimal;
@@ -369,8 +369,7 @@ class Visitor extends ECMAScriptVisitor {
   castType(expected, actual) {
     const result = this.visit(actual);
     const numeric_types = [
-      this.Types._integer, this.Types._decimal, this.Types._hex, this.Types._octal,
-      this.Types.Double, this.Types.Int32, this.Types.Long
+      this.Types._integer, this.Types._decimal, this.Types._hex, this.Types._octal, this.Types._long
     ];
 
     if (expected.indexOf(actual.type) !== -1 ||
@@ -379,7 +378,10 @@ class Visitor extends ECMAScriptVisitor {
     }
 
     if (expected.indexOf(this.Types._numeric) !== -1 &&
-        numeric_types.indexOf(actual.type) !== -1) {
+       (numeric_types.indexOf(actual.type) !== -1 ||
+         (actual.type.id === 'Long' ||
+          actual.type.id === 'Int32' ||
+          actual.type.id === 'Double'))) {
       return result;
     }
 

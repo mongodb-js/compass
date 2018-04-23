@@ -78,5 +78,6 @@ module.exports = {
     python: getCompiler(ShellVisitor, PythonGenerator, shellpythonsymbols),
     csharp: getCompiler(ShellVisitor, CsharpGenerator, shellcsharpsymbols),
     javascript: getCompiler(ShellVisitor, JavascriptGenerator, shelljavascriptsymbols)
-  }
+  },
+  getTree: loadTree
 };

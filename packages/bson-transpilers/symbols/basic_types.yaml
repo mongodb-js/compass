@@ -18,6 +18,10 @@ BasicTypes:
         <<: *__type
         id: "_integer"
         template: *IntegerTypeTemplate
+    _long: &LongBasictype
+        <<: *__type
+        id: "_long"
+        template: *LongBasicTypeTemplate
     _decimal: &DecimalType
         <<: *__type
         id: "_decimal"

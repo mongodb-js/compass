@@ -5,14 +5,14 @@
         "description": "simple addition",
         "javascript": "2+5",
         "python": "2+5",
-        "java": "new java.lang.Long(\"2\")+new java.lang.Long(\"5\")",
+        "java": "new java.lang.Long(2)+new java.lang.Long(5)",
         "csharp": "2+5"
       },
       {
         "description": "multiplication and division",
         "javascript": "2+(4*36)/3",
         "python": "2+(4*36)/3",
-        "java": "new java.lang.Long(\"2\")+(new java.lang.Long(\"4\")*new java.lang.Long(\"36\"))/new java.lang.Long(\"3\")",
+        "java": "new java.lang.Long(2)+(new java.lang.Long(4)*new java.lang.Long(36))/new java.lang.Long(3)",
         "csharp": "2+(4*36)/3"
       }
     ],
@@ -37,7 +37,7 @@
         "description": "Integer 2",
         "javascript": "2",
         "python": "2",
-        "java": "new java.lang.Long(\"2\")",
+        "java": "new java.lang.Long(2)",
         "csharp": "2"
       },
       {

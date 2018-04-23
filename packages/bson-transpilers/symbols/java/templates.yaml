@@ -19,6 +19,10 @@ Templates:
         (literal) => {
             return `new java.lang.Float(${literal})`;
         }
+    LongBasicTypeTemplate: &LongBasicTypeTemplate !!js/function >
+        (literal) => {
+            return `new java.lang.Long(${literal})`;
+        }
     HexTypeTemplate: &HexTypeTemplate null
     OctalTypeTemplate: &OctalTypeTemplate !!js/function >
         (literal) => {
