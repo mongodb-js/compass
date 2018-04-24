@@ -36,8 +36,8 @@
     "less": "^2.7.2",
     "mongodb-data-service": "^11.0.1",
     "prop-types": "^15.5.8",
-    "react": "^15.5.4",
-    "react-dom": "^15.5.4",
+    "react": "^16.3.2",
+    "react-dom": "^16.3.2",
     "reflux": "0.4.1"
   }
 }
