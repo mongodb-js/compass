@@ -18,39 +18,99 @@ module.exports = (superclass) => class ExtendedVisitor extends superclass {
       g: ''
     };
     this.binary_subTypes = {
-      0: 'org.bson.BsonBinarySubType.BINARY',
-      1: 'org.bson.BsonBinarySubType.FUNCTION',
-      2: 'org.bson.BsonBinarySubType.BINARY',
-      3: 'org.bson.BsonBinarySubType.UUID_LEGACY',
-      4: 'org.bson.BsonBinarySubType.UUID',
-      5: 'org.bson.BsonBinarySubType.MD5',
-      128: 'org.bson.BsonBinarySubType.USER_DEFINED'
+      0: 'BsonBinarySubType.Binary',
+      1: 'BsonBinarySubType.Function',
+      2: 'BsonBinarySubType.OldBinary',
+      3: 'BsonBinarySubType.UuidLegacy',
+      4: 'BsonBinarySubType.UuidStandard',
+      5: 'BsonBinarySubType.MD5',
+      128: 'BsonBinarySubType.UserDefined'
     };
   }
 
-  // assign a string type to current ctx
-  // get double quotes around the string
-  visitStringLiteral(ctx) {
-    ctx.type = this.Types._string;
-
-    return doubleQuoteStringify(this.visitChildren(ctx));
-  }
-
-  // there is no undefined in c#
-  visitUndefinedLiteral(ctx) {
-    ctx.type = this.Types._undefined;
-
-    return 'BsonUndefined.Value';
-  }
-
-  // similar to java, we also want to ignore js's `new` expression, and c# always
-  // needs it
-  visitNewExpression(ctx) {
+  emitNew(ctx) {
     const expr = this.visit(ctx.singleExpression());
-
     ctx.type = ctx.singleExpression().type;
-
     return expr;
+  }
+
+  emitCodeFromJS(ctx) {
+    ctx.type = this.Types.Code;
+    const argList = ctx.arguments().argumentList();
+    if (!argList ||
+      !(argList.singleExpression().length === 1 ||
+        argList.singleExpression().length === 2)) {
+      throw new SemanticArgumentCountMismatchError({
+        message: 'Code requires one or two arguments'
+      });
+    }
+    const args = argList.singleExpression();
+    const code = doubleQuoteStringify(args[0].getText());
+
+    if (args.length === 2) {
+      const scope = this.visit(args[1]);
+      if (args[1].type !== this.Types._object) {
+        throw new SemanticTypeError({
+          message: 'Code requires scope to be an object'
+        });
+      }
+      return `new BsonJavaScriptWithScope(@${code}, ${scope})`;
+    }
+
+    return `new BsonJavaScript(@${code})`;
+  }
+
+  emitObjectId(ctx) {
+    ctx.type = this.Types.ObjectId;
+    if (!ctx.arguments().argumentList()) return 'new BsonObjectId()';
+
+    let hexstr;
+    try {
+      hexstr = this.executeJavascript(ctx.getText()).toHexString();
+    } catch (error) {
+      throw new SemanticGenericError({message: error.message});
+    }
+    return `new BsonObjectId(${doubleQuoteStringify(hexstr)})`;
+  }
+
+  emitBinary(ctx) {
+    ctx.type = this.Types.Binary;
+    let type;
+    let binobj;
+    try {
+      binobj = this.executeJavascript(ctx.getText());
+      type = binobj.sub_type;
+    } catch (error) {
+      throw new SemanticGenericError({message: error.message});
+    }
+    const bytes = doubleQuoteStringify(binobj.toString());
+    const argList = ctx.arguments().argumentList().singleExpression();
+    if (argList.length === 1) {
+      return `new BsonBinaryData(System.Text.Encoding.ASCII.GetBytes(${bytes}))`;
+    }
+    return `new BsonBinaryData(System.Text.Encoding.ASCII.GetBytes(${bytes}), ${this.binary_subTypes[type]})`;
+  }
+
+  emitInt32(ctx) {
+    ctx.type = this.Types.Int32;
+    const args = ctx.arguments().argumentList().singleExpression();
+    const expr = args[0].getText();
+    if (expr.indexOf('\'') >= 0 || expr.indexOf('"') >= 0) {
+      return `Int32.Parse(${doubleQuoteStringify(expr.toString())})`;
+    }
+
+    return `Convert.ToInt32(${expr})`;
+  }
+
+  emitLong(ctx) {
+    ctx.type = this.Types.Long;
+    let longstr;
+    try {
+      longstr = this.executeJavascript(ctx.getText()).toString();
+    } catch (error) {
+      throw new SemanticGenericError({message: error.message});
+    }
+    return `new BsonInt64(Convert.ToInt32(${longstr}))`;
   }
 
   // c# does not have octal numbers, so we need to convert it to reg integer
@@ -266,37 +326,6 @@ module.exports = (superclass) => class ExtendedVisitor extends superclass {
   }
 
   /**
-   * this evaluates the code in a sandbox and gets the hex string out of the
-   * ObjectId.
-   *
-   * @param {object} ctx
-   * @returns {string}
-   */
-  visitBSONObjectIdConstructor(ctx) {
-    const argumentList = ctx.arguments().argumentList();
-
-    if (argumentList === null) {
-      return 'new BsonObjectId()';
-    }
-
-    if (argumentList.getChildCount() !== 1) {
-      throw new SemanticArgumentCountMismatchError({
-        message: 'ObjectId requires zero or one argument'
-      });
-    }
-
-    let hexstr;
-
-    try {
-      hexstr = this.executeJavascript(ctx.getText()).toHexString();
-    } catch (error) {
-      throw new SemanticGenericError({message: error.message});
-    }
-
-    return `new BsonObjectId(${doubleQuoteStringify(hexstr)})`;
-  }
-
-  /**
    * Visit Binary Constructor
    *
    * @param {object} ctx
@@ -373,35 +402,6 @@ module.exports = (superclass) => class ExtendedVisitor extends superclass {
     double = doubleQuoteStringify(double);
 
     return `new BsonDouble(Convert.ToDouble(${double}))`;
-  }
-
-  /**
-   * Visit Long Constructor
-   *
-   * @param {object} ctx
-   * @returns {string}
-   */
-  visitBSONLongConstructor(ctx) {
-    const argumentList = ctx.arguments().argumentList();
-
-    if (
-      argumentList === null ||
-      (argumentList.getChildCount() !== 1 && argumentList.getChildCount() !== 3)
-    ) {
-      throw new SemanticArgumentCountMismatchError({
-        message: 'Long requires one or two argument'
-      });
-    }
-
-    let longstr = '';
-
-    try {
-      longstr = this.executeJavascript(ctx.getText()).toString();
-    } catch (error) {
-      throw new SemanticGenericError({message: error.message});
-    }
-
-    return `new BsonInt64(Convert.ToInt32(${longstr}))`;
   }
 
   /**

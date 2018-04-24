@@ -142,7 +142,7 @@
         "javascript": "Int32(3)",
         "python": "int(3)",
         "java": "new java.lang.Integer(3)",
-        "csharp": "",
+        "csharp": "Convert.ToInt32(3)",
         "shell": ""
       },
       {
@@ -150,8 +150,7 @@
         "javascript": "Int32('3')",
         "python": "int('3')",
         "java": "new java.lang.Integer(\"3\")",
-        "csharp": "",
-        "shell": ""
+        "csharp": "Int32.Parse(\"3\")"
       }
     ],
     "Double": [
