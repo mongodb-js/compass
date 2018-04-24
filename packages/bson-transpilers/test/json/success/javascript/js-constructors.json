@@ -27,7 +27,7 @@
       {
         "description": "Number with valid string arg",
         "javascript": "new Number('2')",
-        "python": "int(2)",
+        "python": "int('2')",
         "java": "new java.lang.Long(\"2\")",
         "csharp": "new int(2)"
       }

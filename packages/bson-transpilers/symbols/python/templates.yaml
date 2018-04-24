@@ -1,21 +1,66 @@
-# Java Templates
+# Python Templates
 Templates:
     # BSON Object Type templates
     CodeTypeTemplate: &CodeTypeTemplate null
-    StringTypeTemplate: &StringTypeTemplate null
+    StringTypeTemplate: &StringTypeTemplate !!js/function >
+        (str) => {
+          let newStr = str;
+          if (
+            (str.charAt(0) === '\'' && str.charAt(str.length - 1) === '\'') ||
+            (str.charAt(0) === '"' && str.charAt(str.length - 1) === '"')) {
+            newStr = str.substr(1, str.length - 2);
+          }
+          return `'${newStr.replace(/\\([\s\S])|(")/g, '\\$1$2')}'`;
+        }
     RegexTypeTemplate: &RegexTypeTemplate null
-    BoolTypeTemplate: &BoolTypeTemplate null
+    BoolTypeTemplate: &BoolTypeTemplate !!js/function >
+        (str) => {
+          return `${str.charAt(0).toUpperCase()}${str.slice(1)}`;
+        }
     IntegerTypeTemplate: &IntegerTypeTemplate null
     DecimalTypeTemplate: &DecimalTypeTemplate null
     LongBasicTypeTemplate: &LongBasicTypeTemplate null
     HexTypeTemplate: &HexTypeTemplate null
-    OctalTypeTemplate: &OctalTypeTemplate null
+    OctalTypeTemplate: &OctalTypeTemplate !!js/function >
+        (literal) => {
+            let offset = 0;
+
+            if (
+                literal.charAt(0) === '0' &&
+                (literal.charAt(1) === '0' || literal.charAt(1) === 'o' || literal.charAt(1) === 'O')
+            ) {
+                offset = 2;
+            } else if (literal.charAt(0) === '0') {
+                offset = 1;
+            }
+
+            literal = `0o${literal.substr(offset, literal.length - 1)}`;
+
+            return literal;
+        }
     NumericTypeTemplate: &NumericTypeTemplate null
-    ArrayTypeTemplate: &ArrayTypeTemplate null
-    NullTypeTemplate: &NullTypeTemplate null
-    UndefinedTypeTemplate: &UndefinedTypeTemplate null
-    ObjectTypeTemplate: &ObjectTypeTemplate null
-    ObjectTypeArgsTemplate: &ObjectTypeArgsTemplate null
+    ArrayTypeTemplate: &ArrayTypeTemplate !!js/function >
+        (literal) => {
+            return `[${literal}]`;
+        }
+    NullTypeTemplate: &NullTypeTemplate !!js/function >
+        () => {
+            return 'None';
+        }
+    UndefinedTypeTemplate: &UndefinedTypeTemplate !!js/function >
+        () => {
+            return 'None';
+        }
+    ObjectTypeTemplate: &ObjectTypeTemplate !!js/function >
+        (literal) => {
+            return `{${literal}}`;
+        }
+    ObjectTypeArgsTemplate: &ObjectTypeArgsTemplate !!js/function >
+        (args) => {
+            return args.map((arg) => {
+                return `'${arg[0]}': ${arg[1]}`;
+            }).join(', ');
+        }
     # BSON Object Method templates
     ObjectIdToJSONTemplate: &ObjectIdToJSONTemplate null
     BinaryValueTemplate: &BinaryValueTemplate null
@@ -93,68 +138,152 @@ Templates:
     ObjectIdSymbolArgsTemplate: &ObjectIdSymbolArgsTemplate null
     BinarySymbolTemplate: &BinarySymbolTemplate null # Has emit method
     BinarySymbolArgsTemplate: &BinarySymbolArgsTemplate null
-    BinarySymbolSubtypeDefaultTemplate: &BinarySymbolSubtypeDefaultTemplate null
-    BinarySymbolSubtypeFunctionTemplate: &BinarySymbolSubtypeFunctionTemplate null
-    BinarySymbolSubtypeByteArrayTemplate: &BinarySymbolSubtypeByteArrayTemplate null
-    BinarySymbolSubtypeUuidOldTemplate: &BinarySymbolSubtypeUuidOldTemplate null
-    BinarySymbolSubtypeUuidTemplate: &BinarySymbolSubtypeUuidTemplate null
-    BinarySymbolSubtypeMd5Template: &BinarySymbolSubtypeMd5Template null
-    BinarySymbolSubtypeUserDefinedTemplate: &BinarySymbolSubtypeUserDefinedTemplate null
+    BinarySymbolSubtypeDefaultTemplate: &BinarySymbolSubtypeDefaultTemplate !!js/function >
+        () => {
+            return 'bson.binary.BINARY_SUBTYPE';
+        }
+    BinarySymbolSubtypeFunctionTemplate: &BinarySymbolSubtypeFunctionTemplate !!js/function >
+        () => {
+            return 'bson.binary.FUNCTION_SUBTYPE';
+        }
+    BinarySymbolSubtypeByteArrayTemplate: &BinarySymbolSubtypeByteArrayTemplate !!js/function >
+        () => {
+            return 'bson.binary.OLD_BINARY_SUBTYPE';
+        }
+    BinarySymbolSubtypeUuidOldTemplate: &BinarySymbolSubtypeUuidOldTemplate !!js/function >
+        () => {
+            return 'bson.binary.OLD_UUID_SUBTYPE';
+        }
+    BinarySymbolSubtypeUuidTemplate: &BinarySymbolSubtypeUuidTemplate !!js/function >
+        () => {
+            return 'bson.binary.UUID_SUBTYPE';
+        }
+    BinarySymbolSubtypeMd5Template: &BinarySymbolSubtypeMd5Template !!js/function >
+        () => {
+            return 'bson.binary.MD5_SUBTYPE';
+        }
+    BinarySymbolSubtypeUserDefinedTemplate: &BinarySymbolSubtypeUserDefinedTemplate !!js/function >
+        () => {
+            return 'bson.binary.USER_DEFINED_SUBTYPE';
+        }
     DBRefSymbolTemplate: &DBRefSymbolTemplate null
     DBRefSymbolArgsTemplate: &DBRefSymbolArgsTemplate null
-    DoubleSymbolTemplate: &DoubleSymbolTemplate null
+    DoubleSymbolTemplate: &DoubleSymbolTemplate !!js/function >
+        () => {
+            return 'float';
+        }
     DoubleSymbolArgsTemplate: &DoubleSymbolArgsTemplate null
-    Int32SymbolTemplate: &Int32SymbolTemplate null
+    Int32SymbolTemplate: &Int32SymbolTemplate !!js/function >
+        () => {
+            return 'int';
+        }
     Int32SymbolArgsTemplate: &Int32SymbolArgsTemplate null
-    LongSymbolTemplate: &LongSymbolTemplate null
+    LongSymbolTemplate: &LongSymbolTemplate !!js/function >
+        () => {
+            return 'Int64';
+        }
     LongSymbolArgsTemplate: &LongSymbolArgsTemplate null # Has emit method
     LongSymbolMaxTemplate: &LongSymbolMaxTemplate null
     LongSymbolMaxArgsTemplate: &LongSymbolMaxArgsTemplate null
     LongSymbolMinTemplate: &LongSymbolMinTemplate null
     LongSymbolMinArgsTemplate: &LongSymbolMinArgsTemplate null
-    LongSymbolZeroTemplate: &LongSymbolZeroTemplate null
+    LongSymbolZeroTemplate: &LongSymbolZeroTemplate !!js/function >
+        () => {
+            return 'Int64(0)';
+        }
     LongSymbolZeroArgsTemplate: &LongSymbolZeroArgsTemplate null
-    LongSymbolOneTemplate: &LongSymbolOneTemplate null
+    LongSymbolOneTemplate: &LongSymbolOneTemplate !!js/function >
+        () => {
+            return 'Int64(1)';
+        }
     LongSymbolOneArgsTemplate: &LongSymbolOneArgsTemplate null
-    LongSymbolNegOneTemplate: &LongSymbolNegOneTemplate null
+    LongSymbolNegOneTemplate: &LongSymbolNegOneTemplate !!js/function >
+        () => {
+            return 'Int64(-1)';
+        }
     LongSymbolNegOneArgsTemplate: &LongSymbolNegOneArgsTemplate null
     LongSymbolFromBitsTemplate: &LongSymbolFromBitsTemplate null
     LongSymbolFromBitsArgsTemplate: &LongSymbolFromBitsArgsTemplate null
-    LongSymbolFromIntTemplate: &LongSymbolFromIntTemplate null
+    LongSymbolFromIntTemplate: &LongSymbolFromIntTemplate !!js/function >
+        () => {
+            return 'Int64';
+        }
     LongSymbolFromIntArgsTemplate: &LongSymbolFromIntArgsTemplate null
-    LongSymbolFromNumberTemplate: &LongSymbolFromNumberTemplate null
+    LongSymbolFromNumberTemplate: &LongSymbolFromNumberTemplate !!js/function >
+        () => {
+            return 'Int64';
+        }
     LongSymbolFromNumberArgsTemplate: &LongSymbolFromNumberArgsTemplate null
-    LongSymbolFromStringTemplate: &LongSymbolFromStringTemplate null
+    LongSymbolFromStringTemplate: &LongSymbolFromStringTemplate !!js/function >
+        (lhs) => {
+            return `${lhs}.parseLong`;
+        }
     LongSymbolFromStringArgsTemplate: &LongSymbolFromStringArgsTemplate null
     MinKeySymbolTemplate: &MinKeySymbolTemplate null
     MinKeySymbolArgsTemplate: &MinKeySymbolArgsTemplate null
     MaxKeySymbolTemplate: &MaxKeySymbolTemplate null
     MaxKeySymbolArgsTemplate: &MaxKeySymbolArgsTemplate null
-    TimestampSymbolTemplate: &TimestampSymbolTemplate null
+    TimestampSymbolTemplate: &TimestampSymbolTemplate !!js/function >
+        () => {
+            return 'Timestamp';
+        }
     TimestampSymbolArgsTemplate: &TimestampSymbolArgsTemplate null
-    SymbolSymbolTemplate: &SymbolSymbolTemplate null
-    SymbolSymbolArgsTemplate: &SymbolSymbolArgsTemplate null
+    SymbolSymbolTemplate: &SymbolSymbolTemplate !!js/function >
+        () => {
+            return 'unicode';
+        }
+    SymbolSymbolArgsTemplate: &SymbolSymbolArgsTemplate !!js/function >
+        (lhs, arg) => {
+            return `(${arg}, 'utf-8')`;
+        }
     BSONRegExpSymbolTemplate: &BSONRegExpSymbolTemplate null # Has emit method
     BSONRegExpSymbolArgsTemplate: &BSONRegExpSymbolArgsTemplate null
     Decimal128SymbolTemplate: &Decimal128SymbolTemplate null # Has emit method
     Decimal128SymbolArgsTemplate: &Decimal128SymbolArgsTemplate null
-    Decimal128SymbolFromStringTemplate: &Decimal128SymbolFromStringTemplate null
+    Decimal128SymbolFromStringTemplate: &Decimal128SymbolFromStringTemplate !!js/function >
+        (lhs) => {
+            return `${lhs}.parse`;
+        }
     Decimal128SymbolFromStringArgsTemplate: &Decimal128SymbolFromStringArgsTemplate null
     # BSON Util Templates
-    ObjectIdCreateFromHexStringTemplate: &ObjectIdCreateFromHexStringTemplate null
-    ObjectIdCreateFromHexStringArgsTemplate: &ObjectIdCreateFromHexStringArgsTemplate null
-    ObjectIdCreateFromTimeTemplate: &ObjectIdCreateFromTimeTemplate null
-    ObjectIdCreateFromTimeArgsTemplate: &ObjectIdCreateFromTimeArgsTemplate null
+    ObjectIdCreateFromHexStringTemplate: &ObjectIdCreateFromHexStringTemplate !!js/function >
+        () => {
+            return '';
+        }
+    ObjectIdCreateFromHexStringArgsTemplate: &ObjectIdCreateFromHexStringArgsTemplate !!js/function >
+        (lhs, arg) => {
+            return `ObjectId(${arg})`;
+        }
+    ObjectIdCreateFromTimeTemplate: &ObjectIdCreateFromTimeTemplate !!js/function >
+        () => {
+            return '';
+        }
+    ObjectIdCreateFromTimeArgsTemplate: &ObjectIdCreateFromTimeArgsTemplate !!js/function >
+        (lhs, arg) => {
+            return `ObjectId(new Date(${arg}))`;
+        }
     # JS Symbol Templates
     ObjectSymbolTemplate: &ObjectSymbolTemplate null
     ObjectSymbolArgsTemplate: &ObjectSymbolArgsTemplate null
-    ObjectSymbolCreateTemplate: &ObjectSymbolCreateTemplate null
-    ObjectSymbolCreateArgsTemplate: &ObjectSymbolCreateArgsTemplate null
-    NumberSymbolTemplate: &NumberSymbolTemplate null
+    ObjectSymbolCreateTemplate: &ObjectSymbolCreateTemplate !!js/function >
+        () => {
+            return '';
+        }
+    ObjectSymbolCreateArgsTemplate: &ObjectSymbolCreateArgsTemplate !!js/function >
+        (lhs, arg) => {
+            return arg;
+        }
+    NumberSymbolTemplate: &NumberSymbolTemplate !!js/function >
+        () => {
+            return 'int';
+        }
     NumberSymbolArgsTemplate: &NumberSymbolArgsTemplate null
     DateSymbolTemplate: &DateSymbolTemplate null
     DateSymbolArgsTemplate: &DateSymbolArgsTemplate null
-    DateSymbolNowTemplate: &DateSymbolNowTemplate null
+    DateSymbolNowTemplate: &DateSymbolNowTemplate !!js/function >
+        () => {
+            return 'datetime.datetime';
+        }
     DateSymbolNowArgsTemplate: &DateSymbolNowArgsTemplate null
     RegExpSymbolTemplate: &RegExpSymbolTemplate null
     RegExpSymbolArgsTemplate: &RegExpSymbolArgsTemplate null
