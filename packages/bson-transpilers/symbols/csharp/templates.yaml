@@ -1,4 +1,4 @@
-# Java Templates
+# C# Templates
 Templates:
     # BSON Object Type templates
     CodeTypeTemplate: &CodeTypeTemplate null
@@ -377,7 +377,10 @@ Templates:
         () => {
           return 'BsonBinarySubType.UserDefined';
         }
-    DBRefSymbolTemplate: &DBRefSymbolTemplate null
+    DBRefSymbolTemplate: &DBRefSymbolTemplate !!js/function >
+        () => {
+          return 'MongoDBRef'
+        }
     DBRefSymbolArgsTemplate: &DBRefSymbolArgsTemplate null
     DoubleSymbolTemplate: &DoubleSymbolTemplate !!js/function >
         (literal) => {
@@ -428,7 +431,7 @@ Templates:
         }
     SymbolSymbolArgsTemplate: &SymbolSymbolArgsTemplate null
     BSONRegExpSymbolTemplate: &BSONRegExpSymbolTemplate null # Has emit method
-    BSONRegExpSymbolArgsTemplate: &BSONRegExpSymbolArgsTemplate null
+    BSONRegExpSymbolArgsTemplate: &BSONRegExpSymbolArgsTemplate null # Has emit method
     Decimal128SymbolTemplate: &Decimal128SymbolTemplate null # Has emit method
     Decimal128SymbolArgsTemplate: &Decimal128SymbolArgsTemplate null
     Decimal128SymbolFromStringTemplate: &Decimal128SymbolFromStringTemplate !!js/function >

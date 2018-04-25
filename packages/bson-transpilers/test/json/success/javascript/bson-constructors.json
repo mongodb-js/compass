@@ -124,7 +124,7 @@
         "javascript": "new DBRef('coll', new ObjectId())",
         "python": "DBRef('coll', ObjectId())",
         "java": "new DBRef(\"coll\", new ObjectId())",
-        "csharp": "DBRef(\"coll\", new BsonObjectId())",
+        "csharp": "new MongoDBRef(\"coll\", new BsonObjectId())",
         "shell": ""
       },
       {
@@ -132,8 +132,7 @@
         "javascript": "new DBRef('coll', ObjectId(), 'db')",
         "python": "DBRef('coll', ObjectId(), 'db')",
         "java": "new DBRef(\"coll\", new ObjectId(), \"db\")",
-        "csharp": "DBRef(\"coll\", new BsonObjectId(), \"db\")",
-        "shell": ""
+        "csharp": "new MongoDBRef(\"coll\", new BsonObjectId(), \"db\")"
       }
     ],
     "Int32": [
@@ -195,8 +194,7 @@
         "javascript": "new Decimal128(Buffer.from('5'))",
         "python": "Decimal128('5.3E-6175')",
         "java": "Decimal128.parse(\"5.3E-6175\")",
-        "csharp": "new BsonString(\"5\")",
-        "shell": ""
+        "csharp": "new Decimal128(5)"
       }
     ],
     "MinKey/MaxKey": [

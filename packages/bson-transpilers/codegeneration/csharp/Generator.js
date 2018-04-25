@@ -1,5 +1,5 @@
 /* eslint complexity: 0 */
-const {doubleQuoteStringify} = require('../../helper/format');
+const { doubleQuoteStringify, removeQuotes } = require('../../helper/format');
 const {
   SemanticArgumentCountMismatchError,
   SemanticGenericError,
@@ -10,14 +10,23 @@ module.exports = (superclass) => class ExtendedVisitor extends superclass {
   constructor() {
     super();
     this.new = 'new ';
-    this.regex_flags = {
+    this.regexFlags = {
       i: 'RegexOptions.IgnoreCase',
       m: 'RegexOptions.Multiline',
       u: '',
       y: '',
       g: ''
     };
-    this.binary_subTypes = {
+    this.bsonRegexFlags = {
+      'i': 'i', // Case insensitivity to match
+      'm': 'm', // Multiline match
+      'x': 'x', // Ignore all white space characters
+      's': 's', // Matches all
+      'l': '', // Case-insensitive matching dependent on the current locale?
+      'u': '' // Unicode?
+    };
+
+    this.binarySubTypes = {
       0: 'BsonBinarySubType.Binary',
       1: 'BsonBinarySubType.Function',
       2: 'BsonBinarySubType.OldBinary',
@@ -28,12 +37,24 @@ module.exports = (superclass) => class ExtendedVisitor extends superclass {
     };
   }
 
+  /**
+   * @param {NewExpressionContextObject} ctx
+   *
+   * @returns {string} - visited expression
+   */
   emitNew(ctx) {
     const expr = this.visit(ctx.singleExpression());
     ctx.type = ctx.singleExpression().type;
     return expr;
   }
 
+  /**
+   * BSON Code
+   *
+   * @param {BSONCodeObject} ctx
+   *
+   * @returns {string} - new BsonJavaScript(code)
+   */
   emitCodeFromJS(ctx) {
     ctx.type = this.Types.Code;
     const argList = ctx.arguments().argumentList();
@@ -60,6 +81,14 @@ module.exports = (superclass) => class ExtendedVisitor extends superclass {
     return `new BsonJavaScript(@${code})`;
   }
 
+  /**
+   * BSON ObjectID
+   * needs to execute JS to get value first
+   *
+   * @param {BSONObjectIdObject} ctx
+   *
+   * @returns {string} - new BsonObjectId()
+   */
   emitObjectId(ctx) {
     ctx.type = this.Types.ObjectId;
     if (!ctx.arguments().argumentList()) return 'new BsonObjectId()';
@@ -73,6 +102,14 @@ module.exports = (superclass) => class ExtendedVisitor extends superclass {
     return `new BsonObjectId(${doubleQuoteStringify(hexstr)})`;
   }
 
+  /**
+   * BSON Binary Constructor
+   * needs to execute JS to get value first
+   *
+   * @param {BSONBinaryObject} ctx
+   *
+   * @returns {string} - new BsonBinaryData()
+   */
   emitBinary(ctx) {
     ctx.type = this.Types.Binary;
     let type;
@@ -88,9 +125,18 @@ module.exports = (superclass) => class ExtendedVisitor extends superclass {
     if (argList.length === 1) {
       return `new BsonBinaryData(System.Text.Encoding.ASCII.GetBytes(${bytes}))`;
     }
-    return `new BsonBinaryData(System.Text.Encoding.ASCII.GetBytes(${bytes}), ${this.binary_subTypes[type]})`;
+    return `new BsonBinaryData(System.Text.Encoding.ASCII.GetBytes(${bytes}), ${this.binarySubTypes[type]})`;
   }
 
+  /**
+   * BSON Int32 Constructor
+   * depending on whether the initial value is a string or a int, need to parse
+   * or convert
+   *
+   * @param {BSONInt32Object} ctx
+   *
+   * @returns {string} - Int32.Parse("value") OR Convert.ToInt32(value)
+   */
   emitInt32(ctx) {
     ctx.type = this.Types.Int32;
     const args = ctx.arguments().argumentList().singleExpression();
@@ -102,6 +148,14 @@ module.exports = (superclass) => class ExtendedVisitor extends superclass {
     return `Convert.ToInt32(${expr})`;
   }
 
+  /**
+   * BSON Long Constructor
+   * needs to execute JS, and add a conversion to int32 for c#
+   *
+   * @param {BSONLongObject} ctx
+   *
+   * @returns {string} - new BsonInt64(Convert.ToInt32(value))
+   */
   emitLong(ctx) {
     ctx.type = this.Types.Long;
     let longstr;
@@ -113,14 +167,107 @@ module.exports = (superclass) => class ExtendedVisitor extends superclass {
     return `new BsonInt64(Convert.ToInt32(${longstr}))`;
   }
 
+  /**
+   * BSON MinKey Constructor
+   * needs to be in emit, since does not need a 'new' keyword
+   *
+   * @param {BSONMinKeyObject} ctx
+   *
+   * @returns {string} - BsonMinKey.Value
+   */
   emitMinKey(ctx) {
     ctx.type = this.Types.MinKey;
     return 'BsonMinKey.Value';
   }
 
+  /**
+   * BSON MaxKey Constructor
+   * needs to be in emit, since does not need a 'new' keyword
+   *
+   * @param {BSONMaxKeyObject} ctx
+   *
+   * @returns {string} - BsonMaxKey.Value
+   */
   emitMaxKey(ctx) {
     ctx.type = this.Types.MaxKey;
     return 'BsonMaxKey.Value';
+  }
+
+  /**
+   * BSON RegExp Constructor
+   *
+   * @param {BSONRegExpConstructorObject} ctx - expects two strings as
+   * arguments, where the second are flags
+   *
+   * @returns {string} - new BSONRegularExpession(patter)
+   */
+  emitBSONRegExp(ctx) {
+    ctx.type = this.Types.RegExp;
+    const argumentList = ctx.arguments().argumentList();
+
+    const args = argumentList.singleExpression();
+    const pattern = this.visit(args[0]);
+
+    if (args[0].type !== this.Types._string) {
+      throw new SemanticTypeError({
+        message: 'BSONRegExp requires pattern to be a string'
+      });
+    }
+
+    if (args.length === 2) {
+      let flags = this.visit(args[1]);
+
+      if (args[1].type !== this.Types._string) {
+        throw new SemanticTypeError({
+          message: 'BSONRegExp requires flags to be a string'
+        });
+      }
+
+      if (flags !== '') {
+        const unsuppotedFlags = [];
+
+        flags = removeQuotes(flags).split('')
+          .map((item) => {
+            if (Object.keys(this.bsonRegexFlags).includes(item) === false) {
+              unsuppotedFlags.push(item);
+            }
+
+            return this.bsonRegexFlags[item];
+          });
+
+        if (unsuppotedFlags.length > 0) {
+          throw new SemanticGenericError({
+            message: `Regular expression contains unsuppoted '${unsuppotedFlags.join('')}' flag`
+          });
+        }
+
+        flags = doubleQuoteStringify(flags.join(''));
+      }
+
+      return `new BsonRegularExpression(@${pattern}, ${flags})`;
+    }
+    return `new BsonRegularExpression(@${pattern})`;
+  }
+
+  /**
+   * BSON Decimal128 Constructor
+   *
+   * @param {Decimal128ConstructorObject} ctx
+   *
+   * @returns {string} - new Decimal128(val)
+   */
+  emitDecimal128(ctx) {
+    ctx.type = this.Types.Decimal128;
+
+    let decimal;
+    try {
+      decimal = this.executeJavascript(`new ${ctx.getText()}`);
+    } catch (error) {
+      throw new SemanticGenericError({message: error.message});
+    }
+    const value = parseInt(decimal.toString(), 10);
+
+    return `new Decimal128(${value})`;
   }
 
   // c# does not have octal numbers, so we need to convert it to reg integer
@@ -145,7 +292,7 @@ module.exports = (superclass) => class ExtendedVisitor extends superclass {
     }
 
     const arg = argList.singleExpression()[0];
-    const number = this.removeQuotes(this.visit(arg));
+    const number = removeQuotes(this.visit(arg));
 
     if (
       (
@@ -197,185 +344,6 @@ module.exports = (superclass) => class ExtendedVisitor extends superclass {
   }
 
   /**
-   * Expects two strings as arguments, the second must be valid flag
-   *
-   * child nodes: arguments
-   * grandchild nodes: argumentList?
-   * great-grandchild nodes: singleExpression+
-   * @param {BSONRegExpConstructorContext} ctx
-   * @return {String}
-   */
-  visitBSONRegExpConstructor(ctx) {
-    const argumentList = ctx.arguments().argumentList();
-    const BSON_FLAGS = {
-      'i': 'i', // Case insensitivity to match
-      'm': 'm', // Multiline match
-      'x': 'x', // Ignore all white space characters
-      's': 's', // Matches all
-      'l': '', // Case-insensitive matching dependent on the current locale?
-      'u': '' // Unicode?
-    };
-
-    if (
-      argumentList === null ||
-      (argumentList.getChildCount() !== 1 && argumentList.getChildCount() !== 3)
-    ) {
-      throw new SemanticArgumentCountMismatchError({
-        message: 'BSONRegExp requires one or two arguments'
-      });
-    }
-
-    const args = argumentList.singleExpression();
-    const pattern = this.visit(args[0]);
-
-    if (args[0].type !== this.Types._string) {
-      throw new SemanticTypeError({
-        message: 'BSONRegExp requires pattern to be a string'
-      });
-    }
-
-    if (args.length === 2) {
-      let flags = this.visit(args[1]);
-
-      if (args[1].type !== this.Types._string) {
-        throw new SemanticTypeError({
-          message: 'BSONRegExp requires flags to be a string'
-        });
-      }
-
-      if (flags !== '') {
-        const unsuppotedFlags = [];
-
-        flags = this
-          .removeQuotes(flags).split('')
-          .map((item) => {
-            if (Object.keys(BSON_FLAGS).includes(item) === false) {
-              unsuppotedFlags.push(item);
-            }
-
-            return BSON_FLAGS[item];
-          });
-
-        if (unsuppotedFlags.length > 0) {
-          throw new SemanticGenericError({
-            message: `Regular expression contains unsuppoted '${unsuppotedFlags.join('')}' flag`
-          });
-        }
-
-        flags = doubleQuoteStringify(flags.join(''));
-      }
-
-      return `new BsonRegularExpression(@${pattern}, ${flags})`;
-    }
-    return `new BsonRegularExpression(@${pattern})`;
-  }
-
-  /**
-   * Visit Code Constructor
-   *
-   * @param {object} ctx
-   * @returns {string}
-   */
-  visitBSONCodeConstructor(ctx) {
-    const argumentList = ctx.arguments().argumentList();
-
-    if (
-      argumentList === null ||
-      (argumentList.getChildCount() !== 1 && argumentList.getChildCount() !== 3)
-    ) {
-      throw new SemanticArgumentCountMismatchError();
-    }
-
-    const argumentListExpression = argumentList.singleExpression();
-    const code = doubleQuoteStringify(argumentListExpression[0].getText());
-
-    if (argumentListExpression.length === 2) {
-      /* NOTE: we have to visit the subtree first before type checking or type may
-      not be set. We might have to just suck it up and do two passes, but maybe
-      we can avoid it for now. */
-      const scope = this.visit(argumentListExpression[1]);
-
-      if (argumentListExpression[1].type !== this.Types._object) {
-        throw new SemanticTypeError({
-          message: 'Code requires scope to be an object'
-        });
-      }
-
-      return `new BsonJavaScriptWithScope(@${code}, ${scope})`;
-    }
-
-    return `new BsonJavaScript(@${code})`;
-  }
-
-  /**
-   * Visit Double Constructor
-   *
-   * @param {object} ctx
-   * @returns {string}
-   */
-  visitBSONDoubleConstructor(ctx) {
-    const argumentList = ctx.arguments().argumentList();
-
-    if (argumentList === null || argumentList.getChildCount() !== 1) {
-      throw new SemanticArgumentCountMismatchError({
-        message: 'Double requires one argument'
-      });
-    }
-
-    const arg = argumentList.singleExpression()[0];
-    let double = this.removeQuotes(this.visit(arg));
-
-    if (
-      arg.type !== this.Types._string &&
-      arg.type !== this.Types._decimal &&
-      arg.type !== this.Types._integer
-    ) {
-      throw new SemanticTypeError({
-        message: 'Double requires a number or a string argument'
-      });
-    }
-
-    double = doubleQuoteStringify(double);
-
-    return `new BsonDouble(Convert.ToDouble(${double}))`;
-  }
-
-  /**
-   * Visit BSON Timestamp Constructor
-   *
-   * @param {object} ctx
-   * @returns {string}
-   */
-  visitBSONTimestampConstructor(ctx) {
-    const argumentList = ctx.arguments().argumentList();
-
-    if (argumentList === null || argumentList.getChildCount() !== 3) {
-      throw new SemanticArgumentCountMismatchError({
-        message: 'Timestamp requires two arguments'
-      });
-    }
-
-    const argumentListExpression = argumentList.singleExpression();
-    const low = this.visit(argumentListExpression[0]);
-
-    if (argumentListExpression[0].type !== this.Types._integer) {
-      throw new SemanticTypeError({
-        message: 'Timestamp first argument requires integer arguments'
-      });
-    }
-
-    const high = this.visit(argumentListExpression[1]);
-
-    if (argumentListExpression[1].type !== this.Types._integer) {
-      throw new SemanticTypeError({
-        message: 'Timestamp second argument requires integer arguments'
-      });
-    }
-
-    return `new BsonTimestamp(${low}, ${high})`;
-  }
-
-  /**
    * Visit Object.create() Constructor
    *
    * @param {object} ctx
@@ -401,56 +369,4 @@ module.exports = (superclass) => class ExtendedVisitor extends superclass {
 
     return obj;
   }
-
-  /**
-   * TODO: Is it okay to sort by terminal?
-   * Child nodes: (elision* singleExpression*)+
-   *
-   * @param {ElementListContext} ctx
-   * @return {String}
-   */
-  visitElementList(ctx) {
-    const children = ctx.children.filter((child) => (
-      child.constructor.name !== 'TerminalNodeImpl'
-    ));
-
-    return this.visitChildren(ctx, {children, separator: ', '});
-  }
-
-  /**
-   * TODO: Is it okay to sort by terminal?
-   * Child nodes: (elision* singleExpression*)+
-   *
-   * @param {ElementListContext} ctx
-   * @return {String}
-   */
-  visitArgumentList(ctx) {
-    const children = ctx.children.filter((child) => (
-      child.constructor.name !== 'TerminalNodeImpl'
-    ));
-
-    return this.visitChildren(ctx, {children, separator: ', '});
-  }
-
-  /**
-   * Visit BSON Decimal128 Constructor
-   *
-   * @param {object} ctx
-   * @returns {string}
-   */
-  visitBSONDecimal128Constructor(ctx) {
-    const argumentList = ctx.arguments().argumentList();
-
-    if (argumentList === null || argumentList.getChildCount() !== 1) {
-      throw new SemanticArgumentCountMismatchError({
-        message: 'Decimal128 requires one argument'
-      });
-    }
-
-    const arg = argumentList.singleExpression()[0];
-    const string = this.visit(arg);
-
-    return `new BsonString(${string})`;
-  }
 };
-
