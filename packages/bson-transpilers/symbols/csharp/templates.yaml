@@ -20,11 +20,8 @@ Templates:
     HexTypeTemplate: &HexTypeTemplate null
     OctalTypeTemplate: &OctalTypeTemplate !!js/function >
         (literal) => {
-          if ((literal.charAt(0) === '0' && literal.charAt(1) === '0') ||
-            (literal.charAt(0) === '0' && (literal.charAt(1) === 'o' || literal.charAt(1) === 'O'))) {
-            return `0${literal.substr(2, literal.length - 1)}`;
-          }
-          return literal;
+          literal = literal.replace(/[oO]+/g, '0')
+          return parseInt(literal, 8)
         }
     NumericTypeTemplate: &NumericTypeTemplate null
     ArrayTypeTemplate: &ArrayTypeTemplate !!js/function >
@@ -480,10 +477,17 @@ Templates:
         (lhs, arg) => {
             return arg;
         }
-    NumberSymbolTemplate: &NumberSymbolTemplate null
-    NumberSymbolArgsTemplate: &NumberSymbolArgsTemplate null
-    DateSymbolTemplate: &DateSymbolTemplate null
-    DateSymbolArgsTemplate: &DateSymbolArgsTemplate null
+    NumberSymbolTemplate: &NumberSymbolTemplate !!js/function >
+        () => {
+          return 'int'
+        }
+    NumberSymbolArgsTemplate: &NumberSymbolArgsTemplate !!js/function >
+        (lhs, args) => {
+          args = args.replace(/['"]+/g, '');
+          return `(${args})`
+        }
+    DateSymbolTemplate: &DateSymbolTemplate null # Has emit method
+    DateSymbolArgsTemplate: &DateSymbolArgsTemplate null # Has emit method
     DateSymbolNowTemplate: &DateSymbolNowTemplate null
     DateSymbolNowArgsTemplate: &DateSymbolNowArgsTemplate null
     RegExpSymbolTemplate: &RegExpSymbolTemplate null

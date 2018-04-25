@@ -74,28 +74,28 @@
         "javascript": "01234567",
         "python": "0o1234567",
         "java": "01234567",
-        "csharp": "1234567"
+        "csharp": "342391"
       },
       {
         "description": "Octal 00-prefix number",
         "javascript": "001234567",
         "python": "0o1234567",
         "java": "01234567",
-        "csharp": "1234567"
+        "csharp": "342391"
       },
       {
         "description": "Octal 0o-prefix number",
         "javascript": "0o1234567",
         "python": "0o1234567",
         "java": "01234567",
-        "csharp": "0"
+        "csharp": "342391"
       },
       {
         "description": "Octal 0O-prefix number",
         "javascript": "0o1234567",
         "python": "0o1234567",
         "java": "01234567",
-        "csharp": "0"
+        "csharp": "342391"
       },
       {
         "description": "Single-quote string",
