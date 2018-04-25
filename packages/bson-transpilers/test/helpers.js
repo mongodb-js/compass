@@ -12,6 +12,7 @@ const unsupported = {
       java: {},
       python: {},
       csharp: {
+        'bson-constructors': [ 'DBRef', 'BSONRegExp', 'Decimal128' ],
         'js-constructors': [ '*' ],
         'bson-object-methods': [ '*' ],
         'bson-utils': [ '*' ],
