@@ -29,11 +29,12 @@ Templates:
     NumericTypeTemplate: &NumericTypeTemplate null
     ArrayTypeTemplate: &ArrayTypeTemplate !!js/function >
         (literal) => {
-          return `new BsonArray{${literal}}`;
+          if (literal === '') return 'new BsonArray()' 
+          return `new BsonArray {${literal}}`;
         }
     NullTypeTemplate: &NullTypeTemplate !!js/function >
         () => {
-          return 'BsonNull.value';
+          return 'BsonNull.Value';
         }
     UndefinedTypeTemplate: &UndefinedTypeTemplate !!js/function >
         () => {
@@ -41,11 +42,8 @@ Templates:
         }
     ObjectTypeTemplate: &ObjectTypeTemplate !!js/function >
         (literal) => {
-          if (literal === '') {
-            return `new BsonDocument()`;
-          } else {
-            return `new BsonDocument${literal}`;
-          }
+          if (literal === '') return `new BsonDocument()`;
+          return `new BsonDocument${literal}`;
         }
     ObjectTypeArgsTemplate: &ObjectTypeArgsTemplate !!js/function >
         (args) => {
@@ -415,10 +413,10 @@ Templates:
     LongSymbolFromNumberArgsTemplate: &LongSymbolFromNumberArgsTemplate null
     LongSymbolFromStringTemplate: &LongSymbolFromStringTemplate null
     LongSymbolFromStringArgsTemplate: &LongSymbolFromStringArgsTemplate null
-    MinKeySymbolTemplate: &MinKeySymbolTemplate null
-    MinKeySymbolArgsTemplate: &MinKeySymbolArgsTemplate null
-    MaxKeySymbolTemplate: &MaxKeySymbolTemplate null
-    MaxKeySymbolArgsTemplate: &MaxKeySymbolArgsTemplate null
+    MinKeySymbolTemplate: &MinKeySymbolTemplate null # Has emit method
+    MinKeySymbolArgsTemplate: &MinKeySymbolArgsTemplate null # Has emit method
+    MaxKeySymbolTemplate: &MaxKeySymbolTemplate null # Has emit method
+    MaxKeySymbolArgsTemplate: &MaxKeySymbolArgsTemplate null # Has emit method
     TimestampSymbolTemplate: &TimestampSymbolTemplate !!js/function >
         () => {
             return 'BsonTimestamp';

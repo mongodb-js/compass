@@ -113,6 +113,16 @@ module.exports = (superclass) => class ExtendedVisitor extends superclass {
     return `new BsonInt64(Convert.ToInt32(${longstr}))`;
   }
 
+  emitMinKey(ctx) {
+    ctx.type = this.Types.MinKey;
+    return 'BsonMinKey.Value';
+  }
+
+  emitMaxKey(ctx) {
+    ctx.type = this.Types.MaxKey;
+    return 'BsonMaxKey.Value';
+  }
+
   // c# does not have octal numbers, so we need to convert it to reg integer
   // TODO: not sure if we should still set the type to OCTAL or INTEGER
   visitOctalIntegerLiteral(ctx) {
@@ -261,34 +271,6 @@ module.exports = (superclass) => class ExtendedVisitor extends superclass {
   }
 
   /**
-   * Child nodes: propertyName singleExpression
-   * @param {PropertyAssignmentExpressionContext} ctx
-   * @return {String}
-   */
-  visitPropertyAssignmentExpression(ctx) {
-    const key = doubleQuoteStringify(this.visit(ctx.propertyName()));
-    const value = this.visit(ctx.singleExpression());
-
-    return `${key}, ${value}`;
-  }
-
-  visitPropertyNameAndValueList(ctx) {
-    const childCount = ctx.getChildCount();
-
-    if (childCount === 1) {
-      return this.visitChildren(ctx);
-    }
-
-    const props = [];
-
-    for (let i = 0; i < childCount; i += 2) {
-      props.push(`{ ${this.visit(ctx.children[i])} }`);
-    }
-
-    return props.join(', ');
-  }
-
-  /**
    * Visit Code Constructor
    *
    * @param {object} ctx
@@ -326,52 +308,6 @@ module.exports = (superclass) => class ExtendedVisitor extends superclass {
   }
 
   /**
-   * Visit Binary Constructor
-   *
-   * @param {object} ctx
-   * @returns {string}
-   */
-  visitBSONBinaryConstructor(ctx) {
-    const argumentList = ctx.arguments().argumentList();
-    let type = '';
-    let binobj = {};
-    const subtypes = {
-      0: 'BsonBinarySubType.Binary',
-      1: 'BsonBinarySubType.Function',
-      2: 'BsonBinarySubType.OldBinary',
-      3: 'BsonBinarySubType.UuidLegacy',
-      4: 'BsonBinarySubType.UuidStandard',
-      5: 'BsonBinarySubType.MD5',
-      128: 'BsonBinarySubType.UserDefined'
-    };
-
-    if (
-      argumentList === null ||
-      (argumentList.getChildCount() !== 1 && argumentList.getChildCount() !== 3)
-    ) {
-      throw new SemanticArgumentCountMismatchError({
-        message: 'Binary requires one or two argument'
-      });
-    }
-
-    try {
-      binobj = this.executeJavascript(ctx.getText());
-      type = binobj.sub_type;
-    } catch (error) {
-      throw new SemanticGenericError({message: error.message});
-    }
-
-    const argumentListExpression = argumentList.singleExpression();
-    const bytes = doubleQuoteStringify(binobj.toString());
-
-    if (argumentListExpression.length === 1) {
-      return `new BsonBinaryData(System.Text.Encoding.ASCII.GetBytes(${bytes}))`;
-    }
-
-    return `new BsonBinaryData(System.Text.Encoding.ASCII.GetBytes(${bytes}), ${subtypes[type]})`;
-  }
-
-  /**
    * Visit Double Constructor
    *
    * @param {object} ctx
@@ -402,26 +338,6 @@ module.exports = (superclass) => class ExtendedVisitor extends superclass {
     double = doubleQuoteStringify(double);
 
     return `new BsonDouble(Convert.ToDouble(${double}))`;
-  }
-
-  /**
-   * Visit MaxKey Constructor
-   *
-   * @param {object} ctx
-   * @returns {string}
-   */
-  visitBSONMaxKeyConstructor() {
-    return 'BsonMaxKey.Value';
-  }
-
-  /**
-   * Visit MinKey Constructor
-   *
-   * @param {object} ctx
-   * @returns {string}
-   */
-  visitBSONMinKeyConstructor() {
-    return 'BsonMinKey.Value';
   }
 
   /**
@@ -514,73 +430,6 @@ module.exports = (superclass) => class ExtendedVisitor extends superclass {
     ));
 
     return this.visitChildren(ctx, {children, separator: ', '});
-  }
-
-  /**
-   * Visit Array Literal
-   *
-   * @param {object} ctx
-   * @returns {string}
-   */
-  visitArrayLiteral(ctx) {
-    ctx.type = this.Types._array;
-
-    if (ctx.getChildCount() === 2) {
-      return 'new BsonArray()';
-    }
-
-    return `new BsonArray {${this.visit(ctx.elementList())}}`;
-  }
-
-  /**
-   * Visit Elision Literal
-   *
-   * @param {object} ctx
-   * @returns {string}
-   */
-  visitElision(ctx) {
-    ctx.type = this.Types._null;
-
-    return 'BsonNull.Value';
-  }
-
-  /**
-   * Visit Null Literal
-   *
-   * @param {object} ctx
-   * @returns {string}
-   */
-  visitNullLiteral(ctx) {
-    ctx.type = this.Types._null;
-
-    return 'BsonNull.Value';
-  }
-
-  /**
-   * Visit Symbol Constructor
-   *
-   * @param {object} ctx
-   * @returns {string}
-   */
-  visitBSONSymbolConstructor(ctx) {
-    const argumentList = ctx.arguments().argumentList();
-
-    if (argumentList === null || argumentList.getChildCount() !== 1) {
-      throw new SemanticArgumentCountMismatchError({
-        message: 'Symbol requires one argument'
-      });
-    }
-
-    const arg = argumentList.singleExpression()[0];
-    const symbol = this.visit(arg);
-
-    if (arg.type !== this.Types._string) {
-      throw new SemanticTypeError({
-        message: 'Symbol requires a string argument'
-      });
-    }
-
-    return `new BsonString(${symbol})`;
   }
 
   /**
