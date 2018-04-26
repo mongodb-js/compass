@@ -488,7 +488,7 @@ Templates:
         }
     DateSymbolTemplate: &DateSymbolTemplate null # Has emit method
     DateSymbolArgsTemplate: &DateSymbolArgsTemplate null # Has emit method
-    DateSymbolNowTemplate: &DateSymbolNowTemplate null
-    DateSymbolNowArgsTemplate: &DateSymbolNowArgsTemplate null
+    DateSymbolNowTemplate: &DateSymbolNowTemplate null # Has emit method 
+    DateSymbolNowArgsTemplate: &DateSymbolNowArgsTemplate null # Has emit method
     RegExpSymbolTemplate: &RegExpSymbolTemplate null
     RegExpSymbolArgsTemplate: &RegExpSymbolArgsTemplate null

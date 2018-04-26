@@ -270,75 +270,17 @@ module.exports = (superclass) => class ExtendedVisitor extends superclass {
     return `new Decimal128(${value})`;
   }
 
-  // c# does not have octal numbers, so we need to convert it to reg integer
-  // TODO: not sure if we should still set the type to OCTAL or INTEGER
-  visitOctalIntegerLiteral(ctx) {
-    ctx.type = this.Types._octal;
-    return parseInt(this.visitChildren(ctx), 10);
-  }
+  /**
+   * Date Now. This doesn't need a keyword 'new', nor is 'Now' a callable
+   * function, so we need to adjust this.
+   *
+   * @param {DateNowConstructorObject} ctx
+   *
+   * @returns {string} - DateTime.Now
+   */
 
-  /*  ************** built-in js identifiers **************** */
-
-  // adjust the Number constructor;
-  // returns new int(num)
-  visitNumberConstructorExpression(ctx) {
-    const argList = ctx.arguments().argumentList();
-
-    if (!argList || argList.singleExpression().length !== 1) {
-      throw new SemanticArgumentCountMismatchError({
-        message: 'Number requires one argument'
-      });
-    }
-
-    const arg = argList.singleExpression()[0];
-    const number = removeQuotes(this.visit(arg));
-
-    if (
-      (
-        arg.type !== this.Types._string &&
-        arg.type !== this.Types._decimal &&
-        arg.type !== this.Types._integer
-      )
-      || isNaN(Number(number))
-    ) {
-      throw new SemanticTypeError({
-        message: 'Number requires a number or a string argument'
-      });
-    }
-
-    return `new int(${number})`;
-  }
-
-  visitDateConstructorExpression(ctx) {
-    const argumentList = ctx.arguments().argumentList();
-
-    if (argumentList === null) {
-      return 'DateTime.Now';
-    }
-
-    let dateStr;
-
-    try {
-      const epoch = this.executeJavascript(ctx.getText());
-
-      dateStr = [
-        epoch.getUTCFullYear(),
-        (epoch.getUTCMonth() + 1),
-        epoch.getUTCDate(),
-        epoch.getUTCHours(),
-        epoch.getUTCMinutes(),
-        epoch.getUTCSeconds()
-      ].join(', ');
-    } catch (error) {
-      throw new SemanticGenericError({message: error.message});
-    }
-
-    return `new DateTime(${dateStr})`;
-  }
-
-  // csharp doesn't allow for current time to be set on new instance, so it's
-  // just DateTime.Now
-  visitDateNowConstructorExpression() {
+  emitnow(ctx) {
+    ctx.type = this.Types.Now;
     return 'DateTime.Now';
   }
 
