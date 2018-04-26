@@ -4,14 +4,14 @@
       {
         "description": "CodeWithScope toJSON",
         "javascript": "Code('test code', {x: '1'}).toJSON()",
-        "python": "",
+        "python": "json_util.dumps(Code('test code', {'x': '1'}))",
         "java": "new Document().append(\"code\", \"test code\").append(\"scope\", new Document().append(\"x\", \"1\"))",
         "csharp": ""
       },
       {
         "description": "Code toJSON",
         "javascript": "Code('test code').toJSON()",
-        "python": "",
+        "python": "json_util.dumps(Code('test code'))",
         "java": "new Document().append(\"code\", \"test code\").append(\"scope\", undefined)",
         "csharp": ""
       }
@@ -20,42 +20,42 @@
       {
         "description": "no arguments toJSON",
         "javascript": "ObjectId().toJSON()",
-        "python": "",
+        "python": "json_util.dumps(ObjectId())",
         "java": "new ObjectId().toHexString()",
         "csharp": ""
       },
       {
         "description": "hex arg toJSON",
         "javascript": "ObjectId('5ab901c29ee65f5c8550c5b9').toJSON()",
-        "python": "",
+        "python": "json_util.dumps(ObjectId('5ab901c29ee65f5c8550c5b9'))",
         "java": "new ObjectId(\"5ab901c29ee65f5c8550c5b9\").toHexString()",
         "csharp": ""
       },
       {
         "description": "no arg toString",
         "javascript": "ObjectId().toString()",
-        "python": "",
+        "python": "str(ObjectId())",
         "java": "new ObjectId().toString()",
         "csharp": ""
       },
       {
         "description": "hex arg toString",
         "javascript": "ObjectId('5ab901c29ee65f5c8550c5b9').toString()",
-        "python": "",
+        "python": "str(ObjectId('5ab901c29ee65f5c8550c5b9'))",
         "java": "new ObjectId(\"5ab901c29ee65f5c8550c5b9\").toString()",
         "csharp": ""
       },
       {
         "description": "getTimestamp",
         "javascript": "ObjectId('5ab901c29ee65f5c8550c5b9').getTimestamp()",
-        "python": "",
+        "python": "ObjectId('5ab901c29ee65f5c8550c5b9').generation_time",
         "java": "new ObjectId(\"5ab901c29ee65f5c8550c5b9\").getTimestamp()",
         "csharp": ""
       },
       {
         "description": "equals",
         "javascript": "ObjectId().equals(ObjectId())",
-        "python": "",
+        "python": "ObjectId() == ObjectId()",
         "java": "new ObjectId().equals(new ObjectId())",
         "csharp": ""
       }
@@ -64,28 +64,28 @@
       {
         "description": "length",
         "javascript": "Binary(Buffer.from('a string')).length()",
-        "python": "",
+        "python": "len(bytearray(Binary(b'a string')))",
         "java": "new Binary(\"a string\".getBytes(\"UTF-8\")).length()",
         "csharp": ""
       },
       {
         "description": "value",
         "javascript": "Binary(Buffer.from('a string')).value()",
-        "python": "",
+        "python": "str(Binary(b'a string'))",
         "java": "new Binary(\"a string\".getBytes(\"UTF-8\")).getData()",
         "csharp": ""
       },
       {
         "description": "toString",
         "javascript": "Binary(Buffer.from('a string')).toString()",
-        "python": "",
+        "python": "str(Binary(b'a string'))",
         "java": "new Binary(\"a string\".getBytes(\"UTF-8\")).toString()",
         "csharp": ""
       },
       {
         "description": "toJSON",
         "javascript": "Binary(Buffer.from('a string')).toJSON()",
-        "python": "",
+        "python": "json_util.dumps(Binary(b'a string'))",
         "java": "new Binary(\"a string\".getBytes(\"UTF-8\")).toString()",
         "csharp": ""
       }
@@ -94,14 +94,14 @@
       {
         "description": "toJSON with two args",
         "javascript": "new DBRef('coll', new ObjectId()).toJSON()",
-        "python": "",
+        "python": "json_util.dumps(DBRef('coll', ObjectId()))",
         "java": "new Document().append(\"$ref\", \"coll\").append(\"$id\", new ObjectId()).append(\"$db\", \"\")",
         "csharp": ""
       },
       {
         "description": "toJSON with three args",
         "javascript": "new DBRef('coll', new ObjectId(), 'db').toJSON()",
-        "python": "",
+        "python": "json_util.dumps(DBRef('coll', ObjectId(), 'db'))",
         "java": "new Document().append(\"$ref\", \"coll\").append(\"$id\", new ObjectId()).append(\"$db\", \"db\")",
         "csharp": ""
       }
@@ -110,14 +110,14 @@
       {
         "description": "toJSON",
         "javascript": "Int32(3).toJSON()",
-        "python": "",
+        "python": "json_util.dumps(int(3))",
         "java": "new java.lang.Integer(3).intValue()",
         "csharp": ""
       },
       {
         "description": "valueOf",
         "javascript": "Int32(3).valueOf()",
-        "python": "",
+        "python": "int(3)",
         "java": "new java.lang.Integer(3).intValue()",
         "csharp": ""
       }
@@ -126,14 +126,14 @@
       {
         "description": "toJSON",
         "javascript": "Double(3).toJSON()",
-        "python": "",
+        "python": "json_util.dumps(float(3))",
         "java": "new java.lang.Double(3).doubleValue()",
         "csharp": ""
       },
       {
         "description": "valueOf",
         "javascript": "Double(3).valueOf()",
-        "python": "",
+        "python": "float(3)",
         "java": "new java.lang.Double(3).doubleValue()",
         "csharp": ""
       }
@@ -142,189 +142,189 @@
       {
         "description": "toJSON",
         "javascript": "Long(1, 100).toJSON()",
-        "python": "",
+        "python": "json_util.dumps(Int64(429496729601))",
         "java": "new java.lang.Long(\"429496729601\").toString()",
         "csharp": ""
       },
       {
         "description": "toInt",
         "javascript": "Long(1, 100).toInt()",
-        "python": "",
+        "python": "int(Int64(429496729601))",
         "java": "new java.lang.Long(\"429496729601\").intValue()",
         "csharp": ""
       },
       {
         "description": "toNumber",
         "javascript": "Long(1, 100).toNumber()",
-        "python": "",
+        "python": "float(Int64(429496729601))",
         "java": "new java.lang.Long(\"429496729601\").floatValue()",
         "csharp": ""
       },
       {
         "description": "toString without radix",
         "javascript": "Long(1, 100).toString()",
-        "python": "",
+        "python": "str(Int64(429496729601))",
         "java": "\"429496729601\"",
         "csharp": ""
       },
       {
         "description": "toString with radix",
         "javascript": "Long(1, 100).toString(10)",
-        "python": "",
+        "python": "str(Int64(429496729601))",
         "java": "\"429496729601\"",
         "csharp": ""
       },
       {
         "description": "isZero",
         "javascript": "Long(1, 100).isZero()",
-        "python": "",
+        "python": "Int64(429496729601) == 0",
         "java": "new java.lang.Long(\"429496729601\").equals(new java.lang.Long(0))",
         "csharp": ""
       },
       {
         "description": "isNegative",
         "javascript": "Long(1, 100).isNegative()",
-        "python": "",
+        "python": "Int64(429496729601) < 0",
         "java": "new java.lang.Long(\"429496729601\").compareTo(new java.lang.Long(0)) < 0",
         "csharp": ""
       },
       {
         "description": "isOdd",
         "javascript": "Long(1, 100).isOdd()",
-        "python": "",
+        "python": "(Int64(429496729601) % 2) == 0",
         "java": "new java.lang.Long(\"429496729601\") % 2 == 0",
         "csharp": ""
       },
       {
         "description": "equals",
         "javascript": "Long(1, 100).equals(Long(9, 1))",
-        "python": "",
+        "python": "(Int64(429496729601) - Int64(4294967305)) == 0",
         "java": "new java.lang.Long(\"429496729601\").equals(new java.lang.Long(\"4294967305\"))",
         "csharp": ""
       },
       {
         "description": "notEquals",
         "javascript": "Long(1, 100).notEquals(Long(9, 1))",
-        "python": "",
+        "python": "(Int64(429496729601) - Int64(4294967305)) != 0",
         "java": "new java.lang.Long(\"429496729601\").compareTo(new java.lang.Long(\"4294967305\")) != 0",
         "csharp": ""
       },
       {
         "description": "compare",
         "javascript": "Long(1, 100).compare(Long(9, 1))",
-        "python": "",
+        "python": "Int64(429496729601) - Int64(4294967305)",
         "java": "new java.lang.Long(\"429496729601\").compareTo(new java.lang.Long(\"4294967305\"))",
         "csharp": ""
       },
       {
         "description": "greaterThan",
         "javascript": "Long(1, 100).greaterThan(Long(9, 1))",
-        "python": "",
+        "python": "(Int64(429496729601) - Int64(4294967305)) > 0",
         "java": "new java.lang.Long(\"429496729601\").compareTo(new java.lang.Long(\"4294967305\")) > 0",
         "csharp": ""
       },
       {
         "description": "greaterThanOrEqual",
         "javascript": "Long(1, 100).greaterThanOrEqual(Long(9, 1))",
-        "python": "",
+        "python": "(Int64(429496729601) - Int64(4294967305)) >= 0",
         "java": "new java.lang.Long(\"429496729601\").compareTo(new java.lang.Long(\"4294967305\")) >= 0",
         "csharp": ""
       },
       {
         "description": "lessThan",
         "javascript": "Long(1, 100).lessThan(Long(9, 1))",
-        "python": "",
+        "python": "(Int64(429496729601) - Int64(4294967305)) < 0",
         "java": "new java.lang.Long(\"429496729601\").compareTo(new java.lang.Long(\"4294967305\")) < 0",
         "csharp": ""
       },
       {
         "description": "lessThanOrEqual",
         "javascript": "Long(1, 100).lessThanOrEqual(Long(9, 1))",
-        "python": "",
+        "python": "(Int64(429496729601) - Int64(4294967305)) <= 0",
         "java": "new java.lang.Long(\"429496729601\").compareTo(new java.lang.Long(\"4294967305\")) <= 0",
         "csharp": ""
       },
       {
         "description": "negate",
         "javascript": "Long(1, 100).negate())",
-        "python": "",
+        "python": "-Int64(429496729601)",
         "java": "-new java.lang.Long(\"429496729601\")",
         "csharp": ""
       },
       {
         "description": "add",
         "javascript": "Long(1, 100).add(Long(9, 1))",
-        "python": "",
+        "python": "Int64(429496729601) + Int64(4294967305)",
         "java": "new java.lang.Long(\"429496729601\") + new java.lang.Long(\"4294967305\")",
         "csharp": ""
       },
       {
         "description": "subtract",
         "javascript": "Long(1, 100).subtract(Long(9, 1))",
-        "python": "",
+        "python": "Int64(429496729601) - Int64(4294967305)",
         "java": "new java.lang.Long(\"429496729601\") - new java.lang.Long(\"4294967305\")",
         "csharp": ""
       },
       {
         "description": "multiply",
         "javascript": "Long(1, 100).multiply(Long(9, 1))",
-        "python": "",
+        "python": "Int64(429496729601) * Int64(4294967305)",
         "java": "new java.lang.Long(\"429496729601\") * new java.lang.Long(\"4294967305\")",
         "csharp": ""
       },
       {
         "description": "div",
         "javascript": "Long(1, 100).div(Long(9, 1))",
-        "python": "",
+        "python": "Int64(429496729601) / Int64(4294967305)",
         "java": "new java.lang.Long(\"429496729601\") / new java.lang.Long(\"4294967305\")",
         "csharp": ""
       },
       {
         "description": "modulo",
         "javascript": "Long(1, 100).modulo(Long(9, 1))",
-        "python": "",
+        "python": "Int64(429496729601) % Int64(4294967305)",
         "java": "new java.lang.Long(\"429496729601\") % new java.lang.Long(\"4294967305\")",
         "csharp": ""
       },
       {
         "description": "not",
         "javascript": "Long(1, 100).not()",
-        "python": "",
+        "python": "~Int64(429496729601)",
         "java": "~new java.lang.Long(\"429496729601\")",
         "csharp": ""
       },
       {
         "description": "and",
         "javascript": "Long(1, 100).and(Long(9, 1))",
-        "python": "",
+        "python": "Int64(429496729601) & Int64(4294967305)",
         "java": "new java.lang.Long(\"429496729601\") & new java.lang.Long(\"4294967305\")",
         "csharp": ""
       },
       {
         "description": "or",
         "javascript": "Long(1, 100).or(Long(9, 1))",
-        "python": "",
+        "python": "Int64(429496729601) | Int64(4294967305)",
         "java": "new java.lang.Long(\"429496729601\") | new java.lang.Long(\"4294967305\")",
         "csharp": ""
       },
       {
         "description": "xor",
         "javascript": "Long(1, 100).xor(Long(9, 1))",
-        "python": "",
+        "python": "Int64(429496729601) ^ Int64(4294967305)",
         "java": "new java.lang.Long(\"429496729601\") ^ new java.lang.Long(\"4294967305\")",
         "csharp": ""
       },
       {
         "description": "shiftLeft",
         "javascript": "Long(1, 100).shiftLeft(10)",
-        "python": "",
+        "python": "Int64(429496729601) << 10",
         "java": "java.lang.Long.rotateLeft(new java.lang.Long(\"429496729601\"), 10)",
         "csharp": ""
       },
       {
         "description": "shiftRight",
         "javascript": "Long(1, 100).shiftRight(10)",
-        "python": "",
+        "python": "Int64(429496729601) >> 10",
         "java": "java.lang.Long.rotateRight(new java.lang.Long(\"429496729601\"), 10)",
         "csharp": ""
       }
@@ -333,14 +333,14 @@
       {
         "description": "toString",
         "javascript": "new Decimal128(Buffer.from('5')).toString()",
-        "python": "",
+        "python": "str(Decimal128('5.3E-6175'))",
         "java": "Decimal128.parse(\"5.3E-6175\").toString()",
         "csharp": ""
       },
       {
         "description": "toJSON",
         "javascript": "new Decimal128(Buffer.from('5')).toJSON()",
-        "python": "",
+        "python": "json_util.dumps(Decimal128('5.3E-6175'))",
         "java": "new Document().append(\"$numberDecimal\", Decimal128.parse(\"5.3E-6175\").toString())",
         "csharp": ""
       }
@@ -349,77 +349,77 @@
       {
         "description": "toJSON",
         "javascript": "Timestamp(1, 100).toJSON()",
-        "python": "",
+        "python": "json_util.dumps(Timestamp(1, 100))",
         "java": "new BSONTimestamp(1, 100).toString()",
         "csharp": ""
       },
       {
         "description": "toString",
         "javascript": "Timestamp(1, 100).toString()",
-        "python": "",
+        "python": "str(Timestamp(1, 100))",
         "java": "new BSONTimestamp(1, 100).toString()",
         "csharp": ""
       },
       {
         "description": "equals",
         "javascript": "Timestamp(1, 100).equals(Timestamp(2, 99))",
-        "python": "",
+        "python": "(Timestamp(1, 100).time - Timestamp(2, 99).time) == 0",
         "java": "new BSONTimestamp(1, 100).equals(new BSONTimestamp(2, 99))",
         "csharp": ""
       },
       {
         "description": "compare",
         "javascript": "Timestamp(1, 100).compare(Timestamp(2, 99))",
-        "python": "",
+        "python": "Timestamp(1, 100).time - Timestamp(2, 99).time",
         "java": "new BSONTimestamp(1, 100).compareTo(new BSONTimestamp(2, 99))",
         "csharp": ""
       },
       {
         "description": "notEquals",
         "javascript": "Timestamp(1, 100).notEquals(Timestamp(2, 99))",
-        "python": "",
+        "python": "(Timestamp(1, 100).time - Timestamp(2, 99).time) != 0",
         "java": "new BSONTimestamp(1, 100).compareTo(new BSONTimestamp(2, 99)) != 0",
         "csharp": ""
       },
       {
         "description": "greaterThan",
         "javascript": "Timestamp(1, 100).greaterThan(Timestamp(2, 99))",
-        "python": "",
+        "python": "(Timestamp(1, 100).time - Timestamp(2, 99).time) > 0",
         "java": "new BSONTimestamp(1, 100).compareTo(new BSONTimestamp(2, 99)) > 0",
         "csharp": ""
       },
       {
         "description": "greaterThanOrEqual",
         "javascript": "Timestamp(1, 100).greaterThanOrEqual(Timestamp(2, 99))",
-        "python": "",
+        "python": "(Timestamp(1, 100).time - Timestamp(2, 99).time) >= 0",
         "java": "new BSONTimestamp(1, 100).compareTo(new BSONTimestamp(2, 99)) >= 0",
         "csharp": ""
       },
       {
         "description": "lessThan",
         "javascript": "Timestamp(1, 100).lessThan(Timestamp(2, 99))",
-        "python": "",
+        "python": "(Timestamp(1, 100).time - Timestamp(2, 99).time) < 0",
         "java": "new BSONTimestamp(1, 100).compareTo(new BSONTimestamp(2, 99)) < 0",
         "csharp": ""
       },
       {
         "description": "lessThanOrEqual",
         "javascript": "Timestamp(1, 100).lessThanOrEqual(Timestamp(2, 99))",
-        "python": "",
+        "python": "(Timestamp(1, 100).time - Timestamp(2, 99).time) <= 0",
         "java": "new BSONTimestamp(1, 100).compareTo(new BSONTimestamp(2, 99)) <= 0",
         "csharp": ""
       },
       {
         "description": "getLowBits",
         "javascript": "Timestamp(1, 100).getLowBits()",
-        "python": "",
+        "python": "Timestamp(1, 100).time",
         "java": "new BSONTimestamp(1, 100).getTime()",
         "csharp": ""
       },
       {
         "description": "getHighBits",
         "javascript": "Timestamp(1, 100).getHighBits()",
-        "python": "",
+        "python": "Timestamp(1, 100).inc",
         "java": "new BSONTimestamp(1, 100).getInc()",
         "csharp": ""
       }
@@ -428,28 +428,28 @@
       {
         "description": "valueOf",
         "javascript": "Symbol('2').valueOf()",
-        "python": "",
+        "python": "unicode('2', 'utf-8')",
         "java": "new Symbol(\"2\").getSymbol()",
         "csharp": ""
       },
       {
         "description": "toString",
         "javascript": "Symbol('2').toString()",
-        "python": "",
+        "python": "str(unicode('2', 'utf-8'))",
         "java": "new Symbol(\"2\").toString()",
         "csharp": ""
       },
       {
         "description": "inspect",
         "javascript": "Symbol('2').inspect()",
-        "python": "",
+        "python": "unicode('2', 'utf-8')",
         "java": "new Symbol(\"2\").getSymbol()",
         "csharp": ""
       },
       {
         "description": "toJSON",
         "javascript": "Symbol('2').toJSON()",
-        "python": "",
+        "python": "json_util.dumps(unicode('2', 'utf-8'))",
         "java": "new Symbol(\"2\").toString()",
         "csharp": ""
       }

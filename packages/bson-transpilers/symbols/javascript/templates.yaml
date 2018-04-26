@@ -17,16 +17,38 @@ Templates:
     ObjectTypeTemplate: &ObjectTypeTemplate null
     ObjectTypeArgsTemplate: &ObjectTypeArgsTemplate null
     # BSON Object Method templates
+    ObjectIdToStringTemplate: &ObjectIdToStringTemplate null
+    ObjectIdToStringArgsTemplate: &ObjectIdToStringArgsTemplate null
     ObjectIdToJSONTemplate: &ObjectIdToJSONTemplate null
+    ObjectIdToJSONArgsTemplate: &ObjectIdToJSONArgsTemplate null
+    ObjectIdEqualsTemplate: &ObjectIdEqualsTemplate null
+    ObjectIdEqualsArgsTemplate: &ObjectIdEqualsArgsTemplate null
+    ObjectIdGetTimestampTemplate: &ObjectIdGetTimestampTemplate null
+    ObjectIdGetTimestampArgsTemplate: &ObjectIdGetTimestampArgsTemplate null
     BinaryValueTemplate: &BinaryValueTemplate null
+    BinaryValueArgsTemplate: &BinaryValueArgsTemplate null
+    BinaryLengthTemplate: &BinaryLengthTemplate null
+    BinaryLengthArgsTemplate: &BinaryLengthArgsTemplate null
+    BinaryToStringTemplate: &BinaryToStringTemplate null
+    BinaryToStringArgsTemplate: &BinaryToStringArgsTemplate null
     BinaryToJSONTemplate: &BinaryToJSONTemplate null
+    BinaryToJSONArgsTemplate: &BinaryToJSONArgsTemplate null
     DoubleToJSONTemplate: &DoubleToJSONTemplate null
+    DoubleToJSONArgsTemplate: &DoubleToJSONArgsTemplate null
     DoubleValueOfTemplate: &DoubleValueOfTemplate null
+    DoubleValueOfArgsTemplate: &DoubleValueOfArgsTemplate null
     Int32ToJSONTemplate: &Int32ToJSONTemplate null
+    nt32ToJSONArgsTemplate: &Int32ToJSONArgsTemplate null
     Int32ValueOfTemplate: &Int32ValueOfTemplate null
+    Int32ValueOfArgsTemplate: &Int32ValueOfArgsTemplate null
+    LongEqualsTemplate: &LongEqualsTemplate null
+    LongEqualsArgsTemplate: &LongEqualsArgsTemplate null
     LongToJSONTemplate: &LongToJSONTemplate null
+    LongToJSONArgsTemplate: &LongToJSONArgsTemplate null
     LongToIntTemplate: &LongToIntTemplate null
+    LongToIntArgsTemplate: &LongToIntArgsTemplate null
     LongToNumberTemplate: &LongToNumberTemplate null
+    LongToNumberArgsTemplate: &LongToNumberArgsTemplate null
     LongAddTemplate: &LongAddTemplate null
     LongAddArgsTemplate: &LongAddArgsTemplate null
     LongSubtractTemplate: &LongSubtractTemplate null
@@ -48,6 +70,7 @@ Templates:
     LongShiftRightTemplate: &LongShiftRightTemplate null
     LongShiftRightArgsTemplate: &LongShiftRightArgsTemplate null
     LongCompareTemplate: &LongCompareTemplate null
+    LongCompareArgsTemplate: &LongCompareArgsTemplate null
     LongIsOddTemplate: &LongIsOddTemplate null
     LongIsOddArgsTemplate: &LongIsOddArgsTemplate null
     LongIsZeroTemplate: &LongIsZeroTemplate null
@@ -68,10 +91,18 @@ Templates:
     LongLessThanArgsTemplate: &LongLessThanArgsTemplate null
     LongLessThanOrEqualTemplate: &LongLessThanOrEqualTemplate null
     LongLessThanOrEqualArgsTemplate: &LongLessThanOrEqualArgsTemplate null
+    TimestampToStringTemplate: &TimestampToStringTemplate null
+    TimestampToStringArgsTemplate: &TimestampToStringArgsTemplate null
+    TimestampEqualsTemplate: &TimestampEqualsTemplate null
+    TimestampEqualsArgsTemplate: &TimestampEqualsArgsTemplate null
     TimestampGetLowBitsTemplate: &TimestampGetLowBitsTemplate null
+    TimestampGetLowBitsArgsTemplate: &TimestampGetLowBitsArgsTemplate null
     TimestampGetHighBitsTemplate: &TimestampGetHighBitsTemplate null
+    TimestampGetHighBitsArgsTemplate: &TimestampGetHighBitsArgsTemplate null
     TimestampToJSONTemplate: &TimestampToJSONTemplate null
+    TimestampToJSONArgsTemplate: &TimestampToJSONArgsTemplate null
     TimestampCompareTemplate: &TimestampCompareTemplate null
+    TimestampCompareArgsTemplate: &TimestampCompareArgsTemplate null
     TimestampNotEqualsTemplate: &TimestampNotEqualsTemplate null
     TimestampNotEqualsArgsTemplate: &TimestampNotEqualsArgsTemplate null
     TimestampGreaterThanTemplate: &TimestampGreaterThanTemplate null
@@ -83,9 +114,13 @@ Templates:
     TimestampLessThanOrEqualTemplate: &TimestampLessThanOrEqualTemplate null
     TimestampLessThanOrEqualArgsTemplate: &TimestampLessThanOrEqualArgsTemplate null
     SymbolValueOfTemplate: &SymbolValueOfTemplate null
+    SymbolValueOfArgsTemplate: &SymbolValueOfArgsTemplate null
     SymbolInspectTemplate: &SymbolInspectTemplate null
+    SymbolInspectArgsTemplate: &SymbolInspectArgsTemplate null
     SymbolToJSONTemplate: &SymbolToJSONTemplate null
+    SymbolToJSONArgsTemplate: &SymbolToJSONArgsTemplate null
     SymbolToStringTemplate: &SymbolToStringTemplate null
+    SymbolToStringArgsTemplate: &SymbolToStringArgsTemplate null
     # Symbol Templates
     CodeSymbolTemplate: &CodeSymbolTemplate null # Has emit method
     CodeSymbolArgsTemplate: &CodeSymbolArgsTemplate null
@@ -140,11 +175,15 @@ Templates:
     Decimal128SymbolArgsTemplate: &Decimal128SymbolArgsTemplate null
     Decimal128SymbolFromStringTemplate: &Decimal128SymbolFromStringTemplate null
     Decimal128SymbolFromStringArgsTemplate: &Decimal128SymbolFromStringArgsTemplate null
+    Decimal128ToStringTemplate: &Decimal128ToStringTemplate null
+    Decimal128ToStringArgsTemplate: &Decimal128ToStringArgsTemplate null
     # BSON Util Templates
     ObjectIdCreateFromHexStringTemplate: &ObjectIdCreateFromHexStringTemplate null
     ObjectIdCreateFromHexStringArgsTemplate: &ObjectIdCreateFromHexStringArgsTemplate null
     ObjectIdCreateFromTimeTemplate: &ObjectIdCreateFromTimeTemplate null
     ObjectIdCreateFromTimeArgsTemplate: &ObjectIdCreateFromTimeArgsTemplate null
+    ObjectIdIsValidTemplate: &ObjectIdIsValidTemplate null
+    ObjectIdIsValidArgsTemplate: &ObjectIdIsValidArgsTemplate null
     # JS Symbol Templates
     ObjectSymbolTemplate: &ObjectSymbolTemplate null
     ObjectSymbolArgsTemplate: &ObjectSymbolArgsTemplate null

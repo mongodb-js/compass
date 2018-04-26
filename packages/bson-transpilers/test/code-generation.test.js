@@ -2,7 +2,7 @@ const { readJSON, runTest } = require('./helpers');
 const fs = require('fs');
 const path = require('path');
 
-const outputLanguages = ['java'];
+const outputLanguages = ['java', 'python'];
 const inputLanguages = ['shell', 'javascript'];
 
 describe('Test', () => {

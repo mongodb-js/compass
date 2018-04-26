@@ -17,18 +17,25 @@ BsonTypes:
             toString:
                 <<: *__func
                 type: *StringType
+                template: *ObjectIdToStringTemplate
+                argsTemplate: *ObjectIdToStringArgsTemplate
             toJSON:
                 <<: *__func
                 type: *StringType
                 template: *ObjectIdToJSONTemplate
+                argsTemplate: *ObjectIdToJSONArgsTemplate
             equals:
                 <<: *__func
                 args:
                     - [ "ObjectId" ]
                 type: *BoolType
+                template: *ObjectIdEqualsTemplate
+                argsTemplate: *ObjectIdEqualsArgsTemplate
             getTimestamp:
                 <<: *__func
                 type: *IntegerType
+                template: *ObjectIdGetTimestampTemplate
+                argsTemplate: *ObjectIdGetTimestampArgsTemplate
     BinData: &BinaryType
         <<: *__type
         id: "BinData"
@@ -39,19 +46,25 @@ BsonTypes:
                 id: "value"
                 type: *StringType
                 template: *BinaryValueTemplate
+                argsTemplate: *BinaryValueArgsTemplate
             length:
                 <<: *__func
                 id: "length"
                 type: *IntegerType
+                template: *BinaryLengthTemplate
+                argsTemplate: *BinaryLengthArgsTemplate
             toString:
                 <<: *__func
                 id: "toString"
                 type: *StringType
+                template: *BinaryToStringTemplate
+                argsTemplate: *BinaryToStringArgsTemplate
             toJSON:
                 <<: *__func
                 id: "toJSON"
                 type: *StringType
                 template: *BinaryToJSONTemplate
+                argsTemplate: *BinaryToJSONArgsTemplate
     DBRef: &DBRefType
         <<: *__type
         id: "DBRef"
@@ -69,13 +82,15 @@ BsonTypes:
             valueOf:
                 <<: *__func
                 id: "valueOf"
-                type: *Int32Type
+                type: *IntegerType
                 template: *Int32ValueOfTemplate
+                argsTemplate: *Int32ValueOfArgsTemplate
             toJSON:
                 <<: *__func
                 id: "toJSON"
-                type: *Int32Type
+                type: *IntegerType
                 template: *Int32ToJSONTemplate
+                argsTemplate: *Int32ToJSONArgsTemplate
     NumberLong: &LongType
         <<: *__type
         id: "NumberLong"
@@ -93,11 +108,14 @@ BsonTypes:
                 args:
                     - [ "Long" ]
                 type: *BoolType
+                template: *LongEqualsTemplate
+                argsTemplate: *LongEqualsArgsTemplate
             toJSON:
                 <<: *__func
                 id: "toJSON"
                 type: *StringType
                 template: *LongToJSONTemplate
+                argsTemplate: *LongToJSONArgsTemplate
             toInt:
                 <<: *__func
                 id: "toInt"
@@ -108,6 +126,7 @@ BsonTypes:
                 id: "toNumber"
                 type: *DecimalType
                 template: *LongToNumberTemplate
+                argsTemplate: *LongToNumberArgsTemplate
             compare:
                 <<: *__func
                 id: "compare"
@@ -115,6 +134,7 @@ BsonTypes:
                     - [ "Long" ]
                 type: *StringType
                 template: *LongCompareTemplate
+                argsTemplate: *LongCompareArgsTemplate
             isOdd:
                 <<: *__func
                 id: "isOdd"
@@ -282,27 +302,34 @@ BsonTypes:
                 <<: *__func
                 id: "toString"
                 type: *StringType
+                template: *TimestampToStringTemplate
+                argsTemplate: *TimestampToStringArgsTemplate
             equals:
                 <<: *__func
                 id: "equals"
                 args:
                     - [ "Timestamp" ]
                 type: *BoolType
+                template: *TimestampEqualsTemplate
+                argsTemplate: *TimestampEqualsArgsTemplate
             getLowBits:
                 <<: *__func
                 id: "getLowBits"
                 type: *IntegerType
                 template: *TimestampGetLowBitsTemplate
+                argsTemplate: *TimestampGetLowBitsArgsTemplate
             getHighBits:
                 <<: *__func
                 id: "getHighBits"
                 type: *IntegerType
                 template: *TimestampGetHighBitsTemplate
+                argsTemplate: *TimestampGetHighBitsArgsTemplate
             toJSON:
                 <<: *__func
                 id: "toJSON"
                 type: *StringType
                 template: *TimestampToJSONTemplate
+                argsTemplate: *TimestampToJSONArgsTemplate
             compare:
                 <<: *__func
                 id: "compare"
@@ -310,6 +337,7 @@ BsonTypes:
                     - [ "Timestamp" ]
                 type: *StringType
                 template: *TimestampCompareTemplate
+                argsTemplate: *TimestampCompareArgsTemplate
             notEquals:
                 <<: *__func
                 id: "notEquals"
@@ -360,21 +388,25 @@ BsonTypes:
                 id: "valueOf"
                 type: *StringType
                 template: *SymbolValueOfTemplate
+                argsTemplate: *SymbolValueOfArgsTemplate
             toString:
                 <<: *__func
                 id: "toString"
                 type: *StringType
                 template: *SymbolToStringTemplate
+                argsTemplate: *SymbolToStringArgsTemplate
             toJSON:
                 <<: *__func
                 id: "toJSON"
                 type: *StringType
                 template: *SymbolToJSONTemplate
+                argsTemplate: *SymbolToJSONArgsTemplate
             inspect:
                 <<: *__func
                 id: "inspect"
                 type: *StringType
                 template: *SymbolInspectTemplate
+                argsTemplate: *SymbolInspectArgsTemplate
     NumberDecimal: &Decimal128Type
         <<: *__type
         id: "Decimal128"
@@ -384,6 +416,8 @@ BsonTypes:
                 <<: *__func
                 id: "toString"
                 type: *StringType
+                template: *Decimal128ToStringTemplate
+                argsTemplate: *Decimal128ToStringArgsTemplate
             toJSON:
                 <<: *__func
                 id: "Decimal128toJSON" # Needs emit method

@@ -72,46 +72,68 @@ Templates:
         }
     LongTypeArgsTemplate: &LongSymbolArgsTemplate null
     # BSON Object Method templates
+    ObjectIdToStringTemplate: &ObjectIdToStringTemplate null
+    ObjectIdToStringArgsTemplate: &ObjectIdToStringArgsTemplate null
     ObjectIdToJSONTemplate: &ObjectIdToJSONTemplate !!js/function >
         (lhs) => {
             return `${lhs}.toHexString`;
         }
+    ObjectIdToJSONArgsTemplate: &ObjectIdToJSONArgsTemplate null
+    ObjectIdEqualsTemplate: &ObjectIdEqualsTemplate null
+    ObjectIdEqualsArgsTemplate: &ObjectIdEqualsArgsTemplate null
+    ObjectIdGetTimestampTemplate: &ObjectIdGetTimestampTemplate null
+    ObjectIdGetTimestampArgsTemplate: &ObjectIdGetTimestampArgsTemplate null
     BinaryValueTemplate: &BinaryValueTemplate !!js/function >
         (lhs) => {
             return `${lhs}.getData`;
         }
+    BinaryValueArgsTemplate: &BinaryValueArgsTemplate null
+    BinaryLengthTemplate: &BinaryLengthTemplate null
+    BinaryLengthArgsTemplate: &BinaryLengthArgsTemplate null
+    BinaryToStringTemplate: &BinaryToStringTemplate null
+    BinaryToStringArgsTemplate: &BinaryToStringArgsTemplate null
     BinaryToJSONTemplate: &BinaryToJSONTemplate !!js/function >
         (lhs) => {
             return `${lhs}.toString`;
         }
+    BinaryToJSONArgsTemplate: &BinaryToJSONArgsTemplate null
     DoubleToJSONTemplate: &DoubleToJSONTemplate !!js/function >
         (lhs) => {
             return `${lhs}.doubleValue`;
         }
+    DoubleToJSONArgsTemplate: &DoubleToJSONArgsTemplate null
     DoubleValueOfTemplate: &DoubleValueOfTemplate !!js/function >
         (lhs) => {
             return `${lhs}.doubleValue`;
         }
+    DoubleValueOfArgsTemplate: &DoubleValueOfArgsTemplate null
     Int32ToJSONTemplate: &Int32ToJSONTemplate !!js/function >
         (lhs) => {
             return `${lhs}.intValue`;
         }
+    nt32ToJSONArgsTemplate: &Int32ToJSONArgsTemplate null
     Int32ValueOfTemplate: &Int32ValueOfTemplate !!js/function >
         (lhs) => {
             return `${lhs}.intValue`;
         }
+    Int32ValueOfArgsTemplate: &Int32ValueOfArgsTemplate null
+    LongEqualsTemplate: &LongEqualsTemplate null
+    LongEqualsArgsTemplate: &LongEqualsArgsTemplate null
     LongToJSONTemplate: &LongToJSONTemplate !!js/function >
         (lhs) => {
             return `${lhs}.toString`;
         }
+    LongToJSONArgsTemplate: &LongToJSONArgsTemplate null
     LongToIntTemplate: &LongToIntTemplate !!js/function >
         (lhs) => {
             return `${lhs}.intValue`;
         }
+    LongToIntArgsTemplate: &LongToIntArgsTemplate null
     LongToNumberTemplate: &LongToNumberTemplate !!js/function >
         (lhs) => {
             return `${lhs}.floatValue`;
         }
+    LongToNumberArgsTemplate: &LongToNumberArgsTemplate null
     LongAddTemplate: &LongAddTemplate !!js/function >
         (lhs) => {
             return lhs;
@@ -196,6 +218,7 @@ Templates:
         (lhs) => {
             return `${lhs}.compareTo`;
         }
+    LongCompareArgsTemplate: &LongCompareArgsTemplate null
     LongIsOddTemplate: &LongIsOddTemplate !!js/function >
         (lhs) => {
             return lhs;
@@ -276,22 +299,30 @@ Templates:
         (lhs, arg) => {
             return `(${arg}) <= 0`;
         }
+    TimestampToStringTemplate: &TimestampToStringTemplate null
+    TimestampToStringArgsTemplate: &TimestampToStringArgsTemplate null
+    TimestampEqualsTemplate: &TimestampEqualsTemplate null
+    TimestampEqualsArgsTemplate: &TimestampEqualsArgsTemplate null
     TimestampGetLowBitsTemplate: &TimestampGetLowBitsTemplate !!js/function >
         (lhs) => {
             return `${lhs}.getTime`;
         }
+    TimestampGetLowBitsArgsTemplate: &TimestampGetLowBitsArgsTemplate null
     TimestampGetHighBitsTemplate: &TimestampGetHighBitsTemplate !!js/function >
         (lhs) => {
             return `${lhs}.getInc`;
         }
+    TimestampGetHighBitsArgsTemplate: &TimestampGetHighBitsArgsTemplate null
     TimestampToJSONTemplate: &TimestampToJSONTemplate !!js/function >
         (lhs) => {
             return `${lhs}.toString`;
         }
+    TimestampToJSONArgsTemplate: &TimestampToJSONArgsTemplate null
     TimestampCompareTemplate: &TimestampCompareTemplate !!js/function >
         (lhs) => {
             return `${lhs}.compareTo`;
         }
+    TimestampCompareArgsTemplate: &TimestampCompareArgsTemplate null
     TimestampNotEqualsTemplate: &TimestampNotEqualsTemplate !!js/function >
         (lhs) => {
             return `${lhs}.compareTo`;
@@ -336,18 +367,22 @@ Templates:
         (lhs) => {
             return `${lhs}.getSymbol`;
         }
+    SymbolValueOfArgsTemplate: &SymbolValueOfArgsTemplate null
     SymbolInspectTemplate: &SymbolInspectTemplate !!js/function >
         (lhs) => {
             return `${lhs}.getSymbol`;
         }
+    SymbolInspectArgsTemplate: &SymbolInspectArgsTemplate null
     SymbolToJSONTemplate: &SymbolToJSONTemplate !!js/function >
         (lhs) => {
             return `${lhs}.toString`;
         }
+    SymbolToJSONArgsTemplate: &SymbolToJSONArgsTemplate null
     SymbolToStringTemplate: &SymbolToStringTemplate !!js/function >
         (lhs) => {
             return `${lhs}.toString`;
         }
+    SymbolToStringArgsTemplate: &SymbolToStringArgsTemplate null
     # Symbol Templates
     CodeSymbolTemplate: &CodeSymbolTemplate  !!js/function >
         () => {
@@ -468,6 +503,8 @@ Templates:
             return `${lhs}.parse`;
         }
     Decimal128SymbolFromStringArgsTemplate: &Decimal128SymbolFromStringArgsTemplate null
+    Decimal128ToStringTemplate: &Decimal128ToStringTemplate null
+    Decimal128ToStringArgsTemplate: &Decimal128ToStringArgsTemplate null
     # BSON Util Templates
     ObjectIdCreateFromHexStringTemplate: &ObjectIdCreateFromHexStringTemplate !!js/function >
         () => {
@@ -485,6 +522,8 @@ Templates:
         (lhs, arg) => {
             return `new ObjectId(new java.util.Date(${arg}))`;
         }
+    ObjectIdIsValidTemplate: &ObjectIdIsValidTemplate null
+    ObjectIdIsValidArgsTemplate: &ObjectIdIsValidArgsTemplate null
     # JS Symbol Templates
     ObjectSymbolTemplate: &ObjectSymbolTemplate null
     ObjectSymbolArgsTemplate: &ObjectSymbolArgsTemplate null

@@ -171,7 +171,7 @@
       {
         "description": "Date string with ISO String",
         "javascript": "Date('December 17, 1995 03:24:00Z')",
-        "python": "",
+        "python": "datetime.datetime(1995, 12, 17, 3, 24, 0, tzinfo=datetime.timezone.utc).strftime('%a %b %d %Y %H:%M:%S %Z')",
         "java": "new java.util.Date(new java.lang.Long(819170640000)).toString()",
         "csharp": "",
         "shell": "Date('December 17, 1995 03:24:00Z')"
@@ -179,7 +179,7 @@
       {
         "description": "Date string with UTC number",
         "javascript": "Date(819167040000)",
-        "python": "",
+        "python": "datetime.datetime(1995, 12, 17, 2, 24, 0, tzinfo=datetime.timezone.utc).strftime('%a %b %d %Y %H:%M:%S %Z')",
         "java": "new java.util.Date(new java.lang.Long(819167040000)).toString()",
         "csharp": "",
         "shell": "Date(819167040000)"
@@ -187,7 +187,7 @@
       {
         "description": "Current date string",
         "javascript": "Date()",
-        "python": "",
+        "python": "datetime.datetime.utcnow().date().strftime('%a %b %d %Y %H:%M:%S %Z')",
         "java": "new java.util.Date().toString()",
         "csharp": "",
         "shell": "Date()"
@@ -195,7 +195,7 @@
       {
         "description": "Date string from year, month and day",
         "javascript": "Date(1995, 11, 17)",
-        "python": "",
+        "python": "datetime.datetime(1995, 12, 17, 0, 0, 0, tzinfo=datetime.timezone.utc).strftime('%a %b %d %Y %H:%M:%S %Z')",
         "java": "new java.util.Date(new java.lang.Long(819158400000)).toString()",
         "csharp": "",
         "shell": "Date(1995, 11, 17)"
@@ -203,7 +203,7 @@
       {
         "description": "Date string from year, month, day, hour, min and sec",
         "javascript": "Date(1995, 11, 17, 3, 24, 0)",
-        "python": "",
+        "python": "datetime.datetime(1995, 12, 17, 3, 24, 0, tzinfo=datetime.timezone.utc).strftime('%a %b %d %Y %H:%M:%S %Z')",
         "java": "new java.util.Date(new java.lang.Long(819170640000)).toString()",
         "csharp": "",
         "shell": "Date(1995, 11, 17, 3, 24, 0)"

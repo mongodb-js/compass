@@ -80,7 +80,7 @@
       {
         "description": "Binary with ascii buffer arg",
         "javascript": "Binary(Buffer.from('a string'))",
-        "python": "Binary(bytes('a string', 'utf-8'))",
+        "python": "Binary(b'a string')",
         "java": "new Binary(\"a string\".getBytes(\"UTF-8\"))",
         "csharp": "new BsonBinaryData(System.Text.Encoding.ASCII.GetBytes(\"a string\"))",
         "shell": ""
@@ -88,7 +88,7 @@
       {
         "description": "new Binary with (ascii buffer, UUID subtype enum) args",
         "javascript": "new Binary(Buffer.from(\"a string\"), Binary.SUBTYPE_UUID)",
-        "python": "Binary(bytes('a string', 'utf-8'), bson.binary.UUID_SUBTYPE)",
+        "python": "Binary(b'a string', bson.binary.UUID_SUBTYPE)",
         "java": "new Binary(org.bson.BsonBinarySubType.UUID, \"a string\".getBytes(\"UTF-8\"))",
         "csharp": "new BsonBinaryData(System.Text.Encoding.ASCII.GetBytes(\"a string\"), BsonBinarySubType.UuidStandard)",
         "shell": ""
@@ -96,7 +96,7 @@
       {
         "description": "Binary with (ascii buffer, number) args",
         "javascript": "Binary(Buffer.from('a string'), '1')",
-        "python": "Binary(bytes('a string', 'utf-8'), bson.binary.FUNCTION_SUBTYPE)",
+        "python": "Binary(b'a string', bson.binary.FUNCTION_SUBTYPE)",
         "java": "new Binary(org.bson.BsonBinarySubType.FUNCTION, \"a string\".getBytes(\"UTF-8\"))",
         "csharp": "new BsonBinaryData(System.Text.Encoding.ASCII.GetBytes(\"a string\"), BsonBinarySubType.Function)",
         "shell": ""
@@ -104,7 +104,7 @@
       {
         "description": "Binary with string args",
         "javascript": "Binary('a string')",
-        "python": "Binary(bytes('a string', 'utf-8'))",
+        "python": "Binary(b'a string')",
         "java": "new Binary(\"a string\".getBytes(\"UTF-8\"))",
         "csharp": "new BsonBinaryData(System.Text.Encoding.ASCII.GetBytes(\"a string\"))",
         "shell": ""
@@ -112,7 +112,7 @@
       {
         "description": "Binary with (string, string) args",
         "javascript": "Binary('a string', '1')",
-        "python": "Binary(bytes('a string', 'utf-8'), bson.binary.FUNCTION_SUBTYPE)",
+        "python": "Binary(b'a string', bson.binary.FUNCTION_SUBTYPE)",
         "java": "new Binary(org.bson.BsonBinarySubType.FUNCTION, \"a string\".getBytes(\"UTF-8\"))",
         "csharp": "new BsonBinaryData(System.Text.Encoding.ASCII.GetBytes(\"a string\"), BsonBinarySubType.Function)",
         "shell": ""
@@ -254,7 +254,7 @@
       {
         "description": "new BSONRegExp with string arg",
         "javascript": "new BSONRegExp('^[a-z0-9_-]{3,16}$')",
-        "python": "RegExp('^[a-z0-9_-]{3,16}$')",
+        "python": "Regex('^[a-z0-9_-]{3,16}$')",
         "java": "new BsonRegularExpression(\"^[a-z0-9_-]{3,16}$\")",
         "csharp": "new BsonRegularExpression(@\"^[a-z0-9_-]{3,16}$\")",
         "shell": ""
@@ -262,7 +262,7 @@
       {
         "description": "new BSONRegExp with string arg and flags",
         "javascript": "new BSONRegExp('^[a-z0-9_-]{3,16}$', 'imuxls')",
-        "python": "RegExp('^[a-z0-9_-]{3,16}$', 'imuxls')",
+        "python": "Regex('^[a-z0-9_-]{3,16}$', 'imuxls')",
         "java": "new BsonRegularExpression(\"^[a-z0-9_-]{3,16}$\", \"imuxls\")",
         "csharp": "new BsonRegularExpression(@\"^[a-z0-9_-]{3,16}$\", \"imxs\")",
         "shell": ""

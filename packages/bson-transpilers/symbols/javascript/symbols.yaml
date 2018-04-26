@@ -38,6 +38,8 @@ BsonSymbols:
                 args:
                     - [ *StringType ]
                 type: *BoolType
+                template: *ObjectIdIsValidTemplate
+                argsTemplate: *ObjectIdIsValidArgsTemplate
         template: *ObjectIdSymbolTemplate
         argsTemplate: *CodeSymbolArgsTemplate
     Binary: &BinarySymbol
