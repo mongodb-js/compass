@@ -41,7 +41,7 @@ BsonSymbols:
         template: *ObjectIdSymbolTemplate
         argsTemplate: *CodeSymbolArgsTemplate
     Binary: &BinarySymbol
-        id: "Binary"
+        id: "BinaryFromJS"
         callable: *constructor
         args:
             - [ *StringType, *NumericType, *ObjectType ]

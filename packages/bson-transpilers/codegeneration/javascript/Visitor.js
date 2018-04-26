@@ -241,7 +241,19 @@ class Visitor extends ECMAScriptVisitor {
     return `${lhs}.${rhs}`;
   }
 
+  /**
+   * New in the shell/js is the same as calling without arguments.
+   * @param {NewExpressionContext} ctx
+   * @return {String}
+   */
   visitNewExpression(ctx) {
+    ctx.singleExpression().wasNew = true;
+    if (!('arguments' in ctx.singleExpression())) {
+      ctx.arguments = () => { return { argumentList: () => { return false; }}; };
+      ctx.type = ctx.singleExpression().type;
+      ctx.getText = () => { return `${ctx.singleExpression().getText()}`; };
+      return this.visitFuncCallExpression(ctx);
+    }
     if ('emitNew' in this) {
       return this.emitNew(ctx);
     }
@@ -329,18 +341,6 @@ class Visitor extends ECMAScriptVisitor {
       Code: function(c, s) {
         return new bson.Code(c, s);
       },
-      NumberDecimal: function(s) {
-        return bson.Decimal128.fromString(s);
-      },
-      NumberInt: function(s) {
-        return parseInt(s, 10);
-      },
-      NumberLong: function(v) {
-        return bson.Long.fromNumber(v);
-      },
-      ISODate: function(s) {
-        return new Date(s);
-      },
       Date: function(s) {
         const args = Array.from(arguments);
 
@@ -409,7 +409,7 @@ class Visitor extends ECMAScriptVisitor {
   checkArguments(expected, argumentList) {
     const argStr = [];
     if (!argumentList) {
-      if (expected.length === 0) {
+      if (expected.length === 0 || expected[0].indexOf(null) !== -1) {
         return argStr;
       }
       throw new SemanticArgumentCountMismatchError({message: 'arguments required'});

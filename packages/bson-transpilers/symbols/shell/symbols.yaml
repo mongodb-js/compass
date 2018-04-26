@@ -1,9 +1,9 @@
 BsonSymbols:
     Code: &CodeSymbol
-        id: "CodeFromShell"
+        id: "Code"
         callable: *constructor
         args:
-            - [ *StringType ]
+            - [ *StringType, null ]
             - [ *ObjectType, null ]
         type: *CodeType
         attr: {}
@@ -13,7 +13,7 @@ BsonSymbols:
         id: "ObjectId"
         callable: *constructor
         args:
-            - [ *StringType, *NumericType, null ]
+            - [ *StringType, null ]
         type: *ObjectIdType
         attr:
             createFromHexString:
@@ -40,56 +40,14 @@ BsonSymbols:
                 type: *BoolType
         template: *ObjectIdSymbolTemplate
         argsTemplate: *CodeSymbolArgsTemplate
-    Binary: &BinarySymbol
-        id: "Binary"
+    BinData: &BinarySymbol
+        id: "BinData"
         callable: *constructor
         args:
-            - [ *StringType, *NumericType, *ObjectType ]
-            - [ *NumericType, null ]
+            - [ *IntegerType ]
+            - [ *StringType ]
         type: *BinaryType
-        attr:
-            SUBTYPE_DEFAULT:
-                id: "SUBTYPE_DEFAULT"
-                callable: *var
-                args: null
-                type: *IntegerType
-                template: *BinarySymbolSubtypeDefaultTemplate
-            SUBTYPE_FUNCTION:
-                id: "SUBTYPE_FUNCTION"
-                callable: *var
-                args: null
-                type: *IntegerType
-                template: *BinarySymbolSubtypeFunctionTemplate
-            SUBTYPE_BYTE_ARRAY:
-                id: "SUBTYPE_BYTE_ARRAY"
-                callable: *var
-                args: null
-                type: *IntegerType
-                template: *BinarySymbolSubtypeByteArrayTemplate
-            SUBTYPE_UUID_OLD:
-                id: "SUBTYPE_UUID_OLD"
-                callable: *var
-                args: null
-                type: *IntegerType
-                template: *BinarySymbolSubtypeUuidOldTemplate
-            SUBTYPE_UUID:
-                id: "SUBTYPE_UUID"
-                callable: *var
-                args: null
-                type: *IntegerType
-                template: *BinarySymbolSubtypeUuidTemplate
-            SUBTYPE_MD5:
-                id: "SUBTYPE_MD5"
-                callable: *var
-                args: null
-                type: *IntegerType
-                template: *BinarySymbolSubtypeMd5Template
-            SUBTYPE_USER_DEFINED:
-                id: "SUBTYPE_USER_DEFINED"
-                callable: *var
-                args: null
-                type: *IntegerType
-                template: *BinarySymbolSubtypeUserDefinedTemplate
+        attr: {}
         template: *BinarySymbolTemplate
         argsTemplate: *BinarySymbolArgsTemplate
     DBRef:
@@ -103,30 +61,20 @@ BsonSymbols:
         attr: {}
         template: *DBRefSymbolTemplate
         argsTemplate: *DBRefSymbolArgsTemplate
-    Double:
-        id: "Double"
-        callable: *constructor
-        args:
-            - [ *NumericType, *StringType ]
-        type: *DoubleType
-        attr: {}
-        template: *DoubleSymbolTemplate
-        argsTemplate: *DoubleSymbolArgsTemplate
-    Int32:
+    NumberInt:
         id: "Int32"
         callable: *constructor
         args:
-            - [ *NumericType, *StringType ]
+            - [ *IntegerType, *StringType, null ]
         type: *Int32Type
         attr: {}
         template: *Int32SymbolTemplate
         argsTemplate: *Int32SymbolArgsTemplate
-    Long:
+    NumberLong:
         id: "Long"
         callable: *constructor
         args:
-            - [ *NumericType ]
-            - [ *NumericType ]
+            - [ *NumericType, *StringType, null ]
         type: *LongType
         attr:
             MAX_VALUE:
@@ -229,8 +177,8 @@ BsonSymbols:
         id: "Timestamp"
         callable: *constructor
         args:
-            - [ *NumericType ]
-            - [ *NumericType ]
+            - [ *IntegerType, null ]
+            - [ *IntegerType, null ]
         type: *TimestampType
         attr: {}
         template: *TimestampSymbolTemplate
@@ -244,21 +192,11 @@ BsonSymbols:
         attr: {}
         template: *SymbolSymbolTemplate
         argsTemplate: *SymbolSymbolArgsTemplate
-    BSONRegExp:
-        id: "BSONRegExp"
-        callable: *constructor
-        args:
-            - [ *StringType ]
-            - [ *StringType, null ]
-        type: *BSONRegExpType
-        attr: {}
-        template: *BSONRegExpSymbolTemplate
-        argsTemplate: *BSONRegExpSymbolArgsTemplate
-    Decimal128:
+    NumberDecimal:
         id: "Decimal128"
         callable: *constructor
         args:
-            - [ *ObjectType ]
+            - [ *StringType, *NumericType, null ]
         type: *Decimal128Type
         attr:
             fromString:
@@ -295,7 +233,7 @@ JSSymbols:
         id: "Number"
         callable: *constructor
         args:
-            - [ *NumericType, *StringType ]
+            - [ *IntegerType, *StringType, null ]
         type: *NumericType
         attr: {} # TODO: no built-in number funcs added yet
         template: *NumberSymbolTemplate
@@ -306,6 +244,22 @@ JSSymbols:
         args: null
         type: *DateType
         attr: # TODO: add more date funcs?
+            now:
+                id: "now"
+                callable: *constructor
+                args: []
+                type: *DateType
+                attr: {}
+                template: *DateSymbolNowTemplate
+                argsTemplate: *DateSymbolNowArgsTemplate
+        template: *DateSymbolTemplate
+        argsTemplate: *DateSymbolArgsTemplate
+    ISODate: # Needs emit method
+        id: "Date"
+        callable: *constructor
+        args: null
+        type: *DateType
+        attr:
             now:
                 id: "now"
                 callable: *constructor

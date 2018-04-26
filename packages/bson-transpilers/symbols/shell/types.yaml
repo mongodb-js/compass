@@ -29,9 +29,9 @@ BsonTypes:
             getTimestamp:
                 <<: *__func
                 type: *IntegerType
-    Binary: &BinaryType
+    BinData: &BinaryType
         <<: *__type
-        id: "Binary"
+        id: "BinData"
         type: *ObjectType
         attr:
             value:
@@ -61,24 +61,9 @@ BsonTypes:
                 <<: *__func
                 id: "DBReftoJSON" # Needs emit method
                 type: *ObjectType
-    Double: &DoubleType
+    NumberInt: &Int32Type
         <<: *__type
-        id: "Double"
-        type: *ObjectType
-        attr:
-            valueOf:
-                <<: *__func
-                id: "valueOf"
-                type: *IntegerType
-                template: *DoubleValueOfTemplate
-            toJSON:
-                <<: *__func
-                id: "toJSON"
-                type: *IntegerType
-                template: *DoubleToJSONTemplate
-    Int32: &Int32Type
-        <<: *__type
-        id: "Int32"
+        id: "NumberInt"
         type: *ObjectType
         attr:
             valueOf:
@@ -91,9 +76,9 @@ BsonTypes:
                 id: "toJSON"
                 type: *Int32Type
                 template: *Int32ToJSONTemplate
-    Long: &LongType
+    NumberLong: &LongType
         <<: *__type
-        id: "Long"
+        id: "NumberLong"
         type: *ObjectType
         attr:
             toString:
@@ -288,13 +273,9 @@ BsonTypes:
         <<: *__type
         id: "MaxKey"
         type: *ObjectType
-    BSONRegExpType: &BSONRegExpType
-        <<: *__type
-        id: "BSONRegExp"
-        type: *ObjectType
     Timestamp: &TimestampType
         <<: *__type
-        id: "Timestamp"
+        id: "TimestampFromShell"
         type: *ObjectType
         attr:
             toString:
@@ -394,7 +375,7 @@ BsonTypes:
                 id: "inspect"
                 type: *StringType
                 template: *SymbolInspectTemplate
-    Decimal128: &Decimal128Type
+    NumberDecimal: &Decimal128Type
         <<: *__type
         id: "Decimal128"
         type: *ObjectType

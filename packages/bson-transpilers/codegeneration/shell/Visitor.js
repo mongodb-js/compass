@@ -2,7 +2,9 @@
 const JavascriptVisitor = require('../javascript/Visitor');
 const bson = require('bson');
 const Context = require('context-eval');
-// const { } = require('../../helper/error');
+const {
+  SemanticReferenceError
+} = require('../../helper/error');
 
 /**
  * This is a Visitor superclass where helper methods used by all language
@@ -14,6 +16,26 @@ class Visitor extends JavascriptVisitor {
   constructor() {
     super();
     this.new = '';
+  }
+
+  visitIdentifierExpression(ctx) {
+    const name = this.visitChildren(ctx);
+    ctx.type = this.Symbols[name];
+    if (ctx.type === undefined) {
+      throw new SemanticReferenceError({
+        message: `symbol "${name}" is undefined`
+      });
+    }
+    // Special case MinKey/MaxKey because they don't have to be called in shell
+    if ((ctx.type.id === 'MinKey' || ctx.type.id === 'MaxKey') &&
+        ctx.parentCtx.constructor.name !== 'FuncCallExpressionContext' &&
+        ctx.parentCtx.constructor.name !== 'NewExpressionContext') {
+      return `new ${ctx.type.id}()`;
+    }
+    if (ctx.type.template) {
+      return ctx.type.template();
+    }
+    return name;
   }
 
   executeJavascript(input) {
@@ -30,12 +52,18 @@ class Visitor extends JavascriptVisitor {
         return new bson.Code(c, s);
       },
       NumberDecimal: function(s) {
-        return bson.Decimal128.fromString(s);
+        if (s === undefined) {
+          s = '0';
+        }
+        return bson.Decimal128.fromString(s.toString());
       },
       NumberInt: function(s) {
         return parseInt(s, 10);
       },
       NumberLong: function(v) {
+        if (v === undefined) {
+          v = 0;
+        }
         return bson.Long.fromNumber(v);
       },
       ISODate: function(s) {

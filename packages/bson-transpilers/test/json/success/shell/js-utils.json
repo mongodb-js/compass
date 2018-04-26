@@ -6,7 +6,8 @@
         "javascript": "Date.now()",
         "python": "datetime.datetime.utcnow()",
         "java": "new java.util.Date()",
-        "csharp": ""
+        "csharp": "",
+        "shell": "Date.now()"
       }
     ]
   }

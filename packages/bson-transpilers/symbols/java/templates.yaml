@@ -17,7 +17,7 @@ Templates:
     IntegerTypeTemplate: &IntegerTypeTemplate null
     DecimalTypeTemplate: &DecimalTypeTemplate !!js/function >
         (literal) => {
-            return `new java.lang.Float(${literal})`;
+            return `new java.lang.Double(${literal})`;
         }
     LongBasicTypeTemplate: &LongBasicTypeTemplate !!js/function >
         (literal) => {
@@ -61,6 +61,16 @@ Templates:
                 return `${str}.append(${newStr}, ${pair[1]})`;
             }, '');
         }
+    DoubleTypeTemplate: &DoubleTypeTemplate !!js/function >
+        (literal) => {
+            return `new java.lang.Double(${literal})`;
+        }
+    DoubleTypeArgsTemplate: &DoubleTypeArgsTemplate null
+    LongTypeTemplate: &LongTemplate !!js/function >
+        () => {
+            return 'java.lang.Long';
+        }
+    LongTypeArgsTemplate: &LongSymbolArgsTemplate null
     # BSON Object Method templates
     ObjectIdToJSONTemplate: &ObjectIdToJSONTemplate !!js/function >
         (lhs) => {
@@ -339,8 +349,14 @@ Templates:
             return `${lhs}.toString`;
         }
     # Symbol Templates
-    CodeSymbolTemplate: &CodeSymbolTemplate null # Has emit method
-    CodeSymbolArgsTemplate: &CodeSymbolArgsTemplate null
+    CodeSymbolTemplate: &CodeSymbolTemplate  !!js/function >
+        () => {
+            return '';
+        }
+    CodeSymbolArgsTemplate: &CodeSymbolArgsTemplate !!js/function >
+        (lhs, code, scope) => {
+            return (scope === undefined) ? `Code(${code === undefined ? '""' : code})` : `CodeWithScope(${code === undefined ? '""' : code}, ${scope})`;
+        }
     ObjectIdSymbolTemplate: &ObjectIdSymbolTemplate null # Has emit method
     ObjectIdSymbolArgsTemplate: &ObjectIdSymbolArgsTemplate null
     BinarySymbolTemplate: &BinarySymbolTemplate null # Has emit method
@@ -384,7 +400,10 @@ Templates:
         () => {
             return 'java.lang.Integer';
         }
-    Int32SymbolArgsTemplate: &Int32SymbolArgsTemplate null
+    Int32SymbolArgsTemplate: &Int32SymbolArgsTemplate !!js/function >
+        (lhs, arg) => {
+            return `(${arg === undefined ? 0 : arg})`;
+        }
     LongSymbolTemplate: &LongSymbolTemplate !!js/function >
         () => {
             return 'java.lang.Long';
@@ -434,7 +453,10 @@ Templates:
         () => {
             return 'BSONTimestamp';
         }
-    TimestampSymbolArgsTemplate: &TimestampSymbolArgsTemplate null
+    TimestampSymbolArgsTemplate: &TimestampSymbolArgsTemplate !!js/function >
+        (lhs, arg1, arg2) => {
+            return `(${arg1 === undefined ? 0 : arg1}, ${arg2 === undefined ? 0 : arg2})`;
+        }
     SymbolSymbolTemplate: &SymbolSymbolTemplate null
     SymbolSymbolArgsTemplate: &SymbolSymbolArgsTemplate null
     BSONRegExpSymbolTemplate: &BSONRegExpSymbolTemplate null # Has emit method
@@ -478,7 +500,10 @@ Templates:
         () => {
             return 'java.lang.Long';
         }
-    NumberSymbolArgsTemplate: &NumberSymbolArgsTemplate null
+    NumberSymbolArgsTemplate: &NumberSymbolArgsTemplate !!js/function >
+        (lhs, arg) => {
+            return `(${arg === undefined ? 0 : arg})`;
+        }
     DateSymbolTemplate: &DateSymbolTemplate null
     DateSymbolArgsTemplate: &DateSymbolArgsTemplate null
     DateSymbolNowTemplate: &DateSymbolNowTemplate !!js/function >

@@ -85,10 +85,16 @@ module.exports = (superClass) => class ExtendedVisitor extends superClass {
    * @return {String}
    */
   emitDate(ctx) {
+    let toStr = '';
     ctx.type = this.Types.Date;
+    if (!ctx.wasNew && this.visit(ctx.singleExpression()) !== 'ISODate') {
+      ctx.type = this.Types._string;
+      toStr = '.toString()';
+    }
+
     const args = ctx.arguments();
     if (!args.argumentList()) {
-      return 'new java.util.Date()';
+      return `new java.util.Date()${toStr}`;
     }
     let epoch;
     try {
@@ -96,7 +102,7 @@ module.exports = (superClass) => class ExtendedVisitor extends superClass {
     } catch (error) {
       throw new SemanticGenericError({message: error.message});
     }
-    return `new java.util.Date(${epoch})`;
+    return `new java.util.Date(new java.lang.Long(${epoch}))${toStr}`;
   }
 
   /**
@@ -209,7 +215,7 @@ module.exports = (superClass) => class ExtendedVisitor extends superClass {
    * @param {FuncCallExpressionContext} ctx
    * @return {String}
    */
-  emitBinary(ctx) {
+  emitBinaryFromJS(ctx) {
     ctx.type = this.Types.Binary;
     let type;
     let binobj;
@@ -227,6 +233,22 @@ module.exports = (superClass) => class ExtendedVisitor extends superClass {
     return `new Binary(${this.binary_subTypes[type]}, ${bytes}.getBytes("UTF-8"))`;
   }
 
+  emitBinData(ctx) {
+    ctx.type = this.Types.BinData;
+    const argList = ctx.arguments().argumentList();
+    const args = this.checkArguments(this.Symbols.BinData.args, argList);
+
+    const subtype = parseInt(argList.singleExpression()[0].getText(), 10);
+    const bindata = args[1];
+    if (!(subtype >= 0 && subtype <= 5 || subtype === 128)) {
+      throw new SemanticGenericError({message: 'BinData subtype must be a Number between 0-5 or 128'});
+    }
+    if (bindata.match(/^([0-9a-zA-Z+/]{4})*(([0-9a-zA-Z+/]{2}==)|([0-9a-zA-Z+/]{3}=))?$/)) {
+      throw new SemanticGenericError({message: 'invalid base64'});
+    }
+    return `new Binary(${this.binary_subTypes[subtype]}, ${bindata}.getBytes("UTF-8"))`;
+  }
+
   /**
    * TODO: Maybe move this to javascript/Visitor and use template?
    *
@@ -240,7 +262,7 @@ module.exports = (superClass) => class ExtendedVisitor extends superClass {
     ctx.type = this.Types.Long;
     let longstr;
     try {
-      longstr = this.executeJavascript(ctx.getText()).toString();
+      longstr = this.executeJavascript(`new ${ctx.getText()}`).toString();
     } catch (error) {
       throw new SemanticGenericError({message: error.message});
     }

@@ -77,7 +77,7 @@ describe('CodeGeneration helper functions', () => {
         [compiler.Types._hex],
         [compiler.Types._octal]
       ];
-      expect(compiler.start(str)).to.equal('TestFunc(100, new java.lang.Float(200), 300, 400)');
+      expect(compiler.start(str)).to.equal('TestFunc(100, new java.lang.Double(200), 300, 400)');
     });
     it('does not cast numeric', () => {
       const str = getTree('TestFunc(10, 10.01, 0x6, 0o5)');
@@ -87,7 +87,7 @@ describe('CodeGeneration helper functions', () => {
         [compiler.Types._numeric],
         [compiler.Types._numeric]
       ];
-      expect(compiler.start(str)).to.equal('TestFunc(new java.lang.Long(10), new java.lang.Float(10.01), 0x6, 05)');
+      expect(compiler.start(str)).to.equal('TestFunc(new java.lang.Long(10), new java.lang.Double(10.01), 0x6, 05)');
     });
     it('casts long, dec, hex, octal, and Number to long', () => {
       const str = getTree('TestFunc(10, 10.01, 0x6, 0o5, Number(99))');
@@ -103,7 +103,7 @@ describe('CodeGeneration helper functions', () => {
     it('casts with optional', () => {
       const str = getTree('TestFunc(100)');
       compiler.Symbols.TestFunc.args = [ [compiler.Types._decimal, null] ];
-      expect(compiler.start(str)).to.equal('TestFunc(new java.lang.Float(100))');
+      expect(compiler.start(str)).to.equal('TestFunc(new java.lang.Double(100))');
     });
     it('accepts Number', () => {
       const str = getTree('Number(1)');

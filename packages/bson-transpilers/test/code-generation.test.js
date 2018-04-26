@@ -3,7 +3,7 @@ const fs = require('fs');
 const path = require('path');
 
 const outputLanguages = ['java'];
-const inputLanguages = ['javascript'];
+const inputLanguages = ['shell', 'javascript'];
 
 describe('Test', () => {
   const pSuccess = path.join(__dirname, 'json', 'success');
