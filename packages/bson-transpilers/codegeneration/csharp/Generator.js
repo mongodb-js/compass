@@ -129,95 +129,6 @@ module.exports = (superclass) => class ExtendedVisitor extends superclass {
   }
 
   /**
-   * BSON Int32 Constructor
-   * depending on whether the initial value is a string or a int, need to parse
-   * or convert
-   *
-   * @param {BSONInt32Object} ctx
-   *
-   * @returns {string} - Int32.Parse("value") OR Convert.ToInt32(value)
-   */
-  emitInt32(ctx) {
-    ctx.type = this.Types.Int32;
-    const args = ctx.arguments().argumentList().singleExpression();
-    const expr = args[0].getText();
-    if (expr.indexOf('\'') >= 0 || expr.indexOf('"') >= 0) {
-      return `Int32.Parse(${doubleQuoteStringify(expr.toString())})`;
-    }
-
-    return `Convert.ToInt32(${expr})`;
-  }
-
-  /**
-   * BSON Long Constructor
-   * needs to execute JS, and add a conversion to int32 for c#
-   *
-   * @param {BSONLongObject} ctx
-   *
-   * @returns {string} - new BsonInt64(Convert.ToInt32(value))
-   */
-  emitLong(ctx) {
-    ctx.type = this.Types.Long;
-    let longstr;
-    try {
-      longstr = this.executeJavascript(ctx.getText()).toString();
-    } catch (error) {
-      throw new SemanticGenericError({message: error.message});
-    }
-    return `new BsonInt64(Convert.ToInt32(${longstr}))`;
-  }
-
-  /**
-   * BSON MinKey Constructor
-   * needs to be in emit, since does not need a 'new' keyword
-   *
-   * @param {BSONMinKeyObject} ctx
-   *
-   * @returns {string} - BsonMinKey.Value
-   */
-  emitMinKey(ctx) {
-    ctx.type = this.Types.MinKey;
-    return 'BsonMinKey.Value';
-  }
-
-  /**
-   * BSON MaxKey Constructor
-   * needs to be in emit, since does not need a 'new' keyword
-   *
-   * @param {BSONMaxKeyObject} ctx
-   *
-   * @returns {string} - BsonMaxKey.Value
-   */
-  emitMaxKey(ctx) {
-    ctx.type = this.Types.MaxKey;
-    return 'BsonMaxKey.Value';
-  }
-
-  emitDate(ctx) {
-    ctx.type = this.Types.Date;
-    if (!ctx.arguments().argumentList()) return 'DateTime.Now';
-
-    let dateStr;
-
-    try {
-      const epoch = this.executeJavascript(ctx.getText());
-
-      dateStr = [
-        epoch.getUTCFullYear(),
-        (epoch.getUTCMonth() + 1),
-        epoch.getUTCDate(),
-        epoch.getUTCHours(),
-        epoch.getUTCMinutes(),
-        epoch.getUTCSeconds()
-      ].join(', ');
-    } catch (error) {
-      throw new SemanticGenericError({message: error.message});
-    }
-
-    return `new DateTime(${dateStr})`;
-  }
-
-  /**
    * BSON RegExp Constructor
    *
    * @param {BSONRegExpConstructorObject} ctx - expects two strings as
@@ -295,6 +206,102 @@ module.exports = (superclass) => class ExtendedVisitor extends superclass {
   }
 
   /**
+   * BSON Long Constructor
+   * needs to execute JS, and add a conversion to int32 for c#
+   *
+   * @param {BSONLongObject} ctx
+   *
+   * @returns {string} - new BsonInt64(Convert.ToInt32(value))
+   */
+  emitLong(ctx) {
+    ctx.type = this.Types.Long;
+    let longstr;
+    try {
+      longstr = this.executeJavascript(ctx.getText()).toString();
+    } catch (error) {
+      throw new SemanticGenericError({message: error.message});
+    }
+    return `new BsonInt64(Convert.ToInt32(${longstr}))`;
+  }
+
+  /**
+   * BSON MinKey Constructor
+   * needs to be in emit, since does not need a 'new' keyword
+   *
+   * @param {BSONMinKeyObject} ctx
+   *
+   * @returns {string} - BsonMinKey.Value
+   */
+  emitMinKey(ctx) {
+    ctx.type = this.Types.MinKey;
+    return 'BsonMinKey.Value';
+  }
+
+  /**
+   * BSON MaxKey Constructor
+   * needs to be in emit, since does not need a 'new' keyword
+   *
+   * @param {BSONMaxKeyObject} ctx
+   *
+   * @returns {string} - BsonMaxKey.Value
+   */
+  emitMaxKey(ctx) {
+    ctx.type = this.Types.MaxKey;
+    return 'BsonMaxKey.Value';
+  }
+
+  /**
+   * BSON Int32 Constructor
+   * depending on whether the initial value is a string or a int, need to parse
+   * or convert
+   *
+   * @param {BSONInt32Object} ctx
+   *
+   * @returns {string} - Int32.Parse("value") OR Convert.ToInt32(value)
+   */
+  emitInt32(ctx) {
+    ctx.type = this.Types.Int32;
+    const args = ctx.arguments().argumentList().singleExpression();
+    const expr = args[0].getText();
+    if (expr.indexOf('\'') >= 0 || expr.indexOf('"') >= 0) {
+      return `Int32.Parse(${doubleQuoteStringify(expr.toString())})`;
+    }
+
+    return `Convert.ToInt32(${expr})`;
+  }
+
+  /**
+   * Date Time
+   *
+   * @param {DateTimeConstructorObject} ctx
+   *
+   * @returns {string} - DateTime(date)
+   */
+  emitDate(ctx) {
+    ctx.type = this.Types.Date;
+    if (!ctx.arguments().argumentList()) return 'DateTime.Now';
+
+    let dateStr;
+
+    try {
+      const epoch = this.executeJavascript(ctx.getText());
+
+      dateStr = [
+        epoch.getUTCFullYear(),
+        (epoch.getUTCMonth() + 1),
+        epoch.getUTCDate(),
+        epoch.getUTCHours(),
+        epoch.getUTCMinutes(),
+        epoch.getUTCSeconds()
+      ].join(', ');
+    } catch (error) {
+      throw new SemanticGenericError({message: error.message});
+    }
+
+    return `new DateTime(${dateStr})`;
+  }
+
+  /**
    * Date Now. This doesn't need a keyword 'new', nor is 'Now' a callable
    * function, so we need to adjust this.
    *
@@ -308,30 +315,34 @@ module.exports = (superclass) => class ExtendedVisitor extends superclass {
     return 'DateTime.Now';
   }
 
-  /**
-   * Visit Object.create() Constructor
-   *
-   * @param {object} ctx
-   * @returns {string}
-   */
-  visitObjectCreateConstructorExpression(ctx) {
-    const argumentList = ctx.arguments().argumentList();
+  emitRegExp(ctx) {
+    ctx.type = this.Types.Regex;
+    let pattern;
+    let flags;
 
-    if (argumentList === null || argumentList.getChildCount() !== 1) {
-      throw new SemanticArgumentCountMismatchError({
-        message: 'Object.create() requires one argument'
-      });
+    try {
+      const regexobj = this.executeJavascript(ctx.getText());
+      pattern = regexobj.source;
+      flags = regexobj.flags;
+    } catch (error) {
+      return error.message;
     }
 
-    const arg = argumentList.singleExpression()[0];
-    const obj = this.visit(arg);
+    // we need to pipe ( "|" ) flags in csharp if there is more than one of them
+    const csharpflags = flags.replace(/[imuyg]/g, (m) => {
+      if (m === flags[flags.length - 1]) {
+        return this.regexFlags[m];
+      }
+      if (this.regexFlags[m] !== '' && flags.length > 1) {
+        return this.regexFlags[m] + ' | ';
+      }
+      return this.regexFlags[m];
+    });
 
-    if (arg.type !== this.Types._object) {
-      throw new SemanticTypeError({
-        message: 'Object.create() requires an object argument'
-      });
-    }
+    const regex = csharpflags === '' ?
+      `new Regex(${doubleQuoteStringify(pattern)})`
+      : `new Regex(${doubleQuoteStringify(pattern)}, ${csharpflags})`;
 
-    return obj;
+    return regex;
   }
 };

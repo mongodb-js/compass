@@ -223,84 +223,84 @@
         "javascript": "RegExp('')",
         "python": "re.compile(r\"(?:)\")",
         "java": "Pattern.compile(\"(?:)\")",
-        "csharp": ""
+        "csharp": "new Regex(\"(?:)\")"
       },
       {
         "description": "RegExp without options",
         "javascript": "RegExp('abc')",
         "python": "re.compile(r\"abc\")",
         "java": "Pattern.compile(\"abc\")",
-        "csharp": ""
+        "csharp": "new Regex(\"abc\")"
       },
       {
         "description": "regex object with im flags as args",
         "javascript": "new RegExp('ab+c', 'im')",
         "python": "re.compile(r\"ab+c(?im)\")",
         "java": "Pattern.compile(\"ab+c(?im)\")",
-        "csharp": ""
+        "csharp": "new Regex(\"ab+c\", RegexOptions.IgnoreCase | RegexOptions.Multiline)"
       },
       {
         "description": "regex object with ig flags as args",
         "javascript": "new RegExp('ab+c', 'ig')",
         "python": "re.compile(r\"ab+c(?is)\")",
         "java": "Pattern.compile(\"ab+c(?i)\")",
-        "csharp": ""
+        "csharp": "new Regex(\"ab+c\", RegexOptions.IgnoreCase)"
       },
       {
         "description": "regex object with forward slash",
         "javascript": "new RegExp('ab/cd')",
         "python": "re.compile(r\"ab\\/cd\")",
         "java": "Pattern.compile(\"ab\\\\/cd\")",
-        "csharp": ""
+        "csharp": "new Regex(\"ab\\/cd\")"
       },
       {
         "description": "regex object with escaped double quote",
         "javascript": "new RegExp('ab\\\"ab')",
         "python": "re.compile(r\"ab\\\"ab\")",
         "java": "Pattern.compile(\"ab\\\"ab\")",
-        "csharp": ""
+        "csharp": "new Regex(\"ab\\\"ab\")"
       },
       {
         "description": "regex object with nonescaped double quote",
         "javascript": "new RegExp('ab\"ab')",
         "python": "re.compile(r\"ab\\\"ab\")",
         "java": "Pattern.compile(\"ab\\\"ab\")",
-        "csharp": ""
+        "csharp": "new Regex(\"ab\\\"ab\")"
       },
       {
         "description": "regex object with escaped single quote",
         "javascript": "new RegExp('ab\\'ab')",
         "python": "re.compile(r\"ab'ab\")",
         "java": "Pattern.compile(\"ab'ab\")",
-        "csharp": ""
+        "csharp": "new Regex(\"ab'ab\")"
       },
       {
         "description": "regex object with nonescaped single quote",
         "javascript": "new RegExp(\"ab'ab\")",
         "python": "re.compile(r\"ab'ab\")",
         "java": "Pattern.compile(\"ab'ab\")",
-        "csharp": ""
+        "csharp": "new Regex(\"ab'ab\")"
       },
       {
         "description": "regex object with newline",
         "javascript": "new RegExp(\"\\\\n\")",
         "python": "re.compile(r\"\\\\n\")",
         "java": "Pattern.compile(\"\\\\n\")",
-        "csharp": ""
+        "csharp": "new Regex(\"\\n\")"
       },
       {
         "description": "regex literal with ig flags",
         "javascript": "/ab+c/ig",
         "python": "re.compile(r\"ab+c(?is)\")",
         "java": "Pattern.compile(\"ab+c(?i)\")",
-        "csharp": ""
+        "csharp": "new Regex(\"ab+c\", RegexOptions.IgnoreCase)"
       },
       {
         "description": "regex object with regex literal arg",
         "javascript": "new RegExp(/ab+c/, 'i')",
         "python": "re.compile(r\"ab+c(?i)\")",
         "java": "Pattern.compile(\"ab+c(?i)\")",
-        "csharp": ""
+        "csharp": "new Regex(\"ab+c\", RegexOptions.IgnoreCase)"
       }
     ]
   }
