@@ -210,7 +210,7 @@
         "shell": "MaxKey()"
       },
       {
-        "description": "new MaxKey",
+        "description": "new MaxKey()",
         "javascript": "new MaxKey()",
         "python": "MaxKey()",
         "java": "new MaxKey()",

@@ -1,267 +1,217 @@
 {
   "tests": {
-    "ObjectId": [
+    "Code": [
       {
-        "description": "no arg toString",
-        "javascript": "ObjectId().toString()",
+        "description": "CodeWithScope scope",
+        "javascript": "",
         "python": "",
-        "java": "new ObjectId().toString()",
-        "csharp": ""
+        "java": "new CodeWithScope(\"test code\", new Document().append(\"x\", new java.lang.Long(1))).getScope()",
+        "csharp": "",
+        "shell": "Code('test code', {x: 1}).scope"
       },
       {
-        "description": "hex arg toString",
-        "javascript": "ObjectId('5ab901c29ee65f5c8550c5b9').toString()",
+        "description": "Code code",
+        "javascript": "",
         "python": "",
-        "java": "new ObjectId(\"5ab901c29ee65f5c8550c5b9\").toString()",
-        "csharp": ""
+        "java": "new Code(\"test code\").getCode()",
+        "csharp": "",
+        "shell": "Code('test code').code"
+      },
+      {
+        "description": "Code toString",
+        "javascript": "",
+        "python": "",
+        "java": "new Code(\"test code\").toString()",
+        "csharp": "",
+        "shell": "Code('test code').toString()"
+      }
+    ],
+    "ObjectId": [
+      {
+        "description": "toString",
+        "javascript": "",
+        "python": "",
+        "java": "new ObjectId().toString()",
+        "csharp": "",
+        "shell": "ObjectId().toString()"
       },
       {
         "description": "getTimestamp",
         "javascript": "ObjectId('5ab901c29ee65f5c8550c5b9').getTimestamp()",
         "python": "",
         "java": "new ObjectId(\"5ab901c29ee65f5c8550c5b9\").getTimestamp()",
-        "csharp": ""
+        "csharp": "",
+        "shell": "ObjectId('5ab901c29ee65f5c8550c5b9').getTimestamp()"
       },
       {
         "description": "equals",
         "javascript": "ObjectId().equals(ObjectId())",
         "python": "",
         "java": "new ObjectId().equals(new ObjectId())",
-        "csharp": ""
+        "csharp": "",
+        "shell": "ObjectId().equals(ObjectId())"
       }
     ],
-    "Binary": [
+    "BinData": [
       {
         "description": "length",
-        "javascript": "Binary(Buffer.from('a string')).length()",
+        "javascript": "",
         "python": "",
-        "java": "new Binary(\"a string\".getBytes(\"UTF-8\")).length()",
-        "csharp": ""
+        "java": "new Binary(org.bson.BsonBinarySubType.FUNCTION, \"0001\".getBytes(\"UTF-8\")).length()",
+        "csharp": "",
+        "shell": "BinData(1, '0001').length()"
       },
       {
-        "description": "value",
-        "javascript": "Binary(Buffer.from('a string')).value()",
+        "description": "subtype",
+        "javascript": "",
         "python": "",
-        "java": "new Binary(\"a string\".getBytes(\"UTF-8\")).getData()",
-        "csharp": ""
+        "java": "new Binary(org.bson.BsonBinarySubType.FUNCTION, \"0001\".getBytes(\"UTF-8\")).getType()",
+        "csharp": "",
+        "shell": "BinData(1, '0001').subtype()"
       },
       {
         "description": "toString",
-        "javascript": "Binary(Buffer.from('a string')).toString()",
+        "javascript": "",
         "python": "",
-        "java": "new Binary(\"a string\".getBytes(\"UTF-8\")).toString()",
-        "csharp": ""
+        "java": "new Binary(org.bson.BsonBinarySubType.FUNCTION, \"0001\".getBytes(\"UTF-8\")).toString()",
+        "csharp": "",
+        "shell": "BinData(1, '0001').toString()"
       }
     ],
-    "Int32": [
+    "DBRef": [
+      {
+        "description": "toString",
+        "javascript": "",
+        "python": "",
+        "java": "new DBRef(\"coll\", new ObjectId()).toString()",
+        "csharp": "",
+        "shell": "new DBRef('coll', new ObjectId()).toString()"
+      },
+      {
+        "description": "getDb",
+        "javascript": "",
+        "python": "",
+        "java": "new DBRef(\"coll\", new ObjectId()).getDatabaseName()",
+        "csharp": "",
+        "shell": "new DBRef('coll', new ObjectId()).getDb()"
+      },
+      {
+        "description": "$db",
+        "javascript": "",
+        "python": "",
+        "java": "new DBRef(\"coll\", new ObjectId()).getDatabaseName()",
+        "csharp": "",
+        "shell": "new DBRef('coll', new ObjectId()).$db"
+      },
+      {
+        "description": "getCollection",
+        "javascript": "",
+        "python": "",
+        "java": "new DBRef(\"coll\", new ObjectId()).getCollectionName()",
+        "csharp": "",
+        "shell": "new DBRef('coll', new ObjectId()).getCollection()"
+      },
+      {
+        "description": "getRef",
+        "javascript": "",
+        "python": "",
+        "java": "new DBRef(\"coll\", new ObjectId()).getCollectionName()",
+        "csharp": "",
+        "shell": "new DBRef('coll', new ObjectId()).getRef()"
+      },
+      {
+        "description": "$ref",
+        "javascript": "",
+        "python": "",
+        "java": "new DBRef(\"coll\", new ObjectId()).getCollectionName()",
+        "csharp": "",
+        "shell": "new DBRef('coll', new ObjectId()).$ref"
+      },
+      {
+        "description": "getId",
+        "javascript": "",
+        "python": "",
+        "java": "new DBRef(\"coll\", new ObjectId()).getId()",
+        "csharp": "",
+        "shell": "new DBRef('coll', new ObjectId()).getId()"
+      },
+      {
+        "description": "$id",
+        "javascript": "",
+        "python": "",
+        "java": "new DBRef(\"coll\", new ObjectId()).getId()",
+        "csharp": "",
+        "shell": "new DBRef('coll', new ObjectId()).$id"
+      }
+    ],
+    "NumberInt": [
+      {
+        "description": "toString",
+        "javascript": "Int32(3).toString()",
+        "python": "",
+        "java": "new java.lang.Integer(3).toString()",
+        "csharp": "",
+        "shell": "NumberInt(3).toString()"
+      },
       {
         "description": "valueOf",
         "javascript": "Int32(3).valueOf()",
         "python": "",
         "java": "new java.lang.Integer(3).intValue()",
-        "csharp": ""
+        "csharp": "",
+        "shell": "NumberInt(3).valueOf()"
       }
     ],
-    "Double": [
+    "NumberLong": [
       {
-        "description": "valueOf",
-        "javascript": "Double(3).valueOf()",
+        "description": "toString",
+        "javascript": "",
         "python": "",
-        "java": "new java.lang.Double(3).doubleValue()",
-        "csharp": ""
-      }
-    ],
-    "Long": [
-      {
-        "description": "toInt",
-        "javascript": "Long(1, 100).toInt()",
-        "python": "",
-        "java": "new java.lang.Long(\"429496729601\").intValue()",
-        "csharp": ""
+        "java": "\"429496729601\"",
+        "csharp": "",
+        "shell": "NumberLong(429496729601).toString()"
       },
       {
-        "description": "toNumber",
+        "description": "valueOf",
+        "javascript": "",
+        "python": "",
+        "java": "new java.lang.Long(\"429496729601\").intValue()",
+        "csharp": "",
+        "shell": "NumberLong(429496729601).valueOf()"
+      },
+      {
+        "description": "floatApprox",
         "javascript": "Long(1, 100).toNumber()",
         "python": "",
         "java": "new java.lang.Long(\"429496729601\").floatValue()",
-        "csharp": ""
+        "csharp": "",
+        "shell": "NumberLong(429496729601).floatApprox"
       },
       {
-        "description": "toString without radix",
-        "javascript": "Long(1, 100).toString()",
+        "description": "top",
+        "javascript": "",
         "python": "",
-        "java": "java.lang.Long.toString(429496729601)",
-        "csharp": ""
+        "java": "new java.lang.Long(\"429496729601\") >> 32",
+        "csharp": "",
+        "shell": "NumberLong(429496729601).top"
       },
       {
-        "description": "toString with radix",
-        "javascript": "Long(1, 100).toString(10)",
+        "description": "bottom",
+        "javascript": "",
         "python": "",
-        "java": "java.lang.Long.toString(429496729601, 10)",
-        "csharp": ""
-      },
-      {
-        "description": "isZero",
-        "javascript": "Long(1, 100).isZero()",
-        "python": "",
-        "java": "new java.lang.Long(\"429496729601\").equals(new java.lang.Long(0))",
-        "csharp": ""
-      },
-      {
-        "description": "isNegative",
-        "javascript": "Long(1, 100).isNegative()",
-        "python": "",
-        "java": "new java.lang.Long(\"429496729601\").compareTo(new java.lang.Long(0)) < 0",
-        "csharp": ""
-      },
-      {
-        "description": "isOdd",
-        "javascript": "Long(1, 100).isOdd()",
-        "python": "",
-        "java": "new java.lang.Long(\"429496729601\") % 2 == 0",
-        "csharp": ""
-      },
-      {
-        "description": "equals",
-        "javascript": "Long(1, 100).equals(Long(9, 1))",
-        "python": "",
-        "java": "new java.lang.Long(\"429496729601\").equals(new java.lang.Long(\"4294967305\"))",
-        "csharp": ""
-      },
-      {
-        "description": "notEquals",
-        "javascript": "Long(1, 100).notEquals(Long(9, 1))",
-        "python": "",
-        "java": "new java.lang.Long(\"429496729601\").compareTo(new java.lang.Long(\"4294967305\")) != 0",
-        "csharp": ""
-      },
-      {
-        "description": "compare",
-        "javascript": "Long(1, 100).compare(Long(9, 1))",
-        "python": "",
-        "java": "new java.lang.Long(\"429496729601\").compareTo(new java.lang.Long(\"4294967305\"))",
-        "csharp": ""
-      },
-      {
-        "description": "greaterThan",
-        "javascript": "Long(1, 100).greaterThan(Long(9, 1))",
-        "python": "",
-        "java": "new java.lang.Long(\"429496729601\").compareTo(new java.lang.Long(\"4294967305\")) > 0",
-        "csharp": ""
-      },
-      {
-        "description": "greaterThanOrEqual",
-        "javascript": "Long(1, 100).greaterThanOrEqual(Long(9, 1))",
-        "python": "",
-        "java": "new java.lang.Long(\"429496729601\").compareTo(new java.lang.Long(\"4294967305\")) >= 0",
-        "csharp": ""
-      },
-      {
-        "description": "lessThan",
-        "javascript": "Long(1, 100).lessThan(Long(9, 1))",
-        "python": "",
-        "java": "new java.lang.Long(\"429496729601\").compareTo(new java.lang.Long(\"4294967305\")) < 0",
-        "csharp": ""
-      },
-      {
-        "description": "lessThanOrEqual",
-        "javascript": "Long(1, 100).lessThanOrEqual(Long(9, 1))",
-        "python": "",
-        "java": "new java.lang.Long(\"429496729601\").compareTo(new java.lang.Long(\"4294967305\")) <= 0",
-        "csharp": ""
-      },
-      {
-        "description": "negate",
-        "javascript": "Long(1, 100).negate())",
-        "python": "",
-        "java": "-new java.lang.Long(\"429496729601\")",
-        "csharp": ""
-      },
-      {
-        "description": "add",
-        "javascript": "Long(1, 100).add(Long(9, 1))",
-        "python": "",
-        "java": "new java.lang.Long(\"429496729601\") + new java.lang.Long(\"4294967305\")",
-        "csharp": ""
-      },
-      {
-        "description": "subtract",
-        "javascript": "Long(1, 100).subtract(Long(9, 1))",
-        "python": "",
-        "java": "new java.lang.Long(\"429496729601\") - new java.lang.Long(\"4294967305\")",
-        "csharp": ""
-      },
-      {
-        "description": "multiply",
-        "javascript": "Long(1, 100).multiply(Long(9, 1))",
-        "python": "",
-        "java": "new java.lang.Long(\"429496729601\") * new java.lang.Long(\"4294967305\")",
-        "csharp": ""
-      },
-      {
-        "description": "div",
-        "javascript": "Long(1, 100).div(Long(9, 1))",
-        "python": "",
-        "java": "new java.lang.Long(\"429496729601\") / new java.lang.Long(\"4294967305\")",
-        "csharp": ""
-      },
-      {
-        "description": "modulo",
-        "javascript": "Long(1, 100).modulo(Long(9, 1))",
-        "python": "",
-        "java": "new java.lang.Long(\"429496729601\") % new java.lang.Long(\"4294967305\")",
-        "csharp": ""
-      },
-      {
-        "description": "not",
-        "javascript": "Long(1, 100).not()",
-        "python": "",
-        "java": "~new java.lang.Long(\"429496729601\")",
-        "csharp": ""
-      },
-      {
-        "description": "and",
-        "javascript": "Long(1, 100).and(Long(9, 1))",
-        "python": "",
-        "java": "new java.lang.Long(\"429496729601\") & new java.lang.Long(\"4294967305\")",
-        "csharp": ""
-      },
-      {
-        "description": "or",
-        "javascript": "Long(1, 100).or(Long(9, 1))",
-        "python": "",
-        "java": "new java.lang.Long(\"429496729601\") | new java.lang.Long(\"4294967305\")",
-        "csharp": ""
-      },
-      {
-        "description": "xor",
-        "javascript": "Long(1, 100).xor(Long(9, 1))",
-        "python": "",
-        "java": "new java.lang.Long(\"429496729601\") ^ new java.lang.Long(\"4294967305\")",
-        "csharp": ""
-      },
-      {
-        "description": "shiftLeft",
-        "javascript": "Long(1, 100).shiftLeft(10)",
-        "python": "",
-        "java": "java.lang.Long.rotateLeft(new java.lang.Long(\"429496729601\"), 10)",
-        "csharp": ""
-      },
-      {
-        "description": "shiftRight",
-        "javascript": "Long(1, 100).shiftRight(10)",
-        "python": "",
-        "java": "java.lang.Long.rotateRight(new java.lang.Long(\"429496729601\"), 10)",
-        "csharp": ""
+        "java": "new java.lang.Long(\"429496729601\") & 0x0000ffff",
+        "csharp": "",
+        "shell": "NumberLong(429496729601).bottom"
       }
     ],
-    "Decimal128": [
+    "NumberDecimal": [
       {
         "description": "toString",
-        "javascript": "new Decimal128(Buffer.from('5')).toString()",
+        "javascript": "",
         "python": "",
-        "java": "Decimal128.parse(\"5.3E-6175\").toString()",
-        "csharp": ""
+        "java": "Decimal128.parse(\"0\").toString()",
+        "csharp": "",
+        "shell": "NumberDecimal(0).toString()"
       }
     ],
     "Timestamp": [
@@ -270,93 +220,40 @@
         "javascript": "Timestamp(1, 100).toString()",
         "python": "",
         "java": "new BSONTimestamp(1, 100).toString()",
-        "csharp": ""
+        "csharp": "",
+        "shell": "Timestamp(1, 100).toString()"
       },
       {
-        "description": "equals",
-        "javascript": "Timestamp(1, 100).equals(Timestamp(2, 99))",
-        "python": "",
-        "java": "new BSONTimestamp(1, 100).equals(new BSONTimestamp(2, 99))",
-        "csharp": ""
-      },
-      {
-        "description": "compare",
-        "javascript": "Timestamp(1, 100).compare(Timestamp(2, 99))",
-        "python": "",
-        "java": "new BSONTimestamp(1, 100).compareTo(new BSONTimestamp(2, 99))",
-        "csharp": ""
-      },
-      {
-        "description": "notEquals",
-        "javascript": "Timestamp(1, 100).notEquals(Timestamp(2, 99))",
-        "python": "",
-        "java": "new BSONTimestamp(1, 100).compareTo(new BSONTimestamp(2, 99)) != 0",
-        "csharp": ""
-      },
-      {
-        "description": "greaterThan",
-        "javascript": "Timestamp(1, 100).greaterThan(Timestamp(2, 99))",
-        "python": "",
-        "java": "new BSONTimestamp(1, 100).compareTo(new BSONTimestamp(2, 99)) > 0",
-        "csharp": ""
-      },
-      {
-        "description": "greaterThanOrEqual",
-        "javascript": "Timestamp(1, 100).greaterThanOrEqual(Timestamp(2, 99))",
-        "python": "",
-        "java": "new BSONTimestamp(1, 100).compareTo(new BSONTimestamp(2, 99)) >= 0",
-        "csharp": ""
-      },
-      {
-        "description": "lessThan",
-        "javascript": "Timestamp(1, 100).lessThan(Timestamp(2, 99))",
-        "python": "",
-        "java": "new BSONTimestamp(1, 100).compareTo(new BSONTimestamp(2, 99)) < 0",
-        "csharp": ""
-      },
-      {
-        "description": "lessThanOrEqual",
-        "javascript": "Timestamp(1, 100).lessThanOrEqual(Timestamp(2, 99))",
-        "python": "",
-        "java": "new BSONTimestamp(1, 100).compareTo(new BSONTimestamp(2, 99)) <= 0",
-        "csharp": ""
-      },
-      {
-        "description": "getLowBits",
+        "description": "getTime",
         "javascript": "Timestamp(1, 100).getLowBits()",
         "python": "",
         "java": "new BSONTimestamp(1, 100).getTime()",
-        "csharp": ""
+        "csharp": "",
+        "shell": "Timestamp(1, 100).getTime()"
       },
       {
-        "description": "getHighBits",
+        "description": "getInc",
         "javascript": "Timestamp(1, 100).getHighBits()",
         "python": "",
         "java": "new BSONTimestamp(1, 100).getInc()",
-        "csharp": ""
-      }
-    ],
-    "Symbol": [
-      {
-        "description": "valueOf",
-        "javascript": "Symbol('2').valueOf()",
-        "python": "",
-        "java": "new Symbol(\"2\").getSymbol()",
-        "csharp": ""
+        "csharp": "",
+        "shell": "Timestamp(1, 100).getInc()"
       },
       {
-        "description": "toString",
-        "javascript": "Symbol('2').toString()",
+        "description": "t",
+        "javascript": "Timestamp(1, 100).getLowBits()",
         "python": "",
-        "java": "new Symbol(\"2\").toString()",
-        "csharp": ""
+        "java": "new BSONTimestamp(1, 100).getTime()",
+        "csharp": "",
+        "shell": "Timestamp(1, 100).t"
       },
       {
-        "description": "inspect",
-        "javascript": "Symbol('2').inspect()",
+        "description": "i",
+        "javascript": "Timestamp(1, 100).getHighBits()",
         "python": "",
-        "java": "new Symbol(\"2\").getSymbol()",
-        "csharp": ""
+        "java": "new BSONTimestamp(1, 100).getInc()",
+        "csharp": "",
+        "shell": "Timestamp(1, 100).i"
       }
     ]
   }

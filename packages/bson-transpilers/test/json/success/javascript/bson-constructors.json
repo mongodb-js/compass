@@ -66,14 +66,6 @@
         "java": "new ObjectId(\"5a7382114ec1f67ae445f778\")",
         "csharp": "new BsonObjectId(\"5a7382114ec1f67ae445f778\")",
         "shell": "new ObjectId('5a7382114ec1f67ae445f778')"
-      },
-      {
-        "description": "new ObjectId",
-        "javascript": "ObjectId()",
-        "python": "ObjectId()",
-        "java": "new ObjectId()",
-        "csharp": "new BsonObjectId()",
-        "shell": "new ObjectId"
       }
     ],
     "Binary": [
@@ -207,14 +199,6 @@
         "shell": "MinKey()"
       },
       {
-        "description": "new MinKey",
-        "javascript": "new MinKey()",
-        "python": "MinKey()",
-        "java": "new MinKey()",
-        "csharp": "BsonMinKey.Value",
-        "shell": "new MinKey()"
-      },
-      {
         "description": "maxKey",
         "javascript": "MaxKey()",
         "python": "MaxKey()",
@@ -223,12 +207,20 @@
         "shell": "MaxKey()"
       },
       {
-        "description": "new MaxKey",
+        "description": "new MaxKey()",
         "javascript": "new MaxKey()",
         "python": "MaxKey()",
         "java": "new MaxKey()",
         "csharp": "BsonMaxKey.Value",
         "shell": "new MaxKey()"
+      },
+      {
+        "description": "new MinKey()",
+        "javascript": "new MinKey()",
+        "python": "MinKey()",
+        "java": "new MinKey()",
+        "csharp": "BsonMinKey.Value",
+        "shell": "new MinKey()"
       }
     ],
     "BSONRegExp": [

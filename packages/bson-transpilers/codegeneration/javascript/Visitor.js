@@ -215,7 +215,7 @@ class Visitor extends ECMAScriptVisitor {
     }
     while (type !== null) {
       if (!(type.attr.hasOwnProperty(rhs))) {
-        if (type.id in this.BsonSymbols && this.BsonSymbols.type.id !== null) {
+        if (type.id in this.BsonTypes && this.BsonTypes[type.id].id !== null) {
           throw new SemanticAttributeError({
             message: `${rhs} not an attribute of ${type.id}`
           });

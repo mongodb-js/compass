@@ -269,6 +269,12 @@ module.exports = (superClass) => class ExtendedVisitor extends superClass {
     return `new java.lang.Long(${doubleQuoteStringify(longstr)})`;
   }
 
+  emitNumberLong(ctx) {
+    const ret = this.emitLong(ctx);
+    ctx.type = this.Types.NumberLong;
+    return ret;
+  }
+
   /**
    * TODO: Could move this to javascript/Visitor and use template
    *
@@ -285,6 +291,11 @@ module.exports = (superClass) => class ExtendedVisitor extends superClass {
     }
     const str = doubleQuoteStringify(decobj.toString());
     return `Decimal128.parse(${str})`;
+  }
+  emitNumberDecimal(ctx) {
+    const ret = this.emitDecimal128(ctx);
+    ctx.type = this.Types.NumberDecimal;
+    return ret;
   }
 
   /*  ************** Object methods **************** */

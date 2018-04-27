@@ -17,6 +17,10 @@ Templates:
     ObjectTypeTemplate: &ObjectTypeTemplate null
     ObjectTypeArgsTemplate: &ObjectTypeArgsTemplate null
     # BSON Object Method templates
+    CodeCodeTemplate: &CodeCodeTemplate null
+    CodeCodeArgsTemplate: &CodeCodeArgsTemplate null
+    CodeScopeTemplate: &CodeScopeTemplate null
+    CodeScopeArgsTemplate: &CodeScopeArgsTemplate null
     ObjectIdToStringTemplate: &ObjectIdToStringTemplate null
     ObjectIdToStringArgsTemplate: &ObjectIdToStringArgsTemplate null
     ObjectIdEqualsTemplate: &ObjectIdEqualsTemplate null
@@ -29,9 +33,14 @@ Templates:
     BinaryLengthArgsTemplate: &BinaryLengthArgsTemplate null
     BinaryToStringTemplate: &BinaryToStringTemplate null
     BinaryToStringArgsTemplate: &BinaryToStringArgsTemplate null
+    BinarySubtypeTemplate: &BinarySubtypeTemplate null
+    BinarySubtypeArgsTemplate: &BinarySubtypeArgsTemplate null
     DBRefGetDBTemplate: &DBRefGetDBTemplate null
     DBRefGetCollectionTemplate: &DBRefGetCollectionTemplate null
     DBRefGetIdTemplate: &DBRefGetIdTemplate null
+    DBRefGetDBArgsTemplate: &DBRefGetDBArgsTemplate null
+    DBRefGetCollectionArgsTemplate: &DBRefGetCollectionArgsTemplate null
+    DBRefGetIdArgsTemplate: &DBRefGetIdArgsTemplate null
     DoubleValueOfTemplate: &DoubleValueOfTemplate null
     DoubleValueOfArgsTemplate: &DoubleValueOfArgsTemplate null
     Int32ValueOfTemplate: &Int32ValueOfTemplate null
@@ -84,6 +93,9 @@ Templates:
     LongLessThanArgsTemplate: &LongLessThanArgsTemplate null
     LongLessThanOrEqualTemplate: &LongLessThanOrEqualTemplate null
     LongLessThanOrEqualArgsTemplate: &LongLessThanOrEqualArgsTemplate null
+    LongFloatApproxTemplate: &LongFloatApproxTemplate null
+    LongTopTemplate: &LongTopTemplate null
+    LongBottomTemplate: &LongBottomTemplate null
     TimestampToStringTemplate: &TimestampToStringTemplate null
     TimestampToStringArgsTemplate: &TimestampToStringArgsTemplate null
     TimestampEqualsTemplate: &TimestampEqualsTemplate null
@@ -92,6 +104,8 @@ Templates:
     TimestampGetLowBitsArgsTemplate: &TimestampGetLowBitsArgsTemplate null
     TimestampGetHighBitsTemplate: &TimestampGetHighBitsTemplate null
     TimestampGetHighBitsArgsTemplate: &TimestampGetHighBitsArgsTemplate null
+    TimestampTTemplate: &TimestampTTemplate null
+    TimestampITemplate: &TimestampITemplate null
     TimestampCompareTemplate: &TimestampCompareTemplate null
     TimestampCompareArgsTemplate: &TimestampCompareArgsTemplate null
     TimestampNotEqualsTemplate: &TimestampNotEqualsTemplate null

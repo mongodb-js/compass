@@ -78,6 +78,16 @@ Templates:
     ObjectIdEqualsArgsTemplate: &ObjectIdEqualsArgsTemplate null
     ObjectIdGetTimestampTemplate: &ObjectIdGetTimestampTemplate null
     ObjectIdGetTimestampArgsTemplate: &ObjectIdGetTimestampArgsTemplate null
+    CodeCodeTemplate: &CodeCodeTemplate !!js/function >
+        (lhs) => {
+            return `${lhs}.getCode()`;
+        }
+    CodeCodeArgsTemplate: &CodeCodeArgsTemplate null
+    CodeScopeTemplate: &CodeScopeTemplate !!js/function >
+        (lhs) => {
+            return `${lhs}.getScope()`;
+        }
+    CodeScopeArgsTemplate: &CodeScopeArgsTemplate null
     BinaryValueTemplate: &BinaryValueTemplate !!js/function >
         (lhs) => {
             return `${lhs}.getData`;
@@ -87,9 +97,35 @@ Templates:
     BinaryLengthArgsTemplate: &BinaryLengthArgsTemplate null
     BinaryToStringTemplate: &BinaryToStringTemplate null
     BinaryToStringArgsTemplate: &BinaryToStringArgsTemplate null
-    DBRefGetDBTemplate: &DBRefGetDBTemplate null
-    DBRefGetCollectionTemplate: &DBRefGetCollectionTemplate null
-    DBRefGetIdTemplate: &DBRefGetIdTemplate null
+    BinarySubtypeTemplate: &BinarySubtypeTemplate !!js/function >
+        (lhs) => {
+            return `${lhs}.getType`;
+        }
+    BinarySubtypeArgsTemplate: &BinarySubtypeArgsTemplate null
+    DBRefGetDBTemplate: &DBRefGetDBTemplate !!js/function >
+        (lhs) => {
+            return `${lhs}.getDatabaseName()`;
+        }
+    DBRefGetDBArgsTemplate: &DBRefGetDBArgsTemplate !!js/function >
+        () => {
+            return '';
+        }
+    DBRefGetCollectionTemplate: &DBRefGetCollectionTemplate !!js/function >
+        (lhs) => {
+            return `${lhs}.getCollectionName()`;
+        }
+    DBRefGetCollectionArgsTemplate: &DBRefGetCollectionArgsTemplate !!js/function >
+        () => {
+            return '';
+        }
+    DBRefGetIdTemplate: &DBRefGetIdTemplate !!js/function >
+        (lhs) => {
+            return `${lhs}.getId()`;
+        }
+    DBRefGetIdArgsTemplate: &DBRefGetIdArgsTemplate !!js/function >
+        () => {
+            return '';
+        }
     DoubleValueOfTemplate: &DoubleValueOfTemplate !!js/function >
         (lhs) => {
             return `${lhs}.doubleValue`;
@@ -277,6 +313,18 @@ Templates:
         (lhs, arg) => {
             return `(${arg}) <= 0`;
         }
+    LongFloatApproxTemplate: &LongFloatApproxTemplate !!js/function >
+        (lhs) => {
+            return `${lhs}.floatValue()`;
+        }
+    LongTopTemplate: &LongTopTemplate !!js/function >
+        (lhs) => {
+            return `${lhs} >> 32`;
+        }
+    LongBottomTemplate: &LongBottomTemplate !!js/function >
+        (lhs) => {
+            return `${lhs} & 0x0000ffff`;
+        }
     TimestampToStringTemplate: &TimestampToStringTemplate null
     TimestampToStringArgsTemplate: &TimestampToStringArgsTemplate null
     TimestampEqualsTemplate: &TimestampEqualsTemplate null
@@ -291,6 +339,14 @@ Templates:
             return `${lhs}.getInc`;
         }
     TimestampGetHighBitsArgsTemplate: &TimestampGetHighBitsArgsTemplate null
+    TimestampTTemplate: &TimestampTTemplate !!js/function >
+        (lhs) => {
+            return `${lhs}.getTime()`;
+        }
+    TimestampITemplate: &TimestampITemplate !!js/function >
+        (lhs) => {
+            return `${lhs}.getInc()`;
+        }
     TimestampCompareTemplate: &TimestampCompareTemplate !!js/function >
         (lhs) => {
             return `${lhs}.compareTo`;

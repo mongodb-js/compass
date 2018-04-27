@@ -66,6 +66,10 @@ Templates:
           }, '');
         }
     # BSON Object Method templates
+    CodeCodeTemplate: &CodeCodeTemplate null
+    CodeCodeArgsTemplate: &CodeCodeArgsTemplate null
+    CodeScopeTemplate: &CodeScopeTemplate null
+    CodeScopeArgsTemplate: &CodeScopeArgsTemplate null
     ObjectIdToStringTemplate: &ObjectIdToStringTemplate null
     ObjectIdToStringArgsTemplate: &ObjectIdToStringArgsTemplate null
     ObjectIdEqualsTemplate: &ObjectIdEqualsTemplate null
@@ -81,9 +85,14 @@ Templates:
     BinaryLengthArgsTemplate: &BinaryLengthArgsTemplate null
     BinaryToStringTemplate: &BinaryToStringTemplate null
     BinaryToStringArgsTemplate: &BinaryToStringArgsTemplate null
+    BinarySubtypeTemplate: &BinarySubtypeTemplate null
+    BinarySubtypeArgsTemplate: &BinarySubtypeArgsTemplate null
     DBRefGetDBTemplate: &DBRefGetDBTemplate null
     DBRefGetCollectionTemplate: &DBRefGetCollectionTemplate null
     DBRefGetIdTemplate: &DBRefGetIdTemplate null
+    DBRefGetDBArgsTemplate: &DBRefGetDBArgsTemplate null
+    DBRefGetCollectionArgsTemplate: &DBRefGetCollectionArgsTemplate null
+    DBRefGetIdArgsTemplate: &DBRefGetIdArgsTemplate null
     DoubleValueOfTemplate: &DoubleValueOfTemplate !!js/function >
         (lhs) => {
           return `${lhs}.ToDouble`;
@@ -271,6 +280,9 @@ Templates:
         (lhs, arg) => {
           return `(${arg}) <= 0`;
         }
+    LongFloatApproxTemplate: &LongFloatApproxTemplate null
+    LongTopTemplate: &LongTopTemplate null
+    LongBottomTemplate: &LongBottomTemplate null
     TimestampToStringTemplate: &TimestampToStringTemplate null
     TimestampToStringArgsTemplate: &TimestampToStringArgsTemplate null
     TimestampEqualsTemplate: &TimestampEqualsTemplate null
@@ -285,6 +297,8 @@ Templates:
           return `${lhs}.ToUniversalTime`;
         }
     TimestampGetHighBitsArgsTemplate: &TimestampGetHighBitsArgsTemplate null
+    TimestampTTemplate: &TimestampTTemplate null
+    TimestampITemplate: &TimestampITemplate null
     TimestampCompareTemplate: &TimestampCompareTemplate !!js/function >
         (lhs) => {
           return `${lhs}.CompareTo`;

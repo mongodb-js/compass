@@ -57,7 +57,7 @@ BsonSymbols:
         template: *Int32SymbolTemplate
         argsTemplate: *Int32SymbolArgsTemplate
     NumberLong:
-        id: "Long"
+        id: "NumberLong"
         callable: *constructor
         args:
             - [ *NumericType, *StringType, null ]
@@ -101,7 +101,7 @@ BsonSymbols:
         template: *SymbolSymbolTemplate
         argsTemplate: *SymbolSymbolArgsTemplate
     NumberDecimal:
-        id: "Decimal128"
+        id: "NumberDecimal"
         callable: *constructor
         args:
             - [ *StringType, *NumericType, null ]

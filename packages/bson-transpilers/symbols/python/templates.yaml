@@ -62,6 +62,10 @@ Templates:
             }).join(', ');
         }
     # BSON Object Method templates
+    CodeCodeTemplate: &CodeCodeTemplate null
+    CodeCodeArgsTemplate: &CodeCodeArgsTemplate null
+    CodeScopeTemplate: &CodeScopeTemplate null
+    CodeScopeArgsTemplate: &CodeScopeArgsTemplate null
     ObjectIdToStringTemplate: &ObjectIdToStringTemplate !!js/function >
         () => {
             return '';
@@ -110,9 +114,14 @@ Templates:
         (lhs) => {
             return `str(${lhs})`;
         }
+    BinarySubtypeTemplate: &BinarySubtypeTemplate null
+    BinarySubtypeArgsTemplate: &BinarySubtypeArgsTemplate null
     DBRefGetDBTemplate: &DBRefGetDBTemplate null
     DBRefGetCollectionTemplate: &DBRefGetCollectionTemplate null
     DBRefGetIdTemplate: &DBRefGetIdTemplate null
+    DBRefGetDBArgsTemplate: &DBRefGetDBArgsTemplate null
+    DBRefGetCollectionArgsTemplate: &DBRefGetCollectionArgsTemplate null
+    DBRefGetIdArgsTemplate: &DBRefGetIdArgsTemplate null
     DoubleValueOfTemplate: &DoubleValueOfTemplate !!js/function >
         () => {
             return '';
@@ -321,6 +330,9 @@ Templates:
         (lhs, rhs) => {
             return `(${lhs} - ${rhs}) <= 0`;
         }
+    LongFloatApproxTemplate: &LongFloatApproxTemplate null
+    LongTopTemplate: &LongTopTemplate null
+    LongBottomTemplate: &LongBottomTemplate null
     TimestampToStringTemplate: &TimestampToStringTemplate !!js/function >
         () => {
             return '';
@@ -353,6 +365,8 @@ Templates:
         (lhs) => {
             return `${lhs}.inc`;
         }
+    TimestampTTemplate: &TimestampTTemplate null
+    TimestampITemplate: &TimestampITemplate null
     TimestampCompareTemplate: &TimestampCompareTemplate !!js/function >
         (lhs) => {
             return '';
