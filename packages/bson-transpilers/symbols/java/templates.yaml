@@ -485,7 +485,7 @@ Templates:
         }
     ObjectIdCreateFromTimeArgsTemplate: &ObjectIdCreateFromTimeArgsTemplate !!js/function >
         (lhs, arg) => {
-            return `new ObjectId(new java.util.Date(${arg}))`;
+            return `new ObjectId(${arg})`;
         }
     ObjectIdIsValidTemplate: &ObjectIdIsValidTemplate null
     ObjectIdIsValidArgsTemplate: &ObjectIdIsValidArgsTemplate null

@@ -294,6 +294,20 @@ module.exports = (superClass) => class ExtendedVisitor extends superClass {
   }
 
   /*
+   * Accepts date or number, if date then don't convert to date.
+   * @param ctx
+   */
+  emitObjectIdCreateFromTime(ctx) {
+    ctx.type = 'createFromTime' in this.Symbols.ObjectId.attr ? this.Symbols.ObjectId.attr.createFromTime : this.Symbols.ObjectId.attr.fromDate;
+    const argList = ctx.arguments().argumentList();
+    const args = this.checkArguments(ctx.type.args, argList);
+    if (argList.singleExpression()[0].type.id === 'Date') {
+      return ctx.type.argsTemplate('', args[0]);
+    }
+    return ctx.type.argsTemplate('', `new java.util.Date(${args[0]})`);
+  }
+
+  /*
    * This is a bit weird because we can just convert to string directly.
    */
   emitLongtoString(ctx) {

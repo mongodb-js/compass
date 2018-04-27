@@ -26,9 +26,9 @@ BsonSymbols:
                 argsTemplate: *ObjectIdCreateFromHexStringArgsTemplate
             createFromTime:
                 <<: *__func
-                id: "createFromTime"
+                id: "ObjectIdCreateFromTime"
                 args:
-                    - [ *NumericType ]
+                    - [ *NumericType, "Date" ]
                 type: *ObjectIdType
                 template: *ObjectIdCreateFromTimeTemplate
                 argsTemplate: *ObjectIdCreateFromTimeArgsTemplate
