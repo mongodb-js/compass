@@ -193,6 +193,30 @@ module.exports = (superclass) => class ExtendedVisitor extends superclass {
     return 'BsonMaxKey.Value';
   }
 
+  emitDate(ctx) {
+    ctx.type = this.Types.Date;
+    if (!ctx.arguments().argumentList()) return 'DateTime.Now';
+
+    let dateStr;
+
+    try {
+      const epoch = this.executeJavascript(ctx.getText());
+
+      dateStr = [
+        epoch.getUTCFullYear(),
+        (epoch.getUTCMonth() + 1),
+        epoch.getUTCDate(),
+        epoch.getUTCHours(),
+        epoch.getUTCMinutes(),
+        epoch.getUTCSeconds()
+      ].join(', ');
+    } catch (error) {
+      throw new SemanticGenericError({message: error.message});
+    }
+
+    return `new DateTime(${dateStr})`;
+  }
+
   /**
    * BSON RegExp Constructor
    *

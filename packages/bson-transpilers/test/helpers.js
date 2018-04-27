@@ -12,7 +12,7 @@ const unsupported = {
       java: {},
       python: {},
       csharp: {
-        'js-constructors': [ '*' ],
+        'js-constructors': [ 'RegExp' ],
         'bson-object-methods': [ '*' ],
         'bson-utils': [ '*' ]
       }
