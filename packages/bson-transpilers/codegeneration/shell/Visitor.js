@@ -27,10 +27,15 @@ class Visitor extends JavascriptVisitor {
       });
     }
     // Special case MinKey/MaxKey because they don't have to be called in shell
-    if ((ctx.type.id === 'MinKey' || ctx.type.id === 'MaxKey') &&
+    if (!ctx.visited && (ctx.type.id === 'MinKey' || ctx.type.id === 'MaxKey') &&
         ctx.parentCtx.constructor.name !== 'FuncCallExpressionContext' &&
         ctx.parentCtx.constructor.name !== 'NewExpressionContext') {
-      return `new ${ctx.type.id}()`;
+      const node = {
+        arguments: () => { return { argumentList: () => { return false; }}; },
+        singleExpression: () => { return ctx; }
+      };
+      ctx.visited = true;
+      return this.visitFuncCallExpression(node);
     }
     if (ctx.type.template) {
       return ctx.type.template();
