@@ -110,7 +110,7 @@ module.exports = (superclass) => class ExtendedVisitor extends superclass {
    *
    * @returns {string} - new BsonBinaryData()
    */
-  emitBinary(ctx) {
+  emitBinaryFromJS(ctx) {
     ctx.type = this.Types.Binary;
     let type;
     let binobj;

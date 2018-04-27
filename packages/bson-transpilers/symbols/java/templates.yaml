@@ -111,7 +111,7 @@ Templates:
         (lhs) => {
             return `${lhs}.intValue`;
         }
-    nt32ToJSONArgsTemplate: &Int32ToJSONArgsTemplate null
+    Int32ToJSONArgsTemplate: &Int32ToJSONArgsTemplate null
     Int32ValueOfTemplate: &Int32ValueOfTemplate !!js/function >
         (lhs) => {
             return `${lhs}.intValue`;
