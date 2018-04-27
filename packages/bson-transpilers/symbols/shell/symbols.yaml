@@ -16,30 +16,14 @@ BsonSymbols:
             - [ *StringType, null ]
         type: *ObjectIdType
         attr:
-            createFromHexString:
+            fromDate:
                 <<: *__func
-                id: "createFromHexString"
+                id: "ObjectIdCreateFromTime"
                 args:
-                    - [ *StringType ]
-                type: *ObjectIdType
-                template: *ObjectIdCreateFromHexStringTemplate
-                argsTemplate: *ObjectIdCreateFromHexStringArgsTemplate
-            createFromTime:
-                <<: *__func
-                id: "createFromTime"
-                args:
-                    - [ *NumericType ]
+                    - [ "Date" ]
                 type: *ObjectIdType
                 template: *ObjectIdCreateFromTimeTemplate
                 argsTemplate: *ObjectIdCreateFromTimeArgsTemplate
-            isValid:
-                <<: *__func
-                id: "isValid"
-                args:
-                    - [ *StringType ]
-                type: *BoolType
-                template: *ObjectIdIsValidTemplate
-                argsTemplate: *ObjectIdIsValidArgsTemplate
         template: *ObjectIdSymbolTemplate
         argsTemplate: *CodeSymbolArgsTemplate
     BinData: &BinarySymbol
@@ -78,85 +62,7 @@ BsonSymbols:
         args:
             - [ *NumericType, *StringType, null ]
         type: *LongType
-        attr:
-            MAX_VALUE:
-                id: "MAX_VALUE"
-                callable: *var
-                args: null
-                type: *LongType
-                attr: {}
-                template: *LongSymbolMaxTemplate
-                argsTemplate: *LongSymbolMaxArgsTemplate
-            MIN_VALUE:
-                id: "MIN_VALUE"
-                callable: *var
-                args: null
-                type: *LongType
-                attr: {}
-                template: *LongSymbolMinTemplate
-                argsTemplate: *LongSymbolMinArgsTemplate
-            ZERO:
-                id: "ZERO"
-                callable: *var
-                args: null
-                type: *LongType
-                attr: {}
-                template: *LongSymbolZeroTemplate
-                argsTemplate: *LongSymbolZeroArgsTemplate
-            ONE:
-                id: "ONE"
-                callable: *var
-                args: null
-                type: *LongType
-                attr: {}
-                template: *LongSymbolOneTemplate
-                argsTemplate: *LongSymbolOneArgsTemplate
-            NEG_ONE:
-                id: "NEG_ONE"
-                callable: *var
-                args: null
-                type: *LongType
-                attr: {}
-                template: *LongSymbolNegOneTemplate
-                argsTemplate: *LongSymbolNegOneArgsTemplate
-            fromBits:
-                id: "LongfromBits" # Needs emit method
-                callable: *func
-                args:
-                    - [ *IntegerType ]
-                    - [ *IntegerType ]
-                type: *LongType
-                attr: {}
-                template: *LongSymbolFromBitsTemplate
-                argsTemplate: *LongSymbolFromBitsArgsTemplate
-            fromInt:
-                id: "fromInt"
-                callable: *func
-                args:
-                    - [ *IntegerType ]
-                type: *LongType
-                attr: {}
-                template: *LongSymbolFromIntTemplate
-                argsTemplate: *LongSymbolFromIntArgsTemplate
-            fromNumber:
-                id: "fromNumber"
-                callable: *func
-                args:
-                    - [ *NumericType ]
-                type: *LongType
-                attr: {}
-                template: *LongSymbolFromNumberTemplate
-                argsTemplate: *LongSymbolFromNumberArgsTemplate
-            fromString:
-                id: "fromString"
-                callable: *func
-                args:
-                    - [ *StringType ]
-                    - [ *IntegerType, null ]
-                type: *LongType
-                attr: {}
-                template: *LongSymbolFromStringTemplate
-                argsTemplate: *LongSymbolFromStringArgsTemplate
+        attr: {}
         template: *LongSymbolTemplate
         argsTemplate: *LongSymbolArgsTemplate
     MinKey:
@@ -200,16 +106,7 @@ BsonSymbols:
         args:
             - [ *StringType, *NumericType, null ]
         type: *Decimal128Type
-        attr:
-            fromString:
-                id: "fromString"
-                callable: *func
-                args:
-                    - [ *StringType ]
-                type: *Decimal128Type
-                attr: {}
-                template: *Decimal128SymbolFromStringTemplate
-                argsTemplate: *Decimal128SymbolFromStringArgsTemplate
+        attr: {}
         template: *Decimal128SymbolTemplate
         argsTemplate: *Decimal128SymbolArgsTemplate
 
@@ -279,7 +176,7 @@ JSSymbols:
             - [ *StringType ]
             - [ *StringType, null ]
         type: *RegExpType
-        attr: {}
+        attr: {} # TODO: no built-in regex funcs added yet
         template: *RegExpSymbolTemplate
         argsTemplate: *RegExpSymbolArgsTemplate
 

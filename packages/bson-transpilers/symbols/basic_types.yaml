@@ -18,7 +18,7 @@ BasicTypes:
         <<: *__type
         id: "_integer"
         template: *IntegerTypeTemplate
-    _long: &LongBasictype
+    _long: &LongBasicType
         <<: *__type
         id: "_long"
         template: *LongBasicTypeTemplate

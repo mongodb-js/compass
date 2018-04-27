@@ -20,8 +20,7 @@ const unsupported = {
     },
     shell: {
       java: {
-        'bson-object-methods': [ '*' ],
-        'bson-utils': [ '*' ]
+        'bson-object-methods': [ '*' ]
       },
       python: {
         'bson-constructors': [ '*' ],

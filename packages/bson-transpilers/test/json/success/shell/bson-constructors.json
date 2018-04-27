@@ -32,14 +32,6 @@
         "java": "new Code(\"\")",
         "csharp": "new BsonJavaScript(@\"\")",
         "shell": "Code()"
-      },
-      {
-        "description": "new Code",
-        "javascript": "Code('')",
-        "python": "Code('')",
-        "java": "new Code(\"\")",
-        "csharp": "new BsonJavaScript(@\"\")",
-        "shell": "new Code"
       }
     ],
     "ObjectId": [
@@ -66,14 +58,6 @@
         "java": "new ObjectId(\"5a7382114ec1f67ae445f778\")",
         "csharp": "new BsonObjectId(\"5a7382114ec1f67ae445f778\")",
         "shell": "new ObjectId('5a7382114ec1f67ae445f778')"
-      },
-      {
-        "description": "new ObjectId",
-        "javascript": "ObjectId()",
-        "python": "ObjectId()",
-        "java": "new ObjectId()",
-        "csharp": "new BsonObjectId()",
-        "shell": "new ObjectId"
       }
     ],
     "BinData": [
@@ -128,14 +112,6 @@
         "java": "new java.lang.Integer(0)",
         "csharp": "NumberInt('0')",
         "shell": "NumberInt()"
-      },
-      {
-        "description": "new NumberInt",
-        "javascript": "Int32('0')",
-        "python": "int(3)",
-        "java": "new java.lang.Integer(0)",
-        "csharp": "NumberInt('0')",
-        "shell": "new NumberInt"
       }
     ],
     "Double literal": [
@@ -180,14 +156,6 @@
         "java": "new java.lang.Long(\"10\")",
         "csharp": "new BsonInt64(Convert.ToInt32(\"10\"))",
         "shell": "new NumberLong('10')"
-      },
-      {
-        "description": "new NumberLong",
-        "javascript": "Long.fromNumber(0)",
-        "python": "Int64(0)",
-        "java": "new java.lang.Long(\"0\")",
-        "csharp": "new BsonInt64(Convert.ToInt32(0))",
-        "shell": "new NumberLong"
       }
     ],
     "Decimal128": [
@@ -214,14 +182,6 @@
         "java": "Decimal128.parse(\"0\")",
         "csharp": "new BsonString(\"0\")",
         "shell": "NumberDecimal()"
-      },
-      {
-        "description": "new Decimal128",
-        "javascript": "new Decimal128(Buffer.from('0'))",
-        "python": "Decimal128(Decimal('0'))",
-        "java": "Decimal128.parse(\"0\")",
-        "csharp": "new BsonString(\"0\")",
-        "shell": "new NumberDecimal"
       }
     ],
     "MinKey/MaxKey": [
@@ -256,38 +216,6 @@
         "java": "new MaxKey()",
         "csharp": "BsonMaxKey.Value",
         "shell": "new MaxKey()"
-      },
-      {
-        "description": "MaxKey not called",
-        "javascript": "new MaxKey()",
-        "python": "MaxKey()",
-        "java": "new MaxKey()",
-        "csharp": "BsonMaxKey.Value",
-        "shell": "MaxKey"
-      },
-      {
-        "description": "MinKey not called",
-        "javascript": "new MinKey()",
-        "python": "MinKey()",
-        "java": "new MinKey()",
-        "csharp": "BsonMinKey.Value",
-        "shell": "MinKey"
-      },
-      {
-        "description": "new MaxKey",
-        "javascript": "new MaxKey()",
-        "python": "MaxKey()",
-        "java": "new MaxKey()",
-        "csharp": "BsonMaxKey.Value",
-        "shell": "new MaxKey"
-      },
-      {
-        "description": "new MinKey",
-        "javascript": "new MinKey()",
-        "python": "MinKey()",
-        "java": "new MinKey()",
-        "csharp": "BsonMinKey.Value",
-        "shell": "new MinKey"
       }
     ],
     "Timestamp": [
@@ -314,14 +242,6 @@
         "java": "new BSONTimestamp(0, 0)",
         "csharp": "new BsonTimestamp(0, 0)",
         "shell": "new Timestamp()"
-      },
-      {
-        "description": "new Timestamp",
-        "javascript": "new Timestamp(0, 0)",
-        "python": "Timestamp(0, 0)",
-        "java": "new BSONTimestamp(0, 0)",
-        "csharp": "new BsonTimestamp(0, 0)",
-        "shell": "new Timestamp"
       }
     ],
     "Document": [

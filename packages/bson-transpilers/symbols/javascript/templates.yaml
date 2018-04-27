@@ -29,6 +29,9 @@ Templates:
     BinaryLengthArgsTemplate: &BinaryLengthArgsTemplate null
     BinaryToStringTemplate: &BinaryToStringTemplate null
     BinaryToStringArgsTemplate: &BinaryToStringArgsTemplate null
+    DBRefGetDBTemplate: &DBRefGetDBTemplate null
+    DBRefGetCollectionTemplate: &DBRefGetCollectionTemplate null
+    DBRefGetIdTemplate: &DBRefGetIdTemplate null
     DoubleValueOfTemplate: &DoubleValueOfTemplate null
     DoubleValueOfArgsTemplate: &DoubleValueOfArgsTemplate null
     Int32ValueOfTemplate: &Int32ValueOfTemplate null

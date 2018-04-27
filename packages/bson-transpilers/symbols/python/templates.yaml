@@ -110,6 +110,9 @@ Templates:
         (lhs) => {
             return `str(${lhs})`;
         }
+    DBRefGetDBTemplate: &DBRefGetDBTemplate null
+    DBRefGetCollectionTemplate: &DBRefGetCollectionTemplate null
+    DBRefGetIdTemplate: &DBRefGetIdTemplate null
     DoubleValueOfTemplate: &DoubleValueOfTemplate !!js/function >
         () => {
             return '';

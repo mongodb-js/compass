@@ -272,14 +272,6 @@
         "java": "new java.util.Date()",
         "csharp": "DateTime.Now",
         "shell": "ISODate()"
-      },
-      {
-        "description": "new ISODate",
-        "javascript": "new Date()",
-        "python": "datetime.datetime.utcnow().date()",
-        "java": "new java.util.Date()",
-        "csharp": "DateTime.Now",
-        "shell": "new ISODate"
       }
     ],
     "RegExp": [
