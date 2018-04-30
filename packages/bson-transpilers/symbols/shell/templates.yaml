@@ -19,8 +19,6 @@ Templates:
     # BSON Object Method templates
     ObjectIdToStringTemplate: &ObjectIdToStringTemplate null
     ObjectIdToStringArgsTemplate: &ObjectIdToStringArgsTemplate null
-    ObjectIdToJSONTemplate: &ObjectIdToJSONTemplate null
-    ObjectIdToJSONArgsTemplate: &ObjectIdToJSONArgsTemplate null
     ObjectIdEqualsTemplate: &ObjectIdEqualsTemplate null
     ObjectIdEqualsArgsTemplate: &ObjectIdEqualsArgsTemplate null
     ObjectIdGetTimestampTemplate: &ObjectIdGetTimestampTemplate null
@@ -31,20 +29,12 @@ Templates:
     BinaryLengthArgsTemplate: &BinaryLengthArgsTemplate null
     BinaryToStringTemplate: &BinaryToStringTemplate null
     BinaryToStringArgsTemplate: &BinaryToStringArgsTemplate null
-    BinaryToJSONTemplate: &BinaryToJSONTemplate null
-    BinaryToJSONArgsTemplate: &BinaryToJSONArgsTemplate null
-    DoubleToJSONTemplate: &DoubleToJSONTemplate null
-    DoubleToJSONArgsTemplate: &DoubleToJSONArgsTemplate null
     DoubleValueOfTemplate: &DoubleValueOfTemplate null
     DoubleValueOfArgsTemplate: &DoubleValueOfArgsTemplate null
-    Int32ToJSONTemplate: &Int32ToJSONTemplate null
-    nt32ToJSONArgsTemplate: &Int32ToJSONArgsTemplate null
     Int32ValueOfTemplate: &Int32ValueOfTemplate null
     Int32ValueOfArgsTemplate: &Int32ValueOfArgsTemplate null
     LongEqualsTemplate: &LongEqualsTemplate null
     LongEqualsArgsTemplate: &LongEqualsArgsTemplate null
-    LongToJSONTemplate: &LongToJSONTemplate null
-    LongToJSONArgsTemplate: &LongToJSONArgsTemplate null
     LongToIntTemplate: &LongToIntTemplate null
     LongToIntArgsTemplate: &LongToIntArgsTemplate null
     LongToNumberTemplate: &LongToNumberTemplate null
@@ -99,8 +89,6 @@ Templates:
     TimestampGetLowBitsArgsTemplate: &TimestampGetLowBitsArgsTemplate null
     TimestampGetHighBitsTemplate: &TimestampGetHighBitsTemplate null
     TimestampGetHighBitsArgsTemplate: &TimestampGetHighBitsArgsTemplate null
-    TimestampToJSONTemplate: &TimestampToJSONTemplate null
-    TimestampToJSONArgsTemplate: &TimestampToJSONArgsTemplate null
     TimestampCompareTemplate: &TimestampCompareTemplate null
     TimestampCompareArgsTemplate: &TimestampCompareArgsTemplate null
     TimestampNotEqualsTemplate: &TimestampNotEqualsTemplate null
@@ -117,8 +105,6 @@ Templates:
     SymbolValueOfArgsTemplate: &SymbolValueOfArgsTemplate null
     SymbolInspectTemplate: &SymbolInspectTemplate null
     SymbolInspectArgsTemplate: &SymbolInspectArgsTemplate null
-    SymbolToJSONTemplate: &SymbolToJSONTemplate null
-    SymbolToJSONArgsTemplate: &SymbolToJSONArgsTemplate null
     SymbolToStringTemplate: &SymbolToStringTemplate null
     SymbolToStringArgsTemplate: &SymbolToStringArgsTemplate null
     # Symbol Templates

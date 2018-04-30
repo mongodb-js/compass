@@ -74,11 +74,6 @@ Templates:
     # BSON Object Method templates
     ObjectIdToStringTemplate: &ObjectIdToStringTemplate null
     ObjectIdToStringArgsTemplate: &ObjectIdToStringArgsTemplate null
-    ObjectIdToJSONTemplate: &ObjectIdToJSONTemplate !!js/function >
-        (lhs) => {
-            return `${lhs}.toHexString`;
-        }
-    ObjectIdToJSONArgsTemplate: &ObjectIdToJSONArgsTemplate null
     ObjectIdEqualsTemplate: &ObjectIdEqualsTemplate null
     ObjectIdEqualsArgsTemplate: &ObjectIdEqualsArgsTemplate null
     ObjectIdGetTimestampTemplate: &ObjectIdGetTimestampTemplate null
@@ -92,26 +87,11 @@ Templates:
     BinaryLengthArgsTemplate: &BinaryLengthArgsTemplate null
     BinaryToStringTemplate: &BinaryToStringTemplate null
     BinaryToStringArgsTemplate: &BinaryToStringArgsTemplate null
-    BinaryToJSONTemplate: &BinaryToJSONTemplate !!js/function >
-        (lhs) => {
-            return `${lhs}.toString`;
-        }
-    BinaryToJSONArgsTemplate: &BinaryToJSONArgsTemplate null
-    DoubleToJSONTemplate: &DoubleToJSONTemplate !!js/function >
-        (lhs) => {
-            return `${lhs}.doubleValue`;
-        }
-    DoubleToJSONArgsTemplate: &DoubleToJSONArgsTemplate null
     DoubleValueOfTemplate: &DoubleValueOfTemplate !!js/function >
         (lhs) => {
             return `${lhs}.doubleValue`;
         }
     DoubleValueOfArgsTemplate: &DoubleValueOfArgsTemplate null
-    Int32ToJSONTemplate: &Int32ToJSONTemplate !!js/function >
-        (lhs) => {
-            return `${lhs}.intValue`;
-        }
-    Int32ToJSONArgsTemplate: &Int32ToJSONArgsTemplate null
     Int32ValueOfTemplate: &Int32ValueOfTemplate !!js/function >
         (lhs) => {
             return `${lhs}.intValue`;
@@ -119,11 +99,6 @@ Templates:
     Int32ValueOfArgsTemplate: &Int32ValueOfArgsTemplate null
     LongEqualsTemplate: &LongEqualsTemplate null
     LongEqualsArgsTemplate: &LongEqualsArgsTemplate null
-    LongToJSONTemplate: &LongToJSONTemplate !!js/function >
-        (lhs) => {
-            return `${lhs}.toString`;
-        }
-    LongToJSONArgsTemplate: &LongToJSONArgsTemplate null
     LongToIntTemplate: &LongToIntTemplate !!js/function >
         (lhs) => {
             return `${lhs}.intValue`;
@@ -313,11 +288,6 @@ Templates:
             return `${lhs}.getInc`;
         }
     TimestampGetHighBitsArgsTemplate: &TimestampGetHighBitsArgsTemplate null
-    TimestampToJSONTemplate: &TimestampToJSONTemplate !!js/function >
-        (lhs) => {
-            return `${lhs}.toString`;
-        }
-    TimestampToJSONArgsTemplate: &TimestampToJSONArgsTemplate null
     TimestampCompareTemplate: &TimestampCompareTemplate !!js/function >
         (lhs) => {
             return `${lhs}.compareTo`;
@@ -373,11 +343,6 @@ Templates:
             return `${lhs}.getSymbol`;
         }
     SymbolInspectArgsTemplate: &SymbolInspectArgsTemplate null
-    SymbolToJSONTemplate: &SymbolToJSONTemplate !!js/function >
-        (lhs) => {
-            return `${lhs}.toString`;
-        }
-    SymbolToJSONArgsTemplate: &SymbolToJSONArgsTemplate null
     SymbolToStringTemplate: &SymbolToStringTemplate !!js/function >
         (lhs) => {
             return `${lhs}.toString`;

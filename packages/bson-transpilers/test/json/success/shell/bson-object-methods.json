@@ -1,36 +1,6 @@
 {
   "tests": {
-    "Code": [
-      {
-        "description": "CodeWithScope toJSON",
-        "javascript": "Code('test code', {x: 1}).toJSON()",
-        "python": "",
-        "java": "new Document().append(\"code\", \"test code\").append(\"scope\", new Document().append(\"x\", 1))",
-        "csharp": ""
-      },
-      {
-        "description": "Code toJSON",
-        "javascript": "Code('test code').toJSON()",
-        "python": "",
-        "java": "new Document().append(\"code\", \"test code\").append(\"scope\", undefined)",
-        "csharp": ""
-      }
-    ],
     "ObjectId": [
-      {
-        "description": "no arguments toJSON",
-        "javascript": "ObjectId().toJSON()",
-        "python": "",
-        "java": "new ObjectId().toHexString()",
-        "csharp": ""
-      },
-      {
-        "description": "hex arg toJSON",
-        "javascript": "ObjectId('5ab901c29ee65f5c8550c5b9').toJSON()",
-        "python": "",
-        "java": "new ObjectId(\"5ab901c29ee65f5c8550c5b9\").toHexString()",
-        "csharp": ""
-      },
       {
         "description": "no arg toString",
         "javascript": "ObjectId().toString()",
@@ -81,39 +51,9 @@
         "python": "",
         "java": "new Binary(\"a string\".getBytes(\"UTF-8\")).toString()",
         "csharp": ""
-      },
-      {
-        "description": "toJSON",
-        "javascript": "Binary(Buffer.from('a string')).toJSON()",
-        "python": "",
-        "java": "new Binary(\"a string\".getBytes(\"UTF-8\")).toString()",
-        "csharp": ""
-      }
-    ],
-    "DBRef": [
-      {
-        "description": "toJSON with two args",
-        "javascript": "new DBRef('coll', new ObjectId()).toJSON()",
-        "python": "",
-        "java": "new Document().append(\"$ref\", \"coll\").append(\"$id\", new ObjectId()).append(\"$db\", \"\")",
-        "csharp": ""
-      },
-      {
-        "description": "toJSON with three args",
-        "javascript": "new DBRef('coll', new ObjectId(), 'db').toJSON()",
-        "python": "",
-        "java": "new Document().append(\"$ref\", \"coll\").append(\"$id\", new ObjectId()).append(\"$db\", \"db\")",
-        "csharp": ""
       }
     ],
     "Int32": [
-      {
-        "description": "toJSON",
-        "javascript": "Int32(3).toJSON()",
-        "python": "",
-        "java": "new java.lang.Integer(3).intValue()",
-        "csharp": ""
-      },
       {
         "description": "valueOf",
         "javascript": "Int32(3).valueOf()",
@@ -124,13 +64,6 @@
     ],
     "Double": [
       {
-        "description": "toJSON",
-        "javascript": "Double(3).toJSON()",
-        "python": "",
-        "java": "new java.lang.Double(3).doubleValue()",
-        "csharp": ""
-      },
-      {
         "description": "valueOf",
         "javascript": "Double(3).valueOf()",
         "python": "",
@@ -139,13 +72,6 @@
       }
     ],
     "Long": [
-      {
-        "description": "toJSON",
-        "javascript": "Long(1, 100).toJSON()",
-        "python": "",
-        "java": "new java.lang.Long(\"429496729601\").toString()",
-        "csharp": ""
-      },
       {
         "description": "toInt",
         "javascript": "Long(1, 100).toInt()",
@@ -336,23 +262,9 @@
         "python": "",
         "java": "Decimal128.parse(\"5.3E-6175\").toString()",
         "csharp": ""
-      },
-      {
-        "description": "toJSON",
-        "javascript": "new Decimal128(Buffer.from('5')).toJSON()",
-        "python": "",
-        "java": "new Document().append(\"$numberDecimal\", Decimal128.parse(\"5.3E-6175\").toString())",
-        "csharp": ""
       }
     ],
     "Timestamp": [
-      {
-        "description": "toJSON",
-        "javascript": "Timestamp(1, 100).toJSON()",
-        "python": "",
-        "java": "new BSONTimestamp(1, 100).toString()",
-        "csharp": ""
-      },
       {
         "description": "toString",
         "javascript": "Timestamp(1, 100).toString()",
@@ -444,13 +356,6 @@
         "javascript": "Symbol('2').inspect()",
         "python": "",
         "java": "new Symbol(\"2\").getSymbol()",
-        "csharp": ""
-      },
-      {
-        "description": "toJSON",
-        "javascript": "Symbol('2').toJSON()",
-        "python": "",
-        "java": "new Symbol(\"2\").toString()",
         "csharp": ""
       }
     ]

@@ -389,18 +389,6 @@ module.exports = (superClass) => class ExtendedVisitor extends superClass {
   }
 
   /**
-   * Decimal128toJSON method
-   *
-   * @param {FuncCallExpressionContext} ctx
-   * @return {String}
-   */
-  emitDecimal128toJSON(ctx) {
-    ctx.type = this.Types._object;
-
-    return `json_util.dumps(${this.visit(ctx.singleExpression().singleExpression())})`;
-  }
-
-  /**
    * LongtoString method
    *
    * @param {FuncCallExpressionContext} ctx
@@ -419,52 +407,5 @@ module.exports = (superClass) => class ExtendedVisitor extends superClass {
     }
 
     return `str(Int64(${longstr}))`;
-  }
-
-  /**
-   * DBReftoJSON method
-   *
-   * @param {FuncCallExpressionContext} ctx
-   * @return {String}
-   */
-  emitDBReftoJSON(ctx) {
-    ctx.type = this.Types._object;
-
-    const argsList = ctx.singleExpression().singleExpression().arguments();
-    const args = argsList.argumentList().singleExpression();
-    const ns = this.visit(args[0]);
-    const oid = this.visit(args[1]);
-    let db = '""';
-
-    if (args.length === 3) {
-      db = this.visit(args[2]);
-
-      return `json_util.dumps(DBRef(${ns}, ${oid}, ${db}))`;
-    }
-
-    return `json_util.dumps(DBRef(${ns}, ${oid}))`;
-  }
-
-  /**
-   * CodetoJSON method
-   *
-   * @param {FuncCallExpressionContext} ctx
-   * @return {String}
-   */
-  emitCodetoJSON(ctx) {
-    ctx.type = this.Types._object;
-
-    const argsList = ctx.singleExpression().singleExpression().arguments();
-    const args = argsList.argumentList().singleExpression();
-    const code = singleQuoteStringify(args[0].getText());
-    let scope = 'undefined';
-
-    if (args.length === 2) {
-      scope = this.visit(args[1]);
-
-      return `json_util.dumps(Code(${code}, ${scope}))`;
-    }
-
-    return `json_util.dumps(Code(${code}))`;
   }
 };

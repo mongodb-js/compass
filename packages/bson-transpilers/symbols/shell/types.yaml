@@ -19,11 +19,6 @@ BsonTypes:
                 type: *StringType
                 template: *ObjectIdToStringTemplate
                 argsTemplate: *ObjectIdToStringArgsTemplate
-            toJSON:
-                <<: *__func
-                type: *StringType
-                template: *ObjectIdToJSONTemplate
-                argsTemplate: *ObjectIdToJSONArgsTemplate
             equals:
                 <<: *__func
                 args:
@@ -59,21 +54,11 @@ BsonTypes:
                 type: *StringType
                 template: *BinaryToStringTemplate
                 argsTemplate: *BinaryToStringArgsTemplate
-            toJSON:
-                <<: *__func
-                id: "toJSON"
-                type: *StringType
-                template: *BinaryToJSONTemplate
-                argsTemplate: *BinaryToJSONArgsTemplate
     DBRef: &DBRefType
         <<: *__type
         id: "DBRef"
         type: *ObjectType
-        attr:
-            toJSON:
-                <<: *__func
-                id: "DBReftoJSON" # Needs emit method
-                type: *ObjectType
+        attr: {}
     NumberInt: &Int32Type
         <<: *__type
         id: "NumberInt"
@@ -85,12 +70,6 @@ BsonTypes:
                 type: *IntegerType
                 template: *Int32ValueOfTemplate
                 argsTemplate: *Int32ValueOfArgsTemplate
-            toJSON:
-                <<: *__func
-                id: "toJSON"
-                type: *IntegerType
-                template: *Int32ToJSONTemplate
-                argsTemplate: *Int32ToJSONArgsTemplate
     NumberLong: &LongType
         <<: *__type
         id: "NumberLong"
@@ -110,12 +89,6 @@ BsonTypes:
                 type: *BoolType
                 template: *LongEqualsTemplate
                 argsTemplate: *LongEqualsArgsTemplate
-            toJSON:
-                <<: *__func
-                id: "toJSON"
-                type: *StringType
-                template: *LongToJSONTemplate
-                argsTemplate: *LongToJSONArgsTemplate
             toInt:
                 <<: *__func
                 id: "toInt"
@@ -324,12 +297,6 @@ BsonTypes:
                 type: *IntegerType
                 template: *TimestampGetHighBitsTemplate
                 argsTemplate: *TimestampGetHighBitsArgsTemplate
-            toJSON:
-                <<: *__func
-                id: "toJSON"
-                type: *StringType
-                template: *TimestampToJSONTemplate
-                argsTemplate: *TimestampToJSONArgsTemplate
             compare:
                 <<: *__func
                 id: "compare"
@@ -395,12 +362,6 @@ BsonTypes:
                 type: *StringType
                 template: *SymbolToStringTemplate
                 argsTemplate: *SymbolToStringArgsTemplate
-            toJSON:
-                <<: *__func
-                id: "toJSON"
-                type: *StringType
-                template: *SymbolToJSONTemplate
-                argsTemplate: *SymbolToJSONArgsTemplate
             inspect:
                 <<: *__func
                 id: "inspect"
@@ -418,10 +379,6 @@ BsonTypes:
                 type: *StringType
                 template: *Decimal128ToStringTemplate
                 argsTemplate: *Decimal128ToStringArgsTemplate
-            toJSON:
-                <<: *__func
-                id: "Decimal128toJSON" # Needs emit method
-                type: *ObjectType
 JSTypes:
     Date: &DateType
         <<: *__type

@@ -70,14 +70,6 @@ Templates:
         (lhs) => {
             return `str(${lhs})`;
         }
-    ObjectIdToJSONTemplate: &ObjectIdToJSONTemplate !!js/function >
-        () => {
-            return '';
-        }
-    ObjectIdToJSONArgsTemplate: &ObjectIdToJSONArgsTemplate !!js/function >
-        (lhs) => {
-            return `json_util.dumps(${lhs})`;
-        }
     ObjectIdEqualsTemplate: &ObjectIdEqualsTemplate !!js/function >
         () => {
             return '';
@@ -118,22 +110,6 @@ Templates:
         (lhs) => {
             return `str(${lhs})`;
         }
-    BinaryToJSONTemplate: &BinaryToJSONTemplate !!js/function >
-        () => {
-            return '';
-        }
-    BinaryToJSONArgsTemplate: &BinaryToJSONArgsTemplate !!js/function >
-        (lhs) => {
-            return `json_util.dumps(${lhs})`;
-        }
-    DoubleToJSONTemplate: &DoubleToJSONTemplate !!js/function >
-        () => {
-            return '';
-        }
-    DoubleToJSONArgsTemplate: &DoubleToJSONArgsTemplate !!js/function >
-        (lhs) => {
-            return `json_util.dumps(${lhs})`;
-        }
     DoubleValueOfTemplate: &DoubleValueOfTemplate !!js/function >
         () => {
             return '';
@@ -141,14 +117,6 @@ Templates:
     DoubleValueOfArgsTemplate: &DoubleValueOfArgsTemplate !!js/function >
         (lhs) => {
             return lhs;
-        }
-    Int32ToJSONTemplate: &Int32ToJSONTemplate !!js/function >
-        () => {
-            return '';
-        }
-    nt32ToJSONArgsTemplate: &Int32ToJSONArgsTemplate !!js/function >
-        (lhs) => {
-            return `json_util.dumps(${lhs})`;
         }
     Int32ValueOfTemplate: &Int32ValueOfTemplate !!js/function >
         () => {
@@ -165,14 +133,6 @@ Templates:
     LongEqualsArgsTemplate: &LongEqualsArgsTemplate !!js/function >
         (lhs, rhs) => {
             return `(${lhs} - ${rhs}) == 0`;
-        }
-    LongToJSONTemplate: &LongToJSONTemplate !!js/function >
-        () => {
-            return '';
-        }
-    LongToJSONArgsTemplate: &LongToJSONArgsTemplate !!js/function >
-        (lhs) => {
-            return `json_util.dumps(${lhs})`;
         }
     LongToIntTemplate: &LongToIntTemplate !!js/function >
         () => {
@@ -390,14 +350,6 @@ Templates:
         (lhs) => {
             return `${lhs}.inc`;
         }
-    TimestampToJSONTemplate: &TimestampToJSONTemplate !!js/function >
-        () => {
-            return '';
-        }
-    TimestampToJSONArgsTemplate: &TimestampToJSONArgsTemplate !!js/function >
-        (lhs) => {
-            return `json_util.dumps(${lhs})`;
-        }
     TimestampCompareTemplate: &TimestampCompareTemplate !!js/function >
         (lhs) => {
             return '';
@@ -461,14 +413,6 @@ Templates:
     SymbolInspectArgsTemplate: &SymbolInspectArgsTemplate !!js/function >
         (lhs) => {
             return lhs;
-        }
-    SymbolToJSONTemplate: &SymbolToJSONTemplate !!js/function >
-        () => {
-            return '';
-        }
-    SymbolToJSONArgsTemplate: &SymbolToJSONArgsTemplate !!js/function >
-        (lhs, arg) => {
-            return `json_util.dumps(${lhs})`;
         }
     SymbolToStringTemplate: &SymbolToStringTemplate !!js/function >
         () => {

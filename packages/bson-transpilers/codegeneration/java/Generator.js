@@ -289,39 +289,6 @@ module.exports = (superClass) => class ExtendedVisitor extends superClass {
 
   /*  ************** Object methods **************** */
 
-  emitCodetoJSON(ctx) {
-    ctx.type = this.Types._object;
-    const argsList = ctx.singleExpression().singleExpression().arguments();
-    const args = argsList.argumentList().singleExpression();
-    const code = doubleQuoteStringify(args[0].getText());
-    let scope = 'undefined';
-
-    if (args.length === 2) {
-      scope = this.visit(args[1]);
-    }
-
-    return `new Document().append("code", ${code}).append("scope", ${scope})`;
-  }
-
-  emitDecimal128toJSON(ctx) {
-    ctx.type = this.Types._object;
-    return `new Document().append("$numberDecimal", ${this.visit(ctx.singleExpression().singleExpression())}.toString())`;
-  }
-
-  emitDBReftoJSON(ctx) {
-    ctx.type = this.Types._object;
-    const argsList = ctx.singleExpression().singleExpression().arguments();
-    const args = argsList.argumentList().singleExpression();
-
-    const ns = this.visit(args[0]);
-    const oid = this.visit(args[1]);
-    let db = '""';
-    if (args.length === 3) {
-      db = this.visit(args[2]);
-    }
-    return `new Document().append("$ref", ${ns}).append("$id", ${oid}).append(\"$db\", ${db})`;
-  }
-
   emitLongfromBits(ctx) {
     return this.emitLong(ctx);
   }
