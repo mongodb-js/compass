@@ -181,7 +181,7 @@
         "javascript": "Date('December 17, 1995 03:24:00Z')",
         "python": "datetime.datetime(1995, 12, 17, 3, 24, 0, tzinfo=datetime.timezone.utc).strftime('%a %b %d %Y %H:%M:%S %Z')",
         "java": "new java.util.Date(new java.lang.Long(\"819170640000\")).toString()",
-        "csharp": "new DateTime(1995, 12, 17, 3, 24, 0)",
+        "csharp": "new DateTime(1995, 12, 17, 3, 24, 0).ToString()",
         "shell": "Date('December 17, 1995 03:24:00Z')"
       },
       {
@@ -189,7 +189,7 @@
         "javascript": "Date(819167040000)",
         "python": "datetime.datetime(1995, 12, 17, 2, 24, 0, tzinfo=datetime.timezone.utc).strftime('%a %b %d %Y %H:%M:%S %Z')",
         "java": "new java.util.Date(new java.lang.Long(\"819167040000\")).toString()",
-        "csharp": "new DateTime(1995, 12, 17, 2, 24, 0)",
+        "csharp": "new DateTime(1995, 12, 17, 2, 24, 0).ToString()",
         "shell": "Date(819167040000)"
       },
       {
@@ -197,7 +197,7 @@
         "javascript": "Date()",
         "python": "datetime.datetime.utcnow().date().strftime('%a %b %d %Y %H:%M:%S %Z')",
         "java": "new java.util.Date().toString()",
-        "csharp": "DateTime.Now",
+        "csharp": "DateTime.Now.ToString()",
         "shell": "Date()"
       },
       {
@@ -205,7 +205,7 @@
         "javascript": "Date(1995, 11, 17)",
         "python": "datetime.datetime(1995, 12, 17, 0, 0, 0, tzinfo=datetime.timezone.utc).strftime('%a %b %d %Y %H:%M:%S %Z')",
         "java": "new java.util.Date(new java.lang.Long(\"819158400000\")).toString()",
-        "csharp": "new DateTime(1995, 12, 17, 0, 0, 0)",
+        "csharp": "new DateTime(1995, 12, 17, 0, 0, 0).ToString()",
         "shell": "Date(1995, 11, 17)"
       },
       {
@@ -213,7 +213,7 @@
         "javascript": "Date(1995, 11, 17, 3, 24, 0)",
         "python": "datetime.datetime(1995, 12, 17, 3, 24, 0, tzinfo=datetime.timezone.utc).strftime('%a %b %d %Y %H:%M:%S %Z')",
         "java": "new java.util.Date(new java.lang.Long(\"819170640000\")).toString()",
-        "csharp": "new DateTime(1995, 12, 17, 3, 24, 0)",
+        "csharp": "new DateTime(1995, 12, 17, 3, 24, 0).ToString()",
         "shell": "Date(1995, 11, 17, 3, 24, 0)"
       }
     ],
@@ -223,84 +223,84 @@
         "javascript": "RegExp('')",
         "python": "re.compile(r\"(?:)\")",
         "java": "Pattern.compile(\"(?:)\")",
-        "csharp": "new Regex(\"(?:)\")"
+        "csharp": "new Regex(@\"(?:)\")"
       },
       {
         "description": "RegExp without options",
         "javascript": "RegExp('abc')",
         "python": "re.compile(r\"abc\")",
         "java": "Pattern.compile(\"abc\")",
-        "csharp": "new Regex(\"abc\")"
+        "csharp": "new Regex(@\"abc\")"
       },
       {
         "description": "regex object with im flags as args",
         "javascript": "new RegExp('ab+c', 'im')",
         "python": "re.compile(r\"ab+c(?im)\")",
         "java": "Pattern.compile(\"ab+c(?im)\")",
-        "csharp": "new Regex(\"ab+c\", RegexOptions.IgnoreCase | RegexOptions.Multiline)"
+        "csharp": "new Regex(@\"(?im)ab+c\")"
       },
       {
         "description": "regex object with ig flags as args",
         "javascript": "new RegExp('ab+c', 'ig')",
         "python": "re.compile(r\"ab+c(?is)\")",
         "java": "Pattern.compile(\"ab+c(?i)\")",
-        "csharp": "new Regex(\"ab+c\", RegexOptions.IgnoreCase)"
+        "csharp": "new Regex(@\"(?i)ab+c\")"
       },
       {
         "description": "regex object with forward slash",
         "javascript": "new RegExp('ab/cd')",
         "python": "re.compile(r\"ab\\/cd\")",
         "java": "Pattern.compile(\"ab\\\\/cd\")",
-        "csharp": "new Regex(\"ab\\/cd\")"
+        "csharp": "new Regex(@\"ab\\/cd\")"
       },
       {
         "description": "regex object with escaped double quote",
         "javascript": "new RegExp('ab\\\"ab')",
         "python": "re.compile(r\"ab\\\"ab\")",
         "java": "Pattern.compile(\"ab\\\"ab\")",
-        "csharp": "new Regex(\"ab\\\"ab\")"
+        "csharp": "new Regex(@\"ab\\\"ab\")"
       },
       {
         "description": "regex object with nonescaped double quote",
         "javascript": "new RegExp('ab\"ab')",
         "python": "re.compile(r\"ab\\\"ab\")",
         "java": "Pattern.compile(\"ab\\\"ab\")",
-        "csharp": "new Regex(\"ab\\\"ab\")"
+        "csharp": "new Regex(@\"ab\\\"ab\")"
       },
       {
         "description": "regex object with escaped single quote",
         "javascript": "new RegExp('ab\\'ab')",
         "python": "re.compile(r\"ab'ab\")",
         "java": "Pattern.compile(\"ab'ab\")",
-        "csharp": "new Regex(\"ab'ab\")"
+        "csharp": "new Regex(@\"ab'ab\")"
       },
       {
         "description": "regex object with nonescaped single quote",
         "javascript": "new RegExp(\"ab'ab\")",
         "python": "re.compile(r\"ab'ab\")",
         "java": "Pattern.compile(\"ab'ab\")",
-        "csharp": "new Regex(\"ab'ab\")"
+        "csharp": "new Regex(@\"ab'ab\")"
       },
       {
         "description": "regex object with newline",
         "javascript": "new RegExp(\"\\\\n\")",
         "python": "re.compile(r\"\\\\n\")",
         "java": "Pattern.compile(\"\\\\n\")",
-        "csharp": "new Regex(\"\\n\")"
+        "csharp": "new Regex(@\"\\n\")"
       },
       {
         "description": "regex literal with ig flags",
         "javascript": "/ab+c/ig",
         "python": "re.compile(r\"ab+c(?is)\")",
         "java": "Pattern.compile(\"ab+c(?i)\")",
-        "csharp": "new Regex(\"ab+c\", RegexOptions.IgnoreCase)"
+        "csharp": "new Regex(@\"(?i)ab+c\")"
       },
       {
         "description": "regex object with regex literal arg",
         "javascript": "new RegExp(/ab+c/, 'i')",
         "python": "re.compile(r\"ab+c(?i)\")",
         "java": "Pattern.compile(\"ab+c(?i)\")",
-        "csharp": "new Regex(\"ab+c\", RegexOptions.IgnoreCase)"
+        "csharp": "new Regex(@\"(?i)ab+c\")"
       }
     ]
   }

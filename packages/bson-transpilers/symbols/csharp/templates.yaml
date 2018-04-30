@@ -21,7 +21,7 @@ Templates:
     OctalTypeTemplate: &OctalTypeTemplate !!js/function >
         (literal) => {
           literal = literal.replace(/[oO]+/g, '0')
-          return parseInt(literal, 8)
+          return parseInt(literal, 8).toString()
         }
     NumericTypeTemplate: &NumericTypeTemplate null
     ArrayTypeTemplate: &ArrayTypeTemplate !!js/function >

@@ -11,11 +11,11 @@ module.exports = (superclass) => class ExtendedVisitor extends superclass {
     super();
     this.new = 'new ';
     this.regexFlags = {
-      i: 'RegexOptions.IgnoreCase',
-      m: 'RegexOptions.Multiline',
-      u: '',
-      y: '',
-      g: ''
+      i: 'i',  // ignore case
+      m: 'm',  // multiline
+      u: '', // unicode
+      y: '',   // sticky search
+      g: ''    // global
     };
     this.bsonRegexFlags = {
       'i': 'i', // Case insensitivity to match
@@ -278,8 +278,17 @@ module.exports = (superclass) => class ExtendedVisitor extends superclass {
    * @returns {string} - DateTime(date)
    */
   emitDate(ctx) {
+    let toStr = '';
     ctx.type = this.Types.Date;
-    if (!ctx.arguments().argumentList()) return 'DateTime.Now';
+
+    // we need to return a string if just the Date() gets called
+    if (!ctx.wasNew && this.visit(ctx.singleExpression()) !== 'ISODate') {
+      ctx.type = this.Types._string;
+      toStr = '.ToString()';
+    }
+
+    // it's just the now time if there are no args
+    if (!ctx.arguments().argumentList()) return `DateTime.Now${toStr}`;
 
     let dateStr;
 
@@ -298,7 +307,7 @@ module.exports = (superclass) => class ExtendedVisitor extends superclass {
       throw new SemanticGenericError({message: error.message});
     }
 
-    return `new DateTime(${dateStr})`;
+    return `new DateTime(${dateStr})${toStr}`;
   }
 
   /**
@@ -329,20 +338,9 @@ module.exports = (superclass) => class ExtendedVisitor extends superclass {
     }
 
     // we need to pipe ( "|" ) flags in csharp if there is more than one of them
-    const csharpflags = flags.replace(/[imuyg]/g, (m) => {
-      if (m === flags[flags.length - 1]) {
-        return this.regexFlags[m];
-      }
-      if (this.regexFlags[m] !== '' && flags.length > 1) {
-        return this.regexFlags[m] + ' | ';
-      }
-      return this.regexFlags[m];
-    });
+    let csharpflags = flags.replace(/[imuyg]/g, (m) => this.regexFlags[m]);
+    csharpflags = csharpflags === '' ? '' : `(?${csharpflags})`;
 
-    const regex = csharpflags === '' ?
-      `new Regex(${doubleQuoteStringify(pattern)})`
-      : `new Regex(${doubleQuoteStringify(pattern)}, ${csharpflags})`;
-
-    return regex;
+    return `new Regex(@${doubleQuoteStringify(csharpflags + pattern)})`;
   }
 };
