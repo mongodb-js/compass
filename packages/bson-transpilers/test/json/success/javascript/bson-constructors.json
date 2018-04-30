@@ -229,22 +229,6 @@
         "java": "new MaxKey()",
         "csharp": "BsonMaxKey.Value",
         "shell": "new MaxKey()"
-      },
-      {
-        "description": "new MaxKey",
-        "javascript": "new MaxKey",
-        "python": "MaxKey()",
-        "java": "new MaxKey()",
-        "csharp": "BsonMaxKey.Value",
-        "shell": "new MaxKey()"
-      },
-      {
-        "description": "new MinKey",
-        "javascript": "new MinKey",
-        "python": "MinKey()",
-        "java": "new MinKey()",
-        "csharp": "BsonMinKey.Value",
-        "shell": "new MinKey()"
       }
     ],
     "BSONRegExp": [
