@@ -79,6 +79,7 @@ module.exports = (superClass) => class ExtendedVisitor extends superClass {
    * @return {String}
    */
   emitRegExp(ctx) {
+    ctx.type = this.Types.RegExp;
     let pattern;
     let flags;
 
@@ -119,6 +120,7 @@ module.exports = (superClass) => class ExtendedVisitor extends superClass {
    * @return {String}
    */
   emitDate(ctx) {
+    ctx.type = this.Types.Date;
     const argumentList = ctx.arguments().argumentList();
     let toStr = '';
     if (!ctx.wasNew && this.visit(ctx.singleExpression()) !== 'ISODate') {
@@ -161,6 +163,7 @@ module.exports = (superClass) => class ExtendedVisitor extends superClass {
    * @return {String}
    */
   emitBSONRegExp(ctx) {
+    ctx.type = this.Types.BSONRegExp;
     const argumentList = ctx.arguments().argumentList();
 
     if (
