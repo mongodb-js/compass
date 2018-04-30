@@ -247,6 +247,7 @@ class Visitor extends ECMAScriptVisitor {
    * @return {String}
    */
   visitNewExpression(ctx) {
+    ctx.singleExpression().wasNew = true;
     if ('emitNew' in this) {
       return this.emitNew(ctx);
     }
