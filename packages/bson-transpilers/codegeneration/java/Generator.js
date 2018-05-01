@@ -268,10 +268,6 @@ module.exports = (superClass) => class ExtendedVisitor extends superClass {
     }
     return `new java.lang.Long(${doubleQuoteStringify(longstr)})`;
   }
-  //
-  // emit_long(ctx) {
-  //   console.log("HERE");
-  // }
 
   emitNumberLong(ctx) {
     const ret = this.emitLong(ctx);

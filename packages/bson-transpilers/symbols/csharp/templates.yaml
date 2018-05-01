@@ -70,6 +70,8 @@ Templates:
     CodeCodeArgsTemplate: &CodeCodeArgsTemplate null
     CodeScopeTemplate: &CodeScopeTemplate null
     CodeScopeArgsTemplate: &CodeScopeArgsTemplate null
+    CodeToStringTemplate: &CodeToStringTemplate null
+    CodeToStringArgsTemplate: &CodeToStringArgsTemplate null
     ObjectIdToStringTemplate: &ObjectIdToStringTemplate null
     ObjectIdToStringArgsTemplate: &ObjectIdToStringArgsTemplate null
     ObjectIdEqualsTemplate: &ObjectIdEqualsTemplate null
@@ -93,6 +95,8 @@ Templates:
     DBRefGetDBArgsTemplate: &DBRefGetDBArgsTemplate null
     DBRefGetCollectionArgsTemplate: &DBRefGetCollectionArgsTemplate null
     DBRefGetIdArgsTemplate: &DBRefGetIdArgsTemplate null
+    DBRefToStringTemplate: &DBRefToStringTemplate null
+    DBRefToStringArgsTemplate: &DBRefToStringArgsTemplate null
     DoubleValueOfTemplate: &DoubleValueOfTemplate !!js/function >
         (lhs) => {
           return `${lhs}.ToDouble`;

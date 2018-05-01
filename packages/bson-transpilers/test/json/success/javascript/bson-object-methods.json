@@ -1,5 +1,31 @@
 {
   "tests": {
+    "Code": [
+      {
+        "description": "CodeWithScope scope",
+        "javascript": "Code('test code', {x: 1}).scope",
+        "python": "Code('test code', {'x': 1}).scope",
+        "java": "new CodeWithScope(\"test code\", new Document().append(\"x\", new java.lang.Long(\"1\"))).getScope()",
+        "csharp": "",
+        "shell": "Code('test code', {x: 1}).scope"
+      },
+      {
+        "description": "Code code",
+        "javascript": "Code('test code').code",
+        "python": "str(Code('test code'))",
+        "java": "new Code(\"test code\").getCode()",
+        "csharp": "",
+        "shell": "Code('test code').code"
+      },
+      {
+        "description": "Code toString",
+        "javascript": "Code('test code').toString()",
+        "python": "repr(Code('test code'))",
+        "java": "new Code(\"test code\").toString()",
+        "csharp": "",
+        "shell": "Code('test code').toString()"
+      }
+    ],
     "ObjectId": [
       {
         "description": "no arg toString",
@@ -36,7 +62,16 @@
         "javascript": "Binary(Buffer.from('a string')).length()",
         "python": "len(bytearray(Binary(b'a string')))",
         "java": "new Binary(\"a string\".getBytes(\"UTF-8\")).length()",
-        "csharp": ""
+        "csharp": "",
+        "shell": "BinData(1, '0001').length()"
+      },
+      {
+        "description": "subtype",
+        "javascript": "Binary(Buffer.from('0001')).sub_type",
+        "python": "Binary(b'0001').subtype",
+        "java": "new Binary(\"0001\".getBytes(\"UTF-8\")).getType()",
+        "csharp": "",
+        "shell": "BinData(0, '0001').subtype()"
       },
       {
         "description": "value",
@@ -50,7 +85,42 @@
         "javascript": "Binary(Buffer.from('a string')).toString()",
         "python": "str(Binary(b'a string'))",
         "java": "new Binary(\"a string\".getBytes(\"UTF-8\")).toString()",
-        "csharp": ""
+        "csharp": "",
+        "shell": "BinData(1, '0001').toString()"
+      }
+    ],
+    "DBRef": [
+      {
+        "description": "toString",
+        "javascript": "new DBRef('coll', new ObjectId()).toString()",
+        "python": "str(DBRef('coll', ObjectId()))",
+        "java": "new DBRef(\"coll\", new ObjectId()).toString()",
+        "csharp": "",
+        "shell": "new DBRef('coll', new ObjectId()).toString()"
+      },
+      {
+        "description": "getDb",
+        "javascript": "new DBRef('coll', new ObjectId()).db",
+        "python": "DBRef('coll', ObjectId()).database",
+        "java": "new DBRef(\"coll\", new ObjectId()).getDatabaseName()",
+        "csharp": "",
+        "shell": "new DBRef('coll', new ObjectId()).getDb()"
+      },
+      {
+        "description": "getCollection",
+        "javascript": "new DBRef('coll', new ObjectId()).namespace",
+        "python": "DBRef('coll', ObjectId()).collection",
+        "java": "new DBRef(\"coll\", new ObjectId()).getCollectionName()",
+        "csharp": "",
+        "shell": "new DBRef('coll', new ObjectId()).getCollection()"
+      },
+      {
+        "description": "getId",
+        "javascript": "new DBRef('coll', new ObjectId()).oid",
+        "python": "DBRef('coll', ObjectId()).id",
+        "java": "new DBRef(\"coll\", new ObjectId()).getId()",
+        "csharp": "",
+        "shell": "new DBRef('coll', new ObjectId()).getId()"
       }
     ],
     "Int32": [

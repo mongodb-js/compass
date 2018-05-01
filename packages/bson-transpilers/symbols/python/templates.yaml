@@ -62,10 +62,21 @@ Templates:
             }).join(', ');
         }
     # BSON Object Method templates
-    CodeCodeTemplate: &CodeCodeTemplate null
+    CodeCodeTemplate: &CodeCodeTemplate !!js/function >
+        (lhs) => {
+            return `str(${lhs})`;
+        }
     CodeCodeArgsTemplate: &CodeCodeArgsTemplate null
     CodeScopeTemplate: &CodeScopeTemplate null
     CodeScopeArgsTemplate: &CodeScopeArgsTemplate null
+    CodeToStringTemplate: &CodeToStringTemplate !!js/function >
+        (lhs) => {
+            return `repr(${lhs})`;
+        }
+    CodeToStringArgsTemplate: &CodeToStringArgsTemplate !!js/function >
+        () => {
+            return '';
+        }
     ObjectIdToStringTemplate: &ObjectIdToStringTemplate !!js/function >
         () => {
             return '';
@@ -114,14 +125,43 @@ Templates:
         (lhs) => {
             return `str(${lhs})`;
         }
-    BinarySubtypeTemplate: &BinarySubtypeTemplate null
+    BinarySubtypeTemplate: &BinarySubtypeTemplate !!js/function >
+        (lhs) => {
+            return `${lhs}.subtype`;
+        }
     BinarySubtypeArgsTemplate: &BinarySubtypeArgsTemplate null
-    DBRefGetDBTemplate: &DBRefGetDBTemplate null
-    DBRefGetCollectionTemplate: &DBRefGetCollectionTemplate null
-    DBRefGetIdTemplate: &DBRefGetIdTemplate null
-    DBRefGetDBArgsTemplate: &DBRefGetDBArgsTemplate null
-    DBRefGetCollectionArgsTemplate: &DBRefGetCollectionArgsTemplate null
-    DBRefGetIdArgsTemplate: &DBRefGetIdArgsTemplate null
+    DBRefGetDBTemplate: &DBRefGetDBTemplate !!js/function >
+        (lhs) => {
+            return `${lhs}.database`;
+        }
+    DBRefGetCollectionTemplate: &DBRefGetCollectionTemplate !!js/function >
+        (lhs) => {
+            return `${lhs}.collection`;
+        }
+    DBRefGetIdTemplate: &DBRefGetIdTemplate !!js/function >
+        (lhs) => {
+            return `${lhs}.id`;
+        }
+    DBRefGetDBArgsTemplate: &DBRefGetDBArgsTemplate !!js/function >
+        () => {
+            return '';
+        }
+    DBRefGetCollectionArgsTemplate: &DBRefGetCollectionArgsTemplate !!js/function
+        () => {
+            return '';
+        }
+    DBRefGetIdArgsTemplate: &DBRefGetIdArgsTemplate !!js/function
+        () => {
+            return '';
+        }
+    DBRefToStringTemplate: &DBRefToStringTemplate !!js/function >
+        (lhs) => {
+            return `str(${lhs})`;
+        }
+    DBRefToStringArgsTemplate: &DBRefToStringArgsTemplate !!js/function >
+        () => {
+            return '';
+        }
     DoubleValueOfTemplate: &DoubleValueOfTemplate !!js/function >
         () => {
             return '';

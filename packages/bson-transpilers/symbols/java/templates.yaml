@@ -92,6 +92,8 @@ Templates:
             return `${lhs}.getScope()`;
         }
     CodeScopeArgsTemplate: &CodeScopeArgsTemplate null
+    CodeToStringTemplate: &CodeToStringTemplate null
+    CodeToStringArgsTemplate: &CodeToStringArgsTemplate null
     BinaryValueTemplate: &BinaryValueTemplate !!js/function >
         (lhs) => {
             return `${lhs}.getData`;
@@ -103,9 +105,12 @@ Templates:
     BinaryToStringArgsTemplate: &BinaryToStringArgsTemplate null
     BinarySubtypeTemplate: &BinarySubtypeTemplate !!js/function >
         (lhs) => {
-            return `${lhs}.getType`;
+            return `${lhs}.getType()`;
         }
-    BinarySubtypeArgsTemplate: &BinarySubtypeArgsTemplate null
+    BinarySubtypeArgsTemplate: &BinarySubtypeArgsTemplate !!js/function >
+        () => {
+            return '';
+        }
     DBRefGetDBTemplate: &DBRefGetDBTemplate !!js/function >
         (lhs) => {
             return `${lhs}.getDatabaseName()`;
@@ -130,6 +135,8 @@ Templates:
         () => {
             return '';
         }
+    DBRefToStringTemplate: &DBRefToStringTemplate null
+    DBRefToStringArgsTemplate: &DBRefToStringArgsTemplate null
     DoubleValueOfTemplate: &DoubleValueOfTemplate !!js/function >
         (lhs) => {
             return `${lhs}.doubleValue`;

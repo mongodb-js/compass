@@ -3,7 +3,29 @@ BsonTypes:
         <<: *__type
         id: "Code"
         type: *ObjectType
-        attr: {}
+        attr:
+            toString:
+                <<: *__func
+                id: "toString"
+                type: *StringType
+                template: *CodeToStringTemplate
+                argsTemplate: *CodeToStringArgsTemplate
+            code:
+                callable: *var
+                args: null
+                attr: null
+                id: "code"
+                type: *StringType
+                template: *CodeCodeTemplate
+                argsTemplate: *CodeCodeArgsTemplate
+            scope:
+                callable: *var
+                args: null
+                attr: null
+                id: "scope"
+                type: *StringType
+                template: *CodeScopeTemplate
+                argsTemplate: *CodeScopeArgsTemplate
         template: *CodeTypeTemplate
     ObjectId: &ObjectIdType
         <<: *__type
@@ -54,11 +76,49 @@ BsonTypes:
                 type: *StringType
                 template: *BinaryToStringTemplate
                 argsTemplate: *BinaryToStringArgsTemplate
+            sub_type:
+                callable: *var
+                args: null
+                attr: null
+                id: "subtype"
+                type: *IntegerType
+                template: *BinarySubtypeTemplate
+                argsTemplate: *BinarySubtypeArgsTemplate
     DBRef: &DBRefType
         <<: *__type
         id: "DBRef"
         type: *ObjectType
-        attr: {}
+        attr:
+            toString:
+                <<: *__func
+                id: "toString"
+                type: *StringType
+                template: *DBRefToStringTemplate
+                argsTemplate: *DBRefToStringArgsTemplate
+            db:
+                callable: *var
+                args: null
+                attr: null
+                id: "db"
+                type: *StringType
+                template: *DBRefGetDBTemplate
+                argsTemplate: *DBRefGetDBArgsTemplate
+            namespace:
+                callable: *var
+                args: null
+                attr: null
+                id: "namespace"
+                type: *StringType
+                template: *DBRefGetCollectionTemplate
+                argsTemplate: *DBRefGetCollectionArgsTemplate
+            oid:
+                callable: *var
+                args: null
+                attr: null
+                id: "oid"
+                type: *StringType
+                template: *DBRefGetIdTemplate
+                argsTemplate: *DBRefGetIdArgsTemplate
     Double: &DoubleType
         <<: *__type
         id: "Double"
