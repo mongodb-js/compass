@@ -1,6 +1,6 @@
 .table-view-cell-editor {
   position: absolute;
-  z-index: 1000;
+  z-index: 500;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -57,11 +57,11 @@
   }
 
   &-types {
-    display: flex;
-    height: 22px;
-    width: 85px;
-    padding: 0;
-    margin-left: 3px;
+    display: flex !important;
+    height: 22px !important;
+    width: 85px !important;
+    padding: 0 !important;
+    margin-left: 3px !important;
 
     .btn-crud {
       background-color: transparent;
@@ -126,11 +126,11 @@
   }
 
   &-button {
-    display: inline-block;
+    display: inline-block !important;
     width: 20px;
-    padding: 0 5px;
+    padding: 0 5px !important;
     margin-left: 3px;
-    cursor: pointer;
+    cursor: pointer !important;
 
     &:focus, &:hover, &:active {
       background: linear-gradient(180deg, #FFFFFF 0%, #EDEDED 100%);
@@ -144,7 +144,7 @@
 
     &-menu {
       display: none;
-      margin-left: 8px;
+      margin-left: 8px !important;
 
       li {
         font-family: Menlo;
@@ -184,7 +184,7 @@
       }
 
       &-is-visible {
-        display: block;
+        display: block !important;
       }
     }
   }
