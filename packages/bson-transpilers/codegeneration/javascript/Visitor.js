@@ -98,6 +98,7 @@ class Visitor extends ECMAScriptVisitor {
     if (ctx.type.template) {
       return ctx.type.template(args);
     }
+    return this.visitChildren(ctx);
   }
 
   /**
@@ -121,6 +122,7 @@ class Visitor extends ECMAScriptVisitor {
     if (ctx.type.template) {
       return ctx.type.template(args);
     }
+    return this.visitChildren(ctx);
   }
 
   /**
@@ -129,7 +131,7 @@ class Visitor extends ECMAScriptVisitor {
    * @return {String}
    */
   visitElision(ctx) {
-    ctx.type = this.Types._null;
+    ctx.type = this.Types._undefined;
     if (ctx.type.template) {
       return ctx.type.template();
     }
@@ -251,7 +253,7 @@ class Visitor extends ECMAScriptVisitor {
     if ('emitNew' in this) {
       return this.emitNew(ctx);
     }
-    return this.visitChildren(ctx);
+    return this.visitChildren(ctx, {separator: ' '});
   }
 
   visitRegularExpressionLiteral(ctx) {

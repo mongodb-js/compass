@@ -1,4 +1,4 @@
-# Java Templates
+# Javascript Templates
 Templates:
     # BSON Object Type templates
     CodeTypeTemplate: &CodeTypeTemplate null
@@ -11,11 +11,28 @@ Templates:
     HexTypeTemplate: &HexTypeTemplate null
     OctalTypeTemplate: &OctalTypeTemplate null
     NumericTypeTemplate: &NumericTypeTemplate null
-    ArrayTypeTemplate: &ArrayTypeTemplate null
-    NullTypeTemplate: &NullTypeTemplate null
-    UndefinedTypeTemplate: &UndefinedTypeTemplate null
-    ObjectTypeTemplate: &ObjectTypeTemplate null
-    ObjectTypeArgsTemplate: &ObjectTypeArgsTemplate null
+    ArrayTypeTemplate: &ArrayTypeTemplate !!js/function >
+        (literal) => {
+            return `[${literal}]`;
+        }
+    NullTypeTemplate: &NullTypeTemplate !!js/function >
+        () => {
+            return 'null';
+        }
+    UndefinedTypeTemplate: &UndefinedTypeTemplate !!js/function >
+        () => {
+            return 'undefined';
+        }
+    ObjectTypeTemplate: &ObjectTypeTemplate !!js/function >
+        (literal) => {
+            return `{${literal}}`;
+        }
+    ObjectTypeArgsTemplate: &ObjectTypeArgsTemplate !!js/function >
+        (args) => {
+            return args.map((arg) => {
+                return `${arg[0]}: ${arg[1]}`;
+            }).join(', ');
+        }
     # BSON Object Method templates
     CodeCodeTemplate: &CodeCodeTemplate null
     CodeCodeArgsTemplate: &CodeCodeArgsTemplate null
@@ -129,12 +146,27 @@ Templates:
     SymbolToStringTemplate: &SymbolToStringTemplate null
     SymbolToStringArgsTemplate: &SymbolToStringArgsTemplate null
     # Symbol Templates
-    CodeSymbolTemplate: &CodeSymbolTemplate null # Has emit method
-    CodeSymbolArgsTemplate: &CodeSymbolArgsTemplate null
-    ObjectIdSymbolTemplate: &ObjectIdSymbolTemplate null # Has emit method
-    ObjectIdSymbolArgsTemplate: &ObjectIdSymbolArgsTemplate null
-    BinarySymbolTemplate: &BinarySymbolTemplate null # Has emit method
-    BinarySymbolArgsTemplate: &BinarySymbolArgsTemplate null
+    CodeSymbolTemplate: &CodeSymbolTemplate null
+    CodeSymbolArgsTemplate: &CodeSymbolArgsTemplate !!js/function >
+        (lhs, code, scope) => {
+            code = code === undefined ? '\'\'' : code;
+            scope = scope === undefined ? '' : `, ${scope}`;
+            return `(${code}${scope})`;
+        }
+    ObjectIdSymbolTemplate: &ObjectIdSymbolTemplate null
+    ObjectIdSymbolArgsTemplate: &ObjectIdSymbolArgsTemplate !!js/function >
+        (lhs, arg) => {
+            arg = arg === undefined ? '' : arg;
+            return `(${arg})`;
+        }
+    BinarySymbolTemplate: &BinarySymbolTemplate !!js/function >
+        () => {
+            return 'Binary';
+        }
+    BinarySymbolArgsTemplate: &BinarySymbolArgsTemplate !!js/function >
+        (lhs, subtype, buffer) => {
+            return `(${buffer.toString('base64')}, '${subtype.toString(16)}')`;
+        }
     BinarySymbolSubtypeDefaultTemplate: &BinarySymbolSubtypeDefaultTemplate null
     BinarySymbolSubtypeFunctionTemplate: &BinarySymbolSubtypeFunctionTemplate null
     BinarySymbolSubtypeByteArrayTemplate: &BinarySymbolSubtypeByteArrayTemplate null
@@ -146,10 +178,24 @@ Templates:
     DBRefSymbolArgsTemplate: &DBRefSymbolArgsTemplate null
     DoubleSymbolTemplate: &DoubleSymbolTemplate null
     DoubleSymbolArgsTemplate: &DoubleSymbolArgsTemplate null
-    Int32SymbolTemplate: &Int32SymbolTemplate null
-    Int32SymbolArgsTemplate: &Int32SymbolArgsTemplate null
-    LongSymbolTemplate: &LongSymbolTemplate null
-    LongSymbolArgsTemplate: &LongSymbolArgsTemplate null # Has emit method
+    Int32SymbolTemplate: &Int32SymbolTemplate !!js/function >
+        () => {
+            return 'Int32';
+        }
+    Int32SymbolArgsTemplate: &Int32SymbolArgsTemplate !!js/function >
+        (lhs, arg) => {
+            arg = arg === undefined ? 0 : arg;
+            return `(${arg})`;
+        }
+    LongSymbolTemplate: &LongSymbolTemplate !!js/function >
+        () => {
+            return 'Long.fromNumber';
+        }
+    LongSymbolArgsTemplate: &LongSymbolArgsTemplate !!js/function >
+        (lhs, arg) => {
+            arg = arg === undefined ? 0 : arg;
+            return `(${arg})`;
+        }
     LongSymbolMaxTemplate: &LongSymbolMaxTemplate null
     LongSymbolMaxArgsTemplate: &LongSymbolMaxArgsTemplate null
     LongSymbolMinTemplate: &LongSymbolMinTemplate null
@@ -173,13 +219,26 @@ Templates:
     MaxKeySymbolTemplate: &MaxKeySymbolTemplate null
     MaxKeySymbolArgsTemplate: &MaxKeySymbolArgsTemplate null
     TimestampSymbolTemplate: &TimestampSymbolTemplate null
-    TimestampSymbolArgsTemplate: &TimestampSymbolArgsTemplate null
+    TimestampSymbolArgsTemplate: &TimestampSymbolArgsTemplate !!js/function >
+        (lhs, arg1, arg2) => {
+            return `(${arg1 === undefined ? 0 : arg1}, ${arg2 === undefined ? 0 : arg2})`;
+        }
     SymbolSymbolTemplate: &SymbolSymbolTemplate null
     SymbolSymbolArgsTemplate: &SymbolSymbolArgsTemplate null
     BSONRegExpSymbolTemplate: &BSONRegExpSymbolTemplate null # Has emit method
     BSONRegExpSymbolArgsTemplate: &BSONRegExpSymbolArgsTemplate null
-    Decimal128SymbolTemplate: &Decimal128SymbolTemplate null # Has emit method
-    Decimal128SymbolArgsTemplate: &Decimal128SymbolArgsTemplate null
+    Decimal128SymbolTemplate: &Decimal128SymbolTemplate !!js/function >
+        () => {
+            return 'Decimal128.fromString';
+        }
+    Decimal128SymbolArgsTemplate: &Decimal128SymbolArgsTemplate !!js/function >
+        (lhs, arg) => {
+            arg = arg === undefined ? '0' : arg.toString();
+            if (arg.charAt(0) === '\'' && arg.charAt(arg.length - 1) === '\'') {
+                return `(${arg})`;
+            }
+            return `('${arg}')`;
+        }
     Decimal128SymbolFromStringTemplate: &Decimal128SymbolFromStringTemplate null
     Decimal128SymbolFromStringArgsTemplate: &Decimal128SymbolFromStringArgsTemplate null
     Decimal128ToStringTemplate: &Decimal128ToStringTemplate null

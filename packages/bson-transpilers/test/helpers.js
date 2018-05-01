@@ -18,6 +18,12 @@ const unsupported = {
     },
     shell: {
       java: {},
+      javascript: {
+        'js-constructors': [ '*' ],
+        'bson-object-methods': [ '*' ],
+        'bson-utils': [ '*' ],
+        'js-utils': [ '*' ]
+      },
       python: {
         'bson-constructors': [ '*' ],
         'js-constructors': [ '*' ],
@@ -43,7 +49,8 @@ const unsupported = {
     shell: {
       java: {'bson-constructors': [ '*' ]},
       python: { 'bson-constructors': [ '*' ]},
-      csharp: {'bson-constructors': [ '*' ]}
+      csharp: {'bson-constructors': [ '*' ]},
+      javascript: {'bson-constructors': [ '*' ]}
     }
   }
 };
@@ -73,6 +80,9 @@ const readJSON = (filename) => {
 };
 
 const runTest = function(mode, testname, inputLang, outputLang, tests) {
+  if (inputLang === outputLang) {
+    return;
+  }
   describe(`${testname}:${inputLang} ==> ${outputLang}`, () => {
     Object.keys(tests).forEach((key) => {
       describe(key, () => {

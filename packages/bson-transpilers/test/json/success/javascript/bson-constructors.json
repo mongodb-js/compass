@@ -368,7 +368,7 @@
         "javascript": "[,'1', '2',]",
         "python": "[None, '1', '2']",
         "java": "Arrays.asList(null, \"1\", \"2\")",
-        "csharp": "new BsonArray {BsonNull.Value, \"1\", \"2\"}",
+        "csharp": "new BsonArray {BsonUndefined.Value, \"1\", \"2\"}",
         "shell": "[,'1', '2',]"
       },
       {
@@ -376,7 +376,7 @@
         "javascript": "[,]",
         "python": "[None]",
         "java": "Arrays.asList(null)",
-        "csharp": "new BsonArray {BsonNull.Value}",
+        "csharp": "new BsonArray {BsonUndefined.Value}",
         "shell": "[,]"
       },
       {
@@ -384,7 +384,7 @@
         "javascript": "[,,]",
         "python": "[None, None]",
         "java": "Arrays.asList(null, null)",
-        "csharp": "new BsonArray {BsonNull.Value, BsonNull.Value}",
+        "csharp": "new BsonArray {BsonUndefined.Value, BsonUndefined.Value}",
         "shell": "[,,]"
       },
       {
@@ -392,7 +392,7 @@
         "javascript": "['1',,,,'2']",
         "python": "['1', None, None, None, '2']",
         "java": "Arrays.asList(\"1\", null, null, null, \"2\")",
-        "csharp": "new BsonArray {\"1\", BsonNull.Value, BsonNull.Value, BsonNull.Value, \"2\"}",
+        "csharp": "new BsonArray {\"1\", BsonUndefined.Value, BsonUndefined.Value, BsonUndefined.Value, \"2\"}",
         "shell": "['1',,,,'2']"
       }
     ],

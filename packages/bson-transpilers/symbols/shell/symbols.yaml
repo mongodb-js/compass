@@ -25,7 +25,7 @@ BsonSymbols:
                 template: *ObjectIdCreateFromTimeTemplate
                 argsTemplate: *ObjectIdCreateFromTimeArgsTemplate
         template: *ObjectIdSymbolTemplate
-        argsTemplate: *CodeSymbolArgsTemplate
+        argsTemplate: *ObjectIdSymbolArgsTemplate
     BinData: &BinarySymbol
         id: "BinData"
         callable: *constructor
