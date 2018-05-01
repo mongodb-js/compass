@@ -6,14 +6,16 @@
         "javascript": "ObjectId.createFromHexString('5ab901c29ee65f5c8550c5b9')",
         "python": "ObjectId(u'5ab901c29ee65f5c8550c5b9')",
         "java": "new ObjectId(\"5ab901c29ee65f5c8550c5b9\")",
-        "csharp": ""
+        "csharp": "",
+        "shell": "ObjectId('5ab901c29ee65f5c8550c5b9')"
       },
       {
         "description": "createFromTime",
         "javascript": "ObjectId.createFromTime(1522075031642)",
         "python": "ObjectId.from_datetime(datetime.datetime.fromtimestamp(1522075031642/1000.0))",
         "java": "new ObjectId(new java.util.Date(new java.lang.Long(\"1522075031642\")))",
-        "csharp": ""
+        "csharp": "",
+        "shell": "ObjectId.fromDate(new Date(1522075031642))"
       },
       {
         "description": "createFromTime with date",
@@ -28,7 +30,8 @@
         "javascript": "ObjectId.isValid('5ab901c29ee65f5c8550c5b9')",
         "python": "ObjectId.is_valid('5ab901c29ee65f5c8550c5b9')",
         "java": "ObjectId.isValid(\"5ab901c29ee65f5c8550c5b9\")",
-        "csharp": ""
+        "csharp": "",
+        "shell": ""
       }
     ],
     "Binary": [
@@ -37,49 +40,56 @@
         "javascript": "Binary.SUBTYPE_DEFAULT",
         "python": "bson.binary.BINARY_SUBTYPE",
         "java": "org.bson.BsonBinarySubType.BINARY",
-        "csharp": ""
+        "csharp": "",
+        "shell": "0"
       },
       {
         "description": "subtype function",
         "javascript": "Binary.SUBTYPE_FUNCTION",
         "python": "bson.binary.FUNCTION_SUBTYPE",
         "java": "org.bson.BsonBinarySubType.FUNCTION",
-        "csharp": ""
+        "csharp": "",
+        "shell": "1"
       },
       {
         "description": "subtype byte array",
         "javascript": "Binary.SUBTYPE_BYTE_ARRAY",
         "python": "bson.binary.OLD_BINARY_SUBTYPE",
         "java": "org.bson.BsonBinarySubType.OLD_BINARY",
-        "csharp": ""
+        "csharp": "",
+        "shell": "2"
       },
       {
         "description": "subtype uuid old",
         "javascript": "Binary.SUBTYPE_UUID_OLD",
         "python": "bson.binary.OLD_UUID_SUBTYPE",
         "java": "org.bson.BsonBinarySubType.UUID_LEGACY",
-        "csharp": ""
+        "csharp": "",
+        "shell": "3"
       },
       {
         "description": "subtype uuid",
         "javascript": "Binary.SUBTYPE_UUID",
         "python": "bson.binary.UUID_SUBTYPE",
         "java": "org.bson.BsonBinarySubType.UUID_STANDARD",
-        "csharp": ""
+        "csharp": "",
+        "shell": "4"
       },
       {
         "description": "subtype md5",
         "javascript": "Binary.SUBTYPE_MD5",
         "python": "bson.binary.MD5_SUBTYPE",
         "java": "org.bson.BsonBinarySubType.MD5",
-        "csharp": ""
+        "csharp": "",
+        "shell": "5"
       },
       {
         "description": "subtype udef",
         "javascript": "Binary.SUBTYPE_USER_DEFINED",
         "python": "bson.binary.USER_DEFINED_SUBTYPE",
         "java": "org.bson.BsonBinarySubType.USER_DEFINED",
-        "csharp": ""
+        "csharp": "",
+        "shell": "80"
       }
     ],
     "Long": [
@@ -88,63 +98,72 @@
         "javascript": "Long.MAX_VALUE",
         "python": "sys.maxsize",
         "java": "java.lang.Long.MAX_VALUE",
-        "csharp": ""
+        "csharp": "",
+        "shell": "math.max()"
       },
       {
         "description": "MIN_VALUE",
         "javascript": "Long.MIN_VALUE",
         "python": "-sys.maxsize -1",
         "java": "java.lang.Long.MIN_VALUE",
-        "csharp": ""
+        "csharp": "",
+        "shell": "math.min()"
       },
       {
         "description": "ZERO",
         "javascript": "Long.ZERO",
         "python": "Int64(0)",
         "java": "new java.lang.Long(0)",
-        "csharp": ""
+        "csharp": "",
+        "shell": "0"
       },
       {
         "description": "ONE",
         "javascript": "Long.ONE",
         "python": "Int64(1)",
         "java": "new java.lang.Long(1)",
-        "csharp": ""
+        "csharp": "",
+        "shell": "1"
       },
       {
         "description": "NEG_ONE",
         "javascript": "Long.NEG_ONE",
         "python": "Int64(-1)",
         "java": "new java.lang.Long(-1)",
-        "csharp": ""
+        "csharp": "",
+        "shell": "-1"
       },
       {
         "description": "fromInt",
         "javascript": "Long.fromInt(5)",
         "python": "Int64(5)",
         "java": "new java.lang.Long(\"5\")",
-        "csharp": ""
+        "csharp": "",
+        "shell": "NumberLong(5)"
       },
       {
         "description": "fromString without radix",
         "javascript": "Long.fromString('5')",
         "python": "Int64(int('5'))",
         "java": "java.lang.Long.parseLong(\"5\")",
-        "csharp": ""
+        "csharp": "",
+        "shell": "NumberLong('5')"
       },
       {
         "description": "fromString with radix",
         "javascript": "Long.fromString('5', 10)",
         "python": "Int64(int('5'))",
         "java": "java.lang.Long.parseLong(\"5\", 10)",
-        "csharp": ""
+        "csharp": "",
+        "shell": "NumberLong('5')"
       },
       {
         "description": "fromBits",
         "javascript": "Long.fromBits(-1, 2147483647)",
         "python": "Int64(9223372036854775807)",
         "java": "new java.lang.Long(\"9223372036854775807\")",
-        "csharp": ""
+        "csharp": "",
+        "shell": "NumberLong(2147483647)"
       }
     ],
     "Decimal128": [
@@ -153,7 +172,8 @@
         "javascript": "Decimal128.fromString(\"5\")",
         "python": "Decimal128('5')",
         "java": "Decimal128.parse(\"5\")",
-        "csharp": ""
+        "csharp": "",
+        "shell": "NumberDecimal('5')"
       }
     ]
   }

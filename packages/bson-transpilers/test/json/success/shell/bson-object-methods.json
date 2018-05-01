@@ -3,7 +3,7 @@
     "Code": [
       {
         "description": "CodeWithScope scope",
-        "javascript": "",
+        "javascript": "Code('test code', {x: 1}).scope",
         "python": "",
         "java": "new CodeWithScope(\"test code\", new Document().append(\"x\", new java.lang.Long(\"1\"))).getScope()",
         "csharp": "",
@@ -11,7 +11,7 @@
       },
       {
         "description": "Code code",
-        "javascript": "",
+        "javascript": "Code('test code').code",
         "python": "",
         "java": "new Code(\"test code\").getCode()",
         "csharp": "",
@@ -19,7 +19,7 @@
       },
       {
         "description": "Code toString",
-        "javascript": "",
+        "javascript": "Code('test code').toString()",
         "python": "",
         "java": "new Code(\"test code\").toString()",
         "csharp": "",
@@ -29,7 +29,7 @@
     "ObjectId": [
       {
         "description": "toString",
-        "javascript": "",
+        "javascript": "ObjectId().toString()",
         "python": "",
         "java": "new ObjectId().toString()",
         "csharp": "",
@@ -55,7 +55,7 @@
     "BinData": [
       {
         "description": "length",
-        "javascript": "",
+        "javascript": "Binary(Buffer.from('0001')).length()",
         "python": "",
         "java": "new Binary(org.bson.BsonBinarySubType.FUNCTION, \"0001\".getBytes(\"UTF-8\")).length()",
         "csharp": "",
@@ -63,7 +63,7 @@
       },
       {
         "description": "subtype",
-        "javascript": "",
+        "javascript": "Binary(Buffer.from('0001')).sub_type",
         "python": "",
         "java": "new Binary(org.bson.BsonBinarySubType.FUNCTION, \"0001\".getBytes(\"UTF-8\")).getType()",
         "csharp": "",
@@ -71,7 +71,7 @@
       },
       {
         "description": "toString",
-        "javascript": "",
+        "javascript": "Binary(Buffer.from('0001')).toString()",
         "python": "",
         "java": "new Binary(org.bson.BsonBinarySubType.FUNCTION, \"0001\".getBytes(\"UTF-8\")).toString()",
         "csharp": "",
@@ -81,7 +81,7 @@
     "DBRef": [
       {
         "description": "toString",
-        "javascript": "",
+        "javascript": "new DBRef('coll', new ObjectId()).toString()",
         "python": "",
         "java": "new DBRef(\"coll\", new ObjectId()).toString()",
         "csharp": "",
@@ -89,7 +89,7 @@
       },
       {
         "description": "getDb",
-        "javascript": "",
+        "javascript": "new DBRef('coll', new ObjectId()).db",
         "python": "",
         "java": "new DBRef(\"coll\", new ObjectId()).getDatabaseName()",
         "csharp": "",
@@ -97,7 +97,7 @@
       },
       {
         "description": "$db",
-        "javascript": "",
+        "javascript": "new DBRef('coll', new ObjectId()).db",
         "python": "",
         "java": "new DBRef(\"coll\", new ObjectId()).getDatabaseName()",
         "csharp": "",
@@ -105,7 +105,7 @@
       },
       {
         "description": "getCollection",
-        "javascript": "",
+        "javascript": "new DBRef('coll', new ObjectId()).namespace",
         "python": "",
         "java": "new DBRef(\"coll\", new ObjectId()).getCollectionName()",
         "csharp": "",
@@ -113,7 +113,7 @@
       },
       {
         "description": "getRef",
-        "javascript": "",
+        "javascript": "new DBRef('coll', new ObjectId()).namespace",
         "python": "",
         "java": "new DBRef(\"coll\", new ObjectId()).getCollectionName()",
         "csharp": "",
@@ -121,7 +121,7 @@
       },
       {
         "description": "$ref",
-        "javascript": "",
+        "javascript": "new DBRef('coll', new ObjectId()).namespace",
         "python": "",
         "java": "new DBRef(\"coll\", new ObjectId()).getCollectionName()",
         "csharp": "",
@@ -129,7 +129,7 @@
       },
       {
         "description": "getId",
-        "javascript": "",
+        "javascript": "new DBRef('coll', new ObjectId()).oid",
         "python": "",
         "java": "new DBRef(\"coll\", new ObjectId()).getId()",
         "csharp": "",
@@ -137,7 +137,7 @@
       },
       {
         "description": "$id",
-        "javascript": "",
+        "javascript": "new DBRef('coll', new ObjectId()).oid",
         "python": "",
         "java": "new DBRef(\"coll\", new ObjectId()).getId()",
         "csharp": "",
@@ -165,7 +165,7 @@
     "NumberLong": [
       {
         "description": "toString",
-        "javascript": "",
+        "javascript": "Long.fromNumber(429496729601).toString()",
         "python": "",
         "java": "\"429496729601\"",
         "csharp": "",
@@ -173,7 +173,7 @@
       },
       {
         "description": "valueOf",
-        "javascript": "",
+        "javascript": "Long.fromNumber(429496729601).toInt()",
         "python": "",
         "java": "new java.lang.Long(\"429496729601\").intValue()",
         "csharp": "",
@@ -181,7 +181,7 @@
       },
       {
         "description": "floatApprox",
-        "javascript": "Long(1, 100).toNumber()",
+        "javascript": "Long.fromNumber(429496729601).toNumber()",
         "python": "",
         "java": "new java.lang.Long(\"429496729601\").floatValue()",
         "csharp": "",
@@ -207,7 +207,7 @@
     "NumberDecimal": [
       {
         "description": "toString",
-        "javascript": "",
+        "javascript": "Decimal128.fromNumber(0).toString()",
         "python": "",
         "java": "Decimal128.parse(\"0\").toString()",
         "csharp": "",
