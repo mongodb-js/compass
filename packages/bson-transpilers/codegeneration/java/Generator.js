@@ -22,7 +22,7 @@ module.exports = (superClass) => class ExtendedVisitor extends superClass {
       1: 'org.bson.BsonBinarySubType.FUNCTION',
       2: 'org.bson.BsonBinarySubType.BINARY',
       3: 'org.bson.BsonBinarySubType.UUID_LEGACY',
-      4: 'org.bson.BsonBinarySubType.UUID',
+      4: 'org.bson.BsonBinarySubType.UUID_STANDARD',
       5: 'org.bson.BsonBinarySubType.MD5',
       128: 'org.bson.BsonBinarySubType.USER_DEFINED'
     };
@@ -69,7 +69,7 @@ module.exports = (superClass) => class ExtendedVisitor extends superClass {
     javaflags = javaflags === '' ? '' : `(?${javaflags})`;
 
     // Double escape characters except for slashes
-    const escaped = pattern.replace(/\\(?!\/)/, '\\\\');
+    const escaped = pattern.replace(/\\/, '\\\\');
 
     return `Pattern.compile(${doubleQuoteStringify(escaped + javaflags)})`;
   }
@@ -102,7 +102,7 @@ module.exports = (superClass) => class ExtendedVisitor extends superClass {
     } catch (error) {
       throw new SemanticGenericError({message: error.message});
     }
-    return `new java.util.Date(new java.lang.Long(${epoch}))${toStr}`;
+    return `new java.util.Date(new java.lang.Long("${epoch}"))${toStr}`;
   }
 
   /**

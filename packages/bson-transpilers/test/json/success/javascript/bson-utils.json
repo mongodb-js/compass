@@ -12,7 +12,7 @@
         "description": "createFromTime",
         "javascript": "ObjectId.createFromTime(1522075031642)",
         "python": "ObjectId.from_datetime(datetime.datetime.fromtimestamp(1522075031642/1000.0))",
-        "java": "new ObjectId(new java.util.Date(new java.lang.Long(1522075031642)))",
+        "java": "new ObjectId(new java.util.Date(new java.lang.Long(\"1522075031642\")))",
         "csharp": ""
       },
       {
@@ -64,7 +64,7 @@
         "description": "subtype uuid",
         "javascript": "Binary.SUBTYPE_UUID",
         "python": "bson.binary.UUID_SUBTYPE",
-        "java": "org.bson.BsonBinarySubType.UUID",
+        "java": "org.bson.BsonBinarySubType.UUID_STANDARD",
         "csharp": ""
       },
       {
@@ -122,7 +122,7 @@
         "description": "fromInt",
         "javascript": "Long.fromInt(5)",
         "python": "Int64(5)",
-        "java": "new java.lang.Long(5)",
+        "java": "new java.lang.Long(\"5\")",
         "csharp": ""
       },
       {

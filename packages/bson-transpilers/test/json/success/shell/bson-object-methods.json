@@ -5,7 +5,7 @@
         "description": "CodeWithScope scope",
         "javascript": "",
         "python": "",
-        "java": "new CodeWithScope(\"test code\", new Document().append(\"x\", new java.lang.Long(1))).getScope()",
+        "java": "new CodeWithScope(\"test code\", new Document().append(\"x\", new java.lang.Long(\"1\"))).getScope()",
         "csharp": "",
         "shell": "Code('test code', {x: 1}).scope"
       },

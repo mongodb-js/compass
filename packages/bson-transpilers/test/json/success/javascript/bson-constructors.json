@@ -81,7 +81,7 @@
         "description": "new Binary with (ascii buffer, UUID subtype enum) args",
         "javascript": "new Binary(Buffer.from(\"a string\"), Binary.SUBTYPE_UUID)",
         "python": "Binary(b'a string', bson.binary.UUID_SUBTYPE)",
-        "java": "new Binary(org.bson.BsonBinarySubType.UUID, \"a string\".getBytes(\"UTF-8\"))",
+        "java": "new Binary(org.bson.BsonBinarySubType.UUID_STANDARD, \"a string\".getBytes(\"UTF-8\"))",
         "csharp": "new BsonBinaryData(System.Text.Encoding.ASCII.GetBytes(\"a string\"), BsonBinarySubType.UuidStandard)",
         "shell": ""
       },
@@ -123,7 +123,7 @@
         "description": "new DBRef with (string, ObjectId, string) args",
         "javascript": "new DBRef('coll', ObjectId(), 'db')",
         "python": "DBRef('coll', ObjectId(), 'db')",
-        "java": "new DBRef(\"coll\", new ObjectId(), \"db\")",
+        "java": "new DBRef(\"db\", \"coll\", new ObjectId())",
         "csharp": "new MongoDBRef(\"coll\", new BsonObjectId(), \"db\")"
       }
     ],
@@ -189,7 +189,7 @@
         "csharp": "new Decimal128(5)"
       }
     ],
-    "MinKey/MaxKey": [
+    "MinKeyMaxKey": [
       {
         "description": "MinKey",
         "javascript": "MinKey()",

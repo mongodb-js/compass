@@ -5,14 +5,14 @@
         "description": "simple addition",
         "javascript": "2+5",
         "python": "2+5",
-        "java": "new java.lang.Long(2)+new java.lang.Long(5)",
+        "java": "new java.lang.Long(\"2\")+new java.lang.Long(\"5\")",
         "csharp": "2+5"
       },
       {
         "description": "multiplication and division",
         "javascript": "2+(4*36)/3",
         "python": "2+(4*36)/3",
-        "java": "new java.lang.Long(2)+(new java.lang.Long(4)*new java.lang.Long(36))/new java.lang.Long(3)",
+        "java": "new java.lang.Long(\"2\")+(new java.lang.Long(\"4\")*new java.lang.Long(\"36\"))/new java.lang.Long(\"3\")",
         "csharp": "2+(4*36)/3"
       }
     ],
@@ -21,7 +21,7 @@
         "description": "Number with number arg",
         "javascript": "new Number(2)",
         "python": "int(2)",
-        "java": "new java.lang.Long(2)",
+        "java": "new java.lang.Long(\"2\")",
         "csharp": "new int(2)"
       },
       {
@@ -37,8 +37,16 @@
         "description": "Integer 2",
         "javascript": "2",
         "python": "2",
-        "java": "new java.lang.Long(2)",
+        "java": "new java.lang.Long(\"2\")",
         "csharp": "2"
+      },
+      {
+        "description": "larger than int32",
+        "javascript": "429496729601",
+        "python": "429496729601",
+        "java": "new java.lang.Long(\"429496729601\")",
+        "csharp": "429496729601",
+        "shell": "429496729601"
       },
       {
         "description": "Decimal 2.001",
@@ -137,14 +145,14 @@
         "description": "new Date with ISO String",
         "javascript": "new Date('December 17, 1995 03:24:00Z')",
         "python": "datetime.datetime(1995, 12, 17, 3, 24, 0, tzinfo=datetime.timezone.utc)",
-        "java": "new java.util.Date(new java.lang.Long(819170640000))",
+        "java": "new java.util.Date(new java.lang.Long(\"819170640000\"))",
         "csharp": "new DateTime(1995, 12, 17, 3, 24, 0)"
       },
       {
         "description": "new Date with UTC number",
         "javascript": "new Date(819167040000)",
         "python": "datetime.datetime(1995, 12, 17, 2, 24, 0, tzinfo=datetime.timezone.utc)",
-        "java": "new java.util.Date(new java.lang.Long(819167040000))",
+        "java": "new java.util.Date(new java.lang.Long(\"819167040000\"))",
         "csharp": "new DateTime(1995, 12, 17, 2, 24, 0)"
       },
       {
@@ -158,21 +166,21 @@
         "description": "Date from year, month and day",
         "javascript": "new Date(1995, 11, 17)",
         "python": "datetime.datetime(1995, 12, 17, 0, 0, 0, tzinfo=datetime.timezone.utc)",
-        "java": "new java.util.Date(new java.lang.Long(819158400000))",
+        "java": "new java.util.Date(new java.lang.Long(\"819158400000\"))",
         "csharp": "new DateTime(1995, 12, 17, 0, 0, 0)"
       },
       {
         "description": "Date from year, month, day, hour, min and sec",
         "javascript": "new Date(1995, 11, 17, 3, 24, 0)",
         "python": "datetime.datetime(1995, 12, 17, 3, 24, 0, tzinfo=datetime.timezone.utc)",
-        "java": "new java.util.Date(new java.lang.Long(819170640000))",
+        "java": "new java.util.Date(new java.lang.Long(\"819170640000\"))",
         "csharp": "new DateTime(1995, 12, 17, 3, 24, 0)"
       },
       {
         "description": "Date string with ISO String",
         "javascript": "Date('December 17, 1995 03:24:00Z')",
         "python": "datetime.datetime(1995, 12, 17, 3, 24, 0, tzinfo=datetime.timezone.utc).strftime('%a %b %d %Y %H:%M:%S %Z')",
-        "java": "new java.util.Date(new java.lang.Long(819170640000)).toString()",
+        "java": "new java.util.Date(new java.lang.Long(\"819170640000\")).toString()",
         "csharp": "",
         "shell": "Date('December 17, 1995 03:24:00Z')"
       },
@@ -180,7 +188,7 @@
         "description": "Date string with UTC number",
         "javascript": "Date(819167040000)",
         "python": "datetime.datetime(1995, 12, 17, 2, 24, 0, tzinfo=datetime.timezone.utc).strftime('%a %b %d %Y %H:%M:%S %Z')",
-        "java": "new java.util.Date(new java.lang.Long(819167040000)).toString()",
+        "java": "new java.util.Date(new java.lang.Long(\"819167040000\")).toString()",
         "csharp": "",
         "shell": "Date(819167040000)"
       },
@@ -196,7 +204,7 @@
         "description": "Date string from year, month and day",
         "javascript": "Date(1995, 11, 17)",
         "python": "datetime.datetime(1995, 12, 17, 0, 0, 0, tzinfo=datetime.timezone.utc).strftime('%a %b %d %Y %H:%M:%S %Z')",
-        "java": "new java.util.Date(new java.lang.Long(819158400000)).toString()",
+        "java": "new java.util.Date(new java.lang.Long(\"819158400000\")).toString()",
         "csharp": "",
         "shell": "Date(1995, 11, 17)"
       },
@@ -204,7 +212,7 @@
         "description": "Date string from year, month, day, hour, min and sec",
         "javascript": "Date(1995, 11, 17, 3, 24, 0)",
         "python": "datetime.datetime(1995, 12, 17, 3, 24, 0, tzinfo=datetime.timezone.utc).strftime('%a %b %d %Y %H:%M:%S %Z')",
-        "java": "new java.util.Date(new java.lang.Long(819170640000)).toString()",
+        "java": "new java.util.Date(new java.lang.Long(\"819170640000\")).toString()",
         "csharp": "",
         "shell": "Date(1995, 11, 17, 3, 24, 0)"
       }
@@ -242,7 +250,7 @@
         "description": "regex object with forward slash",
         "javascript": "new RegExp('ab/cd')",
         "python": "re.compile(r\"ab\\/cd\")",
-        "java": "Pattern.compile(\"ab\\/cd\")",
+        "java": "Pattern.compile(\"ab\\\\/cd\")",
         "csharp": ""
       },
       {

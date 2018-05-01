@@ -21,7 +21,11 @@ Templates:
         }
     LongBasicTypeTemplate: &LongBasicTypeTemplate !!js/function >
         (literal) => {
-            return `new java.lang.Long(${literal})`;
+            literal = literal.toString();
+            if (literal.indexOf('x') !== -1 || literal.indexOf('.') !== -1 || literal.charAt(0) === '0') {
+                return `new java.lang.Long(${literal})`;
+            }
+            return `new java.lang.Long("${literal}")`;
         }
     HexTypeTemplate: &HexTypeTemplate null
     OctalTypeTemplate: &OctalTypeTemplate !!js/function >
@@ -438,7 +442,7 @@ Templates:
         }
     BinarySymbolSubtypeUuidTemplate: &BinarySymbolSubtypeUuidTemplate !!js/function >
         () => {
-            return 'org.bson.BsonBinarySubType.UUID';
+            return 'org.bson.BsonBinarySubType.UUID_STANDARD';
         }
     BinarySymbolSubtypeMd5Template: &BinarySymbolSubtypeMd5Template !!js/function >
         () => {
@@ -449,7 +453,11 @@ Templates:
             return 'org.bson.BsonBinarySubType.USER_DEFINED';
         }
     DBRefSymbolTemplate: &DBRefSymbolTemplate null
-    DBRefSymbolArgsTemplate: &DBRefSymbolArgsTemplate null
+    DBRefSymbolArgsTemplate: &DBRefSymbolArgsTemplate !!js/function >
+        (lhs, coll, id, db) => {
+            const dbstr = db === undefined ? '' : `${db}, `;
+            return `(${dbstr}${coll}, ${id})`;
+        }
     DoubleSymbolTemplate: &DoubleSymbolTemplate !!js/function >
         () => {
             return 'java.lang.Double';
@@ -493,7 +501,10 @@ Templates:
         () => {
             return 'new java.lang.Long';
         }
-    LongSymbolFromIntArgsTemplate: &LongSymbolFromIntArgsTemplate null
+    LongSymbolFromIntArgsTemplate: &LongSymbolFromIntArgsTemplate !!js/function >
+        (lhs, arg) => {
+            return `("${arg}")`;
+        }
     LongSymbolFromNumberTemplate: &LongSymbolFromNumberTemplate !!js/function >
         () => {
             return 'new java.lang.Long';
@@ -565,7 +576,15 @@ Templates:
         }
     NumberSymbolArgsTemplate: &NumberSymbolArgsTemplate !!js/function >
         (lhs, arg) => {
-            return `(${arg === undefined ? 0 : arg})`;
+            arg = arg === undefined ? 0 : arg;
+            const str = arg.toString();
+            let newStr = str;
+            if (
+                (str.charAt(0) === '\'' && str.charAt(str.length - 1) === '\'') ||
+                (str.charAt(0) === '"' && str.charAt(str.length - 1) === '"')) {
+                newStr = str.substr(1, str.length - 2);
+            }
+            return `("${newStr}")`;
         }
     DateSymbolTemplate: &DateSymbolTemplate null
     DateSymbolArgsTemplate: &DateSymbolArgsTemplate null
