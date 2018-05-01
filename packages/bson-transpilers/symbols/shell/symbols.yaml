@@ -140,7 +140,14 @@ JSSymbols:
     Date: # Needs emit method
         id: "Date"
         callable: *constructor
-        args: null
+        args:
+            - [ *StringType, *NumericType, null ]
+            - [ *NumericType, null ]
+            - [ *NumericType, null ]
+            - [ *NumericType, null ]
+            - [ *NumericType, null ]
+            - [ *NumericType, null ]
+            - [ *NumericType, null ]
         type: *DateType
         attr: # TODO: add more date funcs?
             now:
@@ -154,9 +161,10 @@ JSSymbols:
         template: *DateSymbolTemplate
         argsTemplate: *DateSymbolArgsTemplate
     ISODate: # Needs emit method
-        id: "Date"
+        id: "ISODate"
         callable: *constructor
-        args: null
+        args:
+            - [ *StringType, null ]
         type: *DateType
         attr:
             now:
@@ -173,7 +181,7 @@ JSSymbols:
         id: "RegExp"
         callable: *constructor
         args:
-            - [ *StringType ]
+            - [ *StringType, *RegexType ]
             - [ *StringType, null ]
         type: *RegExpType
         attr: {} # TODO: no built-in regex funcs added yet

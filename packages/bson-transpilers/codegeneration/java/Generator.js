@@ -104,6 +104,9 @@ module.exports = (superClass) => class ExtendedVisitor extends superClass {
     }
     return `new java.util.Date(new java.lang.Long("${epoch}"))${toStr}`;
   }
+  emitISODate(ctx) {
+    return this.emitDate(ctx);
+  }
 
   /**
    * Expects two strings as arguments, the second must contain any of "imxlsu"

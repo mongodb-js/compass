@@ -256,7 +256,11 @@ Templates:
     ObjectSymbolCreateTemplate: &ObjectSymbolCreateTemplate null
     ObjectSymbolCreateArgsTemplate: &ObjectSymbolCreateArgsTemplate null
     NumberSymbolTemplate: &NumberSymbolTemplate null
-    NumberSymbolArgsTemplate: &NumberSymbolArgsTemplate null
+    NumberSymbolArgsTemplate: &NumberSymbolArgsTemplate !!js/function >
+        (lhs, arg) => {
+            arg = arg === undefined ? '0' : arg;
+            return `(${arg})`;
+        }
     DateSymbolTemplate: &DateSymbolTemplate null
     DateSymbolArgsTemplate: &DateSymbolArgsTemplate null
     DateSymbolNowTemplate: &DateSymbolNowTemplate null

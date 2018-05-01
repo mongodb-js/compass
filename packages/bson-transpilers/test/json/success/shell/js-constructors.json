@@ -29,7 +29,7 @@
       },
       {
         "description": "Number with valid string arg",
-        "javascript": "new Number('2')",
+        "javascript": "Number('2')",
         "python": "int(2)",
         "java": "new java.lang.Long(\"2\")",
         "csharp": "new int(2)",
@@ -37,11 +37,11 @@
       },
       {
         "description": "Number with no arg",
-        "javascript": "new Number('0')",
+        "javascript": "Number(0)",
         "python": "int(0)",
         "java": "new java.lang.Long(\"0\")",
         "csharp": "new int(0)",
-        "shell": "Number(0)"
+        "shell": "Number()"
       }
     ],
     "literals": [

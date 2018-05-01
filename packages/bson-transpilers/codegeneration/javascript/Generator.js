@@ -3,4 +3,20 @@
  * For every input language, can "inherit" the generated visitNode methods.
  */
 module.exports = (superClass) => class ExtendedVisitor extends superClass {
+  constructor() {
+    super();
+  }
+  emitISODate(ctx) {
+    let newstr = '';
+    ctx.type = this.Types.Date;
+    if (!ctx.wasNew) {
+      newstr = 'new ';
+    }
+    const args = ctx.arguments();
+    if (!args.argumentList()) {
+      return `${newstr}Date()`;
+    }
+    const argstr = this.checkArguments([[this.Types._string]], args.argumentList());
+    return `${newstr}Date(${argstr[0]})`;
+  }
 };

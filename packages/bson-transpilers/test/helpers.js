@@ -19,7 +19,6 @@ const unsupported = {
     shell: {
       java: {},
       javascript: {
-        'js-constructors': [ '*' ],
         'bson-object-methods': [ '*' ],
         'bson-utils': [ '*' ],
         'js-utils': [ '*' ]
