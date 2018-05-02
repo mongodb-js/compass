@@ -309,7 +309,7 @@
       },
       {
         "description": "regex object with im flags as args",
-        "javascript": "new RegExp('ab+c', 'im')",
+        "javascript": "new RegExp('ab+c','im')",
         "python": "re.compile(r\"ab+c(?im)\")",
         "java": "Pattern.compile(\"ab+c(?im)\")",
         "csharp": "",
@@ -317,7 +317,7 @@
       },
       {
         "description": "regex object with ig flags as args",
-        "javascript": "new RegExp('ab+c', 'ig')",
+        "javascript": "new RegExp('ab+c','ig')",
         "python": "re.compile(r\"ab+c(?is)\")",
         "java": "Pattern.compile(\"ab+c(?i)\")",
         "csharp": "",
@@ -381,7 +381,7 @@
       },
       {
         "description": "regex object with regex literal arg",
-        "javascript": "new RegExp(/ab+c/, 'i')",
+        "javascript": "new RegExp(/ab+c/,'i')",
         "python": "re.compile(r\"ab+c(?i)\")",
         "java": "Pattern.compile(\"ab+c(?i)\")",
         "csharp": "",

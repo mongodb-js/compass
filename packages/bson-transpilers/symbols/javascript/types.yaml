@@ -461,11 +461,6 @@ JSTypes:
         id: "Date"
         type: *ObjectType
         attr: {} # TODO: no built-in date methods added yet
-    RegExp: &RegExpType
-        <<: *__type
-        id: "RegExp"
-        type: *ObjectType
-        attr: {}
 
 
 

@@ -12,7 +12,18 @@ Templates:
           }
           return `"${newStr.replace(/\\([\s\S])|(")/g, '\\$1$2')}"`;
         }
-    RegexTypeTemplate: &RegexTypeTemplate null
+    RegexTypeTemplate: &RegexTypeTemplate !!js/function >
+        (flags, pattern) => {
+            // Double-quote stringify
+            const str = pattern + flags;
+            let newStr = str;
+            if (
+                (str.charAt(0) === '\'' && str.charAt(str.length - 1) === '\'') ||
+                (str.charAt(0) === '"' && str.charAt(str.length - 1) === '"')) {
+                    newStr = str.substr(1, str.length - 2);
+            }
+            return `new Regex(@"${newStr.replace(/\\([\s\S])|(")/g, '\\$1$2')}")`;
+        }
     BoolTypeTemplate: &BoolTypeTemplate null
     IntegerTypeTemplate: &IntegerTypeTemplate null
     DecimalTypeTemplate: &DecimalTypeTemplate null
@@ -361,10 +372,37 @@ Templates:
         }
     SymbolToStringArgsTemplate: &SymbolToStringArgsTemplate null
     # Symbol Templates
-    CodeSymbolTemplate: &CodeSymbolTemplate null # Has emit method
-    CodeSymbolArgsTemplate: &CodeSymbolArgsTemplate null # Has emit method
-    ObjectIdSymbolTemplate: &ObjectIdSymbolTemplate null # Has emit method
-    ObjectIdSymbolArgsTemplate: &ObjectIdSymbolArgsTemplate null # Has emit method
+    CodeSymbolTemplate: &CodeSymbolTemplate  !!js/function >
+        () => {
+            return '';
+        }
+    CodeSymbolArgsTemplate: &CodeSymbolArgsTemplate !!js/function >
+        (lhs, code, scope) => {
+          // Double quote stringify
+          let newStr = code === undefined ? '' : code;
+          const str = newStr;
+          if (
+            (str.charAt(0) === '\'' && str.charAt(str.length - 1) === '\'') ||
+            (str.charAt(0) === '"' && str.charAt(str.length - 1) === '"')) {
+            newStr = str.substr(1, str.length - 2);
+          }
+          code = `"${newStr.replace(/\\([\s\S])|(")/g, '\\$1$2')}"`;
+          return (scope === undefined) ? `BsonJavaScript(@${code})` : `BsonJavaScriptWithScope(@${code}, ${scope})`;
+        }
+    ObjectIdSymbolTemplate: &ObjectIdSymbolTemplate !!js/function >
+        () => {
+            return 'BsonObjectId';
+        }
+    ObjectIdSymbolArgsTemplate: &ObjectIdSymbolArgsTemplate !!js/function >
+        (lhs, str) => {
+          let newStr = str;
+          if (
+            (str.charAt(0) === '\'' && str.charAt(str.length - 1) === '\'') ||
+            (str.charAt(0) === '"' && str.charAt(str.length - 1) === '"')) {
+            newStr = str.substr(1, str.length - 2);
+          }
+          return `("${newStr.replace(/\\([\s\S])|(")/g, '\\$1$2')}")`;
+        }
     BinarySymbolTemplate: &BinarySymbolTemplate null # Has emit method
     BinarySymbolArgsTemplate: &BinarySymbolArgsTemplate null
     BinarySymbolSubtypeDefaultTemplate: &BinarySymbolSubtypeDefaultTemplate !!js/function >
@@ -415,7 +453,10 @@ Templates:
         () => {
             return 'BsonInt64';
         }
-    LongSymbolArgsTemplate: &LongSymbolArgsTemplate null # Has emit method
+    LongSymbolArgsTemplate: &LongSymbolArgsTemplate !!js/function >
+        (lhs, arg) => {
+            return `(Convert.ToInt32(${arg}))`;
+        }
     LongSymbolMaxTemplate: &LongSymbolMaxTemplate null
     LongSymbolMaxArgsTemplate: &LongSymbolMaxArgsTemplate null
     LongSymbolMinTemplate: &LongSymbolMinTemplate null

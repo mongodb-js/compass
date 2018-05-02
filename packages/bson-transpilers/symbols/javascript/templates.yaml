@@ -203,9 +203,14 @@ Templates:
         }
     ObjectIdSymbolTemplate: &ObjectIdSymbolTemplate null
     ObjectIdSymbolArgsTemplate: &ObjectIdSymbolArgsTemplate !!js/function >
-        (lhs, arg) => {
-            arg = arg === undefined ? '' : arg;
-            return `(${arg})`;
+        (lhs, str) => {
+          let newStr = str;
+          if (
+            (str.charAt(0) === '\'' && str.charAt(str.length - 1) === '\'') ||
+            (str.charAt(0) === '"' && str.charAt(str.length - 1) === '"')) {
+            newStr = str.substr(1, str.length - 2);
+          }
+          return `('${newStr.replace(/\\([\s\S])|(")/g, '\\$1$2')}')`;
         }
     BinarySymbolTemplate: &BinarySymbolTemplate !!js/function >
         () => {

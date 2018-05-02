@@ -12,7 +12,20 @@ Templates:
           }
           return `'${newStr.replace(/\\([\s\S])|(")/g, '\\$1$2')}'`;
         }
-    RegexTypeTemplate: &RegexTypeTemplate null
+    RegexTypeTemplate: &RegexTypeTemplate !!js/function >
+        (pattern, flags) => {
+            const escaped = pattern.replace(/\\(?!\/)/, '\\\\');
+
+            // Double-quote stringify
+            const str = escaped + flags;
+            let newStr = str;
+            if (
+                (str.charAt(0) === '\'' && str.charAt(str.length - 1) === '\'') ||
+                (str.charAt(0) === '"' && str.charAt(str.length - 1) === '"')) {
+                    newStr = str.substr(1, str.length - 2);
+            }
+            return `re.compile(r"${newStr.replace(/\\([\s\S])|(")/g, '\\$1$2')}")`;
+        }
     BoolTypeTemplate: &BoolTypeTemplate !!js/function >
         (str) => {
           return `${str.charAt(0).toUpperCase()}${str.slice(1)}`;
@@ -480,10 +493,35 @@ Templates:
             return `str(${lhs})`;
         }
     # Symbol Templates
-    CodeSymbolTemplate: &CodeSymbolTemplate null # Has emit method
-    CodeSymbolArgsTemplate: &CodeSymbolArgsTemplate null
-    ObjectIdSymbolTemplate: &ObjectIdSymbolTemplate null # Has emit method
-    ObjectIdSymbolArgsTemplate: &ObjectIdSymbolArgsTemplate null
+    CodeSymbolTemplate: &CodeSymbolTemplate !!js/function >
+        () => {
+            return 'Code';
+        }
+    CodeSymbolArgsTemplate: &CodeSymbolArgsTemplate !!js/function >
+        (lhs, code, scope) => {
+          // Single quote stringify
+          const scopestr = scope === undefined ? '' : `, ${scope}`;
+          let newStr = code === undefined ? '' : code;
+          const str = newStr;
+          if (
+            (str.charAt(0) === '\'' && str.charAt(str.length - 1) === '\'') ||
+            (str.charAt(0) === '"' && str.charAt(str.length - 1) === '"')) {
+            newStr = str.substr(1, str.length - 2);
+          }
+          code = `'${newStr.replace(/\\([\s\S])|(")/g, '\\$1$2')}'`;
+          return `(${code}${scopestr})`;
+        }
+    ObjectIdSymbolTemplate: &ObjectIdSymbolTemplate null
+    ObjectIdSymbolArgsTemplate: &ObjectIdSymbolArgsTemplate !!js/function >
+        (lhs, str) => {
+          let newStr = str;
+          if (
+            (str.charAt(0) === '\'' && str.charAt(str.length - 1) === '\'') ||
+            (str.charAt(0) === '"' && str.charAt(str.length - 1) === '"')) {
+            newStr = str.substr(1, str.length - 2);
+          }
+          return `('${newStr.replace(/\\([\s\S])|(")/g, '\\$1$2')}')`;
+        }
     BinarySymbolTemplate: &BinarySymbolTemplate null # Has emit method
     BinarySymbolArgsTemplate: &BinarySymbolArgsTemplate null
     BinarySymbolSubtypeDefaultTemplate: &BinarySymbolSubtypeDefaultTemplate !!js/function >
@@ -530,7 +568,7 @@ Templates:
         () => {
             return 'Int64';
         }
-    LongSymbolArgsTemplate: &LongSymbolArgsTemplate null # Has emit method
+    LongSymbolArgsTemplate: &LongSymbolArgsTemplate null
     LongSymbolMaxTemplate: &LongSymbolMaxTemplate !!js/function >
         () => {
             return 'sys.maxsize';
@@ -595,8 +633,17 @@ Templates:
         }
     BSONRegExpSymbolTemplate: &BSONRegExpSymbolTemplate null # Has emit method
     BSONRegExpSymbolArgsTemplate: &BSONRegExpSymbolArgsTemplate null
-    Decimal128SymbolTemplate: &Decimal128SymbolTemplate null # Has emit method
-    Decimal128SymbolArgsTemplate: &Decimal128SymbolArgsTemplate null
+    Decimal128SymbolTemplate: &Decimal128SymbolTemplate null
+    Decimal128SymbolArgsTemplate: &Decimal128SymbolArgsTemplate !!js/function >
+        (lhs, str) => {
+          let newStr = str;
+          if (
+            (str.charAt(0) === '\'' && str.charAt(str.length - 1) === '\'') ||
+            (str.charAt(0) === '"' && str.charAt(str.length - 1) === '"')) {
+            newStr = str.substr(1, str.length - 2);
+          }
+          return `('${newStr.replace(/\\([\s\S])|(")/g, '\\$1$2')}')`;
+        }
     Decimal128SymbolFromStringTemplate: &Decimal128SymbolFromStringTemplate !!js/function >
         () => {
             return `Decimal128`;

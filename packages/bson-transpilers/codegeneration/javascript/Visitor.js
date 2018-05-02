@@ -4,9 +4,10 @@ const bson = require('bson');
 const Context = require('context-eval');
 const {
   SemanticArgumentCountMismatchError,
+  SemanticAttributeError,
+  SemanticGenericError,
   SemanticTypeError,
-  SemanticReferenceError,
-  SemanticAttributeError
+  SemanticReferenceError
 } = require('../../helper/error');
 
 /**
@@ -67,7 +68,9 @@ class Visitor extends ECMAScriptVisitor {
     if (!ctx.type) {
       ctx.type = this.getPrimitiveType(ctx.literal());
     }
-
+    if (`process${ctx.type.id}` in this) {
+      return this[`process${ctx.type.id}`](ctx);
+    }
     if (`emit${ctx.type.id}` in this) {
       return this[`emit${ctx.type.id}`](ctx);
     }
@@ -152,6 +155,9 @@ class Visitor extends ECMAScriptVisitor {
     }
 
     // Special case
+    if (`process${lhsType.id}` in this) {
+      return this[`process${lhsType.id}`](ctx);
+    }
     if (`emit${lhsType.id}` in this) {
       return this[`emit${lhsType.id}`](ctx);
     }
@@ -256,14 +262,6 @@ class Visitor extends ECMAScriptVisitor {
     const res = this.visitChildren(ctx, {separator: ' '});
     ctx.type = ctx.singleExpression().type;
     return res;
-  }
-
-  visitRegularExpressionLiteral(ctx) {
-    if ('emitRegExp' in this) {
-      return this.emitRegExp(ctx);
-    }
-    ctx.type = this.Types.RegExp;
-    return this.visitChildren(ctx);
   }
 
   /**
@@ -437,6 +435,248 @@ class Visitor extends ECMAScriptVisitor {
       argStr.push(result);
     }
     return argStr;
+  }
+
+  /**
+   * Processs the RegExp and calls the template function if it exists.
+   * @param {FuncCallExpressionContext} ctx
+   * @return {String}
+   */
+  processRegExp(ctx) {
+    ctx.type = this.Types._regex;
+    let pattern;
+    let flags;
+    try {
+      const regexobj = this.executeJavascript(ctx.getText());
+      pattern = regexobj.source;
+      flags = regexobj.flags;
+    } catch (error) {
+      throw new SemanticGenericError({message: error.message});
+    }
+
+    let targetflags = flags.replace(/[imuyg]/g, m => this.regexFlags[m]);
+    targetflags = targetflags === '' ? '' : `(?${targetflags.split('').sort().join('')})`;
+
+    if ('emitRegExp' in this) {
+      return this.emitRegExp(ctx, pattern, targetflags);
+    }
+
+    if (ctx.type.template) {
+      return ctx.type.template(pattern, targetflags);
+    }
+    return this.visitChildren(ctx);
+  }
+
+  process_regex(ctx) {
+    return this.processRegExp(ctx);
+  }
+
+  /**
+   * The arguments to Code can be either a string or actual javascript code.
+   * Manually check arguments here because first argument can be any JS, and we
+   * don't want to ever visit that node.
+   *
+   * child nodes: arguments
+   * grandchild nodes: argumentList?
+   * great-grandchild nodes: singleExpression+
+   * @param {FuncCallExpressionContext} ctx
+   * @return {String}
+   */
+  processCodeFromJS(ctx) {
+    ctx.type = this.Types.Code;
+    const symbolType = this.Symbols.Code;
+    const argList = ctx.arguments().argumentList();
+    if (!argList ||
+      !(argList.singleExpression().length === 1 ||
+        argList.singleExpression().length === 2)) {
+      throw new SemanticArgumentCountMismatchError({
+        message: 'Code requires one or two arguments'
+      });
+    }
+    const args = argList.singleExpression();
+    const code = args[0].getText();
+    let scope = undefined;
+    let scopestr = '';
+
+    if (args.length === 2) {
+      scope = this.visit(args[1]);
+      scopestr = `, ${scope}`;
+      if (args[1].type !== this.Types._object) {
+        throw new SemanticTypeError({
+          message: 'Code requires scope to be an object'
+        });
+      }
+    }
+    if ('emitCode' in this) {
+      return this.emitCode(ctx, code, scope);
+    }
+    const lhs = symbolType.template ? symbolType.template() : 'Code';
+    const rhs = symbolType.argsTemplate ? symbolType.argsTemplate(lhs, code, scope) : `(${code}${scopestr})`;
+    return `${this.new}${lhs}${rhs}`;
+  }
+
+  /**
+   *
+   * child nodes: arguments
+   * grandchild nodes: argumentList?
+   * great-grandchild nodes: singleExpression+
+   * @param {FuncCallExpressionContext} ctx
+   * @return {String}
+   */
+  processObjectId(ctx) {
+    ctx.type = this.Types.ObjectId;
+    const symbolType = this.Symbols.ObjectId;
+    const argList = ctx.arguments().argumentList();
+    const lhs = symbolType.template ? symbolType.template() : 'ObjectId';
+    if (!argList) {
+      return `${this.new}${lhs}()`;
+    }
+    let hexstr;
+    try {
+      hexstr = this.executeJavascript(ctx.getText()).toHexString();
+    } catch (error) {
+      throw new SemanticGenericError({message: error.message});
+    }
+    if ('emitObjectId' in this) {
+      return this.emitObjectId(ctx, hexstr);
+    }
+    const rhs = symbolType.argsTemplate ? symbolType.argsTemplate(lhs, hexstr) : `(${hexstr})`;
+    return `${this.new}${lhs}${rhs}`;
+  }
+
+  /**
+   * child nodes: arguments
+   * grandchild nodes: argumentList?
+   * great-grandchild nodes: singleExpression+
+   * @param {FuncCallExpressionContext} ctx
+   * @return {String}
+   */
+  processLong(ctx) {
+    ctx.type = this.Types.Long;
+    const symbolType = this.Symbols.Long;
+    let longstr;
+    try {
+      longstr = this.executeJavascript(`new ${ctx.getText()}`).toString();
+    } catch (error) {
+      throw new SemanticGenericError({message: error.message});
+    }
+    if ('emitLong' in this) {
+      return this.emitLong(ctx, longstr);
+    }
+    const lhs = symbolType.template ? symbolType.template() : 'Long';
+    const rhs = symbolType.argsTemplate ? symbolType.argsTemplate(lhs, longstr) : `(${longstr})`;
+    return `${this.new}${lhs}${rhs}`;
+  }
+
+  processNumberLong(ctx) {
+    ctx.type = this.Types.NumberLong;
+    const symbolType = this.Symbols.NumberLong;
+    let longstr;
+    try {
+      longstr = this.executeJavascript(`new ${ctx.getText()}`).toString();
+    } catch (error) {
+      throw new SemanticGenericError({message: error.message});
+    }
+    if ('emitNumberLong' in this) {
+      return this.emitNumberLong(ctx, longstr);
+    }
+    const lhs = symbolType.template ? symbolType.template() : 'Long';
+    const rhs = symbolType.argsTemplate ? symbolType.argsTemplate(lhs, longstr) : `(${longstr})`;
+    return `${this.new}${lhs}${rhs}`;
+  }
+
+  processLongfromBits(ctx) {
+    return this.processLong(ctx);
+  }
+
+  /**
+   * @param {FuncCallExpressionContext} ctx
+   * @return {String}
+   */
+  processDecimal128(ctx) {
+    ctx.type = this.Types.Decimal128;
+    const symbolType = this.Symbols.Decimal128;
+    let decstr;
+    try {
+      decstr = this.executeJavascript(`new ${ctx.getText()}`).toString();
+    } catch (error) {
+      throw new SemanticGenericError({message: error.message});
+    }
+
+    if ('emitDecimal128' in this) {
+      return this.emitDecimal128(ctx, decstr);
+    }
+    const lhs = symbolType.template ? symbolType.template() : 'Decimal128';
+    const rhs = symbolType.argsTemplate ? symbolType.argsTemplate(lhs, decstr) : `(${decstr})`;
+    return `${this.new}${lhs}${rhs}`;
+  }
+  processNumberDecimal(ctx) {
+    ctx.type = this.Types.NumberDecimal;
+    const symbolType = this.Symbols.NumberDecimal;
+    let decstr;
+    try {
+      decstr = this.executeJavascript(`new ${ctx.getText()}`).toString();
+    } catch (error) {
+      throw new SemanticGenericError({message: error.message});
+    }
+
+    if ('emitNumberDecimal' in this) {
+      return this.emitNumberDecimal(ctx, decstr);
+    }
+    const lhs = symbolType.template ? symbolType.template() : 'NumberDecimal';
+    const rhs = symbolType.argsTemplate ? symbolType.argsTemplate(lhs, decstr) : `(${decstr})`;
+    return `${this.new}${lhs}${rhs}`;
+  }
+  /*
+   * This is a bit weird because we can just convert to string directly.
+   */
+  processLongtoString(ctx) {
+    ctx.type = this.Types._string;
+    const long = ctx.singleExpression().singleExpression();
+    let longstr;
+    try {
+      longstr = this.executeJavascript(long.getText()).toString();
+    } catch (error) {
+      throw new SemanticGenericError({message: error.message});
+    }
+    return ctx.type.template ? ctx.type.template(longstr) : `'${longstr}'`;
+  }
+
+  /**
+   * Special cased because different target languages need different info out
+   * of the constructed date.
+   *
+   * child nodes: arguments
+   * grandchild nodes: argumentList?
+   * great-grandchild nodes: singleExpression+
+   * @param {FuncCallExpressionContext} ctx
+   * @return {String}
+   */
+  processDate(ctx) {
+    ctx.type = this.Types.Date;
+
+    const args = ctx.arguments();
+    if (!args.argumentList()) {
+      if ('emitDate' in this) {
+        return this.emitDate(ctx);
+      }
+    }
+    let text = ctx.getText();
+    text = text.startsWith('new ') ? text : `new ${text}`;
+    let date;
+    try {
+      date = this.executeJavascript(text);
+    } catch (error) {
+      throw new SemanticGenericError({message: error.message});
+    }
+    if ('emitDate' in this) {
+      return this.emitDate(ctx, date);
+    }
+    return ctx.getText();
+  }
+
+  processISODate(ctx) {
+    return this.processDate(ctx);
   }
 }
 

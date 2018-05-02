@@ -12,7 +12,21 @@ Templates:
           }
           return `"${newStr.replace(/\\([\s\S])|(")/g, '\\$1$2')}"`;
         }
-    RegexTypeTemplate: &RegexTypeTemplate null
+    RegexTypeTemplate: &RegexTypeTemplate !!js/function >
+        (pattern, flags) => {
+            // Double escape characters except for slashes
+            const escaped = pattern.replace(/\\/, '\\\\');
+
+            // Double-quote stringify
+            const str = escaped + flags;
+            let newStr = str;
+            if (
+                (str.charAt(0) === '\'' && str.charAt(str.length - 1) === '\'') ||
+                (str.charAt(0) === '"' && str.charAt(str.length - 1) === '"')) {
+                    newStr = str.substr(1, str.length - 2);
+            }
+            return `Pattern.compile("${newStr.replace(/\\([\s\S])|(")/g, '\\$1$2')}")`;
+        }
     BoolTypeTemplate: &BoolTypeTemplate null
     IntegerTypeTemplate: &IntegerTypeTemplate null
     DecimalTypeTemplate: &DecimalTypeTemplate !!js/function >
@@ -425,10 +439,28 @@ Templates:
         }
     CodeSymbolArgsTemplate: &CodeSymbolArgsTemplate !!js/function >
         (lhs, code, scope) => {
-            return (scope === undefined) ? `Code(${code === undefined ? '""' : code})` : `CodeWithScope(${code === undefined ? '""' : code}, ${scope})`;
+          // Double quote stringify
+          let newStr = code === undefined ? '' : code;
+          const str = newStr;
+          if (
+            (str.charAt(0) === '\'' && str.charAt(str.length - 1) === '\'') ||
+            (str.charAt(0) === '"' && str.charAt(str.length - 1) === '"')) {
+            newStr = str.substr(1, str.length - 2);
+          }
+          code = `"${newStr.replace(/\\([\s\S])|(")/g, '\\$1$2')}"`;
+          return (scope === undefined) ? `Code(${code})` : `CodeWithScope(${code}, ${scope})`;
         }
-    ObjectIdSymbolTemplate: &ObjectIdSymbolTemplate null # Has emit method
-    ObjectIdSymbolArgsTemplate: &ObjectIdSymbolArgsTemplate null
+    ObjectIdSymbolTemplate: &ObjectIdSymbolTemplate null
+    ObjectIdSymbolArgsTemplate: &ObjectIdSymbolArgsTemplate !!js/function >
+        (lhs, str) => {
+          let newStr = str;
+          if (
+            (str.charAt(0) === '\'' && str.charAt(str.length - 1) === '\'') ||
+            (str.charAt(0) === '"' && str.charAt(str.length - 1) === '"')) {
+            newStr = str.substr(1, str.length - 2);
+          }
+          return `("${newStr.replace(/\\([\s\S])|(")/g, '\\$1$2')}")`;
+        }
     BinarySymbolTemplate: &BinarySymbolTemplate null # Has emit method
     BinarySymbolArgsTemplate: &BinarySymbolArgsTemplate null
     BinarySymbolSubtypeDefaultTemplate: &BinarySymbolSubtypeDefaultTemplate !!js/function >
@@ -482,7 +514,16 @@ Templates:
         () => {
             return 'java.lang.Long';
         }
-    LongSymbolArgsTemplate: &LongSymbolArgsTemplate null # Has emit method
+    LongSymbolArgsTemplate: &LongSymbolArgsTemplate !!js/function >
+        (lhs, str) => {
+          let newStr = str;
+          if (
+            (str.charAt(0) === '\'' && str.charAt(str.length - 1) === '\'') ||
+            (str.charAt(0) === '"' && str.charAt(str.length - 1) === '"')) {
+            newStr = str.substr(1, str.length - 2);
+          }
+          return `("${newStr.replace(/\\([\s\S])|(")/g, '\\$1$2')}")`;
+        }
     LongSymbolMaxTemplate: &LongSymbolMaxTemplate null
     LongSymbolMaxArgsTemplate: &LongSymbolMaxArgsTemplate null
     LongSymbolMinTemplate: &LongSymbolMinTemplate null

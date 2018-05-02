@@ -1,7 +1,6 @@
 /* eslint complexity: 0 */
 const { doubleQuoteStringify, removeQuotes } = require('../../helper/format');
 const {
-  SemanticArgumentCountMismatchError,
   SemanticGenericError,
   SemanticTypeError
 } = require('../../helper/error');
@@ -46,60 +45,6 @@ module.exports = (superclass) => class ExtendedVisitor extends superclass {
     const expr = this.visit(ctx.singleExpression());
     ctx.type = ctx.singleExpression().type;
     return expr;
-  }
-
-  /**
-   * BSON Code
-   *
-   * @param {BSONCodeObject} ctx
-   *
-   * @returns {string} - new BsonJavaScript(code)
-   */
-  emitCodeFromJS(ctx) {
-    ctx.type = this.Types.Code;
-    const argList = ctx.arguments().argumentList();
-    if (!argList ||
-      !(argList.singleExpression().length === 1 ||
-        argList.singleExpression().length === 2)) {
-      throw new SemanticArgumentCountMismatchError({
-        message: 'Code requires one or two arguments'
-      });
-    }
-    const args = argList.singleExpression();
-    const code = doubleQuoteStringify(args[0].getText());
-
-    if (args.length === 2) {
-      const scope = this.visit(args[1]);
-      if (args[1].type !== this.Types._object) {
-        throw new SemanticTypeError({
-          message: 'Code requires scope to be an object'
-        });
-      }
-      return `new BsonJavaScriptWithScope(@${code}, ${scope})`;
-    }
-
-    return `new BsonJavaScript(@${code})`;
-  }
-
-  /**
-   * BSON ObjectID
-   * needs to execute JS to get value first
-   *
-   * @param {BSONObjectIdObject} ctx
-   *
-   * @returns {string} - new BsonObjectId()
-   */
-  emitObjectId(ctx) {
-    ctx.type = this.Types.ObjectId;
-    if (!ctx.arguments().argumentList()) return 'new BsonObjectId()';
-
-    let hexstr;
-    try {
-      hexstr = this.executeJavascript(ctx.getText()).toHexString();
-    } catch (error) {
-      throw new SemanticGenericError({message: error.message});
-    }
-    return `new BsonObjectId(${doubleQuoteStringify(hexstr)})`;
   }
 
   /**
@@ -185,43 +130,15 @@ module.exports = (superclass) => class ExtendedVisitor extends superclass {
   }
 
   /**
-   * BSON Decimal128 Constructor
+   * Special case because need to parse decimal.
    *
-   * @param {Decimal128ConstructorObject} ctx
-   *
+   * @param {FuncCallExpressionContext} ctx
+   * @param {String} decimal
    * @returns {string} - new Decimal128(val)
    */
-  emitDecimal128(ctx) {
-    ctx.type = this.Types.Decimal128;
-
-    let decimal;
-    try {
-      decimal = this.executeJavascript(`new ${ctx.getText()}`);
-    } catch (error) {
-      throw new SemanticGenericError({message: error.message});
-    }
+  emitDecimal128(ctx, decimal) {
     const value = parseInt(decimal.toString(), 10);
-
     return `new Decimal128(${value})`;
-  }
-
-  /**
-   * BSON Long Constructor
-   * needs to execute JS, and add a conversion to int32 for c#
-   *
-   * @param {BSONLongObject} ctx
-   *
-   * @returns {string} - new BsonInt64(Convert.ToInt32(value))
-   */
-  emitLong(ctx) {
-    ctx.type = this.Types.Long;
-    let longstr;
-    try {
-      longstr = this.executeJavascript(ctx.getText()).toString();
-    } catch (error) {
-      throw new SemanticGenericError({message: error.message});
-    }
-    return `new BsonInt64(Convert.ToInt32(${longstr}))`;
   }
 
   /**
@@ -271,13 +188,18 @@ module.exports = (superclass) => class ExtendedVisitor extends superclass {
   }
 
   /**
-   * Date Time
+   * Special cased because different target languages need different info out
+   * of the constructed date.
    *
-   * @param {DateTimeConstructorObject} ctx
+   * child nodes: arguments
+   * grandchild nodes: argumentList?
+   * great-grandchild nodes: singleExpression+
    *
-   * @returns {string} - DateTime(date)
+   * @param {FuncCallExpressionContext} ctx
+   * @param {Date} date
+   * @return {String}
    */
-  emitDate(ctx) {
+  emitDate(ctx, date) {
     let toStr = '';
     ctx.type = this.Types.Date;
 
@@ -288,24 +210,18 @@ module.exports = (superclass) => class ExtendedVisitor extends superclass {
     }
 
     // it's just the now time if there are no args
-    if (!ctx.arguments().argumentList()) return `DateTime.Now${toStr}`;
-
-    let dateStr;
-
-    try {
-      const epoch = this.executeJavascript(ctx.getText());
-
-      dateStr = [
-        epoch.getUTCFullYear(),
-        (epoch.getUTCMonth() + 1),
-        epoch.getUTCDate(),
-        epoch.getUTCHours(),
-        epoch.getUTCMinutes(),
-        epoch.getUTCSeconds()
-      ].join(', ');
-    } catch (error) {
-      throw new SemanticGenericError({message: error.message});
+    if (date === undefined) {
+      return `DateTime.Now${toStr}`;
     }
+
+    const dateStr = [
+      date.getUTCFullYear(),
+      date.getUTCMonth() + 1,
+      date.getUTCDate(),
+      date.getUTCHours(),
+      date.getUTCMinutes(),
+      date.getUTCSeconds()
+    ].join(', ');
 
     return `new DateTime(${dateStr})${toStr}`;
   }
@@ -322,25 +238,5 @@ module.exports = (superclass) => class ExtendedVisitor extends superclass {
   emitnow(ctx) {
     ctx.type = this.Types.Now;
     return 'DateTime.Now';
-  }
-
-  emitRegExp(ctx) {
-    ctx.type = this.Types.Regex;
-    let pattern;
-    let flags;
-
-    try {
-      const regexobj = this.executeJavascript(ctx.getText());
-      pattern = regexobj.source;
-      flags = regexobj.flags;
-    } catch (error) {
-      return error.message;
-    }
-
-    // we need to pipe ( "|" ) flags in csharp if there is more than one of them
-    let csharpflags = flags.replace(/[imuyg]/g, (m) => this.regexFlags[m]);
-    csharpflags = csharpflags === '' ? '' : `(?${csharpflags})`;
-
-    return `new Regex(@${doubleQuoteStringify(csharpflags + pattern)})`;
   }
 };

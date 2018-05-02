@@ -168,7 +168,7 @@
       {
         "description": "toString without radix",
         "javascript": "Long(1, 100).toString()",
-        "python": "str(Int64(429496729601))",
+        "python": "'429496729601'",
         "java": "\"429496729601\"",
         "csharp": "",
         "shell": ""
@@ -176,7 +176,7 @@
       {
         "description": "toString with radix",
         "javascript": "Long(1, 100).toString(10)",
-        "python": "str(Int64(429496729601))",
+        "python": "'429496729601'",
         "java": "\"429496729601\"",
         "csharp": "",
         "shell": ""

@@ -151,7 +151,7 @@
       },
       {
         "description": "Long with one string arg",
-        "javascript": "new Long.fromNumber('10')",
+        "javascript": "new Long.fromNumber(10)",
         "python": "Int64('10')",
         "java": "new java.lang.Long(\"10\")",
         "csharp": "new BsonInt64(Convert.ToInt32(\"10\"))",

@@ -1,9 +1,7 @@
 /* eslint complexity: 0 */
 const {doubleQuoteStringify} = require('../../helper/format');
 const {
-  SemanticArgumentCountMismatchError,
-  SemanticGenericError,
-  SemanticTypeError
+  SemanticGenericError
 } = require('../../helper/error');
 
 /**
@@ -14,7 +12,7 @@ module.exports = (superClass) => class ExtendedVisitor extends superClass {
   constructor() {
     super();
     this.new = 'new ';
-    this.regex_flags = {
+    this.regexFlags = {
       i: 'i', m: 'm', u: 'u', y: '', g: ''
     };
     this.binary_subTypes = {
@@ -45,36 +43,6 @@ module.exports = (superClass) => class ExtendedVisitor extends superClass {
   }
 
   /**
-   * Special cased bc they're different in every lang.
-   *
-   * child nodes: arguments
-   * grandchild nodes: argumentList?
-   * great-grandchild nodes: singleExpression+
-   * @param {FuncCallExpressionContext} ctx
-   * @return {String}
-   */
-  emitRegExp(ctx) {
-    ctx.type = this.Types.Regex;
-    let pattern;
-    let flags;
-    try {
-      const regexobj = this.executeJavascript(ctx.getText());
-      pattern = regexobj.source;
-      flags = regexobj.flags;
-    } catch (error) {
-      throw new SemanticGenericError({message: error.message});
-    }
-
-    let javaflags = flags.replace(/[imuyg]/g, m => this.regex_flags[m]);
-    javaflags = javaflags === '' ? '' : `(?${javaflags})`;
-
-    // Double escape characters except for slashes
-    const escaped = pattern.replace(/\\/, '\\\\');
-
-    return `Pattern.compile(${doubleQuoteStringify(escaped + javaflags)})`;
-  }
-
-  /**
    * Special cased because different target languages need different info out
    * of the constructed date.
    *
@@ -82,27 +50,19 @@ module.exports = (superClass) => class ExtendedVisitor extends superClass {
    * grandchild nodes: argumentList?
    * great-grandchild nodes: singleExpression+
    * @param {FuncCallExpressionContext} ctx
+   * @param {Date} date
    * @return {String}
    */
-  emitDate(ctx) {
+  emitDate(ctx, date) {
     let toStr = '';
-    ctx.type = this.Types.Date;
     if (!ctx.wasNew && this.visit(ctx.singleExpression()) !== 'ISODate') {
       ctx.type = this.Types._string;
       toStr = '.toString()';
     }
-
-    const args = ctx.arguments();
-    if (!args.argumentList()) {
+    if (date === undefined) {
       return `new java.util.Date()${toStr}`;
     }
-    let epoch;
-    try {
-      epoch = this.executeJavascript(ctx.getText()).getTime();
-    } catch (error) {
-      throw new SemanticGenericError({message: error.message});
-    }
-    return `new java.util.Date(new java.lang.Long("${epoch}"))${toStr}`;
+    return `new java.util.Date(new java.lang.Long("${date.getTime()}"))${toStr}`;
   }
   emitISODate(ctx) {
     return this.emitDate(ctx);
@@ -118,7 +78,7 @@ module.exports = (superClass) => class ExtendedVisitor extends superClass {
    * @return {String}
    */
   emitBSONRegExp(ctx) {
-    ctx.type = this.Types.RegExp;
+    ctx.type = this.Types.BSONRegExpType;
     const argList = ctx.arguments().argumentList();
     const args = this.checkArguments([[this.Types._string], [this.Types._string, null]], argList);
 
@@ -141,72 +101,6 @@ module.exports = (superClass) => class ExtendedVisitor extends superClass {
       return `new BsonRegularExpression(${args[0]}, ${flags})`;
     }
     return `new BsonRegularExpression(${args[0]})`;
-  }
-
-  /**
-   * The arguments to Code can be either a string or actual javascript code.
-   * Manually check arguments here because first argument can be any JS, and we
-   * don't want to ever visit that node.
-   *
-   * TODO: could move this to javascript/visitor and use template.
-   *
-   * child nodes: arguments
-   * grandchild nodes: argumentList?
-   * great-grandchild nodes: singleExpression+
-   * @param {FuncCallExpressionContext} ctx
-   * @return {String}
-   */
-  emitCodeFromJS(ctx) {
-    ctx.type = this.Types.Code;
-    const argList = ctx.arguments().argumentList();
-    if (!argList ||
-      !(argList.singleExpression().length === 1 ||
-        argList.singleExpression().length === 2)) {
-      throw new SemanticArgumentCountMismatchError({
-        message: 'Code requires one or two arguments'
-      });
-    }
-    const args = argList.singleExpression();
-    const code = doubleQuoteStringify(args[0].getText());
-
-    if (args.length === 2) {
-      /* NOTE: we have to visit the subtree first before type checking or type may
-        not be set. We might have to just suck it up and do two passes, but maybe
-        we can avoid it for now. */
-      const scope = this.visit(args[1]);
-      if (args[1].type !== this.Types._object) {
-        throw new SemanticTypeError({
-          message: 'Code requires scope to be an object'
-        });
-      }
-      return `new CodeWithScope(${code}, ${scope})`;
-    }
-
-    return `new Code(${code})`;
-  }
-
-  /**
-   * TODO: Could move this to javascript/Visitor and use template
-   *
-   * child nodes: arguments
-   * grandchild nodes: argumentList?
-   * great-grandchild nodes: singleExpression+
-   * @param {FuncCallExpressionContext} ctx
-   * @return {String}
-   */
-  emitObjectId(ctx) {
-    ctx.type = this.Types.ObjectId;
-    const argList = ctx.arguments().argumentList();
-    if (!argList) {
-      return 'new ObjectId()';
-    }
-    let hexstr;
-    try {
-      hexstr = this.executeJavascript(ctx.getText()).toHexString();
-    } catch (error) {
-      throw new SemanticGenericError({message: error.message});
-    }
-    return `new ObjectId(${doubleQuoteStringify(hexstr)})`;
   }
 
   /**
@@ -253,59 +147,20 @@ module.exports = (superClass) => class ExtendedVisitor extends superClass {
   }
 
   /**
-   * TODO: Maybe move this to javascript/Visitor and use template?
-   *
-   * child nodes: arguments
-   * grandchild nodes: argumentList?
-   * great-grandchild nodes: singleExpression+
-   * @param {FuncCallExpressionContext} ctx
-   * @return {String}
-   */
-  emitLong(ctx) {
-    ctx.type = this.Types.Long;
-    let longstr;
-    try {
-      longstr = this.executeJavascript(`new ${ctx.getText()}`).toString();
-    } catch (error) {
-      throw new SemanticGenericError({message: error.message});
-    }
-    return `new java.lang.Long(${doubleQuoteStringify(longstr)})`;
-  }
-
-  emitNumberLong(ctx) {
-    const ret = this.emitLong(ctx);
-    ctx.type = this.Types.NumberLong;
-    return ret;
-  }
-
-  /**
-   * TODO: Could move this to javascript/Visitor and use template
+   * Special cased because don't want 'new' here.
    *
    * @param {FuncCallExpressionContext} ctx
+   * @param {String} str - the number as a string.
    * @return {String}
    */
-  emitDecimal128(ctx) {
-    ctx.type = this.Types.Decimal128;
-    let decobj;
-    try {
-      decobj = this.executeJavascript(`new ${ctx.getText()}`);
-    } catch (error) {
-      throw new SemanticGenericError({message: error.message});
-    }
-    const str = doubleQuoteStringify(decobj.toString());
-    return `Decimal128.parse(${str})`;
+  emitDecimal128(ctx, str) {
+    return `Decimal128.parse(${doubleQuoteStringify(str)})`;
   }
-  emitNumberDecimal(ctx) {
-    const ret = this.emitDecimal128(ctx);
-    ctx.type = this.Types.NumberDecimal;
-    return ret;
+  emitNumberDecimal(ctx, str) {
+    return `Decimal128.parse(${doubleQuoteStringify(str)})`;
   }
 
   /*  ************** Object methods **************** */
-
-  emitLongfromBits(ctx) {
-    return this.emitLong(ctx);
-  }
 
   /*
    * Accepts date or number, if date then don't convert to date.
@@ -321,18 +176,4 @@ module.exports = (superClass) => class ExtendedVisitor extends superClass {
     return ctx.type.argsTemplate('', `new java.util.Date(${args[0]})`);
   }
 
-  /*
-   * This is a bit weird because we can just convert to string directly.
-   */
-  emitLongtoString(ctx) {
-    ctx.type = this.Types._string;
-    const long = ctx.singleExpression().singleExpression();
-    let longstr;
-    try {
-      longstr = this.executeJavascript(long.getText()).toString();
-    } catch (error) {
-      throw new SemanticGenericError({message: error.message});
-    }
-    return `"${longstr}"`;
-  }
 };

@@ -165,7 +165,7 @@
     "NumberLong": [
       {
         "description": "toString",
-        "javascript": "Long.fromNumber(429496729601).toString()",
+        "javascript": "'429496729601'",
         "python": "",
         "java": "\"429496729601\"",
         "csharp": "",

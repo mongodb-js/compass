@@ -4,7 +4,6 @@ const path = require('path');
 
 const {
   singleQuoteStringify,
-  doubleQuoteStringify,
   removeQuotes
 } = require(path.resolve('helper', 'format'));
 const {
@@ -69,46 +68,6 @@ module.exports = (superClass) => class ExtendedVisitor extends superClass {
   }
 
   /**
-   * Special cased bc they're different in every lang.
-   *
-   * child nodes: arguments
-   * grandchild nodes: argumentList?
-   * great-grandchild nodes: singleExpression+
-   *
-   * @param {FuncCallExpressionContext} ctx
-   * @return {String}
-   */
-  emitRegExp(ctx) {
-    ctx.type = this.Types.RegExp;
-    let pattern;
-    let flags;
-
-    try {
-      const regexobj = this.executeJavascript(ctx.getText());
-
-      pattern = regexobj.source;
-      flags = regexobj.flags;
-    } catch (error) {
-      throw new SemanticGenericError({message: error.message});
-    }
-
-    // Double escape characters except for slashes
-    const escaped = pattern.replace(/\\(?!\/)/, '\\\\');
-
-    if (flags !== '') {
-      flags = flags
-        .split('')
-        .map((item) => this.regexFlags[item])
-        .sort()
-        .join('');
-
-      return `re.compile(r${doubleQuoteStringify(`${escaped}(?${flags})`)})`;
-    }
-
-    return `re.compile(r${doubleQuoteStringify(escaped)})`;
-  }
-
-  /**
    * Special cased because different target languages need different info out
    * of the constructed date.
    *
@@ -117,37 +76,28 @@ module.exports = (superClass) => class ExtendedVisitor extends superClass {
    * great-grandchild nodes: singleExpression+
    *
    * @param {FuncCallExpressionContext} ctx
+   * @param {Date} date
    * @return {String}
    */
-  emitDate(ctx) {
+  emitDate(ctx, date) {
     ctx.type = this.Types.Date;
-    const argumentList = ctx.arguments().argumentList();
     let toStr = '';
     if (!ctx.wasNew && this.visit(ctx.singleExpression()) !== 'ISODate') {
       ctx.type = this.Types._string;
       toStr = '.strftime(\'%a %b %d %Y %H:%M:%S %Z\')';
     }
 
-    if (argumentList === null) {
+    if (date === undefined) {
       return `datetime.datetime.utcnow().date()${toStr}`;
     }
-
-    let dateStr = '';
-
-    try {
-      const date = this.executeJavascript(ctx.getText());
-
-      dateStr = [
-        date.getUTCFullYear(),
-        (date.getUTCMonth() + 1),
-        date.getUTCDate(),
-        date.getUTCHours(),
-        date.getUTCMinutes(),
-        date.getUTCSeconds()
-      ].join(', ');
-    } catch (error) {
-      throw new SemanticGenericError({message: error.message});
-    }
+    const dateStr = [
+      date.getUTCFullYear(),
+      date.getUTCMonth() + 1,
+      date.getUTCDate(),
+      date.getUTCHours(),
+      date.getUTCMinutes(),
+      date.getUTCSeconds()
+    ].join(', ');
 
     return `datetime.datetime(${dateStr}, tzinfo=datetime.timezone.utc)${toStr}`;
   }
@@ -221,86 +171,6 @@ module.exports = (superClass) => class ExtendedVisitor extends superClass {
   }
 
   /**
-   * The arguments to Code can be either a string or actual javascript code.
-   * Manually check arguments here because first argument can be any JS, and we
-   * don't want to ever visit that node.
-   *
-   * TODO: could move this to javascript/visitor and use template.
-   *
-   * child nodes: arguments
-   * grandchild nodes: argumentList?
-   * great-grandchild nodes: singleExpression+
-   *
-   * @param {FuncCallExpressionContext} ctx
-   * @return {String}
-   */
-  emitCodeFromJS(ctx) {
-    ctx.type = this.Types.Code;
-    const argList = ctx.arguments().argumentList();
-    if (
-      !argList ||
-      !(
-        argList.singleExpression().length === 1 ||
-        argList.singleExpression().length === 2
-      )
-    ) {
-      throw new SemanticArgumentCountMismatchError({
-        message: 'Code requires one or two arguments'
-      });
-    }
-
-    const args = argList.singleExpression();
-    const code = singleQuoteStringify(args[0].getText());
-
-    if (args.length === 2) {
-      /* NOTE: we have to visit the subtree first before type checking or type may
-        not be set. We might have to just suck it up and do two passes, but maybe
-        we can avoid it for now. */
-      const scope = this.visit(args[1]);
-
-      if (args[1].type !== this.Types._object) {
-        throw new SemanticTypeError({
-          message: 'Code requires scope to be an object'
-        });
-      }
-
-      return `Code(${code}, ${scope})`;
-    }
-
-    return `Code(${code})`;
-  }
-
-  /**
-   * TODO: Could move this to javascript/Visitor and use template.
-   *
-   * child nodes: arguments
-   * grandchild nodes: argumentList?
-   * great-grandchild nodes: singleExpression+
-   *
-   * @param {FuncCallExpressionContext} ctx
-   * @return {String}
-   */
-  emitObjectId(ctx) {
-    ctx.type = this.Types.ObjectId;
-
-    const argList = ctx.arguments().argumentList();
-
-    if (!argList) {
-      return 'ObjectId()';
-    }
-
-    let hexstr;
-
-    try {
-      hexstr = this.executeJavascript(ctx.getText()).toHexString();
-    } catch (error) {
-      throw new SemanticGenericError({message: error.message});
-    }
-
-    return `ObjectId(${singleQuoteStringify(hexstr)})`;
-  }
-
-  /**
    * TODO: Maybe move this to javascript/Visitor and use template?
    *
    * child nodes: arguments
@@ -331,84 +201,5 @@ module.exports = (superClass) => class ExtendedVisitor extends superClass {
     }
 
     return `Binary(b${bytes}, ${this.binarySubTypes[type]})`;
-  }
-
-  /**
-   * TODO: Maybe move this to javascript/Visitor and use template?
-   *
-   * child nodes: arguments
-   * grandchild nodes: argumentList?
-   * great-grandchild nodes: singleExpression+
-   *
-   * @param {FuncCallExpressionContext} ctx
-   * @return {String}
-   */
-  emitLong(ctx) {
-    ctx.type = this.Types.Long;
-
-    let longstr;
-
-    try {
-      longstr = this.executeJavascript(ctx.getText()).toString();
-    } catch (error) {
-      throw new SemanticGenericError({message: error.message});
-    }
-
-    return `Int64(${longstr})`;
-  }
-
-  /**
-   * TODO: Could move this to javascript/Visitor and use template.
-   *
-   * @param {FuncCallExpressionContext} ctx
-   * @return {String}
-   */
-  emitDecimal128(ctx) {
-    ctx.type = this.Types.Decimal128;
-
-    let decimal;
-
-    try {
-      decimal = this.executeJavascript(`new ${ctx.getText()}`);
-    } catch (error) {
-      throw new SemanticGenericError({message: error.message});
-    }
-
-    const str = singleQuoteStringify(decimal.toString());
-
-    return `Decimal128(${str})`;
-  }
-
-  /* ************** Object methods **************** */
-
-  /**
-   * LongfromBits method
-   *
-   * @param {FuncCallExpressionContext} ctx
-   * @return {String}
-   */
-  emitLongfromBits(ctx) {
-    return this.emitLong(ctx);
-  }
-
-  /**
-   * LongtoString method
-   *
-   * @param {FuncCallExpressionContext} ctx
-   * @return {String}
-   */
-  emitLongtoString(ctx) {
-    ctx.type = this.Types._string;
-
-    const long = ctx.singleExpression().singleExpression();
-    let longstr;
-
-    try {
-      longstr = this.executeJavascript(long.getText()).toString();
-    } catch (error) {
-      throw new SemanticGenericError({message: error.message});
-    }
-
-    return `str(Int64(${longstr}))`;
   }
 };

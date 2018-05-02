@@ -324,7 +324,7 @@ JSSymbols:
         args:
             - [ *StringType ]
             - [ *StringType, null ]
-        type: *RegExpType
+        type: *RegexType
         attr: {}
         template: *RegExpSymbolTemplate
         argsTemplate: *RegExpSymbolArgsTemplate
