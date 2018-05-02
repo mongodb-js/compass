@@ -12,7 +12,7 @@ const unsupported = {
       java: {},
       python: {},
       csharp: {
-        'bson-object-methods': [ '*' ],
+        'bson-methods': [ '*' ],
         'bson-utils': [ '*' ]
       }
     },
@@ -21,17 +21,15 @@ const unsupported = {
       javascript: {},
       python: {
         'bson-constructors': [ '*' ],
-        'js-constructors': [ '*' ],
-        'bson-object-methods': [ '*' ],
-        'bson-utils': [ '*' ],
-        'js-utils': [ '*' ]
+        'language-types': [ '*' ],
+        'bson-methods': [ '*' ],
+        'bson-utils': [ '*' ]
       },
       csharp: {
         'bson-constructors': [ '*' ],
-        'js-constructors': [ '*' ],
-        'bson-object-methods': [ '*' ],
-        'bson-utils': [ '*' ],
-        'js-utils': [ '*' ]
+        'language-types': [ '*' ],
+        'bson-methods': [ '*' ],
+        'bson-utils': [ '*' ]
       }
     }
   },

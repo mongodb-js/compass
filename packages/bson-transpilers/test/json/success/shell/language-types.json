@@ -29,11 +29,19 @@
       },
       {
         "description": "Number with valid string arg",
-        "javascript": "new Number('2')",
-        "python": "int('2')",
+        "javascript": "Number('2')",
+        "python": "int(2)",
         "java": "new java.lang.Long(\"2\")",
         "csharp": "new int(2)",
         "shell": "Number('2')"
+      },
+      {
+        "description": "Number with no arg",
+        "javascript": "Number(0)",
+        "python": "int(0)",
+        "java": "new java.lang.Long(\"0\")",
+        "csharp": "new int(0)",
+        "shell": "Number()"
       }
     ],
     "literals": [
@@ -82,7 +90,7 @@
         "javascript": "01234567",
         "python": "0o1234567",
         "java": "01234567",
-        "csharp": "342391",
+        "csharp": "1234567",
         "shell": "01234567"
       },
       {
@@ -90,15 +98,15 @@
         "javascript": "001234567",
         "python": "0o1234567",
         "java": "01234567",
-        "csharp": "342391",
-        "shell": "0o1234567"
+        "csharp": "1234567",
+        "shell": "001234567"
       },
       {
         "description": "Octal 0o-prefix number",
         "javascript": "0o1234567",
         "python": "0o1234567",
         "java": "01234567",
-        "csharp": "342391",
+        "csharp": "0",
         "shell": "0o1234567"
       },
       {
@@ -106,7 +114,7 @@
         "javascript": "0o1234567",
         "python": "0o1234567",
         "java": "01234567",
-        "csharp": "342391",
+        "csharp": "0",
         "shell": "0o1234567"
       },
       {
@@ -176,7 +184,7 @@
         "shell": "new Date(819167040000)"
       },
       {
-        "description": "Current date",
+        "description": "new Current date",
         "javascript": "new Date()",
         "python": "datetime.datetime.utcnow().date()",
         "java": "new java.util.Date()",
@@ -184,7 +192,7 @@
         "shell": "new Date()"
       },
       {
-        "description": "Date from year, month and day",
+        "description": "new Date from year, month and day",
         "javascript": "new Date(1995, 11, 17)",
         "python": "datetime.datetime(1995, 12, 17, 0, 0, 0, tzinfo=datetime.timezone.utc)",
         "java": "new java.util.Date(new java.lang.Long(\"819158400000\"))",
@@ -192,7 +200,7 @@
         "shell": "new Date(1995, 11, 17)"
       },
       {
-        "description": "Date from year, month, day, hour, min and sec",
+        "description": "new Date from year, month, day, hour, min and sec",
         "javascript": "new Date(1995, 11, 17, 3, 24, 0)",
         "python": "datetime.datetime(1995, 12, 17, 3, 24, 0, tzinfo=datetime.timezone.utc)",
         "java": "new java.util.Date(new java.lang.Long(\"819170640000\"))",
@@ -202,42 +210,84 @@
       {
         "description": "Date string with ISO String",
         "javascript": "Date('December 17, 1995 03:24:00Z')",
-        "python": "datetime.datetime(1995, 12, 17, 3, 24, 0, tzinfo=datetime.timezone.utc).strftime('%a %b %d %Y %H:%M:%S %Z')",
+        "python": "",
         "java": "new java.util.Date(new java.lang.Long(\"819170640000\")).toString()",
-        "csharp": "new DateTime(1995, 12, 17, 3, 24, 0).ToString()",
+        "csharp": "",
         "shell": "Date('December 17, 1995 03:24:00Z')"
       },
       {
         "description": "Date string with UTC number",
         "javascript": "Date(819167040000)",
-        "python": "datetime.datetime(1995, 12, 17, 2, 24, 0, tzinfo=datetime.timezone.utc).strftime('%a %b %d %Y %H:%M:%S %Z')",
+        "python": "",
         "java": "new java.util.Date(new java.lang.Long(\"819167040000\")).toString()",
-        "csharp": "new DateTime(1995, 12, 17, 2, 24, 0).ToString()",
+        "csharp": "",
         "shell": "Date(819167040000)"
       },
       {
         "description": "Current date string",
         "javascript": "Date()",
-        "python": "datetime.datetime.utcnow().date().strftime('%a %b %d %Y %H:%M:%S %Z')",
+        "python": "",
         "java": "new java.util.Date().toString()",
-        "csharp": "DateTime.Now.ToString()",
+        "csharp": "",
         "shell": "Date()"
       },
       {
         "description": "Date string from year, month and day",
         "javascript": "Date(1995, 11, 17)",
-        "python": "datetime.datetime(1995, 12, 17, 0, 0, 0, tzinfo=datetime.timezone.utc).strftime('%a %b %d %Y %H:%M:%S %Z')",
+        "python": "",
         "java": "new java.util.Date(new java.lang.Long(\"819158400000\")).toString()",
-        "csharp": "new DateTime(1995, 12, 17, 0, 0, 0).ToString()",
+        "csharp": "",
         "shell": "Date(1995, 11, 17)"
       },
       {
         "description": "Date string from year, month, day, hour, min and sec",
         "javascript": "Date(1995, 11, 17, 3, 24, 0)",
-        "python": "datetime.datetime(1995, 12, 17, 3, 24, 0, tzinfo=datetime.timezone.utc).strftime('%a %b %d %Y %H:%M:%S %Z')",
+        "python": "",
         "java": "new java.util.Date(new java.lang.Long(\"819170640000\")).toString()",
-        "csharp": "new DateTime(1995, 12, 17, 3, 24, 0).ToString()",
+        "csharp": "",
         "shell": "Date(1995, 11, 17, 3, 24, 0)"
+      },
+      {
+        "description": "Current time",
+        "javascript": "Date.now()",
+        "python": "datetime.datetime.utcnow()",
+        "java": "new java.util.Date()",
+        "csharp": "",
+        "shell": "Date.now()"
+      }
+    ],
+    "ISODate": [
+      {
+        "description": "new ISODate with ISO String",
+        "javascript": "new Date('1995-12-17T03:24:00.000Z')",
+        "python": "datetime.datetime(1995, 12, 17, 3, 24, 0, tzinfo=datetime.timezone.utc)",
+        "java": "new java.util.Date(new java.lang.Long(\"819170640000\"))",
+        "csharp": "new DateTime(1995, 12, 17, 3, 24, 0)",
+        "shell": "new ISODate('1995-12-17T03:24:00.000Z')"
+      },
+      {
+        "description": "ISODate with ISO String",
+        "javascript": "new Date('1995-12-17T03:24:00.000Z')",
+        "python": "datetime.datetime(1995, 12, 17, 3, 24, 0, tzinfo=datetime.timezone.utc)",
+        "java": "new java.util.Date(new java.lang.Long(\"819170640000\"))",
+        "csharp": "new DateTime(1995, 12, 17, 3, 24, 0)",
+        "shell": "ISODate('1995-12-17T03:24:00.000Z')"
+      },
+      {
+        "description": "new ISODate without arg",
+        "javascript": "new Date()",
+        "python": "datetime.datetime.utcnow().date()",
+        "java": "new java.util.Date()",
+        "csharp": "DateTime.Now",
+        "shell": "new ISODate()"
+      },
+      {
+        "description": "ISODate without arg",
+        "javascript": "new Date()",
+        "python": "datetime.datetime.utcnow().date()",
+        "java": "new java.util.Date()",
+        "csharp": "DateTime.Now",
+        "shell": "ISODate()"
       }
     ],
     "RegExp": [
@@ -246,7 +296,7 @@
         "javascript": "RegExp('')",
         "python": "re.compile(r\"(?:)\")",
         "java": "Pattern.compile(\"(?:)\")",
-        "csharp": "new Regex(@\"(?:)\")",
+        "csharp": "",
         "shell": "RegExp('')"
       },
       {
@@ -254,7 +304,7 @@
         "javascript": "RegExp('abc')",
         "python": "re.compile(r\"abc\")",
         "java": "Pattern.compile(\"abc\")",
-        "csharp": "new Regex(@\"abc\")",
+        "csharp": "",
         "shell": "RegExp('abc')"
       },
       {
@@ -262,7 +312,7 @@
         "javascript": "new RegExp('ab+c', 'im')",
         "python": "re.compile(r\"ab+c(?im)\")",
         "java": "Pattern.compile(\"ab+c(?im)\")",
-        "csharp": "new Regex(@\"(?im)ab+c\")",
+        "csharp": "",
         "shell": "new RegExp('ab+c', 'im')"
       },
       {
@@ -270,7 +320,7 @@
         "javascript": "new RegExp('ab+c', 'ig')",
         "python": "re.compile(r\"ab+c(?is)\")",
         "java": "Pattern.compile(\"ab+c(?i)\")",
-        "csharp": "new Regex(@\"(?i)ab+c\")",
+        "csharp": "",
         "shell": "new RegExp('ab+c', 'ig')"
       },
       {
@@ -278,7 +328,7 @@
         "javascript": "new RegExp('ab/cd')",
         "python": "re.compile(r\"ab\\/cd\")",
         "java": "Pattern.compile(\"ab\\\\/cd\")",
-        "csharp": "new Regex(@\"ab\\/cd\")",
+        "csharp": "",
         "shell": "new RegExp('ab/cd')"
       },
       {
@@ -286,7 +336,7 @@
         "javascript": "new RegExp('ab\\\"ab')",
         "python": "re.compile(r\"ab\\\"ab\")",
         "java": "Pattern.compile(\"ab\\\"ab\")",
-        "csharp": "new Regex(@\"ab\\\"ab\")",
+        "csharp": "",
         "shell": "new RegExp('ab\\\"ab')"
       },
       {
@@ -294,7 +344,7 @@
         "javascript": "new RegExp('ab\"ab')",
         "python": "re.compile(r\"ab\\\"ab\")",
         "java": "Pattern.compile(\"ab\\\"ab\")",
-        "csharp": "new Regex(@\"ab\\\"ab\")",
+        "csharp": "",
         "shell": "new RegExp('ab\"ab')"
       },
       {
@@ -302,7 +352,7 @@
         "javascript": "new RegExp('ab\\'ab')",
         "python": "re.compile(r\"ab'ab\")",
         "java": "Pattern.compile(\"ab'ab\")",
-        "csharp": "new Regex(@\"ab'ab\")",
+        "csharp": "",
         "shell": "new RegExp('ab\\'ab')"
       },
       {
@@ -310,7 +360,7 @@
         "javascript": "new RegExp(\"ab'ab\")",
         "python": "re.compile(r\"ab'ab\")",
         "java": "Pattern.compile(\"ab'ab\")",
-        "csharp": "new Regex(@\"ab'ab\")",
+        "csharp": "",
         "shell": "new RegExp(\"ab'ab\")"
       },
       {
@@ -318,7 +368,7 @@
         "javascript": "new RegExp(\"\\\\n\")",
         "python": "re.compile(r\"\\\\n\")",
         "java": "Pattern.compile(\"\\\\n\")",
-        "csharp": "new Regex(@\"\\n\")",
+        "csharp": "",
         "shell": "new RegExp(\"\\\\n\")"
       },
       {
@@ -326,7 +376,7 @@
         "javascript": "/ab+c/ig",
         "python": "re.compile(r\"ab+c(?is)\")",
         "java": "Pattern.compile(\"ab+c(?i)\")",
-        "csharp": "new Regex(@\"(?i)ab+c\")",
+        "csharp": "",
         "shell": "/ab+c/ig"
       },
       {
@@ -334,7 +384,7 @@
         "javascript": "new RegExp(/ab+c/, 'i')",
         "python": "re.compile(r\"ab+c(?i)\")",
         "java": "Pattern.compile(\"ab+c(?i)\")",
-        "csharp": "new Regex(@\"(?i)ab+c\")",
+        "csharp": "",
         "shell": "new RegExp(/ab+c/, 'i')"
       }
     ]
