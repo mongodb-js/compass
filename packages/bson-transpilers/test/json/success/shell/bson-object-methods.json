@@ -55,7 +55,7 @@
     "BinData": [
       {
         "description": "length",
-        "javascript": "Binary(Buffer.from('0001')).length()",
+        "javascript": "Binary('0001', '1').length()",
         "python": "",
         "java": "new Binary(org.bson.BsonBinarySubType.FUNCTION, \"0001\".getBytes(\"UTF-8\")).length()",
         "csharp": "",
@@ -63,7 +63,7 @@
       },
       {
         "description": "subtype",
-        "javascript": "Binary(Buffer.from('0001')).sub_type",
+        "javascript": "Binary('0001', '1').sub_type",
         "python": "",
         "java": "new Binary(org.bson.BsonBinarySubType.FUNCTION, \"0001\".getBytes(\"UTF-8\")).getType()",
         "csharp": "",
@@ -71,11 +71,11 @@
       },
       {
         "description": "toString",
-        "javascript": "Binary(Buffer.from('0001')).toString()",
+        "javascript": "new Binary('0001', '1').toString()",
         "python": "",
         "java": "new Binary(org.bson.BsonBinarySubType.FUNCTION, \"0001\".getBytes(\"UTF-8\")).toString()",
         "csharp": "",
-        "shell": "BinData(1, '0001').toString()"
+        "shell": "new BinData(1, '0001').toString()"
       }
     ],
     "DBRef": [
@@ -189,7 +189,7 @@
       },
       {
         "description": "top",
-        "javascript": "",
+        "javascript": "Long.fromNumber(429496729601).getHighBits()",
         "python": "",
         "java": "new java.lang.Long(\"429496729601\") >> 32",
         "csharp": "",
@@ -197,7 +197,7 @@
       },
       {
         "description": "bottom",
-        "javascript": "",
+        "javascript": "Long.fromNumber(429496729601).getLowBits()",
         "python": "",
         "java": "new java.lang.Long(\"429496729601\") & 0x0000ffff",
         "csharp": "",
@@ -207,7 +207,7 @@
     "NumberDecimal": [
       {
         "description": "toString",
-        "javascript": "Decimal128.fromNumber(0).toString()",
+        "javascript": "Decimal128.fromString('0').toString()",
         "python": "",
         "java": "Decimal128.parse(\"0\").toString()",
         "csharp": "",

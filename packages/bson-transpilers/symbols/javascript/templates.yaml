@@ -52,14 +52,38 @@ Templates:
     BinaryLengthArgsTemplate: &BinaryLengthArgsTemplate null
     BinaryToStringTemplate: &BinaryToStringTemplate null
     BinaryToStringArgsTemplate: &BinaryToStringArgsTemplate null
-    BinarySubtypeTemplate: &BinarySubtypeTemplate null
-    BinarySubtypeArgsTemplate: &BinarySubtypeArgsTemplate null
-    DBRefGetDBTemplate: &DBRefGetDBTemplate null
-    DBRefGetCollectionTemplate: &DBRefGetCollectionTemplate null
-    DBRefGetIdTemplate: &DBRefGetIdTemplate null
-    DBRefGetDBArgsTemplate: &DBRefGetDBArgsTemplate null
-    DBRefGetCollectionArgsTemplate: &DBRefGetCollectionArgsTemplate null
-    DBRefGetIdArgsTemplate: &DBRefGetIdArgsTemplate null
+    BinarySubtypeTemplate: &BinarySubtypeTemplate !!js/function >
+        (lhs) => {
+            return `${lhs}.sub_type`;
+        }
+    BinarySubtypeArgsTemplate: &BinarySubtypeArgsTemplate !!js/function >
+        () => {
+            return '';
+        }
+    DBRefGetDBTemplate: &DBRefGetDBTemplate !!js/function >
+        (lhs) => {
+            return `${lhs}.db`;
+        }
+    DBRefGetCollectionTemplate: &DBRefGetCollectionTemplate !!js/function >
+        (lhs) => {
+            return `${lhs}.namespace`;
+        }
+    DBRefGetIdTemplate: &DBRefGetIdTemplate !!js/function >
+        (lhs) => {
+            return `${lhs}.oid`;
+        }
+    DBRefGetDBArgsTemplate: &DBRefGetDBArgsTemplate !!js/function >
+        () => {
+            return '';
+        }
+    DBRefGetCollectionArgsTemplate: &DBRefGetCollectionArgsTemplate !!js/function >
+        () => {
+            return '';
+        }
+    DBRefGetIdArgsTemplate: &DBRefGetIdArgsTemplate !!js/function >
+        () => {
+            return '';
+        }
     DBRefToStringTemplate: &DBRefToStringTemplate null
     DBRefToStringArgsTemplate: &DBRefToStringArgsTemplate null
     DoubleValueOfTemplate: &DoubleValueOfTemplate null
@@ -68,7 +92,10 @@ Templates:
     Int32ValueOfArgsTemplate: &Int32ValueOfArgsTemplate null
     LongEqualsTemplate: &LongEqualsTemplate null
     LongEqualsArgsTemplate: &LongEqualsArgsTemplate null
-    LongToIntTemplate: &LongToIntTemplate null
+    LongToIntTemplate: &LongToIntTemplate !!js/function >
+        (lhs) => {
+            return `${lhs}.toInt`;
+        }
     LongToIntArgsTemplate: &LongToIntArgsTemplate null
     LongToNumberTemplate: &LongToNumberTemplate null
     LongToNumberArgsTemplate: &LongToNumberArgsTemplate null
@@ -114,19 +141,40 @@ Templates:
     LongLessThanArgsTemplate: &LongLessThanArgsTemplate null
     LongLessThanOrEqualTemplate: &LongLessThanOrEqualTemplate null
     LongLessThanOrEqualArgsTemplate: &LongLessThanOrEqualArgsTemplate null
-    LongFloatApproxTemplate: &LongFloatApproxTemplate null
-    LongTopTemplate: &LongTopTemplate null
-    LongBottomTemplate: &LongBottomTemplate null
+    LongFloatApproxTemplate: &LongFloatApproxTemplate !!js/function >
+        (lhs) => {
+            return `${lhs}.toNumber()`;
+        }
+    LongTopTemplate: &LongTopTemplate !!js/function >
+        (lhs) => {
+            return `${lhs}.getHighBits()`;
+        }
+    LongBottomTemplate: &LongBottomTemplate !!js/function >
+        (lhs) => {
+            return `${lhs}.getLowBits()`;
+        }
     TimestampToStringTemplate: &TimestampToStringTemplate null
     TimestampToStringArgsTemplate: &TimestampToStringArgsTemplate null
     TimestampEqualsTemplate: &TimestampEqualsTemplate null
     TimestampEqualsArgsTemplate: &TimestampEqualsArgsTemplate null
-    TimestampGetLowBitsTemplate: &TimestampGetLowBitsTemplate null
+    TimestampGetLowBitsTemplate: &TimestampGetLowBitsTemplate !!js/function >
+        (lhs) => {
+            return `${lhs}.getLowBits`;
+        }
     TimestampGetLowBitsArgsTemplate: &TimestampGetLowBitsArgsTemplate null
-    TimestampGetHighBitsTemplate: &TimestampGetHighBitsTemplate null
+    TimestampGetHighBitsTemplate: &TimestampGetHighBitsTemplate !!js/function >
+        (lhs) => {
+            return `${lhs}.getHighBits`;
+        }
     TimestampGetHighBitsArgsTemplate: &TimestampGetHighBitsArgsTemplate null
-    TimestampTTemplate: &TimestampTTemplate null
-    TimestampITemplate: &TimestampITemplate null
+    TimestampTTemplate: &TimestampTTemplate !!js/function >
+        (lhs) => {
+            return `${lhs}.getLowBits()`;
+        }
+    TimestampITemplate: &TimestampITemplate !!js/function
+        (lhs) => {
+            return `${lhs}.getHighBits()`;
+        }
     TimestampCompareTemplate: &TimestampCompareTemplate null
     TimestampCompareArgsTemplate: &TimestampCompareArgsTemplate null
     TimestampNotEqualsTemplate: &TimestampNotEqualsTemplate null
