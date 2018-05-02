@@ -20,7 +20,7 @@ BsonSymbols:
                 <<: *__func
                 id: "ObjectIdCreateFromTime"
                 args:
-                    - [ "Date" ]
+                    - [ *DateType ]
                 type: *ObjectIdType
                 template: *ObjectIdCreateFromTimeTemplate
                 argsTemplate: *ObjectIdCreateFromTimeArgsTemplate

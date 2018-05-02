@@ -246,7 +246,10 @@ Templates:
     # BSON Util Templates
     ObjectIdCreateFromHexStringTemplate: &ObjectIdCreateFromHexStringTemplate null
     ObjectIdCreateFromHexStringArgsTemplate: &ObjectIdCreateFromHexStringArgsTemplate null
-    ObjectIdCreateFromTimeTemplate: &ObjectIdCreateFromTimeTemplate null
+    ObjectIdCreateFromTimeTemplate: &ObjectIdCreateFromTimeTemplate !!js/function >
+        (lhs) => {
+            return `${lhs}.createFromTime`;
+        }
     ObjectIdCreateFromTimeArgsTemplate: &ObjectIdCreateFromTimeArgsTemplate null
     ObjectIdIsValidTemplate: &ObjectIdIsValidTemplate null
     ObjectIdIsValidArgsTemplate: &ObjectIdIsValidArgsTemplate null

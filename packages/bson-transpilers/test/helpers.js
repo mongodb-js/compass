@@ -19,9 +19,7 @@ const unsupported = {
     shell: {
       java: {},
       javascript: {
-        'bson-object-methods': [ '*' ],
-        'bson-utils': [ '*' ],
-        'js-utils': [ '*' ]
+        'bson-object-methods': [ '*' ]
       },
       python: {
         'bson-constructors': [ '*' ],

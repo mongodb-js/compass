@@ -253,13 +253,16 @@ class Visitor extends ECMAScriptVisitor {
     if ('emitNew' in this) {
       return this.emitNew(ctx);
     }
-    return this.visitChildren(ctx, {separator: ' '});
+    const res = this.visitChildren(ctx, {separator: ' '});
+    ctx.type = ctx.singleExpression().type;
+    return res;
   }
 
   visitRegularExpressionLiteral(ctx) {
     if ('emitRegExp' in this) {
       return this.emitRegExp(ctx);
     }
+    ctx.type = this.Types.RegExp;
     return this.visitChildren(ctx);
   }
 
