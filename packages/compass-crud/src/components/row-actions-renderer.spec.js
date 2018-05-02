@@ -19,7 +19,7 @@ describe('<RowActionsRenderer />', () => {
         value = rowNode.data.hadronDocument.get('field1');
         component = mount(<RowActionsRenderer api={api} value={value}
                                               node={rowNode} context={context}
-                                              data={data} nested={false} />);
+                                              data={data} nested={false} isEditable />);
         done();
       });
       it('renders the edit button', () => {
@@ -45,7 +45,7 @@ describe('<RowActionsRenderer />', () => {
         value = rowNode.data.hadronDocument.get('field1');
         component = mount(<RowActionsRenderer api={api} value={value}
                                               node={rowNode} context={context}
-                                              data={data} nested={true} />);
+                                              data={data} nested={true} isEditable />);
         done();
       });
       it('renders the edit button', () => {
@@ -62,24 +62,19 @@ describe('<RowActionsRenderer />', () => {
 
     describe('when the distribution is readonly', () => {
       before(() => {
-        process.env.HADRON_READONLY = 'true';
         rowNode = getNode({field1: 'value'});
         value = rowNode.data.hadronDocument.get('field1');
         component = mount(<RowActionsRenderer api={api} value={value}
                                               node={rowNode} context={context}
-                                              data={data} nested={true} />);
-      });
-
-      after(() => {
-        process.env.HADRON_READONLY = 'false';
+                                              data={data} nested={true} isEditable={false} />);
       });
 
       it('does not render the buttons', () => {
         const wrapper = component.find('.table-view-row-actions');
-        expect(wrapper.find({title: 'Edit Document'})).not.to.be.present();
-        expect(wrapper.find({title: 'Copy row'})).not.to.be.present();
-        expect(wrapper.find({title: 'Clone row'})).not.to.be.present();
-        expect(wrapper.find({title: 'Delete row'})).not.to.be.present();
+        expect(wrapper.find('button[title="Edit Document"]')).not.to.be.present();
+        expect(wrapper.find('button[title="Copy row"]')).not.to.be.present();
+        expect(wrapper.find('button[title="Clone row"]')).not.to.be.present();
+        expect(wrapper.find('button[title="Delete row"]')).not.to.be.present();
       });
     });
   });
@@ -94,8 +89,8 @@ describe('<RowActionsRenderer />', () => {
           context = getContext();
           component = mount(<RowActionsRenderer api={api} value={value}
                                                 node={rowNode} context={context}
-                                                data={data} nested={false} />);
-          const wrapper = component.find({title: 'Edit Document'});
+                                                data={data} nested={false} isEditable />);
+          const wrapper = component.find('button[title="Edit Document"]');
           wrapper.simulate('click');
           done();
         });
@@ -116,8 +111,8 @@ describe('<RowActionsRenderer />', () => {
           context = getContext();
           component = mount(<RowActionsRenderer api={api} value={value}
                                                 node={rowNode} context={context}
-                                                data={data} nested={false} />);
-          const wrapper = component.find({title: 'Clone Document'});
+                                                data={data} nested={false} isEditable />);
+          const wrapper = component.find('button[title="Clone Document"]');
           wrapper.simulate('click');
           done();
         });
@@ -137,8 +132,8 @@ describe('<RowActionsRenderer />', () => {
           context = getContext();
           component = mount(<RowActionsRenderer api={api} value={value}
                                                 node={rowNode} context={context}
-                                                data={data} nested={false} />);
-          const wrapper = component.find({title: 'Delete Document'});
+                                                data={data} nested={false} isEditable />);
+          const wrapper = component.find('button[title="Delete Document"]');
           wrapper.simulate('click');
           done();
         });
@@ -162,8 +157,8 @@ describe('<RowActionsRenderer />', () => {
           context = getContext();
           component = mount(<RowActionsRenderer api={api} value={value}
                                                 node={rowNode} context={context}
-                                                data={data} nested={true} />);
-          const wrapper = component.find({title: 'Edit Document'});
+                                                data={data} nested={true} isEditable />);
+          const wrapper = component.find('button');
           wrapper.simulate('click');
           done();
         });

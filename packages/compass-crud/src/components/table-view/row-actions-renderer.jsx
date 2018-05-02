@@ -56,7 +56,7 @@ class RowActionsRenderer extends React.Component {
     /* Don't show actions for rows that are being edited or marked for deletion */
     if (this.props.value.state === 'editing' ||
         this.props.value.state === 'deleting' ||
-        process.env.HADRON_READONLY === 'true') {
+        !this.props.isEditable) {
       return null;
     }
 
@@ -82,6 +82,7 @@ RowActionsRenderer.propTypes = {
   context: PropTypes.any,
   data: PropTypes.any,
   nested: PropTypes.bool,
+  isEditable: PropTypes.bool.isRequired,
   copyToClipboard: PropTypes.func.isRequired
 };
 

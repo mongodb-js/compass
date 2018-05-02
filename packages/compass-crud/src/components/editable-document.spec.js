@@ -53,7 +53,6 @@ describe('<EditableDocument />', () => {
       const _focus = window.HTMLElement.prototype.focus;
       let spy;
       let secondLastInput;
-      let lastInput;
       before(() => {
         spy = sinon.spy(_focus);
         window.HTMLElement.prototype.focus = spy;
@@ -74,9 +73,7 @@ describe('<EditableDocument />', () => {
         });
         const editables = wrapper.find(EditableElement);
         const secondLastElement = editables.slice(-2, -1);
-        const lastElement = editables.slice(-1);
         secondLastInput = secondLastElement.find(EditableValue).find('input');
-        lastInput = lastElement.find(EditableValue).find('input');
       });
 
       after(() => {
@@ -86,11 +83,6 @@ describe('<EditableDocument />', () => {
 
       it('it never focuses inputs such as the second last', () => {
         expect(secondLastInput.matchesElement(document.activeElement)).to.equal(false);
-        expect(spy.callCount).to.be.equal(1);
-      });
-
-      it('auto focuses the last input', () => {
-        expect(lastInput.matchesElement(document.activeElement)).to.equal(true);
         expect(spy.callCount).to.be.equal(1);
       });
     });

@@ -46,8 +46,8 @@ describe('<ExpansionBar />', () => {
         bar = mount(<ExpansionBar {...props} />);
       });
       it('renders a show more fields button', () => {
-        const downButtons = bar.find('.fa-arrow-down').parent();
-        expect(downButtons.text()).to.be.equal(`Show ${showSize} more fields`);
+        const downButtons = bar.find('.expansion-bar-show');
+        expect(downButtons).to.have.text(`Show ${showSize} more fields`);
       });
       it('does not render a hide fields button', () => {
         const upButtons = bar.find('.fa-arrow-up');
@@ -72,12 +72,12 @@ describe('<ExpansionBar />', () => {
         bar = mount(<ExpansionBar {...props} />);
       });
       it('renders a show more fields button', () => {
-        const downButtons = bar.find('.fa-arrow-down').parent();
-        expect(downButtons.text()).to.be.equal(`Show ${showSize} more fields`);
+        const downButtons = bar.find('.expansion-bar-show');
+        expect(downButtons).to.have.text(`Show ${showSize} more fields`);
       });
       it('renders a hide fields button', () => {
-        const upButtons = bar.find('.fa-arrow-up').parent();
-        expect(upButtons.text()).to.be.equal(`Hide ${hideSize} fields`);
+        const upButtons = bar.find('.expansion-bar-hide');
+        expect(upButtons).to.have.text(`Hide ${hideSize} fields`);
       });
     });
 
@@ -98,8 +98,8 @@ describe('<ExpansionBar />', () => {
         bar = mount(<ExpansionBar {...props} />);
       });
       it('renders a show more fields button', () => {
-        const downButtons = bar.find('.fa-arrow-down').parent();
-        expect(downButtons.text()).to.be.equal(`Show ${showSize} more fields`);
+        const downButtons = bar.find('.expansion-bar-show');
+        expect(downButtons).to.have.text(`Show ${showSize} more fields`);
       });
       it('does not render a hide fields button', () => {
         const upButtons = bar.find('.fa-arrow-up');
@@ -126,8 +126,8 @@ describe('<ExpansionBar />', () => {
         expect(downButtons.length).to.equal(0);
       });
       it('renders a hide fields button', () => {
-        const upButtons = bar.find('.fa-arrow-up').parent();
-        expect(upButtons.text()).to.be.equal(`Hide ${hideSize} fields`);
+        const upButtons = bar.find('.expansion-bar-hide');
+        expect(upButtons).to.have.text(`Hide ${hideSize} fields`);
       });
     });
 
@@ -146,7 +146,7 @@ describe('<ExpansionBar />', () => {
 
       context('show N more fields button', () => {
         it('setRenderSize is called', () => {
-          const parent = bar.find('.fa-arrow-down').parent();
+          const parent = bar.find('.expansion-bar-show');
           parent.simulate('click');
           expect(spy.called).to.be.equal(true);
         });
@@ -154,7 +154,7 @@ describe('<ExpansionBar />', () => {
 
       context('hide N fields button', () => {
         it('setRenderSize is called', () => {
-          const parent = bar.find('.fa-arrow-up').parent();
+          const parent = bar.find('.expansion-bar-hide');
           parent.simulate('click');
           expect(spy.called).to.be.equal(true);
         });

@@ -43,6 +43,7 @@ describe('<CellEditor />', () => {
                                       elementMarkRemoved={actions.elementMarkRemoved}
                                       drillDown={actions.drillDown}
                                       addColumn={actions.addColumn}
+                                      version="3.4.0"
                                       columnApi={columnApi} context={context}/>);
         done();
       });
@@ -90,6 +91,7 @@ describe('<CellEditor />', () => {
                                       elementMarkRemoved={actions.elementMarkRemoved}
                                       drillDown={actions.drillDown}
                                       addColumn={actions.addColumn}
+                                      version="3.4.0"
                                       columnApi={columnApi} context={context}/>);
         done();
       });
@@ -132,6 +134,7 @@ describe('<CellEditor />', () => {
                                       elementMarkRemoved={actions.elementMarkRemoved}
                                       drillDown={actions.drillDown}
                                       addColumn={actions.addColumn}
+                                      version="3.4.0"
                                       columnApi={columnApi} context={context}/>);
         done();
       });
@@ -174,6 +177,7 @@ describe('<CellEditor />', () => {
                                       elementMarkRemoved={actions.elementMarkRemoved}
                                       drillDown={actions.drillDown}
                                       addColumn={actions.addColumn}
+                                      version="3.4.0"
                                       columnApi={columnApi} context={context}/>);
         done();
       });
@@ -223,6 +227,7 @@ describe('<CellEditor />', () => {
                                         elementMarkRemoved={actions.elementMarkRemoved}
                                         drillDown={actions.drillDown}
                                         addColumn={actions.addColumn}
+                                        version="3.4.0"
                                         columnApi={columnApi} context={context}/>);
           done();
         });
@@ -255,6 +260,7 @@ describe('<CellEditor />', () => {
                                         elementMarkRemoved={actions.elementMarkRemoved}
                                         drillDown={actions.drillDown}
                                         addColumn={actions.addColumn}
+                                        version="3.4.0"
                                         columnApi={columnApi} context={context}/>);
           done();
         });
@@ -309,10 +315,11 @@ describe('<CellEditor />', () => {
                                         elementMarkRemoved={actions.elementMarkRemoved}
                                         drillDown={actions.drillDown}
                                         addColumn={actions.addColumn}
+                                        version="3.4.0"
                                         context={context} columnApi={columnApi}/>);
           const wrapper = component.find('.editable-element-value-is-string');
           wrapper.simulate('change', {target: {value: 'new input'}});
-          expect(wrapper.props().value).to.equal('new input');
+          expect(component.find('.editable-element-value-is-string').props().value).to.equal('new input');
           /*  Have to call isCancelAfterEnd directly because
            *  props.api.stopEditing doesn't call it because it's a spy */
           component.instance().isCancelAfterEnd();
@@ -352,6 +359,7 @@ describe('<CellEditor />', () => {
                                           elementMarkRemoved={actions.elementMarkRemoved}
                                           drillDown={actions.drillDown}
                                           addColumn={actions.addColumn}
+                                          version="3.4.0"
                                           context={context} columnApi={columnApi}/>);
             const item = component.find('.table-view-cell-editor-input-types');
             const item2 = component.find('.editable-element-type-int32');
@@ -400,6 +408,7 @@ describe('<CellEditor />', () => {
                                           elementMarkRemoved={actions.elementMarkRemoved}
                                           drillDown={actions.drillDown}
                                           addColumn={actions.addColumn}
+                                          version="3.4.0"
                                           context={context} column={column}/>);
             const item = component.find('.table-view-cell-editor-input-types');
             const item2 = component.find('.editable-element-type-date');
@@ -451,6 +460,7 @@ describe('<CellEditor />', () => {
                                           elementMarkRemoved={actions.elementMarkRemoved}
                                           drillDown={actions.drillDown}
                                           addColumn={actions.addColumn}
+                                          version="3.4.0"
                                           context={context} columnApi={columnApi}/>);
             const wrapper = component.find('.fa-trash');
             expect(wrapper).to.be.present();
@@ -495,6 +505,7 @@ describe('<CellEditor />', () => {
                                         elementMarkRemoved={actions.elementMarkRemoved}
                                         drillDown={actions.drillDown}
                                         addColumn={actions.addColumn}
+                                        version="3.4.0"
                                         context={context} columnApi={columnApi}/>);
           const wrapper = component.find('.fa-trash');
           expect(wrapper).to.be.present();
@@ -546,10 +557,11 @@ describe('<CellEditor />', () => {
                                         drillDown={actions.drillDown}
                                         addColumn={actions.addColumn}
                                         context={context} column={column}
+                                        version="3.4.0"
                                         columnApi={columnApi}/>);
           const wrapper = component.find('.editable-element-field');
           wrapper.simulate('change', {target: {value: 'fieldname'}});
-          expect(wrapper.props().value).to.equal('fieldname');
+          expect(component.find('.editable-element-field').props().value).to.equal('fieldname');
           component.instance().isCancelAfterEnd();
           done();
         });
@@ -608,11 +620,11 @@ describe('<CellEditor />', () => {
                                         drillDown={actions.drillDown}
                                         addColumn={actions.addColumn}
                                         context={context} column={column}
+                                        version="3.4.0"
                                         columnApi={columnApi}/>);
           const wrapper = component.find('.editable-element-field');
           wrapper.simulate('change', {target: {value: 'fieldname'}});
-          expect(wrapper.props().value).to.equal('fieldname');
-          expect(wrapper.find('.editable-element-field-is-duplicate')).to.be.present();
+          expect(component.find('.editable-element-field-is-duplicate').props().value).to.equal('fieldname');
           component.instance().isCancelAfterEnd();
           done();
         });
@@ -651,6 +663,7 @@ describe('<CellEditor />', () => {
                                         drillDown={actions.drillDown}
                                         addColumn={actions.addColumn}
                                         context={context} column={column}
+                                        version="3.4.0"
                                         columnApi={columnApi}/>);
           component.instance().isCancelAfterEnd();
           done();
@@ -690,10 +703,11 @@ describe('<CellEditor />', () => {
                                         drillDown={actions.drillDown}
                                         addColumn={actions.addColumn}
                                         context={context} column={column}
+                                        version="3.4.0"
                                         columnApi={columnApi}/>);
           const wrapper = component.find('.editable-element-value-is-string');
           wrapper.simulate('change', {target: {value: 'new input'}});
-          expect(wrapper.props().value).to.equal('new input');
+          expect(component.find('.editable-element-value-is-string').props().value).to.equal('new input');
           component.instance().isCancelAfterEnd();
           done();
         });
@@ -736,6 +750,7 @@ describe('<CellEditor />', () => {
                                               drillDown={actions.drillDown}
                                               addColumn={actions.addColumn}
                                               columnApi={columnApi}
+                                              version="3.4.0"
                                               context={context}/>);
           done();
         });
@@ -771,6 +786,7 @@ describe('<CellEditor />', () => {
                                               drillDown={actions.drillDown}
                                               addColumn={actions.addColumn}
                                               columnApi={columnApi}
+                                              version="3.4.0"
                                               context={context}/>);
           done();
         });
@@ -806,6 +822,7 @@ describe('<CellEditor />', () => {
                                               drillDown={actions.drillDown}
                                               addColumn={actions.addColumn}
                                               columnApi={columnApi}
+                                              version="3.4.0"
                                               context={context}/>);
           component.instance().isCancelAfterEnd();
           done();
@@ -842,10 +859,11 @@ describe('<CellEditor />', () => {
                                               drillDown={actions.drillDown}
                                               addColumn={actions.addColumn}
                                               columnApi={columnApi}
+                                              version="3.4.0"
                                               context={context}/>);
           const wrapper = component.find('.editable-element-value-is-string');
           wrapper.simulate('change', {target: {value: 'new input'}});
-          expect(wrapper.props().value).to.equal('new input');
+          expect(component.find('.editable-element-value-is-string').props().value).to.equal('new input');
           component.instance().isCancelAfterEnd();
           done();
         });
@@ -889,10 +907,11 @@ describe('<CellEditor />', () => {
                                               drillDown={actions.drillDown}
                                               addColumn={actions.addColumn}
                                               columnApi={columnApi}
+                                              version="3.4.0"
                                               context={context}/>);
           const wrapper = component.find('.editable-element-value-is-string');
           wrapper.simulate('change', {target: {value: 'new input'}});
-          expect(wrapper.props().value).to.equal('new input');
+          expect(component.find('.editable-element-value-is-string').props().value).to.equal('new input');
           component.instance().isCancelAfterEnd();
           done();
         });
@@ -936,6 +955,7 @@ describe('<CellEditor />', () => {
                                             drillDown={actions.drillDown}
                                             addColumn={actions.addColumn}
                                             columnApi={columnApi}
+                                            version="3.4.0"
                                             context={context}/>);
         const wrapper = component.find('.fa-expand');
         expect(wrapper).to.be.present();
