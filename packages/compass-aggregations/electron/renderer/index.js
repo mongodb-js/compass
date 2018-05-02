@@ -55,7 +55,7 @@ import DataService from 'mongodb-data-service';
 const connection = new Connection({
   hostname: '127.0.0.1',
   port: 27017,
-  ns: 'citibike'
+  ns: 'admin'
 });
 const dataService = new DataService(connection);
 
@@ -63,7 +63,7 @@ appRegistry.emit('data-service-initialized', dataService);
 
 dataService.connect((error, ds) => {
   appRegistry.emit('data-service-connected', error, ds);
-  appRegistry.emit('collection-changed', 'citibike.trips');
+  appRegistry.emit('collection-changed', 'Venues.Restaurants');
 
   const docs = [{
     _id: 1,

@@ -44,7 +44,7 @@ describe('DeletePipelineButton [Component]', () => {
     });
 
     it('toggles the expansion', () => {
-      component.find(`.${styles['delete-pipeline-button']}`).simulate('click');
+      component.find(`.${styles['delete-pipeline-button']}`).hostNodes().simulate('click');
       expect(spy.calledOnce).to.equal(true);
     });
   });

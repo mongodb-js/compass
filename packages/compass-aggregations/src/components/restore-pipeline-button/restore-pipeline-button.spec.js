@@ -27,7 +27,7 @@ describe('RestorePipelineButton [Component]', () => {
     });
 
     it('button has "Open" text', () => {
-      expect(component.find(`.${styles['restore-pipeline-button']}`)).to.contain.text('Open');
+      expect(component.find(`.${styles['restore-pipeline-button']}`).hostNodes()).to.contain.text('Open');
     });
   });
 
@@ -44,7 +44,7 @@ describe('RestorePipelineButton [Component]', () => {
     });
 
     it('toggles the expansion', () => {
-      component.find(`.${styles['restore-pipeline-button']}`).simulate('click');
+      component.find(`.${styles['restore-pipeline-button']}`).hostNodes().simulate('click');
       expect(spy.calledOnce).to.equal(true);
     });
   });

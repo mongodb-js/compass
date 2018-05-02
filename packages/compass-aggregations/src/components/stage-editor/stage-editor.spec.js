@@ -38,8 +38,4 @@ describe('StageEditor [Component]', () => {
   it('renders the wrapper div', () => {
     expect(component.find(`.${styles['stage-editor']}`)).to.be.present();
   });
-
-  it('renders the ace editor', () => {
-    expect(component.find('.ace-mongodb')).to.be.present();
-  });
 });

@@ -23,13 +23,13 @@ describe('PipelinePreviewToolbar [Component]', () => {
   });
 
   it('renders the add stage button', () => {
-    expect(component.find(`.${styles['pipeline-preview-toolbar-add-stage-button']}`)).
+    expect(component.find(`.${styles['pipeline-preview-toolbar-add-stage-button']}`).hostNodes()).
       to.have.text('Add Stage');
   });
 
   context('when clicking the add stage button', () => {
     it('calls the action', () => {
-      component.find(`.${styles['pipeline-preview-toolbar-add-stage-button']}`).simulate('click');
+      component.find(`.${styles['pipeline-preview-toolbar-add-stage-button']}`).hostNodes().simulate('click');
       expect(stageAddedSpy.calledOnce).to.equal(true);
     });
   });
