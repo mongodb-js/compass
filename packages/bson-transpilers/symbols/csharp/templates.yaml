@@ -527,7 +527,7 @@ Templates:
     Int32SymbolArgsTemplate: &Int32SymbolArgsTemplate # Has emit method 
     LongSymbolTemplate: &LongSymbolTemplate !!js/function >
         () => {
-            return 'BsonInt64';
+            return 'new BsonInt64';
         }
     LongSymbolArgsTemplate: &LongSymbolArgsTemplate !!js/function >
         (lhs, arg) => {
@@ -579,7 +579,7 @@ Templates:
             if (arg2) {
                 return `Int64.TryParse(${arg1}, ${arg2})`;
             }
-            return `BsonInt64.ToInt64(${arg1})`;
+            return `new BsonInt64.ToInt64(${arg1})`;
         }
     MinKeySymbolTemplate: &MinKeySymbolTemplate null # Has emit method
     MinKeySymbolArgsTemplate: &MinKeySymbolArgsTemplate null # Has emit method
@@ -624,10 +624,13 @@ Templates:
         }
     ObjectIdCreateFromTimeArgsTemplate: &ObjectIdCreateFromTimeArgsTemplate null
     ObjectIdIsValidTemplate: &ObjectIdIsValidTemplate !!js/function >
-        (lhs) => {
-            return `new ${lhs}.Parse`;
+        () => {
+            return '';
         }
-    ObjectIdIsValidArgsTemplate: &ObjectIdIsValidArgsTemplate null
+    ObjectIdIsValidArgsTemplate: &ObjectIdIsValidArgsTemplate !!js/function >
+        () => {
+            return '';
+        }
     # JS Symbol Templates
     ObjectSymbolTemplate: &ObjectSymbolTemplate null
     ObjectSymbolArgsTemplate: &ObjectSymbolArgsTemplate null
