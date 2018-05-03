@@ -1,16 +1,15 @@
 
 /* eslint complexity: 0 */
-const path = require('path');
-
+// cannot use path.resolve as it will not work with webpack in the browser
 const {
   singleQuoteStringify,
   removeQuotes
-} = require(path.resolve('helper', 'format'));
+} = require('../../helper/format');
 const {
   SemanticArgumentCountMismatchError,
   SemanticGenericError,
   SemanticTypeError
-} = require(path.resolve('helper', 'error'));
+} = require('../../helper/error');
 
 /**
  * Handling emit methods binded with visitor.
