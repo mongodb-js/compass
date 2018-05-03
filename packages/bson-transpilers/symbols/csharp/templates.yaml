@@ -491,7 +491,7 @@ Templates:
         }
     BinarySymbolSubtypeByteArrayTemplate: &BinarySymbolSubtypeByteArrayTemplate !!js/function >
         () => {
-          return 'BsonBinarySubType.Oldbinary';
+          return 'BsonBinarySubType.OldBinary';
         }
     BinarySymbolSubtypeUuidOldTemplate: &BinarySymbolSubtypeUuidOldTemplate !!js/function >
         () => {
@@ -533,24 +533,54 @@ Templates:
         (lhs, arg) => {
             return `.ToInt64(${arg})`;
         }
-    LongSymbolMaxTemplate: &LongSymbolMaxTemplate null
+    LongSymbolMaxTemplate: &LongSymbolMaxTemplate !!js/function >
+        () => {
+            return 'Int64.MaxValue'
+        }
     LongSymbolMaxArgsTemplate: &LongSymbolMaxArgsTemplate null
-    LongSymbolMinTemplate: &LongSymbolMinTemplate null
+    LongSymbolMinTemplate: &LongSymbolMinTemplate !!js/function >
+        () => {
+            return 'Int64.MinValue'
+        }
     LongSymbolMinArgsTemplate: &LongSymbolMinArgsTemplate null
-    LongSymbolZeroTemplate: &LongSymbolZeroTemplate null
+    LongSymbolZeroTemplate: &LongSymbolZeroTemplate !!js/function >
+        (lhs) => {
+            return `${lhs}.ToInt64(0)` 
+        }
     LongSymbolZeroArgsTemplate: &LongSymbolZeroArgsTemplate null
-    LongSymbolOneTemplate: &LongSymbolOneTemplate null
+    LongSymbolOneTemplate: &LongSymbolOneTemplate !!js/function >
+        (lhs) => {
+            return `${lhs}.ToInt64(1)` 
+        }
     LongSymbolOneArgsTemplate: &LongSymbolOneArgsTemplate null
-    LongSymbolNegOneTemplate: &LongSymbolNegOneTemplate null
+    LongSymbolNegOneTemplate: &LongSymbolNegOneTemplate !!js/function >
+        (lhs) => {
+            return `${lhs}.ToInt64(-1)` 
+        }
     LongSymbolNegOneArgsTemplate: &LongSymbolNegOneArgsTemplate null
     LongSymbolFromBitsTemplate: &LongSymbolFromBitsTemplate null
     LongSymbolFromBitsArgsTemplate: &LongSymbolFromBitsArgsTemplate null
-    LongSymbolFromIntTemplate: &LongSymbolFromIntTemplate null
+    LongSymbolFromIntTemplate: &LongSymbolFromIntTemplate !!js/function > 
+        (lhs) => {
+            return `${lhs}.ToInt64` 
+        }
     LongSymbolFromIntArgsTemplate: &LongSymbolFromIntArgsTemplate null
-    LongSymbolFromNumberTemplate: &LongSymbolFromNumberTemplate null
+    LongSymbolFromNumberTemplate: &LongSymbolFromNumberTemplate !!js/function >
+        (lhs) => {
+            return `${lhs}.ToInt64` 
+        }
     LongSymbolFromNumberArgsTemplate: &LongSymbolFromNumberArgsTemplate null
-    LongSymbolFromStringTemplate: &LongSymbolFromStringTemplate null
-    LongSymbolFromStringArgsTemplate: &LongSymbolFromStringArgsTemplate null
+    LongSymbolFromStringTemplate: &LongSymbolFromStringTemplate !!js/function >
+        (lhs, args) => {
+            return '';
+        }
+    LongSymbolFromStringArgsTemplate: &LongSymbolFromStringArgsTemplate !!js/function >
+        (lhs, arg1, arg2) => {
+            if (arg2) {
+                return `Int64.TryParse(${arg1}, ${arg2})`;
+            }
+            return `BsonInt64.ToInt64(${arg1})`;
+        }
     MinKeySymbolTemplate: &MinKeySymbolTemplate null # Has emit method
     MinKeySymbolArgsTemplate: &MinKeySymbolArgsTemplate null # Has emit method
     MaxKeySymbolTemplate: &MaxKeySymbolTemplate null # Has emit method
@@ -562,29 +592,41 @@ Templates:
     TimestampSymbolArgsTemplate: &TimestampSymbolArgsTemplate null
     SymbolSymbolTemplate: &SymbolSymbolTemplate !!js/function >
         () => {
-          return `BsonString`
+            return `BsonString`
         }
     SymbolSymbolArgsTemplate: &SymbolSymbolArgsTemplate null
     BSONRegExpSymbolTemplate: &BSONRegExpSymbolTemplate null # Has emit method
     BSONRegExpSymbolArgsTemplate: &BSONRegExpSymbolArgsTemplate null # Has emit method
     Decimal128SymbolTemplate: &Decimal128SymbolTemplate null # Has emit method
-    Decimal128SymbolArgsTemplate: &Decimal128SymbolArgsTemplate null
+    Decimal128SymbolArgsTemplate: &Decimal128SymbolArgsTemplate !!js/function >
+        () => {
+            return '';
+        }
     Decimal128SymbolFromStringTemplate: &Decimal128SymbolFromStringTemplate !!js/function >
-        (lhs) => {
-            return `${lhs}.TryParse`;
+        () => {
+            return '';
         }
-    Decimal128SymbolFromStringArgsTemplate: &Decimal128SymbolFromStringArgsTemplate null
-    Decimal128ToStringTemplate: &Decimal128ToStringTemplate !!js/function >
-        (lhs) => {
-            return `${lhs}.ToString`;
+    Decimal128SymbolFromStringArgsTemplate: &Decimal128SymbolFromStringArgsTemplate !!js/function >
+        (lhs, args) => {
+            return `new ${lhs}.TryParse(${args})`;
         }
+    Decimal128ToStringTemplate: &Decimal128ToStringTemplate null
     Decimal128ToStringArgsTemplate: &Decimal128ToStringArgsTemplate null
     # BSON Util Templates
-    ObjectIdCreateFromHexStringTemplate: &ObjectIdCreateFromHexStringTemplate null
+    ObjectIdCreateFromHexStringTemplate: &ObjectIdCreateFromHexStringTemplate !!js/function >
+        (lhs) => {
+            return `new ${lhs}.Parse`;
+        }
     ObjectIdCreateFromHexStringArgsTemplate: &ObjectIdCreateFromHexStringArgsTemplate null
-    ObjectIdCreateFromTimeTemplate: &ObjectIdCreateFromTimeTemplate null
+    ObjectIdCreateFromTimeTemplate: &ObjectIdCreateFromTimeTemplate !!js/function >
+        (lhs) => {
+            return `new ${lhs}.GenerateNewId`;
+        }
     ObjectIdCreateFromTimeArgsTemplate: &ObjectIdCreateFromTimeArgsTemplate null
-    ObjectIdIsValidTemplate: &ObjectIdIsValidTemplate null
+    ObjectIdIsValidTemplate: &ObjectIdIsValidTemplate !!js/function >
+        (lhs) => {
+            return `new ${lhs}.Parse`;
+        }
     ObjectIdIsValidArgsTemplate: &ObjectIdIsValidArgsTemplate null
     # JS Symbol Templates
     ObjectSymbolTemplate: &ObjectSymbolTemplate null
