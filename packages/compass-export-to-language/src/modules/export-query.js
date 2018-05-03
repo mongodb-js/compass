@@ -35,6 +35,7 @@ function copyToClipboard(state, action) {
 export const runQuery = (outputLang, input) => {
   return (dispatch, getState) => {
     const state = getState();
+    console.log(outputLang)
 
     try {
       const output = compiler.javascript[outputLang](input);

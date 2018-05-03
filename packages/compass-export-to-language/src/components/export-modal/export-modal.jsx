@@ -1,4 +1,5 @@
 import { TextButton } from 'hadron-react-buttons';
+import SelectLang from 'components/select-lang';
 import { Modal, Alert } from 'react-bootstrap';
 import React, { Component } from 'react';
 import Select from 'react-select-plus';
@@ -66,7 +67,7 @@ class ExportModal extends Component {
       { value: 'java', label: 'Java' },
       { value: 'node', label: 'Node' },
       { value: 'csharp', label: 'C#' },
-      { value: 'python3', label: 'Python 3' }
+      { value: 'python', label: 'Python 3' }
     ];
 
     const copyButtonStyle = classnames({
