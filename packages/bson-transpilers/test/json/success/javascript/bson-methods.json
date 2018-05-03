@@ -6,7 +6,7 @@
         "javascript": "Code('test code', {x: 1}).scope",
         "python": "Code('test code', {'x': 1}).scope",
         "java": "new CodeWithScope(\"test code\", new Document().append(\"x\", new java.lang.Long(\"1\"))).getScope()",
-        "csharp": "",
+        "csharp": "new BsonJavaScriptWithScope(@\"test code\", new BsonDocument(\"x\", 1)).Scope",
         "shell": "Code('test code', {x: 1}).scope"
       },
       {
@@ -14,7 +14,7 @@
         "javascript": "Code('test code').code",
         "python": "str(Code('test code'))",
         "java": "new Code(\"test code\").getCode()",
-        "csharp": "",
+        "csharp": "new BsonJavaScript(@\"test code\").Code",
         "shell": "Code('test code').code"
       },
       {
@@ -22,7 +22,7 @@
         "javascript": "Code('test code').toString()",
         "python": "repr(Code('test code'))",
         "java": "new Code(\"test code\").toString()",
-        "csharp": "",
+        "csharp": "new BsonJavaScript(@\"test code\").ToString()",
         "shell": "Code('test code').toString()"
       }
     ],

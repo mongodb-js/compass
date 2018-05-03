@@ -74,11 +74,20 @@ Templates:
           }, '');
         }
     # BSON Object Method templates
-    CodeCodeTemplate: &CodeCodeTemplate null
+    CodeCodeTemplate: &CodeCodeTemplate !!js/function >
+        (lhs) => {
+            return `${lhs}.Code`;
+        }
     CodeCodeArgsTemplate: &CodeCodeArgsTemplate null
-    CodeScopeTemplate: &CodeScopeTemplate null
+    CodeScopeTemplate: &CodeScopeTemplate !!js/function >
+        (lhs) => {
+            return `${lhs}.Scope`;
+        }
     CodeScopeArgsTemplate: &CodeScopeArgsTemplate null
-    CodeToStringTemplate: &CodeToStringTemplate null
+    CodeToStringTemplate: &CodeToStringTemplate !!js/function >
+        (lhs) => {
+            return `${lhs}.ToString`;
+        }
     CodeToStringArgsTemplate: &CodeToStringArgsTemplate null
     ObjectIdToStringTemplate: &ObjectIdToStringTemplate null
     ObjectIdToStringArgsTemplate: &ObjectIdToStringArgsTemplate null
