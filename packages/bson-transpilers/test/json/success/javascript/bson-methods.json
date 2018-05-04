@@ -135,7 +135,7 @@
         "javascript": "Int32(3).valueOf()",
         "python": "int(3)",
         "java": "new java.lang.Integer(3).intValue()",
-        "csharp": ""
+        "csharp": "Convert.ToInt32(3)"
       }
     ],
     "Double": [

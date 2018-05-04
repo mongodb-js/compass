@@ -161,9 +161,12 @@ Templates:
     DoubleValueOfArgsTemplate: &DoubleValueOfArgsTemplate null
     Int32ValueOfTemplate: &Int32ValueOfTemplate !!js/function >
         (lhs) => {
-          return `${lhs}.ToInt32`;
+          return lhs;
         }
-    Int32ValueOfArgsTemplate: &Int32ValueOfArgsTemplate null
+    Int32ValueOfArgsTemplate: &Int32ValueOfArgsTemplate !!js/function >
+        (lhs) => {
+          return '';
+        }
     LongEqualsTemplate: &LongEqualsTemplate null
     LongEqualsArgsTemplate: &LongEqualsArgsTemplate null
     LongToIntTemplate: &LongToIntTemplate !!js/function >
