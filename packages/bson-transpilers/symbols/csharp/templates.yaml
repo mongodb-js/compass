@@ -430,12 +430,18 @@ Templates:
         (lhs) => {
           return `${lhs}.AsBsonSymbol`;
         }
-    SymbolValueOfArgsTemplate: &SymbolValueOfArgsTemplate null
+    SymbolValueOfArgsTemplate: &SymbolValueOfArgsTemplate !!js/function >
+        () => {
+            return '';
+        }
     SymbolInspectTemplate: &SymbolInspectTemplate !!js/function >
         (lhs) => {
-          return `${lhs}.AsBsonSymbol`;
+          return `${lhs}.Value`;
         }
-    SymbolInspectArgsTemplate: &SymbolInspectArgsTemplate null
+    SymbolInspectArgsTemplate: &SymbolInspectArgsTemplate !!js/function >
+        () => {
+            return '';
+        }
     SymbolToStringTemplate: &SymbolToStringTemplate !!js/function >
         (lhs) => {
           return `${lhs}.ToString`;
