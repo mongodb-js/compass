@@ -34,10 +34,9 @@
     "babel-register": "^6.7.2",
     "hadron-app-registry": "^7.1.0",
     "less": "^2.7.2",
-    "mongodb-data-service": "^11.0.1",
+    "mongodb-data-service": "^12.0.0",
     "prop-types": "^15.5.8",
     "react": "^16.3.2",
-    "react-dom": "^16.3.2",
-    "reflux": "0.4.1"
+    "react-dom": "^16.3.2"
   }
 }
