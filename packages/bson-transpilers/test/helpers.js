@@ -12,7 +12,7 @@ const unsupported = {
       java: {},
       python: {},
       csharp: {
-        'bson-methods': ['Long', 'Symbol'],
+        'bson-methods': ['Symbol'],
         'bson-utils': [ '*' ]
       }
     },

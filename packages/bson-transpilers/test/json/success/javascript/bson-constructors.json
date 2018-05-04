@@ -178,7 +178,7 @@
         "javascript": "new Long(-1, 2147483647)",
         "python": "Int64(9223372036854775807)",
         "java": "new java.lang.Long(\"9223372036854775807\")",
-        "csharp": "new BsonInt64(Convert.ToInt32(9223372036854775807))",
+        "csharp": "new BsonInt64.ToInt64(9223372036854775807)",
         "shell": "new Long(9223372036854775807)"
       }
     ],

@@ -170,7 +170,10 @@ Templates:
         () => {
           return '';
         }
-    LongEqualsTemplate: &LongEqualsTemplate null
+    LongEqualsTemplate: &LongEqualsTemplate !!js/function >
+        (lhs) => {
+          return `${lhs}.Equals`;
+        }
     LongEqualsArgsTemplate: &LongEqualsArgsTemplate null
     LongToIntTemplate: &LongToIntTemplate !!js/function >
         (lhs) => {
@@ -179,9 +182,12 @@ Templates:
     LongToIntArgsTemplate: &LongToIntArgsTemplate null
     LongToNumberTemplate: &LongToNumberTemplate !!js/function >
         (lhs) => {
-          return `${lhs}.ToDouble`;
+          return `${lhs}.Value`;
         }
-    LongToNumberArgsTemplate: &LongToNumberArgsTemplate null
+    LongToNumberArgsTemplate: &LongToNumberArgsTemplate !!js/function >
+        () => {
+          return '';
+        }
     LongAddTemplate: &LongAddTemplate !!js/function >
         (lhs) => {
           return lhs;
@@ -277,19 +283,19 @@ Templates:
         }
     LongIsZeroTemplate: &LongIsZeroTemplate !!js/function >
         (lhs) => {
-          return `${lhs}.Equals`;
+          return `${lhs} == 0`;
         }
     LongIsZeroArgsTemplate: &LongIsZeroArgsTemplate !!js/function >
         () => {
-          return '(new BsonInt64(Convert.ToInt32(0)))';
+          return '';
         }
     LongIsNegativeTemplate: &LongIsNegativeTemplate !!js/function >
         (lhs) => {
-          return `${lhs}.CompareTo`;
+          return `${lhs} < 0`;
         }
     LongIsNegativeArgsTemplate: &LongIsNegativeArgsTemplate !!js/function >
         () => {
-          return '(new BsonInt64(Convert.ToInt32((0))) < 0';
+          return '';
         }
     LongNegateTemplate: &LongNegateTemplate !!js/function >
         () => {
@@ -305,7 +311,7 @@ Templates:
         }
     LongNotArgsTemplate: &LongNotArgsTemplate !!js/function >
         (lhs) => {
-          return `~${lhs}`;
+          return `!${lhs}`;
         }
     LongNotEqualsTemplate: &LongNotEqualsTemplate !!js/function >
         (lhs) => {
@@ -313,7 +319,7 @@ Templates:
         }
     LongNotEqualsArgsTemplate: &LongNotEqualsArgsTemplate !!js/function >
         (lhs, arg) => {
-          return `(${arg}) != 0`;
+          return ` ${arg}`;
         }
     LongGreaterThanTemplate: &LongGreaterThanTemplate !!js/function >
         (lhs) => {
@@ -321,7 +327,7 @@ Templates:
         }
     LongGreaterThanArgsTemplate: &LongGreaterThanArgsTemplate !!js/function >
         (lhs, arg) => {
-          return `(${arg}) > 0`;
+          return ` ${arg}`;
         }
     LongGreaterThanOrEqualTemplate: &LongGreaterThanOrEqualTemplate !!js/function >
         (lhs) => {
@@ -329,7 +335,7 @@ Templates:
         }
     LongGreaterThanOrEqualArgsTemplate: &LongGreaterThanOrEqualArgsTemplate !!js/function >
         (lhs, arg) => {
-          return `(${arg}) >= 0`;
+          return ` ${arg}`;
         }
     LongLessThanTemplate: &LongLessThanTemplate !!js/function >
         (lhs) => {
@@ -337,7 +343,7 @@ Templates:
         }
     LongLessThanArgsTemplate: &LongLessThanArgsTemplate !!js/function >
         (lhs, arg) => {
-          return `(${arg}) < 0`;
+          return ` ${arg}`;
         }
     LongLessThanOrEqualTemplate: &LongLessThanOrEqualTemplate !!js/function >
         (lhs) => {
@@ -345,7 +351,7 @@ Templates:
         }
     LongLessThanOrEqualArgsTemplate: &LongLessThanOrEqualArgsTemplate !!js/function >
         (lhs, arg) => {
-          return `(${arg}) <= 0`;
+          return ` ${arg}`;
         }
     LongFloatApproxTemplate: &LongFloatApproxTemplate null
     LongTopTemplate: &LongTopTemplate null
@@ -519,7 +525,7 @@ Templates:
         }
     LongSymbolArgsTemplate: &LongSymbolArgsTemplate !!js/function >
         (lhs, arg) => {
-            return `(Convert.ToInt32(${arg}))`;
+            return `.ToInt64(${arg})`;
         }
     LongSymbolMaxTemplate: &LongSymbolMaxTemplate null
     LongSymbolMaxArgsTemplate: &LongSymbolMaxArgsTemplate null
