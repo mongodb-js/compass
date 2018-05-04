@@ -309,7 +309,7 @@ Templates:
         }
     LongNotEqualsTemplate: &LongNotEqualsTemplate !!js/function >
         (lhs) => {
-          return `${lhs}.CompareTo`;
+          return `${lhs} !=`;
         }
     LongNotEqualsArgsTemplate: &LongNotEqualsArgsTemplate !!js/function >
         (lhs, arg) => {
@@ -317,7 +317,7 @@ Templates:
         }
     LongGreaterThanTemplate: &LongGreaterThanTemplate !!js/function >
         (lhs) => {
-          return `${lhs}.CompareTo`;
+          return `${lhs} >`;
         }
     LongGreaterThanArgsTemplate: &LongGreaterThanArgsTemplate !!js/function >
         (lhs, arg) => {
@@ -325,7 +325,7 @@ Templates:
         }
     LongGreaterThanOrEqualTemplate: &LongGreaterThanOrEqualTemplate !!js/function >
         (lhs) => {
-          return `${lhs}.CompareTo`;
+          return `${lhs} >=`;
         }
     LongGreaterThanOrEqualArgsTemplate: &LongGreaterThanOrEqualArgsTemplate !!js/function >
         (lhs, arg) => {
@@ -333,7 +333,7 @@ Templates:
         }
     LongLessThanTemplate: &LongLessThanTemplate !!js/function >
         (lhs) => {
-          return `${lhs}.CompareTo`;
+          return `${lhs} <`;
         }
     LongLessThanArgsTemplate: &LongLessThanArgsTemplate !!js/function >
         (lhs, arg) => {
@@ -341,7 +341,7 @@ Templates:
         }
     LongLessThanOrEqualTemplate: &LongLessThanOrEqualTemplate !!js/function >
         (lhs) => {
-          return `${lhs}.CompareTo`;
+          return `${lhs} <=`;
         }
     LongLessThanOrEqualArgsTemplate: &LongLessThanOrEqualArgsTemplate !!js/function >
         (lhs, arg) => {
@@ -350,20 +350,29 @@ Templates:
     LongFloatApproxTemplate: &LongFloatApproxTemplate null
     LongTopTemplate: &LongTopTemplate null
     LongBottomTemplate: &LongBottomTemplate null
-    TimestampToStringTemplate: &TimestampToStringTemplate null
+    TimestampToStringTemplate: &TimestampToStringTemplate !!js/function >
+        (lhs) => {
+          return `${lhs}.ToString`;
+        }
     TimestampToStringArgsTemplate: &TimestampToStringArgsTemplate null
-    TimestampEqualsTemplate: &TimestampEqualsTemplate null
+    TimestampEqualsTemplate: &TimestampEqualsTemplate !!js/function >
+        (lhs) => {
+          return `${lhs}.Equals`;
+        }
     TimestampEqualsArgsTemplate: &TimestampEqualsArgsTemplate null
     TimestampGetLowBitsTemplate: &TimestampGetLowBitsTemplate !!js/function >
         (lhs) => {
-          return `${lhs}.ToLocalTime`;
+          return `${lhs}.ToUniversalTime`;
         }
     TimestampGetLowBitsArgsTemplate: &TimestampGetLowBitsArgsTemplate null
     TimestampGetHighBitsTemplate: &TimestampGetHighBitsTemplate !!js/function >
         (lhs) => {
-          return `${lhs}.ToUniversalTime`;
+          return `${lhs}.Increment`;
         }
-    TimestampGetHighBitsArgsTemplate: &TimestampGetHighBitsArgsTemplate null
+    TimestampGetHighBitsArgsTemplate: &TimestampGetHighBitsArgsTemplate !!js/function >
+        () => {
+          return '';
+        }
     TimestampTTemplate: &TimestampTTemplate null
     TimestampITemplate: &TimestampITemplate null
     TimestampCompareTemplate: &TimestampCompareTemplate !!js/function >
@@ -373,43 +382,43 @@ Templates:
     TimestampCompareArgsTemplate: &TimestampCompareArgsTemplate null
     TimestampNotEqualsTemplate: &TimestampNotEqualsTemplate !!js/function >
         (lhs) => {
-          return `${lhs}.CompareTo`;
+          return `${lhs} !=`;
         }
     TimestampNotEqualsArgsTemplate: &TimestampNotEqualsArgsTemplate !!js/function >
         (lhs, arg) => {
-          return `(${arg}) != 0`;
+          return ` ${arg}`;
         }
     TimestampGreaterThanTemplate: &TimestampGreaterThanTemplate !!js/function >
         (lhs) => {
-          return `${lhs}.CompareTo`;
+          return `${lhs} >`;
         }
     TimestampGreaterThanArgsTemplate: &TimestampGreaterThanArgsTemplate !!js/function >
         (lhs, arg) => {
-          return `(${arg}) > 0`;
+          return ` ${arg}`;
         }
     TimestampGreaterThanOrEqualTemplate: &TimestampGreaterThanOrEqualTemplate !!js/function >
         (lhs) => {
-          return `${lhs}.CompareTo`;
+          return `${lhs} >=`;
         }
     TimestampGreaterThanOrEqualArgsTemplate: &TimestampGreaterThanOrEqualArgsTemplate !!js/function >
         (lhs, arg) => {
-          return `(${arg}) >= 0`;
+          return ` ${arg}`;
         }
     TimestampLessThanTemplate: &TimestampLessThanTemplate !!js/function >
         (lhs) => {
-          return `${lhs}.CompareTo`;
+          return `${lhs} <`;
         }
     TimestampLessThanArgsTemplate: &TimestampLessThanArgsTemplate !!js/function >
         (lhs, arg) => {
-          return `(${arg}) < 0`;
+          return ` ${arg}`;
         }
     TimestampLessThanOrEqualTemplate: &TimestampLessThanOrEqualTemplate !!js/function >
         (lhs) => {
-          return `${lhs}.CompareTo`;
+          return `${lhs} <=`;
         }
     TimestampLessThanOrEqualArgsTemplate: &TimestampLessThanOrEqualArgsTemplate !!js/function >
         (lhs, arg) => {
-          return `(${arg}) <= 0`;
+          return ` ${arg}`;
         }
     SymbolValueOfTemplate: &SymbolValueOfTemplate !!js/function >
         (lhs) => {
