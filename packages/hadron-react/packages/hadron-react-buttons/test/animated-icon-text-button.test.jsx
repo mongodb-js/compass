@@ -6,7 +6,7 @@ const { AnimatedIconTextButton } = require('../');
 describe('<AnimatedIconTextButton />', () => {
   const click = () => { return true; };
   const stop = () => { return true; };
-  const component = shallow((
+  const component = shallow(
     <AnimatedIconTextButton
       text="text"
       clickHandler={click}
@@ -15,7 +15,7 @@ describe('<AnimatedIconTextButton />', () => {
       iconClassName="icon-class-name"
       animatingIconClassName="animating-icon-class-name"
       dataTestId="icon-button-test" />
-  ));
+  , { disableLifecycleMethods: true });
 
   it('sets the base class', () => {
     expect(component.hasClass('class-name')).to.equal(true);
