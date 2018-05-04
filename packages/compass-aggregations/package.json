@@ -27,14 +27,14 @@
   ],
   "license": "Apache-2.0",
   "peerDependencies": {
-    "@mongodb-js/compass-crud": "^4.1.0",
+    "@mongodb-js/compass-crud": "^5.1.0",
     "prop-types": "^15.5.8",
     "react": "^16.3.2",
     "react-bootstrap": "0.31.0",
     "react-tooltip": "^3.2.6"
   },
   "devDependencies": {
-    "@mongodb-js/compass-crud": "^5.0.0",
+    "@mongodb-js/compass-crud": "^5.1.0",
     "@mongodb-js/compass-field-store": "^1.0.0",
     "autoprefixer": "^7.1.2",
     "babel-cli": "^6.10.1",
