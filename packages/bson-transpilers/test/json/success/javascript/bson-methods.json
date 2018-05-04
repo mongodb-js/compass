@@ -364,7 +364,7 @@
         "javascript": "new Decimal128(Buffer.from('5')).toString()",
         "python": "str(Decimal128('5.3E-6175'))",
         "java": "Decimal128.parse(\"5.3E-6175\").toString()",
-        "csharp": "",
+        "csharp": "new Decimal128(5).ToString()",
         "shell": "NumberDecimal(0).toString()"
       }
     ],

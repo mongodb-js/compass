@@ -553,7 +553,10 @@ Templates:
             return `${lhs}.TryParse`;
         }
     Decimal128SymbolFromStringArgsTemplate: &Decimal128SymbolFromStringArgsTemplate null
-    Decimal128ToStringTemplate: &Decimal128ToStringTemplate null
+    Decimal128ToStringTemplate: &Decimal128ToStringTemplate !!js/function >
+        (lhs) => {
+            return `${lhs}.ToString`;
+        }
     Decimal128ToStringArgsTemplate: &Decimal128ToStringArgsTemplate null
     # BSON Util Templates
     ObjectIdCreateFromHexStringTemplate: &ObjectIdCreateFromHexStringTemplate null
