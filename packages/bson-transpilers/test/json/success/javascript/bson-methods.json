@@ -144,7 +144,7 @@
         "javascript": "Double(3).valueOf()",
         "python": "float(3)",
         "java": "new java.lang.Double(3).doubleValue()",
-        "csharp": "",
+        "csharp": "new BsonDouble(\"3\").Value",
         "shell": "NumberInt(3).valueOf()"
       }
     ],

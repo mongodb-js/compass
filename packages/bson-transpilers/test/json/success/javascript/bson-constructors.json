@@ -152,7 +152,7 @@
         "javascript": "Double(3)",
         "python": "float(3)",
         "java": "new java.lang.Double(3)",
-        "csharp": "new BsonDouble(Convert.ToDouble(\"3\"))",
+        "csharp": "new BsonDouble(\"3\")",
         "shell": "3"
       },
       {
@@ -160,7 +160,7 @@
         "javascript": "new Double(3)",
         "python": "float(3)",
         "java": "new java.lang.Double(3)",
-        "csharp": "new BsonDouble(Convert.ToDouble(\"3\"))",
+        "csharp": "new BsonDouble(\"3\")",
         "shell": "3"
       },
       {
@@ -168,7 +168,7 @@
         "javascript": "Double('3')",
         "python": "float('3')",
         "java": "new java.lang.Double(\"3\")",
-        "csharp": "new BsonDouble(Convert.ToDouble(\"3\"))",
+        "csharp": "new BsonDouble(\"3\")",
         "shell": "3"
       }
     ],

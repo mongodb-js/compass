@@ -156,15 +156,18 @@ Templates:
     DBRefToStringArgsTemplate: &DBRefToStringArgsTemplate null
     DoubleValueOfTemplate: &DoubleValueOfTemplate !!js/function >
         (lhs) => {
-          return `${lhs}.ToDouble`;
+          return `${lhs}.Value`;
         }
-    DoubleValueOfArgsTemplate: &DoubleValueOfArgsTemplate null
+    DoubleValueOfArgsTemplate: &DoubleValueOfArgsTemplate !!js/function >
+        () => {
+          return '';
+        }
     Int32ValueOfTemplate: &Int32ValueOfTemplate !!js/function >
         (lhs) => {
           return lhs;
         }
     Int32ValueOfArgsTemplate: &Int32ValueOfArgsTemplate !!js/function >
-        (lhs) => {
+        () => {
           return '';
         }
     LongEqualsTemplate: &LongEqualsTemplate null
@@ -497,7 +500,7 @@ Templates:
     DoubleSymbolArgsTemplate: &DoubleSymbolArgsTemplate !!js/function >
         (lhs, args) => {
           args = args.replace(/['"]+/g, '');
-          return `(Convert.ToDouble("${args}"))`;
+          return `("${args}")`;
         }
     Int32SymbolTemplate: &Int32SymbolTemplate null # Has emit method
     Int32SymbolArgsTemplate: &Int32SymbolArgsTemplate # Has emit method 
