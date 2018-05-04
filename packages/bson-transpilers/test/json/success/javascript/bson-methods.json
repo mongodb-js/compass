@@ -101,7 +101,7 @@
         "javascript": "new DBRef('coll', new ObjectId()).toString()",
         "python": "str(DBRef('coll', ObjectId()))",
         "java": "new DBRef(\"coll\", new ObjectId()).toString()",
-        "csharp": "",
+        "csharp": "new MongoDBRef(\"coll\", new BsonObjectId()).ToString()",
         "shell": "new DBRef('coll', new ObjectId()).toString()"
       },
       {
@@ -109,7 +109,7 @@
         "javascript": "new DBRef('coll', new ObjectId()).db",
         "python": "DBRef('coll', ObjectId()).database",
         "java": "new DBRef(\"coll\", new ObjectId()).getDatabaseName()",
-        "csharp": "",
+        "csharp": "new MongoDBRef(\"coll\", new BsonObjectId()).DatabaseName",
         "shell": "new DBRef('coll', new ObjectId()).getDb()"
       },
       {
@@ -117,7 +117,7 @@
         "javascript": "new DBRef('coll', new ObjectId()).namespace",
         "python": "DBRef('coll', ObjectId()).collection",
         "java": "new DBRef(\"coll\", new ObjectId()).getCollectionName()",
-        "csharp": "",
+        "csharp": "new MongoDBRef(\"coll\", new BsonObjectId()).CollectionName",
         "shell": "new DBRef('coll', new ObjectId()).getCollection()"
       },
       {
@@ -125,7 +125,7 @@
         "javascript": "new DBRef('coll', new ObjectId()).oid",
         "python": "DBRef('coll', ObjectId()).id",
         "java": "new DBRef(\"coll\", new ObjectId()).getId()",
-        "csharp": "",
+        "csharp": "new MongoDBRef(\"coll\", new BsonObjectId()).Id",
         "shell": "new DBRef('coll', new ObjectId()).getId()"
       }
     ],

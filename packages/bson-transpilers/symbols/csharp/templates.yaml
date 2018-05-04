@@ -134,13 +134,25 @@ Templates:
           return `${lhs}.SubType`;
         }
     BinarySubtypeArgsTemplate: &BinarySubtypeArgsTemplate null
-    DBRefGetDBTemplate: &DBRefGetDBTemplate null
-    DBRefGetCollectionTemplate: &DBRefGetCollectionTemplate null
-    DBRefGetIdTemplate: &DBRefGetIdTemplate null
+    DBRefGetDBTemplate: &DBRefGetDBTemplate !!js/function >
+        (lhs) => {
+          return `${lhs}.DatabaseName`;
+        }
     DBRefGetDBArgsTemplate: &DBRefGetDBArgsTemplate null
+    DBRefGetCollectionTemplate: &DBRefGetCollectionTemplate !!js/function >
+        (lhs) => {
+            return `${lhs}.CollectionName`;
+        }
     DBRefGetCollectionArgsTemplate: &DBRefGetCollectionArgsTemplate null
+    DBRefGetIdTemplate: &DBRefGetIdTemplate !!js/function >
+        (lhs) => {
+            return `${lhs}.Id`;
+        }
     DBRefGetIdArgsTemplate: &DBRefGetIdArgsTemplate null
-    DBRefToStringTemplate: &DBRefToStringTemplate null
+    DBRefToStringTemplate: &DBRefToStringTemplate !!js/function >
+        (lhs) => {
+          return `${lhs}.ToString`;
+        }
     DBRefToStringArgsTemplate: &DBRefToStringArgsTemplate null
     DoubleValueOfTemplate: &DoubleValueOfTemplate !!js/function >
         (lhs) => {
