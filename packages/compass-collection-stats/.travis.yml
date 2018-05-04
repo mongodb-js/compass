@@ -12,10 +12,10 @@ addons:
       - ubuntu-toolchain-r-test
     packages:
       - libkrb5-dev
+script: npm run ci
 before_script:
   - export DISPLAY=:99.0
   - sh -e /etc/init.d/xvfb start
-script: npm run ci
 cache:
   directories:
     - $HOME/.electron
