@@ -89,11 +89,27 @@ Templates:
             return `${lhs}.ToString`;
         }
     CodeToStringArgsTemplate: &CodeToStringArgsTemplate null
-    ObjectIdToStringTemplate: &ObjectIdToStringTemplate null
+    ObjectIdToStringTemplate: &ObjectIdToStringTemplate !!js/function >
+        (lhs) => {
+            return `${lhs}.ToString`;
+        }
     ObjectIdToStringArgsTemplate: &ObjectIdToStringArgsTemplate null
-    ObjectIdEqualsTemplate: &ObjectIdEqualsTemplate null
-    ObjectIdEqualsArgsTemplate: &ObjectIdEqualsArgsTemplate null
-    ObjectIdGetTimestampTemplate: &ObjectIdGetTimestampTemplate null
+    ObjectIdEqualsTemplate: &ObjectIdEqualsTemplate !!js/function >
+        (lhs) => {
+            return '';
+        }
+    ObjectIdEqualsArgsTemplate: &ObjectIdEqualsArgsTemplate !!js/function >
+        (lhs, arg) => {
+            if (arg.indexOf('new') === 0) {
+              arg = arg.replace(/new /g, '')
+            }
+            return `BsonObjectId().Equals(${arg})`;
+        }
+
+    ObjectIdGetTimestampTemplate: &ObjectIdGetTimestampTemplate !!js/function >
+        (lhs) => {
+            return `${lhs}.ToUniversalTime`;
+        }
     ObjectIdGetTimestampArgsTemplate: &ObjectIdGetTimestampArgsTemplate null
     BinaryValueTemplate: &BinaryValueTemplate !!js/function >
         (lhs) => {

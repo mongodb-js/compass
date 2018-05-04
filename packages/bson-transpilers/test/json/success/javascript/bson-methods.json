@@ -32,7 +32,7 @@
         "javascript": "ObjectId().toString()",
         "python": "str(ObjectId())",
         "java": "new ObjectId().toString()",
-        "csharp": "",
+        "csharp": "new BsonObjectId().ToString()",
         "shell": "Code('test code').toString()"
 
       },
@@ -41,7 +41,7 @@
         "javascript": "ObjectId('5ab901c29ee65f5c8550c5b9').toString()",
         "python": "str(ObjectId('5ab901c29ee65f5c8550c5b9'))",
         "java": "new ObjectId(\"5ab901c29ee65f5c8550c5b9\").toString()",
-        "csharp": "",
+        "csharp": "new BsonObjectId(\"5ab901c29ee65f5c8550c5b9\").ToString()",
         "shell": "ObjectId().toString()"
       },
       {
@@ -49,7 +49,7 @@
         "javascript": "ObjectId('5ab901c29ee65f5c8550c5b9').getTimestamp()",
         "python": "ObjectId('5ab901c29ee65f5c8550c5b9').generation_time",
         "java": "new ObjectId(\"5ab901c29ee65f5c8550c5b9\").getTimestamp()",
-        "csharp": "",
+        "csharp": "new BsonObjectId(\"5ab901c29ee65f5c8550c5b9\").ToUniversalTime()",
         "shell": "ObjectId('5ab901c29ee65f5c8550c5b9').getTimestamp()"
       },
       {
@@ -57,7 +57,7 @@
         "javascript": "ObjectId().equals(ObjectId())",
         "python": "ObjectId() == ObjectId()",
         "java": "new ObjectId().equals(new ObjectId())",
-        "csharp": "",
+        "csharp": "BsonObjectId().Equals(BsonObjectId())",
         "shell": "ObjectId().equals(ObjectId())"
       }
     ],
