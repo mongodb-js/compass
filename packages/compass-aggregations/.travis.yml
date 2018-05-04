@@ -2,10 +2,7 @@ sudo: required
 dist: trusty
 language: node_js
 node_js:
-  - 7.4
-env:
-  matrix:
-    - MONGODB_VERSION=3.4.x MONGODB_TOPOLOGY=standalone
+  - 8.2.1
 addons:
   apt:
     sources:
@@ -13,10 +10,7 @@ addons:
     packages:
       - libkrb5-dev
 before_install:
-  - echo "//registry.npmjs.org/:_authToken=9975e747-fa75-4ba3-8b08-b743680a36b8" >> .npmrc
-before_script:
-  - export DISPLAY=:99.0
-  - sh -e /etc/init.d/xvfb start
+  - echo "//registry.npmjs.org/:_authToken=\${NPM_TOKEN}" >> .npmrc
 script: npm run ci
 cache:
   directories:
