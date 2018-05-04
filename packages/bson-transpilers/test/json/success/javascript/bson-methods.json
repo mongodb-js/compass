@@ -67,7 +67,7 @@
         "javascript": "Binary(Buffer.from('a string')).length()",
         "python": "len(bytearray(Binary(b'a string')))",
         "java": "new Binary(\"a string\".getBytes(\"UTF-8\")).length()",
-        "csharp": "",
+        "csharp": "new BsonBinaryData(System.Text.Encoding.ASCII.GetBytes(\"a string\")).Length",
         "shell": "BinData(1, '0001').length()"
       },
       {
@@ -75,7 +75,7 @@
         "javascript": "Binary(Buffer.from('0001')).sub_type",
         "python": "Binary(b'0001').subtype",
         "java": "new Binary(\"0001\".getBytes(\"UTF-8\")).getType()",
-        "csharp": "",
+        "csharp": "new BsonBinaryData(System.Text.Encoding.ASCII.GetBytes(\"0001\")).SubType",
         "shell": "BinData(0, '0001').subtype()"
       },
       {
@@ -83,7 +83,7 @@
         "javascript": "Binary(Buffer.from('a string')).value()",
         "python": "str(Binary(b'a string'))",
         "java": "new Binary(\"a string\".getBytes(\"UTF-8\")).getData()",
-        "csharp": "",
+        "csharp": "new BsonBinaryData(System.Text.Encoding.ASCII.GetBytes(\"a string\")).ToString()",
         "shell": "BinData(1, '0001').hex()"
       },
       {
@@ -91,7 +91,7 @@
         "javascript": "Binary(Buffer.from('a string')).toString()",
         "python": "str(Binary(b'a string'))",
         "java": "new Binary(\"a string\".getBytes(\"UTF-8\")).toString()",
-        "csharp": "",
+        "csharp": "new BsonBinaryData(System.Text.Encoding.ASCII.GetBytes(\"a string\")).ToString()",
         "shell": "BinData(1, '0001').toString()"
       }
     ],

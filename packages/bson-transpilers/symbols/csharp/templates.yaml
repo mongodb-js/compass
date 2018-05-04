@@ -113,14 +113,26 @@ Templates:
     ObjectIdGetTimestampArgsTemplate: &ObjectIdGetTimestampArgsTemplate null
     BinaryValueTemplate: &BinaryValueTemplate !!js/function >
         (lhs) => {
-          return `${lhs}.Create`;
+          return `${lhs}.ToString`;
         }
     BinaryValueArgsTemplate: &BinaryValueArgsTemplate null
-    BinaryLengthTemplate: &BinaryLengthTemplate null
-    BinaryLengthArgsTemplate: &BinaryLengthArgsTemplate null
-    BinaryToStringTemplate: &BinaryToStringTemplate null
+    BinaryLengthTemplate: &BinaryLengthTemplate !!js/function >
+        () => {
+          return '';
+        }
+    BinaryLengthArgsTemplate: &BinaryLengthArgsTemplate !!js/function >
+        (lhs) => {
+          return `${lhs}.Length`;
+        }
+    BinaryToStringTemplate: &BinaryToStringTemplate !!js/function >
+        (lhs) => {
+          return `${lhs}.ToString`;
+        }
     BinaryToStringArgsTemplate: &BinaryToStringArgsTemplate null
-    BinarySubtypeTemplate: &BinarySubtypeTemplate null
+    BinarySubtypeTemplate: &BinarySubtypeTemplate !!js/function >
+        (lhs) => {
+          return `${lhs}.SubType`;
+        }
     BinarySubtypeArgsTemplate: &BinarySubtypeArgsTemplate null
     DBRefGetDBTemplate: &DBRefGetDBTemplate null
     DBRefGetCollectionTemplate: &DBRefGetCollectionTemplate null
