@@ -52,7 +52,7 @@ describe('Header [Component]', () => {
 
     it('should close the query history side bar when the close button is clicked', () => {
       component = shallow(<Header actions={actions} showing="recent" />);
-      const node = component.find('[data-test-id="query-history-button-close-panel"]');
+      const node = component.find('[data-test-id="query-history-button-close-panel"]').hostNodes();
 
       node.simulate('click');
       actions.collapse.should.have.been.calledOnce; // eslint-disable-line no-unused-expressions
@@ -68,14 +68,14 @@ describe('Header [Component]', () => {
       });
 
       it('it should switch to the favorites tab when the Favorites button is clicked', () => {
-        const node = component.find({ 'data-test-id': 'undefined-favorites' });
+        const node = component.find({ 'data-test-id': 'undefined-favorites' }).hostNodes();
 
         node.simulate('click');
         actions.showFavorites.should.have.been.calledOnce; // eslint-disable-line no-unused-expressions
       });
 
       it('it should be a no-op twhen the Recents button is clicked', () => {
-        const node = component.find({ 'data-test-id': 'undefined-recent' });
+        const node = component.find({ 'data-test-id': 'undefined-recent' }).hostNodes();
 
         node.simulate('click');
         actions.showFavorites.should.not.have.been.calledOnce; // eslint-disable-line no-unused-expressions
@@ -92,14 +92,14 @@ describe('Header [Component]', () => {
       });
 
       it('it should switch to the recent tab when the Recents button is clicked', () => {
-        const node = component.find({ 'data-test-id': 'undefined-recent' });
+        const node = component.find({ 'data-test-id': 'undefined-recent' }).hostNodes();
 
         node.simulate('click');
         actions.showRecent.should.have.been.calledOnce; // eslint-disable-line no-unused-expressions
       });
 
       it('it should be a no-op twhen the Favorites button is clicked', () => {
-        const node = component.find({ 'data-test-id': 'undefined-favorites' });
+        const node = component.find({ 'data-test-id': 'undefined-favorites' }).hostNodes();
 
         node.simulate('click');
         actions.showRecent.should.not.have.been.calledOnce; // eslint-disable-line no-unused-expressions

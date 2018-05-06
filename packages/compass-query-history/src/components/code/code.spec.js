@@ -1,5 +1,5 @@
 import React from 'react';
-import { shallow } from 'enzyme';
+import { mount } from 'enzyme';
 import Code from 'components/code';
 
 describe('Code [Component]', () => {
@@ -9,7 +9,7 @@ describe('Code [Component]', () => {
     let component;
 
     beforeEach(() => {
-      component = shallow(<Code language="js" code={code} />);
+      component = mount(<Code language="js" code={code} />);
     });
 
     afterEach(() => {
