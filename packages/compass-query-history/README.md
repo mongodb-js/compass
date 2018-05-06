@@ -84,8 +84,8 @@ For completeness, below is a list of directories present in this module:
 
 Apache 2.0
 
-[travis_img]: https://travis-ci.com/10gen/compass-query-history.svg?token=ezEB2TnpPiu7XLo6ByZp&branch=master
-[travis_url]: https://travis-ci.com/10gen/compass-query-history
+[travis_img]: https://travis-ci.org/mongodb-js/compass-query-history.svg
+[travis_url]: https://travis-ci.org/mongodb-js/compass-query-history
 [npm_img]: https://img.shields.io/npm/v/@mongodb-js/compass-query-history.svg?style=flat-square
 [npm_url]: https://www.npmjs.org/package/@mongodb-js/compass-query-history
 [react-storybook]: https://github.com/kadirahq/react-storybook
