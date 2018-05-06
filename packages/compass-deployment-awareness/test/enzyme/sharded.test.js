@@ -1,8 +1,12 @@
 const React = require('react');
-const { expect } = require('chai');
+const chai = require('chai');
+const expect = chai.expect;
+const chaiEnzyme = require('chai-enzyme');
 const { shallow } = require('enzyme');
 const Sharded = require('../../src/components/sharded');
 const ServerType = require('../../src/models/server-type');
+
+chai.use(chaiEnzyme);
 
 describe('<Sharded />', () => {
   describe('#render', () => {
@@ -12,22 +16,22 @@ describe('<Sharded />', () => {
 
       it('renders the name', () => {
         const node = component.find('.topology-sharded-name');
-        expect(node.children().node).to.equal('Cluster');
+        expect(node).to.have.text('Cluster');
       });
 
       it('renders the sharded icon', () => {
         const node = component.find('.mms-icon-cluster');
-        expect(node).to.have.length(1);
+        expect(node).to.be.present();
       });
 
       it('renders the mongos count', () => {
         const node = component.find('.topology-sharded-mongos');
-        expect(node.children().node).to.equal('1 mongos');
+        expect(node).to.have.text('1 mongos');
       });
 
       it('renders the sharded cluster text', () => {
         const node = component.find('.topology-sharded-type-name');
-        expect(node.children().node).to.equal('Sharded Cluster');
+        expect(node).to.have.text('Sharded Cluster');
       });
     });
 
@@ -40,22 +44,22 @@ describe('<Sharded />', () => {
 
       it('renders the name', () => {
         const node = component.find('.topology-sharded-name');
-        expect(node.children().node).to.equal('Cluster');
+        expect(node).to.have.text('Cluster');
       });
 
       it('renders the sharded icon', () => {
         const node = component.find('.mms-icon-cluster');
-        expect(node).to.have.length(1);
+        expect(node).to.be.present();
       });
 
       it('renders the mongos count', () => {
         const node = component.find('.topology-sharded-mongos');
-        expect(node.children().node).to.equal('2 mongoses');
+        expect(node).to.have.text('2 mongoses');
       });
 
       it('renders the sharded cluster text', () => {
         const node = component.find('.topology-sharded-type-name');
-        expect(node.children().node).to.equal('Sharded Cluster');
+        expect(node).to.have.text('Sharded Cluster');
       });
     });
   });

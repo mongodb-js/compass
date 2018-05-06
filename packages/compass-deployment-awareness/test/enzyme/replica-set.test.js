@@ -1,9 +1,13 @@
 const React = require('react');
-const { expect } = require('chai');
+const chai = require('chai');
+const expect = chai.expect;
+const chaiEnzyme = require('chai-enzyme');
 const { shallow } = require('enzyme');
 const ReplicaSet = require('../../src/components/replica-set');
 const ServerType = require('../../src/models/server-type');
 const TopologyType = require('../../src/models/topology-type');
+
+chai.use(chaiEnzyme);
 
 describe('<ReplicaSet />', () => {
   describe('#render', () => {
@@ -18,22 +22,22 @@ describe('<ReplicaSet />', () => {
 
       it('renders the name', () => {
         const node = component.find('.topology-replica-set-name');
-        expect(node.children().node).to.equal('test');
+        expect(node).to.have.text('test');
       });
 
       it('renders the replica set icon', () => {
         const node = component.find('.mms-icon-replica-set');
-        expect(node).to.have.length(1);
+        expect(node).to.be.present();
       });
 
       it('renders the node count', () => {
         const node = component.find('.topology-replica-set-nodes');
-        expect(node.children().node).to.equal('1 node');
+        expect(node).to.have.text('1 node');
       });
 
       it('renders the replica set text', () => {
         const node = component.find('.topology-replica-set-type-name');
-        expect(node.children().node).to.equal('Replica Set');
+        expect(node).to.have.text('Replica Set');
       });
     });
 
@@ -51,22 +55,22 @@ describe('<ReplicaSet />', () => {
 
       it('renders the name', () => {
         const node = component.find('.topology-replica-set-name');
-        expect(node.children().node).to.equal('test');
+        expect(node).to.have.text('test');
       });
 
       it('renders the replica set icon', () => {
         const node = component.find('.mms-icon-replica-set');
-        expect(node).to.have.length(1);
+        expect(node).to.be.present();
       });
 
       it('renders the node count', () => {
         const node = component.find('.topology-replica-set-nodes');
-        expect(node.children().node).to.equal('2 nodes');
+        expect(node).to.have.text('2 nodes');
       });
 
       it('renders the replica set text', () => {
         const node = component.find('.topology-replica-set-type-name');
-        expect(node.children().node).to.equal('Replica Set');
+        expect(node).to.have.text('Replica Set');
       });
     });
   });

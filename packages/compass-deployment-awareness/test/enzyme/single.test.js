@@ -1,8 +1,12 @@
 const React = require('react');
-const { expect } = require('chai');
+const chai = require('chai');
+const expect = chai.expect;
+const chaiEnzyme = require('chai-enzyme');
 const { shallow } = require('enzyme');
 const Single = require('../../src/components/single');
 const ServerType = require('../../src/models/server-type');
+
+chai.use(chaiEnzyme);
 
 describe('<Single />', () => {
   describe('#render', () => {
@@ -12,12 +16,12 @@ describe('<Single />', () => {
 
       it('renders the address', () => {
         const node = component.find('.topology-single-address');
-        expect(node.children().node).to.equal('127.0.0.1:27017');
+        expect(node).to.have.text('127.0.0.1:27017');
       });
 
       it('renders the humanized type', () => {
         const node = component.find('.topology-single-type');
-        expect(node.children().node).to.equal('Standalone');
+        expect(node).to.have.text('Standalone');
       });
     });
 
@@ -27,12 +31,12 @@ describe('<Single />', () => {
 
       it('renders the address', () => {
         const node = component.find('.topology-single-address');
-        expect(node.children().node).to.equal('127.0.0.1:27017');
+        expect(node).to.have.text('127.0.0.1:27017');
       });
 
       it('renders the humanized type', () => {
         const node = component.find('.topology-single-type');
-        expect(node.children().node).to.equal('Primary');
+        expect(node).to.have.text('Primary');
       });
     });
 
@@ -42,12 +46,12 @@ describe('<Single />', () => {
 
       it('renders the address', () => {
         const node = component.find('.topology-single-address');
-        expect(node.children().node).to.equal('127.0.0.1:27017');
+        expect(node).to.have.text('127.0.0.1:27017');
       });
 
       it('renders the humanized type', () => {
         const node = component.find('.topology-single-type');
-        expect(node.children().node).to.equal('Secondary');
+        expect(node).to.have.text('Secondary');
       });
     });
 
@@ -57,12 +61,12 @@ describe('<Single />', () => {
 
       it('renders the address', () => {
         const node = component.find('.topology-single-address');
-        expect(node.children().node).to.equal('127.0.0.1:27017');
+        expect(node).to.have.text('127.0.0.1:27017');
       });
 
       it('renders the humanized type', () => {
         const node = component.find('.topology-single-type');
-        expect(node.children().node).to.equal('Arbiter');
+        expect(node).to.have.text('Arbiter');
       });
     });
 
@@ -72,12 +76,12 @@ describe('<Single />', () => {
 
       it('renders the address', () => {
         const node = component.find('.topology-single-address');
-        expect(node.children().node).to.equal('127.0.0.1:27017');
+        expect(node).to.have.text('127.0.0.1:27017');
       });
 
       it('renders the humanized type', () => {
         const node = component.find('.topology-single-type');
-        expect(node.children().node).to.equal('Ghost');
+        expect(node).to.have.text('Ghost');
       });
     });
 
@@ -87,12 +91,12 @@ describe('<Single />', () => {
 
       it('renders the address', () => {
         const node = component.find('.topology-single-address');
-        expect(node.children().node).to.equal('127.0.0.1:27017');
+        expect(node).to.have.text('127.0.0.1:27017');
       });
 
       it('renders the humanized type', () => {
         const node = component.find('.topology-single-type');
-        expect(node.children().node).to.equal('Unknown');
+        expect(node).to.have.text('Unknown');
       });
     });
 
@@ -102,12 +106,12 @@ describe('<Single />', () => {
 
       it('renders the address', () => {
         const node = component.find('.topology-single-address');
-        expect(node.children().node).to.equal('127.0.0.1:27017');
+        expect(node).to.have.text('127.0.0.1:27017');
       });
 
       it('renders the humanized type', () => {
         const node = component.find('.topology-single-type');
-        expect(node.children().node).to.equal('Other');
+        expect(node).to.have.text('Other');
       });
     });
 
@@ -117,12 +121,12 @@ describe('<Single />', () => {
 
       it('renders the address', () => {
         const node = component.find('.topology-single-address');
-        expect(node.children().node).to.equal('127.0.0.1:27017');
+        expect(node).to.have.text('127.0.0.1:27017');
       });
 
       it('renders the humanized type', () => {
         const node = component.find('.topology-single-type');
-        expect(node.children().node).to.equal('Possible Primary');
+        expect(node).to.have.text('Possible Primary');
       });
     });
   });
