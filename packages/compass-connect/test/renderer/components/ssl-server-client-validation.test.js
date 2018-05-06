@@ -25,15 +25,15 @@ describe('<SSLServerClientValidation />', () => {
       });
 
       it('renders the ssl ca button', () => {
-        expect(component.find('#ssl_ca')).to.have.text('ca');
+        expect(component.find('#ssl_ca').hostNodes()).to.have.text('ca');
       });
 
       it('renders the ssl certificate button', () => {
-        expect(component.find('#ssl_certificate')).to.have.text('cert');
+        expect(component.find('#ssl_certificate').hostNodes()).to.have.text('cert');
       });
 
       it('renders the ssl private key button', () => {
-        expect(component.find('#ssl_private_key')).to.have.text('key');
+        expect(component.find('#ssl_private_key').hostNodes()).to.have.text('key');
       });
 
       it('renders the ssl private key password', () => {

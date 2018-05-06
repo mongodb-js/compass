@@ -34,7 +34,7 @@ describe('<SSHTunnelIdentityFile />', () => {
       });
 
       it('renders the file input', () => {
-        expect(component.find('#ssh_tunnel_identity_file')).to.have.text('file');
+        expect(component.find('#ssh_tunnel_identity_file').hostNodes()).to.have.text('file');
       });
 
       it('renders the passphrase input', () => {
