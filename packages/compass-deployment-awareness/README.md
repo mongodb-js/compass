@@ -1,4 +1,4 @@
-# Compass Deployment Awareness Plugin [![Build Status](https://travis-ci.com/10gen/compass-deployment-awareness.svg?token=ezEB2TnpPiu7XLo6ByZp&branch=master)](https://travis-ci.com/10gen/compass-deployment-awareness)
+# Compass Deployment Awareness Plugin [![Build Status](https://travis-ci.org/mongodb-js/compass-deployment-awareness.svg)](https://travis-ci.org/mongodb-js/compass-deployment-awareness)
 
 Provide functionality surrounding deployment awareness and if the topology
 is in a state to read or write.
