@@ -1,6 +1,6 @@
 const React = require('react');
 const PropTypes = require('prop-types');
-const Select = require('react-select');
+const Select = require('react-select-plus');
 const StatusStore = require('../store/ddl-status-store');
 const Action = require('../action/index-actions');
 
