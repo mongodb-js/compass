@@ -152,8 +152,8 @@
         "darwin": {
           "icon": "src/app/images/darwin/mongodb-compass.icns",
           "dmg_background": "src/app/images/darwin/background.png",
-          "codesign_identity": "Developer ID Application: Matt Kangas (ZD3CL9MT3L)",
-          "codesign_sha1": "90E39AA7832E95369F0FC6DAF823A04DFBD9CF7A",
+          "codesign_identity": "Developer ID Application: MongoDB, Inc. (4XWMY46275)",
+          "codesign_sha1": "44D99642958DB133E51FC5B95EFE873B61DEF561",
           "app_category_type": "public.app-category.productivity"
         },
         "linux": {
@@ -217,7 +217,7 @@
     "@mongodb-js/compass-auth-x509": "^1.0.1",
     "@mongodb-js/compass-collection-stats": "^3.0.0",
     "@mongodb-js/compass-connect": "^3.0.0",
-    "@mongodb-js/compass-crud": "^5.1.1",
+    "@mongodb-js/compass-crud": "^5.1.2",
     "@mongodb-js/compass-deployment-awareness": "^6.0.0",
     "@mongodb-js/compass-document-validation": "^8.0.0",
     "@mongodb-js/compass-import-export": "^1.0.1",

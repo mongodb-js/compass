@@ -182,12 +182,11 @@ class Sidebar extends React.Component {
           <button
             className={className}
             title="Create Database"
-            onClick={this.handleCreateDatabaseClick.bind(this, this.state.isWritable)}
-          >
+            onClick={this.handleCreateDatabaseClick.bind(this, this.state.isWritable)}>
             <i className="mms-icon-add" />
-            <text className="plus-button">
+            <div className="plus-button">
               Create Database
-            </text>
+            </div>
           </button>
         </div>
       );
