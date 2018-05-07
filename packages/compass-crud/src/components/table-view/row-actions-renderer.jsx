@@ -28,6 +28,10 @@ class RowActionsRenderer extends React.Component {
     this.props.copyToClipboard(this.props.data.hadronDocument);
   }
 
+  refresh() {
+    return true;
+  }
+
   renderTopLevelActions() {
     if (!this.props.nested) {
       return (

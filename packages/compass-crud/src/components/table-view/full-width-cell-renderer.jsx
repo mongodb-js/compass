@@ -87,6 +87,10 @@ class FullWidthCellRenderer extends React.Component {
     }
   }
 
+  refresh() {
+    return true;
+  }
+
   render() {
     if (this.state.mode === 'editing') {
       return (

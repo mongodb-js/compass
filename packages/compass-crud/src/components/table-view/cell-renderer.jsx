@@ -152,6 +152,10 @@ class CellRenderer extends React.Component {
     }
   }
 
+  refresh() {
+    return true;
+  }
+
   renderInvalidCell() {
     let valueClass = `${VALUE_CLASS}-is-${this.element.currentType.toLowerCase()}`;
     valueClass = `${valueClass} ${INVALID_VALUE}`;

@@ -58,7 +58,7 @@
     "cross-env": "^5.0.1",
     "css-loader": "^0.28.1",
     "debug": "^2.6.8",
-    "electron": "^1.8.2",
+    "electron": "^2.0.0",
     "electron-mocha": "^5.0.0",
     "electron-packager": "^8.7.0",
     "enzyme": "^3.3.0",

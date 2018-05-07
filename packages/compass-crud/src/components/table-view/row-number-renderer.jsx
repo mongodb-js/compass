@@ -8,6 +8,10 @@ import PropTypes from 'prop-types';
  */
 class RowNumberRenderer extends React.Component {
 
+  refresh() {
+    return true;
+  }
+
   render() {
     return (
       <div className="table-view-cell-row-number">

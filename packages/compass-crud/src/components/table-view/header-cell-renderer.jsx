@@ -11,6 +11,10 @@ class HeaderCellRenderer extends React.Component {
     super(props);
   }
 
+  refresh() {
+    return true;
+  }
+
   render() {
     if (this.props.hide) {
       return null;
