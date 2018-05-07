@@ -38,22 +38,22 @@ class TimeAndPauseButton extends React.Component {
           className="play btn btn-xs btn-primary"
           data-test-id="performance-play"
           style={{display: this.state.paused ? null : 'none'}}>
-          <text className="playbutton">
+          <span className="playbutton">
             <i className="fa fa-play"></i>
             PLAY
-          </text>
+          </span>
         </button>
         <button
           onClick={this.handlePause.bind(this)}
           className="pause btn btn-default btn-xs"
           data-test-id="performance-pause"
           style={{display: this.state.paused ? 'none' : null}}>
-          <text className="pausebutton">
+          <span className="pausebutton">
             <i className="fa fa-pause"></i>
             PAUSE
-          </text>
+          </span>
         </button>
-        <div className="time"><text className="currentTime">{this.state.time}</text></div>
+        <div className="time"><span className="currentTime">{this.state.time}</span></div>
       </div>
     );
   }

@@ -94,7 +94,7 @@ class DetailViewComponent extends React.Component {
               <div className="rt-details__datatype-val">{this.state.data.waitingForLock}</div>
             </li>
           </ul>
-          <div className="rt-details__raw"><text>{JSON.stringify(this.state.data, this.removeMs, 4)}</text></div>
+          <div className="rt-details__raw"><span>{JSON.stringify(this.state.data, this.removeMs, 4)}</span></div>
         </div>
       </div>
     );

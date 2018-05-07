@@ -29,7 +29,8 @@ class DBErrorComponent extends React.Component {
     const rows = this.state.data.map(function(row, i) {
       return (
         <li className="rt-errors__item status-row status-row-has-error" key={`list-item-${i}`}>
-          <div className="rt-errors__operror"><text>&#9888; Command &#34;{row.ops}&#34; returned error </text><text className="rt-errors__bold">&#34;{row.errorMsg}&#34;</text></div>
+          <div className="rt-errors__operror">
+            <span>&#9888; Command &#34;{row.ops}&#34; returned error </span><span className="rt-errors__bold">&#34;{row.errorMsg}&#34;</span></div>
         </li>
       );
     });
