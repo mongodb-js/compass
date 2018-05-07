@@ -325,6 +325,28 @@ describe('<CellRenderer />', () => {
       });
     });
 
+    describe('element is array', () => {
+      before((done) => {
+        rowNode = getNode({field1: [1, 2, 3]});
+        value = rowNode.data.hadronDocument.get('field1');
+        component = mount(<CellRenderer api={api}
+                                        column={column}
+                                        node={rowNode}
+                                        value={value}
+                                        drillDown={actions.drillDown}
+                                        elementAdded={actions.elementAdded}
+                                        elementRemoved={actions.elementRemoved}
+                                        elementTypeChanged={actions.elementTypeChanged}
+                                        parentType=""
+                                        context={context}/>);
+        done();
+      });
+      it('renders the element correctly', () => {
+        const wrapper = component.find('.table-view-cell');
+        expect(wrapper.text()).to.contain('[] 3 elements');
+      });
+    });
+
     describe('element is expandable and modified', () => {
       before((done) => {
         rowNode = getNode({field1: {subfield1: 1}});

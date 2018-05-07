@@ -174,15 +174,7 @@ class CellRenderer extends React.Component {
       return Object.keys(this.element.generateObject()).length;
     }
     if (this.element.currentType === 'Array') {
-      let count = 0;
-      let element = this.element.elements.firstElement;
-      while (element) {
-        if (!(element.currentKey === '' && element.currentValue === '')) {
-          count++;
-        }
-        element = element.nextElement;
-      }
-      return count;
+      return this.element.elements.size;
     }
   }
 
