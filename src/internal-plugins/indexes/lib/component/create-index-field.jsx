@@ -137,8 +137,7 @@ class CreateIndexField extends React.Component {
             onChange={this.selectFieldName.bind(this)}
             clearable={false}
             promptTextCreator={this._promptText}
-            className={hasNameError}
-          />
+            className={hasNameError} />
         </div>
         <div className="create-index-field-dropdown-type" data-test-id="create-index-modal-type-select">
           <Select
@@ -148,8 +147,7 @@ class CreateIndexField extends React.Component {
             onChange={this.selectFieldType.bind(this)}
             clearable={false}
             searchable={false}
-            className={hasTypeError}
-          />
+            className={hasTypeError} />
         </div>
         <div>
           <button disabled={this.props.isRemovable}
