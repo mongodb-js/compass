@@ -34,15 +34,13 @@ const RS_RECOMMEND = `${RP_RECOMMEND} or provide a replica set name for a full t
 const COMPASS_SIDEBAR_TRANSITION_TIME_MS = 400;
 
 class Home extends React.Component {
+
   constructor(props) {
     super(props);
     this.state = { collapsed: false };
     this.sideBar = app.appRegistry.getComponent('Sidebar.Component');
     this.collectionView = app.appRegistry.getComponent('Collection.Collection');
     this.collectionsTable = app.appRegistry.getComponent('Database.CollectionsTable');
-    /**
-     * TODO (imlucas) Handle state when rtss permissions not available.
-     */
     this.instanceView = app.appRegistry.getRole('Instance.Workspace')[0].component;
     this.connectView = app.appRegistry.getRole('Application.Connect')[0].component;
     this.CreateDatabaseDialog = app.appRegistry.getComponent('DatabaseDDL.CreateDatabaseDialog');
