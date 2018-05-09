@@ -143,7 +143,7 @@
     "lodash.map": "^4.6.0",
     "lodash.pull": "^4.1.0",
     "lodash.topairs": "^4.3.0",
-    "react-click-outside": "^2.2.0",
+    "react-click-outside": "^3.0.1",
     "react-dom-factories": "^1.0.2",
     "react-tooltip": "^3.2.6"
   }
