@@ -116,7 +116,7 @@ var createWindow = module.exports.create = function(opts) {
     width: opts.width,
     height: opts.height,
     icon: opts.icon,
-    show: true,
+    show: false,
     'min-width': opts.minwidth,
     'web-preferences': {
       'subpixel-font-scaling': true,
