@@ -356,7 +356,7 @@ tasks:
       working_dir: src
       script: |
         set -ev
-        yum localinstall -y http://mirror.centos.org/centos/7/os/x86_64/Packages/glib2-devel-2.50.3-3.el7.x86_64.rpm
+        yum localinstall -y http://mirror.centos.org/centos/7/os/x86_64/Packages/glib2-devel-2.54.2-2.el7.x86_64.rpm
         yum localinstall -y http://mirror.centos.org/centos/7/os/x86_64/Packages/libsecret-0.18.5-2.el7.x86_64.rpm
         yum localinstall -y http://mirror.centos.org/centos/7/os/x86_64/Packages/libsecret-devel-0.18.5-2.el7.x86_64.rpm
     variants:
