@@ -69,7 +69,7 @@ class StagePreview extends Component {
     return (
       <div className={classnames(styles['stage-preview-out'])}>
         <div className={classnames(styles['stage-preview-out-text'])}>
-          The $out operator will persist the results of the pipeline
+          The $out operator will cause the pipeline to persist the results
           to the specified collection. Please confirm to execute.
         </div>
         <div className={classnames(styles['stage-preview-out-button'])}>
