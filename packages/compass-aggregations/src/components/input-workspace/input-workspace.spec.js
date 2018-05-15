@@ -13,6 +13,7 @@ describe('InputWorkspace [Component]', () => {
         documents={[]}
         isLoading
         isExpanded
+        openLink={sinon.spy()}
         count={10} />
     );
   });

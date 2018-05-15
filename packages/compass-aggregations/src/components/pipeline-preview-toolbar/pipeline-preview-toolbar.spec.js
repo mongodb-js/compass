@@ -10,7 +10,7 @@ describe('PipelinePreviewToolbar [Component]', () => {
 
   beforeEach(() => {
     stageAddedSpy = sinon.spy();
-    component = mount(<PipelinePreviewToolbar stageAdded={stageAddedSpy} />);
+    component = mount(<PipelinePreviewToolbar stageAdded={stageAddedSpy} isModified />);
   });
 
   afterEach(() => {

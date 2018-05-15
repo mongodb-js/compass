@@ -21,6 +21,7 @@ describe('Input [Component]', () => {
         documents={[]}
         isExpanded
         isLoading
+        openLink={sinon.spy()}
         count={0} />
     );
   });

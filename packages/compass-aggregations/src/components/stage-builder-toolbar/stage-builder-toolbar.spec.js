@@ -17,6 +17,7 @@ describe('StageBuilderToolbar [Component]', () => {
   let stageDeletedSpy;
   let runStageSpy;
   let setIsModifiedSpy;
+  let openLinkSpy;
 
   beforeEach(() => {
     stageCollapseToggledSpy = sinon.spy();
@@ -25,6 +26,7 @@ describe('StageBuilderToolbar [Component]', () => {
     stageDeletedSpy = sinon.spy();
     runStageSpy = sinon.spy();
     setIsModifiedSpy = sinon.spy();
+    openLinkSpy = sinon.spy();
 
     component = shallow(
       <StageBuilderToolbar
@@ -36,6 +38,7 @@ describe('StageBuilderToolbar [Component]', () => {
         serverVersion="3.6.0"
         stageToggled={stageToggledSpy}
         setIsModified={setIsModifiedSpy}
+        openLink={openLinkSpy}
         stageDeleted={stageDeletedSpy} />
     );
   });
@@ -48,6 +51,7 @@ describe('StageBuilderToolbar [Component]', () => {
     stageDeletedSpy = null;
     runStageSpy = null;
     setIsModifiedSpy = null;
+    openLinkSpy = null;
   });
 
   it('renders the wrapper div', () => {

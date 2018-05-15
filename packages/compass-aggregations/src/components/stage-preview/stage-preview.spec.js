@@ -15,6 +15,8 @@ describe('StagePreview [Component]', () => {
           documents={[{ name: 'test' }]}
           isValid
           isEnabled
+          index={0}
+          runOutStage={sinon.spy()}
           isLoading={false} />
       );
     });
@@ -41,6 +43,8 @@ describe('StagePreview [Component]', () => {
           documents={[{ name: 'test' }]}
           isValid
           isEnabled
+          index={0}
+          runOutStage={sinon.spy()}
           isLoading={false}
           stageOperator="$out" />
       );
@@ -78,6 +82,8 @@ describe('StagePreview [Component]', () => {
             isValid
             isEnabled
             isLoading
+            index={0}
+            runOutStage={sinon.spy()}
             stageOperator="$out" />
         );
       });
@@ -102,6 +108,8 @@ describe('StagePreview [Component]', () => {
             isValid
             isEnabled
             isLoading
+            index={0}
+            runOutStage={sinon.spy()}
             stageOperator="$match" />
         );
       });

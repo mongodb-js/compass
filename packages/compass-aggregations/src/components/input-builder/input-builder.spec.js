@@ -8,7 +8,7 @@ describe('InputBuilder [Component]', () => {
   let component;
 
   beforeEach(() => {
-    component = mount(<InputBuilder />);
+    component = mount(<InputBuilder openLink={sinon.spy()} />);
   });
 
   afterEach(() => {

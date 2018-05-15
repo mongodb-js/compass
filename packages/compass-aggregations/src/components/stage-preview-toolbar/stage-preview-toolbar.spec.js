@@ -12,6 +12,7 @@ describe('StagePreviewToolbar [Component]', () => {
       component = shallow(
         <StagePreviewToolbar
           stageOperator="$match"
+          isValid
           isEnabled />
       );
     });
@@ -37,6 +38,7 @@ describe('StagePreviewToolbar [Component]', () => {
       component = shallow(
         <StagePreviewToolbar
           stageOperator="$match"
+          isValid
           isEnabled={false} />
       );
     });

@@ -10,11 +10,13 @@ describe('StageWorkspace [Component]', () => {
   let stageChangedSpy;
   let runStageSpy;
   let setIsModifiedSpy;
+  let runOutStageSpy;
 
   beforeEach(() => {
     stageChangedSpy = sinon.spy();
     runStageSpy = sinon.spy();
     setIsModifiedSpy = sinon.spy();
+    runOutStageSpy = sinon.spy();
 
     component = shallow(
       <StageWorkspace
@@ -22,7 +24,9 @@ describe('StageWorkspace [Component]', () => {
         index={0}
         serverVersion="3.6.0"
         fields={[]}
+        isEnabled
         runStage={runStageSpy}
+        runOutStage={runOutStageSpy}
         setIsModified={setIsModifiedSpy}
         stageChanged={stageChangedSpy} />
     );
