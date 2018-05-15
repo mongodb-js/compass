@@ -15,6 +15,7 @@ class StageWorkspace extends PureComponent {
   static propTypes = {
     stage: PropTypes.object.isRequired,
     runStage: PropTypes.func.isRequired,
+    runOutStage: PropTypes.func.isRequired,
     index: PropTypes.number.isRequired,
     serverVersion: PropTypes.string.isRequired,
     fields: PropTypes.array.isRequired,
@@ -44,7 +45,9 @@ class StageWorkspace extends PureComponent {
           isEnabled={this.props.stage.isEnabled}
           isLoading={this.props.stage.isLoading}
           stageOperator={this.props.stage.stageOperator}
-          stageValue={this.props.stage.stage} />
+          stageValue={this.props.stage.stage}
+          index={this.props.index}
+          runOutStage={this.props.runOutStage} />
       </div>
     );
   }

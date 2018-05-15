@@ -18,6 +18,7 @@ import {
 } from 'modules';
 import {
   runStage,
+  runOutStage,
   stageAdded,
   stageChanged,
   stageCollapseToggled,
@@ -89,6 +90,7 @@ const MappedAggregations = connect(
     refreshInputDocuments,
     deletePipeline,
     runStage,
+    runOutStage,
     stageAdded,
     stageChanged,
     stageCollapseToggled,

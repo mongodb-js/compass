@@ -76,6 +76,7 @@ class Stage extends Component {
     connectDropTarget: PropTypes.func.isRequired,
     isDragging: PropTypes.bool.isRequired,
     runStage: PropTypes.func.isRequired,
+    runOutStage: PropTypes.func.isRequired,
     serverVersion: PropTypes.string.isRequired,
     stageChanged: PropTypes.func.isRequired,
     stageCollapseToggled: PropTypes.func.isRequired,
@@ -99,6 +100,7 @@ class Stage extends Component {
         <StageWorkspace
           stage={this.props.stage}
           runStage={this.props.runStage}
+          runOutStage={this.props.runOutStage}
           index={this.props.index}
           serverVersion={this.props.serverVersion}
           fields={this.props.fields}

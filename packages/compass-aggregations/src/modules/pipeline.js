@@ -503,6 +503,21 @@ const executeStage = (dataService, ns, dispatch, state, index) => {
 };
 
 /**
+ * Run just the out stage.
+ *
+ * @param {Number} index - The index of the stage.
+ *
+ * @returns {Function} The thunk function.
+ */
+export const runOutStage = (index) => {
+  return (dispatch, getState) => {
+    const state = getState();
+    const dataService = state.dataService.dataService;
+    executeStage(dataService, state.namespace, dispatch, state, index);
+  };
+};
+
+/**
  * Run the stage.
  *
  * @param {Number} index - The index of the stage that changed.

@@ -16,14 +16,23 @@ class StagePreview extends Component {
   static displayName = 'StagePreview';
 
   static propTypes = {
+    runOutStage: PropTypes.func.isRequired,
     documents: PropTypes.array.isRequired,
     isValid: PropTypes.bool.isRequired,
     isEnabled: PropTypes.bool.isRequired,
     isLoading: PropTypes.bool.isRequired,
+    index: PropTypes.number.isRequired,
     stageOperator: PropTypes.string,
     stageValue: PropTypes.any
   }
 
+  /**
+   * We don't want to diff the entire list of documents.
+   *
+   * @param {Object} nextProps - The next props.
+   *
+   * @returns {Boolean} Whether the component should update.
+   */
   shouldComponentUpdate(nextProps) {
     return nextProps.isLoading !== this.props.isLoading ||
       nextProps.isEnabled !== this.props.isEnabled ||
@@ -31,23 +40,41 @@ class StagePreview extends Component {
       nextProps.documents.length !== this.props.documents.length;
   }
 
+  onSaveDocuments = () => {
+    this.props.runOutStage(this.props.index);
+  }
+
+  /**
+   * If the stage operator is $out we have special behaviour.
+   *
+   * @returns {Component} The component.
+   */
+  renderOutSection() {
+    return (
+      <div className={classnames(styles['stage-preview-out'])}>
+        <div className={classnames(styles['stage-preview-out-text'])}>
+          The $out operator will persist the results of the pipeline
+          to the specified collection. Please confirm to execute.
+        </div>
+        <div className={classnames(styles['stage-preview-out-button'])}>
+          <TextButton
+            text="Save Documents"
+            className="btn btn-xs btn-primary"
+            clickHandler={this.onSaveDocuments} />
+        </div>
+      </div>
+    );
+  }
+
+  /**
+   * Render the preview section.
+   *
+   * @returns {Component} The component.
+   */
   renderPreview() {
     if (this.props.isValid && this.props.isEnabled) {
       if (this.props.stageOperator === OUT) {
-        return (
-          <div className={classnames(styles['stage-preview-out'])}>
-            <div className={classnames(styles['stage-preview-out-text'])}>
-              The $out operator will persist the results of the pipeline
-              to the specified collection. Please confirm to execute.
-            </div>
-            <div className={classnames(styles['stage-preview-out-button'])}>
-              <TextButton
-                text="Save Documents"
-                className="btn btn-xs btn-primary"
-                clickHandler={null} />
-            </div>
-          </div>
-        );
+        return this.renderOutSection();
       }
       if (this.props.documents.length > 0) {
         const documents = this.props.documents.map((doc, i) => {
@@ -67,6 +94,11 @@ class StagePreview extends Component {
     );
   }
 
+  /**
+   * Render the loading overlay.
+   *
+   * @returns {Component} The component.
+   */
   renderLoading() {
     if (this.props.isLoading) {
       if (this.props.stageOperator === OUT) {
