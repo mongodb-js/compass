@@ -1,4 +1,4 @@
-import STAGE_OPERATORS from 'constants/stage-operators';
+import { STAGE_OPERATORS } from 'mongodb-ace-autocompleter';
 import generateStage from 'modules/stage';
 import { appRegistryEmit } from 'modules/app-registry';
 

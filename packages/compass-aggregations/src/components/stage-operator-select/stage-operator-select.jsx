@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import classnames from 'classnames';
 import semver from 'semver';
 import Select from 'react-select-plus';
-import STAGE_OPERATORS from 'constants/stage-operators';
+import { STAGE_OPERATORS } from 'mongodb-ace-autocompleter';
 
 import styles from './stage-operator-select.less';
 
