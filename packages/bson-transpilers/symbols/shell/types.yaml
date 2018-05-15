@@ -8,6 +8,8 @@ BsonTypes:
                 <<: *__func
                 id: "toString"
                 type: *StringType
+                template: *CodeToStringTemplate
+                argsTemplate: *CodeToStringArgsTemplate
             code:
                 callable: *var
                 args: null
@@ -34,6 +36,8 @@ BsonTypes:
                 <<: *__func
                 id: "toString"
                 type: *StringType
+                template: *ObjectIdToStringTemplate
+                argsTemplate: *ObjectIdToStringArgsTemplate
             equals:
                 <<: *__func
                 id: "equals"
@@ -86,6 +90,8 @@ BsonTypes:
                 <<: *__func
                 id: "toString"
                 type: *StringType
+                template: *DBRefToStringTemplate
+                argsTemplate: *DBRefToStringArgsTemplate
             getDb:
                 <<: *__func
                 id: "getDb"
@@ -143,6 +149,8 @@ BsonTypes:
                 <<: *__func
                 id: "toString"
                 type: *StringType
+                template: *Int32ToStringTemplate
+                argsTemplate: *Int32ToStringArgsTemplate
             valueOf: # TODO: needed?
                 <<: *__func
                 id: "valueOf"
@@ -162,7 +170,8 @@ BsonTypes:
                 <<: *__func
                 id: "valueOf"
                 type: *LongBasicType
-                template: *LongToIntTemplate
+                template: *LongValueOfTemplate
+                argsTemplate: *LongValueOfArgsTemplate
             top:
                 callable: *var
                 args: null
@@ -204,6 +213,8 @@ BsonTypes:
                 <<: *__func
                 id: "toString"
                 type: *StringType
+                template: *TimestampToStringTemplate
+                argsTemplate: *TimestampToStringArgsTemplate
             getTime:
                 <<: *__func
                 id: "getTime"

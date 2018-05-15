@@ -64,7 +64,7 @@
       {
         "description": "new Binary with (ascii buffer, UUID subtype enum) args",
         "javascript": "new Binary('1234', '4')",
-        "python": "Binary(bytes('1234', 'utf-8'), bson.binary.UUID_SUBTYPE)",
+        "python": "Binary(b'1234', bson.binary.UUID_SUBTYPE)",
         "java": "new Binary(org.bson.BsonBinarySubType.UUID_STANDARD, \"1234\".getBytes(\"UTF-8\"))",
         "csharp": "new BsonBinaryData(System.Text.Encoding.ASCII.GetBytes(\"1234\"), BsonBinarySubType.UuidStandard)",
         "shell": "new BinData(4, '1234')"
@@ -100,7 +100,7 @@
       {
         "description": "NumberInt with valid string arg",
         "javascript": "Int32('3')",
-        "python": "int(3)",
+        "python": "int('3')",
         "java": "new java.lang.Integer(\"3\")",
         "csharp": "NumberInt('3')",
         "shell": "NumberInt('3')"
@@ -108,7 +108,7 @@
       {
         "description": "NumberInt with no arg",
         "javascript": "Int32(0)",
-        "python": "int(3)",
+        "python": "int(0)",
         "java": "new java.lang.Integer(0)",
         "csharp": "NumberInt('0')",
         "shell": "NumberInt()"
@@ -118,7 +118,7 @@
       {
         "description": "Double",
         "javascript": "3",
-        "python": "float(3)",
+        "python": "3",
         "java": "new java.lang.Long(\"3\")",
         "csharp": "new BsonDouble(Convert.ToDouble(\"3\"))",
         "shell": "3"
@@ -126,7 +126,7 @@
       {
         "description": "Double with .",
         "javascript": "3.001",
-        "python": "double(3.001)",
+        "python": "3.001",
         "java": "new java.lang.Double(3.001)",
         "csharp": "new BsonDouble(Convert.ToDouble(\"3\"))",
         "shell": "3.001"
@@ -152,7 +152,7 @@
       {
         "description": "Long with one string arg",
         "javascript": "new Long.fromNumber(10)",
-        "python": "Int64('10')",
+        "python": "Int64(10)",
         "java": "new java.lang.Long(\"10\")",
         "csharp": "new BsonInt64(Convert.ToInt32(\"10\"))",
         "shell": "new NumberLong('10')"
@@ -162,7 +162,7 @@
       {
         "description": "Decimal128 with string arg",
         "javascript": "Decimal128.fromString('5')",
-        "python": "Decimal128(Decimal('5'))",
+        "python": "Decimal128('5')",
         "java": "Decimal128.parse(\"5\")",
         "csharp": "new BsonString(\"5\")",
         "shell": "NumberDecimal('5')"
@@ -170,7 +170,7 @@
       {
         "description": "Decimal128 with num arg",
         "javascript": "Decimal128.fromString('5')",
-        "python": "Decimal128(Decimal('5'))",
+        "python": "Decimal128('5')",
         "java": "Decimal128.parse(\"5\")",
         "csharp": "new BsonString(\"5\")",
         "shell": "NumberDecimal(5)"
@@ -178,7 +178,7 @@
       {
         "description": "Decimal128 with no arg",
         "javascript": "Decimal128.fromString('0')",
-        "python": "Decimal128(Decimal('0'))",
+        "python": "Decimal128('0')",
         "java": "Decimal128.parse(\"0\")",
         "csharp": "new BsonString(\"0\")",
         "shell": "NumberDecimal()"
@@ -256,7 +256,7 @@
       {
         "description": "Doc with trailing comma",
         "javascript": "{x: 1}",
-        "python": "{'x': 1,}",
+        "python": "{'x': 1}",
         "java": "new Document().append(\"x\", new java.lang.Long(\"1\"))",
         "csharp": "new BsonDocument(\"x\", 1)",
         "shell": "{x: 1,}"

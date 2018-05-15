@@ -155,15 +155,15 @@ Templates:
         (lhs) => {
             return `${lhs}.id`;
         }
+    DBRefGetIdArgsTemplate: &DBRefGetIdArgsTemplate !!js/function
+        () => {
+            return '';
+        }
     DBRefGetDBArgsTemplate: &DBRefGetDBArgsTemplate !!js/function >
         () => {
             return '';
         }
     DBRefGetCollectionArgsTemplate: &DBRefGetCollectionArgsTemplate !!js/function
-        () => {
-            return '';
-        }
-    DBRefGetIdArgsTemplate: &DBRefGetIdArgsTemplate !!js/function
         () => {
             return '';
         }
@@ -191,6 +191,14 @@ Templates:
         (lhs) => {
             return lhs;
         }
+    Int32ToStringTemplate: &Int32ToStringTemplate !!js/function >
+        () => {
+            return '';
+        }
+    Int32ToStringArgsTemplate: &Int32ToStringArgsTemplate !!js/function >
+        (lhs) => {
+            return `str(${lhs})`;
+        }
     LongEqualsTemplate: &LongEqualsTemplate !!js/function >
         () => {
             return '';
@@ -206,6 +214,14 @@ Templates:
     LongToIntArgsTemplate: &LongToIntArgsTemplate !!js/function >
         (lhs) => {
             return `int(${lhs})`;
+        }
+    LongValueOfTemplate: &LongValueOfTemplate !!js/function >
+        () => {
+            return '';
+        }
+    LongValueOfArgsTemplate: &LongValueOfArgsTemplate !!js/function >
+        (lhs) => {
+            return `long(${lhs})`;
         }
     LongToNumberTemplate: &LongToNumberTemplate !!js/function >
         () => {
@@ -383,9 +399,18 @@ Templates:
         (lhs, rhs) => {
             return `(${lhs} - ${rhs}) <= 0`;
         }
-    LongFloatApproxTemplate: &LongFloatApproxTemplate null
-    LongTopTemplate: &LongTopTemplate null
-    LongBottomTemplate: &LongBottomTemplate null
+    LongFloatApproxTemplate: &LongFloatApproxTemplate !!js/function >
+        (lhs) => {
+            return `float(${lhs})`;
+        }
+    LongTopTemplate: &LongTopTemplate !!js/function >
+        (lhs) => {
+            return `${lhs} >> 32`;
+        }
+    LongBottomTemplate: &LongBottomTemplate !!js/function >
+        (lhs) => {
+            return `${lhs} & 0x0000ffff`;
+        }
     TimestampToStringTemplate: &TimestampToStringTemplate !!js/function >
         () => {
             return '';
@@ -418,8 +443,14 @@ Templates:
         (lhs) => {
             return `${lhs}.inc`;
         }
-    TimestampTTemplate: &TimestampTTemplate null
-    TimestampITemplate: &TimestampITemplate null
+    TimestampTTemplate: &TimestampTTemplate !!js/function >
+        (lhs) => {
+            return `${lhs}.time`;
+        }
+    TimestampITemplate: &TimestampITemplate !!js/function >
+        (lhs) => {
+            return `${lhs}.inc`;
+        }
     TimestampCompareTemplate: &TimestampCompareTemplate !!js/function >
         (lhs) => {
             return '';
@@ -563,7 +594,20 @@ Templates:
         () => {
             return 'int';
         }
-    Int32SymbolArgsTemplate: &Int32SymbolArgsTemplate null
+    Int32SymbolArgsTemplate: &Int32SymbolArgsTemplate !!js/function >
+        (lhs, arg) => {
+            arg = arg === undefined ? 0 : arg;
+            const str = arg.toString();
+            let newStr = str;
+            if (
+                (str.charAt(0) === '\'' && str.charAt(str.length - 1) === '\'') ||
+                (str.charAt(0) === '"' && str.charAt(str.length - 1) === '"')) {
+                newStr = str.substr(1, str.length - 2);
+                return `('${newStr}')`;
+            } else {
+                return `(${newStr})`;
+            }
+        }
     LongSymbolTemplate: &LongSymbolTemplate !!js/function >
         () => {
             return 'Int64';
@@ -622,7 +666,10 @@ Templates:
         () => {
             return 'Timestamp';
         }
-    TimestampSymbolArgsTemplate: &TimestampSymbolArgsTemplate null
+    TimestampSymbolArgsTemplate: &TimestampSymbolArgsTemplate !!js/function >
+        (lhs, arg1, arg2) => {
+            return `(${arg1 === undefined ? 0 : arg1}, ${arg2 === undefined ? 0 : arg2})`;
+        }
     SymbolSymbolTemplate: &SymbolSymbolTemplate !!js/function >
         () => {
             return 'unicode';
@@ -646,9 +693,12 @@ Templates:
         }
     Decimal128SymbolFromStringTemplate: &Decimal128SymbolFromStringTemplate !!js/function >
         () => {
-            return `Decimal128`;
+            return '';
         }
-    Decimal128SymbolFromStringArgsTemplate: &Decimal128SymbolFromStringArgsTemplate null
+    Decimal128SymbolFromStringArgsTemplate: &Decimal128SymbolFromStringArgsTemplate !!js/function >
+        (lhs, arg) => {
+            return `Decimal128(${arg})`;
+        }
     Decimal128ToStringTemplate: &Decimal128ToStringTemplate !!js/function >
         () => {
             return '';
@@ -694,7 +744,20 @@ Templates:
         () => {
             return 'int';
         }
-    NumberSymbolArgsTemplate: &NumberSymbolArgsTemplate null
+    NumberSymbolArgsTemplate: &NumberSymbolArgsTemplate !!js/function >
+        (lhs, arg) => {
+            arg = arg === undefined ? 0 : arg;
+            const str = arg.toString();
+            let newStr = str;
+            if (
+                (str.charAt(0) === '\'' && str.charAt(str.length - 1) === '\'') ||
+                (str.charAt(0) === '"' && str.charAt(str.length - 1) === '"')) {
+                newStr = str.substr(1, str.length - 2);
+                return `('${newStr}')`;
+            } else {
+                return `(${newStr})`;
+            }
+        }
     DateSymbolTemplate: &DateSymbolTemplate null
     DateSymbolArgsTemplate: &DateSymbolArgsTemplate null
     DateSymbolNowTemplate: &DateSymbolNowTemplate !!js/function >

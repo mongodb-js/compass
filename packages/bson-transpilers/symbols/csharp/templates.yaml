@@ -38,7 +38,7 @@ Templates:
     ArrayTypeTemplate: &ArrayTypeTemplate !!js/function >
         (literal) => {
             if (literal === '') {
-              return 'new BsonArray()' 
+              return 'new BsonArray()'
             }
             return `new BsonArray {${literal}}`;
         }
@@ -167,6 +167,8 @@ Templates:
             return `${lhs}.ToInt32`;
         }
     Int32ValueOfArgsTemplate: &Int32ValueOfArgsTemplate null
+    Int32ToStringTemplate: &Int32ToStringTemplate null
+    Int32ToStringArgsTemplate: &Int32ToStringArgsTemplate null
     LongEqualsTemplate: &LongEqualsTemplate null
     LongEqualsArgsTemplate: &LongEqualsArgsTemplate null
     LongToIntTemplate: &LongToIntTemplate !!js/function >
@@ -174,6 +176,11 @@ Templates:
             return `${lhs}.ToInt32`;
         }
     LongToIntArgsTemplate: &LongToIntArgsTemplate null
+    LongValueOfTemplate: &LongValueOfTemplate !!js/function >
+        (lhs) => {
+            return `${lhs}.ToInt32`;
+        }
+    LongValueOfArgsTemplate: &LongValueOfArgsTemplate null
     LongToNumberTemplate: &LongToNumberTemplate !!js/function >
         (lhs) => {
             return `${lhs}.ToDouble`;
@@ -509,7 +516,7 @@ Templates:
             return `("${arg}")`;
         }
     Int32SymbolTemplate: &Int32SymbolTemplate null # Has emit method
-    Int32SymbolArgsTemplate: &Int32SymbolArgsTemplate null # Has emit method 
+    Int32SymbolArgsTemplate: &Int32SymbolArgsTemplate null # Has emit method
     LongSymbolTemplate: &LongSymbolTemplate !!js/function >
         () => {
             return 'BsonInt64';
@@ -540,26 +547,26 @@ Templates:
     LongSymbolOneArgsTemplate: &LongSymbolOneArgsTemplate null
     LongSymbolNegOneTemplate: &LongSymbolNegOneTemplate !!js/function >
         (lhs) => {
-            return `new ${lhs}.ToInt64(-1)`; 
+            return `new ${lhs}.ToInt64(-1)`;
         }
     LongSymbolNegOneArgsTemplate: &LongSymbolNegOneArgsTemplate null
     LongSymbolFromBitsTemplate: &LongSymbolFromBitsTemplate !!js/function >
         (lhs) => {
-            return ''; 
+            return '';
         }
     LongSymbolFromBitsArgsTemplate: &LongSymbolFromBitsArgsTemplate !!js/function >
         (lhs) => {
-            return `new ${lhs}.ToInt64`; 
+            return `new ${lhs}.ToInt64`;
         }
-    LongSymbolFromIntTemplate: &LongSymbolFromIntTemplate !!js/function > 
+    LongSymbolFromIntTemplate: &LongSymbolFromIntTemplate !!js/function >
         (lhs) => {
-            return `new ${lhs}.ToInt64`; 
+            return `new ${lhs}.ToInt64`;
         }
     LongSymbolFromIntArgsTemplate: &LongSymbolFromIntArgsTemplate null
     LongSymbolFromNumberTemplate: &LongSymbolFromNumberTemplate null
     LongSymbolFromNumberArgsTemplate: &LongSymbolFromNumberArgsTemplate !!js/function >
         (lhs, arg) => {
-            return `new ${lhs}.ToInt64(${arg})`; 
+            return `new ${lhs}.ToInt64(${arg})`;
         }
     LongSymbolFromStringTemplate: &LongSymbolFromStringTemplate !!js/function >
         (lhs) => {
@@ -650,7 +657,7 @@ Templates:
         }
     DateSymbolTemplate: &DateSymbolTemplate null # Has emit method
     DateSymbolArgsTemplate: &DateSymbolArgsTemplate null # Has emit method
-    DateSymbolNowTemplate: &DateSymbolNowTemplate null # Has emit method 
+    DateSymbolNowTemplate: &DateSymbolNowTemplate null # Has emit method
     DateSymbolNowArgsTemplate: &DateSymbolNowArgsTemplate null # Has emit method
     RegExpSymbolTemplate: &RegExpSymbolTemplate null
     RegExpSymbolArgsTemplate: &RegExpSymbolArgsTemplate null

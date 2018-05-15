@@ -90,6 +90,8 @@ Templates:
     DoubleValueOfArgsTemplate: &DoubleValueOfArgsTemplate null
     Int32ValueOfTemplate: &Int32ValueOfTemplate null
     Int32ValueOfArgsTemplate: &Int32ValueOfArgsTemplate null
+    Int32ToStringTemplate: &Int32ToStringTemplate null
+    Int32ToStringArgsTemplate: &Int32ToStringArgsTemplate null
     LongEqualsTemplate: &LongEqualsTemplate null
     LongEqualsArgsTemplate: &LongEqualsArgsTemplate null
     LongToIntTemplate: &LongToIntTemplate !!js/function >
@@ -97,6 +99,11 @@ Templates:
             return `${lhs}.toInt`;
         }
     LongToIntArgsTemplate: &LongToIntArgsTemplate null
+    LongValueOfTemplate: &LongValueOfTemplate !!js/function >
+        (lhs) => {
+            return `${lhs}.toInt`;
+        }
+    LongValueOfArgsTemplate: &LongValueOfArgsTemplate null
     LongToNumberTemplate: &LongToNumberTemplate null
     LongToNumberArgsTemplate: &LongToNumberArgsTemplate null
     LongAddTemplate: &LongAddTemplate null

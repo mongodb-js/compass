@@ -161,6 +161,8 @@ Templates:
             return `${lhs}.intValue`;
         }
     Int32ValueOfArgsTemplate: &Int32ValueOfArgsTemplate null
+    Int32ToStringTemplate: &Int32ToStringTemplate null
+    Int32ToStringArgsTemplate: &Int32ToStringArgsTemplate null
     LongEqualsTemplate: &LongEqualsTemplate null
     LongEqualsArgsTemplate: &LongEqualsArgsTemplate null
     LongToIntTemplate: &LongToIntTemplate !!js/function >
@@ -168,6 +170,11 @@ Templates:
             return `${lhs}.intValue`;
         }
     LongToIntArgsTemplate: &LongToIntArgsTemplate null
+    LongValueOfTemplate: &LongValueOfTemplate !!js/function >
+        (lhs) => {
+            return `${lhs}.intValue`;
+        }
+    LongValueOfArgsTemplate: &LongValueOfArgsTemplate null
     LongToNumberTemplate: &LongToNumberTemplate !!js/function >
         (lhs) => {
             return `${lhs}.floatValue`;

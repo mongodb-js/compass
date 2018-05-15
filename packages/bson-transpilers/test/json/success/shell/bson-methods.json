@@ -4,7 +4,7 @@
       {
         "description": "CodeWithScope scope",
         "javascript": "Code('test code', {x: 1}).scope",
-        "python": "",
+        "python": "Code('test code', {'x': 1}).scope",
         "java": "new CodeWithScope(\"test code\", new Document().append(\"x\", new java.lang.Long(\"1\"))).getScope()",
         "csharp": "",
         "shell": "Code('test code', {x: 1}).scope"
@@ -12,7 +12,7 @@
       {
         "description": "Code code",
         "javascript": "Code('test code').code",
-        "python": "",
+        "python": "str(Code('test code'))",
         "java": "new Code(\"test code\").getCode()",
         "csharp": "",
         "shell": "Code('test code').code"
@@ -20,7 +20,7 @@
       {
         "description": "Code toString",
         "javascript": "Code('test code').toString()",
-        "python": "",
+        "python": "repr(Code('test code'))",
         "java": "new Code(\"test code\").toString()",
         "csharp": "",
         "shell": "Code('test code').toString()"
@@ -30,7 +30,7 @@
       {
         "description": "toString",
         "javascript": "ObjectId().toString()",
-        "python": "",
+        "python": "str(ObjectId())",
         "java": "new ObjectId().toString()",
         "csharp": "",
         "shell": "ObjectId().toString()"
@@ -38,7 +38,7 @@
       {
         "description": "getTimestamp",
         "javascript": "ObjectId('5ab901c29ee65f5c8550c5b9').getTimestamp()",
-        "python": "",
+        "python": "ObjectId('5ab901c29ee65f5c8550c5b9').generation_time",
         "java": "new ObjectId(\"5ab901c29ee65f5c8550c5b9\").getTimestamp()",
         "csharp": "",
         "shell": "ObjectId('5ab901c29ee65f5c8550c5b9').getTimestamp()"
@@ -46,7 +46,7 @@
       {
         "description": "equals",
         "javascript": "ObjectId().equals(ObjectId())",
-        "python": "",
+        "python": "ObjectId() == ObjectId()",
         "java": "new ObjectId().equals(new ObjectId())",
         "csharp": "",
         "shell": "ObjectId().equals(ObjectId())"
@@ -56,7 +56,7 @@
       {
         "description": "length",
         "javascript": "Binary('0001', '1').length()",
-        "python": "",
+        "python": "len(bytearray(Binary(b'0001', bson.binary.FUNCTION_SUBTYPE)))",
         "java": "new Binary(org.bson.BsonBinarySubType.FUNCTION, \"0001\".getBytes(\"UTF-8\")).length()",
         "csharp": "",
         "shell": "BinData(1, '0001').length()"
@@ -64,7 +64,7 @@
       {
         "description": "subtype",
         "javascript": "Binary('0001', '1').sub_type",
-        "python": "",
+        "python": "Binary(b'0001', bson.binary.FUNCTION_SUBTYPE).subtype()",
         "java": "new Binary(org.bson.BsonBinarySubType.FUNCTION, \"0001\".getBytes(\"UTF-8\")).getType()",
         "csharp": "",
         "shell": "BinData(1, '0001').subtype()"
@@ -72,7 +72,7 @@
       {
         "description": "toString",
         "javascript": "new Binary('0001', '1').toString()",
-        "python": "",
+        "python": "str(Binary(b'0001', bson.binary.FUNCTION_SUBTYPE))",
         "java": "new Binary(org.bson.BsonBinarySubType.FUNCTION, \"0001\".getBytes(\"UTF-8\")).toString()",
         "csharp": "",
         "shell": "new BinData(1, '0001').toString()"
@@ -82,7 +82,7 @@
       {
         "description": "toString",
         "javascript": "new DBRef('coll', new ObjectId()).toString()",
-        "python": "",
+        "python": "str(DBRef('coll', ObjectId()))",
         "java": "new DBRef(\"coll\", new ObjectId()).toString()",
         "csharp": "",
         "shell": "new DBRef('coll', new ObjectId()).toString()"
@@ -90,7 +90,7 @@
       {
         "description": "getDb",
         "javascript": "new DBRef('coll', new ObjectId()).db",
-        "python": "",
+        "python": "DBRef('coll', ObjectId()).database",
         "java": "new DBRef(\"coll\", new ObjectId()).getDatabaseName()",
         "csharp": "",
         "shell": "new DBRef('coll', new ObjectId()).getDb()"
@@ -98,7 +98,7 @@
       {
         "description": "$db",
         "javascript": "new DBRef('coll', new ObjectId()).db",
-        "python": "",
+        "python": "DBRef('coll', ObjectId()).database",
         "java": "new DBRef(\"coll\", new ObjectId()).getDatabaseName()",
         "csharp": "",
         "shell": "new DBRef('coll', new ObjectId()).$db"
@@ -106,7 +106,7 @@
       {
         "description": "getCollection",
         "javascript": "new DBRef('coll', new ObjectId()).namespace",
-        "python": "",
+        "python": "DBRef('coll', ObjectId()).collection",
         "java": "new DBRef(\"coll\", new ObjectId()).getCollectionName()",
         "csharp": "",
         "shell": "new DBRef('coll', new ObjectId()).getCollection()"
@@ -114,7 +114,7 @@
       {
         "description": "getRef",
         "javascript": "new DBRef('coll', new ObjectId()).namespace",
-        "python": "",
+        "python": "DBRef('coll', ObjectId()).collection",
         "java": "new DBRef(\"coll\", new ObjectId()).getCollectionName()",
         "csharp": "",
         "shell": "new DBRef('coll', new ObjectId()).getRef()"
@@ -122,7 +122,7 @@
       {
         "description": "$ref",
         "javascript": "new DBRef('coll', new ObjectId()).namespace",
-        "python": "",
+        "python": "DBRef('coll', ObjectId()).collection",
         "java": "new DBRef(\"coll\", new ObjectId()).getCollectionName()",
         "csharp": "",
         "shell": "new DBRef('coll', new ObjectId()).$ref"
@@ -130,7 +130,7 @@
       {
         "description": "getId",
         "javascript": "new DBRef('coll', new ObjectId()).oid",
-        "python": "",
+        "python": "DBRef('coll', ObjectId()).id",
         "java": "new DBRef(\"coll\", new ObjectId()).getId()",
         "csharp": "",
         "shell": "new DBRef('coll', new ObjectId()).getId()"
@@ -138,7 +138,7 @@
       {
         "description": "$id",
         "javascript": "new DBRef('coll', new ObjectId()).oid",
-        "python": "",
+        "python": "DBRef('coll', ObjectId()).id",
         "java": "new DBRef(\"coll\", new ObjectId()).getId()",
         "csharp": "",
         "shell": "new DBRef('coll', new ObjectId()).$id"
@@ -148,7 +148,7 @@
       {
         "description": "toString",
         "javascript": "Int32(3).toString()",
-        "python": "",
+        "python": "str(int(3))",
         "java": "new java.lang.Integer(3).toString()",
         "csharp": "",
         "shell": "NumberInt(3).toString()"
@@ -156,7 +156,7 @@
       {
         "description": "valueOf",
         "javascript": "Int32(3).valueOf()",
-        "python": "",
+        "python": "int(3)",
         "java": "new java.lang.Integer(3).intValue()",
         "csharp": "",
         "shell": "NumberInt(3).valueOf()"
@@ -166,7 +166,7 @@
       {
         "description": "toString",
         "javascript": "'429496729601'",
-        "python": "",
+        "python": "'429496729601'",
         "java": "\"429496729601\"",
         "csharp": "",
         "shell": "NumberLong(429496729601).toString()"
@@ -174,7 +174,7 @@
       {
         "description": "valueOf",
         "javascript": "Long.fromNumber(429496729601).toInt()",
-        "python": "",
+        "python": "long(Int64(429496729601))",
         "java": "new java.lang.Long(\"429496729601\").intValue()",
         "csharp": "",
         "shell": "NumberLong(429496729601).valueOf()"
@@ -182,7 +182,7 @@
       {
         "description": "floatApprox",
         "javascript": "Long.fromNumber(429496729601).toNumber()",
-        "python": "",
+        "python": "float(Int64(429496729601))",
         "java": "new java.lang.Long(\"429496729601\").floatValue()",
         "csharp": "",
         "shell": "NumberLong(429496729601).floatApprox"
@@ -190,7 +190,7 @@
       {
         "description": "top",
         "javascript": "Long.fromNumber(429496729601).getHighBits()",
-        "python": "",
+        "python": "Int64(429496729601) >> 32",
         "java": "new java.lang.Long(\"429496729601\") >> 32",
         "csharp": "",
         "shell": "NumberLong(429496729601).top"
@@ -198,7 +198,7 @@
       {
         "description": "bottom",
         "javascript": "Long.fromNumber(429496729601).getLowBits()",
-        "python": "",
+        "python": "Int64(429496729601) & 0x0000ffff",
         "java": "new java.lang.Long(\"429496729601\") & 0x0000ffff",
         "csharp": "",
         "shell": "NumberLong(429496729601).bottom"
@@ -208,7 +208,7 @@
       {
         "description": "toString",
         "javascript": "Decimal128.fromString('0').toString()",
-        "python": "",
+        "python": "str(Decimal128('0'))",
         "java": "Decimal128.parse(\"0\").toString()",
         "csharp": "",
         "shell": "NumberDecimal(0).toString()"
@@ -218,7 +218,7 @@
       {
         "description": "toString",
         "javascript": "Timestamp(1, 100).toString()",
-        "python": "",
+        "python": "str(Timestamp(1, 100))",
         "java": "new BSONTimestamp(1, 100).toString()",
         "csharp": "",
         "shell": "Timestamp(1, 100).toString()"
@@ -226,7 +226,7 @@
       {
         "description": "getTime",
         "javascript": "Timestamp(1, 100).getLowBits()",
-        "python": "",
+        "python": "Timestamp(1, 100).time",
         "java": "new BSONTimestamp(1, 100).getTime()",
         "csharp": "",
         "shell": "Timestamp(1, 100).getTime()"
@@ -234,7 +234,7 @@
       {
         "description": "getInc",
         "javascript": "Timestamp(1, 100).getHighBits()",
-        "python": "",
+        "python": "Timestamp(1, 100).inc",
         "java": "new BSONTimestamp(1, 100).getInc()",
         "csharp": "",
         "shell": "Timestamp(1, 100).getInc()"
@@ -242,7 +242,7 @@
       {
         "description": "t",
         "javascript": "Timestamp(1, 100).getLowBits()",
-        "python": "",
+        "python": "Timestamp(1, 100).time",
         "java": "new BSONTimestamp(1, 100).getTime()",
         "csharp": "",
         "shell": "Timestamp(1, 100).t"
@@ -250,7 +250,7 @@
       {
         "description": "i",
         "javascript": "Timestamp(1, 100).getHighBits()",
-        "python": "",
+        "python": "Timestamp(1, 100).inc",
         "java": "new BSONTimestamp(1, 100).getInc()",
         "csharp": "",
         "shell": "Timestamp(1, 100).i"

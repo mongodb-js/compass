@@ -1,9 +1,11 @@
-const { readJSON, runTest } = require('./helpers');
+const {
+  readJSON,
+  runTest,
+  inputLanguages,
+  outputLanguages
+} = require('./helpers');
 const fs = require('fs');
 const path = require('path');
-
-const outputLanguages = ['csharp', 'python', 'java', 'javascript'];
-const inputLanguages = ['javascript', 'shell'];
 
 describe('Test', () => {
   const pSuccess = path.join(__dirname, 'json', 'success');

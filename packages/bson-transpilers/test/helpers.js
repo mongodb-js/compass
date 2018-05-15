@@ -6,6 +6,8 @@ const expect = chai.expect;
 const compiler = require('../');
 
 // Need a way to have test pass while developing
+const outputLanguages = ['csharp', 'python', 'java', 'javascript'];
+const inputLanguages = ['shell', 'javascript'];
 const unsupported = {
   success: {
     javascript: {
@@ -18,12 +20,7 @@ const unsupported = {
     shell: {
       java: {},
       javascript: {},
-      python: {
-        'bson-constructors': [ '*' ],
-        'language-types': [ '*' ],
-        'bson-methods': [ '*' ],
-        'bson-utils': [ '*' ]
-      },
+      python: {},
       csharp: {
         'bson-constructors': [ '*' ],
         'language-types': [ '*' ],
@@ -95,7 +92,4 @@ const runTest = function(mode, testname, inputLang, outputLang, tests) {
   });
 };
 
-module.exports = {
-  readJSON: readJSON,
-  runTest: runTest
-};
+module.exports = {inputLanguages, outputLanguages, readJSON, runTest};
