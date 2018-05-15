@@ -465,28 +465,41 @@ export const generatePipeline = (state, index) => {
  */
 const executeAggregation = (dataService, ns, dispatch, state, index) => {
   const stage = state.pipeline[index];
-  if (stage.isValid && stage.isEnabled && stage.stageOperator) {
-    dispatch(loadingStageResults(index));
-    const pipeline = generatePipeline(state, index);
-    dataService.aggregate(ns, pipeline, OPTIONS, (err, cursor) => {
-      if (err) return dispatch(stagePreviewUpdated([], index, err));
-      cursor.toArray((e, docs) => {
-        dispatch(stagePreviewUpdated(docs || [], index, e));
-        cursor.close();
-        dispatch(
-          appRegistryEmit(
-            'agg-pipeline-executed',
-            {
-              numStages: state.pipeline.length,
-              stageOperators: state.pipeline.map(s => s.stageOperator)
-            }
-          )
-        );
-      });
-    });
+  if (stage.isValid && stage.isEnabled && stage.stageOperator && stage.stageOperator !== OUT) {
+    executeStage(dataService, ns, dispatch, state, index);
   } else {
     dispatch(stagePreviewUpdated([], index, null));
   }
+};
+
+/**
+ * Execute a single stage.
+ *
+ * @param {DataService} dataService - The data service.
+ * @param {String} ns - The namespace.
+ * @param {Function} dispatch - The dispatch function.
+ * @param {Object} state - The state.
+ * @param {Number} index - The current index.
+ */
+const executeStage = (dataService, ns, dispatch, state, index) => {
+  dispatch(loadingStageResults(index));
+  const pipeline = generatePipeline(state, index);
+  dataService.aggregate(ns, pipeline, OPTIONS, (err, cursor) => {
+    if (err) return dispatch(stagePreviewUpdated([], index, err));
+    cursor.toArray((e, docs) => {
+      dispatch(stagePreviewUpdated(docs || [], index, e));
+      cursor.close();
+      dispatch(
+        appRegistryEmit(
+          'agg-pipeline-executed',
+          {
+            numStages: state.pipeline.length,
+            stageOperators: state.pipeline.map(s => s.stageOperator)
+          }
+        )
+      );
+    });
+  });
 };
 
 /**
