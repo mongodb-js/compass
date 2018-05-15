@@ -471,6 +471,17 @@ describe('pipeline module', () => {
           ]);
         });
       });
+
+      context('when the stage is $out', () => {
+        const stage0 = { isEnabled: true, executor: { $out: 'testing' }, stageOperator: '$out' };
+        const state = { inputDocuments: { count: 10000 }, pipeline: [ stage0 ]};
+
+        it('returns the pipeline with the current and all previous stages', () => {
+          expect(generatePipeline(state, 0)).to.deep.equal([
+            stage0.executor
+          ]);
+        });
+      });
     });
   });
 });

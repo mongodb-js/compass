@@ -83,6 +83,11 @@ export const FULL_SCAN_OPS = [
 ];
 
 /**
+ * The out stage operator.
+ */
+export const OUT = '$out';
+
+/**
  * An initial stage.
  */
 const EMPTY_STAGE = {
@@ -441,7 +446,9 @@ export const generatePipeline = (state, index) => {
     return results;
   }, []);
   const lastStage = state.pipeline[state.pipeline.length - 1];
-  if (stages.length > 0 && !REQUIRED_AS_FIRST_STAGE.includes(lastStage.stageOperator)) {
+  if (stages.length > 0 &&
+      !REQUIRED_AS_FIRST_STAGE.includes(lastStage.stageOperator) &&
+      lastStage.stageOperator !== OUT) {
     stages.push(LIMIT);
   }
   return stages;
