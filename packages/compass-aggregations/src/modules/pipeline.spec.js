@@ -281,11 +281,12 @@ describe('pipeline module', () => {
     const error = new Error('test');
 
     it('returns the STAGE_PREVIEW_UPDATED action', () => {
-      expect(stagePreviewUpdated(docs, 3, error)).to.deep.equal({
+      expect(stagePreviewUpdated(docs, 3, error, true)).to.deep.equal({
         type: STAGE_PREVIEW_UPDATED,
         documents: docs,
         index: 3,
-        error: error
+        error: error,
+        isComplete: true
       });
     });
   });

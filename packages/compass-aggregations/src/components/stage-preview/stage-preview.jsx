@@ -21,6 +21,7 @@ class StagePreview extends Component {
     isValid: PropTypes.bool.isRequired,
     isEnabled: PropTypes.bool.isRequired,
     isLoading: PropTypes.bool.isRequired,
+    isComplete: PropTypes.bool.isRequired,
     index: PropTypes.number.isRequired,
     stageOperator: PropTypes.string,
     stageValue: PropTypes.any
@@ -40,6 +41,9 @@ class StagePreview extends Component {
       nextProps.documents.length !== this.props.documents.length;
   }
 
+  /**
+   * On the save click, execute the $out.
+   */
   onSaveDocuments = () => {
     this.props.runOutStage(this.props.index);
   }
@@ -50,6 +54,18 @@ class StagePreview extends Component {
    * @returns {Component} The component.
    */
   renderOutSection() {
+    if (this.props.isComplete) {
+      return (
+        <div className={classnames(styles['stage-preview-out'])}>
+          <div className={classnames(styles['stage-preview-out-text'])}>
+            Documents persisted to collection: {this.props.stageValue}.
+          </div>
+          <div className={classnames(styles['stage-preview-out-link'])}>
+            Go to collection.
+          </div>
+        </div>
+      );
+    }
     return (
       <div className={classnames(styles['stage-preview-out'])}>
         <div className={classnames(styles['stage-preview-out-text'])}>

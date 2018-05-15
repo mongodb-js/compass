@@ -15,6 +15,7 @@ describe('StagePreview [Component]', () => {
           documents={[{ name: 'test' }]}
           isValid
           isEnabled
+          isComplete
           index={0}
           runOutStage={sinon.spy()}
           isLoading={false} />
@@ -35,39 +36,80 @@ describe('StagePreview [Component]', () => {
   });
 
   context('when the stage operator is $out', () => {
-    let component;
+    context('when the execution is not complete', () => {
+      let component;
 
-    beforeEach(() => {
-      component = mount(
-        <StagePreview
-          documents={[{ name: 'test' }]}
-          isValid
-          isEnabled
-          index={0}
-          runOutStage={sinon.spy()}
-          isLoading={false}
-          stageOperator="$out" />
-      );
+      beforeEach(() => {
+        component = mount(
+          <StagePreview
+            documents={[{ name: 'test' }]}
+            isValid
+            isEnabled
+            isComplete={false}
+            index={0}
+            runOutStage={sinon.spy()}
+            isLoading={false}
+            stageOperator="$out" />
+        );
+      });
+
+      afterEach(() => {
+        component = null;
+      });
+
+      it('renders the wrapper div', () => {
+        expect(component.find(`.${styles['stage-preview']}`)).to.be.present();
+      });
+
+      it('does not render the documents', () => {
+        expect(component.find(`.${styles['stage-preview-documents']}`)).to.not.be.present();
+      });
+
+      it('renders the out text', () => {
+        expect(component.find(`.${styles['stage-preview-out-text']}`)).to.be.present();
+      });
+
+      it('renders the save button', () => {
+        expect(component.find(`.${styles['stage-preview-out-button']}`)).to.be.present();
+      });
     });
 
-    afterEach(() => {
-      component = null;
-    });
+    context('when the execution is complete', () => {
+      let component;
 
-    it('renders the wrapper div', () => {
-      expect(component.find(`.${styles['stage-preview']}`)).to.be.present();
-    });
+      beforeEach(() => {
+        component = mount(
+          <StagePreview
+            documents={[{ name: 'test' }]}
+            isValid
+            isEnabled
+            isComplete
+            index={0}
+            runOutStage={sinon.spy()}
+            isLoading={false}
+            stageOperator="$out" />
+        );
+      });
 
-    it('does not render the documents', () => {
-      expect(component.find(`.${styles['stage-preview-documents']}`)).to.not.be.present();
-    });
+      afterEach(() => {
+        component = null;
+      });
 
-    it('renders the out text', () => {
-      expect(component.find(`.${styles['stage-preview-out-text']}`)).to.be.present();
-    });
+      it('renders the wrapper div', () => {
+        expect(component.find(`.${styles['stage-preview']}`)).to.be.present();
+      });
 
-    it('renders the save button', () => {
-      expect(component.find(`.${styles['stage-preview-out-button']}`)).to.be.present();
+      it('does not render the documents', () => {
+        expect(component.find(`.${styles['stage-preview-documents']}`)).to.not.be.present();
+      });
+
+      it('renders the out text', () => {
+        expect(component.find(`.${styles['stage-preview-out-text']}`)).to.be.present();
+      });
+
+      it('renders the link', () => {
+        expect(component.find(`.${styles['stage-preview-out-link']}`)).to.be.present();
+      });
     });
   });
 
