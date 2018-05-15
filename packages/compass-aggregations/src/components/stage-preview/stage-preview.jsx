@@ -22,7 +22,8 @@ class StagePreview extends Component {
 
   shouldComponentUpdate(nextProps) {
     return nextProps.isLoading !== this.props.isLoading ||
-      nextProps.isEnabled !== this.props.isEnabled;
+      nextProps.isEnabled !== this.props.isEnabled ||
+      nextProps.documents.length !== this.props.documents.length;
   }
 
   renderPreview() {

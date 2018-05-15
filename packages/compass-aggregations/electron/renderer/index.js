@@ -63,7 +63,7 @@ appRegistry.emit('data-service-initialized', dataService);
 
 dataService.connect((error, ds) => {
   appRegistry.emit('data-service-connected', error, ds);
-  appRegistry.emit('collection-changed', 'Venues.Restaurants');
+  appRegistry.emit('collection-changed', 'citibike.trips');
 
   const docs = [{
     _id: 1,
