@@ -19,12 +19,13 @@ import savedPipeline, {
 } from './saved-pipeline';
 import restorePipeline, { INITIAL_STATE as RESTORE_PIPELINE_STATE} from './restore-pipeline';
 import { getObjectStore } from 'utils/indexed-db';
-import { appRegistryEmit } from 'modules/app-registry';
+import appRegistry, { appRegistryEmit, INITIAL_STATE as APP_REGISTRY_STATE } from 'modules/app-registry';
 
 /**
  * The intial state of the root reducer.
  */
 export const INITIAL_STATE = {
+  appRegistry: APP_REGISTRY_STATE,
   dataService: DS_INITIAL_STATE,
   fields: FIELDS_INITIAL_STATE,
   inputDocuments: INPUT_INITIAL_STATE,
@@ -72,6 +73,7 @@ export const CLONE_PIPELINE = 'aggregations/CLONE_PIPELINE';
  * @returns {Function} The reducer function.
  */
 const appReducer = combineReducers({
+  appRegistry,
   dataService,
   fields,
   inputDocuments,
@@ -94,7 +96,11 @@ const appReducer = combineReducers({
  * @returns {Object} The new state.
  */
 const doNamespaceChanged = (state, action) => {
-  const newState = { ...INITIAL_STATE, dataService: state.dataService };
+  const newState = {
+    ...INITIAL_STATE,
+    dataService: state.dataService,
+    appRegistry: state.appRegistry
+  };
   return appReducer(newState, action);
 };
 
@@ -119,6 +125,7 @@ const doRestorePipeline = (state, action) => {
   const savedState = action.restoreState;
   return {
     ...INITIAL_STATE,
+    appRegistry: savedState.appRegistry,
     namespace: savedState.namespace,
     pipeline: savedState.pipeline,
     name: savedState.name,
@@ -160,6 +167,7 @@ const doClearPipeline = (state) => ({
  */
 const createNewPipeline = (state) => ({
   ...INITIAL_STATE,
+  appRegistry: state.appRegistry,
   namespace: state.namespace,
   fields: state.fields,
   serverVersion: state.serverVersion,

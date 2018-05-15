@@ -22,7 +22,7 @@ class StagePreview extends Component {
     isValid: PropTypes.bool.isRequired,
     isEnabled: PropTypes.bool.isRequired,
     isLoading: PropTypes.bool.isRequired,
-    isComplete: PropTypes.bool.isRequired,
+    isComplete: PropTypes.any,
     index: PropTypes.number.isRequired,
     stageOperator: PropTypes.string,
     stageValue: PropTypes.any

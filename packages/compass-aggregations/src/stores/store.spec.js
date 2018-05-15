@@ -141,6 +141,7 @@ describe('Aggregation Store', () => {
         it('resets the rest of the state to initial state', () => {
           expect(store.getState()).to.deep.equal({
             namespace: '',
+            appRegistry: appRegistry,
             name: INITIAL_STATE.name,
             id: INITIAL_STATE.id,
             restorePipeline: INITIAL_STATE.restorePipeline,
@@ -170,6 +171,7 @@ describe('Aggregation Store', () => {
         it('resets the rest of the state to initial state', () => {
           expect(store.getState()).to.deep.equal({
             namespace: 'db.coll',
+            appRegistry: appRegistry,
             name: INITIAL_STATE.name,
             id: INITIAL_STATE.id,
             restorePipeline: INITIAL_STATE.restorePipeline,
