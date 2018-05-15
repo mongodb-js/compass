@@ -46,7 +46,9 @@ class StageToolbar extends PureComponent {
           serverVersion={this.props.serverVersion} />
         <StagePreviewToolbar
           isEnabled={this.props.stage.isEnabled}
-          stageOperator={this.props.stage.stageOperator} />
+          isValid={this.props.stage.isValid}
+          stageOperator={this.props.stage.stageOperator}
+          stageValue={this.props.stage.stage} />
       </div>
     );
   }

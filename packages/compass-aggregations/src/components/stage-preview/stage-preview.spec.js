@@ -59,7 +59,11 @@ describe('StagePreview [Component]', () => {
     });
 
     it('renders the out text', () => {
-      expect(component.find(`.${styles['stage-preview-out']}`)).to.be.present();
+      expect(component.find(`.${styles['stage-preview-out-text']}`)).to.be.present();
+    });
+
+    it('renders the save button', () => {
+      expect(component.find(`.${styles['stage-preview-out-button']}`)).to.be.present();
     });
   });
 

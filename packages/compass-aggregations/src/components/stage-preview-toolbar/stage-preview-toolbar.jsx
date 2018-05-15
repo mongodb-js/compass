@@ -1,6 +1,7 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import classnames from 'classnames';
+import { OUT } from 'modules/pipeline';
 
 import styles from './stage-preview-toolbar.less';
 
@@ -11,7 +12,9 @@ class StagePreviewToolbar extends PureComponent {
   static displayName = 'StagePreviewToolbar';
   static propTypes = {
     isEnabled: PropTypes.bool.isRequired,
-    stageOperator: PropTypes.string
+    isValid: PropTypes.bool.isRequired,
+    stageOperator: PropTypes.string,
+    stageValue: PropTypes.any
   }
 
   /**
@@ -22,6 +25,9 @@ class StagePreviewToolbar extends PureComponent {
   getText() {
     if (this.props.isEnabled) {
       if (this.props.stageOperator) {
+        if (this.props.stageOperator === OUT && this.props.isValid) {
+          return `Documents will be saved to the collection: ${this.props.stageValue}`;
+        }
         return `Sample of Documents after the ${this.props.stageOperator} stage`;
       }
       return '';

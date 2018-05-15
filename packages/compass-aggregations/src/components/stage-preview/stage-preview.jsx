@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { Document } from '@mongodb-js/compass-crud';
+import { TextButton } from 'hadron-react-buttons';
 import HadronDocument from 'hadron-document';
 import LoadingOverlay from 'components/loading-overlay';
 import { OUT } from 'modules/pipeline';
@@ -19,7 +20,8 @@ class StagePreview extends Component {
     isValid: PropTypes.bool.isRequired,
     isEnabled: PropTypes.bool.isRequired,
     isLoading: PropTypes.bool.isRequired,
-    stageOperator: PropTypes.string
+    stageOperator: PropTypes.string,
+    stageValue: PropTypes.any
   }
 
   shouldComponentUpdate(nextProps) {
@@ -34,7 +36,16 @@ class StagePreview extends Component {
       if (this.props.stageOperator === OUT) {
         return (
           <div className={classnames(styles['stage-preview-out'])}>
-            Documents will be persisted to the collection...
+            <div className={classnames(styles['stage-preview-out-text'])}>
+              The $out operator will persist the results of the pipeline
+              to the specified collection. Please confirm to execute.
+            </div>
+            <div className={classnames(styles['stage-preview-out-button'])}>
+              <TextButton
+                text="Save Documents"
+                className="btn btn-xs btn-primary"
+                clickHandler={null} />
+            </div>
           </div>
         );
       }
