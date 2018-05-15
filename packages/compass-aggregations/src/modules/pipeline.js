@@ -1,6 +1,7 @@
 import { STAGE_OPERATORS } from 'mongodb-ace-autocompleter';
 import generateStage from 'modules/stage';
 import { appRegistryEmit } from 'modules/app-registry';
+import toNS from 'mongodb-ns';
 
 /**
  * Action name prefix.
@@ -505,6 +506,21 @@ const executeStage = (dataService, ns, dispatch, state, index) => {
       );
     });
   });
+};
+
+/**
+ * Go to the $out results collection.
+ *
+ * @param {String} collection - The collection name.
+ *
+ * @returns {Function} The thunk function.
+ */
+export const gotoOutResults = (collection) => {
+  return (dispatch, getState) => {
+    const database = toNS(getState().namespace).database;
+    const outNamespace = `${database}.${collection.replace(/\"/g, '')}`;
+    dispatch(appRegistryEmit('show-agg-pipeline-out-results', outNamespace));
+  };
 };
 
 /**

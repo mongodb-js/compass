@@ -17,6 +17,7 @@ class StagePreview extends Component {
 
   static propTypes = {
     runOutStage: PropTypes.func.isRequired,
+    gotoOutResults: PropTypes.func.isRequired,
     documents: PropTypes.array.isRequired,
     isValid: PropTypes.bool.isRequired,
     isEnabled: PropTypes.bool.isRequired,
@@ -42,6 +43,13 @@ class StagePreview extends Component {
   }
 
   /**
+   * Goto the out results.
+   */
+  onGotoOutResults = () => {
+    this.props.gotoOutResults(this.props.stageValue);
+  }
+
+  /**
    * On the save click, execute the $out.
    */
   onSaveDocuments = () => {
@@ -60,7 +68,9 @@ class StagePreview extends Component {
           <div className={classnames(styles['stage-preview-out-text'])}>
             Documents persisted to collection: {this.props.stageValue}.
           </div>
-          <div className={classnames(styles['stage-preview-out-link'])}>
+          <div
+            className={classnames(styles['stage-preview-out-link'])}
+            onClick={this.onGotoOutResults}>
             Go to collection.
           </div>
         </div>

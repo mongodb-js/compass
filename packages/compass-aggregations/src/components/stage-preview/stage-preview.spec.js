@@ -18,6 +18,7 @@ describe('StagePreview [Component]', () => {
           isComplete
           index={0}
           runOutStage={sinon.spy()}
+          gotoOutResults={sinon.spy()}
           isLoading={false} />
       );
     });
@@ -48,6 +49,7 @@ describe('StagePreview [Component]', () => {
             isComplete={false}
             index={0}
             runOutStage={sinon.spy()}
+            gotoOutResults={sinon.spy()}
             isLoading={false}
             stageOperator="$out" />
         );
@@ -86,6 +88,7 @@ describe('StagePreview [Component]', () => {
             isComplete
             index={0}
             runOutStage={sinon.spy()}
+            gotoOutResults={sinon.spy()}
             isLoading={false}
             stageOperator="$out" />
         );
@@ -125,7 +128,9 @@ describe('StagePreview [Component]', () => {
             isEnabled
             isLoading
             index={0}
+            isComplete={false}
             runOutStage={sinon.spy()}
+            gotoOutResults={sinon.spy()}
             stageOperator="$out" />
         );
       });
@@ -150,8 +155,10 @@ describe('StagePreview [Component]', () => {
             isValid
             isEnabled
             isLoading
+            isComplete={false}
             index={0}
             runOutStage={sinon.spy()}
+            gotoOutResults={sinon.spy()}
             stageOperator="$match" />
         );
       });

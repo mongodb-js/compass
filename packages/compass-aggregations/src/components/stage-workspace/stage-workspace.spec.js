@@ -5,18 +5,20 @@ import StageWorkspace from 'components/stage-workspace';
 import styles from './stage-workspace.less';
 
 describe('StageWorkspace [Component]', () => {
-  const stage = { previewDocuments: [], isValid: true, isLoading: false };
+  const stage = { previewDocuments: [], isValid: true, isLoading: false, isEnabled: true };
   let component;
   let stageChangedSpy;
   let runStageSpy;
   let setIsModifiedSpy;
   let runOutStageSpy;
+  let gotoOutResultsSpy;
 
   beforeEach(() => {
     stageChangedSpy = sinon.spy();
     runStageSpy = sinon.spy();
     setIsModifiedSpy = sinon.spy();
     runOutStageSpy = sinon.spy();
+    gotoOutResultsSpy = sinon.spy();
 
     component = shallow(
       <StageWorkspace
@@ -26,6 +28,7 @@ describe('StageWorkspace [Component]', () => {
         fields={[]}
         isEnabled
         runStage={runStageSpy}
+        gotoOutResults={gotoOutResultsSpy}
         runOutStage={runOutStageSpy}
         setIsModified={setIsModifiedSpy}
         stageChanged={stageChangedSpy} />

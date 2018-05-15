@@ -77,6 +77,7 @@ class Stage extends Component {
     isDragging: PropTypes.bool.isRequired,
     runStage: PropTypes.func.isRequired,
     runOutStage: PropTypes.func.isRequired,
+    gotoOutResults: PropTypes.func.isRequired,
     serverVersion: PropTypes.string.isRequired,
     stageChanged: PropTypes.func.isRequired,
     stageCollapseToggled: PropTypes.func.isRequired,
@@ -101,6 +102,7 @@ class Stage extends Component {
           stage={this.props.stage}
           runStage={this.props.runStage}
           runOutStage={this.props.runOutStage}
+          gotoOutResults={this.props.gotoOutResults}
           index={this.props.index}
           serverVersion={this.props.serverVersion}
           fields={this.props.fields}

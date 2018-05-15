@@ -19,6 +19,7 @@ import {
 import {
   runStage,
   runOutStage,
+  gotoOutResults,
   stageAdded,
   stageChanged,
   stageCollapseToggled,
@@ -91,6 +92,7 @@ const MappedAggregations = connect(
     deletePipeline,
     runStage,
     runOutStage,
+    gotoOutResults,
     stageAdded,
     stageChanged,
     stageCollapseToggled,
