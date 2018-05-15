@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import { Document } from '@mongodb-js/compass-crud';
 import HadronDocument from 'hadron-document';
 import LoadingOverlay from 'components/loading-overlay';
+import { OUT } from 'modules/pipeline';
 import classnames from 'classnames';
 
 import styles from './stage-preview.less';
@@ -17,7 +18,8 @@ class StagePreview extends Component {
     documents: PropTypes.array.isRequired,
     isValid: PropTypes.bool.isRequired,
     isEnabled: PropTypes.bool.isRequired,
-    isLoading: PropTypes.bool.isRequired
+    isLoading: PropTypes.bool.isRequired,
+    stageOperator: PropTypes.string
   }
 
   shouldComponentUpdate(nextProps) {
@@ -27,21 +29,39 @@ class StagePreview extends Component {
   }
 
   renderPreview() {
-    if (this.props.isValid && this.props.isEnabled && this.props.documents.length > 0) {
-      const documents = this.props.documents.map((doc, i) => {
-        return (<Document doc={new HadronDocument(doc)} editable={false} key={i} />);
-      });
-      return (
-        <div className={classnames(styles['stage-preview-documents'])}>
-          {documents}
-        </div>
-      );
+    if (this.props.isValid && this.props.isEnabled) {
+      if (this.props.stageOperator === OUT) {
+        return (
+          <div className={classnames(styles['stage-preview-out'])}>
+            Documents will be persisted to the collection...
+          </div>
+        );
+      }
+      if (this.props.documents.length > 0) {
+        const documents = this.props.documents.map((doc, i) => {
+          return (<Document doc={new HadronDocument(doc)} editable={false} key={i} />);
+        });
+        return (
+          <div className={classnames(styles['stage-preview-documents'])}>
+            {documents}
+          </div>
+        );
+      }
     }
     return (
       <div className={classnames(styles['stage-preview-invalid'])}>
         <i>No Preview Documents</i>
       </div>
     );
+  }
+
+  renderLoading() {
+    if (this.props.isLoading) {
+      if (this.props.stageOperator === OUT) {
+        return (<LoadingOverlay text="Persisting Documents..." />);
+      }
+      return (<LoadingOverlay text="Loading Preview Documents..." />);
+    }
   }
 
   /**
@@ -52,10 +72,7 @@ class StagePreview extends Component {
   render() {
     return (
       <div className={classnames(styles['stage-preview'])}>
-        { this.props.isLoading ?
-          <LoadingOverlay text="Loading Preview Documents..." /> :
-          null
-        }
+        {this.renderLoading()}
         {this.renderPreview()}
       </div>
     );

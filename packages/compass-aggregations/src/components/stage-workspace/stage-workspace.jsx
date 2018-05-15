@@ -42,7 +42,8 @@ class StageWorkspace extends PureComponent {
           documents={this.props.stage.previewDocuments}
           isValid={this.props.stage.isValid}
           isEnabled={this.props.stage.isEnabled}
-          isLoading={this.props.stage.isLoading} />
+          isLoading={this.props.stage.isLoading}
+          stageOperator={this.props.stage.stageOperator} />
       </div>
     );
   }
