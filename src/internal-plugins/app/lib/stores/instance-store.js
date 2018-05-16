@@ -23,6 +23,7 @@ const InstanceStore = Reflux.createStore({
   onActivated(appRegistry) {
     appRegistry.on('data-service-connected', this.onConnected.bind(this));
     appRegistry.on('data-service-disconnected', this.onDisconnected.bind(this));
+    appRegistry.on('agg-pipeline-out-executed', this.refreshInstance.bind(this));
   },
 
   onConnected(err, dataService) {
