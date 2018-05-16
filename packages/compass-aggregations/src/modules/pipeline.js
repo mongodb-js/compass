@@ -535,6 +535,7 @@ export const runOutStage = (index) => {
     const state = getState();
     const dataService = state.dataService.dataService;
     executeStage(dataService, state.namespace, dispatch, state, index);
+    dispatch(appRegistryEmit('agg-pipeline-out-executed'));
   };
 };
 
