@@ -11,7 +11,7 @@ class Collection extends React.Component {
   constructor(props) {
     super(props);
 
-    this.state = {activeTab: 0};
+    this.state = { activeTab: 0 };
 
     this.Stats = app.appRegistry.getComponent('CollectionStats.Component');
     this.CollectionStore = app.appRegistry.getStore('App.CollectionStore');
@@ -28,7 +28,12 @@ class Collection extends React.Component {
         activeTab: this.CollectionStore && this.CollectionStore.getActiveTab()
       });
     } else {
-      this.setState({activeTab: 0});
+      this.setState({ activeTab: 0 });
+    }
+    if (this.CollectionStore) {
+      this.CollectionStore.listen((index) => {
+        this.setState({ activeTab: index });
+      });
     }
   }
 

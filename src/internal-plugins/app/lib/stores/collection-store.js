@@ -14,6 +14,19 @@ const CollectionStore = Reflux.createStore({
   },
 
   /**
+   * Handle app registry activation.
+   *
+   * @param {AppRegistry} appRegistry - The app registry.
+   */
+  onActivated(appRegistry) {
+    this.appRegistry = appRegistry;
+    appRegistry.on('show-agg-pipeline-out-results', (ns) => {
+      this.setCollection({ _id: ns, readonly: false, capped: false });
+      this.setActiveTab(0);
+    });
+  },
+
+  /**
    * Set the collection information.
    *
    * @param {Object} collection - The collection info.
