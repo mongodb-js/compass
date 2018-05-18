@@ -15,7 +15,7 @@
         "python": "ObjectId.from_datetime(datetime.datetime.fromtimestamp(1522075031642/1000.0))",
         "java": "new ObjectId(new java.util.Date(new java.lang.Long(\"1522075031642\")))",
         "shell": "ObjectId.fromDate(new Date(1522075031642))",
-        "csharp": "new ObjectId().GenerateNewId(1522075031642)"
+        "csharp": "new ObjectId().GenerateNewId(Convert.ToInt32(1522075031642))"
       },
       {
         "description": "createFromTime with date",

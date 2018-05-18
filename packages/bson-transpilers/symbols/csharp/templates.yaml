@@ -22,7 +22,7 @@ Templates:
                 (str.charAt(0) === '"' && str.charAt(str.length - 1) === '"')) {
                     newStr = str.substr(1, str.length - 2);
             }
-            return `new Regex(@"${newStr.replace(/\\([\s\S])|(")/g, '\\$1$2')}")`;
+            return `new Regex("${newStr.replace(/\\([\s\S])|(")/g, '\\$1$2')}")`;
         }
     BoolTypeTemplate: &BoolTypeTemplate null
     IntegerTypeTemplate: &IntegerTypeTemplate null
@@ -660,6 +660,9 @@ Templates:
         }
     ObjectIdCreateFromTimeArgsTemplate: &ObjectIdCreateFromTimeArgsTemplate !!js/function >
         (lhs, arg) => {
+            if (!Number.isNaN(parseInt(arg, 10))) {
+              return `new ${lhs}().GenerateNewId(Convert.ToInt32(${arg}))`;
+            }
             return `new ${lhs}().GenerateNewId(${arg})`;
         }
     ObjectIdIsValidTemplate: &ObjectIdIsValidTemplate !!js/function >
@@ -678,15 +681,8 @@ Templates:
         (lhs, arg) => {
             return arg;
         }
-    NumberSymbolTemplate: &NumberSymbolTemplate !!js/function >
-        () => {
-          return 'int'
-        }
-    NumberSymbolArgsTemplate: &NumberSymbolArgsTemplate !!js/function >
-        (lhs, arg) => {
-          arg = arg.replace(/['"]+/g, '');
-          return `(${arg})`
-        }
+    NumberSymbolTemplate: &NumberSymbolTemplate null # Has emit method
+    NumberSymbolArgsTemplate: &NumberSymbolArgsTemplate null # Has emit method
     DateSymbolTemplate: &DateSymbolTemplate null # Has emit method
     DateSymbolArgsTemplate: &DateSymbolArgsTemplate null # Has emit method
     DateSymbolNowTemplate: &DateSymbolNowTemplate null # Has emit method

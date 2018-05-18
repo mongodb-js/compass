@@ -611,6 +611,7 @@ class Visitor extends ECMAScriptVisitor {
     const rhs = symbolType.argsTemplate ? symbolType.argsTemplate(lhs, decstr) : `(${decstr})`;
     return `${this.new}${lhs}${rhs}`;
   }
+
   processNumberDecimal(ctx) {
     ctx.type = this.Types.NumberDecimal;
     const symbolType = this.Symbols.NumberDecimal;
@@ -628,6 +629,7 @@ class Visitor extends ECMAScriptVisitor {
     const rhs = symbolType.argsTemplate ? symbolType.argsTemplate(lhs, decstr) : `(${decstr})`;
     return `${this.new}${lhs}${rhs}`;
   }
+
   /*
    * This is a bit weird because we can just convert to string directly.
    */

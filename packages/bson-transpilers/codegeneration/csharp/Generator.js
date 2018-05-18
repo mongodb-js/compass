@@ -48,12 +48,52 @@ module.exports = (superclass) => class ExtendedVisitor extends superclass {
   }
 
   /**
+   * Number doesn't need a new keyword, so need to handle via emit
+   *
+   * @param {NumberContextObject} ctx
+   *
+   * @returns {string} - (int)value
+   */
+  emitNumber(ctx) {
+    ctx.type = this.Types.Number;
+    const args = ctx.arguments().argumentList().singleExpression();
+    const expr = args[0].getText().replace(/['"]+/g, '');
+    return `(int)${expr}`;
+  }
+
+  /**
+   * BSON Binary Constructor
+   * needs to execute JS to get value first
+   *
+   * @param {BSONBinaryObject} ctx
+   *
+   * @returns {string} - new BsonBinaryData()
+   */
+  emitBinaryFromJS(ctx) {
+    ctx.type = this.Types.Binary;
+    let type;
+    let binobj;
+    try {
+      binobj = this.executeJavascript(ctx.getText());
+      type = binobj.sub_type;
+    } catch (error) {
+      throw new SemanticGenericError({message: error.message});
+    }
+    const bytes = doubleQuoteStringify(binobj.toString());
+    const argList = ctx.arguments().argumentList().singleExpression();
+    if (argList.length === 1) {
+      return `new BsonBinaryData(System.Text.Encoding.ASCII.GetBytes(${bytes}))`;
+    }
+    return `new BsonBinaryData(System.Text.Encoding.ASCII.GetBytes(${bytes}), ${this.binarySubTypes[type]})`;
+  }
+
+  /**
    * BSON RegExp Constructor
    *
    * @param {BSONRegExpConstructorObject} ctx - expects two strings as
    * arguments, where the second are flags
    *
-   * @returns {string} - new BSONRegularExpession(patter)
+   * @returns {string} - new BSONRegularExpession(pattern)
    */
   emitBSONRegExp(ctx) {
     ctx.type = this.Types.RegExp;
