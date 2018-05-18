@@ -185,6 +185,7 @@ module.exports = (superClass) => class ExtendedVisitor extends superClass {
    * TODO: Could move this to javascript/Visitor and use template.
    *
    * @param {FuncCallExpressionContext} ctx
+   * @param {String} str
    * @return {String}
    */
   emitDecimal128(ctx, str) {

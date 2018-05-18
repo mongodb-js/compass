@@ -373,12 +373,12 @@ class Visitor extends ECMAScriptVisitor {
       return result;
     }
 
-    const numeric_types = [
+    const numericTypes = [
       this.Types._integer, this.Types._decimal, this.Types._hex, this.Types._octal, this.Types._long, this.Types._numeric
     ];
     // If the expected type is numeric, accept the numeric basic types + numeric bson types
     if (expected.indexOf(this.Types._numeric) !== -1 &&
-       (numeric_types.indexOf(actual.type) !== -1 ||
+       (numericTypes.indexOf(actual.type) !== -1 ||
          (actual.type.id === 'Long' ||
           actual.type.id === 'Int32' ||
           actual.type.id === 'Double'))) {
@@ -387,8 +387,8 @@ class Visitor extends ECMAScriptVisitor {
 
     // Check if the arguments are both numeric. If so then cast to expected type.
     for (let i = 0; i < expected.length; i++) {
-      if (numeric_types.indexOf(actual.type) !== -1 &&
-        numeric_types.indexOf(expected[i]) !== -1) {
+      if (numericTypes.indexOf(actual.type) !== -1 &&
+        numericTypes.indexOf(expected[i]) !== -1) {
         actual.type = expected[i];
         return this.visit(actual);
       }
@@ -428,7 +428,8 @@ class Visitor extends ECMAScriptVisitor {
       const result = this.castType(expected[i], args[i]);
       if (result === null) {
         const message = `expected types ${expected[i].map((e) => {
-          return e ? e.id ? e.id : e : '[optional]';
+          const id = e && e.id ? e.id : e;
+          return e ? id : '[optional]';
         })} but got type ${args[i].type.id} for argument at index ${i}`;
 
         throw new SemanticTypeError({message});
@@ -439,7 +440,9 @@ class Visitor extends ECMAScriptVisitor {
   }
 
   /**
-   * Processs the RegExp and calls the template function if it exists.
+   * Processs the RegExp and calls the template function if it exists. Needs
+   * preprocessing because it needs to be executed.
+   *
    * @param {FuncCallExpressionContext} ctx
    * @return {String}
    */
@@ -468,7 +471,14 @@ class Visitor extends ECMAScriptVisitor {
     return this.visitChildren(ctx);
   }
 
-  process_regex(ctx) {
+  /**
+   * This looks like non-camelcase because the name of the basic type is "_regex"
+   * and the process methods are constructed with "Process" + <type name>.
+   *
+   * @param {FuncCallExpressionContext} ctx
+   * @return {String}
+   */
+  process_regex(ctx) { // eslint-disable-line camelcase
     return this.processRegExp(ctx);
   }
 
@@ -477,9 +487,6 @@ class Visitor extends ECMAScriptVisitor {
    * Manually check arguments here because first argument can be any JS, and we
    * don't want to ever visit that node.
    *
-   * child nodes: arguments
-   * grandchild nodes: argumentList?
-   * great-grandchild nodes: singleExpression+
    * @param {FuncCallExpressionContext} ctx
    * @return {String}
    */
@@ -517,10 +524,8 @@ class Visitor extends ECMAScriptVisitor {
   }
 
   /**
+   * ObjectId needs preprocessing because it needs to be executed.
    *
-   * child nodes: arguments
-   * grandchild nodes: argumentList?
-   * great-grandchild nodes: singleExpression+
    * @param {FuncCallExpressionContext} ctx
    * @return {String}
    */
@@ -546,9 +551,8 @@ class Visitor extends ECMAScriptVisitor {
   }
 
   /**
-   * child nodes: arguments
-   * grandchild nodes: argumentList?
-   * great-grandchild nodes: singleExpression+
+   * Long needs preprocessing because it needs to be executed.
+   *
    * @param {FuncCallExpressionContext} ctx
    * @return {String}
    */
@@ -569,28 +573,13 @@ class Visitor extends ECMAScriptVisitor {
     return `${this.new}${lhs}${rhs}`;
   }
 
-  processNumberLong(ctx) {
-    ctx.type = this.Types.NumberLong;
-    const symbolType = this.Symbols.NumberLong;
-    let longstr;
-    try {
-      longstr = this.executeJavascript(`new ${ctx.getText()}`).toString();
-    } catch (error) {
-      throw new SemanticGenericError({message: error.message});
-    }
-    if ('emitNumberLong' in this) {
-      return this.emitNumberLong(ctx, longstr);
-    }
-    const lhs = symbolType.template ? symbolType.template() : 'Long';
-    const rhs = symbolType.argsTemplate ? symbolType.argsTemplate(lhs, longstr) : `(${longstr})`;
-    return `${this.new}${lhs}${rhs}`;
-  }
-
   processLongfromBits(ctx) {
     return this.processLong(ctx);
   }
 
   /**
+   * Decimal128 needs preprocessing because it needs to be executed.
+   *
    * @param {FuncCallExpressionContext} ctx
    * @return {String}
    */
@@ -612,26 +601,11 @@ class Visitor extends ECMAScriptVisitor {
     return `${this.new}${lhs}${rhs}`;
   }
 
-  processNumberDecimal(ctx) {
-    ctx.type = this.Types.NumberDecimal;
-    const symbolType = this.Symbols.NumberDecimal;
-    let decstr;
-    try {
-      decstr = this.executeJavascript(`new ${ctx.getText()}`).toString();
-    } catch (error) {
-      throw new SemanticGenericError({message: error.message});
-    }
-
-    if ('emitNumberDecimal' in this) {
-      return this.emitNumberDecimal(ctx, decstr);
-    }
-    const lhs = symbolType.template ? symbolType.template() : 'NumberDecimal';
-    const rhs = symbolType.argsTemplate ? symbolType.argsTemplate(lhs, decstr) : `(${decstr})`;
-    return `${this.new}${lhs}${rhs}`;
-  }
-
-  /*
+  /**
    * This is a bit weird because we can just convert to string directly.
+   *
+   * @param {FuncCallExpressionContext} ctx
+   * @return {String}
    */
   processLongtoString(ctx) {
     ctx.type = this.Types._string;
@@ -646,12 +620,10 @@ class Visitor extends ECMAScriptVisitor {
   }
 
   /**
-   * Special cased because different target languages need different info out
-   * of the constructed date.
+   * Preprocessed because different target languages need different info out
+   * of the constructed date, so we want to execute it. Passes a constructed
+   * date object to the emit methods.
    *
-   * child nodes: arguments
-   * grandchild nodes: argumentList?
-   * great-grandchild nodes: singleExpression+
    * @param {FuncCallExpressionContext} ctx
    * @return {String}
    */
@@ -678,10 +650,12 @@ class Visitor extends ECMAScriptVisitor {
     return ctx.getText();
   }
 
-  processISODate(ctx) {
-    return this.processDate(ctx);
-  }
-
+  /**
+   * Binary needs preprocessing because it needs to be executed.
+   *
+   * @param {FuncCallExpressionContext} ctx
+   * @return {String}
+   */
   processBinary(ctx) {
     ctx.type = this.Types.Binary;
     const symbolType = this.Symbols.Binary;

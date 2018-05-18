@@ -34,9 +34,6 @@ module.exports = (superClass) => class ExtendedVisitor extends superClass {
    * Special cased because different target languages need different info out
    * of the constructed date.
    *
-   * child nodes: arguments
-   * grandchild nodes: argumentList?
-   * great-grandchild nodes: singleExpression+
    * @param {FuncCallExpressionContext} ctx
    * @param {Date} date
    * @return {String}
@@ -105,11 +102,11 @@ module.exports = (superClass) => class ExtendedVisitor extends superClass {
     return `Decimal128.parse(${doubleQuoteStringify(str)})`;
   }
 
-  /*  ************** Object methods **************** */
-
-  /*
+  /**
    * Accepts date or number, if date then don't convert to date.
-   * @param ctx
+   *
+   * @param {FuncCallExpressionContext} ctx
+   * @return {String}
    */
   emitObjectIdCreateFromTime(ctx) {
     ctx.type = 'createFromTime' in this.Symbols.ObjectId.attr ? this.Symbols.ObjectId.attr.createFromTime : this.Symbols.ObjectId.attr.fromDate;

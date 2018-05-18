@@ -1,3 +1,4 @@
+/* eslint no-sync: 0 */
 const parse = require('fast-json-parse');
 const fs = require('fs');
 const chai = require('chai');

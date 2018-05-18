@@ -1,3 +1,4 @@
+/* eslint no-sync: 0 */
 const {
   readJSON,
   runTest,
