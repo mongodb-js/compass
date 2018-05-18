@@ -177,9 +177,12 @@ Templates:
     Int32ToStringArgsTemplate: &Int32ToStringArgsTemplate null
     LongEqualsTemplate: &LongEqualsTemplate !!js/function >
         (lhs) => {
-            return `${lhs}.Equals`;
+            return `${lhs}.ToInt64() == `;
         }
-    LongEqualsArgsTemplate: &LongEqualsArgsTemplate null
+    LongEqualsArgsTemplate: &LongEqualsArgsTemplate !!js/function >
+        (lhs, arg) => {
+              return `${arg}.ToInt64()`;
+        }
     LongToIntTemplate: &LongToIntTemplate !!js/function >
         (lhs) => {
             return `${lhs}.ToInt32`;
@@ -199,74 +202,71 @@ Templates:
         }
     LongToNumberArgsTemplate: &LongToNumberArgsTemplate !!js/function >
         (lhs) => {
-        (lhs) => {
-            return '';
-        }
             return '';
         }
     LongAddTemplate: &LongAddTemplate !!js/function >
         (lhs) => {
-            return lhs;
+            return `${lhs}.ToInt64()`;
         }
     LongAddArgsTemplate: &LongAddArgsTemplate !!js/function >
         (lhs, arg) => {
-            return ` + ${arg}`;
+            return ` + ${arg}.ToInt64()`;
         }
     LongSubtractTemplate: &LongSubtractTemplate !!js/function >
         (lhs) => {
-            return lhs;
+            return `${lhs}.ToInt64()`;
         }
     LongSubtractArgsTemplate: &LongSubtractArgsTemplate !!js/function >
         (lhs, arg) => {
-            return ` - ${arg}`;
+            return ` - ${arg}.ToInt64()`;
         }
     LongMultiplyTemplate: &LongMultiplyTemplate !!js/function >
         (lhs) => {
-            return lhs;
+            return `${lhs}.ToInt64()`;
         }
     LongMultiplyArgsTemplate: &LongMultiplyArgsTemplate !!js/function >
         (lhs, arg) => {
-            return ` * ${arg}`;
+            return ` * ${arg}.ToInt64()`;
         }
     LongDivTemplate: &LongDivTemplate !!js/function >
         (lhs) => {
-            return lhs;
+            return `${lhs}.ToInt64()`;
         }
     LongDivArgsTemplate: &LongDivArgsTemplate !!js/function >
         (lhs, arg) => {
-            return ` / ${arg}`;
+            return ` / ${arg}.ToInt64()`;
         }
     LongModuloTemplate: &LongModuloTemplate !!js/function >
         (lhs) => {
-            return lhs;
+            return `${lhs}.ToInt64()`;
         }
     LongModuloArgsTemplate: &LongModuloArgsTemplate !!js/function >
         (lhs, arg) => {
-            return ` % ${arg}`;
+            return ` % ${arg}.ToInt64()`;
         }
     LongAndTemplate: &LongAndTemplate !!js/function >
         (lhs) => {
-            return lhs;
+            return `${lhs}.ToInt64()`;
         }
     LongAndArgsTemplate: &LongAndArgsTemplate !!js/function >
         (lhs, arg) => {
-            return ` & ${arg}`;
+            return ` & ${arg}.ToInt64()`;
         }
     LongOrTemplate: &LongOrTemplate !!js/function >
         (lhs) => {
-            return lhs;
+            return `${lhs}.ToInt64()`;
         }
     LongOrArgsTemplate: &LongOrArgsTemplate !!js/function >
         (lhs, arg) => {
-            return ` | ${arg}`;
+            return ` | ${arg}.ToInt64()`;
         }
     LongXorTemplate: &LongXorTemplate !!js/function >
         (lhs) => {
-            return lhs;
+            return `${lhs}.ToInt64()`;
         }
     LongXorArgsTemplate: &LongXorArgsTemplate !!js/function >
         (lhs, arg) => {
-            return ` ^ ${arg}`;
+            return ` ^ ${arg}.ToInt64()`;
         }
     LongShiftLeftTemplate: &LongShiftLeftTemplate !!js/function >
         () => {
@@ -274,7 +274,7 @@ Templates:
         }
     LongShiftLeftArgsTemplate: &LongShiftLeftArgsTemplate !!js/function >
         (lhs, arg) => {
-            return `${lhs} << ${arg}`;
+            return `${lhs}.ToInt32() << ${arg}`;
         }
     LongShiftRightTemplate: &LongShiftRightTemplate !!js/function >
         () => {
@@ -282,7 +282,7 @@ Templates:
         }
     LongShiftRightArgsTemplate: &LongShiftRightArgsTemplate !!js/function >
         (lhs, arg) => {
-            return `${lhs} >> ${arg}`;
+            return `${lhs}.ToInt32() >> ${arg}`;
         }
     LongCompareTemplate: &LongCompareTemplate !!js/function >
         (lhs) => {
@@ -291,7 +291,7 @@ Templates:
     LongCompareArgsTemplate: &LongCompareArgsTemplate null
     LongIsOddTemplate: &LongIsOddTemplate !!js/function >
         (lhs) => {
-            return lhs;
+            return `${lhs}.ToInt64()`;
         }
     LongIsOddArgsTemplate: &LongIsOddArgsTemplate !!js/function >
         () => {
@@ -319,7 +319,7 @@ Templates:
         }
     LongNegateArgsTemplate: &LongNegateArgsTemplate !!js/function >
         (lhs) => {
-            return `-${lhs}`;
+            return `-${lhs}.ToInt64()`;
         }
     LongNotTemplate: &LongNotTemplate !!js/function >
         () => {
@@ -327,15 +327,15 @@ Templates:
         }
     LongNotArgsTemplate: &LongNotArgsTemplate !!js/function >
         (lhs) => {
-            return `!${lhs}`;
+            return `!${lhs}.ToInt64()`;
         }
     LongNotEqualsTemplate: &LongNotEqualsTemplate !!js/function >
         (lhs) => {
-            return `${lhs} !=`;
+            return `${lhs}.ToInt64() !=`;
         }
     LongNotEqualsArgsTemplate: &LongNotEqualsArgsTemplate !!js/function >
         (lhs, arg) => {
-            return ` ${arg}`;
+            return ` ${arg}.ToInt64()`;
         }
     LongGreaterThanTemplate: &LongGreaterThanTemplate !!js/function >
         (lhs) => {
