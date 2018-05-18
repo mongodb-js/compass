@@ -48,7 +48,7 @@
         "javascript": "ObjectId()",
         "python": "ObjectId()",
         "java": "new ObjectId()",
-        "csharp": "new BsonObjectId()",
+        "csharp": "new ObjectId()",
         "shell": "ObjectId()"
       },
       {
@@ -56,7 +56,7 @@
         "javascript": "new ObjectId()",
         "python": "ObjectId()",
         "java": "new ObjectId()",
-        "csharp": "new BsonObjectId()",
+        "csharp": "new ObjectId()",
         "shell": "new ObjectId()"
       },
       {
@@ -64,7 +64,7 @@
         "javascript": "ObjectId('5a7382114ec1f67ae445f778')",
         "python": "ObjectId('5a7382114ec1f67ae445f778')",
         "java": "new ObjectId(\"5a7382114ec1f67ae445f778\")",
-        "csharp": "new BsonObjectId(new ObjectId(\"5a7382114ec1f67ae445f778\"))",
+        "csharp": "new ObjectId(\"5a7382114ec1f67ae445f778\")",
         "shell": "new ObjectId('5a7382114ec1f67ae445f778')"
       }
     ],
@@ -116,7 +116,7 @@
         "javascript": "new DBRef('coll', new ObjectId())",
         "python": "DBRef('coll', ObjectId())",
         "java": "new DBRef(\"coll\", new ObjectId())",
-        "csharp": "new MongoDBRef(\"coll\", new BsonObjectId())",
+        "csharp": "new MongoDBRef(\"coll\", new ObjectId())",
         "shell": "new DBRef('coll', new ObjectId())"
       },
       {
@@ -124,7 +124,7 @@
         "javascript": "new DBRef('coll', ObjectId(), 'db')",
         "python": "DBRef('coll', ObjectId(), 'db')",
         "java": "new DBRef(\"db\", \"coll\", new ObjectId())",
-        "csharp": "new MongoDBRef(\"coll\", new BsonObjectId(), \"db\")",
+        "csharp": "new MongoDBRef(\"coll\", new ObjectId(), \"db\")",
         "shell": "new DBRef('coll', ObjectId(), 'db')"
       }
     ],

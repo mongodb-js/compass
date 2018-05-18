@@ -7,7 +7,7 @@
         "python": "ObjectId(u'5ab901c29ee65f5c8550c5b9')",
         "java": "new ObjectId(\"5ab901c29ee65f5c8550c5b9\")",
         "shell": "ObjectId('5ab901c29ee65f5c8550c5b9')",
-        "csharp": "new BsonObjectId.Parse(\"5ab901c29ee65f5c8550c5b9\")"
+        "csharp": "new ObjectId(\"5ab901c29ee65f5c8550c5b9\").Parse()"
       },
       {
         "description": "createFromTime",
@@ -15,14 +15,14 @@
         "python": "ObjectId.from_datetime(datetime.datetime.fromtimestamp(1522075031642/1000.0))",
         "java": "new ObjectId(new java.util.Date(new java.lang.Long(\"1522075031642\")))",
         "shell": "ObjectId.fromDate(new Date(1522075031642))",
-        "csharp": "new BsonObjectId.GenerateNewId(1522075031642)"
+        "csharp": "new ObjectId().GenerateNewId(1522075031642)"
       },
       {
         "description": "createFromTime with date",
         "javascript": "ObjectId.createFromTime(new Date())",
         "python": "ObjectId.from_datetime(datetime.datetime.fromtimestamp(datetime.datetime.utcnow().date()/1000.0))",
         "java": "new ObjectId(new java.util.Date())",
-        "csharp": "new BsonObjectId.GenerateNewId(DateTime.Now)",
+        "csharp": "new ObjectId().GenerateNewId(DateTime.Now)",
         "shell": "ObjectId.fromDate(new Date())"
       },
       {
@@ -31,7 +31,7 @@
         "python": "ObjectId.is_valid('5ab901c29ee65f5c8550c5b9')",
         "java": "ObjectId.isValid(\"5ab901c29ee65f5c8550c5b9\")",
         "shell": "",
-        "csharp": ""
+        "csharp": "new ObjectId(\"5ab901c29ee65f5c8550c5b9\")"
       }
     ],
     "Binary": [

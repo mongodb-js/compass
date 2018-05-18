@@ -32,7 +32,7 @@
         "javascript": "ObjectId().toString()",
         "python": "str(ObjectId())",
         "java": "new ObjectId().toString()",
-        "csharp": "new BsonObjectId().ToString()",
+        "csharp": "new ObjectId().ToString()",
         "shell": "Code('test code').toString()"
 
       },
@@ -41,7 +41,7 @@
         "javascript": "ObjectId('5ab901c29ee65f5c8550c5b9').toString()",
         "python": "str(ObjectId('5ab901c29ee65f5c8550c5b9'))",
         "java": "new ObjectId(\"5ab901c29ee65f5c8550c5b9\").toString()",
-        "csharp": "new BsonObjectId(new ObjectId(\"5ab901c29ee65f5c8550c5b9\")).ToString()",
+        "csharp": "new ObjectId(\"5ab901c29ee65f5c8550c5b9\").ToString()",
         "shell": "ObjectId().toString()"
       },
       {
@@ -49,7 +49,7 @@
         "javascript": "ObjectId('5ab901c29ee65f5c8550c5b9').getTimestamp()",
         "python": "ObjectId('5ab901c29ee65f5c8550c5b9').generation_time",
         "java": "new ObjectId(\"5ab901c29ee65f5c8550c5b9\").getTimestamp()",
-        "csharp": "new BsonObjectId(new ObjectId(\"5ab901c29ee65f5c8550c5b9\")).ToUniversalTime()",
+        "csharp": "new ObjectId(\"5ab901c29ee65f5c8550c5b9\").ToUniversalTime()",
         "shell": "ObjectId('5ab901c29ee65f5c8550c5b9').getTimestamp()"
       },
       {
@@ -57,7 +57,7 @@
         "javascript": "ObjectId().equals(ObjectId())",
         "python": "ObjectId() == ObjectId()",
         "java": "new ObjectId().equals(new ObjectId())",
-        "csharp": "new BsonObjectId().Equals(new BsonObjectId())",
+        "csharp": "new ObjectId().Equals(new ObjectId())",
         "shell": "ObjectId().equals(ObjectId())"
       }
     ],
@@ -101,7 +101,7 @@
         "javascript": "new DBRef('coll', new ObjectId()).toString()",
         "python": "str(DBRef('coll', ObjectId()))",
         "java": "new DBRef(\"coll\", new ObjectId()).toString()",
-        "csharp": "new MongoDBRef(\"coll\", new BsonObjectId()).ToString()",
+        "csharp": "new MongoDBRef(\"coll\", new ObjectId()).ToString()",
         "shell": "new DBRef('coll', new ObjectId()).toString()"
       },
       {
@@ -109,7 +109,7 @@
         "javascript": "new DBRef('coll', new ObjectId()).db",
         "python": "DBRef('coll', ObjectId()).database",
         "java": "new DBRef(\"coll\", new ObjectId()).getDatabaseName()",
-        "csharp": "new MongoDBRef(\"coll\", new BsonObjectId()).DatabaseName",
+        "csharp": "new MongoDBRef(\"coll\", new ObjectId()).DatabaseName",
         "shell": "new DBRef('coll', new ObjectId()).getDb()"
       },
       {
@@ -117,7 +117,7 @@
         "javascript": "new DBRef('coll', new ObjectId()).namespace",
         "python": "DBRef('coll', ObjectId()).collection",
         "java": "new DBRef(\"coll\", new ObjectId()).getCollectionName()",
-        "csharp": "new MongoDBRef(\"coll\", new BsonObjectId()).CollectionName",
+        "csharp": "new MongoDBRef(\"coll\", new ObjectId()).CollectionName",
         "shell": "new DBRef('coll', new ObjectId()).getCollection()"
       },
       {
@@ -125,7 +125,7 @@
         "javascript": "new DBRef('coll', new ObjectId()).oid",
         "python": "DBRef('coll', ObjectId()).id",
         "java": "new DBRef(\"coll\", new ObjectId()).getId()",
-        "csharp": "new MongoDBRef(\"coll\", new BsonObjectId()).Id",
+        "csharp": "new MongoDBRef(\"coll\", new ObjectId()).Id",
         "shell": "new DBRef('coll', new ObjectId()).getId()"
       }
     ],

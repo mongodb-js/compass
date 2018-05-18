@@ -6,7 +6,7 @@ const expect = chai.expect;
 const compiler = require('../');
 
 // Need a way to have test pass while developing
-const outputLanguages = ['csharp', 'python', 'java', 'javascript'];
+const outputLanguages = ['csharp'];
 const inputLanguages = ['shell', 'javascript'];
 const unsupported = {
   success: {

@@ -106,7 +106,7 @@ Templates:
             if (arg.indexOf('new') === 0) {
               arg = arg.replace(/new /g, '')
             }
-            return `new BsonObjectId().Equals(new ${arg})`;
+            return `new ObjectId().Equals(new ${arg})`;
         }
 
     ObjectIdGetTimestampTemplate: &ObjectIdGetTimestampTemplate !!js/function >
@@ -483,7 +483,7 @@ Templates:
         }
     ObjectIdSymbolTemplate: &ObjectIdSymbolTemplate !!js/function >
         () => {
-            return 'BsonObjectId';
+            return 'ObjectId';
         }
     ObjectIdSymbolArgsTemplate: &ObjectIdSymbolArgsTemplate !!js/function >
         (lhs, str) => {
@@ -493,7 +493,7 @@ Templates:
                 (str.charAt(0) === '"' && str.charAt(str.length - 1) === '"')) {
                 newStr = str.substr(1, str.length - 2);
             }
-            return `(new ObjectId("${newStr.replace(/\\([\s\S])|(")/g, '\\$1$2')}"))`;
+            return `("${newStr.replace(/\\([\s\S])|(")/g, '\\$1$2')}")`;
         }
     BinarySymbolTemplate: &BinarySymbolTemplate !!js/function >
         () => {
@@ -650,7 +650,7 @@ Templates:
         }
     ObjectIdCreateFromHexStringArgsTemplate: &ObjectIdCreateFromHexStringArgsTemplate !!js/function >
         (lhs, arg) => {
-            return `new ${lhs}.Parse(${arg})`;
+            return `new ${lhs}(${arg}).Parse()`;
         }
     ObjectIdCreateFromTimeTemplate: &ObjectIdCreateFromTimeTemplate !!js/function >
         (lhs) => {
@@ -658,16 +658,13 @@ Templates:
         }
     ObjectIdCreateFromTimeArgsTemplate: &ObjectIdCreateFromTimeArgsTemplate !!js/function >
         (lhs, arg) => {
-            return `new ${lhs}.GenerateNewId(${arg})`;
+            return `new ${lhs}().GenerateNewId(${arg})`;
         }
     ObjectIdIsValidTemplate: &ObjectIdIsValidTemplate !!js/function >
-        () => {
-            return '';
+        (lhs) => {
+            return `new ${lhs}`;
         }
-    ObjectIdIsValidArgsTemplate: &ObjectIdIsValidArgsTemplate !!js/function >
-        () => {
-            return '';
-        }
+    ObjectIdIsValidArgsTemplate: &ObjectIdIsValidArgsTemplate null
     # JS Symbol Templates
     ObjectSymbolTemplate: &ObjectSymbolTemplate null
     ObjectSymbolArgsTemplate: &ObjectSymbolArgsTemplate null
