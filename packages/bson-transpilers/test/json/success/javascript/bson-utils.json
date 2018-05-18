@@ -7,7 +7,7 @@
         "python": "ObjectId(u'5ab901c29ee65f5c8550c5b9')",
         "java": "new ObjectId(\"5ab901c29ee65f5c8550c5b9\")",
         "shell": "ObjectId('5ab901c29ee65f5c8550c5b9')",
-        "csharp": "new ObjectId(\"5ab901c29ee65f5c8550c5b9\").Parse()"
+        "csharp": "new ObjectId(\"5ab901c29ee65f5c8550c5b9\")"
       },
       {
         "description": "createFromTime",
@@ -147,7 +147,7 @@
         "python": "Int64(int('5'))",
         "java": "java.lang.Long.parseLong(\"5\")",
         "shell": "NumberLong('5')",
-        "csharp": "new BsonInt64(\"5\")"
+        "csharp": "new BsonInt64(5)"
       },
       {
         "description": "fromString with radix",
@@ -155,7 +155,7 @@
         "python": "Int64(int('5'))",
         "java": "java.lang.Long.parseLong(\"5\", 10)",
         "shell": "NumberLong('5')",
-        "csharp": "Int64.TryParse(\"5\", 10)"
+        "csharp": "Convert.ToInt64(\"5\", 10)"
       },
       {
         "description": "fromBits",

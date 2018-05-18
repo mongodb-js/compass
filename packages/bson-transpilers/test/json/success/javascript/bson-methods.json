@@ -49,7 +49,7 @@
         "javascript": "ObjectId('5ab901c29ee65f5c8550c5b9').getTimestamp()",
         "python": "ObjectId('5ab901c29ee65f5c8550c5b9').generation_time",
         "java": "new ObjectId(\"5ab901c29ee65f5c8550c5b9\").getTimestamp()",
-        "csharp": "new ObjectId(\"5ab901c29ee65f5c8550c5b9\").ToUniversalTime()",
+        "csharp": "new ObjectId(\"5ab901c29ee65f5c8550c5b9\").Timestamp",
         "shell": "ObjectId('5ab901c29ee65f5c8550c5b9').getTimestamp()"
       },
       {

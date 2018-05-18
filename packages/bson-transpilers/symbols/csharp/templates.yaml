@@ -111,9 +111,12 @@ Templates:
 
     ObjectIdGetTimestampTemplate: &ObjectIdGetTimestampTemplate !!js/function >
         (lhs) => {
-            return `${lhs}.ToUniversalTime`;
+            return `${lhs}.Timestamp`;
         }
-    ObjectIdGetTimestampArgsTemplate: &ObjectIdGetTimestampArgsTemplate null
+    ObjectIdGetTimestampArgsTemplate: &ObjectIdGetTimestampArgsTemplate !!js/function >
+        (lhs) => {
+            return '';
+        }
     BinaryValueTemplate: &BinaryValueTemplate !!js/function >
         (lhs) => {
             return `${lhs}.ToString`;
@@ -605,8 +608,9 @@ Templates:
     LongSymbolFromStringArgsTemplate: &LongSymbolFromStringArgsTemplate !!js/function >
         (lhs, arg1, arg2) => {
             if (arg2) {
-                return `Int64.TryParse(${arg1}, ${arg2})`;
+                return `Convert.ToInt64(${arg1}, ${arg2})`;
             }
+            arg1 = arg1.replace(/['"]+/g, '');
             return `new BsonInt64(${arg1})`;
         }
     MinKeySymbolTemplate: &MinKeySymbolTemplate null # Has emit method
@@ -647,12 +651,9 @@ Templates:
     # BSON Util Templates
     ObjectIdCreateFromHexStringTemplate: &ObjectIdCreateFromHexStringTemplate !!js/function >
         (lhs) => {
-            return '';
+            return `new ${lhs}`;
         }
-    ObjectIdCreateFromHexStringArgsTemplate: &ObjectIdCreateFromHexStringArgsTemplate !!js/function >
-        (lhs, arg) => {
-            return `new ${lhs}(${arg}).Parse()`;
-        }
+    ObjectIdCreateFromHexStringArgsTemplate: &ObjectIdCreateFromHexStringArgsTemplate null
     ObjectIdCreateFromTimeTemplate: &ObjectIdCreateFromTimeTemplate !!js/function >
         (lhs) => {
             return '';
