@@ -38,18 +38,6 @@ module.exports = (superClass) => class ExtendedVisitor extends superClass {
       'l': 'l', // Case-insensitive matching dependent on the current locale?
       'u': 'u' // Unicode?
     };
-    // Python supports bson.binary.CSHARP_LEGACY but currently js symbols/javascript/symbols.yaml
-    // doesn't contains this sup type
-    this.binarySubTypes = {
-      0: 'bson.binary.BINARY_SUBTYPE',
-      1: 'bson.binary.FUNCTION_SUBTYPE',
-      2: 'bson.binary.OLD_BINARY_SUBTYPE',
-      3: 'bson.binary.OLD_UUID_SUBTYPE',
-      4: 'bson.binary.UUID_SUBTYPE',
-      5: 'bson.binary.MD5_SUBTYPE',
-      6: 'bson.binary.CSHARP_LEGACY',
-      128: 'bson.binary.USER_DEFINED_SUBTYPE'
-    };
   }
 
   /**
@@ -167,29 +155,6 @@ module.exports = (superClass) => class ExtendedVisitor extends superClass {
     }
 
     return `Regex(${pattern})`;
-  }
-
-   /**
-   * @param {FuncCallExpressionContext} ctx
-   * @return {String}
-   */
-  emitBinData(ctx) {
-    ctx.type = this.Types.BinData;
-
-    const argList = ctx.arguments().argumentList();
-    const args = this.checkArguments(this.Symbols.BinData.args, argList);
-    const subtype = parseInt(argList.singleExpression()[0].getText(), 10);
-    const bindata = args[1];
-
-    if (!(subtype >= 0 && subtype <= 5 || subtype === 128)) {
-      throw new SemanticGenericError({message: 'BinData subtype must be a Number between 0-5 or 128'});
-    }
-
-    if (bindata.match(/^([0-9a-zA-Z+/]{4})*(([0-9a-zA-Z+/]{2}==)|([0-9a-zA-Z+/]{3}=))?$/)) {
-      throw new SemanticGenericError({message: 'invalid base64'});
-    }
-
-    return `Binary(b${bindata}, ${this.binarySubTypes[subtype]})`;
   }
 
   /**

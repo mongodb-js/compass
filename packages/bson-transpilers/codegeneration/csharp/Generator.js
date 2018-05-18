@@ -24,16 +24,6 @@ module.exports = (superclass) => class ExtendedVisitor extends superclass {
       'l': '', // Case-insensitive matching dependent on the current locale?
       'u': '' // Unicode?
     };
-
-    this.binarySubTypes = {
-      0: 'BsonBinarySubType.Binary',
-      1: 'BsonBinarySubType.Function',
-      2: 'BsonBinarySubType.OldBinary',
-      3: 'BsonBinarySubType.UuidLegacy',
-      4: 'BsonBinarySubType.UuidStandard',
-      5: 'BsonBinarySubType.MD5',
-      128: 'BsonBinarySubType.UserDefined'
-    };
   }
 
   /**

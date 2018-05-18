@@ -3,7 +3,8 @@ const JavascriptVisitor = require('../javascript/Visitor');
 const bson = require('bson');
 const Context = require('context-eval');
 const {
-  SemanticReferenceError
+  SemanticReferenceError,
+  SemanticGenericError
 } = require('../../helper/error');
 
 /**
@@ -41,6 +42,45 @@ class Visitor extends JavascriptVisitor {
       return ctx.type.template();
     }
     return name;
+  }
+
+  /*
+   * BinData needs extra processing because we need to check that the arg is
+   * valid base64.
+   */
+  processBinData(ctx) {
+    ctx.type = this.Types.BinData;
+    const symbolType = this.Symbols.BinData;
+
+    const binaryTypes = {
+      0: this.Types.SUBTYPE_DEFAULT.template,
+      1: this.Types.SUBTYPE_FUNCTION.template,
+      2: this.Types.SUBTYPE_BYTE_ARRAY.template,
+      3: this.Types.SUBTYPE_UUID_OLD.template,
+      4: this.Types.SUBTYPE_UUID.template,
+      5: this.Types.SUBTYPE_MD5.template,
+      128: this.Types.SUBTYPE_USER_DEFINED.template
+    };
+    const argList = ctx.arguments().argumentList();
+    const args = this.checkArguments(this.Symbols.BinData.args, argList);
+
+    const subtype = parseInt(argList.singleExpression()[0].getText(), 10);
+    const bindata = args[1];
+    if (!(subtype >= 0 && subtype <= 5 || subtype === 128)) {
+      throw new SemanticGenericError({message: 'BinData subtype must be a Number between 0-5 or 128'});
+    }
+    if (bindata.match(/^([0-9a-zA-Z+/]{4})*(([0-9a-zA-Z+/]{2}==)|([0-9a-zA-Z+/]{3}=))?$/)) {
+      throw new SemanticGenericError({message: 'invalid base64'});
+    }
+    const typeStr = binaryTypes[subtype] !== null ? binaryTypes[subtype]() : subtype;
+
+    if ('emitBinary' in this) {
+      return this.emitBinData(bindata, typeStr);
+    }
+
+    const lhs = symbolType.template ? symbolType.template() : 'Binary';
+    const rhs = symbolType.argsTemplate ? symbolType.argsTemplate(lhs, bindata, typeStr) : `(${bindata}, ${typeStr})`;
+    return `${this.new}${lhs}${rhs}`;
   }
 
   executeJavascript(input) {

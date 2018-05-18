@@ -258,6 +258,48 @@ BsonTypes:
                 type: *StringType
                 template: *Decimal128ToStringTemplate
                 argsTemplate: *Decimal128ToStringArgsTemplate
+    SUBTYPE_DEFAULT:
+        id: "SUBTYPE_DEFAULT"
+        callable: *var
+        args: null
+        type: *IntegerType
+        template: *BinarySymbolSubtypeDefaultTemplate
+    SUBTYPE_FUNCTION:
+        id: "SUBTYPE_FUNCTION"
+        callable: *var
+        args: null
+        type: *IntegerType
+        template: *BinarySymbolSubtypeFunctionTemplate
+    SUBTYPE_BYTE_ARRAY:
+        id: "SUBTYPE_BYTE_ARRAY"
+        callable: *var
+        args: null
+        type: *IntegerType
+        template: *BinarySymbolSubtypeByteArrayTemplate
+    SUBTYPE_UUID_OLD:
+        id: "SUBTYPE_UUID_OLD"
+        callable: *var
+        args: null
+        type: *IntegerType
+        template: *BinarySymbolSubtypeUuidOldTemplate
+    SUBTYPE_UUID:
+        id: "SUBTYPE_UUID"
+        callable: *var
+        args: null
+        type: *IntegerType
+        template: *BinarySymbolSubtypeUuidTemplate
+    SUBTYPE_MD5:
+        id: "SUBTYPE_MD5"
+        callable: *var
+        args: null
+        type: *IntegerType
+        template: *BinarySymbolSubtypeMd5Template
+    SUBTYPE_USER_DEFINED:
+        id: "SUBTYPE_USER_DEFINED"
+        callable: *var
+        args: null
+        type: *IntegerType
+        template: *BinarySymbolSubtypeUserDefinedTemplate
 JSTypes:
     Date: &DateType
         <<: *__type

@@ -1,8 +1,5 @@
 /* eslint complexity: 0 */
 const {doubleQuoteStringify} = require('../../helper/format');
-const {
-  SemanticGenericError
-} = require('../../helper/error');
 
 /**
  * @param {class} superClass - where the `visitX` methods live.
@@ -14,15 +11,6 @@ module.exports = (superClass) => class ExtendedVisitor extends superClass {
     this.new = 'new ';
     this.regexFlags = {
       i: 'i', m: 'm', u: 'u', y: '', g: ''
-    };
-    this.binary_subTypes = {
-      0: 'org.bson.BsonBinarySubType.BINARY',
-      1: 'org.bson.BsonBinarySubType.FUNCTION',
-      2: 'org.bson.BsonBinarySubType.BINARY',
-      3: 'org.bson.BsonBinarySubType.UUID_LEGACY',
-      4: 'org.bson.BsonBinarySubType.UUID_STANDARD',
-      5: 'org.bson.BsonBinarySubType.MD5',
-      128: 'org.bson.BsonBinarySubType.USER_DEFINED'
     };
   }
 
@@ -101,22 +89,6 @@ module.exports = (superClass) => class ExtendedVisitor extends superClass {
       return `new BsonRegularExpression(${args[0]}, ${flags})`;
     }
     return `new BsonRegularExpression(${args[0]})`;
-  }
-
-  emitBinData(ctx) {
-    ctx.type = this.Types.BinData;
-    const argList = ctx.arguments().argumentList();
-    const args = this.checkArguments(this.Symbols.BinData.args, argList);
-
-    const subtype = parseInt(argList.singleExpression()[0].getText(), 10);
-    const bindata = args[1];
-    if (!(subtype >= 0 && subtype <= 5 || subtype === 128)) {
-      throw new SemanticGenericError({message: 'BinData subtype must be a Number between 0-5 or 128'});
-    }
-    if (bindata.match(/^([0-9a-zA-Z+/]{4})*(([0-9a-zA-Z+/]{2}==)|([0-9a-zA-Z+/]{3}=))?$/)) {
-      throw new SemanticGenericError({message: 'invalid base64'});
-    }
-    return `new Binary(${this.binary_subTypes[subtype]}, ${bindata}.getBytes("UTF-8"))`;
   }
 
   /**

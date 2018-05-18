@@ -705,7 +705,8 @@ class Visitor extends ECMAScriptVisitor {
     }
     const bytes = binobj.toString();
     const argList = ctx.arguments().argumentList().singleExpression();
-    const typeStr = argList.length === 1 ? null : binaryTypes[type]();
+    const templatedType = binaryTypes[type] !== null ? binaryTypes[type]() : type;
+    const typeStr = argList.length === 1 ? null : templatedType;
 
     if ('emitBinary' in this) {
       return this.emitBinary(bytes, typeStr);

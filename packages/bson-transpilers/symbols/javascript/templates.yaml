@@ -224,8 +224,8 @@ Templates:
             return 'Binary';
         }
     BinarySymbolArgsTemplate: &BinarySymbolArgsTemplate !!js/function >
-        (lhs, subtype, buffer) => {
-            return `(${buffer.toString('base64')}, '${subtype.toString(16)}')`;
+        (lhs, buffer, subtype) => {
+            return `(${buffer.toString('base64')}, '${subtype}')`;
         }
     BinarySymbolSubtypeDefaultTemplate: &BinarySymbolSubtypeDefaultTemplate null
     BinarySymbolSubtypeFunctionTemplate: &BinarySymbolSubtypeFunctionTemplate null
