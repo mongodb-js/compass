@@ -483,6 +483,39 @@ class Visitor extends ECMAScriptVisitor {
   }
 
   /**
+   * Process BSON regexps because we need to verify the flags are valid.
+   *
+   * @param {FuncCallExpressionContext} ctx
+   * @return {string}
+   */
+  processBSONRegExp(ctx) {
+    ctx.type = this.Types.BSONRegExpType;
+    const symbolType = this.Symbols.BSONRegExp;
+
+    const argList = ctx.arguments().argumentList();
+    const args = this.checkArguments([[this.Types._string], [this.Types._string, null]], argList);
+
+    let flags = null;
+    const pattern = args[0];
+    if (args.length === 2) {
+      flags = args[1];
+      for (let i = 1; i < flags.length - 1; i++) {
+        if (!(flags[i] in this.bsonRegexFlags)) {
+          throw new SemanticGenericError({message: `Invalid flag '${flags[i]}' passed to BSONRegExp`});
+        }
+      }
+      flags = flags.replace(/[imxlsu]/g, m => this.bsonRegexFlags[m]);
+    }
+
+    if ('emitBSONRegExp' in this) {
+      return this.emitBSONRegExp(ctx, pattern, flags);
+    }
+    const lhs = symbolType.template ? symbolType.template() : 'BSONRegExp';
+    const rhs = symbolType.argsTemplate ? symbolType.argsTemplate(lhs, pattern, flags) : `(${pattern}${flags ? ', ' + flags : ''})`;
+    return `${this.new}${lhs}${rhs}`;
+  }
+
+  /**
    * The arguments to Code can be either a string or actual javascript code.
    * Manually check arguments here because first argument can be any JS, and we
    * don't want to ever visit that node.

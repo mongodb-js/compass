@@ -693,8 +693,14 @@ Templates:
         (lhs, arg) => {
             return `(${arg}, 'utf-8')`;
         }
-    BSONRegExpSymbolTemplate: &BSONRegExpSymbolTemplate null # Has emit method
-    BSONRegExpSymbolArgsTemplate: &BSONRegExpSymbolArgsTemplate null
+    BSONRegExpSymbolTemplate: &BSONRegExpSymbolTemplate !!js/function >
+        () => {
+            return 'Regex';
+        }
+    BSONRegExpSymbolArgsTemplate: &BSONRegExpSymbolArgsTemplate !!js/function >
+        (lhs, pattern, flags) => {
+            return `(${pattern}${flags ? ', ' + flags : ''})`;
+        }
     Decimal128SymbolTemplate: &Decimal128SymbolTemplate null
     Decimal128SymbolArgsTemplate: &Decimal128SymbolArgsTemplate !!js/function >
         (lhs, str) => {

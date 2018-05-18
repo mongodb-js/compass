@@ -1,9 +1,5 @@
 /* eslint complexity: 0 */
-const { doubleQuoteStringify, removeQuotes } = require('../../helper/format');
-const {
-  SemanticGenericError,
-  SemanticTypeError
-} = require('../../helper/error');
+const { doubleQuoteStringify } = require('../../helper/format');
 
 module.exports = (superclass) => class ExtendedVisitor extends superclass {
   constructor() {
@@ -49,88 +45,6 @@ module.exports = (superclass) => class ExtendedVisitor extends superclass {
     const args = ctx.arguments().argumentList().singleExpression();
     const expr = args[0].getText().replace(/['"]+/g, '');
     return `(int)${expr}`;
-  }
-
-  /**
-   * BSON Binary Constructor
-   * needs to execute JS to get value first
-   *
-   * @param {BSONBinaryObject} ctx
-   *
-   * @returns {string} - new BsonBinaryData()
-   */
-  emitBinaryFromJS(ctx) {
-    ctx.type = this.Types.Binary;
-    let type;
-    let binobj;
-    try {
-      binobj = this.executeJavascript(ctx.getText());
-      type = binobj.sub_type;
-    } catch (error) {
-      throw new SemanticGenericError({message: error.message});
-    }
-    const bytes = doubleQuoteStringify(binobj.toString());
-    const argList = ctx.arguments().argumentList().singleExpression();
-    if (argList.length === 1) {
-      return `new BsonBinaryData(System.Text.Encoding.ASCII.GetBytes(${bytes}))`;
-    }
-    return `new BsonBinaryData(System.Text.Encoding.ASCII.GetBytes(${bytes}), ${this.binarySubTypes[type]})`;
-  }
-
-  /**
-   * BSON RegExp Constructor
-   *
-   * @param {BSONRegExpConstructorObject} ctx - expects two strings as
-   * arguments, where the second are flags
-   *
-   * @returns {string} - new BSONRegularExpession(pattern)
-   */
-  emitBSONRegExp(ctx) {
-    ctx.type = this.Types.RegExp;
-    const argumentList = ctx.arguments().argumentList();
-
-    const args = argumentList.singleExpression();
-    const pattern = this.visit(args[0]);
-
-    if (args[0].type !== this.Types._string) {
-      throw new SemanticTypeError({
-        message: 'BSONRegExp requires pattern to be a string'
-      });
-    }
-
-    if (args.length === 2) {
-      let flags = this.visit(args[1]);
-
-      if (args[1].type !== this.Types._string) {
-        throw new SemanticTypeError({
-          message: 'BSONRegExp requires flags to be a string'
-        });
-      }
-
-      if (flags !== '') {
-        const unsuppotedFlags = [];
-
-        flags = removeQuotes(flags).split('')
-          .map((item) => {
-            if (Object.keys(this.bsonRegexFlags).includes(item) === false) {
-              unsuppotedFlags.push(item);
-            }
-
-            return this.bsonRegexFlags[item];
-          });
-
-        if (unsuppotedFlags.length > 0) {
-          throw new SemanticGenericError({
-            message: `Regular expression contains unsuppoted '${unsuppotedFlags.join('')}' flag`
-          });
-        }
-
-        flags = doubleQuoteStringify(flags.join(''));
-      }
-
-      return `new BsonRegularExpression(@${pattern}, ${flags})`;
-    }
-    return `new BsonRegularExpression(@${pattern})`;
   }
 
   /**

@@ -12,6 +12,9 @@ module.exports = (superClass) => class ExtendedVisitor extends superClass {
     this.regexFlags = {
       i: 'i', m: 'm', u: 'u', y: '', g: ''
     };
+    this.bsonRegexFlags = {
+      i: 'i', m: 'm', x: 'x', s: 's', l: 'l', u: 'u'
+    };
   }
 
   /**
@@ -51,41 +54,6 @@ module.exports = (superClass) => class ExtendedVisitor extends superClass {
   }
   emitISODate(ctx) {
     return this.emitDate(ctx);
-  }
-
-  /**
-   * Expects two strings as arguments, the second must contain any of "imxlsu"
-   *
-   * child nodes: arguments
-   * grandchild nodes: argumentList?
-   * great-grandchild nodes: singleExpression+
-   * @param {FuncCallExpressionContext} ctx
-   * @return {String}
-   */
-  emitBSONRegExp(ctx) {
-    ctx.type = this.Types.BSONRegExpType;
-    const argList = ctx.arguments().argumentList();
-    const args = this.checkArguments([[this.Types._string], [this.Types._string, null]], argList);
-
-    if (args.length === 2) {
-      const flags = args[1];
-      for (let i = 1; i < flags.length - 1; i++) {
-        if (
-          !(
-            flags[i] === 'i' ||
-            flags[i] === 'm' ||
-            flags[i] === 'x' ||
-            flags[i] === 'l' ||
-            flags[i] === 's' ||
-            flags[i] === 'u'
-          )
-        ) {
-          return `Error: the regular expression options [${flags[i]}] is not supported`;
-        }
-      }
-      return `new BsonRegularExpression(${args[0]}, ${flags})`;
-    }
-    return `new BsonRegularExpression(${args[0]})`;
   }
 
   /**
