@@ -41,7 +41,7 @@
         "javascript": "ObjectId('5ab901c29ee65f5c8550c5b9').toString()",
         "python": "str(ObjectId('5ab901c29ee65f5c8550c5b9'))",
         "java": "new ObjectId(\"5ab901c29ee65f5c8550c5b9\").toString()",
-        "csharp": "new BsonObjectId(\"5ab901c29ee65f5c8550c5b9\").ToString()",
+        "csharp": "new BsonObjectId(new ObjectId(\"5ab901c29ee65f5c8550c5b9\")).ToString()",
         "shell": "ObjectId().toString()"
       },
       {
@@ -49,7 +49,7 @@
         "javascript": "ObjectId('5ab901c29ee65f5c8550c5b9').getTimestamp()",
         "python": "ObjectId('5ab901c29ee65f5c8550c5b9').generation_time",
         "java": "new ObjectId(\"5ab901c29ee65f5c8550c5b9\").getTimestamp()",
-        "csharp": "new BsonObjectId(\"5ab901c29ee65f5c8550c5b9\").ToUniversalTime()",
+        "csharp": "new BsonObjectId(new ObjectId(\"5ab901c29ee65f5c8550c5b9\")).ToUniversalTime()",
         "shell": "ObjectId('5ab901c29ee65f5c8550c5b9').getTimestamp()"
       },
       {
@@ -144,7 +144,7 @@
         "javascript": "Double(3).valueOf()",
         "python": "float(3)",
         "java": "new java.lang.Double(3).doubleValue()",
-        "csharp": "new BsonDouble(\"3\").Value",
+        "csharp": "new BsonDouble(3).Value",
         "shell": "NumberInt(3).valueOf()"
       }
     ],
