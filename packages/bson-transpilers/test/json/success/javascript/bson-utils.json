@@ -173,7 +173,7 @@
         "python": "Decimal128('5')",
         "java": "Decimal128.parse(\"5\")",
         "shell": "NumberDecimal('5')",
-        "csharp": "new Decimal128.TryParse(\"5\")"
+        "csharp": "new Decimal128(5)"
       }
     ]
   }
