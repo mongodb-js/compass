@@ -682,7 +682,7 @@ class Visitor extends ECMAScriptVisitor {
     return this.processDate(ctx);
   }
 
-  processBinaryFromJS(ctx) {
+  processBinary(ctx) {
     ctx.type = this.Types.Binary;
     const symbolType = this.Symbols.Binary;
     const binaryTypes = {
