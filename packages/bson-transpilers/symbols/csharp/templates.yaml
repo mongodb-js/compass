@@ -471,8 +471,26 @@ Templates:
             }
             return `("${newStr.replace(/\\([\s\S])|(")/g, '\\$1$2')}")`;
         }
-    BinarySymbolTemplate: &BinarySymbolTemplate null # Has emit method
-    BinarySymbolArgsTemplate: &BinarySymbolArgsTemplate null
+    BinarySymbolTemplate: &BinarySymbolTemplate !!js/function >
+        () => {
+            return 'BsonBinaryData';
+        }
+    BinarySymbolArgsTemplate: &BinarySymbolArgsTemplate !!js/function >
+        (lhs, bytes, type) => {
+            const str = bytes;
+            let newStr = str;
+            if (
+              (str.charAt(0) === '\'' && str.charAt(str.length - 1) === '\'') ||
+              (str.charAt(0) === '"' && str.charAt(str.length - 1) === '"')) {
+                newStr = str.substr(1, str.length - 2);
+            }
+            bytes = `"${newStr.replace(/\\([\s\S])|(")/g, '\\$1$2')}"`;
+
+            if (type === null) {
+                return `(System.Text.Encoding.ASCII.GetBytes(${bytes}))`;
+            }
+            return `(System.Text.Encoding.ASCII.GetBytes(${bytes}), ${type})`;
+        }
     BinarySymbolSubtypeDefaultTemplate: &BinarySymbolSubtypeDefaultTemplate !!js/function >
         () => {
             return 'BsonBinarySubType.Binary';

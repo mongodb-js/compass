@@ -48,32 +48,6 @@ module.exports = (superclass) => class ExtendedVisitor extends superclass {
   }
 
   /**
-   * BSON Binary Constructor
-   * needs to execute JS to get value first
-   *
-   * @param {BSONBinaryObject} ctx
-   *
-   * @returns {string} - new BsonBinaryData()
-   */
-  emitBinaryFromJS(ctx) {
-    ctx.type = this.Types.Binary;
-    let type;
-    let binobj;
-    try {
-      binobj = this.executeJavascript(ctx.getText());
-      type = binobj.sub_type;
-    } catch (error) {
-      throw new SemanticGenericError({message: error.message});
-    }
-    const bytes = doubleQuoteStringify(binobj.toString());
-    const argList = ctx.arguments().argumentList().singleExpression();
-    if (argList.length === 1) {
-      return `new BsonBinaryData(System.Text.Encoding.ASCII.GetBytes(${bytes}))`;
-    }
-    return `new BsonBinaryData(System.Text.Encoding.ASCII.GetBytes(${bytes}), ${this.binarySubTypes[type]})`;
-  }
-
-  /**
    * BSON RegExp Constructor
    *
    * @param {BSONRegExpConstructorObject} ctx - expects two strings as

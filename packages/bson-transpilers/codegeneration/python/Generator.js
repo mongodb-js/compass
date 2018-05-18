@@ -169,39 +169,6 @@ module.exports = (superClass) => class ExtendedVisitor extends superClass {
     return `Regex(${pattern})`;
   }
 
-  /**
-   * TODO: Maybe move this to javascript/Visitor and use template?
-   *
-   * child nodes: arguments
-   * grandchild nodes: argumentList?
-   * great-grandchild nodes: singleExpression+
-   *
-   * @param {FuncCallExpressionContext} ctx
-   * @return {String}
-   */
-  emitBinaryFromJS(ctx) {
-    ctx.type = this.Types.Binary;
-
-    let type;
-    let binobj;
-
-    try {
-      binobj = this.executeJavascript(ctx.getText());
-      type = binobj.sub_type;
-    } catch (error) {
-      throw new SemanticGenericError({message: error.message});
-    }
-
-    const bytes = singleQuoteStringify(binobj.toString());
-    const argList = ctx.arguments().argumentList().singleExpression();
-
-    if (argList.length === 1) {
-      return `Binary(b${bytes})`;
-    }
-
-    return `Binary(b${bytes}, ${this.binarySubTypes[type]})`;
-  }
-
    /**
    * @param {FuncCallExpressionContext} ctx
    * @return {String}
