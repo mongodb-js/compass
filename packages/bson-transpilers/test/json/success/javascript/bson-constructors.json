@@ -64,7 +64,7 @@
         "javascript": "ObjectId('5a7382114ec1f67ae445f778')",
         "python": "ObjectId('5a7382114ec1f67ae445f778')",
         "java": "new ObjectId(\"5a7382114ec1f67ae445f778\")",
-        "csharp": "new BsonObjectId(\"5a7382114ec1f67ae445f778\")",
+        "csharp": "new BsonObjectId(new ObjectId(\"5a7382114ec1f67ae445f778\"))",
         "shell": "new ObjectId('5a7382114ec1f67ae445f778')"
       }
     ],
@@ -152,7 +152,7 @@
         "javascript": "Double(3)",
         "python": "float(3)",
         "java": "new java.lang.Double(3)",
-        "csharp": "new BsonDouble(\"3\")",
+        "csharp": "new BsonDouble(3)",
         "shell": "3"
       },
       {
@@ -160,7 +160,7 @@
         "javascript": "new Double(3)",
         "python": "float(3)",
         "java": "new java.lang.Double(3)",
-        "csharp": "new BsonDouble(\"3\")",
+        "csharp": "new BsonDouble(3)",
         "shell": "3"
       },
       {
@@ -168,7 +168,7 @@
         "javascript": "Double('3')",
         "python": "float('3')",
         "java": "new java.lang.Double(\"3\")",
-        "csharp": "new BsonDouble(\"3\")",
+        "csharp": "new BsonDouble(3)",
         "shell": "3"
       }
     ],
@@ -178,7 +178,7 @@
         "javascript": "new Long(-1, 2147483647)",
         "python": "Int64(9223372036854775807)",
         "java": "new java.lang.Long(\"9223372036854775807\")",
-        "csharp": "new BsonInt64.ToInt64(9223372036854775807)",
+        "csharp": "new BsonInt64(9223372036854775807)",
         "shell": "new Long(9223372036854775807)"
       }
     ],

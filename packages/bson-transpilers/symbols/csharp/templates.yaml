@@ -285,7 +285,7 @@ Templates:
         }
     LongIsZeroArgsTemplate: &LongIsZeroArgsTemplate !!js/function >
         () => {
-            return '(new BsonInt64.ToInt64(0))';
+            return '(new BsonInt64(0))';
         }
     LongIsNegativeTemplate: &LongIsNegativeTemplate !!js/function >
         (lhs) => {
@@ -293,7 +293,7 @@ Templates:
         }
     LongIsNegativeArgsTemplate: &LongIsNegativeArgsTemplate !!js/function >
         () => {
-            return '(new BsonInt64.ToInt64(0)) < 0';
+            return '(new BsonInt64(0)) < 0';
         }
     LongNegateTemplate: &LongNegateTemplate !!js/function >
         () => {
@@ -539,10 +539,7 @@ Templates:
         () => {
             return 'BsonInt64';
         }
-    LongSymbolArgsTemplate: &LongSymbolArgsTemplate !!js/function >
-        (lhs, arg) => {
-            return `.ToInt64(${arg})`;
-        }
+    LongSymbolArgsTemplate: &LongSymbolArgsTemplate null
     LongSymbolMaxTemplate: &LongSymbolMaxTemplate !!js/function >
         () => {
             return 'Int64.MaxValue';
@@ -555,27 +552,21 @@ Templates:
     LongSymbolMinArgsTemplate: &LongSymbolMinArgsTemplate null
     LongSymbolZeroTemplate: &LongSymbolZeroTemplate !!js/function >
         (lhs) => {
-            return `new ${lhs}.ToInt64(0)`;
+            return `new ${lhs}(0)`;
         }
     LongSymbolZeroArgsTemplate: &LongSymbolZeroArgsTemplate null
     LongSymbolOneTemplate: &LongSymbolOneTemplate !!js/function >
         (lhs) => {
-            return `new ${lhs}.ToInt64(1)`;
+            return `new ${lhs}(1)`;
         }
     LongSymbolOneArgsTemplate: &LongSymbolOneArgsTemplate null
     LongSymbolNegOneTemplate: &LongSymbolNegOneTemplate !!js/function >
         (lhs) => {
-            return `new ${lhs}.ToInt64(-1)`;
+            return `new ${lhs}(-1)`;
         }
     LongSymbolNegOneArgsTemplate: &LongSymbolNegOneArgsTemplate null
-    LongSymbolFromBitsTemplate: &LongSymbolFromBitsTemplate !!js/function >
-        (lhs) => {
-            return '';
-        }
-    LongSymbolFromBitsArgsTemplate: &LongSymbolFromBitsArgsTemplate !!js/function >
-        (lhs) => {
-            return `new ${lhs}.ToInt64`;
-        }
+    LongSymbolFromBitsTemplate: &LongSymbolFromBitsTemplate null
+    LongSymbolFromBitsArgsTemplate: &LongSymbolFromBitsArgsTemplate null
     LongSymbolFromIntTemplate: &LongSymbolFromIntTemplate !!js/function >
         (lhs) => {
             return `new ${lhs}.ToInt64`;
