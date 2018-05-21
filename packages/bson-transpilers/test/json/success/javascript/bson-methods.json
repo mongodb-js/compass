@@ -33,8 +33,7 @@
         "python": "str(ObjectId())",
         "java": "new ObjectId().toString()",
         "csharp": "new ObjectId().ToString()",
-        "shell": "Code('test code').toString()"
-
+        "shell": "ObjectId().toString()"
       },
       {
         "description": "hex arg toString",
@@ -42,7 +41,7 @@
         "python": "str(ObjectId('5ab901c29ee65f5c8550c5b9'))",
         "java": "new ObjectId(\"5ab901c29ee65f5c8550c5b9\").toString()",
         "csharp": "new ObjectId(\"5ab901c29ee65f5c8550c5b9\").ToString()",
-        "shell": "ObjectId().toString()"
+        "shell": "ObjectId('5ab901c29ee65f5c8550c5b9').toString()"
       },
       {
         "description": "getTimestamp",
@@ -64,11 +63,11 @@
     "Binary": [
       {
         "description": "length",
-        "javascript": "Binary(Buffer.from('a string')).length()",
-        "python": "len(bytearray(Binary(b'a string')))",
-        "java": "new Binary(\"a string\".getBytes(\"UTF-8\")).length()",
-        "csharp": "new BsonBinaryData(System.Text.Encoding.ASCII.GetBytes(\"a string\")).Length",
-        "shell": "BinData(1, '0001').length()"
+        "javascript": "Binary(Buffer.from('0404')).length()",
+        "python": "len(bytearray(Binary(b'0404')))",
+        "java": "new Binary(\"0404\".getBytes(\"UTF-8\")).length()",
+        "csharp": "new BsonBinaryData(System.Text.Encoding.ASCII.GetBytes(\"0404\")).Length",
+        "shell": "BinData(0, '0404').length()"
       },
       {
         "description": "subtype",
@@ -80,19 +79,19 @@
       },
       {
         "description": "value",
-        "javascript": "Binary(Buffer.from('a string')).value()",
-        "python": "str(Binary(b'a string'))",
-        "java": "new Binary(\"a string\".getBytes(\"UTF-8\")).getData()",
-        "csharp": "new BsonBinaryData(System.Text.Encoding.ASCII.GetBytes(\"a string\")).ToString()",
-        "shell": "BinData(1, '0001').hex()"
+        "javascript": "Binary(Buffer.from('0404')).value()",
+        "python": "str(Binary(b'0404'))",
+        "java": "new Binary(\"0404\".getBytes(\"UTF-8\")).getData()",
+        "csharp": "new BsonBinaryData(System.Text.Encoding.ASCII.GetBytes(\"0404\")).ToString()",
+        "shell": "BinData(0, '0404').hex()"
       },
       {
         "description": "toString",
-        "javascript": "Binary(Buffer.from('a string')).toString()",
-        "python": "str(Binary(b'a string'))",
-        "java": "new Binary(\"a string\".getBytes(\"UTF-8\")).toString()",
-        "csharp": "new BsonBinaryData(System.Text.Encoding.ASCII.GetBytes(\"a string\")).ToString()",
-        "shell": "BinData(1, '0001').toString()"
+        "javascript": "Binary(Buffer.from('0404')).toString()",
+        "python": "str(Binary(b'0404'))",
+        "java": "new Binary(\"0404\".getBytes(\"UTF-8\")).toString()",
+        "csharp": "new BsonBinaryData(System.Text.Encoding.ASCII.GetBytes(\"0404\")).ToString()",
+        "shell": "BinData(0, '0404').toString()"
       }
     ],
     "DBRef": [
@@ -135,7 +134,8 @@
         "javascript": "Int32(3).valueOf()",
         "python": "int(3)",
         "java": "new java.lang.Integer(3).intValue()",
-        "csharp": "Convert.ToInt32(3)"
+        "csharp": "Convert.ToInt32(3)",
+        "shell": "NumberInt(3).valueOf()"
       }
     ],
     "Double": [
@@ -145,7 +145,7 @@
         "python": "float(3)",
         "java": "new java.lang.Double(3).doubleValue()",
         "csharp": "new BsonDouble(3).Value",
-        "shell": "NumberInt(3).valueOf()"
+        "shell": "3"
       }
     ],
     "Long": [
@@ -171,7 +171,7 @@
         "python": "'429496729601'",
         "java": "\"429496729601\"",
         "csharp": "\"429496729601\"",
-        "shell": ""
+        "shell": "'429496729601'"
       },
       {
         "description": "toString with radix",
@@ -179,7 +179,7 @@
         "python": "'429496729601'",
         "java": "\"429496729601\"",
         "csharp": "\"429496729601\"",
-        "shell": ""
+        "shell": "'429496729601'"
       },
       {
         "description": "isZero",
@@ -331,7 +331,7 @@
         "python": "Int64(429496729601) | Int64(4294967305)",
         "java": "new java.lang.Long(\"429496729601\") | new java.lang.Long(\"4294967305\")",
         "csharp": "new BsonInt64(429496729601).ToInt64() | new BsonInt64(4294967305).ToInt64()",
-        "shell": "NumberLong(429496729601) <= NumberLong(4294967305)"
+        "shell": "NumberLong(429496729601) | NumberLong(4294967305)"
       },
       {
         "description": "xor",
@@ -365,7 +365,7 @@
         "python": "str(Decimal128('5.3E-6175'))",
         "java": "Decimal128.parse(\"5.3E-6175\").toString()",
         "csharp": "new Decimal128(5).ToString()",
-        "shell": "NumberDecimal(0).toString()"
+        "shell": "new NumberDecimal(5.3E-6175).toString()"
       }
     ],
     "Timestamp": [

@@ -14,6 +14,7 @@ Templates:
         }
     RegexTypeTemplate: &RegexTypeTemplate !!js/function >
         (pattern, flags) => {
+            flags = flags === '' ? '' : `(?${flags})`;
             // Double escape characters except for slashes
             const escaped = pattern.replace(/\\/, '\\\\');
 

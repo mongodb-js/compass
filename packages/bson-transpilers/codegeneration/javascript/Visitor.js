@@ -459,7 +459,7 @@ class Visitor extends ECMAScriptVisitor {
     }
 
     let targetflags = flags.replace(/[imuyg]/g, m => this.regexFlags[m]);
-    targetflags = targetflags === '' ? '' : `(?${targetflags.split('').sort().join('')})`;
+    targetflags = targetflags === '' ? '' : `${targetflags.split('').sort().join('')}`;
 
     if ('emitRegExp' in this) {
       return this.emitRegExp(ctx, pattern, targetflags);

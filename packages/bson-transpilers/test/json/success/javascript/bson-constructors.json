@@ -7,7 +7,7 @@
         "python": "Code('some code')",
         "java": "new Code(\"some code\")",
         "csharp": "new BsonJavaScript(@\"some code\")",
-        "shell": "Code('some code')"
+        "shell": "new Code('some code')"
       },
       {
         "description": "Code with string code",
@@ -34,12 +34,12 @@
         "shell": "Code('function(test){console.log(test);}')"
       },
       {
-        "description": "Code with where code",
+        "description": "new Code with where code",
         "javascript": "new Code('this.a > i', { i: '1' })",
         "python": "Code('this.a > i', {'i': '1'})",
         "java": "new CodeWithScope(\"this.a > i\", new Document().append(\"i\", \"1\"))",
         "csharp": "new BsonJavaScriptWithScope(@\"this.a > i\", new BsonDocument(\"i\", \"1\"))",
-        "shell": "Code('this.a > i', {i: '1'})"
+        "shell": "new Code('this.a > i', {i: '1'})"
       }
     ],
     "ObjectId": [
@@ -65,7 +65,7 @@
         "python": "ObjectId('5a7382114ec1f67ae445f778')",
         "java": "new ObjectId(\"5a7382114ec1f67ae445f778\")",
         "csharp": "new ObjectId(\"5a7382114ec1f67ae445f778\")",
-        "shell": "new ObjectId('5a7382114ec1f67ae445f778')"
+        "shell": "ObjectId('5a7382114ec1f67ae445f778')"
       }
     ],
     "Binary": [
@@ -75,7 +75,7 @@
         "python": "Binary(b'1234')",
         "java": "new Binary(\"1234\".getBytes(\"UTF-8\"))",
         "csharp": "new BsonBinaryData(System.Text.Encoding.ASCII.GetBytes(\"1234\"))",
-        "shell": "new BinData(4, '1234')"
+        "shell": "BinData(0, '1234')"
       },
       {
         "description": "new Binary with (ascii buffer, UUID subtype enum) args",
@@ -91,7 +91,7 @@
         "python": "Binary(b'1234', bson.binary.FUNCTION_SUBTYPE)",
         "java": "new Binary(org.bson.BsonBinarySubType.FUNCTION, \"1234\".getBytes(\"UTF-8\"))",
         "csharp": "new BsonBinaryData(System.Text.Encoding.ASCII.GetBytes(\"1234\"), BsonBinarySubType.Function)",
-        "shell": "new BinData(1, '1234')"
+        "shell": "BinData(1, '1234')"
       },
       {
         "description": "Binary with string args",
@@ -99,7 +99,7 @@
         "python": "Binary(b'1234')",
         "java": "new Binary(\"1234\".getBytes(\"UTF-8\"))",
         "csharp": "new BsonBinaryData(System.Text.Encoding.ASCII.GetBytes(\"1234\"))",
-        "shell": "new BinData(1, '1234')"
+        "shell": "BinData(0, '1234')"
       },
       {
         "description": "Binary with (string, string) args",
@@ -107,7 +107,7 @@
         "python": "Binary(b'1234', bson.binary.FUNCTION_SUBTYPE)",
         "java": "new Binary(org.bson.BsonBinarySubType.FUNCTION, \"1234\".getBytes(\"UTF-8\"))",
         "csharp": "new BsonBinaryData(System.Text.Encoding.ASCII.GetBytes(\"1234\"), BsonBinarySubType.Function)",
-        "shell": "new BinData(4, '1234')"
+        "shell": "BinData(1, '1234')"
       }
     ],
     "DBRef": [
@@ -179,7 +179,7 @@
         "python": "Int64(9223372036854775807)",
         "java": "new java.lang.Long(\"9223372036854775807\")",
         "csharp": "new BsonInt64(9223372036854775807)",
-        "shell": "new Long(9223372036854775807)"
+        "shell": "new NumberLong(9223372036854775807)"
       }
     ],
     "Decimal128": [
@@ -233,7 +233,7 @@
         "python": "Regex('^[a-z0-9_-]{3,16}$')",
         "java": "new BsonRegularExpression(\"^[a-z0-9_-]{3,16}$\")",
         "csharp": "new BsonRegularExpression(@\"^[a-z0-9_-]{3,16}$\")",
-        "shell": "new BSONRegExp('^[a-z0-9_-]{3,16}$')"
+        "shell": "new RegExp('^[a-z0-9_-]{3,16}$')"
       },
       {
         "description": "new BSONRegExp with string arg and flags",
@@ -241,7 +241,7 @@
         "python": "Regex('^[a-z0-9_-]{3,16}$', 'imuxls')",
         "java": "new BsonRegularExpression(\"^[a-z0-9_-]{3,16}$\", \"imuxls\")",
         "csharp": "new BsonRegularExpression(@\"^[a-z0-9_-]{3,16}$\", \"imxs\")",
-        "shell": "new BSONRegExp('^[a-z0-9_-]{3,16}$', 'imuxls')"
+        "shell": "new RegExp('^[a-z0-9_-]{3,16}$', 'imuxls')"
       }
     ],
     "Timestamp": [
@@ -277,7 +277,7 @@
         "python": "{'x': '1'}",
         "java": "new Document().append(\"x\", \"1\")",
         "csharp": "new BsonDocument(\"x\", \"1\")",
-        "shell": "{x: '1',}"
+        "shell": "{x: '1'}"
       },
       {
         "description": "Doc with array",
@@ -335,7 +335,7 @@
         "python": "['1', '2']",
         "java": "Arrays.asList(\"1\", \"2\")",
         "csharp": "new BsonArray {\"1\", \"2\"}",
-        "shell": "['1', '2',]"
+        "shell": "['1', '2']"
       },
       {
         "description": "Array with subdoc",
@@ -343,7 +343,7 @@
         "python": "['1', {'settings': 'http2'}]",
         "java": "Arrays.asList(\"1\", new Document().append(\"settings\", \"http2\"))",
         "csharp": "new BsonArray {\"1\", new BsonDocument(\"settings\", \"http2\")}",
-        "shell": "['1', { settings: 'http2' }]"
+        "shell": "['1', {settings: 'http2'}]"
       },
       {
         "description": "Array with subarray",
@@ -369,7 +369,7 @@
         "python": "[None, '1', '2']",
         "java": "Arrays.asList(null, \"1\", \"2\")",
         "csharp": "new BsonArray {BsonUndefined.Value, \"1\", \"2\"}",
-        "shell": "[,'1', '2',]"
+        "shell": "[undefined, '1', '2']"
       },
       {
         "description": "Array with one elision",
@@ -377,7 +377,7 @@
         "python": "[None]",
         "java": "Arrays.asList(null)",
         "csharp": "new BsonArray {BsonUndefined.Value}",
-        "shell": "[,]"
+        "shell": "[undefined]"
       },
       {
         "description": "Array with 2 elision",
@@ -385,7 +385,7 @@
         "python": "[None, None]",
         "java": "Arrays.asList(null, null)",
         "csharp": "new BsonArray {BsonUndefined.Value, BsonUndefined.Value}",
-        "shell": "[,,]"
+        "shell": "[undefined, undefined]"
       },
       {
         "description": "Array with elision in the middle",
@@ -393,7 +393,7 @@
         "python": "['1', None, None, None, '2']",
         "java": "Arrays.asList(\"1\", null, null, null, \"2\")",
         "csharp": "new BsonArray {\"1\", BsonUndefined.Value, BsonUndefined.Value, BsonUndefined.Value, \"2\"}",
-        "shell": "['1',,,,'2']"
+        "shell": "['1', undefined, undefined, undefined, '2']"
       }
     ],
     "Symbol": [

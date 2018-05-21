@@ -13,9 +13,10 @@ Templates:
             return `"${newStr.replace(/\\([\s\S])|(")/g, '\\$1$2')}"`;
         }
     RegexTypeTemplate: &RegexTypeTemplate !!js/function >
-        (flags, pattern) => {
+        (pattern, flags) => {
+            flags = flags === '' ? '' : `(?${flags})`;
             // Double-quote stringify
-            const str = pattern + flags;
+            const str = flags + pattern;
             let newStr = str;
             if (
                 (str.charAt(0) === '\'' && str.charAt(str.length - 1) === '\'') ||
