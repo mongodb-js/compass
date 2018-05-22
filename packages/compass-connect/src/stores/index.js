@@ -60,7 +60,12 @@ const EXTENSION = 'Connect.Extension';
 /**
  * Atlas link.
  */
-const ATLAS_LINK = 'https://cloud.mongodb.com/user#/atlas/register/accountProfile';
+const ATLAS_LINK = 'https://www.mongodb.com/cloud/atlas/lp/general?jmp=compass';
+
+/**
+ * Learn more link.
+ */
+const LEARN_MORE = 'https://www.mongodb.com/cloud/atlas';
 
 /**
  * The store that backs the connect plugin.
@@ -443,6 +448,14 @@ const ConnectStore = Reflux.createStore({
   onVisitAtlasLink() {
     shell.openExternal(ATLAS_LINK);
     this.appRegistry.emit('create-atlas-cluster-clicked');
+  },
+
+  /**
+   * Learn more about Atlas.
+   */
+  onAtlasLearnMore() {
+    shell.openExternal(LEARN_MORE);
+    this.appRegistry.emit('create-atlas-cluster-learn-more-clicked');
   },
 
   /**

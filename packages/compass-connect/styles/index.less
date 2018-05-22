@@ -25,6 +25,27 @@ label {
 }
 
 .connect {
+  &-atlas {
+    flex-grow: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    padding-right: 25px;
+
+    &-link {
+      font-size: 18px;
+      color: #2A9FD8;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    &-learn-more {
+      margin-left: 3px;
+      text-decoration: underline;
+      cursor: pointer;
+    }
+  }
+
   &-is-connected {
     border: 2px solid green;
   }
@@ -101,12 +122,15 @@ label {
       background-color: #f5f6f7;
       border-bottom: 2px solid #ebebed;
       margin-bottom: 30px;
+      display: flex;
+      align-items: center;
 
       h2 {
         display: inline-block;
         margin: 23px 0 0 30px;
         font-size: 24px;
         line-height: 30px;
+        flex-grow: 5;
       }
     }
   }

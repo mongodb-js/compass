@@ -31,7 +31,8 @@ const ConnectActions = Reflux.createActions([
   'onConnect',
   'onDisconnect',
   'onSRVRecordToggle',
-  'onVisitAtlasLink'
+  'onVisitAtlasLink',
+  'onAtlasLearnMore'
 ]);
 
 module.exports = ConnectActions;
