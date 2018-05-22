@@ -19,7 +19,7 @@ const GLOBALS = {
 
 const config = {
   target: 'electron-renderer',
-  devtool: 'source-map',
+  devtool: false,
   entry: {
     // Export the entry to our plugin. Referenced in package.json main.
     index: path.resolve(project.path.src, 'index.js')

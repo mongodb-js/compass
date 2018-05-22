@@ -4,10 +4,7 @@ import classnames from 'classnames';
 import Pipeline from 'components/pipeline';
 import { namespaceChanged } from 'modules/namespace';
 import { nameChanged } from 'modules/name';
-import {
-  toggleInputDocumentsCollapsed,
-  refreshInputDocuments
-} from 'modules/input-documents';
+import { toggleInputDocumentsCollapsed } from 'modules/input-documents';
 
 import { copyToClipboard } from 'modules/clipboard';
 import { openLink } from 'modules/link';
@@ -88,7 +85,6 @@ const MappedAggregations = connect(
     namespaceChanged,
     nameChanged,
     toggleInputDocumentsCollapsed,
-    refreshInputDocuments,
     deletePipeline,
     runStage,
     runOutStage,

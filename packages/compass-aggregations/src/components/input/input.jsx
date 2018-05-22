@@ -11,7 +11,6 @@ class Input extends PureComponent {
 
   static propTypes = {
     toggleInputDocumentsCollapsed: PropTypes.func.isRequired,
-    refreshInputDocuments: PropTypes.func.isRequired,
     documents: PropTypes.array.isRequired,
     isLoading: PropTypes.bool.isRequired,
     isExpanded: PropTypes.bool.isRequired,
@@ -34,7 +33,6 @@ class Input extends PureComponent {
       <div className={classnames(styles.input)}>
         <InputToolbar
           toggleInputDocumentsCollapsed={this.props.toggleInputDocumentsCollapsed}
-          refreshInputDocuments={this.props.refreshInputDocuments}
           isExpanded={this.props.isExpanded}
           count={this.props.count} />
         {workspace}
