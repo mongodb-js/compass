@@ -39,6 +39,7 @@ class StagePreview extends Component {
     return nextProps.isLoading !== this.props.isLoading ||
       nextProps.isEnabled !== this.props.isEnabled ||
       nextProps.stageOperator === OUT ||
+      nextProps.stageOperator !== this.props.stageOperator ||
       nextProps.documents.length !== this.props.documents.length;
   }
 

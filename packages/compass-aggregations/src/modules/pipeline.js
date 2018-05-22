@@ -212,6 +212,7 @@ const selectStageOperator = (state, action) => {
     newState[action.index].stage = snippet;
     newState[action.index].snippet = snippet;
     newState[action.index].isExpanded = true;
+    newState[action.index].isComplete = false;
     newState[action.index].executor = generateStage(newState[action.index]);
     return newState;
   }
