@@ -357,6 +357,21 @@ class Visitor extends ECMAScriptVisitor {
     return res;
   }
 
+  getTyped(actual) {
+    if (actual.type === undefined) {
+      while (actual.singleExpression()) {
+        actual = actual.singleExpression();
+        if (actual.type !== undefined) {
+          break;
+        }
+      }
+    }
+    if (actual.type === undefined) {
+      throw Error; // Internal error
+    }
+    return actual;
+  }
+
   /**
    * Convert between types. TODO: add 'castTo' field to symbols?
    * @param {Array} expected - types to cast to.
@@ -366,6 +381,8 @@ class Visitor extends ECMAScriptVisitor {
    */
   castType(expected, actual) {
     const result = this.visit(actual);
+    const original = actual;
+    actual = this.getTyped(actual);
 
     // If the types are exactly the same
     if (expected.indexOf(actual.type) !== -1 ||
@@ -389,8 +406,9 @@ class Visitor extends ECMAScriptVisitor {
     for (let i = 0; i < expected.length; i++) {
       if (numericTypes.indexOf(actual.type) !== -1 &&
         numericTypes.indexOf(expected[i]) !== -1) {
+        original.type = expected[i];
         actual.type = expected[i];
-        return this.visit(actual);
+        return this.visit(original);
       }
     }
     return null;
