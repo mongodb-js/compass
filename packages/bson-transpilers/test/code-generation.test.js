@@ -1,12 +1,10 @@
 /* eslint no-sync: 0 */
-const {
-  readJSON,
-  runTest,
-  inputLanguages,
-  outputLanguages
-} = require('./helpers');
-const fs = require('fs');
+const { readJSON, runTest } = require('./helpers');
 const path = require('path');
+const fs = require('fs');
+
+const outputLanguages = process.env.OUTPUT ? process.env.OUTPUT.split(',') : [ 'csharp', 'python', 'java', 'javascript', 'shell'];
+const inputLanguages = process.env.INPUT ? process.env.INPUT.split(',') : [ 'shell', 'javascript' ];
 
 describe('Test', () => {
   const pSuccess = path.join(__dirname, 'json', 'success');
