@@ -14,7 +14,17 @@ class StagePreviewToolbar extends PureComponent {
     isEnabled: PropTypes.bool.isRequired,
     isValid: PropTypes.bool.isRequired,
     stageOperator: PropTypes.string,
-    stageValue: PropTypes.any
+    stageValue: PropTypes.any,
+    count: PropTypes.number.isRequired
+  }
+
+  /**
+   * Get the word.
+   *
+   * @returns {String} The word.
+   */
+  getWord() {
+    return this.props.count === 1 ? 'document' : 'documents';
   }
 
   /**
@@ -28,7 +38,7 @@ class StagePreviewToolbar extends PureComponent {
         if (this.props.stageOperator === OUT && this.props.isValid) {
           return `Documents will be saved to the collection: ${this.props.stageValue}`;
         }
-        return `Sample of Documents after the ${this.props.stageOperator} stage`;
+        return `Output after ${this.props.stageOperator} stage (Sample of ${this.props.count} ${this.getWord()})`;
       }
       return '';
     }

@@ -28,7 +28,7 @@ describe('StageToolbar [Component]', () => {
 
     component = shallow(
       <StageToolbar
-        stage={{ isValid: true, isEnabled: true }}
+        stage={{ isValid: true, isEnabled: true, previewDocuments: [] }}
         index={0}
         serverVersion="3.6.0"
         stageOperatorSelected={stageOperatorSelectedSpy}

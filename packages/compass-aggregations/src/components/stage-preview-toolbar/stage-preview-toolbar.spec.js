@@ -13,6 +13,7 @@ describe('StagePreviewToolbar [Component]', () => {
         <StagePreviewToolbar
           stageOperator="$match"
           isValid
+          count={10}
           isEnabled />
       );
     });
@@ -27,7 +28,7 @@ describe('StagePreviewToolbar [Component]', () => {
 
     it('renders the stage text', () => {
       expect(component.find(`.${styles['stage-preview-toolbar']}`)).
-        to.have.text('Sample of Documents after the $match stage');
+        to.have.text('Output after $match stage (Sample of 10 documents)');
     });
   });
 
@@ -39,6 +40,7 @@ describe('StagePreviewToolbar [Component]', () => {
         <StagePreviewToolbar
           stageOperator="$match"
           isValid
+          count={10}
           isEnabled={false} />
       );
     });

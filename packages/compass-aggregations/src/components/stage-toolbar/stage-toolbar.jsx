@@ -48,7 +48,8 @@ class StageToolbar extends PureComponent {
           isEnabled={this.props.stage.isEnabled}
           isValid={this.props.stage.isValid}
           stageOperator={this.props.stage.stageOperator}
-          stageValue={this.props.stage.stage} />
+          stageValue={this.props.stage.stage}
+          count={this.props.stage.previewDocuments.length} />
       </div>
     );
   }
