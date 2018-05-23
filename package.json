@@ -153,7 +153,7 @@
           "icon": "src/app/images/darwin/mongodb-compass.icns",
           "dmg_background": "src/app/images/darwin/background.png",
           "codesign_identity": "Developer ID Application: MongoDB, Inc. (4XWMY46275)",
-          "codesign_sha1": "44D99642958DB133E51FC5B95EFE873B61DEF561",
+          "codesign_sha1": "BBF6BCF14C4365D5632BA5E68B378DA4D8CBDF4C",
           "app_category_type": "public.app-category.productivity"
         },
         "linux": {
