@@ -233,8 +233,8 @@ module.exports = [
   },
   {
     registryEvent: 'create-atlas-cluster-clicked',
-    resource: 'Connect',
-    action: 'createAtlasCluster',
+    resource: 'AtlasLink',
+    action: 'clicked',
     condition: () => true,
     metadata: () => ({})
   },
