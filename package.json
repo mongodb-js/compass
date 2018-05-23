@@ -215,7 +215,7 @@
     "@mongodb-js/compass-auth-ldap": "^0.1.0",
     "@mongodb-js/compass-auth-x509": "^0.1.0",
     "@mongodb-js/compass-collection-stats": "^2.0.3",
-    "@mongodb-js/compass-connect": "^2.4.0",
+    "@mongodb-js/compass-connect": "^2.4.1",
     "@mongodb-js/compass-crud": "^4.1.2",
     "@mongodb-js/compass-deployment-awareness": "^5.1.1",
     "@mongodb-js/compass-document-validation": "^7.3.0",
@@ -345,8 +345,8 @@
     "check"
   ],
   "engines": {
-    "node": "^8.2.1",
-    "npm": "^5.0.0"
+    "node": "^8.9.3",
+    "npm": ">=5.0.0"
   },
   "bugs": {
     "url": "https://docs.mongodb.com/compass/current/#contact",
