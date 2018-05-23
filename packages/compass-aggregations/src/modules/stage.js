@@ -19,6 +19,7 @@ export default function generateStage(state) {
   } catch (e) {
     state.error = e.message;
     state.isValid = false;
+    state.previewDocuments = [];
     return {};
   }
   state.isValid = true;

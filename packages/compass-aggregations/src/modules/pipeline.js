@@ -257,7 +257,7 @@ const toggleStageCollapse = (state, action) => {
  */
 const updateStagePreview = (state, action) => {
   const newState = copyState(state);
-  newState[action.index].previewDocuments = action.documents;
+  newState[action.index].previewDocuments = (action.error === null) ? action.documents : [];
   newState[action.index].error = action.error ? action.error.message : null;
   newState[action.index].isLoading = false;
   newState[action.index].isValid = (action.error === null);
