@@ -133,9 +133,12 @@
     text-align: center;
   }
 
-  &-button-create-database text {
-    opacity: 0;
-    transition: all 180ms ease;
+  &-button-create-database {
+    .plus-button {
+      opacity: 0;
+      transition: all 180ms ease;
+      display: inline-block;
+    }
   }
 
   &-button-create-database:hover {
@@ -144,8 +147,10 @@
 
   }
 
-  &-button-create-database:hover text {
-    opacity: 1;
+  &-button-create-database:hover {
+    .plus-button {
+      opacity: 1;
+    }
   }
 
   &-button-create-database.compass-sidebar-button-is-disabled {
@@ -225,8 +230,10 @@
     width: 28px;
   }
 
-  .compass-sidebar-button-create-database:hover text {
-    opacity: 0;
+  .compass-sidebar-button-create-database:hover {
+    .plus-button {
+      opacity: 0;
+    }
   }
 }
 
