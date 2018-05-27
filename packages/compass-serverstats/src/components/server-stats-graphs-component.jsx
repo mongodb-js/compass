@@ -8,7 +8,6 @@ const GlobalLockStore = require('../stores/globallock-store');
 const MemStore = require('../stores/mem-store');
 const Actions = require('../actions');
 const DBErrorStore = require('../stores/dberror-store');
-const find = require('lodash.find');
 
 // const debug = require('debug')('mongodb-compass:server-stats:graphs-component');
 
@@ -44,16 +43,8 @@ class ServerStatsComponent extends React.Component {
     this.timer.stop();
   }
 
-  stop(msgs) {
-    if (this.isAuthError(msgs)) {
-      this.timer.stop();
-    }
-  }
-
-  isAuthError(msgs) {
-    return find(msgs, (msg) => {
-      return msg.ops === 'serverStatus' && msg.errorMsg.includes('not authorized');
-    }) !== undefined;
+  stop() {
+    this.timer.stop();
   }
 
   /**

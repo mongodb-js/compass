@@ -3,7 +3,6 @@ const React = require('react');
 const PropTypes = require('prop-types');
 const Actions = require('../actions');
 const DBErrorStore = require('../stores/dberror-store');
-const find = require('lodash.find');
 
 // const debug = require('debug')('mongodb-compass:server-stats:top-component');
 
@@ -51,16 +50,8 @@ class TopComponent extends React.Component {
     this.timer.stop();
   }
 
-  stop(msgs) {
-    if (this.isAuthError(msgs)) {
-      this.timer.stop();
-    }
-  }
-
-  isAuthError(msgs) {
-    return find(msgs, (msg) => {
-      return msg.ops === 'top' && msg.errorMsg.includes('not authorized');
-    }) !== undefined;
+  stop() {
+    this.timer.stop();
   }
 
   /**

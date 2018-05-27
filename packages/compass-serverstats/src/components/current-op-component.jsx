@@ -3,7 +3,6 @@ const React = require('react');
 const PropTypes = require('prop-types');
 const Actions = require('../actions');
 const DBErrorStore = require('../stores/dberror-store');
-const find = require('lodash.find');
 
 // const debug = require('debug')('mongodb-compass:server-stats:current-op-component');
 
@@ -51,16 +50,8 @@ class CurrentOpComponent extends React.Component {
     this.timer.stop();
   }
 
-  stop(msgs) {
-    if (this.isAuthError(msgs)) {
-      this.timer.stop();
-    }
-  }
-
-  isAuthError(msgs) {
-    return find(msgs, (msg) => {
-      return msg.ops === 'currentOp' && msg.errorMsg.includes('Invalid collection name');
-    }) !== undefined;
+  stop() {
+    this.timer.stop();
   }
 
   /**
