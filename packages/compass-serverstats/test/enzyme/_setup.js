@@ -1,6 +1,9 @@
 /**
  * Creates a headless browser environment with jsdom for server-side testing.
  */
+const Enzyme = require('enzyme');
+const Adapter = require('enzyme-adapter-react-16');
+Enzyme.configure({ adapter: new Adapter() });
 
 require('babel-register')();
 
