@@ -208,6 +208,7 @@ const selectStageOperator = (state, action) => {
     const newState = copyState(state);
     const operatorDetails = getStageOperator(operatorName);
     const snippet = (operatorDetails || {}).snippet || DEFAULT_SNIPPET;
+    // @todo: Durran: determine here if we need to add comments.
     newState[action.index].stageOperator = operatorName;
     newState[action.index].stage = snippet;
     newState[action.index].snippet = snippet;

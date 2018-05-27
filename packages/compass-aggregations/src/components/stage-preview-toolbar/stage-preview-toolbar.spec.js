@@ -22,10 +22,6 @@ describe('StagePreviewToolbar [Component]', () => {
       component = null;
     });
 
-    it('renders the wrapper div', () => {
-      expect(component.find(`.${styles['stage-preview-toolbar']}`)).to.be.present();
-    });
-
     it('renders the stage text', () => {
       expect(component.find(`.${styles['stage-preview-toolbar']}`)).
         to.have.text('Output after $match stage (Sample of 10 documents)');
@@ -49,13 +45,56 @@ describe('StagePreviewToolbar [Component]', () => {
       component = null;
     });
 
-    it('renders the wrapper div', () => {
-      expect(component.find(`.${styles['stage-preview-toolbar']}`)).to.be.present();
-    });
-
     it('does not render the stage text', () => {
       expect(component.find(`.${styles['stage-preview-toolbar']}`)).
         to.have.text('Stage is disabled. Results not passed in the pipeline.');
+    });
+  });
+
+  context('when the stage operator is $out', () => {
+    let component;
+
+    beforeEach(() => {
+      component = shallow(
+        <StagePreviewToolbar
+          stageOperator="$out"
+          stageValue="collection"
+          count={0}
+          isValid
+          isEnabled />
+      );
+    });
+
+    afterEach(() => {
+      component = null;
+    });
+
+    it('renders the $out stage text', () => {
+      expect(component.find(`.${styles['stage-preview-toolbar']}`)).
+        to.have.text('Documents will be saved to the collection: collection');
+    });
+  });
+
+  context('when there is no stage operator', () => {
+    let component;
+
+    beforeEach(() => {
+      component = shallow(
+        <StagePreviewToolbar
+          stageOperator={null}
+          count={0}
+          isValid
+          isEnabled />
+      );
+    });
+
+    afterEach(() => {
+      component = null;
+    });
+
+    it('renders the stage text', () => {
+      expect(component.find(`.${styles['stage-preview-toolbar']}`)).
+        to.have.text('A sample of the aggregated results from this stage will be shown below');
     });
   });
 });

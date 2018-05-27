@@ -6,6 +6,16 @@ import { OUT } from 'modules/pipeline';
 import styles from './stage-preview-toolbar.less';
 
 /**
+ * Zero state text.
+ */
+const ZERO_STATE = 'A sample of the aggregated results from this stage will be shown below';
+
+/**
+ * Disabled text.
+ */
+const DISABLED = 'Stage is disabled. Results not passed in the pipeline.';
+
+/**
  * The stage preview toolbar component.
  */
 class StagePreviewToolbar extends PureComponent {
@@ -40,9 +50,9 @@ class StagePreviewToolbar extends PureComponent {
         }
         return `Output after ${this.props.stageOperator} stage (Sample of ${this.props.count} ${this.getWord()})`;
       }
-      return '';
+      return ZERO_STATE;
     }
-    return 'Stage is disabled. Results not passed in the pipeline.';
+    return DISABLED;
   }
 
   /**
