@@ -30,9 +30,9 @@ class StageToolbar extends PureComponent {
    * @returns {React.Component} The component.
    */
   render() {
-    const valid = this.props.stage.isValid ? 'stage-toolbar' : 'stage-toolbar-invalid';
+    const errored = this.props.stage.error ? 'stage-toolbar-errored' : 'stage-toolbar';
     return (
-      <div className={classnames(styles[valid])}>
+      <div className={classnames(styles[errored])}>
         <StageBuilderToolbar
           stage={this.props.stage}
           index={this.props.index}

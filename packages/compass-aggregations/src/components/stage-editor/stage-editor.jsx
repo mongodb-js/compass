@@ -112,12 +112,23 @@ class StageEditor extends PureComponent {
    * @returns {React.Component} The component.
    */
   renderError() {
-    if (this.props.stage.isValid) return null;
-    return (
-      <div className={classnames(styles['stage-editor-errormsg'])}>
-        {this.props.stage.error}
-      </div>
-    );
+    if (this.props.stage.error) {
+      return (
+        <div className={classnames(styles['stage-editor-errormsg'])}>
+          {this.props.stage.error}
+        </div>
+      );
+    }
+  }
+
+  renderSyntaxError() {
+    if (!this.props.stage.isValid) {
+      return (
+        <div className={classnames(styles['stage-editor-syntax-error'])}>
+          {this.props.stage.syntaxError}
+        </div>
+      );
+    }
   }
 
   /**
@@ -144,6 +155,7 @@ class StageEditor extends PureComponent {
             }}
           />
         </div>
+        {this.renderSyntaxError()}
         {this.renderError()}
       </div>
     );

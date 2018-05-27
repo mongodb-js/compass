@@ -104,7 +104,7 @@ const EMPTY_STAGE = {
   isComplete: false,
   previewDocuments: [],
   syntaxError: null,
-  serverError: null
+  error: null
 };
 
 /**
@@ -264,7 +264,6 @@ const updateStagePreview = (state, action) => {
   newState[action.index].previewDocuments = (action.error === null) ? action.documents : [];
   newState[action.index].error = action.error ? action.error.message : null;
   newState[action.index].isLoading = false;
-  newState[action.index].isValid = (action.error === null);
   newState[action.index].isComplete = action.isComplete;
   return newState;
 };

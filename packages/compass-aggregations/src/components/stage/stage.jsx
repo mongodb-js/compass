@@ -119,10 +119,10 @@ class Stage extends Component {
    */
   render() {
     const opacity = this.props.isDragging ? 0 : (this.props.stage.isEnabled ? 1 : 0.6);
-    const valid = this.props.stage.isValid ? 'stage' : 'stage-invalid';
+    const errored = this.props.stage.error ? 'stage-errored' : 'stage';
     return this.props.connectDragSource(
       this.props.connectDropTarget(
-        <div className={classnames(styles[valid])} style={{ opacity }}>
+        <div className={classnames(styles[errored])} style={{ opacity }}>
           <StageToolbar
             stage={this.props.stage}
             index={this.props.index}
