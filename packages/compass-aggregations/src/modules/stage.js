@@ -17,12 +17,12 @@ export default function generateStage(state) {
     parse(`{${state.stageOperator}: ${state.stage}}`);
     stage[state.stageOperator] = parser(state.stage);
   } catch (e) {
-    state.error = e.message;
+    state.syntaxError = e.message;
     state.isValid = false;
     state.previewDocuments = [];
     return {};
   }
   state.isValid = true;
-  state.error = '';
+  state.syntaxError = null;
   return stage;
 }

@@ -90,6 +90,8 @@ export const OUT = '$out';
 
 /**
  * An initial stage.
+ *
+ * @todo: Loading needs to clear out server errors.
  */
 const EMPTY_STAGE = {
   id: new Date().getTime(),
@@ -101,7 +103,8 @@ const EMPTY_STAGE = {
   isLoading: false,
   isComplete: false,
   previewDocuments: [],
-  error: null
+  syntaxError: null,
+  serverError: null
 };
 
 /**
