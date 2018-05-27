@@ -8,20 +8,12 @@ describe('StageOperatorSelect [Component]', () => {
   let component;
   const spy = sinon.spy();
   const setIsModifiedSpy = sinon.spy();
-  const stage = {
-    stage: '{ name: "testing" }',
-    stageOperator: '$match',
-    isValid: true,
-    isEnabled: true,
-    isExpanded: true,
-    id: 1
-  };
 
   beforeEach(() => {
     component = mount(
       <StageOperatorSelect
-        stage={stage}
         index={0}
+        isEnabled
         serverVersion="3.4.0"
         setIsModified={setIsModifiedSpy}
         stageOperatorSelected={spy} />

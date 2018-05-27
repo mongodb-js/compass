@@ -30,7 +30,7 @@ describe('StageBuilderToolbar [Component]', () => {
 
     component = shallow(
       <StageBuilderToolbar
-        stage={{}}
+        stage={{ isEnabled: true }}
         index={0}
         stageCollapseToggled={stageCollapseToggledSpy}
         stageOperatorSelected={stageOperatorSelectedSpy}

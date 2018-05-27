@@ -16,6 +16,7 @@ class StageOperatorSelect extends PureComponent {
   static propTypes = {
     stageOperator: PropTypes.string,
     index: PropTypes.number.isRequired,
+    isEnabled: PropTypes.bool.isRequired,
     stageOperatorSelected: PropTypes.func.isRequired,
     serverVersion: PropTypes.string.isRequired,
     setIsModified: PropTypes.func.isRequired
@@ -48,6 +49,7 @@ class StageOperatorSelect extends PureComponent {
           openOnClick
           openOnFocus
           clearable={false}
+          disabled={!this.props.isEnabled}
           className={classnames(styles['stage-operator-select-control'])}
           options={operators}
           value={this.props.stageOperator}

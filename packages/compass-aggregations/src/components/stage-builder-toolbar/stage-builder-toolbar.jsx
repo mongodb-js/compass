@@ -91,6 +91,7 @@ class StageBuilderToolbar extends PureComponent {
         <StageOperatorSelect
           stageOperator={this.props.stage.stageOperator}
           index={this.props.index}
+          isEnabled={this.props.stage.isEnabled}
           stageOperatorSelected={this.props.stageOperatorSelected}
           setIsModified={this.props.setIsModified}
           serverVersion={this.props.serverVersion} />
