@@ -29,6 +29,16 @@ const COPY = 'copy';
 const SEPARATOR = ', ';
 
 /**
+ * Open bracket.
+ */
+const OPEN = '[';
+
+/**
+ * Close bracket.
+ */
+const CLOSE = ']';
+
+/**
  * Generate the text for a single stage.
  *
  * @param {Object} stage - The stage.
@@ -50,14 +60,15 @@ const generateStageText = (stage) => {
  * @returns {String} The clipboard text.
  */
 export const generateClipboardText = (state) => {
-  let pipeline = '';
+  let pipeline = `${OPEN}`;
   state.pipeline.forEach((stage, i) => {
-    pipeline += generateStageText(stage);
-    if (i < state.pipeline.length - 1) {
+    const text = generateStageText(stage);
+    pipeline += text;
+    if (i < state.pipeline.length - 1 && text !== '') {
       pipeline += SEPARATOR;
     }
   });
-  return pipeline;
+  return `${pipeline}${CLOSE}`;
 };
 
 /**

@@ -18,21 +18,49 @@ describe('clipboard module', () => {
       };
 
       it('returns the generated text', () => {
-        expect(generateClipboardText(state)).to.equal('{ $match: { name: "testing" } }');
+        expect(generateClipboardText(state)).to.equal('[{ $match: { name: "testing" } }]');
       });
     });
 
     context('when a stage is not enabled', () => {
-      const state = {
-        pipeline: [{
-          isEnabled: false,
-          stageOperator: '$match',
-          stage: '{ name: "testing" }'
-        }]
-      };
+      context('when there is only a single stage', () => {
+        const state = {
+          pipeline: [{
+            isEnabled: false,
+            stageOperator: '$match',
+            stage: '{ name: "testing" }'
+          }]
+        };
 
-      it('returns an empty string', () => {
-        expect(generateClipboardText(state)).to.equal('');
+        it('returns an empty array string', () => {
+          expect(generateClipboardText(state)).to.equal('[]');
+        });
+      });
+
+      context('when there are multiple stages', () => {
+        const state = {
+          pipeline: [
+            {
+              isEnabled: false,
+              stageOperator: '$match',
+              stage: '{ name: "testing" }'
+            },
+            {
+              isEnabled: false,
+              stageOperator: '$match',
+              stage: '{ name: "testing" }'
+            },
+            {
+              isEnabled: true,
+              stageOperator: '$match',
+              stage: '{ name: "testing" }'
+            }
+          ]
+        };
+
+        it('does not include commas for disabled stages', () => {
+          expect(generateClipboardText(state)).to.equal('[{ $match: { name: "testing" } }]');
+        });
       });
     });
 
@@ -45,8 +73,8 @@ describe('clipboard module', () => {
         }]
       };
 
-      it('returns an empty string', () => {
-        expect(generateClipboardText(state)).to.equal('');
+      it('returns an empty array string', () => {
+        expect(generateClipboardText(state)).to.equal('[]');
       });
     });
 
@@ -68,7 +96,7 @@ describe('clipboard module', () => {
 
       it('separates each stage with a comma', () => {
         expect(generateClipboardText(state)).to.equal(
-          '{ $match: { name: "testing" } }, { $project: { name: 1 } }'
+          '[{ $match: { name: "testing" } }, { $project: { name: 1 } }]'
         );
       });
     });
