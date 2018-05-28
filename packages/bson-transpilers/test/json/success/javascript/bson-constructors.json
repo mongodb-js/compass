@@ -133,7 +133,7 @@
         "description": "Int32 with number arg",
         "javascript": "Int32(3)",
         "python": "int(3)",
-        "java": "new java.lang.Integer(3)",
+        "java": "3",
         "csharp": "Convert.ToInt32(3)",
         "shell": "NumberInt(3)"
       },
@@ -141,9 +141,25 @@
         "description": "Int32 with valid string arg",
         "javascript": "Int32('3')",
         "python": "int('3')",
-        "java": "new java.lang.Integer(\"3\")",
+        "java": "Integer.parseInt(\"3\")",
         "csharp": "Int32.Parse(\"3\")",
         "shell": "NumberInt('3')"
+      },
+      {
+        "description": "Int32 with decimal arg",
+        "javascript": "Int32(3.0001)",
+        "python": "int(3.0001)",
+        "java": "new Integer(3.0001d)",
+        "csharp": "Convert.ToInt32(3.0001)",
+        "shell": "NumberInt(3.0001)"
+      },
+      {
+        "description": "Int32 with hex arg",
+        "javascript": "Int32(0x3)",
+        "python": "int(0x3)",
+        "java": "new Integer(0x3)",
+        "csharp": "Convert.ToInt32(0x3)",
+        "shell": "NumberInt(0x3)"
       }
     ],
     "Double": [
@@ -151,7 +167,7 @@
         "description": "Double with number arg",
         "javascript": "Double(3)",
         "python": "float(3)",
-        "java": "new java.lang.Double(3)",
+        "java": "3d",
         "csharp": "new BsonDouble(3)",
         "shell": "3"
       },
@@ -159,7 +175,7 @@
         "description": "new Double with number arg",
         "javascript": "new Double(3)",
         "python": "float(3)",
-        "java": "new java.lang.Double(3)",
+        "java": "3d",
         "csharp": "new BsonDouble(3)",
         "shell": "3"
       },
@@ -167,9 +183,25 @@
         "description": "Double with valid string arg",
         "javascript": "Double('3')",
         "python": "float('3')",
-        "java": "new java.lang.Double(\"3\")",
+        "java": "Double.parseDouble(\"3\")",
         "csharp": "new BsonDouble(3)",
         "shell": "3"
+      },
+      {
+        "description": "new Double with decimal arg",
+        "javascript": "new Double(3.005)",
+        "python": "float(3.005)",
+        "java": "3.005d",
+        "csharp": "new BsonDouble(3.005)",
+        "shell": "3.005"
+      },
+      {
+        "description": "new Double with hex arg",
+        "javascript": "new Double(0x3)",
+        "python": "float(0x3)",
+        "java": "new Double(0x3)",
+        "csharp": "new BsonDouble(3)",
+        "shell": "0x3"
       }
     ],
     "Long": [
@@ -177,7 +209,7 @@
         "description": "Long with two number args",
         "javascript": "new Long(-1, 2147483647)",
         "python": "Int64(9223372036854775807)",
-        "java": "new java.lang.Long(\"9223372036854775807\")",
+        "java": "9223372036854775807L",
         "csharp": "new BsonInt64(9223372036854775807)",
         "shell": "new NumberLong(9223372036854775807)"
       }

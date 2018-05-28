@@ -13,7 +13,7 @@
         "description": "createFromTime",
         "javascript": "ObjectId.createFromTime(1522075031642)",
         "python": "ObjectId.from_datetime(datetime.datetime.fromtimestamp(1522075031642/1000.0))",
-        "java": "new ObjectId(new java.util.Date(new java.lang.Long(\"1522075031642\")))",
+        "java": "new ObjectId(new java.util.Date(1522075031642L))",
         "csharp": "new ObjectId().GenerateNewId(Convert.ToInt32(1522075031642))",
         "shell": "ObjectId.fromDate(new Date(1522075031642))"
       },
@@ -97,7 +97,7 @@
         "description": "MAX_VALUE",
         "javascript": "Long.MAX_VALUE",
         "python": "sys.maxsize",
-        "java": "java.lang.Long.MAX_VALUE",
+        "java": "Long.MAX_VALUE",
         "shell": "Math.max()",
         "csharp": "Int64.MaxValue"
       },
@@ -105,7 +105,7 @@
         "description": "MIN_VALUE",
         "javascript": "Long.MIN_VALUE",
         "python": "-sys.maxsize -1",
-        "java": "java.lang.Long.MIN_VALUE",
+        "java": "Long.MIN_VALUE",
         "shell": "Math.min()",
         "csharp": "Int64.MinValue"
       },
@@ -113,7 +113,7 @@
         "description": "ZERO",
         "javascript": "Long.ZERO",
         "python": "Int64(0)",
-        "java": "new java.lang.Long(0)",
+        "java": "0L",
         "shell": "0",
         "csharp": "new BsonInt64(0)"
       },
@@ -121,7 +121,7 @@
         "description": "ONE",
         "javascript": "Long.ONE",
         "python": "Int64(1)",
-        "java": "new java.lang.Long(1)",
+        "java": "1L",
         "shell": "1",
         "csharp": "new BsonInt64(1)"
       },
@@ -129,7 +129,7 @@
         "description": "NEG_ONE",
         "javascript": "Long.NEG_ONE",
         "python": "Int64(-1)",
-        "java": "new java.lang.Long(-1)",
+        "java": "-1L",
         "shell": "-1",
         "csharp": "new BsonInt64(-1)"
       },
@@ -137,7 +137,7 @@
         "description": "fromInt",
         "javascript": "Long.fromInt(5)",
         "python": "Int64(5)",
-        "java": "new java.lang.Long(\"5\")",
+        "java": "5L",
         "shell": "NumberLong(5)",
         "csharp": "new BsonInt64(5)"
       },
@@ -145,7 +145,7 @@
         "description": "fromString without radix",
         "javascript": "Long.fromString('5')",
         "python": "Int64(int('5'))",
-        "java": "java.lang.Long.parseLong(\"5\")",
+        "java": "Long.parseLong(\"5\")",
         "shell": "NumberLong('5')",
         "csharp": "new BsonInt64(5)"
       },
@@ -153,7 +153,7 @@
         "description": "fromString with radix",
         "javascript": "Long.fromString('5', 10)",
         "python": "Int64(int('5'))",
-        "java": "java.lang.Long.parseLong(\"5\", 10)",
+        "java": "Long.parseLong(\"5\", 10)",
         "shell": "NumberLong('5')",
         "csharp": "Convert.ToInt64(\"5\", 10)"
       },
@@ -161,7 +161,7 @@
         "description": "fromBits",
         "javascript": "Long.fromBits(-1, 2147483647)",
         "python": "Int64(9223372036854775807)",
-        "java": "new java.lang.Long(\"9223372036854775807\")",
+        "java": "9223372036854775807L",
         "csharp": "new BsonInt64(9223372036854775807)",
         "shell": "NumberLong(9223372036854775807)"
       }

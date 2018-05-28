@@ -93,7 +93,7 @@
         "description": "NumberInt with number arg",
         "javascript": "Int32(3)",
         "python": "int(3)",
-        "java": "new java.lang.Integer(3)",
+        "java": "3",
         "csharp": "",
         "shell": "NumberInt(3)"
       },
@@ -101,7 +101,7 @@
         "description": "NumberInt with valid string arg",
         "javascript": "Int32('3')",
         "python": "int('3')",
-        "java": "new java.lang.Integer(\"3\")",
+        "java": "Integer.parseInt(\"3\")",
         "csharp": "NumberInt('3')",
         "shell": "NumberInt('3')"
       },
@@ -109,7 +109,7 @@
         "description": "NumberInt with no arg",
         "javascript": "Int32(0)",
         "python": "int(0)",
-        "java": "new java.lang.Integer(0)",
+        "java": "0",
         "csharp": "NumberInt('0')",
         "shell": "NumberInt()"
       }
@@ -119,7 +119,7 @@
         "description": "Double",
         "javascript": "3",
         "python": "3",
-        "java": "new java.lang.Long(\"3\")",
+        "java": "3L",
         "csharp": "new BsonDouble(Convert.ToDouble(\"3\"))",
         "shell": "3"
       },
@@ -127,7 +127,7 @@
         "description": "Double with .",
         "javascript": "3.001",
         "python": "3.001",
-        "java": "new java.lang.Double(3.001)",
+        "java": "3.001d",
         "csharp": "new BsonDouble(Convert.ToDouble(\"3\"))",
         "shell": "3.001"
       }
@@ -137,7 +137,7 @@
         "description": "NumberLong with no args",
         "javascript": "new Long.fromNumber(0)",
         "python": "Int64(0)",
-        "java": "new java.lang.Long(\"0\")",
+        "java": "0L",
         "csharp": "new BsonInt64(Convert.ToInt32(0))",
         "shell": "new NumberLong()"
       },
@@ -145,15 +145,15 @@
         "description": "Long with one number arg",
         "javascript": "new Long.fromNumber(10)",
         "python": "Int64(10)",
-        "java": "new java.lang.Long(\"10\")",
+        "java": "10L",
         "csharp": "new BsonInt64(Convert.ToInt32(10))",
         "shell": "new NumberLong(10)"
       },
       {
         "description": "Long with one string arg",
-        "javascript": "new Long.fromNumber(10)",
-        "python": "Int64(10)",
-        "java": "new java.lang.Long(\"10\")",
+        "javascript": "new Long.fromString('10')",
+        "python": "Int64('10')",
+        "java": "Long.parseLong(\"10\")",
         "csharp": "new BsonInt64(Convert.ToInt32(\"10\"))",
         "shell": "new NumberLong('10')"
       }
@@ -249,7 +249,7 @@
         "description": "{x: 1}",
         "javascript": "{x: 1}",
         "python": "{'x': 1}",
-        "java": "new Document().append(\"x\", new java.lang.Long(\"1\"))",
+        "java": "new Document().append(\"x\", 1L)",
         "csharp": "new BsonDocument(\"x\", 1)",
         "shell": "{x: 1}"
       },
@@ -257,7 +257,7 @@
         "description": "Doc with trailing comma",
         "javascript": "{x: 1}",
         "python": "{'x': 1}",
-        "java": "new Document().append(\"x\", new java.lang.Long(\"1\"))",
+        "java": "new Document().append(\"x\", 1L)",
         "csharp": "new BsonDocument(\"x\", 1)",
         "shell": "{x: 1,}"
       },
@@ -265,7 +265,7 @@
         "description": "Doc with array",
         "javascript": "{x: [1, 2]}",
         "python": "{'x': [1, 2]}",
-        "java": "new Document().append(\"x\", Arrays.asList(new java.lang.Long(\"1\"), new java.lang.Long(\"2\")))",
+        "java": "new Document().append(\"x\", Arrays.asList(1L, 2L))",
         "csharp": "new BsonDocument(\"x\", new BsonArray {1, 2})",
         "shell": "{x: [1,2]}"
       },
@@ -273,7 +273,7 @@
         "description": "Doc with subdoc",
         "javascript": "{x: {y: 2}}",
         "python": "{'x': {'y': 2}}",
-        "java": "new Document().append(\"x\", new Document().append(\"y\", new java.lang.Long(\"2\")))",
+        "java": "new Document().append(\"x\", new Document().append(\"y\", 2L))",
         "csharp": "new BsonDocument(\"x\", new BsonDocument(\"y\", 2))",
         "shell": "{x: {y: 2}}"
       },
@@ -281,7 +281,7 @@
         "description": "Object.create()",
         "javascript": "Object.create({x: 1})",
         "python": "{'x': 1}",
-        "java": "new Document().append(\"x\", new java.lang.Long(\"1\"))",
+        "java": "new Document().append(\"x\", 1L)",
         "csharp": "new BsonDocument(\"x\", 1)",
         "shell": "Object.create({x: 1})"
       },
@@ -297,7 +297,7 @@
         "description": "Two items in document",
         "javascript": "{x: 1, n: 4}",
         "python": "{'x': 1, 'n': 4}",
-        "java": "new Document().append(\"x\", new java.lang.Long(\"1\")).append(\"n\", new java.lang.Long(\"4\"))",
+        "java": "new Document().append(\"x\", 1L).append(\"n\", 4L)",
         "csharp": "new BsonDocument { { \"x\", 1 }, { \"n\", 4 } }",
         "shell": "{x: 1, n: 4}"
       }
@@ -307,7 +307,7 @@
         "description": "[1, 2]",
         "javascript": "[1, 2]",
         "python": "[1, 2]",
-        "java": "Arrays.asList(new java.lang.Long(\"1\"), new java.lang.Long(\"2\"))",
+        "java": "Arrays.asList(1L, 2L)",
         "csharp": "new BsonArray {1, 2}",
         "shell": "[1, 2]"
       },
@@ -315,7 +315,7 @@
         "description": "array with trailing comma",
         "javascript": "[1, 2]",
         "python": "[1, 2]",
-        "java": "Arrays.asList(new java.lang.Long(\"1\"), new java.lang.Long(\"2\"))",
+        "java": "Arrays.asList(1L, 2L)",
         "csharp": "new BsonArray {1, 2}",
         "shell": "[1, 2,]"
       },
@@ -323,7 +323,7 @@
         "description": "Array with subdoc",
         "javascript": "[1, {settings: 'http2'}]",
         "python": "[1, {'settings': 'http2'}]",
-        "java": "Arrays.asList(new java.lang.Long(\"1\"), new Document().append(\"settings\", \"http2\"))",
+        "java": "Arrays.asList(1L, new Document().append(\"settings\", \"http2\"))",
         "csharp": "new BsonArray {1, new BsonDocument(\"settings\", \"http2\")}",
         "shell": "[1, { settings: 'http2' }]"
       },
@@ -331,7 +331,7 @@
         "description": "Array with subarray",
         "javascript": "[1, [2, 3]]",
         "python": "[1, [2, 3]]",
-        "java": "Arrays.asList(new java.lang.Long(\"1\"), Arrays.asList(new java.lang.Long(\"2\"), new java.lang.Long(\"3\")))",
+        "java": "Arrays.asList(1L, Arrays.asList(2L, 3L))",
         "csharp": "new BsonArray {1, new BsonArray {2, 3}}",
         "shell": "[1, [2, 3]]"
       },
@@ -349,7 +349,7 @@
         "description": "array with leading elision",
         "javascript": "[undefined, 1, 2]",
         "python": "[None, 1, 2]",
-        "java": "Arrays.asList(new BsonUndefined(), new java.lang.Long(\"1\"), new java.lang.Long(\"2\"))",
+        "java": "Arrays.asList(new BsonUndefined(), 1L, 2L)",
         "csharp": "new BsonArray {BsonUndefined.Value, 1, 2}",
         "shell": "[,1, 2,]"
       },
@@ -373,7 +373,7 @@
         "description": "Array with elision in the middle",
         "javascript": "[1, undefined, undefined, undefined, 2]",
         "python": "[1, None, None, None, 2]",
-        "java": "Arrays.asList(new java.lang.Long(\"1\"), new BsonUndefined(), new BsonUndefined(), new BsonUndefined(), new java.lang.Long(\"2\"))",
+        "java": "Arrays.asList(1L, new BsonUndefined(), new BsonUndefined(), new BsonUndefined(), 2L)",
         "csharp": "new BsonArray {1, BsonUndefined.Value, BsonUndefined.Value, BsonUndefined.Value, 2}",
         "shell": "[1,,,,2]"
       }

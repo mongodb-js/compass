@@ -118,7 +118,7 @@ BsonSymbols:
         id: "Int32"
         callable: *constructor
         args:
-            - [ *IntegerType, *StringType ]
+            - [ *NumericType, *StringType ]
         type: *Int32Type
         attr: {}
         template: *Int32SymbolTemplate

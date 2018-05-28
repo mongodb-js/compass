@@ -20,6 +20,8 @@ class Visitor extends ECMAScriptVisitor {
   constructor() {
     super();
     this.new = '';
+    this.processInt32 = this.processNumber;
+    this.processDouble = this.processNumber;
   }
 
   start(ctx) {
@@ -69,6 +71,8 @@ class Visitor extends ECMAScriptVisitor {
     if (!ctx.type) {
       ctx.type = this.getPrimitiveType(ctx.literal());
     }
+    // Pass the original argument type to the template, not the casted type.
+    const type = ctx.originalType === undefined ? ctx.type : ctx.originalType;
     if (`process${ctx.type.id}` in this) {
       return this[`process${ctx.type.id}`](ctx);
     }
@@ -77,7 +81,7 @@ class Visitor extends ECMAScriptVisitor {
     }
 
     if (ctx.type.template) {
-      return ctx.type.template(this.visitChildren(ctx));
+      return ctx.type.template(this.visitChildren(ctx), type.id);
     }
 
     return this.visitChildren(ctx);
@@ -373,54 +377,58 @@ class Visitor extends ECMAScriptVisitor {
   }
 
   /**
-   * Convert between types. TODO: add 'castTo' field to symbols?
-   * @param {Array} expected - types to cast to.
-   * @param {Symbol} actual - type to cast from, if valid.
+   * Convert between numeric types. Required so that we don't end up with
+   * strange conversions like 'Int32(Double(2))', and can just generate '2'.
+   *
+   * @param {Array} expectedType - types to cast to.
+   * @param {antlr4.ParserRuleContext} actualCtx - ctx to cast from, if valid.
    *
    * @returns {String} - visited result, or null on error.
    */
-  castType(expected, actual) {
-    const result = this.visit(actual);
-    const original = actual;
-    actual = this.getTyped(actual);
+  castType(expectedType, actualCtx) {
+    const result = this.visit(actualCtx);
+    const originalCtx = actualCtx;
+    actualCtx = this.getTyped(actualCtx);
 
-    // If the types are exactly the same
-    if (expected.indexOf(actual.type) !== -1 ||
-        expected.indexOf(actual.type.id) !== -1) {
+    // If the types are exactly the same, just return.
+    if (expectedType.indexOf(actualCtx.type) !== -1 ||
+        expectedType.indexOf(actualCtx.type.id) !== -1) {
       return result;
     }
 
     const numericTypes = [
       this.Types._integer, this.Types._decimal, this.Types._hex, this.Types._octal, this.Types._long, this.Types._numeric
     ];
-    // If the expected type is numeric, accept the numeric basic types + numeric bson types
-    if (expected.indexOf(this.Types._numeric) !== -1 &&
-       (numericTypes.indexOf(actual.type) !== -1 ||
-         (actual.type.id === 'Long' ||
-          actual.type.id === 'Int32' ||
-          actual.type.id === 'Double'))) {
+    // If the expected type is "numeric", accept the numeric basic types + numeric bson types
+    if (expectedType.indexOf(this.Types._numeric) !== -1 &&
+       (numericTypes.indexOf(actualCtx.type) !== -1 ||
+         (actualCtx.type.id === 'Long' ||
+          actualCtx.type.id === 'Int32' ||
+          actualCtx.type.id === 'Double'))) {
       return result;
     }
 
-    // Check if the arguments are both numeric. If so then cast to expected type.
-    for (let i = 0; i < expected.length; i++) {
-      if (numericTypes.indexOf(actual.type) !== -1 &&
-        numericTypes.indexOf(expected[i]) !== -1) {
-        original.type = expected[i];
-        actual.type = expected[i];
-        return this.visit(original);
+    // Check if the arguments are both numbers. If so then cast to expected type.
+    for (let i = 0; i < expectedType.length; i++) {
+      if (numericTypes.indexOf(actualCtx.type) !== -1 &&
+        numericTypes.indexOf(expectedType[i]) !== -1) {
+        actualCtx.originalType = actualCtx.type;
+        actualCtx.type = expectedType[i];
+        return this.visit(originalCtx);
       }
     }
     return null;
   }
 
   /**
+   * Validate each argument against the expected argument types defined in the
+   * Symbol table.
    *
    * @param {Array} expected - An array of arrays where each subarray represents
    * possible argument types for that index.
    * @param {ArgumentListContext} argumentList - null if empty.
    *
-   * @returns {Array}
+   * @returns {Array} - Array containing the generated output for each argument.
    */
   checkArguments(expected, argumentList) {
     const argStr = [];
@@ -455,6 +463,45 @@ class Visitor extends ECMAScriptVisitor {
       argStr.push(result);
     }
     return argStr;
+  }
+
+  /**
+   * Need process method because we want to pass the argument type to the template
+   * so that we can determine if the generated number needs to be parsed or casted.
+   *
+   * @param {FuncCallExpressionContext} ctx
+   * @returns {String}
+   */
+  processNumber(ctx) {
+    const lhsStr = this.visit(ctx.singleExpression());
+    let lhsType = ctx.singleExpression().type;
+    if (typeof lhsType === 'string') {
+      lhsType = this.Types[lhsType];
+    }
+    ctx.type = lhsType.id === 'Number' ? this.Types._decimal : lhsType.type;
+
+    // Get the original type of the argument
+    const expectedArgs = lhsType.args;
+    let args = this.checkArguments(expectedArgs, ctx.arguments().argumentList());
+    let argType;
+
+    if (!ctx.arguments().argumentList()) {
+      args = ['0'];
+      argType = this.Types._integer;
+    } else {
+      const argNode = ctx.arguments().argumentList().singleExpression()[0];
+      const typed = this.getTyped(argNode);
+      argType = typed.originalType !== undefined ? typed.originalType : typed.type;
+    }
+
+    if (`emit${lhsType.id}` in this) {
+      return this[`emit${lhsType.id}`](ctx, argType);
+    }
+
+    // Apply the arguments template
+    const lhs = lhsType.template ? lhsType.template() : lhsStr;
+    const rhs = lhsType.argsTemplate ? lhsType.argsTemplate(lhs, args[0], argType.id) : `(${args.join(', ')})`;
+    return `${lhs}${rhs}`;
   }
 
   /**

@@ -69,6 +69,9 @@ module.exports = (superClass) => class ExtendedVisitor extends superClass {
   emitNumberDecimal(ctx, str) {
     return `Decimal128.parse(${doubleQuoteStringify(str)})`;
   }
+  emitLong(ctx, str) {
+    return `${str}L`;
+  }
 
   /**
    * Accepts date or number, if date then don't convert to date.

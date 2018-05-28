@@ -249,12 +249,15 @@ Templates:
         }
     LongSymbolTemplate: &LongSymbolTemplate !!js/function >
         () => {
-            return 'Long.fromNumber';
+            return '';
         }
     LongSymbolArgsTemplate: &LongSymbolArgsTemplate !!js/function >
-        (lhs, arg) => {
+        (lhs, arg, type) => {
             arg = arg === undefined ? 0 : arg;
-            return `(${arg})`;
+            if (type === '_string') {
+                return `Long.fromString(${arg})`;
+            }
+            return `Long.fromNumber(${arg})`;
         }
     LongSymbolMaxTemplate: &LongSymbolMaxTemplate null
     LongSymbolMaxArgsTemplate: &LongSymbolMaxArgsTemplate null

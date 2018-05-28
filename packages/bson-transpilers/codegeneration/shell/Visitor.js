@@ -17,6 +17,7 @@ class Visitor extends JavascriptVisitor {
   constructor() {
     super();
     this.new = '';
+    this.processNumberLong = this.processNumber;
   }
 
   visitIdentifierExpression(ctx) {
@@ -131,30 +132,6 @@ class Visitor extends JavascriptVisitor {
     }
     const lhs = symbolType.template ? symbolType.template() : 'Binary';
     const rhs = symbolType.argsTemplate ? symbolType.argsTemplate(lhs, bindata, typeStr) : `(${bindata}, ${typeStr})`;
-    return `${this.new}${lhs}${rhs}`;
-  }
-
-
-  /**
-   * Needs preprocessing because must be executed in javascript.
-   *
-   * @param {FuncCallExpressionContext} ctx
-   * @return {String}
-   */
-  processNumberLong(ctx) {
-    ctx.type = this.Types.NumberLong;
-    const symbolType = this.Symbols.NumberLong;
-    let longstr;
-    try {
-      longstr = this.executeJavascript(`new ${ctx.getText()}`).toString();
-    } catch (error) {
-      throw new SemanticGenericError({message: error.message});
-    }
-    if ('emitNumberLong' in this) {
-      return this.emitNumberLong(ctx, longstr);
-    }
-    const lhs = symbolType.template ? symbolType.template() : 'NumberLong';
-    const rhs = symbolType.argsTemplate ? symbolType.argsTemplate(lhs, longstr) : `(${longstr})`;
     return `${this.new}${lhs}${rhs}`;
   }
 

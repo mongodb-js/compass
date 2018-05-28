@@ -60,7 +60,7 @@ BsonSymbols:
         id: "NumberLong"
         callable: *constructor
         args:
-            - [ *NumericType, *StringType, null ]
+            - [ *IntegerType, *StringType, null ]
         type: *LongType
         attr: {}
         template: *LongSymbolTemplate

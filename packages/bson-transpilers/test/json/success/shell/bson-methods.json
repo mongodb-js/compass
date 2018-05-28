@@ -5,7 +5,7 @@
         "description": "CodeWithScope scope",
         "javascript": "Code('test code', {x: 1}).scope",
         "python": "Code('test code', {'x': 1}).scope",
-        "java": "new CodeWithScope(\"test code\", new Document().append(\"x\", new java.lang.Long(\"1\"))).getScope()",
+        "java": "new CodeWithScope(\"test code\", new Document().append(\"x\", 1L)).getScope()",
         "csharp": "",
         "shell": "Code('test code', {x: 1}).scope"
       },
@@ -149,7 +149,7 @@
         "description": "toString",
         "javascript": "Int32(3).toString()",
         "python": "str(int(3))",
-        "java": "new java.lang.Integer(3).toString()",
+        "java": "Integer.toString(3)",
         "csharp": "",
         "shell": "NumberInt(3).toString()"
       },
@@ -157,7 +157,7 @@
         "description": "valueOf",
         "javascript": "Int32(3).valueOf()",
         "python": "int(3)",
-        "java": "new java.lang.Integer(3).intValue()",
+        "java": "3",
         "csharp": "",
         "shell": "NumberInt(3).valueOf()"
       }
@@ -175,7 +175,7 @@
         "description": "valueOf",
         "javascript": "Long.fromNumber(429496729601).toInt()",
         "python": "long(Int64(429496729601))",
-        "java": "new java.lang.Long(\"429496729601\").intValue()",
+        "java": "(int) 429496729601L",
         "csharp": "",
         "shell": "NumberLong(429496729601).valueOf()"
       },
@@ -183,7 +183,7 @@
         "description": "floatApprox",
         "javascript": "Long.fromNumber(429496729601).toNumber()",
         "python": "float(Int64(429496729601))",
-        "java": "new java.lang.Long(\"429496729601\").floatValue()",
+        "java": "(float) 429496729601L",
         "csharp": "",
         "shell": "NumberLong(429496729601).floatApprox"
       },
@@ -191,7 +191,7 @@
         "description": "top",
         "javascript": "Long.fromNumber(429496729601).getHighBits()",
         "python": "Int64(429496729601) >> 32",
-        "java": "new java.lang.Long(\"429496729601\") >> 32",
+        "java": "429496729601L >> 32",
         "csharp": "",
         "shell": "NumberLong(429496729601).top"
       },
@@ -199,7 +199,7 @@
         "description": "bottom",
         "javascript": "Long.fromNumber(429496729601).getLowBits()",
         "python": "Int64(429496729601) & 0x0000ffff",
-        "java": "new java.lang.Long(\"429496729601\") & 0x0000ffff",
+        "java": "429496729601L & 0x0000ffff",
         "csharp": "",
         "shell": "NumberLong(429496729601).bottom"
       }
