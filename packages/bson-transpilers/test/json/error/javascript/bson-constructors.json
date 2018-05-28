@@ -2,8 +2,130 @@
   "tests": {
     "Code": [
       {
-        "description": "Code without arg",
+        "description": "new Code without args",
         "query": "new Code()",
+        "errorCode": "E_SEMANTIC_ARGUMENTCOUNTMISMATCH"
+      },
+      {
+        "description": "Code with extra arguments (should be 1 or 2)",
+        "query": "Code('string', {x: '1'}, 3)",
+        "errorCode": "E_SEMANTIC_ARGUMENTCOUNTMISMATCH"
+      },
+      {
+        "description": "Code with not object scope",
+        "query": "new Code('string', 5)",
+        "errorCode": "E_SEMANTIC_TYPE"
+      }
+    ],
+    "ObjectId": [
+      {
+        "description": "ObjectId with wrong type of argument",
+        "query": "ObjectId({})",
+        "errorCode": "E_SEMANTIC_TYPE"
+      }
+    ],
+    "Binary": [
+      {
+        "description": "Binary without argumnets",
+        "query": "new Binary()",
+        "errorCode": "E_SEMANTIC_ARGUMENTCOUNTMISMATCH"
+      },
+      {
+        "description": "Binary with extra argumnets",
+        "query": "new Binary(Buffer.from(\"1234\"), Binary.SUBTYPE_UUID, 5)",
+        "errorCode": "E_SEMANTIC_ARGUMENTCOUNTMISMATCH"
+      },
+      {
+        "description": "Binary with wrong buffer",
+        "query": "new Binary(Buffer.from(1), Binary.SUBTYPE_UUID)",
+        "errorCode": "E_SEMANTIC_TYPE"
+      },
+      {
+        "description": "Binary withot with empty Buffer.from()",
+        "query": "new Binary(Buffer.from(), Binary.SUBTYPE_UUID)",
+        "errorCode": "E_SEMANTIC_TYPE"
+      },
+      {
+        "description": "Binary withot with empty Buffer.from()",
+        "query": "new Binary(Buffer.from('1', '2'), Binary.SUBTYPE_UUID)",
+        "errorCode": "E_SEMANTIC_TYPE"
+      }
+    ],
+    "DBRef": [
+      {
+        "description": "DBRef without argumnets",
+        "query": "new DBRef()",
+        "errorCode": "E_SEMANTIC_ARGUMENTCOUNTMISMATCH"
+      },
+      {
+        "description": "DBRef with extra arguments (should be 2 or 3)",
+        "query": "new DBRef('coll', ObjectId(), 'db', 5)",
+        "errorCode": "E_SEMANTIC_ARGUMENTCOUNTMISMATCH"
+      },
+      {
+        "description": "DBRef with few arguments (should be 2 or 3)",
+        "query": "new DBRef('coll')",
+        "errorCode": "E_SEMANTIC_ARGUMENTCOUNTMISMATCH"
+      },
+      {
+        "description": "DBRef with wrong oid",
+        "query": "new DBRef('coll', 1)",
+        "errorCode": "E_SEMANTIC_TYPE"
+      },
+      {
+        "description": "DBRef with wrong namespace",
+        "query": "new DBRef(1, ObjectId())",
+        "errorCode": "E_SEMANTIC_TYPE"
+      },
+      {
+        "description": "DBRef with wrong db",
+        "query": "new DBRef('coll', ObjectId(), 5)",
+        "errorCode": "E_SEMANTIC_TYPE"
+      }
+    ],
+    "Int32": [
+      {
+        "description": "Int32 without argumnets",
+        "query": "new Int32()",
+        "errorCode": "E_SEMANTIC_ARGUMENTCOUNTMISMATCH"
+      },
+      {
+        "description": "Int32 with extra arguments (should be 1)",
+        "query": "Int32(3, 4)",
+        "errorCode": "E_SEMANTIC_ARGUMENTCOUNTMISMATCH"
+      },
+      {
+        "description": "Int32 with object argument",
+        "query": "Int32({})",
+        "errorCode": "E_SEMANTIC_TYPE"
+      }
+    ],
+    "Double": [
+      {
+        "description": "Double without argumnets",
+        "query": "new Double()",
+        "errorCode": "E_SEMANTIC_ARGUMENTCOUNTMISMATCH"
+      },
+      {
+        "description": "Double with extra arguments (should be 1)",
+        "query": "Double(3, 4)",
+        "errorCode": "E_SEMANTIC_ARGUMENTCOUNTMISMATCH"
+      },
+      {
+        "description": "Double with object argument",
+        "query": "Double({})",
+        "errorCode": "E_SEMANTIC_TYPE"
+      }
+    ],
+    "Long": [
+      {
+        "description": "Long with zero arguments",
+        "query": "new Long()",
+        "errorCode": "E_SEMANTIC_ARGUMENTCOUNTMISMATCH"
+      },
+      {
+        "description": "Long with extra argument",
+        "query": "new Long(-1, 2147483647, 3)",
         "errorCode": "E_SEMANTIC_ARGUMENTCOUNTMISMATCH"
       }
     ],
@@ -12,6 +134,33 @@
         "description": "Document without colon",
         "query": "{x 1}",
         "errorCode": "E_SYNTAX_GENERIC"
+      }
+    ],
+    "BSONRegExp": [
+      {
+        "description": "RegExp without arguments",
+        "query": "new BSONRegExp()",
+        "errorCode": "E_SEMANTIC_ARGUMENTCOUNTMISMATCH"
+      },
+      {
+        "description": "BSONRegExp with three arguments",
+        "query": "new BSONRegExp('^[a-z0-9_-]{3,16}$', 'imuxls', 'extra argument')",
+        "errorCode": "E_SEMANTIC_ARGUMENTCOUNTMISMATCH"
+      },
+      {
+        "description": "RegExp with unsupported flag",
+        "query": "new BSONRegExp('^[a-z0-9_-]{3,16}$', 'wrong')",
+        "errorCode": "E_SEMANTIC_GENERIC"
+      },
+      {
+        "description": "BSONRegExp with not a string pattern",
+        "query": "new BSONRegExp(123, 'imuxls')",
+        "errorCode": "E_SEMANTIC_TYPE"
+      },
+      {
+        "description": "BSONRegExp with not a string flaf",
+        "query": "new BSONRegExp('^[a-z0-9_-]{3,16}$', 123)",
+        "errorCode": "E_SEMANTIC_TYPE"
       }
     ]
   }

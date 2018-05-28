@@ -2,7 +2,7 @@
   "tests": {
     "Code": [
       {
-        "description": "new Code with string arg",
+        "description": "new Code with string code",
         "javascript": "new Code('some code')",
         "python": "Code('some code')",
         "java": "new Code(\"some code\")",

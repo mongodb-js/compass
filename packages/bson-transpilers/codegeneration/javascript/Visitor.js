@@ -473,6 +473,10 @@ class Visitor extends ECMAScriptVisitor {
       pattern = regexobj.source;
       flags = regexobj.flags;
     } catch (error) {
+      if (error.name === 'TypeError') {
+        throw new SemanticTypeError({message: error.message});
+      }
+
       throw new SemanticGenericError({message: error.message});
     }
 
@@ -588,10 +592,15 @@ class Visitor extends ECMAScriptVisitor {
     if (!argList) {
       return `${this.new}${lhs}()`;
     }
+    this.checkArguments(symbolType.args, argList);
     let hexstr;
     try {
       hexstr = this.executeJavascript(ctx.getText()).toHexString();
     } catch (error) {
+      if (error.name === 'TypeError') {
+        throw new SemanticTypeError({message: error.message});
+      }
+
       throw new SemanticGenericError({message: error.message});
     }
     if ('emitObjectId' in this) {
@@ -610,10 +619,16 @@ class Visitor extends ECMAScriptVisitor {
   processLong(ctx) {
     ctx.type = this.Types.Long;
     const symbolType = this.Symbols.Long;
+    const argList = ctx.arguments().argumentList();
     let longstr;
+    this.checkArguments(symbolType.args, argList);
     try {
       longstr = this.executeJavascript(`new ${ctx.getText()}`).toString();
     } catch (error) {
+      if (error.name === 'TypeError') {
+        throw new SemanticTypeError({message: error.message});
+      }
+
       throw new SemanticGenericError({message: error.message});
     }
     if ('emitLong' in this) {
@@ -641,6 +656,10 @@ class Visitor extends ECMAScriptVisitor {
     try {
       decstr = this.executeJavascript(`new ${ctx.getText()}`).toString();
     } catch (error) {
+      if (error.name === 'TypeError') {
+        throw new SemanticTypeError({message: error.message});
+      }
+
       throw new SemanticGenericError({message: error.message});
     }
 
@@ -665,6 +684,10 @@ class Visitor extends ECMAScriptVisitor {
     try {
       longstr = this.executeJavascript(long.getText()).toString();
     } catch (error) {
+      if (error.name === 'TypeError') {
+        throw new SemanticTypeError({message: error.message});
+      }
+
       throw new SemanticGenericError({message: error.message});
     }
     return ctx.type.template ? ctx.type.template(longstr) : `'${longstr}'`;
@@ -693,6 +716,10 @@ class Visitor extends ECMAScriptVisitor {
     try {
       date = this.executeJavascript(text);
     } catch (error) {
+      if (error.name === 'TypeError') {
+        throw new SemanticTypeError({message: error.message});
+      }
+
       throw new SemanticGenericError({message: error.message});
     }
     if ('emitDate' in this) {
@@ -719,19 +746,36 @@ class Visitor extends ECMAScriptVisitor {
       5: symbolType.attr.SUBTYPE_MD5.template,
       128: symbolType.attr.SUBTYPE_USER_DEFINED.template
     };
-
     let type;
     let binobj;
+    const argList = ctx.arguments().argumentList();
+
+    if (
+      !argList ||
+      !(
+        argList.singleExpression().length === 1 ||
+        argList.singleExpression().length === 2
+      )
+    ) {
+      throw new SemanticArgumentCountMismatchError({
+        message: 'Binary requires one or two arguments'
+      });
+    }
+
     try {
       binobj = this.executeJavascript(ctx.getText());
       type = binobj.sub_type;
     } catch (error) {
+      if (error.name === 'TypeError') {
+        throw new SemanticTypeError({message: error.message});
+      }
+
       throw new SemanticGenericError({message: error.message});
     }
     const bytes = binobj.toString();
-    const argList = ctx.arguments().argumentList().singleExpression();
+    const args = argList.singleExpression();
     const templatedType = binaryTypes[type] !== null ? binaryTypes[type]() : type;
-    const typeStr = argList.length === 1 ? null : templatedType;
+    const typeStr = args.length === 1 ? null : templatedType;
 
     if ('emitBinary' in this) {
       return this.emitBinary(bytes, typeStr);

@@ -1,0 +1,89 @@
+{
+  "tests": {
+    "Code": [
+      {
+        "description": "Code with invalidMethod",
+        "query": "Code('test code', {x: 1}).invalidMethod()",
+        "errorCode": "E_SEMANTIC_ATTRIBUTE"
+      }
+    ],
+    "ObjectId": [
+      {
+        "description": "ObjectId with invalidMethod",
+        "query": "ObjectId().invalidMethod()",
+        "errorCode": "E_SEMANTIC_ATTRIBUTE"
+      }
+    ],
+    "Binary": [
+      {
+        "description": "Binary with invalidMethod",
+        "query": "Binary(Buffer.from('a string')).invalidMethod()",
+        "errorCode": "E_SEMANTIC_ATTRIBUTE"
+      },
+      {
+        "description": "Binary with invalidProperty",
+        "query": "Binary(Buffer.from('a string')).invalidProperty",
+        "errorCode": "E_SEMANTIC_ATTRIBUTE"
+      }
+    ],
+    "DBRef": [
+      {
+        "description": "DBRef with invalidMethod",
+        "query": "new DBRef('coll', new ObjectId()).invalidMethod()",
+        "errorCode": "E_SEMANTIC_ATTRIBUTE"
+      },
+      {
+        "description": "DBRef with invalidProperty",
+        "query": "new DBRef('coll', new ObjectId()).invalidProperty",
+        "errorCode": "E_SEMANTIC_ATTRIBUTE"
+      }
+    ],
+    "Int32": [
+      {
+        "description": "Int32 with invalidOtherMethod",
+        "query": "Int32(3).invalidOtherMethod()",
+        "errorCode": "E_SEMANTIC_ATTRIBUTE"
+      }
+    ],
+    "Double": [
+      {
+        "description": "Double with invalidOtherMethod",
+        "query": "Double(3).invalidOtherMethod()",
+        "errorCode": "E_SEMANTIC_ATTRIBUTE"
+      }
+    ],
+    "Long": [
+      {
+        "description": "Long with invalidMethod",
+        "query": "Long(1, 100).invalidMethod()",
+        "errorCode": "E_SEMANTIC_ATTRIBUTE"
+      }
+    ],
+    "Decimal128": [
+      {
+        "description": "Decimal128 with invalidMethod",
+        "query": "new Decimal128(Buffer.from('5')).invalidMethod()",
+        "errorCode": "E_SEMANTIC_ATTRIBUTE"
+      }
+    ],
+    "Timestamp": [
+      {
+        "description": "Timestamp with invalidMethod",
+        "query": "Timestamp(1, 100).invalidMethod()",
+        "errorCode": "E_SEMANTIC_ATTRIBUTE"
+      },
+      {
+        "description": "Timestamp with invalidProperty",
+        "query": "Timestamp(1, 100).invalidProperty",
+        "errorCode": "E_SEMANTIC_ATTRIBUTE"
+      }
+    ],
+    "Symbol": [
+      {
+        "description": "Symbol with invalidMethod",
+        "query": "Symbol('2').invalidMethod()",
+        "errorCode": "E_SEMANTIC_ATTRIBUTE"
+      }
+    ]
+  }
+}

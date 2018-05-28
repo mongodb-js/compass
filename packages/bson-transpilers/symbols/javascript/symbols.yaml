@@ -328,4 +328,3 @@ JSSymbols:
         attr: {}
         template: *RegExpSymbolTemplate
         argsTemplate: *RegExpSymbolArgsTemplate
-

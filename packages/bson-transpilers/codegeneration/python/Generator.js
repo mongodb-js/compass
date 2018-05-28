@@ -1,10 +1,4 @@
-
 /* eslint complexity: 0 */
-// cannot use path.resolve as it will not work with webpack in the browser
-const {
-  singleQuoteStringify
-} = require('../../helper/format');
-
 /**
  * Handling emit methods binded with visitor.
  *
@@ -25,12 +19,12 @@ module.exports = (superClass) => class ExtendedVisitor extends superClass {
       // re.VERBOSE - More readable way of writing patterns (eg. with comments)
     };
     this.bsonRegexFlags = {
-      'i': 'i', // Case insensitivity to match
-      'm': 'm', // Multiline match
-      'x': 'x', // Ignore all white space characters
-      's': 's', // Matches all
-      'l': 'l', // Case-insensitive matching dependent on the current locale?
-      'u': 'u' // Unicode?
+      i: 'i', // Case insensitivity to match
+      m: 'm', // Multiline match
+      x: 'x', // Ignore all white space characters
+      s: 's', // Matches all
+      l: 'l', // Case-insensitive matching dependent on the current locale?
+      u: 'u' // Unicode?
     };
   }
 
@@ -62,7 +56,9 @@ module.exports = (superClass) => class ExtendedVisitor extends superClass {
    */
   emitDate(ctx, date) {
     ctx.type = this.Types.Date;
+
     let toStr = '';
+
     if (!ctx.wasNew && this.visit(ctx.singleExpression()) !== 'ISODate') {
       ctx.type = this.Types._string;
       toStr = '.strftime(\'%a %b %d %Y %H:%M:%S %Z\')';
@@ -71,6 +67,7 @@ module.exports = (superClass) => class ExtendedVisitor extends superClass {
     if (date === undefined) {
       return `datetime.datetime.utcnow().date()${toStr}`;
     }
+
     const dateStr = [
       date.getUTCFullYear(),
       date.getUTCMonth() + 1,
@@ -81,20 +78,5 @@ module.exports = (superClass) => class ExtendedVisitor extends superClass {
     ].join(', ');
 
     return `datetime.datetime(${dateStr}, tzinfo=datetime.timezone.utc)${toStr}`;
-  }
-
-
-  /**
-   * TODO: Could move this to javascript/Visitor and use template.
-   *
-   * @param {FuncCallExpressionContext} ctx
-   * @param {String} str
-   * @return {String}
-   */
-  emitDecimal128(ctx, str) {
-    return `Decimal128(${singleQuoteStringify(str)})`;
-  }
-  emitNumberDecimal(ctx, str) {
-    return `Decimal128(${singleQuoteStringify(str)})`;
   }
 };

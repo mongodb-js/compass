@@ -461,7 +461,3 @@ JSTypes:
         id: "Date"
         type: *ObjectType
         attr: {} # TODO: no built-in date methods added yet
-
-
-
-

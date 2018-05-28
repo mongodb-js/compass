@@ -702,7 +702,10 @@ Templates:
         (lhs, pattern, flags) => {
             return `(${pattern}${flags ? ', ' + flags : ''})`;
         }
-    Decimal128SymbolTemplate: &Decimal128SymbolTemplate null
+    Decimal128SymbolTemplate: &Decimal128SymbolTemplate !!js/function >
+        () => {
+            return 'Decimal128';
+        }
     Decimal128SymbolArgsTemplate: &Decimal128SymbolArgsTemplate !!js/function >
         (lhs, str) => {
           let newStr = str;

@@ -3,7 +3,6 @@ const parse = require('fast-json-parse');
 const fs = require('fs');
 const chai = require('chai');
 const expect = chai.expect;
-
 const compiler = require('../');
 
 const unsupported = {
@@ -29,13 +28,13 @@ const unsupported = {
   error: {
     javascript: {
       java: {'bson-constructors': [ '*' ]},
-      python: { 'bson-constructors': [ '*' ]},
+      python: {},
       shell: { 'bson-constructors': [ '*' ]},
       csharp: {'bson-constructors': [ '*' ]}
     },
     shell: {
       java: {'bson-constructors': [ '*' ]},
-      python: { 'bson-constructors': [ '*' ]},
+      python: {},
       csharp: {'bson-constructors': [ '*' ]},
       javascript: {'bson-constructors': [ '*' ]}
     }
@@ -50,12 +49,10 @@ const checkResults = {
 
   error: function(inputLang, outputLang, test) {
     try {
-      compiler[outputLang](test[inputLang]);
+      compiler[inputLang][outputLang](test.query);
     } catch (error) {
       expect(error.code).to.equal(test.errorCode);
     }
-
-    expect(compiler[inputLang][outputLang].bind(this, test[inputLang])).to.throw();
   }
 };
 

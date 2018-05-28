@@ -1,17 +1,17 @@
 {
   "tests": {
-    "Code": [
-      {
-        "description": "Code without arg",
-        "query": "new Code()",
-        "errorCode": "E_SEMANTIC_ARGUMENTCOUNTMISMATCH"
-      }
-    ],
     "Document": [
       {
         "description": "Document without colon",
         "query": "{x 1}",
         "errorCode": "E_SYNTAX_GENERIC"
+      }
+    ],
+    "BinData": [
+      {
+        "description": "BinData with unsuppoted subtype",
+        "query": "new BinData(400, '1234')",
+        "errorCode": "E_SEMANTIC_GENERIC"
       }
     ]
   }
