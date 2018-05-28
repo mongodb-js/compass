@@ -42,15 +42,15 @@ module.exports = (superClass) => class ExtendedVisitor extends superClass {
    * @return {String}
    */
   emitDate(ctx, date) {
-    let toStr = '';
+    let toStr = (d) => d;
     if (!ctx.wasNew && this.visit(ctx.singleExpression()) !== 'ISODate') {
       ctx.type = this.Types._string;
-      toStr = '.toString()';
+      toStr = (d) => `new SimpleDateFormat("EEE MMMMM dd yyyy HH:mm:ss").format(${d})`;
     }
     if (date === undefined) {
-      return `new java.util.Date()${toStr}`;
+      return toStr('new java.util.Date()');
     }
-    return `new java.util.Date(new java.lang.Long("${date.getTime()}"))${toStr}`;
+    return toStr(`new java.util.Date(${date.getTime()}L)`);
   }
   emitISODate(ctx) {
     return this.emitDate(ctx);

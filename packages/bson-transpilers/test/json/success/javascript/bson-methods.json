@@ -31,7 +31,7 @@
         "description": "no arg toString",
         "javascript": "ObjectId().toString()",
         "python": "str(ObjectId())",
-        "java": "new ObjectId().toString()",
+        "java": "new ObjectId().toHexString()",
         "csharp": "new ObjectId().ToString()",
         "shell": "ObjectId().toString()"
       },
@@ -39,7 +39,7 @@
         "description": "hex arg toString",
         "javascript": "ObjectId('5ab901c29ee65f5c8550c5b9').toString()",
         "python": "str(ObjectId('5ab901c29ee65f5c8550c5b9'))",
-        "java": "new ObjectId(\"5ab901c29ee65f5c8550c5b9\").toString()",
+        "java": "new ObjectId(\"5ab901c29ee65f5c8550c5b9\").toHexString()",
         "csharp": "new ObjectId(\"5ab901c29ee65f5c8550c5b9\").ToString()",
         "shell": "ObjectId('5ab901c29ee65f5c8550c5b9').toString()"
       },

@@ -59,7 +59,7 @@ Templates:
     NullTypeTemplate: &NullTypeTemplate null
     UndefinedTypeTemplate: &UndefinedTypeTemplate !!js/function >
         () => {
-            return 'null';
+            return 'new BsonUndefined()';
         }
     ObjectTypeTemplate: &ObjectTypeTemplate !!js/function >
         (literal) => {
@@ -91,7 +91,10 @@ Templates:
         }
     LongTypeArgsTemplate: &LongSymbolArgsTemplate null
     # BSON Object Method templates
-    ObjectIdToStringTemplate: &ObjectIdToStringTemplate null
+    ObjectIdToStringTemplate: &ObjectIdToStringTemplate !!js/function >
+        (lhs) => {
+            return `${lhs}.toHexString`;
+        }
     ObjectIdToStringArgsTemplate: &ObjectIdToStringArgsTemplate null
     ObjectIdEqualsTemplate: &ObjectIdEqualsTemplate null
     ObjectIdEqualsArgsTemplate: &ObjectIdEqualsArgsTemplate null
@@ -488,31 +491,31 @@ Templates:
         }
     BinarySymbolSubtypeDefaultTemplate: &BinarySymbolSubtypeDefaultTemplate !!js/function >
         () => {
-            return 'org.bson.BsonBinarySubType.BINARY';
+            return 'BsonBinarySubType.BINARY';
         }
     BinarySymbolSubtypeFunctionTemplate: &BinarySymbolSubtypeFunctionTemplate !!js/function >
         () => {
-            return 'org.bson.BsonBinarySubType.FUNCTION';
+            return 'BsonBinarySubType.FUNCTION';
         }
     BinarySymbolSubtypeByteArrayTemplate: &BinarySymbolSubtypeByteArrayTemplate !!js/function >
         () => {
-            return 'org.bson.BsonBinarySubType.OLD_BINARY';
+            return 'BsonBinarySubType.BINARY';
         }
     BinarySymbolSubtypeUuidOldTemplate: &BinarySymbolSubtypeUuidOldTemplate !!js/function >
         () => {
-            return 'org.bson.BsonBinarySubType.UUID_LEGACY';
+            return 'BsonBinarySubType.UUID_LEGACY';
         }
     BinarySymbolSubtypeUuidTemplate: &BinarySymbolSubtypeUuidTemplate !!js/function >
         () => {
-            return 'org.bson.BsonBinarySubType.UUID_STANDARD';
+            return 'BsonBinarySubType.UUID_STANDARD';
         }
     BinarySymbolSubtypeMd5Template: &BinarySymbolSubtypeMd5Template !!js/function >
         () => {
-            return 'org.bson.BsonBinarySubType.MD5';
+            return 'BsonBinarySubType.MD5';
         }
     BinarySymbolSubtypeUserDefinedTemplate: &BinarySymbolSubtypeUserDefinedTemplate !!js/function >
         () => {
-            return 'org.bson.BsonBinarySubType.USER_DEFINED';
+            return 'BsonBinarySubType.USER_DEFINED';
         }
     DBRefSymbolTemplate: &DBRefSymbolTemplate null
     DBRefSymbolArgsTemplate: &DBRefSymbolArgsTemplate !!js/function >

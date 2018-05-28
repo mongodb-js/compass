@@ -81,7 +81,7 @@
         "description": "new Binary with (ascii buffer, UUID subtype enum) args",
         "javascript": "new Binary(Buffer.from(\"1234\"), Binary.SUBTYPE_UUID)",
         "python": "Binary(b'1234', bson.binary.UUID_SUBTYPE)",
-        "java": "new Binary(org.bson.BsonBinarySubType.UUID_STANDARD, \"1234\".getBytes(\"UTF-8\"))",
+        "java": "new Binary(BsonBinarySubType.UUID_STANDARD, \"1234\".getBytes(\"UTF-8\"))",
         "csharp": "new BsonBinaryData(System.Text.Encoding.ASCII.GetBytes(\"1234\"), BsonBinarySubType.UuidStandard)",
         "shell": "new BinData(4, '1234')"
       },
@@ -89,7 +89,7 @@
         "description": "Binary with (ascii buffer, number) args",
         "javascript": "Binary(Buffer.from('1234'), '1')",
         "python": "Binary(b'1234', bson.binary.FUNCTION_SUBTYPE)",
-        "java": "new Binary(org.bson.BsonBinarySubType.FUNCTION, \"1234\".getBytes(\"UTF-8\"))",
+        "java": "new Binary(BsonBinarySubType.FUNCTION, \"1234\".getBytes(\"UTF-8\"))",
         "csharp": "new BsonBinaryData(System.Text.Encoding.ASCII.GetBytes(\"1234\"), BsonBinarySubType.Function)",
         "shell": "BinData(1, '1234')"
       },
@@ -105,7 +105,7 @@
         "description": "Binary with (string, string) args",
         "javascript": "Binary('1234', '1')",
         "python": "Binary(b'1234', bson.binary.FUNCTION_SUBTYPE)",
-        "java": "new Binary(org.bson.BsonBinarySubType.FUNCTION, \"1234\".getBytes(\"UTF-8\"))",
+        "java": "new Binary(BsonBinarySubType.FUNCTION, \"1234\".getBytes(\"UTF-8\"))",
         "csharp": "new BsonBinaryData(System.Text.Encoding.ASCII.GetBytes(\"1234\"), BsonBinarySubType.Function)",
         "shell": "BinData(1, '1234')"
       }
@@ -367,7 +367,7 @@
         "description": "array with leading elision",
         "javascript": "[,'1', '2',]",
         "python": "[None, '1', '2']",
-        "java": "Arrays.asList(null, \"1\", \"2\")",
+        "java": "Arrays.asList(new BsonUndefined(), \"1\", \"2\")",
         "csharp": "new BsonArray {BsonUndefined.Value, \"1\", \"2\"}",
         "shell": "[undefined, '1', '2']"
       },
@@ -375,7 +375,7 @@
         "description": "Array with one elision",
         "javascript": "[,]",
         "python": "[None]",
-        "java": "Arrays.asList(null)",
+        "java": "Arrays.asList(new BsonUndefined())",
         "csharp": "new BsonArray {BsonUndefined.Value}",
         "shell": "[undefined]"
       },
@@ -383,7 +383,7 @@
         "description": "Array with 2 elision",
         "javascript": "[,,]",
         "python": "[None, None]",
-        "java": "Arrays.asList(null, null)",
+        "java": "Arrays.asList(new BsonUndefined(), new BsonUndefined())",
         "csharp": "new BsonArray {BsonUndefined.Value, BsonUndefined.Value}",
         "shell": "[undefined, undefined]"
       },
@@ -391,7 +391,7 @@
         "description": "Array with elision in the middle",
         "javascript": "['1',,,,'2']",
         "python": "['1', None, None, None, '2']",
-        "java": "Arrays.asList(\"1\", null, null, null, \"2\")",
+        "java": "Arrays.asList(\"1\", new BsonUndefined(), new BsonUndefined(), new BsonUndefined(), \"2\")",
         "csharp": "new BsonArray {\"1\", BsonUndefined.Value, BsonUndefined.Value, BsonUndefined.Value, \"2\"}",
         "shell": "['1', undefined, undefined, undefined, '2']"
       }

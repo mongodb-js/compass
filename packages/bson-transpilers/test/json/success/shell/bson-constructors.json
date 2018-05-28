@@ -65,7 +65,7 @@
         "description": "new Binary with (ascii buffer, UUID subtype enum) args",
         "javascript": "new Binary('1234', '4')",
         "python": "Binary(b'1234', bson.binary.UUID_SUBTYPE)",
-        "java": "new Binary(org.bson.BsonBinarySubType.UUID_STANDARD, \"1234\".getBytes(\"UTF-8\"))",
+        "java": "new Binary(BsonBinarySubType.UUID_STANDARD, \"1234\".getBytes(\"UTF-8\"))",
         "csharp": "new BsonBinaryData(System.Text.Encoding.ASCII.GetBytes(\"1234\"), BsonBinarySubType.UuidStandard)",
         "shell": "new BinData(4, '1234')"
       }
@@ -349,7 +349,7 @@
         "description": "array with leading elision",
         "javascript": "[undefined, 1, 2]",
         "python": "[None, 1, 2]",
-        "java": "Arrays.asList(null, new java.lang.Long(\"1\"), new java.lang.Long(\"2\"))",
+        "java": "Arrays.asList(new BsonUndefined(), new java.lang.Long(\"1\"), new java.lang.Long(\"2\"))",
         "csharp": "new BsonArray {BsonUndefined.Value, 1, 2}",
         "shell": "[,1, 2,]"
       },
@@ -357,7 +357,7 @@
         "description": "Array with one elision",
         "javascript": "[undefined]",
         "python": "[None]",
-        "java": "Arrays.asList(null)",
+        "java": "Arrays.asList(new BsonUndefined())",
         "csharp": "new BsonArray {BsonUndefined.Value}",
         "shell": "[,]"
       },
@@ -365,7 +365,7 @@
         "description": "Array with 2 elision",
         "javascript": "[undefined, undefined]",
         "python": "[None, None]",
-        "java": "Arrays.asList(null, null)",
+        "java": "Arrays.asList(new BsonUndefined(), new BsonUndefined())",
         "csharp": "new BsonArray {BsonUndefined.Value, BsonUndefined.Value}",
         "shell": "[,,]"
       },
@@ -373,7 +373,7 @@
         "description": "Array with elision in the middle",
         "javascript": "[1, undefined, undefined, undefined, 2]",
         "python": "[1, None, None, None, 2]",
-        "java": "Arrays.asList(new java.lang.Long(\"1\"), null, null, null, new java.lang.Long(\"2\"))",
+        "java": "Arrays.asList(new java.lang.Long(\"1\"), new BsonUndefined(), new BsonUndefined(), new BsonUndefined(), new java.lang.Long(\"2\"))",
         "csharp": "new BsonArray {1, BsonUndefined.Value, BsonUndefined.Value, BsonUndefined.Value, 2}",
         "shell": "[1,,,,2]"
       }
