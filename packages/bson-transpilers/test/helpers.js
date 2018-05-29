@@ -10,7 +10,10 @@ const unsupported = {
     javascript: {
       java: {},
       python: {},
-      csharp: {},
+      csharp: {
+        'bson-constructors': [ 'Double' ],
+        'bson-methods': [ 'Double', 'Int32' ]
+      },
       shell: {}
     },
     shell: {
