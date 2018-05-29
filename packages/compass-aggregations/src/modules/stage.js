@@ -1,4 +1,5 @@
 import parser from 'mongodb-query-parser';
+import decomment from 'decomment';
 import { parse } from 'mongodb-stage-validator';
 
 /**
@@ -14,8 +15,9 @@ export default function generateStage(state) {
   }
   const stage = {};
   try {
-    parse(`{${state.stageOperator}: ${state.stage}}`);
-    stage[state.stageOperator] = parser(state.stage);
+    const decommented = decomment(state.stage);
+    parse(`{${state.stageOperator}: ${decommented}}`);
+    stage[state.stageOperator] = parser(decommented);
   } catch (e) {
     state.syntaxError = e.message;
     state.isValid = false;

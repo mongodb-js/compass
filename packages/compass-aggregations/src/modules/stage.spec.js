@@ -71,6 +71,21 @@ describe('Stage module', () => {
       });
     });
 
+    context('when the stage contains comments', () => {
+      const stage = {
+        id: new Date().getTime(),
+        stageOperator: '$match',
+        stage: '/* testing */{x: 1}',
+        isValid: true,
+        isEnabled: true,
+        isExpanded: true
+      };
+
+      it('returns the decommented stage', () => {
+        expect(generateStage(stage)).to.deep.equal({ '$match': { x: 1 }});
+      });
+    });
+
     context('when the stage has an embedded document', () => {
       const stage = {
         id: 0,
