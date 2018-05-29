@@ -31,17 +31,10 @@ class StagePreview extends Component {
   /**
    * We don't want to diff the entire list of documents.
    *
-   * @param {Object} nextProps - The next props.
-   *
    * @returns {Boolean} Whether the component should update.
    */
-  shouldComponentUpdate(nextProps) {
-    return nextProps.isLoading !== this.props.isLoading ||
-      nextProps.isEnabled !== this.props.isEnabled ||
-      nextProps.isValid !== this.props.isValid ||
-      nextProps.stageOperator === OUT ||
-      nextProps.stageOperator !== this.props.stageOperator ||
-      nextProps.documents.length !== this.props.documents.length;
+  shouldComponentUpdate() {
+    return true;
   }
 
   /**
