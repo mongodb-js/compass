@@ -38,8 +38,6 @@ Templates:
     CodeCodeArgsTemplate: &CodeCodeArgsTemplate null
     CodeScopeTemplate: &CodeScopeTemplate null
     CodeScopeArgsTemplate: &CodeScopeArgsTemplate null
-    CodeToStringTemplate: &CodeToStringTemplate null
-    CodeToStringArgsTemplate: &CodeToStringArgsTemplate null
     ObjectIdToStringTemplate: &ObjectIdToStringTemplate null
     ObjectIdToStringArgsTemplate: &ObjectIdToStringArgsTemplate null
     ObjectIdEqualsTemplate: &ObjectIdEqualsTemplate null

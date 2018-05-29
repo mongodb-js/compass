@@ -21,7 +21,7 @@
         "description": "Code with string code and object scope",
         "javascript": "Code('string', {x: '1'})",
         "python": "Code('string', {'x': '1'})",
-        "java": "new CodeWithScope(\"string\", new Document().append(\"x\", \"1\"))",
+        "java": "new CodeWithScope(\"string\", new Document(\"x\", \"1\"))",
         "csharp": "new BsonJavaScriptWithScope(\"string\", new BsonDocument(\"x\", \"1\"))",
         "shell": "Code('string', {x: '1'})"
       },
@@ -37,7 +37,7 @@
         "description": "new Code with where code",
         "javascript": "new Code('this.a > i', { i: '1' })",
         "python": "Code('this.a > i', {'i': '1'})",
-        "java": "new CodeWithScope(\"this.a > i\", new Document().append(\"i\", \"1\"))",
+        "java": "new CodeWithScope(\"this.a > i\", new Document(\"i\", \"1\"))",
         "csharp": "new BsonJavaScriptWithScope(\"this.a > i\", new BsonDocument(\"i\", \"1\"))",
         "shell": "new Code('this.a > i', {i: '1'})"
       }
@@ -299,7 +299,7 @@
         "description": "{x: '1'}",
         "javascript": "{x: '1'}",
         "python": "{'x': '1'}",
-        "java": "new Document().append(\"x\", \"1\")",
+        "java": "new Document(\"x\", \"1\")",
         "csharp": "new BsonDocument(\"x\", \"1\")",
         "shell": "{x: '1'}"
       },
@@ -307,7 +307,7 @@
         "description": "Doc with trailing comma",
         "javascript": "{x: '1',}",
         "python": "{'x': '1'}",
-        "java": "new Document().append(\"x\", \"1\")",
+        "java": "new Document(\"x\", \"1\")",
         "csharp": "new BsonDocument(\"x\", \"1\")",
         "shell": "{x: '1'}"
       },
@@ -315,7 +315,7 @@
         "description": "Doc with array",
         "javascript": "{x: ['1', '2']}",
         "python": "{'x': ['1', '2']}",
-        "java": "new Document().append(\"x\", Arrays.asList(\"1\", \"2\"))",
+        "java": "new Document(\"x\", Arrays.asList(\"1\", \"2\"))",
         "csharp": "new BsonDocument(\"x\", new BsonArray {\"1\", \"2\"})",
         "shell": "{x: ['1', '2']}"
       },
@@ -323,7 +323,7 @@
         "description": "Doc with subdoc",
         "javascript": "{x: {y: '2'}}",
         "python": "{'x': {'y': '2'}}",
-        "java": "new Document().append(\"x\", new Document().append(\"y\", \"2\"))",
+        "java": "new Document(\"x\", new Document(\"y\", \"2\"))",
         "csharp": "new BsonDocument(\"x\", new BsonDocument(\"y\", \"2\"))",
         "shell": "{x: {y: '2'}}"
       },
@@ -331,7 +331,7 @@
         "description": "Object.create()",
         "javascript": "Object.create({x: '1'})",
         "python": "{'x': '1'}",
-        "java": "new Document().append(\"x\", \"1\")",
+        "java": "new Document(\"x\", \"1\")",
         "csharp": "new BsonDocument(\"x\", \"1\")",
         "shell": "Object.create({x: '1'})"
       },
@@ -347,7 +347,7 @@
         "description": "Two items in document",
         "javascript": "{x: '1', n: '4'}",
         "python": "{'x': '1', 'n': '4'}",
-        "java": "new Document().append(\"x\", \"1\").append(\"n\", \"4\")",
+        "java": "new Document(\"x\", \"1\").append(\"n\", \"4\")",
         "csharp": "new BsonDocument{ { \"x\", \"1\" }, { \"n\", \"4\" } }",
         "shell": "{x: '1', n: '4'}"
       }
@@ -373,7 +373,7 @@
         "description": "Array with subdoc",
         "javascript": "['1', { settings: 'http2' }]",
         "python": "['1', {'settings': 'http2'}]",
-        "java": "Arrays.asList(\"1\", new Document().append(\"settings\", \"http2\"))",
+        "java": "Arrays.asList(\"1\", new Document(\"settings\", \"http2\"))",
         "csharp": "new BsonArray {\"1\", new BsonDocument(\"settings\", \"http2\")}",
         "shell": "['1', {settings: 'http2'}]"
       },

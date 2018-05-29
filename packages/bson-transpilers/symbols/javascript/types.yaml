@@ -4,12 +4,6 @@ BsonTypes:
         id: "Code"
         type: *ObjectType
         attr:
-            toString:
-                <<: *__func
-                id: "toString"
-                type: *StringType
-                template: *CodeToStringTemplate
-                argsTemplate: *CodeToStringArgsTemplate
             code:
                 callable: *var
                 args: null

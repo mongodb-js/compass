@@ -65,22 +65,28 @@ Templates:
         }
     ObjectTypeTemplate: &ObjectTypeTemplate !!js/function >
         (literal) => {
-            return `new Document()${literal}`;
+            if (literal === '') {
+                return `new Document()`;
+            }
+            return literal;
         }
     ObjectTypeArgsTemplate: &ObjectTypeArgsTemplate !!js/function >
         (args) => {
-            return args.reduce((str, pair) => {
-
-                let newStr = pair[0];
+            const doubleStringify = (str) => {
+                let newStr = str;
                 if (
-                    (pair[0].charAt(0) === '\'' && pair[0].charAt(pair[0].length - 1) === '\'') ||
-                    (pair[0].charAt(0) === '"' && pair[0].charAt(pair[0].length - 1) === '"')) {
-                        newStr = pair[0].substr(1, pair[0].length - 2);
+                  (str.charAt(0) === '\'' && str.charAt(str.length - 1) === '\'') ||
+                  (str.charAt(0) === '"' && str.charAt(str.length - 1) === '"')) {
+                    newStr = str.substr(1, str.length - 2);
                 }
-                newStr = `"${newStr.replace(/\\([\s\S])|(")/g, '\\$1$2')}"`;
+                return `"${newStr.replace(/\\([\s\S])|(")/g, '\\$1$2')}"`;
+            }
+            const start = `new Document(${doubleStringify(args[0][0])}, ${args[0][1]})`;
 
-                return `${str}.append(${newStr}, ${pair[1]})`;
-            }, '');
+            args = args.slice(1);
+            return args.reduce((str, pair) => {
+                return `${str}.append(${doubleStringify(pair[0])}, ${pair[1]})`;
+            }, start);
         }
     DoubleTypeTemplate: &DoubleTypeTemplate !!js/function >
         (literal, type) => {
@@ -118,8 +124,6 @@ Templates:
             return `${lhs}.getScope()`;
         }
     CodeScopeArgsTemplate: &CodeScopeArgsTemplate null
-    CodeToStringTemplate: &CodeToStringTemplate null
-    CodeToStringArgsTemplate: &CodeToStringArgsTemplate null
     BinaryValueTemplate: &BinaryValueTemplate !!js/function >
         (lhs) => {
             return `${lhs}.getData`;

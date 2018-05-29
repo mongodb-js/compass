@@ -83,14 +83,6 @@ Templates:
     CodeCodeArgsTemplate: &CodeCodeArgsTemplate null
     CodeScopeTemplate: &CodeScopeTemplate null
     CodeScopeArgsTemplate: &CodeScopeArgsTemplate null
-    CodeToStringTemplate: &CodeToStringTemplate !!js/function >
-        (lhs) => {
-            return `repr(${lhs})`;
-        }
-    CodeToStringArgsTemplate: &CodeToStringArgsTemplate !!js/function >
-        () => {
-            return '';
-        }
     ObjectIdToStringTemplate: &ObjectIdToStringTemplate !!js/function >
         () => {
             return '';

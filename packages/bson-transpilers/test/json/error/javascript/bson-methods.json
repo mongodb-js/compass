@@ -15,16 +15,6 @@
         "description": "Code with callable code",
         "query": "Code('test code').code()",
         "errorCode": "E_SEMANTIC_TYPE"
-      },
-      {
-        "description": "Code .toString() with extra argument",
-        "query": "Code('test code').toString(123)",
-        "errorCode": "E_SEMANTIC_ARGUMENTCOUNTMISMATCH"
-      },
-      {
-        "description": "Code .toString not callable",
-        "query": "Code('test code').toString",
-        "errorCode": "E_SEMANTIC_TYPE"
       }
     ],
     "ObjectId": [

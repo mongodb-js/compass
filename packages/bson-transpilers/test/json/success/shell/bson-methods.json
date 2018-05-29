@@ -5,7 +5,7 @@
         "description": "CodeWithScope scope",
         "javascript": "Code('test code', {x: 1}).scope",
         "python": "Code('test code', {'x': 1}).scope",
-        "java": "new CodeWithScope(\"test code\", new Document().append(\"x\", 1L)).getScope()",
+        "java": "new CodeWithScope(\"test code\", new Document(\"x\", 1L)).getScope()",
         "csharp": "",
         "shell": "Code('test code', {x: 1}).scope"
       },
@@ -16,14 +16,6 @@
         "java": "new Code(\"test code\").getCode()",
         "csharp": "",
         "shell": "Code('test code').code"
-      },
-      {
-        "description": "Code toString",
-        "javascript": "Code('test code').toString()",
-        "python": "repr(Code('test code'))",
-        "java": "new Code(\"test code\").toString()",
-        "csharp": "",
-        "shell": "Code('test code').toString()"
       }
     ],
     "ObjectId": [

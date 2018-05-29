@@ -88,11 +88,6 @@ Templates:
             return `${lhs}.Scope`;
         }
     CodeScopeArgsTemplate: &CodeScopeArgsTemplate null
-    CodeToStringTemplate: &CodeToStringTemplate !!js/function >
-        (lhs) => {
-            return `${lhs}.ToString`;
-        }
-    CodeToStringArgsTemplate: &CodeToStringArgsTemplate null
     ObjectIdToStringTemplate: &ObjectIdToStringTemplate !!js/function >
         (lhs) => {
             return `${lhs}.ToString`;
