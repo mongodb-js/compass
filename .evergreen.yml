@@ -74,7 +74,7 @@ functions:
         npm install -g node-gyp yarn
 
         # Trying to get rid of scandir npm errors.
-        npm cache clean --force
+        npm cache verify
 
         npm install
         npm run evergreen-expansions ${compass_distribution}
