@@ -281,7 +281,7 @@
     "mongodb-extended-json": "^1.10.0",
     "mongodb-index-model": "^2.0.1",
     "mongodb-instance-model": "^7.0.0",
-    "mongodb-js-metrics": "^4.0.1",
+    "mongodb-js-metrics": "^4.1.0",
     "mongodb-language-model": "^1.2.0",
     "mongodb-ns": "^2.0.0",
     "mongodb-query-parser": "^1.0.1",
