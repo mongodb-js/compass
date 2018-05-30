@@ -6,7 +6,7 @@
         "javascript": "new Code('some code')",
         "python": "Code('some code')",
         "java": "new Code(\"some code\")",
-        "csharp": "new BsonJavaScript(@\"some code\")",
+        "csharp": "new BsonJavaScript(\"some code\")",
         "shell": "new Code('some code')"
       },
       {
@@ -14,7 +14,7 @@
         "javascript": "Code('some code')",
         "python": "Code('some code')",
         "java": "new Code(\"some code\")",
-        "csharp": "new BsonJavaScript(@\"some code\")",
+        "csharp": "new BsonJavaScript(\"some code\")",
         "shell": "Code('some code')"
       },
       {
@@ -22,7 +22,7 @@
         "javascript": "Code('string', {x: '1'})",
         "python": "Code('string', {'x': '1'})",
         "java": "new CodeWithScope(\"string\", new Document().append(\"x\", \"1\"))",
-        "csharp": "new BsonJavaScriptWithScope(@\"string\", new BsonDocument(\"x\", \"1\"))",
+        "csharp": "new BsonJavaScriptWithScope(\"string\", new BsonDocument(\"x\", \"1\"))",
         "shell": "Code('string', {x: '1'})"
       },
       {
@@ -30,7 +30,7 @@
         "javascript": "Code(function(test) { console.log(test); })",
         "python": "Code('function(test){console.log(test);}')",
         "java": "new Code(\"function(test){console.log(test);}\")",
-        "csharp": "new BsonJavaScript(@\"function(test){console.log(test);}\")",
+        "csharp": "new BsonJavaScript(\"function(test){console.log(test);}\")",
         "shell": "Code('function(test){console.log(test);}')"
       },
       {
@@ -38,7 +38,7 @@
         "javascript": "new Code('this.a > i', { i: '1' })",
         "python": "Code('this.a > i', {'i': '1'})",
         "java": "new CodeWithScope(\"this.a > i\", new Document().append(\"i\", \"1\"))",
-        "csharp": "new BsonJavaScriptWithScope(@\"this.a > i\", new BsonDocument(\"i\", \"1\"))",
+        "csharp": "new BsonJavaScriptWithScope(\"this.a > i\", new BsonDocument(\"i\", \"1\"))",
         "shell": "new Code('this.a > i', {i: '1'})"
       }
     ],
@@ -134,7 +134,7 @@
         "javascript": "Int32(3)",
         "python": "int(3)",
         "java": "3",
-        "csharp": "Convert.ToInt32(3)",
+        "csharp": "3",
         "shell": "NumberInt(3)"
       },
       {
@@ -142,7 +142,7 @@
         "javascript": "Int32('3')",
         "python": "int('3')",
         "java": "Integer.parseInt(\"3\")",
-        "csharp": "Int32.Parse(\"3\")",
+        "csharp": "Convert.ToInt32(\"3\")",
         "shell": "NumberInt('3')"
       },
       {
@@ -168,7 +168,7 @@
         "javascript": "Double(3)",
         "python": "float(3)",
         "java": "3d",
-        "csharp": "new BsonDouble(3)",
+        "csharp": "3.0",
         "shell": "3"
       },
       {
@@ -176,7 +176,7 @@
         "javascript": "new Double(3)",
         "python": "float(3)",
         "java": "3d",
-        "csharp": "new BsonDouble(3)",
+        "csharp": "3.0",
         "shell": "3"
       },
       {
@@ -184,7 +184,7 @@
         "javascript": "Double('3')",
         "python": "float('3')",
         "java": "Double.parseDouble(\"3\")",
-        "csharp": "new BsonDouble(3)",
+        "csharp": "Convert.ToDouble(\"3\")",
         "shell": "3"
       },
       {
@@ -192,7 +192,7 @@
         "javascript": "new Double(3.005)",
         "python": "float(3.005)",
         "java": "3.005d",
-        "csharp": "new BsonDouble(3.005)",
+        "csharp": "3.005",
         "shell": "3.005"
       },
       {
@@ -200,7 +200,7 @@
         "javascript": "new Double(0x3)",
         "python": "float(0x3)",
         "java": "new Double(0x3)",
-        "csharp": "new BsonDouble(3)",
+        "csharp": "Convert.ToDouble(0x3)",
         "shell": "0x3"
       }
     ],
@@ -210,7 +210,7 @@
         "javascript": "new Long(-1, 2147483647)",
         "python": "Int64(9223372036854775807)",
         "java": "9223372036854775807L",
-        "csharp": "new BsonInt64(9223372036854775807)",
+        "csharp": "9223372036854775807L",
         "shell": "new NumberLong(9223372036854775807)"
       }
     ],
@@ -220,7 +220,7 @@
         "javascript": "new Decimal128(Buffer.from('5'))",
         "python": "Decimal128('5.3E-6175')",
         "java": "Decimal128.parse(\"5.3E-6175\")",
-        "csharp": "new Decimal128(5)",
+        "csharp": "Decimal128.Parse(\"5.3E-6175\")",
         "shell": "new NumberDecimal(5.3E-6175)"
       }
     ],
@@ -264,7 +264,7 @@
         "javascript": "new BSONRegExp('^[a-z0-9_-]{3,16}$')",
         "python": "Regex('^[a-z0-9_-]{3,16}$')",
         "java": "new BsonRegularExpression(\"^[a-z0-9_-]{3,16}$\")",
-        "csharp": "new BsonRegularExpression(@\"^[a-z0-9_-]{3,16}$\")",
+        "csharp": "new BsonRegularExpression(\"^[a-z0-9_-]{3,16}$\")",
         "shell": "new RegExp('^[a-z0-9_-]{3,16}$')"
       },
       {
@@ -272,7 +272,7 @@
         "javascript": "new BSONRegExp('^[a-z0-9_-]{3,16}$', 'imuxls')",
         "python": "Regex('^[a-z0-9_-]{3,16}$', 'imuxls')",
         "java": "new BsonRegularExpression(\"^[a-z0-9_-]{3,16}$\", \"imuxls\")",
-        "csharp": "new BsonRegularExpression(@\"^[a-z0-9_-]{3,16}$\", \"imxs\")",
+        "csharp": "new BsonRegularExpression(\"^[a-z0-9_-]{3,16}$\", \"imxs\")",
         "shell": "new RegExp('^[a-z0-9_-]{3,16}$', 'imuxls')"
       }
     ],
@@ -434,7 +434,7 @@
         "javascript": "Symbol('2')",
         "python": "unicode('2', 'utf-8')",
         "java": "new Symbol(\"2\")",
-        "csharp": "new BsonString(\"2\")",
+        "csharp": "\"2\"",
         "shell": "'2'"
       },
       {
@@ -442,7 +442,7 @@
         "javascript": "new Symbol('2')",
         "python": "unicode('2', 'utf-8')",
         "java": "new Symbol(\"2\")",
-        "csharp": "new BsonString(\"2\")",
+        "csharp": "\"2\"",
         "shell": "'2'"
       }
     ]

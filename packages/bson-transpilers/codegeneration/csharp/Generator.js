@@ -30,40 +30,54 @@ module.exports = (superclass) => class ExtendedVisitor extends superclass {
   emitNew(ctx) {
     const expr = this.visit(ctx.singleExpression());
     ctx.type = ctx.singleExpression().type;
+
     return expr;
   }
 
   /**
-   * Number doesn't need a new keyword, so need to handle via emit
+   * Symbol is just used a string in c#
    *
-   * @param {NumberContextObject} ctx
+   * @param {FuncCallExpressionContext} ctx
    *
-   * @returns {string} - (int)value
+   * @returns {string} - value
    */
-  emitNumber(ctx) {
-    ctx.type = this.Types.Number;
+  emitSymbol(ctx) {
+    ctx.type = this.Types.Symbol;
     const args = ctx.arguments().argumentList().singleExpression();
-    const expr = args[0].getText().replace(/['"]+/g, '');
-    return `(int)${expr}`;
+    const expr = args[0].getText();
+
+    return doubleQuoteStringify(expr.toString());
   }
 
   /**
-   * Special case because need to parse decimal.
+   * Long should just be the number + letter 'L'
+   *
+   * @param {FuncCallExpressionContext} ctx
+   * @param {str} str - processed str from the visitor
+   *
+   * @returns {string} - valueL
+   */
+  emitLong(ctx, str) {
+    return `${str}L`;
+  }
+
+  /**
+   * We don't need `new` since we are always using a .Parse
    *
    * @param {FuncCallExpressionContext} ctx
    * @param {String} decimal
-   * @returns {string} - new Decimal128(val)
+   *
+   * @returns {string} - Decimal128.Parse(val)
    */
   emitDecimal128(ctx, decimal) {
-    const value = parseInt(decimal.toString(), 10);
-    return `new Decimal128(${value})`;
+    return `Decimal128.Parse(${doubleQuoteStringify(decimal)})`;
   }
 
   /**
    * BSON MinKey Constructor
    * needs to be in emit, since does not need a 'new' keyword
    *
-   * @param {BSONMinKeyObject} ctx
+   * @param {FuncCallExpressionContext} ctx
    *
    * @returns {string} - BsonMinKey.Value
    */
@@ -76,33 +90,13 @@ module.exports = (superclass) => class ExtendedVisitor extends superclass {
    * BSON MaxKey Constructor
    * needs to be in emit, since does not need a 'new' keyword
    *
-   * @param {BSONMaxKeyObject} ctx
+   * @param {FuncCallExpressionContext} ctx
    *
    * @returns {string} - BsonMaxKey.Value
    */
   emitMaxKey(ctx) {
     ctx.type = this.Types.MaxKey;
     return 'BsonMaxKey.Value';
-  }
-
-  /**
-   * BSON Int32 Constructor
-   * depending on whether the initial value is a string or a int, need to parse
-   * or convert
-   *
-   * @param {BSONInt32Object} ctx
-   *
-   * @returns {string} - Int32.Parse("value") OR Convert.ToInt32(value)
-   */
-  emitInt32(ctx) {
-    ctx.type = this.Types.Int32;
-    const args = ctx.arguments().argumentList().singleExpression();
-    const expr = args[0].getText();
-    if (expr.indexOf('\'') >= 0 || expr.indexOf('"') >= 0) {
-      return `Int32.Parse(${doubleQuoteStringify(expr.toString())})`;
-    }
-
-    return `Convert.ToInt32(${expr})`;
   }
 
   /**
@@ -148,7 +142,7 @@ module.exports = (superclass) => class ExtendedVisitor extends superclass {
    * Date Now. This doesn't need a keyword 'new', nor is 'Now' a callable
    * function, so we need to adjust this.
    *
-   * @param {DateNowConstructorObject} ctx
+   * @param {FuncCallExpressionContext} ctx
    *
    * @returns {string} - DateTime.Now
    */

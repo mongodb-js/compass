@@ -14,7 +14,7 @@
         "javascript": "ObjectId.createFromTime(1522075031642)",
         "python": "ObjectId.from_datetime(datetime.datetime.fromtimestamp(1522075031642/1000.0))",
         "java": "new ObjectId(new java.util.Date(1522075031642L))",
-        "csharp": "new ObjectId().GenerateNewId(Convert.ToInt32(1522075031642))",
+        "csharp": "new ObjectId.GenerateNewId(Convert.ToInt32(1522075031642))",
         "shell": "ObjectId.fromDate(new Date(1522075031642))"
       },
       {
@@ -22,7 +22,7 @@
         "javascript": "ObjectId.createFromTime(new Date())",
         "python": "ObjectId.from_datetime(datetime.datetime.fromtimestamp(datetime.datetime.utcnow().date()/1000.0))",
         "java": "new ObjectId(new java.util.Date())",
-        "csharp": "new ObjectId().GenerateNewId(DateTime.Now)",
+        "csharp": "new ObjectId.GenerateNewId(DateTime.Now)",
         "shell": "ObjectId.fromDate(new Date())"
       },
       {
@@ -115,7 +115,7 @@
         "python": "Int64(0)",
         "java": "0L",
         "shell": "0",
-        "csharp": "new BsonInt64(0)"
+        "csharp": "0L"
       },
       {
         "description": "ONE",
@@ -123,7 +123,7 @@
         "python": "Int64(1)",
         "java": "1L",
         "shell": "1",
-        "csharp": "new BsonInt64(1)"
+        "csharp": "1L"
       },
       {
         "description": "NEG_ONE",
@@ -131,7 +131,7 @@
         "python": "Int64(-1)",
         "java": "-1L",
         "shell": "-1",
-        "csharp": "new BsonInt64(-1)"
+        "csharp": "-1L"
       },
       {
         "description": "fromInt",
@@ -139,7 +139,7 @@
         "python": "Int64(5)",
         "java": "5L",
         "shell": "NumberLong(5)",
-        "csharp": "new BsonInt64(5)"
+        "csharp": "5L"
       },
       {
         "description": "fromString without radix",
@@ -147,7 +147,7 @@
         "python": "Int64(int('5'))",
         "java": "Long.parseLong(\"5\")",
         "shell": "NumberLong('5')",
-        "csharp": "new BsonInt64(5)"
+        "csharp": "Convert.ToInt64(\"5\", 10)"
       },
       {
         "description": "fromString with radix",
@@ -162,7 +162,7 @@
         "javascript": "Long.fromBits(-1, 2147483647)",
         "python": "Int64(9223372036854775807)",
         "java": "9223372036854775807L",
-        "csharp": "new BsonInt64(9223372036854775807)",
+        "csharp": "9223372036854775807L",
         "shell": "NumberLong(9223372036854775807)"
       }
     ],
@@ -172,7 +172,7 @@
         "javascript": "Decimal128.fromString(\"5\")",
         "python": "Decimal128('5')",
         "java": "Decimal128.parse(\"5\")",
-        "csharp": "new Decimal128(5)",
+        "csharp": "Decimal128.Parse(\"5\")",
         "shell": "NumberDecimal(\"5\")"
       }
     ]
