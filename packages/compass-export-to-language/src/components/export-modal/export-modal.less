@@ -12,54 +12,92 @@
     padding: 10px;
   }
 
-  &-input-select {
-    width: 20%;
-    margin-bottom: 10px;
-    z-index: 100;
-    text-transform: uppercase;
-    font-weight: 600;
-  }
-
   &-query {
-    padding: 10px 0;
-    overflow: hidden;
-    background: #f5f6f7;
-    border-radius: 3px;
-    border-left: 2px solid #E4E4E4;
-
-    &-error {
-      padding: 10px 0;
-      overflow: hidden;
-      background: #f5f6f7;
-      border-radius: 3px;
-      border: 1px solid #ff473a;
-    }
-  }
-
-  &-output {
     display: flex;
     flex-direction: row;
-    justify-items: space-between;
+    justify-content: space-between;
 
-    &-select {
-      flex: 0.9 0 0;
-      text-transform: uppercase;
-      font-weight: 600;
+    &-input {
+      width: 50%;
+      padding-right: 10px;
+
+      &-editor{
+        padding: 10px 0;
+        overflow-x: hidden;
+        overflow-y: hidden;
+        background: #f5f6f7;
+        border-radius: 3px;
+        border-left: 2px solid #E4E4E4;
+
+        &-error {
+          padding: 10px 0;
+          overflow: hidden;
+          background: #f5f6f7;
+          border-radius: 3px;
+          border: 1px solid #ff473a;
+        }
+      }
     }
 
-    &-return {
-      flex: 3 0 0;
-      height: 33px;
-      margin-left: 10px;
-      padding: 6px 12px;
-      border: 1px solid #ccc;
-      border-radius: 4px;
-      box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075);
-    } 
+    &-output {
+      width: 50%;
+      padding-left: 10px;
 
-    &-copy-btn {
-      height: 33px;
-      margin-left: 10px;
+      &-export {
+        display: flex;
+        flex-direction: row;
+
+        &-text {
+          padding-right: 10px;
+          display: flex;
+          flex-grow: 0.005;
+          align-items: center;
+          flex-direction: column;
+          justify-content: center;
+        }
+
+        &-select {
+          display: flex;
+          flex-grow: 0.25;
+          align-items: center;
+          justify-content: center;
+          flex-direction: column;
+          text-transform: uppercase;
+          font-size: 12px;
+          line-height: 18px;
+          font-weight: 600;
+          z-index: 100;
+        }
+      }
+
+      &-editor{
+        padding: 10px 0;
+        overflow: hidden;
+        background: #f5f6f7;
+        border-radius: 3px;
+        border-left: 2px solid #E4E4E4;
+        display: flex;
+        &-copy {
+          font-size: 12px;
+          text-transform: capitalize;
+          font-weight: 400;
+          margin-right: 15px;
+        }
+      }
+
+      &-return {
+        flex: 3 0 0;
+        height: 33px;
+        margin-left: 10px;
+        padding: 6px 12px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075);
+      } 
     }
   }
+}
+
+.Select-control {
+  height: 25px;
 }

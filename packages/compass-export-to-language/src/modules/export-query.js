@@ -23,8 +23,15 @@ function getClearCopy(state, action) {
 }
 
 function copyToClipboard(state, action) {
-  action.input.select();
+  let el = document.createElement('input');
+  el.type = 'text';
+  el.setAttribute('styles', 'display: none;');
+  el.value = action.input;
+  document.body.appendChild(el);
+  el.select();
   const copy = document.execCommand('copy');
+  document.body.removeChild(el);
+
   const newState = copy
     ? { ...state, copySuccess: true }
     : { ...state, copyError: true };
@@ -35,7 +42,6 @@ function copyToClipboard(state, action) {
 export const runQuery = (outputLang, input) => {
   return (dispatch, getState) => {
     const state = getState();
-    console.log(outputLang)
 
     try {
       const output = compiler.javascript[outputLang](input);

@@ -18,7 +18,8 @@ const OPTIONS = {
   minLines: 5,
   maxLines: Infinity,
   showGutter: true,
-  readOnly: false,
+  focus: false,
+  readOnly: true,
   highlightActiveLine: false,
   highlightGutterLine: false,
   useWorker: false
@@ -28,44 +29,32 @@ class ExportModal extends Component {
   static displayName = 'ExportModalComponent';
 
   static propTypes = {
-    copyQuery: PropTypes.func.isRequired,
     exportQuery: PropTypes.object.isRequired,
+    inputQuery: PropTypes.string.isRequired,
+    copyQuery: PropTypes.func.isRequired,
     runQuery: PropTypes.func.isRequired
   }
 
   // store the current query in state before we pass it to reducer
   state = {
-    queryInputValue: '',
     outputLang: ''
   }
 
-  queryInputEvent = (value) => {
-    this.setState({
-      queryInputValue: value
-    });
-  }
-
-  // save state, and pass in the current selected lang
+  // save state, and pass in the currently selected lang
   handleOutputSelect = (outputLang) => {
     this.setState({ outputLang });
-    this.props.runQuery(outputLang.value, this.state.queryInputValue);
+    this.props.runQuery(outputLang.value, this.props.inputQuery);
   }
 
   copyHandler = (evt) => {
     evt.preventDefault();
-    const input = document.getElementById('export-to-lang-form-output-return');
-    this.props.copyQuery(input);
+    this.props.copyQuery(this.props.exportQuery.returnQuery);
   }
 
-  /**
-   * Render the save pipeline component.
-   *
-   * @returns {Component} The component.
-   */
   render() {
     const langOuputOptions = [
       { value: 'java', label: 'Java' },
-      { value: 'node', label: 'Node' },
+      { value: 'javascript', label: 'Node' },
       { value: 'csharp', label: 'C#' },
       { value: 'python', label: 'Python 3' }
     ];
@@ -73,13 +62,13 @@ class ExportModal extends Component {
     const copyButtonStyle = classnames({
       'btn': true,
       'btn-sm': true,
-      'btn-primary': true,
-      [ styles['export-to-lang-form-output-copy-btn'] ]: true
+      'btn-default': true,
+      [ styles['export-to-lang-form-query-output-editor-copy'] ]: true
     });
 
     const queryStyle = this.props.exportQuery.queryError
       ? classnames(styles['export-to-lang-form-query-error'])
-      : classnames(styles['export-to-lang-form-query']);
+      : classnames(styles['export-to-lang-form-query-input-editor']);
 
     const outputLang = this.state.outputLang;
     const selectedOutputValue = outputLang && outputLang.value;
@@ -102,46 +91,55 @@ class ExportModal extends Component {
 
         <Modal.Body>
           <form name="export-to-lang-form"
-              data-test-id="export-to-lang">
+              data-test-id="export-to-lang"
+              className="export-to-lang-form"
+            >
             <div className="form-group">
               <Alert
                 className={classnames(styles['export-to-lang-form-alert'])}
                 children="PROJECT, SORT, SKIP, LIMIT options are not included as part of the exported query."/>
-              <p>My Query</p>
-              <div className={queryStyle}>
-                <AceEditor
-                  mode="javascript"
-                  className="export-to-lang-form-query-input"
-                  theme="mongodb"
-                  value={this.state.queryInputValue}
-                  onChange={this.queryInputEvent}
-                  width="100%"
-                  editorProps={{$blockScrolling: Infinity}}
-                  setOptions={OPTIONS}/>
-              </div>
-              {errorDiv}
             </div>
-            <div>
-              <p>Export Query To</p>
-              <div className={classnames(styles['export-to-lang-form-output'])}>
-                <Select
-                  name="export-to-lang-form-output-select"
-                  className={classnames(styles['export-to-lang-form-output-select'])}
-                  searchable={false}
-                  clearable={false}
-                  placeholder="Java"
-                  value={selectedOutputValue}
-                  onChange={this.handleOutputSelect}
-                  options={langOuputOptions}/>
-                <input
-                  type="text"
-                  className={classnames(styles['export-to-lang-form-output-return'])}
-                  id="export-to-lang-form-output-return"
-                  value={this.props.exportQuery.returnQuery}/>
-                <TextButton
-                  className={copyButtonStyle}
-                  text="Copy"
-                  clickHandler={this.copyHandler}/>
+            <div className={classnames(styles['export-to-lang-form-query'])}>
+              <div className={classnames(styles['export-to-lang-form-query-input'])}>
+                <p>My Query</p>
+                <div className={queryStyle}>
+                  <AceEditor
+                    mode="javascript"
+                    theme="mongodb"
+                    value={this.props.inputQuery}
+                    width="100%"
+                    editorProps={{$blockScrolling: Infinity}}
+                    setOptions={OPTIONS}/>
+                </div>
+                {errorDiv}
+              </div>
+              <div className={classnames(styles['export-to-lang-form-query-output'])}>
+                <div className={classnames(styles['export-to-lang-form-query-output-export'])}>
+                  <p className={classnames(styles['export-to-lang-form-query-output-export-text'])}>Export Query To</p>
+                  <Select
+                    name="export-to-lang-form-query-output-select"
+                    className={classnames(styles['export-to-lang-form-query-output-export-select'])}
+                    searchable={false}
+                    clearable={false}
+                    placeholder="Java"
+                    value={selectedOutputValue}
+                    onChange={this.handleOutputSelect}
+                    options={langOuputOptions}/>
+                </div>
+                <div className={classnames(styles['export-to-lang-form-query-output-editor'])}>
+                  <AceEditor
+                    mode="javascript"
+                    theme="mongodb"
+                    id="export-to-lang-output"
+                    value={this.props.exportQuery.returnQuery}
+                    width="100%"
+                    editorProps={{$blockScrolling: Infinity}}
+                    setOptions={OPTIONS}/>
+                  <TextButton
+                    className={copyButtonStyle}
+                    text="Copy"
+                    clickHandler={this.copyHandler}/>
+                </div> 
               </div>
             </div>
           </form>
