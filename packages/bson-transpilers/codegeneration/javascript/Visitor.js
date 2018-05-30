@@ -513,8 +513,26 @@ class Visitor extends ECMAScriptVisitor {
    */
   processRegExp(ctx) {
     ctx.type = this.Types._regex;
+    const text = ctx.getText();
     let pattern;
     let flags;
+
+    if (text.startsWith('RegExp')) {
+      const argList = ctx.arguments().argumentList();
+
+      if (
+        !argList ||
+        !(
+          argList.singleExpression().length === 1 ||
+          argList.singleExpression().length === 2
+        )
+      ) {
+        throw new SemanticArgumentCountMismatchError({
+          message: 'RegExp requires one or two arguments'
+        });
+      }
+    }
+
     try {
       const regexobj = this.executeJavascript(ctx.getText());
       pattern = regexobj.source;
@@ -700,6 +718,14 @@ class Visitor extends ECMAScriptVisitor {
     ctx.type = this.Types.Decimal128;
     const symbolType = this.Symbols.Decimal128;
     let decstr;
+    const argList = ctx.arguments().argumentList();
+
+    if (!argList || argList.singleExpression().length !== 1) {
+      throw new SemanticArgumentCountMismatchError({
+        message: 'Decimal128 requires one argument'
+      });
+    }
+
     try {
       decstr = this.executeJavascript(`new ${ctx.getText()}`).toString();
     } catch (error) {
@@ -728,6 +754,14 @@ class Visitor extends ECMAScriptVisitor {
     ctx.type = this.Types._string;
     const long = ctx.singleExpression().singleExpression();
     let longstr;
+    const argList = ctx.arguments().argumentList();
+
+    if (argList && argList.singleExpression().length > 1) {
+      throw new SemanticArgumentCountMismatchError({
+        message: 'Long .toString() method requires zero arguments'
+      });
+    }
+
     try {
       longstr = this.executeJavascript(long.getText()).toString();
     } catch (error) {
@@ -757,6 +791,15 @@ class Visitor extends ECMAScriptVisitor {
         return this.emitDate(ctx);
       }
     }
+
+    const argList = ctx.arguments().argumentList();
+
+    if (argList.singleExpression().length > 6) {
+      throw new SemanticArgumentCountMismatchError({
+        message: 'Date requires less than 7 arguments'
+      });
+    }
+
     let text = ctx.getText();
     text = text.startsWith('new ') ? text : `new ${text}`;
     let date;

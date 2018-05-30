@@ -279,7 +279,7 @@
       },
       {
         "description": "negate",
-        "javascript": "Long(1, 100).negate())",
+        "javascript": "Long(1, 100).negate()",
         "python": "-Int64(429496729601)",
         "java": "-429496729601L",
         "csharp": "-429496729601L",

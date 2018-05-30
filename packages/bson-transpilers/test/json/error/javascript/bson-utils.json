@@ -1,0 +1,197 @@
+{
+  "tests": {
+    "ObjectId": [
+      {
+        "description": "ObjectId .createFromHexString() without arguments",
+        "query": "ObjectId.createFromHexString()",
+        "errorCode": "E_SEMANTIC_ARGUMENTCOUNTMISMATCH"
+      },
+      {
+        "description": "ObjectId .createFromHexString() with extra argument",
+        "query": "ObjectId.createFromHexString('5ab901c29ee65f5c8550c5b9', 10)",
+        "errorCode": "E_SEMANTIC_ARGUMENTCOUNTMISMATCH"
+      },
+      {
+        "description": "ObjectId .createFromHexString not callable",
+        "query": "ObjectId.createFromHexString",
+        "errorCode": "E_SEMANTIC_TYPE"
+      },
+      {
+        "description": "ObjectId .createFromHexString() with wrong type of argument",
+        "query": "ObjectId.createFromHexString({})",
+        "errorCode": "E_SEMANTIC_TYPE"
+      },
+      {
+        "description": "ObjectId .createFromTime() without arguments",
+        "query": "ObjectId.createFromTime()",
+        "errorCode": "E_SEMANTIC_ARGUMENTCOUNTMISMATCH"
+      },
+      {
+        "description": "ObjectId .createFromTime() with extra argument",
+        "query": "ObjectId.createFromTime('5ab901c29ee65f5c8550c5b9', 10)",
+        "errorCode": "E_SEMANTIC_ARGUMENTCOUNTMISMATCH"
+      },
+      {
+        "description": "ObjectId .createFromTime not callable",
+        "query": "ObjectId.createFromTime",
+        "errorCode": "E_SEMANTIC_TYPE"
+      },
+      {
+        "description": "ObjectId .createFromTime() with wrong type of argument",
+        "query": "ObjectId.createFromTime({})",
+        "errorCode": "E_SEMANTIC_TYPE"
+      },
+      {
+        "description": "ObjectId .isValid() without arguments",
+        "query": "ObjectId.isValid()",
+        "errorCode": "E_SEMANTIC_ARGUMENTCOUNTMISMATCH"
+      },
+      {
+        "description": "ObjectId .isValid() with extra argument",
+        "query": "ObjectId.isValid('5ab901c29ee65f5c8550c5b9', 10)",
+        "errorCode": "E_SEMANTIC_ARGUMENTCOUNTMISMATCH"
+      },
+      {
+        "description": "ObjectId .isValid not callable",
+        "query": "ObjectId.isValid",
+        "errorCode": "E_SEMANTIC_TYPE"
+      },
+      {
+        "description": "ObjectId .isValid() with wrong type of argument",
+        "query": "ObjectId.isValid({})",
+        "errorCode": "E_SEMANTIC_TYPE"
+      }
+    ],
+    "Binary": [
+      {
+        "description": "Wrong binary subtype",
+        "query": "Binary.WRONG_SUBTYPE",
+        "errorCode": "E_SEMANTIC_ATTRIBUTE"
+      }
+    ],
+    "Long": [
+      {
+        "description": "Long with lowercase max value",
+        "query": "Long.max_value",
+        "errorCode": "E_SEMANTIC_ATTRIBUTE"
+      },
+      {
+        "description": "Long with wrong attribute",
+        "query": "Long.WRONG_ATTRIBUTE",
+        "errorCode": "E_SEMANTIC_ATTRIBUTE"
+      },
+      {
+        "description": "Long with lowercase min value",
+        "query": "Long.min_value",
+        "errorCode": "E_SEMANTIC_ATTRIBUTE"
+      },
+      {
+        "description": "Long with lowercase zero",
+        "query": "Long.zero",
+        "errorCode": "E_SEMANTIC_ATTRIBUTE"
+      },
+      {
+        "description": "Long with lowercase one",
+        "query": "Long.one",
+        "errorCode": "E_SEMANTIC_ATTRIBUTE"
+      },
+      {
+        "description": "Long with lowercase neg one",
+        "query": "Long.neg_one",
+        "errorCode": "E_SEMANTIC_ATTRIBUTE"
+      },
+      {
+        "description": "Long .fromInt() without arguments",
+        "query": "Long.fromInt()",
+        "errorCode": "E_SEMANTIC_ARGUMENTCOUNTMISMATCH"
+      },
+      {
+        "description": "Long .fromInt() with extra argument",
+        "query": "Long.fromInt(5, 10)",
+        "errorCode": "E_SEMANTIC_ARGUMENTCOUNTMISMATCH"
+      },
+      {
+        "description": "Long .fromInt not callable",
+        "query": "Long.fromInt",
+        "errorCode": "E_SEMANTIC_TYPE"
+      },
+      {
+        "description": "Long .fromInt() with wrong type of argument",
+        "query": "Long.fromInt({})",
+        "errorCode": "E_SEMANTIC_TYPE"
+      },
+      {
+        "description": "Long .fromString() without arguments",
+        "query": "Long.fromString()",
+        "errorCode": "E_SEMANTIC_ARGUMENTCOUNTMISMATCH"
+      },
+      {
+        "description": "Long .fromString() with extra argument",
+        "query": "Long.fromString('5', 10, 20)",
+        "errorCode": "E_SEMANTIC_ARGUMENTCOUNTMISMATCH"
+      },
+      {
+        "description": "Long .fromString not callable",
+        "query": "Long.fromString",
+        "errorCode": "E_SEMANTIC_TYPE"
+      },
+      {
+        "description": "Long .fromString() with wrong type of argument",
+        "query": "Long.fromString(5, 10)",
+        "errorCode": "E_SEMANTIC_TYPE"
+      },
+      {
+        "description": "Long .fromBits() without arguments",
+        "query": "Long.fromBits()",
+        "errorCode": "E_SEMANTIC_ARGUMENTCOUNTMISMATCH"
+      },
+      {
+        "description": "Long .fromBits() with extra argument",
+        "query": "Long.fromBits(-1, 2147483647, 20)",
+        "errorCode": "E_SEMANTIC_ARGUMENTCOUNTMISMATCH"
+      },
+      {
+        "description": "Long .fromBits() with few arguments",
+        "query": "Long.fromBits(-1)",
+        "errorCode": "E_SEMANTIC_ARGUMENTCOUNTMISMATCH"
+      },
+      {
+        "description": "Long .fromBits not callable",
+        "query": "Long.fromBits",
+        "errorCode": "E_SEMANTIC_TYPE"
+      },
+      {
+        "description": "Long .fromBits() with wrong type of low",
+        "query": "Long.fromBits({}, 2147483647)",
+        "errorCode": "E_SEMANTIC_TYPE"
+      },
+      {
+        "description": "Long .fromBits() with wrong type of high",
+        "query": "Long.fromBits(-1, {})",
+        "errorCode": "E_SEMANTIC_TYPE"
+      }
+    ],
+    "Decimal128": [
+      {
+        "description": "Decimal128 .fromString() without arguments",
+        "query": "Decimal128.fromString()",
+        "errorCode": "E_SEMANTIC_ARGUMENTCOUNTMISMATCH"
+      },
+      {
+        "description": "Decimal128 .fromString() with extra argument",
+        "query": "Decimal128.fromString(\"5\", 10)",
+        "errorCode": "E_SEMANTIC_ARGUMENTCOUNTMISMATCH"
+      },
+      {
+        "description": "Decimal128 .fromString not callable",
+        "query": "Decimal128.fromString",
+        "errorCode": "E_SEMANTIC_TYPE"
+      },
+      {
+        "description": "Decimal128 .fromString() with wrong type of argument",
+        "query": "Decimal128.fromString(5)",
+        "errorCode": "E_SEMANTIC_TYPE"
+      }
+    ]
+  }
+}
