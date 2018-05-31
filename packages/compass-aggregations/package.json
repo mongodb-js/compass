@@ -128,7 +128,7 @@
     "mongodb-extended-json": "^1.10.0",
     "mongodb-ns": "^2.0.0",
     "mongodb-query-parser": "^1.0.2",
-    "mongodb-stage-validator": "^0.0.2",
+    "mongodb-stage-validator": "^0.0.3",
     "react-ace": "^5.7.0",
     "react-bootstrap": "^0.32.1",
     "react-dnd": "^2.5.4",
