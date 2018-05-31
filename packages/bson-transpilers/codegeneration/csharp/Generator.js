@@ -72,6 +72,9 @@ module.exports = (superclass) => class ExtendedVisitor extends superclass {
   emitDecimal128(ctx, decimal) {
     return `Decimal128.Parse(${doubleQuoteStringify(decimal)})`;
   }
+  emitNumberDecimal(ctx, decimal) {
+    return `Decimal128.Parse(${doubleQuoteStringify(decimal)})`;
+  }
 
   /**
    * BSON MinKey Constructor

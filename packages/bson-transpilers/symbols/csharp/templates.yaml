@@ -66,12 +66,11 @@ Templates:
                     (pair[0].charAt(0) === '\'' && pair[0].charAt(pair[0].length - 1) === '\'') ||
                     (pair[0].charAt(0) === '"' && pair[0].charAt(pair[0].length - 1) === '"')) {
                         newStr = pair[0].substr(1, pair[0].length - 2);
-                        console.log('new str in if', newStr)
                 }
                 newStr = `"${newStr.replace(/\\([\s\S])|(")/g, '\\$1$2')}"`;
 
                 if (str !== '') {
-                    return `{ ${str.replace(/\((.*)\)/, "{ $1 }")}, { ${newStr}, ${pair[1]} } }`;
+                    return ` { ${str.replace(/\((.*)\)/, "{ $1 }")}, { ${newStr}, ${pair[1]} } }`;
                 } else {
                     return `(${newStr}, ${pair[1]})`;
                 }
@@ -591,8 +590,17 @@ Templates:
 
             return arg;
         }
-    LongSymbolTemplate: &LongSymbolTemplate null
-    LongSymbolArgsTemplate: &LongSymbolArgsTemplate null
+    LongSymbolTemplate: &LongSymbolTemplate !!js/function >
+        () => {
+            return '';
+        }
+    LongSymbolArgsTemplate: &LongSymbolArgsTemplate !!js/function > 
+        (lhs, arg) => {
+            if (arg.indexOf('\'') === 0 || arg.indexOf('"') === 0) {
+              return `Convert.ToInt64(${arg})`;
+            }
+            return `${arg}L`;
+        }
     LongSymbolMaxTemplate: &LongSymbolMaxTemplate !!js/function >
         () => {
             return 'Int64.MaxValue';
@@ -650,7 +658,13 @@ Templates:
         () => {
             return 'BsonTimestamp';
         }
-    TimestampSymbolArgsTemplate: &TimestampSymbolArgsTemplate null
+    TimestampSymbolArgsTemplate: &TimestampSymbolArgsTemplate !!js/function >
+        (lhs, arg1, arg2) => {
+            if (typeof arg1 === 'undefined') {
+                return '(0, 0)'
+            }
+            return `(${arg1}, ${arg2})`;
+        }
     SymbolSymbolTemplate: &SymbolSymbolTemplate null # Has emit method 
     SymbolSymbolArgsTemplate: &SymbolSymbolArgsTemplate null # Has emit method
     BSONRegExpSymbolTemplate: &BSONRegExpSymbolTemplate !!js/function >
@@ -661,8 +675,8 @@ Templates:
         (lhs, pattern, flags) => {
             return `(${pattern}${flags ? ', ' + flags : ''})`;
         }
-    Decimal128SymbolTemplate: &Decimal128SymbolTemplate null # Has emit method
-    Decimal128SymbolArgsTemplate: &Decimal128SymbolArgsTemplate null # Has emit method
+    Decimal128SymbolTemplate: &Decimal128SymbolTemplate null
+    Decimal128SymbolArgsTemplate: &Decimal128SymbolArgsTemplate null
     Decimal128SymbolFromStringTemplate: &Decimal128SymbolFromStringTemplate !!js/function >
         () => {
             return '';

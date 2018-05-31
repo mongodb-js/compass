@@ -6,7 +6,7 @@
         "javascript": "new Code('some code')",
         "python": "Code('some code')",
         "java": "new Code(\"some code\")",
-        "csharp": "new BsonJavaScript(@\"some code\")",
+        "csharp": "new BsonJavaScript(\"some code\")",
         "shell": "new Code('some code')"
       },
       {
@@ -14,7 +14,7 @@
         "javascript": "Code('some code')",
         "python": "Code('some code')",
         "java": "new Code(\"some code\")",
-        "csharp": "new BsonJavaScript(@\"some code\")",
+        "csharp": "new BsonJavaScript(\"some code\")",
         "shell": "Code('some code')"
       },
       {
@@ -22,7 +22,7 @@
         "javascript": "Code('string', {x: '1'})",
         "python": "Code('string', {'x': '1'})",
         "java": "new CodeWithScope(\"string\", new Document(\"x\", \"1\"))",
-        "csharp": "new BsonJavaScriptWithScope(@\"string\", new BsonDocument(\"x\", \"1\"))",
+        "csharp": "new BsonJavaScriptWithScope(\"string\", new BsonDocument(\"x\", \"1\"))",
         "shell": "Code('string', {x: '1'})"
       },
       {
@@ -30,7 +30,7 @@
         "javascript": "Code('')",
         "python": "Code('')",
         "java": "new Code(\"\")",
-        "csharp": "new BsonJavaScript(@\"\")",
+        "csharp": "new BsonJavaScript(\"\")",
         "shell": "Code()"
       }
     ],
@@ -40,7 +40,7 @@
         "javascript": "ObjectId()",
         "python": "ObjectId()",
         "java": "new ObjectId()",
-        "csharp": "new BsonObjectId()",
+        "csharp": "new ObjectId()",
         "shell": "ObjectId()"
       },
       {
@@ -48,7 +48,7 @@
         "javascript": "new ObjectId()",
         "python": "ObjectId()",
         "java": "new ObjectId()",
-        "csharp": "new BsonObjectId()",
+        "csharp": "new ObjectId()",
         "shell": "new ObjectId()"
       },
       {
@@ -56,7 +56,7 @@
         "javascript": "ObjectId('5a7382114ec1f67ae445f778')",
         "python": "ObjectId('5a7382114ec1f67ae445f778')",
         "java": "new ObjectId(\"5a7382114ec1f67ae445f778\")",
-        "csharp": "new BsonObjectId(\"5a7382114ec1f67ae445f778\")",
+        "csharp": "new ObjectId(\"5a7382114ec1f67ae445f778\")",
         "shell": "ObjectId('5a7382114ec1f67ae445f778')"
       }
     ],
@@ -76,7 +76,7 @@
         "javascript": "new DBRef('coll', ObjectId())",
         "python": "DBRef('coll', ObjectId())",
         "java": "new DBRef(\"coll\", new ObjectId())",
-        "csharp": "DBRef(\"coll\", new BsonObjectId())",
+        "csharp": "new MongoDBRef(\"coll\", new ObjectId())",
         "shell": "new DBRef('coll', ObjectId())"
       },
       {
@@ -84,7 +84,7 @@
         "javascript": "new DBRef('coll', ObjectId(), 'db')",
         "python": "DBRef('coll', ObjectId(), 'db')",
         "java": "new DBRef(\"db\", \"coll\", new ObjectId())",
-        "csharp": "DBRef(\"coll\", new BsonObjectId(), \"db\")",
+        "csharp": "new MongoDBRef(\"coll\", new ObjectId(), \"db\")",
         "shell": "new DBRef('coll', ObjectId(), 'db')"
       }
     ],
@@ -94,7 +94,7 @@
         "javascript": "Int32(3)",
         "python": "int(3)",
         "java": "3",
-        "csharp": "",
+        "csharp": "3",
         "shell": "NumberInt(3)"
       },
       {
@@ -102,7 +102,7 @@
         "javascript": "Int32('3')",
         "python": "int('3')",
         "java": "Integer.parseInt(\"3\")",
-        "csharp": "NumberInt('3')",
+        "csharp": "Convert.ToInt32(\"3\")",
         "shell": "NumberInt('3')"
       },
       {
@@ -110,7 +110,7 @@
         "javascript": "Int32(0)",
         "python": "int(0)",
         "java": "0",
-        "csharp": "NumberInt('0')",
+        "csharp": "0",
         "shell": "NumberInt()"
       }
     ],
@@ -120,7 +120,7 @@
         "javascript": "3",
         "python": "3",
         "java": "3L",
-        "csharp": "new BsonDouble(Convert.ToDouble(\"3\"))",
+        "csharp": "3",
         "shell": "3"
       },
       {
@@ -128,7 +128,7 @@
         "javascript": "3.001",
         "python": "3.001",
         "java": "3.001d",
-        "csharp": "new BsonDouble(Convert.ToDouble(\"3\"))",
+        "csharp": "3.001",
         "shell": "3.001"
       }
     ],
@@ -138,7 +138,7 @@
         "javascript": "new Long.fromNumber(0)",
         "python": "Int64(0)",
         "java": "0L",
-        "csharp": "new BsonInt64(Convert.ToInt32(0))",
+        "csharp": "0L",
         "shell": "new NumberLong()"
       },
       {
@@ -146,7 +146,7 @@
         "javascript": "new Long.fromNumber(10)",
         "python": "Int64(10)",
         "java": "10L",
-        "csharp": "new BsonInt64(Convert.ToInt32(10))",
+        "csharp": "10L",
         "shell": "new NumberLong(10)"
       },
       {
@@ -154,7 +154,7 @@
         "javascript": "new Long.fromString('10')",
         "python": "Int64('10')",
         "java": "Long.parseLong(\"10\")",
-        "csharp": "new BsonInt64(Convert.ToInt32(\"10\"))",
+        "csharp": "Convert.ToInt64(\"10\")",
         "shell": "new NumberLong('10')"
       }
     ],
@@ -164,7 +164,7 @@
         "javascript": "Decimal128.fromString('5')",
         "python": "Decimal128('5')",
         "java": "Decimal128.parse(\"5\")",
-        "csharp": "new BsonString(\"5\")",
+        "csharp": "Decimal128.Parse(\"5\")",
         "shell": "NumberDecimal('5')"
       },
       {
@@ -172,7 +172,7 @@
         "javascript": "Decimal128.fromString('5')",
         "python": "Decimal128('5')",
         "java": "Decimal128.parse(\"5\")",
-        "csharp": "new BsonString(\"5\")",
+        "csharp": "Decimal128.Parse(\"5\")",
         "shell": "NumberDecimal(5)"
       },
       {
@@ -180,7 +180,7 @@
         "javascript": "Decimal128.fromString('0')",
         "python": "Decimal128('0')",
         "java": "Decimal128.parse(\"0\")",
-        "csharp": "new BsonString(\"0\")",
+        "csharp": "Decimal128.Parse(\"0\")",
         "shell": "NumberDecimal()"
       }
     ],
