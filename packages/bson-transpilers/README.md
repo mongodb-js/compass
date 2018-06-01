@@ -19,18 +19,20 @@ const string =`
 
 const compiledString = compiler[input][output](string);
 console.log(compiledCode)
-// new Document().append("item", "book").append("qty", new Binary("5".getBytes("UTF-8")))
+// new Document("item", "book").append("qty", new Binary("5".getBytes("UTF-8")))
 // .append("tags", Arrays.asList("red", "blank"))
-// .append("dim_cm", Arrays.asList(new java.lang.Long("14"), new java.lang.Integer("81")))  
+// .append("dim_cm", Arrays.asList(14L, 81")))
 ```
 
 ## API
-### compiledString = compiler.inputLang.outputLang(codeString)
+### compiledString = compiler\[inputLang\]\[outputLang\](codeString)
 Output a compiled string given input and output languages.
 - __inputLang:__ Input language of the code string. `shell` and `javascript` are currently supported.
-- __outputLang:__ The language you would like the output to be. `java`, `python` and `C#` are currently supported.
+- __outputLang:__ The language you would like the output to be. `java`, `python` and `csharp` are currently supported.
 - __codeString:__ The code string you would like to be compiled to your selected output language.
 
+### importsString = compiler.imports[outputLang]
+Output a string containing the set of import statements for the generated code to compile. These are all the packages that the compiled code could use so that the compiler output will be runnable. May include unused imports if the input string doesn't use a specific type.
 # Install
 ```shell
 npm install -S bson-compilers
