@@ -732,6 +732,9 @@ Templates:
             arg = arg === undefined ? 0 : arg;
 
             if (type === '_string') {
+              if (arg.indexOf('.') >= 0) {
+                return `float.Parse(${arg})`
+              }
               return `int.Parse(${arg})`;
             }
 
