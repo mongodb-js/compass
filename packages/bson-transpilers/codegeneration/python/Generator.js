@@ -65,7 +65,7 @@ module.exports = (superClass) => class ExtendedVisitor extends superClass {
     }
 
     if (date === undefined) {
-      return `datetime.datetime.utcnow().date()${toStr}`;
+      return `datetime.datetime.utcnow()${toStr}`;
     }
 
     const dateStr = [
@@ -78,5 +78,23 @@ module.exports = (superClass) => class ExtendedVisitor extends superClass {
     ].join(', ');
 
     return `datetime.datetime(${dateStr}, tzinfo=datetime.timezone.utc)${toStr}`;
+  }
+
+  /**
+   * Accepts date or number, if date then don't convert to date.
+   *
+   * @param {FuncCallExpressionContext} ctx
+   * @return {String}
+   */
+  emitObjectIdCreateFromTime(ctx) {
+    ctx.type = 'createFromTime' in this.Symbols.ObjectId.attr ?
+      this.Symbols.ObjectId.attr.createFromTime :
+      this.Symbols.ObjectId.attr.fromDate;
+    const argList = ctx.arguments().argumentList();
+    const args = this.checkArguments(ctx.type.args, argList);
+    if (argList.singleExpression()[0].type.id === 'Date') {
+      return ctx.type.argsTemplate('', args[0]);
+    }
+    return ctx.type.argsTemplate('', `datetime.datetime.fromtimestamp(${args[0]} / 1000)`);
   }
 };

@@ -80,7 +80,7 @@
       {
         "description": "new Binary with (ascii buffer, UUID subtype enum) args",
         "javascript": "new Binary(Buffer.from(\"1234\"), Binary.SUBTYPE_UUID)",
-        "python": "Binary(b'1234', bson.binary.UUID_SUBTYPE)",
+        "python": "Binary(b'1234', binary.UUID_SUBTYPE)",
         "java": "new Binary(BsonBinarySubType.UUID_STANDARD, \"1234\".getBytes(\"UTF-8\"))",
         "csharp": "new BsonBinaryData(System.Text.Encoding.ASCII.GetBytes(\"1234\"), BsonBinarySubType.UuidStandard)",
         "shell": "new BinData(4, '1234')"
@@ -88,7 +88,7 @@
       {
         "description": "Binary with (ascii buffer, number) args",
         "javascript": "Binary(Buffer.from('1234'), '1')",
-        "python": "Binary(b'1234', bson.binary.FUNCTION_SUBTYPE)",
+        "python": "Binary(b'1234', binary.FUNCTION_SUBTYPE)",
         "java": "new Binary(BsonBinarySubType.FUNCTION, \"1234\".getBytes(\"UTF-8\"))",
         "csharp": "new BsonBinaryData(System.Text.Encoding.ASCII.GetBytes(\"1234\"), BsonBinarySubType.Function)",
         "shell": "BinData(1, '1234')"
@@ -104,7 +104,7 @@
       {
         "description": "Binary with (string, string) args",
         "javascript": "Binary('1234', '1')",
-        "python": "Binary(b'1234', bson.binary.FUNCTION_SUBTYPE)",
+        "python": "Binary(b'1234', binary.FUNCTION_SUBTYPE)",
         "java": "new Binary(BsonBinarySubType.FUNCTION, \"1234\".getBytes(\"UTF-8\"))",
         "csharp": "new BsonBinaryData(System.Text.Encoding.ASCII.GetBytes(\"1234\"), BsonBinarySubType.Function)",
         "shell": "BinData(1, '1234')"
@@ -432,7 +432,7 @@
       {
         "description": "Symbol from string",
         "javascript": "Symbol('2')",
-        "python": "unicode('2', 'utf-8')",
+        "python": "'2'",
         "java": "new Symbol(\"2\")",
         "csharp": "\"2\"",
         "shell": "'2'"
@@ -440,7 +440,7 @@
       {
         "description": "new Symbol from string",
         "javascript": "new Symbol('2')",
-        "python": "unicode('2', 'utf-8')",
+        "python": "'2'",
         "java": "new Symbol(\"2\")",
         "csharp": "\"2\"",
         "shell": "'2'"

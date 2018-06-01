@@ -299,7 +299,7 @@ Templates:
         }
     LongIsOddArgsTemplate: &LongIsOddArgsTemplate !!js/function >
         () => {
-            return ' % 2 == 0';
+            return ' % 2 == 1';
         }
     LongIsZeroTemplate: &LongIsZeroTemplate !!js/function >
         (lhs) => {

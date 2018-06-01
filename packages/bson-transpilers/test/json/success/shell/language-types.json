@@ -22,7 +22,7 @@
       {
         "description": "Number with number arg",
         "javascript": "new Number(2)",
-        "python": "int(2)",
+        "python": "2",
         "java": "2d",
         "csharp": "new int(2)",
         "shell": "new Number(2)"
@@ -30,7 +30,7 @@
       {
         "description": "Number with valid string arg",
         "javascript": "Number('2')",
-        "python": "int('2')",
+        "python": "float('2')",
         "java": "Double.parseDouble(\"2\")",
         "csharp": "new int(2)",
         "shell": "Number('2')"
@@ -38,7 +38,7 @@
       {
         "description": "Number with no arg",
         "javascript": "Number(0)",
-        "python": "int(0)",
+        "python": "0",
         "java": "0d",
         "csharp": "new int(0)",
         "shell": "Number()"
@@ -186,7 +186,7 @@
       {
         "description": "new Current date",
         "javascript": "new Date()",
-        "python": "datetime.datetime.utcnow().date()",
+        "python": "datetime.datetime.utcnow()",
         "java": "new java.util.Date()",
         "csharp": "DateTime.Now",
         "shell": "new Date()"
@@ -226,7 +226,7 @@
       {
         "description": "Current date string",
         "javascript": "Date()",
-        "python": "datetime.datetime.utcnow().date().strftime('%a %b %d %Y %H:%M:%S %Z')",
+        "python": "datetime.datetime.utcnow().strftime('%a %b %d %Y %H:%M:%S %Z')",
         "java": "new SimpleDateFormat(\"EEE MMMMM dd yyyy HH:mm:ss\").format(new java.util.Date())",
         "csharp": "",
         "shell": "Date()"
@@ -276,7 +276,7 @@
       {
         "description": "new ISODate without arg",
         "javascript": "new Date()",
-        "python": "datetime.datetime.utcnow().date()",
+        "python": "datetime.datetime.utcnow()",
         "java": "new java.util.Date()",
         "csharp": "DateTime.Now",
         "shell": "new ISODate()"
@@ -284,7 +284,7 @@
       {
         "description": "ISODate without arg",
         "javascript": "new Date()",
-        "python": "datetime.datetime.utcnow().date()",
+        "python": "datetime.datetime.utcnow()",
         "java": "new java.util.Date()",
         "csharp": "DateTime.Now",
         "shell": "ISODate()"

@@ -56,7 +56,7 @@
       {
         "description": "length",
         "javascript": "Binary(Buffer.from('0404')).length()",
-        "python": "len(bytearray(Binary(b'0404')))",
+        "python": "len(Binary(b'0404'))",
         "java": "new Binary(\"0404\".getBytes(\"UTF-8\")).length()",
         "csharp": "new BsonBinaryData(System.Text.Encoding.ASCII.GetBytes(\"0404\")).Bytes.Length",
         "shell": "BinData(0, '0404').length()"
@@ -208,15 +208,15 @@
       {
         "description": "isOdd",
         "javascript": "Long(1, 100).isOdd()",
-        "python": "(Int64(429496729601) % 2) == 0",
-        "java": "(429496729601L % 2L) == 0L",
-        "csharp": "429496729601L % 2 == 0",
-        "shell": "(NumberLong(429496729601) % 2) === 0"
+        "python": "(Int64(429496729601) % 2) == 1",
+        "java": "(429496729601L % 2L) == 1L",
+        "csharp": "429496729601L % 2 == 1",
+        "shell": "(NumberLong(429496729601) % 2) === 1"
       },
       {
         "description": "equals",
         "javascript": "Long(1, 100).equals(Long(9, 1))",
-        "python": "(Int64(429496729601) - Int64(4294967305)) == 0",
+        "python": "Int64(429496729601) == Int64(4294967305)",
         "java": "429496729601L == 4294967305L",
         "csharp": "429496729601L == 4294967305L",
         "shell": "NumberLong(429496729601) === NumberLong(4294967305)"
@@ -224,7 +224,7 @@
       {
         "description": "notEquals",
         "javascript": "Long(1, 100).notEquals(Long(9, 1))",
-        "python": "(Int64(429496729601) - Int64(4294967305)) != 0",
+        "python": "Int64(429496729601) != Int64(4294967305)",
         "java": "429496729601L != 4294967305L",
         "csharp": "429496729601L != 4294967305L",
         "shell": "NumberLong(429496729601) !== NumberLong(4294967305)"
@@ -240,7 +240,7 @@
       {
         "description": "greaterThan",
         "javascript": "Long(1, 100).greaterThan(Long(9, 1))",
-        "python": "(Int64(429496729601) - Int64(4294967305)) > 0",
+        "python": "Int64(429496729601) > Int64(4294967305)",
         "java": "429496729601L > 4294967305L",
         "csharp": "429496729601L > 4294967305L",
         "shell": "NumberLong(429496729601) > NumberLong(4294967305)"
@@ -248,7 +248,7 @@
       {
         "description": "greaterThanOrEqual",
         "javascript": "Long(1, 100).greaterThanOrEqual(Long(9, 1))",
-        "python": "(Int64(429496729601) - Int64(4294967305)) >= 0",
+        "python": "Int64(429496729601) >= Int64(4294967305)",
         "java": "429496729601L >= 4294967305L",
         "csharp": "429496729601L >= 4294967305L",
         "shell": "NumberLong(429496729601) >= NumberLong(4294967305)"
@@ -256,7 +256,7 @@
       {
         "description": "lessThan",
         "javascript": "Long(1, 100).lessThan(Long(9, 1))",
-        "python": "(Int64(429496729601) - Int64(4294967305)) < 0",
+        "python": "Int64(429496729601) < Int64(4294967305)",
         "java": "429496729601L < 4294967305L",
         "csharp": "429496729601L < 4294967305L",
         "shell": "NumberLong(429496729601) < NumberLong(4294967305)"
@@ -264,7 +264,7 @@
       {
         "description": "lessThanOrEqual",
         "javascript": "Long(1, 100).lessThanOrEqual(Long(9, 1))",
-        "python": "(Int64(429496729601) - Int64(4294967305)) <= 0",
+        "python": "Int64(429496729601) <= Int64(4294967305)",
         "java": "429496729601L <= 4294967305L",
         "csharp": "429496729601L <= 4294967305L",
         "shell": "NumberLong(429496729601) <= NumberLong(4294967305)"
@@ -388,7 +388,7 @@
       {
         "description": "equals",
         "javascript": "Timestamp(1, 100).equals(Timestamp(2, 99))",
-        "python": "(Timestamp(1, 100).time - Timestamp(2, 99).time) == 0",
+        "python": "Timestamp(1, 100) == Timestamp(2, 99)",
         "java": "new BSONTimestamp(1, 100).equals(new BSONTimestamp(2, 99))",
         "csharp": "new BsonTimestamp(1, 100).Equals(new BsonTimestamp(2, 99))",
         "shell": "Timestamp(1, 100) === Timestamp(2, 99)"
@@ -396,7 +396,7 @@
       {
         "description": "compare",
         "javascript": "Timestamp(1, 100).compare(Timestamp(2, 99))",
-        "python": "Timestamp(1, 100).time - Timestamp(2, 99).time",
+        "python": "(Timestamp(1, 100).as_datetime() - Timestamp(2, 99).as_datetime()).total_seconds()",
         "java": "new BSONTimestamp(1, 100).compareTo(new BSONTimestamp(2, 99))",
         "csharp": "new BsonTimestamp(1, 100).CompareTo(new BsonTimestamp(2, 99))",
         "shell": "Timestamp(1, 100) - Timestamp(2, 99)"
@@ -404,7 +404,7 @@
       {
         "description": "notEquals",
         "javascript": "Timestamp(1, 100).notEquals(Timestamp(2, 99))",
-        "python": "(Timestamp(1, 100).time - Timestamp(2, 99).time) != 0",
+        "python": "Timestamp(1, 100) != Timestamp(2, 99)",
         "java": "new BSONTimestamp(1, 100).compareTo(new BSONTimestamp(2, 99)) != 0",
         "csharp": "new BsonTimestamp(1, 100) != new BsonTimestamp(2, 99)",
         "shell": "Timestamp(1, 100) !== Timestamp(2, 99)"
@@ -412,7 +412,7 @@
       {
         "description": "greaterThan",
         "javascript": "Timestamp(1, 100).greaterThan(Timestamp(2, 99))",
-        "python": "(Timestamp(1, 100).time - Timestamp(2, 99).time) > 0",
+        "python": "Timestamp(1, 100) > Timestamp(2, 99)",
         "java": "new BSONTimestamp(1, 100).compareTo(new BSONTimestamp(2, 99)) > 0",
         "csharp": "new BsonTimestamp(1, 100) > new BsonTimestamp(2, 99)",
         "shell": "Timestamp(1, 100) > Timestamp(2, 99)"
@@ -420,7 +420,7 @@
       {
         "description": "greaterThanOrEqual",
         "javascript": "Timestamp(1, 100).greaterThanOrEqual(Timestamp(2, 99))",
-        "python": "(Timestamp(1, 100).time - Timestamp(2, 99).time) >= 0",
+        "python": "Timestamp(1, 100) >= Timestamp(2, 99)",
         "java": "new BSONTimestamp(1, 100).compareTo(new BSONTimestamp(2, 99)) >= 0",
         "csharp": "new BsonTimestamp(1, 100) >= new BsonTimestamp(2, 99)",
         "shell": "Timestamp(1, 100) >= Timestamp(2, 99)"
@@ -428,7 +428,7 @@
       {
         "description": "lessThan",
         "javascript": "Timestamp(1, 100).lessThan(Timestamp(2, 99))",
-        "python": "(Timestamp(1, 100).time - Timestamp(2, 99).time) < 0",
+        "python": "Timestamp(1, 100) < Timestamp(2, 99)",
         "java": "new BSONTimestamp(1, 100).compareTo(new BSONTimestamp(2, 99)) < 0",
         "csharp": "new BsonTimestamp(1, 100) < new BsonTimestamp(2, 99)",
         "shell": "Timestamp(1, 100) < Timestamp(2, 99)"
@@ -436,7 +436,7 @@
       {
         "description": "lessThanOrEqual",
         "javascript": "Timestamp(1, 100).lessThanOrEqual(Timestamp(2, 99))",
-        "python": "(Timestamp(1, 100).time - Timestamp(2, 99).time) <= 0",
+        "python": "Timestamp(1, 100) <= Timestamp(2, 99)",
         "java": "new BSONTimestamp(1, 100).compareTo(new BSONTimestamp(2, 99)) <= 0",
         "csharp": "new BsonTimestamp(1, 100) <= new BsonTimestamp(2, 99)",
         "shell": "Timestamp(1, 100) <= Timestamp(2, 99)"
@@ -462,7 +462,7 @@
       {
         "description": "valueOf",
         "javascript": "Symbol('2').valueOf()",
-        "python": "unicode('2', 'utf-8')",
+        "python": "'2'",
         "java": "new Symbol(\"2\").getSymbol()",
         "csharp": "\"2\"",
         "shell": "'2'"
@@ -470,7 +470,7 @@
       {
         "description": "toString",
         "javascript": "Symbol('2').toString()",
-        "python": "str(unicode('2', 'utf-8'))",
+        "python": "'2'",
         "java": "new Symbol(\"2\").toString()",
         "csharp": "\"2\"",
         "shell": "'2'"
@@ -478,7 +478,7 @@
       {
         "description": "inspect",
         "javascript": "Symbol('2').inspect()",
-        "python": "unicode('2', 'utf-8')",
+        "python": "'2'",
         "java": "new Symbol(\"2\").getSymbol()",
         "csharp": "\"2\"",
         "shell": "'2'"

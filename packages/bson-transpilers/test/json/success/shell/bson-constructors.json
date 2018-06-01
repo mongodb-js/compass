@@ -64,7 +64,7 @@
       {
         "description": "new Binary with (ascii buffer, UUID subtype enum) args",
         "javascript": "new Binary('1234', '4')",
-        "python": "Binary(b'1234', bson.binary.UUID_SUBTYPE)",
+        "python": "Binary(b'1234', binary.UUID_SUBTYPE)",
         "java": "new Binary(BsonBinarySubType.UUID_STANDARD, \"1234\".getBytes(\"UTF-8\"))",
         "csharp": "new BsonBinaryData(System.Text.Encoding.ASCII.GetBytes(\"1234\"), BsonBinarySubType.UuidStandard)",
         "shell": "new BinData(4, '1234')"

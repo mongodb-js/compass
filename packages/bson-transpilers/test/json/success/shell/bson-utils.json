@@ -4,7 +4,7 @@
       {
         "description": "fromDate",
         "javascript": "ObjectId.createFromTime(new Date())",
-        "python": "ObjectId.from_datetime(datetime.datetime.fromtimestamp(datetime.datetime.utcnow().date()/1000.0))",
+        "python": "ObjectId.from_datetime(datetime.datetime.utcnow())",
         "java": "new ObjectId(new java.util.Date())",
         "csharp": "",
         "shell": "ObjectId.fromDate(new Date())"

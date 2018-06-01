@@ -48,7 +48,7 @@
       {
         "description": "length",
         "javascript": "Binary('0001', '1').length()",
-        "python": "len(bytearray(Binary(b'0001', bson.binary.FUNCTION_SUBTYPE)))",
+        "python": "len(Binary(b'0001', binary.FUNCTION_SUBTYPE))",
         "java": "new Binary(BsonBinarySubType.FUNCTION, \"0001\".getBytes(\"UTF-8\")).length()",
         "csharp": "",
         "shell": "BinData(1, '0001').length()"
@@ -56,7 +56,7 @@
       {
         "description": "subtype",
         "javascript": "Binary('0001', '1').sub_type",
-        "python": "Binary(b'0001', bson.binary.FUNCTION_SUBTYPE).subtype()",
+        "python": "Binary(b'0001', binary.FUNCTION_SUBTYPE).subtype()",
         "java": "new Binary(BsonBinarySubType.FUNCTION, \"0001\".getBytes(\"UTF-8\")).getType()",
         "csharp": "",
         "shell": "BinData(1, '0001').subtype()"
@@ -64,7 +64,7 @@
       {
         "description": "toString",
         "javascript": "new Binary('0001', '1').toString()",
-        "python": "str(Binary(b'0001', bson.binary.FUNCTION_SUBTYPE))",
+        "python": "str(Binary(b'0001', binary.FUNCTION_SUBTYPE))",
         "java": "new Binary(BsonBinarySubType.FUNCTION, \"0001\".getBytes(\"UTF-8\")).toString()",
         "csharp": "",
         "shell": "new BinData(1, '0001').toString()"

@@ -223,7 +223,7 @@ Templates:
         }
     LongIsOddTemplate: &LongIsOddTemplate !!js/function >
         (lhs) => {
-            return `(${lhs} % 2) === 0`;
+            return `(${lhs} % 2) === 1`;
         }
     LongIsOddArgsTemplate: &LongIsOddArgsTemplate !!js/function >
         () => {

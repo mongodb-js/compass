@@ -317,7 +317,7 @@ Templates:
         }
     LongIsOddArgsTemplate: &LongIsOddArgsTemplate !!js/function >
         () => {
-            return ' == 0L';
+            return ' == 1L';
         }
     LongIsZeroTemplate: &LongIsZeroTemplate !!js/function >
         (lhs) => {
