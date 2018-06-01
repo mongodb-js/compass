@@ -149,7 +149,7 @@
         "description": "Int32 with decimal arg",
         "javascript": "Int32(3.0001)",
         "python": "int(3.0001)",
-        "java": "new Integer(3.0001d)",
+        "java": "(int) 3.0001d",
         "csharp": "Convert.ToInt32(3.0001)",
         "shell": "NumberInt(3.0001)"
       },
@@ -157,9 +157,17 @@
         "description": "Int32 with hex arg",
         "javascript": "Int32(0x3)",
         "python": "int(0x3)",
-        "java": "new Integer(0x3)",
+        "java": "(int) 0x3",
         "csharp": "Convert.ToInt32(0x3)",
         "shell": "NumberInt(0x3)"
+      },
+      {
+        "description": "Int32 with octal arg",
+        "javascript": "Int32(0o5)",
+        "python": "int(0o5)",
+        "java": "(int) 05",
+        "csharp": "5",
+        "shell": "NumberInt(0o5)"
       }
     ],
     "Double": [
@@ -199,9 +207,17 @@
         "description": "new Double with hex arg",
         "javascript": "new Double(0x3)",
         "python": "float(0x3)",
-        "java": "new Double(0x3)",
+        "java": "(double) 0x3",
         "csharp": "Convert.ToDouble(0x3)",
         "shell": "0x3"
+      },
+      {
+        "description": "new Double with octal arg",
+        "javascript": "new Double(0o5)",
+        "python": "float(0o5)",
+        "java": "(double) 05",
+        "csharp": "5.0",
+        "shell": "0o5"
       }
     ],
     "Long": [

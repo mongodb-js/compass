@@ -35,7 +35,7 @@ Templates:
             if (type === '_integer' || type === '_long' || type === '_decimal') {
                 return `${literal}d`;
             }
-            return `new Double(${literal})`;
+            return `(double) ${literal}`;
         }
     LongBasicTypeTemplate: &LongBasicTypeTemplate !!js/function >
         (literal, type) => {
@@ -93,7 +93,7 @@ Templates:
             if (type === '_integer' || type === '_long' || type === '_decimal') {
                 return `${literal}d`;
             }
-            return `new Double(${literal})`;
+            return `(double) ${literal}`;
         }
     DoubleTypeArgsTemplate: &DoubleTypeArgsTemplate !!js/function >
         () => {
@@ -578,7 +578,7 @@ Templates:
             if (type === '_integer' || type === '_long' || type === '_double' || type === '_decimal') {
                 return `${arg}d`;
             }
-            return `new Double(${arg})`;
+            return `(double) ${arg}`;
         }
     Int32SymbolTemplate: &Int32SymbolTemplate !!js/function >
         () => {
@@ -596,7 +596,7 @@ Templates:
                 }
                 return arg;
             }
-            return `new Integer(${arg})`;
+            return `(int) ${arg}`;
         }
     LongSymbolTemplate: &LongSymbolTemplate !!js/function >
         () => {
@@ -738,7 +738,7 @@ Templates:
             if (type === '_integer' || type === '_long' || type === '_decimal') {
                 return `${arg}d`;
             }
-            return `new Double(${arg})`;
+            return `(double) ${arg}`;
         }
     DateSymbolTemplate: &DateSymbolTemplate null
     DateSymbolArgsTemplate: &DateSymbolArgsTemplate null

@@ -412,6 +412,15 @@ class Visitor extends ECMAScriptVisitor {
     for (let i = 0; i < expectedType.length; i++) {
       if (numericTypes.indexOf(actualCtx.type) !== -1 &&
         numericTypes.indexOf(expectedType[i]) !== -1) {
+        // Need to interpret octal always
+        if (actualCtx.type.id === '_octal') {
+          const node = {
+            type: expectedType[i],
+            originalType: actualCtx.type.id,
+            children: [ actualCtx ]
+          };
+          return this.visitLiteralExpression(node);
+        }
         actualCtx.originalType = actualCtx.type;
         actualCtx.type = expectedType[i];
         return this.visit(originalCtx);

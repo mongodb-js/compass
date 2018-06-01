@@ -123,7 +123,7 @@ describe('CodeGeneration helper functions', () => {
         'TestFunc(10, 10.01, 0x6, 0o5, -10)'
       );
       expect(compiler.start(str)).to.equal(
-        'TestFunc(10L, new Long(10.01), new Long(0x6), new Long(0o5), -10L)'
+        'TestFunc(10L, new Long(10.01), new Long(0x6), new Long(05), -10L)'
       );
     });
     it('casts to integer by keeping original value', () => {
@@ -138,7 +138,7 @@ describe('CodeGeneration helper functions', () => {
         'TestFunc(10, 10.01, 0x6, 0o5, -10)'
       );
       expect(compiler.start(str)).to.equal(
-        'TestFunc(10, 10.01, 0x6, 0o5, -10)'
+        'TestFunc(10, 10.01, 0x6, 05, -10)'
       );
     });
     it('casts long, dec, hex, octal, and Number to decimal', () => {
@@ -153,7 +153,7 @@ describe('CodeGeneration helper functions', () => {
         'TestFunc(10, 10.01, 0x6, 0o5, -10)'
       );
       expect(compiler.start(str)).to.equal(
-        'TestFunc(10d, 10.01d, new Double(0x6), new Double(0o5), -10d)'
+        'TestFunc(10d, 10.01d, (double) 0x6, (double) 05, -10d)'
       );
     });
     it('casts long, dec, hex, octal, and Number to hex', () => {
@@ -166,7 +166,7 @@ describe('CodeGeneration helper functions', () => {
       ];
       const str = getTree('TestFunc(10, 10.01, 0x6, 0o5, -10)');
       expect(compiler.start(str)).to.equal(
-        'TestFunc(10, 10.01, 0x6, 0o5, -10)'
+        'TestFunc(10, 10.01, 0x6, 05, -10)'
       );
     });
     it('casts long, dec, hex, octal, and Number to octal', () => {
