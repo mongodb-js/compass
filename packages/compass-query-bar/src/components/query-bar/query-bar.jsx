@@ -104,7 +104,7 @@ class QueryBar extends Component {
   componentDidMount() {
     this._renderShowQueryHistoryButton = noop;
 
-    if (global.hadronApp.appRegistry) { // Unit tests don't have appRegistry
+    if (global.hadronApp && global.hadronApp.appRegistry) { // Unit tests don't have appRegistry
       this._renderShowQueryHistoryButton = global.hadronApp.appRegistry.getComponent('QueryHistory.ShowQueryHistoryButton');
       this.QueryHistoryActions = global.hadronApp.appRegistry.getAction('QueryHistory.Actions');
 

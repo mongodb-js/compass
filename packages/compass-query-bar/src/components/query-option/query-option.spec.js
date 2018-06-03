@@ -33,7 +33,7 @@ const inputTypeTests = [
   { inputType: 'boolean', label: 'sort', expected: { inputRenderFunc: '_renderAutoCompleteInput', type: CodeMirror } }
 ];
 
-describe('OptionsToggle [Component]', function() {
+describe('QueryOption [Component]', function() {
   let validationFuncStub;
   let onChangeStub;
 

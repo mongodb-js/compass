@@ -79,8 +79,10 @@ class QueryOption extends Component {
       }
     }
 
-    const queryActions = global.hadronApp.appRegistry.getAction('Query.Actions');
-    this.unsubscribeRefresh = queryActions.refreshCodeMirror.listen(this.refresh);
+    if (global.hadronApp && global.hadronApp.appRegistry) {
+      const queryActions = global.hadronApp.appRegistry.getAction('Query.Actions');
+      this.unsubscribeRefresh = queryActions.refreshCodeMirror.listen(this.refresh);
+    }
   }
 
   componentWillUnmount() {
