@@ -139,8 +139,11 @@
     "webpack-sources": "1.0.1"
   },
   "dependencies": {
-    "codemirror-mongodb": "^0.10.3",
+    "mongodb-ace-autocompleter": "^0.0.11",
+    "mongodb-ace-mode": "^0.0.1",
+    "mongodb-ace-theme": "^0.0.1",
     "mongodb-query-parser": "^1.0.1",
-    "mongodb-query-util": "0.0.1"
+    "mongodb-query-util": "0.0.1",
+    "react-ace": "^5.7.0"
   }
 }

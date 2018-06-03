@@ -9,9 +9,6 @@ import QueryBarPlugin, { activate } from 'plugin';
 // of global styles. If you are wishing to style a given component, you should be writing a less file per
 // component as per the CSS Modules ICSS spec. @see src/components/toggle-button for an example.
 import 'bootstrap/less/bootstrap.less';
-import 'codemirror/lib/codemirror.css';
-import 'codemirror/addon/hint/show-hint.css';
-import 'codemirror-mongodb/theme.css';
 import 'less/index.less';
 
 const appRegistry = new AppRegistry();

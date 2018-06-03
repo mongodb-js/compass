@@ -1,43 +1,29 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
+import AceEditor from 'react-ace';
+import ace from 'brace';
+import { QueryAutoCompleter } from 'mongodb-ace-autocompleter';
 import classnames from 'classnames';
-import CodeMirror from 'components/codemirror';
-import CM from 'codemirror';
 import { InfoSprinkle } from 'hadron-react-components';
 import { shell } from 'electron';
 
 import styles from './query-option.less';
 
-// Add the mongodb hint to codemirror
-require('codemirror-mongodb/addon/hint/mongodb-hint');
-
-const debug = require('debug')('monngodb-compass:query:component:query-option');
-
-/**
- * Key codes that should not trigger autocomplete.
- *  8: BACKSPACE
- *  13: ENTER
- *  27: ESC
- *  37: Left Arrow
- *  39: Right Arrow
- */
-const NO_TRIGGER = [ 8, 13, 27, 37, 39 ];
+import 'brace/ext/language_tools';
+import 'mongodb-ace-mode';
+import 'mongodb-ace-theme';
 
 /**
- * The common autocomplete function.
- *
- * @param {CodeMirror} code - The codemirror instance.
- * @param {Event} evt - The event.
+ * Options for the ACE editor.
  */
-const autocomplete = (code, evt) => {
-  if (!code.state.completionActive) {
-    if (!NO_TRIGGER.includes(evt.keyCode)) {
-      CM.commands.autocomplete(code);
-    }
-    if (evt.keyCode === 13) {
-      // Submit.
-    }
-  }
+const OPTIONS = {
+  enableLiveAutocompletion: true,
+  tabSize: 2,
+  fontSize: 11,
+  minLines: 1,
+  maxLines: Infinity,
+  showGutter: false,
+  useWorker: false
 };
 
 class QueryOption extends Component {
@@ -64,88 +50,34 @@ class QueryOption extends Component {
     schemaFields: {}
   };
 
-  componentDidMount() {
-    const cm = this.refs.codemirror;
-
-    if (cm) {
-      /**
-       * Set the id on the underlying `<textarea />` used by react-codemirror
-       * so the functional tests can read values from it.
-       */
-      cm.textareaNode.id = `querybar-option-input-${this.props.label}`;
-      if (cm.codeMirror) {
-        cm.codeMirror.on('keyup', autocomplete);
-        cm.codeMirror.on('focus', this.onFocus);
-      }
-    }
-
-    if (global.hadronApp && global.hadronApp.appRegistry) {
-      const queryActions = global.hadronApp.appRegistry.getAction('Query.Actions');
-      this.unsubscribeRefresh = queryActions.refreshCodeMirror.listen(this.refresh);
-    }
+  /**
+   * Set up the autocompleters once on initialization.
+   *
+   * @param {Object} props - The properties.
+   */
+  constructor(props) {
+    super(props);
+    const tools = ace.acequire('ace/ext/language_tools');
+    const textCompleter = tools.textCompleter;
+    this.completer = new QueryAutoCompleter('3.6.0', textCompleter, this.props.schemaFields);
+    tools.setCompleters([ this.completer ]);
   }
-
-  componentWillUnmount() {
-    const cm = this.refs.codemirror;
-    this.unsubscribeRefresh();
-
-    if (cm && cm.codeMirror) {
-      cm.codeMirror.off('keyup', autocomplete);
-    }
-  }
-
-  onFocus = (code) => {
-    if (this.props.autoPopulated) {
-      code.setCursor(1, -1);
-    }
-  };
 
   /**
-   * Listen for codemirror input change events. Bubble them up to `onChange(evt)`
-   * using a `CustomEvent` so autocomplete enabled inputs look just like simple
-   * text inputs to the outside world.
+   * Update the autocompleter fields and stage operator.
    *
-   * @param {String} newCode The updated value of the underlying textarea.
-   * @param {object} change A codemirror change object.
-   * @api private
-   *
-   * @example
-   * ```javascript
-   * // If I start typing in a query filter,
-   * // then request autocompletion {█},
-   * // then select `custom_attributes.app_name` from the popover list,
-   * // then `applyChangeFromCodeMirror()` will be called with:
-   * var code = "{'custom_attributes.app_name'}"
-   * var change = {
-   *   origin: 'complete',
-   *   text: [
-   *    "'custom_attributes.app_name'"
-   *   ],
-   *   removed: [""]
-   * }
-   * ```
+   * @param {Object} nextProps - The new properties.
    */
-  applyChangeFromCodeMirror = (newCode, change) => {
-    if (change && change.origin === 'complete') {
-      debug('Autocomplete used for `%s`', change.text[0]);
-      /**
-       * TODO (@imlucas) Record autocomplete usage as a metric!
-       */
-    }
+  // componentWillReceiveProps(nextProps) {
+    // this.completer.update(nextProps.schemaFields);
+  // }
 
+  onChangeQuery = (newCode) => {
     this.props.onChange({
       target: {
         value: newCode
       }
     });
-  };
-
-  refresh = () => {
-    const { codemirror } = this.refs;
-
-    if (codemirror) {
-      codemirror.codeMirror.refresh();
-    }
   };
 
   _getInnerClassName() {
@@ -175,37 +107,19 @@ class QueryOption extends Component {
   }
 
   _renderAutoCompleteInput() {
-    const options = {
-      lineNumbers: false,
-      scrollbarStyle: 'null',
-      mode: 'javascript',
-      autoCloseBrackets: true,
-      autoRefresh: true,
-      placeholder: this.props.placeholder,
-      matchBrackets: true,
-      theme: 'mongodb',
-      extraKeys: {
-        'Ctrl-Space': 'autocomplete',
-        '$': 'autocomplete'
-      },
-      oneliner: true,
-      mongodb: {
-        fields: this.props.schemaFields,
-        fuzzy: false,
-        input: this.props.label
-      }
-    };
-
     return (
-      <CodeMirror
-        data-test-id="query-bar-option-input"
-        addons={[ 'display/placeholder' ]}
-        className={this._getInnerClassName()}
-        ref="codemirror"
+      <AceEditor
+        mode="mongodb"
+        theme="mongodb"
+        width="100%"
         value={this.props.value}
-        onChange={this.applyChangeFromCodeMirror}
-        options={options}
-      />
+        onChange={this.onChangeQuery}
+        editorProps={{ $blockScrolling: Infinity }}
+        name={`query-bar-option-input-${this.props.label}`}
+        setOptions={OPTIONS}
+        onLoad={(editor) => {
+          this.editor = editor;
+        }} />
     );
   }
 
@@ -248,10 +162,7 @@ class QueryOption extends Component {
         <div
           className={classnames(styles.label)}
           data-test-id="query-bar-option-label">
-          <InfoSprinkle
-            helpLink={link}
-            onClickHandler={shell.openExternal}
-          />
+          <InfoSprinkle helpLink={link} onClickHandler={shell.openExternal} />
           {label}
         </div>
         {input}
