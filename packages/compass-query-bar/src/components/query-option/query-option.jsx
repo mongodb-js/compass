@@ -19,6 +19,7 @@ import 'mongodb-ace-theme';
 const OPTIONS = {
   enableLiveAutocompletion: true,
   tabSize: 2,
+  useSoftTabs: true,
   fontSize: 11,
   minLines: 1,
   maxLines: 1,
@@ -50,6 +51,11 @@ class QueryOption extends Component {
     hasToggle: false,
     schemaFields: {}
   };
+
+  // shouldComponentUpdate(nextProps) {
+    // return this.props.value !== nextProps.value ||
+      // this.props.hasError !== nextProps.hasError;
+  // }
 
   /**
    * Set up the autocompleters once on initialization.
