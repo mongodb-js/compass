@@ -9,6 +9,7 @@
 import assert from 'assert';
 import { QueryBarStore } from 'stores';
 import AppRegistry from 'hadron-app-registry';
+import app from 'hadron-app';
 
 import {
   DEFAULT_FILTER,
@@ -22,12 +23,18 @@ import {
 } from 'constants/query-bar-store';
 
 describe('QueryBarStore [Store]', function() {
+  global.hadronApp = app;
   const registry = new AppRegistry();
   let unsubscribe;
 
   before(function() {
+    global.hadronApp.appRegistry = registry;
     registry.registerStore('QueryBarStore', QueryBarStore);
     registry.onActivated();
+  });
+
+  after(function() {
+    global.hadronApp.appRegistry = null;
   });
 
   beforeEach(function() {
