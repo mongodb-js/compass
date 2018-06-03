@@ -21,7 +21,8 @@ const OPTIONS = {
   tabSize: 2,
   fontSize: 11,
   minLines: 1,
-  maxLines: Infinity,
+  maxLines: 1,
+  hightlightActiveLine: false,
   showGutter: false,
   useWorker: false
 };
@@ -119,6 +120,15 @@ class QueryOption extends Component {
         setOptions={OPTIONS}
         onLoad={(editor) => {
           this.editor = editor;
+          this.editor.commands.addCommand({
+            name: 'executeQuery',
+            bindKey: {
+              win: 'Enter', mac: 'Enter'
+            },
+            exec: () => {
+              // @todo: Durran: Execute the query.
+            }
+          });
         }} />
     );
   }
