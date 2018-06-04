@@ -24,7 +24,3 @@ before_script:
   - sh -e /etc/init.d/xvfb start
   - npm run check
 script: npm run test
-cache:
-  directories:
-    - $HOME/.electron
-    - node_modules
