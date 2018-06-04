@@ -31,7 +31,7 @@
     "hadron-react-components": "^2.0.0",
     "prop-types": "^15.5.8",
     "react": "^16.3.2",
-    "react-bootstrap": "0.31.0",
+    "react-bootstrap": "^0.32.1",
     "react-tooltip": "^3.2.6"
   },
   "devDependencies": {
@@ -109,7 +109,7 @@
     "pre-commit": "^1.1.3",
     "prop-types": "^15.5.8",
     "react": "^16.3.2",
-    "react-bootstrap": "0.31.0",
+    "react-bootstrap": "^0.32.1",
     "react-dom": "^16.3.2",
     "react-fontawesome": "^1.6.1",
     "react-hot-loader": "^4.1.0",
