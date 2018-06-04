@@ -121,7 +121,7 @@ module.exports = (superclass) => class ExtendedVisitor extends superclass {
     // we need to return a string if just the Date() gets called
     if (!ctx.wasNew && this.visit(ctx.singleExpression()) !== 'ISODate') {
       ctx.type = this.Types._string;
-      toStr = '.ToString()';
+      toStr = '.ToString("ddd MMM dd yyyy HH\':\'mm\':\'ss UTC")';
     }
 
     // it's just the now time if there are no args

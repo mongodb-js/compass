@@ -24,7 +24,7 @@
         "javascript": "new Number(2)",
         "python": "2",
         "java": "2d",
-        "csharp": "(int)2",
+        "csharp": "(int) 2",
         "shell": "new Number(2)"
       },
       {
@@ -204,7 +204,7 @@
         "javascript": "Date('December 17, 1995 03:24:00Z')",
         "python": "datetime.datetime(1995, 12, 17, 3, 24, 0, tzinfo=datetime.timezone.utc).strftime('%a %b %d %Y %H:%M:%S %Z')",
         "java": "new SimpleDateFormat(\"EEE MMMMM dd yyyy HH:mm:ss\").format(new java.util.Date(819170640000L))",
-        "csharp": "new DateTime(1995, 12, 17, 3, 24, 0).ToString()",
+        "csharp": "new DateTime(1995, 12, 17, 3, 24, 0).ToString(\"ddd MMM dd yyyy HH':'mm':'ss UTC\")",
         "shell": "Date('Sun, 17 Dec 1995 03:24:00 GMT')"
       },
       {
@@ -212,7 +212,7 @@
         "javascript": "Date(819167040000)",
         "python": "datetime.datetime(1995, 12, 17, 2, 24, 0, tzinfo=datetime.timezone.utc).strftime('%a %b %d %Y %H:%M:%S %Z')",
         "java": "new SimpleDateFormat(\"EEE MMMMM dd yyyy HH:mm:ss\").format(new java.util.Date(819167040000L))",
-        "csharp": "new DateTime(1995, 12, 17, 2, 24, 0).ToString()",
+        "csharp": "new DateTime(1995, 12, 17, 2, 24, 0).ToString(\"ddd MMM dd yyyy HH':'mm':'ss UTC\")",
         "shell": "Date('Sun, 17 Dec 1995 02:24:00 GMT')"
       },
       {
@@ -220,7 +220,7 @@
         "javascript": "Date()",
         "python": "datetime.datetime.utcnow().strftime('%a %b %d %Y %H:%M:%S %Z')",
         "java": "new SimpleDateFormat(\"EEE MMMMM dd yyyy HH:mm:ss\").format(new java.util.Date())",
-        "csharp": "DateTime.Now.ToString()",
+        "csharp": "DateTime.Now.ToString(\"ddd MMM dd yyyy HH':'mm':'ss UTC\")",
         "shell": "Date()"
       },
       {
@@ -228,7 +228,7 @@
         "javascript": "Date(1995, 11, 17)",
         "python": "datetime.datetime(1995, 12, 17, 0, 0, 0, tzinfo=datetime.timezone.utc).strftime('%a %b %d %Y %H:%M:%S %Z')",
         "java": "new SimpleDateFormat(\"EEE MMMMM dd yyyy HH:mm:ss\").format(new java.util.Date(819158400000L))",
-        "csharp": "new DateTime(1995, 12, 17, 0, 0, 0).ToString()",
+        "csharp": "new DateTime(1995, 12, 17, 0, 0, 0).ToString(\"ddd MMM dd yyyy HH':'mm':'ss UTC\")",
         "shell": "Date('Sun, 17 Dec 1995 00:00:00 GMT')"
       },
       {
@@ -236,7 +236,7 @@
         "javascript": "Date(1995, 11, 17, 3, 24, 0)",
         "python": "datetime.datetime(1995, 12, 17, 3, 24, 0, tzinfo=datetime.timezone.utc).strftime('%a %b %d %Y %H:%M:%S %Z')",
         "java": "new SimpleDateFormat(\"EEE MMMMM dd yyyy HH:mm:ss\").format(new java.util.Date(819170640000L))",
-        "csharp": "new DateTime(1995, 12, 17, 3, 24, 0).ToString()",
+        "csharp": "new DateTime(1995, 12, 17, 3, 24, 0).ToString(\"ddd MMM dd yyyy HH':'mm':'ss UTC\")",
         "shell": "Date('Sun, 17 Dec 1995 03:24:00 GMT')"
       },
       {

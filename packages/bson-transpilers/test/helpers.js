@@ -17,9 +17,7 @@ const unsupported = {
       java: {},
       javascript: {},
       python: {},
-      csharp: {
-        'language-types': [ '*' ]
-      }
+      csharp: {}
     }
   },
   error: {

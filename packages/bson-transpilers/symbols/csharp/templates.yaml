@@ -768,7 +768,7 @@ Templates:
               return `int.Parse(${arg})`;
             }
 
-            return `(int)${arg}`;
+            return `(int) ${arg}`;
         }
     DateSymbolTemplate: &DateSymbolTemplate null # Has emit method
     DateSymbolArgsTemplate: &DateSymbolArgsTemplate null # Has emit method
