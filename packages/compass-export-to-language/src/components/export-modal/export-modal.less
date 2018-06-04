@@ -7,9 +7,50 @@
     padding: 10px;
   }
 
-  &-error {
-    margin-top: 10px;
-    padding: 10px;
+  &-headers {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+
+    > * {
+      display: flex;
+      align-items: center;
+      padding-bottom: 10px;
+    }
+
+    &-output {
+      padding-left: 10px;
+      width: 50%;
+      display: flex;
+      > * {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      &-select {
+        display: flex;
+        flex-grow: 0.5;
+        align-items: center;
+        justify-content: center;
+        flex-direction: column;
+        text-transform: uppercase;
+        font-size: 12px;
+        line-height: 18px;
+        font-weight: 600;
+        z-index: 100;
+      }
+
+      &-title {
+        padding: 10px 10px 0 0;
+      }
+    }
+    &-input {
+      padding-right: 10px;
+      padding-top: 10px;
+      width: 50%;
+    }
+
   }
 
   &-query {
@@ -18,65 +59,26 @@
     justify-content: space-between;
 
     &-input {
+      flex-basis: 0;
+      flex: 1 1 0;
       width: 50%;
       padding-right: 10px;
 
-      &-editor{
-        padding: 10px 0;
-        overflow-x: hidden;
-        overflow-y: hidden;
-        background: #f5f6f7;
-        border-radius: 3px;
-        border-left: 2px solid #E4E4E4;
-
-        &-error {
-          padding: 10px 0;
-          overflow: hidden;
-          background: #f5f6f7;
-          border-radius: 3px;
-          border: 1px solid #ff473a;
-        }
+      &-error {
+        margin-top: 10px;
+        padding: 10px;
       }
     }
 
     &-output {
+      flex-basis: 0;
+      flex: 1 1 0;
       width: 50%;
       padding-left: 10px;
 
-      &-export {
+      &-editor-wrapper {
         display: flex;
-        flex-direction: row;
 
-        &-text {
-          padding-right: 10px;
-          display: flex;
-          flex-grow: 0.005;
-          align-items: center;
-          flex-direction: column;
-          justify-content: center;
-        }
-
-        &-select {
-          display: flex;
-          flex-grow: 0.25;
-          align-items: center;
-          justify-content: center;
-          flex-direction: column;
-          text-transform: uppercase;
-          font-size: 12px;
-          line-height: 18px;
-          font-weight: 600;
-          z-index: 100;
-        }
-      }
-
-      &-editor{
-        padding: 10px 0;
-        overflow: hidden;
-        background: #f5f6f7;
-        border-radius: 3px;
-        border-left: 2px solid #E4E4E4;
-        display: flex;
         &-copy {
           font-size: 12px;
           text-transform: capitalize;
@@ -84,20 +86,6 @@
           margin-right: 15px;
         }
       }
-
-      &-return {
-        flex: 3 0 0;
-        height: 33px;
-        margin-left: 10px;
-        padding: 6px 12px;
-        border: 1px solid #ccc;
-        border-radius: 4px;
-        box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075);
-      } 
     }
   }
-}
-
-.Select-control {
-  height: 25px;
 }

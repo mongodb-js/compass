@@ -12,11 +12,11 @@ class ExportToLanguage extends Component {
    * @returns {React.Component} The rendered component.
    */
   render() {
-    const inputQuery = `{ $group : { _id : null, totalPrice: { $sum: { $multiply: [ "$price", "$quantity" ]  } } } }`
+    const inputQuery = '{ "$group" : { "_id": null, "totalPrice": { "$sum": { "$multiply": [ "$price", "$quantity" ]  } } } }';
 
     return (
-      <div>
-        <ExportModal {...this.props} inputQuery={inputQuery} />
+      <div data-test-id="export-to-language">
+        <ExportModal {...this.props} inputQuery={inputQuery}/>
       </div>
     );
   }

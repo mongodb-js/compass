@@ -23,7 +23,7 @@ function getClearCopy(state, action) {
 }
 
 function copyToClipboard(state, action) {
-  let el = document.createElement('input');
+  const el = document.createElement('input');
   el.type = 'text';
   el.setAttribute('styles', 'display: none;');
   el.value = action.input;

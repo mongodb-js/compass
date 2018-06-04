@@ -21,7 +21,8 @@
     "link-plugin": "./scripts/link.sh",
     "unlink-plugin": "./scripts/unlink.sh",
     "prepublish": "npm run compile",
-    "storybook": "start-storybook -p 9001 -c .storybook"
+    "storybook": "start-storybook -p 9001 -c .storybook",
+    "precommit": [ "check" ]
   },
   "license": "Apache-2.0",
   "peerDependencies": {

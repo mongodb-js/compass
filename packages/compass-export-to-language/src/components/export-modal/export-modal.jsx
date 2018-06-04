@@ -1,29 +1,12 @@
 import { TextButton } from 'hadron-react-buttons';
-import SelectLang from 'components/select-lang';
 import { Modal, Alert } from 'react-bootstrap';
 import React, { Component } from 'react';
 import Select from 'react-select-plus';
+import Editor from 'components/editor';
 import classnames from 'classnames';
 import PropTypes from 'prop-types';
-import AceEditor from 'react-ace';
-
-import 'brace/mode/javascript';
-import 'mongodb-ace-theme';
 
 import styles from './export-modal.less';
-
-const OPTIONS = {
-  tabSize: 2,
-  fontSize: 11,
-  minLines: 5,
-  maxLines: Infinity,
-  showGutter: true,
-  focus: false,
-  readOnly: true,
-  highlightActiveLine: false,
-  highlightGutterLine: false,
-  useWorker: false
-};
 
 class ExportModal extends Component {
   static displayName = 'ExportModalComponent';
@@ -37,7 +20,10 @@ class ExportModal extends Component {
 
   // store the current query in state before we pass it to reducer
   state = {
-    outputLang: ''
+    outputLang: {
+      value: '',
+      label: ''
+    }
   }
 
   // save state, and pass in the currently selected lang
@@ -59,22 +45,18 @@ class ExportModal extends Component {
       { value: 'python', label: 'Python 3' }
     ];
 
-    const copyButtonStyle = classnames({
-      'btn': true,
-      'btn-sm': true,
-      'btn-default': true,
-      [ styles['export-to-lang-form-query-output-editor-copy'] ]: true
-    });
-
-    const queryStyle = this.props.exportQuery.queryError
-      ? classnames(styles['export-to-lang-form-query-error'])
-      : classnames(styles['export-to-lang-form-query-input-editor']);
+    // const copyButtonStyle = classnames({
+    //   'btn': true,
+    //   'btn-sm': true,
+    //   'btn-default': true,
+    //   [ styles['export-to-lang-form-query-output-editor-copy'] ]: true
+    // });
 
     const outputLang = this.state.outputLang;
     const selectedOutputValue = outputLang && outputLang.value;
 
     const errorDiv = this.props.exportQuery.queryError
-      ? <Alert bsStyle="danger" className={classnames(styles['export-to-lang-form-error'])} children={this.props.exportQuery.queryError}/>
+      ? <Alert bsStyle="danger" className={classnames(styles['export-to-lang-form-query-input-error'])} children={this.props.exportQuery.queryError}/>
       : '';
 
     return (
@@ -90,56 +72,34 @@ class ExportModal extends Component {
         </Modal.Header>
 
         <Modal.Body>
-          <form name="export-to-lang-form"
-              data-test-id="export-to-lang"
-              className="export-to-lang-form"
-            >
+          <form name="export-to-lang-form" data-test-id="export-to-lang" className="export-to-lang-form">
             <div className="form-group">
               <Alert
                 className={classnames(styles['export-to-lang-form-alert'])}
                 children="PROJECT, SORT, SKIP, LIMIT options are not included as part of the exported query."/>
             </div>
+            <div className={classnames(styles['export-to-lang-form-headers'])}>
+              <p className={classnames(styles['export-tolang-form-headers-input'])}>My Query</p>
+              <div className={classnames(styles['export-to-lang-form-headers-output'])}>
+                <p className={classnames(styles['export-to-lang-form-headers-output-title'])}>Export Query To:</p>
+                <Select
+                  name="export-to-lang-form-query-output-select"
+                  className={classnames(styles['export-to-lang-form-headers-output-select'])}
+                  searchable={false}
+                  clearable={false}
+                  placeholder="Java"
+                  value={selectedOutputValue}
+                  onChange={this.handleOutputSelect}
+                  options={langOuputOptions}/>
+              </div>
+            </div>
             <div className={classnames(styles['export-to-lang-form-query'])}>
               <div className={classnames(styles['export-to-lang-form-query-input'])}>
-                <p>My Query</p>
-                <div className={queryStyle}>
-                  <AceEditor
-                    mode="javascript"
-                    theme="mongodb"
-                    value={this.props.inputQuery}
-                    width="100%"
-                    editorProps={{$blockScrolling: Infinity}}
-                    setOptions={OPTIONS}/>
-                </div>
+                <Editor outputQuery={this.props.exportQuery.returnQuery} queryError={this.props.exportQuery.queryError} outputLang={this.state.outputLang.value} inputQuery={this.props.inputQuery} input/>
                 {errorDiv}
               </div>
               <div className={classnames(styles['export-to-lang-form-query-output'])}>
-                <div className={classnames(styles['export-to-lang-form-query-output-export'])}>
-                  <p className={classnames(styles['export-to-lang-form-query-output-export-text'])}>Export Query To</p>
-                  <Select
-                    name="export-to-lang-form-query-output-select"
-                    className={classnames(styles['export-to-lang-form-query-output-export-select'])}
-                    searchable={false}
-                    clearable={false}
-                    placeholder="Java"
-                    value={selectedOutputValue}
-                    onChange={this.handleOutputSelect}
-                    options={langOuputOptions}/>
-                </div>
-                <div className={classnames(styles['export-to-lang-form-query-output-editor'])}>
-                  <AceEditor
-                    mode="javascript"
-                    theme="mongodb"
-                    id="export-to-lang-output"
-                    value={this.props.exportQuery.returnQuery}
-                    width="100%"
-                    editorProps={{$blockScrolling: Infinity}}
-                    setOptions={OPTIONS}/>
-                  <TextButton
-                    className={copyButtonStyle}
-                    text="Copy"
-                    clickHandler={this.copyHandler}/>
-                </div> 
+                <Editor outputQuery={this.props.exportQuery.returnQuery} queryError={this.props.exportQuery.queryError} outputLang={this.state.outputLang.value} inputQuery={this.props.inputQuery}/>
               </div>
             </div>
           </form>

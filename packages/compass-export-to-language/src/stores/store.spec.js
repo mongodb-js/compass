@@ -1,7 +1,14 @@
 import store from 'stores';
 
-describe('ExportToLanguageStore [Store]', () => {
-  it('should have an initial state of export Query', () => {
-    expect()
+describe('ExportToLanguage Store', () => {
+  describe('initial store state', () => {
+    expect(store.getState()).to.deep.equal({
+      exportQuery: {
+        copySuccess: '',
+        returnQuery: '',
+        queryError: null,
+        copyError: null
+      }
+    });
   });
 });
