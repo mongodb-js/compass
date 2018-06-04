@@ -162,7 +162,7 @@
         "javascript": "Long(1, 100).toInt()",
         "python": "int(Int64(429496729601))",
         "java": "(int) 429496729601L",
-        "csharp": "Convert.ToInt32(429496729601L)",
+        "csharp": "(int) 429496729601L",
         "shell": "NumberLong(429496729601).valueOf()"
       },
       {
@@ -170,7 +170,7 @@
         "javascript": "Long(1, 100).toNumber()",
         "python": "float(Int64(429496729601))",
         "java": "(double) 429496729601L",
-        "csharp": "429496729601L",
+        "csharp": "(double) 429496729601L",
         "shell": "NumberLong(429496729601).floatApprox"
       },
       {

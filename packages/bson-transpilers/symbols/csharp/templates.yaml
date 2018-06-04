@@ -134,22 +134,34 @@ Templates:
         (lhs) => {
           return `${lhs}.SubType`;
         }
-    BinarySubtypeArgsTemplate: &BinarySubtypeArgsTemplate null
+    BinarySubtypeArgsTemplate: &BinarySubtypeArgsTemplate !!js/function >
+        () => {
+          return '';
+        }
     DBRefGetDBTemplate: &DBRefGetDBTemplate !!js/function >
         (lhs) => {
           return `${lhs}.DatabaseName`;
         }
-    DBRefGetDBArgsTemplate: &DBRefGetDBArgsTemplate null
+    DBRefGetDBArgsTemplate: &DBRefGetDBArgsTemplate !!js/function >
+        () => {
+          return '';
+        }
     DBRefGetCollectionTemplate: &DBRefGetCollectionTemplate !!js/function >
         (lhs) => {
             return `${lhs}.CollectionName`;
         }
-    DBRefGetCollectionArgsTemplate: &DBRefGetCollectionArgsTemplate null
+    DBRefGetCollectionArgsTemplate: &DBRefGetCollectionArgsTemplate !!js/function >
+        () => {
+          return '';
+        }
     DBRefGetIdTemplate: &DBRefGetIdTemplate !!js/function >
         (lhs) => {
             return `${lhs}.Id`;
         }
-    DBRefGetIdArgsTemplate: &DBRefGetIdArgsTemplate null
+    DBRefGetIdArgsTemplate: &DBRefGetIdArgsTemplate !!js/function >
+        () => {
+          return '';
+        }
     DBRefToStringTemplate: &DBRefToStringTemplate !!js/function >
         (lhs) => {
           return `${lhs}.ToString`;
@@ -171,7 +183,10 @@ Templates:
         (lhs) => {
             return '';
         }
-    Int32ToStringTemplate: &Int32ToStringTemplate null
+    Int32ToStringTemplate: &Int32ToStringTemplate !!js/function >
+        (lhs) => {
+            return `${lhs}.ToString`;
+        }
     Int32ToStringArgsTemplate: &Int32ToStringArgsTemplate null
     LongEqualsTemplate: &LongEqualsTemplate !!js/function >
         (lhs) => {
@@ -183,7 +198,7 @@ Templates:
         }
     LongToIntTemplate: &LongToIntTemplate !!js/function >
         (lhs) => {
-            return `Convert.ToInt32(${lhs})`;
+            return `(int) ${lhs}`;
         }
     LongToIntArgsTemplate: &LongToIntArgsTemplate !!js/function >
         () => {
@@ -191,7 +206,7 @@ Templates:
         }
     LongValueOfTemplate: &LongValueOfTemplate !!js/function >
         (lhs) => {
-            return `${lhs}`;
+            return `(int) ${lhs}`;
         }
     LongValueOfArgsTemplate: &LongValueOfArgsTemplate !!js/function >
         () => {
@@ -199,7 +214,7 @@ Templates:
         }
     LongToNumberTemplate: &LongToNumberTemplate !!js/function >
         (lhs) => {
-            return `${lhs}`;
+            return `(double) ${lhs}`;
         }
     LongToNumberArgsTemplate: &LongToNumberArgsTemplate !!js/function >
         () => {
@@ -373,9 +388,18 @@ Templates:
         (lhs, arg) => {
             return ` ${arg}`;
         }
-    LongFloatApproxTemplate: &LongFloatApproxTemplate null
-    LongTopTemplate: &LongTopTemplate null
-    LongBottomTemplate: &LongBottomTemplate null
+    LongFloatApproxTemplate: &LongFloatApproxTemplate !!js/function >
+        (lhs) => {
+            return `(float) ${lhs}`;
+        }
+    LongTopTemplate: &LongTopTemplate !!js/function >
+        (lhs) => {
+            return `${lhs} >> 32`;
+        }
+    LongBottomTemplate: &LongBottomTemplate !!js/function >
+        (lhs) => {
+           return `${lhs} & 0x0000ffff`;
+        }
     TimestampToStringTemplate: &TimestampToStringTemplate !!js/function >
         (lhs) => {
           return `${lhs}.ToString`;
@@ -399,8 +423,14 @@ Templates:
         (lhs) => {
             return `${lhs}.Increment`;
         }
-    TimestampTTemplate: &TimestampTTemplate null
-    TimestampITemplate: &TimestampITemplate null
+    TimestampTTemplate: &TimestampTTemplate !!js/function >
+        (lhs) => {
+            return `${lhs}.ToUniversalTime()`;
+        }
+    TimestampITemplate: &TimestampITemplate !!js/function >
+        (lhs) => {
+            return `${lhs}.Increment`;
+        }
     TimestampCompareTemplate: &TimestampCompareTemplate !!js/function >
         (lhs) => {
             return `${lhs}.CompareTo`;

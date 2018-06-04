@@ -6,7 +6,7 @@
         "javascript": "ObjectId.createFromTime(new Date())",
         "python": "ObjectId.from_datetime(datetime.datetime.utcnow())",
         "java": "new ObjectId(new java.util.Date())",
-        "csharp": "",
+        "csharp": "new ObjectId.GenerateNewId(DateTime.Now)",
         "shell": "ObjectId.fromDate(new Date())"
       }
     ]
