@@ -10,14 +10,14 @@ import styles from './pipeline-toolbar.less';
  * The toolbar component.
  */
 class PipelineToolbar extends PureComponent {
-  static displayName = 'ToolbarComponent';
+  static displayName = 'PipelineToolbarComponent';
 
   static propTypes = {
     savedPipelinesListToggle: PropTypes.func.isRequired,
     getSavedPipelines: PropTypes.func.isRequired,
     newPipeline: PropTypes.func.isRequired,
     clonePipeline: PropTypes.func.isRequired,
-    copyToClipboard: PropTypes.func.isRequired,
+    exportToLanguage: PropTypes.func.isRequired,
     saveCurrentPipeline: PropTypes.func.isRequired,
     savedPipeline: PropTypes.object.isRequired,
     nameChanged: PropTypes.func.isRequired,
@@ -42,7 +42,7 @@ class PipelineToolbar extends PureComponent {
           savedPipeline={this.props.savedPipeline}
           clonePipeline={this.props.clonePipeline}
           newPipeline={this.props.newPipeline}
-          copyToClipboard={this.props.copyToClipboard}
+          exportToLanguage={this.props.exportToLanguage}
           saveCurrentPipeline={this.props.saveCurrentPipeline}
           isValid={this.props.savedPipeline.isNameValid}
           nameChanged={this.props.nameChanged}

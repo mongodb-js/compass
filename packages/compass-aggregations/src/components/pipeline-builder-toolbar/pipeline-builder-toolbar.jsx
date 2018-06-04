@@ -16,7 +16,7 @@ class PipelineBuilderToolbar extends PureComponent {
     savedPipelinesListToggle: PropTypes.func.isRequired,
     getSavedPipelines: PropTypes.func.isRequired,
     savedPipeline: PropTypes.object.isRequired,
-    copyToClipboard: PropTypes.func.isRequired,
+    exportToLanguage: PropTypes.func.isRequired,
     newPipeline: PropTypes.func.isRequired,
     clonePipeline: PropTypes.func.isRequired,
     nameChanged: PropTypes.func.isRequired,
@@ -90,7 +90,7 @@ class PipelineBuilderToolbar extends PureComponent {
             <i className="mms-icon-ellipsis" aria-hidden />
           </Dropdown.Toggle>
           <Dropdown.Menu>
-            <MenuItem onClick={this.props.copyToClipboard}>Copy Pipeline to Clipboard</MenuItem>
+            <MenuItem onClick={this.props.exportToLanguage}>Export To Language</MenuItem>
             <MenuItem onClick={this.props.clonePipeline}>Clone Pipeline</MenuItem>
             <MenuItem onClick={this.props.newPipeline}>New Pipeline</MenuItem>
           </Dropdown.Menu>

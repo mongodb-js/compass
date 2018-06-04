@@ -8,7 +8,7 @@ describe('PipelineBuilderToolbar [Component]', () => {
   let component;
   let savedPipelinesListToggleSpy;
   let getSavedPipelinesSpy;
-  let copyToClipboardSpy;
+  let exportToLanguageSpy;
   let newPipelineSpy;
   let clonePipelineSpy;
   let nameChangedSpy;
@@ -18,7 +18,7 @@ describe('PipelineBuilderToolbar [Component]', () => {
   beforeEach(() => {
     savedPipelinesListToggleSpy = sinon.spy();
     getSavedPipelinesSpy = sinon.spy();
-    copyToClipboardSpy = sinon.spy();
+    exportToLanguageSpy = sinon.spy();
     newPipelineSpy = sinon.spy();
     clonePipelineSpy = sinon.spy();
     nameChangedSpy = sinon.spy();
@@ -37,7 +37,7 @@ describe('PipelineBuilderToolbar [Component]', () => {
         name=""
         isModified
         setIsModified={setIsModifiedSpy}
-        copyToClipboard={copyToClipboardSpy} />
+        exportToLanguage={exportToLanguageSpy} />
     );
   });
 
@@ -45,7 +45,7 @@ describe('PipelineBuilderToolbar [Component]', () => {
     component = null;
     savedPipelinesListToggleSpy = null;
     getSavedPipelinesSpy = null;
-    copyToClipboardSpy = null;
+    exportToLanguageSpy = null;
     newPipelineSpy = null;
     clonePipelineSpy = null;
     nameChangedSpy = null;

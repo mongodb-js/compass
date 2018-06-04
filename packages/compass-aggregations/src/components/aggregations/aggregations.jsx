@@ -7,7 +7,7 @@ import { nameChanged } from 'modules/name';
 import { toggleComments } from 'modules/comments';
 import { toggleInputDocumentsCollapsed } from 'modules/input-documents';
 
-import { copyToClipboard } from 'modules/clipboard';
+import { exportToLanguage } from 'modules/export-to-language';
 import { openLink } from 'modules/link';
 import {
   deletePipeline,
@@ -99,7 +99,7 @@ const MappedAggregations = connect(
     stageMoved,
     stageOperatorSelected,
     stageToggled,
-    copyToClipboard,
+    exportToLanguage,
     savedPipelinesListToggle,
     saveCurrentPipeline,
     savedPipelineAdd,

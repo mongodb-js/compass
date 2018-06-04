@@ -1,13 +1,13 @@
-import { copyToClipboard, generateClipboardText } from 'modules/clipboard';
+import { exportToLanguage, generateText } from 'modules/export-to-language';
 
-describe('clipboard module', () => {
-  describe('#copyToClipboard', () => {
-    it('returns the copy to clipboard thunk', () => {
-      expect(copyToClipboard()).to.be.a('function');
+describe('export-to-language module', () => {
+  describe('#exportToLanguage', () => {
+    it('returns the export to language thunk', () => {
+      expect(exportToLanguage()).to.be.a('function');
     });
   });
 
-  describe('#generateClipboardText', () => {
+  describe('#generateText', () => {
     context('when the stages are enabled', () => {
       const state = {
         pipeline: [{
@@ -18,7 +18,7 @@ describe('clipboard module', () => {
       };
 
       it('returns the generated text', () => {
-        expect(generateClipboardText(state)).to.equal('[{ $match: { name: "testing" } }]');
+        expect(generateText(state)).to.equal('[{ $match: { name: "testing" } }]');
       });
     });
 
@@ -33,7 +33,7 @@ describe('clipboard module', () => {
         };
 
         it('returns an empty array string', () => {
-          expect(generateClipboardText(state)).to.equal('[]');
+          expect(generateText(state)).to.equal('[]');
         });
       });
 
@@ -59,7 +59,7 @@ describe('clipboard module', () => {
         };
 
         it('does not include commas for disabled stages', () => {
-          expect(generateClipboardText(state)).to.equal('[{ $match: { name: "testing" } }]');
+          expect(generateText(state)).to.equal('[{ $match: { name: "testing" } }]');
         });
       });
     });
@@ -74,7 +74,7 @@ describe('clipboard module', () => {
       };
 
       it('returns an empty array string', () => {
-        expect(generateClipboardText(state)).to.equal('[]');
+        expect(generateText(state)).to.equal('[]');
       });
     });
 
@@ -95,7 +95,7 @@ describe('clipboard module', () => {
       };
 
       it('separates each stage with a comma', () => {
-        expect(generateClipboardText(state)).to.equal(
+        expect(generateText(state)).to.equal(
           '[{ $match: { name: "testing" } }, { $project: { name: 1 } }]'
         );
       });
