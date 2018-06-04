@@ -39,6 +39,7 @@ describe('StageBuilderToolbar [Component]', () => {
         stageToggled={stageToggledSpy}
         setIsModified={setIsModifiedSpy}
         openLink={openLinkSpy}
+        isCommenting
         stageDeleted={stageDeletedSpy} />
     );
   });

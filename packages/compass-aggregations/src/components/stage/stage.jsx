@@ -75,6 +75,7 @@ class Stage extends Component {
     connectDragSource: PropTypes.func.isRequired,
     connectDropTarget: PropTypes.func.isRequired,
     isDragging: PropTypes.bool.isRequired,
+    isCommenting: PropTypes.bool.isRequired,
     runStage: PropTypes.func.isRequired,
     runOutStage: PropTypes.func.isRequired,
     gotoOutResults: PropTypes.func.isRequired,
@@ -132,6 +133,7 @@ class Stage extends Component {
             openLink={this.props.openLink}
             stageDeleted={this.props.stageDeleted}
             runStage={this.props.runStage}
+            isCommenting={this.props.isCommenting}
             setIsModified={this.props.setIsModified}
             stageCollapseToggled={this.props.stageCollapseToggled} />
           {this.renderWorkspace()}

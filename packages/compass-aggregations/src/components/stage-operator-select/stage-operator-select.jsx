@@ -17,6 +17,7 @@ class StageOperatorSelect extends PureComponent {
     stageOperator: PropTypes.string,
     index: PropTypes.number.isRequired,
     isEnabled: PropTypes.bool.isRequired,
+    isCommenting: PropTypes.bool.isRequired,
     stageOperatorSelected: PropTypes.func.isRequired,
     serverVersion: PropTypes.string.isRequired,
     setIsModified: PropTypes.func.isRequired
@@ -28,7 +29,7 @@ class StageOperatorSelect extends PureComponent {
    * @param {String} name - The name of the stage operator.
    */
   onStageOperatorSelected = (name) => {
-    this.props.stageOperatorSelected(this.props.index, name);
+    this.props.stageOperatorSelected(this.props.index, name, this.props.isCommenting);
     this.props.setIsModified(true);
   }
 

@@ -18,6 +18,7 @@ describe('PipelineToolbar [Component]', () => {
   let copyToClipboardSpy;
   let saveSpy;
   let setIsModifiedSpy;
+  let toggleCommentsSpy;
 
   beforeEach(() => {
     savedPipelinesListToggleSpy = sinon.spy();
@@ -29,6 +30,7 @@ describe('PipelineToolbar [Component]', () => {
     nameChangedSpy = sinon.spy();
     saveSpy = sinon.spy();
     setIsModifiedSpy = sinon.spy();
+    toggleCommentsSpy = sinon.spy();
 
     component = shallow(
       <PipelineToolbar
@@ -39,9 +41,11 @@ describe('PipelineToolbar [Component]', () => {
         savedPipeline={{ isNameValid: true }}
         newPipeline={newPipelineSpy}
         clonePipeline={clonePipelineSpy}
+        toggleComments={toggleCommentsSpy}
         nameChanged={nameChangedSpy}
         setIsModified={setIsModifiedSpy}
         isModified
+        isCommenting
         name=""
         copyToClipboard={copyToClipboardSpy} />
     );

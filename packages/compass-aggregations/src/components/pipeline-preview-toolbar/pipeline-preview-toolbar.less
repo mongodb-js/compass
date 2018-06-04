@@ -30,7 +30,29 @@
     }
   }
 
-  &-add-stage-button {
+  &-comment-mode {
+    flex-grow: 5;
+    margin-left: 5px;
+    font-size: 12px;
+    text-transform: uppercase;
+    color: @gray3;
+  }
+
+  &-toggle-comments {
     margin-left: 15px;
+    display: flex;
+    align-items: center;
+
+    &-button {
+      height: 20px !important;
+      width: 40px !important;
+      cursor: pointer !important;
+
+      span {
+        height: 18px !important;
+        width: 18px !important;
+        cursor: pointer !important;
+      }
+    }
   }
 }

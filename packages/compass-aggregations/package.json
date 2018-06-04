@@ -30,7 +30,7 @@
     "@mongodb-js/compass-crud": "^5.1.0",
     "prop-types": "^15.5.8",
     "react": "^16.3.2",
-    "react-bootstrap": "0.31.0",
+    "react-bootstrap": "^0.32.1",
     "react-tooltip": "^3.2.6"
   },
   "devDependencies": {
@@ -122,7 +122,7 @@
     "hadron-react-buttons": "^2.0.0",
     "hadron-react-components": "^2.0.0",
     "lodash.debounce": "^4.0.8",
-    "mongodb-ace-autocompleter": "^0.0.10",
+    "mongodb-ace-autocompleter": "^0.0.13",
     "mongodb-ace-mode": "^0.0.1",
     "mongodb-ace-theme": "^0.0.1",
     "mongodb-extended-json": "^1.10.0",

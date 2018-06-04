@@ -38,6 +38,7 @@ describe('StageToolbar [Component]', () => {
         setIsModified={setIsModifiedSpy}
         stageCollapseToggled={stageCollapseToggledSpy}
         openLink={openLinkSpy}
+        isCommenting
       />
     );
   });

@@ -22,6 +22,7 @@ class PipelineWorkspace extends PureComponent {
     stageAdded: PropTypes.func.isRequired,
     setIsModified: PropTypes.func.isRequired,
     openLink: PropTypes.func.isRequired,
+    isCommenting: PropTypes.bool.isRequired,
     inputDocuments: PropTypes.object.isRequired
   }
 

@@ -1,6 +1,7 @@
 import { STAGE_OPERATORS } from 'mongodb-ace-autocompleter';
 import generateStage from 'modules/stage';
 import { appRegistryEmit } from 'modules/app-registry';
+import { ObjectId } from 'bson';
 import toNS from 'mongodb-ns';
 
 /**
@@ -94,7 +95,7 @@ export const OUT = '$out';
  * @todo: Loading needs to clear out server errors.
  */
 const EMPTY_STAGE = {
-  id: new Date().getTime(),
+  id: new ObjectId().toHexString(),
   stageOperator: null,
   stage: '',
   isValid: true,
@@ -163,7 +164,7 @@ const changeStage = (state, action) => {
 const addStage = (state) => {
   const newState = copyState(state);
   const newStage = { ...EMPTY_STAGE };
-  newStage.id = new Date().getTime();
+  newStage.id = new ObjectId().toHexString();
   newState.push(newStage);
   return newState;
 };
@@ -211,10 +212,11 @@ const selectStageOperator = (state, action) => {
     const newState = copyState(state);
     const operatorDetails = getStageOperator(operatorName);
     const snippet = (operatorDetails || {}).snippet || DEFAULT_SNIPPET;
-    // @todo: Durran: determine here if we need to add comments.
+    const comment = (operatorDetails || {}).comment || '';
+    const value = action.isCommenting ? `${comment}${snippet}` : snippet;
     newState[action.index].stageOperator = operatorName;
-    newState[action.index].stage = snippet;
-    newState[action.index].snippet = snippet;
+    newState[action.index].stage = value;
+    newState[action.index].snippet = value;
     newState[action.index].isExpanded = true;
     newState[action.index].isComplete = false;
     newState[action.index].executor = generateStage(newState[action.index]);
@@ -376,13 +378,15 @@ export const stageMoved = (fromIndex, toIndex) => ({
  *
  * @param {Number} index - The index of the stage.
  * @param {String} operator - The stage operator.
+ * @param {Boolean} isCommenting - If comment mode is enabled.
  *
  * @returns {Object} The stage operator selected action.
  */
-export const stageOperatorSelected = (index, operator) => ({
+export const stageOperatorSelected = (index, operator, isCommenting) => ({
   type: STAGE_OPERATOR_SELECTED,
   index: index,
-  stageOperator: operator
+  stageOperator: operator,
+  isCommenting: isCommenting
 });
 
 /**

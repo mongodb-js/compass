@@ -1,6 +1,7 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import classnames from 'classnames';
+import decomment from 'decomment';
 import { OUT } from 'modules/pipeline';
 
 import styles from './stage-preview-toolbar.less';
@@ -46,7 +47,7 @@ class StagePreviewToolbar extends PureComponent {
     if (this.props.isEnabled) {
       if (this.props.stageOperator) {
         if (this.props.stageOperator === OUT && this.props.isValid) {
-          return `Documents will be saved to the collection: ${this.props.stageValue}`;
+          return `Documents will be saved to the collection: ${decomment(this.props.stageValue)}`;
         }
         return `Output after ${this.props.stageOperator} stage (Sample of ${this.props.count} ${this.getWord()})`;
       }

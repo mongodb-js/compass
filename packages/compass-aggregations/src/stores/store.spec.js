@@ -142,6 +142,7 @@ describe('Aggregation Store', () => {
           expect(store.getState()).to.deep.equal({
             namespace: '',
             appRegistry: appRegistry,
+            comments: INITIAL_STATE.comments,
             name: INITIAL_STATE.name,
             id: INITIAL_STATE.id,
             restorePipeline: INITIAL_STATE.restorePipeline,
@@ -172,6 +173,7 @@ describe('Aggregation Store', () => {
           expect(store.getState()).to.deep.equal({
             namespace: 'db.coll',
             appRegistry: appRegistry,
+            comments: INITIAL_STATE.comments,
             name: INITIAL_STATE.name,
             id: INITIAL_STATE.id,
             restorePipeline: INITIAL_STATE.restorePipeline,

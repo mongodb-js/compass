@@ -15,14 +15,15 @@ class PipelineToolbar extends PureComponent {
   static propTypes = {
     savedPipelinesListToggle: PropTypes.func.isRequired,
     getSavedPipelines: PropTypes.func.isRequired,
-    stageAdded: PropTypes.func.isRequired,
     newPipeline: PropTypes.func.isRequired,
     clonePipeline: PropTypes.func.isRequired,
     copyToClipboard: PropTypes.func.isRequired,
     saveCurrentPipeline: PropTypes.func.isRequired,
     savedPipeline: PropTypes.object.isRequired,
     nameChanged: PropTypes.func.isRequired,
+    toggleComments: PropTypes.func.isRequired,
     isModified: PropTypes.bool.isRequired,
+    isCommenting: PropTypes.bool.isRequired,
     setIsModified: PropTypes.func.isRequired,
     name: PropTypes.string
   }
@@ -49,7 +50,8 @@ class PipelineToolbar extends PureComponent {
           setIsModified={this.props.setIsModified}
           name={this.props.name} />
         <PipelinePreviewToolbar
-          stageAdded={this.props.stageAdded}
+          toggleComments={this.props.toggleComments}
+          isCommenting={this.props.isCommenting}
           isModified={this.props.isModified} />
       </div>
     );

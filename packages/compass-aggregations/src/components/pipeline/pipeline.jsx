@@ -18,6 +18,7 @@ class Pipeline extends PureComponent {
     getPipelineFromIndexedDB: PropTypes.func.isRequired,
     savedPipelinesListToggle: PropTypes.func.isRequired,
     getSavedPipelines: PropTypes.func.isRequired,
+    toggleComments: PropTypes.func.isRequired,
     restorePipelineModalToggle: PropTypes.func.isRequired,
     restorePipelineFrom: PropTypes.func.isRequired,
     restorePipeline: PropTypes.object.isRequired,
@@ -39,6 +40,7 @@ class Pipeline extends PureComponent {
     fields: PropTypes.array.isRequired,
     nameChanged: PropTypes.func.isRequired,
     isModified: PropTypes.bool.isRequired,
+    isCommenting: PropTypes.bool.isRequired,
     setIsModified: PropTypes.func.isRequired,
     name: PropTypes.string
   }
@@ -61,15 +63,16 @@ class Pipeline extends PureComponent {
         <PipelineToolbar
           savedPipelinesListToggle={this.props.savedPipelinesListToggle}
           getSavedPipelines={this.props.getSavedPipelines}
-          stageAdded={this.props.stageAdded}
           copyToClipboard={this.props.copyToClipboard}
           saveCurrentPipeline={this.props.saveCurrentPipeline}
           savedPipeline={this.props.savedPipeline}
           newPipeline={this.props.newPipeline}
           clonePipeline={this.props.clonePipeline}
+          toggleComments={this.props.toggleComments}
           nameChanged={this.props.nameChanged}
           setIsModified={this.props.setIsModified}
           isModified={this.props.isModified}
+          isCommenting={this.props.isCommenting}
           name={this.props.name} />
         <div className={classnames(styles['pipeline-separator'])}></div>
         <PipelineWorkspace {...this.props} />

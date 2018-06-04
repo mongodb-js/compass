@@ -14,6 +14,7 @@ describe('StageOperatorSelect [Component]', () => {
       <StageOperatorSelect
         index={0}
         isEnabled
+        isCommenting
         serverVersion="3.4.0"
         setIsModified={setIsModifiedSpy}
         stageOperatorSelected={spy} />
