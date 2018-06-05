@@ -367,14 +367,6 @@ describe('accepts', function() {
       accepts('{ "a": { "$bitsAnyClear": 35 }}');
     });
 
-    it('accepts $expr queries', function() {
-
-    });
-
-    it('accepts $jsonSchema queries', function() {
-
-    });
-
     it('accepts $text queries with $search', function() {
       accepts('{ "$text": { "$search": "coffee" } }');
     });
