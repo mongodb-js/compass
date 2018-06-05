@@ -15,6 +15,11 @@ const PREFIX = 'aggregations/pipeline';
 export const STAGE_ADDED = `${PREFIX}/STAGE_ADDED`;
 
 /**
+ * Stage added after action name.
+ */
+export const STAGE_ADDED_AFTER = `${PREFIX}/STAGE_ADDED_AFTER`;
+
+/**
  * Stage changed action name.
  */
 export const STAGE_CHANGED = `${PREFIX}/STAGE_CHANGED`;
@@ -170,6 +175,22 @@ const addStage = (state) => {
 };
 
 /**
+ * Add a stage after current one.
+ *
+* @param {Object} state - The state.
+ * @param {Object} action - The action.
+ *
+ * @returns {Object} The new state.
+ */
+const AddAfterStage = (state, action) => {
+  const newState = copyState(state);
+  const newStage = { ...EMPTY_STAGE };
+  newStage.id = new Date().getTime();
+  newState.splice(action.index + 1, 0, newStage);
+  return newState;
+};
+
+/**
  * Delete a stage.
  *
  * @param {Object} state - The state.
@@ -291,6 +312,7 @@ const MAPPINGS = {};
 
 MAPPINGS[STAGE_CHANGED] = changeStage;
 MAPPINGS[STAGE_ADDED] = addStage;
+MAPPINGS[STAGE_ADDED_AFTER] = AddAfterStage;
 MAPPINGS[STAGE_DELETED] = deleteStage;
 MAPPINGS[STAGE_MOVED] = moveStage;
 MAPPINGS[STAGE_OPERATOR_SELECTED] = selectStageOperator;
@@ -319,6 +341,17 @@ export default function reducer(state = INITIAL_STATE, action) {
  */
 export const stageAdded = () => ({
   type: STAGE_ADDED
+});
+
+/**
+ * Action creator for adding a stage after current one.
+ * @param {Number} index - The index of the stage.
+ *
+ * @returns {Object} the stage added after action.
+ */
+export const stageAddedAfter = (index) => ({
+  index: index,
+  type: STAGE_ADDED_AFTER
 });
 
 /**

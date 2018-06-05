@@ -11,7 +11,15 @@ class AddAfterStage extends PureComponent {
   static displayName = 'AddAfterStageComponent';
 
   static propTypes = {
+    index: PropTypes.number.isRequired,
     stageAddedAfter: PropTypes.func.isRequired
+  }
+
+  /**
+   * Handle stage add after clicks.
+   */
+  onStageAddedAfter = () => {
+    this.props.stageAddedAfter(this.props.index);
   }
 
   /**
@@ -26,7 +34,7 @@ class AddAfterStage extends PureComponent {
           type="button"
           title="Add After Stage"
           className="btn btn-default btn-xs"
-          clickHandler={this.props.stageAddedAfter}>
+          onClick={this.onStageAddedAfter}>
           +
         </button>
       </div>

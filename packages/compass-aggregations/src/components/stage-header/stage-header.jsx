@@ -1,6 +1,7 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import classnames from 'classnames';
+import AddAfterStage from 'components/add-after-stage';
 import DeleteStage from 'components/delete-stage';
 import ToggleStage from 'components/toggle-stage';
 import StageGrabber from 'components/stage-grabber';
@@ -20,6 +21,7 @@ class StageHeader extends PureComponent {
     index: PropTypes.number.isRequired,
     runStage: PropTypes.func.isRequired,
     stageCollapseToggled: PropTypes.func.isRequired,
+    stageAddedAfter: PropTypes.func.isRequired,
     stageDeleted: PropTypes.func.isRequired,
     stageOperatorSelected: PropTypes.func.isRequired,
     stageToggled: PropTypes.func.isRequired
@@ -51,6 +53,9 @@ class StageHeader extends PureComponent {
           stage={this.props.stage}
           index={this.props.index}
           stageDeleted={this.props.stageDeleted} />
+        <AddAfterStage
+          index={this.props.index}
+          stageAddedAfter={this.props.stageAddedAfter} />
       </div>
     );
   }

@@ -2,6 +2,7 @@ import reducer, {
   stageAdded,
   stageChanged,
   stageCollapseToggled,
+  stageAddedAfter,
   stageDeleted,
   stageMoved,
   stageOperatorSelected,
@@ -10,6 +11,7 @@ import reducer, {
   generatePipeline,
   loadingStageResults,
   STAGE_ADDED,
+  STAGE_ADDED_AFTER,
   STAGE_CHANGED,
   STAGE_COLLAPSE_TOGGLED,
   STAGE_DELETED,
@@ -80,6 +82,12 @@ describe('pipeline module', () => {
     context('when the action is stage deleted', () => {
       it('returns the new state with the deleted stage', () => {
         expect(reducer(undefined, stageDeleted(0))).to.deep.equal([]);
+      });
+    });
+
+    context('when the action is stage added after', () => {
+      it('returns the new state with the added after stage', () => {
+        expect(reducer(undefined, stageAddedAfter(0)).length).to.equal(2);
       });
     });
 
@@ -215,6 +223,40 @@ describe('pipeline module', () => {
     it('returns the STAGE_ADDED action', () => {
       expect(stageAdded()).to.deep.equal({
         type: STAGE_ADDED
+      });
+    });
+  });
+
+  describe('#stageAddedAfter', () => {
+    context('without checking sequence', () => {
+      it('returns the STAGE_ADDED_AFTER action', () => {
+        expect(stageAddedAfter(0)).to.deep.equal({
+          type: STAGE_ADDED_AFTER,
+          index: 0
+        });
+      });
+    });
+
+    context('with checking sequence', () => {
+      const state = [
+        {
+          stage: '{ name: 1 }',
+          isValid: true,
+          isEnabled: true,
+          stageOperator: '$project',
+          isExpanded: true
+        },
+        {
+          stage: '{ name: -1 }',
+          isValid: true,
+          isEnabled: true,
+          stageOperator: '$sort',
+          isExpanded: true
+        }
+      ];
+
+      it('inserts new stage in the middle', () => {
+        expect(reducer(state, stageAddedAfter(0))[1].stageOperator).to.equal(null);
       });
     });
   });

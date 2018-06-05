@@ -82,6 +82,7 @@ class Stage extends Component {
     serverVersion: PropTypes.string.isRequired,
     stageChanged: PropTypes.func.isRequired,
     stageCollapseToggled: PropTypes.func.isRequired,
+    stageAddedAfter: PropTypes.func.isRequired,
     stageDeleted: PropTypes.func.isRequired,
     stageMoved: PropTypes.func.isRequired,
     stageOperatorSelected: PropTypes.func.isRequired,
@@ -131,6 +132,7 @@ class Stage extends Component {
             stageOperatorSelected={this.props.stageOperatorSelected}
             stageToggled={this.props.stageToggled}
             openLink={this.props.openLink}
+            stageAddedAfter={this.props.stageAddedAfter}
             stageDeleted={this.props.stageDeleted}
             runStage={this.props.runStage}
             isCommenting={this.props.isCommenting}

@@ -54,6 +54,7 @@ class StageBuilderToolbar extends PureComponent {
     stageOperatorSelected: PropTypes.func.isRequired,
     stageCollapseToggled: PropTypes.func.isRequired,
     stageToggled: PropTypes.func.isRequired,
+    stageAddedAfter: PropTypes.func.isRequired,
     stageDeleted: PropTypes.func.isRequired,
     setIsModified: PropTypes.func.isRequired,
     isCommenting: PropTypes.bool.isRequired,
@@ -105,16 +106,14 @@ class StageBuilderToolbar extends PureComponent {
           setIsModified={this.props.setIsModified}
           stageToggled={this.props.stageToggled} />
         {this.renderInfoSprinkle()}
-        <AddAfterStage
-          stage={this.props.stage}
-          index={this.props.index}
-          setIsModified={this.props.setIsModified}
-          stageDeleted={this.props.stageDeleted} />
         <DeleteStage
           stage={this.props.stage}
           index={this.props.index}
           setIsModified={this.props.setIsModified}
           stageDeleted={this.props.stageDeleted} />
+        <AddAfterStage
+          index={this.props.index}
+          stageAddedAfter={this.props.stageAddedAfter} />
       </div>
     );
   }

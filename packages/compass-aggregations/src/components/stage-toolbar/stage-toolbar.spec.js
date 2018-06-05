@@ -12,6 +12,7 @@ describe('StageToolbar [Component]', () => {
   let stageOperatorSelectedSpy;
   let stageToggledSpy;
   let runStageSpy;
+  let stageAddedAfterSpy;
   let stageDeletedSpy;
   let stageCollapseToggledSpy;
   let setIsModifiedSpy;
@@ -21,6 +22,7 @@ describe('StageToolbar [Component]', () => {
     stageOperatorSelectedSpy = sinon.spy();
     stageToggledSpy = sinon.spy();
     runStageSpy = sinon.spy();
+    stageAddedAfterSpy = sinon.spy();
     stageDeletedSpy = sinon.spy();
     stageCollapseToggledSpy = sinon.spy();
     setIsModifiedSpy = sinon.spy();
@@ -34,6 +36,7 @@ describe('StageToolbar [Component]', () => {
         stageOperatorSelected={stageOperatorSelectedSpy}
         stageToggled={stageToggledSpy}
         runStage={runStageSpy}
+        stageAddedAfter={stageAddedAfterSpy}
         stageDeleted={stageDeletedSpy}
         setIsModified={setIsModifiedSpy}
         stageCollapseToggled={stageCollapseToggledSpy}
@@ -48,6 +51,7 @@ describe('StageToolbar [Component]', () => {
     stageOperatorSelectedSpy = null;
     stageToggledSpy = null;
     runStageSpy = null;
+    stageAddedAfterSpy = null;
     stageDeletedSpy = null;
     stageCollapseToggledSpy = null;
     setIsModifiedSpy = null;

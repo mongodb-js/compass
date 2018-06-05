@@ -6,6 +6,7 @@ import {
   stageCollapseToggled,
   stageDeleted,
   stageAdded,
+  stageAddedAfter,
   stageToggled } from 'modules/pipeline';
 import { reset, INITIAL_STATE } from '../modules/index';
 
@@ -100,6 +101,17 @@ describe('Aggregation Store', () => {
           done();
         });
         store.dispatch(stageAdded());
+      });
+    });
+
+    context('when the action is STAGE_ADDED_AFTER', () => {
+      it('updates the stage in state', (done) => {
+        const unsubscribe = store.subscribe(() => {
+          unsubscribe();
+          expect(store.getState().pipeline.length).to.equal(2);
+          done();
+        });
+        store.dispatch(stageAddedAfter(0));
       });
     });
 

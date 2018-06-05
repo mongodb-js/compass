@@ -6,6 +6,7 @@ import StageGrabber from 'components/stage-grabber';
 import StageCollapser from 'components/stage-collapser';
 import StageOperatorSelect from 'components/stage-operator-select';
 import ToggleStage from 'components/toggle-stage';
+import AddAfterStage from 'components/add-after-stage';
 import DeleteStage from 'components/delete-stage';
 import styles from './stage-builder-toolbar.less';
 
@@ -14,6 +15,7 @@ describe('StageBuilderToolbar [Component]', () => {
   let stageCollapseToggledSpy;
   let stageOperatorSelectedSpy;
   let stageToggledSpy;
+  let stageAddedAfterSpy;
   let stageDeletedSpy;
   let runStageSpy;
   let setIsModifiedSpy;
@@ -23,6 +25,7 @@ describe('StageBuilderToolbar [Component]', () => {
     stageCollapseToggledSpy = sinon.spy();
     stageOperatorSelectedSpy = sinon.spy();
     stageToggledSpy = sinon.spy();
+    stageAddedAfterSpy = sinon.spy();
     stageDeletedSpy = sinon.spy();
     runStageSpy = sinon.spy();
     setIsModifiedSpy = sinon.spy();
@@ -40,6 +43,7 @@ describe('StageBuilderToolbar [Component]', () => {
         setIsModified={setIsModifiedSpy}
         openLink={openLinkSpy}
         isCommenting
+        stageAddedAfter={stageAddedAfterSpy}
         stageDeleted={stageDeletedSpy} />
     );
   });
@@ -49,6 +53,7 @@ describe('StageBuilderToolbar [Component]', () => {
     stageCollapseToggledSpy = null;
     stageOperatorSelectedSpy = null;
     stageToggledSpy = null;
+    stageAddedAfterSpy = null;
     stageDeletedSpy = null;
     runStageSpy = null;
     setIsModifiedSpy = null;
@@ -82,5 +87,10 @@ describe('StageBuilderToolbar [Component]', () => {
   it('renders the delete button', () => {
     expect(component.find(`.${styles['stage-builder-toolbar']}`)).
       to.have.descendants(DeleteStage);
+  });
+
+  it('renders the add after button', () => {
+    expect(component.find(`.${styles['stage-builder-toolbar']}`)).
+      to.have.descendants(AddAfterStage);
   });
 });
