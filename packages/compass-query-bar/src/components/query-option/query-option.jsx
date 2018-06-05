@@ -126,6 +126,7 @@ class QueryOption extends Component {
         setOptions={OPTIONS}
         onLoad={(editor) => {
           this.editor = editor;
+          this.editor.setBehavioursEnabled(true);
           this.editor.commands.addCommand({
             name: 'executeQuery',
             bindKey: {
