@@ -2,15 +2,18 @@ const compiler = require('bson-compilers');
 
 const PREFIX = 'exportQuery';
 
-export const RUN_QUERY = `${PREFIX}/RUN_QUERY`;
+export const ADD_INPUT_QUERY = `${PREFIX}/ADD_INPUT`;
+export const QUERY_ERROR = `${PREFIX}/QUERY_ERROR`;
 export const COPY_QUERY = `${PREFIX}/COPY_QUERY`;
 export const CLEAR_COPY = `${PREFIX}/CLEAR_COPY`;
-export const QUERY_ERROR = `${PREFIX}/QUERY_ERROR`;
+export const RUN_QUERY = `${PREFIX}/RUN_QUERY`;
 
+// TODO: change inputQuery to '' when working with compass
 export const INITIAL_STATE = {
+  queryError: null,
   copySuccess: '',
   returnQuery: '',
-  queryError: null,
+  inputQuery: '',
   copyError: null
 };
 
@@ -55,12 +58,18 @@ export const runQuery = (outputLang, input) => {
 };
 
 export default function reducer(state = INITIAL_STATE, action) {
+  if (action.type === ADD_INPUT_QUERY) return { ...state, inputQuery: action.input };
   if (action.type === QUERY_ERROR) return { ...state, queryError: action.error };
   if (action.type === COPY_QUERY) return copyToClipboard(state, action);
   if (action.type === CLEAR_COPY) return getClearCopy(state, action);
 
   return state;
 }
+
+export const addInputQuery = (input) => ({
+  type: ADD_INPUT_QUERY,
+  input: input
+});
 
 export const copyQuery = (input) => ({
   type: COPY_QUERY,

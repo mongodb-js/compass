@@ -25,7 +25,7 @@ class Editor extends PureComponent {
 
   // need to be able to stringify and add spaces to prettify the object
   componentDidMount() {
-    if (this.props.input) {
+    if (this.props.input && this.props.inputQuery !== '') {
       this.editor.setValue(JSON.stringify(JSON.parse(this.props.inputQuery), null, 2));
       this.editor.clearSelection();
     }
@@ -39,7 +39,7 @@ class Editor extends PureComponent {
     }
 
     // set this again in case it's missing
-    if (this.props.input) {
+    if (this.props.input && this.props.inputQuery !== '') {
       this.editor.setValue(JSON.stringify(JSON.parse(this.props.inputQuery), null, 2));
       this.editor.clearSelection();
     }

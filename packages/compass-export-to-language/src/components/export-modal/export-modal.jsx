@@ -13,7 +13,6 @@ class ExportModal extends Component {
 
   static propTypes = {
     exportQuery: PropTypes.object.isRequired,
-    inputQuery: PropTypes.string.isRequired,
     copyQuery: PropTypes.func.isRequired,
     runQuery: PropTypes.func.isRequired
   }
@@ -29,7 +28,7 @@ class ExportModal extends Component {
   // save state, and pass in the currently selected lang
   handleOutputSelect = (outputLang) => {
     this.setState({ outputLang });
-    this.props.runQuery(outputLang.value, this.props.inputQuery);
+    this.props.runQuery(outputLang.value, this.props.exportQuery.inputQuery);
   }
 
   copyHandler = (evt) => {
@@ -95,11 +94,11 @@ class ExportModal extends Component {
             </div>
             <div className={classnames(styles['export-to-lang-form-query'])}>
               <div className={classnames(styles['export-to-lang-form-query-input'])}>
-                <Editor outputQuery={this.props.exportQuery.returnQuery} queryError={this.props.exportQuery.queryError} outputLang={this.state.outputLang.value} inputQuery={this.props.inputQuery} input/>
+                <Editor outputQuery={this.props.exportQuery.returnQuery} queryError={this.props.exportQuery.queryError} outputLang={this.state.outputLang.value} inputQuery={this.props.exportQuery.inputQuery} input/>
                 {errorDiv}
               </div>
               <div className={classnames(styles['export-to-lang-form-query-output'])}>
-                <Editor outputQuery={this.props.exportQuery.returnQuery} queryError={this.props.exportQuery.queryError} outputLang={this.state.outputLang.value} inputQuery={this.props.inputQuery}/>
+                <Editor outputQuery={this.props.exportQuery.returnQuery} queryError={this.props.exportQuery.queryError} outputLang={this.state.outputLang.value} inputQuery={this.props.exportQuery.inputQuery}/>
               </div>
             </div>
           </form>

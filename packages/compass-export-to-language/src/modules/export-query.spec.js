@@ -1,7 +1,9 @@
 import reducer, {
+  ADD_INPUT_QUERY,
   QUERY_ERROR,
   COPY_QUERY,
   CLEAR_COPY,
+  addInputQuery,
   queryError,
   copyQuery,
   clearCopy,
@@ -36,6 +38,15 @@ describe('export query module', () => {
     });
   });
 
+  describe('#addInputQuery', () => {
+    it('returns a add inputq query input type', () => {
+      expect(addInputQuery('{ "item": "happy socks", "quantity": 2 }')).to.deep.equal({
+        type: ADD_INPUT_QUERY,
+        input: '{ "item": "happy socks", "quantity": 2 }'
+      });
+    });
+  });
+
   describe('#runQuery', () => {
     it('returns state with return query', () => {
       expect(runQuery('csharp', '{x, 1}')).to.be.a('function');
@@ -43,22 +54,36 @@ describe('export query module', () => {
   });
 
   describe('#reducer', () => {
-    context('action type is query error', () => {
+    context('action type is queryError', () => {
       it('query error is has a value in state', () => {
         expect(reducer(undefined, queryError('uh oh'))).to.deep.equal({
           copyError: null,
           copySuccess: '',
+          inputQuery: '',
           queryError: 'uh oh',
           returnQuery: ''
         });
       });
     });
 
-    context('action type is clear copy', () => {
-      it('returns a clear copy state', () => {
+    context('action type is addInputQuery', () => {
+      it('inputQuery has a value in state', () => {
+        expect(reducer(undefined, addInputQuery('{ "beep": "boop" }'))).to.deep.equal({
+          copyError: null,
+          copySuccess: '',
+          inputQuery: '{ "beep": "boop" }',
+          queryError: null,
+          returnQuery: ''
+        });
+      });
+    });
+
+    context('action type is clearCopy', () => {
+      it('returns a clearCopy state', () => {
         expect(reducer(undefined, clearCopy('uh oh'))).to.deep.equal({
           copyError: '',
           copySuccess: '',
+          inputQuery: '',
           queryError: null,
           returnQuery: ''
         });
@@ -70,6 +95,7 @@ describe('export query module', () => {
         expect(reducer(undefined, {})).to.deep.equal({
           copyError: null,
           copySuccess: '',
+          inputQuery: '',
           queryError: null,
           returnQuery: ''
         });

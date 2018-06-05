@@ -4,9 +4,10 @@ describe('ExportToLanguage Store', () => {
   describe('initial store state', () => {
     expect(store.getState()).to.deep.equal({
       exportQuery: {
+        queryError: null,
         copySuccess: '',
         returnQuery: '',
-        queryError: null,
+        inputQuery: '',
         copyError: null
       }
     });
