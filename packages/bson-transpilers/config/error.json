@@ -22,5 +22,8 @@
   },
   "Internal": {
     "message": "An internal error occurred"
+  },
+  "Range": {
+    "message": "Value is out of range"
   }
 }

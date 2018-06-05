@@ -11,7 +11,7 @@
       {
         "description": "BinData with unsupported subtype",
         "query": "new BinData(400, '1234')",
-        "errorCode": "E_BSONCOMPILERS_RUNTIME"
+        "errorCode": "E_BSONCOMPILERS_RANGE"
       }
     ]
   }

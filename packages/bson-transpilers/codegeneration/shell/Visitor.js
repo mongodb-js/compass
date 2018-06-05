@@ -4,7 +4,8 @@ const bson = require('bson');
 const Context = require('context-eval');
 const {
   BsonCompilersReferenceError,
-  BsonCompilersRuntimeError
+  BsonCompilersRuntimeError,
+  BsonCompilersRangeError
 } = require('../../helper/error');
 
 /**
@@ -120,7 +121,7 @@ class Visitor extends JavascriptVisitor {
     const subtype = parseInt(argList.singleExpression()[0].getText(), 10);
     const bindata = args[1];
     if (!(subtype >= 0 && subtype <= 5 || subtype === 128)) {
-      throw new BsonCompilersRuntimeError('BinData subtype must be a Number between 0-5 or 128');
+      throw new BsonCompilersRangeError('BinData subtype must be a Number between 0-5 or 128');
     }
     if (bindata.match(/^([0-9a-zA-Z+/]{4})*(([0-9a-zA-Z+/]{2}==)|([0-9a-zA-Z+/]{3}=))?$/)) {
       throw new BsonCompilersRuntimeError('Invalid base64 passed to BinData');
