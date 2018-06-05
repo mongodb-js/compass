@@ -140,7 +140,7 @@
     "mongodb-ace-autocompleter": "^0.0.12",
     "mongodb-ace-mode": "^0.0.1",
     "mongodb-ace-theme": "^0.0.1",
-    "mongodb-query-parser": "^1.0.1",
+    "mongodb-query-parser": "^1.1.0",
     "mongodb-query-util": "0.0.1",
     "react-ace": "^5.7.0"
   }
