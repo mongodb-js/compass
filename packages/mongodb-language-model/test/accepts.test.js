@@ -334,6 +334,56 @@ describe('accepts', function() {
     });
   });
 
+  describe('Special queries', function() {
+    it('accepts $bitsAllClear queries with arrays', function() {
+      accepts('{ "a": { "$bitsAllClear": [ 1, 5 ] }}');
+    });
+
+    it('accepts $bitsAllClear queries with bitmasks', function() {
+      accepts('{ "a": { "$bitsAllClear": 35 }}');
+    });
+
+    it('accepts $bitsAnyClear queries with arrays', function() {
+      accepts('{ "a": { "$bitsAnyClear": [ 1, 5 ] }}');
+    });
+
+    it('accepts $bitsAnyClear queries with bitmasks', function() {
+      accepts('{ "a": { "$bitsAnyClear": 35 }}');
+    });
+
+    it('accepts $bitsAllSet queries with arrays', function() {
+      accepts('{ "a": { "$bitsAllClear": [ 1, 5 ] }}');
+    });
+
+    it('accepts $bitsAllSet queries with bitmasks', function() {
+      accepts('{ "a": { "$bitsAllClear": 35 }}');
+    });
+
+    it('accepts $bitsAnySet queries with arrays', function() {
+      accepts('{ "a": { "$bitsAnyClear": [ 1, 5 ] }}');
+    });
+
+    it('accepts $bitsAnySet queries with bitmasks', function() {
+      accepts('{ "a": { "$bitsAnyClear": 35 }}');
+    });
+
+    it('accepts $expr queries', function() {
+
+    });
+
+    it('accepts $jsonSchema queries', function() {
+
+    });
+
+    it('accepts $text queries', function() {
+
+    });
+
+    it('accepts $mod queries', function() {
+
+    });
+  });
+
   describe('Syntax Errors', function() {
     it('should reject an invalid string', function() {
       rejects('{"foo": bar}');

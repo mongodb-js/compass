@@ -64,7 +64,19 @@ value
 /* --- Operators --- */
 
 value_operator
-  = "$gte" / "$gt" / "$lte" / "$lt" / "$eq" / "$ne" / "$type" / "$size" / "$exists"
+  = "$gte" /
+    "$gt" /
+    "$lte" /
+    "$lt" /
+    "$eq" /
+    "$ne" /
+    "$type" /
+    "$size" /
+    "$exists" /
+    "$bitsAllClear" /
+    "$bitsAllSet" /
+    "$bitsAnyClear" /
+    "$bitsAnySet"
 
 list_operator
   = "$in" / "$nin" / "$all"
