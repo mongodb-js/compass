@@ -16,23 +16,26 @@ clause
   = leaf_clause
   / expression_tree_clause
   / where_clause
-  // / text_clause
+  / text_clause
   // / comment_clause
 
-// text_clause
-//   = quotation_mark text_operator quotation_mark name_separator text_options:text_options
-//     {
-//       return { pos: "text-clause", search: text_options.search };
-//     }
-// text_options
-//   = begin_object quotation_mark search_operator quotation_mark name_separator search:string (value_separator text_options_optional)? end_object
-//     { return {search: search}; }
-//
-// text_options_optional
-//   = (
-//     quotation_mark language_operator quotation_mark name_separator language:string
-//     { return {language: language }; }
-//   )*
+text_clause
+  = quotation_mark text_operator quotation_mark name_separator text_options:text_options
+  {
+    return { pos: "text-clause", search: text_options.search };
+  }
+text_options
+  = begin_object quotation_mark search_operator quotation_mark name_separator search:string (value_separator text_options_optional)? end_object
+  { return { search: search}; }
+
+text_options_value
+  = string / true / false
+
+text_options_optional
+  = (
+    quotation_mark text_optional_operator quotation_mark name_separator value: text_options_value
+    { return { value: value }; }
+  )*
 
 expression_tree_clause
   = quotation_mark operator:expression_tree_operator quotation_mark name_separator begin_array expressions:expression_list end_array
@@ -184,7 +187,7 @@ text_operator = "$text"
 
 search_operator = "$search"
 
-language_operator = "$language"
+text_optional_operator = "$language" / "$caseSensitive" / "$diacriticSensitive"
 
 case_sensitive_operator = "$caseSensitive"
 

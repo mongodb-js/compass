@@ -375,8 +375,16 @@ describe('accepts', function() {
 
     });
 
-    it('accepts $text queries', function() {
+    it('accepts $text queries with $search', function() {
+      accepts('{ "$text": { "$search": "coffee" } }');
+    });
 
+    it('accepts $text queries with $search & $language', function() {
+      accepts('{ "$text": { "$search": "coffee", "$language": "es" } }');
+    });
+
+    it('accepts $text queries with $search and $caseSensitive', function() {
+      accepts('{ "$text": { "$search": "coffee", "$caseSensitive": true } }');
     });
 
     it('accepts $mod queries', function() {
