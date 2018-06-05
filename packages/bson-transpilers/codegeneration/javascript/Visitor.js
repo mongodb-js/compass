@@ -3,11 +3,12 @@ const ECMAScriptVisitor = require('../../lib/antlr/ECMAScriptVisitor').ECMAScrip
 const bson = require('bson');
 const Context = require('context-eval');
 const {
-  SemanticArgumentCountMismatchError,
-  SemanticAttributeError,
-  SemanticGenericError,
-  SemanticTypeError,
-  SemanticReferenceError
+  BsonCompilersArgumentError,
+  BsonCompilersAttributeError,
+  BsonCompilersRuntimeError,
+  BsonCompilersTypeError,
+  BsonCompilersReferenceError,
+  BsonCompilersInternalError
 } = require('../../helper/error');
 const { singleQuoteStringify } = require('../../helper/format');
 
@@ -170,14 +171,12 @@ class Visitor extends ECMAScriptVisitor {
     // Check if callable
     ctx.type = lhsType.type;
     if (!lhsType.callable) {
-      throw new SemanticTypeError({
-        message: `${lhsType.id} is not callable`
-      });
+      throw new BsonCompilersTypeError(`${lhsType.id} is not callable`);
     }
 
     // Check arguments
     const expectedArgs = lhsType.args;
-    let rhs = this.checkArguments(expectedArgs, ctx.arguments().argumentList());
+    let rhs = this.checkArguments(expectedArgs, ctx.arguments().argumentList(), lhsType.id);
 
     // Add new if needed
     const newStr = lhsType.callable === this.SYMBOL_TYPE.CONSTRUCTOR ? this.new : '';
@@ -199,9 +198,7 @@ class Visitor extends ECMAScriptVisitor {
     const name = this.visitChildren(ctx);
     ctx.type = this.Symbols[name];
     if (ctx.type === undefined) {
-      throw new SemanticReferenceError({
-        message: `symbol "${name}" is undefined`
-      });
+      throw new BsonCompilersReferenceError(`Symbol '${name}' is undefined`);
     }
     if (ctx.type.template) {
       return ctx.type.template();
@@ -229,9 +226,9 @@ class Visitor extends ECMAScriptVisitor {
     while (type !== null) {
       if (!(type.attr.hasOwnProperty(rhs))) {
         if (type.id in this.BsonTypes && this.BsonTypes[type.id].id !== null) {
-          throw new SemanticAttributeError({
-            message: `${rhs} not an attribute of ${type.id}`
-          });
+          throw new BsonCompilersAttributeError(
+            `'${rhs}' not an attribute of ${type.id}`
+          );
         }
         type = type.type;
         if (typeof type === 'string') {
@@ -371,7 +368,7 @@ class Visitor extends ECMAScriptVisitor {
       }
     }
     if (actual.type === undefined) {
-      throw Error; // Internal error
+      throw new BsonCompilersInternalError();
     }
     return actual;
   }
@@ -436,38 +433,43 @@ class Visitor extends ECMAScriptVisitor {
    * @param {Array} expected - An array of arrays where each subarray represents
    * possible argument types for that index.
    * @param {ArgumentListContext} argumentList - null if empty.
+   * @param {String} name - The name of the function for error reporting.
    *
    * @returns {Array} - Array containing the generated output for each argument.
    */
-  checkArguments(expected, argumentList) {
+  checkArguments(expected, argumentList, name) {
     const argStr = [];
     if (!argumentList) {
       if (expected.length === 0 || expected[0].indexOf(null) !== -1) {
         return argStr;
       }
-      throw new SemanticArgumentCountMismatchError({message: 'arguments required'});
+      throw new BsonCompilersArgumentError(
+        `Argument count mismatch: '${name}' requires least one argument`
+      );
     }
     const args = argumentList.singleExpression();
     if (args.length > expected.length) {
-      throw new SemanticArgumentCountMismatchError({
-        message: `Arguments mismatch: expected ${expected.length} and got ${args.length}`
-      });
+      throw new BsonCompilersArgumentError(
+        `Argument count mismatch: '${name}' expects ${expected.length} args and got ${args.length}`
+      );
     }
     for (let i = 0; i < expected.length; i++) {
       if (args[i] === undefined) {
         if (expected[i].indexOf(null) !== -1) {
           return argStr;
         }
-        throw new SemanticArgumentCountMismatchError({message: 'too few arguments'});
+        throw new BsonCompilersArgumentError(
+          `Argument count mismatch: too few arguments passed to '${name}'`
+        );
       }
       const result = this.castType(expected[i], args[i]);
       if (result === null) {
-        const message = `expected types ${expected[i].map((e) => {
+        const message = `Argument type mismatch: '${name}' expects types ${expected[i].map((e) => {
           const id = e && e.id ? e.id : e;
           return e ? id : '[optional]';
         })} but got type ${args[i].type.id} for argument at index ${i}`;
 
-        throw new SemanticTypeError({message});
+        throw new BsonCompilersArgumentError(message);
       }
       argStr.push(result);
     }
@@ -491,7 +493,7 @@ class Visitor extends ECMAScriptVisitor {
 
     // Get the original type of the argument
     const expectedArgs = lhsType.args;
-    let args = this.checkArguments(expectedArgs, ctx.arguments().argumentList());
+    let args = this.checkArguments(expectedArgs, ctx.arguments().argumentList(), lhsType.id);
     let argType;
 
     if (!ctx.arguments().argumentList()) {
@@ -514,44 +516,35 @@ class Visitor extends ECMAScriptVisitor {
   }
 
   /**
-   * Processs the RegExp and calls the template function if it exists. Needs
-   * preprocessing because it needs to be executed.
+   * Check arguments then execute in the same way as regex literals.
    *
    * @param {FuncCallExpressionContext} ctx
    * @return {String}
    */
   processRegExp(ctx) {
+    const argList = ctx.arguments().argumentList();
+    this.checkArguments(this.Symbols.RegExp.args, argList, 'RegExp');
+    return this.process_regex(ctx);
+  }
+
+  /**
+   * This looks like non-camelcase because the name of the basic type is "_regex"
+   * and the process methods are constructed with "Process" + <type name>.
+   *
+   * @param {FuncCallExpressionContext} ctx
+   * @return {String}
+   */
+  process_regex(ctx) { // eslint-disable-line camelcase
     ctx.type = this.Types._regex;
-    const text = ctx.getText();
     let pattern;
     let flags;
-
-    if (text.startsWith('RegExp')) {
-      const argList = ctx.arguments().argumentList();
-
-      if (
-        !argList ||
-        !(
-          argList.singleExpression().length === 1 ||
-          argList.singleExpression().length === 2
-        )
-      ) {
-        throw new SemanticArgumentCountMismatchError({
-          message: 'RegExp requires one or two arguments'
-        });
-      }
-    }
 
     try {
       const regexobj = this.executeJavascript(ctx.getText());
       pattern = regexobj.source;
       flags = regexobj.flags;
     } catch (error) {
-      if (error.name === 'TypeError') {
-        throw new SemanticTypeError({message: error.message});
-      }
-
-      throw new SemanticGenericError({message: error.message});
+      throw new BsonCompilersRuntimeError(error.message);
     }
 
     let targetflags = flags.replace(/[imuyg]/g, m => this.regexFlags[m]);
@@ -568,17 +561,6 @@ class Visitor extends ECMAScriptVisitor {
   }
 
   /**
-   * This looks like non-camelcase because the name of the basic type is "_regex"
-   * and the process methods are constructed with "Process" + <type name>.
-   *
-   * @param {FuncCallExpressionContext} ctx
-   * @return {String}
-   */
-  process_regex(ctx) { // eslint-disable-line camelcase
-    return this.processRegExp(ctx);
-  }
-
-  /**
    * Process BSON regexps because we need to verify the flags are valid.
    *
    * @param {FuncCallExpressionContext} ctx
@@ -589,7 +571,7 @@ class Visitor extends ECMAScriptVisitor {
     const symbolType = this.Symbols.BSONRegExp;
 
     const argList = ctx.arguments().argumentList();
-    const args = this.checkArguments([[this.Types._string], [this.Types._string, null]], argList);
+    const args = this.checkArguments([[this.Types._string], [this.Types._string, null]], argList, 'BSONRegExp');
 
     let flags = null;
     const pattern = args[0];
@@ -597,7 +579,7 @@ class Visitor extends ECMAScriptVisitor {
       flags = args[1];
       for (let i = 1; i < flags.length - 1; i++) {
         if (!(flags[i] in this.bsonRegexFlags)) {
-          throw new SemanticGenericError({message: `Invalid flag '${flags[i]}' passed to BSONRegExp`});
+          throw new BsonCompilersRuntimeError(`Invalid flag '${flags[i]}' passed to BSONRegExp`);
         }
       }
       flags = flags.replace(/[imxlsu]/g, m => this.bsonRegexFlags[m]);
@@ -626,9 +608,9 @@ class Visitor extends ECMAScriptVisitor {
     if (!argList ||
       !(argList.singleExpression().length === 1 ||
         argList.singleExpression().length === 2)) {
-      throw new SemanticArgumentCountMismatchError({
-        message: 'Code requires one or two arguments'
-      });
+      throw new BsonCompilersArgumentError(
+        'Argument count mismatch: Code requires one or two arguments'
+      );
     }
     const args = argList.singleExpression();
     const code = args[0].getText();
@@ -639,9 +621,9 @@ class Visitor extends ECMAScriptVisitor {
       scope = this.visit(args[1]);
       scopestr = `, ${scope}`;
       if (args[1].type !== this.Types._object) {
-        throw new SemanticTypeError({
-          message: 'Code requires scope to be an object'
-        });
+        throw new BsonCompilersArgumentError(
+          'Argument type mismatch: Code requires scope to be an object'
+        );
       }
     }
     if ('emitCode' in this) {
@@ -666,16 +648,12 @@ class Visitor extends ECMAScriptVisitor {
     if (!argList) {
       return `${this.new}${lhs}()`;
     }
-    this.checkArguments(symbolType.args, argList);
+    this.checkArguments(symbolType.args, argList, 'ObjectId');
     let hexstr;
     try {
       hexstr = this.executeJavascript(ctx.getText()).toHexString();
     } catch (error) {
-      if (error.name === 'TypeError') {
-        throw new SemanticTypeError({message: error.message});
-      }
-
-      throw new SemanticGenericError({message: error.message});
+      throw new BsonCompilersRuntimeError(error.message);
     }
     if ('emitObjectId' in this) {
       return this.emitObjectId(ctx, hexstr);
@@ -695,15 +673,11 @@ class Visitor extends ECMAScriptVisitor {
     const symbolType = this.Symbols.Long;
     const argList = ctx.arguments().argumentList();
     let longstr;
-    this.checkArguments(symbolType.args, argList);
+    this.checkArguments(symbolType.args, argList, 'Long');
     try {
       longstr = this.executeJavascript(`new ${ctx.getText()}`).toString();
     } catch (error) {
-      if (error.name === 'TypeError') {
-        throw new SemanticTypeError({message: error.message});
-      }
-
-      throw new SemanticGenericError({message: error.message});
+      throw new BsonCompilersRuntimeError(error.message);
     }
     if ('emitLong' in this) {
       return this.emitLong(ctx, longstr);
@@ -718,7 +692,8 @@ class Visitor extends ECMAScriptVisitor {
   }
 
   /**
-   * Decimal128 needs preprocessing because it needs to be executed.
+   * Decimal128 needs preprocessing because it needs to be executed. Check
+   * argument length manually because 'Buffer' not supported.
    *
    * @param {FuncCallExpressionContext} ctx
    * @return {String}
@@ -730,19 +705,20 @@ class Visitor extends ECMAScriptVisitor {
     const argList = ctx.arguments().argumentList();
 
     if (!argList || argList.singleExpression().length !== 1) {
-      throw new SemanticArgumentCountMismatchError({
-        message: 'Decimal128 requires one argument'
-      });
+      throw new BsonCompilersArgumentError(
+        'Argument count mismatch: Decimal128 requires one argument'
+      );
     }
 
     try {
       decstr = this.executeJavascript(`new ${ctx.getText()}`).toString();
     } catch (error) {
+      // TODO: this isn't quite right because it catches all type errors.
       if (error.name === 'TypeError') {
-        throw new SemanticTypeError({message: error.message});
+        throw new BsonCompilersArgumentError(error.message);
       }
 
-      throw new SemanticGenericError({message: error.message});
+      throw new BsonCompilersRuntimeError(error.message);
     }
 
     if ('emitDecimal128' in this) {
@@ -764,21 +740,12 @@ class Visitor extends ECMAScriptVisitor {
     const long = ctx.singleExpression().singleExpression();
     let longstr;
     const argList = ctx.arguments().argumentList();
-
-    if (argList && argList.singleExpression().length > 1) {
-      throw new SemanticArgumentCountMismatchError({
-        message: 'Long .toString() method requires zero arguments'
-      });
-    }
+    this.checkArguments([[this.Types._numeric, null]], argList, 'Long toString');
 
     try {
       longstr = this.executeJavascript(long.getText()).toString();
     } catch (error) {
-      if (error.name === 'TypeError') {
-        throw new SemanticTypeError({message: error.message});
-      }
-
-      throw new SemanticGenericError({message: error.message});
+      throw new BsonCompilersRuntimeError(error.message);
     }
     return ctx.type.template ? ctx.type.template(longstr) : `'${longstr}'`;
   }
@@ -802,11 +769,12 @@ class Visitor extends ECMAScriptVisitor {
     }
 
     const argList = ctx.arguments().argumentList();
-
-    if (argList.singleExpression().length > 6) {
-      throw new SemanticArgumentCountMismatchError({
-        message: 'Date requires less than 7 arguments'
-      });
+    try {
+      this.checkArguments(this.Symbols.Date.args, argList, 'Date');
+    } catch (e) {
+      throw new BsonCompilersArgumentError(
+        'Invalid argument to Date: requires either no args, one string or number, or up to 7 numbers'
+      );
     }
 
     let text = ctx.getText();
@@ -815,11 +783,7 @@ class Visitor extends ECMAScriptVisitor {
     try {
       date = this.executeJavascript(text);
     } catch (error) {
-      if (error.name === 'TypeError') {
-        throw new SemanticTypeError({message: error.message});
-      }
-
-      throw new SemanticGenericError({message: error.message});
+      throw new BsonCompilersRuntimeError(error.message);
     }
     if ('emitDate' in this) {
       return this.emitDate(ctx, date);
@@ -828,7 +792,8 @@ class Visitor extends ECMAScriptVisitor {
   }
 
   /**
-   * Binary needs preprocessing because it needs to be executed.
+   * Binary needs preprocessing because it needs to be executed. Manually check
+   * argument length because 'Buffer' not supported.
    *
    * @param {FuncCallExpressionContext} ctx
    * @return {String}
@@ -856,20 +821,21 @@ class Visitor extends ECMAScriptVisitor {
         argList.singleExpression().length === 2
       )
     ) {
-      throw new SemanticArgumentCountMismatchError({
-        message: 'Binary requires one or two arguments'
-      });
+      throw new BsonCompilersArgumentError(
+        'Argument count mismatch: Binary requires one or two arguments'
+      );
     }
 
     try {
       binobj = this.executeJavascript(ctx.getText());
       type = binobj.sub_type;
     } catch (error) {
+      // TODO: this isn't quite right because it catches all type errors.
       if (error.name === 'TypeError') {
-        throw new SemanticTypeError({message: error.message});
+        throw new BsonCompilersArgumentError(error.message);
       }
 
-      throw new SemanticGenericError({message: error.message});
+      throw new BsonCompilersRuntimeError(error.message);
     }
     const bytes = binobj.toString();
     const args = argList.singleExpression();

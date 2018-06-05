@@ -1,16 +1,26 @@
 {
-  "syntax": {
-    "generic": {"message": "Something went wrong"}
+  "Syntax": {
+    "message": "Invalid syntax"
   },
-  "semantic": {
-    "type": {"message": "Value is not of the expected type"},
-    "argumentCountMismatch": {"message": "Argument count mismatch"},
-    "undefinedSymbol": {"message": "Undefined Symbol"},
-    "generic": {"message": "Something went wrong"},
-    "notYetImplemented": {
-      "message": "Requested funcionality not yet implemented"
-    },
-    "reference": {"message": "Reference error"},
-    "attribute": {"message": "Attribute error"}
+  "Type": {
+    "message": "Unexpected type"
+  },
+  "Argument": {
+    "message": "Invalid argument"
+  },
+  "Runtime": {
+    "message": "Generic error"
+  },
+  "Unimplemented": {
+    "message": "Functionality not implemented"
+  },
+  "Reference": {
+    "message": "Reference error"
+  },
+  "Attribute": {
+    "message": "Attribute error"
+  },
+  "Internal": {
+    "message": "An internal error occurred"
   }
 }

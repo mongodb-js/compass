@@ -4,278 +4,278 @@
       {
         "description": "new Code without args",
         "query": "new Code()",
-        "errorCode": "E_SEMANTIC_ARGUMENTCOUNTMISMATCH"
+        "errorCode": "E_BSONCOMPILERS_ARGUMENT"
       },
       {
         "description": "Code with extra argument (should be 1 or 2)",
         "query": "Code('string', {x: '1'}, 3)",
-        "errorCode": "E_SEMANTIC_ARGUMENTCOUNTMISMATCH"
+        "errorCode": "E_BSONCOMPILERS_ARGUMENT"
       },
       {
         "description": "Code with wrong type of scope",
         "query": "new Code('string', 5)",
-        "errorCode": "E_SEMANTIC_TYPE"
+        "errorCode": "E_BSONCOMPILERS_ARGUMENT"
       }
     ],
     "ObjectId": [
       {
         "description": "ObjectId with wrong type of argument",
         "query": "ObjectId({})",
-        "errorCode": "E_SEMANTIC_TYPE"
+        "errorCode": "E_BSONCOMPILERS_ARGUMENT"
       },
       {
         "description": "ObjectId with extra argument (should be 0 or 1)",
         "query": "ObjectId('5a7382114ec1f67ae445f778', 5)",
-        "errorCode": "E_SEMANTIC_ARGUMENTCOUNTMISMATCH"
+        "errorCode": "E_BSONCOMPILERS_ARGUMENT"
       }
     ],
     "Binary": [
       {
-        "description": "Binary without argumnets",
+        "description": "Binary without arguments",
         "query": "new Binary()",
-        "errorCode": "E_SEMANTIC_ARGUMENTCOUNTMISMATCH"
+        "errorCode": "E_BSONCOMPILERS_ARGUMENT"
       },
       {
-        "description": "Binary with extra argumnet",
+        "description": "Binary with extra argument",
         "query": "new Binary(Buffer.from(\"1234\"), Binary.SUBTYPE_UUID, 5)",
-        "errorCode": "E_SEMANTIC_ARGUMENTCOUNTMISMATCH"
+        "errorCode": "E_BSONCOMPILERS_ARGUMENT"
       },
       {
         "description": "Binary with wrong buffer",
         "query": "new Binary(Buffer.from(1), Binary.SUBTYPE_UUID)",
-        "errorCode": "E_SEMANTIC_TYPE"
+        "errorCode": "E_BSONCOMPILERS_ARGUMENT"
       },
       {
         "description": "Binary with empty Buffer.from()",
         "query": "new Binary(Buffer.from(), Binary.SUBTYPE_UUID)",
-        "errorCode": "E_SEMANTIC_TYPE"
+        "errorCode": "E_BSONCOMPILERS_ARGUMENT"
       },
       {
         "description": "Binary with extra argument in Buffer.from()",
         "query": "new Binary(Buffer.from('1', '2'), Binary.SUBTYPE_UUID)",
-        "errorCode": "E_SEMANTIC_TYPE"
+        "errorCode": "E_BSONCOMPILERS_ARGUMENT"
       }
     ],
     "DBRef": [
       {
-        "description": "DBRef without argumnets",
+        "description": "DBRef without arguments",
         "query": "new DBRef()",
-        "errorCode": "E_SEMANTIC_ARGUMENTCOUNTMISMATCH"
+        "errorCode": "E_BSONCOMPILERS_ARGUMENT"
       },
       {
         "description": "DBRef with extra argument (should be 2 or 3)",
         "query": "new DBRef('coll', ObjectId(), 'db', 5)",
-        "errorCode": "E_SEMANTIC_ARGUMENTCOUNTMISMATCH"
+        "errorCode": "E_BSONCOMPILERS_ARGUMENT"
       },
       {
         "description": "DBRef with few arguments (should be 2 or 3)",
         "query": "new DBRef('coll')",
-        "errorCode": "E_SEMANTIC_ARGUMENTCOUNTMISMATCH"
+        "errorCode": "E_BSONCOMPILERS_ARGUMENT"
       },
       {
         "description": "DBRef with wrong oid",
         "query": "new DBRef('coll', 1)",
-        "errorCode": "E_SEMANTIC_TYPE"
+        "errorCode": "E_BSONCOMPILERS_ARGUMENT"
       },
       {
         "description": "DBRef with wrong namespace",
         "query": "new DBRef(1, ObjectId())",
-        "errorCode": "E_SEMANTIC_TYPE"
+        "errorCode": "E_BSONCOMPILERS_ARGUMENT"
       },
       {
         "description": "DBRef with wrong db",
         "query": "new DBRef('coll', ObjectId(), 5)",
-        "errorCode": "E_SEMANTIC_TYPE"
+        "errorCode": "E_BSONCOMPILERS_ARGUMENT"
       }
     ],
     "Int32": [
       {
-        "description": "Int32 without argumnets",
+        "description": "Int32 without arguments",
         "query": "new Int32()",
-        "errorCode": "E_SEMANTIC_ARGUMENTCOUNTMISMATCH"
+        "errorCode": "E_BSONCOMPILERS_ARGUMENT"
       },
       {
         "description": "Int32 with extra argument (should be 1)",
         "query": "Int32(3, 4)",
-        "errorCode": "E_SEMANTIC_ARGUMENTCOUNTMISMATCH"
+        "errorCode": "E_BSONCOMPILERS_ARGUMENT"
       },
       {
         "description": "Int32 with wrong type of argument",
         "query": "Int32({})",
-        "errorCode": "E_SEMANTIC_TYPE"
+        "errorCode": "E_BSONCOMPILERS_ARGUMENT"
       }
     ],
     "Double": [
       {
-        "description": "Double without argumnets",
+        "description": "Double without arguments",
         "query": "new Double()",
-        "errorCode": "E_SEMANTIC_ARGUMENTCOUNTMISMATCH"
+        "errorCode": "E_BSONCOMPILERS_ARGUMENT"
       },
       {
         "description": "Double with extra argument (should be 1)",
         "query": "Double(3, 4)",
-        "errorCode": "E_SEMANTIC_ARGUMENTCOUNTMISMATCH"
+        "errorCode": "E_BSONCOMPILERS_ARGUMENT"
       },
       {
         "description": "Double with wrong type of argument",
         "query": "Double({})",
-        "errorCode": "E_SEMANTIC_TYPE"
+        "errorCode": "E_BSONCOMPILERS_ARGUMENT"
       }
     ],
     "Long": [
       {
-        "description": "Long without argumnets",
+        "description": "Long without arguments",
         "query": "new Long()",
-        "errorCode": "E_SEMANTIC_ARGUMENTCOUNTMISMATCH"
+        "errorCode": "E_BSONCOMPILERS_ARGUMENT"
       },
       {
         "description": "Long with extra argument",
         "query": "new Long(-1, 2147483647, 3)",
-        "errorCode": "E_SEMANTIC_ARGUMENTCOUNTMISMATCH"
+        "errorCode": "E_BSONCOMPILERS_ARGUMENT"
       },
       {
         "description": "Long with wrong type of argument",
         "query": "Long({})",
-        "errorCode": "E_SEMANTIC_TYPE"
+        "errorCode": "E_BSONCOMPILERS_ARGUMENT"
       }
     ],
     "Document": [
       {
         "description": "Document without colon",
         "query": "{x 1}",
-        "errorCode": "E_SYNTAX_GENERIC"
+        "errorCode": "E_BSONCOMPILERS_SYNTAX"
       },
       {
         "description": "Document with wrong value assignment",
         "query": "{x: 1, 2}",
-        "errorCode": "E_SYNTAX_GENERIC"
+        "errorCode": "E_BSONCOMPILERS_SYNTAX"
       }
     ],
     "BSONRegExp": [
       {
         "description": "RegExp without arguments",
         "query": "new BSONRegExp()",
-        "errorCode": "E_SEMANTIC_ARGUMENTCOUNTMISMATCH"
+        "errorCode": "E_BSONCOMPILERS_ARGUMENT"
       },
       {
         "description": "BSONRegExp with extra argument",
         "query": "new BSONRegExp('^[a-z0-9_-]{3,16}$', 'imuxls', 'extra argument')",
-        "errorCode": "E_SEMANTIC_ARGUMENTCOUNTMISMATCH"
+        "errorCode": "E_BSONCOMPILERS_ARGUMENT"
       },
       {
         "description": "RegExp with unsupported flag",
         "query": "new BSONRegExp('^[a-z0-9_-]{3,16}$', 'wrong')",
-        "errorCode": "E_SEMANTIC_GENERIC"
+        "errorCode": "E_BSONCOMPILERS_RUNTIME"
       },
       {
         "description": "BSONRegExp with not a string pattern",
         "query": "new BSONRegExp(123, 'imuxls')",
-        "errorCode": "E_SEMANTIC_TYPE"
+        "errorCode": "E_BSONCOMPILERS_ARGUMENT"
       },
       {
         "description": "BSONRegExp with not a string flag",
         "query": "new BSONRegExp('^[a-z0-9_-]{3,16}$', 123)",
-        "errorCode": "E_SEMANTIC_TYPE"
+        "errorCode": "E_BSONCOMPILERS_ARGUMENT"
       }
     ],
     "Decimal128": [
       {
-        "description": "Decimal128 without argumnets",
+        "description": "Decimal128 without arguments",
         "query": "new Decimal128()",
-        "errorCode": "E_SEMANTIC_ARGUMENTCOUNTMISMATCH"
+        "errorCode": "E_BSONCOMPILERS_ARGUMENT"
       },
       {
-        "description": "Decimal128 with extra argumnet",
+        "description": "Decimal128 with extra argument",
         "query": "new Decimal128(Buffer.from('5'), 5)",
-        "errorCode": "E_SEMANTIC_ARGUMENTCOUNTMISMATCH"
+        "errorCode": "E_BSONCOMPILERS_ARGUMENT"
       },
       {
         "description": "Decimal128 with wrong buffer",
         "query": "new Decimal128(Buffer.from(5))",
-        "errorCode": "E_SEMANTIC_TYPE"
+        "errorCode": "E_BSONCOMPILERS_ARGUMENT"
       },
       {
         "description": "Decimal128 with empty Buffer.from()",
         "query": "new Decimal128(Buffer.from())",
-        "errorCode": "E_SEMANTIC_TYPE"
+        "errorCode": "E_BSONCOMPILERS_ARGUMENT"
       },
       {
         "description": "Decimal128 with extra argument in Buffer.from()",
         "query": "new Decimal128(Buffer.from('1', '2'))",
-        "errorCode": "E_SEMANTIC_TYPE"
+        "errorCode": "E_BSONCOMPILERS_ARGUMENT"
       }
     ],
     "MinKeyMaxKey": [
       {
-        "description": "MinKey with extra argumnet",
+        "description": "MinKey with extra argument",
         "query": "MinKey(1)",
-        "errorCode": "E_SEMANTIC_ARGUMENTCOUNTMISMATCH"
+        "errorCode": "E_BSONCOMPILERS_ARGUMENT"
       },
       {
-        "description": "new MinKey with extra argumnet",
+        "description": "new MinKey with extra argument",
         "query": "new MinKey(1)",
-        "errorCode": "E_SEMANTIC_ARGUMENTCOUNTMISMATCH"
+        "errorCode": "E_BSONCOMPILERS_ARGUMENT"
       },
       {
-        "description": "MaxKey with extra argumnet",
+        "description": "MaxKey with extra argument",
         "query": "MaxKey(1)",
-        "errorCode": "E_SEMANTIC_ARGUMENTCOUNTMISMATCH"
+        "errorCode": "E_BSONCOMPILERS_ARGUMENT"
       },
       {
-        "description": "new MaxKey with extra argumnet",
+        "description": "new MaxKey with extra argument",
         "query": "new MaxKey(1)",
-        "errorCode": "E_SEMANTIC_ARGUMENTCOUNTMISMATCH"
+        "errorCode": "E_BSONCOMPILERS_ARGUMENT"
       }
     ],
     "Timestamp": [
       {
-        "description": "Timestamp without argumnets",
+        "description": "Timestamp without arguments",
         "query": "Timestamp()",
-        "errorCode": "E_SEMANTIC_ARGUMENTCOUNTMISMATCH"
+        "errorCode": "E_BSONCOMPILERS_ARGUMENT"
       },
       {
         "description": "Timestamp with extra argument (should be 2)",
         "query": "Timestamp(10, 100, 1000)",
-        "errorCode": "E_SEMANTIC_ARGUMENTCOUNTMISMATCH"
+        "errorCode": "E_BSONCOMPILERS_ARGUMENT"
       },
       {
         "description": "Timestamp with few arguments (should be 2)",
         "query": "Timestamp(10)",
-        "errorCode": "E_SEMANTIC_ARGUMENTCOUNTMISMATCH"
+        "errorCode": "E_BSONCOMPILERS_ARGUMENT"
       },
       {
         "description": "Timestamp with wrong type of low",
         "query": "Timestamp({}, 100)",
-        "errorCode": "E_SEMANTIC_TYPE"
+        "errorCode": "E_BSONCOMPILERS_ARGUMENT"
       },
       {
         "description": "Timestamp with wrong type of high",
         "query": "Timestamp(10, {})",
-        "errorCode": "E_SEMANTIC_TYPE"
+        "errorCode": "E_BSONCOMPILERS_ARGUMENT"
       }
     ],
     "Array": [
       {
         "description": "Array with wrong delimiter",
         "query": "[1;2;3]",
-        "errorCode": "E_SYNTAX_GENERIC"
+        "errorCode": "E_BSONCOMPILERS_SYNTAX"
       }
     ],
     "Symbol": [
       {
         "description": "new Symbol without args",
         "query": "new Symbol()",
-        "errorCode": "E_SEMANTIC_ARGUMENTCOUNTMISMATCH"
+        "errorCode": "E_BSONCOMPILERS_ARGUMENT"
       },
       {
         "description": "Symbol with extra argument (should be 1)",
         "query": "Symbol('2', '3')",
-        "errorCode": "E_SEMANTIC_ARGUMENTCOUNTMISMATCH"
+        "errorCode": "E_BSONCOMPILERS_ARGUMENT"
       },
       {
         "description": "Symbol with wrong type of argument",
         "query": "Symbol({})",
-        "errorCode": "E_SEMANTIC_TYPE"
+        "errorCode": "E_BSONCOMPILERS_ARGUMENT"
       }
     ]
   }

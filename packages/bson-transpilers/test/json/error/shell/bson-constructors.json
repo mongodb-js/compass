@@ -4,14 +4,14 @@
       {
         "description": "Document without colon",
         "query": "{x 1}",
-        "errorCode": "E_SYNTAX_GENERIC"
+        "errorCode": "E_BSONCOMPILERS_SYNTAX"
       }
     ],
     "BinData": [
       {
-        "description": "BinData with unsuppoted subtype",
+        "description": "BinData with unsupported subtype",
         "query": "new BinData(400, '1234')",
-        "errorCode": "E_SEMANTIC_GENERIC"
+        "errorCode": "E_BSONCOMPILERS_RUNTIME"
       }
     ]
   }

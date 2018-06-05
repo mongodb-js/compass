@@ -3,6 +3,8 @@ const ECMAScriptLexer = require('./lib/antlr/ECMAScriptLexer.js');
 const ECMAScriptParser = require('./lib/antlr/ECMAScriptParser.js');
 
 const ErrorListener = require('./codegeneration/ErrorListener.js');
+const { BsonCompilersInternalError } = require('./helper/error');
+
 const yaml = require('js-yaml');
 
 const JavascriptVisitor = require('./codegeneration/javascript/Visitor');
@@ -60,8 +62,15 @@ const getCompiler = (visitor, generator, symbols) => {
     Types: Object.assign({}, doc.BasicTypes, doc.BsonTypes, doc.JSTypes)
   });
   return (input) => {
-    const tree = loadTree(input);
-    return compiler.start(tree);
+    try {
+      const tree = loadTree(input);
+      return compiler.start(tree);
+    } catch (e) {
+      if (e.code && e.code.includes('BSONCOMPILERS')) {
+        throw e;
+      }
+      throw new BsonCompilersInternalError(e.message, e);
+    }
   };
 };
 

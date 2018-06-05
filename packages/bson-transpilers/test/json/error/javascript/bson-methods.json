@@ -4,845 +4,845 @@
       {
         "description": "Code with invalidMethod",
         "query": "Code('test code', {x: 1}).invalidMethod()",
-        "errorCode": "E_SEMANTIC_ATTRIBUTE"
+        "errorCode": "E_BSONCOMPILERS_ATTRIBUTE"
       },
       {
         "description": "Code with callable scope",
         "query": "Code('test code', {x: 1}).scope()",
-        "errorCode": "E_SEMANTIC_TYPE"
+        "errorCode": "E_BSONCOMPILERS_TYPE"
       },
       {
         "description": "Code with callable code",
         "query": "Code('test code').code()",
-        "errorCode": "E_SEMANTIC_TYPE"
+        "errorCode": "E_BSONCOMPILERS_TYPE"
       }
     ],
     "ObjectId": [
       {
         "description": "ObjectId with invalidMethod",
         "query": "ObjectId().invalidMethod()",
-        "errorCode": "E_SEMANTIC_ATTRIBUTE"
+        "errorCode": "E_BSONCOMPILERS_ATTRIBUTE"
       },
       {
         "description": "ObjectId .toString() with extra argument",
         "query": "ObjectId().toString(123)",
-        "errorCode": "E_SEMANTIC_ARGUMENTCOUNTMISMATCH"
+        "errorCode": "E_BSONCOMPILERS_ARGUMENT"
       },
       {
         "description": "ObjectId .toString not callable",
         "query": "ObjectId().toString",
-        "errorCode": "E_SEMANTIC_TYPE"
+        "errorCode": "E_BSONCOMPILERS_TYPE"
       },
       {
         "description": "ObjectId .getTimestamp() with extra argument",
         "query": "ObjectId().getTimestamp(123)",
-        "errorCode": "E_SEMANTIC_ARGUMENTCOUNTMISMATCH"
+        "errorCode": "E_BSONCOMPILERS_ARGUMENT"
       },
       {
         "description": "ObjectId .getTimestamp not callable",
         "query": "ObjectId().getTimestamp",
-        "errorCode": "E_SEMANTIC_TYPE"
+        "errorCode": "E_BSONCOMPILERS_TYPE"
       },
       {
         "description": "ObjectId .equals() without arguments",
         "query": "ObjectId().equals()",
-        "errorCode": "E_SEMANTIC_ARGUMENTCOUNTMISMATCH"
+        "errorCode": "E_BSONCOMPILERS_ARGUMENT"
       },
       {
         "description": "ObjectId .equals() with extra argument",
         "query": "ObjectId().equals(ObjectId(), ObjectId())",
-        "errorCode": "E_SEMANTIC_ARGUMENTCOUNTMISMATCH"
+        "errorCode": "E_BSONCOMPILERS_ARGUMENT"
       },
       {
         "description": "ObjectId .equals not callable",
         "query": "ObjectId().equals",
-        "errorCode": "E_SEMANTIC_TYPE"
+        "errorCode": "E_BSONCOMPILERS_TYPE"
       },
       {
         "description": "ObjectId .equals() with wrong type of argument",
         "query": "ObjectId().equals([1, 2])",
-        "errorCode": "E_SEMANTIC_TYPE"
+        "errorCode": "E_BSONCOMPILERS_ARGUMENT"
       }
     ],
     "Binary": [
       {
         "description": "Binary with invalidMethod",
         "query": "Binary(Buffer.from('a string')).invalidMethod()",
-        "errorCode": "E_SEMANTIC_ATTRIBUTE"
+        "errorCode": "E_BSONCOMPILERS_ATTRIBUTE"
       },
       {
         "description": "Binary with invalidProperty",
         "query": "Binary(Buffer.from('a string')).invalidProperty",
-        "errorCode": "E_SEMANTIC_ATTRIBUTE"
+        "errorCode": "E_BSONCOMPILERS_ATTRIBUTE"
       },
       {
         "description": "Binary .length() with extra argument",
         "query": "Binary(Buffer.from('0404')).length(10)",
-        "errorCode": "E_SEMANTIC_ARGUMENTCOUNTMISMATCH"
+        "errorCode": "E_BSONCOMPILERS_ARGUMENT"
       },
       {
         "description": "Binary .length not callable",
         "query": "Binary(Buffer.from('0404')).length",
-        "errorCode": "E_SEMANTIC_TYPE"
+        "errorCode": "E_BSONCOMPILERS_TYPE"
       },
       {
         "description": "Binary with callable sub_type",
         "query": "Binary(Buffer.from('0001')).sub_type()",
-        "errorCode": "E_SEMANTIC_TYPE"
+        "errorCode": "E_BSONCOMPILERS_TYPE"
       },
       {
         "description": "Binary .value() with extra argument",
         "query": "Binary(Buffer.from('0404')).value(12)",
-        "errorCode": "E_SEMANTIC_ARGUMENTCOUNTMISMATCH"
+        "errorCode": "E_BSONCOMPILERS_ARGUMENT"
       },
       {
         "description": "Binary .value not callable",
         "query": "Binary(Buffer.from('0404')).value",
-        "errorCode": "E_SEMANTIC_TYPE"
+        "errorCode": "E_BSONCOMPILERS_TYPE"
       },
       {
         "description": "Binary .toString() with extra argument",
         "query": "Binary(Buffer.from('0404')).toString(10)",
-        "errorCode": "E_SEMANTIC_ARGUMENTCOUNTMISMATCH"
+        "errorCode": "E_BSONCOMPILERS_ARGUMENT"
       },
       {
         "description": "Binary .toString not callable",
         "query": "Binary(Buffer.from('0404')).toString",
-        "errorCode": "E_SEMANTIC_TYPE"
+        "errorCode": "E_BSONCOMPILERS_TYPE"
       }
     ],
     "DBRef": [
       {
         "description": "DBRef with invalidMethod",
         "query": "new DBRef('coll', new ObjectId()).invalidMethod()",
-        "errorCode": "E_SEMANTIC_ATTRIBUTE"
+        "errorCode": "E_BSONCOMPILERS_ATTRIBUTE"
       },
       {
         "description": "DBRef with invalidProperty",
         "query": "new DBRef('coll', new ObjectId()).invalidProperty",
-        "errorCode": "E_SEMANTIC_ATTRIBUTE"
+        "errorCode": "E_BSONCOMPILERS_ATTRIBUTE"
       },
       {
         "description": "DBRef .toString() with extra argument",
         "query": "new DBRef('coll', new ObjectId()).toString(10)",
-        "errorCode": "E_SEMANTIC_ARGUMENTCOUNTMISMATCH"
+        "errorCode": "E_BSONCOMPILERS_ARGUMENT"
       },
       {
         "description": "DBRef .toString not callable",
         "query": "new DBRef('coll', new ObjectId()).toString",
-        "errorCode": "E_SEMANTIC_TYPE"
+        "errorCode": "E_BSONCOMPILERS_TYPE"
       },
       {
         "description": "DBRef with callable db",
         "query": "new DBRef('coll', new ObjectId()).db()",
-        "errorCode": "E_SEMANTIC_TYPE"
+        "errorCode": "E_BSONCOMPILERS_TYPE"
       },
       {
         "description": "DBRef with callable namespace",
         "query": "new DBRef('coll', new ObjectId()).namespace()",
-        "errorCode": "E_SEMANTIC_TYPE"
+        "errorCode": "E_BSONCOMPILERS_TYPE"
       },
       {
         "description": "DBRef with callable oid",
         "query": "new DBRef('coll', new ObjectId()).oid()",
-        "errorCode": "E_SEMANTIC_TYPE"
+        "errorCode": "E_BSONCOMPILERS_TYPE"
       }
     ],
     "Int32": [
       {
         "description": "Int32 with invalidOtherMethod",
         "query": "Int32(3).invalidOtherMethod()",
-        "errorCode": "E_SEMANTIC_ATTRIBUTE"
+        "errorCode": "E_BSONCOMPILERS_ATTRIBUTE"
       },
       {
         "description": "Int32 .valueOf() with extra argument",
         "query": "Int32(3).valueOf(10)",
-        "errorCode": "E_SEMANTIC_ARGUMENTCOUNTMISMATCH"
+        "errorCode": "E_BSONCOMPILERS_ARGUMENT"
       },
       {
         "description": "Int32 .valueOf not callable",
         "query": "Int32(3).valueOf",
-        "errorCode": "E_SEMANTIC_TYPE"
+        "errorCode": "E_BSONCOMPILERS_TYPE"
       }
     ],
     "Double": [
       {
         "description": "Double with invalidOtherMethod",
         "query": "Double(3).invalidOtherMethod()",
-        "errorCode": "E_SEMANTIC_ATTRIBUTE"
+        "errorCode": "E_BSONCOMPILERS_ATTRIBUTE"
       },
       {
         "description": "Double .valueOf() with extra argument",
         "query": "Double(3).valueOf(10)",
-        "errorCode": "E_SEMANTIC_ARGUMENTCOUNTMISMATCH"
+        "errorCode": "E_BSONCOMPILERS_ARGUMENT"
       },
       {
         "description": "Double .valueOf not callable",
         "query": "Double(3).valueOf",
-        "errorCode": "E_SEMANTIC_TYPE"
+        "errorCode": "E_BSONCOMPILERS_TYPE"
       }
     ],
     "Long": [
       {
         "description": "Long with invalidMethod",
         "query": "Long(1, 100).invalidMethod()",
-        "errorCode": "E_SEMANTIC_ATTRIBUTE"
+        "errorCode": "E_BSONCOMPILERS_ATTRIBUTE"
       },
       {
         "description": "Long .toString() with extra argument",
         "query": "Long(1, 100).toString(1, 2)",
-        "errorCode": "E_SEMANTIC_ARGUMENTCOUNTMISMATCH"
+        "errorCode": "E_BSONCOMPILERS_ARGUMENT"
       },
       {
         "description": "Long .toString() with wrong type of argument",
         "query": "Long(1, 100).toString({})",
-        "errorCode": "E_SEMANTIC_TYPE"
+        "errorCode": "E_BSONCOMPILERS_ARGUMENT"
       },
       {
         "description": "Long .toString not callable",
         "query": "Long(1, 100).toString",
-        "errorCode": "E_SEMANTIC_TYPE"
+        "errorCode": "E_BSONCOMPILERS_TYPE"
       },
       {
         "description": "Long .toInt() with extra argument",
         "query": "Long(1, 100).toInt(10)",
-        "errorCode": "E_SEMANTIC_ARGUMENTCOUNTMISMATCH"
+        "errorCode": "E_BSONCOMPILERS_ARGUMENT"
       },
       {
         "description": "Long .toInt not callable",
         "query": "Long(1, 100).toInt",
-        "errorCode": "E_SEMANTIC_TYPE"
+        "errorCode": "E_BSONCOMPILERS_TYPE"
       },
       {
         "description": "Long .toNumber() with extra argument",
         "query": "Long(1, 100).toNumber(10)",
-        "errorCode": "E_SEMANTIC_ARGUMENTCOUNTMISMATCH"
+        "errorCode": "E_BSONCOMPILERS_ARGUMENT"
       },
       {
         "description": "Long .isZero() with extra argument",
         "query": "Long(1, 100).isZero(0)",
-        "errorCode": "E_SEMANTIC_ARGUMENTCOUNTMISMATCH"
+        "errorCode": "E_BSONCOMPILERS_ARGUMENT"
       },
       {
         "description": "Long .isZero not callable",
         "query": "Long(1, 100).isZero",
-        "errorCode": "E_SEMANTIC_TYPE"
+        "errorCode": "E_BSONCOMPILERS_TYPE"
       },
       {
         "description": "Long .isNegative() with extra argument",
         "query": "Long(1, 100).isNegative(-1)",
-        "errorCode": "E_SEMANTIC_ARGUMENTCOUNTMISMATCH"
+        "errorCode": "E_BSONCOMPILERS_ARGUMENT"
       },
       {
         "description": "Long .isNegative not callable",
         "query": "Long(1, 100).isNegative",
-        "errorCode": "E_SEMANTIC_TYPE"
+        "errorCode": "E_BSONCOMPILERS_TYPE"
       },
       {
         "description": "Long .isOdd() with extra argument",
         "query": "Long(1, 100).isOdd(10)",
-        "errorCode": "E_SEMANTIC_ARGUMENTCOUNTMISMATCH"
+        "errorCode": "E_BSONCOMPILERS_ARGUMENT"
       },
       {
         "description": "Long .isOdd not callable",
         "query": "Long(1, 100).isOdd",
-        "errorCode": "E_SEMANTIC_TYPE"
+        "errorCode": "E_BSONCOMPILERS_TYPE"
       },
       {
         "description": "Long .equals() without arguments",
         "query": "Long(1, 100).equals()",
-        "errorCode": "E_SEMANTIC_ARGUMENTCOUNTMISMATCH"
+        "errorCode": "E_BSONCOMPILERS_ARGUMENT"
       },
       {
         "description": "Long .equals() with extra argument",
         "query": "Long(1, 100).equals(Long(9, 1), 20)",
-        "errorCode": "E_SEMANTIC_ARGUMENTCOUNTMISMATCH"
+        "errorCode": "E_BSONCOMPILERS_ARGUMENT"
       },
       {
         "description": "Long .equals not callable",
         "query": "Long(1, 100).equals",
-        "errorCode": "E_SEMANTIC_TYPE"
+        "errorCode": "E_BSONCOMPILERS_TYPE"
       },
       {
         "description": "Long .equals() with wrong type of argument",
         "query": "Long(1, 100).equals({})",
-        "errorCode": "E_SEMANTIC_TYPE"
+        "errorCode": "E_BSONCOMPILERS_ARGUMENT"
       },
       {
         "description": "Long .notEquals() without arguments",
         "query": "Long(1, 100).notEquals()",
-        "errorCode": "E_SEMANTIC_ARGUMENTCOUNTMISMATCH"
+        "errorCode": "E_BSONCOMPILERS_ARGUMENT"
       },
       {
         "description": "Long .notEquals() with extra argument",
         "query": "Long(1, 100).notEquals(Long(9, 1), 20)",
-        "errorCode": "E_SEMANTIC_ARGUMENTCOUNTMISMATCH"
+        "errorCode": "E_BSONCOMPILERS_ARGUMENT"
       },
       {
         "description": "Long .notEquals not callable",
         "query": "Long(1, 100).notEquals",
-        "errorCode": "E_SEMANTIC_TYPE"
+        "errorCode": "E_BSONCOMPILERS_TYPE"
       },
       {
         "description": "Long .notEquals() with wrong type of argument",
         "query": "Long(1, 100).notEquals({})",
-        "errorCode": "E_SEMANTIC_TYPE"
+        "errorCode": "E_BSONCOMPILERS_ARGUMENT"
       },
       {
         "description": "Long .compare() without arguments",
         "query": "Long(1, 100).compare()",
-        "errorCode": "E_SEMANTIC_ARGUMENTCOUNTMISMATCH"
+        "errorCode": "E_BSONCOMPILERS_ARGUMENT"
       },
       {
         "description": "Long .compare() with extra argument",
         "query": "Long(1, 100).compare(Long(9, 1), 20)",
-        "errorCode": "E_SEMANTIC_ARGUMENTCOUNTMISMATCH"
+        "errorCode": "E_BSONCOMPILERS_ARGUMENT"
       },
       {
         "description": "Long .compare not callable",
         "query": "Long(1, 100).compare",
-        "errorCode": "E_SEMANTIC_TYPE"
+        "errorCode": "E_BSONCOMPILERS_TYPE"
       },
       {
         "description": "Long .compare() with wrong type of argument",
         "query": "Long(1, 100).compare({})",
-        "errorCode": "E_SEMANTIC_TYPE"
+        "errorCode": "E_BSONCOMPILERS_ARGUMENT"
       },
       {
         "description": "Long .greaterThan() without arguments",
         "query": "Long(1, 100).greaterThan()",
-        "errorCode": "E_SEMANTIC_ARGUMENTCOUNTMISMATCH"
+        "errorCode": "E_BSONCOMPILERS_ARGUMENT"
       },
       {
         "description": "Long .greaterThan() with extra argument",
         "query": "Long(1, 100).greaterThan(Long(9, 1), 20)",
-        "errorCode": "E_SEMANTIC_ARGUMENTCOUNTMISMATCH"
+        "errorCode": "E_BSONCOMPILERS_ARGUMENT"
       },
       {
         "description": "Long .greaterThan not callable",
         "query": "Long(1, 100).greaterThan",
-        "errorCode": "E_SEMANTIC_TYPE"
+        "errorCode": "E_BSONCOMPILERS_TYPE"
       },
       {
         "description": "Long .greaterThan() with wrong type of argument",
         "query": "Long(1, 100).greaterThan({})",
-        "errorCode": "E_SEMANTIC_TYPE"
+        "errorCode": "E_BSONCOMPILERS_ARGUMENT"
       },
       {
         "description": "Long .greaterThanOrEqual() without arguments",
         "query": "Long(1, 100).greaterThanOrEqual()",
-        "errorCode": "E_SEMANTIC_ARGUMENTCOUNTMISMATCH"
+        "errorCode": "E_BSONCOMPILERS_ARGUMENT"
       },
       {
         "description": "Long .greaterThanOrEqual() with extra argument",
         "query": "Long(1, 100).greaterThanOrEqual(Long(9, 1), 20)",
-        "errorCode": "E_SEMANTIC_ARGUMENTCOUNTMISMATCH"
+        "errorCode": "E_BSONCOMPILERS_ARGUMENT"
       },
       {
         "description": "Long .greaterThanOrEqual not callable",
         "query": "Long(1, 100).greaterThanOrEqual",
-        "errorCode": "E_SEMANTIC_TYPE"
+        "errorCode": "E_BSONCOMPILERS_TYPE"
       },
       {
         "description": "Long .greaterThanOrEqual() with wrong type of argument",
         "query": "Long(1, 100).greaterThanOrEqual({})",
-        "errorCode": "E_SEMANTIC_TYPE"
+        "errorCode": "E_BSONCOMPILERS_ARGUMENT"
       },
       {
         "description": "Long .lessThan() without arguments",
         "query": "Long(1, 100).lessThan()",
-        "errorCode": "E_SEMANTIC_ARGUMENTCOUNTMISMATCH"
+        "errorCode": "E_BSONCOMPILERS_ARGUMENT"
       },
       {
         "description": "Long .lessThan() with extra argument",
         "query": "Long(1, 100).lessThan(Long(9, 1), 20)",
-        "errorCode": "E_SEMANTIC_ARGUMENTCOUNTMISMATCH"
+        "errorCode": "E_BSONCOMPILERS_ARGUMENT"
       },
       {
         "description": "Long .lessThan not callable",
         "query": "Long(1, 100).lessThan",
-        "errorCode": "E_SEMANTIC_TYPE"
+        "errorCode": "E_BSONCOMPILERS_TYPE"
       },
       {
         "description": "Long .lessThan() with wrong type of argument",
         "query": "Long(1, 100).lessThan({})",
-        "errorCode": "E_SEMANTIC_TYPE"
+        "errorCode": "E_BSONCOMPILERS_ARGUMENT"
       },
       {
         "description": "Long .lessThanOrEqual() without arguments",
         "query": "Long(1, 100).lessThan()",
-        "errorCode": "E_SEMANTIC_ARGUMENTCOUNTMISMATCH"
+        "errorCode": "E_BSONCOMPILERS_ARGUMENT"
       },
       {
         "description": "Long .lessThanOrEqual() with extra argument",
         "query": "Long(1, 100).lessThanOrEqual(Long(9, 1), 20)",
-        "errorCode": "E_SEMANTIC_ARGUMENTCOUNTMISMATCH"
+        "errorCode": "E_BSONCOMPILERS_ARGUMENT"
       },
       {
         "description": "Long .lessThanOrEqual not callable",
         "query": "Long(1, 100).lessThanOrEqual",
-        "errorCode": "E_SEMANTIC_TYPE"
+        "errorCode": "E_BSONCOMPILERS_TYPE"
       },
       {
         "description": "Long .lessThanOrEqual() with wrong type of argument",
         "query": "Long(1, 100).lessThanOrEqual({})",
-        "errorCode": "E_SEMANTIC_TYPE"
+        "errorCode": "E_BSONCOMPILERS_ARGUMENT"
       },
       {
         "description": "Long .negate() with extra argument",
         "query": "Long(1, 100).negate(12)",
-        "errorCode": "E_SEMANTIC_ARGUMENTCOUNTMISMATCH"
+        "errorCode": "E_BSONCOMPILERS_ARGUMENT"
       },
       {
         "description": "Long .negate not callable",
         "query": "Long(1, 100).negate",
-        "errorCode": "E_SEMANTIC_TYPE"
+        "errorCode": "E_BSONCOMPILERS_TYPE"
       },
       {
         "description": "Long .add() without arguments",
         "query": "Long(1, 100).add()",
-        "errorCode": "E_SEMANTIC_ARGUMENTCOUNTMISMATCH"
+        "errorCode": "E_BSONCOMPILERS_ARGUMENT"
       },
       {
         "description": "Long .add() with extra argument",
         "query": "Long(1, 100).add(Long(9, 1), 21)",
-        "errorCode": "E_SEMANTIC_ARGUMENTCOUNTMISMATCH"
+        "errorCode": "E_BSONCOMPILERS_ARGUMENT"
       },
       {
         "description": "Long .add not callable",
         "query": "Long(1, 100).add",
-        "errorCode": "E_SEMANTIC_TYPE"
+        "errorCode": "E_BSONCOMPILERS_TYPE"
       },
       {
         "description": "Long .add() with wrong type of argument",
         "query": "Long(1, 100).add({})",
-        "errorCode": "E_SEMANTIC_TYPE"
+        "errorCode": "E_BSONCOMPILERS_ARGUMENT"
       },
       {
         "description": "Long .subtract() without arguments",
         "query": "Long(1, 100).subtract()",
-        "errorCode": "E_SEMANTIC_ARGUMENTCOUNTMISMATCH"
+        "errorCode": "E_BSONCOMPILERS_ARGUMENT"
       },
       {
         "description": "Long .subtract() with extra argument",
         "query": "Long(1, 100).subtract(Long(9, 1), 21)",
-        "errorCode": "E_SEMANTIC_ARGUMENTCOUNTMISMATCH"
+        "errorCode": "E_BSONCOMPILERS_ARGUMENT"
       },
       {
         "description": "Long .subtract not callable",
         "query": "Long(1, 100).subtract",
-        "errorCode": "E_SEMANTIC_TYPE"
+        "errorCode": "E_BSONCOMPILERS_TYPE"
       },
       {
         "description": "Long .subtract() with wrong type of argument",
         "query": "Long(1, 100).subtract({})",
-        "errorCode": "E_SEMANTIC_TYPE"
+        "errorCode": "E_BSONCOMPILERS_ARGUMENT"
       },
       {
         "description": "Long .multiply() without arguments",
         "query": "Long(1, 100).multiply()",
-        "errorCode": "E_SEMANTIC_ARGUMENTCOUNTMISMATCH"
+        "errorCode": "E_BSONCOMPILERS_ARGUMENT"
       },
       {
         "description": "Long .multiply() with extra argument",
         "query": "Long(1, 100).multiply(Long(9, 1), 21)",
-        "errorCode": "E_SEMANTIC_ARGUMENTCOUNTMISMATCH"
+        "errorCode": "E_BSONCOMPILERS_ARGUMENT"
       },
       {
         "description": "Long .multiply not callable",
         "query": "Long(1, 100).multiply",
-        "errorCode": "E_SEMANTIC_TYPE"
+        "errorCode": "E_BSONCOMPILERS_TYPE"
       },
       {
         "description": "Long .multiply() with wrong type of argument",
         "query": "Long(1, 100).multiply({})",
-        "errorCode": "E_SEMANTIC_TYPE"
+        "errorCode": "E_BSONCOMPILERS_ARGUMENT"
       },
       {
         "description": "Long .div() without arguments",
         "query": "Long(1, 100).div()",
-        "errorCode": "E_SEMANTIC_ARGUMENTCOUNTMISMATCH"
+        "errorCode": "E_BSONCOMPILERS_ARGUMENT"
       },
       {
         "description": "Long .div() with extra argument",
         "query": "Long(1, 100).div(Long(9, 1), 21)",
-        "errorCode": "E_SEMANTIC_ARGUMENTCOUNTMISMATCH"
+        "errorCode": "E_BSONCOMPILERS_ARGUMENT"
       },
       {
         "description": "Long .div not callable",
         "query": "Long(1, 100).div",
-        "errorCode": "E_SEMANTIC_TYPE"
+        "errorCode": "E_BSONCOMPILERS_TYPE"
       },
       {
         "description": "Long .div() with wrong type of argument",
         "query": "Long(1, 100).div({})",
-        "errorCode": "E_SEMANTIC_TYPE"
+        "errorCode": "E_BSONCOMPILERS_ARGUMENT"
       },
       {
         "description": "Long .modulo() without arguments",
         "query": "Long(1, 100).modulo()",
-        "errorCode": "E_SEMANTIC_ARGUMENTCOUNTMISMATCH"
+        "errorCode": "E_BSONCOMPILERS_ARGUMENT"
       },
       {
         "description": "Long .modulo() with extra argument",
         "query": "Long(1, 100).modulo(Long(9, 1), 21)",
-        "errorCode": "E_SEMANTIC_ARGUMENTCOUNTMISMATCH"
+        "errorCode": "E_BSONCOMPILERS_ARGUMENT"
       },
       {
         "description": "Long .modulo not callable",
         "query": "Long(1, 100).modulo",
-        "errorCode": "E_SEMANTIC_TYPE"
+        "errorCode": "E_BSONCOMPILERS_TYPE"
       },
       {
         "description": "Long .modulo() with wrong type of argument",
         "query": "Long(1, 100).modulo({})",
-        "errorCode": "E_SEMANTIC_TYPE"
+        "errorCode": "E_BSONCOMPILERS_ARGUMENT"
       },
       {
         "description": "Long .not() with extra argument",
         "query": "Long(1, 100).not(12)",
-        "errorCode": "E_SEMANTIC_ARGUMENTCOUNTMISMATCH"
+        "errorCode": "E_BSONCOMPILERS_ARGUMENT"
       },
       {
         "description": "Long .not not callable",
         "query": "Long(1, 100).not",
-        "errorCode": "E_SEMANTIC_TYPE"
+        "errorCode": "E_BSONCOMPILERS_TYPE"
       },
       {
         "description": "Long .and() without arguments",
         "query": "Long(1, 100).and()",
-        "errorCode": "E_SEMANTIC_ARGUMENTCOUNTMISMATCH"
+        "errorCode": "E_BSONCOMPILERS_ARGUMENT"
       },
       {
         "description": "Long .and() with extra argument",
         "query": "Long(1, 100).and(Long(9, 1), 21)",
-        "errorCode": "E_SEMANTIC_ARGUMENTCOUNTMISMATCH"
+        "errorCode": "E_BSONCOMPILERS_ARGUMENT"
       },
       {
         "description": "Long .and not callable",
         "query": "Long(1, 100).and",
-        "errorCode": "E_SEMANTIC_TYPE"
+        "errorCode": "E_BSONCOMPILERS_TYPE"
       },
       {
         "description": "Long .and() with wrong type of argument",
         "query": "Long(1, 100).and({})",
-        "errorCode": "E_SEMANTIC_TYPE"
+        "errorCode": "E_BSONCOMPILERS_ARGUMENT"
       },
       {
         "description": "Long .or() without arguments",
         "query": "Long(1, 100).or()",
-        "errorCode": "E_SEMANTIC_ARGUMENTCOUNTMISMATCH"
+        "errorCode": "E_BSONCOMPILERS_ARGUMENT"
       },
       {
         "description": "Long .or() with extra argument",
         "query": "Long(1, 100).or(Long(9, 1), 21)",
-        "errorCode": "E_SEMANTIC_ARGUMENTCOUNTMISMATCH"
+        "errorCode": "E_BSONCOMPILERS_ARGUMENT"
       },
       {
         "description": "Long .or not callable",
         "query": "Long(1, 100).or",
-        "errorCode": "E_SEMANTIC_TYPE"
+        "errorCode": "E_BSONCOMPILERS_TYPE"
       },
       {
         "description": "Long .or() with wrong type of argument",
         "query": "Long(1, 100).or({})",
-        "errorCode": "E_SEMANTIC_TYPE"
+        "errorCode": "E_BSONCOMPILERS_ARGUMENT"
       },
       {
         "description": "Long .xor() without arguments",
         "query": "Long(1, 100).xor()",
-        "errorCode": "E_SEMANTIC_ARGUMENTCOUNTMISMATCH"
+        "errorCode": "E_BSONCOMPILERS_ARGUMENT"
       },
       {
         "description": "Long .xor() with extra argument",
         "query": "Long(1, 100).xor(Long(9, 1), 21)",
-        "errorCode": "E_SEMANTIC_ARGUMENTCOUNTMISMATCH"
+        "errorCode": "E_BSONCOMPILERS_ARGUMENT"
       },
       {
         "description": "Long .xor not callable",
         "query": "Long(1, 100).xor",
-        "errorCode": "E_SEMANTIC_TYPE"
+        "errorCode": "E_BSONCOMPILERS_TYPE"
       },
       {
         "description": "Long .xor() with wrong type of argument",
         "query": "Long(1, 100).xor({})",
-        "errorCode": "E_SEMANTIC_TYPE"
+        "errorCode": "E_BSONCOMPILERS_ARGUMENT"
       },
       {
         "description": "Long .shiftLeft() without arguments",
         "query": "Long(1, 100).shiftLeft()",
-        "errorCode": "E_SEMANTIC_ARGUMENTCOUNTMISMATCH"
+        "errorCode": "E_BSONCOMPILERS_ARGUMENT"
       },
       {
         "description": "Long .shiftLeft() with extra argument",
         "query": "Long(1, 100).shiftLeft(10, 20)",
-        "errorCode": "E_SEMANTIC_ARGUMENTCOUNTMISMATCH"
+        "errorCode": "E_BSONCOMPILERS_ARGUMENT"
       },
       {
         "description": "Long .shiftLeft not callable",
         "query": "Long(1, 100).shiftLeft",
-        "errorCode": "E_SEMANTIC_TYPE"
+        "errorCode": "E_BSONCOMPILERS_TYPE"
       },
       {
         "description": "Long .shiftLeft() with wrong type of argument",
         "query": "Long(1, 100).shiftLeft({})",
-        "errorCode": "E_SEMANTIC_TYPE"
+        "errorCode": "E_BSONCOMPILERS_ARGUMENT"
       },
       {
         "description": "Long .shiftRight() without arguments",
         "query": "Long(1, 100).shiftRight()",
-        "errorCode": "E_SEMANTIC_ARGUMENTCOUNTMISMATCH"
+        "errorCode": "E_BSONCOMPILERS_ARGUMENT"
       },
       {
         "description": "Long .shiftRight() with extra argument",
         "query": "Long(1, 100).shiftRight(10, 20)",
-        "errorCode": "E_SEMANTIC_ARGUMENTCOUNTMISMATCH"
+        "errorCode": "E_BSONCOMPILERS_ARGUMENT"
       },
       {
         "description": "Long .shiftRight not callable",
         "query": "Long(1, 100).shiftRight",
-        "errorCode": "E_SEMANTIC_TYPE"
+        "errorCode": "E_BSONCOMPILERS_TYPE"
       },
       {
         "description": "Long .shiftRight() with wrong type of argument",
         "query": "Long(1, 100).shiftRight({})",
-        "errorCode": "E_SEMANTIC_TYPE"
+        "errorCode": "E_BSONCOMPILERS_ARGUMENT"
       }
     ],
     "Decimal128": [
       {
         "description": "Decimal128 with invalidMethod",
         "query": "new Decimal128(Buffer.from('5')).invalidMethod()",
-        "errorCode": "E_SEMANTIC_ATTRIBUTE"
+        "errorCode": "E_BSONCOMPILERS_ATTRIBUTE"
       },
       {
         "description": "Decimal128 .toString() with extra argument",
         "query": "new Decimal128(Buffer.from('5')).toString()",
-        "errorCode": "E_SEMANTIC_ARGUMENTCOUNTMISMATCH"
+        "errorCode": "E_BSONCOMPILERS_ARGUMENT"
       },
       {
         "description": "Decimal128 .toString not callable",
         "query": "new Decimal128(Buffer.from('5')).toString",
-        "errorCode": "E_SEMANTIC_TYPE"
+        "errorCode": "E_BSONCOMPILERS_TYPE"
       }
     ],
     "Timestamp": [
       {
         "description": "Timestamp with invalidMethod",
         "query": "Timestamp(1, 100).invalidMethod()",
-        "errorCode": "E_SEMANTIC_ATTRIBUTE"
+        "errorCode": "E_BSONCOMPILERS_ATTRIBUTE"
       },
       {
         "description": "Timestamp with invalidProperty",
         "query": "Timestamp(1, 100).invalidProperty",
-        "errorCode": "E_SEMANTIC_ATTRIBUTE"
+        "errorCode": "E_BSONCOMPILERS_ATTRIBUTE"
       },
       {
         "description": "Timestamp .toString() with extra argument",
         "query": "Timestamp(1, 100).toString(10)",
-        "errorCode": "E_SEMANTIC_ARGUMENTCOUNTMISMATCH"
+        "errorCode": "E_BSONCOMPILERS_ARGUMENT"
       },
       {
         "description": "Timestamp .toString not callable",
         "query": "Timestamp(1, 100).toString",
-        "errorCode": "E_SEMANTIC_TYPE"
+        "errorCode": "E_BSONCOMPILERS_TYPE"
       },
       {
         "description": "Timestamp .equals() without arguments",
         "query": "Timestamp(1, 100).equals()",
-        "errorCode": "E_SEMANTIC_ARGUMENTCOUNTMISMATCH"
+        "errorCode": "E_BSONCOMPILERS_ARGUMENT"
       },
       {
         "description": "Timestamp .equals() with extra argument",
         "query": "Timestamp(1, 100).equals(Timestamp(2, 99), 10)",
-        "errorCode": "E_SEMANTIC_ARGUMENTCOUNTMISMATCH"
+        "errorCode": "E_BSONCOMPILERS_ARGUMENT"
       },
       {
         "description": "Timestamp .equals not callable",
         "query": "Timestamp(1, 100).equals",
-        "errorCode": "E_SEMANTIC_TYPE"
+        "errorCode": "E_BSONCOMPILERS_TYPE"
       },
       {
         "description": "Timestamp .equals() with wrong type of argument",
         "query": "Timestamp(1, 100).equals({})",
-        "errorCode": "E_SEMANTIC_TYPE"
+        "errorCode": "E_BSONCOMPILERS_ARGUMENT"
       },
       {
         "description": "Timestamp .compare() without arguments",
         "query": "Timestamp(1, 100).compare()",
-        "errorCode": "E_SEMANTIC_ARGUMENTCOUNTMISMATCH"
+        "errorCode": "E_BSONCOMPILERS_ARGUMENT"
       },
       {
         "description": "Timestamp .compare() with extra argument",
         "query": "Timestamp(1, 100).compare(Timestamp(2, 99), 10)",
-        "errorCode": "E_SEMANTIC_ARGUMENTCOUNTMISMATCH"
+        "errorCode": "E_BSONCOMPILERS_ARGUMENT"
       },
       {
         "description": "Timestamp .compare not callable",
         "query": "Timestamp(1, 100).compare",
-        "errorCode": "E_SEMANTIC_TYPE"
+        "errorCode": "E_BSONCOMPILERS_TYPE"
       },
       {
         "description": "Timestamp .compare() with wrong type of argument",
         "query": "Timestamp(1, 100).compare({})",
-        "errorCode": "E_SEMANTIC_TYPE"
+        "errorCode": "E_BSONCOMPILERS_ARGUMENT"
       },
       {
         "description": "Timestamp .notEquals() without arguments",
         "query": "Timestamp(1, 100).notEquals()",
-        "errorCode": "E_SEMANTIC_ARGUMENTCOUNTMISMATCH"
+        "errorCode": "E_BSONCOMPILERS_ARGUMENT"
       },
       {
         "description": "Timestamp .notEquals() with extra argument",
         "query": "Timestamp(1, 100).notEquals(Timestamp(2, 99), 10)",
-        "errorCode": "E_SEMANTIC_ARGUMENTCOUNTMISMATCH"
+        "errorCode": "E_BSONCOMPILERS_ARGUMENT"
       },
       {
         "description": "Timestamp .notEquals not callable",
         "query": "Timestamp(1, 100).notEquals",
-        "errorCode": "E_SEMANTIC_TYPE"
+        "errorCode": "E_BSONCOMPILERS_TYPE"
       },
       {
         "description": "Timestamp .notEquals() with wrong type of argument",
         "query": "Timestamp(1, 100).notEquals({})",
-        "errorCode": "E_SEMANTIC_TYPE"
+        "errorCode": "E_BSONCOMPILERS_ARGUMENT"
       },
       {
         "description": "Timestamp .greaterThan() without arguments",
         "query": "Timestamp(1, 100).greaterThan()",
-        "errorCode": "E_SEMANTIC_ARGUMENTCOUNTMISMATCH"
+        "errorCode": "E_BSONCOMPILERS_ARGUMENT"
       },
       {
         "description": "Timestamp .greaterThan() with extra argument",
         "query": "Timestamp(1, 100).greaterThan(Timestamp(2, 99), 10)",
-        "errorCode": "E_SEMANTIC_ARGUMENTCOUNTMISMATCH"
+        "errorCode": "E_BSONCOMPILERS_ARGUMENT"
       },
       {
         "description": "Timestamp .greaterThan not callable",
         "query": "Timestamp(1, 100).greaterThan",
-        "errorCode": "E_SEMANTIC_TYPE"
+        "errorCode": "E_BSONCOMPILERS_TYPE"
       },
       {
         "description": "Timestamp .greaterThan() with wrong type of argument",
         "query": "Timestamp(1, 100).greaterThan({})",
-        "errorCode": "E_SEMANTIC_TYPE"
+        "errorCode": "E_BSONCOMPILERS_ARGUMENT"
       },
       {
         "description": "Timestamp .greaterThanOrEqual() without arguments",
         "query": "Timestamp(1, 100).greaterThanOrEqual()",
-        "errorCode": "E_SEMANTIC_ARGUMENTCOUNTMISMATCH"
+        "errorCode": "E_BSONCOMPILERS_ARGUMENT"
       },
       {
         "description": "Timestamp .greaterThanOrEqual() with extra argument",
         "query": "Timestamp(1, 100).greaterThanOrEqual(Timestamp(2, 99), 10)",
-        "errorCode": "E_SEMANTIC_ARGUMENTCOUNTMISMATCH"
+        "errorCode": "E_BSONCOMPILERS_ARGUMENT"
       },
       {
         "description": "Timestamp .greaterThanOrEqual not callable",
         "query": "Timestamp(1, 100).greaterThanOrEqual",
-        "errorCode": "E_SEMANTIC_TYPE"
+        "errorCode": "E_BSONCOMPILERS_TYPE"
       },
       {
         "description": "Timestamp .greaterThanOrEqual() with wrong type of argument",
         "query": "Timestamp(1, 100).greaterThanOrEqual({})",
-        "errorCode": "E_SEMANTIC_TYPE"
+        "errorCode": "E_BSONCOMPILERS_ARGUMENT"
       },
       {
         "description": "Timestamp .lessThan() without arguments",
         "query": "Timestamp(1, 100).lessThan()",
-        "errorCode": "E_SEMANTIC_ARGUMENTCOUNTMISMATCH"
+        "errorCode": "E_BSONCOMPILERS_ARGUMENT"
       },
       {
         "description": "Timestamp .lessThan() with extra argument",
         "query": "Timestamp(1, 100).lessThan(Timestamp(2, 99), 10)",
-        "errorCode": "E_SEMANTIC_ARGUMENTCOUNTMISMATCH"
+        "errorCode": "E_BSONCOMPILERS_ARGUMENT"
       },
       {
         "description": "Timestamp .lessThan not callable",
         "query": "Timestamp(1, 100).lessThan",
-        "errorCode": "E_SEMANTIC_TYPE"
+        "errorCode": "E_BSONCOMPILERS_TYPE"
       },
       {
         "description": "Timestamp .lessThan() with wrong type of argument",
         "query": "Timestamp(1, 100).lessThan({})",
-        "errorCode": "E_SEMANTIC_TYPE"
+        "errorCode": "E_BSONCOMPILERS_ARGUMENT"
       },
       {
         "description": "Timestamp .lessThanOrEqual() without arguments",
         "query": "Timestamp(1, 100).lessThanOrEqual()",
-        "errorCode": "E_SEMANTIC_ARGUMENTCOUNTMISMATCH"
+        "errorCode": "E_BSONCOMPILERS_ARGUMENT"
       },
       {
         "description": "Timestamp .lessThanOrEqual() with extra argument",
         "query": "Timestamp(1, 100).lessThanOrEqual(Timestamp(2, 99), 10)",
-        "errorCode": "E_SEMANTIC_ARGUMENTCOUNTMISMATCH"
+        "errorCode": "E_BSONCOMPILERS_ARGUMENT"
       },
       {
         "description": "Timestamp .lessThanOrEqual not callable",
         "query": "Timestamp(1, 100).lessThanOrEqual",
-        "errorCode": "E_SEMANTIC_TYPE"
+        "errorCode": "E_BSONCOMPILERS_TYPE"
       },
       {
         "description": "Timestamp .lessThanOrEqual() with wrong type of argument",
         "query": "Timestamp(1, 100).lessThanOrEqual({})",
-        "errorCode": "E_SEMANTIC_TYPE"
+        "errorCode": "E_BSONCOMPILERS_ARGUMENT"
       },
       {
         "description": "Timestamp .getLowBits() with extra argument",
         "query": "Timestamp(1, 100).getLowBits(10)",
-        "errorCode": "E_SEMANTIC_ARGUMENTCOUNTMISMATCH"
+        "errorCode": "E_BSONCOMPILERS_ARGUMENT"
       },
       {
         "description": "Timestamp .getLowBits not callable",
         "query": "Timestamp(1, 100).getLowBits",
-        "errorCode": "E_SEMANTIC_TYPE"
+        "errorCode": "E_BSONCOMPILERS_TYPE"
       },
       {
         "description": "Timestamp .getLowBits() with extra argument",
         "query": "Timestamp(1, 100).getLowBits(10)",
-        "errorCode": "E_SEMANTIC_ARGUMENTCOUNTMISMATCH"
+        "errorCode": "E_BSONCOMPILERS_ARGUMENT"
       },
       {
         "description": "Timestamp .getHighBits not callable",
         "query": "Timestamp(1, 100).getHighBits",
-        "errorCode": "E_SEMANTIC_TYPE"
+        "errorCode": "E_BSONCOMPILERS_TYPE"
       }
     ],
     "Symbol": [
       {
         "description": "Symbol with invalidMethod",
         "query": "Symbol('2').invalidMethod()",
-        "errorCode": "E_SEMANTIC_ATTRIBUTE"
+        "errorCode": "E_BSONCOMPILERS_ATTRIBUTE"
       },
       {
         "description": "Symbol .valueOf() with extra argument",
         "query": "Symbol('2').valueOf(2)",
-        "errorCode": "E_SEMANTIC_ARGUMENTCOUNTMISMATCH"
+        "errorCode": "E_BSONCOMPILERS_ARGUMENT"
       },
       {
         "description": "Symbol .valueOf not callable",
         "query": "Symbol('2').valueOf",
-        "errorCode": "E_SEMANTIC_TYPE"
+        "errorCode": "E_BSONCOMPILERS_TYPE"
       },
       {
         "description": "Symbol .toString() with extra argument",
         "query": "Symbol('2').toString(10)",
-        "errorCode": "E_SEMANTIC_ARGUMENTCOUNTMISMATCH"
+        "errorCode": "E_BSONCOMPILERS_ARGUMENT"
       },
       {
         "description": "Symbol .toString not callable",
         "query": "Symbol('2').toString",
-        "errorCode": "E_SEMANTIC_TYPE"
+        "errorCode": "E_BSONCOMPILERS_TYPE"
       },
       {
         "description": "Symbol .inspect() with extra argument",
         "query": "Symbol('2').inspect('2')",
-        "errorCode": "E_SEMANTIC_ARGUMENTCOUNTMISMATCH"
+        "errorCode": "E_BSONCOMPILERS_ARGUMENT"
       },
       {
         "description": "Symbol .inspect not callable",
         "query": "Symbol('2').inspect",
-        "errorCode": "E_SEMANTIC_TYPE"
+        "errorCode": "E_BSONCOMPILERS_TYPE"
       }
     ]
   }

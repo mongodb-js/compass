@@ -172,7 +172,7 @@ BsonSymbols:
                 template: *LongSymbolNegOneTemplate
                 argsTemplate: *LongSymbolNegOneArgsTemplate
             fromBits:
-                id: "LongfromBits" # Needs emit method
+                id: "LongfromBits" # Needs process method
                 callable: *func
                 args:
                     - [ *IntegerType ]
@@ -302,10 +302,17 @@ JSSymbols:
         attr: {} # TODO: no built-in number funcs added yet
         template: *NumberSymbolTemplate
         argsTemplate: *NumberSymbolArgsTemplate
-    Date: # Needs emit method
+    Date: # Needs process method
         id: "Date"
         callable: *constructor
-        args: null
+        args:
+            - [ *StringType, *NumericType, null ]
+            - [ *NumericType, null ]
+            - [ *NumericType, null ]
+            - [ *NumericType, null ]
+            - [ *NumericType, null ]
+            - [ *NumericType, null ]
+            - [ *NumericType, null ]
         type: *DateType
         attr: # TODO: add more date funcs?
             now:
@@ -318,11 +325,11 @@ JSSymbols:
                 argsTemplate: *DateSymbolNowArgsTemplate
         template: *DateSymbolTemplate
         argsTemplate: *DateSymbolArgsTemplate
-    RegExp: # Needs emit method
+    RegExp: # Needs process method
         id: "RegExp"
         callable: *constructor
         args:
-            - [ *StringType ]
+            - [ *StringType, *RegexType ]
             - [ *StringType, null ]
         type: *RegexType
         attr: {}

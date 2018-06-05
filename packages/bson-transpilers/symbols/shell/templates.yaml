@@ -484,7 +484,7 @@ Templates:
         }
     DBRefSymbolTemplate: &DBRefSymbolTemplate null
     DBRefSymbolArgsTemplate: &DBRefSymbolArgsTemplate null
-    DoubleSymbolTemplate: &DoubleSymbolTemplate null # Has emit method
+    DoubleSymbolTemplate: &DoubleSymbolTemplate null # Has process method
     DoubleSymbolArgsTemplate: &DoubleSymbolArgsTemplate null
     Int32SymbolTemplate: &Int32SymbolTemplate !!js/function >
         () => {
@@ -499,7 +499,7 @@ Templates:
         () => {
             return 'NumberLong';
         }
-    LongSymbolArgsTemplate: &LongSymbolArgsTemplate null # Has emit method
+    LongSymbolArgsTemplate: &LongSymbolArgsTemplate null # Has process method
     LongSymbolMaxTemplate: &LongSymbolMaxTemplate !!js/function >
         () => {
             return 'Math.max()';

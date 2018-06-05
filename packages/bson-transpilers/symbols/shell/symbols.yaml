@@ -177,7 +177,7 @@ JSSymbols:
                 argsTemplate: *DateSymbolNowArgsTemplate
         template: *DateSymbolTemplate
         argsTemplate: *DateSymbolArgsTemplate
-    RegExp: # Needs emit method
+    RegExp: # Needs process method
         id: "RegExp"
         callable: *constructor
         args:

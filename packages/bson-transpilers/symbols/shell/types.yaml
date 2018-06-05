@@ -158,7 +158,7 @@ BsonTypes:
         attr:
             toString:
                 <<: *__func
-                id: "LongtoString" # Needs emit method
+                id: "LongtoString" # Needs process method
                 type: *StringType
             valueOf:
                 <<: *__func

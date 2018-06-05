@@ -686,7 +686,7 @@ Templates:
         (lhs, pattern, flags) => {
             return `(${pattern}${flags ? ', ' + flags : ''})`;
         }
-    Decimal128SymbolTemplate: &Decimal128SymbolTemplate null # Has emit method
+    Decimal128SymbolTemplate: &Decimal128SymbolTemplate null # Has process method
     Decimal128SymbolArgsTemplate: &Decimal128SymbolArgsTemplate null
     Decimal128SymbolFromStringTemplate: &Decimal128SymbolFromStringTemplate !!js/function >
         (lhs) => {

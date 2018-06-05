@@ -1,6 +1,6 @@
 const antlr4 = require('antlr4');
 
-const { SyntaxGenericError } = require('../helper/error');
+const { BsonCompilersSyntaxError } = require('../helper/error');
 
 /**
  * Custom Error Listener
@@ -11,15 +11,15 @@ class ErrorListener extends antlr4.error.ErrorListener {
   /**
    * Checks syntax error
    *
-   * @param {object} recognizer The parsing support code essentially. Most of it is error recovery stuff
-   * @param {object} symbol Offending symbol
-   * @param {int} line Line of offending symbol
-   * @param {int} column Position in line of offending symbol
-   * @param {string} message Error message
-   * @param {string} payload Stack trace
+   * @param {object} recognizer - The parsing support code essentially. Most of it is error recovery stuff
+   * @param {object} symbol - Offending symbol
+   * @param {int} line - Line of offending symbol
+   * @param {int} column - Position in line of offending symbol
+   * @param {string} message - Error message
+   * @param {string} payload - Stack trace
    */
-  syntaxError(recognizer, symbol, line, column, message) {
-    throw new SyntaxGenericError({line, column, message});
+  syntaxError(recognizer, symbol, line, column, message, payload) {
+    throw new BsonCompilersSyntaxError(message, { symbol, line, column, payload });
   }
 }
 

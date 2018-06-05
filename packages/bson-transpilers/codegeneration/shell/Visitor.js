@@ -3,8 +3,8 @@ const JavascriptVisitor = require('../javascript/Visitor');
 const bson = require('bson');
 const Context = require('context-eval');
 const {
-  SemanticReferenceError,
-  SemanticGenericError
+  BsonCompilersReferenceError,
+  BsonCompilersRuntimeError
 } = require('../../helper/error');
 
 /**
@@ -24,9 +24,9 @@ class Visitor extends JavascriptVisitor {
     const name = this.visitChildren(ctx);
     ctx.type = this.Symbols[name];
     if (ctx.type === undefined) {
-      throw new SemanticReferenceError({
-        message: `symbol "${name}" is undefined`
-      });
+      throw new BsonCompilersReferenceError(
+        `Symbol '${name}' is undefined`
+      );
     }
     // Special case MinKey/MaxKey because they don't have to be called in shell
     if (!ctx.visited && (ctx.type.id === 'MinKey' || ctx.type.id === 'MaxKey') &&
@@ -120,10 +120,10 @@ class Visitor extends JavascriptVisitor {
     const subtype = parseInt(argList.singleExpression()[0].getText(), 10);
     const bindata = args[1];
     if (!(subtype >= 0 && subtype <= 5 || subtype === 128)) {
-      throw new SemanticGenericError({message: 'BinData subtype must be a Number between 0-5 or 128'});
+      throw new BsonCompilersRuntimeError('BinData subtype must be a Number between 0-5 or 128');
     }
     if (bindata.match(/^([0-9a-zA-Z+/]{4})*(([0-9a-zA-Z+/]{2}==)|([0-9a-zA-Z+/]{3}=))?$/)) {
-      throw new SemanticGenericError({message: 'invalid base64'});
+      throw new BsonCompilersRuntimeError('Invalid base64 passed to BinData');
     }
     const typeStr = binaryTypes[subtype] !== null ? binaryTypes[subtype]() : subtype;
 
@@ -148,7 +148,7 @@ class Visitor extends JavascriptVisitor {
     try {
       decstr = this.executeJavascript(`new ${ctx.getText()}`).toString();
     } catch (error) {
-      throw new SemanticGenericError({message: error.message});
+      throw new BsonCompilersRuntimeError(error.message);
     }
 
     if ('emitNumberDecimal' in this) {

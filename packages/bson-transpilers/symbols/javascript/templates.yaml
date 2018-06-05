@@ -286,7 +286,7 @@ Templates:
         }
     SymbolSymbolTemplate: &SymbolSymbolTemplate null
     SymbolSymbolArgsTemplate: &SymbolSymbolArgsTemplate null
-    BSONRegExpSymbolTemplate: &BSONRegExpSymbolTemplate null # Has emit method
+    BSONRegExpSymbolTemplate: &BSONRegExpSymbolTemplate null # Has process method
     BSONRegExpSymbolArgsTemplate: &BSONRegExpSymbolArgsTemplate null
     Decimal128SymbolTemplate: &Decimal128SymbolTemplate !!js/function >
         () => {
