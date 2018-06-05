@@ -388,7 +388,7 @@ describe('accepts', function() {
     });
 
     it('accepts $mod queries', function() {
-
+      accepts('{ "qty": { "$mod": [ 4, 0 ] } }');
     });
   });
 

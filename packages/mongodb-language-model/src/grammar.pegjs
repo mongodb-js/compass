@@ -82,7 +82,7 @@ value_operator
     "$bitsAnySet"
 
 list_operator
-  = "$in" / "$nin" / "$all"
+  = "$in" / "$nin" / "$all" / "$mod"
 
 operator_expression_operator
   = "$not" / "$elemMatch"
