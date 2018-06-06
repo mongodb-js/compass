@@ -43,6 +43,7 @@ describe('QueryOption [Component]', function() {
           onChange={onChangeStub}
           placeholder=""
           value=""
+          actions={{}}
           autoPopulated={false}
           hasToggle={false}
           hasError={false}
@@ -64,6 +65,7 @@ describe('QueryOption [Component]', function() {
           onChange={onChangeStub}
           placeholder=""
           value=""
+          actions={{}}
           autoPopulated={false}
           hasToggle={false}
           hasError={false}
@@ -83,6 +85,7 @@ describe('QueryOption [Component]', function() {
           onChange={onChangeStub}
           placeholder=""
           value=""
+          actions={{}}
           autoPopulated={false}
           hasToggle={false}
           hasError={false}

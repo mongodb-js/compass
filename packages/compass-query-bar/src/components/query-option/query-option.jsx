@@ -14,6 +14,7 @@ class QueryOption extends Component {
     placeholder: PropTypes.string,
     label: PropTypes.string.isRequired,
     link: PropTypes.string.isRequired,
+    actions: PropTypes.object.isRequired,
     inputType: PropTypes.oneOf(['numeric', 'boolean', 'document']).isRequired,
     value: PropTypes.any,
     autoPopulated: PropTypes.bool,
@@ -64,6 +65,7 @@ class QueryOption extends Component {
         value={this.props.value}
         onChange={this.props.onChange}
         autoPopulated={this.props.autoPopulated}
+        actions={this.props.actions}
         schemaFields={this.props.schemaFields} />
     );
   }

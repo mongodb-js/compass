@@ -29,6 +29,7 @@ class OptionEditor extends Component {
   static propTypes = {
     label: PropTypes.string.isRequired,
     autoPopulated: PropTypes.bool.isRequired,
+    actions: PropTypes.object.isRequired,
     value: PropTypes.any,
     onChange: PropTypes.func,
     schemaFields: PropTypes.object
@@ -106,7 +107,7 @@ class OptionEditor extends Component {
               win: 'Enter', mac: 'Enter'
             },
             exec: () => {
-              // @todo: Durran: Execute the query.
+              this.props.actions.apply();
             }
           });
         }} />
