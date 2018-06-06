@@ -11,7 +11,6 @@
   //padding: 12px 0px 10px 12px;
   background: @gray8;
   border-bottom: 1px solid @gray7;
-  overflow-x: hidden;
 
   .is-feature-flag .form-control {
     border: 1px solid @chart1;
@@ -22,6 +21,25 @@
     top: 7px;
     left: 5px;
     z-index: 2;
+  }
+
+  :global {
+    .dropdown {
+      margin-left: 5px;
+      height: 28px;
+
+      i {
+        top: 1px;
+      }
+
+      &-toggle {
+        height: 28px;
+      }
+
+      &-menu {
+        font-size: 13px;
+      }
+    }
   }
 }
 

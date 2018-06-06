@@ -56,6 +56,7 @@ const QueryBarStore = Reflux.createStore({
   listenables: QueryBarActions,
 
   onActivated(appRegistry) {
+    this.appRegistry = appRegistry;
     this.QueryHistoryActions = appRegistry.getAction('QueryHistory.Actions');
 
     if (isFunction(this.QueryHistoryActions)) {
@@ -82,6 +83,20 @@ const QueryBarStore = Reflux.createStore({
     const newState = this.getInitialState();
     newState.ns = ns;
     this.setState(newState);
+  },
+
+  /**
+   * Open the export to language dialog.
+   */
+  exportToLanguage() {
+    this.appRegistry.emit('open-query-export-to-language', this.state.filter);
+  },
+
+  /**
+   * Toggle the query history.
+   */
+  toggleQueryHistory() {
+    this.QueryHistoryActions.toggleCollapse();
   },
 
   /**

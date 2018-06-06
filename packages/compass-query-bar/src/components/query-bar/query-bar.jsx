@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import classnames from 'classnames';
+import { Dropdown, MenuItem } from 'react-bootstrap';
 import {
   includes,
   isFunction,
@@ -8,8 +9,7 @@ import {
   isEqual,
   isString,
   isArray,
-  map,
-  noop
+  map
 } from 'lodash';
 
 import QueryOption from 'components/query-option';
@@ -102,12 +102,8 @@ class QueryBar extends Component {
   }
 
   componentDidMount() {
-    this._renderShowQueryHistoryButton = noop;
-
     if (global.hadronApp && global.hadronApp.appRegistry) { // Unit tests don't have appRegistry
-      this._renderShowQueryHistoryButton = global.hadronApp.appRegistry.getComponent('QueryHistory.ShowQueryHistoryButton');
       this.QueryHistoryActions = global.hadronApp.appRegistry.getAction('QueryHistory.Actions');
-
       const fieldStore = global.hadronApp.appRegistry.getStore('Field.Store');
       this.unsubscribeFieldStore = fieldStore.listen(this.onFieldsChanged);
     }
@@ -327,37 +323,43 @@ class QueryBar extends Component {
     );
 
     return (
-      <form onSubmit={this.onApplyButtonClicked}>
-        <div className={_inputGroupClassName}>
-          <div
-            onBlur={this._onBlur}
-            onFocus={this._onFocus}
-            className={_queryOptionClassName}>
-            {this.renderOptionRows()}
-            {this.renderToggle()}
-          </div>
-          <div className={classnames(styles['button-group'])}>
-            <button
-              data-test-id="query-bar-apply-filter-button"
-              key="apply-button"
-              className={_applyButtonClassName}
-              type="button"
-              onClick={this.onApplyButtonClicked}
-              disabled={applyDisabled}>
-              {buttonLabel}
-            </button>
-            <button
-              data-test-id="query-bar-reset-filter-button"
-              key="reset-button"
-              className={_resetButtonClassName}
-              type="button"
-              onClick={this.onResetButtonClicked}>
-              Reset
-            </button>
-            {this._renderShowQueryHistoryButton}
-          </div>
+      <div className={_inputGroupClassName}>
+        <div
+          onBlur={this._onBlur}
+          onFocus={this._onFocus}
+          className={_queryOptionClassName}>
+          {this.renderOptionRows()}
+          {this.renderToggle()}
         </div>
-      </form>
+        <div className={classnames(styles['button-group'])}>
+          <button
+            data-test-id="query-bar-apply-filter-button"
+            key="apply-button"
+            className={_applyButtonClassName}
+            type="button"
+            onClick={this.onApplyButtonClicked}
+            disabled={applyDisabled}>
+            {buttonLabel}
+          </button>
+          <button
+            data-test-id="query-bar-reset-filter-button"
+            key="reset-button"
+            className={_resetButtonClassName}
+            type="button"
+            onClick={this.onResetButtonClicked}>
+            Reset
+          </button>
+        </div>
+        <Dropdown pullRight id="query-bar-menu-actions">
+          <Dropdown.Toggle noCaret>
+            <i className="mms-icon-ellipsis" aria-hidden />
+          </Dropdown.Toggle>
+          <Dropdown.Menu>
+            <MenuItem onClick={this.props.actions.exportToLanguage}>Export To Language</MenuItem>
+            <MenuItem onClick={this.props.actions.toggleQueryHistory}>Toggle Query History</MenuItem>
+          </Dropdown.Menu>
+        </Dropdown>
+      </div>
     );
   }
 
@@ -365,11 +367,7 @@ class QueryBar extends Component {
     return (
       <div className={classnames(styles.component)}>
         <div className={classnames(styles['input-container'])}>
-          <div className={classnames('row')}>
-            <div className={classnames('col-md-12')}>
-              {this.renderForm()}
-            </div>
-          </div>
+          {this.renderForm()}
         </div>
       </div>
     );

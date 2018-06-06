@@ -83,9 +83,10 @@ const QueryBarActions = Reflux.createActions([
   'reset': {sync: true},
 
   /**
-   * Refresh the code mirror instance.
+   * Export to language/query history.
    */
-  'refreshCodeMirror': { sync: true }
+  'exportToLanguage': { sync: true },
+  'toggleQueryHistory': { sync: true }
 ]);
 
 export default QueryBarActions;
