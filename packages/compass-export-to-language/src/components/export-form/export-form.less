@@ -1,0 +1,89 @@
+@import (reference) "~less/compass/_theme.less";
+
+.export-to-lang {
+  &-alert {
+    background-color: #b1e0e6;
+    border-color: #b1e0e6;
+    padding: 10px;
+  }
+
+  &-headers {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+
+    > * {
+      display: flex;
+      align-items: center;
+      padding-bottom: 10px;
+    }
+
+    &-output {
+      padding-left: 10px;
+      width: 50%;
+      display: flex;
+      > * {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      &-title {
+        padding: 10px 10px 0 0;
+      }
+    }
+    &-input {
+      padding-right: 10px;
+      padding-top: 10px;
+      width: 50%;
+    }
+
+  }
+
+  &-query {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+
+    &-input {
+      flex-basis: 0;
+      flex: 1 1 0;
+      width: 50%;
+      padding-right: 10px;
+
+      &-error {
+        margin-top: 10px;
+        padding: 10px;
+      }
+    }
+
+    &-output {
+      flex-basis: 0;
+      flex: 1 1 0;
+      width: 50%;
+      padding-left: 10px;
+
+      &-bubble {
+        position: absolute;
+        top: 40px;
+        right: 25px;
+        border-radius: 3px;
+        color: #fff;
+        padding: 6px;
+        display: inline-block;
+        font-size: 11px;
+        font-weight: 600;
+        text-transform: uppercase;
+        background-color: @gray2;
+      }
+
+      &-copy {
+        position: absolute;
+        top: 75px;
+        right: 25px;
+        padding: 0 10px !important;
+        z-index: 1;
+      }
+    }
+  }
+}

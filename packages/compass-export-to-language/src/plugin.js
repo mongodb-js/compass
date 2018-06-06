@@ -1,6 +1,6 @@
+import ExportToLanguage from 'components/export-to-language';
 import React, { Component } from 'react';
 import { Provider } from 'react-redux';
-import ExportToLanguage from 'components/export-to-language';
 import store from 'stores';
 
 class Plugin extends Component {

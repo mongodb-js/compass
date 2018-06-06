@@ -1,8 +1,10 @@
 import reducer, {
   ADD_INPUT_QUERY,
+  OUTPUT_LANG,
   QUERY_ERROR,
   COPY_QUERY,
   CLEAR_COPY,
+  setOutputLang,
   addInputQuery,
   queryError,
   copyQuery,
@@ -31,9 +33,8 @@ describe('export query module', () => {
 
   describe('#clearCopy', () => {
     it('returns a clear copy action type', () => {
-      expect(clearCopy('type')).to.deep.equal({
-        type: CLEAR_COPY,
-        input: 'type'
+      expect(clearCopy()).to.deep.equal({
+        type: CLEAR_COPY
       });
     });
   });
@@ -53,15 +54,24 @@ describe('export query module', () => {
     });
   });
 
+  describe('#setOutputLang', () => {
+    it('returns an outputLang action type', () => {
+      expect(setOutputLang('csharp')).to.deep.equal({
+        type: OUTPUT_LANG,
+        lang: 'csharp'
+      });
+    });
+  });
+
   describe('#reducer', () => {
     context('action type is queryError', () => {
       it('query error is has a value in state', () => {
         expect(reducer(undefined, queryError('uh oh'))).to.deep.equal({
-          copyError: null,
-          copySuccess: '',
-          inputQuery: '',
+          copySuccess: false,
           queryError: 'uh oh',
-          returnQuery: ''
+          returnQuery: '',
+          outputLang: '',
+          inputQuery: ''
         });
       });
     });
@@ -69,23 +79,35 @@ describe('export query module', () => {
     context('action type is addInputQuery', () => {
       it('inputQuery has a value in state', () => {
         expect(reducer(undefined, addInputQuery('{ "beep": "boop" }'))).to.deep.equal({
-          copyError: null,
-          copySuccess: '',
           inputQuery: '{ "beep": "boop" }',
+          copySuccess: false,
           queryError: null,
-          returnQuery: ''
+          returnQuery: '',
+          outputLang: ''
+        });
+      });
+    });
+
+    context('action type is setOutputLang', () => {
+      it('inputQuery has a value in state', () => {
+        expect(reducer(undefined, setOutputLang('java'))).to.deep.equal({
+          copySuccess: false,
+          outputLang: 'java',
+          queryError: null,
+          returnQuery: '',
+          inputQuery: ''
         });
       });
     });
 
     context('action type is clearCopy', () => {
       it('returns a clearCopy state', () => {
-        expect(reducer(undefined, clearCopy('uh oh'))).to.deep.equal({
-          copyError: '',
-          copySuccess: '',
-          inputQuery: '',
+        expect(reducer(undefined, clearCopy())).to.deep.equal({
+          copySuccess: false,
           queryError: null,
-          returnQuery: ''
+          returnQuery: '',
+          inputQuery: '',
+          outputLang: ''
         });
       });
     });
@@ -93,11 +115,11 @@ describe('export query module', () => {
     context('an empty action type returns an intial state', () => {
       it('empty initial state comes back', () => {
         expect(reducer(undefined, {})).to.deep.equal({
-          copyError: null,
-          copySuccess: '',
-          inputQuery: '',
+          copySuccess: false,
           queryError: null,
-          returnQuery: ''
+          returnQuery: '',
+          inputQuery: '',
+          outputLang: ''
         });
       });
     });
