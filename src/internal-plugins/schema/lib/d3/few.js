@@ -4,7 +4,7 @@ const d3 = require('d3');
 const $ = require('jquery');
 const _ = require('lodash');
 const shared = require('./shared');
-const hasDistinctValue = require('../../../query/lib/util').hasDistinctValue;
+const { hasDistinctValue } = require('mongodb-query-util');
 
 // const debug = require('debug')('mongodb-compass:minicharts:few');
 
