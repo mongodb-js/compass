@@ -6,34 +6,8 @@ const expect = chai.expect;
 const compiler = require('../');
 
 const unsupported = {
-  success: {
-    javascript: {
-      java: {},
-      python: {},
-      csharp: {},
-      shell: {}
-    },
-    shell: {
-      java: {},
-      javascript: {},
-      python: {},
-      csharp: {}
-    }
-  },
-  error: {
-    javascript: {
-      java: {'bson-constructors': [ '*' ]},
-      python: {},
-      shell: { 'bson-constructors': [ '*' ]},
-      csharp: {'bson-constructors': [ '*' ]}
-    },
-    shell: {
-      java: {'bson-constructors': [ '*' ]},
-      python: {},
-      csharp: {'bson-constructors': [ '*' ]},
-      javascript: {'bson-constructors': [ '*' ]}
-    }
-  }
+  success: {},
+  error: {}
 };
 
 const checkResults = {
@@ -67,6 +41,8 @@ const runTest = function(mode, testname, inputLang, outputLang, tests) {
       describe(key, () => {
         tests[key].map((test) => {
           const skip = (
+            inputLang in unsupported[mode] &&
+            outputLang in unsupported[mode][inputLang] &&
             testname in unsupported[mode][inputLang][outputLang] &&
             (unsupported[mode][inputLang][outputLang][testname].indexOf('*') !== -1 ||
              unsupported[mode][inputLang][outputLang][testname].indexOf(key) !== -1)
@@ -82,4 +58,4 @@ const runTest = function(mode, testname, inputLang, outputLang, tests) {
   });
 };
 
-module.exports = {readJSON, runTest};
+module.exports = { readJSON, runTest };
