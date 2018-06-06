@@ -1,0 +1,16 @@
+{
+  "name": "mongodb-ace-theme-query",
+  "version": "0.0.0",
+  "description": "MongoDB Theme for the ACE Editor in the Query Bar",
+  "main": "index.js",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/mongodb-js/ace-theme-query"
+  },
+  "keywords": [
+    "MongoDB",
+    "ACE"
+  ],
+  "author": "Durran Jordan <durran@gmail.com>",
+  "license": "Apache-2.0"
+}
