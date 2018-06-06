@@ -38,7 +38,7 @@ class Collection extends React.Component {
   }
 
   componentDidUpdate() {
-    this.QueryActions.refreshCodeMirror();
+    // @todo: Durran: this.QueryActions.refreshCodeMirror();
   }
 
   onTabClicked(idx) {
