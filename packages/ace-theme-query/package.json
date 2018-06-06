@@ -1,6 +1,6 @@
 {
   "name": "mongodb-ace-theme-query",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "MongoDB Theme for the ACE Editor in the Query Bar",
   "main": "index.js",
   "repository": {
