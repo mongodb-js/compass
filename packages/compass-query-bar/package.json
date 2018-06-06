@@ -45,9 +45,7 @@
     "lodash": "^3.10.1",
     "prop-types": "^15.5.8",
     "react": "^16.3.2",
-    "react-bootstrap": "0.31.0",
     "react-fontawesome": "^1.6.1",
-    "react-tooltip": "^3.2.6",
     "reflux": "^0.4.1",
     "reflux-state-mixin": "^0.7.0"
   },
