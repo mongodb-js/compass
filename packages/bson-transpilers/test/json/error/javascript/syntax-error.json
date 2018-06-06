@@ -1,0 +1,23 @@
+{
+  "tests": {
+    "Document": [
+      {
+        "description": "Document without colon",
+        "query": "{x 1}",
+        "errorCode": "E_BSONCOMPILERS_SYNTAX"
+      },
+      {
+        "description": "Document with wrong value assignment",
+        "query": "{x: 1, 2}",
+        "errorCode": "E_BSONCOMPILERS_SYNTAX"
+      }
+    ],
+    "Array": [
+      {
+        "description": "Array with wrong delimiter",
+        "query": "[1;2;3]",
+        "errorCode": "E_BSONCOMPILERS_SYNTAX"
+      }
+    ]
+  }
+}

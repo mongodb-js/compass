@@ -1,0 +1,16 @@
+{
+  "tests": {
+    "RegExp": [
+      {
+        "description": "RegExp with unsupported flag",
+        "query": "new RegExp('ab+c', 'wrong')",
+        "errorCode": "E_BSONCOMPILERS_RUNTIME"
+      },
+      {
+        "description": "RegExp with unsupported flag",
+        "query": "new BSONRegExp('^[a-z0-9_-]{3,16}$', 'wrong')",
+        "errorCode": "E_BSONCOMPILERS_RUNTIME"
+      }
+    ]
+  }
+}
