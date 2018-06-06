@@ -6,7 +6,7 @@ import { QueryAutoCompleter } from 'mongodb-ace-autocompleter';
 
 import 'brace/ext/language_tools';
 import 'mongodb-ace-mode';
-import 'mongodb-ace-theme';
+import 'mongodb-ace-theme-query';
 
 /**
  * Options for the ACE editor.
@@ -18,7 +18,7 @@ const OPTIONS = {
   fontSize: 11,
   minLines: 1,
   maxLines: 1,
-  hightlightActiveLine: false,
+  highlightActiveLine: false,
   showGutter: false,
   useWorker: false
 };
@@ -28,6 +28,7 @@ class OptionEditor extends Component {
 
   static propTypes = {
     label: PropTypes.string.isRequired,
+    autoPopulated: PropTypes.bool.isRequired,
     value: PropTypes.any,
     onChange: PropTypes.func,
     schemaFields: PropTypes.object
@@ -36,6 +37,7 @@ class OptionEditor extends Component {
   static defaultProps = {
     label: '',
     value: '',
+    autoPopulated: false,
     schemaFields: {}
   };
 
@@ -61,8 +63,14 @@ class OptionEditor extends Component {
    * @returns {Boolean} If the component should update.
    */
   shouldComponentUpdate(nextProps) {
-    this.completer.update(nextProps.schemaFields);
-    return false;
+    return nextProps.autoPopulated;
+  }
+
+  /**
+   * Update the schema fields on update.
+   */
+  componentDidUpdate() {
+    this.completer.update(this.props.schemaFields);
   }
 
   /**
@@ -82,7 +90,7 @@ class OptionEditor extends Component {
     return (
       <AceEditor
         mode="mongodb"
-        theme="mongodb"
+        theme="mongodb-query"
         width="100%"
         value={this.props.value}
         onChange={this.onChangeQuery}

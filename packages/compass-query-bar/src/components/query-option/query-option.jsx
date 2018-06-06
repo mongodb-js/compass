@@ -63,6 +63,7 @@ class QueryOption extends Component {
         label={this.props.label}
         value={this.props.value}
         onChange={this.props.onChange}
+        autoPopulated={this.props.autoPopulated}
         schemaFields={this.props.schemaFields} />
     );
   }

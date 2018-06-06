@@ -242,6 +242,7 @@ const QueryBarStore = Reflux.createStore({
     } else {
       state.valid = false;
     }
+    state.autoPopulated = !userTyping;
     this.setState(state);
   },
 
