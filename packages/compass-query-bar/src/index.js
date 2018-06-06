@@ -1,15 +1,6 @@
 import QueryBarPlugin from './plugin';
-import SamplingMessage from 'components/sampling-message';
 import QueryBarActions from 'actions';
 import { QueryBarStore, QueryChangedStore } from 'stores';
-
-/**
- * A sample role for the component.
- */
-// const ROLE = {
-//   name: 'QueryBar',
-//   component: QueryBarPlugin
-// };
 
 /**
  * Activate all the components in the Query Bar package.
@@ -24,10 +15,7 @@ function activate(appRegistry) {
   //   - Collection.Tab
   //   - CollectionHUD.Item
   //   - Header.Item
-
-  // appRegistry.registerRole('', ROLE);
   appRegistry.registerComponent('Query.QueryBar', QueryBarPlugin);
-  appRegistry.registerComponent('Query.SamplingMessage', SamplingMessage);
   appRegistry.registerAction('Query.Actions', QueryBarActions);
   appRegistry.registerStore('Query.Store', QueryBarStore);
   appRegistry.registerStore('Query.ChangedStore', QueryChangedStore);
@@ -38,9 +26,7 @@ function activate(appRegistry) {
  * @param {Object} appRegistry - The Hadron appRegisrty to deactivate this plugin with.
  **/
 function deactivate(appRegistry) {
-  // appRegistry.deregisterRole('', ROLE);
   appRegistry.deregisterComponent('Query.QueryBar');
-  appRegistry.deregisterComponent('Query.SamplingMessage');
   appRegistry.deregisterAction('Query.Actions');
   appRegistry.deregisterStore('Query.Store');
   appRegistry.deregisterStore('Query.ChangedStore');
