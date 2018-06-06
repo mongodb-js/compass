@@ -657,6 +657,7 @@ const QueryBarStore = Reflux.createStore({
 
       const newState = this.getInitialState();
       newState.ns = namespace;
+      newState.autoPopulated = true;
       this.setState(omit(newState, 'expanded'));
     }
   },
