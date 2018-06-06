@@ -6,7 +6,7 @@ const $ = require('jquery');
 const moment = require('moment');
 const shared = require('./shared');
 const many = require('./many');
-const inValueRange = require('../../../query/lib/util').inValueRange;
+const { inValueRange } = require('mongodb-query-util');
 
 // const debug = require('debug')('mongodb-compass:minicharts:date');
 

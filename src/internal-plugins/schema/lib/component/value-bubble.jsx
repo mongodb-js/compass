@@ -2,7 +2,7 @@ const app = require('hadron-app');
 const React = require('react');
 const PropTypes = require('prop-types');
 const _ = require('lodash');
-const hasDistinctValue = require('../../../query/lib/util').hasDistinctValue;
+const { hasDistinctValue } = require('mongodb-query-util');
 
 const { DECIMAL_128, DOUBLE, LONG, INT_32 } = require('../helpers');
 
