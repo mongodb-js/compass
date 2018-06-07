@@ -8,7 +8,8 @@ const {
   BsonCompilersRuntimeError,
   BsonCompilersTypeError,
   BsonCompilersReferenceError,
-  BsonCompilersInternalError
+  BsonCompilersInternalError,
+  BsonCompilersUnimplementedError
 } = require('../../helper/error');
 const { singleQuoteStringify } = require('../../helper/format');
 
@@ -23,6 +24,25 @@ class Visitor extends ECMAScriptVisitor {
     this.new = '';
     this.processInt32 = this.processNumber;
     this.processDouble = this.processNumber;
+
+    // Throw UnimplementedError for nodes with expressions that we don't support
+    this.visitThisExpression =
+    this.visitDeleteExpression =
+    this.visitVoidExpression =
+    this.visitTypeofExpression =
+    this.visitInExpression =
+    this.visitInstanceofExpression =
+    this.visitFuncDefExpression =
+    this.visitAssignmentExpression =
+      this.unimplemented;
+  }
+
+  unimplemented(ctx) {
+    const name = ctx.constructor.name ?
+      ctx.constructor.name.replace('ExpressionContext', '').toLowerCase() : 'Expression';
+    throw new BsonCompilersUnimplementedError(
+      `'${name}' expression not yet implemented`
+    );
   }
 
   start(ctx) {

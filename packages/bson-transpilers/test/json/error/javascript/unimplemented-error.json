@@ -1,0 +1,68 @@
+{
+  "tests": {
+    "this": [
+      {
+        "description": "this",
+        "query": "this",
+        "errorCode": "E_BSONCOMPILERS_UNIMPLEMENTED",
+        "message": "this"
+      }
+    ],
+    "delete": [
+      {
+        "description": "delete",
+        "query": "delete 1",
+        "errorCode": "E_BSONCOMPILERS_UNIMPLEMENTED",
+        "message": "delete"
+      }
+    ],
+    "void": [
+      {
+        "description": "void",
+        "query": "void 1",
+        "errorCode": "E_BSONCOMPILERS_UNIMPLEMENTED",
+        "message": "void"
+      }
+    ],
+    "typeof": [
+      {
+        "description": "typeof",
+        "query": "typeof 1",
+        "errorCode": "E_BSONCOMPILERS_UNIMPLEMENTED",
+        "message": "typeof"
+      }
+    ],
+    "instanceof": [
+      {
+        "description": "instanceof",
+        "query": "2 instanceof 1",
+        "errorCode": "E_BSONCOMPILERS_UNIMPLEMENTED",
+        "message": "instanceof"
+      }
+    ],
+    "in": [
+      {
+        "description": "in",
+        "query": "2 in 1",
+        "errorCode": "E_BSONCOMPILERS_UNIMPLEMENTED",
+        "message": "in"
+      }
+    ],
+    "assignment": [
+      {
+        "description": "assignment",
+        "query": "2 = 1",
+        "errorCode": "E_BSONCOMPILERS_UNIMPLEMENTED",
+        "message": "assignment"
+      }
+    ],
+    "function def": [
+      {
+        "description": "function def",
+        "query": "function x(y) { return 1; }",
+        "errorCode": "E_BSONCOMPILERS_UNIMPLEMENTED",
+        "message": "funcdef"
+      }
+    ]
+  }
+}
