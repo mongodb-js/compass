@@ -264,6 +264,11 @@
         "errorCode": "E_BSONCOMPILERS_ARGUMENT"
       },
       {
+        "description": "Long .isOdd() with extra argument",
+        "query": "Long(1, 100).isOdd(10)",
+        "errorCode": "E_BSONCOMPILERS_ARGUMENT"
+      },
+      {
         "description": "Long .isNegative() with extra argument",
         "query": "Long(1, 100).isNegative(-1)",
         "errorCode": "E_BSONCOMPILERS_ARGUMENT"
@@ -628,11 +633,6 @@
         "errorCode": "E_BSONCOMPILERS_ARGUMENT"
       },
       {
-        "description": "Decimal128 .toString() with extra argument",
-        "query": "new Decimal128(Buffer.from('5')).toString()",
-        "errorCode": "E_BSONCOMPILERS_ARGUMENT"
-      },
-      {
         "description": "Decimal128 .fromString() without arguments",
         "query": "Decimal128.fromString()",
         "errorCode": "E_BSONCOMPILERS_ARGUMENT"
@@ -874,7 +874,7 @@
     "Date": [
       {
         "description": "Date with extra argument",
-        "query": "Date(1995, 11, 17, 3, 24, 0, 7)",
+        "query": "Date(1995, 11, 17, 3, 24, 0, 7, 8)",
         "errorCode": "E_BSONCOMPILERS_ARGUMENT"
       },
       {

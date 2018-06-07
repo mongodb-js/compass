@@ -17,12 +17,19 @@ const checkResults = {
   },
 
   error: function(inputLang, outputLang, test) {
+    let thrown = false;
     try {
       compiler[inputLang][outputLang](test.query);
     } catch (error) {
       expect(error.code).to.equal(test.errorCode);
+      thrown = true;
       if (test.message) {
-        expect(error.message.contains(test.message)).to.be.true;
+        expect(error.message).to.be.a('string');
+        expect(error.message.includes(test.message)).to.be.true;
+      }
+    } finally {
+      if (!thrown) {
+        expect.fail(0, 0, `Expected error with code ${test.errorCode} to throw`);
       }
     }
   }
