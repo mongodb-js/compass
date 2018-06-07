@@ -1,9 +1,9 @@
 {
-  "name": "export-to-language",
+  "name": "@mongodb-js/compass-export-to-language",
   "productName": "Export To Language plugin",
   "version": "1.0.0",
   "apiVersion": "1.0.0",
-  "description": "export to language button",
+  "description": "export to language modal",
   "main": "lib/index.js",
   "scripts": {
     "clean": "rimraf lib",
