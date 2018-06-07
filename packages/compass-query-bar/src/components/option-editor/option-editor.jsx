@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import AceEditor from 'react-ace';
 import ace from 'brace';
 import { QueryAutoCompleter } from 'mongodb-ace-autocompleter';
+import Actions from 'actions';
 
 import 'brace/ext/language_tools';
 import 'mongodb-ace-mode';
@@ -55,10 +56,13 @@ class OptionEditor extends Component {
     tools.setCompleters([ this.completer ]);
   }
 
+  componentDidMount() {
+    this.unsub = Actions.refreshEditor.listen(() => {
+      this.forceUpdate();
+    });
+  }
+
   /**
-   * @todo: Durran: Need to update the component when building queries
-   *   from the Schema tab.
-   *
    * @param {Object} nextProps - The next properties.
    *
    * @returns {Boolean} If the component should update.
@@ -72,6 +76,10 @@ class OptionEditor extends Component {
    */
   componentDidUpdate() {
     this.completer.update(this.props.schemaFields);
+  }
+
+  componentWillUnmount() {
+    this.unsub();
   }
 
   /**
