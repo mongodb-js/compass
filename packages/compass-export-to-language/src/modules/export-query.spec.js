@@ -2,10 +2,12 @@ import reducer, {
   ADD_INPUT_QUERY,
   OUTPUT_LANG,
   QUERY_ERROR,
+  TOGLE_MODAL,
   COPY_QUERY,
   CLEAR_COPY,
   setOutputLang,
   addInputQuery,
+  togleModal,
   queryError,
   copyQuery,
   clearCopy,
@@ -27,6 +29,15 @@ describe('export query module', () => {
       expect(queryError('could not find [')).to.deep.equal({
         type: QUERY_ERROR,
         error: 'could not find ['
+      });
+    });
+  });
+
+  describe('#togleModal', () => {
+    it('returns a togle modal action type', () => {
+      expect(togleModal(true)).to.deep.equal({
+        type: TOGLE_MODAL,
+        open: true
       });
     });
   });
@@ -69,6 +80,7 @@ describe('export query module', () => {
         expect(reducer(undefined, queryError('uh oh'))).to.deep.equal({
           copySuccess: false,
           queryError: 'uh oh',
+          modalOpen: false,
           returnQuery: '',
           outputLang: '',
           inputQuery: ''
@@ -81,6 +93,7 @@ describe('export query module', () => {
         expect(reducer(undefined, addInputQuery('{ "beep": "boop" }'))).to.deep.equal({
           inputQuery: '{ "beep": "boop" }',
           copySuccess: false,
+          modalOpen: false,
           queryError: null,
           returnQuery: '',
           outputLang: ''
@@ -93,6 +106,20 @@ describe('export query module', () => {
         expect(reducer(undefined, setOutputLang('java'))).to.deep.equal({
           copySuccess: false,
           outputLang: 'java',
+          modalOpen: false,
+          queryError: null,
+          returnQuery: '',
+          inputQuery: ''
+        });
+      });
+    });
+
+    context('action type is togleModal', () => {
+      it('modalOpen is true in state', () => {
+        expect(reducer(undefined, togleModal(true))).to.deep.equal({
+          copySuccess: false,
+          outputLang: '',
+          modalOpen: true,
           queryError: null,
           returnQuery: '',
           inputQuery: ''
@@ -105,6 +132,7 @@ describe('export query module', () => {
         expect(reducer(undefined, clearCopy())).to.deep.equal({
           copySuccess: false,
           queryError: null,
+          modalOpen: false,
           returnQuery: '',
           inputQuery: '',
           outputLang: ''
@@ -117,6 +145,7 @@ describe('export query module', () => {
         expect(reducer(undefined, {})).to.deep.equal({
           copySuccess: false,
           queryError: null,
+          modalOpen: false,
           returnQuery: '',
           inputQuery: '',
           outputLang: ''

@@ -2,8 +2,9 @@ import ExportToLanguagePlugin from './plugin';
 import ExportToLanguageStore from 'stores';
 
 /**
- * A sample role for the component.
- */
+ * Export To Language Role (specifically created)
+ **/
+
 const ROLE = {
   name: 'ExportToLanguage',
   component: ExportToLanguagePlugin
@@ -23,7 +24,7 @@ function activate(appRegistry) {
   //   - CollectionHUD.Item: { name <String>, component: <React.Component> }
   //   - Header.Item: { name: <String>, component: <React.Component>, alignment: <String> }
 
-  appRegistry.registerRole('Instance.Tab', ROLE);
+  appRegistry.registerComponent('ExportToLanguage.Modal', ROLE);
   appRegistry.registerStore('ExportToLanguage.Store', ExportToLanguageStore);
 }
 
@@ -32,7 +33,7 @@ function activate(appRegistry) {
  * @param {Object} appRegistry - The Hadron appRegisrty to deactivate this plugin with.
  **/
 function deactivate(appRegistry) {
-  appRegistry.deregisterRole('Instance.Tab', ROLE);
+  appRegistry.deregisterComponent('ExportToLanguage.Modal', ROLE);
   appRegistry.deregisterStore('ExportToLanguage.Store');
 }
 

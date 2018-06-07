@@ -10,16 +10,22 @@ class ExportModal extends Component {
   static propTypes = {
     exportQuery: PropTypes.object.isRequired,
     setOutputLang: PropTypes.func.isRequired,
+    togleModal: PropTypes.func.isRequired,
     copyQuery: PropTypes.func.isRequired,
     runQuery: PropTypes.func.isRequired
   }
 
+  closeHandler = () => {
+    this.props.togleModal(false);
+  };
+
   render() {
     return (
       <Modal
-        show
+        show={this.props.exportQuery.modalOpen}
         backdrop="static"
         bsSize="large"
+        onHide={this.closeHandler}
         dialogClassName="export-to-lang-modal">
 
         <Modal.Header>
@@ -31,7 +37,7 @@ class ExportModal extends Component {
         </Modal.Body>
 
         <Modal.Footer>
-          <TextButton className="btn btn-default btn-sm" text="Close" clickHandler={()=>{}} />
+          <TextButton className="btn btn-default btn-sm" text="Close" clickHandler={this.closeHandler} />
         </Modal.Footer>
       </Modal>
     );

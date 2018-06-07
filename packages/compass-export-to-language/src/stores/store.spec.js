@@ -6,6 +6,7 @@ describe('ExportToLanguage Store', () => {
       exportQuery: {
         copySuccess: false,
         queryError: null,
+        modalOpen: false,
         returnQuery: '',
         outputLang: '',
         inputQuery: ''

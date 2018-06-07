@@ -1,4 +1,4 @@
-import { runQuery, copyQuery, clearCopy, queryError, setOutputLang} from 'modules/export-query';
+import { runQuery, copyQuery, clearCopy, queryError, setOutputLang, togleModal} from 'modules/export-query';
 import ExportModal from 'components/export-modal';
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
@@ -14,7 +14,7 @@ class ExportToLanguage extends Component {
   render() {
     return (
       <div data-test-id="export-to-language">
-        <ExportModal {...this.props} />
+        <ExportModal { ...this.props } />
       </div>
     );
   }
@@ -40,6 +40,7 @@ const MappedExportToLanguage = connect(
   {
     setOutputLang,
     queryError,
+    togleModal,
     copyQuery,
     clearCopy,
     runQuery
