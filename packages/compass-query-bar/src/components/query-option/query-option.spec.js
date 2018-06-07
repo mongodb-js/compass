@@ -47,7 +47,7 @@ describe('QueryOption [Component]', function() {
           autoPopulated={false}
           hasToggle={false}
           hasError={false}
-          schemaFields={{}} />
+          schemaFields={[]} />
       );
 
       expect(component.find('[data-test-id="query-bar-option"]').children()).to.have.length(2);
@@ -69,7 +69,7 @@ describe('QueryOption [Component]', function() {
           autoPopulated={false}
           hasToggle={false}
           hasError={false}
-          schemaFields={{}} />
+          schemaFields={[]} />
       );
 
       expect(component.find('[data-test-id="query-bar-option-label"]')).to.have.text('<InfoSprinkle />Test');
@@ -89,7 +89,7 @@ describe('QueryOption [Component]', function() {
           autoPopulated={false}
           hasToggle={false}
           hasError={false}
-          schemaFields={{}} />
+          schemaFields={[]} />
       );
 
       expect(component.find(InfoSprinkle)).to.have.prop('helpLink', '#');

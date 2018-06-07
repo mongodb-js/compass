@@ -67,6 +67,7 @@ const QueryBarStore = Reflux.createStore({
     appRegistry.on('database-changed', this.onDatabaseChanged.bind(this));
   },
 
+
   /*
    * listen to Namespace store and reset if ns changes.
    */
@@ -153,7 +154,7 @@ const QueryBarStore = Reflux.createStore({
       ns: '',
 
       // Schema fields to use for filter autocompletion
-      schemaFields: null
+      schemaFields: []
     };
   },
 

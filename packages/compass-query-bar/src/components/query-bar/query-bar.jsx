@@ -86,40 +86,32 @@ class QueryBar extends Component {
     lastExecutedQuery: PropTypes.object,
     onReset: PropTypes.func,
     onApply: PropTypes.func,
-    schemaFields: PropTypes.object
+    schemaFields: PropTypes.array
   };
 
   static defaultProps = {
     expanded: false,
     buttonLabel: 'Apply',
     layout: ['filter', 'project', ['sort', 'skip', 'limit']],
-    schemaFields: {}
+    schemaFields: []
   };
 
   state = {
     hasFocus: false,
-    schemaFields: {}
+    schemaFields: []
   }
 
   componentDidMount() {
     if (global.hadronApp && global.hadronApp.appRegistry) { // Unit tests don't have appRegistry
       this.QueryHistoryActions = global.hadronApp.appRegistry.getAction('QueryHistory.Actions');
-      const fieldStore = global.hadronApp.appRegistry.getStore('Field.Store');
-      this.unsubscribeFieldStore = fieldStore.listen(this.onFieldsChanged);
     }
   }
 
   componentWillUnmount() {
-    this.unsubscribeFieldStore();
-
     if (this.QueryHistoryActions) {
       this.QueryHistoryActions.collapse();
     }
   }
-
-  onFieldsChanged = (state) => {
-    this.setState({ schemaFields: state.fields });
-  };
 
   onChange(label, evt) {
     const type = OPTION_DEFINITION[label].type;

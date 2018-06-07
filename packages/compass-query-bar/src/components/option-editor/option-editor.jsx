@@ -33,14 +33,14 @@ class OptionEditor extends Component {
     actions: PropTypes.object.isRequired,
     value: PropTypes.any,
     onChange: PropTypes.func,
-    schemaFields: PropTypes.object
+    schemaFields: PropTypes.array
   };
 
   static defaultProps = {
     label: '',
     value: '',
     autoPopulated: false,
-    schemaFields: {}
+    schemaFields: []
   };
 
   /**
@@ -58,9 +58,12 @@ class OptionEditor extends Component {
 
   componentDidMount() {
     this.unsub = Actions.refreshEditor.listen(() => {
-      console.log('Forcing editor update to value: ', this.props.value);
       this.editor.setValue(this.props.value);
-      // this.forceUpdate();
+      this.editor.clearSelection();
+    });
+
+    this.unsubFields = global.hadronApp.appRegistry.getStore('Field.Store').listen((fields) => {
+      this.completer.update(this.processFields(fields.fields));
     });
   }
 
@@ -73,15 +76,9 @@ class OptionEditor extends Component {
     return nextProps.autoPopulated;
   }
 
-  /**
-   * Update the schema fields on update.
-   */
-  componentDidUpdate() {
-    this.completer.update(this.props.schemaFields);
-  }
-
   componentWillUnmount() {
     this.unsub();
+    this.unsubFields();
   }
 
   /**
@@ -94,6 +91,19 @@ class OptionEditor extends Component {
       target: {
         value: newCode
       }
+    });
+  };
+
+  processFields = (fields) => {
+    return Object.keys(fields).map((key) => {
+      const field = (key.indexOf('.') > -1 || key.indexOf(' ') > -1) ? `"${key}"` : key;
+      return {
+        name: key,
+        value: field,
+        score: 1,
+        meta: 'field',
+        version: '0.0.0'
+      };
     });
   };
 

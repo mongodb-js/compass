@@ -22,14 +22,14 @@ class QueryOption extends Component {
     hasError: PropTypes.bool,
     validationFunc: PropTypes.func,
     onChange: PropTypes.func,
-    schemaFields: PropTypes.object
+    schemaFields: PropTypes.array
   };
 
   static defaultProps = {
     placeholder: '',
     value: '',
     hasToggle: false,
-    schemaFields: {}
+    schemaFields: []
   };
 
   _getInnerClassName() {

@@ -51,6 +51,7 @@
     "reflux-state-mixin": "^0.7.0"
   },
   "devDependencies": {
+    "@mongodb-js/compass-field-store": "^1.0.0",
     "autoprefixer": "^7.1.2",
     "babel-cli": "^6.10.1",
     "babel-core": "^6.24.1",

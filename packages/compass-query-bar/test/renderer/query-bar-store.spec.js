@@ -68,7 +68,7 @@ describe('QueryBarStore [Store]', function() {
       autoPopulated: false,
       expanded: false,
       ns: '',
-      schemaFields: null
+      schemaFields: []
     });
   });
 
