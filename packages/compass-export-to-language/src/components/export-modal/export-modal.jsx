@@ -20,7 +20,6 @@ class ExportModal extends Component {
         show
         backdrop="static"
         bsSize="large"
-        onHide={this.onExportModalToggle}
         dialogClassName="export-to-lang-modal">
 
         <Modal.Header>

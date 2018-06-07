@@ -1,4 +1,4 @@
-import { TextButton } from 'hadron-react-buttons';
+import { IconTextButton } from 'hadron-react-buttons';
 import SelectLang from 'components/select-lang';
 import React, { Component } from 'react';
 import { Alert } from 'react-bootstrap';
@@ -28,7 +28,8 @@ class ExportForm extends Component {
   render() {
     const copyButtonStyle = classnames({
       [ styles['export-to-lang-query-output-copy'] ]: true,
-      'btn-default': true,
+      'btn-sm': true,
+      'btn-info': true,
       'btn': true
     });
 
@@ -70,8 +71,9 @@ class ExportForm extends Component {
               outputLang={this.props.exportQuery.outputLang}
               inputQuery={this.props.exportQuery.inputQuery}/>
             {bubbleDiv}
-            <TextButton
+            <IconTextButton
               className={copyButtonStyle}
+              iconClassName="fa fa-paste"
               text="Copy"
               clickHandler={this.copyHandler}/>
           </div>
