@@ -21,6 +21,9 @@ const checkResults = {
       compiler[inputLang][outputLang](test.query);
     } catch (error) {
       expect(error.code).to.equal(test.errorCode);
+      if (test.message) {
+        expect(error.message.contains(test.message)).to.be.true;
+      }
     }
   }
 };
