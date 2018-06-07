@@ -34,19 +34,41 @@ class Visitor extends ECMAScriptVisitor {
     this.visitInstanceofExpression =
     this.visitFuncDefExpression =
     this.visitAssignmentExpression =
+    this.visitFunctionDeclaration =
+    this.visitVariableStatement =
+    this.visitIfStatement =
+    this.visitDoWhileStatement =
+    this.visitWhileStatement =
+    this.visitForStatement =
+    this.visitForVarStatement =
+    this.visitForInStatement =
+    this.visitForVarInStatement =
+    this.visitContinueStatement =
+    this.visitBreakStatement =
+    this.visitReturnStatement =
+    this.visitWithStatement =
+    this.visitLabelledStatement =
+    this.visitSwitchStatement =
+    this.visitThrowStatement =
+    this.visitTryStatement =
+    this.visitDebuggerStatement =
       this.unimplemented;
   }
 
   unimplemented(ctx) {
     const name = ctx.constructor.name ?
-      ctx.constructor.name.replace('ExpressionContext', '').toLowerCase() : 'Expression';
+      ctx.constructor.name.replace('Context', '') : 'Expression';
     throw new BsonCompilersUnimplementedError(
-      `'${name}' expression not yet implemented`
+      `'${name}' not yet implemented`
     );
   }
 
   start(ctx) {
-    return this.visitExpressionSequence(ctx);
+    return this.visitProgram(ctx);
+  }
+
+  visitEof() {
+    return '';
   }
 
   /**

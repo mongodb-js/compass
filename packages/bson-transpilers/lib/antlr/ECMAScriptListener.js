@@ -47,6 +47,15 @@ ECMAScriptListener.prototype.exitStatement = function(ctx) {
 };
 
 
+// Enter a parse tree produced by ECMAScriptParser#statementOrBlock.
+ECMAScriptListener.prototype.enterStatementOrBlock = function(ctx) {
+};
+
+// Exit a parse tree produced by ECMAScriptParser#statementOrBlock.
+ECMAScriptListener.prototype.exitStatementOrBlock = function(ctx) {
+};
+
+
 // Enter a parse tree produced by ECMAScriptParser#block.
 ECMAScriptListener.prototype.enterBlock = function(ctx) {
 };
@@ -128,12 +137,12 @@ ECMAScriptListener.prototype.exitIfStatement = function(ctx) {
 };
 
 
-// Enter a parse tree produced by ECMAScriptParser#DoStatement.
-ECMAScriptListener.prototype.enterDoStatement = function(ctx) {
+// Enter a parse tree produced by ECMAScriptParser#DoWhileStatement.
+ECMAScriptListener.prototype.enterDoWhileStatement = function(ctx) {
 };
 
-// Exit a parse tree produced by ECMAScriptParser#DoStatement.
-ECMAScriptListener.prototype.exitDoStatement = function(ctx) {
+// Exit a parse tree produced by ECMAScriptParser#DoWhileStatement.
+ECMAScriptListener.prototype.exitDoWhileStatement = function(ctx) {
 };
 
 

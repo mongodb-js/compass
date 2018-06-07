@@ -25,7 +25,7 @@ const checkResults = {
       thrown = true;
       if (test.message) {
         expect(error.message).to.be.a('string');
-        expect(error.message.includes(test.message)).to.be.true;
+        expect(error.message.includes(test.message), `Expected error message to contain ${test.message} but got ${error.message}`).to.be.true;
       }
     } finally {
       if (!thrown) {

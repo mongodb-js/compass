@@ -36,6 +36,12 @@ ECMAScriptVisitor.prototype.visitStatement = function(ctx) {
 };
 
 
+// Visit a parse tree produced by ECMAScriptParser#statementOrBlock.
+ECMAScriptVisitor.prototype.visitStatementOrBlock = function(ctx) {
+  return this.visitChildren(ctx);
+};
+
+
 // Visit a parse tree produced by ECMAScriptParser#block.
 ECMAScriptVisitor.prototype.visitBlock = function(ctx) {
   return this.visitChildren(ctx);
@@ -90,8 +96,8 @@ ECMAScriptVisitor.prototype.visitIfStatement = function(ctx) {
 };
 
 
-// Visit a parse tree produced by ECMAScriptParser#DoStatement.
-ECMAScriptVisitor.prototype.visitDoStatement = function(ctx) {
+// Visit a parse tree produced by ECMAScriptParser#DoWhileStatement.
+ECMAScriptVisitor.prototype.visitDoWhileStatement = function(ctx) {
   return this.visitChildren(ctx);
 };
 

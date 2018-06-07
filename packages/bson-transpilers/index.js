@@ -47,7 +47,7 @@ const loadTree = (input) => {
   parser.removeErrorListeners(); // Remove the default ConsoleErrorListener
   parser.addErrorListener(listener); // Add back a custom error listener
 
-  return parser.expressionSequence();
+  return parser.program();
 };
 
 const getCompiler = (visitor, generator, symbols) => {

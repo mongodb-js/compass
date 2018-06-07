@@ -139,7 +139,7 @@ ECMAScriptLexer.prototype.isRegexPossible = function() {
 /// Program :
 ///     SourceElements?
 program
- : sourceElements? EOF
+ : sourceElements? eof
  ;
 
 /// SourceElements :
@@ -174,8 +174,7 @@ sourceElement
 ///     TryStatement
 ///     DebuggerStatement
 statement
- : block
- | variableStatement
+ : variableStatement
  | emptyStatement
  | expressionStatement
  | ifStatement
@@ -191,17 +190,22 @@ statement
  | debuggerStatement
  ;
 
+statementOrBlock
+  : block
+  | statement
+  ;
+
 /// Block :
 ///     { StatementList? }
 block
- : '{' statementList? '}'
+ : '{' statement* '}'
  ;
 
 /// StatementList :
 ///     Statement
 ///     StatementList Statement
 statementList
- : statement+
+ : statementOrBlock+
  ;
 
 /// VariableStatement :
@@ -245,7 +249,7 @@ expressionStatement
 ///     if ( Expression ) Statement else Statement
 ///     if ( Expression ) Statement
 ifStatement
- : If '(' expressionSequence ')' statement ( Else statement )?
+ : If '(' expressionSequence ')' statementOrBlock ( Else statementOrBlock )?
  ;
 
 /// IterationStatement :
@@ -256,12 +260,12 @@ ifStatement
 ///     for ( LeftHandSideExpression in Expression ) Statement
 ///     for ( var VariableDeclaration in Expression ) Statement
 iterationStatement
- : Do statement While '(' expressionSequence ')' eos                                                 # DoStatement
- | While '(' expressionSequence ')' statement                                                        # WhileStatement
- | For '(' expressionSequence? ';' expressionSequence? ';' expressionSequence? ')' statement         # ForStatement
- | For '(' Var variableDeclarationList ';' expressionSequence? ';' expressionSequence? ')' statement # ForVarStatement
- | For '(' singleExpression In expressionSequence ')' statement                                      # ForInStatement
- | For '(' Var variableDeclaration In expressionSequence ')' statement                               # ForVarInStatement
+ : Do statementOrBlock While '(' expressionSequence ')' eos                                                 # DoWhileStatement
+ | While '(' expressionSequence ')' statementOrBlock                                                        # WhileStatement
+ | For '(' expressionSequence? ';' expressionSequence? ';' expressionSequence? ')' statementOrBlock         # ForStatement
+ | For '(' Var variableDeclarationList ';' expressionSequence? ';' expressionSequence? ')' statementOrBlock # ForVarStatement
+ | For '(' singleExpression In expressionSequence ')' statementOrBlock                                      # ForInStatement
+ | For '(' Var variableDeclaration In expressionSequence ')' statementOrBlock                               # ForVarInStatement
  ;
 
 /// ContinueStatement :
@@ -288,7 +292,7 @@ returnStatement
 /// WithStatement :
 ///     with ( Expression ) Statement
 withStatement
- : With '(' expressionSequence ')' statement
+ : With '(' expressionSequence ')' statementOrBlock
  ;
 
 /// SwitchStatement :
