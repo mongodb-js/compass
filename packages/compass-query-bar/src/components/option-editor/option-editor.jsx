@@ -58,7 +58,9 @@ class OptionEditor extends Component {
 
   componentDidMount() {
     this.unsub = Actions.refreshEditor.listen(() => {
-      this.forceUpdate();
+      console.log('Forcing editor update to value: ', this.props.value);
+      this.editor.setValue(this.props.value);
+      // this.forceUpdate();
     });
   }
 

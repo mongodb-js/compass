@@ -675,6 +675,7 @@ const QueryBarStore = Reflux.createStore({
       newState.autoPopulated = true;
       this.setState(omit(newState, 'expanded'));
     }
+    QueryBarActions.refreshEditor();
   },
 
   storeDidUpdate(prevState) {
