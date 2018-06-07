@@ -1,11 +1,29 @@
 {
   "tests": {
-    "BSONRegExp": [
+    "BinData": [
       {
-        "description": "RegExp with unsupported flag",
-        "query": "new BSONRegExp('^[a-z0-9_-]{3,16}$', 'wrong')",
-        "errorCode": "E_BSONCOMPILERS_RUNTIME",
-        "message": "BSONRegExp"
+        "description": "BinData with unsupported subtype",
+        "query": "new BinData(400, '1234')",
+        "errorCode": "E_BSONCOMPILERS_RANGE"
+      },
+      {
+        "description": "BinData with invalid hex",
+        "query": "new BinData(1, 'a string')",
+        "errorCode": "E_BSONCOMPILERS_RUNTIME"
+      }
+    ],
+    "Identifier": [
+      {
+        "description": "top level symbol",
+        "query": "x",
+        "errorCode": "E_BSONCOMPILERS_REFERENCE",
+        "message": "x"
+      },
+      {
+        "description": "argument symbol",
+        "query": "NumberLong(x)",
+        "errorCode": "E_BSONCOMPILERS_REFERENCE",
+        "message": "x"
       }
     ],
     "regex literal": [
@@ -34,24 +52,10 @@
         "errorCode": "E_BSONCOMPILERS_RUNTIME"
       }
     ],
-    "Long": [
-      {
-        "description": "Invalid Long",
-        "query": "Long(1, ++1)",
-        "errorCode": "E_BSONCOMPILERS_RUNTIME"
-      }
-    ],
-    "Decimal128": [
+    "NumberDecimal": [
       {
         "description": "Invalid Decimal128",
-        "query": "Decimal128(Buffer(-1))",
-        "errorCode": "E_BSONCOMPILERS_RUNTIME"
-      }
-    ],
-    "Binary": [
-      {
-        "description": "Invalid Binary",
-        "query": "Binary(x)",
+        "query": "NumberDecimal(++1)",
         "errorCode": "E_BSONCOMPILERS_RUNTIME"
       }
     ],
@@ -59,6 +63,13 @@
       {
         "description": "Invalid Date",
         "query": "Date(++1)",
+        "errorCode": "E_BSONCOMPILERS_RUNTIME"
+      }
+    ],
+    "ISODate": [
+      {
+        "description": "Invalid Date",
+        "query": "ISODate(++1)",
         "errorCode": "E_BSONCOMPILERS_RUNTIME"
       }
     ]

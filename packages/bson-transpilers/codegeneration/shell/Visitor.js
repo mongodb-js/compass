@@ -7,6 +7,7 @@ const {
   BsonCompilersRuntimeError,
   BsonCompilersRangeError
 } = require('../../helper/error');
+const { removeQuotes } = require('../../helper/format');
 
 /**
  * This is a Visitor superclass where helper methods used by all language
@@ -123,7 +124,7 @@ class Visitor extends JavascriptVisitor {
     if (!(subtype >= 0 && subtype <= 5 || subtype === 128)) {
       throw new BsonCompilersRangeError('BinData subtype must be a Number between 0-5 or 128');
     }
-    if (bindata.match(/^([0-9a-zA-Z+/]{4})*(([0-9a-zA-Z+/]{2}==)|([0-9a-zA-Z+/]{3}=))?$/)) {
+    if (!removeQuotes(bindata).match(/^([0-9a-zA-Z+/]{4})*(([0-9a-zA-Z+/]{2}==)|([0-9a-zA-Z+/]{3}=))?$/)) {
       throw new BsonCompilersRuntimeError('Invalid base64 passed to BinData');
     }
     const typeStr = binaryTypes[subtype] !== null ? binaryTypes[subtype]() : subtype;
