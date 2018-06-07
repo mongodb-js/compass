@@ -125,8 +125,7 @@ Application.prototype.setupApplicationMenu = function() {
 
 Application.prototype.setupLifecycleListeners = function() {
   app.on('window-all-closed', function() {
-    debug('All windows closed.  Quitting app.');
-    app.quit();
+    debug('All windows closed. Waiting for a new connection window.');
   });
 
   ipc.respondTo({
