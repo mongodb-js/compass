@@ -676,6 +676,17 @@ describe('QueryBarStore [Store]', function() {
       });
     });
   });
+
+  describe('#refreshEditor', function() {
+    it('sets autoPopulated to true', function(done) {
+      unsubscribe = QueryBarStore.listen(state => {
+        expect(state.autoPopulated).to.equal(true);
+        done();
+      });
+
+      QueryBarStore.refreshEditor();
+    });
+  });
 });
 
 /* eslint-enable no-unused-expressions */

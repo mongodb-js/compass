@@ -100,6 +100,13 @@ const QueryBarStore = Reflux.createStore({
   },
 
   /**
+   * Refresh the editor.
+   */
+  refreshEditor() {
+    this.setState({ autoPopulated: true });
+  },
+
+  /**
    * Initialize the query store.
    *
    * @return {Object} the initial store state.
