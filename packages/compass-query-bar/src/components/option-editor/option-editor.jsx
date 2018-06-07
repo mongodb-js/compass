@@ -33,6 +33,7 @@ class OptionEditor extends Component {
     actions: PropTypes.object.isRequired,
     value: PropTypes.any,
     onChange: PropTypes.func,
+    onApply: PropTypes.func,
     schemaFields: PropTypes.array
   };
 
@@ -127,7 +128,7 @@ class OptionEditor extends Component {
               win: 'Enter', mac: 'Enter'
             },
             exec: () => {
-              this.props.actions.apply();
+              this.props.onApply();
             }
           });
         }} />

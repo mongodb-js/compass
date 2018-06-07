@@ -22,6 +22,7 @@ class QueryOption extends Component {
     hasError: PropTypes.bool,
     validationFunc: PropTypes.func,
     onChange: PropTypes.func,
+    onApply: PropTypes.func,
     schemaFields: PropTypes.array
   };
 
@@ -64,6 +65,7 @@ class QueryOption extends Component {
         label={this.props.label}
         value={this.props.value}
         onChange={this.props.onChange}
+        onApply={this.props.onApply}
         autoPopulated={this.props.autoPopulated}
         actions={this.props.actions}
         schemaFields={this.props.schemaFields} />

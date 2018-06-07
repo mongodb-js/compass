@@ -127,8 +127,11 @@ class QueryBar extends Component {
   }
 
   onApplyButtonClicked = (evt) => {
-    evt.preventDefault();
-    evt.stopPropagation();
+    // No evt when pressing enter from ACE.
+    if (evt) {
+      evt.preventDefault();
+      evt.stopPropagation();
+    }
 
     const { actions, valid, featureFlag, onApply } = this.props;
 
@@ -217,6 +220,7 @@ class QueryBar extends Component {
         link={OPTION_DEFINITION[option].link}
         inputType={OPTION_DEFINITION[option].type}
         onChange={this.onChange.bind(this, option)}
+        onApply={this.onApplyButtonClicked}
         schemaFields={this.state.schemaFields}
       />
     );
