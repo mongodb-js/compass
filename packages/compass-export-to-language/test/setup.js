@@ -1,6 +1,10 @@
-const chai = require('chai');
+const Adapter = require('enzyme-adapter-react-16');
 const chaiEnzyme = require('chai-enzyme');
 const sinonChai = require('sinon-chai');
+const enzyme = require('enzyme');
+const chai = require('chai');
+
+enzyme.configure({ adapter: new Adapter() });
 
 require('jsdom-global')('', {
   beforeParse(win) {
