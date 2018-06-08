@@ -8,9 +8,11 @@ import styles from './select-lang.less';
 class SelectLang extends PureComponent {
   static displayName = 'SelectLangComponent';
 
+  // input query can be an object(empty query) or a string(an actual query) so
+  // check for any
   static propTypes = {
     setOutputLang: PropTypes.func.isRequired,
-    inputQuery: PropTypes.string.isRequired,
+    inputQuery: PropTypes.any.isRequired,
     outputLang: PropTypes.string.isRequired,
     runQuery: PropTypes.func.isRequired
   }
