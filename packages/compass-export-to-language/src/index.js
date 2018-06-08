@@ -24,7 +24,7 @@ function activate(appRegistry) {
   //   - CollectionHUD.Item: { name <String>, component: <React.Component> }
   //   - Header.Item: { name: <String>, component: <React.Component>, alignment: <String> }
 
-  appRegistry.registerComponent('ExportToLanguage.Modal', ROLE);
+  appRegistry.registerRole('ExportToLanguage.Modal', ROLE);
   appRegistry.registerStore('ExportToLanguage.Store', ExportToLanguageStore);
 }
 
@@ -33,7 +33,7 @@ function activate(appRegistry) {
  * @param {Object} appRegistry - The Hadron appRegisrty to deactivate this plugin with.
  **/
 function deactivate(appRegistry) {
-  appRegistry.deregisterComponent('ExportToLanguage.Modal', ROLE);
+  appRegistry.deregisterRole('ExportToLanguage.Modal', ROLE);
   appRegistry.deregisterStore('ExportToLanguage.Store');
 }
 
