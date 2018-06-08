@@ -51,6 +51,7 @@ class Home extends React.Component {
     this.SchemaActions = app.appRegistry.getAction('Schema.Actions');
     this.importRole = app.appRegistry.getRole('Import.Modal');
     this.exportRole = app.appRegistry.getRole('Export.Modal');
+    this.exportToLangRole = app.appRegistry.getRole('ExportToLanguage.Modal');
   }
 
   componentWillMount() {
@@ -134,6 +135,13 @@ class Home extends React.Component {
     }
   }
 
+  renderExportToLangModal() {
+    if (this.exportToLangRole) {
+      const ExportToLanguage = this.exportToLangRole[0].component;
+      return (<ExportToLanguage />);
+    }
+  }
+
   renderHome() {
     return (
       <div className="page-container" data-test-id="home-view">
@@ -150,6 +158,7 @@ class Home extends React.Component {
           <this.DropCollectionDialog />
           {this.renderImportModal()}
           {this.renderExportModal()}
+          {this.renderExportToLangModal()}
         </div>
       </div>
     );

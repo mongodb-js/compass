@@ -39,6 +39,7 @@
           "plugins-directory": ".mongodb/compass/plugins",
           "plugins": [
             "node_modules/@mongodb-js/compass-aggregations",
+            "node_modules/@mongodb-js/compass-export-to-language",
             "node_modules/@mongodb-js/compass-crud",
             "node_modules/@mongodb-js/compass-collection-stats",
             "node_modules/@mongodb-js/compass-connect",
@@ -68,6 +69,7 @@
           "plugins-directory": ".mongodb/compass-community/plugins",
           "plugins": [
             "node_modules/@mongodb-js/compass-aggregations",
+            "node_modules/@mongodb-js/compass-export-to-language",
             "node_modules/@mongodb-js/compass-collection-stats",
             "node_modules/@mongodb-js/compass-connect",
             "node_modules/@mongodb-js/compass-crud",
@@ -94,6 +96,7 @@
           "readonly": true,
           "plugins": [
             "node_modules/@mongodb-js/compass-aggregations",
+            "node_modules/@mongodb-js/compass-export-to-language",
             "node_modules/@mongodb-js/compass-crud",
             "node_modules/@mongodb-js/compass-import-export",
             "node_modules/@mongodb-js/compass-collection-stats",
@@ -124,6 +127,7 @@
           "isolated": true,
           "plugins": [
             "node_modules/@mongodb-js/compass-aggregations",
+            "node_modules/@mongodb-js/compass-export-to-language",
             "node_modules/@mongodb-js/compass-crud",
             "node_modules/@mongodb-js/compass-import-export",
             "node_modules/@mongodb-js/compass-collection-stats",
@@ -224,6 +228,7 @@
     "@mongodb-js/compass-crud": "^5.2.1",
     "@mongodb-js/compass-deployment-awareness": "^6.0.0",
     "@mongodb-js/compass-document-validation": "^8.0.1",
+    "@mongodb-js/compass-export-to-language": "^2.0.7",
     "@mongodb-js/compass-import-export": "^1.0.2",
     "@mongodb-js/compass-instance": "^1.0.1",
     "@mongodb-js/compass-license": "^1.0.0",
