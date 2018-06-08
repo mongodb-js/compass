@@ -73,6 +73,7 @@ class SplitLines extends Transform {
         return callback(e, []);
       }
     }
+    return callback(null, []);
   }
 
   isJSON(line) {

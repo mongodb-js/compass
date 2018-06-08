@@ -199,10 +199,13 @@ export const importStartedEpic = (action$, store) =>
       frs.pipe(splitLines);
       return streamToObservable(splitLines)
         .concatMap((docs) => {
-          return dataService.putMany(ns, docs, { ordered: false })
-            .then(() => {
-              return importProgress((frs.bytesRead * 100) / fileSizeInBytes);
-            });
+          if (docs.length > 0) {
+            return dataService.putMany(ns, docs, { ordered: false })
+              .then(() => {
+                return importProgress((frs.bytesRead * 100) / fileSizeInBytes);
+              });
+          }
+          return Observable.of(importProgress((frs.bytesRead * 100) / fileSizeInBytes));
         })
         .takeWhile(() => {
           return importStatus !== PROCESS_STATUS.CANCELED;
