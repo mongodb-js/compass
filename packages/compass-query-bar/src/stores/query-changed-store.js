@@ -73,7 +73,6 @@ const QueryChangedStore = Reflux.createStore({
       newState.queryState = state.queryState;
       newState.maxTimeMS = state.maxTimeMS;
       newState.ns = state.ns;
-      this.setState(newState);
 
       // Call onQueryChanged lifecycle method
       const registry = global.hadronApp.appRegistry;
@@ -82,6 +81,7 @@ const QueryChangedStore = Reflux.createStore({
       } else {
         debug('Error: AppRegistry not available for query-changed-store');
       }
+      this.setState(newState);
     }
   }
 });
