@@ -21,7 +21,7 @@ class Collection extends React.Component {
     this.setupTabs();
   }
 
-  componentWillMount() {
+  componentDidMount() {
     const ns = this.props.namespace;
     if (ns && toNS(ns).collection) {
       this.setState({
@@ -31,7 +31,7 @@ class Collection extends React.Component {
       this.setState({ activeTab: 0 });
     }
     if (this.CollectionStore) {
-      this.CollectionStore.listen((index) => {
+      this.unsubStore = this.CollectionStore.listen((index) => {
         this.setState({ activeTab: index });
       });
     }
@@ -39,6 +39,12 @@ class Collection extends React.Component {
 
   componentDidUpdate() {
     this.QueryActions.refreshEditor();
+  }
+
+  componentWillUnmount() {
+    if (this.unsubStore) {
+      this.unsubStore();
+    }
   }
 
   onTabClicked(idx) {

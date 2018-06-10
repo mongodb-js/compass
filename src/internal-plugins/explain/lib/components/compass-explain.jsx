@@ -24,9 +24,6 @@ class CompassExplain extends React.Component {
   constructor(props) {
     super(props);
     this.CollectionStore = app.appRegistry.getStore('App.CollectionStore');
-  }
-
-  componentWillMount() {
     this.queryBar = app.appRegistry.getComponent('Query.QueryBar');
   }
 
