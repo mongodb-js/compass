@@ -21,7 +21,7 @@ class Collection extends React.Component {
     this.setupTabs();
   }
 
-  componentDidMount() {
+  componentWillMount() {
     const ns = this.props.namespace;
     if (ns && toNS(ns).collection) {
       this.setState({
