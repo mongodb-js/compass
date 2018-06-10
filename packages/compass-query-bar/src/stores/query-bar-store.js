@@ -400,7 +400,7 @@ const QueryBarStore = Reflux.createStore({
     } else {
       filter[args.field] = args.value;
     }
-    this.setQuery({ filter: filter });
+    this.setQuery({ filter: filter }, true);
   },
 
   /**
@@ -422,11 +422,11 @@ const QueryBarStore = Reflux.createStore({
       } else {
         this.clearValue(args);
       }
-      this.setQuery({ filter: filter });
+      this.setQuery({ filter: filter }, true);
       return;
     }
     filter[args.field] = args.value;
-    this.setQuery({ filter: filter });
+    this.setQuery({ filter: filter }, true);
   },
 
   /**
@@ -438,7 +438,7 @@ const QueryBarStore = Reflux.createStore({
   clearValue(args) {
     const filter = clone(this.state.filter);
     delete filter[args.field];
-    this.setQuery({ filter: filter });
+    this.setQuery({ filter: filter }, true);
   },
 
   /**
@@ -454,7 +454,7 @@ const QueryBarStore = Reflux.createStore({
     // field not present in filter yet, add primitive value
     if (field === undefined) {
       filter[args.field] = args.value;
-      this.setQuery({ filter: filter });
+      this.setQuery({ filter: filter }, true);
       return;
     }
     // field is object, could be a $in clause or a primitive value
@@ -464,18 +464,18 @@ const QueryBarStore = Reflux.createStore({
         const inArray = filter[args.field].$in;
         if (!contains(inArray, args.value)) {
           filter[args.field].$in.push(args.value);
-          this.setQuery({ filter: filter });
+          this.setQuery({ filter: filter }, true);
         }
         return;
       }
       // it is not a $in operator, replace the value
       filter[args.field] = args.value;
-      this.setQuery({ filter: filter });
+      this.setQuery({ filter: filter }, true);
       return;
     }
     // in all other cases, we want to turn a primitive value into a $in list
     filter[args.field] = { $in: [field, args.value] };
-    this.setQuery({ filter: filter });
+    this.setQuery({ filter: filter }, true);
   },
 
   /**
@@ -505,14 +505,14 @@ const QueryBarStore = Reflux.createStore({
         } else {
           delete filter[args.field];
         }
-        this.setQuery({ filter: filter });
+        this.setQuery({ filter: filter }, true);
         return;
       }
     }
     // if value to remove is the same as the primitive value, unset field
     if (isEqual(field, args.value, bsonEqual)) {
       delete filter[args.field];
-      this.setQuery({ filter: filter });
+      this.setQuery({ filter: filter }, true);
       return;
     }
     // else do nothing
@@ -580,7 +580,7 @@ const QueryBarStore = Reflux.createStore({
     } else {
       filter[args.field] = value;
     }
-    this.setQuery({ filter: filter });
+    this.setQuery({ filter: filter }, true);
   },
 
   /**
@@ -605,7 +605,7 @@ const QueryBarStore = Reflux.createStore({
         $centerSphere: [[center[0], center[1]], radius]
       };
       filter[args.field] = value;
-      this.setQuery({ filter: filter });
+      this.setQuery({ filter: filter }, true);
       return;
     }
     // else if center or radius are not set, or radius is 0, clear field
