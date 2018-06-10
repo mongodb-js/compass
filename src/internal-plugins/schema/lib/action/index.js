@@ -4,7 +4,7 @@ const SchemaAction = Reflux.createActions({
   /**
    * starts schema sampling with the current query
    */
-  startSampling: {sync: true},
+  startSampling: {sync: false},
   /**
    * stops schema sampling
    */
@@ -12,7 +12,7 @@ const SchemaAction = Reflux.createActions({
   /**
    * Reset store
    */
-  reset: {sync: true},
+  reset: {sync: false},
   /**
    * set new maxTimeMS value
    */

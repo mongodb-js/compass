@@ -111,7 +111,7 @@ const minicharts_d3fns_date = function() {
       QueryAction.setValue({
         field: options.fieldName,
         value: minValue.value
-      });
+      }, true);
       return;
     }
     // binned values, build range query with $gte and $lte
