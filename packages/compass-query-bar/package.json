@@ -1,7 +1,7 @@
 {
   "name": "@mongodb-js/compass-query-bar",
   "productName": "Query Bar plugin",
-  "version": "1.0.10",
+  "version": "1.0.11",
   "apiVersion": "2.0.0",
   "description": "Renders a component for executing MongoDB queries through a GUI.",
   "main": "lib/index.js",
