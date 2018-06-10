@@ -9,7 +9,6 @@ import {
   has,
   pull,
   pick,
-  keys,
   isBoolean,
   isFunction,
   isUndefined,
@@ -298,7 +297,12 @@ const QueryBarStore = Reflux.createStore({
     console.log('###### Input valids: ', inputValids);
 
     // store all keys for which the values are true
-    const validKeys = keys(pick(inputValids, identity));
+    console.log('identity', identity);
+    const validKeys = [];
+    Object.keys(inputValids).forEach((key) => {
+      if (inputValids[key] === true) validKeys.push(key);
+    });
+    // keys(pick(inputValids, identity));
 
     console.log('###### Valid keys', validKeys);
 
