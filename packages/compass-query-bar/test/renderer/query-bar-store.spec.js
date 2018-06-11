@@ -69,6 +69,7 @@ describe('QueryBarStore [Store]', function() {
       skipValid: true,
       limitValid: true,
       sampleValid: true,
+      serverVersion: '3.6.0',
       lastExecutedQuery: null,
       userTyping: false,
       autoPopulated: false,
