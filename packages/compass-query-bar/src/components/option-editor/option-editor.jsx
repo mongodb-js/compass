@@ -29,6 +29,7 @@ class OptionEditor extends Component {
 
   static propTypes = {
     label: PropTypes.string.isRequired,
+    serverVersion: PropTypes.string.isRequired,
     autoPopulated: PropTypes.bool.isRequired,
     actions: PropTypes.object.isRequired,
     value: PropTypes.any,
@@ -40,6 +41,7 @@ class OptionEditor extends Component {
   static defaultProps = {
     label: '',
     value: '',
+    serverVersion: '3.6.0',
     autoPopulated: false,
     schemaFields: []
   };
@@ -53,10 +55,13 @@ class OptionEditor extends Component {
     super(props);
     const tools = ace.acequire('ace/ext/language_tools');
     const textCompleter = tools.textCompleter;
-    this.completer = new QueryAutoCompleter('3.6.0', textCompleter, this.props.schemaFields);
+    this.completer = new QueryAutoCompleter(props.serverVersion, textCompleter, props.schemaFields);
     tools.setCompleters([ this.completer ]);
   }
 
+  /**
+   * Subscribe on mount.
+   */
   componentDidMount() {
     this.unsub = Actions.refreshEditor.listen(() => {
       this.editor.setValue(this.props.value);
@@ -74,9 +79,12 @@ class OptionEditor extends Component {
    * @returns {Boolean} If the component should update.
    */
   shouldComponentUpdate(nextProps) {
-    return nextProps.autoPopulated;
+    return nextProps.autoPopulated || nextProps.serverVersion !== this.props.serverVersion;
   }
 
+  /**
+   * Unsubscribe listeners.
+   */
   componentWillUnmount() {
     this.unsub();
     this.unsubFields();
@@ -95,6 +103,13 @@ class OptionEditor extends Component {
     });
   };
 
+  /**
+   * Handles converting the field list to an ACE friendly format.
+   *
+   * @param {Object} fields - The fields.
+   *
+   * @returns {Array} The field list.
+   */
   processFields = (fields) => {
     return Object.keys(fields).map((key) => {
       const field = (key.indexOf('.') > -1 || key.indexOf(' ') > -1) ? `"${key}"` : key;
@@ -108,6 +123,11 @@ class OptionEditor extends Component {
     });
   };
 
+  /**
+   * Render the editor.
+   *
+   * @returns {Component} The component.
+   */
   render() {
     return (
       <AceEditor

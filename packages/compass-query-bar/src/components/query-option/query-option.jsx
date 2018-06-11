@@ -13,6 +13,7 @@ class QueryOption extends Component {
   static propTypes = {
     placeholder: PropTypes.string,
     label: PropTypes.string.isRequired,
+    serverVersion: PropTypes.string.isRequired,
     link: PropTypes.string.isRequired,
     actions: PropTypes.object.isRequired,
     inputType: PropTypes.oneOf(['numeric', 'boolean', 'document']).isRequired,
@@ -64,6 +65,7 @@ class QueryOption extends Component {
       <OptionEditor
         label={this.props.label}
         value={this.props.value}
+        serverVersion={this.props.serverVersion}
         onChange={this.props.onChange}
         onApply={this.props.onApply}
         autoPopulated={this.props.autoPopulated}

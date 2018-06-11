@@ -17,6 +17,12 @@ const appRegistry = new AppRegistry();
 global.hadronApp = app;
 global.hadronApp.appRegistry = appRegistry;
 
+const actions = {
+  runQuery: {
+    listen: () => {}
+  }
+};
+appRegistry.registerAction('QueryHistory.Actions', actions);
 // Activate our plugin with the Hadron App Registry
 activate(appRegistry);
 fieldsActivate(appRegistry);

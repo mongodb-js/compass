@@ -81,6 +81,7 @@ class QueryBar extends Component {
     actions: PropTypes.object,
     buttonLabel: PropTypes.string,
     queryState: PropTypes.string,
+    serverVersion: PropTypes.string,
     layout: PropTypes.array,
     expanded: PropTypes.bool,
     lastExecutedQuery: PropTypes.object,
@@ -211,6 +212,7 @@ class QueryBar extends Component {
       <QueryOption
         label={option}
         autoPopulated={autoPopulated}
+        serverVersion={this.props.serverVersion}
         hasToggle={hasToggle}
         hasError={hasError}
         key={`query-option-${id}`}

@@ -59,6 +59,7 @@ const QueryBarStore = Reflux.createStore({
 
     appRegistry.on('collection-changed', this.onCollectionChanged.bind(this));
     appRegistry.on('database-changed', this.onDatabaseChanged.bind(this));
+    appRegistry.on('server-version-changed', this.onServerVersionChanged.bind(this));
   },
 
 
@@ -78,6 +79,15 @@ const QueryBarStore = Reflux.createStore({
     const newState = this.getInitialState();
     newState.ns = ns;
     this.setState(newState);
+  },
+
+  /**
+   * Handle server version updates.
+   *
+   * @param {String} version - The version.
+   */
+  onServerVersionChanged(version) {
+    this.setState({ serverVersion: version });
   },
 
   /**
@@ -146,6 +156,8 @@ const QueryBarStore = Reflux.createStore({
 
       // set the namespace
       ns: '',
+
+      serverVersion: '3.6.0',
 
       // Schema fields to use for filter autocompletion
       schemaFields: []

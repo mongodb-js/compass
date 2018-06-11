@@ -43,6 +43,7 @@ describe('QueryOption [Component]', function() {
           onChange={onChangeStub}
           placeholder=""
           value=""
+          serverVersion="3.4.0"
           actions={{}}
           autoPopulated={false}
           hasToggle={false}
@@ -64,6 +65,7 @@ describe('QueryOption [Component]', function() {
           validationFunc={validationFuncStub}
           onChange={onChangeStub}
           placeholder=""
+          serverVersion="3.4.0"
           value=""
           actions={{}}
           autoPopulated={false}
@@ -83,6 +85,7 @@ describe('QueryOption [Component]', function() {
           inputType="numeric"
           validationFunc={validationFuncStub}
           onChange={onChangeStub}
+          serverVersion="3.4.0"
           placeholder=""
           value=""
           actions={{}}
