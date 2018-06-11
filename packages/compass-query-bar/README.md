@@ -6,5 +6,5 @@
 
 Apache 2.0
 
-[travis_img]: https://travis-ci.com/10gen/compass-query-bar.svg?token=ezEB2TnpPiu7XLo6ByZp&branch=master
-[travis_url]: https://travis-ci.com/10gen/query-bar
+[travis_img]: https://travis-ci.org/mongodb-js/compass-query-bar.svg?branch=master
+[travis_url]: https://travis-ci.org/mongodb-js/compass-query-bar
