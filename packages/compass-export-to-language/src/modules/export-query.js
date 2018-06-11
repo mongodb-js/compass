@@ -1,3 +1,4 @@
+const safeStringify = require('fast-safe-stringify');
 const clipboard = require('electron').clipboard;
 const compiler = require('bson-compilers');
 
@@ -18,7 +19,7 @@ export const INITIAL_STATE = {
   modalOpen: false,
   returnQuery: '',
   outputLang: '',
-  inputQuery: '' // { "item": "happysocks", "quantity": 1, "category": [ "clothing", "socks" ] }',
+  inputQuery: '' //{ category_code: "enterprise" }
 };
 
 function copyToClipboard(state, action) {
@@ -27,12 +28,20 @@ function copyToClipboard(state, action) {
   return { ...state, copySuccess: true };
 }
 
+function closeModal(state, action) {
+  if (!action.open) {
+    return { ...state, INITIAL_STATE }
+  }
+  return { ...state, modalOpen: action.open }
+}
+
 export const runQuery = (outputLang, input) => {
   return (dispatch, getState) => {
     const state = getState();
+    const stringInput = safeStringify(input) 
 
     try {
-      const output = compiler.javascript[outputLang](input);
+      const output = compiler.shell[outputLang](stringInput);
       state.exportQuery.returnQuery = output;
       state.exportQuery.queryError = null;
       return state;
@@ -46,9 +55,9 @@ export default function reducer(state = INITIAL_STATE, action) {
   if (action.type === ADD_INPUT_QUERY) return { ...state, inputQuery: action.input };
   if (action.type === QUERY_ERROR) return { ...state, queryError: action.error };
   if (action.type === OUTPUT_LANG) return { ...state, outputLang: action.lang };
-  if (action.type === TOGLE_MODAL) return { ...state, modalOpen: action.open };
   if (action.type === CLEAR_COPY) return { ...state, copySuccess: false };
   if (action.type === COPY_QUERY) return copyToClipboard(state, action);
+  if (action.type === TOGLE_MODAL) return closeModal(state, action);
 
   return state;
 }
