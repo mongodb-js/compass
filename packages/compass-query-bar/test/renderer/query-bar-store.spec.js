@@ -25,11 +25,17 @@ import {
 describe('QueryBarStore [Store]', function() {
   global.hadronApp = app;
   const registry = new AppRegistry();
+  const historyActions = {
+    runQuery: {
+      listen: () => {}
+    }
+  };
   let unsubscribe;
 
   before(function() {
     global.hadronApp.appRegistry = registry;
     registry.registerStore('QueryBarStore', QueryBarStore);
+    registry.registerAction('QueryHistory.Actions', historyActions);
     registry.onActivated();
   });
 
