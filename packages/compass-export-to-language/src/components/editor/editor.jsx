@@ -13,7 +13,7 @@ import 'brace/mode/java';
 
 import 'mongodb-ace-theme';
 
-const beautify = ace.acequire("ace/ext/beautify");
+const beautify = ace.acequire('ace/ext/beautify');
 
 import styles from './editor.less';
 
