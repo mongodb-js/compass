@@ -1,5 +1,5 @@
+import safeStringify from 'fast-safe-stringify';
 import React, { PureComponent } from 'react';
-import safeStringify from 'fast-safe-stringify'
 import classnames from 'classnames';
 import PropTypes from 'prop-types';
 import AceEditor from 'react-ace';

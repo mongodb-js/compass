@@ -19,7 +19,7 @@ export const INITIAL_STATE = {
   modalOpen: false,
   returnQuery: '',
   outputLang: '',
-  inputQuery: '' //{ category_code: "enterprise" }
+  inputQuery: '' // { category_code: "enterprise" }
 };
 
 function copyToClipboard(state, action) {
@@ -29,16 +29,15 @@ function copyToClipboard(state, action) {
 }
 
 function closeModal(state, action) {
-  if (!action.open) {
-    return { ...state, INITIAL_STATE }
-  }
-  return { ...state, modalOpen: action.open }
+  if (!action.open) return INITIAL_STATE;
+
+  return { ...state, modalOpen: action.open };
 }
 
 export const runQuery = (outputLang, input) => {
   return (dispatch, getState) => {
     const state = getState();
-    const stringInput = safeStringify(input) 
+    const stringInput = safeStringify(input);
 
     try {
       const output = compiler.shell[outputLang](stringInput);

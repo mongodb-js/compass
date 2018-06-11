@@ -127,6 +127,19 @@ describe('export query module', () => {
       });
     });
 
+    context('action type is togleModal', () => {
+      it('modalOpen is false in state', () => {
+        expect(reducer(undefined, togleModal(false))).to.deep.equal({
+          copySuccess: false,
+          outputLang: '',
+          modalOpen: false,
+          queryError: null,
+          returnQuery: '',
+          inputQuery: ''
+        });
+      });
+    });
+
     context('action type is clearCopy', () => {
       it('returns a clearCopy state', () => {
         expect(reducer(undefined, clearCopy())).to.deep.equal({

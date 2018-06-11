@@ -23,7 +23,7 @@
     "prepublish": "npm run compile",
     "storybook": "start-storybook -p 9001 -c .storybook",
     "precommit": [
-      "npm run check"
+      "check"
     ]
   },
   "license": "Apache-2.0",
