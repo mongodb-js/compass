@@ -448,7 +448,7 @@ describe('pipeline module', () => {
           executor: { $sort: { name: 1 }},
           stageOperator: '$sort'
         };
-        const state = { inputDocuments: { count: 1000000 }, pipeline: [ stage0 ]};
+        const state = { inputDocuments: { count: 100001 }, pipeline: [ stage0 ]};
 
         it('sets the limit on the end', () => {
           expect(generatePipeline(state, 0)).to.deep.equal([
