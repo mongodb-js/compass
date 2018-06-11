@@ -21,6 +21,9 @@ import reducer, {
   LOADING_STAGE_RESULTS,
   STAGE_TOGGLED } from 'modules/pipeline';
 
+const LIMIT_TO_PROCESS = 100000;
+const LIMIT_TO_DISPLAY = 20;
+
 describe('pipeline module', () => {
   describe('#reducer', () => {
     context('when the action is undefined', () => {
@@ -344,7 +347,7 @@ describe('pipeline module', () => {
   });
 
   describe('#generatePipeline', () => {
-    const limit = { $limit: 20 };
+    const limit = { $limit: LIMIT_TO_DISPLAY };
 
     context('when the index is the first', () => {
       const stage = { isEnabled: true, executor: { $match: { name: 'test' }}};
@@ -417,7 +420,7 @@ describe('pipeline module', () => {
         const stage0 = { isEnabled: true, executor: { $match: { name: 'test' }}};
         const state = { inputDocuments: { count: 1000000 }, pipeline: [ stage0 ]};
 
-        it('sets the limit on the end', () => {
+        it(`sets only the ${LIMIT_TO_DISPLAY} limit on the end`, () => {
           expect(generatePipeline(state, 0)).to.deep.equal([
             stage0.executor,
             limit
@@ -433,9 +436,9 @@ describe('pipeline module', () => {
         };
         const state = { inputDocuments: { count: 1000000 }, pipeline: [ stage0 ]};
 
-        it('sets the limit on the end', () => {
+        it(`sets the ${LIMIT_TO_PROCESS} limit before $group and the ${LIMIT_TO_DISPLAY} limit on the end`, () => {
           expect(generatePipeline(state, 0)).to.deep.equal([
-            { $limit: 100000 },
+            { $limit: LIMIT_TO_PROCESS },
             stage0.executor,
             limit
           ]);
@@ -450,7 +453,7 @@ describe('pipeline module', () => {
         };
         const state = { inputDocuments: { count: 1000000 }, pipeline: [ stage0 ]};
 
-        it('sets the limit on the end', () => {
+        it(`sets only the ${LIMIT_TO_DISPLAY} limit on the end`, () => {
           expect(generatePipeline(state, 0)).to.deep.equal([
             stage0.executor,
             limit
