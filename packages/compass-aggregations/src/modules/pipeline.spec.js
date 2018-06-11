@@ -452,7 +452,6 @@ describe('pipeline module', () => {
 
         it('sets the limit on the end', () => {
           expect(generatePipeline(state, 0)).to.deep.equal([
-            { $limit: 100000 },
             stage0.executor,
             limit
           ]);
