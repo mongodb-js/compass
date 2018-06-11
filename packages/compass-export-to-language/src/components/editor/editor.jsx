@@ -61,7 +61,7 @@ class Editor extends PureComponent {
       useWorker: false
     };
 
-    const queryStyle = this.props.queryError
+    const queryStyle = (this.props.queryError && this.props.input)
       ? classnames(styles['editor-error'])
       : classnames(styles.editor);
 
