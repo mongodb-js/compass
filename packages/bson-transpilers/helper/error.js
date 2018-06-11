@@ -13,8 +13,12 @@ Object.keys(config).forEach((error) => {
       this.name = name;
       this.code = code;
       this.message = m;
+      if (opts && 'stack' in opts) {
+        this.stack = opts.stack;
+      } else {
+        Error.captureStackTrace(this, errors[name]);
+      }
       Object.assign(this, opts || {});
-      Error.captureStackTrace(this, errors[name]);
     }
   };
 });

@@ -38,6 +38,7 @@ const loadSymbolTable = (dir, inputLang, outputLang) => {
     'main.yaml',
     path.join(outputLang, 'templates.yaml'),
     'basic_types.yaml',
+    'syntax_templates.yaml',
     path.join(inputLang, 'types.yaml'),
     path.join(inputLang, 'symbols.yaml')
   ];

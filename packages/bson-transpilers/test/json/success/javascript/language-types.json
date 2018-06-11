@@ -18,6 +18,24 @@
         "shell": "2+(4*36)/3"
       }
     ],
+    "compare": [
+      {
+        "description": "Triple equals",
+        "javascript": "1 === 2",
+        "python": "1 == 2",
+        "java": "1L == 2L",
+        "csharp": "1 == 2",
+        "shell": "1 === 2"
+      },
+      {
+        "description": "Triple not equals",
+        "javascript": "1 !== 2",
+        "python": "1 != 2",
+        "java": "1L != 2L",
+        "csharp": "1 != 2",
+        "shell": "1 !== 2"
+      }
+    ],
     "Number": [
       {
         "description": "Number with number arg",

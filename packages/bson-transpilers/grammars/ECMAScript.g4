@@ -139,14 +139,16 @@ ECMAScriptLexer.prototype.isRegexPossible = function() {
 /// Program :
 ///     SourceElements?
 program
- : sourceElements? eof
+ : sourceElements? sourceElement? eof
  ;
 
 /// SourceElements :
 ///     SourceElement
 ///     SourceElements SourceElement
 sourceElements
- : sourceElement+
+// : sourceElement+
+// : sourceElement (eos sourceElement)*
+ : (sourceElement eos)+
  ;
 
 /// SourceElement :

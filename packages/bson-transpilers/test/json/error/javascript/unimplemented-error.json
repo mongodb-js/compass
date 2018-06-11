@@ -54,6 +54,18 @@
         "query": "2 = 1",
         "errorCode": "E_BSONCOMPILERS_UNIMPLEMENTED",
         "message": "Assignment"
+      },
+      {
+        "description": "assignment to id",
+        "query": "Long = 1",
+        "errorCode": "E_BSONCOMPILERS_UNIMPLEMENTED",
+        "message": "Assignment"
+      },
+      {
+        "description": "assignment operator",
+        "query": "1 += 3",
+        "errorCode": "E_BSONCOMPILERS_UNIMPLEMENTED",
+        "message": "AssignmentOperator"
       }
     ],
     "function def": [
@@ -260,6 +272,40 @@
         "query": "debugger",
         "errorCode": "E_BSONCOMPILERS_UNIMPLEMENTED",
         "message": "Debugger"
+      }
+    ],
+    "attributes": [
+      {
+        "description": "array indexed",
+        "query": "[1,2,3][1]",
+        "errorCode": "E_BSONCOMPILERS_UNIMPLEMENTED",
+        "message": "MemberIndex"
+      },
+      {
+        "description": "object indexed",
+        "query": "{x: 1}[1]",
+        "errorCode": "E_BSONCOMPILERS_UNIMPLEMENTED",
+        "message": "MemberIndex"
+      },
+      {
+        "description": "array attribute",
+        "query": "[1,2,3].x",
+        "errorCode": "E_BSONCOMPILERS_UNIMPLEMENTED",
+        "message": "Attribute"
+      },
+      {
+        "description": "object attribute",
+        "query": "{x: 1}.y",
+        "errorCode": "E_BSONCOMPILERS_UNIMPLEMENTED",
+        "message": "Attribute"
+      }
+    ],
+    "ternary": [
+      {
+        "description": "ternary",
+        "query": "1 == 3 ? 1 : 2",
+        "errorCode": "E_BSONCOMPILERS_UNIMPLEMENTED",
+        "message": "Ternary"
       }
     ]
   }

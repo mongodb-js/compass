@@ -13,18 +13,6 @@
         "description": "regex literal with unsupported flag",
         "query": "new RegExp('ab+c', 'wrong')",
         "errorCode": "E_BSONCOMPILERS_RUNTIME"
-      },
-      {
-        "description": "Invalid regex literal",
-        "query": "/(?<=\\s)(?<!\\:\\s)#.*?\\{.*?\\}\"/",
-        "errorCode": "E_BSONCOMPILERS_RUNTIME"
-      }
-    ],
-    "RegExp": [
-      {
-        "description": "Invalid RegExp",
-        "query": "new RegExp(\"(?<=\\s)(?<!\\:\\s)#.*?\\{.*?\\}\",\"gm\")",
-        "errorCode": "E_BSONCOMPILERS_RUNTIME"
       }
     ],
     "ObjectId": [

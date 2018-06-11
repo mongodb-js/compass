@@ -1,0 +1,7 @@
+Syntax:
+    equality: &EqualitySyntax
+        template: *EqualitySyntaxTemplate
+    eos: &EosSyntax
+        template: *EosSyntaxTemplate
+    eof: &EosSyntax
+        template: *EofSyntaxTemplate

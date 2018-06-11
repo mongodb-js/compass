@@ -59,7 +59,8 @@ const getCompiler = (visitor, generator, symbols) => {
     SYMBOL_TYPE: doc.SymbolTypes,
     BsonTypes: doc.BsonTypes,
     Symbols: Object.assign({}, doc.BsonSymbols, doc.JSSymbols),
-    Types: Object.assign({}, doc.BasicTypes, doc.BsonTypes, doc.JSTypes)
+    Types: Object.assign({}, doc.BasicTypes, doc.BsonTypes, doc.JSTypes),
+    Syntax: doc.Syntax
   });
   return (input) => {
     try {

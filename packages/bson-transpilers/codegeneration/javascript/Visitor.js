@@ -34,6 +34,9 @@ class Visitor extends ECMAScriptVisitor {
     this.visitInstanceofExpression =
     this.visitFuncDefExpression =
     this.visitAssignmentExpression =
+    this.visitAssignmentOperatorExpression =
+    this.visitMemberIndexExpression =
+    this.visitTernaryExpression =
     this.visitFunctionDeclaration =
     this.visitVariableStatement =
     this.visitIfStatement =
@@ -68,7 +71,21 @@ class Visitor extends ECMAScriptVisitor {
   }
 
   visitEof() {
-    return '';
+    if (this.Syntax.eof.template) {
+      return this.Syntax.eof.template();
+    }
+    return '\n';
+  }
+
+  visitEos() {
+    if (this.Syntax.eos.template) {
+      return this.Syntax.eos.template();
+    }
+    return '\n';
+  }
+
+  visitEmptyStatement() {
+    return '\n';
   }
 
   /**
@@ -103,6 +120,17 @@ class Visitor extends ECMAScriptVisitor {
       ctx.type = opts.children.length ? opts.children[0].type : this.Types._undefined;
     }
     return code.trim();
+  }
+
+  visitEqualityExpression(ctx) {
+    ctx.type = this.Types._boolean;
+    const lhs = this.visit(ctx.singleExpression()[0]);
+    const rhs = this.visit(ctx.singleExpression()[1]);
+    const op = this.visit(ctx.children[1]);
+    if (this.Syntax.equality) {
+      return this.Syntax.equality.template(lhs, op, rhs);
+    }
+    return this.visitChildren(ctx);
   }
 
   /**
@@ -260,6 +288,10 @@ class Visitor extends ECMAScriptVisitor {
   visitGetAttributeExpression(ctx) {
     const lhs = this.visit(ctx.singleExpression());
     const rhs = this.visit(ctx.identifierName());
+
+    if (!ctx.singleExpression().constructor.name.includes('Identifier') && !ctx.singleExpression().constructor.name.includes('FuncCall')) {
+      throw new BsonCompilersUnimplementedError('Attribute access for non-symbols not currently supported');
+    }
 
     let type = ctx.singleExpression().type;
     if (typeof type === 'string') {
@@ -756,7 +788,7 @@ class Visitor extends ECMAScriptVisitor {
       decstr = this.executeJavascript(`new ${ctx.getText()}`).toString();
     } catch (error) {
       // TODO: this isn't quite right because it catches all type errors.
-      if (error.name === 'TypeError') {
+      if (error.name === 'TypeError' || error.code === 'ERR_INVALID_ARG_TYPE') {
         throw new BsonCompilersArgumentError(error.message);
       }
 
@@ -873,7 +905,7 @@ class Visitor extends ECMAScriptVisitor {
       type = binobj.sub_type;
     } catch (error) {
       // TODO: this isn't quite right because it catches all type errors.
-      if (error.name === 'TypeError') {
+      if (error.name === 'TypeError' || error.code === 'ERR_INVALID_ARG_TYPE') {
         throw new BsonCompilersArgumentError(error.message);
       }
 

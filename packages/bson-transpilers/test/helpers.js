@@ -21,8 +21,8 @@ const checkResults = {
     try {
       compiler[inputLang][outputLang](test.query);
     } catch (error) {
-      expect(error.code).to.equal(test.errorCode);
       thrown = true;
+      expect(error.code).to.equal(test.errorCode);
       if (test.message) {
         expect(error.message).to.be.a('string');
         expect(error.message.includes(test.message), `Expected error message to contain ${test.message} but got ${error.message}`).to.be.true;

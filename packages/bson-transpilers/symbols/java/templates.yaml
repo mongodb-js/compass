@@ -1,5 +1,17 @@
 # Java Templates
 Templates:
+    # Syntax
+    EqualitySyntaxTemplate: &EqualitySyntaxTemplate !!js/function >
+        (lhs, op, rhs) => {
+            if (op.includes('!')) {
+                return `${lhs} != ${rhs}`;
+            }
+            else {
+                return `${lhs} == ${rhs}`;
+            }
+        }
+    EosSyntaxTemplate: &EosSyntaxTemplate null
+    EofSyntaxTemplate: &EofSyntaxTemplate null
     # BSON Object Type templates
     CodeTypeTemplate: &CodeTypeTemplate null
     StringTypeTemplate: &StringTypeTemplate !!js/function >

@@ -1,5 +1,17 @@
 # Java Templates
 Templates:
+    # Syntax
+    EqualitySyntaxTemplate: &EqualitySyntaxTemplate !!js/function >
+        (lhs, op, rhs) => {
+            if (op.includes('!')) {
+                return `${lhs} !== ${rhs}`;
+            }
+            else {
+                return `${lhs} === ${rhs}`;
+            }
+        }
+    EosTemplate: &EosSyntaxTemplate null
+    EofTemplate: &EofSyntaxTemplate null
     # BSON Object Type templates
     CodeTypeTemplate: &CodeTypeTemplate null
     StringTypeTemplate: &StringTypeTemplate null
@@ -484,7 +496,10 @@ Templates:
         }
     DBRefSymbolTemplate: &DBRefSymbolTemplate null
     DBRefSymbolArgsTemplate: &DBRefSymbolArgsTemplate null
-    DoubleSymbolTemplate: &DoubleSymbolTemplate null # Has process method
+    DoubleSymbolTemplate: &DoubleSymbolTemplate !!js/function >
+        () => {
+            return 'Number';
+        }
     DoubleSymbolArgsTemplate: &DoubleSymbolArgsTemplate null
     Int32SymbolTemplate: &Int32SymbolTemplate !!js/function >
         () => {

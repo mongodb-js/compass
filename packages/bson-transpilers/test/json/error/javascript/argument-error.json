@@ -121,11 +121,6 @@
         "errorCode": "E_BSONCOMPILERS_ARGUMENT"
       },
       {
-        "description": "Binary with extra argument in Buffer.from()",
-        "query": "new Binary(Buffer.from('1', '2'), Binary.SUBTYPE_UUID)",
-        "errorCode": "E_BSONCOMPILERS_ARGUMENT"
-      },
-      {
         "description": "Binary .length() with extra argument",
         "query": "Binary(Buffer.from('0404')).length(10)",
         "errorCode": "E_BSONCOMPILERS_ARGUMENT"
@@ -625,11 +620,6 @@
       {
         "description": "Decimal128 with empty Buffer.from()",
         "query": "new Decimal128(Buffer.from())",
-        "errorCode": "E_BSONCOMPILERS_ARGUMENT"
-      },
-      {
-        "description": "Decimal128 with extra argument in Buffer.from()",
-        "query": "new Decimal128(Buffer.from('1', '2'))",
         "errorCode": "E_BSONCOMPILERS_ARGUMENT"
       },
       {

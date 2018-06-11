@@ -64,6 +64,7 @@ describe('CodeGeneration helper functions', () => {
     compiler.Symbols = Object.assign(
       { TestFunc: { callable: 2, args: [], template: null, argsTemplate: null, id: 'TestFunc', type: null }},
       doc.BsonSymbols, doc.JSSymbols);
+    compiler.Syntax = { eos: { template: null }, eof: { template: null } };
     compiler.SYMBOL_TYPE = doc.SymbolTypes;
     it('defaults to long', () => {
       const str = getTree('1');
