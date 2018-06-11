@@ -4,7 +4,6 @@ import queryParser from 'mongodb-query-parser';
 import assert from 'assert';
 import diff from 'object-diff';
 import {
-  identity,
   get,
   has,
   pull,
@@ -284,8 +283,6 @@ const QueryBarStore = Reflux.createStore({
     if (isUndefined(query) || isNull(query)) {
       query = this._getDefaultQuery();
     }
-    console.log('###### Setting query: ', query);
-
     // convert all query inputs into their string values and validate them
     const stringProperties = without(QUERY_PROPERTIES, 'sample');
     let inputStrings = mapValues(pick(query, stringProperties), queryParser.stringify);
@@ -293,18 +290,11 @@ const QueryBarStore = Reflux.createStore({
       return this._validateInput(label, val) !== false;
     });
 
-    console.log('###### Input strings: ', inputStrings);
-    console.log('###### Input valids: ', inputValids);
-
     // store all keys for which the values are true
-    console.log('identity', identity);
     const validKeys = [];
     Object.keys(inputValids).forEach((key) => {
       if (inputValids[key] === true) validKeys.push(key);
     });
-    // keys(pick(inputValids, identity));
-
-    console.log('###### Valid keys', validKeys);
 
     // determine if query is valid overall with these new values
     const valid = every(
@@ -330,13 +320,8 @@ const QueryBarStore = Reflux.createStore({
       return `${label}Valid`;
     });
 
-    console.log('###### Input strings: ', inputStrings);
-    console.log('###### Input valids: ', inputValids);
-
     // merge query, query strings, valid flags into state object
     const state = assign({}, pick(query, validKeys), inputStrings, inputValids);
-
-    console.log('###### state: ', state);
 
     // add sample state if available
     if (has(query, 'sample')) {
