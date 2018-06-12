@@ -106,6 +106,7 @@ export const saveCurrentPipeline = () => {
       , { name: state.name }
       , { id: id }
       , { comments: state.comments }
+      , { sample: state.sample }
     );
 
     getObjectStore('readwrite', (store) => {

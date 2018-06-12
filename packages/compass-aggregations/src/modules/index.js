@@ -13,6 +13,7 @@ import pipeline, {
 } from './pipeline';
 import name, { INITIAL_STATE as NAME_INITIAL_STATE } from './name';
 import comments, { INITIAL_STATE as COMMENTS_INITIAL_STATE } from './comments';
+import sample, { INITIAL_STATE as SAMPLE_INITIAL_STATE } from './sample';
 import id, { INITIAL_STATE as ID_INITIAL_STATE } from './id';
 import savedPipeline, {
   updatePipelineList,
@@ -37,6 +38,7 @@ export const INITIAL_STATE = {
   restorePipeline: RESTORE_PIPELINE_STATE,
   name: NAME_INITIAL_STATE,
   comments: COMMENTS_INITIAL_STATE,
+  sample: SAMPLE_INITIAL_STATE,
   id: ID_INITIAL_STATE,
   isModified: IS_MODIFIED_INITIAL_STATE
 };
@@ -77,6 +79,7 @@ export const CLONE_PIPELINE = 'aggregations/CLONE_PIPELINE';
 const appReducer = combineReducers({
   appRegistry,
   comments,
+  sample,
   dataService,
   fields,
   inputDocuments,
@@ -128,6 +131,8 @@ const doRestorePipeline = (state, action) => {
   const savedState = action.restoreState;
   const commenting = (savedState.comments === null || savedState.comments === undefined)
     ? true : savedState.comments;
+  const sampling = (savedState.sample === null || savedState.sample === undefined)
+    ? true : savedState.sample;
   return {
     ...INITIAL_STATE,
     appRegistry: state.appRegistry,
@@ -136,6 +141,7 @@ const doRestorePipeline = (state, action) => {
     name: savedState.name,
     id: savedState.id,
     comments: commenting,
+    sample: sampling,
     fields: state.fields,
     serverVersion: state.serverVersion,
     dataService: state.dataService,
