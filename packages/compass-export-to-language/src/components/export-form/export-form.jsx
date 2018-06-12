@@ -44,9 +44,9 @@ class ExportForm extends Component {
     return (
       <form name="export-to-lang" data-test-id="export-to-lang" className="export-to-lang">
         <div className={classnames(styles['export-to-lang-headers'])}>
-          <p className={classnames(styles['export-to-lang-headers-input'])}>My Query</p>
+          <p className={classnames(styles['export-to-lang-headers-input'])}>{`My ${this.props.exportQuery.namespace}:`}</p>
           <div className={classnames(styles['export-to-lang-headers-output'])}>
-            <p className={classnames(styles['export-to-lang-headers-output-title'])}>Export Query To:</p>
+            <p className={classnames(styles['export-to-lang-headers-output-title'])}>{`Export ${this.props.exportQuery.namespace} To:`}</p>
             <SelectLang
               inputQuery={this.props.exportQuery.inputQuery}
               setOutputLang={this.props.setOutputLang}

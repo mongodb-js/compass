@@ -29,7 +29,7 @@ class ExportModal extends Component {
         dialogClassName="export-to-lang-modal">
 
         <Modal.Header>
-          <Modal.Title>Export Query To Language</Modal.Title>
+          <Modal.Title>{`Export ${this.props.exportQuery.namespace} To Language`}</Modal.Title>
         </Modal.Header>
 
         <Modal.Body>

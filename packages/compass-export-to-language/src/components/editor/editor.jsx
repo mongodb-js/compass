@@ -1,19 +1,15 @@
-import safeStringify from 'fast-safe-stringify';
+import stringify from 'javascript-stringify';
 import React, { PureComponent } from 'react';
 import classnames from 'classnames';
 import PropTypes from 'prop-types';
 import AceEditor from 'react-ace';
-import ace from 'brace';
 
 import 'brace/mode/javascript';
-import 'brace/ext/beautify';
 import 'brace/mode/csharp';
 import 'brace/mode/python';
 import 'brace/mode/java';
 
 import 'mongodb-ace-theme';
-
-const beautify = ace.acequire('ace/ext/beautify');
 
 import styles from './editor.less';
 
@@ -33,8 +29,7 @@ class Editor extends PureComponent {
   // need to be able to stringify and add spaces to prettify the object
   componentDidMount() {
     if (this.props.input && this.props.inputQuery !== '') {
-      this.editor.setValue(safeStringify(this.props.inputQuery));
-      beautify.beautify(this.editor.session);
+      this.editor.setValue(stringify(this.props.inputQuery, null, 2));
       this.editor.clearSelection();
     }
   }
@@ -48,8 +43,7 @@ class Editor extends PureComponent {
 
     // set this again in case it's missing
     if (this.props.input && this.props.inputQuery !== '') {
-      this.editor.setValue(safeStringify(this.props.inputQuery, null, 2));
-      beautify.beautify(this.editor.session);
+      this.editor.setValue(stringify(this.props.inputQuery, null, 2));
       this.editor.clearSelection();
     }
   }

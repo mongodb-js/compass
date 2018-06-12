@@ -1,9 +1,10 @@
-const safeStringify = require('fast-safe-stringify');
+const stringify = require('javascript-stringify');
 const clipboard = require('electron').clipboard;
 const compiler = require('bson-compilers');
 
 const PREFIX = 'exportQuery';
 
+export const SET_NAMESPACE = `${PREFIX}/SET_NAMESPACE`;
 export const ADD_INPUT_QUERY = `${PREFIX}/ADD_INPUT`;
 export const OUTPUT_LANG = `${PREFIX}/OUTPUT_LANG`;
 export const QUERY_ERROR = `${PREFIX}/QUERY_ERROR`;
@@ -14,12 +15,13 @@ export const RUN_QUERY = `${PREFIX}/RUN_QUERY`;
 
 // TODO: change inputQuery to '' when working with compass
 export const INITIAL_STATE = {
+  namespace: 'Query',
   copySuccess: false,
   queryError: null,
   modalOpen: false,
   returnQuery: '',
   outputLang: '',
-  inputQuery: '' // { category_code: "enterprise" }
+  inputQuery: '' // { category_code: "enterprise", founding_year: new Number(2) }
 };
 
 function copyToClipboard(state, action) {
@@ -37,10 +39,9 @@ function closeModal(state, action) {
 export const runQuery = (outputLang, input) => {
   return (dispatch, getState) => {
     const state = getState();
-    const stringInput = safeStringify(input);
 
     try {
-      const output = compiler.shell[outputLang](stringInput);
+      const output = compiler.shell[outputLang](stringify(input));
       state.exportQuery.returnQuery = output;
       state.exportQuery.queryError = null;
       return state;
@@ -51,6 +52,7 @@ export const runQuery = (outputLang, input) => {
 };
 
 export default function reducer(state = INITIAL_STATE, action) {
+  if (action.type === SET_NAMESPACE) return { ...state, namespace: action.namespace };
   if (action.type === ADD_INPUT_QUERY) return { ...state, inputQuery: action.input };
   if (action.type === QUERY_ERROR) return { ...state, queryError: action.error };
   if (action.type === OUTPUT_LANG) return { ...state, outputLang: action.lang };
@@ -60,6 +62,11 @@ export default function reducer(state = INITIAL_STATE, action) {
 
   return state;
 }
+
+export const setNamespace = (namespace) => ({
+  type: SET_NAMESPACE,
+  namespace: namespace
+});
 
 export const setOutputLang = (lang) => ({
   type: OUTPUT_LANG,
