@@ -85,7 +85,9 @@ export const REQUIRED_AS_FIRST_STAGE = [
  * next stage.
  */
 export const FULL_SCAN_OPS = [
-  '$group'
+  '$group',
+  '$bucket',
+  '$bucketAuto'
 ];
 
 /**

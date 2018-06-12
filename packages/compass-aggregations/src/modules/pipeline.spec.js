@@ -463,6 +463,76 @@ describe('pipeline module', () => {
         });
       });
 
+      context('when the pipeline contains a $bucket', () => {
+        context('when the state is sampling', () => {
+          const stage0 = {
+            isEnabled: true,
+            executor: { $bucket: { name: 'test' }},
+            stageOperator: '$bucket'
+          };
+          const state = { inputDocuments: { count: 1000000 }, pipeline: [ stage0 ], sample: true };
+
+          it(`sets the ${LIMIT_TO_PROCESS} limit before $bucket and the ${LIMIT_TO_DISPLAY} limit on the end`, () => {
+            expect(generatePipeline(state, 0)).to.deep.equal([
+              { $limit: LIMIT_TO_PROCESS },
+              stage0.executor,
+              limit
+            ]);
+          });
+        });
+
+        context('when the state is not sampling', () => {
+          const stage0 = {
+            isEnabled: true,
+            executor: { $bucket: { name: 'test' }},
+            stageOperator: '$bucket'
+          };
+          const state = { inputDocuments: { count: 1000000 }, pipeline: [ stage0 ], sample: false };
+
+          it('does not prepend a limit', () => {
+            expect(generatePipeline(state, 0)).to.deep.equal([
+              stage0.executor,
+              limit
+            ]);
+          });
+        });
+      });
+
+      context('when the pipeline contains a $bucketAuto', () => {
+        context('when the state is sampling', () => {
+          const stage0 = {
+            isEnabled: true,
+            executor: { $bucketAuto: { name: 'test' }},
+            stageOperator: '$bucketAuto'
+          };
+          const state = { inputDocuments: { count: 1000000 }, pipeline: [ stage0 ], sample: true };
+
+          it(`sets the ${LIMIT_TO_PROCESS} limit before $bucketAuto and the ${LIMIT_TO_DISPLAY} limit on the end`, () => {
+            expect(generatePipeline(state, 0)).to.deep.equal([
+              { $limit: LIMIT_TO_PROCESS },
+              stage0.executor,
+              limit
+            ]);
+          });
+        });
+
+        context('when the state is not sampling', () => {
+          const stage0 = {
+            isEnabled: true,
+            executor: { $bucketAuto: { name: 'test' }},
+            stageOperator: '$bucketAuto'
+          };
+          const state = { inputDocuments: { count: 1000000 }, pipeline: [ stage0 ], sample: false };
+
+          it('does not prepend a limit', () => {
+            expect(generatePipeline(state, 0)).to.deep.equal([
+              stage0.executor,
+              limit
+            ]);
+          });
+        });
+      });
+
       context('when the pipeline contains a $sort', () => {
         const stage0 = {
           isEnabled: true,
