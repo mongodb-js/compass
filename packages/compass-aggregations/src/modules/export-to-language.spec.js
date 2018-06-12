@@ -1,4 +1,4 @@
-import { exportToLanguage, generateText } from 'modules/export-to-language';
+import { exportToLanguage, generatePipeline } from 'modules/export-to-language';
 
 describe('export-to-language module', () => {
   describe('#exportToLanguage', () => {
@@ -7,18 +7,18 @@ describe('export-to-language module', () => {
     });
   });
 
-  describe('#generateText', () => {
+  describe('#generatePipeline', () => {
     context('when the stages are enabled', () => {
       const state = {
         pipeline: [{
           isEnabled: true,
           stageOperator: '$match',
-          stage: '{ name: "testing" }'
+          executor: { '$match': { name: 'testing' }}
         }]
       };
 
       it('returns the generated text', () => {
-        expect(generateText(state)).to.equal('[{ $match: { name: "testing" } }]');
+        expect(generatePipeline(state)).to.deep.equal([{ $match: { name: 'testing' } }]);
       });
     });
 
@@ -28,12 +28,12 @@ describe('export-to-language module', () => {
           pipeline: [{
             isEnabled: false,
             stageOperator: '$match',
-            stage: '{ name: "testing" }'
+            executor: { $match: { name: 'testing' }}
           }]
         };
 
         it('returns an empty array string', () => {
-          expect(generateText(state)).to.equal('[]');
+          expect(generatePipeline(state)).to.deep.equal([]);
         });
       });
 
@@ -43,23 +43,23 @@ describe('export-to-language module', () => {
             {
               isEnabled: false,
               stageOperator: '$match',
-              stage: '{ name: "testing" }'
+              executor: { $match: { name: 'testing' }}
             },
             {
               isEnabled: false,
               stageOperator: '$match',
-              stage: '{ name: "testing" }'
+              executor: { $match: { name: 'testing' }}
             },
             {
               isEnabled: true,
               stageOperator: '$match',
-              stage: '{ name: "testing" }'
+              executor: { $match: { name: 'testing' }}
             }
           ]
         };
 
         it('does not include commas for disabled stages', () => {
-          expect(generateText(state)).to.equal('[{ $match: { name: "testing" } }]');
+          expect(generatePipeline(state)).to.deep.equal([{ $match: { name: 'testing' } }]);
         });
       });
     });
@@ -69,12 +69,12 @@ describe('export-to-language module', () => {
         pipeline: [{
           isEnabled: true,
           stageOperator: null,
-          stage: '{ name: "testing" }'
+          executor: { $match: { name: 'testing' }}
         }]
       };
 
       it('returns an empty array string', () => {
-        expect(generateText(state)).to.equal('[]');
+        expect(generatePipeline(state)).to.deep.equal([]);
       });
     });
 
@@ -84,20 +84,21 @@ describe('export-to-language module', () => {
           {
             isEnabled: true,
             stageOperator: '$match',
-            stage: '{ name: "testing" }'
+            executor: { $match: { name: 'testing' }}
           },
           {
             isEnabled: true,
             stageOperator: '$project',
-            stage: '{ name: 1 }'
+            executor: { $project: { name: 1 }}
           }
         ]
       };
 
       it('separates each stage with a comma', () => {
-        expect(generateText(state)).to.equal(
-          '[{ $match: { name: "testing" } }, { $project: { name: 1 } }]'
-        );
+        expect(generatePipeline(state)).to.deep.equal([
+          { $match: { name: 'testing' }},
+          { $project: { name: 1 }}
+        ]);
       });
     });
   });

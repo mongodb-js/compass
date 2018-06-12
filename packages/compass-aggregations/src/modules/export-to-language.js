@@ -1,51 +1,19 @@
-import decomment from 'decomment';
-
 /**
- * Stage clipboard separator.
- */
-const SEPARATOR = ', ';
-
-/**
- * Open bracket.
- */
-const OPEN = '[';
-
-/**
- * Close bracket.
- */
-const CLOSE = ']';
-
-/**
- * Generate the text for a single stage.
- *
- * @param {Object} stage - The stage.
- *
- * @returns {String} The stage text.
- */
-const generateStageText = (stage) => {
-  if (stage.isEnabled && stage.stageOperator) {
-    return `{ ${stage.stageOperator}: ${decomment(stage.stage)} }`;
-  }
-  return '';
-};
-
-/**
- * Generate the text for the aggregation pipeline.
+ * Generate the pipeline for export to language.
  *
  * @param {Object} state - The state.
  *
- * @returns {String} The clipboard text.
+ * @returns {Array} The raw pipeline.
  */
-export const generateText = (state) => {
-  let pipeline = `${OPEN}`;
-  state.pipeline.forEach((stage, i) => {
-    const text = generateStageText(stage);
-    pipeline += text;
-    if (i < state.pipeline.length - 1 && text !== '') {
-      pipeline += SEPARATOR;
+export const generatePipeline = (state) => {
+  const pipeline = [];
+  state.pipeline.forEach((stage) => {
+    if (stage.isEnabled && stage.stageOperator) {
+      pipeline.push(stage.executor);
     }
   });
-  return `${pipeline}${CLOSE}`;
+  console.log(pipeline);
+  return pipeline;
 };
 
 /**
@@ -57,7 +25,7 @@ export const exportToLanguage = () => {
   return (dispatch, getState) => {
     const state = getState();
     if (state.appRegistry) {
-      state.appRegistry.emit('open-aggregation-export-to-language', generateText(state));
+      state.appRegistry.emit('open-aggregation-export-to-language', generatePipeline(state));
     }
   };
 };
