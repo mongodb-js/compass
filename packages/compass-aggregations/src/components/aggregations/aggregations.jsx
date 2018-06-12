@@ -5,6 +5,7 @@ import Pipeline from 'components/pipeline';
 import { namespaceChanged } from 'modules/namespace';
 import { nameChanged } from 'modules/name';
 import { toggleComments } from 'modules/comments';
+import { toggleSample } from 'modules/sample';
 import { toggleInputDocumentsCollapsed } from 'modules/input-documents';
 
 import { exportToLanguage } from 'modules/export-to-language';
@@ -75,7 +76,8 @@ const mapStateToProps = (state) => ({
   restorePipeline: state.restorePipeline,
   name: state.name,
   isModified: state.isModified,
-  isCommenting: state.comments
+  isCommenting: state.comments,
+  isSampling: state.sample
 });
 
 /**
@@ -89,6 +91,7 @@ const MappedAggregations = connect(
     nameChanged,
     toggleInputDocumentsCollapsed,
     toggleComments,
+    toggleSample,
     deletePipeline,
     runStage,
     runOutStage,

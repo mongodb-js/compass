@@ -13,7 +13,9 @@ class PipelinePreviewToolbar extends PureComponent {
 
   static propTypes = {
     toggleComments: PropTypes.func.isRequired,
+    toggleSample: PropTypes.func.isRequired,
     isCommenting: PropTypes.bool.isRequired,
+    isSampling: PropTypes.bool.isRequired,
     isModified: PropTypes.bool.isRequired
   }
 
@@ -47,6 +49,15 @@ class PipelinePreviewToolbar extends PureComponent {
         </div>
         <div className={classnames(styles['pipeline-preview-toolbar-comment-mode'])}>
           Comment Mode
+        </div>
+        <div className={classnames(styles['pipeline-preview-toolbar-toggle-sample'])}>
+          <Switch
+            checked={this.props.isSampling}
+            onChange={this.props.toggleSample}
+            className={classnames(styles['pipeline-preview-toolbar-toggle-sample-button'])} />
+        </div>
+        <div className={classnames(styles['pipeline-preview-toolbar-sample-mode'])}>
+          Sample Mode
         </div>
         <div className={isModifiedClassName}>
           {this.modifiedText()}

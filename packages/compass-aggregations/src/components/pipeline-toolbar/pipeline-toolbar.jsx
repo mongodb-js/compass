@@ -22,8 +22,10 @@ class PipelineToolbar extends PureComponent {
     savedPipeline: PropTypes.object.isRequired,
     nameChanged: PropTypes.func.isRequired,
     toggleComments: PropTypes.func.isRequired,
+    toggleSample: PropTypes.func.isRequired,
     isModified: PropTypes.bool.isRequired,
     isCommenting: PropTypes.bool.isRequired,
+    isSampling: PropTypes.bool.isRequired,
     setIsModified: PropTypes.func.isRequired,
     name: PropTypes.string
   }
@@ -51,7 +53,9 @@ class PipelineToolbar extends PureComponent {
           name={this.props.name} />
         <PipelinePreviewToolbar
           toggleComments={this.props.toggleComments}
+          toggleSample={this.props.toggleSample}
           isCommenting={this.props.isCommenting}
+          isSampling={this.props.isSampling}
           isModified={this.props.isModified} />
       </div>
     );

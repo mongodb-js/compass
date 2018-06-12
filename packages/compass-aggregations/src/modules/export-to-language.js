@@ -12,7 +12,6 @@ export const generatePipeline = (state) => {
       pipeline.push(stage.executor);
     }
   });
-  console.log(pipeline);
   return pipeline;
 };
 

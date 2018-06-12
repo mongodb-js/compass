@@ -9,6 +9,8 @@
   box-shadow: 2px 0px @gray7;
 
   &-indicator {
+    flex-grow: 5;
+    justify-content: flex-end;
     display: flex;
     align-items: center;
     padding-right: 15px;
@@ -30,15 +32,14 @@
     }
   }
 
-  &-comment-mode {
-    flex-grow: 5;
+  &-comment-mode, &-sample-mode {
     margin-left: 5px;
     font-size: 12px;
     text-transform: uppercase;
     color: @gray3;
   }
 
-  &-toggle-comments {
+  &-toggle-comments, &-toggle-sample {
     margin-left: 15px;
     display: flex;
     align-items: center;
