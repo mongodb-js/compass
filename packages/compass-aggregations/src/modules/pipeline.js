@@ -156,6 +156,7 @@ const changeStage = (state, action) => {
   newState[action.index].stage = action.stage;
   newState[action.index].executor = generateStage(newState[action.index]);
   newState[action.index].isComplete = false;
+  newState[action.index].fromStageOperators = false;
   return newState;
 };
 
@@ -240,6 +241,7 @@ const selectStageOperator = (state, action) => {
     newState[action.index].snippet = value;
     newState[action.index].isExpanded = true;
     newState[action.index].isComplete = false;
+    newState[action.index].fromStageOperators = true;
     newState[action.index].executor = generateStage(newState[action.index]);
     return newState;
   }
