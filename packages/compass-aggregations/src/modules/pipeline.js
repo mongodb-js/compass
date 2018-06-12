@@ -484,9 +484,9 @@ export const generatePipeline = (state, index) => {
   const count = state.inputDocuments.count;
   const stages = state.pipeline.reduce((results, stage, i) => {
     if (i <= index && stage.isEnabled) {
-      // If stage is a $groupBy or $sort it will scan the entire list, so
+      // If stage is a $groupBy it will scan the entire list, so
       // prepend with $limit if the collection is large.
-      if (count > 100000 && FULL_SCAN_OPS.includes(stage.stageOperator)) {
+      if (count > 100000 && FULL_SCAN_OPS.includes(stage.stageOperator) && state.sample) {
         results.push(LARGE_LIMIT);
       }
       results.push(stage.executor);

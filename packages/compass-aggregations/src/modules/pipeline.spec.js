@@ -429,19 +429,37 @@ describe('pipeline module', () => {
       });
 
       context('when the pipeline contains a $group', () => {
-        const stage0 = {
-          isEnabled: true,
-          executor: { $group: { name: 'test' }},
-          stageOperator: '$group'
-        };
-        const state = { inputDocuments: { count: 1000000 }, pipeline: [ stage0 ]};
+        context('when the state is sampling', () => {
+          const stage0 = {
+            isEnabled: true,
+            executor: { $group: { name: 'test' }},
+            stageOperator: '$group'
+          };
+          const state = { inputDocuments: { count: 1000000 }, pipeline: [ stage0 ], sample: true };
 
-        it(`sets the ${LIMIT_TO_PROCESS} limit before $group and the ${LIMIT_TO_DISPLAY} limit on the end`, () => {
-          expect(generatePipeline(state, 0)).to.deep.equal([
-            { $limit: LIMIT_TO_PROCESS },
-            stage0.executor,
-            limit
-          ]);
+          it(`sets the ${LIMIT_TO_PROCESS} limit before $group and the ${LIMIT_TO_DISPLAY} limit on the end`, () => {
+            expect(generatePipeline(state, 0)).to.deep.equal([
+              { $limit: LIMIT_TO_PROCESS },
+              stage0.executor,
+              limit
+            ]);
+          });
+        });
+
+        context('when the state is not sampling', () => {
+          const stage0 = {
+            isEnabled: true,
+            executor: { $group: { name: 'test' }},
+            stageOperator: '$group'
+          };
+          const state = { inputDocuments: { count: 1000000 }, pipeline: [ stage0 ], sample: false };
+
+          it('does not prepend a limit', () => {
+            expect(generatePipeline(state, 0)).to.deep.equal([
+              stage0.executor,
+              limit
+            ]);
+          });
         });
       });
 
