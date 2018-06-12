@@ -31,14 +31,20 @@ class Collection extends React.Component {
       this.setState({ activeTab: 0 });
     }
     if (this.CollectionStore) {
-      this.CollectionStore.listen((index) => {
+      this.unsubStore = this.CollectionStore.listen((index) => {
         this.setState({ activeTab: index });
       });
     }
   }
 
   componentDidUpdate() {
-    // @todo: Durran: this.QueryActions.refreshCodeMirror();
+    this.QueryActions.refreshEditor();
+  }
+
+  componentWillUnmount() {
+    if (this.unsubStore) {
+      this.unsubStore();
+    }
   }
 
   onTabClicked(idx) {
