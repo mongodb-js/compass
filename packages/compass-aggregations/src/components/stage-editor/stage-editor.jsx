@@ -67,6 +67,7 @@ class StageEditor extends PureComponent {
    */
   componentWillReceiveProps(nextProps) {
     this.completer.update(nextProps.fields, nextProps.stage.stageOperator);
+    this.completer.version = nextProps.serverVersion;
   }
 
   /**
