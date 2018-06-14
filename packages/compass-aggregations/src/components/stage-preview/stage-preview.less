@@ -3,7 +3,7 @@
 .stage-preview {
   width: 100%;
   display: flex;
-  align-items: center;
+  align-items: stretch;
   overflow: auto;
 
   &-invalid {
@@ -34,7 +34,7 @@
 
   &-documents {
     display: flex;
-    align-items: flex-start;
+    align-items: stretch;
     overflow-x: scroll;
     margin: 15px;
 
@@ -47,7 +47,7 @@
         border-radius: 4px;
         box-shadow: 1px 1px 4px rgba(0, 0, 0, 0.1);
         width: 350px;
-        height: 150px;
+        min-height: 150px;
         overflow: scroll;
         flex-shrink: 0;
         z-index: 100;
