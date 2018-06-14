@@ -366,7 +366,24 @@
         "java": "new Document(\"x\", \"1\").append(\"n\", \"4\")",
         "csharp": "new BsonDocument { { \"x\", \"1\" }, { \"n\", \"4\" } }",
         "shell": "{x: '1', n: '4'}"
+      },
+      {
+        "description": "nested document",
+        "javascript": "{ $graphLookup : { \"from\" : \"raw_data\", \"startWith\" : \"$_id\", \"connectFromField\" : \"_id\", \"connectToField\" : \"manager\", \"as\" : \"reports\" } }",
+        "python": "{'$graphLookup': {'from': 'raw_data', 'startWith': '$_id', 'connectFromField': '_id', 'connectToField': 'manager', 'as': 'reports'}}",
+        "java": "new Document(\"$graphLookup\", new Document(\"from\", \"raw_data\").append(\"startWith\", \"$_id\").append(\"connectFromField\", \"_id\").append(\"connectToField\", \"manager\").append(\"as\", \"reports\"))",
+        "csharp": "new BsonDocument(\"$graphLookup\", new BsonDocument { { \"from\", \"raw_data\" }, { \"startWith\", \"$_id\" }, { \"connectFromField\", \"_id\" }, { \"connectToField\", \"manager\" }, { \"as\", \"reports\" } })",
+        "shell": "{$graphLookup: {\"from\": \"raw_data\", \"startWith\": \"$_id\", \"connectFromField\": \"_id\", \"connectToField\": \"manager\", \"as\": \"reports\"}}"
+      },
+      {
+        "description": "nested document with array",
+        "javascript": "{ status: 'A', $or: [{ qty: { $lt: 30 } }, { item: { $regex: '^p' } }] }",
+        "python": "{'status': 'A', '$or': [{'qty': {'$lt': 30}}, {'item': {'$regex': '^p'}}]}",
+        "java": "new Document(\"status\", \"A\").append(\"$or\", Arrays.asList(new Document(\"qty\", new Document(\"$lt\", 30L)), new Document(\"item\", new Document(\"$regex\", \"^p\"))))",
+        "csharp": "new BsonDocument { { \"status\", \"A\" }, { \"$or\", new BsonArray {new BsonDocument(\"qty\", new BsonDocument(\"$lt\", 30)), new BsonDocument(\"item\", new BsonDocument(\"$regex\", \"^p\"))} } }",
+        "shell": "{status: 'A', $or: [{qty: {$lt: 30}}, {item: {$regex: '^p'}}]}"
       }
+
     ],
     "Array": [
       {
@@ -392,6 +409,14 @@
         "java": "Arrays.asList(\"1\", new Document(\"settings\", \"http2\"))",
         "csharp": "new BsonArray {\"1\", new BsonDocument(\"settings\", \"http2\")}",
         "shell": "['1', {settings: 'http2'}]"
+      },
+      {
+        "description": "nested array with nested subdoc",
+        "javascript": "{\"pipeline\": [ { $match: { $expr: { \"$eq\": [ \"$manager\", \"$$me\" ] } } }, { $project: { managers : 0 } }, { $sort: { startQuarter: 1, notes:1, job_code: 1 } } ]}" ,
+        "python": "{'pipeline': [{'$match': {'$expr': {'$eq': ['$manager', '$$me']}}}, {'$project': {'managers': 0}}, {'$sort': {'startQuarter': 1, 'notes': 1, 'job_code': 1}}]}",
+        "java": "new Document(\"pipeline\", Arrays.asList(new Document(\"$match\", new Document(\"$expr\", new Document(\"$eq\", Arrays.asList(\"$manager\", \"$$me\")))), new Document(\"$project\", new Document(\"managers\", 0L)), new Document(\"$sort\", new Document(\"startQuarter\", 1L).append(\"notes\", 1L).append(\"job_code\", 1L))))",
+        "csharp": "new BsonDocument(\"pipeline\", new BsonArray {new BsonDocument(\"$match\", new BsonDocument(\"$expr\", new BsonDocument(\"$eq\", new BsonArray {\"$manager\", \"$$me\"}))), new BsonDocument(\"$project\", new BsonDocument(\"managers\", 0)), new BsonDocument(\"$sort\", new BsonDocument { { \"startQuarter\", 1 }, { \"notes\", 1 }, { \"job_code\", 1 } })})",
+        "shell": "{\"pipeline\": [{$match: {$expr: {\"$eq\": [\"$manager\", \"$$me\"]}}}, {$project: {managers: 0}}, {$sort: {startQuarter: 1, notes: 1, job_code: 1}}]}"
       },
       {
         "description": "Array with subarray",

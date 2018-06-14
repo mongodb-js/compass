@@ -83,8 +83,17 @@ Templates:
         }
     ObjectTypeArgsTemplate: &ObjectTypeArgsTemplate !!js/function >
         (args) => {
+            const singleStringify = (str) => {
+                let newStr = str;
+                if (
+                  (str.charAt(0) === '\'' && str.charAt(str.length - 1) === '\'') ||
+                  (str.charAt(0) === '"' && str.charAt(str.length - 1) === '"')) {
+                    newStr = str.substr(1, str.length - 2);
+                }
+                return `'${newStr.replace(/\\([\s\S])|(")/g, '\\$1$2')}'`;
+            }
             return args.map((arg) => {
-                return `'${arg[0]}': ${arg[1]}`;
+                return `${singleStringify(arg[0])}: ${arg[1]}`;
             }).join(', ');
         }
     # BSON Object Method templates

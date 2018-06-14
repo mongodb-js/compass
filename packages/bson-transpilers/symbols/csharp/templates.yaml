@@ -68,25 +68,29 @@ Templates:
             if (literal === '') {
                 return `new BsonDocument()`;
             }
-            return `new BsonDocument${literal}`;
+            return literal;
         }
     ObjectTypeArgsTemplate: &ObjectTypeArgsTemplate !!js/function >
         (arg) => {
-            return arg.reduce((str, pair) => {
-                let newStr = pair[0];
+            const doubleStringify = (str) => {
+                let newStr = str;
                 if (
-                    (pair[0].charAt(0) === '\'' && pair[0].charAt(pair[0].length - 1) === '\'') ||
-                    (pair[0].charAt(0) === '"' && pair[0].charAt(pair[0].length - 1) === '"')) {
-                        newStr = pair[0].substr(1, pair[0].length - 2);
+                  (str.charAt(0) === '\'' && str.charAt(str.length - 1) === '\'') ||
+                  (str.charAt(0) === '"' && str.charAt(str.length - 1) === '"')) {
+                    newStr = str.substr(1, str.length - 2);
                 }
-                newStr = `"${newStr.replace(/\\([\s\S])|(")/g, '\\$1$2')}"`;
+                return `"${newStr.replace(/\\([\s\S])|(")/g, '\\$1$2')}"`;
+            }
 
-                if (str !== '') {
-                    return ` { ${str.replace(/\((.*)\)/, "{ $1 }")}, { ${newStr}, ${pair[1]} } }`;
-                } else {
-                    return `(${newStr}, ${pair[1]})`;
-                }
-            }, '');
+            if (arg.length === 1) {
+              return `new BsonDocument(${doubleStringify(arg[0][0])}, ${arg[0][1]})`
+            }
+
+            const pairs = arg.map((pair) => {
+                return `{ ${doubleStringify(pair[0])}, ${pair[1]} }`;
+            }).join(', ');
+
+            return `new BsonDocument { ${pairs} }`
         }
     # BSON Object Method templates
     CodeCodeTemplate: &CodeCodeTemplate !!js/function >
