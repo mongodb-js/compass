@@ -29,7 +29,7 @@ module.exports = (superClass) => class ExtendedVisitor extends superClass {
 
   emitDate(ctx, date) {
     let newstr = '';
-    if (!ctx.wasNew && this.visit(ctx.singleExpression()) === 'ISODate') {
+    if (!ctx.wasNew && ctx.getText().includes('ISODate')) {
       newstr = 'new ';
     }
     if (date === undefined) {

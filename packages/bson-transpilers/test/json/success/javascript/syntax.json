@@ -154,7 +154,7 @@
         "shell": "((1 === (1)))"
       }
     ],
-    "TODO: Constructors without args": [
+    "Constructors without args": [
       {
         "description": "Double without args",
         "javascript": "Double",
@@ -162,6 +162,530 @@
         "java": "",
         "csharp": "",
         "shell": "Number"
+      },
+      {
+        "description": "Int32 without args",
+        "javascript": "Int32",
+        "python": "int",
+        "java": "",
+        "csharp": "",
+        "shell": "NumberInt"
+      },
+      {
+        "description": "Long without args",
+        "javascript": "Long",
+        "python": "Int64",
+        "java": "",
+        "csharp": "",
+        "shell": "NumberLong"
+      },
+      {
+        "description": "Decimal128 without args",
+        "javascript": "Decimal128",
+        "python": "Decimal128",
+        "java": "Decimal128",
+        "csharp": "Decimal128",
+        "shell": "NumberDecimal"
+      },
+      {
+        "description": "ObjectId without args",
+        "javascript": "ObjectId",
+        "python": "ObjectId",
+        "java": "ObjectId",
+        "csharp": "ObjectId",
+        "shell": "ObjectId"
+      },
+      {
+        "description": "Code without args",
+        "javascript": "Code",
+        "python": "Code",
+        "java": "Code",
+        "csharp": "BsonJavaScript",
+        "shell": "Code"
+      },
+      {
+        "description": "Binary without args",
+        "javascript": "Binary",
+        "python": "Binary",
+        "java": "Binary",
+        "csharp": "BsonBinaryData",
+        "shell": "BinData"
+      },
+      {
+        "description": "DBRef without args",
+        "javascript": "DBRef",
+        "python": "DBRef",
+        "java": "DBRef",
+        "csharp": "MongoDBRef",
+        "shell": "DBRef"
+      },
+      {
+        "description": "Timestamp without args",
+        "javascript": "Timestamp",
+        "python": "Timestamp",
+        "java": "BSONTimestamp",
+        "csharp": "BsonTimestamp",
+        "shell": "Timestamp"
+      },
+      {
+        "description": "Symbol without args",
+        "javascript": "Symbol",
+        "python": "",
+        "java": "Symbol",
+        "csharp": "Symbol",
+        "shell": ""
+      },
+      {
+        "description": "MinKey without args",
+        "javascript": "MinKey",
+        "python": "MinKey",
+        "java": "MinKey",
+        "csharp": "BsonMinKey",
+        "shell": "MinKey"
+      },
+      {
+        "description": "MaxKey without args",
+        "javascript": "MaxKey",
+        "python": "MaxKey",
+        "java": "MaxKey",
+        "csharp": "BsonMaxKey",
+        "shell": "MaxKey"
+      },
+      {
+        "description": "BSONRegExp without args",
+        "javascript": "BSONRegExp",
+        "python": "Regex",
+        "java": "BsonRegularExpression",
+        "csharp": "BsonRegularExpression",
+        "shell": "RegExp"
+      },
+      {
+        "description": "RegExp without args",
+        "javascript": "RegExp",
+        "python": "re",
+        "java": "Pattern",
+        "csharp": "Regex",
+        "shell": "RegExp"
+      },
+      {
+        "description": "Date without args",
+        "javascript": "Date",
+        "python": "datetime.datetime",
+        "java": "java.util.Date",
+        "csharp": "Datetime",
+        "shell": "Date"
+      }
+    ],
+    "Methods without args": [
+      {
+        "description": "ObjectId().toString without args",
+        "javascript": "ObjectId().toString",
+        "python": "str",
+        "java": "new ObjectId().toHexString",
+        "csharp": "new ObjectId().ToString",
+        "shell": "ObjectId().toString"
+      },
+      {
+        "description": "ObjectId().getTimestamp without args",
+        "javascript": "ObjectId().getTimestamp",
+        "python": "ObjectId().generation_time",
+        "java": "new ObjectId().getTimestamp",
+        "csharp": "new ObjectId().Timestamp",
+        "shell": "ObjectId().getTimestamp"
+      },
+      {
+        "description": "ObjectId().equals without args",
+        "javascript": "ObjectId().equals",
+        "python": "ObjectId() ==",
+        "java": "new ObjectId().equals",
+        "csharp": "new ObjectId().Equals",
+        "shell": "ObjectId().equals"
+      },
+      {
+        "description": "Int32(1).valueOf without args",
+        "javascript": "Int32(1).valueOf",
+        "python": "int(1)",
+        "java": "1",
+        "csharp": "1",
+        "shell": "NumberInt(1).valueOf"
+      },
+      {
+        "description": "Double(1).valueOf without args",
+        "javascript": "Double(1).valueOf",
+        "python": "float(1)",
+        "java": "1d",
+        "csharp": "1.0",
+        "shell": "1"
+      },
+      {
+        "description": "Long(1, 100).toInt without args",
+        "javascript": "Long(1, 100).toInt",
+        "python": "int(Int64(429496729601))",
+        "java": "(int) 429496729601L",
+        "csharp": "(int) 429496729601L",
+        "shell": "NumberLong(429496729601).valueOf"
+      },
+      {
+        "description": "Long(1, 100).toNumber without args",
+        "javascript": "Long(1, 100).toNumber",
+        "python": "float(Int64(429496729601))",
+        "java": "(double) 429496729601L",
+        "csharp": "(double) 429496729601L",
+        "shell": "NumberLong(429496729601).floatApprox"
+      },
+      {
+        "description": "Long(1, 100).toString without args",
+        "javascript": "Long(1, 100).toString",
+        "python": "str",
+        "java": "429496729601L",
+        "csharp": "429496729601L",
+        "shell": "NumberLong(429496729601).toString"
+      },
+      {
+        "description": "Long isZero without args",
+        "javascript": "Long(1, 100).isZero",
+        "python": "Int64(429496729601) == 0",
+        "java": "429496729601L == 0",
+        "csharp": "429496729601L == 0",
+        "shell": "NumberLong(429496729601) === 0"
+      },
+      {
+        "description": "Long isNegative without args",
+        "javascript": "Long(1, 100).isNegative",
+        "python": "Int64(429496729601) < 0",
+        "java": "429496729601L < 0",
+        "csharp": "429496729601L < 0",
+        "shell": "NumberLong(429496729601) < 0"
+      },
+      {
+        "description": "Long isOdd without args",
+        "javascript": "Long(1, 100).isOdd()",
+        "python": "(Int64(429496729601) % 2) == 1",
+        "java": "(429496729601L % 2) == 1",
+        "csharp": "429496729601L % 2 == 1",
+        "shell": "(NumberLong(429496729601) % 2) === 1"
+      },
+      {
+        "description": "Long equals without args",
+        "javascript": "Long(1, 100).equals",
+        "python": "Int64(429496729601) ==",
+        "java": "429496729601L ==",
+        "csharp": "429496729601L ==",
+        "shell": "NumberLong(429496729601) ==="
+      },
+      {
+        "description": "Long notEquals without args",
+        "javascript": "Long(1, 100).notEquals",
+        "python": "Int64(429496729601) !=",
+        "java": "429496729601L !=",
+        "csharp": "429496729601L !=",
+        "shell": "NumberLong(429496729601) !=="
+      },
+      {
+        "description": "Long compare without args",
+        "javascript": "Long(1, 100).compare",
+        "python": "Int64(429496729601) -",
+        "java": "429496729601L -",
+        "csharp": "429496729601L -",
+        "shell": "NumberLong(429496729601) -"
+      },
+      {
+        "description": "Long greaterThan without args",
+        "javascript": "Long(1, 100).greaterThan",
+        "python": "Int64(429496729601) >",
+        "java": "429496729601L >",
+        "csharp": "429496729601L >",
+        "shell": "NumberLong(429496729601) >"
+      },
+      {
+        "description": "Long greaterThanOrEqual without args",
+        "javascript": "Long(1, 100).greaterThanOrEqual",
+        "python": "Int64(429496729601) >=",
+        "java": "429496729601L >=",
+        "csharp": "429496729601L >=",
+        "shell": "NumberLong(429496729601) >="
+      },
+      {
+        "description": "Long lessThan without args",
+        "javascript": "Long(1, 100).lessThan",
+        "python": "Int64(429496729601) <",
+        "java": "429496729601L <",
+        "csharp": "429496729601L <",
+        "shell": "NumberLong(429496729601) <"
+      },
+      {
+        "description": "Long lessThanOrEqual without args",
+        "javascript": "Long(1, 100).lessThanOrEqual",
+        "python": "Int64(429496729601) <=",
+        "java": "429496729601L <=",
+        "csharp": "429496729601L <=",
+        "shell": "NumberLong(429496729601) <="
+      },
+      {
+        "description": "Long negate without args",
+        "javascript": "Long(1, 100).negate",
+        "python": "-",
+        "java": "-",
+        "csharp": "-",
+        "shell": "-"
+      },
+      {
+        "description": "Long add without args",
+        "javascript": "Long(1, 100).add",
+        "python": "Int64(429496729601) +",
+        "java": "429496729601L +",
+        "csharp": "429496729601L +",
+        "shell": "NumberLong(429496729601) +"
+      },
+      {
+        "description": "Long subtract without args",
+        "javascript": "Long(1, 100).subtract",
+        "python": "Int64(429496729601) -",
+        "java": "429496729601L -",
+        "csharp": "429496729601L -",
+        "shell": "NumberLong(429496729601) -"
+      },
+      {
+        "description": "Long multiply without args",
+        "javascript": "Long(1, 100).multiply",
+        "python": "Int64(429496729601) *",
+        "java": "429496729601L *",
+        "csharp": "429496729601L *",
+        "shell": "NumberLong(429496729601) *"
+      },
+      {
+        "description": "Long div without args",
+        "javascript": "Long(1, 100).div",
+        "python": "Int64(429496729601) /",
+        "java": "429496729601L /",
+        "csharp": "429496729601L /",
+        "shell": "NumberLong(429496729601) /"
+      },
+      {
+        "description": "Long modulo without args",
+        "javascript": "Long(1, 100).modulo",
+        "python": "Int64(429496729601) %",
+        "java": "429496729601L %",
+        "csharp": "429496729601L %",
+        "shell": "NumberLong(429496729601) %"
+      },
+      {
+        "description": "Long not without args",
+        "javascript": "Long(1, 100).not",
+        "python": "~",
+        "java": "~",
+        "csharp": "~",
+        "shell": "~"
+      },
+      {
+        "description": "Long and without args",
+        "javascript": "Long(1, 100).and",
+        "python": "Int64(429496729601) &",
+        "java": "429496729601L &",
+        "csharp": "429496729601L &",
+        "shell": "NumberLong(429496729601) &"
+      },
+      {
+        "description": "Long or without args",
+        "javascript": "Long(1, 100).or",
+        "python": "Int64(429496729601) |",
+        "java": "429496729601L |",
+        "csharp": "429496729601L |",
+        "shell": "NumberLong(429496729601) |"
+      },
+      {
+        "description": "Long xor without args",
+        "javascript": "Long(1, 100).xor",
+        "python": "Int64(429496729601) ^",
+        "java": "429496729601L ^",
+        "csharp": "429496729601L ^",
+        "shell": "NumberLong(429496729601) ^"
+      },
+      {
+        "description": "Long shiftLeft without args",
+        "javascript": "Long(1, 100).shiftLeft",
+        "python": "Int64(429496729601) <<",
+        "java": "Long.rotateLeft",
+        "csharp": "429496729601L <<",
+        "shell": "NumberLong(429496729601) <<"
+      },
+      {
+        "description": "Long shiftRight without args",
+        "javascript": "Long(1, 100).shiftRight",
+        "python": "Int64(429496729601) >>",
+        "java": "Long.rotateRight",
+        "csharp": "429496729601L >>",
+        "shell": "NumberLong(429496729601) >>"
+      },
+      {
+        "description": "Decimal128 toString without args",
+        "javascript": "new Decimal128(Buffer.from('5')).toString",
+        "python": "str",
+        "java": "Decimal128.parse(\"5.3E-6175\").toString",
+        "csharp": "Decimal128.Parse(\"5.3E-6175\").ToString",
+        "shell": "new NumberDecimal(5.3E-6175).toString"
+      },
+      {
+        "description": "Timestamp toString without args",
+        "javascript": "Timestamp(1, 100).toString",
+        "python": "str",
+        "java": "new BSONTimestamp(1, 100).toString",
+        "csharp": "new BsonTimestamp(1, 100).ToString",
+        "shell": "Timestamp(1, 100).toString"
+      },
+      {
+        "description": "Timestamp equals without args",
+        "javascript": "Timestamp(1, 100).equals",
+        "python": "Timestamp(1, 100) ==",
+        "java": "new BSONTimestamp(1, 100).equals",
+        "csharp": "new BsonTimestamp(1, 100).Equals",
+        "shell": "Timestamp(1, 100) ==="
+      },
+      {
+        "description": "Timestamp compare without args",
+        "javascript": "Timestamp(1, 100).compare",
+        "python": "(Timestamp(1, 100).as_datetime() -",
+        "java": "new BSONTimestamp(1, 100).compareTo",
+        "csharp": "new BsonTimestamp(1, 100).CompareTo",
+        "shell": "Timestamp(1, 100) -"
+      },
+      {
+        "description": "Timestamp notEquals without args",
+        "javascript": "Timestamp(1, 100).notEquals",
+        "python": "Timestamp(1, 100) !=",
+        "java": "new BSONTimestamp(1, 100).compareTo",
+        "csharp": "new BsonTimestamp(1, 100) !=",
+        "shell": "Timestamp(1, 100) !=="
+      },
+      {
+        "description": "Timestamp greaterThan without args",
+        "javascript": "Timestamp(1, 100).greaterThan",
+        "python": "Timestamp(1, 100) >",
+        "java": "new BSONTimestamp(1, 100).compareTo",
+        "csharp": "new BsonTimestamp(1, 100) >",
+        "shell": "Timestamp(1, 100) >"
+      },
+      {
+        "description": "Timestamp greaterThanOrEqual without args",
+        "javascript": "Timestamp(1, 100).greaterThanOrEqual",
+        "python": "Timestamp(1, 100) >=",
+        "java": "new BSONTimestamp(1, 100).compareTo",
+        "csharp": "new BsonTimestamp(1, 100) >=",
+        "shell": "Timestamp(1, 100) >="
+      },
+      {
+        "description": "Timestamp lessThan without args",
+        "javascript": "Timestamp(1, 100).lessThan",
+        "python": "Timestamp(1, 100) <",
+        "java": "new BSONTimestamp(1, 100).compareTo",
+        "csharp": "new BsonTimestamp(1, 100) <",
+        "shell": "Timestamp(1, 100) <"
+      },
+      {
+        "description": "Timestamp lessThanOrEqual without args",
+        "javascript": "Timestamp(1, 100).lessThanOrEqual",
+        "python": "Timestamp(1, 100) <=",
+        "java": "new BSONTimestamp(1, 100).compareTo",
+        "csharp": "new BsonTimestamp(1, 100) <=",
+        "shell": "Timestamp(1, 100) <="
+      },
+      {
+        "description": "Timestamp getLowBits without args",
+        "javascript": "Timestamp(1, 100).getLowBits",
+        "python": "Timestamp(1, 100).time",
+        "java": "new BSONTimestamp(1, 100).getTime",
+        "csharp": "new BsonTimestamp(1, 100).ToUniversalTime",
+        "shell": "Timestamp(1, 100).getTime"
+      },
+      {
+        "description": "Timestamp getHighBits without args",
+        "javascript": "Timestamp(1, 100).getHighBits",
+        "python": "Timestamp(1, 100).inc",
+        "java": "new BSONTimestamp(1, 100).getInc",
+        "csharp": "new BsonTimestamp(1, 100).Increment",
+        "shell": "Timestamp(1, 100).getInc"
+      },
+      {
+        "description": "Symbol valueOf without args",
+        "javascript": "Symbol('2').valueOf",
+        "python": "'2'",
+        "java": "new Symbol(\"2\").getSymbol",
+        "csharp": "\"2\"",
+        "shell": "'2'"
+      },
+      {
+        "description": "Symbol toString without args",
+        "javascript": "Symbol('2').toString",
+        "python": "'2'",
+        "java": "new Symbol(\"2\").toString",
+        "csharp": "\"2\"",
+        "shell": "'2'"
+      },
+      {
+        "description": "Symbol inspect without args",
+        "javascript": "Symbol('2').inspect",
+        "python": "'2'",
+        "java": "new Symbol(\"2\").getSymbol",
+        "csharp": "\"2\"",
+        "shell": "'2'"
+      }
+    ],
+    "Utils without args" : [
+      {
+        "description": "ObjectId.createFromHexString without args",
+        "javascript": "ObjectId.createFromHexString",
+        "python": "ObjectId",
+        "java": "new ObjectId",
+        "csharp": "new ObjectId",
+        "shell": "ObjectId"
+      },
+      {
+        "description": "ObjectId.createFromTime without args",
+        "javascript": "ObjectId.createFromTime",
+        "python": "ObjectId.from_datetime",
+        "java": "new ObjectId",
+        "csharp": "new ObjectId.GenerateNewId",
+        "shell": "ObjectId.fromDate"
+      },
+      {
+        "description": "ObjectId.isValid without args",
+        "javascript": "ObjectId.isValid",
+        "python": "ObjectId.is_valid",
+        "java": "ObjectId.isValid",
+        "csharp": "new ObjectId",
+        "shell": "ObjectId"
+      },
+      {
+        "description": "Long.fromInt without args",
+        "javascript": "Long.fromInt",
+        "python": "Int64",
+        "java": "",
+        "csharp": "",
+        "shell": "NumberLong"
+      },
+      {
+        "description": "Long.fromString without args",
+        "javascript": "Long.fromString",
+        "python": "Int64",
+        "java": "Long.parseLong",
+        "csharp": "Convert.ToInt64",
+        "shell": "NumberLong"
+      },
+      {
+        "description": "Long.fromBits without args",
+        "javascript": "Long.fromBits",
+        "python": "Int64",
+        "java": "",
+        "csharp": "",
+        "shell": "NumberLong"
+      },
+      {
+        "description": "Decimal128.fromString without args",
+        "javascript": "Decimal128.fromString",
+        "python": "Decimal128",
+        "java": "Decimal128.parse",
+        "csharp": "Decimal128.Parse",
+        "shell": "NumberDecimal"
       }
     ]
   }

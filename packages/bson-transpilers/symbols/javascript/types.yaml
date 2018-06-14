@@ -146,6 +146,8 @@ BsonTypes:
                 args:
                     - [ *IntegerType, null ]
                 type: *StringType
+                template: *LongToStringTemplate # Also has emit method
+                argsTemplate: *LongToStringArgsTemplate
             equals:
                 <<: *__func
                 id: "equals"

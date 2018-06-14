@@ -193,7 +193,7 @@
         "description": "isZero",
         "javascript": "Long(1, 100).isZero()",
         "python": "Int64(429496729601) == 0",
-        "java": "429496729601L == 0L",
+        "java": "429496729601L == 0",
         "csharp": "429496729601L == 0",
         "shell": "NumberLong(429496729601) === 0"
       },
@@ -201,7 +201,7 @@
         "description": "isNegative",
         "javascript": "Long(1, 100).isNegative()",
         "python": "Int64(429496729601) < 0",
-        "java": "429496729601L < 0L",
+        "java": "429496729601L < 0",
         "csharp": "429496729601L < 0",
         "shell": "NumberLong(429496729601) < 0"
       },
@@ -209,7 +209,7 @@
         "description": "isOdd",
         "javascript": "Long(1, 100).isOdd()",
         "python": "(Int64(429496729601) % 2) == 1",
-        "java": "(429496729601L % 2L) == 1L",
+        "java": "(429496729601L % 2) == 1",
         "csharp": "429496729601L % 2 == 1",
         "shell": "(NumberLong(429496729601) % 2) === 1"
       },

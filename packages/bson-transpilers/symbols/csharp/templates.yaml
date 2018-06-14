@@ -106,14 +106,14 @@ Templates:
     ObjectIdToStringArgsTemplate: &ObjectIdToStringArgsTemplate null
     ObjectIdEqualsTemplate: &ObjectIdEqualsTemplate !!js/function >
         (lhs) => {
-            return '';
+            return `${lhs}.Equals`;
         }
     ObjectIdEqualsArgsTemplate: &ObjectIdEqualsArgsTemplate !!js/function >
         (lhs, arg) => {
             if (arg.indexOf('new') === 0) {
               arg = arg.replace(/new /g, '')
             }
-            return `new ObjectId().Equals(new ${arg})`;
+            return `(new ${arg})`;
         }
 
     ObjectIdGetTimestampTemplate: &ObjectIdGetTimestampTemplate !!js/function >
@@ -224,6 +224,11 @@ Templates:
         () => {
             return '';
         }
+    LongToStringTemplate: &LongToStringTemplate !!js/function > # Also has emit method
+        (lhs) => {
+            return lhs;
+        }
+    LongToStringArgsTemplate: &LongToStringArgsTemplate null # Also has emit method
     LongToNumberTemplate: &LongToNumberTemplate !!js/function >
         (lhs) => {
             return `(double) ${lhs}`;
@@ -234,83 +239,83 @@ Templates:
         }
     LongAddTemplate: &LongAddTemplate !!js/function >
         (lhs) => {
-            return `${lhs}`;
+            return `${lhs} +`;
         }
     LongAddArgsTemplate: &LongAddArgsTemplate !!js/function >
         (lhs, arg) => {
-            return ` + ${arg}`;
+            return ` ${arg}`;
         }
     LongSubtractTemplate: &LongSubtractTemplate !!js/function >
         (lhs) => {
-            return `${lhs}`;
+            return `${lhs} -`;
         }
     LongSubtractArgsTemplate: &LongSubtractArgsTemplate !!js/function >
         (lhs, arg) => {
-            return ` - ${arg}`;
+            return ` ${arg}`;
         }
     LongMultiplyTemplate: &LongMultiplyTemplate !!js/function >
         (lhs) => {
-            return `${lhs}`;
+            return `${lhs} *`;
         }
     LongMultiplyArgsTemplate: &LongMultiplyArgsTemplate !!js/function >
         (lhs, arg) => {
-            return ` * ${arg}`;
+            return ` ${arg}`;
         }
     LongDivTemplate: &LongDivTemplate !!js/function >
         (lhs) => {
-            return `${lhs}`;
+            return `${lhs} /`;
         }
     LongDivArgsTemplate: &LongDivArgsTemplate !!js/function >
         (lhs, arg) => {
-            return ` / ${arg}`;
+            return ` ${arg}`;
         }
     LongModuloTemplate: &LongModuloTemplate !!js/function >
         (lhs) => {
-            return `${lhs}`;
+            return `${lhs} %`;
         }
     LongModuloArgsTemplate: &LongModuloArgsTemplate !!js/function >
         (lhs, arg) => {
-            return ` % ${arg}`;
+            return ` ${arg}`;
         }
     LongAndTemplate: &LongAndTemplate !!js/function >
         (lhs) => {
-            return `${lhs}`;
+            return `${lhs} &`;
         }
     LongAndArgsTemplate: &LongAndArgsTemplate !!js/function >
         (lhs, arg) => {
-            return ` & ${arg}`;
+            return ` ${arg}`;
         }
     LongOrTemplate: &LongOrTemplate !!js/function >
         (lhs) => {
-            return `${lhs}`;
+            return `${lhs} |`;
         }
     LongOrArgsTemplate: &LongOrArgsTemplate !!js/function >
         (lhs, arg) => {
-            return ` | ${arg}`;
+            return ` ${arg}`;
         }
     LongXorTemplate: &LongXorTemplate !!js/function >
         (lhs) => {
-            return `${lhs}`;
+            return `${lhs} ^`;
         }
     LongXorArgsTemplate: &LongXorArgsTemplate !!js/function >
         (lhs, arg) => {
-            return ` ^ ${arg}`;
+            return ` ${arg}`;
         }
     LongShiftLeftTemplate: &LongShiftLeftTemplate !!js/function >
-        () => {
-            return '';
+        (lhs) => {
+            return `${lhs} <<`;
         }
     LongShiftLeftArgsTemplate: &LongShiftLeftArgsTemplate !!js/function >
         (lhs, arg) => {
-            return `${lhs} << ${arg}`;
+            return ` ${arg}`;
         }
     LongShiftRightTemplate: &LongShiftRightTemplate !!js/function >
-        () => {
-            return '';
+        (lhs) => {
+            return `${lhs} >>`;
         }
     LongShiftRightArgsTemplate: &LongShiftRightArgsTemplate !!js/function >
         (lhs, arg) => {
-            return `${lhs} >> ${arg}`;
+            return ` ${arg}`;
         }
     LongCompareTemplate: &LongCompareTemplate !!js/function >
         (lhs) => {
@@ -346,19 +351,19 @@ Templates:
         }
     LongNegateTemplate: &LongNegateTemplate !!js/function >
         () => {
-            return '';
+            return '-';
         }
     LongNegateArgsTemplate: &LongNegateArgsTemplate !!js/function >
         (lhs) => {
-            return `-${lhs}`;
+            return `${lhs}`;
         }
     LongNotTemplate: &LongNotTemplate !!js/function >
         () => {
-            return '';
+            return '~';
         }
     LongNotArgsTemplate: &LongNotArgsTemplate !!js/function >
         (lhs) => {
-            return `~${lhs}`;
+            return `${lhs}`;
         }
     LongNotEqualsTemplate: &LongNotEqualsTemplate !!js/function >
         (lhs) => {
@@ -429,11 +434,11 @@ Templates:
     TimestampGetLowBitsArgsTemplate: &TimestampGetLowBitsArgsTemplate null
     TimestampGetHighBitsTemplate: &TimestampGetHighBitsTemplate !!js/function >
         (lhs) => {
-            return '';
+            return `${lhs}.Increment`;
         }
     TimestampGetHighBitsArgsTemplate: &TimestampGetHighBitsArgsTemplate !!js/function >
         (lhs) => {
-            return `${lhs}.Increment`;
+            return '';
         }
     TimestampTTemplate: &TimestampTTemplate !!js/function >
         (lhs) => {
@@ -513,9 +518,9 @@ Templates:
             return '';
         }
     # Symbol Templates
-    CodeSymbolTemplate: &CodeSymbolTemplate  !!js/function >
+    CodeSymbolTemplate: &CodeSymbolTemplate  !!js/function > # Also has process method
         () => {
-            return '';
+            return 'BsonJavaScript';
         }
     CodeSymbolArgsTemplate: &CodeSymbolArgsTemplate !!js/function >
         (lhs, code, scope) => {
@@ -528,7 +533,7 @@ Templates:
                 newStr = str.substr(1, str.length - 2);
             }
             code = `"${newStr.replace(/\\([\s\S])|(")/g, '\\$1$2')}"`;
-            return (scope === undefined) ? `BsonJavaScript(${code})` : `BsonJavaScriptWithScope(${code}, ${scope})`;
+            return (scope === undefined) ? `(${code})` : `WithScope(${code}, ${scope})`;
         }
     ObjectIdSymbolTemplate: &ObjectIdSymbolTemplate !!js/function >
         () => {
@@ -668,7 +673,10 @@ Templates:
             return '-1L';
         }
     LongSymbolNegOneArgsTemplate: &LongSymbolNegOneArgsTemplate null
-    LongSymbolFromBitsTemplate: &LongSymbolFromBitsTemplate null
+    LongSymbolFromBitsTemplate: &LongSymbolFromBitsTemplate !!js/function > # Also has process method
+        () => {
+            return '';
+        }
     LongSymbolFromBitsArgsTemplate: &LongSymbolFromBitsArgsTemplate null
     LongSymbolFromIntTemplate: &LongSymbolFromIntTemplate !!js/function >
         () => {
@@ -682,20 +690,31 @@ Templates:
     LongSymbolFromNumberArgsTemplate: &LongSymbolFromNumberArgsTemplate null
     LongSymbolFromStringTemplate: &LongSymbolFromStringTemplate !!js/function >
         () => {
-            return '';
+            return 'Convert.ToInt64';
         }
     LongSymbolFromStringArgsTemplate: &LongSymbolFromStringArgsTemplate !!js/function >
         (lhs, arg1, arg2) => {
           if (arg2) {
-            return `Convert.ToInt64(${arg1}, ${arg2})`
+            return `(${arg1}, ${arg2})`
           }
-          return `Convert.ToInt64(${arg1}, 10)`
+          return `(${arg1}, 10)`
         }
-
-    MinKeySymbolTemplate: &MinKeySymbolTemplate null # Has emit method
-    MinKeySymbolArgsTemplate: &MinKeySymbolArgsTemplate null # Has emit method
-    MaxKeySymbolTemplate: &MaxKeySymbolTemplate null # Has emit method
-    MaxKeySymbolArgsTemplate: &MaxKeySymbolArgsTemplate null # Has emit method
+    MinKeySymbolTemplate: &MinKeySymbolTemplate !!js/function > # Also has emit method
+        () => {
+            return 'BsonMinKey';
+        }
+    MinKeySymbolArgsTemplate: &MinKeySymbolArgsTemplate !!js/function > # Also has emit method
+        () => {
+            return '.Value';
+        }
+    MaxKeySymbolTemplate: &MaxKeySymbolTemplate !!js/function > # Also has emit method
+        () => {
+            return 'BsonMaxKey';
+        }
+    MaxKeySymbolArgsTemplate: &MaxKeySymbolArgsTemplate !!js/function > # Also has emit method
+        () => {
+            return '.Value';
+        }
     TimestampSymbolTemplate: &TimestampSymbolTemplate !!js/function >
         () => {
             return 'BsonTimestamp';
@@ -720,12 +739,12 @@ Templates:
     Decimal128SymbolTemplate: &Decimal128SymbolTemplate null
     Decimal128SymbolArgsTemplate: &Decimal128SymbolArgsTemplate null
     Decimal128SymbolFromStringTemplate: &Decimal128SymbolFromStringTemplate !!js/function >
-        () => {
-            return '';
+        (lhs) => {
+            return `${lhs}.Parse`;
         }
     Decimal128SymbolFromStringArgsTemplate: &Decimal128SymbolFromStringArgsTemplate !!js/function > 
         (lhs, arg) => {
-            return `${lhs}.Parse(${arg})`;
+            return `(${arg})`;
         }
     Decimal128ToStringTemplate: &Decimal128ToStringTemplate !!js/function >
         (lhs) => {
@@ -738,16 +757,16 @@ Templates:
             return `new ${lhs}`;
         }
     ObjectIdCreateFromHexStringArgsTemplate: &ObjectIdCreateFromHexStringArgsTemplate null
-    ObjectIdCreateFromTimeTemplate: &ObjectIdCreateFromTimeTemplate !!js/function >
+    ObjectIdCreateFromTimeTemplate: &ObjectIdCreateFromTimeTemplate !!js/function > # Also has emit method
         (lhs) => {
-            return '';
+            return `new ${lhs}.GenerateNewId`;
         }
     ObjectIdCreateFromTimeArgsTemplate: &ObjectIdCreateFromTimeArgsTemplate !!js/function >
         (lhs, arg) => {
             if (!Number.isNaN(parseInt(arg, 10))) {
-              return `new ${lhs}.GenerateNewId(Convert.ToInt32(${arg}))`;
+              return `(Convert.ToInt32(${arg}))`;
             }
-            return `new ${lhs}.GenerateNewId(${arg})`;
+            return `(${arg})`;
         }
     ObjectIdIsValidTemplate: &ObjectIdIsValidTemplate !!js/function >
         (lhs) => {
@@ -782,9 +801,15 @@ Templates:
 
             return `(int) ${arg}`;
         }
-    DateSymbolTemplate: &DateSymbolTemplate null # Has emit method
+    DateSymbolTemplate: &DateSymbolTemplate !!js/function > # Also has emit method
+        () => {
+            return 'Datetime';
+        }
     DateSymbolArgsTemplate: &DateSymbolArgsTemplate null # Has emit method
     DateSymbolNowTemplate: &DateSymbolNowTemplate null # Has emit method
     DateSymbolNowArgsTemplate: &DateSymbolNowArgsTemplate null # Has emit method
-    RegExpSymbolTemplate: &RegExpSymbolTemplate null
+    RegExpSymbolTemplate: &RegExpSymbolTemplate !!js/function > # Also has process method
+        () => {
+            return 'Regex';
+        }
     RegExpSymbolArgsTemplate: &RegExpSymbolArgsTemplate null

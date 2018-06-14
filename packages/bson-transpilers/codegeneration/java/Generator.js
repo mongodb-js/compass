@@ -43,7 +43,7 @@ module.exports = (superClass) => class ExtendedVisitor extends superClass {
    */
   emitDate(ctx, date) {
     let toStr = (d) => d;
-    if (!ctx.wasNew && this.visit(ctx.singleExpression()) !== 'ISODate') {
+    if (!ctx.wasNew && !ctx.getText().includes('ISODate')) {
       ctx.type = this.Types._string;
       toStr = (d) => `new SimpleDateFormat("EEE MMMMM dd yyyy HH:mm:ss").format(${d})`;
     }
@@ -83,10 +83,12 @@ module.exports = (superClass) => class ExtendedVisitor extends superClass {
     ctx.type = 'createFromTime' in this.Symbols.ObjectId.attr ? this.Symbols.ObjectId.attr.createFromTime : this.Symbols.ObjectId.attr.fromDate;
     const argList = ctx.arguments().argumentList();
     const args = this.checkArguments(ctx.type.args, argList);
+    const template = ctx.type.template ? ctx.type.template() : '';
     if (argList.singleExpression()[0].type.id === 'Date') {
-      return ctx.type.argsTemplate('', args[0]);
+      return `${template}${ctx.type.argsTemplate('', args[0])}`;
     }
-    return ctx.type.argsTemplate('', `new java.util.Date(${args[0]})`);
+    return `${template}${ctx.type.argsTemplate(
+      '', `new java.util.Date(${args[0]})`)}`;
   }
 
 };
