@@ -21,7 +21,7 @@ export const INITIAL_STATE = {
   modalOpen: false,
   returnQuery: '',
   outputLang: '',
-  inputQuery: '' // { category_code: "enterprise", founding_year: new Number(2) }
+  inputQuery: '' 
 };
 
 function copyToClipboard(state, action) {
