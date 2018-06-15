@@ -160,35 +160,8 @@ npm install -S bson-compilers
 ```
 
 ## Contributing
-`bson-compilers` uses
-[antlr](https://github.com/antlr/antlr4/blob/master/doc/javascript-target.md)
-to help create an AST. As `antlr` is written in Java, you will need to set up a
-few tools before being able to compile this locally. 
-
-Make sure you have Java installed:
-```shell
-$ brew cask install java
-```
-
-Download `antlr`:
-```shell
-$ cd /usr/local/lib && curl -O http://www.antlr.org/download/antlr-4.7.1-complete.jar
-```
-
-You will then need to add it to your `$CLASSPATH`:
-```shell
-$ export CLASSPATH=".:/usr/local/lib/antlr-4.7.1-complete.jar:$CLASSPATH"
-```
-
-Alias `antlr4` and `grun`:
-```shell
-$ alias antlr4='java -Xmx500M -cp "/usr/local/lib/antlr-4.7.1-complete.jar:$CLASSPATH" org.antlr.v4.Tool' && alias grun='java org.antlr.v4.gui.TestRig'
-```
-
-Then compile and run tests locally with:
-```shell
-$ npm run compile && npm run test
-```
+Head over to the readme [on contributing](./CONTRIBUTING.md) to find out more
+information on project structure and setting up your environment.
 
 # Authors
 - [aherlihy](https://github.com/aherlihy) - Anna Herlihy <herlihyap@gmail.com>
