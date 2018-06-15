@@ -52,40 +52,6 @@
         "shell": "ObjectId().equals(ObjectId())"
       }
     ],
-    "Binary": [
-      {
-        "description": "length",
-        "javascript": "Binary(Buffer.from('0404')).length()",
-        "python": "len(Binary(b'0404'))",
-        "java": "new Binary(\"0404\".getBytes(\"UTF-8\")).length()",
-        "csharp": "new BsonBinaryData(System.Text.Encoding.ASCII.GetBytes(\"0404\")).Bytes.Length",
-        "shell": "BinData(0, '0404').length()"
-      },
-      {
-        "description": "subtype",
-        "javascript": "Binary(Buffer.from('0001')).sub_type",
-        "python": "Binary(b'0001').subtype",
-        "java": "new Binary(\"0001\".getBytes(\"UTF-8\")).getType()",
-        "csharp": "new BsonBinaryData(System.Text.Encoding.ASCII.GetBytes(\"0001\")).SubType",
-        "shell": "BinData(0, '0001').subtype()"
-      },
-      {
-        "description": "value",
-        "javascript": "Binary(Buffer.from('0404')).value()",
-        "python": "str(Binary(b'0404'))",
-        "java": "new Binary(\"0404\".getBytes(\"UTF-8\")).getData()",
-        "csharp": "new BsonBinaryData(System.Text.Encoding.ASCII.GetBytes(\"0404\")).ToString()",
-        "shell": "BinData(0, '0404').hex()"
-      },
-      {
-        "description": "toString",
-        "javascript": "Binary(Buffer.from('0404')).toString()",
-        "python": "str(Binary(b'0404'))",
-        "java": "new Binary(\"0404\".getBytes(\"UTF-8\")).toString()",
-        "csharp": "new BsonBinaryData(System.Text.Encoding.ASCII.GetBytes(\"0404\")).ToString()",
-        "shell": "BinData(0, '0404').toString()"
-      }
-    ],
     "DBRef": [
       {
         "description": "toString",

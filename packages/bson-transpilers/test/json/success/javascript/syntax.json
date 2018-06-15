@@ -204,14 +204,6 @@
         "shell": "Code"
       },
       {
-        "description": "Binary without args",
-        "javascript": "Binary",
-        "python": "Binary",
-        "java": "Binary",
-        "csharp": "BsonBinaryData",
-        "shell": "BinData"
-      },
-      {
         "description": "DBRef without args",
         "javascript": "DBRef",
         "python": "DBRef",

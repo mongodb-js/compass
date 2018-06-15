@@ -5,9 +5,8 @@ const Context = require('context-eval');
 const {
   BsonCompilersReferenceError,
   BsonCompilersRuntimeError,
-  BsonCompilersRangeError
+  BsonCompilersUnimplementedError
 } = require('../../helper/error');
-const { removeQuotes } = require('../../helper/format');
 
 /**
  * This is a Visitor superclass where helper methods used by all language
@@ -100,41 +99,10 @@ class Visitor extends JavascriptVisitor {
    * BinData needs extra processing because we need to check that the arg is
    * valid base64.
    *
-   * @param {FuncCallExpressionContext} ctx
-   * @return {String}
+   * TODO: figure out if it ever makes sense to support Binary.
    */
-  processBinData(ctx) {
-    ctx.type = this.Types.BinData;
-    const symbolType = this.Symbols.BinData;
-
-    const binaryTypes = {
-      0: this.Types.SUBTYPE_DEFAULT.template,
-      1: this.Types.SUBTYPE_FUNCTION.template,
-      2: this.Types.SUBTYPE_BYTE_ARRAY.template,
-      3: this.Types.SUBTYPE_UUID_OLD.template,
-      4: this.Types.SUBTYPE_UUID.template,
-      5: this.Types.SUBTYPE_MD5.template,
-      128: this.Types.SUBTYPE_USER_DEFINED.template
-    };
-    const argList = ctx.arguments().argumentList();
-    const args = this.checkArguments(this.Symbols.BinData.args, argList);
-
-    const subtype = parseInt(argList.singleExpression()[0].getText(), 10);
-    const bindata = args[1];
-    if (!(subtype >= 0 && subtype <= 5 || subtype === 128)) {
-      throw new BsonCompilersRangeError('BinData subtype must be a Number between 0-5 or 128');
-    }
-    if (!removeQuotes(bindata).match(/^([0-9a-zA-Z+/]{4})*(([0-9a-zA-Z+/]{2}==)|([0-9a-zA-Z+/]{3}=))?$/)) {
-      throw new BsonCompilersRuntimeError('Invalid base64 passed to BinData');
-    }
-    const typeStr = binaryTypes[subtype] !== null ? binaryTypes[subtype]() : subtype;
-
-    if ('emitBinary' in this) {
-      return this.emitBinData(bindata, typeStr);
-    }
-    const lhs = symbolType.template ? symbolType.template() : 'Binary';
-    const rhs = symbolType.argsTemplate ? symbolType.argsTemplate(lhs, bindata, typeStr) : `(${bindata}, ${typeStr})`;
-    return `${this.new}${lhs}${rhs}`;
+  processBinData() {
+    throw new BsonCompilersUnimplementedError('BinData type not supported');
   }
 
   /**

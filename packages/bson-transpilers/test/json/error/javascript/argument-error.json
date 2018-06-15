@@ -99,43 +99,6 @@
         "errorCode": "E_BSONCOMPILERS_ARGUMENT"
       }
     ],
-    "Binary": [
-      {
-        "description": "Binary without arguments",
-        "query": "new Binary()",
-        "errorCode": "E_BSONCOMPILERS_ARGUMENT"
-      },
-      {
-        "description": "Binary with extra argument",
-        "query": "new Binary(Buffer.from(\"1234\"), Binary.SUBTYPE_UUID, 5)",
-        "errorCode": "E_BSONCOMPILERS_ARGUMENT"
-      },
-      {
-        "description": "Binary with wrong buffer",
-        "query": "new Binary(Buffer.from(1), Binary.SUBTYPE_UUID)",
-        "errorCode": "E_BSONCOMPILERS_ARGUMENT"
-      },
-      {
-        "description": "Binary with empty Buffer.from()",
-        "query": "new Binary(Buffer.from(), Binary.SUBTYPE_UUID)",
-        "errorCode": "E_BSONCOMPILERS_ARGUMENT"
-      },
-      {
-        "description": "Binary .length() with extra argument",
-        "query": "Binary(Buffer.from('0404')).length(10)",
-        "errorCode": "E_BSONCOMPILERS_ARGUMENT"
-      },
-      {
-        "description": "Binary .value() with extra argument",
-        "query": "Binary(Buffer.from('0404')).value(12)",
-        "errorCode": "E_BSONCOMPILERS_ARGUMENT"
-      },
-      {
-        "description": "Binary .toString() with extra argument",
-        "query": "Binary(Buffer.from('0404')).toString(10)",
-        "errorCode": "E_BSONCOMPILERS_ARGUMENT"
-      }
-    ],
     "DBRef": [
       {
         "description": "DBRef without arguments",

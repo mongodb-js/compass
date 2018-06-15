@@ -2,14 +2,9 @@
   "tests": {
     "BinData": [
       {
-        "description": "BinData with unsupported subtype",
+        "description": "BinData",
         "query": "new BinData(400, '1234')",
-        "errorCode": "E_BSONCOMPILERS_RANGE"
-      },
-      {
-        "description": "BinData with invalid hex",
-        "query": "new BinData(1, 'a string')",
-        "errorCode": "E_BSONCOMPILERS_RUNTIME"
+        "errorCode": "E_BSONCOMPILERS_UNIMPLEMENTED"
       }
     ],
     "Identifier": [

@@ -12,13 +12,6 @@
         "errorCode": "E_BSONCOMPILERS_TYPE"
       }
     ],
-    "Binary": [
-      {
-        "description": "Binary with callable sub_type",
-        "query": "Binary(Buffer.from('0001')).sub_type()",
-        "errorCode": "E_BSONCOMPILERS_TYPE"
-      }
-    ],
     "DBRef": [
       {
         "description": "DBRef with callable db",

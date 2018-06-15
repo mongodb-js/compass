@@ -1,5 +1,13 @@
 {
   "tests": {
+    "Binary": [
+      {
+        "description": "Binary",
+        "query": "Binary(1)",
+        "errorCode": "E_BSONCOMPILERS_UNIMPLEMENTED",
+        "message": "Binary"
+      }
+    ],
     "this": [
       {
         "description": "this",

@@ -14,23 +14,6 @@
         "errorCode": "E_BSONCOMPILERS_ATTRIBUTE"
       }
     ],
-    "Binary": [
-      {
-        "description": "Binary with invalidMethod",
-        "query": "Binary(Buffer.from('a string')).invalidMethod()",
-        "errorCode": "E_BSONCOMPILERS_ATTRIBUTE"
-      },
-      {
-        "description": "Binary with invalidProperty",
-        "query": "Binary(Buffer.from('a string')).invalidProperty",
-        "errorCode": "E_BSONCOMPILERS_ATTRIBUTE"
-      },
-      {
-        "description": "Wrong binary subtype",
-        "query": "Binary.WRONG_SUBTYPE",
-        "errorCode": "E_BSONCOMPILERS_ATTRIBUTE"
-      }
-    ],
     "DBRef": [
       {
         "description": "DBRef with invalidMethod",

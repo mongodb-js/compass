@@ -68,48 +68,6 @@
         "shell": "ObjectId('5a7382114ec1f67ae445f778')"
       }
     ],
-    "Binary": [
-      {
-        "description": "Binary with ascii buffer arg",
-        "javascript": "Binary(Buffer.from('1234'))",
-        "python": "Binary(b'1234')",
-        "java": "new Binary(\"1234\".getBytes(\"UTF-8\"))",
-        "csharp": "new BsonBinaryData(System.Text.Encoding.ASCII.GetBytes(\"1234\"))",
-        "shell": "BinData(0, '1234')"
-      },
-      {
-        "description": "new Binary with (ascii buffer, UUID subtype enum) args",
-        "javascript": "new Binary(Buffer.from(\"1234\"), Binary.SUBTYPE_UUID)",
-        "python": "Binary(b'1234', binary.UUID_SUBTYPE)",
-        "java": "new Binary(BsonBinarySubType.UUID_STANDARD, \"1234\".getBytes(\"UTF-8\"))",
-        "csharp": "new BsonBinaryData(System.Text.Encoding.ASCII.GetBytes(\"1234\"), BsonBinarySubType.UuidStandard)",
-        "shell": "new BinData(4, '1234')"
-      },
-      {
-        "description": "Binary with (ascii buffer, number) args",
-        "javascript": "Binary(Buffer.from('1234'), '1')",
-        "python": "Binary(b'1234', binary.FUNCTION_SUBTYPE)",
-        "java": "new Binary(BsonBinarySubType.FUNCTION, \"1234\".getBytes(\"UTF-8\"))",
-        "csharp": "new BsonBinaryData(System.Text.Encoding.ASCII.GetBytes(\"1234\"), BsonBinarySubType.Function)",
-        "shell": "BinData(1, '1234')"
-      },
-      {
-        "description": "Binary with string args",
-        "javascript": "Binary('1234')",
-        "python": "Binary(b'1234')",
-        "java": "new Binary(\"1234\".getBytes(\"UTF-8\"))",
-        "csharp": "new BsonBinaryData(System.Text.Encoding.ASCII.GetBytes(\"1234\"))",
-        "shell": "BinData(0, '1234')"
-      },
-      {
-        "description": "Binary with (string, string) args",
-        "javascript": "Binary('1234', '1')",
-        "python": "Binary(b'1234', binary.FUNCTION_SUBTYPE)",
-        "java": "new Binary(BsonBinarySubType.FUNCTION, \"1234\".getBytes(\"UTF-8\"))",
-        "csharp": "new BsonBinaryData(System.Text.Encoding.ASCII.GetBytes(\"1234\"), BsonBinarySubType.Function)",
-        "shell": "BinData(1, '1234')"
-      }
-    ],
     "DBRef": [
       {
         "description": "new DBRef with (string, ObjectID) args",

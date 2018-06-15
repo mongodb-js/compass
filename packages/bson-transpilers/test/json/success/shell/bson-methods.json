@@ -44,32 +44,6 @@
         "shell": "ObjectId().equals(ObjectId())"
       }
     ],
-    "BinData": [
-      {
-        "description": "length",
-        "javascript": "Binary('0001', '1').length()",
-        "python": "len(Binary(b'0001', binary.FUNCTION_SUBTYPE))",
-        "java": "new Binary(BsonBinarySubType.FUNCTION, \"0001\".getBytes(\"UTF-8\")).length()",
-        "csharp": "new BsonBinaryData(System.Text.Encoding.ASCII.GetBytes(\"0001\"), BsonBinarySubType.Function).Bytes.Length",
-        "shell": "BinData(1, '0001').length()"
-      },
-      {
-        "description": "subtype",
-        "javascript": "Binary('0001', '1').sub_type",
-        "python": "Binary(b'0001', binary.FUNCTION_SUBTYPE).subtype()",
-        "java": "new Binary(BsonBinarySubType.FUNCTION, \"0001\".getBytes(\"UTF-8\")).getType()",
-        "csharp": "new BsonBinaryData(System.Text.Encoding.ASCII.GetBytes(\"0001\"), BsonBinarySubType.Function).SubType",
-        "shell": "BinData(1, '0001').subtype()"
-      },
-      {
-        "description": "toString",
-        "javascript": "new Binary('0001', '1').toString()",
-        "python": "str(Binary(b'0001', binary.FUNCTION_SUBTYPE))",
-        "java": "new Binary(BsonBinarySubType.FUNCTION, \"0001\".getBytes(\"UTF-8\")).toString()",
-        "csharp": "new BsonBinaryData(System.Text.Encoding.ASCII.GetBytes(\"0001\"), BsonBinarySubType.Function).ToString()",
-        "shell": "new BinData(1, '0001').toString()"
-      }
-    ],
     "DBRef": [
       {
         "description": "toString",
