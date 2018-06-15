@@ -227,10 +227,14 @@ clear all `!!js/function >` and replace them with `null`
 ```shell
 touch symbols/<output lang>/templates.yaml
 ```
-3. You should now run `npm run compile` to generate a complete symbol table.
+3. Add your new language to the `compile-symbol-table.js` file:
+```js
+const outputLangs = ['java', 'shell', 'python', 'csharp', 'javascript', 'mylanguage'];
+```
+4. You should now run `npm run compile` to generate a complete symbol table.
    This will be generated in `lib/symbol-table/javascriptto<output lang>` and
 `lib/symbol-table/shellto<output lang>`.
-4. You will have to require the generated symbol tables in `index.js`:
+5. You will have to require the generated symbol tables in `index.js`:
 ```js
 const javascript<output lang>symbols = require('lib/symbol-table/javascriptto<output lang>')
 const shell<output lang>symbols = require('lib/symbol-table/shellto<output lang>')
@@ -247,17 +251,17 @@ module.exports = {
   }
 }
 ```
-5. We still don't have a `Generator.js` file required above, so that won't
+6. We still don't have a `Generator.js` file required above, so that won't
    quite work yet. So next, create a new directory in `codegeneration` for your
 output language:
 ```shell
 mkidr codegenration/<output lang>
 ```
-6. And create a generator file:
+7. And create a generator file:
 ```shell
 touch codegeneration/<output lang>/Generator.js
 ```
-7. You will need some boiler plate to get you going as the input language's
+8. You will need some boiler plate to get you going as the input language's
    visitor file will be looking for a few things. We'd recommend you start with
 something like this:
 ```js
@@ -300,11 +304,11 @@ module.exports = (superclass) => class ExtendedVisitor extends superclass {
   // visitor file.
 };
 ```
-8. You can now require the generator file in `index.js`:
+9. You can now require the generator file in `index.js`:
 ```
 const <output lang>Generator = require('./codegeneration/<output lang>/Generator')
 ```
-9. Next thing is tests! Tests are organized under two modes: `error` and
+10. Next thing is tests! Tests are organized under two modes: `error` and
    `success`. Each input language has it's own directory. You can edit output test
 cases in each file in those directories based on what the output should be. For example:
 ```json
