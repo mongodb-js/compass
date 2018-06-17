@@ -36,7 +36,7 @@ npm start compass-isolated
 Try:
 
 ```
-npm run clean && npm install && npm start
+rm -rf node_modules && npm cache verify && npm install && npm start
 ```
 
 ## Key Modules
@@ -58,6 +58,7 @@ installer for your current platform:
 npm run release compass
 npm run release compass-community
 npm run release compass-readonly
+npm run release compass-isolated
 ```
 
 ## The Release Process
@@ -72,6 +73,31 @@ npm test
 ```
 
 For more details, see our [test README](test/README.md).
+
+## External Plugins
+
+Here is the current list of external plugins Compass uses and their locations.
+
+- [@mongodb-js/compass-aggregations](https://github.com/mongodb-js/compass-aggregations)
+- [@mongodb-js/compass-auth-kerberos](https://github.com/10gen/compass-auth-kerberos)
+- [@mongodb-js/compass-auth-ldap](https://github.com/10gen/compass-auth-ldap)
+- [@mongodb-js/compass-auth-x509](https://github.com/10gen/compass-auth-x509)
+- [@mongodb-js/compass-collection-stats](https://github.com/mongodb-js/compass-collection-stats)
+- [@mongodb-js/compass-connect](https://github.com/10gen/compass-connect)
+- [@mongodb-js/compass-crud](https://github.com/10gen/compass-crud)
+- [@mongodb-js/compass-deployment-awareness](https://github.com/mongodb-js/compass-deployment-awareness)
+- [@mongodb-js/compass-document-validation](https://github.com/10gen/compass-document-validation)
+- [@mongodb-js/compass-export-to-language](https://github.com/mongodb-js/compass-export-to-language)
+- [@mongodb-js/compass-import-export](https://github.com/mongodb-js/compass-import-export)
+- [@mongodb-js/compass-instance](https://github.com/mongodb-js/compass-instance)
+- [@mongodb-js/compass-license](https://github.com/10gen/compass-license)
+- [@mongodb-js/compass-plugin-info](https://github.com/mongodb-js/compass-plugin-info)
+- [@mongodb-js/compass-query-bar](https://github.com/mongodb-js/compass-query-bar)
+- [@mongodb-js/compass-query-history](https://github.com/mongodb-js/compass-query-history)
+- [@mongodb-js/compass-server-version](https://github.com/mongodb-js/compass-server-version)
+- [@mongodb-js/compass-serverstats](https://github.com/10gen/compass-serverstats)
+- [@mongodb-js/compass-ssh-tunnel-status](https://github.com/mongodb-js/compass-ssh-tunnel-status)
+- [@mongodb-js/compass-status](https://github.com/mongodb-js/compass-status)
 
 ## Code Quality Tools
 
