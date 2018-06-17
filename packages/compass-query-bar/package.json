@@ -138,8 +138,8 @@
     "webpack-sources": "1.0.1"
   },
   "dependencies": {
-    "mongodb-ace-autocompleter": "^0.0.15",
-    "mongodb-ace-mode": "^0.0.1",
+    "mongodb-ace-autocompleter": "^0.0.16",
+    "mongodb-ace-mode": "^0.0.2",
     "mongodb-ace-theme-query": "^0.0.2",
     "mongodb-query-parser": "^1.1.1",
     "mongodb-query-util": "0.0.1",
