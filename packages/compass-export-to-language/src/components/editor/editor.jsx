@@ -102,7 +102,7 @@ class Editor extends PureComponent {
       ? classnames(styles['editor-error'])
       : classnames(styles.editor);
 
-    const value = this.props.input ? '' : this.props.outputQuery && this.props.imports;
+    const value = this.props.input ? '' : this.props.outputQuery || this.props.imports;
 
     return (
       <div className={queryStyle}>
