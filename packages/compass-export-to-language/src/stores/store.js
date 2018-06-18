@@ -1,4 +1,4 @@
-import { addInputQuery, togleModal, setNamespace } from 'modules/export-query';
+import { addInputQuery, togleModal, setNamespace, runQuery } from 'modules/export-query';
 import { createStore, applyMiddleware } from 'redux';
 import thunk from 'redux-thunk';
 import reducer from 'modules';
@@ -9,12 +9,14 @@ store.onActivated = (appRegistry) => {
   appRegistry.on('open-aggregation-export-to-language', (aggregation) => {
     store.dispatch(togleModal(true));
     store.dispatch(setNamespace('Pipeline'));
+    store.dispatch(runQuery('java', aggregation));
     store.dispatch(addInputQuery(aggregation));
   });
 
   appRegistry.on('open-query-export-to-language', (query) => {
     store.dispatch(togleModal(true));
     store.dispatch(setNamespace('Query'));
+    store.dispatch(runQuery('java', query));
     store.dispatch(addInputQuery(query));
   });
 };

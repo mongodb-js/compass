@@ -6,11 +6,12 @@ describe('ExportToLanguage Store', () => {
       exportQuery: {
         namespace: 'Query',
         copySuccess: false,
+        outputLang: 'java',
         queryError: null,
         modalOpen: false,
         returnQuery: '',
-        outputLang: '',
-        inputQuery: ''
+        inputQuery: '',
+        imports: false
       }
     });
   });

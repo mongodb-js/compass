@@ -39,15 +39,15 @@ class Editor extends PureComponent {
       if (this.props.outputLang === 'java') {
         this.editor.setValue(this.props.outputQuery.split(/(?=.append)/g).join('\n\t\t'));
       } else if (this.props.outputLang === 'csharp') {
-        let strings = this.props.outputQuery.split(/(?={)/g);
-        for (var i = 0; i < strings.length; i++) {
-          if (i != 0 && strings[i] != '{ ') {
+        const strings = this.props.outputQuery.split(/(?={)/g);
+        for (let i = 0; i < strings.length; i++) {
+          if (i !== 0 && strings[i] !== '{ ') {
             strings[i] = '\t\t' + strings[i];
           }
         }
         this.editor.setValue(strings.join('\n\t\t'));
       } else if (this.props.outputLang === 'python') {
-        let strings = this.props.outputQuery.split(/(?=})|,/g);
+        const strings = this.props.outputQuery.split(/(?=})|,/g);
         const string = strings.slice(0, -1).join('\n\t\t') + '\n' + strings.slice(-1);
         this.editor.setValue(string);
       } else {

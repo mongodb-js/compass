@@ -118,7 +118,7 @@
   },
   "dependencies": {
     "brace": "^0.11.1",
-    "bson-compilers": "^0.3.0",
+    "bson-compilers": "^0.3.1",
     "enzyme-adapter-react-16": "^1.1.1",
     "hadron-react-buttons": "^2.0.0",
     "javascript-stringify": "^1.6.0",

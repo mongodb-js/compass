@@ -1,11 +1,13 @@
 import reducer, {
   ADD_INPUT_QUERY,
+  INCLUDE_IMPORTS,
   SET_NAMESPACE,
   OUTPUT_LANG,
   QUERY_ERROR,
   TOGLE_MODAL,
   COPY_QUERY,
   CLEAR_COPY,
+  includeImports,
   setOutputLang,
   addInputQuery,
   setNamespace,
@@ -85,6 +87,15 @@ describe('export query module', () => {
     });
   });
 
+  describe('#includeImports', () => {
+    it('returns an includeImports action type', () => {
+      expect(includeImports(true)).to.deep.equal({
+        type: INCLUDE_IMPORTS,
+        imports: true
+      });
+    });
+  });
+
   describe('#reducer', () => {
     context('action type is queryError', () => {
       it('query error is has a value in state', () => {
@@ -92,10 +103,26 @@ describe('export query module', () => {
           queryError: 'uh oh',
           namespace: 'Query',
           copySuccess: false,
+          outputLang: 'java',
           modalOpen: false,
           returnQuery: '',
-          outputLang: '',
-          inputQuery: ''
+          inputQuery: '',
+          imports: false
+        });
+      });
+    });
+
+    context('action type is includeImports', () => {
+      it('imports boolean is in state', () => {
+        expect(reducer(undefined, includeImports(true))).to.deep.equal({
+          namespace: 'Query',
+          copySuccess: false,
+          outputLang: 'java',
+          queryError: null,
+          modalOpen: false,
+          returnQuery: '',
+          inputQuery: '',
+          imports: true
         });
       });
     });
@@ -105,25 +132,27 @@ describe('export query module', () => {
         expect(reducer(undefined, addInputQuery('{ "beep": "boop" }'))).to.deep.equal({
           inputQuery: '{ "beep": "boop" }',
           copySuccess: false,
+          outputLang: 'java',
           namespace: 'Query',
           modalOpen: false,
           queryError: null,
           returnQuery: '',
-          outputLang: ''
+          imports: false
         });
       });
     });
 
     context('action type is setOutputLang', () => {
       it('inputQuery has a value in state', () => {
-        expect(reducer(undefined, setOutputLang('java'))).to.deep.equal({
+        expect(reducer(undefined, setOutputLang('csharp'))).to.deep.equal({
+          outputLang: 'csharp',
           copySuccess: false,
           namespace: 'Query',
-          outputLang: 'java',
           modalOpen: false,
           queryError: null,
           returnQuery: '',
-          inputQuery: ''
+          inputQuery: '',
+          imports: false
         });
       });
     });
@@ -132,12 +161,13 @@ describe('export query module', () => {
       it('modalOpen is true in state', () => {
         expect(reducer(undefined, togleModal(true))).to.deep.equal({
           copySuccess: false,
+          outputLang: 'java',
           namespace: 'Query',
           queryError: null,
           modalOpen: true,
           returnQuery: '',
-          outputLang: '',
-          inputQuery: ''
+          inputQuery: '',
+          imports: false
         });
       });
     });
@@ -146,12 +176,13 @@ describe('export query module', () => {
       it('modalOpen is false in state', () => {
         expect(reducer(undefined, togleModal(false))).to.deep.equal({
           copySuccess: false,
+          outputLang: 'java',
           namespace: 'Query',
           modalOpen: false,
           queryError: null,
           returnQuery: '',
-          outputLang: '',
-          inputQuery: ''
+          inputQuery: '',
+          imports: false
         });
       });
     });
@@ -160,12 +191,13 @@ describe('export query module', () => {
       it('returns a clearCopy state', () => {
         expect(reducer(undefined, clearCopy())).to.deep.equal({
           copySuccess: false,
+          outputLang: 'java',
           namespace: 'Query',
           queryError: null,
           modalOpen: false,
           returnQuery: '',
           inputQuery: '',
-          outputLang: ''
+          imports: false
         });
       });
     });
@@ -174,12 +206,13 @@ describe('export query module', () => {
       it('returns a namespace in state', () => {
         expect(reducer(undefined, setNamespace('Pipeline'))).to.deep.equal({
           namespace: 'Pipeline',
+          outputLang: 'java',
           copySuccess: false,
           queryError: null,
           modalOpen: false,
           returnQuery: '',
           inputQuery: '',
-          outputLang: ''
+          imports: false
         });
       });
     });
@@ -188,12 +221,13 @@ describe('export query module', () => {
       it('empty initial state comes back', () => {
         expect(reducer(undefined, {})).to.deep.equal({
           copySuccess: false,
+          outputLang: 'java',
           namespace: 'Query',
           queryError: null,
           modalOpen: false,
           returnQuery: '',
           inputQuery: '',
-          outputLang: ''
+          imports: false
         });
       });
     });

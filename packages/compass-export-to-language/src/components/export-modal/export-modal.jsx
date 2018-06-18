@@ -1,13 +1,17 @@
 import { TextButton } from 'hadron-react-buttons';
+import { Modal, Checkbox } from 'react-bootstrap';
 import ExportForm from 'components/export-form';
 import React, { Component } from 'react';
-import { Modal } from 'react-bootstrap';
+import classnames from 'classnames';
 import PropTypes from 'prop-types';
+
+import styles from './export-modal.less';
 
 class ExportModal extends Component {
   static displayName = 'ExportModalComponent';
 
   static propTypes = {
+    includeImports: PropTypes.func.isRequired,
     exportQuery: PropTypes.object.isRequired,
     setOutputLang: PropTypes.func.isRequired,
     togleModal: PropTypes.func.isRequired,
@@ -19,6 +23,10 @@ class ExportModal extends Component {
     this.props.togleModal(false);
   };
 
+  checkboxHandler = () => {
+    this.props.includeImports(!this.props.exportQuery.imports);
+  };
+
   render() {
     return (
       <Modal
@@ -26,7 +34,7 @@ class ExportModal extends Component {
         backdrop="static"
         bsSize="large"
         onHide={this.closeHandler}
-        dialogClassName="export-to-lang-modal">
+        className={classnames(styles['export-to-lang-modal'])}>
 
         <Modal.Header>
           <Modal.Title>{`Export ${this.props.exportQuery.namespace} To Language`}</Modal.Title>
@@ -34,6 +42,9 @@ class ExportModal extends Component {
 
         <Modal.Body>
           <ExportForm {...this.props}/>
+          <div className={classnames(styles['export-to-lang-modal-checkbox'])}>
+            <Checkbox onClick={this.checkboxHandler}>Include Import Statements</Checkbox>
+          </div>
         </Modal.Body>
 
         <Modal.Footer>
