@@ -75,8 +75,7 @@ const getCompiler = (visitor, generator, symbols) => {
   };
 };
 
-const javaImports = `
-package com.example.test;
+const javaImports = `package com.example.test;
 
 import com.mongodb.DBRef;
 import org.bson.BsonBinarySubType;
@@ -90,21 +89,18 @@ import java.util.Arrays;
 import java.util.regex.Pattern;
 `;
 
-const pythonImports = `
-from bson import *
+const pythonImports = `from bson import *
 import datetime
 `;
 
-const csharpImports = `
-using MongoDB.Bson;
+const csharpImports = `using MongoDB.Bson;
 using MongoDB.Driver;
 
 using System;
 using System.Text.RegularExpressions;
 `;
 
-const javascriptImports = `
-const {
+const javascriptImports = `const {
   Binary,
   Code,
   ObjectId,
