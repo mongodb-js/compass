@@ -23,6 +23,7 @@ class Editor extends PureComponent {
     inputQuery: PropTypes.any.isRequired,
     outputLang: PropTypes.string.isRequired,
     queryError: PropTypes.string,
+    imports: PropTypes.string,
     input: PropTypes.bool
   };
 
@@ -37,19 +38,11 @@ class Editor extends PureComponent {
   componentDidUpdate() {
     if (!this.props.input) {
       if (this.props.outputLang === 'java') {
-        this.editor.setValue(this.props.outputQuery.split(/(?=.append)/g).join('\n\t\t'));
+        this.editor.setValue(this.formatJava());
       } else if (this.props.outputLang === 'csharp') {
-        const strings = this.props.outputQuery.split(/(?={)/g);
-        for (let i = 0; i < strings.length; i++) {
-          if (i !== 0 && strings[i] !== '{ ') {
-            strings[i] = '\t\t' + strings[i];
-          }
-        }
-        this.editor.setValue(strings.join('\n\t\t'));
+        this.editor.setValue(this.formatCsharp());
       } else if (this.props.outputLang === 'python') {
-        const strings = this.props.outputQuery.split(/(?=})|,/g);
-        const string = strings.slice(0, -1).join('\n\t\t') + '\n' + strings.slice(-1);
-        this.editor.setValue(string);
+        this.editor.setValue(this.formatPython());
       } else {
         this.editor.setValue(this.props.outputQuery);
       }
@@ -62,6 +55,34 @@ class Editor extends PureComponent {
       this.editor.setValue(stringify(this.props.inputQuery, null, 2));
       this.editor.clearSelection();
     }
+  }
+
+  formatJava = () => {
+    const string = this.props.outputQuery.split(/(?=.append)/g).join('\n\t\t');
+    const output = this.props.imports !== '' ? this.props.imports + '\n' + string : string;
+
+    return output;
+  }
+
+  formatPython = () => {
+    const strings = this.props.outputQuery.split(/(?=})|,/g);
+    const string = strings.slice(0, -1).join('\n\t\t') + '\n' + strings.slice(-1);
+    const output = this.props.imports !== '' ? this.props.imports + '\n' + string : string;
+
+    return output;
+  }
+
+  formatCsharp = () => {
+    const strings = this.props.outputQuery.split(/(?={)/g);
+    for (let i = 0; i < strings.length; i++) {
+      if (i !== 0 && strings[i] !== '{ ') {
+        strings[i] = '\t\t' + strings[i];
+      }
+    }
+    const string = strings.join('\n\t\t');
+    const output = this.props.imports !== '' ? this.props.imports + '\n' + string : string;
+
+    return output;
   }
 
   render() {
@@ -81,7 +102,7 @@ class Editor extends PureComponent {
       ? classnames(styles['editor-error'])
       : classnames(styles.editor);
 
-    const value = this.props.input ? '' : this.props.outputQuery;
+    const value = this.props.input ? '' : this.props.outputQuery && this.props.imports;
 
     return (
       <div className={queryStyle}>

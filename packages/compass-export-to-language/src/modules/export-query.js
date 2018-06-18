@@ -22,8 +22,8 @@ export const INITIAL_STATE = {
   queryError: null,
   modalOpen: false,
   returnQuery: '',
-  imports: false,
-  inputQuery: '' // { category_code: "web", twitter_username: null }
+  inputQuery: '', // { category_code: "web", twitter_username: null }
+  imports: ''
 };
 
 function copyToClipboard(state, action) {
@@ -38,14 +38,23 @@ function closeModal(state, action) {
   return { ...state, modalOpen: action.open };
 }
 
+function addImports(state, action) {
+  if (action.imports) {
+    const imports = compiler.imports[state.outputLang];
+    return { ...state, imports: imports};
+  }
+
+  return { ...state, imports: ''};
+}
+
 export const runQuery = (outputLang, input) => {
   return (dispatch, getState) => {
     const state = getState();
 
     try {
       const output = compiler.shell[outputLang](stringify(input));
-      const imports = state.exportQuery.imports ? compiler.imports[outputLang] : '';
-      state.exportQuery.returnQuery = imports + '\n' + output;
+      if (state.exportQuery.imports !== '') state.exportQuery.imports = compiler.imports[outputLang];
+      state.exportQuery.returnQuery = output;
       state.exportQuery.queryError = null;
       return state;
     } catch (e) {
@@ -57,10 +66,10 @@ export const runQuery = (outputLang, input) => {
 export default function reducer(state = INITIAL_STATE, action) {
   if (action.type === SET_NAMESPACE) return { ...state, namespace: action.namespace };
   if (action.type === ADD_INPUT_QUERY) return { ...state, inputQuery: action.input };
-  if (action.type === INCLUDE_IMPORTS) return { ...state, imports: action.imports };
   if (action.type === QUERY_ERROR) return { ...state, queryError: action.error };
   if (action.type === OUTPUT_LANG) return { ...state, outputLang: action.lang };
   if (action.type === CLEAR_COPY) return { ...state, copySuccess: false };
+  if (action.type === INCLUDE_IMPORTS) return addImports(state, action);
   if (action.type === COPY_QUERY) return copyToClipboard(state, action);
   if (action.type === TOGLE_MODAL) return closeModal(state, action);
 

@@ -48,10 +48,10 @@ class ExportForm extends Component {
           <div className={classnames(styles['export-to-lang-headers-output'])}>
             <p className={classnames(styles['export-to-lang-headers-output-title'])}>{`Export ${this.props.exportQuery.namespace} To:`}</p>
             <SelectLang
+              outputLang={this.props.exportQuery.outputLang}
               inputQuery={this.props.exportQuery.inputQuery}
               setOutputLang={this.props.setOutputLang}
-              runQuery={this.props.runQuery}
-              outputLang={this.props.exportQuery.outputLang}/>
+              runQuery={this.props.runQuery}/>
           </div>
         </div>
         <div className={classnames(styles['export-to-lang-query'])}>
@@ -61,6 +61,7 @@ class ExportForm extends Component {
               queryError={this.props.exportQuery.queryError}
               outputLang={this.props.exportQuery.outputLang}
               inputQuery={this.props.exportQuery.inputQuery}
+              imports={this.props.exportQuery.imports}
               input/>
             {errorDiv}
           </div>
@@ -69,13 +70,14 @@ class ExportForm extends Component {
               outputQuery={this.props.exportQuery.returnQuery}
               queryError={this.props.exportQuery.queryError}
               outputLang={this.props.exportQuery.outputLang}
-              inputQuery={this.props.exportQuery.inputQuery}/>
+              inputQuery={this.props.exportQuery.inputQuery}
+              imports={this.props.exportQuery.imports}/>
             {bubbleDiv}
             <IconTextButton
+              clickHandler={this.copyHandler}
               className={copyButtonStyle}
               iconClassName="fa fa-paste"
-              text="Copy"
-              clickHandler={this.copyHandler}/>
+              text="Copy"/>
           </div>
         </div>
       </form>

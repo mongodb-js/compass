@@ -107,7 +107,7 @@ describe('export query module', () => {
           modalOpen: false,
           returnQuery: '',
           inputQuery: '',
-          imports: false
+          imports: ''
         });
       });
     });
@@ -122,7 +122,7 @@ describe('export query module', () => {
           modalOpen: false,
           returnQuery: '',
           inputQuery: '',
-          imports: true
+          imports: 'package com.example.test;\n\nimport com.mongodb.DBRef;\nimport org.bson.BsonBinarySubType;\nimport org.bson.BsonRegularExpression;\nimport org.bson.Document;\nimport org.bson.types.*;\nimport org.bson.BsonUndefined;\n\nimport java.text.SimpleDateFormat;\nimport java.util.Arrays;\nimport java.util.regex.Pattern;\n'
         });
       });
     });
@@ -137,7 +137,7 @@ describe('export query module', () => {
           modalOpen: false,
           queryError: null,
           returnQuery: '',
-          imports: false
+          imports: ''
         });
       });
     });
@@ -152,7 +152,7 @@ describe('export query module', () => {
           queryError: null,
           returnQuery: '',
           inputQuery: '',
-          imports: false
+          imports: ''
         });
       });
     });
@@ -167,7 +167,7 @@ describe('export query module', () => {
           modalOpen: true,
           returnQuery: '',
           inputQuery: '',
-          imports: false
+          imports: ''
         });
       });
     });
@@ -182,7 +182,7 @@ describe('export query module', () => {
           queryError: null,
           returnQuery: '',
           inputQuery: '',
-          imports: false
+          imports: ''
         });
       });
     });
@@ -197,7 +197,7 @@ describe('export query module', () => {
           modalOpen: false,
           returnQuery: '',
           inputQuery: '',
-          imports: false
+          imports: ''
         });
       });
     });
@@ -212,7 +212,7 @@ describe('export query module', () => {
           modalOpen: false,
           returnQuery: '',
           inputQuery: '',
-          imports: false
+          imports: ''
         });
       });
     });
@@ -227,7 +227,7 @@ describe('export query module', () => {
           modalOpen: false,
           returnQuery: '',
           inputQuery: '',
-          imports: false
+          imports: ''
         });
       });
     });

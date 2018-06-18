@@ -11,7 +11,7 @@ describe('ExportToLanguage Store', () => {
         modalOpen: false,
         returnQuery: '',
         inputQuery: '',
-        imports: false
+        imports: ''
       }
     });
   });
