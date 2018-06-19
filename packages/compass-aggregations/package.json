@@ -31,7 +31,7 @@
     "prop-types": "^15.5.8",
     "react": "^16.3.2",
     "react-bootstrap": "^0.32.1",
-    "react-tooltip": "^3.2.6"
+    "react-tooltip": "^3.6.1"
   },
   "devDependencies": {
     "@mongodb-js/compass-crud": "^5.1.0",
