@@ -37,15 +37,9 @@ class Editor extends PureComponent {
 
   componentDidUpdate() {
     if (!this.props.input) {
-      if (this.props.outputLang === 'java') {
-        this.editor.setValue(this.formatJava());
-      } else if (this.props.outputLang === 'csharp') {
-        this.editor.setValue(this.formatCsharp());
-      } else if (this.props.outputLang === 'python') {
-        this.editor.setValue(this.formatPython());
-      } else {
-        this.editor.setValue(this.props.outputQuery);
-      }
+      const output = this.props.imports !== '' ? this.props.imports + '\n' + this.props.outputQuery : this.props.outputQuery;
+
+      this.editor.setValue(output);
       this.editor.session.setMode('ace/mode/' + this.props.outputLang || 'javascript');
       this.editor.clearSelection();
     }
@@ -55,34 +49,6 @@ class Editor extends PureComponent {
       this.editor.setValue(stringify(this.props.inputQuery, null, 2));
       this.editor.clearSelection();
     }
-  }
-
-  formatJava = () => {
-    const string = this.props.outputQuery.split(/(?=.append)/g).join('\n\t\t');
-    const output = this.props.imports !== '' ? this.props.imports + '\n' + string : string;
-
-    return output;
-  }
-
-  formatPython = () => {
-    const strings = this.props.outputQuery.split(/(?=})|,/g);
-    const string = strings.slice(0, -1).join('\n\t\t') + '\n' + strings.slice(-1);
-    const output = this.props.imports !== '' ? this.props.imports + '\n' + string : string;
-
-    return output;
-  }
-
-  formatCsharp = () => {
-    const strings = this.props.outputQuery.split(/(?={)/g);
-    for (let i = 0; i < strings.length; i++) {
-      if (i !== 0 && strings[i] !== '{ ') {
-        strings[i] = '\t\t' + strings[i];
-      }
-    }
-    const string = strings.join('\n\t\t');
-    const output = this.props.imports !== '' ? this.props.imports + '\n' + string : string;
-
-    return output;
   }
 
   render() {
