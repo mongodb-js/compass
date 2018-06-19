@@ -19,6 +19,7 @@ class PipelineWorkspace extends PureComponent {
   static propTypes = {
     pipeline: PropTypes.array.isRequired,
     toggleInputDocumentsCollapsed: PropTypes.func.isRequired,
+    refreshInputDocuments: PropTypes.func.isRequired,
     stageAdded: PropTypes.func.isRequired,
     setIsModified: PropTypes.func.isRequired,
     openLink: PropTypes.func.isRequired,
@@ -40,6 +41,7 @@ class PipelineWorkspace extends PureComponent {
       <div className={classnames(styles['pipeline-workspace'])}>
         <Input
           toggleInputDocumentsCollapsed={this.props.toggleInputDocumentsCollapsed}
+          refreshInputDocuments={this.props.refreshInputDocuments}
           documents={inputDocuments.documents}
           isLoading={inputDocuments.isLoading}
           isExpanded={inputDocuments.isExpanded}
