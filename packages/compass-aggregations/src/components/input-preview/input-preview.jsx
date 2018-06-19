@@ -33,6 +33,7 @@ class InputPreview extends Component {
         <Document
           doc={new HadronDocument(doc)}
           editable={false}
+          expandAll
           key={i} />);
     });
     return (
