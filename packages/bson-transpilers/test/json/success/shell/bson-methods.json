@@ -3,8 +3,8 @@
     "Code": [
       {
         "description": "CodeWithScope scope",
-        "javascript": "Code('test code', {x: 1}).scope",
-        "python": "Code('test code', {'x': 1}).scope",
+        "javascript": "Code('test code', {\n  x: 1\n}).scope",
+        "python": "Code('test code', {\n    'x': 1\n}).scope",
         "java": "new CodeWithScope(\"test code\", new Document(\"x\", 1L)).getScope()",
         "csharp": "new BsonJavaScriptWithScope(\"test code\", new BsonDocument(\"x\", 1)).Scope",
         "shell": "Code('test code', {x: 1}).scope"

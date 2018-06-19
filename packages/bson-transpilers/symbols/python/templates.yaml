@@ -66,8 +66,14 @@ Templates:
         }
     NumericTypeTemplate: &NumericTypeTemplate null
     ArrayTypeTemplate: &ArrayTypeTemplate !!js/function >
-        (literal) => {
-            return `[${literal}]`;
+        (literal, depth) => {
+            if (literal === '') {
+                return '[]'
+            }
+            const indent = '\n' + '    '.repeat(depth);
+            const closingIndent = '\n' + '    '.repeat(depth - 1);
+
+            return `[${indent}${literal}${closingIndent}]`;
         }
     NullTypeTemplate: &NullTypeTemplate !!js/function >
         () => {
@@ -78,11 +84,16 @@ Templates:
             return 'None';
         }
     ObjectTypeTemplate: &ObjectTypeTemplate !!js/function >
-        (literal) => {
-            return `{${literal}}`;
+        (literal, depth) => {
+            if (literal === '') {
+                return '{}';
+            }
+            return literal;
         }
     ObjectTypeArgsTemplate: &ObjectTypeArgsTemplate !!js/function >
-        (args) => {
+        (args, depth) => {
+            const indent = '\n' + '    '.repeat(depth);
+            const closingIndent = '\n' + '    '.repeat(depth - 1);
             const singleStringify = (str) => {
                 let newStr = str;
                 if (
@@ -92,9 +103,12 @@ Templates:
                 }
                 return `'${newStr.replace(/\\([\s\S])|(")/g, '\\$1$2')}'`;
             }
-            return args.map((arg) => {
-                return `${singleStringify(arg[0])}: ${arg[1]}`;
+
+            const pairs = args.map((arg) => {
+                return `${indent}${singleStringify(arg[0])}: ${arg[1]}`;
             }).join(', ');
+
+            return `{${pairs}${closingIndent}}`;
         }
     # BSON Object Method templates
     CodeCodeTemplate: &CodeCodeTemplate !!js/function >

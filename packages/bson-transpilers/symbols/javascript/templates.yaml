@@ -24,8 +24,14 @@ Templates:
     OctalTypeTemplate: &OctalTypeTemplate null
     NumericTypeTemplate: &NumericTypeTemplate null
     ArrayTypeTemplate: &ArrayTypeTemplate !!js/function >
-        (literal) => {
-            return `[${literal}]`;
+        (literal, depth) => {
+            if (literal === '') {
+                return '[]'
+            }
+            const indent = '\n' + '  '.repeat(depth);
+            const closingIndent = '\n' + '  '.repeat(depth - 1);
+
+            return `[${indent}${literal}${closingIndent}]`;
         }
     NullTypeTemplate: &NullTypeTemplate !!js/function >
         () => {
@@ -37,13 +43,20 @@ Templates:
         }
     ObjectTypeTemplate: &ObjectTypeTemplate !!js/function >
         (literal) => {
-            return `{${literal}}`;
+            if (literal === '') {
+                return '{}';
+            }
+            return literal;
         }
     ObjectTypeArgsTemplate: &ObjectTypeArgsTemplate !!js/function >
-        (args) => {
-            return args.map((arg) => {
-                return `${arg[0]}: ${arg[1]}`;
+        (args, depth) => {
+            const indent = '\n' + '  '.repeat(depth);
+            const closingIndent = '\n' + '  '.repeat(depth - 1);
+            const pairs = args.map((arg) => {
+                return `${indent}${arg[0]}: ${arg[1]}`;
             }).join(', ');
+
+            return `{${pairs}${closingIndent}}`
         }
     # BSON Object Method templates
     CodeCodeTemplate: &CodeCodeTemplate null

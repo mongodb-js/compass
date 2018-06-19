@@ -20,10 +20,10 @@
       {
         "description": "Code with string code and object scope",
         "javascript": "Code('string', {x: '1'})",
-        "python": "Code('string', {'x': '1'})",
+        "python": "Code('string', {\n    'x': '1'\n})",
         "java": "new CodeWithScope(\"string\", new Document(\"x\", \"1\"))",
         "csharp": "new BsonJavaScriptWithScope(\"string\", new BsonDocument(\"x\", \"1\"))",
-        "shell": "Code('string', {x: '1'})"
+        "shell": "Code('string', {\n  x: '1'\n})"
       },
       {
         "description": "Code with function code",
@@ -36,10 +36,10 @@
       {
         "description": "new Code with where code",
         "javascript": "new Code('this.a > i', { i: '1' })",
-        "python": "Code('this.a > i', {'i': '1'})",
+        "python": "Code('this.a > i', {\n    'i': '1'\n})",
         "java": "new CodeWithScope(\"this.a > i\", new Document(\"i\", \"1\"))",
         "csharp": "new BsonJavaScriptWithScope(\"this.a > i\", new BsonDocument(\"i\", \"1\"))",
-        "shell": "new Code('this.a > i', {i: '1'})"
+        "shell": "new Code('this.a > i', {\n    i: '1'\n  })"
       }
     ],
     "ObjectId": [
@@ -272,42 +272,42 @@
       {
         "description": "{x: '1'}",
         "javascript": "{x: '1'}",
-        "python": "{'x': '1'}",
+        "python": "{\n    'x': '1'\n}",
         "java": "new Document(\"x\", \"1\")",
         "csharp": "new BsonDocument(\"x\", \"1\")",
-        "shell": "{x: '1'}"
+        "shell": "{\n  x: '1'\n}"
       },
       {
         "description": "Doc with trailing comma",
         "javascript": "{x: '1',}",
-        "python": "{'x': '1'}",
+        "python": "{\n    'x': '1'\n}",
         "java": "new Document(\"x\", \"1\")",
         "csharp": "new BsonDocument(\"x\", \"1\")",
-        "shell": "{x: '1'}"
+        "shell": "{\n  x: '1'\n}"
       },
       {
         "description": "Doc with array",
         "javascript": "{x: ['1', '2']}",
-        "python": "{'x': ['1', '2']}",
+        "python": "{\n    'x': [\n        '1', '2'\n    ]\n}",
         "java": "new Document(\"x\", Arrays.asList(\"1\", \"2\"))",
-        "csharp": "new BsonDocument(\"x\", new BsonArray {\"1\", \"2\"})",
-        "shell": "{x: ['1', '2']}"
+        "csharp": "new BsonDocument(\"x\", new BsonArray\n    {\n        \"1\", \"2\"\n    })",
+        "shell": "{\n  x: [\n    '1', '2'\n  ]\n}"
       },
       {
         "description": "Doc with subdoc",
         "javascript": "{x: {y: '2'}}",
-        "python": "{'x': {'y': '2'}}",
+        "python": "{\n    'x': {\n        'y': '2'\n    }\n}",
         "java": "new Document(\"x\", new Document(\"y\", \"2\"))",
         "csharp": "new BsonDocument(\"x\", new BsonDocument(\"y\", \"2\"))",
-        "shell": "{x: {y: '2'}}"
+        "shell": "{\n  x: {\n    y: '2'\n  }\n}"
       },
       {
         "description": "Object.create()",
         "javascript": "Object.create({x: '1'})",
-        "python": "{'x': '1'}",
+        "python": "{\n    'x': '1'\n}",
         "java": "new Document(\"x\", \"1\")",
         "csharp": "new BsonDocument(\"x\", \"1\")",
-        "shell": "Object.create({x: '1'})"
+        "shell": "Object.create({\n  x: '1'\n})"
       },
       {
         "description": "Empty object",
@@ -320,26 +320,26 @@
       {
         "description": "Two items in document",
         "javascript": "{x: '1', n: '4'}",
-        "python": "{'x': '1', 'n': '4'}",
-        "java": "new Document(\"x\", \"1\").append(\"n\", \"4\")",
-        "csharp": "new BsonDocument { { \"x\", \"1\" }, { \"n\", \"4\" } }",
-        "shell": "{x: '1', n: '4'}"
+        "python": "{\n    'x': '1', \n    'n': '4'\n}",
+        "java": "new Document(\"x\", \"1\")\n    .append(\"n\", \"4\")",
+        "csharp": "new BsonDocument\n{\n    { \"x\", \"1\" }, \n    { \"n\", \"4\" }\n}",
+        "shell": "{\n  x: '1', \n  n: '4'\n}"
       },
       {
         "description": "nested document",
         "javascript": "{ $graphLookup : { \"from\" : \"raw_data\", \"startWith\" : \"$_id\", \"connectFromField\" : \"_id\", \"connectToField\" : \"manager\", \"as\" : \"reports\" } }",
-        "python": "{'$graphLookup': {'from': 'raw_data', 'startWith': '$_id', 'connectFromField': '_id', 'connectToField': 'manager', 'as': 'reports'}}",
-        "java": "new Document(\"$graphLookup\", new Document(\"from\", \"raw_data\").append(\"startWith\", \"$_id\").append(\"connectFromField\", \"_id\").append(\"connectToField\", \"manager\").append(\"as\", \"reports\"))",
-        "csharp": "new BsonDocument(\"$graphLookup\", new BsonDocument { { \"from\", \"raw_data\" }, { \"startWith\", \"$_id\" }, { \"connectFromField\", \"_id\" }, { \"connectToField\", \"manager\" }, { \"as\", \"reports\" } })",
-        "shell": "{$graphLookup: {\"from\": \"raw_data\", \"startWith\": \"$_id\", \"connectFromField\": \"_id\", \"connectToField\": \"manager\", \"as\": \"reports\"}}"
+        "python": "{\n    '$graphLookup': {\n        'from': 'raw_data', \n        'startWith': '$_id', \n        'connectFromField': '_id', \n        'connectToField': 'manager', \n        'as': 'reports'\n    }\n}",
+        "java": "new Document(\"$graphLookup\", new Document(\"from\", \"raw_data\")\n        .append(\"startWith\", \"$_id\")\n        .append(\"connectFromField\", \"_id\")\n        .append(\"connectToField\", \"manager\")\n        .append(\"as\", \"reports\"))",
+        "csharp": "new BsonDocument(\"$graphLookup\", new BsonDocument\n    {\n        { \"from\", \"raw_data\" }, \n        { \"startWith\", \"$_id\" }, \n        { \"connectFromField\", \"_id\" }, \n        { \"connectToField\", \"manager\" }, \n        { \"as\", \"reports\" }\n    })",
+        "shell": "{\n  $graphLookup: {\n    \"from\": \"raw_data\", \n    \"startWith\": \"$_id\", \n    \"connectFromField\": \"_id\", \n    \"connectToField\": \"manager\", \n    \"as\": \"reports\"\n  }\n}"
       },
       {
         "description": "nested document with array",
         "javascript": "{ status: 'A', $or: [{ qty: { $lt: 30 } }, { item: { $regex: '^p' } }] }",
-        "python": "{'status': 'A', '$or': [{'qty': {'$lt': 30}}, {'item': {'$regex': '^p'}}]}",
-        "java": "new Document(\"status\", \"A\").append(\"$or\", Arrays.asList(new Document(\"qty\", new Document(\"$lt\", 30L)), new Document(\"item\", new Document(\"$regex\", \"^p\"))))",
-        "csharp": "new BsonDocument { { \"status\", \"A\" }, { \"$or\", new BsonArray {new BsonDocument(\"qty\", new BsonDocument(\"$lt\", 30)), new BsonDocument(\"item\", new BsonDocument(\"$regex\", \"^p\"))} } }",
-        "shell": "{status: 'A', $or: [{qty: {$lt: 30}}, {item: {$regex: '^p'}}]}"
+        "python": "{\n    'status': 'A', \n    '$or': [\n        {\n            'qty': {\n                '$lt': 30\n            }\n        }, {\n            'item': {\n                '$regex': '^p'\n            }\n        }\n    ]\n}",
+        "java": "new Document(\"status\", \"A\")\n    .append(\"$or\", Arrays.asList(new Document(\"qty\", new Document(\"$lt\", 30L)), new Document(\"item\", new Document(\"$regex\", \"^p\"))))",
+        "csharp": "new BsonDocument\n{\n    { \"status\", \"A\" }, \n    { \"$or\", new BsonArray\n    {\n        new BsonDocument(\"qty\", new BsonDocument(\"$lt\", 30)), new BsonDocument(\"item\", new BsonDocument(\"$regex\", \"^p\"))\n    } }\n}",
+        "shell": "{\n  status: 'A', \n  $or: [\n    {\n      qty: {\n        $lt: 30\n      }\n    }, {\n      item: {\n        $regex: '^p'\n      }\n    }\n  ]\n}"
       }
 
     ],
@@ -347,42 +347,42 @@
       {
         "description": "['1', '2']",
         "javascript": "['1', '2']",
-        "python": "['1', '2']",
+        "python": "[\n    '1', '2'\n]",
         "java": "Arrays.asList(\"1\", \"2\")",
-        "csharp": "new BsonArray {\"1\", \"2\"}",
-        "shell": "['1', '2']"
+        "csharp": "new BsonArray\n{\n    \"1\", \"2\"\n}",
+        "shell": "[\n  '1', '2'\n]"
       },
       {
         "description": "array with trailing comma",
         "javascript": "['1', '2',]",
-        "python": "['1', '2']",
+        "python": "[\n    '1', '2'\n]",
         "java": "Arrays.asList(\"1\", \"2\")",
-        "csharp": "new BsonArray {\"1\", \"2\"}",
-        "shell": "['1', '2']"
+        "csharp": "new BsonArray\n{\n    \"1\", \"2\"\n}",
+        "shell": "[\n  '1', '2'\n]"
       },
       {
         "description": "Array with subdoc",
         "javascript": "['1', { settings: 'http2' }]",
-        "python": "['1', {'settings': 'http2'}]",
+        "python": "[\n    '1', {\n        'settings': 'http2'\n    }\n]",
         "java": "Arrays.asList(\"1\", new Document(\"settings\", \"http2\"))",
-        "csharp": "new BsonArray {\"1\", new BsonDocument(\"settings\", \"http2\")}",
-        "shell": "['1', {settings: 'http2'}]"
+        "csharp": "new BsonArray\n{\n    \"1\", new BsonDocument(\"settings\", \"http2\")\n}",
+        "shell": "[\n  '1', {\n    settings: 'http2'\n  }\n]"
       },
       {
         "description": "nested array with nested subdoc",
         "javascript": "{\"pipeline\": [ { $match: { $expr: { \"$eq\": [ \"$manager\", \"$$me\" ] } } }, { $project: { managers : 0 } }, { $sort: { startQuarter: 1, notes:1, job_code: 1 } } ]}" ,
-        "python": "{'pipeline': [{'$match': {'$expr': {'$eq': ['$manager', '$$me']}}}, {'$project': {'managers': 0}}, {'$sort': {'startQuarter': 1, 'notes': 1, 'job_code': 1}}]}",
-        "java": "new Document(\"pipeline\", Arrays.asList(new Document(\"$match\", new Document(\"$expr\", new Document(\"$eq\", Arrays.asList(\"$manager\", \"$$me\")))), new Document(\"$project\", new Document(\"managers\", 0L)), new Document(\"$sort\", new Document(\"startQuarter\", 1L).append(\"notes\", 1L).append(\"job_code\", 1L))))",
-        "csharp": "new BsonDocument(\"pipeline\", new BsonArray {new BsonDocument(\"$match\", new BsonDocument(\"$expr\", new BsonDocument(\"$eq\", new BsonArray {\"$manager\", \"$$me\"}))), new BsonDocument(\"$project\", new BsonDocument(\"managers\", 0)), new BsonDocument(\"$sort\", new BsonDocument { { \"startQuarter\", 1 }, { \"notes\", 1 }, { \"job_code\", 1 } })})",
-        "shell": "{\"pipeline\": [{$match: {$expr: {\"$eq\": [\"$manager\", \"$$me\"]}}}, {$project: {managers: 0}}, {$sort: {startQuarter: 1, notes: 1, job_code: 1}}]}"
+        "python": "{\n    'pipeline': [\n        {\n            '$match': {\n                '$expr': {\n                    '$eq': [\n                        '$manager', '$$me'\n                    ]\n                }\n            }\n        }, {\n            '$project': {\n                'managers': 0\n            }\n        }, {\n            '$sort': {\n                'startQuarter': 1, \n                'notes': 1, \n                'job_code': 1\n            }\n        }\n    ]\n}",
+        "java": "new Document(\"pipeline\", Arrays.asList(new Document(\"$match\", new Document(\"$expr\", new Document(\"$eq\", Arrays.asList(\"$manager\", \"$$me\")))), new Document(\"$project\", new Document(\"managers\", 0L)), new Document(\"$sort\", new Document(\"startQuarter\", 1L)\n                .append(\"notes\", 1L)\n                .append(\"job_code\", 1L))))",
+        "csharp": "new BsonDocument(\"pipeline\", new BsonArray\n    {\n        new BsonDocument(\"$match\", new BsonDocument(\"$expr\", new BsonDocument(\"$eq\", new BsonArray\n                    {\n                        \"$manager\", \"$$me\"\n                    }))), new BsonDocument(\"$project\", new BsonDocument(\"managers\", 0)), new BsonDocument(\"$sort\", new BsonDocument\n            {\n                { \"startQuarter\", 1 }, \n                { \"notes\", 1 }, \n                { \"job_code\", 1 }\n            })\n    })",
+        "shell": "{\n  \"pipeline\": [\n    {\n      $match: {\n        $expr: {\n          \"$eq\": [\n            \"$manager\", \"$$me\"\n          ]\n        }\n      }\n    }, {\n      $project: {\n        managers: 0\n      }\n    }, {\n      $sort: {\n        startQuarter: 1, \n        notes: 1, \n        job_code: 1\n      }\n    }\n  ]\n}"
       },
       {
         "description": "Array with subarray",
         "javascript": "['1', ['2', '3']]",
-        "python": "['1', ['2', '3']]",
+        "python": "[\n    '1', [\n        '2', '3'\n    ]\n]",
         "java": "Arrays.asList(\"1\", Arrays.asList(\"2\", \"3\"))",
-        "csharp": "new BsonArray {\"1\", new BsonArray {\"2\", \"3\"}}",
-        "shell": "['1', ['2', '3']]"
+        "csharp": "new BsonArray\n{\n    \"1\", new BsonArray\n    {\n        \"2\", \"3\"\n    }\n}",
+        "shell": "[\n  '1', [\n    '2', '3'\n  ]\n]"
       },
       {
         "description": "Empty array",
@@ -397,34 +397,34 @@
       {
         "description": "array with leading elision",
         "javascript": "[,'1', '2',]",
-        "python": "[None, '1', '2']",
+        "python": "[\n    None, '1', '2'\n]",
         "java": "Arrays.asList(new BsonUndefined(), \"1\", \"2\")",
-        "csharp": "new BsonArray {BsonUndefined.Value, \"1\", \"2\"}",
-        "shell": "[undefined, '1', '2']"
+        "csharp": "new BsonArray\n{\n    BsonUndefined.Value, \"1\", \"2\"\n}",
+        "shell": "[\n  undefined, '1', '2'\n]"
       },
       {
         "description": "Array with one elision",
         "javascript": "[,]",
-        "python": "[None]",
+        "python": "[\n    None\n]",
         "java": "Arrays.asList(new BsonUndefined())",
-        "csharp": "new BsonArray {BsonUndefined.Value}",
-        "shell": "[undefined]"
+        "csharp": "new BsonArray\n{\n    BsonUndefined.Value\n}",
+        "shell": "[\n  undefined\n]"
       },
       {
         "description": "Array with 2 elision",
         "javascript": "[,,]",
-        "python": "[None, None]",
+        "python": "[\n    None, None\n]",
         "java": "Arrays.asList(new BsonUndefined(), new BsonUndefined())",
-        "csharp": "new BsonArray {BsonUndefined.Value, BsonUndefined.Value}",
-        "shell": "[undefined, undefined]"
+        "csharp": "new BsonArray\n{\n    BsonUndefined.Value, BsonUndefined.Value\n}",
+        "shell": "[\n  undefined, undefined\n]"
       },
       {
         "description": "Array with elision in the middle",
         "javascript": "['1',,,,'2']",
-        "python": "['1', None, None, None, '2']",
+        "python": "[\n    '1', None, None, None, '2'\n]",
         "java": "Arrays.asList(\"1\", new BsonUndefined(), new BsonUndefined(), new BsonUndefined(), \"2\")",
-        "csharp": "new BsonArray {\"1\", BsonUndefined.Value, BsonUndefined.Value, BsonUndefined.Value, \"2\"}",
-        "shell": "['1', undefined, undefined, undefined, '2']"
+        "csharp": "new BsonArray\n{\n    \"1\", BsonUndefined.Value, BsonUndefined.Value, BsonUndefined.Value, \"2\"\n}",
+        "shell": "[\n  '1', undefined, undefined, undefined, '2'\n]"
       }
     ],
     "Symbol": [

@@ -19,8 +19,8 @@
       },
       {
         "description": "Code with string code and object scope",
-        "javascript": "Code('string', {x: '1'})",
-        "python": "Code('string', {'x': '1'})",
+        "javascript": "Code('string', {\n  x: '1'\n})",
+        "python": "Code('string', {\n    'x': '1'\n})",
         "java": "new CodeWithScope(\"string\", new Document(\"x\", \"1\"))",
         "csharp": "new BsonJavaScriptWithScope(\"string\", new BsonDocument(\"x\", \"1\"))",
         "shell": "Code('string', {x: '1'})"
@@ -237,40 +237,40 @@
     "Document": [
       {
         "description": "{x: 1}",
-        "javascript": "{x: 1}",
-        "python": "{'x': 1}",
+        "javascript": "{\n  x: 1\n}",
+        "python": "{\n    'x': 1\n}",
         "java": "new Document(\"x\", 1L)",
         "csharp": "new BsonDocument(\"x\", 1)",
         "shell": "{x: 1}"
       },
       {
         "description": "Doc with trailing comma",
-        "javascript": "{x: 1}",
-        "python": "{'x': 1}",
+        "javascript": "{\n  x: 1\n}",
+        "python": "{\n    'x': 1\n}",
         "java": "new Document(\"x\", 1L)",
         "csharp": "new BsonDocument(\"x\", 1)",
         "shell": "{x: 1,}"
       },
       {
         "description": "Doc with array",
-        "javascript": "{x: [1, 2]}",
-        "python": "{'x': [1, 2]}",
+        "javascript": "{\n  x: [\n    1, 2\n  ]\n}",
+        "python": "{\n    'x': [\n        1, 2\n    ]\n}",
         "java": "new Document(\"x\", Arrays.asList(1L, 2L))",
-        "csharp": "new BsonDocument(\"x\", new BsonArray {1, 2})",
+        "csharp": "new BsonDocument(\"x\", new BsonArray\n    {\n        1, 2\n    })",
         "shell": "{x: [1,2]}"
       },
       {
         "description": "Doc with subdoc",
-        "javascript": "{x: {y: 2}}",
-        "python": "{'x': {'y': 2}}",
+        "javascript": "{\n  x: {\n    y: 2\n  }\n}",
+        "python": "{\n    'x': {\n        'y': 2\n    }\n}",
         "java": "new Document(\"x\", new Document(\"y\", 2L))",
         "csharp": "new BsonDocument(\"x\", new BsonDocument(\"y\", 2))",
         "shell": "{x: {y: 2}}"
       },
       {
         "description": "Object.create()",
-        "javascript": "Object.create({x: 1})",
-        "python": "{'x': 1}",
+        "javascript": "Object.create({\n  x: 1\n})",
+        "python": "{\n    'x': 1\n}",
         "java": "new Document(\"x\", 1L)",
         "csharp": "new BsonDocument(\"x\", 1)",
         "shell": "Object.create({x: 1})"
@@ -285,44 +285,44 @@
       },
       {
         "description": "Two items in document",
-        "javascript": "{x: 1, n: 4}",
-        "python": "{'x': 1, 'n': 4}",
-        "java": "new Document(\"x\", 1L).append(\"n\", 4L)",
-        "csharp": "new BsonDocument { { \"x\", 1 }, { \"n\", 4 } }",
+        "javascript": "{\n  x: 1, \n  n: 4\n}",
+        "python": "{\n    'x': 1, \n    'n': 4\n}",
+        "java": "new Document(\"x\", 1L)\n    .append(\"n\", 4L)",
+        "csharp": "new BsonDocument\n{\n    { \"x\", 1 }, \n    { \"n\", 4 }\n}",
         "shell": "{x: 1, n: 4}"
       }
     ],
     "Array": [
       {
         "description": "[1, 2]",
-        "javascript": "[1, 2]",
-        "python": "[1, 2]",
+        "javascript": "[\n  1, 2\n]",
+        "python": "[\n    1, 2\n]",
         "java": "Arrays.asList(1L, 2L)",
-        "csharp": "new BsonArray {1, 2}",
+        "csharp": "new BsonArray\n{\n    1, 2\n}",
         "shell": "[1, 2]"
       },
       {
         "description": "array with trailing comma",
-        "javascript": "[1, 2]",
-        "python": "[1, 2]",
+        "javascript": "[\n  1, 2\n]",
+        "python": "[\n    1, 2\n]",
         "java": "Arrays.asList(1L, 2L)",
-        "csharp": "new BsonArray {1, 2}",
+        "csharp": "new BsonArray\n{\n    1, 2\n}",
         "shell": "[1, 2,]"
       },
       {
         "description": "Array with subdoc",
-        "javascript": "[1, {settings: 'http2'}]",
-        "python": "[1, {'settings': 'http2'}]",
+        "javascript": "[\n  1, {\n    settings: 'http2'\n  }\n]",
+        "python": "[\n    1, {\n        'settings': 'http2'\n    }\n]",
         "java": "Arrays.asList(1L, new Document(\"settings\", \"http2\"))",
-        "csharp": "new BsonArray {1, new BsonDocument(\"settings\", \"http2\")}",
+        "csharp": "new BsonArray\n{\n    1, new BsonDocument(\"settings\", \"http2\")\n}",
         "shell": "[1, { settings: 'http2' }]"
       },
       {
         "description": "Array with subarray",
-        "javascript": "[1, [2, 3]]",
-        "python": "[1, [2, 3]]",
+        "javascript": "[\n  1, [\n    2, 3\n  ]\n]",
+        "python": "[\n    1, [\n        2, 3\n    ]\n]",
         "java": "Arrays.asList(1L, Arrays.asList(2L, 3L))",
-        "csharp": "new BsonArray {1, new BsonArray {2, 3}}",
+        "csharp": "new BsonArray\n{\n    1, new BsonArray\n    {\n        2, 3\n    }\n}",
         "shell": "[1, [2, 3]]"
       },
       {
@@ -337,34 +337,34 @@
     "ArrayElision": [
       {
         "description": "array with leading elision",
-        "javascript": "[undefined, 1, 2]",
-        "python": "[None, 1, 2]",
+        "javascript": "[\n  undefined, 1, 2\n]",
+        "python": "[\n    None, 1, 2\n]",
         "java": "Arrays.asList(new BsonUndefined(), 1L, 2L)",
-        "csharp": "new BsonArray {BsonUndefined.Value, 1, 2}",
+        "csharp": "new BsonArray\n{\n    BsonUndefined.Value, 1, 2\n}",
         "shell": "[,1, 2,]"
       },
       {
         "description": "Array with one elision",
-        "javascript": "[undefined]",
-        "python": "[None]",
+        "javascript": "[\n  undefined\n]",
+        "python": "[\n    None\n]",
         "java": "Arrays.asList(new BsonUndefined())",
-        "csharp": "new BsonArray {BsonUndefined.Value}",
+        "csharp": "new BsonArray\n{\n    BsonUndefined.Value\n}",
         "shell": "[,]"
       },
       {
         "description": "Array with 2 elision",
-        "javascript": "[undefined, undefined]",
-        "python": "[None, None]",
+        "javascript": "[\n  undefined, undefined\n]",
+        "python": "[\n    None, None\n]",
         "java": "Arrays.asList(new BsonUndefined(), new BsonUndefined())",
-        "csharp": "new BsonArray {BsonUndefined.Value, BsonUndefined.Value}",
+        "csharp": "new BsonArray\n{\n    BsonUndefined.Value, BsonUndefined.Value\n}",
         "shell": "[,,]"
       },
       {
         "description": "Array with elision in the middle",
-        "javascript": "[1, undefined, undefined, undefined, 2]",
-        "python": "[1, None, None, None, 2]",
+        "javascript": "[\n  1, undefined, undefined, undefined, 2\n]",
+        "python": "[\n    1, None, None, None, 2\n]",
         "java": "Arrays.asList(1L, new BsonUndefined(), new BsonUndefined(), new BsonUndefined(), 2L)",
-        "csharp": "new BsonArray {1, BsonUndefined.Value, BsonUndefined.Value, BsonUndefined.Value, 2}",
+        "csharp": "new BsonArray\n{\n    1, BsonUndefined.Value, BsonUndefined.Value, BsonUndefined.Value, 2\n}",
         "shell": "[1,,,,2]"
       }
     ]

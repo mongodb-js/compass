@@ -76,14 +76,16 @@ Templates:
             return 'new BsonUndefined()';
         }
     ObjectTypeTemplate: &ObjectTypeTemplate !!js/function >
-        (literal) => {
+        (literal, depth) => {
+
             if (literal === '') {
                 return `new Document()`;
             }
             return literal;
         }
     ObjectTypeArgsTemplate: &ObjectTypeArgsTemplate !!js/function >
-        (args) => {
+        (args, depth) => {
+            const indent = '\n' + '    '.repeat(depth);
             const doubleStringify = (str) => {
                 let newStr = str;
                 if (
@@ -93,12 +95,14 @@ Templates:
                 }
                 return `"${newStr.replace(/\\([\s\S])|(")/g, '\\$1$2')}"`;
             }
-            const start = `new Document(${doubleStringify(args[0][0])}, ${args[0][1]})`;
+            const start = `${indent}new Document(${doubleStringify(args[0][0])}, ${args[0][1]})`;
 
             args = args.slice(1);
-            return args.reduce((str, pair) => {
-                return `${str}.append(${doubleStringify(pair[0])}, ${pair[1]})`;
+            const result = args.reduce((str, pair) => {
+                return `${str}${indent}.append(${doubleStringify(pair[0])}, ${pair[1]})`;
             }, start);
+
+            return `${result}`;
         }
     DoubleTypeTemplate: &DoubleTypeTemplate !!js/function >
         (literal, type) => {
