@@ -313,7 +313,7 @@
     "react-fontawesome": "^1.6.1",
     "react-redux": "^5.0.6",
     "react-select-plus": "^1.2.0",
-    "react-tooltip": "^3.2.6",
+    "react-tooltip": "^3.6.1",
     "react-virtualized": "^9.18.5",
     "redux": "^3.7.2",
     "reflux": "0.4.1",

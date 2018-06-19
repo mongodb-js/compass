@@ -52,6 +52,9 @@ var LOADING_URL = 'file://' + path.join(RESOURCES, 'loading', 'loading.html');
 // track if app was launched, @see `renderer ready` handler below
 var appLaunched = false;
 
+// Ignore the GPU blacklist to render WebGL.
+app.commandLine.appendSwitch('ignore-gpu-blacklist');
+
 /**
  * @see https://github.com/atom/electron/blob/master/docs/api/app.md
  *
