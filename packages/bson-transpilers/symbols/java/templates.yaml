@@ -67,8 +67,16 @@ Templates:
         }
     NumericTypeTemplate: &NumericTypeTemplate null
     ArrayTypeTemplate: &ArrayTypeTemplate !!js/function >
-        (literal) => {
-            return `Arrays.asList(${literal})`;
+        (literal, depth) => {
+            // TODO: figure out how to best do depth in an array and where to
+            // insert and indent
+            const indent = '\n' + '    '.repeat(depth);
+            // have an indent on every ', new Document' in an array not
+            // entirely perfect, but at least makes this more readable/also
+            // compiles
+            const arr = literal.split(', new').join(`, ${indent}new`)
+
+            return `Arrays.asList(${arr})`;
         }
     NullTypeTemplate: &NullTypeTemplate null
     UndefinedTypeTemplate: &UndefinedTypeTemplate !!js/function >

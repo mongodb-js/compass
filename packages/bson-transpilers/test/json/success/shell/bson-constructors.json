@@ -313,7 +313,7 @@
         "description": "Array with subdoc",
         "javascript": "[\n  1, {\n    settings: 'http2'\n  }\n]",
         "python": "[\n    1, {\n        'settings': 'http2'\n    }\n]",
-        "java": "Arrays.asList(1L, new Document(\"settings\", \"http2\"))",
+        "java": "Arrays.asList(1L, \n    new Document(\"settings\", \"http2\"))",
         "csharp": "new BsonArray\n{\n    1, new BsonDocument(\"settings\", \"http2\")\n}",
         "shell": "[1, { settings: 'http2' }]"
       },
@@ -355,7 +355,7 @@
         "description": "Array with 2 elision",
         "javascript": "[\n  undefined, undefined\n]",
         "python": "[\n    None, None\n]",
-        "java": "Arrays.asList(new BsonUndefined(), new BsonUndefined())",
+        "java": "Arrays.asList(new BsonUndefined(), \n    new BsonUndefined())",
         "csharp": "new BsonArray\n{\n    BsonUndefined.Value, BsonUndefined.Value\n}",
         "shell": "[,,]"
       },
@@ -363,7 +363,7 @@
         "description": "Array with elision in the middle",
         "javascript": "[\n  1, undefined, undefined, undefined, 2\n]",
         "python": "[\n    1, None, None, None, 2\n]",
-        "java": "Arrays.asList(1L, new BsonUndefined(), new BsonUndefined(), new BsonUndefined(), 2L)",
+        "java": "Arrays.asList(1L, \n    new BsonUndefined(), \n    new BsonUndefined(), \n    new BsonUndefined(), 2L)",
         "csharp": "new BsonArray\n{\n    1, BsonUndefined.Value, BsonUndefined.Value, BsonUndefined.Value, 2\n}",
         "shell": "[1,,,,2]"
       }

@@ -337,7 +337,7 @@
         "description": "nested document with array",
         "javascript": "{ status: 'A', $or: [{ qty: { $lt: 30 } }, { item: { $regex: '^p' } }] }",
         "python": "{\n    'status': 'A', \n    '$or': [\n        {\n            'qty': {\n                '$lt': 30\n            }\n        }, {\n            'item': {\n                '$regex': '^p'\n            }\n        }\n    ]\n}",
-        "java": "new Document(\"status\", \"A\")\n    .append(\"$or\", Arrays.asList(new Document(\"qty\", new Document(\"$lt\", 30L)), new Document(\"item\", new Document(\"$regex\", \"^p\"))))",
+        "java": "new Document(\"status\", \"A\")\n    .append(\"$or\", Arrays.asList(new Document(\"qty\", \n        new Document(\"$lt\", 30L)), \n        new Document(\"item\", \n        new Document(\"$regex\", \"^p\"))))",
         "csharp": "new BsonDocument\n{\n    { \"status\", \"A\" }, \n    { \"$or\", new BsonArray\n    {\n        new BsonDocument(\"qty\", new BsonDocument(\"$lt\", 30)), new BsonDocument(\"item\", new BsonDocument(\"$regex\", \"^p\"))\n    } }\n}",
         "shell": "{\n  status: 'A', \n  $or: [\n    {\n      qty: {\n        $lt: 30\n      }\n    }, {\n      item: {\n        $regex: '^p'\n      }\n    }\n  ]\n}"
       }
@@ -364,7 +364,7 @@
         "description": "Array with subdoc",
         "javascript": "['1', { settings: 'http2' }]",
         "python": "[\n    '1', {\n        'settings': 'http2'\n    }\n]",
-        "java": "Arrays.asList(\"1\", new Document(\"settings\", \"http2\"))",
+        "java": "Arrays.asList(\"1\", \n    new Document(\"settings\", \"http2\"))",
         "csharp": "new BsonArray\n{\n    \"1\", new BsonDocument(\"settings\", \"http2\")\n}",
         "shell": "[\n  '1', {\n    settings: 'http2'\n  }\n]"
       },
@@ -372,7 +372,7 @@
         "description": "nested array with nested subdoc",
         "javascript": "{\"pipeline\": [ { $match: { $expr: { \"$eq\": [ \"$manager\", \"$$me\" ] } } }, { $project: { managers : 0 } }, { $sort: { startQuarter: 1, notes:1, job_code: 1 } } ]}" ,
         "python": "{\n    'pipeline': [\n        {\n            '$match': {\n                '$expr': {\n                    '$eq': [\n                        '$manager', '$$me'\n                    ]\n                }\n            }\n        }, {\n            '$project': {\n                'managers': 0\n            }\n        }, {\n            '$sort': {\n                'startQuarter': 1, \n                'notes': 1, \n                'job_code': 1\n            }\n        }\n    ]\n}",
-        "java": "new Document(\"pipeline\", Arrays.asList(new Document(\"$match\", new Document(\"$expr\", new Document(\"$eq\", Arrays.asList(\"$manager\", \"$$me\")))), new Document(\"$project\", new Document(\"managers\", 0L)), new Document(\"$sort\", new Document(\"startQuarter\", 1L)\n                .append(\"notes\", 1L)\n                .append(\"job_code\", 1L))))",
+        "java": "new Document(\"pipeline\", Arrays.asList(new Document(\"$match\", \n        new Document(\"$expr\", \n        new Document(\"$eq\", Arrays.asList(\"$manager\", \"$$me\")))), \n        new Document(\"$project\", \n        new Document(\"managers\", 0L)), \n        new Document(\"$sort\", \n        new Document(\"startQuarter\", 1L)\n                .append(\"notes\", 1L)\n                .append(\"job_code\", 1L))))",
         "csharp": "new BsonDocument(\"pipeline\", new BsonArray\n    {\n        new BsonDocument(\"$match\", new BsonDocument(\"$expr\", new BsonDocument(\"$eq\", new BsonArray\n                    {\n                        \"$manager\", \"$$me\"\n                    }))), new BsonDocument(\"$project\", new BsonDocument(\"managers\", 0)), new BsonDocument(\"$sort\", new BsonDocument\n            {\n                { \"startQuarter\", 1 }, \n                { \"notes\", 1 }, \n                { \"job_code\", 1 }\n            })\n    })",
         "shell": "{\n  \"pipeline\": [\n    {\n      $match: {\n        $expr: {\n          \"$eq\": [\n            \"$manager\", \"$$me\"\n          ]\n        }\n      }\n    }, {\n      $project: {\n        managers: 0\n      }\n    }, {\n      $sort: {\n        startQuarter: 1, \n        notes: 1, \n        job_code: 1\n      }\n    }\n  ]\n}"
       },
@@ -414,7 +414,7 @@
         "description": "Array with 2 elision",
         "javascript": "[,,]",
         "python": "[\n    None, None\n]",
-        "java": "Arrays.asList(new BsonUndefined(), new BsonUndefined())",
+        "java": "Arrays.asList(new BsonUndefined(), \n    new BsonUndefined())",
         "csharp": "new BsonArray\n{\n    BsonUndefined.Value, BsonUndefined.Value\n}",
         "shell": "[\n  undefined, undefined\n]"
       },
@@ -422,7 +422,7 @@
         "description": "Array with elision in the middle",
         "javascript": "['1',,,,'2']",
         "python": "[\n    '1', None, None, None, '2'\n]",
-        "java": "Arrays.asList(\"1\", new BsonUndefined(), new BsonUndefined(), new BsonUndefined(), \"2\")",
+        "java": "Arrays.asList(\"1\", \n    new BsonUndefined(), \n    new BsonUndefined(), \n    new BsonUndefined(), \"2\")",
         "csharp": "new BsonArray\n{\n    \"1\", BsonUndefined.Value, BsonUndefined.Value, BsonUndefined.Value, \"2\"\n}",
         "shell": "[\n  '1', undefined, undefined, undefined, '2'\n]"
       }
