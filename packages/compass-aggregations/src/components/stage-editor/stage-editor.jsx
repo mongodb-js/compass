@@ -61,21 +61,14 @@ class StageEditor extends PureComponent {
   }
 
   /**
-   * Update the autocompleter fields and stage operator.
-   *
-   * @param {Object} nextProps - The new properties.
-   */
-  componentWillReceiveProps(nextProps) {
-    this.completer.update(nextProps.fields, nextProps.stage.stageOperator);
-    this.completer.version = nextProps.serverVersion;
-  }
-
-  /**
    * On update if the stage operator is changed insert the snippet and focus on the editor.
    *
    * @param {Object} prevProps - The previous properties.
    */
   componentDidUpdate(prevProps) {
+    this.completer.update(this.props.fields, this.props.stage.stageOperator);
+    this.completer.version = this.props.serverVersion;
+
     if (this.props.stage.stageOperator !== prevProps.stage.stageOperator && this.editor) {
       this.editor.setValue('');
       this.editor.insertSnippet(this.props.stage.snippet || '');
