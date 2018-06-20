@@ -3,7 +3,7 @@
   "productName": "MongoDB Compass",
   "description": "The MongoDB GUI",
   "homepage": "https://compass.mongodb.com",
-  "version": "1.14.0-beta.5",
+  "version": "1.14.0-beta.6",
   "apiVersion": "1.0.0",
   "main": "src/main.js",
   "author": {
