@@ -1,4 +1,4 @@
-import React, { PureComponent } from 'react';
+import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import AceEditor from 'react-ace';
 import ace from 'brace';
@@ -28,7 +28,7 @@ const OPTIONS = {
 /**
  * Edit a single stage in the aggregation pipeline.
  */
-class StageEditor extends PureComponent {
+class StageEditor extends Component {
   static displayName = 'StageEditorComponent';
 
   static propTypes = {
