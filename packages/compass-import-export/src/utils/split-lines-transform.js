@@ -1,3 +1,4 @@
+/* eslint complexity: 0 */
 import { Transform } from 'stream';
 import EJSON from 'mongodb-extjson';
 import FILE_TYPES from 'constants/file-types';
@@ -36,11 +37,11 @@ class SplitLines extends Transform {
   _transform(chunk, encoding, callback) {
     this[kSource] = this[kSource].concat(chunk);
     if (this.isFirstRecord && this.type === FILE_TYPES.CSV) {
-      this.keys = this[kSource].split('\n')[0].split(',');
+      this.keys = this[kSource].split(/\r?\n/)[0].split(',');
     }
-    if (this[kSource].indexOf('\n') > -1) {
-      const endsWithNewLine = this[kSource].endsWith('\n');
-      const lines = this[kSource].split('\n');
+    if (this[kSource].indexOf('\n') > -1 || this[kSource].indexOf('\r') > -1) {
+      const endsWithNewLine = this[kSource].endsWith('\n') || this[kSource].endsWith('\r');
+      const lines = this[kSource].split(/\r?\n/);
 
       if (this.isLastLineComplete(lines[lines.length - 1], endsWithNewLine)) {
         this[kSource] = '';
