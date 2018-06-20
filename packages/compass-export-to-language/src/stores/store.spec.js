@@ -6,7 +6,7 @@ describe('ExportToLanguage Store', () => {
       exportQuery: {
         namespace: 'Query',
         copySuccess: false,
-        outputLang: 'java',
+        outputLang: 'python',
         queryError: null,
         modalOpen: false,
         returnQuery: '',

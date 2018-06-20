@@ -17,12 +17,12 @@ export const RUN_QUERY = `${PREFIX}/RUN_QUERY`;
 // TODO: change inputQuery to '' when working with compass
 export const INITIAL_STATE = {
   namespace: 'Query',
-  outputLang: 'java',
+  outputLang: 'python',
   copySuccess: false,
   queryError: null,
   modalOpen: false,
   returnQuery: '',
-  inputQuery: '', // { category_code: "web", twitter_username: null }
+  inputQuery: '',
   imports: ''
 };
 

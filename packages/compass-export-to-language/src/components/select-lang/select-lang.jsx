@@ -39,7 +39,7 @@ class SelectLang extends PureComponent {
         className={classnames(styles['select-lang'])}
         searchable={false}
         clearable={false}
-        placeholder="Java"
+        placeholder="Python"
         value={selectedOutputValue}
         onChange={this.handleOutputSelect}
         options={langOuputOptions}/>

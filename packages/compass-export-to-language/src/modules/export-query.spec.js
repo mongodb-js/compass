@@ -100,10 +100,10 @@ describe('export query module', () => {
     context('action type is queryError', () => {
       it('query error is has a value in state', () => {
         expect(reducer(undefined, queryError('uh oh'))).to.deep.equal({
+          outputLang: 'python',
           queryError: 'uh oh',
           namespace: 'Query',
           copySuccess: false,
-          outputLang: 'java',
           modalOpen: false,
           returnQuery: '',
           inputQuery: '',
@@ -115,14 +115,14 @@ describe('export query module', () => {
     context('action type is includeImports', () => {
       it('imports boolean is in state', () => {
         expect(reducer(undefined, includeImports(true))).to.deep.equal({
+          outputLang: 'python',
           namespace: 'Query',
           copySuccess: false,
-          outputLang: 'java',
           queryError: null,
           modalOpen: false,
           returnQuery: '',
           inputQuery: '',
-          imports: 'package com.example.test;\n\nimport com.mongodb.DBRef;\nimport org.bson.BsonBinarySubType;\nimport org.bson.BsonRegularExpression;\nimport org.bson.Document;\nimport org.bson.types.*;\nimport org.bson.BsonUndefined;\n\nimport java.text.SimpleDateFormat;\nimport java.util.Arrays;\nimport java.util.regex.Pattern;\n'
+          imports: 'from bson import *\nimport datetime\n'
         });
       });
     });
@@ -131,8 +131,8 @@ describe('export query module', () => {
       it('inputQuery has a value in state', () => {
         expect(reducer(undefined, addInputQuery('{ "beep": "boop" }'))).to.deep.equal({
           inputQuery: '{ "beep": "boop" }',
+          outputLang: 'python',
           copySuccess: false,
-          outputLang: 'java',
           namespace: 'Query',
           modalOpen: false,
           queryError: null,
@@ -160,8 +160,8 @@ describe('export query module', () => {
     context('action type is togleModal', () => {
       it('modalOpen is true in state', () => {
         expect(reducer(undefined, togleModal(true))).to.deep.equal({
+          outputLang: 'python',
           copySuccess: false,
-          outputLang: 'java',
           namespace: 'Query',
           queryError: null,
           modalOpen: true,
@@ -175,8 +175,8 @@ describe('export query module', () => {
     context('action type is togleModal', () => {
       it('modalOpen is false in state', () => {
         expect(reducer(undefined, togleModal(false))).to.deep.equal({
+          outputLang: 'python',
           copySuccess: false,
-          outputLang: 'java',
           namespace: 'Query',
           modalOpen: false,
           queryError: null,
@@ -190,8 +190,8 @@ describe('export query module', () => {
     context('action type is clearCopy', () => {
       it('returns a clearCopy state', () => {
         expect(reducer(undefined, clearCopy())).to.deep.equal({
+          outputLang: 'python',
           copySuccess: false,
-          outputLang: 'java',
           namespace: 'Query',
           queryError: null,
           modalOpen: false,
@@ -206,7 +206,7 @@ describe('export query module', () => {
       it('returns a namespace in state', () => {
         expect(reducer(undefined, setNamespace('Pipeline'))).to.deep.equal({
           namespace: 'Pipeline',
-          outputLang: 'java',
+          outputLang: 'python',
           copySuccess: false,
           queryError: null,
           modalOpen: false,
@@ -220,8 +220,8 @@ describe('export query module', () => {
     context('an empty action type returns an intial state', () => {
       it('empty initial state comes back', () => {
         expect(reducer(undefined, {})).to.deep.equal({
+          outputLang: 'python',
           copySuccess: false,
-          outputLang: 'java',
           namespace: 'Query',
           queryError: null,
           modalOpen: false,

@@ -9,14 +9,14 @@ store.onActivated = (appRegistry) => {
   appRegistry.on('open-aggregation-export-to-language', (aggregation) => {
     store.dispatch(togleModal(true));
     store.dispatch(setNamespace('Pipeline'));
-    store.dispatch(runQuery('java', aggregation));
+    store.dispatch(runQuery('python', aggregation));
     store.dispatch(addInputQuery(aggregation));
   });
 
   appRegistry.on('open-query-export-to-language', (query) => {
     store.dispatch(togleModal(true));
     store.dispatch(setNamespace('Query'));
-    store.dispatch(runQuery('java', query));
+    store.dispatch(runQuery('python', query));
     store.dispatch(addInputQuery(query));
   });
 };
