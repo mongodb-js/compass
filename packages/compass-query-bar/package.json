@@ -43,8 +43,11 @@
     "debug": "^3.0.1",
     "hadron-react-components": "^2.0.0",
     "lodash": "^3.10.1",
+    "mongodb-ace-autocompleter": "^0.0.17",
+    "mongodb-ace-mode": "^0.0.2",
+    "mongodb-ace-theme-query": "^0.0.2",
     "prop-types": "^15.5.8",
-    "react": "^16.3.2",
+    "react": "^16.4.0",
     "react-bootstrap": "^0.32.1",
     "react-fontawesome": "^1.6.1",
     "reflux": "^0.4.1",
@@ -103,6 +106,9 @@
     "lodash": "^3.10.1",
     "mocha": "^4.1.0",
     "mocha-webpack": "^1.0.0-rc.1",
+    "mongodb-ace-autocompleter": "^0.0.17",
+    "mongodb-ace-mode": "^0.0.2",
+    "mongodb-ace-theme-query": "^0.0.2",
     "mongodb-data-service": "^12.0.0",
     "mongodb-js-fmt": "^0.0.3",
     "mongodb-js-precommit": "^0.3.0",
@@ -138,9 +144,6 @@
     "webpack-sources": "1.0.1"
   },
   "dependencies": {
-    "mongodb-ace-autocompleter": "^0.0.17",
-    "mongodb-ace-mode": "^0.0.2",
-    "mongodb-ace-theme-query": "^0.0.2",
     "mongodb-query-parser": "^1.1.1",
     "mongodb-query-util": "0.0.1",
     "react-ace": "^6.1.1"
