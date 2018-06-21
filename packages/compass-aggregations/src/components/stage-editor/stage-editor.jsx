@@ -49,6 +49,13 @@ class StageEditor extends Component {
    */
   constructor(props) {
     super(props);
+    this.debounceRun = debounce(this.onRunStage, 750);
+  }
+
+  /**
+   * Set up ACE after component mount.
+   */
+  componentDidMount() {
     const tools = ace.acequire('ace/ext/language_tools');
     const textCompleter = tools.textCompleter;
     this.completer = new StageAutoCompleter(
@@ -58,7 +65,6 @@ class StageEditor extends Component {
       this.props.stage.stageOperator
     );
     tools.setCompleters([ this.completer ]);
-    this.debounceRun = debounce(this.onRunStage, 750);
   }
 
   /**
