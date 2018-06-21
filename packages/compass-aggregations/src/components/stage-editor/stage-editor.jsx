@@ -66,9 +66,10 @@ class StageEditor extends Component {
    * @param {Object} prevProps - The previous properties.
    */
   componentDidUpdate(prevProps) {
+    console.log('### StageEditor.componentDidUpdate', this.props);
     this.completer.update(this.props.fields, this.props.stage.stageOperator);
     this.completer.version = this.props.serverVersion;
-
+    console.log('### Completer', this.completer);
     if (this.props.stage.stageOperator !== prevProps.stage.stageOperator && this.editor) {
       this.editor.setValue('');
       this.editor.insertSnippet(this.props.stage.snippet || '');
