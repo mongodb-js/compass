@@ -36,7 +36,9 @@ const ServerVersionStore = Reflux.createStore({
    * @param {Object} state - The instance store state.
    */
   onInstanceFetched(state) {
-    this.appRegistry.emit('server-version-changed', state.instance.build.version);
+    if (this.appRegistry) {
+      this.appRegistry.emit('server-version-changed', state.instance.build.version);
+    }
     this.setState({
       versionDistro: state.instance.build.enterprise_module ? ENTERPRISE : COMMUNITY,
       versionNumber: state.instance.build.version
