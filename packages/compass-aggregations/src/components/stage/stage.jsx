@@ -76,6 +76,7 @@ class Stage extends Component {
     connectDropTarget: PropTypes.func.isRequired,
     isDragging: PropTypes.bool.isRequired,
     isCommenting: PropTypes.bool.isRequired,
+    isAutoPreviewing: PropTypes.bool.isRequired,
     runStage: PropTypes.func.isRequired,
     runOutStage: PropTypes.func.isRequired,
     gotoOutResults: PropTypes.func.isRequired,
@@ -106,6 +107,7 @@ class Stage extends Component {
           runOutStage={this.props.runOutStage}
           gotoOutResults={this.props.gotoOutResults}
           index={this.props.index}
+          isAutoPreviewing={this.props.isAutoPreviewing}
           serverVersion={this.props.serverVersion}
           fields={this.props.fields}
           setIsModified={this.props.setIsModified}

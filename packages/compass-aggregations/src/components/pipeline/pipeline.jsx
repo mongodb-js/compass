@@ -20,6 +20,7 @@ class Pipeline extends PureComponent {
     getSavedPipelines: PropTypes.func.isRequired,
     toggleComments: PropTypes.func.isRequired,
     toggleSample: PropTypes.func.isRequired,
+    toggleAutoPreview: PropTypes.func.isRequired,
     restorePipelineModalToggle: PropTypes.func.isRequired,
     restorePipelineFrom: PropTypes.func.isRequired,
     restorePipeline: PropTypes.object.isRequired,
@@ -44,6 +45,7 @@ class Pipeline extends PureComponent {
     isModified: PropTypes.bool.isRequired,
     isCommenting: PropTypes.bool.isRequired,
     isSampling: PropTypes.bool.isRequired,
+    isAutoPreviewing: PropTypes.bool.isRequired,
     setIsModified: PropTypes.func.isRequired,
     name: PropTypes.string
   }
@@ -73,11 +75,13 @@ class Pipeline extends PureComponent {
           clonePipeline={this.props.clonePipeline}
           toggleComments={this.props.toggleComments}
           toggleSample={this.props.toggleSample}
+          toggleAutoPreview={this.props.toggleAutoPreview}
           nameChanged={this.props.nameChanged}
           setIsModified={this.props.setIsModified}
           isModified={this.props.isModified}
           isCommenting={this.props.isCommenting}
           isSampling={this.props.isSampling}
+          isAutoPreviewing={this.props.isAutoPreviewing}
           name={this.props.name} />
         <div className={classnames(styles['pipeline-separator'])}></div>
         <PipelineWorkspace {...this.props} />

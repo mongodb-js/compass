@@ -6,6 +6,7 @@ import { namespaceChanged } from 'modules/namespace';
 import { nameChanged } from 'modules/name';
 import { toggleComments } from 'modules/comments';
 import { toggleSample } from 'modules/sample';
+import { toggleAutoPreview } from 'modules/auto-preview';
 import {
   toggleInputDocumentsCollapsed,
   refreshInputDocuments
@@ -80,7 +81,8 @@ const mapStateToProps = (state) => ({
   name: state.name,
   isModified: state.isModified,
   isCommenting: state.comments,
-  isSampling: state.sample
+  isSampling: state.sample,
+  isAutoPreviewing: state.autoPreview
 });
 
 /**
@@ -96,6 +98,7 @@ const MappedAggregations = connect(
     refreshInputDocuments,
     toggleComments,
     toggleSample,
+    toggleAutoPreview,
     deletePipeline,
     runStage,
     runOutStage,

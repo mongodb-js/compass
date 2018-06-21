@@ -13,7 +13,7 @@ describe('server version module', () => {
   describe('#reducer', () => {
     context('when the action is not server version changed', () => {
       it('returns the default state', () => {
-        expect(reducer(undefined, { type: 'test' })).to.equal('3.6.0');
+        expect(reducer(undefined, { type: 'test' })).to.equal('4.0.0');
       });
     });
 

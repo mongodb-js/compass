@@ -14,6 +14,7 @@ import pipeline, {
 import name, { INITIAL_STATE as NAME_INITIAL_STATE } from './name';
 import comments, { INITIAL_STATE as COMMENTS_INITIAL_STATE } from './comments';
 import sample, { INITIAL_STATE as SAMPLE_INITIAL_STATE } from './sample';
+import autoPreview, { INITIAL_STATE as AUTO_PREVIEW_INITIAL_STATE } from './auto-preview';
 import id, { INITIAL_STATE as ID_INITIAL_STATE } from './id';
 import savedPipeline, {
   updatePipelineList,
@@ -39,6 +40,7 @@ export const INITIAL_STATE = {
   name: NAME_INITIAL_STATE,
   comments: COMMENTS_INITIAL_STATE,
   sample: SAMPLE_INITIAL_STATE,
+  autoPreview: AUTO_PREVIEW_INITIAL_STATE,
   id: ID_INITIAL_STATE,
   isModified: IS_MODIFIED_INITIAL_STATE
 };
@@ -80,6 +82,7 @@ const appReducer = combineReducers({
   appRegistry,
   comments,
   sample,
+  autoPreview,
   dataService,
   fields,
   inputDocuments,
@@ -133,6 +136,8 @@ const doRestorePipeline = (state, action) => {
     ? true : savedState.comments;
   const sampling = (savedState.sample === null || savedState.sample === undefined)
     ? true : savedState.sample;
+  const autoPreviewing = (savedState.autoPreview === null || savedState.autoPreview === undefined)
+    ? true : savedState.autoPreview;
   return {
     ...INITIAL_STATE,
     appRegistry: state.appRegistry,
@@ -142,6 +147,7 @@ const doRestorePipeline = (state, action) => {
     id: savedState.id,
     comments: commenting,
     sample: sampling,
+    autoPreview: autoPreviewing,
     fields: state.fields,
     serverVersion: state.serverVersion,
     dataService: state.dataService,

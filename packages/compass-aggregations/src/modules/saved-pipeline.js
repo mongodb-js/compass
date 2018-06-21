@@ -107,6 +107,7 @@ export const saveCurrentPipeline = () => {
       , { id: id }
       , { comments: state.comments }
       , { sample: state.sample }
+      , { autoPreview: state.autoPreview }
     );
 
     getObjectStore('readwrite', (store) => {

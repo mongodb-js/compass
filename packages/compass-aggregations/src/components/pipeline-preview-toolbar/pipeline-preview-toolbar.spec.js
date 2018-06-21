@@ -8,16 +8,20 @@ describe('PipelinePreviewToolbar [Component]', () => {
   let component;
   let toggleCommentsSpy;
   let toggleSampleSpy;
+  let toggleAutoPreviewSpy;
 
   beforeEach(() => {
     toggleCommentsSpy = sinon.spy();
     toggleSampleSpy = sinon.spy();
+    toggleAutoPreviewSpy = sinon.spy();
     component = mount(
       <PipelinePreviewToolbar
         toggleComments={toggleCommentsSpy}
         toggleSample={toggleSampleSpy}
+        toggleAutoPreview={toggleAutoPreviewSpy}
         isModified
         isSampling
+        isAutoPreviewing
         isCommenting />
     );
   });
@@ -26,6 +30,7 @@ describe('PipelinePreviewToolbar [Component]', () => {
     component = null;
     toggleCommentsSpy = null;
     toggleSampleSpy = null;
+    toggleAutoPreviewSpy = null;
   });
 
   it('renders the wrapper div', () => {
@@ -42,6 +47,11 @@ describe('PipelinePreviewToolbar [Component]', () => {
       to.have.text('Sample Mode');
   });
 
+  it('renders the auto preview mode text', () => {
+    expect(component.find(`.${styles['pipeline-preview-toolbar-auto-preview-mode']}`).hostNodes()).
+      to.have.text('Auto Preview');
+  });
+
   context('when toggling comments', () => {
     it('calls the action', () => {
       component.find(`.${styles['pipeline-preview-toolbar-toggle-comments-button']}`).hostNodes().simulate('click');
@@ -53,6 +63,13 @@ describe('PipelinePreviewToolbar [Component]', () => {
     it('calls the action', () => {
       component.find(`.${styles['pipeline-preview-toolbar-toggle-sample-button']}`).hostNodes().simulate('click');
       expect(toggleSampleSpy.calledOnce).to.equal(true);
+    });
+  });
+
+  context('when toggling auto previewing', () => {
+    it('calls the action', () => {
+      component.find(`.${styles['pipeline-preview-toolbar-toggle-auto-preview-button']}`).hostNodes().simulate('click');
+      expect(toggleAutoPreviewSpy.calledOnce).to.equal(true);
     });
   });
 });
