@@ -21,7 +21,10 @@ class SRVInput extends React.Component {
           <Switch
             checked={this.props.currentConnection.isSrvRecord}
             onChange={this.onSRVRecordToggle.bind(this)}
-            className="form-control-switch" />
+            className="form-control-switch"
+            onColor="rgb(19, 170, 82)"
+            style={{ backgroundColor: 'rgb(255,255,255)'}}
+            />
         </div>
       </div>
     );
