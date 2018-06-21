@@ -143,6 +143,6 @@
     "mongodb-ace-theme-query": "^0.0.2",
     "mongodb-query-parser": "^1.1.1",
     "mongodb-query-util": "0.0.1",
-    "react-ace": "^5.7.0"
+    "react-ace": "^6.1.1"
   }
 }
