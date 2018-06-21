@@ -129,7 +129,7 @@
     "mongodb-ns": "^2.0.0",
     "mongodb-query-parser": "^1.0.2",
     "mongodb-stage-validator": "^0.0.5",
-    "react-ace": "^5.7.0",
+    "react-ace": "^6.1.1",
     "react-bootstrap": "^0.32.1",
     "react-dnd": "^2.5.4",
     "react-dnd-html5-backend": "^2.5.4",
