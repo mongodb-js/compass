@@ -6,7 +6,7 @@ export const SERVER_VERSION_CHANGED = 'aggregations/server-version/SERVER_VERSIO
 /**
  * The initial state.
  */
-export const INITIAL_STATE = '3.6.0';
+export const INITIAL_STATE = '4.0.0';
 
 /**
  * Reducer function for handle state changes to server version.
