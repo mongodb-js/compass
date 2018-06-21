@@ -219,7 +219,7 @@
     "url": "git://github.com/10gen/compass.git"
   },
   "dependencies": {
-    "@mongodb-js/compass-aggregations": "^1.5.25",
+    "@mongodb-js/compass-aggregations": "^1.5.27",
     "@mongodb-js/compass-auth-kerberos": "^1.0.1",
     "@mongodb-js/compass-auth-ldap": "^1.0.1",
     "@mongodb-js/compass-auth-x509": "^1.0.1",
@@ -233,7 +233,7 @@
     "@mongodb-js/compass-instance": "^1.0.1",
     "@mongodb-js/compass-license": "^1.0.0",
     "@mongodb-js/compass-plugin-info": "^1.0.0",
-    "@mongodb-js/compass-query-bar": "^1.0.21",
+    "@mongodb-js/compass-query-bar": "^1.0.22",
     "@mongodb-js/compass-query-history": "^3.0.2",
     "@mongodb-js/compass-server-version": "^2.0.1",
     "@mongodb-js/compass-serverstats": "^12.0.2",
