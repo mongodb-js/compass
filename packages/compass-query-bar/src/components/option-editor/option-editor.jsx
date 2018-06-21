@@ -9,6 +9,8 @@ import 'brace/ext/language_tools';
 import 'mongodb-ace-mode';
 import 'mongodb-ace-theme-query';
 
+const tools = ace.acequire('ace/ext/language_tools');
+
 /**
  * Options for the ACE editor.
  */
@@ -53,10 +55,8 @@ class OptionEditor extends Component {
    */
   constructor(props) {
     super(props);
-    const tools = ace.acequire('ace/ext/language_tools');
     const textCompleter = tools.textCompleter;
     this.completer = new QueryAutoCompleter(props.serverVersion, textCompleter, props.schemaFields);
-    tools.setCompleters([ this.completer ]);
   }
 
   /**
@@ -139,6 +139,9 @@ class OptionEditor extends Component {
         editorProps={{ $blockScrolling: Infinity }}
         name={`query-bar-option-input-${this.props.label}`}
         setOptions={OPTIONS}
+        onFocus={() => {
+          tools.setCompleters([ this.completer ]);
+        }}
         onLoad={(editor) => {
           this.editor = editor;
           this.editor.setBehavioursEnabled(true);
