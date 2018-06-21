@@ -12,6 +12,8 @@ import 'brace/ext/language_tools';
 import 'mongodb-ace-mode';
 import 'mongodb-ace-theme';
 
+const tools = ace.acequire('ace/ext/language_tools');
+
 /**
  * Options for the ACE editor.
  */
@@ -49,14 +51,6 @@ class StageEditor extends Component {
    */
   constructor(props) {
     super(props);
-    this.debounceRun = debounce(this.onRunStage, 750);
-  }
-
-  /**
-   * Set up ACE after component mount.
-   */
-  componentDidMount() {
-    const tools = ace.acequire('ace/ext/language_tools');
     const textCompleter = tools.textCompleter;
     this.completer = new StageAutoCompleter(
       this.props.serverVersion,
@@ -64,7 +58,7 @@ class StageEditor extends Component {
       this.props.fields,
       this.props.stage.stageOperator
     );
-    tools.setCompleters([ this.completer ]);
+    this.debounceRun = debounce(this.onRunStage, 750);
   }
 
   /**
@@ -155,6 +149,9 @@ class StageEditor extends Component {
             editorProps={{ $blockScrolling: Infinity }}
             name={`aggregations-stage-editor-${this.props.index}`}
             setOptions={OPTIONS}
+            onFocus={() => {
+              tools.setCompleters([ this.completer ]);
+            }}
             onLoad={(editor) => {
               this.editor = editor;
               this.editor.commands.addCommand({
