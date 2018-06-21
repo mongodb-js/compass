@@ -39,7 +39,10 @@ class ToggleStage extends PureComponent {
         <Switch
           checked={this.props.stage.isEnabled}
           onChange={this.onStageToggled}
-          className={classnames(styles['toggle-stage-button'])} />
+          className={classnames(styles['toggle-stage-button'])}
+          onColor="rgb(19, 170, 82)"
+          style={{ backgroundColor: 'rgb(255,255,255)'}}
+          />
       </div>
     );
   }

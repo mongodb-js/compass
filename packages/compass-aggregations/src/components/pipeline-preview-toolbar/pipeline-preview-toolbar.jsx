@@ -47,7 +47,10 @@ class PipelinePreviewToolbar extends PureComponent {
           <Switch
             checked={this.props.isCommenting}
             onChange={this.props.toggleComments}
-            className={classnames(styles['pipeline-preview-toolbar-toggle-comments-button'])} />
+            className={classnames(styles['pipeline-preview-toolbar-toggle-comments-button'])}
+            onColor="rgb(19, 170, 82)"
+            style={{ backgroundColor: 'rgb(255,255,255)'}}
+            />
         </div>
         <div className={classnames(styles['pipeline-preview-toolbar-comment-mode'])}>
           Comment Mode
@@ -56,7 +59,10 @@ class PipelinePreviewToolbar extends PureComponent {
           <Switch
             checked={this.props.isSampling}
             onChange={this.props.toggleSample}
-            className={classnames(styles['pipeline-preview-toolbar-toggle-sample-button'])} />
+            className={classnames(styles['pipeline-preview-toolbar-toggle-sample-button'])}
+            onColor="rgb(19, 170, 82)"
+            style={{ backgroundColor: 'rgb(255,255,255)'}}
+            />
         </div>
         <div className={classnames(styles['pipeline-preview-toolbar-sample-mode'])}>
           Sample Mode
@@ -65,7 +71,10 @@ class PipelinePreviewToolbar extends PureComponent {
           <Switch
             checked={this.props.isAutoPreviewing}
             onChange={this.props.toggleAutoPreview}
-            className={classnames(styles['pipeline-preview-toolbar-toggle-auto-preview-button'])} />
+            className={classnames(styles['pipeline-preview-toolbar-toggle-auto-preview-button'])}
+            onColor="rgb(19, 170, 82)"
+            style={{ backgroundColor: 'rgb(255,255,255)'}}
+            />
         </div>
         <div className={classnames(styles['pipeline-preview-toolbar-auto-preview-mode'])}>
           Auto Preview
