@@ -155,7 +155,6 @@ const getStageOperator = (name) => {
 const changeStage = (state, action) => {
   const newState = copyState(state);
   newState[action.index].stage = action.stage;
-  newState[action.index].executor = generateStage(newState[action.index]);
   newState[action.index].isComplete = false;
   newState[action.index].fromStageOperators = false;
   return newState;
@@ -243,7 +242,6 @@ const selectStageOperator = (state, action) => {
     newState[action.index].isExpanded = true;
     newState[action.index].isComplete = false;
     newState[action.index].fromStageOperators = true;
-    newState[action.index].executor = generateStage(newState[action.index]);
     return newState;
   }
   return state;
@@ -515,6 +513,7 @@ export const generatePipeline = (state, index) => {
  */
 const executeAggregation = (dataService, ns, dispatch, state, index) => {
   const stage = state.pipeline[index];
+  stage.executor = generateStage(stage);
   if (stage.isValid && stage.isEnabled && stage.stageOperator && stage.stageOperator !== OUT) {
     executeStage(dataService, ns, dispatch, state, index);
   } else {
