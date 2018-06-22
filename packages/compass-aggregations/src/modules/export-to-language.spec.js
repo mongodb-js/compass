@@ -13,7 +13,7 @@ describe('export-to-language module', () => {
         pipeline: [{
           isEnabled: true,
           stageOperator: '$match',
-          executor: { '$match': { name: 'testing' }}
+          stage: "{ name: 'testing' }"
         }]
       };
 
@@ -28,7 +28,7 @@ describe('export-to-language module', () => {
           pipeline: [{
             isEnabled: false,
             stageOperator: '$match',
-            executor: { $match: { name: 'testing' }}
+            stage: "{ name: 'testing' }"
           }]
         };
 
@@ -43,17 +43,17 @@ describe('export-to-language module', () => {
             {
               isEnabled: false,
               stageOperator: '$match',
-              executor: { $match: { name: 'testing' }}
+              stage: "{ name: 'testing' }"
             },
             {
               isEnabled: false,
               stageOperator: '$match',
-              executor: { $match: { name: 'testing' }}
+              stage: "{ name: 'testing' }"
             },
             {
               isEnabled: true,
               stageOperator: '$match',
-              executor: { $match: { name: 'testing' }}
+              stage: "{ name: 'testing' }"
             }
           ]
         };
@@ -69,7 +69,7 @@ describe('export-to-language module', () => {
         pipeline: [{
           isEnabled: true,
           stageOperator: null,
-          executor: { $match: { name: 'testing' }}
+          stage: "{ name: 'testing' }"
         }]
       };
 
@@ -84,12 +84,12 @@ describe('export-to-language module', () => {
           {
             isEnabled: true,
             stageOperator: '$match',
-            executor: { $match: { name: 'testing' }}
+            stage: "{ name: 'testing' }"
           },
           {
             isEnabled: true,
             stageOperator: '$project',
-            executor: { $project: { name: 1 }}
+            stage: '{ name: 1 }'
           }
         ]
       };

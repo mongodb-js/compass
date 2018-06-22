@@ -1,3 +1,5 @@
+import generateStage from 'modules/stage';
+
 /**
  * Generate the pipeline for export to language.
  *
@@ -9,6 +11,7 @@ export const generatePipeline = (state) => {
   const pipeline = [];
   state.pipeline.forEach((stage) => {
     if (stage.isEnabled && stage.stageOperator) {
+      stage.executor = generateStage(stage);
       pipeline.push(stage.executor);
     }
   });
