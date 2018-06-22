@@ -12,7 +12,7 @@ describe('ExportToLanguage Store', () => {
     });
 
     context('when aggregation opens export to language', () => {
-      const aggregation = { cats: [ "chashu", "nori" ], birth_year: 2018 };
+      const aggregation = { cats: [ 'chashu', 'nori' ], birth_year: 2018 };
 
       beforeEach(() => {
         appRegistry.emit('open-aggregation-export-to-language', aggregation);
@@ -36,7 +36,7 @@ describe('ExportToLanguage Store', () => {
     });
 
     context('when query opens export to language', () => {
-      const query = { cats: [ "chashu", "nori" ], birth_year: 2018 };
+      const query = { cats: [ 'chashu', 'nori' ], birth_year: 2018 };
 
       beforeEach(() => {
         appRegistry.emit('open-query-export-to-language', query);

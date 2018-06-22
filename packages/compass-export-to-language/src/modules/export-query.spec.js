@@ -113,7 +113,7 @@ describe('export query module', () => {
     });
 
     context('action type is includeImports', () => {
-      it('imports boolean is in state', () => {
+      it('imports true includes imports in state', () => {
         expect(reducer(undefined, includeImports(true))).to.deep.equal({
           outputLang: 'python',
           namespace: 'Query',
@@ -123,6 +123,19 @@ describe('export query module', () => {
           returnQuery: '',
           inputQuery: '',
           imports: 'from bson import *\nimport datetime\n'
+        });
+      });
+
+      it('imports false returns empty imports in state', () => {
+        expect(reducer(undefined, includeImports(false))).to.deep.equal({
+          outputLang: 'python',
+          namespace: 'Query',
+          copySuccess: false,
+          queryError: null,
+          modalOpen: false,
+          returnQuery: '',
+          inputQuery: '',
+          imports: ''
         });
       });
     });
