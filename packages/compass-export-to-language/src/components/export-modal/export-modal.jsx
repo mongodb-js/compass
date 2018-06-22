@@ -16,6 +16,7 @@ class ExportModal extends Component {
     setOutputLang: PropTypes.func.isRequired,
     togleModal: PropTypes.func.isRequired,
     copyQuery: PropTypes.func.isRequired,
+    clearCopy: PropTypes.func.isRequired,
     runQuery: PropTypes.func.isRequired
   }
 
@@ -34,21 +35,30 @@ class ExportModal extends Component {
         backdrop="static"
         bsSize="large"
         onHide={this.closeHandler}
+        data-test-id="export-to-lang-modal"
         className={classnames(styles['export-to-lang-modal'])}>
 
         <Modal.Header>
-          <Modal.Title>{`Export ${this.props.exportQuery.namespace} To Language`}</Modal.Title>
+          <Modal.Title data-test-id="export-to-lang-modal-title">
+            {`Export ${this.props.exportQuery.namespace} To Language`}
+          </Modal.Title>
         </Modal.Header>
 
-        <Modal.Body>
+        <Modal.Body data-test-id="export-to-lang-modal-body">
           <ExportForm {...this.props}/>
           <div className={classnames(styles['export-to-lang-modal-checkbox'])}>
-            <Checkbox onClick={this.checkboxHandler}>Include Import Statements</Checkbox>
+            <Checkbox data-test-id="export-to-lang-checkbox" onClick={this.checkboxHandler}>
+               Include Import Statements
+           </Checkbox>
           </div>
         </Modal.Body>
 
         <Modal.Footer>
-          <TextButton className="btn btn-default btn-sm" text="Close" clickHandler={this.closeHandler} />
+          <TextButton
+            data-test-id="export-to-lang-close"
+            className="btn btn-default btn-sm"
+            text="Close"
+            clickHandler={this.closeHandler} />
         </Modal.Footer>
       </Modal>
     );
