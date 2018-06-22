@@ -9,7 +9,6 @@ const Connection = require('../models/connection');
 const Sidebar = require('./sidebar');
 const ConnectForm = require('./form');
 const Actions = require('../actions');
-const AtlasLink = require('./atlas-link');
 
 class Connect extends React.Component {
 
@@ -90,7 +89,6 @@ class Connect extends React.Component {
         <div className="form-container">
           <header>
             <h2 data-test-id="connect-header">Connect to Host</h2>
-            <AtlasLink />
           </header>
           {this.renderMessage()}
           <ConnectForm {...this.props} />

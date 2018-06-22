@@ -17,15 +17,18 @@ class AtlasLink extends React.Component {
         <div
           className="connect-atlas-link"
           onClick={this.onLinkClicked.bind(this)}>
-          Create a free MongoDB Atlas cluster
+          <i className="fa fa-fw fa-external-link" />
+          Create free Atlas cluster
         </div>
-        <div className="connect-atlas-includes">
-          Includes 512 MB of data storage.
-          <span
+        <div>
+          <div className="connect-atlas-includes">
+            Includes 512 MB of data storage.
+          </div>
+          <div
             className="connect-atlas-learn-more"
             onClick={this.onLearnLinkClicked.bind(this)}>
             Learn more
-          </span>
+          </div>
         </div>
       </div>
     );
