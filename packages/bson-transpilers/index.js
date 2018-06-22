@@ -75,9 +75,7 @@ const getCompiler = (visitor, generator, symbols) => {
   };
 };
 
-const javaImports = `package com.example.test;
-
-import com.mongodb.DBRef;
+const javaImports = `import com.mongodb.DBRef;
 import org.bson.BsonBinarySubType;
 import org.bson.BsonRegularExpression;
 import org.bson.Document;
