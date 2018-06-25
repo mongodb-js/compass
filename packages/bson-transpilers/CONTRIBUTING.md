@@ -65,6 +65,8 @@ for each node in the parse tree.
 
 
 ### Step 2: Visitor
+<img alt="visiting-tree" width="60%" align="right" src="/img-docs/visiting-tree.png"/>
+
 Because the project is designed to handle multiple input languages and multiple 
 output languages, the tree visitation stage is split into parts. The first part
 is handled in the visitor class defined in `codegeneration/<input language>/Visitor.js`.
