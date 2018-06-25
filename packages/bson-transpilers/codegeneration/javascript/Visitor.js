@@ -98,10 +98,9 @@ class Visitor extends ECMAScriptVisitor {
    *    separator - a string separator to go between children.
    *    ignore - an array of child indexes to skip.
    *    children - the set of children to visit.
-   * @param {Integer} depth
    * @returns {String}
    */
-  visitChildren(ctx, options, depth) {
+  visitChildren(ctx, options) {
     const opts = {
       start: 0, step: 1, separator: '', ignore: [], children: ctx.children
     };
@@ -111,7 +110,7 @@ class Visitor extends ECMAScriptVisitor {
     let code = '';
     for (let i = opts.start; i <= opts.end; i += opts.step) {
       if (opts.ignore.indexOf(i) === -1) {
-        code += this.visit(opts.children[i], depth) + (i === opts.end ? '' : opts.separator);
+        code += this.visit(opts.children[i]) + (i === opts.end ? '' : opts.separator);
       }
     }
     /* Set the node's type to the first child, if it's not already set.
@@ -122,24 +121,23 @@ class Visitor extends ECMAScriptVisitor {
     return code.trim();
   }
 
-  visitEqualityExpression(ctx, depth) {
+  visitEqualityExpression(ctx) {
     ctx.type = this.Types._boolean;
-    const lhs = this.visit(ctx.singleExpression()[0], depth);
-    const rhs = this.visit(ctx.singleExpression()[1], depth);
+    const lhs = this.visit(ctx.singleExpression()[0]);
+    const rhs = this.visit(ctx.singleExpression()[1]);
     const op = this.visit(ctx.children[1]);
     if (this.Syntax.equality) {
       return this.Syntax.equality.template(lhs, op, rhs);
     }
-    return this.visitChildren(ctx, {}, depth);
+    return this.visitChildren(ctx, {});
   }
 
   /**
    * Child nodes: literal
    * @param {LiteralExpressionContext} ctx
-   * @param {Integer} depth
    * @return {String}
    */
-  visitLiteralExpression(ctx, depth) {
+  visitLiteralExpression(ctx) {
     if (!ctx.type) {
       ctx.type = this.getPrimitiveType(ctx.literal());
     }
@@ -153,10 +151,10 @@ class Visitor extends ECMAScriptVisitor {
     }
 
     if (ctx.type.template) {
-      return ctx.type.template(this.visitChildren(ctx, depth), type.id);
+      return ctx.type.template(this.visitChildren(ctx), type.id);
     }
 
-    return this.visitChildren(ctx, depth);
+    return this.visitChildren(ctx);
   }
 
   getIndentDepth(ctx) {
@@ -172,10 +170,9 @@ class Visitor extends ECMAScriptVisitor {
   /**
    * Child nodes: propertyNameAndValueList?
    * @param {ObjectLiteralContext} ctx
-   * @param {Integer} depth
    * @return {String}
    */
-  visitObjectLiteral(ctx, depth) {
+  visitObjectLiteral(ctx) {
     ctx.type = this.Types._object;
     ctx.indentDepth = this.getIndentDepth(ctx) + 1;
     let args = '';
@@ -190,16 +187,15 @@ class Visitor extends ECMAScriptVisitor {
     if (ctx.type.template) {
       return ctx.type.template(args, ctx.indentDepth);
     }
-    return this.visitChildren(ctx, {}, depth);
+    return this.visitChildren(ctx, {});
   }
 
   /**
    * Child nodes: elementList*
    * @param {ArrayLiteralContext} ctx
-   * @param {Integer} depth
    * @return {String}
    */
-  visitArrayLiteral(ctx, depth) {
+  visitArrayLiteral(ctx) {
     ctx.type = this.Types._array;
     ctx.indentDepth = this.getIndentDepth(ctx) + 1;
     let args = '';
@@ -210,13 +206,13 @@ class Visitor extends ECMAScriptVisitor {
       if (ctx.type.argsTemplate) {
         args = ctx.type.argsTemplate(children.map((c) => { return this.visit(c); }), ctx.indentDepth);
       } else {
-        args = children.map((c) => { return this.visit(c, depth + 1); }).join(', ');
+        args = children.map((c) => { return this.visit(c); }).join(', ');
       }
     }
     if (ctx.type.template) {
       return ctx.type.template(args, ctx.indentDepth);
     }
-    return this.visitChildren(ctx, {}, depth);
+    return this.visitChildren(ctx, {});
   }
 
   /**
@@ -236,11 +232,10 @@ class Visitor extends ECMAScriptVisitor {
   /**
    * Child nodes: singleExpression arguments
    * @param {FuncCallExpressionContext} ctx
-   * @param {Integer} depth
    * @return {String}
    */
-  visitFuncCallExpression(ctx, depth) {
-    const lhs = this.visit(ctx.singleExpression(), depth);
+  visitFuncCallExpression(ctx) {
+    const lhs = this.visit(ctx.singleExpression());
     let lhsType = ctx.singleExpression().type;
     if (typeof lhsType === 'string') {
       lhsType = this.Types[lhsType];
@@ -271,7 +266,7 @@ class Visitor extends ECMAScriptVisitor {
     if (lhsType.argsTemplate) {
       let l = lhs;
       if ('identifierName' in ctx.singleExpression()) {
-        l = this.visit(ctx.singleExpression().singleExpression(), depth);
+        l = this.visit(ctx.singleExpression().singleExpression());
       }
       rhs = lhsType.argsTemplate(l, ...rhs);
     } else {
@@ -299,12 +294,11 @@ class Visitor extends ECMAScriptVisitor {
    *
    * Child nodes: singleExpression identifierName
    * @param {GetAttributeExpressionContext} ctx
-   * @param {Integer} depth
    * @return {String}
    */
-  visitGetAttributeExpression(ctx, depth) {
-    const lhs = this.visit(ctx.singleExpression(), depth);
-    const rhs = this.visit(ctx.identifierName(), depth);
+  visitGetAttributeExpression(ctx) {
+    const lhs = this.visit(ctx.singleExpression());
+    const rhs = this.visit(ctx.identifierName());
 
     if (!ctx.singleExpression().constructor.name.includes('Identifier') && !ctx.singleExpression().constructor.name.includes('FuncCall')) {
       throw new BsonCompilersUnimplementedError('Attribute access for non-symbols not currently supported');
@@ -345,15 +339,14 @@ class Visitor extends ECMAScriptVisitor {
   /**
    * New in the shell/js is the same as calling without arguments.
    * @param {NewExpressionContext} ctx
-   * @param {Integer} depth
    * @return {String}
    */
-  visitNewExpression(ctx, depth) {
+  visitNewExpression(ctx) {
     ctx.singleExpression().wasNew = true;
     if ('emitNew' in this) {
       return this.emitNew(ctx);
     }
-    const res = this.visitChildren(ctx, {separator: ' '}, depth);
+    const res = this.visitChildren(ctx, {separator: ' '});
     ctx.type = ctx.singleExpression().type;
     return res;
   }
@@ -471,12 +464,11 @@ class Visitor extends ECMAScriptVisitor {
    *
    * @param {Array} expectedType - types to cast to.
    * @param {antlr4.ParserRuleContext} actualCtx - ctx to cast from, if valid.
-   * @param {Integer} depth
    *
    * @returns {String} - visited result, or null on error.
    */
-  castType(expectedType, actualCtx, depth) {
-    const result = this.visit(actualCtx, depth);
+  castType(expectedType, actualCtx) {
+    const result = this.visit(actualCtx);
     const originalCtx = actualCtx;
     actualCtx = this.getTyped(actualCtx);
 
@@ -509,11 +501,11 @@ class Visitor extends ECMAScriptVisitor {
             originalType: actualCtx.type.id,
             children: [ actualCtx ]
           };
-          return this.visitLiteralExpression(node, depth);
+          return this.visitLiteralExpression(node);
         }
         actualCtx.originalType = actualCtx.type;
         actualCtx.type = expectedType[i];
-        return this.visit(originalCtx, depth);
+        return this.visit(originalCtx);
       }
     }
     return null;
@@ -527,11 +519,10 @@ class Visitor extends ECMAScriptVisitor {
    * possible argument types for that index.
    * @param {ArgumentListContext} argumentList - null if empty.
    * @param {String} name - The name of the function for error reporting.
-   * @param {Integer} depth
    *
    * @returns {Array} - Array containing the generated output for each argument.
    */
-  checkArguments(expected, argumentList, name, depth) {
+  checkArguments(expected, argumentList, name) {
     const argStr = [];
     if (!argumentList) {
       if (expected.length === 0 || expected[0].indexOf(null) !== -1) {
@@ -556,7 +547,7 @@ class Visitor extends ECMAScriptVisitor {
           `Argument count mismatch: too few arguments passed to '${name}'`
         );
       }
-      const result = this.castType(expected[i], args[i], depth);
+      const result = this.castType(expected[i], args[i]);
       if (result === null) {
         const message = `Argument type mismatch: '${name}' expects types ${expected[i].map((e) => {
           const id = e && e.id ? e.id : e;
@@ -575,10 +566,9 @@ class Visitor extends ECMAScriptVisitor {
    * so that we can determine if the generated number needs to be parsed or casted.
    *
    * @param {FuncCallExpressionContext} ctx
-   * @param {Integer} depth
    * @returns {String}
    */
-  processNumber(ctx, depth) {
+  processNumber(ctx) {
     const lhsStr = this.visit(ctx.singleExpression());
     let lhsType = ctx.singleExpression().type;
     if (typeof lhsType === 'string') {
@@ -588,7 +578,7 @@ class Visitor extends ECMAScriptVisitor {
 
     // Get the original type of the argument
     const expectedArgs = lhsType.args;
-    let args = this.checkArguments(expectedArgs, ctx.arguments().argumentList(), lhsType.id, depth);
+    let args = this.checkArguments(expectedArgs, ctx.arguments().argumentList(), lhsType.id);
     let argType;
 
     if (!ctx.arguments().argumentList()) {
@@ -601,7 +591,7 @@ class Visitor extends ECMAScriptVisitor {
     }
 
     if (`emit${lhsType.id}` in this) {
-      return this[`emit${lhsType.id}`](ctx, argType, depth);
+      return this[`emit${lhsType.id}`](ctx, argType);
     }
 
     // Apply the arguments template
@@ -614,13 +604,12 @@ class Visitor extends ECMAScriptVisitor {
    * Check arguments then execute in the same way as regex literals.
    *
    * @param {FuncCallExpressionContext} ctx
-   * @param {Integer} depth
    * @return {String}
    */
-  processRegExp(ctx, depth) {
+  processRegExp(ctx) {
     const argList = ctx.arguments().argumentList();
-    this.checkArguments(this.Symbols.RegExp.args, argList, 'RegExp', depth);
-    return this.process_regex(ctx, depth);
+    this.checkArguments(this.Symbols.RegExp.args, argList, 'RegExp');
+    return this.process_regex(ctx);
   }
 
   /**
@@ -628,10 +617,9 @@ class Visitor extends ECMAScriptVisitor {
    * and the process methods are constructed with "Process" + <type name>.
    *
    * @param {FuncCallExpressionContext} ctx
-   * @param {Integer} depth
    * @return {String}
    */
-  process_regex(ctx, depth) { // eslint-disable-line camelcase
+  process_regex(ctx) { // eslint-disable-line camelcase
     ctx.type = this.Types._regex;
     let pattern;
     let flags;
@@ -654,22 +642,21 @@ class Visitor extends ECMAScriptVisitor {
     if (ctx.type.template) {
       return ctx.type.template(pattern, targetflags);
     }
-    return this.visitChildren(ctx, {}, depth);
+    return this.visitChildren(ctx, {});
   }
 
   /**
    * Process BSON regexps because we need to verify the flags are valid.
    *
    * @param {FuncCallExpressionContext} ctx
-   * @param {Integer} depth
    * @return {string}
    */
-  processBSONRegExp(ctx, depth) {
+  processBSONRegExp(ctx) {
     ctx.type = this.Types.BSONRegExpType;
     const symbolType = this.Symbols.BSONRegExp;
 
     const argList = ctx.arguments().argumentList();
-    const args = this.checkArguments([[this.Types._string], [this.Types._string, null]], argList, 'BSONRegExp', depth);
+    const args = this.checkArguments([[this.Types._string], [this.Types._string, null]], argList, 'BSONRegExp');
 
     let flags = null;
     const pattern = args[0];
@@ -684,7 +671,7 @@ class Visitor extends ECMAScriptVisitor {
     }
 
     if ('emitBSONRegExp' in this) {
-      return this.emitBSONRegExp(ctx, pattern, flags, depth);
+      return this.emitBSONRegExp(ctx, pattern, flags);
     }
     const lhs = symbolType.template ? symbolType.template() : 'BSONRegExp';
     const rhs = symbolType.argsTemplate ? symbolType.argsTemplate(lhs, pattern, flags) : `(${pattern}${flags ? ', ' + flags : ''})`;
@@ -697,10 +684,9 @@ class Visitor extends ECMAScriptVisitor {
    * don't want to ever visit that node.
    *
    * @param {FuncCallExpressionContext} ctx
-   * @param {Integer} depth
    * @return {String}
    */
-  processCodeFromJS(ctx, depth) {
+  processCodeFromJS(ctx) {
     ctx.type = this.Types.Code;
     const symbolType = this.Symbols.Code;
     const argList = ctx.arguments().argumentList();
@@ -717,7 +703,7 @@ class Visitor extends ECMAScriptVisitor {
     let scopestr = '';
 
     if (args.length === 2) {
-      scope = this.visit(args[1], depth);
+      scope = this.visit(args[1]);
       scopestr = `, ${scope}`;
       if (args[1].type !== this.Types._object) {
         throw new BsonCompilersArgumentError(
@@ -737,10 +723,9 @@ class Visitor extends ECMAScriptVisitor {
    * ObjectId needs preprocessing because it needs to be executed.
    *
    * @param {FuncCallExpressionContext} ctx
-   * @param {Integer} depth
    * @return {String}
    */
-  processObjectId(ctx, depth) {
+  processObjectId(ctx) {
     ctx.type = this.Types.ObjectId;
     const symbolType = this.Symbols.ObjectId;
     const argList = ctx.arguments().argumentList();
@@ -748,7 +733,7 @@ class Visitor extends ECMAScriptVisitor {
     if (!argList) {
       return `${this.new}${lhs}()`;
     }
-    this.checkArguments(symbolType.args, argList, 'ObjectId', depth);
+    this.checkArguments(symbolType.args, argList, 'ObjectId');
     let hexstr;
     try {
       hexstr = this.executeJavascript(ctx.getText()).toHexString();
@@ -766,15 +751,14 @@ class Visitor extends ECMAScriptVisitor {
    * Long needs preprocessing because it needs to be executed.
    *
    * @param {FuncCallExpressionContext} ctx
-   * @param {Integer} depth
    * @return {String}
    */
-  processLong(ctx, depth) {
+  processLong(ctx) {
     ctx.type = this.Types.Long;
     const symbolType = this.Symbols.Long;
     const argList = ctx.arguments().argumentList();
     let longstr;
-    this.checkArguments(symbolType.args, argList, 'Long', depth);
+    this.checkArguments(symbolType.args, argList, 'Long');
     try {
       longstr = this.executeJavascript(`new ${ctx.getText()}`).toString();
     } catch (error) {
