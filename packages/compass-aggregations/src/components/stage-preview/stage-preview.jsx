@@ -29,15 +29,6 @@ class StagePreview extends Component {
   }
 
   /**
-   * We don't want to diff the entire list of documents.
-   *
-   * @returns {Boolean} Whether the component should update.
-   */
-  shouldComponentUpdate() {
-    return true;
-  }
-
-  /**
    * Goto the out results.
    */
   onGotoOutResults = () => {

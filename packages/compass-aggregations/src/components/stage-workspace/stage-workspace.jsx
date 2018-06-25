@@ -1,4 +1,4 @@
-import React, { PureComponent } from 'react';
+import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import classnames from 'classnames';
 import StageEditor from 'components/stage-editor';
@@ -9,7 +9,7 @@ import styles from './stage-workspace.less';
 /**
  * The stage workspace component.
  */
-class StageWorkspace extends PureComponent {
+class StageWorkspace extends Component {
   static displayName = 'StageWorkspace';
 
   static propTypes = {
@@ -25,6 +25,14 @@ class StageWorkspace extends PureComponent {
     stageChanged: PropTypes.func.isRequired
   }
 
+  shouldComponentUpdate(nextProps) {
+    return nextProps.stage !== this.props.stage ||
+      nextProps.index !== this.props.index ||
+      nextProps.serverVersion !== this.props.serverVersion ||
+      nextProps.isAutoPreviewing !== this.props.isAutoPreviewing ||
+      nextProps.fields.length !== this.props.fields.length;
+  }
+
   /**
    * Renders the stage workspace.
    *
@@ -34,7 +42,13 @@ class StageWorkspace extends PureComponent {
     return (
       <div className={classnames(styles['stage-workspace'])}>
         <StageEditor
-          stage={this.props.stage}
+          stage={this.props.stage.stage}
+          stageOperator={this.props.stage.stageOperator}
+          snippet={this.props.stage.snippet}
+          error={this.props.stage.error}
+          syntaxError={this.props.stage.syntaxError}
+          isValid={this.props.stage.isValid}
+          fromStageOperators={this.props.stage.fromStageOperators || false}
           runStage={this.props.runStage}
           index={this.props.index}
           serverVersion={this.props.serverVersion}

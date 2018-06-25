@@ -34,13 +34,19 @@ class StageEditor extends Component {
   static displayName = 'StageEditorComponent';
 
   static propTypes = {
-    stage: PropTypes.object.isRequired,
+    stage: PropTypes.string,
+    stageOperator: PropTypes.string,
+    snippet: PropTypes.string,
+    error: PropTypes.string,
+    syntaxError: PropTypes.string,
     runStage: PropTypes.func.isRequired,
     index: PropTypes.number.isRequired,
     serverVersion: PropTypes.string.isRequired,
     fields: PropTypes.array.isRequired,
     stageChanged: PropTypes.func.isRequired,
     isAutoPreviewing: PropTypes.bool.isRequired,
+    isValid: PropTypes.bool.isRequired,
+    fromStageOperators: PropTypes.bool.isRequired,
     setIsModified: PropTypes.func.isRequired
   }
 
@@ -56,9 +62,26 @@ class StageEditor extends Component {
       this.props.serverVersion,
       textCompleter,
       this.props.fields,
-      this.props.stage.stageOperator
+      this.props.stageOperator
     );
     this.debounceRun = debounce(this.onRunStage, 750);
+  }
+
+  /**
+   * Should the component update?
+   *
+   * @param {Object} nextProps - The next properties.
+   *
+   * @returns {Boolean} If the component should update.
+   */
+  shouldComponentUpdate(nextProps) {
+    return nextProps.stageOperator !== this.props.stageOperator ||
+      nextProps.error !== this.props.error ||
+      nextProps.syntaxError !== this.props.syntaxError ||
+      nextProps.index !== this.props.index ||
+      nextProps.serverVersion !== this.props.serverVersion ||
+      nextProps.fields.length !== this.props.fields.length ||
+      nextProps.isValid !== this.props.isValid;
   }
 
   /**
@@ -67,11 +90,11 @@ class StageEditor extends Component {
    * @param {Object} prevProps - The previous properties.
    */
   componentDidUpdate(prevProps) {
-    this.completer.update(this.props.fields, this.props.stage.stageOperator);
+    this.completer.update(this.props.fields, this.props.stageOperator);
     this.completer.version = this.props.serverVersion;
-    if (this.props.stage.stageOperator !== prevProps.stage.stageOperator && this.editor) {
+    if (this.props.stageOperator !== prevProps.stageOperator && this.editor) {
       this.editor.setValue('');
-      this.editor.insertSnippet(this.props.stage.snippet || '');
+      this.editor.insertSnippet(this.props.snippet || '');
       this.editor.focus();
     }
   }
@@ -87,7 +110,7 @@ class StageEditor extends Component {
     this.props.setIsModified(true);
 
     if (
-      this.props.stage.fromStageOperators === false &&
+      this.props.fromStageOperators === false &&
       this.props.isAutoPreviewing
     ) {
       this.debounceRun();
@@ -108,20 +131,20 @@ class StageEditor extends Component {
    * @returns {React.Component} The component.
    */
   renderError() {
-    if (this.props.stage.error) {
+    if (this.props.error) {
       return (
         <div className={classnames(styles['stage-editor-errormsg'])}>
-          {this.props.stage.error}
+          {this.props.error}
         </div>
       );
     }
   }
 
   renderSyntaxError() {
-    if (!this.props.stage.isValid) {
+    if (!this.props.isValid) {
       return (
         <div className={classnames(styles['stage-editor-syntax-error'])}>
-          {this.props.stage.syntaxError}
+          {this.props.syntaxError}
         </div>
       );
     }
@@ -140,8 +163,8 @@ class StageEditor extends Component {
             mode="mongodb"
             theme="mongodb"
             width="100%"
-            readOnly={this.props.stage.stageOperator === null}
-            value={this.props.stage.stage}
+            readOnly={this.props.stageOperator === null}
+            value={this.props.stage}
             onChange={this.onStageChange}
             editorProps={{ $blockScrolling: Infinity }}
             name={`aggregations-stage-editor-${this.props.index}`}

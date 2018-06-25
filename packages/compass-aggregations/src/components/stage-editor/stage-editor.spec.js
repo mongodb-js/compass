@@ -9,20 +9,19 @@ describe('StageEditor [Component]', () => {
   const spy = sinon.spy();
   const runStageSpy = sinon.spy();
   const setIsModifiedSpy = sinon.spy();
-  const stage = {
-    stage: '{ name: "testing" }',
-    stageOperator: '$match',
-    isValid: true,
-    isEnabled: true,
-    isExpanded: true,
-    id: 1
-  };
+  const stage = '{ name: "testing" }';
+  const stageOperator = '$match';
+  const isValid = true;
 
   beforeEach(() => {
     component = mount(
       <StageEditor
         stage={stage}
+        stageOperator={stageOperator}
+        isValid={isValid}
         index={0}
+        isAutoPreviewing
+        fromStageOperators={false}
         fields={[]}
         serverVersion="3.6.0"
         runStage={runStageSpy}
