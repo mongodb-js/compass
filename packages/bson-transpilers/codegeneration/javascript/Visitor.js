@@ -129,7 +129,7 @@ class Visitor extends ECMAScriptVisitor {
     if (this.Syntax.equality) {
       return this.Syntax.equality.template(lhs, op, rhs);
     }
-    return this.visitChildren(ctx, {});
+    return this.visitChildren(ctx);
   }
 
   /**
@@ -187,7 +187,7 @@ class Visitor extends ECMAScriptVisitor {
     if (ctx.type.template) {
       return ctx.type.template(args, ctx.indentDepth);
     }
-    return this.visitChildren(ctx, {});
+    return this.visitChildren(ctx);
   }
 
   /**
@@ -200,19 +200,22 @@ class Visitor extends ECMAScriptVisitor {
     ctx.indentDepth = this.getIndentDepth(ctx) + 1;
     let args = '';
     if (ctx.elementList()) {
-      const children = ctx.elementList().children.filter((child) => {
-        return child.constructor.name !== 'TerminalNodeImpl';
+      const visitedChildren = ctx.elementList().children.map((child) => {
+        return this.visit(child);
       });
-      if (ctx.type.argsTemplate) {
-        args = ctx.type.argsTemplate(children.map((c) => { return this.visit(c); }), ctx.indentDepth);
+      const visitedElements = visitedChildren.filter((arg) => {
+        return arg !== ',';
+      });
+      if (ctx.type.argsTemplate) { // NOTE: not currently being used anywhere.
+        args = ctx.type.argsTemplate(visitedElements, ctx.indentDepth);
       } else {
-        args = children.map((c) => { return this.visit(c); }).join(', ');
+        args = visitedElements.join(', ');
       }
     }
     if (ctx.type.template) {
       return ctx.type.template(args, ctx.indentDepth);
     }
-    return this.visitChildren(ctx, {});
+    return this.visitChildren(ctx);
   }
 
   /**
@@ -276,7 +279,7 @@ class Visitor extends ECMAScriptVisitor {
   }
 
   visitIdentifierExpression(ctx) {
-    const name = this.visitChildren(ctx, {});
+    const name = this.visitChildren(ctx);
     ctx.type = this.Symbols[name];
     if (ctx.type === undefined) {
       throw new BsonCompilersReferenceError(`Symbol '${name}' is undefined`);
@@ -642,7 +645,7 @@ class Visitor extends ECMAScriptVisitor {
     if (ctx.type.template) {
       return ctx.type.template(pattern, targetflags);
     }
-    return this.visitChildren(ctx, {});
+    return this.visitChildren(ctx);
   }
 
   /**
