@@ -12,7 +12,12 @@ import styles from './stage-toolbar.less';
 class StageToolbar extends PureComponent {
   static displayName = 'StageToolbar';
   static propTypes = {
-    stage: PropTypes.object.isRequired,
+    stage: PropTypes.string.isRequired,
+    error: PropTypes.string,
+    isExpanded: PropTypes.bool.isRequired,
+    isEnabled: PropTypes.bool.isRequired,
+    isValid: PropTypes.bool.isRequired,
+    stageOperator: PropTypes.string,
     index: PropTypes.number.isRequired,
     serverVersion: PropTypes.string.isRequired,
     stageOperatorSelected: PropTypes.func.isRequired,
@@ -23,7 +28,8 @@ class StageToolbar extends PureComponent {
     setIsModified: PropTypes.func.isRequired,
     isCommenting: PropTypes.bool.isRequired,
     openLink: PropTypes.func.isRequired,
-    stageCollapseToggled: PropTypes.func.isRequired
+    stageCollapseToggled: PropTypes.func.isRequired,
+    previewCount: PropTypes.number.isRequired
   }
 
   /**
@@ -32,11 +38,13 @@ class StageToolbar extends PureComponent {
    * @returns {React.Component} The component.
    */
   render() {
-    const errored = this.props.stage.error ? 'stage-toolbar-errored' : 'stage-toolbar';
+    const errored = this.props.error ? 'stage-toolbar-errored' : 'stage-toolbar';
     return (
       <div className={classnames(styles[errored])}>
         <StageBuilderToolbar
-          stage={this.props.stage}
+          isExpanded={this.props.isExpanded}
+          isEnabled={this.props.isEnabled}
+          stageOperator={this.props.stageOperator}
           index={this.props.index}
           stageOperatorSelected={this.props.stageOperatorSelected}
           stageCollapseToggled={this.props.stageCollapseToggled}
@@ -49,11 +57,11 @@ class StageToolbar extends PureComponent {
           setIsModified={this.props.setIsModified}
           serverVersion={this.props.serverVersion} />
         <StagePreviewToolbar
-          isEnabled={this.props.stage.isEnabled}
-          isValid={this.props.stage.isValid}
-          stageOperator={this.props.stage.stageOperator}
-          stageValue={this.props.stage.stage}
-          count={this.props.stage.previewDocuments.length} />
+          isEnabled={this.props.isEnabled}
+          isValid={this.props.isValid}
+          stageOperator={this.props.stageOperator}
+          stageValue={this.props.stage}
+          count={this.props.previewCount} />
       </div>
     );
   }

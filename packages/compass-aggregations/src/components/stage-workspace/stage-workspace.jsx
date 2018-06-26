@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import classnames from 'classnames';
 import StageEditor from 'components/stage-editor';
@@ -9,28 +9,30 @@ import styles from './stage-workspace.less';
 /**
  * The stage workspace component.
  */
-class StageWorkspace extends Component {
+class StageWorkspace extends PureComponent {
   static displayName = 'StageWorkspace';
 
   static propTypes = {
-    stage: PropTypes.object.isRequired,
+    stage: PropTypes.string.isRequired,
+    stageOperator: PropTypes.string,
+    snippet: PropTypes.string,
+    error: PropTypes.string,
+    syntaxError: PropTypes.string,
+    isValid: PropTypes.bool.isRequired,
+    isEnabled: PropTypes.bool.isRequired,
+    isLoading: PropTypes.bool.isRequired,
+    isComplete: PropTypes.bool.isRequired,
     runStage: PropTypes.func.isRequired,
     runOutStage: PropTypes.func.isRequired,
     gotoOutResults: PropTypes.func.isRequired,
     index: PropTypes.number.isRequired,
     serverVersion: PropTypes.string.isRequired,
     isAutoPreviewing: PropTypes.bool.isRequired,
+    fromStageOperators: PropTypes.bool.isRequired,
     fields: PropTypes.array.isRequired,
+    previewDocuments: PropTypes.array.isRequired,
     setIsModified: PropTypes.func.isRequired,
     stageChanged: PropTypes.func.isRequired
-  }
-
-  shouldComponentUpdate(nextProps) {
-    return nextProps.stage !== this.props.stage ||
-      nextProps.index !== this.props.index ||
-      nextProps.serverVersion !== this.props.serverVersion ||
-      nextProps.isAutoPreviewing !== this.props.isAutoPreviewing ||
-      nextProps.fields.length !== this.props.fields.length;
   }
 
   /**
@@ -42,13 +44,13 @@ class StageWorkspace extends Component {
     return (
       <div className={classnames(styles['stage-workspace'])}>
         <StageEditor
-          stage={this.props.stage.stage}
-          stageOperator={this.props.stage.stageOperator}
-          snippet={this.props.stage.snippet}
-          error={this.props.stage.error}
-          syntaxError={this.props.stage.syntaxError}
-          isValid={this.props.stage.isValid}
-          fromStageOperators={this.props.stage.fromStageOperators || false}
+          stage={this.props.stage}
+          stageOperator={this.props.stageOperator}
+          snippet={this.props.snippet}
+          error={this.props.error}
+          syntaxError={this.props.syntaxError}
+          isValid={this.props.isValid}
+          fromStageOperators={this.props.fromStageOperators}
           runStage={this.props.runStage}
           index={this.props.index}
           serverVersion={this.props.serverVersion}
@@ -57,13 +59,13 @@ class StageWorkspace extends Component {
           fields={this.props.fields}
           stageChanged={this.props.stageChanged} />
         <StagePreview
-          documents={this.props.stage.previewDocuments}
-          isValid={this.props.stage.isValid}
-          isEnabled={this.props.stage.isEnabled}
-          isLoading={this.props.stage.isLoading}
-          isComplete={this.props.stage.isComplete}
-          stageOperator={this.props.stage.stageOperator}
-          stageValue={this.props.stage.stage}
+          documents={this.props.previewDocuments}
+          isValid={this.props.isValid}
+          isEnabled={this.props.isEnabled}
+          isLoading={this.props.isLoading}
+          isComplete={this.props.isComplete}
+          stageOperator={this.props.stageOperator}
+          stage={this.props.stage}
           index={this.props.index}
           runOutStage={this.props.runOutStage}
           gotoOutResults={this.props.gotoOutResults} />

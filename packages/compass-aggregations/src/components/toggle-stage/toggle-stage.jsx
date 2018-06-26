@@ -12,7 +12,7 @@ class ToggleStage extends PureComponent {
   static displayName = 'ToggleStageComponent';
 
   static propTypes = {
-    stage: PropTypes.object.isRequired,
+    isEnabled: PropTypes.bool.isRequired,
     index: PropTypes.number.isRequired,
     runStage: PropTypes.func.isRequired,
     stageToggled: PropTypes.func.isRequired,
@@ -37,7 +37,7 @@ class ToggleStage extends PureComponent {
     return (
       <div className={classnames(styles['toggle-stage'])}>
         <Switch
-          checked={this.props.stage.isEnabled}
+          checked={this.props.isEnabled}
           onChange={this.onStageToggled}
           className={classnames(styles['toggle-stage-button'])}
           onColor="rgb(19, 170, 82)"

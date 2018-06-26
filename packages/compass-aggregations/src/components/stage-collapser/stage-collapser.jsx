@@ -31,7 +31,7 @@ class StageCollapser extends PureComponent {
   static displayName = 'StageCollapserComponent';
 
   static propTypes = {
-    stage: PropTypes.object.isRequired,
+    isExpanded: PropTypes.bool.isRequired,
     index: PropTypes.number.isRequired,
     stageCollapseToggled: PropTypes.func.isRequired,
     setIsModified: PropTypes.func.isRequired
@@ -51,8 +51,8 @@ class StageCollapser extends PureComponent {
    * @returns {Component} The component.
    */
   render() {
-    const iconClassName = this.props.stage.isExpanded ? ANGLE_DOWN : ANGLE_RIGHT;
-    const buttonTitle = this.props.stage.isExpanded ? COLLAPSE : EXPAND;
+    const iconClassName = this.props.isExpanded ? ANGLE_DOWN : ANGLE_RIGHT;
+    const buttonTitle = this.props.isExpanded ? COLLAPSE : EXPAND;
 
     return (
       <div className={classnames(styles['stage-collapser'])}>

@@ -24,7 +24,20 @@ class PipelineWorkspace extends PureComponent {
     setIsModified: PropTypes.func.isRequired,
     openLink: PropTypes.func.isRequired,
     isCommenting: PropTypes.bool.isRequired,
-    inputDocuments: PropTypes.object.isRequired
+    isAutoPreviewing: PropTypes.bool.isRequired,
+    inputDocuments: PropTypes.object.isRequired,
+    runStage: PropTypes.func.isRequired,
+    runOutStage: PropTypes.func.isRequired,
+    gotoOutResults: PropTypes.func.isRequired,
+    serverVersion: PropTypes.string.isRequired,
+    stageChanged: PropTypes.func.isRequired,
+    stageCollapseToggled: PropTypes.func.isRequired,
+    stageAddedAfter: PropTypes.func.isRequired,
+    stageDeleted: PropTypes.func.isRequired,
+    stageMoved: PropTypes.func.isRequired,
+    stageOperatorSelected: PropTypes.func.isRequired,
+    stageToggled: PropTypes.func.isRequired,
+    fields: PropTypes.array.isRequired
   }
 
   /**
@@ -35,7 +48,39 @@ class PipelineWorkspace extends PureComponent {
   render() {
     const inputDocuments = this.props.inputDocuments;
     const stages = this.props.pipeline.map((stage, i) => {
-      return (<Stage {...this.props} stage={stage} index={i} key={stage.id} />);
+      return (
+        <Stage
+          stage={stage.stage}
+          stageOperator={stage.stageOperator}
+          snippet={stage.snippet}
+          error={stage.error}
+          syntaxError={stage.syntaxError}
+          isValid={stage.isValid}
+          isEnabled={stage.isEnabled}
+          isLoading={stage.isLoading}
+          isComplete={stage.isComplete}
+          isExpanded={stage.isExpanded}
+          isCommenting={this.props.isCommenting}
+          isAutoPreviewing={this.props.isAutoPreviewing}
+          fromStageOperators={stage.fromStageOperators || false}
+          previewDocuments={stage.previewDocuments}
+          runStage={this.props.runStage}
+          index={i}
+          openLink={this.props.openLink}
+          runOutStage={this.props.runOutStage}
+          gotoOutResults={this.props.gotoOutResults}
+          serverVersion={this.props.serverVersion}
+          stageChanged={this.props.stageChanged}
+          stageCollapseToggled={this.props.stageCollapseToggled}
+          stageAddedAfter={this.props.stageAddedAfter}
+          stageDeleted={this.props.stageDeleted}
+          stageMoved={this.props.stageMoved}
+          stageOperatorSelected={this.props.stageOperatorSelected}
+          stageToggled={this.props.stageToggled}
+          fields={this.props.fields}
+          setIsModified={this.props.setIsModified}
+          key={stage.id} />
+      );
     });
     return (
       <div className={classnames(styles['pipeline-workspace'])}>

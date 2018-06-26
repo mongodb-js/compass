@@ -25,14 +25,14 @@ class StagePreview extends Component {
     isComplete: PropTypes.any,
     index: PropTypes.number.isRequired,
     stageOperator: PropTypes.string,
-    stageValue: PropTypes.any
+    stage: PropTypes.any
   }
 
   /**
    * Goto the out results.
    */
   onGotoOutResults = () => {
-    this.props.gotoOutResults(this.props.stageValue);
+    this.props.gotoOutResults(this.props.stage);
   }
 
   /**
@@ -52,7 +52,7 @@ class StagePreview extends Component {
       return (
         <div className={classnames(styles['stage-preview-out'])}>
           <div className={classnames(styles['stage-preview-out-text'])}>
-            Documents persisted to collection: {this.props.stageValue}.
+            Documents persisted to collection: {this.props.stage}.
           </div>
           <div
             className={classnames(styles['stage-preview-out-link'])}

@@ -48,7 +48,9 @@ const SPRINKLE_MAPPINGS = {
 class StageBuilderToolbar extends PureComponent {
   static displayName = 'StageBuilderToolbar';
   static propTypes = {
-    stage: PropTypes.object.isRequired,
+    isExpanded: PropTypes.bool.isRequired,
+    isEnabled: PropTypes.bool.isRequired,
+    stageOperator: PropTypes.string,
     index: PropTypes.number.isRequired,
     serverVersion: PropTypes.string.isRequired,
     stageOperatorSelected: PropTypes.func.isRequired,
@@ -68,11 +70,11 @@ class StageBuilderToolbar extends PureComponent {
    * @returns {Component} The component.
    */
   renderInfoSprinkle() {
-    if (this.props.stage.stageOperator) {
+    if (this.props.stageOperator) {
       return (
         <InfoSprinkle
           onClickHandler={this.props.openLink}
-          helpLink={SPRINKLE_MAPPINGS[this.props.stage.stageOperator]} />
+          helpLink={SPRINKLE_MAPPINGS[this.props.stageOperator]} />
       );
     }
   }
@@ -87,27 +89,26 @@ class StageBuilderToolbar extends PureComponent {
       <div className={classnames(styles['stage-builder-toolbar'])}>
         <StageGrabber />
         <StageCollapser
-          stage={this.props.stage}
+          isExpanded={this.props.isExpanded}
           index={this.props.index}
           setIsModified={this.props.setIsModified}
           stageCollapseToggled={this.props.stageCollapseToggled} />
         <StageOperatorSelect
-          stageOperator={this.props.stage.stageOperator}
+          stageOperator={this.props.stageOperator}
           index={this.props.index}
-          isEnabled={this.props.stage.isEnabled}
+          isEnabled={this.props.isEnabled}
           isCommenting={this.props.isCommenting}
           stageOperatorSelected={this.props.stageOperatorSelected}
           setIsModified={this.props.setIsModified}
           serverVersion={this.props.serverVersion} />
         <ToggleStage
-          stage={this.props.stage}
           index={this.props.index}
+          isEnabled={this.props.isEnabled}
           runStage={this.props.runStage}
           setIsModified={this.props.setIsModified}
           stageToggled={this.props.stageToggled} />
         {this.renderInfoSprinkle()}
         <DeleteStage
-          stage={this.props.stage}
           index={this.props.index}
           setIsModified={this.props.setIsModified}
           stageDeleted={this.props.stageDeleted} />

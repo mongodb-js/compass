@@ -11,7 +11,6 @@ class DeleteStage extends PureComponent {
   static displayName = 'DeleteStageComponent';
 
   static propTypes = {
-    stage: PropTypes.object.isRequired,
     index: PropTypes.number.isRequired,
     stageDeleted: PropTypes.func.isRequired,
     setIsModified: PropTypes.func.isRequired

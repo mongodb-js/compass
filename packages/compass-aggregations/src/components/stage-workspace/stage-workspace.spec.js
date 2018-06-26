@@ -5,7 +5,6 @@ import StageWorkspace from 'components/stage-workspace';
 import styles from './stage-workspace.less';
 
 describe('StageWorkspace [Component]', () => {
-  const stage = { previewDocuments: [], isValid: true, isLoading: false, isEnabled: true };
   let component;
   let stageChangedSpy;
   let runStageSpy;
@@ -22,7 +21,13 @@ describe('StageWorkspace [Component]', () => {
 
     component = shallow(
       <StageWorkspace
-        stage={stage}
+        stage=""
+        isValid
+        isLoading={false}
+        isComplete
+        isAutoPreviewing
+        fromStageOperators={false}
+        previewDocuments={[]}
         index={0}
         serverVersion="3.6.0"
         fields={[]}

@@ -7,14 +7,13 @@ import styles from './stage-collapser.less';
 describe('StageCollaper [Component]', () => {
   context('when the stage is expanded', () => {
     let component;
-    const stage = { isExpanded: true };
     const spy = sinon.spy();
     const setIsModifiedSpy = sinon.spy();
 
     beforeEach(() => {
       component = mount(
         <StageCollapser
-          stage={stage}
+          isExpanded
           index={1}
           setIsModified={setIsModifiedSpy}
           stageCollapseToggled={spy} />
@@ -40,14 +39,13 @@ describe('StageCollaper [Component]', () => {
 
   context('when the stage is collapsed', () => {
     let component;
-    const stage = { isExpanded: false };
     const spy = sinon.spy();
     const setIsModifiedSpy = sinon.spy();
 
     beforeEach(() => {
       component = mount(
         <StageCollapser
-          stage={stage}
+          isExpanded={false}
           index={1}
           setIsModified={setIsModifiedSpy}
           stageCollapseToggled={spy} />
@@ -69,14 +67,13 @@ describe('StageCollaper [Component]', () => {
 
   context('when clicking on the button', () => {
     let component;
-    const stage = { isExpanded: false };
     const spy = sinon.spy();
     const setIsModifiedSpy = sinon.spy();
 
     beforeEach(() => {
       component = mount(
         <StageCollapser
-          stage={stage}
+          isExpanded={false}
           index={1}
           setIsModified={setIsModifiedSpy}
           stageCollapseToggled={spy} />
