@@ -44,12 +44,15 @@
     display: flex;
     flex-direction: row;
     justify-content: space-between;
+    align-items: stretch;
 
     &-input {
       flex-basis: 0;
       flex: 1 1 0;
       width: 50%;
       padding-right: 10px;
+      max-height: 30em;
+      overflow: auto;
 
       &-error {
         margin-top: 10px;
@@ -62,6 +65,8 @@
       flex: 1 1 0;
       width: 50%;
       padding-left: 10px;
+      max-height: 30em;
+      overflow: auto;
 
       &-bubble {
         position: absolute;
