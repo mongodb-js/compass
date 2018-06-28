@@ -51,6 +51,7 @@ describe('StagePreview [Component]', () => {
             runOutStage={sinon.spy()}
             gotoOutResults={sinon.spy()}
             isLoading={false}
+            stage=""
             stageOperator="$out" />
         );
       });
@@ -82,6 +83,7 @@ describe('StagePreview [Component]', () => {
       beforeEach(() => {
         component = mount(
           <StagePreview
+            stage=""
             documents={[{ name: 'test' }]}
             isValid
             isEnabled
@@ -131,6 +133,7 @@ describe('StagePreview [Component]', () => {
             isComplete={false}
             runOutStage={sinon.spy()}
             gotoOutResults={sinon.spy()}
+            stage=""
             stageOperator="$out" />
         );
       });

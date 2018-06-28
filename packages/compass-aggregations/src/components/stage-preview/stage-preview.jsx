@@ -26,7 +26,7 @@ class StagePreview extends Component {
     isComplete: PropTypes.any,
     index: PropTypes.number.isRequired,
     stageOperator: PropTypes.string,
-    stage: PropTypes.any
+    stage: PropTypes.string
   }
 
   /**
