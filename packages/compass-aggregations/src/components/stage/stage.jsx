@@ -121,7 +121,8 @@ class Stage extends Component {
       nextProps.isCommenting !== this.props.isCommenting ||
       nextProps.isAutoPreviewing !== this.props.isAutoPreviewing ||
       nextProps.serverVersion !== this.props.serverVersion ||
-      nextProps.fields.length !== this.props.fields.length;
+      nextProps.fields.length !== this.props.fields.length ||
+      (this.props.stageOperator === '$out' && (nextProps.stage !== this.props.stage));
   }
 
   /**

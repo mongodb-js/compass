@@ -6,6 +6,7 @@ import HadronDocument from 'hadron-document';
 import LoadingOverlay from 'components/loading-overlay';
 import { OUT } from 'modules/pipeline';
 import classnames from 'classnames';
+import decomment from 'decomment';
 
 import styles from './stage-preview.less';
 
@@ -32,7 +33,7 @@ class StagePreview extends Component {
    * Goto the out results.
    */
   onGotoOutResults = () => {
-    this.props.gotoOutResults(this.props.stage);
+    this.props.gotoOutResults(decomment(this.props.stage));
   }
 
   /**
@@ -52,7 +53,7 @@ class StagePreview extends Component {
       return (
         <div className={classnames(styles['stage-preview-out'])}>
           <div className={classnames(styles['stage-preview-out-text'])}>
-            Documents persisted to collection: {this.props.stage}.
+            Documents persisted to collection: {decomment(this.props.stage)}.
           </div>
           <div
             className={classnames(styles['stage-preview-out-link'])}
