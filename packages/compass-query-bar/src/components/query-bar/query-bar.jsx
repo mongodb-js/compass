@@ -317,7 +317,7 @@ class QueryBar extends Component {
       'btn-default',
       'btn-sm',
       styles['reset-button'],
-      { [ styles['is-visible'] ]: queryState === 'apply'}
+      { disabled: queryState !== 'apply'}
     );
 
     return (
