@@ -76,7 +76,6 @@ class StageEditor extends Component {
    */
   shouldComponentUpdate(nextProps) {
     return nextProps.stageOperator !== this.props.stageOperator ||
-      nextProps.stageOperator !== this.props.stageOperator ||
       nextProps.error !== this.props.error ||
       nextProps.syntaxError !== this.props.syntaxError ||
       nextProps.index !== this.props.index ||
