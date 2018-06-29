@@ -32,10 +32,13 @@ class CurrentOpComponent extends React.Component {
     this.unsubscribeRefresh = this.props.store.listen(this.refresh.bind(this));
     this.unsubscribeShowOperationDetails = Actions.showOperationDetails.listen(this.hide.bind(this));
     this.unsubscribeHideOperationDetails = Actions.hideOperationDetails.listen(this.show.bind(this));
-    this.unsubscribeError = DBErrorStore.listen(this.stop.bind(this));
-    this.timer = timer.interval(() => {
-      Actions.currentOp();
-    }, this.props.interval);
+
+    if (!DBErrorStore.ops.currentOp) {
+      this.unsubscribeError = DBErrorStore.listen(this.stop.bind(this));
+      this.timer = timer.interval(() => {
+        Actions.currentOp();
+      }, this.props.interval);
+    }
   }
 
   /**
@@ -46,12 +49,17 @@ class CurrentOpComponent extends React.Component {
     this.unsubscribeRefresh();
     this.unsubscribeShowOperationDetails();
     this.unsubscribeHideOperationDetails();
-    this.unsubscribeError();
-    this.timer.stop();
+
+    if (this.unsubscribeError) {
+      this.unsubscribeError();
+      this.timer.stop();
+    }
   }
 
   stop() {
-    this.timer.stop();
+    if (this.timer) {
+      this.timer.stop();
+    }
   }
 
   /**

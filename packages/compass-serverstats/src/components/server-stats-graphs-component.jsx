@@ -29,22 +29,28 @@ class ServerStatsComponent extends React.Component {
    * When the component mounts, start the polling timer.
    */
   componentDidMount() {
-    this.unsubscribeError = DBErrorStore.listen(this.stop.bind(this));
-    this.timer = timer.interval(() => {
-      Actions.serverStats();
-    }, this.props.interval);
+    if (!DBErrorStore.ops.serverStatus) {
+      this.unsubscribeError = DBErrorStore.listen(this.stop.bind(this));
+      this.timer = timer.interval(() => {
+        Actions.serverStats();
+      }, this.props.interval);
+    }
   }
 
   /**
    * When the component unmounts, we stop the timer.
    */
   componentWillUnmount() {
-    this.unsubscribeError();
-    this.timer.stop();
+    if (this.unsubscribeError) {
+      this.unsubscribeError();
+      this.timer.stop();
+    }
   }
 
   stop() {
-    this.timer.stop();
+    if (this.timer) {
+      this.timer.stop();
+    }
   }
 
   /**
