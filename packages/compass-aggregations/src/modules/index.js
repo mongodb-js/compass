@@ -172,6 +172,7 @@ const doRestorePipeline = (state, action) => {
  */
 const doClearPipeline = (state) => ({
   ...state,
+  pipeline: [],
   savedPipeline: {
     ...state.savedPipeline,
     isListVisible: true
@@ -313,6 +314,7 @@ export const getPipelineFromIndexedDB = (pipelineId) => {
     getObjectStore('readwrite', (store) => {
       store.get(pipelineId).onsuccess = (e) => {
         const pipe = e.target.result;
+        dispatch(clearPipeline());
         dispatch(restoreSavedPipeline(pipe));
         dispatch(runStage(0));
       };
