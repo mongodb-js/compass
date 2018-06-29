@@ -43,8 +43,6 @@
     "reflux": "0.4.1"
   },
   "devDependencies": {
-    "@kadira/react-storybook-addon-info": "^3.2.1",
-    "@kadira/storybook": "^2.3.0",
     "babel-cli": "^6.10.1",
     "babel-preset-es2015": "^6.24.1",
     "babel-preset-react": "^6.11.1",
