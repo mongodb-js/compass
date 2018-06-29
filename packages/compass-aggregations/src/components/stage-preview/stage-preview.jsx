@@ -33,7 +33,8 @@ class StagePreview extends Component {
    * Goto the out results.
    */
   onGotoOutResults = () => {
-    this.props.gotoOutResults(decomment(this.props.stage));
+    const collection = decomment(this.props.stage).replace(/['"]+/g, '');
+    this.props.gotoOutResults(collection);
   }
 
   /**

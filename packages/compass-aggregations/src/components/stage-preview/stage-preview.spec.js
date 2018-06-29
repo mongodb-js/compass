@@ -79,18 +79,19 @@ describe('StagePreview [Component]', () => {
 
     context('when the execution is complete', () => {
       let component;
+      const gotoSpy = sinon.spy();
 
       beforeEach(() => {
         component = mount(
           <StagePreview
-            stage=""
+            stage="'testing'"
             documents={[{ name: 'test' }]}
             isValid
             isEnabled
             isComplete
             index={0}
             runOutStage={sinon.spy()}
-            gotoOutResults={sinon.spy()}
+            gotoOutResults={gotoSpy}
             isLoading={false}
             stageOperator="$out" />
         );
@@ -114,6 +115,13 @@ describe('StagePreview [Component]', () => {
 
       it('renders the link', () => {
         expect(component.find(`.${styles['stage-preview-out-link']}`)).to.be.present();
+      });
+
+      context('when clicking on the link', () => {
+        it('correctly decomments the collection name', () => {
+          component.find(`.${styles['stage-preview-out-link']}`).simulate('click');
+          expect(gotoSpy.calledWith('testing')).to.equal(true);
+        });
       });
     });
   });
