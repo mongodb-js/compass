@@ -302,6 +302,17 @@ const ConnectStore = Reflux.createStore({
   },
 
   /**
+   * Delete all recents
+   *
+   * @param {Connection} connection - The connection to delete.
+   */
+  onDeleteConnections() {
+    this._pruneAll(() => {
+      this.trigger(this.state);
+    });
+  },
+
+  /**
    * Delete a connection.
    *
    * @param {Connection} connection - The connection to delete.
@@ -510,6 +521,20 @@ const ConnectStore = Reflux.createStore({
     SSH_TUNNEL_FIELDS.forEach((field) => {
       this.state.currentConnection[field] = undefined;
     });
+  },
+
+  _pruneAll(done) {
+    const recents = this.state.connections.filter((connection) => {
+      return !connection.is_favorite;
+    });
+    for (let i = 0; i < recents.length; i++) {
+      recents[i].destroy({
+        success: () => {
+          this.state.connections.remove(recents[i]._id);
+        }
+      });
+    }
+    done();
   },
 
   _pruneRecents(done) {

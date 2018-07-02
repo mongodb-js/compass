@@ -12,6 +12,14 @@ class Recents extends React.Component {
     Actions.onConnectionSelected(recent);
   }
 
+  onClearConnectionClicked(recent) {
+    Actions.onDeleteConnection(recent);
+  }
+
+  onClearConnectionsClicked() {
+    Actions.onDeleteConnections();
+  }
+
   getClassName(recent) {
     let className = 'connect-sidebar-list-item';
     if (this.props.currentConnection === recent) {
@@ -40,19 +48,36 @@ class Recents extends React.Component {
           key={i}
           title={title}
           onClick={this.onRecentClicked.bind(this, recent)}>
-          <div className="connect-sidebar-list-item-last-used">{this.formatLastUsed(recent)}</div>
-          <div className="connect-sidebar-list-item-name">{title}</div>
+          <div>
+            <div className="connect-sidebar-list-item-last-used">{this.formatLastUsed(recent)}</div>
+            <div className="connect-sidebar-list-item-name">{title}</div>
+          </div>
+          <i onClick={this.onClearConnectionClicked.bind(this, recent)} className="fa fa-trash-o fa-lg"></i>
         </li>
       );
     });
   }
 
   render() {
+    const recents = this.props.connections.filter((connection) => {
+      return !connection.is_favorite;
+    });
+
+    const clearClassName = 'connect-sidebar-header-recent-clear';
+    const clearAllDiv = recents.length > 0
+      ? <div onClick={this.onClearConnectionsClicked} className={clearClassName}>Clear All</div>
+      : '';
+
     return (
       <div className="connect-sidebar-connections-recents">
         <div className="connect-sidebar-header">
-          <i className="fa fa-fw fa-history" />
-          <span>Recents</span>
+          <div className="connect-sidebar-header-recent">
+            <div>
+              <i className="fa fa-fw fa-history" />
+              <span>Recents</span>
+            </div>
+            {clearAllDiv}
+          </div>
         </div>
         <ul className="connect-sidebar-list">
           {this.renderRecents()}

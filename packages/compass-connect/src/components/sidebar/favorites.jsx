@@ -40,8 +40,10 @@ class Favorites extends React.Component {
           key={i}
           title={title}
           onClick={this.onFavoriteClicked.bind(this, favorite)}>
-          <div className="connect-sidebar-list-item-last-used">{this.formatLastUsed(favorite)}</div>
-          <div className="connect-sidebar-list-item-name">{favorite.name}</div>
+          <div>
+            <div className="connect-sidebar-list-item-last-used">{this.formatLastUsed(favorite)}</div>
+            <div className="connect-sidebar-list-item-name">{favorite.name}</div>
+          </div>
         </li>
       );
     });

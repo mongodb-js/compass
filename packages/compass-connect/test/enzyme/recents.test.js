@@ -9,7 +9,8 @@ chai.use(chaiEnzyme());
 
 describe('<Recents />', () => {
   describe('#render', () => {
-    const recents = [{ hostname: 'dev', port: 27000, is_recent: false }];
+    const recents = [{ hostname: 'dev', port: 27000, is_recent: true, is_favorite: false}];
+
     const component = mount(
       <Recents currentConnection={{}} connections={recents} />
     );
@@ -24,6 +25,14 @@ describe('<Recents />', () => {
 
     it('renders the recents icon', () => {
       expect(component.find('i.fa-history')).to.be.present();
+    });
+
+    it('renders clear all connections text', () => {
+      expect(component.find('.connect-sidebar-header-recent-clear')).to.have.text('Clear All');
+    });
+
+    it('renders clear individual connection icon', () => {
+      expect(component.find('.fa.fa-trash-o.fa-lg')).to.be.present();
     });
 
     it('renders the recent name', () => {

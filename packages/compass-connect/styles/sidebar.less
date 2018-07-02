@@ -1,3 +1,5 @@
+@import (reference) "./compass/palette.less";
+
 .connect-sidebar {
   display: flex;
   flex-direction: column;
@@ -35,10 +37,31 @@
       color: #fff;
     }
 
-    span {
-      font-size: 12px;
-      font-weight: bold;
-      text-transform: uppercase;
+    &-recent {
+      display: flex;
+      justify-content: space-between;
+
+      &:hover {
+        div {
+          visibility: visible;
+        }
+      }
+
+      span {
+        font-size: 12px;
+        font-weight: bold;
+        text-transform: uppercase;
+      }
+
+      &-clear {
+        text-transform: uppercase;
+        visibility: hidden;
+        color: @linkOnDark;
+        margin-right: 10px;
+        font-weight: 600;
+        font-size: 12px;
+        cursor: pointer;
+      }
     }
   }
 
@@ -48,8 +71,23 @@
     padding-left: 0px;
 
     &-item {
-      padding: 5px 0px 6px 28px;
+      padding: 5px 28px 6px 28px;
       cursor: pointer;
+      display: flex;
+      justify-content: space-between;
+
+      &:hover {
+        i {
+          visibility: visible;
+        }
+      }
+
+      i {
+        visibility: hidden;
+        padding-top: 10px;
+        flex-grow: 0;
+        color: #fff;
+      }
 
       &-is-active {
         background-color: #6D7984;
