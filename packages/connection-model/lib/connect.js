@@ -210,6 +210,7 @@ function getTasks(model, setupListeners) {
         'dbName',
         'servers'
       );
+      validOptions.useNewUrlParser = true;
       const mongoClient = new MongoClient(model.driver_url, validOptions);
       if (setupListeners) {
         setupListeners(mongoClient);
