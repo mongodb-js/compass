@@ -21,7 +21,6 @@
     "pretest": "npm run compile",
     "prestart": "npm run compile",
     "start": "electron ./electron",
-    "storybook": "start-storybook -p 9001",
     "test": "hadron-build test",
     "test-enzyme": "npm test -- --enzyme",
     "test-main": "npm test -- --main",
@@ -37,8 +36,6 @@
     "hadron-ipc": "^1.0.0"
   },
   "devDependencies": {
-    "@kadira/react-storybook-addon-info": "^3.2.1",
-    "@kadira/storybook": "^2.3.0",
     "@mongodb-js/compass-auth-kerberos": "^1.0.1",
     "@mongodb-js/compass-auth-ldap": "^1.0.1",
     "@mongodb-js/compass-auth-x509": "^1.0.1",
