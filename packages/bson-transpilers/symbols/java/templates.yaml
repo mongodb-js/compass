@@ -78,6 +78,7 @@ Templates:
 
             return `Arrays.asList(${arr})`;
         }
+    ArrayTypeArgsTemplate: &ArrayTypeArgsTemplate null
     NullTypeTemplate: &NullTypeTemplate null
     UndefinedTypeTemplate: &UndefinedTypeTemplate !!js/function >
         () => {

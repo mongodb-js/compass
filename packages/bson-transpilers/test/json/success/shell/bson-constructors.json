@@ -256,7 +256,7 @@
         "javascript": "{\n  x: [\n    1, 2\n  ]\n}",
         "python": "{\n    'x': [\n        1, 2\n    ]\n}",
         "java": "new Document(\"x\", Arrays.asList(1L, 2L))",
-        "csharp": "new BsonDocument(\"x\", new BsonArray\n    {\n        1, 2\n    })",
+        "csharp": "new BsonDocument(\"x\", new BsonArray\n    {\n        1,\n        2\n    })",
         "shell": "{x: [1,2]}"
       },
       {
@@ -298,7 +298,7 @@
         "javascript": "[\n  1, 2\n]",
         "python": "[\n    1, 2\n]",
         "java": "Arrays.asList(1L, 2L)",
-        "csharp": "new BsonArray\n{\n    1, 2\n}",
+        "csharp": "new BsonArray\n{\n    1,\n    2\n}",
         "shell": "[1, 2]"
       },
       {
@@ -306,7 +306,7 @@
         "javascript": "[\n  1, 2\n]",
         "python": "[\n    1, 2\n]",
         "java": "Arrays.asList(1L, 2L)",
-        "csharp": "new BsonArray\n{\n    1, 2\n}",
+        "csharp": "new BsonArray\n{\n    1,\n    2\n}",
         "shell": "[1, 2,]"
       },
       {
@@ -314,7 +314,7 @@
         "javascript": "[\n  1, {\n    settings: 'http2'\n  }\n]",
         "python": "[\n    1, {\n        'settings': 'http2'\n    }\n]",
         "java": "Arrays.asList(1L, \n    new Document(\"settings\", \"http2\"))",
-        "csharp": "new BsonArray\n{\n    1, new BsonDocument(\"settings\", \"http2\")\n}",
+        "csharp": "new BsonArray\n{\n    1,\n    new BsonDocument(\"settings\", \"http2\")\n}",
         "shell": "[1, { settings: 'http2' }]"
       },
       {
@@ -322,7 +322,7 @@
         "javascript": "[\n  1, [\n    2, 3\n  ]\n]",
         "python": "[\n    1, [\n        2, 3\n    ]\n]",
         "java": "Arrays.asList(1L, Arrays.asList(2L, 3L))",
-        "csharp": "new BsonArray\n{\n    1, new BsonArray\n    {\n        2, 3\n    }\n}",
+        "csharp": "new BsonArray\n{\n    1,\n    new BsonArray\n    {\n        2,\n        3\n    }\n}",
         "shell": "[1, [2, 3]]"
       },
       {
@@ -340,7 +340,7 @@
         "javascript": "[\n  undefined, 1, 2\n]",
         "python": "[\n    None, 1, 2\n]",
         "java": "Arrays.asList(new BsonUndefined(), 1L, 2L)",
-        "csharp": "new BsonArray\n{\n    BsonUndefined.Value, 1, 2\n}",
+        "csharp": "new BsonArray\n{\n    BsonUndefined.Value,\n    1,\n    2\n}",
         "shell": "[,1, 2,]"
       },
       {
@@ -356,7 +356,7 @@
         "javascript": "[\n  undefined, undefined\n]",
         "python": "[\n    None, None\n]",
         "java": "Arrays.asList(new BsonUndefined(), \n    new BsonUndefined())",
-        "csharp": "new BsonArray\n{\n    BsonUndefined.Value, BsonUndefined.Value\n}",
+        "csharp": "new BsonArray\n{\n    BsonUndefined.Value,\n    BsonUndefined.Value\n}",
         "shell": "[,,]"
       },
       {
@@ -364,7 +364,7 @@
         "javascript": "[\n  1, undefined, undefined, undefined, 2\n]",
         "python": "[\n    1, None, None, None, 2\n]",
         "java": "Arrays.asList(1L, \n    new BsonUndefined(), \n    new BsonUndefined(), \n    new BsonUndefined(), 2L)",
-        "csharp": "new BsonArray\n{\n    1, BsonUndefined.Value, BsonUndefined.Value, BsonUndefined.Value, 2\n}",
+        "csharp": "new BsonArray\n{\n    1,\n    BsonUndefined.Value,\n    BsonUndefined.Value,\n    BsonUndefined.Value,\n    2\n}",
         "shell": "[1,,,,2]"
       }
     ]

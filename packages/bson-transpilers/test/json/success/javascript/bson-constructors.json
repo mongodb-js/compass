@@ -290,7 +290,7 @@
         "javascript": "{x: ['1', '2']}",
         "python": "{\n    'x': [\n        '1', '2'\n    ]\n}",
         "java": "new Document(\"x\", Arrays.asList(\"1\", \"2\"))",
-        "csharp": "new BsonDocument(\"x\", new BsonArray\n    {\n        \"1\", \"2\"\n    })",
+        "csharp": "new BsonDocument(\"x\", new BsonArray\n    {\n        \"1\",\n        \"2\"\n    })",
         "shell": "{\n  x: [\n    '1', '2'\n  ]\n}"
       },
       {
@@ -338,7 +338,7 @@
         "javascript": "{ status: 'A', $or: [{ qty: { $lt: 30 } }, { item: { $regex: '^p' } }] }",
         "python": "{\n    'status': 'A', \n    '$or': [\n        {\n            'qty': {\n                '$lt': 30\n            }\n        }, {\n            'item': {\n                '$regex': '^p'\n            }\n        }\n    ]\n}",
         "java": "new Document(\"status\", \"A\")\n    .append(\"$or\", Arrays.asList(new Document(\"qty\", \n        new Document(\"$lt\", 30L)), \n        new Document(\"item\", \n        new Document(\"$regex\", \"^p\"))))",
-        "csharp": "new BsonDocument\n{\n    { \"status\", \"A\" }, \n    { \"$or\", new BsonArray\n    {\n        new BsonDocument(\"qty\", new BsonDocument(\"$lt\", 30)), new BsonDocument(\"item\", new BsonDocument(\"$regex\", \"^p\"))\n    } }\n}",
+        "csharp": "new BsonDocument\n{\n    { \"status\", \"A\" }, \n    { \"$or\", new BsonArray\n    {\n        new BsonDocument(\"qty\", \n        new BsonDocument(\"$lt\", 30)),\n        new BsonDocument(\"item\", \n        new BsonDocument(\"$regex\", \"^p\"))\n    } }\n}",
         "shell": "{\n  status: 'A', \n  $or: [\n    {\n      qty: {\n        $lt: 30\n      }\n    }, {\n      item: {\n        $regex: '^p'\n      }\n    }\n  ]\n}"
       }
 
@@ -349,7 +349,7 @@
         "javascript": "['1', '2']",
         "python": "[\n    '1', '2'\n]",
         "java": "Arrays.asList(\"1\", \"2\")",
-        "csharp": "new BsonArray\n{\n    \"1\", \"2\"\n}",
+        "csharp": "new BsonArray\n{\n    \"1\",\n    \"2\"\n}",
         "shell": "[\n  '1', '2'\n]"
       },
       {
@@ -357,7 +357,7 @@
         "javascript": "['1', '2',]",
         "python": "[\n    '1', '2'\n]",
         "java": "Arrays.asList(\"1\", \"2\")",
-        "csharp": "new BsonArray\n{\n    \"1\", \"2\"\n}",
+        "csharp": "new BsonArray\n{\n    \"1\",\n    \"2\"\n}",
         "shell": "[\n  '1', '2'\n]"
       },
       {
@@ -365,7 +365,7 @@
         "javascript": "['1', { settings: 'http2' }]",
         "python": "[\n    '1', {\n        'settings': 'http2'\n    }\n]",
         "java": "Arrays.asList(\"1\", \n    new Document(\"settings\", \"http2\"))",
-        "csharp": "new BsonArray\n{\n    \"1\", new BsonDocument(\"settings\", \"http2\")\n}",
+        "csharp": "new BsonArray\n{\n    \"1\",\n    new BsonDocument(\"settings\", \"http2\")\n}",
         "shell": "[\n  '1', {\n    settings: 'http2'\n  }\n]"
       },
       {
@@ -373,7 +373,7 @@
         "javascript": "{\"pipeline\": [ { $match: { $expr: { \"$eq\": [ \"$manager\", \"$$me\" ] } } }, { $project: { managers : 0 } }, { $sort: { startQuarter: 1, notes:1, job_code: 1 } } ]}" ,
         "python": "{\n    'pipeline': [\n        {\n            '$match': {\n                '$expr': {\n                    '$eq': [\n                        '$manager', '$$me'\n                    ]\n                }\n            }\n        }, {\n            '$project': {\n                'managers': 0\n            }\n        }, {\n            '$sort': {\n                'startQuarter': 1, \n                'notes': 1, \n                'job_code': 1\n            }\n        }\n    ]\n}",
         "java": "new Document(\"pipeline\", Arrays.asList(new Document(\"$match\", \n        new Document(\"$expr\", \n        new Document(\"$eq\", Arrays.asList(\"$manager\", \"$$me\")))), \n        new Document(\"$project\", \n        new Document(\"managers\", 0L)), \n        new Document(\"$sort\", \n        new Document(\"startQuarter\", 1L)\n                .append(\"notes\", 1L)\n                .append(\"job_code\", 1L))))",
-        "csharp": "new BsonDocument(\"pipeline\", new BsonArray\n    {\n        new BsonDocument(\"$match\", new BsonDocument(\"$expr\", new BsonDocument(\"$eq\", new BsonArray\n                    {\n                        \"$manager\", \"$$me\"\n                    }))), new BsonDocument(\"$project\", new BsonDocument(\"managers\", 0)), new BsonDocument(\"$sort\", new BsonDocument\n            {\n                { \"startQuarter\", 1 }, \n                { \"notes\", 1 }, \n                { \"job_code\", 1 }\n            })\n    })",
+        "csharp": "new BsonDocument(\"pipeline\", new BsonArray\n    {\n        new BsonDocument(\"$match\", \n        new BsonDocument(\"$expr\", \n        new BsonDocument(\"$eq\", \n        new BsonArray\n                    {\n                        \"$manager\",\n                        \"$$me\"\n                    }))),\n        new BsonDocument(\"$project\", \n        new BsonDocument(\"managers\", 0)),\n        new BsonDocument(\"$sort\", \n        new BsonDocument\n            {\n                { \"startQuarter\", 1 }, \n                { \"notes\", 1 }, \n                { \"job_code\", 1 }\n            })\n    })",
         "shell": "{\n  \"pipeline\": [\n    {\n      $match: {\n        $expr: {\n          \"$eq\": [\n            \"$manager\", \"$$me\"\n          ]\n        }\n      }\n    }, {\n      $project: {\n        managers: 0\n      }\n    }, {\n      $sort: {\n        startQuarter: 1, \n        notes: 1, \n        job_code: 1\n      }\n    }\n  ]\n}"
       },
       {
@@ -381,7 +381,7 @@
         "javascript": "['1', ['2', '3']]",
         "python": "[\n    '1', [\n        '2', '3'\n    ]\n]",
         "java": "Arrays.asList(\"1\", Arrays.asList(\"2\", \"3\"))",
-        "csharp": "new BsonArray\n{\n    \"1\", new BsonArray\n    {\n        \"2\", \"3\"\n    }\n}",
+        "csharp": "new BsonArray\n{\n    \"1\",\n    new BsonArray\n    {\n        \"2\",\n        \"3\"\n    }\n}",
         "shell": "[\n  '1', [\n    '2', '3'\n  ]\n]"
       },
       {
@@ -399,7 +399,7 @@
         "javascript": "[,'1', '2',]",
         "python": "[\n    None, '1', '2'\n]",
         "java": "Arrays.asList(new BsonUndefined(), \"1\", \"2\")",
-        "csharp": "new BsonArray\n{\n    BsonUndefined.Value, \"1\", \"2\"\n}",
+        "csharp": "new BsonArray\n{\n    BsonUndefined.Value,\n    \"1\",\n    \"2\"\n}",
         "shell": "[\n  undefined, '1', '2'\n]"
       },
       {
@@ -415,7 +415,7 @@
         "javascript": "[,,]",
         "python": "[\n    None, None\n]",
         "java": "Arrays.asList(new BsonUndefined(), \n    new BsonUndefined())",
-        "csharp": "new BsonArray\n{\n    BsonUndefined.Value, BsonUndefined.Value\n}",
+        "csharp": "new BsonArray\n{\n    BsonUndefined.Value,\n    BsonUndefined.Value\n}",
         "shell": "[\n  undefined, undefined\n]"
       },
       {
@@ -423,7 +423,7 @@
         "javascript": "['1',,,,'2']",
         "python": "[\n    '1', None, None, None, '2'\n]",
         "java": "Arrays.asList(\"1\", \n    new BsonUndefined(), \n    new BsonUndefined(), \n    new BsonUndefined(), \"2\")",
-        "csharp": "new BsonArray\n{\n    \"1\", BsonUndefined.Value, BsonUndefined.Value, BsonUndefined.Value, \"2\"\n}",
+        "csharp": "new BsonArray\n{\n    \"1\",\n    BsonUndefined.Value,\n    BsonUndefined.Value,\n    BsonUndefined.Value,\n    \"2\"\n}",
         "shell": "[\n  '1', undefined, undefined, undefined, '2'\n]"
       }
     ],

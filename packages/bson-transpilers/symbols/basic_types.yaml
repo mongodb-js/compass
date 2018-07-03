@@ -42,6 +42,7 @@ BasicTypes:
         <<: *__type
         id: "_array"
         template: *ArrayTypeTemplate
+        argsTemplate: *ArrayTypeArgsTemplate
     _object: &ObjectType
         <<: *__type
         id: "_object"

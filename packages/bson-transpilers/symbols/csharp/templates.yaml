@@ -56,7 +56,14 @@ Templates:
               return 'new BsonArray()'
             }
 
-            return `new BsonArray${initialIndent}{${indent}${literal}${initialIndent}}`;
+            return `new BsonArray${initialIndent}{${literal}${initialIndent}}`;
+        }
+    ArrayTypeArgsTemplate: &ArrayTypeArgsTemplate !!js/function >
+        (arg, depth, last) => {
+            const indent = '\n' + '    '.repeat(depth);
+            const arr = arg.split(', new').join(`, ${indent}new`)
+
+            return last ? `${indent}${arr}` : `${indent}${arr},`;
         }
     NullTypeTemplate: &NullTypeTemplate !!js/function >
         () => {

@@ -33,6 +33,7 @@ Templates:
 
             return `[${indent}${literal}${closingIndent}]`;
         }
+    ArrayTypeArgsTemplate: &ArrayTypeArgsTemplate null
     NullTypeTemplate: &NullTypeTemplate !!js/function >
         () => {
             return 'null';
