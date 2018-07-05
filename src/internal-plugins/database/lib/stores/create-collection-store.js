@@ -29,9 +29,13 @@ const CreateCollectionStore = Reflux.createStore({
    * @param {String} collection - The collection name.
    * @param {Boolean} capped - If the collection is capped.
    * @param {Number} size - The max size of the capped collection.
+   * @param {Boolean} isCustomCollation - If the collection is custom.
+   * @param {Boolean} collation - Collation options.
    */
-  createCollection(dbName, collection, capped, size) {
-    const options = capped ? { capped: true, size: parseInt(size, 10) } : {};
+  createCollection(dbName, collection, capped, size, isCustomCollation, collation) {
+    let options = {};
+    options = capped ? Object.assign(options, { capped: true, size: parseInt(size, 10) }) : options;
+    options = isCustomCollation ? Object.assign(options, { collation }) : options;
     try {
       this.dataService.createCollection(`${dbName}.${collection}`, options, this.handleResult.bind(this));
     } catch (e) {

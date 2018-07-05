@@ -1,6 +1,7 @@
 const CollectionsAction = require('./lib/actions/collections-actions');
 const CollectionsTable = require('./lib/components');
 const CreateCollectionCheckbox = require('./lib/components/create-collection-checkbox');
+const CreateCollectionCollationSelect = require('./lib/components/create-collection-collation-select');
 const CreateCollectionInput = require('./lib/components/create-collection-input');
 const CreateCollectionSizeInput = require('./lib/components/create-collection-size-input');
 const CreateCollectionDialog = require('./lib/components/create-collection-dialog');
@@ -27,6 +28,7 @@ function activate(appRegistry) {
   appRegistry.registerAction('Database.CollectionsActions', CollectionsAction);
   appRegistry.registerComponent('Database.CollectionsTable', CollectionsTable);
   appRegistry.registerComponent('Database.CreateCollectionCheckbox', CreateCollectionCheckbox);
+  appRegistry.registerComponent('Database.CreateCollectionCollationSelect', CreateCollectionCollationSelect);
   appRegistry.registerComponent('Database.CreateCollectionInput', CreateCollectionInput);
   appRegistry.registerComponent('Database.CreateCollectionSizeInput', CreateCollectionSizeInput);
   appRegistry.registerComponent('Database.CreateCollectionDialog', CreateCollectionDialog);
@@ -44,6 +46,7 @@ function deactivate(appRegistry) {
   appRegistry.deregisterAction('Database.CollectionsActions');
   appRegistry.deregisterComponent('Database.CollectionsTable');
   appRegistry.deregisterComponent('Database.CreateCollectionCheckbox');
+  appRegistry.deregisterComponent('Database.CreateCollectionCollationSelect');
   appRegistry.deregisterComponent('Database.CreateCollectionInput');
   appRegistry.deregisterComponent('Database.CreateCollectionSizeInput');
   appRegistry.deregisterComponent('Database.CreateCollectionDialog');

@@ -9,6 +9,31 @@ const CreateCollectionStore = require('../stores/create-collection-store');
 const CreateCollectionInput = require('./create-collection-input');
 const CreateCollectionSizeInput = require('./create-collection-size-input');
 const CreateCollectionCheckbox = require('./create-collection-checkbox');
+const CreateCollectionCollationSelect = require('./create-collection-collation-select');
+
+/**
+ * The help URL for capped collections.
+ */
+const HELP_URL_CAPPED = 'https://docs.mongodb.com/manual/core/capped-collections/';
+
+/**
+ * The help URL for collation.
+ */
+const HELP_URL_COLLATION = 'https://docs.mongodb.com/master/reference/collation/';
+
+/**
+ * Initial state of custom collation.
+ */
+const COLLATION_INIT = {
+  locale: 'simple',
+  strength: '3',
+  caseLevel: false,
+  caseFirst: 'off',
+  numericOrdering: false,
+  alternate: 'non-ignorable',
+  backwards: false,
+  normalization: false
+};
 
 /**
  * The dialog to create a collection.
@@ -22,7 +47,7 @@ class CreateCollectionDialog extends React.Component {
    */
   constructor(props) {
     super(props);
-    this.state = { open: false };
+    this.state = {open: false, collation: COLLATION_INIT};
     this.NamespaceStore = app.appRegistry.getStore('App.NamespaceStore');
   }
 
@@ -53,10 +78,8 @@ class CreateCollectionDialog extends React.Component {
       collectionName: '',
       databaseName: databaseName,
       capped: false,
-      maxSize: '',
-      error: false,
-      inProgress: false,
-      errorMessage: ''
+      isCustomCollation: false,
+      collation: COLLATION_INIT
     });
   }
 
@@ -81,7 +104,9 @@ class CreateCollectionDialog extends React.Component {
       databaseName,
       this.state.collectionName,
       this.state.capped,
-      this.state.maxSize
+      this.state.maxSize,
+      this.state.isCustomCollation,
+      this.state.collation
     );
     this.NamespaceStore.ns = databaseName;
   }
@@ -116,12 +141,29 @@ class CreateCollectionDialog extends React.Component {
   }
 
   /**
+   * Handle clicking the collation checkbox.
+   */
+  onCollationClicked() {
+    this.setState({ isCustomCollation: !this.state.isCustomCollation });
+  }
+
+  /**
    * Change the max collection size.
    *
    * @param {Event} evt - The event.
    */
   onMaxSizeChange(evt) {
     this.setState({ maxSize: evt.target.value });
+  }
+
+  /**
+   * Set state to selected field of collation option.
+   *
+   * @param {Event} field - The field.
+   * @param {Event} evt - The event.
+   */
+  onCollationOptionChange(field, evt) {
+    this.setState({collation: Object.assign({}, this.state.collation, {[field]: evt.value})});
   }
 
   /**
@@ -137,6 +179,24 @@ class CreateCollectionDialog extends React.Component {
           placeholder="Enter max bytes"
           value={this.state.maxSize}
           onChangeHandler={this.onMaxSizeChange.bind(this)} />
+      );
+    }
+  }
+
+  /**
+   * Render collation options when collation is selected.
+   *
+   * @returns {React.Component} The component.
+   */
+  renderCollation() {
+    if (this.state.isCustomCollation) {
+      return (
+        <div>
+          <CreateCollectionCollationSelect
+            collation={this.state.collation}
+            onCollationOptionChange={this.onCollationOptionChange.bind(this)}
+          />
+        </div>
       );
     }
   }
@@ -169,13 +229,24 @@ class CreateCollectionDialog extends React.Component {
               name="Collection Name"
               value={this.state.collectionName}
               onChangeHandler={this.onCollectionNameChange.bind(this)} />
-            <CreateCollectionCheckbox
-              name="Capped Collection"
-              className="create-collection-dialog-capped"
-              checked={this.state.checked}
-              onClickHandler={this.onCappedClicked.bind(this)}
-            />
-            {this.renderMaxSize()}
+            <div className="form-group">
+              <CreateCollectionCheckbox
+                name="Capped Collection"
+                className="create-collection-dialog-capped"
+                checked={this.state.checked}
+                helpUrl={HELP_URL_CAPPED}
+                onClickHandler={this.onCappedClicked.bind(this)}
+              />
+              {this.renderMaxSize()}
+              <CreateCollectionCheckbox
+                name="Use Custom Collation"
+                className="create-collection-dialog-collation"
+                checked={this.state.checked}
+                helpUrl={HELP_URL_COLLATION}
+                onClickHandler={this.onCollationClicked.bind(this)}
+              />
+              {this.renderCollation()}
+            </div>
             {this.state.error ?
               <ModalStatusMessage icon="times" message={this.state.errorMessage} type="error" />
               : null}
