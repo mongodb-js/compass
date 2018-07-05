@@ -167,7 +167,8 @@ var AUTHENTICATION_VALUES = [
    * @enterprise
    * @see http://bit.ly/mongodb-node-driver-ldap
    */
-  'LDAP'
+  'LDAP',
+  'SCRAM-SHA-256'
 ];
 
 /**
@@ -194,7 +195,8 @@ var AUTHENICATION_TO_AUTH_MECHANISM = {
   MONGODB: 'DEFAULT',
   KERBEROS: 'GSSAPI',
   X509: 'MONGODB-X509',
-  LDAP: 'PLAIN'
+  LDAP: 'PLAIN',
+  'SCRAM-SHA-256': 'SCRAM-SHA-256'
 };
 
 assign(derived, {
@@ -218,6 +220,7 @@ var AUTH_MECHANISM_TO_AUTHENTICATION = {
   '': 'NONE',
   DEFAULT: 'MONGODB',
   'SCRAM-SHA-1': 'MONGODB',
+  'SCRAM-SHA-256': 'SCRAM-SHA-256',
   'MONGODB-CR': 'MONGODB',
   'MONGODB-X509': 'X509',
   GSSAPI: 'KERBEROS',
@@ -232,6 +235,11 @@ var AUTH_MECHANISM_TO_AUTHENTICATION = {
 var AUTHENTICATION_TO_FIELD_NAMES = {
   NONE: [],
   MONGODB: [
+    'mongodb_username', // required
+    'mongodb_password', // required
+    'mongodb_database_name' // optional
+  ],
+  'SCRAM-SHA-256': [
     'mongodb_username', // required
     'mongodb_password', // required
     'mongodb_database_name' // optional
@@ -636,6 +644,10 @@ assign(derived, {
         if (this.authentication === 'MONGODB') {
           req.auth = AUTH_TOKEN;
           req.query.authSource = this.mongodb_database_name;
+        } else if (this.authentication === 'SCRAM-SHA-256') {
+          req.auth = AUTH_TOKEN;
+          req.query.authSource = this.mongodb_database_name;
+          req.query.authMechanism = this.driver_auth_mechanism;
         } else if (this.authentication === 'KERBEROS') {
           defaults(req.query, {
             gssapiServiceName: this.kerberos_service_name,
@@ -672,7 +684,7 @@ assign(derived, {
 
       // Post url.format() workaround for
       // https://github.com/nodejs/node/issues/1802
-      if (this.authentication === 'MONGODB') {
+      if (this.authentication === 'MONGODB' || this.authentication === 'SCRAM-SHA-256') {
         const authField = format(
           '%s:%s',
           encodeURIComponent(this.mongodb_username),
@@ -858,7 +870,7 @@ Connection = AmpersandModel.extend({
     if (!attrs) {
       return attrs;
     }
-    if (attrs.mongodb_username) {
+    if (attrs.mongodb_username && attrs.authentication !== 'SCRAM-SHA-256') {
       this.authentication = attrs.authentication = 'MONGODB';
     } else if (attrs.kerberos_principal) {
       this.authentication = attrs.authentication = 'KERBEROS';
@@ -868,7 +880,7 @@ Connection = AmpersandModel.extend({
       this.authentication = attrs.authentication = 'X509';
     }
 
-    if (attrs.authentication === 'MONGODB') {
+    if (attrs.authentication === 'MONGODB' || attrs.authentication === 'SCRAM-SHA-256') {
       if (!attrs.mongodb_database_name) {
         attrs.mongodb_database_name = MONGODB_DATABASE_NAME_DEFAULT;
       }
@@ -921,17 +933,17 @@ Connection = AmpersandModel.extend({
     }
   },
   validate_mongodb: function(attrs) {
-    if (attrs.authentication === 'MONGODB') {
+    if (attrs.authentication === 'MONGODB' || attrs.authentication === 'SCRAM-SHA-256') {
       if (!attrs.mongodb_username) {
         throw new TypeError(format(
           'The mongodb_username field is required when '
-          + 'using MONGODB for authentication.'));
+          + 'using MONGODB or SCRAM-SHA-256 for authentication.'));
       }
 
       if (!attrs.mongodb_password) {
         throw new TypeError(format(
           'The mongodb_password field is required when '
-          + 'using MONGODB for authentication.'));
+          + 'using MONGODB or SCRAM-SHA-256 for authentication.'));
       }
     }
   },
@@ -1121,7 +1133,9 @@ Connection.from = function(url) {
       attrs.kerberos_password = decodeURIComponent(parsed.auth.password);
     // attrs.kerberos_service_name = parsed.
     } else {
-      attrs.authentication = 'MONGODB';
+      if (!attrs.authentication) {
+        attrs.authentication = 'MONGODB';
+      }
       attrs.mongodb_username = decodeURIComponent(parsed.auth.user);
       attrs.mongodb_password = decodeURIComponent(parsed.auth.password);
       // authSource takes precedence, but fall back to dbName

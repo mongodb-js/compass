@@ -118,6 +118,57 @@ describe('mongodb-connection-model', function() {
       });
     });
 
+    describe('SCRAM-SHA-256', function() {
+      it('should set authentication to SCRAM-SHA-256', function() {
+        var c = new Connection({
+          mongodb_username: 'arlo',
+          mongodb_password: 'woof',
+          authentication: 'SCRAM-SHA-256'
+        });
+        assert.equal(c.authentication, 'SCRAM-SHA-256');
+      });
+
+      it('should require mongodb_username', function() {
+        isNotValidAndHasMessage(new Connection({
+          authentication: 'SCRAM-SHA-256',
+          mongodb_password: 'woof'
+        }), 'mongodb_username field is required');
+      });
+
+      it('should require mongodb_password', function() {
+        isNotValidAndHasMessage(new Connection({
+          mongodb_username: 'arlo',
+          authentication: 'SCRAM-SHA-256'
+        }), 'mongodb_password field is required');
+      });
+
+      describe('driver_url', function() {
+        var c = new Connection({
+          mongodb_username: '@rlo',
+          mongodb_password: 'w@of',
+          authentication: 'SCRAM-SHA-256'
+        });
+
+        it('should urlencode credentials', function() {
+          assert.equal(c.driver_url,
+            'mongodb://%40rlo:w%40of@localhost:27017/?readPreference=primary&authSource=admin&authMechanism=SCRAM-SHA-256');
+        });
+
+        it('should be parse in the browser', function() {
+          assert.doesNotThrow(function() {
+            parse(c.driver_url);
+          });
+        });
+
+        it('should parse on the server', function(done) {
+          driverParse(c.driver_url, {}, (error) => {
+            assert.equal(error, null);
+            done();
+          });
+        });
+      });
+    });
+
     describe('MONGODB', function() {
       it('should reject non-applicable fields', function() {
         isNotValidAndHasMessage(new Connection({
