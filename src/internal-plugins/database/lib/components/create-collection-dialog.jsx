@@ -145,7 +145,8 @@ class CreateCollectionDialog extends React.Component {
   /**
    * Set state to selected field of collation option.
    *
-   * @param {Event} field - The field.
+   * @param {Object} collation - The collation state.
+   * @param {String} field - The field.
    * @param {Event} evt - The event.
    */
   onCollationOptionChange(collation, field, evt) {
