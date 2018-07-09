@@ -1,36 +1,40 @@
 const React = require('react');
 const PropTypes = require('prop-types');
 const Select = require('react-select-plus').default;
-
-/**
- * Collation options for selects.
- */
-const COLLATION_OPTIONS = [
-  {
-    field: 'locale',
-    label: 'Locale',
-    values: [
-      {value: 'af', label: 'af'},
-      {value: 'sq', label: 'sq'},
-      {value: 'ar@collation=compat', label: 'ar - Arabic - compat'},
-      {value: 'simple', label: 'simple'}
-    ],
-    required: true
-  },
-  {field: 'strength', label: 'Strength', values: ['1', '2', '3', '4', '5']},
-  {field: 'caseLevel', label: 'Use Case-Level', values: ['true', 'false']},
-  {field: 'caseFirst', label: 'Case First', values: ['upper', 'lower', 'off']},
-  {field: 'numericOrdering', label: 'Numeric Ordering', values: ['true', 'false']},
-  {field: 'alternate', label: 'Alternate', values: ['non-ignorable', 'shifted']},
-  {field: 'maxVariable', label: 'Max-Variable', values: ['punct', 'space']},
-  {field: 'backwards', label: 'Backwards', values: ['true', 'false']},
-  {field: 'normalization', label: 'Normalization', values: ['true', 'false']}
-];
+const { COLLATION_OPTIONS } = require('../constants');
 
 /**
  * Component for the collation select.
  */
 class CreateCollectionCollationSelect extends React.Component {
+  /**
+   * The component constructor.
+   *
+   * @param {Object} props - The properties.
+   */
+  constructor(props) {
+    super(props);
+    this.state = {
+      locale: 'simple',
+      strength: '3',
+      caseLevel: false,
+      caseFirst: 'off',
+      numericOrdering: false,
+      alternate: 'non-ignorable',
+      backwards: false,
+      normalization: false
+    };
+  }
+
+  /**
+   * Update state with recieved props.
+   *
+   * @param {Object} nextProps - The next properties.
+   */
+  componentWillReceiveProps(nextProps) {
+    this.setState(Object.assign({}, this.state, nextProps.collation));
+  }
+
   /**
    * Create React dropdown items for each element in the fields array.
    * @param {Array} values - List of values for dropdown.
@@ -55,11 +59,11 @@ class CreateCollectionCollationSelect extends React.Component {
         <div key={element.field} className="create-collection-dialog-collation-field">
           <p className="create-collection-dialog-collation-label">{element.label}</p>
           <Select
-            value={this.props.collation[element.field]}
+            value={this.state[element.field]}
             name={element.field}
             placeholder={`Select a ${element.field}`}
             options={this.getDropdownFieldsSelect(element.values)}
-            onChange={this.props.onCollationOptionChange.bind(this, element.field)}
+            onChange={this.props.onCollationOptionChange.bind(this, this.state, element.field)}
             clearable={false}
             searchable={false}
             className="create-collection-dialog-collation-select" />

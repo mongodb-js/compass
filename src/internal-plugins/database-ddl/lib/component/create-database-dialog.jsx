@@ -23,20 +23,6 @@ const HELP_URL_CAPPED = 'https://docs.mongodb.com/manual/core/capped-collections
 const HELP_URL_COLLATION = 'https://docs.mongodb.com/master/reference/collation/';
 
 /**
- * Initial state of custom collation.
- */
-const COLLATION_INIT = {
-  locale: 'simple',
-  strength: '3',
-  caseLevel: false,
-  caseFirst: 'off',
-  numericOrdering: false,
-  alternate: 'non-ignorable',
-  backwards: false,
-  normalization: false
-};
-
-/**
  * The dialog to create a database.
  */
 class CreateDatabaseDialog extends React.Component {
@@ -48,7 +34,7 @@ class CreateDatabaseDialog extends React.Component {
    */
   constructor(props) {
     super(props);
-    this.state = {open: false, collation: COLLATION_INIT};
+    this.state = {open: false};
     this.CreateCollectionInput = app.appRegistry.getComponent('Database.CreateCollectionInput');
     this.CreateCollectionSizeInput = app.appRegistry.getComponent('Database.CreateCollectionSizeInput');
     this.CreateCollectionCheckbox = app.appRegistry.getComponent('Database.CreateCollectionCheckbox');
@@ -86,7 +72,7 @@ class CreateDatabaseDialog extends React.Component {
       inProgress: false,
       errorMessage: '',
       isCustomCollation: false,
-      collation: COLLATION_INIT
+      collation: {}
     });
   }
 
@@ -187,8 +173,8 @@ class CreateDatabaseDialog extends React.Component {
    * @param {Event} field - The field.
    * @param {Event} evt - The event.
    */
-  onCollationOptionChange(field, evt) {
-    this.setState({collation: Object.assign({}, this.state.collation, {[field]: evt.value})});
+  onCollationOptionChange(collation, field, evt) {
+    this.setState({collation: Object.assign({}, collation, {[field]: evt.value})});
   }
 
   /**
