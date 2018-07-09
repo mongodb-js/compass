@@ -185,7 +185,7 @@ class CreateDatabaseDialog extends React.Component {
   renderMaxSize() {
     if (this.state.capped) {
       return (
-        <this.CreateCollectionCollationSelect
+        <this.CreateCollectionSizeInput
           name="bytes max"
           placeholder="Enter max bytes"
           value={this.state.maxSize}
