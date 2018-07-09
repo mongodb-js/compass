@@ -1,5 +1,6 @@
 const ConnectComponent = require('./lib/components');
 const MongoDBAuthentication = require('./lib/components/form/mongodb-authentication');
+const ScramSha256 = require('./lib/components/form/scram-sha-256');
 const SSLServerValidation = require('./lib/components/form/ssl-server-validation');
 const SSLServerClientValidation = require('./lib/components/form/ssl-server-client-validation');
 const SSHTunnelIdentityFileValidation = require('./lib/components/form/ssh-tunnel-identity-file-validation');
@@ -30,6 +31,15 @@ const MONGODB_AUTH_ROLE = {
   name: 'MONGODB',
   selectOption: { MONGODB: 'Username / Password' },
   component: MongoDBAuthentication
+};
+
+/**
+ * SCRAM-SHA-256
+ */
+const SCRAM_SHA_256_AUTH_ROLE = {
+  name: 'SCRAM-SHA-256',
+  selectOption: { 'SCRAM-SHA-256': 'SCRAM-SHA-256' },
+  component: ScramSha256
 };
 
 /**
@@ -117,6 +127,7 @@ function activate(appRegistry) {
   appRegistry.registerRole('Connect.SSHTunnelMethod', IDENTITY_FILE_SSH_TUNNEL_ROLE);
   appRegistry.registerRole('Connect.AuthenticationMethod', NO_AUTH_ROLE);
   appRegistry.registerRole('Connect.AuthenticationMethod', MONGODB_AUTH_ROLE);
+  appRegistry.registerRole('Connect.AuthenticationMethod', SCRAM_SHA_256_AUTH_ROLE);
   appRegistry.registerAction('Connect.Actions', ConnectActions);
   appRegistry.registerStore('Connect.Store', ConnectStore);
 }
@@ -138,6 +149,7 @@ function deactivate(appRegistry) {
   appRegistry.deregisterRole('Connect.SSHTunnelMethod', IDENTITY_FILE_SSH_TUNNEL_ROLE);
   appRegistry.deregisterRole('Connect.AuthenticationMethod', NO_AUTH_ROLE);
   appRegistry.deregisterRole('Connect.AuthenticationMethod', MONGODB_AUTH_ROLE);
+  appRegistry.deregisterRole('Connect.AuthenticationMethod', SCRAM_SHA_256_AUTH_ROLE);
   appRegistry.deregisterAction('Connect.Actions');
   appRegistry.deregisterStore('Connect.Store');
 }

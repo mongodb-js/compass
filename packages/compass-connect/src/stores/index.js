@@ -477,7 +477,7 @@ const ConnectStore = Reflux.createStore({
    */
   updateDefaults() {
     const connection = this.state.currentConnection;
-    if (connection.authentication === 'MONGODB' && isEmpty(connection.mongodb_database_name)) {
+    if ((connection.authentication === 'MONGODB' || connection.authentication === 'SCRAM-SHA-256') && isEmpty(connection.mongodb_database_name)) {
       connection.mongodb_database_name = 'admin';
     } else if (connection.authentication === 'KERBEROS' && isEmpty(connection.kerberos_service_name)) {
       connection.kerberos_service_name = 'mongodb';
