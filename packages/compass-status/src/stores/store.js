@@ -30,9 +30,9 @@ const StatusStore = Reflux.createStore({
    */
   getInitialState() {
     return {
-      visible: false,
-      progressbar: false,
-      progress: 0,
+      visible: true,
+      progressbar: true,
+      progress: 100,
       modal: false,
       animation: false,
       message: '',
