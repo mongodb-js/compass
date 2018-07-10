@@ -312,9 +312,14 @@ const CRUDStore = Reflux.createStore({
       fields: this.state.query.project,
       promoteValues: false
     };
+
+    const StatusAction = this.appRegistry.getAction('Status.Actions');
+    StatusAction.showProgressBar();
+
     this.dataService.find(this.state.ns, this.state.query.filter, options, (error, documents) => {
       const length = error ? 0 : documents.length;
       this.appRegistry.emit('documents-paginated', this.state.view);
+      StatusAction.done();
       this.setState({
         error: error,
         docs: documents.map(doc => new HadronDocument(doc)),
@@ -342,9 +347,14 @@ const CRUDStore = Reflux.createStore({
       fields: this.state.query.project,
       promoteValues: false
     };
+
+    const StatusAction = this.appRegistry.getAction('Status.Actions');
+    StatusAction.showProgressBar();
+
     this.dataService.find(this.state.ns, this.state.query.filter, options, (error, documents) => {
       const length = error ? 0 : documents.length;
       this.appRegistry.emit('documents-paginated', this.state.view);
+      StatusAction.done();
       this.setState({
         error: error,
         docs: documents.map(doc => new HadronDocument(doc)),
@@ -508,11 +518,15 @@ const CRUDStore = Reflux.createStore({
       findOptions.limit = Math.min(NUM_PAGE_DOCS, query.limit);
     }
 
+    const StatusAction = this.appRegistry.getAction('Status.Actions');
+    StatusAction.showProgressBar();
+
     this.dataService.count(this.state.ns, query.filter, countOptions, (err, count) => {
       if (!err) {
         this.dataService.find(this.state.ns, query.filter, findOptions, (error, documents) => {
           const length = documents.length;
           this.appRegistry.emit('documents-refreshed', this.state.view, documents);
+          StatusAction.done();
           this.setState({
             error: error,
             docs: documents.map(doc => new HadronDocument(doc)),
@@ -526,6 +540,7 @@ const CRUDStore = Reflux.createStore({
       } else {
         // If the count gets an error we need to display this to the user since
         // they have the wrong privs.
+        StatusAction.done();
         this.setState({ error: err });
       }
     });

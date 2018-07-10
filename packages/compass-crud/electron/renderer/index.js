@@ -5,6 +5,7 @@ import AppRegistry from 'hadron-app-registry';
 import { AppContainer } from 'react-hot-loader';
 import { activate } from 'plugin';
 import ConnectedDocumentList from 'components/connected-document-list';
+import { activate as statusActivate } from '@mongodb-js/compass-status';
 
 window.jQuery = require('jquery');
 
@@ -14,8 +15,8 @@ window.jQuery = require('jquery');
 import 'bootstrap/less/bootstrap.less';
 import 'less/index.less';
 
-const DB = 'Venues';
-const COLL = 'Restaurants';
+const DB = 'crunchbase';
+const COLL = 'companies';
 
 const appRegistry = new AppRegistry();
 
@@ -34,6 +35,7 @@ appRegistry.registerStore('Query.ChangedStore', QueryChangedStore);
 appRegistry.registerComponent('Query.QueryBar', QueryBar);
 appRegistry.registerComponent('DeploymentAwareness.TextWriteButton', TextWriteButton);
 
+statusActivate(appRegistry);
 activate(appRegistry);
 appRegistry.onActivated();
 
@@ -46,9 +48,13 @@ document.body.appendChild(root);
 
 // Create a HMR enabled render function
 const render = Component => {
+  // if needing to debug the Status Plugin within this component, uncomment
+  // this line and a <Status/> div to the below render function.
+  // const Status = global.hadronApp.appRegistry.getRole('Application.Status')[0].component;
+
   ReactDOM.render(
     <AppContainer>
-      <Component />
+        <Component />
     </AppContainer>,
     document.getElementById('root')
   );
@@ -78,6 +84,8 @@ const dataService = new DataService(connection);
 appRegistry.emit('data-service-initialized', dataService);
 
 dataService.connect((error, ds) => {
+  if (!error) appRegistry.getAction('Status.Actions').done();
+
   appRegistry.emit('data-service-connected', error, ds);
 
   // Set the namespace for the CRUD plugin.

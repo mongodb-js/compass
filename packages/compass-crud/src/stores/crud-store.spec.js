@@ -3,6 +3,7 @@ import DataService from 'mongodb-data-service';
 import AppRegistry from 'hadron-app-registry';
 import HadronDocument, { Element } from 'hadron-document';
 import { expectedDocs, checkPageRange, NUM_DOCS } from '../../test/aggrid-helper';
+import { activate as statusActivate } from '@mongodb-js/compass-status';
 import CRUDStore from 'stores/crud-store';
 
 const CONNECTION = new Connection({
@@ -25,6 +26,8 @@ describe('CRUDStore', () => {
     global.hadronApp.appRegistry = appRegistry;
     global.hadronApp.appRegistry.registerStore('App.CollectionStore', collectionStore);
     global.hadronApp.appRegistry.registerStore('CRUD.Store', CRUDStore);
+    statusActivate(appRegistry);
+
     global.hadronApp.appRegistry.onActivated();
     dataService.connect(() => {
       global.hadronApp.appRegistry.emit('data-service-connected', null, dataService);

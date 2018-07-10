@@ -35,6 +35,7 @@
     "react-tooltip": "^3.2.6"
   },
   "devDependencies": {
+    "@mongodb-js/compass-status": "^3.0.1",
     "autoprefixer": "^7.1.2",
     "babel-cli": "^6.10.1",
     "babel-core": "^6.24.1",
