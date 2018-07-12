@@ -58,6 +58,8 @@ const SchemaStore = Reflux.createStore({
         this.dataService = dataService;
       }
     });
+    // TODO: check if we are currently in schema window before sampling
+    // appRegistry.on('refresh-data', this.startSampling.bind(this));
   },
 
   getShareText() {

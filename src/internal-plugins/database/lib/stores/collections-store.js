@@ -51,6 +51,9 @@ const CollectionsStore = Reflux.createStore({
         this.dataService = dataService;
       }
     });
+    appRegistry.on('refresh-data', () => {
+      app.appRegistry.getAction('App.InstanceActions').refreshInstance();
+    });
   },
 
   onDisconnected() {

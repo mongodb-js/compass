@@ -21,7 +21,6 @@ var MongoDBCollectionOnInstanceCollection = MongoDBCollection.Collection.extend(
   }
 }, filterableMixin, selectableMixin);
 
-
 var DatabaseModel = BaseDatabaseModel.extend({
   collections: {
     collections: MongoDBCollectionOnInstanceCollection
