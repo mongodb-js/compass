@@ -1,16 +1,17 @@
-.zero-state {
-	display: flex;
-	flex-direction: column;
-	align-items: center;
-	justify-content: center;
-	text-align: center;
-	min-height: 400px;
+.root {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  text-align: center;
+  padding-top: 70px;
+}
 
+.zero-state {
 	&-header {
 		font-size: 32px;
 		font-weight: lighter;
 		margin: 0;
-		padding: 15px 0 11px 0;
+		padding: 30px 0 11px 0;
 	}
 
 	&-subheader {
@@ -19,7 +20,7 @@
 		line-height: 26px;
 		max-width: 600px;
 		padding: 0 0 28px 0;
-		margin: 0;
+		margin: 0 auto;
 	}
 
 	&-body {
@@ -30,5 +31,33 @@
 		.btn:nth-child(2) {
 			margin-left: 10px;
 		}
+	}
+}
+
+.zero-graphic {
+	height: 60px;
+
+	&-aggregations {
+	  background: transparent url('images/svg/aggregations-zero.svg') 50% no-repeat;
+	}
+
+	&-documents {
+		background: transparent url('images/svg/documents-zero.svg') 50% no-repeat;
+	}
+
+	&-explain {
+	  background: transparent url('images/svg/explain-zero.svg') 50% no-repeat;
+	}
+
+	&-indexes {
+		background: transparent url('images/svg/indexes-zero.svg') 50% no-repeat;
+	}
+
+	&-schema {
+	  background: transparent url('images/svg/schema-zero.svg') 50% no-repeat;
+	}
+
+	&-validation {
+		background: transparent url('images/svg/validation-zero.svg') 50% no-repeat;
 	}
 }

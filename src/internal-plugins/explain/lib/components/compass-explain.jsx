@@ -58,15 +58,20 @@ class CompassExplain extends React.Component {
   renderZeroState() {
     if (this.props.explainState === 'initial') {
       return (
-        <ZeroState header={HEADER} subtext={SUBTEXT}>
-          <TextButton
-            className="btn btn-primary btn-lg"
-            text="Execute Explain"
-            clickHandler={this.onApplyClicked.bind(this)} />
-          <a className="btn btn-info btn-lg" href={DOCUMENTATION_LINK}>
-            Learn More
-          </a>
-        </ZeroState>
+          <div className="root">
+            <div className="zero-graphic zero-graphic-explain"></div>
+            <ZeroState
+                header={HEADER}
+                subtext={SUBTEXT}>
+              <TextButton
+                className="btn btn-primary btn-lg"
+                text="Execute Explain"
+                clickHandler={this.onApplyClicked.bind(this)} />
+              <a className="btn btn-info btn-lg" href={DOCUMENTATION_LINK}>
+                Learn More
+              </a>
+            </ZeroState>
+        </div>
       );
     }
   }
