@@ -1,8 +1,8 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48">
-  <g fill="none" fill-rule="evenodd" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" transform="translate(1 1)">
-    <path stroke="#116149" d="M14.015625 6.03151042L14.015625 13.0193576C14.015625 14.6704861 15.3572917 16.0141493 17.0104167 16.0141493L23 16.0141493C24.653125 16.0141493 25.9947917 17.355816 25.9947917 19.008941L25.9947917 22.0037326M35.9774306 27.993316L35.9774306 38.9742188C35.9774306 40.6253472 34.6377604 41.9690104 32.9826389 41.9690104L25.9947917 41.9690104"/>
-    <polygon stroke="#15CC62" points=".04 6.032 25.995 6.032 25.995 .042 .04 .042"/>
-    <polygon stroke="#15CC62" points="20.005 27.993 45.96 27.993 45.96 22.004 20.005 22.004"/>
-    <polygon stroke="#15CC62" points=".04 45.962 25.995 45.962 25.995 39.972 .04 39.972"/>
+  <g fill="none" fill-rule="evenodd" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" transform="translate(1 1)">
+    <path stroke="#116149" d="M14 6.002L14 13.002C14 14.656 15.344 16.002 17 16.002L23 16.002C24.656 16.002 26 17.346 26 19.002L26 22.002M36 28.002L36 39.002C36 40.656 34.658 42.002 33 42.002L26 42.002"/>
+    <polygon stroke="#16CC62" points="0 6.002 26 6.002 26 .002 0 .002"/>
+    <polygon stroke="#16CC62" points="20 28.002 46 28.002 46 22.002 20 22.002"/>
+    <polygon stroke="#16CC62" points="0 46.002 26 46.002 26 40.002 0 40.002"/>
   </g>
 </svg>

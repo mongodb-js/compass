@@ -148,8 +148,8 @@ class Schema extends React.Component {
               className="btn btn-primary btn-lg"
               text="Analyze Schema"
               clickHandler={this.onApplyClicked.bind(this)} />
-            <a className="btn btn-info btn-lg" href={DOCUMENTATION_LINK}>
-              Learn More
+            <a className="zero-state-link" href={DOCUMENTATION_LINK}>
+              Learn more about schemas
             </a>
           </ZeroState>
         </div>
