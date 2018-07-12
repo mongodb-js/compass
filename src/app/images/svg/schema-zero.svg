@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 59 44">
+  <g fill="none" fill-rule="evenodd" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" transform="translate(1 1)">
+    <polyline stroke="#15CC62" points="11 41 11 27 3 27 3 41"/>
+    <polyline stroke="#15CC62" points="25 41 25 12 17 12 17 41"/>
+    <polyline stroke="#15CC62" points="40 41 40 19 32 19 32 41"/>
+    <polyline stroke="#15CC62" points="54 41 54 0 46 0 46 41"/>
+    <path stroke="#116149" d="M0,41.2121212 L57,41.2121212"/>
+  </g>
+</svg>
