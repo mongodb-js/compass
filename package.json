@@ -238,7 +238,7 @@
     "@mongodb-js/compass-server-version": "^2.0.1",
     "@mongodb-js/compass-serverstats": "^12.0.3",
     "@mongodb-js/compass-ssh-tunnel-status": "^2.0.0",
-    "@mongodb-js/compass-status": "^3.0.1",
+    "@mongodb-js/compass-status": "^3.0.2",
     "ampersand-collection": "^1.5.0",
     "ampersand-collection-filterable": "^0.2.1",
     "ampersand-dom-bindings": "^3.7.0",
