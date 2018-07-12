@@ -29,6 +29,10 @@ const SidebarStore = Reflux.createStore({
     appRegistry.on('collection-changed', this.onCollectionChanged.bind(this));
     appRegistry.on('database-changed', this.onDatabaseChanged.bind(this));
     appRegistry.on('data-service-disconnected', this.onDisconnected.bind(this));
+
+    appRegistry.on('refresh-data', () => {
+      appRegistry.getAction('App.InstanceActions').refreshInstance();
+    });
   },
 
   onCollectionChanged(ns) {
