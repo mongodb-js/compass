@@ -149,7 +149,7 @@ class Schema extends React.Component {
               text="Analyze Schema"
               clickHandler={this.onApplyClicked.bind(this)} />
             <a className="zero-state-link" href={DOCUMENTATION_LINK}>
-              Learn more about schemas
+              Learn more about schema analysis in Compass
             </a>
           </ZeroState>
         </div>
