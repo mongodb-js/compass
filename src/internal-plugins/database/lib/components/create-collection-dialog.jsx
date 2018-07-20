@@ -65,7 +65,7 @@ class CreateCollectionDialog extends React.Component {
       databaseName: databaseName,
       capped: false,
       isCustomCollation: false,
-      collation: {}
+      collation: {locale: 'simple'}
     });
   }
 

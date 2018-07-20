@@ -72,7 +72,7 @@ class CreateDatabaseDialog extends React.Component {
       inProgress: false,
       errorMessage: '',
       isCustomCollation: false,
-      collation: {}
+      collation: {locale: 'simple'}
     });
   }
 
