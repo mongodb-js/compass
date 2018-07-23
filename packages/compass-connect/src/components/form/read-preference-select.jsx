@@ -3,7 +3,7 @@ const PropTypes = require('prop-types');
 const Actions = require('../../actions');
 const FormItemSelect = require('./form-item-select');
 
-class ReadPreferenceSelect extends React.Component {
+class ReadPreferenceSelect extends React.PureComponent {
 
   onReadPreferenceChanged(evt) {
     Actions.onReadPreferenceChanged(evt.target.value);
@@ -22,13 +22,13 @@ class ReadPreferenceSelect extends React.Component {
           {'nearest': 'Nearest'}
         ]}
         changeHandler={this.onReadPreferenceChanged.bind(this)}
-        value={this.props.currentConnection.read_preference} />
+        value={this.props.readPreference} />
     );
   }
 }
 
 ReadPreferenceSelect.propTypes = {
-  currentConnection: PropTypes.object.isRequired
+  readPreference: PropTypes.string.isRequired
 };
 
 ReadPreferenceSelect.displayName = 'ReadPreferenceSelect';

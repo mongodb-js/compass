@@ -9,11 +9,8 @@ chai.use(chaiEnzyme());
 
 describe('<ReadPreferenceSelect />', () => {
   describe('#render', () => {
-    const connection = {
-      read_preference: 'secondary'
-    };
     const component = mount(
-      <ReadPreferenceSelect currentConnection={connection} />
+      <ReadPreferenceSelect readPreference="secondary" />
     );
 
     it('renders the read preference', () => {
