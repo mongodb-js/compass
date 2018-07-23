@@ -10,12 +10,8 @@ chai.use(chaiEnzyme());
 describe('<ReplicaSetNameInput />', () => {
   describe('#render', () => {
     context('when the ssh tunnel is NONE', () => {
-      const connection = {
-        replica_set_name: 'myrs',
-        ssh_tunnel: 'NONE'
-      };
       const component = mount(
-        <ReplicaSetNameInput currentConnection={connection} />
+        <ReplicaSetNameInput replicaSetName="myrs" sshTunnel="NONE" />
       );
 
       it('renders the replica set name', () => {
@@ -24,11 +20,8 @@ describe('<ReplicaSetNameInput />', () => {
     });
 
     context('when the ssh tunnel is undefined', () => {
-      const connection = {
-        replica_set_name: 'myrs'
-      };
       const component = mount(
-        <ReplicaSetNameInput currentConnection={connection} />
+        <ReplicaSetNameInput replicaSetName="myrs" />
       );
 
       it('renders the replica set name', () => {
@@ -37,12 +30,8 @@ describe('<ReplicaSetNameInput />', () => {
     });
 
     context('when the ssh tunnel is null', () => {
-      const connection = {
-        replica_set_name: 'myrs',
-        ssh_tunnel: null
-      };
       const component = mount(
-        <ReplicaSetNameInput currentConnection={connection} />
+        <ReplicaSetNameInput replicaSetName="myrs" sshTunnel={null} />
       );
 
       it('renders the replica set name', () => {
@@ -51,12 +40,8 @@ describe('<ReplicaSetNameInput />', () => {
     });
 
     context('when the ssh tunnel is USER_PASSWORD', () => {
-      const connection = {
-        replica_set_name: 'myrs',
-        ssh_tunnel: 'USER_PASSWORD'
-      };
       const component = mount(
-        <ReplicaSetNameInput currentConnection={connection} />
+        <ReplicaSetNameInput replicaSetName="myrs" sshTunnel="USER_PASSWORD" />
       );
 
       it('renders the replica set name', () => {

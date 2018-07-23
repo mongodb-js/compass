@@ -35,7 +35,9 @@ class ConnectForm extends React.Component {
         </FormGroup>
         <Authentication {...this.props} />
         <FormGroup id="read-preference" separator>
-          <ReplicaSetNameInput {...this.props} />
+          <ReplicaSetNameInput
+            sshTunnel={this.props.currentConnection.ssh_tunnel}
+            replicaSetName={this.props.currentConnection.replica_set_name} />
           <ReadPreferenceSelect {...this.props} />
         </FormGroup>
         <SSL {...this.props} />

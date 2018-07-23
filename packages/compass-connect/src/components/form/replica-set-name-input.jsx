@@ -3,21 +3,21 @@ const PropTypes = require('prop-types');
 const Actions = require('../../actions');
 const { FormInput } = require('hadron-react-components');
 
-class ReplicaSetNameInput extends React.Component {
+class ReplicaSetNameInput extends React.PureComponent {
 
   onReplicaSetNameChanged(evt) {
     Actions.onReplicaSetNameChanged(evt.target.value);
   }
 
   render() {
-    const sshTunnel = this.props.currentConnection.ssh_tunnel;
+    const sshTunnel = this.props.sshTunnel;
     if (sshTunnel === 'NONE' || !sshTunnel) {
       return (
         <FormInput
           label="Replica Set Name"
           name="replica_set_name"
           changeHandler={this.onReplicaSetNameChanged.bind(this)}
-          value={this.props.currentConnection.replica_set_name || ''} />
+          value={this.props.replicaSetName || ''} />
       );
     }
     return null;
@@ -25,7 +25,8 @@ class ReplicaSetNameInput extends React.Component {
 }
 
 ReplicaSetNameInput.propTypes = {
-  currentConnection: PropTypes.object.isRequired
+  sshTunnel: PropTypes.string,
+  replicaSetName: PropTypes.string
 };
 
 ReplicaSetNameInput.displayName = 'ReplicaSetNameInput';
