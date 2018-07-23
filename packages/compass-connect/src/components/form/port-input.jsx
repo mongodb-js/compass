@@ -5,7 +5,7 @@ const { FormInput } = require('hadron-react-components');
 
 const DEFAULT_PORT = 27017;
 
-class PortInput extends React.Component {
+class PortInput extends React.PureComponent {
 
   constructor(props) {
     super(props);
@@ -23,11 +23,10 @@ class PortInput extends React.Component {
   }
 
   getPort() {
-    const connection = this.props.currentConnection;
-    if (!connection.last_used && !this.isChanged && connection.port === DEFAULT_PORT) {
+    if (!this.props.lastUsed && !this.isChanged && this.props.port === DEFAULT_PORT) {
       return '';
     }
-    return connection.port;
+    return this.props.port;
   }
 
   render() {
@@ -43,7 +42,8 @@ class PortInput extends React.Component {
 }
 
 PortInput.propTypes = {
-  currentConnection: PropTypes.object.isRequired
+  lastUsed: PropTypes.any,
+  port: PropTypes.any
 };
 
 PortInput.displayName = 'PortInput';

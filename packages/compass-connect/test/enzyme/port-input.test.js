@@ -9,11 +9,8 @@ chai.use(chaiEnzyme());
 
 describe('<PortInput />', () => {
   describe('#render', () => {
-    const connection = {
-      port: '27018'
-    };
     const component = mount(
-      <PortInput currentConnection={connection} />
+      <PortInput port="27018" />
     );
 
     it('renders the port', () => {
