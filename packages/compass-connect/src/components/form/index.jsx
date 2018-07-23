@@ -31,7 +31,7 @@ class ConnectForm extends React.Component {
             lastUsed={this.props.currentConnection.last_used}
             hostname={this.props.currentConnection.hostname} />
           {this.renderPort()}
-          <SRVInput {...this.props} />
+          <SRVInput isSrvRecord={this.props.currentConnection.isSrvRecord} />
         </FormGroup>
         <Authentication {...this.props} />
         <FormGroup id="read-preference" separator>

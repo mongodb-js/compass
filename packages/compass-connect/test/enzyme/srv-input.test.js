@@ -10,8 +10,7 @@ chai.use(chaiEnzyme());
 describe('<SRVInput />', () => {
   describe('#render', () => {
     context('when the connection is not an srv record', () => {
-      const connection = {};
-      const component = mount(<SRVInput currentConnection={connection} />);
+      const component = mount(<SRVInput isSrvRecord={false} />);
 
       it('renders the wrapper div', () => {
         expect(component.find('.form-item')).to.be.present();
@@ -27,8 +26,7 @@ describe('<SRVInput />', () => {
     });
 
     context('when the connection is an srv record', () => {
-      const connection = { isSrvRecord: true };
-      const component = mount(<SRVInput currentConnection={connection} />);
+      const component = mount(<SRVInput isSrvRecord />);
 
       it('renders the wrapper div', () => {
         expect(component.find('.form-item')).to.be.present();
