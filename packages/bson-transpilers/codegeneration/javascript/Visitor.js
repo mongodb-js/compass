@@ -20,6 +20,7 @@ const {
 class Visitor extends ECMAScriptVisitor {
   constructor() {
     super();
+    this.idiomatic = false;
     this.new = '';
     this.processInt32 = this.processNumber;
     this.processDouble = this.processNumber;
@@ -173,6 +174,9 @@ class Visitor extends ECMAScriptVisitor {
    * @return {String}
    */
   visitObjectLiteral(ctx) {
+    if (this.idiomatic && 'emitIdiomaticObjectLiteral' in this) {
+      return this.emitIdiomaticObjectLiteral(ctx);
+    }
     ctx.type = this.Types._object;
     ctx.indentDepth = this.getIndentDepth(ctx) + 1;
     let args = '';
@@ -182,6 +186,8 @@ class Visitor extends ECMAScriptVisitor {
         args = ctx.type.argsTemplate(properties.map((pair) => {
           return [this.visit(pair.propertyName()), this.visit(pair.singleExpression())];
         }), ctx.indentDepth);
+      } else {
+        args = this.visit(properties);
       }
     }
     if (ctx.type.template) {
@@ -485,7 +491,8 @@ class Visitor extends ECMAScriptVisitor {
     }
 
     const numericTypes = [
-      this.Types._integer, this.Types._decimal, this.Types._hex, this.Types._octal, this.Types._long, this.Types._numeric
+      this.Types._integer, this.Types._decimal, this.Types._hex,
+      this.Types._octal, this.Types._long, this.Types._numeric
     ];
     // If the expected type is "numeric", accept the numeric basic types + numeric bson types
     if (expectedType.indexOf(this.Types._numeric) !== -1 &&

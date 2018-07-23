@@ -62,15 +62,20 @@ const getCompiler = (visitor, generator, symbols) => {
     Types: Object.assign({}, doc.BasicTypes, doc.BsonTypes, doc.JSTypes),
     Syntax: doc.Syntax
   });
-  return (input) => {
+  return (input, idiomatic) => {
     try {
       const tree = loadTree(input);
+      compiler.idiomatic = idiomatic === undefined ?
+        compiler.idiomatic :
+        idiomatic;
       return compiler.start(tree);
     } catch (e) {
       if (e.code && e.code.includes('BSONCOMPILERS')) {
         throw e;
       }
       throw new BsonCompilersInternalError(e.message, e);
+    } finally {
+      compiler.idiomatic = false;
     }
   };
 };
