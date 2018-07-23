@@ -5,7 +5,7 @@ const PropTypes = require('prop-types');
 /**
  * Represents an input field within a form.
  */
-class FormInput extends React.Component {
+class FormInput extends React.PureComponent {
 
   /**
    * Get the class name for the input wrapper.

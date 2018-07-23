@@ -18,8 +18,8 @@ var PropTypes = require('prop-types');
  * Represents an input field within a form.
  */
 
-var FormInput = function (_React$Component) {
-  _inherits(FormInput, _React$Component);
+var FormInput = function (_React$PureComponent) {
+  _inherits(FormInput, _React$PureComponent);
 
   function FormInput() {
     _classCallCheck(this, FormInput);
@@ -144,7 +144,7 @@ var FormInput = function (_React$Component) {
   }]);
 
   return FormInput;
-}(React.Component);
+}(React.PureComponent);
 
 FormInput.propTypes = {
   label: PropTypes.string.isRequired,
