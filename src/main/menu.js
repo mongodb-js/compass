@@ -243,9 +243,16 @@ function viewSubMenu() {
     submenu: [
       {
         label: '&Reload',
-        accelerator: 'CmdOrCtrl+R',
+        accelerator: 'CmdOrCtrl+Shift+R',
         click: function() {
           BrowserWindow.getFocusedWindow().reload();
+        }
+      },
+      {
+        label: '&Reload Data',
+        accelerator: 'CmdOrCtrl+R',
+        click: function() {
+          ipc.broadcast('app:refresh-data');
         }
       },
       separator(),
