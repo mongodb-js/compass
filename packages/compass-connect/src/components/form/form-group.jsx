@@ -1,7 +1,7 @@
 const React = require('react');
 const PropTypes = require('prop-types');
 
-class FormGroup extends React.Component {
+class FormGroup extends React.PureComponent {
 
   getClassName() {
     let className = 'form-group';

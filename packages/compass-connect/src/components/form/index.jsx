@@ -29,7 +29,7 @@ class ConnectForm extends React.Component {
         <FormGroup id="host-port" separator>
           <HostInput
             lastUsed={this.props.currentConnection.last_used}
-            hostname={this.props.currentConnection.hostname} />
+            hostname={this.props.currentConnection.attributes.hostname} />
           {this.renderPort()}
           <SRVInput isSrvRecord={this.props.currentConnection.isSrvRecord} />
         </FormGroup>
