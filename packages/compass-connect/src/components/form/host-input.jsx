@@ -5,7 +5,7 @@ const { FormInput } = require('hadron-react-components');
 
 const DEFAULT_HOST = 'localhost';
 
-class HostInput extends React.Component {
+class HostInput extends React.PureComponent {
 
   constructor(props) {
     super(props);
@@ -18,11 +18,10 @@ class HostInput extends React.Component {
   }
 
   getHostname() {
-    const connection = this.props.currentConnection;
-    if (!connection.last_used && !this.isChanged && connection.hostname === DEFAULT_HOST) {
+    if (!this.props.lastUsed && !this.isChanged && this.props.hostname === DEFAULT_HOST) {
       return '';
     }
-    return connection.hostname;
+    return this.props.hostname;
   }
 
   render() {
@@ -38,7 +37,8 @@ class HostInput extends React.Component {
 }
 
 HostInput.propTypes = {
-  currentConnection: PropTypes.object.isRequired
+  lastUsed: PropTypes.any,
+  hostname: PropTypes.string
 };
 
 HostInput.displayName = 'HostInput';

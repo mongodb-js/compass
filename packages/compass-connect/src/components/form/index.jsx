@@ -18,7 +18,9 @@ class ConnectForm extends React.Component {
     return (
       <form data-test-id="connect-form">
         <FormGroup id="host-port" separator>
-          <HostInput {...this.props} />
+          <HostInput
+            lastUsed={this.props.currentConnection.last_used}
+            hostname={this.props.currentConnection.hostname} />
           { isSrv ? null : <PortInput {...this.props} />}
           <SRVInput {...this.props} />
         </FormGroup>

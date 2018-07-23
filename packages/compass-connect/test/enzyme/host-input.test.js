@@ -9,11 +9,8 @@ chai.use(chaiEnzyme());
 
 describe('<HostInput />', () => {
   describe('#render', () => {
-    const connection = {
-      hostname: '127.0.0.1'
-    };
     const component = mount(
-      <HostInput currentConnection={connection} />
+      <HostInput hostname="127.0.0.1"/>
     );
 
     it('renders the hostname', () => {
