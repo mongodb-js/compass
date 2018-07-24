@@ -14,6 +14,8 @@ import 'mongodb-ace-theme';
 
 const tools = ace.acequire('ace/ext/language_tools');
 
+const INDEX_STATS = '$indexStats';
+
 /**
  * Options for the ACE editor.
  */
@@ -110,7 +112,7 @@ class StageEditor extends Component {
     this.props.setIsModified(true);
 
     if (
-      this.props.fromStageOperators === false &&
+      (this.props.fromStageOperators === false || this.props.stageOperator === INDEX_STATS) &&
       this.props.isAutoPreviewing
     ) {
       this.debounceRun();
