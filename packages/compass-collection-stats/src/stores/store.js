@@ -44,7 +44,7 @@ const CollectionStatsStore = Reflux.createStore({
       if (ns.indexOf('.' === 0)) {
         this.onDocumentsModified();
         this.onCollectionChanged();
-      } 
+      }
     });
   },
 
