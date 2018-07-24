@@ -108,6 +108,7 @@ const InstanceStore = Reflux.createStore({
           debug('Setting refetched instance', instance);
           this.state.instance = instance;
           this.trigger(this.state);
+          app.appRegistry.emit('instance-refreshed');
           StatusAction.hide();
         },
         dataService: this.dataService
