@@ -142,6 +142,11 @@ const CRUDStore = Reflux.createStore({
     appRegistry.on('data-service-connected', this.setDataService.bind(this));
     appRegistry.on('instance-changed', this.onInstanceChanged.bind(this));
     appRegistry.on('import-finished', this.refreshDocuments.bind(this));
+    appRegistry.on('refresh-data', () => {
+      const namespace = appRegistry.getStore('App.NamespaceStore').ns;
+      const collection = appRegistry.getStore('App.CollectionStore').collection._id;
+      if (namespace === collection) this.refreshDocuments();
+    });
     this.CollectionStore = appRegistry.getStore('App.CollectionStore');
     this.appRegistry = appRegistry;
   },
