@@ -39,6 +39,13 @@ const CollectionStatsStore = Reflux.createStore({
     appRegistry.on('import-finished', this.onDocumentsModified.bind(this));
     appRegistry.on('data-service-connected', this.onConnected.bind(this));
     appRegistry.on('collection-changed', this.onCollectionChanged.bind(this));
+    appRegistry.on('refresh-data', () => {
+      const ns = appRegistry.getStore('App.NamespaceStore').ns;
+      if (ns.indexOf('.' === 0)) {
+        this.onDocumentsModified();
+        this.onCollectionChanged();
+      } 
+    });
   },
 
   /**
