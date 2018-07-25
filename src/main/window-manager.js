@@ -6,8 +6,6 @@ var electron = require('electron');
 var AppMenu = require('./menu');
 var BrowserWindow = electron.BrowserWindow;
 
-var globalShortcut = require('electron').globalShortcut;
-
 var _ = require('lodash');
 var app = electron.app;
 
@@ -272,10 +270,6 @@ app.on('ready', function() {
       .then((name) => debug(`Added Extension:  ${name}`))
       .catch((err) => debug('An error occurred: ', err));
   }
-
-  globalShortcut.register('CommandOrControl+R', function() {
-    ipc.broadcast('app:refresh-data', function() {});
-  });
 
   /**
    * When electron's main renderer has completed setup,
