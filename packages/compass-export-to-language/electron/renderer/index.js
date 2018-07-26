@@ -4,6 +4,7 @@ import app from 'hadron-app';
 import AppRegistry from 'hadron-app-registry';
 import { AppContainer } from 'react-hot-loader';
 import ExportToLanguagePlugin, { activate } from 'plugin';
+import ExportToLanguageStandalone from './components/export-to-language-standalone';
 
 // Import global less file. Note: these styles WILL NOT be used in compass, as compass provides its own set
 // of global styles. If you are wishing to style a given component, you should be writing a less file per
@@ -30,7 +31,7 @@ document.body.appendChild(root);
 const render = Component => {
   ReactDOM.render(
     <AppContainer>
-      <Component />
+      <Component appRegistry={appRegistry}/>
     </AppContainer>,
     document.getElementById('root')
   );
@@ -43,7 +44,7 @@ const render = Component => {
 // appRegistry.emit('application-initialized', '1.11.0-dev');
 
 // Render our plugin - don't remove the following line.
-render(ExportToLanguagePlugin);
+render(ExportToLanguageStandalone);
 
 // // Data service initialization and connection.
 // import Connection from 'mongodb-connection-model';
