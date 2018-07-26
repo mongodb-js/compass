@@ -38,7 +38,9 @@ class ExportModal extends Component {
     if (this.props.exportQuery.outputLang === 'java') {
       return (
         <div className={classnames(styles['export-to-lang-modal-checkbox-builders'])}>
-          <Checkbox data-test-id="export-to-lang-checkbox-builders" onClick={this.buildersHandler}>
+          <Checkbox defaultChecked={this.props.exportQuery.builders}
+                    data-test-id="export-to-lang-checkbox-builders"
+                    onClick={this.buildersHandler}>
             Use Builders
           </Checkbox>
         </div>

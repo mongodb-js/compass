@@ -25,7 +25,7 @@ export const INITIAL_STATE = {
   returnQuery: '',
   inputQuery: '',
   imports: '',
-  builders: false
+  builders: true
 };
 
 function copyToClipboard(state, action) {

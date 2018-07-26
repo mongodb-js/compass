@@ -71,7 +71,7 @@ describe('ExportToLanguage Store', () => {
         returnQuery: '',
         inputQuery: '',
         imports: '',
-        builders: false
+        builders: true
       }
     });
   });

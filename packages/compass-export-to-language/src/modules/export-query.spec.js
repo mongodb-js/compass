@@ -119,7 +119,7 @@ describe('export query module', () => {
           returnQuery: '',
           inputQuery: '',
           imports: '',
-          builders: false
+          builders: true
         });
       });
     });
@@ -135,7 +135,7 @@ describe('export query module', () => {
           returnQuery: '',
           inputQuery: '',
           imports: 'from bson import *\nimport datetime\n',
-          builders: false
+          builders: true
         });
       });
 
@@ -149,7 +149,7 @@ describe('export query module', () => {
           returnQuery: '',
           inputQuery: '',
           imports: '',
-          builders: false
+          builders: true
         });
       });
     });
@@ -195,7 +195,7 @@ describe('export query module', () => {
           queryError: null,
           returnQuery: '',
           imports: '',
-          builders: false
+          builders: true
         });
       });
     });
@@ -211,7 +211,7 @@ describe('export query module', () => {
           returnQuery: '',
           inputQuery: '',
           imports: '',
-          builders: false
+          builders: true
         });
       });
     });
@@ -227,7 +227,7 @@ describe('export query module', () => {
           returnQuery: '',
           inputQuery: '',
           imports: '',
-          builders: false
+          builders: true
         });
       });
     });
@@ -243,7 +243,7 @@ describe('export query module', () => {
           returnQuery: '',
           inputQuery: '',
           imports: '',
-          builders: false
+          builders: true
         });
       });
     });
@@ -259,7 +259,7 @@ describe('export query module', () => {
           returnQuery: '',
           inputQuery: '',
           imports: '',
-          builders: false
+          builders: true
         });
       });
     });
@@ -275,7 +275,7 @@ describe('export query module', () => {
           returnQuery: '',
           inputQuery: '',
           imports: '',
-          builders: false
+          builders: true
         });
       });
     });
@@ -291,7 +291,7 @@ describe('export query module', () => {
           returnQuery: '',
           inputQuery: '',
           imports: '',
-          builders: false
+          builders: true
         });
       });
     });
