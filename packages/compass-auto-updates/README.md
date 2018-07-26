@@ -67,7 +67,7 @@ For completeness, below is a list of directories present in this module:
 Apache 2.0
 
 [travis_img]: https://img.shields.io/travis/mongodb-js/compass-auto-updates/master.svg?style=flat-square
-[travis_url]: https://travis-ci.com/mongodb-js/compass-auto-updates
+[travis_url]: https://travis-ci.org/mongodb-js/compass-auto-updates
 [enzyme]: http://airbnb.io/enzyme/
 [enzyme-chai]: https://github.com/producthunt/chai-enzyme
 [jsdom]: https://github.com/tmpvar/jsdom
