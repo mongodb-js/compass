@@ -340,9 +340,7 @@ app.extend({
         // signal to main process that app is ready
         ipc.call('window:renderer-ready');
         // catch a data refresh coming from window-manager
-        ipc.on('app:refresh-data', function() {
-          global.hadronApp.appRegistry.emit('refresh-data');
-        });
+        ipc.on('app:refresh-data', () => global.hadronApp.appRegistry.emit('refresh-data'));
         // as soon as dom is ready, render and set up the rest
         const MongoDBInstance = require('./models/mongodb-instance');
         state.instance = new MongoDBInstance();
