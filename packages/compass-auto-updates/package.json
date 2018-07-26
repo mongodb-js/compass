@@ -1,5 +1,5 @@
 {
-  "name": "compass-auto-updates",
+  "name": "@mongodb-js/compass-auto-updates",
   "productName": "Compass Auto Updates plugin",
   "version": "1.0.0",
   "apiVersion": "2.0.0",
