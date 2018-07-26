@@ -7,6 +7,7 @@ const PREFIX = 'exportQuery';
 export const SET_NAMESPACE = `${PREFIX}/SET_NAMESPACE`;
 export const ADD_INPUT_QUERY = `${PREFIX}/ADD_INPUT`;
 export const INCLUDE_IMPORTS = `${PREFIX}/IMPORTS`;
+export const USE_BUILDERS = `${PREFIX}/USE_BUILDERS`;
 export const OUTPUT_LANG = `${PREFIX}/OUTPUT_LANG`;
 export const QUERY_ERROR = `${PREFIX}/QUERY_ERROR`;
 export const TOGLE_MODAL = `${PREFIX}/MODAL_OPEN`;
@@ -23,7 +24,8 @@ export const INITIAL_STATE = {
   modalOpen: false,
   returnQuery: '',
   inputQuery: '',
-  imports: ''
+  imports: '',
+  builders: false
 };
 
 function copyToClipboard(state, action) {
@@ -52,7 +54,7 @@ export const runQuery = (outputLang, input) => {
     const state = getState();
 
     try {
-      const output = compiler.shell[outputLang](stringify(input));
+      const output = compiler.shell[outputLang](stringify(input), state.exportQuery.builders);
       if (state.exportQuery.imports !== '') state.exportQuery.imports = compiler.imports[outputLang];
       state.exportQuery.returnQuery = output;
       state.exportQuery.queryError = null;
@@ -70,6 +72,7 @@ export default function reducer(state = INITIAL_STATE, action) {
   if (action.type === OUTPUT_LANG) return { ...state, outputLang: action.lang };
   if (action.type === CLEAR_COPY) return { ...state, copySuccess: false };
   if (action.type === INCLUDE_IMPORTS) return addImports(state, action);
+  if (action.type === USE_BUILDERS) return { ...state, builders: action.builders };
   if (action.type === COPY_QUERY) return copyToClipboard(state, action);
   if (action.type === TOGLE_MODAL) return closeModal(state, action);
 
@@ -84,6 +87,11 @@ export const setNamespace = (namespace) => ({
 export const includeImports = (imports) => ({
   type: INCLUDE_IMPORTS,
   imports: imports
+});
+
+export const useBuilders = (builders) => ({
+  type: USE_BUILDERS,
+  builders: builders
 });
 
 export const setOutputLang = (lang) => ({

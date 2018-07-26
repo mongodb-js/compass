@@ -1,6 +1,7 @@
 import reducer, {
   ADD_INPUT_QUERY,
   INCLUDE_IMPORTS,
+  USE_BUILDERS,
   SET_NAMESPACE,
   OUTPUT_LANG,
   QUERY_ERROR,
@@ -8,6 +9,7 @@ import reducer, {
   COPY_QUERY,
   CLEAR_COPY,
   includeImports,
+  useBuilders,
   setOutputLang,
   addInputQuery,
   setNamespace,
@@ -96,6 +98,15 @@ describe('export query module', () => {
     });
   });
 
+  describe('#useBuilders', () => {
+    it('returns an useBuilders action type', () => {
+      expect(useBuilders(true)).to.deep.equal({
+        type: USE_BUILDERS,
+        builders: true
+      });
+    });
+  });
+
   describe('#reducer', () => {
     context('action type is queryError', () => {
       it('query error is has a value in state', () => {
@@ -107,7 +118,8 @@ describe('export query module', () => {
           modalOpen: false,
           returnQuery: '',
           inputQuery: '',
-          imports: ''
+          imports: '',
+          builders: false
         });
       });
     });
@@ -122,7 +134,8 @@ describe('export query module', () => {
           modalOpen: false,
           returnQuery: '',
           inputQuery: '',
-          imports: 'from bson import *\nimport datetime\n'
+          imports: 'from bson import *\nimport datetime\n',
+          builders: false
         });
       });
 
@@ -135,7 +148,38 @@ describe('export query module', () => {
           modalOpen: false,
           returnQuery: '',
           inputQuery: '',
-          imports: ''
+          imports: '',
+          builders: false
+        });
+      });
+    });
+
+    context('action type is useBuilders', () => {
+      it('builders true includes builders in state', () => {
+        expect(reducer(undefined, useBuilders(true))).to.deep.equal({
+          outputLang: 'python',
+          namespace: 'Query',
+          copySuccess: false,
+          queryError: null,
+          modalOpen: false,
+          returnQuery: '',
+          inputQuery: '',
+          imports: '',
+          builders: true
+        });
+      });
+
+      it('builders false returns false builders in state', () => {
+        expect(reducer(undefined, useBuilders(false))).to.deep.equal({
+          outputLang: 'python',
+          namespace: 'Query',
+          copySuccess: false,
+          queryError: null,
+          modalOpen: false,
+          returnQuery: '',
+          inputQuery: '',
+          imports: '',
+          builders: false
         });
       });
     });
@@ -150,7 +194,8 @@ describe('export query module', () => {
           modalOpen: false,
           queryError: null,
           returnQuery: '',
-          imports: ''
+          imports: '',
+          builders: false
         });
       });
     });
@@ -165,7 +210,8 @@ describe('export query module', () => {
           queryError: null,
           returnQuery: '',
           inputQuery: '',
-          imports: ''
+          imports: '',
+          builders: false
         });
       });
     });
@@ -180,7 +226,8 @@ describe('export query module', () => {
           modalOpen: true,
           returnQuery: '',
           inputQuery: '',
-          imports: ''
+          imports: '',
+          builders: false
         });
       });
     });
@@ -195,7 +242,8 @@ describe('export query module', () => {
           queryError: null,
           returnQuery: '',
           inputQuery: '',
-          imports: ''
+          imports: '',
+          builders: false
         });
       });
     });
@@ -210,7 +258,8 @@ describe('export query module', () => {
           modalOpen: false,
           returnQuery: '',
           inputQuery: '',
-          imports: ''
+          imports: '',
+          builders: false
         });
       });
     });
@@ -225,7 +274,8 @@ describe('export query module', () => {
           modalOpen: false,
           returnQuery: '',
           inputQuery: '',
-          imports: ''
+          imports: '',
+          builders: false
         });
       });
     });
@@ -240,7 +290,8 @@ describe('export query module', () => {
           modalOpen: false,
           returnQuery: '',
           inputQuery: '',
-          imports: ''
+          imports: '',
+          builders: false
         });
       });
     });

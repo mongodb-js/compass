@@ -1,4 +1,13 @@
-import { runQuery, copyQuery, clearCopy, queryError, setOutputLang, togleModal, includeImports} from 'modules/export-query';
+import {
+  runQuery,
+  copyQuery,
+  clearCopy,
+  queryError,
+  setOutputLang,
+  togleModal,
+  includeImports,
+  useBuilders
+} from 'modules/export-query';
 import ExportModal from 'components/export-modal';
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
@@ -39,6 +48,7 @@ const MappedExportToLanguage = connect(
   mapStateToProps,
   {
     includeImports,
+    useBuilders,
     setOutputLang,
     queryError,
     togleModal,

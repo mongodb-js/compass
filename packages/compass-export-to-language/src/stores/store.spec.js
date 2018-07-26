@@ -70,7 +70,8 @@ describe('ExportToLanguage Store', () => {
         modalOpen: false,
         returnQuery: '',
         inputQuery: '',
-        imports: ''
+        imports: '',
+        builders: false
       }
     });
   });

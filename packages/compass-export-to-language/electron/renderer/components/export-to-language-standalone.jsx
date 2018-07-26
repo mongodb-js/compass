@@ -7,7 +7,7 @@ class ExportToLanguageStandalone extends Component {
   static propTypes = {
     appRegistry: PropTypes.object.isRequired
   };
-  
+
   handleChange = (event) => {
     if (event.keyCode === 13) {
       try {
@@ -17,7 +17,8 @@ class ExportToLanguageStandalone extends Component {
         console.log('Invalid input:' + err.message);
       }
     }
-  }
+  };
+
   /**
    * Render ExportToLanguage Standalone component, for testing.
    *

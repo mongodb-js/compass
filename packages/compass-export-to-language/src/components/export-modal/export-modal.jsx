@@ -12,20 +12,39 @@ class ExportModal extends Component {
 
   static propTypes = {
     includeImports: PropTypes.func.isRequired,
+    useBuilders: PropTypes.func.isRequired,
     exportQuery: PropTypes.object.isRequired,
     setOutputLang: PropTypes.func.isRequired,
     togleModal: PropTypes.func.isRequired,
     copyQuery: PropTypes.func.isRequired,
     clearCopy: PropTypes.func.isRequired,
     runQuery: PropTypes.func.isRequired
-  }
+  };
 
   closeHandler = () => {
     this.props.togleModal(false);
   };
 
-  checkboxHandler = () => {
+  importsHandler = () => {
     this.props.includeImports(!this.props.exportQuery.imports);
+  };
+
+  buildersHandler = () => {
+    this.props.useBuilders(!this.props.exportQuery.builders);
+    this.props.runQuery(this.props.exportQuery.outputLang, this.props.exportQuery.inputQuery);
+  };
+
+  renderBuilderCheckbox = () => {
+    if (this.props.exportQuery.outputLang === 'java') {
+      return (
+        <div className={classnames(styles['export-to-lang-modal-checkbox-builders'])}>
+          <Checkbox data-test-id="export-to-lang-checkbox-builders" onClick={this.buildersHandler}>
+            Use Builders
+          </Checkbox>
+        </div>
+      );
+    }
+    return null;
   };
 
   render() {
@@ -46,11 +65,12 @@ class ExportModal extends Component {
 
         <Modal.Body data-test-id="export-to-lang-modal-body">
           <ExportForm {...this.props}/>
-          <div className={classnames(styles['export-to-lang-modal-checkbox'])}>
-            <Checkbox data-test-id="export-to-lang-checkbox" onClick={this.checkboxHandler}>
+          <div className={classnames(styles['export-to-lang-modal-checkbox-imports'])}>
+            <Checkbox data-test-id="export-to-lang-checkbox-imports" onClick={this.importsHandler}>
                Include Import Statements
            </Checkbox>
           </div>
+          {this.renderBuilderCheckbox()}
         </Modal.Body>
 
         <Modal.Footer>

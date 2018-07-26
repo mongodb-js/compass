@@ -4,8 +4,6 @@ import { shallow } from 'enzyme';
 import ExportModal from 'components/export-modal';
 import ExportForm from 'components/export-form';
 
-import styles from './export-modal.less';
-
 describe('ExportModal [Component]', () => {
   context('when the component is rendered', () => {
     let component;
@@ -17,9 +15,11 @@ describe('ExportModal [Component]', () => {
       modalOpen: false,
       returnQuery: '',
       inputQuery: '',
-      imports: ''
+      imports: '',
+      builders: false
     };
     const includeImportsSpy = sinon.spy();
+    const useBuildersSpy = sinon.spy();
     const setOutputLangSpy = sinon.spy();
     const togleModalSpy = sinon.spy();
     const clearCopySpy = sinon.spy();
@@ -35,6 +35,7 @@ describe('ExportModal [Component]', () => {
       component = shallow(
         <ExportModal
           includeImports={includeImportsSpy}
+          useBuilders={useBuildersSpy}
           setOutputLang={setOutputLangSpy}
           togleModal={togleModalSpy}
           exportQuery={exportQuery}
@@ -65,7 +66,10 @@ describe('ExportModal [Component]', () => {
     });
 
     it('renders the import checkbox', () => {
-      expect(component.find(`.${styles['export-to-lang-modal-checkbox']}`)).to.be.present();
+      expect(component.find('[data-test-id="export-to-lang-checkbox-imports"]')).to.be.present();
+    });
+    it('does not render the builders checkbox on default', () => {
+      expect(component.find('[data-test-id="export-to-lang-checkbox-builders"]')).to.not.be.present();
     });
   });
 
@@ -79,9 +83,11 @@ describe('ExportModal [Component]', () => {
   //     modalOpen: true,
   //     returnQuery: '',
   //     inputQuery: '',
-  //     imports: ''
+  //     imports: '',
+  //     builders: ''
   //   };
   //   const includeImportsSpy = sinon.spy();
+  //   const useBuildersSpy = sinon.spy();
   //   const setOutputLangSpy = sinon.spy();
   //   const togleModalSpy = sinon.spy();
   //   const clearCopySpy = sinon.spy();
@@ -92,6 +98,7 @@ describe('ExportModal [Component]', () => {
   //     component = shallow(
   //       <ExportModal
   //         includeImports={includeImportsSpy}
+  //         useBuilders={useBuildersSpy}
   //         setOutputLang={setOutputLangSpy}
   //         togleModal={togleModalSpy}
   //         exportQuery={exportQuery}
@@ -121,9 +128,11 @@ describe('ExportModal [Component]', () => {
       modalOpen: true,
       returnQuery: '',
       inputQuery: '',
-      imports: ''
+      imports: '',
+      builders: false
     };
     const includeImportsSpy = sinon.spy();
+    const useBuildersSpy = sinon.spy();
     const setOutputLangSpy = sinon.spy();
     const togleModalSpy = sinon.spy();
     const clearCopySpy = sinon.spy();
@@ -134,6 +143,7 @@ describe('ExportModal [Component]', () => {
       component = shallow(
         <ExportModal
           includeImports={includeImportsSpy}
+          useBuilders={useBuildersSpy}
           setOutputLang={setOutputLangSpy}
           togleModal={togleModalSpy}
           exportQuery={exportQuery}
@@ -148,8 +158,56 @@ describe('ExportModal [Component]', () => {
     });
 
     it('calls the click button action', () => {
-      component.find('[data-test-id="export-to-lang-checkbox"]').simulate('click');
+      component.find('[data-test-id="export-to-lang-checkbox-imports"]').simulate('click');
       expect(includeImportsSpy.calledOnce).to.equal(true);
+    });
+  });
+
+  context('when clicking on builders checkbox', () => {
+    let component;
+    const exportQuery = {
+      outputLang: 'java',
+      namespace: 'Query',
+      copySuccess: false,
+      queryError: null,
+      modalOpen: true,
+      returnQuery: '',
+      inputQuery: '',
+      imports: '',
+      builders: false
+    };
+    const includeImportsSpy = sinon.spy();
+    const useBuildersSpy = sinon.spy();
+    const setOutputLangSpy = sinon.spy();
+    const togleModalSpy = sinon.spy();
+    const clearCopySpy = sinon.spy();
+    const copyQuerySpy = sinon.spy();
+    const runQuerySpy = sinon.spy();
+
+    beforeEach(() => {
+      component = shallow(
+        <ExportModal
+          includeImports={includeImportsSpy}
+          useBuilders={useBuildersSpy}
+          setOutputLang={setOutputLangSpy}
+          togleModal={togleModalSpy}
+          exportQuery={exportQuery}
+          clearCopy={clearCopySpy}
+          copyQuery={copyQuerySpy}
+          runQuery={runQuerySpy} />
+      );
+    });
+
+    afterEach(() => {
+      component = null;
+    });
+
+    it('renders the builders checkbox when true', () => {
+      expect(component.find('[data-test-id="export-to-lang-checkbox-builders"]')).to.be.present();
+    });
+    it('calls the click button action', () => {
+      component.find('[data-test-id="export-to-lang-checkbox-builders"]').simulate('click');
+      expect(useBuildersSpy.calledOnce).to.equal(true);
     });
   });
 });
