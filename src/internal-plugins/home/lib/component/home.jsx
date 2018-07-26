@@ -52,6 +52,7 @@ class Home extends React.Component {
     this.importRole = app.appRegistry.getRole('Import.Modal');
     this.exportRole = app.appRegistry.getRole('Export.Modal');
     this.exportToLangRole = app.appRegistry.getRole('ExportToLanguage.Modal');
+    this.findInPageRole = app.appRegistry.getRole('Find');
   }
 
   componentWillMount() {
@@ -134,6 +135,12 @@ class Home extends React.Component {
       return (<Export />);
     }
   }
+  renderFindInPage() {
+    if (this.findInPageRole) {
+      const Find = this.findInPageRole[0].component;
+      return (<Find/>);
+    }
+  }
 
   renderExportToLangModal() {
     if (this.exportToLangRole) {
@@ -159,6 +166,7 @@ class Home extends React.Component {
           {this.renderImportModal()}
           {this.renderExportModal()}
           {this.renderExportToLangModal()}
+          {this.renderFindInPage()}
         </div>
       </div>
     );
