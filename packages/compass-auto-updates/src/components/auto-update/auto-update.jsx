@@ -27,15 +27,16 @@ class AutoUpdate extends PureComponent {
  *
  * @returns {Object} The mapped properties.
  */
-// const mapStateToProps = (state) => ({
-// });
+const mapStateToProps = () => ({
+});
 
 /**
  * Connect the redux store to the component.
  * (dispatch)
  */
 const MappedAutoUpdate = connect(
-  {}, {},
+  mapStateToProps,
+  {},
 )(AutoUpdate);
 
 export default MappedAutoUpdate;
