@@ -75,7 +75,7 @@ const getCompiler = (visitor, generator, symbols) => {
       }
       throw new BsonCompilersInternalError(e.message, e);
     } finally {
-      compiler.idiomatic = false;
+      compiler.idiomatic = true;
     }
   };
 };

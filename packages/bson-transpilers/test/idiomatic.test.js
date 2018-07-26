@@ -704,9 +704,9 @@ const aggOperators = {
 
 describe('Java Builders', () => {
   describe('The default', () => {
-    it('is non-idiomatic', () => {
+    it('is idiomatic', () => {
       expect(compiler.javascript.java('{x: 1}')).to.equal(
-        'new Document("x", 1L)'
+        'eq("x", 1L)'
       );
     });
   });
