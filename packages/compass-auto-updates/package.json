@@ -20,8 +20,7 @@
     "check": "mongodb-js-precommit './src/**/*{.js,.jsx}' './test/**/*.js' './electron/**/*.js' './config/**/*{.js,.jsx}'",
     "link-plugin": "./scripts/link.sh",
     "unlink-plugin": "./scripts/unlink.sh",
-    "prepublish": "npm run compile",
-    "storybook": "start-storybook -p 9001 -c .storybook"
+    "prepublish": "npm run compile"
   },
   "precommit": [
     "check"
@@ -37,7 +36,6 @@
     "redux": "^3.7.2"
   },
   "devDependencies": {
-    "@storybook/react": "^3.2.0",
     "autoprefixer": "^7.1.2",
     "babel-cli": "^6.10.1",
     "babel-core": "^6.24.1",
@@ -100,7 +98,6 @@
     "react-dom": "^16.3.2",
     "react-hot-loader": "^4.1.0",
     "react-redux": "^5.0.6",
-    "react-storybook-addon-chapters": "^1.1.0",
     "redux": "^3.7.2",
     "resolve": "^1.4.0",
     "rimraf": "^2.6.1",
