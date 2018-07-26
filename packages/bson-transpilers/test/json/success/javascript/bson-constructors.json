@@ -273,7 +273,7 @@
         "description": "{x: '1'}",
         "javascript": "{x: '1'}",
         "python": "{\n    'x': '1'\n}",
-        "java": "new Document(\"x\", \"1\")",
+        "java": "eq(\"x\", \"1\")",
         "csharp": "new BsonDocument(\"x\", \"1\")",
         "shell": "{\n  x: '1'\n}"
       },
@@ -281,7 +281,7 @@
         "description": "Doc with trailing comma",
         "javascript": "{x: '1',}",
         "python": "{\n    'x': '1'\n}",
-        "java": "new Document(\"x\", \"1\")",
+        "java": "eq(\"x\", \"1\")",
         "csharp": "new BsonDocument(\"x\", \"1\")",
         "shell": "{\n  x: '1'\n}"
       },
@@ -289,7 +289,7 @@
         "description": "Doc with array",
         "javascript": "{x: ['1', '2']}",
         "python": "{\n    'x': [\n        '1', '2'\n    ]\n}",
-        "java": "new Document(\"x\", Arrays.asList(\"1\", \"2\"))",
+        "java": "eq(\"x\", Arrays.asList(\"1\", \"2\"))",
         "csharp": "new BsonDocument(\"x\", new BsonArray\n    {\n        \"1\",\n        \"2\"\n    })",
         "shell": "{\n  x: [\n    '1', '2'\n  ]\n}"
       },
@@ -297,7 +297,7 @@
         "description": "Doc with subdoc",
         "javascript": "{x: {y: '2'}}",
         "python": "{\n    'x': {\n        'y': '2'\n    }\n}",
-        "java": "new Document(\"x\", new Document(\"y\", \"2\"))",
+        "java": "eq(\"x\", eq(\"y\", \"2\"))",
         "csharp": "new BsonDocument(\"x\", new BsonDocument(\"y\", \"2\"))",
         "shell": "{\n  x: {\n    y: '2'\n  }\n}"
       },
@@ -305,7 +305,7 @@
         "description": "Object.create()",
         "javascript": "Object.create({x: '1'})",
         "python": "{\n    'x': '1'\n}",
-        "java": "new Document(\"x\", \"1\")",
+        "java": "eq(\"x\", \"1\")",
         "csharp": "new BsonDocument(\"x\", \"1\")",
         "shell": "Object.create({\n  x: '1'\n})"
       },
@@ -321,23 +321,23 @@
         "description": "Two items in document",
         "javascript": "{x: '1', n: '4'}",
         "python": "{\n    'x': '1', \n    'n': '4'\n}",
-        "java": "new Document(\"x\", \"1\")\n    .append(\"n\", \"4\")",
+        "java": "and(eq(\"x\", \"1\"), eq(\"n\", \"4\"))",
         "csharp": "new BsonDocument\n{\n    { \"x\", \"1\" }, \n    { \"n\", \"4\" }\n}",
         "shell": "{\n  x: '1', \n  n: '4'\n}"
       },
       {
         "description": "nested document",
-        "javascript": "{ $graphLookup : { \"from\" : \"raw_data\", \"startWith\" : \"$_id\", \"connectFromField\" : \"_id\", \"connectToField\" : \"manager\", \"as\" : \"reports\" } }",
-        "python": "{\n    '$graphLookup': {\n        'from': 'raw_data', \n        'startWith': '$_id', \n        'connectFromField': '_id', \n        'connectToField': 'manager', \n        'as': 'reports'\n    }\n}",
-        "java": "new Document(\"$graphLookup\", new Document(\"from\", \"raw_data\")\n        .append(\"startWith\", \"$_id\")\n        .append(\"connectFromField\", \"_id\")\n        .append(\"connectToField\", \"manager\")\n        .append(\"as\", \"reports\"))",
-        "csharp": "new BsonDocument(\"$graphLookup\", new BsonDocument\n    {\n        { \"from\", \"raw_data\" }, \n        { \"startWith\", \"$_id\" }, \n        { \"connectFromField\", \"_id\" }, \n        { \"connectToField\", \"manager\" }, \n        { \"as\", \"reports\" }\n    })",
-        "shell": "{\n  $graphLookup: {\n    \"from\": \"raw_data\", \n    \"startWith\": \"$_id\", \n    \"connectFromField\": \"_id\", \n    \"connectToField\": \"manager\", \n    \"as\": \"reports\"\n  }\n}"
+        "javascript": "{ graphLookup : { \"from\" : \"raw_data\", \"startWith\" : \"$_id\", \"connectFromField\" : \"_id\", \"connectToField\" : \"manager\", \"as\" : \"reports\" } }",
+        "python": "{\n    'graphLookup': {\n        'from': 'raw_data', \n        'startWith': '$_id', \n        'connectFromField': '_id', \n        'connectToField': 'manager', \n        'as': 'reports'\n    }\n}",
+        "java": "eq(\"graphLookup\", and(eq(\"from\", \"raw_data\"), eq(\"startWith\", \"$_id\"), eq(\"connectFromField\", \"_id\"), eq(\"connectToField\", \"manager\"), eq(\"as\", \"reports\")))",
+        "csharp": "new BsonDocument(\"graphLookup\", new BsonDocument\n    {\n        { \"from\", \"raw_data\" }, \n        { \"startWith\", \"$_id\" }, \n        { \"connectFromField\", \"_id\" }, \n        { \"connectToField\", \"manager\" }, \n        { \"as\", \"reports\" }\n    })",
+        "shell": "{\n  graphLookup: {\n    \"from\": \"raw_data\", \n    \"startWith\": \"$_id\", \n    \"connectFromField\": \"_id\", \n    \"connectToField\": \"manager\", \n    \"as\": \"reports\"\n  }\n}"
       },
       {
         "description": "nested document with array",
         "javascript": "{ status: 'A', $or: [{ qty: { $lt: 30 } }, { item: { $regex: '^p' } }] }",
         "python": "{\n    'status': 'A', \n    '$or': [\n        {\n            'qty': {\n                '$lt': 30\n            }\n        }, {\n            'item': {\n                '$regex': '^p'\n            }\n        }\n    ]\n}",
-        "java": "new Document(\"status\", \"A\")\n    .append(\"$or\", Arrays.asList(new Document(\"qty\", \n        new Document(\"$lt\", 30L)), \n        new Document(\"item\", \n        new Document(\"$regex\", \"^p\"))))",
+        "java": "and(eq(\"status\", \"A\"), or(Arrays.asList(lt(\"qty\", 30L), regex(\"item\", \"^p\"))))",
         "csharp": "new BsonDocument\n{\n    { \"status\", \"A\" }, \n    { \"$or\", new BsonArray\n    {\n        new BsonDocument(\"qty\", \n        new BsonDocument(\"$lt\", 30)),\n        new BsonDocument(\"item\", \n        new BsonDocument(\"$regex\", \"^p\"))\n    } }\n}",
         "shell": "{\n  status: 'A', \n  $or: [\n    {\n      qty: {\n        $lt: 30\n      }\n    }, {\n      item: {\n        $regex: '^p'\n      }\n    }\n  ]\n}"
       }
@@ -364,7 +364,7 @@
         "description": "Array with subdoc",
         "javascript": "['1', { settings: 'http2' }]",
         "python": "[\n    '1', {\n        'settings': 'http2'\n    }\n]",
-        "java": "Arrays.asList(\"1\", \n    new Document(\"settings\", \"http2\"))",
+        "java": "Arrays.asList(\"1\", eq(\"settings\", \"http2\"))",
         "csharp": "new BsonArray\n{\n    \"1\",\n    new BsonDocument(\"settings\", \"http2\")\n}",
         "shell": "[\n  '1', {\n    settings: 'http2'\n  }\n]"
       },
@@ -372,7 +372,7 @@
         "description": "nested array with nested subdoc",
         "javascript": "{\"pipeline\": [ { $match: { $expr: { \"$eq\": [ \"$manager\", \"$$me\" ] } } }, { $project: { managers : 0 } }, { $sort: { startQuarter: 1, notes:1, job_code: 1 } } ]}" ,
         "python": "{\n    'pipeline': [\n        {\n            '$match': {\n                '$expr': {\n                    '$eq': [\n                        '$manager', '$$me'\n                    ]\n                }\n            }\n        }, {\n            '$project': {\n                'managers': 0\n            }\n        }, {\n            '$sort': {\n                'startQuarter': 1, \n                'notes': 1, \n                'job_code': 1\n            }\n        }\n    ]\n}",
-        "java": "new Document(\"pipeline\", Arrays.asList(new Document(\"$match\", \n        new Document(\"$expr\", \n        new Document(\"$eq\", Arrays.asList(\"$manager\", \"$$me\")))), \n        new Document(\"$project\", \n        new Document(\"managers\", 0L)), \n        new Document(\"$sort\", \n        new Document(\"startQuarter\", 1L)\n                .append(\"notes\", 1L)\n                .append(\"job_code\", 1L))))",
+        "java": "eq(\"pipeline\", Arrays.asList(match(eq(\"$expr\", eq(\"$eq\", Arrays.asList(\"$manager\", \"$$me\")))), project(exclude(\"managers\")), sort(orderBy(ascending(\"startQuarter\"), ascending(\"notes\"), ascending(\"job_code\")))))",
         "csharp": "new BsonDocument(\"pipeline\", new BsonArray\n    {\n        new BsonDocument(\"$match\", \n        new BsonDocument(\"$expr\", \n        new BsonDocument(\"$eq\", \n        new BsonArray\n                    {\n                        \"$manager\",\n                        \"$$me\"\n                    }))),\n        new BsonDocument(\"$project\", \n        new BsonDocument(\"managers\", 0)),\n        new BsonDocument(\"$sort\", \n        new BsonDocument\n            {\n                { \"startQuarter\", 1 }, \n                { \"notes\", 1 }, \n                { \"job_code\", 1 }\n            })\n    })",
         "shell": "{\n  \"pipeline\": [\n    {\n      $match: {\n        $expr: {\n          \"$eq\": [\n            \"$manager\", \"$$me\"\n          ]\n        }\n      }\n    }, {\n      $project: {\n        managers: 0\n      }\n    }, {\n      $sort: {\n        startQuarter: 1, \n        notes: 1, \n        job_code: 1\n      }\n    }\n  ]\n}"
       },

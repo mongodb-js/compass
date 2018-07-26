@@ -736,30 +736,6 @@ class Visitor extends ECMAScriptVisitor {
   }
 
   /**
-   * We want to ensure that the scope argument is not generated as a builder if
-   * idiomatic is turned on
-   * @param {FuncCallExpressionContext} ctx
-   * @return {String}
-   */
-  processCode(ctx) {
-    ctx.type = this.Types.Code;
-    const symbolType = this.Symbols.Code;
-    const expectedArgs = symbolType.args;
-
-    const rhs = this.checkArguments(expectedArgs, ctx.arguments().argumentList(), 'Code');
-    if (rhs.length > 1) {
-      const idiomatic = this.idiomatic;
-      this.idiomatic = false;
-      const argList = ctx.arguments().argumentList().singleExpression();
-      rhs[1] = this.visit(argList[1]);
-      this.idiomatic = idiomatic;
-    }
-    const lhs = symbolType.template ? symbolType.template() : 'Code';
-    const args = symbolType.argsTemplate ? symbolType.argsTemplate(lhs, ...rhs) : `(${rhs.join(', ')})`;
-    return `${this.new}${lhs}${args}`;
-  }
-
-  /**
    * ObjectId needs preprocessing because it needs to be executed.
    *
    * @param {FuncCallExpressionContext} ctx

@@ -5,7 +5,8 @@ const Context = require('context-eval');
 const {
   BsonCompilersReferenceError,
   BsonCompilersRuntimeError,
-  BsonCompilersUnimplementedError
+  BsonCompilersUnimplementedError,
+  BsonCompilersArgumentError
 } = require('../../helper/error');
 
 /**
@@ -138,6 +139,47 @@ class Visitor extends JavascriptVisitor {
   processISODate(ctx) {
     return this.processDate(ctx);
   }
+
+  /**
+   * We want to ensure that the scope argument is not generated as a builder if
+   * idiomatic is turned on
+   * @param {FuncCallExpressionContext} ctx
+   * @return {String}
+   */
+  processCode(ctx) {
+    ctx.type = this.Types.Code;
+    const symbolType = this.Symbols.Code;
+    const lhs = symbolType.template ? symbolType.template() : 'Code';
+    const argList = ctx.arguments().argumentList();
+    if (!argList ||
+      !(argList.singleExpression().length === 1 ||
+        argList.singleExpression().length === 2)) {
+      return `${this.new}${lhs}${symbolType.argsTemplate ? symbolType.argsTemplate(lhs) : '()'}`;
+    }
+    const args = argList.singleExpression();
+    const code = this.visit(args[0]);
+    let scope = undefined;
+    let scopestr = '';
+
+    if (args.length === 2) {
+      const idiomatic = this.idiomatic;
+      this.idiomatic = false;
+      scope = this.visit(args[1]);
+      this.idiomatic = idiomatic;
+      scopestr = `, ${scope}`;
+      if (args[1].type !== this.Types._object) {
+        throw new BsonCompilersArgumentError(
+          'Argument type mismatch: Code requires scope to be an object'
+        );
+      }
+    }
+    if ('emitCode' in this) {
+      return this.emitCode(ctx, code, scope);
+    }
+    const rhs = symbolType.argsTemplate ? symbolType.argsTemplate(lhs, code, scope) : `(${code}${scopestr})`;
+    return `${this.new}${lhs}${rhs}`;
+  }
+
 }
 
 module.exports = Visitor;

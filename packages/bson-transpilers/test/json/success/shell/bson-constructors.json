@@ -239,7 +239,7 @@
         "description": "{x: 1}",
         "javascript": "{\n  x: 1\n}",
         "python": "{\n    'x': 1\n}",
-        "java": "new Document(\"x\", 1L)",
+        "java": "eq(\"x\", 1L)",
         "csharp": "new BsonDocument(\"x\", 1)",
         "shell": "{x: 1}"
       },
@@ -247,7 +247,7 @@
         "description": "Doc with trailing comma",
         "javascript": "{\n  x: 1\n}",
         "python": "{\n    'x': 1\n}",
-        "java": "new Document(\"x\", 1L)",
+        "java": "eq(\"x\", 1L)",
         "csharp": "new BsonDocument(\"x\", 1)",
         "shell": "{x: 1,}"
       },
@@ -255,7 +255,7 @@
         "description": "Doc with array",
         "javascript": "{\n  x: [\n    1, 2\n  ]\n}",
         "python": "{\n    'x': [\n        1, 2\n    ]\n}",
-        "java": "new Document(\"x\", Arrays.asList(1L, 2L))",
+        "java": "eq(\"x\", Arrays.asList(1L, 2L))",
         "csharp": "new BsonDocument(\"x\", new BsonArray\n    {\n        1,\n        2\n    })",
         "shell": "{x: [1,2]}"
       },
@@ -263,7 +263,7 @@
         "description": "Doc with subdoc",
         "javascript": "{\n  x: {\n    y: 2\n  }\n}",
         "python": "{\n    'x': {\n        'y': 2\n    }\n}",
-        "java": "new Document(\"x\", new Document(\"y\", 2L))",
+        "java": "eq(\"x\", eq(\"y\", 2L))",
         "csharp": "new BsonDocument(\"x\", new BsonDocument(\"y\", 2))",
         "shell": "{x: {y: 2}}"
       },
@@ -271,7 +271,7 @@
         "description": "Object.create()",
         "javascript": "Object.create({\n  x: 1\n})",
         "python": "{\n    'x': 1\n}",
-        "java": "new Document(\"x\", 1L)",
+        "java": "eq(\"x\", 1L)",
         "csharp": "new BsonDocument(\"x\", 1)",
         "shell": "Object.create({x: 1})"
       },
@@ -287,7 +287,7 @@
         "description": "Two items in document",
         "javascript": "{\n  x: 1, \n  n: 4\n}",
         "python": "{\n    'x': 1, \n    'n': 4\n}",
-        "java": "new Document(\"x\", 1L)\n    .append(\"n\", 4L)",
+        "java": "and(eq(\"x\", 1L), eq(\"n\", 4L))",
         "csharp": "new BsonDocument\n{\n    { \"x\", 1 }, \n    { \"n\", 4 }\n}",
         "shell": "{x: 1, n: 4}"
       }
@@ -313,7 +313,7 @@
         "description": "Array with subdoc",
         "javascript": "[\n  1, {\n    settings: 'http2'\n  }\n]",
         "python": "[\n    1, {\n        'settings': 'http2'\n    }\n]",
-        "java": "Arrays.asList(1L, \n    new Document(\"settings\", \"http2\"))",
+        "java": "Arrays.asList(1L, eq(\"settings\", \"http2\"))",
         "csharp": "new BsonArray\n{\n    1,\n    new BsonDocument(\"settings\", \"http2\")\n}",
         "shell": "[1, { settings: 'http2' }]"
       },
