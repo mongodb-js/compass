@@ -38,7 +38,7 @@ class CreateCollectionCollationSelect extends React.Component {
             name={element.field}
             placeholder={`Select a ${element.field}`}
             options={this.getDropdownFieldsSelect(element.values)}
-            onChange={this.props.onCollationOptionChange.bind(this, this.state, element.field)}
+            onChange={this.props.onCollationOptionChange.bind(this, element.field)}
             className="create-collection-dialog-collation-select"
             clearable={false} />
         </div>
