@@ -2,6 +2,7 @@ BsonTypes:
     Code: &CodeType
         <<: *__type
         id: "Code"
+        code: 100
         type: *ObjectType
         attr:
             code:
@@ -24,6 +25,7 @@ BsonTypes:
     ObjectId: &ObjectIdType
         <<: *__type
         id: "ObjectId"
+        code: 101
         type: *ObjectType
         attr:
             toHexString:
@@ -50,6 +52,7 @@ BsonTypes:
     Binary: &BinaryType
         <<: *__type
         id: "Binary"
+        code: 102
         type: *ObjectType
         attr:
             value:
@@ -81,6 +84,7 @@ BsonTypes:
     DBRef: &DBRefType
         <<: *__type
         id: "DBRef"
+        code: 103
         type: *ObjectType
         attr:
             toString:
@@ -116,6 +120,7 @@ BsonTypes:
     Double: &DoubleType
         <<: *__type
         id: "Double"
+        code: 104
         type: *ObjectType
         attr:
             valueOf:
@@ -127,6 +132,7 @@ BsonTypes:
     Int32: &Int32Type
         <<: *__type
         id: "Int32"
+        code: 105
         type: *ObjectType
         attr:
             valueOf:
@@ -138,6 +144,7 @@ BsonTypes:
     Long: &LongType
         <<: *__type
         id: "Long"
+        code: 106
         type: *ObjectType
         attr:
             toString:
@@ -329,18 +336,22 @@ BsonTypes:
     MinKeyType: &MinKeyType
         <<: *__type
         id: "MinKey"
+        code: 107
         type: *ObjectType
     MaxKeyType: &MaxKeyType
         <<: *__type
         id: "MaxKey"
+        code: 108
         type: *ObjectType
     BSONRegExpType: &BSONRegExpType
         <<: *__type
         id: "BSONRegExp"
+        code: 109
         type: *ObjectType
     Timestamp: &TimestampType
         <<: *__type
         id: "Timestamp"
+        code: 110
         type: *ObjectType
         attr:
             toString:
@@ -420,6 +431,7 @@ BsonTypes:
     Symbol: &SymbolType
         <<: *__type
         id: "Symbol"
+        code: 111
         type: *ObjectType
         attr:
             valueOf:
@@ -443,6 +455,7 @@ BsonTypes:
     Decimal128: &Decimal128Type
         <<: *__type
         id: "Decimal128"
+        code: 112
         type: *ObjectType
         attr:
             toString:
@@ -455,5 +468,6 @@ JSTypes:
     Date: &DateType
         <<: *__type
         id: "Date"
+        code: 200
         type: *ObjectType
         attr: {} # TODO: no built-in date methods added yet

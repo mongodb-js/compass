@@ -837,3 +837,81 @@ Templates:
             return 're';
         }
     RegExpSymbolArgsTemplate: &RegExpSymbolArgsTemplate null
+    ImportTemplate: &ImportTemplate !!js/function >
+        (args) => {
+            const bson = [];
+            const other = [];
+            Object.keys(args).map(
+                (m) => {
+                    if (m > 99 && m < 200) {
+                        bson.push(args[m]);
+                    } else {
+                        other.push(args[m]);
+                    }
+                }
+            );
+            if (bson.length) {
+                other.push(`from bson import ${bson.join(', ')}`);
+            }
+            return other.join('\n');
+        }
+    0ImportTemplate: &0ImportTemplate null
+    1ImportTemplate: &1ImportTemplate null
+    2ImportTemplate: &2ImportTemplate null
+    3ImportTemplate: &3ImportTemplate null
+    4ImportTemplate: &4ImportTemplate null
+    5ImportTemplate: &5ImportTemplate null
+    6ImportTemplate: &6ImportTemplate null
+    7ImportTemplate: &7ImportTemplate null
+    8ImportTemplate: &8ImportTemplate null
+    9ImportTemplate: &9ImportTemplate null
+    10ImportTemplate: &10ImportTemplate null
+    11ImportTemplate: &11ImportTemplate null
+    12ImportTemplate: &12ImportTemplate null
+    100ImportTemplate: &100ImportTemplate !!js/function >
+        () => {
+            return 'Code';
+        }
+    101ImportTemplate: &101ImportTemplate !!js/function >
+        () => {
+            return 'ObjectId';
+        }
+    102ImportTemplate: &102ImportTemplate !!js/function >
+        () => {
+            return 'Binary';
+        }
+    103ImportTemplate: &103ImportTemplate !!js/function >
+        () => {
+            return 'DBRef';
+        }
+    104ImportTemplate: &104ImportTemplate null
+    105ImportTemplate: &105ImportTemplate null
+    106ImportTemplate: &106ImportTemplate !!js/function >
+        () => {
+            return 'Int64';
+        }
+    107ImportTemplate: &107ImportTemplate !!js/function >
+        () => {
+            return 'MinKey';
+        }
+    108ImportTemplate: &108ImportTemplate !!js/function >
+        () => {
+            return 'MaxKey';
+        }
+    109ImportTemplate: &109ImportTemplate null
+    110ImportTemplate: &110ImportTemplate !!js/function >
+        () => {
+            return 'Timestamp';
+        }
+    111ImportTemplate: &111ImportTemplate null
+    112ImportTemplate: &112ImportTemplate !!js/function >
+        () => {
+            return 'Decimal128';
+        }
+    113ImportTemplate: &113ImportTemplate null
+    114ImportTemplate: &114ImportTemplate null
+    200ImportTemplate: &200ImportTemplate !!js/function >
+        () => {
+            return 'import datetime';
+        }
+    201ImportTemplate: &201ImportTemplate null

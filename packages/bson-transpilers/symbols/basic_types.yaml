@@ -2,58 +2,71 @@
 # Everything inherits from StringType because we haven't implemented any of them.
 BasicTypes:
     # Universal basic types
-    _string: &StringType
-        <<: *__type
-        id: "_string"
-        template: *StringTypeTemplate
-    _regex: &RegexType
-        <<: *__type
-        id: "_regex"
-        template: *RegexTypeTemplate
     _bool: &BoolType
         <<: *__type
         id: "_bool"
+        code: 0
         template: *BoolTypeTemplate
     _integer: &IntegerType
         <<: *__type
         id: "_integer"
+        code: 1
         template: *IntegerTypeTemplate
     _long: &LongBasicType
         <<: *__type
         id: "_long"
+        code: 2
         template: *LongBasicTypeTemplate
     _decimal: &DecimalType
         <<: *__type
         id: "_decimal"
+        code: 3
         template: *DecimalTypeTemplate
     _hex: &HexType
         <<: *__type
         id: "_hex"
+        code: 4
         template: *HexTypeTemplate
     _octal: &OctalType
         <<: *__type
         id: "_octal"
+        code: 5
         template: *OctalTypeTemplate
     _numeric: &NumericType
         <<: *__type
         id: "_numeric"
+        code: 6
         template: *NumericTypeTemplate
+    _string: &StringType
+        <<: *__type
+        id: "_string"
+        code: 7
+        template: *StringTypeTemplate
+    _regex: &RegexType
+        <<: *__type
+        id: "_regex"
+        code: 8
+        template: *RegexTypeTemplate
     _array: &ArrayType
         <<: *__type
         id: "_array"
+        code: 9
         template: *ArrayTypeTemplate
         argsTemplate: *ArrayTypeArgsTemplate
     _object: &ObjectType
         <<: *__type
         id: "_object"
+        code: 10
         template: *ObjectTypeTemplate
         argsTemplate: *ObjectTypeArgsTemplate
     _null: &NullType
         <<: *__type
         id: "_null"
+        code: 11
         template: *NullTypeTemplate
     _undefined: &UndefinedType
         <<: *__type
         id: "_undefined"
+        code: 12
         template: *UndefinedTypeTemplate
 

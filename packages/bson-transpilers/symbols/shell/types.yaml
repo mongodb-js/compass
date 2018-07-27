@@ -2,6 +2,7 @@ BsonTypes:
     Code: &CodeType
         <<: *__type
         id: "Code"
+        code: 100
         type: *ObjectType
         attr:
             code:
@@ -24,6 +25,7 @@ BsonTypes:
     ObjectId: &ObjectIdType
         <<: *__type
         id: "ObjectId"
+        code: 101
         type: *ObjectType
         attr:
             toString:
@@ -49,6 +51,7 @@ BsonTypes:
     BinData: &BinaryType
         <<: *__type
         id: "BinData"
+        code: 102
         type: *ObjectType
         attr:
             toString:
@@ -78,6 +81,7 @@ BsonTypes:
     DBRef: &DBRefType
         <<: *__type
         id: "DBRef"
+        code: 103
         type: *ObjectType
         attr:
             toString:
@@ -137,6 +141,7 @@ BsonTypes:
     NumberInt: &Int32Type
         <<: *__type
         id: "NumberInt"
+        code: 105
         type: *ObjectType
         attr:
             toString:
@@ -154,6 +159,7 @@ BsonTypes:
     NumberLong: &LongType
         <<: *__type
         id: "NumberLong"
+        code: 106
         type: *ObjectType
         attr:
             toString:
@@ -193,14 +199,17 @@ BsonTypes:
     MinKeyType: &MinKeyType
         <<: *__type
         id: "MinKey"
+        code: 107
         type: *ObjectType
     MaxKeyType: &MaxKeyType
         <<: *__type
         id: "MaxKey"
+        code: 108
         type: *ObjectType
     Timestamp: &TimestampType
         <<: *__type
         id: "TimestampFromShell"
+        code: 110
         type: *ObjectType
         attr:
             toString:
@@ -240,10 +249,12 @@ BsonTypes:
     Symbol: &SymbolType
         <<: *__type
         id: "Symbol"
+        code: 111
         type: *ObjectType
     NumberDecimal: &Decimal128Type
         <<: *__type
         id: "NumberDecimal"
+        code: 112
         type: *ObjectType
         attr:
             toString:
@@ -256,53 +267,62 @@ BsonTypes:
         id: "SUBTYPE_DEFAULT"
         callable: *var
         args: null
+        code: 113
         type: *IntegerType
         template: *BinarySymbolSubtypeDefaultTemplate
     SUBTYPE_FUNCTION:
         id: "SUBTYPE_FUNCTION"
         callable: *var
         args: null
+        code: 113
         type: *IntegerType
         template: *BinarySymbolSubtypeFunctionTemplate
     SUBTYPE_BYTE_ARRAY:
         id: "SUBTYPE_BYTE_ARRAY"
         callable: *var
         args: null
+        code: 113
         type: *IntegerType
         template: *BinarySymbolSubtypeByteArrayTemplate
     SUBTYPE_UUID_OLD:
         id: "SUBTYPE_UUID_OLD"
         callable: *var
         args: null
+        code: 113
         type: *IntegerType
         template: *BinarySymbolSubtypeUuidOldTemplate
     SUBTYPE_UUID:
         id: "SUBTYPE_UUID"
         callable: *var
         args: null
+        code: 113
         type: *IntegerType
         template: *BinarySymbolSubtypeUuidTemplate
     SUBTYPE_MD5:
         id: "SUBTYPE_MD5"
         callable: *var
         args: null
+        code: 113
         type: *IntegerType
         template: *BinarySymbolSubtypeMd5Template
     SUBTYPE_USER_DEFINED:
         id: "SUBTYPE_USER_DEFINED"
         callable: *var
         args: null
+        code: 113
         type: *IntegerType
         template: *BinarySymbolSubtypeUserDefinedTemplate
 JSTypes:
     Date: &DateType
         <<: *__type
         id: "Date"
+        code: 200
         type: *ObjectType
         attr: {} # TODO: no built-in date methods added yet
     RegExp: &RegExpType
         <<: *__type
         id: "RegExp"
+        code: 8
         type: *ObjectType
         attr: {}
 

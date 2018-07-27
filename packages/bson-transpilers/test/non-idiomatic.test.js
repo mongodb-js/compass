@@ -75,14 +75,14 @@ describe('Non-idiomatic documents', () => {
   describe('non-idiomatic java documents from javascript', () => {
     for (const test of nonIdiomaticDocs) {
       it(test.description, () => {
-        expect(compiler.javascript.java(test.javascript, false)).to.equal(test.java);
+        expect(compiler.javascript.java.compile(test.javascript, false)).to.equal(test.java);
       });
     }
   });
   describe('non-idiomatic java documents from shell', () => {
     for (const test of nonIdiomaticDocs) {
       it(test.description, () => {
-        expect(compiler.shell.java(test.javascript, false)).to.equal(test.java);
+        expect(compiler.shell.java.compile(test.javascript, false)).to.equal(test.java);
       });
     }
   });

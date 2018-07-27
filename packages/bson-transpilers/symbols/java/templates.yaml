@@ -788,3 +788,86 @@ Templates:
             return 'Pattern';
         }
     RegExpSymbolArgsTemplate: &RegExpSymbolArgsTemplate null
+    #!!js/function >\n        () => {\n            return '';\n        }
+    ImportTemplate: &ImportTemplate null
+    0ImportTemplate: &0ImportTemplate null
+    1ImportTemplate: &1ImportTemplate null
+    2ImportTemplate: &2ImportTemplate null
+    3ImportTemplate: &3ImportTemplate null
+    4ImportTemplate: &4ImportTemplate null
+    5ImportTemplate: &5ImportTemplate null
+    6ImportTemplate: &6ImportTemplate null
+    7ImportTemplate: &7ImportTemplate null
+    8ImportTemplate: &8ImportTemplate !!js/function >
+        () => {
+            return 'import java.util.regex.Pattern;';
+        }
+    9ImportTemplate: &9ImportTemplate !!js/function >
+        () => {
+            return 'import java.util.Arrays;';
+        }
+    10ImportTemplate: &10ImportTemplate !!js/function >
+        () => {
+            return 'import org.bson.Document;';
+        }
+    11ImportTemplate: &11ImportTemplate null
+    12ImportTemplate: &12ImportTemplate !!js/function >
+        () => {
+            return 'import org.bson.BsonUndefined;';
+        }
+    100ImportTemplate: &100ImportTemplate !!js/function >
+        () => {
+            return 'import org.bson.types.Code;';
+        }
+    113ImportTemplate: &113ImportTemplate !!js/function >
+        () => {
+            return 'import org.bson.types.CodeWithScope;';
+        }
+    101ImportTemplate: &101ImportTemplate !!js/function >
+        () => {
+            return 'import org.bson.types.ObjectId;';
+        }
+    102ImportTemplate: &102ImportTemplate !!js/function >
+        () => {
+            return 'import org.bson.types.Binary;';
+        }
+    103ImportTemplate: &103ImportTemplate !!js/function >
+        () => {
+            return 'import com.mongodb.DBRef;';
+        }
+    104ImportTemplate: &104ImportTemplate null
+    105ImportTemplate: &105ImportTemplate null
+    106ImportTemplate: &106ImportTemplate null
+    107ImportTemplate: &107ImportTemplate !!js/function >
+        () => {
+            return 'import org.bson.types.MinKey;';
+        }
+    108ImportTemplate: &108ImportTemplate !!js/function >
+        () => {
+            return 'import org.bson.types.MaxKey;';
+        }
+    109ImportTemplate: &109ImportTemplate !!js/function >
+        () => {
+            return 'import org.bson.BsonRegularExpression;';
+        }
+    110ImportTemplate: &110ImportTemplate !!js/function >
+        () => {
+            return 'import org.bson.types.BSONTimestamp;';
+        }
+    111ImportTemplate: &111ImportTemplate !!js/function >
+        () => {
+            return 'import org.bson.types.Symbol;';
+        }
+    112ImportTemplate: &112ImportTemplate !!js/function >
+        () => {
+            return 'import org.bson.types.Decimal128;';
+        }
+    114ImportTemplate: &114ImportTemplate !!js/function >
+        () => {
+            return 'import org.bson.BsonBinarySubType;';
+        }
+    200ImportTemplate: &200ImportTemplate null
+    201ImportTemplate: &201ImportTemplate !!js/function >
+        () => {
+            return 'import java.text.SimpleDateFormat;';
+        }

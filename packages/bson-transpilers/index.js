@@ -60,65 +60,31 @@ const getCompiler = (visitor, generator, symbols) => {
     BsonTypes: doc.BsonTypes,
     Symbols: Object.assign({}, doc.BsonSymbols, doc.JSSymbols),
     Types: Object.assign({}, doc.BasicTypes, doc.BsonTypes, doc.JSTypes),
-    Syntax: doc.Syntax
+    Syntax: doc.Syntax,
+    Imports: doc.Imports
   });
-  return (input, idiomatic) => {
-    try {
-      const tree = loadTree(input);
-      compiler.idiomatic = idiomatic === undefined ?
-        compiler.idiomatic :
-        idiomatic;
-      return compiler.start(tree);
-    } catch (e) {
-      if (e.code && e.code.includes('BSONCOMPILERS')) {
-        throw e;
+  return {
+    compile: (input, idiomatic) => {
+      try {
+        const tree = loadTree(input);
+        compiler.idiomatic = idiomatic === undefined ?
+          compiler.idiomatic :
+          idiomatic;
+        return compiler.start(tree);
+      } catch (e) {
+        if (e.code && e.code.includes('BSONCOMPILERS')) {
+          throw e;
+        }
+        throw new BsonCompilersInternalError(e.message, e);
+      } finally {
+        compiler.idiomatic = true;
       }
-      throw new BsonCompilersInternalError(e.message, e);
-    } finally {
-      compiler.idiomatic = true;
+    },
+    getImports: () => {
+      return compiler.getImports();
     }
   };
 };
-
-const javaImports = `import com.mongodb.DBRef;
-import org.bson.BsonBinarySubType;
-import org.bson.BsonRegularExpression;
-import org.bson.Document;
-import org.bson.types.*;
-import org.bson.BsonUndefined;
-
-import java.text.SimpleDateFormat;
-import java.util.Arrays;
-import java.util.regex.Pattern;
-`;
-
-const pythonImports = `from bson import *
-import datetime
-`;
-
-const csharpImports = `using MongoDB.Bson;
-using MongoDB.Driver;
-
-using System;
-using System.Text.RegularExpressions;
-`;
-
-const javascriptImports = `const {
-  Binary,
-  Code,
-  ObjectId,
-  DBRef,
-  Int32,
-  Double,
-  Long,
-  Decimal128,
-  MinKey,
-  MaxKey,
-  BSONRegExp,
-  Timestamp,
-  Symbol
-} = require('mongodb');
-`;
 
 
 module.exports = {
@@ -133,13 +99,6 @@ module.exports = {
     python: getCompiler(ShellVisitor, PythonGenerator, shellpythonsymbols),
     csharp: getCompiler(ShellVisitor, CsharpGenerator, shellcsharpsymbols),
     javascript: getCompiler(ShellVisitor, JavascriptGenerator, shelljavascriptsymbols)
-  },
-  imports: {
-    java: javaImports,
-    python: pythonImports,
-    csharp: csharpImports,
-    javascript: javascriptImports,
-    shell: ''
   },
   getTree: loadTree
 };

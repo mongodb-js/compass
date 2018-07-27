@@ -199,7 +199,9 @@ describe('Java Builders', () => {
       describe(`${key}`, () => {
         for (const test of errors[key]) {
           it(`${test.input} throws expected error`, () => {
-            expect(()=>{compiler.javascript.java(test.input, true);}).to.throw(test.error);
+            expect(() => {
+              compiler.javascript.java.compile(test.input, true);
+            }).to.throw(test.error);
           });
         }
       });

@@ -30,6 +30,7 @@ class Visitor extends JavascriptVisitor {
         `Symbol '${name}' is undefined`
       );
     }
+    this.requiredImports[ctx.type.code] = true;
     // Special case MinKey/MaxKey because they don't have to be called in shell
     if (!ctx.visited && (ctx.type.id === 'MinKey' || ctx.type.id === 'MaxKey') &&
         ctx.parentCtx.constructor.name !== 'FuncCallExpressionContext' &&
@@ -172,6 +173,8 @@ class Visitor extends JavascriptVisitor {
           'Argument type mismatch: Code requires scope to be an object'
         );
       }
+      this.requiredImports[113] = true;
+      this.requiredImports[10] = true;
     }
     if ('emitCode' in this) {
       return this.emitCode(ctx, code, scope);

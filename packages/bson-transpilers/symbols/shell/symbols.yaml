@@ -1,6 +1,7 @@
 BsonSymbols:
     Code: &CodeSymbol
         id: "Code"
+        code: 100
         callable: *constructor
         args:
             - [ *StringType, null ]
@@ -11,6 +12,7 @@ BsonSymbols:
         argsTemplate: *CodeSymbolArgsTemplate
     ObjectId: &ObjectIdSymbol
         id: "ObjectId"
+        code: 101
         callable: *constructor
         args:
             - [ *StringType, null ]
@@ -28,6 +30,7 @@ BsonSymbols:
         argsTemplate: *ObjectIdSymbolArgsTemplate
     BinData: &BinarySymbol
         id: "BinData"
+        code: 102
         callable: *constructor
         args:
             - [ *IntegerType ]
@@ -38,6 +41,7 @@ BsonSymbols:
         argsTemplate: *BinarySymbolArgsTemplate
     DBRef:
         id: "DBRef"
+        code: 103
         callable: *constructor
         args:
             - [ *StringType ]
@@ -49,6 +53,7 @@ BsonSymbols:
         argsTemplate: *DBRefSymbolArgsTemplate
     NumberInt:
         id: "Int32"
+        code: 105
         callable: *constructor
         args:
             - [ *IntegerType, *StringType, null ]
@@ -58,6 +63,7 @@ BsonSymbols:
         argsTemplate: *Int32SymbolArgsTemplate
     NumberLong:
         id: "NumberLong"
+        code: 106
         callable: *constructor
         args:
             - [ *IntegerType, *StringType, null ]
@@ -67,6 +73,7 @@ BsonSymbols:
         argsTemplate: *LongSymbolArgsTemplate
     MinKey:
         id: "MinKey"
+        code: 107
         callable: *constructor
         args: []
         type: *MinKeyType
@@ -75,6 +82,7 @@ BsonSymbols:
         argsTemplate: *MinKeySymbolArgsTemplate
     MaxKey:
         id: "MaxKey"
+        code: 108
         callable: *constructor
         args: []
         type: *MaxKeyType
@@ -83,6 +91,7 @@ BsonSymbols:
         argsTemplate: *MaxKeySymbolArgsTemplate
     Timestamp:
         id: "Timestamp"
+        code: 110
         callable: *constructor
         args:
             - [ *IntegerType, null ]
@@ -93,6 +102,7 @@ BsonSymbols:
         argsTemplate: *TimestampSymbolArgsTemplate
     Symbol:
         id: "Symbol"
+        code: 111
         callable: *constructor
         args:
             - [ *StringType ]
@@ -102,6 +112,7 @@ BsonSymbols:
         argsTemplate: *SymbolSymbolArgsTemplate
     NumberDecimal:
         id: "NumberDecimal"
+        code: 112
         callable: *constructor
         args:
             - [ *StringType, *NumericType, null ]
@@ -113,6 +124,7 @@ BsonSymbols:
 JSSymbols:
     Object:
         id: "Object"
+        code: 10
         callable: *var
         args: null
         type: *ObjectType
@@ -130,6 +142,7 @@ JSSymbols:
         argsTemplate: *ObjectSymbolArgsTemplate
     Number:
         id: "Number"
+        code: 2
         callable: *constructor
         args:
             - [ *IntegerType, *StringType, null ]
@@ -139,6 +152,7 @@ JSSymbols:
         argsTemplate: *NumberSymbolArgsTemplate
     Date: # Needs emit method
         id: "Date"
+        code: 200
         callable: *constructor
         args:
             - [ *StringType, *NumericType, null ]
@@ -162,6 +176,7 @@ JSSymbols:
         argsTemplate: *DateSymbolArgsTemplate
     ISODate: # Needs emit method
         id: "ISODate"
+        code: 200
         callable: *constructor
         args:
             - [ *StringType, null ]
@@ -179,6 +194,7 @@ JSSymbols:
         argsTemplate: *DateSymbolArgsTemplate
     RegExp: # Needs process method
         id: "RegExp"
+        code: 8
         callable: *constructor
         args:
             - [ *StringType, *RegexType ]

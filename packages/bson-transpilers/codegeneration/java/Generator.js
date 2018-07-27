@@ -64,6 +64,7 @@ module.exports = (superClass) => class ExtendedVisitor extends superClass {
     if (!ctx.wasNew && !ctx.getText().includes('ISODate')) {
       ctx.type = this.Types._string;
       toStr = (d) => `new SimpleDateFormat("EEE MMMMM dd yyyy HH:mm:ss").format(${d})`;
+      this.requiredImports[201] = true;
     }
     if (date === undefined) {
       return toStr('new java.util.Date()');

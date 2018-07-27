@@ -12,20 +12,24 @@ const unsupported = {
 
 const checkResults = {
   success: function(inputLang, outputLang, test) {
-    expect(compiler[inputLang][outputLang].bind(this, test[inputLang])).to.not.throw();
-    expect(compiler[inputLang][outputLang](test[inputLang])).to.equal(test[outputLang]);
+    expect(compiler[inputLang][outputLang].compile(test[inputLang])).to.equal(
+      test[outputLang]
+    );
   },
 
   error: function(inputLang, outputLang, test) {
     let thrown = false;
     try {
-      compiler[inputLang][outputLang](test.query);
+      compiler[inputLang][outputLang].compile(test.query);
     } catch (error) {
       thrown = true;
       expect(error.code).to.equal(test.errorCode);
       if (test.message) {
         expect(error.message).to.be.a('string');
-        expect(error.message.includes(test.message), `Expected error message to contain ${test.message} but got ${error.message}`).to.be.true;
+        expect(
+          error.message.includes(test.message),
+          `Expected error message to contain ${test.message} but got ${error.message}`
+        ).to.be.true;
       }
     } finally {
       if (!thrown) {

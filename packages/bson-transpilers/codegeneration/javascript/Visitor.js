@@ -24,6 +24,7 @@ class Visitor extends ECMAScriptVisitor {
     this.new = '';
     this.processInt32 = this.processNumber;
     this.processDouble = this.processNumber;
+    this.requiredImports = {};
 
     // Throw UnimplementedError for nodes with expressions that we don't support
     this.visitThisExpression =
@@ -58,6 +59,29 @@ class Visitor extends ECMAScriptVisitor {
       this.unimplemented;
   }
 
+  getImports() {
+    const importTemplate = this.Imports.import.template ?
+      this.Imports.import.template :
+      (s) => (
+        Object.values(s)
+          .filter((a, i) => (Object.values(s).indexOf(a) === i))
+          .join('\n')
+      );
+    const imports = Object.keys(this.requiredImports)
+      .filter((code) => {
+        return (
+          this.requiredImports[code] &&
+          this.Imports[code] &&
+          this.Imports[code].template
+        );
+      })
+      .reduce((obj, c) => {
+        obj[c] = this.Imports[c].template();
+        return obj;
+      }, {});
+    return importTemplate(imports);
+  }
+
   unimplemented(ctx) {
     const name = ctx.constructor.name ?
       ctx.constructor.name.replace('Context', '') : 'Expression';
@@ -67,6 +91,7 @@ class Visitor extends ECMAScriptVisitor {
   }
 
   start(ctx) {
+    this.requiredImports = {};
     return this.visitProgram(ctx);
   }
 
@@ -142,6 +167,7 @@ class Visitor extends ECMAScriptVisitor {
     if (!ctx.type) {
       ctx.type = this.getPrimitiveType(ctx.literal());
     }
+    this.requiredImports[ctx.type.code] = true;
     // Pass the original argument type to the template, not the casted type.
     const type = ctx.originalType === undefined ? ctx.type : ctx.originalType;
     if (`process${ctx.type.id}` in this) {
@@ -293,6 +319,8 @@ class Visitor extends ECMAScriptVisitor {
     if (ctx.type === undefined) {
       throw new BsonCompilersReferenceError(`Symbol '${name}' is undefined`);
     }
+    this.requiredImports[ctx.type.code] = true;
+
     if (ctx.type.template) {
       return ctx.type.template();
     }
@@ -726,6 +754,8 @@ class Visitor extends ECMAScriptVisitor {
           'Argument type mismatch: Code requires scope to be an object'
         );
       }
+      this.requiredImports[113] = true;
+      this.requiredImports[10] = true;
     }
     if ('emitCode' in this) {
       return this.emitCode(ctx, code, scope);
