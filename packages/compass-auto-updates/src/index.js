@@ -1,12 +1,11 @@
-import CompassAutoUpdatesPlugin from './plugin';
-import CompassAutoUpdatesStore from 'stores';
+import AutoUpdatesPlugin from './plugin';
+import AutoUpdatesStore from 'stores';
 
 /**
  * A sample role for the component.
  */
 const ROLE = {
-  name: 'CompassAutoUpdates',
-  component: CompassAutoUpdatesPlugin
+  component: AutoUpdatesPlugin
 };
 
 /**
@@ -24,7 +23,7 @@ function activate(appRegistry) {
   //   - Header.Item: { name: <String>, component: <React.Component>, alignment: <String> }
 
   appRegistry.registerRole('App.AutoUpdate', ROLE);
-  appRegistry.registerStore('CompassAutoUpdates.Store', CompassAutoUpdatesStore);
+  appRegistry.registerStore('AutoUpdates.Store', AutoUpdatesStore);
 }
 
 /**
@@ -33,8 +32,8 @@ function activate(appRegistry) {
  **/
 function deactivate(appRegistry) {
   appRegistry.deregisterRole('App.AutoUpdate', ROLE);
-  appRegistry.deregisterStore('CompassAutoUpdates.Store');
+  appRegistry.deregisterStore('AutoUpdates.Store');
 }
 
-export default CompassAutoUpdatesPlugin;
+export default AutoUpdatesPlugin;
 export { activate, deactivate };

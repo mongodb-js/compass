@@ -3,7 +3,7 @@ import ReactDOM from 'react-dom';
 import app from 'hadron-app';
 import AppRegistry from 'hadron-app-registry';
 import { AppContainer } from 'react-hot-loader';
-import CompassAutoUpdatesPlugin, { activate } from 'plugin';
+import AutoUpdatesPlugin, { activate } from 'plugin';
 
 // Import global less file. Note: these styles WILL NOT be used in compass, as compass provides its own set
 // of global styles. If you are wishing to style a given component, you should be writing a less file per
@@ -43,7 +43,7 @@ const render = Component => {
 // appRegistry.emit('application-initialized', '1.11.0-dev');
 
 // Render our plugin - don't remove the following line.
-render(CompassAutoUpdatesPlugin);
+render(AutoUpdatesPlugin);
 
 // // Data service initialization and connection.
 // import Connection from 'mongodb-connection-model';
@@ -96,6 +96,6 @@ if (module.hot) {
   module.hot.accept('plugin', () => {
     // Because Webpack 2 has built-in support for ES2015 modules,
     // you won't need to re-require your app root in module.hot.accept
-    render(CompassAutoUpdatesPlugin);
+    render(AutoUpdatesPlugin);
   });
 }
