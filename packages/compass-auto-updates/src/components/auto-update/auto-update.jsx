@@ -30,8 +30,13 @@ class AutoUpdate extends PureComponent {
    * @returns {React.Component} The rendered component.
    */
   render() {
+    const className = classnames({
+      [styles['auto-update']]: true,
+      [styles['auto-update-is-visible']]: true
+    });
+
     return (
-      <div className={classnames(styles['auto-update-is-visible'])}>
+      <div className={className}>
         <div className={classnames(styles['auto-update-text'])}>
           A new version of Compass is ready.
         </div>
