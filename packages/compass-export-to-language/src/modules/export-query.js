@@ -42,7 +42,7 @@ function closeModal(state, action) {
 
 function addImports(state, action) {
   if (action.imports) {
-    const imports = compiler.imports[state.outputLang];
+    const imports = compiler.shell[state.outputLang].getImports();
     return { ...state, imports: imports};
   }
 
@@ -54,8 +54,8 @@ export const runQuery = (outputLang, input) => {
     const state = getState();
 
     try {
-      const output = compiler.shell[outputLang](stringify(input), state.exportQuery.builders);
-      if (state.exportQuery.imports !== '') state.exportQuery.imports = compiler.imports[outputLang];
+      const output = compiler.shell[outputLang].compile(stringify(input), state.exportQuery.builders);
+      state.exportQuery.imports = state.exportQuery.imports !== '' ? compiler.shell[outputLang].getImports() : '';
       state.exportQuery.returnQuery = output;
       state.exportQuery.queryError = null;
       return state;

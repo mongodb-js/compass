@@ -134,7 +134,7 @@ describe('export query module', () => {
           modalOpen: false,
           returnQuery: '',
           inputQuery: '',
-          imports: 'from bson import *\nimport datetime\n',
+          imports: '',
           builders: true
         });
       });
