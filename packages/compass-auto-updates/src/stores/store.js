@@ -1,53 +1,43 @@
 import { createStore } from 'redux';
 import reducer from 'modules';
+import ipc from 'hadron-ipc';
 
 const store = createStore(reducer);
 
-// store.onActivated = (appRegistry) => {
-  // Events emitted from the app registry:
-  //
-  // appRegistry.on('application-intialized', (version) => {
-  //   // Version is string in semver format, ex: "1.10.0"
-  // });
-  //
-  // appRegistry.on('data-service-intialized', (dataService) => {
-  //   // dataService is not yet connected. Can subscribe to events.
-  //   // DataService API: https://github.com/mongodb-js/data-service/blob/master/lib/data-service.js
-  // });
-  //
-  // appRegistry.on('data-service-connected', (error, dataService) => {
-  //   // dataService is connected or errored.
-  //   // DataService API: https://github.com/mongodb-js/data-service/blob/master/lib/data-service.js
-  // });
-  //
-  // appRegistry.on('collection-changed', (namespace) => {
-  //   // The collection has changed - provides the current namespace.
-  //   // Namespace format: 'database.collection';
-  //   // Collection selected: 'database.collection';
-  //   // Database selected: 'database';
-  //   // Instance selected: '';
-  // });
-  //
-  // appRegistry.on('database-changed', (namespace) => {
-  //   // The database has changed.
-  //   // Namespace format: 'database.collection';
-  //   // Collection selected: 'database.collection';
-  //   // Database selected: 'database';
-  //   // Instance selected: '';
-  // });
-  //
-  // appRegistry.on('query-applied', (queryState) => {
-  //   // The query has changed and the user has clicked "filter" or "reset".
-  //   // queryState format example:
-  //   //   {
-  //   //     filter: { name: 'testing' },
-  //   //     project: { name: 1 },
-  //   //     sort: { name: -1 },
-  //   //     skip: 0,
-  //   //     limit: 20,
-  //   //     ns: 'database.collection'
-  //   //   }
-  // });
-// };
+/**
+ * Checking for new version.
+ */
+ipc.on('app:checking-for-update', () => {
+  // debug('checking for update');
+});
+
+/**
+ * No update available.
+ */
+ipc.on('app:update-not-available', () => {
+});
+
+/**
+ * Update available.
+ */
+ipc.on('app:update-available', () => {
+  // debug('new update available!  wanna update to', _opts, '?');
+  // this.visible = true;
+});
+
+/**
+ * Update downloaded.
+ */
+ipc.on('app:update-downloaded', () => {
+  // debug('the update has been downloaded.');
+});
+
+// this.listenToAndRun(app.preferences, 'change:autoUpdates', function() {
+  // if (app.isFeatureEnabled('autoUpdates')) {
+    // ipc.call('app:enable-auto-update');
+  // } else {
+    // ipc.call('app:disable-auto-update');
+  // }
+// });
 
 export default store;
