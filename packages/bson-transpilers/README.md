@@ -18,7 +18,7 @@ const string =`
 { item: "book", qty: Binary(Buffer.from("5")), tags: ["red", "blank"], dim_cm: [14, Int32("81")] }`;
 
 try {
-  const compiledString = compiler[input][output](string);
+  const compiledString = compiler[input][output].compile(string);
   console.log(compiledCode);
   // new Document("item", "book").append("qty", new Binary("5".getBytes("UTF-8")))
   // .append("tags", Arrays.asList("red", "blank"))
@@ -29,7 +29,7 @@ try {
 ```
 
 ## API
-### compiledString = compiler\[inputLang\]\[outputLang\](codeString)
+### compiledString = compiler\[inputLang\]\[outputLang\].compile(codeString)
 Output a compiled string given input and output languages.
 - __inputLang:__ Input language of the code string. `shell` and `javascript`
   are currently supported.
@@ -38,11 +38,10 @@ Output a compiled string given input and output languages.
 - __codeString:__ The code string you would like to be compiled to your
   selected output language.
 
-### importsString = compiler.imports[outputLang]
+### importsString = compiler\[inputLang\]\[outputLang\].getImports()
 Output a string containing the set of import statements for the generated code
 to compile. These are all the packages that the compiled code could use so that
-the compiler output will be runnable. May include unused imports if the input
-string doesn't use a specific type.
+the compiler output will be runnable.
 
 ### catch (error)
 Any compiler errors that occur will be thrown. To catch them, wrap the
