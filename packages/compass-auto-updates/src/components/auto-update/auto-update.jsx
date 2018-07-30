@@ -1,4 +1,5 @@
 import React, { PureComponent } from 'react';
+import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { TextButton } from 'hadron-react-buttons';
 import classnames from 'classnames';
@@ -9,6 +10,11 @@ const NOT_NOW = 'Not Now';
 
 class AutoUpdate extends PureComponent {
   static displayName = 'AutoUpdateComponent';
+
+  static propTypes = {
+    isVisible: PropTypes.bool.isRequired,
+    version: PropTypes.string.isRequired
+  };
 
   /**
    * When cancel is requested.
@@ -59,7 +65,9 @@ class AutoUpdate extends PureComponent {
  *
  * @returns {Object} The mapped properties.
  */
-const mapStateToProps = () => ({
+const mapStateToProps = (state) => ({
+  isVisible: state.isVisible,
+  version: state.version
 });
 
 /**
