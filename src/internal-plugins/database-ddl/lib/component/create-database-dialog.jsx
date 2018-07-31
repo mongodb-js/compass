@@ -249,15 +249,13 @@ class CreateDatabaseDialog extends React.Component {
             <div className="form-group">
               <this.CreateCollectionCheckbox
                 name="Capped Collection"
-                className="create-collection-dialog-capped"
-                checked={this.state.checked}
+                titleClassName="create-collection-dialog-capped"
                 helpUrl={HELP_URL_CAPPED}
                 onClickHandler={this.onCappedClicked.bind(this)} />
               {this.renderMaxSize()}
               <this.CreateCollectionCheckbox
                 name="Use Custom Collation"
-                className="create-collection-dialog-collation"
-                checked={this.state.checked}
+                titleClassName="create-collection-dialog-collation"
                 helpUrl={HELP_URL_COLLATION}
                 onClickHandler={this.onCollationClicked.bind(this)}
               />

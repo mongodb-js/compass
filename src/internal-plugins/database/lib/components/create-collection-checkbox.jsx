@@ -20,8 +20,9 @@ class CreateCollectionCheckbox extends React.Component {
           <input
             type="checkbox"
             onClick={this.props.onClickHandler}
-            checked={this.props.checked} />
-          <p className={this.props.className}>{this.props.name}</p>
+            checked={this.props.checked}
+            className={this.props.inputClassName} />
+          <p className={this.props.titleClassName}>{this.props.name}</p>
         </label>
         <InfoSprinkle
           helpLink={this.props.helpUrl}
@@ -38,7 +39,8 @@ CreateCollectionCheckbox.propTypes = {
   onClickHandler: PropTypes.func.isRequired,
   checked: PropTypes.bool,
   helpUrl: PropTypes.string,
-  className: PropTypes.string,
+  titleClassName: PropTypes.string,
+  inputClassName: PropTypes.string,
   name: PropTypes.string.isRequired
 };
 

@@ -16,11 +16,10 @@ const _ = require('lodash');
  * The index options and parameters to display.
  */
 const INDEX_OPTIONS = [
-  {name: 'background', desc: 'Build index in the background', param: false, paramUnit: '', childOptions: false, childOptionsUnit: ''},
-  {name: 'unique', desc: 'Create unique index', param: false, paramUnit: '', childOptions: false, childOptionsUnit: ''},
-  {name: 'ttl', desc: 'Create TTL', param: true, paramUnit: 'seconds', childOptions: false, childOptionsUnit: ''},
-  {name: 'partialFilterExpression', desc: 'Partial Filter Expression', param: true, paramUnit: '', childOptions: false, childOptionsUnit: ''},
-  {name: 'collation', desc: 'Use Custom Collation', param: false, paramUnit: '', childOptions: true, childOptionsUnit: {}}
+  {name: 'background', desc: 'Build index in the background', param: false, paramUnit: ''},
+  {name: 'unique', desc: 'Create unique index', param: false, paramUnit: ''},
+  {name: 'ttl', desc: 'Create TTL', param: true, paramUnit: 'seconds'},
+  {name: 'partialFilterExpression', desc: 'Partial Filter Expression', param: true, paramUnit: ''}
 ];
 
 /**
@@ -47,9 +46,11 @@ class CreateIndexModal extends React.Component {
       inProgress: false,
       schemaFields: [],
       fields: [],
-      options: {}
+      options: {},
+      isCustomCollation: false
     };
     this.CreateCollectionCollationSelect = app.appRegistry.getComponent('Database.CreateCollectionCollationSelect');
+    this.CreateCollectionCheckbox = app.appRegistry.getComponent('Database.CreateCollectionCheckbox');
   }
 
   /**
@@ -66,6 +67,29 @@ class CreateIndexModal extends React.Component {
   componentWillUnmount() {
     this.unsubscribeCreateField();
     this.unsubscribeDDLStatus();
+  }
+
+ /**
+   * Set state to selected field of collation option.
+   *
+   * @param {String} field - The field.
+   * @param {Event} evt - The event.
+   */
+  onCollationOptionChange(field, evt) {
+    Action.updateOption('collation', {[field]: evt.value});
+  }
+
+  /**
+   * Handle clicking the collation checkbox.
+   */
+  onCollationClicked() {
+    this.setState({ isCustomCollation: !this.state.isCustomCollation }, () => {
+      if (this.state.isCustomCollation) {
+        Action.updateOption('collation', {locale: 'simple'});
+      } else {
+        Action.updateOption('collation', false);
+      }
+    });
   }
 
   /**
@@ -97,23 +121,18 @@ class CreateIndexModal extends React.Component {
             units={option.paramUnit} />
         );
       }
-      if (option.childOptions) {
-        const propOption = this.state.options[option.name];
-        options.push(this.renderCollation());
-      }
     }
+    options.push(<div className="create-index-checkbox" key={idx++}>
+      <this.CreateCollectionCheckbox
+        name="Use Custom Collation"
+        inputClassName="create-index-checkbox-input"
+        titleClassName="create-index-collation-title"
+        helpUrl={HELP_URL_COLLATION}
+        onClickHandler={this.onCollationClicked.bind(this)}
+      />
+    </div>);
+    options.push(this.renderCollation(idx++));
     return options;
-  }
-
-  /**
-   * Set state to selected field of collation option.
-   *
-   * @param {Object} collation - The collation state.
-   * @param {String} field - The field.
-   * @param {Event} evt - The event.
-   */
-  onCollationOptionChange(collation, field, evt) {
-    // this.setState({collation: Object.assign({}, collation, {[field]: evt.value})});
   }
 
   /**
@@ -144,7 +163,7 @@ class CreateIndexModal extends React.Component {
    */
   close() {
     Action.clearForm();
-    this.setState({inProgress: false, error: false, errorMessage: ''});
+    this.setState({inProgress: false, error: false, errorMessage: '', isCustomCollation: false});
     this.props.close();
   }
 
@@ -191,7 +210,7 @@ class CreateIndexModal extends React.Component {
    * @param {Array} schemaFields - The possible index fields for the schema.
    */
   handleStoreChange(fields, options, schemaFields) {
-    this.setState({fields: fields, options: options, schemaFields: schemaFields});
+    this.setState({fields, options, schemaFields});
   }
 
   /**
@@ -221,19 +240,17 @@ class CreateIndexModal extends React.Component {
    *
    * @returns {React.Component} The component.
    */
-  renderCollation() {
-    let className = 'create-index-collation-hidden';
-    if (this.state.options.collation) {
-      className = 'create-index-collation';
+  renderCollation(id) {
+    if (this.state.isCustomCollation) {
+      return (
+        <div className="create-collection-dialog-collation-div" key={id}>
+          <this.CreateCollectionCollationSelect
+            collation={this.state.options.collation || {}}
+            onCollationOptionChange={this.onCollationOptionChange.bind(this)}
+          />
+        </div>
+      );
     }
-    return (
-      <div className={className}>
-        <this.CreateCollectionCollationSelect
-          collation={this.state.options.collation || {locale: 'simple'}}
-          onCollationOptionChange={this.onCollationOptionChange.bind(this)}
-        />
-      </div>
-    );
   }
 
   /**
