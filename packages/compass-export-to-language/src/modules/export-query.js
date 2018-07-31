@@ -1,4 +1,4 @@
-const stringify = require('javascript-stringify');
+const stringify = require('mongodb-query-parser');
 const clipboard = require('electron').clipboard;
 const compiler = require('bson-compilers');
 
@@ -54,7 +54,8 @@ export const runQuery = (outputLang, input) => {
     const state = getState();
 
     try {
-      const output = compiler.shell[outputLang].compile(stringify(input), state.exportQuery.builders);
+      const inputStr = stringify.toJSString(input);
+      const output = compiler.shell[outputLang].compile(inputStr, state.exportQuery.builders);
       state.exportQuery.imports = state.exportQuery.imports !== '' ? compiler.shell[outputLang].getImports() : '';
       state.exportQuery.returnQuery = output;
       state.exportQuery.queryError = null;
