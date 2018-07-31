@@ -63,6 +63,9 @@ const CreateIndexStore = Reflux.createStore({
     const options = {};
     for (const key of Object.keys(this.options)) {
       const option = this.options[key];
+      if (key === 'collation') {
+        options.collation = this.options[key];
+      }
       if (option.value) {
         if (option.param) {
           // check for special parameters
@@ -121,7 +124,13 @@ const CreateIndexStore = Reflux.createStore({
    * @param {boolean} isParam - The flag for option parameters.
    */
   updateOption: function(option, value, isParam) {
-    if (isParam) { // update parameter value in option form
+    if (option === 'collation') {
+      if (!value) {
+        delete this.options[option];
+      } else {
+        this.options[option] = Object.assign({}, this.options[option], value);
+      }
+    } else if (isParam) { // update parameter value in option form
       if (!value) value = '';
       this.options[option].param = String(value);
     } else { // update main value in option form
