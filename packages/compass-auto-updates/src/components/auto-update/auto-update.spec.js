@@ -8,14 +8,23 @@ describe('AutoUpdate [Component]', () => {
   context('when the state is visible', () => {
     let component;
     let cancelUpdateSpy;
+    let visitReleaseNotesSpy;
 
     beforeEach(() => {
       cancelUpdateSpy = sinon.spy();
-      component = mount(<AutoUpdate version="1.12.0" isVisible cancelUpdate={cancelUpdateSpy} />);
+      visitReleaseNotesSpy = sinon.spy();
+      component = mount(
+        <AutoUpdate
+          version="1.12.0"
+          isVisible
+          cancelUpdate={cancelUpdateSpy}
+          visitReleaseNotes={visitReleaseNotesSpy} />
+      );
     });
 
     afterEach(() => {
       cancelUpdateSpy = null;
+      visitReleaseNotesSpy = null;
       component = null;
     });
 

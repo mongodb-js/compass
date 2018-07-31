@@ -3,7 +3,7 @@ import { Provider } from 'react-redux';
 import AutoUpdate from 'components/auto-update';
 import store from 'stores';
 import { connect } from 'react-redux';
-import { cancelUpdate } from 'modules';
+import { cancelUpdate, visitReleaseNotes } from 'modules';
 
 class Plugin extends Component {
   static displayName = 'AutoUpdatesPlugin';
@@ -41,7 +41,8 @@ const mapStateToProps = (state) => ({
 const MappedAutoUpdate = connect(
   mapStateToProps,
   {
-    cancelUpdate
+    cancelUpdate,
+    visitReleaseNotes
   },
 )(AutoUpdate);
 

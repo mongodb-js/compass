@@ -112,5 +112,8 @@
     "webpack-merge": "^4.1.1",
     "webpack-node-externals": "^1.6.0",
     "webpack-sources": "1.0.1"
+  },
+  "dependencies": {
+    "redux-thunk": "^2.3.0"
   }
 }

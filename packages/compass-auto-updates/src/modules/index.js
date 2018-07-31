@@ -16,6 +16,11 @@ export const CANCEL_UPDATE = `${PREFIX}/CANCEL_UPDATE`;
 export const INITIAL_STATE = { isVisible: false, version: '' };
 
 /**
+ * Release notes link.
+ */
+const RELEASE_NOTES = 'https://docs.mongodb.com/compass/current/release-notes/';
+
+/**
  * The reducer.
  *
  * @param {Object} state - The state.
@@ -52,3 +57,15 @@ export const updateAvailable = (version) => ({
 export const cancelUpdate = () => ({
   type: CANCEL_UPDATE
 });
+
+/**
+ * Visit the release notes.
+ *
+ * @returns {Function} The function.
+ */
+export const visitReleaseNotes = () => {
+  return () => {
+    const { shell } = require('electron');
+    shell.openExternal(RELEASE_NOTES);
+  };
+};

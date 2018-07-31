@@ -13,7 +13,8 @@ class AutoUpdate extends PureComponent {
   static propTypes = {
     isVisible: PropTypes.bool.isRequired,
     version: PropTypes.string.isRequired,
-    cancelUpdate: PropTypes.func.isRequired
+    cancelUpdate: PropTypes.func.isRequired,
+    visitReleaseNotes: PropTypes.func.isRequired
   };
 
   /**
@@ -32,8 +33,12 @@ class AutoUpdate extends PureComponent {
     this.props.cancelUpdate();
   }
 
+  /**
+   * Click the release notes link.
+   */
   onClickReleaseNotes = (evt) => {
     evt.preventDefault();
+    this.props.visitReleaseNotes();
   }
 
   /**
