@@ -1,3 +1,4 @@
+const app = require('hadron-app');
 const React = require('react');
 const PropTypes = require('prop-types');
 const Modal = require('react-bootstrap').Modal;
@@ -15,11 +16,17 @@ const _ = require('lodash');
  * The index options and parameters to display.
  */
 const INDEX_OPTIONS = [
-  {name: 'background', desc: 'Build index in the background', param: false, paramUnit: ''},
-  {name: 'unique', desc: 'Create unique index', param: false, paramUnit: ''},
-  {name: 'ttl', desc: 'Create TTL', param: true, paramUnit: 'seconds'},
-  {name: 'partialFilterExpression', desc: 'Partial Filter Expression', param: true, paramUnit: ''}
+  {name: 'background', desc: 'Build index in the background', param: false, paramUnit: '', childOptions: false, childOptionsUnit: ''},
+  {name: 'unique', desc: 'Create unique index', param: false, paramUnit: '', childOptions: false, childOptionsUnit: ''},
+  {name: 'ttl', desc: 'Create TTL', param: true, paramUnit: 'seconds', childOptions: false, childOptionsUnit: ''},
+  {name: 'partialFilterExpression', desc: 'Partial Filter Expression', param: true, paramUnit: '', childOptions: false, childOptionsUnit: ''},
+  {name: 'collation', desc: 'Use Custom Collation', param: false, paramUnit: '', childOptions: true, childOptionsUnit: {}}
 ];
+
+/**
+ * The help URL for collation.
+ */
+const HELP_URL_COLLATION = 'https://docs.mongodb.com/master/reference/collation/';
 
 /**
  * Component for the create index modal.
@@ -42,6 +49,7 @@ class CreateIndexModal extends React.Component {
       fields: [],
       options: {}
     };
+    this.CreateCollectionCollationSelect = app.appRegistry.getComponent('Database.CreateCollectionCollationSelect');
   }
 
   /**
@@ -89,8 +97,23 @@ class CreateIndexModal extends React.Component {
             units={option.paramUnit} />
         );
       }
+      if (option.childOptions) {
+        const propOption = this.state.options[option.name];
+        options.push(this.renderCollation());
+      }
     }
     return options;
+  }
+
+  /**
+   * Set state to selected field of collation option.
+   *
+   * @param {Object} collation - The collation state.
+   * @param {String} field - The field.
+   * @param {Event} evt - The event.
+   */
+  onCollationOptionChange(collation, field, evt) {
+    // this.setState({collation: Object.assign({}, collation, {[field]: evt.value})});
   }
 
   /**
@@ -191,6 +214,26 @@ class CreateIndexModal extends React.Component {
     evt.preventDefault();
     evt.stopPropagation();
     Action.addIndexField();
+  }
+
+/**
+   * Render collation options when collation is selected.
+   *
+   * @returns {React.Component} The component.
+   */
+  renderCollation() {
+    let className = 'create-index-collation-hidden';
+    if (this.state.options.collation) {
+      className = 'create-index-collation';
+    }
+    return (
+      <div className={className}>
+        <this.CreateCollectionCollationSelect
+          collation={this.state.options.collation || {locale: 'simple'}}
+          onCollationOptionChange={this.onCollationOptionChange.bind(this)}
+        />
+      </div>
+    );
   }
 
   /**
