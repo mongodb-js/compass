@@ -7,6 +7,12 @@
   padding: 6px 20px 6px 20px;
   box-shadow: 0px 2px 2px @gray5;
 
+  a {
+    color: #FFFFFF;
+    cursor: pointer;
+    text-decoration: underline;
+  }
+
   &-is-visible {
     display: flex;
     align-items: center;
@@ -14,6 +20,10 @@
 
   &-text {
     flex-grow: 5;
+
+    &-available {
+      padding-right: 5px;
+    }
   }
 
   &-cancel {

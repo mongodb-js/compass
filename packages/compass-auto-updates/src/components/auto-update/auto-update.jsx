@@ -1,6 +1,5 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
-import { connect } from 'react-redux';
 import { TextButton } from 'hadron-react-buttons';
 import classnames from 'classnames';
 
@@ -13,14 +12,15 @@ class AutoUpdate extends PureComponent {
 
   static propTypes = {
     isVisible: PropTypes.bool.isRequired,
-    version: PropTypes.string.isRequired
+    version: PropTypes.string.isRequired,
+    cancelUpdate: PropTypes.func.isRequired
   };
 
   /**
    * When cancel is requested.
    */
   onCancel = () => {
-
+    this.props.cancelUpdate();
   }
 
   /**
@@ -28,6 +28,10 @@ class AutoUpdate extends PureComponent {
    */
   onUpdate = () => {
 
+  }
+
+  onClickReleaseNotes = (evt) => {
+    evt.preventDefault();
   }
 
   /**
@@ -44,7 +48,13 @@ class AutoUpdate extends PureComponent {
     return (
       <div className={className}>
         <div className={classnames(styles['auto-update-text'])}>
-          A new version of Compass is ready.
+          <span className={classnames(styles['auto-update-text-available'])}>
+            Compass version {this.props.version} is now available!
+            Would you like to install and restart Compass?
+          </span>
+          <span>
+            Read <a onClick={this.onClickReleaseNotes}>Release Notes</a>
+          </span>
         </div>
         <TextButton
           className="btn btn-default btn-xs"
@@ -58,25 +68,4 @@ class AutoUpdate extends PureComponent {
   }
 }
 
-/**
- * Map the store state to properties to pass to the components.
- *
- * @param {Object} state - The store state.
- *
- * @returns {Object} The mapped properties.
- */
-const mapStateToProps = (state) => ({
-  isVisible: state.isVisible,
-  version: state.version
-});
-
-/**
- * Connect the redux store to the component.
- * (dispatch)
- */
-const MappedAutoUpdate = connect(
-  mapStateToProps,
-  {},
-)(AutoUpdate);
-
-export default MappedAutoUpdate;
+export default AutoUpdate;
