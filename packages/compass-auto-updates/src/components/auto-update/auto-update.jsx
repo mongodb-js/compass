@@ -49,7 +49,7 @@ class AutoUpdate extends PureComponent {
   render() {
     const className = classnames({
       [styles['auto-update']]: true,
-      [styles['auto-update-is-visible']]: true
+      [styles['auto-update-is-visible']]: this.props.isVisible
     });
 
     return (
