@@ -27,7 +27,9 @@ class AutoUpdate extends PureComponent {
    * When update is requested.
    */
   onUpdate = () => {
-
+    const ipc = require('hadron-ipc');
+    ipc.call('app:install-update');
+    this.props.cancelUpdate();
   }
 
   onClickReleaseNotes = (evt) => {
