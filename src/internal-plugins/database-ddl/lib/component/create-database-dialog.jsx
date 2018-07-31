@@ -170,7 +170,6 @@ class CreateDatabaseDialog extends React.Component {
   /**
    * Set state to selected field of collation option.
    *
-   * @param {Object} collation - The collation state.
    * @param {String} field - The field.
    * @param {Event} evt - The event.
    */
