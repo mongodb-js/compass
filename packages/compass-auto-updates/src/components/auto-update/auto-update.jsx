@@ -56,7 +56,7 @@ class AutoUpdate extends PureComponent {
       <div className={className}>
         <div className={classnames(styles['auto-update-text'])}>
           <span className={classnames(styles['auto-update-text-available'])}>
-            Compass version {this.props.version} is now available!
+            Compass <b>version {this.props.version}</b> is now available!
             Would you like to install and restart Compass?
           </span>
           <span>

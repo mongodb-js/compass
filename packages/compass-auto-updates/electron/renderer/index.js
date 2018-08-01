@@ -4,6 +4,7 @@ import app from 'hadron-app';
 import AppRegistry from 'hadron-app-registry';
 import { AppContainer } from 'react-hot-loader';
 import AutoUpdatesPlugin, { activate } from 'plugin';
+import { remote } from 'electron';
 
 // Import global less file. Note: these styles WILL NOT be used in compass, as compass provides its own set
 // of global styles. If you are wishing to style a given component, you should be writing a less file per
@@ -15,6 +16,10 @@ const appRegistry = new AppRegistry();
 
 global.hadronApp = app;
 global.hadronApp.appRegistry = appRegistry;
+global.hadronApp.preferences = {
+  listenToAndRun: () => {
+  }
+};
 
 // Activate our plugin with the Hadron App Registry
 activate(appRegistry);
@@ -44,6 +49,10 @@ const render = Component => {
 
 // Render our plugin - don't remove the following line.
 render(AutoUpdatesPlugin);
+
+remote.getCurrentWebContents().send('app:update-available', {
+  releaseVersion: '1.19.0'
+});
 
 // // Data service initialization and connection.
 // import Connection from 'mongodb-connection-model';

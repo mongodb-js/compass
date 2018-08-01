@@ -1,49 +1,34 @@
 import { createStore, applyMiddleware } from 'redux';
 import thunk from 'redux-thunk';
-import reducer from 'modules';
+import reducer, { updateAvailable } from 'modules';
 
 const store = createStore(reducer, applyMiddleware(thunk));
 
-try {
-  const ipc = require('hadron-ipc');
+store.onActivated = () => {
+  try {
+    const ipc = require('hadron-ipc');
+    const preferences = global.hadronApp.preferences;
 
-  /**
-   * Checking for new version.
-   */
-  ipc.on('app:checking-for-update', () => {
-    // debug('checking for update');
-  });
+    /**
+     * Update available.
+     */
+    ipc.on('app:update-available', (_, opts) => {
+      store.dispatch(updateAvailable(opts.releaseVersion));
+    });
 
-  /**
-   * No update available.
-   */
-  ipc.on('app:update-not-available', () => {
-  });
-
-  /**
-   * Update available.
-   */
-  ipc.on('app:update-available', () => {
-    // debug('new update available!  wanna update to', _opts, '?');
-    // this.visible = true;
-  });
-
-  /**
-   * Update downloaded.
-   */
-  ipc.on('app:update-downloaded', () => {
-    // debug('the update has been downloaded.');
-  });
-
-  // this.listenToAndRun(app.preferences, 'change:autoUpdates', function() {
-    // if (app.isFeatureEnabled('autoUpdates')) {
-      // ipc.call('app:enable-auto-update');
-    // } else {
-      // ipc.call('app:disable-auto-update');
-    // }
-  // });
-} catch (e) {
-  // Not in renderer process.
-}
+    /**
+     * Listen to changes in user preferences.
+     */
+    preferences.listenToAndRun(preferences, 'change:autoUpdates', () => {
+      if (preferences.isFeatureEnabled('autoUpdates')) {
+        ipc.call('app:enable-auto-update');
+      } else {
+        ipc.call('app:disable-auto-update');
+      }
+    });
+  } catch (e) {
+    // Not in renderer process.
+  }
+};
 
 export default store;
