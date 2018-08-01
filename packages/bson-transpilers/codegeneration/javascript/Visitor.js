@@ -59,6 +59,14 @@ class Visitor extends ECMAScriptVisitor {
       this.unimplemented;
   }
 
+  deepCopyRequiredImports() {
+    const copy = Object.assign({}, this.requiredImports);
+    [300, 301, 302, 303, 304, 305, 306].forEach((i) => {
+      copy[i] = Array.from(this.requiredImports[i]);
+    });
+    return copy;
+  }
+
   getImports() {
     const importTemplate = this.Imports.import.template ?
       this.Imports.import.template :
@@ -67,6 +75,13 @@ class Visitor extends ECMAScriptVisitor {
           .filter((a, i) => (Object.values(s).indexOf(a) === i))
           .join('\n')
       );
+    // Remove empty arrays because js [] is not falsey :(
+    [300, 301, 302, 303, 304, 305, 306].forEach(
+      (i) => {
+        if (this.requiredImports[i].length === 0) {
+          this.requiredImports[i] = false;
+        }
+      });
     const imports = Object.keys(this.requiredImports)
       .filter((code) => {
         return (
@@ -76,7 +91,7 @@ class Visitor extends ECMAScriptVisitor {
         );
       })
       .reduce((obj, c) => {
-        obj[c] = this.Imports[c].template();
+        obj[c] = this.Imports[c].template(this.requiredImports[c]);
         return obj;
       }, {});
     return importTemplate(imports);
@@ -92,6 +107,9 @@ class Visitor extends ECMAScriptVisitor {
 
   start(ctx) {
     this.requiredImports = {};
+    [300, 301, 302, 303, 304, 305, 306].forEach(
+      (i) => (this.requiredImports[i] = [])
+    );
     return this.visitProgram(ctx);
   }
 
@@ -203,6 +221,7 @@ class Visitor extends ECMAScriptVisitor {
     if (this.idiomatic && 'emitIdiomaticObjectLiteral' in this) {
       return this.emitIdiomaticObjectLiteral(ctx);
     }
+    this.requiredImports[10] = true;
     ctx.type = this.Types._object;
     ctx.indentDepth = this.getIndentDepth(ctx) + 1;
     let args = '';
@@ -230,6 +249,7 @@ class Visitor extends ECMAScriptVisitor {
   visitArrayLiteral(ctx) {
     ctx.type = this.Types._array;
     ctx.indentDepth = this.getIndentDepth(ctx) + 1;
+    this.requiredImports[9] = true;
     let args = '';
     if (ctx.elementList()) {
       const visitedChildren = ctx.elementList().children.map((child) => {

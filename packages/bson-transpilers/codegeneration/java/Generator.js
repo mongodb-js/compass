@@ -33,6 +33,33 @@ module.exports = (superClass) => class ExtendedVisitor extends superClass {
       'match', 'skip', 'limit', 'out', 'sortByCount', 'count', 'or', 'nor',
       'and'
     ];
+    // Operations split by their import class
+    this.builderImports = [
+      // Filter ops
+      [
+        'all', 'and', 'bitsAllClear', 'bitsAllSet', 'bitsAnyClear', 'bitsAnySet',
+        'elemMatch', 'eq', 'exists', 'expr', 'geoIntersects', 'geoWithin',
+        'geoWithinBox', 'geoWithinCenter', 'geoWithinCenterSphere', 'geoWithinPolygon',
+        'gt', 'gte', 'in', 'lt', 'lte', 'mod', 'ne', 'near', 'nearSphere', 'nin',
+        'nor', 'not', 'or', 'regex', 'size', 'text', 'type', 'where', 'options'
+      ],
+      // Agg ops
+      [
+        'addFields', 'bucket', 'bucketAuto', 'count', 'facet', 'graphLookup',
+        'group', 'limit', 'lookup', 'match', 'out', 'project', 'replaceRoot',
+        'sample', 'skip', 'sort', 'sortByCount', 'unwind'
+      ],
+      // Accumulator ops
+      [
+        'addToSet', 'avg', 'first', 'last', 'max', 'min', 'push',
+        'stdDevPop', 'stdDevSamp', 'sum'
+      ]
+    ].reduce((obj, list, index) => {
+      list.forEach((op) => {
+        obj[op] = index + 300;
+      });
+      return obj;
+    }, {});
   }
 
   /**
@@ -131,6 +158,9 @@ module.exports = (superClass) => class ExtendedVisitor extends superClass {
         const field = this.visit(pair.propertyName());
         if (field.startsWith('$')) {
           const op = field.substr(1);
+          if (this.builderImports[op]) {
+            this.requiredImports[this.builderImports[op]].push(op);
+          }
           if (op === 'regex') {
             multiOps = true;
           }
@@ -155,13 +185,16 @@ module.exports = (superClass) => class ExtendedVisitor extends superClass {
         if (this.isFilter(pair.singleExpression().getChild(0))) {
           return value;
         }
+        this.requiredImports[300].push('eq');
         return `eq(${doubleQuoteStringify(field)}, ${value})`;
       });
       if (args.length > 1 && !multiOps) {
+        this.requiredImports[300].push('and');
         return `and(${args.join(', ')})`;
       }
       return args[0];
     }
+    this.requiredImports[10] = true;
     return 'new Document()';
   }
 
@@ -271,6 +304,8 @@ module.exports = (superClass) => class ExtendedVisitor extends superClass {
 
     let options = '';
     if (Object.keys(fields).length > reqOpts.length) {
+      this.requiredImports[306].push(transforms[op]);
+
       options = `, new ${transforms[op]}()${Object.keys(fields).filter((f) => {
         return optionalOpts.indexOf(f) !== -1;
       }).map((k) => {
@@ -347,20 +382,24 @@ module.exports = (superClass) => class ExtendedVisitor extends superClass {
           fields.includes = !fields.includes ?
             `include(${doubleQuoteStringify(field)}` :
             `${fields.includes}, ${doubleQuoteStringify(field)}`;
+          this.requiredImports[303].push('include');
         }
       } else if (original === 'false' || original === '0') {
         if (field !== '_id') {
           fields.excludes = !fields.excludes ?
             `exclude(${doubleQuoteStringify(field)}` :
             `${fields.excludes}, ${doubleQuoteStringify(field)}`;
+          this.requiredImports[303].push('exclude');
         } else {
           fields.excludeId = 'excludeId()';
+          this.requiredImports[303].push('excludeId');
         }
       } else {
         const value = this.visit(pair.singleExpression());
         fields.computed = !fields.computed ?
           `computed(${doubleQuoteStringify(field)}, ${value})` :
           `${fields.computed}, computed(${doubleQuoteStringify(field)}, ${value})`;
+        this.requiredImports[303].push('computed');
       }
     });
 
@@ -371,10 +410,14 @@ module.exports = (superClass) => class ExtendedVisitor extends superClass {
       fields.excludes = `${fields.excludes})`;
     }
     const elements = Object.values(fields);
-    const fieldsstr = elements.length === 1 ?
-      `${elements[0]}` :
-      `fields(${elements.join(', ')})`;
-    return `project(${fieldsstr})`;
+    let projectStr;
+    if (elements.length === 1) {
+      projectStr = elements[0];
+    } else {
+      projectStr = `fields(${elements.join(', ')})`;
+      this.requiredImports[303].push('fields');
+    }
+    return `project(${projectStr})`;
   }
 
   /**
@@ -394,6 +437,7 @@ module.exports = (superClass) => class ExtendedVisitor extends superClass {
     const properties = this.assertIsNonemptyObject(ctx, op);
     const val = properties[0].singleExpression();
     const innerop = this.visit(properties[0].propertyName()).substr(1);
+    this.requiredImports[300].push(innerop);
     const inner = this.handleFieldOp(val, innerop, parent);
     return `${op}(${inner})`;
   }
@@ -463,14 +507,19 @@ module.exports = (superClass) => class ExtendedVisitor extends superClass {
   /**
    * Method for handling an idiomatic $where.
    *
-   * { field: { $where: <function def> } } => where(<function as string>)
+   * { $where: <function def> } => where(<function as string>)
    *
    * @param {ObjectLiteralExpressionContext} ctx - the ctx of the value of the
    * $where field
    * @return {String}
    */
   handlewhere(ctx) {
-    const text = ctx.getParent().getText();
+    let text;
+    if (!('getParent' in ctx)) {
+      text = ctx.getText();
+    } else {
+      text = ctx.getParent().getText();
+    }
     return `where(${doubleQuoteStringify(text)})`;
   }
 
@@ -492,12 +541,15 @@ module.exports = (superClass) => class ExtendedVisitor extends superClass {
       const original = pair.singleExpression().getText();
       if (original === '1') {
         fields.push(`ascending(${doubleQuoteStringify(field)})`);
+        this.requiredImports[304].push('ascending');
       } else if (original === '-1') {
         fields.push(`descending(${doubleQuoteStringify(field)})`);
+        this.requiredImports[304].push('descending');
       } else if (original.match(
           new RegExp(/{(?:'|")?\$meta(?:'|")?:(?:'|")textScore*(?:'|")}/)
         )) {
         fields.push(`metaTextScore(${doubleQuoteStringify(field)})`);
+        this.requiredImports[304].push('metaTextScore');
       } else {
         throw new BsonCompilersRuntimeError(
           '$sort key ordering must be specified using a number or ' +
@@ -505,13 +557,20 @@ module.exports = (superClass) => class ExtendedVisitor extends superClass {
         );
       }
     });
-    const res = fields.length > 1 ?
-      `orderBy(${fields.join(', ')})` :
-      fields[0];
-    return `sort(${res})`;
+    let sortStr;
+    if (fields.length > 1) {
+      sortStr = `orderBy(${fields.join(', ')})`;
+      this.requiredImports[304].push('orderBy');
+    } else {
+      sortStr = fields[0];
+    }
+    return `sort(${sortStr})`;
   }
 
   handlegeoWithin(ctx, op, parent) {
+    this.requiredImports[300].splice(
+      this.requiredImports[300].indexOf('geoWithin'), 1
+    );
     const properties = this.assertIsNonemptyObject(ctx, op);
     const parentField = doubleQuoteStringify(
       this.visit(parent.parentCtx.parentCtx.propertyName())
@@ -531,9 +590,11 @@ module.exports = (superClass) => class ExtendedVisitor extends superClass {
     const key = Object.keys(fields)[0];
     switch (key) {
       case ('$geometry'): {
+        this.requiredImports[300].push('geoWithin');
         return `geoWithin(${parentField}, ${this.handlegeometry(fields[key])})`;
       }
       case ('$box'): {
+        this.requiredImports[300].push('geoWithinBox');
         return `geoWithinBox(${parentField}, ${
           this.combineCoordinates(fields[key], 2, '', true, (p) => {
             return this.combineCoordinates(p, 2, '', true, (p2) => {
@@ -542,6 +603,7 @@ module.exports = (superClass) => class ExtendedVisitor extends superClass {
           })})`;
       }
       case ('$polygon'): {
+        this.requiredImports[300].push('geoWithinPolygon');
         return `geoWithinPolygon(${parentField}, ${this.visit(fields[key])})`;
       }
       case ('$centerSphere'):
@@ -553,9 +615,11 @@ module.exports = (superClass) => class ExtendedVisitor extends superClass {
         const coordinates = this.combineCoordinates(
           array[0], 2, '', true, (p) => { return this.visit(p); }
         );
-        return `geoWithin${key[1].toUpperCase()}${
+        const geoop = `geoWithin${key[1].toUpperCase()}${
           key.substr(2)
-        }(${parentField}, ${coordinates}, ${this.visit(array[1])})`;
+        }`;
+        this.requiredImports[300].push(geoop);
+        return `${geoop}(${parentField}, ${coordinates}, ${this.visit(array[1])})`;
       }
       default: {
         throw new BsonCompilersRuntimeError(
@@ -607,6 +671,7 @@ module.exports = (superClass) => class ExtendedVisitor extends superClass {
         'Position must be 2 coordinates'
       );
     }
+    this.requiredImports[305].push('Position');
     return `new Position(${
       this.visit(coordinates[0])}, ${this.visit(coordinates[1])
     })`;
@@ -635,6 +700,9 @@ module.exports = (superClass) => class ExtendedVisitor extends superClass {
   }
 
   combineCoordinates(ctx, length, className, noArray, innerFunc) {
+    if (!noArray) {
+      this.requiredImports[9] = true;
+    }
     const points = this.assertIsNonemptyArray(ctx, 'geometry');
     if (points.length < length) {
       throw new BsonCompilersRuntimeError(
@@ -653,6 +721,7 @@ module.exports = (superClass) => class ExtendedVisitor extends superClass {
     if (!className) {
       return pointstr;
     }
+    this.requiredImports[305].push(className);
     return `new ${className}(${pointstr})`;
   }
 
@@ -753,6 +822,7 @@ module.exports = (superClass) => class ExtendedVisitor extends superClass {
       );
     }
     if (`generate${fields.type.toLowerCase()}` in this) {
+      this.requiredImports[305].push(fields.type);
       return this[`generate${fields.type.toLowerCase()}`](fields.coordinates);
     }
     throw new BsonCompilersRuntimeError(
@@ -825,7 +895,9 @@ module.exports = (superClass) => class ExtendedVisitor extends superClass {
     );
   }
   handleunwind(ctx) {
+    const copy = this.deepCopyRequiredImports();
     const value = this.visit(ctx.parentCtx);
+    this.requiredImports = copy;
     if (ctx.parentCtx.type.id === '_string') {
       return `unwind(${value})`;
     }
@@ -843,11 +915,13 @@ module.exports = (superClass) => class ExtendedVisitor extends superClass {
     }, true);
   }
   handlefacet(ctx) {
+    this.requiredImports[306].push('Facet');
     return this.handleMultipleSubfields(ctx, 'facet', [], (f, v) => {
       return `new Facet(${doubleQuoteStringify(f)}, ${v})`;
     }, true);
   }
   handleaddFields(ctx) {
+    this.requiredImports[306].push('Field');
     return this.handleMultipleSubfields(ctx, 'addFields', [], (f, v) => {
       return `new Field(${doubleQuoteStringify(f)}, ${v})`;
     }, false);

@@ -61,3 +61,17 @@ Imports:
         template: *200ImportTemplate
     201:
         template: *201ImportTemplate
+    300:
+        template: *300ImportTemplate
+    301:
+        template: *301ImportTemplate
+    302:
+        template: *302ImportTemplate
+    303:
+        template: *303ImportTemplate
+    304:
+        template: *304ImportTemplate
+    305:
+        template: *305ImportTemplate
+    306:
+        template: *306ImportTemplate

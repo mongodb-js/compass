@@ -871,3 +871,66 @@ Templates:
         () => {
             return 'import java.text.SimpleDateFormat;';
         }
+    300ImportTemplate: &300ImportTemplate !!js/function >
+        (classes) => {
+            return classes
+                .filter((f, i) => (classes.indexOf(f) === i && f !== 'options'))
+                .sort()
+                .map((c) => {
+                    return `import static com.mongodb.client.model.Filters.${c};`;
+                }).join('\n');
+        }
+    301ImportTemplate: &301ImportTemplate !!js/function >
+        (classes) => {
+            return classes
+                .filter((f, i) => (classes.indexOf(f) === i))
+                .sort()
+                .map((c) => {
+                    return `import static com.mongodb.client.model.Aggregates.${c};`;
+                }).join('\n');
+        }
+    302ImportTemplate: &302ImportTemplate !!js/function >
+        (classes) => {
+            return classes
+                .filter((f, i) => (classes.indexOf(f) === i))
+                .sort()
+                .map((c) => {
+                    return `import static com.mongodb.client.model.Accumulators.${c};`;
+                }).join('\n');
+        }
+    303ImportTemplate: &303ImportTemplate !!js/function >
+        (classes) => {
+            return classes
+                .filter((f, i) => (classes.indexOf(f) === i))
+                .sort()
+                .map((c) => {
+                    return `import static com.mongodb.client.model.Projections.${c};`;
+                }).join('\n');
+        }
+    304ImportTemplate: &304ImportTemplate !!js/function >
+        (classes) => {
+            return classes
+                .filter((f, i) => (classes.indexOf(f) === i))
+                .sort()
+                .map((c) => {
+                    return `import static com.mongodb.client.model.Sorts.${c};`;
+                }).join('\n');
+        }
+    305ImportTemplate: &305ImportTemplate !!js/function >
+        (classes) => {
+            return classes
+                .filter((f, i) => (classes.indexOf(f) === i))
+                .sort()
+                .map((c) => {
+                    return `import com.mongodb.client.model.geojson.${c};`;
+                }).join('\n');
+        }
+    306ImportTemplate: &306ImportTemplate !!js/function >
+        (classes) => {
+            return classes
+                .filter((f, i) => (classes.indexOf(f) === i))
+                .sort()
+                .map((c) => {
+                    return `import com.mongodb.client.model.${c};`;
+                }).join('\n');
+        }
