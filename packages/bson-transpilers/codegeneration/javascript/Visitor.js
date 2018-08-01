@@ -78,7 +78,7 @@ class Visitor extends ECMAScriptVisitor {
     // Remove empty arrays because js [] is not falsey :(
     [300, 301, 302, 303, 304, 305, 306].forEach(
       (i) => {
-        if (this.requiredImports[i].length === 0) {
+        if (i in this.requiredImports && this.requiredImports[i].length === 0) {
           this.requiredImports[i] = false;
         }
       });
