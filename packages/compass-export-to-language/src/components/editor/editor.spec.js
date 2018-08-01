@@ -10,7 +10,7 @@ describe('Editor [Component]', () => {
   context('when the component is rendered as input', () => {
     let component;
 
-    const query = { category_code: 'smooth jazz', release_year: 2009 };
+    const query = '{ category_code: "smooth jazz", release_year: 2009 }';
 
     beforeEach(() => {
       component = mount(
@@ -44,7 +44,7 @@ describe('Editor [Component]', () => {
   context('when the component is rendered with query error', () => {
     let component;
 
-    const query = { category_code: 'smooth jazz', release_year: 2009 };
+    const query = '{ category_code: "smooth jazz", release_year: 2009 }';
 
     beforeEach(() => {
       component = mount(

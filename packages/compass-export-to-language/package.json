@@ -127,6 +127,7 @@
     "brace": "^0.11.1",
     "bson-compilers": "^0.7.3",
     "hadron-react-buttons": "^2.0.0",
+    "js-beautify": "^1.7.5",
     "mongodb-query-parser": "^1.1.1",
     "react-select-plus": "^1.2.0",
     "redux-thunk": "^2.2.0"

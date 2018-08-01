@@ -6,12 +6,15 @@ const chai = require('chai');
 
 enzyme.configure({ adapter: new Adapter() });
 
+// virtualConsole.sendTo(console, { omitJSDOMErrors: true });
 require('jsdom-global')('', {
+  // virtualConsole: virtualConsole,
   beforeParse(win) {
     win.URL = {
       createObjectURL: () => {}
     };
-  }
+  },
+  runScripts: 'dangerously'
 });
 
 global.sinon = require('sinon');

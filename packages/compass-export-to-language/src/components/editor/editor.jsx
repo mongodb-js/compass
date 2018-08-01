@@ -3,6 +3,8 @@ import React, { PureComponent } from 'react';
 import classnames from 'classnames';
 import PropTypes from 'prop-types';
 import AceEditor from 'react-ace';
+import js_beautify from 'js-beautify';
+
 
 import 'brace/mode/javascript';
 import 'brace/mode/csharp';
@@ -20,7 +22,7 @@ class Editor extends PureComponent {
   // check for any
   static propTypes = {
     outputQuery: PropTypes.string.isRequired,
-    inputQuery: PropTypes.any.isRequired,
+    inputQuery: PropTypes.string.isRequired,
     outputLang: PropTypes.string.isRequired,
     queryError: PropTypes.string,
     imports: PropTypes.string,
@@ -30,7 +32,7 @@ class Editor extends PureComponent {
   // need to be able to stringify and add spaces to prettify the object
   componentDidMount() {
     if (this.props.input && this.props.inputQuery !== '') {
-      this.editor.setValue(stringify.toJSString(this.props.inputQuery, null, 2));
+      this.editor.setValue(js_beautify(this.props.inputQuery));
       this.editor.clearSelection();
     }
   }

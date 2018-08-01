@@ -15,14 +15,14 @@ class ExportModal extends Component {
     useBuilders: PropTypes.func.isRequired,
     exportQuery: PropTypes.object.isRequired,
     setOutputLang: PropTypes.func.isRequired,
-    togleModal: PropTypes.func.isRequired,
+    toggleModal: PropTypes.func.isRequired,
     copyQuery: PropTypes.func.isRequired,
     clearCopy: PropTypes.func.isRequired,
     runQuery: PropTypes.func.isRequired
   };
 
   closeHandler = () => {
-    this.props.togleModal(false);
+    this.props.toggleModal(false);
   };
 
   importsHandler = () => {

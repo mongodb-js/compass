@@ -5,7 +5,7 @@ import reducer, {
   SET_NAMESPACE,
   OUTPUT_LANG,
   QUERY_ERROR,
-  TOGLE_MODAL,
+  toggle_MODAL,
   COPY_QUERY,
   CLEAR_COPY,
   includeImports,
@@ -13,7 +13,7 @@ import reducer, {
   setOutputLang,
   addInputQuery,
   setNamespace,
-  togleModal,
+  toggleModal,
   queryError,
   copyQuery,
   clearCopy,
@@ -39,10 +39,10 @@ describe('export query module', () => {
     });
   });
 
-  describe('#togleModal', () => {
-    it('returns a togle modal action type', () => {
-      expect(togleModal(true)).to.deep.equal({
-        type: TOGLE_MODAL,
+  describe('#toggleModal', () => {
+    it('returns a toggle modal action type', () => {
+      expect(toggleModal(true)).to.deep.equal({
+        type: toggle_MODAL,
         open: true
       });
     });
@@ -66,7 +66,7 @@ describe('export query module', () => {
   });
 
   describe('#addInputQuery', () => {
-    it('returns a add inputq query input type', () => {
+    it('returns a add input query input type', () => {
       expect(addInputQuery('{ "item": "happy socks", "quantity": 2 }')).to.deep.equal({
         type: ADD_INPUT_QUERY,
         input: '{ "item": "happy socks", "quantity": 2 }'
@@ -216,9 +216,9 @@ describe('export query module', () => {
       });
     });
 
-    context('action type is togleModal', () => {
+    context('action type is toggleModal', () => {
       it('modalOpen is true in state', () => {
-        expect(reducer(undefined, togleModal(true))).to.deep.equal({
+        expect(reducer(undefined, toggleModal(true))).to.deep.equal({
           outputLang: 'python',
           copySuccess: false,
           namespace: 'Query',
@@ -232,9 +232,9 @@ describe('export query module', () => {
       });
     });
 
-    context('action type is togleModal', () => {
+    context('action type is toggleModal', () => {
       it('modalOpen is false in state', () => {
-        expect(reducer(undefined, togleModal(false))).to.deep.equal({
+        expect(reducer(undefined, toggleModal(false))).to.deep.equal({
           outputLang: 'python',
           copySuccess: false,
           namespace: 'Query',

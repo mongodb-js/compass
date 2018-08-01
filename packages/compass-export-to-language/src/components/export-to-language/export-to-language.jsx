@@ -4,7 +4,7 @@ import {
   clearCopy,
   queryError,
   setOutputLang,
-  togleModal,
+  toggleModal,
   includeImports,
   useBuilders
 } from 'modules/export-query';
@@ -51,7 +51,7 @@ const MappedExportToLanguage = connect(
     useBuilders,
     setOutputLang,
     queryError,
-    togleModal,
+    toggleModal,
     copyQuery,
     clearCopy,
     runQuery

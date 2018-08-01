@@ -1,7 +1,6 @@
 import React, { Component } from 'react';
 import ExportToLanguagePlugin, { activate } from 'plugin';
 import PropTypes from 'prop-types';
-import parser from 'mongodb-query-parser';
 
 
 class ExportToLanguageStandalone extends Component {
@@ -13,8 +12,10 @@ class ExportToLanguageStandalone extends Component {
   handleChange = (event) => {
     if (event.keyCode === 13) {
       try {
-        const doc = parser(event.target.value);
-        this.props.appRegistry.emit('open-aggregation-export-to-language', doc);
+        this.props.appRegistry.emit(
+          'open-aggregation-export-to-language',
+          event.target.value
+        );
       } catch(err) {
         console.log('Invalid input:' + err.message);
       }

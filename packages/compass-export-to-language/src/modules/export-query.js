@@ -1,4 +1,3 @@
-const stringify = require('mongodb-query-parser');
 const clipboard = require('electron').clipboard;
 const compiler = require('bson-compilers');
 
@@ -10,7 +9,7 @@ export const INCLUDE_IMPORTS = `${PREFIX}/IMPORTS`;
 export const USE_BUILDERS = `${PREFIX}/USE_BUILDERS`;
 export const OUTPUT_LANG = `${PREFIX}/OUTPUT_LANG`;
 export const QUERY_ERROR = `${PREFIX}/QUERY_ERROR`;
-export const TOGLE_MODAL = `${PREFIX}/MODAL_OPEN`;
+export const toggle_MODAL = `${PREFIX}/MODAL_OPEN`;
 export const COPY_QUERY = `${PREFIX}/COPY_QUERY`;
 export const CLEAR_COPY = `${PREFIX}/CLEAR_COPY`;
 export const RUN_QUERY = `${PREFIX}/RUN_QUERY`;
@@ -54,9 +53,10 @@ export const runQuery = (outputLang, input) => {
     const state = getState();
 
     try {
-      const inputStr = stringify.toJSString(input);
-      const output = compiler.shell[outputLang].compile(inputStr, state.exportQuery.builders);
-      state.exportQuery.imports = state.exportQuery.imports !== '' ? compiler.shell[outputLang].getImports() : '';
+      const output = compiler.shell[outputLang].compile(input, state.exportQuery.builders);
+      state.exportQuery.imports = state.exportQuery.imports !== '' ?
+        compiler.shell[outputLang].getImports() :
+        '';
       state.exportQuery.returnQuery = output;
       state.exportQuery.queryError = null;
       return state;
@@ -75,7 +75,7 @@ export default function reducer(state = INITIAL_STATE, action) {
   if (action.type === INCLUDE_IMPORTS) return addImports(state, action);
   if (action.type === USE_BUILDERS) return { ...state, builders: action.builders };
   if (action.type === COPY_QUERY) return copyToClipboard(state, action);
-  if (action.type === TOGLE_MODAL) return closeModal(state, action);
+  if (action.type === toggle_MODAL) return closeModal(state, action);
 
   return state;
 }
@@ -115,8 +115,8 @@ export const copyQuery = (input) => ({
   input: input
 });
 
-export const togleModal = (open) => ({
-  type: TOGLE_MODAL,
+export const toggleModal = (open) => ({
+  type: toggle_MODAL,
   open: open
 });
 
