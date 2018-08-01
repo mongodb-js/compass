@@ -79,7 +79,10 @@ Templates:
             return `Arrays.asList(${arr})`;
         }
     ArrayTypeArgsTemplate: &ArrayTypeArgsTemplate null
-    NullTypeTemplate: &NullTypeTemplate null
+    NullTypeTemplate: &NullTypeTemplate !!js/function >
+        () => {
+            return 'new BsonNull()';
+        }
     UndefinedTypeTemplate: &UndefinedTypeTemplate !!js/function >
         () => {
             return 'new BsonUndefined()';
@@ -810,7 +813,10 @@ Templates:
         () => {
             return 'import org.bson.Document;';
         }
-    11ImportTemplate: &11ImportTemplate null
+    11ImportTemplate: &11ImportTemplate !!js/function >
+        () => {
+            return 'import org.bson.BsonNull;';
+        }
     12ImportTemplate: &12ImportTemplate !!js/function >
         () => {
             return 'import org.bson.BsonUndefined;';

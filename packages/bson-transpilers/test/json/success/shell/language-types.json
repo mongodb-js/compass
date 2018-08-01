@@ -137,7 +137,7 @@
         "description": "null",
         "javascript": "null",
         "python": "None",
-        "java": "null",
+        "java": "new BsonNull()",
         "csharp": "BsonNull.Value",
         "shell": "null"
       },

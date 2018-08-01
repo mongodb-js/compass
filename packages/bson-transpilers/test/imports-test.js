@@ -286,6 +286,7 @@ using System;`,
       java: `import java.util.regex.Pattern;
 import java.util.Arrays;
 import org.bson.Document;
+import org.bson.BsonNull;
 import org.bson.BsonUndefined;
 import org.bson.types.Code;
 import org.bson.types.ObjectId;
