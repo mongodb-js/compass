@@ -1,6 +1,6 @@
 {
   "name": "bson-compilers",
-  "version": "0.7.2",
+  "version": "0.7.3",
   "apiVersion": "0.0.1",
   "productName": "BSON Compilers",
   "description": "Source to source compilers using ANTLR",
