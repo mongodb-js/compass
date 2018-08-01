@@ -39,6 +39,7 @@
           "plugins-directory": ".mongodb/compass/plugins",
           "plugins": [
             "node_modules/@mongodb-js/compass-aggregations",
+            "node_modules/@mongodb-js/compass-auto-updates",
             "node_modules/@mongodb-js/compass-export-to-language",
             "node_modules/@mongodb-js/compass-crud",
             "node_modules/@mongodb-js/compass-collection-stats",
@@ -69,6 +70,7 @@
           "plugins-directory": ".mongodb/compass-community/plugins",
           "plugins": [
             "node_modules/@mongodb-js/compass-aggregations",
+            "node_modules/@mongodb-js/compass-auto-updates",
             "node_modules/@mongodb-js/compass-export-to-language",
             "node_modules/@mongodb-js/compass-collection-stats",
             "node_modules/@mongodb-js/compass-connect",
@@ -96,6 +98,7 @@
           "readonly": true,
           "plugins": [
             "node_modules/@mongodb-js/compass-aggregations",
+            "node_modules/@mongodb-js/compass-auto-updates",
             "node_modules/@mongodb-js/compass-export-to-language",
             "node_modules/@mongodb-js/compass-crud",
             "node_modules/@mongodb-js/compass-import-export",
@@ -220,6 +223,7 @@
   },
   "dependencies": {
     "@mongodb-js/compass-aggregations": "^1.5.35",
+    "@mongodb-js/compass-auto-updates": "^0.0.2",
     "@mongodb-js/compass-auth-kerberos": "^1.0.1",
     "@mongodb-js/compass-auth-ldap": "^1.0.1",
     "@mongodb-js/compass-auth-x509": "^1.0.1",

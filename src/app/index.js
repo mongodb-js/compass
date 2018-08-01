@@ -44,7 +44,6 @@ marky.stop('Migrations');
 
 var React = require('react');
 var ReactDOM = require('react-dom');
-var AutoUpdate = require('../auto-update');
 var { Action } = require('hadron-plugin-manager');
 
 
@@ -185,11 +184,9 @@ var Application = View.extend({
     this.securityComponent = app.appRegistry.getRole('Application.Security')[0].component;
     ReactDOM.render(React.createElement(this.securityComponent), this.queryByHook('security'));
 
-    if (process.env.HADRON_ISOLATED !== 'true') {
-      this.autoUpdate = new AutoUpdate({
-        el: this.queryByHook('auto-update')
-      });
-      this.autoUpdate.render();
+    this.autoUpdatesRoles = app.appRegistry.getRole('App.AutoUpdate');
+    if (this.autoUpdatesRoles) {
+      ReactDOM.render(React.createElement(this.autoUpdatesRoles[0].component), this.queryByHook('auto-update'));
     }
 
     const handleTour = () => {
