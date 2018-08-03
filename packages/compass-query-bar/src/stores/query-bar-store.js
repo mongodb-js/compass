@@ -94,7 +94,7 @@ const QueryBarStore = Reflux.createStore({
    * Open the export to language dialog.
    */
   exportToLanguage() {
-    this.appRegistry.emit('open-query-export-to-language', this.state.filter);
+    this.appRegistry.emit('open-query-export-to-language', this.state.filterString);
   },
 
   /**
