@@ -2,8 +2,8 @@ const config = require('../config/error.json');
 const errors = {};
 
 Object.keys(config).forEach((error) => {
-  const name = `BsonCompilers${error}Error`;
-  const code = `E_BSONCOMPILERS_${error.toUpperCase()}`;
+  const name = `BsonTranspilers${error}Error`;
+  const code = `E_BSONTRANSPILERS_${error.toUpperCase()}`;
   const message = config[error].message;
 
   errors[name] = class extends Error {

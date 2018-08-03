@@ -3,7 +3,7 @@ const parse = require('fast-json-parse');
 const fs = require('fs');
 const chai = require('chai');
 const expect = chai.expect;
-const compiler = require('../');
+const transpiler = require('../');
 
 const unsupported = {
   success: {},
@@ -12,7 +12,7 @@ const unsupported = {
 
 const checkResults = {
   success: function(inputLang, outputLang, test) {
-    expect(compiler[inputLang][outputLang].compile(test[inputLang])).to.equal(
+    expect(transpiler[inputLang][outputLang].compile(test[inputLang])).to.equal(
       test[outputLang]
     );
   },
@@ -20,7 +20,7 @@ const checkResults = {
   error: function(inputLang, outputLang, test) {
     let thrown = false;
     try {
-      compiler[inputLang][outputLang].compile(test.query);
+      transpiler[inputLang][outputLang].compile(test.query);
     } catch (error) {
       thrown = true;
       expect(error.code).to.equal(test.errorCode);

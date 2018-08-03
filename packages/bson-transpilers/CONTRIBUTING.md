@@ -1,7 +1,7 @@
-# Contributing to bson-compilers
+# Contributing to bson-transpilers
 
 ## Setting up your environment
-The `bson-compilers` package uses
+The `bson-transpilers` package uses
 [ANTLR4](https://github.com/antlr/antlr4/blob/master/doc/javascript-target.md)
 to create a parse tree. As `ANTLR` is written in Java, you will need to set up a
 few tools before being able to compile this locally. 
@@ -43,7 +43,7 @@ OUTPUT=csharp INPUT=shell MODE=success npm run test
 
 # How it works
 ## Compilation Stages
-Similar to how many compilers work, this package parses the input 
+Similar to how many transpilers work, this package parses the input 
 string into a tree and then generates code from the tree using the [Visitor 
 pattern](https://en.wikipedia.org/wiki/Visitor_pattern).
 
@@ -111,7 +111,7 @@ expression it needs a way of knowing what that symbol evaluates to in order to k
 Each input language has it's own set of symbols that are part of the 
 language. The majority of symbols supported in the input languages are BSON types 
 (i.e. `Int32`, `ObjectId`, etc) but there are a few native types like `RegExp` and 
-`Date` that are not BSON-specific. In order for the compiler to know if a symbol 
+`Date` that are not BSON-specific. In order for the transpiler to know if a symbol 
 is undefined, we store symbol information in a 
 [Symbol Table](https://en.wikipedia.org/wiki/Symbol_table).
 
@@ -147,7 +147,7 @@ are defined in [YAML](https://en.wikipedia.org/wiki/YAML) in the
 | Field     | Data         |
 | ----------|:-------------|
 | id        | The name of the attribute. Mostly used for error reporting and the `emit` or `process` method names. |
-| callable  | Used for determining if the symbol can be part of a function call. There are three types of symbols: <br><br>`*func`: a function call. If the symbol is found as the "left-hand-side" of a function call, it is valid. <br><br>`*constructor`: also a function call, but may require a `new` keyword if the output language requires it. <br><br>`*var`: a variable. Indicates to the compiler that the symbol cannot be invoked, i.e. `<symbol>()`  is invalid.|
+| callable  | Used for determining if the symbol can be part of a function call. There are three types of symbols: <br><br>`*func`: a function call. If the symbol is found as the "left-hand-side" of a function call, it is valid. <br><br>`*constructor`: also a function call, but may require a `new` keyword if the output language requires it. <br><br>`*var`: a variable. Indicates to the transpiler that the symbol cannot be invoked, i.e. `<symbol>()`  is invalid.|
 | args      | Used for type checking. If the symbol is callable, i.e. a `*func` or `*constructor`, then the expected arguments are defined here as an array. So for example, if the function takes in a string as the first arg, and an optional second arg that can be a object or array, args will look like <br>`[ [*StringType], [*ObjectType, *ArrayType, null] ]`.|
 | type      | The type that the symbol evaluates to. If it is a variable, it will be the type of the variable. If it is a function, it will be the return type. See the [Types](#types) section.|
 | attr      | Used for determining if attribute access is valid. This field is also a symbol table, but a namespace-prefixed one. So for the example above, `Decimal128.fromString` is a valid attribute, so we need to define the symbol `fromString` in the same way we defined the `Decimal128` symbol.|
@@ -188,18 +188,18 @@ need rearranging between languages.
 <img alt="indexjs" width="60%" align="right" src="/img-docs/indexjs.jpg"/>
 
 Entry point to the project is `index.js`. It currently exports [two
-APIs](https://github.com/mongodb-js/bson-compilers#api), compiling a string
+APIs](https://github.com/mongodb-js/bson-transpilers#api), compiling a string
 given `inputLang` and `outputLang`, and accessing language's import statements
 you might need.
 
-To construct a compiler, `index.js` needs 3 components:
+To construct a transpiler, `index.js` needs 3 components:
 - `codegeneration/<input language>/Visitor.js` The visitor for the input language.
 - `codegeneration/<ouput language>/Generator.js` - The generator for the output language.
 - `lib/symbol-table/<input language>to<ouput language>.js` - The symbol table for 
 the input+output combination.
 
-The `getCompiler()` function takes in three arguments: `visitor`, `generator`
-and `symbols` to create a compiler and a `parse tree` that can be walked.
+The `getTranspiler()` function takes in three arguments: `visitor`, `generator`
+and `symbols` to create a transpiler and a `parse tree` that can be walked.
 
 #### TL;DR
 - __Visitor:__ visits nodes; processes input language via
@@ -245,11 +245,11 @@ const shell<output lang>symbols = require('lib/symbol-table/shellto<output lang>
 module.exports = {
   javascript: {
     // all those js exports,
-    <output lang>: getCompiler(JavascriptVisitor, <output lang>Generator, javascrip<output lang>symbols)
+    <output lang>: getTranspiler(JavascriptVisitor, <output lang>Generator, javascrip<output lang>symbols)
   }
   shell: {
     // all those js exports,
-    <output lang>: getCompiler(ShellVisitor, <output lang>Generator, shell<output lang>symbols)
+    <output lang>: getTranspiler(ShellVisitor, <output lang>Generator, shell<output lang>symbols)
   }
 }
 ```

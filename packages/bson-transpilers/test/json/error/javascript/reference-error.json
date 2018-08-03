@@ -4,13 +4,13 @@
       {
         "description": "top level symbol",
         "query": "x",
-        "errorCode": "E_BSONCOMPILERS_REFERENCE",
+        "errorCode": "E_BSONTRANSPILERS_REFERENCE",
         "message": "x"
       },
       {
         "description": "argument symbol",
         "query": "Long(x, 1)",
-        "errorCode": "E_BSONCOMPILERS_REFERENCE",
+        "errorCode": "E_BSONTRANSPILERS_REFERENCE",
         "message": "x"
       }
     ]

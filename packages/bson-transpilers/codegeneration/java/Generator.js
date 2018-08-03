@@ -1,8 +1,8 @@
 /* eslint complexity: 0 */
 const {doubleQuoteStringify, removeQuotes} = require('../../helper/format');
 const {
-  BsonCompilersRuntimeError,
-  BsonCompilersUnimplementedError
+  BsonTranspilersRuntimeError,
+  BsonTranspilersUnimplementedError
 } = require('../../helper/error');
 
 /**
@@ -172,7 +172,7 @@ module.exports = (superClass) => class ExtendedVisitor extends superClass {
           if (this.field_opts.indexOf(op) !== -1) {
             // Assert that this isn't the top-level object
             if (!('propertyName' in ctx.parentCtx.parentCtx)) {
-              throw new BsonCompilersRuntimeError(`$${op} cannot be top-level`);
+              throw new BsonTranspilersRuntimeError(`$${op} cannot be top-level`);
             }
             return this.handleFieldOp(pair.singleExpression(), op, ctx);
           }
@@ -254,13 +254,13 @@ module.exports = (superClass) => class ExtendedVisitor extends superClass {
         value = this.visit(pair.singleExpression());
         this.idiomatic = true;
       } else {
-        throw new BsonCompilersRuntimeError(
+        throw new BsonTranspilersRuntimeError(
           `Unrecognized option to $${op}: ${field}`
         );
       }
     });
     if (value === '') {
-      throw new BsonCompilersRuntimeError(
+      throw new BsonTranspilersRuntimeError(
         `Missing option '${subfield}' in $${op}`
       );
     }
@@ -291,14 +291,14 @@ module.exports = (superClass) => class ExtendedVisitor extends superClass {
       if (reqOpts.indexOf(field) !== -1 || optionalOpts.indexOf(field) !== -1) {
         fields[field] = this.visit(pair.singleExpression());
       } else {
-        throw new BsonCompilersRuntimeError(
+        throw new BsonTranspilersRuntimeError(
           `Unrecognized option to $${op}: ${field}`
         );
       }
     });
     reqOpts.map((f) => {
       if (!(f in fields)) {
-        throw new BsonCompilersRuntimeError(`Missing option '${f}' in $${op}`);
+        throw new BsonTranspilersRuntimeError(`Missing option '${f}' in $${op}`);
       }
     });
 
@@ -350,7 +350,7 @@ module.exports = (superClass) => class ExtendedVisitor extends superClass {
       }
     });
     if (req.length !== reqOpts.length) {
-      throw new BsonCompilersRuntimeError(
+      throw new BsonTranspilersRuntimeError(
         `Required option missing from ${op}`
       );
     }
@@ -459,7 +459,7 @@ module.exports = (superClass) => class ExtendedVisitor extends superClass {
     if (!('elementList' in ctx) ||
       !ctx.elementList() ||
       ctx.elementList().singleExpression().length !== 2) {
-      throw new BsonCompilersRuntimeError(
+      throw new BsonTranspilersRuntimeError(
         '$mod requires an array of 2-elements'
       );
     }
@@ -551,7 +551,7 @@ module.exports = (superClass) => class ExtendedVisitor extends superClass {
         fields.push(`metaTextScore(${doubleQuoteStringify(field)})`);
         this.requiredImports[304].push('metaTextScore');
       } else {
-        throw new BsonCompilersRuntimeError(
+        throw new BsonTranspilersRuntimeError(
           '$sort key ordering must be specified using a number or ' +
           '{$meta: \'textScore\'}'
         );
@@ -583,7 +583,7 @@ module.exports = (superClass) => class ExtendedVisitor extends superClass {
     });
 
     if (Object.keys(fields).length !== 1) {
-      throw new BsonCompilersRuntimeError(
+      throw new BsonTranspilersRuntimeError(
         '$geoWithin takes an object with only 1 field'
       );
     }
@@ -610,7 +610,7 @@ module.exports = (superClass) => class ExtendedVisitor extends superClass {
       case ('$center'): {
         const array = this.assertIsNonemptyArray(fields[key]);
         if (array.length !== 2) {
-          throw new BsonCompilersRuntimeError(`${key} takes array of length 2`);
+          throw new BsonTranspilersRuntimeError(`${key} takes array of length 2`);
         }
         const coordinates = this.combineCoordinates(
           array[0], 2, '', true, (p) => { return this.visit(p); }
@@ -622,7 +622,7 @@ module.exports = (superClass) => class ExtendedVisitor extends superClass {
         return `${geoop}(${parentField}, ${coordinates}, ${this.visit(array[1])})`;
       }
       default: {
-        throw new BsonCompilersRuntimeError(
+        throw new BsonTranspilersRuntimeError(
           `unrecognized option ${key} to $geoWithin`
         );
       }
@@ -643,13 +643,13 @@ module.exports = (superClass) => class ExtendedVisitor extends superClass {
 
     ['$geometry', '$minDistance', '$maxDistance'].map((k) => {
       if (!(k in fields)) {
-        throw new BsonCompilersRuntimeError(
+        throw new BsonTranspilersRuntimeError(
           `Missing required field ${k} in $${op}`
         );
       }
     });
     if (Object.keys(fields).length !== 3) {
-      throw new BsonCompilersRuntimeError(
+      throw new BsonTranspilersRuntimeError(
         `Too many fields to $${op}`
       );
     }
@@ -667,7 +667,7 @@ module.exports = (superClass) => class ExtendedVisitor extends superClass {
   generateposition(ctx) {
     const coordinates = this.assertIsNonemptyArray(ctx, 'geometry');
     if (coordinates.length !== 2) {
-      throw new BsonCompilersRuntimeError(
+      throw new BsonTranspilersRuntimeError(
         'Position must be 2 coordinates'
       );
     }
@@ -680,7 +680,7 @@ module.exports = (superClass) => class ExtendedVisitor extends superClass {
   assertIsNonemptyArray(ctx, op) {
     if (!('arrayLiteral' in ctx) ||
       !('elementList' in ctx.arrayLiteral())) {
-      throw new BsonCompilersRuntimeError(
+      throw new BsonTranspilersRuntimeError(
         `$${op} requires a non-empty array`
       );
     }
@@ -692,7 +692,7 @@ module.exports = (superClass) => class ExtendedVisitor extends superClass {
     }
     if (!('propertyNameAndValueList' in ctx) ||
       !ctx.propertyNameAndValueList()) {
-      throw new BsonCompilersRuntimeError(
+      throw new BsonTranspilersRuntimeError(
         `$${op} requires a non-empty document`
       );
     }
@@ -705,7 +705,7 @@ module.exports = (superClass) => class ExtendedVisitor extends superClass {
     }
     const points = this.assertIsNonemptyArray(ctx, 'geometry');
     if (points.length < length) {
-      throw new BsonCompilersRuntimeError(
+      throw new BsonTranspilersRuntimeError(
         `${
           className ? className : '$geometry inner array'
         } must have at least ${length} elements (has ${points.length})`
@@ -781,7 +781,7 @@ module.exports = (superClass) => class ExtendedVisitor extends superClass {
     return `new GeometryCollection(Arrays.asList(${
       geometries.map((g) => {
         if (!('objectLiteral' in g) || !g.objectLiteral()) {
-          throw new BsonCompilersRuntimeError(
+          throw new BsonTranspilersRuntimeError(
             '$GeometryCollection requires objects'
           );
         }
@@ -801,23 +801,23 @@ module.exports = (superClass) => class ExtendedVisitor extends superClass {
       } else if (field === 'coordinates') {
         fields.coordinates = pair.singleExpression();
       } else if (field === 'crs') {
-        throw new BsonCompilersUnimplementedError(
+        throw new BsonTranspilersUnimplementedError(
           'Coordinate reference systems not currently supported'
         );
       } else {
-        throw new BsonCompilersRuntimeError(
+        throw new BsonTranspilersRuntimeError(
           `Unrecognized option to $geometry: ${field}`
         );
       }
     });
     if (!fields.type || !fields.coordinates) {
-      throw new BsonCompilersRuntimeError(
+      throw new BsonTranspilersRuntimeError(
         'Missing option to $geometry'
       );
     }
     if (!('arrayLiteral' in fields.coordinates) ||
         !('elementList' in fields.coordinates.arrayLiteral())) {
-      throw new BsonCompilersRuntimeError(
+      throw new BsonTranspilersRuntimeError(
         'Invalid coordinates option for $geometry'
       );
     }
@@ -825,7 +825,7 @@ module.exports = (superClass) => class ExtendedVisitor extends superClass {
       this.requiredImports[305].push(fields.type);
       return this[`generate${fields.type.toLowerCase()}`](fields.coordinates);
     }
-    throw new BsonCompilersRuntimeError(
+    throw new BsonTranspilersRuntimeError(
       `Unrecognized GeoJSON type "${fields.type}"`
     );
   }

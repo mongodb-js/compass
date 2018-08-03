@@ -1,6 +1,6 @@
 const antlr4 = require('antlr4');
 
-const { BsonCompilersSyntaxError } = require('../helper/error');
+const { BsonTranspilersSyntaxError } = require('../helper/error');
 
 /**
  * Custom Error Listener
@@ -19,7 +19,7 @@ class ErrorListener extends antlr4.error.ErrorListener {
    * @param {string} payload - Stack trace
    */
   syntaxError(recognizer, symbol, line, column, message, payload) {
-    throw new BsonCompilersSyntaxError(message, { symbol, line, column, payload });
+    throw new BsonTranspilersSyntaxError(message, { symbol, line, column, payload });
   }
 }
 

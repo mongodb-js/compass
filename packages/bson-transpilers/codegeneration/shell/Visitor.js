@@ -3,10 +3,10 @@ const JavascriptVisitor = require('../javascript/Visitor');
 const bson = require('bson');
 const Context = require('context-eval');
 const {
-  BsonCompilersReferenceError,
-  BsonCompilersRuntimeError,
-  BsonCompilersUnimplementedError,
-  BsonCompilersArgumentError
+  BsonTranspilersReferenceError,
+  BsonTranspilersRuntimeError,
+  BsonTranspilersUnimplementedError,
+  BsonTranspilersArgumentError
 } = require('../../helper/error');
 
 /**
@@ -26,7 +26,7 @@ class Visitor extends JavascriptVisitor {
     const name = this.visitChildren(ctx);
     ctx.type = this.Symbols[name];
     if (ctx.type === undefined) {
-      throw new BsonCompilersReferenceError(
+      throw new BsonTranspilersReferenceError(
         `Symbol '${name}' is undefined`
       );
     }
@@ -104,7 +104,7 @@ class Visitor extends JavascriptVisitor {
    * TODO: figure out if it ever makes sense to support Binary.
    */
   processBinData() {
-    throw new BsonCompilersUnimplementedError('BinData type not supported');
+    throw new BsonTranspilersUnimplementedError('BinData type not supported');
   }
 
   /**
@@ -120,7 +120,7 @@ class Visitor extends JavascriptVisitor {
     try {
       decstr = this.executeJavascript(`new ${ctx.getText()}`).toString();
     } catch (error) {
-      throw new BsonCompilersRuntimeError(error.message);
+      throw new BsonTranspilersRuntimeError(error.message);
     }
 
     if ('emitNumberDecimal' in this) {
@@ -169,7 +169,7 @@ class Visitor extends JavascriptVisitor {
       this.idiomatic = idiomatic;
       scopestr = `, ${scope}`;
       if (args[1].type !== this.Types._object) {
-        throw new BsonCompilersArgumentError(
+        throw new BsonTranspilersArgumentError(
           'Argument type mismatch: Code requires scope to be an object'
         );
       }

@@ -3,13 +3,13 @@ const ECMAScriptVisitor = require('../../lib/antlr/ECMAScriptVisitor').ECMAScrip
 const bson = require('bson');
 const Context = require('context-eval');
 const {
-  BsonCompilersArgumentError,
-  BsonCompilersAttributeError,
-  BsonCompilersRuntimeError,
-  BsonCompilersTypeError,
-  BsonCompilersReferenceError,
-  BsonCompilersInternalError,
-  BsonCompilersUnimplementedError
+  BsonTranspilersArgumentError,
+  BsonTranspilersAttributeError,
+  BsonTranspilersRuntimeError,
+  BsonTranspilersTypeError,
+  BsonTranspilersReferenceError,
+  BsonTranspilersInternalError,
+  BsonTranspilersUnimplementedError
 } = require('../../helper/error');
 
 /**
@@ -100,7 +100,7 @@ class Visitor extends ECMAScriptVisitor {
   unimplemented(ctx) {
     const name = ctx.constructor.name ?
       ctx.constructor.name.replace('Context', '') : 'Expression';
-    throw new BsonCompilersUnimplementedError(
+    throw new BsonTranspilersUnimplementedError(
       `'${name}' not yet implemented`
     );
   }
@@ -310,7 +310,7 @@ class Visitor extends ECMAScriptVisitor {
     // Check if callable
     ctx.type = lhsType.type;
     if (!lhsType.callable) {
-      throw new BsonCompilersTypeError(`${lhsType.id} is not callable`);
+      throw new BsonTranspilersTypeError(`${lhsType.id} is not callable`);
     }
 
     // Check arguments
@@ -337,7 +337,7 @@ class Visitor extends ECMAScriptVisitor {
     const name = this.visitChildren(ctx);
     ctx.type = this.Symbols[name];
     if (ctx.type === undefined) {
-      throw new BsonCompilersReferenceError(`Symbol '${name}' is undefined`);
+      throw new BsonTranspilersReferenceError(`Symbol '${name}' is undefined`);
     }
     this.requiredImports[ctx.type.code] = true;
 
@@ -361,7 +361,7 @@ class Visitor extends ECMAScriptVisitor {
     const rhs = this.visit(ctx.identifierName());
 
     if (!ctx.singleExpression().constructor.name.includes('Identifier') && !ctx.singleExpression().constructor.name.includes('FuncCall')) {
-      throw new BsonCompilersUnimplementedError('Attribute access for non-symbols not currently supported');
+      throw new BsonTranspilersUnimplementedError('Attribute access for non-symbols not currently supported');
     }
 
     let type = ctx.singleExpression().type;
@@ -371,7 +371,7 @@ class Visitor extends ECMAScriptVisitor {
     while (type !== null) {
       if (!(type.attr.hasOwnProperty(rhs))) {
         if (type.id in this.BsonTypes && this.BsonTypes[type.id].id !== null) {
-          throw new BsonCompilersAttributeError(
+          throw new BsonTranspilersAttributeError(
             `'${rhs}' not an attribute of ${type.id}`
           );
         }
@@ -513,7 +513,7 @@ class Visitor extends ECMAScriptVisitor {
       }
     }
     if (actual.type === undefined) {
-      throw new BsonCompilersInternalError();
+      throw new BsonTranspilersInternalError();
     }
     return actual;
   }
@@ -589,13 +589,13 @@ class Visitor extends ECMAScriptVisitor {
       if (expected.length === 0 || expected[0].indexOf(null) !== -1) {
         return argStr;
       }
-      throw new BsonCompilersArgumentError(
+      throw new BsonTranspilersArgumentError(
         `Argument count mismatch: '${name}' requires least one argument`
       );
     }
     const args = argumentList.singleExpression();
     if (args.length > expected.length) {
-      throw new BsonCompilersArgumentError(
+      throw new BsonTranspilersArgumentError(
         `Argument count mismatch: '${name}' expects ${expected.length} args and got ${args.length}`
       );
     }
@@ -604,7 +604,7 @@ class Visitor extends ECMAScriptVisitor {
         if (expected[i].indexOf(null) !== -1) {
           return argStr;
         }
-        throw new BsonCompilersArgumentError(
+        throw new BsonTranspilersArgumentError(
           `Argument count mismatch: too few arguments passed to '${name}'`
         );
       }
@@ -615,7 +615,7 @@ class Visitor extends ECMAScriptVisitor {
           return e ? id : '[optional]';
         })} but got type ${args[i].type.id} for argument at index ${i}`;
 
-        throw new BsonCompilersArgumentError(message);
+        throw new BsonTranspilersArgumentError(message);
       }
       argStr.push(result);
     }
@@ -690,7 +690,7 @@ class Visitor extends ECMAScriptVisitor {
       pattern = regexobj.source;
       flags = regexobj.flags;
     } catch (error) {
-      throw new BsonCompilersRuntimeError(error.message);
+      throw new BsonTranspilersRuntimeError(error.message);
     }
 
     let targetflags = flags.replace(/[imuyg]/g, m => this.regexFlags[m]);
@@ -725,7 +725,7 @@ class Visitor extends ECMAScriptVisitor {
       flags = args[1];
       for (let i = 1; i < flags.length - 1; i++) {
         if (!(flags[i] in this.bsonRegexFlags)) {
-          throw new BsonCompilersRuntimeError(`Invalid flag '${flags[i]}' passed to BSONRegExp`);
+          throw new BsonTranspilersRuntimeError(`Invalid flag '${flags[i]}' passed to BSONRegExp`);
         }
       }
       flags = flags.replace(/[imxlsu]/g, m => this.bsonRegexFlags[m]);
@@ -754,7 +754,7 @@ class Visitor extends ECMAScriptVisitor {
     if (!argList ||
       !(argList.singleExpression().length === 1 ||
         argList.singleExpression().length === 2)) {
-      throw new BsonCompilersArgumentError(
+      throw new BsonTranspilersArgumentError(
         'Argument count mismatch: Code requires one or two arguments'
       );
     }
@@ -770,7 +770,7 @@ class Visitor extends ECMAScriptVisitor {
       this.idiomatic = idiomatic;
       scopestr = `, ${scope}`;
       if (args[1].type !== this.Types._object) {
-        throw new BsonCompilersArgumentError(
+        throw new BsonTranspilersArgumentError(
           'Argument type mismatch: Code requires scope to be an object'
         );
       }
@@ -804,7 +804,7 @@ class Visitor extends ECMAScriptVisitor {
     try {
       hexstr = this.executeJavascript(ctx.getText()).toHexString();
     } catch (error) {
-      throw new BsonCompilersRuntimeError(error.message);
+      throw new BsonTranspilersRuntimeError(error.message);
     }
     if ('emitObjectId' in this) {
       return this.emitObjectId(ctx, hexstr);
@@ -828,7 +828,7 @@ class Visitor extends ECMAScriptVisitor {
     try {
       longstr = this.executeJavascript(`new ${ctx.getText()}`).toString();
     } catch (error) {
-      throw new BsonCompilersRuntimeError(error.message);
+      throw new BsonTranspilersRuntimeError(error.message);
     }
     if ('emitLong' in this) {
       return this.emitLong(ctx, longstr);
@@ -856,7 +856,7 @@ class Visitor extends ECMAScriptVisitor {
     const argList = ctx.arguments().argumentList();
 
     if (!argList || argList.singleExpression().length !== 1) {
-      throw new BsonCompilersArgumentError(
+      throw new BsonTranspilersArgumentError(
         'Argument count mismatch: Decimal128 requires one argument'
       );
     }
@@ -866,10 +866,10 @@ class Visitor extends ECMAScriptVisitor {
     } catch (error) {
       // TODO: this isn't quite right because it catches all type errors.
       if (error.name === 'TypeError' || error.code === 'ERR_INVALID_ARG_TYPE') {
-        throw new BsonCompilersArgumentError(error.message);
+        throw new BsonTranspilersArgumentError(error.message);
       }
 
-      throw new BsonCompilersRuntimeError(error.message);
+      throw new BsonTranspilersRuntimeError(error.message);
     }
 
     if ('emitDecimal128' in this) {
@@ -896,7 +896,7 @@ class Visitor extends ECMAScriptVisitor {
     try {
       longstr = this.executeJavascript(long.getText()).toString();
     } catch (error) {
-      throw new BsonCompilersRuntimeError(error.message);
+      throw new BsonTranspilersRuntimeError(error.message);
     }
     return ctx.type.template ? ctx.type.template(longstr) : `'${longstr}'`;
   }
@@ -923,7 +923,7 @@ class Visitor extends ECMAScriptVisitor {
     try {
       this.checkArguments(this.Symbols.Date.args, argList, 'Date');
     } catch (e) {
-      throw new BsonCompilersArgumentError(
+      throw new BsonTranspilersArgumentError(
         'Invalid argument to Date: requires either no args, one string or number, or up to 7 numbers'
       );
     }
@@ -934,7 +934,7 @@ class Visitor extends ECMAScriptVisitor {
     try {
       date = this.executeJavascript(text);
     } catch (error) {
-      throw new BsonCompilersRuntimeError(error.message);
+      throw new BsonTranspilersRuntimeError(error.message);
     }
     if ('emitDate' in this) {
       return this.emitDate(ctx, date);
@@ -949,7 +949,7 @@ class Visitor extends ECMAScriptVisitor {
    * TODO: figure out if it ever makes sense to support Binary.
    */
   processBinary() {
-    throw new BsonCompilersUnimplementedError('Binary type not supported');
+    throw new BsonTranspilersUnimplementedError('Binary type not supported');
   }
 }
 

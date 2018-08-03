@@ -4,103 +4,103 @@
       {
         "description": "Code with invalidMethod",
         "query": "Code('test code', {x: 1}).invalidMethod()",
-        "errorCode": "E_BSONCOMPILERS_ATTRIBUTE"
+        "errorCode": "E_BSONTRANSPILERS_ATTRIBUTE"
       }
     ],
     "ObjectId": [
       {
         "description": "ObjectId with invalidMethod",
         "query": "ObjectId().invalidMethod()",
-        "errorCode": "E_BSONCOMPILERS_ATTRIBUTE"
+        "errorCode": "E_BSONTRANSPILERS_ATTRIBUTE"
       }
     ],
     "DBRef": [
       {
         "description": "DBRef with invalidMethod",
         "query": "new DBRef('coll', new ObjectId()).invalidMethod()",
-        "errorCode": "E_BSONCOMPILERS_ATTRIBUTE"
+        "errorCode": "E_BSONTRANSPILERS_ATTRIBUTE"
       },
       {
         "description": "DBRef with invalidProperty",
         "query": "new DBRef('coll', new ObjectId()).invalidProperty",
-        "errorCode": "E_BSONCOMPILERS_ATTRIBUTE"
+        "errorCode": "E_BSONTRANSPILERS_ATTRIBUTE"
       }
     ],
     "Int32": [
       {
         "description": "Int32 with invalidOtherMethod",
         "query": "Int32(3).invalidOtherMethod()",
-        "errorCode": "E_BSONCOMPILERS_ATTRIBUTE"
+        "errorCode": "E_BSONTRANSPILERS_ATTRIBUTE"
       }
     ],
     "Double": [
       {
         "description": "Double with invalidOtherMethod",
         "query": "Double(3).invalidOtherMethod()",
-        "errorCode": "E_BSONCOMPILERS_ATTRIBUTE"
+        "errorCode": "E_BSONTRANSPILERS_ATTRIBUTE"
       }
     ],
     "Long": [
       {
         "description": "Long with invalidMethod",
         "query": "Long(1, 100).invalidMethod()",
-        "errorCode": "E_BSONCOMPILERS_ATTRIBUTE"
+        "errorCode": "E_BSONTRANSPILERS_ATTRIBUTE"
       },
       {
         "description": "Long with lowercase max value",
         "query": "Long.max_value",
-        "errorCode": "E_BSONCOMPILERS_ATTRIBUTE"
+        "errorCode": "E_BSONTRANSPILERS_ATTRIBUTE"
       },
       {
         "description": "Long with wrong attribute",
         "query": "Long.WRONG_ATTRIBUTE",
-        "errorCode": "E_BSONCOMPILERS_ATTRIBUTE"
+        "errorCode": "E_BSONTRANSPILERS_ATTRIBUTE"
       },
       {
         "description": "Long with lowercase min value",
         "query": "Long.min_value",
-        "errorCode": "E_BSONCOMPILERS_ATTRIBUTE"
+        "errorCode": "E_BSONTRANSPILERS_ATTRIBUTE"
       },
       {
         "description": "Long with lowercase zero",
         "query": "Long.zero",
-        "errorCode": "E_BSONCOMPILERS_ATTRIBUTE"
+        "errorCode": "E_BSONTRANSPILERS_ATTRIBUTE"
       },
       {
         "description": "Long with lowercase one",
         "query": "Long.one",
-        "errorCode": "E_BSONCOMPILERS_ATTRIBUTE"
+        "errorCode": "E_BSONTRANSPILERS_ATTRIBUTE"
       },
       {
         "description": "Long with lowercase neg one",
         "query": "Long.neg_one",
-        "errorCode": "E_BSONCOMPILERS_ATTRIBUTE"
+        "errorCode": "E_BSONTRANSPILERS_ATTRIBUTE"
       }
     ],
     "Decimal128": [
       {
         "description": "Decimal128 with invalidMethod",
         "query": "new Decimal128(Buffer.from('5')).invalidMethod()",
-        "errorCode": "E_BSONCOMPILERS_ATTRIBUTE"
+        "errorCode": "E_BSONTRANSPILERS_ATTRIBUTE"
       }
     ],
     "Timestamp": [
       {
         "description": "Timestamp with invalidMethod",
         "query": "Timestamp(1, 100).invalidMethod()",
-        "errorCode": "E_BSONCOMPILERS_ATTRIBUTE"
+        "errorCode": "E_BSONTRANSPILERS_ATTRIBUTE"
       },
       {
         "description": "Timestamp with invalidProperty",
         "query": "Timestamp(1, 100).invalidProperty",
-        "errorCode": "E_BSONCOMPILERS_ATTRIBUTE"
+        "errorCode": "E_BSONTRANSPILERS_ATTRIBUTE"
       }
     ],
     "Symbol": [
       {
         "description": "Symbol with invalidMethod",
         "query": "Symbol('2').invalidMethod()",
-        "errorCode": "E_BSONCOMPILERS_ATTRIBUTE"
+        "errorCode": "E_BSONTRANSPILERS_ATTRIBUTE"
       }
     ]
   }

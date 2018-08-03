@@ -4,20 +4,20 @@
       {
         "description": "BinData",
         "query": "new BinData(400, '1234')",
-        "errorCode": "E_BSONCOMPILERS_UNIMPLEMENTED"
+        "errorCode": "E_BSONTRANSPILERS_UNIMPLEMENTED"
       }
     ],
     "Identifier": [
       {
         "description": "top level symbol",
         "query": "x",
-        "errorCode": "E_BSONCOMPILERS_REFERENCE",
+        "errorCode": "E_BSONTRANSPILERS_REFERENCE",
         "message": "x"
       },
       {
         "description": "argument symbol",
         "query": "NumberLong(x)",
-        "errorCode": "E_BSONCOMPILERS_REFERENCE",
+        "errorCode": "E_BSONTRANSPILERS_REFERENCE",
         "message": "x"
       }
     ],
@@ -25,35 +25,35 @@
       {
         "description": "regex with unsupported flag",
         "query": "new RegExp('ab+c', 'wrong')",
-        "errorCode": "E_BSONCOMPILERS_RUNTIME"
+        "errorCode": "E_BSONTRANSPILERS_RUNTIME"
       }
     ],
     "ObjectId": [
       {
         "description": "Invalid ObjectId",
         "query": "ObjectId(\"1\")",
-        "errorCode": "E_BSONCOMPILERS_RUNTIME"
+        "errorCode": "E_BSONTRANSPILERS_RUNTIME"
       }
     ],
     "NumberDecimal": [
       {
         "description": "Invalid Decimal128",
         "query": "NumberDecimal(++1)",
-        "errorCode": "E_BSONCOMPILERS_RUNTIME"
+        "errorCode": "E_BSONTRANSPILERS_RUNTIME"
       }
     ],
     "Date": [
       {
         "description": "Invalid Date",
         "query": "Date(++1)",
-        "errorCode": "E_BSONCOMPILERS_RUNTIME"
+        "errorCode": "E_BSONTRANSPILERS_RUNTIME"
       }
     ],
     "ISODate": [
       {
         "description": "Invalid Date",
         "query": "ISODate(++1)",
-        "errorCode": "E_BSONCOMPILERS_RUNTIME"
+        "errorCode": "E_BSONTRANSPILERS_RUNTIME"
       }
     ]
   }

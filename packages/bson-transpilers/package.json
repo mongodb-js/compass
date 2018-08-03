@@ -1,8 +1,8 @@
 {
-  "name": "bson-compilers",
+  "name": "bson-transpilers",
   "version": "0.7.3",
   "apiVersion": "0.0.1",
-  "productName": "BSON Compilers",
+  "productName": "BSON Transpilers",
   "description": "Source to source compilers using ANTLR",
   "contributors": [
     "Anna Herlihy <herlihyap@gmail.com>",

@@ -1,193 +1,193 @@
 const chai = require('chai');
 const expect = chai.expect;
-const compiler = require('..');
+const transpiler = require('..');
 const {
-  BsonCompilersRuntimeError
+  BsonTranspilersRuntimeError
 } = require('../helper/error');
 
 const errors = {
   type_error: [
     {
       input: '{$project: "invalid"}',
-      error: BsonCompilersRuntimeError
+      error: BsonTranspilersRuntimeError
     },
     {
       input: '{$project: {}}',
-      error: BsonCompilersRuntimeError
+      error: BsonTranspilersRuntimeError
     },
     {
       input: '{x: {$not: "1"}}',
-      error: BsonCompilersRuntimeError
+      error: BsonTranspilersRuntimeError
     },
     {
       input: '{x: {$mod: 1}}',
-      error: BsonCompilersRuntimeError
+      error: BsonTranspilersRuntimeError
     },
     {
       input: '{x: {$mod: [1]}}',
-      error: BsonCompilersRuntimeError
+      error: BsonTranspilersRuntimeError
     },
     {
       input: '{x: {$mod: {}}}',
-      error: BsonCompilersRuntimeError
+      error: BsonTranspilersRuntimeError
     },
     {
       input: '{$sort: {}}',
-      error: BsonCompilersRuntimeError
+      error: BsonTranspilersRuntimeError
     },
     {
       input: '{$sort: 1}',
-      error: BsonCompilersRuntimeError
+      error: BsonTranspilersRuntimeError
     },
     {
       input: '{$sort: {x: 1, y: "not 1/-1"}}',
-      error: BsonCompilersRuntimeError
+      error: BsonTranspilersRuntimeError
     },
     {
       input: '{$sort: {x: 1, y: {}}}',
-      error: BsonCompilersRuntimeError
+      error: BsonTranspilersRuntimeError
     },
     {
       input: '{$sort: {x: 1, y: {$meta: 1}}}',
-      error: BsonCompilersRuntimeError
+      error: BsonTranspilersRuntimeError
     },
     {
       input: '{$project: {}}',
-      error: BsonCompilersRuntimeError
+      error: BsonTranspilersRuntimeError
     },
     {
       input: '{$project: 1}',
-      error: BsonCompilersRuntimeError
+      error: BsonTranspilersRuntimeError
     },
     {
       input: '{x: {$sample: {}}}',
-      error: BsonCompilersRuntimeError
+      error: BsonTranspilersRuntimeError
     },
     {
       input: '{x: {$sample: {notSize: 1}}}',
-      error: BsonCompilersRuntimeError
+      error: BsonTranspilersRuntimeError
     },
     {
       input: '{x: {$sample: {size: 10, other: 1}}}',
-      error: BsonCompilersRuntimeError
+      error: BsonTranspilersRuntimeError
     },
     {
       input: '{x: {$replaceRoot: {}}}',
-      error: BsonCompilersRuntimeError
+      error: BsonTranspilersRuntimeError
     },
     {
       input: '{x: {$replaceRoot: {notNewRoot: 1}}}',
-      error: BsonCompilersRuntimeError
+      error: BsonTranspilersRuntimeError
     },
     {
       input: '{x: {$replaceRoot: {newRoot: 10, other: 1}}}',
-      error: BsonCompilersRuntimeError
+      error: BsonTranspilersRuntimeError
     },
     {
       input: '{$graphLookup: {}}',
-      error: BsonCompilersRuntimeError
+      error: BsonTranspilersRuntimeError
     },
     {
       input: '{$graphLookup: 1}',
-      error: BsonCompilersRuntimeError
+      error: BsonTranspilersRuntimeError
     },
     {
       input: '{$graphLookup: {from: "x"}}',
-      error: BsonCompilersRuntimeError
+      error: BsonTranspilersRuntimeError
     },
     {
       input: '{ $graphLookup: {from: "collection", startWith: "$expr", connectFromField: "fromF", connectToField: "toF", as: "asF", extra: 1} }',
-      error: BsonCompilersRuntimeError
+      error: BsonTranspilersRuntimeError
     },
     {
       input: '{$lookup: {}}',
-      error: BsonCompilersRuntimeError
+      error: BsonTranspilersRuntimeError
     },
     {
       input: '{$lookup: {from: "x"}}',
-      error: BsonCompilersRuntimeError
+      error: BsonTranspilersRuntimeError
     },
     {
       input: '{ $lookup: { from: "fromColl", localField: "localF", foreignField: "foreignF", as: "outputF", extra: 1} }',
-      error: BsonCompilersRuntimeError
+      error: BsonTranspilersRuntimeError
     },
     {
       input: '{$bucket: {}}',
-      error: BsonCompilersRuntimeError
+      error: BsonTranspilersRuntimeError
     },
     {
       input: '{$bucket: {groupBy: "x"}}',
-      error: BsonCompilersRuntimeError
+      error: BsonTranspilersRuntimeError
     },
     {
       input: '{$bucket: {groupBy: "x", boundaries: 1, extra: 1}}',
-      error: BsonCompilersRuntimeError
+      error: BsonTranspilersRuntimeError
     },
     {
       input: '{$bucketAuto: {}}',
-      error: BsonCompilersRuntimeError
+      error: BsonTranspilersRuntimeError
     },
     {
       input: '{$bucketAuto: {groupBy: "x"}}',
-      error: BsonCompilersRuntimeError
+      error: BsonTranspilersRuntimeError
     },
     {
       input: '{$bucketAuto: {groupBy: "x", buckets: 1, extra: 1}}',
-      error: BsonCompilersRuntimeError
+      error: BsonTranspilersRuntimeError
     },
     {
       input: '{$text: {}}',
-      error: BsonCompilersRuntimeError
+      error: BsonTranspilersRuntimeError
     },
     {
       input: '{$text: {$search: "x", extra: 1}}',
-      error: BsonCompilersRuntimeError
+      error: BsonTranspilersRuntimeError
     },
     {
       input: '{$unwind: {}}',
-      error: BsonCompilersRuntimeError
+      error: BsonTranspilersRuntimeError
     },
     {
       input: '{$unwind: 1}',
-      error: BsonCompilersRuntimeError
+      error: BsonTranspilersRuntimeError
     },
     {
       input: '{$unwind: {path: "x", extra: 1}}',
-      error: BsonCompilersRuntimeError
+      error: BsonTranspilersRuntimeError
     },
     {
       input: '{$group: {x: 1}}',
-      error: BsonCompilersRuntimeError
+      error: BsonTranspilersRuntimeError
     },
     {
       input: '{$group: {}}',
-      error: BsonCompilersRuntimeError
+      error: BsonTranspilersRuntimeError
     },
     {
       input: '{$group: 1}',
-      error: BsonCompilersRuntimeError
+      error: BsonTranspilersRuntimeError
     },
     {
       input: '{$facet: {}}',
-      error: BsonCompilersRuntimeError
+      error: BsonTranspilersRuntimeError
     },
     {
       input: '{$facet: 1}',
-      error: BsonCompilersRuntimeError
+      error: BsonTranspilersRuntimeError
     },
     {
       input: '{$addFields: {}}',
-      error: BsonCompilersRuntimeError
+      error: BsonTranspilersRuntimeError
     },
     {
       input: '{$addFields: 1}',
-      error: BsonCompilersRuntimeError
+      error: BsonTranspilersRuntimeError
     }
   ],
   shape_error: [
     {
       input: '{$sum: 1}',
-      error: BsonCompilersRuntimeError
+      error: BsonTranspilersRuntimeError
     }
   ]
 };
@@ -200,7 +200,7 @@ describe('Java Builders', () => {
         for (const test of errors[key]) {
           it(`${test.input} throws expected error`, () => {
             expect(() => {
-              compiler.javascript.java.compile(test.input, true);
+              transpiler.javascript.java.compile(test.input, true);
             }).to.throw(test.error);
           });
         }

@@ -4,7 +4,7 @@
       {
         "description": "Binary",
         "query": "Binary(1)",
-        "errorCode": "E_BSONCOMPILERS_UNIMPLEMENTED",
+        "errorCode": "E_BSONTRANSPILERS_UNIMPLEMENTED",
         "message": "Binary"
       }
     ],
@@ -12,7 +12,7 @@
       {
         "description": "this",
         "query": "this",
-        "errorCode": "E_BSONCOMPILERS_UNIMPLEMENTED",
+        "errorCode": "E_BSONTRANSPILERS_UNIMPLEMENTED",
         "message": "This"
       }
     ],
@@ -20,7 +20,7 @@
       {
         "description": "delete",
         "query": "delete 1",
-        "errorCode": "E_BSONCOMPILERS_UNIMPLEMENTED",
+        "errorCode": "E_BSONTRANSPILERS_UNIMPLEMENTED",
         "message": "Delete"
       }
     ],
@@ -28,7 +28,7 @@
       {
         "description": "void",
         "query": "void 1",
-        "errorCode": "E_BSONCOMPILERS_UNIMPLEMENTED",
+        "errorCode": "E_BSONTRANSPILERS_UNIMPLEMENTED",
         "message": "Void"
       }
     ],
@@ -36,7 +36,7 @@
       {
         "description": "typeof",
         "query": "typeof 1",
-        "errorCode": "E_BSONCOMPILERS_UNIMPLEMENTED",
+        "errorCode": "E_BSONTRANSPILERS_UNIMPLEMENTED",
         "message": "Typeof"
       }
     ],
@@ -44,7 +44,7 @@
       {
         "description": "instanceof",
         "query": "2 instanceof 1",
-        "errorCode": "E_BSONCOMPILERS_UNIMPLEMENTED",
+        "errorCode": "E_BSONTRANSPILERS_UNIMPLEMENTED",
         "message": "Instanceof"
       }
     ],
@@ -52,7 +52,7 @@
       {
         "description": "in",
         "query": "2 in 1",
-        "errorCode": "E_BSONCOMPILERS_UNIMPLEMENTED",
+        "errorCode": "E_BSONTRANSPILERS_UNIMPLEMENTED",
         "message": "In"
       }
     ],
@@ -60,19 +60,19 @@
       {
         "description": "assignment",
         "query": "2 = 1",
-        "errorCode": "E_BSONCOMPILERS_UNIMPLEMENTED",
+        "errorCode": "E_BSONTRANSPILERS_UNIMPLEMENTED",
         "message": "Assignment"
       },
       {
         "description": "assignment to id",
         "query": "Long = 1",
-        "errorCode": "E_BSONCOMPILERS_UNIMPLEMENTED",
+        "errorCode": "E_BSONTRANSPILERS_UNIMPLEMENTED",
         "message": "Assignment"
       },
       {
         "description": "assignment operator",
         "query": "1 += 3",
-        "errorCode": "E_BSONCOMPILERS_UNIMPLEMENTED",
+        "errorCode": "E_BSONTRANSPILERS_UNIMPLEMENTED",
         "message": "AssignmentOperator"
       }
     ],
@@ -80,7 +80,7 @@
       {
         "description": "function def",
         "query": "function x(y) { return 1; }",
-        "errorCode": "E_BSONCOMPILERS_UNIMPLEMENTED",
+        "errorCode": "E_BSONTRANSPILERS_UNIMPLEMENTED",
         "message": "FuncDef"
       }
     ],
@@ -88,13 +88,13 @@
       {
         "description": "variable statement",
         "query": "var x = 1",
-        "errorCode": "E_BSONCOMPILERS_UNIMPLEMENTED",
+        "errorCode": "E_BSONTRANSPILERS_UNIMPLEMENTED",
         "message": "Variable"
       },
       {
         "description": "multiple variable statement",
         "query": "var x, y, z = 1",
-        "errorCode": "E_BSONCOMPILERS_UNIMPLEMENTED",
+        "errorCode": "E_BSONTRANSPILERS_UNIMPLEMENTED",
         "message": "Variable"
       }
     ],
@@ -102,25 +102,25 @@
       {
         "description": "if statement no block",
         "query": "if (1) 2",
-        "errorCode": "E_BSONCOMPILERS_UNIMPLEMENTED",
+        "errorCode": "E_BSONTRANSPILERS_UNIMPLEMENTED",
         "message": "If"
       },
       {
         "description": "if statement with block",
         "query": "if (1) { 2 }",
-        "errorCode": "E_BSONCOMPILERS_UNIMPLEMENTED",
+        "errorCode": "E_BSONTRANSPILERS_UNIMPLEMENTED",
         "message": "If"
       },
       {
         "description": "if statement with else",
         "query": "if (1) { 2 } else 1 ",
-        "errorCode": "E_BSONCOMPILERS_UNIMPLEMENTED",
+        "errorCode": "E_BSONTRANSPILERS_UNIMPLEMENTED",
         "message": "If"
       },
       {
         "description": "if statement with else block",
         "query": "if (1) { 2 } else {} ",
-        "errorCode": "E_BSONCOMPILERS_UNIMPLEMENTED",
+        "errorCode": "E_BSONTRANSPILERS_UNIMPLEMENTED",
         "message": "If"
       }
     ],
@@ -128,37 +128,37 @@
       {
         "description": "do while",
         "query": "do {} while (true)",
-        "errorCode": "E_BSONCOMPILERS_UNIMPLEMENTED",
+        "errorCode": "E_BSONTRANSPILERS_UNIMPLEMENTED",
         "message": "DoWhile"
       },
       {
         "description": "while",
         "query": "while (true) {}",
-        "errorCode": "E_BSONCOMPILERS_UNIMPLEMENTED",
+        "errorCode": "E_BSONTRANSPILERS_UNIMPLEMENTED",
         "message": "While"
       },
       {
         "description": "for",
         "query": "for (; 1 < 10; 1++) {}",
-        "errorCode": "E_BSONCOMPILERS_UNIMPLEMENTED",
+        "errorCode": "E_BSONTRANSPILERS_UNIMPLEMENTED",
         "message": "For"
       },
       {
         "description": "for var",
         "query": "for (var x; 1 < 10; 1--) {}",
-        "errorCode": "E_BSONCOMPILERS_UNIMPLEMENTED",
+        "errorCode": "E_BSONTRANSPILERS_UNIMPLEMENTED",
         "message": "ForVar"
       },
       {
         "description": "for in",
         "query": "for (1 in {}) {}",
-        "errorCode": "E_BSONCOMPILERS_UNIMPLEMENTED",
+        "errorCode": "E_BSONTRANSPILERS_UNIMPLEMENTED",
         "message": "ForIn"
       },
       {
         "description": "for var in",
         "query": "for (var x in {}) {}",
-        "errorCode": "E_BSONCOMPILERS_UNIMPLEMENTED",
+        "errorCode": "E_BSONTRANSPILERS_UNIMPLEMENTED",
         "message": "ForVarIn"
       }
     ],
@@ -166,13 +166,13 @@
       {
         "description": "continue statement",
         "query": "continue",
-        "errorCode": "E_BSONCOMPILERS_UNIMPLEMENTED",
+        "errorCode": "E_BSONTRANSPILERS_UNIMPLEMENTED",
         "message": "Continue"
       },
       {
         "description": "continue id statement",
         "query": "continue x",
-        "errorCode": "E_BSONCOMPILERS_UNIMPLEMENTED",
+        "errorCode": "E_BSONTRANSPILERS_UNIMPLEMENTED",
         "message": "Continue"
       }
     ],
@@ -180,13 +180,13 @@
       {
         "description": "break statement",
         "query": "break",
-        "errorCode": "E_BSONCOMPILERS_UNIMPLEMENTED",
+        "errorCode": "E_BSONTRANSPILERS_UNIMPLEMENTED",
         "message": "Break"
       },
       {
         "description": "break id statement",
         "query": "break x",
-        "errorCode": "E_BSONCOMPILERS_UNIMPLEMENTED",
+        "errorCode": "E_BSONTRANSPILERS_UNIMPLEMENTED",
         "message": "Break"
       }
     ],
@@ -194,13 +194,13 @@
       {
         "description": "return statement",
         "query": "return",
-        "errorCode": "E_BSONCOMPILERS_UNIMPLEMENTED",
+        "errorCode": "E_BSONTRANSPILERS_UNIMPLEMENTED",
         "message": "Return"
       },
       {
         "description": "return id statement",
         "query": "return x",
-        "errorCode": "E_BSONCOMPILERS_UNIMPLEMENTED",
+        "errorCode": "E_BSONTRANSPILERS_UNIMPLEMENTED",
         "message": "Return"
       }
     ],
@@ -208,7 +208,7 @@
       {
         "description": "with statement",
         "query": "with (1) {}",
-        "errorCode": "E_BSONCOMPILERS_UNIMPLEMENTED",
+        "errorCode": "E_BSONTRANSPILERS_UNIMPLEMENTED",
         "message": "With"
       }
     ],
@@ -216,7 +216,7 @@
       {
         "description": "label statement",
         "query": "x:1",
-        "errorCode": "E_BSONCOMPILERS_UNIMPLEMENTED",
+        "errorCode": "E_BSONTRANSPILERS_UNIMPLEMENTED",
         "message": "Label"
       }
     ],
@@ -224,25 +224,25 @@
       {
         "description": "switch statement empty block",
         "query": "switch (1) {}",
-        "errorCode": "E_BSONCOMPILERS_UNIMPLEMENTED",
+        "errorCode": "E_BSONTRANSPILERS_UNIMPLEMENTED",
         "message": "Switch"
       },
       {
         "description": "switch statement one case block",
         "query": "switch (1) { case x: {} }",
-        "errorCode": "E_BSONCOMPILERS_UNIMPLEMENTED",
+        "errorCode": "E_BSONTRANSPILERS_UNIMPLEMENTED",
         "message": "Switch"
       },
       {
         "description": "switch statement default",
         "query": "switch (1) { default: {} }",
-        "errorCode": "E_BSONCOMPILERS_UNIMPLEMENTED",
+        "errorCode": "E_BSONTRANSPILERS_UNIMPLEMENTED",
         "message": "Switch"
       },
       {
         "description": "switch statement case and default",
         "query": "switch (1) { case x: 1; default: {} }",
-        "errorCode": "E_BSONCOMPILERS_UNIMPLEMENTED",
+        "errorCode": "E_BSONTRANSPILERS_UNIMPLEMENTED",
         "message": "Switch"
       }
     ],
@@ -250,7 +250,7 @@
       {
         "description": "throw statement",
         "query": "throw 1",
-        "errorCode": "E_BSONCOMPILERS_UNIMPLEMENTED",
+        "errorCode": "E_BSONTRANSPILERS_UNIMPLEMENTED",
         "message": "Throw"
       }
     ],
@@ -258,19 +258,19 @@
       {
         "description": "try statement",
         "query": "try {} catch (Error) { 1 }",
-        "errorCode": "E_BSONCOMPILERS_UNIMPLEMENTED",
+        "errorCode": "E_BSONTRANSPILERS_UNIMPLEMENTED",
         "message": "Try"
       },
       {
         "description": "try finally statement",
         "query": "try {} finally { 1 }",
-        "errorCode": "E_BSONCOMPILERS_UNIMPLEMENTED",
+        "errorCode": "E_BSONTRANSPILERS_UNIMPLEMENTED",
         "message": "Try"
       },
       {
         "description": "try catch finally statement",
         "query": "try {} catch (Error) { 1 } finally {}",
-        "errorCode": "E_BSONCOMPILERS_UNIMPLEMENTED",
+        "errorCode": "E_BSONTRANSPILERS_UNIMPLEMENTED",
         "message": "Try"
       }
     ],
@@ -278,7 +278,7 @@
       {
         "description": "debugger statement",
         "query": "debugger",
-        "errorCode": "E_BSONCOMPILERS_UNIMPLEMENTED",
+        "errorCode": "E_BSONTRANSPILERS_UNIMPLEMENTED",
         "message": "Debugger"
       }
     ],
@@ -286,25 +286,25 @@
       {
         "description": "array indexed",
         "query": "[1,2,3][1]",
-        "errorCode": "E_BSONCOMPILERS_UNIMPLEMENTED",
+        "errorCode": "E_BSONTRANSPILERS_UNIMPLEMENTED",
         "message": "MemberIndex"
       },
       {
         "description": "object indexed",
         "query": "{x: 1}[1]",
-        "errorCode": "E_BSONCOMPILERS_UNIMPLEMENTED",
+        "errorCode": "E_BSONTRANSPILERS_UNIMPLEMENTED",
         "message": "MemberIndex"
       },
       {
         "description": "array attribute",
         "query": "[1,2,3].x",
-        "errorCode": "E_BSONCOMPILERS_UNIMPLEMENTED",
+        "errorCode": "E_BSONTRANSPILERS_UNIMPLEMENTED",
         "message": "Attribute"
       },
       {
         "description": "object attribute",
         "query": "{x: 1}.y",
-        "errorCode": "E_BSONCOMPILERS_UNIMPLEMENTED",
+        "errorCode": "E_BSONTRANSPILERS_UNIMPLEMENTED",
         "message": "Attribute"
       }
     ],
@@ -312,7 +312,7 @@
       {
         "description": "ternary",
         "query": "1 == 3 ? 1 : 2",
-        "errorCode": "E_BSONCOMPILERS_UNIMPLEMENTED",
+        "errorCode": "E_BSONTRANSPILERS_UNIMPLEMENTED",
         "message": "Ternary"
       }
     ]

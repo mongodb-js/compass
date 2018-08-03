@@ -3,7 +3,7 @@ const ECMAScriptLexer = require('./lib/antlr/ECMAScriptLexer.js');
 const ECMAScriptParser = require('./lib/antlr/ECMAScriptParser.js');
 
 const ErrorListener = require('./codegeneration/ErrorListener.js');
-const { BsonCompilersInternalError } = require('./helper/error');
+const { BsonTranspilersInternalError } = require('./helper/error');
 
 const yaml = require('js-yaml');
 
@@ -50,12 +50,12 @@ const loadTree = (input) => {
   return parser.program();
 };
 
-const getCompiler = (visitor, generator, symbols) => {
-  const Compiler = generator(visitor);
-  const compiler = new Compiler();
+const getTranspiler = (visitor, generator, symbols) => {
+  const Transpiler = generator(visitor);
+  const transpiler = new Transpiler();
 
   const doc = yaml.load(symbols);
-  Object.assign(compiler, {
+  Object.assign(transpiler, {
     SYMBOL_TYPE: doc.SymbolTypes,
     BsonTypes: doc.BsonTypes,
     Symbols: Object.assign({}, doc.BsonSymbols, doc.JSSymbols),
@@ -67,21 +67,21 @@ const getCompiler = (visitor, generator, symbols) => {
     compile: (input, idiomatic) => {
       try {
         const tree = loadTree(input);
-        compiler.idiomatic = idiomatic === undefined ?
-          compiler.idiomatic :
+        transpiler.idiomatic = idiomatic === undefined ?
+          transpiler.idiomatic :
           idiomatic;
-        return compiler.start(tree);
+        return transpiler.start(tree);
       } catch (e) {
-        if (e.code && e.code.includes('BSONCOMPILERS')) {
+        if (e.code && e.code.includes('BSONTRANSPILERS')) {
           throw e;
         }
-        throw new BsonCompilersInternalError(e.message, e);
+        throw new BsonTranspilersInternalError(e.message, e);
       } finally {
-        compiler.idiomatic = true;
+        transpiler.idiomatic = true;
       }
     },
     getImports: () => {
-      return compiler.getImports();
+      return transpiler.getImports();
     }
   };
 };
@@ -89,16 +89,16 @@ const getCompiler = (visitor, generator, symbols) => {
 
 module.exports = {
   javascript: {
-    java: getCompiler(JavascriptVisitor, JavaGenerator, javascriptjavasymbols),
-    python: getCompiler(JavascriptVisitor, PythonGenerator, javascriptpythonsymbols),
-    csharp: getCompiler(JavascriptVisitor, CsharpGenerator, javascriptcsharpsymbols),
-    shell: getCompiler(JavascriptVisitor, ShellGenerator, javascriptshellsymbols)
+    java: getTranspiler(JavascriptVisitor, JavaGenerator, javascriptjavasymbols),
+    python: getTranspiler(JavascriptVisitor, PythonGenerator, javascriptpythonsymbols),
+    csharp: getTranspiler(JavascriptVisitor, CsharpGenerator, javascriptcsharpsymbols),
+    shell: getTranspiler(JavascriptVisitor, ShellGenerator, javascriptshellsymbols)
   },
   shell: {
-    java: getCompiler(ShellVisitor, JavaGenerator, shelljavasymbols),
-    python: getCompiler(ShellVisitor, PythonGenerator, shellpythonsymbols),
-    csharp: getCompiler(ShellVisitor, CsharpGenerator, shellcsharpsymbols),
-    javascript: getCompiler(ShellVisitor, JavascriptGenerator, shelljavascriptsymbols)
+    java: getTranspiler(ShellVisitor, JavaGenerator, shelljavasymbols),
+    python: getTranspiler(ShellVisitor, PythonGenerator, shellpythonsymbols),
+    csharp: getTranspiler(ShellVisitor, CsharpGenerator, shellcsharpsymbols),
+    javascript: getTranspiler(ShellVisitor, JavascriptGenerator, shelljavascriptsymbols)
   },
   getTree: loadTree
 };

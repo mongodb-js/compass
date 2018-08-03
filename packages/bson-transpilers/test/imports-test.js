@@ -1,6 +1,6 @@
 const chai = require('chai');
 const expect = chai.expect;
-const compiler = require('..');
+const transpiler = require('..');
 
 const imports = [
   {
@@ -544,17 +544,17 @@ describe('imports', () => {
       for (const lang of Object.keys(test.output)) {
         if (test.input) {
           it(`correct ${lang} imports from shell`, () => {
-            compiler.shell[lang].compile(test.input);
+            transpiler.shell[lang].compile(test.input);
             expect(
-              compiler.shell[lang].getImports()
+              transpiler.shell[lang].getImports()
             ).to.equal(test.output[lang]);
           });
         }
         if (test.js_input && lang !== 'javascript') {
           it(`correct ${lang} imports from js`, () => {
-            compiler.javascript[lang].compile(test.js_input);
+            transpiler.javascript[lang].compile(test.js_input);
             expect(
-              compiler.javascript[lang].getImports()
+              transpiler.javascript[lang].getImports()
             ).to.equal(test.output[lang]);
           });
         }

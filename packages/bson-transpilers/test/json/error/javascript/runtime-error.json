@@ -4,7 +4,7 @@
       {
         "description": "RegExp with unsupported flag",
         "query": "new BSONRegExp('^[a-z0-9_-]{3,16}$', 'wrong')",
-        "errorCode": "E_BSONCOMPILERS_RUNTIME",
+        "errorCode": "E_BSONTRANSPILERS_RUNTIME",
         "message": "BSONRegExp"
       }
     ],
@@ -12,35 +12,35 @@
       {
         "description": "regex literal with unsupported flag",
         "query": "new RegExp('ab+c', 'wrong')",
-        "errorCode": "E_BSONCOMPILERS_RUNTIME"
+        "errorCode": "E_BSONTRANSPILERS_RUNTIME"
       }
     ],
     "ObjectId": [
       {
         "description": "Invalid ObjectId",
         "query": "ObjectId(\"1\")",
-        "errorCode": "E_BSONCOMPILERS_RUNTIME"
+        "errorCode": "E_BSONTRANSPILERS_RUNTIME"
       }
     ],
     "Long": [
       {
         "description": "Invalid Long",
         "query": "Long(1, ++1)",
-        "errorCode": "E_BSONCOMPILERS_RUNTIME"
+        "errorCode": "E_BSONTRANSPILERS_RUNTIME"
       }
     ],
     "Decimal128": [
       {
         "description": "Invalid Decimal128",
         "query": "Decimal128(Buffer(-1))",
-        "errorCode": "E_BSONCOMPILERS_RUNTIME"
+        "errorCode": "E_BSONTRANSPILERS_RUNTIME"
       }
     ],
     "Date": [
       {
         "description": "Invalid Date",
         "query": "Date(++1)",
-        "errorCode": "E_BSONCOMPILERS_RUNTIME"
+        "errorCode": "E_BSONTRANSPILERS_RUNTIME"
       }
     ]
   }

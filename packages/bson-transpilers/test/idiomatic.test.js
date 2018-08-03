@@ -1,6 +1,6 @@
 const chai = require('chai');
 const expect = chai.expect;
-const compiler = require('..');
+const transpiler = require('..');
 
 const filterOperators = {
   unknown_op: [
@@ -942,22 +942,22 @@ describe('Java Builders', () => {
   describe('The default', () => {
     it('is idiomatic', () => {
       expect(
-        compiler.javascript.java.compile('{x: 1}')).to.equal('eq("x", 1L)');
+        transpiler.javascript.java.compile('{x: 1}')).to.equal('eq("x", 1L)');
     });
   });
   describe('non-operator fields', () => {
     it('single non-operator field', () => {
       expect(
-        compiler.javascript.java.compile('{x: 1}')).to.equal('eq("x", 1L)');
+        transpiler.javascript.java.compile('{x: 1}')).to.equal('eq("x", 1L)');
     });
     it('two non-operator fields uses and(...)', () => {
       expect(
-        compiler.javascript.java.compile('{x: 1, y: 2}')
+        transpiler.javascript.java.compile('{x: 1, y: 2}')
       ).to.equal(
         'and(eq("x", 1L), eq("y", 2L))');
     });
     it('five non-operator fields uses and(...)', () => {
-      expect(compiler.javascript.java.compile(
+      expect(transpiler.javascript.java.compile(
         '{x: 1, y: 2, z: 3, q: 4, r: 5}')
       ).to.equal(
         'and(eq("x", 1L), eq("y", 2L), eq("z", 3L), eq("q", 4L), eq("r", 5L))'
@@ -966,12 +966,12 @@ describe('Java Builders', () => {
   });
   describe('non-operator nested fields', () => {
     it('single nested document', () => {
-      expect(compiler.javascript.java.compile('{x: {y: 2}}', true)).to.equal(
+      expect(transpiler.javascript.java.compile('{x: {y: 2}}', true)).to.equal(
         'eq("x", eq("y", 2L))'
       );
     });
     it('multiple nested documents', () => {
-      expect(compiler.javascript.java.compile(
+      expect(transpiler.javascript.java.compile(
         '{x: {y: 2}, z: {q: {r: 5}}}', true)
       ).to.equal(
         'and(eq("x", eq("y", 2L)), eq("z", eq("q", eq("r", 5L))))'
@@ -984,12 +984,12 @@ describe('Java Builders', () => {
         for (const test of aggOperators[key]) {
           it(`${test.input} equals expected`, () => {
             expect(
-              compiler.javascript.java.compile(test.input, true)
+              transpiler.javascript.java.compile(test.input, true)
             ).to.equal(test.output);
           });
           it(`${test.input} imports correctly`, () => {
             expect(
-              compiler.javascript.java.getImports()
+              transpiler.javascript.java.getImports()
             ).to.equal(test.imports);
           });
         }
@@ -1002,12 +1002,12 @@ describe('Java Builders', () => {
         for (const test of filterOperators[key]) {
           it(`${test.input} equals expected`, () => {
             expect(
-              compiler.javascript.java.compile(test.input, true)
+              transpiler.javascript.java.compile(test.input, true)
             ).to.equal(test.output);
           });
           it(`${test.input} imports correctly`, () => {
             expect(
-              compiler.javascript.java.getImports()
+              transpiler.javascript.java.getImports()
             ).to.equal(test.imports);
           });
         }
@@ -1020,12 +1020,12 @@ describe('Java Builders', () => {
         for (const test of accumulatorOperators[key]) {
           it(`${test.input} equals expected`, () => {
             expect(
-              compiler.javascript.java.compile(test.input, true)
+              transpiler.javascript.java.compile(test.input, true)
             ).to.equal(test.output);
           });
           it(`${test.input} imports correctly`, () => {
             expect(
-              compiler.javascript.java.getImports()
+              transpiler.javascript.java.getImports()
             ).to.equal(test.imports);
           });
         }
