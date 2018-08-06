@@ -129,6 +129,21 @@ describe('import pipeline module', () => {
             expect(stage.stage).to.equal('{\n  value: Code(\'return true\')\n}');
           });
         });
+
+        context('when the stage contains a DBRef object', () => {
+          const text = '[{ $match: { value: DBRef(\'db.coll\', ObjectId(\'5b6833700633d61f36d3f09d\')) }}]';
+          let stage;
+
+          before(() => {
+            stage = importPipeline(text)[0];
+          });
+
+          it('sets the stage', () => {
+            expect(stage.stage).to.equal(
+              '{\n  value: DBRef(\'db.coll\', \'5b6833700633d61f36d3f09d\')\n}'
+            );
+          });
+        });
       });
     });
   });
