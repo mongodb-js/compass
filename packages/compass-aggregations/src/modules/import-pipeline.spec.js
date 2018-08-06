@@ -86,6 +86,19 @@ describe('import pipeline module', () => {
             expect(stage.stage).to.equal('{\n  value: NumberDecimal(\'123.45\')\n}');
           });
         });
+
+        context('when the stage contains a Regexp object', () => {
+          const text = '[{ $match: { value: RegExp(\'[a]\', \'g\') }}]';
+          let stage;
+
+          before(() => {
+            stage = importPipeline(text)[0];
+          });
+
+          it('sets the stage', () => {
+            expect(stage.stage).to.equal('{\n  value: RegExp(\'[a]\', g)\n}');
+          });
+        });
       });
     });
   });
