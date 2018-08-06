@@ -23,7 +23,7 @@ const INDENT = '  ';
  */
 const SANDBOX = {
   RegExp: RegExp,
-  Binary: bson.Binary,
+  BinData: bson.Binary,
   Code: function(c, s) {
     return new bson.Code(c, s);
   },
@@ -70,21 +70,37 @@ const executeJS = (text) => {
  * @returns {Array} The pipeline for the builder.
  */
 export default function createPipeline(text) {
-  const jsText = compiler[SHELL][JS].compile(text);
-  const js = executeJS(jsText);
-  return js.map((stage) => {
-    return {
+  try {
+    const jsText = compiler[SHELL][JS].compile(text);
+    const js = executeJS(jsText);
+    return js.map((stage) => {
+      return {
+        id: new bson.ObjectId().toHexString(),
+        stageOperator: Object.keys(stage)[0],
+        stage: toShellString(Object.values(stage)[0], INDENT),
+        isValid: true,
+        isEnabled: true,
+        isExpanded: true,
+        isLoading: false,
+        isComplete: false,
+        previewDocuments: [],
+        syntaxError: null,
+        error: null
+      };
+    });
+  } catch (e) {
+    return [{
       id: new bson.ObjectId().toHexString(),
-      stageOperator: Object.keys(stage)[0],
-      stage: toShellString(Object.values(stage)[0], INDENT),
-      isValid: true,
+      stageOperator: null,
+      stage: '',
+      isValid: false,
       isEnabled: true,
       isExpanded: true,
       isLoading: false,
       isComplete: false,
       previewDocuments: [],
-      syntaxError: null,
+      syntaxError: e.message,
       error: null
-    };
-  });
+    }];
+  }
 }

@@ -99,6 +99,23 @@ describe('import pipeline module', () => {
             expect(stage.stage).to.equal('{\n  value: RegExp(\'[a]\', g)\n}');
           });
         });
+
+        context('when the stage contains a Binary', () => {
+          const text = '[{ $match: { value: BinData(\'test\', \'1\') }}]';
+          let stage;
+
+          before(() => {
+            stage = importPipeline(text)[0];
+          });
+
+          it('sets the stage', () => {
+            expect(stage.stage).to.equal('');
+          });
+
+          it('sets a syntax error', () => {
+            expect(stage.syntaxError).to.equal('BinData type not supported');
+          });
+        });
       });
     });
   });
