@@ -92,7 +92,7 @@ class QueryOption extends Component {
     const { inputType, hasError, link, label } = this.props;
     let input = null;
 
-    if ([ 'filter', 'project', 'sort' ].includes(label)) {
+    if ([ 'filter', 'project', 'sort', 'collation' ].includes(label)) {
       input = this._renderAutoCompleteInput();
     } else if (this.props.inputType === 'boolean') {
       input = this._renderCheckboxInput();

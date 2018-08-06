@@ -36,6 +36,7 @@ import {
   DEFAULT_PROJECT,
   DEFAULT_SORT,
   DEFAULT_SKIP,
+  DEFAULT_COLLATION,
   DEFAULT_LIMIT,
   DEFAULT_SAMPLE,
   DEFAULT_MAX_TIME_MS,
@@ -115,6 +116,7 @@ const QueryBarStore = Reflux.createStore({
       filter: DEFAULT_FILTER,
       project: DEFAULT_PROJECT,
       sort: DEFAULT_SORT,
+      collation: DEFAULT_COLLATION,
       skip: DEFAULT_SKIP,
       limit: DEFAULT_LIMIT,
       sample: DEFAULT_SAMPLE,
@@ -126,6 +128,7 @@ const QueryBarStore = Reflux.createStore({
       filterString: '',
       projectString: '',
       sortString: '',
+      collationString: '',
       skipString: '',
       limitString: '',
 
@@ -137,6 +140,7 @@ const QueryBarStore = Reflux.createStore({
       filterValid: true,
       projectValid: true,
       sortValid: true,
+      collationValid: true,
       skipValid: true,
       limitValid: true,
       sampleValid: true,
@@ -232,7 +236,7 @@ const QueryBarStore = Reflux.createStore({
 
   /**
    * Sets `queryString` and `valid`, and if it is a valid input, also set `filter`,
-   * `sort`, `project`, `skip`, `limit`.
+   * `sort`, `project`, `collation`, `skip`, `limit`.
    * If it is not a valid query, only set `valid` to `false`.
    *
    * @param {String} label         Which part of the query, e.g. `filter`, `sort`
@@ -256,6 +260,7 @@ const QueryBarStore = Reflux.createStore({
         filter: this.state.filterValid,
         project: this.state.projectValid,
         sort: this.state.sortValid,
+        collation: this.state.collationValid,
         skip: this.state.skipValid,
         limit: this.state.limitValid
       };
@@ -312,6 +317,7 @@ const QueryBarStore = Reflux.createStore({
             filter: this.state.filterValid,
             project: this.state.projectValid,
             sort: this.state.sortValid,
+            collation: this.state.collationValid,
             skip: this.state.skipValid,
             limit: this.state.limitValid
           },
@@ -361,7 +367,7 @@ const QueryBarStore = Reflux.createStore({
   /**
    * routes to the correct validation function.
    *
-   * @param {String} label   one of `filter`, `project`, `sort`, `skip`, `limit`
+   * @param {String} label   one of `filter`, `project`, `sort`, `collation`, `skip`, `limit`
    * @param {String} input   the input to validated
    *
    * @return {Boolean|String}   false if not valid, otherwise the potentially
@@ -383,6 +389,7 @@ const QueryBarStore = Reflux.createStore({
       queryParser.isFilterValid(this.state.filterString) !== false &&
       queryParser.isProjectValid(this.state.projectString) !== false &&
       queryParser.isSortValid(this.state.sortString) !== false &&
+      queryParser.isCollationValid(this.state.collationString) !== false &&
       queryParser.isSkipValid(this.state.skipString) !== false &&
       queryParser.isLimitValid(this.state.limitString) !== false
     );
@@ -632,6 +639,7 @@ const QueryBarStore = Reflux.createStore({
           filter: this.state.filter,
           project: this.state.project,
           sort: this.state.sort,
+          collation: this.state.collation,
           skip: this.state.skip,
           limit: this.state.limit,
           ns: this.state.ns

@@ -8,6 +8,7 @@ const APPLY_STATE = 'apply';
 const DEFAULT_FILTER = {};
 const DEFAULT_PROJECT = null;
 const DEFAULT_SORT = null;
+const DEFAULT_COLLATION = null;
 const DEFAULT_SKIP = 0;
 const DEFAULT_LIMIT = 0;
 const DEFAULT_SAMPLE = false;
@@ -23,6 +24,7 @@ export {
   DEFAULT_FILTER,
   DEFAULT_PROJECT,
   DEFAULT_SORT,
+  DEFAULT_COLLATION,
   DEFAULT_SKIP,
   DEFAULT_LIMIT,
   DEFAULT_SAMPLE,

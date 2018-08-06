@@ -35,6 +35,11 @@ const OPTION_DEFINITION = {
     placeholder: '{ field: -1 }',
     link: 'https://docs.mongodb.com/manual/reference/method/cursor.sort/'
   },
+  collation: {
+    type: 'document',
+    placeholder: "{ locale: 'simple' }",
+    link: 'https://docs.mongodb.com/master/reference/collation/'
+  },
   skip: {
     type: 'numeric',
     placeholder: '0',
@@ -59,6 +64,7 @@ class QueryBar extends Component {
     filter: PropTypes.object,
     project: PropTypes.object,
     sort: PropTypes.object,
+    collation: PropTypes.object,
     skip: PropTypes.number,
     limit: PropTypes.number,
     sample: PropTypes.bool,
@@ -66,6 +72,7 @@ class QueryBar extends Component {
     valid: PropTypes.bool,
     filterValid: PropTypes.bool,
     projectValid: PropTypes.bool,
+    collationValid: PropTypes.bool,
     sortValid: PropTypes.bool,
     skipValid: PropTypes.bool,
     limitValid: PropTypes.bool,
@@ -74,6 +81,7 @@ class QueryBar extends Component {
     autoPopulated: PropTypes.bool,
     filterString: PropTypes.string,
     projectString: PropTypes.string,
+    collationString: PropTypes.string,
     sortString: PropTypes.string,
     skipString: PropTypes.string,
     limitString: PropTypes.string,
@@ -93,7 +101,7 @@ class QueryBar extends Component {
   static defaultProps = {
     expanded: false,
     buttonLabel: 'Apply',
-    layout: ['filter', 'project', ['sort', 'skip', 'limit']],
+    layout: ['filter', 'project', 'sort', ['collation', 'skip', 'limit']],
     schemaFields: []
   };
 
