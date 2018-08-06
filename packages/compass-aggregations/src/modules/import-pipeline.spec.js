@@ -130,6 +130,32 @@ describe('import pipeline module', () => {
           });
         });
 
+        context('when the stage contains a NumberInt', () => {
+          const text = '[{ $match: { value: NumberInt(5) }}]';
+          let stage;
+
+          before(() => {
+            stage = importPipeline(text)[0];
+          });
+
+          it.skip('sets the stage', () => {
+            expect(stage.stage).to.equal('{\n  value: NumberInt(5)\n}');
+          });
+        });
+
+        context('when the stage contains a NumberLong', () => {
+          const text = '[{ $match: { value: NumberLong(5) }}]';
+          let stage;
+
+          before(() => {
+            stage = importPipeline(text)[0];
+          });
+
+          it('sets the stage', () => {
+            expect(stage.stage).to.equal('{\n  value: NumberLong(5)\n}');
+          });
+        });
+
         context('when the stage contains a DBRef object', () => {
           const text = '[{ $match: { value: DBRef(\'db.coll\', ObjectId(\'5b6833700633d61f36d3f09d\')) }}]';
           let stage;
