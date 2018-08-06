@@ -9,7 +9,7 @@ import { parse } from 'mongodb-stage-validator';
  *
  * @returns {Object} The stage as an object.
  */
-export default function generateStage(state) {
+export function generateStage(state) {
   if (!state.isEnabled || !state.stageOperator || state.stage === '') {
     return {};
   }
@@ -23,6 +23,27 @@ export default function generateStage(state) {
     state.isValid = false;
     state.previewDocuments = [];
     return {};
+  }
+  state.isValid = true;
+  state.syntaxError = null;
+  return stage;
+}
+
+export function generateStageAsString(state) {
+  if (!state.isEnabled || !state.stageOperator ||
+    state.stage === '') {
+    return '{}';
+  }
+  let stage;
+  try {
+    const decommented = decomment(state.stage);
+    stage = `{${state.stageOperator}: ${decommented}}`;
+    parse(stage); // Run the parser so we can error check
+  } catch (e) {
+    state.syntaxError = e.message;
+    state.isValid = false;
+    state.previewDocuments = [];
+    return '{}';
   }
   state.isValid = true;
   state.syntaxError = null;

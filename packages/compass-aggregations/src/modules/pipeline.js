@@ -1,5 +1,5 @@
 import { STAGE_OPERATORS } from 'mongodb-ace-autocompleter';
-import generateStage from 'modules/stage';
+import { generateStage, generateStageAsString} from 'modules/stage';
 import { appRegistryEmit } from 'modules/app-registry';
 import { ObjectId } from 'bson';
 import toNS from 'mongodb-ns';
@@ -500,6 +500,15 @@ export const generatePipeline = (state, index) => {
     stages.push(LIMIT);
   }
   return stages;
+};
+
+export const generatePipelineAsString = (state, index) => {
+  return `[${
+    state.pipeline
+      .filter((s, i) => (s.isEnabled && i <= index))
+      .map((s) => ( generateStageAsString(s) ))
+      .join(', ')
+    }]`;
 };
 
 /**

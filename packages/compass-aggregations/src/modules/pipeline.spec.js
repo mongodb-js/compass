@@ -9,6 +9,7 @@ import reducer, {
   stagePreviewUpdated,
   stageToggled,
   generatePipeline,
+  generatePipelineAsString,
   loadingStageResults,
   STAGE_ADDED,
   STAGE_ADDED_AFTER,
@@ -346,11 +347,14 @@ describe('pipeline module', () => {
     });
   });
 
-  describe('#generatePipeline', () => {
+  describe('#generatePipeline + #generatePipelineAsString', () => {
     const limit = { $limit: LIMIT_TO_DISPLAY };
 
     context('when the index is the first', () => {
-      const stage = { isEnabled: true, executor: { $match: { name: 'test' }}};
+      const stage = {
+        isEnabled: true, executor: { $match: { name: 'test' }},
+        enabled: true, stageOperator: '$match', stage: '{name: \'test\'}'
+      };
       const state = { inputDocuments: { count: 10000 }, pipeline: [ stage ]};
 
       it('returns the pipeline with only the current stage', () => {
@@ -359,13 +363,25 @@ describe('pipeline module', () => {
           limit
         ]);
       });
+      it('returns the pipeline string with only the current stage', () => {
+        expect(generatePipelineAsString(state, 0)).to.deep.equal('[{$match: {name: \'test\'}}]');
+      });
     });
 
     context('when the index has prior stages', () => {
-      const stage0 = { isEnabled: true, executor: { $match: { name: 'test' }}};
-      const stage1 = { isEnabled: true, executor: { $project: { name: 1 }}};
-      const stage2 = { isEnabled: true, executor: { $sort: { name: 1 }}};
-      const state = { inputDocuments: { count: 10000 }, pipeline: [ stage0, stage1, stage2 ]};
+      const stage0 = {
+        isEnabled: true, executor: { $match: { name: 'test' }},
+        enabled: true, stageOperator: '$match', stage: '{name: \'test\'}'
+      };
+      const stage1 = {
+        isEnabled: true, executor: { $project: { name: 1 }},
+        enabled: true, stageOperator: '$project', stage: '{name: 1}'
+      };
+      const stage2 = {
+        isEnabled: true, executor: { $sort: { name: 1 }},
+        enabled: true, stageOperator: '$sort', stage: '{name: 1}'
+      };
+      const state = {inputDocuments: { count: 10000 }, pipeline: [ stage0, stage1, stage2 ]};
 
       it('returns the pipeline with the current and all previous stages', () => {
         expect(generatePipeline(state, 2)).to.deep.equal([
@@ -375,12 +391,26 @@ describe('pipeline module', () => {
           limit
         ]);
       });
+      it('returns the pipeline string with the current and all previous stages', () => {
+        expect(generatePipelineAsString(state, 2)).to.deep.equal(
+          "[{$match: {name: 'test'}}, {$project: {name: 1}}, {$sort: {name: 1}}]"
+        );
+      });
     });
 
     context('when the index has stages after', () => {
-      const stage0 = { isEnabled: true, executor: { $match: { name: 'test' }}};
-      const stage1 = { isEnabled: true, executor: { $project: { name: 1 }}};
-      const stage2 = { isEnabled: true, executor: { $sort: { name: 1 }}};
+      const stage0 = {
+        isEnabled: true, executor: { $match: { name: 'test' }},
+        enabled: true, stageOperator: '$match', stage: '{name: \'test\'}'
+      };
+      const stage1 = {
+        isEnabled: true, executor: { $project: { name: 1 }},
+        enabled: true, stageOperator: '$project', stage: '{name: 1}'
+      };
+      const stage2 = {
+        isEnabled: true, executor: { $sort: { name: 1 }},
+        enabled: true, stageOperator: '$sort', stage: '{name: 1}'
+      };
       const state = { inputDocuments: { count: 10000 }, pipeline: [ stage0, stage1, stage2 ]};
 
       it('returns the pipeline with the current and all previous stages', () => {
@@ -389,6 +419,11 @@ describe('pipeline module', () => {
           stage1.executor,
           limit
         ]);
+      });
+      it('returns the pipeline string with the current and all previous stages', () => {
+        expect(generatePipelineAsString(state, 1)).to.deep.equal(
+          "[{$match: {name: 'test'}}, {$project: {name: 1}}]"
+        );
       });
     });
 
@@ -405,6 +440,9 @@ describe('pipeline module', () => {
           limit
         ]);
       });
+      it('returns the pipeline with the current and all previous stages', () => {
+        expect(generatePipelineAsString(state, 2)).to.deep.equal('[{}, {}]');
+      });
     });
 
     context('when there are no stages', () => {
@@ -412,6 +450,9 @@ describe('pipeline module', () => {
 
       it('returns an empty pipeline', () => {
         expect(generatePipeline(state, 0)).to.deep.equal([]);
+      });
+      it('returns an empty pipeline string', () => {
+        expect(generatePipelineAsString(state, 0)).to.deep.equal('[]');
       });
     });
 

@@ -1,22 +1,4 @@
-import generateStage from 'modules/stage';
-
-/**
- * Generate the pipeline for export to language.
- *
- * @param {Object} state - The state.
- *
- * @returns {Array} The raw pipeline.
- */
-export const generatePipeline = (state) => {
-  const pipeline = [];
-  state.pipeline.forEach((stage) => {
-    if (stage.isEnabled && stage.stageOperator) {
-      stage.executor = generateStage(stage);
-      pipeline.push(stage.executor);
-    }
-  });
-  return pipeline;
-};
+import { generatePipelineAsString } from 'modules/pipeline';
 
 /**
  * Action creator for export to language events.
@@ -27,7 +9,9 @@ export const exportToLanguage = () => {
   return (dispatch, getState) => {
     const state = getState();
     if (state.appRegistry) {
-      state.appRegistry.emit('open-aggregation-export-to-language', generatePipeline(state));
+      state.appRegistry.emit(
+        'open-aggregation-export-to-language', generatePipelineAsString(state, state.pipeline.length)
+      );
     }
   };
 };
