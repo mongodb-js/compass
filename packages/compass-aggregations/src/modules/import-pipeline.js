@@ -29,8 +29,6 @@ export default function createPipeline(text) {
     const jsText = compiler[SHELL][JS].compile(text);
     const js = parseFilter(jsText);
     return js.map((stage) => {
-      console.log(stage);
-      console.log(Object.values(stage)[0]);
       return {
         id: new bson.ObjectId().toHexString(),
         stageOperator: Object.keys(stage)[0],
