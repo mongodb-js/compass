@@ -225,24 +225,58 @@ describe('Stage module', () => {
         '  ts: Timestamp(10, 100)\n' +
         '}'
       };
+      let generated;
 
-      it('returns the stage', () => {
-        expect(generateStage(stage)).to.deep.equal({
-          '$match': {
-            code: bson.Code('some code'),
-            oid: bson.ObjectId('5a7382114ec1f67ae445f778'),
-            bin: bson.Binary('aakjadfjadfldksjfadf', '1'),
-            dbref: bson.DBRef('db.coll', '1'),
-            nl: bson.Long('3'),
-            nd: new bson.Decimal128.fromString('5.00000001'),
-            ni: 5,
-            minkey: bson.MinKey(),
-            maxkey: bson.MaxKey(),
-            isodate: new Date('1999-01-01'),
-            regexp: new RegExp('/^[a-z0-9_-]{3,16}$/'),
-            ts: bson.Timestamp(10, 100)
-          }
-        });
+      before(() => {
+        generated = generateStage(stage).$match;
+      });
+
+      it('generates code', () => {
+        expect(generated.code.code).to.equal('some code');
+      });
+
+      it('generates object id', () => {
+        expect(generated.oid.toString()).to.equal('5a7382114ec1f67ae445f778');
+      });
+
+      it('generates binary', () => {
+        expect(generated.bin.sub_type).to.equal('1');
+      });
+
+      it('generates dbrefs', () => {
+        expect(generated.dbref.namespace).to.equal('db.coll');
+      });
+
+      it('generates number long', () => {
+        expect(generated.nl.toNumber()).to.equal(3);
+      });
+
+      it('generates number decimal', () => {
+        expect(generated.nd.toString()).to.equal('5.00000001');
+      });
+
+      it('generates number int', () => {
+        expect(generated.ni).to.equal(5);
+      });
+
+      it('generates min key', () => {
+        expect(generated.minkey).to.deep.equal(bson.MinKey());
+      });
+
+      it('generates max key', () => {
+        expect(generated.maxkey).to.deep.equal(bson.MaxKey());
+      });
+
+      it('generates isodate', () => {
+        expect(generated.isodate).to.deep.equal(new Date('1999-01-01'));
+      });
+
+      it('generates regexp', () => {
+        expect(generated.regexp).to.deep.equal(new RegExp('/^[a-z0-9_-]{3,16}$/'));
+      });
+
+      it('generates timestamp', () => {
+        expect(generated.ts.low_).to.equal(10);
       });
       it('returns the stage string', () => {
         expect(generateStageAsString(stage)).to.deep.equal(`{$match: {

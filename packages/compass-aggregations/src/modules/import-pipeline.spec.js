@@ -72,6 +72,21 @@ describe('import pipeline module', () => {
           expect(pipeline.stage).to.equal('{\n  name: \'testing\',\n  value: {\n    $gt: 5\n  }\n}');
         });
       });
+
+      context('when there are custom BSON types', () => {
+        context('when the stage contains a NumberDecimal', () => {
+          const text = '[{ $match: { value: NumberDecimal(\'123.45\') }}]';
+          let stage;
+
+          before(() => {
+            stage = importPipeline(text)[0];
+          });
+
+          it('sets the stage', () => {
+            expect(stage.stage).to.equal('{\n  value: NumberDecimal(\'123.45\')\n}');
+          });
+        });
+      });
     });
   });
 });
