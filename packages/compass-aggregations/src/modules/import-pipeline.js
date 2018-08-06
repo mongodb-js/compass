@@ -23,7 +23,6 @@ const INDENT = '  ';
  */
 const SANDBOX = {
   RegExp: RegExp,
-  BinData: bson.Binary,
   Code: function(c, s) {
     return new bson.Code(c, s);
   },

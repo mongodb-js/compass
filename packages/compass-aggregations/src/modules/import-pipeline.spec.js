@@ -116,6 +116,19 @@ describe('import pipeline module', () => {
             expect(stage.syntaxError).to.equal('BinData type not supported');
           });
         });
+
+        context('when the stage contains a Code object', () => {
+          const text = '[{ $match: { value: Code(\'return true\') }}]';
+          let stage;
+
+          before(() => {
+            stage = importPipeline(text)[0];
+          });
+
+          it('sets the stage', () => {
+            expect(stage.stage).to.equal('{\n  value: Code(\'return true\')\n}');
+          });
+        });
       });
     });
   });
