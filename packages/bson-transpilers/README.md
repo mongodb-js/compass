@@ -15,12 +15,12 @@ const input = 'javascript';
 const output = 'java';
 
 const string =`
-{ item: "book", qty: Binary(Buffer.from("5")), tags: ["red", "blank"], dim_cm: [14, Int32("81")] }`;
+{ item: "book", qty: Int32(10), tags: ["red", "blank"], dim_cm: [14, Int32("81")] }`;
 
 try {
   const compiledString = transpiler[input][output].compile(string);
   console.log(compiledCode);
-  // new Document("item", "book").append("qty", new Binary("5".getBytes("UTF-8")))
+  // new Document("item", "book").append("qty", 10)
   // .append("tags", Arrays.asList("red", "blank"))
   // .append("dim_cm", Arrays.asList(14L, 81")))
 } catch (error) {
