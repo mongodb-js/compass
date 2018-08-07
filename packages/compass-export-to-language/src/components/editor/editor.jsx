@@ -1,4 +1,3 @@
-import stringify from 'mongodb-query-parser';
 import React, { PureComponent } from 'react';
 import classnames from 'classnames';
 import PropTypes from 'prop-types';
@@ -48,7 +47,7 @@ class Editor extends PureComponent {
 
     // set this again in case it's missing
     if (this.props.input && this.props.inputQuery !== '') {
-      this.editor.setValue(stringify.toJSString(this.props.inputQuery, null, 2));
+      this.editor.setValue(js_beautify(this.props.inputQuery, null, 2));
       this.editor.clearSelection();
     }
   }
