@@ -1,5 +1,5 @@
 const clipboard = require('electron').clipboard;
-const compiler = require('bson-compilers');
+const compiler = require('bson-transpilers');
 
 const PREFIX = 'exportQuery';
 

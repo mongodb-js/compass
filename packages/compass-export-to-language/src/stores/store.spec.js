@@ -1,7 +1,7 @@
 import AppRegistry from 'hadron-app-registry';
 import { activate } from '@mongodb-js/compass-field-store';
 import store from 'stores';
-import compiler from 'bson-compilers';
+import compiler from 'bson-transpilers';
 
 const subscribeCheck = (pipeline, check, done) => {
   const unsubscribe = store.subscribe(() => {
