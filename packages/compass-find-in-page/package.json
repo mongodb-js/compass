@@ -116,6 +116,8 @@
     "webpack-sources": "1.0.1"
   },
   "dependencies": {
-    "react-bootstrap": "^0.32.1"
+    "hadron-ipc": "^1.0.0",
+    "react-bootstrap": "^0.32.1",
+    "react-dom": "^16.4.1"
   }
 }

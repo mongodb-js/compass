@@ -1,6 +1,5 @@
-import { toggleStatus } from 'modules/find-in-page';
 import { createStore } from 'redux';
-import reducer from 'modules';
+import reducer, { toggleStatus } from 'modules';
 
 const store = createStore(reducer);
 

@@ -2,13 +2,19 @@
 
 .find {
 	background: @gray8;
-  border-radius: 5px;
+  border-radius: 0 0 5px 5px;
+  border: 1px solid @gray10;
+  border-top: 0;
+  position: absolute;
+  z-index: 4;
+  right: 20px;
+  width: 20%;
   display: flex;
   justify-content: space-between;
   flex-direction: row;
 
   &-in-page {
-    padding: 15px;
+    padding: 7px 4px 7px 7px;
 
     &-form-group {
       margin-bottom: 0 !important;
@@ -16,8 +22,23 @@
   }
 
   &-close {
-    font-size: 20px;
-    padding: 20px 20px 20px 0px;
-    cursor: pointer;
+    font-size: 16px;
+    padding: 13px 7px 7px 0px;
+    &-box {
+      width: 16px;
+      height: 16px;
+      text-align: center;
+      display: flex;
+      justify-content:center;
+      align-content:center;
+      flex-direction:column;
+        
+      &:hover {
+        color: #fff;
+        border-radius: 100%;
+        background-color: #ff8c6a;
+        border-color: #ff7850;
+      }
+    }
   }
 }
