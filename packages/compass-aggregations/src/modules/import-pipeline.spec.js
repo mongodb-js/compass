@@ -211,6 +211,21 @@ describe('import pipeline module', () => {
             );
           });
         });
+
+        context('when the stage contains a timestamp', () => {
+          const text = '[{ $match: { value: Timestamp(0, 10) }}]';
+          let stage;
+
+          before(() => {
+            stage = importPipeline(text)[0];
+          });
+
+          it('sets the stage', () => {
+            expect(stage.stage).to.equal(
+              '{\n  value: Timestamp(0, 10)\n}'
+            );
+          });
+        });
       });
     });
   });
