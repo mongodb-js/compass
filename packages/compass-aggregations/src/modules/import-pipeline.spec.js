@@ -170,6 +170,19 @@ describe('import pipeline module', () => {
             );
           });
         });
+
+        context('when the stage contains a MinKey', () => {
+          const text = '[{ $match: { value: MinKey() }}]';
+          let stage;
+
+          before(() => {
+            stage = importPipeline(text)[0];
+          });
+
+          it('sets the stage', () => {
+            expect(stage.stage).to.equal('{\n  value: MinKey()\n}');
+          });
+        });
       });
     });
   });
