@@ -17,6 +17,7 @@ addons:
       - libsecret-1-dev
 before_install:
   - echo "//registry.npmjs.org/:_authToken=\${NPM_TOKEN}" >> .npmrc
+  - npm i -g npm@5.7.1
   - npm --version
 before_script:
   - export DISPLAY=:99.0
