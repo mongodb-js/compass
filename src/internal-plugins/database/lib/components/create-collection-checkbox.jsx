@@ -4,11 +4,6 @@ const { InfoSprinkle } = require('hadron-react-components');
 const { shell } = require('electron');
 
 /**
- * The help URL for capped collections.
- */
-const HELP_URL = 'https://docs.mongodb.com/manual/core/capped-collections/';
-
-/**
  * A checkbox in the create collection dialog.
  */
 class CreateCollectionCheckbox extends React.Component {
@@ -20,16 +15,17 @@ class CreateCollectionCheckbox extends React.Component {
    */
   render() {
     return (
-      <div className="form-group">
+      <div>
         <label>
           <input
             type="checkbox"
             onClick={this.props.onClickHandler}
-            checked={this.props.checked} />
-          <p className={this.props.className}>{this.props.name}</p>
+            checked={this.props.checked}
+            className={this.props.inputClassName} />
+          <p className={this.props.titleClassName}>{this.props.name}</p>
         </label>
         <InfoSprinkle
-          helpLink={HELP_URL}
+          helpLink={this.props.helpUrl}
           onClickHandler={shell.openExternal}
         />
       </div>
@@ -42,7 +38,9 @@ CreateCollectionCheckbox.displayName = 'CreateCollectionCheckbox';
 CreateCollectionCheckbox.propTypes = {
   onClickHandler: PropTypes.func.isRequired,
   checked: PropTypes.bool,
-  className: PropTypes.string,
+  helpUrl: PropTypes.string,
+  titleClassName: PropTypes.string,
+  inputClassName: PropTypes.string,
   name: PropTypes.string.isRequired
 };
 

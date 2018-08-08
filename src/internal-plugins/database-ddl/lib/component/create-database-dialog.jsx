@@ -10,12 +10,17 @@ const CreateDatabaseStore = require('../store/create-database-store');
 /**
  * The more information url.
  */
-const INFO_URL = 'https://docs.mongodb.com/manual/faq/fundamentals/#how-do-i-create-a-database-and-a-collection';
+const INFO_URL_CREATE_DB = 'https://docs.mongodb.com/manual/faq/fundamentals/#how-do-i-create-a-database-and-a-collection';
 
 /**
  * The help icon for capped collections url.
  */
-const HELP_URL = 'https://docs.mongodb.com/manual/core/capped-collections/';
+const HELP_URL_CAPPED = 'https://docs.mongodb.com/manual/core/capped-collections/';
+
+/**
+ * The help URL for collation.
+ */
+const HELP_URL_COLLATION = 'https://docs.mongodb.com/master/reference/collation/';
 
 /**
  * The dialog to create a database.
@@ -29,10 +34,11 @@ class CreateDatabaseDialog extends React.Component {
    */
   constructor(props) {
     super(props);
-    this.state = { open: false };
+    this.state = {open: false};
     this.CreateCollectionInput = app.appRegistry.getComponent('Database.CreateCollectionInput');
     this.CreateCollectionSizeInput = app.appRegistry.getComponent('Database.CreateCollectionSizeInput');
     this.CreateCollectionCheckbox = app.appRegistry.getComponent('Database.CreateCollectionCheckbox');
+    this.CreateCollectionCollationSelect = app.appRegistry.getComponent('Database.CreateCollectionCollationSelect');
     this.NamespaceStore = app.appRegistry.getStore('App.NamespaceStore');
   }
 
@@ -64,7 +70,9 @@ class CreateDatabaseDialog extends React.Component {
       maxSize: '',
       error: false,
       inProgress: false,
-      errorMessage: ''
+      errorMessage: '',
+      isCustomCollation: false,
+      collation: {locale: 'simple'}
     });
   }
 
@@ -87,7 +95,9 @@ class CreateDatabaseDialog extends React.Component {
       this.state.databaseName,
       this.state.collectionName,
       this.state.capped,
-      this.state.maxSize
+      this.state.maxSize,
+      this.state.isCustomCollation,
+      this.state.collation
     );
     this.NamespaceStore.ns = '';
   }
@@ -131,6 +141,13 @@ class CreateDatabaseDialog extends React.Component {
   }
 
   /**
+   * Handle clicking the collation checkbox.
+   */
+  onCollationClicked() {
+    this.setState({ isCustomCollation: !this.state.isCustomCollation });
+  }
+
+  /**
    * Handle clicking in the more information link.
 
    * @param {Event} evt - The event.
@@ -138,18 +155,7 @@ class CreateDatabaseDialog extends React.Component {
   onInfoClicked(evt) {
     evt.preventDefault();
     evt.stopPropagation();
-    shell.openExternal(INFO_URL);
-  }
-
-  /**
-   * Handle clicking the help icon.
-
-   * @param {Event} evt - The event.
-   */
-  onHelpClicked(evt) {
-    evt.preventDefault();
-    evt.stopPropagation();
-    shell.openExternal(HELP_URL);
+    shell.openExternal(INFO_URL_CREATE_DB);
   }
 
   /**
@@ -159,6 +165,18 @@ class CreateDatabaseDialog extends React.Component {
    */
   onMaxSizeChange(evt) {
     this.setState({ maxSize: evt.target.value });
+  }
+
+  /**
+   * Set state to selected field of collation option.
+   *
+   * @param {String} field - The field.
+   * @param {Event} evt - The event.
+   */
+  onCollationOptionChange(field, evt) {
+    this.setState({
+      collation: Object.assign({}, this.state.collation, {[field]: evt.value})
+    });
   }
 
   /**
@@ -174,6 +192,24 @@ class CreateDatabaseDialog extends React.Component {
           placeholder="Enter max bytes"
           value={this.state.maxSize}
           onChangeHandler={this.onMaxSizeChange.bind(this)} />
+      );
+    }
+  }
+
+  /**
+   * Render collation options when collation is selected.
+   *
+   * @returns {React.Component} The component.
+   */
+  renderCollation() {
+    if (this.state.isCustomCollation) {
+      return (
+        <div className="create-collection-dialog-collation-div">
+          <this.CreateCollectionCollationSelect
+            collation={this.state.collation}
+            onCollationOptionChange={this.onCollationOptionChange.bind(this)}
+          />
+        </div>
       );
     }
   }
@@ -210,13 +246,21 @@ class CreateDatabaseDialog extends React.Component {
               name="Collection Name"
               value={this.state.collectionName}
               onChangeHandler={this.onCollectionNameChange.bind(this)} />
-            <this.CreateCollectionCheckbox
-              name="Capped Collection"
-              className="create-collection-dialog-capped"
-              checked={this.state.checked}
-              onClickHandler={this.onCappedClicked.bind(this)}
-              onHelpClickHandler={this.onHelpClicked.bind(this)} />
-            {this.renderMaxSize()}
+            <div className="form-group">
+              <this.CreateCollectionCheckbox
+                name="Capped Collection"
+                titleClassName="create-collection-dialog-capped"
+                helpUrl={HELP_URL_CAPPED}
+                onClickHandler={this.onCappedClicked.bind(this)} />
+              {this.renderMaxSize()}
+              <this.CreateCollectionCheckbox
+                name="Use Custom Collation"
+                titleClassName="create-collection-dialog-collation"
+                helpUrl={HELP_URL_COLLATION}
+                onClickHandler={this.onCollationClicked.bind(this)}
+              />
+              {this.renderCollation()}
+            </div>
             <div className="create-collection-dialog-form-notice">
               Before MongoDB can save your new database, a collection name
               must also be specified at the time of creation.

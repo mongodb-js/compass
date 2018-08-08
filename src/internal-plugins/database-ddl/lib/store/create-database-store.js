@@ -29,12 +29,16 @@ const CreateDatabaseStore = Reflux.createStore({
    * @param {String} collection - The collection name.
    * @param {Boolean} capped - If the collection is capped.
    * @param {Number} size - The max size of the capped collection.
+   * @param {Boolean} isCustomCollation - If the collection is custom.
+   * @param {Boolean} collation - Collation options.
    */
-  createDatabase(dbName, collection, capped, size) {
+  createDatabase(dbName, collection, capped, size, isCustomCollation, collation) {
     if (dbName.includes('.')) {
       return this.handleResult(new Error('Database names may not contain a "."'), null);
     }
-    const options = capped ? { capped: true, size: parseInt(size, 10) } : {};
+    let options = {};
+    options = capped ? Object.assign(options, { capped: true, size: parseInt(size, 10) }) : options;
+    options = isCustomCollation ? Object.assign(options, { collation }) : options;
     try {
       this.dataService.createCollection(`${dbName}.${collection}`, options, this.handleResult.bind(this));
     } catch (e) {

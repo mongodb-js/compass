@@ -21,7 +21,12 @@ const CollectionStore = Reflux.createStore({
   onActivated(appRegistry) {
     this.appRegistry = appRegistry;
     appRegistry.on('show-agg-pipeline-out-results', (ns) => {
-      this.setCollection({ _id: ns, readonly: false, capped: false });
+      this.setCollection({
+        _id: ns,
+        readonly: false,
+        capped: false,
+        isCustomCollation: false
+      });
       this.setActiveTab(0);
     });
   },

@@ -39,6 +39,7 @@
           "plugins-directory": ".mongodb/compass/plugins",
           "plugins": [
             "node_modules/@mongodb-js/compass-aggregations",
+            "node_modules/@mongodb-js/compass-auto-updates",
             "node_modules/@mongodb-js/compass-export-to-language",
             "node_modules/@mongodb-js/compass-crud",
             "node_modules/@mongodb-js/compass-collection-stats",
@@ -69,6 +70,7 @@
           "plugins-directory": ".mongodb/compass-community/plugins",
           "plugins": [
             "node_modules/@mongodb-js/compass-aggregations",
+            "node_modules/@mongodb-js/compass-auto-updates",
             "node_modules/@mongodb-js/compass-export-to-language",
             "node_modules/@mongodb-js/compass-collection-stats",
             "node_modules/@mongodb-js/compass-connect",
@@ -96,6 +98,7 @@
           "readonly": true,
           "plugins": [
             "node_modules/@mongodb-js/compass-aggregations",
+            "node_modules/@mongodb-js/compass-auto-updates",
             "node_modules/@mongodb-js/compass-export-to-language",
             "node_modules/@mongodb-js/compass-crud",
             "node_modules/@mongodb-js/compass-import-export",
@@ -219,7 +222,8 @@
     "url": "git://github.com/10gen/compass.git"
   },
   "dependencies": {
-    "@mongodb-js/compass-aggregations": "^1.5.34",
+    "@mongodb-js/compass-aggregations": "^1.5.36",
+    "@mongodb-js/compass-auto-updates": "^0.0.2",
     "@mongodb-js/compass-auth-kerberos": "^1.0.1",
     "@mongodb-js/compass-auth-ldap": "^1.0.1",
     "@mongodb-js/compass-auth-x509": "^1.0.1",
@@ -228,12 +232,12 @@
     "@mongodb-js/compass-crud": "^5.3.2",
     "@mongodb-js/compass-deployment-awareness": "^6.0.0",
     "@mongodb-js/compass-document-validation": "^8.0.3",
-    "@mongodb-js/compass-export-to-language": "^2.2.19",
+    "@mongodb-js/compass-export-to-language": "^2.2.26",
     "@mongodb-js/compass-import-export": "^1.0.4",
     "@mongodb-js/compass-instance": "^1.0.1",
     "@mongodb-js/compass-license": "^1.0.0",
     "@mongodb-js/compass-plugin-info": "^1.0.0",
-    "@mongodb-js/compass-query-bar": "^1.0.24",
+    "@mongodb-js/compass-query-bar": "^1.0.26",
     "@mongodb-js/compass-query-history": "^3.0.2",
     "@mongodb-js/compass-server-version": "^2.0.1",
     "@mongodb-js/compass-serverstats": "^12.0.3",
@@ -282,7 +286,7 @@
     "mapbox-gl": "^0.39.1",
     "marky": "^1.2.0",
     "moment": "^2.10.6",
-    "mongodb-ace-autocompleter": "^0.0.19",
+    "mongodb-ace-autocompleter": "^0.0.20",
     "mongodb-ace-mode": "^0.0.2",
     "mongodb-ace-theme": "^0.0.1",
     "mongodb-ace-theme-query": "^0.0.2",

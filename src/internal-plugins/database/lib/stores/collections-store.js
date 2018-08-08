@@ -86,6 +86,8 @@ const CollectionsStore = Reflux.createStore({
         _id: c._id,
         database: c.database,
         capped: c.capped,
+        isCustomCollation: c.isCustomCollation,
+        collation: c.collation,
         power_of_two: c.power_of_two,
         readonly: c.readonly
       };
