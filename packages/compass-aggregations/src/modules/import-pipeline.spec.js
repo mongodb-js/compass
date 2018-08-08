@@ -196,6 +196,21 @@ describe('import pipeline module', () => {
             expect(stage.stage).to.equal('{\n  value: MaxKey()\n}');
           });
         });
+
+        context('when the stage contains an object id', () => {
+          const text = '[{ $match: { value: ObjectId(\'5b6833700633d61f36d3f09d\') }}]';
+          let stage;
+
+          before(() => {
+            stage = importPipeline(text)[0];
+          });
+
+          it('sets the stage', () => {
+            expect(stage.stage).to.equal(
+              '{\n  value: ObjectId(\'5b6833700633d61f36d3f09d\')\n}'
+            );
+          });
+        });
       });
     });
   });
