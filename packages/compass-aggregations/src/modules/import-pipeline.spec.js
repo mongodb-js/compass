@@ -241,6 +241,21 @@ describe('import pipeline module', () => {
             );
           });
         });
+
+        context('when the stage contains a date', () => {
+          const text = '[{ $match: { value: Date(\'2004-01-01\') }}]';
+          let stage;
+
+          before(() => {
+            stage = importPipeline(text)[0];
+          });
+
+          it('sets the stage', () => {
+            expect(stage.stage).to.equal(
+              '{\n  value: ISODate(\'2004-01-01T00:00:00.000Z\')\n}'
+            );
+          });
+        });
       });
     });
   });
