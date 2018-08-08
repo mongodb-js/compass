@@ -183,6 +183,19 @@ describe('import pipeline module', () => {
             expect(stage.stage).to.equal('{\n  value: MinKey()\n}');
           });
         });
+
+        context('when the stage contains a MaxKey', () => {
+          const text = '[{ $match: { value: MaxKey() }}]';
+          let stage;
+
+          before(() => {
+            stage = importPipeline(text)[0];
+          });
+
+          it('sets the stage', () => {
+            expect(stage.stage).to.equal('{\n  value: MaxKey()\n}');
+          });
+        });
       });
     });
   });
