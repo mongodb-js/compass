@@ -129,7 +129,7 @@
   "dependencies": {
     "babel-preset-es2015": "^6.24.1",
     "bson": "^1.0.4",
-    "bson-compilers": "^0.7.3",
+    "bson-transpilers": "^0.8.0",
     "decomment": "^0.9.1",
     "lodash.debounce": "^4.0.8",
     "mongodb-extended-json": "^1.10.0",

@@ -1,6 +1,6 @@
 import { toJSString as toShellString, parseFilter } from 'mongodb-query-parser';
 import bson from 'bson';
-import compiler from 'bson-compilers';
+import transpiler from 'bson-transpilers';
 
 /**
  * JS lang constant.
@@ -26,7 +26,7 @@ const INDENT = '  ';
  */
 export default function createPipeline(text) {
   try {
-    const jsText = compiler[SHELL][JS].compile(text);
+    const jsText = transpiler[SHELL][JS].compile(text);
     const js = parseFilter(jsText);
     return js.map((stage) => {
       return {
