@@ -21,8 +21,8 @@ describe('QueryBar [Component]', function() {
   });
 
   describe('#rendering', function() {
-    describe('with layout ["filter", "project", ["sort", "skip", "limit"]]', function() {
-      const layout = ['filter', 'project', ['sort', 'skip', 'limit']];
+    describe('with layout ["filter", "project", "sort", ["collation", "skip", "limit"]]', function() {
+      const layout = ['filter', 'project', 'sort', ['collation', 'skip', 'limit']];
 
       describe('when rendering the button label', function() {
         it('defaults to "Apply"', function() {
@@ -72,9 +72,9 @@ describe('QueryBar [Component]', function() {
       });
 
       describe('when rendering in expanded state', function() {
-        it('has all 5 <QueryOption />s', function() {
+        it('has all 6 <QueryOption />s', function() {
           const component = shallow(<QueryBar actions={actions} layout={layout} expanded serverVersion="3.4.0" />);
-          expect(component.find(QueryOption)).to.have.lengthOf(5);
+          expect(component.find(QueryOption)).to.have.lengthOf(6);
         });
 
         it('has one .query-option-group div', function() {
