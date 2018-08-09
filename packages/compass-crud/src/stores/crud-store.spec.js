@@ -65,6 +65,10 @@ describe('CRUDStore', () => {
       expect(CRUDStore.state.query.project).to.equal(null);
     });
 
+    it('sets the default collation', () => {
+      expect(CRUDStore.state.query.collation).to.equal(null);
+    });
+
     it('sets the default namespace', () => {
       expect(CRUDStore.state.ns).to.equal('');
     });
@@ -248,6 +252,7 @@ describe('CRUDStore', () => {
         ns: 'compass-crud.test',
         filter: { name: 'test' },
         sort: { name: 1 },
+        collation: { locale: 'simple' },
         limit: 10,
         skip: 5,
         project: { name: 1 }
@@ -276,6 +281,7 @@ describe('CRUDStore', () => {
         ns: 'compass-crud.test',
         filter: { name: 'test' },
         sort: { name: 1 },
+        collation: { locale: 'simple' },
         limit: 10,
         skip: 5
       };
@@ -542,6 +548,7 @@ describe('CRUDStore', () => {
       ns: 'compass-crud.test',
       filter: { name: 'test' },
       sort: { name: 1 },
+      collation: { locale: 'simple' },
       limit: 10,
       skip: 5,
       project: { name: 1 }

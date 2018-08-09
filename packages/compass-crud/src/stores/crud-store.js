@@ -127,7 +127,8 @@ const CRUDStore = Reflux.createStore({
       sort: [[ '_id', 1 ]],
       limit: 0,
       skip: 0,
-      project: null
+      project: null,
+      collation: null
     };
   },
 
@@ -191,6 +192,7 @@ const CRUDStore = Reflux.createStore({
       this.state.query.limit = state.limit;
       this.state.query.skip = state.skip || 0;
       this.state.query.project = state.project;
+      this.state.query.collation = state.collation;
       this.state.ns = state.ns;
       this.state.collection = collection;
       if (state.project) {
@@ -315,6 +317,7 @@ const CRUDStore = Reflux.createStore({
       limit: nextPageCount,
       sort: this.state.query.sort,
       fields: this.state.query.project,
+      collation: this.state.query.collation,
       promoteValues: false
     };
 
@@ -350,6 +353,7 @@ const CRUDStore = Reflux.createStore({
       limit: nextPageCount,
       sort: this.state.query.sort,
       fields: this.state.query.project,
+      collation: this.state.query.collation,
       promoteValues: false
     };
 
@@ -514,6 +518,7 @@ const CRUDStore = Reflux.createStore({
       fields: query.project,
       skip: query.skip,
       limit: NUM_PAGE_DOCS,
+      collation: query.collation,
       promoteValues: false
     };
 
