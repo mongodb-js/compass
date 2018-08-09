@@ -14,6 +14,7 @@ import app from 'hadron-app';
 import {
   DEFAULT_FILTER,
   DEFAULT_PROJECT,
+  DEFAULT_COLLATION,
   DEFAULT_SORT,
   DEFAULT_SKIP,
   DEFAULT_LIMIT,
@@ -51,6 +52,7 @@ describe('QueryBarStore [Store]', function() {
     expect(QueryBarStore.state).to.be.deep.equal({
       filter: DEFAULT_FILTER,
       project: DEFAULT_PROJECT,
+      collation: DEFAULT_COLLATION,
       sort: DEFAULT_SORT,
       skip: DEFAULT_SKIP,
       limit: DEFAULT_LIMIT,
@@ -58,6 +60,7 @@ describe('QueryBarStore [Store]', function() {
       maxTimeMS: DEFAULT_MAX_TIME_MS,
       filterString: '',
       projectString: '',
+      collationString: '',
       sortString: '',
       skipString: '',
       limitString: '',
@@ -65,6 +68,7 @@ describe('QueryBarStore [Store]', function() {
       valid: true,
       filterValid: true,
       projectValid: true,
+      collationValid: true,
       sortValid: true,
       skipValid: true,
       limitValid: true,
@@ -186,6 +190,7 @@ describe('QueryBarStore [Store]', function() {
         filter: { a: { $exists: true } },
         project: { b: 1 },
         sort: { c: -1, d: 1 },
+        collation: { locale: 'simple' },
         skip: 5,
         limit: 10,
         sample: false
@@ -233,6 +238,17 @@ describe('QueryBarStore [Store]', function() {
         });
 
         QueryBarStore.setQuery({ project: { _id: 0 } });
+      });
+
+      it('sets a new `collation`', function(done) {
+        unsubscribe = QueryBarStore.listen(state => {
+          expect(state.collation).to.be.deep.equal({ locale: 'simple' });
+          expect(state.collationString).to.be.equal("{locale: 'simple'}");
+          expect(state.collationValid).to.be.true;
+          done();
+        });
+
+        QueryBarStore.setQuery({ collation: { locale: 'simple' } });
       });
 
       it('sets a new `sort`', function(done) {
@@ -560,6 +576,19 @@ describe('QueryBarStore [Store]', function() {
         });
       });
 
+      describe('collation', function() {
+        it('sets the collationString, collationValid and collation', function(done) {
+          expect(QueryBarStore.state.collationString).to.be.equal('');
+          unsubscribe = QueryBarStore.listen(state => {
+            expect(state.collationString).to.be.equal("{locale: 'simple'}");
+            expect(state.collationValid).to.be.true;
+            expect(state.collation).to.deep.equal({ locale: 'simple' });
+            done();
+          });
+          QueryBarStore.setQueryString('collation', "{locale: 'simple'}");
+        });
+      });
+
       describe('sort', function() {
         it('sets the sortString, sortValid and sort', function(done) {
           expect(QueryBarStore.state.sortString).to.be.equal('');
@@ -634,6 +663,21 @@ describe('QueryBarStore [Store]', function() {
           });
 
           QueryBarStore.setQueryString('project', '{project: "invalid"}');
+        });
+      });
+
+      describe('collation', function() {
+        it('sets the collationString, collationValid but not collation', function(done) {
+          expect(QueryBarStore.state.collationString).to.be.equal('');
+
+          unsubscribe = QueryBarStore.listen(state => {
+            expect(state.collationString).to.be.equal('{locale: "invalid"}');
+            expect(state.collationValid).to.be.false;
+            expect(state.collation).to.null;
+            done();
+          });
+
+          QueryBarStore.setQueryString('collation', '{locale: "invalid"}');
         });
       });
 
