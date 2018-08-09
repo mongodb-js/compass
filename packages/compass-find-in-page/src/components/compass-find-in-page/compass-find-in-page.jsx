@@ -1,9 +1,11 @@
 import { FormGroup, InputGroup, FormControl } from 'react-bootstrap';
-import { toggleStatus, stopFind, find } from 'modules';
+import { toggleStatus } from 'modules';
 import React, { PureComponent } from 'react';
 import { connect } from 'react-redux';
 import classnames from 'classnames';
 import PropTypes from 'prop-types';
+import ipc from 'hadron-ipc';
+
 
 import styles from './compass-find-in-page.less';
 
@@ -16,11 +18,10 @@ class CompassFindInPage extends PureComponent {
   // also need next result, and previous result as part of
   static propTypes = {
     toggleStatus: PropTypes.func.isRequired,
-    stopFind: PropTypes.func.isRequired,
-    enabled: PropTypes.bool.isRequired,
-    find: PropTypes.func.isRequired
+    enabled: PropTypes.bool.isRequired
   };
 
+  // only use this state for input field
   state = {
     searchTerm: ''
   }
@@ -32,44 +33,64 @@ class CompassFindInPage extends PureComponent {
   onKeyDown = (e) => {
     if (e.keyCode === KEYCODE_ESC) {
       this.props.toggleStatus();
-      this.props.stopFind();
-      document.querySelector('#find-in-page-input').value = '';
+      this.dispatchStopFind();
+      this.setState({ searchTerm: '' });
     }
+
     if (e.keyCode === KEYCODE_ENTER) {
       e.preventDefault();
       const back = e.shiftKey;
       const val = document.querySelector('#find-in-page-input').value;
-      if (val === '') return this.props.stopFind();
+      if (val === '') return this.dispatchStopFind();
 
-      this.props.find(val, true, !back);
+      this.dispatchFind(val, true, !back);
     }
+  }
+
+  dispatchFind = (val, forward, findNext) => {
+    const opts = {
+      forward: forward,
+      findNext: findNext
+    };
+
+    ipc.call('app:find-in-page', val, opts);
+  }
+
+  dispatchStopFind = () => {
+    ipc.call('app:stop-find-in-page', 'clearSelection');
   }
 
   handleChange = (e) => {
     e.preventDefault();
     this.setState({ searchTerm: e.target.value });
-    console.log('VALUE', e.target.value);
 
-    if (e.target.value === '') return this.props.stopFind();
-    this.props.find(e.target.value, true, false);
+    if (e.target.value === '') return this.dispatchStopFind();
+    // don't use state to search, use actual e.target.value
+    this.dispatchFind(e.target.value, true, false);
 
     const el = document.querySelector('#find-in-page-input');
     el.focus();
-  };
+  }
+
+  handleClose = () => {
+    this.dispatchStopFind();
+    this.props.toggleStatus();
+  }
 
   findPrev = () => {
     const val = document.querySelector('#find-in-page-input').value;
-    if (val === '') return this.props.stopFind();
+    if (val === '') return this.dispatchStopFind();
 
-    this.props.find(val, false, true);
+    this.dispatchFind(val, false, true);
   }
 
   findNext = () => {
     const val = document.querySelector('#find-in-page-input').value;
-    if (val === '') return this.props.stopFind();
+    if (val === '') return this.dispatchStopFind();
 
-    this.props.find(val, true, true);
+    this.dispatchFind(val, true, true);
   }
+
   /**
    * Render CompassFindInPage component.
    *
@@ -101,7 +122,7 @@ class CompassFindInPage extends PureComponent {
               </InputGroup>
             </FormGroup>
           </form>
-          <div className={classnames(styles['find-close'])} onClick={this.props.toggleStatus}>
+          <div className={classnames(styles['find-close'])} onClick={this.handleClose}>
             <div className={classnames(styles['find-close-box'])}>
               <span>&times;</span>
             </div>
@@ -131,9 +152,7 @@ const mapStateToProps = (state) => ({
 const MappedCompassFindInPage = connect(
   mapStateToProps,
   {
-    toggleStatus,
-    stopFind,
-    find
+    toggleStatus
   },
 )(CompassFindInPage);
 
