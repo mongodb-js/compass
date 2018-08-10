@@ -1,3 +1,5 @@
+@import (reference) "~less/compass/_theme.less";
+
 .import-pipeline {
 
   &-note {
@@ -6,5 +8,16 @@
     border-radius: 5px;
     padding: 10px;
     margin-bottom: 10px;
+  }
+
+  &-editor {
+    flex-shrink: 0;
+    position: relative;
+    padding: 10px 0px 10px 0px;
+    overflow: scroll;
+    background: @gray8;
+    border-left: 2px solid @gray10;
+    min-height: 180px;
+    max-height: 300px;
   }
 }
