@@ -1,10 +1,24 @@
-import { createPipeline, newPipelineFromText, NEW_PIPELINE_FROM_TEXT } from 'modules/import-pipeline';
+import reducer, {
+  createPipeline,
+  newPipelineFromText,
+  NEW_PIPELINE_FROM_TEXT
+} from 'modules/import-pipeline';
 
 describe('import pipeline module', () => {
   describe('#newPipelineFromText', () => {
     it('returns the action', () => {
       expect(newPipelineFromText()).to.deep.equal({
         type: NEW_PIPELINE_FROM_TEXT
+      });
+    });
+  });
+
+  describe('#reducer', () => {
+    context('when the action is new pipeline from text', () => {
+      it('sets isOpen to true', () => {
+        expect(reducer(undefined, newPipelineFromText())).to.deep.equal({
+          isOpen: true
+        });
       });
     });
   });

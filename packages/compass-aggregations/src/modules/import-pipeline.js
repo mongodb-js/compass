@@ -43,7 +43,7 @@ export const INITIAL_STATE = {
  * @returns {Object} The state.
  */
 export default function reducer(state = INITIAL_STATE, action) {
-  if (action === NEW_PIPELINE_FROM_TEXT) {
+  if (action.type === NEW_PIPELINE_FROM_TEXT) {
     return { isOpen: true };
   }
   return state;
