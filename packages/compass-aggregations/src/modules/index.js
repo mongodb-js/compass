@@ -21,6 +21,7 @@ import savedPipeline, {
   INITIAL_STATE as SP_INITIAL_STATE
 } from './saved-pipeline';
 import restorePipeline, { INITIAL_STATE as RESTORE_PIPELINE_STATE} from './restore-pipeline';
+import importPipeline, { INITIAL_STATE as IMPORT_PIPELINE_INITIAL_STATE } from './import-pipeline';
 import { getObjectStore } from 'utils/indexed-db';
 import appRegistry, { appRegistryEmit, INITIAL_STATE as APP_REGISTRY_STATE } from 'modules/app-registry';
 
@@ -42,7 +43,8 @@ export const INITIAL_STATE = {
   sample: SAMPLE_INITIAL_STATE,
   autoPreview: AUTO_PREVIEW_INITIAL_STATE,
   id: ID_INITIAL_STATE,
-  isModified: IS_MODIFIED_INITIAL_STATE
+  isModified: IS_MODIFIED_INITIAL_STATE,
+  importPipeline: IMPORT_PIPELINE_INITIAL_STATE
 };
 
 /**
@@ -93,7 +95,8 @@ const appReducer = combineReducers({
   pipeline,
   name,
   id,
-  isModified
+  isModified,
+  importPipeline
 });
 
 /**

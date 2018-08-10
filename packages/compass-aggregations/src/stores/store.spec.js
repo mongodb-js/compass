@@ -166,7 +166,8 @@ describe('Aggregation Store', () => {
             inputDocuments: INITIAL_STATE.inputDocuments,
             serverVersion: INITIAL_STATE.serverVersion,
             pipeline: INITIAL_STATE.pipeline,
-            isModified: INITIAL_STATE.isModified
+            isModified: INITIAL_STATE.isModified,
+            importPipeline: INITIAL_STATE.importPipeline
           });
         });
       });
@@ -199,7 +200,8 @@ describe('Aggregation Store', () => {
             inputDocuments: INITIAL_STATE.inputDocuments,
             serverVersion: INITIAL_STATE.serverVersion,
             pipeline: INITIAL_STATE.pipeline,
-            isModified: INITIAL_STATE.isModified
+            isModified: INITIAL_STATE.isModified,
+            importPipeline: INITIAL_STATE.importPipeline
           });
         });
       });
