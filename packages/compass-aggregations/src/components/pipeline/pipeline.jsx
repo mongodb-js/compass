@@ -5,6 +5,7 @@ import PipelineToolbar from 'components/pipeline-toolbar';
 import PipelineWorkspace from 'components/pipeline-workspace';
 import SavePipeline from 'components/save-pipeline';
 import RestorePipelineModal from 'components/restore-pipeline-modal';
+import ImportPipeline from 'components/import-pipeline';
 
 import styles from './pipeline.less';
 
@@ -47,6 +48,7 @@ class Pipeline extends PureComponent {
     isCommenting: PropTypes.bool.isRequired,
     isSampling: PropTypes.bool.isRequired,
     isAutoPreviewing: PropTypes.bool.isRequired,
+    isImportPipelineOpen: PropTypes.bool.isRequired,
     setIsModified: PropTypes.func.isRequired,
     name: PropTypes.string
   }
@@ -63,6 +65,7 @@ class Pipeline extends PureComponent {
           getPipelineFromIndexedDB={this.props.getPipelineFromIndexedDB}
           restorePipeline={this.props.restorePipeline} />)
       : null;
+    const importPipelineModal = (<ImportPipeline isOpen={this.props.isImportPipelineOpen} />);
 
     return (
       <div className={classnames(styles.pipeline)}>
@@ -94,6 +97,7 @@ class Pipeline extends PureComponent {
           savedPipelinesListToggle={this.props.savedPipelinesListToggle}
           savedPipeline={this.props.savedPipeline} />
         { restorePipelineModal }
+        { importPipelineModal }
       </div>
     );
   }

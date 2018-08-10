@@ -83,7 +83,8 @@ const mapStateToProps = (state) => ({
   isModified: state.isModified,
   isCommenting: state.comments,
   isSampling: state.sample,
-  isAutoPreviewing: state.autoPreview
+  isAutoPreviewing: state.autoPreview,
+  isImportPipelineOpen: state.importPipeline.isOpen
 });
 
 /**
