@@ -6,11 +6,8 @@ class ImportPipeline extends PureComponent {
   static displayName = 'ImportPipelineComponent';
 
   static propTypes = {
-    isOpen: PropTypes.bool.isRequired
-  }
-
-  onClose = () => {
-
+    isOpen: PropTypes.bool.isRequired,
+    closeImport: PropTypes.func.isRequired
   }
 
   /**
@@ -20,7 +17,7 @@ class ImportPipeline extends PureComponent {
    */
   render() {
     return (
-      <Modal show={this.props.isOpen} onHide={this.onClose}>
+      <Modal show={this.props.isOpen} onHide={this.props.closeImport}>
         <Modal.Header closeButton>
           Import Pipeline
         </Modal.Header>

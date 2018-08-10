@@ -40,6 +40,7 @@ class Pipeline extends PureComponent {
     saveCurrentPipeline: PropTypes.func.isRequired,
     newPipeline: PropTypes.func.isRequired,
     newPipelineFromText: PropTypes.func.isRequired,
+    closeImport: PropTypes.func.isRequired,
     clonePipeline: PropTypes.func.isRequired,
     exportToLanguage: PropTypes.func.isRequired,
     fields: PropTypes.array.isRequired,
@@ -65,7 +66,11 @@ class Pipeline extends PureComponent {
           getPipelineFromIndexedDB={this.props.getPipelineFromIndexedDB}
           restorePipeline={this.props.restorePipeline} />)
       : null;
-    const importPipelineModal = (<ImportPipeline isOpen={this.props.isImportPipelineOpen} />);
+    const importPipelineModal = (
+      <ImportPipeline
+        isOpen={this.props.isImportPipelineOpen}
+        closeImport={this.props.closeImport} />
+    );
 
     return (
       <div className={classnames(styles.pipeline)}>
