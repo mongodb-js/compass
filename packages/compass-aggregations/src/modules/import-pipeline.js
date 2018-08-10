@@ -33,11 +33,56 @@ export const NEW_PIPELINE_FROM_TEXT = `${PREFIX}/NEW_PIPELINE_FROM_TEXT`;
 export const CLOSE_IMPORT = `${PREFIX}/CLOSE_IMPORT`;
 
 /**
+ * Change text action name.
+ */
+export const CHANGE_TEXT = `${PREFIX}/CHANGE_TEXT`;
+
+/**
  * The initial state.
  */
 export const INITIAL_STATE = {
-  isOpen: false
+  isOpen: false,
+  text: ''
 };
+
+/**
+ * Handle new pipeline actions.
+ *
+ * @param {Object} state - The state.
+ *
+ * @returns {Object} The new state.
+ */
+const onNewPipelineFromText = (state) => {
+  return { ...state, isOpen: true };
+};
+
+/**
+ * Handle close import actions.
+ *
+ * @param {Object} state - The state.
+ *
+ * @returns {Object} The new state.
+ */
+const onCloseImport = (state) => {
+  return { ...state, isOpen: false };
+};
+
+/**
+ * Handle text change actions.
+ *
+ * @param {Object} state - The state.
+ * @param {Object} action - The action.
+ *
+ * @returns {Object} The new state.
+ */
+const onChangeText = (state, action) => {
+  return { ...state, text: action.text };
+};
+
+const MAPPINGS = {};
+MAPPINGS[NEW_PIPELINE_FROM_TEXT] = onNewPipelineFromText;
+MAPPINGS[CLOSE_IMPORT] = onCloseImport;
+MAPPINGS[CHANGE_TEXT] = onChangeText;
 
 /**
  * The reducer.
@@ -48,12 +93,8 @@ export const INITIAL_STATE = {
  * @returns {Object} The state.
  */
 export default function reducer(state = INITIAL_STATE, action) {
-  if (action.type === NEW_PIPELINE_FROM_TEXT) {
-    return { isOpen: true };
-  } else if (action.type === CLOSE_IMPORT) {
-    return { isOpen: false };
-  }
-  return state;
+  const fn = MAPPINGS[action.type];
+  return fn ? fn(state, action) : state;
 }
 
 /**
@@ -72,6 +113,18 @@ export const newPipelineFromText = () => ({
  */
 export const closeImport = () => ({
   type: CLOSE_IMPORT
+});
+
+/**
+ * Change text action creator.
+ *
+ * @param {String} text - The text.
+ *
+ * @returns {Object} the action.
+ */
+export const changeText = (text) => ({
+  type: CHANGE_TEXT,
+  text: text
 });
 
 /**

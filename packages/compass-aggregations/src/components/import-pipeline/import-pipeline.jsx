@@ -36,11 +36,9 @@ class ImportPipeline extends PureComponent {
 
   static propTypes = {
     isOpen: PropTypes.bool.isRequired,
-    closeImport: PropTypes.func.isRequired
-  }
-
-  onChange = () => {
-
+    closeImport: PropTypes.func.isRequired,
+    changeText: PropTypes.func.isRequired,
+    text: PropTypes.string.isRequired
   }
 
   /**
@@ -63,8 +61,8 @@ class ImportPipeline extends PureComponent {
               mode="mongodb"
               theme="mongodb"
               width="100%"
-              value=""
-              onChange={this.onChange}
+              value={this.props.text}
+              onChange={this.props.changeText}
               editorProps={{ $blockScrolling: Infinity }}
               name="import-pipeline-editor"
               setOptions={OPTIONS} />

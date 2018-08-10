@@ -2,8 +2,10 @@ import reducer, {
   createPipeline,
   newPipelineFromText,
   closeImport,
+  changeText,
   NEW_PIPELINE_FROM_TEXT,
-  CLOSE_IMPORT
+  CLOSE_IMPORT,
+  CHANGE_TEXT
 } from 'modules/import-pipeline';
 
 describe('import pipeline module', () => {
@@ -23,11 +25,21 @@ describe('import pipeline module', () => {
     });
   });
 
+  describe('#changeText', () => {
+    it('returns the action', () => {
+      expect(changeText('testing')).to.deep.equal({
+        type: CHANGE_TEXT,
+        text: 'testing'
+      });
+    });
+  });
+
   describe('#reducer', () => {
     context('when the action is new pipeline from text', () => {
       it('sets isOpen to true', () => {
         expect(reducer(undefined, newPipelineFromText())).to.deep.equal({
-          isOpen: true
+          isOpen: true,
+          text: ''
         });
       });
     });
@@ -36,6 +48,15 @@ describe('import pipeline module', () => {
       it('sets isOpen to false', () => {
         expect(reducer({ isOpen: true }, closeImport())).to.deep.equal({
           isOpen: false
+        });
+      });
+    });
+
+    context('when the action is change text', () => {
+      it('sets the text', () => {
+        expect(reducer(undefined, changeText('testing'))).to.deep.equal({
+          isOpen: false,
+          text: 'testing'
         });
       });
     });

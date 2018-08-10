@@ -41,7 +41,7 @@ import {
 import { setIsModified } from 'modules/is-modified';
 import { restoreSavedPipeline, getPipelineFromIndexedDB } from 'modules/index';
 import { restorePipelineModalToggle, restorePipelineFrom } from 'modules/restore-pipeline';
-import { newPipelineFromText, closeImport } from 'modules/import-pipeline';
+import { newPipelineFromText, closeImport, changeText } from 'modules/import-pipeline';
 import styles from './aggregations.less';
 
 /**
@@ -84,7 +84,8 @@ const mapStateToProps = (state) => ({
   isCommenting: state.comments,
   isSampling: state.sample,
   isAutoPreviewing: state.autoPreview,
-  isImportPipelineOpen: state.importPipeline.isOpen
+  isImportPipelineOpen: state.importPipeline.isOpen,
+  importPipelineText: state.importPipeline.text
 });
 
 /**
@@ -125,6 +126,7 @@ const MappedAggregations = connect(
     newPipelineFromText,
     closeImport,
     clonePipeline,
+    changeText,
     openLink,
     getPipelineFromIndexedDB,
     setIsModified

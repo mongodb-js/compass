@@ -42,6 +42,8 @@ class Pipeline extends PureComponent {
     newPipelineFromText: PropTypes.func.isRequired,
     closeImport: PropTypes.func.isRequired,
     clonePipeline: PropTypes.func.isRequired,
+    changeText: PropTypes.func.isRequired,
+    importPipelineText: PropTypes.string.isRequired,
     exportToLanguage: PropTypes.func.isRequired,
     fields: PropTypes.array.isRequired,
     nameChanged: PropTypes.func.isRequired,
@@ -69,7 +71,9 @@ class Pipeline extends PureComponent {
     const importPipelineModal = (
       <ImportPipeline
         isOpen={this.props.isImportPipelineOpen}
-        closeImport={this.props.closeImport} />
+        closeImport={this.props.closeImport}
+        changeText={this.props.changeText}
+        text={this.props.importPipelineText} />
     );
 
     return (
