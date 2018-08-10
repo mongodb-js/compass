@@ -16,6 +16,7 @@ class PipelineToolbar extends PureComponent {
     savedPipelinesListToggle: PropTypes.func.isRequired,
     getSavedPipelines: PropTypes.func.isRequired,
     newPipeline: PropTypes.func.isRequired,
+    newPipelineFromText: PropTypes.func.isRequired,
     clonePipeline: PropTypes.func.isRequired,
     exportToLanguage: PropTypes.func.isRequired,
     saveCurrentPipeline: PropTypes.func.isRequired,
@@ -46,6 +47,7 @@ class PipelineToolbar extends PureComponent {
           savedPipeline={this.props.savedPipeline}
           clonePipeline={this.props.clonePipeline}
           newPipeline={this.props.newPipeline}
+          newPipelineFromText={this.props.newPipelineFromText}
           exportToLanguage={this.props.exportToLanguage}
           saveCurrentPipeline={this.props.saveCurrentPipeline}
           isValid={this.props.savedPipeline.isNameValid}

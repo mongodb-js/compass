@@ -18,6 +18,7 @@ class PipelineBuilderToolbar extends PureComponent {
     savedPipeline: PropTypes.object.isRequired,
     exportToLanguage: PropTypes.func.isRequired,
     newPipeline: PropTypes.func.isRequired,
+    newPipelineFromText: PropTypes.func.isRequired,
     clonePipeline: PropTypes.func.isRequired,
     nameChanged: PropTypes.func.isRequired,
     name: PropTypes.string.isRequired,
@@ -93,6 +94,7 @@ class PipelineBuilderToolbar extends PureComponent {
             <MenuItem onClick={this.props.exportToLanguage}>Export To Language</MenuItem>
             <MenuItem onClick={this.props.clonePipeline}>Clone Pipeline</MenuItem>
             <MenuItem onClick={this.props.newPipeline}>New Pipeline</MenuItem>
+            <MenuItem onClick={this.props.newPipelineFromText}>New Pipeline From Text</MenuItem>
           </Dropdown.Menu>
         </Dropdown>
       </div>

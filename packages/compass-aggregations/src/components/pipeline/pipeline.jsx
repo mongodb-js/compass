@@ -38,6 +38,7 @@ class Pipeline extends PureComponent {
     savedPipeline: PropTypes.object.isRequired,
     saveCurrentPipeline: PropTypes.func.isRequired,
     newPipeline: PropTypes.func.isRequired,
+    newPipelineFromText: PropTypes.func.isRequired,
     clonePipeline: PropTypes.func.isRequired,
     exportToLanguage: PropTypes.func.isRequired,
     fields: PropTypes.array.isRequired,
@@ -72,6 +73,7 @@ class Pipeline extends PureComponent {
           saveCurrentPipeline={this.props.saveCurrentPipeline}
           savedPipeline={this.props.savedPipeline}
           newPipeline={this.props.newPipeline}
+          newPipelineFromText={this.props.newPipelineFromText}
           clonePipeline={this.props.clonePipeline}
           toggleComments={this.props.toggleComments}
           toggleSample={this.props.toggleSample}

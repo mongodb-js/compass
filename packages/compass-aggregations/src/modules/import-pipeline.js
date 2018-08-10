@@ -18,13 +18,54 @@ const SHELL = 'shell';
 const INDENT = '  ';
 
 /**
+ * Action name prefix.
+ */
+const PREFIX = 'aggregations/import-pipeline';
+
+/**
+ * New pipeline from text action.
+ */
+export const NEW_PIPELINE_FROM_TEXT = `${PREFIX}/NEW_PIPELINE_FROM_TEXT`;
+
+/**
+ * The initial state.
+ */
+export const INITIAL_STATE = {
+  isOpen: false
+};
+
+/**
+ * The reducer.
+ *
+ * @param {Object} state - The state.
+ * @param {Object} action - The action.
+ *
+ * @returns {Object} The state.
+ */
+export default function reducer(state = INITIAL_STATE, action) {
+  if (action === NEW_PIPELINE_FROM_TEXT) {
+    return { isOpen: true };
+  }
+  return state;
+}
+
+/**
+ * New pipeline from text action.
+ *
+ * @returns {Object} The action.
+ */
+export const newPipelineFromText = () => ({
+  type: NEW_PIPELINE_FROM_TEXT
+});
+
+/**
  * Create a pipeline from the provided text.
  *
  * @param {String} text - The text.
  *
  * @returns {Array} The pipeline for the builder.
  */
-export default function createPipeline(text) {
+export const createPipeline = (text) => {
   try {
     const jsText = transpiler[SHELL][JS].compile(text);
     const js = parseFilter(jsText);
@@ -58,4 +99,4 @@ export default function createPipeline(text) {
       error: null
     }];
   }
-}
+};

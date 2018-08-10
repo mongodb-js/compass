@@ -1,14 +1,22 @@
-import importPipeline from 'modules/import-pipeline';
+import { createPipeline, newPipelineFromText, NEW_PIPELINE_FROM_TEXT } from 'modules/import-pipeline';
 
 describe('import pipeline module', () => {
-  describe('#importPipeline', () => {
+  describe('#newPipelineFromText', () => {
+    it('returns the action', () => {
+      expect(newPipelineFromText()).to.deep.equal({
+        type: NEW_PIPELINE_FROM_TEXT
+      });
+    });
+  });
+
+  describe('#createPipeline', () => {
     context('when the pipeline is a valid single stage', () => {
       context('when there is only one value', () => {
         const text = '[{ $match: { name: "testing" }}]';
         let pipeline;
 
         before(() => {
-          pipeline = importPipeline(text)[0];
+          pipeline = createPipeline(text)[0];
         });
 
         it('generates an id', () => {
@@ -57,7 +65,7 @@ describe('import pipeline module', () => {
         let pipeline;
 
         before(() => {
-          pipeline = importPipeline(text)[0];
+          pipeline = createPipeline(text)[0];
         });
 
         it('generates an id', () => {
@@ -79,7 +87,7 @@ describe('import pipeline module', () => {
           let stage;
 
           before(() => {
-            stage = importPipeline(text)[0];
+            stage = createPipeline(text)[0];
           });
 
           it('sets the stage', () => {
@@ -92,7 +100,7 @@ describe('import pipeline module', () => {
           let stage;
 
           before(() => {
-            stage = importPipeline(text)[0];
+            stage = createPipeline(text)[0];
           });
 
           it('sets the stage', () => {
@@ -105,7 +113,7 @@ describe('import pipeline module', () => {
           let stage;
 
           before(() => {
-            stage = importPipeline(text)[0];
+            stage = createPipeline(text)[0];
           });
 
           it('sets the stage', () => {
@@ -122,7 +130,7 @@ describe('import pipeline module', () => {
           let stage;
 
           before(() => {
-            stage = importPipeline(text)[0];
+            stage = createPipeline(text)[0];
           });
 
           it('sets the stage', () => {
@@ -135,7 +143,7 @@ describe('import pipeline module', () => {
           let stage;
 
           before(() => {
-            stage = importPipeline(text)[0];
+            stage = createPipeline(text)[0];
           });
 
           it.skip('sets the stage', () => {
@@ -148,7 +156,7 @@ describe('import pipeline module', () => {
           let stage;
 
           before(() => {
-            stage = importPipeline(text)[0];
+            stage = createPipeline(text)[0];
           });
 
           it('sets the stage', () => {
@@ -161,7 +169,7 @@ describe('import pipeline module', () => {
           let stage;
 
           before(() => {
-            stage = importPipeline(text)[0];
+            stage = createPipeline(text)[0];
           });
 
           it('sets the stage', () => {
@@ -176,7 +184,7 @@ describe('import pipeline module', () => {
           let stage;
 
           before(() => {
-            stage = importPipeline(text)[0];
+            stage = createPipeline(text)[0];
           });
 
           it('sets the stage', () => {
@@ -189,7 +197,7 @@ describe('import pipeline module', () => {
           let stage;
 
           before(() => {
-            stage = importPipeline(text)[0];
+            stage = createPipeline(text)[0];
           });
 
           it('sets the stage', () => {
@@ -202,7 +210,7 @@ describe('import pipeline module', () => {
           let stage;
 
           before(() => {
-            stage = importPipeline(text)[0];
+            stage = createPipeline(text)[0];
           });
 
           it('sets the stage', () => {
@@ -217,7 +225,7 @@ describe('import pipeline module', () => {
           let stage;
 
           before(() => {
-            stage = importPipeline(text)[0];
+            stage = createPipeline(text)[0];
           });
 
           it('sets the stage', () => {
@@ -232,7 +240,7 @@ describe('import pipeline module', () => {
           let stage;
 
           before(() => {
-            stage = importPipeline(text)[0];
+            stage = createPipeline(text)[0];
           });
 
           it('sets the stage', () => {
@@ -247,7 +255,7 @@ describe('import pipeline module', () => {
           let stage;
 
           before(() => {
-            stage = importPipeline(text)[0];
+            stage = createPipeline(text)[0];
           });
 
           it('sets the stage', () => {

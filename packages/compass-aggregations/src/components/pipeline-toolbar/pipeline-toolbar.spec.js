@@ -12,6 +12,7 @@ describe('PipelineToolbar [Component]', () => {
   let savedPipelinesListToggleSpy;
   let getSavedPipelinesSpy;
   let newPipelineSpy;
+  let newPipelineFromTextSpy;
   let clonePipelineSpy;
   let nameChangedSpy;
   let stageAddedSpy;
@@ -28,6 +29,7 @@ describe('PipelineToolbar [Component]', () => {
     stageAddedSpy = sinon.spy();
     exportToLanguageSpy = sinon.spy();
     newPipelineSpy = sinon.spy();
+    newPipelineFromTextSpy = sinon.spy();
     clonePipelineSpy = sinon.spy();
     nameChangedSpy = sinon.spy();
     saveSpy = sinon.spy();
@@ -44,6 +46,7 @@ describe('PipelineToolbar [Component]', () => {
         saveCurrentPipeline={saveSpy}
         savedPipeline={{ isNameValid: true }}
         newPipeline={newPipelineSpy}
+        newPipelineFromText={newPipelineFromTextSpy}
         clonePipeline={clonePipelineSpy}
         toggleComments={toggleCommentsSpy}
         toggleSample={toggleSampleSpy}

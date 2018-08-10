@@ -10,6 +10,7 @@ describe('PipelineBuilderToolbar [Component]', () => {
   let getSavedPipelinesSpy;
   let exportToLanguageSpy;
   let newPipelineSpy;
+  let newPipelineFromTextSpy;
   let clonePipelineSpy;
   let nameChangedSpy;
   let saveSpy;
@@ -20,6 +21,7 @@ describe('PipelineBuilderToolbar [Component]', () => {
     getSavedPipelinesSpy = sinon.spy();
     exportToLanguageSpy = sinon.spy();
     newPipelineSpy = sinon.spy();
+    newPipelineFromTextSpy = sinon.spy();
     clonePipelineSpy = sinon.spy();
     nameChangedSpy = sinon.spy();
     saveSpy = sinon.spy();
@@ -32,6 +34,7 @@ describe('PipelineBuilderToolbar [Component]', () => {
         saveCurrentPipeline={saveSpy}
         savedPipeline={{ isListVisible: true }}
         newPipeline={newPipelineSpy}
+        newPipelineFromText={newPipelineFromTextSpy}
         clonePipeline={clonePipelineSpy}
         nameChanged={nameChangedSpy}
         name=""
@@ -47,6 +50,7 @@ describe('PipelineBuilderToolbar [Component]', () => {
     getSavedPipelinesSpy = null;
     exportToLanguageSpy = null;
     newPipelineSpy = null;
+    newPipelineFromTextSpy = null;
     clonePipelineSpy = null;
     nameChangedSpy = null;
     saveSpy = null;
