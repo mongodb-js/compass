@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import classnames from 'classnames';
 import { Modal } from 'react-bootstrap';
 import AceEditor from 'react-ace';
+import { TextButton } from 'hadron-react-buttons';
 
 import 'brace/ext/language_tools';
 import 'mongodb-ace-mode';
@@ -69,6 +70,15 @@ class ImportPipeline extends PureComponent {
           </div>
         </Modal.Body>
         <Modal.Footer>
+          <TextButton
+            className="btn btn-default btn-sm"
+            text="Cancel"
+            clickHandler={this.props.closeImport} />
+          <TextButton
+            className="btn btn-primary btn-sm"
+            text="Create New"
+            disabled={this.props.text === ''}
+            clickHandler={() => {}} />
         </Modal.Footer>
       </Modal>
     );
