@@ -28,6 +28,11 @@ const PREFIX = 'aggregations/import-pipeline';
 export const NEW_PIPELINE_FROM_TEXT = `${PREFIX}/NEW_PIPELINE_FROM_TEXT`;
 
 /**
+ * Close import action name.
+ */
+export const CLOSE_IMPORT = `${PREFIX}/CLOSE_IMPORT`;
+
+/**
  * The initial state.
  */
 export const INITIAL_STATE = {
@@ -45,6 +50,8 @@ export const INITIAL_STATE = {
 export default function reducer(state = INITIAL_STATE, action) {
   if (action.type === NEW_PIPELINE_FROM_TEXT) {
     return { isOpen: true };
+  } else if (action.type === CLOSE_IMPORT) {
+    return { isOpen: false };
   }
   return state;
 }
@@ -56,6 +63,15 @@ export default function reducer(state = INITIAL_STATE, action) {
  */
 export const newPipelineFromText = () => ({
   type: NEW_PIPELINE_FROM_TEXT
+});
+
+/**
+ * Close the import.
+ *
+ * @returns {Object} The action.
+ */
+export const closeImport = () => ({
+  type: CLOSE_IMPORT
 });
 
 /**
