@@ -21,7 +21,11 @@ import savedPipeline, {
   INITIAL_STATE as SP_INITIAL_STATE
 } from './saved-pipeline';
 import restorePipeline, { INITIAL_STATE as RESTORE_PIPELINE_STATE} from './restore-pipeline';
-import importPipeline, { INITIAL_STATE as IMPORT_PIPELINE_INITIAL_STATE, CONFIRM_NEW } from './import-pipeline';
+import importPipeline, {
+  INITIAL_STATE as IMPORT_PIPELINE_INITIAL_STATE,
+  CONFIRM_NEW,
+  createPipeline
+} from './import-pipeline';
 import { getObjectStore } from 'utils/indexed-db';
 import appRegistry, { appRegistryEmit, INITIAL_STATE as APP_REGISTRY_STATE } from 'modules/app-registry';
 
@@ -220,6 +224,9 @@ const createClonedPipeline = (state) => ({
  */
 const doConfirmNewFromText = (state) => ({
   ...state,
+  name: '',
+  id: new ObjectId().toHexString(),
+  pipeline: createPipeline(state.importPipeline.text),
   importPipeline: {
     isOpen: false,
     isConfirmationNeeded: false,

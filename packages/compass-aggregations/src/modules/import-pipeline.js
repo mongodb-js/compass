@@ -188,33 +188,36 @@ export const createPipeline = (text) => {
     const jsText = transpiler[SHELL][JS].compile(text);
     const js = parseFilter(jsText);
     return js.map((stage) => {
-      return {
-        id: new bson.ObjectId().toHexString(),
-        stageOperator: Object.keys(stage)[0],
-        stage: toShellString(Object.values(stage)[0], INDENT),
-        isValid: true,
-        isEnabled: true,
-        isExpanded: true,
-        isLoading: false,
-        isComplete: false,
-        previewDocuments: [],
-        syntaxError: null,
-        error: null
-      };
+      return createStage(
+        Object.keys(stage)[0],
+        toShellString(Object.values(stage)[0], INDENT),
+        null
+      );
     });
   } catch (e) {
-    return [{
-      id: new bson.ObjectId().toHexString(),
-      stageOperator: null,
-      stage: '',
-      isValid: false,
-      isEnabled: true,
-      isExpanded: true,
-      isLoading: false,
-      isComplete: false,
-      previewDocuments: [],
-      syntaxError: e.message,
-      error: null
-    }];
+    return [ createStage(null, '', e.message) ];
   }
 };
+
+/**
+ * Create a single stage in the pipeline.
+ *
+ * @param {String} stageOperator - The stage operator.
+ * @param {String} stage - The stage.
+ * @param {String} syntaxError - The syntax error.
+ *
+ * @returns {Object} The stage.
+ */
+const createStage = (stageOperator, stage, syntaxError) => ({
+  id: new bson.ObjectId().toHexString(),
+  stageOperator: stageOperator,
+  stage: stage,
+  isValid: syntaxError ? false : true,
+  isEnabled: true,
+  isExpanded: true,
+  isLoading: false,
+  isComplete: false,
+  previewDocuments: [],
+  syntaxError: syntaxError,
+  error: null
+});
