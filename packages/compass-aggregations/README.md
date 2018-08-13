@@ -6,5 +6,5 @@
 
 Apache 2.0
 
-[travis_img]: https://travis-ci.org/mongodb-js/compass-aggregations.svg
+[travis_img]: https://travis-ci.org/mongodb-js/compass-aggregations.svg?branch=master
 [travis_url]: https://travis-ci.org/mongodb-js/compass-aggregations
