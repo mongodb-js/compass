@@ -53,8 +53,7 @@ export const CONFIRM_NEW = `${PREFIX}/CONFIRM_NEW`;
 export const INITIAL_STATE = {
   isOpen: false,
   text: '',
-  isConfirmationNeeded: false,
-  isImporting: false
+  isConfirmationNeeded: false
 };
 
 /**
@@ -80,8 +79,7 @@ const onNewPipelineFromText = (state) => ({
 const onCloseImport = (state) => ({
   ...state,
   isOpen: false,
-  isConfirmationNeeded: false,
-  isImporting: false
+  isConfirmationNeeded: false
 });
 
 /**
