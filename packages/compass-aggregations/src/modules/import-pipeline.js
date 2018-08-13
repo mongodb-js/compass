@@ -108,24 +108,11 @@ const onCreateNew = (state) => ({
   isConfirmationNeeded: true
 });
 
-/**
- * Handle on confirm new actions.
- *
- * @param {Object} state - The state.
- *
- * @returns {Object} The new state.
- */
-const onConfirmNew = (state) => {
-  console.log('Confirming new from import-pipeline');
-  return { ...state, isOpen: false, isConfirmationNeeded: false };
-};
-
 const MAPPINGS = {
   [NEW_PIPELINE_FROM_TEXT]: onNewPipelineFromText,
   [CLOSE_IMPORT]: onCloseImport,
   [CHANGE_TEXT]: onChangeText,
-  [CREATE_NEW]: onCreateNew,
-  [CONFIRM_NEW]: onConfirmNew
+  [CREATE_NEW]: onCreateNew
 };
 
 /**

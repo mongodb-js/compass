@@ -41,7 +41,13 @@ import {
 import { setIsModified } from 'modules/is-modified';
 import { restoreSavedPipeline, getPipelineFromIndexedDB } from 'modules/index';
 import { restorePipelineModalToggle, restorePipelineFrom } from 'modules/restore-pipeline';
-import { newPipelineFromText, closeImport, changeText, createNew } from 'modules/import-pipeline';
+import {
+  newPipelineFromText,
+  closeImport,
+  changeText,
+  createNew,
+  confirmNew
+} from 'modules/import-pipeline';
 import styles from './aggregations.less';
 
 /**
@@ -129,6 +135,7 @@ const MappedAggregations = connect(
     clonePipeline,
     changeText,
     createNew,
+    confirmNew,
     openLink,
     getPipelineFromIndexedDB,
     setIsModified

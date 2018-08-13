@@ -211,10 +211,21 @@ const createClonedPipeline = (state) => ({
   isModified: true
 });
 
-const doConfirmNewFromText = (state) => {
-  console.log('Confirming new from index');
-  return state;
-};
+/**
+ * Confirm importing the new pipeline.
+ *
+ * @param {Object} state - The state.
+ *
+ * @returns {Object} The new state.
+ */
+const doConfirmNewFromText = (state) => ({
+  ...state,
+  importPipeline: {
+    isOpen: false,
+    isConfirmationNeeded: false,
+    text: ''
+  }
+});
 
 /**
  * The action to state modifier mappings.

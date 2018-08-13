@@ -14,7 +14,7 @@ const QUESTION = 'Are you sure you want to create a new pipeline?';
 /**
  * The note.
  */
-const NOTE = 'Creating this pipeine will <b>abandon</b> unsaved changes to the current pipeline.';
+const NOTE = 'Creating this pipeine will abandon unsaved changes to the current pipeline.';
 
 /**
  * Confirm import pipeline modal.
@@ -24,7 +24,8 @@ class ConfirmImportPipeline extends PureComponent {
 
   static propTypes = {
     isConfirmationNeeded: PropTypes.bool.isRequired,
-    closeImport: PropTypes.func.isRequired
+    closeImport: PropTypes.func.isRequired,
+    confirmNew: PropTypes.func.isRequired
   }
 
   /**
@@ -53,7 +54,7 @@ class ConfirmImportPipeline extends PureComponent {
           <TextButton
             className="btn btn-primary btn-sm"
             text="Confirm"
-            clickHandler={() => {}} />
+            clickHandler={this.props.confirmNew} />
         </Modal.Footer>
       </Modal>
     );
