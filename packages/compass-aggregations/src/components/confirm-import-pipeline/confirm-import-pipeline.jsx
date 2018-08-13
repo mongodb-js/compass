@@ -37,11 +37,9 @@ class ConfirmImportPipeline extends PureComponent {
     return (
       <Modal show={this.props.isConfirmationNeeded} onHide={this.props.closeImport}>
         <Modal.Header closeButton>
+          <h4>{QUESTION}</h4>
         </Modal.Header>
         <Modal.Body>
-          <div className={classnames(styles['confirm-import-pipeline-question'])}>
-            {QUESTION}
-          </div>
           <div className={classnames(styles['confirm-import-pipeline-note'])}>
             {NOTE}
           </div>
