@@ -53,7 +53,8 @@ export const CONFIRM_NEW = `${PREFIX}/CONFIRM_NEW`;
 export const INITIAL_STATE = {
   isOpen: false,
   text: '',
-  isConfirmationNeeded: false
+  isConfirmationNeeded: false,
+  isImporting: false
 };
 
 /**

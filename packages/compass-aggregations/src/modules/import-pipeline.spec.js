@@ -50,7 +50,8 @@ describe('import pipeline module', () => {
         expect(reducer(undefined, newPipelineFromText())).to.deep.equal({
           isOpen: true,
           text: '',
-          isConfirmationNeeded: false
+          isConfirmationNeeded: false,
+          isImporting: false
         });
       });
     });
@@ -69,7 +70,8 @@ describe('import pipeline module', () => {
         expect(reducer(undefined, changeText('testing'))).to.deep.equal({
           isOpen: false,
           text: 'testing',
-          isConfirmationNeeded: false
+          isConfirmationNeeded: false,
+          isImporting: false
         });
       });
     });
