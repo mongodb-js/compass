@@ -60,7 +60,8 @@ describe('import pipeline module', () => {
       it('sets isOpen to false', () => {
         expect(reducer({ isOpen: true }, closeImport())).to.deep.equal({
           isOpen: false,
-          isConfirmationNeeded: false
+          isConfirmationNeeded: false,
+          isImporting: false
         });
       });
     });

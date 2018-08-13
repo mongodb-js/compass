@@ -80,7 +80,8 @@ const onNewPipelineFromText = (state) => ({
 const onCloseImport = (state) => ({
   ...state,
   isOpen: false,
-  isConfirmationNeeded: false
+  isConfirmationNeeded: false,
+  isImporting: false
 });
 
 /**
