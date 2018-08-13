@@ -12,6 +12,11 @@ import 'mongodb-ace-theme';
 import styles from './import-pipeline.less';
 
 /**
+ * Title.
+ */
+const TITLE = 'New Pipeline From Plain Text';
+
+/**
  * Note.
  */
 const NOTE = 'Supports MongoDB Shell syntax. Pasting a pipeline will create a new pipeline.';
@@ -52,7 +57,7 @@ class ImportPipeline extends PureComponent {
     return (
       <Modal show={this.props.isOpen} onHide={this.props.closeImport}>
         <Modal.Header closeButton>
-          <h4>New Pipeline From Plain Text</h4>
+          <h4>{TITLE}</h4>
         </Modal.Header>
         <Modal.Body>
           <div className={classnames(styles['import-pipeline-note'])}>
@@ -72,10 +77,12 @@ class ImportPipeline extends PureComponent {
         </Modal.Body>
         <Modal.Footer>
           <TextButton
+            id="cancel-import-pipeline-from-text"
             className="btn btn-default btn-sm"
             text="Cancel"
             clickHandler={this.props.closeImport} />
           <TextButton
+            id="import-pipeline-from-text"
             className="btn btn-primary btn-sm"
             text="Create New"
             disabled={this.props.text === ''}
