@@ -21,7 +21,7 @@ import savedPipeline, {
   INITIAL_STATE as SP_INITIAL_STATE
 } from './saved-pipeline';
 import restorePipeline, { INITIAL_STATE as RESTORE_PIPELINE_STATE} from './restore-pipeline';
-import importPipeline, { INITIAL_STATE as IMPORT_PIPELINE_INITIAL_STATE } from './import-pipeline';
+import importPipeline, { INITIAL_STATE as IMPORT_PIPELINE_INITIAL_STATE, CONFIRM_NEW } from './import-pipeline';
 import { getObjectStore } from 'utils/indexed-db';
 import appRegistry, { appRegistryEmit, INITIAL_STATE as APP_REGISTRY_STATE } from 'modules/app-registry';
 
@@ -211,6 +211,11 @@ const createClonedPipeline = (state) => ({
   isModified: true
 });
 
+const doConfirmNewFromText = (state) => {
+  console.log('Confirming new from index');
+  return state;
+};
+
 /**
  * The action to state modifier mappings.
  */
@@ -220,7 +225,8 @@ const MAPPINGS = {
   [ RESTORE_PIPELINE ]: doRestorePipeline,
   [ CLEAR_PIPELINE ]: doClearPipeline,
   [ NEW_PIPELINE ]: createNewPipeline,
-  [ CLONE_PIPELINE ]: createClonedPipeline
+  [ CLONE_PIPELINE ]: createClonedPipeline,
+  [ CONFIRM_NEW ]: doConfirmNewFromText
 };
 
 /**

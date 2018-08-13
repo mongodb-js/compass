@@ -43,6 +43,11 @@ export const CHANGE_TEXT = `${PREFIX}/CHANGE_TEXT`;
 export const CREATE_NEW = `${PREFIX}/CREATE_NEW`;
 
 /**
+ * Create new action name.
+ */
+export const CONFIRM_NEW = `${PREFIX}/CONFIRM_NEW`;
+
+/**
  * The initial state.
  */
 export const INITIAL_STATE = {
@@ -58,9 +63,11 @@ export const INITIAL_STATE = {
  *
  * @returns {Object} The new state.
  */
-const onNewPipelineFromText = (state) => {
-  return { ...state, isOpen: true };
-};
+const onNewPipelineFromText = (state) => ({
+  ...state,
+  isOpen: true,
+  text: ''
+});
 
 /**
  * Handle close import actions.
@@ -69,9 +76,11 @@ const onNewPipelineFromText = (state) => {
  *
  * @returns {Object} The new state.
  */
-const onCloseImport = (state) => {
-  return { ...state, isOpen: false, isConfirmationNeeded: false };
-};
+const onCloseImport = (state) => ({
+  ...state,
+  isOpen: false,
+  isConfirmationNeeded: false
+});
 
 /**
  * Handle text change actions.
@@ -81,9 +90,10 @@ const onCloseImport = (state) => {
  *
  * @returns {Object} The new state.
  */
-const onChangeText = (state, action) => {
-  return { ...state, text: action.text };
-};
+const onChangeText = (state, action) => ({
+  ...state,
+  text: action.text
+});
 
 /**
  * Handle on create new actions.
@@ -92,15 +102,31 @@ const onChangeText = (state, action) => {
  *
  * @returns {Object} The new state.
  */
-const onCreateNew = (state) => {
-  return { ...state, isOpen: false, isConfirmationNeeded: true };
+const onCreateNew = (state) => ({
+  ...state,
+  isOpen: false,
+  isConfirmationNeeded: true
+});
+
+/**
+ * Handle on confirm new actions.
+ *
+ * @param {Object} state - The state.
+ *
+ * @returns {Object} The new state.
+ */
+const onConfirmNew = (state) => {
+  console.log('Confirming new from import-pipeline');
+  return { ...state, isOpen: false, isConfirmationNeeded: false };
 };
 
-const MAPPINGS = {};
-MAPPINGS[NEW_PIPELINE_FROM_TEXT] = onNewPipelineFromText;
-MAPPINGS[CLOSE_IMPORT] = onCloseImport;
-MAPPINGS[CHANGE_TEXT] = onChangeText;
-MAPPINGS[CREATE_NEW] = onCreateNew;
+const MAPPINGS = {
+  [NEW_PIPELINE_FROM_TEXT]: onNewPipelineFromText,
+  [CLOSE_IMPORT]: onCloseImport,
+  [CHANGE_TEXT]: onChangeText,
+  [CREATE_NEW]: onCreateNew,
+  [CONFIRM_NEW]: onConfirmNew
+};
 
 /**
  * The reducer.
@@ -146,13 +172,21 @@ export const changeText = (text) => ({
 });
 
 /**
- *
  * Create new action creator.
  *
  * @returns {Object} the action.
  */
 export const createNew = () => ({
   type: CREATE_NEW
+});
+
+/**
+ * Confirm new action creator.
+ *
+ * @returns {Object} The state.
+ */
+export const confirmNew = () => ({
+  type: CONFIRM_NEW
 });
 
 /**
