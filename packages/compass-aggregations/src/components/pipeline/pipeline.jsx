@@ -43,6 +43,7 @@ class Pipeline extends PureComponent {
     closeImport: PropTypes.func.isRequired,
     clonePipeline: PropTypes.func.isRequired,
     changeText: PropTypes.func.isRequired,
+    createNew: PropTypes.func.isRequired,
     importPipelineText: PropTypes.string.isRequired,
     exportToLanguage: PropTypes.func.isRequired,
     fields: PropTypes.array.isRequired,
@@ -74,6 +75,7 @@ class Pipeline extends PureComponent {
         isOpen={this.props.isImportPipelineOpen}
         closeImport={this.props.closeImport}
         changeText={this.props.changeText}
+        createNew={this.props.createNew}
         text={this.props.importPipelineText} />
     );
 

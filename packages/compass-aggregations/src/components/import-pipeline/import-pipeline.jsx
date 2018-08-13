@@ -39,6 +39,7 @@ class ImportPipeline extends PureComponent {
     isOpen: PropTypes.bool.isRequired,
     closeImport: PropTypes.func.isRequired,
     changeText: PropTypes.func.isRequired,
+    createNew: PropTypes.func.isRequired,
     text: PropTypes.string.isRequired
   }
 
@@ -78,7 +79,7 @@ class ImportPipeline extends PureComponent {
             className="btn btn-primary btn-sm"
             text="Create New"
             disabled={this.props.text === ''}
-            clickHandler={() => {}} />
+            clickHandler={this.props.createNew} />
         </Modal.Footer>
       </Modal>
     );
