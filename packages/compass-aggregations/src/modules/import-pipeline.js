@@ -38,6 +38,11 @@ export const CLOSE_IMPORT = `${PREFIX}/CLOSE_IMPORT`;
 export const CHANGE_TEXT = `${PREFIX}/CHANGE_TEXT`;
 
 /**
+ * Create new action name.
+ */
+export const CREATE_NEW = `${PREFIX}/CREATE_NEW`;
+
+/**
  * The initial state.
  */
 export const INITIAL_STATE = {
@@ -80,10 +85,22 @@ const onChangeText = (state, action) => {
   return { ...state, text: action.text };
 };
 
+/**
+ * Handle on create new actions.
+ *
+ * @param {Object} state - The state.
+ *
+ * @returns {Object} The new state.
+ */
+const onCreateNew = (state) => {
+  return { ...state, isConfirmationNeeded: true };
+};
+
 const MAPPINGS = {};
 MAPPINGS[NEW_PIPELINE_FROM_TEXT] = onNewPipelineFromText;
 MAPPINGS[CLOSE_IMPORT] = onCloseImport;
 MAPPINGS[CHANGE_TEXT] = onChangeText;
+MAPPINGS[CREATE_NEW] = onCreateNew;
 
 /**
  * The reducer.
@@ -126,6 +143,16 @@ export const closeImport = () => ({
 export const changeText = (text) => ({
   type: CHANGE_TEXT,
   text: text
+});
+
+/**
+ *
+ * Create new action creator.
+ *
+ * @returns {Object} the action.
+ */
+export const createNew = () => ({
+  type: CREATE_NEW
 });
 
 /**

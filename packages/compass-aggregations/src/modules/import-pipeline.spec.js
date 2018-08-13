@@ -3,9 +3,11 @@ import reducer, {
   newPipelineFromText,
   closeImport,
   changeText,
+  createNew,
   NEW_PIPELINE_FROM_TEXT,
   CLOSE_IMPORT,
-  CHANGE_TEXT
+  CHANGE_TEXT,
+  CREATE_NEW
 } from 'modules/import-pipeline';
 
 describe('import pipeline module', () => {
@@ -21,6 +23,14 @@ describe('import pipeline module', () => {
     it('returns the action', () => {
       expect(closeImport()).to.deep.equal({
         type: CLOSE_IMPORT
+      });
+    });
+  });
+
+  describe('#createNew', () => {
+    it('returns the action', () => {
+      expect(createNew()).to.deep.equal({
+        type: CREATE_NEW
       });
     });
   });
@@ -59,6 +69,16 @@ describe('import pipeline module', () => {
           isOpen: false,
           text: 'testing',
           isConfirmationNeeded: false
+        });
+      });
+    });
+
+    context('when the action is create new', () => {
+      it('sets the confirmation needed', () => {
+        expect(reducer(undefined, createNew())).to.deep.equal({
+          isOpen: false,
+          text: '',
+          isConfirmationNeeded: true
         });
       });
     });
