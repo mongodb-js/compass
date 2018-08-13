@@ -75,7 +75,7 @@ describe('import pipeline module', () => {
 
     context('when the action is create new', () => {
       it('sets the confirmation needed', () => {
-        expect(reducer(undefined, createNew())).to.deep.equal({
+        expect(reducer({ isOpen: true, text: '' }, createNew())).to.deep.equal({
           isOpen: false,
           text: '',
           isConfirmationNeeded: true

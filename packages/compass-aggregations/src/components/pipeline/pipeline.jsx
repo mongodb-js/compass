@@ -52,6 +52,7 @@ class Pipeline extends PureComponent {
     isSampling: PropTypes.bool.isRequired,
     isAutoPreviewing: PropTypes.bool.isRequired,
     isImportPipelineOpen: PropTypes.bool.isRequired,
+    isImportConfirmationNeeded: PropTypes.bool.isRequired,
     setIsModified: PropTypes.func.isRequired,
     name: PropTypes.string
   }

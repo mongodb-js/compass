@@ -93,7 +93,7 @@ const onChangeText = (state, action) => {
  * @returns {Object} The new state.
  */
 const onCreateNew = (state) => {
-  return { ...state, isConfirmationNeeded: true };
+  return { ...state, isOpen: false, isConfirmationNeeded: true };
 };
 
 const MAPPINGS = {};
