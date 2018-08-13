@@ -6,6 +6,7 @@ import PipelineWorkspace from 'components/pipeline-workspace';
 import SavePipeline from 'components/save-pipeline';
 import RestorePipelineModal from 'components/restore-pipeline-modal';
 import ImportPipeline from 'components/import-pipeline';
+import ConfirmImportPipeline from 'components/confirm-import-pipeline';
 
 import styles from './pipeline.less';
 
@@ -78,6 +79,11 @@ class Pipeline extends PureComponent {
         createNew={this.props.createNew}
         text={this.props.importPipelineText} />
     );
+    const confirmImportPipelineModal = (
+      <ConfirmImportPipeline
+        isConfirmationNeeded={this.props.isImportConfirmationNeeded}
+        closeImport={this.props.closeImport} />
+    );
 
     return (
       <div className={classnames(styles.pipeline)}>
@@ -110,6 +116,7 @@ class Pipeline extends PureComponent {
           savedPipeline={this.props.savedPipeline} />
         { restorePipelineModal }
         { importPipelineModal }
+        { confirmImportPipelineModal }
       </div>
     );
   }

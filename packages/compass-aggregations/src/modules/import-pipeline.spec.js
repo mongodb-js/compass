@@ -58,7 +58,8 @@ describe('import pipeline module', () => {
     context('when the action is close import', () => {
       it('sets isOpen to false', () => {
         expect(reducer({ isOpen: true }, closeImport())).to.deep.equal({
-          isOpen: false
+          isOpen: false,
+          isConfirmationNeeded: false
         });
       });
     });

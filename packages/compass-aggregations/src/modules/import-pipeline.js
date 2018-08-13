@@ -70,7 +70,7 @@ const onNewPipelineFromText = (state) => {
  * @returns {Object} The new state.
  */
 const onCloseImport = (state) => {
-  return { ...state, isOpen: false };
+  return { ...state, isOpen: false, isConfirmationNeeded: false };
 };
 
 /**
