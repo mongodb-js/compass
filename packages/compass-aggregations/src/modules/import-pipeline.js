@@ -42,7 +42,8 @@ export const CHANGE_TEXT = `${PREFIX}/CHANGE_TEXT`;
  */
 export const INITIAL_STATE = {
   isOpen: false,
-  text: ''
+  text: '',
+  isConfirmationNeeded: false
 };
 
 /**
