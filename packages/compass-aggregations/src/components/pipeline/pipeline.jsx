@@ -46,6 +46,7 @@ class Pipeline extends PureComponent {
     changeText: PropTypes.func.isRequired,
     createNew: PropTypes.func.isRequired,
     confirmNew: PropTypes.func.isRequired,
+    runStage: PropTypes.func.isRequired,
     importPipelineText: PropTypes.string.isRequired,
     exportToLanguage: PropTypes.func.isRequired,
     fields: PropTypes.array.isRequired,
@@ -84,6 +85,7 @@ class Pipeline extends PureComponent {
       <ConfirmImportPipeline
         isConfirmationNeeded={this.props.isImportConfirmationNeeded}
         closeImport={this.props.closeImport}
+        runStage={this.props.runStage}
         confirmNew={this.props.confirmNew} />
     );
 

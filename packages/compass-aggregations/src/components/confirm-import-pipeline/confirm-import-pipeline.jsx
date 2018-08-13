@@ -25,7 +25,13 @@ class ConfirmImportPipeline extends PureComponent {
   static propTypes = {
     isConfirmationNeeded: PropTypes.bool.isRequired,
     closeImport: PropTypes.func.isRequired,
-    confirmNew: PropTypes.func.isRequired
+    confirmNew: PropTypes.func.isRequired,
+    runStage: PropTypes.func.isRequired
+  }
+
+  onConfirm = () => {
+    this.props.confirmNew();
+    this.props.runStage(0);
   }
 
   /**
@@ -46,13 +52,15 @@ class ConfirmImportPipeline extends PureComponent {
         </Modal.Body>
         <Modal.Footer>
           <TextButton
+            id="cancel-confirm-import-pipeline"
             className="btn btn-default btn-sm"
             text="Cancel"
             clickHandler={this.props.closeImport} />
           <TextButton
+            id="confirm-import-pipeline"
             className="btn btn-primary btn-sm"
             text="Confirm"
-            clickHandler={this.props.confirmNew} />
+            clickHandler={this.onConfirm} />
         </Modal.Footer>
       </Modal>
     );
