@@ -2,6 +2,7 @@ import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import classnames from 'classnames';
 import PipelineToolbar from 'components/pipeline-toolbar';
+import CollationToolbar from 'components/collation-toolbar';
 import PipelineWorkspace from 'components/pipeline-workspace';
 import SavePipeline from 'components/save-pipeline';
 import RestorePipelineModal from 'components/restore-pipeline-modal';
@@ -40,8 +41,6 @@ class Pipeline extends PureComponent {
     savedPipeline: PropTypes.object.isRequired,
     saveCurrentPipeline: PropTypes.func.isRequired,
     newPipeline: PropTypes.func.isRequired,
-    newPipelineFromText: PropTypes.func.isRequired,
-    closeImport: PropTypes.func.isRequired,
     clonePipeline: PropTypes.func.isRequired,
     changeText: PropTypes.func.isRequired,
     createNew: PropTypes.func.isRequired,
@@ -101,7 +100,6 @@ class Pipeline extends PureComponent {
           saveCurrentPipeline={this.props.saveCurrentPipeline}
           savedPipeline={this.props.savedPipeline}
           newPipeline={this.props.newPipeline}
-          newPipelineFromText={this.props.newPipelineFromText}
           clonePipeline={this.props.clonePipeline}
           toggleComments={this.props.toggleComments}
           toggleSample={this.props.toggleSample}
@@ -113,7 +111,9 @@ class Pipeline extends PureComponent {
           isSampling={this.props.isSampling}
           isAutoPreviewing={this.props.isAutoPreviewing}
           name={this.props.name} />
-        <div className={classnames(styles['pipeline-separator'])}></div>
+        <CollationToolbar />
+        <div className={classnames(styles['pipeline-top-separator'])}></div>
+        <div className={classnames(styles['pipeline-bottom-separator'])}></div>
         <PipelineWorkspace {...this.props} />
         <SavePipeline
           restorePipelineModalToggle={this.props.restorePipelineModalToggle}
