@@ -233,7 +233,7 @@ const doConfirmNewFromText = (state) => {
     importPipeline: {
       isOpen: error ? true : false,
       isConfirmationNeeded: false,
-      text: '',
+      text: error ? state.importPipeline.text : '',
       syntaxError: error
     }
   };

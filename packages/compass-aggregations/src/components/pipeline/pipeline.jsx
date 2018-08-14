@@ -58,7 +58,8 @@ class Pipeline extends PureComponent {
     isImportPipelineOpen: PropTypes.bool.isRequired,
     isImportConfirmationNeeded: PropTypes.bool.isRequired,
     setIsModified: PropTypes.func.isRequired,
-    name: PropTypes.string
+    name: PropTypes.string,
+    importPipelineError: PropTypes.string
   }
 
   /**
@@ -79,6 +80,7 @@ class Pipeline extends PureComponent {
         closeImport={this.props.closeImport}
         changeText={this.props.changeText}
         createNew={this.props.createNew}
+        error={this.props.importPipelineError}
         text={this.props.importPipelineText} />
     );
     const confirmImportPipelineModal = (

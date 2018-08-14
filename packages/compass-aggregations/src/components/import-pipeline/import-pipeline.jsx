@@ -45,7 +45,23 @@ class ImportPipeline extends PureComponent {
     closeImport: PropTypes.func.isRequired,
     changeText: PropTypes.func.isRequired,
     createNew: PropTypes.func.isRequired,
-    text: PropTypes.string.isRequired
+    text: PropTypes.string.isRequired,
+    error: PropTypes.string
+  }
+
+  /**
+   * Render the error message.
+   *
+   * @returns {Component} The component.
+   */
+  renderError() {
+    if (this.props.error) {
+      return (
+        <div className={classnames(styles['import-pipeline-error'])}>
+          {this.props.error}
+        </div>
+      );
+    }
   }
 
   /**
@@ -74,6 +90,7 @@ class ImportPipeline extends PureComponent {
               name="import-pipeline-editor"
               setOptions={OPTIONS} />
           </div>
+          {this.renderError()}
         </Modal.Body>
         <Modal.Footer>
           <TextButton

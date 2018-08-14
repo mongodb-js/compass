@@ -92,7 +92,8 @@ const mapStateToProps = (state) => ({
   isAutoPreviewing: state.autoPreview,
   isImportPipelineOpen: state.importPipeline.isOpen,
   isImportConfirmationNeeded: state.importPipeline.isConfirmationNeeded,
-  importPipelineText: state.importPipeline.text
+  importPipelineText: state.importPipeline.text,
+  importPipelineError: state.importPipeline.syntaxError
 });
 
 /**
