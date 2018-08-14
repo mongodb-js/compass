@@ -1,43 +1,67 @@
 @import (reference) "~less/compass/_theme.less";
 
-.find {
-	background: @gray8;
+  
+.wrapper {
+  background: @gray8;
   border-radius: 0 0 5px 5px;
   border: 1px solid @gray10;
   border-top: 0;
   position: absolute;
   z-index: 4;
   right: 20px;
-  width: 20%;
-  display: flex;
-  justify-content: space-between;
-  flex-direction: row;
+  width: 15%;
 
-  &-in-page {
-    padding: 7px 4px 7px 7px;
-
-    &-form-group {
-      margin-bottom: 0 !important;
-    }
+  &-span {
+    padding-left: 7px;
+    color: @gray9;
+    font-size: 11px;
   }
 
-  &-close {
-    font-size: 16px;
-    padding: 13px 7px 7px 0px;
-    &-box {
-      width: 16px;
-      height: 16px;
-      text-align: center;
-      display: flex;
-      justify-content:center;
-      align-content:center;
-      flex-direction:column;
-        
-      &:hover {
-        color: #fff;
-        border-radius: 100%;
-        background-color: #ff8c6a;
-        border-color: #ff7850;
+  .find {
+    display: flex;
+    justify-content: space-between;
+    flex-direction: row;
+
+    &-in-page {
+      padding: 7px 4px 7px 7px;
+      flex: 1;
+
+      &-input {
+        width: 100%;
+      }
+
+      &-form-group {
+        width: 100%;
+        margin-bottom: 0 !important;
+
+        &-label {
+          position: absolute;
+          color: @gray9;
+          right: 70px;
+          top: 5px;
+          z-index: 4;
+        }
+      }
+    }
+
+    &-close {
+      font-size: 16px;
+      padding: 13px 7px 7px 0px;
+      &-box {
+        width: 16px;
+        height: 16px;
+        text-align: center;
+        display: flex;
+        justify-content:center;
+        align-content:center;
+        flex-direction:column;
+          
+        &:hover {
+          color: #fff;
+          border-radius: 100%;
+          background-color: #ff8c6a;
+          border-color: #ff7850;
+        }
       }
     }
   }
