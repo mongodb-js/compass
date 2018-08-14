@@ -133,7 +133,7 @@ class DropDatabaseDialog extends React.Component {
               <ModalStatusMessage icon="times" message={this.state.errorMessage} type="error" />
               : null}
             {this.state.inProgress ?
-              <ModalStatusMessage icon="align-center" message={'Drop in Progress'} type="in-progress" />
+              <ModalStatusMessage icon="spinner" message={'Drop in Progress'} type="in-progress" />
               : null}
           </form>
         </Modal.Body>
