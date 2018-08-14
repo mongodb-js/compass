@@ -222,17 +222,22 @@ const createClonedPipeline = (state) => ({
  *
  * @returns {Object} The new state.
  */
-const doConfirmNewFromText = (state) => ({
-  ...state,
-  name: '',
-  id: new ObjectId().toHexString(),
-  pipeline: createPipeline(state.importPipeline.text),
-  importPipeline: {
-    isOpen: false,
-    isConfirmationNeeded: false,
-    text: ''
-  }
-});
+const doConfirmNewFromText = (state) => {
+  const pipe = createPipeline(state.importPipeline.text);
+  const error = pipe.length > 0 ? pipe[0].syntaxError : null;
+  return {
+    ...state,
+    name: '',
+    id: new ObjectId().toHexString(),
+    pipeline: error ? [] : pipe,
+    importPipeline: {
+      isOpen: error ? true : false,
+      isConfirmationNeeded: false,
+      text: '',
+      syntaxError: error
+    }
+  };
+};
 
 /**
  * The action to state modifier mappings.
