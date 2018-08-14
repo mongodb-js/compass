@@ -9,7 +9,7 @@ export const INCLUDE_IMPORTS = `${PREFIX}/IMPORTS`;
 export const USE_BUILDERS = `${PREFIX}/USE_BUILDERS`;
 export const OUTPUT_LANG = `${PREFIX}/OUTPUT_LANG`;
 export const QUERY_ERROR = `${PREFIX}/QUERY_ERROR`;
-export const toggle_MODAL = `${PREFIX}/MODAL_OPEN`;
+export const TOGGLE_MODAL = `${PREFIX}/MODAL_OPEN`;
 export const COPY_QUERY = `${PREFIX}/COPY_QUERY`;
 export const CLEAR_COPY = `${PREFIX}/CLEAR_COPY`;
 export const RUN_QUERY = `${PREFIX}/RUN_QUERY`;
@@ -75,7 +75,7 @@ export default function reducer(state = INITIAL_STATE, action) {
   if (action.type === INCLUDE_IMPORTS) return addImports(state, action);
   if (action.type === USE_BUILDERS) return { ...state, builders: action.builders };
   if (action.type === COPY_QUERY) return copyToClipboard(state, action);
-  if (action.type === toggle_MODAL) return closeModal(state, action);
+  if (action.type === TOGGLE_MODAL) return closeModal(state, action);
 
   return state;
 }
@@ -116,7 +116,7 @@ export const copyQuery = (input) => ({
 });
 
 export const toggleModal = (open) => ({
-  type: toggle_MODAL,
+  type: TOGGLE_MODAL,
   open: open
 });
 

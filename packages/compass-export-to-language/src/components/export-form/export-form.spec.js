@@ -123,7 +123,7 @@ describe('ExportForm [Component]', () => {
     });
 
     it('calls the click button action', () => {
-      component.find('.fa-paste').simulate('click');
+      component.find('.fa-copy').simulate('click');
       expect(copyQuerySpy.calledOnce).to.equal(true);
     });
   });

@@ -17,19 +17,19 @@ class ExportForm extends Component {
     copyQuery: PropTypes.func.isRequired,
     clearCopy: PropTypes.func.isRequired,
     runQuery: PropTypes.func.isRequired
-  }
+  };
 
   copyHandler = (evt) => {
     evt.preventDefault();
     this.props.copyQuery(this.props.exportQuery.returnQuery);
     setTimeout(() => { this.props.clearCopy(); }, 2500);
-  }
+  };
 
   render() {
     const copyButtonStyle = classnames({
       [ styles['export-to-lang-query-output-copy'] ]: true,
       'btn-sm': true,
-      'btn-info': true,
+      'btn-primary': true,
       'btn': true
     });
 
@@ -73,11 +73,12 @@ class ExportForm extends Component {
               inputQuery={this.props.exportQuery.inputQuery}
               imports={this.props.exportQuery.imports}/>
             {bubbleDiv}
-            <IconTextButton
-              clickHandler={this.copyHandler}
-              className={copyButtonStyle}
-              iconClassName="fa fa-paste"
-              text="Copy"/>
+            <div className={classnames(styles['export-to-lang-copy-container'])}>
+              <IconTextButton
+                clickHandler={this.copyHandler}
+                className={copyButtonStyle}
+                iconClassName="fa fa-copy"/>
+            </div>
           </div>
         </div>
       </form>

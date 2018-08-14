@@ -5,7 +5,7 @@ import reducer, {
   SET_NAMESPACE,
   OUTPUT_LANG,
   QUERY_ERROR,
-  toggle_MODAL,
+  TOGGLE_MODAL,
   COPY_QUERY,
   CLEAR_COPY,
   includeImports,
@@ -42,7 +42,7 @@ describe('export query module', () => {
   describe('#toggleModal', () => {
     it('returns a toggle modal action type', () => {
       expect(toggleModal(true)).to.deep.equal({
-        type: toggle_MODAL,
+        type: TOGGLE_MODAL,
         open: true
       });
     });

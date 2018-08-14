@@ -45,6 +45,7 @@
     flex-direction: row;
     justify-content: space-between;
     align-items: stretch;
+    padding-bottom: 10px;
 
     &-input {
       flex-basis: 0;
@@ -61,12 +62,14 @@
     }
 
     &-output {
-      flex-basis: 0;
-      flex: 1 1 0;
-      width: 50%;
-      padding-left: 10px;
-      max-height: 30em;
+      display: inline-flex;
+      width: 0;
+      flex-basis: auto;
+      flex-shrink: 1;
+      flex-grow: 1;
+      white-space: nowrap;
       overflow: auto;
+      padding-left: 10px;
 
       &-bubble {
         position: absolute;
@@ -83,15 +86,18 @@
       }
 
       &-copy {
-        position: absolute;
-        top: 75px;
-        right: 25px;
-        z-index: 1;
-        background-color: @pw !important;
         > * {
-          padding-right: 5px;
+          padding-right: 0;
         }
       }
     }
+  }
+
+  &-copy-container {
+    flex-basis: auto;
+    flex-shrink: 0;
+    flex-grow: 0;
+    background: @gray8;
+    padding: 10px 10px 0 0;
   }
 }

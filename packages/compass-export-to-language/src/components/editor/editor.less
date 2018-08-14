@@ -1,18 +1,19 @@
 @import (reference) "~less/compass/_theme.less";
 
 .editor{
-  padding: 10px 0;
-  background: #f5f6f7;
-  border-radius: 3px;
-  border-left: 2px solid #E4E4E4;
-  height: 275px;
-  overflow-y: auto;
+  padding: 10px 10px 10px 0;
+  background: @gray8;
+  border-left: 3px solid @gray10;
+  height: 250px;
+  overflow: auto;
+  flex-basis: auto;
+  flex-shrink: 1;
+  flex-grow: 1;
 
   &-error {
     padding: 10px 0;
     overflow: hidden;
-    background: #f5f6f7;
-    border-radius: 3px;
+    background: @gray8;
     border: 1px solid #ff473a;
   }
 }
