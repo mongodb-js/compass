@@ -19,6 +19,7 @@ describe('ConfirmImportPipeline [Component]', () => {
         closeImport={closeImportSpy}
         confirmNew={confirmNewSpy}
         runStage={runStageSpy}
+        isAutoPreviewing
         isConfirmationNeeded />
     );
   });

@@ -85,6 +85,7 @@ class Pipeline extends PureComponent {
       <ConfirmImportPipeline
         isConfirmationNeeded={this.props.isImportConfirmationNeeded}
         closeImport={this.props.closeImport}
+        isAutoPreviewing={this.props.isAutoPreviewing}
         runStage={this.props.runStage}
         confirmNew={this.props.confirmNew} />
     );

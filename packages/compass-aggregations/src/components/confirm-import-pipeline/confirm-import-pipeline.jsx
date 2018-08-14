@@ -24,6 +24,7 @@ class ConfirmImportPipeline extends PureComponent {
 
   static propTypes = {
     isConfirmationNeeded: PropTypes.bool.isRequired,
+    isAutoPreviewing: PropTypes.bool.isRequired,
     closeImport: PropTypes.func.isRequired,
     confirmNew: PropTypes.func.isRequired,
     runStage: PropTypes.func.isRequired
@@ -31,7 +32,9 @@ class ConfirmImportPipeline extends PureComponent {
 
   onConfirm = () => {
     this.props.confirmNew();
-    this.props.runStage(0);
+    if (this.props.isAutoPreviewing) {
+      this.props.runStage(0);
+    }
   }
 
   /**
