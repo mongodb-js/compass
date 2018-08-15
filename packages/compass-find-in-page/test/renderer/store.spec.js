@@ -9,24 +9,11 @@
 import Store from 'stores';
 
 describe('CompassFindInPageStore [Store]', () => {
-  beforeEach(() => {
-    Store.setState(Store.getInitialState());
-  });
-
-  it('should have an initial state of {status: \'enabled\'}', () => {
-    expect(Store.state.status).to.equal('enabled');
-  });
-
-  describe('toggleStatus()', () => {
-    it('should switch the state to {status: \'disabled\'}', () => {
-      Store.toggleStatus();
-      expect(Store.state.status).to.equal('disabled');
-    });
-
-    it('should switch the state back to {status: \'enabled\'} when used a second time', () => {
-      Store.toggleStatus();
-      Store.toggleStatus();
-      expect(Store.state.status).to.equal('enabled');
+  it('should have an initial state of initialized store', () => {
+    expect(Store.getState()).to.deep.equal({
+      searching: false,
+      searchTerm: '',
+      enabled: false
     });
   });
 });

@@ -2,36 +2,33 @@ import React from 'react';
 import { mount } from 'enzyme';
 
 import CompassFindInPage from 'components/compass-find-in-page';
-import ToggleButton from 'components/toggle-button';
-import styles from './compass-find-in-page.less';
+import FindInPageInput from 'components/find-in-page-input';
+
+import { toggleStatus } from 'modules';
+import store from 'stores';
 
 describe('CompassFindInPage [Component]', () => {
-  let component;
-  let toggleStatus;
+  context('when the component is rendered and status is enabled', () => {
+    let component;
 
-  beforeEach(() => {
-    toggleStatus = sinon.spy();
-    component = mount(<CompassFindInPage toggleStatus={toggleStatus} status="enabled" />);
-  });
+    beforeEach(() => {
+      store.dispatch(toggleStatus());
+      component = mount(
+        <CompassFindInPage store={store}/>
+      );
+    });
 
-  afterEach(() => {
-    component = null;
-    toggleStatus = null;
-  });
+    afterEach(() => {
+      store.dispatch(toggleStatus());
+      component = null;
+    });
 
-  it('renders the correct root classname', () => {
-    expect(component.find(`.${styles.root}`)).to.be.present();
-  });
+    it('should contain FindInPageInput', () => {
+      expect(component.find('[data-test-id="find-in-page"]')).to.be.present();
+    });
 
-  it('should contain one <h2> tag', () => {
-    expect(component.find('h2')).to.have.length(1);
-  });
-
-  it('should contain one <ToggleButton />', () => {
-    expect(component.find(ToggleButton)).to.have.length(1);
-  });
-
-  it('should initially have prop {status: \'enabled\'}', () => {
-    expect(component.prop('status')).to.equal('enabled');
+    it('should contain FindInPageInput', () => {
+      expect(component.find('[data-test-id="find-in-page"]')).to.have.descendants(FindInPageInput);
+    });
   });
 });

@@ -20,3 +20,4 @@ cache:
   directories:
     - $HOME/.electron
     - node_modules
+
