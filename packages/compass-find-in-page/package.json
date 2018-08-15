@@ -1,5 +1,5 @@
 {
-  "name": "compass-find-in-page",
+  "name": "@mongodb-js/compass-find-in-page",
   "productName": "Compass Find In Page plugin",
   "version": "1.0.1",
   "apiVersion": "2.0.0",
