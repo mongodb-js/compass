@@ -155,7 +155,7 @@ class DropIndexModal extends React.Component {
                 : null}
 
               {this.state.inProgress ?
-                <ModalStatusMessage icon="align-center" message={'Drop in Progress'} type="in-progress" />
+                <ModalStatusMessage icon="spinner" message={'Drop in Progress'} type="in-progress" />
                 : this.renderButtons()}
             </form>
           </Modal.Body>

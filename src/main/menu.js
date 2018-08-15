@@ -151,6 +151,14 @@ function editSubMenu() {
         label: 'Select All',
         accelerator: 'Command+A',
         role: 'selectall'
+      },
+      separator(),
+      {
+        label: 'Find',
+        accelerator: 'CmdOrCtrl+F',
+        click: function() {
+          ipc.broadcast('app:find');
+        }
       }
     ]
   };
