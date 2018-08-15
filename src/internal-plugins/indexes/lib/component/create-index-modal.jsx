@@ -332,7 +332,7 @@ class CreateIndexModal extends React.Component {
                 : null}
 
               {this.state.inProgress ?
-                <ModalStatusMessage icon="align-center" message={'Create in Progress'} type="in-progress" />
+                <ModalStatusMessage icon="spinner" message={'Create in Progress'} type="in-progress" />
                 : this.renderButtons()}
             </form>
           </Modal.Body>
