@@ -9,7 +9,7 @@ const map = require('lodash.map');
 const partial = require('lodash.partial');
 const has = require('lodash.has');
 const get = require('lodash.get');
-const uniq = require('lodash.uniq');
+const uniqBy = require('lodash.uniqby');
 const flatten = require('lodash.flatten');
 const groupBy = require('lodash.groupby');
 const forEach = require('lodash.foreach');
@@ -180,7 +180,7 @@ function listDatabases(results, done) {
   const userInfo = results.userInfo;
 
   const cluster = security.getResourcesWithActions(
-    userInfo, ['listDatabases'], 'special').filter(function(resource) {
+    userInfo, ['listDatabases']).filter(function(resource) {
       return resource.cluster;
     });
 
@@ -211,6 +211,8 @@ function listDatabases(results, done) {
     const names = res.databases
       .map(function(d) {
         return d.name;
+      }).filter(function(d) {
+        return d;
       });
       // .filter(function(name) {
       //   if (name === 'admin') {
@@ -324,12 +326,16 @@ function getAllowedDatabases(results, done) {
   const userInfo = results.userInfo;
 
   // get databases on which the user is allowed to call listCollections
-  const databases = security.getResourcesWithActions(
-    userInfo, ['listCollections'], 'database').map(function(resource) {
+  let databases = security.getResourcesWithActions(
+    userInfo, ['listCollections']).map(function(resource) {
       return resource.db;
     });
+  databases = databases.concat(security.getResourcesWithActions(
+    userInfo, ['find']).map(function(resource) {
+      return resource.db;
+    }));
 
-  done(null, databases);
+  done(null, databases.filter((f, i) => (f && databases.indexOf(f) === i)));
 }
 
 function parseCollection(resp) {
@@ -348,13 +354,21 @@ function getAllowedCollections(results, done) {
   // get collections on which the user is allowed to call find and collStats
   const compassActions = ['find', 'collStats'];
   let collections = security.getResourcesWithActions(
-    userInfo, compassActions, 'collection').map(function(resource) {
+    userInfo, compassActions).map(function(resource) {
       return {
         db: resource.db,
         name: resource.collection
       };
     });
+  collections = collections.concat(security.getResourcesWithActions(
+    userInfo, ['find']).map(function(resource) {
+      return {
+        db: resource.db,
+        name: resource.collection
+      };
+    })).filter((f) => (f.name));
 
+  collections = uniqBy(collections, (c) => (`${c.db}.${c.name}`));
   collections = map(collections, parseCollection);
   debug('allowed collections', collections);
   done(null, collections);
@@ -399,9 +413,10 @@ function getCollections(results, done) {
 
   // concat
   let collections = [].concat.apply(
-    results.listCollections, results.allowedCollections);
+    results.listCollections, results.allowedCollections
+  ).filter((f) => (f.name !== ''));
   // de-dupe based on _id
-  collections = uniq(collections, '_id');
+  collections = uniqBy(collections, (c) => (c._id));
 
   // @todo filter the ones that we can "count on"
   // async.filter(collections, function(collection, callback) {

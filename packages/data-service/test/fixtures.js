@@ -397,6 +397,38 @@ var USER_INFO_LISTDB_ONLY = {
   ]
 };
 
+var USER_INFO_COLL_ONLY = {
+  "_id" : "db3.coll",
+  "user" : "coll",
+  "db" : "db3",
+  "roles" : [
+    {
+      "role" : "coll",
+      "db" : "db3"
+    }
+  ],
+  "inheritedRoles" : [
+    {
+      "role" : "coll",
+      "db" : "db3"
+    }
+  ],
+  "inheritedPrivileges" : [
+    {
+      "resource" : {
+        "db" : "db3",
+        "collection" : "coll3"
+      },
+      "actions" : [
+        "find",
+        "insert",
+        "update"
+      ]
+    }
+  ],
+  "inheritedAuthenticationRestrictions" : []
+};
+
 var BUILD_INFO_OLD = {
   "version" : "2.6.11",
   "gitVersion" : "d00c1735675c457f75a12d530bee85421f0c5548 modules: enterprise",
@@ -466,5 +498,6 @@ module.exports = {
   BUILD_INFO_OLD: BUILD_INFO_OLD,
   BUILD_INFO_3_2: BUILD_INFO_3_2,
   USER_INFO_JOHN: USER_INFO_JOHN,
-  USER_INFO_LISTDB_ONLY: USER_INFO_LISTDB_ONLY
+  USER_INFO_LISTDB_ONLY: USER_INFO_LISTDB_ONLY,
+  USER_INFO_COLL_ONLY: USER_INFO_COLL_ONLY
 };

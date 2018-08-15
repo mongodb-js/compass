@@ -178,7 +178,7 @@ describe('instance-detail-helper-mocked', function() {
       getAllowedDatabases(results, function(err, res) {
         assert.equal(err, null);
         res.sort();
-        assert.deepEqual(res, ['accounts', 'products', 'reporting', 'sales']);
+        assert.deepEqual(res, ['accounts', 'products', 'reporting', 'sales', 'tenants']);
         done();
       });
     });
@@ -189,6 +189,16 @@ describe('instance-detail-helper-mocked', function() {
       getAllowedDatabases(results, function(err, res) {
         assert.equal(err, null);
         assert.deepEqual(res, []);
+        done();
+      });
+    });
+
+    it('should return readable dbs for users with no list collections', function(done) {
+      results.userInfo = fixtures.USER_INFO_COLL_ONLY;
+
+      getAllowedDatabases(results, function(err, res) {
+        assert.equal(err, null);
+        assert.deepEqual(res, ['db3']);
         done();
       });
     });
@@ -208,6 +218,78 @@ describe('instance-detail-helper-mocked', function() {
             'database': 'tenants',
             'name': 'mongodb',
             'readonly': false
+          },
+          {
+            '_id': 'reporting.system.indexes',
+            'database': 'reporting',
+            'name': 'system.indexes',
+            'readonly': false
+          },
+          {
+            '_id': 'reporting.system.js',
+            'database': 'reporting',
+            'name': 'system.js',
+            'readonly': false
+          },
+          {
+            '_id': 'reporting.system.namespaces',
+            'database': 'reporting',
+            'name': 'system.namespaces',
+            'readonly': false
+          },
+          {
+            '_id': 'products.system.indexes',
+            'database': 'products',
+            'name': 'system.indexes',
+            'readonly': false
+          },
+          {
+            '_id': 'products.system.js',
+            'database': 'products',
+            'name': 'system.js',
+            'readonly': false
+          },
+          {
+            '_id': 'products.system.namespaces',
+            'database': 'products',
+            'name': 'system.namespaces',
+            'readonly': false
+          },
+          {
+            '_id': 'sales.system.indexes',
+            'database': 'sales',
+            'name': 'system.indexes',
+            'readonly': false
+          },
+          {
+            '_id': 'sales.system.js',
+            'database': 'sales',
+            'name': 'system.js',
+            'readonly': false
+          },
+          {
+            '_id': 'sales.system.namespaces',
+            'database': 'sales',
+            'name': 'system.namespaces',
+            'readonly': false
+          },
+          {
+            '_id': 'accounts.system.indexes',
+            'database': 'accounts',
+            'name': 'system.indexes',
+            'readonly': false
+          },
+          {
+            '_id': 'accounts.system.js',
+            'database': 'accounts',
+            'name': 'system.js',
+            'readonly': false
+          },
+          {
+            '_id': 'accounts.system.namespaces',
+            'database': 'accounts',
+            'name': 'system.namespaces',
+            'readonly': false
           }
         ];
         assert.deepEqual(res, expected);
@@ -221,6 +303,23 @@ describe('instance-detail-helper-mocked', function() {
       getAllowedCollections(results, function(err, res) {
         assert.equal(err, null);
         assert.deepEqual(res, []);
+        done();
+      });
+    });
+
+    it('should return readable collections for users with no list collections', function(done) {
+      results.userInfo = fixtures.USER_INFO_COLL_ONLY;
+
+      getAllowedCollections(results, function(err, res) {
+        assert.equal(err, null);
+        assert.deepEqual(res, [
+          {
+            '_id': 'db3.coll3',
+            'database': 'db3',
+            'name': 'coll3',
+            'readonly': false
+          }
+        ]);
         done();
       });
     });
