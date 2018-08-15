@@ -219,9 +219,7 @@
     "test-release": "npm test -- --release",
     "upload": "hadron-build upload",
     "evergreen-expansions": "hadron-build info --format=yaml --flatten > expansions.yml",
-    "jsx": "babel ./src --out-dir ./lib --presets react",
-    "snyk-protect": "snyk protect",
-    "prepare": "npm run snyk-protect"
+    "jsx": "babel ./src --out-dir ./lib --presets react"
   },
   "repository": {
     "type": "git",
@@ -340,8 +338,7 @@
     "turf-destination": "^1.2.1",
     "turf-distance": "^1.1.0",
     "turf-point": "^2.0.1",
-    "uuid": "^3.0.0",
-    "snyk": "^1.90.2"
+    "uuid": "^3.0.0"
   },
   "devDependencies": {
     "babel-eslint": "^6.0.4",
@@ -380,6 +377,5 @@
   "bugs": {
     "url": "https://docs.mongodb.com/compass/current/#contact",
     "email": "compass@mongodb.com"
-  },
-  "snyk": true
+  }
 }
