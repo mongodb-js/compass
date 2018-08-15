@@ -75,6 +75,7 @@ functions:
 
         # Trying to get rid of scandir npm errors.
         npm cache verify
+        npm cache -f clean
 
         npm install
         npm run evergreen-expansions ${compass_distribution}
