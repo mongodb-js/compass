@@ -186,6 +186,23 @@ var createWindow = module.exports.create = function(opts) {
     });
   }
 
+  ipc.respondTo('app:find-in-page', function(sender, searchTerm, opt) {
+    opt = opt || {};
+    _window.webContents.findInPage(searchTerm, opt);
+  });
+
+  // TODO: ideally use this to send results to find-in-page component to show
+  // indications of where you are in the page.  currently sending results
+  // messes up findInPage results, however.
+  //
+  // _window.webContents.on('found-in-page', function(event, results) {
+  //   ipc.broadcast('app:find-in-page-results', results);
+  // })
+
+  ipc.respondTo('app:stop-find-in-page', function(sender, type) {
+    _window.webContents.stopFindInPage(type);
+  });
+
   /**
    * Open all external links in the system's web browser.
    */
