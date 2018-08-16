@@ -154,6 +154,8 @@ var StitchTracker = State.extend({
     // host information
     if (typeof os !== 'undefined') {
       updateObj.host_arch = os.arch();
+      updateObj.platform = os.platform();
+      updateObj.os_release = os.release();
       updateObj.host_cpu_cores = os.cpus().length;
       updateObj.host_cpu_freq_mhz = _.get(os.cpus()[0], 'speed', 'unknown');
       updateObj.host_total_memory_gb = os.totalmem() / 1024 / 1024 / 1024;
