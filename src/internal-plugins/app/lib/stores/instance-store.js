@@ -35,6 +35,7 @@ const InstanceStore = Reflux.createStore({
   onDisconnected() {
     const MongoDBInstance = require('../../../../app/models/mongodb-instance');
     app.state.instance = new MongoDBInstance();
+    this.setState(this.getInitialState());
   },
 
   /**

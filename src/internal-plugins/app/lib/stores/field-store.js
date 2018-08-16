@@ -36,6 +36,11 @@ const FieldStore = Reflux.createStore({
 
     appRegistry.on('collection-changed', this.onCollectionChanged.bind(this));
     appRegistry.on('database-changed', this.onDatabaseChanged.bind(this));
+    appRegistry.on('data-service-disconnected', this.onDisconnected.bind(this));
+  },
+
+  onDisconnected() {
+    this.setState(this.getInitialState());
   },
 
   /**

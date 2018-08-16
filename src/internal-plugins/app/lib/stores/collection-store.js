@@ -20,6 +20,7 @@ const CollectionStore = Reflux.createStore({
    */
   onActivated(appRegistry) {
     this.appRegistry = appRegistry;
+    appRegistry.on('data-service-disconnected', this.onDisconnected.bind(this));
     appRegistry.on('show-agg-pipeline-out-results', (ns) => {
       this.setCollection({
         _id: ns,
@@ -29,6 +30,11 @@ const CollectionStore = Reflux.createStore({
       });
       this.setActiveTab(0);
     });
+  },
+
+  onDisconnected() {
+    this.collection = {};
+    this.activeTabIndex = 0;
   },
 
   /**

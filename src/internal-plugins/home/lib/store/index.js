@@ -40,16 +40,7 @@ const HomeStore = Reflux.createStore({
   },
 
   onDisconnected() {
-    this.setState({
-      errorMessage: '',
-      namespace: '',
-      isConnected: false,
-      isAtlas: false,
-      authentication: 'NONE',
-      ssl: 'NONE',
-      sshTunnel: 'NONE',
-      uiStatus: UI_STATES.INITIAL
-    });
+    this.setState(this.getInitialState());
   },
 
   onConnected(appRegistry, err, ds) {
