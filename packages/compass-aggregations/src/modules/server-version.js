@@ -18,7 +18,7 @@ export const INITIAL_STATE = '4.0.0';
  */
 export default function reducer(state = INITIAL_STATE, action) {
   if (action.type === SERVER_VERSION_CHANGED) {
-    return action.version;
+    return action.version || state;
   }
   return state;
 }
