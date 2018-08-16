@@ -20,6 +20,14 @@ const NamespaceStore = Reflux.createStore({
     this._ns = DEFAULT_NAMESPACE;
   },
 
+  onActivated(appRegistry) {
+    appRegistry.on('data-service-disconnected', this.onDisconnected.bind(this));
+  },
+
+  onDisconnected() {
+    this.init();
+  },
+
   /**
    * Gets the current namespace being worked with in the application.
    */
