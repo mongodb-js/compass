@@ -325,8 +325,7 @@ class EditableElement extends React.Component {
       <div
         className={`editable-element-expand-button ${HEADER_TOGGLE}`}
         style={this.inlineToggleStyle()}
-        onClick={this.toggleExpandable.bind(this)}>
-      </div>
+        onClick={this.toggleExpandable.bind(this)}/>
     );
   }
 
@@ -357,7 +356,7 @@ class EditableElement extends React.Component {
     const component = getComponent(this.element.currentType);
     const reactComponent = React.createElement(
       component,
-      { type: this.element.currentType, value: this.element.currentValue }
+      { type: this.element.currentType, value: this.element.currentValue, tz: this.props.tz }
     );
 
     return <span className={WRAPPER} onDoubleClick={this.focusEditValue.bind(this)}>{reactComponent}</span>;
@@ -420,6 +419,7 @@ EditableElement.displayName = 'EditableElement';
 EditableElement.propTypes = {
   editing: PropTypes.bool,
   edit: PropTypes.func,
+  tz: PropTypes.string,
   element: PropTypes.object.isRequired,
   version: PropTypes.string.isRequired,
   index: PropTypes.number,

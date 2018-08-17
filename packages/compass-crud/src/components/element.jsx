@@ -134,7 +134,7 @@ class Element extends React.Component {
     return (
       <li className={EXP_CLASS}>
         <div className={this.getClassName(EXP_HEADER)} onClick={this.toggleExpandable.bind(this)}>
-          <div className={EXP_TOGGLE}></div>
+          <div className={EXP_TOGGLE}/>
           <div className={EXP_FIELD}>{this.props.element.currentKey}</div>
           <span className={EXP_SEPARATOR}>:</span>
           <div className={EXP_LABEL}>

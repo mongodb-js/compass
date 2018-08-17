@@ -119,7 +119,7 @@ class Types extends React.Component {
           onBlur={() => this.toggleOpenClass(false)}
           ref={this.props.buttonRef ? this.props.buttonRef : () => {}}>
           {this.element.currentType}
-          <span className="caret"></span>
+          <span className="caret"/>
         </button>
         <ul className="dropdown-menu" aria-labelledby="types-dropdown">
           {this.renderTypes()}

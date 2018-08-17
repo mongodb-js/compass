@@ -35,6 +35,7 @@ class DocumentListView extends React.Component {
         <li className={LIST_ITEM_CLASS} data-test-id={LIST_ITEM_TEST_ID} key={i}>
           <Document
             doc={doc}
+            tz="UTC"
             key={i}
             editable={this.props.isEditable}
             version={this.props.version}

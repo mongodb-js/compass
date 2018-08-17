@@ -17,7 +17,7 @@ class NoAction extends React.Component {
    */
   render() {
     return (
-      <div className={ACTIONS}></div>
+      <div className={ACTIONS}/>
     );
   }
 }

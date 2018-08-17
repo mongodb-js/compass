@@ -29,6 +29,7 @@ Document.displayName = 'Document';
 
 Document.propTypes = {
   doc: PropTypes.object.isRequired,
+  tz: PropTypes.string,
   editable: PropTypes.bool,
   expandAll: PropTypes.bool,
   removeDocument: PropTypes.func,

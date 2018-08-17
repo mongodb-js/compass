@@ -244,6 +244,7 @@ class EditableDocument extends React.Component {
         <EditableElement
           key={element.uuid}
           element={element}
+          tz={this.props.tz}
           indent={0}
           version={this.props.version}
           editing={this.state.editing}
@@ -336,6 +337,7 @@ EditableDocument.propTypes = {
   updateDocument: PropTypes.func.isRequired,
   version: PropTypes.string.isRequired,
   editable: PropTypes.bool,
+  tz: PropTypes.string,
   expandAll: PropTypes.bool,
   openInsertDocumentDialog: PropTypes.func.isRequired,
   copyToClipboard: PropTypes.func.isRequired
