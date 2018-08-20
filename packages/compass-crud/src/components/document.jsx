@@ -20,6 +20,7 @@ class Document extends React.Component {
     return (
       <ReadonlyDocument
         doc={this.props.doc}
+        tz={this.props.tz}
         expandAll={this.props.expandAll} />
     );
   }
