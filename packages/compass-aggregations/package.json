@@ -27,7 +27,7 @@
   ],
   "license": "Apache-2.0",
   "peerDependencies": {
-    "@mongodb-js/compass-crud": "^5.1.0",
+    "@mongodb-js/compass-crud": "^5.3.4",
     "hadron-react-buttons": "^2.0.0",
     "hadron-react-components": "^2.0.0",
     "mongodb-ace-autocompleter": "^0.0.21",
@@ -39,7 +39,7 @@
     "react-bootstrap": "^0.32.1"
   },
   "devDependencies": {
-    "@mongodb-js/compass-crud": "^5.1.0",
+    "@mongodb-js/compass-crud": "^5.3.4",
     "@mongodb-js/compass-field-store": "^1.0.0",
     "autoprefixer": "^7.1.2",
     "babel-cli": "^6.10.1",
