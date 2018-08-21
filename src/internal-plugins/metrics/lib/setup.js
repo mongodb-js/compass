@@ -23,7 +23,7 @@ module.exports = function() {
   metrics.configure({
     stitch: {
       appId: 'datawarehouseprod-compass-nqnxw',
-      enabled: true
+      enabled: app.preferences.trackUsageStatistics
     },
     bugsnag: {
       apiKey: BUGSNAG_KEY,
@@ -137,7 +137,10 @@ module.exports = function() {
     metrics.trackers.get('ga').enabled = enabled;
     metrics.trackers.get('intercom').enabled = enabled;
     if (enabled && !app.preferences.enableFeedbackPanel) {
-      document.querySelector('#intercom-container').classList.add('hidden');
+      const container = document.querySelector('#intercom-container');
+      if (container) {
+        container.classList.add('hidden');
+      }
     }
     // metrics.trackers.get('mixpanel').enabled = enabled;
   });
@@ -145,10 +148,13 @@ module.exports = function() {
     // enable/disable product feedback
     metrics.trackers.get('intercom').panelEnabled = enabled;
     if (Window && document.querySelector('#intercom-container')) {
-      if (enabled) {
-        document.querySelector('#intercom-container').classList.remove('hidden');
-      } else {
-        document.querySelector('#intercom-container').classList.add('hidden');
+      const container = document.querySelector('#intercom-container');
+      if (container) {
+        if (enabled) {
+          container.classList.remove('hidden');
+        } else {
+          container.classList.add('hidden');
+        }
       }
     }
   });
