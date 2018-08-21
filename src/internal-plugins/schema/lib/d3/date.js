@@ -38,7 +38,7 @@ const minicharts_d3fns_date = function() {
   const weekdayLabels = moment.weekdays();
 
   // A formatter for dates
-  const format = d3.time.format('%Y-%m-%d %H:%M:%S');
+  const format = d3.time.format.utc('%Y-%m-%d %H:%M:%S');
 
   const margin = shared.margin;
   const barcodeX = d3.time.scale();
