@@ -18,7 +18,7 @@ class TimeAndPauseButton extends React.Component {
   componentDidMount() {
     this.props.eventDispatcher.on('newXValue', xDate => {
       this.setState({
-        time: d3.time.format('%X')(xDate)
+        time: d3.time.format.utc('%X')(xDate)
       });
     });
   }

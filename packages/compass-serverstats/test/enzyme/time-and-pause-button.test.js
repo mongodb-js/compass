@@ -33,7 +33,7 @@ describe('<TimeAndPauseButton />', function() {
       });
 
       it('shows the correct time', function() {
-        expect(this.component.find('.currentTime').text()).to.equal(d3.time.format('%X')(this.date));
+        expect(this.component.find('.currentTime').text()).to.equal(d3.time.format.utc('%X')(this.date));
       });
     });
   });
