@@ -41,6 +41,8 @@ class Pipeline extends PureComponent {
     savedPipeline: PropTypes.object.isRequired,
     saveCurrentPipeline: PropTypes.func.isRequired,
     newPipeline: PropTypes.func.isRequired,
+    newPipelineFromText: PropTypes.func.isRequired,
+    closeImport: PropTypes.func.isRequired,
     clonePipeline: PropTypes.func.isRequired,
     changeText: PropTypes.func.isRequired,
     createNew: PropTypes.func.isRequired,
@@ -63,8 +65,7 @@ class Pipeline extends PureComponent {
     collationChanged: PropTypes.func.isRequired,
     isCollationValid: PropTypes.bool,
     collationValidated: PropTypes.func.isRequired,
-    openLink: PropTypes.func.isRequired,
-    closeImport: PropTypes.func
+    openLink: PropTypes.func.isRequired
   }
 
   /**
@@ -106,6 +107,7 @@ class Pipeline extends PureComponent {
           saveCurrentPipeline={this.props.saveCurrentPipeline}
           savedPipeline={this.props.savedPipeline}
           newPipeline={this.props.newPipeline}
+          newPipelineFromText={this.props.newPipelineFromText}
           clonePipeline={this.props.clonePipeline}
           toggleComments={this.props.toggleComments}
           toggleSample={this.props.toggleSample}

@@ -27,6 +27,11 @@ class PipelineBuilderToolbar extends PureComponent {
     isModified: PropTypes.bool.isRequired
   }
 
+  /**
+   * Name change event handler.
+   *
+   * @param {Object} evt
+   */
   onNameChange = (evt) => {
     this.props.nameChanged(evt.target.value);
     this.props.setIsModified(true);

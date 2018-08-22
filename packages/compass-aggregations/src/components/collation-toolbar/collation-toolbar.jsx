@@ -24,10 +24,7 @@ class CollationToolbar extends PureComponent {
     openLink: PropTypes.func.isRequired
   };
 
-  static defaultProps = {
-    collation: '',
-    isCollationValid: true
-  };
+  static defaultProps = { collation: '', isCollationValid: true};
 
   state = { hasFocus: false };
 
