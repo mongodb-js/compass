@@ -1,3 +1,5 @@
+@import (reference) "~less/compass/_theme.less";
+
 .collation-toolbar {
   border-bottom: 1px solid rgba(0, 0, 0, 0.2);
   box-shadow: 1px 1px 3px rgba(0, 0, 0, 0.4);
@@ -15,28 +17,41 @@
   position: relative;
   display: flex;
   border-radius: 14px;
-  border: 1px solid #bfbfbe;
-  background: #fff;
+  border: 1px @gray5 solid;
+  background: @pw;
   margin-right: 10px;
   overflow: hidden;
   padding: 4px;
 
   .collation-toolbar-input-label {
-    background: #bfbfbe;
-    color: #fff;
+    background: @gray5;
+    color: @pw;
     white-space: nowrap;
     border-radius: 14px;
-    padding: 2px 5px;
+    padding: 2px 1px;
     margin-right: 5px;
     text-transform: uppercase;
     font-weight: bold;
     font-family: "Akzidenz", "Helvetica Neue", Helvetica, Arial, sans-serif;
     font-size: 11px;
     flex-grow: 0;
-    width: 100px;
+    width: 110px;
+  }
+
+  .has-error {
+    background: @alertRed;
   }
 
   input {
     border: 0;
+    width: 100%;
   }
+
+  input:focus {
+    outline-width: 0;
+  }
+}
+
+.has-focus {
+  border-color: @alertBlue;
 }

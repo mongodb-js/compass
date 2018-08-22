@@ -108,6 +108,8 @@ export const saveCurrentPipeline = () => {
       , { comments: state.comments }
       , { sample: state.sample }
       , { autoPreview: state.autoPreview }
+      , { collation: state.collation }
+      , { isCollationValid: state.isCollationValid }
     );
 
     getObjectStore('readwrite', (store) => {

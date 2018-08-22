@@ -4,6 +4,8 @@ import classnames from 'classnames';
 import Pipeline from 'components/pipeline';
 import { namespaceChanged } from 'modules/namespace';
 import { nameChanged } from 'modules/name';
+import { collationChanged } from 'modules/collation';
+import { collationValidated } from 'modules/is-collation-valid';
 import { toggleComments } from 'modules/comments';
 import { toggleSample } from 'modules/sample';
 import { toggleAutoPreview } from 'modules/auto-preview';
@@ -86,6 +88,8 @@ const mapStateToProps = (state) => ({
   savedPipeline: state.savedPipeline,
   restorePipeline: state.restorePipeline,
   name: state.name,
+  collation: state.collation,
+  isCollationValid: state.isCollationValid,
   isModified: state.isModified,
   isCommenting: state.comments,
   isSampling: state.sample,
@@ -105,6 +109,8 @@ const MappedAggregations = connect(
   {
     namespaceChanged,
     nameChanged,
+    collationChanged,
+    collationValidated,
     toggleInputDocumentsCollapsed,
     refreshInputDocuments,
     toggleComments,

@@ -58,7 +58,11 @@ class Pipeline extends PureComponent {
     isImportConfirmationNeeded: PropTypes.bool.isRequired,
     setIsModified: PropTypes.func.isRequired,
     name: PropTypes.string,
-    importPipelineError: PropTypes.string
+    importPipelineError: PropTypes.string,
+    collation: PropTypes.string,
+    collationChanged: PropTypes.func.isRequired,
+    isCollationValid: PropTypes.bool,
+    collationValidated: PropTypes.func.isRequired
   }
 
   /**
@@ -111,7 +115,11 @@ class Pipeline extends PureComponent {
           isSampling={this.props.isSampling}
           isAutoPreviewing={this.props.isAutoPreviewing}
           name={this.props.name} />
-        <CollationToolbar />
+        <CollationToolbar
+          collation={this.props.collation}
+          collationChanged={this.props.collationChanged}
+          isCollationValid={this.props.isCollationValid}
+          collationValidated={this.props.collationValidated} />
         <div className={classnames(styles['pipeline-top-separator'])}></div>
         <div className={classnames(styles['pipeline-bottom-separator'])}></div>
         <PipelineWorkspace {...this.props} />

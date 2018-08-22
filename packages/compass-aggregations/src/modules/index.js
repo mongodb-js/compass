@@ -12,6 +12,8 @@ import pipeline, {
   INITIAL_STATE as PIPELINE_INITIAL_STATE
 } from './pipeline';
 import name, { INITIAL_STATE as NAME_INITIAL_STATE } from './name';
+import collation, { INITIAL_STATE as COLLATION_INITIAL_STATE } from './collation';
+import isCollationValid, { INITIAL_STATE as IS_COLLATION_VALID_INITIAL_STATE } from './is-collation-valid';
 import comments, { INITIAL_STATE as COMMENTS_INITIAL_STATE } from './comments';
 import sample, { INITIAL_STATE as SAMPLE_INITIAL_STATE } from './sample';
 import autoPreview, { INITIAL_STATE as AUTO_PREVIEW_INITIAL_STATE } from './auto-preview';
@@ -43,6 +45,8 @@ export const INITIAL_STATE = {
   savedPipeline: SP_INITIAL_STATE,
   restorePipeline: RESTORE_PIPELINE_STATE,
   name: NAME_INITIAL_STATE,
+  collation: COLLATION_INITIAL_STATE,
+  isCollationValid: IS_COLLATION_VALID_INITIAL_STATE,
   comments: COMMENTS_INITIAL_STATE,
   sample: SAMPLE_INITIAL_STATE,
   autoPreview: AUTO_PREVIEW_INITIAL_STATE,
@@ -98,6 +102,8 @@ const appReducer = combineReducers({
   restorePipeline,
   pipeline,
   name,
+  collation,
+  isCollationValid,
   id,
   isModified,
   importPipeline
@@ -151,6 +157,8 @@ const doRestorePipeline = (state, action) => {
     namespace: savedState.namespace,
     pipeline: savedState.pipeline,
     name: savedState.name,
+    collation: savedState.collation,
+    isCollationValid: savedState.isCollationValid,
     id: savedState.id,
     comments: commenting,
     sample: sampling,
@@ -188,6 +196,8 @@ const doClearPipeline = (state) => ({
 
 /**
  * Create a new pipeline.
+ *
+ * @param {Object} state - The state.
  *
  * @returns {Object} The new state.
  */
@@ -228,6 +238,8 @@ const doConfirmNewFromText = (state) => {
   return {
     ...state,
     name: '',
+    collation: '',
+    isCollationValid: true,
     id: new ObjectId().toHexString(),
     pipeline: error ? [] : pipe,
     importPipeline: {

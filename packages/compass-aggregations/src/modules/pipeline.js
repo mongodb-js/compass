@@ -3,6 +3,7 @@ import { generateStage, generateStageAsString} from 'modules/stage';
 import { appRegistryEmit } from 'modules/app-registry';
 import { ObjectId } from 'bson';
 import toNS from 'mongodb-ns';
+import isEmpty from 'lodash.isEmpty';
 
 /**
  * Action name prefix.
@@ -466,11 +467,6 @@ export const loadingStageResults = (index) => ({
 });
 
 /**
- * The options constant.
- */
-const OPTIONS = Object.freeze({ maxTimeMS: 5000, allowDiskUse: true });
-
-/**
  * Generate the aggregation pipeline for the index.
  *
  * Will add all previous stages up to the current index.
@@ -540,9 +536,13 @@ const executeAggregation = (dataService, ns, dispatch, state, index) => {
  * @param {Number} index - The current index.
  */
 const executeStage = (dataService, ns, dispatch, state, index) => {
+  const options = {maxTimeMS: 5000, allowDiskUse: true};
   dispatch(loadingStageResults(index));
   const pipeline = generatePipeline(state, index);
-  dataService.aggregate(ns, pipeline, OPTIONS, (err, cursor) => {
+  if (isEmpty(state.collation) === false) {
+    options.collation = state.collation;
+  }
+  dataService.aggregate(ns, pipeline, options, (err, cursor) => {
     if (err) return dispatch(stagePreviewUpdated([], index, err));
     cursor.toArray((e, docs) => {
       dispatch(stagePreviewUpdated(docs || [], index, e, true));
