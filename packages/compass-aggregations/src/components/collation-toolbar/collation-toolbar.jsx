@@ -1,5 +1,4 @@
 import React, { PureComponent } from 'react';
-import { shell } from 'electron';
 import { InfoSprinkle } from 'hadron-react-components';
 import PropTypes from 'prop-types';
 import classnames from 'classnames';
@@ -21,7 +20,8 @@ class CollationToolbar extends PureComponent {
     collation: PropTypes.string,
     collationChanged: PropTypes.func.isRequired,
     isCollationValid: PropTypes.bool,
-    collationValidated: PropTypes.func.isRequired
+    collationValidated: PropTypes.func.isRequired,
+    openLink: PropTypes.func.isRequired
   };
 
   static defaultProps = {
@@ -34,7 +34,7 @@ class CollationToolbar extends PureComponent {
   /**
    * Changes collation state.
    *
-   * @param {String} evt - Collation options.
+   * @param {Object} evt - Collation options.
    */
   onCollationChange = (evt) => {
     this.props.collationChanged(evt.target.value);
@@ -77,7 +77,7 @@ class CollationToolbar extends PureComponent {
               { [ styles['has-error'] ]: !this.props.isCollationValid }
             )}
             data-test-id="collation-toolbar-input-label">
-            <InfoSprinkle helpLink={HELP_URL_COLLATION} onClickHandler={shell.openExternal} />
+            <InfoSprinkle helpLink={HELP_URL_COLLATION} onClickHandler={this.props.openLink} />
             Collation
           </div>
           <input

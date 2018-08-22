@@ -167,7 +167,9 @@ describe('Aggregation Store', () => {
             serverVersion: INITIAL_STATE.serverVersion,
             pipeline: INITIAL_STATE.pipeline,
             isModified: INITIAL_STATE.isModified,
-            importPipeline: INITIAL_STATE.importPipeline
+            importPipeline: INITIAL_STATE.importPipeline,
+            collation: INITIAL_STATE.collation,
+            isCollationValid: INITIAL_STATE.isCollationValid
           });
         });
       });
@@ -201,7 +203,9 @@ describe('Aggregation Store', () => {
             serverVersion: INITIAL_STATE.serverVersion,
             pipeline: INITIAL_STATE.pipeline,
             isModified: INITIAL_STATE.isModified,
-            importPipeline: INITIAL_STATE.importPipeline
+            importPipeline: INITIAL_STATE.importPipeline,
+            collation: INITIAL_STATE.collation,
+            isCollationValid: INITIAL_STATE.isCollationValid
           });
         });
       });

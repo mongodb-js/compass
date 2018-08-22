@@ -26,7 +26,7 @@ export default function reducer(state = INITIAL_STATE, action) {
 /**
  * Action creator for collation changed event.
  *
- * @param {String} collation - The collation value.
+ * @param {Object} collation - The collation value.
  *
  * @returns {Object} The collation changed action.
  */

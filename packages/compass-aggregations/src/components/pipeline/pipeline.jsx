@@ -62,7 +62,9 @@ class Pipeline extends PureComponent {
     collation: PropTypes.string,
     collationChanged: PropTypes.func.isRequired,
     isCollationValid: PropTypes.bool,
-    collationValidated: PropTypes.func.isRequired
+    collationValidated: PropTypes.func.isRequired,
+    openLink: PropTypes.func.isRequired,
+    closeImport: PropTypes.func
   }
 
   /**
@@ -119,7 +121,8 @@ class Pipeline extends PureComponent {
           collation={this.props.collation}
           collationChanged={this.props.collationChanged}
           isCollationValid={this.props.isCollationValid}
-          collationValidated={this.props.collationValidated} />
+          collationValidated={this.props.collationValidated}
+          openLink={this.props.openLink} />
         <div className={classnames(styles['pipeline-top-separator'])}></div>
         <div className={classnames(styles['pipeline-bottom-separator'])}></div>
         <PipelineWorkspace {...this.props} />
