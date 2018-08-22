@@ -3,7 +3,7 @@ import { generateStage, generateStageAsString} from 'modules/stage';
 import { appRegistryEmit } from 'modules/app-registry';
 import { ObjectId } from 'bson';
 import toNS from 'mongodb-ns';
-import isEmpty from 'lodash.isEmpty';
+import isEmpty from 'lodash.isempty';
 
 /**
  * Action name prefix.

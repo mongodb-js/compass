@@ -132,6 +132,7 @@
     "bson-transpilers": "^0.8.0",
     "decomment": "^0.9.1",
     "lodash.debounce": "^4.0.8",
+    "lodash.isempty": "^4.4.0",
     "mongodb-extended-json": "^1.10.0",
     "mongodb-ns": "^2.0.0",
     "mongodb-query-parser": "^1.1.3",
