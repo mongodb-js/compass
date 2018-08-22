@@ -28,9 +28,9 @@ export const INITIAL_STATE = {
 };
 
 function copyToClipboard(state, action) {
-  clipboard.writeText(action.input);
+  clipboard.writeText(action.input.query);
 
-  return { ...state, copySuccess: true };
+  return { ...state, copySuccess: action.input.type };
 }
 
 function closeModal(state, action) {

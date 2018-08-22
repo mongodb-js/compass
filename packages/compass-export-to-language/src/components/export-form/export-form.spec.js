@@ -50,43 +50,63 @@ describe('ExportForm [Component]', () => {
     });
 
     it('renders headers input text', () => {
-      expect(component.find(`.${styles['export-to-lang-headers-input']}`)).to.contain.html('My Query:');
+      expect(
+        component.find(`.${styles['export-to-lang-headers-input']}`)
+      ).to.contain.html('My Query:');
     });
 
     it('renders headers output text', () => {
-      expect(component.find(`.${styles['export-to-lang-headers-output-title']}`)).to.contain.html('Export Query To:');
+      expect(
+        component.find(`.${styles['export-to-lang-headers-output-title']}`)
+      ).to.contain.html('Export Query To:');
     });
 
     it('renders select lang dropdown', () => {
-      expect(component.find(`.${styles['export-to-lang-headers-output']}`)).to.have.descendants(SelectLang);
+      expect(
+        component.find(`.${styles['export-to-lang-headers-output']}`)
+      ).to.have.descendants(SelectLang);
     });
 
     it('renders query input/output editor wrapper', () => {
-      expect(component.find(`.${styles['export-to-lang-query']}`)).to.be.present();
+      expect(
+        component.find(`.${styles['export-to-lang-query']}`)
+      ).to.be.present();
     });
 
     it('renders input editor wrapper', () => {
-      expect(component.find(`.${styles['export-to-lang-query-input']}`)).to.be.present();
+      expect(
+        component.find(`.${styles['export-to-lang-query-input']}`)
+      ).to.be.present();
     });
 
     it('does not render an error div', () => {
-      expect(component.find(`.${styles['export-to-lang-query-input']}`)).to.not.have.descendants(Alert);
+      expect(
+        component.find(`.${styles['export-to-lang-query-input']}`)
+      ).to.not.have.descendants(Alert);
     });
 
     it('renders input editor', () => {
-      expect(component.find(`.${styles['export-to-lang-query-input']}`)).to.have.descendants(Editor);
+      expect(
+        component.find(`.${styles['export-to-lang-query-input']}`)
+      ).to.have.descendants(Editor);
     });
 
     it('renders output editor wrapper', () => {
-      expect(component.find(`.${styles['export-to-lang-query-output']}`)).to.be.present();
+      expect(
+        component.find(`.${styles['export-to-lang-query-output']}`)
+      ).to.be.present();
     });
 
     it('renders output editor', () => {
-      expect(component.find(`.${styles['export-to-lang-query-output']}`)).to.have.descendants(Editor);
+      expect(
+        component.find(`.${styles['export-to-lang-query-output']}`)
+      ).to.have.descendants(Editor);
     });
 
     it('renders copy button', () => {
-      expect(component.find(`.${styles['export-to-lang-query-output-copy']}`)).to.be.present();
+      expect(
+        component.find(`.${styles['export-to-lang-query-output-copy']}`)
+      ).to.be.present();
     });
   });
 
@@ -98,8 +118,8 @@ describe('ExportForm [Component]', () => {
       copySuccess: false,
       queryError: null,
       modalOpen: true,
-      returnQuery: '',
-      inputQuery: '',
+      returnQuery: '{\n\'x\': 1\n}',
+      inputQuery: '{x: 1}',
       imports: ''
     };
     const setOutputLangSpy = sinon.spy();
@@ -122,9 +142,26 @@ describe('ExportForm [Component]', () => {
       component = null;
     });
 
-    it('calls the click button action', () => {
-      component.find('.fa-copy').simulate('click');
+    it('calls the copy action with the output', () => {
+      component
+        .find(`.${styles['export-to-lang-query-output-copy']}`)
+        .find('.fa-copy')
+        .simulate('click');
       expect(copyQuerySpy.calledOnce).to.equal(true);
+      expect(copyQuerySpy.getCall(0).args[0]).to.deep.equal(
+        { query: '{\n\'x\': 1\n}', type: 'output' }
+        );
+    });
+
+    it('calls the copy action with the input', () => {
+      component
+        .find(`.${styles['export-to-lang-query-input-copy']}`)
+        .find('.fa-copy')
+        .simulate('click');
+      expect(copyQuerySpy.calledTwice).to.equal(true);
+      expect(copyQuerySpy.getCall(1).args[0]).to.deep.equal(
+        { query: '{x: 1}', type: 'input' }
+        );
     });
   });
 

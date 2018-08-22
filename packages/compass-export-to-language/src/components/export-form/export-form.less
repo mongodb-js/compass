@@ -48,16 +48,34 @@
     padding-bottom: 10px;
 
     &-input {
-      flex-basis: 0;
-      flex: 1 1 0;
+      display: inline-flex;
       width: 50%;
       padding-right: 10px;
       max-height: 30em;
       overflow: auto;
 
+      &-bubble {
+        position: absolute;
+        top: 40px;
+        right: 365px;
+        border-radius: 3px;
+        color: #fff;
+        padding: 6px;
+        display: inline-block;
+        font-size: 11px;
+        font-weight: 600;
+        text-transform: uppercase;
+        background-color: @gray2;
+      }
+
       &-error {
         margin-top: 10px;
         padding: 10px;
+      }
+      &-copy {
+        > * {
+          padding-right: 0;
+        }
       }
     }
 
@@ -93,7 +111,15 @@
     }
   }
 
-  &-copy-container {
+  &-copy-output-container {
+    flex-basis: auto;
+    flex-shrink: 0;
+    flex-grow: 0;
+    background: @gray8;
+    padding: 10px 10px 0 0;
+  }
+
+  &-copy-input-container {
     flex-basis: auto;
     flex-shrink: 0;
     flex-grow: 0;

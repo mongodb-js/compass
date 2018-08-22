@@ -21,7 +21,7 @@ import reducer, {
 } from 'modules/export-query';
 
 describe('export query module', () => {
-  describe('#copyQuery', () => {
+  describe('#copyOutput', () => {
     it('returns a copy query action type', () => {
       expect(copyQuery('test query to copy')).to.deep.equal({
         type: COPY_QUERY,

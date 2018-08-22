@@ -19,15 +19,27 @@ class ExportForm extends Component {
     runQuery: PropTypes.func.isRequired
   };
 
-  copyHandler = (evt) => {
+  copyOutputHandler = (evt) => {
     evt.preventDefault();
-    this.props.copyQuery(this.props.exportQuery.returnQuery);
+    this.props.copyQuery({ query: this.props.exportQuery.returnQuery, type: 'output' });
+    setTimeout(() => { this.props.clearCopy(); }, 2500);
+  };
+
+  copyInputHandler = (evt) => {
+    evt.preventDefault();
+    this.props.copyQuery({ query: this.props.exportQuery.inputQuery, type: 'input'});
     setTimeout(() => { this.props.clearCopy(); }, 2500);
   };
 
   render() {
-    const copyButtonStyle = classnames({
+    const copyOutputButtonStyle = classnames({
       [ styles['export-to-lang-query-output-copy'] ]: true,
+      'btn-sm': true,
+      'btn-primary': true,
+      'btn': true
+    });
+    const copyInputButtonStyle = classnames({
+      [ styles['export-to-lang-query-input-copy'] ]: true,
       'btn-sm': true,
       'btn-primary': true,
       'btn': true
@@ -37,16 +49,24 @@ class ExportForm extends Component {
       ? <Alert bsStyle="danger" className={classnames(styles['export-to-lang-query-input-error'])} children={this.props.exportQuery.queryError}/>
       : '';
 
-    const bubbleDiv = this.props.exportQuery.copySuccess
+    const outputBubbleDiv = this.props.exportQuery.copySuccess === 'output'
       ? <div className={classnames(styles['export-to-lang-query-output-bubble'])}>Copied!</div>
+      : '';
+
+    const inputBubbleDiv = this.props.exportQuery.copySuccess === 'input'
+      ? <div className={classnames(styles['export-to-lang-query-input-bubble'])}>Copied!</div>
       : '';
 
     return (
       <form name="export-to-lang" data-test-id="export-to-lang" className="export-to-lang">
         <div className={classnames(styles['export-to-lang-headers'])}>
-          <p className={classnames(styles['export-to-lang-headers-input'])}>{`My ${this.props.exportQuery.namespace}:`}</p>
+          <p className={classnames(styles['export-to-lang-headers-input'])}>
+            {`My ${this.props.exportQuery.namespace}:`}
+          </p>
           <div className={classnames(styles['export-to-lang-headers-output'])}>
-            <p className={classnames(styles['export-to-lang-headers-output-title'])}>{`Export ${this.props.exportQuery.namespace} To:`}</p>
+            <p className={classnames(styles['export-to-lang-headers-output-title'])}>
+              {`Export ${this.props.exportQuery.namespace} To:`}
+            </p>
             <SelectLang
               outputLang={this.props.exportQuery.outputLang}
               inputQuery={this.props.exportQuery.inputQuery}
@@ -64,6 +84,13 @@ class ExportForm extends Component {
               imports={this.props.exportQuery.imports}
               input/>
             {errorDiv}
+            {inputBubbleDiv}
+            <div className={classnames(styles['export-to-lang-copy-input-container'])}>
+              <IconTextButton
+                clickHandler={this.copyInputHandler}
+                className={copyInputButtonStyle}
+                iconClassName="fa fa-copy"/>
+            </div>
           </div>
           <div className={classnames(styles['export-to-lang-query-output'])}>
             <Editor
@@ -72,11 +99,11 @@ class ExportForm extends Component {
               outputLang={this.props.exportQuery.outputLang}
               inputQuery={this.props.exportQuery.inputQuery}
               imports={this.props.exportQuery.imports}/>
-            {bubbleDiv}
-            <div className={classnames(styles['export-to-lang-copy-container'])}>
+            {outputBubbleDiv}
+            <div className={classnames(styles['export-to-lang-copy-output-container'])}>
               <IconTextButton
-                clickHandler={this.copyHandler}
-                className={copyButtonStyle}
+                clickHandler={this.copyOutputHandler}
+                className={copyOutputButtonStyle}
                 iconClassName="fa fa-copy"/>
             </div>
           </div>
