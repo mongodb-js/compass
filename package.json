@@ -1,7 +1,7 @@
 {
   "name": "mongodb-compass",
   "productName": "MongoDB Compass",
-  "description": "Fred's Data Playground",
+  "description": "The MongoDB GUI",
   "homepage": "https://compass.mongodb.com",
   "version": "1.17.0-dev",
   "apiVersion": "2.0.0",
