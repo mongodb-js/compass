@@ -1,12 +1,14 @@
+import queryParser from 'mongodb-query-parser';
+
 /**
- * Collation changed action.
+ * Collation action.
  */
 export const COLLATION_CHANGED = 'aggregations/collation/COLLATION_CHANGED';
 
 /**
  * The collation initial state.
  */
-export const INITIAL_STATE = '';
+export const INITIAL_STATE = null;
 
 /**
  * Reducer function for handle collation state changes.
@@ -24,12 +26,15 @@ export default function reducer(state = INITIAL_STATE, action) {
 }
 
 /**
- * Action creator for collation changed event.
+ * Action creator for collation event.
  *
- * @param {Object} collation - The collation value.
+ * @param {String} collation - The collation value.
  *
  * @returns {Object} The collation changed action.
  */
 export const collationChanged = (collation) => {
-  return { type: COLLATION_CHANGED, collation };
+  return {
+    type: COLLATION_CHANGED,
+    collation: queryParser.isCollationValid(collation)
+  };
 };

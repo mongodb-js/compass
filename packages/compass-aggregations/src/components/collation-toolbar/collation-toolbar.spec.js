@@ -8,23 +8,23 @@ describe('CollationToolbar [Component]', () => {
   let component;
   let collationSpy;
   let collationChangedSpy;
-  let isCollationValidSpy;
-  let collationValidatedSpy;
+  let collationStringSpy;
+  let collationStringChangedSpy;
   let openLinkSpy;
 
   beforeEach(() => {
     collationSpy = sinon.spy();
     collationChangedSpy = sinon.spy();
-    isCollationValidSpy = sinon.spy();
-    collationValidatedSpy = sinon.spy();
+    collationStringSpy = sinon.spy();
+    collationStringChangedSpy = sinon.spy();
     openLinkSpy = sinon.spy();
 
     component = mount(
       <CollationToolbar
         collation={collationSpy}
         collationChanged={collationChangedSpy}
-        isCollationValid={isCollationValidSpy}
-        collationValidated={collationValidatedSpy}
+        collationString={collationStringSpy}
+        collationStringChanged={collationStringChangedSpy}
         openLink={openLinkSpy} />
     );
   });
@@ -33,8 +33,8 @@ describe('CollationToolbar [Component]', () => {
     component = null;
     collationSpy = null;
     collationChangedSpy = null;
-    isCollationValidSpy = null;
-    collationValidatedSpy = null;
+    collationStringSpy = null;
+    collationStringChangedSpy = null;
   });
 
   it('renders the wrapper div', () => {
