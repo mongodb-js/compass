@@ -4,6 +4,7 @@ import classnames from 'classnames';
 import Pipeline from 'components/pipeline';
 import { namespaceChanged } from 'modules/namespace';
 import { nameChanged } from 'modules/name';
+import { collationCollapseToggled } from 'modules/collation-collapser';
 import { collationChanged } from 'modules/collation';
 import { collationStringChanged } from 'modules/collation-string';
 import { toggleComments } from 'modules/comments';
@@ -88,6 +89,7 @@ const mapStateToProps = (state) => ({
   savedPipeline: state.savedPipeline,
   restorePipeline: state.restorePipeline,
   name: state.name,
+  isCollationExpanded: state.isCollationExpanded,
   collation: state.collation,
   collationString: state.collationString,
   isModified: state.isModified,
@@ -128,6 +130,7 @@ const MappedAggregations = connect(
     stageMoved,
     stageOperatorSelected,
     stageToggled,
+    collationCollapseToggled,
     exportToLanguage,
     savedPipelinesListToggle,
     saveCurrentPipeline,

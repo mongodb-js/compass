@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import classnames from 'classnames';
 import { TextButton, IconButton } from 'hadron-react-buttons';
 import { Dropdown, MenuItem } from 'react-bootstrap';
+import CollationCollapser from 'components/collation-collapser';
 
 import styles from './pipeline-builder-toolbar.less';
 
@@ -24,7 +25,9 @@ class PipelineBuilderToolbar extends PureComponent {
     name: PropTypes.string.isRequired,
     saveCurrentPipeline: PropTypes.func.isRequired,
     setIsModified: PropTypes.func.isRequired,
-    isModified: PropTypes.bool.isRequired
+    isModified: PropTypes.bool.isRequired,
+    collationCollapseToggled: PropTypes.func.isRequired,
+    isCollationExpanded: PropTypes.bool.isRequired
   }
 
   /**
@@ -73,6 +76,9 @@ class PipelineBuilderToolbar extends PureComponent {
 
     return (
       <div className={classnames(styles['pipeline-builder-toolbar'])}>
+        <CollationCollapser
+          isCollationExpanded={this.props.isCollationExpanded}
+          collationCollapseToggled={this.props.collationCollapseToggled} />
         <IconButton
           title="Toggle Saved Pipelines"
           className={openPipelinesClassName}

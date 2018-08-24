@@ -65,7 +65,9 @@ class Pipeline extends PureComponent {
     collationChanged: PropTypes.func.isRequired,
     collationString: PropTypes.string,
     collationStringChanged: PropTypes.func.isRequired,
-    openLink: PropTypes.func.isRequired
+    openLink: PropTypes.func.isRequired,
+    collationCollapseToggled: PropTypes.func.isRequired,
+    isCollationExpanded: PropTypes.bool.isRequired
   }
 
   /**
@@ -97,6 +99,22 @@ class Pipeline extends PureComponent {
         runStage={this.props.runStage}
         confirmNew={this.props.confirmNew} />
     );
+    let collation = null;
+    let separator = (<div className={classnames(styles['pipeline-separator'])}></div>);
+    if (this.props.isCollationExpanded) {
+      collation = (
+        <CollationToolbar
+          collation={this.props.collation}
+          collationChanged={this.props.collationChanged}
+          collationString={this.props.collationString}
+          collationStringChanged={this.props.collationStringChanged}
+          openLink={this.props.openLink} />
+      );
+      separator = ([
+        <div key="top-separator" className={classnames(styles['pipeline-top-separator'])}></div>,
+        <div key="bottom-separator" className={classnames(styles['pipeline-bottom-separator'])}></div>
+      ]);
+    }
 
     return (
       <div className={classnames(styles.pipeline)}>
@@ -118,15 +136,11 @@ class Pipeline extends PureComponent {
           isCommenting={this.props.isCommenting}
           isSampling={this.props.isSampling}
           isAutoPreviewing={this.props.isAutoPreviewing}
+          collationCollapseToggled={this.props.collationCollapseToggled}
+          isCollationExpanded={this.props.isCollationExpanded}
           name={this.props.name} />
-        <CollationToolbar
-          collation={this.props.collation}
-          collationChanged={this.props.collationChanged}
-          collationString={this.props.collationString}
-          collationStringChanged={this.props.collationStringChanged}
-          openLink={this.props.openLink} />
-        <div className={classnames(styles['pipeline-top-separator'])}></div>
-        <div className={classnames(styles['pipeline-bottom-separator'])}></div>
+        {collation}
+        {separator}
         <PipelineWorkspace {...this.props} />
         <SavePipeline
           restorePipelineModalToggle={this.props.restorePipelineModalToggle}

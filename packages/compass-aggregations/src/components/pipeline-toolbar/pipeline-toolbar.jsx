@@ -30,7 +30,9 @@ class PipelineToolbar extends PureComponent {
     isSampling: PropTypes.bool.isRequired,
     isAutoPreviewing: PropTypes.bool.isRequired,
     setIsModified: PropTypes.func.isRequired,
-    name: PropTypes.string
+    name: PropTypes.string,
+    collationCollapseToggled: PropTypes.func.isRequired,
+    isCollationExpanded: PropTypes.bool.isRequired
   }
 
   /**
@@ -40,7 +42,10 @@ class PipelineToolbar extends PureComponent {
    */
   render() {
     return (
-      <div className={classnames(styles['pipeline-toolbar'])}>
+      <div className={classnames(
+        styles['pipeline-toolbar'],
+        { [ styles['pipeline-toolbar-border'] ]: !this.props.isCollationExpanded }
+      )}>
         <PipelineBuilderToolbar
           savedPipelinesListToggle={this.props.savedPipelinesListToggle}
           getSavedPipelines={this.props.getSavedPipelines}
@@ -54,7 +59,9 @@ class PipelineToolbar extends PureComponent {
           nameChanged={this.props.nameChanged}
           isModified={this.props.isModified}
           setIsModified={this.props.setIsModified}
-          name={this.props.name} />
+          name={this.props.name}
+          collationCollapseToggled={this.props.collationCollapseToggled}
+          isCollationExpanded={this.props.isCollationExpanded} />
         <PipelinePreviewToolbar
           toggleComments={this.props.toggleComments}
           toggleSample={this.props.toggleSample}
