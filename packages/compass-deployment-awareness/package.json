@@ -61,7 +61,6 @@
     "less": "^2.7.1",
     "less-loader": "^2.2.3",
     "mocha": "^4.1.0",
-    "mongodb": "^3.1.4",
     "mongodb-connection-model": "^12.4.0",
     "mongodb-data-service": "^12.2.0",
     "mongodb-js-fmt": "^0.0.3",
@@ -77,5 +76,8 @@
     "sinon": "^1.17.6",
     "sinon-chai": "^2.8.0",
     "watch": "^1.0.2"
+  },
+  "dependencies": {
+    "mongodb": "^3.1.4"
   }
 }
