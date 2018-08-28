@@ -37,6 +37,6 @@
     "fast-json-parse": "^1.0.3",
     "js-yaml": "^3.11.0",
     "mocha": "^5.0.2",
-    "mongodb": "^3.1.0"
+    "mongodb": "^3.1.4"
   }
 }
