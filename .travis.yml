@@ -15,6 +15,7 @@ addons:
     packages:
       - libkrb5-dev
       - libsecret-1-dev
+      - libstdc++6
 before_install:
   - echo "//registry.npmjs.org/:_authToken=\${NPM_TOKEN}" >> .npmrc
   - npm i -g npm@5.7.1
