@@ -25,6 +25,7 @@
     "debug": "^2.2.0",
     "del": "^2.0.2",
     "electron": "2.0.7",
+    "electron-builder": "^20.28.3",
     "electron-installer-run": "^1.0.0",
     "electron-installer-zip": "^0.1.2",
     "electron-license": "^1.0.0",
