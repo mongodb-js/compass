@@ -202,25 +202,6 @@ describe('NativeClient', function() {
             });
           });
       });
-      it('errors when given a bad option', function() {
-        client.aggregate('data-service.test',
-          [{ $project: {
-            author: 1,
-            tags: 1
-          }},
-          { $unwind: '$tags' },
-          { $group: {
-            _id: {tags: '$tags'},
-            authors: { $addToSet: '$author' }
-          }}
-          ],
-          {'explain': 'cat'},
-          function(error, result) {
-            expect(result).to.equal(undefined);
-            expect(error.name).to.equal('MongoError');
-            expect(error.message).to.have.string('explain');
-          });
-      });
     });
     context('with cursor', function() {
       it('pipeline with $match', function(done) {
