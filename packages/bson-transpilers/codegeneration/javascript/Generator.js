@@ -19,11 +19,11 @@ module.exports = (superClass) => class ExtendedVisitor extends superClass {
     if (!ctx.wasNew) {
       newstr = 'new ';
     }
-    const args = ctx.arguments();
-    if (!args.argumentList()) {
+    const args = this.getArguments(ctx);
+    if (args.length === 0) {
       return `${newstr}Date()`;
     }
-    const argstr = this.checkArguments([[this.Types._string]], args.argumentList());
+    const argstr = this.checkArguments([[this.Types._string]], args, 'ISODate');
     return `${newstr}Date(${argstr[0]})`;
   }
 
@@ -35,11 +35,11 @@ module.exports = (superClass) => class ExtendedVisitor extends superClass {
     if (date === undefined) {
       return `${newstr}Date()`;
     }
-    const args = ctx.arguments();
-    if (!args.argumentList()) {
+    const args = this.getArguments(ctx);
+    if (args.length === 0) {
       return ctx.getText();
     }
-    const argstr = this.checkArguments(this.Symbols.Date.args, args.argumentList());
+    const argstr = this.checkArguments(this.Symbols.Date.args, args, 'Date');
     return `${newstr}Date(${argstr.join(', ')})`;
   }
 };

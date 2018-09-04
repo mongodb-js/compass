@@ -28,10 +28,10 @@ module.exports = (superclass) => class ExtendedVisitor extends superclass {
    * @returns {string} - visited expression
    */
   emitNew(ctx) {
-    const expr = this.visit(ctx.singleExpression());
-    ctx.type = ctx.singleExpression().type;
-
-    return expr;
+    const expr = this.getExpression(ctx);
+    const str = this.visit(expr);
+    ctx.type = expr.type;
+    return str;
   }
 
   /**
@@ -43,12 +43,10 @@ module.exports = (superclass) => class ExtendedVisitor extends superclass {
    */
   emitSymbol(ctx) {
     ctx.type = this.Types.Symbol;
-    const argsList = ctx.arguments().argumentList();
-    this.checkArguments(this.Symbols.Symbol.args, argsList, 'Symbol');
-    const args = argsList.singleExpression();
-    const expr = args[0].getText();
-
-    return doubleQuoteStringify(expr.toString());
+    this.checkArguments(
+      this.Symbols.Symbol.args, this.getArguments(ctx), 'Symbol'
+    );
+    return doubleQuoteStringify(this.getArgumentAt(ctx, 0).getText());
   }
 
   /**
@@ -88,8 +86,7 @@ module.exports = (superclass) => class ExtendedVisitor extends superclass {
    */
   emitMinKey(ctx) {
     ctx.type = this.Types.MinKey;
-    const argsList = ctx.arguments().argumentList();
-    this.checkArguments(this.Symbols.MinKey.args, argsList, 'MinKey');
+    this.checkArguments(this.Symbols.MinKey.args, this.getArguments(ctx), 'MinKey');
     return 'BsonMinKey.Value';
   }
 
@@ -103,8 +100,9 @@ module.exports = (superclass) => class ExtendedVisitor extends superclass {
    */
   emitMaxKey(ctx) {
     ctx.type = this.Types.MaxKey;
-    const argsList = ctx.arguments().argumentList();
-    this.checkArguments(this.Symbols.MaxKey.args, argsList, 'MaxKey');
+    this.checkArguments(
+      this.Symbols.MaxKey.args, this.getArguments(ctx), 'MaxKey'
+    );
     return 'BsonMaxKey.Value';
   }
 

@@ -154,13 +154,17 @@ class Visitor extends ECMAScriptVisitor {
     let code = '';
     for (let i = opts.start; i <= opts.end; i += opts.step) {
       if (opts.ignore.indexOf(i) === -1) {
-        code += this.visit(opts.children[i]) + (i === opts.end ? '' : opts.separator);
+        code = `${code}${this.visit(
+          opts.children[i]
+        )}${(i === opts.end) ? '' : opts.separator}`;
       }
     }
     /* Set the node's type to the first child, if it's not already set.
       More often than not, type will be set directly by the visitNode method. */
     if (ctx.type === undefined) {
-      ctx.type = opts.children.length ? opts.children[0].type : this.Types._undefined;
+      ctx.type = opts.children.length ?
+        opts.children[0].type :
+        this.Types._undefined;
     }
     return code.trim();
   }
@@ -229,7 +233,10 @@ class Visitor extends ECMAScriptVisitor {
       const properties = ctx.propertyNameAndValueList().propertyAssignment();
       if (ctx.type.argsTemplate) {
         args = ctx.type.argsTemplate(properties.map((pair) => {
-          return [this.visit(pair.propertyName()), this.visit(pair.singleExpression())];
+          return [
+            this.visit(pair.propertyName()),
+            this.visit(pair.singleExpression())
+          ];
         }), ctx.indentDepth);
       } else {
         args = this.visit(properties);
@@ -315,10 +322,14 @@ class Visitor extends ECMAScriptVisitor {
 
     // Check arguments
     const expectedArgs = lhsType.args;
-    let rhs = this.checkArguments(expectedArgs, ctx.arguments().argumentList(), lhsType.id);
+    let rhs = this.checkArguments(
+      expectedArgs, ctx.arguments().argumentList(), lhsType.id
+    );
 
     // Add new if needed
-    const newStr = lhsType.callable === this.SYMBOL_TYPE.CONSTRUCTOR ? this.new : '';
+    const newStr = lhsType.callable === this.SYMBOL_TYPE.CONSTRUCTOR ?
+      this.new :
+      '';
 
     // Apply the arguments template
     if (lhsType.argsTemplate) {
@@ -360,8 +371,11 @@ class Visitor extends ECMAScriptVisitor {
     const lhs = this.visit(ctx.singleExpression());
     const rhs = this.visit(ctx.identifierName());
 
-    if (!ctx.singleExpression().constructor.name.includes('Identifier') && !ctx.singleExpression().constructor.name.includes('FuncCall')) {
-      throw new BsonTranspilersUnimplementedError('Attribute access for non-symbols not currently supported');
+    if (!ctx.singleExpression().constructor.name.includes('Identifier') &&
+        !ctx.singleExpression().constructor.name.includes('FuncCall')) {
+      throw new BsonTranspilersUnimplementedError(
+        'Attribute access for non-symbols not currently supported'
+      );
     }
 
     let type = ctx.singleExpression().type;
@@ -610,10 +624,12 @@ class Visitor extends ECMAScriptVisitor {
       }
       const result = this.castType(expected[i], args[i]);
       if (result === null) {
-        const message = `Argument type mismatch: '${name}' expects types ${expected[i].map((e) => {
+        const typeStr = expected[i].map((e) => {
           const id = e && e.id ? e.id : e;
           return e ? id : '[optional]';
-        })} but got type ${args[i].type.id} for argument at index ${i}`;
+        });
+        const message = `Argument type mismatch: '${name}' expects types ${
+          typeStr} but got type ${args[i].type.id} for argument at index ${i}`;
 
         throw new BsonTranspilersArgumentError(message);
       }
@@ -639,7 +655,9 @@ class Visitor extends ECMAScriptVisitor {
 
     // Get the original type of the argument
     const expectedArgs = lhsType.args;
-    let args = this.checkArguments(expectedArgs, ctx.arguments().argumentList(), lhsType.id);
+    let args = this.checkArguments(
+      expectedArgs, ctx.arguments().argumentList(), lhsType.id
+    );
     let argType;
 
     if (!ctx.arguments().argumentList()) {
@@ -648,7 +666,9 @@ class Visitor extends ECMAScriptVisitor {
     } else {
       const argNode = ctx.arguments().argumentList().singleExpression()[0];
       const typed = this.getTyped(argNode);
-      argType = typed.originalType !== undefined ? typed.originalType : typed.type;
+      argType = typed.originalType !== undefined ?
+        typed.originalType :
+        typed.type;
     }
 
     if (`emit${lhsType.id}` in this) {
@@ -657,7 +677,9 @@ class Visitor extends ECMAScriptVisitor {
 
     // Apply the arguments template
     const lhs = lhsType.template ? lhsType.template() : lhsStr;
-    const rhs = lhsType.argsTemplate ? lhsType.argsTemplate(lhs, args[0], argType.id) : `(${args.join(', ')})`;
+    const rhs = lhsType.argsTemplate ?
+      lhsType.argsTemplate(lhs, args[0], argType.id) :
+      `(${args.join(', ')})`;
     return `${lhs}${rhs}`;
   }
 
@@ -694,7 +716,9 @@ class Visitor extends ECMAScriptVisitor {
     }
 
     let targetflags = flags.replace(/[imuyg]/g, m => this.regexFlags[m]);
-    targetflags = targetflags === '' ? '' : `${targetflags.split('').sort().join('')}`;
+    targetflags = targetflags === '' ?
+      '' :
+      `${targetflags.split('').sort().join('')}`;
 
     if ('emitRegExp' in this) {
       return this.emitRegExp(ctx, pattern, targetflags);
@@ -717,7 +741,9 @@ class Visitor extends ECMAScriptVisitor {
     const symbolType = this.Symbols.BSONRegExp;
 
     const argList = ctx.arguments().argumentList();
-    const args = this.checkArguments([[this.Types._string], [this.Types._string, null]], argList, 'BSONRegExp');
+    const args = this.checkArguments(
+      [[this.Types._string], [this.Types._string, null]], argList, 'BSONRegExp'
+    );
 
     let flags = null;
     const pattern = args[0];
@@ -725,7 +751,9 @@ class Visitor extends ECMAScriptVisitor {
       flags = args[1];
       for (let i = 1; i < flags.length - 1; i++) {
         if (!(flags[i] in this.bsonRegexFlags)) {
-          throw new BsonTranspilersRuntimeError(`Invalid flag '${flags[i]}' passed to BSONRegExp`);
+          throw new BsonTranspilersRuntimeError(
+            `Invalid flag '${flags[i]}' passed to BSONRegExp`
+          );
         }
       }
       flags = flags.replace(/[imxlsu]/g, m => this.bsonRegexFlags[m]);
@@ -735,7 +763,9 @@ class Visitor extends ECMAScriptVisitor {
       return this.emitBSONRegExp(ctx, pattern, flags);
     }
     const lhs = symbolType.template ? symbolType.template() : 'BSONRegExp';
-    const rhs = symbolType.argsTemplate ? symbolType.argsTemplate(lhs, pattern, flags) : `(${pattern}${flags ? ', ' + flags : ''})`;
+    const rhs = symbolType.argsTemplate ?
+      symbolType.argsTemplate(lhs, pattern, flags) :
+      `(${pattern}${flags ? ', ' + flags : ''})`;
     return `${this.new}${lhs}${rhs}`;
   }
 
@@ -781,7 +811,9 @@ class Visitor extends ECMAScriptVisitor {
       return this.emitCode(ctx, code, scope);
     }
     const lhs = symbolType.template ? symbolType.template() : 'Code';
-    const rhs = symbolType.argsTemplate ? symbolType.argsTemplate(lhs, code, scope) : `(${code}${scopestr})`;
+    const rhs = symbolType.argsTemplate ?
+      symbolType.argsTemplate(lhs, code, scope) :
+      `(${code}${scopestr})`;
     return `${this.new}${lhs}${rhs}`;
   }
 
@@ -809,7 +841,9 @@ class Visitor extends ECMAScriptVisitor {
     if ('emitObjectId' in this) {
       return this.emitObjectId(ctx, hexstr);
     }
-    const rhs = symbolType.argsTemplate ? symbolType.argsTemplate(lhs, hexstr) : `(${hexstr})`;
+    const rhs = symbolType.argsTemplate ?
+      symbolType.argsTemplate(lhs, hexstr) :
+      `(${hexstr})`;
     return `${this.new}${lhs}${rhs}`;
   }
 
@@ -834,7 +868,9 @@ class Visitor extends ECMAScriptVisitor {
       return this.emitLong(ctx, longstr);
     }
     const lhs = symbolType.template ? symbolType.template() : 'Long';
-    const rhs = symbolType.argsTemplate ? symbolType.argsTemplate(lhs, longstr) : `(${longstr})`;
+    const rhs = symbolType.argsTemplate ?
+      symbolType.argsTemplate(lhs, longstr) :
+      `(${longstr})`;
     return `${this.new}${lhs}${rhs}`;
   }
 
@@ -876,7 +912,9 @@ class Visitor extends ECMAScriptVisitor {
       return this.emitDecimal128(ctx, decstr);
     }
     const lhs = symbolType.template ? symbolType.template() : 'Decimal128';
-    const rhs = symbolType.argsTemplate ? symbolType.argsTemplate(lhs, decstr) : `(${decstr})`;
+    const rhs = symbolType.argsTemplate ?
+      symbolType.argsTemplate(lhs, decstr) :
+      `(${decstr})`;
     return `${this.new}${lhs}${rhs}`;
   }
 
@@ -950,6 +988,54 @@ class Visitor extends ECMAScriptVisitor {
    */
   processBinary() {
     throw new BsonTranspilersUnimplementedError('Binary type not supported');
+  }
+
+  // Getters
+  getExpression(ctx) {
+    return ctx.singleExpression();
+  }
+  getArguments(ctx) {
+    return ctx.arguments().argumentList();
+  }
+  getArgumentAt(ctx, i) {
+    return this.getArguments(ctx).singleExpression()[i];
+  }
+  getList(ctx) {
+    if (!('elementList' in ctx) || !ctx.elementList()) {
+      return [];
+    }
+    return ctx.elementList().singleExpression();
+  }
+  getArray(ctx) {
+    if (!('arrayLiteral' in ctx)) {
+      return false;
+    }
+    return ctx.arrayLiteral();
+  }
+  getObject(ctx) {
+    if (!('objectLiteral' in ctx)) {
+      return false;
+    }
+    return ctx.objectLiteral();
+  }
+  getKeyValueList(ctx) {
+    if ('propertyNameAndValueList' in ctx && ctx.propertyNameAndValueList()) {
+      return ctx.propertyNameAndValueList().propertyAssignment();
+    }
+    return [];
+  }
+  getKey(ctx) {
+    return ctx.propertyName();
+  }
+  getValue(ctx) {
+    return ctx.singleExpression();
+  }
+  isSubObject(ctx) {
+    return 'propertyName' in ctx.parentCtx.parentCtx;
+  }
+  // For a given sub document, get its key.
+  getParentKey(ctx) {
+    return ctx.parentCtx.parentCtx.propertyName();
   }
 }
 

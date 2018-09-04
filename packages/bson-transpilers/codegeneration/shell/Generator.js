@@ -15,10 +15,11 @@ module.exports = (superClass) => class ExtendedVisitor extends superClass {
   }
 
   emitNew(ctx) {
-    const expr = this.visit(ctx.singleExpression());
-    ctx.type = ctx.singleExpression().type;
+    const expr = this.getExpression(ctx);
+    const str = this.visit(expr);
+    ctx.type = expr.type;
     if (ctx.type.id === 'Double' || ctx.type.id === 'Symbol') {
-      return expr;
+      return str;
     }
     return this.visitChildren(ctx, {separator: ' '});
   }
@@ -30,9 +31,9 @@ module.exports = (superClass) => class ExtendedVisitor extends superClass {
    */
   emitDouble(ctx) {
     ctx.type = this.Types.Double;
-    const argList = ctx.arguments().argumentList();
-    const arg = this.checkArguments(this.Symbols.Double.args, argList)[0];
-    return removeQuotes(arg);
+    const argList = this.getArguments(ctx);
+    const arg = this.checkArguments(this.Symbols.Double.args, argList, 'Double');
+    return removeQuotes(arg[0]);
   }
 
   emitDate(ctx, date) {
@@ -48,10 +49,14 @@ module.exports = (superClass) => class ExtendedVisitor extends superClass {
    * @returns {String}
    */
   emitObjectIdCreateFromTime(ctx) {
-    ctx.type = 'createFromTime' in this.Symbols.ObjectId.attr ? this.Symbols.ObjectId.attr.createFromTime : this.Symbols.ObjectId.attr.fromDate;
-    const argList = ctx.arguments().argumentList();
-    const args = this.checkArguments(ctx.type.args, argList);
-    if (argList.singleExpression()[0].type.id === 'Date') {
+    ctx.type = 'createFromTime' in this.Symbols.ObjectId.attr ?
+      this.Symbols.ObjectId.attr.createFromTime :
+      this.Symbols.ObjectId.attr.fromDate;
+    const argList = this.getArguments(ctx);
+    const args = this.checkArguments(
+      ctx.type.args, argList, 'ObjectId.createFromTime'
+    );
+    if (this.getArgumentAt(ctx, 0).type.id === 'Date') {
       return `ObjectId.fromDate(${args[0]})`;
     }
     return `ObjectId.fromDate(new Date(${args[0]}))`;

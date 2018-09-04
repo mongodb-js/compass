@@ -35,11 +35,10 @@ module.exports = (superClass) => class ExtendedVisitor extends superClass {
    * @return {String}
    */
   emitNew(ctx) {
-    const expr = this.visit(ctx.singleExpression());
-
-    ctx.type = ctx.singleExpression().type;
-
-    return expr;
+    const expr = this.getExpression(ctx);
+    const str = this.visit(expr);
+    ctx.type = expr.type;
+    return str;
   }
 
   /**
@@ -90,10 +89,12 @@ module.exports = (superClass) => class ExtendedVisitor extends superClass {
     ctx.type = 'createFromTime' in this.Symbols.ObjectId.attr ?
       this.Symbols.ObjectId.attr.createFromTime :
       this.Symbols.ObjectId.attr.fromDate;
-    const argList = ctx.arguments().argumentList();
-    const args = this.checkArguments(ctx.type.args, argList);
+    const argList = this.getArguments(ctx);
+    const args = this.checkArguments(
+      ctx.type.args, argList, 'ObjectId.createFromTime'
+    );
     const template = ctx.type.template ? ctx.type.template() : '';
-    if (argList.singleExpression()[0].type.id === 'Date') {
+    if (this.getArgumentAt(ctx, 0).type.id === 'Date') {
       return `${template}${ctx.type.argsTemplate('', args[0])}`;
     }
     return `${template}${ctx.type.argsTemplate(

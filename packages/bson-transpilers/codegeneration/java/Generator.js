@@ -73,9 +73,10 @@ module.exports = (superClass) => class ExtendedVisitor extends superClass {
    * @return {String}
    */
   emitNew(ctx) {
-    const expr = this.visit(ctx.singleExpression());
-    ctx.type = ctx.singleExpression().type;
-    return expr;
+    const expr = this.getExpression(ctx);
+    const str = this.visit(expr);
+    ctx.type = expr.type;
+    return str;
   }
 
   /**
@@ -129,10 +130,10 @@ module.exports = (superClass) => class ExtendedVisitor extends superClass {
     ctx.type = 'createFromTime' in this.Symbols.ObjectId.attr ?
       this.Symbols.ObjectId.attr.createFromTime :
       this.Symbols.ObjectId.attr.fromDate;
-    const argList = ctx.arguments().argumentList();
+    const argList = this.getArguments(ctx);
     const args = this.checkArguments(ctx.type.args, argList);
     const template = ctx.type.template ? ctx.type.template() : '';
-    if (argList.singleExpression()[0].type.id === 'Date') {
+    if (this.getArgumentAt(ctx, 0).type.id === 'Date') {
       return `${template}${ctx.type.argsTemplate('', args[0])}`;
     }
     return `${template}${ctx.type.argsTemplate(
@@ -152,10 +153,11 @@ module.exports = (superClass) => class ExtendedVisitor extends superClass {
     ctx.indentDepth = this.getIndentDepth(ctx) + 1;
     let multiOps = false;
     let args = '';
-    if (ctx.propertyNameAndValueList()) {
-      const properties = ctx.propertyNameAndValueList().propertyAssignment();
+    const properties = this.getKeyValueList(ctx);
+    if (properties.length) {
       args = properties.map((pair) => {
-        const field = this.visit(pair.propertyName());
+        const field = this.visit(this.getKey(pair));
+        const value = this.getValue(pair);
         if (field.startsWith('$')) {
           const op = field.substr(1);
           if (this.builderImports[op]) {
@@ -165,28 +167,26 @@ module.exports = (superClass) => class ExtendedVisitor extends superClass {
             multiOps = true;
           }
           if (`handle${op}` in this) {
-            return this[`handle${op}`](
-              pair.singleExpression().getChild(0), op, ctx
-            );
+            return this[`handle${op}`](value.getChild(0), op, ctx);
           }
           if (this.field_opts.indexOf(op) !== -1) {
             // Assert that this isn't the top-level object
-            if (!('propertyName' in ctx.parentCtx.parentCtx)) {
+            if (!this.isSubObject(ctx)) {
               throw new BsonTranspilersRuntimeError(`$${op} cannot be top-level`);
             }
-            return this.handleFieldOp(pair.singleExpression(), op, ctx);
+            return this.handleFieldOp(value, op, ctx);
           }
           if (this.opts.indexOf(op) !== -1) {
-            return `${field.substr(1)}(${this.visit(pair.singleExpression())})`;
+            return `${field.substr(1)}(${this.visit(value)})`;
           }
         }
-        const value = this.visit(pair.singleExpression());
+        const valueStr = this.visit(value);
         // $-op filters need to rewind a level
-        if (this.isFilter(pair.singleExpression().getChild(0))) {
-          return value;
+        if (this.isFilter(value.getChild(0))) {
+          return valueStr;
         }
         this.requiredImports[300].push('eq');
-        return `eq(${doubleQuoteStringify(field)}, ${value})`;
+        return `eq(${doubleQuoteStringify(field)}, ${valueStr})`;
       });
       if (args.length > 1 && !multiOps) {
         this.requiredImports[300].push('and');
@@ -208,7 +208,7 @@ module.exports = (superClass) => class ExtendedVisitor extends superClass {
    * @returns {String}
    */
   handleFieldOp(ctx, op, parent) {
-    const parentField = this.visit(parent.parentCtx.parentCtx.propertyName());
+    const parentField = this.visit(this.getParentKey(parent));
     return `${op}(${doubleQuoteStringify(parentField)}, ${this.visit(ctx)})`;
   }
 
@@ -219,14 +219,12 @@ module.exports = (superClass) => class ExtendedVisitor extends superClass {
    * @return {Boolean}
    */
   isFilter(ctx) {
-    if ('propertyNameAndValueList' in ctx && ctx.propertyNameAndValueList()) {
-      const properties = ctx.propertyNameAndValueList().propertyAssignment();
-      for (let i = 0; i < properties.length; i++) {
-        const pair = properties[i];
-        const field = this.visit(pair.propertyName());
-        if (this.field_opts.indexOf(field.substr(1)) !== -1) {
-          return true;
-        }
+    const properties = this.getKeyValueList(ctx);
+    for (let i = 0; i < properties.length; i++) {
+      const pair = properties[i];
+      const field = this.visit(pair.propertyName());
+      if (this.field_opts.indexOf(field.substr(1)) !== -1) {
+        return true;
       }
     }
     return false;
@@ -248,10 +246,10 @@ module.exports = (superClass) => class ExtendedVisitor extends superClass {
     let value = '';
 
     properties.forEach((pair) => {
-      const field = this.visit(pair.propertyName());
+      const field = this.visit(this.getKey(pair));
       if (field === subfield) {
         this.idiomatic = idiomatic;
-        value = this.visit(pair.singleExpression());
+        value = this.visit(this.getValue(pair));
         this.idiomatic = true;
       } else {
         throw new BsonTranspilersRuntimeError(
@@ -287,9 +285,9 @@ module.exports = (superClass) => class ExtendedVisitor extends superClass {
     const fields = {};
 
     properties.forEach((pair) => {
-      const field = this.visit(pair.propertyName());
+      const field = this.visit(this.getKey(pair));
       if (reqOpts.indexOf(field) !== -1 || optionalOpts.indexOf(field) !== -1) {
-        fields[field] = this.visit(pair.singleExpression());
+        fields[field] = this.visit(this.getValue(pair));
       } else {
         throw new BsonTranspilersRuntimeError(
           `Unrecognized option to $${op}: ${field}`
@@ -340,12 +338,12 @@ module.exports = (superClass) => class ExtendedVisitor extends superClass {
     const fields = {};
 
     properties.forEach((pair) => {
-      const field = this.visit(pair.propertyName());
+      const field = this.visit(this.getKey(pair));
       if (reqOpts.indexOf(field) !== -1) {
-        req.push(this.visit(pair.singleExpression()));
+        req.push(this.visit(this.getValue(pair)));
       } else {
         this.idiomatic = idiomatic;
-        fields[field] = this.visit(pair.singleExpression());
+        fields[field] = this.visit(this.getValue(pair));
         this.idiomatic = true;
       }
     });
@@ -374,8 +372,8 @@ module.exports = (superClass) => class ExtendedVisitor extends superClass {
     const fields = {};
 
     properties.forEach((pair) => {
-      const field = this.visit(pair.propertyName());
-      const original = pair.singleExpression().getText();
+      const field = this.visit(this.getKey(pair));
+      const original = this.getValue(pair).getText();
       if (original === 'true' || original === '1') {
         if (field !== '_id') {
           // Skip because ID is included by default
@@ -395,7 +393,7 @@ module.exports = (superClass) => class ExtendedVisitor extends superClass {
           this.requiredImports[303].push('excludeId');
         }
       } else {
-        const value = this.visit(pair.singleExpression());
+        const value = this.visit(this.getValue(pair));
         fields.computed = !fields.computed ?
           `computed(${doubleQuoteStringify(field)}, ${value})` :
           `${fields.computed}, computed(${doubleQuoteStringify(field)}, ${value})`;
@@ -435,8 +433,8 @@ module.exports = (superClass) => class ExtendedVisitor extends superClass {
    */
   handlenot(ctx, op, parent) {
     const properties = this.assertIsNonemptyObject(ctx, op);
-    const val = properties[0].singleExpression();
-    const innerop = this.visit(properties[0].propertyName()).substr(1);
+    const val = this.getValue(properties[0]);
+    const innerop = this.visit(this.getKey(properties[0])).substr(1);
     this.requiredImports[300].push(innerop);
     const inner = this.handleFieldOp(val, innerop, parent);
     return `${op}(${inner})`;
@@ -456,15 +454,14 @@ module.exports = (superClass) => class ExtendedVisitor extends superClass {
    * @return {String}
    */
   handlemod(ctx, op, parent) {
-    if (!('elementList' in ctx) ||
-      !ctx.elementList() ||
-      ctx.elementList().singleExpression().length !== 2) {
+    const list = this.getList(ctx);
+    if (list.length !== 2) {
       throw new BsonTranspilersRuntimeError(
         '$mod requires an array of 2-elements'
       );
     }
-    const parentField = this.visit(parent.parentCtx.parentCtx.propertyName());
-    const inner = ctx.elementList().singleExpression().map((f) => {
+    const parentField = this.visit(this.getParentKey(parent));
+    const inner = list.map((f) => {
       return this.visit(f);
     });
     return `${op}(${doubleQuoteStringify(parentField)}, ${inner.join(', ')})`;
@@ -485,17 +482,17 @@ module.exports = (superClass) => class ExtendedVisitor extends superClass {
    * @return {String}
    */
   handleregex(ctx, op, parent) {
-    const parentField = this.visit(parent.parentCtx.parentCtx.propertyName());
+    const parentField = this.visit(this.getParentKey(parent));
     const regex = {r: '', o: ''};
 
-    const properties = parent.propertyNameAndValueList().propertyAssignment();
+    const properties = this.getKeyValueList(parent);
     properties.forEach((pair) => {
-      const field = this.visit(pair.propertyName());
+      const field = this.visit(this.getKey(pair));
       if (field === '$regex') {
-        regex.r = this.visit(pair.singleExpression());
+        regex.r = this.visit(this.getValue(pair));
       }
       if (field === '$options') {
-        regex.o = `, ${this.visit(pair.singleExpression())}`;
+        regex.o = `, ${this.visit(this.getValue(pair))}`;
       }
     });
     return `${op}(${doubleQuoteStringify(parentField)}, ${regex.r}${regex.o})`;
@@ -537,8 +534,8 @@ module.exports = (superClass) => class ExtendedVisitor extends superClass {
     const fields = [];
 
     properties.forEach((pair) => {
-      const field = this.visit(pair.propertyName());
-      const original = pair.singleExpression().getText();
+      const field = this.visit(this.getKey(pair));
+      const original = this.getValue(pair).getText();
       if (original === '1') {
         fields.push(`ascending(${doubleQuoteStringify(field)})`);
         this.requiredImports[304].push('ascending');
@@ -573,13 +570,13 @@ module.exports = (superClass) => class ExtendedVisitor extends superClass {
     );
     const properties = this.assertIsNonemptyObject(ctx, op);
     const parentField = doubleQuoteStringify(
-      this.visit(parent.parentCtx.parentCtx.propertyName())
+      this.visit(this.getParentKey(parent))
     );
     const fields = {};
 
     properties.forEach((pair) => {
-      const field = this.visit(pair.propertyName());
-      fields[field] = pair.singleExpression();
+      const field = this.visit(this.getKey(pair));
+      fields[field] = this.getValue(pair);
     });
 
     if (Object.keys(fields).length !== 1) {
@@ -632,13 +629,13 @@ module.exports = (superClass) => class ExtendedVisitor extends superClass {
   handlenear(ctx, op, parent) {
     const properties = this.assertIsNonemptyObject(ctx, op);
     const parentField = doubleQuoteStringify(
-      this.visit(parent.parentCtx.parentCtx.propertyName())
+      this.visit(this.getParentKey(parent))
     );
     const fields = {};
 
     properties.forEach((pair) => {
-      const field = this.visit(pair.propertyName());
-      fields[field] = pair.singleExpression();
+      const field = this.visit(this.getKey(pair));
+      fields[field] = this.getValue(pair);
     });
 
     ['$geometry', '$minDistance', '$maxDistance'].map((k) => {
@@ -678,25 +675,25 @@ module.exports = (superClass) => class ExtendedVisitor extends superClass {
   }
 
   assertIsNonemptyArray(ctx, op) {
-    if (!('arrayLiteral' in ctx) ||
-      !('elementList' in ctx.arrayLiteral())) {
+    const array = this.getArray(ctx);
+    if (!array || this.getList(array).length === 0) {
       throw new BsonTranspilersRuntimeError(
         `$${op} requires a non-empty array`
       );
     }
-    return ctx.arrayLiteral().elementList().singleExpression();
+    return this.getList(array);
   }
   assertIsNonemptyObject(ctx, op) {
-    if ('objectLiteral' in ctx) {
-      ctx = ctx.objectLiteral();
+    if (this.getObject(ctx)) {
+      ctx = this.getObject(ctx);
     }
-    if (!('propertyNameAndValueList' in ctx) ||
-      !ctx.propertyNameAndValueList()) {
+    const kv = this.getKeyValueList(ctx);
+    if (kv.length === 0) {
       throw new BsonTranspilersRuntimeError(
         `$${op} requires a non-empty document`
       );
     }
-    return ctx.propertyNameAndValueList().propertyAssignment();
+    return kv;
   }
 
   combineCoordinates(ctx, length, className, noArray, innerFunc) {
@@ -780,12 +777,13 @@ module.exports = (superClass) => class ExtendedVisitor extends superClass {
     const geometries = this.assertIsNonemptyArray(ctx, 'geometry');
     return `new GeometryCollection(Arrays.asList(${
       geometries.map((g) => {
-        if (!('objectLiteral' in g) || !g.objectLiteral()) {
+        const obj = this.getObject(g);
+        if (!obj) {
           throw new BsonTranspilersRuntimeError(
             '$GeometryCollection requires objects'
           );
         }
-        return this.handlegeometry(g.objectLiteral());
+        return this.handlegeometry(obj);
       }).join(', ')
     }))`;
   }
@@ -795,11 +793,11 @@ module.exports = (superClass) => class ExtendedVisitor extends superClass {
     const fields = {};
 
     properties.forEach((pair) => {
-      const field = this.visit(pair.propertyName());
+      const field = this.visit(this.getKey(pair));
       if (field === 'type') {
-        fields.type = removeQuotes(this.visit(pair.singleExpression()));
+        fields.type = removeQuotes(this.visit(this.getValue(pair)));
       } else if (field === 'coordinates') {
-        fields.coordinates = pair.singleExpression();
+        fields.coordinates = this.getValue(pair);
       } else if (field === 'crs') {
         throw new BsonTranspilersUnimplementedError(
           'Coordinate reference systems not currently supported'
@@ -815,8 +813,8 @@ module.exports = (superClass) => class ExtendedVisitor extends superClass {
         'Missing option to $geometry'
       );
     }
-    if (!('arrayLiteral' in fields.coordinates) ||
-        !('elementList' in fields.coordinates.arrayLiteral())) {
+    if (!this.getArray(fields.coordinates) ||
+        this.getList(this.getArray(fields.coordinates)).length === 0) {
       throw new BsonTranspilersRuntimeError(
         'Invalid coordinates option for $geometry'
       );
