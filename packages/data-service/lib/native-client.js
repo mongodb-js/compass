@@ -1003,7 +1003,11 @@ class NativeClient extends EventEmitter {
   _translateMessage(error) {
     var mapping = translate(error);
     if (mapping) {
-      error.message = mapping.message;
+      if (typeof error === 'string') {
+        error = { message: error };
+      } else {
+        error.message = mapping.message;
+      }
     }
     return error;
   }
