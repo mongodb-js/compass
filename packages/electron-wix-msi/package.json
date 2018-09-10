@@ -23,14 +23,14 @@
   },
   "dependencies": {
     "debug": "^3.1.0",
-    "fs-extra": "^4.0.2",
+    "fs-extra": "^7.0.0",
     "klaw": "^2.1.0",
-    "lodash": "^4.17.4",
-    "uuid": "^3.1.0"
+    "lodash": "^4.17.10",
+    "uuid": "^3.3.2"
   },
   "devDependencies": {
     "@types/debug": "0.0.30",
-    "@types/fs-extra": "^4.0.5",
+    "@types/fs-extra": "^5.0.4",
     "@types/graceful-fs": "^4.1.2",
     "@types/jest": "^20.0.5",
     "@types/klaw": "^2.1.0",
