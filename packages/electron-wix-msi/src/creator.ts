@@ -430,10 +430,7 @@ export class MSICreator {
     const pathId = filePath
       .replace(this.appDirectory, '')
       .replace(/^\\|\//g, '');
-    const id = (pathId.length > 72)
-      ? `${path.basename(filePath).slice(0, 35)}_${uuid()}`
-      : pathId;
-
-    return id.replace(/[^A-Za-z0-9_\.]/g, '_');
+    const uniqueId = '_' + (pathId.length > 34 ? path.basename(filePath).slice(0,34) : pathId) + '_' + uuid();
+    return uniqueId.replace(/[^A-Za-z0-9_\.]/g, '_');
   }
 }
