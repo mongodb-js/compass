@@ -86,7 +86,7 @@ export class MSICreator {
 
   private files: Array<string> = [];
   private directories: Array<string> = [];
-  private tree: FileFolderTree;
+  private tree: FileFolderTree | undefined;
   private components: Array<Component> = [];
 
   constructor(options: MSICreatorOptions) {
@@ -169,6 +169,10 @@ export class MSICreator {
    * @returns {Promise<{ wxsFile: string, wxsContent: string }>}
    */
   private async createWxs(): Promise<{ wxsFile: string, wxsContent: string }> {
+    if (!this.tree) {
+      throw new Error('Tree does not exist');
+    }
+
     const target = path.join(this.outputDirectory, `${this.exe}.wxs`);
     const base = path.basename(this.appDirectory);
     const directories = await this.getDirectoryForTree(
@@ -434,7 +438,8 @@ export class MSICreator {
     const pathId = filePath
       .replace(this.appDirectory, '')
       .replace(/^\\|\//g, '');
-    const uniqueId = '_' + (pathId.length > 34 ? path.basename(filePath).slice(0,34) : pathId) + '_' + uuid();
+
+    const uniqueId = '_' + (pathId.length > 34 ? path.basename(filePath).slice(0, 34) : pathId) + '_' + uuid();
     return uniqueId.replace(/[^A-Za-z0-9_\.]/g, '_');
   }
 }
