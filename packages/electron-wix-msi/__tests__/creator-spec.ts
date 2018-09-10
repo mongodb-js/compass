@@ -224,6 +224,27 @@ test('MSICreator compile() creates a wixobj and msi file with ui extensions', as
   expect(mockSpawnArgs.args).toContain('WixUIExtension');
 });
 
+test('MSICreator compile() passes extension args to the binary', async () => {
+  const extensions = ['WixUIExtension', 'WixUtilExtension'];
+  const msiCreator = new MSICreator({ ...defaultOptions, extensions });
+
+  await msiCreator.create();
+  await msiCreator.compile();
+
+  expect(mockSpawnArgs.args).toContain(...extensions);
+});
+
+test('MSICreator compile() combines custom extensions with ui extensions', async () => {
+  const extensions = ['WixNetFxExtension', 'WixUtilExtension'];
+  const msiCreator = new MSICreator({ ...defaultOptions, extensions, ui: true });
+
+  await msiCreator.create();
+  await msiCreator.compile();
+
+  expect(mockSpawnArgs.args).toContain('WixUIExtension');
+  expect(mockSpawnArgs.args).toContain(...extensions);
+});
+
 test('MSICreator compile() throws if candle or light fail', async () => {
   const msiCreator = new MSICreator({ ...defaultOptions, exe: 'fail-code-candle' });
   const err = 'A bit of error';

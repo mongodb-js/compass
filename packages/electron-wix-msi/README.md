@@ -96,6 +96,7 @@ await msiCreator.compile();
   certificate given in `certificateFile`.
 * `signWithParams` (string, optional) - Paramaters to pass to `signtool.exe`.
   Overrides `certificateFile` and `certificatePassword`.
+* `extensions` (array, optional) - Specify WiX extensions to use e.g `['WixUtilExtension', 'C:\My WiX Extensions\FooExtension.dll']`
 * `ui` (UIOptions, optional) - Enables configuration of the UI. See below for
   more information.
 

@@ -1,5 +1,5 @@
 import * as fs from 'fs-extra';
-import { padStart } from 'lodash';
+import { flatMap, padStart } from 'lodash';
 import * as path from 'path';
 import * as uuid from 'uuid/v4';
 import { spawnPromise } from './utils/spawn';
@@ -19,6 +19,7 @@ export interface MSICreatorOptions {
   appUserModelId?: string;
   description: string;
   exe: string;
+  extensions?: Array<string>;
   language?: number;
   manufacturer: string;
   name: string;
@@ -67,6 +68,7 @@ export class MSICreator {
   public appUserModelId: string;
   public description: string;
   public exe: string;
+  public extensions: Array<string>;
   public language: number;
   public manufacturer: string;
   public name: string;
@@ -93,6 +95,7 @@ export class MSICreator {
     this.certificatePassword = options.certificatePassword;
     this.description = options.description;
     this.exe = options.exe.replace(/\.exe$/, '');
+    this.extensions = options.extensions || [];
     this.language = options.language || 1033;
     this.manufacturer = options.manufacturer;
     this.name = options.name;
@@ -226,9 +229,10 @@ export class MSICreator {
     const input = type === 'msi'
       ? path.join(cwd, `${path.basename(this.wxsFile, '.wxs')}.wixobj`)
       : this.wxsFile;
-    const preArgs = this.ui
-      ? [ '-ext', 'WixUIExtension' ]
-      : [];
+    if (this.ui) {
+      this.extensions.push('WixUIExtension');
+    }
+    const preArgs = flatMap(this.extensions.map((e) => (['-ext', e])));
 
     const { code, stderr, stdout } = await spawnPromise(binary, [ ...preArgs, input ], {
       env: process.env,
