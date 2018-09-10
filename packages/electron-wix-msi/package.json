@@ -17,7 +17,7 @@
   "typings": "lib/index.d.ts",
   "scripts": {
     "prepublish": "npm run build",
-    "build": "shx rm -rf lib && tsc --pretty",
+    "build": "tsc --pretty",
     "test": "npm run lint && jest",
     "lint": "tslint -c tslint.json 'src/**/*.ts'"
   },
@@ -42,10 +42,9 @@
     "jest": "^20.0.4",
     "jest-environment-node-debug": "^2.0.0",
     "mock-fs": "^4.4.2",
-    "shx": "^0.3.2",
     "ts-jest": "^20.0.7",
-    "tslint": "^5.0.0",
-    "typescript": "^2.3.0"
+    "tslint": "^5.11.0",
+    "typescript": "^3.0.3"
   },
   "engines": {
     "node": ">=6.0.0"
