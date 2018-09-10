@@ -19,7 +19,8 @@ describe('ExportForm [Component]', () => {
       modalOpen: false,
       returnQuery: '',
       inputQuery: '',
-      imports: ''
+      imports: '',
+      showImports: false
     };
     const setOutputLangSpy = sinon.spy();
     const clearCopySpy = sinon.spy();
@@ -120,7 +121,8 @@ describe('ExportForm [Component]', () => {
       modalOpen: true,
       returnQuery: '{\n\'x\': 1\n}',
       inputQuery: '{x: 1}',
-      imports: ''
+      imports: '',
+      showImports: false
     };
     const setOutputLangSpy = sinon.spy();
     const clearCopySpy = sinon.spy();
@@ -176,7 +178,8 @@ describe('ExportForm [Component]', () => {
       modalOpen: true,
       returnQuery: '',
       inputQuery: '',
-      imports: ''
+      imports: '',
+      showImports: false
     };
     const setOutputLangSpy = sinon.spy();
     const clearCopySpy = sinon.spy();

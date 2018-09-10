@@ -16,6 +16,7 @@ describe('ExportModal [Component]', () => {
       returnQuery: '',
       inputQuery: '',
       imports: '',
+      showImports: false,
       builders: false
     };
     const includeImportsSpy = sinon.spy();

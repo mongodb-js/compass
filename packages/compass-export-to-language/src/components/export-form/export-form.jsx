@@ -98,6 +98,7 @@ class ExportForm extends Component {
               queryError={this.props.exportQuery.queryError}
               outputLang={this.props.exportQuery.outputLang}
               inputQuery={this.props.exportQuery.inputQuery}
+              showImports={this.props.exportQuery.showImports}
               imports={this.props.exportQuery.imports}/>
             {outputBubbleDiv}
             <div className={classnames(styles['export-to-lang-copy-output-container'])}>

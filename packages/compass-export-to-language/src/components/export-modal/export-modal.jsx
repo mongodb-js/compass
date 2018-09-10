@@ -26,7 +26,7 @@ class ExportModal extends Component {
   };
 
   importsHandler = () => {
-    this.props.includeImports(!this.props.exportQuery.imports);
+    this.props.includeImports(!this.props.exportQuery.showImports);
   };
 
   buildersHandler = () => {

@@ -39,6 +39,7 @@ describe('ExportToLanguage Store', () => {
           returnQuery: '',
           inputQuery: '',
           imports: '',
+          showImports: false,
           builders: true
         }
       });

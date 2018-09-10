@@ -25,6 +25,7 @@ class Editor extends PureComponent {
     outputLang: PropTypes.string.isRequired,
     queryError: PropTypes.string,
     imports: PropTypes.string,
+    showImports: PropTypes.bool,
     input: PropTypes.bool
   };
 
@@ -38,7 +39,7 @@ class Editor extends PureComponent {
 
   componentDidUpdate() {
     if (!this.props.input) {
-      const output = this.props.imports !== '' ? this.props.imports + '\n' + this.props.outputQuery : this.props.outputQuery;
+      const output = this.props.showImports && this.props.imports !== '' ? this.props.imports + '\n' + this.props.outputQuery : this.props.outputQuery;
 
       this.editor.setValue(output);
       this.editor.session.setMode('ace/mode/' + this.props.outputLang || 'javascript');
@@ -69,7 +70,8 @@ class Editor extends PureComponent {
       ? classnames(styles['editor-error'])
       : classnames(styles.editor);
 
-    const value = this.props.input ? '' : this.props.outputQuery || this.props.imports;
+    const output = this.props.showImports && this.props.imports !== '' ? this.props.imports + '\n' + this.props.outputQuery : this.props.outputQuery;
+    const value = this.props.input ? '' : output;
 
     return (
       <div className={queryStyle}>

@@ -119,6 +119,7 @@ describe('export query module', () => {
           returnQuery: '',
           inputQuery: '',
           imports: '',
+          showImports: false,
           builders: true
         });
       });
@@ -135,6 +136,7 @@ describe('export query module', () => {
           returnQuery: '',
           inputQuery: '',
           imports: '',
+          showImports: true,
           builders: true
         });
       });
@@ -149,6 +151,7 @@ describe('export query module', () => {
           returnQuery: '',
           inputQuery: '',
           imports: '',
+          showImports: false,
           builders: true
         });
       });
@@ -165,6 +168,7 @@ describe('export query module', () => {
           returnQuery: '',
           inputQuery: '',
           imports: '',
+          showImports: false,
           builders: true
         });
       });
@@ -179,6 +183,7 @@ describe('export query module', () => {
           returnQuery: '',
           inputQuery: '',
           imports: '',
+          showImports: false,
           builders: false
         });
       });
@@ -195,6 +200,7 @@ describe('export query module', () => {
           queryError: null,
           returnQuery: '',
           imports: '',
+          showImports: false,
           builders: true
         });
       });
@@ -211,6 +217,7 @@ describe('export query module', () => {
           returnQuery: '',
           inputQuery: '',
           imports: '',
+          showImports: false,
           builders: true
         });
       });
@@ -227,6 +234,7 @@ describe('export query module', () => {
           returnQuery: '',
           inputQuery: '',
           imports: '',
+          showImports: false,
           builders: true
         });
       });
@@ -243,6 +251,7 @@ describe('export query module', () => {
           returnQuery: '',
           inputQuery: '',
           imports: '',
+          showImports: false,
           builders: true
         });
       });
@@ -259,6 +268,7 @@ describe('export query module', () => {
           returnQuery: '',
           inputQuery: '',
           imports: '',
+          showImports: false,
           builders: true
         });
       });
@@ -275,6 +285,7 @@ describe('export query module', () => {
           returnQuery: '',
           inputQuery: '',
           imports: '',
+          showImports: false,
           builders: true
         });
       });
@@ -291,6 +302,7 @@ describe('export query module', () => {
           returnQuery: '',
           inputQuery: '',
           imports: '',
+          showImports: false,
           builders: true
         });
       });

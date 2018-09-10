@@ -95,7 +95,7 @@ describe('Editor [Component]', () => {
   context('when the component is rendered with imports', () => {
     let component;
 
-    const imports = 'from bson import *\nimport datetime';
+    const imports = 'import datetime';
 
     beforeEach(() => {
       component = mount(
@@ -104,7 +104,8 @@ describe('Editor [Component]', () => {
           inputQuery=""
           outputLang="python"
           queryError="error"
-          imports={imports}/>
+          imports={imports}
+          showImports/>
       );
     });
 
@@ -113,7 +114,7 @@ describe('Editor [Component]', () => {
     });
 
     it('ace editor has the value of python imports', () => {
-      expect(component.find(AceEditor)).prop('value').to.be.equal(imports);
+      expect(component.find(AceEditor)).prop('value').to.be.equal(`${imports}\n`);
     });
   });
 });
