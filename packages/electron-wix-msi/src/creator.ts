@@ -435,11 +435,6 @@ export class MSICreator {
    * @returns {string} componentId
    */
   private getComponentId(filePath: string): string {
-    const pathId = filePath
-      .replace(this.appDirectory, '')
-      .replace(/^\\|\//g, '');
-
-    const uniqueId = '_' + (pathId.length > 34 ? path.basename(filePath).slice(0, 34) : pathId) + '_' + uuid();
-    return uniqueId.replace(/[^A-Za-z0-9_\.]/g, '_');
+    return `_${uuid()}`;
   }
 }
