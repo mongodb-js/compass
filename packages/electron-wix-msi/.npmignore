@@ -9,3 +9,4 @@ coverage
 !static
 !vendor
 !lib
+harness

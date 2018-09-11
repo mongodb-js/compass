@@ -19,7 +19,8 @@
     "prepublish": "npm run build",
     "build": "tsc --pretty",
     "test": "npm run lint && jest",
-    "lint": "tslint -c tslint.json 'src/**/*.ts'"
+    "lint": "tslint -c tslint.json 'src/**/*.ts'",
+    "harness": "npm run build && node ./harness/harness.js"
   },
   "dependencies": {
     "debug": "^3.1.0",
