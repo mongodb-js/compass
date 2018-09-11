@@ -233,9 +233,11 @@ export class MSICreator {
     const input = type === 'msi'
       ? path.join(cwd, `${path.basename(this.wxsFile, '.wxs')}.wixobj`)
       : this.wxsFile;
-    if (this.ui) {
+
+    if (this.ui && !this.extensions.find((e) => e === 'WixUIExtension')) {
       this.extensions.push('WixUIExtension');
     }
+
     const preArgs = flatMap(this.extensions.map((e) => (['-ext', e])));
 
     const { code, stderr, stdout } = await spawnPromise(binary, [ ...preArgs, input ], {
@@ -435,6 +437,14 @@ export class MSICreator {
    * @returns {string} componentId
    */
   private getComponentId(filePath: string): string {
-    return `_${uuid()}`.replace(/[^A-Za-z0-9_\.]/g, '_');
+    const pathId = filePath
+      .replace(this.appDirectory, '')
+      .replace(/^\\|\//g, '');
+    const pathPart = pathId.length > 34
+      ? path.basename(filePath).slice(0, 34)
+      : pathId;
+    const uniqueId = `_${pathPart}_${uuid()}`;
+
+    return uniqueId.replace(/[^A-Za-z0-9_\.]/g, '_');
   }
 }
