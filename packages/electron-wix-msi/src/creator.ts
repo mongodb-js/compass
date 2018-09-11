@@ -435,6 +435,6 @@ export class MSICreator {
    * @returns {string} componentId
    */
   private getComponentId(filePath: string): string {
-    return `_${uuid()}`;
+    return `_${uuid()}`.replace('-', '_');
   }
 }
