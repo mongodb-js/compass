@@ -261,21 +261,21 @@ export class MSICreator {
     const { certificatePassword, certificateFile, signWithParams } = this;
     const signToolPath = path.join(__dirname, '../vendor/signtool.exe');
 
-    if (!certificateFile) {
-      if (signWithParams) {
-        throw new Error('Cannot sign MSI without certificateFile set');
-      } else {
-        debug('Signing not necessary, no certificate file or parameters given');
-        return;
-      }
+    if (!certificateFile && !signWithParams) {
+      debug('Signing not necessary, no certificate file or parameters given');
+      return;
+    }
+
+    if (!signWithParams && !certificatePassword) {
+      throw new Error('You must provide a certificatePassword with a certificateFile');
     }
 
     const args: Array<string> = signWithParams
       // Split up at spaces and doublequotes
       ? signWithParams.match(/(?:[^\s"]+|"[^"]*")+/g) as Array<string>
-      : ['/a', '/f', `"${path.resolve(certificateFile)}"`, '/p', `"${certificatePassword}"`];
+      : ['/a', '/f', path.resolve(certificateFile!), '/p', certificatePassword!];
 
-    const { code, stderr, stdout } = await spawnPromise(signToolPath, [ 'sign', ...args, `"${msiFile}"` ], {
+    const { code, stderr, stdout } = await spawnPromise(signToolPath, [ 'sign', ...args, msiFile ], {
       env: process.env,
       cwd: path.join(__dirname, '../vendor'),
     });

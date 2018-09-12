@@ -284,7 +284,7 @@ test('MSICreator compile() tries to sign the MSI with default options', async ()
 
   const expectedCert = path.join(process.cwd(), 'path/to/file');
   const expectedMsi = path.join(defaultOptions.outputDirectory, 'acme.msi');
-  const expectedArgs = ['sign', '/a', '/f', `"${expectedCert}"`, '/p', '"hi"', `"${expectedMsi}"`];
+  const expectedArgs = ['sign', '/a', '/f', `${expectedCert}`, '/p', 'hi', `${expectedMsi}`];
 
   expect(mockSpawnArgs.name.endsWith('signtool.exe')).toBeTruthy();
   expect(mockSpawnArgs.args).toEqual(expectedArgs);
@@ -298,16 +298,16 @@ test('MSICreator compile() tries to sign the MSI with custom options', async () 
   await msiCreator.compile();
 
   const expectedMsi = path.join(defaultOptions.outputDirectory, 'acme.msi');
-  const expectedArgs = ['sign', 'hello', '"how are you"', `"${expectedMsi}"`];
+  const expectedArgs = ['sign', 'hello', '"how are you"', expectedMsi];
 
   expect(mockSpawnArgs.name.endsWith('signtool.exe')).toBeTruthy();
   expect(mockSpawnArgs.args).toEqual(expectedArgs);
 });
 
-test('MSICreator compile() throws if signWithParams is set without certificateFile', async () => {
-  const certOptions = { signWithParams: 'hello "how are you"'};
+test('MSICreator compile() throws if certificateFile is set without certificatePassword', async () => {
+  const certOptions = { certificateFile: 'hello "how are you"'};
   const msiCreator = new MSICreator({ ...defaultOptions, exe: 'fail-code-signtool', ...certOptions });
-  const expectedErr = new Error('Cannot sign MSI without certificateFile set');
+  const expectedErr = new Error('You must provide a certificatePassword with a certificateFile');
 
   await msiCreator.create();
   await expect(msiCreator.compile()).rejects.toEqual(expectedErr);
