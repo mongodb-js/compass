@@ -133,7 +133,7 @@ class OptionEditor extends Component {
       <AceEditor
         mode="mongodb"
         theme="mongodb-query"
-        width="100%"
+        width="85%"
         value={this.props.value}
         onChange={this.onChangeQuery}
         editorProps={{ $blockScrolling: Infinity }}
