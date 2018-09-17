@@ -202,7 +202,7 @@ describe('ExportForm [Component]', () => {
     });
 
     it('returns an alert div', () => {
-      expect(component.find(`.${styles['export-to-lang-query-input']}`)).to.have.descendants(Alert);
+      expect(component).to.have.descendants(Alert);
     });
 
     it('alert div has the value of error state', () => {

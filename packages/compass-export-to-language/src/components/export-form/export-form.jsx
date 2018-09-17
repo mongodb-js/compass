@@ -81,9 +81,9 @@ class ExportForm extends Component {
               queryError={this.props.exportQuery.queryError}
               outputLang={this.props.exportQuery.outputLang}
               inputQuery={this.props.exportQuery.inputQuery}
+              showImports={this.props.exportQuery.showImports}
               imports={this.props.exportQuery.imports}
               input/>
-            {errorDiv}
             {inputBubbleDiv}
             <div className={classnames(styles['export-to-lang-copy-input-container'])}>
               <IconTextButton
@@ -109,6 +109,7 @@ class ExportForm extends Component {
             </div>
           </div>
         </div>
+        {errorDiv}
       </form>
     );
   }

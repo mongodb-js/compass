@@ -39,11 +39,16 @@ class Editor extends PureComponent {
 
   componentDidUpdate() {
     if (!this.props.input) {
-      const output = this.props.showImports && this.props.imports !== '' ? this.props.imports + '\n' + this.props.outputQuery : this.props.outputQuery;
-
-      this.editor.setValue(output);
-      this.editor.session.setMode('ace/mode/' + this.props.outputLang || 'javascript');
-      this.editor.clearSelection();
+      if (this.props.queryError) {
+        this.editor.setValue('');
+        this.editor.session.setMode('ace/mode/' + this.props.outputLang || 'javascript');
+        this.editor.clearSelection();
+      } else {
+        const output = this.props.showImports && this.props.imports !== '' ? this.props.imports + '\n' + this.props.outputQuery : this.props.outputQuery;
+        this.editor.setValue(output);
+        this.editor.session.setMode('ace/mode/' + this.props.outputLang || 'javascript');
+        this.editor.clearSelection();
+      }
     }
 
     // set this again in case it's missing
@@ -66,12 +71,13 @@ class Editor extends PureComponent {
       useWorker: false
     };
 
-    const queryStyle = (this.props.queryError && this.props.input)
-      ? classnames(styles['editor-error'])
-      : classnames(styles.editor);
-
+    const queryStyle = classnames(styles.editor);
     const output = this.props.showImports && this.props.imports !== '' ? this.props.imports + '\n' + this.props.outputQuery : this.props.outputQuery;
-    const value = this.props.input ? '' : output;
+    const value = this.props.input
+      ? this.props.inputQuery
+      : this.props.queryError
+        ? ''
+        : output;
 
     return (
       <div className={queryStyle}>

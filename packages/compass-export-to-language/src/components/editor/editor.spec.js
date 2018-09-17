@@ -37,11 +37,11 @@ describe('Editor [Component]', () => {
     });
 
     it('renders the editor with correct input', () => {
-      expect(component.find(AceEditor)).prop('value').to.be.equal('');
+      expect(component.find(AceEditor)).prop('value').to.be.equal(query);
     });
   });
 
-  context('when the component is rendered with query error', () => {
+  context('when the component is rendered with query error and input', () => {
     let component;
 
     const query = '{ category_code: "smooth jazz", release_year: 2009 }';
@@ -49,7 +49,7 @@ describe('Editor [Component]', () => {
     beforeEach(() => {
       component = mount(
         <Editor
-          outputQuery=""
+          outputQuery="output"
           inputQuery={query}
           outputLang="python"
           queryError="error"
@@ -62,8 +62,33 @@ describe('Editor [Component]', () => {
       component = null;
     });
 
-    it('renders an error editor', () => {
-      expect(component.find(`.${styles['editor-error']}`)).to.be.present();
+    it('renders the editor with correct input', () => {
+      expect(component.find(AceEditor)).prop('value').to.be.equal(query);
+    });
+  });
+
+  context('when the component is rendered with query error and output', () => {
+    let component;
+
+    const query = '{ category_code: "smooth jazz", release_year: 2009 }';
+
+    beforeEach(() => {
+      component = mount(
+        <Editor
+          outputQuery="output"
+          inputQuery={query}
+          outputLang="python"
+          queryError="error"
+          imports=""/>
+      );
+    });
+
+    afterEach(() => {
+      component = null;
+    });
+
+    it('editor has no output', () => {
+      expect(component.find(AceEditor)).prop('value').to.be.equal('');
     });
   });
 
@@ -78,7 +103,7 @@ describe('Editor [Component]', () => {
           outputQuery={outputQuery}
           inputQuery=""
           outputLang="python"
-          queryError="error"
+          queryError=""
           imports=""/>
       );
     });
@@ -103,7 +128,7 @@ describe('Editor [Component]', () => {
           outputQuery=""
           inputQuery=""
           outputLang="python"
-          queryError="error"
+          queryError=""
           imports={imports}
           showImports/>
       );
