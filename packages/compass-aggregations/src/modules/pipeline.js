@@ -485,7 +485,7 @@ export const generatePipeline = (state, index) => {
       if (count > 100000 && FULL_SCAN_OPS.includes(stage.stageOperator) && state.sample) {
         results.push(LARGE_LIMIT);
       }
-      results.push(stage.executor);
+      results.push(stage.executor || generateStage(stage));
     }
     return results;
   }, []);
