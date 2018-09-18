@@ -3,7 +3,6 @@
   "description": "Simplified IPC for electron apps.",
   "version": "1.0.0",
   "scripts": {
-    "fmt": "mongodb-js-fmt",
     "check": "mongodb-js-precommit",
     "test": "xvfb-maybe electron-mocha",
     "ci": "npm run check && npm test"
@@ -26,10 +25,9 @@
     "lodash.isplainobject": "^4.0.6"
   },
   "devDependencies": {
-    "electron-mocha": "^6.0.1",
     "electron": "^1.8.4",
+    "electron-mocha": "^6.0.1",
     "eslint-config-mongodb-js": "^2.2.0",
-    "mongodb-js-fmt": "^0.0.3",
     "mongodb-js-precommit": "^0.2.8",
     "xvfb-maybe": "^0.1.3"
   },

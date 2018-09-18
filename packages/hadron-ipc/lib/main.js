@@ -68,4 +68,8 @@ exports.broadcastFocused = (methodName, ...args) => {
   });
 };
 
+exports.remove = (channel, listener) => {
+  ipcMain.removeListener(channel, listener);
+};
+
 module.exports = exports;
