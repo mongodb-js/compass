@@ -18,7 +18,7 @@ addons:
       - libstdc++6
 before_install:
   - echo "//registry.npmjs.org/:_authToken=\${NPM_TOKEN}" >> .npmrc
-  - npm i -g npm@5.7.1
+  - npm i -g npm
   - npm cache --f clean
   - npm --version
 before_script:
