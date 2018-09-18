@@ -19,7 +19,7 @@ class CreateCollectionCheckbox extends React.Component {
         <label>
           <input
             type="checkbox"
-            onClick={this.props.onClickHandler}
+            onChange={this.props.onClickHandler}
             checked={this.props.checked}
             className={this.props.inputClassName} />
           <p className={this.props.titleClassName}>{this.props.name}</p>
