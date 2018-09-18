@@ -18,11 +18,8 @@ class CreateIndexTextField extends React.Component {
   constructor(props) {
     super(props);
     const state = {
-      value: ''
+      value: props.value
     };
-    if (this.props.option === 'partialFilterExpression') {
-      state.value = '{}';
-    }
     this.state = state;
   }
 
@@ -166,7 +163,8 @@ CreateIndexTextField.propTypes = {
   isParam: PropTypes.bool.isRequired,
   option: PropTypes.string.isRequired,
   units: PropTypes.string,
-  dataTestId: PropTypes.string
+  dataTestId: PropTypes.string,
+  value: PropTypes.string.isRequired
 };
 
 CreateIndexTextField.defaultProps = {
