@@ -83,13 +83,7 @@ class CreateIndexModal extends React.Component {
    * Handle clicking the collation checkbox.
    */
   onCollationClicked() {
-    this.setState({ isCustomCollation: !this.state.isCustomCollation }, () => {
-      if (this.state.isCustomCollation) {
-        Action.updateOption('collation', {locale: 'simple'});
-      } else {
-        Action.updateOption('collation', false);
-      }
-    });
+    this.setState({ isCustomCollation: !this.state.isCustomCollation });
   }
 
   /**
@@ -101,16 +95,26 @@ class CreateIndexModal extends React.Component {
     let idx = 0;
     const options = [];
     for (const option of INDEX_OPTIONS) {
+      const propOption = this.state.options[option.name];
+      const checked = propOption === undefined ? false : propOption.value;
       options.push(
         <CreateIndexCheckbox
           key={idx++}
           description={option.desc}
           isParam={false}
           dataTestId={`create-index-modal-${option.name}-checkbox`}
-          option={option.name} />
+          option={option.name}
+          checked={checked}/>
       );
       if (option.param) {
-        const propOption = this.state.options[option.name];
+        let val;
+        if (propOption === undefined || propOption.param === undefined) {
+          val = option.name === 'partialFilterExpression'
+            ? '{}'
+            : '';
+        } else {
+          val = propOption.param;
+        }
         options.push(
           <CreateIndexTextField
             key={idx++}
@@ -118,7 +122,8 @@ class CreateIndexModal extends React.Component {
             isParam
             option={option.name}
             dataTestId={`create-index-modal-${option.name}-field`}
-            units={option.paramUnit} />
+            units={option.paramUnit}
+            value={val}/>
         );
       }
     }
@@ -129,6 +134,7 @@ class CreateIndexModal extends React.Component {
         titleClassName="create-index-collation-title"
         helpUrl={HELP_URL_COLLATION}
         onClickHandler={this.onCollationClicked.bind(this)}
+        checked={this.state.isCustomCollation}
       />
     </div>);
     options.push(this.renderCollation(idx++));
@@ -302,7 +308,8 @@ class CreateIndexModal extends React.Component {
                 autoFocus
                 isParam={false}
                 option={'name'}
-                dataTestId="create-index-modal-name" />
+                dataTestId="create-index-modal-name"
+                value={''}/>
 
               <div className="create-index-fields">
                 <p className="create-index-description">Configure the index definition</p>
