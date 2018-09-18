@@ -49,10 +49,11 @@ describe('<EditableDocument />', () => {
 
     context('COMPASS-1732 when the value is an array', () => {
       // .focus() costs ~30ms to call, so instead of focusing every array
-      // element, jump straight to the last array element
+      // element, jump straight to the last array element.
+      // NOTE: keeping this test as a reminder of focus, but was always invalid:
+      // https://github.com/airbnb/enzyme/issues/1795
       const _focus = window.HTMLElement.prototype.focus;
       let spy;
-      let secondLastInput;
       before(() => {
         spy = sinon.spy(_focus);
         window.HTMLElement.prototype.focus = spy;
@@ -73,7 +74,7 @@ describe('<EditableDocument />', () => {
         });
         const editables = wrapper.find(EditableElement);
         const secondLastElement = editables.slice(-2, -1);
-        secondLastInput = secondLastElement.find(EditableValue).find('input');
+        secondLastElement.find(EditableValue).find('input');
       });
 
       after(() => {
@@ -82,7 +83,6 @@ describe('<EditableDocument />', () => {
       });
 
       it('it never focuses inputs such as the second last', () => {
-        expect(secondLastInput.matchesElement(document.activeElement)).to.equal(false);
         expect(spy.callCount).to.be.equal(1);
       });
     });
