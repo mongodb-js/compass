@@ -25,17 +25,17 @@ var RESOURCES = path.resolve(__dirname, '../app/');
  */
 
 /**
-* The outer dimensions to use for new windows.
-*/
+ * The outer dimensions to use for new windows.
+ */
 let DEFAULT_WIDTH = 1280;
 let DEFAULT_HEIGHT = 840;
 
 let MIN_WIDTH = 1024;
 
 /**
-* Adjust the heights to account for platforms
-* that use a single menu bar at the top of the screen.
-*/
+ * Adjust the heights to account for platforms
+ * that use a single menu bar at the top of the screen.
+ */
 if (process.platform === 'linux') {
   DEFAULT_HEIGHT -= 30;
 } else if (process.platform === 'darwin') {
@@ -67,10 +67,13 @@ function isSingleInstance(_window) {
      * `require('mongodb-connection-model').from(argv[i])` to parse the
      * URL an get back an instance of the Connection model.
      */
-    debug('Someone tried to run a second instance! We should focus our window', {
-      argv: argv,
-      dir: dir
-    });
+    debug(
+      'Someone tried to run a second instance! We should focus our window',
+      {
+        argv: argv,
+        dir: dir
+      }
+    );
 
     if (_window) {
       if (_window.isMinimized()) {
@@ -96,7 +99,7 @@ function isSingleInstance(_window) {
  * @return {BrowserWindow}
  * [0]: http://git.io/vnwTY
  */
-var createWindow = module.exports.create = function(opts) {
+var createWindow = (module.exports.create = function(opts) {
   opts = _.defaults(opts || {}, {
     width: DEFAULT_WIDTH,
     height: DEFAULT_HEIGHT,
@@ -117,13 +120,16 @@ var createWindow = module.exports.create = function(opts) {
     height: opts.height,
     icon: opts.icon,
     show: false,
+    enabled: false,
     'min-width': opts.minwidth,
     'web-preferences': {
       'subpixel-font-scaling': true,
       'direct-write': true
     }
   });
-
+  /**
+   * TODO (@imlucas) COMPASS-3134 to factor out 2 BrowserWindow's.
+   */
   var _loading = new BrowserWindow({
     width: opts.width,
     height: opts.height,
@@ -133,11 +139,11 @@ var createWindow = module.exports.create = function(opts) {
     'web-preferences': {
       'subpixel-font-scaling': true,
       'direct-write': true,
-      'nodeIntegration': false
+      nodeIntegration: false
     }
   });
 
-  _loading.webContents.on('will-navigate', (evt) => evt.preventDefault());
+  _loading.webContents.on('will-navigate', evt => evt.preventDefault());
 
   _loading.on('move', () => {
     const position = _loading.getPosition();
@@ -149,16 +155,90 @@ var createWindow = module.exports.create = function(opts) {
     _window.setSize(size[0], size[1]);
   });
 
-  ipc.respondTo('window:renderer-ready', () => {
+  _loading.on('closed', () => {
+    debug('loading window closed. dereferencing');
+    if (_window && !_window.isEnabled()) {
+      debug('loading window closed by user. closing _window just in case');
+      _window.close();
+    }
+    _loading = null;
+  });
+
+  /**
+   * # App Window IPC Handlers
+   */
+  const onRendererReady = () => {
+    if (!_loading && !_window) {
+      debug('loading and window gone away! dropping ipc window:renderer-ready');
+      return;
+    }
+
     if (_loading) {
       if (_loading.isFullScreen()) {
         _window.setFullScreen(true);
       }
-      _loading.hide();
-      _loading.close();
-      _loading = null;
       _window.show();
+      /**
+       * Mark the new window as enabled so that
+       * when `_loading` is closed, we can test
+       * that it was programatic or user action.
+       */
+      _window.setEnabled(true);
+
+      _loading.close();
     }
+  };
+
+  /**
+   * TODO (@imlucas) Replace with `ready-to-show` event?
+   * https://github.com/electron/electron/blob/master/docs/api/browser-window.md#using-ready-to-show-event
+   */
+  ipc.respondTo('window:renderer-ready', onRendererReady);
+
+  /**
+   * ## Find in page support
+   */
+
+  const onFindInPage = (sender, searchTerm, opt) => {
+    if (!_window) {
+      debug('window gone away! dropping ipc app:find-in-page');
+      return;
+    }
+    opt = opt || {};
+    _window.webContents.findInPage(searchTerm, opt);
+  };
+  ipc.respondTo('app:find-in-page', onFindInPage);
+
+  const onStopFindInPage = (sender, type) => {
+    if (!_window) {
+      debug('window gone away! dropping ipc app:stop-find-in-page');
+      return;
+    }
+    _window.webContents.stopFindInPage(type);
+  };
+
+  ipc.respondTo('app:stop-find-in-page', onStopFindInPage);
+
+  // TODO: ideally use this to send results to find-in-page component to show
+  // indications of where you are in the page.  currently sending results
+  // messes up findInPage results, however.
+  //
+  // _window.webContents.on('found-in-page', function(event, results) {
+  //   ipc.broadcast('app:find-in-page-results', results);
+  // })
+
+  _window.on('closed', () => {
+    debug('Window closed. Removing ipc responders and dereferencing.');
+    ipc.remove('window:renderer-ready', onRendererReady);
+    ipc.remove('app:find-in-page', onFindInPage);
+    ipc.remove('app:stop-find-in-page', onStopFindInPage);
+
+    if (_loading) {
+      debug('_loading not dereferenced yet. Destroying.');
+      _loading.destroy();
+    }
+
+    _window = null;
   });
 
   AppMenu.load(_window);
@@ -178,40 +258,21 @@ var createWindow = module.exports.create = function(opts) {
    * @see scripts/start.js
    */
   if (process.env.DEVTOOLS) {
-    _window.webContents.on('devtools-opened', function() {
-      _window.webContents.addWorkSpace(path.join(__dirname, '..', '..'));
-    });
     _window.webContents.openDevTools({
       detach: true
     });
   }
 
-  ipc.respondTo('app:find-in-page', function(sender, searchTerm, opt) {
-    opt = opt || {};
-    _window.webContents.findInPage(searchTerm, opt);
-  });
-
-  // TODO: ideally use this to send results to find-in-page component to show
-  // indications of where you are in the page.  currently sending results
-  // messes up findInPage results, however.
-  //
-  // _window.webContents.on('found-in-page', function(event, results) {
-  //   ipc.broadcast('app:find-in-page-results', results);
-  // })
-
-  ipc.respondTo('app:stop-find-in-page', function(sender, type) {
-    _window.webContents.stopFindInPage(type);
-  });
-
   /**
    * Open all external links in the system's web browser.
+   * TODO (@imlucas) Do we need this anymore?
    */
   _window.webContents.on('new-window', function(event, url) {
     event.preventDefault();
     electron.shell.openExternal(url);
   });
   return _window;
-};
+});
 
 function showConnectWindow() {
   createWindow();
@@ -256,7 +317,12 @@ function rendererReady(sender) {
   }
 }
 
-// respond to events from the renderer process
+/**
+ * Respond to events from the renderer process.
+ * Certain Electron API's are only accessible in the main process.
+ * These are exposed via IPC so that renderer processes can access
+ * those API's.
+ */
 ipc.respondTo({
   'app:show-connect-window': showConnectWindow,
   'window:show-about-dialog': showAboutDialog,
@@ -266,7 +332,9 @@ ipc.respondTo({
   'window:renderer-ready': rendererReady
 });
 
-// respond to events from the main process
+/**
+ * Respond to events from the main process
+ */
 app.on('window:show-about-dialog', showAboutDialog);
 app.on('app:show-connect-window', showConnectWindow);
 
@@ -281,11 +349,15 @@ app.on('before-quit', function() {
 app.on('ready', function() {
   // install development tools (devtron, react tools) if in development mode
   if (process.env.NODE_ENV === 'development') {
+    debug('Activating Compass specific devtools...');
     require('devtron').install();
-    const { default: installExtension, REACT_DEVELOPER_TOOLS } = require('electron-devtools-installer');
+    const {
+      default: installExtension,
+      REACT_DEVELOPER_TOOLS
+    } = require('electron-devtools-installer');
     installExtension(REACT_DEVELOPER_TOOLS)
-      .then((name) => debug(`Added Extension:  ${name}`))
-      .catch((err) => debug('An error occurred: ', err));
+      .then(name => debug(`Added Extension:  ${name}`))
+      .catch(err => debug('An error occurred: ', err));
   }
 
   /**
