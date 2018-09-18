@@ -15,7 +15,7 @@ class CreateIndexCheckbox extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      checked: false
+      checked: props.checked
     };
   }
 
@@ -61,7 +61,8 @@ CreateIndexCheckbox.displayName = 'CreateIndexCheckbox';
 CreateIndexCheckbox.propTypes = {
   description: PropTypes.string.isRequired,
   isParam: PropTypes.bool.isRequired,
-  option: PropTypes.string.isRequired
+  option: PropTypes.string.isRequired,
+  checked: PropTypes.bool.isRequired
 };
 
 module.exports = CreateIndexCheckbox;
