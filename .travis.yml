@@ -19,4 +19,8 @@ addons:
 before_install:
   - echo "//registry.npmjs.org/:_authToken=\${NPM_TOKEN}" >> .npmrc
   - npm i -g npm
-script: npm run ci
+install:
+  - npm ci
+script:
+  - npm run check
+  - npm test
