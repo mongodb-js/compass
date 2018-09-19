@@ -201,7 +201,7 @@
     "prestart": "rm -rf .compiled-sources",
     "start": "hadron-build develop",
     "pretest": "mongodb-runner install && mongodb-runner start --port 27017",
-    "test": "hadron-build test",
+    "test": "xvfb-maybe hadron-build test",
     "posttest": "mongodb-runner stop --port 27017",
     "postinstall": "./node_modules/.bin/electron-rebuild",
     "check": "mongodb-js-precommit './src/**/*{.js,.jsx}' './test/**/*.js'",
