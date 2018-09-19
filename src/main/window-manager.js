@@ -128,11 +128,6 @@ var createWindow = (module.exports.create = function(opts) {
     }
   });
 
-  if (!isSingleInstance(_window)) {
-    app.quit();
-    return null;
-  }
-
   /**
    * TODO (@imlucas) COMPASS-3134 to factor out 2 BrowserWindow's.
    */
@@ -251,6 +246,11 @@ var createWindow = (module.exports.create = function(opts) {
   _window.once('closed', onWindowClosed);
 
   AppMenu.load(_window);
+
+  if (!isSingleInstance(_window)) {
+    app.quit();
+    return null;
+  }
 
   _window.loadURL(opts.url);
   _loading.loadURL(LOADING_URL);
