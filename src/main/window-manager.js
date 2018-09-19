@@ -183,11 +183,13 @@ var createWindow = (module.exports.create = function(opts) {
       if (_loading.isFullScreen()) {
         _window.setFullScreen(true);
       }
-      debug('showing _window');
-      _window.show();
 
       debug('close _loading');
       _loading.close();
+
+      debug('showing _window');
+      _window.show();
+      _window.focus();
     } else {
       debug('uhoh... _loading already derefd?');
     }
