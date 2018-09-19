@@ -18,11 +18,16 @@ addons:
       - libstdc++6
 before_install:
   - echo "//registry.npmjs.org/:_authToken=\${NPM_TOKEN}" >> .npmrc
-  - npm i -g npm@5.7.1
-  - npm cache --f clean
-  - npm --version
+  - npm i -g npm
+install:
+  - npm ci
 before_script:
   - export DISPLAY=:99.0
   - sh -e /etc/init.d/xvfb start
+  - sleep 3 # give xvfb some time to start
+script:
   - npm run check
-script: npm run test
+  - npm test
+cache:
+  directories:
+    - '$HOME/.npm'
