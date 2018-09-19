@@ -45,9 +45,9 @@ const API_PRODUCT = {
  * Platform API mappings.
  */
 const API_PLATFORM = {
-  'darwin': 'osx',
-  'win32': 'windows',
-  'linux': 'linux'
+  darwin: 'osx',
+  win32: 'windows',
+  linux: 'linux'
 };
 
 /**
@@ -93,12 +93,15 @@ Application.prototype.setupAutoUpdate = function() {
     ipc.broadcast('app:update-available');
   });
 
-  this.autoUpdateManager.on('update-downloaded', function() {
-    ipc.broadcast('app:update-downloaded', {
-      releaseNotes: this.autoUpdateManager.releaseNotes,
-      releaseVersion: this.autoUpdateManager.releaseVersion
-    });
-  }.bind(this));
+  this.autoUpdateManager.on(
+    'update-downloaded',
+    function() {
+      ipc.broadcast('app:update-downloaded', {
+        releaseNotes: this.autoUpdateManager.releaseNotes,
+        releaseVersion: this.autoUpdateManager.releaseVersion
+      });
+    }.bind(this)
+  );
 
   var updateManager = this.autoUpdateManager;
   ipc.respondTo({
@@ -147,8 +150,9 @@ Application.prototype.setupApplicationMenu = function() {
 Application.prototype.setupUserDirectory = function() {
   // For testing set a clean slate for the user data.
   if (process.env.NODE_ENV === 'testing') {
-    var userDataDir = path.resolve(path.join(
-      __dirname, '..', '..', '.user-data'));
+    var userDataDir = path.resolve(
+      path.join(__dirname, '..', '..', '.user-data')
+    );
     app.setPath('userData', userDataDir);
   } else if (process.env.NODE_ENV === 'development') {
     var channel = 'stable';
