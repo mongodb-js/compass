@@ -53,9 +53,10 @@ var LOADING_URL = 'file://' + path.join(RESOURCES, 'loading', 'loading.html');
 var appLaunched = false;
 
 /**
+ * TODO (@imlucas) Revisit this.
+ *
  * @see https://github.com/atom/electron/blob/master/docs/api/app.md
  *
- * @param {BrowserWindow} _window
  * @returns {Boolean}
  */
 function isSingleInstance(_window) {
@@ -126,6 +127,12 @@ var createWindow = (module.exports.create = function(opts) {
       'direct-write': true
     }
   });
+
+  if (!isSingleInstance(_window)) {
+    app.quit();
+    return null;
+  }
+
   /**
    * TODO (@imlucas) COMPASS-3134 to factor out 2 BrowserWindow's.
    */
@@ -154,10 +161,19 @@ var createWindow = (module.exports.create = function(opts) {
     _window.setSize(size[0], size[1]);
   });
 
-  _loading.on('closed', () => {
+  /**
+   * `closed` is always fired if the `BrowserWindow`
+   * is explicity `destroy()`ed when `_window` is ready
+   * __or__ if it is closed by the user, which results
+   * in the orphaned window problem reported in
+   * COMPASS-3118 and COMPASS-3101.
+   */
+  const onLoadingClosed = () => {
     debug('loading window closed. dereferencing');
     _loading = null;
-  });
+  };
+
+  _loading.once('closed', onLoadingClosed);
 
   /**
    * # App Window IPC Handlers
@@ -219,8 +235,7 @@ var createWindow = (module.exports.create = function(opts) {
   // _window.webContents.on('found-in-page', function(event, results) {
   //   ipc.broadcast('app:find-in-page-results', results);
   // })
-
-  _window.on('closed', () => {
+  const onWindowClosed = () => {
     debug('Window closed. Removing ipc responders and dereferencing.');
     ipc.remove('window:renderer-ready', onRendererReady);
     ipc.remove('app:find-in-page', onFindInPage);
@@ -232,14 +247,10 @@ var createWindow = (module.exports.create = function(opts) {
     }
 
     _window = null;
-  });
+  };
+  _window.once('closed', onWindowClosed);
 
   AppMenu.load(_window);
-
-  if (!isSingleInstance(_window)) {
-    app.quit();
-    return null;
-  }
 
   _window.loadURL(opts.url);
   _loading.loadURL(LOADING_URL);
