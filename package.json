@@ -350,7 +350,7 @@
     "cheerio": "^1.0.0-rc.2",
     "devtron": "^1.4.0",
     "electron": "2.0.7",
-    "electron-devtools-installer": "^2.1.0",
+    "electron-devtools-installer": "^2.2.4",
     "electron-rebuild": "^1.8.2",
     "enzyme": "^3.3.0",
     "enzyme-adapter-react-16": "^1.1.1",

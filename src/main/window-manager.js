@@ -120,7 +120,6 @@ var createWindow = (module.exports.create = function(opts) {
     height: opts.height,
     icon: opts.icon,
     show: false,
-    enabled: false,
     'min-width': opts.minwidth,
     'web-preferences': {
       'subpixel-font-scaling': true,
@@ -157,10 +156,6 @@ var createWindow = (module.exports.create = function(opts) {
 
   _loading.on('closed', () => {
     debug('loading window closed. dereferencing');
-    if (_window && !_window.isEnabled()) {
-      debug('loading window closed by user. closing _window just in case');
-      _window.close();
-    }
     _loading = null;
   });
 
@@ -177,15 +172,13 @@ var createWindow = (module.exports.create = function(opts) {
       if (_loading.isFullScreen()) {
         _window.setFullScreen(true);
       }
+      debug('showing _window');
       _window.show();
-      /**
-       * Mark the new window as enabled so that
-       * when `_loading` is closed, we can test
-       * that it was programatic or user action.
-       */
-      _window.setEnabled(true);
 
+      debug('close _loading');
       _loading.close();
+    } else {
+      debug('uhoh... _loading already derefd?');
     }
   };
 
@@ -259,7 +252,7 @@ var createWindow = (module.exports.create = function(opts) {
    */
   if (process.env.DEVTOOLS) {
     _window.webContents.openDevTools({
-      detach: true
+      mode: 'detach'
     });
   }
 
