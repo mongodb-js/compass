@@ -1,11 +1,15 @@
 const Connection = require('mongodb-connection-model');
 const DataService = require('mongodb-data-service');
-const { launchCompass, quitCompass} = require('./support/spectron-support');
+const { launchCompass, quitCompass } = require('./support/spectron-support');
 
 /**
  * Global connection model for this test.
  */
-const CONNECTION = new Connection({ hostname: '127.0.0.1', port: 27018, ns: 'music' });
+const CONNECTION = new Connection({
+  hostname: '127.0.0.1',
+  port: 27018,
+  ns: 'music'
+});
 
 describe('#databases', function() {
   this.slow(30000);
@@ -14,12 +18,22 @@ describe('#databases', function() {
   let client = null;
 
   before(function() {
-    return launchCompass()
-      .then(function(application) {
-        app = application;
-        client = application.client;
-        return client.connectToCompass({ hostname: 'localhost', port: 27018 });
-      });
+    return launchCompass().then(function(application) {
+      app = application;
+      client = application.client;
+      // TODO (@imlucas) Passes locally but fails on travis :S
+      // return client
+      //   .waitForFeatureTourModal()
+      //   .clickCloseFeatureTourButton()
+      //   .waitForPrivacySettingsModal()
+      //   .clickEnableProductFeedbackCheckbox()
+      //   .clickEnableCrashReportsCheckbox()
+      //   .clickEnableUsageStatsCheckbox()
+      //   .clickEnableAutoUpdatesCheckbox()
+      //   .clickClosePrivacySettingsButton()
+      //   .connectToCompass({ hostname: 'localhost', port: 27018 });
+      return client.connectToCompass({ hostname: 'localhost', port: 27018 });
+    });
   });
 
   after(function() {
@@ -45,8 +59,7 @@ describe('#databases', function() {
           .clickCreateDatabaseButton()
           .waitForCreateDatabaseModal()
           .pressEscape()
-          .waitForCreateDatabasesModalHidden()
-          .should.eventually.be.true;
+          .waitForCreateDatabasesModalHidden().should.eventually.be.true;
       });
     });
 
@@ -59,12 +72,13 @@ describe('#databases', function() {
           .clickCreateDatabaseModalButton()
           .waitForModalError()
           .getModalErrorMessage()
-          .should.eventually.equal("database names cannot contain the character '$'");
+          .should.eventually.equal(
+            "database names cannot contain the character '$'"
+          );
       });
 
       after(function() {
-        return client.pressEscape()
-          .waitForCreateDatabasesModalHidden();
+        return client.pressEscape().waitForCreateDatabasesModalHidden();
       });
     });
 
@@ -74,7 +88,10 @@ describe('#databases', function() {
           .clickDatabasesTab()
           .clickCreateDatabaseButton()
           .waitForCreateDatabaseModal()
-          .inputCreateDatabaseDetails({ name: 'music', collectionName: 'artists' })
+          .inputCreateDatabaseDetails({
+            name: 'music',
+            collectionName: 'artists'
+          })
           .clickCreateDatabaseModalButton()
           .waitForDatabaseCreation('music')
           .getDatabasesTabDatabaseNames()
@@ -100,8 +117,7 @@ describe('#databases', function() {
           .clickDeleteDatabaseButton('music')
           .waitForDropDatabaseModal()
           .pressEscape()
-          .waitForDropDatabasesModalHidden()
-          .should.eventually.be.true;
+          .waitForDropDatabasesModalHidden().should.eventually.be.true;
       });
     });
 
@@ -124,26 +140,25 @@ describe('#databases', function() {
     context('when enter key is pressed on drop database dialog', function() {
       it('does nothing when incorrect database name is entered', function() {
         return client
-        .clickCreateDatabaseButton()
-        .waitForCreateDatabaseModal()
-        .inputCreateDatabaseDetails({ name: 'temp', collectionName: 'temp' })
-        .clickCreateDatabaseModalButton()
-        .waitForDatabaseCreation('temp')
-        .clickDeleteDatabaseButton('temp')
-        .waitForDropDatabaseModal()
-        .inputDropDatabaseName('xkcd')
-        .pressEnter()
-        .waitForDropDatabaseModal()
-        .should.eventually.be.true;
+          .clickCreateDatabaseButton()
+          .waitForCreateDatabaseModal()
+          .inputCreateDatabaseDetails({ name: 'temp', collectionName: 'temp' })
+          .clickCreateDatabaseModalButton()
+          .waitForDatabaseCreation('temp')
+          .clickDeleteDatabaseButton('temp')
+          .waitForDropDatabaseModal()
+          .inputDropDatabaseName('xkcd')
+          .pressEnter()
+          .waitForDropDatabaseModal().should.eventually.be.true;
       });
 
       it('removes the database on press', function() {
         return client
-        .inputDropDatabaseName('temp')
-        .pressEnter()
-        .waitUntilDatabaseDeletion('temp')
-        .getDatabasesTabDatabaseNames()
-        .should.not.eventually.include('temp');
+          .inputDropDatabaseName('temp')
+          .pressEnter()
+          .waitUntilDatabaseDeletion('temp')
+          .getDatabasesTabDatabaseNames()
+          .should.not.eventually.include('temp');
       });
     });
 
