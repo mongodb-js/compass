@@ -162,7 +162,7 @@ const doRestorePipeline = (state, action) => {
     name: savedState.name,
     collation: savedState.collation,
     collationString: savedState.collationString,
-    isCollationExpanded: savedState.isCollationExpanded,
+    isCollationExpanded: savedState.collationString ? true : false,
     id: savedState.id,
     comments: commenting,
     sample: sampling,
