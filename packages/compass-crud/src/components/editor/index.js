@@ -7,11 +7,11 @@ import NullEditor from './null';
 import UndefinedEditor from './undefined';
 import ObjectIdEditor from './objectid';
 
-const init = (element) => {
+const init = (element, tz) => {
   return {
     'Standard': new StandardEditor(element),
     'String': new StringEditor(element),
-    'Date': new DateEditor(element),
+    'Date': new DateEditor(element, tz),
     'Double': new DoubleEditor(element),
     'Int32': new Int32Editor(element),
     'Null': new NullEditor(element),

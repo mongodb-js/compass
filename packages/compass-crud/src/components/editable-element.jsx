@@ -351,7 +351,7 @@ class EditableElement extends React.Component {
    */
   renderValue() {
     if (this.props.editing && this.element.isValueEditable()) {
-      return (<EditableValue element={this.element} isFocused={this.state.focusValue} version={this.props.version} />);
+      return (<EditableValue element={this.element} isFocused={this.state.focusValue} version={this.props.version} tz={this.props.tz}/>);
     }
     const component = getComponent(this.element.currentType);
     const reactComponent = React.createElement(

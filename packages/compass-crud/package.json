@@ -35,7 +35,6 @@
     "react-tooltip": "^3.2.6"
   },
   "devDependencies": {
-    "@mongodb-js/compass-status": "^3.0.1",
     "autoprefixer": "^7.1.2",
     "babel-cli": "^6.10.1",
     "babel-core": "^6.24.1",
@@ -93,7 +92,6 @@
     "less-loader": "^4.0.5",
     "mocha": "^4.1.0",
     "mocha-webpack": "^1.0.0-rc.1",
-    "moment": "^2.18.1",
     "mongodb-connection-model": "^12.0.1",
     "mongodb-data-service": "^11.0.4",
     "mongodb-js-fmt": "^0.0.3",
@@ -146,6 +144,8 @@
     "lodash.topairs": "^4.3.0",
     "react-click-outside": "^3.0.1",
     "react-dom-factories": "^1.0.2",
-    "react-tooltip": "^3.2.6"
+    "react-tooltip": "^3.2.6",
+    "moment": "^2.18.1",
+    "moment-timezone": "^0.5.21"
   }
 }

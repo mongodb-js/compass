@@ -45,7 +45,7 @@ class EditableValue extends React.Component {
     this.element = props.element;
     this.state = { editing: false };
     this._pasting = false;
-    this._editors = initEditors(this.element);
+    this._editors = initEditors(this.element, this.props.tz);
   }
 
   /**
@@ -270,7 +270,8 @@ EditableValue.displayName = 'EditableValue';
 EditableValue.propTypes = {
   element: PropTypes.object.isRequired,
   isFocused: PropTypes.bool.isRequired,
-  version: PropTypes.string.isRequired
+  version: PropTypes.string.isRequired,
+  tz: PropTypes.string,
 };
 
 export default EditableValue;

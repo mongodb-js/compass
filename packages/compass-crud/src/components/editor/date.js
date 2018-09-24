@@ -1,4 +1,4 @@
-import moment from 'moment';
+import moment from 'moment-timezone';
 import TypeChecker from 'hadron-type-checker';
 import { Element } from 'hadron-document';
 import chars from 'utils';
@@ -7,7 +7,7 @@ import StandardEditor from './standard';
 /**
  * The date format.
  */
-const FORMAT = 'YYYY-MM-DD HH:mm:ss.SSS';
+const FORMAT = 'YYYY-MM-DD HH:mm:ss.SSSZ';
 
 /**
  * CRUD editor for date values.
@@ -18,9 +18,11 @@ class DateEditor extends StandardEditor {
    * Create the editor with the element.
    *
    * @param {Element} element - The hadron document element.
+   * @param {String} tz - Optional argument to set timezone.
    */
-  constructor(element) {
+  constructor(element, tz) {
     super(element);
+    this.tz = tz ? tz : 'UTC';
   }
 
   /**
@@ -95,7 +97,7 @@ class DateEditor extends StandardEditor {
   }
 
   _formattedValue() {
-    return moment(this.element.currentValue).format(FORMAT);
+    return moment(this.element.currentValue).tz(this.tz).format(FORMAT);
   }
 }
 
