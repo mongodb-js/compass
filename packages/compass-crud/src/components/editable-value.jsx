@@ -271,7 +271,7 @@ EditableValue.propTypes = {
   element: PropTypes.object.isRequired,
   isFocused: PropTypes.bool.isRequired,
   version: PropTypes.string.isRequired,
-  tz: PropTypes.string
+  tz: PropTypes.string.isRequired
 };
 
 export default EditableValue;
