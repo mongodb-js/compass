@@ -14,7 +14,8 @@ const COLL_COLUMNS = [
   'Avg. Document Size',
   'Total Document Size',
   'Num. Indexes',
-  'Total Index Size'
+  'Total Index Size',
+  'Properties'
 ];
 
 /**
@@ -87,7 +88,6 @@ const CollectionsStore = Reflux.createStore({
         database: c.database,
         capped: c.capped,
         isCustomCollation: c.isCustomCollation,
-        collation: c.collation,
         power_of_two: c.power_of_two,
         readonly: c.readonly
       };
@@ -103,28 +103,39 @@ const CollectionsStore = Reflux.createStore({
         });
         return;
       }
-      const unsorted = _(res.collections)
-      .filter((coll) => {
-        // skip system collections
-        const ns = toNS(coll.ns);
-        return !ns.system;
-      })
-      .map((coll) => {
-        // re-format for table view
-        return _.zipObject(COLL_COLUMNS, [
-          coll.name, // Collection Name
-          coll.document_count, // Num. Documents
-          coll.size / coll.document_count, // Avg. Document Size
-          coll.size, // Total Document Size
-          coll.index_count,  // Num Indexes
-          coll.index_size // Total Index Size
-        ]);
-      })
-      .value();
-      this.setState({
-        collections: collections,
-        renderedCollections: this._sort(unsorted),
-        database: namespace
+      this.dataService.listCollections(namespace, {}, (errList, info) => {
+        if (errList) {
+          this.setState({
+            fetchState: 'error',
+            errorMessage: err
+          });
+        }
+        const unsorted = _(res.collections)
+        .filter((coll) => {
+          // skip system collections
+          const ns = toNS(coll.ns);
+          return !ns.system;
+        })
+        .map((coll) => {
+          const collInfo = info.find((item) => (item.name === coll.name));
+          const collation = collInfo.options.collation || {};
+          // re-format for table view
+          return _.zipObject(COLL_COLUMNS, [
+            coll.name, // Collection Name
+            coll.document_count, // Num. Documents
+            coll.size / coll.document_count, // Avg. Document Size
+            coll.size, // Total Document Size
+            coll.index_count,  // Num Indexes
+            coll.index_size, // Total Index Size
+            collation // Collation options
+          ]);
+        })
+        .value();
+        this.setState({
+          collections: collections,
+          renderedCollections: this._sort(unsorted),
+          database: namespace
+        });
       });
     });
   },
