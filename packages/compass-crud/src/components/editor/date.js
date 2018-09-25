@@ -22,7 +22,7 @@ class DateEditor extends StandardEditor {
    */
   constructor(element, tz) {
     super(element);
-    this.tz = tz ? tz : 'UTC';
+    this.tz = tz;
   }
 
   /**

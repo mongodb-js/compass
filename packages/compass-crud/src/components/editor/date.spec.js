@@ -1,21 +1,24 @@
 import { Element } from 'hadron-document';
 import { DateEditor } from 'components/editor';
+import moment from 'moment-timezone';
 
 describe('DateEditor', () => {
   describe('#start', () => {
     const dateString = '2017-01-01 00:00:00.000';
-    const date = new Date(dateString);
+    const formattedDateString = '2017-01-01 00:00:00.000+00:00';
+    const tz = 'UTC';
+    const date = moment.tz(dateString, tz);
     const element = new Element('date', date, false);
 
     context('when the current type is valid (not yet edited)', () => {
-      const dateEditor = new DateEditor(element);
+      const dateEditor = new DateEditor(element, tz);
 
       before(() => {
         dateEditor.start();
       });
 
       it('edits the element with the formatted value', () => {
-        expect(element.currentValue).to.equal(dateString);
+        expect(element.currentValue).to.equal(formattedDateString);
       });
 
       it('sets the current value as valid', () => {
@@ -24,7 +27,7 @@ describe('DateEditor', () => {
     });
 
     context('when the current type is not valid (edited, blurred, and edited again)', () => {
-      const dateEditor = new DateEditor(element);
+      const dateEditor = new DateEditor(element, tz);
 
       before(() => {
         dateEditor.start();
@@ -51,9 +54,10 @@ describe('DateEditor', () => {
     const dateString = '2017-01-01 00:00:00.000';
     const date = new Date(dateString);
     const element = new Element('date', date, false);
+    const tz = 'UTC';
 
     context('when the date string is valid', () => {
-      const dateEditor = new DateEditor(element);
+      const dateEditor = new DateEditor(element, tz);
       const newValidString = '2017-01-01 12:00:00.000';
 
       before(() => {
@@ -71,7 +75,7 @@ describe('DateEditor', () => {
     });
 
     context('when the date string is invalid', () => {
-      const dateEditor = new DateEditor(element);
+      const dateEditor = new DateEditor(element, tz);
       const invalidString = 'nope';
 
       before(() => {
@@ -97,9 +101,10 @@ describe('DateEditor', () => {
     const dateString = '2017-01-01 00:00:00.000';
     const date = new Date(dateString);
     const element = new Element('date', date, false);
+    const tz = 'UTC';
 
     context('when the date string is valid', () => {
-      const dateEditor = new DateEditor(element);
+      const dateEditor = new DateEditor(element, tz);
       const newValidString = '2017-01-01 12:00:00.000';
 
       before(() => {
@@ -118,7 +123,7 @@ describe('DateEditor', () => {
     });
 
     context('when the date string is invalid', () => {
-      const dateEditor = new DateEditor(element);
+      const dateEditor = new DateEditor(element, tz);
       const invalidString = 'nope';
 
       before(() => {
@@ -146,7 +151,9 @@ describe('DateEditor', () => {
       const dateString = '2017-01-01 00:00:00.000';
       const date = new Date(dateString);
       const element = new Element('date', date, false);
-      const dateEditor = new DateEditor(element);
+      const tz = 'UTC';
+
+      const dateEditor = new DateEditor(element, tz);
 
       before(() => {
         dateEditor.edit('2014');
@@ -162,10 +169,12 @@ describe('DateEditor', () => {
         const dateString = '2017-01-01 00:00:00.000';
         const date = new Date(dateString);
         const element = new Element('date', date, false);
-        const dateEditor = new DateEditor(element);
+        const tz = 'UTC';
+
+        const dateEditor = new DateEditor(element, tz);
 
         it('returns the number of chars in the formatted string', () => {
-          expect(dateEditor.size(false)).to.equal(23);
+          expect(dateEditor.size(false)).to.equal(29);
         });
       });
 
@@ -173,7 +182,9 @@ describe('DateEditor', () => {
         const dateString = '2017-01-01 00:00:00.000';
         const date = new Date(dateString);
         const element = new Element('date', date, false);
-        const dateEditor = new DateEditor(element);
+        const tz = 'UTC';
+
+        const dateEditor = new DateEditor(element, tz);
 
         before(() => {
           dateEditor.edit('testing');
@@ -191,7 +202,9 @@ describe('DateEditor', () => {
       const dateString = '2017-01-01 00:00:00.000';
       const date = new Date(dateString);
       const element = new Element('date', date, false);
-      const dateEditor = new DateEditor(element);
+      const tz = 'UTC';
+
+      const dateEditor = new DateEditor(element, tz);
 
       before(() => {
         dateEditor.edit('2014');
@@ -205,12 +218,16 @@ describe('DateEditor', () => {
     context('when the ui is not in edit mode', () => {
       context('when the date is valid', () => {
         const dateString = '2017-01-01 00:00:00.000';
-        const date = new Date(dateString);
+        const formattedDateString = '2017-01-01 00:00:00.000+00:00';
+        const tz = 'UTC';
+        const date = moment.tz(dateString, tz);
         const element = new Element('date', date, false);
-        const dateEditor = new DateEditor(element);
+
+        const dateEditor = new DateEditor(element, tz);
+
 
         it('returns the formatted string', () => {
-          expect(dateEditor.value(false)).to.equal(dateString);
+          expect(dateEditor.value(false)).to.equal(formattedDateString);
         });
       });
 
@@ -218,7 +235,9 @@ describe('DateEditor', () => {
         const dateString = '2017-01-01 00:00:00.000';
         const date = new Date(dateString);
         const element = new Element('date', date, false);
-        const dateEditor = new DateEditor(element);
+        const tz = 'UTC';
+
+        const dateEditor = new DateEditor(element, tz);
 
         before(() => {
           dateEditor.edit('testing');
