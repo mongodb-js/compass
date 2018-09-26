@@ -3,8 +3,29 @@ const PropTypes = require('prop-types');
 const CollectionsActions = require('../actions/collections-actions');
 const numeral = require('numeral');
 const ipc = require('hadron-ipc');
-const { SortableTable } = require('hadron-react-components');
+const { SortableTable, InfoSprinkle } = require('hadron-react-components');
 const _ = require('lodash');
+const { shell } = require('electron');
+const ReactTooltip = require('react-tooltip');
+
+const TOOLTIP_ID = 'collation-property';
+const COLLATION_OPTIONS = {
+  locale: 'Locale',
+  caseLevel: 'Case Level',
+  caseFirst: 'Case First',
+  strength: 'Strength',
+  numericOrdering: 'Numeric Ordering',
+  alternate: 'Alternate',
+  maxVariable: 'MaxVariable',
+  normalization: 'Normalization',
+  backwards: 'Backwards',
+  version: 'Version'
+};
+
+/**
+ * The help URL for collation.
+ */
+const HELP_URL_COLLATION = 'https://docs.mongodb.com/master/reference/collation/';
 
 // const debug = require('debug')('mongodb-compass:database:collections-table');
 
@@ -67,6 +88,17 @@ class CollectionsTable extends React.Component {
     );
   }
 
+  renderCollationOptions(properties) {
+    let collation = '';
+    Object.keys(properties).forEach((key) => {
+      if (collation !== '') {
+        collation = `${collation}<br />`;
+      }
+      collation = `${collation}${COLLATION_OPTIONS[key]}: ${properties[key]}`;
+    });
+    return collation;
+  }
+
   renderButton() {
     if (!this.isReadonlyDistro()) {
       return (
@@ -78,6 +110,25 @@ class CollectionsTable extends React.Component {
           clickHandler={this.onCreateCollectionButtonClicked.bind(this)} />
       );
     }
+  }
+
+  renderProperty(properties) {
+    const tooltipOptions = {
+      'data-tip': this.renderCollationOptions(properties),
+      'data-for': TOOLTIP_ID,
+      'data-effect': 'solid',
+      'data-border': true
+    };
+    return (
+      <div {...tooltipOptions} className="property">
+        <span className="collationTooltip">Collation</span>
+        <ReactTooltip id={TOOLTIP_ID} html />
+        <InfoSprinkle
+          helpLink={HELP_URL_COLLATION}
+          onClickHandler={shell.openExternal}
+        />
+      </div>
+    );
   }
 
   render() {
@@ -94,7 +145,8 @@ class CollectionsTable extends React.Component {
           '-' : numeral(coll['Total Document Size']).format('0.0 b'),
         'Num. Indexes': isNaN(coll['Num. Indexes']) ? '-' : coll['Num. Indexes'],
         'Total Index Size': isNaN(coll['Total Index Size']) ?
-          '-' : numeral(coll['Total Index Size']).format('0.0 b')
+          '-' : numeral(coll['Total Index Size']).format('0.0 b'),
+        'Properties': this.renderProperty(coll.Properties)
       });
     });
 
