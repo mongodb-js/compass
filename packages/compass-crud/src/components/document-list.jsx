@@ -121,7 +121,8 @@ DocumentList.propTypes = {
   openInsertDocumentDialog: PropTypes.func,
   view: PropTypes.string.isRequired,
   version: PropTypes.string.isRequired,
-  viewChanged: PropTypes.func.isRequired
+  viewChanged: PropTypes.func.isRequired,
+  tz: PropTypes.string
 };
 
 DocumentList.defaultProps = {
@@ -129,7 +130,8 @@ DocumentList.defaultProps = {
   view: 'List',
   version: '3.4.0',
   isEditable: true,
-  insert: {}
+  insert: {},
+  tz: 'UTC'
 };
 
 export default DocumentList;

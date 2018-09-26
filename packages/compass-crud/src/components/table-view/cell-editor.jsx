@@ -94,7 +94,7 @@ class CellEditor extends React.Component {
     }
 
     this.oldType = this.element.currentType;
-    this._editors = initEditors(this.element);
+    this._editors = initEditors(this.element, this.props.tz);
     this.editor().start();
   }
 
@@ -564,7 +564,8 @@ CellEditor.propTypes = {
   elementTypeChanged: PropTypes.func.isRequired,
   elementMarkRemoved: PropTypes.func.isRequired,
   drillDown: PropTypes.func.isRequired,
-  eGridCell: PropTypes.any
+  eGridCell: PropTypes.any,
+  tz: PropTypes.string.isRequired
 };
 
 CellEditor.displayName = 'CellEditor';

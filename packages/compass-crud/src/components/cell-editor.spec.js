@@ -751,6 +751,7 @@ describe('<CellEditor />', () => {
                                               addColumn={actions.addColumn}
                                               columnApi={columnApi}
                                               version="3.4.0"
+                                              tz="UTC"
                                               context={context}/>);
           done();
         });
@@ -787,6 +788,7 @@ describe('<CellEditor />', () => {
                                               addColumn={actions.addColumn}
                                               columnApi={columnApi}
                                               version="3.4.0"
+                                              tz="UTC"
                                               context={context}/>);
           done();
         });

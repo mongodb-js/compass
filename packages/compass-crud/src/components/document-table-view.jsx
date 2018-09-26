@@ -691,7 +691,8 @@ class DocumentTableView extends React.Component {
         version: this.props.version,
         elementTypeChanged: this.props.elementTypeChanged,
         elementMarkRemoved: this.props.elementMarkRemoved,
-        drillDown: this.props.drillDown
+        drillDown: this.props.drillDown,
+        tz: this.props.tz
       }
     };
   }
@@ -878,7 +879,8 @@ DocumentTableView.propTypes = {
   removeDocument: PropTypes.func,
   updateDocument: PropTypes.func,
   start: PropTypes.number,
-  table: PropTypes.object.isRequired
+  table: PropTypes.object.isRequired,
+  tz: PropTypes.string.isRequired
 };
 
 DocumentTableView.displayName = 'DocumentTableView';

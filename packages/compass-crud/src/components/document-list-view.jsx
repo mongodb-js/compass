@@ -35,7 +35,7 @@ class DocumentListView extends React.Component {
         <li className={LIST_ITEM_CLASS} data-test-id={LIST_ITEM_TEST_ID} key={i}>
           <Document
             doc={doc}
-            tz="UTC"
+            tz={this.props.tz}
             key={i}
             editable={this.props.isEditable}
             version={this.props.version}
@@ -69,7 +69,8 @@ DocumentListView.propTypes = {
   removeDocument: PropTypes.func,
   updateDocument: PropTypes.func,
   version: PropTypes.string.isRequired,
-  openInsertDocumentDialog: PropTypes.func
+  openInsertDocumentDialog: PropTypes.func,
+  tz: PropTypes.string.isRequired
 };
 
 DocumentListView.displayName = 'DocumentListView';
