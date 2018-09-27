@@ -39,7 +39,7 @@
     "react-bootstrap": "^0.32.1"
   },
   "devDependencies": {
-    "@mongodb-js/compass-crud": "^5.3.5",
+    "@mongodb-js/compass-crud": "^5.3.7",
     "@mongodb-js/compass-field-store": "^1.0.0",
     "autoprefixer": "^7.1.2",
     "babel-cli": "^6.10.1",
