@@ -6,6 +6,9 @@ marky.mark('Time to user can Click Connect');
 
 EventEmitter.defaultMaxListeners = 100;
 
+document.addEventListener('dragover', evt => evt.preventDefault());
+document.addEventListener('drop', evt => evt.preventDefault());
+
 require('../setup-hadron-distribution');
 
 window.jQuery = require('jquery');
