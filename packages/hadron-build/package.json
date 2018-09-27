@@ -24,7 +24,7 @@
     "cli-table": "^0.3.1",
     "debug": "^2.2.0",
     "del": "^2.0.2",
-    "electron": "2.0.7",
+    "electron": "3.0.0",
     "electron-builder": "^20.28.3",
     "electron-installer-run": "^1.0.0",
     "electron-installer-zip": "^0.1.2",
@@ -51,7 +51,7 @@
     "moment": "^2.17.1",
     "mongodb-js-cli": "^0.0.3",
     "mongodb-notary-service-client": "^0.4.6",
-    "node-abi": "^2.4.1",
+    "node-abi": "^2.4.4",
     "normalize-package-data": "^2.3.5",
     "parse-github-repo-url": "^1.0.0",
     "pify": "^2.3.0",
@@ -73,7 +73,7 @@
   "optionalDependencies": {
     "electron-installer-codesign": "^0.3.0",
     "electron-installer-debian": "^0.4.0",
-    "electron-installer-dmg": "^0.2.1",
+    "electron-installer-dmg": "^2.0.0",
     "electron-installer-redhat": "^0.3.0",
     "electron-osx-sign": "^0.4.1",
     "electron-winstaller": "2.5.1"

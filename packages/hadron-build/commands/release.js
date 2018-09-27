@@ -30,6 +30,8 @@ const ModuleCache = require('hadron-module-cache');
 const CompileCache = require('hadron-compile-cache');
 const StyleManager = require('hadron-style-manager');
 const rebuild = require('electron-rebuild').rebuild;
+const builder = require('electron-builder');
+const Platform = builder.Platform;
 
 const ui = require('./ui');
 const verify = require('./verify');
@@ -151,6 +153,27 @@ const createBrandedApplication = (CONFIG, done) => {
       });
     });
   });
+};
+
+/**
+ * Create the Windows NSIS installer.
+ *
+ * @param {Object} CONFIG - The config.
+ * @param {Function} done - The callback.
+ */
+const createNsisApplication = (CONFIG, done) => {
+  builder.build({
+    targets: Platform.MAC.createTarget(),
+    config: {
+     "//": "build options, see https://goo.gl/QQXmcV"
+    }
+  })
+  .then(() => {
+    // handle result
+  })
+  .catch((error) => {
+    return done(error);
+  })
 };
 
 /**
