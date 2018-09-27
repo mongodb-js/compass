@@ -19,13 +19,13 @@ class Connect extends React.Component {
   }
 
   componentDidMount() {
-    window.addEventListener('onfocus', this.checkClipboard);
+    window.addEventListener('focus', this.checkClipboard);
     document.title = `${remote.app.getName()} - Connect`;
     this.checkClipboard();
   }
 
   componentWillUnmount() {
-    window.removeEventListener('onfocus', this.checkClipboard);
+    window.removeEventListener('focus', this.checkClipboard);
   }
 
   onCheckClipboard() {
