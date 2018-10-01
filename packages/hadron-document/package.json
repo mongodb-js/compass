@@ -42,7 +42,7 @@
   },
   "devDependencies": {
     "babel-cli": "^6.9.0",
-    "bson": "^0.5.7",
+    "bson": "^1.1.0",
     "chai": "^3.4.1",
     "eslint-config-mongodb-js": "^2.2.0",
     "mocha": "^5.2.0",
