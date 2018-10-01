@@ -1,13 +1,23 @@
+sudo: false
+dist: trusty
 language: node_js
-sudo: required
 node_js:
   - 8.9.3
-script: npm run-script ci
+env:
+  - MONGODB_VERSION=3.4.x MONGODB_TOPOLOGY=standalone
+  - MONGODB_VERSION=3.4.x MONGODB_TOPOLOGY=cluster
+  - MONGODB_VERSION=stable MONGODB_TOPOLOGY=standalone
+  - MONGODB_VERSION=stable MONGODB_TOPOLOGY=cluster
+  - MONGODB_VERSION=unstable MONGODB_TOPOLOGY=standalone
+  - MONGODB_VERSION=unstable MONGODB_TOPOLOGY=cluster
+before_install:
+  - npm i -g npm
+install:
+  - npm ci
+script:
+  - npm run check
+  - npm test
 cache:
   directories:
-  - node_modules
-notifications:
-  flowdock: e3dc17bc8a2c1b3412abe3e5747f8291
-env:
-  - MONGODB_VERSION=3.2.x MONGODB_TOPOLOGY=standalone
-  - MONGODB_VERSION=3.4.x MONGODB_TOPOLOGY=standalone
+    - '$HOME/.npm'
+    - '$HOME/.nvm/versions/node/v8.9.3/lib/node_modules/npm'

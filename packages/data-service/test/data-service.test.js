@@ -12,36 +12,44 @@ describe('DataService', function() {
   this.timeout(20000);
   var service = new DataService(helper.connection);
 
-  before(require('mongodb-runner/mocha/before')({
-    port: 27018
-  }));
-  after(require('mongodb-runner/mocha/after')({
-    port: 27018
-  }));
-
   before(function(done) {
     service.connect(done);
   });
 
   describe('#deleteOne', function() {
     it('deletes the document from the collection', function(done) {
-      service.insertOne('data-service.test', {
-        a: 500
-      }, {}, function(err) {
-        assert.equal(null, err);
-        service.deleteOne('data-service.test', {
+      service.insertOne(
+        'data-service.test',
+        {
           a: 500
-        }, {}, function(er) {
-          assert.equal(null, er);
-          service.find('data-service.test', {
-            a: 500
-          }, {}, function(error, docs) {
-            assert.equal(null, error);
-            expect(docs.length).to.equal(0);
-            done();
-          });
-        });
-      });
+        },
+        {},
+        function(err) {
+          assert.equal(null, err);
+          service.deleteOne(
+            'data-service.test',
+            {
+              a: 500
+            },
+            {},
+            function(er) {
+              assert.equal(null, er);
+              service.find(
+                'data-service.test',
+                {
+                  a: 500
+                },
+                {},
+                function(error, docs) {
+                  assert.equal(null, error);
+                  expect(docs.length).to.equal(0);
+                  done();
+                }
+              );
+            }
+          );
+        }
+      );
     });
   });
 
@@ -69,7 +77,7 @@ describe('DataService', function() {
         assert.equal(null, error);
         service.listCollections(dbName, {}, function(err, items) {
           assert.equal(null, err);
-          expect(items).to.not.include({name: 'bar', options: {}});
+          expect(items).to.not.include({ name: 'bar', options: {} });
           done();
         });
       });
@@ -78,11 +86,12 @@ describe('DataService', function() {
 
   describe('#dropDatabase', function() {
     before(function(done) {
-      service.client.client.db('mangoDB').createCollection('testing',
-      {}, function(error) {
-        assert.equal(null, error);
-        done();
-      });
+      service.client.client
+        .db('mangoDB')
+        .createCollection('testing', {}, function(error) {
+          assert.equal(null, error);
+          done();
+        });
     });
 
     it('drops a database', function(done) {
@@ -90,7 +99,7 @@ describe('DataService', function() {
         assert.equal(null, error);
         service.listDatabases(function(err, dbs) {
           assert.equal(null, err);
-          expect(dbs).to.not.have.property({name: 'mangoDB'});
+          expect(dbs).to.not.have.property({ name: 'mangoDB' });
           done();
         });
       });
@@ -99,12 +108,16 @@ describe('DataService', function() {
 
   describe('#dropIndex', function() {
     before(function(done) {
-      service.client.database.collection('test').createIndex({
-        a: 1
-      }, {}, function(error) {
-        assert.equal(null, error);
-        done();
-      });
+      service.client.database.collection('test').createIndex(
+        {
+          a: 1
+        },
+        {},
+        function(error) {
+          assert.equal(null, error);
+          done();
+        }
+      );
     });
 
     it('removes an index from a collection', function(done) {
@@ -113,7 +126,7 @@ describe('DataService', function() {
         assert.equal(null, error);
         service.indexes(namespace, {}, function(err, indexes) {
           assert.equal(null, err);
-          expect(indexes).to.not.have.property({name: 'a_1'});
+          expect(indexes).to.not.have.property({ name: 'a_1' });
           done();
         });
       });
@@ -122,23 +135,38 @@ describe('DataService', function() {
 
   describe('#deleteMany', function() {
     it('deletes the document from the collection', function(done) {
-      service.insertOne('data-service.test', {
-        a: 500
-      }, {}, function(err) {
-        assert.equal(null, err);
-        service.deleteMany('data-service.test', {
+      service.insertOne(
+        'data-service.test',
+        {
           a: 500
-        }, {}, function(er) {
-          assert.equal(null, er);
-          service.find('data-service.test', {
-            a: 500
-          }, {}, function(error, docs) {
-            assert.equal(null, error);
-            expect(docs.length).to.equal(0);
-            done();
-          });
-        });
-      });
+        },
+        {},
+        function(err) {
+          assert.equal(null, err);
+          service.deleteMany(
+            'data-service.test',
+            {
+              a: 500
+            },
+            {},
+            function(er) {
+              assert.equal(null, er);
+              service.find(
+                'data-service.test',
+                {
+                  a: 500
+                },
+                {},
+                function(error, docs) {
+                  assert.equal(null, error);
+                  expect(docs.length).to.equal(0);
+                  done();
+                }
+              );
+            }
+          );
+        }
+      );
     });
   });
 
@@ -157,18 +185,27 @@ describe('DataService', function() {
 
     it('returns a cursor for the documents', function(done) {
       var count = 0;
-      service.aggregate('data-service.test',
-        [{$match: {}}, {$group: {_id: '$a', total: {$sum: '$a'} } }],
-        {'cursor': { batchSize: 10000 }}
-      ).forEach(function() { count++; }, function(err) {
-        assert.equal(null, err);
-        expect(count).to.equal(2);
-        done();
-      });
+      service
+        .aggregate(
+          'data-service.test',
+          [{ $match: {} }, { $group: { _id: '$a', total: { $sum: '$a' } } }],
+          { cursor: { batchSize: 10000 } }
+        )
+        .forEach(
+          function() {
+            count++;
+          },
+          function(err) {
+            assert.equal(null, err);
+            expect(count).to.equal(2);
+            done();
+          }
+        );
     });
     it('returns null, calls callback', function(done) {
-      service.aggregate('data-service.test',
-        [{$match: {}}, {$group: {_id: '$a', total: {$sum: '$a'} } }],
+      service.aggregate(
+        'data-service.test',
+        [{ $match: {} }, { $group: { _id: '$a', total: { $sum: '$a' } } }],
         {},
         function(error, result) {
           assert.equal(null, error);
@@ -177,7 +214,8 @@ describe('DataService', function() {
             expect(r.length).to.equal(2);
             done();
           });
-        });
+        }
+      );
     });
   });
 
@@ -195,13 +233,18 @@ describe('DataService', function() {
     });
 
     it('returns a cursor for the documents', function(done) {
-      service.find('data-service.test', {}, {
-        skip: 1
-      }, function(error, docs) {
-        assert.equal(null, error);
-        expect(docs.length).to.equal(1);
-        done();
-      });
+      service.find(
+        'data-service.test',
+        {},
+        {
+          skip: 1
+        },
+        function(error, docs) {
+          assert.equal(null, error);
+          expect(docs.length).to.equal(1);
+          done();
+        }
+      );
     });
   });
 
@@ -238,30 +281,36 @@ describe('DataService', function() {
     var id = new ObjectId();
 
     it('returns the updated document', function(done) {
-      service.insertOne('data-service.test', {
-        _id: id,
-        a: 500
-      }, {}, function(err) {
-        assert.equal(null, err);
-        service.findOneAndReplace(
-          'data-service.test',
-          {
-            _id: id
-          },
-          {
-            b: 5
-          },
-          {
-            returnOriginal: false
-          }, function(error, result) {
-            expect(error).to.equal(null);
-            expect(result._id.toString()).to.deep.equal(id.toString());
-            expect(result.b).to.equal(5);
-            expect(result.hasOwnProperty('a')).to.equal(false);
-            done();
-          }
-        );
-      });
+      service.insertOne(
+        'data-service.test',
+        {
+          _id: id,
+          a: 500
+        },
+        {},
+        function(err) {
+          assert.equal(null, err);
+          service.findOneAndReplace(
+            'data-service.test',
+            {
+              _id: id
+            },
+            {
+              b: 5
+            },
+            {
+              returnOriginal: false
+            },
+            function(error, result) {
+              expect(error).to.equal(null);
+              expect(result._id.toString()).to.deep.equal(id.toString());
+              expect(result.b).to.equal(5);
+              expect(result.hasOwnProperty('a')).to.equal(false);
+              done();
+            }
+          );
+        }
+      );
     });
   });
 
@@ -303,20 +352,28 @@ describe('DataService', function() {
   describe('#count', function() {
     context('when a filter is provided', function() {
       it('returns a count for the matching documents', function(done) {
-        service.count('data-service.test', {
-          a: 1
-        }, {}, function(error, count) {
-          assert.equal(null, error);
-          expect(count).to.equal(0);
-          done();
-        });
+        service.count(
+          'data-service.test',
+          {
+            a: 1
+          },
+          {},
+          function(error, count) {
+            assert.equal(null, error);
+            expect(count).to.equal(0);
+            done();
+          }
+        );
       });
     });
   });
 
   describe('#shardedCollectionDetail', function() {
     it('returns the collection details', function(done) {
-      service.shardedCollectionDetail('data-service.test', function(err, detail) {
+      service.shardedCollectionDetail('data-service.test', function(
+        err,
+        detail
+      ) {
         assert.equal(null, err);
         expect(detail.ns).to.equal('data-service.test');
         expect(detail.index_count).to.equal(1);
@@ -341,8 +398,13 @@ describe('DataService', function() {
       service.listDatabases(function(err, databases) {
         assert.equal(null, err);
         const databaseNames = databases.map(db => db.name);
+        if (service.client.isMongos) {
+          expect(databaseNames).to.not.contain('local');
+        } else {
+          expect(databaseNames).to.contain('local');
+        }
         expect(databaseNames).to.contain('data-service');
-        expect(databaseNames).to.contain('local');
+
         expect(databases[0]).to.include.keys(['name', 'sizeOnDisk', 'empty']);
         done();
       });
@@ -388,7 +450,10 @@ describe('DataService', function() {
           } else if (items[0].name === 'test') {
             expect(items[1].name).to.equal('foo');
           } else {
-            assert(false, 'Collection returned from listCollections has incorrect name');
+            assert(
+              false,
+              'Collection returned from listCollections has incorrect name'
+            );
           }
           done();
         });
@@ -411,8 +476,8 @@ describe('DataService', function() {
     context('when options are provided', function() {
       it('creates a new index with the provided options', function(done) {
         const namespace = 'data-service.test';
-        var spec = {a: 1};
-        var options = {unique: true};
+        var spec = { a: 1 };
+        var options = { unique: true };
         service.createIndex(namespace, spec, options, function(error) {
           assert.equal(null, error);
           service.indexes(namespace, {}, function(err, indexes) {
@@ -427,7 +492,7 @@ describe('DataService', function() {
     context('when no options are provided', function() {
       it('creates a new single index', function(done) {
         const namespace = 'data-service.test';
-        var spec = {b: 1};
+        var spec = { b: 1 };
         var options = {};
         service.createIndex(namespace, spec, options, function(error) {
           assert.equal(null, error);
@@ -441,7 +506,7 @@ describe('DataService', function() {
 
       it('creates a new compound index', function(done) {
         const namespace = 'data-service.test';
-        var spec = {a: -1, b: 1};
+        var spec = { a: -1, b: 1 };
         var options = {};
         service.createIndex(namespace, spec, options, function(error) {
           assert.equal(null, error);
@@ -535,18 +600,28 @@ describe('DataService', function() {
     });
 
     it('inserts the document into the collection', function(done) {
-      service.insertOne('data-service.test', {
-        a: 500
-      }, {}, function(err) {
-        assert.equal(null, err);
-        service.find('data-service.test', {
+      service.insertOne(
+        'data-service.test',
+        {
           a: 500
-        }, {}, function(error, docs) {
-          assert.equal(null, error);
-          expect(docs.length).to.equal(1);
-          done();
-        });
-      });
+        },
+        {},
+        function(err) {
+          assert.equal(null, err);
+          service.find(
+            'data-service.test',
+            {
+              a: 500
+            },
+            {},
+            function(error, docs) {
+              assert.equal(null, error);
+              expect(docs.length).to.equal(1);
+              done();
+            }
+          );
+        }
+      );
     });
   });
 
@@ -558,20 +633,33 @@ describe('DataService', function() {
     });
 
     it('inserts the documents into the collection', function(done) {
-      service.insertMany('data-service.test', [{
-        a: 500
-      }, {
-        a: 500
-      }], {}, function(err) {
-        assert.equal(null, err);
-        service.find('data-service.test', {
-          a: 500
-        }, {}, function(error, docs) {
-          assert.equal(null, error);
-          expect(docs.length).to.equal(2);
-          done();
-        });
-      });
+      service.insertMany(
+        'data-service.test',
+        [
+          {
+            a: 500
+          },
+          {
+            a: 500
+          }
+        ],
+        {},
+        function(err) {
+          assert.equal(null, err);
+          service.find(
+            'data-service.test',
+            {
+              a: 500
+            },
+            {},
+            function(error, docs) {
+              assert.equal(null, error);
+              expect(docs.length).to.equal(2);
+              done();
+            }
+          );
+        }
+      );
     });
   });
 
@@ -591,15 +679,19 @@ describe('DataService', function() {
     context('when no filter is provided', function() {
       it('returns a stream of sampled documents', function(done) {
         var seen = 0;
-        service.sample('data-service.test', {})
-          .pipe(eventStream.through(function(doc) {
-            seen++;
-            this.emit('data', doc);
-          }, function() {
-            this.emit('end');
-            expect(seen).to.equal(2);
-            done();
-          }));
+        service.sample('data-service.test', {}).pipe(
+          eventStream.through(
+            function(doc) {
+              seen++;
+              this.emit('data', doc);
+            },
+            function() {
+              this.emit('end');
+              expect(seen).to.equal(2);
+              done();
+            }
+          )
+        );
       });
     });
   });
@@ -612,27 +704,43 @@ describe('DataService', function() {
     });
 
     it('updates the document', function(done) {
-      service.insertOne('data-service.test', {
-        a: 500
-      }, {}, function(err) {
-        assert.equal(null, err);
-        service.updateOne('data-service.test', {
+      service.insertOne(
+        'data-service.test',
+        {
           a: 500
-        }, {
-          $set: {
-            a: 600
-          }
-        }, {}, function(er) {
-          assert.equal(null, er);
-          service.find('data-service.test', {
-            a: 600
-          }, {}, function(error, docs) {
-            assert.equal(null, error);
-            expect(docs.length).to.equal(1);
-            done();
-          });
-        });
-      });
+        },
+        {},
+        function(err) {
+          assert.equal(null, err);
+          service.updateOne(
+            'data-service.test',
+            {
+              a: 500
+            },
+            {
+              $set: {
+                a: 600
+              }
+            },
+            {},
+            function(er) {
+              assert.equal(null, er);
+              service.find(
+                'data-service.test',
+                {
+                  a: 600
+                },
+                {},
+                function(error, docs) {
+                  assert.equal(null, error);
+                  expect(docs.length).to.equal(1);
+                  done();
+                }
+              );
+            }
+          );
+        }
+      );
     });
   });
 
@@ -644,29 +752,48 @@ describe('DataService', function() {
     });
 
     it('updates the documents', function(done) {
-      service.insertMany('data-service.test', [{
-        a: 500
-      }, {
-        a: 500
-      }], {}, function(err) {
-        assert.equal(null, err);
-        service.updateMany('data-service.test', {
-          a: 500
-        }, {
-          $set: {
-            a: 600
+      service.insertMany(
+        'data-service.test',
+        [
+          {
+            a: 500
+          },
+          {
+            a: 500
           }
-        }, {}, function(er) {
-          assert.equal(null, er);
-          service.find('data-service.test', {
-            a: 600
-          }, {}, function(error, docs) {
-            assert.equal(null, error);
-            expect(docs.length).to.equal(2);
-            done();
-          });
-        });
-      });
+        ],
+        {},
+        function(err) {
+          assert.equal(null, err);
+          service.updateMany(
+            'data-service.test',
+            {
+              a: 500
+            },
+            {
+              $set: {
+                a: 600
+              }
+            },
+            {},
+            function(er) {
+              assert.equal(null, er);
+              service.find(
+                'data-service.test',
+                {
+                  a: 600
+                },
+                {},
+                function(error, docs) {
+                  assert.equal(null, error);
+                  expect(docs.length).to.equal(2);
+                  done();
+                }
+              );
+            }
+          );
+        }
+      );
     });
   });
 });

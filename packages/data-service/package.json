@@ -14,10 +14,9 @@
     "mongodb-js"
   ],
   "scripts": {
-    "ci": "npm run check && npm test",
-    "pretest": "mongodb-runner install",
+    "pretest": "mongodb-runner start --port=27018",
     "test": "mocha",
-    "fmt": "mongodb-js-fmt ./*.js ./test/*.js",
+    "posttest": "mongodb-runner stop --port 27018",
     "check": "mongodb-js-precommit"
   },
   "precommit": [
@@ -40,7 +39,7 @@
     "lodash.partial": "^4.2.1",
     "lodash.union": "^4.6.0",
     "lodash.uniqby": "^4.5.0",
-    "mongodb": "^3.1.5",
+    "mongodb": "^3.1.6",
     "mongodb-collection-sample": "^4.1.0",
     "mongodb-connection-model": "^12.4.0",
     "mongodb-index-model": "^2.2.0",
@@ -53,11 +52,10 @@
   "devDependencies": {
     "chai": "^3.4.1",
     "eslint-config-mongodb-js": "^2.2.0",
-    "mocha": "^5.2.0",
+    "mocha": "^3.1.2",
     "mock-require": "^2.0.1",
-    "mongodb-js-fmt": "^0.0.3",
     "mongodb-js-precommit": "^0.2.9",
-    "mongodb-runner": "^4.1.0",
+    "mongodb-runner": "^4.3.2",
     "pre-commit": "^1.1.2"
   }
 }

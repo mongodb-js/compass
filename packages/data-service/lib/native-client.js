@@ -48,20 +48,12 @@ const MONGOS = 'Mongos';
 /**
  * Writable server types.
  */
-const WRITABLE_SERVER_TYPES = [
-  RS_PRIMARY,
-  STANDALONE,
-  MONGOS
-];
+const WRITABLE_SERVER_TYPES = [RS_PRIMARY, STANDALONE, MONGOS];
 
 /**
  * Writable topology types.
  */
-const WRITABLE_TYPES = [
-  SHARDED,
-  SINGLE,
-  RS_WITH_PRIMARY
-];
+const WRITABLE_TYPES = [SHARDED, SINGLE, RS_WITH_PRIMARY];
 
 /**
  * Error message sustring for view operations.
@@ -82,7 +74,6 @@ const ADMIN = 'admin';
  * The native client class.
  */
 class NativeClient extends EventEmitter {
-
   /**
    * Instantiate a new NativeClient object.
    *
@@ -104,18 +95,29 @@ class NativeClient extends EventEmitter {
     debug('connecting...');
     this.isWritable = false;
     this.isMongos = false;
-    connect(this.model, this.setupListeners.bind(this), (err, mongoClient) => {
-      this.client = mongoClient;
+    connect(
+      this.model,
+      this.setupListeners.bind(this),
+      (err, mongoClient) => {
+        this.client = mongoClient;
 
-      if (err) {
-        return done(this._translateMessage(err));
+        if (err) {
+          return done(this._translateMessage(err));
+        }
+
+        this.isWritable = this.client.isWritable;
+        this.isMongos = this.client.isMongos;
+
+        debug('connected!', {
+          isWritable: this.isWritable,
+          isMongos: this.isMongos
+        });
+
+        this.client.on('status', evt => this.emit('status', evt));
+        this.database = this.client.db(this.model.ns || ADMIN);
+        done(null, this);
       }
-
-      debug('connected!');
-      this.client.on('status', (evt) => this.emit('status', evt));
-      this.database = this.client.db(this.model.ns || ADMIN);
-      done(null, this);
-    });
+    );
     return this;
   }
 
@@ -126,37 +128,37 @@ class NativeClient extends EventEmitter {
    */
   setupListeners(client) {
     if (client) {
-      client.on('serverDescriptionChanged', (evt) => {
+      client.on('serverDescriptionChanged', evt => {
         this.emit('serverDescriptionChanged', evt);
       });
 
-      client.on('serverOpening', (evt) => {
+      client.on('serverOpening', evt => {
         this.emit('serverOpening', evt);
       });
 
-      client.on('serverClosed', (evt) => {
+      client.on('serverClosed', evt => {
         this.emit('serverClosed', evt);
       });
 
-      client.on('topologyOpening', (evt) => {
+      client.on('topologyOpening', evt => {
         this.emit('topologyOpening', evt);
       });
 
-      client.on('topologyClosed', (evt) => {
+      client.on('topologyClosed', evt => {
         this.emit('topologyClosed', evt);
       });
 
-      client.on('topologyDescriptionChanged', (evt) => {
+      client.on('topologyDescriptionChanged', evt => {
         client.isWritable = this._isWritable(evt);
         client.isMongos = this._isMongos(evt);
         this.emit('topologyDescriptionChanged', evt);
       });
 
-      client.on('serverHeartbeatSucceeded', (evt) => {
+      client.on('serverHeartbeatSucceeded', evt => {
         this.emit('serverHeartbeatSucceeded', evt);
       });
 
-      client.on('serverHeartbeatFailed', (evt) => {
+      client.on('serverHeartbeatFailed', evt => {
         this.emit('serverHeartbeatFailed', evt);
       });
     }
@@ -199,15 +201,22 @@ class NativeClient extends EventEmitter {
    * @param {Function} callback - The callback.
    */
   collectionDetail(ns, callback) {
-    async.parallel({
-      stats: this.collectionStats.bind(this, this._databaseName(ns), this._collectionName(ns)),
-      indexes: this.indexes.bind(this, ns)
-    }, (error, coll) => {
-      if (error) {
-        return callback(this._translateMessage(error));
+    async.parallel(
+      {
+        stats: this.collectionStats.bind(
+          this,
+          this._databaseName(ns),
+          this._collectionName(ns)
+        ),
+        indexes: this.indexes.bind(this, ns)
+      },
+      (error, coll) => {
+        if (error) {
+          return callback(this._translateMessage(error));
+        }
+        callback(null, this._buildCollectionDetail(ns, coll));
       }
-      callback(null, this._buildCollectionDetail(ns, coll));
-    });
+    );
   }
 
   /**
@@ -233,7 +242,7 @@ class NativeClient extends EventEmitter {
    * @param {Function} callback - The callback.
    */
   listDatabases(callback) {
-    this.database.admin().command({'listDatabases': 1}, {}, (error, result) => {
+    this.database.admin().command({ listDatabases: 1 }, {}, (error, result) => {
       if (error) {
         return callback(this._translateMessage(error));
       }
@@ -253,14 +262,17 @@ class NativeClient extends EventEmitter {
         return callback(this._translateMessage(error));
       }
       // Filter out system. collections.
-      const filteredNames = fil(names, (name) => {
+      const filteredNames = fil(names, name => {
         return !name.startsWith(SYSTEM);
       });
-      async.parallel(map(filteredNames, (name) => {
-        return (done) => {
-          this.collectionStats(databaseName, name, done);
-        };
-      }), callback);
+      async.parallel(
+        map(filteredNames, name => {
+          return done => {
+            this.collectionStats(databaseName, name, done);
+          };
+        }),
+        callback
+      );
     });
   }
 
@@ -275,7 +287,7 @@ class NativeClient extends EventEmitter {
       if (error) {
         return callback(this._translateMessage(error));
       }
-      var names = map(collections, (collection) => {
+      var names = map(collections, collection => {
         return collection.name;
       });
       callback(null, names);
@@ -289,18 +301,22 @@ class NativeClient extends EventEmitter {
    * @param {Function} callback - The callback.
    */
   currentOp(includeAll, callback) {
-    this.database.admin().command({'currentOp': 1, '$all': includeAll}, (error, result) => {
-      if (error) {
-        this._database('admin').collection('$cmd.sys.inprog').findOne({'$all': includeAll}, (error2, result2) => {
-          if (error2) {
-            return callback(this._translateMessage(error2));
-          }
-          callback(null, result2);
-        });
-        return;
-      }
-      callback(null, result);
-    });
+    this.database
+      .admin()
+      .command({ currentOp: 1, $all: includeAll }, (error, result) => {
+        if (error) {
+          this._database('admin')
+            .collection('$cmd.sys.inprog')
+            .findOne({ $all: includeAll }, (error2, result2) => {
+              if (error2) {
+                return callback(this._translateMessage(error2));
+              }
+              callback(null, result2);
+            });
+          return;
+        }
+        callback(null, result);
+      });
   }
 
   /**
@@ -323,7 +339,7 @@ class NativeClient extends EventEmitter {
    * @param {Function} callback - The callback.
    */
   top(callback) {
-    this.database.admin().command({ 'top': 1 }, (error, result) => {
+    this.database.admin().command({ top: 1 }, (error, result) => {
       if (error) {
         return callback(this._translateMessage(error));
       }
@@ -344,7 +360,14 @@ class NativeClient extends EventEmitter {
       if (error && !error.message.includes(VIEW_ERROR)) {
         return callback(this._translateMessage(error));
       }
-      callback(null, this._buildCollectionStats(databaseName, collectionName, data || { readonly: true }));
+      callback(
+        null,
+        this._buildCollectionStats(
+          databaseName,
+          collectionName,
+          data || { readonly: true }
+        )
+      );
     });
   }
 
@@ -390,15 +413,18 @@ class NativeClient extends EventEmitter {
    * @param {Function} callback - The callback.
    */
   databaseDetail(name, callback) {
-    async.parallel({
-      stats: this.databaseStats.bind(this, name),
-      collections: this.collections.bind(this, name)
-    }, (error, db) => {
-      if (error) {
-        return callback(this._translateMessage(error));
+    async.parallel(
+      {
+        stats: this.databaseStats.bind(this, name),
+        collections: this.collections.bind(this, name)
+      },
+      (error, db) => {
+        if (error) {
+          return callback(this._translateMessage(error));
+        }
+        callback(null, this._buildDatabaseDetail(name, db));
       }
-      callback(null, this._buildDatabaseDetail(name, db));
-    });
+    );
   }
 
   /**
@@ -540,12 +566,14 @@ class NativeClient extends EventEmitter {
    * @param {Function} callback - The callback.
    */
   find(ns, filter, options, callback) {
-    this._collection(ns).find(filter, options).toArray((error, documents) => {
-      if (error) {
-        return callback(this._translateMessage(error));
-      }
-      callback(null, documents);
-    });
+    this._collection(ns)
+      .find(filter, options)
+      .toArray((error, documents) => {
+        if (error) {
+          return callback(this._translateMessage(error));
+        }
+        callback(null, documents);
+      });
   }
 
   /**
@@ -571,12 +599,17 @@ class NativeClient extends EventEmitter {
    * @param {Function} callback - The callback.
    */
   findOneAndReplace(ns, filter, replacement, options, callback) {
-    this._collection(ns).findOneAndReplace(filter, replacement, options, (error, result) => {
-      if (error) {
-        return callback(this._translateMessage(error));
+    this._collection(ns).findOneAndReplace(
+      filter,
+      replacement,
+      options,
+      (error, result) => {
+        if (error) {
+          return callback(this._translateMessage(error));
+        }
+        callback(null, result.value);
       }
-      callback(null, result.value);
-    });
+    );
   }
 
   /**
@@ -591,12 +624,14 @@ class NativeClient extends EventEmitter {
   explain(ns, filter, options, callback) {
     // @todo thomasr: driver explain() does not yet support verbosity,
     // once it does, should be passed along from the options object.
-    this._collection(ns).find(filter, options).explain((error, explanation) => {
-      if (error) {
-        return callback(this._translateMessage(error));
-      }
-      callback(null, explanation);
-    });
+    this._collection(ns)
+      .find(filter, options)
+      .explain((error, explanation) => {
+        if (error) {
+          return callback(this._translateMessage(error));
+        }
+        callback(null, explanation);
+      });
   }
 
   /**
@@ -703,14 +738,23 @@ class NativeClient extends EventEmitter {
       if (!data.sharded) {
         return callback(null, data);
       }
-      async.parallel(map(data.shards, (shardStats, shardName) => {
-        return this._shardDistribution.bind(this, ns, shardName, data, shardStats);
-      }), (err) => {
-        if (err) {
-          return callback(this._translateMessage(err));
+      async.parallel(
+        map(data.shards, (shardStats, shardName) => {
+          return this._shardDistribution.bind(
+            this,
+            ns,
+            shardName,
+            data,
+            shardStats
+          );
+        }),
+        err => {
+          if (err) {
+            return callback(this._translateMessage(err));
+          }
+          callback(null, data);
         }
-        callback(null, data);
-      });
+      );
     });
   }
 
@@ -724,7 +768,7 @@ class NativeClient extends EventEmitter {
   updateCollection(ns, flags, callback) {
     var collectionName = this._collectionName(ns);
     var db = this._database(this._databaseName(ns));
-    var collMod = { 'collMod': collectionName };
+    var collMod = { collMod: collectionName };
     var command = assignIn(collMod, flags);
     db.command(command, (error, result) => {
       if (error) {
@@ -762,12 +806,17 @@ class NativeClient extends EventEmitter {
    * @param {Function} callback - The callback.
    */
   updateMany(ns, filter, update, options, callback) {
-    this._collection(ns).updateMany(filter, update, options, (error, result) => {
-      if (error) {
-        return callback(this._translateMessage(error));
+    this._collection(ns).updateMany(
+      filter,
+      update,
+      options,
+      (error, result) => {
+        if (error) {
+          return callback(this._translateMessage(error));
+        }
+        callback(null, result);
       }
-      callback(null, result);
-    });
+    );
   }
 
   /**
@@ -781,18 +830,30 @@ class NativeClient extends EventEmitter {
    */
   _shardDistribution(ns, shardName, detail, shardStats, callback) {
     var configDb = this._database('config');
-    configDb.collection('shards').findOne({ _id: shardName }, (error, shardDoc) => {
-      if (error) {
-        return callback(this._translateMessage(error));
-      }
-      configDb.collection('chunks').count({ ns: ns, shard: shardName }, (err, chunkCount) => {
-        if (err) {
-          return callback(this._translateMessage(err));
+    configDb
+      .collection('shards')
+      .findOne({ _id: shardName }, (error, shardDoc) => {
+        if (error) {
+          return callback(this._translateMessage(error));
         }
-        assign(shardStats, this._buildShardDistribution(detail, shardStats, shardDoc, chunkCount));
-        callback(null);
+        configDb
+          .collection('chunks')
+          .count({ ns: ns, shard: shardName }, (err, chunkCount) => {
+            if (err) {
+              return callback(this._translateMessage(err));
+            }
+            assign(
+              shardStats,
+              this._buildShardDistribution(
+                detail,
+                shardStats,
+                shardDoc,
+                chunkCount
+              )
+            );
+            callback(null);
+          });
       });
-    });
   }
 
   /**
@@ -829,8 +890,10 @@ class NativeClient extends EventEmitter {
       shardDocs: shardStats.count,
       estimatedDataPerChunk: shardStats.size / chunkCount,
       estimatedDocsPerChunk: Math.floor(shardStats.count / chunkCount),
-      estimatedDataPercent: Math.floor(((shardStats.size / detail.size) || 0) * 10000) / 100,
-      estimatedDocPercent: Math.floor(((shardStats.count / detail.count) || 0) * 10000) / 100
+      estimatedDataPercent:
+        Math.floor((shardStats.size / detail.size || 0) * 10000) / 100,
+      estimatedDocPercent:
+        Math.floor((shardStats.count / detail.count || 0) * 10000) / 100
     };
   }
 
@@ -931,7 +994,9 @@ class NativeClient extends EventEmitter {
    * @returns {Collection} The collection.
    */
   _collection(ns) {
-    return this._database(this._databaseName(ns)).collection(this._collectionName(ns));
+    return this._database(this._databaseName(ns)).collection(
+      this._collectionName(ns)
+    );
   }
 
   /**

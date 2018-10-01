@@ -14,14 +14,6 @@ describe('NativeClient', function() {
   this.timeout(20000);
   var client = new NativeClient(helper.connection);
 
-  before(require('mongodb-runner/mocha/before')({
-    port: 27018
-  }));
-
-  after(require('mongodb-runner/mocha/after')({
-    port: 27018
-  }));
-
   before(function(done) {
     const callback = (err, result) => {
       const adminDb = client.database.admin();
@@ -460,6 +452,12 @@ describe('NativeClient', function() {
   describe('#top', function() {
     it('returns an object with the results from top', function(done) {
       client.top(function(err, result) {
+        if (client.isMongos) {
+          assert(err);
+          expect(err.message).to.equal('Top command is not available in mongos');
+          done();
+          return;
+        }
         assert.equal(null, err);
         expect(result.ok).to.equal(1);
         done();
