@@ -33,6 +33,7 @@ export interface MSICreatorOptions {
   signWithParams?: string;
   certificateFile?: string;
   certificatePassword?: string;
+  arch?: 'x64' | 'ia64'| 'x86';
 }
 
 export interface UIOptions {
@@ -81,6 +82,7 @@ export class MSICreator {
   public certificateFile?: string;
   public certificatePassword?: string;
   public signWithParams?: string;
+  public arch: 'x64' | 'ia64'| 'x86' = 'x86';
 
   public ui: UIOptions | boolean;
 
@@ -106,6 +108,7 @@ export class MSICreator {
     this.signWithParams = options.signWithParams;
     this.upgradeCode = options.upgradeCode || uuid();
     this.version = options.version;
+    this.arch = options.arch || 'x86';
 
     this.appUserModelId = options.appUserModelId
       || `com.squirrel.${this.shortName}.${this.exe}`;
@@ -178,6 +181,13 @@ export class MSICreator {
     const directories = await this.getDirectoryForTree(
       this.tree, base, 8, ROOTDIR_NAME, this.programFilesFolderName);
     const componentRefs = await this.getComponentRefs();
+
+    const scaffoldReplacements = {
+      '<!-- {{ComponentRefs}} -->': componentRefs.map(({ xml }) => xml).join('\n'),
+      '<!-- {{Directories}} -->': directories,
+      '<!-- {{UI}} -->': this.getUI()
+    };
+
     const replacements = {
       '{{ApplicationBinary}}': this.exe,
       '{{ApplicationDescription}}': this.description,
@@ -190,12 +200,14 @@ export class MSICreator {
       '{{ShortcutFolderName}}': this.shortcutFolderName,
       '{{UpgradeCode}}': this.upgradeCode,
       '{{Version}}': this.version,
-      '<!-- {{ComponentRefs}} -->': componentRefs.map(({ xml }) => xml).join('\n'),
-      '<!-- {{Directories}} -->': directories,
-      '<!-- {{UI}} -->': this.getUI()
+      '{{Platform}}': this.arch,
+      '{{ProgramFilesFolder}}': this.arch === 'x86' ? 'ProgramFilesFolder' : 'ProgramFiles64Folder',
+      '{{ProcessorArchitecture}}' : this.arch,
+      '{{Win64YesNo}}' : this.arch === 'x86' ? 'no' : 'yes',
     };
 
-    const output = await replaceToFile(this.wixTemplate, target, replacements);
+    const completeTemplate = replaceInString(this.wixTemplate, scaffoldReplacements);
+    const output = await replaceToFile(completeTemplate, target, replacements);
 
     return { wxsFile: target, wxsContent: output };
   }

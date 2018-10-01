@@ -13,7 +13,8 @@
     <Package InstallerVersion="405"
              Compressed="yes"
              InstallScope="perMachine"
-             Comments="Windows Installer Package"/>
+             Comments="Windows Installer Package"
+             Platform="{{Platform}}"/>
     <Media Id="1" Cabinet="product.cab" EmbedCab="yes"/>
 
     <!-- Handle Updates -->
@@ -32,7 +33,7 @@
     <!-- Step 2: Add files and directories -->
     <Directory Id="TARGETDIR" Name="SourceDir">
       <!-- Installation files to %PROGRAMFILES% -->
-      <Directory Id="ProgramFilesFolder">
+      <Directory Id="{{ProgramFilesFolder}}">
 <!-- {{Directories}} -->
       </Directory>
       <!-- Start Menu -->
@@ -43,7 +44,7 @@
 
     <!-- Step 3: Add app to Start Menu -->
     <DirectoryRef Id="ApplicationProgramsFolder">
-      <Component Id="ApplicationShortcut" Guid="{{ApplicationShortcutGuid}}">
+      <Component Id="ApplicationShortcut" Guid="{{ApplicationShortcutGuid}}" Win64='{{Win64YesNo}}'>
         <Shortcut Id="ApplicationStartMenuShortcut"
                   Name="{{ApplicationName}}"
                   Description="{{ApplicationDescription}}"

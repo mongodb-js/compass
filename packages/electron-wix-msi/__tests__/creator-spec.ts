@@ -321,3 +321,57 @@ test('MSICreator compile() throws if signing throws', async () => {
   await msiCreator.create();
   await expect(msiCreator.compile()).rejects.toEqual(expectedErr);
 });
+
+test('MSICreator create() creates x86 version by default', async () => {
+  const msiCreator = new MSICreator({ ...defaultOptions});
+
+  const { wxsFile } = await msiCreator.create();
+  wxsContent = await fs.readFile(wxsFile, 'utf-8');
+  console.log(wxsFile);
+  console.log(wxsContent);
+  expect(wxsFile).toBeTruthy();
+});
+testIncludes('32 bit package declaration', 'Platform="x86"');
+testIncludes('32 bit component declarations', 'Win64="no"');
+testIncludes('32 bit file architecture declaration', 'ProcessorArchitecture="x86"');
+
+test('MSICreator create() creates x86 version explicitly', async () => {
+  const msiCreator = new MSICreator({ ...defaultOptions, arch: 'x86'});
+
+  const { wxsFile } = await msiCreator.create();
+  wxsContent = await fs.readFile(wxsFile, 'utf-8');
+  console.log(wxsFile);
+  console.log(wxsContent);
+  expect(wxsFile).toBeTruthy();
+});
+testIncludes('32 bit package declaration', 'Platform="x86"');
+testIncludes('32 bit component declarations', 'Win64="no"');
+testIncludes('32 bit file architecture declaration', 'ProcessorArchitecture="x86"');
+
+test('MSICreator create() creates x64 version', async () => {
+  const msiCreator = new MSICreator({ ...defaultOptions, arch: 'x64'});
+
+  const { wxsFile } = await msiCreator.create();
+  wxsContent = await fs.readFile(wxsFile, 'utf-8');
+  console.log(wxsFile);
+  console.log(wxsContent);
+  expect(wxsFile).toBeTruthy();
+});
+testIncludes('32 bit package declaration', 'Platform="x64"');
+testIncludes('32 bit component declarations', 'Win64="yes"');
+testIncludes('32 bit file architecture declaration', 'ProcessorArchitecture="x64"');
+
+test('MSICreator create() creates ia64 version', async () => {
+  const msiCreator = new MSICreator({ ...defaultOptions, arch: 'ia64'});
+
+  const { wxsFile } = await msiCreator.create();
+  wxsContent = await fs.readFile(wxsFile, 'utf-8');
+  console.log(wxsFile);
+  console.log(wxsContent);
+  expect(wxsFile).toBeTruthy();
+});
+testIncludes('32 bit package declaration', 'Platform="ia64"');
+testIncludes('32 bit component declarations', 'Win64="yes"');
+testIncludes('32 bit file architecture declaration', 'ProcessorArchitecture="ia64"');
+
+
