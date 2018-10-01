@@ -28,6 +28,7 @@
   ],
   "license": "Apache-2.0",
   "peerDependencies": {
+    "hadron-react-bson": "^2.1.0",
     "hadron-react-components": "^2.0.0",
     "prop-types": "^15.5.8",
     "react": "^16.3.2",
@@ -72,6 +73,7 @@
     "hadron-app": "^2.2.0",
     "hadron-app-registry": "^7.0.0",
     "hadron-ipc": "0.0.8",
+    "hadron-react-bson": "^2.1.0",
     "hadron-react-buttons": "^2.0.0",
     "hadron-react-components": "^2.0.0",
     "html-webpack-plugin": "^2.28.0",
@@ -133,7 +135,6 @@
     "ag-grid": "14.0.0",
     "ag-grid-react": "14.0.0",
     "hadron-document": "^4.0.1",
-    "hadron-react-bson": "^2.0.0",
     "hadron-type-checker": "^4.0.4",
     "lodash.clonedeep": "^4.5.0",
     "lodash.findindex": "^4.6.0",
