@@ -31,7 +31,7 @@ class DateEditor extends StandardEditor {
    */
   complete() {
     if (this.element.isCurrentTypeValid()) {
-      this.element.edit(TypeChecker.cast(this.element.currentValue, 'Date'));
+      this.element.edit(TypeChecker.cast(this._formattedValue(), 'Date'));
     }
   }
 
