@@ -1,5 +1,14 @@
+.babelrc
+.eslintrc
+.editorconfig
 .jshintrc
 .jsfmtrc
+.nycrc
 .travis.yml
-.zuul.yml
+config/
+electron/
+karma.conf.js
+mocha-webpack.opts
+scripts/
 test/
+.zuul.yml
