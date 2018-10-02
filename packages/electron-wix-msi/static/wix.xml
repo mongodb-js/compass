@@ -46,7 +46,7 @@
     <DirectoryRef Id="ApplicationProgramsFolder">
       <Component Id="ApplicationShortcut" Guid="{{ApplicationShortcutGuid}}" Win64='{{Win64YesNo}}'>
         <Shortcut Id="ApplicationStartMenuShortcut"
-                  Name="{{ApplicationName}}"
+                  Name="{{ShortcutName}}"
                   Description="{{ApplicationDescription}}"
                   Target="[APPLICATIONROOTDIRECTORY]{{ApplicationBinary}}.exe"
                   WorkingDirectory="APPLICATIONROOTDIRECTORY">

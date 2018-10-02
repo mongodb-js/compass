@@ -64,8 +64,10 @@ const defaultOptions = {
 const testIncludes = (title: string, ...content: Array<string>) => {
   return test(`.wxs file includes ${title}`, () => {
     if (Array.isArray(content)) {
+      // We want to be able to search across line breaks and multiple spaces.
+      const singleLineWxContent = wxsContent.replace(/\s\s+/g, ' ');
       content.forEach((innerContent) => {
-        expect(wxsContent.includes(innerContent)).toBeTruthy();
+        expect(singleLineWxContent.includes(innerContent)).toBeTruthy();
       });
     }
   });
@@ -340,8 +342,6 @@ test('MSICreator create() creates x86 version explicitly', async () => {
 
   const { wxsFile } = await msiCreator.create();
   wxsContent = await fs.readFile(wxsFile, 'utf-8');
-  console.log(wxsFile);
-  console.log(wxsContent);
   expect(wxsFile).toBeTruthy();
 });
 testIncludes('32 bit package declaration', 'Platform="x86"');
@@ -353,8 +353,6 @@ test('MSICreator create() creates x64 version', async () => {
 
   const { wxsFile } = await msiCreator.create();
   wxsContent = await fs.readFile(wxsFile, 'utf-8');
-  console.log(wxsFile);
-  console.log(wxsContent);
   expect(wxsFile).toBeTruthy();
 });
 testIncludes('32 bit package declaration', 'Platform="x64"');
@@ -366,12 +364,18 @@ test('MSICreator create() creates ia64 version', async () => {
 
   const { wxsFile } = await msiCreator.create();
   wxsContent = await fs.readFile(wxsFile, 'utf-8');
-  console.log(wxsFile);
-  console.log(wxsContent);
   expect(wxsFile).toBeTruthy();
 });
 testIncludes('32 bit package declaration', 'Platform="ia64"');
 testIncludes('32 bit component declarations', 'Win64="yes"');
 testIncludes('32 bit file architecture declaration', 'ProcessorArchitecture="ia64"');
 
+test('MSICreator create() shortcut name override', async () => {
+  const msiCreator = new MSICreator({ ...defaultOptions, shortcutName: 'BeepBeep'});
+
+  const { wxsFile } = await msiCreator.create();
+  wxsContent = await fs.readFile(wxsFile, 'utf-8');
+  expect(wxsFile).toBeTruthy();
+});
+testIncludes('Custom shortcut name', '<Shortcut Id="ApplicationStartMenuShortcut" Name="BeepBeep"');
 

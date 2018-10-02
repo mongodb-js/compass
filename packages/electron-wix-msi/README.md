@@ -81,6 +81,8 @@ await msiCreator.compile();
   undefined.
 * `shortcutFolderName` (string, optional) - Name of the shortcut folder in the
   Windows Start Menu. Will use the manufacturer field if left undefined.
+* `shortcutName` (string, optional) - Name of the shortcut  in the
+  Windows Start Menu. Will use the app's name field if left undefined.
 * `programFilesFolderName` (string, optional) - Name of the folder your app will
   live in. Will use the app's name if left undefined.
 * `upgradeCode` (string, optional) - A unique UUID used by your app to identify
@@ -99,6 +101,8 @@ await msiCreator.compile();
 * `extensions` (array, optional) - Specify WiX extensions to use e.g `['WixUtilExtension', 'C:\My WiX Extensions\FooExtension.dll']`
 * `ui` (UIOptions, optional) - Enables configuration of the UI. See below for
   more information.
+* `arch` (string, optional) - Defines the architecure the MSI is build for. Values can
+  be either `x86` or `x64`. Default's to `x86` if left undefined.
 
 ##### UI Configuration (Optional)
 
