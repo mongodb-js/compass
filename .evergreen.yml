@@ -1,123 +1,318 @@
-#######################################################################################
-# Compass Evergreen CI configuration
-#
-# References:
-# https://github.com/evergreen-ci/evergreen/wiki/Project-Files
-# https://github.com/evergreen-ci/evergreen/blob/master/config_dev/project/sample.yml
-#######################################################################################
-
 stepback: false
-
-# Upper bound on any shell.exec task. 30 min should be plenty of time.
 exec_timeout_secs: 1800
 
-#######################################
-#            Functions                #
-#######################################
 functions:
-  'configure':
-    command: shell.exec
-    params:
-      working_dir: src
-      script: |
-        set -ev
-        cat <<EOF_BUILD_SH > ~/compass_env.sh
-        export PATH="${node_path}:$PATH"
-        export APPDATA=${add_env_appdata}
-        export CI=1
-        export EVERGREEN=1
+  'prepare':
+    - command: git.get_project
+      params:
+        directory: src
+    - command: shell.exec
+      params:
+        working_dir: src
+        script: |
+          echo "Setting up ~/compass_env.sh"
 
-        # Tweak as needed for more or less debugging output in logs
-        # export DEBUG="hadron*,electron*,mongodb-notary-service*";
+          cat <<EOF_BUILD_SH > ~/compass_env.sh
+          export PATH="${node_path}:$PATH"
+          export APPDATA=${add_env_appdata}
+          export CI=1
+          export EVERGREEN=1
 
-        # Make default evergreen expansions accessible to hadron-build
-        export EVERGREEN_ASSET_PREFIX="s3://mciuploads/${project}/${revision}";
-        export EVERGREEN_AUTHOR="${author}";
-        export EVERGREEN_AWS_ACCESS_KEY_ID="${aws_key}";
-        export EVERGREEN_AWS_SECRET_ACCESS_KEY="${aws_secret}";
-        export EVERGREEN_BRANCH_NAME="${branch_name}";
-        export EVERGREEN_BUILD_ID="${build_id}";
-        export EVERGREEN_BUILD_VARIANT="${build_variant}";
-        export EVERGREEN_EXECUTION="${execution}";
-        export EVERGREEN_IS_PATCH=${is_patch};
-        export EVERGREEN_PROJECT="${project}";
-        export EVERGREEN_REVISION="${revision}";
-        export EVERGREEN_TASK_ID="${task_id}";
-        export EVERGREEN_TASK_NAME="${task_name}";
-        export EVERGREEN_TASK_URL="https://evergreen.mongodb.com/task/${task_id}";
-        export EVERGREEN_VERSION_ID="${version_id}";
-        export EVERGREEN_WORKDIR="${workdir}";
+          # Make default evergreen expansions accessible to hadron-build
+          export EVERGREEN_ASSET_PREFIX="s3://mciuploads/${project}/${revision}";
+          export EVERGREEN_AUTHOR="${author}";
+          export EVERGREEN_AWS_ACCESS_KEY_ID="${aws_key}";
+          export EVERGREEN_AWS_SECRET_ACCESS_KEY="${aws_secret}";
+          export EVERGREEN_BRANCH_NAME="${branch_name}";
+          export EVERGREEN_BUILD_ID="${build_id}";
+          export EVERGREEN_BUILD_VARIANT="${build_variant}";
+          export EVERGREEN_EXECUTION="${execution}";
+          export EVERGREEN_IS_PATCH=${is_patch};
+          export EVERGREEN_PROJECT="${project}";
+          export EVERGREEN_REVISION="${revision}";
+          export EVERGREEN_TASK_ID="${task_id}";
+          export EVERGREEN_TASK_NAME="${task_name}";
+          export EVERGREEN_TASK_URL="https://evergreen.mongodb.com/task/${task_id}";
+          export EVERGREEN_VERSION_ID="${version_id}";
+          export EVERGREEN_WORKDIR="${workdir}";
 
-        # Required to sign release assets
-        export NOTARY_URL="http://notary-service.build.10gen.cc:5000"
-        export NOTARY_AUTH_TOKEN="${signing_auth_token}"
-        export NOTARY_SIGNING_KEY="${signing_key_name}"
-        export NOTARY_SIGNING_COMMENT="Evergreen project mongodb/compass ${revision} - ${build_variant} - ${branch_name}"
+          # Required to sign release assets
+          export NOTARY_URL="http://notary-service.build.10gen.cc:5000"
+          export NOTARY_AUTH_TOKEN="${signing_auth_token}"
+          export NOTARY_SIGNING_KEY="${signing_key_name}"
+          export NOTARY_SIGNING_COMMENT="Evergreen project mongodb/compass ${revision} - ${build_variant} - ${branch_name}"
 
-        # Required to upload release assets to GitHub
-        export GITHUB_TOKEN=${leafybot_github_token}
+          # Required to upload release assets to GitHub
+          export GITHUB_TOKEN=${leafybot_github_token}
 
-        # Required to upload release assets to s3 for download center
-        export DOWNLOAD_CENTER_AWS_ACCESS_KEY_ID=${aws_key_evergreen_integrations}
-        export DOWNLOAD_CENTER_AWS_SECRET_ACCESS_KEY=${aws_secret_evergreen_integrations}
-        EOF_BUILD_SH
+          # Required to upload release assets to s3 for download center
+          export DOWNLOAD_CENTER_AWS_ACCESS_KEY_ID=${aws_key_evergreen_integrations}
+          export DOWNLOAD_CENTER_AWS_SECRET_ACCESS_KEY=${aws_secret_evergreen_integrations}
+
+          # node stuff
+          export ARTIFACTS_PATH="$(pwd)/.deps"
+
+          export NPM_CACHE_DIR="$ARTIFACTS_PATH/npm"
+          mkdir -p $NPM_CACHE_DIR
+
+          export NPM_TMP_DIR="$ARTIFACTS_PATH/tmp"
+          mkdir -p $NPM_TMP_DIR
+
+          EOF_BUILD_SH
+    - command: shell.exec
+      params:
+        working_dir: src
+        script: |
+          echo "Configuring npm..."
+
+          export ARTIFACTS_PATH="$(pwd)/.deps"
+          export NPM_CACHE_DIR="$ARTIFACTS_PATH/npm"
+          export NPM_TMP_DIR="$ARTIFACTS_PATH/tmp"
+
+          cat <<EOT > .npmrc
+          devdir=${NPM_CACHE_DIR}/.node-gyp
+          init-module=${NPM_CACHE_DIR}/.npm-init.js
+          cache=${NPM_CACHE_DIR}
+          tmp=${NPM_TMP_DIR}
+          _authToken=${compass_npm_token}
+          EOT
+      - command: shell.exec
+        params:
+          working_dir: src
+          script: |
+            set -e
+            
+            echo "Installing nodejs..."
+            curl -fs \
+              -o ".deps/${fetch_npm_tarball}" \
+              --url "https://nodejs.org/download/release/v8.9.3/${fetch_npm_tarball}"
+            cd .deps
+            tar xzf ${fetch_npm_tarball} --strip-components=1
+
+            echo "Installing latest npm..."
+            rm -f npm npx npm.cmd npx.cmd
+            mv lib/node_modules/npm lib/node_modules/npm2
+
+            chmod +x ./bin/node
+            ./bin/node lib/node_modules/npm2/bin/npm-cli.js i -g npm@latest
+            rm -rf lib/node_modules/npm2/
+        variants:
+          - macos-compass
+          - macos-compass-community
+          - macos-compass-readonly
+          - macos-compass-isolated
+          - rhel-compass
+          - rhel-compass-community
+          - rhel-compass-readonly
+          - rhel-compass-isolated
+          - ubuntu-compass
+          - ubuntu-compass-community
+          - ubuntu-compass-readonly
+          - ubuntu-compass-isolated
+      - command: shell.exec
+        params:
+          working_dir: src
+          script: |
+            set -e
+
+            echo "Installing nodejs..."
+            curl -fs \
+              -o ".deps/node-v8.9.3-win-x64.zip" \
+              --url "https://nodejs.org/download/release/v8.9.3/node-v8.9.3-win-x64.zip"
+            cd .deps
+            unzip node-v8.9.3-win-x64.zip
+            mv node-v8.9.3-win-x64/* .
+            rm -rf node-v8.9.3-win-x64
+
+            echo "Installing latest npm..."
+
+            export PATH="${node_path}:$PATH"
+            export APPDATA=${add_env_appdata}
+
+            rm -rf npm npx npm.cmd npx.cmd
+            mv node_modules/npm node_modules/npm2
+
+            chmod +x ./node.exe
+
+            ./node.exe node_modules/npm2/bin/npm-cli.js i -g npm@latest
+            rm -rf node_modules/npm2/
+            chmod +x npm.cmd
+            chmod +x npm
+        variants:
+          - windows-compass
+          - windows-compass-community
+          - windows-compass-readonly
+          - windows-compass-isolated
 
   'install':
-    command: shell.exec
-    params:
-      working_dir: src
-      script: |
-        set -ev
-        # Load environment variables generated by `configure`
-        . ~/compass_env.sh
-        echo "//registry.npmjs.org/:_authToken=${compass_npm_token}" >> .npmrc
-        npm ci
-        npm run evergreen-expansions ${compass_distribution}
-        cat expansions.yml
+    - command: shell.exec
+      params:
+        working_dir: src
+        script: |
+          set -e
+          echo "Installing native-addon depenendencies for RHEL..."
+          yum localinstall -y http://mirror.centos.org/centos/7/os/x86_64/Packages/libsecret-0.18.5-2.el7.x86_64.rpm
+          yum localinstall -y http://mirror.centos.org/centos/7/os/x86_64/Packages/libsecret-devel-0.18.5-2.el7.x86_64.rpm
+      variants:
+        - rhel-compass
+        - rhel-compass-community
+        - rhel-compass-readonly
+        - rhel-compass-isolated
+    - command: shell.exec
+      params:
+        working_dir: src
+        script: |
+          set -e
+          echo "Installing native-addon depenendencies for Ubuntu..."
+          sudo apt-get install -y libsecret-1-dev
+      variants:
+        - ubuntu-compass
+        - ubuntu-compass-community
+        - ubuntu-compass-readonly
+        - ubuntu-compass-isolated
+    - command: shell.exec
+      params:
+        working_dir: src
+        script: |
+          set -e
+          . ~/compass_env.sh
+          echo "Installing Compass dependencies..."
+          npm ci
+    - command: shell.exec
+      params:
+        working_dir: src
+        script: |
+          set -e
+          # Load environment variables generated by `prepare`
+          . ~/compass_env.sh
 
-  'build':
+          echo "Synchronizing evergreen environment from Compass build tools..."
+          npm run evergreen-expansions ${compass_distribution}
+    - command: expansions.update
+      params:
+        file: src/expansions.yml
+    - command: archive.targz_pack
+      params:
+        target: "compass-build.tgz"
+        source_dir: "src"
+    - command: s3.put
+      params:
+        aws_key: ${aws_key}
+        aws_secret: ${aws_secret}
+        local_file: compass-build.tgz
+        remote_file: ${project}/${revision}/${compass_distribution}-build.tgz
+        bucket: mciuploads
+        # permissions: public-read
+        content_type: application/octet-stream
+        display_name: ${compass_distribution}-build-artifacts
+
+  'restore':
+    - command: s3.get
+      params:
+        aws_key: ${aws_key}
+        aws_secret: ${aws_secret}
+        local_file: compass-build.tgz
+        remote_file: ${project}/${revision}/${compass_distribution}-build.tgz
+        bucket: mciuploads
+        content_type: application/octet-stream
+        display_name: ${compass_distribution}-build-artifacts 
+        command: shell.exec
+    - command: shell.exec
+      params:
+        working_dir: src
+        script: |
+          set -e
+          tar xzf ${compass_distribution}-build.tgz --strip-components=1
+    - command: expansions.update
+      params:
+        file: src/expansions.yml
+        
+
+  'verify':
     command: shell.exec
     params:
       working_dir: src
       script: |
-        set -ev
-        cat <<EOF_BUILD_SH > ~/compass_build.sh
-        cd $(pwd)
+        set -e
+
         # Load environment variables
         . ~/compass_env.sh
 
-        # Run static analysis on code and project configuration
+        echo "Run static analysis..."
         npm run check;
 
-        # Create a release build
-        npm run release ${compass_distribution};
-        ls -alh dist || true;
-
-        # Upload release assets to S3 and GitHub
-        npm run upload ${compass_distribution}
-        EOF_BUILD_SH
-
-        #
-        # Use ".", not "source" below to read script. Required for /bin/sh on Ubuntu.
-        #
-        if [ -n "${build_via_local_tunnel|}" ]
-        then
-          ssh -v -p 2222 localhost ". compass_build.sh"
-        else
-          . ~/compass_build.sh
-        fi
-
-  'test_ssh_localhost':
+  'test':
     command: shell.exec
     params:
       working_dir: src
       script: |
-        set -ev
-        if [ -n "${build_via_local_tunnel|}" ]
-        then
-          ssh -p 2222 localhost "echo SSH_LOCALHOST_TEST_OK"
-        fi
+        set -e
 
+        # Load environment variables
+        . ~/compass_env.sh
+        echo "NOTE (imlucas) Making this a noop for now, but leaving the func for future reference"
+        # echo "Running test"
+        # npm test;
+
+  'package':
+    - command: shell.exec
+      params:
+        working_dir: src
+        script: |
+            set -e
+            echo "Fetching signtool -> notary-service hack..."
+
+            curl -fs \
+              -o "signtool.exe" \
+              --url "https://s3.amazonaws.com/boxes.10gen.com/build/signtool.exe"
+            rm -f node_modules/electron-winstaller/vendor/signtool.exe
+            chmod +x signtool.exe
+        variants:
+          - windows-compass
+          - windows-compass-community
+          - windows-compass-readonly
+          - windows-compass-isolated
+    - command: shell.exec
+      params:
+        working_dir: src
+        script: |
+          set -e
+          cat <<EOF_BUILD_SH > ~/compass_build.sh
+          cd $(pwd)
+
+          # Load environment variables
+          . ~/compass_env.sh
+
+          echo "Creating signed release build..."
+          npm run release ${compass_distribution};
+          EOF_BUILD_SH
+
+          # NOTE (imlucas) This build_via_local_tunnel thing is needed for
+          # codesign to work on the macOS box. Can't remember but something
+          # related to keychain unlock? Go look it up.
+          if [ -n "${build_via_local_tunnel|}" ]
+          then
+            ssh -v -p 2222 localhost ". compass_build.sh"
+          else
+            . ~/compass_build.sh
+          fi
+
+  'publish':
+    command: shell.exec
+    params:
+      working_dir: src
+      script: |
+        set -e
+
+        # Load environment variables
+        . ~/compass_env.sh
+
+        echo "Upload release assets to S3 and GitHub if needed"
+        npm run upload ${compass_distribution}
+
+  # NOTE (@imlucas) A ton of this can go away... use the generate tasks and stuff from migrator.
+  # The actual uploads can be handled by `hadron-build` to S3 and then use
+  # the `attach.results` evergreen command to show links on this page.
   'save windows artifacts':
     # setup
     - command: s3.put
@@ -247,175 +442,80 @@ functions:
         content_type: application/x-gzip
         display_name: linux-rhel-tarball
 
-#######################################
-#               Tasks                 #
-#######################################
-
-pre:
-  - command: shell.exec
-    params:
-      silent: true
-      script: |
-        set -ev
-        rm -rf src /data/db/*
-        mkdir -p src
 
 tasks:
   - name: compile
     depends_on: []
     commands:
-      - func: 'test_ssh_localhost'
-        variants:
-          - macos-compass
-          - macos-compass-community
-          - macos-compass-readonly
-          - macos-compass-isolated
-      - command: git.get_project
-        params:
-          directory: src
-      - func: 'configure'
-      - command: shell.exec
-        params:
-          working_dir: src
-          script: |
-            mkdir -p .deps
-            set -ev
-            # Load environment variables generated by `configure`
-            . ~/compass_env.sh
-
-            # Get precompiled
-            curl -fs \
-              -o ".deps/${fetch_npm_tarball}" \
-              --url "https://nodejs.org/download/release/v8.9.3/${fetch_npm_tarball}"
-            cd .deps
-            tar xzf ${fetch_npm_tarball} --strip-components=1
-
-            npm install -g npm
-        variants:
-          - macos-compass
-          - macos-compass-community
-          - macos-compass-readonly
-          - macos-compass-isolated
-          - rhel-compass
-          - rhel-compass-community
-          - rhel-compass-readonly
-          - rhel-compass-isolated
-          - ubuntu-compass
-          - ubuntu-compass-community
-          - ubuntu-compass-readonly
-          - ubuntu-compass-isolated
-      - command: shell.exec
-        params:
-          working_dir: src
-          script: |
-            mkdir -p .deps
-            set -ev
-            # Load environment variables generated by `configure`
-            . ~/compass_env.sh
-
-            # node.js is already installed on Windows, so more complicated.
-
-            # Get precompiled
-            curl -fs \
-              -o ".deps/${fetch_npm_tarball}" \
-              --url "https://nodejs.org/download/release/v8.9.3/${fetch_npm_tarball}"
-            cd .deps
-            unzip ${fetch_npm_tarball}
-            mv node-v8.9.3-win-x64/* .
-            rm -rf node-v8.9.3-win-x64
-
-            rm -rf npm npx npm.cmd npx.cmd
-            mv node_modules/npm node_modules/npm2
-            chmod +x ./node.exe
-
-            ./node.exe node_modules/npm2/bin/npm-cli.js i -g npm@latest
-            rm -rf node_modules/npm2/
-            chmod +x npm.cmd
-            chmod +x npm
-
-            npm version
-        variants:
-          - windows-compass
-          - windows-compass-community
-          - windows-compass-readonly
-          - windows-compass-isolated
-      - command: shell.exec
-        params:
-          working_dir: src
-          script: |
-            set -ev
-            curl -fs \
-              -o "signtool.exe" \
-              --url "https://s3.amazonaws.com/boxes.10gen.com/build/signtool.exe"
-            rm -f node_modules/electron-winstaller/vendor/signtool.exe
-            chmod +x signtool.exe
-        variants:
-          - windows-compass
-          - windows-compass-community
-          - windows-compass-readonly
-          - windows-compass-isolated
-      - command: shell.exec
-        params:
-          working_dir: src
-          script: |
-            set -ev
-            yum localinstall -y http://mirror.centos.org/centos/7/os/x86_64/Packages/libsecret-0.18.5-2.el7.x86_64.rpm
-            yum localinstall -y http://mirror.centos.org/centos/7/os/x86_64/Packages/libsecret-devel-0.18.5-2.el7.x86_64.rpm
-        variants:
-          - rhel-compass
-          - rhel-compass-community
-          - rhel-compass-readonly
-          - rhel-compass-isolated
-      - command: shell.exec
-        params:
-          working_dir: src
-          script: |
-            set -ev
-            sudo apt-get install -y libsecret-1-dev
-        variants:
-          - ubuntu-compass
-          - ubuntu-compass-community
-          - ubuntu-compass-readonly
-          - ubuntu-compass-isolated
+      - func: 'prepare'
       - func: 'install'
-      - command: expansions.update
-        params:
-          file: src/expansions.yml
-      - func: 'build'
-      - func: 'save windows artifacts'
-        variants:
-          - windows-compass
-          - windows-compass-community
-          - windows-compass-readonly
-          - windows-compass-isolated
-      - func: 'save osx artifacts'
-        variants:
-          - macos-compass
-          - macos-compass-community
-          - macos-compass-readonly
-          - macos-compass-isolated
-      - func: 'save linux artifacts'
-        variants:
-          - ubuntu-compass
-          - ubuntu-compass-community
-          - ubuntu-compass-readonly
-          - ubuntu-compass-isolated
-      - func: 'save rhel artifacts'
-        variants:
-          - rhel-compass
-          - rhel-compass-community
-          - rhel-compass-readonly
-          - rhel-compass-isolated
+  - name: verify
+    depends_on: [compile]
+    commands:
+      - func: 'restore'
+      - func: 'verify'
+  # - name: test
+  #   depends_on: [verify]
+  #   commands:
+  #     - func: 'restore'
+  #     - func: 'test'
+  # - name: package
+  #   depends_on: [test]
+  #   commands:
+  #     - func: 'restore'
+  #     - func: 'package'
+  # - name: publish
+  #   depends_on: [package]
+  #   commands:
+  #     - func: 'restore'
+  #     - func: 'publish'
+  #     - func: 'save windows artifacts'
+  #       variants:
+  #         - windows-compass
+  #         - windows-compass-community
+  #         - windows-compass-readonly
+  #         - windows-compass-isolated
+  #     - func: 'save osx artifacts'
+  #       variants:
+  #         - macos-compass
+  #         - macos-compass-community
+  #         - macos-compass-readonly
+  #         - macos-compass-isolated
+  #     - func: 'save linux artifacts'
+  #       variants:
+  #         - ubuntu-compass
+  #         - ubuntu-compass-community
+  #         - ubuntu-compass-readonly
+  #         - ubuntu-compass-isolated
+  #     - func: 'save rhel artifacts'
+  #       variants:
+  #         - rhel-compass
+  #         - rhel-compass-community
+  #         - rhel-compass-readonly
+  #         - rhel-compass-isolated
 
-  #######################################
-  #           Buildvariants             #
-  #######################################
+  # - func: 'save rhel artifacts'
+  #   <<: *rhel-variants
+
 buildvariants:
+  # - name: macos-compass-signer
+  #   display_name: MacOS (Compass Signing Box)
+  #   modules: ~
+  #   run_on:
+  #     - 'osx-1010-compass'
+  #   expansions:
+  #     build_via_local_tunnel: true
+  #     fetch_npm_tarball: node-v8.9.3-darwin-x64.tar.gz
+  #     node_path: '$(pwd)/.deps/bin'
+  #     num_cores: $(sysctl -n hw.logicalcpu)
+  #     compass_distribution: compass
+  #   tasks:
+  #     - name: package
   - name: macos-compass
     display_name: MacOS (Compass)
     modules: ~
     run_on:
-      - 'osx-1010-compass'
+      - 'macos-1012'
     expansions:
       build_via_local_tunnel: true
       fetch_npm_tarball: node-v8.9.3-darwin-x64.tar.gz
@@ -424,213 +524,214 @@ buildvariants:
       compass_distribution: compass
     tasks:
       - name: compile
+      - name: verify
 
-  - name: macos-compass-community
-    display_name: MacOS (Compass Community)
-    modules: ~
-    run_on:
-      - 'osx-1010-compass'
-    expansions:
-      build_via_local_tunnel: true
-      fetch_npm_tarball: node-v8.9.3-darwin-x64.tar.gz
-      node_path: '$(pwd)/.deps/bin'
-      num_cores: $(sysctl -n hw.logicalcpu)
-      compass_distribution: compass-community
-    tasks:
-      - name: compile
+  # - name: macos-compass-community
+  #   display_name: MacOS (Compass Community)
+  #   modules: ~
+  #   run_on:
+  #     - 'macos-1012'
+  #   expansions:
+  #     build_via_local_tunnel: true
+  #     fetch_npm_tarball: node-v8.9.3-darwin-x64.tar.gz
+  #     node_path: '$(pwd)/.deps/bin'
+  #     num_cores: $(sysctl -n hw.logicalcpu)
+  #     compass_distribution: compass-community
+  #   tasks:
+  #     - name: compile
 
-  - name: macos-compass-readonly
-    display_name: MacOS (Compass Readonly)
-    modules: ~
-    run_on:
-      - 'osx-1010-compass'
-    expansions:
-      build_via_local_tunnel: true
-      fetch_npm_tarball: node-v8.9.3-darwin-x64.tar.gz
-      node_path: '$(pwd)/.deps/bin'
-      num_cores: $(sysctl -n hw.logicalcpu)
-      compass_distribution: compass-readonly
-    tasks:
-      - name: compile
+  # - name: macos-compass-readonly
+  #   display_name: MacOS (Compass Readonly)
+  #   modules: ~
+  #   run_on:
+  #     - 'macos-1012'
+  #   expansions:
+  #     build_via_local_tunnel: true
+  #     fetch_npm_tarball: node-v8.9.3-darwin-x64.tar.gz
+  #     node_path: '$(pwd)/.deps/bin'
+  #     num_cores: $(sysctl -n hw.logicalcpu)
+  #     compass_distribution: compass-readonly
+  #   tasks:
+  #     - name: compile
 
-  - name: macos-compass-isolated
-    display_name: MacOS (Compass Isolated Edition)
-    modules: ~
-    run_on:
-      - 'osx-1010-compass'
-    expansions:
-      build_via_local_tunnel: true
-      fetch_npm_tarball: node-v8.9.3-darwin-x64.tar.gz
-      node_path: '$(pwd)/.deps/bin'
-      num_cores: $(sysctl -n hw.logicalcpu)
-      compass_distribution: compass-isolated
-    tasks:
-      - name: compile
+  # - name: macos-compass-isolated
+  #   display_name: MacOS (Compass Isolated Edition)
+  #   modules: ~
+  #   run_on:
+  #     - 'macos-1012'
+  #   expansions:
+  #     build_via_local_tunnel: true
+  #     fetch_npm_tarball: node-v8.9.3-darwin-x64.tar.gz
+  #     node_path: '$(pwd)/.deps/bin'
+  #     num_cores: $(sysctl -n hw.logicalcpu)
+  #     compass_distribution: compass-isolated
+  #   tasks:
+  #     - name: compile
 
-  - name: windows-compass
-    display_name: Windows (Compass)
-    modules: ~
-    run_on:
-      - 'windows-64-vs2015-test'
-    expansions:
-      fetch_npm_tarball: node-v8.9.3-win-x64.zip
-      node_path: '$(pwd)/.deps'
-      num_cores: $(grep -c ^processor /proc/cpuinfo)
-      add_env_appdata: Z:\
-      compass_distribution: compass
-    tasks:
-      - name: compile
+  # - name: windows-compass
+  #   display_name: Windows (Compass)
+  #   modules: ~
+  #   run_on:
+  #     - 'windows-64-vs2015-test'
+  #   expansions:
+  #     fetch_npm_tarball: node-v8.9.3-win-x64.zip
+  #     node_path: '$(pwd)/.deps'
+  #     num_cores: $(grep -c ^processor /proc/cpuinfo)
+  #     add_env_appdata: Z:\
+  #     compass_distribution: compass
+  #   tasks:
+  #     - name: compile
 
-  - name: windows-compass-community
-    display_name: Windows (Compass Community)
-    modules: ~
-    run_on:
-      - 'windows-64-vs2015-test'
-    expansions:
-      fetch_npm_tarball: node-v8.9.3-win-x64.zip
-      node_path: '$(pwd)/.deps'
-      num_cores: $(grep -c ^processor /proc/cpuinfo)
-      add_env_appdata: Z:\
-      compass_distribution: compass-community
-    tasks:
-      - name: compile
+  # - name: windows-compass-community
+  #   display_name: Windows (Compass Community)
+  #   modules: ~
+  #   run_on:
+  #     - 'windows-64-vs2015-test'
+  #   expansions:
+  #     fetch_npm_tarball: node-v8.9.3-win-x64.zip
+  #     node_path: '$(pwd)/.deps'
+  #     num_cores: $(grep -c ^processor /proc/cpuinfo)
+  #     add_env_appdata: Z:\
+  #     compass_distribution: compass-community
+  #   tasks:
+  #     - name: compile
 
-  - name: windows-compass-readonly
-    display_name: Windows (Compass Readonly)
-    modules: ~
-    run_on:
-      - 'windows-64-vs2015-test'
-    expansions:
-      fetch_npm_tarball: node-v8.9.3-win-x64.zip
-      node_path: '$(pwd)/.deps'
-      num_cores: $(grep -c ^processor /proc/cpuinfo)
-      add_env_appdata: Z:\
-      compass_distribution: compass-readonly
-    tasks:
-      - name: compile
+  # - name: windows-compass-readonly
+  #   display_name: Windows (Compass Readonly)
+  #   modules: ~
+  #   run_on:
+  #     - 'windows-64-vs2015-test'
+  #   expansions:
+  #     fetch_npm_tarball: node-v8.9.3-win-x64.zip
+  #     node_path: '$(pwd)/.deps'
+  #     num_cores: $(grep -c ^processor /proc/cpuinfo)
+  #     add_env_appdata: Z:\
+  #     compass_distribution: compass-readonly
+  #   tasks:
+  #     - name: compile
 
-  - name: windows-compass-isolated
-    display_name: Windows (Compass Isolated Edition)
-    modules: ~
-    run_on:
-      - 'windows-64-vs2015-test'
-    expansions:
-      fetch_npm_tarball: node-v8.9.3-win-x64.zip
-      node_path: '$(pwd)/.deps'
-      num_cores: $(grep -c ^processor /proc/cpuinfo)
-      add_env_appdata: Z:\
-      compass_distribution: compass-isolated
-    tasks:
-      - name: compile
+  # - name: windows-compass-isolated
+  #   display_name: Windows (Compass Isolated Edition)
+  #   modules: ~
+  #   run_on:
+  #     - 'windows-64-vs2015-test'
+  #   expansions:
+  #     fetch_npm_tarball: node-v8.9.3-win-x64.zip
+  #     node_path: '$(pwd)/.deps'
+  #     num_cores: $(grep -c ^processor /proc/cpuinfo)
+  #     add_env_appdata: Z:\
+  #     compass_distribution: compass-isolated
+  #   tasks:
+  #     - name: compile
 
-  - name: ubuntu-compass
-    display_name: Ubuntu (Compass)
-    modules: ~
-    run_on:
-      - 'ubuntu1404-test'
-    expansions:
-      fetch_npm_tarball: node-v8.9.3-linux-x64.tar.gz
-      node_path: '$(pwd)/.deps/bin'
-      compile_env: CC=/opt/mongodbtoolchain/bin/gcc CXX=/opt/mongodbtoolchain/bin/g++
-      num_cores: $(grep -c ^processor /proc/cpuinfo)
-      compass_distribution: compass
-    tasks:
-      - name: compile
+  # - name: ubuntu-compass
+  #   display_name: Ubuntu (Compass)
+  #   modules: ~
+  #   run_on:
+  #     - 'ubuntu1404-test'
+  #   expansions:
+  #     fetch_npm_tarball: node-v8.9.3-linux-x64.tar.gz
+  #     node_path: '$(pwd)/.deps/bin'
+  #     compile_env: CC=/opt/mongodbtoolchain/bin/gcc CXX=/opt/mongodbtoolchain/bin/g++
+  #     num_cores: $(grep -c ^processor /proc/cpuinfo)
+  #     compass_distribution: compass
+  #   tasks:
+  #     - name: compile
 
-  - name: ubuntu-compass-community
-    display_name: Ubuntu (Compass Community)
-    modules: ~
-    run_on:
-      - 'ubuntu1404-test'
-    expansions:
-      fetch_npm_tarball: node-v8.9.3-linux-x64.tar.gz
-      node_path: '$(pwd)/.deps/bin'
-      compile_env: CC=/opt/mongodbtoolchain/bin/gcc CXX=/opt/mongodbtoolchain/bin/g++
-      num_cores: $(grep -c ^processor /proc/cpuinfo)
-      compass_distribution: compass-community
-    tasks:
-      - name: compile
+  # - name: ubuntu-compass-community
+  #   display_name: Ubuntu (Compass Community)
+  #   modules: ~
+  #   run_on:
+  #     - 'ubuntu1404-test'
+  #   expansions:
+  #     fetch_npm_tarball: node-v8.9.3-linux-x64.tar.gz
+  #     node_path: '$(pwd)/.deps/bin'
+  #     compile_env: CC=/opt/mongodbtoolchain/bin/gcc CXX=/opt/mongodbtoolchain/bin/g++
+  #     num_cores: $(grep -c ^processor /proc/cpuinfo)
+  #     compass_distribution: compass-community
+  #   tasks:
+  #     - name: compile
 
-  - name: ubuntu-compass-readonly
-    display_name: Ubuntu (Compass Readonly)
-    modules: ~
-    run_on:
-      - 'ubuntu1404-test'
-    expansions:
-      fetch_npm_tarball: node-v8.9.3-linux-x64.tar.gz
-      node_path: '$(pwd)/.deps/bin'
-      compile_env: CC=/opt/mongodbtoolchain/bin/gcc CXX=/opt/mongodbtoolchain/bin/g++
-      num_cores: $(grep -c ^processor /proc/cpuinfo)
-      compass_distribution: compass-readonly
-    tasks:
-      - name: compile
+  # - name: ubuntu-compass-readonly
+  #   display_name: Ubuntu (Compass Readonly)
+  #   modules: ~
+  #   run_on:
+  #     - 'ubuntu1404-test'
+  #   expansions:
+  #     fetch_npm_tarball: node-v8.9.3-linux-x64.tar.gz
+  #     node_path: '$(pwd)/.deps/bin'
+  #     compile_env: CC=/opt/mongodbtoolchain/bin/gcc CXX=/opt/mongodbtoolchain/bin/g++
+  #     num_cores: $(grep -c ^processor /proc/cpuinfo)
+  #     compass_distribution: compass-readonly
+  #   tasks:
+  #     - name: compile
 
-  - name: ubuntu-compass-isolated
-    display_name: Ubuntu (Compass Isolated Edition)
-    modules: ~
-    run_on:
-      - 'ubuntu1404-test'
-    expansions:
-      fetch_npm_tarball: node-v8.9.3-linux-x64.tar.gz
-      node_path: '$(pwd)/.deps/bin'
-      compile_env: CC=/opt/mongodbtoolchain/bin/gcc CXX=/opt/mongodbtoolchain/bin/g++
-      num_cores: $(grep -c ^processor /proc/cpuinfo)
-      compass_distribution: compass-isolated
-    tasks:
-      - name: compile
+  # - name: ubuntu-compass-isolated
+  #   display_name: Ubuntu (Compass Isolated Edition)
+  #   modules: ~
+  #   run_on:
+  #     - 'ubuntu1404-test'
+  #   expansions:
+  #     fetch_npm_tarball: node-v8.9.3-linux-x64.tar.gz
+  #     node_path: '$(pwd)/.deps/bin'
+  #     compile_env: CC=/opt/mongodbtoolchain/bin/gcc CXX=/opt/mongodbtoolchain/bin/g++
+  #     num_cores: $(grep -c ^processor /proc/cpuinfo)
+  #     compass_distribution: compass-isolated
+  #   tasks:
+  #     - name: compile
 
-  - name: rhel-compass
-    display_name: RHEL (Compass)
-    modules: ~
-    run_on:
-      - 'rhel70'
-    expansions:
-      fetch_npm_tarball: node-v8.9.3-linux-x64.tar.gz
-      node_path: '$(pwd)/.deps/bin'
-      compile_env: CC=/opt/mongodbtoolchain/bin/gcc CXX=/opt/mongodbtoolchain/bin/g++
-      num_cores: $(grep -c ^processor /proc/cpuinfo)
-      compass_distribution: compass
-    tasks:
-      - name: compile
+  # - name: rhel-compass
+  #   display_name: RHEL (Compass)
+  #   modules: ~
+  #   run_on:
+  #     - 'rhel70'
+  #   expansions:
+  #     fetch_npm_tarball: node-v8.9.3-linux-x64.tar.gz
+  #     node_path: '$(pwd)/.deps/bin'
+  #     compile_env: CC=/opt/mongodbtoolchain/bin/gcc CXX=/opt/mongodbtoolchain/bin/g++
+  #     num_cores: $(grep -c ^processor /proc/cpuinfo)
+  #     compass_distribution: compass
+  #   tasks:
+  #     - name: compile
 
-  - name: rhel-compass-community
-    display_name: RHEL (Compass Community)
-    modules: ~
-    run_on:
-      - 'rhel70'
-    expansions:
-      fetch_npm_tarball: node-v8.9.3-linux-x64.tar.gz
-      node_path: '$(pwd)/.deps/bin'
-      compile_env: CC=/opt/mongodbtoolchain/bin/gcc CXX=/opt/mongodbtoolchain/bin/g++
-      num_cores: $(grep -c ^processor /proc/cpuinfo)
-      compass_distribution: compass-community
-    tasks:
-      - name: compile
+  # - name: rhel-compass-community
+  #   display_name: RHEL (Compass Community)
+  #   modules: ~
+  #   run_on:
+  #     - 'rhel70'
+  #   expansions:
+  #     fetch_npm_tarball: node-v8.9.3-linux-x64.tar.gz
+  #     node_path: '$(pwd)/.deps/bin'
+  #     compile_env: CC=/opt/mongodbtoolchain/bin/gcc CXX=/opt/mongodbtoolchain/bin/g++
+  #     num_cores: $(grep -c ^processor /proc/cpuinfo)
+  #     compass_distribution: compass-community
+  #   tasks:
+  #     - name: compile
 
-  - name: rhel-compass-readonly
-    display_name: RHEL (Compass Readonly)
-    modules: ~
-    run_on:
-      - 'rhel70'
-    expansions:
-      fetch_npm_tarball: node-v8.9.3-linux-x64.tar.gz
-      node_path: '$(pwd)/.deps/bin'
-      compile_env: CC=/opt/mongodbtoolchain/bin/gcc CXX=/opt/mongodbtoolchain/bin/g++
-      num_cores: $(grep -c ^processor /proc/cpuinfo)
-      compass_distribution: compass-readonly
-    tasks:
-      - name: compile
+  # - name: rhel-compass-readonly
+  #   display_name: RHEL (Compass Readonly)
+  #   modules: ~
+  #   run_on:
+  #     - 'rhel70'
+  #   expansions:
+  #     fetch_npm_tarball: node-v8.9.3-linux-x64.tar.gz
+  #     node_path: '$(pwd)/.deps/bin'
+  #     compile_env: CC=/opt/mongodbtoolchain/bin/gcc CXX=/opt/mongodbtoolchain/bin/g++
+  #     num_cores: $(grep -c ^processor /proc/cpuinfo)
+  #     compass_distribution: compass-readonly
+  #   tasks:
+  #     - name: compile
 
-  - name: rhel-compass-isolated
-    display_name: RHEL (Compass Isolated Edition)
-    modules: ~
-    run_on:
-      - 'rhel70'
-    expansions:
-      fetch_npm_tarball: node-v8.9.3-linux-x64.tar.gz
-      node_path: '$(pwd)/.deps/bin'
-      compile_env: CC=/opt/mongodbtoolchain/bin/gcc CXX=/opt/mongodbtoolchain/bin/g++
-      num_cores: $(grep -c ^processor /proc/cpuinfo)
-      compass_distribution: compass-isolated
-    tasks:
-      - name: compile
+  # - name: rhel-compass-isolated
+  #   display_name: RHEL (Compass Isolated Edition)
+  #   modules: ~
+  #   run_on:
+  #     - 'rhel70'
+  #   expansions:
+  #     fetch_npm_tarball: node-v8.9.3-linux-x64.tar.gz
+  #     node_path: '$(pwd)/.deps/bin'
+  #     compile_env: CC=/opt/mongodbtoolchain/bin/gcc CXX=/opt/mongodbtoolchain/bin/g++
+  #     num_cores: $(grep -c ^processor /proc/cpuinfo)
+  #     compass_distribution: compass-isolated
+  #   tasks:
+  #     - name: compile
