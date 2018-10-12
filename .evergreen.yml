@@ -61,7 +61,7 @@ functions:
               fi
           fi
 
-          if $IS_WINDOWS; then
+          if [ -n "$IS_WINDOWS" ]; then
             export PATH="${ARTIFACTS_PATH}:$PATH"
             export APPDATA=Z:\
           else
@@ -100,7 +100,7 @@ functions:
 
           . ~/compass_env.sh
 
-          if $IS_WINDOWS; then
+          if [ -n "$IS_WINDOWS" ]; then
               echo "Installing nodejs v${NODE_JS_VERSION} for windows..."
               curl -fs \
               -o ".deps/node-v${NODE_JS_VERSION}-win-x64.zip" \
@@ -133,11 +133,11 @@ functions:
               ./bin/node lib/node_modules/npm2/bin/npm-cli.js i -g npm@latest
               rm -rf lib/node_modules/npm2/
 
-              if $IS_RHEL; then
+              if [ -n "$IS_RHEL" ]; then
                 echo "Installing native-addon depenendencies for RHEL..."
                 yum localinstall -y http://mirror.centos.org/centos/7/os/x86_64/Packages/libsecret-0.18.5-2.el7.x86_64.rpm
                 yum localinstall -y http://mirror.centos.org/centos/7/os/x86_64/Packages/libsecret-devel-0.18.5-2.el7.x86_64.rpm
-              elif $IS_UBUNTU; then
+              elif [ -n "$IS_UBUNTU" ]; then
                 echo "Installing native-addon depenendencies for Ubuntu..."
                 sudo apt-get install -y libsecret-1-dev
               fi
@@ -201,7 +201,6 @@ functions:
         bucket: mciuploads
         content_type: application/octet-stream
         display_name: ${compass_distribution}-build-artifacts 
-        command: shell.exec
     - command: shell.exec
       params:
         working_dir: src
