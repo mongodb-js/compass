@@ -76,73 +76,73 @@ functions:
           tmp=${NPM_TMP_DIR}
           _authToken=${compass_npm_token}
           EOT
-      - command: shell.exec
-        params:
-          working_dir: src
-          script: |
-            set -e
-            
-            echo "Installing nodejs..."
-            curl -fs \
-              -o ".deps/${fetch_npm_tarball}" \
-              --url "https://nodejs.org/download/release/v8.9.3/${fetch_npm_tarball}"
-            cd .deps
-            tar xzf ${fetch_npm_tarball} --strip-components=1
+    - command: shell.exec
+      params:
+        working_dir: src
+        script: |
+          set -e
+          
+          echo "Installing nodejs..."
+          curl -fs \
+            -o ".deps/${fetch_npm_tarball}" \
+            --url "https://nodejs.org/download/release/v8.9.3/${fetch_npm_tarball}"
+          cd .deps
+          tar xzf ${fetch_npm_tarball} --strip-components=1
 
-            echo "Installing latest npm..."
-            rm -f npm npx npm.cmd npx.cmd
-            mv lib/node_modules/npm lib/node_modules/npm2
+          echo "Installing latest npm..."
+          rm -f npm npx npm.cmd npx.cmd
+          mv lib/node_modules/npm lib/node_modules/npm2
 
-            chmod +x ./bin/node
-            ./bin/node lib/node_modules/npm2/bin/npm-cli.js i -g npm@latest
-            rm -rf lib/node_modules/npm2/
-        variants:
-          - macos-compass
-          - macos-compass-community
-          - macos-compass-readonly
-          - macos-compass-isolated
-          - rhel-compass
-          - rhel-compass-community
-          - rhel-compass-readonly
-          - rhel-compass-isolated
-          - ubuntu-compass
-          - ubuntu-compass-community
-          - ubuntu-compass-readonly
-          - ubuntu-compass-isolated
-      - command: shell.exec
-        params:
-          working_dir: src
-          script: |
-            set -e
+          chmod +x ./bin/node
+          ./bin/node lib/node_modules/npm2/bin/npm-cli.js i -g npm@latest
+          rm -rf lib/node_modules/npm2/
+      variants:
+        - macos-compass
+        - macos-compass-community
+        - macos-compass-readonly
+        - macos-compass-isolated
+        - rhel-compass
+        - rhel-compass-community
+        - rhel-compass-readonly
+        - rhel-compass-isolated
+        - ubuntu-compass
+        - ubuntu-compass-community
+        - ubuntu-compass-readonly
+        - ubuntu-compass-isolated
+    - command: shell.exec
+      params:
+        working_dir: src
+        script: |
+          set -e
 
-            echo "Installing nodejs..."
-            curl -fs \
-              -o ".deps/node-v8.9.3-win-x64.zip" \
-              --url "https://nodejs.org/download/release/v8.9.3/node-v8.9.3-win-x64.zip"
-            cd .deps
-            unzip node-v8.9.3-win-x64.zip
-            mv node-v8.9.3-win-x64/* .
-            rm -rf node-v8.9.3-win-x64
+          echo "Installing nodejs..."
+          curl -fs \
+            -o ".deps/node-v8.9.3-win-x64.zip" \
+            --url "https://nodejs.org/download/release/v8.9.3/node-v8.9.3-win-x64.zip"
+          cd .deps
+          unzip node-v8.9.3-win-x64.zip
+          mv node-v8.9.3-win-x64/* .
+          rm -rf node-v8.9.3-win-x64
 
-            echo "Installing latest npm..."
+          echo "Installing latest npm..."
 
-            export PATH="${node_path}:$PATH"
-            export APPDATA=${add_env_appdata}
+          export PATH="${node_path}:$PATH"
+          export APPDATA=${add_env_appdata}
 
-            rm -rf npm npx npm.cmd npx.cmd
-            mv node_modules/npm node_modules/npm2
+          rm -rf npm npx npm.cmd npx.cmd
+          mv node_modules/npm node_modules/npm2
 
-            chmod +x ./node.exe
+          chmod +x ./node.exe
 
-            ./node.exe node_modules/npm2/bin/npm-cli.js i -g npm@latest
-            rm -rf node_modules/npm2/
-            chmod +x npm.cmd
-            chmod +x npm
-        variants:
-          - windows-compass
-          - windows-compass-community
-          - windows-compass-readonly
-          - windows-compass-isolated
+          ./node.exe node_modules/npm2/bin/npm-cli.js i -g npm@latest
+          rm -rf node_modules/npm2/
+          chmod +x npm.cmd
+          chmod +x npm
+      variants:
+        - windows-compass
+        - windows-compass-community
+        - windows-compass-readonly
+        - windows-compass-isolated
 
   'install':
     - command: shell.exec
@@ -194,6 +194,7 @@ functions:
     - command: archive.targz_pack
       params:
         target: "compass-build.tgz"
+        include: ["*"]
         source_dir: "src"
     - command: s3.put
       params:
@@ -202,7 +203,7 @@ functions:
         local_file: compass-build.tgz
         remote_file: ${project}/${revision}/${compass_distribution}-build.tgz
         bucket: mciuploads
-        # permissions: public-read
+        permissions: private
         content_type: application/octet-stream
         display_name: ${compass_distribution}-build-artifacts
 
