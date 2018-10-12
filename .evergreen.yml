@@ -50,13 +50,9 @@ functions:
           export DOWNLOAD_CENTER_AWS_SECRET_ACCESS_KEY=${aws_secret_evergreen_integrations}
 
           # node stuff
-          export ARTIFACTS_PATH="$(pwd)/.deps"
-
-          export NPM_CACHE_DIR="$ARTIFACTS_PATH/npm"
-          mkdir -p $NPM_CACHE_DIR
-
-          export NPM_TMP_DIR="$ARTIFACTS_PATH/tmp"
-          mkdir -p $NPM_TMP_DIR
+          # export ARTIFACTS_PATH="$(pwd)/.deps"
+          # export NPM_CACHE_DIR="$ARTIFACTS_PATH/npm"
+          # export NPM_TMP_DIR="$ARTIFACTS_PATH/tmp"
 
           EOF_BUILD_SH
     - command: shell.exec
@@ -66,8 +62,11 @@ functions:
           echo "Configuring npm..."
 
           export ARTIFACTS_PATH="$(pwd)/.deps"
-          export NPM_CACHE_DIR="$ARTIFACTS_PATH/npm"
-          export NPM_TMP_DIR="$ARTIFACTS_PATH/tmp"
+          export NPM_CACHE_DIR="$(pwd)/.deps/npm"
+          export NPM_TMP_DIR="$(pwd)/.deps/tmp"
+
+          mkdir -p $NPM_CACHE_DIR
+          mkdir -p $NPM_TMP_DIR
 
           cat <<EOT > .npmrc
           devdir=${NPM_CACHE_DIR}/.node-gyp
@@ -80,101 +79,145 @@ functions:
       params:
         working_dir: src
         script: |
-          set -e
+          set -ev
+          mkdir -p .deps
+          NODE_JS_VERSION='8.9.3'
+
+          if [[ "$OSTYPE" == "cygwin" ]] || [["$OSTYPE" == "msys"]] || [[ "$OSTYPE" == "win32" ]]; then
+              PLATFORM='win32'
+              OS='windows'
+
+              echo "Installing nodejs v${NODE_JS_VERSION} for windows..."
+              curl -fs \
+              -o ".deps/node-v${NODE_JS_VERSION}-win-x64.zip" \
+              --url "https://nodejs.org/download/release/v${NODE_JS_VERSION}/node-v${NODE_JS_VERSION}-win-x64.zip"
+              cd .deps
+              unzip node-v${NODE_JS_VERSION}-win-x64.zip
+              mv node-v${NODE_JS_VERSION}-win-x64/* .
+              rm -rf node-v${NODE_JS_VERSION}-win-x64
+
+              echo "Installing latest npm..."
+              rm -rf npm npx npm.cmd npx.cmd
+              mv node_modules/npm node_modules/npm2
+              chmod +x ./node.exe
+              ./node.exe node_modules/npm2/bin/npm-cli.js i -g npm@latest
+              rm -rf node_modules/npm2/
+              chmod +x npm.cmd npm
+          else
+              PLATFORM='linux'
+              if [[ "$OSTYPE" == "darwin"* ]]; then
+                  PLATFORM='darwin'
+              fi
+
+              echo "Installing nodejs v${NODE_JS_VERSION} for ${PLATFORM}..."
+              curl -fs \
+              -o ".deps/node-v${NODE_JS_VERSION}-${PLATFORM}-x64.tar.gz" \
+              --url "https://nodejs.org/download/release/v${NODE_JS_VERSION}/node-v${NODE_JS_VERSION}-${PLATFORM}-x64.tar.gz"
+              cd .deps
+              tar xzf node-v${NODE_JS_VERSION}-${PLATFORM}-x64.tar.gz --strip-components=1
+
+              echo "Installing latest npm..."
+              rm -rf npm npx
+              mv lib/node_modules/npm lib/node_modules/npm2
+
+              chmod +x ./bin/node
+              ./bin/node lib/node_modules/npm2/bin/npm-cli.js i -g npm@latest
+              rm -rf lib/node_modules/npm2/
+          fi
           
-          echo "Installing nodejs..."
-          curl -fs \
-            -o ".deps/${fetch_npm_tarball}" \
-            --url "https://nodejs.org/download/release/v8.9.3/${fetch_npm_tarball}"
-          cd .deps
-          tar xzf ${fetch_npm_tarball} --strip-components=1
+          # echo "Installing nodejs..."
+          # curl -fs \
+          #   -o ".deps/${fetch_npm_tarball}" \
+          #   --url "https://nodejs.org/download/release/v8.9.3/${fetch_npm_tarball}"
+          # cd .deps
+          # tar xzf ${fetch_npm_tarball} --strip-components=1
 
-          echo "Installing latest npm..."
-          rm -f npm npx npm.cmd npx.cmd
-          mv lib/node_modules/npm lib/node_modules/npm2
+          # echo "Installing latest npm..."
+          # rm -rf npm npx
+          # mv lib/node_modules/npm lib/node_modules/npm2
 
-          chmod +x ./bin/node
-          ./bin/node lib/node_modules/npm2/bin/npm-cli.js i -g npm@latest
-          rm -rf lib/node_modules/npm2/
-      variants:
-        - macos-compass
-        - macos-compass-community
-        - macos-compass-readonly
-        - macos-compass-isolated
-        - rhel-compass
-        - rhel-compass-community
-        - rhel-compass-readonly
-        - rhel-compass-isolated
-        - ubuntu-compass
-        - ubuntu-compass-community
-        - ubuntu-compass-readonly
-        - ubuntu-compass-isolated
-    - command: shell.exec
-      params:
-        working_dir: src
-        script: |
-          set -e
+          # chmod +x ./bin/node
+          # ./bin/node lib/node_modules/npm2/bin/npm-cli.js i -g npm@latest
+          # rm -rf lib/node_modules/npm2/
+      # variants:
+      #   - macos-compass
+      #   - macos-compass-community
+      #   - macos-compass-readonly
+      #   - macos-compass-isolated
+      #   - rhel-compass
+      #   - rhel-compass-community
+      #   - rhel-compass-readonly
+      #   - rhel-compass-isolated
+      #   - ubuntu-compass
+      #   - ubuntu-compass-community
+      #   - ubuntu-compass-readonly
+      #   - ubuntu-compass-isolated
+    # - command: shell.exec
+    #   params:
+    #     working_dir: src
+    #     script: |
+    #       set -e
 
-          echo "Installing nodejs..."
-          curl -fs \
-            -o ".deps/node-v8.9.3-win-x64.zip" \
-            --url "https://nodejs.org/download/release/v8.9.3/node-v8.9.3-win-x64.zip"
-          cd .deps
-          unzip node-v8.9.3-win-x64.zip
-          mv node-v8.9.3-win-x64/* .
-          rm -rf node-v8.9.3-win-x64
+    #       echo "Installing nodejs..."
+    #       curl -fs \
+    #         -o ".deps/node-v8.9.3-win-x64.zip" \
+    #         --url "https://nodejs.org/download/release/v8.9.3/node-v8.9.3-win-x64.zip"
+    #       cd .deps
+    #       unzip node-v8.9.3-win-x64.zip
+    #       mv node-v8.9.3-win-x64/* .
+    #       rm -rf node-v8.9.3-win-x64
 
-          echo "Installing latest npm..."
+    #       echo "Installing latest npm..."
 
-          export PATH="${node_path}:$PATH"
-          export APPDATA=${add_env_appdata}
+    #       export PATH="${node_path}:$PATH"
+    #       export APPDATA=${add_env_appdata}
 
-          rm -rf npm npx npm.cmd npx.cmd
-          mv node_modules/npm node_modules/npm2
+    #       rm -rf npm npx npm.cmd npx.cmd
+    #       mv node_modules/npm node_modules/npm2
 
-          chmod +x ./node.exe
+    #       chmod +x ./node.exe
 
-          ./node.exe node_modules/npm2/bin/npm-cli.js i -g npm@latest
-          rm -rf node_modules/npm2/
-          chmod +x npm.cmd
-          chmod +x npm
-      variants:
-        - windows-compass
-        - windows-compass-community
-        - windows-compass-readonly
-        - windows-compass-isolated
+    #       ./node.exe node_modules/npm2/bin/npm-cli.js i -g npm@latest
+    #       rm -rf node_modules/npm2/
+    #       chmod +x npm.cmd
+    #       chmod +x npm
+    #   variants:
+    #     - windows-compass
+    #     - windows-compass-community
+    #     - windows-compass-readonly
+    #     - windows-compass-isolated
 
   'install':
+    # - command: shell.exec
+    #   params:
+    #     working_dir: src
+    #     script: |
+    #       set -e
+    #       echo "Installing native-addon depenendencies for RHEL..."
+    #       yum localinstall -y http://mirror.centos.org/centos/7/os/x86_64/Packages/libsecret-0.18.5-2.el7.x86_64.rpm
+    #       yum localinstall -y http://mirror.centos.org/centos/7/os/x86_64/Packages/libsecret-devel-0.18.5-2.el7.x86_64.rpm
+    #   variants:
+    #     - rhel-compass
+    #     - rhel-compass-community
+    #     - rhel-compass-readonly
+    #     - rhel-compass-isolated
+    # - command: shell.exec
+    #   params:
+    #     working_dir: src
+    #     script: |
+    #       set -e
+    #       echo "Installing native-addon depenendencies for Ubuntu..."
+    #       sudo apt-get install -y libsecret-1-dev
+    #   variants:
+    #     - ubuntu-compass
+    #     - ubuntu-compass-community
+    #     - ubuntu-compass-readonly
+    #     - ubuntu-compass-isolated
     - command: shell.exec
       params:
         working_dir: src
         script: |
-          set -e
-          echo "Installing native-addon depenendencies for RHEL..."
-          yum localinstall -y http://mirror.centos.org/centos/7/os/x86_64/Packages/libsecret-0.18.5-2.el7.x86_64.rpm
-          yum localinstall -y http://mirror.centos.org/centos/7/os/x86_64/Packages/libsecret-devel-0.18.5-2.el7.x86_64.rpm
-      variants:
-        - rhel-compass
-        - rhel-compass-community
-        - rhel-compass-readonly
-        - rhel-compass-isolated
-    - command: shell.exec
-      params:
-        working_dir: src
-        script: |
-          set -e
-          echo "Installing native-addon depenendencies for Ubuntu..."
-          sudo apt-get install -y libsecret-1-dev
-      variants:
-        - ubuntu-compass
-        - ubuntu-compass-community
-        - ubuntu-compass-readonly
-        - ubuntu-compass-isolated
-    - command: shell.exec
-      params:
-        working_dir: src
-        script: |
-          set -e
+          set -ev
           . ~/compass_env.sh
           echo "Installing Compass dependencies..."
           npm ci
