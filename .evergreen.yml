@@ -82,7 +82,7 @@ functions:
       params:
         working_dir: src
         script: |
-          set -ev
+          set -e
           . ~/compass_env.sh
 
           echo "Configuring npm..."
@@ -93,7 +93,6 @@ functions:
           tmp=$NPM_TMP_DIR
           _authToken=$NPM_AUTH_TOKEN
           EOT
-          cat .npmrc
     - command: shell.exec
       params:
         working_dir: src
@@ -150,7 +149,7 @@ functions:
       params:
         working_dir: src
         script: |
-          set -ev
+          set -e
           . ~/compass_env.sh
 
           echo "Installing Compass dependencies..."
@@ -488,7 +487,7 @@ tasks:
   #   depends_on: [verify]
   #   commands:
   #     - func: 'restore'
-  #     - func: 'test'
+  #     - func: 'test-all'
   # - name: package
   #   depends_on: [test]
   #   commands:
