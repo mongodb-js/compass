@@ -210,7 +210,7 @@ functions:
       params:
         script: |
           set -e
-          tar xzf build.tgz --strip-components=1
+          tar xzf compass-build.tgz --strip-components=1
     - command: expansions.update
       params:
         file: src/expansions.yml
