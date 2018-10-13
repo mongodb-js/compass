@@ -483,11 +483,21 @@ tasks:
     commands:
       - func: 'restore'
       - func: 'verify'
-  # - name: test
-  #   depends_on: [verify]
-  #   commands:
-  #     - func: 'restore'
-  #     - func: 'test-all'
+  - name: test-unit
+    depends_on: [verify]
+    commands:
+      - func: 'restore'
+      - func: 'test-unit'
+  - name: test-main
+    depends_on: [verify]
+    commands:
+      - func: 'restore'
+      - func: 'test-main'
+  - name: test-functional
+    depends_on: [test-main,test-unit]
+    commands:
+      - func: 'restore'
+      - func: 'test-functional'
   # - name: package
   #   depends_on: [test]
   #   commands:
@@ -541,7 +551,7 @@ buildvariants:
     display_name: MacOS (Compass)
     modules: ~
     run_on:
-      - 'macos-1012'
+      - 'osx-1010-compass'
     expansions:
       num_cores: $(sysctl -n hw.logicalcpu)
       compass_distribution: compass
