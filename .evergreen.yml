@@ -476,6 +476,10 @@ functions:
 # TODO (@imlucas) Call update expansions for each distribution per below? Regenerate
 # src/expansions.yml? Only thing used for at this point is filenames in all of 
 # the `save XXX artifacts` functions above... Could those all just go away?
+# Instead of doing them inline and duplicating a bunch back here...
+# we could call `hadron-build info --format=yaml --flatten > expansions.yml "${compass_distribution}"` 
+# `update expansions from yml` -> do that for each distribution.... hmm.
+#
 # - command: expansions.update
 #       params:
 #         updates:
