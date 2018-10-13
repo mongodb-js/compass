@@ -13,6 +13,7 @@ functions:
           echo "Setting up ~/compass_env.sh"
 
           cat <<EOF_BUILD_SH > ~/compass_env.sh
+          set -e
           export CI=1
           export EVERGREEN=1
 
@@ -40,7 +41,7 @@ functions:
           export NPM_TMP_DIR="$(pwd)/.deps/tmp"
           export NPM_AUTH_TOKEN="${compass_npm_token}"
 
-          export NODE_JS_VERSION='8.9.3'
+          export NODE_JS_VERSION="8.9.3"
 
           # OS detection
           if [[ "${OSTYPE}" == "msys" ]]; then
@@ -62,10 +63,10 @@ functions:
           fi
 
           if [ -n "$IS_WINDOWS" ]; then
-            export PATH="${ARTIFACTS_PATH}:$PATH"
-            export APPDATA=Z:\
+            export PATH="$(pwd)/.deps:$PATH"
+            export APPDATA='Z:\'
           else
-            export PATH="${ARTIFACTS_PATH}/bin:$PATH"
+            export PATH="$(pwd)/.deps/bin:$PATH"
           fi
 
           EOF_BUILD_SH
@@ -81,34 +82,35 @@ functions:
       params:
         working_dir: src
         script: |
-          set -e
+          set -ev
           . ~/compass_env.sh
 
           echo "Configuring npm..."
           cat <<EOT > .npmrc
-          devdir=${NPM_CACHE_DIR}/.node-gyp
-          init-module=${NPM_CACHE_DIR}/.npm-init.js
-          cache=${NPM_CACHE_DIR}
-          tmp=${NPM_TMP_DIR}
-          _authToken=${NPM_AUTH_TOKEN}
+          devdir=$NPM_CACHE_DIR/.node-gyp
+          init-module=$NPM_CACHE_DIR/.npm-init.js
+          cache=$NPM_CACHE_DIR
+          tmp=$NPM_TMP_DIR
+          _authToken=$NPM_AUTH_TOKEN
           EOT
+          cat .npmrc
     - command: shell.exec
       params:
         working_dir: src
         script: |
-          set -ev
+          set -e
 
           . ~/compass_env.sh
 
           if [ -n "$IS_WINDOWS" ]; then
-              echo "Installing nodejs v${NODE_JS_VERSION} for windows..."
+              echo "Installing nodejs v$NODE_JS_VERSION for windows..."
               curl -fs \
-              -o ".deps/node-v${NODE_JS_VERSION}-win-x64.zip" \
-              --url "https://nodejs.org/download/release/v${NODE_JS_VERSION}/node-v${NODE_JS_VERSION}-win-x64.zip"
+              -o ".deps/node-v$NODE_JS_VERSION-win-x64.zip" \
+              --url "https://nodejs.org/download/release/v${NODE_JS_VERSION}/node-v$NODE_JS_VERSION-win-x64.zip"
               cd .deps
-              unzip node-v${NODE_JS_VERSION}-win-x64.zip
-              mv node-v${NODE_JS_VERSION}-win-x64/* .
-              rm -rf node-v${NODE_JS_VERSION}-win-x64
+              unzip node-v$NODE_JS_VERSION-win-x64.zip
+              mv node-v$NODE_JS_VERSION-win-x64/* .
+              rm -rf node-v$NODE_JS_VERSION-win-x64
 
               echo "Installing latest npm..."
               rm -rf npm npx npm.cmd npx.cmd
@@ -118,12 +120,12 @@ functions:
               rm -rf node_modules/npm2/
               chmod +x npm.cmd npm
           else
-              echo "Installing nodejs v${NODE_JS_VERSION} for ${PLATFORM}..."
+              echo "Installing nodejs v$NODE_JS_VERSION for $PLATFORM..."
               curl -fs \
-              -o ".deps/node-v${NODE_JS_VERSION}-${PLATFORM}-x64.tar.gz" \
-              --url "https://nodejs.org/download/release/v${NODE_JS_VERSION}/node-v${NODE_JS_VERSION}-${PLATFORM}-x64.tar.gz"
+              -o ".deps/node-v$NODE_JS_VERSION-$PLATFORM-x64.tar.gz" \
+              --url "https://nodejs.org/download/release/v$NODE_JS_VERSION/node-v$NODE_JS_VERSION-$PLATFORM-x64.tar.gz"
               cd .deps
-              tar xzf node-v${NODE_JS_VERSION}-${PLATFORM}-x64.tar.gz --strip-components=1
+              tar xzf node-v$NODE_JS_VERSION-$PLATFORM-x64.tar.gz --strip-components=1
 
               echo "Installing latest npm..."
               rm -rf npm npx
@@ -150,10 +152,11 @@ functions:
         script: |
           set -ev
           . ~/compass_env.sh
+
           echo "Installing Compass dependencies..."
           npm ci
 
-          if $IS_WINDOWS; then
+          if [ -n "$IS_WINDOWS" ]; then
             echo "Fetching signtool -> notary-service hack..."
 
             curl -fs \
@@ -225,7 +228,7 @@ functions:
         echo "Run static analysis..."
         npm run check;
 
-  'test':
+  'test-all':
     command: shell.exec
     params:
       working_dir: src
@@ -234,9 +237,61 @@ functions:
 
         # Load environment variables
         . ~/compass_env.sh
-        echo "NOTE (imlucas) Making this a noop for now, but leaving the func for future reference"
-        # echo "Running test"
-        # npm test;
+        npm test;
+
+  'test-unit':
+    command: shell.exec
+    params:
+      working_dir: src
+      script: |
+        set -e
+        . ~/compass_env.sh
+        npm test -- --unit
+
+  'test-enzyme':
+    command: shell.exec
+    params:
+      working_dir: src
+      script: |
+        set -e
+        . ~/compass_env.sh
+        npm test -- --enzyme
+
+  'test-packages':
+    command: shell.exec
+    params:
+      working_dir: src
+      script: |
+        set -e
+        . ~/compass_env.sh
+        npm test -- --packages
+
+  'test-main':
+    command: shell.exec
+    params:
+      working_dir: src
+      script: |
+        set -e
+        . ~/compass_env.sh
+        npm test -- --main
+
+  'test-renderer':
+    command: shell.exec
+    params:
+      working_dir: src
+      script: |
+        set -e
+        . ~/compass_env.sh
+        npm test -- --renderer
+
+  'test-functional':
+    command: shell.exec
+    params:
+      working_dir: src
+      script: |
+        set -e
+        . ~/compass_env.sh
+        npm test -- --functional
 
   'package':
     - command: shell.exec
