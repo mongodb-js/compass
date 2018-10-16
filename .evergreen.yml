@@ -10,6 +10,7 @@ functions:
       params:
         working_dir: src
         script: |
+          set -ev
           echo "Setting up ./compass_env.sh"
 
           cat <<EOF_BUILD_SH > ./compass_env.sh
@@ -105,7 +106,7 @@ functions:
               echo "Installing nodejs v$NODE_JS_VERSION for windows..."
               curl -fs \
               -o ".deps/node-v$NODE_JS_VERSION-win-x64.zip" \
-              --url "https://nodejs.org/download/release/v${NODE_JS_VERSION}/node-v$NODE_JS_VERSION-win-x64.zip"
+              --url "https://nodejs.org/download/release/v$NODE_JS_VERSION/node-v$NODE_JS_VERSION-win-x64.zip"
               cd .deps
               unzip node-v$NODE_JS_VERSION-win-x64.zip
               mv node-v$NODE_JS_VERSION-win-x64/* .
@@ -136,10 +137,12 @@ functions:
 
               if [ -n "$IS_RHEL" ]; then
                 echo "Installing native-addon depenendencies for RHEL..."
-                yum localinstall -y http://mirror.centos.org/centos/7/os/x86_64/Packages/libsecret-0.18.5-2.el7.x86_64.rpm
-                yum localinstall -y http://mirror.centos.org/centos/7/os/x86_64/Packages/libsecret-devel-0.18.5-2.el7.x86_64.rpm
+                #TODO (imlucas) Durran says these might be installed already by build team?
+                # yum localinstall -y http://mirror.centos.org/centos/7/os/x86_64/Packages/libsecret-0.18.5-2.el7.x86_64.rpm
+                # yum localinstall -y http://mirror.centos.org/centos/7/os/x86_64/Packages/libsecret-devel-0.18.5-2.el7.x86_64.rpm
               elif [ -n "$IS_UBUNTU" ]; then
                 echo "Installing native-addon depenendencies for Ubuntu..."
+                #TODO (imlucas) Durran says these might be installed already by build team?
                 sudo apt-get install -y libsecret-1-dev
               fi
           fi
@@ -164,14 +167,12 @@ functions:
             rm -f node_modules/electron-winstaller/vendor/signtool.exe
             chmod +x signtool.exe
           fi
+  'save':
     - command: shell.exec
       params:
         script: |
           set -e
-          ls -alh
           tar -zcf compass-build.tgz ./src
-          ls -alh
-          which md5deep || true
     - command: s3.put
       params:
         aws_key: ${aws_key}
@@ -199,7 +200,6 @@ functions:
     - command: expansions.update
       params:
         file: src/expansions.yml
-        
 
   'verify':
     command: shell.exec
@@ -214,70 +214,31 @@ functions:
         echo "Run static analysis..."
         npm run check;
 
-  'test-all':
-    command: shell.exec
-    params:
-      working_dir: src
-      script: |
-        set -e
+  'test':
+    - command: shell.exec
+      params:
+        working_dir: src
+        script: |
+          set -e
 
-        # Load environment variables
-        . ./compass_env.sh
-        npm test;
+          # Load environment variables
+          . ./compass_env.sh
 
-  'test-unit':
-    command: shell.exec
-    params:
-      working_dir: src
-      script: |
-        set -e
-        . ./compass_env.sh
-        npm test -- --unit
+          set -e
+          cat <<EOF_BUILD_SH > ~/compass_test.sh
+          cd $(pwd)
 
-  'test-enzyme':
-    command: shell.exec
-    params:
-      working_dir: src
-      script: |
-        set -e
-        . ./compass_env.sh
-        npm test -- --enzyme
+          # Load environment variables
+          . ./compass_env.sh
 
-  'test-packages':
-    command: shell.exec
-    params:
-      working_dir: src
-      script: |
-        set -e
-        . ./compass_env.sh
-        npm test -- --packages
+          MONGODB_VERSION=${mongodb_version|stable} npm test -- --${test_suite}
+          EOF_BUILD_SH
 
-  'test-main':
-    command: shell.exec
-    params:
-      working_dir: src
-      script: |
-        set -e
-        . ./compass_env.sh
-        npm test -- --main
-
-  'test-renderer':
-    command: shell.exec
-    params:
-      working_dir: src
-      script: |
-        set -e
-        . ./compass_env.sh
-        npm test -- --renderer
-
-  'test-functional':
-    command: shell.exec
-    params:
-      working_dir: src
-      script: |
-        set -e
-        . ./compass_env.sh
-        npm test -- --functional
+          if $IS_OSX; then
+            ssh -v -p 2222 localhost ". compass_test.sh"
+          else
+            . ~/compass_build.sh
+          fi
 
   # package and published can now be looped by ${compass_distribution} 
   'package':
@@ -299,7 +260,7 @@ functions:
         working_dir: src
         script: |
           set -e
-          cat <<EOF_BUILD_SH > ~/compass_build.sh
+          cat <<EOF_BUILD_SH > ~/compass_package.sh
           cd $(pwd)
 
           # Load environment variables
@@ -316,7 +277,7 @@ functions:
           EOF_BUILD_SH
 
           if $IS_OSX; then
-            ssh -v -p 2222 localhost ". compass_build.sh"
+            ssh -v -p 2222 localhost ". compass_package.sh"
           else
             . ~/compass_build.sh
           fi
@@ -330,6 +291,7 @@ functions:
 
         # Load environment variables
         . ./compass_env.sh
+
         # Required to upload release assets to GitHub
         export GITHUB_TOKEN=${leafybot_github_token}
 
@@ -472,273 +434,281 @@ functions:
         content_type: application/x-gzip
         display_name: linux-rhel-tarball
 
-# TODO (@imlucas) Call update expansions for each distribution per below? Regenerate
-# src/expansions.yml? Only thing used for at this point is filenames in all of 
-# the `save XXX artifacts` functions above... Could those all just go away?
-# Instead of doing them inline and duplicating a bunch back here...
-# we could call `hadron-build info --format=yaml --flatten > expansions.yml "${compass_distribution}"` 
-# `update expansions from yml` -> do that for each distribution.... hmm.
-#
-# - command: expansions.update
-#       params:
-#         updates:
-#           - key: "args"
-#             value: "${args} -test.types=${integration_test_args},auth"
 tasks:
   - name: compile
     depends_on: []
     commands:
-      - func: 'prepare'
-      - func: 'install'
+      - func: prepare
+      - func: install
+      - func: save
+
   - name: verify
     depends_on: [compile]
+    tags: 
+      - 'verify'
     commands:
-      - func: 'restore'
-      - func: 'verify'
-  - name: test-unit
-    depends_on: [verify]
-    commands:
-      - func: 'restore'
-      - func: 'test-unit'
-  - name: test-main
-    depends_on: [verify]
-    commands:
-      - func: 'restore'
-      - func: 'test-main'
+      - func: restore
+      - func: verify 
+
   - name: test-functional
-    depends_on: [test-main,test-unit]
+    depends_on: [compile]
+    tags: 
+      - 'test'
     commands:
-      - func: 'restore'
-      - func: 'test-functional'
-  # - name: package
-  #   depends_on: [test]
-  #   commands:
-  #     - func: 'restore'
-  #     - func: 'package'
-  # - name: publish
-  #   depends_on: [package]
-  #   commands:
-  #     - func: 'restore'
-  #     - func: 'publish'
-  #     - func: 'save windows artifacts'
-  #       variants:
-  #         - windows-compass
-  #         - windows-compass-community
-  #         - windows-compass-readonly
-  #         - windows-compass-isolated
-  #     - func: 'save osx artifacts'
-  #       variants:
-  #         - macos-compass
-  #         - macos-compass-community
-  #         - macos-compass-readonly
-  #         - macos-compass-isolated
-  #     - func: 'save linux artifacts'
-  #       variants:
-  #         - ubuntu-compass
-  #         - ubuntu-compass-community
-  #         - ubuntu-compass-readonly
-  #         - ubuntu-compass-isolated
-  #     - func: 'save rhel artifacts'
-  #       variants:
-  #         - rhel-compass
-  #         - rhel-compass-community
-  #         - rhel-compass-readonly
-  #         - rhel-compass-isolated
+      - func: restore
+      - func: test 
+        vars:
+          test_suite: functional
 
-  # - func: 'save rhel artifacts'
-  #   <<: *rhel-variants
+  - name: test-renderer
+    depends_on: [compile]
+    tags: 
+      - 'test'
+    commands:
+      - func: restore
+      - func: test 
+        vars:
+          test_suite: renderer
 
+  - name: test-main
+    depends_on: [compile]
+    tags: 
+      - 'test'
+    commands:
+      - func: restore
+      - func: test 
+        vars:
+          test_suite: main
+
+  - name: test-enzyme
+    depends_on: [compile]
+    tags: 
+      - 'test'
+    commands:
+      - func: restore
+      - func: test 
+        vars:
+          test_suite: enzyme
+
+  - name: test-unit
+    depends_on: [compile]
+    tags: 
+      - 'test'
+    commands:
+      - func: restore
+      - func: test 
+        vars:
+          test_suite: unit
+          mongodb_version: stable
+
+  - name: test-functional-unstable-server
+    depends_on: [compile]
+    tags: 
+      - 'test'
+    commands:
+      - func: restore
+      - func: test 
+        vars:
+          test_suite: functional
+          mongodb_version: unstable
+
+  - name: test-functional-36x-server
+    depends_on: [compile]
+    tags: 
+      - 'test'
+    commands:
+      - func: restore
+      - func: test 
+        vars:
+          test_suite: functional
+          mongodb_version: 3.6.x
+
+  - name: test-functional-34x-server
+    depends_on: [compile]
+    tags: 
+      - 'test'
+    commands:
+      - func: restore
+      - func: test 
+        vars:
+          test_suite: functional
+          mongodb_version: 3.4.x
+  
+  - name: test-functional-26x-server
+    depends_on: [compile]
+    tags: 
+      - 'test'
+    commands:
+      - func: restore
+      - func: test 
+        vars:
+          test_suite: functional
+          mongodb_version: 2.6.x
+
+  - name: package-and-publish
+    depends_on: .test
+    commands:
+      - func: restore
+      - func: package
+      - func: publish
+      - func: 'save windows artifacts'
+        variants: [windows]
+      - func: 'save osx artifacts'
+        variants: [macos]
+      - func: 'save linux artifacts'
+        variants: [ubuntu]   
+      - func: 'save rhel artifacts'
+        variants: [rhel]
+
+# TODO determine OS/version deprecation policy, following server, so we don't fall behind
+# what maximal resources we're using.
+# See https://docs.google.com/document/d/1IfQGC7wTtrlsc2SqURirvt_4uMuU606nXNbu-stw6bQ/edit
 buildvariants:
-  # - name: macos-compass-signer
-  #   display_name: MacOS (Compass Signing Box)
-  #   modules: ~
-  #   run_on:
-  #     - 'osx-1010-compass'
-  #   expansions:
-  #     compass_distribution: compass
-  #   tasks:
-  #     - name: package=
-  - name: macos-compass-1012
-    display_name: MacOS 10.12 (Compass)
-    modules: ~
-    run_on:
-      - 'macos-1012'
+  - name: macos
+    display_name: MacOS
+    run_on: macos-1012
+    tasks:
+      - name: compile
+        run_on: osx-1010-compass
+      - name: test-unit
+        run_on: macos-1012
+      - name: 'package-and-publish'
+        run_on: osx-1010-compass
+        depends_on: test-unit
+        vars: 
+          compass_distribution: compass
+      # - name: 'package-and-publish'
+      #   run_on: osx-1010-compass
+      #   # depends_on: '.test'
+      #   depends_on: test-unit
+      #   vars: 
+      #     compass_distribution: compass-community
+      # - name: 'package-and-publish'
+      #   run_on: osx-1010-compass
+      #   depends_on: '.test'
+      #   vars: 
+      #     compass_distribution: compass-readonly
+      # - name: 'package-and-publish'
+      #   run_on: osx-1010-compass
+      #   depends_on: '.test'
+      #   vars: 
+      #     compass_distribution: compass-isolated
+
+  - name: windows
+    display_name: Windows
+    run_on: windows-64-vs2017-test
     expansions:
       compass_distribution: compass
     tasks:
       - name: compile
+        run_on: windows-64-vs2017-compile
       - name: verify
       - name: test-unit
       - name: test-main
-  # - name: macos-compass-community
-  #   display_name: MacOS (Compass Community)
-  #   modules: ~
-  #   run_on:
-  #     - 'macos-1012'
-  #   expansions:
-  #     num_cores: $(sysctl -n hw.logicalcpu)
-  #     compass_distribution: compass-community
-  #   tasks:
-  #     - name: compile
+      - name: test-renderer
+      - name: test-enzyme    
+      - name: test-functional
+      - name: test-functional-unstable-server
+      - name: test-functional-36x-server
+      - name: test-functional-34x-server
+      - name: test-functional-26x-server
+      - name: 'package-and-publish'
+        run_on: windows-64-vs2017-compile
+        depends_on: '.test'
+        vars: 
+          compass_distribution: compass
+      - name: 'package-and-publish'
+        run_on: windows-64-vs2017-compile
+        depends_on: '.test'
+        vars: 
+          compass_distribution: compass-community
+      - name: 'package-and-publish'
+        run_on: windows-64-vs2017-compile
+        depends_on: '.test'
+        vars: 
+          compass_distribution: compass-readonly
+      - name: 'package-and-publish'
+        run_on: windows-64-vs2017-compile
+        depends_on: '.test'
+        vars: 
+          compass_distribution: compass-isolated
 
-  # - name: macos-compass-readonly
-  #   display_name: MacOS (Compass Readonly)
-  #   modules: ~
-  #   run_on:
-  #     - 'macos-1012'
-  #   expansions:
-  #     num_cores: $(sysctl -n hw.logicalcpu)
-  #     compass_distribution: compass-readonly
-  #   tasks:
-  #     - name: compile
+  - name: ubuntu
+    display_name: Ubuntu
+    run_on: ubuntu1404-test
+    tasks:
+      - name: compile
+      - name: verify
+      - name: test-unit
+        run_on: ubuntu1804-test
+      - name: test-main
+        run_on: ubuntu1804-test
+      - name: test-renderer
+        run_on: ubuntu1804-test
+      - name: test-enzyme    
+        run_on: ubuntu1804-test
+      - name: test-functional
+        run_on: ubuntu1804-test
+      - name: test-functional-unstable-server
+        run_on: ubuntu1804-test
+      - name: test-functional-36x-server
+        run_on: ubuntu1804-test
+      - name: test-functional-34x-server
+        run_on: ubuntu1804-test
+      - name: test-functional-26x-server
+        run_on: ubuntu1804-test
+      - name: 'package-and-publish'
+        depends_on: '.test'
+        # depends_on: test-unit
+        vars: 
+          compass_distribution: compass
+      - name: 'package-and-publish'
+        depends_on: '.test'
+        # depends_on: test-unit
+        vars: 
+          compass_distribution: compass-community
+      - name: 'package-and-publish'
+        depends_on: '.test'
+        # depends_on: test-unit
+        vars: 
+          compass_distribution: compass-readonly
+      - name: 'package-and-publish'
+        depends_on: '.test'
+        # depends_on: test-unit
+        vars: 
+          compass_distribution: compass-isolated
 
-  # - name: macos-compass-isolated
-  #   display_name: MacOS (Compass Isolated Edition)
-  #   modules: ~
-  #   run_on:
-  #     - 'macos-1012'
-  #   expansions:
-  #     num_cores: $(sysctl -n hw.logicalcpu)
-  #     compass_distribution: compass-isolated
-  #   tasks:
-  #     - name: compile
+  - name: rhel
+    display_name: RHEL
+    run_on: rhel70
+    tasks:
+      - name: compile
+      - name: test-unit
+      - name: test-main
+      - name: test-renderer
+      - name: test-enzyme    
+      - name: test-functional
+      - name: test-functional-unstable-server
+      - name: test-functional-36x-server
+      - name: test-functional-34x-server
+      - name: test-functional-26x-server
+      - name: 'package-and-publish'
+        depends_on: '.test'
+        vars: 
+          compass_distribution: compass
+      - name: 'package-and-publish'
+        depends_on: '.test'
+        vars: 
+          compass_distribution: compass-community
+      - name: 'package-and-publish'
+        depends_on: '.test'
+        vars: 
+          compass_distribution: compass-readonly
+      - name: 'package-and-publish'
+        depends_on: '.test'
+        vars: 
+          compass_distribution: compass-isolated
 
-  # - name: windows-compass
-  #   display_name: Windows (Compass)
-  #   modules: ~
-  #   run_on:
-  #     - 'windows-64-vs2015-test'
-  #   expansions:
-  #     num_cores: $(grep -c ^processor /proc/cpuinfo)
-  #     compass_distribution: compass
-  #   tasks:
-  #     - name: compile
-
-  # - name: windows-compass-community
-  #   display_name: Windows (Compass Community)
-  #   modules: ~
-  #   run_on:
-  #     - 'windows-64-vs2015-test'
-  #   expansions:
-  #     num_cores: $(grep -c ^processor /proc/cpuinfo)
-  #     compass_distribution: compass-community
-  #   tasks:
-  #     - name: compile
-
-  # - name: windows-compass-readonly
-  #   display_name: Windows (Compass Readonly)
-  #   modules: ~
-  #   run_on:
-  #     - 'windows-64-vs2015-test'
-  #   expansions:
-  #     num_cores: $(grep -c ^processor /proc/cpuinfo)
-  #     compass_distribution: compass-readonly
-  #   tasks:
-  #     - name: compile
-
-  # - name: windows-compass-isolated
-  #   display_name: Windows (Compass Isolated Edition)
-  #   modules: ~
-  #   run_on:
-  #     - 'windows-64-vs2015-test'
-  #   expansions:
-  #     num_cores: $(grep -c ^processor /proc/cpuinfo)
-  #     compass_distribution: compass-isolated
-  #   tasks:
-  #     - name: compile
-
-  # - name: ubuntu-compass
-  #   display_name: Ubuntu (Compass)
-  #   modules: ~
-  #   run_on:
-  #     - 'ubuntu1404-test'
-  #   expansions:
-  #     compile_env: CC=/opt/mongodbtoolchain/bin/gcc CXX=/opt/mongodbtoolchain/bin/g++
-  #     num_cores: $(grep -c ^processor /proc/cpuinfo)
-  #     compass_distribution: compass
-  #   tasks:
-  #     - name: compile
-
-  # - name: ubuntu-compass-community
-  #   display_name: Ubuntu (Compass Community)
-  #   modules: ~
-  #   run_on:
-  #     - 'ubuntu1404-test'
-  #   expansions:
-  #     compile_env: CC=/opt/mongodbtoolchain/bin/gcc CXX=/opt/mongodbtoolchain/bin/g++
-  #     num_cores: $(grep -c ^processor /proc/cpuinfo)
-  #     compass_distribution: compass-community
-  #   tasks:
-  #     - name: compile
-
-  # - name: ubuntu-compass-readonly
-  #   display_name: Ubuntu (Compass Readonly)
-  #   modules: ~
-  #   run_on:
-  #     - 'ubuntu1404-test'
-  #   expansions:
-  #     compile_env: CC=/opt/mongodbtoolchain/bin/gcc CXX=/opt/mongodbtoolchain/bin/g++
-  #     num_cores: $(grep -c ^processor /proc/cpuinfo)
-  #     compass_distribution: compass-readonly
-  #   tasks:
-  #     - name: compile
-
-  # - name: ubuntu-compass-isolated
-  #   display_name: Ubuntu (Compass Isolated Edition)
-  #   modules: ~
-  #   run_on:
-  #     - 'ubuntu1404-test'
-  #   expansions:
-  #     compile_env: CC=/opt/mongodbtoolchain/bin/gcc CXX=/opt/mongodbtoolchain/bin/g++
-  #     num_cores: $(grep -c ^processor /proc/cpuinfo)
-  #     compass_distribution: compass-isolated
-  #   tasks:
-  #     - name: compile
-
-  # - name: rhel-compass
-  #   display_name: RHEL (Compass)
-  #   modules: ~
-  #   run_on:
-  #     - 'rhel70'
-  #   expansions:
-  #     compile_env: CC=/opt/mongodbtoolchain/bin/gcc CXX=/opt/mongodbtoolchain/bin/g++
-  #     num_cores: $(grep -c ^processor /proc/cpuinfo)
-  #     compass_distribution: compass
-  #   tasks:
-  #     - name: compile
-
-  # - name: rhel-compass-community
-  #   display_name: RHEL (Compass Community)
-  #   modules: ~
-  #   run_on:
-  #     - 'rhel70'
-  #   expansions:
-  #     compile_env: CC=/opt/mongodbtoolchain/bin/gcc CXX=/opt/mongodbtoolchain/bin/g++
-  #     num_cores: $(grep -c ^processor /proc/cpuinfo)
-  #     compass_distribution: compass-community
-  #   tasks:
-  #     - name: compile
-
-  # - name: rhel-compass-readonly
-  #   display_name: RHEL (Compass Readonly)
-  #   modules: ~
-  #   run_on:
-  #     - 'rhel70'
-  #   expansions:
-  #     compile_env: CC=/opt/mongodbtoolchain/bin/gcc CXX=/opt/mongodbtoolchain/bin/g++
-  #     num_cores: $(grep -c ^processor /proc/cpuinfo)
-  #     compass_distribution: compass-readonly
-  #   tasks:
-  #     - name: compile
-
-  # - name: rhel-compass-isolated
-  #   display_name: RHEL (Compass Isolated Edition)
-  #   modules: ~
-  #   run_on:
-  #     - 'rhel70'
-  #   expansions:
-  #     compile_env: CC=/opt/mongodbtoolchain/bin/gcc CXX=/opt/mongodbtoolchain/bin/g++
-  #     num_cores: $(grep -c ^processor /proc/cpuinfo)
-  #     compass_distribution: compass-isolated
-  #   tasks:
-  #     - name: compile
+# modules: ~ # Make task pull in multiple repos
+# expansions:
+#   compass_distribution: compass
