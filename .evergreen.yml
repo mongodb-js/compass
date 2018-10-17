@@ -54,11 +54,12 @@ functions:
                 export PLATFORM='win32'
                 export IS_WINDOWS=true
             fi
-          elif [[ `uname` == "Darwin" ]]; then
+          elif [ `uname` == "Darwin" ]; then
               export PLATFORM='darwin'
               export IS_OSX=true
           else
               export PLATFORM='linux'
+              export IS_LINUX=true
               if cat /etc/*release | grep ^NAME | grep Red; then
                   export IS_RHEL=true
               elif cat /etc/*release | grep ^NAME | grep Ubuntu; then
@@ -141,8 +142,8 @@ functions:
               if [ -n "$IS_RHEL" ]; then
                 echo "Installing native-addon depenendencies for RHEL..."
                 #TODO (imlucas) Durran says these might be installed already by build team?
-                # yum localinstall -y http://mirror.centos.org/centos/7/os/x86_64/Packages/libsecret-0.18.5-2.el7.x86_64.rpm
-                # yum localinstall -y http://mirror.centos.org/centos/7/os/x86_64/Packages/libsecret-devel-0.18.5-2.el7.x86_64.rpm
+                yum localinstall -y http://mirror.centos.org/centos/7/os/x86_64/Packages/libsecret-0.18.5-2.el7.x86_64.rpm
+                yum localinstall -y http://mirror.centos.org/centos/7/os/x86_64/Packages/libsecret-devel-0.18.5-2.el7.x86_64.rpm
               elif [ -n "$IS_UBUNTU" ]; then
                 echo "Installing native-addon depenendencies for Ubuntu..."
                 #TODO (imlucas) Durran says these might be installed already by build team?
@@ -175,6 +176,7 @@ functions:
       params:
         script: |
           set -e
+          ls -alh
           tar -zcf compass-build.tgz ./src
     - command: s3.put
       params:
@@ -200,9 +202,6 @@ functions:
         script: |
           set -e
           tar xzf compass-build.tgz --strip-components=1
-    - command: expansions.update
-      params:
-        file: src/expansions.yml
 
   'verify':
     command: shell.exec
@@ -237,9 +236,15 @@ functions:
           MONGODB_VERSION=${mongodb_version|stable} npm test -- --${test_suite}
           EOF_BUILD_SH
 
-          if $IS_OSX; then
+          if [ -n "$IS_OSX" ]; then
             ssh -v -p 2222 localhost ". compass_test.sh"
           else
+              if [ -n "$IS_LINUX" ]; then
+                export DISPLAY=:99.0
+                sh -e /etc/init.d/xvfb start
+                sleep 3
+              fi
+
             . ~/compass_build.sh
           fi
 
@@ -279,7 +284,7 @@ functions:
           npm run release ${compass_distribution};
           EOF_BUILD_SH
 
-          if $IS_OSX; then
+          if [ -n "$IS_OSX" ]; then
             ssh -v -p 2222 localhost ". compass_package.sh"
           else
             . ~/compass_build.sh
@@ -464,7 +469,8 @@ tasks:
           test_suite: functional
 
   - name: package-and-publish
-    depends_on: .test
+    # depends_on: .test
+    depends_on: [compile]
     commands:
       - func: restore
       - func: package
@@ -565,13 +571,13 @@ tasks:
   #         test_suite: functional
   #         mongodb_version: 2.6.x
 
-# TODO determine OS/version deprecation policy, following server, so we don't fall behind
+# TODO (@imlucas) determine OS/version deprecation policy, following server, so we don't fall behind
 # what maximal resources we're using.
 # See https://docs.google.com/document/d/1IfQGC7wTtrlsc2SqURirvt_4uMuU606nXNbu-stw6bQ/edit
 buildvariants:
   - name: macos
     display_name: MacOS
-    run_on: macos-1012
+    run_on: osx-1010-compass
     tasks:
       - name: compile
         run_on: osx-1010-compass
