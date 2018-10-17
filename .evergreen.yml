@@ -205,7 +205,7 @@ functions:
                 sleep 3
               fi
 
-            . ./compass_build.sh
+            . ./compass_test.sh
           fi
 
   # package and published can now be looped by ${compass_distribution} 
