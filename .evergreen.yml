@@ -10,7 +10,7 @@ functions:
       params:
         working_dir: src
         script: |
-          set -ev
+          set -e
           echo "Setting up ./compass_env.sh"
 
           cat <<EOF_BUILD_SH > ./compass_env.sh
@@ -46,12 +46,13 @@ functions:
           echo "OSTYPE: $OSTYPE"
           echo "uname: `uname`"
           # OS detection
-          if [[ "$OSTYPE" == "msys" ]]; then
-              export PLATFORM='win32'
-              export IS_WINDOWS=true
-          elif [[ "$OSTYPE" == "cygwin" ]]; then
-              export PLATFORM='win32'
-              export IS_WINDOWS=true
+          if [ -n "$OSTYPE" ]; then
+            if [[ "$OSTYPE" == "msys" ]]; then
+                export PLATFORM='win32'
+                export IS_WINDOWS=true
+            elif [[ "$OSTYPE" == "cygwin" ]]; then
+                export PLATFORM='win32'
+                export IS_WINDOWS=true
           elif [[ `uname` == "Darwin" ]]; then
               export PLATFORM='darwin'
               export IS_OSX=true
