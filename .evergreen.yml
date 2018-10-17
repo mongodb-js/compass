@@ -43,12 +43,13 @@ functions:
           export NPM_AUTH_TOKEN="${compass_npm_token}"
 
           export NODE_JS_VERSION="8.9.3"
-
+          echo "OSTYPE: $OSTYPE"
+          echo "uname: `uname`"
           # OS detection
-          if [[ "${OSTYPE}" == "msys" ]]; then
+          if [[ "$OSTYPE" == "msys" ]]; then
               export PLATFORM='win32'
               export IS_WINDOWS=true
-          elif [[ "${OSTYPE}" == "cygwin" ]]; then
+          elif [[ "$OSTYPE" == "cygwin" ]]; then
               export PLATFORM='win32'
               export IS_WINDOWS=true
           elif [[ `uname` == "Darwin" ]]; then
@@ -460,91 +461,6 @@ tasks:
         vars:
           test_suite: functional
 
-  - name: test-renderer
-    depends_on: [compile]
-    tags: 
-      - 'test'
-    commands:
-      - func: restore
-      - func: test 
-        vars:
-          test_suite: renderer
-
-  - name: test-main
-    depends_on: [compile]
-    tags: 
-      - 'test'
-    commands:
-      - func: restore
-      - func: test 
-        vars:
-          test_suite: main
-
-  - name: test-enzyme
-    depends_on: [compile]
-    tags: 
-      - 'test'
-    commands:
-      - func: restore
-      - func: test 
-        vars:
-          test_suite: enzyme
-
-  - name: test-unit
-    depends_on: [compile]
-    tags: 
-      - 'test'
-    commands:
-      - func: restore
-      - func: test 
-        vars:
-          test_suite: unit
-          mongodb_version: stable
-
-  - name: test-functional-unstable-server
-    depends_on: [compile]
-    tags: 
-      - 'test'
-    commands:
-      - func: restore
-      - func: test 
-        vars:
-          test_suite: functional
-          mongodb_version: unstable
-
-  - name: test-functional-36x-server
-    depends_on: [compile]
-    tags: 
-      - 'test'
-    commands:
-      - func: restore
-      - func: test 
-        vars:
-          test_suite: functional
-          mongodb_version: 3.6.x
-
-  - name: test-functional-34x-server
-    depends_on: [compile]
-    tags: 
-      - 'test'
-    commands:
-      - func: restore
-      - func: test 
-        vars:
-          test_suite: functional
-          mongodb_version: 3.4.x
-  
-  - name: test-functional-26x-server
-    depends_on: [compile]
-    tags: 
-      - 'test'
-    commands:
-      - func: restore
-      - func: test 
-        vars:
-          test_suite: functional
-          mongodb_version: 2.6.x
-
   - name: package-and-publish
     depends_on: .test
     commands:
@@ -559,6 +475,93 @@ tasks:
         variants: [ubuntu]   
       - func: 'save rhel artifacts'
         variants: [rhel]
+  # NOTE (@imlucas) Examples of how to extend which tests run
+  # and against which MongoDB Server version.
+  # 
+  # - name: test-renderer
+  #   depends_on: [compile]
+  #   tags: 
+  #     - 'test'
+  #   commands:
+  #     - func: restore
+  #     - func: test 
+  #       vars:
+  #         test_suite: renderer
+
+  # - name: test-main
+  #   depends_on: [compile]
+  #   tags: 
+  #     - 'test'
+  #   commands:
+  #     - func: restore
+  #     - func: test 
+  #       vars:
+  #         test_suite: main
+
+  # - name: test-enzyme
+  #   depends_on: [compile]
+  #   tags: 
+  #     - 'test'
+  #   commands:
+  #     - func: restore
+  #     - func: test 
+  #       vars:
+  #         test_suite: enzyme
+
+  # - name: test-unit
+  #   depends_on: [compile]
+  #   tags: 
+  #     - 'test'
+  #   commands:
+  #     - func: restore
+  #     - func: test 
+  #       vars:
+  #         test_suite: unit
+  #         mongodb_version: stable
+
+  # - name: test-functional-unstable-server
+  #   depends_on: [compile]
+  #   tags: 
+  #     - 'test'
+  #   commands:
+  #     - func: restore
+  #     - func: test 
+  #       vars:
+  #         test_suite: functional
+  #         mongodb_version: unstable
+
+  # - name: test-functional-36x-server
+  #   depends_on: [compile]
+  #   tags: 
+  #     - 'test'
+  #   commands:
+  #     - func: restore
+  #     - func: test 
+  #       vars:
+  #         test_suite: functional
+  #         mongodb_version: 3.6.x
+
+  # - name: test-functional-34x-server
+  #   depends_on: [compile]
+  #   tags: 
+  #     - 'test'
+  #   commands:
+  #     - func: restore
+  #     - func: test 
+  #       vars:
+  #         test_suite: functional
+  #         mongodb_version: 3.4.x
+  
+  # - name: test-functional-26x-server
+  #   depends_on: [compile]
+  #   tags: 
+  #     - 'test'
+  #   commands:
+  #     - func: restore
+  #     - func: test 
+  #       vars:
+  #         test_suite: functional
+  #         mongodb_version: 2.6.x
 
 # TODO determine OS/version deprecation policy, following server, so we don't fall behind
 # what maximal resources we're using.
@@ -570,29 +573,24 @@ buildvariants:
     tasks:
       - name: compile
         run_on: osx-1010-compass
-      - name: test-unit
+      - name: test-functional
         run_on: macos-1012
       - name: 'package-and-publish'
         run_on: osx-1010-compass
-        depends_on: test-unit
         vars: 
           compass_distribution: compass
-      # - name: 'package-and-publish'
-      #   run_on: osx-1010-compass
-      #   # depends_on: '.test'
-      #   depends_on: test-unit
-      #   vars: 
-      #     compass_distribution: compass-community
-      # - name: 'package-and-publish'
-      #   run_on: osx-1010-compass
-      #   depends_on: '.test'
-      #   vars: 
-      #     compass_distribution: compass-readonly
-      # - name: 'package-and-publish'
-      #   run_on: osx-1010-compass
-      #   depends_on: '.test'
-      #   vars: 
-      #     compass_distribution: compass-isolated
+      - name: 'package-and-publish'
+        run_on: osx-1010-compass
+        vars: 
+          compass_distribution: compass-community
+      - name: 'package-and-publish'
+        run_on: osx-1010-compass
+        vars: 
+          compass_distribution: compass-readonly
+      - name: 'package-and-publish'
+        run_on: osx-1010-compass
+        vars: 
+          compass_distribution: compass-isolated
 
   - name: windows
     display_name: Windows
@@ -603,33 +601,30 @@ buildvariants:
       - name: compile
         run_on: windows-64-vs2017-compile
       - name: verify
-      - name: test-unit
-      - name: test-main
-      - name: test-renderer
-      - name: test-enzyme    
       - name: test-functional
-      - name: test-functional-unstable-server
-      - name: test-functional-36x-server
-      - name: test-functional-34x-server
-      - name: test-functional-26x-server
+      # NOTE (@imlucas) See above for activating more tests
+      # - name: test-unit
+      # - name: test-main
+      # - name: test-renderer
+      # - name: test-enzyme    
+      # - name: test-functional-unstable-server
+      # - name: test-functional-36x-server
+      # - name: test-functional-34x-server
+      # - name: test-functional-26x-server
       - name: 'package-and-publish'
         run_on: windows-64-vs2017-compile
-        depends_on: '.test'
         vars: 
           compass_distribution: compass
       - name: 'package-and-publish'
         run_on: windows-64-vs2017-compile
-        depends_on: '.test'
         vars: 
           compass_distribution: compass-community
       - name: 'package-and-publish'
         run_on: windows-64-vs2017-compile
-        depends_on: '.test'
         vars: 
           compass_distribution: compass-readonly
       - name: 'package-and-publish'
         run_on: windows-64-vs2017-compile
-        depends_on: '.test'
         vars: 
           compass_distribution: compass-isolated
 
@@ -639,42 +634,22 @@ buildvariants:
     tasks:
       - name: compile
       - name: verify
-      - name: test-unit
-        run_on: ubuntu1804-test
-      - name: test-main
-        run_on: ubuntu1804-test
-      - name: test-renderer
-        run_on: ubuntu1804-test
-      - name: test-enzyme    
-        run_on: ubuntu1804-test
       - name: test-functional
-        run_on: ubuntu1804-test
-      - name: test-functional-unstable-server
-        run_on: ubuntu1804-test
-      - name: test-functional-36x-server
-        run_on: ubuntu1804-test
-      - name: test-functional-34x-server
-        run_on: ubuntu1804-test
-      - name: test-functional-26x-server
         run_on: ubuntu1804-test
       - name: 'package-and-publish'
         depends_on: '.test'
-        # depends_on: test-unit
         vars: 
           compass_distribution: compass
       - name: 'package-and-publish'
         depends_on: '.test'
-        # depends_on: test-unit
         vars: 
           compass_distribution: compass-community
       - name: 'package-and-publish'
         depends_on: '.test'
-        # depends_on: test-unit
         vars: 
           compass_distribution: compass-readonly
       - name: 'package-and-publish'
         depends_on: '.test'
-        # depends_on: test-unit
         vars: 
           compass_distribution: compass-isolated
 
@@ -683,15 +658,8 @@ buildvariants:
     run_on: rhel70
     tasks:
       - name: compile
-      - name: test-unit
-      - name: test-main
-      - name: test-renderer
-      - name: test-enzyme    
+      - name: verify
       - name: test-functional
-      - name: test-functional-unstable-server
-      - name: test-functional-36x-server
-      - name: test-functional-34x-server
-      - name: test-functional-26x-server
       - name: 'package-and-publish'
         depends_on: '.test'
         vars: 
@@ -708,7 +676,3 @@ buildvariants:
         depends_on: '.test'
         vars: 
           compass_distribution: compass-isolated
-
-# modules: ~ # Make task pull in multiple repos
-# expansions:
-#   compass_distribution: compass
