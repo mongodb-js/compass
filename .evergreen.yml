@@ -102,7 +102,7 @@ functions:
       params:
         working_dir: src
         script: |
-          set -e
+          set -ev
 
           . ./compass_env.sh
 
