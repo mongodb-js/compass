@@ -33,13 +33,11 @@ else
 
     if [ -n "$IS_RHEL" ]; then
         echo "Installing native-addon depenendencies for RHEL..."
-        yum localinstall -y xorg-X11-server-Xvfb
         #TODO (imlucas) Durran says these might be installed already by build team?
         yum localinstall -y http://mirror.centos.org/centos/7/os/x86_64/Packages/libsecret-0.18.5-2.el7.x86_64.rpm
         yum localinstall -y http://mirror.centos.org/centos/7/os/x86_64/Packages/libsecret-devel-0.18.5-2.el7.x86_64.rpm
     elif [ -n "$IS_UBUNTU" ]; then
         echo "Installing native-addon depenendencies for Ubuntu..."
-        sudo apt-get install -y xvfb
         #TODO (imlucas) Durran says these might be installed already by build team?
         sudo apt-get install -y libsecret-1-dev
     fi
