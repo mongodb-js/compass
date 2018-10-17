@@ -141,11 +141,13 @@ functions:
 
               if [ -n "$IS_RHEL" ]; then
                 echo "Installing native-addon depenendencies for RHEL..."
+                yum localinstall -y xorg-X11-server-Xvfb
                 #TODO (imlucas) Durran says these might be installed already by build team?
                 yum localinstall -y http://mirror.centos.org/centos/7/os/x86_64/Packages/libsecret-0.18.5-2.el7.x86_64.rpm
                 yum localinstall -y http://mirror.centos.org/centos/7/os/x86_64/Packages/libsecret-devel-0.18.5-2.el7.x86_64.rpm
               elif [ -n "$IS_UBUNTU" ]; then
                 echo "Installing native-addon depenendencies for Ubuntu..."
+                sudo apt-get install -y xvfb
                 #TODO (imlucas) Durran says these might be installed already by build team?
                 sudo apt-get install -y libsecret-1-dev
               fi
@@ -483,6 +485,7 @@ tasks:
         variants: [ubuntu]   
       - func: 'save rhel artifacts'
         variants: [rhel]
+  
   # NOTE (@imlucas) Examples of how to extend which tests run
   # and against which MongoDB Server version.
   # 
@@ -583,19 +586,19 @@ buildvariants:
         run_on: osx-1010-compass
       - name: test-functional
         run_on: macos-1012
-      - name: 'package-and-publish'
+      - name: package-and-publish
         run_on: osx-1010-compass
         vars: 
           compass_distribution: compass
-      - name: 'package-and-publish'
+      - name: package-and-publish
         run_on: osx-1010-compass
         vars: 
           compass_distribution: compass-community
-      - name: 'package-and-publish'
+      - name: package-and-publish
         run_on: osx-1010-compass
         vars: 
           compass_distribution: compass-readonly
-      - name: 'package-and-publish'
+      - name: package-and-publish
         run_on: osx-1010-compass
         vars: 
           compass_distribution: compass-isolated
@@ -619,19 +622,19 @@ buildvariants:
       # - name: test-functional-36x-server
       # - name: test-functional-34x-server
       # - name: test-functional-26x-server
-      - name: 'package-and-publish'
+      - name: package-and-publish
         run_on: windows-64-vs2017-compile
         vars: 
           compass_distribution: compass
-      - name: 'package-and-publish'
+      - name: package-and-publish
         run_on: windows-64-vs2017-compile
         vars: 
           compass_distribution: compass-community
-      - name: 'package-and-publish'
+      - name: package-and-publish
         run_on: windows-64-vs2017-compile
         vars: 
           compass_distribution: compass-readonly
-      - name: 'package-and-publish'
+      - name: package-and-publish
         run_on: windows-64-vs2017-compile
         vars: 
           compass_distribution: compass-isolated
@@ -644,20 +647,16 @@ buildvariants:
       - name: verify
       - name: test-functional
         run_on: ubuntu1804-test
-      - name: 'package-and-publish'
-        depends_on: '.test'
+      - name: package-and-publish
         vars: 
           compass_distribution: compass
-      - name: 'package-and-publish'
-        depends_on: '.test'
+      - name: package-and-publish
         vars: 
           compass_distribution: compass-community
-      - name: 'package-and-publish'
-        depends_on: '.test'
+      - name: package-and-publish
         vars: 
           compass_distribution: compass-readonly
-      - name: 'package-and-publish'
-        depends_on: '.test'
+      - name: package-and-publish
         vars: 
           compass_distribution: compass-isolated
 
@@ -668,19 +667,15 @@ buildvariants:
       - name: compile
       - name: verify
       - name: test-functional
-      - name: 'package-and-publish'
-        depends_on: '.test'
+      - name: package-and-publish
         vars: 
           compass_distribution: compass
-      - name: 'package-and-publish'
-        depends_on: '.test'
+      - name: package-and-publish
         vars: 
           compass_distribution: compass-community
-      - name: 'package-and-publish'
-        depends_on: '.test'
+      - name: package-and-publish
         vars: 
           compass_distribution: compass-readonly
-      - name: 'package-and-publish'
-        depends_on: '.test'
+      - name: package-and-publish
         vars: 
           compass_distribution: compass-isolated
