@@ -229,7 +229,7 @@ functions:
           . ./compass_env.sh
 
           set -e
-          cat <<EOF_BUILD_SH > ~/compass_test.sh
+          cat <<EOF_BUILD_SH > ./compass_test.sh
           cd $(pwd)
 
           # Load environment variables
@@ -239,7 +239,7 @@ functions:
           EOF_BUILD_SH
 
           if [ -n "$IS_OSX" ]; then
-            ssh -v -p 2222 localhost ". compass_test.sh"
+            ssh -v -p 2222 localhost ". ./compass_test.sh"
           else
               if [ -n "$IS_LINUX" ]; then
                 export DISPLAY=:99.0
@@ -247,7 +247,7 @@ functions:
                 sleep 3
               fi
 
-            . ~/compass_build.sh
+            . ./compass_build.sh
           fi
 
   # package and published can now be looped by ${compass_distribution} 
@@ -270,7 +270,7 @@ functions:
         working_dir: src
         script: |
           set -e
-          cat <<EOF_BUILD_SH > ~/compass_package.sh
+          cat <<EOF_BUILD_SH > ./compass_package.sh
           cd $(pwd)
 
           # Load environment variables
@@ -287,9 +287,9 @@ functions:
           EOF_BUILD_SH
 
           if [ -n "$IS_OSX" ]; then
-            ssh -v -p 2222 localhost ". compass_package.sh"
+            ssh -v -p 2222 localhost ". ./compass_package.sh"
           else
-            . ~/compass_build.sh
+            . ./compass_package.sh
           fi
 
   'publish':
