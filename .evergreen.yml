@@ -47,10 +47,10 @@ functions:
           echo "uname: `uname`"
           # OS detection
           if [ -n "$OSTYPE" ]; then
-            if [[ "$OSTYPE" == "msys" ]]; then
+            if [ "$OSTYPE" == "msys" ]; then
                 export PLATFORM='win32'
                 export IS_WINDOWS=true
-            elif [[ "$OSTYPE" == "cygwin" ]]; then
+            elif [ "$OSTYPE" == "cygwin" ]; then
                 export PLATFORM='win32'
                 export IS_WINDOWS=true
             fi
@@ -103,55 +103,8 @@ functions:
         working_dir: src
         script: |
           set -ev
-
           . ./compass_env.sh
-
-          if [ -n "$IS_WINDOWS" ]; then
-              echo "Installing nodejs v$NODE_JS_VERSION for windows..."
-              curl -fs \
-              -o ".deps/node-v$NODE_JS_VERSION-win-x64.zip" \
-              --url "https://nodejs.org/download/release/v$NODE_JS_VERSION/node-v$NODE_JS_VERSION-win-x64.zip"
-              cd .deps
-              unzip node-v$NODE_JS_VERSION-win-x64.zip
-              mv node-v$NODE_JS_VERSION-win-x64/* .
-              rm -rf node-v$NODE_JS_VERSION-win-x64
-
-              echo "Installing latest npm..."
-              rm -rf npm npx npm.cmd npx.cmd
-              mv node_modules/npm node_modules/npm2
-              chmod +x ./node.exe
-              ./node.exe node_modules/npm2/bin/npm-cli.js i -g npm@latest
-              rm -rf node_modules/npm2/
-              chmod +x npm.cmd npm
-          else
-              echo "Installing nodejs v$NODE_JS_VERSION for $PLATFORM..."
-              curl -fs \
-              -o ".deps/node-v$NODE_JS_VERSION-$PLATFORM-x64.tar.gz" \
-              --url "https://nodejs.org/download/release/v$NODE_JS_VERSION/node-v$NODE_JS_VERSION-$PLATFORM-x64.tar.gz"
-              cd .deps
-              tar xzf node-v$NODE_JS_VERSION-$PLATFORM-x64.tar.gz --strip-components=1
-
-              echo "Installing latest npm..."
-              rm -rf npm npx
-              mv lib/node_modules/npm lib/node_modules/npm2
-
-              chmod +x ./bin/node
-              ./bin/node lib/node_modules/npm2/bin/npm-cli.js i -g npm@latest
-              rm -rf lib/node_modules/npm2/
-
-              if [ -n "$IS_RHEL" ]; then
-                echo "Installing native-addon depenendencies for RHEL..."
-                yum localinstall -y xorg-X11-server-Xvfb
-                #TODO (imlucas) Durran says these might be installed already by build team?
-                yum localinstall -y http://mirror.centos.org/centos/7/os/x86_64/Packages/libsecret-0.18.5-2.el7.x86_64.rpm
-                yum localinstall -y http://mirror.centos.org/centos/7/os/x86_64/Packages/libsecret-devel-0.18.5-2.el7.x86_64.rpm
-              elif [ -n "$IS_UBUNTU" ]; then
-                echo "Installing native-addon depenendencies for Ubuntu..."
-                sudo apt-get install -y xvfb
-                #TODO (imlucas) Durran says these might be installed already by build team?
-                sudo apt-get install -y libsecret-1-dev
-              fi
-          fi
+          . .evergreen/preinstall.sh
 
   'install':
     - command: shell.exec
@@ -242,7 +195,12 @@ functions:
             ssh -v -p 2222 localhost ". ./compass_test.sh"
           else
               if [ -n "$IS_LINUX" ]; then
-                export DISPLAY=:99.0
+                if [ -n "$IS_RHEL" ]; then
+                  # TODO https://unix.stackexchange.com/questions/10465/how-do-i-start-xvfb-on-startup-on-debian
+                  yum localinstall -y xorg-X11-server-Xvfb
+                elif [ -n "$IS_UBUNTU" ]; then
+                  . .evergreen/pretest-ubuntu.sh
+                fi
                 sh -e /etc/init.d/xvfb start
                 sleep 3
               fi
@@ -443,6 +401,23 @@ functions:
         permissions: public-read
         content_type: application/x-gzip
         display_name: linux-rhel-tarball
+variables:
+  - &package-and-publish-task
+    name: package-and-publish
+    # depends_on: .test
+    depends_on: [compile]
+    commands:
+      - func: restore
+      - func: package
+      - func: publish
+      - func: 'save windows artifacts'
+        variants: [windows]
+      - func: 'save osx artifacts'
+        variants: [macos]
+      - func: 'save linux artifacts'
+        variants: [ubuntu]   
+      - func: 'save rhel artifacts'
+        variants: [rhel]
 
 tasks:
   - name: compile
@@ -470,21 +445,22 @@ tasks:
         vars:
           test_suite: functional
 
-  - name: package-and-publish
-    # depends_on: .test
-    depends_on: [compile]
-    commands:
-      - func: restore
-      - func: package
-      - func: publish
-      - func: 'save windows artifacts'
-        variants: [windows]
-      - func: 'save osx artifacts'
-        variants: [macos]
-      - func: 'save linux artifacts'
-        variants: [ubuntu]   
-      - func: 'save rhel artifacts'
-        variants: [rhel]
+  - <<: *package-and-publish-task
+    name: package-and-publish-compass
+    vars: 
+      compass_distribution: compass
+  - <<: *package-and-publish-task
+    name: package-and-publish-compass-community
+    vars: 
+      compass_distribution: compass-community
+  - <<: *package-and-publish-task
+    name: package-and-publish-compass-isolated
+    vars: 
+      compass_distribution: compass-isolated
+  - <<: *package-and-publish-task
+    name: package-and-publish-compass-readonly
+    vars: 
+      compass_distribution: compass-readonly
   
   # NOTE (@imlucas) Examples of how to extend which tests run
   # and against which MongoDB Server version.
@@ -580,28 +556,16 @@ tasks:
 buildvariants:
   - name: macos
     display_name: MacOS
+    # TODO (@imlucas) Ideally we'd run tests on `macos-1012` but the
+    # "setup windowserver" scripting is currently missing.
     run_on: osx-1010-compass
     tasks:
       - name: compile
-        run_on: osx-1010-compass
       - name: test-functional
-        run_on: macos-1012
-      - name: package-and-publish
-        run_on: osx-1010-compass
-        vars: 
-          compass_distribution: compass
-      - name: package-and-publish
-        run_on: osx-1010-compass
-        vars: 
-          compass_distribution: compass-community
-      - name: package-and-publish
-        run_on: osx-1010-compass
-        vars: 
-          compass_distribution: compass-readonly
-      - name: package-and-publish
-        run_on: osx-1010-compass
-        vars: 
-          compass_distribution: compass-isolated
+      - name: package-and-publish-compass
+      - name: package-and-publish-compass-community
+      - name: package-and-publish-compass-isolated
+      - name: package-and-publish-compass-readonly
 
   - name: windows
     display_name: Windows
@@ -622,22 +586,10 @@ buildvariants:
       # - name: test-functional-36x-server
       # - name: test-functional-34x-server
       # - name: test-functional-26x-server
-      - name: package-and-publish
-        run_on: windows-64-vs2017-compile
-        vars: 
-          compass_distribution: compass
-      - name: package-and-publish
-        run_on: windows-64-vs2017-compile
-        vars: 
-          compass_distribution: compass-community
-      - name: package-and-publish
-        run_on: windows-64-vs2017-compile
-        vars: 
-          compass_distribution: compass-readonly
-      - name: package-and-publish
-        run_on: windows-64-vs2017-compile
-        vars: 
-          compass_distribution: compass-isolated
+      - name: package-and-publish-compass
+      - name: package-and-publish-compass-community
+      - name: package-and-publish-compass-isolated
+      - name: package-and-publish-compass-readonly
 
   - name: ubuntu
     display_name: Ubuntu
@@ -646,20 +598,10 @@ buildvariants:
       - name: compile
       - name: verify
       - name: test-functional
-        run_on: ubuntu1804-test
-      - name: package-and-publish
-        vars: 
-          compass_distribution: compass
-      - name: package-and-publish
-        vars: 
-          compass_distribution: compass-community
-      - name: package-and-publish
-        vars: 
-          compass_distribution: compass-readonly
-      - name: package-and-publish
-        vars: 
-          compass_distribution: compass-isolated
-
+      - name: package-and-publish-compass
+      - name: package-and-publish-compass-community
+      - name: package-and-publish-compass-isolated
+      - name: package-and-publish-compass-readonly
   - name: rhel
     display_name: RHEL
     run_on: rhel70
@@ -667,15 +609,7 @@ buildvariants:
       - name: compile
       - name: verify
       - name: test-functional
-      - name: package-and-publish
-        vars: 
-          compass_distribution: compass
-      - name: package-and-publish
-        vars: 
-          compass_distribution: compass-community
-      - name: package-and-publish
-        vars: 
-          compass_distribution: compass-readonly
-      - name: package-and-publish
-        vars: 
-          compass_distribution: compass-isolated
+      - name: package-and-publish-compass
+      - name: package-and-publish-compass-community
+      - name: package-and-publish-compass-isolated
+      - name: package-and-publish-compass-readonly
