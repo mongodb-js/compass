@@ -181,30 +181,32 @@ functions:
           # Load environment variables
           . ./compass_env.sh
 
-          set -e
           cat <<EOF_BUILD_SH > ./compass_test.sh
+          set -e
           cd $(pwd)
 
           # Load environment variables
           . ./compass_env.sh
-
+          set -ev
           MONGODB_VERSION=${mongodb_version|stable} npm test -- --${test_suite}
           EOF_BUILD_SH
 
           if [ -n "$IS_OSX" ]; then
             ssh -v -p 2222 localhost ". ./compass_test.sh"
           else
-              if [ -n "$IS_LINUX" ]; then
-                if [ -n "$IS_RHEL" ]; then
-                  # TODO https://unix.stackexchange.com/questions/10465/how-do-i-start-xvfb-on-startup-on-debian
-                  yum localinstall -y xorg-X11-server-Xvfb
-                elif [ -n "$IS_UBUNTU" ]; then
-                  . .evergreen/pretest-ubuntu.sh
-                fi
-                sh -e /etc/init.d/xvfb start
-                sleep 3
+            export DISPLAY=:99.0
+            if [ -n "$IS_LINUX" ]; then
+              if [ -n "$IS_RHEL" ]; then
+                # TODO https://unix.stackexchange.com/questions/10465/how-do-i-start-xvfb-on-startup-on-debian
+                yum localinstall -y xorg-X11-server-Xvfb
+              elif [ -n "$IS_UBUNTU" ]; then
+                . .evergreen/pretest-ubuntu.sh
               fi
+              sh -e /etc/init.d/xvfb start
+              sleep 3
+            fi
 
+            echo "Running tests..."
             . ./compass_test.sh
           fi
 
@@ -401,23 +403,6 @@ functions:
         permissions: public-read
         content_type: application/x-gzip
         display_name: linux-rhel-tarball
-variables:
-  - &package-and-publish-task
-    name: package-and-publish
-    # depends_on: .test
-    depends_on: [compile]
-    commands:
-      - func: restore
-      - func: package
-      - func: publish
-      - func: 'save windows artifacts'
-        variants: [windows]
-      - func: 'save osx artifacts'
-        variants: [macos]
-      - func: 'save linux artifacts'
-        variants: [ubuntu]   
-      - func: 'save rhel artifacts'
-        variants: [rhel]
 
 tasks:
   - name: compile
@@ -445,22 +430,81 @@ tasks:
         vars:
           test_suite: functional
 
-  - <<: *package-and-publish-task
-    name: package-and-publish-compass
-    vars: 
-      compass_distribution: compass
-  - <<: *package-and-publish-task
-    name: package-and-publish-compass-community
-    vars: 
-      compass_distribution: compass-community
-  - <<: *package-and-publish-task
-    name: package-and-publish-compass-isolated
-    vars: 
-      compass_distribution: compass-isolated
-  - <<: *package-and-publish-task
-    name: package-and-publish-compass-readonly
-    vars: 
-      compass_distribution: compass-readonly
+  - name: package-and-publish-compass
+    depends_on: [compile]
+    commands:
+      - func: restore
+      - func: package
+        vars: 
+          compass_distribution: compass
+      - func: publish
+        vars: 
+          compass_distribution: compass
+      - func: 'save windows artifacts'
+        variants: [windows]
+      - func: 'save osx artifacts'
+        variants: [macos]
+      - func: 'save linux artifacts'
+        variants: [ubuntu]   
+      - func: 'save rhel artifacts'
+        variants: [rhel]
+
+  - name: package-and-publish-compass-community
+    depends_on: [compile]
+    commands:
+      - func: restore
+      - func: package
+        vars: 
+          compass_distribution: compass-community
+      - func: publish
+        vars: 
+          compass_distribution: compass-community
+      - func: 'save windows artifacts'
+        variants: [windows]
+      - func: 'save osx artifacts'
+        variants: [macos]
+      - func: 'save linux artifacts'
+        variants: [ubuntu]   
+      - func: 'save rhel artifacts'
+        variants: [rhel]
+
+  - name: package-and-publish-compass-isolated
+    depends_on: [compile]
+    commands:
+      - func: restore
+      - func: package
+        vars: 
+          compass_distribution: compass-isolated
+      - func: publish
+        vars: 
+          compass_distribution: compass-isolated
+      - func: 'save windows artifacts'
+        variants: [windows]
+      - func: 'save osx artifacts'
+        variants: [macos]
+      - func: 'save linux artifacts'
+        variants: [ubuntu]   
+      - func: 'save rhel artifacts'
+        variants: [rhel]
+
+  - name: package-and-publish-compass-readonly
+    depends_on: [compile]
+    commands:
+      - func: restore
+      - func: package
+        vars: 
+          compass_distribution: compass-readonly
+      - func: publish
+        vars: 
+          compass_distribution: compass-readonly
+      - func: 'save windows artifacts'
+        variants: [windows]
+      - func: 'save osx artifacts'
+        variants: [macos]
+      - func: 'save linux artifacts'
+        variants: [ubuntu]   
+      - func: 'save rhel artifacts'
+        variants: [rhel]
   
   # NOTE (@imlucas) Examples of how to extend which tests run
   # and against which MongoDB Server version.
