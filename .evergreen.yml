@@ -1,6 +1,17 @@
 stepback: false
 exec_timeout_secs: 1800
 
+## Variables
+variables: 
+  - &save-artifact
+    command: s3.put
+    params:
+      aws_key: ${aws_key}
+      aws_secret: ${aws_secret}
+      bucket: mciuploads
+      permissions: public-read
+      content_type: application/octet-stream
+
 functions:
   'prepare':
     - command: git.get_project
@@ -207,6 +218,10 @@ functions:
 
             echo "Running tests..."
             . ./compass_test.sh
+
+            if [ -n "$IS_LINUX" ]; then
+              sh -e /etc/init.d/xvfb stop
+            fi
           fi
 
   # package and published can now be looped by ${compass_distribution} 
@@ -268,140 +283,78 @@ functions:
         export DOWNLOAD_CENTER_AWS_ACCESS_KEY_ID=${aws_key_evergreen_integrations}
         export DOWNLOAD_CENTER_AWS_SECRET_ACCESS_KEY=${aws_secret_evergreen_integrations}
 
-        echo "Upload release assets to S3 and GitHub if needed"
+        echo "Uploading release assets to S3 and GitHub if needed..."
         npm run upload ${compass_distribution}
 
-  # NOTE (@imlucas) A ton of this can go away... use the generate tasks and stuff from migrator.
-  # The actual uploads can be handled by `hadron-build` to S3 and then use
-  # the `attach.results` evergreen command to show links on this page.
   'save windows artifacts':
     # setup
-    - command: s3.put
+    - <<: *save-artifact
       params:
-        aws_key: ${aws_key}
-        aws_secret: ${aws_secret}
         local_file: src/dist/${windows_setup_filename}
         remote_file: ${project}/${revision}/${windows_setup_filename}
-        bucket: mciuploads
-        permissions: public-read
-        content_type: application/octet-stream
-        display_name: windows-installer
     # MSI
-    - command: s3.put
+    - <<: *save-artifact
       params:
-        aws_key: ${aws_key}
-        aws_secret: ${aws_secret}
         local_file: src/dist/${windows_msi_filename}
         remote_file: ${project}/${revision}/${windows_msi_filename}
-        bucket: mciuploads
-        permissions: public-read
-        content_type: application/octet-stream
-        display_name: windows-msi-installer
     # ZIP
-    - command: s3.put
+    - <<: *save-artifact
       params:
-        aws_key: ${aws_key}
-        aws_secret: ${aws_secret}
         local_file: src/dist/${windows_zip_filename}
         remote_file: ${project}/${revision}/${windows_zip_filename}
-        bucket: mciuploads
-        permissions: public-read
         content_type: application/zip
-        display_name: windows-zip
     # RELEASES file
-    - command: s3.put
+    - <<: *save-artifact
       params:
-        aws_key: ${aws_key}
-        aws_secret: ${aws_secret}
         local_file: src/dist/RELEASES
         remote_file: ${project}/${revision}/${compass_distribution}-RELEASES
-        bucket: mciuploads
-        permissions: public-read
-        content_type: application/octet-stream
-        display_name: windows-auto-update-manifest
     # nupkg full
-    - command: s3.put
+    - <<: *save-artifact
       params:
-        aws_key: ${aws_key}
-        aws_secret: ${aws_secret}
         local_file: src/dist/${windows_nupkg_full_filename}
         remote_file: ${project}/${revision}/${windows_nupkg_full_filename}
-        bucket: mciuploads
-        permissions: public-read
-        content_type: application/octet-stream
-        display_name: windows-auto-update-payload
 
   'save osx artifacts':
     # .dmg
-    - command: s3.put
+    - <<: *save-artifact
       params:
-        aws_key: ${aws_key}
-        aws_secret: ${aws_secret}
         local_file: src/dist/${osx_dmg_filename}
         remote_file: ${project}/${revision}/${osx_dmg_filename}
-        bucket: mciuploads
-        permissions: public-read
         content_type: 'application/x-apple-diskimage'
-        display_name: macos-installer
     # .zip
-    - command: s3.put
+    - <<: *save-artifact
       params:
-        aws_key: ${aws_key}
-        aws_secret: ${aws_secret}
         local_file: src/dist/${osx_zip_filename}
         remote_file: ${project}/${revision}/${osx_zip_filename}
-        bucket: mciuploads
-        permissions: public-read
         content_type: application/zip
-        display_name: macos-auto-update-payload
 
   'save linux artifacts':
     # .deb
-    - command: s3.put
+    - <<: *save-artifact
       params:
-        aws_key: ${aws_key}
-        aws_secret: ${aws_secret}
         local_file: src/dist/${linux_deb_filename}
         remote_file: ${project}/${revision}/${linux_deb_filename}
-        bucket: mciuploads
-        permissions: public-read
         content_type: 'application/vnd.debian.binary-package'
-        display_name: linux-deb-installer
     # .tar.gz
-    - command: s3.put
+    - <<: *save-artifact
       params:
-        aws_key: ${aws_key}
-        aws_secret: ${aws_secret}
         local_file: src/dist/${linux_tar_filename}
         remote_file: ${project}/${revision}/${linux_tar_filename}
-        bucket: mciuploads
-        permissions: public-read
         content_type: application/x-gzip
-        display_name: linux-tarball
 
   'save rhel artifacts':
     # .rpm
-    - command: s3.put
+    - <<: *save-artifact
       params:
-        aws_key: ${aws_key}
-        aws_secret: ${aws_secret}
         local_file: src/dist/${linux_rpm_filename}
         remote_file: ${project}/${revision}/${linux_rpm_filename}
-        bucket: mciuploads
-        permissions: public-read
         content_type: application/x-redhat-package-manager
-        display_name: linux-rpm-installer
     # .tar.gz
-    - command: s3.put
+    - <<: *save-artifact
       params:
-        aws_key: ${aws_key}
-        aws_secret: ${aws_secret}
         local_file: src/dist/${linux_tar_filename}
         remote_file: ${project}/${revision}/${linux_tar_filename}
-        bucket: mciuploads
-        permissions: public-read
         content_type: application/x-gzip
-        display_name: linux-rhel-tarball
 
 tasks:
   - name: compile-oneshot
@@ -417,18 +370,21 @@ tasks:
       - func: publish
         vars: 
           compass_distribution: compass
+      - func: 'save osx artifacts'
       - func: package
         vars: 
           compass_distribution: compass-community
       - func: publish
         vars: 
           compass_distribution: compass-community
+      - func: 'save osx artifacts'
       - func: package
         vars: 
           compass_distribution: compass-isolated
       - func: publish
         vars: 
           compass_distribution: compass-isolated 
+      - func: 'save osx artifacts'
       - func: package
         vars: 
           compass_distribution: compass-readonly
@@ -436,7 +392,6 @@ tasks:
         vars: 
           compass_distribution: compass-readonly       
       - func: 'save osx artifacts'
-        variants: [macos]
 
   - name: compile
     depends_on: []
@@ -633,8 +588,8 @@ tasks:
 buildvariants:
   - name: macos
     display_name: MacOS
-    # TODO (@imlucas) Ideally we'd run tests on `macos-1012` but the
-    # "setup windowserver" scripting is currently missing.
+    # TODO (@imlucas) Ideally we'd run tests/fanout builds like the other platforms
+    # on `macos-1012` but the setup windowserver" scripting is currently missing on 1012.
     run_on: osx-1010-compass
     tasks:
       - name: compile-oneshot
