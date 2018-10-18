@@ -204,17 +204,10 @@ functions:
           if [ -n "$IS_OSX" ]; then
             ssh -v -p 2222 localhost ". ./compass_test.sh"
           else
+            
+            
             export DISPLAY=:99.0
-            if [ -n "$IS_LINUX" ]; then
-              if [ -n "$IS_RHEL" ]; then
-                # TODO https://unix.stackexchange.com/questions/10465/how-do-i-start-xvfb-on-startup-on-debian
-                yum localinstall -y xorg-X11-server-Xvfb
-              elif [ -n "$IS_UBUNTU" ]; then
-                . .evergreen/pretest-ubuntu.sh
-              fi
-              sh -e /etc/init.d/xvfb start
-              sleep 3
-            fi
+            . .evergreen/pretest.sh
 
             echo "Running tests..."
             . ./compass_test.sh
