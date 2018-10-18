@@ -43,8 +43,7 @@ functions:
           export NPM_AUTH_TOKEN="${compass_npm_token}"
 
           export NODE_JS_VERSION="8.9.3"
-          echo "OSTYPE: $OSTYPE"
-          echo "uname: `uname`"
+
           # OS detection
           if [ -n "$OSTYPE" ]; then
             if [ "$OSTYPE" == "msys" ]; then
@@ -405,6 +404,40 @@ functions:
         display_name: linux-rhel-tarball
 
 tasks:
+  - name: compile-oneshot
+    commands: 
+      - func: prepare
+      - func: install
+      - func: test 
+        vars:
+          test_suite: functional
+      - func: package
+        vars: 
+          compass_distribution: compass
+      - func: publish
+        vars: 
+          compass_distribution: compass
+      - func: package
+        vars: 
+          compass_distribution: compass-community
+      - func: publish
+        vars: 
+          compass_distribution: compass-community
+      - func: package
+        vars: 
+          compass_distribution: compass-isolated
+      - func: publish
+        vars: 
+          compass_distribution: compass-isolated 
+      - func: package
+        vars: 
+          compass_distribution: compass-readonly
+      - func: publish
+        vars: 
+          compass_distribution: compass-readonly       
+      - func: 'save osx artifacts'
+        variants: [macos]
+
   - name: compile
     depends_on: []
     commands:
@@ -604,12 +637,7 @@ buildvariants:
     # "setup windowserver" scripting is currently missing.
     run_on: osx-1010-compass
     tasks:
-      - name: compile
-      - name: test-functional
-      - name: package-and-publish-compass
-      - name: package-and-publish-compass-community
-      - name: package-and-publish-compass-isolated
-      - name: package-and-publish-compass-readonly
+      - name: compile-oneshot
 
   - name: windows
     display_name: Windows
