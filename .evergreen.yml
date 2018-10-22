@@ -49,7 +49,7 @@ functions:
 
           # node stuff
           export ARTIFACTS_PATH="$(pwd)/.deps"
-          export NPM_CACHE_DIR="$(pwd)/.deps/npm"
+          export NPM_CACHE_DIR="$(pwd)/.deps/.npm"
           export NPM_TMP_DIR="$(pwd)/.deps/tmp"
           export NPM_AUTH_TOKEN="${compass_npm_token}"
 
