@@ -25,7 +25,6 @@ functions:
           echo "Setting up ./compass_env.sh"
 
           cat <<EOF_BUILD_SH > ./compass_env.sh
-          set -e
           export CI=1
           export EVERGREEN=1
 
@@ -85,6 +84,7 @@ functions:
           fi
 
           EOF_BUILD_SH
+          set -o allexport
 
           . ./compass_env.sh
 
@@ -98,6 +98,7 @@ functions:
         working_dir: src
         script: |
           set -e
+          set -o allexport
           . ./compass_env.sh
 
           echo "Configuring npm..."
@@ -113,6 +114,7 @@ functions:
         working_dir: src
         script: |
           set -ev
+          set -o allexport
           . ./compass_env.sh
           . .evergreen/preinstall.sh
 
@@ -122,7 +124,10 @@ functions:
         working_dir: src
         script: |
           set -e
+          set -o allexport
           . ./compass_env.sh
+
+          export APPDATA='Z:\'
 
           echo "Installing Compass dependencies..."
           npm ci
