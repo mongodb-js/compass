@@ -1,17 +1,17 @@
 #!/bin/sh
 
-if [ $OSTYPE == "cygwin" ]; then
+if [[ $OSTYPE == "cygwin" ]]; then
     export PLATFORM='win32'
     export IS_WINDOWS=true
-elif [ `uname` == Darwin ]; then
+elif [[ `uname` == Darwin ]]; then
     export PLATFORM='darwin'
     export IS_OSX=true
 else
     export PLATFORM='linux'
     export IS_LINUX=true
-    if [ `cat /etc/*release | grep ^NAME | grep Red` ]; then
+    if [[ `cat /etc/*release | grep ^NAME | grep Red` ]]; then
         export IS_RHEL=true
-    elif [ `cat /etc/*release | grep ^NAME | grep Ubuntu` ]; then
+    elif [[ `cat /etc/*release | grep ^NAME | grep Ubuntu` ]]; then
         export IS_UBUNTU=true
     fi
 fi
