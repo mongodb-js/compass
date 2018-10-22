@@ -1,26 +1,3 @@
-set -ev
-export NODE_JS_VERSION="8.9.3"
-
-# OS detection
-if [ `uname` == "Darwin" ]; then
-    PLATFORM='darwin'
-    IS_OSX=true
-elif [ "$OSTYPE" == "msys" ]; then
-    PLATFORM='win32'
-    IS_WINDOWS=true
-elif [ "$OSTYPE" == "cygwin" ]; then
-    PLATFORM='win32'
-    IS_WINDOWS=trues
-else
-    PLATFORM='linux'
-    IS_LINUX=true
-    if cat /etc/*release | grep ^NAME | grep Red; then
-        IS_RHEL=true
-    elif cat /etc/*release | grep ^NAME | grep Ubuntu; then
-        IS_UBUNTU=true
-    fi
-fi
-
 echo "NODE_JS_VERSION: $NODE_JS_VERSION"
 echo "NODE_JS_VERSION: ${NODE_JS_VERSION}"
 echo "PLATFORM: $PLATFORM"

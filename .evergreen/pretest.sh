@@ -9,7 +9,7 @@ if [ -n "$IS_LINUX" ]; then
         sudo apt-get update
         sudo apt-get install -y x11-utils x11-xserver-utils xserver-xorg-core xvfb dbus-x11
     fi
-    sudo cp $(pwd)/.evergreen/etc-init.d-xvfb /etc/init.d/xvfb
-    sh -e /etc/init.d/xvfb start
-    sleep 3
+    # sudo cp $(pwd)/.evergreen/etc-init.d-xvfb /etc/init.d/xvfb
+    # sh -e /etc/init.d/xvfb start
+    # sleep 3
 fi
