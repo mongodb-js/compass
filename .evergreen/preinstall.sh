@@ -1,3 +1,4 @@
+set -ev
 if [ -n "$IS_WINDOWS" ]; then
     echo "Installing nodejs v$NODE_JS_VERSION for windows..."
     curl -fs \
@@ -18,8 +19,8 @@ if [ -n "$IS_WINDOWS" ]; then
 else
     echo "Installing nodejs v$NODE_JS_VERSION for $PLATFORM..."
     curl -fs \
-    -o ".deps/node-v$NODE_JS_VERSION-$PLATFORM-x64.tar.gz" \
-    --url "https://nodejs.org/download/release/v$NODE_JS_VERSION/node-v$NODE_JS_VERSION-$PLATFORM-x64.tar.gz"
+        -o ".deps/node-v$NODE_JS_VERSION-$PLATFORM-x64.tar.gz" \
+        --url "https://nodejs.org/download/release/v$NODE_JS_VERSION/node-v$NODE_JS_VERSION-$PLATFORM-x64.tar.gz"
     cd .deps
     tar xzf node-v$NODE_JS_VERSION-$PLATFORM-x64.tar.gz --strip-components=1
 

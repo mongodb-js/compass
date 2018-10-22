@@ -204,13 +204,14 @@ functions:
           if [ -n "$IS_OSX" ]; then
             ssh -v -p 2222 localhost ". ./compass_test.sh"
           else
-            
-            
             export DISPLAY=:99.0
+            set -ev
             . .evergreen/pretest.sh
 
             echo "Running tests..."
             . ./compass_test.sh
+
+            echo "Tests complete! Cleaning up..."
 
             if [ -n "$IS_LINUX" ]; then
               sh -e /etc/init.d/xvfb stop
