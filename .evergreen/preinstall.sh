@@ -1,7 +1,36 @@
 #!/bin/sh
 
-. $(pwd)/.evergreen/os-detection.sh
-. $(pwd)/.evergreen/dump-env.sh
+if [ $OSTYPE == "cygwin" ]; then
+    export PLATFORM='win32'
+    export IS_WINDOWS=true
+elif [ `uname` == Darwin ]; then
+    export PLATFORM='darwin'
+    export IS_OSX=true
+else
+    export PLATFORM='linux'
+    export IS_LINUX=true
+    if [ `cat /etc/*release | grep ^NAME | grep Red` ]; then
+        export IS_RHEL=true
+    elif [ `cat /etc/*release | grep ^NAME | grep Ubuntu` ]; then
+        export IS_UBUNTU=true
+    fi
+fi
+
+echo "========================="
+echo "Important Environment Variables"
+echo "========================="
+echo "PLATFORM: $PLATFORM"
+echo "NODE_JS_VERSION: $NODE_JS_VERSION"
+echo "APPDATA: $APPDATA"
+echo "PATH: $PATH"
+
+echo "PLATFORM: $PLATFORM"
+echo "IS_OSX: $IS_OSX"
+echo "IS_LINUX: $IS_LINUX"
+echo "IS_WINDOWS: $IS_WINDOWS"
+echo "IS_RHEL: $IS_RHEL"
+echo "IS_UBUNTU: $IS_UBUNTU"
+
 
 if [ -n "$IS_WINDOWS" ]; then
     echo "Installing nodejs v$NODE_JS_VERSION for windows..."
