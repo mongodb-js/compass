@@ -239,7 +239,6 @@ functions:
       params:
         working_dir: src
         script: |
-          set -o allexport
           cat <<EOF_BUILD_SH > ./compass_package.sh
           set -o allexport
           cd $(pwd)
@@ -256,6 +255,9 @@ functions:
           echo "Creating signed release build..."
           npm run release ${compass_distribution};
           EOF_BUILD_SH
+
+          set -o allexport
+          . ./compass_env.sh
 
           if [ -n "$IS_OSX" ]; then
             ssh -v -p 2222 localhost ". ./compass_package.sh"
