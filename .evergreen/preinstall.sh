@@ -1,3 +1,7 @@
+if [ -z "$PLATFORM" ]; then
+    export PLATFORM='darwin'
+fi
+
 echo "NODE_JS_VERSION: $NODE_JS_VERSION"
 echo "NODE_JS_VERSION: ${NODE_JS_VERSION}"
 echo "PLATFORM: $PLATFORM"

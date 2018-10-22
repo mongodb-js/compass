@@ -124,15 +124,6 @@ functions:
           set -o allexport
           . ./compass_env.sh
 
-          # IF i get rid of this, still work?
-          # https://evergreen.mongodb.com/task/10gen_compass_master_windows_compile_patch_2bfcf95b2ae4e8b46e539515202260f983fde89e_5bcdfa30e3c3314be6157fe7_18_10_22_16_26_24
-          # if [ -n "$IS_WINDOWS" ]; then
-          #   export PATH="$(pwd)/.deps:$PATH"
-          #   export APPDATA='Z:\'
-          # else
-          #   export PATH="$(pwd)/.deps/bin:$PATH"
-          # fi
-
           echo "Installing Compass dependencies..."
           npm ci
 
