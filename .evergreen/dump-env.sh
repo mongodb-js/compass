@@ -1,3 +1,5 @@
+#!/bin/sh
+
 echo "========================="
 echo "Important Environment Variables"
 echo "========================="

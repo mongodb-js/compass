@@ -1,7 +1,6 @@
-if [ -z "$PLATFORM" ]; then
-    export PLATFORM='darwin'
-fi
+#!/bin/sh
 
+. $(pwd)/.evergreen/os-detection.sh
 . $(pwd)/.evergreen/dump-env.sh
 
 if [ -n "$IS_WINDOWS" ]; then
