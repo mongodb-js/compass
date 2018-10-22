@@ -112,6 +112,7 @@ functions:
       params:
         working_dir: src
         script: |
+          set -o allexport
           . ./compass_env.sh
           . .evergreen/preinstall.sh
 
