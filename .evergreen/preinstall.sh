@@ -2,10 +2,7 @@ if [ -z "$PLATFORM" ]; then
     export PLATFORM='darwin'
 fi
 
-echo "NODE_JS_VERSION: $NODE_JS_VERSION"
-echo "NODE_JS_VERSION: ${NODE_JS_VERSION}"
-echo "PLATFORM: $PLATFORM"
-echo "PLATFORM: ${PLATFORM}"
+. $(pwd)/.evergreen/dump-env.sh
 
 if [ -n "$IS_WINDOWS" ]; then
     echo "Installing nodejs v$NODE_JS_VERSION for windows..."

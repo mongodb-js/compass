@@ -78,7 +78,7 @@ functions:
 
           if [ -n "$IS_WINDOWS" ]; then
             export PATH="$(pwd)/.deps:$PATH"
-            export APPDATA='Z:\'
+            export APPDATA=Z:\
           else
             export PATH="$(pwd)/.deps/bin:$PATH"
           fi
@@ -124,6 +124,8 @@ functions:
           set -o allexport
           . ./compass_env.sh
 
+          . ./.evergreen/dump-env.sh
+
           echo "Installing Compass dependencies..."
           npm ci
 
@@ -164,6 +166,7 @@ functions:
       params:
         script: |
           tar xzf compass-build.tgz --strip-components=1
+          ls -alh
 
   'verify':
     command: shell.exec
@@ -173,6 +176,8 @@ functions:
         set -o allexport
         # Load environment variables
         . ./compass_env.sh
+
+        . ./.evergreen/dump-env.sh
 
         echo "Run static analysis..."
         npm run check;
@@ -196,7 +201,10 @@ functions:
           MONGODB_VERSION=${mongodb_version|stable} npm test -- --${test_suite}
           EOF_BUILD_SH
 
+          . ./.evergreen/dump-env.sh
+
           if [ -n "$IS_OSX" ]; then
+            echo "Running tests via ssh tunnel..."
             ssh -v -p 2222 localhost ". ./compass_test.sh"
           else
             export DISPLAY=:99.0
@@ -204,15 +212,7 @@ functions:
 
             echo "Running tests..."
             . ./compass_test.sh
-
-            echo "Tests complete! Cleaning up..."
-
-            if [ -n "$IS_LINUX" ]; then
-              sh -e /etc/init.d/xvfb stop
-            fi
           fi
-
-  # package and published can now be looped by ${compass_distribution} 
   'package':
     - command: shell.exec
       params:
@@ -230,6 +230,7 @@ functions:
     - command: shell.exec
       params:
         working_dir: src
+        shell: bash
         script: |
           cat <<EOF_BUILD_SH > ./compass_package.sh
           set -o allexport
@@ -252,6 +253,7 @@ functions:
           . ./compass_env.sh
 
           if [ -n "$IS_OSX" ]; then
+            echo "Signing via ssh tunnel..."
             ssh -v -p 2222 localhost ". ./compass_package.sh"
           else
             . ./compass_package.sh
@@ -584,12 +586,11 @@ buildvariants:
 
   - name: windows
     display_name: Windows
-    run_on: windows-64-vs2017-test
+    run_on: windows-64-vs2017-compile
     expansions:
       compass_distribution: compass
     tasks:
       - name: compile
-        run_on: windows-64-vs2017-compile
       - name: verify
       - name: test-functional
       # NOTE (@imlucas) See above for activating more tests
