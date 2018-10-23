@@ -839,8 +839,11 @@ class LinkedList {
           } else {
             currentElement = this.firstElement;
           }
-          index += 1;
-          return { value: currentElement };
+          if (currentElement) {
+            index += 1;
+            return { value: currentElement };
+          }
+          return { done: true };
         }
         return { done: true };
       }
@@ -853,7 +856,7 @@ class LinkedList {
   }
 
   _needsStandardIteration(index) {
-    return (this.loaded > 0 && index <= this.loaded && index < this.size);
+    return (this.loaded > 0 && index < this.loaded && index < this.size);
   }
 
   /**

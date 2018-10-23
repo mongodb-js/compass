@@ -1133,8 +1133,11 @@ var LinkedList = function () {
             } else {
               currentElement = _this2.firstElement;
             }
-            index += 1;
-            return { value: currentElement };
+            if (currentElement) {
+              index += 1;
+              return { value: currentElement };
+            }
+            return { done: true };
           }
           return { done: true };
         }
@@ -1148,7 +1151,7 @@ var LinkedList = function () {
   }, {
     key: '_needsStandardIteration',
     value: function _needsStandardIteration(index) {
-      return this.loaded > 0 && index <= this.loaded && index < this.size;
+      return this.loaded > 0 && index < this.loaded && index < this.size;
     }
 
     /**

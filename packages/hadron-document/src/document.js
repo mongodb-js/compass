@@ -199,6 +199,7 @@ class Document extends EventEmitter {
    * Handle the next element in the document.
    */
   next() {
+    this.elements.flush();
     const lastElement = this.elements.lastElement;
     if (lastElement && lastElement.isAdded()) {
       if (lastElement.isBlank()) {

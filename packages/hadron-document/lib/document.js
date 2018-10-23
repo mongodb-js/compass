@@ -304,6 +304,7 @@ var Document = function (_EventEmitter) {
   }, {
     key: 'next',
     value: function next() {
+      this.elements.flush();
       var lastElement = this.elements.lastElement;
       if (lastElement && lastElement.isAdded()) {
         if (lastElement.isBlank()) {
