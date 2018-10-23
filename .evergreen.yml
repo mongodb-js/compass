@@ -141,6 +141,7 @@ functions:
         bucket: mciuploads
         content_type: application/octet-stream
     - command: shell.exec
+      shell: bash
       params:
         script: |
           tar xzf compass-build.tgz --strip-components=1
