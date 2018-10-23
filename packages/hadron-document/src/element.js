@@ -712,6 +712,7 @@ class LinkedList {
    * @param {Number} add - 1 if adding a new element, -1 if removing.
    */
   updateKeys(element, add) {
+    this.flush();
     while (element.nextElement) {
       element.nextElement.currentKey += add;
       element = element.nextElement;
@@ -810,9 +811,11 @@ class LinkedList {
 
   flush() {
     if (this.loaded < this.size) {
-      /* eslint no-unused-vars: 0 */
-      /* eslint no-empty: 0 */
-      for (let _ of this) { }
+      for (let element of this) {
+        if (element && element.elements) {
+          element.elements.flush();
+        }
+      }
     }
   }
 
@@ -824,7 +827,6 @@ class LinkedList {
   [Symbol.iterator]() {
     let currentElement;
     let index = 0;
-    console.log('creating iterator');
     return {
       next: () => {
         if (this._needsLazyLoad(index)) {
@@ -847,7 +849,7 @@ class LinkedList {
 
   _needsLazyLoad(index) {
     return (index === 0 && this.loaded === 0 && this.size > 0) ||
-      (this.loaded < index && index < this.size);
+      (this.loaded <= index && index < this.size);
   }
 
   _needsStandardIteration(index) {

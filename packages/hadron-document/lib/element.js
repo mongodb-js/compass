@@ -967,6 +967,7 @@ var LinkedList = function () {
   }, {
     key: 'updateKeys',
     value: function updateKeys(element, add) {
+      this.flush();
       while (element.nextElement) {
         element.nextElement.currentKey += add;
         element = element.nextElement;
@@ -1078,15 +1079,17 @@ var LinkedList = function () {
     key: 'flush',
     value: function flush() {
       if (this.loaded < this.size) {
-        /* eslint no-unused-vars: 0 */
-        /* eslint no-empty: 0 */
         var _iteratorNormalCompletion6 = true;
         var _didIteratorError6 = false;
         var _iteratorError6 = undefined;
 
         try {
           for (var _iterator6 = this[Symbol.iterator](), _step6; !(_iteratorNormalCompletion6 = (_step6 = _iterator6.next()).done); _iteratorNormalCompletion6 = true) {
-            var _ = _step6.value;
+            var element = _step6.value;
+
+            if (element && element.elements) {
+              element.elements.flush();
+            }
           }
         } catch (err) {
           _didIteratorError6 = true;
@@ -1118,7 +1121,6 @@ var LinkedList = function () {
 
       var currentElement = void 0;
       var index = 0;
-      console.log('creating iterator');
       return {
         next: function next() {
           if (_this2._needsLazyLoad(index)) {
@@ -1141,7 +1143,7 @@ var LinkedList = function () {
   }, {
     key: '_needsLazyLoad',
     value: function _needsLazyLoad(index) {
-      return index === 0 && this.loaded === 0 && this.size > 0 || this.loaded < index && index < this.size;
+      return index === 0 && this.loaded === 0 && this.size > 0 || this.loaded <= index && index < this.size;
     }
   }, {
     key: '_needsStandardIteration',
