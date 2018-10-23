@@ -69,6 +69,7 @@ class InsertDocument extends React.PureComponent {
           element={element}
           version={this.props.version}
           indent={0}
+          tz={this.props.tz}
           editing />);
     }
     return components;
@@ -94,7 +95,8 @@ InsertDocument.displayName = 'InsertDocument';
 
 InsertDocument.propTypes = {
   doc: PropTypes.object.isRequired,
-  version: PropTypes.string.isRequired
+  version: PropTypes.string.isRequired,
+  tz: PropTypes.string
 };
 
 export default InsertDocument;

@@ -134,7 +134,7 @@
   "dependencies": {
     "ag-grid": "14.0.0",
     "ag-grid-react": "14.0.0",
-    "hadron-document": "^4.0.1",
+    "hadron-document": "^5.0.0",
     "hadron-type-checker": "^4.0.4",
     "lodash.clonedeep": "^4.5.0",
     "lodash.findindex": "^4.6.0",

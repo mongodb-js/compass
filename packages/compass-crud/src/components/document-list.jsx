@@ -68,6 +68,7 @@ class DocumentList extends React.Component {
           closeInsertDocumentDialog={this.props.closeInsertDocumentDialog}
           insertDocument={this.props.insertDocument}
           version={this.props.version}
+          tz={this.props.tz}
           {...this.props.insert} />
       );
     }
