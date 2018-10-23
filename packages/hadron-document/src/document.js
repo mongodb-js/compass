@@ -74,11 +74,9 @@ class Document extends EventEmitter {
    * @returns {Element} The element.
    */
   getChild(path) {
-    console.log(path);
     if (!path) {
       return undefined;
     }
-    console.log(path[0]);
     let element = (this.currentType === 'Array') ? this.elements.at(path[0]) : this.elements.get(path[0]);
     let i = 1;
     while (i < path.length) {
