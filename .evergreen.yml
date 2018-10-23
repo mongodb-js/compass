@@ -123,16 +123,13 @@ functions:
       params:
         shell: bash
         script: |
+          cp ~/compass_env.sh ./src/compass_env.sh
           tar -zcf compass-build.tgz ./src
-    - command: s3.put
+    - <<: *save-artifact
       params:
-        aws_key: ${aws_key}
-        aws_secret: ${aws_secret}
+        permissions: private
         local_file: compass-build.tgz
         remote_file: ${project}/${revision}/build.tgz
-        bucket: mciuploads
-        permissions: private
-        content_type: application/octet-stream
 
   'restore':
     - command: s3.get
@@ -147,6 +144,7 @@ functions:
       params:
         script: |
           tar xzf compass-build.tgz --strip-components=1
+          cp ./src/compass_env.sh ~/compass_env.sh
           ls -alh
 
   'verify':
