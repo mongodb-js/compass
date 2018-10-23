@@ -618,4 +618,22 @@ describe('Document', function() {
       });
     });
   });
+
+  context('when iterating the elements', function() {
+    context('when iterating fully', function() {
+      context('when the elements are not loaded', function() {
+
+      });
+
+      context('when the elements are loaded', function() {
+
+      });
+    });
+
+    context('when iterating partially', function() {
+      context('when iterating again', function() {
+
+      });
+    });
+  });
 });
