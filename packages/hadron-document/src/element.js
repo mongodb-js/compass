@@ -677,7 +677,6 @@ class LinkedList {
     this.keys = keys(this.originalDoc);
     this.size = this.keys.length;
     this.loaded = 0;
-    this.index = 0;
     this._map = {};
   }
 
@@ -824,55 +823,35 @@ class LinkedList {
    */
   [Symbol.iterator]() {
     let currentElement;
+    let index = 0;
+    console.log('creating iterator');
     return {
       next: () => {
-        // index 0
-        // loaded 0
-        // size 10
-        //
-        // index 5
-        // loaded 4
-        // size 10
-        if (this._needsLazyLoad()) {
-          // 1. When this is the first iteration:
-          //   - Append each element on each next step.
-          //   - Keep track of how far we were iterated and store the index.
-          //   - Reduce size by 1 on each addition.
-          const key = this.keys[this.index];
-          this.index += 1;
+        if (this._needsLazyLoad(index)) {
+          const key = this.keys[index];
+          index += 1;
           return { value: this._lazyInsertEnd(key) };
-          // index 0
-          // loaded 1
-          // size 10
-          //
-          // index 0
-          // loaded 10
-          // size 10
-        } else if (this._needsStandardIteration()) {
-          // 2. When this is not the first iteration, but partially iterated before.
-          //   - Iterate from the existing list up to the point where stopped.
-          //   - Do step one from that point on.
+        } else if (this._needsStandardIteration(index)) {
           if (currentElement) {
             currentElement = currentElement.nextElement;
           } else {
             currentElement = this.firstElement;
           }
-          this.index += 1;
+          index += 1;
           return { value: currentElement };
         }
-        this.index = 0;
         return { done: true };
       }
     };
   }
 
-  _needsLazyLoad() {
-    return (this.index === 0 && this.loaded === 0 && this.size > 0) ||
-      (this.loaded < this.index && this.index < this.size);
+  _needsLazyLoad(index) {
+    return (index === 0 && this.loaded === 0 && this.size > 0) ||
+      (this.loaded < index && index < this.size);
   }
 
-  _needsStandardIteration() {
-    return (this.loaded > 0 && this.index <= this.loaded && this.index < this.size);
+  _needsStandardIteration(index) {
+    return (this.loaded > 0 && index <= this.loaded && index < this.size);
   }
 
   /**

@@ -925,7 +925,6 @@ var LinkedList = function () {
     this.keys = keys(this.originalDoc);
     this.size = this.keys.length;
     this.loaded = 0;
-    this.index = 0;
     this._map = {};
   }
 
@@ -1079,6 +1078,8 @@ var LinkedList = function () {
     key: 'flush',
     value: function flush() {
       if (this.loaded < this.size) {
+        /* eslint no-unused-vars: 0 */
+        /* eslint no-empty: 0 */
         var _iteratorNormalCompletion6 = true;
         var _didIteratorError6 = false;
         var _iteratorError6 = undefined;
@@ -1086,7 +1087,7 @@ var LinkedList = function () {
         try {
           for (var _iterator6 = this[Symbol.iterator](), _step6; !(_iteratorNormalCompletion6 = (_step6 = _iterator6.next()).done); _iteratorNormalCompletion6 = true) {
             var _ = _step6.value;
-          } // eslint-disable-line no-unused-var no-empty
+          }
         } catch (err) {
           _didIteratorError6 = true;
           _iteratorError6 = err;
@@ -1116,56 +1117,36 @@ var LinkedList = function () {
       var _this2 = this;
 
       var currentElement = void 0;
+      var index = 0;
+      console.log('creating iterator');
       return {
         next: function next() {
-          // index 0
-          // loaded 0
-          // size 10
-          //
-          // index 5
-          // loaded 4
-          // size 10
-          if (_this2._needsLazyLoad()) {
-            // 1. When this is the first iteration:
-            //   - Append each element on each next step.
-            //   - Keep track of how far we were iterated and store the index.
-            //   - Reduce size by 1 on each addition.
-            var key = _this2.keys[_this2.index];
-            _this2.index += 1;
+          if (_this2._needsLazyLoad(index)) {
+            var key = _this2.keys[index];
+            index += 1;
             return { value: _this2._lazyInsertEnd(key) };
-            // index 0
-            // loaded 1
-            // size 10
-            //
-            // index 0
-            // loaded 10
-            // size 10
-          } else if (_this2._needsStandardIteration()) {
-            // 2. When this is not the first iteration, but partially iterated before.
-            //   - Iterate from the existing list up to the point where stopped.
-            //   - Do step one from that point on.
+          } else if (_this2._needsStandardIteration(index)) {
             if (currentElement) {
               currentElement = currentElement.nextElement;
             } else {
               currentElement = _this2.firstElement;
             }
-            _this2.index += 1;
+            index += 1;
             return { value: currentElement };
           }
-          _this2.index = 0;
           return { done: true };
         }
       };
     }
   }, {
     key: '_needsLazyLoad',
-    value: function _needsLazyLoad() {
-      return this.index === 0 && this.loaded === 0 && this.size > 0 || this.loaded < this.index && this.index < this.size;
+    value: function _needsLazyLoad(index) {
+      return index === 0 && this.loaded === 0 && this.size > 0 || this.loaded < index && index < this.size;
     }
   }, {
     key: '_needsStandardIteration',
-    value: function _needsStandardIteration() {
-      return this.loaded > 0 && this.index <= this.loaded && this.index < this.size;
+    value: function _needsStandardIteration(index) {
+      return this.loaded > 0 && index <= this.loaded && index < this.size;
     }
 
     /**
