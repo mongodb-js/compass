@@ -15,7 +15,6 @@ var isArray = require('lodash.isarray');
 var isEqual = require('lodash.isequal');
 var isString = require('lodash.isstring');
 var includes = require('lodash.includes');
-var Iterator = require('./iterator');
 var ObjectGenerator = require('./object-generator');
 var TypeChecker = require('hadron-type-checker');
 var uuid = require('uuid');
@@ -889,6 +888,7 @@ var LinkedList = function () {
      * @returns {Element} The matching element.
      */
     value: function at(index) {
+      this.flush();
       if (!Number.isInteger(index)) {
         return undefined;
       }
@@ -905,6 +905,7 @@ var LinkedList = function () {
   }, {
     key: 'get',
     value: function get(key) {
+      this.flush();
       return this._map[key];
     }
 
@@ -914,12 +915,17 @@ var LinkedList = function () {
 
   }]);
 
-  function LinkedList() {
+  function LinkedList(doc, originalDoc) {
     _classCallCheck(this, LinkedList);
 
     this.firstElement = null;
     this.lastElement = null;
-    this.size = 0;
+    this.doc = doc;
+    this.originalDoc = originalDoc;
+    this.keys = keys(this.originalDoc);
+    this.size = this.keys.length;
+    this.loaded = 0;
+    this.index = 0;
     this._map = {};
   }
 
@@ -948,6 +954,7 @@ var LinkedList = function () {
       element.nextElement = newElement;
       this._map[newElement.key] = newElement;
       this.size += 1;
+      this.loaded += 1;
       return newElement;
     }
 
@@ -1018,6 +1025,7 @@ var LinkedList = function () {
       element.previousElement = newElement;
       this._map[newElement.key] = newElement;
       this.size += 1;
+      this.loaded += 1;
       return newElement;
     }
 
@@ -1039,6 +1047,7 @@ var LinkedList = function () {
         var element = new Element(key, value, added, parent, null, null);
         this.firstElement = this.lastElement = element;
         this.size += 1;
+        this.loaded += 1;
         this._map[element.key] = element;
         return element;
       }
@@ -1066,6 +1075,34 @@ var LinkedList = function () {
       }
       return this.insertAfter(this.lastElement, key, value, added, parent);
     }
+  }, {
+    key: 'flush',
+    value: function flush() {
+      if (this.loaded < this.size) {
+        var _iteratorNormalCompletion6 = true;
+        var _didIteratorError6 = false;
+        var _iteratorError6 = undefined;
+
+        try {
+          for (var _iterator6 = this[Symbol.iterator](), _step6; !(_iteratorNormalCompletion6 = (_step6 = _iterator6.next()).done); _iteratorNormalCompletion6 = true) {
+            var _ = _step6.value;
+          } // eslint-disable-line no-unused-var no-empty
+        } catch (err) {
+          _didIteratorError6 = true;
+          _iteratorError6 = err;
+        } finally {
+          try {
+            if (!_iteratorNormalCompletion6 && _iterator6.return) {
+              _iterator6.return();
+            }
+          } finally {
+            if (_didIteratorError6) {
+              throw _iteratorError6;
+            }
+          }
+        }
+      }
+    }
 
     /**
      * Get an iterator for the list.
@@ -1076,7 +1113,74 @@ var LinkedList = function () {
   }, {
     key: Symbol.iterator,
     value: function value() {
-      return new Iterator(this.firstElement);
+      var _this2 = this;
+
+      var currentElement = void 0;
+      return {
+        next: function next() {
+          // index 0
+          // loaded 0
+          // size 10
+          //
+          // index 5
+          // loaded 4
+          // size 10
+          if (_this2._needsLazyLoad()) {
+            // 1. When this is the first iteration:
+            //   - Append each element on each next step.
+            //   - Keep track of how far we were iterated and store the index.
+            //   - Reduce size by 1 on each addition.
+            var key = _this2.keys[_this2.index];
+            _this2.index += 1;
+            return { value: _this2._lazyInsertEnd(key) };
+            // index 0
+            // loaded 1
+            // size 10
+            //
+            // index 0
+            // loaded 10
+            // size 10
+          } else if (_this2._needsStandardIteration()) {
+            // 2. When this is not the first iteration, but partially iterated before.
+            //   - Iterate from the existing list up to the point where stopped.
+            //   - Do step one from that point on.
+            if (currentElement) {
+              currentElement = currentElement.nextElement;
+            } else {
+              currentElement = _this2.firstElement;
+            }
+            _this2.index += 1;
+            return { value: currentElement };
+          }
+          _this2.index = 0;
+          return { done: true };
+        }
+      };
+    }
+  }, {
+    key: '_needsLazyLoad',
+    value: function _needsLazyLoad() {
+      return this.index === 0 && this.loaded === 0 && this.size > 0 || this.loaded < this.index && this.index < this.size;
+    }
+  }, {
+    key: '_needsStandardIteration',
+    value: function _needsStandardIteration() {
+      return this.loaded > 0 && this.index <= this.loaded && this.index < this.size;
+    }
+
+    /**
+     * Insert on the end of the list lazily.
+     *
+     * @param {String} key - The key.
+     *
+     * @returns {Element} The inserted element.
+     */
+
+  }, {
+    key: '_lazyInsertEnd',
+    value: function _lazyInsertEnd(key) {
+      this.size -= 1;
+      return this.insertEnd(key, this.originalDoc[key], this.doc.cloned, this.doc);
     }
 
     /**
@@ -1090,6 +1194,7 @@ var LinkedList = function () {
   }, {
     key: 'remove',
     value: function remove(element) {
+      this.flush();
       if (element.previousElement) {
         element.previousElement.nextElement = element.nextElement;
       } else {
@@ -1103,6 +1208,7 @@ var LinkedList = function () {
       element.nextElement = element.previousElement = null;
       delete this._map[element.currentKey];
       this.size -= 1;
+      this.loaded -= 1;
       return this;
     }
   }]);

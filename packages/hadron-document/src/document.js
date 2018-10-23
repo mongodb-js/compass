@@ -1,7 +1,6 @@
 'use strict';
 
 const EventEmitter = require('eventemitter3');
-const keys = require('lodash.keys');
 const Element = require('./element');
 const LinkedList = Element.LinkedList;
 const ObjectGenerator = require('./object-generator');
@@ -75,6 +74,7 @@ class Document extends EventEmitter {
    * @returns {Element} The element.
    */
   getChild(path) {
+    console.log(path);
     if (!path) {
       return undefined;
     }
@@ -216,11 +216,7 @@ class Document extends EventEmitter {
    * @returns {Array} The elements.
    */
   _generateElements() {
-    const elements = new LinkedList();
-    for (let key of keys(this.doc)) {
-      elements.insertEnd(key, this.doc[key], this.cloned, this);
-    }
-    return elements;
+    return new LinkedList(this, this.doc);
   }
 }
 

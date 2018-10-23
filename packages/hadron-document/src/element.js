@@ -7,7 +7,6 @@ const isArray = require('lodash.isarray');
 const isEqual = require('lodash.isequal');
 const isString = require('lodash.isstring');
 const includes = require('lodash.includes');
-const Iterator = require('./iterator');
 const ObjectGenerator = require('./object-generator');
 const TypeChecker = require('hadron-type-checker');
 const uuid = require('uuid');
@@ -647,6 +646,7 @@ class LinkedList {
    * @returns {Element} The matching element.
    */
   at(index) {
+    this.flush();
     if (!Number.isInteger(index)) {
       return undefined;
     }
@@ -662,16 +662,22 @@ class LinkedList {
   }
 
   get(key) {
+    this.flush();
     return this._map[key];
   }
 
   /**
    * Instantiate the new doubly linked list.
    */
-  constructor() {
+  constructor(doc, originalDoc) {
     this.firstElement = null;
     this.lastElement = null;
-    this.size = 0;
+    this.doc = doc;
+    this.originalDoc = originalDoc;
+    this.keys = keys(this.originalDoc);
+    this.size = this.keys.length;
+    this.loaded = 0;
+    this.index = 0;
     this._map = {};
   }
 
@@ -696,6 +702,7 @@ class LinkedList {
     element.nextElement = newElement;
     this._map[newElement.key] = newElement;
     this.size += 1;
+    this.loaded += 1;
     return newElement;
   }
 
@@ -757,6 +764,7 @@ class LinkedList {
     element.previousElement = newElement;
     this._map[newElement.key] = newElement;
     this.size += 1;
+    this.loaded += 1;
     return newElement;
   }
 
@@ -775,6 +783,7 @@ class LinkedList {
       var element = new Element(key, value, added, parent, null, null);
       this.firstElement = this.lastElement = element;
       this.size += 1;
+      this.loaded += 1;
       this._map[element.key] = element;
       return element;
     }
@@ -800,13 +809,82 @@ class LinkedList {
     return this.insertAfter(this.lastElement, key, value, added, parent);
   }
 
+  flush() {
+    if (this.loaded < this.size) {
+      /* eslint no-unused-vars: 0 */
+      /* eslint no-empty: 0 */
+      for (let _ of this) { }
+    }
+  }
+
   /**
    * Get an iterator for the list.
    *
    * @returns {Iterator} The iterator.
    */
   [Symbol.iterator]() {
-    return new Iterator(this.firstElement);
+    let currentElement;
+    return {
+      next: () => {
+        // index 0
+        // loaded 0
+        // size 10
+        //
+        // index 5
+        // loaded 4
+        // size 10
+        if (this._needsLazyLoad()) {
+          // 1. When this is the first iteration:
+          //   - Append each element on each next step.
+          //   - Keep track of how far we were iterated and store the index.
+          //   - Reduce size by 1 on each addition.
+          const key = this.keys[this.index];
+          this.index += 1;
+          return { value: this._lazyInsertEnd(key) };
+          // index 0
+          // loaded 1
+          // size 10
+          //
+          // index 0
+          // loaded 10
+          // size 10
+        } else if (this._needsStandardIteration()) {
+          // 2. When this is not the first iteration, but partially iterated before.
+          //   - Iterate from the existing list up to the point where stopped.
+          //   - Do step one from that point on.
+          if (currentElement) {
+            currentElement = currentElement.nextElement;
+          } else {
+            currentElement = this.firstElement;
+          }
+          this.index += 1;
+          return { value: currentElement };
+        }
+        this.index = 0;
+        return { done: true };
+      }
+    };
+  }
+
+  _needsLazyLoad() {
+    return (this.index === 0 && this.loaded === 0 && this.size > 0) ||
+      (this.loaded < this.index && this.index < this.size);
+  }
+
+  _needsStandardIteration() {
+    return (this.loaded > 0 && this.index <= this.loaded && this.index < this.size);
+  }
+
+  /**
+   * Insert on the end of the list lazily.
+   *
+   * @param {String} key - The key.
+   *
+   * @returns {Element} The inserted element.
+   */
+  _lazyInsertEnd(key) {
+    this.size -= 1;
+    return this.insertEnd(key, this.originalDoc[key], this.doc.cloned, this.doc);
   }
 
   /**
@@ -817,6 +895,7 @@ class LinkedList {
    * @returns {DoublyLinkedList} The list with the element removed.
    */
   remove(element) {
+    this.flush();
     if (element.previousElement) {
       element.previousElement.nextElement = element.nextElement;
     } else {
@@ -830,6 +909,7 @@ class LinkedList {
     element.nextElement = element.previousElement = null;
     delete this._map[element.currentKey];
     this.size -= 1;
+    this.loaded -= 1;
     return this;
   }
 }
