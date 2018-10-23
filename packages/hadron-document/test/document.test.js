@@ -622,17 +622,96 @@ describe('Document', function() {
   context('when iterating the elements', function() {
     context('when iterating fully', function() {
       context('when the elements are not loaded', function() {
+        const doc = { f1: 'v1', f2: 'v2', f3: 'v3' };
+        const hadronDoc = new Document(doc);
+        const elements = hadronDoc.elements;
 
+        it('lazy loads all the elements in the list', function() {
+          let i = 1;
+          for (let element of elements) {
+            expect(element.currentKey).to.equal(`f${i}`);
+            expect(element.currentValue).to.equal(`v${i}`);
+            expect(elements.loaded).to.equal(i);
+            i++;
+          }
+        });
+
+        it('sets the proper size', function() {
+          expect(elements.size).to.equal(3);
+        });
       });
 
       context('when the elements are loaded', function() {
+        const doc = { f1: 'v1', f2: 'v2', f3: 'v3' };
+        const hadronDoc = new Document(doc);
+        const elements = hadronDoc.elements;
 
+        before(function() {
+          elements.flush();
+        });
+
+        it('iterates all the elements in the list', function() {
+          let i = 1;
+          for (let element of elements) {
+            expect(element.currentKey).to.equal(`f${i}`);
+            expect(element.currentValue).to.equal(`v${i}`);
+            i++;
+          }
+        });
+
+        it('sets the proper size', function() {
+          expect(elements.size).to.equal(3);
+        });
+
+        it('does not increment the loaded count', function() {
+          expect(elements.loaded).to.equal(3);
+        });
       });
     });
 
     context('when iterating partially', function() {
-      context('when iterating again', function() {
+      const doc = { f1: 'v1', f2: 'v2', f3: 'v3' };
+      const hadronDoc = new Document(doc);
+      const elements = hadronDoc.elements;
 
+      before(function() {
+        for (let element of elements) {
+          if (element !== null) {
+            break;
+          }
+        }
+      });
+
+      it('sets the correct loaded count', function() {
+        expect(elements.loaded).to.equal(1);
+      });
+
+      it('keeps the correct size', function() {
+        expect(elements.size).to.equal(3);
+      });
+
+      it('does not load more than 1 element', function() {
+        expect(elements.firstElement.nextElement).to.equal(null);
+      });
+
+      context('when iterating again', function() {
+        it('lazy loads the remaining elements', function() {
+          let i = 1;
+          for (let element of elements) {
+            expect(element.currentKey).to.equal(`f${i}`);
+            expect(element.currentValue).to.equal(`v${i}`);
+            expect(elements.loaded).to.equal(i);
+            i++;
+          }
+        });
+
+        it('sets the proper size', function() {
+          expect(elements.size).to.equal(3);
+        });
+
+        it('does not increment the loaded count', function() {
+          expect(elements.loaded).to.equal(3);
+        });
       });
     });
   });
