@@ -127,11 +127,9 @@ var Document = function (_EventEmitter) {
   }, {
     key: 'getChild',
     value: function getChild(path) {
-      console.log(path);
       if (!path) {
         return undefined;
       }
-      console.log(path[0]);
       var element = this.currentType === 'Array' ? this.elements.at(path[0]) : this.elements.get(path[0]);
       var i = 1;
       while (i < path.length) {
