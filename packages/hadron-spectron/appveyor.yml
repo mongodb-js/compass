@@ -1,0 +1,20 @@
+image: Visual Studio 2017
+platform: x64
+
+cache:
+  - node_modules
+  - '%LOCALAPPDATA%\electron\Cache'
+  - '%LOCALAPPDATA%\electron-builder\cache'
+
+install:
+  - ps: Install-Product node 10 x64
+  - set CI=1	  
+  - npm install -g npm@latest
+  - npm ci
+
+build: off
+matrix:
+  fast_finish: true
+
+test_script:
+  - npm test

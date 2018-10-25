@@ -1,6 +1,12 @@
 const path = require('path');
-const { expect } = require('chai');
 const { App } = require('../');
+const pify = require('pify');
+const fs = pify(require('fs'));
+
+const chai = require('chai');
+chai.use(require('chai-as-promised'));
+
+const { expect } = chai;
 
 describe('App', function() {
   this.slow(30000);
@@ -20,33 +26,11 @@ describe('App', function() {
     });
   });
 
-  describe('#electronPackage', () => {
-    const app = new App(root);
-
-    it('returns the electron package location', () => {
-      expect(app.electronPackage()).to.equal(
-        path.join(root, 'node_modules', 'electron')
-      );
-    });
-  });
-
-  describe('#electronPath', () => {
-    const app = new App(root);
-
-    it('returns the electron path.txt location', () => {
-      expect(app.electronPath()).to.equal(
-        path.join(root, 'node_modules', 'electron', 'path.txt')
-      );
-    });
-  });
-
   describe('#electronExecutable', () => {
     const app = new App(root);
 
     it('returns the electron executable location', () => {
-      expect(app.electronExecutable()).to.include(
-        path.join(root, 'node_modules', 'electron', 'dist')
-      );
+      expect(fs.stat(app.electronExecutable())).to.eventually.resolve;
     });
   });
 
@@ -76,6 +60,19 @@ describe('App', function() {
         return app.launch().then(() => {
           expect(app.client.value).to.equal(undefined);
         });
+      });
+    });
+  });
+
+  describe('#quit', () => {
+    it('must resolve false if called without a running app', () => {
+      const app = new App(root, path.join(__dirname, 'fixtures', 'standard'));
+      return app.quit().then(reallyQuit => expect(reallyQuit).to.equal(false));
+    });
+    it('must resolve true if actually quitting a running app', () => {
+      const app = new App(root, path.join(__dirname, 'fixtures', 'standard'));
+      return app.launch().then(() => app.quit()).then(reallyQuit => {
+        expect(reallyQuit).to.equal(true);
       });
     });
   });

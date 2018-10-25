@@ -13,7 +13,7 @@ before_script:
   - npm run check
 script: npm run test
 node_js:
-  - 7.4
+  - '10.2'
 cache:
   directories:
   - node_modules
