@@ -134,8 +134,12 @@ class App {
     this.app = new Application({
       path: this.electronExecutable(),
       args: [this.appRoot],
-      env: process.env,
       cwd: this.root
+
+      /**
+       * @see https://jira.mongodb.org/browse/COMPASS-3115
+       * env: process.env
+       */
     });
   }
 
