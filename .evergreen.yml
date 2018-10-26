@@ -175,6 +175,10 @@ functions:
           # Load environment variables
           . ~/compass_env.sh
 
+          if [ `cat /etc/*release | grep ^NAME | grep Ubuntu` ]; then
+              export DEBUG=*
+          fi
+
           MONGODB_VERSION=${mongodb_version|stable} npm test -- --${test_suite}
           EOF_BUILD_SH
 
@@ -315,40 +319,40 @@ functions:
         content_type: application/x-gzip
 # Tasks
 tasks:
-  - name: compile-oneshot
-    commands: 
+  - name: oneshot-compile-test-package-publish
+    commands:
       - func: prepare
       - func: install
       - func: test
         vars:
           test_suite: functional
       - func: package
-        vars: 
+        vars:
           compass_distribution: compass
       - func: publish
-        vars: 
+        vars:
           compass_distribution: compass
       - func: 'save osx artifacts'
       - func: package
-        vars: 
+        vars:
           compass_distribution: compass-community
       - func: publish
-        vars: 
+        vars:
           compass_distribution: compass-community
       - func: 'save osx artifacts'
       - func: package
-        vars: 
+        vars:
           compass_distribution: compass-isolated
       - func: publish
-        vars: 
-          compass_distribution: compass-isolated 
+        vars:
+          compass_distribution: compass-isolated
       - func: 'save osx artifacts'
       - func: package
-        vars: 
+        vars:
           compass_distribution: compass-readonly
       - func: publish
-        vars: 
-          compass_distribution: compass-readonly       
+        vars:
+          compass_distribution: compass-readonly
       - func: 'save osx artifacts'
 
   - name: compile
@@ -360,19 +364,19 @@ tasks:
 
   - name: verify
     depends_on: [compile]
-    tags: 
+    tags:
       - 'verify'
     commands:
       - func: restore
-      - func: verify 
+      - func: verify
 
   - name: test-functional
     depends_on: [compile]
-    tags: 
+    tags:
       - 'test'
     commands:
       - func: restore
-      - func: test 
+      - func: test
         vars:
           test_suite: functional
 
@@ -381,17 +385,21 @@ tasks:
     commands:
       - func: restore
       - func: package
-        vars: 
+        vars:
           compass_distribution: compass
       - func: publish
-        vars: 
+        vars:
           compass_distribution: compass
       - func: 'save windows artifacts'
         variants: [windows]
-      - func: 'save osx artifacts'
-        variants: [macos]
+      # NOTE (@imlucas) Because macos can't utilize task parallelism
+      # and instead runs `oneshot-compile-test-package-publish`
+      # save osx artifacts doesn't apply here until we have more than
+      # 1 macos box setup to run functional tests.
+      # - func: 'save osx artifacts'
+      #   variants: [macos]
       - func: 'save linux artifacts'
-        variants: [ubuntu]   
+        variants: [ubuntu]
       - func: 'save rhel artifacts'
         variants: [rhel]
 
@@ -400,17 +408,15 @@ tasks:
     commands:
       - func: restore
       - func: package
-        vars: 
+        vars:
           compass_distribution: compass-community
       - func: publish
-        vars: 
+        vars:
           compass_distribution: compass-community
       - func: 'save windows artifacts'
         variants: [windows]
-      - func: 'save osx artifacts'
-        variants: [macos]
       - func: 'save linux artifacts'
-        variants: [ubuntu]   
+        variants: [ubuntu]
       - func: 'save rhel artifacts'
         variants: [rhel]
 
@@ -419,17 +425,15 @@ tasks:
     commands:
       - func: restore
       - func: package
-        vars: 
+        vars:
           compass_distribution: compass-isolated
       - func: publish
-        vars: 
+        vars:
           compass_distribution: compass-isolated
       - func: 'save windows artifacts'
         variants: [windows]
-      - func: 'save osx artifacts'
-        variants: [macos]
       - func: 'save linux artifacts'
-        variants: [ubuntu]   
+        variants: [ubuntu]
       - func: 'save rhel artifacts'
         variants: [rhel]
 
@@ -438,104 +442,113 @@ tasks:
     commands:
       - func: restore
       - func: package
-        vars: 
+        vars:
           compass_distribution: compass-readonly
       - func: publish
-        vars: 
+        vars:
           compass_distribution: compass-readonly
       - func: 'save windows artifacts'
         variants: [windows]
-      - func: 'save osx artifacts'
-        variants: [macos]
       - func: 'save linux artifacts'
-        variants: [ubuntu]   
+        variants: [ubuntu]
       - func: 'save rhel artifacts'
         variants: [rhel]
-  
+
   # NOTE (@imlucas) Examples of how to extend which tests run
   # and against which MongoDB Server version.
-  # 
+  #
   # - name: test-renderer
   #   depends_on: [compile]
-  #   tags: 
+  #   tags:
   #     - 'test'
   #   commands:
   #     - func: restore
-  #     - func: test 
+  #     - func: test
   #       vars:
   #         test_suite: renderer
 
   # - name: test-main
   #   depends_on: [compile]
-  #   tags: 
+  #   tags:
   #     - 'test'
   #   commands:
   #     - func: restore
-  #     - func: test 
+  #     - func: test
   #       vars:
   #         test_suite: main
 
   # - name: test-enzyme
   #   depends_on: [compile]
-  #   tags: 
+  #   tags:
   #     - 'test'
   #   commands:
   #     - func: restore
-  #     - func: test 
+  #     - func: test
   #       vars:
   #         test_suite: enzyme
 
   # - name: test-unit
   #   depends_on: [compile]
-  #   tags: 
+  #   tags:
   #     - 'test'
   #   commands:
   #     - func: restore
-  #     - func: test 
+  #     - func: test
   #       vars:
   #         test_suite: unit
   #         mongodb_version: stable
 
   # - name: test-functional-unstable-server
   #   depends_on: [compile]
-  #   tags: 
+  #   tags:
   #     - 'test'
   #   commands:
   #     - func: restore
-  #     - func: test 
+  #     - func: test
+  #       vars:
+  #         test_suite: functional
+  #         mongodb_version: stable
+
+  # - name: test-functional-unstable-server
+  #   depends_on: [compile]
+  #   tags:
+  #     - 'test'
+  #   commands:
+  #     - func: restore
+  #     - func: test
   #       vars:
   #         test_suite: functional
   #         mongodb_version: unstable
 
   # - name: test-functional-36x-server
   #   depends_on: [compile]
-  #   tags: 
+  #   tags:
   #     - 'test'
   #   commands:
   #     - func: restore
-  #     - func: test 
+  #     - func: test
   #       vars:
   #         test_suite: functional
   #         mongodb_version: 3.6.x
 
   # - name: test-functional-34x-server
   #   depends_on: [compile]
-  #   tags: 
+  #   tags:
   #     - 'test'
   #   commands:
   #     - func: restore
-  #     - func: test 
+  #     - func: test
   #       vars:
   #         test_suite: functional
   #         mongodb_version: 3.4.x
-  
+
   # - name: test-functional-26x-server
   #   depends_on: [compile]
-  #   tags: 
+  #   tags:
   #     - 'test'
   #   commands:
   #     - func: restore
-  #     - func: test 
+  #     - func: test
   #       vars:
   #         test_suite: functional
   #         mongodb_version: 2.6.x
@@ -550,7 +563,7 @@ buildvariants:
     # on `macos-1012` but the setup windowserver" scripting is currently missing on 1012.
     run_on: osx-1010-compass
     tasks:
-      - name: compile-oneshot
+      - name: oneshot-compile-test-package-publish
 
   - name: windows
     display_name: Windows
@@ -565,7 +578,8 @@ buildvariants:
       # - name: test-unit
       # - name: test-main
       # - name: test-renderer
-      # - name: test-enzyme    
+      # - name: test-enzyme
+      # - name: test-functional-stable-server
       # - name: test-functional-unstable-server
       # - name: test-functional-36x-server
       # - name: test-functional-34x-server
