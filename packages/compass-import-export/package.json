@@ -1,7 +1,7 @@
 {
   "name": "@mongodb-js/compass-import-export",
   "productName": "Compass Import/Export",
-  "version": "1.0.5",
+  "version": "1.1.0",
   "apiVersion": "2.0.0",
   "description": "Compass Import/Export Plugin",
   "main": "lib/index.js",
