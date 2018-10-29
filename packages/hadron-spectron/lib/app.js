@@ -131,7 +131,7 @@ class App {
     this.root = root;
     this.appRoot = appRoot === undefined ? root : appRoot;
 
-    this.app = new Application({
+    const opts = {
       path: this.electronExecutable(),
       args: [this.appRoot],
       cwd: this.root
@@ -140,7 +140,12 @@ class App {
        * @see https://jira.mongodb.org/browse/COMPASS-3115
        * env: process.env
        */
-    });
+    };
+
+    assert(typeof opts.path === 'string',
+      'electronExecutable must be a string');
+
+    this.app = new Application(opts);
   }
 
   /**
