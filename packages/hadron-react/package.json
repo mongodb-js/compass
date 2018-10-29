@@ -23,17 +23,17 @@
   "devDependencies": {
     "chai": "^4.1.2",
     "chai-enzyme": "1.0.0-beta.0",
-    "enzyme": "^3.3.0",
-    "enzyme-adapter-react-16": "^1.1.1",
+    "enzyme": "^3.7.0",
+    "enzyme-adapter-react-16": "^1.6.0",
     "eslint-config-mongodb-js": "^2.2.0",
-    "jsdom": "^11.10.0",
+    "jsdom": "^12.2.0",
     "jsdom-global": "^3.0.2",
     "lerna": "2.0.0-beta.38",
     "mongodb-js-precommit": "^0.2.9",
     "pre-commit": "^1.1.2",
     "prop-types": "^15.5.8",
-    "react": "^16.3.2",
-    "react-dom": "^16.3.2",
+    "react": "^16.5.2",
+    "react-dom": "^16.5.2",
     "sinon": "^2.1.0"
   }
 }
