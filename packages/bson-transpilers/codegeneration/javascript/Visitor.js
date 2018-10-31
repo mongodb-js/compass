@@ -445,6 +445,16 @@ module.exports = (CodeGenerationVisitor) => class Visitor extends CodeGeneration
   }
 
   /**
+   * There are no named arguments in javascript, so we can just return directly.
+   * @param {Array} expected
+   * @param {ParserRuleContext} node
+   * @return {Array}
+   */
+  checkNamedArgs(expected, node) {
+    return [expected, node];
+  }
+
+  /**
    * Execute javascript in a sandbox.
    *
    * @param {String} input

@@ -304,6 +304,12 @@ argument: ( test (comp_for)? |
             test '=' test |
             '**' test |
             '*' test );
+//argument
+// :  test (comp_for)?    #RegularArg
+// | test '=' test        #KeywordArg
+// | '**' test            #DoubleStarArg
+// | '*' test             #SingleStarArg
+// ;
 
 comp_iter: comp_for | comp_if;
 comp_for: (ASYNC)? 'for' exprlist 'in' or_test (comp_iter)?;

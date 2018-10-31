@@ -58,6 +58,15 @@ tests:
           python: Code('function(test){console.log(test);}')
           java: new Code("function(test){console.log(test);}")
           csharp: new BsonJavaScript("function(test){console.log(test);}")
+    - description: 'named scope arg'
+      input:
+          python: "Code('string', scope={'x': '1'})"
+      output:
+          javascript: "new Code('string', {\n  'x': '1'\n})"
+          shell: "new Code('string', {\n  'x': '1'\n})"
+          python: "Code('string', {\n    'x': '1'\n})"
+          java: 'new CodeWithScope("string", new Document("x", "1"))'
+          csharp: 'new BsonJavaScriptWithScope("string", new BsonDocument("x", "1"))'
     ObjectId:
     - description: 'no arg'
       input:
@@ -84,6 +93,16 @@ tests:
       input:
           javascript: new ObjectId('5a7382114ec1f67ae445f778')
           shell: new ObjectId('5a7382114ec1f67ae445f778')
+          python: ObjectId('5a7382114ec1f67ae445f778')
+      output:
+          javascript: new ObjectId('5a7382114ec1f67ae445f778')
+          shell: new ObjectId('5a7382114ec1f67ae445f778')
+          python: ObjectId('5a7382114ec1f67ae445f778')
+          java: new ObjectId("5a7382114ec1f67ae445f778")
+          csharp: new ObjectId("5a7382114ec1f67ae445f778")
+    - description: 'hex string arg named'
+      input:
+          python: ObjectId(oid='5a7382114ec1f67ae445f778')
       output:
           javascript: new ObjectId('5a7382114ec1f67ae445f778')
           shell: new ObjectId('5a7382114ec1f67ae445f778')
@@ -117,6 +136,15 @@ tests:
           javascript: new DBRef('coll', ObjectId(), 'db')
           shell: new DBRef('coll', new ObjectId(), 'db')
           python: DBRef('coll', ObjectId(), 'db')
+      output:
+          javascript: new DBRef('coll', new ObjectId(), 'db')
+          shell: new DBRef('coll', new ObjectId(), 'db')
+          python: DBRef('coll', ObjectId(), 'db')
+          java: new DBRef("db", "coll", new ObjectId())
+          csharp: new MongoDBRef("coll", new ObjectId(), "db")
+    - description: '(string, ObjectId, database=string) args'
+      input:
+          python: DBRef('coll', ObjectId(), database='db')
       output:
           javascript: new DBRef('coll', new ObjectId(), 'db')
           shell: new DBRef('coll', new ObjectId(), 'db')
@@ -436,6 +464,15 @@ tests:
       input:
           javascript: new BSONRegExp('^[a-z0-9_-]{3,16}$', 'imuxls')
           python: Regex('^[a-z0-9_-]{3,16}$', 'imuxls')
+      output:
+          javascript: new BSONRegExp('^[a-z0-9_-]{3,16}$', 'imuxls')
+          shell: new RegExp('^[a-z0-9_-]{3,16}$', 'imuxls')
+          python: Regex('^[a-z0-9_-]{3,16}$', 'imuxls')
+          java: new BsonRegularExpression("^[a-z0-9_-]{3,16}$", "imuxls")
+          csharp: new BsonRegularExpression("^[a-z0-9_-]{3,16}$", "imxs")
+    - description: 'with flags named'
+      input:
+          python: Regex('^[a-z0-9_-]{3,16}$', flags='imuxls')
       output:
           javascript: new BSONRegExp('^[a-z0-9_-]{3,16}$', 'imuxls')
           shell: new RegExp('^[a-z0-9_-]{3,16}$', 'imuxls')

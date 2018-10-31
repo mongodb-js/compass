@@ -109,6 +109,20 @@ module.exports = (ANTLRVisitor) => class CodeGenerationVisitor extends ANTLRVisi
     );
   }
 
+  /**
+   * Some grammar definitions are written so that comparisons will chain and add
+   * nodes with a single child when the expression does *not* match. This is a
+   * helper method (right now used just by Python) that skips nodes downwards
+   * until a node with multiple children is found, or a node matches "goal".
+   *
+   * @param {ParserRuleContext} ctx
+   * @param {String} goal - Optional: the name of the child to find.
+   * @return {ParserRuleContext}
+   */
+  skipFakeNodesDown(ctx, goal) { /* eslint no-unused-vars: 0 */
+    return ctx;
+  }
+
   _getType(ctx) {
     if (ctx.type !== undefined) {
       return ctx;
@@ -157,21 +171,7 @@ module.exports = (ANTLRVisitor) => class CodeGenerationVisitor extends ANTLRVisi
     return null;
   }
 
-
-  /**
-   * Convert between numeric types. Required so that we don't end up with
-   * strange conversions like 'Int32(Double(2))', and can just generate '2'.
-   *
-   * @param {Array} expectedType - types to cast to.
-   * @param {ParserRuleContext} ctx - ctx to cast from, if valid.
-   *
-   * @returns {String} - visited result, or null on error.
-   */
-  castType(expectedType, ctx) {
-    const result = this.visit(ctx);
-    const typedCtx = this.findTypedNode(ctx);
-    const type = typedCtx.type;
-
+  compareTypes(expectedType, type, ctx, result) {
     // If the types are exactly the same, just return.
     if (expectedType.indexOf(type) !== -1 ||
       expectedType.indexOf(type.id) !== -1) {
@@ -206,32 +206,42 @@ module.exports = (ANTLRVisitor) => class CodeGenerationVisitor extends ANTLRVisi
 
     // If the expected type is "numeric", accept the number basic & bson types
     if (expectedType.indexOf(this.Types._numeric) !== -1 &&
-        (numericTypes.indexOf(type) !== -1 || (type.code === 106 ||
-         type.code === 105 || type.code === 104))) {
+      (numericTypes.indexOf(type) !== -1 || (type.code === 106 ||
+        type.code === 105 || type.code === 104))) {
       return result;
     }
     // If the expected type is any number, accept float/int/_numeric
     if ((numericTypes.some((t) => ( expectedType.indexOf(t) !== -1))) &&
       (type.code === 106 || type.code === 105 || type.code === 104 ||
-       type === this.Types._numeric)) {
+        type === this.Types._numeric)) {
       return result;
     }
-
     return null;
   }
 
   /**
-   * Some grammar definitions are written so that comparisons will chain and add
-   * nodes with a single child when the expression does *not* match. This is a
-   * helper method (right now used just by Python) that skips nodes downwards
-   * until a node with multiple children is found, or a node matches "goal".
+   * Convert between numeric types. Required so that we don't end up with
+   * strange conversions like 'Int32(Double(2))', and can just generate '2'.
    *
-   * @param {ParserRuleContext} ctx
-   * @param {String} goal - Optional: the name of the child to find.
-   * @return {ParserRuleContext}
+   * @param {Array} expectedType - types to cast to.
+   * @param {ParserRuleContext} ctx - ctx to cast from, if valid.
+   *
+   * @returns {String} - visited result, or null on error.
    */
-  skipFakeNodesDown(ctx, goal) { /* eslint no-unused-vars: 0 */
-    return ctx;
+  castType(expectedType, ctx) {
+    const result = this.visit(ctx);
+    const typedCtx = this.findTypedNode(ctx);
+    let type = typedCtx.type;
+
+    let equal = this.compareTypes(expectedType, type, ctx, result);
+    while (equal === null) {
+      if (type.type === null) {
+        return null;
+      }
+      type = type.type;
+      equal = this.compareTypes(expectedType, type, ctx, result);
+    }
+    return equal;
   }
 
   /**
@@ -242,10 +252,12 @@ module.exports = (ANTLRVisitor) => class CodeGenerationVisitor extends ANTLRVisi
    * possible argument types for that index.
    * @param {Array} args - empty if no args.
    * @param {String} name - The name of the function for error reporting.
+   * @param {Object} namedArgs - Optional: if named arguments exist, this is the
+   * mapping of name to default value.
    *
    * @returns {Array} - Array containing the generated output for each argument.
    */
-  checkArguments(expected, args, name) {
+  checkArguments(expected, args, name, namedArgs) {
     const argStr = [];
     if (args.length === 0) {
       if (expected.length === 0 || expected[0].indexOf(null) !== -1) {
@@ -270,7 +282,9 @@ module.exports = (ANTLRVisitor) => class CodeGenerationVisitor extends ANTLRVisi
           `Argument count mismatch: too few arguments passed to '${name}'`
         );
       }
-      const result = this.castType(expected[i], args[i]);
+
+      const toCompare = this.checkNamedArgs(expected[i], args[i], namedArgs);
+      const result = this.castType(...toCompare);
       if (result === null) {
         const typeStr = expected[i].map((e) => {
           const id = e && e.id ? e.id : e;
@@ -318,7 +332,7 @@ module.exports = (ANTLRVisitor) => class CodeGenerationVisitor extends ANTLRVisi
     // Check arguments
     const expectedArgs = lhsType.args;
     let rhs = this.checkArguments(
-      expectedArgs, this.getArguments(ctx), lhsType.id
+      expectedArgs, this.getArguments(ctx), lhsType.id, lhsType.namedArgs
     );
 
     // Apply the arguments template
@@ -512,7 +526,7 @@ module.exports = (ANTLRVisitor) => class CodeGenerationVisitor extends ANTLRVisi
     // Get the original type of the argument
     const expectedArgs = lhsType.args;
     let args = this.checkArguments(
-      expectedArgs, this.getArguments(ctx), lhsType.id
+      expectedArgs, this.getArguments(ctx), lhsType.id, lhsType.namedArgs
     );
     let argType;
 
@@ -601,7 +615,7 @@ module.exports = (ANTLRVisitor) => class CodeGenerationVisitor extends ANTLRVisi
     ctx.type = type;
 
     const args = this.checkArguments(
-      symbolType.args, this.getArguments(ctx), type.id
+      symbolType.args, this.getArguments(ctx), type.id, symbolType.namedArgs
     );
 
     const expectedFlags = this.Syntax.bsonRegexFlags
@@ -664,15 +678,17 @@ module.exports = (ANTLRVisitor) => class CodeGenerationVisitor extends ANTLRVisi
     if (argList.length === 2) {
       const idiomatic = this.idiomatic;
       this.idiomatic = false;
-      scope = this.visit(this.getArgumentAt(ctx, 1));
-      this.idiomatic = idiomatic;
-      scopestr = `, ${scope}`;
-      if (this.findTypedNode(
-          this.getArgumentAt(ctx, 1)).type !== this.Types._object) {
+      const compareTo = this.checkNamedArgs(
+        [this.Types._object], this.getArgumentAt(ctx, 1), symbolType.namedArgs
+      );
+      scope = this.castType(...compareTo);
+      if (scope === null) {
         throw new BsonTranspilersArgumentError(
-          'Argument type mismatch: Code requires scope to be an object'
+          'Code expects argument \'scope\' to be object'
         );
       }
+      this.idiomatic = idiomatic;
+      scopestr = `, ${scope}`;
       this.requiredImports[113] = true;
       this.requiredImports[10] = true;
     }
@@ -697,7 +713,7 @@ module.exports = (ANTLRVisitor) => class CodeGenerationVisitor extends ANTLRVisi
     }
 
     const args = this.checkArguments(
-      lhsType.args, this.getArguments(ctx), lhsType.id
+      lhsType.args, this.getArguments(ctx), lhsType.id, lhsType.namedArgs
     );
     const isNumber = this.findTypedNode(
       this.getArgumentAt(ctx, 0)).type.code !== 200;

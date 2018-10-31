@@ -22,6 +22,16 @@ runner: !!js/function >
         });
     }
 tests:
+    Misc:
+    -   description: unknown named arg
+        input:
+            python: ObjectId(test='abc')
+        errorCode: E_BSONTRANSPILERS_ARGUMENT
+    -   description: wrong type of named arg
+        input:
+            python: ObjectId(test={})
+        errorCode: E_BSONTRANSPILERS_ARGUMENT
+
     Code:
 
     -   description: new Code without args

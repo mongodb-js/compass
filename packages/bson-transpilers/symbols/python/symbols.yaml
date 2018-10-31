@@ -6,6 +6,10 @@ BsonSymbols:
         args:
             - [ *StringType ]
             - [ *ObjectType, null ]
+        namedArgs:
+            scope:
+                default: {}
+                type: [ *ObjectType ]
         type: *CodeType
         attr: {}
         template: *CodeSymbolTemplate
@@ -15,7 +19,11 @@ BsonSymbols:
         code: 101
         callable: *constructor
         args:
-            - [ *StringType, null, 'oid' ]
+            - [ *StringType, null ]
+        namedArgs:
+            oid:
+                default: null
+                type: [ *StringType, *ObjectIdType ]
         type: *ObjectIdType
         attr:
             from_datetime:
@@ -52,7 +60,11 @@ BsonSymbols:
         args:
             - [ *StringType ]
             - [ *ObjectIdType, *StringType ]
-            - [ *StringType, null, 'database' ]
+            - [ *StringType, null ]
+        namedArgs:
+            database:
+                default: null
+                type: [ *StringType ]
         type: *DBRefType
         attr: {}
         template: *DBRefSymbolTemplate
@@ -90,8 +102,12 @@ BsonSymbols:
         code: 109
         callable: *constructor
         args:
-        - [ *StringType ]
-        - [ *StringType, *IntegerType, null, 'flags' ]
+            - [ *StringType ]
+            - [ *StringType, *IntegerType, null ]
+        namedArgs:
+            flags:
+                default: 0
+                type: [ *StringType, *IntegerType ]
         type: *BSONRegExpType
         attr:
             from_native:
@@ -164,14 +180,19 @@ NativeSymbols:
                 code: 8
                 callable: *constructor
                 args:
-                - [ *StringType ]
-                - [ *IntegerType, null ]
+                    - [ *StringType ]
+                    - [ *IntegerType, null ]
+                namedArgs:
+                    flags:
+                        default: 0
+                        type: [ *IntegerType ]
                 type: *RegexType
                 attr: {}
                 template: *RegExpSymbolTemplate
                 argsTemplate: *RegExpSymbolArgsTemplate
             A:
                 <<: *__type
+                id: 're.A'
                 type: *IntegerType
                 template: !!js/function >
                     () => {
@@ -179,6 +200,7 @@ NativeSymbols:
                     }
             ASCII:
                 <<: *__type
+                id: 're.ASCII'
                 type: *IntegerType
                 template: !!js/function >
                     () => {
@@ -186,6 +208,7 @@ NativeSymbols:
                     }
             I:
                 <<: *__type
+                id: 're.I'
                 type: *IntegerType
                 template: !!js/function >
                     () => {
@@ -193,6 +216,7 @@ NativeSymbols:
                     }
             IGNORECASE:
                 <<: *__type
+                id: 're.IGNORECASE'
                 type: *IntegerType
                 template: !!js/function >
                     () => {
@@ -200,6 +224,7 @@ NativeSymbols:
                     }
             DEBUG:
                 <<: *__type
+                id: 're.DEBUG'
                 type: *IntegerType
                 template: !!js/function >
                     () => {
@@ -207,6 +232,7 @@ NativeSymbols:
                     }
             L:
                 <<: *__type
+                id: 're.L'
                 type: *IntegerType
                 template: !!js/function >
                     () => {
@@ -214,6 +240,7 @@ NativeSymbols:
                     }
             LOCAL:
                 <<: *__type
+                id: 're.LOCAL'
                 type: *IntegerType
                 template: !!js/function >
                     () => {
@@ -221,6 +248,7 @@ NativeSymbols:
                     }
             M:
                 <<: *__type
+                id: 're.M'
                 type: *IntegerType
                 template: !!js/function >
                     () => {
@@ -228,6 +256,7 @@ NativeSymbols:
                     }
             MULTILINE:
                 <<: *__type
+                id: 're.MULTILINE'
                 type: *IntegerType
                 template: !!js/function >
                     () => {
@@ -235,6 +264,7 @@ NativeSymbols:
                     }
             S:
                 <<: *__type
+                id: 're.S'
                 type: *IntegerType
                 template: !!js/function >
                     () => {
@@ -242,6 +272,7 @@ NativeSymbols:
                     }
             DOTALL:
                 <<: *__type
+                id: 're.DOTALL'
                 type: *IntegerType
                 template: !!js/function >
                     () => {
@@ -249,6 +280,7 @@ NativeSymbols:
                     }
             X:
                 <<: *__type
+                id: 're.X'
                 type: *IntegerType
                 template: !!js/function >
                     () => {
@@ -256,6 +288,7 @@ NativeSymbols:
                     }
             VERBOSE:
                 <<: *__type
+                id: 're.VERBOSE'
                 type: *IntegerType
                 template: !!js/function >
                     () => {

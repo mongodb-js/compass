@@ -314,63 +314,6 @@ module.exports = (CodeGenerationVisitor) => class Visitor extends CodeGeneration
     return this.generateNumericClass(ctx);
   }
 
-  executeJavascript(input) {
-    const sandbox = {
-      RegExp: RegExp
-    };
-    const ctx = new Context(sandbox);
-    const res = ctx.evaluate('__result = ' + input);
-    ctx.destroy();
-    return res;
-  }
-
-  findPatternAndFlags(ctx, pythonFlags, targetFlags) {
-    let pattern;
-
-    const symbolType = this.Symbols.re.attr.compile;
-    const argList = this.getArguments(ctx);
-    const args = this.checkArguments(symbolType.args, argList, symbolType.id);
-
-    // Compile regex without flags
-    const raw = this.getArgumentAt(ctx, 0).getText();
-    let str = raw.replace(/^([rubf]?[rubf]["']|'''|"""|'|")/gi, '');
-    str = str.replace(/(["]{3}|["]|[']{3}|['])$/, '');
-    try {
-      const regexobj = this.executeJavascript(`new RegExp(${raw.substr(-1)}${str}${raw.substr(-1)})`);
-      pattern = regexobj.source;
-    } catch (error) {
-      throw new BsonTranspilersRuntimeError(error.message);
-    }
-
-    // Convert flags
-    if (args.length === 1) {
-      return [pattern, targetFlags.u];
-    }
-
-    const flagsArg = this.skipFakeNodesDown(argList[1]);
-    let visited;
-    if ('expr' in flagsArg.parentCtx) { // combine bitwise flags
-      visited = flagsArg.xor_expr().map(f => this.visit(f));
-    } else {
-      visited = [this.visit(flagsArg)];
-    }
-
-    const translated = visited
-      .map(f => pythonFlags[f])
-      .filter(f => f !== undefined);
-
-    if (visited.indexOf('256') === -1) { // default is unicode without re.A
-      translated.push('u');
-    }
-
-    const target = translated
-      .map(m => targetFlags[m])
-      .filter(f => f !== undefined);
-
-    const flags = target.sort().join('');
-    return [pattern, flags];
-  }
-
   processfrom_native(ctx) {
     ctx.type = this.Types.BSONRegExp;
     const symbolType = this.Symbols.Regex;
@@ -480,6 +423,63 @@ module.exports = (CodeGenerationVisitor) => class Visitor extends CodeGeneration
    *
    */
 
+  findPatternAndFlags(ctx, pythonFlags, targetFlags) {
+    let pattern;
+
+    const symbolType = this.Symbols.re.attr.compile;
+    const argList = this.getArguments(ctx);
+    const args = this.checkArguments(symbolType.args, argList, symbolType.id, symbolType.namedArgs);
+
+    // Compile regex without flags
+    const raw = this.getArgumentAt(ctx, 0).getText();
+    let str = raw.replace(/^([rubf]?[rubf]["']|'''|"""|'|")/gi, '');
+    str = str.replace(/(["]{3}|["]|[']{3}|['])$/, '');
+    const input = `new RegExp(${raw.substr(-1)}${str}${raw.substr(-1)})`;
+    try {
+      const sandbox = {
+        RegExp: RegExp
+      };
+      const context = new Context(sandbox);
+      const regexobj = context.evaluate('__result = ' + input);
+      context.destroy();
+      pattern = regexobj.source;
+    } catch (error) {
+      throw new BsonTranspilersRuntimeError(error.message);
+    }
+
+    // Convert flags
+    if (args.length === 1) {
+      return [pattern, targetFlags.u];
+    }
+
+    let flagsArg = argList[1];
+    flagsArg = this.skipFakeNodesDown(this.checkNamedArgs(
+      [this.Types._integer], flagsArg, symbolType.namedArgs
+    )[1]);
+    let visited;
+    if ('expr' in flagsArg.parentCtx) { // combine bitwise flags
+      visited = flagsArg.xor_expr().map(f => this.visit(f));
+    } else {
+      visited = [this.visit(flagsArg)];
+    }
+
+    const translated = visited
+      .map(f => pythonFlags[f])
+      .filter(f => f !== undefined);
+
+    if (visited.indexOf('256') === -1) { // default is unicode without re.A
+      translated.push('u');
+    }
+
+    const target = translated
+      .map(m => targetFlags[m])
+      .filter(f => f !== undefined);
+
+    const flags = target.sort().join('');
+    return [pattern, flags];
+  }
+
+
   /**
    * Want to throw unimplemented for comprehensions instead of reference errors.
    * @param {ParserRuleContext} ctx
@@ -554,6 +554,31 @@ module.exports = (CodeGenerationVisitor) => class Visitor extends CodeGeneration
    */
   renameNode(name) {
     return name ? name.replace('_stmt', '') : 'Expression';
+  }
+
+  /**
+   * If a named argument is passed in, then check against the 'namedArgs' array
+   * instead of positionally.
+   *
+   * @param {Array} expected
+   * @param {ParserRuleContext} node
+   * @param {Object} namedArgs
+   * @return {Array}
+   */
+  checkNamedArgs(expected, node, namedArgs) {
+    const child = this.skipFakeNodesDown(node);
+    if (namedArgs && 'test' in child && child.test().length > 1) {
+      const name = child.test()[0].getText();
+      const value = child.test()[1];
+      const expectedType = namedArgs[name];
+      if (expectedType === undefined) {
+        throw new BsonTranspilersArgumentError(
+          `Unknown named argument '${name}'`
+        );
+      }
+      return [expectedType.type, value];
+    }
+    return [expected, node];
   }
 
   /*

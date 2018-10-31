@@ -850,6 +850,14 @@ tests:
           java: "Pattern.compile(\"abc\")"
           csharp: "new Regex(\"abc\")"
           shell: "new RegExp('abc')"
+    - description: "RegExp with named but only A flag"
+      input:
+          python: "re.compile('abc', flags=re.A)"
+      output:
+          javascript: "new RegExp('abc')"
+          java: "Pattern.compile(\"abc\")"
+          csharp: "new Regex(\"abc\")"
+          shell: "new RegExp('abc')"
     - description: "regex object with im flags as args"
       input:
           javascript: "new RegExp('ab+c', 'im')"
@@ -858,6 +866,14 @@ tests:
       output:
           javascript: "new RegExp('ab+c', 'im')"
           python: "re.compile(r\"ab+c(?im)\")"
+          java: "Pattern.compile(\"ab+c(?im)\")"
+          csharp: "new Regex(\"(?im)ab+c\")"
+          shell: "new RegExp('ab+c', 'im')"
+    - description: "regex object with named flags as args"
+      input:
+          python: "re.compile('ab+c', flags=re.I | re.M | re.A)"
+      output:
+          javascript: "new RegExp('ab+c', 'im')"
           java: "Pattern.compile(\"ab+c(?im)\")"
           csharp: "new Regex(\"(?im)ab+c\")"
           shell: "new RegExp('ab+c', 'im')"
