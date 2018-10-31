@@ -125,10 +125,6 @@ Long.MAX_VALUE()
 // ✔: MAX_VALUE without a call will not throw
 Long.MAX_VALUE
 ```
-#### BsonTranspilersRangeError
-###### code: E_BSONTRANSPILERS_RANGE
-If an argument has been passed that is not in the range of expected values.
-
 #### BsonTranspilersUnimplementedError
 ###### code: E_BSONTRANSPILERS_UNIMPLEMENTED
 If there is a feature in the input code that is not currently supported by the 
