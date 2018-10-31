@@ -109,7 +109,8 @@ functions:
           . ~/compass_env.sh
 
           echo "Installing Compass dependencies..."
-          npm ci
+          # npm ci
+          npm install
 
           if [ -n "$IS_WINDOWS" ]; then
             echo "Fetching signtool -> notary-service hack..."
