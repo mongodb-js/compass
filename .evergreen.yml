@@ -52,7 +52,7 @@ functions:
           export NPM_TMP_DIR="$(pwd)/.deps/tmp"
           export NPM_AUTH_TOKEN="${compass_npm_token}"
 
-          export NODE_JS_VERSION="8.9.3"
+          export NODE_JS_VERSION="10.2.1"
 
           if [[ "$OSTYPE" == "cygwin" ]]; then
             echo "Update PATH for windows"

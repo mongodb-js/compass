@@ -198,6 +198,7 @@
     ]
   },
   "scripts": {
+    "postinstall": "electron-rebuild ./",
     "prestart": "rm -rf .compiled-sources",
     "start": "hadron-build develop",
     "pretest": "mongodb-runner start --port 27017",
@@ -370,8 +371,8 @@
     "check"
   ],
   "engines": {
-    "node": "^8.9.3",
-    "npm": ">=5.0.0"
+    "node": "^10.2.1",
+    "npm": ">=6.0.0"
   },
   "bugs": {
     "url": "https://docs.mongodb.com/compass/current/#contact",
