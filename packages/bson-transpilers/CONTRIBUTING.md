@@ -102,7 +102,7 @@ The Generator class generates code, so it is <b> specific to the ouput language.
 </b> The Generator class is a subclass of the input language's visitor class. 
 So for example, translating between JS and Python, the order of inheritance will be:
    1. `lib/antlr/ECMAScriptVisitor.js` ["empty" superclass, specific to the tree built by ANTLR]
-   2. `lib/antlr/ECMAScriptVisitor.js` ["generic" visitor, shared between all languages]
+   2. `codegeneration/CodeGenerationVisitor.js` ["generic" visitor, shared between all languages]
    3. `codegeneration/javascript/Visitor.js` [specific to input language]
    4. `codegeneration/python/Generator.js` [specific to output language]
 
