@@ -1,0 +1,906 @@
+runner: !!js/function >
+    (it, expect, input, output, transpiler, test) => {
+        it(`${input}: ${test.input[input]} => ${output}`, () => {
+            let thrown = false;
+            try {
+              transpiler[input][output].compile(test.input[input]);
+            } catch (error) {
+              thrown = true;
+              expect(error.code).to.equal(test.errorCode);
+              if (test.message) {
+                expect(error.message).to.be.a('string');
+                expect(
+                  error.message.includes(test.message),
+                  `Expected error message to contain ${test.message} but got ${error.message}`
+                ).to.be.true;
+              }
+            } finally {
+              if (!thrown) {
+                expect.fail(0, 0, `Expected error with code ${test.errorCode} to throw`);
+              }
+            }
+        });
+    }
+tests:
+    Code:
+
+    -   description: new Code without args
+        input:
+            javascript: new Code()
+            python: Code()
+        errorCode: E_BSONTRANSPILERS_ARGUMENT
+
+    -   description: Code with extra argument (should be 1 or 2)
+        input:
+            javascript: "Code('string', {x: '1'}, 3)"
+            python: "Code('string', {'x': '1'}, 3)"
+        errorCode: E_BSONTRANSPILERS_ARGUMENT
+
+    -   description: Code with wrong type of scope
+        input:
+            javascript: new Code('string', 5)
+            python: Code('string', 5)
+        errorCode: E_BSONTRANSPILERS_ARGUMENT
+
+    -   description: ObjectId .toString() with extra argument
+        input:
+            javascript: ObjectId().toString(123)
+        errorCode: E_BSONTRANSPILERS_ARGUMENT
+    ObjectId:
+
+    -   description: ObjectId with wrong type of argument
+        input:
+            javascript: ObjectId({})
+            python: ObjectId({})
+        errorCode: E_BSONTRANSPILERS_ARGUMENT
+
+    -   description: ObjectId with extra argument (should be 0 or 1)
+        input:
+            javascript: ObjectId('5a7382114ec1f67ae445f778', 5)
+            python: ObjectId('5a7382114ec1f67ae445f778', 5)
+        errorCode: E_BSONTRANSPILERS_ARGUMENT
+
+    -   description: ObjectId .getTimestamp() with extra argument
+        input:
+            javascript: ObjectId().getTimestamp(123)
+        errorCode: E_BSONTRANSPILERS_ARGUMENT
+
+    -   description: ObjectId .equals() without arguments
+        input:
+            javascript: ObjectId().equals()
+        errorCode: E_BSONTRANSPILERS_ARGUMENT
+
+    -   description: ObjectId .equals() with extra argument
+        input:
+            javascript: ObjectId().equals(ObjectId(), ObjectId())
+        errorCode: E_BSONTRANSPILERS_ARGUMENT
+
+    -   description: ObjectId .equals() with wrong type of argument
+        input:
+            javascript: ObjectId().equals([1, 2])
+        errorCode: E_BSONTRANSPILERS_ARGUMENT
+
+    -   description: ObjectId .createFromHexString() without arguments
+        input:
+            javascript: ObjectId.createFromHexString()
+        errorCode: E_BSONTRANSPILERS_ARGUMENT
+
+    -   description: ObjectId .createFromHexString() with extra argument
+        input:
+            javascript: ObjectId.createFromHexString('5ab901c29ee65f5c8550c5b9', 10)
+        errorCode: E_BSONTRANSPILERS_ARGUMENT
+
+    -   description: ObjectId .createFromHexString() with wrong type of argument
+        input:
+            javascript: ObjectId.createFromHexString({})
+        errorCode: E_BSONTRANSPILERS_ARGUMENT
+
+    -   description: ObjectId .createFromTime() without arguments
+        input:
+            javascript: ObjectId.createFromTime()
+            python: ObjectId.from_datetime()
+        errorCode: E_BSONTRANSPILERS_ARGUMENT
+
+    -   description: ObjectId .createFromTime() with extra argument
+        input:
+            javascript: ObjectId.createFromTime('5ab901c29ee65f5c8550c5b9', 10)
+            python: ObjectId.from_datetime('5ab901c29ee65f5c8550c5b9', 10)
+        errorCode: E_BSONTRANSPILERS_ARGUMENT
+
+    -   description: ObjectId .createFromTime() with wrong type of argument
+        input:
+            javascript: ObjectId.createFromTime({})
+            python: ObjectId.from_datetime({})
+        errorCode: E_BSONTRANSPILERS_ARGUMENT
+
+    -   description: ObjectId .isValid() without arguments
+        input:
+            javascript: ObjectId.isValid()
+            python: ObjectId.is_valid()
+        errorCode: E_BSONTRANSPILERS_ARGUMENT
+
+    -   description: ObjectId .isValid() with extra argument
+        input:
+            javascript: ObjectId.isValid('5ab901c29ee65f5c8550c5b9', 10)
+            python: ObjectId.is_valid('5ab901c29ee65f5c8550c5b9', 10)
+        errorCode: E_BSONTRANSPILERS_ARGUMENT
+
+    -   description: ObjectId .isValid() with wrong type of argument
+        input:
+            javascript: ObjectId.isValid({})
+            python: ObjectId.is_valid({})
+        errorCode: E_BSONTRANSPILERS_ARGUMENT
+    DBRef:
+
+    -   description: DBRef without arguments
+        input:
+            javascript: new DBRef()
+            python: DBRef()
+        errorCode: E_BSONTRANSPILERS_ARGUMENT
+
+    -   description: DBRef with extra argument (should be 2 or 3)
+        input:
+            javascript: new DBRef('coll', ObjectId(), 'db', 5)
+            python: DBRef('coll', ObjectId(), 'db', 5)
+        errorCode: E_BSONTRANSPILERS_ARGUMENT
+
+    -   description: DBRef with few arguments (should be 2 or 3)
+        input:
+            javascript: new DBRef('coll')
+            python: DBRef('coll')
+        errorCode: E_BSONTRANSPILERS_ARGUMENT
+
+    -   description: DBRef with wrong oid
+        input:
+            javascript: new DBRef('coll', 1)
+            python: DBRef('coll', 1)
+        errorCode: E_BSONTRANSPILERS_ARGUMENT
+
+    -   description: DBRef with wrong namespace
+        input:
+            javascript: new DBRef(1, ObjectId())
+            python: DBRef(1, ObjectId())
+        errorCode: E_BSONTRANSPILERS_ARGUMENT
+
+    -   description: DBRef with wrong db
+        input:
+            javascript: new DBRef('coll', ObjectId(), 5)
+            python: DBRef('coll', ObjectId(), 5)
+        errorCode: E_BSONTRANSPILERS_ARGUMENT
+
+    -   description: DBRef .toString() with extra argument
+        input:
+            javascript: new DBRef('coll', new ObjectId()).toString(10)
+        errorCode: E_BSONTRANSPILERS_ARGUMENT
+    Int32:
+
+    -   description: Int32 without arguments
+        input:
+            javascript: new Int32()
+        errorCode: E_BSONTRANSPILERS_ARGUMENT
+
+    -   description: Int32 with extra argument (should be 1)
+        input:
+            javascript: Int32(3, 4)
+            python: int(3, 4)
+        errorCode: E_BSONTRANSPILERS_ARGUMENT
+
+    -   description: Int32 with wrong type of argument
+        input:
+            javascript: Int32({})
+            python: int({})
+        errorCode: E_BSONTRANSPILERS_ARGUMENT
+
+    -   description: Int32 .valueOf() with extra argument
+        input:
+            javascript: Int32(3).valueOf(10)
+        errorCode: E_BSONTRANSPILERS_ARGUMENT
+    Double:
+
+    -   description: Double without arguments
+        input:
+            javascript: new Double()
+        errorCode: E_BSONTRANSPILERS_ARGUMENT
+
+    -   description: Double with extra argument (should be 1)
+        input:
+            javascript: Double(3, 4)
+            python: float(3, 4)
+        errorCode: E_BSONTRANSPILERS_ARGUMENT
+
+    -   description: Double with wrong type of argument
+        input:
+            javascript: Double({})
+            python: float({})
+        errorCode: E_BSONTRANSPILERS_ARGUMENT
+
+    -   description: Double .valueOf() with extra argument
+        input:
+            javascript: Double(3).valueOf(10)
+        errorCode: E_BSONTRANSPILERS_ARGUMENT
+    Long:
+
+    -   description: Long without arguments
+        input:
+            javascript: new Long()
+        errorCode: E_BSONTRANSPILERS_ARGUMENT
+
+    -   description: Long with extra argument
+        input:
+            javascript: new Long(-1, 2147483647, 3)
+            python: Int64(-1, 2147483647, 3)
+        errorCode: E_BSONTRANSPILERS_ARGUMENT
+
+    -   description: Long with wrong type of argument
+        input:
+            javascript: Long({})
+            python: Int64({})
+        errorCode: E_BSONTRANSPILERS_ARGUMENT
+
+    -   description: Long .toString() with extra argument
+        input:
+            javascript: Long(1, 100).toString(1, 2)
+        errorCode: E_BSONTRANSPILERS_ARGUMENT
+
+    -   description: Long .toString() with wrong type of argument
+        input:
+            javascript: Long(1, 100).toString({})
+        errorCode: E_BSONTRANSPILERS_ARGUMENT
+
+    -   description: Long .toInt() with extra argument
+        input:
+            javascript: Long(1, 100).toInt(10)
+        errorCode: E_BSONTRANSPILERS_ARGUMENT
+
+    -   description: Long .toNumber() with extra argument
+        input:
+            javascript: Long(1, 100).toNumber(10)
+        errorCode: E_BSONTRANSPILERS_ARGUMENT
+
+    -   description: Long .isZero() with extra argument
+        input:
+            javascript: Long(1, 100).isZero(0)
+        errorCode: E_BSONTRANSPILERS_ARGUMENT
+
+    -   description: Long .isOdd() with extra argument
+        input:
+            javascript: Long(1, 100).isOdd(10)
+        errorCode: E_BSONTRANSPILERS_ARGUMENT
+
+    -   description: Long .isNegative() with extra argument
+        input:
+            javascript: Long(1, 100).isNegative(-1)
+        errorCode: E_BSONTRANSPILERS_ARGUMENT
+
+    -   description: Long .equals() without arguments
+        input:
+            javascript: Long(1, 100).equals()
+        errorCode: E_BSONTRANSPILERS_ARGUMENT
+
+    -   description: Long .equals() with extra argument
+        input:
+            javascript: Long(1, 100).equals(Long(9, 1), 20)
+        errorCode: E_BSONTRANSPILERS_ARGUMENT
+
+    -   description: Long .equals() with wrong type of argument
+        input:
+            javascript: Long(1, 100).equals({})
+        errorCode: E_BSONTRANSPILERS_ARGUMENT
+
+    -   description: Long .notEquals() without arguments
+        input:
+            javascript: Long(1, 100).notEquals()
+        errorCode: E_BSONTRANSPILERS_ARGUMENT
+
+    -   description: Long .notEquals() with extra argument
+        input:
+            javascript: Long(1, 100).notEquals(Long(9, 1), 20)
+        errorCode: E_BSONTRANSPILERS_ARGUMENT
+
+    -   description: Long .notEquals() with wrong type of argument
+        input:
+            javascript: Long(1, 100).notEquals({})
+        errorCode: E_BSONTRANSPILERS_ARGUMENT
+
+    -   description: Long .compare() without arguments
+        input:
+            javascript: Long(1, 100).compare()
+        errorCode: E_BSONTRANSPILERS_ARGUMENT
+
+    -   description: Long .compare() with extra argument
+        input:
+            javascript: Long(1, 100).compare(Long(9, 1), 20)
+        errorCode: E_BSONTRANSPILERS_ARGUMENT
+
+    -   description: Long .compare() with wrong type of argument
+        input:
+            javascript: Long(1, 100).compare({})
+        errorCode: E_BSONTRANSPILERS_ARGUMENT
+
+    -   description: Long .greaterThan() without arguments
+        input:
+            javascript: Long(1, 100).greaterThan()
+        errorCode: E_BSONTRANSPILERS_ARGUMENT
+
+    -   description: Long .greaterThan() with extra argument
+        input:
+            javascript: Long(1, 100).greaterThan(Long(9, 1), 20)
+        errorCode: E_BSONTRANSPILERS_ARGUMENT
+
+    -   description: Long .greaterThan() with wrong type of argument
+        input:
+            javascript: Long(1, 100).greaterThan({})
+        errorCode: E_BSONTRANSPILERS_ARGUMENT
+
+    -   description: Long .greaterThanOrEqual() without arguments
+        input:
+            javascript: Long(1, 100).greaterThanOrEqual()
+        errorCode: E_BSONTRANSPILERS_ARGUMENT
+
+    -   description: Long .greaterThanOrEqual() with extra argument
+        input:
+            javascript: Long(1, 100).greaterThanOrEqual(Long(9, 1), 20)
+        errorCode: E_BSONTRANSPILERS_ARGUMENT
+
+    -   description: Long .greaterThanOrEqual() with wrong type of argument
+        input:
+            javascript: Long(1, 100).greaterThanOrEqual({})
+        errorCode: E_BSONTRANSPILERS_ARGUMENT
+
+    -   description: Long .lessThan() without arguments
+        input:
+            javascript: Long(1, 100).lessThan()
+        errorCode: E_BSONTRANSPILERS_ARGUMENT
+
+    -   description: Long .lessThan() with extra argument
+        input:
+            javascript: Long(1, 100).lessThan(Long(9, 1), 20)
+        errorCode: E_BSONTRANSPILERS_ARGUMENT
+
+    -   description: Long .lessThan() with wrong type of argument
+        input:
+            javascript: Long(1, 100).lessThan({})
+        errorCode: E_BSONTRANSPILERS_ARGUMENT
+
+    -   description: Long .lessThanOrEqual() without arguments
+        input:
+            javascript: Long(1, 100).lessThan()
+        errorCode: E_BSONTRANSPILERS_ARGUMENT
+
+    -   description: Long .lessThanOrEqual() with extra argument
+        input:
+            javascript: Long(1, 100).lessThanOrEqual(Long(9, 1), 20)
+        errorCode: E_BSONTRANSPILERS_ARGUMENT
+
+    -   description: Long .lessThanOrEqual() with wrong type of argument
+        input:
+            javascript: Long(1, 100).lessThanOrEqual({})
+        errorCode: E_BSONTRANSPILERS_ARGUMENT
+
+    -   description: Long .negate() with extra argument
+        input:
+            javascript: Long(1, 100).negate(12)
+        errorCode: E_BSONTRANSPILERS_ARGUMENT
+
+    -   description: Long .add() without arguments
+        input:
+            javascript: Long(1, 100).add()
+        errorCode: E_BSONTRANSPILERS_ARGUMENT
+
+    -   description: Long .add() with extra argument
+        input:
+            javascript: Long(1, 100).add(Long(9, 1), 21)
+        errorCode: E_BSONTRANSPILERS_ARGUMENT
+
+    -   description: Long .add() with wrong type of argument
+        input:
+            javascript: Long(1, 100).add({})
+        errorCode: E_BSONTRANSPILERS_ARGUMENT
+
+    -   description: Long .subtract() without arguments
+        input:
+            javascript: Long(1, 100).subtract()
+        errorCode: E_BSONTRANSPILERS_ARGUMENT
+
+    -   description: Long .subtract() with extra argument
+        input:
+            javascript: Long(1, 100).subtract(Long(9, 1), 21)
+        errorCode: E_BSONTRANSPILERS_ARGUMENT
+
+    -   description: Long .subtract() with wrong type of argument
+        input:
+            javascript: Long(1, 100).subtract({})
+        errorCode: E_BSONTRANSPILERS_ARGUMENT
+
+    -   description: Long .multiply() without arguments
+        input:
+            javascript: Long(1, 100).multiply()
+        errorCode: E_BSONTRANSPILERS_ARGUMENT
+
+    -   description: Long .multiply() with extra argument
+        input:
+            javascript: Long(1, 100).multiply(Long(9, 1), 21)
+        errorCode: E_BSONTRANSPILERS_ARGUMENT
+
+    -   description: Long .multiply() with wrong type of argument
+        input:
+            javascript: Long(1, 100).multiply({})
+        errorCode: E_BSONTRANSPILERS_ARGUMENT
+
+    -   description: Long .div() without arguments
+        input:
+            javascript: Long(1, 100).div()
+        errorCode: E_BSONTRANSPILERS_ARGUMENT
+
+    -   description: Long .div() with extra argument
+        input:
+            javascript: Long(1, 100).div(Long(9, 1), 21)
+        errorCode: E_BSONTRANSPILERS_ARGUMENT
+
+    -   description: Long .modulo() with extra argument
+        input:
+            javascript: Long(1, 100).modulo(Long(9, 1), 21)
+        errorCode: E_BSONTRANSPILERS_ARGUMENT
+
+    -   description: Long .modulo() with wrong type of argument
+        input:
+            javascript: Long(1, 100).modulo({})
+        errorCode: E_BSONTRANSPILERS_ARGUMENT
+
+    -   description: Long .not() with extra argument
+        input:
+            javascript: Long(1, 100).not(12)
+        errorCode: E_BSONTRANSPILERS_ARGUMENT
+
+    -   description: Long .and() without arguments
+        input:
+            javascript: Long(1, 100).and()
+        errorCode: E_BSONTRANSPILERS_ARGUMENT
+
+    -   description: Long .and() with extra argument
+        input:
+            javascript: Long(1, 100).and(Long(9, 1), 21)
+        errorCode: E_BSONTRANSPILERS_ARGUMENT
+
+    -   description: Long .and() with wrong type of argument
+        input:
+            javascript: Long(1, 100).and({})
+        errorCode: E_BSONTRANSPILERS_ARGUMENT
+
+    -   description: Long .or() without arguments
+        input:
+            javascript: Long(1, 100).or()
+        errorCode: E_BSONTRANSPILERS_ARGUMENT
+
+    -   description: Long .or() with extra argument
+        input:
+            javascript: Long(1, 100).or(Long(9, 1), 21)
+        errorCode: E_BSONTRANSPILERS_ARGUMENT
+
+    -   description: Long .or() with wrong type of argument
+        input:
+            javascript: Long(1, 100).or({})
+        errorCode: E_BSONTRANSPILERS_ARGUMENT
+
+    -   description: Long .xor() without arguments
+        input:
+            javascript: Long(1, 100).xor()
+        errorCode: E_BSONTRANSPILERS_ARGUMENT
+
+    -   description: Long .xor() with extra argument
+        input:
+            javascript: Long(1, 100).xor(Long(9, 1), 21)
+        errorCode: E_BSONTRANSPILERS_ARGUMENT
+
+    -   description: Long .xor() with wrong type of argument
+        input:
+            javascript: Long(1, 100).xor({})
+        errorCode: E_BSONTRANSPILERS_ARGUMENT
+
+    -   description: Long .shiftLeft() without arguments
+        input:
+            javascript: Long(1, 100).shiftLeft()
+        errorCode: E_BSONTRANSPILERS_ARGUMENT
+
+    -   description: Long .shiftLeft() with extra argument
+        input:
+            javascript: Long(1, 100).shiftLeft(10, 20)
+        errorCode: E_BSONTRANSPILERS_ARGUMENT
+
+    -   description: Long .shiftLeft() with wrong type of argument
+        input:
+            javascript: Long(1, 100).shiftLeft({})
+        errorCode: E_BSONTRANSPILERS_ARGUMENT
+
+    -   description: Long .shiftRight() without arguments
+        input:
+            javascript: Long(1, 100).shiftRight()
+        errorCode: E_BSONTRANSPILERS_ARGUMENT
+
+    -   description: Long .shiftRight() with extra argument
+        input:
+            javascript: Long(1, 100).shiftRight(10, 20)
+        errorCode: E_BSONTRANSPILERS_ARGUMENT
+
+    -   description: Long .shiftRight() with wrong type of argument
+        input:
+            javascript: Long(1, 100).shiftRight({})
+        errorCode: E_BSONTRANSPILERS_ARGUMENT
+
+    -   description: Long .fromInt() without arguments
+        input:
+            javascript: Long.fromInt()
+        errorCode: E_BSONTRANSPILERS_ARGUMENT
+
+    -   description: Long .fromInt() with extra argument
+        input:
+            javascript: Long.fromInt(5, 10)
+        errorCode: E_BSONTRANSPILERS_ARGUMENT
+
+    -   description: Long .fromInt() with wrong type of argument
+        input:
+            javascript: Long.fromInt({})
+        errorCode: E_BSONTRANSPILERS_ARGUMENT
+
+    -   description: Long .fromString() without arguments
+        input:
+            javascript: Long.fromString()
+        errorCode: E_BSONTRANSPILERS_ARGUMENT
+
+    -   description: Long .fromString() with extra argument
+        input:
+            javascript: Long.fromString('5', 10, 20)
+        errorCode: E_BSONTRANSPILERS_ARGUMENT
+
+    -   description: Long .fromString() with wrong type of argument
+        input:
+            javascript: Long.fromString(5, 10)
+        errorCode: E_BSONTRANSPILERS_ARGUMENT
+
+    -   description: Long .fromBits() without arguments
+        input:
+            javascript: Long.fromBits()
+        errorCode: E_BSONTRANSPILERS_ARGUMENT
+
+    -   description: Long .fromBits() with extra argument
+        input:
+            javascript: Long.fromBits(-1, 2147483647, 20)
+        errorCode: E_BSONTRANSPILERS_ARGUMENT
+
+    -   description: Long .fromBits() with few arguments
+        input:
+            javascript: Long.fromBits(-1)
+        errorCode: E_BSONTRANSPILERS_ARGUMENT
+
+    -   description: Long .fromBits() with wrong type of low
+        input:
+            javascript: Long.fromBits({}, 2147483647)
+        errorCode: E_BSONTRANSPILERS_ARGUMENT
+
+    -   description: Long .fromBits() with wrong type of high
+        input:
+            javascript: Long.fromBits(-1, {})
+        errorCode: E_BSONTRANSPILERS_ARGUMENT
+    BSONRegExp:
+
+    -   description: RegExp without arguments
+        input:
+            javascript: new BSONRegExp()
+        errorCode: E_BSONTRANSPILERS_ARGUMENT
+
+    -   description: BSONRegExp with extra argument
+        input:
+            javascript: new BSONRegExp('^[a-z0-9_-]{3,16}$', 'imuxls', 'extra argument')
+        errorCode: E_BSONTRANSPILERS_ARGUMENT
+
+    -   description: BSONRegExp with not a string pattern
+        input:
+            javascript: new BSONRegExp(123, 'imuxls')
+        errorCode: E_BSONTRANSPILERS_ARGUMENT
+
+    -   description: BSONRegExp with not a string flag
+        input:
+            javascript: new BSONRegExp('^[a-z0-9_-]{3,16}$', 123)
+        errorCode: E_BSONTRANSPILERS_ARGUMENT
+    Decimal128:
+
+    -   description: Decimal128 without arguments
+        input:
+            javascript: new Decimal128()
+        errorCode: E_BSONTRANSPILERS_ARGUMENT
+
+    -   description: Decimal128 with extra argument
+        input:
+            javascript: new Decimal128(Buffer.from('5'), 5)
+            python: Decimal128(1, 2)
+        errorCode: E_BSONTRANSPILERS_ARGUMENT
+
+    -   description: Decimal128 with wrong buffer
+        input:
+            javascript: new Decimal128(Buffer.from(5))
+        errorCode: E_BSONTRANSPILERS_ARGUMENT
+
+    -   description: Decimal128 with empty Buffer.from()
+        input:
+            javascript: new Decimal128(Buffer.from())
+        errorCode: E_BSONTRANSPILERS_ARGUMENT
+
+    -   description: Decimal128 .fromString() without arguments
+        input:
+            javascript: Decimal128.fromString()
+        errorCode: E_BSONTRANSPILERS_ARGUMENT
+
+    -   description: Decimal128 .fromString() with extra argument
+        input:
+            javascript: Decimal128.fromString("5", 10)
+        errorCode: E_BSONTRANSPILERS_ARGUMENT
+
+    -   description: Decimal128 .fromString() with wrong type of argument
+        input:
+            javascript: Decimal128.fromString(5)
+        errorCode: E_BSONTRANSPILERS_ARGUMENT
+    MinKeyMaxKey:
+
+    -   description: MinKey with extra argument
+        input:
+            javascript: MinKey(1)
+            python: MinKey(1)
+        errorCode: E_BSONTRANSPILERS_ARGUMENT
+
+    -   description: new MinKey with extra argument
+        input:
+            javascript: new MinKey(1)
+            python: MaxKey(1)
+        errorCode: E_BSONTRANSPILERS_ARGUMENT
+
+    -   description: MaxKey with extra argument
+        input:
+            javascript: MaxKey(1)
+        errorCode: E_BSONTRANSPILERS_ARGUMENT
+
+    -   description: new MaxKey with extra argument
+        input:
+            javascript: new MaxKey(1)
+        errorCode: E_BSONTRANSPILERS_ARGUMENT
+    Timestamp:
+
+    -   description: Timestamp without arguments
+        input:
+            javascript: Timestamp()
+            python: Timestamp()
+        errorCode: E_BSONTRANSPILERS_ARGUMENT
+
+    -   description: Timestamp with extra argument (should be 2)
+        input:
+            javascript: Timestamp(10, 100, 1000)
+            python: Timestamp(10, 100, 1000)
+        errorCode: E_BSONTRANSPILERS_ARGUMENT
+
+    -   description: Timestamp with few arguments (should be 2)
+        input:
+            javascript: Timestamp(10)
+        errorCode: E_BSONTRANSPILERS_ARGUMENT
+
+    -   description: Timestamp with wrong type of low
+        input:
+            javascript: Timestamp({}, 100)
+            python: Timestamp({}, 100)
+        errorCode: E_BSONTRANSPILERS_ARGUMENT
+
+    -   description: Timestamp with wrong type of high
+        input:
+            javascript: Timestamp(10, {})
+            python: Timestamp(10, {})
+        errorCode: E_BSONTRANSPILERS_ARGUMENT
+
+    -   description: Timestamp .toString() with extra argument
+        input:
+            javascript: Timestamp(1, 100).toString(10)
+        errorCode: E_BSONTRANSPILERS_ARGUMENT
+
+    -   description: Timestamp .equals() without arguments
+        input:
+            javascript: Timestamp(1, 100).equals()
+        errorCode: E_BSONTRANSPILERS_ARGUMENT
+
+    -   description: Timestamp .equals() with extra argument
+        input:
+            javascript: Timestamp(1, 100).equals(Timestamp(2, 99), 10)
+        errorCode: E_BSONTRANSPILERS_ARGUMENT
+
+    -   description: Timestamp .equals() with wrong type of argument
+        input:
+            javascript: Timestamp(1, 100).equals({})
+        errorCode: E_BSONTRANSPILERS_ARGUMENT
+
+    -   description: Timestamp .compare() without arguments
+        input:
+            javascript: Timestamp(1, 100).compare()
+        errorCode: E_BSONTRANSPILERS_ARGUMENT
+
+    -   description: Timestamp .compare() with extra argument
+        input:
+            javascript: Timestamp(1, 100).compare(Timestamp(2, 99), 10)
+        errorCode: E_BSONTRANSPILERS_ARGUMENT
+
+    -   description: Timestamp .compare() with wrong type of argument
+        input:
+            javascript: Timestamp(1, 100).compare({})
+        errorCode: E_BSONTRANSPILERS_ARGUMENT
+
+    -   description: Timestamp .notEquals() without arguments
+        input:
+            javascript: Timestamp(1, 100).notEquals()
+        errorCode: E_BSONTRANSPILERS_ARGUMENT
+
+    -   description: Timestamp .notEquals() with extra argument
+        input:
+            javascript: Timestamp(1, 100).notEquals(Timestamp(2, 99), 10)
+        errorCode: E_BSONTRANSPILERS_ARGUMENT
+
+    -   description: Timestamp .notEquals() with wrong type of argument
+        input:
+            javascript: Timestamp(1, 100).notEquals({})
+        errorCode: E_BSONTRANSPILERS_ARGUMENT
+
+    -   description: Timestamp .greaterThan() without arguments
+        input:
+            javascript: Timestamp(1, 100).greaterThan()
+        errorCode: E_BSONTRANSPILERS_ARGUMENT
+
+    -   description: Timestamp .greaterThan() with extra argument
+        input:
+            javascript: Timestamp(1, 100).greaterThan(Timestamp(2, 99), 10)
+        errorCode: E_BSONTRANSPILERS_ARGUMENT
+
+    -   description: Timestamp .greaterThan() with wrong type of argument
+        input:
+            javascript: Timestamp(1, 100).greaterThan({})
+        errorCode: E_BSONTRANSPILERS_ARGUMENT
+
+    -   description: Timestamp .greaterThanOrEqual() without arguments
+        input:
+            javascript: Timestamp(1, 100).greaterThanOrEqual()
+        errorCode: E_BSONTRANSPILERS_ARGUMENT
+
+    -   description: Timestamp .greaterThanOrEqual() with extra argument
+        input:
+            javascript: Timestamp(1, 100).greaterThanOrEqual(Timestamp(2, 99), 10)
+        errorCode: E_BSONTRANSPILERS_ARGUMENT
+
+    -   description: Timestamp .greaterThanOrEqual() with wrong type of argument
+        input:
+            javascript: Timestamp(1, 100).greaterThanOrEqual({})
+        errorCode: E_BSONTRANSPILERS_ARGUMENT
+
+    -   description: Timestamp .lessThan() without arguments
+        input:
+            javascript: Timestamp(1, 100).lessThan()
+        errorCode: E_BSONTRANSPILERS_ARGUMENT
+
+    -   description: Timestamp .lessThan() with extra argument
+        input:
+            javascript: Timestamp(1, 100).lessThan(Timestamp(2, 99), 10)
+        errorCode: E_BSONTRANSPILERS_ARGUMENT
+
+    -   description: Timestamp .lessThan() with wrong type of argument
+        input:
+            javascript: Timestamp(1, 100).lessThan({})
+        errorCode: E_BSONTRANSPILERS_ARGUMENT
+
+    -   description: Timestamp .lessThanOrEqual() without arguments
+        input:
+            javascript: Timestamp(1, 100).lessThanOrEqual()
+        errorCode: E_BSONTRANSPILERS_ARGUMENT
+
+    - description: Timestamp .as_datetime() with extra argument
+      input:
+          python: Timestamp(1, 100).as_datetime(10)
+      errorCode: E_BSONTRANSPILERS_ARGUMENT
+
+    -   description: Timestamp .lessThanOrEqual() with extra argument
+        input:
+            javascript: Timestamp(1, 100).lessThanOrEqual(Timestamp(2, 99), 10)
+        errorCode: E_BSONTRANSPILERS_ARGUMENT
+
+    -   description: Timestamp .lessThanOrEqual() with wrong type of argument
+        input:
+            javascript: Timestamp(1, 100).lessThanOrEqual({})
+        errorCode: E_BSONTRANSPILERS_ARGUMENT
+
+    -   description: Timestamp .getLowBits() with extra argument
+        input:
+            javascript: Timestamp(1, 100).getLowBits(10)
+        errorCode: E_BSONTRANSPILERS_ARGUMENT
+
+    -   description: Timestamp .getLowBits() with extra argument
+        input:
+            javascript: Timestamp(1, 100).getLowBits(10)
+        errorCode: E_BSONTRANSPILERS_ARGUMENT
+    Symbol:
+
+    -   description: new Symbol without args
+        input:
+            javascript: new Symbol()
+        errorCode: E_BSONTRANSPILERS_ARGUMENT
+
+    -   description: Symbol with extra argument (should be 1)
+        input:
+            javascript: Symbol('2', '3')
+        errorCode: E_BSONTRANSPILERS_ARGUMENT
+
+    -   description: Symbol with wrong type of argument
+        input:
+            javascript: Symbol({})
+        errorCode: E_BSONTRANSPILERS_ARGUMENT
+
+    -   description: Symbol .valueOf() with extra argument
+        input:
+            javascript: Symbol('2').valueOf(2)
+        errorCode: E_BSONTRANSPILERS_ARGUMENT
+
+    -   description: Symbol .toString() with extra argument
+        input:
+            javascript: Symbol('2').toString(10)
+        errorCode: E_BSONTRANSPILERS_ARGUMENT
+
+    -   description: Symbol .inspect() with extra argument
+        input:
+            javascript: Symbol('2').inspect('2')
+        errorCode: E_BSONTRANSPILERS_ARGUMENT
+    RegExp:
+
+    -   description: RegExp without arguments
+        input:
+            javascript: RegExp()
+            python: Regex()
+        errorCode: E_BSONTRANSPILERS_ARGUMENT
+
+    -   description: RegExp with extra argument
+        input:
+            javascript: RegExp('^[a-z0-9_-]{3,16}$', 'imuxls', 'extra argument')
+            python: Regex('^[a-z0-9_-]{3,16}$', 'imuxls', 'extra argument')
+        errorCode: E_BSONTRANSPILERS_ARGUMENT
+
+    -   description: RegExp with not a string pattern
+        input:
+            javascript: new RegExp(123, 'im')
+            python: Regex(123, 'imuxls')
+        errorCode: E_BSONTRANSPILERS_ARGUMENT
+
+    -   description: RegExp with not a string flag
+        input:
+            javascript: new RegExp('^[a-z0-9_-]{3,16}$', 123)
+            python: Regex('^[a-z0-9_-]{3,16}$', {})
+        errorCode: E_BSONTRANSPILERS_ARGUMENT
+    Date:
+
+    -   description: Date with extra argument
+        input:
+            javascript: Date(1995, 11, 17, 3, 24, 0, 7, 8)
+            python: datetime(1995, 11, 17, 3, 24, 0, 7, 8)
+        errorCode: E_BSONTRANSPILERS_ARGUMENT
+
+    -   description: Date with wrong type of argument
+        input:
+            javascript: Date({})
+            python: datetime({})
+        errorCode: E_BSONTRANSPILERS_ARGUMENT
+
+    -   description: Date with wrong type of 7th argument
+        input:
+            javascript: Date(1, 2, 3, 4, 5, 'str')
+            python: datetime(1, 2, 3, 4, 5, 'str')
+        errorCode: E_BSONTRANSPILERS_ARGUMENT
+    Number:
+
+    -   description: Number with extra argument
+        input:
+            javascript: new Number(2, 2)
+        errorCode: E_BSONTRANSPILERS_ARGUMENT
+
+    -   description: Number with wrong type of argument
+        input:
+            javascript: new Number({})
+        errorCode: E_BSONTRANSPILERS_ARGUMENT
+

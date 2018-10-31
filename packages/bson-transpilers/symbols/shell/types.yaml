@@ -312,7 +312,7 @@ BsonTypes:
         code: 113
         type: *IntegerType
         template: *BinarySymbolSubtypeUserDefinedTemplate
-JSTypes:
+NativeTypes:
     Date: &DateType
         <<: *__type
         id: "Date"

@@ -56,7 +56,7 @@ BsonSymbols:
         code: 105
         callable: *constructor
         args:
-            - [ *IntegerType, *StringType, null ]
+            - [ *NumericType, *StringType, null ]
         type: *Int32Type
         attr: {}
         template: *Int32SymbolTemplate
@@ -121,7 +121,7 @@ BsonSymbols:
         template: *Decimal128SymbolTemplate
         argsTemplate: *Decimal128SymbolArgsTemplate
 
-JSSymbols:
+NativeSymbols:
     Object:
         id: "Object"
         code: 10
@@ -166,6 +166,7 @@ JSSymbols:
         attr: # TODO: add more date funcs?
             now:
                 id: "now"
+                code: 200.1
                 callable: *constructor
                 args: []
                 type: *DateType

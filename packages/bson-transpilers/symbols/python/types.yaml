@@ -1,0 +1,146 @@
+NativeTypes:
+    Date: &DateType
+        <<: *__type
+        id: "Date"
+        code: 200
+        type: *ObjectType
+        attr: {} # TODO: no built-in date methods added yet
+    int: &intType
+        <<: *__type
+        id: "int"
+        code: 105
+        type: *IntegerType
+        attr: {}
+    float: &floatType
+        <<: *__type
+        id: "float"
+        code: 104
+        type: *IntegerType
+        attr: {}
+BsonTypes:
+    Code: &CodeType
+        <<: *__type
+        id: "Code"
+        code: 100
+        type: *ObjectType
+        attr:
+            scope:
+                callable: *var
+                args: null
+                attr: null
+                id: "scope"
+                type: *ObjectType
+                template: *CodeScopeTemplate
+                argsTemplate: *CodeScopeArgsTemplate
+        template: *CodeTypeTemplate
+    ObjectId: &ObjectIdType
+        <<: *__type
+        id: "ObjectId"
+        code: 101
+        type: *ObjectType
+        attr:
+            binary:
+                callable: *var
+                args: null
+                attr: null
+                type: *StringType
+                template: *ObjectIdToStringTemplate
+                argsTemplate: *ObjectIdToStringArgsTemplate
+            generation_time:
+                callable: *var
+                args: null
+                attr: null
+                id: "db"
+                type: *DateType
+                template: *ObjectIdGetTimestampTemplate
+                argsTemplate: *ObjectIdGetTimestampArgsTemplate
+    Binary: &BinaryType # Not currently supported
+        <<: *__type
+        id: "Binary"
+        code: 102
+        type: *ObjectType
+    DBRef: &DBRefType
+        <<: *__type
+        id: "DBRef"
+        code: 103
+        type: *ObjectType
+        attr:
+            database:
+                callable: *var
+                args: null
+                attr: null
+                id: "db"
+                type: *StringType
+                template: *DBRefGetDBTemplate
+                argsTemplate: *DBRefGetDBArgsTemplate
+            collection:
+                callable: *var
+                args: null
+                attr: null
+                id: "collection"
+                type: *StringType
+                template: *DBRefGetCollectionTemplate
+                argsTemplate: *DBRefGetCollectionArgsTemplate
+            id:
+                callable: *var
+                args: null
+                attr: null
+                id: "id"
+                type: *StringType
+                template: *DBRefGetIdTemplate
+                argsTemplate: *DBRefGetIdArgsTemplate
+    Int64: &LongType
+        <<: *__type
+        id: "Int64"
+        code: 106
+        type: *ObjectType
+        attr: {}
+    MinKey: &MinKeyType
+        <<: *__type
+        id: "MinKey"
+        code: 107
+        type: *ObjectType
+    MaxKey: &MaxKeyType
+        <<: *__type
+        id: "MaxKey"
+        code: 108
+        type: *ObjectType
+    Regex: &BSONRegExpType
+        <<: *__type
+        id: "BSONRegExp"
+        code: 109
+        type: *ObjectType
+    Timestamp: &TimestampType
+        <<: *__type
+        id: "Timestamp"
+        code: 110
+        type: *ObjectType
+        attr:
+            time:
+                callable: *var
+                args: null
+                attr: null
+                id: "time"
+                type: *IntegerType
+                template: *TimestampTTemplate
+                argsTemplate: null
+            inc:
+                callable: *var
+                args: null
+                attr: null
+                id: "inc"
+                type: *IntegerType
+                template: *TimestampITemplate
+                argsTemplate: null
+            as_datetime:
+                <<: *__func
+                id: "inc"
+                type: *DateType
+                template: *TimestampAsDateTemplate
+                argsTemplate: *TimestampAsDateArgsTemplate
+    Decimal128: &Decimal128Type
+        <<: *__type
+        id: "Decimal128"
+        code: 112
+        type: *ObjectType
+        attr: {}

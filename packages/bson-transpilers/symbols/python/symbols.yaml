@@ -1,0 +1,288 @@
+BsonSymbols:
+    Code: &CodeSymbol
+        id: "Code"
+        code: 100
+        callable: *constructor
+        args:
+            - [ *StringType ]
+            - [ *ObjectType, null ]
+        type: *CodeType
+        attr: {}
+        template: *CodeSymbolTemplate
+        argsTemplate: *CodeSymbolArgsTemplate
+    ObjectId: &ObjectIdSymbol
+        id: "ObjectId"
+        code: 101
+        callable: *constructor
+        args:
+            - [ *StringType, null, 'oid' ]
+        type: *ObjectIdType
+        attr:
+            from_datetime:
+                <<: *__func
+                id: "ObjectIdfrom_datetime"
+                args:
+                    - [ "Date" ]
+                type: *ObjectIdType
+                template: *ObjectIdCreateFromTimeTemplate
+                argsTemplate: *ObjectIdCreateFromTimeArgsTemplate
+            is_valid:
+                <<: *__func
+                id: "is_valid"
+                args:
+                    - [ *StringType,  ]
+                type: *BoolType
+                template: *ObjectIdIsValidTemplate
+                argsTemplate: *ObjectIdIsValidArgsTemplate
+        template: *ObjectIdSymbolTemplate
+        argsTemplate: *ObjectIdSymbolArgsTemplate
+    Binary: &BinarySymbol # Not currently supported
+        id: "Binary"
+        code: 102
+        callable: *constructor
+        args: null
+        type: *BinaryType
+        attr: {}
+        template: *BinarySymbolTemplate
+        argsTemplate: *BinarySymbolArgsTemplate
+    DBRef:
+        id: "DBRef"
+        code: 103
+        callable: *constructor
+        args:
+            - [ *StringType ]
+            - [ *ObjectIdType, *StringType ]
+            - [ *StringType, null, 'database' ]
+        type: *DBRefType
+        attr: {}
+        template: *DBRefSymbolTemplate
+        argsTemplate: *DBRefSymbolArgsTemplate
+    Int64:
+        id: "Int64"
+        code: 106
+        callable: *constructor
+        args:
+            - [ *IntegerType, *StringType, null ]
+        type: *LongType
+        attr: {}
+        template: *LongSymbolTemplate
+        argsTemplate: *LongSymbolArgsTemplate
+    MinKey:
+        id: "MinKey"
+        code: 107
+        callable: *constructor
+        args: []
+        type: *MinKeyType
+        attr: {}
+        template: *MinKeySymbolTemplate
+        argsTemplate: *MinKeySymbolArgsTemplate
+    MaxKey:
+        id: "MaxKey"
+        code: 108
+        callable: *constructor
+        args: []
+        type: *MaxKeyType
+        attr: {}
+        template: *MaxKeySymbolTemplate
+        argsTemplate: *MaxKeySymbolArgsTemplate
+    Regex:
+        id: "Regex"
+        code: 109
+        callable: *constructor
+        args:
+        - [ *StringType ]
+        - [ *StringType, *IntegerType, null, 'flags' ]
+        type: *BSONRegExpType
+        attr:
+            from_native:
+                <<: *__func
+                id: "from_native"
+                args:
+                - [ *RegexType ]
+                type: *BSONRegExpType
+                template: null
+                argsTemplate: null
+        template: *BSONRegExpSymbolTemplate
+        argsTemplate: *BSONRegExpSymbolArgsTemplate
+    Timestamp:
+        id: "Timestamp"
+        code: 110
+        callable: *constructor
+        args:
+            - [ *IntegerType ]
+            - [ *IntegerType ]
+        type: *TimestampType
+        attr: {}
+        template: *TimestampSymbolTemplate
+        argsTemplate: *TimestampSymbolArgsTemplate
+    Decimal128:
+        id: "Decimal128"
+        code: 112
+        callable: *constructor
+        args:
+            - [ *StringType ]
+        type: *Decimal128Type
+        attr: {}
+        template: *Decimal128SymbolTemplate
+        argsTemplate: *Decimal128SymbolArgsTemplate
+
+NativeSymbols:
+    datetime: # Needs process method
+        id: "datetime"
+        code: 200
+        callable: *constructor
+        args:
+            - [ *NumericType, null ]
+            - [ *NumericType, null ]
+            - [ *NumericType, null ]
+            - [ *NumericType, null ]
+            - [ *NumericType, null ]
+            - [ *NumericType, null ]
+            - [ *NumericType, null ]
+        type: *DateType
+        attr: # TODO: add more date funcs?
+            utcnow:
+                id: "now"
+                code: 200.1
+                callable: *constructor
+                args: []
+                type: *DateType
+                attr: {}
+                template: *DateSymbolNowTemplate
+                argsTemplate: *DateSymbolNowArgsTemplate
+        template: *DateSymbolTemplate
+        argsTemplate: *DateSymbolArgsTemplate
+    re:
+        id: "re"
+        code: 8
+        callable: *var
+        args: null
+        type: null
+        attr:
+            compile:
+                id: "compile"
+                code: 8
+                callable: *constructor
+                args:
+                - [ *StringType ]
+                - [ *IntegerType, null ]
+                type: *RegexType
+                attr: {}
+                template: *RegExpSymbolTemplate
+                argsTemplate: *RegExpSymbolArgsTemplate
+            A:
+                <<: *__type
+                type: *IntegerType
+                template: !!js/function >
+                    () => {
+                        return '256';
+                    }
+            ASCII:
+                <<: *__type
+                type: *IntegerType
+                template: !!js/function >
+                    () => {
+                        return '256';
+                    }
+            I:
+                <<: *__type
+                type: *IntegerType
+                template: !!js/function >
+                    () => {
+                        return '2';
+                    }
+            IGNORECASE:
+                <<: *__type
+                type: *IntegerType
+                template: !!js/function >
+                    () => {
+                        return '2';
+                    }
+            DEBUG:
+                <<: *__type
+                type: *IntegerType
+                template: !!js/function >
+                    () => {
+                        return '128';
+                    }
+            L:
+                <<: *__type
+                type: *IntegerType
+                template: !!js/function >
+                    () => {
+                        return '4';
+                    }
+            LOCAL:
+                <<: *__type
+                type: *IntegerType
+                template: !!js/function >
+                    () => {
+                        return '4';
+                    }
+            M:
+                <<: *__type
+                type: *IntegerType
+                template: !!js/function >
+                    () => {
+                        return '8';
+                    }
+            MULTILINE:
+                <<: *__type
+                type: *IntegerType
+                template: !!js/function >
+                    () => {
+                        return '8';
+                    }
+            S:
+                <<: *__type
+                type: *IntegerType
+                template: !!js/function >
+                    () => {
+                        return '16';
+                    }
+            DOTALL:
+                <<: *__type
+                type: *IntegerType
+                template: !!js/function >
+                    () => {
+                        return '16';
+                    }
+            X:
+                <<: *__type
+                type: *IntegerType
+                template: !!js/function >
+                    () => {
+                        return '64';
+                    }
+            VERBOSE:
+                <<: *__type
+                type: *IntegerType
+                template: !!js/function >
+                    () => {
+                        return '64';
+                    }
+        template: !!js/function >
+            () => {
+                return '';
+            }
+        argsTemplate: null
+    float:
+        id: "float"
+        code: 104
+        callable: *constructor
+        args:
+        - [ *NumericType, *StringType, null ]
+        type: *floatType
+        attr: {}
+        template: *DoubleSymbolTemplate
+        argsTemplate: *DoubleSymbolArgsTemplate
+    int:
+        id: "int"
+        code: 105
+        callable: *constructor
+        args:
+        - [ *NumericType, *StringType, null ]
+        type: *intType
+        attr: {}
+        template: *Int32SymbolTemplate
+        argsTemplate: *Int32SymbolArgsTemplate

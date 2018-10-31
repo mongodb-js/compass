@@ -1,53 +1,27 @@
 /* eslint complexity: 0 */
-const JavascriptVisitor = require('../javascript/Visitor');
 const bson = require('bson');
 const Context = require('context-eval');
 const {
-  BsonTranspilersReferenceError,
   BsonTranspilersRuntimeError,
-  BsonTranspilersUnimplementedError,
-  BsonTranspilersArgumentError
+  BsonTranspilersUnimplementedError
 } = require('../../helper/error');
 
 /**
- * This is a Visitor superclass where helper methods used by all language
- * generators can be defined.
+ * This is a visitor for the shell syntax. It inherits from the javascript visitor
+ * directly.
  *
- * @returns {object}
+ * @param {JavascriptVisitor} JavascriptVisitor - The javascript input-language
+ * specific visitor.
+ * @return {Visitor} - Input-language specific visitor.
  */
-class Visitor extends JavascriptVisitor {
+module.exports = (JavascriptVisitor) => class Visitor extends JavascriptVisitor {
   constructor() {
     super();
-    this.new = '';
-    this.processNumberLong = this.processNumber;
   }
 
-  visitIdentifierExpression(ctx) {
-    const name = this.visitChildren(ctx);
-    ctx.type = this.Symbols[name];
-    if (ctx.type === undefined) {
-      throw new BsonTranspilersReferenceError(
-        `Symbol '${name}' is undefined`
-      );
-    }
-    this.requiredImports[ctx.type.code] = true;
-    // Special case MinKey/MaxKey because they don't have to be called in shell
-    if (!ctx.visited && (ctx.type.id === 'MinKey' || ctx.type.id === 'MaxKey') &&
-        ctx.parentCtx.constructor.name !== 'FuncCallExpressionContext' &&
-        ctx.parentCtx.constructor.name !== 'NewExpressionContext') {
-      const node = {
-        arguments: () => { return { argumentList: () => { return false; }}; },
-        singleExpression: () => { return ctx; }
-      };
-      ctx.visited = true;
-      return this.visitFuncCallExpression(node);
-    }
-    if (ctx.type.template) {
-      return ctx.type.template();
-    }
-    return name;
+  processNumberLong(ctx) {
+    return this.generateNumericClass(ctx);
   }
-
   executeJavascript(input) {
     const sandbox = {
       RegExp: RegExp,
@@ -128,22 +102,26 @@ class Visitor extends JavascriptVisitor {
     }
     const lhs = symbolType.template ? symbolType.template() : 'NumberDecimal';
     const rhs = symbolType.argsTemplate ? symbolType.argsTemplate(lhs, decstr) : `(${decstr})`;
-    return `${this.new}${lhs}${rhs}`;
+    return this.Syntax.new.template
+      ? this.Syntax.new.template(`${lhs}${rhs}`, false, ctx.type.code)
+      : `${lhs}${rhs}`;
   }
 
   /**
-   * Needs preprocessing because ISODate is treated exactly like Date.
+   * Needs preprocessing because ISODate is treated exactly like Date, but always
+   * is invoked as an object.
    *
    * @param {FuncCallExpressionContext} ctx
    * @return {String}
    */
   processISODate(ctx) {
+    ctx.wasNew = true;
     return this.processDate(ctx);
   }
 
   /**
-   * We want to ensure that the scope argument is not generated as a builder if
-   * idiomatic is turned on
+   * Also accepts no arguments.
+   *
    * @param {FuncCallExpressionContext} ctx
    * @return {String}
    */
@@ -151,38 +129,12 @@ class Visitor extends JavascriptVisitor {
     ctx.type = this.Types.Code;
     const symbolType = this.Symbols.Code;
     const lhs = symbolType.template ? symbolType.template() : 'Code';
-    const argList = ctx.arguments().argumentList();
-    if (!argList ||
-      !(argList.singleExpression().length === 1 ||
-        argList.singleExpression().length === 2)) {
-      return `${this.new}${lhs}${symbolType.argsTemplate ? symbolType.argsTemplate(lhs) : '()'}`;
+    if (this.getArguments(ctx).length === 0) {
+      const code = `${lhs}${symbolType.argsTemplate ? symbolType.argsTemplate(lhs) : '()'}`;
+      return this.Syntax.new.template
+        ? this.Syntax.new.template(code, false, ctx.type.code)
+        : code;
     }
-    const args = argList.singleExpression();
-    const code = this.visit(args[0]);
-    let scope = undefined;
-    let scopestr = '';
-
-    if (args.length === 2) {
-      const idiomatic = this.idiomatic;
-      this.idiomatic = false;
-      scope = this.visit(args[1]);
-      this.idiomatic = idiomatic;
-      scopestr = `, ${scope}`;
-      if (args[1].type !== this.Types._object) {
-        throw new BsonTranspilersArgumentError(
-          'Argument type mismatch: Code requires scope to be an object'
-        );
-      }
-      this.requiredImports[113] = true;
-      this.requiredImports[10] = true;
-    }
-    if ('emitCode' in this) {
-      return this.emitCode(ctx, code, scope);
-    }
-    const rhs = symbolType.argsTemplate ? symbolType.argsTemplate(lhs, code, scope) : `(${code}${scopestr})`;
-    return `${this.new}${lhs}${rhs}`;
+    return this.generateBSONCode(ctx, ctx.type, symbolType, true);
   }
-
-}
-
-module.exports = Visitor;
+};

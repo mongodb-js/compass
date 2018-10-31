@@ -138,7 +138,7 @@ BsonTypes:
             valueOf:
                 <<: *__func
                 id: "valueOf"
-                type: *Int32Type
+                type: *IntegerType
                 template: *Int32ValueOfTemplate
                 argsTemplate: *Int32ValueOfArgsTemplate
     Long: &LongType
@@ -153,7 +153,7 @@ BsonTypes:
                 args:
                     - [ *IntegerType, null ]
                 type: *StringType
-                template: *LongToStringTemplate # Also has emit method
+                template: *LongToStringTemplate
                 argsTemplate: *LongToStringArgsTemplate
             equals:
                 <<: *__func
@@ -464,7 +464,7 @@ BsonTypes:
                 type: *StringType
                 template: *Decimal128ToStringTemplate
                 argsTemplate: *Decimal128ToStringArgsTemplate
-JSTypes:
+NativeTypes:
     Date: &DateType
         <<: *__type
         id: "Date"

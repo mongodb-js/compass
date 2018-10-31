@@ -1,5 +1,19 @@
 # Python Templates
 Templates:
+    # Misc
+    RegexFlags: &RegexFlags
+        i: 'i'
+        m: 'm'
+        u: 'a'
+        y: ''
+        g: 's'
+    BSONRegexFlags: &BSONRegexFlags
+        i: 'i'
+        m: 'm'
+        x: 'x'
+        s: 's'
+        l: 'l'
+        u: 'u'
     # Syntax
     EqualitySyntaxTemplate: &EqualitySyntaxTemplate !!js/function >
         (lhs, op, rhs) => {
@@ -10,8 +24,37 @@ Templates:
                 return `${lhs} == ${rhs}`;
             }
         }
+    InSyntaxTemplate: &InSyntaxTemplate !!js/function >
+        (lhs, op, rhs) => {
+            let str = 'in';
+            if (op.includes('!') || op.includes('not')) {
+                str = 'not in';
+            }
+            return `${lhs} ${str} ${rhs}`
+        }
+    AndSyntaxTemplate: &AndSyntaxTemplate !!js/function >
+        (args) => {
+            return args.join(' and ');
+        }
+    OrSyntaxTemplate: &OrSyntaxTemplate !!js/function >
+        (args) => {
+            return args.join(' or ');
+        }
+    NotSyntaxTemplate: &NotSyntaxTemplate !!js/function >
+        (arg) => {
+            return `not ${arg}`;
+        }
     EosTemplate: &EosSyntaxTemplate null
     EofTemplate: &EofSyntaxTemplate null
+    FloorDivTemplate: &FloorDivSyntaxTemplate !!js/function >
+        (lhs, rhs) => {
+            return `${lhs}//${rhs}`;
+        }
+    PowerTemplate: &PowerSyntaxTemplate !!js/function >
+        (lhs, rhs) => {
+            return `${lhs}**${rhs}`;
+        }
+    NewTemplate: &NewSyntaxTemplate null
     # BSON Object Type templates
     CodeTypeTemplate: &CodeTypeTemplate null
     StringTypeTemplate: &StringTypeTemplate !!js/function >
@@ -67,6 +110,7 @@ Templates:
     NumericTypeTemplate: &NumericTypeTemplate null
     ArrayTypeTemplate: &ArrayTypeTemplate !!js/function >
         (literal, depth) => {
+            depth++;
             if (literal === '') {
                 return '[]'
             }
@@ -93,6 +137,10 @@ Templates:
         }
     ObjectTypeArgsTemplate: &ObjectTypeArgsTemplate !!js/function >
         (args, depth) => {
+            if (args.length === 0) {
+                return '{}';
+            }
+            depth++;
             const indent = '\n' + '    '.repeat(depth);
             const closingIndent = '\n' + '    '.repeat(depth - 1);
             const singleStringify = (str) => {
@@ -120,12 +168,12 @@ Templates:
     CodeScopeTemplate: &CodeScopeTemplate null
     CodeScopeArgsTemplate: &CodeScopeArgsTemplate null
     ObjectIdToStringTemplate: &ObjectIdToStringTemplate !!js/function >
-        () => {
-            return 'str';
+        (lhs) => {
+            return `str(${lhs})`;
         }
     ObjectIdToStringArgsTemplate: &ObjectIdToStringArgsTemplate !!js/function >
         (lhs) => {
-            return `(${lhs})`;
+            return '';
         }
     ObjectIdEqualsTemplate: &ObjectIdEqualsTemplate !!js/function >
         (lhs) => {
@@ -244,7 +292,7 @@ Templates:
         () => {
             return '';
         }
-    LongToStringTemplate: &LongToStringTemplate !!js/function > # Also has emit method
+    LongToStringTemplate: &LongToStringTemplate !!js/function >
         () => {
             return 'str';
         }
@@ -488,6 +536,11 @@ Templates:
         (lhs) => {
             return `${lhs}.inc`;
         }
+    TimestampAsDateTemplate: &TimestampAsDateTemplate null
+    TimestampAsDateArgsTemplate: &TimestampAsDateArgsTemplate !!js/function >
+        () => {
+            return '.as_datetime()';
+        }
     TimestampCompareTemplate: &TimestampCompareTemplate !!js/function >
         (lhs) => {
             return `(${lhs}.as_datetime() - `;
@@ -582,6 +635,9 @@ Templates:
     ObjectIdSymbolTemplate: &ObjectIdSymbolTemplate null
     ObjectIdSymbolArgsTemplate: &ObjectIdSymbolArgsTemplate !!js/function >
         (lhs, str) => {
+          if (!str || str.length === 0) {
+            return '()';
+          }
           let newStr = str;
           if (
             (str.charAt(0) === '\'' && str.charAt(str.length - 1) === '\'') ||
@@ -739,7 +795,16 @@ Templates:
         }
     BSONRegExpSymbolArgsTemplate: &BSONRegExpSymbolArgsTemplate !!js/function >
         (lhs, pattern, flags) => {
-            return `(${pattern}${flags ? ', ' + flags : ''})`;
+            const singleStringify = (str) => {
+                let newStr = str;
+                if (
+                  (str.charAt(0) === '\'' && str.charAt(str.length - 1) === '\'') ||
+                  (str.charAt(0) === '"' && str.charAt(str.length - 1) === '"')) {
+                    newStr = str.substr(1, str.length - 2);
+                }
+                return `'${newStr.replace(/\\([\s\S])|(")/g, '\\$1$2')}'`;
+            }
+            return `(${singleStringify(pattern)}${flags ? ', ' + singleStringify(flags) : ''})`;
         }
     Decimal128SymbolTemplate: &Decimal128SymbolTemplate !!js/function >
         () => {
@@ -780,12 +845,15 @@ Templates:
         (lhs, arg) => {
             return `(${arg})`;
         }
-    ObjectIdCreateFromTimeTemplate: &ObjectIdCreateFromTimeTemplate !!js/function > # Also has emit method
+    ObjectIdCreateFromTimeTemplate: &ObjectIdCreateFromTimeTemplate !!js/function >
         () => {
             return `ObjectId.from_datetime`;
         }
     ObjectIdCreateFromTimeArgsTemplate: &ObjectIdCreateFromTimeArgsTemplate !!js/function >
-        (lhs, arg) => {
+        (lhs, arg, isNumber) => {
+            if (isNumber) {
+                return `(datetime.fromtimestamp(${arg}))`;
+            }
             return `(${arg})`;
         }
     ObjectIdIsValidTemplate: &ObjectIdIsValidTemplate !!js/function >
@@ -822,14 +890,32 @@ Templates:
                 return `${newStr}`;
             }
         }
-    DateSymbolTemplate: &DateSymbolTemplate !!js/function > # Also has emit method
+    DateSymbolTemplate: &DateSymbolTemplate !!js/function >
         () => {
-            return 'datetime.datetime';
+            return 'datetime';
         }
-    DateSymbolArgsTemplate: &DateSymbolArgsTemplate null
+    DateSymbolArgsTemplate: &DateSymbolArgsTemplate !!js/function >
+        (lhs, date, isString) => {
+            const toStr = isString ? '.strftime(\'%a %b %d %Y %H:%M:%S %Z\')' : '';
+
+            if (date === null) {
+                return `${lhs}.utcnow()${toStr}`;
+            }
+
+            const dateStr = [
+                date.getUTCFullYear(),
+                date.getUTCMonth() + 1,
+                date.getUTCDate(),
+                date.getUTCHours(),
+                date.getUTCMinutes(),
+                date.getUTCSeconds()
+            ].join(', ');
+
+            return `${lhs}(${dateStr}, tzinfo=timezone.utc)${toStr}`;
+        }
     DateSymbolNowTemplate: &DateSymbolNowTemplate !!js/function >
         () => {
-            return 'datetime.datetime.utcnow';
+            return 'datetime.utcnow';
         }
     DateSymbolNowArgsTemplate: &DateSymbolNowArgsTemplate null
     RegExpSymbolTemplate: &RegExpSymbolTemplate !!js/function > # Also has process method
@@ -863,7 +949,10 @@ Templates:
     5ImportTemplate: &5ImportTemplate null
     6ImportTemplate: &6ImportTemplate null
     7ImportTemplate: &7ImportTemplate null
-    8ImportTemplate: &8ImportTemplate null
+    8ImportTemplate: &8ImportTemplate !!js/function >
+        () => {
+            return 'import re';
+        }
     9ImportTemplate: &9ImportTemplate null
     10ImportTemplate: &10ImportTemplate null
     11ImportTemplate: &11ImportTemplate null
@@ -898,7 +987,10 @@ Templates:
         () => {
             return 'MaxKey';
         }
-    109ImportTemplate: &109ImportTemplate null
+    109ImportTemplate: &109ImportTemplate !!js/function >
+        () => {
+            return 'Regex';
+        }
     110ImportTemplate: &110ImportTemplate !!js/function >
         () => {
             return 'Timestamp';
@@ -912,7 +1004,7 @@ Templates:
     114ImportTemplate: &114ImportTemplate null
     200ImportTemplate: &200ImportTemplate !!js/function >
         () => {
-            return 'import datetime';
+            return 'from datetime import datetime, tzinfo';
         }
     201ImportTemplate: &201ImportTemplate null
     300ImportTemplate: &300ImportTemplate null

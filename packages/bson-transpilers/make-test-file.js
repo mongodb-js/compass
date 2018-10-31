@@ -5,7 +5,7 @@ const parse = require('fast-json-parse');
 const path = require('path');
 const pSuccess = path.join(__dirname, 'test', 'json', 'success');
 const { singleQuoteStringify, doubleQuoteStringify } = require('./helper/format');
-const { imports } = require('.');
+const imports = {python: '', java: '', csharp: '', javascript: ''}; // TODO
 
 if (process.argv.length !== 3) {
   console.log('Usage: <outputLanguage>');
@@ -147,4 +147,18 @@ const makeFile = (input) => {
         }, '');
     }, ''));
 };
-console.log(makeFile('javascript'));
+
+const makeList = (input) => {
+  return fs.readdirSync(path.join(pSuccess, input)).reduce(
+    (str0, file) => {
+      const tests = readJSON(path.join(pSuccess, input, file)).tests;
+      return str0 + Object.keys(tests).reduce(
+        (str, key) => {
+          return str + tests[key].reduce(
+            (str2, test) => {
+              return str2 + test[output] + '\n';
+            }, '');
+        }, '');
+    }, '');
+};
+console.log(makeList('python'));

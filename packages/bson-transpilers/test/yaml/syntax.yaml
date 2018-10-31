@@ -1,0 +1,278 @@
+runner: !!js/function >
+    (it, expect, input, output, transpiler, test) => {
+        it(`${input}: ${test.input[input]} => ${output}`, () => {
+            expect(
+                transpiler[input][output].compile(test.input[input], true)
+            ).to.equal(test.output[output]);
+        });
+    }
+tests:
+    empty:
+    - input:
+          javascript: ""
+          shell: ""
+          python: ""
+      output:
+          javascript: ""
+          shell: ""
+          python: ""
+          java: ""
+          csharp: ""
+    - input:
+          javascript: "  "
+          shell: "  "
+          python: "  "
+      output:
+          javascript: ""
+          shell: ""
+          python: ""
+          java: ""
+          csharp: ""
+    - input:
+          javascript: ";"
+          shell: ";"
+          python: ";"
+      output:
+          javascript: ""
+          shell: ""
+          python: ""
+          java: ""
+          csharp: ""
+    - input:
+          javascript: "\n\n\n"
+          shell: "\n\n\n"
+          python: "\n\n\n"
+      output:
+          javascript: ""
+          shell: ""
+          python: ""
+          java: ""
+          csharp: ""
+    whitespace:
+    - input:
+          python: "1\n+2"
+      output:
+          javascript: "1\n+2"
+          shell: "1\n+2"
+          python: "1\n+2"
+          java: "1L\n+2L"
+          csharp: "1\n+2"
+    - input:
+          javascript: "1 \n +2"
+          shell: "1 \n +2"
+      output:
+          javascript: "1+2"
+          shell: "1+2"
+          python: "1+2"
+          java: "1L+2L"
+          csharp: "1+2"
+    - input:
+          javascript: "1; +2"
+          shell: "1; +2"
+          python: "1; +2"
+      output:
+          javascript: "1\n+2"
+          shell: "1\n+2"
+          python: "1\n+2"
+          java: "1L\n+2L"
+          csharp: "1\n+2"
+    - input:
+          javascript: "1 \t\t +2"
+          shell: "1 \t\t +2"
+          python: "1 \t\t +2"
+      output:
+          javascript: "1+2"
+          shell: "1+2"
+          python: "1+2"
+          java: "1L+2L"
+          csharp: "1+2"
+    - input:
+          javascript: "\r\t\n"
+          shell: "\r\t\n"
+          python: "\r\t\n"
+      output:
+          javascript: ""
+          shell: ""
+          python: ""
+          java: ""
+          csharp: ""
+    compare:
+    - input:
+          javascript: "1 === 2"
+          shell: "1 === 2"
+          python: "1 == 2"
+      output:
+          javascript: "1 === 2"
+          shell: "1 === 2"
+          python: "1 == 2"
+          java: "1L == 2L"
+          csharp: "1 == 2"
+    - input:
+          javascript: "1 !== 2"
+          shell: "1 !== 2"
+          python: "1 != 2"
+      output:
+          javascript: "1 !== 2"
+          shell: "1 !== 2"
+          python: "1 != 2"
+          java: "1L != 2L"
+          csharp: "1 != 2"
+    - input:
+          javascript: "1 || 2"
+          shell: "1 || 2"
+          python: "1 or 2"
+      output:
+          javascript: "1 || 2"
+          shell: "1 || 2"
+          python: "1 or 2"
+          java: "1L || 2L"
+          csharp: "1 || 2"
+    - input:
+          javascript: "1 && 2"
+          shell: "1 && 2"
+          python: "1 and 2"
+      output:
+          javascript: "1 && 2"
+          shell: "1 && 2"
+          python: "1 and 2"
+          java: "1L && 2L"
+          csharp: "1 && 2"
+    - input:
+          javascript: "!2"
+          shell: "!2"
+          python: "not 2"
+      output:
+          javascript: "!2"
+          shell: "!2"
+          python: "not 2"
+          java: "!2L"
+          csharp: "!2"
+    - input:
+          javascript: "1 > 2 < 3 >= 4 <= 6"
+          shell: "1 > 2 < 3 >= 4 <= 6"
+          python: "1 > 2 < 3 >= 4 <= 6"
+      output:
+          javascript: "1 > 2 < 3 >= 4 <= 6"
+          shell: "1 > 2 < 3 >= 4 <= 6"
+          python: "1 > 2 < 3 >= 4 <= 6"
+          java: "1L > 2L < 3L >= 4L <= 6L"
+          csharp: "1 > 2 < 3 >= 4 <= 6"
+    - input:
+          python: "4 is 5"
+      output:
+          javascript: "4 === 5"
+          shell: "4 === 5"
+          python: "4 == 5"
+          java: "4L == 5L"
+          csharp: "4 == 5"
+    - input:
+          python: "4 is not 5"
+      output:
+          javascript: "4 !== 5"
+          shell: "4 !== 5"
+          python: "4 != 5"
+          java: "4L != 5L"
+          csharp: "4 != 5"
+    - input:
+          python: "4 in [1, 2]"
+      output:
+          javascript: "[\n  1, 2\n].indexOf(4) !== -1"
+          shell: "[\n  1, 2\n].indexOf(4) !== -1"
+          python: "4 in [1, 2]"
+          java: "Arrays.asList(1L, 2L).contains(4L)"
+          csharp: "new BsonArray\n{\n    1,\n    2\n}.indexOf(4) != -1"
+    - input:
+          python: "4 not in [1, 2]"
+      output:
+          javascript: "[\n  1, 2\n].indexOf(4) === -1"
+          shell: "[\n  1, 2\n].indexOf(4) === -1"
+          python: "4 not in [1, 2]"
+          java: "!Arrays.asList(1L, 2L).contains(4L)"
+          csharp: "new BsonArray\n{\n    1,\n    2\n}.indexOf(4) == -1"
+    comments:
+    - input:
+          javascript: "1 // a comment"
+          shell: "1 // a comment"
+          python: "1 # a comment"
+      output:
+          javascript: "1"
+          shell: "1"
+          python: "1"
+          java: "1L"
+          csharp: "1"
+    - input:
+          javascript: "1 // a comment\n2"
+          shell: "1 // a comment\n2"
+          python: "1 # a comment\n2"
+      output:
+          javascript: "1\n2"
+          shell: "1\n2"
+          python: "1\n2"
+          java: "1L\n2L"
+          csharp: "1\n2"
+    - input:
+          javascript: "1 /* a comment*/"
+          shell: "1 /* a comment*/"
+      output:
+          javascript: "1"
+          shell: "1"
+          python: "1"
+          java: "1L"
+          csharp: "1"
+    - input:
+          javascript: "1 /* a \ncom\nmen\nt*/+2"
+          shell: "1 /* a \ncom\nmen\nt*/+2"
+      output:
+          javascript: "1+2"
+          shell: "1+2"
+          python: "1+2"
+          java: "1L+2L"
+          csharp: "1+2"
+    - input:
+          javascript: "1 /* a \ncom\nmen\nt*/"
+          shell: "1 /* a \ncom\nmen\nt*/"
+      output:
+          javascript: "1"
+          shell: "1"
+          python: "1"
+          java: "1L"
+          csharp: "1"
+    - input:
+          javascript: "1 /* a comment*/+2"
+          shell: "1 /* a comment*/+2"
+      output:
+          javascript: "1+2"
+          shell: "1+2"
+          python: "1+2"
+          java: "1L+2L"
+          csharp: "1+2"
+    - input:
+          javascript: "1 /* a \ncomn\nmen\nt*/\n+2"
+          shell:  "1 /* a \ncomn\nmen\nt*/\n+2"
+      output:
+          javascript: "1+2"
+          shell: "1+2"
+          python: "1+2"
+          java: "1L+2L"
+          csharp: "1+2"
+    parens:
+    - input:
+          javascript: "(1 === 1)"
+          shell: "(1 === 1)"
+          python: "(1 == 1)"
+      output:
+          javascript: "(1 === 1)"
+          shell: "(1 === 1)"
+          python: "(1 == 1)"
+          java: "(1L == 1L)"
+          csharp: "(1 == 1)"
+    - input:
+          javascript: "((1 === (1)))"
+          shell: "((1 === (1)))"
+          python: "((1 == (1)))"
+      output:
+          javascript: "((1 === (1)))"
+          shell: "((1 === (1)))"
+          python: "((1 == (1)))"
+          java: "((1L == (1L)))"
+          csharp: "((1 == (1)))"

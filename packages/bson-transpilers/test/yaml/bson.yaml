@@ -1,0 +1,463 @@
+runner: !!js/function >
+    (it, expect, input, output, transpiler, test) => {
+        it(`${input}: ${test.input[input]} => ${output}`, () => {
+            expect(
+                transpiler[input][output].compile(test.input[input], true)
+            ).to.equal(test.output[output]);
+        });
+    }
+tests:
+    Code:
+    - description: 'NEW with string code'
+      input:
+          javascript: new Code('some code')
+          shell: Code('some code')
+      output:
+          javascript: new Code('some code')
+          shell: new Code('some code')
+          python: Code('some code')
+          java: new Code("some code")
+          csharp: new BsonJavaScript("some code")
+    - description: 'string code'
+      input:
+          javascript: Code('some code')
+          shell: Code('some code')
+          python: Code('some code')
+      output:
+          javascript: new Code('some code')
+          shell: new Code('some code')
+          python: Code('some code')
+          java: new Code("some code")
+          csharp: new BsonJavaScript("some code")
+    - description: 'string code and object scope'
+      input:
+          javascript: "new Code('string', {x: '1'})"
+          shell: "Code('string', {x: '1'})"
+          python: "Code('string', {'x': '1'})"
+      output:
+          javascript: "new Code('string', {\n  'x': '1'\n})"
+          shell: "new Code('string', {\n  'x': '1'\n})"
+          python: "Code('string', {\n    'x': '1'\n})"
+          java: 'new CodeWithScope("string", new Document("x", "1"))'
+          csharp: 'new BsonJavaScriptWithScope("string", new BsonDocument("x", "1"))'
+    - description: 'no args'
+      input:
+          shell: Code()
+      output:
+          javascript: new Code('')
+          shell: new Code('')
+          python: Code('')
+          java: new Code("")
+          csharp: new BsonJavaScript("")
+    - description: 'function arg'
+      input:
+          javascript: Code(function(test) { console.log(test); })
+      output:
+          javascript: new Code('function(test){console.log(test);}')
+          shell: new Code('function(test){console.log(test);}')
+          python: Code('function(test){console.log(test);}')
+          java: new Code("function(test){console.log(test);}")
+          csharp: new BsonJavaScript("function(test){console.log(test);}")
+    ObjectId:
+    - description: 'no arg'
+      input:
+          javascript: ObjectId()
+          shell: ObjectId()
+          python: ObjectId()
+      output:
+          javascript: new ObjectId()
+          shell: new ObjectId()
+          python: ObjectId()
+          java: new ObjectId()
+          csharp: new ObjectId()
+    - description: 'NEW no arg'
+      input:
+          javascript: new ObjectId()
+          shell: new ObjectId()
+      output:
+          javascript: new ObjectId()
+          shell: new ObjectId()
+          python: ObjectId()
+          java: new ObjectId()
+          csharp: new ObjectId()
+    - description: 'hex string arg'
+      input:
+          javascript: new ObjectId('5a7382114ec1f67ae445f778')
+          shell: new ObjectId('5a7382114ec1f67ae445f778')
+      output:
+          javascript: new ObjectId('5a7382114ec1f67ae445f778')
+          shell: new ObjectId('5a7382114ec1f67ae445f778')
+          python: ObjectId('5a7382114ec1f67ae445f778')
+          java: new ObjectId("5a7382114ec1f67ae445f778")
+          csharp: new ObjectId("5a7382114ec1f67ae445f778")
+    DBRef:
+    - description: 'NEW (string, ObjectID) args'
+      input:
+          javascript: new DBRef('coll', new ObjectId())
+          shell: new DBRef('coll', new ObjectId())
+      output:
+          javascript: new DBRef('coll', new ObjectId())
+          shell: new DBRef('coll', new ObjectId())
+          python: DBRef('coll', ObjectId())
+          java: new DBRef("coll", new ObjectId())
+          csharp: new MongoDBRef("coll", new ObjectId())
+    - description: '(string, ObjectID) args'
+      input:
+          javascript: DBRef('coll', new ObjectId())
+          shell: DBRef('coll', new ObjectId())
+          python: DBRef('coll', ObjectId())
+      output:
+          javascript: new DBRef('coll', new ObjectId())
+          shell: new DBRef('coll', new ObjectId())
+          python: DBRef('coll', ObjectId())
+          java: new DBRef("coll", new ObjectId())
+          csharp: new MongoDBRef("coll", new ObjectId())
+    - description: '(string, ObjectId, string) args'
+      input:
+          javascript: new DBRef('coll', ObjectId(), 'db')
+          shell: new DBRef('coll', new ObjectId(), 'db')
+          python: DBRef('coll', ObjectId(), 'db')
+      output:
+          javascript: new DBRef('coll', new ObjectId(), 'db')
+          shell: new DBRef('coll', new ObjectId(), 'db')
+          python: DBRef('coll', ObjectId(), 'db')
+          java: new DBRef("db", "coll", new ObjectId())
+          csharp: new MongoDBRef("coll", new ObjectId(), "db")
+    32-bit integer:
+    - description: 'NEW number arg'
+      input:
+          javascript: new Int32(3)
+          shell: new NumberInt(3)
+      output:
+          javascript: new Int32(3)
+          shell: new NumberInt(3)
+          python: int(3)
+          java: '3'
+          csharp: '3'
+    - description: 'number arg'
+      input:
+          javascript: Int32(3)
+          shell: NumberInt(3)
+          python: int(3)
+      output:
+          javascript: new Int32(3)
+          shell: new NumberInt(3)
+          python: int(3)
+          java: '3'
+          csharp: '3'
+    - description: 'string arg'
+      input:
+          javascript: new Int32('3')
+          shell: NumberInt('3')
+          python: int('3')
+      output:
+          javascript: new Int32('3')
+          shell: new NumberInt('3')
+          python: int('3')
+          java: Integer.parseInt("3")
+          csharp: Convert.ToInt32("3")
+    - description: 'no arg'
+      input:
+          shell: NumberInt()
+          python: int()
+      output:
+          javascript: new Int32(0)
+          shell: new NumberInt(0)
+          python: int(0)
+          java: '0'
+          csharp: '0'
+    - description: 'hex arg'
+      input:
+          javascript: new Int32(0x3)
+          shell: NumberInt(0x3)
+          python: int(0x3)
+      output:
+          javascript: new Int32(0x3)
+          shell: new NumberInt(0x3)
+          python: int(0x3)
+          java: (int) 0x3
+          csharp: Convert.ToInt32(0x3)
+    - description: 'decimal arg'
+      input:
+          javascript: new Int32(3.0001)
+          shell: NumberInt(3.0001)
+          python: int(3.0001)
+      output:
+          javascript: new Int32(3.0001)
+          shell: new NumberInt(3.0001)
+          python: int(3.0001)
+          java: (int) 3.0001d
+          csharp: Convert.ToInt32(3.0001)
+    - description: 'octal arg'
+      input:
+          javascript: new Int32(0o3)
+          shell: NumberInt(0o3)
+          python: int(0o3)
+      output:
+          javascript: new Int32(0o3)
+          shell: new NumberInt(0o3)
+          python: int(0o3)
+          java: (int) 03
+          csharp: '3'
+    Double:
+    - description: 'number arg'
+      input:
+          javascript: Double(3)
+          python: float(3)
+      output:
+          javascript: new Double(3)
+          shell: '3'
+          python: float(3)
+          java: 3d
+          csharp: '3.0'
+    - description: 'NEW number arg'
+      input:
+          javascript: new Double(3)
+      output:
+          javascript: new Double(3)
+          shell: '3'
+          python: float(3)
+          java: 3d
+          csharp: '3.0'
+    - description: 'string arg'
+      input:
+          javascript: Double('3')
+          python: float('3')
+      output:
+          javascript: new Double('3')
+          shell: '3'
+          python: float('3')
+          java: Double.parseDouble("3")
+          csharp: Convert.ToDouble("3")
+    - description: 'decimal arg'
+      input:
+          javascript: Double(3.0001)
+          python: float(3.0001)
+      output:
+          javascript: new Double(3.0001)
+          shell: '3.0001'
+          python: float(3.0001)
+          java: 3.0001d
+          csharp: '3.0001'
+    - description: 'hex arg'
+      input:
+          javascript: Double(0x3)
+          python: float(0x3)
+      output:
+          javascript: new Double(0x3)
+          shell: '0x3'
+          python: float(0x3)
+          java: (double) 0x3
+          csharp: Convert.ToDouble(0x3)
+    - description: 'octal arg'
+      input:
+          javascript: Double(0o3)
+          python: float(0o3)
+      output:
+          javascript: new Double(0o3)
+          shell: 0o3
+          python: float(0o3)
+          java: (double) 03
+          csharp: '3.0'
+    Long:
+    - description: 'number arg'
+      input:
+          javascript: Long(-1, 2147483647)
+          shell: NumberLong(9223372036854775807)
+          python: Int64(9223372036854775807)
+      output:
+          javascript: Long.fromNumber(9223372036854775807)
+          shell: new NumberLong(9223372036854775807)
+          python: Int64(9223372036854775807)
+          java: 9223372036854775807L
+          csharp: 9223372036854775807L
+    - description: 'NEW number arg'
+      input:
+          javascript: Long(-1, 2147483647)
+          shell: NumberLong(9223372036854775807)
+      output:
+          javascript: Long.fromNumber(9223372036854775807)
+          shell: new NumberLong(9223372036854775807)
+          python: Int64(9223372036854775807)
+          java: 9223372036854775807L
+          csharp: 9223372036854775807L
+    - description: 'no arg'
+      input:
+          shell: NumberLong()
+          python: Int64()
+      output:
+          javascript: Long.fromNumber(0)
+          shell: new NumberLong(0)
+          python: Int64(0)
+          java: 0L
+          csharp: 0L
+    - description: 'string arg'
+      input:
+          shell: NumberLong('9223372036854775807')
+          python: Int64('9223372036854775807')
+      output:
+          javascript: Long.fromString('9223372036854775807')
+          shell: new NumberLong('9223372036854775807')
+          python: Int64('9223372036854775807')
+          java: Long.parseLong("9223372036854775807")
+          csharp: Convert.ToInt64("9223372036854775807")
+    Decimal128:
+    - description: 'buffer arg'
+      input:
+          javascript: Decimal128(Buffer.from('5'))
+      output:
+          shell: new NumberDecimal(5.3E-6175)
+          python: Decimal128('5.3E-6175')
+          java: Decimal128.parse("5.3E-6175")
+          csharp: Decimal128.Parse("5.3E-6175")
+    - description: 'string arg'
+      input:
+          shell: NumberDecimal('5')
+          python: Decimal128('5')
+      output:
+          javascript: Decimal128.fromString('5')
+          shell: new NumberDecimal('5')
+          python: Decimal128('5')
+          java: Decimal128.parse("5")
+          csharp: Decimal128.Parse("5")
+    - description: 'NEW'
+      input:
+          javascript: new Decimal128(Buffer.from('5'))
+          shell: new NumberDecimal('5.3E-6175')
+      output:
+          shell: new NumberDecimal(5.3E-6175)
+          python: Decimal128('5.3E-6175')
+          java: Decimal128.parse("5.3E-6175")
+          csharp: Decimal128.Parse("5.3E-6175")
+    - description: 'number arg'
+      input:
+          shell: NumberDecimal(5)
+      output:
+          javascript: Decimal128.fromString('5')
+          shell: new NumberDecimal(5)
+          python: Decimal128('5')
+          java: Decimal128.parse("5")
+          csharp: Decimal128.Parse("5")
+    - description: 'no arg'
+      input:
+          shell: NumberDecimal()
+      output:
+          javascript: Decimal128.fromString('0')
+          shell: new NumberDecimal(0)
+          python: Decimal128('0')
+          java: Decimal128.parse("0")
+          csharp: Decimal128.Parse("0")
+    MinKey/MaxKey:
+    - description: 'MinKey'
+      input:
+          javascript: MinKey()
+          shell: MinKey()
+          python: MinKey()
+      output:
+          javascript: new MinKey()
+          shell: new MinKey()
+          python: MinKey()
+          java: new MinKey()
+          csharp: BsonMinKey.Value
+    - description: 'NEW MinKey'
+      input:
+          javascript: new MinKey()
+          shell: new MinKey()
+      output:
+          javascript: new MinKey()
+          shell: new MinKey()
+          python: MinKey()
+          java: new MinKey()
+          csharp: BsonMinKey.Value
+    - description: 'MaxKey'
+      input:
+          javascript: MaxKey()
+          shell: MaxKey()
+          python: MaxKey()
+      output:
+          javascript: new MaxKey()
+          shell: new MaxKey()
+          python: MaxKey()
+          java: new MaxKey()
+          csharp: BsonMaxKey.Value
+    - description: 'NEW MaxKey'
+      input:
+          javascript: new MaxKey()
+          shell: new MaxKey()
+      output:
+          javascript: new MaxKey()
+          shell: new MaxKey()
+          python: MaxKey()
+          java: new MaxKey()
+          csharp: BsonMaxKey.Value
+    Timestamp:
+    - description: 'NEW Timestamp'
+      input:
+          javascript: new Timestamp(10, 100)
+          shell: new Timestamp(10, 100)
+      output:
+          javascript: new Timestamp(10, 100)
+          shell: new Timestamp(10, 100)
+          python: Timestamp(10, 100)
+          java: new BSONTimestamp(10, 100)
+          csharp: new BsonTimestamp(10, 100)
+    - description: 'Timestamp'
+      input:
+          javascript: Timestamp(10, 100)
+          shell: Timestamp(10, 100)
+          python: Timestamp(10, 100)
+      output:
+          javascript: new Timestamp(10, 100)
+          shell: new Timestamp(10, 100)
+          python: Timestamp(10, 100)
+          java: new BSONTimestamp(10, 100)
+          csharp: new BsonTimestamp(10, 100)
+    BSONRegExp:
+    - description: 'no flags'
+      input:
+          javascript: BSONRegExp('^[a-z0-9_-]{3,16}$')
+          python: Regex('^[a-z0-9_-]{3,16}$')
+      output:
+          javascript: new BSONRegExp('^[a-z0-9_-]{3,16}$')
+          shell: new RegExp('^[a-z0-9_-]{3,16}$')
+          python: Regex('^[a-z0-9_-]{3,16}$')
+          java: new BsonRegularExpression("^[a-z0-9_-]{3,16}$")
+          csharp: new BsonRegularExpression("^[a-z0-9_-]{3,16}$")
+    - description: 'NEW no flags'
+      input:
+          javascript: new BSONRegExp('^[a-z0-9_-]{3,16}$')
+      output:
+          javascript: new BSONRegExp('^[a-z0-9_-]{3,16}$')
+          shell: new RegExp('^[a-z0-9_-]{3,16}$')
+          python: Regex('^[a-z0-9_-]{3,16}$')
+          java: new BsonRegularExpression("^[a-z0-9_-]{3,16}$")
+          csharp: new BsonRegularExpression("^[a-z0-9_-]{3,16}$")
+    - description: 'with flags'
+      input:
+          javascript: new BSONRegExp('^[a-z0-9_-]{3,16}$', 'imuxls')
+          python: Regex('^[a-z0-9_-]{3,16}$', 'imuxls')
+      output:
+          javascript: new BSONRegExp('^[a-z0-9_-]{3,16}$', 'imuxls')
+          shell: new RegExp('^[a-z0-9_-]{3,16}$', 'imuxls')
+          python: Regex('^[a-z0-9_-]{3,16}$', 'imuxls')
+          java: new BsonRegularExpression("^[a-z0-9_-]{3,16}$", "imuxls")
+          csharp: new BsonRegularExpression("^[a-z0-9_-]{3,16}$", "imxs")
+    Symbol:
+    - description: from string
+      input:
+          javascript: Symbol('abc')
+      output:
+          javascript: new Symbol('abc')
+          shell: "'abc'"
+          python: "'abc'"
+          java: new Symbol("abc")
+          csharp: '"abc"'
+    - description: NEW from string
+      input:
+          javascript: new Symbol('abc')
+      output:
+          javascript: new Symbol('abc')
+          shell: "'abc'"
+          python: "'abc'"
+          java: new Symbol("abc")
+          csharp: '"abc"'

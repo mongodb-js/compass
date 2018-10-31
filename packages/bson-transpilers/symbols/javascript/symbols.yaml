@@ -30,7 +30,7 @@ BsonSymbols:
                 <<: *__func
                 id: "ObjectIdCreateFromTime"
                 args:
-                    - [ *NumericType, "Date" ]
+                    - [ *NumericType ]
                 type: *ObjectIdType
                 template: *ObjectIdCreateFromTimeTemplate
                 argsTemplate: *ObjectIdCreateFromTimeArgsTemplate
@@ -114,7 +114,7 @@ BsonSymbols:
         code: 104
         callable: *constructor
         args:
-            - [ *IntegerType, *StringType ]
+            - [ *NumericType, *StringType ]
         type: *DoubleType
         attr: {}
         template: *DoubleSymbolTemplate
@@ -288,7 +288,7 @@ BsonSymbols:
         template: *Decimal128SymbolTemplate
         argsTemplate: *Decimal128SymbolArgsTemplate
 
-JSSymbols:
+NativeSymbols:
     Object:
         id: "Object"
         code: 10
@@ -333,6 +333,7 @@ JSSymbols:
         attr: # TODO: add more date funcs?
             now:
                 id: "now"
+                code: 200.1
                 callable: *constructor
                 args: []
                 type: *DateType

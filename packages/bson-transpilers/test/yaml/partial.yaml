@@ -1,0 +1,530 @@
+# Theses tests aren't that useful, more like defining edge case behavior so if it accidentally changes we're informed.
+runner: !!js/function >
+    (it, expect, input, output, transpiler, test) => {
+        it(`${input}: ${test.input[input]} => ${output}`, () => {
+            expect(
+                transpiler[input][output].compile(test.input[input], true)
+            ).to.equal(test.output[output]);
+        });
+    }
+tests:
+    bson:
+    - input:
+          javascript: new Long
+          python: Int64
+      output:
+          javascript: ''
+          python: Int64
+          java: ''
+          csharp: ''
+          shell: NumberLong
+    - input:
+          javascript: new Decimal128
+          python: Decimal128
+      output:
+          javascript: Decimal128
+          python: Decimal128
+          java: Decimal128
+          csharp: Decimal128
+          shell: NumberDecimal
+    - input:
+          javascript: Double
+          python: float
+      output:
+          javascript: Double
+          python: float
+          java: ''
+          csharp: ''
+          shell: ''
+    - input:
+          javascript: Int32
+          python: int
+      output:
+          javascript: Int32
+          python: int
+          java: ''
+          csharp: ''
+          shell: NumberInt
+    - input:
+          javascript: Long
+      output:
+          javascript: Long
+          python: Int64
+          java: ''
+          csharp: ''
+          shell: NumberLong
+    - input:
+          javascript: Decimal128
+      output:
+          javascript: Decimal128
+          python: Decimal128
+          java: Decimal128
+          csharp: Decimal128
+          shell: NumberDecimal
+    - input:
+          javascript: ObjectId
+          python: ObjectId
+      output:
+          javascript: ObjectId
+          python: ObjectId
+          java: ObjectId
+          csharp: ObjectId
+          shell: ObjectId
+    - input:
+          javascript: Code
+          python: Code
+      output:
+          javascript: Code
+          python: Code
+          java: Code
+          csharp: BsonJavaScript
+          shell: Code
+    - input:
+          javascript: DBRef
+          python: DBRef
+      output:
+          javascript: DBRef
+          python: DBRef
+          java: DBRef
+          csharp: MongoDBRef
+          shell: DBRef
+    - input:
+          javascript: Timestamp
+          python: Timestamp
+      output:
+          javascript: Timestamp
+          python: Timestamp
+          java: BSONTimestamp
+          csharp: BsonTimestamp
+          shell: Timestamp
+    - input:
+          javascript: Symbol
+      output:
+          javascript: Symbol
+          python: ''
+          java: Symbol
+          csharp: ''
+          shell: ''
+    - input:
+          javascript: MinKey
+          python: MinKey
+      output:
+          javascript: MinKey
+          python: MinKey
+          java: MinKey
+          csharp: BsonMinKey
+          shell: MinKey
+    - input:
+          javascript: MaxKey
+          python: MaxKey
+      output:
+          javascript: MaxKey
+          python: MaxKey
+          java: MaxKey
+          csharp: BsonMaxKey
+          shell: MaxKey
+    - input:
+          javascript: BSONRegExp
+          python: Regex
+      output:
+          javascript: BSONRegExp
+          python: Regex
+          java: BsonRegularExpression
+          csharp: BsonRegularExpression
+          shell: RegExp
+    - input:
+          javascript: RegExp
+          python: re.compile
+      output:
+          javascript: RegExp
+          python: re
+          java: Pattern
+          csharp: Regex
+          shell: RegExp
+    - input:
+          python: re
+      output:
+          javascript: ''
+          python: ''
+          java: ''
+          csharp: ''
+          shell: ''
+    - input:
+          javascript: Date
+          python: datetime
+      output:
+          javascript: Date
+          python: datetime
+          java: java.util.Date
+          csharp: DateTime
+          shell: Date
+    - input:
+          javascript: ObjectId.createFromTime
+          python: ObjectId.from_datetime
+      output:
+          javascript: ObjectId.createFromTime
+          python: ObjectId.from_datetime
+          java: new ObjectId
+          csharp: new ObjectId.GenerateNewId
+          shell: ObjectId.fromDate
+    - input:
+          javascript: ObjectId.isValid
+          python: ObjectId.is_valid
+      output:
+          javascript: ObjectId.isValid
+          python: ObjectId.is_valid
+          java: ObjectId.isValid
+          csharp: new ObjectId
+          shell: new ObjectId
+    - input:
+          javascript: ObjectId().toString
+      output:
+          javascript: ''
+          python: str(ObjectId())
+          java: new ObjectId().toHexString()
+          csharp: new ObjectId().ToString()
+          shell: new ObjectId().toString()
+    - input:
+          javascript: ObjectId().getTimestamp
+      output:
+          javascript: ''
+          python: ObjectId().generation_time
+          java: new ObjectId().getTimestamp()
+          csharp: new ObjectId().Timestamp
+          shell: new ObjectId().getTimestamp()
+    - input:
+          javascript: ObjectId().equals
+      output:
+          javascript: ''
+          python: ObjectId() ==
+          java: new ObjectId().equals
+          csharp: new ObjectId().Equals
+          shell: new ObjectId().equals
+    - input:
+          javascript: Int32(1).valueOf
+      output:
+          javascript: ''
+          python: int(1)
+          java: '1'
+          csharp: '1'
+          shell: new NumberInt(1).valueOf
+    - input:
+          javascript: Double(1).valueOf
+      output:
+          javascript: ''
+          python: float(1)
+          java: 1d
+          csharp: '1.0'
+          shell: '1'
+    - input:
+          javascript: Long(1, 100).toInt
+      output:
+          javascript: ''
+          python: int(Int64(429496729601))
+          java: "(int) 429496729601L"
+          csharp: "(int) 429496729601L"
+          shell: new NumberLong(429496729601).valueOf
+    - input:
+          javascript: Long(1, 100).toNumber
+      output:
+          javascript: ''
+          python: float(Int64(429496729601))
+          java: "(double) 429496729601L"
+          csharp: "(double) 429496729601L"
+          shell: new NumberLong(429496729601).floatApprox
+    - input:
+          javascript: Long(1, 100).toString
+      output:
+          javascript: ''
+          python: str
+          java: 429496729601L
+          csharp: 429496729601L
+          shell: new NumberLong(429496729601).toString
+    - input:
+          javascript: Long(1, 100).isZero
+      output:
+          javascript: ''
+          python: Int64(429496729601) == 0
+          java: 429496729601L == 0
+          csharp: 429496729601L == 0
+          shell: new NumberLong(429496729601) === 0
+    - input:
+          javascript: Long(1, 100).isNegative
+      output:
+          javascript: ''
+          python: Int64(429496729601) < 0
+          java: 429496729601L < 0
+          csharp: 429496729601L < 0
+          shell: new NumberLong(429496729601) < 0
+    - input:
+          javascript: Long(1, 100).isOdd()
+      output:
+          javascript: ''
+          python: "(Int64(429496729601) % 2) == 1"
+          java: "(429496729601L % 2) == 1"
+          csharp: 429496729601L % 2 == 1
+          shell: "(new NumberLong(429496729601) % 2) === 1"
+    - input:
+          javascript: Long(1, 100).equals
+      output:
+          javascript: ''
+          python: Int64(429496729601) ==
+          java: 429496729601L ==
+          csharp: 429496729601L ==
+          shell: new NumberLong(429496729601) ===
+    - input:
+          javascript: Long(1, 100).notEquals
+      output:
+          javascript: ''
+          python: Int64(429496729601) !=
+          java: 429496729601L !=
+          csharp: 429496729601L !=
+          shell: new NumberLong(429496729601) !==
+    - input:
+          javascript: Long(1, 100).compare
+      output:
+          javascript: ''
+          python: Int64(429496729601) -
+          java: 429496729601L -
+          csharp: 429496729601L -
+          shell: new NumberLong(429496729601) -
+    - input:
+          javascript: Long(1, 100).greaterThan
+      output:
+          javascript: ''
+          python: Int64(429496729601) >
+          java: 429496729601L >
+          csharp: 429496729601L >
+          shell: new NumberLong(429496729601) >
+    - input:
+          javascript: Long(1, 100).greaterThanOrEqual
+      output:
+          javascript: ''
+          python: Int64(429496729601) >=
+          java: 429496729601L >=
+          csharp: 429496729601L >=
+          shell: new NumberLong(429496729601) >=
+    - input:
+          javascript: Long(1, 100).lessThan
+      output:
+          javascript: ''
+          python: Int64(429496729601) <
+          java: 429496729601L <
+          csharp: 429496729601L <
+          shell: new NumberLong(429496729601) <
+    - input:
+          javascript: Long(1, 100).lessThanOrEqual
+      output:
+          javascript: ''
+          python: Int64(429496729601) <=
+          java: 429496729601L <=
+          csharp: 429496729601L <=
+          shell: new NumberLong(429496729601) <=
+    - input:
+          javascript: Long(1, 100).negate
+      output:
+          javascript: ''
+          python: "-"
+          java: "-"
+          csharp: "-"
+          shell: "-"
+    - input:
+          javascript: Long(1, 100).add
+      output:
+          javascript: ''
+          python: Int64(429496729601) +
+          java: 429496729601L +
+          csharp: 429496729601L +
+          shell: new NumberLong(429496729601) +
+    - input:
+          javascript: Long(1, 100).subtract
+      output:
+          javascript: ''
+          python: Int64(429496729601) -
+          java: 429496729601L -
+          csharp: 429496729601L -
+          shell: new NumberLong(429496729601) -
+    - input:
+          javascript: Long(1, 100).multiply
+      output:
+          javascript: ''
+          python: Int64(429496729601) *
+          java: 429496729601L *
+          csharp: 429496729601L *
+          shell: new NumberLong(429496729601) *
+    - input:
+          javascript: Long(1, 100).div
+      output:
+          javascript: ''
+          python: Int64(429496729601) /
+          java: 429496729601L /
+          csharp: 429496729601L /
+          shell: new NumberLong(429496729601) /
+    - input:
+          javascript: Long(1, 100).modulo
+      output:
+          javascript: ''
+          python: Int64(429496729601) %
+          java: 429496729601L %
+          csharp: 429496729601L %
+          shell: new NumberLong(429496729601) %
+    - input:
+          javascript: Long(1, 100).not
+      output:
+          javascript: ''
+          python: "~"
+          java: "~"
+          csharp: "~"
+          shell: "~"
+    - input:
+          javascript: Long(1, 100).and
+      output:
+          javascript: ''
+          python: Int64(429496729601) &
+          java: 429496729601L &
+          csharp: 429496729601L &
+          shell: new NumberLong(429496729601) &
+    - input:
+          javascript: Long(1, 100).or
+      output:
+          javascript: ''
+          python: Int64(429496729601) |
+          java: 429496729601L |
+          csharp: 429496729601L |
+          shell: new NumberLong(429496729601) |
+    - input:
+          javascript: Long(1, 100).xor
+      output:
+          javascript: ''
+          python: Int64(429496729601) ^
+          java: 429496729601L ^
+          csharp: 429496729601L ^
+          shell: new NumberLong(429496729601) ^
+    - input:
+          javascript: Long(1, 100).shiftLeft
+      output:
+          javascript: ''
+          python: Int64(429496729601) <<
+          java: Long.rotateLeft
+          csharp: 429496729601L <<
+          shell: new NumberLong(429496729601) <<
+    - input:
+          javascript: Long(1, 100).shiftRight
+      output:
+          javascript: ''
+          python: Int64(429496729601) >>
+          java: Long.rotateRight
+          csharp: 429496729601L >>
+          shell: new NumberLong(429496729601) >>
+    - input:
+          javascript: new Decimal128(Buffer.from('5')).toString
+      output:
+          javascript: ''
+          python: str
+          java: Decimal128.parse("5.3E-6175").toString
+          csharp: Decimal128.Parse("5.3E-6175").ToString
+          shell: new NumberDecimal(5.3E-6175).toString
+    - input:
+          javascript: Timestamp(1, 100).toString
+      output:
+          javascript: ''
+          python: str
+          java: new BSONTimestamp(1, 100).toString
+          csharp: new BsonTimestamp(1, 100).ToString
+          shell: new Timestamp(1, 100).toString
+    - input:
+          javascript: Timestamp(1, 100).equals
+      output:
+          javascript: ''
+          python: Timestamp(1, 100) ==
+          java: new BSONTimestamp(1, 100).equals
+          csharp: new BsonTimestamp(1, 100).Equals
+          shell: new Timestamp(1, 100) ===
+    - input:
+          javascript: Timestamp(1, 100).compare
+      output:
+          javascript: ''
+          python: "(Timestamp(1, 100).as_datetime() -"
+          java: new BSONTimestamp(1, 100).compareTo
+          csharp: new BsonTimestamp(1, 100).CompareTo
+          shell: new Timestamp(1, 100) -
+    - input:
+          javascript: Timestamp(1, 100).notEquals
+      output:
+          javascript: ''
+          python: Timestamp(1, 100) !=
+          java: new BSONTimestamp(1, 100).compareTo
+          csharp: new BsonTimestamp(1, 100) !=
+          shell: new Timestamp(1, 100) !==
+    - input:
+          javascript: Timestamp(1, 100).greaterThan
+      output:
+          javascript: ''
+          python: Timestamp(1, 100) >
+          java: new BSONTimestamp(1, 100).compareTo
+          csharp: new BsonTimestamp(1, 100) >
+          shell: new Timestamp(1, 100) >
+    - input:
+          javascript: Timestamp(1, 100).greaterThanOrEqual
+      output:
+          javascript: ''
+          python: Timestamp(1, 100) >=
+          java: new BSONTimestamp(1, 100).compareTo
+          csharp: new BsonTimestamp(1, 100) >=
+          shell: new Timestamp(1, 100) >=
+    - input:
+          javascript: Timestamp(1, 100).lessThan
+      output:
+          javascript: ''
+          python: Timestamp(1, 100) <
+          java: new BSONTimestamp(1, 100).compareTo
+          csharp: new BsonTimestamp(1, 100) <
+          shell: new Timestamp(1, 100) <
+    - input:
+          javascript: Timestamp(1, 100).lessThanOrEqual
+      output:
+          javascript: ''
+          python: Timestamp(1, 100) <=
+          java: new BSONTimestamp(1, 100).compareTo
+          csharp: new BsonTimestamp(1, 100) <=
+          shell: new Timestamp(1, 100) <=
+    - input:
+          javascript: Timestamp(1, 100).getLowBits
+      output:
+          javascript: ''
+          python: Timestamp(1, 100).time
+          java: new BSONTimestamp(1, 100).getTime
+          csharp: new BsonTimestamp(1, 100).ToUniversalTime
+          shell: new Timestamp(1, 100).getTime
+    - input:
+          javascript: Timestamp(1, 100).getHighBits
+      output:
+          javascript: ''
+          python: Timestamp(1, 100).inc
+          java: new BSONTimestamp(1, 100).getInc
+          csharp: new BsonTimestamp(1, 100).Increment
+          shell: new Timestamp(1, 100).getInc
+    - input:
+          javascript: Symbol('2').valueOf
+      output:
+          javascript: ''
+          python: "'2'"
+          java: new Symbol("2").getSymbol
+          csharp: '"2"'
+          shell: "'2'"
+    - input:
+          javascript: Symbol('2').toString
+      output:
+          javascript: ''
+          python: "'2'"
+          java: new Symbol("2").toString
+          csharp: '"2"'
+          shell: "'2'"
+    - input:
+          javascript: Symbol('2').inspect
+      output:
+          javascript: ''
+          python: "'2'"
+          java: new Symbol("2").getSymbol
+          csharp: '"2"'
+          shell: "'2'"

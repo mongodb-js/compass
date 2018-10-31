@@ -1,0 +1,459 @@
+runner: !!js/function >
+    (it, expect, input, output, transpiler, test) => {
+        it(`${input}: ${test.input[input]} => ${output}`, () => {
+            let thrown = false;
+            try {
+              transpiler[input][output].compile(test.input[input]);
+            } catch (error) {
+              thrown = true;
+              expect(error.code).to.equal(test.errorCode);
+              if (test.message) {
+                expect(error.message).to.be.a('string');
+                expect(
+                  error.message.includes(test.message),
+                  `Expected error message to contain ${test.message} but got ${error.message}`
+                ).to.be.true;
+              }
+            } finally {
+              if (!thrown) {
+                expect.fail(0, 0, `Expected error with code ${test.errorCode} to throw`);
+              }
+            }
+        });
+    }
+tests:
+    Binary:
+    - description: Binary
+      input:
+          javascript: Binary(1)
+          python: Binary(1)
+      errorCode: E_BSONTRANSPILERS_UNIMPLEMENTED
+
+    this:
+    - description: this
+      input:
+          javascript: this
+      errorCode: E_BSONTRANSPILERS_UNIMPLEMENTED
+    - description: pass_stmt
+      input:
+          python: pass
+      errorCode: E_BSONTRANSPILERS_UNIMPLEMENTED
+
+    delete:
+    - description: delete
+      input:
+          javascript: delete 1
+          python: del x[1]
+      errorCode: E_BSONTRANSPILERS_UNIMPLEMENTED
+
+    void:
+    - description: void
+      input:
+          javascript: void 1
+      errorCode: E_BSONTRANSPILERS_UNIMPLEMENTED
+
+    typeof:
+    - description: typeof
+      input:
+          javascript: typeof 1
+      errorCode: E_BSONTRANSPILERS_UNIMPLEMENTED
+
+    instanceof:
+    - description: instanceof
+      input:
+          javascript: 2 instanceof 1
+      errorCode: E_BSONTRANSPILERS_UNIMPLEMENTED
+
+    in:
+    - description: in
+      input:
+          javascript: 2 in 1
+      errorCode: E_BSONTRANSPILERS_UNIMPLEMENTED
+
+    assignment:
+    - description: assignment
+      input:
+          javascript: 2 = 1
+          python: 1 = 10
+      errorCode: E_BSONTRANSPILERS_UNIMPLEMENTED
+    - description: assignment to id
+      input:
+          javascript: Long = 1
+          python: Long = 10
+      errorCode: E_BSONTRANSPILERS_UNIMPLEMENTED
+    - description: assignment operator
+      input:
+          javascript: 1 += 3
+          python: x += 10
+      errorCode: E_BSONTRANSPILERS_UNIMPLEMENTED
+    - description: AugAssign:+
+      input:
+          python: x -= 10
+      errorCode: E_BSONTRANSPILERS_UNIMPLEMENTED
+    - description: AugAssign:+
+      input:
+          python: x *= 10
+      errorCode: E_BSONTRANSPILERS_UNIMPLEMENTED
+    - description: AnnAssign
+      input:
+          python: x:y = 1
+      errorCode: E_BSONTRANSPILERS_UNIMPLEMENTED
+
+    function def:
+    - description: function def
+      input:
+          javascript: function x(y) { return 1; }
+          python: |-
+              def x(a, b):
+                  1
+      errorCode: E_BSONTRANSPILERS_UNIMPLEMENTED
+    - description: decorated:func
+      input:
+          python: |-
+              @a
+              def x(a, b):
+                  1
+      errorCode: E_BSONTRANSPILERS_UNIMPLEMENTED
+    - description: decorated:async
+      input:
+          python: |-
+              @a
+              async def x(a, b):
+                  1
+      errorCode: E_BSONTRANSPILERS_UNIMPLEMENTED
+
+    async:
+    - description: async_stmt:with
+      input:
+          python: |-
+              async with x as y:
+                  1
+      errorCode: E_BSONTRANSPILERS_UNIMPLEMENTED
+    - description: async_stmt:funcdef
+      input:
+          python: |-
+              async def x(a, b):
+                  1
+      errorCode: E_BSONTRANSPILERS_UNIMPLEMENTED
+    - description: async_stmt:for
+      input:
+          python: |-
+              async for x in []:
+                  1
+              else:
+                  2
+      errorCode: E_BSONTRANSPILERS_UNIMPLEMENTED
+
+    class def:
+    - description: classdef
+      input:
+          python: |-
+              class x(a, b):
+                  1
+      errorCode: E_BSONTRANSPILERS_UNIMPLEMENTED
+    - description: decorated:class
+      input:
+          python: |-
+              @a
+              class x(a, b):
+                  1
+      errorCode: E_BSONTRANSPILERS_UNIMPLEMENTED
+
+    variable statement:
+    - description: variable statement
+      input:
+          javascript: var x = 1
+      errorCode: E_BSONTRANSPILERS_UNIMPLEMENTED
+    - description: multiple variable statement
+      input:
+          javascript: var x, y, z = 1
+      errorCode: E_BSONTRANSPILERS_UNIMPLEMENTED
+    - description: global_stmt
+      input:
+          python: global x
+      errorCode: E_BSONTRANSPILERS_UNIMPLEMENTED
+    - description: nonlocal_stmt
+      input:
+          python: nonlocal x
+      errorCode: E_BSONTRANSPILERS_UNIMPLEMENTED
+    - description: assert_stmt
+      input:
+          python: assert True
+      errorCode: E_BSONTRANSPILERS_UNIMPLEMENTED
+
+    import statement:
+    - description: import_stmt:name
+      input:
+          python: import bson
+      errorCode: E_BSONTRANSPILERS_UNIMPLEMENTED
+    - description: import_stmt:from
+      input:
+          python: from bson import *
+      errorCode: E_BSONTRANSPILERS_UNIMPLEMENTED
+
+    if statement:
+    - description: if statement no block
+      input:
+          javascript: if (1) 2
+          python: |-
+              if(True):
+                  1
+      errorCode: E_BSONTRANSPILERS_UNIMPLEMENTED
+    - description: if statement with block
+      input:
+          javascript: if (1) { 2 }
+      errorCode: E_BSONTRANSPILERS_UNIMPLEMENTED
+    - description: if statement with else
+      input:
+          javascript: 'if (1) { 2 } else 1 '
+          python: |-
+              if(True):
+                  1
+              else:
+                  2
+      errorCode: E_BSONTRANSPILERS_UNIMPLEMENTED
+    - description: if statement with else block
+      input:
+          javascript: 'if (1) { 2 } else {} '
+      errorCode: E_BSONTRANSPILERS_UNIMPLEMENTED
+
+    iteration statement:
+    - description: do while
+      input:
+          javascript: do {} while (true)
+      errorCode: E_BSONTRANSPILERS_UNIMPLEMENTED
+    - description: while
+      input:
+          javascript: while (true) {}
+          python: |-
+              while(True):
+                  1
+      errorCode: E_BSONTRANSPILERS_UNIMPLEMENTED
+    - description: while_stmt:else
+      input:
+          python: |-
+              while(True):
+                  1
+              else:
+                  2
+      errorCode: E_BSONTRANSPILERS_UNIMPLEMENTED
+    - description: for
+      input:
+          javascript: for (; 1 < 10; 1++) {}
+          python: |-
+              for x in []:
+                  1
+      errorCode: E_BSONTRANSPILERS_UNIMPLEMENTED
+    - description: for var
+      input:
+          javascript: for (var x; 1 < 10; 1--) {}
+      errorCode: E_BSONTRANSPILERS_UNIMPLEMENTED
+    - description: for in
+      input:
+          javascript: for (1 in {}) {}
+      errorCode: E_BSONTRANSPILERS_UNIMPLEMENTED
+    - description: for var in
+      input:
+          javascript: for (var x in {}) {}
+      errorCode: E_BSONTRANSPILERS_UNIMPLEMENTED
+    - description: for_stmt:else
+      input:
+          python: "for x in []:\n    1\nelse:\n    2"
+      errorCode: E_BSONTRANSPILERS_UNIMPLEMENTED
+
+    continue statement:
+    - description: continue statement
+      input:
+          javascript: continue
+      errorCode: E_BSONTRANSPILERS_UNIMPLEMENTED
+    - description: continue id statement
+      input:
+          javascript: continue x
+          python: continue
+      errorCode: E_BSONTRANSPILERS_UNIMPLEMENTED
+
+    break statement:
+    - description: break statement
+      input:
+          javascript: break
+          python: break
+      errorCode: E_BSONTRANSPILERS_UNIMPLEMENTED
+    - description: break id statement
+      input:
+          javascript: break x
+      errorCode: E_BSONTRANSPILERS_UNIMPLEMENTED
+
+    return statement:
+    - description: return statement
+      input:
+          javascript: return
+      errorCode: E_BSONTRANSPILERS_UNIMPLEMENTED
+    - description: return id statement
+      input:
+          javascript: return x
+          python: return 1
+      errorCode: E_BSONTRANSPILERS_UNIMPLEMENTED
+
+    with statement:
+    - description: with statement
+      input:
+          javascript: with (1) {}
+          python: |-
+              with x as y:
+                  1
+      errorCode: E_BSONTRANSPILERS_UNIMPLEMENTED
+
+    label statement:
+    - description: label statement
+      input:
+          javascript: x:1
+      errorCode: E_BSONTRANSPILERS_UNIMPLEMENTED
+
+    switch statement:
+    - description: switch statement empty block
+      input:
+          javascript: switch (1) {}
+      errorCode: E_BSONTRANSPILERS_UNIMPLEMENTED
+    - description: switch statement one case block
+      input:
+          javascript: 'switch (1) { case x: {} }'
+      errorCode: E_BSONTRANSPILERS_UNIMPLEMENTED
+    - description: switch statement default
+      input:
+          javascript: 'switch (1) { default: {} }'
+      errorCode: E_BSONTRANSPILERS_UNIMPLEMENTED
+    - description: switch statement case and default
+      input:
+          javascript: 'switch (1) { case x: 1; default: {} }'
+      errorCode: E_BSONTRANSPILERS_UNIMPLEMENTED
+
+    yield statement:
+    - description: flow_stmt:yield
+      input:
+          python: yield
+      errorCode: E_BSONTRANSPILERS_UNIMPLEMENTED
+
+    throw statement:
+    - description: throw statement
+      input:
+          javascript: throw 1
+          python: raise
+      errorCode: E_BSONTRANSPILERS_UNIMPLEMENTED
+
+    try statement:
+    - description: try statement
+      input:
+          javascript: try {} catch (Error) { 1 }
+          python: |-
+              try:
+                  1
+              except e:
+                  2
+      errorCode: E_BSONTRANSPILERS_UNIMPLEMENTED
+    - description: try_stmt:multiple except
+      input:
+          python: |-
+              try:
+                  1
+              except e:
+                  2
+              except a:
+                  3
+      errorCode: E_BSONTRANSPILERS_UNIMPLEMENTED
+    - description: try finally statement
+      input:
+          javascript: try {} finally { 1 }
+          python: |-
+              try:
+                  1
+              except e:
+                  2
+              finally:
+                  3
+      errorCode: E_BSONTRANSPILERS_UNIMPLEMENTED
+    - description: try_stmt:else
+      input:
+          python: |-
+              try:
+                  1
+              except e:
+                  2
+              else:
+                  3
+      errorCode: E_BSONTRANSPILERS_UNIMPLEMENTED
+    - description: try catch finally statement
+      input:
+          javascript: try {} catch (Error) { 1 } finally {}
+      errorCode: E_BSONTRANSPILERS_UNIMPLEMENTED
+
+    debugger statement:
+    - description: debugger statement
+      input:
+          javascript: debugger
+      errorCode: E_BSONTRANSPILERS_UNIMPLEMENTED
+
+    attributes:
+    - description: array indexed
+      input:
+          javascript: "[1,2,3][1]"
+      errorCode: E_BSONTRANSPILERS_UNIMPLEMENTED
+    - description: object indexed
+      input:
+          javascript: "{x: 1}[1]"
+      errorCode: E_BSONTRANSPILERS_UNIMPLEMENTED
+
+    ternary:
+    - description: ternary
+      input:
+          javascript: '1 == 3 ? 1 : 2'
+      errorCode: E_BSONTRANSPILERS_UNIMPLEMENTED
+
+    comprehensions:
+    - description: list comprehension for
+      input:
+          python: "[x for x in range(100)]"
+      errorCode: E_BSONTRANSPILERS_UNIMPLEMENTED
+    - description: list comprehension for
+      input:
+          python: "[x for x in [1, 2]]"
+      errorCode: E_BSONTRANSPILERS_UNIMPLEMENTED
+    - description: list comprehension for
+      input:
+          python: "[x for x in y]"
+      errorCode: E_BSONTRANSPILERS_UNIMPLEMENTED
+    - description: dict comprehension for
+      input:
+          python: "{x: 1 for x in range(100)}"
+      errorCode: E_BSONTRANSPILERS_UNIMPLEMENTED
+    - description: dict comprehension for
+      input:
+          python: "{x: 1 for x in [1, 2]}"
+      errorCode: E_BSONTRANSPILERS_UNIMPLEMENTED
+    - description: dict comprehension for
+      input:
+          python: "{x for x in y}"
+      errorCode: E_BSONTRANSPILERS_UNIMPLEMENTED
+
+    inline_if:
+    - description: inline if
+      input:
+          python: 1 if 1 in y else z
+      errorCode: E_BSONTRANSPILERS_UNIMPLEMENTED
+    - description: array inline if
+      input:
+          python: "[1 if 1 in y else z]"
+      errorCode: E_BSONTRANSPILERS_UNIMPLEMENTED
+    - description: set inline if
+      input:
+          python: "(1 if 1 in y else z)"
+      errorCode: E_BSONTRANSPILERS_UNIMPLEMENTED
+    - description: dict inline if
+      input:
+          python: "{'x': 1 if 1 in y else z}"
+      errorCode: E_BSONTRANSPILERS_UNIMPLEMENTED
+
+    spread:
+    - description: EllipsesAtom
+      input:
+          python: "..."
+      errorCode: E_BSONTRANSPILERS_UNIMPLEMENTED

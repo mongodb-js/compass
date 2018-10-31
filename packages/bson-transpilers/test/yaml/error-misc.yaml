@@ -1,0 +1,179 @@
+runner: !!js/function >
+    (it, expect, input, output, transpiler, test) => {
+        it(`${input}: ${test.input[input]} => ${output}`, () => {
+            let thrown = false;
+            try {
+              transpiler[input][output].compile(test.input[input]);
+            } catch (error) {
+              thrown = true;
+              expect(error.code).to.equal(test.errorCode);
+              if (test.message) {
+                expect(error.message).to.be.a('string');
+                expect(
+                  error.message.includes(test.message),
+                  `Expected error message to contain ${test.message} but got ${error.message}`
+                ).to.be.true;
+              }
+            } finally {
+              if (!thrown) {
+                expect.fail(0, 0, `Expected error with code ${test.errorCode} to throw`);
+              }
+            }
+        });
+    }
+tests:
+    REFERENCE_ERROR:
+    - description: top level symbol
+      input:
+          javascript: x
+          python: x
+          shell: x
+      errorCode: E_BSONTRANSPILERS_REFERENCE
+      message: x
+    - description: arg symbol
+      input:
+          javascript: ObjectId(x)
+          python: ObjectId(x)
+          shell: ObjectId(x)
+      errorCode: E_BSONTRANSPILERS_REFERENCE
+      message: x
+
+    RUNTIME_ERROR:
+    - description: BSONRegExp with unsupported flag
+      input:
+          javascript: new BSONRegExp('^[a-z0-9_-]{3,16}$', 'wrong')
+          python: Regex('^[a-z0-9_-]{3,16}$', 'wrong')
+      errorCode: E_BSONTRANSPILERS_RUNTIME
+    - description: regex literal with unsupported flag
+      input:
+          javascript: new RegExp('ab+c', 'wrong')
+      errorCode: E_BSONTRANSPILERS_RUNTIME
+    - description: Invalid ObjectId
+      input:
+          javascript: ObjectId("1")
+          shell: ObjectId("1")
+      errorCode: E_BSONTRANSPILERS_RUNTIME
+    - description: Invalid Long
+      input:
+          javascript: Long(1, ++1)
+      errorCode: E_BSONTRANSPILERS_RUNTIME
+    - description: Invalid Decimal128
+      input:
+          javascript: Decimal128(Buffer(-1))
+          shell: NumberDecimal(++1)
+      errorCode: E_BSONTRANSPILERS_RUNTIME
+    - description: Invalid Date
+      input:
+          javascript: Date(++1)
+          shell: Date(++1)
+          python: datetime(int(1), 2, 3, 4, 5)
+      errorCode: E_BSONTRANSPILERS_RUNTIME
+
+    TYPE_ERROR:
+    - description: Int32 with invalidOtherMethod
+      input:
+          python: int(3).invalidOtherMethod()
+      errorCode: E_BSONTRANSPILERS_TYPE
+    - description: Double with invalidOtherMethod
+      input:
+          python: float(3).invalidOtherMethod()
+      errorCode: E_BSONTRANSPILERS_TYPE
+    - description: Code with callable scope
+      input:
+          javascript: Code('test code').scope()
+      errorCode: E_BSONTRANSPILERS_TYPE
+    - description: Code with callable code
+      input:
+          javascript: Code('test code').code()
+      errorCode: E_BSONTRANSPILERS_TYPE
+    - description: DBRef with callable db
+      input:
+          javascript: new DBRef('coll', new ObjectId()).db()
+      errorCode: E_BSONTRANSPILERS_TYPE
+    - description: DBRef with callable namespace
+      input:
+          javascript: new DBRef('coll', new ObjectId()).namespace()
+      errorCode: E_BSONTRANSPILERS_TYPE
+    - description: DBRef with callable oid
+      input:
+          javascript: new DBRef('coll', new ObjectId()).oid()
+      errorCode: E_BSONTRANSPILERS_TYPE
+
+    ATTRIBUTE_ERROR:
+    - description: Code with invalidMethod
+      input:
+          javascript: "Code('test code', {x: 1}).invalidMethod()"
+          python: "Code('test code', {'x': 1}).invalidMethod()"
+      errorCode: E_BSONTRANSPILERS_ATTRIBUTE
+    - description: ObjectId with invalidMethod
+      input:
+          javascript: ObjectId().invalidMethod()
+          python: ObjectId().invalidMethod()
+      errorCode: E_BSONTRANSPILERS_ATTRIBUTE
+    - description: DBRef with invalidMethod
+      input:
+          javascript: new DBRef('coll', new ObjectId()).invalidMethod()
+          python: DBRef('coll', ObjectId()).invalidMethod()
+      errorCode: E_BSONTRANSPILERS_ATTRIBUTE
+    - description: DBRef with invalidProperty
+      input:
+          javascript: new DBRef('coll', new ObjectId()).invalidProperty
+      errorCode: E_BSONTRANSPILERS_ATTRIBUTE
+    - description: Int32 with invalidOtherMethod
+      input:
+          javascript: Int32(3).invalidOtherMethod()
+      errorCode: E_BSONTRANSPILERS_ATTRIBUTE
+    - description: Double with invalidOtherMethod
+      input:
+          javascript: Double(3).invalidOtherMethod()
+      errorCode: E_BSONTRANSPILERS_ATTRIBUTE
+    - description: Long with invalidMethod
+      input:
+          javascript: Long(1, 100).invalidMethod()
+          python: Int64(100).invalidMethod()
+      errorCode: E_BSONTRANSPILERS_ATTRIBUTE
+    - description: Long with lowercase max value
+      input:
+          javascript: Long.max_value
+      errorCode: E_BSONTRANSPILERS_ATTRIBUTE
+    - description: Long with wrong attribute
+      input:
+          javascript: Long.WRONG_ATTRIBUTE
+          python: Int64.WRONG_ATTRIBUTE
+      errorCode: E_BSONTRANSPILERS_ATTRIBUTE
+    - description: Long with lowercase min value
+      input:
+          javascript: Long.min_value
+      errorCode: E_BSONTRANSPILERS_ATTRIBUTE
+
+    - description: Long with lowercase zero
+      input:
+          javascript: Long.zero
+      errorCode: E_BSONTRANSPILERS_ATTRIBUTE
+    - description: Long with lowercase one
+      input:
+          javascript: Long.one
+      errorCode: E_BSONTRANSPILERS_ATTRIBUTE
+    - description: Long with lowercase neg one
+      input:
+          javascript: Long.neg_one
+      errorCode: E_BSONTRANSPILERS_ATTRIBUTE
+    - description: Decimal128 with invalidMethod
+      input:
+          javascript: new Decimal128(Buffer.from('5')).invalidMethod()
+          python: Decimal128('1').invalidMethod()
+      errorCode: E_BSONTRANSPILERS_ATTRIBUTE
+    - description: Timestamp with invalidMethod
+      input:
+          javascript: Timestamp(1, 100).invalidMethod()
+          python: Timestamp(1, 100).invalidMethod()
+      errorCode: E_BSONTRANSPILERS_ATTRIBUTE
+    - description: Timestamp with invalidProperty
+      input:
+          javascript: Timestamp(1, 100).invalidProperty
+          python: Timestamp(1, 100).invalidProperty
+      errorCode: E_BSONTRANSPILERS_ATTRIBUTE
+    - description: Symbol with invalidMethod
+      input:
+          javascript: Symbol('2').invalidMethod()
+      errorCode: E_BSONTRANSPILERS_ATTRIBUTE

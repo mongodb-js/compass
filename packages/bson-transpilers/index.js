@@ -1,20 +1,27 @@
 const antlr4 = require('antlr4');
 const ECMAScriptLexer = require('./lib/antlr/ECMAScriptLexer.js');
 const ECMAScriptParser = require('./lib/antlr/ECMAScriptParser.js');
+const Python3Lexer = require('./lib/antlr/Python3Lexer.js');
+const Python3Parser = require('./lib/antlr/Python3Parser');
+
+const JavascriptANTLRVisitor = require('./lib/antlr/ECMAScriptVisitor').ECMAScriptVisitor;
+const PythonANTLRVisitor = require('./lib/antlr/Python3Visitor').Python3Visitor;
 
 const ErrorListener = require('./codegeneration/ErrorListener.js');
 const { BsonTranspilersInternalError } = require('./helper/error');
 
 const yaml = require('js-yaml');
 
-const JavascriptVisitor = require('./codegeneration/javascript/Visitor');
-const ShellVisitor = require('./codegeneration/shell/Visitor');
+const getCodeGenerationVisitor = require('./codegeneration/CodeGenerationVisitor');
+const getJavascriptVisitor = require('./codegeneration/javascript/Visitor');
+const getShellVisitor = require('./codegeneration/shell/Visitor');
+const getPythonVisitor = require('./codegeneration/python/Visitor');
 
-const JavaGenerator = require('./codegeneration/java/Generator');
-const PythonGenerator = require('./codegeneration/python/Generator');
-const CsharpGenerator = require('./codegeneration/csharp/Generator');
-const ShellGenerator = require('./codegeneration/shell/Generator');
-const JavascriptGenerator = require('./codegeneration/javascript/Generator');
+const getJavaGenerator = require('./codegeneration/java/Generator');
+const getPythonGenerator = require('./codegeneration/python/Generator');
+const getCsharpGenerator = require('./codegeneration/csharp/Generator');
+const getShellGenerator = require('./codegeneration/shell/Generator');
+const getJavascriptGenerator = require('./codegeneration/javascript/Generator');
 
 const javascriptjavasymbols = require('./lib/symbol-table/javascripttojava');
 const javascriptpythonsymbols = require('./lib/symbol-table/javascripttopython');
@@ -26,15 +33,20 @@ const shellpythonsymbols = require('./lib/symbol-table/shelltopython');
 const shellcsharpsymbols = require('./lib/symbol-table/shelltocsharp');
 const shelljavascriptsymbols = require('./lib/symbol-table/shelltojavascript');
 
+const pythonjavasymbols = require('./lib/symbol-table/pythontojava');
+const pythonshellsymbols = require('./lib/symbol-table/pythontoshell');
+const pythoncsharpsymbols = require('./lib/symbol-table/pythontocsharp');
+const pythonjavascriptsymbols = require('./lib/symbol-table/pythontojavascript');
+
 /**
- * Constructs the parse tree from the code given by the user.
+ * Constructs the parse tree from the JS or Shell code given by the user.
  *
- * TODO: hardcoded to ECMAScriptLexer/Parser
- * @param {String} input
+ * @param {String} input - the input code.
+ * @param {String} start - the name of the start node. Always defined in the
+ * language-specific visitor.
  * @return {antlr4.ParserRuleContext} - The parse tree.
  */
-const loadTree = (input) => {
-  // TODO: swap out lexer/parser/etc depending on input lang
+const loadJSTree = (input, start) => {
   const chars = new antlr4.InputStream(input);
   const lexer = new ECMAScriptLexer.ECMAScriptLexer(chars);
   lexer.strictMode = false;
@@ -47,26 +59,61 @@ const loadTree = (input) => {
   parser.removeErrorListeners(); // Remove the default ConsoleErrorListener
   parser.addErrorListener(listener); // Add back a custom error listener
 
-  return parser.program();
+  return parser[start]();
 };
 
-const getTranspiler = (visitor, generator, symbols) => {
+/**
+ * Constructs the parse tree from the Python code given by the user.
+ *
+ * @param {String} input
+ * @param {String} start - the name of the start node. Always defined in the
+ * language-specific visitor.
+ * @return {antlr4.ParserRuleContext} - The parse tree.
+ */
+const loadPyTree = (input, start) => {
+  const chars = new antlr4.InputStream(input + '\n'); // requires newline
+  const lexer = new Python3Lexer.Python3Lexer(chars);
+
+  const tokens = new antlr4.CommonTokenStream(lexer);
+  const parser = new Python3Parser.Python3Parser(tokens);
+  parser.buildParseTrees = true;
+
+  const listener = new ErrorListener();
+  parser.removeErrorListeners(); // Remove the default ConsoleErrorListener
+  parser.addErrorListener(listener); // Add back a custom error listener
+
+  return parser[start]();
+};
+
+const getTranspiler = (loadTree, visitor, generator, symbols) => {
   const Transpiler = generator(visitor);
   const transpiler = new Transpiler();
 
   const doc = yaml.load(symbols);
+
+  /* Object validation. If the symbol table is missing any of these elements,
+   * then an error should be thrown. Can be empty, but must exist. */
+  ['BasicTypes', 'BsonTypes', 'NativeTypes', 'SymbolTypes', 'BsonTypes',
+    'BsonSymbols', 'NativeSymbols', 'SymbolTypes'].map((k) => {
+      if (!(k in doc)) {
+        throw new BsonTranspilersInternalError(
+          `Invalid Symbol Table: missing ${k}`
+        );
+      }
+    });
   Object.assign(transpiler, {
     SYMBOL_TYPE: doc.SymbolTypes,
     BsonTypes: doc.BsonTypes,
-    Symbols: Object.assign({}, doc.BsonSymbols, doc.JSSymbols),
-    Types: Object.assign({}, doc.BasicTypes, doc.BsonTypes, doc.JSTypes),
+    Symbols: Object.assign({}, doc.BsonSymbols, doc.NativeSymbols),
+    Types: Object.assign({}, doc.BasicTypes, doc.BsonTypes, doc.NativeTypes),
     Syntax: doc.Syntax,
     Imports: doc.Imports
   });
+
   return {
     compile: (input, idiomatic) => {
       try {
-        const tree = loadTree(input);
+        const tree = loadTree(input, transpiler.startRule);
         transpiler.idiomatic = idiomatic === undefined ?
           transpiler.idiomatic :
           idiomatic;
@@ -86,19 +133,87 @@ const getTranspiler = (visitor, generator, symbols) => {
   };
 };
 
-
 module.exports = {
   javascript: {
-    java: getTranspiler(JavascriptVisitor, JavaGenerator, javascriptjavasymbols),
-    python: getTranspiler(JavascriptVisitor, PythonGenerator, javascriptpythonsymbols),
-    csharp: getTranspiler(JavascriptVisitor, CsharpGenerator, javascriptcsharpsymbols),
-    shell: getTranspiler(JavascriptVisitor, ShellGenerator, javascriptshellsymbols)
+    java: getTranspiler(
+      loadJSTree,
+      getJavascriptVisitor(getCodeGenerationVisitor(JavascriptANTLRVisitor)),
+      getJavaGenerator,
+      javascriptjavasymbols
+    ),
+    python: getTranspiler(
+      loadJSTree,
+      getJavascriptVisitor(getCodeGenerationVisitor(JavascriptANTLRVisitor)),
+      getPythonGenerator,
+      javascriptpythonsymbols
+    ),
+    csharp: getTranspiler(
+      loadJSTree,
+      getJavascriptVisitor(getCodeGenerationVisitor(JavascriptANTLRVisitor)),
+      getCsharpGenerator,
+      javascriptcsharpsymbols
+    ),
+    shell: getTranspiler(
+      loadJSTree,
+      getJavascriptVisitor(getCodeGenerationVisitor(JavascriptANTLRVisitor)),
+      getShellGenerator,
+      javascriptshellsymbols
+    )
   },
   shell: {
-    java: getTranspiler(ShellVisitor, JavaGenerator, shelljavasymbols),
-    python: getTranspiler(ShellVisitor, PythonGenerator, shellpythonsymbols),
-    csharp: getTranspiler(ShellVisitor, CsharpGenerator, shellcsharpsymbols),
-    javascript: getTranspiler(ShellVisitor, JavascriptGenerator, shelljavascriptsymbols)
+    java: getTranspiler(
+      loadJSTree,
+      getShellVisitor(getJavascriptVisitor(getCodeGenerationVisitor(JavascriptANTLRVisitor))),
+      getJavaGenerator,
+      shelljavasymbols
+    ),
+    python: getTranspiler(
+      loadJSTree,
+      getShellVisitor(getJavascriptVisitor(getCodeGenerationVisitor(JavascriptANTLRVisitor))),
+      getPythonGenerator,
+      shellpythonsymbols
+    ),
+    csharp: getTranspiler(
+      loadJSTree,
+      getShellVisitor(getJavascriptVisitor(getCodeGenerationVisitor(JavascriptANTLRVisitor))),
+      getCsharpGenerator,
+      shellcsharpsymbols
+    ),
+    javascript: getTranspiler(
+      loadJSTree,
+      getShellVisitor(getJavascriptVisitor(getCodeGenerationVisitor(JavascriptANTLRVisitor))),
+      getJavascriptGenerator,
+      shelljavascriptsymbols
+    )
   },
-  getTree: loadTree
+  python: {
+    java: getTranspiler(
+      loadPyTree,
+      getPythonVisitor(getCodeGenerationVisitor(PythonANTLRVisitor)),
+      getJavaGenerator,
+      pythonjavasymbols
+    ),
+    shell: getTranspiler(
+      loadPyTree,
+      getPythonVisitor(getCodeGenerationVisitor(PythonANTLRVisitor)),
+      getShellGenerator,
+      pythonshellsymbols
+    ),
+    csharp: getTranspiler(
+      loadPyTree,
+      getPythonVisitor(getCodeGenerationVisitor(PythonANTLRVisitor)),
+      getCsharpGenerator,
+      pythoncsharpsymbols
+    ),
+    javascript: getTranspiler(
+      loadPyTree,
+      getPythonVisitor(getCodeGenerationVisitor(PythonANTLRVisitor)),
+      getJavascriptGenerator,
+      pythonjavascriptsymbols)
+  },
+  getTree: {
+    javascript: loadJSTree,
+    shell: loadJSTree,
+    python: loadPyTree
+  }
 };

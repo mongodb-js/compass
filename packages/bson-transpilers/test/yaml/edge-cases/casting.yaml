@@ -1,0 +1,332 @@
+tests:
+    all:
+    - description: defaults to long
+      input:
+          javascript:
+              code: '1'
+              args:
+          shell:
+              code: '1'
+              args:
+          python:
+              code: '1'
+              args:
+      output:
+          java: 1L
+    - description: casts double to int, decimal, hex and octal
+      input:
+          javascript:
+              code: TestFunc(100, 200, 300, 400, 500)
+              args:
+              - - _integer
+              - - _decimal
+              - - _hex
+              - - _octal
+              - - _integer
+          shell:
+              code: TestFunc(100, 200, 300, 400, 500)
+              args:
+              - - _integer
+              - - _decimal
+              - - _hex
+              - - _octal
+              - - _integer
+          python:
+              code: TestFunc(100, 200, 300, 400, 500)
+              args:
+              - - _integer
+              - - _decimal
+              - - _hex
+              - - _octal
+              - - _integer
+      output:
+          java: TestFunc(100, 200d, 300, 400, 500)
+    - description: casts negative double to int, decimal, hex and octal
+      input:
+          javascript:
+              code: TestFunc(-100, -200, -300, -400, -500)
+              args:
+              - - _integer
+              - - _decimal
+              - - _hex
+              - - _octal
+              - - _integer
+          shell:
+              code: TestFunc(-100, -200, -300, -400, -500)
+              args:
+              - - _integer
+              - - _decimal
+              - - _hex
+              - - _octal
+              - - _integer
+          python:
+              code: TestFunc(-100, -200, -300, -400, -500)
+              args:
+              - - _integer
+              - - _decimal
+              - - _hex
+              - - _octal
+              - - _integer
+      output:
+          java: TestFunc(-100, -200d, -300, -400, -500)
+    - description: does not cast numeric
+      input:
+          javascript:
+              code: TestFunc(10, 10.01, 0x6, 0o5, Number(10), Number('10'), -10)
+              args:
+              - - _numeric
+              - - _numeric
+              - - _numeric
+              - - _numeric
+              - - _numeric
+              - - _numeric
+              - - _numeric
+          shell:
+              code: TestFunc(10, 10.01, 0x6, 0o5, Number(10), Number('10'), -10)
+              args:
+              - - _numeric
+              - - _numeric
+              - - _numeric
+              - - _numeric
+              - - _numeric
+              - - _numeric
+              - - _numeric
+      output:
+          java: TestFunc(10L, 10.01d, 0x6, 05, 10d, Double.parseDouble("10"), -10L)
+    - description: does not cast numeric
+      input:
+          python:
+              code: TestFunc(10, 10.01, 0x6, 0o5, int(10), int('10'), -10)
+              args:
+              - - _numeric
+              - - _numeric
+              - - _numeric
+              - - _numeric
+              - - _numeric
+              - - _numeric
+              - - _numeric
+      output:
+          java: TestFunc(10L, 10.01d, 0x6, 05, 10, Integer.parseInt("10"), -10L)
+    - description: does not cast Number class
+      input:
+          javascript:
+              code: TestFunc(Number(10), Number('10'), Number(10), Number('10'))
+              args:
+              - - _numeric
+              - - _long
+              - - _decimal
+              - - _integer
+          shell:
+              code: TestFunc(Number(10), Number('10'), Number(10), Number('10'))
+              args:
+              - - _numeric
+              - - _long
+              - - _decimal
+              - - _integer
+      output:
+          java: TestFunc(10d, Double.parseDouble("10"), 10d, Double.parseDouble("10"))
+    - description: does not cast int class
+      input:
+          python:
+              code: TestFunc(int(10), int('10'), int(10), int('10'))
+              args:
+              - - _numeric
+              - - _long
+              - - _decimal
+              - - _integer
+      output:
+          java: TestFunc(10, Integer.parseInt("10"), 10, Integer.parseInt("10"))
+    - description: does not cast float class
+      input:
+          python:
+              code: TestFunc(float(10), float('10'), float(10), float('10'))
+              args:
+              - - _numeric
+              - - _long
+              - - _decimal
+              - - _integer
+      output:
+          java: TestFunc(10d, Double.parseDouble("10"), 10d, Double.parseDouble("10"))
+    - description: casts long, dec, hex, octal to long
+      input:
+          javascript:
+              code: TestFunc(10, 10.01, 0x6, 0o5, -10)
+              args:
+              - - _long
+              - - _long
+              - - _long
+              - - _long
+              - - _long
+          shell:
+              code: TestFunc(10, 10.01, 0x6, 0o5, -10)
+              args:
+              - - _long
+              - - _long
+              - - _long
+              - - _long
+              - - _long
+          python:
+              code: TestFunc(10, 10.01, 0x6, 0o5, -10)
+              args:
+              - - _long
+              - - _long
+              - - _long
+              - - _long
+              - - _long
+      output:
+          java: TestFunc(10L, new Long(10.01), new Long(0x6), new Long(05), -10L)
+    - description: casts to integer by keeping original value
+      input:
+          javascript:
+              code: TestFunc(10, 10.01, 0x6, 0o5, -10)
+              args:
+              - - _integer
+              - - _integer
+              - - _integer
+              - - _integer
+              - - _integer
+          shell:
+              code: TestFunc(10, 10.01, 0x6, 0o5, -10)
+              args:
+              - - _integer
+              - - _integer
+              - - _integer
+              - - _integer
+              - - _integer
+          python:
+              code: TestFunc(10, 10.01, 0x6, 0o5, -10)
+              args:
+              - - _integer
+              - - _integer
+              - - _integer
+              - - _integer
+              - - _integer
+      output:
+          java: TestFunc(10, 10.01, 0x6, 05, -10)
+    - description: casts long, dec, hex, octal, and Number to decimal
+      input:
+          javascript:
+              code: TestFunc(10, 10.01, 0x6, 0o5, -10)
+              args:
+              - - _decimal
+              - - _decimal
+              - - _decimal
+              - - _decimal
+              - - _decimal
+          shell:
+              code: TestFunc(10, 10.01, 0x6, 0o5, -10)
+              args:
+              - - _decimal
+              - - _decimal
+              - - _decimal
+              - - _decimal
+              - - _decimal
+          python:
+              code: TestFunc(10, 10.01, 0x6, 0o5, -10)
+              args:
+              - - _decimal
+              - - _decimal
+              - - _decimal
+              - - _decimal
+              - - _decimal
+      output:
+          java: TestFunc(10d, 10.01d, (double) 0x6, (double) 05, -10d)
+    - description: casts long, dec, hex, octal, and Number to hex
+      input:
+          javascript:
+              code: TestFunc(10, 10.01, 0x6, 0o5, -10)
+              args:
+              - - _hex
+              - - _hex
+              - - _hex
+              - - _hex
+              - - _hex
+          shell:
+              code: TestFunc(10, 10.01, 0x6, 0o5, -10)
+              args:
+              - - _hex
+              - - _hex
+              - - _hex
+              - - _hex
+              - - _hex
+          python:
+              code: TestFunc(10, 10.01, 0x6, 0o5, -10)
+              args:
+              - - _hex
+              - - _hex
+              - - _hex
+              - - _hex
+              - - _hex
+      output:
+          java: TestFunc(10, 10.01, 0x6, 05, -10)
+    - description: casts long, dec, hex, octal, and Number to octal
+      input:
+          javascript:
+              code: TestFunc(10, 10.01, 0x6, 0o5, -10)
+              args:
+              - - _octal
+              - - _octal
+              - - _octal
+              - - _octal
+              - - _octal
+          shell:
+              code: TestFunc(10, 10.01, 0x6, 0o5, -10)
+              args:
+              - - _octal
+              - - _octal
+              - - _octal
+              - - _octal
+              - - _octal
+          python:
+              code: TestFunc(10, 10.01, 0x6, 0o5, -10)
+              args:
+              - - _octal
+              - - _octal
+              - - _octal
+              - - _octal
+              - - _octal
+      output:
+          java: TestFunc(10, 10.01, 0x6, 05, -10)
+    - description: casts with optional
+      input:
+          javascript:
+              code: TestFunc(100)
+              args:
+              - - _decimal
+                -
+          shell:
+              code: TestFunc(100)
+              args:
+              - - _decimal
+                -
+          python:
+              code: TestFunc(100)
+              args:
+              - - _decimal
+                -
+      output:
+          java: TestFunc(100d)
+    - description: accepts Number
+      input:
+          javascript:
+              code: Number(1)
+              args:
+          shell:
+              code: Number(1)
+              args:
+      output:
+          java: 1d
+    - description: accepts float
+      input:
+          python:
+              code: float(1)
+              args:
+      output:
+          java: 1d
+    - description: accepts int
+      input:
+          python:
+              code: int(1)
+              args:
+      output:
+          java: '1'

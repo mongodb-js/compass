@@ -314,7 +314,7 @@ const <output lang>Generator = require('./codegeneration/<output lang>/Generator
    `success`. Each input language has it's own directory. You can edit output test
 cases in each file in those directories based on what the output should be. For example:
 ```json
-// this test is in /test/json/success/javascript/bson-constructors.json
+yaml
 // it's testing different ouptut based on on javascript intput of "{x: {y: '2'}}"
   {
     "description": "Doc with subdoc",
