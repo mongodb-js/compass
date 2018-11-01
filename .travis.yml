@@ -30,7 +30,7 @@ script:
   - npm test
 after_failure:
   - curl -sL https://raw.githubusercontent.com/travis-ci/artifacts/master/install | bash
-  - export ARTIFACTS_PATHS="$HOME/.npm/_logs"
+  - export ARTIFACTS_PATHS="$HOME/.npm/_logs/*.log"
   - artifacts upload
 
 cache:
