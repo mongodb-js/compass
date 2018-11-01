@@ -28,6 +28,6 @@ before_script:
 script:
   - npm run check
   - npm test
-cache:
-  directories:
-    - '$HOME/.npm'
+# cache:
+#   directories:
+#     - '$HOME/.npm'
