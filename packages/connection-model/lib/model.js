@@ -702,6 +702,7 @@ assign(derived, {
           encodeURIComponent(this.ldap_password)
         );
         result = result.replace(AUTH_TOKEN, authField, 1);
+        result = `${result}&authSource=$external`;
       }
       if (this.authentication === 'KERBEROS') {
         if (this.kerberos_password) {

@@ -287,7 +287,7 @@ describe('mongodb-connection-model', function() {
 
           it('should urlencode credentials', () => {
             assert.equal(connection.driver_url,
-              `mongodb://${authExpect}@localhost:27017/?readPreference=primary&authMechanism=PLAIN`);
+              `mongodb://${authExpect}@localhost:27017/?readPreference=primary&authMechanism=PLAIN&authSource=$external`);
           });
 
           it('should be parse in the browser', () => {
@@ -488,7 +488,7 @@ describe('mongodb-connection-model', function() {
         it('includes the attribute in the url', function() {
           assert.equal(
             c.driver_url,
-            'mongodb://ldap-user:ldap-password@localhost:27017/?readPreference=primary&authMechanism=PLAIN'
+            'mongodb://ldap-user:ldap-password@localhost:27017/?readPreference=primary&authMechanism=PLAIN&authSource=$external'
           );
         });
       });
@@ -549,7 +549,7 @@ describe('mongodb-connection-model', function() {
 
           it('should urlencode credentials', function() {
             assert.equal(c.driver_url,
-              'mongodb://arlo:w%40of@localhost:27017/ldap?readPreference=primary&authMechanism=PLAIN');
+              'mongodb://arlo:w%40of@localhost:27017/ldap?readPreference=primary&authMechanism=PLAIN&authSource=$external');
           });
 
           it('should be parse in the browser', function() {
@@ -575,7 +575,7 @@ describe('mongodb-connection-model', function() {
           });
           it('COMPASS-745 - should urlencode @ once only', function() {
             assert.equal(c.driver_url,
-              'mongodb://arlo%40t.co:woof@localhost:27017/ldap?readPreference=primary&authMechanism=PLAIN');
+              'mongodb://arlo%40t.co:woof@localhost:27017/ldap?readPreference=primary&authMechanism=PLAIN&authSource=$external');
           });
         });
       });
