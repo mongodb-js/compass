@@ -198,7 +198,6 @@
     ]
   },
   "scripts": {
-    "postinstall": "electron-rebuild ./",
     "prestart": "rm -rf .compiled-sources",
     "start": "hadron-build develop",
     "pretest": "mongodb-runner start --port 27017",
