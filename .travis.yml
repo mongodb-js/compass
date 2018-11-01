@@ -31,3 +31,9 @@ script:
 # cache:
 #   directories:
 #     - '$HOME/.npm'
+#     - '$HOME/.electron'
+#     - './node_modules'
+# TODO
+# ${npm_config_cache}/_prebuilds
+# ${APP_DATA}/npm-cache/_prebuilds
+# ${HOME}/.npm/_prebuilds
