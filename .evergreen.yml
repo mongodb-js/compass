@@ -11,6 +11,7 @@ variables:
       bucket: mciuploads
       permissions: public-read
       content_type: application/octet-stream
+  
 
 functions:
   'prepare':
@@ -109,8 +110,7 @@ functions:
           . ~/compass_env.sh
 
           echo "Installing Compass dependencies..."
-          # npm ci
-          npm install
+          npm ci
 
           if [ -n "$IS_WINDOWS" ]; then
             echo "Fetching signtool -> notary-service hack..."
@@ -153,7 +153,7 @@ functions:
           cp ./src/compass_env.sh ~/compass_env.sh
           ls -alh
 
-  'verify':
+  verify:
     command: shell.exec
     params:
       working_dir: src
@@ -167,7 +167,7 @@ functions:
         echo "Run static analysis..."
         npm run check;
 
-  'test':
+  test:
     - command: shell.exec
       params:
         working_dir: src
@@ -196,6 +196,16 @@ functions:
 
           echo "Running tests..."
           . ~/compass_test.sh
+
+  test-plugin:
+    - command: shell.exec
+      params:
+        working_dir: src
+        shell: bash
+        script: |
+          set -ev
+          ./.evergreen/test-plugin.sh ${plugin|10gen/compass-connect}
+
   'package':
     - command: shell.exec
       params:
@@ -392,6 +402,21 @@ tasks:
       - func: test
         vars:
           test_suite: functional
+  
+  - name: test-connect-plugin
+    depends_on: [compile]
+    commands:
+      - func: restore
+      - func: test-plugin
+        vars:
+          plugin: 10gen/compass-connect
+
+  - name: test-aggregation-builder-plugin
+    commands:
+      - func: restore
+      - func: test-plugin
+        vars:
+          plugin: 10gen/compass-connect
 
   - name: package-and-publish-compass
     depends_on: [compile]
@@ -587,6 +612,8 @@ buildvariants:
       - name: compile
       - name: verify
       - name: test-functional
+      - name: test-connect-plugin
+      - name: test-aggregation-builder-plugin
       # NOTE (@imlucas) See above for activating more tests
       # - name: test-unit
       # - name: test-main
