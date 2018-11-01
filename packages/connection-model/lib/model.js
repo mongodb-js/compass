@@ -718,6 +718,7 @@ assign(derived, {
           );
           result = result.replace(AUTH_TOKEN, authField, 1);
         }
+        result = `${result}&authSource=$external`;
       }
       return result;
     }
