@@ -18,7 +18,7 @@ addons:
       - libstdc++6
 before_install:
   - echo "//registry.npmjs.org/:_authToken=\${NPM_TOKEN}" >> .npmrc
-  - npm i -g npm
+  - npm i -g npm node-gyp
 install:
   - npm ci
 before_script:
