@@ -21,4 +21,3 @@ script: npm run ci
 cache:
   directories:
     - $HOME/.electron
-    - node_modules
