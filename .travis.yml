@@ -28,6 +28,11 @@ before_script:
 script:
   - npm run check
   - npm test
+after_failure:
+  - curl -sL https://raw.githubusercontent.com/travis-ci/artifacts/master/install | bash
+  - export ARTIFACTS_PATHS="$HOME/.npm/_logs"
+  - ./artifacts upload
+
 # cache:
 #   directories:
 #     - '$HOME/.npm'
