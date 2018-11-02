@@ -15,8 +15,8 @@ window.jQuery = require('jquery');
 import 'bootstrap/less/bootstrap.less';
 import 'less/index.less';
 
-const DB = 'crunchbase';
-const COLL = 'companies';
+const DB = 'citibike';
+const COLL = 'trips';
 
 const appRegistry = new AppRegistry();
 

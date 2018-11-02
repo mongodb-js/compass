@@ -49,6 +49,7 @@ class DocumentTableView extends React.Component {
         getRowStyle: this.updateWidth,
         onGridSizeChanged: this.updateActionsPlacement,
         suppressPreventDefaultOnMouseWheel: true,
+        suppressRowTransform: true,
         tabToNextCell: (params) => {
           if (!params.previousCellDef || !params.nextCellDef ||
               params.previousCellDef.rowIndex !== params.nextCellDef.rowIndex) {
@@ -132,12 +133,12 @@ class DocumentTableView extends React.Component {
    */
   updateActionsPlacement() {
     if (this.gridApi) {
-      const rootPanel = document.getElementById('borderLayout_eRootPanel');
+      const rootPanel = document.querySelector('.ag-root-wrapper');
       // @note: Durran: in readonly mode the actions don't exist.
       if (rootPanel) {
         const allColumns = this.columnApi.getAllColumns();
         const tableWidth = rootPanel.offsetWidth;
-        const rightViewport = document.getElementsByClassName('ag-pinned-right-cols-viewport')[0];
+        const rightViewport = document.querySelector('.ag-pinned-right-cols-viewport');
         const bodyColumnWidth = ((allColumns.length - 2) * 200 + 50);
         const emptyWidth = tableWidth - bodyColumnWidth;
         if (bodyColumnWidth < tableWidth) {
@@ -540,7 +541,8 @@ class DocumentTableView extends React.Component {
     */
   updateWidth(params) {
     const allColumns = this.columnApi.getAllColumns();
-    const tableWidth = document.getElementById('borderLayout_eRootPanel').offsetWidth;
+    const rootPanel = document.querySelector('.ag-root-wrapper');
+    const tableWidth = rootPanel ? rootPanel.offsetWidth : 0;
     if (params.node.data.state === 'editing' || params.node.data.state === 'deleting') {
       let width = 30;
       const newColumn = this.columnApi.getColumn('$new');

@@ -13,18 +13,18 @@ if ( process.defaultApp || /[\\/]electron-prebuilt[\\/]/.test(process.execPath) 
   dev = true;
 }
 
-// const ext = path.join(
-  // '/Users',
-  // 'modetojoy',
-  // 'Library',
-  // 'Application Support',
-  // 'Google',
-  // 'Chrome',
-  // 'Default',
-  // 'Extensions',
-  // 'jigamimbjojkdgnlldajknogfgncplbh',
-  // '1.0.4_0'
-// );
+const ext = path.join(
+  '/Users',
+  'modetojoy',
+  'Library',
+  'Application Support',
+  'Google',
+  'Chrome',
+  'Default',
+  'Extensions',
+  'jigamimbjojkdgnlldajknogfgncplbh',
+  '1.0.4_0'
+);
 
 function createWindow() {
   // Create the browser window.
@@ -56,7 +56,7 @@ function createWindow() {
     // Open the DevTools automatically if developing
     if ( dev ) {
       // If the plugin exists, add it.
-      // BrowserWindow.addDevToolsExtension(ext);
+      BrowserWindow.addDevToolsExtension(ext);
       mainWindow.webContents.openDevTools();
     }
   });

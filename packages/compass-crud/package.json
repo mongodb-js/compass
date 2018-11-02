@@ -132,8 +132,8 @@
     "webpack-sources": "1.0.1"
   },
   "dependencies": {
-    "ag-grid": "14.0.0",
-    "ag-grid-react": "14.0.0",
+    "ag-grid-community": "19.0.0",
+    "ag-grid-react": "19.0.0",
     "hadron-document": "^4.0.2",
     "hadron-type-checker": "^4.0.4",
     "lodash.clonedeep": "^4.5.0",
@@ -145,7 +145,6 @@
     "lodash.pull": "^4.1.0",
     "lodash.topairs": "^4.3.0",
     "react-click-outside": "^3.0.1",
-    "react-dom-factories": "^1.0.2",
     "react-tooltip": "^3.2.6",
     "moment": "^2.18.1",
     "moment-timezone": "^0.5.21"
