@@ -211,15 +211,13 @@ function listDatabases(results, done) {
     const names = res.databases
       .map(function(d) {
         return d.name;
-      }).filter(function(d) {
-        return d;
+      })
+      .filter(function(name) {
+        if (name === 'local' || name === 'admin') {
+          return false;
+        }
+        return true;
       });
-      // .filter(function(name) {
-      //   if (name === 'admin') {
-      //     return false;
-      //   }
-      //   return true;
-      // });
 
     debug('listDatabases succeeded!', {
       res: JSON.stringify(res),
