@@ -11,7 +11,7 @@ const CONNECTION = new Connection({
   ns: 'music'
 });
 
-describe('#databases', function() {
+describe.skip('#databases', function() {
   this.slow(30000);
   this.timeout(60000);
   let app = null;
