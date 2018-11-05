@@ -63,9 +63,9 @@ describe('#sidebar', function() {
     context('when entering a regex', function() {
       it('filters the list', function() {
         return client
-          .inputSidebarFilter('ad|al')
+          .inputSidebarFilter('ad|mu')
           .getSidebarDatabaseNames()
-          .should.eventually.include('local');
+          .should.eventually.include('music');
       });
     });
 
