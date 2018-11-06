@@ -5,7 +5,7 @@ import ValidationEditor from 'components/validation-editor';
 
 import styles from './compass-json-schema-validation.less';
 
-import {validationRulesChanged} from 'modules/validation';
+import { validationRulesChanged } from 'modules/validation';
 import { namespaceChanged } from 'modules/namespace';
 
 /**

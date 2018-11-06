@@ -39,7 +39,8 @@ class ValidationEditor extends Component {
     validationRulesChanged: PropTypes.func.isRequired,
     serverVersion: PropTypes.string.isRequired,
     fields: PropTypes.array,
-    validation: PropTypes.any
+    validation: PropTypes.any,
+    error: PropTypes.string
   };
 
   /**
@@ -67,7 +68,7 @@ class ValidationEditor extends Component {
    */
   // shouldComponentUpdate(nextProps) {
   //  return (
-  //    nextProps.validation.error !== this.props.validation.error ||
+  //    nextProps.error !== this.props.error ||
   //    nextProps.validation.syntaxError !== this.props.validation.syntaxError ||
   //    nextProps.serverVersion !== this.props.serverVersion ||
   //    nextProps.fields.length !== this.props.fields.length
@@ -80,13 +81,12 @@ class ValidationEditor extends Component {
    * @returns {React.Component} The component.
    */
   renderSyntaxError() {
-    if (!this.props.validation.error && this.props.validation.syntaxError) {
+    if (!this.props.error && this.props.validation.syntaxError) {
       return (
         <div
           className={classnames(styles['stage-editor-syntax-error'])}
-          title={this.props.validation.syntaxError}
         >
-          {this.props.validation.syntaxError}
+          Syntax error!
         </div>
       );
     }
@@ -98,13 +98,13 @@ class ValidationEditor extends Component {
    * @returns {React.Component} The component.
    */
   renderError() {
-    if (this.props.validation.error) {
+    if (this.props.error) {
       return (
         <div
           className={classnames(styles['stage-editor-errormsg'])}
-          title={this.props.validation.error}
+          title={this.props.error}
         >
-          {this.props.validation.error}
+          {this.props.error}
         </div>
       );
     }
@@ -116,9 +116,6 @@ class ValidationEditor extends Component {
    * @returns {React.Component} The rendered component.
    */
   render() {
-    console.log('----------------------');
-    console.log(this.props);
-    console.log('----------------------');
     return (
       <div className={classnames(styles['validation-editor'])}>
         <div className={classnames(styles['brace-editor-container'])}>

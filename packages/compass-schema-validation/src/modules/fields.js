@@ -16,10 +16,6 @@ export const INITIAL_STATE = [];
  * @returns {Array} The processed fields.
  */
 const process = (fields) => {
-  console.log('fields----------------------');
-  console.log(fields);
-  console.log('----------------------');
-
   return Object.keys(fields).map((key) => {
     const field = (key.indexOf('.') > -1 || key.indexOf(' ') > -1) ? `"${key}"` : key;
 
