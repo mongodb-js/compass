@@ -34,6 +34,37 @@ describe('App', function() {
     });
   });
 
+  describe('#electronPackage', () => {
+    const app = new App(root);
+
+    it('returns the electron package location', () => {
+      expect(app.electronPackage()).to.equal(
+        path.join(root, 'node_modules', 'electron')
+      );
+    });
+  });
+
+  describe('#electronPath', () => {
+    const app = new App(root);
+
+    it('returns the electron path.txt location', () => {
+      expect(app.electronPath()).to.equal(
+        path.join(root, 'node_modules', 'electron', 'path.txt')
+      );
+    });
+  });
+
+  describe('#electronExecutable', () => {
+    const app = new App(root);
+
+    it('returns the electron executable location', () => {
+      expect(app.electronExecutable()).to.include(
+        path.join(root, 'node_modules', 'electron', 'dist')
+      );
+      expect(fs.stat(app.electronExecutable())).to.eventually.resolve;
+    });
+  });
+
   describe('#launch', () => {
     context('when the app has no loading window', () => {
       const app = new App(root, path.join(__dirname, 'fixtures', 'standard'));
@@ -71,9 +102,12 @@ describe('App', function() {
     });
     it('must resolve true if actually quitting a running app', () => {
       const app = new App(root, path.join(__dirname, 'fixtures', 'standard'));
-      return app.launch().then(() => app.quit()).then(reallyQuit => {
-        expect(reallyQuit).to.equal(true);
-      });
+      return app
+        .launch()
+        .then(() => app.quit())
+        .then(reallyQuit => {
+          expect(reallyQuit).to.equal(true);
+        });
     });
   });
 });

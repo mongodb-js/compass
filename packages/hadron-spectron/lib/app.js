@@ -2,7 +2,8 @@ const assert = require('assert');
 const chai = require('chai');
 const chaiAsPromised = require('chai-as-promised');
 const { Application } = require('spectron');
-const electronPath = require('electron');
+const fs = require('fs');
+const path = require('path');
 const debug = require('debug')('hadron-spectron:app');
 
 chai.use(chaiAsPromised);
@@ -142,8 +143,10 @@ class App {
        */
     };
 
-    assert(typeof opts.path === 'string',
-      'electronExecutable must be a string');
+    assert(
+      typeof opts.path === 'string',
+      'electronExecutable must be a string'
+    );
 
     this.app = new Application(opts);
   }
@@ -151,14 +154,38 @@ class App {
   /**
    * Get the path to the electron executable.
    *
+   * NOTE (@imlucas) Tried `require('electron')` but always returned null in
+   * Compass test suite for unknown reasons.
+   *
+   * @returns {String} - The path.
+   */
+  electronExecutable() {
+    return path.join(
+      this.electronPackage(),
+      'dist',
+      fs.readFileSync(this.electronPath(), { encoding: 'utf8' })
+    );
+  }
+
+  /**
+   * Get the path to the electron package.
    * TODO (@imlucas) Allow setting via `ELECTRON_EXECUTABLE` environment
    * variable or something if we want to allow functional testing of
    * fully packaged Compass releases instead of just using electron prebuilt.
    *
    * @returns {String} - The path.
    */
-  electronExecutable() {
-    return electronPath;
+  electronPackage() {
+    return path.join(this.root, 'node_modules', 'electron');
+  }
+
+  /**
+   * Get the path to the electron path.txt
+   *
+   * @returns {String} - The path.
+   */
+  electronPath() {
+    return path.join(this.electronPackage(), 'path.txt');
   }
 
   /**
