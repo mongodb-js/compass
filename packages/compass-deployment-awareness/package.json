@@ -78,6 +78,6 @@
     "watch": "^1.0.2"
   },
   "dependencies": {
-    "mongodb": "^3.1.4"
+    "mongodb": "^3.1.9"
   }
 }
