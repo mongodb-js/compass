@@ -198,12 +198,12 @@
     ]
   },
   "scripts": {
-    "postinstall": "cross-env DEBUG=* electron-rebuild",
+    "postinstall": "electron-rebuild",
     "prestart": "rm -rf .compiled-sources",
-    "start": "hadron-build develop",
-    "pretest": "cross-env DEBUG=* mongodb-runner start --port 27017",
+    "start": "cross-env DEBUG=* hadron-build develop",
+    "pretest": "mongodb-runner start --port 27017",
     "test": "xvfb-maybe hadron-build test",
-    "posttest": "cross-env DEBUG=* mongodb-runner stop --port 27017",
+    "posttest": "mongodb-runner stop --port 27017",
     "check": "mongodb-js-precommit './src/**/*{.js,.jsx}' './test/**/*.js'",
     "clean": "hadron-build clean",
     "compile-ui": "hadron-build ui",
