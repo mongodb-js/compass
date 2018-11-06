@@ -14,15 +14,6 @@ const ROLE = {
  * @param {Object} appRegistry - The Hadron appRegisrty to activate this plugin with.
  **/
 function activate(appRegistry) {
-  // Register the CompassJsonSchemaValidationPlugin as a role in Compass
-  //
-  // Available roles are:
-  //   - Instance.Tab: { name: <String>, component: <React.Component>, order: <Number> }
-  //   - Database.Tab: { name: <String>, component: <React.Component>, order: <Number> }
-  //   - Collection.Tab: { name: <String>, component: <React.Component>, order: <Number> }
-  //   - CollectionHUD.Item: { name <String>, component: <React.Component> }
-  //   - Header.Item: { name: <String>, component: <React.Component>, alignment: <String> }
-
   appRegistry.registerRole('Collection.Tab', ROLE);
   appRegistry.registerStore('CompassJsonSchemaValidation.Store', CompassJsonSchemaValidationStore);
 }

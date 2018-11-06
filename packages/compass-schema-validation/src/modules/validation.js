@@ -80,6 +80,7 @@ function executeJavascript(input, sandbox) {
 
   const ctx = new Context(sandbox);
   const res = ctx.evaluate('__result = ' + input);
+
   ctx.destroy();
 
   return res;
@@ -138,6 +139,7 @@ MAPPINGS[VALIDATION_RULES_CHANGED] = changeValidationRules;
  */
 export default function reducer(state = INITIAL_STATE, action) {
   const fn = MAPPINGS[action.type];
+
   return fn ? fn(state, action) : state;
 }
 

@@ -31,6 +31,7 @@ export default function reducer(state = INITIAL_STATE, action) {
       dataService: action.dataService
     };
   }
+
   return state;
 }
 
@@ -44,6 +45,6 @@ export default function reducer(state = INITIAL_STATE, action) {
  */
 export const dataServiceConnected = (error, dataService) => ({
   type: DATA_SERVICE_CONNECTED,
-  error: error,
-  dataService: dataService
+  error,
+  dataService
 });

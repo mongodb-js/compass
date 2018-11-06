@@ -26,6 +26,7 @@ store.onActivated = (appRegistry) => {
    */
   appRegistry.on('collection-changed', (ns) => {
     const namespace = toNS(ns);
+
     if (namespace.collection) {
       store.dispatch(namespaceChanged(ns));
     }

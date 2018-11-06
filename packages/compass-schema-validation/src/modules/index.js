@@ -45,6 +45,7 @@ const doNamespaceChanged = (state, action) => {
     dataService: state.dataService,
     appRegistry: state.appRegistry
   };
+
   return appReducer(newState, action);
 };
 
@@ -65,6 +66,7 @@ const MAPPINGS = {
  */
 const rootReducer = (state, action) => {
   const fn = MAPPINGS[action.type];
+
   return fn ? fn(state, action) : appReducer(state, action);
 };
 

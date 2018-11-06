@@ -25,6 +25,7 @@ export default function reducer(state = INITIAL_STATE, action) {
   if (action.type === APP_REGISTRY_ACTIVATED) {
     return action.appRegistry;
   }
+
   return state;
 }
 
@@ -37,7 +38,7 @@ export default function reducer(state = INITIAL_STATE, action) {
  */
 export const appRegistryActivated = (appRegistry) => ({
   type: APP_REGISTRY_ACTIVATED,
-  appRegistry: appRegistry
+  appRegistry
 });
 
 /**
@@ -51,6 +52,7 @@ export const appRegistryActivated = (appRegistry) => ({
 export const appRegistryEmit = (name, metadata) => {
   return (dispatch, getState) => {
     const state = getState();
+
     if (state.appRegistry) {
       state.appRegistry.emit(name, metadata);
     }
