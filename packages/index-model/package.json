@@ -29,7 +29,7 @@
     "ampersand-rest-collection": "^5.0.0",
     "async": "^1.5.2",
     "lodash": "^4.8.2",
-    "mongodb": "^3.1.4",
+    "mongodb": "^3.1.9",
     "mongodb-js-errors": "^0.2.1",
     "mongodb-ns": "^2.0.0",
     "triejs": "github:rueckstiess/triejs"
@@ -37,10 +37,10 @@
   "devDependencies": {
     "debug": "^2.2.0",
     "eslint-config-mongodb-js": "^2.2.0",
-    "mocha": "^3.1.2",
+    "mocha": "^5.2.0",
     "mongodb-js-fmt": "^0.0.3",
     "mongodb-js-precommit": "^0.2.9",
-    "mongodb-runner": "^4.1.0",
+    "mongodb-runner": "^4.6.0",
     "pre-commit": "^1.1.2"
   }
 }
