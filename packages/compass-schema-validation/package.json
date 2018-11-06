@@ -27,6 +27,9 @@
     "check"
   ],
   "license": "Apache-2.0",
+  "dependency-check": {
+    "ignore": ["react-dom"]
+  },
   "peerDependencies": {
     "bson": "^1.0.9",
     "context-eval": "^0.1.0",
@@ -35,6 +38,7 @@
     "prop-types": "^15.5.8",
     "react": "^16.6.0",
     "react-bootstrap": "0.31.0",
+    "react-dom": "^16.6.0",
     "react-redux": "^5.0.6",
     "react-tooltip": "^3.2.6",
     "redux": "^3.7.2",
