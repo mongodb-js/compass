@@ -198,7 +198,7 @@
     ]
   },
   "scripts": {
-    "postinstall": "cross-env DEBUG=* electron-rebuild --force",
+    "postinstall": "cross-env DEBUG=* electron-rebuild",
     "prestart": "rm -rf .compiled-sources",
     "start": "hadron-build develop",
     "pretest": "cross-env DEBUG=* mongodb-runner start --port 27017",
