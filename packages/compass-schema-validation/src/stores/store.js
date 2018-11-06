@@ -28,7 +28,6 @@ store.onActivated = (appRegistry) => {
     const namespace = toNS(ns);
     if (namespace.collection) {
       store.dispatch(namespaceChanged(ns));
-      store.dispatch(fieldsChanged());
     }
   });
 
