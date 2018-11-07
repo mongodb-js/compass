@@ -99,6 +99,11 @@ functions:
           set -e
           . ~/compass_env.sh
           . .evergreen/preinstall.sh
+          echo "npm config"
+          npm config list -l
+
+          echo "running npm sanity check..."
+          npm doctor
 
   'install':
     - command: shell.exec
