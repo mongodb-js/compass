@@ -66,14 +66,7 @@ else
     ./bin/node lib/node_modules/npm2/bin/npm-cli.js i -g npm@latest
     rm -rf lib/node_modules/npm2/
 
-    if [ -n "$IS_RHEL" ]; then
-        echo "Installing native-addon depenendencies for RHEL..."
-        #TODO (imlucas) Durran says these might be installed already by build team?
-        yum localinstall -y http://mirror.centos.org/centos/7/os/x86_64/Packages/libsecret-0.18.5-2.el7.x86_64.rpm
-        yum localinstall -y http://mirror.centos.org/centos/7/os/x86_64/Packages/libsecret-devel-0.18.5-2.el7.x86_64.rpm
-    elif [ -n "$IS_UBUNTU" ]; then
-        echo "Installing native-addon depenendencies for Ubuntu..."
-        #TODO (imlucas) Durran says these might be installed already by build team?
-        sudo apt-get install -y libsecret-1-dev
-    fi
+    # NOTE (@imlucas) RHEL and Ubuntu now have libsecret-dev by default
+    # which are required for `keytar`
+    # https://jira.mongodb.org/browse/BUILD-4243
 fi
