@@ -63,7 +63,10 @@ else
     mv lib/node_modules/npm lib/node_modules/npm2
 
     chmod +x ./bin/node
-    ./bin/node lib/node_modules/npm2/bin/npm-cli.js i -g npm@latest
+
+    ./bin/node lib/node_modules/npm2/bin/npm-cli.js version 
+
+    ./bin/node lib/node_modules/npm2/bin/npm-cli.js i -g npm
     rm -rf lib/node_modules/npm2/
 
     # NOTE (@imlucas) RHEL and Ubuntu now have libsecret-dev by default

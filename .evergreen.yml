@@ -11,7 +11,16 @@ variables:
       bucket: mciuploads
       permissions: public-read
       content_type: application/octet-stream
-  
+
+post:
+  - <<: *save-artifact
+    params:
+      optional: true
+      local_files_include_filter:
+        - src/.deps/.npm/_logs/*.log
+      remote_file: ${project}/${revision}/log-
+      content_type: ${text/plain}
+      display_name: log-
 
 functions:
   'prepare':
@@ -99,11 +108,6 @@ functions:
           set -e
           . ~/compass_env.sh
           . .evergreen/preinstall.sh
-          echo "npm config"
-          npm config list -l
-
-          echo "running npm sanity check..."
-          npm doctor
 
   'install':
     - command: shell.exec
@@ -114,8 +118,11 @@ functions:
           set -e
           . ~/compass_env.sh
 
+          echo "Attempting to install with npm config"
+          npm config list -l
+
           echo "Installing Compass dependencies..."
-          npm ci
+          npm ci || cat ./.deps/.npm/_logs/*.log
 
           if [ -n "$IS_WINDOWS" ]; then
             echo "Fetching signtool -> notary-service hack..."
@@ -140,8 +147,9 @@ functions:
         local_file: compass-build.tgz
         remote_file: ${project}/${revision}/build.tgz
 
-  'restore':
-    - command: s3.get
+  restore:
+    - &restore-fetch-s3
+      command: s3.get
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
@@ -149,7 +157,8 @@ functions:
         remote_file: ${project}/${revision}/build.tgz
         bucket: mciuploads
         content_type: application/octet-stream
-    - command: shell.exec
+    - &restore-unpack-s3
+      command: shell.exec
       shell: bash
       params:
         script: |
@@ -192,8 +201,11 @@ functions:
           if [ `cat /etc/*release | grep ^NAME | grep Ubuntu` ]; then
               export DEBUG=*
           fi
-
-          MONGODB_VERSION=${mongodb_version|stable} npm test -- --${test_suite}
+          # NOTE (@imlucas) Starting with MongoDB 4.0.4, the Server binaries
+          # have dropped support for macOS 10.10 because it is now outside
+          # of the supported version range. 
+          # https://docs.google.com/document/d/1IfQGC7wTtrlsc2SqURirvt_4uMuU606nXNbu-stw6bQ/edit
+          MONGODB_VERSION=${mongodb_version|4.0.3} npm test -- --${test_suite}
           EOF_BUILD_SH
 
           export DISPLAY=:99.0
@@ -203,6 +215,8 @@ functions:
           . ~/compass_test.sh
 
   test-plugin:
+    - <<: *restore-fetch-s3
+    - <<: *restore-unpack-s3
     - command: shell.exec
       params:
         working_dir: src
@@ -408,20 +422,23 @@ tasks:
         vars:
           test_suite: functional
   
+  - name: test-data-service
+    depends_on: [compile]
+    commands:
+      - func: test-plugin
+        vars: {plugin: mongodb-js/data-service}
+  
   - name: test-connect-plugin
     depends_on: [compile]
     commands:
-      - func: restore
       - func: test-plugin
-        vars:
-          plugin: 10gen/compass-connect
+        vars: {plugin: 10gen/compass-connect}
 
   - name: test-aggregation-builder-plugin
+    depends_on: [compile]
     commands:
-      - func: restore
       - func: test-plugin
-        vars:
-          plugin: 10gen/compass-connect
+        vars: {plugin: mongodb-js/compass-aggregations}
 
   - name: package-and-publish-compass
     depends_on: [compile]
@@ -616,6 +633,7 @@ buildvariants:
     tasks:
       - name: compile
       - name: verify
+      - name: test-data-service
       - name: test-functional
       - name: test-connect-plugin
       - name: test-aggregation-builder-plugin
