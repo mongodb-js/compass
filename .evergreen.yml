@@ -116,16 +116,6 @@ functions:
           set -e
           . ~/compass_env.sh
 
-          echo "Attempting to install with npm config"
-          npm config list -l
-
-
-          echo "project npmrc"
-          cat .npmrc
-
-          echo "user npmrc"
-          cat ~/.npmrc
-
           echo "Installing Compass dependencies..."
           echo "If npm ci fails, debug.log will be uploaded to S3."
           npm ci 
