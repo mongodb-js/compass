@@ -208,9 +208,6 @@ functions:
           MONGODB_VERSION=${mongodb_version|4.0.3} npm test -- --${test_suite}
           EOF_BUILD_SH
 
-          export DISPLAY=:99.0
-          . .evergreen/pretest.sh
-
           echo "Running tests..."
           . ~/compass_test.sh
 
