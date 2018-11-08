@@ -206,7 +206,7 @@
     "check": "mongodb-js-precommit './src/**/*{.js,.jsx}' './test/**/*.js'",
     "clean": "hadron-build clean",
     "compile-ui": "hadron-build ui",
-    "prerelease": "electron-rebuild",
+    "prerelease": "electron-rebuild -o kerberos,keytar",
     "release": "hadron-build release",
     "test-unit": "npm test -- --unit",
     "test-enzyme": "npm test -- --enzyme",
