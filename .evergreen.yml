@@ -253,7 +253,7 @@ functions:
           export NOTARY_SIGNING_COMMENT="Evergreen project mongodb/compass ${revision} - ${build_variant} - ${branch_name}"
 
           echo "Creating signed release build..."
-          npm run release ${compass_distribution};
+          DEBUG=* npm run release ${compass_distribution};
           EOF_BUILD_SH
 
           . ~/compass_env.sh
