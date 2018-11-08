@@ -15,12 +15,10 @@ variables:
 post:
   - <<: *save-artifact
     params:
-      optional: true
       local_files_include_filter:
         - src/.deps/.npm/_logs/*.log
-      remote_file: ${project}/${revision}/log-
-      content_type: ${text/plain}
-      display_name: log-
+      remote_file: ${project}/${revision}/
+      content_type: text/plain
 
 functions:
   'prepare':
@@ -122,7 +120,8 @@ functions:
           npm config list -l
 
           echo "Installing Compass dependencies..."
-          npm ci || cat ./.deps/.npm/_logs/*.log
+          echo "If npm ci fails, debug.log will be uploaded to S3."
+          npm ci 
 
           if [ -n "$IS_WINDOWS" ]; then
             echo "Fetching signtool -> notary-service hack..."
