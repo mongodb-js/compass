@@ -205,7 +205,7 @@
     "posttest": "mongodb-runner stop --port 27017",
     "check": "mongodb-js-precommit './src/**/*{.js,.jsx}' './test/**/*.js'",
     "clean": "hadron-build clean",
-    "postinstall": "electron-rebuild -f -w kerberos,keytar",
+    "postinstall": "electron-rebuild -o kerberos,keytar",
     "compile-ui": "hadron-build ui",
     "release": "hadron-build release",
     "test-unit": "npm test -- --unit",
