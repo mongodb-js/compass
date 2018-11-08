@@ -141,7 +141,7 @@ functions:
       params:
         permissions: private
         local_file: compass-build.tgz
-        remote_file: ${project}/${revision}/build.tgz
+        remote_file: ${project}/${revision}/${build_variant}/build.tgz
 
   restore:
     - &restore-fetch-s3
@@ -150,7 +150,7 @@ functions:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
         local_file: compass-build.tgz
-        remote_file: ${project}/${revision}/build.tgz
+        remote_file: ${project}/${revision}/${build_variant}/build.tgz
         bucket: mciuploads
         content_type: application/octet-stream
     - &restore-unpack-s3
