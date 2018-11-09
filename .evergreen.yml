@@ -13,12 +13,17 @@ variables:
       content_type: application/octet-stream
 
 post:
-  - <<: *save-artifact
+  - &save-diagnostic-file
+    <<: *save-artifact
     params:
       local_files_include_filter:
         - src/.deps/.npm/_logs/*.log
-      remote_file: ${project}/${revision}/
+      remote_file: ${project}/${revision}/${build_variant}/${task_name}
       content_type: text/plain
+  - <<: *save-diagnostic-file
+    params:
+      local_files_include_filter:
+        - ~/.mongodb/runner/*.log
 
 functions:
   'prepare':
@@ -107,7 +112,7 @@ functions:
           . ~/compass_env.sh
           . .evergreen/preinstall.sh
 
-  'install':
+  install:
     - command: shell.exec
       params:
         working_dir: src
@@ -129,7 +134,7 @@ functions:
             rm -f node_modules/electron-winstaller/vendor/signtool.exe
             chmod +x signtool.exe
           fi
-  'save':
+  save:
     - command: shell.exec
       params:
         shell: bash
@@ -189,14 +194,12 @@ functions:
           . ~/compass_env.sh
 
           cat <<EOF_BUILD_SH > ~/compass_test.sh
+          #! /usr/bin/env bash
           cd $(pwd)
 
           # Load environment variables
           . ~/compass_env.sh
 
-          if [ `cat /etc/*release | grep ^NAME | grep Ubuntu` ]; then
-              export DEBUG=*
-          fi
           # NOTE (@imlucas) Starting with MongoDB 4.0.4, the Server binaries
           # have dropped support for macOS 10.10 because it is now outside
           # of the supported version range. 
@@ -204,8 +207,12 @@ functions:
           MONGODB_VERSION=${mongodb_version|4.0.3} npm test -- --${test_suite}
           EOF_BUILD_SH
 
+          npm version
           echo "Running tests..."
           . ~/compass_test.sh
+    - command: attach.results
+      params:
+        file_location: src/report.json
 
   test-plugin:
     - <<: *restore-fetch-s3
@@ -217,6 +224,9 @@ functions:
         script: |
           set -ev
           ./.evergreen/test-plugin.sh ${plugin|10gen/compass-connect}
+    - command: attach.xunit_results
+      params:
+        file: src/plugin-test-results.xml
 
   'package':
     - command: shell.exec
@@ -238,9 +248,9 @@ functions:
         working_dir: src
         shell: bash
         script: |
-          set -e
+          set -ev
           cat <<EOF_BUILD_SH > ~/compass_package.sh
-          set -e
+          #! /usr/bin/env bash
           cd $(pwd)
 
           # Load environment variables
@@ -252,11 +262,14 @@ functions:
           export NOTARY_SIGNING_KEY="${signing_key_name}"
           export NOTARY_SIGNING_COMMENT="Evergreen project mongodb/compass ${revision} - ${build_variant} - ${branch_name}"
 
-          echo "Creating signed release build..."
-          DEBUG=* npm run release ${compass_distribution};
-          EOF_BUILD_SH
+          echo "PATH is $(node -p process.env.PATH)"
+          which -a npm
 
-          . ~/compass_env.sh
+          npm version
+
+          echo "Creating signed release build..."
+          npm run release ${compass_distribution};
+          EOF_BUILD_SH
 
           if [ `uname` == Darwin ]; then
             echo "Signing via ssh tunnel..."
@@ -414,24 +427,24 @@ tasks:
       - func: test
         vars:
           test_suite: functional
-  
+
   - name: test-data-service
     depends_on: [compile]
     commands:
       - func: test-plugin
-        vars: {plugin: mongodb-js/data-service}
-  
+        vars: { plugin: mongodb-js/data-service }
+
   - name: test-connect-plugin
     depends_on: [compile]
     commands:
       - func: test-plugin
-        vars: {plugin: 10gen/compass-connect}
+        vars: { plugin: 10gen/compass-connect }
 
   - name: test-aggregation-builder-plugin
     depends_on: [compile]
     commands:
       - func: test-plugin
-        vars: {plugin: mongodb-js/compass-aggregations}
+        vars: { plugin: mongodb-js/compass-aggregations }
 
   - name: package-and-publish-compass
     depends_on: [compile]
