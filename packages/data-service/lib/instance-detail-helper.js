@@ -208,16 +208,9 @@ function listDatabases(results, done) {
       return;
     }
 
-    const names = res.databases
-      .map(function(d) {
-        return d.name;
-      })
-      .filter(function(name) {
-        if (name === 'local' || name === 'admin') {
-          return false;
-        }
-        return true;
-      });
+    const names = res.databases.map(function(d) {
+      return d.name;
+    });
 
     debug('listDatabases succeeded!', {
       res: JSON.stringify(res),
@@ -372,6 +365,14 @@ function getAllowedCollections(results, done) {
   done(null, collections);
 }
 
+function isMongosLocalException(err) {
+  if (!err) {
+    return false;
+  }
+  var msg = err.message || err.err || JSON.stringify(err);
+  return new RegExp('^database through mongos').test(msg);
+}
+
 function getDatabaseCollections(db, done) {
   debug('getDatabaseCollections...');
 
@@ -387,9 +388,10 @@ function getDatabaseCollections(db, done) {
 
   db.listCollections(spec, options).toArray(function(err, res) {
     if (err) {
-      if (isNotAuthorized(err)) {
+      if (isNotAuthorized(err) || isMongosLocalException(err)) {
         // if the error is that the user is not authorized, silently ignore it
-        // and return an empty list
+        // and return an empty list, same for trying to listCollections on local
+        // db in Mongos
         debug('not allowed to run `listCollections` command on %s, returning'
           + ' empty result [].', db.databaseName);
         return done(null, []);
