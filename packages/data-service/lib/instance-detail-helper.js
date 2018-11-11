@@ -370,7 +370,7 @@ function isMongosLocalException(err) {
     return false;
   }
   var msg = err.message || err.err || JSON.stringify(err);
-  return new RegExp('^database through mongos').test(msg);
+  return new RegExp('database through mongos').test(msg);
 }
 
 function getDatabaseCollections(db, done) {
