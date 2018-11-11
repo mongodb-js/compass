@@ -92,7 +92,7 @@
     "lodash.sortby": "^4.7.0",
     "moment": "^2.18.1",
     "mongodb-connection-model": "^12.5.1",
-    "mongodb-data-service": "^12.4.1",
+    "mongodb-data-service": "^12.4.2",
     "mongodb-shell-to-url": "^0.1.0",
     "react-ios-switch": "^0.1.19",
     "react-tooltip": "^3.3.0",
