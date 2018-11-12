@@ -122,17 +122,7 @@ functions:
           echo "Installing Compass dependencies..."
 
           echo "If npm ci fails, debug.log will be uploaded to S3."
-          npm ci 
-
-          if [[ "$OSTYPE" == "cygwin" ]]; then
-            echo "Fetching signtool -> notary-service hack..."
-
-            curl -fs \
-              -o "signtool.exe" \
-              --url "https://s3.amazonaws.com/boxes.10gen.com/build/signtool.exe"
-            rm -f node_modules/electron-winstaller/vendor/signtool.exe
-            chmod +x signtool.exe
-          fi
+          npm ci
   save:
     - command: shell.exec
       params:
@@ -188,12 +178,16 @@ functions:
 
           # Load environment variables
           source ~/compass_env.sh
+          echo "Running tests for compass suite ${test_suite}..."
+
           # NOTE (@imlucas) Starting with MongoDB 4.0.4, the Server binaries
           # have dropped support for macOS 10.10 because it is now outside
           # of the supported version range. 
           # https://docs.google.com/document/d/1IfQGC7wTtrlsc2SqURirvt_4uMuU606nXNbu-stw6bQ/edit
           MONGODB_VERSION=${mongodb_version|4.0.3} npm test -- --${test_suite}
-          echo "Running tests for compass suite ${test_suite}..."
+          ls -alh
+
+          npm run posttest
     - command: attach.results
       params:
         file_location: src/report.json
@@ -258,6 +252,15 @@ functions:
             echo "Signing via ssh tunnel..."
             ssh -v -p 2222 localhost "bash ~/compass_package.sh"
           else
+            if [[ "$OSTYPE" == "cygwin" ]]; then
+              echo "Fetching signtool -> notary-service hack..."
+
+              curl -fs \
+                -o "signtool.exe" \
+                --url "https://s3.amazonaws.com/boxes.10gen.com/build/signtool.exe"
+              rm -f node_modules/electron-winstaller/vendor/signtool.exe
+              chmod +x signtool.exe
+            fi
             bash ~/compass_package.sh
           fi
 
@@ -303,6 +306,11 @@ functions:
       params:
         local_file: src/dist/RELEASES
         remote_file: ${project}/${revision}/${compass_distribution}-RELEASES
+    # LICENSE file
+    - <<: *save-artifact
+      params:
+        local_file: src/dist/LICENSE
+        remote_file: ${project}/${revision}/${compass_distribution}-LICENSE
     # nupkg full
     - <<: *save-artifact
       params:
