@@ -29,7 +29,10 @@ cat .npmrc
 npm install
 npm i -g xvfb-maybe
 
-xvfb-maybe npm test -- --reporter xunit --reporter-options output=plugin-test-results.xml
+# Maybe fixes windows?
+export ELECTRON_NO_ATTACH_CONSOLE=1
+xvfb-maybe npm test 
+# -- --reporter xunit --reporter-options output=plugin-test-results.xml
 ls -alh 
 
 # echo "Test results written to output=plugin-test-results.xml"

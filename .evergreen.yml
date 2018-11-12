@@ -185,12 +185,9 @@ functions:
           # of the supported version range. 
           # https://docs.google.com/document/d/1IfQGC7wTtrlsc2SqURirvt_4uMuU606nXNbu-stw6bQ/edit
           DEBUG=* MONGODB_VERSION=${mongodb_version|4.0.3} npm test -- --${test_suite}
-          ls -alh
-
-          npm run posttest
-    - command: attach.results
-      params:
-        file_location: src/report.json
+    # - command: attach.results
+    #   params:
+    #     file_location: src/test-results.xml
 
   test-plugin:
     - <<: *restore-fetch-s3
@@ -204,9 +201,9 @@ functions:
           set -e
           source ~/compass_env.sh
           bash ./.evergreen/test-plugin.sh ${plugin|10gen/compass-connect}
-    - command: attach.xunit_results
-      params:
-        file: src/plugin/plugin-test-results.xml
+    # - command: attach.xunit_results
+    #   params:
+    #     file: src/plugin/plugin-test-results.xml
 
   'package':
     - command: shell.exec
