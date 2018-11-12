@@ -184,7 +184,7 @@ functions:
           # have dropped support for macOS 10.10 because it is now outside
           # of the supported version range. 
           # https://docs.google.com/document/d/1IfQGC7wTtrlsc2SqURirvt_4uMuU606nXNbu-stw6bQ/edit
-          MONGODB_VERSION=${mongodb_version|4.0.3} npm test -- --${test_suite}
+          DEBUG=* MONGODB_VERSION=${mongodb_version|4.0.3} npm test -- --${test_suite}
           ls -alh
 
           npm run posttest
@@ -204,9 +204,9 @@ functions:
           set -e
           source ~/compass_env.sh
           bash ./.evergreen/test-plugin.sh ${plugin|10gen/compass-connect}
-    # - command: attach.xunit_results
-    #   params:
-    #     file: src/plugin/plugin-test-results.xml
+    - command: attach.xunit_results
+      params:
+        file: src/plugin/plugin-test-results.xml
 
   'package':
     - command: shell.exec
@@ -418,6 +418,12 @@ tasks:
       - func: test
         vars:
           test_suite: functional
+
+  - name: test-hadron-spectron
+    depends_on: [compile]
+    commands:
+      - func: test-plugin
+        vars: { plugin: mongodb-js/hadron-spectron }
 
   - name: test-data-service
     depends_on: [compile]
@@ -632,6 +638,7 @@ buildvariants:
       - name: verify
       # - name: test-data-service
       - name: test-functional
+      - name: test-hadron-spectron
       # - name: test-connect-plugin
       # - name: test-aggregation-builder-plugin
       # NOTE (@imlucas) See above for activating more tests
@@ -661,6 +668,7 @@ buildvariants:
       # - name: test-renderer
       # - name: test-enzyme
       - name: test-functional
+      - name: test-hadron-spectron
       # - name: test-connect-plugin
       # - name: test-aggregation-builder-plugin
       - name: package-and-publish-compass
@@ -674,6 +682,7 @@ buildvariants:
       - name: compile
       - name: verify
       - name: test-functional
+      - name: test-hadron-spectron
       - name: package-and-publish-compass
       - name: package-and-publish-compass-community
       - name: package-and-publish-compass-isolated

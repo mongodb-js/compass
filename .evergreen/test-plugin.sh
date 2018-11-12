@@ -27,8 +27,9 @@ EOT
 
 cat .npmrc
 npm install
-npm test -- --reporter xunit --reporter-options output=plugin-test-results.xml
+npm i -g xvfb-maybe
 
+xvfb-maybe npm test -- --reporter xunit --reporter-options output=plugin-test-results.xml
 ls -alh 
 
-echo "Test results written to output=plugin-test-results.xml"
+# echo "Test results written to output=plugin-test-results.xml"
