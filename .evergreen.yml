@@ -207,11 +207,12 @@ functions:
         working_dir: src
         shell: bash
         script: |
-          set -ev
+          set -e
+          source ~/compass_env.sh
           bash ./.evergreen/test-plugin.sh ${plugin|10gen/compass-connect}
-    - command: attach.xunit_results
-      params:
-        file: src/plugin/plugin-test-results.xml
+    # - command: attach.xunit_results
+    #   params:
+    #     file: src/plugin/plugin-test-results.xml
 
   'package':
     - command: shell.exec
@@ -622,7 +623,7 @@ buildvariants:
       - name: compile
       - name: verify
       # - name: test-data-service
-      # - name: test-functional
+      - name: test-functional
       # - name: test-connect-plugin
       # - name: test-aggregation-builder-plugin
       # NOTE (@imlucas) See above for activating more tests
@@ -652,8 +653,8 @@ buildvariants:
       # - name: test-renderer
       # - name: test-enzyme
       - name: test-functional
-      - name: test-connect-plugin
-      - name: test-aggregation-builder-plugin
+      # - name: test-connect-plugin
+      # - name: test-aggregation-builder-plugin
       - name: package-and-publish-compass
       - name: package-and-publish-compass-community
       - name: package-and-publish-compass-isolated
