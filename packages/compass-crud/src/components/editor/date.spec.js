@@ -5,7 +5,7 @@ import moment from 'moment-timezone';
 describe('DateEditor', () => {
   describe('#start', () => {
     const dateString = '2017-01-01 00:00:00.000';
-    const formattedDateString = '2017-01-01 00:00:00.000+00:00';
+    const formattedDateString = '2017-01-01T00:00:00.000+00:00';
     const tz = 'UTC';
     const date = moment.tz(dateString, tz);
     const element = new Element('date', date, false);
@@ -218,7 +218,7 @@ describe('DateEditor', () => {
     context('when the ui is not in edit mode', () => {
       context('when the date is valid', () => {
         const dateString = '2017-01-01 00:00:00.000';
-        const formattedDateString = '2017-01-01 00:00:00.000+00:00';
+        const formattedDateString = '2017-01-01T00:00:00.000+00:00';
         const tz = 'UTC';
         const date = moment.tz(dateString, tz);
         const element = new Element('date', date, false);

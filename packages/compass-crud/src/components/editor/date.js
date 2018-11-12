@@ -7,7 +7,7 @@ import StandardEditor from './standard';
 /**
  * The date format.
  */
-const FORMAT = 'YYYY-MM-DD HH:mm:ss.SSSZ';
+const FORMAT = 'YYYY-MM-DDTHH:mm:ss.SSSZ';
 
 /**
  * CRUD editor for date values.
