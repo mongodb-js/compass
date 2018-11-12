@@ -11,6 +11,7 @@ const _ = require('lodash');
 const async = require('async');
 const fs = require('fs-extra');
 
+const XVFB_MAYBE = which.sync('xvfb-maybe');
 const ELECTRON_MOCHA = which.sync('electron-mocha');
 const TEST_SUITES = ['unit', 'enzyme', 'main', 'renderer', 'functional'];
 
@@ -56,13 +57,8 @@ const extraSuiteArgs = {
   enzyme: ['--recursive']
 };
 
-exports.getMochaArgs = (argv) => {
-  const args = ['--sort'];
-
-  // for evergreen tests, switch to evergreen reporter
-  if (process.env.EVERGREEN) {
-    args.push.apply(args, ['--reporter', 'mocha-evergreen-reporter']);
-  }
+exports.getMochaArgs = argv => {
+  const args = [ELECTRON_MOCHA, '--sort'];
 
   const omitKeys = _.flatten([
     '$0',
@@ -94,9 +90,9 @@ exports.getMochaArgs = (argv) => {
   return _.concat(args, argvPairs);
 };
 
-exports.getSpawnJobs = (argv) => {
+exports.getSpawnJobs = argv => {
   const spawnJobs = {};
-  _.each(TEST_SUITES, (suite) => {
+  _.each(TEST_SUITES, suite => {
     // suite path and special handling of packages
     const suitePath = `./test/${suite}`;
     const mochaArgs = exports.getMochaArgs(argv);
@@ -118,7 +114,7 @@ exports.getSpawnJobs = (argv) => {
   return spawnJobs;
 };
 
-exports.handler = (argv) => {
+exports.handler = argv => {
   if (!argv.release) {
     process.env.TEST_WITH_PREBUILT = '1';
   }
@@ -133,8 +129,8 @@ exports.handler = (argv) => {
   }
 
   // if no individual suites are selected, run all of them
-  if (!_.some(_.map(TEST_SUITES, (suite) => argv[suite]))) {
-    _.each(TEST_SUITES, (suite) => {
+  if (!_.some(_.map(TEST_SUITES, suite => argv[suite]))) {
+    _.each(TEST_SUITES, suite => {
       argv[suite] = true;
     });
   }
@@ -146,9 +142,9 @@ exports.handler = (argv) => {
 
   // run the requested test suites in correct order in individual processes
   const spawnJobs = _.mapValues(exports.getSpawnJobs(argv), (args, suite) => {
-    return (cb) => {
+    return cb => {
       console.log(`Running ${suite} tests.`);
-      const proc = spawn(ELECTRON_MOCHA, args, {
+      const proc = spawn(XVFB_MAYBE, args, {
         env: process.env,
         cwd: process.cwd()
       });
@@ -164,7 +160,7 @@ exports.handler = (argv) => {
     // a single test without specific paths. This is (electron-)mocha's
     // default behavior, we do not want to change that.
     const mochaArgs = exports.getMochaArgs(argv);
-    const proc = spawn(ELECTRON_MOCHA, mochaArgs, {
+    const proc = spawn(XVFB_MAYBE, mochaArgs, {
       env: process.env,
       cwd: process.cwd()
     });
@@ -173,7 +169,7 @@ exports.handler = (argv) => {
     process.stdin.pipe(proc.stdin);
     proc.on('exit', process.exit);
   } else {
-    return async.series(spawnJobs, (err) => {
+    return async.series(spawnJobs, err => {
       if (err) {
         process.exit(1);
       }
