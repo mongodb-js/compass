@@ -69,16 +69,12 @@ functions:
           export NODE_JS_VERSION="10.2.1"
 
           if [[ "$OSTYPE" == "cygwin" ]]; then
-            echo "Update PATH for windows"
             export PATH="$(pwd)/.deps:$PATH"
-            echo "Set APPDATA for npm windows"
             export APPDATA=Z:\\\;
           fi
 
           if [[ "$OSTYPE" != "cygwin" ]]; then
-            echo "Update path for darwin and nix"
             export PATH="$(pwd)/.deps/bin:$PATH"
-            echo "PATH is now: $PATH"
           fi
 
           EOF_BUILD_SH
@@ -121,14 +117,14 @@ functions:
         shell: bash
         script: |
           set -e
-          . ~/compass_env.sh
+          source ~/compass_env.sh
 
           echo "Installing Compass dependencies..."
 
           echo "If npm ci fails, debug.log will be uploaded to S3."
           npm ci 
 
-          if [ -n "$IS_WINDOWS" ]; then
+          if [[ "$OSTYPE" == "cygwin" ]]; then
             echo "Fetching signtool -> notary-service hack..."
 
             curl -fs \
@@ -167,7 +163,6 @@ functions:
         script: |
           set -e
           tar xzf compass-build.tgz --strip-components=1
-          cp ./src/compass_env.sh ~/compass_env.sh
           ls -alh
     - <<: *generate-compass-env
 
@@ -216,7 +211,7 @@ functions:
           bash ./.evergreen/test-plugin.sh ${plugin|10gen/compass-connect}
     - command: attach.xunit_results
       params:
-        file: src/plugin-test-results.xml
+        file: src/plugin/plugin-test-results.xml
 
   'package':
     - command: shell.exec
@@ -626,10 +621,10 @@ buildvariants:
     tasks:
       - name: compile
       - name: verify
-      - name: test-data-service
-      - name: test-functional
-      - name: test-connect-plugin
-      - name: test-aggregation-builder-plugin
+      # - name: test-data-service
+      # - name: test-functional
+      # - name: test-connect-plugin
+      # - name: test-aggregation-builder-plugin
       # NOTE (@imlucas) See above for activating more tests
       # - name: test-unit
       # - name: test-main
@@ -651,7 +646,14 @@ buildvariants:
     tasks:
       - name: compile
       - name: verify
+      - name: test-data-service
+      # - name: test-unit
+      # - name: test-main
+      # - name: test-renderer
+      # - name: test-enzyme
       - name: test-functional
+      - name: test-connect-plugin
+      - name: test-aggregation-builder-plugin
       - name: package-and-publish-compass
       - name: package-and-publish-compass-community
       - name: package-and-publish-compass-isolated
