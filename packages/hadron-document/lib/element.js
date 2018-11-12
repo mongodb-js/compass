@@ -1126,7 +1126,8 @@ var LinkedList = function () {
           if (_this2._needsLazyLoad(index)) {
             var key = _this2.keys[index];
             index += 1;
-            return { value: _this2._lazyInsertEnd(key) };
+            currentElement = _this2._lazyInsertEnd(key);
+            return { value: currentElement };
           } else if (_this2._needsStandardIteration(index)) {
             if (currentElement) {
               currentElement = currentElement.nextElement;

@@ -669,6 +669,21 @@ describe('Document', function() {
       });
     });
 
+    context('when flushing mid iteration', function() {
+      const doc = { f1: 'v1', f2: 'v2', f3: 'v3' };
+      const hadronDoc = new Document(doc);
+      const elements = hadronDoc.elements;
+
+      it('gets all the elements', function() {
+        let index = 1;
+        for (let element of elements) {
+          expect(element.currentKey).to.equal(`f${index}`);
+          index += 1;
+          elements.flush();
+        }
+      });
+    });
+
     context('when iterating partially', function() {
       const doc = { f1: 'v1', f2: 'v2', f3: 'v3' };
       const hadronDoc = new Document(doc);

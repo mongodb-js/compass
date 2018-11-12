@@ -832,7 +832,8 @@ class LinkedList {
         if (this._needsLazyLoad(index)) {
           const key = this.keys[index];
           index += 1;
-          return { value: this._lazyInsertEnd(key) };
+          currentElement = this._lazyInsertEnd(key);
+          return { value: currentElement };
         } else if (this._needsStandardIteration(index)) {
           if (currentElement) {
             currentElement = currentElement.nextElement;
