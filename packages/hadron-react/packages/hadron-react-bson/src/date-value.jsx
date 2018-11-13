@@ -10,7 +10,7 @@ const CLASS = 'element-value element-value-is-date';
 /**
  * The date format.
  */
-const FORMAT = 'YYYY-MM-DD HH:mm:ss.SSSZ';
+const FORMAT = 'YYYY-MM-DDTHH:mm:ss.SSSZ';
 
 /**
  * BSON Date component.

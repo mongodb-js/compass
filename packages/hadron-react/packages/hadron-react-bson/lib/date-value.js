@@ -20,7 +20,7 @@ var CLASS = 'element-value element-value-is-date';
 /**
  * The date format.
  */
-var FORMAT = 'YYYY-MM-DD HH:mm:ss.SSSZ';
+var FORMAT = 'YYYY-MM-DDTHH:mm:ss.SSSZ';
 
 /**
  * BSON Date component.
