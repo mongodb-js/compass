@@ -1,6 +1,6 @@
-# compass-json-schema-validation [![][travis_img]][travis_url]
+# compass-schema-validation [![][travis_img]][travis_url]
 
-> Compass plugin for document JSON schema validation
+> Compass plugin for schema validation
 
 ## Usage
 

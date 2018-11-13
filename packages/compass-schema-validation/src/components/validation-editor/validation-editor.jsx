@@ -4,6 +4,7 @@ import classnames from 'classnames';
 import AceEditor from 'react-ace';
 import ace from 'brace';
 import { QueryAutoCompleter } from 'mongodb-ace-autocompleter';
+import { TextButton } from 'hadron-react-buttons';
 
 import styles from './validation-editor.less';
 
@@ -37,6 +38,8 @@ class ValidationEditor extends Component {
 
   static propTypes = {
     validationRulesChanged: PropTypes.func.isRequired,
+    validationChangesCanceled: PropTypes.func.isRequired,
+    validationChangesSaved: PropTypes.func.isRequired,
     serverVersion: PropTypes.string.isRequired,
     fields: PropTypes.array,
     validation: PropTypes.any,
@@ -59,6 +62,10 @@ class ValidationEditor extends Component {
     );
   }
 
+  handleValidationChangesSave() {
+    this.props.validationChangesSaved(this.props.validation.validationRules);
+  }
+
   /**
    * Should the component update?
    *
@@ -76,6 +83,34 @@ class ValidationEditor extends Component {
   // }
 
   /**
+   * Render validation changed buttons.
+   *
+   * @returns {React.Component} The component.
+   */
+  renderValidationChangedButtons() {
+    if (
+      !this.props.error &&
+      !this.props.validation.syntaxError &&
+      this.props.validation.validationChanged
+    ) {
+      return (
+        <div
+          className={classnames(styles['validation-changed-buttons'])}
+        >
+          <TextButton
+            className="btn btn-default btn-xs"
+            text="Update"
+            clickHandler={this.handleValidationChangesSave.bind(this)} />
+          <TextButton
+            className={`btn btn-borderless btn-xs ${classnames(styles.cancel)}`}
+            text="Cancel"
+            clickHandler={this.props.validationChangesCanceled} />
+        </div>
+      );
+    }
+  }
+
+  /**
    * Render the syntax error.
    *
    * @returns {React.Component} The component.
@@ -84,9 +119,9 @@ class ValidationEditor extends Component {
     if (!this.props.error && this.props.validation.syntaxError) {
       return (
         <div
-          className={classnames(styles['stage-editor-syntax-error'])}
+          className={classnames(styles['validation-syntax-error'])}
         >
-          Syntax error!
+          {this.props.validation.syntaxError.message}
         </div>
       );
     }
@@ -101,10 +136,9 @@ class ValidationEditor extends Component {
     if (this.props.error) {
       return (
         <div
-          className={classnames(styles['stage-editor-errormsg'])}
-          title={this.props.error}
+          className={classnames(styles['validation-error'])}
         >
-          {this.props.error}
+          {this.props.error.message}
         </div>
       );
     }
@@ -137,6 +171,7 @@ class ValidationEditor extends Component {
               });
             }}/>
           </div>
+          {this.renderValidationChangedButtons()}
           {this.renderSyntaxError()}
           {this.renderError()}
       </div>

@@ -14,11 +14,22 @@ const PREFIX = 'validation';
 export const VALIDATION_RULES_CHANGED = `${PREFIX}/VALIDATION_RULES_CHANGED`;
 
 /**
+ * Validation changes canceled action name.
+ */
+export const VALIDATION_CHANGES_CANCELED = `${PREFIX}/VALIDATION_CHANGES_CANCELED`;
+
+/**
+ * Validation changes saved action name.
+ */
+export const VALIDATION_CHANGES_SAVED = `${PREFIX}/VALIDATION_CHANGES_SAVED`;
+
+/**
  * The initial state.
  */
 export const INITIAL_STATE = {
   validationRules: '',
-  syntaxError: false
+  validationChanged: false,
+  syntaxError: null
 };
 
 /**
@@ -94,19 +105,23 @@ function executeJavascript(input, sandbox) {
  * @returns {Boolean} Is rules valid.
  */
 const validateRules = (input) => {
-  try {
-    const sandbox = getQuerySandbox();
-    const parsedInput = executeJavascript(input, sandbox);
+  const validatedRules = {input, syntaxError: null};
+  const sandbox = getQuerySandbox();
 
-    // is it a valid MongoDB query according to the language?
-    return !queryLanguage.accepts(EJSON.stringify(parsedInput));
-  } catch (e) {
-    return true;
+  try {
+    validatedRules.input = EJSON.stringify(executeJavascript(input, sandbox));
+    validatedRules.syntaxError = queryLanguage.accepts(validatedRules.input)
+      ? null
+      : 'MongoDB language model does not accept the input';
+  } catch (error) {
+    validatedRules.syntaxError = error;
   }
+
+  return validatedRules;
 };
 
 /**
- * Change stage value.
+ * Change validation rules.
  *
  * @param {Object} state - The state.
  * @param {Object} action - The action.
@@ -115,9 +130,48 @@ const validateRules = (input) => {
  */
 const changeValidationRules = (state, action) => {
   const newState = {...state};
+  const validatedRules = validateRules(action.validationRules);
 
+  newState.validationChanged = true;
+  newState.validationRules = validatedRules.input;
+  newState.syntaxError = validatedRules.syntaxError;
+
+  return newState;
+};
+
+/**
+ * Cancel validation changes.
+ *
+ * @param {Object} state - The state
+ *
+ * @returns {Object} The new state.
+ */
+const cancelValidationChanges = (state) => {
+  const newState = {...state};
+
+  newState.validationChanged = false;
+  newState.validationRules = ''; // TODO: Read validation from the collection to get old values.
+  newState.syntaxError = null;
+
+  return newState;
+};
+
+/**
+ * Cancel validation changes.
+ *
+ * @param {Object} state - The state
+ * @param {Object} action - The action.
+ *
+ * @returns {Object} The new state.
+ */
+const saveValidationChanges = (state, action) => {
+  const newState = {...state};
+
+  newState.validationChanged = false;
   newState.validationRules = action.validationRules;
-  newState.syntaxError = validateRules(newState.validationRules);
+  newState.syntaxError = null;
+
+  // TODO: Save validation to the collection.
 
   return newState;
 };
@@ -128,6 +182,8 @@ const changeValidationRules = (state, action) => {
 const MAPPINGS = {};
 
 MAPPINGS[VALIDATION_RULES_CHANGED] = changeValidationRules;
+MAPPINGS[VALIDATION_CHANGES_CANCELED] = cancelValidationChanges;
+MAPPINGS[VALIDATION_CHANGES_SAVED] = saveValidationChanges;
 
 /**
  * Reducer function for handle state changes to status.
@@ -152,5 +208,26 @@ export default function reducer(state = INITIAL_STATE, action) {
  */
 export const validationRulesChanged = (validationRules) => ({
   type: VALIDATION_RULES_CHANGED,
+  validationRules
+});
+
+/**
+ * Action creator for validation changes canceled events.
+ *
+ * @returns {Object} Validation changes canceled action.
+ */
+export const validationChangesCanceled = () => ({
+  type: VALIDATION_CHANGES_CANCELED
+});
+
+/**
+ * Action creator for validation changes saved events.
+ *
+ * @param {String} value - Validation rules.
+ *
+ * @returns {Object} Validation changes saved action.
+ */
+export const validationChangesSaved = (validationRules) => ({
+  type: VALIDATION_CHANGES_SAVED,
   validationRules
 });
