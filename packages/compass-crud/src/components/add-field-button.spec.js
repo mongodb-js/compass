@@ -128,6 +128,7 @@ describe('<AddFieldButton />', () => {
                                               context={context}/>);
             const wrapper = component.find({'data-test-id': 'add-field-after'});
             expect(wrapper).to.be.present();
+            rowNode.data.hadronDocument.elements.flush();
             wrapper.simulate('click');
             done();
           });

@@ -271,6 +271,7 @@ describe('<FullWidthCellRenderer />', () => {
           rowNode = getNode({toRemove: 1}, oid);
           rowNode.data.state = 'editing';
           data = rowNode.data;
+          data.hadronDocument.elements.flush();
           data.hadronDocument.insertEnd('newfield', 'value');
           data.hadronDocument.get('toRemove').remove();
           component = mount(<FullWidthCellRenderer api={api}

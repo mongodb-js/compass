@@ -246,6 +246,7 @@ class EditableElement extends React.Component {
           editing={this.props.editing}
           edit={this.props.edit}
           expandAll={this.props.expandAll}
+          tz={this.props.tz}
         />
       ));
       index++;

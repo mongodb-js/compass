@@ -421,6 +421,7 @@ describe('<CellRenderer />', () => {
       describe('clicking undo on an added element', () => {
         before((done) => {
           rowNode = getNode({});
+          rowNode.data.hadronDocument.elements.flush();
           rowNode.data.hadronDocument.insertEnd('field1', 'value');
           value = rowNode.data.hadronDocument.get('field1');
           api = getApi();
