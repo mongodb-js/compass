@@ -120,6 +120,43 @@ describe('Document', function() {
     });
   });
 
+  describe('#generateObject', () => {
+    context('when nothing has been loaded', () => {
+      const doc = new Document({ _id: 1 });
+
+      it('generates the appropriate document', () => {
+        expect(doc.generateObject()).to.deep.equal({ _id: 1 });
+      });
+    });
+
+    context('when the list is partially loaded', () => {
+      const doc = new Document({ _id: 1, name: 'test' });
+
+      before(() => {
+        for (const element of doc.elements) {
+          expect(element.currentKey).to.equal('_id');
+          break;
+        }
+      });
+
+      it('generates the appropriate document', () => {
+        expect(doc.generateObject()).to.deep.equal({ _id: 1, name: 'test' });
+      });
+    });
+
+    context('when adding to the document before iterating', () => {
+      const doc = new Document({ _id: 1 });
+
+      before(() => {
+        doc.insertEnd('name', 'test');
+      });
+
+      it('generates the appropriate document', () => {
+        expect(doc.generateObject()).to.deep.equal({ _id: 1, name: 'test' });
+      });
+    });
+  });
+
   describe('.insertEnd', function() {
     context('when the new element is a primitive value', function() {
       var doc = new Document({});

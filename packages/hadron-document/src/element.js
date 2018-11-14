@@ -587,6 +587,8 @@ class Element extends EventEmitter {
    * @param {Object} object - The object to generate from.
    *
    * @returns {Array} The elements.
+   *
+   * @todo: This needs to be lazy as well.
    */
   _generateElements(object) {
     var elements = new LinkedList(); // eslint-disable-line no-use-before-define
@@ -692,17 +694,8 @@ class LinkedList {
    * @returns {Element} The inserted element.
    */
   insertAfter(element, key, value, added, parent) {
-    var newElement = new Element(key, value, added, parent, element, element.nextElement);
-    if (element.nextElement) {
-      element.nextElement.previousElement = newElement;
-    } else {
-      this.lastElement = newElement;
-    }
-    element.nextElement = newElement;
-    this._map[newElement.key] = newElement;
-    this.size += 1;
-    this.loaded += 1;
-    return newElement;
+    this.flush();
+    return this._insertAfter(element, key, value, added, parent);
   }
 
   /**
@@ -755,17 +748,8 @@ class LinkedList {
    * @returns {Element} The inserted element.
    */
   insertBefore(element, key, value, added, parent) {
-    var newElement = new Element(key, value, added, parent, element.previousElement, element);
-    if (element.previousElement) {
-      element.previousElement.nextElement = newElement;
-    } else {
-      this.firstElement = newElement;
-    }
-    element.previousElement = newElement;
-    this._map[newElement.key] = newElement;
-    this.size += 1;
-    this.loaded += 1;
-    return newElement;
+    this.flush();
+    return this._insertBefore(element, key, value, added, parent);
   }
 
   /**
@@ -779,17 +763,8 @@ class LinkedList {
    * @returns {Element} The data element.
    */
   insertBeginning(key, value, added, parent) {
-    if (!this.firstElement) {
-      var element = new Element(key, value, added, parent, null, null);
-      this.firstElement = this.lastElement = element;
-      this.size += 1;
-      this.loaded += 1;
-      this._map[element.key] = element;
-      return element;
-    }
-    const newElement = this.insertBefore(this.firstElement, key, value, added, parent);
-    this._map[newElement.key] = newElement;
-    return newElement;
+    this.flush();
+    return this._insertBeginning(key, value, added, parent);
   }
 
   /**
@@ -869,7 +844,56 @@ class LinkedList {
    */
   _lazyInsertEnd(key) {
     this.size -= 1;
-    return this.insertEnd(key, this.originalDoc[key], this.doc.cloned, this.doc);
+    return this._insertEnd(key, this.originalDoc[key], this.doc.cloned, this.doc);
+  }
+
+  _insertEnd(key, value, added, parent) {
+    if (!this.lastElement) {
+      return this._insertBeginning(key, value, added, parent);
+    }
+    return this._insertAfter(this.lastElement, key, value, added, parent);
+  }
+
+  _insertBefore(element, key, value, added, parent) {
+    var newElement = new Element(key, value, added, parent, element.previousElement, element);
+    if (element.previousElement) {
+      element.previousElement.nextElement = newElement;
+    } else {
+      this.firstElement = newElement;
+    }
+    element.previousElement = newElement;
+    this._map[newElement.key] = newElement;
+    this.size += 1;
+    this.loaded += 1;
+    return newElement;
+  }
+
+  _insertBeginning(key, value, added, parent) {
+    if (!this.firstElement) {
+      var element = new Element(key, value, added, parent, null, null);
+      this.firstElement = this.lastElement = element;
+      this.size += 1;
+      this.loaded += 1;
+      this._map[element.key] = element;
+      return element;
+    }
+    const newElement = this.insertBefore(this.firstElement, key, value, added, parent);
+    this._map[newElement.key] = newElement;
+    return newElement;
+  }
+
+  _insertAfter(element, key, value, added, parent) {
+    var newElement = new Element(key, value, added, parent, element, element.nextElement);
+    if (element.nextElement) {
+      element.nextElement.previousElement = newElement;
+    } else {
+      this.lastElement = newElement;
+    }
+    element.nextElement = newElement;
+    this._map[newElement.key] = newElement;
+    this.size += 1;
+    this.loaded += 1;
+    return newElement;
   }
 
   /**
