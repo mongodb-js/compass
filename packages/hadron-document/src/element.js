@@ -251,6 +251,7 @@ class Element extends EventEmitter {
    */
   insertEnd(key, value) {
     if (this.currentType === 'Array') {
+      this.elements.flush();
       key = 0;
       if (this.elements.lastElement) {
         if (this.elements.lastElement.currentKey === '') {
@@ -587,17 +588,9 @@ class Element extends EventEmitter {
    * @param {Object} object - The object to generate from.
    *
    * @returns {Array} The elements.
-   *
-   * @todo: This needs to be lazy as well.
    */
   _generateElements(object) {
-    var elements = new LinkedList(); // eslint-disable-line no-use-before-define
-    let index = 0;
-    for (let key of keys(object)) {
-      elements.insertEnd(this._key(key, index), object[key], this.added, this);
-      index ++;
-    }
-    return elements;
+    return new LinkedList(this, object); // eslint-disable-line no-use-before-define
   }
 
   /**
@@ -677,6 +670,9 @@ class LinkedList {
     this.doc = doc;
     this.originalDoc = originalDoc;
     this.keys = keys(this.originalDoc);
+    if (this.doc.currentType === 'Array') {
+      this.keys = this.keys.map(k => parseInt(k, 10));
+    }
     this.size = this.keys.length;
     this.loaded = 0;
     this._map = {};
@@ -778,6 +774,7 @@ class LinkedList {
    * @returns {Element} The data element.
    */
   insertEnd(key, value, added, parent) {
+    this.flush();
     if (!this.lastElement) {
       return this.insertBeginning(key, value, added, parent);
     }
@@ -786,6 +783,7 @@ class LinkedList {
 
   flush() {
     if (this.loaded < this.size) {
+      // Only iterate from the loaded index to the size.
       for (let element of this) {
         if (element && element.elements) {
           element.elements.flush();

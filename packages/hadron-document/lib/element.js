@@ -312,6 +312,7 @@ var Element = function (_EventEmitter) {
     key: 'insertEnd',
     value: function insertEnd(key, value) {
       if (this.currentType === 'Array') {
+        this.elements.flush();
         key = 0;
         if (this.elements.lastElement) {
           if (this.elements.lastElement.currentKey === '') {
@@ -766,42 +767,12 @@ var Element = function (_EventEmitter) {
      * @param {Object} object - The object to generate from.
      *
      * @returns {Array} The elements.
-     *
-     * @todo: This needs to be lazy as well.
      */
 
   }, {
     key: '_generateElements',
     value: function _generateElements(object) {
-      var elements = new LinkedList(); // eslint-disable-line no-use-before-define
-      var index = 0;
-      var _iteratorNormalCompletion4 = true;
-      var _didIteratorError4 = false;
-      var _iteratorError4 = undefined;
-
-      try {
-        for (var _iterator4 = keys(object)[Symbol.iterator](), _step4; !(_iteratorNormalCompletion4 = (_step4 = _iterator4.next()).done); _iteratorNormalCompletion4 = true) {
-          var key = _step4.value;
-
-          elements.insertEnd(this._key(key, index), object[key], this.added, this);
-          index++;
-        }
-      } catch (err) {
-        _didIteratorError4 = true;
-        _iteratorError4 = err;
-      } finally {
-        try {
-          if (!_iteratorNormalCompletion4 && _iterator4.return) {
-            _iterator4.return();
-          }
-        } finally {
-          if (_didIteratorError4) {
-            throw _iteratorError4;
-          }
-        }
-      }
-
-      return elements;
+      return new LinkedList(this, object); // eslint-disable-line no-use-before-define
     }
 
     /**
@@ -839,29 +810,29 @@ var Element = function (_EventEmitter) {
     key: '_removeAddedElements',
     value: function _removeAddedElements() {
       if (this.elements) {
-        var _iteratorNormalCompletion5 = true;
-        var _didIteratorError5 = false;
-        var _iteratorError5 = undefined;
+        var _iteratorNormalCompletion4 = true;
+        var _didIteratorError4 = false;
+        var _iteratorError4 = undefined;
 
         try {
-          for (var _iterator5 = this.elements[Symbol.iterator](), _step5; !(_iteratorNormalCompletion5 = (_step5 = _iterator5.next()).done); _iteratorNormalCompletion5 = true) {
-            var element = _step5.value;
+          for (var _iterator4 = this.elements[Symbol.iterator](), _step4; !(_iteratorNormalCompletion4 = (_step4 = _iterator4.next()).done); _iteratorNormalCompletion4 = true) {
+            var element = _step4.value;
 
             if (element.isAdded()) {
               this.elements.remove(element);
             }
           }
         } catch (err) {
-          _didIteratorError5 = true;
-          _iteratorError5 = err;
+          _didIteratorError4 = true;
+          _iteratorError4 = err;
         } finally {
           try {
-            if (!_iteratorNormalCompletion5 && _iterator5.return) {
-              _iterator5.return();
+            if (!_iteratorNormalCompletion4 && _iterator4.return) {
+              _iterator4.return();
             }
           } finally {
-            if (_didIteratorError5) {
-              throw _iteratorError5;
+            if (_didIteratorError4) {
+              throw _iteratorError4;
             }
           }
         }
@@ -925,6 +896,11 @@ var LinkedList = function () {
     this.doc = doc;
     this.originalDoc = originalDoc;
     this.keys = keys(this.originalDoc);
+    if (this.doc.currentType === 'Array') {
+      this.keys = this.keys.map(function (k) {
+        return parseInt(k, 10);
+      });
+    }
     this.size = this.keys.length;
     this.loaded = 0;
     this._map = {};
@@ -1045,6 +1021,7 @@ var LinkedList = function () {
   }, {
     key: 'insertEnd',
     value: function insertEnd(key, value, added, parent) {
+      this.flush();
       if (!this.lastElement) {
         return this.insertBeginning(key, value, added, parent);
       }
@@ -1054,29 +1031,30 @@ var LinkedList = function () {
     key: 'flush',
     value: function flush() {
       if (this.loaded < this.size) {
-        var _iteratorNormalCompletion6 = true;
-        var _didIteratorError6 = false;
-        var _iteratorError6 = undefined;
+        // Only iterate from the loaded index to the size.
+        var _iteratorNormalCompletion5 = true;
+        var _didIteratorError5 = false;
+        var _iteratorError5 = undefined;
 
         try {
-          for (var _iterator6 = this[Symbol.iterator](), _step6; !(_iteratorNormalCompletion6 = (_step6 = _iterator6.next()).done); _iteratorNormalCompletion6 = true) {
-            var element = _step6.value;
+          for (var _iterator5 = this[Symbol.iterator](), _step5; !(_iteratorNormalCompletion5 = (_step5 = _iterator5.next()).done); _iteratorNormalCompletion5 = true) {
+            var element = _step5.value;
 
             if (element && element.elements) {
               element.elements.flush();
             }
           }
         } catch (err) {
-          _didIteratorError6 = true;
-          _iteratorError6 = err;
+          _didIteratorError5 = true;
+          _iteratorError5 = err;
         } finally {
           try {
-            if (!_iteratorNormalCompletion6 && _iterator6.return) {
-              _iterator6.return();
+            if (!_iteratorNormalCompletion5 && _iterator5.return) {
+              _iterator5.return();
             }
           } finally {
-            if (_didIteratorError6) {
-              throw _iteratorError6;
+            if (_didIteratorError5) {
+              throw _iteratorError5;
             }
           }
         }
