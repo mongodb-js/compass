@@ -135,7 +135,7 @@
   "dependencies": {
     "ag-grid-community": "19.0.0",
     "ag-grid-react": "19.0.0",
-    "hadron-document": "^5.0.3",
+    "hadron-document": "^5.0.4",
     "hadron-type-checker": "^4.0.4",
     "lodash.clonedeep": "^4.5.0",
     "lodash.findindex": "^4.6.0",
