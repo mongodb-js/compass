@@ -2,10 +2,10 @@ sudo: false
 dist: trusty
 language: node_js
 node_js:
-  - 8.9.3
+  - 10.2.1
 env:
   matrix:
-    - MONGODB_VERSION=3.4.x MONGODB_TOPOLOGY=standalone
+    - MONGODB_VERSION=stable MONGODB_TOPOLOGY=standalone
   global:
     secure: kx+3p/x5hEju6fKYzb0SCk9VJLq6bOxrizCQ/skvRB9OwiQUFm68KHDRys6DonUgudfJK9QF+2IvTPo7V+6bzh15hNDd4TnMuz/L9Fcb7+BwTENwjRKlWltuWBtLbJ+XxOeCAg2uWT7D8bH5S2NADIboIVUstAqNM9LKw9V9BVc=
 addons:
@@ -18,7 +18,7 @@ addons:
       - libstdc++6
 before_install:
   - echo "//registry.npmjs.org/:_authToken=\${NPM_TOKEN}" >> .npmrc
-  - npm i -g npm
+  - npm i -g npm@latest
 install:
   - npm ci
 before_script:
@@ -28,6 +28,11 @@ before_script:
 script:
   - npm run check
   - npm test
+# after_failure:
+#   - curl -sL https://raw.githubusercontent.com/travis-ci/artifacts/master/install | bash
+#   - export ARTIFACTS_PATHS="$HOME/.npm/_logs/*.log"
+#   - artifacts upload
+
 cache:
   directories:
     - '$HOME/.npm'
