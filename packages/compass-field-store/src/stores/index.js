@@ -141,28 +141,30 @@ const FieldStore = Reflux.createStore({
   _mergeSchema(schema) {
     const fields = _.cloneDeep(this.state.fields);
     const topLevelFields = [];
-    // @note: This is a single place to store the core ACE editor fields in
-    //   the format ACE wants, so we don't process this multiple times and add
-    //   an extra iteration each time.
-    const aceFields = [];
 
     for (const field of schema.fields) {
       const name = field.name;
       topLevelFields.push(name);
-      aceFields.push({
-        name: name,
-        value: name,
-        score: ONE,
-        meta: FIELD,
-        version: VERSION_ZERO
-      });
     }
     this._flattenedFields(fields, schema.fields);
 
     this.setState({
       fields: fields,
       topLevelFields: _.union(this.state.topLevelFields, topLevelFields),
-      aceFields: aceFields
+      aceFields: this._processAceFields(fields)
+    });
+  },
+
+  _processAceFields(fields) {
+    return Object.keys(fields).map((key) => {
+      const field = (key.indexOf('.') > -1 || key.indexOf(' ') > -1) ? `"${key}"` : key;
+      return {
+        name: key,
+        value: field,
+        score: ONE,
+        meta: FIELD,
+        version: VERSION_ZERO
+      };
     });
   },
 

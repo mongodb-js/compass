@@ -54,6 +54,36 @@ describe('FieldStore', function() {
     unsubscribe = FieldStore.listen((state) => {
       expect(Object.keys(state.fields)).to.have.all.members([
         'harry', 'potter', 'ron', 'weasley']);
+      expect(state.aceFields).to.deep.equal([
+        {
+          name: 'harry',
+          value: 'harry',
+          score: 1,
+          meta: 'field',
+          version: '0.0.0'
+        },
+        {
+          name: 'potter',
+          value: 'potter',
+          score: 1,
+          meta: 'field',
+          version: '0.0.0'
+        },
+        {
+          name: 'ron',
+          value: 'ron',
+          score: 1,
+          meta: 'field',
+          version: '0.0.0'
+        },
+        {
+          name: 'weasley',
+          value: 'weasley',
+          score: 1,
+          meta: 'field',
+          version: '0.0.0'
+        }
+      ]);
       done();
     });
     FieldStore.processDocuments(docs);
@@ -67,6 +97,36 @@ describe('FieldStore', function() {
       unsubscribe = FieldStore.listen((state) => {
         expect(Object.keys(state.fields)).to.have.all.members([
           'harry', 'potter', 'hermione', 'granger']);
+        expect(state.aceFields).to.deep.equal([
+          {
+            name: 'harry',
+            value: 'harry',
+            score: 1,
+            meta: 'field',
+            version: '0.0.0'
+          },
+          {
+            name: 'potter',
+            value: 'potter',
+            score: 1,
+            meta: 'field',
+            version: '0.0.0'
+          },
+          {
+            name: 'granger',
+            value: 'granger',
+            score: 1,
+            meta: 'field',
+            version: '0.0.0'
+          },
+          {
+            name: 'hermione',
+            value: 'hermione',
+            score: 1,
+            meta: 'field',
+            version: '0.0.0'
+          }
+        ]);
         done();
       });
       FieldStore.processSingleDocument(secondDoc);
@@ -81,6 +141,85 @@ describe('FieldStore', function() {
         expect(Object.keys(state.fields)).to.have.all.members(['harry', 'potter',
           '_id', 'review', 'review._id', 'review.rating', 'review.text',
           'reviews', 'reviews._id', 'reviews.rating', 'reviews.text']);
+        expect(state.aceFields).to.deep.equal([
+          {
+            name: 'harry',
+            value: 'harry',
+            score: 1,
+            meta: 'field',
+            version: '0.0.0'
+          },
+          {
+            name: 'potter',
+            value: 'potter',
+            score: 1,
+            meta: 'field',
+            version: '0.0.0'
+          },
+          {
+            name: '_id',
+            value: '_id',
+            score: 1,
+            meta: 'field',
+            version: '0.0.0'
+          },
+          {
+            name: 'review',
+            value: 'review',
+            score: 1,
+            meta: 'field',
+            version: '0.0.0'
+          },
+          {
+            name: 'review._id',
+            value: '"review._id"',
+            score: 1,
+            meta: 'field',
+            version: '0.0.0'
+          },
+          {
+            name: 'review.rating',
+            value: '"review.rating"',
+            score: 1,
+            meta: 'field',
+            version: '0.0.0'
+          },
+          {
+            name: 'review.text',
+            value: '"review.text"',
+            score: 1,
+            meta: 'field',
+            version: '0.0.0'
+          },
+          {
+            name: 'reviews',
+            value: 'reviews',
+            score: 1,
+            meta: 'field',
+            version: '0.0.0'
+          },
+          {
+            name: 'reviews._id',
+            value: '"reviews._id"',
+            score: 1,
+            meta: 'field',
+            version: '0.0.0'
+          },
+          {
+            name: 'reviews.rating',
+            value: '"reviews.rating"',
+            score: 1,
+            meta: 'field',
+            version: '0.0.0'
+          },
+          {
+            name: 'reviews.text',
+            value: '"reviews.text"',
+            score: 1,
+            meta: 'field',
+            version: '0.0.0'
+          }
+        ]);
         done();
       });
       FieldStore.processSchema(schemaFixture);
