@@ -18,7 +18,7 @@ describe('FieldStore', function() {
 
   it('has an initial state', () => {
     const state = FieldStore.getInitialState();
-    expect(state).to.have.all.keys(['fields', 'topLevelFields']);
+    expect(state).to.have.all.keys(['fields', 'topLevelFields', 'aceFields']);
     expect(state.fields).to.be.empty;
     expect(state.topLevelFields).to.be.empty;
   });
