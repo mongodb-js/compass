@@ -356,7 +356,7 @@ app.on('window-all-closed', () => {
   if (process.platform !== 'darwin') {
     app.quit();
   }
-})
+});
 
 app.on('ready', function() {
   // install development tools (devtron, react tools) if in development mode
