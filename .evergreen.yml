@@ -200,6 +200,8 @@ functions:
         script: |
           set -e
           source ~/compass_env.sh
+          export ELECTRON_NO_ATTACH_CONSOLE=1
+          export ELECTRON_ENABLE_LOGGING=1
           bash ./.evergreen/test-plugin.sh ${plugin|10gen/compass-connect}
     # - command: attach.xunit_results
     #   params:
@@ -405,6 +407,15 @@ tasks:
     commands:
       - func: restore
       - func: verify
+  - name: test-unit
+    depends_on: [compile]
+    tags:
+    - test
+    commands:
+      - func: restore
+      - func: test
+        vars:
+          test_suite: unit
 
   - name: test-functional
     depends_on: [compile]
@@ -634,12 +645,12 @@ buildvariants:
       - name: compile
       - name: verify
       # - name: test-data-service
-      - name: test-functional
+      # - name: test-functional
       - name: test-hadron-spectron
       # - name: test-connect-plugin
       # - name: test-aggregation-builder-plugin
       # NOTE (@imlucas) See above for activating more tests
-      # - name: test-unit
+      - name: test-unit
       # - name: test-main
       # - name: test-renderer
       # - name: test-enzyme
