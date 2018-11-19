@@ -353,8 +353,10 @@ app.on('before-quit', function() {
 });
 
 app.on('window-all-closed', () => {
-  app.quit()
-});
+  if (process.platform !== 'darwin') {
+    app.quit();
+  }
+})
 
 app.on('ready', function() {
   // install development tools (devtron, react tools) if in development mode
