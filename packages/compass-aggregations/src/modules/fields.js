@@ -14,6 +14,8 @@ export const INITIAL_STATE = [];
  * @param {Object} fields - The fields.
  *
  * @returns {Array} The processed fields.
+ *
+ * @todo: Durran: this kills perf on large schemas.
  */
 const process = (fields) => {
   return Object.keys(fields).map((key) => {
