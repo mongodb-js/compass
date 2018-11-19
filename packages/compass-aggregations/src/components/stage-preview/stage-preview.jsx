@@ -93,7 +93,7 @@ class StagePreview extends Component {
       }
       if (this.props.documents.length > 0) {
         const documents = this.props.documents.map((doc, i) => {
-          return (<Document doc={new HadronDocument(doc)} editable={false} key={i} tz="UTC" expandAll />);
+          return (<Document doc={new HadronDocument(doc)} editable={false} key={i} tz="UTC" />);
         });
         return (
           <div className={classnames(styles['stage-preview-documents'])}>
