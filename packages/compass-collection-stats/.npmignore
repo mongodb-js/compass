@@ -10,5 +10,6 @@ electron/
 karma.conf.js
 mocha-webpack.opts
 scripts/
+src/
 test/
 .zuul.yml
