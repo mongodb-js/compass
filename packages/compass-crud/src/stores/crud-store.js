@@ -326,8 +326,8 @@ const CRUDStore = Reflux.createStore({
 
     this.dataService.find(this.state.ns, this.state.query.filter, options, (error, documents) => {
       const length = error ? 0 : documents.length;
-      this.appRegistry.emit('documents-paginated', this.state.view);
       StatusAction.done();
+      this.appRegistry.emit('documents-paginated', this.state.view);
       this.setState({
         error: error,
         docs: documents.map(doc => new HadronDocument(doc)),
