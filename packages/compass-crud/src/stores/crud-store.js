@@ -327,7 +327,6 @@ const CRUDStore = Reflux.createStore({
     this.dataService.find(this.state.ns, this.state.query.filter, options, (error, documents) => {
       const length = error ? 0 : documents.length;
       StatusAction.done();
-      this.appRegistry.emit('documents-paginated', this.state.view);
       this.setState({
         error: error,
         docs: documents.map(doc => new HadronDocument(doc)),
@@ -337,6 +336,7 @@ const CRUDStore = Reflux.createStore({
         counter: this.state.counter + NUM_PAGE_DOCS,
         table: this.getInitialTableState()
       });
+      this.appRegistry.emit('documents-paginated', this.state.view);
     });
   },
 
@@ -362,7 +362,6 @@ const CRUDStore = Reflux.createStore({
 
     this.dataService.find(this.state.ns, this.state.query.filter, options, (error, documents) => {
       const length = error ? 0 : documents.length;
-      this.appRegistry.emit('documents-paginated', this.state.view);
       StatusAction.done();
       this.setState({
         error: error,
@@ -373,6 +372,7 @@ const CRUDStore = Reflux.createStore({
         counter: this.state.counter - NUM_PAGE_DOCS,
         table: this.getInitialTableState()
       });
+      this.appRegistry.emit('documents-paginated', this.state.view);
     });
   },
 
@@ -535,7 +535,6 @@ const CRUDStore = Reflux.createStore({
       if (!err) {
         this.dataService.find(this.state.ns, query.filter, findOptions, (error, documents) => {
           const length = documents.length;
-          this.appRegistry.emit('documents-refreshed', this.state.view, documents);
           StatusAction.done();
           this.setState({
             error: error,
@@ -546,6 +545,7 @@ const CRUDStore = Reflux.createStore({
             end: length,
             table: this.getInitialTableState()
           });
+          this.appRegistry.emit('documents-refreshed', this.state.view, documents);
         });
       } else {
         // If the count gets an error we need to display this to the user since
