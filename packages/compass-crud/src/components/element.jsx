@@ -95,6 +95,10 @@ class Element extends React.Component {
    */
   renderChildren() {
     const components = [];
+    if (!this.state.expanded && !this.props.expandAll) {
+      // COMPASS-1312 Lazily render children when user clicks on expand
+      return components;
+    }
     for (const element of this.props.element.elements) {
       components.push(
         (<Element
