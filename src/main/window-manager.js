@@ -352,6 +352,10 @@ app.on('before-quit', function() {
   }
 });
 
+app.on('window-all-closed', () => {
+  app.quit()
+});
+
 app.on('ready', function() {
   // install development tools (devtron, react tools) if in development mode
   if (process.env.NODE_ENV === 'development') {
