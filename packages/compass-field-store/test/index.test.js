@@ -18,15 +18,32 @@ describe('FieldStore', function() {
 
   it('has an initial state', () => {
     const state = FieldStore.getInitialState();
-    expect(state).to.have.all.keys(['fields', 'topLevelFields']);
+    expect(state).to.have.all.keys(['fields', 'topLevelFields', 'aceFields']);
     expect(state.fields).to.be.empty;
     expect(state.topLevelFields).to.be.empty;
+    expect(state.aceFields).to.be.empty;
   });
 
   it('samples a single document', (done) => {
     const doc = {harry: 1, potter: true};
     unsubscribe = FieldStore.listen((state) => {
       expect(Object.keys(state.fields)).to.have.all.members(['harry', 'potter']);
+      expect(state.aceFields).to.deep.equal([
+        {
+          name: 'harry',
+          value: 'harry',
+          score: 1,
+          meta: 'field',
+          version: '0.0.0'
+        },
+        {
+          name: 'potter',
+          value: 'potter',
+          score: 1,
+          meta: 'field',
+          version: '0.0.0'
+        }
+      ]);
       done();
     });
     FieldStore.processSingleDocument(doc);
