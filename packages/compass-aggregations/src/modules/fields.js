@@ -9,28 +9,6 @@ export const FIELDS_CHANGED = 'aggregations/fields/FIELDS_CHANGED';
 export const INITIAL_STATE = [];
 
 /**
- * Process the fields into an autocomplete friendly format.
- *
- * @param {Object} fields - The fields.
- *
- * @returns {Array} The processed fields.
- *
- * @todo: Durran: this kills perf on large schemas.
- */
-const process = (fields) => {
-  return Object.keys(fields).map((key) => {
-    const field = (key.indexOf('.') > -1 || key.indexOf(' ') > -1) ? `"${key}"` : key;
-    return {
-      name: key,
-      value: field,
-      score: 1,
-      meta: 'field',
-      version: '0.0.0'
-    };
-  });
-};
-
-/**
  * Reducer function for handle state changes to fields.
  *
  * @param {Array} state - The fields state.
@@ -40,7 +18,7 @@ const process = (fields) => {
  */
 export default function reducer(state = INITIAL_STATE, action) {
   if (action.type === FIELDS_CHANGED) {
-    return process(action.fields);
+    return action.fields;
   }
   return state;
 }

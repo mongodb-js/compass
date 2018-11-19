@@ -1,9 +1,12 @@
 import reducer, { fieldsChanged, FIELDS_CHANGED } from 'modules/fields';
 
 describe('server version module', () => {
-  describe('#fieldsChanged', () => {
-    const fields = { _id: { type: 'ObjectId' }, name: { type: 'String' }};
+  const fields = [
+    { name: '_id', value: '_id', score: 1, meta: 'field', version: '0.0.0' },
+    { name: 'name', value: 'name', score: 1, meta: 'field', version: '0.0.0'}
+  ];
 
+  describe('#fieldsChanged', () => {
     it('returns the FIELDS_CHANGED action', () => {
       expect(fieldsChanged(fields)).to.deep.equal({
         type: FIELDS_CHANGED,
@@ -20,8 +23,6 @@ describe('server version module', () => {
     });
 
     context('when the action is fields changed', () => {
-      const fields = { _id: { type: 'ObjectId' }, name: { type: 'String' }};
-
       it('returns the new state', () => {
         expect(reducer(undefined, fieldsChanged(fields))).to.deep.equal([
           { name: '_id', value: '_id', score: 1, meta: 'field', version: '0.0.0' },
