@@ -155,6 +155,14 @@ const FieldStore = Reflux.createStore({
     });
   },
 
+  /**
+   * Processes the fields in a format compatible with the ACE editor
+   * autocompleter.
+   *
+   * @param {Object} fields - The fields.
+   *
+   * @returns {Array} The array of autocomplete metadata.
+   */
   _processAceFields(fields) {
     return Object.keys(fields).map((key) => {
       const field = (key.indexOf('.') > -1 || key.indexOf(' ') > -1) ? `"${key}"` : key;
