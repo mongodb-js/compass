@@ -39,6 +39,9 @@
   "precommit": [
     "check"
   ],
+  "dependency-check": {
+    "ignore": ["react-dom"]
+  },
   "peerDependencies": {
     "debug": "^3.0.1",
     "hadron-react-components": "^3.0.0",
@@ -47,7 +50,8 @@
     "mongodb-ace-mode": "^0.0.2",
     "mongodb-ace-theme-query": "^0.0.2",
     "prop-types": "^15.5.8",
-    "react": "^16.5.2",
+    "react": "^16.6.0",
+    "react-dom": "^16.6.0",
     "react-ace": "^6.1.1",
     "react-bootstrap": "^0.32.1",
     "react-fontawesome": "^1.6.1",
@@ -55,7 +59,7 @@
     "reflux-state-mixin": "^0.7.0"
   },
   "devDependencies": {
-    "@mongodb-js/compass-field-store": "^1.0.0",
+    "@mongodb-js/compass-field-store": "^2.0.0",
     "autoprefixer": "^7.1.2",
     "babel-cli": "^6.10.1",
     "babel-core": "^6.24.1",
@@ -123,10 +127,10 @@
     "postcss-loader": "^2.0.6",
     "pre-commit": "^1.1.3",
     "prop-types": "^15.5.8",
-    "react": "^16.5.2",
+    "react": "^16.6.0",
     "react-ace": "^6.1.1",
     "react-bootstrap": "^0.32.1",
-    "react-dom": "^16.5.2",
+    "react-dom": "^16.6.0",
     "react-fontawesome": "^1.6.1",
     "react-hot-loader": "^4.1.0",
     "reflux": "^0.4.1",

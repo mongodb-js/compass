@@ -69,7 +69,7 @@ class OptionEditor extends Component {
     });
 
     this.unsubFields = global.hadronApp.appRegistry.getStore('Field.Store').listen((fields) => {
-      this.completer.update(this.processFields(fields.fields));
+      this.completer.update(fields.aceFields);
     });
   }
 
@@ -100,26 +100,6 @@ class OptionEditor extends Component {
       target: {
         value: newCode
       }
-    });
-  };
-
-  /**
-   * Handles converting the field list to an ACE friendly format.
-   *
-   * @param {Object} fields - The fields.
-   *
-   * @returns {Array} The field list.
-   */
-  processFields = (fields) => {
-    return Object.keys(fields).map((key) => {
-      const field = (key.indexOf('.') > -1 || key.indexOf(' ') > -1) ? `"${key}"` : key;
-      return {
-        name: key,
-        value: field,
-        score: 1,
-        meta: 'field',
-        version: '0.0.0'
-      };
     });
   };
 
