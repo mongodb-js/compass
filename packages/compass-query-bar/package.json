@@ -1,7 +1,7 @@
 {
   "name": "@mongodb-js/compass-query-bar",
   "productName": "Query Bar plugin",
-  "version": "1.1.0",
+  "version": "2.0.0",
   "apiVersion": "2.0.0",
   "description": "Renders a component for executing MongoDB queries through a GUI.",
   "main": "lib/index.js",
@@ -40,7 +40,9 @@
     "check"
   ],
   "dependency-check": {
-    "ignore": ["react-dom"]
+    "ignore": [
+      "react-dom"
+    ]
   },
   "peerDependencies": {
     "debug": "^3.0.1",
