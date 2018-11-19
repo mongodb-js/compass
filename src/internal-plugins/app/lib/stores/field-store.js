@@ -12,13 +12,17 @@ const FIELDS = [
   'type'
 ];
 
+const ONE = 1;
+const FIELD = 'field';
+const VERSION_ZERO = '0.0.0';
+
 const FieldStore = Reflux.createStore({
   mixins: [StateMixin.store],
 
   onActivated(appRegistry) {
     // process documents when CRUD store resets (first 20 docs)
     appRegistry.on('documents-refreshed', (view, docs) => {
-      this.processDocuments(docs);
+      this.processSingleDocument(docs[0] || {});
     });
     // process new document a user inserts
     appRegistry.getStore('document-inserted').listen((view, doc) => {
@@ -55,7 +59,8 @@ const FieldStore = Reflux.createStore({
   getInitialState() {
     return {
       fields: {},
-      topLevelFields: []
+      topLevelFields: [],
+      aceFields: []
     };
   },
 
@@ -161,16 +166,40 @@ const FieldStore = Reflux.createStore({
     const topLevelFields = [];
 
     for (const field of schema.fields) {
-      topLevelFields.push(field.name);
+      const name = field.name;
+      topLevelFields.push(name);
     }
+
     this._flattenedFields(fields, schema.fields);
 
     require('marky').mark('FieldStore - Merge schema');
     this.setState({
       fields: fields,
-      topLevelFields: _.union(this.state.topLevelFields, topLevelFields)
+      topLevelFields: _.union(this.state.topLevelFields, topLevelFields),
+      aceFields: this._processAceFields(fields)
     });
     require('marky').stop('FieldStore - Merge schema');
+  },
+
+  /**
+   * Processes the fields in a format compatible with the ACE editor
+   * autocompleter.
+   *
+   * @param {Object} fields - The fields.
+   *
+   * @returns {Array} The array of autocomplete metadata.
+   */
+  _processAceFields(fields) {
+    return Object.keys(fields).map((key) => {
+      const field = (key.indexOf('.') > -1 || key.indexOf(' ') > -1) ? `"${key}"` : key;
+      return {
+        name: key,
+        value: field,
+        score: ONE,
+        meta: FIELD,
+        version: VERSION_ZERO
+      };
+    });
   },
 
   /**
