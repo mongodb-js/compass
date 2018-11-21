@@ -165,7 +165,7 @@ describe('CreateIndexesStore', function() {
   });
 });
 
-describe.skip('LoadIndexesStore', () => {
+describe('LoadIndexesStore', () => {
   const appInstance = app.instance;
   const appRegistry = app.appRegistry;
   const collectionStore = Collection.CollectionStore;
