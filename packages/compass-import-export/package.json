@@ -1,7 +1,7 @@
 {
   "name": "@mongodb-js/compass-import-export",
   "productName": "Compass Import/Export",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "apiVersion": "2.0.0",
   "description": "Compass Import/Export Plugin",
   "main": "lib/index.js",
@@ -25,7 +25,9 @@
     "check"
   ],
   "dependency-check": {
-    "ignore": ["react-dom"]
+    "ignore": [
+      "react-dom"
+    ]
   },
   "license": "Apache-2.0",
   "peerDependencies": {
