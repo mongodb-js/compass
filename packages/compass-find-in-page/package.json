@@ -1,7 +1,7 @@
 {
   "name": "@mongodb-js/compass-find-in-page",
   "productName": "Compass Find In Page plugin",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "apiVersion": "2.0.0",
   "description": "cmd-f UI for compass",
   "main": "lib/index.js",
@@ -27,7 +27,9 @@
     "check"
   ],
   "dependency-check": {
-    "ignore": ["react-dom"]
+    "ignore": [
+      "react-dom"
+    ]
   },
   "license": "Apache-2.0",
   "peerDependencies": {
