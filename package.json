@@ -3,7 +3,7 @@
   "productName": "MongoDB Compass",
   "description": "The MongoDB GUI",
   "homepage": "https://compass.mongodb.com",
-  "version": "1.17.0-dev",
+  "version": "1.18.0-dev",
   "apiVersion": "2.0.0",
   "main": "src/main.js",
   "author": {
@@ -336,6 +336,7 @@
     "reflux-state-mixin": "mongodb-js/reflux-state-mixin",
     "semver": "^5.1.0",
     "storage-mixin": "^0.8.1",
+    "triejs": "github:rueckstiess/triejs",
     "turf-destination": "^1.2.1",
     "turf-distance": "^1.1.0",
     "turf-point": "^2.0.1",
