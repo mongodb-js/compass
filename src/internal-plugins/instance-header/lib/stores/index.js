@@ -28,7 +28,7 @@ const InstanceHeaderStore = Reflux.createStore({
   onActivated(appRegistry) {
     this.NamespaceStore = appRegistry.getStore('App.NamespaceStore');
     appRegistry.getStore('DeploymentAwareness.Store').listen(this.fetchInstanceDetails.bind(this));
-    appRegistry.getStore('Connect.Store').listen(this.onConnectStateChanged.bind(this));
+    appRegistry.on('data-service-initialized', this.onDataServiceInit.bind(this));
     appRegistry.on('collection-changed', this.onCollectionChanged.bind(this));
     appRegistry.on('database-changed', this.onDatabaseChanged.bind(this));
   },
@@ -44,6 +44,10 @@ const InstanceHeaderStore = Reflux.createStore({
       name: 'Retrieving connection information',
       activeNamespace: ''
     };
+  },
+
+  onDataServiceInit(dataService) {
+    this.setState({ connection: dataService.client.model });
   },
 
   onConnectStateChanged(connectState) {
