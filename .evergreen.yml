@@ -305,11 +305,6 @@ functions:
       params:
         local_file: src/dist/RELEASES
         remote_file: ${project}/${revision}/${compass_distribution}-RELEASES
-    # LICENSE file
-    - <<: *save-artifact
-      params:
-        local_file: src/dist/LICENSE
-        remote_file: ${project}/${revision}/${compass_distribution}-LICENSE
     # nupkg full
     - <<: *save-artifact
       params:
