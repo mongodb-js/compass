@@ -13,3 +13,6 @@ mocha-webpack.opts
 scripts/
 test/
 .zuul.yml
+.storybook/
+coverage/
+.nyc_output/
