@@ -34,16 +34,16 @@ const ReadStateStore = Reflux.createStore({
    * @param {AppRegistry} appRegistry - The app registry.
    */
   onActivated(appRegistry) {
-    appRegistry.getStore('Connect.Store').listen(this.onConnectStoreChanged.bind(this));
+    appRegistry.on('data-service-initialized', this.onDataServiceInit.bind(this));
   },
 
   /**
-   * When the connect store changes, update the connection in the state here.
+   * When the data service initialises, update the connection in the state here.
    *
-   * @param {Object} connectState - The connect store state.
+   * @param {Object} dataService - The data service.
    */
-  onConnectStoreChanged(connectState) {
-    this.setState({ connection: connectState.currentConnection });
+  onDataServiceInit(dataService) {
+    this.setState({ connection: dataService.client.model });
   },
 
   /**

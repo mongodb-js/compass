@@ -9,8 +9,12 @@ describe('ReadStateStore', () => {
 
   describe('#isReadable', () => {
     beforeEach(() => {
-      ReadStateStore.onConnectStoreChanged({
-        currentConnection: { read_preference: ReadPreference.PRIMARY }
+      ReadStateStore.onDataServiceInit({
+        client: {
+          model: {
+            read_preference: ReadPreference.PRIMARY
+          }
+        }
       });
     });
 
