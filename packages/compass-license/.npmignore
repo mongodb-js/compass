@@ -11,4 +11,7 @@ karma.conf.js
 mocha-webpack.opts
 scripts/
 test/
+src/
+.storybook/
+.nyc_output/
 .zuul.yml
