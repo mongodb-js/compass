@@ -168,9 +168,6 @@ function getTasks(model, setupListeners) {
    * TODO (imlucas) dns.lookup() model.hostname and model.ssh_tunnel_hostname to check for typos
    */
   assign(tasks, {
-    Validate: function(cb) {
-      validateURL(model, status('Validate', cb));
-    },
     'Load SSL files': function(cb) {
       var ctx = status('Load SSL files', cb);
       if (!needToLoadSSLFiles(model)) {
