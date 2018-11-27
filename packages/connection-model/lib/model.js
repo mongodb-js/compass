@@ -719,7 +719,7 @@ assign(derived, {
           );
           result = result.replace(AUTH_TOKEN, authField, 1);
         }
-        result = `${result}&authSource=$external`;
+        result = `${result}&authSource=$external&authMechanismProperties=CANONICALIZE_HOST_NAME:true`;
       }
       return result;
     }

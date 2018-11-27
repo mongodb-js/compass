@@ -322,7 +322,7 @@ describe('mongodb-connection-model', function() {
 
           it('should urlencode credentials', () => {
             assert.equal(connection.driver_url,
-              `mongodb://${authExpect}@localhost:27017/?readPreference=primary&gssapiServiceName=mongodb&authMechanism=GSSAPI&authSource=$external`);
+              `mongodb://${authExpect}@localhost:27017/?readPreference=primary&gssapiServiceName=mongodb&authMechanism=GSSAPI&authSource=$external&authMechanismProperties=CANONICALIZE_HOST_NAME:true`);
           });
 
           it('should be parse in the browser', () => {
