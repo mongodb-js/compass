@@ -56,7 +56,7 @@
     "font-awesome": "^4.7.0",
     "hadron-app": "^3.0.1",
     "hadron-app-registry": "^7.0.0",
-    "hadron-build": "^20.0.1",
+    "hadron-build": "^20.0.2",
     "hadron-ipc": "^1.0.0",
     "jsdom": "^9.4.2",
     "less": "^2.7.1",
