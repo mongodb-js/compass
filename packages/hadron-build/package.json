@@ -28,7 +28,7 @@
     "electron-builder": "^20.28.3",
     "electron-installer-run": "^1.0.0",
     "electron-installer-zip": "^0.1.2",
-    "electron-license": "^1.0.0",
+    "electron-license": "^1.0.1",
     "electron-mocha": "^5.0.0",
     "electron-packager": "^8.7.0",
     "electron-packager-plugin-non-proprietary-codecs-ffmpeg": "^1.0.1",
