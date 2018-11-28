@@ -247,7 +247,8 @@ var AUTHENTICATION_TO_FIELD_NAMES = {
   KERBEROS: [
     'kerberos_principal', // required
     'kerberos_password', // optional
-    'kerberos_service_name' // optional
+    'kerberos_service_name', // optional
+    'kerberos_canonicalize_hostname'
   ],
   X509: [
     'x509_username' // required
@@ -360,6 +361,11 @@ assign(props, {
   kerberos_password: {
     type: 'string',
     default: undefined
+  },
+
+  kerberos_canonicalize_hostname: {
+    type: 'boolean',
+    default: false
   }
 });
 
@@ -719,7 +725,10 @@ assign(derived, {
           );
           result = result.replace(AUTH_TOKEN, authField, 1);
         }
-        result = `${result}&authSource=$external&authMechanismProperties=CANONICALIZE_HOST_NAME:true`;
+        result = `${result}&authSource=$external`;
+        if (this.kerberos_canonicalize_hostname) {
+          result = `${result}&authMechanismProperties=CANONICALIZE_HOST_NAME:true`;
+        }
       }
       return result;
     }

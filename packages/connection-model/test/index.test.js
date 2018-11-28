@@ -305,6 +305,43 @@ describe('mongodb-connection-model', function() {
         });
 
         context('when using kerberos auth', () => {
+          context('when using default canonicalization', () => {
+            let username;
+            let password;
+            let connection;
+            let authExpect;
+
+            before(() => {
+              username = 'user@-azMPk]&3Wt)iP_9C:PMQ=';
+              password = 'user@-azMPk]&3Wt)iP_9C:PMQ=';
+              connection = new Connection({
+                kerberos_principal: username,
+                kerberos_password: password
+              });
+              authExpect = `${encodeURIComponent(username)}:${encodeURIComponent(password)}`;
+            });
+
+            it('should urlencode credentials', () => {
+              assert.equal(connection.driver_url,
+                `mongodb://${authExpect}@localhost:27017/?readPreference=primary&gssapiServiceName=mongodb&authMechanism=GSSAPI&authSource=$external`);
+            });
+
+            it('should be parse in the browser', () => {
+              assert.doesNotThrow(() => {
+                parse(connection.driver_url);
+              });
+            });
+
+            it('should parse on the server', (done) => {
+              driverParse(connection.driver_url, {}, (error) => {
+                assert.equal(error, null);
+                done();
+              });
+            });
+          });
+        });
+
+        context('when canonicalizing the host name', () => {
           let username;
           let password;
           let connection;
@@ -315,7 +352,8 @@ describe('mongodb-connection-model', function() {
             password = 'user@-azMPk]&3Wt)iP_9C:PMQ=';
             connection = new Connection({
               kerberos_principal: username,
-              kerberos_password: password
+              kerberos_password: password,
+              kerberos_canonicalize_hostname: true
             });
             authExpect = `${encodeURIComponent(username)}:${encodeURIComponent(password)}`;
           });
