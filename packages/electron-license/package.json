@@ -21,7 +21,7 @@
     "chalk": "^1.1.1",
     "csv-write-stream": "^2.0.0",
     "debug": "^2.2.0",
-    "event-stream": "^3.3.2",
+    "event-stream": "^4.0.1",
     "figures": "^2.0.0",
     "lodash": "^4.0.0",
     "markdown-table": "^1.0.0",
