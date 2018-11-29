@@ -446,11 +446,12 @@ const ConnectStore = Reflux.createStore({
    */
   onDisconnect() {
     if (this.dataService) {
-      this.dataService.disconnect();
-      this.dataService = undefined;
+      this.dataService.disconnect(() => {
+        this.appRegistry.emit('data-service-disconnected');
+        this.setState({ isConnected: false, errorMessage: null, isValid: true });
+        this.dataService = undefined;
+      });
     }
-    this.setState({ isConnected: false, errorMessage: null, isValid: true });
-    this.appRegistry.emit('data-service-disconnected');
   },
 
   /**
