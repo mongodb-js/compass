@@ -40,7 +40,7 @@ const HomeStore = Reflux.createStore({
   },
 
   onDisconnected(appRegistry) {
-    if (this.state.uiStatus === UI_STATES.COMPLETE) {
+    if (this.state.uiStatus === UI_STATES.COMPLETE || this.state.uiStatus === UI_STATES.INITIAL) {
       this._disconnect(appRegistry);
     } else {
       const timer = setInterval(() => {
