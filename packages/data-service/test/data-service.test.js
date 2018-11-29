@@ -417,10 +417,11 @@ describe('DataService', function() {
     });
 
     it('disconnects the database', function(done) {
-      service.disconnect();
-      service.count('data-service.test', {}, {}, function(error) {
-        expect(error.message).to.equal('topology was destroyed');
-        done();
+      service.disconnect(function() {
+        service.count('data-service.test', {}, {}, function(error) {
+          expect(error.message).to.equal('topology was destroyed');
+          done();
+        });
       });
     });
   });

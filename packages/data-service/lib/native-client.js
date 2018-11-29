@@ -480,8 +480,8 @@ class NativeClient extends EventEmitter {
   /**
    * Disconnect the client.
    */
-  disconnect() {
-    this.client.close();
+  disconnect(callback) {
+    this.client.close(true, callback);
   }
 
   /**

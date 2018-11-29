@@ -225,8 +225,8 @@ class DataService extends EventEmitter {
   /**
    * Disconnect the service.
    */
-  disconnect() {
-    this.client.disconnect();
+  disconnect(callback) {
+    this.client.disconnect(callback);
   }
 
   /**
