@@ -13,7 +13,7 @@ const HomeStore = Reflux.createStore({
     // set up listeners on external stores
     appRegistry.getStore('App.InstanceStore').listen(this.onInstanceChange.bind(this));
     appRegistry.on('data-service-connected', this.onConnected.bind(this, appRegistry));
-    appRegistry.on('data-service-disconnected', this.onDisconnected.bind(this));
+    appRegistry.on('data-service-disconnected', this.onDisconnected.bind(this, appRegistry));
     appRegistry.on('collection-changed', this.onCollectionChanged.bind(this));
     appRegistry.on('database-changed', this.onDatabaseChanged.bind(this));
   },
@@ -39,8 +39,23 @@ const HomeStore = Reflux.createStore({
     };
   },
 
-  onDisconnected() {
+  onDisconnected(appRegistry) {
+    if (this.state.uiStatus === UI_STATES.COMPLETE) {
+      this._disconnect(appRegistry);
+    } else {
+      const timer = setInterval(() => {
+        if (this.state.uiStatus === UI_STATES.COMPLETE) {
+          this._disconnect(appRegistry);
+          clearInterval(timer);
+        }
+      }, 500);
+    }
+  },
+
+  _disconnect(appRegistry) {
+    const StatusAction = appRegistry.getAction('Status.Actions');
     this.setState(this.getInitialState());
+    StatusAction.done();
   },
 
   onConnected(appRegistry, err, ds) {
