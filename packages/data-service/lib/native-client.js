@@ -98,9 +98,7 @@ class NativeClient extends EventEmitter {
     connect(
       this.model,
       this.setupListeners.bind(this),
-      (err, mongoClient) => {
-        this.client = mongoClient;
-
+      (err) => {
         if (err) {
           return done(this._translateMessage(err));
         }
@@ -127,6 +125,8 @@ class NativeClient extends EventEmitter {
    * @param {MongoClient} client - The driver client.
    */
   setupListeners(client) {
+    this.client = client;
+
     if (client) {
       client.on('serverDescriptionChanged', evt => {
         this.emit('serverDescriptionChanged', evt);
