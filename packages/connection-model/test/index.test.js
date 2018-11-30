@@ -474,7 +474,12 @@ describe('mongodb-connection-model', function() {
         it('changes the <DATABASE> namespace to test', function() {
           assert.ok(atlasConnection.indexOf('<DATABASE>') > -1);
           var c = Connection.from(atlasConnection);
-          assert.equal(c.ns, 'test');
+          assert.equal(c.ns, 'admin');
+        });
+        it('changes the <DATABASE> mongo_database_name to test', function() {
+          assert.ok(atlasConnection.indexOf('<DATABASE>') > -1);
+          var c = Connection.from(atlasConnection);
+          assert.equal(c.driver_url.includes('authSource=admin'), true);
         });
         it('does not false positive on hi.mongodb.net.my.domain.com', function() {
           var c = Connection.from(
@@ -503,7 +508,11 @@ describe('mongodb-connection-model', function() {
         });
 
         it('sets the namespace to the default', function() {
-          assert.equal(c.ns, 'test');
+          assert.equal(c.ns, 'admin');
+        });
+
+        it('sets the monngo_database_name to admin', function() {
+          assert.equal(c.driver_url.includes('authSource=admin'), true);
         });
       });
     });
@@ -818,7 +827,7 @@ describe('mongodb-connection-model', function() {
           + '?authMechanism=SCRAM-SHA-1');
         assert(c);
         assert.equal(c.ns, 'dogdb');
-        assert.equal(c.mongodb_database_name, 'dogdb');
+        assert.equal(c.mongodb_database_name, 'admin');
       });
       describe('enterprise', function() {
         it('should parse LDAP', function() {

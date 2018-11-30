@@ -649,10 +649,10 @@ assign(derived, {
       const encodeAuthForUrlFormat = () => {
         if (this.authentication === 'MONGODB') {
           req.auth = AUTH_TOKEN;
-          req.query.authSource = this.mongodb_database_name;
+          req.query.authSource = this.mongodb_database_name || MONGODB_DATABASE_NAME_DEFAULT;
         } else if (this.authentication === 'SCRAM-SHA-256') {
           req.auth = AUTH_TOKEN;
-          req.query.authSource = this.mongodb_database_name;
+          req.query.authSource = this.mongodb_database_name || MONGODB_DATABASE_NAME_DEFAULT;
           req.query.authMechanism = this.driver_auth_mechanism;
         } else if (this.authentication === 'KERBEROS') {
           defaults(req.query, {
@@ -1149,10 +1149,11 @@ Connection.from = function(url) {
       }
       attrs.mongodb_username = decodeURIComponent(parsed.auth.user);
       attrs.mongodb_password = decodeURIComponent(parsed.auth.password);
-      // authSource takes precedence, but fall back to dbName
-      // @see https://docs.mongodb.org/v3.0/reference/connection-string/#uri.authSource
+      // authSource takes precedence, but fall back to admin
+      // @note Durran: This is not the documented behaviour of the connection string
+      //   but the shell also does not fall back to the dbName and will use admin.
       attrs.mongodb_database_name = decodeURIComponent(
-        parsed.db_options.authSource || parsed.dbName);
+        parsed.db_options.authSource || Connection.MONGODB_DATABASE_NAME_DEFAULT);
     }
     Object.assign(attrs, Connection._improveAtlasDefaults(url, attrs.mongodb_password, attrs.ns));
   }
@@ -1179,7 +1180,7 @@ Connection._improveAtlasDefaults = function(url, mongodb_password, namespace) {
       atlasConnectionAttrs.mongodb_password = '';
     }
     if (!namespace || namespace.match(/^.?DATABASE.?$/i)) {
-      atlasConnectionAttrs.ns = Connection.MONGODB_NAMESPACE_DEFAULT;
+      atlasConnectionAttrs.ns = Connection.MONGODB_DATABASE_NAME_DEFAULT;
     }
   }
   return atlasConnectionAttrs;
