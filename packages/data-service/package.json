@@ -44,7 +44,7 @@
     "mongodb-collection-sample": "^4.3.1",
     "mongodb-connection-model": "^12.5.5",
     "mongodb-index-model": "^2.3.0",
-    "mongodb-js-errors": "^0.3.0",
+    "mongodb-js-errors": "^0.3.3",
     "mongodb-ns": "^2.0.0",
     "mongodb-security": "0.0.4",
     "mongodb-stitch": "^3.0.6",
