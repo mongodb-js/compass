@@ -1,11 +1,8 @@
 var storageMixin = require('../lib');
-var SecureBackend = require('../lib/backends').secure;
 var assert = require('assert');
 var helpers = require('./helpers');
 
-// var debug = require('debug')('storage-mixin:test');
-
-describe('storage backend `secure`', function() {
+describe('storage backend secure', function() {
   var backendOptions = 'secure';
 
   var StorableSpaceship;
@@ -14,7 +11,9 @@ describe('storage backend `secure`', function() {
   var spaceship;
   var fleet;
 
-  // create storable classes with this backend
+  /**
+   * Create storable classes with this backend
+   */
   StorableSpaceship = helpers.Spaceship.extend(storageMixin, {
     storage: backendOptions
   });
@@ -28,7 +27,9 @@ describe('storage backend `secure`', function() {
     storage: backendOptions
   });
 
-  // clear namespaces of this backend before and after the tests
+  /**
+   * Clear namespaces of this backend before and after the tests.
+   */
   before(function(done) {
     helpers.clearNamespaces('secure', ['Spaceships', 'Planets'], done);
   });
@@ -57,22 +58,24 @@ describe('storage backend `secure`', function() {
   });
 
   it('should update and read correctly', function(done) {
-    if (SecureBackend.isNullBackend) {
-      this.skip();
-    }
-    spaceship.save({warpSpeed: 3.14}, {
-      success: function() {
-        var otherSpaceship = new StorableSpaceship({
-          name: 'Battlestar Galactica'
-        });
-        otherSpaceship.once('sync', function() {
-          assert.equal(otherSpaceship.warpSpeed, 3.14);
-          done();
-        });
-        otherSpaceship.fetch();
-      },
-      error: done
-    });
+    spaceship.save(
+      { warpSpeed: 3.14 },
+      {
+        success: function() {
+          var otherSpaceship = new StorableSpaceship({
+            name: 'Battlestar Galactica'
+          });
+          otherSpaceship.once('sync', function() {
+            assert.equal(otherSpaceship.warpSpeed, 3.14);
+            done();
+          });
+          otherSpaceship.fetch();
+        },
+        error: function(res, err) {
+          done(err);
+        }
+      }
+    );
   });
 
   it('should store a second model in the same namespace', function(done) {
@@ -97,10 +100,7 @@ describe('storage backend `secure`', function() {
     });
   });
 
-  it('should use the correct appName/namespace key', function(done) {
-    if (SecureBackend.isNullBackend) {
-      this.skip();
-    }
+  it('should use the correct appName/namespace key for the native credential entry', function(done) {
     var keytar = require('keytar');
     helpers.clearNamespaces('secure', ['Spaceships', 'Planets'], function(err) {
       if (err) {
@@ -112,11 +112,18 @@ describe('storage backend `secure`', function() {
       });
       earth.save(null, {
         success: function() {
-          // check that a key exists with key "storage-mixin/Planets"
-          assert.ok(keytar.findPassword('storage-mixin/Planets'));
-          done();
-        },
-        error: done
+          // Check that save properly wrote to the keychain
+          return keytar
+            .findPassword('storage-mixin/Planets')
+            .then(function(rawJsonString) {
+              assert.strictEqual(
+                rawJsonString,
+                '{"name":"Earth","population":7000000000}'
+              );
+              done();
+            })
+            .catch(done);
+        }
       });
     });
   });

@@ -1,21 +1,13 @@
 var inherits = require('util').inherits;
 var BaseBackend = require('./base');
-var NullBackend = require('./null');
-var async = require('async');
 var _ = require('lodash');
-var keytar;
+var debug = require('debug')('mongodb-storage-mixin:backends:secure');
 
-var debug = require('debug')('storage-mixin:backends:secure');
-
-try {
-  /* eslint no-undef: 0 */
-  keytar = window.require('keytar');
-} catch (e) {
-  /* eslint no-console: 0 */
-  debug('keytar module not available. `secure` storage engine will '
-    + 'fall back to `null` storage engine.');
-  keytar = null;
-}
+/**
+ * TODO (@imlucas) COMPASS-3235: Eliminate multiple keychain password requests
+ * should be patched in here or just rewrite and delete this entire module.
+ */
+var keytar = require('keytar');
 
 function SecureBackend(options) {
   if (!(this instanceof SecureBackend)) {
@@ -30,7 +22,6 @@ function SecureBackend(options) {
 }
 inherits(SecureBackend, BaseBackend);
 
-
 /**
  * Clear the entire namespace. Use with caution!
  *
@@ -38,8 +29,51 @@ inherits(SecureBackend, BaseBackend);
  * @param {Function} done
  */
 SecureBackend.clear = function(namespace, done) {
-  debug('`clear` not implemented for `secure` storage backend.');
-  done();
+  var serviceName = `storage-mixin/${namespace}`;
+  debug('Clearing all secure values for', serviceName);
+  try {
+    var promise = keytar.findCredentials(serviceName);
+  } catch(e) {
+    console.error('Error calling findCredentials', e);
+    throw e;
+  }
+  
+    promise.then(function(accounts) {
+      debug(
+        'Found credentials',
+        accounts.map(function(credential) {
+          return credential.account;
+        })
+      );
+      return Promise.all(
+        accounts.map(function(entry) {
+          var accountName = entry.account;
+          return keytar
+            .deletePassword(serviceName, accountName)
+            .then(function() {
+              debug('Deleted account %s successfully', accountName);
+              return accountName;
+            })
+            .catch(function(err) {
+              console.error('Failed to delete', accountName, err);
+              throw err;
+            });
+        })
+      );
+    })
+    .then(function(accountNames) {
+      debug(
+        'Cleared %d accounts for serviceName %s',
+        accountNames.length,
+        serviceName,
+        accountNames
+      );
+      done();
+    })
+    .catch(function(err) {
+      console.error('Failed to clear credentials!', err);
+      done(err);
+    });
 };
 
 /**
@@ -52,8 +86,19 @@ SecureBackend.clear = function(namespace, done) {
  * @see http://ampersandjs.com/docs#ampersand-model-destroy
  */
 SecureBackend.prototype.remove = function(model, options, done) {
-  keytar.deletePassword(this.namespace, this._getId(model));
-  done();
+  var accountName = this._getId(model);
+  var serviceName = this.namespace;
+
+  keytar
+    .deletePassword(serviceName, accountName)
+    .then(function() {
+      debug('Removed password for', {
+        service: serviceName,
+        account: accountName
+      });
+      done();
+    })
+    .catch(done);
 };
 
 /**
@@ -66,9 +111,22 @@ SecureBackend.prototype.remove = function(model, options, done) {
  * @see http://ampersandjs.com/docs#ampersand-model-save
  */
 SecureBackend.prototype.update = function(model, options, done) {
-  keytar.replacePassword(this.namespace, this._getId(model),
-    JSON.stringify(this.serialize(model)));
-  done();
+  var serviceName = this.namespace;
+  var accountName = this._getId(model);
+  var value = JSON.stringify(this.serialize(model));
+
+  keytar
+    .setPassword(serviceName, accountName, value)
+    .then(function() {
+      debug('Updated password successfully for', {
+        service: serviceName,
+        account: accountName
+      });
+      done();
+    })
+    .catch(function(err) {
+      done(err);
+    });
 };
 
 /**
@@ -81,9 +139,23 @@ SecureBackend.prototype.update = function(model, options, done) {
  * @see http://ampersandjs.com/docs#ampersand-model-save
  */
 SecureBackend.prototype.create = function(model, options, done) {
-  keytar.addPassword(this.namespace, this._getId(model),
-    JSON.stringify(this.serialize(model)));
-  done();
+  var serviceName = this.namespace;
+  var accountName = this._getId(model);
+  var value = JSON.stringify(this.serialize(model));
+
+  keytar
+    .setPassword(serviceName, accountName, value)
+    .then(function() {
+      debug('Successfully dreated password for', {
+        service: serviceName,
+        account: accountName
+      });
+
+      done();
+    })
+    .catch(function(err) {
+      done(err);
+    });
 };
 
 /**
@@ -97,11 +169,28 @@ SecureBackend.prototype.create = function(model, options, done) {
  * @see http://ampersandjs.com/docs#ampersand-model-fetch
  */
 SecureBackend.prototype.findOne = function(model, options, done) {
-  var msg = keytar.getPassword(this.namespace, this._getId(model));
-  if (!msg) {
-    return done(null, {});
-  }
-  done(null, JSON.parse(msg));
+  var serviceName = this.namespace;
+  var accountName = this._getId(model);
+
+  keytar
+    .getPassword(serviceName, accountName)
+    .then(function(rawJsonString) {
+      if (!rawJsonString) {
+        debug('findOne failed. No value found', {
+          service: serviceName,
+          account: accountName
+        });
+
+        return done(null, {});
+      }
+      debug('findOne successful', {
+        service: serviceName,
+        account: accountName
+      });
+
+      done(null, JSON.parse(rawJsonString));
+    })
+    .catch(done);
 };
 
 /**
@@ -123,28 +212,23 @@ SecureBackend.prototype.findOne = function(model, options, done) {
  * @see http://ampersandjs.com/docs#ampersand-collection-fetch
  */
 SecureBackend.prototype.find = function(collection, options, done) {
-  var self = this;
-
-  if (collection.length === 0) {
-    return done(null, []);
-  }
-
-  var tasks = collection.map(function(model) {
-    return self.findOne.bind(self, model, options);
-  });
-
-  debug('fetching %d models', tasks.length);
-  async.parallel(tasks, function(err, res) {
-    if (err) {
-      return done(err);
-    }
-    var ids = collection.map(function(model) {
-      var doc = {};
-      doc[model.idAttribute] = model.getId();
-      return doc;
-    });
-    done(null, _.merge(ids, res));
-  });
+  debug('Fetching data...', collection.length);
+  keytar
+    .findCredentials(this.namespace)
+    .then(function(credentials) {
+      return credentials.map(function(credential) {
+        return JSON.parse(credential.password);
+      });
+    })
+    .then(function(contents) {
+      var modelStubs = collection.map(function(model) {
+        var doc = {};
+        doc[model.idAttribute] = model.getId();
+        return doc;
+      });
+      return done(null, _.merge(modelStubs, contents));
+    })
+    .catch(done);
 };
 
-module.exports = keytar ? SecureBackend : NullBackend;
+module.exports = SecureBackend;

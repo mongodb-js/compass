@@ -9,7 +9,7 @@
     "test": "test"
   },
   "homepage": "https://github.com/mongodb-js/storage-mixin",
-  "version": "0.8.0",
+  "version": "1.0.0-beta.1",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/mongodb-js/storage-mixin.git"
@@ -27,40 +27,30 @@
     "ampersand.js"
   ],
   "scripts": {
-    "ci": "npm run check && npm test",
-    "test": "electron-mocha --renderer && mocha",
-    "fmt": "mongodb-js-fmt ./*.js ./test/*.js",
-    "check": "mongodb-js-precommit"
-  },
-  "precommit": [
-    "check"
-  ],
-  "dependency-check": {
-    "ignore": [
-      "keytar"
-    ]
+    "pretest:electron": "electron-rebuild --force --only keytar",
+    "test:electron": "electron-mocha --renderer",
+    "pretest:node": "node-gyp rebuild --directory node_modules/keytar/ --verbose",
+    "test:node": "mocha",
+    "check": "mongodb-js-precommit",
+    "test": "npm run test:node && npm run test:electron"
   },
   "dependencies": {
     "ampersand-model": "^6.0.2",
     "ampersand-rest-collection": "^5.0.0",
     "ampersand-sync": "^4.0.3",
     "async": "^1.5.0",
-    "debug": "mongodb-js/debug#v2.2.3",
+    "debug": "^4.1.0",
+    "keytar": "^4.3.0",
     "localforage": "^1.3.0",
     "lodash": "^4.13.1",
     "rimraf": "^2.4.4",
     "write-file-atomic": "^1.1.4"
   },
   "devDependencies": {
-    "electron-mocha": "^2.3.1",
-    "electron-prebuilt": "^1.2.8",
-    "eslint-config-mongodb-js": "^2.2.0",
-    "mocha": "^2.3.3",
-    "mongodb-js-fmt": "^0.0.3",
-    "mongodb-js-precommit": "^0.2.5",
-    "pre-commit": "^1.1.2"
-  },
-  "peerDepdendencies": {
-    "keytar": "^3.0.0"
+    "electron": "^3.0.0",
+    "electron-mocha": "^6.0.4",
+    "electron-rebuild": "^1.8.2",
+    "eslint-config-mongodb-js": "^3.0.1",
+    "mocha": "^5.2.0"
   }
 }

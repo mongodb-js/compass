@@ -2,15 +2,7 @@ var backends = require('../lib/backends');
 var Model = require('ampersand-model');
 var Collection = require('ampersand-rest-collection');
 var async = require('async');
-var keytar;
-try {
-  /* eslint no-undef: 0 */
-  keytar = window.require('keytar');
-} catch (e) {
-  keytar = null;
-}
-
-var debug = require('debug')('storage-mixin:test:helpers');
+var debug = require('debug')('mongodb-storage-mixin:test:helpers');
 
 /**
  * Helper to clear all given namespaces for a backend.
@@ -19,37 +11,22 @@ var debug = require('debug')('storage-mixin:test:helpers');
  * @param  {Function} done          errback
  */
 var clearNamespaces = function(backendName, namespaces, done) {
+  debug('Clearing namespaces for backend %s', backendName, namespaces);
   var tasks = namespaces.map(function(namespace) {
-    return backends[backendName].clear.bind(null, namespace);
+    var backend = backends[backendName];
+    return function(cb) {
+      backend.clear(namespace, cb);
+    };
   });
-  async.parallel(tasks, done);
-};
-
-/**
- * Monkey-patch the secure clear method for testing because keytar doesn't
- * suport clearing the entire namespace automatically. Deletes all keys
- * that are used in the tests.
- *
- * @param {String}   namespace    namespace to clear
- * @param {Function} done         callback
- */
-if (keytar) {
-  backends.secure.clear = function(namespace, done) {
-    debug('monkey patched clear.');
-    var prefix = 'storage-mixin/';
-    if (namespace === 'Spaceships') {
-      keytar.deletePassword(prefix + 'Spaceships', 'Heart of Gold');
-      keytar.deletePassword(prefix + 'Spaceships', 'Serenity');
-      keytar.deletePassword(prefix + 'Spaceships', 'Battlestar Galactica');
-    } else if (namespace === 'Planets') {
-      keytar.deletePassword(prefix + 'Planets', 'Earth');
-    } else if (namespace === 'Users') {
-      keytar.deletePassword(prefix + 'Users', 'apollo');
-      keytar.deletePassword(prefix + 'Users', 'starbuck');
+  async.parallel(tasks, function(err, res) {
+    if (err) {
+      console.error('Error clearing namespaces', err);
+      return done(err);
     }
-    done();
-  };
-}
+    debug('Namespaces cleared for backend %s', backendName);
+    done(err, res);
+  });
+};
 
 var Spaceship = Model.extend({
   idAttribute: 'name',

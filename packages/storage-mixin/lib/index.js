@@ -35,6 +35,10 @@ module.exports = {
         success.call(self, resp);
       }
     };
+
+    options.error = function(resp, err) {
+      console.error('WTF', {err: err, resp: resp});
+    };
     this.fetched = false;
     this._storageBackend.exec(method, model, options);
   }

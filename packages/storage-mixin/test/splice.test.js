@@ -1,12 +1,13 @@
 var storageMixin = require('../lib');
 var SecureBackend = require('../lib/backends').secure;
+var LocalBackend = require('../lib/backends').local;
 var wrapErrback = require('../lib/backends/errback').wrapErrback;
 var helpers = require('./helpers');
 var assert = require('assert');
 var async = require('async');
 var debug = require('debug')('storage-mixin:splice:test');
 
-describe('storage backend `splice`', function() {
+describe('storage backend splice', function() {
   var backendOptions = {
     backend: 'splice',
     secureCondition: function(val, key) {
@@ -73,25 +74,31 @@ describe('storage backend `splice`', function() {
   });
 
   it('should update and read correctly', function(done) {
-    if (SecureBackend.isNullBackend) {
+    if (LocalBackend.isNullBackend) {
       this.skip();
     }
-    spaceship.save({warpSpeed: 3.14}, {
-      success: function() {
-        var otherSpaceship = new StorableSpaceship({
-          name: 'Battlestar Galactica'
-        });
-        otherSpaceship.once('sync', function() {
-          assert.equal(otherSpaceship.warpSpeed, 3.14);
-          done();
-        });
-        otherSpaceship.fetch();
-      },
-      error: done
-    });
+    spaceship.save(
+      { warpSpeed: 3.14 },
+      {
+        success: function() {
+          var otherSpaceship = new StorableSpaceship({
+            name: 'Battlestar Galactica'
+          });
+          otherSpaceship.once('sync', function() {
+            assert.equal(otherSpaceship.warpSpeed, 3.14);
+            done();
+          });
+          otherSpaceship.fetch();
+        },
+        error: done
+      }
+    );
   });
 
   it('should store a second model in the same namespace', function(done) {
+    if (LocalBackend.isNullBackend) {
+      this.skip();
+    }
     var secondSpaceship = new StorableSpaceship({
       name: 'Heart of Gold'
     });
@@ -102,6 +109,9 @@ describe('storage backend `splice`', function() {
   });
 
   it('should store a model in a different namespace', function(done) {
+    if (LocalBackend.isNullBackend) {
+      this.skip();
+    }
     var earth = new StorablePlanet({
       name: 'Earth',
       population: 7000000000
@@ -114,6 +124,9 @@ describe('storage backend `splice`', function() {
   });
 
   it('should create a new model in a collection', function(done) {
+    if (LocalBackend.isNullBackend) {
+      this.skip();
+    }
     fleet.once('sync', function() {
       done();
     });
@@ -124,7 +137,7 @@ describe('storage backend `splice`', function() {
   });
 
   it('should remove correctly', function(done) {
-    if (SecureBackend.isNullBackend) {
+    if (LocalBackend.isNullBackend) {
       this.skip();
     }
     spaceship.destroy({
@@ -151,69 +164,86 @@ describe('storage backend `splice`', function() {
     });
 
     it('should split and combine a model correctly', function(done) {
-      if (SecureBackend.isNullBackend) {
+      if (LocalBackend.isNullBackend) {
         this.skip();
       }
-      user.save({password: 'foobar'}, {
-        success: function() {
-          var sameUser = new StorableUser({
-            id: 'apollo'
-          });
-          sameUser.once('sync', function() {
-            assert.equal(sameUser.password, 'foobar');
-            done();
-          });
-          sameUser.fetch();
-        },
-        error: done
-      });
+      user.save(
+        { password: 'foobar' },
+        {
+          success: function() {
+            var sameUser = new StorableUser({
+              id: 'apollo'
+            });
+            sameUser.once('sync', function() {
+              assert.equal(sameUser.password, 'foobar');
+              done();
+            });
+            sameUser.fetch();
+          },
+          error: done
+        }
+      );
     });
 
     it('should not store the password in `local` backend', function(done) {
-      if (SecureBackend.isNullBackend) {
+      if (LocalBackend.isNullBackend) {
         this.skip();
       }
 
-      user.save(null, wrapErrback(function(err, res) {
-        if (err) {
-          return done(err);
-        }
-        user._storageBackend.localBackend.exec('read', 'apollo', wrapErrback(function(err2, stored) {
-          if (err2) {
-            return done(err2);
+      user.save(
+        null,
+        wrapErrback(function(err, res) {
+          if (err) {
+            return done(err);
           }
-          assert.ok(stored.id);
-          assert.ok(stored.name);
-          assert.ok(stored.email);
-          assert.equal(stored.password, undefined);
-          done(null, res);
-        }));
-      }));
+          user._storageBackend.localBackend.exec(
+            'read',
+            'apollo',
+            wrapErrback(function(err2, stored) {
+              if (err2) {
+                return done(err2);
+              }
+              assert.ok(stored.id);
+              assert.ok(stored.name);
+              assert.ok(stored.email);
+              assert.equal(stored.password, undefined);
+              done(null, res);
+            })
+          );
+        })
+      );
     });
 
     it('should only store the password in `secure` backend', function(done) {
-      if (SecureBackend.isNullBackend) {
+      if (LocalBackend.isNullBackend) {
         this.skip();
       }
-      user.save(null, wrapErrback(function(err, res) {
-        if (err) {
-          return done(err);
-        }
-        user._storageBackend.secureBackend.exec('read', 'apollo', wrapErrback(function(err2, stored) {
-          if (err2) {
-            return done(err2);
+      user.save(
+        null,
+        wrapErrback(function(err, res) {
+          if (err) {
+            return done(err);
           }
-          assert.ok(stored.password);
-          assert.equal(stored.id, undefined);
-          assert.equal(stored.name, undefined);
-          assert.equal(stored.email, undefined);
-          done(null, res);
-        }));
-      }));
+          user._storageBackend.secureBackend.exec(
+            'read',
+            'apollo',
+            wrapErrback(function(err2, stored) {
+              if (err2) {
+                return done(err2);
+              }
+              assert.ok(stored.password);
+              assert.equal(stored.id, undefined);
+              assert.equal(stored.name, undefined);
+              assert.equal(stored.email, undefined);
+              done(null, res);
+            })
+          );
+        })
+      );
     });
 
     it('should fetch collections', function(done) {
-      if (SecureBackend.isNullBackend) {
+      if (LocalBackend.isNullBackend) {
         this.skip();
       }
       var users = new StorableUsers();
@@ -221,7 +251,10 @@ describe('storage backend `splice`', function() {
         debug('fetch collections', users.serialize());
         assert.equal(users.length, 1);
         if (!SecureBackend.isNullBackend) {
-          assert.equal(users.at(0).password, SecureBackend.isNullBackend ? '' : 'cyl0nHunt3r');
+          assert.equal(
+            users.at(0).password,
+            SecureBackend.isNullBackend ? '' : 'cyl0nHunt3r'
+          );
         }
         done();
       });
@@ -229,7 +262,7 @@ describe('storage backend `splice`', function() {
     });
 
     it('should work with custom collection sort orders', function(done) {
-      if (SecureBackend.isNullBackend) {
+      if (LocalBackend.isNullBackend) {
         this.skip();
       }
       var SortedUsers = helpers.Users.extend(storageMixin, {
@@ -238,43 +271,52 @@ describe('storage backend `splice`', function() {
         comparator: 'name'
       });
       var users = new SortedUsers();
-      async.series([
-        function(cb) {
-          users.create({
-            id: 'apollo',
-            name: 'Lee Adama',
-            email: 'apollo@galactica.com',
-            password: 'cyl0nHunt3r'
-          }, {
-            success: function(res) {
-              cb(null, res);
-            },
-            error: done
+      async.series(
+        [
+          function(cb) {
+            users.create(
+              {
+                id: 'apollo',
+                name: 'Lee Adama',
+                email: 'apollo@galactica.com',
+                password: 'cyl0nHunt3r'
+              },
+              {
+                success: function(res) {
+                  cb(null, res);
+                },
+                error: done
+              }
+            );
+          },
+          function(cb) {
+            users.create(
+              {
+                id: 'starbuck',
+                name: 'Kara Thrace',
+                email: 'kara@galactica.com',
+                password: 'caprica'
+              },
+              {
+                success: function(res) {
+                  cb(null, res);
+                },
+                error: done
+              }
+            );
+          }
+        ],
+        function() {
+          users = new SortedUsers();
+          users.on('sync', function() {
+            debug('users', users.serialize());
+            assert.equal(users.get('apollo').password, 'cyl0nHunt3r');
+            assert.equal(users.get('starbuck').password, 'caprica');
+            done();
           });
-        },
-        function(cb) {
-          users.create({
-            id: 'starbuck',
-            name: 'Kara Thrace',
-            email: 'kara@galactica.com',
-            password: 'caprica'
-          }, {
-            success: function(res) {
-              cb(null, res);
-            },
-            error: done
-          });
+          users.fetch();
         }
-      ], function() {
-        users = new SortedUsers();
-        users.on('sync', function() {
-          debug('users', users.serialize());
-          assert.equal(users.get('apollo').password, 'cyl0nHunt3r');
-          assert.equal(users.get('starbuck').password, 'caprica');
-          done();
-        });
-        users.fetch();
-      });
+      );
     });
   });
 });

@@ -10,11 +10,17 @@
  */
 function wrapOptions(method, model, options) {
   return function(err, res) {
-    if (options.success) {
-      options.success(res);
-    } else if (options.error) {
-      options.error(err);
+    if (err) {
+      if (options.error) {
+        return options.error(res, err);
+      }
+      console.error('An error ocurred with no handler specified!', err);
+      throw err;
     }
+
+    if (options.success) {
+      return options.success(res);
+    } 
   };
 }
 

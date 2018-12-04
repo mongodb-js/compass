@@ -6,7 +6,7 @@ var helpers = require('./helpers');
 
 // var debug = require('debug')('storage-mixin:test');
 
-describe('storage backend `disk`', function() {
+describe('storage backend disk', function() {
   var backendOptions = {
     backend: 'disk',
     basepath: '.'

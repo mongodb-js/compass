@@ -3,23 +3,8 @@ var BaseBackend = require('./base');
 var NullBackend = require('./null');
 var _ = require('lodash');
 var async = require('async');
-var localforage;
-
-var debug = require('debug')('storage-mixin:backends:local');
-
-// from http://stackoverflow.com/questions/17575790/environment-detection-node-js-or-browser
-/* eslint no-new-func: 0 */
-var isBrowser = new Function('try { return this === window; } catch(e) { return false; }');
-
-// only require localforage in browser context
-if (isBrowser()) {
-  localforage = require('localforage');
-} else {
-  /* eslint no-console: 0 */
-  debug('localforage module not available in non-browser context. '
-    + '`local` storage engine will fall back to `null` storage engine.');
-  localforage = null;
-}
+var localforage = require('localforage');
+var debug = require('debug')('mongodb-storage-mixin:backends:local');
 
 // singleton holding all stores keyed by namespace
 var globalStores = {};
@@ -57,12 +42,12 @@ inherits(LocalBackend, BaseBackend);
  */
 LocalBackend.clear = function(namespace, done) {
   if (namespace in globalStores) {
+    debug('Clearing store for', namespace);
     globalStores[namespace].clear(done);
   } else {
     done();
   }
 };
-
 
 /**
  * The `_getId` API doesn't support atomic updates
@@ -144,4 +129,4 @@ LocalBackend.prototype.find = function(collection, options, done) {
   });
 };
 
-module.exports = localforage ? LocalBackend : NullBackend;
+module.exports = typeof window !== 'undefined' ? LocalBackend : NullBackend;

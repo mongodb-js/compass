@@ -1,5 +1,5 @@
 var wrapOptions = require('./errback').wrapOptions;
-// var debug = require('debug')('storage-mixin:backends:base');
+var debug = require('debug')('mongodb-storage-mixin:backends:base');
 
 /**
  * @class {BaseBackend}
@@ -134,6 +134,7 @@ BaseBackend.prototype.deserialize = function(msg) {
 BaseBackend.prototype.exec = function(method, model, options, done) {
   done = done || wrapOptions(method, model, options);
 
+  debug('exec', {method: method});
   if (method === 'read') {
     if (model.isCollection) {
       this.find(model, options, done);
