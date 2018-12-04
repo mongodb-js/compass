@@ -5,7 +5,8 @@ node_js:
   - 10
 env:
   matrix:
-    - MONGODB_VERSION=3.4.x MONGODB_TOPOLOGY=standalone
+    - MONGODB_VERSION=stable MONGODB_TOPOLOGY=standalone
+    - MONGODB_VERSION=unstable MONGODB_TOPOLOGY=standalone
 addons:
   apt:
     sources:
@@ -13,14 +14,24 @@ addons:
     packages:
       - libkrb5-dev
       - libsecret-1-dev
+      - gnome-keyring
+      - python-gnomekeyring
 before_install:
   - echo "//registry.npmjs.org/:_authToken=\${NPM_TOKEN}" >> .npmrc
+install:
+  - npm ci
 before_script:
-  - export DISPLAY=:99.0
-  - sh -e /etc/init.d/xvfb start
-  - npm run check
-script: npm run test
+  - |
+    export NO_AT_BRIDGE=1
+    export DISPLAY=:99.0; sh -e /etc/init.d/xvfb start; sleep 3;
+    eval $(dbus-launch --sh-syntax);
+    eval $(echo -n "" | /usr/bin/gnome-keyring-daemon --login);
+    eval $(/usr/bin/gnome-keyring-daemon --components=secrets --start);
+    /usr/bin/python -c "import gnomekeyring;gnomekeyring.create_sync('login', '');";
+    npm run check
+script:
+  - npm test
 cache:
   directories:
     - $HOME/.electron
-    - node_modules
+    - '$HOME/.npm'

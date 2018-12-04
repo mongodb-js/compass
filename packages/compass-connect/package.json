@@ -93,6 +93,6 @@
     "mongodb-shell-to-url": "^0.1.0",
     "react-ios-switch": "^0.1.19",
     "react-tooltip": "^3.3.0",
-    "storage-mixin": "^0.8.1"
+    "storage-mixin": "^1.0.0"
   }
 }
