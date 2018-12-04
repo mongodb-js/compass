@@ -9,7 +9,7 @@
     "test": "test"
   },
   "homepage": "https://github.com/mongodb-js/storage-mixin",
-  "version": "1.0.0-beta.1",
+  "version": "1.0.0",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/mongodb-js/storage-mixin.git"
