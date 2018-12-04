@@ -16,22 +16,24 @@ addons:
       - libkrb5-dev
       - libsecret-1-dev
       - libstdc++6
+      - gnome-keyring
+      - python-gnomekeyring
 before_install:
   - echo "//registry.npmjs.org/:_authToken=\${NPM_TOKEN}" >> .npmrc
   - npm i -g npm@latest
 install:
   - npm ci
 before_script:
-  - export DISPLAY=:99.0
-  - sh -e /etc/init.d/xvfb start
-  - sleep 3 # give xvfb some time to start
+  - |
+    export NO_AT_BRIDGE=1
+    export DISPLAY=:99.0; sh -e /etc/init.d/xvfb start; sleep 3;
+    eval $(dbus-launch --sh-syntax);
+    eval $(echo -n "" | /usr/bin/gnome-keyring-daemon --login);
+    eval $(/usr/bin/gnome-keyring-daemon --components=secrets --start);
+    /usr/bin/python -c "import gnomekeyring;gnomekeyring.create_sync('login', '');";
+    npm run check
 script:
-  - npm run check
-  - npm test
-# after_failure:
-#   - curl -sL https://raw.githubusercontent.com/travis-ci/artifacts/master/install | bash
-#   - export ARTIFACTS_PATHS="$HOME/.npm/_logs/*.log"
-#   - artifacts upload
+  - npm ci
 
 cache:
   directories:
