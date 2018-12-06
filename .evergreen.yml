@@ -180,6 +180,8 @@ functions:
           source ~/compass_env.sh
           echo "Running tests for compass suite ${test_suite}..."
 
+          bash .evergreen/pretest.sh
+
           # NOTE (@imlucas) Starting with MongoDB 4.0.4, the Server binaries
           # have dropped support for macOS 10.10 because it is now outside
           # of the supported version range. 

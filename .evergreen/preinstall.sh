@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/usr/bin/env bash
 
 if [[ $OSTYPE == "cygwin" ]]; then
     export PLATFORM='win32'
@@ -68,6 +68,12 @@ else
 
     ./bin/node lib/node_modules/npm2/bin/npm-cli.js i -g npm
     rm -rf lib/node_modules/npm2/
+
+    if [ -n "$IS_UBUNTU" ]; then
+        sudo apt-get install -y gnome-keyring python-gnomekeyring
+        sudo cp .evergreen/xvfb-service.sh /etc/init.d/xvfb;
+        sudo chmod +x /etc/init.d/xvfb;
+    fi
 
     # NOTE (@imlucas) RHEL and Ubuntu now have libsecret-dev by default
     # which are required for `keytar`
