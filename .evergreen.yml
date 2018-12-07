@@ -358,9 +358,9 @@ tasks:
     commands:
       - func: prepare
       - func: install
-      - func: test
-        vars:
-          test_suite: functional
+      # - func: test
+      #   vars:
+      #     test_suite: functional
       - func: package
         vars:
           compass_distribution: compass
