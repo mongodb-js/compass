@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/usr/bin/env bash
 
 if [[ $OSTYPE == "cygwin" ]]; then
     export PLATFORM='win32'
