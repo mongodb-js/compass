@@ -672,8 +672,7 @@ buildvariants:
       # - name: test-main
       # - name: test-renderer
       # - name: test-enzyme
-      - name: test-functional
-      - name: test-hadron-spectron
+      # - name: test-functional
       # - name: test-connect-plugin
       # - name: test-aggregation-builder-plugin
       - name: package-and-publish-compass
@@ -686,8 +685,7 @@ buildvariants:
     tasks:
       - name: compile
       - name: verify
-      - name: test-functional
-      - name: test-hadron-spectron
+      # - name: test-functional
       - name: package-and-publish-compass
       - name: package-and-publish-compass-community
       - name: package-and-publish-compass-isolated
