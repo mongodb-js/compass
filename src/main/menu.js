@@ -290,7 +290,10 @@ function viewSubMenu() {
         label: '&Toggle DevTools',
         accelerator: 'Alt+CmdOrCtrl+I',
         click: function() {
-          BrowserWindow.getFocusedWindow().toggleDevTools();
+          const win = BrowserWindow.getFocusedWindow();
+          if (win) {
+            win.toggleDevTools();
+          }
         }
       }
     ]
