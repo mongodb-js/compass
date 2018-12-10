@@ -308,7 +308,8 @@ function getUserInfo(results, done) {
         debug('Command \"usersInfo\" could not be retrieved: ' + _err.message);
         return done(null, {});
       }
-      done(null, _res.users[0]);
+      // For the case azure cosmosDB bug
+      done(null, _res.users[0] || {});
     });
   });
 }
