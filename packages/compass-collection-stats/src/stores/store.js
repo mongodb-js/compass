@@ -33,7 +33,6 @@ const CollectionStatsStore = Reflux.createStore({
    */
   // eslint-disable-next-line no-unused-vars
   onActivated(appRegistry) {
-    this.appRegistry = appRegistry;
     this.CollectionStore = appRegistry.getStore('App.CollectionStore');
     appRegistry.on('document-deleted', this.onDocumentsModified.bind(this));
     appRegistry.on('document-inserted', this.onDocumentsModified.bind(this));
@@ -87,13 +86,11 @@ const CollectionStatsStore = Reflux.createStore({
     if (toNS(this.ns || '').collection) {
       if (this.CollectionStore.isReadonly()) {
         this.setState(this.getInitialState());
-        this.appRegistry.emit('document-count-loaded', null);
       } else {
         this.dataService.collection(this.ns, {}, (err, result) => {
           if (!err) {
             this.setState(this._parseCollectionDetails(result));
             console.log(result.document_count);
-            this.appRegistry.emit('document-count-loaded', result.document_count);
           }
         });
       }
