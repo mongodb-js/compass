@@ -4,12 +4,8 @@ language: node_js
 node_js:
   - 10.2.1
 env:
-  - MONGODB_VERSION=3.4.x MONGODB_TOPOLOGY=standalone
-  - MONGODB_VERSION=3.4.x MONGODB_TOPOLOGY=cluster
   - MONGODB_VERSION=stable MONGODB_TOPOLOGY=standalone
   - MONGODB_VERSION=stable MONGODB_TOPOLOGY=cluster
-  - MONGODB_VERSION=unstable MONGODB_TOPOLOGY=standalone
-  - MONGODB_VERSION=unstable MONGODB_TOPOLOGY=cluster
 before_install:
   - npm i -g npm
 script:
