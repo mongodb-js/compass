@@ -1,5 +1,4 @@
 var helper = require('./helper');
-
 var assert = helper.assert;
 var expect = helper.expect;
 var eventStream = helper.eventStream;
@@ -820,7 +819,7 @@ describe('NativeClient', function() {
     it('disconnects the database', function(done) {
       client.disconnect();
       client.count('data-service.test', {}, {}, function(error) {
-        expect(error.message).to.equal('topology was destroyed');
+        expect(error.message).to.equal('Topology was destroyed');
         done();
       });
     });

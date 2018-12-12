@@ -191,7 +191,7 @@ class NativeClient extends EventEmitter {
    * @param {function} callback - The callback function.
    */
   count(ns, filter, options, callback) {
-    this._collection(ns).count(filter, options, callback);
+    this._collection(ns).countDocuments(filter, options, callback);
   }
 
   /**
