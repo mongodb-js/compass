@@ -11,7 +11,7 @@ class InputDocumentsCount extends PureComponent {
   static displayName = 'InputDocumentsCountComponent';
 
   static propTypes = {
-    count: PropTypes.number.isRequired
+    count: PropTypes.oneOfType([ PropTypes.number, PropTypes.string ]).isRequired
   }
 
   /**

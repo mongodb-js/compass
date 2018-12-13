@@ -16,7 +16,7 @@ class Input extends PureComponent {
     isLoading: PropTypes.bool.isRequired,
     isExpanded: PropTypes.bool.isRequired,
     openLink: PropTypes.func.isRequired,
-    count: PropTypes.number.isRequired
+    count: PropTypes.oneOfType([ PropTypes.number, PropTypes.string ]).isRequired
   }
 
   /**

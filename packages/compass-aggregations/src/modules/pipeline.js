@@ -71,6 +71,11 @@ export const LIMIT = Object.freeze({ $limit: 20 });
 export const LARGE_LIMIT = Object.freeze({ $limit: 100000 });
 
 /**
+ * N/A contant.
+ */
+const NA = 'N/A';
+
+/**
  * Stage operators that are required to be the first stage.
  */
 export const REQUIRED_AS_FIRST_STAGE = [
@@ -482,7 +487,7 @@ export const generatePipeline = (state, index) => {
     if (i <= index && stage.isEnabled) {
       // If stage is a $groupBy it will scan the entire list, so
       // prepend with $limit if the collection is large.
-      if (count > 100000 && FULL_SCAN_OPS.includes(stage.stageOperator) && state.sample) {
+      if (count === NA || (count > 100000 && FULL_SCAN_OPS.includes(stage.stageOperator) && state.sample)) {
         results.push(LARGE_LIMIT);
       }
       results.push(stage.executor || generateStage(stage));

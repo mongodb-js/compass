@@ -26,12 +26,17 @@ const FILTER = Object.freeze({});
 /**
  * The options constant.
  */
-const OPTIONS = Object.freeze({});
+const OPTIONS = Object.freeze({ maxTimeMS: 5000 });
 
 /**
  * The sample pipeline.
  */
 const SAMPLE = [ Object.freeze({ '$limit': 20 }) ];
+
+/**
+ * N/A contant.
+ */
+const NA = 'N/A';
 
 /**
  * The initial state.
@@ -118,11 +123,10 @@ export const refreshInputDocuments = () => {
     if (dataService) {
       dispatch(loadingInputDocuments());
       dataService.count(ns, FILTER, OPTIONS, (error, count) => {
-        if (error) return dispatch(updateInputDocuments(0, [], error));
         dataService.aggregate(ns, SAMPLE, OPTIONS, (err, cursor) => {
-          if (err) return dispatch(updateInputDocuments(count, [], err));
+          if (err) return dispatch(updateInputDocuments(error ? NA : count, [], err));
           cursor.toArray((e, docs) => {
-            dispatch(updateInputDocuments(count, docs, e));
+            dispatch(updateInputDocuments(error ? NA : count, docs, e));
             cursor.close();
           });
         });
