@@ -53,14 +53,14 @@ class Toolbar extends React.Component {
   _loadedMessage() {
     return (
       <span>
-        Displaying documents <b>{this.props.start} - {this.props.end}</b> of {this.props.count}
+        Displaying documents <b>{this.props.start} - {this.props.end}</b> of {this.props.count || 'N/A'}
       </span>
     );
   }
 
   renderPageButtons() {
     const prevButtonDisabled = this.props.page === 0;
-    const nextButtonDisabled = 20 * (this.props.page + 1) >= this.props.count;
+    const nextButtonDisabled = this.props.count ? 20 * (this.props.page + 1) >= this.props.count : false;
 
     return (
       <div className={PAGINATION_CLASS}>
@@ -146,7 +146,7 @@ Toolbar.displayName = 'Toolbar';
 
 Toolbar.propTypes = {
   activeDocumentView: PropTypes.string.isRequired,
-  count: PropTypes.number.isRequired,
+  count: PropTypes.number,
   end: PropTypes.number.isRequired,
   getNextPage: PropTypes.func.isRequired,
   getPrevPage: PropTypes.func.isRequired,

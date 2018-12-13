@@ -316,7 +316,7 @@ const CRUDStore = Reflux.createStore({
       skip: skip + this.state.query.skip,
       limit: nextPageCount,
       sort: this.state.query.sort,
-      fields: this.state.query.project,
+      projection: this.state.query.project,
       collation: this.state.query.collation,
       promoteValues: false
     };
@@ -331,7 +331,7 @@ const CRUDStore = Reflux.createStore({
         error: error,
         docs: documents.map(doc => new HadronDocument(doc)),
         start: skip + 1,
-        end: skip + length,
+        end: skip + ((length === 0) ? skip : length),
         page: page,
         counter: this.state.counter + NUM_PAGE_DOCS,
         table: this.getInitialTableState()
@@ -352,7 +352,7 @@ const CRUDStore = Reflux.createStore({
       skip: skip + this.state.query.skip,
       limit: nextPageCount,
       sort: this.state.query.sort,
-      fields: this.state.query.project,
+      projection: this.state.query.project,
       collation: this.state.query.collation,
       promoteValues: false
     };
@@ -510,12 +510,13 @@ const CRUDStore = Reflux.createStore({
   refreshDocuments() {
     const query = this.state.query;
     const countOptions = {
-      skip: query.skip
+      skip: query.skip,
+      maxTimeMS: 5000
     };
 
     const findOptions = {
       sort: query.sort,
-      fields: query.project,
+      projection: query.project,
       skip: query.skip,
       limit: NUM_PAGE_DOCS,
       collation: query.collation,
@@ -532,27 +533,20 @@ const CRUDStore = Reflux.createStore({
     StatusAction.showProgressBar();
 
     this.dataService.count(this.state.ns, query.filter, countOptions, (err, count) => {
-      if (!err) {
-        this.dataService.find(this.state.ns, query.filter, findOptions, (error, documents) => {
-          const length = documents.length;
-          StatusAction.done();
-          this.setState({
-            error: error,
-            docs: documents.map(doc => new HadronDocument(doc)),
-            count: count,
-            page: 0,
-            start: length > 0 ? 1 : 0,
-            end: length,
-            table: this.getInitialTableState()
-          });
-          this.appRegistry.emit('documents-refreshed', this.state.view, documents);
-        });
-      } else {
-        // If the count gets an error we need to display this to the user since
-        // they have the wrong privs.
+      this.dataService.find(this.state.ns, query.filter, findOptions, (error, documents) => {
+        const length = documents.length;
         StatusAction.done();
-        this.setState({ error: err });
-      }
+        this.setState({
+          error: error,
+          docs: documents.map(doc => new HadronDocument(doc)),
+          count: (err ? null : count),
+          page: 0,
+          start: length > 0 ? 1 : 0,
+          end: length,
+          table: this.getInitialTableState()
+        });
+        this.appRegistry.emit('documents-refreshed', this.state.view, documents);
+      });
     });
   },
 

@@ -15,8 +15,8 @@ window.jQuery = require('jquery');
 import 'bootstrap/less/bootstrap.less';
 import 'less/index.less';
 
-const DB = 'citibike';
-const COLL = 'trips';
+const DB = 'echo';
+const COLL = 'bands';
 
 const appRegistry = new AppRegistry();
 
