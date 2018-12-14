@@ -1,13 +1,13 @@
 import React, { Component } from 'react';
 import { Provider } from 'react-redux';
-import CompassJsonSchemaValidation from 'components/compass-json-schema-validation';
+import CompassSchemaValidation from 'components/compass-schema-validation';
 import store from 'stores';
 
 /**
- * CompassJsonSchemaValidationPlugin plugin.
+ * CompassSchemaValidationPlugin plugin.
  */
 class Plugin extends Component {
-  static displayName = 'CompassJsonSchemaValidationPlugin';
+  static displayName = 'CompassSchemaValidationPlugin';
 
   /**
    * Connect the Plugin to the store and render.
@@ -17,7 +17,7 @@ class Plugin extends Component {
   render() {
     return (
       <Provider store={store}>
-        <CompassJsonSchemaValidation />
+        <CompassSchemaValidation />
       </Provider>
     );
   }

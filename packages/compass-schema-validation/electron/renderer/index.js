@@ -3,7 +3,7 @@ import ReactDOM from 'react-dom';
 import app from 'hadron-app';
 import AppRegistry from 'hadron-app-registry';
 import { AppContainer } from 'react-hot-loader';
-import CompassJsonSchemaValidationPlugin, { activate } from 'plugin';
+import CompassSchemaValidationPlugin, { activate } from 'plugin';
 import FieldStore, { activate as fieldsActivate } from '@mongodb-js/compass-field-store';
 
 // Import global less file. Note: these styles WILL NOT be used in compass, as compass provides its own set
@@ -45,7 +45,7 @@ const render = Component => {
 // appRegistry.emit('application-initialized', '1.11.0-dev');
 
 // Render our plugin - don't remove the following line.
-render(CompassJsonSchemaValidationPlugin);
+render(CompassSchemaValidationPlugin);
 
 // Data service initialization and connection.
 import Connection from 'mongodb-connection-model';
@@ -93,6 +93,6 @@ if (module.hot) {
   module.hot.accept('plugin', () => {
     // Because Webpack 2 has built-in support for ES2015 modules,
     // you won't need to re-require your app root in module.hot.accept
-    render(CompassJsonSchemaValidationPlugin);
+    render(CompassSchemaValidationPlugin);
   });
 }

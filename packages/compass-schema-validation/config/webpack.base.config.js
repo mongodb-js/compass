@@ -6,7 +6,6 @@ module.exports = {
     modules: ['node_modules'],
     extensions: ['.js', '.jsx', '.json', 'less'],
     alias: {
-      actions: path.join(project.path.src, 'actions'),
       components: path.join(project.path.src, 'components'),
       constants: path.join(project.path.src, 'constants'),
       fonts: path.join(project.path.src, 'assets/fonts'),
@@ -70,7 +69,7 @@ module.exports = {
             options: {
               modules: true,
               importLoaders: 1,
-              localIdentName: 'CompassJsonSchemaValidationPlugin_[name]-[local]__[hash:base64:5]'
+              localIdentName: 'CompassSchemaValidationPlugin_[name]-[local]__[hash:base64:5]'
             }
           },
           {

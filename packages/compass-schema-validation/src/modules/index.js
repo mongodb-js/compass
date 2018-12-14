@@ -8,6 +8,11 @@ import serverVersion, { INITIAL_STATE as SV_INITIAL_STATE } from './server-versi
 import validation, { INITIAL_STATE as VALIDATION_STATE } from './validation';
 
 /**
+ * Reset action constant.
+ */
+export const RESET = 'validation/reset';
+
+/**
  * The intial state of the root reducer.
  */
 export const INITIAL_STATE = {
@@ -32,6 +37,13 @@ const appReducer = combineReducers({
 });
 
 /**
+ * Handle the reset.
+ *
+ * @returns {Object} The new state.
+ */
+const doReset = () => ({ ...INITIAL_STATE });
+
+/**
  * Handle the namespace change.
  *
  * @param {Object} state - The state.
@@ -53,8 +65,16 @@ const doNamespaceChanged = (state, action) => {
  * The action to state modifier mappings.
  */
 const MAPPINGS = {
-  [ NAMESPACE_CHANGED ]: doNamespaceChanged
+  [NAMESPACE_CHANGED]: doNamespaceChanged,
+  [RESET]: doReset
 };
+
+/**
+ * Reset the entire state.
+ *
+ * @returns {Object} The action.
+ */
+export const reset = () => ({ type: RESET });
 
 /**
  * The root reducer.

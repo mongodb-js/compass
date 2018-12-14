@@ -1,12 +1,12 @@
-import CompassJsonSchemaValidationPlugin from './plugin';
-import CompassJsonSchemaValidationStore from 'stores';
+import CompassSchemaValidationPlugin from './plugin';
+import CompassSchemaValidationStore from 'stores';
 
 /**
  * A sample role for the component.
  */
 const ROLE = {
   name: 'Validation',
-  component: CompassJsonSchemaValidationPlugin
+  component: CompassSchemaValidationPlugin
 };
 
 /**
@@ -15,7 +15,7 @@ const ROLE = {
  **/
 function activate(appRegistry) {
   appRegistry.registerRole('Collection.Tab', ROLE);
-  appRegistry.registerStore('CompassJsonSchemaValidation.Store', CompassJsonSchemaValidationStore);
+  appRegistry.registerStore('CompassSchemaValidation.Store', CompassSchemaValidationStore);
 }
 
 /**
@@ -24,8 +24,8 @@ function activate(appRegistry) {
  **/
 function deactivate(appRegistry) {
   appRegistry.deregisterRole('Collection.Tab', ROLE);
-  appRegistry.deregisterStore('CompassJsonSchemaValidation.Store');
+  appRegistry.deregisterStore('CompassSchemaValidation.Store');
 }
 
-export default CompassJsonSchemaValidationPlugin;
+export default CompassSchemaValidationPlugin;
 export { activate, deactivate };

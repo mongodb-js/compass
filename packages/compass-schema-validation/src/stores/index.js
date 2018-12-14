@@ -1,4 +1,4 @@
-import CompassJsonSchemaValidationStore from './store';
+import CompassSchemaValidationStore from './store';
 
-export default CompassJsonSchemaValidationStore;
-export { CompassJsonSchemaValidationStore };
+export default CompassSchemaValidationStore;
+export { CompassSchemaValidationStore };

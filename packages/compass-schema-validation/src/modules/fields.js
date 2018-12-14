@@ -15,19 +15,17 @@ export const INITIAL_STATE = [];
  *
  * @returns {Array} The processed fields.
  */
-const process = (fields) => {
-  return Object.keys(fields).map((key) => {
-    const field = (key.indexOf('.') > -1 || key.indexOf(' ') > -1) ? `"${key}"` : key;
+const process = (fields) => Object.keys(fields).map((key) => {
+  const field = (key.indexOf('.') > -1 || key.indexOf(' ') > -1) ? `"${key}"` : key;
 
-    return {
-      name: key,
-      value: field,
-      score: 1,
-      meta: 'field',
-      version: '0.0.0'
-    };
-  });
-};
+  return {
+    name: key,
+    value: field,
+    score: 1,
+    meta: 'field',
+    version: '0.0.0'
+  };
+});
 
 /**
  * Reducer function for handle state changes to fields.
