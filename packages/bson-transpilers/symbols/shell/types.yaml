@@ -21,7 +21,6 @@ BsonTypes:
                 type: *StringType
                 template: *CodeScopeTemplate
                 argsTemplate: *CodeScopeArgsTemplate
-        template: *CodeTypeTemplate
     ObjectId: &ObjectIdType
         <<: *__type
         id: "ObjectId"
@@ -84,12 +83,6 @@ BsonTypes:
         code: 103
         type: *ObjectType
         attr:
-            toString:
-                <<: *__func
-                id: "toString"
-                type: *StringType
-                template: *DBRefToStringTemplate
-                argsTemplate: *DBRefToStringArgsTemplate
             getDb:
                 <<: *__func
                 id: "getDb"
@@ -143,19 +136,7 @@ BsonTypes:
         id: "NumberInt"
         code: 105
         type: *ObjectType
-        attr:
-            toString:
-                <<: *__func
-                id: "toString"
-                type: *StringType
-                template: *Int32ToStringTemplate
-                argsTemplate: *Int32ToStringArgsTemplate
-            valueOf: # TODO: needed?
-                <<: *__func
-                id: "valueOf"
-                type: *Int32Type
-                template: *Int32ValueOfTemplate
-                argsTemplate: *Int32ValueOfArgsTemplate
+        attr: {}
     NumberLong: &LongType
         <<: *__type
         id: "NumberLong"
@@ -166,12 +147,6 @@ BsonTypes:
                 <<: *__func
                 id: "LongtoString" # Needs process method
                 type: *StringType
-            valueOf:
-                <<: *__func
-                id: "valueOf"
-                type: *LongBasicType
-                template: *LongValueOfTemplate
-                argsTemplate: *LongValueOfArgsTemplate
             top:
                 callable: *var
                 args: null
@@ -256,13 +231,7 @@ BsonTypes:
         id: "NumberDecimal"
         code: 112
         type: *ObjectType
-        attr:
-            toString:
-                <<: *__func
-                id: "toString"
-                type: *StringType
-                template: *Decimal128ToStringTemplate
-                argsTemplate: *Decimal128ToStringArgsTemplate
+        attr: {}
     SUBTYPE_DEFAULT:
         id: "SUBTYPE_DEFAULT"
         callable: *var

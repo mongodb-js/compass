@@ -244,7 +244,7 @@ BsonSymbols:
             - [ *IntegerType ]
             - [ *IntegerType ]
         type: *TimestampType
-        attr: {}
+        attr: {} #TODO: add fromInt, fromNumber, fromBits, fromString
         template: *TimestampSymbolTemplate
         argsTemplate: *TimestampSymbolArgsTemplate
     Symbol:
@@ -289,24 +289,6 @@ BsonSymbols:
         argsTemplate: *Decimal128SymbolArgsTemplate
 
 NativeSymbols:
-    Object:
-        id: "Object"
-        code: 10
-        callable: *var
-        args: null
-        type: *ObjectType
-        attr:
-            create:
-                id: "create"
-                callable: *func
-                args:
-                    - [ *ObjectType ]
-                type: *ObjectType
-                attr: {}
-                template: *ObjectSymbolCreateTemplate
-                argsTemplate: *ObjectSymbolCreateArgsTemplate
-        template: *ObjectSymbolTemplate
-        argsTemplate: *ObjectSymbolArgsTemplate
     Number:
         id: "Number"
         code: 2
@@ -334,7 +316,7 @@ NativeSymbols:
             now:
                 id: "now"
                 code: 200.1
-                callable: *constructor
+                callable: *func
                 args: []
                 type: *DateType
                 attr: {}

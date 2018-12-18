@@ -60,6 +60,29 @@ module.exports = (CodeGenerationVisitor) => class Visitor extends CodeGeneration
    *
    */
 
+  visitProgram(ctx) {
+    if (ctx.getChildCount() < 2) {
+      throw new BsonTranspilersRuntimeError(
+        'Expression contains 0 statements. Input should be a single statement'
+      );
+    }
+    return this.visitChildren(ctx);
+  }
+
+  visitSourceElements(ctx) {
+    if (ctx.sourceElement().length !== 1) {
+      throw new BsonTranspilersRuntimeError(`Expression contains ${
+        ctx.sourceElement().length} statements. Input should be a single statement`);
+    }
+    return this.visitChildren(ctx);
+  }
+  visitEmptyStatement() {
+    throw new BsonTranspilersRuntimeError(
+      'Expression contains 0 statements. Input should be a single statement'
+    );
+  }
+
+
   visitFuncCallExpression(ctx) {
     return this.generateFunctionCall(ctx);
   }
@@ -116,10 +139,6 @@ module.exports = (CodeGenerationVisitor) => class Visitor extends CodeGeneration
     return this.leafHelper(this.Types._octal, ctx);
   }
 
-  visitEmptyStatement() {
-    return '\n';
-  }
-
   visitElision(ctx) {
     ctx.type = this.Types._undefined;
     if (ctx.type.template) {
@@ -137,7 +156,14 @@ module.exports = (CodeGenerationVisitor) => class Visitor extends CodeGeneration
   }
 
   visitRelationalExpression(ctx) {
-    return ctx.children.map((n) => ( this.visit(n) )).join(' ');
+    ctx.type = this.Types._boolean;
+    const lhs = this.visit(ctx.singleExpression()[0]);
+    const rhs = this.visit(ctx.singleExpression()[1]);
+    const op = this.visit(ctx.children[1]);
+    if (this.Syntax.equality) {
+      return this.Syntax.equality.template(lhs, op, rhs);
+    }
+    return this.visitChildren(ctx);
   }
 
   visitEqualityExpression(ctx) {
@@ -174,6 +200,90 @@ module.exports = (CodeGenerationVisitor) => class Visitor extends CodeGeneration
       return this.Syntax.not.template(
         this.visit(ctx.singleExpression())
       );
+    }
+    return this.visitChildren(ctx);
+  }
+
+  visitBitAndExpression(ctx) {
+    if (this.Syntax.binary.template) {
+      const kids = ctx.children.map(m => this.visit(m));
+      return this.Syntax.binary.template(kids);
+    }
+    return this.visitChildren(ctx);
+  }
+
+  visitBitXOrExpression(ctx) {
+    if (this.Syntax.binary.template) {
+      const kids = ctx.children.map(m => this.visit(m));
+      return this.Syntax.binary.template(kids);
+    }
+    return this.visitChildren(ctx);
+  }
+
+  visitBitOrExpression(ctx) {
+    if (this.Syntax.binary.template) {
+      const kids = ctx.children.map(m => this.visit(m));
+      return this.Syntax.binary.template(kids);
+    }
+    return this.visitChildren(ctx);
+  }
+
+  visitBitNotExpression(ctx) {
+    if (this.Syntax.unary.template) {
+      return this.Syntax.unary.template(
+        '~',
+        this.visit(ctx.singleExpression())
+      );
+    }
+    return this.visitChildren(ctx);
+  }
+
+  visitUnaryPlusExpression(ctx) {
+    if (this.Syntax.unary.template) {
+      return this.Syntax.unary.template(
+        '+',
+        this.visit(ctx.singleExpression())
+      );
+    }
+    return this.visitChildren(ctx);
+  }
+
+  visitUnaryMinusExpression(ctx) {
+    if (this.Syntax.unary.template) {
+      return this.Syntax.unary.template(
+        '-',
+        this.visit(ctx.singleExpression())
+      );
+    }
+    return this.visitChildren(ctx);
+  }
+
+  visitAdditiveExpression(ctx) {
+    if (this.Syntax.binary.template) {
+      const kids = ctx.children.map(m => this.visit(m));
+      return this.Syntax.binary.template(kids);
+    }
+    return this.visitChildren(ctx);
+  }
+  visitMultiplicativeExpression(ctx) {
+    if (this.Syntax.binary.template) {
+      const kids = ctx.children.map(m => this.visit(m));
+      return this.Syntax.binary.template(kids);
+    }
+    return this.visitChildren(ctx);
+  }
+  visitBitShiftExpression(ctx) {
+    if (this.Syntax.binary.template) {
+      const kids = ctx.children.map(m => this.visit(m));
+      return this.Syntax.binary.template(kids);
+    }
+    return this.visitChildren(ctx);
+  }
+
+  visitParenthesizedExpression(ctx) {
+    if (this.Syntax.parens.template) {
+      const kids = this.visit(ctx.expressionSequence());
+      return this.Syntax.parens.template(kids);
     }
     return this.visitChildren(ctx);
   }
@@ -271,14 +381,7 @@ module.exports = (CodeGenerationVisitor) => class Visitor extends CodeGeneration
   processObjectId(ctx) {
     ctx.type = this.Types.ObjectId;
     const symbolType = this.Symbols.ObjectId;
-    const lhs = symbolType.template ? symbolType.template() : 'ObjectId';
     const argsList = this.getArguments(ctx);
-
-    if (argsList.length === 0) {
-      return this.Syntax.new.template
-        ? this.Syntax.new.template(`${lhs}()`, false, ctx.type.code)
-        : `${lhs}()`;
-    }
 
     this.checkArguments(symbolType.args, argsList, 'ObjectId');
     let hexstr;
@@ -287,8 +390,10 @@ module.exports = (CodeGenerationVisitor) => class Visitor extends CodeGeneration
     } catch (error) {
       throw new BsonTranspilersRuntimeError(error.message);
     }
+    const args = argsList.length === 0 ? [] : [hexstr];
+
     return this.generateCall(
-      ctx, symbolType, [hexstr], 'ObjectId', `(${hexstr})`
+      ctx, symbolType, args, 'ObjectId', `(${hexstr})`
     );
   }
 
@@ -314,6 +419,9 @@ module.exports = (CodeGenerationVisitor) => class Visitor extends CodeGeneration
   }
 
   processLongfromBits(ctx) {
+    if ('emitLongfromBits' in this) {
+      return this.emitLongfromBits(ctx);
+    }
     return this.processLong(ctx);
   }
 

@@ -32,7 +32,6 @@ BsonTypes:
                 type: *ObjectType
                 template: *CodeScopeTemplate
                 argsTemplate: *CodeScopeArgsTemplate
-        template: *CodeTypeTemplate
     ObjectId: &ObjectIdType
         <<: *__type
         id: "ObjectId"

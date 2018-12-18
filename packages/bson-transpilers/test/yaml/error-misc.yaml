@@ -68,6 +68,64 @@ tests:
           shell: Date(++1)
           python: datetime(int(1), 2, 3, 4, 5)
       errorCode: E_BSONTRANSPILERS_RUNTIME
+    - description: Empty statement
+      input:
+          javascript: ""
+          shell: ""
+          python: ""
+      errorCode: E_BSONTRANSPILERS_RUNTIME
+    - description: Empty whitespace
+      input:
+          javascript: "  "
+          shell: "  "
+          python: "  "
+      errorCode: E_BSONTRANSPILERS_RUNTIME
+    - description: Empty semicolon
+      input:
+          javascript: ";"
+          shell: ";"
+          python: ";"
+      errorCode: E_BSONTRANSPILERS_RUNTIME
+    - description: Empty newlines
+      input:
+          javascript: "\n\n\n"
+          shell: "\n\n\n"
+          python: "\n\n\n"
+      errorCode: E_BSONTRANSPILERS_RUNTIME
+    - description: Empty \\ r t n
+      input:
+          javascript: "\r\t\n"
+          shell: "\r\t\n"
+          python: "\r\t\n"
+      errorCode: E_BSONTRANSPILERS_RUNTIME
+    - description: two statements newline
+      input:
+          python: "1\n2"
+          javascript: "1\n2"
+          shell: "1\n2"
+      errorCode: E_BSONTRANSPILERS_RUNTIME
+    - description: two statements newline
+      input:
+          javascript: "1 \n2"
+          shell: "1 \n2"
+      errorCode: E_BSONTRANSPILERS_RUNTIME
+    - description: two statements semicolon
+      input:
+          javascript: "1;+2"
+          shell: "1;+2"
+          python: "1;+2"
+      errorCode: E_BSONTRANSPILERS_RUNTIME
+    - description: two statements // comment
+      input:
+          javascript: "1 // a comment\n2"
+          shell: "1 // a comment\n2"
+          python: "1 # a comment\n2"
+      errorCode: E_BSONTRANSPILERS_RUNTIME
+    - description: two statements /* comment */
+      input:
+          javascript: "1 /* a \ncom\nmen\nt*/\n2"
+          shell: "1 /* a \ncom\nmen\nt*/2"
+      errorCode: E_BSONTRANSPILERS_RUNTIME
 
     TYPE_ERROR:
     - description: Int32 with invalidOtherMethod

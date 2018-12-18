@@ -21,7 +21,6 @@ BsonTypes:
                 type: *StringType
                 template: *CodeScopeTemplate
                 argsTemplate: *CodeScopeArgsTemplate
-        template: *CodeTypeTemplate
     ObjectId: &ObjectIdType
         <<: *__type
         id: "ObjectId"
@@ -87,12 +86,6 @@ BsonTypes:
         code: 103
         type: *ObjectType
         attr:
-            toString:
-                <<: *__func
-                id: "toString"
-                type: *StringType
-                template: *DBRefToStringTemplate
-                argsTemplate: *DBRefToStringArgsTemplate
             db:
                 callable: *var
                 args: null
@@ -122,25 +115,13 @@ BsonTypes:
         id: "Double"
         code: 104
         type: *ObjectType
-        attr:
-            valueOf:
-                <<: *__func
-                id: "valueOf"
-                type: *IntegerType
-                template: *DoubleValueOfTemplate
-                argsTemplate: *DoubleValueOfArgsTemplate
+        attr: {}
     Int32: &Int32Type
         <<: *__type
         id: "Int32"
         code: 105
         type: *ObjectType
-        attr:
-            valueOf:
-                <<: *__func
-                id: "valueOf"
-                type: *IntegerType
-                template: *Int32ValueOfTemplate
-                argsTemplate: *Int32ValueOfArgsTemplate
+        attr: {}
     Long: &LongType
         <<: *__type
         id: "Long"
@@ -347,7 +328,7 @@ BsonTypes:
         <<: *__type
         id: "BSONRegExp"
         code: 109
-        type: *ObjectType
+        type: *ObjectType #TODO: add pattern + options
     Timestamp: &TimestampType
         <<: *__type
         id: "Timestamp"

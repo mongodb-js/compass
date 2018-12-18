@@ -9,14 +9,16 @@ Syntax:
         template: *OrSyntaxTemplate
     not:
         template: *NotSyntaxTemplate
+    unary:
+        template: *UnarySyntaxTemplate
+    binary:
+        template: *BinarySyntaxTemplate
+    parens:
+        template: *ParensSyntaxTemplate
     eos:
         template: *EosSyntaxTemplate
     eof:
         template: *EofSyntaxTemplate
-    floorDiv:
-        template: *FloorDivSyntaxTemplate
-    power:
-        template: *PowerSyntaxTemplate
     # The new template takes in expr, and an optional skip argument and optional
     # id argument. The skip argument is a boolean that if true then doesn't add
     # new. The code argument is the symbol code being called. The template will check

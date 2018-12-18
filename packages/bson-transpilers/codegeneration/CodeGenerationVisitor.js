@@ -1,4 +1,4 @@
-/* eslint complexity: 0 camelcase: 0*/
+/* eslint complexity: 0, camelcase: 0, "new-cap": 0 */
 const {
   BsonTranspilersAttributeError,
   BsonTranspilersArgumentError,
@@ -8,6 +8,8 @@ const {
   BsonTranspilersTypeError,
   BsonTranspilersUnimplementedError
 } = require('../helper/error');
+
+const { removeQuotes } = require('../helper/format');
 
 /**
  * Class for code generation. Goes in between ANTLR generated visitor and
@@ -25,13 +27,16 @@ module.exports = (ANTLRVisitor) => class CodeGenerationVisitor extends ANTLRVisi
   }
 
   /**
-   * PUBLIC: This is the entry point for the compiler. Each visitor must define
-   * an attribute called "startNode".
+   * Start the compiler at this.startRule.
+   *
+   * "Return" methods are overridden only by the object generator. All
+   * generators or visitors that translate code to code should not need to
+   * override these methods.
    *
    * @param {ParserRuleContext} ctx
-   * @return {String}
+   * @return {*}
    */
-  start(ctx) {
+  returnResult(ctx) {
     const rule = `visit${this.startRule.replace(/^\w/, c => c.toUpperCase())}`;
     if (!this.startRule || !(rule in this)) {
       throw new BsonTranspilersInternalError(
@@ -42,7 +47,18 @@ module.exports = (ANTLRVisitor) => class CodeGenerationVisitor extends ANTLRVisi
     [300, 301, 302, 303, 304, 305, 306].forEach(
       (i) => (this.requiredImports[i] = [])
     );
-    return this[rule](ctx).trim();
+    return this[rule](ctx);
+  }
+
+  /**
+   * PUBLIC: This is the entry point for the compiler. Each visitor must define
+   * an attribute called "startNode".
+   *
+   * @param {ParserRuleContext} ctx
+   * @return {String}
+   */
+  start(ctx) {
+    return this.returnResult(ctx).trim();
   }
 
   /**
@@ -301,15 +317,44 @@ module.exports = (ANTLRVisitor) => class CodeGenerationVisitor extends ANTLRVisi
     return argStr;
   }
 
+  /*
+   * Overriden only by the object generator.
+   */
+  returnFunctionCallLhs(code, name) {
+    return name;
+  }
+  returnFunctionCallLhsRhs(lhs, rhs, lhsType, l) {
+    if (lhsType.argsTemplate) {
+      rhs = lhsType.argsTemplate(l, ...rhs);
+    } else {
+      rhs = `(${rhs.join(', ')})`;
+    }
+    return `${lhs}${rhs}`;
+  }
+
+  returnAttributeAccess(lhs, rhs, type) {
+    if (type && type.attr[rhs].template) {
+      return type.attr[rhs].template(lhs, rhs);
+    }
+    return `${lhs}.${rhs}`;
+  }
+  returnParenthesis(expr) {
+    return `(${expr})`;
+  }
+  returnSet(args, ctx) {
+    return this.visitChildren(ctx);
+  }
+
   /**
    * Generate a function call, diverting to process or emit methods if they
    * exist.
    * @param {ParserRuleContext} ctx
-   * @return {String}
+   * @return {*}
    */
   generateFunctionCall(ctx) {
     const funcNameNode = this.getFunctionCallName(ctx);
     const lhs = this.visit(funcNameNode);
+    let l = lhs;
     let lhsType = this.findTypedNode(funcNameNode).type;
     if (typeof lhsType === 'string') {
       lhsType = this.Types[lhsType];
@@ -331,18 +376,15 @@ module.exports = (ANTLRVisitor) => class CodeGenerationVisitor extends ANTLRVisi
 
     // Check arguments
     const expectedArgs = lhsType.args;
-    let rhs = this.checkArguments(
+    const rhs = this.checkArguments(
       expectedArgs, this.getArguments(ctx), lhsType.id, lhsType.namedArgs
     );
 
     // Apply the arguments template
     if (lhsType.argsTemplate) {
-      const l = this.visit(this.getIfIdentifier(funcNameNode));
-      rhs = lhsType.argsTemplate(l, ...rhs);
-    } else {
-      rhs = `(${rhs.join(', ')})`;
+      l = this.visit(this.getIfIdentifier(funcNameNode));
     }
-    const expr = `${lhs}${rhs}`;
+    const expr = this.returnFunctionCallLhsRhs(lhs, rhs, lhsType, l);
     const constructor = lhsType.callable === this.SYMBOL_TYPE.CONSTRUCTOR;
 
     return this.Syntax.new.template
@@ -355,7 +397,7 @@ module.exports = (ANTLRVisitor) => class CodeGenerationVisitor extends ANTLRVisi
    * replace if template exists.
    *
    * @param {ParserRuleContext} ctx
-   * @return {String}
+   * @return {*}
    */
   generateIdentifier(ctx) {
     const name = this.visitChildren(ctx);
@@ -368,7 +410,7 @@ module.exports = (ANTLRVisitor) => class CodeGenerationVisitor extends ANTLRVisi
     if (ctx.type.template) {
       return ctx.type.template();
     }
-    return name;
+    return this.returnFunctionCallLhs(ctx.type.code, name);
   }
 
   /**
@@ -387,9 +429,12 @@ module.exports = (ANTLRVisitor) => class CodeGenerationVisitor extends ANTLRVisi
    * language.
    *
    * @param {ParserRuleContext} ctx
-   * @return {String}
+   * @return {*}
    */
   generateAttributeAccess(ctx) {
+    if ('emitAttributeAccess' in this) {
+      return this.emitAttributeAccess(ctx);
+    }
     const lhsNode = this.getAttributeLHS(ctx);
     const lhs = this.visit(lhsNode);
     const rhs = this.getAttributeRHS(ctx).getText();
@@ -400,7 +445,7 @@ module.exports = (ANTLRVisitor) => class CodeGenerationVisitor extends ANTLRVisi
     }
     while (type !== null) {
       if (!(type.attr.hasOwnProperty(rhs))) {
-        if (type.id in this.BsonTypes && this.BsonTypes[type.id].id !== null) {
+        if (type.id in this.BsonTypes && this.BsonTypes[type.id].id !== null) { // TODO: tell symbols vs types
           throw new BsonTranspilersAttributeError(
             `'${rhs}' not an attribute of ${type.id}`
           );
@@ -416,14 +461,10 @@ module.exports = (ANTLRVisitor) => class CodeGenerationVisitor extends ANTLRVisi
     if (type === null) {
       ctx.type = this.Types._undefined;
       // TODO: how strict do we want to be?
-      return `${lhs}.${rhs}`;
+      return this.returnAttributeAccess(lhs, rhs, type);
     }
     ctx.type = type.attr[rhs];
-    if (type.attr[rhs].template) {
-      return type.attr[rhs].template(lhs, rhs);
-    }
-
-    return `${lhs}.${rhs}`;
+    return this.returnAttributeAccess(lhs, rhs, type);
   }
 
   /**
@@ -438,7 +479,7 @@ module.exports = (ANTLRVisitor) => class CodeGenerationVisitor extends ANTLRVisi
    * @param {Boolean} skipNew - Optional: If true, never add new.
    * @param {Boolean} skipLhs - Optional: If true, don't add lhs to result.
    *
-   * @return {String}
+   * @return {*}
    */
   generateCall(ctx, lhsType, args, defaultT, defaultA, skipNew, skipLhs) {
     if (`emit${lhsType.id}` in this) {
@@ -460,8 +501,12 @@ module.exports = (ANTLRVisitor) => class CodeGenerationVisitor extends ANTLRVisi
     if (this.idiomatic && 'emitIdiomaticObjectLiteral' in this) {
       return this.emitIdiomaticObjectLiteral(ctx);
     }
+    const type = this.Types._object;
+    if (`emit${type.id}` in this) {
+      return this[`emit${type.id}`](ctx);
+    }
+    ctx.type = type;
     this.requiredImports[10] = true;
-    ctx.type = this.Types._object;
     ctx.indentDepth = this.findIndentDepth(ctx) + 1;
     let args = '';
     const keysAndValues = this.getKeyValueList(ctx);
@@ -482,7 +527,11 @@ module.exports = (ANTLRVisitor) => class CodeGenerationVisitor extends ANTLRVisi
   }
 
   generateArrayLiteral(ctx) {
-    ctx.type = this.Types._array;
+    const type = this.Types._array;
+    if (`emit${type.id}` in this) {
+      return this[`emit${type.id}`](ctx);
+    }
+    ctx.type = type;
     ctx.indentDepth = this.findIndentDepth(ctx) + 1;
     this.requiredImports[9] = true;
     let args = '';
@@ -522,6 +571,9 @@ module.exports = (ANTLRVisitor) => class CodeGenerationVisitor extends ANTLRVisi
       lhsType = this.Types[lhsType];
     }
     ctx.type = lhsType.type;
+    if (`emit${lhsType.id}` in this) {
+      this[`emit${lhsType.id}`](ctx);
+    }
 
     // Get the original type of the argument
     const expectedArgs = lhsType.args;
@@ -555,7 +607,7 @@ module.exports = (ANTLRVisitor) => class CodeGenerationVisitor extends ANTLRVisi
    * @param {String} defaultT - The default if no template exists.
    * @param {Boolean} skipNew - Optional: If true, never add new.
    *
-   * @return {String}
+   * @return {*}
    */
   generateLiteral(ctx, lhsType, args, defaultT, skipNew) {
     if (`emit${lhsType.id}` in this) {
@@ -576,7 +628,7 @@ module.exports = (ANTLRVisitor) => class CodeGenerationVisitor extends ANTLRVisi
    *
    * @param {Object} setType - the type to set the literal to.
    * @param {ParserRuleContext} ctx - the tree node.
-   * @return {String}
+   * @return {*}
    */
   leafHelper(setType, ctx) {
     ctx.type = setType;
@@ -588,6 +640,9 @@ module.exports = (ANTLRVisitor) => class CodeGenerationVisitor extends ANTLRVisi
 
     if (`process${ctx.type.id}` in this) {
       return this[`process${ctx.type.id}`](ctx);
+    }
+    if (`emit${ctx.type.id}` in this) {
+      return this[`emit${ctx.type.id}`](ctx);
     }
     const children = ctx.getText();
     return this.generateLiteral(ctx, ctx.type, [children, type.id], children, true);
@@ -609,9 +664,12 @@ module.exports = (ANTLRVisitor) => class CodeGenerationVisitor extends ANTLRVisi
    * @param {ParserRuleContext} ctx
    * @param {Object} type - The type of the LHS
    * @param {Object} symbolType - The type of the Symbol
-   * @return {String}
+   * @return {*}
    */
   generateBSONRegex(ctx, type, symbolType) {
+    if (`emit${type.id}` in this) {
+      return this[`emit${type.id}`](ctx);
+    }
     ctx.type = type;
 
     const args = this.checkArguments(
@@ -650,9 +708,12 @@ module.exports = (ANTLRVisitor) => class CodeGenerationVisitor extends ANTLRVisi
    * @param {Object} type - The type of the LHS
    * @param {Object} symbolType - The type of the Symbol
    * @param {boolean} requireString - if the code argument must be a string.
-   * @return {String}
+   * @return {*}
    */
   generateBSONCode(ctx, type, symbolType, requireString) {
+    if (`emit${type.id}` in this) {
+      return this[`emit${type.id}`](ctx);
+    }
     ctx.type = type;
     const argList = this.getArguments(ctx);
     if (!(argList.length === 1 || argList.length === 2)) {
@@ -670,7 +731,7 @@ module.exports = (ANTLRVisitor) => class CodeGenerationVisitor extends ANTLRVisi
         );
       }
     } else {
-      code = this.getArgumentAt(ctx, 0).getText();
+      code = removeQuotes(this.getArgumentAt(ctx, 0).getText());
     }
     let scope = undefined;
     let scopestr = '';

@@ -54,6 +54,14 @@ module.exports = (CodeGenerationVisitor) => class Visitor extends CodeGeneration
    *
    */
 
+  visitFile_input(ctx) {
+    if (ctx.stmt().length !== 1) {
+      throw new BsonTranspilersRuntimeError(`Expression contains ${
+        ctx.stmt().length} statements. Input should be a single statement`);
+    }
+    return this.visitChildren(ctx);
+  }
+
   visitFunctionCall(ctx) {
     if (ctx.getChildCount() === 1) {
       return this.visitChildren(ctx);
@@ -82,6 +90,62 @@ module.exports = (CodeGenerationVisitor) => class Visitor extends CodeGeneration
     return this.generateArrayLiteral(ctx);
   }
 
+  visitExpr(ctx) {
+    if (ctx.getChildCount() === 1) {
+      return this.visitChildren(ctx);
+    }
+    if (this.Syntax.binary.template) {
+      const kids = ctx.children.map(m => this.visit(m));
+      return this.Syntax.binary.template(kids);
+    }
+    return this.visitChildren(ctx);
+  }
+
+  visitXor_expr(ctx) {
+    if (ctx.getChildCount() === 1) {
+      return this.visitChildren(ctx);
+    }
+    if (this.Syntax.binary.template) {
+      const kids = ctx.children.map(m => this.visit(m));
+      return this.Syntax.binary.template(kids);
+    }
+    return this.visitChildren(ctx);
+  }
+
+  visitAnd_expr(ctx) {
+    if (ctx.getChildCount() === 1) {
+      return this.visitChildren(ctx);
+    }
+    if (this.Syntax.binary.template) {
+      const kids = ctx.children.map(m => this.visit(m));
+      return this.Syntax.binary.template(kids);
+    }
+    return this.visitChildren(ctx);
+  }
+
+
+  visitShift_expr(ctx) {
+    if (ctx.getChildCount() === 1) {
+      return this.visitChildren(ctx);
+    }
+    const args = ctx.children.map((n) => this.visit(n));
+    if (this.Syntax.binary.template) {
+      return this.Syntax.binary.template(args);
+    }
+    return this.visitChildren(ctx);
+  }
+
+  visitArith_expr(ctx) {
+    if (ctx.getChildCount() === 1) {
+      return this.visitChildren(ctx);
+    }
+    const args = ctx.children.map((n) => this.visit(n));
+    if (this.Syntax.binary.template) {
+      return this.Syntax.binary.template(args);
+    }
+    return this.visitChildren(ctx);
+  }
+
   /* So far, this only exists in Python so it hasn't been moved to
    * CodeGenerationVisitor. However, if another input or output language has a
    * set implementation, should move this to the shared visitor. */
@@ -89,13 +153,14 @@ module.exports = (CodeGenerationVisitor) => class Visitor extends CodeGeneration
     ctx.type = this.Types._array;
     ctx.indentDepth = this.findIndentDepth(ctx) + 1;
     this.requiredImports[9] = true;
-    let args = '';
+    let args = [];
     const list = ctx.testlist_comp();
     this.testForComprehension(list);
+    let join;
     if (list) {
       // Sets of 1 item is the same as the item itself, but keep parens for math
       if (list.children.length === 1) {
-        return `(${this.visit(list.children[0])})`;
+        return this.returnParenthesis(this.visit(list.children[0]));
       }
       const visitedChildren = list.children.map((child) => {
         return this.visit(child);
@@ -107,15 +172,17 @@ module.exports = (CodeGenerationVisitor) => class Visitor extends CodeGeneration
         args = visitedElements.map((arg, index) => {
           const last = !visitedElements[index + 1];
           return ctx.type.argsTemplate(arg, ctx.indentDepth, last);
-        }).join('');
+        });
+        join = '';
       } else {
-        args = visitedElements.join(', ');
+        args = visitedElements;
+        join = ', ';
       }
     }
     if (ctx.type.template) {
-      return ctx.type.template(args, ctx.indentDepth);
+      return ctx.type.template(args.join(join), ctx.indentDepth);
     }
-    return this.visitChildren(ctx);
+    return this.returnSet(args, ctx);
   }
 
   visitStringAtom(ctx) {
@@ -178,33 +245,26 @@ module.exports = (CodeGenerationVisitor) => class Visitor extends CodeGeneration
       return this.visitChildren(ctx);
     }
     // For the expression "+1", set the type to the child's type.
-    const result = this.visitChildren(ctx);
+    const op = this.visit(ctx.children[0]);
+    const factor = this.visit(ctx.factor());
+
     ctx.type = this.findTypedNode(ctx.factor()).type;
-    return result;
+    if (this.Syntax.unary.template) {
+      return this.Syntax.unary.template(
+        op,
+        factor
+      );
+    }
+    return `${op}${factor}`;
   }
 
   visitTerm(ctx) {
     if (ctx.getChildCount() === 1) {
       return this.visitChildren(ctx);
     }
-    if (ctx.getChildCount() > 2) {
-      const res = [this.visit(ctx.children[0])];
-      for (let i = 1; i < ctx.getChildCount(); i++) {
-        const op = this.visit(ctx.children[i]);
-        if (op === '//') {
-          const rhs = this.visit(ctx.children[i + 1]);
-          const lhs = res.pop();
-          if (this.Syntax.floorDiv) {
-            res.push(this.Syntax.floorDiv.template(lhs, rhs));
-          } else {
-            res.push(`${lhs} // ${rhs}`);
-          }
-          i++;
-        } else {
-          res.push(op);
-        }
-      }
-      return res.join('');
+    const args = ctx.children.map((n) => this.visit(n));
+    if (this.Syntax.binary.template) {
+      return this.Syntax.binary.template(args);
     }
     return this.visitChildren(ctx);
   }
@@ -215,8 +275,8 @@ module.exports = (CodeGenerationVisitor) => class Visitor extends CodeGeneration
     }
     const lhs = this.visit(ctx.atom());
     const rhs = this.visit(ctx.factor());
-    if (this.Syntax.power) {
-      return this.Syntax.power.template(lhs, rhs);
+    if (this.Syntax.binary.template) {
+      return this.Syntax.binary.template([lhs, '**', rhs]);
     }
     return `${lhs} ** ${rhs}`;
   }
@@ -253,10 +313,7 @@ module.exports = (CodeGenerationVisitor) => class Visitor extends CodeGeneration
     }
   }
 
-  visitComparison(ctx) {
-    if (ctx.getChildCount() === 1) {
-      return this.visitChildren(ctx);
-    }
+  returnComparison(ctx) {
     let skip = false;
     return ctx.children.reduce((str, e, i, arr) => {
       if (skip) { // Skip for 'in' statements because swallows rhs
@@ -287,6 +344,13 @@ module.exports = (CodeGenerationVisitor) => class Visitor extends CodeGeneration
       }
       return `${str}${this.visit(arr[i - 1])} ${op} `;
     }, '');
+  }
+
+  visitComparison(ctx) {
+    if (ctx.getChildCount() === 1) {
+      return this.visitChildren(ctx);
+    }
+    return this.returnComparison(ctx);
   }
 
   visitIndexAccess(ctx) {

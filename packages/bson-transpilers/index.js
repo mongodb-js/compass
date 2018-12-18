@@ -22,21 +22,25 @@ const getPythonGenerator = require('./codegeneration/python/Generator');
 const getCsharpGenerator = require('./codegeneration/csharp/Generator');
 const getShellGenerator = require('./codegeneration/shell/Generator');
 const getJavascriptGenerator = require('./codegeneration/javascript/Generator');
+const getObjectGenerator = require('./codegeneration/object/Generator');
 
 const javascriptjavasymbols = require('./lib/symbol-table/javascripttojava');
 const javascriptpythonsymbols = require('./lib/symbol-table/javascripttopython');
 const javascriptcsharpsymbols = require('./lib/symbol-table/javascripttocsharp');
 const javascriptshellsymbols = require('./lib/symbol-table/javascripttoshell');
+const javascriptobjectsymbols = require('./lib/symbol-table/javascripttoobject');
 
 const shelljavasymbols = require('./lib/symbol-table/shelltojava');
 const shellpythonsymbols = require('./lib/symbol-table/shelltopython');
 const shellcsharpsymbols = require('./lib/symbol-table/shelltocsharp');
 const shelljavascriptsymbols = require('./lib/symbol-table/shelltojavascript');
+const shellobjectsymbols = require('./lib/symbol-table/shelltoobject');
 
 const pythonjavasymbols = require('./lib/symbol-table/pythontojava');
 const pythonshellsymbols = require('./lib/symbol-table/pythontoshell');
 const pythoncsharpsymbols = require('./lib/symbol-table/pythontocsharp');
 const pythonjavascriptsymbols = require('./lib/symbol-table/pythontojavascript');
+const pythonobjectsymbols = require('./lib/symbol-table/pythontoobject');
 
 /**
  * Constructs the parse tree from the JS or Shell code given by the user.
@@ -158,6 +162,12 @@ module.exports = {
       getJavascriptVisitor(getCodeGenerationVisitor(JavascriptANTLRVisitor)),
       getShellGenerator,
       javascriptshellsymbols
+    ),
+    object: getTranspiler(
+      loadJSTree,
+      getJavascriptVisitor(getCodeGenerationVisitor(JavascriptANTLRVisitor)),
+      getObjectGenerator,
+      javascriptobjectsymbols
     )
   },
   shell: {
@@ -184,6 +194,12 @@ module.exports = {
       getShellVisitor(getJavascriptVisitor(getCodeGenerationVisitor(JavascriptANTLRVisitor))),
       getJavascriptGenerator,
       shelljavascriptsymbols
+    ),
+    object: getTranspiler(
+      loadJSTree,
+      getShellVisitor(getJavascriptVisitor(getCodeGenerationVisitor(JavascriptANTLRVisitor))),
+      getObjectGenerator,
+      shellobjectsymbols
     )
   },
   python: {
@@ -209,7 +225,14 @@ module.exports = {
       loadPyTree,
       getPythonVisitor(getCodeGenerationVisitor(PythonANTLRVisitor)),
       getJavascriptGenerator,
-      pythonjavascriptsymbols)
+      pythonjavascriptsymbols
+    ),
+    object: getTranspiler(
+      loadPyTree,
+      getPythonVisitor(getCodeGenerationVisitor(PythonANTLRVisitor)),
+      getObjectGenerator,
+      pythonobjectsymbols
+    )
   },
   getTree: {
     javascript: loadJSTree,

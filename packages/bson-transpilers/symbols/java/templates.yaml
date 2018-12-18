@@ -19,10 +19,10 @@ Templates:
         (lhs, op, rhs) => {
             if (op.includes('!') || op.includes('not')) {
                 return `${lhs} != ${rhs}`;
-            }
-            else {
+            } else if (op === '==' || op === '===' || op === 'is') {
                 return `${lhs} == ${rhs}`;
             }
+            return `${lhs} ${op} ${rhs}`;
         }
     InSyntaxTemplate: &InSyntaxTemplate !!js/function >
         (lhs, op, rhs) => {
@@ -44,16 +44,27 @@ Templates:
         (arg) => {
             return `!${arg}`;
         }
+    UnarySyntaxTemplate: &UnarySyntaxTemplate null
+    BinarySyntaxTemplate: &BinarySyntaxTemplate !!js/function >
+        (args) => {
+            return args.reduce((s, op, i, arr) => {
+                if (i % 2 === 0) {
+                    return s;
+                }
+                const rhs = arr[i + 1];
+                switch(op) {
+                    case '//':
+                        return `floor(${s}, ${rhs})`;
+                    case '**':
+                        return `pow(${s}, ${rhs})`;
+                    default:
+                        return `${s} ${op} ${rhs}`;
+                }
+            }, args[0]);
+        }
+    ParensSyntaxTemplate: &ParensSyntaxTemplate null
     EosSyntaxTemplate: &EosSyntaxTemplate null
     EofSyntaxTemplate: &EofSyntaxTemplate null
-    FloorDivTemplate: &FloorDivSyntaxTemplate !!js/function >
-        (lhs, rhs) => {
-            return `floor(${lhs}, ${rhs})`;
-        }
-    PowerTemplate: &PowerSyntaxTemplate !!js/function >
-        (lhs, rhs) => {
-            return `pow(${lhs}, ${rhs})`;
-        }
     NewTemplate: &NewSyntaxTemplate !!js/function >
         (expr, skip, code) => {
             // Add codes of classes that don't need new.
@@ -262,32 +273,6 @@ Templates:
         () => {
             return '';
         }
-    DBRefToStringTemplate: &DBRefToStringTemplate null
-    DBRefToStringArgsTemplate: &DBRefToStringArgsTemplate null
-    DoubleValueOfTemplate: &DoubleValueOfTemplate !!js/function >
-        (lhs) => {
-            return lhs;
-        }
-    DoubleValueOfArgsTemplate: &DoubleValueOfArgsTemplate !!js/function >
-        () => {
-            return '';
-        }
-    Int32ValueOfTemplate: &Int32ValueOfTemplate !!js/function >
-        (lhs) => {
-            return lhs;
-        }
-    Int32ValueOfArgsTemplate: &Int32ValueOfArgsTemplate !!js/function >
-        () => {
-            return '';
-        }
-    Int32ToStringTemplate: &Int32ToStringTemplate !!js/function >
-        () => {
-            return '';
-        }
-    Int32ToStringArgsTemplate: &Int32ToStringArgsTemplate !!js/function >
-        (lhs) => {
-            return `Integer.toString(${lhs})`;
-        }
     LongEqualsTemplate: &LongEqualsTemplate !!js/function >
         (lhs) => {
             return `${lhs} ==`;
@@ -306,14 +291,6 @@ Templates:
             return `(int) ${lhs}`;
         }
     LongToIntArgsTemplate: &LongToIntArgsTemplate !!js/function >
-        () => {
-            return '';
-        }
-    LongValueOfTemplate: &LongValueOfTemplate !!js/function >
-        (lhs) => {
-            return `(int) ${lhs}`;
-        }
-    LongValueOfArgsTemplate: &LongValueOfArgsTemplate !!js/function >
         () => {
             return '';
         }
@@ -864,16 +841,6 @@ Templates:
             return `(${arg})`;
         }
     # JS Symbol Templates
-    ObjectSymbolTemplate: &ObjectSymbolTemplate null
-    ObjectSymbolArgsTemplate: &ObjectSymbolArgsTemplate null
-    ObjectSymbolCreateTemplate: &ObjectSymbolCreateTemplate !!js/function >
-        () => {
-            return '';
-        }
-    ObjectSymbolCreateArgsTemplate: &ObjectSymbolCreateArgsTemplate !!js/function >
-        (lhs, arg) => {
-            return arg;
-        }
     NumberSymbolTemplate: &NumberSymbolTemplate !!js/function >
         () => {
             return '';
@@ -909,9 +876,12 @@ Templates:
         }
     DateSymbolNowTemplate: &DateSymbolNowTemplate !!js/function >
         () => {
-            return 'java.util.Date';
+            return '';
         }
-    DateSymbolNowArgsTemplate: &DateSymbolNowArgsTemplate null
+    DateSymbolNowArgsTemplate: &DateSymbolNowArgsTemplate !!js/function >
+        () => {
+            return 'new java.util.Date().getTime()';
+        }
     RegExpSymbolTemplate: &RegExpSymbolTemplate !!js/function >
         () => {
             return 'Pattern';

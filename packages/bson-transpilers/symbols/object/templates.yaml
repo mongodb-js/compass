@@ -44,15 +44,124 @@ Templates:
     #                                           #
     #############################################
 
-    EqualitySyntaxTemplate: &EqualitySyntaxTemplate null # Args: lhs, operation, rhs
-    InSyntaxTemplate: &InSyntaxTemplate null # Args: lhs, operation, rhs
-    AndSyntaxTemplate: &AndSyntaxTemplate null # Args: items to compare as an array
-    OrSyntaxTemplate: &OrSyntaxTemplate  null # Args: items to compare as an array
-    NotSyntaxTemplate: &NotSyntaxTemplate null # Args: item to negate
-    UnarySyntaxTemplate: &UnarySyntaxTemplate null
-    BinarySyntaxTemplate: &BinarySyntaxTemplate null
-    EosTemplate: &EosSyntaxTemplate null # No args. End-of-line
-    EofTemplate: &EofSyntaxTemplate null # No args. End-of-file
+    EqualitySyntaxTemplate: &EqualitySyntaxTemplate !!js/function >
+        (lhs, op, rhs) => {
+            if (op.includes('!') || op.includes('not')) {
+                return lhs !== rhs;
+            }
+            if (op === '==' || op === '===' || op === 'is') {
+                if (typeof(lhs) === 'object' && 'equals' in lhs) {
+                    // Use '.equals' for objects, if it exists.
+                    return lhs.equals(rhs);
+                }
+                return lhs === rhs;
+            }
+            if (op === '>') {
+                return lhs > rhs;
+            }
+            if (op === '<') {
+                return lhs < rhs;
+            }
+            if (op === '>=') {
+                return lhs >= rhs;
+            }
+            if (op === '<=') {
+                return lhs <= rhs;
+            }
+            throw new Error(`unrecognized operation: ${op}`);
+        }
+    InSyntaxTemplate: &InSyntaxTemplate !!js/function >
+        (lhs, op, rhs) => {
+            if (op.includes('!') || op.includes('not')) {
+                if (typeof rhs === 'array') {
+                    return rhs.indexOf(lhs) === -1;
+                }
+                return !(lhs in rhs);
+            }
+            if (typeof rhs === 'array') {
+                return rhs.indexOf(lhs) !== -1;
+            }
+            return lhs in rhs;
+        }
+
+    AndSyntaxTemplate: &AndSyntaxTemplate !!js/function >
+        (args) => {
+            return args.reduce((t, k, i) => {
+                return t && k;
+            });
+        }
+    OrSyntaxTemplate: &OrSyntaxTemplate !!js/function >
+        (args) => {
+            return args.reduce((t, k, i) => {
+                return t || k;
+            });
+        }
+    NotSyntaxTemplate: &NotSyntaxTemplate !!js/function >
+        (arg) => {
+            return !arg;
+        }
+    UnarySyntaxTemplate: &UnarySyntaxTemplate !!js/function >
+        (op, arg) => {
+            switch(op) {
+                case '+':
+                    return +arg;
+                case '-':
+                    return -arg;
+                case '~':
+                    return ~arg;
+                default:
+                    throw new Error(`unrecognized operation: ${op}`);
+            }
+        }
+    BinarySyntaxTemplate: &BinarySyntaxTemplate !!js/function >
+        (args) => {
+            return args.reduce((s, op, i, arr) => {
+                if (i % 2 === 0) {
+                    return s;
+                }
+                const rhs = arr[i + 1];
+                switch(op) {
+                    case '+':
+                        return s + rhs;
+                    case '-':
+                        return s - rhs;
+                    case '*':
+                        return s * rhs;
+                    case '/':
+                        return s / rhs;
+                    case '**':
+                        return Math.pow(s, rhs);
+                    case '//':
+                        return Math.floor(s, rhs);
+                    case '%':
+                        return s % rhs;
+                    case '>>':
+                        return s >> rhs;
+                    case '<<':
+                        return s << rhs;
+                    case '|':
+                        return s | rhs;
+                    case '&':
+                        return s & rhs;
+                    case '^':
+                        return s ^ rhs;
+                    default:
+                        throw new Error(`unrecognized operation: ${op}`);
+                }
+            }, args[0]);
+        }
+    ParensSyntaxTemplate: &ParensSyntaxTemplate !!js/function >
+        (arg) => {
+            return arg;
+        }
+    EosSyntaxTemplate: &EosSyntaxTemplate !!js/function >
+        () => {
+            return 'a unique thing';
+        }
+    EofSyntaxTemplate: &EofSyntaxTemplate !!js/function >
+        () => {
+            return 'a unique thing';
+        }
     FloorDivTemplate: &FloorDivSyntaxTemplate null # Args: lhs, rhs
     PowerTemplate: &PowerSyntaxTemplate null # Args: lhs, rhs
     NewTemplate: &NewSyntaxTemplate null # Args: expression, skip?, code# [to check if meant to be skipped]
@@ -64,19 +173,67 @@ Templates:
     # get passed the literal itself as an arg.  #
     #                                           #
     #############################################
-    StringTypeTemplate: &StringTypeTemplate null # Args: literal (can be w/w/out quotes and unescaped interior quotes.)
-    RegexTypeTemplate: &RegexTypeTemplate null # Args: pattern, flag
-    BoolTypeTemplate: &BoolTypeTemplate null # Args: literal
-    IntegerTypeTemplate: &IntegerTypeTemplate null # args: literal, argType (i.e. '_string', '_decimal' etc)
-    DecimalTypeTemplate: &DecimalTypeTemplate null # args: literal, argType
-    LongBasicTypeTemplate: &LongBasicTypeTemplate null # args: literal, argType
-    HexTypeTemplate: &HexTypeTemplate null # args: literal, argType
-    OctalTypeTemplate: &OctalTypeTemplate null # args: literal, argType
-    NumericTypeTemplate: &NumericTypeTemplate null # args: literal, argType
-    ArrayTypeTemplate: &ArrayTypeTemplate null # Args: the interior of the array (i.e. '1, 2'), nestedness#
+    StringTypeTemplate: &StringTypeTemplate !!js/function >
+        (str) => {
+            let newStr = str.toString();
+            if (
+                (newStr.charAt(0) === '"' && newStr.charAt(newStr.length - 1) === '"') ||
+                (newStr.charAt(0) === '\'' && newStr.charAt(newStr.length - 1) === '\'')
+            ) {
+                newStr = newStr.substr(1, newStr.length - 2);
+            }
+            return newStr;
+        }
+    RegexTypeTemplate: &RegexTypeTemplate !!js/function >
+        (pattern, flags) => {
+            return new RegExp(pattern, flags);
+        }
+    BoolTypeTemplate: &BoolTypeTemplate !!js/function >
+        (str) => {
+            return str.toLowerCase() === 'true';
+        }
+    IntegerTypeTemplate: &IntegerTypeTemplate !!js/function >
+        (arg) => {
+            return parseInt(arg, 10);
+        }
+    DecimalTypeTemplate: &DecimalTypeTemplate !!js/function >
+        (arg) => {
+            return parseFloat(arg);
+        }
+    LongBasicTypeTemplate: &LongBasicTypeTemplate !!js/function >
+        (arg) => {
+            return parseInt(arg, 10);
+        }
+    HexTypeTemplate: &HexTypeTemplate !!js/function >
+        (arg) => {
+            return parseInt(arg, 16);
+        }
+    OctalTypeTemplate: &OctalTypeTemplate !!js/function >
+        (arg) => {
+            arg = arg.replace(/[oO]/g, '')
+            return parseInt(arg, 8);
+        }
+    NumericTypeTemplate: &NumericTypeTemplate !!js/function >
+        (arg) => {
+            if (arg.contains('x')) {
+                return parseInt(arg, 16);
+            }
+            if (arg.contains('o') || arg.startsWith('0')) {
+                arg = arg.replace(/o/g, '')
+                return parseInt(arg, 8);
+            }
+            return parseFloat(arg);
+        }
+    ArrayTypeTemplate: &ArrayTypeTemplate null
     ArrayTypeArgsTemplate: &ArrayTypeArgsTemplate null # Args: single array element, nestedness, lastElement? (note: not being used atm)
-    NullTypeTemplate: &NullTypeTemplate null # No args
-    UndefinedTypeTemplate: &UndefinedTypeTemplate null # No args:
+    NullTypeTemplate: &NullTypeTemplate !!js/function >
+        () => {
+            return null;
+        }
+    UndefinedTypeTemplate: &UndefinedTypeTemplate !!js/function >
+        () => {
+            return undefined;
+        }
     ObjectTypeTemplate: &ObjectTypeTemplate null # Args: literal (for empty array, is empty string. Otherwise all set)
     ObjectTypeArgsTemplate: &ObjectTypeArgsTemplate null # Args: single object element [2] (i.e. array with [key, value]), nestedness#
 
@@ -116,7 +273,10 @@ Templates:
     Int32SymbolTemplate: &Int32SymbolTemplate null # No args
     Int32SymbolArgsTemplate: &Int32SymbolArgsTemplate null # Args: lhs, arg, argType
     LongSymbolTemplate: &LongSymbolTemplate null # No args
-    LongSymbolArgsTemplate: &LongSymbolArgsTemplate null # Args: lhs, arg, argType
+    LongSymbolArgsTemplate: &LongSymbolArgsTemplate !!js/function > # Args: lhs, arg, argType
+        (lhs, arg) => {
+            return lhs.fromNumber(arg);
+        }
     RegExpSymbolTemplate: &RegExpSymbolTemplate null # No args
     RegExpSymbolArgsTemplate: &RegExpSymbolArgsTemplate null # Args: lhs, pattern, flags
     SymbolSymbolTemplate: &SymbolSymbolTemplate null # No args
@@ -132,10 +292,19 @@ Templates:
     TimestampSymbolTemplate: &TimestampSymbolTemplate null # No args
     TimestampSymbolArgsTemplate: &TimestampSymbolArgsTemplate null # Args: lhs, low, high
     # non bson-specific
-    NumberSymbolTemplate: &NumberSymbolTemplate null # No args
+    NumberSymbolTemplate: &NumberSymbolTemplate !!js/function >
+        () => {
+            return Number;
+        }
     NumberSymbolArgsTemplate: &NumberSymbolArgsTemplate null # Args: lhs, arg, argType
     DateSymbolTemplate: &DateSymbolTemplate null # No args
-    DateSymbolArgsTemplate: &DateSymbolArgsTemplate null # Args: lhs, date (Date object), isString? (if the result needs to be a date string instead of a date instance)
+    DateSymbolArgsTemplate: &DateSymbolArgsTemplate !!js/function >
+        (lhs, date, isString) => {
+            if (isString) {
+                return date.toString();
+            }
+            return date;
+        }
 
     #############################################
     #         Object Attributes/Methods         #
@@ -154,13 +323,34 @@ Templates:
     CodeCodeArgsTemplate: &CodeCodeArgsTemplate null
     CodeScopeTemplate: &CodeScopeTemplate null
     CodeScopeArgsTemplate: &CodeScopeArgsTemplate null
-    ObjectIdToStringTemplate: &ObjectIdToStringTemplate null
-    ObjectIdToStringArgsTemplate: &ObjectIdToStringArgsTemplate null
-    ObjectIdEqualsTemplate: &ObjectIdEqualsTemplate null
-    ObjectIdEqualsArgsTemplate: &ObjectIdEqualsArgsTemplate null
-    ObjectIdGetTimestampTemplate: &ObjectIdGetTimestampTemplate null
-    ObjectIdGetTimestampArgsTemplate: &ObjectIdGetTimestampArgsTemplate null
-    ObjectIdIsValidTemplate: &ObjectIdIsValidTemplate null
+    ObjectIdToStringTemplate: &ObjectIdToStringTemplate !!js/function >
+        (lhs, rhs) => {
+            return lhs.toString();
+        }
+    ObjectIdToStringArgsTemplate: &ObjectIdToStringArgsTemplate !!js/function >
+        (lhs) => {
+            return lhs;
+        }
+    ObjectIdEqualsTemplate: &ObjectIdEqualsTemplate !!js/function >
+        (lhs) => {
+            return lhs;
+        }
+    ObjectIdEqualsArgsTemplate: &ObjectIdEqualsArgsTemplate !!js/function >
+        (lhs, rhs) => {
+            return lhs.equals(rhs);
+        }
+    ObjectIdGetTimestampTemplate: &ObjectIdGetTimestampTemplate !!js/function >
+        (lhs, rhs) => {
+            return lhs.getTimestamp();
+        }
+    ObjectIdGetTimestampArgsTemplate: &ObjectIdGetTimestampArgsTemplate !!js/function >
+        (lhs) => {
+            return lhs;
+        }
+    ObjectIdIsValidTemplate: &ObjectIdIsValidTemplate !!js/function >
+        (lhs, rhs) => {
+            return  lhs.isValid;
+        }
     ObjectIdIsValidArgsTemplate: &ObjectIdIsValidArgsTemplate null
     BinaryValueTemplate: &BinaryValueTemplate null
     BinaryValueArgsTemplate: &BinaryValueArgsTemplate null
@@ -170,20 +360,30 @@ Templates:
     BinaryToStringArgsTemplate: &BinaryToStringArgsTemplate null
     BinarySubtypeTemplate: &BinarySubtypeTemplate null
     BinarySubtypeArgsTemplate: &BinarySubtypeArgsTemplate null
-    DBRefGetDBTemplate: &DBRefGetDBTemplate null
-    DBRefGetCollectionTemplate: &DBRefGetCollectionTemplate null
-    DBRefGetIdTemplate: &DBRefGetIdTemplate null
-    DBRefGetDBArgsTemplate: &DBRefGetDBArgsTemplate null
-    DBRefGetCollectionArgsTemplate: &DBRefGetCollectionArgsTemplate null
-    DBRefGetIdArgsTemplate: &DBRefGetIdArgsTemplate null
-    DBRefToStringTemplate: &DBRefToStringTemplate null
-    DBRefToStringArgsTemplate: &DBRefToStringArgsTemplate null
-    DoubleValueOfTemplate: &DoubleValueOfTemplate null
-    DoubleValueOfArgsTemplate: &DoubleValueOfArgsTemplate null
-    Int32ValueOfTemplate: &Int32ValueOfTemplate null
-    Int32ValueOfArgsTemplate: &Int32ValueOfArgsTemplate null
-    Int32ToStringTemplate: &Int32ToStringTemplate null
-    Int32ToStringArgsTemplate: &Int32ToStringArgsTemplate null
+    DBRefGetDBTemplate: &DBRefGetDBTemplate !!js/function >
+        (lhs, rhs) => {
+            return lhs.db;
+        }
+    DBRefGetCollectionTemplate: &DBRefGetCollectionTemplate !!js/function >
+        (lhs, rhs) => {
+            return lhs.collection;
+        }
+    DBRefGetIdTemplate: &DBRefGetIdTemplate !!js/function >
+        (lhs, rhs) => {
+            return lhs.oid;
+        }
+    DBRefGetDBArgsTemplate: &DBRefGetDBArgsTemplate !!js/function >
+        (lhs, rhs) => {
+            return lhs;
+        }
+    DBRefGetCollectionArgsTemplate: &DBRefGetCollectionArgsTemplate !!js/function >
+        (lhs, rhs) => {
+            return lhs;
+        }
+    DBRefGetIdArgsTemplate: &DBRefGetIdArgsTemplate !!js/function >
+        (lhs, rhs) => {
+            return lhs;
+        }
     LongEqualsTemplate: &LongEqualsTemplate null
     LongEqualsArgsTemplate: &LongEqualsArgsTemplate null
     LongToStringTemplate: &LongToStringTemplate null
@@ -236,21 +436,54 @@ Templates:
     LongLessThanArgsTemplate: &LongLessThanArgsTemplate null
     LongLessThanOrEqualTemplate: &LongLessThanOrEqualTemplate null
     LongLessThanOrEqualArgsTemplate: &LongLessThanOrEqualArgsTemplate null
-    LongFloatApproxTemplate: &LongFloatApproxTemplate null
-    LongTopTemplate: &LongTopTemplate null
-    LongBottomTemplate: &LongBottomTemplate null
+    LongFloatApproxTemplate: &LongFloatApproxTemplate !!js/function >
+        (lhs, rhs) => {
+            return lhs.toNumber();
+        }
+    LongTopTemplate: &LongTopTemplate !!js/function >
+        (lhs, rhs) => {
+            return lhs.high_;
+        }
+    LongBottomTemplate: &LongBottomTemplate !!js/function >
+        (lhs, rhs) => {
+            return lhs.low_;
+        }
     TimestampToStringTemplate: &TimestampToStringTemplate null
     TimestampToStringArgsTemplate: &TimestampToStringArgsTemplate null
     TimestampEqualsTemplate: &TimestampEqualsTemplate null
     TimestampEqualsArgsTemplate: &TimestampEqualsArgsTemplate null
-    TimestampGetLowBitsTemplate: &TimestampGetLowBitsTemplate null
-    TimestampGetLowBitsArgsTemplate: &TimestampGetLowBitsArgsTemplate null
-    TimestampGetHighBitsTemplate: &TimestampGetHighBitsTemplate null
-    TimestampGetHighBitsArgsTemplate: &TimestampGetHighBitsArgsTemplate null
-    TimestampTTemplate: &TimestampTTemplate null
-    TimestampITemplate: &TimestampITemplate null
-    TimestampAsDateTemplate: &TimestampAsDateTemplate null
-    TimestampAsDateArgsTemplate: &TimestampAsDateArgsTemplate null
+    TimestampGetLowBitsTemplate: &TimestampGetLowBitsTemplate !!js/function >
+        (lhs, rhs) => {
+            return lhs.getLowBits();
+        }
+    TimestampGetLowBitsArgsTemplate: &TimestampGetLowBitsArgsTemplate !!js/function >
+        (lhs, rhs) => {
+            return lhs;
+        }
+    TimestampGetHighBitsTemplate: &TimestampGetHighBitsTemplate !!js/function >
+        (lhs, rhs) => {
+            return lhs.getHighBits();
+        }
+    TimestampGetHighBitsArgsTemplate: &TimestampGetHighBitsArgsTemplate  !!js/function >
+        (lhs, rhs) => {
+            return lhs;
+        }
+    TimestampTTemplate: &TimestampTTemplate !!js/function >
+        (lhs, rhs) => {
+            return lhs.getLowBits();
+        }
+    TimestampITemplate: &TimestampITemplate !!js/function >
+        (lhs, rhs) => {
+            return lhs.getHighBits();
+        }
+    TimestampAsDateTemplate: &TimestampAsDateTemplate !!js/function >
+        (lhs, rhs) => {
+            return new Date(lhs.getHighBits() * 1000);
+        }
+    TimestampAsDateArgsTemplate: &TimestampAsDateArgsTemplate !!js/function >
+        (lhs, rhs) => {
+            return lhs;
+        }
     TimestampCompareTemplate: &TimestampCompareTemplate null
     TimestampCompareArgsTemplate: &TimestampCompareArgsTemplate null
     TimestampNotEqualsTemplate: &TimestampNotEqualsTemplate null
@@ -272,7 +505,10 @@ Templates:
     Decimal128ToStringTemplate: &Decimal128ToStringTemplate null
     Decimal128ToStringArgsTemplate: &Decimal128ToStringArgsTemplate null
     # non bson-specific
-    DateSymbolNowTemplate: &DateSymbolNowTemplate null
+    DateSymbolNowTemplate: &DateSymbolNowTemplate !!js/function >
+        () => {
+            return Date.now;
+        }
     DateSymbolNowArgsTemplate: &DateSymbolNowArgsTemplate null
 
     #############################################
@@ -316,7 +552,10 @@ Templates:
     Decimal128SymbolFromStringArgsTemplate: &Decimal128SymbolFromStringArgsTemplate null
     ObjectIdCreateFromHexStringTemplate: &ObjectIdCreateFromHexStringTemplate null
     ObjectIdCreateFromHexStringArgsTemplate: &ObjectIdCreateFromHexStringArgsTemplate null
-    ObjectIdCreateFromTimeTemplate: &ObjectIdCreateFromTimeTemplate null
+    ObjectIdCreateFromTimeTemplate: &ObjectIdCreateFromTimeTemplate !!js/function >
+        (lhs, rhs) => {
+            return lhs.createFromTime;
+        }
     ObjectIdCreateFromTimeArgsTemplate: &ObjectIdCreateFromTimeArgsTemplate null
     # non bson-specific would go here, but there aren't any atm.
 

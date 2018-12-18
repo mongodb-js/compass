@@ -178,10 +178,6 @@ tests:
             python: DBRef('coll', ObjectId(), 5)
         errorCode: E_BSONTRANSPILERS_ARGUMENT
 
-    -   description: DBRef .toString() with extra argument
-        input:
-            javascript: new DBRef('coll', new ObjectId()).toString(10)
-        errorCode: E_BSONTRANSPILERS_ARGUMENT
     Int32:
 
     -   description: Int32 without arguments
@@ -201,10 +197,6 @@ tests:
             python: int({})
         errorCode: E_BSONTRANSPILERS_ARGUMENT
 
-    -   description: Int32 .valueOf() with extra argument
-        input:
-            javascript: Int32(3).valueOf(10)
-        errorCode: E_BSONTRANSPILERS_ARGUMENT
     Double:
 
     -   description: Double without arguments
@@ -224,10 +216,6 @@ tests:
             python: float({})
         errorCode: E_BSONTRANSPILERS_ARGUMENT
 
-    -   description: Double .valueOf() with extra argument
-        input:
-            javascript: Double(3).valueOf(10)
-        errorCode: E_BSONTRANSPILERS_ARGUMENT
     Long:
 
     -   description: Long without arguments

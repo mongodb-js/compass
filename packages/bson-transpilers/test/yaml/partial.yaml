@@ -201,22 +201,6 @@ tests:
           csharp: new ObjectId().Equals
           shell: new ObjectId().equals
     - input:
-          javascript: Int32(1).valueOf
-      output:
-          javascript: ''
-          python: int(1)
-          java: '1'
-          csharp: '1'
-          shell: new NumberInt(1).valueOf
-    - input:
-          javascript: Double(1).valueOf
-      output:
-          javascript: ''
-          python: float(1)
-          java: 1d
-          csharp: '1.0'
-          shell: '1'
-    - input:
           javascript: Long(1, 100).toInt
       output:
           javascript: ''

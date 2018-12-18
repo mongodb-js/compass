@@ -156,16 +156,7 @@ NativeSymbols:
             - [ *NumericType, null ]
             - [ *NumericType, null ]
         type: *DateType
-        attr: # TODO: add more date funcs?
-            utcnow:
-                id: "now"
-                code: 200.1
-                callable: *constructor
-                args: []
-                type: *DateType
-                attr: {}
-                template: *DateSymbolNowTemplate
-                argsTemplate: *DateSymbolNowArgsTemplate
+        attr: {} # TODO: add more date funcs?
         template: *DateSymbolTemplate
         argsTemplate: *DateSymbolArgsTemplate
     re:

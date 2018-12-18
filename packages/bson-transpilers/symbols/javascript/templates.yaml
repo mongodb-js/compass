@@ -19,8 +19,10 @@ Templates:
         (lhs, op, rhs) => {
             if (op.includes('!') || op.includes('not')) {
                 return `${lhs} !== ${rhs}`;
+            } else if (op === '==' || op === '===' || op === 'is') {
+                return `${lhs} === ${rhs}`;
             }
-            return `${lhs} === ${rhs}`;
+            return `${lhs} ${op} ${rhs}`;
         }
     InSyntaxTemplate: &InSyntaxTemplate !!js/function >
         (lhs, op, rhs) => {
@@ -42,16 +44,27 @@ Templates:
         (arg) => {
             return `!${arg}`;
         }
-    EosTemplate: &EosSyntaxTemplate null
-    EofTemplate: &EofSyntaxTemplate null
-    FloorDivTemplate: &FloorDivSyntaxTemplate !!js/function >
-        (lhs, rhs) => {
-            return `Math.floor(${lhs}, ${rhs})`;
+    UnarySyntaxTemplate: &UnarySyntaxTemplate null
+    BinarySyntaxTemplate: &BinarySyntaxTemplate !!js/function >
+        (args) => {
+            return args.reduce((s, op, i, arr) => {
+                if (i % 2 === 0) {
+                    return s;
+                }
+                const rhs = arr[i + 1];
+                switch(op) {
+                    case '//':
+                        return `Math.floor(${s}, ${rhs})`;
+                    case '**':
+                        return `Math.pow(${s}, ${rhs})`;
+                    default:
+                        return `${s} ${op} ${rhs}`;
+                }
+            }, args[0]);
         }
-    PowerTemplate: &PowerSyntaxTemplate !!js/function >
-        (lhs, rhs) => {
-            return `Math.pow(${lhs}, ${rhs})`;
-        }
+    ParensSyntaxTemplate: &ParensSyntaxTemplate null
+    EosSyntaxTemplate: &EosSyntaxTemplate null
+    EofSyntaxTemplate: &EofSyntaxTemplate null
     NewTemplate: &NewSyntaxTemplate !!js/function >
         (expr, skip, code) => {
             // Add classes that don't use "new" to array.
@@ -207,14 +220,6 @@ Templates:
         () => {
             return '';
         }
-    DBRefToStringTemplate: &DBRefToStringTemplate null
-    DBRefToStringArgsTemplate: &DBRefToStringArgsTemplate null
-    DoubleValueOfTemplate: &DoubleValueOfTemplate null
-    DoubleValueOfArgsTemplate: &DoubleValueOfArgsTemplate null
-    Int32ValueOfTemplate: &Int32ValueOfTemplate null
-    Int32ValueOfArgsTemplate: &Int32ValueOfArgsTemplate null
-    Int32ToStringTemplate: &Int32ToStringTemplate null
-    Int32ToStringArgsTemplate: &Int32ToStringArgsTemplate null
     LongEqualsTemplate: &LongEqualsTemplate null
     LongEqualsArgsTemplate: &LongEqualsArgsTemplate null
     LongToStringTemplate: &LongToStringTemplate null
@@ -224,11 +229,6 @@ Templates:
             return `${lhs}.toInt`;
         }
     LongToIntArgsTemplate: &LongToIntArgsTemplate null
-    LongValueOfTemplate: &LongValueOfTemplate !!js/function >
-        (lhs) => {
-            return `${lhs}.toInt`;
-        }
-    LongValueOfArgsTemplate: &LongValueOfArgsTemplate null
     LongToNumberTemplate: &LongToNumberTemplate null
     LongToNumberArgsTemplate: &LongToNumberArgsTemplate null
     LongAddTemplate: &LongAddTemplate null
@@ -480,10 +480,6 @@ Templates:
         }
     ObjectIdIsValidArgsTemplate: &ObjectIdIsValidArgsTemplate null
     # JS Symbol Templates
-    ObjectSymbolTemplate: &ObjectSymbolTemplate null
-    ObjectSymbolArgsTemplate: &ObjectSymbolArgsTemplate null
-    ObjectSymbolCreateTemplate: &ObjectSymbolCreateTemplate null
-    ObjectSymbolCreateArgsTemplate: &ObjectSymbolCreateArgsTemplate null
     NumberSymbolTemplate: &NumberSymbolTemplate !!js/function >
         () => {
             return 'Number';

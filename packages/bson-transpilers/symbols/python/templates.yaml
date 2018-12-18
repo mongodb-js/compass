@@ -20,9 +20,10 @@ Templates:
             if (op.includes('!')) {
                 return `${lhs} != ${rhs}`;
             }
-            else {
+            else if (op === '==' || op === '===' || op === 'is') {
                 return `${lhs} == ${rhs}`;
             }
+            return `${lhs} ${op} ${rhs}`;
         }
     InSyntaxTemplate: &InSyntaxTemplate !!js/function >
         (lhs, op, rhs) => {
@@ -44,16 +45,27 @@ Templates:
         (arg) => {
             return `not ${arg}`;
         }
-    EosTemplate: &EosSyntaxTemplate null
-    EofTemplate: &EofSyntaxTemplate null
-    FloorDivTemplate: &FloorDivSyntaxTemplate !!js/function >
-        (lhs, rhs) => {
-            return `${lhs}//${rhs}`;
+    UnarySyntaxTemplate: &UnarySyntaxTemplate null
+    BinarySyntaxTemplate: &BinarySyntaxTemplate !!js/function >
+        (args) => {
+            return args.reduce((s, op, i, arr) => {
+                if (i % 2 === 0) {
+                    return s;
+                }
+                const rhs = arr[i + 1];
+                switch(op) {
+                    case '//':
+                        return `${s} // ${rhs}`;
+                    case '**':
+                        return `${s} ** ${rhs}`;
+                    default:
+                        return `${s} ${op} ${rhs}`;
+                }
+            }, args[0]);
         }
-    PowerTemplate: &PowerSyntaxTemplate !!js/function >
-        (lhs, rhs) => {
-            return `${lhs}**${rhs}`;
-        }
+    ParensSyntaxTemplate: &ParensSyntaxTemplate null
+    EosSyntaxTemplate: &EosSyntaxTemplate null
+    EofSyntaxTemplate: &EofSyntaxTemplate null
     NewTemplate: &NewSyntaxTemplate null
     # BSON Object Type templates
     CodeTypeTemplate: &CodeTypeTemplate null
@@ -244,38 +256,6 @@ Templates:
         () => {
             return '';
         }
-    DBRefToStringTemplate: &DBRefToStringTemplate !!js/function >
-        () => {
-            return `str`;
-        }
-    DBRefToStringArgsTemplate: &DBRefToStringArgsTemplate !!js/function >
-        (lhs) => {
-            return `(${lhs})`;
-        }
-    DoubleValueOfTemplate: &DoubleValueOfTemplate !!js/function >
-        (lhs) => {
-            return lhs;
-        }
-    DoubleValueOfArgsTemplate: &DoubleValueOfArgsTemplate !!js/function >
-        () => {
-            return '';
-        }
-    Int32ValueOfTemplate: &Int32ValueOfTemplate !!js/function >
-        (lhs) => {
-            return lhs;
-        }
-    Int32ValueOfArgsTemplate: &Int32ValueOfArgsTemplate !!js/function >
-        () => {
-            return '';
-        }
-    Int32ToStringTemplate: &Int32ToStringTemplate !!js/function >
-        () => {
-            return 'str';
-        }
-    Int32ToStringArgsTemplate: &Int32ToStringArgsTemplate !!js/function >
-        (lhs) => {
-            return `(${lhs})`;
-        }
     LongEqualsTemplate: &LongEqualsTemplate !!js/function >
         (lhs) => {
             return `${lhs} ==`;
@@ -299,14 +279,6 @@ Templates:
     LongToStringArgsTemplate: &LongToStringArgsTemplate !!js/function >
         (lhs) => {
             return `(${lhs})`;
-        }
-    LongValueOfTemplate: &LongValueOfTemplate !!js/function >
-        (lhs) => {
-            return `long(${lhs})`;
-        }
-    LongValueOfArgsTemplate: &LongValueOfArgsTemplate !!js/function >
-        () => {
-            return '';
         }
     LongToNumberTemplate: &LongToNumberTemplate !!js/function >
         (lhs) => {
@@ -862,16 +834,6 @@ Templates:
         }
     ObjectIdIsValidArgsTemplate: &ObjectIdIsValidArgsTemplate null
     # JS Symbol Templates
-    ObjectSymbolTemplate: &ObjectSymbolTemplate null
-    ObjectSymbolArgsTemplate: &ObjectSymbolArgsTemplate null
-    ObjectSymbolCreateTemplate: &ObjectSymbolCreateTemplate !!js/function >
-        () => {
-            return '';
-        }
-    ObjectSymbolCreateArgsTemplate: &ObjectSymbolCreateArgsTemplate !!js/function >
-        (lhs, arg) => {
-            return arg;
-        }
     NumberSymbolTemplate: &NumberSymbolTemplate !!js/function >
         () => {
             return '';
