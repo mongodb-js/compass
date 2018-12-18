@@ -1,53 +1,80 @@
 import { createStore } from 'redux';
 import reducer from 'modules';
+import rules from 'modules/rules';
+import setup from 'modules/setup';
 
 const store = createStore(reducer);
+const metrics = require('mongodb-js-metrics')();
 
-// store.onActivated = (appRegistry) => {
-  // Events emitted from the app registry:
-  //
-  // appRegistry.on('application-intialized', (version) => {
-  //   // Version is string in semver format, ex: "1.10.0"
-  // });
-  //
-  // appRegistry.on('data-service-intialized', (dataService) => {
-  //   // dataService is not yet connected. Can subscribe to events.
-  //   // DataService API: https://github.com/mongodb-js/data-service/blob/master/lib/data-service.js
-  // });
-  //
-  // appRegistry.on('data-service-connected', (error, dataService) => {
-  //   // dataService is connected or errored.
-  //   // DataService API: https://github.com/mongodb-js/data-service/blob/master/lib/data-service.js
-  // });
-  //
-  // appRegistry.on('collection-changed', (namespace) => {
-  //   // The collection has changed - provides the current namespace.
-  //   // Namespace format: 'database.collection';
-  //   // Collection selected: 'database.collection';
-  //   // Database selected: 'database';
-  //   // Instance selected: '';
-  // });
-  //
-  // appRegistry.on('database-changed', (namespace) => {
-  //   // The database has changed.
-  //   // Namespace format: 'database.collection';
-  //   // Collection selected: 'database.collection';
-  //   // Database selected: 'database';
-  //   // Instance selected: '';
-  // });
-  //
-  // appRegistry.on('query-applied', (queryState) => {
-  //   // The query has changed and the user has clicked "filter" or "reset".
-  //   // queryState format example:
-  //   //   {
-  //   //     filter: { name: 'testing' },
-  //   //     project: { name: 1 },
-  //   //     sort: { name: -1 },
-  //   //     skip: 0,
-  //   //     limit: 20,
-  //   //     ns: 'database.collection'
-  //   //   }
-  // });
-// };
+/**
+ * Legacy tracking for Reflux store updates.
+ *
+ * @param {AppRegistry} appRegistry - The app registry.
+ * @param {String} storeName - The store name.
+ * @param {Object} rule - The rule.
+ */
+const trackStoreUpdate = (appRegistry, storeName, rule) => {
+    const store = appRegistry.getStore(storeName);
+    if (!store) {
+      return;
+    }
+    // attach an event listener
+    store.listen((state) => {
+      // only track an event if the rule condition evaluates to true
+      if (rule.condition(state)) {
+        // Some stores trigger with arrays of data.
+        if (rule.multi) {
+          state.forEach((s) => {
+            metrics.track(rule.resource, rule.action, rule.metadata(s));
+          });
+        } else {
+          metrics.track(rule.resource, rule.action, rule.metadata(state));
+        }
+      }
+    });
+  }
+};
+
+/**
+ * Tracking of events that are emitted on the app registry.
+ *
+ * @param {AppRegistry} appRegistry - The app registry.
+ * @param {String} eventName - The name of the event.
+ * @param {Object} rule - The rule.
+ */
+const trackRegistryEvent = (appRegistry, eventName, rule) => {
+  // attach an event listener
+  appRegistry.on(eventName, (...args) => {
+    // only track an event if the rule condition evaluates to true
+    if (rule.condition(...args)) {
+      metrics.track(rule.resource, rule.action, rule.metadata(...args));
+    }
+  });
+};
+
+/**
+ * When the app registry is activated setup the store.
+ *
+ * @param {AppRegistry} appRegistry - The app registry.
+ */
+store.onActivated = (appRegistry) => {
+  appRegistry.on('application-initialized', (version, productName) => {
+    setup(appRegistry, productName, version);
+
+    // configure rules
+    rules.forEach((rule) => {
+      // get the store for this rule
+      const storeName = rule.store;
+      const eventName = rule.registryEvent;
+
+      if (storeName) {
+        trackStoreUpdate(appRegistry, storeName, rule);
+      } else if (eventName) {
+        trackRegistryEvent(appRegistry, eventName, rule);
+      }
+    });
+  });
+};
 
 export default store;
+export { trackStoreUpdate, trackRegistryEvent };
