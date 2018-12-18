@@ -1,23 +1,8 @@
-# metrics [![][travis_img]][travis_url]
+# metrics [![][travis_img]][travis_url] [![][npm_img]][npm_url]
 
 > Compass Metrics Plugin
 
 ## Usage
-
-### Scripts
-
-`link-plugin`: Links the Compass plugin and Compass for development along with React to ensure the
-  plugin and Compass are using the same React instance.
-
-```shell
-COMPASS_HOME=/path/to/my/compass npm run link-plugin
-```
-
-`unlink-plugin`: Restores Compass and the plugin to their original unlinked state.
-
-```shell
-COMPASS_HOME=/path/to/my/compass npm run unlink-plugin
-```
 
 ## License
 
@@ -26,33 +11,6 @@ Apache 2
 ===
 
 ## Features
-
-#### Storybook
-
-Develop and prototype your component with [react-storybook][react-storybook] in a standalone
-browser view, with linked stories and hot reloading.
-
-To run storybook mode, type `npm run storybook`, then open
-[http://localhost:9001](http://localhost:9001) in a browser. You can now edit the source code
-and hit _save_, and changes will immediately show in the browser, while maintaining the state
-of the component(s).
-
-#### Electron
-
-Validate and test your component in an Electron window, styles included. The source automatically
-compiles and the window content reloads when any file under `./src` changes.
-
-To start Electron and render your component, type `npm start`.
-
-If you edit the source code and hit _save_, the source will rebuild and the window reload
-automatically. State is not maintained throughout reloads (to maintain application state,
-use _storybook_ instead).
-
-#### Enzyme
-
-The test environment is configured to test components with [Enzyme][enzyme]
-(including full `mount` mode through [jsdom][jsdom]) and [enzyme-chai][enzyme-chai].
-See the test folder for examples. Run `npm test` to execute the test suite.
 
 ## Developing
 
@@ -75,7 +33,6 @@ const config = {
 
 For completeness, below is a list of directories present in this module:
 
-- `.storybook` react-storybook and webpack configuration. You usually don't need to touch this.
 - `electron` code to start electron, open a browser window and load the source.
   You don't usually need to touch this, unless you want to render something other
   than the main component in Electron.
@@ -93,9 +50,7 @@ For completeness, below is a list of directories present in this module:
 
 Apache 2.0
 
-[travis_img]: https://travis-ci.org/mongodb-js/metrics.svg?branch=master
-[travis_url]: https://travis-ci.org/mongodb-js/metrics
-[react-storybook]: https://github.com/kadirahq/react-storybook
-[enzyme]: http://airbnb.io/enzyme/
-[enzyme-chai]: https://github.com/producthunt/chai-enzyme
-[jsdom]: https://github.com/tmpvar/jsdom
+[travis_img]: https://travis-ci.com/10gen/compass-metrics.svg?token=ezEB2TnpPiu7XLo6ByZp&branch=master
+[travis_url]: https://travis-ci.com/10gen/compass-metrics
+[npm_img]: https://img.shields.io/npm/v/@mongodb-js/compass-metrics.svg?style=flat-square
+[npm_url]: https://www.npmjs.org/package/@mongodb-js/compass-metrics
