@@ -4,7 +4,7 @@ import pluck from 'lodash.pluck';
 import includes from 'lodash.includes';
 import { resources } from 'mongodb-js-metrics';
 import { format } from 'util';
-import intercom from 'modules/intercom';
+import configureIntercom from 'modules/intercom';
 import features from 'modules/features';
 import ipc from 'hadron-ipc';
 
@@ -189,7 +189,7 @@ const setupMetrics = (appRegistry, productName, version) => {
   if (process.env.HADRON_PRODUCT !== COMMUNITY &&
       !intercomBlocked &&
       app.preferences.enableFeedbackPanel) {
-    intercom.configure();
+    configureIntercom();
   }
 
   app.metrics = metrics;
