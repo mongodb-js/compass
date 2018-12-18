@@ -1,11 +1,11 @@
-import { combineReducers } from 'redux';
-import status from './status';
+/**
+ * We don't have anything in the state yet.
+ */
+const INITIAL_STATE = {};
 
 /**
  * The reducer.
  */
-const reducer = combineReducers({
-  status
-});
-
-export default reducer;
+export default function reducer(state = INITIAL_STATE, action) {
+  return state;
+}
