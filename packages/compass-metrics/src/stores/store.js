@@ -14,25 +14,24 @@ const metrics = require('mongodb-js-metrics')();
  * @param {Object} rule - The rule.
  */
 const trackStoreUpdate = (appRegistry, storeName, rule) => {
-    const store = appRegistry.getStore(storeName);
-    if (!store) {
-      return;
-    }
-    // attach an event listener
-    store.listen((state) => {
-      // only track an event if the rule condition evaluates to true
-      if (rule.condition(state)) {
-        // Some stores trigger with arrays of data.
-        if (rule.multi) {
-          state.forEach((s) => {
-            metrics.track(rule.resource, rule.action, rule.metadata(s));
-          });
-        } else {
-          metrics.track(rule.resource, rule.action, rule.metadata(state));
-        }
-      }
-    });
+  const store = appRegistry.getStore(storeName);
+  if (!store) {
+    return;
   }
+  // attach an event listener
+  store.listen((state) => {
+    // only track an event if the rule condition evaluates to true
+    if (rule.condition(state)) {
+      // Some stores trigger with arrays of data.
+      if (rule.multi) {
+        state.forEach((s) => {
+          metrics.track(rule.resource, rule.action, rule.metadata(s));
+        });
+      } else {
+        metrics.track(rule.resource, rule.action, rule.metadata(state));
+      }
+    }
+  });
 };
 
 /**

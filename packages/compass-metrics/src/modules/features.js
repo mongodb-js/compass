@@ -1,7 +1,9 @@
 import { resources } from 'mongodb-js-metrics';
-import { BaseResource, FeatureResource } from resources;
 import zipObject from 'lodash.zipobject';
 import map from 'lodash.map';
+
+const BaseResource = resources.BaseResource;
+const FeatureResource = resources.FeatureResource;
 
 const debug = require('debug')('mongodb-compass:metrics:features');
 
