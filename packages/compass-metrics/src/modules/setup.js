@@ -8,9 +8,6 @@ import configureIntercom from 'modules/intercom';
 import features from 'modules/features';
 import ipc from 'hadron-ipc';
 
-// const path = require('path');
-// const ICON_PATH = path.join(__dirname, '..', 'images', 'compass-dialog-icon.png');
-
 const metrics = require('mongodb-js-metrics')();
 const debug = require('debug')('mongodb-compass:metrics:setup');
 
@@ -136,7 +133,6 @@ const setupMetrics = (appRegistry, productName, version) => {
     if (process.env.NODE_ENV !== 'production') {
       if (!includes(err.message, 'MongoError')) {
         Notifier.notify({
-          'icon': ICON_PATH,
           'message': 'Unexpected error occurred: ' + err.message,
           'title': 'MongoDB Compass Exception',
           'wait': true
