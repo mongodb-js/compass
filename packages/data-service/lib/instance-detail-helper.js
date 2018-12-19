@@ -81,7 +81,8 @@ function getBuildInfo(results, done) {
     buildInfo: 1
   };
 
-  db.admin().command(spec, {}, function(err, res) {
+  const adminDb = db.databaseName === 'admin' ? db : db.admin();
+  adminDb.command(spec, {}, function(err, res) {
     if (err) {
       // buildInfo doesn't require any privileges to run, so if it fails,
       // something really went wrong and we should return the error.
@@ -155,7 +156,8 @@ function getHostInfo(results, done) {
     hostInfo: 1
   };
 
-  db.admin().command(spec, {}, function(err, res) {
+  const adminDb = db.databaseName === 'admin' ? db : db.admin();
+  adminDb.command(spec, {}, function(err, res) {
     if (err) {
       if (isNotAuthorized(err)) {
         // if the error is that the user is not authorized, silently ignore it
@@ -193,7 +195,8 @@ function listDatabases(results, done) {
     listDatabases: 1
   };
 
-  db.admin().command(spec, {}, function(err, res) {
+  const adminDb = db.databaseName === 'admin' ? db : db.admin();
+  adminDb.command(spec, {}, function(err, res) {
     if (err) {
       if (isNotAuthorized(err)) {
         // we caught this further up already and really should never get here!
