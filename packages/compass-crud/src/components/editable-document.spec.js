@@ -28,7 +28,9 @@ describe('<EditableDocument />', () => {
                         doc={new HadronDocument(doc)}
                         removeDocument={sinon.spy(action)}
                         updateDocument={sinon.spy(action)}
+                        copyToClipboard={sinon.spy(action)}
                         version="3.4.0"
+                        tz="UTC"
                         openInsertDocumentDialog={sinon.spy(action)} />);
     });
 
@@ -64,7 +66,9 @@ describe('<EditableDocument />', () => {
                           doc={new HadronDocument(arrayDoc)}
                           removeDocument={sinon.spy(action)}
                           updateDocument={sinon.spy(action)}
+                          copyToClipboard={sinon.spy(action)}
                           version="3.4.0"
+                          tz="UTC"
                           openInsertDocumentDialog={sinon.spy(action)} />);
 
         // Set build version, so setState does not throw an error
