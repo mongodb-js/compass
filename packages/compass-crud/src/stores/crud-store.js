@@ -534,18 +534,19 @@ const CRUDStore = Reflux.createStore({
 
     this.dataService.count(this.state.ns, query.filter, countOptions, (err, count) => {
       this.dataService.find(this.state.ns, query.filter, findOptions, (error, documents) => {
-        const length = documents.length;
+        const length = documents ? documents.length : 0;
+        const docs = documents ? documents : [];
         StatusAction.done();
         this.setState({
           error: error,
-          docs: documents.map(doc => new HadronDocument(doc)),
+          docs: docs.map(doc => new HadronDocument(doc)),
           count: (err ? null : count),
           page: 0,
           start: length > 0 ? 1 : 0,
           end: length,
           table: this.getInitialTableState()
         });
-        this.appRegistry.emit('documents-refreshed', this.state.view, documents);
+        this.appRegistry.emit('documents-refreshed', this.state.view, docs);
       });
     });
   },
