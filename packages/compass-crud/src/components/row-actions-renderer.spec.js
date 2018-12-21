@@ -19,7 +19,8 @@ describe('<RowActionsRenderer />', () => {
         value = rowNode.data.hadronDocument.get('field1');
         component = mount(<RowActionsRenderer api={api} value={value}
                                               node={rowNode} context={context}
-                                              data={data} nested={false} isEditable />);
+                                              data={data} nested={false}
+                                              copyToClipboard={sinon.spy()} isEditable />);
         done();
       });
       it('renders the edit button', () => {
@@ -45,7 +46,8 @@ describe('<RowActionsRenderer />', () => {
         value = rowNode.data.hadronDocument.get('field1');
         component = mount(<RowActionsRenderer api={api} value={value}
                                               node={rowNode} context={context}
-                                              data={data} nested={true} isEditable />);
+                                              data={data} nested={true}
+                                              copyToClipboard={sinon.spy()} isEditable />);
         done();
       });
       it('renders the edit button', () => {
@@ -66,7 +68,8 @@ describe('<RowActionsRenderer />', () => {
         value = rowNode.data.hadronDocument.get('field1');
         component = mount(<RowActionsRenderer api={api} value={value}
                                               node={rowNode} context={context}
-                                              data={data} nested={true} isEditable={false} />);
+                                              data={data} nested={true}
+                                              copyToClipboard={sinon.spy()} isEditable={false} />);
       });
 
       it('does not render the buttons', () => {
@@ -89,7 +92,8 @@ describe('<RowActionsRenderer />', () => {
           context = getContext();
           component = mount(<RowActionsRenderer api={api} value={value}
                                                 node={rowNode} context={context}
-                                                data={data} nested={false} isEditable />);
+                                                data={data} nested={false}
+                                                copyToClipboard={sinon.spy()} isEditable />);
           const wrapper = component.find('button[title="Edit Document"]');
           wrapper.simulate('click');
           done();
@@ -111,7 +115,8 @@ describe('<RowActionsRenderer />', () => {
           context = getContext();
           component = mount(<RowActionsRenderer api={api} value={value}
                                                 node={rowNode} context={context}
-                                                data={data} nested={false} isEditable />);
+                                                data={data} nested={false}
+                                                copyToClipboard={sinon.spy()} isEditable />);
           const wrapper = component.find('button[title="Clone Document"]');
           wrapper.simulate('click');
           done();
@@ -132,7 +137,8 @@ describe('<RowActionsRenderer />', () => {
           context = getContext();
           component = mount(<RowActionsRenderer api={api} value={value}
                                                 node={rowNode} context={context}
-                                                data={data} nested={false} isEditable />);
+                                                data={data} nested={false}
+                                                copyToClipboard={sinon.spy()} isEditable />);
           const wrapper = component.find('button[title="Delete Document"]');
           wrapper.simulate('click');
           done();
@@ -157,7 +163,8 @@ describe('<RowActionsRenderer />', () => {
           context = getContext();
           component = mount(<RowActionsRenderer api={api} value={value}
                                                 node={rowNode} context={context}
-                                                data={data} nested={true} isEditable />);
+                                                data={data} nested={true}
+                                                copyToClipboard={sinon.spy()} isEditable />);
           const wrapper = component.find('button');
           wrapper.simulate('click');
           done();
