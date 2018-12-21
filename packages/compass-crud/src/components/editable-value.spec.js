@@ -19,7 +19,7 @@ describe('<EditableValue />', () => {
 
       before(() => {
         const element = new Element('_id', 1, false);
-        wrapper = mount(<EditableValue element={element} isFocused={false} tz="UTC" />);
+        wrapper = mount(<EditableValue element={element} isFocused={false} tz="UTC" version="4.0.0" />);
       });
 
       it('auto focuses the input', () => {
