@@ -43,6 +43,7 @@ describe('<CellEditor />', () => {
                                       elementMarkRemoved={actions.elementMarkRemoved}
                                       drillDown={actions.drillDown}
                                       addColumn={actions.addColumn}
+                                      tz="UTC"
                                       version="3.4.0"
                                       columnApi={columnApi} context={context}/>);
         rowNode.data.hadronDocument.elements.flush();
@@ -93,6 +94,7 @@ describe('<CellEditor />', () => {
                                       drillDown={actions.drillDown}
                                       addColumn={actions.addColumn}
                                       version="3.4.0"
+                                      tz="UTC"
                                       columnApi={columnApi} context={context}/>);
         done();
       });
@@ -136,6 +138,7 @@ describe('<CellEditor />', () => {
                                       drillDown={actions.drillDown}
                                       addColumn={actions.addColumn}
                                       version="3.4.0"
+                                      tz="UTC"
                                       columnApi={columnApi} context={context}/>);
         done();
       });
@@ -179,6 +182,7 @@ describe('<CellEditor />', () => {
                                       drillDown={actions.drillDown}
                                       addColumn={actions.addColumn}
                                       version="3.4.0"
+                                      tz="UTC"
                                       columnApi={columnApi} context={context}/>);
         done();
       });
@@ -229,6 +233,7 @@ describe('<CellEditor />', () => {
                                         drillDown={actions.drillDown}
                                         addColumn={actions.addColumn}
                                         version="3.4.0"
+                                        tz="UTC"
                                         columnApi={columnApi} context={context}/>);
           done();
         });
@@ -262,6 +267,7 @@ describe('<CellEditor />', () => {
                                         drillDown={actions.drillDown}
                                         addColumn={actions.addColumn}
                                         version="3.4.0"
+                                        tz="UTC"
                                         columnApi={columnApi} context={context}/>);
           done();
         });
@@ -317,6 +323,7 @@ describe('<CellEditor />', () => {
                                         drillDown={actions.drillDown}
                                         addColumn={actions.addColumn}
                                         version="3.4.0"
+                                        tz="UTC"
                                         context={context} columnApi={columnApi}/>);
           const wrapper = component.find('.editable-element-value-is-string');
           wrapper.simulate('change', {target: {value: 'new input'}});
@@ -361,6 +368,7 @@ describe('<CellEditor />', () => {
                                           drillDown={actions.drillDown}
                                           addColumn={actions.addColumn}
                                           version="3.4.0"
+                                          tz="UTC"
                                           context={context} columnApi={columnApi}/>);
             const item = component.find('.table-view-cell-editor-input-types');
             const item2 = component.find('.editable-element-type-int32');
@@ -410,6 +418,7 @@ describe('<CellEditor />', () => {
                                           drillDown={actions.drillDown}
                                           addColumn={actions.addColumn}
                                           version="3.4.0"
+                                          tz="UTC"
                                           context={context} column={column}/>);
             const item = component.find('.table-view-cell-editor-input-types');
             const item2 = component.find('.editable-element-type-date');
@@ -462,6 +471,7 @@ describe('<CellEditor />', () => {
                                           drillDown={actions.drillDown}
                                           addColumn={actions.addColumn}
                                           version="3.4.0"
+                                          tz="UTC"
                                           context={context} columnApi={columnApi}/>);
             const wrapper = component.find('.fa-trash');
             expect(wrapper).to.be.present();
@@ -507,6 +517,7 @@ describe('<CellEditor />', () => {
                                         drillDown={actions.drillDown}
                                         addColumn={actions.addColumn}
                                         version="3.4.0"
+                                        tz="UTC"
                                         context={context} columnApi={columnApi}/>);
           const wrapper = component.find('.fa-trash');
           expect(wrapper).to.be.present();
@@ -559,6 +570,7 @@ describe('<CellEditor />', () => {
                                         addColumn={actions.addColumn}
                                         context={context} column={column}
                                         version="3.4.0"
+                                        tz="UTC"
                                         columnApi={columnApi}/>);
           const wrapper = component.find('.editable-element-field');
           wrapper.simulate('change', {target: {value: 'fieldname'}});
@@ -622,6 +634,7 @@ describe('<CellEditor />', () => {
                                         addColumn={actions.addColumn}
                                         context={context} column={column}
                                         version="3.4.0"
+                                        tz="UTC"
                                         columnApi={columnApi}/>);
           const wrapper = component.find('.editable-element-field');
           wrapper.simulate('change', {target: {value: 'fieldname'}});
@@ -665,6 +678,7 @@ describe('<CellEditor />', () => {
                                         addColumn={actions.addColumn}
                                         context={context} column={column}
                                         version="3.4.0"
+                                        tz="UTC"
                                         columnApi={columnApi}/>);
           component.instance().isCancelAfterEnd();
           done();
@@ -705,6 +719,7 @@ describe('<CellEditor />', () => {
                                         addColumn={actions.addColumn}
                                         context={context} column={column}
                                         version="3.4.0"
+                                        tz="UTC"
                                         columnApi={columnApi}/>);
           const wrapper = component.find('.editable-element-value-is-string');
           wrapper.simulate('change', {target: {value: 'new input'}});
@@ -826,6 +841,7 @@ describe('<CellEditor />', () => {
                                               addColumn={actions.addColumn}
                                               columnApi={columnApi}
                                               version="3.4.0"
+                                              tz="UTC"
                                               context={context}/>);
           component.instance().isCancelAfterEnd();
           done();
@@ -864,6 +880,7 @@ describe('<CellEditor />', () => {
                                               addColumn={actions.addColumn}
                                               columnApi={columnApi}
                                               version="3.4.0"
+                                              tz="UTC"
                                               context={context}/>);
           const wrapper = component.find('.editable-element-value-is-string');
           wrapper.simulate('change', {target: {value: 'new input'}});
@@ -912,6 +929,7 @@ describe('<CellEditor />', () => {
                                               addColumn={actions.addColumn}
                                               columnApi={columnApi}
                                               version="3.4.0"
+                                              tz="UTC"
                                               context={context}/>);
           const wrapper = component.find('.editable-element-value-is-string');
           wrapper.simulate('change', {target: {value: 'new input'}});
@@ -960,6 +978,7 @@ describe('<CellEditor />', () => {
                                             addColumn={actions.addColumn}
                                             columnApi={columnApi}
                                             version="3.4.0"
+                                            tz="UTC"
                                             context={context}/>);
         const wrapper = component.find('.fa-expand');
         expect(wrapper).to.be.present();
