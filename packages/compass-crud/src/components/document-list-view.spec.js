@@ -15,6 +15,7 @@ describe('<DocumentListView />', () => {
           scrollHandler={scrollHandler}
           isEditable={false}
           version="3.6.0"
+          tz="UTC"
           removeDocument={sinon.spy()}
           updateDocument={sinon.spy()}
           openInsertDocumentDialog={sinon.spy()} />
