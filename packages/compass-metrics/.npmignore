@@ -6,6 +6,7 @@
 .nycrc
 .travis.yml
 config/
+coverage/
 electron/
 karma.conf.js
 mocha-webpack.opts
