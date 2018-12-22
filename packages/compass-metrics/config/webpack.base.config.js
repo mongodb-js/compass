@@ -6,8 +6,6 @@ module.exports = {
     modules: ['node_modules'],
     extensions: ['.js', '.jsx', '.json', 'less'],
     alias: {
-      actions: path.join(project.path.src, 'actions'),
-      constants: path.join(project.path.src, 'constants'),
       fonts: path.join(project.path.src, 'assets/fonts'),
       images: path.join(project.path.src, 'assets/images'),
       less: path.join(project.path.src, 'assets/less'),
@@ -15,7 +13,6 @@ module.exports = {
       modules: path.join(project.path.src, 'modules'),
       plugin: path.join(project.path.src, 'index.js'),
       stores: path.join(project.path.src, 'stores'),
-      utils: path.join(project.path.src, 'utils')
     }
   },
   module: {
