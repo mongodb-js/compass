@@ -106,7 +106,7 @@ const setupMetrics = (appRegistry, productName, version) => {
   // add all resources
   console.log('adding resources');
   metrics.addResource(appResource, userResource, errorResource);
-  console.log('adding feature resources', features);
+  console.log('adding feature resources', values(features));
   metrics.addResource.apply(metrics, values(features));
 
   debug('metrics configured with trackers %j and resources %j',
