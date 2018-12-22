@@ -3,7 +3,7 @@ import reducer from 'modules';
 import rules from 'modules/rules';
 import setup from 'modules/setup';
 
-const store = createStore(reducer);
+const metricsStore = createStore(reducer);
 const metrics = require('mongodb-js-metrics')();
 
 /**
@@ -56,7 +56,7 @@ const trackRegistryEvent = (appRegistry, eventName, rule) => {
  *
  * @param {AppRegistry} appRegistry - The app registry.
  */
-store.onActivated = (appRegistry) => {
+metricsStore.onActivated = (appRegistry) => {
   appRegistry.on('application-initialized', (version, productName) => {
     setup(appRegistry, productName, version);
 
@@ -75,5 +75,5 @@ store.onActivated = (appRegistry) => {
   });
 };
 
-export default store;
+export default metricsStore;
 export { trackStoreUpdate, trackRegistryEvent };

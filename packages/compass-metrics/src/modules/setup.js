@@ -189,6 +189,6 @@ const setupMetrics = (appRegistry, productName, version) => {
   }
 
   app.metrics = metrics;
-}
+};
 
 export default setupMetrics;

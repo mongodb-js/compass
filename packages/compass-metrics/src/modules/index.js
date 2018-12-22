@@ -6,6 +6,6 @@ const INITIAL_STATE = {};
 /**
  * The reducer.
  */
-export default function reducer(state = INITIAL_STATE, action) {
+export default function reducer(state = INITIAL_STATE) {
   return state;
 }

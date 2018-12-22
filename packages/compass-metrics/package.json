@@ -24,7 +24,8 @@
   ],
   "dependency-check": {
     "ignore": [
-      "react-dom"
+      "react-dom",
+      "mongodb-schema"
     ]
   },
   "license": "Apache-2.0",
