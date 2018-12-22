@@ -3,7 +3,7 @@ import { mount } from 'enzyme';
 
 import Ddl from 'components/ddl';
 import ToggleButton from 'components/toggle-button';
-import store from 'stores';
+// import store from 'stores';
 import styles from './ddl.less';
 
 describe('Ddl [Component]', () => {

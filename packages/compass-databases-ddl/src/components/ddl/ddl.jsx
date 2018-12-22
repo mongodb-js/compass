@@ -2,7 +2,6 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import classnames from 'classnames';
 import ToggleButton from 'components/toggle-button';
-import { toggleStatus } from 'modules/status';
 
 import styles from './ddl.less';
 
@@ -46,8 +45,8 @@ class Ddl extends Component {
  *
  * @returns {Object} The mapped properties.
  */
-const mapStateToProps = (state) => ({
-  status: state.status
-});
+// const mapStateToProps = (state) => ({
+  // status: state.status
+// });
 
 export default Ddl;

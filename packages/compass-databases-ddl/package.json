@@ -28,7 +28,9 @@
   ],
   "dependency-check": {
     "ignore": [
-      "react-dom"
+      "react-dom",
+      "hadron-react-components",
+      "debug"
     ]
   },
   "license": "Apache-2.0",
