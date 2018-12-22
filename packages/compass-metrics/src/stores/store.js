@@ -58,10 +58,13 @@ const trackRegistryEvent = (appRegistry, eventName, rule) => {
  */
 metricsStore.onActivated = (appRegistry) => {
   appRegistry.on('application-initialized', (version, productName) => {
+    console.log('got app initialized', version, productName);
     setup(appRegistry, productName, version);
 
     // configure rules
+    console.log('configuring rules');
     rules.forEach((rule) => {
+      console.log('rule', rule);
       // get the store for this rule
       const storeName = rule.store;
       const eventName = rule.registryEvent;
