@@ -50,6 +50,7 @@ const setupMetrics = (appRegistry, productName, version) => {
   // customers who have firewalls that block out intercom as it tries to make requests
   // when set up. Potential todo is to move Intercom into its own plugin as well.
   if (process.env.HADRON_PRODUCT !== COMMUNITY && app.preferences.enableFeedbackPanel) {
+    console.log('creating request');
     const request = new XMLHttpRequest();
     request.onreadystatechange = () => {
       try {
@@ -71,9 +72,12 @@ const setupMetrics = (appRegistry, productName, version) => {
       }
     };
     try {
+      console.log('open request');
       request.open('GET', format('https://widget.intercom.io/widget/%s', INTERCOM_KEY), true);
       request.send();
+      console.log('request sent');
     } catch (e) {
+      console.log('error', e);
       intercomBlocked = true;
     }
   }
@@ -100,7 +104,9 @@ const setupMetrics = (appRegistry, productName, version) => {
   const errorResource = new resources.ErrorResource();
 
   // add all resources
+  console.log('adding resources');
   metrics.addResource(appResource, userResource, errorResource);
+  console.log('adding feature resources', features);
   metrics.addResource.apply(metrics, values(features));
 
   debug('metrics configured with trackers %j and resources %j',
