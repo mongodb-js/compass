@@ -35,9 +35,9 @@ describe('CRUDStore', () => {
     });
   });
 
-  after(() => {
-    dataService.disconnect();
+  after((done) => {
     global.hadronApp.appRegistry = undefined;
+    dataService.disconnect(done);
   });
 
   describe('#getInitialState', () => {
