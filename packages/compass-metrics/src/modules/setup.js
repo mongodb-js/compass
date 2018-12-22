@@ -2,6 +2,7 @@ import Notifier from 'node-notifier';
 import values from 'lodash.values';
 import pluck from 'lodash.pluck';
 import includes from 'lodash.includes';
+import compact from 'lodash.compact';
 import { resources } from 'mongodb-js-metrics';
 import { format } from 'util';
 import configureIntercom from 'modules/intercom';
@@ -107,7 +108,7 @@ const setupMetrics = (appRegistry, productName, version) => {
   console.log('adding resources');
   metrics.addResource(appResource, userResource, errorResource);
   console.log('adding feature resources', values(features));
-  metrics.addResource.apply(metrics, values(features));
+  metrics.addResource.apply(metrics, compact(values(features)));
 
   debug('metrics configured with trackers %j and resources %j',
     pluck(metrics.trackers.filter('enabled'), 'id'),

@@ -100,6 +100,7 @@
     "webpack-sources": "1.0.1"
   },
   "dependencies": {
+    "lodash.compact": "^3.0.1",
     "lodash.includes": "^4.3.0",
     "lodash.map": "^4.6.0",
     "lodash.pluck": "^3.1.2",
