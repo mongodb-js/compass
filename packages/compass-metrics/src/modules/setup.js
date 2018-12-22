@@ -1,4 +1,3 @@
-import Notifier from 'node-notifier';
 import values from 'lodash.values';
 import pluck from 'lodash.pluck';
 import includes from 'lodash.includes';
@@ -51,7 +50,6 @@ const setupMetrics = (appRegistry, productName, version) => {
   // customers who have firewalls that block out intercom as it tries to make requests
   // when set up. Potential todo is to move Intercom into its own plugin as well.
   if (process.env.HADRON_PRODUCT !== COMMUNITY && app.preferences.enableFeedbackPanel) {
-    console.log('creating request');
     const request = new XMLHttpRequest();
     request.onreadystatechange = () => {
       try {
@@ -73,12 +71,9 @@ const setupMetrics = (appRegistry, productName, version) => {
       }
     };
     try {
-      console.log('open request');
       request.open('GET', format('https://widget.intercom.io/widget/%s', INTERCOM_KEY), true);
       request.send();
-      console.log('request sent');
     } catch (e) {
-      console.log('error', e);
       intercomBlocked = true;
     }
   }
@@ -105,9 +100,7 @@ const setupMetrics = (appRegistry, productName, version) => {
   const errorResource = new resources.ErrorResource();
 
   // add all resources
-  console.log('adding resources');
   metrics.addResource(appResource, userResource, errorResource);
-  console.log('adding feature resources', values(features));
   metrics.addResource.apply(metrics, compact(values(features)));
 
   debug('metrics configured with trackers %j and resources %j',
@@ -136,16 +129,6 @@ const setupMetrics = (appRegistry, productName, version) => {
   // need this?
   window.addEventListener('error', function(err) {
     debug('error encountered, notify trackers', err);
-    // Notify user that error occurred
-    if (process.env.NODE_ENV !== 'production') {
-      if (!includes(err.message, 'MongoError')) {
-        Notifier.notify({
-          'message': 'Unexpected error occurred: ' + err.message,
-          'title': 'MongoDB Compass Exception',
-          'wait': true
-        });
-      }
-    }
     metrics.error(err);
     // hide progress bar when an unknown error occurs.
     const StatusAction = appRegistry.getAction('Status.Actions');
