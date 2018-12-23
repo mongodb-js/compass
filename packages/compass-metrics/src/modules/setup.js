@@ -1,6 +1,5 @@
 import values from 'lodash.values';
 import pluck from 'lodash.pluck';
-import includes from 'lodash.includes';
 import compact from 'lodash.compact';
 import { resources } from 'mongodb-js-metrics';
 import { format } from 'util';

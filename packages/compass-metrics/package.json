@@ -75,7 +75,7 @@
     "mocha-webpack": "^1.0.0-rc.1",
     "mongodb-js-fmt": "^0.0.3",
     "mongodb-js-metrics": "^4.2.0",
-    "mongodb-js-precommit": "^0.3.0",
+    "mongodb-js-precommit": "^1.1.0",
     "mongodb-reflux-store": "0.0.1",
     "mongodb-schema": "^8.2.3",
     "node-loader": "^0.6.0",
@@ -101,7 +101,6 @@
   },
   "dependencies": {
     "lodash.compact": "^3.0.1",
-    "lodash.includes": "^4.3.0",
     "lodash.map": "^4.6.0",
     "lodash.pluck": "^3.1.2",
     "lodash.values": "^4.3.0",
