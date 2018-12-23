@@ -36,14 +36,14 @@ class ToggleButton extends Component {
    */
   render() {
     return (
-        <button
-          className={classnames(styles.button, styles['button--ghost'], styles['button--animateFromTop'])}
-          type="button"
-          onClick={this.props.onClick}>
-          <span className={classnames(styles['button-text'])}>
-            {this.props.children}
-          </span>
-        </button>
+      <button
+        className={classnames(styles.button, styles['button--ghost'], styles['button--animateFromTop'])}
+        type="button"
+        onClick={this.props.onClick}>
+        <span className={classnames(styles['button-text'])}>
+          {this.props.children}
+        </span>
+      </button>
     );
   }
 }

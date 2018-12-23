@@ -38,15 +38,4 @@ class Ddl extends Component {
   }
 }
 
-/**
- * Map the store state to properties to pass to the components.
- *
- * @param {Object} state - The store state.
- *
- * @returns {Object} The mapped properties.
- */
-// const mapStateToProps = (state) => ({
-  // status: state.status
-// });
-
 export default Ddl;
