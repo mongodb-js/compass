@@ -95,11 +95,17 @@ describe('databases module', () => {
 
           context('when the column is Indexes', () => {
             context('when sorting asc', () => {
-
+              it('returns the sorted datbases list', () => {
+                expect(reducer(databases, sortDatabases('Indexes', 'asc'))).
+                  to.deep.equal([ DEEZER_MAPPED, SPOTIFY_MAPPED, SOUNDCLOUD_MAPPED ]);
+              });
             });
 
             context('when sorting desc', () => {
-
+              it('returns the sorted datbases list', () => {
+                expect(reducer(databases, sortDatabases('Indexes', 'desc'))).
+                  to.deep.equal([ SOUNDCLOUD_MAPPED, SPOTIFY_MAPPED, DEEZER_MAPPED ]);
+              });
             });
           });
         });
