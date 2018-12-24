@@ -79,11 +79,17 @@ describe('databases module', () => {
 
           context('when the column is Collections', () => {
             context('when sorting asc', () => {
-
+              it('returns the sorted datbases list', () => {
+                expect(reducer(databases, sortDatabases('Collections', 'asc'))).
+                  to.deep.equal([ SOUNDCLOUD_MAPPED, DEEZER_MAPPED, SPOTIFY_MAPPED ]);
+              });
             });
 
             context('when sorting desc', () => {
-
+              it('returns the sorted datbases list', () => {
+                expect(reducer(databases, sortDatabases('Collections', 'desc'))).
+                  to.deep.equal([ SPOTIFY_MAPPED, DEEZER_MAPPED, SOUNDCLOUD_MAPPED ]);
+              });
             });
           });
 
