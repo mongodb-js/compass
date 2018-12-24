@@ -63,11 +63,17 @@ describe('databases module', () => {
 
           context('when the column is Storage Size', () => {
             context('when sorting asc', () => {
-
+              it('returns the sorted datbases list', () => {
+                expect(reducer(databases, sortDatabases('Storage Size', 'asc'))).
+                  to.deep.equal([ SPOTIFY_MAPPED, SOUNDCLOUD_MAPPED, DEEZER_MAPPED ]);
+              });
             });
 
             context('when sorting desc', () => {
-
+              it('returns the sorted datbases list', () => {
+                expect(reducer(databases, sortDatabases('Storage Size', 'desc'))).
+                  to.deep.equal([ DEEZER_MAPPED, SOUNDCLOUD_MAPPED, SPOTIFY_MAPPED ]);
+              });
             });
           });
 

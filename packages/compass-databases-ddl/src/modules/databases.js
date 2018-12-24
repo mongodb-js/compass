@@ -37,9 +37,6 @@ export default function reducer(state = INITIAL_STATE, action) {
  * @returns {Array} The sorted list.
  */
 const sort = (databases, column, order) => {
-  // datbases: [{ _id: '', index_count: 1, storage_size: 1, collections: [] }]
-  // column: 'Database Name'
-  // order: 'asc'
   const unsorted = databases.map((db) => {
     return zipObject(COLUMNS, [
       db._id, db.storage_size, db.collections.length, db.index_count
