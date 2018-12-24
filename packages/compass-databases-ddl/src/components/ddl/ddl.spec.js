@@ -2,22 +2,18 @@ import React from 'react';
 import { mount } from 'enzyme';
 
 import Ddl from 'components/ddl';
-import ToggleButton from 'components/toggle-button';
 // import store from 'stores';
 import styles from './ddl.less';
 
 describe('Ddl [Component]', () => {
   let component;
-  let toggleStatus;
 
   beforeEach(() => {
-    toggleStatus = sinon.spy();
-    component = mount(<Ddl toggleStatus={toggleStatus} status="enabled" />);
+    component = mount(<Ddl />);
   });
 
   afterEach(() => {
     component = null;
-    toggleStatus = null;
   });
 
   it('renders the correct root classname', () => {
@@ -26,13 +22,5 @@ describe('Ddl [Component]', () => {
 
   it('should contain one <h2> tag', () => {
     expect(component.find('h2')).to.have.length(1);
-  });
-
-  it('should contain one <ToggleButton />', () => {
-    expect(component.find(ToggleButton)).to.have.length(1);
-  });
-
-  it('should initially have prop {status: \'enabled\'}', () => {
-    expect(component.prop('status')).to.equal('enabled');
   });
 });

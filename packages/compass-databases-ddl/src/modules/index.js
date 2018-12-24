@@ -1,11 +1,11 @@
 import { combineReducers } from 'redux';
-import status from './status';
+import columns from 'modules/columns';
 
 /**
- * The reducer.
+ * The main reducer.
  */
 const reducer = combineReducers({
-  status
+  columns
 });
 
 export default reducer;

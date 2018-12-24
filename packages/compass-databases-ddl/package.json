@@ -30,6 +30,7 @@
     "ignore": [
       "react-dom",
       "hadron-react-components",
+      "prop-types",
       "debug"
     ]
   },
