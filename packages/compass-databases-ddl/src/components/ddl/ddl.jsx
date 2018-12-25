@@ -1,8 +1,13 @@
 import React, { Component } from 'react';
+import { connect } from 'react-redux';
 import classnames from 'classnames';
+import { sortDatabases } from 'modules/databases';
 
 import styles from './ddl.less';
 
+/**
+ * The core DDL component.
+ */
 class Ddl extends Component {
   static displayName = 'DdlComponent';
 
@@ -13,12 +18,34 @@ class Ddl extends Component {
    */
   render() {
     return (
-      <div className={classnames(styles.root)}>
-        <h2 className={classnames(styles.title)}>Ddl Plugin</h2>
-        <p>Compass DDL Plugin</p>
+      <div className={classnames(styles.ddl)} data-test-id="databases-table">
       </div>
     );
   }
 }
 
-export default Ddl;
+/**
+ * Map the store state to properties to pass to the components.
+ *
+ * @param {Object} state - The store state.
+ *
+ * @returns {Object} The mapped properties.
+ */
+const mapStateToProps = (state) => ({
+  columns: state.columns,
+  databases: state.databases
+});
+
+/**
+ * Connect the redux store to the component.
+ * (dispatch)
+ */
+const MappedDdl = connect(
+  mapStateToProps,
+  {
+    sortDatabases
+  },
+)(Ddl);
+
+export default MappedDdl;
+export { Ddl };

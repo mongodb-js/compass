@@ -2,14 +2,14 @@ import React from 'react';
 import { mount } from 'enzyme';
 
 import Ddl from 'components/ddl';
-// import store from 'stores';
+import store from 'stores';
 import styles from './ddl.less';
 
 describe('Ddl [Component]', () => {
   let component;
 
   beforeEach(() => {
-    component = mount(<Ddl />);
+    component = mount(<Ddl store={store} />);
   });
 
   afterEach(() => {
@@ -17,10 +17,10 @@ describe('Ddl [Component]', () => {
   });
 
   it('renders the correct root classname', () => {
-    expect(component.find(`.${styles.root}`)).to.be.present();
+    expect(component.find(`.${styles.ddl}`)).to.be.present();
   });
 
-  it('should contain one <h2> tag', () => {
-    expect(component.find('h2')).to.have.length(1);
+  it('should contain the data-test-id', () => {
+    expect(component.find('[data-test-id="databases-table"]')).to.be.present();
   });
 });
