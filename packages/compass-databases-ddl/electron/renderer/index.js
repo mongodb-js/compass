@@ -1,5 +1,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
+import Reflux from 'reflux';
+import StateMixin from 'reflux-state-mixin';
 import app from 'hadron-app';
 import AppRegistry from 'hadron-app-registry';
 import { AppContainer } from 'react-hot-loader';
@@ -45,38 +47,40 @@ const render = Component => {
 // Render our plugin - don't remove the following line.
 render(DdlPlugin);
 
-// // Data service initialization and connection.
-// import Connection from 'mongodb-connection-model';
-// import DataService from 'mongodb-data-service';
-//
-// const connection = new Connection({
-//   hostname: '127.0.0.1',
-//   port: 27017,
-//   ns: 'databaseName',
-//   mongodb_database_name: 'admin',
-//   mongodb_username: '<user>',
-//   mongodb_password: '<password>'
-// });
-// const dataService = new DataService(connection);
-//
-// appRegistry.emit('data-service-initialized', dataService);
-// dataService.connect((error, ds) => {
-//    appRegistry.emit('data-service-connected', error, ds);
-//    For automatic switching to specific namespaces, uncomment below as needed.
-//    appRegistry.emit('collection-changed', 'database.collection');
-//    appRegistry.emit('database-changed', 'database');
+// Data service initialization and connection.
+import Connection from 'mongodb-connection-model';
+import DataService from 'mongodb-data-service';
 
-//    For plugins based on query execution, comment out below:
-//    const query = {
-//      filter: { name: 'testing' },
-//      project: { name: 1 },
-//      sort: { name: -1 },
-//      skip: 0,
-//      limit: 20,
-//      ns: 'database.collection'
-//    }
-//    appRegistry.emit('query-applied', query);
-// });
+const connection = new Connection({
+  hostname: '127.0.0.1',
+  port: 27017,
+  ns: 'admin'
+});
+const dataService = new DataService(connection);
+
+const InstanceStore = Reflux.createStore({
+  mixins: [StateMixin.store],
+  getInitialState() {
+    return {
+      instance: {
+        databases: []
+      }
+    };
+  }
+});
+
+appRegistry.emit('data-service-initialized', dataService);
+dataService.connect((error, ds) => {
+  appRegistry.emit('data-service-connected', error, ds);
+  dataService.instance({}, (err, data) => {
+    if (err) console.log(err);
+    InstanceStore.setState({
+      instance: {
+        databases: data.databases
+      }
+    });
+  });
+});
 
 if (module.hot) {
   /**
