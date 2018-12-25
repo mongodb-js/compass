@@ -22,7 +22,16 @@ class Ddl extends Component {
     return (
       <div className={classnames(styles.ddl)} data-test-id="databases-table">
         <Toolbar />
-        <DatabasesTable databases={[]} />
+        <DatabasesTable
+          columns={[]}
+          databases={[]}
+          isWritable
+          isReadonly={false}
+          sortOrder="asc"
+          sortColumn="Database Name"
+          sortDatabases={() => {}}
+          showDatabase={() => {}}
+          showDropDatabase={() => {}} />
       </div>
     );
   }

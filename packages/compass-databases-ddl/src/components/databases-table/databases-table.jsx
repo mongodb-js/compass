@@ -2,7 +2,10 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import numeral from 'numeral';
 import assign from 'lodash.assign';
+import classnames from 'classnames';
 import { SortableTable } from 'hadron-react-components';
+
+import styles from './databases-table.less';
 
 /**
  * The name constant.
@@ -28,6 +31,7 @@ class DatabasesTable extends Component {
     sortOrder: PropTypes.string.isRequired,
     sortColumn: PropTypes.string.isRequired,
     sortDatabases: PropTypes.func.isRequired,
+    showDatabase: PropTypes.func.isRequired,
     showDropDatabase: PropTypes.func.isRequired
   }
 
@@ -40,7 +44,7 @@ class DatabasesTable extends Component {
     const rows = this.props.databases.map((db) => {
       const dbName = db[NAME];
       return assign({}, db, {
-        [NAME]: <a className="rtss-databases-link" onClick={this.onNameClicked.bind(this, dbName)}>{dbName}</a>,
+        [NAME]: <a className={classnames(styles['databases-table-link'])} onClick={this.props.showDatabase}>{dbName}</a>,
         [STORAGE]: numeral(db[STORAGE]).format('0.0b')
       });
     });
