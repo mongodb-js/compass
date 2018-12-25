@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import classnames from 'classnames';
 import { sortDatabases } from 'modules/databases';
+import Toolbar from 'components/toolbar';
 
 import styles from './ddl.less';
 
@@ -19,6 +20,7 @@ class Ddl extends Component {
   render() {
     return (
       <div className={classnames(styles.ddl)} data-test-id="databases-table">
+        <Toolbar />
       </div>
     );
   }

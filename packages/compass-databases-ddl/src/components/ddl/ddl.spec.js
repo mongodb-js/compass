@@ -2,6 +2,7 @@ import React from 'react';
 import { mount } from 'enzyme';
 
 import Ddl from 'components/ddl';
+import Toolbar from 'components/toolbar';
 import store from 'stores';
 import styles from './ddl.less';
 
@@ -22,5 +23,9 @@ describe('Ddl [Component]', () => {
 
   it('should contain the data-test-id', () => {
     expect(component.find('[data-test-id="databases-table"]')).to.be.present();
+  });
+
+  it('renders a toolbar', () => {
+    expect(component.find(Toolbar)).to.be.present();
   });
 });
