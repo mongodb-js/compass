@@ -74,6 +74,7 @@ dataService.connect((error, ds) => {
   appRegistry.emit('data-service-connected', error, ds);
   dataService.instance({}, (err, data) => {
     if (err) console.log(err);
+
     InstanceStore.setState({
       instance: {
         databases: data.databases
