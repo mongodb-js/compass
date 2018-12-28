@@ -36,6 +36,16 @@ class DatabasesTable extends Component {
   }
 
   /**
+   * Executed when a column header is clicked.
+   *
+   * @param {String} column - The column.
+   * @param {String} order - The order.
+   */
+  onHeaderClicked(column, order) {
+    this.props.sortDatabases(this.props.databases, column, order);
+  }
+
+  /**
    * Render Databases Table component.
    *
    * @returns {React.Component} The rendered component.
@@ -61,7 +71,7 @@ class DatabasesTable extends Component {
             sortColumn={this.props.sortColumn}
             valueIndex={0}
             removable={this.props.isWritable && !this.props.isReadonly}
-            onColumnHeaderClicked={this.props.sortDatabases}
+            onColumnHeaderClicked={this.onHeaderClicked.bind(this)}
             onRowDeleteButtonClicked={this.showDropDatabase} />
         </div>
       </div>

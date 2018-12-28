@@ -16,7 +16,8 @@ class Ddl extends Component {
 
   static propTypes = {
     columns: PropTypes.array.isRequired,
-    databases: PropTypes.array.isRequired
+    databases: PropTypes.array.isRequired,
+    sortDatabases: PropTypes.func.isRequired
   }
 
   /**
@@ -35,7 +36,7 @@ class Ddl extends Component {
           isReadonly={false}
           sortOrder="asc"
           sortColumn="Database Name"
-          sortDatabases={() => {}}
+          sortDatabases={this.props.sortDatabases}
           showDatabase={() => {}}
           showDropDatabase={() => {}} />
       </div>

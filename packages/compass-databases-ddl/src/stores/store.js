@@ -1,6 +1,6 @@
 import { createStore } from 'redux';
 import { dataServiceConnected } from 'modules/data-service';
-import { sortDatabases } from 'modules/databases';
+import { loadDatabases } from 'modules/databases';
 import reducer from 'modules';
 
 const store = createStore(reducer);
@@ -12,7 +12,7 @@ store.onActivated = (appRegistry) => {
    * @param {Object} state - The instance store state.
    */
   appRegistry.getStore('App.InstanceStore').listen((state) => {
-    store.dispatch(sortDatabases(state.instance.databases));
+    store.dispatch(loadDatabases(state.instance.databases));
   });
 
   /**

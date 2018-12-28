@@ -1,4 +1,9 @@
-import reducer, { sortDatabases } from 'modules/databases';
+import reducer, {
+  loadDatabases,
+  sortDatabases,
+  LOAD_DATABASES,
+  SORT_DATABASES
+} from 'modules/databases';
 
 const SPOTIFY = {
   _id: 'spotify',
@@ -41,8 +46,17 @@ const DEEZER_MAPPED = {
 describe('databases module', () => {
   describe('#reducer', () => {
     context('when an action is provided', () => {
-      context('when the action is SORT_DATABASES', () => {
+      context('when the action is LOAD_DATABASES', () => {
         const databases = [ SPOTIFY, SOUNDCLOUD, DEEZER ];
+
+        it('returns the mapped datbases list', () => {
+          expect(reducer(undefined, loadDatabases(databases))).
+            to.deep.equal([ SPOTIFY_MAPPED, SOUNDCLOUD_MAPPED, DEEZER_MAPPED ]);
+        });
+      });
+
+      context('when the action is SORT_DATABASES', () => {
+        const databases = [ SPOTIFY_MAPPED, SOUNDCLOUD_MAPPED, DEEZER_MAPPED ];
 
         context('when providing a column', () => {
           context('when the column is Datbase Name', () => {
@@ -118,5 +132,21 @@ describe('databases module', () => {
       });
     });
   });
-});
 
+  describe('#loadDatabases', () => {
+    it('returns the action', () => {
+      expect(loadDatabases([])).to.deep.equal({ type: LOAD_DATABASES, databases: [] });
+    });
+  });
+
+  describe('#sortDatabases', () => {
+    it('returns the action', () => {
+      expect(sortDatabases([], 'Database Name', 'desc')).to.deep.equal({
+        type: SORT_DATABASES,
+        databases: [],
+        column: 'Database Name',
+        order: 'desc'
+      });
+    });
+  });
+});
