@@ -77,7 +77,6 @@ dataService.connect((error, ds) => {
   dataService.instance({}, (err, data) => {
     if (err) console.log(err);
 
-    console.log(data.databases);
     InstanceStore.setState({
       instance: {
         databases: data.databases
