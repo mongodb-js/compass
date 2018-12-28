@@ -8,9 +8,19 @@ import { INITIAL_STATE as COLUMNS } from 'modules/columns';
 export const SORT_DATABASES = 'ddl/databases/SORT_DATABASES';
 
 /**
+ * Default column.
+ */
+const NAME = 'Database Name';
+
+/**
+ * Default sort.
+ */
+const ASC = 'asc';
+
+/**
  * The initial state of the databases attribute.
  */
-const INITIAL_STATE = null;
+const INITIAL_STATE = [];
 
 /**
  * Reducer function for handle state changes to databases.
@@ -22,7 +32,7 @@ const INITIAL_STATE = null;
  */
 export default function reducer(state = INITIAL_STATE, action) {
   if (action.type === SORT_DATABASES) {
-    return sort(state, action.column, action.order);
+    return sort(action.databases, action.column, action.order);
   }
   return state;
 }
@@ -42,19 +52,21 @@ const sort = (databases, column, order) => {
       db._id, db.storage_size, db.collections.length, db.index_count
     ]);
   });
-  return sortByOrder(unsorted, column, order);
+  return sortByOrder(unsorted, column || NAME, order || ASC);
 };
 
 /**
  * Action creator for sort databases events.
  *
+ * @param {Array} databases - The unsorted database list.
  * @param {String} column - The column.
  * @param {String} order - The order.
  *
  * @returns {Object} The sort databases action.
  */
-export const sortDatabases = (column, order) => ({
+export const sortDatabases = (databases, column, order) => ({
   type: SORT_DATABASES,
+  databases: databases,
   column: column,
   order: order
 });

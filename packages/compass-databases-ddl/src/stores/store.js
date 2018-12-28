@@ -12,7 +12,6 @@ store.onActivated = (appRegistry) => {
    * @param {Object} state - The instance store state.
    */
   appRegistry.getStore('App.InstanceStore').listen((state) => {
-    // @todo: Need column, direction
     store.dispatch(sortDatabases(state.instance.databases));
   });
 

@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import classnames from 'classnames';
 import { sortDatabases } from 'modules/databases';
@@ -13,6 +14,11 @@ import styles from './ddl.less';
 class Ddl extends Component {
   static displayName = 'DdlComponent';
 
+  static propTypes = {
+    columns: PropTypes.array.isRequired,
+    databases: PropTypes.array.isRequired
+  }
+
   /**
    * Render Ddl component.
    *
@@ -23,8 +29,8 @@ class Ddl extends Component {
       <div className={classnames(styles.ddl)} data-test-id="databases-table">
         <Toolbar />
         <DatabasesTable
-          columns={[]}
-          databases={[]}
+          columns={this.props.columns}
+          databases={this.props.databases}
           isWritable
           isReadonly={false}
           sortOrder="asc"
