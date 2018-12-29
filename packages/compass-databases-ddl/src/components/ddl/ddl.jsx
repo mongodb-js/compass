@@ -17,6 +17,8 @@ class Ddl extends Component {
   static propTypes = {
     columns: PropTypes.array.isRequired,
     databases: PropTypes.array.isRequired,
+    sortColumn: PropTypes.string.isRequired,
+    sortOrder: PropTypes.string.isRequired,
     sortDatabases: PropTypes.func.isRequired
   }
 
@@ -34,8 +36,8 @@ class Ddl extends Component {
           databases={this.props.databases}
           isWritable
           isReadonly={false}
-          sortOrder="asc"
-          sortColumn="Database Name"
+          sortOrder={this.props.sortOrder}
+          sortColumn={this.props.sortColumn}
           sortDatabases={this.props.sortDatabases}
           showDatabase={() => {}}
           showDropDatabase={() => {}} />
@@ -53,7 +55,9 @@ class Ddl extends Component {
  */
 const mapStateToProps = (state) => ({
   columns: state.columns,
-  databases: state.databases
+  databases: state.databases,
+  sortColumn: state.sortColumn,
+  sortOrder: state.sortOrder
 });
 
 /**
