@@ -1,6 +1,7 @@
 import { createStore } from 'redux';
 import { dataServiceConnected } from 'modules/data-service';
 import { loadDatabases } from 'modules/databases';
+import { writeStateChanged } from 'modules/is-writable';
 import reducer from 'modules';
 
 const store = createStore(reducer);
@@ -23,6 +24,15 @@ store.onActivated = (appRegistry) => {
    */
   appRegistry.on('data-service-connected', (error, dataService) => {
     store.dispatch(dataServiceConnected(error, dataService));
+  });
+
+  /**
+   * When write state changes based on SDAM events we change the store state.
+   *
+   * @param {Object} state - The write state store state.
+   */
+  appRegistry.getStore('DeploymentAwareness.WriteStateStore').listen((state) => {
+    store.dispatch(writeStateChanged(state));
   });
 };
 
