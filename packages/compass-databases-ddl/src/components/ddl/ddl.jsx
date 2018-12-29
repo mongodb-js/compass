@@ -17,6 +17,7 @@ class Ddl extends Component {
   static propTypes = {
     columns: PropTypes.array.isRequired,
     databases: PropTypes.array.isRequired,
+    isReadonly: PropTypes.bool.isRequired,
     isWritable: PropTypes.bool.isRequired,
     sortColumn: PropTypes.string.isRequired,
     sortOrder: PropTypes.string.isRequired,
@@ -36,7 +37,7 @@ class Ddl extends Component {
           columns={this.props.columns}
           databases={this.props.databases}
           isWritable={this.props.isWritable}
-          isReadonly={false}
+          isReadonly={this.props.isReadonly}
           sortOrder={this.props.sortOrder}
           sortColumn={this.props.sortColumn}
           sortDatabases={this.props.sortDatabases}
@@ -57,6 +58,7 @@ class Ddl extends Component {
 const mapStateToProps = (state) => ({
   columns: state.columns,
   databases: state.databases,
+  isReadonly: state.isReadonly,
   isWritable: state.isWritable,
   sortColumn: state.sortColumn,
   sortOrder: state.sortOrder
