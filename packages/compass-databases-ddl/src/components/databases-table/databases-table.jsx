@@ -31,6 +31,7 @@ class DatabasesTable extends Component {
     sortOrder: PropTypes.string.isRequired,
     sortColumn: PropTypes.string.isRequired,
     sortDatabases: PropTypes.func.isRequired,
+    showCreateDatabase: PropTypes.func.isRequired,
     showDatabase: PropTypes.func.isRequired,
     showDropDatabase: PropTypes.func.isRequired
   }

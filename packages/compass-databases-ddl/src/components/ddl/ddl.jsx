@@ -42,6 +42,7 @@ class Ddl extends Component {
           sortColumn={this.props.sortColumn}
           sortDatabases={this.props.sortDatabases}
           showDatabase={() => {}}
+          showCreateDatabase={() => {}}
           showDropDatabase={() => {}} />
       </div>
     );
