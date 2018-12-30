@@ -9,13 +9,11 @@ describe('DatabasesTable [Component]', () => {
   let component;
   let sortDatabasesSpy;
   let showDatabaseSpy;
-  let showCreateDatabaseSpy;
   let showDropDatabaseSpy;
 
   beforeEach(() => {
     sortDatabasesSpy = sinon.spy();
     showDatabaseSpy = sinon.spy();
-    showCreateDatabaseSpy = sinon.spy();
     showDropDatabaseSpy = sinon.spy();
     component = mount(
       <DatabasesTable
@@ -27,7 +25,6 @@ describe('DatabasesTable [Component]', () => {
         sortColumn="Database Name"
         sortDatabases={sortDatabasesSpy}
         showDatabase={showDatabaseSpy}
-        showCreateDatabase={showCreateDatabaseSpy}
         showDropDatabase={showDropDatabaseSpy} />
     );
   });

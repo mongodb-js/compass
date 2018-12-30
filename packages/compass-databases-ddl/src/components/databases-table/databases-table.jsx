@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import numeral from 'numeral';
 import assign from 'lodash.assign';
@@ -20,7 +20,7 @@ const STORAGE = 'Storage Size';
 /**
  * The databases table component.
  */
-class DatabasesTable extends Component {
+class DatabasesTable extends PureComponent {
   static displayName = 'DatabasesTableComponent';
 
   static propTypes = {
@@ -31,7 +31,6 @@ class DatabasesTable extends Component {
     sortOrder: PropTypes.string.isRequired,
     sortColumn: PropTypes.string.isRequired,
     sortDatabases: PropTypes.func.isRequired,
-    showCreateDatabase: PropTypes.func.isRequired,
     showDatabase: PropTypes.func.isRequired,
     showDropDatabase: PropTypes.func.isRequired
   }
@@ -42,7 +41,7 @@ class DatabasesTable extends Component {
    * @param {String} column - The column.
    * @param {String} order - The order.
    */
-  onHeaderClicked(column, order) {
+  onHeaderClicked = (column, order) => {
     this.props.sortDatabases(this.props.databases, column, order);
   }
 
@@ -72,7 +71,7 @@ class DatabasesTable extends Component {
             sortColumn={this.props.sortColumn}
             valueIndex={0}
             removable={this.props.isWritable && !this.props.isReadonly}
-            onColumnHeaderClicked={this.onHeaderClicked.bind(this)}
+            onColumnHeaderClicked={this.onHeaderClicked}
             onRowDeleteButtonClicked={this.showDropDatabase} />
         </div>
       </div>

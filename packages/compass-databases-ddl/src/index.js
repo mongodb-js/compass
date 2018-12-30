@@ -1,12 +1,14 @@
 import DdlPlugin from './plugin';
 import DdlStore from 'stores';
+import CreateDatabaseStore from 'stores/create-database';
 
 /**
  * A sample role for the component.
  */
 const ROLE = {
-  name: 'Ddl',
-  component: DdlPlugin
+  name: 'Databases',
+  component: DdlPlugin,
+  order: 1
 };
 
 /**
@@ -14,17 +16,9 @@ const ROLE = {
  * @param {Object} appRegistry - The Hadron appRegisrty to activate this plugin with.
  **/
 function activate(appRegistry) {
-  // Register the DdlPlugin as a role in Compass
-  //
-  // Available roles are:
-  //   - Instance.Tab: { name: <String>, component: <React.Component>, order: <Number> }
-  //   - Database.Tab: { name: <String>, component: <React.Component>, order: <Number> }
-  //   - Collection.Tab: { name: <String>, component: <React.Component>, order: <Number> }
-  //   - CollectionHUD.Item: { name <String>, component: <React.Component> }
-  //   - Header.Item: { name: <String>, component: <React.Component>, alignment: <String> }
-
   appRegistry.registerRole('Instance.Tab', ROLE);
-  appRegistry.registerStore('Ddl.Store', DdlStore);
+  appRegistry.registerStore('DatabaseDDL.DatabasesStore', DdlStore);
+  appRegistry.registerStore('DatabaseDDL.CreateDatabaseStore', CreateDatabaseStore);
 }
 
 /**
@@ -33,7 +27,8 @@ function activate(appRegistry) {
  **/
 function deactivate(appRegistry) {
   appRegistry.deregisterRole('Instance.Tab', ROLE);
-  appRegistry.deregisterStore('Ddl.Store');
+  appRegistry.deregisterStore('DatabaseDDL.DatabasesStore');
+  appRegistry.deregisterStore('DatabaseDDL.CreateDatabaseStore');
 }
 
 export default DdlPlugin;

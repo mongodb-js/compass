@@ -1,8 +1,9 @@
-import React, { Component } from 'react';
+import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import classnames from 'classnames';
 import { sortDatabases } from 'modules/databases';
+import { showCreateDatabase } from 'modules/create-database/is-visible';
 import Toolbar from 'components/toolbar';
 import DatabasesTable from 'components/databases-table';
 
@@ -11,7 +12,7 @@ import styles from './ddl.less';
 /**
  * The core DDL component.
  */
-class Ddl extends Component {
+class Ddl extends PureComponent {
   static displayName = 'DdlComponent';
 
   static propTypes = {
@@ -21,7 +22,8 @@ class Ddl extends Component {
     isWritable: PropTypes.bool.isRequired,
     sortColumn: PropTypes.string.isRequired,
     sortOrder: PropTypes.string.isRequired,
-    sortDatabases: PropTypes.func.isRequired
+    sortDatabases: PropTypes.func.isRequired,
+    showCreateDatabase: PropTypes.func.isRequired
   }
 
   /**
@@ -32,7 +34,9 @@ class Ddl extends Component {
   render() {
     return (
       <div className={classnames(styles.ddl)} data-test-id="databases-table">
-        <Toolbar />
+        <Toolbar
+          isReadonly={this.props.isReadonly}
+          showCreateDatabase={this.props.showCreateDatabase} />
         <DatabasesTable
           columns={this.props.columns}
           databases={this.props.databases}
@@ -42,7 +46,6 @@ class Ddl extends Component {
           sortColumn={this.props.sortColumn}
           sortDatabases={this.props.sortDatabases}
           showDatabase={() => {}}
-          showCreateDatabase={() => {}}
           showDropDatabase={() => {}} />
       </div>
     );
@@ -72,7 +75,8 @@ const mapStateToProps = (state) => ({
 const MappedDdl = connect(
   mapStateToProps,
   {
-    sortDatabases
+    sortDatabases,
+    showCreateDatabase
   },
 )(Ddl);
 

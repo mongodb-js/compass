@@ -6,6 +6,7 @@ import isReadonly from 'modules/is-readonly';
 import isWritable from 'modules/is-writable';
 import sortColumn from 'modules/sort-column';
 import sortOrder from 'modules/sort-order';
+import createDatabase from 'modules/create-database';
 
 /**
  * The main reducer.
@@ -17,6 +18,7 @@ const reducer = combineReducers({
   isWritable,
   sortColumn,
   sortOrder,
+  createDatabase,
   dataService
 });
 
