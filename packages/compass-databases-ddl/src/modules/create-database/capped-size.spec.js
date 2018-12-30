@@ -8,7 +8,7 @@ describe('create database capped size module', () => {
   describe('#reducer', () => {
     context('when an action is provided', () => {
       it('returns the new state', () => {
-        expect(reducer(undefined, changeCappedSize('128'))).to.equal('128');
+        expect(reducer(undefined, changeCappedSize('128'))).to.equal(128);
       });
     });
 
