@@ -41,6 +41,7 @@ describe('Toolbar [Component]', () => {
       showCreateDatabaseSpy = null;
       component = null;
     });
+
     it('renders the correct root classname', () => {
       expect(component.find(`.${styles.toolbar}`)).to.be.present();
     });
