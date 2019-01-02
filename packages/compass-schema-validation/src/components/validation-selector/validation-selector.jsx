@@ -1,6 +1,9 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { DropdownButton, MenuItem } from 'react-bootstrap';
+import classnames from 'classnames';
+
+import styles from './validation-selector.less';
 
 /**
  * Validation selector component.
@@ -27,7 +30,7 @@ class ValidationSelector extends Component {
 
   static renderLabel(label, id) {
     return label
-      ? <label className="option-selector-label" htmlFor={id}>{label}</label>
+      ? <label className={classnames(styles['option-selector-label'])} htmlFor={id}>{label}</label>
       : null;
   }
 
@@ -49,7 +52,7 @@ class ValidationSelector extends Component {
     }
 
     return (
-      <div className="option-selector">
+      <div className={classnames(styles['option-selector'])}>
         {htmlLabel}
         <DropdownButton
           bsSize={this.props.bsSize}

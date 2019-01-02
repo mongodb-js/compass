@@ -23,7 +23,7 @@ const OPTIONS = {
   enableLiveAutocompletion: true,
   tabSize: 2,
   fontSize: 11,
-  minLines: 10,
+  minLines: 17,
   maxLines: Infinity,
   highlightActiveLine: false,
   showGutter: true,
@@ -90,6 +90,17 @@ class ValidationEditor extends Component {
       textCompleter,
       props.fields
     );
+  }
+
+  /**
+   * Subscribe listeners.
+   */
+  componentDidMount() {
+    this.unsubFields = global.hadronApp.appRegistry
+      .getStore('Field.Store')
+      .listen((fields) => this.completer.update(
+        this.processFields(fields.fields)
+      ));
   }
 
   /**
@@ -197,33 +208,44 @@ class ValidationEditor extends Component {
   }
 
   /**
+   * Render validation message.
+   *
+   * @returns {React.Component} The component.
+   */
+  renderValidationMessage() {
+    if (this.props.validation.error || this.props.validation.syntaxError) {
+      let message = this.props.validation.syntaxError.message;
+      let colorStyle = styles['validation-message-container-syntax-error'];
+
+      if (this.props.validation.error) {
+        colorStyle = styles['validation-message-container-error'];
+        message = this.props.validation.error.message;
+      }
+
+      return (
+        <div className={classnames({
+          [styles['validation-message-container']]: true,
+          [colorStyle]: true
+        })}>
+          <div className={styles['validation-message']}>
+            {message}
+          </div>
+        </div>
+      );
+    }
+  }
+
+  /**
    * Render actions pannel.
    *
    * @returns {React.Component} The component.
    */
   renderActionsPanel() {
-    if (
-      this.props.validation.error ||
-      this.props.validation.syntaxError ||
-      this.props.validation.isChanged
-    ) {
-      let colorStyle = styles['validation-action-update'];
-      let message = '';
-
-      if (this.props.validation.syntaxError) {
-        colorStyle = styles['validation-action-syntax-error'];
-        message = this.props.validation.syntaxError.message;
-      }
-
-      if (this.props.validation.error) {
-        colorStyle = styles['validation-action-error'];
-        message = this.props.validation.error.message;
-      }
-
+    if (this.props.validation.isChanged) {
       return (
-        <div className={classnames({[styles['validation-action']]: true, [colorStyle]: true})}>
-          <div className={styles['validation-message']}>
-            {message}
+        <div className={classnames(styles['validation-action-container'])}>
+          <div className={styles['validation-action-message']}>
+            Validation modified
           </div>
           <TextButton
             className={`btn btn-borderless btn-xs ${classnames(styles.cancel)}`}
@@ -250,23 +272,27 @@ class ValidationEditor extends Component {
   render() {
     return (
       <div className={classnames(styles['validation-editor'])}>
-        <div className={classnames(styles['validation-options-container'])}>
-          {this.renderActionSelector()}
-          {this.renderLevelSelector()}
-        </div>
-        <div className={classnames(styles['brace-editor-container'])}>
-          <AceEditor
-            mode="mongodb"
-            theme="mongodb"
-            width="100%"
-            height="100%"
-            value={this.props.validation.validator}
-            onChange={this.props.validatorChanged}
-            editorProps={{$blockScrolling: Infinity}}
-            setOptions={OPTIONS}
-            onFocus={() => tools.setCompleters([this.completer])} />
+        <div className={classnames(styles['validation-editor-content'])}>
+          <div className={classnames(styles['validation-options-container'])}>
+            {this.renderActionSelector()}
+            {this.renderLevelSelector()}
           </div>
-          {this.renderActionsPanel()}
+          <hr />
+          <div className={classnames(styles['brace-editor-container'])}>
+            <AceEditor
+              mode="mongodb"
+              theme="mongodb"
+              width="100%"
+              height="100%"
+              value={this.props.validation.validator}
+              onChange={this.props.validatorChanged}
+              editorProps={{$blockScrolling: Infinity}}
+              setOptions={OPTIONS}
+              onFocus={() => tools.setCompleters([this.completer])} />
+            </div>
+            {this.renderValidationMessage()}
+        </div>
+        {this.renderActionsPanel()}
       </div>
     );
   }

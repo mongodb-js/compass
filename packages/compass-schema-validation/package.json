@@ -35,10 +35,16 @@
   "peerDependencies": {
     "bson": "^1.0.9",
     "context-eval": "^0.1.0",
+    "hadron-react-buttons": "^2.0.0",
+    "hadron-react-components": "^2.0.0",
+    "mongodb-ace-autocompleter": "0.0.21",
+    "mongodb-ace-mode": "0.0.2",
+    "mongodb-ace-theme": "0.0.1",
     "mongodb-extended-json": "^1.10.0",
     "mongodb-language-model": "^1.3.0",
     "prop-types": "^15.5.8",
     "react": "^16.6.0",
+    "react-ace": "^6.2.0",
     "react-bootstrap": "0.31.0",
     "react-dom": "^16.6.0",
     "react-redux": "^5.0.6",
@@ -127,7 +133,6 @@
     "redux-thunk": "^2.2.0",
     "resolve": "^1.4.0",
     "rimraf": "^2.6.1",
-    "semver": "^5.4.1",
     "shebang-loader": "0.0.1",
     "sinon": "^3.2.0",
     "sinon-chai": "^2.11.0",
@@ -138,5 +143,13 @@
     "webpack-merge": "^4.1.1",
     "webpack-node-externals": "^1.6.0",
     "webpack-sources": "1.0.1"
+  },
+  "dependencies": {
+    "decomment": "^0.9.1",
+    "mongodb-extended-json": "^1.10.0",
+    "react-bootstrap": "^0.32.1",
+    "react-redux": "^5.0.6",
+    "redux": "^3.7.2",
+    "redux-thunk": "^2.2.0"
   }
 }

@@ -2,6 +2,8 @@ import React from 'react';
 import { mount } from 'enzyme';
 import ValidationSelector from 'components/validation-selector';
 
+import styles from './validation-selector.less';
+
 describe('ValidationSelector [Component]', () => {
   let component;
   const id = 'validation-action-selector';
@@ -31,6 +33,6 @@ describe('ValidationSelector [Component]', () => {
   });
 
   it('renders the wrapper div', () => {
-    expect(component.find('.option-selector-label')).to.be.present();
+    expect(component.find(`.${styles['option-selector-label']}`)).to.be.present();
   });
 });
