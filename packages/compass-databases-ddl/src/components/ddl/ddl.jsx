@@ -3,7 +3,6 @@ import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import classnames from 'classnames';
 import { sortDatabases } from 'modules/databases';
-import { showCreateDatabase } from 'modules/create-database/is-visible';
 import Toolbar from 'components/toolbar';
 import DatabasesTable from 'components/databases-table';
 
@@ -22,8 +21,7 @@ class Ddl extends PureComponent {
     isWritable: PropTypes.bool.isRequired,
     sortColumn: PropTypes.string.isRequired,
     sortOrder: PropTypes.string.isRequired,
-    sortDatabases: PropTypes.func.isRequired,
-    showCreateDatabase: PropTypes.func.isRequired
+    sortDatabases: PropTypes.func.isRequired
   }
 
   /**
@@ -34,9 +32,7 @@ class Ddl extends PureComponent {
   render() {
     return (
       <div className={classnames(styles.ddl)} data-test-id="databases-table">
-        <Toolbar
-          isReadonly={this.props.isReadonly}
-          showCreateDatabase={this.props.showCreateDatabase} />
+        <Toolbar isReadonly={this.props.isReadonly} />
         <DatabasesTable
           columns={this.props.columns}
           databases={this.props.databases}
@@ -75,8 +71,7 @@ const mapStateToProps = (state) => ({
 const MappedDdl = connect(
   mapStateToProps,
   {
-    sortDatabases,
-    showCreateDatabase
+    sortDatabases
   },
 )(Ddl);
 
