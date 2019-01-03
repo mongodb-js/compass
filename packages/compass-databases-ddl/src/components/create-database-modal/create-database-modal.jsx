@@ -32,7 +32,11 @@ class CreateDatabaseModal extends PureComponent {
   static displayName = 'CreateDatabaseModalComponent';
 
   static propTypes = {
+    isCapped: PropTypes.bool.isRequired,
     isVisible: PropTypes.bool.isRequired,
+    name: PropTypes.string.isRequired,
+    collectionName: PropTypes.string.isRequired,
+    cappedSize: PropTypes.number,
     hideCreateDatabase: PropTypes.func.isRequired
   }
 
@@ -54,6 +58,11 @@ class CreateDatabaseModal extends PureComponent {
         </Modal.Header>
 
         <Modal.Body>
+          <form
+            name="create-database-modal-form"
+            onSubmit={() => {}}
+            data-test-id="create-database-modal">
+          </form>
         </Modal.Body>
 
         <Modal.Footer>

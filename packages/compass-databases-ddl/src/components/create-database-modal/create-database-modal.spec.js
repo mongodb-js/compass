@@ -13,6 +13,10 @@ describe('CreateDatabaseModal [Component]', () => {
       component = mount(
         <CreateDatabaseModal
           isVisible
+          isCapped={false}
+          name="dbName"
+          collectionName="collName"
+          cappedSize={null}
           hideCreateDatabase={hideCreateDatabaseSpy} />
       );
     });
@@ -42,6 +46,10 @@ describe('CreateDatabaseModal [Component]', () => {
       expect(component.find('.btn-primary').hostNodes()).to.have.text('Create Database');
     });
 
+    it('renders the modal form', () => {
+      expect(component.find('[name="create-database-modal-form"]')).to.be.present();
+    });
+
     context('when clicking cancel', () => {
 
     });
@@ -60,6 +68,10 @@ describe('CreateDatabaseModal [Component]', () => {
       component = mount(
         <CreateDatabaseModal
           isVisible={false}
+          isCapped={false}
+          name="dbName"
+          collectionName="collName"
+          cappedSize={null}
           hideCreateDatabase={hideCreateDatabaseSpy} />
       );
     });
