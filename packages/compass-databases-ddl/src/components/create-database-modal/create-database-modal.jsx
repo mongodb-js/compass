@@ -1,9 +1,12 @@
 import React, { PureComponent } from 'react';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
+import classnames from 'classnames';
 import { Modal } from 'react-bootstrap';
 import { TextButton } from 'hadron-react-buttons';
 import { hideCreateDatabase } from 'modules/create-database/is-visible';
+
+import styles from './create-database-modal.less';
 
 /**
  * The more information url.
@@ -43,7 +46,7 @@ class CreateDatabaseModal extends PureComponent {
         show={this.props.isVisible}
         backdrop="static"
         onHide={this.props.hideCreateDatabase}
-        dialogClassName="create-collection-dialog">
+        dialogClassName={classnames(styles['create-database-modal'])}>
 
         <Modal.Header>
           <Modal.Title>Create Database</Modal.Title>
