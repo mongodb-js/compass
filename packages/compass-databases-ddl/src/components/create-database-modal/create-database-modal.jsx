@@ -22,10 +22,10 @@ import { hideCreateDatabase } from 'modules/create-database/is-visible';
 // const HELP_URL_COLLATION = 'https://docs.mongodb.com/master/reference/collation/';
 
 /**
- * The dialog to create a database.
+ * The modal to create a database.
  */
-class CreateDatabaseDialog extends PureComponent {
-  static displayName = 'CreateDatabaseDialogComponent';
+class CreateDatabaseModal extends PureComponent {
+  static displayName = 'CreateDatabaseModalComponent';
 
   static propTypes = {
     isVisible: PropTypes.bool.isRequired,
@@ -83,12 +83,12 @@ const mapStateToProps = (state) => ({
  * Connect the redux store to the component.
  * (dispatch)
  */
-const MappedCreateDatabaseDialog = connect(
+const MappedCreateDatabaseModal = connect(
   mapStateToProps,
   {
     hideCreateDatabase
   },
-)(CreateDatabaseDialog);
+)(CreateDatabaseModal);
 
-export default MappedCreateDatabaseDialog;
-export { CreateDatabaseDialog };
+export default MappedCreateDatabaseModal;
+export { CreateDatabaseModal };

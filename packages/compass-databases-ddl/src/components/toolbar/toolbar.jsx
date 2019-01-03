@@ -2,7 +2,7 @@ import React, { PureComponent } from 'react';
 import { Provider } from 'react-redux';
 import PropTypes from 'prop-types';
 import classnames from 'classnames';
-import CreateDatabaseDialog from 'components/create-database-dialog';
+import CreateDatabaseModal from 'components/create-database-modal';
 import store from 'stores/create-database';
 
 import styles from './toolbar.less';
@@ -61,7 +61,7 @@ class Toolbar extends PureComponent {
       <div className={classnames(styles.toolbar)}>
         {this.renderButton()}
         <Provider store={store}>
-          <CreateDatabaseDialog />
+          <CreateDatabaseModal />
         </Provider>
       </div>
     );
