@@ -26,9 +26,14 @@ export const VALIDATION_CANCELED = `${PREFIX}/VALIDATION_CANCELED`;
 export const VALIDATION_SAVED = `${PREFIX}/VALIDATION_SAVED`;
 
 /**
- * Validation created action name.
+ * Validation save failed action name.
  */
-export const VALIDATION_CREATED = `${PREFIX}/VALIDATION_CREATED`;
+export const VALIDATION_SAVE_FAILED = `${PREFIX}/VALIDATION_SAVE_FAILED`;
+
+/**
+ * Validation fetched action name.
+ */
+export const VALIDATION_FETCHED = `${PREFIX}/VALIDATION_FETCHED`;
 
 /**
  * Validation action changed action name.
@@ -45,8 +50,8 @@ export const VALIDATION_LEVEL_CHANGED = `${PREFIX}/VALIDATION_LEVEL_CHANGED`;
  */
 export const INITIAL_STATE = {
   validator: '',
-  validationAction: 'warn',
-  validationLevel: 'moderate',
+  validationAction: 'error',
+  validationLevel: 'strict',
   isChanged: false,
   syntaxError: null,
   error: null
@@ -95,7 +100,7 @@ function getQuerySandbox() {
  * Execute JS to parse the query string.
  *
  * @param {String} input - Validation rules.
- * @param {Object} sandbox - The sandbox object.
+ * @param {Object} sandbox - The sandbox.
  *
  * @returns {Object} The parsed query.
  */
@@ -183,20 +188,20 @@ const cancelValidation = (state) => ({
  */
 const updateValidation = (state, action) => ({
   ...state,
-  isChanged: false,
+  isChanged: action.isChanged,
   syntaxError: null,
   error: action.error ? action.error : null
 });
 
 /**
- * Create validation changes.
+ * Set validation.
  *
  * @param {Object} state - The state
  * @param {Object} action - The action.
  *
  * @returns {Object} The new state.
  */
-const createValidation = (state, action) => {
+const setValidation = (state, action) => {
   const checkedValidator = checkValidator(action.validation.validator);
   const validator = javascriptStringify(checkedValidator.validator, null, 2);
 
@@ -268,8 +273,9 @@ const changeValidationLevel = (state, action) => {
 const MAPPINGS = {
   [VALIDATOR_CHANGED]: changeValidator,
   [VALIDATION_CANCELED]: cancelValidation,
-  [VALIDATION_CREATED]: createValidation,
+  [VALIDATION_FETCHED]: setValidation,
   [VALIDATION_SAVED]: updateValidation,
+  [VALIDATION_SAVE_FAILED]: updateValidation,
   [VALIDATION_ACTION_CHANGED]: changeValidationAction,
   [VALIDATION_LEVEL_CHANGED]: changeValidationLevel
 };
@@ -325,14 +331,14 @@ export const validatorChanged = (validator) => ({
 });
 
 /**
- * Action creator for validation created events.
+ * Action creator for validation fetched events.
  *
  * @param {String} validation - Validation.
  *
- * @returns {Object} Validation created action.
+ * @returns {Object} Validation fetched action.
  */
-export const validationCreated = (validation) => ({
-  type: VALIDATION_CREATED,
+export const validationFetched = (validation) => ({
+  type: VALIDATION_FETCHED,
   validation
 });
 
@@ -348,13 +354,27 @@ export const validationCanceled = () => ({
 /**
  * Action creator for validation saved events.
  *
- * @param {Object} item - Saved validation and error value. Null if there is no error.
+ * @param {Object} validation - Validation.
  *
  * @returns {Object} Validation saved action.
  */
-export const validationSaved = (item) => ({
+export const validationSaved = (validation) => ({
   type: VALIDATION_SAVED,
-  error: item.error
+  isChanged: false,
+  validation
+});
+
+/**
+ * Action creator for validation save failed events.
+ *
+ * @param {Object} error - Error value.
+ *
+ * @returns {Object} Validation save failed action.
+ */
+export const validationSaveFailed = (error) => ({
+  type: VALIDATION_SAVE_FAILED,
+  isChanged: true,
+  error
 });
 
 /**
@@ -382,9 +402,13 @@ export const fetchValidation = (namespace) => {
           };
 
           if (!error && options) {
+            const validator = options.validator
+              ? EJSON.stringify(options.validator, null, 2)
+              : {};
+
             validation = defaults(
               {
-                validator: EJSON.stringify(options.validator, null, 2),
+                validator,
                 validationAction: options.validationAction,
                 validationLevel: options.validationLevel
               },
@@ -392,7 +416,7 @@ export const fetchValidation = (namespace) => {
             );
           }
 
-          return dispatch(validationCreated(validation));
+          return dispatch(validationFetched(validation));
         }
       );
     }
@@ -423,7 +447,11 @@ export const saveValidation = (validation) => {
           validationLevel: validation.validationLevel
         },
         (error) => {
-          return dispatch(validationSaved({ validation, error }));
+          if (!error) {
+            return dispatch(validationSaved(validation));
+          }
+
+          return dispatch(validationSaveFailed(error));
         }
       );
     }

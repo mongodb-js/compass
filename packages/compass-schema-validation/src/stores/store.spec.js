@@ -3,9 +3,10 @@ import FieldStore, { activate } from '@mongodb-js/compass-field-store';
 import store from 'stores';
 import {
   validatorChanged,
-  validationCreated,
+  validationFetched,
   validationSaved,
-  validationActionChanged
+  validationActionChanged,
+  validationLevelChanged
 } from 'modules/validation';
 import { reset, INITIAL_STATE } from '../modules/index';
 import javascriptStringify from 'javascript-stringify';
@@ -93,7 +94,7 @@ describe('Schema Validation Store', () => {
       });
     });
 
-    context('when the action is VALIDATION_CREATED', () => {
+    context('when the action is VALIDATION_FETCHED', () => {
       const validation = {
         validator: { name: { $type: 4 } },
         validationAction: 'warn',
@@ -121,12 +122,12 @@ describe('Schema Validation Store', () => {
           expect(store.getState().validation).to.deep.equal(createdValidation);
           done();
         });
-        store.dispatch(validationCreated(validation));
+        store.dispatch(validationFetched(validation));
       });
     });
 
     context('when the action is VALIDATION_SAVED', () => {
-      const validator = '{ error: null }';
+      const validation = '{ validator: { name: { $type: 4 } } }';
 
       it('updates the validation in state', (done) => {
         const unsubscribe = store.subscribe(() => {
@@ -134,7 +135,7 @@ describe('Schema Validation Store', () => {
           expect(store.getState().validation.error).to.equal(null);
           done();
         });
-        store.dispatch(validationSaved(validator));
+        store.dispatch(validationSaved(validation));
       });
     });
 
@@ -160,7 +161,7 @@ describe('Schema Validation Store', () => {
           expect(store.getState().validation.validationLevel).to.equal(validationLevel);
           done();
         });
-        store.dispatch(validationActionChanged(validationLevel));
+        store.dispatch(validationLevelChanged(validationLevel));
       });
     });
 

@@ -214,10 +214,13 @@ class ValidationEditor extends Component {
    */
   renderValidationMessage() {
     if (this.props.validation.error || this.props.validation.syntaxError) {
-      let message = this.props.validation.syntaxError.message;
-      let colorStyle = styles['validation-message-container-syntax-error'];
+      let message = '';
+      let colorStyle = '';
 
-      if (this.props.validation.error) {
+      if (this.props.validation.syntaxError) {
+        message = this.props.validation.syntaxError.message;
+        colorStyle = styles['validation-message-container-syntax-error'];
+      } else if (this.props.validation.error) {
         colorStyle = styles['validation-message-container-error'];
         message = this.props.validation.error.message;
       }
