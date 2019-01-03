@@ -5,6 +5,7 @@ import classnames from 'classnames';
 import { Modal } from 'react-bootstrap';
 import { TextButton } from 'hadron-react-buttons';
 import { hideCreateDatabase } from 'modules/create-database/is-visible';
+import { openLink } from 'modules/link';
 
 import styles from './create-database-modal.less';
 
@@ -79,7 +80,11 @@ class CreateDatabaseModal extends PureComponent {
  * @returns {Object} The mapped properties.
  */
 const mapStateToProps = (state) => ({
-  isVisible: state.isVisible
+  isCapped: state.isCapped,
+  isVisible: state.isVisible,
+  name: state.name,
+  collectionName: state.collectionName,
+  cappedSize: state.cappedSize
 });
 
 /**
@@ -89,7 +94,8 @@ const mapStateToProps = (state) => ({
 const MappedCreateDatabaseModal = connect(
   mapStateToProps,
   {
-    hideCreateDatabase
+    hideCreateDatabase,
+    openLink
   },
 )(CreateDatabaseModal);
 

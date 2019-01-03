@@ -1,8 +1,9 @@
-import { createStore } from 'redux';
+import { createStore, applyMiddleware } from 'redux';
+import thunk from 'redux-thunk';
 import { dataServiceConnected } from 'modules/data-service';
 import reducer from 'modules/create-database';
 
-const store = createStore(reducer);
+const store = createStore(reducer, applyMiddleware(thunk));
 
 store.onActivated = (appRegistry) => {
   /**
