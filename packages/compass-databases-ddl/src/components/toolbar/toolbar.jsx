@@ -3,7 +3,8 @@ import { Provider } from 'react-redux';
 import PropTypes from 'prop-types';
 import classnames from 'classnames';
 import CreateDatabaseModal from 'components/create-database-modal';
-import store from 'stores/create-database';
+import createDatabaseStore from 'stores/create-database';
+import { showCreateDatabase } from 'modules/create-database/is-visible';
 
 import styles from './toolbar.less';
 
@@ -19,8 +20,7 @@ class Toolbar extends PureComponent {
   static displayName = 'ToolbarComponent';
 
   static propTypes = {
-    isReadonly: PropTypes.bool.isRequired,
-    showCreateDatabase: PropTypes.func.isRequired
+    isReadonly: PropTypes.bool.isRequired
   }
 
   /**
@@ -31,6 +31,13 @@ class Toolbar extends PureComponent {
   constructor(props) {
     super(props);
     this.TextWriteButton = global.hadronApp.appRegistry.getComponent(BUTTON);
+  }
+
+  /**
+   * Dispatch directly on the create database store.
+   */
+  onShowCreateDatabase = () => {
+    createDatabaseStore.dispatch(showCreateDatabase());
   }
 
   /**
@@ -46,7 +53,7 @@ class Toolbar extends PureComponent {
           dataTestId="open-create-database-modal-button"
           text="Create Database"
           tooltipId="database-ddl-is-not-writable"
-          clickHandler={this.props.showCreateDatabase} />
+          clickHandler={this.onShowCreateDatabase} />
       );
     }
   }
@@ -60,7 +67,7 @@ class Toolbar extends PureComponent {
     return (
       <div className={classnames(styles.toolbar)}>
         {this.renderButton()}
-        <Provider store={store}>
+        <Provider store={createDatabaseStore}>
           <CreateDatabaseModal />
         </Provider>
       </div>
