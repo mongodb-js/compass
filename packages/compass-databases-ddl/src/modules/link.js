@@ -3,6 +3,8 @@ const userAgent = navigator.userAgent.toLowerCase();
 /**
  * Action creator for opening links.
  *
+ * @param {String} href - The link.
+ *
  * @returns {Function} The open link function.
  */
 export const openLink = (href) => {
