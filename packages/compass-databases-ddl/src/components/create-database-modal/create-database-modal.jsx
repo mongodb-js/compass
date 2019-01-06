@@ -4,6 +4,11 @@ import PropTypes from 'prop-types';
 import classnames from 'classnames';
 import { Modal } from 'react-bootstrap';
 import { TextButton } from 'hadron-react-buttons';
+import { ModalInput, ModalCheckbox } from 'hadron-react-components';
+import { changeCappedSize } from 'modules/create-database/capped-size';
+import { changeCollectionName } from 'modules/create-database/collection-name';
+import { changeDatabaseName } from 'modules/create-database/name';
+import { toggleIsCapped } from 'modules/create-database/is-capped';
 import { hideCreateDatabase } from 'modules/create-database/is-visible';
 import { openLink } from 'modules/link';
 
@@ -18,7 +23,7 @@ import styles from './create-database-modal.less';
 /**
  * The help icon for capped collections url.
  */
-// const HELP_URL_CAPPED = 'https://docs.mongodb.com/manual/core/capped-collections/';
+const HELP_URL_CAPPED = 'https://docs.mongodb.com/manual/core/capped-collections/';
 
 /**
  * The help URL for collation.
@@ -37,7 +42,64 @@ class CreateDatabaseModal extends PureComponent {
     name: PropTypes.string.isRequired,
     collectionName: PropTypes.string.isRequired,
     cappedSize: PropTypes.number,
+    openLink: PropTypes.func.isRequired,
+    changeCappedSize: PropTypes.func.isRequired,
+    changeCollectionName: PropTypes.func.isRequired,
+    changeDatabaseName: PropTypes.func.isRequired,
+    toggleIsCapped: PropTypes.func.isRequired,
     hideCreateDatabase: PropTypes.func.isRequired
+  }
+
+  /**
+   * Called when the collection name changes.
+   *
+   * @param {Object} event - The event.
+   */
+  onCollectionNameChange = (evt) => {
+    this.props.changeCollectionName(evt.target.value);
+  }
+
+  /**
+   * Called when the db name changes.
+   *
+   * @param {Object} event - The event.
+   */
+  onNameChange = (evt) => {
+    this.props.changeDatabaseName(evt.target.value);
+  }
+
+  /**
+   * Called when the capped size changes.
+   *
+   * @param {Object} event - The event.
+   */
+  onCappedSizeChange = (evt) => {
+    this.props.changeCappedSize(evt.target.value);
+  }
+
+  /**
+   * Called when is capped changes.
+   */
+  onToggleIsCapped = () => {
+    this.props.toggleIsCapped(!this.props.isCapped);
+  }
+
+  /**
+   * Render the capped size component when capped is selected.
+   *
+   * @returns {React.Component} The component.
+   */
+  renderCappedSize() {
+    if (this.props.isCapped) {
+      return (
+        <ModalInput
+          id="capped-size-value"
+          name="bytes max"
+          placeholder="Enter max bytes"
+          value={this.props.cappedSize}
+          onChangeHandler={this.onCappedSizeChange} />
+      );
+    }
   }
 
   /**
@@ -62,6 +124,28 @@ class CreateDatabaseModal extends PureComponent {
             name="create-database-modal-form"
             onSubmit={() => {}}
             data-test-id="create-database-modal">
+
+            <ModalInput
+              autoFocus
+              id="create-database-name"
+              name="Database Name"
+              value={this.props.name}
+              onChangeHandler={this.onNameChange} />
+            <ModalInput
+              id="create-database-collection-name"
+              name="Collection Name"
+              value={this.props.collectionName}
+              onChangeHandler={this.onCollectionNameChange} />
+            <div className="form-group">
+              <ModalCheckbox
+                name="Capped Collection"
+                titleClassName="create-collection-dialog-capped"
+                checked={this.props.isCapped}
+                helpUrl={HELP_URL_CAPPED}
+                onClickHandler={this.onToggleIsCapped}
+                onLinkClickHandler={this.props.openLink} />
+              {this.renderCappedSize()}
+            </div>
           </form>
         </Modal.Body>
 
@@ -103,8 +187,12 @@ const mapStateToProps = (state) => ({
 const MappedCreateDatabaseModal = connect(
   mapStateToProps,
   {
+    changeCappedSize,
+    changeCollectionName,
+    changeDatabaseName,
     hideCreateDatabase,
-    openLink
+    openLink,
+    toggleIsCapped
   },
 )(CreateDatabaseModal);
 

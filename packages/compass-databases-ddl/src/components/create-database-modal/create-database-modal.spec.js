@@ -7,9 +7,20 @@ describe('CreateDatabaseModal [Component]', () => {
   context('when the modal is visible', () => {
     let component;
     let hideCreateDatabaseSpy;
+    let openLinkSpy;
+    let changeCappedSizeSpy;
+    let changeCollectionNameSpy;
+    let changeDatabaseNameSpy;
+    let toggleIsCappedSpy;
 
     beforeEach(() => {
+      openLinkSpy = sinon.spy();
       hideCreateDatabaseSpy = sinon.spy();
+      changeCappedSizeSpy = sinon.spy();
+      changeCollectionNameSpy = sinon.spy();
+      changeDatabaseNameSpy = sinon.spy();
+      toggleIsCappedSpy = sinon.spy();
+
       component = mount(
         <CreateDatabaseModal
           isVisible
@@ -17,12 +28,22 @@ describe('CreateDatabaseModal [Component]', () => {
           name="dbName"
           collectionName="collName"
           cappedSize={null}
+          openLink={openLinkSpy}
+          changeCappedSize={changeCappedSizeSpy}
+          changeCollectionName={changeCollectionNameSpy}
+          changeDatabaseName={changeDatabaseNameSpy}
+          toggleIsCapped={toggleIsCappedSpy}
           hideCreateDatabase={hideCreateDatabaseSpy} />
       );
     });
 
     afterEach(() => {
+      openLinkSpy = null;
       hideCreateDatabaseSpy = null;
+      changeCappedSizeSpy = null;
+      changeCollectionNameSpy = null;
+      changeDatabaseNameSpy = null;
+      toggleIsCappedSpy = null;
       component = null;
     });
 
@@ -62,9 +83,20 @@ describe('CreateDatabaseModal [Component]', () => {
   context('when the modal is not visible', () => {
     let component;
     let hideCreateDatabaseSpy;
+    let openLinkSpy;
+    let changeCappedSizeSpy;
+    let changeCollectionNameSpy;
+    let changeDatabaseNameSpy;
+    let toggleIsCappedSpy;
 
     beforeEach(() => {
+      openLinkSpy = sinon.spy();
       hideCreateDatabaseSpy = sinon.spy();
+      changeCappedSizeSpy = sinon.spy();
+      changeCollectionNameSpy = sinon.spy();
+      changeDatabaseNameSpy = sinon.spy();
+      toggleIsCappedSpy = sinon.spy();
+
       component = mount(
         <CreateDatabaseModal
           isVisible={false}
@@ -72,12 +104,22 @@ describe('CreateDatabaseModal [Component]', () => {
           name="dbName"
           collectionName="collName"
           cappedSize={null}
+          openLink={openLinkSpy}
+          changeCappedSize={changeCappedSizeSpy}
+          changeCollectionName={changeCollectionNameSpy}
+          changeDatabaseName={changeDatabaseNameSpy}
+          toggleIsCapped={toggleIsCappedSpy}
           hideCreateDatabase={hideCreateDatabaseSpy} />
       );
     });
 
     afterEach(() => {
+      openLinkSpy = null;
       hideCreateDatabaseSpy = null;
+      changeCappedSizeSpy = null;
+      changeCollectionNameSpy = null;
+      changeDatabaseNameSpy = null;
+      toggleIsCappedSpy = null;
       component = null;
     });
 
