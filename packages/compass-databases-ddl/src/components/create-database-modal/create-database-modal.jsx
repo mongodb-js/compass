@@ -17,8 +17,8 @@ import styles from './create-database-modal.less';
 /**
  * The more information url.
  */
-// const INFO_URL_CREATE_DB =
-// 'https://docs.mongodb.com/manual/faq/fundamentals/#how-do-i-create-a-database-and-a-collection';
+const INFO_URL_CREATE_DB =
+  'https://docs.mongodb.com/manual/faq/fundamentals/#how-do-i-create-a-database-and-a-collection';
 
 /**
  * The help icon for capped collections url.
@@ -85,6 +85,17 @@ class CreateDatabaseModal extends PureComponent {
   }
 
   /**
+   * Called when info is clicked.
+   *
+   * @param {Object} event - The event.
+   */
+  onInfoClicked = (evt) => {
+    evt.preventDefault();
+    evt.stopPropagation();
+    this.props.openLink(INFO_URL_CREATE_DB);
+  }
+
+  /**
    * Render the capped size component when capped is selected.
    *
    * @returns {React.Component} The component.
@@ -139,12 +150,17 @@ class CreateDatabaseModal extends PureComponent {
             <div className="form-group">
               <ModalCheckbox
                 name="Capped Collection"
-                titleClassName="create-collection-dialog-capped"
+                titleClassName={classnames(styles['create-database-modal-is-capped'])}
                 checked={this.props.isCapped}
                 helpUrl={HELP_URL_CAPPED}
                 onClickHandler={this.onToggleIsCapped}
                 onLinkClickHandler={this.props.openLink} />
               {this.renderCappedSize()}
+            </div>
+            <div className={classnames(styles['create-database-modal-notice'])}>
+              Before MongoDB can save your new database, a collection name
+              must also be specified at the time of creation.
+              <a onClick={this.onInfoClicked}>More Information</a>
             </div>
           </form>
         </Modal.Body>

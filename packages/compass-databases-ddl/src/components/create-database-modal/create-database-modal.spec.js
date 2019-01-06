@@ -71,6 +71,10 @@ describe('CreateDatabaseModal [Component]', () => {
       expect(component.find('[name="create-database-modal-form"]')).to.be.present();
     });
 
+    it('renders the info message', () => {
+      expect(component.find(`.${styles['create-database-modal-notice']}`)).to.be.present();
+    });
+
     context('when changing the database name', () => {
       it('calls the change database name function', () => {
         component.find('#create-database-name').hostNodes().
