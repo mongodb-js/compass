@@ -8,6 +8,7 @@ import { ModalInput, ModalCheckbox } from 'hadron-react-components';
 import { changeCappedSize } from 'modules/create-database/capped-size';
 import { changeCollectionName } from 'modules/create-database/collection-name';
 import { changeDatabaseName } from 'modules/create-database/name';
+import { changeCollationOption } from 'modules/create-database/collation';
 import { toggleIsCapped } from 'modules/create-database/is-capped';
 import { toggleIsCustomCollation } from 'modules/create-database/is-custom-collation';
 import { hideCreateDatabase } from 'modules/create-database/is-visible';
@@ -42,11 +43,13 @@ class CreateDatabaseModal extends PureComponent {
     isCustomCollation: PropTypes.bool.isRequired,
     isVisible: PropTypes.bool.isRequired,
     name: PropTypes.string.isRequired,
+    collation: PropTypes.object.isRequired,
     collectionName: PropTypes.string.isRequired,
     cappedSize: PropTypes.number,
     openLink: PropTypes.func.isRequired,
     changeCappedSize: PropTypes.func.isRequired,
     changeCollectionName: PropTypes.func.isRequired,
+    changeCollationOption: PropTypes.func.isRequired,
     changeDatabaseName: PropTypes.func.isRequired,
     toggleIsCapped: PropTypes.func.isRequired,
     toggleIsCustomCollation: PropTypes.func.isRequired,
@@ -198,6 +201,7 @@ const mapStateToProps = (state) => ({
   isCustomCollation: state.isCustomCollation,
   isVisible: state.isVisible,
   name: state.name,
+  collation: state.collation,
   collectionName: state.collectionName,
   cappedSize: state.cappedSize
 });
@@ -212,6 +216,7 @@ const MappedCreateDatabaseModal = connect(
     changeCappedSize,
     changeCollectionName,
     changeDatabaseName,
+    changeCollationOption,
     hideCreateDatabase,
     openLink,
     toggleIsCapped,
