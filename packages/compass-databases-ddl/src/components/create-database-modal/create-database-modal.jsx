@@ -103,12 +103,13 @@ class CreateDatabaseModal extends PureComponent {
   renderCappedSize() {
     if (this.props.isCapped) {
       return (
-        <ModalInput
-          id="capped-size-value"
-          name="bytes max"
-          placeholder="Enter max bytes"
-          value={this.props.cappedSize}
-          onChangeHandler={this.onCappedSizeChange} />
+        <div className={classnames(styles['create-database-modal-is-capped-wrapper'])}>
+          <ModalInput
+            id="capped-size-value"
+            name="Maximum Size (Bytes)"
+            value={this.props.cappedSize}
+            onChangeHandler={this.onCappedSizeChange} />
+        </div>
       );
     }
   }
