@@ -168,6 +168,7 @@ class CreateDatabaseModal extends PureComponent {
         <Modal.Footer>
           <TextButton
             className="btn btn-default btn-sm"
+            dataTestId="cancel-create-database-button"
             text="Cancel"
             clickHandler={this.props.hideCreateDatabase} />
           <TextButton

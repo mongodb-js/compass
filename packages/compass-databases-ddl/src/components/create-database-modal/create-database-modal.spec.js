@@ -98,6 +98,10 @@ describe('CreateDatabaseModal [Component]', () => {
     });
 
     context('when clicking cancel', () => {
+      it('closes the modal', () => {
+        component.find('[data-test-id="cancel-create-database-button"]').hostNodes().simulate('click');
+        expect(hideCreateDatabaseSpy.calledOnce).to.equal(true);
+      });
     });
 
     context('when clicking create', () => {
