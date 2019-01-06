@@ -1,4 +1,6 @@
 module.exports.FormInput = require('./form-input');
+module.exports.ModalInput = require('./modal-input');
+module.exports.ModalCheckbox = require('./modal-checkbox');
 module.exports.InfoSprinkle = require('./info-sprinkle');
 module.exports.ModalStatusMessage = require('./modal-status-message');
 module.exports.StatusRow = require('./status-row');
