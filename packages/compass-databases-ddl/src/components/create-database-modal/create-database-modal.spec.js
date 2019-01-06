@@ -71,12 +71,32 @@ describe('CreateDatabaseModal [Component]', () => {
       expect(component.find('[name="create-database-modal-form"]')).to.be.present();
     });
 
-    context('when clicking cancel', () => {
+    context('when changing the database name', () => {
+      it('calls the change database name function', () => {
+        component.find('#create-database-name').hostNodes().
+          simulate('change', 'dbName');
+        expect(changeDatabaseNameSpy.calledWith('dbName')).to.equal(true);
+      });
+    });
 
+    context('when changing the collection name', () => {
+      it('calls the change collection name function', () => {
+        component.find('#create-database-collection-name').hostNodes().
+          simulate('change', 'collName');
+        expect(changeCollectionNameSpy.calledWith('collName')).to.equal(true);
+      });
+    });
+
+    context('when changing is capped', () => {
+    });
+
+    context('when changing capped size', () => {
+    });
+
+    context('when clicking cancel', () => {
     });
 
     context('when clicking create', () => {
-
     });
   });
 
