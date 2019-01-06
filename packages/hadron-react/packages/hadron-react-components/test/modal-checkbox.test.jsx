@@ -15,6 +15,7 @@ describe('<ModalCheckbox />', () => {
       <ModalCheckbox
         name="testing"
         className="test-class"
+        linkUrl="http://testing.com"
         checked={false}
         onClickHandler={clickHandler} />
     );

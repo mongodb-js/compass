@@ -10,14 +10,11 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 
 var React = require('react');
 var PropTypes = require('prop-types');
-
-var _require = require('./info-sprinkle'),
-    InfoSprinkle = _require.InfoSprinkle;
+var InfoSprinkle = require('./info-sprinkle');
 
 /**
  * A checkbox in the create collection dialog.
  */
-
 
 var ModalCheckbox = function (_React$Component) {
   _inherits(ModalCheckbox, _React$Component);

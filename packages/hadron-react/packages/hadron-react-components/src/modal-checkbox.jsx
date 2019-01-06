@@ -1,6 +1,6 @@
 const React = require('react');
 const PropTypes = require('prop-types');
-const { InfoSprinkle } = require('./info-sprinkle');
+const InfoSprinkle = require('./info-sprinkle');
 
 /**
  * A checkbox in the create collection dialog.
