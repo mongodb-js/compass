@@ -9,6 +9,7 @@ import { changeCappedSize } from 'modules/create-database/capped-size';
 import { changeCollectionName } from 'modules/create-database/collection-name';
 import { changeDatabaseName } from 'modules/create-database/name';
 import { toggleIsCapped } from 'modules/create-database/is-capped';
+import { toggleIsCustomCollation } from 'modules/create-database/is-custom-collation';
 import { hideCreateDatabase } from 'modules/create-database/is-visible';
 import { openLink } from 'modules/link';
 
@@ -38,6 +39,7 @@ class CreateDatabaseModal extends PureComponent {
 
   static propTypes = {
     isCapped: PropTypes.bool.isRequired,
+    isCustomCollation: PropTypes.bool.isRequired,
     isVisible: PropTypes.bool.isRequired,
     name: PropTypes.string.isRequired,
     collectionName: PropTypes.string.isRequired,
@@ -47,6 +49,7 @@ class CreateDatabaseModal extends PureComponent {
     changeCollectionName: PropTypes.func.isRequired,
     changeDatabaseName: PropTypes.func.isRequired,
     toggleIsCapped: PropTypes.func.isRequired,
+    toggleIsCustomCollation: PropTypes.func.isRequired,
     hideCreateDatabase: PropTypes.func.isRequired
   }
 
@@ -192,6 +195,7 @@ class CreateDatabaseModal extends PureComponent {
  */
 const mapStateToProps = (state) => ({
   isCapped: state.isCapped,
+  isCustomCollation: state.isCustomCollation,
   isVisible: state.isVisible,
   name: state.name,
   collectionName: state.collectionName,
@@ -210,7 +214,8 @@ const MappedCreateDatabaseModal = connect(
     changeDatabaseName,
     hideCreateDatabase,
     openLink,
-    toggleIsCapped
+    toggleIsCapped,
+    toggleIsCustomCollation
   },
 )(CreateDatabaseModal);
 
