@@ -1,7 +1,7 @@
 /**
  * Change capped size action name.
  */
-export const CHANGE_CAPPED_SIZE = 'ddl/create-database/capped-size/CHANE_CAPPED_SIZE';
+export const CHANGE_CAPPED_SIZE = 'ddl/create-database/capped-size/CHANGE_CAPPED_SIZE';
 
 /**
  * The initial state of the capped size.

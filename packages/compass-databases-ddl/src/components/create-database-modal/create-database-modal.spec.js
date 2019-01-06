@@ -97,9 +97,12 @@ describe('CreateDatabaseModal [Component]', () => {
     });
 
     context('when changing is capped', () => {
+      context('when changing capped size', () => {
+      });
     });
 
-    context('when changing capped size', () => {
+    context('when changing is custom collation', () => {
+
     });
 
     context('when clicking cancel', () => {
