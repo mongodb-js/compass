@@ -9,6 +9,7 @@ import Collation from 'components/collation';
 import { changeCappedSize } from 'modules/create-database/capped-size';
 import { changeCollectionName } from 'modules/create-database/collection-name';
 import { changeDatabaseName } from 'modules/create-database/name';
+import { createDatabase } from 'modules/create-database';
 import { changeCollationOption } from 'modules/create-database/collation';
 import { toggleIsCapped } from 'modules/create-database/is-capped';
 import { toggleIsCustomCollation } from 'modules/create-database/is-custom-collation';
@@ -52,6 +53,7 @@ class CreateDatabaseModal extends PureComponent {
     changeCollectionName: PropTypes.func.isRequired,
     changeCollationOption: PropTypes.func.isRequired,
     changeDatabaseName: PropTypes.func.isRequired,
+    createDatabase: PropTypes.func.isRequired,
     toggleIsCapped: PropTypes.func.isRequired,
     toggleIsCustomCollation: PropTypes.func.isRequired,
     hideCreateDatabase: PropTypes.func.isRequired
@@ -213,7 +215,7 @@ class CreateDatabaseModal extends PureComponent {
             className="btn btn-primary btn-sm"
             dataTestId="create-database-button"
             text="Create Database"
-            clickHandler={() => {}} />
+            clickHandler={this.props.createDatabase} />
         </Modal.Footer>
       </Modal>
     );
@@ -248,6 +250,7 @@ const MappedCreateDatabaseModal = connect(
     changeCollectionName,
     changeDatabaseName,
     changeCollationOption,
+    createDatabase,
     hideCreateDatabase,
     openLink,
     toggleIsCapped,
