@@ -38,11 +38,26 @@ export default reducer;
 export const createDatabase = () => {
   return (dispatch, getState) => {
     const state = getState();
-    // const ds = state.dataService.dataService;
+    const ds = state.dataService.dataService;
     const dbName = state.name;
+    const coll = state.collation;
 
     if (dbName.includes('.')) {
       dispatch(handleError(new Error(NO_DOT)));
+    }
+
+    let options = state.isCapped ? { capped: true, size: parseInt(state.cappedSize, 10) } : {};
+    options = state.isCustomCollation ? { ...options, coll } : options;
+    try {
+      ds.createCollection(`${dbName}.${state.collectionName}`, options, (e) => {
+        if (e) {
+          dispatch(handleError(e));
+        } else {
+          global.hadronApp.appRegistry.getAction('App.InstanceActions').refreshInstance();
+        }
+      });
+    } catch (e) {
+      dispatch(handleError(e));
     }
   };
 };
