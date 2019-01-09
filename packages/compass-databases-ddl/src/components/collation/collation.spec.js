@@ -23,4 +23,12 @@ describe('Collation [Component]', () => {
   it('renders the correct root classname', () => {
     expect(component.find(`.${styles.collation}`)).to.be.present();
   });
+
+  it('renders the field wrappers', () => {
+    expect(component.find(`.${styles['collation-field']}`)).to.have.length(9);
+  });
+
+  it('renders the labels', () => {
+    expect(component.find(`.${styles['collation-label']}`)).to.have.length(9);
+  });
 });
