@@ -20,9 +20,12 @@ class Collation extends PureComponent {
 
   /**
    * Change the collation option.
+   *
+   * @param {String} field - The field.
+   * @param {Object} value - The value.
    */
   onChangeCollationOption(field, value) {
-    this.props.changeCollationOption(field, value);
+    this.props.changeCollationOption(field, value.value);
   }
 
   /**
