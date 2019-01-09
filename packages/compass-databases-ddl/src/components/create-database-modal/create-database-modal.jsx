@@ -60,7 +60,7 @@ class CreateDatabaseModal extends PureComponent {
   /**
    * Called when the collection name changes.
    *
-   * @param {Object} event - The event.
+   * @param {Object} evt - The event.
    */
   onCollectionNameChange = (evt) => {
     this.props.changeCollectionName(evt.target.value);
@@ -69,7 +69,7 @@ class CreateDatabaseModal extends PureComponent {
   /**
    * Called when the db name changes.
    *
-   * @param {Object} event - The event.
+   * @param {Object} evt - The event.
    */
   onNameChange = (evt) => {
     this.props.changeDatabaseName(evt.target.value);
@@ -78,7 +78,7 @@ class CreateDatabaseModal extends PureComponent {
   /**
    * Called when the capped size changes.
    *
-   * @param {Object} event - The event.
+   * @param {Object} evt - The event.
    */
   onCappedSizeChange = (evt) => {
     this.props.changeCappedSize(evt.target.value);
@@ -101,7 +101,7 @@ class CreateDatabaseModal extends PureComponent {
   /**
    * Called when info is clicked.
    *
-   * @param {Object} event - The event.
+   * @param {Object} evt - The event.
    */
   onInfoClicked = (evt) => {
     evt.preventDefault();

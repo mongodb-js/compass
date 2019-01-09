@@ -46,7 +46,6 @@ class Collation extends PureComponent {
    */
   render() {
     const options = COLLATION_OPTIONS.map((element) => {
-      console.log(element);
       return (
         <div key={element.field} className={classnames(styles['collation-field'])}>
           <p className={classnames(styles['collation-label'])}>{element.label}</p>
