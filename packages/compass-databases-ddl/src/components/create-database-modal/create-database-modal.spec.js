@@ -11,6 +11,7 @@ describe('CreateDatabaseModal [Component]', () => {
     let changeCappedSizeSpy;
     let changeCollectionNameSpy;
     let changeDatabaseNameSpy;
+    let changeCollationOptionSpy;
     let toggleIsCappedSpy;
     let toggleIsCustomCollationSpy;
 
@@ -20,6 +21,7 @@ describe('CreateDatabaseModal [Component]', () => {
       changeCappedSizeSpy = sinon.spy();
       changeCollectionNameSpy = sinon.spy();
       changeDatabaseNameSpy = sinon.spy();
+      changeCollationOptionSpy = sinon.spy();
       toggleIsCappedSpy = sinon.spy();
       toggleIsCustomCollationSpy = sinon.spy();
 
@@ -31,9 +33,11 @@ describe('CreateDatabaseModal [Component]', () => {
           name="dbName"
           collectionName="collName"
           cappedSize={null}
+          collation={{}}
           openLink={openLinkSpy}
           changeCappedSize={changeCappedSizeSpy}
           changeCollectionName={changeCollectionNameSpy}
+          changeCollationOption={changeCollationOptionSpy}
           changeDatabaseName={changeDatabaseNameSpy}
           toggleIsCapped={toggleIsCappedSpy}
           toggleIsCustomCollation={toggleIsCustomCollationSpy}
@@ -46,6 +50,7 @@ describe('CreateDatabaseModal [Component]', () => {
       hideCreateDatabaseSpy = null;
       changeCappedSizeSpy = null;
       changeCollectionNameSpy = null;
+      changeCollationOptionSpy = null;
       changeDatabaseNameSpy = null;
       toggleIsCappedSpy = null;
       toggleIsCustomCollationSpy = null;
@@ -122,6 +127,7 @@ describe('CreateDatabaseModal [Component]', () => {
     let openLinkSpy;
     let changeCappedSizeSpy;
     let changeCollectionNameSpy;
+    let changeCollationOptionSpy;
     let changeDatabaseNameSpy;
     let toggleIsCappedSpy;
     let toggleIsCustomCollationSpy;
@@ -131,6 +137,7 @@ describe('CreateDatabaseModal [Component]', () => {
       hideCreateDatabaseSpy = sinon.spy();
       changeCappedSizeSpy = sinon.spy();
       changeCollectionNameSpy = sinon.spy();
+      changeCollationOptionSpy = sinon.spy();
       changeDatabaseNameSpy = sinon.spy();
       toggleIsCappedSpy = sinon.spy();
       toggleIsCustomCollationSpy = sinon.spy();
@@ -143,9 +150,11 @@ describe('CreateDatabaseModal [Component]', () => {
           name="dbName"
           collectionName="collName"
           cappedSize={null}
+          collation={{}}
           openLink={openLinkSpy}
           changeCappedSize={changeCappedSizeSpy}
           changeCollectionName={changeCollectionNameSpy}
+          changeCollationOption={changeCollationOptionSpy}
           changeDatabaseName={changeDatabaseNameSpy}
           toggleIsCapped={toggleIsCappedSpy}
           toggleIsCustomCollation={toggleIsCustomCollationSpy}
@@ -158,6 +167,7 @@ describe('CreateDatabaseModal [Component]', () => {
       hideCreateDatabaseSpy = null;
       changeCappedSizeSpy = null;
       changeCollectionNameSpy = null;
+      changeCollationOptionSpy = null;
       changeDatabaseNameSpy = null;
       toggleIsCappedSpy = null;
       toggleIsCustomCollationSpy = null;

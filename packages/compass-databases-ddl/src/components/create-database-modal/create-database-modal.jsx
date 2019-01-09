@@ -5,6 +5,7 @@ import classnames from 'classnames';
 import { Modal } from 'react-bootstrap';
 import { TextButton } from 'hadron-react-buttons';
 import { ModalInput, ModalCheckbox } from 'hadron-react-components';
+import Collation from 'components/collation';
 import { changeCappedSize } from 'modules/create-database/capped-size';
 import { changeCollectionName } from 'modules/create-database/collection-name';
 import { changeDatabaseName } from 'modules/create-database/name';
@@ -30,7 +31,7 @@ const HELP_URL_CAPPED = 'https://docs.mongodb.com/manual/core/capped-collections
 /**
  * The help URL for collation.
  */
-// const HELP_URL_COLLATION = 'https://docs.mongodb.com/master/reference/collation/';
+const HELP_URL_COLLATION = 'https://docs.mongodb.com/master/reference/collation/';
 
 /**
  * The modal to create a database.
@@ -91,6 +92,13 @@ class CreateDatabaseModal extends PureComponent {
   }
 
   /**
+   * Called when is custom collation changes.
+   */
+  onToggleIsCustomCollation = () => {
+    this.props.toggleIsCustomCollation(!this.props.isCustomCollation);
+  }
+
+  /**
    * Called when info is clicked.
    *
    * @param {Object} event - The event.
@@ -116,6 +124,21 @@ class CreateDatabaseModal extends PureComponent {
             value={this.props.cappedSize}
             onChangeHandler={this.onCappedSizeChange} />
         </div>
+      );
+    }
+  }
+
+  /**
+   * Render the collation component when collation is selected.
+   *
+   * @returns {React.Component} The component.
+   */
+  renderCollation() {
+    if (this.props.isCustomCollation) {
+      return (
+        <Collation
+          changeCollationOption={this.props.changeCollationOption}
+          collation={this.props.collation} />
       );
     }
   }
@@ -163,6 +186,14 @@ class CreateDatabaseModal extends PureComponent {
                 onClickHandler={this.onToggleIsCapped}
                 onLinkClickHandler={this.props.openLink} />
               {this.renderCappedSize()}
+              <ModalCheckbox
+                name="Use Custom Collation"
+                titleClassName={classnames(styles['create-database-modal-is-custom-collation'])}
+                checked={this.props.isCustomCollation}
+                helpUrl={HELP_URL_COLLATION}
+                onClickHandler={this.onToggleIsCustomCollation}
+                onLinkClickHandler={this.props.openLink} />
+              {this.renderCollation()}
             </div>
             <div className={classnames(styles['create-database-modal-notice'])}>
               Before MongoDB can save your new database, a collection name
