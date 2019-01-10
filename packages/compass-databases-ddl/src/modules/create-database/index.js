@@ -7,7 +7,7 @@ import isCustomCollation from 'modules/create-database/is-custom-collation';
 import isVisible from 'modules/create-database/is-visible';
 import collation from 'modules/create-database/collation';
 import name from 'modules/create-database/name';
-import error, { handleError } from 'modules/create-database/error';
+import error, { clearError, handleError } from 'modules/create-database/error';
 
 /**
  * No dots in DB name error message.
@@ -42,6 +42,8 @@ export const createDatabase = () => {
     const ds = state.dataService.dataService;
     const dbName = state.name;
     const coll = state.collation;
+
+    dispatch(clearError());
 
     if (dbName.includes('.')) {
       return dispatch(handleError(new Error(NO_DOT)));
