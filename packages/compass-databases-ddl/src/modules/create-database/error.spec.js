@@ -1,6 +1,8 @@
 import reducer, {
   INITIAL_STATE,
+  clearError,
   handleError,
+  CLEAR_ERROR,
   HANDLE_ERROR
 } from 'modules/create-database/error';
 
@@ -9,8 +11,16 @@ describe('handle error name module', () => {
 
   describe('#reducer', () => {
     context('when an action is provided', () => {
-      it('returns the new state', () => {
-        expect(reducer(undefined, handleError(error))).to.equal(error);
+      context('when the action is handle error', () => {
+        it('returns the new state', () => {
+          expect(reducer(undefined, handleError(error))).to.equal(error);
+        });
+      });
+
+      context('when the action is clear error', () => {
+        it('returns null', () => {
+          expect(reducer(undefined, clearError())).to.equal(null);
+        });
       });
     });
 
@@ -26,6 +36,14 @@ describe('handle error name module', () => {
       expect(handleError(error)).to.deep.equal({
         type: HANDLE_ERROR,
         error: error
+      });
+    });
+  });
+
+  describe('#clearError', () => {
+    it('returns the action', () => {
+      expect(clearError()).to.deep.equal({
+        type: CLEAR_ERROR
       });
     });
   });

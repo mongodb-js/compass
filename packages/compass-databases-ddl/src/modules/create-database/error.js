@@ -1,7 +1,17 @@
 /**
+ * The action name prefix.
+ */
+const PREFIX = 'ddl/create-database/error';
+
+/**
  * Handle error action name.
  */
-export const HANDLE_ERROR = 'ddl/create-database/error/HANDLE_ERROR';
+export const HANDLE_ERROR = `${PREFIX}/HANDLE_ERROR`;
+
+/**
+ * Clear error action name.
+ */
+export const CLEAR_ERROR = `${PREFIX}/CLEAR_ERROR`;
 
 /**
  * The initial state of the error.
@@ -19,6 +29,8 @@ export const INITIAL_STATE = null;
 export default function reducer(state = INITIAL_STATE, action) {
   if (action.type === HANDLE_ERROR) {
     return action.error;
+  } else if (action.type === CLEAR_ERROR) {
+    return null;
   }
   return state;
 }
@@ -33,4 +45,13 @@ export default function reducer(state = INITIAL_STATE, action) {
 export const handleError = (error) => ({
   type: HANDLE_ERROR,
   error: error
+});
+
+/**
+ * Clear error action creator.
+ *
+ * @returns {Object} The action.
+ */
+export const clearError = () => ({
+  type: CLEAR_ERROR
 });

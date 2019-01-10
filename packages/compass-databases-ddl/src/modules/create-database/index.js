@@ -44,7 +44,7 @@ export const createDatabase = () => {
     const coll = state.collation;
 
     if (dbName.includes('.')) {
-      dispatch(handleError(new Error(NO_DOT)));
+      return dispatch(handleError(new Error(NO_DOT)));
     }
 
     let options = state.isCapped ? { capped: true, size: parseInt(state.cappedSize, 10) } : {};
@@ -52,13 +52,12 @@ export const createDatabase = () => {
     try {
       ds.createCollection(`${dbName}.${state.collectionName}`, options, (e) => {
         if (e) {
-          dispatch(handleError(e));
-        } else {
-          global.hadronApp.appRegistry.getAction('App.InstanceActions').refreshInstance();
+          return dispatch(handleError(e));
         }
+        global.hadronApp.appRegistry.getAction('App.InstanceActions').refreshInstance();
       });
     } catch (e) {
-      dispatch(handleError(e));
+      return dispatch(handleError(e));
     }
   };
 };

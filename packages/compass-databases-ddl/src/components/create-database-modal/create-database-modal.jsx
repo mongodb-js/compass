@@ -4,7 +4,7 @@ import PropTypes from 'prop-types';
 import classnames from 'classnames';
 import { Modal } from 'react-bootstrap';
 import { TextButton } from 'hadron-react-buttons';
-import { ModalInput, ModalCheckbox } from 'hadron-react-components';
+import { ModalInput, ModalCheckbox, ModalStatusMessage } from 'hadron-react-components';
 import Collation from 'components/collation';
 import { changeCappedSize } from 'modules/create-database/capped-size';
 import { changeCollectionName } from 'modules/create-database/collection-name';
@@ -203,6 +203,9 @@ class CreateDatabaseModal extends PureComponent {
               must also be specified at the time of creation.
               <a onClick={this.onInfoClicked}>More Information</a>
             </div>
+            {this.props.error ?
+              <ModalStatusMessage icon="times" message={this.props.error.message} type="error" />
+              : null}
           </form>
         </Modal.Body>
 
