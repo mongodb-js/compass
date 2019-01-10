@@ -45,6 +45,7 @@ class CreateDatabaseModal extends PureComponent {
     isCustomCollation: PropTypes.bool.isRequired,
     isVisible: PropTypes.bool.isRequired,
     name: PropTypes.string.isRequired,
+    error: PropTypes.object,
     collation: PropTypes.object.isRequired,
     collectionName: PropTypes.string.isRequired,
     cappedSize: PropTypes.string.isRequired,
@@ -236,7 +237,8 @@ const mapStateToProps = (state) => ({
   name: state.name,
   collation: state.collation,
   collectionName: state.collectionName,
-  cappedSize: state.cappedSize
+  cappedSize: state.cappedSize,
+  error: state.error
 });
 
 /**

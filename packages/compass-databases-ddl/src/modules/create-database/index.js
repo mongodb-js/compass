@@ -7,7 +7,7 @@ import isCustomCollation from 'modules/create-database/is-custom-collation';
 import isVisible from 'modules/create-database/is-visible';
 import collation from 'modules/create-database/collation';
 import name from 'modules/create-database/name';
-import { handleError } from 'modules/create-database/error';
+import error, { handleError } from 'modules/create-database/error';
 
 /**
  * No dots in DB name error message.
@@ -24,6 +24,7 @@ const reducer = combineReducers({
   isCustomCollation,
   isVisible,
   name,
+  error,
   collation,
   dataService
 });
