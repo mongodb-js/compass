@@ -47,7 +47,7 @@ class CreateDatabaseModal extends PureComponent {
     name: PropTypes.string.isRequired,
     collation: PropTypes.object.isRequired,
     collectionName: PropTypes.string.isRequired,
-    cappedSize: PropTypes.number,
+    cappedSize: PropTypes.string.isRequired,
     openLink: PropTypes.func.isRequired,
     changeCappedSize: PropTypes.func.isRequired,
     changeCollectionName: PropTypes.func.isRequired,

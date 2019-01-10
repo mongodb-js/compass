@@ -6,7 +6,7 @@ export const CHANGE_CAPPED_SIZE = 'ddl/create-database/capped-size/CHANGE_CAPPED
 /**
  * The initial state of the capped size.
  */
-export const INITIAL_STATE = null;
+export const INITIAL_STATE = '';
 
 /**
  * Reducer function for handle state changes to capped size.
@@ -18,7 +18,7 @@ export const INITIAL_STATE = null;
  */
 export default function reducer(state = INITIAL_STATE, action) {
   if (action.type === CHANGE_CAPPED_SIZE) {
-    return parseInt(action.size, 10);
+    return action.size;
   }
   return state;
 }
