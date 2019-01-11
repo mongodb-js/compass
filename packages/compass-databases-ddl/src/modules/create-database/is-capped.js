@@ -11,7 +11,7 @@ export const INITIAL_STATE = false;
 /**
  * Reducer function for handle state changes to is capped.
  *
- * @param {Array} state - The is capped state.
+ * @param {Boolean} state - The is capped state.
  * @param {Object} action - The action.
  *
  * @returns {Array} The new state.

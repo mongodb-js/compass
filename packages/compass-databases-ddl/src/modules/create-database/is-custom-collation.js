@@ -12,7 +12,7 @@ export const INITIAL_STATE = false;
 /**
  * Reducer function for handle state changes to is custom collation.
  *
- * @param {Array} state - The is custom collation state.
+ * @param {Boolean} state - The is custom collation state.
  * @param {Object} action - The action.
  *
  * @returns {Array} The new state.
