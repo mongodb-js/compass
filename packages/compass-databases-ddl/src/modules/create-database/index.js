@@ -1,13 +1,29 @@
 import { combineReducers } from 'redux';
 import dataService from 'modules/data-service';
-import cappedSize, { INITIAL_STATE as CAPPED_SIZE_INITIAL_STATE } from 'modules/create-database/capped-size';
-import collectionName, { INITIAL_STATE as COLLECTION_NAME_INITIAL_STATE } from 'modules/create-database/collection-name';
-import isCapped, { INITIAL_STATE as IS_CAPPED_INITIAL_STATE } from 'modules/create-database/is-capped';
-import isCustomCollation, { INITIAL_STATE as IS_CUSTOM_COLLATION_INITIAL_STATE } from 'modules/create-database/is-custom-collation';
-import isVisible, { INITIAL_STATE as IS_VISIBLE_INITIAL_STATE } from 'modules/create-database/is-visible';
-import collation, { INITIAL_STATE as COLLATION_INITIAL_STATE } from 'modules/create-database/collation';
-import name, { INITIAL_STATE as NAME_INITIAL_STATE } from 'modules/create-database/name';
-import error, { clearError, handleError, INITIAL_STATE as ERROR_INITIAL_STATE } from 'modules/create-database/error';
+import cappedSize, {
+  INITIAL_STATE as CAPPED_SIZE_INITIAL_STATE
+} from 'modules/create-database/capped-size';
+import collectionName, {
+  INITIAL_STATE as COLLECTION_NAME_INITIAL_STATE
+} from 'modules/create-database/collection-name';
+import isCapped, {
+  INITIAL_STATE as IS_CAPPED_INITIAL_STATE
+} from 'modules/create-database/is-capped';
+import isCustomCollation, {
+  INITIAL_STATE as IS_CUSTOM_COLLATION_INITIAL_STATE
+} from 'modules/create-database/is-custom-collation';
+import isVisible, {
+  INITIAL_STATE as IS_VISIBLE_INITIAL_STATE
+} from 'modules/create-database/is-visible';
+import collation, {
+  INITIAL_STATE as COLLATION_INITIAL_STATE
+} from 'modules/create-database/collation';
+import name, {
+  INITIAL_STATE as NAME_INITIAL_STATE
+} from 'modules/create-database/name';
+import error, {
+  clearError, handleError, INITIAL_STATE as ERROR_INITIAL_STATE
+} from 'modules/create-database/error';
 
 /**
  * No dots in DB name error message.
