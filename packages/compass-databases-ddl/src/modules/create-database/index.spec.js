@@ -1,6 +1,12 @@
-// import { createDatabase } from 'modules/create-database';
+import { reset, RESET } from 'modules/create-database';
 
 describe('create database module', () => {
+  describe('#reset', () => {
+    it('returns the reset action', () => {
+      expect(reset()).to.deep.equal({ type: RESET });
+    });
+  });
+
   describe('#createDatabase', () => {
     context('when an error exists in the state', () => {
 

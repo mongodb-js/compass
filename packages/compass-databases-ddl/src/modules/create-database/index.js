@@ -15,6 +15,11 @@ import error, { clearError, handleError } from 'modules/create-database/error';
 export const NO_DOT = 'Database names may not contain a "."';
 
 /**
+ * The reset action name.
+ */
+export const RESET = 'ddl/RESET';
+
+/**
  * The main reducer.
  */
 const reducer = combineReducers({
@@ -30,6 +35,15 @@ const reducer = combineReducers({
 });
 
 export default reducer;
+
+/**
+ * Reset the state of the entire store.
+ *
+ * @return {Object} The action creator.
+ */
+export const reset = () => ({
+  type: RESET
+});
 
 /**
  * The create database action.
