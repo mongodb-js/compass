@@ -8,14 +8,22 @@ describe('Toolbar [Component]', () => {
   context('when the distribution is readonly', () => {
     let component;
     let showCreateDatabaseSpy;
+    let clearErrorSpy;
 
     beforeEach(() => {
       showCreateDatabaseSpy = sinon.spy();
-      component = mount(<Toolbar isReadonly showCreateDatabase={showCreateDatabaseSpy} />);
+      clearErrorSpy = sinon.spy();
+      component = mount(
+        <Toolbar
+          isReadonly
+          showCreateDatabase={showCreateDatabaseSpy}
+          clearError={clearErrorSpy} />
+      );
     });
 
     afterEach(() => {
       showCreateDatabaseSpy = null;
+      clearErrorSpy = null;
       component = null;
     });
 
@@ -31,14 +39,22 @@ describe('Toolbar [Component]', () => {
   context('when the distribution is not readonly', () => {
     let component;
     let showCreateDatabaseSpy;
+    let clearErrorSpy;
 
     beforeEach(() => {
       showCreateDatabaseSpy = sinon.spy();
-      component = mount(<Toolbar isReadonly={false} showCreateDatabase={showCreateDatabaseSpy} />);
+      clearErrorSpy = sinon.spy();
+      component = mount(
+        <Toolbar
+          isReadonly={false}
+          showCreateDatabase={showCreateDatabaseSpy}
+          clearError={clearErrorSpy} />
+      );
     });
 
     afterEach(() => {
       showCreateDatabaseSpy = null;
+      clearErrorSpy = null;
       component = null;
     });
 
@@ -48,13 +64,6 @@ describe('Toolbar [Component]', () => {
 
     it('renders the create database button', () => {
       expect(component.find('[text="Create Database"]')).to.be.present();
-    });
-
-    context('when clicking on the button', () => {
-      it.skip('calls the show create database action creator', () => {
-        component.find('[text="Create Database"]').simulate('click');
-        expect(showCreateDatabaseSpy.calledOnce).to.equal(true);
-      });
     });
   });
 });

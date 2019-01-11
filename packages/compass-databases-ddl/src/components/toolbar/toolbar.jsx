@@ -4,7 +4,6 @@ import PropTypes from 'prop-types';
 import classnames from 'classnames';
 import CreateDatabaseModal from 'components/create-database-modal';
 import createDatabaseStore from 'stores/create-database';
-import { showCreateDatabase } from 'modules/create-database/is-visible';
 
 import styles from './toolbar.less';
 
@@ -20,7 +19,9 @@ class Toolbar extends PureComponent {
   static displayName = 'ToolbarComponent';
 
   static propTypes = {
-    isReadonly: PropTypes.bool.isRequired
+    isReadonly: PropTypes.bool.isRequired,
+    showCreateDatabase: PropTypes.func.isRequired,
+    clearError: PropTypes.func.isRequired
   }
 
   /**
@@ -37,7 +38,8 @@ class Toolbar extends PureComponent {
    * Dispatch directly on the create database store.
    */
   onShowCreateDatabase = () => {
-    createDatabaseStore.dispatch(showCreateDatabase());
+    createDatabaseStore.dispatch(this.props.clearError());
+    createDatabaseStore.dispatch(this.props.showCreateDatabase());
   }
 
   /**
