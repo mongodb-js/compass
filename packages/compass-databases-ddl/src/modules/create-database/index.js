@@ -57,6 +57,7 @@ export const createDatabase = () => {
           return dispatch(handleError(e));
         }
         global.hadronApp.appRegistry.getAction('App.InstanceActions').refreshInstance();
+        // Close the modal with success.
       });
     } catch (e) {
       return dispatch(handleError(e));

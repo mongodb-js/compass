@@ -30,7 +30,12 @@ const InstanceStore = Reflux.createStore({
   }
 });
 
+const InstanceActions = Reflux.createActions([
+  'refreshInstance'
+]);
+
 appRegistry.registerStore('App.InstanceStore', InstanceStore);
+appRegistry.registerAction('App.InstanceActions', InstanceActions);
 
 // Activate our plugin with the Hadron App Registry
 activate(appRegistry);
