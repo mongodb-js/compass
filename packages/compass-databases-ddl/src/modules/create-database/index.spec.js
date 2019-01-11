@@ -1,6 +1,28 @@
-import { reset, RESET } from 'modules/create-database';
+import reducer, { reset, RESET } from 'modules/create-database';
 
 describe('create database module', () => {
+  describe('#reducer', () => {
+    context('when an action is provided', () => {
+      context('when the action is reset', () => {
+        const dataService = 'data-service';
+
+        it('returns the reset state', () => {
+          expect(reducer({ dataService: dataService }, reset())).to.deep.equal({
+            cappedSize: '',
+            collation: {},
+            collectionName: '',
+            dataService: 'data-service',
+            error: null,
+            isCapped: false,
+            isCustomCollation: false,
+            isVisible: false,
+            name: ''
+          });
+        });
+      });
+    });
+  });
+
   describe('#reset', () => {
     it('returns the reset action', () => {
       expect(reset()).to.deep.equal({ type: RESET });
