@@ -2,23 +2,6 @@
 
 > Compass Database Plugin
 
-## Usage
-
-### Scripts
-
-`link-plugin`: Links the Compass plugin and Compass for development along with React to ensure the
-  plugin and Compass are using the same React instance.
-
-```shell
-COMPASS_HOME=/path/to/my/compass npm run link-plugin
-```
-
-`unlink-plugin`: Restores Compass and the plugin to their original unlinked state.
-
-```shell
-COMPASS_HOME=/path/to/my/compass npm run unlink-plugin
-```
-
 ## License
 
 Apache 2
@@ -26,16 +9,6 @@ Apache 2
 ===
 
 ## Features
-
-#### Storybook
-
-Develop and prototype your component with [react-storybook][react-storybook] in a standalone
-browser view, with linked stories and hot reloading.
-
-To run storybook mode, type `npm run storybook`, then open
-[http://localhost:9001](http://localhost:9001) in a browser. You can now edit the source code
-and hit _save_, and changes will immediately show in the browser, while maintaining the state
-of the component(s).
 
 #### Electron
 
@@ -75,7 +48,6 @@ const config = {
 
 For completeness, below is a list of directories present in this module:
 
-- `.storybook` react-storybook and webpack configuration. You usually don't need to touch this.
 - `electron` code to start electron, open a browser window and load the source.
   You don't usually need to touch this, unless you want to render something other
   than the main component in Electron.
@@ -93,9 +65,8 @@ For completeness, below is a list of directories present in this module:
 
 Apache 2.0
 
-[travis_img]: https://travis-ci.org/mongodb-js/database.svg?branch=master
-[travis_url]: https://travis-ci.org/mongodb-js/database
-[react-storybook]: https://github.com/kadirahq/react-storybook
+[travis_img]: https://travis-ci.org/mongodb-js/compass-database.svg?branch=master
+[travis_url]: https://travis-ci.org/mongodb-js/compass-database
 [enzyme]: http://airbnb.io/enzyme/
 [enzyme-chai]: https://github.com/producthunt/chai-enzyme
 [jsdom]: https://github.com/tmpvar/jsdom
