@@ -6,7 +6,7 @@ import { sortDatabases } from 'modules/databases';
 import Toolbar from 'components/toolbar';
 import DatabasesTable from 'components/databases-table';
 import { showCreateDatabase } from 'modules/create-database/is-visible';
-import { clearError } from 'modules/create-database/error';
+import { reset } from 'modules/create-database';
 
 import styles from './ddl.less';
 
@@ -37,7 +37,7 @@ class Ddl extends PureComponent {
         <Toolbar
           isReadonly={this.props.isReadonly}
           showCreateDatabase={showCreateDatabase}
-          clearError={clearError} />
+          reset={reset} />
         <DatabasesTable
           columns={this.props.columns}
           databases={this.props.databases}

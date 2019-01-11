@@ -8,22 +8,22 @@ describe('Toolbar [Component]', () => {
   context('when the distribution is readonly', () => {
     let component;
     let showCreateDatabaseSpy;
-    let clearErrorSpy;
+    let resetSpy;
 
     beforeEach(() => {
       showCreateDatabaseSpy = sinon.spy();
-      clearErrorSpy = sinon.spy();
+      resetSpy = sinon.spy();
       component = mount(
         <Toolbar
           isReadonly
           showCreateDatabase={showCreateDatabaseSpy}
-          clearError={clearErrorSpy} />
+          reset={resetSpy} />
       );
     });
 
     afterEach(() => {
       showCreateDatabaseSpy = null;
-      clearErrorSpy = null;
+      resetSpy = null;
       component = null;
     });
 
@@ -39,22 +39,22 @@ describe('Toolbar [Component]', () => {
   context('when the distribution is not readonly', () => {
     let component;
     let showCreateDatabaseSpy;
-    let clearErrorSpy;
+    let resetSpy;
 
     beforeEach(() => {
       showCreateDatabaseSpy = sinon.spy();
-      clearErrorSpy = sinon.spy();
+      resetSpy = sinon.spy();
       component = mount(
         <Toolbar
           isReadonly={false}
           showCreateDatabase={showCreateDatabaseSpy}
-          clearError={clearErrorSpy} />
+          reset={resetSpy} />
       );
     });
 
     afterEach(() => {
       showCreateDatabaseSpy = null;
-      clearErrorSpy = null;
+      resetSpy = null;
       component = null;
     });
 
