@@ -93,6 +93,19 @@ export const reset = () => ({
 });
 
 /**
+ * Stop progress and set the error.
+ *
+ * @param {Function} dispatch - The dispatch function.
+ * @param {Error} err - The error.
+ *
+ * @return {Object} The result.
+ */
+const stopWithError = (dispatch, err) => {
+  dispatch(toggleIsRunning(false));
+  return dispatch(handleError(err));
+};
+
+/**
  * The create database action.
  *
  * @returns {Function} The thunk function.
@@ -116,13 +129,13 @@ export const createDatabase = () => {
       dispatch(toggleIsRunning(true));
       ds.createCollection(`${dbName}.${state.collectionName}`, options, (e) => {
         if (e) {
-          return dispatch(handleError(e));
+          return stopWithError(dispatch, e);
         }
         global.hadronApp.appRegistry.getAction('App.InstanceActions').refreshInstance();
         dispatch(reset());
       });
     } catch (e) {
-      return dispatch(handleError(e));
+      return stopWithError(dispatch, e);
     }
   };
 };
