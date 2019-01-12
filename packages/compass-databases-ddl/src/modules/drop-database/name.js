@@ -14,7 +14,7 @@ export const INITIAL_STATE = '';
  * @param {String} state - The drop database name state.
  * @param {Object} action - The action.
  *
- * @returns {Array} The new state.
+ * @returns {String} The new state.
  */
 export default function reducer(state = INITIAL_STATE, action) {
   if (action.type === CHANGE_DATABASE_NAME) {

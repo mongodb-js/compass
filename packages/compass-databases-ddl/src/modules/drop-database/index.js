@@ -1,4 +1,10 @@
 import { combineReducers } from 'redux';
+import name, {
+  INITIAL_STATE as NAME_INITIAL_STATE
+} from 'modules/drop-database/name';
+import nameConfirmation, {
+  INITIAL_STATE as NAME_CONFIRMATION_INITIAL_STATE
+} from 'modules/drop-database/name-confirmation';
 import dataService from 'modules/data-service';
 
 /**
@@ -10,6 +16,8 @@ export const RESET = 'ddl/drop-database/RESET';
  * The main reducer.
  */
 const reducer = combineReducers({
+  name,
+  nameConfirmation,
   dataService
 });
 
@@ -23,7 +31,11 @@ const reducer = combineReducers({
  */
 const rootReducer = (state, action) => {
   if (action.type === RESET) {
-    return { ...state };
+    return {
+      ...state,
+      name: NAME_INITIAL_STATE,
+      nameConfirmation: NAME_CONFIRMATION_INITIAL_STATE
+    };
   }
   return reducer(state, action);
 };

@@ -1,6 +1,6 @@
 import reducer, { reset, RESET } from 'modules/drop-database';
 
-describe('create database module', () => {
+describe('drop database module', () => {
   describe('#reducer', () => {
     context('when an action is provided', () => {
       context('when the action is reset', () => {
@@ -8,6 +8,8 @@ describe('create database module', () => {
 
         it('returns the reset state', () => {
           expect(reducer({ dataService: dataService }, reset())).to.deep.equal({
+            name: '',
+            nameConfirmation: '',
             dataService: 'data-service'
           });
         });

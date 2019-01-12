@@ -9,12 +9,12 @@ export const CHANGE_DATABASE_NAME = 'ddl/create-database/name/CHANGE_NAME';
 export const INITIAL_STATE = '';
 
 /**
- * Reducer function for handle state changes to create database.
+ * Reducer function for handle state changes to create database name.
  *
- * @param {Array} state - The create database state.
+ * @param {String} state - The create database name state.
  * @param {Object} action - The action.
  *
- * @returns {Array} The new state.
+ * @returns {String} The new state.
  */
 export default function reducer(state = INITIAL_STATE, action) {
   if (action.type === CHANGE_DATABASE_NAME) {
