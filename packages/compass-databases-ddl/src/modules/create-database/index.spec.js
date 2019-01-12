@@ -15,6 +15,7 @@ describe('create database module', () => {
             error: null,
             isCapped: false,
             isCustomCollation: false,
+            isRunning: false,
             isVisible: false,
             name: ''
           });

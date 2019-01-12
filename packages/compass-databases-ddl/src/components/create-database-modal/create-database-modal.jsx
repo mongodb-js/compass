@@ -43,6 +43,7 @@ class CreateDatabaseModal extends PureComponent {
   static propTypes = {
     isCapped: PropTypes.bool.isRequired,
     isCustomCollation: PropTypes.bool.isRequired,
+    isRunning: PropTypes.bool.isRequired,
     isVisible: PropTypes.bool.isRequired,
     name: PropTypes.string.isRequired,
     error: PropTypes.object,
@@ -206,6 +207,9 @@ class CreateDatabaseModal extends PureComponent {
             {this.props.error ?
               <ModalStatusMessage icon="times" message={this.props.error.message} type="error" />
               : null}
+            {this.props.isRunning ?
+              <ModalStatusMessage icon="spinner" message="Create in Progress" type="in-progress" />
+              : null}
           </form>
         </Modal.Body>
 
@@ -236,6 +240,7 @@ class CreateDatabaseModal extends PureComponent {
 const mapStateToProps = (state) => ({
   isCapped: state.isCapped,
   isCustomCollation: state.isCustomCollation,
+  isRunning: state.isRunning,
   isVisible: state.isVisible,
   name: state.name,
   collation: state.collation,

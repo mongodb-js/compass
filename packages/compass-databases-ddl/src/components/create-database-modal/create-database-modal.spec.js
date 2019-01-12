@@ -32,6 +32,7 @@ describe('CreateDatabaseModal [Component]', () => {
           isVisible
           isCapped={false}
           isCustomCollation={false}
+          isRunning={false}
           name="dbName"
           collectionName="collName"
           cappedSize={''}
@@ -153,6 +154,7 @@ describe('CreateDatabaseModal [Component]', () => {
           isVisible={false}
           isCapped={false}
           isCustomCollation={false}
+          isRunning={false}
           name="dbName"
           collectionName="collName"
           cappedSize={''}

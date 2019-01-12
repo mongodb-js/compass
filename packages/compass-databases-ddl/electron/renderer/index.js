@@ -78,9 +78,7 @@ const connection = new Connection({
 });
 const dataService = new DataService(connection);
 
-appRegistry.emit('data-service-initialized', dataService);
-dataService.connect((error, ds) => {
-  appRegistry.emit('data-service-connected', error, ds);
+const refreshInstance = () => {
   dataService.instance({}, (err, data) => {
     if (err) console.log(err);
 
@@ -90,6 +88,14 @@ dataService.connect((error, ds) => {
       }
     });
   });
+};
+
+InstanceActions.refreshInstance.listen(refreshInstance);
+
+appRegistry.emit('data-service-initialized', dataService);
+dataService.connect((error, ds) => {
+  appRegistry.emit('data-service-connected', error, ds);
+  refreshInstance();
 });
 
 if (module.hot) {

@@ -12,6 +12,10 @@ import isCapped, {
 import isCustomCollation, {
   INITIAL_STATE as IS_CUSTOM_COLLATION_INITIAL_STATE
 } from 'modules/create-database/is-custom-collation';
+import isRunning, {
+  toggleIsRunning,
+  INITIAL_STATE as IS_RUNNING_INITIAL_STATE
+} from 'modules/create-database/is-running';
 import isVisible, {
   INITIAL_STATE as IS_VISIBLE_INITIAL_STATE
 } from 'modules/create-database/is-visible';
@@ -43,6 +47,7 @@ const reducer = combineReducers({
   collectionName,
   isCapped,
   isCustomCollation,
+  isRunning,
   isVisible,
   name,
   error,
@@ -66,6 +71,7 @@ const rootReducer = (state, action) => {
       collectionName: COLLECTION_NAME_INITIAL_STATE,
       isCapped: IS_CAPPED_INITIAL_STATE,
       isCustomCollation: IS_CUSTOM_COLLATION_INITIAL_STATE,
+      isRunning: IS_RUNNING_INITIAL_STATE,
       isVisible: IS_VISIBLE_INITIAL_STATE,
       name: NAME_INITIAL_STATE,
       error: ERROR_INITIAL_STATE,
@@ -107,12 +113,13 @@ export const createDatabase = () => {
     let options = state.isCapped ? { capped: true, size: parseInt(state.cappedSize, 10) } : {};
     options = state.isCustomCollation ? { ...options, coll } : options;
     try {
+      dispatch(toggleIsRunning(true));
       ds.createCollection(`${dbName}.${state.collectionName}`, options, (e) => {
         if (e) {
           return dispatch(handleError(e));
         }
         global.hadronApp.appRegistry.getAction('App.InstanceActions').refreshInstance();
-        // Close the modal with success.
+        dispatch(reset());
       });
     } catch (e) {
       return dispatch(handleError(e));
