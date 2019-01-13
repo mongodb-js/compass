@@ -1,7 +1,7 @@
 /**
  * The action name prefix.
  */
-const PREFIX = 'ddl/create-database/error';
+const PREFIX = 'ddl/error';
 
 /**
  * Handle error action name.

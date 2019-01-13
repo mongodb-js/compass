@@ -4,7 +4,7 @@ import reducer, {
   handleError,
   CLEAR_ERROR,
   HANDLE_ERROR
-} from 'modules/create-database/error';
+} from 'modules/error';
 
 describe('handle error name module', () => {
   const error = new Error('testing');

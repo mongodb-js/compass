@@ -1,5 +1,6 @@
 import { combineReducers } from 'redux';
 import isRunning, {
+  toggleIsRunning,
   INITIAL_STATE as IS_RUNNING_INITIAL_STATE
 } from 'modules/is-running';
 import isVisible, {
@@ -11,6 +12,9 @@ import name, {
 import nameConfirmation, {
   INITIAL_STATE as NAME_CONFIRMATION_INITIAL_STATE
 } from 'modules/drop-database/name-confirmation';
+import error, {
+  clearError, handleError, INITIAL_STATE as ERROR_INITIAL_STATE
+} from 'modules/error';
 import dataService from 'modules/data-service';
 
 /**
@@ -26,6 +30,7 @@ const reducer = combineReducers({
   isVisible,
   name,
   nameConfirmation,
+  error,
   dataService
 });
 
@@ -44,7 +49,8 @@ const rootReducer = (state, action) => {
       isRunning: IS_RUNNING_INITIAL_STATE,
       isVisible: IS_VISIBLE_INITIAL_STATE,
       name: NAME_INITIAL_STATE,
-      nameConfirmation: NAME_CONFIRMATION_INITIAL_STATE
+      nameConfirmation: NAME_CONFIRMATION_INITIAL_STATE,
+      error: ERROR_INITIAL_STATE
     };
   }
   return reducer(state, action);
@@ -69,9 +75,9 @@ export const reset = () => ({
  *
  * @return {Object} The result.
  */
-const stopWithError = () => {
-  // dispatch(toggleIsRunning(false));
-  // return dispatch(handleError(err));
+const stopWithError = (dispatch, err) => {
+  dispatch(toggleIsRunning(false));
+  return dispatch(handleError(err));
 };
 
 /**
@@ -85,10 +91,10 @@ export const dropDatabase = () => {
     const ds = state.dataService.dataService;
     const dbName = state.name;
 
-    // dispatch(clearError());
+    dispatch(clearError());
 
     try {
-      // dispatch(toggleIsRunning(true));
+      dispatch(toggleIsRunning(true));
       ds.dropDatabase(dbName, (e) => {
         if (e) {
           return stopWithError(dispatch, e);

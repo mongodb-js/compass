@@ -12,6 +12,7 @@ describe('drop database module', () => {
             isVisible: false,
             name: '',
             nameConfirmation: '',
+            error: null,
             dataService: 'data-service'
           });
         });

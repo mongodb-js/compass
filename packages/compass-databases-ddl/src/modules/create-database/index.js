@@ -27,7 +27,7 @@ import name, {
 } from 'modules/create-database/name';
 import error, {
   clearError, handleError, INITIAL_STATE as ERROR_INITIAL_STATE
-} from 'modules/create-database/error';
+} from 'modules/error';
 
 /**
  * No dots in DB name error message.
