@@ -52,8 +52,7 @@ class DatabasesTable extends PureComponent {
   /**
    * Happens on the click of the delete trash can in the list.
    */
-  onDeleteClicked = (value) => {
-    console.log('onDeleteClicked', value);
+  onDeleteClicked = () => {
     dropDatabaseStore.dispatch(this.props.reset());
     dropDatabaseStore.dispatch(this.props.toggleIsVisible(true));
   }
