@@ -21,10 +21,10 @@ export const INITIAL_STATE = false;
 /**
  * Reducer function for handle state changes to create database.
  *
- * @param {Array} state - The create database state.
+ * @param {Boolean} state - The create database state.
  * @param {Object} action - The action.
  *
- * @returns {Array} The new state.
+ * @returns {Boolean} The new state.
  */
 export default function reducer(state = INITIAL_STATE, action) {
   if (action.type === SHOW_CREATE_DATABASE) {
