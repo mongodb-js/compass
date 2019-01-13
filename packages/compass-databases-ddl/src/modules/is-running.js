@@ -1,7 +1,7 @@
 /**
  * Toggle is running action name.
  */
-export const TOGGLE_IS_RUNNING = 'ddl/drop-database/is-running/TOGGLE_IS_RUNNING';
+export const TOGGLE_IS_RUNNING = 'ddl/is-running/TOGGLE_IS_RUNNING';
 
 /**
  * The initial state of the is running attribute.

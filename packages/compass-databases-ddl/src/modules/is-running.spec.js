@@ -2,9 +2,9 @@ import reducer, {
   INITIAL_STATE,
   toggleIsRunning,
   TOGGLE_IS_RUNNING
-} from 'modules/create-database/is-running';
+} from 'modules/is-running';
 
-describe('create database is running module', () => {
+describe('drop database is running module', () => {
   describe('#reducer', () => {
     context('when an action is provided', () => {
       it('returns the new state', () => {

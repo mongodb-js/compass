@@ -15,7 +15,7 @@ import isCustomCollation, {
 import isRunning, {
   toggleIsRunning,
   INITIAL_STATE as IS_RUNNING_INITIAL_STATE
-} from 'modules/create-database/is-running';
+} from 'modules/is-running';
 import isVisible, {
   INITIAL_STATE as IS_VISIBLE_INITIAL_STATE
 } from 'modules/create-database/is-visible';
