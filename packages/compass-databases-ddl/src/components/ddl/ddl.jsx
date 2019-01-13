@@ -5,7 +5,7 @@ import classnames from 'classnames';
 import { sortDatabases } from 'modules/databases';
 import Toolbar from 'components/toolbar';
 import DatabasesTable from 'components/databases-table';
-import { showCreateDatabase } from 'modules/create-database/is-visible';
+import { toggleIsVisible } from 'modules/is-visible';
 import { reset } from 'modules/create-database';
 
 import styles from './ddl.less';
@@ -36,7 +36,7 @@ class Ddl extends PureComponent {
       <div className={classnames(styles.ddl)} data-test-id="databases-table">
         <Toolbar
           isReadonly={this.props.isReadonly}
-          showCreateDatabase={showCreateDatabase}
+          toggleIsVisible={toggleIsVisible}
           reset={reset} />
         <DatabasesTable
           columns={this.props.columns}

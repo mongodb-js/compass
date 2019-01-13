@@ -7,22 +7,22 @@ import styles from './toolbar.less';
 describe('Toolbar [Component]', () => {
   context('when the distribution is readonly', () => {
     let component;
-    let showCreateDatabaseSpy;
+    let toggleIsVisibleSpy;
     let resetSpy;
 
     beforeEach(() => {
-      showCreateDatabaseSpy = sinon.spy();
+      toggleIsVisibleSpy = sinon.spy();
       resetSpy = sinon.spy();
       component = mount(
         <Toolbar
           isReadonly
-          showCreateDatabase={showCreateDatabaseSpy}
+          toggleIsVisible={toggleIsVisibleSpy}
           reset={resetSpy} />
       );
     });
 
     afterEach(() => {
-      showCreateDatabaseSpy = null;
+      toggleIsVisibleSpy = null;
       resetSpy = null;
       component = null;
     });
@@ -38,22 +38,22 @@ describe('Toolbar [Component]', () => {
 
   context('when the distribution is not readonly', () => {
     let component;
-    let showCreateDatabaseSpy;
+    let toggleIsVisibleSpy;
     let resetSpy;
 
     beforeEach(() => {
-      showCreateDatabaseSpy = sinon.spy();
+      toggleIsVisibleSpy = sinon.spy();
       resetSpy = sinon.spy();
       component = mount(
         <Toolbar
           isReadonly={false}
-          showCreateDatabase={showCreateDatabaseSpy}
+          toggleIsVisible={toggleIsVisibleSpy}
           reset={resetSpy} />
       );
     });
 
     afterEach(() => {
-      showCreateDatabaseSpy = null;
+      toggleIsVisibleSpy = null;
       resetSpy = null;
       component = null;
     });

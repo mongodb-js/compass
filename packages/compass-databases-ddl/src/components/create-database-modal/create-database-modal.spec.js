@@ -6,7 +6,7 @@ import styles from './create-database-modal.less';
 describe('CreateDatabaseModal [Component]', () => {
   context('when the modal is visible', () => {
     let component;
-    let hideCreateDatabaseSpy;
+    let toggleIsVisibleSpy;
     let openLinkSpy;
     let changeCappedSizeSpy;
     let changeCollectionNameSpy;
@@ -18,7 +18,7 @@ describe('CreateDatabaseModal [Component]', () => {
 
     beforeEach(() => {
       openLinkSpy = sinon.spy();
-      hideCreateDatabaseSpy = sinon.spy();
+      toggleIsVisibleSpy = sinon.spy();
       changeCappedSizeSpy = sinon.spy();
       changeCollectionNameSpy = sinon.spy();
       changeDatabaseNameSpy = sinon.spy();
@@ -45,13 +45,13 @@ describe('CreateDatabaseModal [Component]', () => {
           createDatabase={createDatabaseSpy}
           toggleIsCapped={toggleIsCappedSpy}
           toggleIsCustomCollation={toggleIsCustomCollationSpy}
-          hideCreateDatabase={hideCreateDatabaseSpy} />
+          toggleIsVisible={toggleIsVisibleSpy} />
       );
     });
 
     afterEach(() => {
       openLinkSpy = null;
-      hideCreateDatabaseSpy = null;
+      toggleIsVisibleSpy = null;
       changeCappedSizeSpy = null;
       changeCollectionNameSpy = null;
       changeCollationOptionSpy = null;
@@ -118,7 +118,7 @@ describe('CreateDatabaseModal [Component]', () => {
     context('when clicking cancel', () => {
       it('closes the modal', () => {
         component.find('[data-test-id="cancel-create-database-button"]').hostNodes().simulate('click');
-        expect(hideCreateDatabaseSpy.calledOnce).to.equal(true);
+        expect(toggleIsVisibleSpy.calledOnce).to.equal(true);
       });
     });
 
@@ -128,7 +128,7 @@ describe('CreateDatabaseModal [Component]', () => {
 
   context('when the modal is not visible', () => {
     let component;
-    let hideCreateDatabaseSpy;
+    let toggleIsVisibleSpy;
     let openLinkSpy;
     let changeCappedSizeSpy;
     let changeCollectionNameSpy;
@@ -140,7 +140,7 @@ describe('CreateDatabaseModal [Component]', () => {
 
     beforeEach(() => {
       openLinkSpy = sinon.spy();
-      hideCreateDatabaseSpy = sinon.spy();
+      toggleIsVisibleSpy = sinon.spy();
       changeCappedSizeSpy = sinon.spy();
       changeCollectionNameSpy = sinon.spy();
       changeCollationOptionSpy = sinon.spy();
@@ -167,13 +167,13 @@ describe('CreateDatabaseModal [Component]', () => {
           createDatabase={createDatabaseSpy}
           toggleIsCapped={toggleIsCappedSpy}
           toggleIsCustomCollation={toggleIsCustomCollationSpy}
-          hideCreateDatabase={hideCreateDatabaseSpy} />
+          toggleIsVisible={toggleIsVisibleSpy} />
       );
     });
 
     afterEach(() => {
       openLinkSpy = null;
-      hideCreateDatabaseSpy = null;
+      toggleIsVisibleSpy = null;
       changeCappedSizeSpy = null;
       changeCollectionNameSpy = null;
       changeCollationOptionSpy = null;

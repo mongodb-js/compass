@@ -5,7 +5,7 @@ import isRunning, {
 } from 'modules/is-running';
 import isVisible, {
   INITIAL_STATE as IS_VISIBLE_INITIAL_STATE
-} from 'modules/drop-database/is-visible';
+} from 'modules/is-visible';
 import name, {
   INITIAL_STATE as NAME_INITIAL_STATE
 } from 'modules/drop-database/name';

@@ -13,7 +13,7 @@ import { createDatabase } from 'modules/create-database';
 import { changeCollationOption } from 'modules/create-database/collation';
 import { toggleIsCapped } from 'modules/create-database/is-capped';
 import { toggleIsCustomCollation } from 'modules/create-database/is-custom-collation';
-import { hideCreateDatabase } from 'modules/create-database/is-visible';
+import { toggleIsVisible } from 'modules/is-visible';
 import { openLink } from 'modules/link';
 
 import styles from './create-database-modal.less';
@@ -58,7 +58,7 @@ class CreateDatabaseModal extends PureComponent {
     createDatabase: PropTypes.func.isRequired,
     toggleIsCapped: PropTypes.func.isRequired,
     toggleIsCustomCollation: PropTypes.func.isRequired,
-    hideCreateDatabase: PropTypes.func.isRequired
+    toggleIsVisible: PropTypes.func.isRequired
   }
 
   /**
@@ -100,6 +100,13 @@ class CreateDatabaseModal extends PureComponent {
    */
   onToggleIsCustomCollation = () => {
     this.props.toggleIsCustomCollation(!this.props.isCustomCollation);
+  }
+
+  /**
+   * Hide the modal.
+   */
+  onHide = () => {
+    this.props.toggleIsVisible(false);
   }
 
   /**
@@ -157,7 +164,7 @@ class CreateDatabaseModal extends PureComponent {
       <Modal
         show={this.props.isVisible}
         backdrop="static"
-        onHide={this.props.hideCreateDatabase}
+        onHide={this.onHide}
         dialogClassName={classnames(styles['create-database-modal'])}>
 
         <Modal.Header>
@@ -218,7 +225,7 @@ class CreateDatabaseModal extends PureComponent {
             className="btn btn-default btn-sm"
             dataTestId="cancel-create-database-button"
             text="Cancel"
-            clickHandler={this.props.hideCreateDatabase} />
+            clickHandler={this.onHide} />
           <TextButton
             className="btn btn-primary btn-sm"
             dataTestId="create-database-button"
@@ -261,10 +268,10 @@ const MappedCreateDatabaseModal = connect(
     changeDatabaseName,
     changeCollationOption,
     createDatabase,
-    hideCreateDatabase,
     openLink,
     toggleIsCapped,
-    toggleIsCustomCollation
+    toggleIsCustomCollation,
+    toggleIsVisible
   },
 )(CreateDatabaseModal);
 

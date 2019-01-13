@@ -18,7 +18,7 @@ import isRunning, {
 } from 'modules/is-running';
 import isVisible, {
   INITIAL_STATE as IS_VISIBLE_INITIAL_STATE
-} from 'modules/create-database/is-visible';
+} from 'modules/is-visible';
 import collation, {
   INITIAL_STATE as COLLATION_INITIAL_STATE
 } from 'modules/create-database/collation';

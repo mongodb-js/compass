@@ -8,7 +8,7 @@ import { ModalInput, ModalStatusMessage } from 'hadron-react-components';
 import { changeDatabaseName } from 'modules/drop-database/name';
 import { changeDatabaseNameConfirmation } from 'modules/drop-database/name-confirmation';
 import { dropDatabase } from 'modules/drop-database';
-import { hideDropDatabase } from 'modules/drop-database/is-visible';
+import { toggleIsVisible } from 'modules/is-visible';
 
 import styles from './drop-database-modal.less';
 
@@ -27,7 +27,7 @@ class DropDatabaseModal extends PureComponent {
     changeDatabaseName: PropTypes.func.isRequired,
     changeDatabaseNameConfirmation: PropTypes.func.isRequired,
     dropDatabase: PropTypes.func.isRequired,
-    hideDropDatabase: PropTypes.func.isRequired
+    toggleIsVisible: PropTypes.func.isRequired
   }
 
   /**
@@ -49,6 +49,13 @@ class DropDatabaseModal extends PureComponent {
   }
 
   /**
+   * Hide the modal.
+   */
+  onHide = () => {
+    this.props.toggleIsVisible(false);
+  }
+
+  /**
    * Render the modal dialog.
    *
    * @returns {React.Component} The react component.
@@ -58,7 +65,7 @@ class DropDatabaseModal extends PureComponent {
       <Modal
         show={this.props.isVisible}
         backdrop="static"
-        onHide={this.props.hideDropDatabase}
+        onHide={this.onHide}
         dialogClassName={classnames(styles['drop-database-modal'])}>
 
         <Modal.Header>
@@ -104,7 +111,7 @@ class DropDatabaseModal extends PureComponent {
             className="btn btn-default btn-sm"
             dataTestId="cancel-drop-database-button"
             text="Cancel"
-            clickHandler={this.props.hideDropDatabase} />
+            clickHandler={this.onHide} />
           <TextButton
             className="btn btn-primary btn-sm"
             dataTestId="drop-database-button"
@@ -142,7 +149,7 @@ const MappedDropDatabaseModal = connect(
     changeDatabaseName,
     changeDatabaseNameConfirmation,
     dropDatabase,
-    hideDropDatabase
+    toggleIsVisible
   },
 )(DropDatabaseModal);
 
