@@ -1,9 +1,12 @@
 import React, { PureComponent } from 'react';
+import { Provider } from 'react-redux';
 import PropTypes from 'prop-types';
 import numeral from 'numeral';
 import assign from 'lodash.assign';
 import classnames from 'classnames';
 import { SortableTable } from 'hadron-react-components';
+import DropDatabaseModal from 'components/drop-database-modal';
+import dropDatabaseStore from 'stores/drop-database';
 
 import styles from './databases-table.less';
 
@@ -28,11 +31,12 @@ class DatabasesTable extends PureComponent {
     databases: PropTypes.array.isRequired,
     isWritable: PropTypes.bool.isRequired,
     isReadonly: PropTypes.bool.isRequired,
+    reset: PropTypes.func.isRequired,
     sortOrder: PropTypes.string.isRequired,
     sortColumn: PropTypes.string.isRequired,
     sortDatabases: PropTypes.func.isRequired,
     showDatabase: PropTypes.func.isRequired,
-    showDropDatabase: PropTypes.func.isRequired
+    toggleIsVisible: PropTypes.func.isRequired
   }
 
   /**
@@ -43,6 +47,15 @@ class DatabasesTable extends PureComponent {
    */
   onHeaderClicked = (column, order) => {
     this.props.sortDatabases(this.props.databases, column, order);
+  }
+
+  /**
+   * Happens on the click of the delete trash can in the list.
+   */
+  onDeleteClicked = (value) => {
+    console.log('onDeleteClicked', value);
+    dropDatabaseStore.dispatch(this.props.reset());
+    dropDatabaseStore.dispatch(this.props.toggleIsVisible(true));
   }
 
   /**
@@ -72,8 +85,11 @@ class DatabasesTable extends PureComponent {
             valueIndex={0}
             removable={this.props.isWritable && !this.props.isReadonly}
             onColumnHeaderClicked={this.onHeaderClicked}
-            onRowDeleteButtonClicked={this.showDropDatabase} />
+            onRowDeleteButtonClicked={this.onDeleteClicked} />
         </div>
+        <Provider store={dropDatabaseStore}>
+          <DropDatabaseModal />
+        </Provider>
       </div>
     );
   }

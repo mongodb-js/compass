@@ -4,7 +4,7 @@ import PropTypes from 'prop-types';
 import classnames from 'classnames';
 import { Modal } from 'react-bootstrap';
 import { TextButton } from 'hadron-react-buttons';
-import { ModalInput, ModalStatusMessage } from 'hadron-react-components';
+import { ModalStatusMessage } from 'hadron-react-components';
 import { changeDatabaseName } from 'modules/drop-database/name';
 import { changeDatabaseNameConfirmation } from 'modules/drop-database/name-confirmation';
 import { dropDatabase } from 'modules/drop-database';
@@ -91,9 +91,11 @@ class DropDatabaseModal extends PureComponent {
             onSubmit={this.props.dropDatabase}
             data-test-id="drop-database-modal">
             <div className="form-group">
-              <ModalInput
+              <input
                 autoFocus
-                id="confirm-drop-database-name"
+                type="text"
+                className="form-control"
+                data-test-id="confirm-drop-database-name"
                 value={this.props.nameConfirmation}
                 onChange={this.onNameConfirmationChange} />
             </div>

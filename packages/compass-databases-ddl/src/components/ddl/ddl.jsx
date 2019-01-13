@@ -2,9 +2,9 @@ import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import classnames from 'classnames';
-import { sortDatabases } from 'modules/databases';
 import Toolbar from 'components/toolbar';
 import DatabasesTable from 'components/databases-table';
+import { sortDatabases } from 'modules/databases';
 import { toggleIsVisible } from 'modules/is-visible';
 import { reset } from 'modules/create-database';
 
@@ -21,9 +21,11 @@ class Ddl extends PureComponent {
     databases: PropTypes.array.isRequired,
     isReadonly: PropTypes.bool.isRequired,
     isWritable: PropTypes.bool.isRequired,
+    reset: PropTypes.func.isRequired,
     sortColumn: PropTypes.string.isRequired,
     sortOrder: PropTypes.string.isRequired,
-    sortDatabases: PropTypes.func.isRequired
+    sortDatabases: PropTypes.func.isRequired,
+    toggleIsVisible: PropTypes.func.isRequired
   }
 
   /**
@@ -36,18 +38,19 @@ class Ddl extends PureComponent {
       <div className={classnames(styles.ddl)} data-test-id="databases-table">
         <Toolbar
           isReadonly={this.props.isReadonly}
-          toggleIsVisible={toggleIsVisible}
-          reset={reset} />
+          toggleIsVisible={this.props.toggleIsVisible}
+          reset={this.props.reset} />
         <DatabasesTable
           columns={this.props.columns}
           databases={this.props.databases}
           isWritable={this.props.isWritable}
           isReadonly={this.props.isReadonly}
+          reset={this.props.reset}
           sortOrder={this.props.sortOrder}
           sortColumn={this.props.sortColumn}
           sortDatabases={this.props.sortDatabases}
           showDatabase={() => {}}
-          showDropDatabase={() => {}} />
+          toggleIsVisible={this.props.toggleIsVisible} />
       </div>
     );
   }
@@ -76,7 +79,9 @@ const mapStateToProps = (state) => ({
 const MappedDdl = connect(
   mapStateToProps,
   {
-    sortDatabases
+    reset,
+    sortDatabases,
+    toggleIsVisible
   },
 )(Ddl);
 
