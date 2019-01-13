@@ -174,7 +174,7 @@ class CreateDatabaseModal extends PureComponent {
         <Modal.Body>
           <form
             name="create-database-modal-form"
-            onSubmit={() => {}}
+            onSubmit={this.props.createDatabase}
             data-test-id="create-database-modal">
 
             <ModalInput
