@@ -8,6 +8,7 @@ describe('drop database module', () => {
 
         it('returns the reset state', () => {
           expect(reducer({ dataService: dataService }, reset())).to.deep.equal({
+            isVisible: false,
             name: '',
             nameConfirmation: '',
             dataService: 'data-service'

@@ -1,4 +1,7 @@
 import { combineReducers } from 'redux';
+import isVisible, {
+  INITIAL_STATE as IS_VISIBLE_INITIAL_STATE
+} from 'modules/drop-database/is-visible';
 import name, {
   INITIAL_STATE as NAME_INITIAL_STATE
 } from 'modules/drop-database/name';
@@ -16,6 +19,7 @@ export const RESET = 'ddl/drop-database/RESET';
  * The main reducer.
  */
 const reducer = combineReducers({
+  isVisible,
   name,
   nameConfirmation,
   dataService
@@ -33,6 +37,7 @@ const rootReducer = (state, action) => {
   if (action.type === RESET) {
     return {
       ...state,
+      isVisible: IS_VISIBLE_INITIAL_STATE,
       name: NAME_INITIAL_STATE,
       nameConfirmation: NAME_CONFIRMATION_INITIAL_STATE
     };
