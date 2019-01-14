@@ -1,4 +1,5 @@
 import { combineReducers } from 'redux';
+import appRegistry from 'modules/app-registry';
 import columns from 'modules/columns';
 import databases from 'modules/databases';
 import dataService from 'modules/data-service';
@@ -19,7 +20,8 @@ const reducer = combineReducers({
   sortColumn,
   sortOrder,
   createDatabase,
-  dataService
+  dataService,
+  appRegistry
 });
 
 export default reducer;

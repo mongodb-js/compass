@@ -7,6 +7,8 @@ import AppRegistry from 'hadron-app-registry';
 import { AppContainer } from 'react-hot-loader';
 import DdlPlugin, { activate } from 'plugin';
 import { activate as daActivate } from '@mongodb-js/compass-deployment-awareness';
+import { NamespaceStore } from 'mongodb-reflux-store';
+import CollectionStore from './stores/collection-store';
 
 // Import global less file. Note: these styles WILL NOT be used in compass, as compass provides its own set
 // of global styles. If you are wishing to style a given component, you should be writing a less file per
@@ -35,6 +37,8 @@ const InstanceActions = Reflux.createActions([
 ]);
 
 appRegistry.registerStore('App.InstanceStore', InstanceStore);
+appRegistry.registerStore('App.NamespaceStore', NamespaceStore);
+appRegistry.registerStore('App.CollectionStore', CollectionStore);
 appRegistry.registerAction('App.InstanceActions', InstanceActions);
 
 // Activate our plugin with the Hadron App Registry
