@@ -4,6 +4,7 @@ import { connect } from 'react-redux';
 import classnames from 'classnames';
 import Toolbar from 'components/toolbar';
 import DatabasesTable from 'components/databases-table';
+import { showDatabase } from 'modules/show-database';
 import { sortDatabases } from 'modules/databases';
 import { toggleIsVisible } from 'modules/is-visible';
 import { reset } from 'modules/reset';
@@ -24,6 +25,7 @@ class Ddl extends PureComponent {
     isWritable: PropTypes.bool.isRequired,
     changeDatabaseName: PropTypes.func.isRequired,
     reset: PropTypes.func.isRequired,
+    showDatabase: PropTypes.func.isRequired,
     sortColumn: PropTypes.string.isRequired,
     sortOrder: PropTypes.string.isRequired,
     sortDatabases: PropTypes.func.isRequired,
@@ -52,7 +54,7 @@ class Ddl extends PureComponent {
           sortOrder={this.props.sortOrder}
           sortColumn={this.props.sortColumn}
           sortDatabases={this.props.sortDatabases}
-          showDatabase={() => {}}
+          showDatabase={this.props.showDatabase}
           toggleIsVisible={this.props.toggleIsVisible} />
       </div>
     );
@@ -84,6 +86,7 @@ const MappedDdl = connect(
   {
     changeDatabaseName,
     reset,
+    showDatabase,
     sortDatabases,
     toggleIsVisible
   },

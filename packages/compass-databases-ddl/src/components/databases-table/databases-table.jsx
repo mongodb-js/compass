@@ -63,6 +63,15 @@ class DatabasesTable extends PureComponent {
   }
 
   /**
+   * Use clicked on the db name link.
+   *
+   * @param {String} name - The db name.
+   */
+  onNameClicked(name) {
+    this.props.showDatabase(name);
+  }
+
+  /**
    * Render Databases Table component.
    *
    * @returns {React.Component} The rendered component.
@@ -71,7 +80,7 @@ class DatabasesTable extends PureComponent {
     const rows = this.props.databases.map((db) => {
       const dbName = db[NAME];
       return assign({}, db, {
-        [NAME]: <a className={classnames(styles['databases-table-link'])} onClick={this.props.showDatabase}>{dbName}</a>,
+        [NAME]: <a className={classnames(styles['databases-table-link'])} onClick={this.onNameClicked.bind(this, dbName)}>{dbName}</a>,
         [STORAGE]: numeral(db[STORAGE]).format('0.0b')
       });
     });
