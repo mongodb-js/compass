@@ -7,6 +7,7 @@ import DatabasesTable from 'components/databases-table';
 import { sortDatabases } from 'modules/databases';
 import { toggleIsVisible } from 'modules/is-visible';
 import { reset } from 'modules/create-database';
+import { changeDatabaseName } from 'modules/drop-database/name';
 
 import styles from './ddl.less';
 
@@ -21,6 +22,7 @@ class Ddl extends PureComponent {
     databases: PropTypes.array.isRequired,
     isReadonly: PropTypes.bool.isRequired,
     isWritable: PropTypes.bool.isRequired,
+    changeDatabaseName: PropTypes.func.isRequired,
     reset: PropTypes.func.isRequired,
     sortColumn: PropTypes.string.isRequired,
     sortOrder: PropTypes.string.isRequired,
@@ -45,6 +47,7 @@ class Ddl extends PureComponent {
           databases={this.props.databases}
           isWritable={this.props.isWritable}
           isReadonly={this.props.isReadonly}
+          changeDatabaseName={this.props.changeDatabaseName}
           reset={this.props.reset}
           sortOrder={this.props.sortOrder}
           sortColumn={this.props.sortColumn}
@@ -79,6 +82,7 @@ const mapStateToProps = (state) => ({
 const MappedDdl = connect(
   mapStateToProps,
   {
+    changeDatabaseName,
     reset,
     sortDatabases,
     toggleIsVisible

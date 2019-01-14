@@ -11,12 +11,14 @@ describe('DatabasesTable [Component]', () => {
   let sortDatabasesSpy;
   let showDatabaseSpy;
   let toggleIsVisibleSpy;
+  let changeDatabaseNameSpy;
 
   beforeEach(() => {
     resetSpy = sinon.spy();
     sortDatabasesSpy = sinon.spy();
     showDatabaseSpy = sinon.spy();
     toggleIsVisibleSpy = sinon.spy();
+    changeDatabaseNameSpy = sinon.spy();
     component = mount(
       <DatabasesTable
         columns={COLUMNS}
@@ -28,6 +30,7 @@ describe('DatabasesTable [Component]', () => {
         reset={resetSpy}
         sortDatabases={sortDatabasesSpy}
         showDatabase={showDatabaseSpy}
+        changeDatabaseName={changeDatabaseNameSpy}
         toggleIsVisible={toggleIsVisibleSpy} />
     );
   });
@@ -38,6 +41,7 @@ describe('DatabasesTable [Component]', () => {
     sortDatabasesSpy = null;
     showDatabaseSpy = null;
     toggleIsVisibleSpy = null;
+    changeDatabaseNameSpy = null;
   });
 
   it('renders the correct root classname', () => {

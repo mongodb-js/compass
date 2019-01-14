@@ -75,15 +75,15 @@ class DropDatabaseModal extends PureComponent {
         <Modal.Body>
           <div>
             <p className={classnames(styles['drop-database-modal-confirm'])}>
-              <i className="drop-confirm-icon fa fa-exclamation-triangle" aria-hidden="true"></i>
+              <i className="fa fa-exclamation-triangle" aria-hidden="true"></i>
               To drop
               <span className={classnames(styles['drop-database-modal-confirm-namespace'])}>
-                {this.props.name}]
-              </span>
-              type the database name
-              <span className={classnames(styles['drop-database-modal-confirm-database'])}>
                 {this.props.name}
               </span>
+              type the database name
+              <span className={classnames(styles['drop-database-modal-confirm-name'])}>
+                {this.props.name}
+              </span>.
             </p>
           </div>
           <form
@@ -115,7 +115,7 @@ class DropDatabaseModal extends PureComponent {
             text="Cancel"
             clickHandler={this.onHide} />
           <TextButton
-            className="btn btn-primary btn-sm"
+            className="btn btn-alert btn-sm"
             dataTestId="drop-database-button"
             disabled={this.props.name !== this.props.nameConfirmation}
             text="Drop Database"
