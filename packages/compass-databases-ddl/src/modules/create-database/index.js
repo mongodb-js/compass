@@ -28,16 +28,13 @@ import name, {
 import error, {
   clearError, handleError, INITIAL_STATE as ERROR_INITIAL_STATE
 } from 'modules/error';
+import { reset, RESET } from 'modules/reset';
+
 
 /**
  * No dots in DB name error message.
  */
 export const NO_DOT = 'Database names may not contain a "."';
-
-/**
- * The reset action name.
- */
-export const RESET = 'ddl/create-database/RESET';
 
 /**
  * The main reducer.
@@ -82,15 +79,6 @@ const rootReducer = (state, action) => {
 };
 
 export default rootReducer;
-
-/**
- * Reset the state of the entire store.
- *
- * @return {Object} The action creator.
- */
-export const reset = () => ({
-  type: RESET
-});
 
 /**
  * Stop progress and set the error.

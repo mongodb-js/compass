@@ -6,7 +6,7 @@ import Toolbar from 'components/toolbar';
 import DatabasesTable from 'components/databases-table';
 import { sortDatabases } from 'modules/databases';
 import { toggleIsVisible } from 'modules/is-visible';
-import { reset } from 'modules/create-database';
+import { reset } from 'modules/reset';
 import { changeDatabaseName } from 'modules/drop-database/name';
 
 import styles from './ddl.less';

@@ -56,6 +56,19 @@ class DropDatabaseModal extends PureComponent {
   }
 
   /**
+   * When user hits enter to submit the form we need to prevent the default bhaviour.
+   *
+   * @param {Event} evt - The event.
+   */
+  onFormSubmit = (evt) => {
+    evt.preventDefault();
+    evt.stopPropagation();
+    if (this.props.name === this.props.nameConfirmation) {
+      this.props.dropDatabase();
+    }
+  }
+
+  /**
    * Render the modal dialog.
    *
    * @returns {React.Component} The react component.
@@ -88,7 +101,7 @@ class DropDatabaseModal extends PureComponent {
           </div>
           <form
             name="drop-database-modal-form"
-            onSubmit={this.props.dropDatabase}
+            onSubmit={this.onFormSubmit}
             data-test-id="drop-database-modal">
             <div className="form-group">
               <input

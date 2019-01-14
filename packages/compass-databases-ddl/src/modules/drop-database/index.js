@@ -15,12 +15,8 @@ import nameConfirmation, {
 import error, {
   clearError, handleError, INITIAL_STATE as ERROR_INITIAL_STATE
 } from 'modules/error';
+import { reset, RESET } from 'modules/reset';
 import dataService from 'modules/data-service';
-
-/**
- * The reset action name.
- */
-export const RESET = 'ddl/drop-database/RESET';
 
 /**
  * The main reducer.
@@ -57,15 +53,6 @@ const rootReducer = (state, action) => {
 };
 
 export default rootReducer;
-
-/**
- * Reset the state of the entire store.
- *
- * @return {Object} The action creator.
- */
-export const reset = () => ({
-  type: RESET
-});
 
 /**
  * Stop progress and set the error.

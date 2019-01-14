@@ -1,4 +1,5 @@
-import reducer, { reset, RESET } from 'modules/create-database';
+import reducer from 'modules/create-database';
+import { reset } from 'modules/reset';
 
 describe('create database module', () => {
   describe('#reducer', () => {
@@ -21,12 +22,6 @@ describe('create database module', () => {
           });
         });
       });
-    });
-  });
-
-  describe('#reset', () => {
-    it('returns the reset action', () => {
-      expect(reset()).to.deep.equal({ type: RESET });
     });
   });
 

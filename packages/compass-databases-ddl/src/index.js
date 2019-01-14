@@ -1,6 +1,7 @@
 import DdlPlugin from './plugin';
 import DdlStore from 'stores';
 import CreateDatabaseStore from 'stores/create-database';
+import DropDatabaseStore from 'stores/drop-database';
 
 /**
  * A sample role for the component.
@@ -19,6 +20,7 @@ function activate(appRegistry) {
   appRegistry.registerRole('Instance.Tab', ROLE);
   appRegistry.registerStore('DatabaseDDL.DatabasesStore', DdlStore);
   appRegistry.registerStore('DatabaseDDL.CreateDatabaseStore', CreateDatabaseStore);
+  appRegistry.registerStore('DatabaseDDL.DropDatabaseStore', DropDatabaseStore);
 }
 
 /**
@@ -29,6 +31,7 @@ function deactivate(appRegistry) {
   appRegistry.deregisterRole('Instance.Tab', ROLE);
   appRegistry.deregisterStore('DatabaseDDL.DatabasesStore');
   appRegistry.deregisterStore('DatabaseDDL.CreateDatabaseStore');
+  appRegistry.deregisterStore('DatabaseDDL.DropDatabaseStore');
 }
 
 export default DdlPlugin;
