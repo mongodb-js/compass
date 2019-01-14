@@ -103,6 +103,17 @@ class CreateDatabaseModal extends PureComponent {
   }
 
   /**
+   * When user hits enter to submit the form we need to prevent the default bhaviour.
+   *
+   * @param {Event} evt - The event.
+   */
+  onFormSubmit = (evt) => {
+    evt.preventDefault();
+    evt.stopPropagation();
+    this.props.createDatabase();
+  }
+
+  /**
    * Hide the modal.
    */
   onHide = () => {
@@ -174,7 +185,7 @@ class CreateDatabaseModal extends PureComponent {
         <Modal.Body>
           <form
             name="create-database-modal-form"
-            onSubmit={this.props.createDatabase}
+            onSubmit={this.onFormSubmit}
             data-test-id="create-database-modal">
 
             <ModalInput
