@@ -1,10 +1,10 @@
 import React, { Component } from 'react';
 import { Provider } from 'react-redux';
-import Database from 'components/database';
+import Ddl from 'components/ddl';
 import store from 'stores';
 
 class Plugin extends Component {
-  static displayName = 'DatabasePlugin';
+  static displayName = 'DdlPlugin';
 
   /**
    * Connect the Plugin to the store and render.
@@ -14,7 +14,7 @@ class Plugin extends Component {
   render() {
     return (
       <Provider store={store}>
-        <Database />
+        <Ddl />
       </Provider>
     );
   }

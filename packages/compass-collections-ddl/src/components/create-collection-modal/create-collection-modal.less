@@ -1,0 +1,39 @@
+.create-collection-modal {
+  width: 500px;
+
+  p {
+    font-weight: bold;
+    display: inline-block;
+  }
+
+  &-is-capped {
+    margin-left: 5px;
+
+    &-wrapper {
+
+      :global {
+        .form-group {
+          display: flex;
+          justify-content: center;
+          align-items: center;
+        }
+      }
+
+      p {
+        width: 150px;
+        text-align: right;
+        display: inline-block;
+        margin: 0 10px 0 0;
+      }
+
+      input {
+        width: 250px;
+        display: inline-block;
+      }
+    }
+  }
+
+  &-is-custom-collation {
+    margin-left: 5px;
+  }
+}

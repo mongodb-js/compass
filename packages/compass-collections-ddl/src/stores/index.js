@@ -1,4 +1,4 @@
-import DatabaseStore from './store';
+import DdlStore from './store';
 
-export default DatabaseStore;
-export { DatabaseStore };
+export default DdlStore;
+export { DdlStore };

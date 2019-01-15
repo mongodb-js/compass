@@ -1,13 +1,13 @@
 import React from 'react';
 import { mount } from 'enzyme';
 import { Provider } from 'react-redux';
-import DatabasePlugin from './plugin';
+import DdlPlugin from './plugin';
 
-describe('Database [Plugin]', () => {
+describe('Ddl [Plugin]', () => {
   let component;
 
   beforeEach((done) => {
-    component = mount(<DatabasePlugin />);
+    component = mount(<DdlPlugin />);
     done();
   });
 
