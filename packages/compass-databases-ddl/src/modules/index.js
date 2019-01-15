@@ -1,4 +1,5 @@
 import { combineReducers } from 'redux';
+import appRegistry from 'modules/app-registry';
 import columns, {
   INITIAL_STATE as COLUMNS_INITIAL_STATE
 } from 'modules/columns';
@@ -28,7 +29,8 @@ const reducer = combineReducers({
   isReadonly,
   isWritable,
   sortColumn,
-  sortOrder
+  sortOrder,
+  appRegistry
 });
 
 /**

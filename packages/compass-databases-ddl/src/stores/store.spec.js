@@ -40,6 +40,10 @@ describe('DdlStore [Store]', () => {
       store.onActivated(appRegistry);
     });
 
+    it('activates the app registry module', () => {
+
+    });
+
     context('when the instance store triggers', () => {
       const dbs = [{ _id: 'db1', storage_size: 10, collections: [], index_count: 2 }];
       const mappedDbs = [
