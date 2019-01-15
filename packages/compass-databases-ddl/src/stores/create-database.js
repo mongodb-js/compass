@@ -2,6 +2,7 @@ import { createStore, applyMiddleware } from 'redux';
 import thunk from 'redux-thunk';
 import { dataServiceConnected } from 'modules/data-service';
 import { toggleIsVisible } from 'modules/is-visible';
+import { reset } from 'modules/reset';
 import reducer from 'modules/create-database';
 
 const store = createStore(reducer, applyMiddleware(thunk));
@@ -22,6 +23,7 @@ store.onActivated = (appRegistry) => {
    * event is emitted.
    */
   appRegistry.on('open-create-database', () => {
+    store.dispatch(reset());
     store.dispatch(toggleIsVisible(true));
   });
 };

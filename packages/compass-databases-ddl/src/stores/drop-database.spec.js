@@ -29,5 +29,19 @@ describe('DropDatabaseStore [Store]', () => {
         expect(store.getState().dataService.dataService).to.equal(ds);
       });
     });
+
+    context('when open drop database is emitted', () => {
+      beforeEach(() => {
+        appRegistry.emit('open-drop-database', 'testing');
+      });
+
+      it('dispatches the toggle action', () => {
+        expect(store.getState().isVisible).to.equal(true);
+      });
+
+      it('sets the name in the store', () => {
+        expect(store.getState().name).to.equal('testing');
+      });
+    });
   });
 });
