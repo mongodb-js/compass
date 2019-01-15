@@ -41,7 +41,7 @@ describe('DdlStore [Store]', () => {
     });
 
     it('activates the app registry module', () => {
-
+      expect(store.getState().appRegistry).to.deep.equal(appRegistry);
     });
 
     context('when the instance store triggers', () => {
