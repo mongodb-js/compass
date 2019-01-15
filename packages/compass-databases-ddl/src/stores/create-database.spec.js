@@ -29,5 +29,15 @@ describe('CreateDatabaseStore [Store]', () => {
         expect(store.getState().dataService.dataService).to.equal(ds);
       });
     });
+
+    context('when open create database is emitted', () => {
+      beforeEach(() => {
+        appRegistry.emit('open-create-database');
+      });
+
+      it('dispatches the toggle action', () => {
+        expect(store.getState().isVisible).to.equal(true);
+      });
+    });
   });
 });
