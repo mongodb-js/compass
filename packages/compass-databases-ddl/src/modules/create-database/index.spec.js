@@ -27,10 +27,6 @@ describe('create database module', () => {
   });
 
   describe('#createDatabase', () => {
-    context('when an error exists in the state', () => {
-
-    });
-
     context('when no error exists in the state', () => {
       context('when the database name is invalid', () => {
         const dispatchSpy = sinon.spy();
