@@ -20,7 +20,6 @@ class Sidebar extends React.Component {
     super(props);
     const appRegistry = global.hadronApp.appRegistry;
     this.WriteStateStore = appRegistry.getStore('DeploymentAwareness.WriteStateStore');
-    this.DatabaseDDLActions = appRegistry.getAction('DatabaseDDL.Actions');
     this.StatusActions = appRegistry.getAction('Status.Actions');
     this.state = {
       collapsed: false,
@@ -116,7 +115,7 @@ class Sidebar extends React.Component {
 
   handleCreateDatabaseClick(isWritable) {
     if (isWritable) {
-      this.DatabaseDDLActions.openCreateDatabaseDialog();
+      global.hadronApp.appRegistry.emit('open-create-database');
     }
   }
 
