@@ -1,5 +1,6 @@
-import reducer from 'modules/create-database';
+import reducer, { createDatabase, NO_DOT } from 'modules/create-database';
 import { reset } from 'modules/reset';
+import { CLEAR_ERROR, HANDLE_ERROR } from 'modules/error';
 
 describe('create database module', () => {
   describe('#reducer', () => {
@@ -32,7 +33,18 @@ describe('create database module', () => {
 
     context('when no error exists in the state', () => {
       context('when the database name is invalid', () => {
+        const dispatchSpy = sinon.spy();
+        const getState = () => ({ name: 'test.test', dataService: { dataService: 'ds' }});
 
+        before(() => {
+          createDatabase()(dispatchSpy, getState);
+        });
+
+        it('dispatches the clear action and handle error actions', () => {
+          expect(dispatchSpy.getCall(0).args[0].type).to.equal(CLEAR_ERROR);
+          expect(dispatchSpy.getCall(1).args[0].type).to.equal(HANDLE_ERROR);
+          expect(dispatchSpy.getCall(1).args[0].error.message).to.equal(NO_DOT);
+        });
       });
 
       context('when the database name is valid', () => {
