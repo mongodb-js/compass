@@ -1,13 +1,23 @@
 import { combineReducers } from 'redux';
-import appRegistry from 'modules/app-registry';
-import columns from 'modules/columns';
-import databases from 'modules/databases';
-import dataService from 'modules/data-service';
-import isReadonly from 'modules/is-readonly';
-import isWritable from 'modules/is-writable';
-import sortColumn from 'modules/sort-column';
-import sortOrder from 'modules/sort-order';
-import createDatabase from 'modules/create-database';
+import columns, {
+  INITIAL_STATE as COLUMNS_INITIAL_STATE
+} from 'modules/columns';
+import databases, {
+  INITIAL_STATE as DATABASES_INITIAL_STATE
+} from 'modules/databases';
+import isReadonly, {
+  INITIAL_STATE as READONLY_INITIAL_STATE
+} from 'modules/is-readonly';
+import isWritable, {
+  INITIAL_STATE as WRITABLE_INITIAL_STATE
+} from 'modules/is-writable';
+import sortColumn, {
+  INITIAL_STATE as SORT_COLUMN_INITIAL_STATE
+} from 'modules/sort-column';
+import sortOrder, {
+  INITIAL_STATE as SORT_ORDER_INITIAL_STATE
+} from 'modules/sort-order';
+import { RESET } from 'modules/reset';
 
 /**
  * The main reducer.
@@ -18,10 +28,30 @@ const reducer = combineReducers({
   isReadonly,
   isWritable,
   sortColumn,
-  sortOrder,
-  createDatabase,
-  dataService,
-  appRegistry
+  sortOrder
 });
 
-export default reducer;
+/**
+ * The root reducer.
+ *
+ * @param {Object} state - The state.
+ * @param {Object} action - The action.
+ *
+ * @returns {Object} The new state.
+ */
+const rootReducer = (state, action) => {
+  if (action.type === RESET) {
+    return {
+      ...state,
+      columns: COLUMNS_INITIAL_STATE,
+      databases: DATABASES_INITIAL_STATE,
+      isReadonly: READONLY_INITIAL_STATE,
+      isWritable: WRITABLE_INITIAL_STATE,
+      sortColumn: SORT_COLUMN_INITIAL_STATE,
+      sortOrder: SORT_ORDER_INITIAL_STATE
+    };
+  }
+  return reducer(state, action);
+};
+
+export default rootReducer;

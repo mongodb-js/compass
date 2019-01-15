@@ -30,7 +30,7 @@ const ASC = 'asc';
 /**
  * The initial state of the databases attribute.
  */
-const INITIAL_STATE = [];
+export const INITIAL_STATE = [];
 
 /**
  * Reducer function for handle state changes to databases.

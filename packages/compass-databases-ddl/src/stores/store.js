@@ -1,7 +1,6 @@
 import { createStore, applyMiddleware } from 'redux';
 import thunk from 'redux-thunk';
 import { appRegistryActivated } from 'modules/app-registry';
-import { dataServiceConnected } from 'modules/data-service';
 import { loadDatabases } from 'modules/databases';
 import { writeStateChanged } from 'modules/is-writable';
 import reducer from 'modules';
@@ -16,16 +15,6 @@ store.onActivated = (appRegistry) => {
    */
   appRegistry.getStore('App.InstanceStore').listen((state) => {
     store.dispatch(loadDatabases(state.instance.databases));
-  });
-
-  /**
-   * Set the data service in the store when connected.
-   *
-   * @param {Error} error - The error.
-   * @param {DataService} dataService - The data service.
-   */
-  appRegistry.on('data-service-connected', (error, dataService) => {
-    store.dispatch(dataServiceConnected(error, dataService));
   });
 
   /**
