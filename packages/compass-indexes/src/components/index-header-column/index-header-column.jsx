@@ -1,50 +1,25 @@
-import React from 'react';
+import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
-import Actions from 'actions';
-import { SortIndexesStore } from 'stores';
 
-const DEFAULT = 'Name and Definition';
+import classnames from 'classnames';
+import styles from './index-header-column.less';
+
+import { DEFAULT, DESC, ASC } from 'modules/indexes';
 
 /**
  * Component for an index header column.
  */
-class IndexHeaderColumn extends React.Component {
+class IndexHeaderColumn extends PureComponent {
+  static displayName = 'IndexHeaderColumn';
+  static propTypes = {
+    indexes: PropTypes.array.isRequired,
+    sortOrder: PropTypes.string.isRequired,
+    sortColumn: PropTypes.string.isRequired,
+    dataTestId: PropTypes.string.isRequired,
+    name: PropTypes.string.isRequired,
+    sortIndexes: PropTypes.func.isRequired
 
-  /**
-   * The component constructor.
-   *
-   * @param {Object} props - The properties.
-   */
-  constructor(props) {
-    super(props);
-    this.state = { sortOrder: props.sortOrder, sortField: DEFAULT };
-  }
-
-  /**
-   * Subscribe on mount.
-   */
-  componentWillMount() {
-    this.unsubscribeSort = SortIndexesStore.listen(this.handleIndexChange.bind(this));
-  }
-
-  /**
-   * Unsubscribe on unmount.
-   */
-  componentWillUnmount() {
-    this.unsubscribeSort();
-  }
-
-  /**
-   * Handles the sort indexes store triggering with indexes in a new order or the
-   * initial load of indexes.
-   *
-   * @param {Array} indexes - The indexes.
-   * @param {String} sortOrder - The sort order.
-   * @param {String} sortField - The sort field.
-   */
-  handleIndexChange(indexes, sortOrder, sortField) {
-    this.setState({ sortOrder: sortOrder, sortField: sortField });
-  }
+  };
 
   /**
    * Handle the index sort click.
@@ -54,11 +29,18 @@ class IndexHeaderColumn extends React.Component {
   handleIndexSort(evt) {
     evt.preventDefault();
     evt.stopPropagation();
-    Actions.sortIndexes(evt.target.innerText);
+    let order;
+    if (this.props.sortColumn === this.props.name) {
+      order = (this.props.sortOrder === ASC) ? DESC : ASC;
+    } else {
+      order = (this.props.sortColumn === DEFAULT) ? ASC : DESC;
+    }
+    this.props.sortIndexes(this.props.indexes, this.props.name, order);
   }
 
   _renderClassName() {
-    return this.state.sortField === this.props.name ? 'active' : '';
+    const active = this.props.sortColumn === this.props.name ? '-active' : '';
+    return classnames(styles[`index-header-column${active}`]);
   }
 
   /**
@@ -73,18 +55,12 @@ class IndexHeaderColumn extends React.Component {
         className={this._renderClassName()}
         onClick={this.handleIndexSort.bind(this)}>
         {this.props.name}
-        <i className={`sort fa fa-fw ${this.state.sortOrder}`}></i>
+        <i
+          className={classnames(styles['index-header-column-sort'], `fa fa-fw ${this.props.sortOrder}`)}
+          onClick={this.handleIndexSort.bind(this)}/>
       </th>
     );
   }
 }
-
-IndexHeaderColumn.displayName = 'IndexHeaderColumn';
-
-IndexHeaderColumn.propTypes = {
-  sortOrder: PropTypes.string.isRequired,
-  dataTestId: PropTypes.string.isRequired,
-  name: PropTypes.string.isRequired
-};
 
 export default IndexHeaderColumn;

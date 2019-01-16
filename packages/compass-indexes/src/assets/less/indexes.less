@@ -1,0 +1,297 @@
+@index-type-color: @gray4;
+
+@index-property-color:#545383;
+@index-property-bg: #E6E4ED;
+
+@index-geo-color: #548273;
+@index-geo-bg: #E8ECEB;
+
+@index-hashed-color: #968875;
+@index-hashed-bg: #EEEAE5;
+
+@index-text-color: #947872;
+@index-text-bg: #F5EDEB;
+
+@index-quantity-color: #5382A8;
+@index-quantity-bg: #EAEDF4;
+
+.index-container {
+
+  table {
+    table-layout: auto;
+    border-collapse: separate;
+    border-spacing: 0 3px;
+    width: 100%;
+  }
+
+  table tr th {
+    cursor: pointer;
+    user-select: none;
+    -webkit-user-select: none;
+
+    .fa-sort {
+      font-size: 13px;
+      color: @index-type-color;
+      display: none;
+    }
+
+    &[data-hook="th-name"],
+    &[data-hook="th-type"],
+    &[data-hook="th-size"],
+    &[data-hook="th-properties"] {
+      padding-left: 24px;
+    }
+
+    &[data-hook="th-drop"] {
+      display: none;
+    }
+
+    &.active .sort {
+      display: inline-block;
+    }
+
+    &:not(.active) .sort {
+      display: none;
+    }
+
+    &:hover:not(.active) .fa-sort {
+      display: inline-block;
+    }
+  }
+
+  table thead tr {
+    margin-top: 30px;
+    height: 50px;
+  }
+
+  table tbody tr {
+    height: 50px;
+    background-color: white;
+    box-shadow: 0 2px 10px 0 rgba(0, 0, 0, 0.075);
+    &:hover {
+
+      .name-column .name {
+        color: @gray3;
+      }
+
+      .definition {
+        background: @pw;
+        border: 1px solid @gray4;
+      }
+
+      .field {
+        color: @gray0;
+      }
+
+      .type {
+        background-color: @index-type-color;
+      }
+
+      .sort {
+        color: @index-type-color;
+      }
+    }
+  }
+
+
+  table tr td {
+    padding: 13px 0;
+
+    &.name-column {
+      padding: 0 0 24px 12px;
+      position: relative;
+      height: 48px;
+      width: 40%;
+
+      &:hover {
+        .name {
+          overflow: auto;
+          max-width: 100vw;
+          text-overflow: ellipsis;
+        }
+
+        .definition {
+          overflow: auto;
+          position: absolute;
+          width: auto;
+          box-shadow: 0px 2px 0px rgba(0,0,0,.1);
+          max-width: 100vw;
+        }
+      }
+    }
+
+    &.size-column {
+      width: 10%;
+      padding-left: 24px;
+      padding-right: 24px;
+    }
+
+    &.type-column, &.property-column {
+      width: auto;
+      padding-left: 24px;
+      padding-right: 24px;
+    }
+
+    &.usage-column {
+      width: 20%;
+    }
+
+    &.drop-column {
+      .drop-btn {
+        margin-right: 12px;
+        .drop-column-icon {
+          font-size: 14px;
+        }
+      }
+    }
+
+    .name {
+      font-size: 12px;
+      color: @index-type-color;
+      margin-bottom: 2px;
+    }
+
+    .property, .quantity, .unit, .since, .properties, .usage-since {
+      display: inline-block;
+      text-align: center;
+      white-space: nowrap;
+    }
+
+    .pill(@color, @bg) {
+      cursor: default;
+      color: @color;
+      background-color: @bg;
+      font-size: 11px;
+      font-weight: bold;
+      text-transform: uppercase;
+      border-radius: 20px;
+      padding: 3px 10px;
+      min-width: 30px;
+    }
+
+    .quantity {
+      color: @gray0;
+      font-size: 18px;
+      font-weight: 200;
+    }
+
+    .unit {
+      color: @gray3;
+      font-size: 12px;
+      text-transform: uppercase;
+      margin-left: 4px;
+    }
+
+    .progress {
+      min-width: 100px;
+      width: 80%;
+      height: 5px;
+      border-radius: 20px;
+
+      .progress-bar {
+        background-color: #00c0ec;
+        transition: none;
+      }
+    }
+
+    .usage-since {
+      font-size: 12px;
+      color: @gray3;
+      margin-left: 4px;
+    }
+
+    .property {
+      .pill(@index-property-color, @index-property-bg);
+      margin-right: 15px;
+    }
+
+    .property.cardinality {
+      .pill(@index-quantity-color, @index-quantity-bg);
+    }
+
+    .property.geospatial {
+      .pill(@index-geo-color, @index-geo-bg);
+    }
+
+    .property.hashed {
+      .pill(@index-hashed-color, @index-hashed-bg);
+    }
+
+    .property.text {
+      .pill(@index-text-color, @index-text-bg);
+    }
+  }
+}
+
+
+.index-container, .compass-explain {
+
+  .name,
+  .definition {
+    transition: all 250ms ease-out;
+  }
+
+  .name-column .name {
+    background: @pw;
+    width: auto;
+    max-width: 100%;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    margin-left: 13px;
+    padding-right: 5px;
+    position: absolute;
+    top: 9px;
+  }
+
+  .index-definition-type {
+    position: relative;
+  }
+
+  .definition {
+    display: inline-block;
+    width: auto;
+    max-width: 100%;
+    padding: 1px 0 1px 12px;
+    background: @gray7;
+    border: 1px solid @gray7;
+    border-radius: 20px;
+    z-index: 3;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    position: absolute;
+  }
+
+  .field {
+    font-size: 13px;
+    margin-right: 5px;
+  }
+
+  .type {
+    color: @pw;
+    background-color: @gray5;
+    border-radius: 20px;
+    min-width: 20px;
+    padding: 0 8px;
+    font-size: 11px;
+    font-weight: bold;
+    margin-left: 2px;
+  }
+
+  .sort {
+    margin-left: 2px;
+    font-size: 13px;
+    color: @gray5;
+  }
+
+  .pair {
+    margin-right: 10px;
+    vertical-align: bottom;
+  }
+
+  .sort, .type, .field, .pair {
+    text-align: center;
+    transition: all 250ms ease-out;
+  }
+}

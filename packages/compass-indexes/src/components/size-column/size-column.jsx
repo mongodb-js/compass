@@ -1,14 +1,24 @@
 import numeral from 'numeral';
-import React from 'react';
+import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import ReactTooltip from 'react-tooltip';
+
+import classnames from 'classnames';
+import styles from './size-column.less';
 
 const TOOLTIP_ID = 'index-size';
 
 /**
  * Component for the size column.
  */
-class SizeColumn extends React.Component {
+class SizeColumn extends PureComponent {
+  static displayName = 'SizeColumn';
+
+  static propTypes = {
+    size: PropTypes.number.isRequired,
+    relativeSize: PropTypes.number.isRequired
+  };
+
 
   _format(size) {
     const precision = size <= 1000 ? '0' : '0.0';
@@ -30,28 +40,24 @@ class SizeColumn extends React.Component {
       'data-border': true
     };
     return (
-      <td className="size-column">
-        <div className="quantity" data-test-id="index-table-size">
+      <td className={classnames(styles['size-column'])}>
+        <div
+          className={classnames(styles['size-column-quantity'])}
+          data-test-id="index-table-size">
           {indexSize[0]}
         </div>
-        <div className="unit">
+        <div className={classnames(styles['size-column-unit'])}>
           {indexSize[1]}
         </div>
-        <div {...tooltipOptions} className="progress">
+        <div {...tooltipOptions} className={classnames(styles['size-column-progress'])}>
           <ReactTooltip id={TOOLTIP_ID}/>
-          <div className="progress-bar" style={{ width: `${this.props.relativeSize}%`}}>
-          </div>
+          <div
+            className={classnames(styles['size-column-progress-bar'])}
+            style={{'width': `${this.props.relativeSize}%`}}/>
         </div>
       </td>
     );
   }
 }
-
-SizeColumn.displaySize = 'SizeColumn';
-
-SizeColumn.propTypes = {
-  size: PropTypes.number.isRequired,
-  relativeSize: PropTypes.number.isRequired
-};
 
 export default SizeColumn;

@@ -1,11 +1,17 @@
-import React from 'react';
+import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
+import { Provider } from 'react-redux';
 import CreateIndexModal from 'components/create-index-modal';
+import createIndexStore from 'stores/create-index';
 
 /**
  * Component for the create index button.
  */
-class CreateIndexButton extends React.Component {
+class CreateIndexButton extends PureComponent {
+  static displayName = 'CreateIndexButton';
+  static propTypes = {
+    toggleIsVisible: PropTypes.func.isRequired
+  };
 
   /**
    * The component constructor.
@@ -14,10 +20,9 @@ class CreateIndexButton extends React.Component {
    */
   constructor(props) {
     super(props);
-    this.TextWriteButton = global.hadronApp.appRegistry.getComponent('DeploymentAwareness.TextWriteButton');
-    this.state = {
-      showModal: false
-    };
+    this.TextWriteButton = global.hadronApp.appRegistry.getComponent(
+      'DeploymentAwareness.TextWriteButton'
+    );
   }
 
   /**
@@ -28,14 +33,7 @@ class CreateIndexButton extends React.Component {
   clickCreateHandler(evt) {
     evt.preventDefault();
     evt.stopPropagation();
-    this.setState({ showModal: true });
-  }
-
-  /**
-   * Close the modal.
-   */
-  close() {
-    this.setState({ showModal: false });
+    createIndexStore.dispatch(this.props.toggleIsVisible(true));
   }
 
   /**
@@ -53,19 +51,12 @@ class CreateIndexButton extends React.Component {
           text="Create Index"
           tooltipId="index-is-not-writable"
           clickHandler={this.clickCreateHandler.bind(this)} />
-        <CreateIndexModal
-          open={this.state.showModal}
-          close={this.close.bind(this)} />
+        <Provider store={createIndexStore}>
+          <CreateIndexModal />
+        </Provider>
       </div>
     );
   }
 }
-
-CreateIndexButton.displayName = 'CreateIndexButton';
-
-CreateIndexButton.propTypes = {
-  isWritable: PropTypes.bool.isRequired,
-  description: PropTypes.string.isRequired
-};
 
 export default CreateIndexButton;

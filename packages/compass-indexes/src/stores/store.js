@@ -1,55 +1,55 @@
-import { createStore } from 'redux';
+import { createStore, applyMiddleware } from 'redux';
 import reducer from 'modules';
+import thunk from 'redux-thunk';
 
-const store = createStore(reducer);
+import { writeStateChanged } from 'modules/is-writable';
+import { readStateChanged } from 'modules/is-readonly';
+import { getDescription } from 'modules/description';
+import { appRegistryActivated} from 'modules/app-registry';
+import { dataServiceConnected } from 'modules/data-service';
+import { loadIndexesFromDb, parseErrorMsg } from 'modules/indexes';
+import { handleError } from 'modules/error';
 
-/*
+const store = createStore(reducer, applyMiddleware(thunk));
+
+
 store.onActivated = (appRegistry) => {
   // Events emitted from the app registry:
 
-  appRegistry.on('application-intialized', (version) => {
-    // Version is string in semver format, ex: "1.10.0"
-  });
-
-  appRegistry.on('data-service-intialized', (dataService) => {
-    // dataService is not yet connected. Can subscribe to events.
-    // DataService API: https://github.com/mongodb-js/data-service/blob/master/lib/data-service.js
+  appRegistry.getStore('DeploymentAwareness.WriteStateStore').listen((state) => {
+    store.dispatch(writeStateChanged(state.isWritable));
+    store.dispatch(getDescription(state.description));
   });
 
   appRegistry.on('data-service-connected', (error, dataService) => {
-    // dataService is connected or errored.
-    // DataService API: https://github.com/mongodb-js/data-service/blob/master/lib/data-service.js
+    if (error !== null) {
+      store.dispatch(handleError(parseErrorMsg(error)));
+    } else {
+      store.dispatch(dataServiceConnected(dataService));
+    }
   });
 
-  appRegistry.on('collection-changed', (namespace) => {
-    // The collection has changed - provides the current namespace.
-    // Namespace format: 'database.collection';
-    // Collection selected: 'database.collection';
-    // Database selected: 'database';
-    // Instance selected: '';
+  appRegistry.on('query-changed', (query) => {
+    const cs = appRegistry.getStore('App.CollectionStore').isReadonly();
+    store.dispatch(readStateChanged(process.env.HADRON_READONLY === 'true' || cs === true));
+    store.dispatch(loadIndexesFromDb(query.ns));
   });
 
-  appRegistry.on('database-changed', (namespace) => {
-    // The database has changed.
-    // Namespace format: 'database.collection';
-    // Collection selected: 'database.collection';
-    // Database selected: 'database';
-    // Instance selected: '';
+  appRegistry.on('refresh-data', () => {
+    const cs = appRegistry.getStore('App.CollectionStore').isReadonly();
+    store.dispatch(readStateChanged(process.env.HADRON_READONLY === 'true' || cs === true));
+
+    const ns = appRegistry.getStore('App.NamespaceStore').ns;
+    if (ns.indexOf('.') !== -1) {
+      store.dispatch(loadIndexesFromDb(ns));
+    }
   });
 
-  appRegistry.on('query-applied', (queryState) => {
-    // The query has changed and the user has clicked "filter" or "reset".
-    // queryState format example:
-    //   {
-    //     filter: { name: 'testing' },
-    //     project: { name: 1 },
-    //     sort: { name: -1 },
-    //     skip: 0,
-    //     limit: 20,
-    //     ns: 'database.collection'
-    //   }
-  });
+  /**
+   * Set the app registry to use later.
+   */
+  store.dispatch(appRegistryActivated(appRegistry));
 };
-*/
+
 
 export default store;

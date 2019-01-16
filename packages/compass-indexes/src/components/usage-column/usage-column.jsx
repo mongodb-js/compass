@@ -1,7 +1,10 @@
 import isUndefined from 'lodash.isundefined';
-import React from 'react';
+import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import ReactTooltip from 'react-tooltip';
+
+import classnames from 'classnames';
+import styles from './usage-column.less';
 
 const TOOLTIP_ID = 'index-usage';
 
@@ -14,7 +17,13 @@ const NO_USAGE_STATS = 'Either the server does not support the $indexStats comma
 /**
  * Component for the usage column.
  */
-class UsageColumn extends React.Component {
+class UsageColumn extends PureComponent {
+  static displayName = 'UsageColumn';
+
+  static propTypes = {
+    usage: PropTypes.any,
+    since: PropTypes.any
+  };
 
   /**
    * Render the usage tooltip text.
@@ -33,7 +42,7 @@ class UsageColumn extends React.Component {
       return null;
     }
     return (
-      <div className="usage-since">
+      <div className={classnames(styles['usage-column-since'])}>
         since&nbsp;
         <span>
           {this.props.since ? this.props.since.toDateString() : 'N/A'}
@@ -58,9 +67,9 @@ class UsageColumn extends React.Component {
       'data-multiline': true
     };
     return (
-      <td className="usage-column">
-        <span className="usage">
-          <div {...tooltipOptions} className="quantity" data-test-id="index-table-usage">
+      <td className={classnames(styles['usage-column'])}>
+        <span>
+          <div {...tooltipOptions} className={classnames(styles['usage-column-quantity'])} data-test-id="index-table-usage">
             <ReactTooltip id={TOOLTIP_ID}/>
             {usage}
           </div>
@@ -70,12 +79,5 @@ class UsageColumn extends React.Component {
     );
   }
 }
-
-UsageColumn.displayUsage = 'UsageColumn';
-
-UsageColumn.propTypes = {
-  usage: PropTypes.any,
-  since: PropTypes.any
-};
 
 export default UsageColumn;

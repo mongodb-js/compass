@@ -2,7 +2,7 @@ const Reflux = require('reflux');
 const StateMixin = require('reflux-state-mixin');
 
 /**
- * The default description.
+ * The default getDescription.
  */
 const DEFAULT_DESCRIPTION = 'Topology type not yet discovered.';
 
@@ -30,6 +30,10 @@ const DeploymentStateStore = Reflux.createStore({
       isWritable: true,
       description: DEFAULT_DESCRIPTION
     };
+  },
+
+  setToInitial() {
+    this.setState({isWritable: true, description: 'description set from renderer'});
   }
 });
 

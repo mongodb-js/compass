@@ -1,83 +1,46 @@
-import React from 'react';
+import React, { PureComponent } from 'react';
+import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import { Modal } from 'react-bootstrap';
 import { ModalStatusMessage } from 'hadron-react-components';
-import Actions from 'actions';
-import { DDLStatusStore } from 'stores';
 
-// const debug = require('debug')('mongodb-compass:ddl:index');
+import classnames from 'classnames';
+import styles from './drop-index-modal.less';
+
+import { toggleIsVisible } from 'modules/is-visible';
+import { toggleInProgress } from 'modules/in-progress';
+import { changeName } from 'modules/drop-index/name';
+import { changeConfirmName } from 'modules/drop-index/confirm-name';
+import { handleError, clearError } from 'modules/error';
+import { dropIndex } from 'modules/drop-index';
+import { resetForm } from 'modules/reset-form';
 
 /**
  * Component for the drop confirmation modal.
  */
-class DropIndexModal extends React.Component {
+class DropIndexModal extends PureComponent {
+  static displayName = 'DropIndexModal';
 
-  /**
-   * The component constructor.
-   *
-   * @param {Object} props - The properties.
-   */
-  constructor(props) {
-    super(props);
-    this.state = {
-      confirmName: ''
-    };
-  }
-
-  /**
-   * Subscribe on mount.
-   */
-  componentWillMount() {
-    this.unsubscribeDDLStatus = DDLStatusStore.listen(this.handleStatusChange.bind(this));
-  }
-
-  /**
-   * Unsubscribe on unmount.
-   */
-  componentWillUnmount() {
-    this.unsubscribeDDLStatus();
-  }
-
-  /**
-   * Handle changes in creation state (success, error, or complete).
-   *
-   * @param {string} status - The status.
-   * @param {string} message - The error message.
-   */
-  handleStatusChange(status, message) {
-    if (status === 'inProgress') {
-      this.setState({inProgress: true, error: false, errorMessage: message});
-    } else if (status === 'error') {
-      this.setState({inProgress: false, error: true, errorMessage: message});
-    } else {
-      this.handleClose();
-    }
-  }
+  static propTypes = {
+    dataService: PropTypes.object,
+    isVisible: PropTypes.bool.isRequired,
+    inProgress: PropTypes.bool.isRequired,
+    error: PropTypes.string,
+    name: PropTypes.string.isRequired,
+    confirmName: PropTypes.string.isRequired,
+    toggleIsVisible: PropTypes.func.isRequired,
+    toggleInProgress: PropTypes.func.isRequired,
+    changeConfirmName: PropTypes.func.isRequired,
+    resetForm: PropTypes.func.isRequired,
+    dropIndex: PropTypes.func.isRequired
+  };
 
   /**
    * Clean up after a close events
    */
   handleClose() {
-    // this.props.indexName = '';
-    this.setState({inProgress: false, error: false, errorMessage: ''});
-    this.props.close();
-  }
-
-  /**
-   * Close drop index modal when cancel is clicked.
-   */
-  handleCancel() {
-    Actions.updateStatus('cancel');
-    this.handleClose();
-  }
-
-  /**
-   * Update state value for confirm name as user types.
-   *
-   * @param {Object} evt - The click event.
-   */
-  handleChange(evt) {
-    this.setState({ confirmName: evt.target.value });
+    this.props.toggleIsVisible(false);
+    this.props.resetForm();
   }
 
   /**
@@ -88,32 +51,7 @@ class DropIndexModal extends React.Component {
   handleConfirm(evt) {
     evt.preventDefault();
     evt.stopPropagation();
-    Actions.dropIndex(this.props.indexName);
-    // this.props.close();
-  }
-
-  /**
-   * Render the create and cancel buttons.
-   *
-   * @returns {React.Component} The create and cancel buttons.
-   */
-  renderButtons() {
-    return (
-      <div className="drop-btn-container">
-        <button
-          className="drop-btn btn btn-default btn-sm"
-          type="button"
-          onClick={this.handleCancel.bind(this)}>
-          Cancel
-        </button>
-        <button
-          className="drop-btn btn btn-alert btn-sm"
-          disabled={this.state.confirmName !== this.props.indexName}
-          type="submit">
-          Drop
-        </button>
-      </div>
-    );
+    this.props.dropIndex(this.props.name);
   }
 
   /**
@@ -123,54 +61,99 @@ class DropIndexModal extends React.Component {
    */
   render() {
     return (
-      <Modal show={this.props.open}
+      <Modal show={this.props.isVisible}
         backdrop="static"
-        dialogClassName="drop-index-modal"
+        dialogClassName={classnames(styles['drop-index-modal'])}
         onHide={this.handleClose.bind(this)} >
-        <div className="drop-index-modal-content">
-          <Modal.Header>
-            <Modal.Title>Index Drop</Modal.Title>
-          </Modal.Header>
 
-          <Modal.Body>
-            <div>
-              <p className="drop-confirm-message">
-                <i className="drop-confirm-icon fa fa-exclamation-triangle" aria-hidden="true"></i>
-                Type the index name
-                <strong> {this.props.indexName} </strong>
-                to drop
-              </p>
+        <Modal.Header>
+          <Modal.Title>Drop Index</Modal.Title>
+        </Modal.Header>
+
+        <Modal.Body>
+          <div>
+            <p className={classnames(styles['drop-index-modal-confirm'])}>
+              <i className="fa fa-exclamation-triangle" aria-hidden="true"/>
+              Type the index name
+              <strong> {this.props.name} </strong>
+              to drop
+            </p>
+          </div>
+          <form>
+            <div className="form-group">
+              <input
+                autoFocus
+                type="text"
+                className="form-control"
+                data-test-id="confirm-drop-index-name"
+                value={this.props.confirmName}
+                onChange={(evt) => (this.props.changeConfirmName(evt.target.value))} />
             </div>
-            <form onSubmit={this.handleConfirm.bind(this)}>
-              <div className="form-group">
-                <input
-                  autoFocus
-                  type="text"
-                  className="drop-confirm-input form-control"
-                  value={this.state.confirmName}
-                  onChange={this.handleChange.bind(this)} />
-              </div>
-              {this.state.error ?
-                <ModalStatusMessage icon="times" message={this.state.errorMessage} type="error" />
-                : null}
+            {!(this.props.error === null || this.props.error === undefined) ?
+              <ModalStatusMessage icon="times" message={this.props.error} type="error" />
+              : null}
 
-              {this.state.inProgress ?
-                <ModalStatusMessage icon="spinner" message={'Drop in Progress'} type="in-progress" />
-                : this.renderButtons()}
-            </form>
-          </Modal.Body>
-        </div>
+            {this.props.inProgress && (this.props.error === null || this.props.error === undefined) ?
+              <ModalStatusMessage icon="spinner" message="Drop in Progress" type="in-progress" />
+              : null}
+
+            <div className={classnames(styles['drop-index-modal-buttons'])}>
+              <button
+                className="btn btn-default btn-sm"
+                data-test-id="cancel-drop-index-button"
+                type="button"
+                onClick={this.handleClose.bind(this)}>
+                Cancel
+              </button>
+              <button
+                className="btn btn-alert btn-sm"
+                data-test-id="drop-index-button"
+                disabled={this.props.confirmName !== this.props.name}
+                type="button"
+                onClick={this.handleConfirm.bind(this)}>
+                Drop
+              </button>
+            </div>
+          </form>
+        </Modal.Body>
       </Modal>
     );
   }
 }
 
-DropIndexModal.displayName = 'DropIndexModal';
+/**
+ * Map the store state to properties to pass to the components.
+ *
+ * @param {Object} state - The store state.
+ *
+ * @returns {Object} The mapped properties.
+ */
+const mapStateToProps = (state) => ({
+  dataService: state.dataService,
+  isVisible: state.isVisible,
+  inProgress: state.inProgress,
+  error: state.error,
+  name: state.name,
+  confirmName: state.confirmName
+});
 
-DropIndexModal.propTypes = {
-  close: PropTypes.func.isRequired,
-  indexName: PropTypes.string.isRequired,
-  open: PropTypes.bool.isRequired
-};
+/**
+ * Connect the redux store to the component.
+ * (dispatch)
+ */
+const MappedDropIndexModal = connect(
+  mapStateToProps,
+  {
+    toggleIsVisible,
+    toggleInProgress,
+    clearError,
+    handleError,
+    changeName,
+    changeConfirmName,
+    dropIndex,
+    resetForm
+  },
+)(DropIndexModal);
 
-export default DropIndexModal;
+export default MappedDropIndexModal;
+export { DropIndexModal };

@@ -1,11 +1,10 @@
-import React from 'react';
+import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
-import { DDLStatusStore } from 'stores';
-import Actions from 'actions';
 
-const Select = require('react-select-plus').default; // TODO
+import classnames from 'classnames';
+import styles from './create-index-field.less';
 
-// const debug = require('debug')('mongodb-compass:indexes:create-index-field');
+import Select from 'react-select-plus';
 
 /**
  * Current allowed types for indexes.
@@ -23,28 +22,20 @@ const DEFAULT_FIELD = {
 /**
  * Component for the index field form.
  */
-class CreateIndexField extends React.Component {
+class CreateIndexField extends PureComponent {
+  static displayName = 'CreateIndexField';
 
-  constructor(props) {
-    super(props);
-    this.state = {
-      hasStartedValidating: false,
-      isNameValid: true,
-      isTypeValid: true
-    };
-  }
-
-  componentDidMount() {
-    this._unsubscribeStatusStore = DDLStatusStore.listen(this.statusChanged.bind(this));
-  }
-
-  componentWillReceiveProps() {
-    this.validate(false);
-  }
-
-  componentWillUnmount() {
-    this._unsubscribeStatusStore();
-  }
+  static propTypes = {
+    fields: PropTypes.array.isRequired,
+    field: PropTypes.object.isRequired,
+    idx: PropTypes.number.isRequired,
+    disabledFields: PropTypes.array.isRequired,
+    isRemovable: PropTypes.bool.isRequired,
+    addField: PropTypes.func.isRequired,
+    removeField: PropTypes.func.isRequired,
+    updateFieldName: PropTypes.func.isRequired,
+    updateFieldType: PropTypes.func.isRequired
+  };
 
   /**
    * Create React dropdown items for each element in the fields array.
@@ -77,7 +68,7 @@ class CreateIndexField extends React.Component {
    * @param {object} field - The selected field object.
    */
   selectFieldName(field) {
-    Actions.updateFieldName(this.props.idx, field.label);
+    this.props.updateFieldName(this.props.idx, field.label);
   }
 
   /**
@@ -86,7 +77,7 @@ class CreateIndexField extends React.Component {
    * @param {string} field - The selected field object.
    */
   selectFieldType(field) {
-    Actions.updateFieldType(this.props.idx, field.label);
+    this.props.updateFieldType(this.props.idx, field.label);
   }
 
   /**
@@ -97,22 +88,7 @@ class CreateIndexField extends React.Component {
   remove(evt) {
     evt.preventDefault();
     evt.stopPropagation();
-    Actions.removeIndexField(this.props.idx);
-  }
-
-  statusChanged() {
-    this.validate(true);
-  }
-
-  validate(force) {
-    if (!force && !this.state.hasStartedValidating) {
-      return;
-    }
-    this.setState({
-      hasStartedValidating: true,
-      isTypeValid: this.props.field.type !== '',
-      isNameValid: this.props.field.name !== ''
-    });
+    this.props.removeField(this.props.idx);
   }
 
   _promptText(label) {
@@ -125,12 +101,12 @@ class CreateIndexField extends React.Component {
    * @returns {React.Component} The index field form.
    */
   render() {
-    const hasNameError = this.state.isNameValid ? '' : 'has-error';
-    const hasTypeError = this.state.isTypeValid ? '' : 'has-error';
+    const hasNameError = this.props.field.name !== '' ? '' : 'has-error';
+    const hasTypeError = this.props.field.type !== '' ? '' : 'has-error';
 
     return (
-      <div className="form-inline create-index-field">
-        <div className="create-index-field-dropdown-name" data-test-id="create-index-modal-field-select">
+      <div className={classnames(styles['create-index-field'])}>
+        <div className={classnames(styles['create-index-field-dropdown-name'])} data-test-id="create-index-modal-field-select">
           <Select.Creatable
             value={this.props.field.name}
             placeholder={DEFAULT_FIELD.name}
@@ -140,7 +116,7 @@ class CreateIndexField extends React.Component {
             promptTextCreator={this._promptText}
             className={hasNameError} />
         </div>
-        <div className="create-index-field-dropdown-type" data-test-id="create-index-modal-type-select">
+        <div className={classnames(styles['create-index-field-dropdown-type'])} data-test-id="create-index-modal-type-select">
           <Select
             value={this.props.field.type}
             placeholder={DEFAULT_FIELD.type}
@@ -151,25 +127,16 @@ class CreateIndexField extends React.Component {
             className={hasTypeError} />
         </div>
         <div>
-          <button disabled={this.props.isRemovable}
+          <button
+            disabled={this.props.isRemovable}
             className="btn btn-primary btn-circle"
             onClick={this.remove.bind(this)}>
-            <i className="fa fa-minus" aria-hidden="true"></i>
+            <i className="fa fa-minus" aria-hidden="true" />
           </button>
         </div>
       </div>
     );
   }
 }
-
-CreateIndexField.displayName = 'CreateIndexField';
-
-CreateIndexField.propTypes = {
-  fields: PropTypes.array.isRequired,
-  field: PropTypes.object.isRequired,
-  idx: PropTypes.number.isRequired,
-  disabledFields: PropTypes.array.isRequired,
-  isRemovable: PropTypes.bool.isRequired
-};
 
 export default CreateIndexField;

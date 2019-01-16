@@ -1,0 +1,35 @@
+@index-property-color:#545383;
+@index-property-bg: #E6E4ED;
+
+@index-quantity-color: #5382A8;
+@index-quantity-bg: #EAEDF4;
+
+.property-column {
+  width: auto;
+  padding-left: 24px;
+  padding-right: 24px;
+  .pill(@color, @bg) {
+    display: inline-block;
+    cursor: default;
+    color: @color;
+    background-color: @bg;
+    font-size: 11px;
+    font-weight: bold;
+    text-transform: uppercase;
+    border-radius: 20px;
+    padding: 3px 10px;
+    min-width: 30px;
+  }
+  &-property {
+    display: inline-block;
+    text-align: center;
+    white-space: nowrap;
+    .pill(@index-property-color, @index-property-bg);
+    margin-right: 15px;
+    margin-top: 1px;
+    margin-bottom: 1px;
+    &-cardinality {
+      .pill(@index-quantity-color, @index-quantity-bg);
+    }
+  }
+}

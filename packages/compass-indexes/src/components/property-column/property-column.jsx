@@ -1,18 +1,27 @@
 import map from 'lodash.map';
 import { format } from 'util';
-import React from 'react';
+import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import ReactTooltip from 'react-tooltip';
 import { InfoSprinkle } from 'hadron-react-components';
 import { shell } from 'electron';
-const getIndexHelpLink = require('../../index-link-helper'); // TODO
+import getIndexHelpLink from 'utils/index-link-helper';
+
+import classnames from 'classnames';
+import styles from './property-column.less';
 
 const TOOLTIP_ID = 'index-property';
 
 /**
  * Component for the property column.
  */
-class PropertyColumn extends React.Component {
+class PropertyColumn extends PureComponent {
+  static displayName = 'PropertyColumn';
+
+  static propTypes = {
+    index: PropTypes.object.isRequired,
+    openLink: PropTypes.func.isRequired
+  };
 
   _partialTooltip() {
     return format('partialFilterExpression: %j', this.props.index.extra.partialFilterExpression);
@@ -30,11 +39,11 @@ class PropertyColumn extends React.Component {
   renderCardinality() {
     if (this.props.index.cardinality === 'compound') {
       return (
-        <div className="property cardinality">
+        <div className={classnames(styles['property-column-property-cardinality'])}>
           {this.props.index.cardinality}
           <InfoSprinkle
             helpLink={getIndexHelpLink('COMPOUND')}
-            onClickHandler={shell.openExternal}
+            onClickHandler={this.props.openLink}
           />
         </div>
       );
@@ -58,7 +67,7 @@ class PropertyColumn extends React.Component {
     if (prop === 'ttl') {
       tooltipOptions['data-tip'] = this._ttlTooltip();
       return (
-        <div {...tooltipOptions} key={prop} className="property">
+        <div {...tooltipOptions} key={prop} className={classnames(styles['property-column-property'])}>
           {prop}
           <InfoSprinkle
             helpLink={getIndexHelpLink('TTL')}
@@ -69,7 +78,7 @@ class PropertyColumn extends React.Component {
     } else if (prop === 'partial') {
       tooltipOptions['data-tip'] = this._partialTooltip();
       return (
-        <div {...tooltipOptions} key={prop} className="property">
+        <div {...tooltipOptions} key={prop} className={classnames(styles['property-column-property'])}>
           {prop}
           <InfoSprinkle
             helpLink={getIndexHelpLink('PARTIAL')}
@@ -79,7 +88,7 @@ class PropertyColumn extends React.Component {
       );
     }
     return (
-      <div key={prop} className="property">
+      <div key={prop} className={classnames(styles['property-column-property'])}>
         {prop}
         <InfoSprinkle
           helpLink={getIndexHelpLink(prop.toUpperCase())}
@@ -99,8 +108,8 @@ class PropertyColumn extends React.Component {
       return this.renderProperty(prop);
     });
     return (
-      <td className="property-column">
-        <div className="properties">
+      <td className={classnames(styles['property-column'])}>
+        <div>
           {properties}
           <ReactTooltip id={TOOLTIP_ID} />
           {this.renderCardinality()}
@@ -108,13 +117,6 @@ class PropertyColumn extends React.Component {
       </td>
     );
   }
-
 }
-
-PropertyColumn.displayProperty = 'PropertyColumn';
-
-PropertyColumn.propTypes = {
-  index: PropTypes.object.isRequired
-};
 
 export default PropertyColumn;

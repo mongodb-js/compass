@@ -1,0 +1,75 @@
+@index-property-color:#545383;
+@index-property-bg: #E6E4ED;
+
+@index-geo-color: #548273;
+@index-geo-bg: #E8ECEB;
+
+@index-hashed-color: #968875;
+@index-hashed-bg: #EEEAE5;
+
+@index-text-color: #947872;
+@index-text-bg: #F5EDEB;
+
+@index-quantity-color: #5382A8;
+@index-quantity-bg: #EAEDF4;
+.type-column {
+  width: auto;
+  padding-left: 24px;
+  padding-right: 24px;
+
+  .pill(@color, @bg) {
+    cursor: default;
+    color: @color;
+    background-color: @bg;
+    font-size: 11px;
+    font-weight: bold;
+    text-transform: uppercase;
+    border-radius: 20px;
+    padding: 3px 10px;
+    min-width: 30px;
+  }
+
+  &-property { // TODO: fix classes
+
+    &-cardinality {
+      display: inline-block;
+      text-align: center;
+      white-space: nowrap;
+      margin-right: 15px;
+      .pill(@index-quantity-color, @index-quantity-bg);
+    }
+
+
+    &-hashed {
+      display: inline-block;
+      text-align: center;
+      white-space: nowrap;
+      margin-right: 15px;
+      .pill(@index-hashed-color, @index-hashed-bg);
+    }
+
+    &-text {
+      display: inline-block;
+      text-align: center;
+      white-space: nowrap;
+      margin-right: 15px;
+      .pill(@index-text-color, @index-text-bg);
+    }
+
+    &-geospatial {
+      display: inline-block;
+      text-align: center;
+      white-space: nowrap;
+      margin-right: 15px;
+      .pill(@index-geo-color, @index-geo-bg);
+    }
+
+    &-regular {
+      display: inline-block;
+      text-align: center;
+      white-space: nowrap;
+      margin-right: 15px;
+      .pill(@index-property-color, @index-property-bg);
+    }
+  }
+}

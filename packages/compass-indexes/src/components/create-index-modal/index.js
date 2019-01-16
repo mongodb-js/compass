@@ -1,2 +1,3 @@
-import CreateIndexModal from './create-index-modal';
-export default CreateIndexModal;
+import MappedCreateIndexModal, { CreateIndexModal } from './create-index-modal';
+export default MappedCreateIndexModal;
+export { CreateIndexModal };

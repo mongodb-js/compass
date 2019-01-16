@@ -1,66 +1,23 @@
-import React from 'react';
+import React, { PureComponent } from 'react';
+import PropTypes from 'prop-types';
 import IndexHeaderColumn from 'components/index-header-column';
-import { SortIndexesStore } from 'stores';
 
-const ASC = 'fa-sort-asc';
+import classnames from 'classnames';
+import styles from './index-header.less';
 
 /**
  * Component for the index header.
  */
-class IndexHeader extends React.Component {
-
-  /**
-   * The component constructor.
-   *
-   * @param {Object} props - The properties.
-   */
-  constructor(props) {
-    super(props);
-    const appRegistry = global.hadronApp.appRegistry;
-    this.WriteStateStore = appRegistry.getStore('DeploymentAwareness.WriteStateStore');
-    this.CollectionStore = appRegistry.getStore('App.CollectionStore');
-    this.state = {
-      sortOrder: ASC,
-      isWritable: this.WriteStateStore.state.isWritable,
-      description: this.WriteStateStore.state.description
-    };
-  }
-
-  /**
-   * Subscribe on mount.
-   */
-  componentWillMount() {
-    this.unsubscribeSort = SortIndexesStore.listen(this.handleIndexChange.bind(this));
-    this.unsubscribeStateStore = this.WriteStateStore.listen(this.deploymentStateChanged.bind(this));
-  }
-
-  /**
-   * Unsubscribe on unmount.
-   */
-  componentWillUnmount() {
-    this.unsubscribeSort();
-    this.unsubscribeStateStore();
-  }
-
-  /**
-   * Called when the deployment state changes.
-   *
-   * @param {Object} state - The deployment state.
-   */
-  deploymentStateChanged(state) {
-    this.setState(state);
-  }
-
-  /**
-   * Handles the sort indexes store triggering with indexes in a new order or the
-   * initial load of indexes.
-   *
-   * @param {Array} indexes - The indexes.
-   * @param {String} sortOrder - The sort order.
-   */
-  handleIndexChange(indexes, sortOrder) {
-    this.setState({ sortOrder: sortOrder });
-  }
+class IndexHeader extends PureComponent {
+  static displayName = 'IndexHeader';
+  static propTypes = {
+    isWritable: PropTypes.bool.isRequired,
+    isReadonly: PropTypes.bool.isRequired,
+    indexes: PropTypes.array.isRequired,
+    sortOrder: PropTypes.string.isRequired,
+    sortColumn: PropTypes.string.isRequired,
+    sortIndexes: PropTypes.func.isRequired
+  };
 
   /**
    * Render the index header.
@@ -69,28 +26,56 @@ class IndexHeader extends React.Component {
    */
   render() {
     return (
-      <thead>
+      <thead className={classnames(styles['index-header'])}>
         <tr>
           <IndexHeaderColumn
-            dataTestId="index-header-name" name="Name and Definition" sortOrder={this.state.sortOrder} />
+            dataTestId="index-header-name"
+            name="Name and Definition"
+            sortOrder={this.props.sortOrder}
+            sortColumn={this.props.sortColumn}
+            sortIndexes={this.props.sortIndexes}
+            indexes={this.props.indexes} />
           <IndexHeaderColumn
-            dataTestId="index-header-type" name="Type" sortOrder={this.state.sortOrder} />
+            dataTestId="index-header-type"
+            name="Type"
+            sortOrder={this.props.sortOrder}
+            sortColumn={this.props.sortColumn}
+            sortIndexes={this.props.sortIndexes}
+            indexes={this.props.indexes} />
           <IndexHeaderColumn
-            dataTestId="index-header-size" name="Size" sortOrder={this.state.sortOrder} />
+            dataTestId="index-header-size"
+            name="Size"
+            sortOrder={this.props.sortOrder}
+            sortColumn={this.props.sortColumn}
+            sortIndexes={this.props.sortIndexes}
+            indexes={this.props.indexes} />
           <IndexHeaderColumn
-            dataTestId="index-header-usage" name="Usage" sortOrder={this.state.sortOrder} />
+            dataTestId="index-header-usage"
+            name="Usage"
+            sortOrder={this.props.sortOrder}
+            sortColumn={this.props.sortColumn}
+            sortIndexes={this.props.sortIndexes}
+            indexes={this.props.indexes} />
           <IndexHeaderColumn
-            dataTestId="index-header-properties" name="Properties" sortOrder={this.state.sortOrder} />
-          {(!this.CollectionStore.isReadonly() && this.state.isWritable) ?
+            dataTestId="index-header-properties"
+            name="Properties"
+            sortOrder={this.props.sortOrder}
+            sortColumn={this.props.sortColumn}
+            sortIndexes={this.props.sortIndexes}
+            indexes={this.props.indexes} />
+          {(!this.props.isReadonly && this.props.isWritable) ?
             <IndexHeaderColumn
-              dataTestId="index-header-drop" name="Drop" sortOrder={this.state.sortOrder}/>
+              dataTestId="index-header-drop"
+              name="Drop"
+              sortOrder={this.props.sortOrder}
+              sortColumn={this.props.sortColumn}
+              sortIndexes={this.props.sortIndexes}
+              indexes={this.props.indexes} />
             : null}
         </tr>
       </thead>
     );
   }
 }
-
-IndexHeader.displayName = 'IndexHeader';
 
 export default IndexHeader;

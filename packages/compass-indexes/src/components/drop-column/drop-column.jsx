@@ -1,23 +1,22 @@
-import React from 'react';
+import React, { PureComponent } from 'react';
+import dropIndexStore from 'stores/drop-index';
 import PropTypes from 'prop-types';
-import DropIndexModal from 'components/drop-index-modal';
+
+import classnames from 'classnames';
+import styles from './drop-column.less';
 
 /**
  * Component for the drop column.
  */
-class DropColumn extends React.Component {
+class DropColumn extends PureComponent {
+  static displayName = 'DropColumn';
 
-  /**
-   * The component constructor.
-   *
-   * @param {Object} props - The properties.
-   */
-  constructor(props) {
-    super(props);
-    this.state = {
-      showModal: false
-    };
-  }
+  static propTypes = {
+    indexName: PropTypes.string.isRequired,
+    isReadonly: PropTypes.bool.isRequired,
+    toggleIsVisible: PropTypes.func.isRequired,
+    changeName: PropTypes.func.isRequired
+  };
 
   /**
    * Show drop index modal when drop button is clicked.
@@ -27,14 +26,8 @@ class DropColumn extends React.Component {
   clickDropHandler(evt) {
     evt.preventDefault();
     evt.stopPropagation();
-    this.setState({ showModal: true });
-  }
-
-  /**
-   * Close the drop index modal.
-   */
-  close() {
-    this.setState({ showModal: false });
+    dropIndexStore.dispatch(this.props.changeName(this.props.indexName));
+    dropIndexStore.dispatch(this.props.toggleIsVisible(true));
   }
 
   /**
@@ -44,29 +37,18 @@ class DropColumn extends React.Component {
    */
   render() {
     return (
-      <td className="drop-column">
+      <td className={classnames(styles['drop-column'])}>
         {this.props.indexName !== '_id_' && !this.props.isReadonly ?
           <button
             className="drop-btn btn btn-default btn-sm"
             type="button"
             onClick={this.clickDropHandler.bind(this)}>
             <i className="drop-column-icon fa fa-trash-o"/>
-         </button>
-        : null}
-        <DropIndexModal
-          indexName={this.props.indexName}
-          open={this.state.showModal}
-          close={this.close.bind(this)} />
+          </button>
+          : null}
       </td>
     );
   }
 }
-
-DropColumn.displayName = 'DropColumn';
-
-DropColumn.propTypes = {
-  indexName: PropTypes.string.isRequired,
-  isReadonly: PropTypes.bool.isRequired
-};
 
 export default DropColumn;

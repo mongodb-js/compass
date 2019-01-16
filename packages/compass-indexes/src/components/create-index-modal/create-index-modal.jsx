@@ -1,35 +1,96 @@
-import app from 'hadron-app';
-import React from 'react';
+/* eslint react/sort-comp:0 */
+import React, { PureComponent } from 'react';
+import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import { Modal } from 'react-bootstrap';
-import { ModalStatusMessage } from 'hadron-react-components';
-import { CreateIndexStore, DDLStatusStore } from 'stores';
-import CreateIndexCheckbox from 'components/create-index-checkbox';
-import CreateIndexField from 'components/create-index-field';
-import CreateIndexTextField from 'components/create-index-text-field';
-import OptionsToggleBar from 'components/options-toggle-bar';
-import Actions from 'actions';
+import { TextButton } from 'hadron-react-buttons';
+import { ModalStatusMessage, ModalCheckbox, ModalInput } from 'hadron-react-components';
 import pluck from 'lodash.pluck';
 
-/**
- * The index options and parameters to display.
- */
-const INDEX_OPTIONS = [
-  {name: 'background', desc: 'Build index in the background', param: false, paramUnit: ''},
-  {name: 'unique', desc: 'Create unique index', param: false, paramUnit: ''},
-  {name: 'ttl', desc: 'Create TTL', param: true, paramUnit: 'seconds'},
-  {name: 'partialFilterExpression', desc: 'Partial Filter Expression', param: true, paramUnit: ''}
-];
+import classnames from 'classnames';
+import styles from './create-index-modal.less';
+
+import CreateIndexField from 'components/create-index-field';
+
+import { toggleInProgress } from 'modules/in-progress';
+import { toggleShowOptions } from 'modules/create-index/show-options';
+import {
+  addField,
+  removeField,
+  updateFieldType,
+  updateFieldName
+} from 'modules/create-index/fields';
+import { changeName } from 'modules/create-index/name';
+import { changeSchemaFields } from 'modules/create-index/schema-fields';
+import { clearError, handleError } from 'modules/error';
+import { toggleIsVisible } from 'modules/is-visible';
+import { toggleIsBackground } from 'modules/create-index/is-background';
+import { toggleIsUnique } from 'modules/create-index/is-unique';
+import {
+  toggleIsPartialFilterExpression
+} from 'modules/create-index/is-partial-filter-expression';
+import { toggleIsTtl } from 'modules/create-index/is-ttl';
+import { changeTtl } from 'modules/create-index/ttl';
+import {
+  changePartialFilterExpression
+} from 'modules/create-index/partial-filter-expression';
+import {
+  toggleIsCustomCollation
+} from 'modules/create-index/is-custom-collation';
+import { changeCollationOption } from 'modules/create-index/collation';
+import { openLink } from 'modules/link';
+import { createIndex } from 'modules/create-index';
+import { resetForm } from 'modules/reset-form';
 
 /**
  * The help URL for collation.
  */
-const HELP_URL_COLLATION = 'https://docs.mongodb.com/master/reference/collation/';
-
+const HELP_URL_COLLATION = 'https://docs.mongodb.com/master/reference/collation';
+const HELP_URL_BACKGROUND = 'https://docs.mongodb.com/manual/core/index-creation/#index-creation-background';
+const HELP_URL_UNIQUE = 'https://docs.mongodb.com/manual/core/index-unique/#index-type-unique';
+const HELP_URL_TTL = 'https://docs.mongodb.com/manual/core/index-ttl';
+const HELP_URL_PARTIAL_FILTER_EXPRESSION = 'https://docs.mongodb.com/manual/core/index-partial';
 /**
  * Component for the create index modal.
  */
-class CreateIndexModal extends React.Component {
+class CreateIndexModal extends PureComponent {
+  static displayName = 'CreateIndexModal';
+  static propTypes = {
+    showOptions: PropTypes.bool.isRequired,
+    error: PropTypes.string,
+    inProgress: PropTypes.bool.isRequired,
+    schemaFields: PropTypes.array.isRequired,
+    fields: PropTypes.array.isRequired,
+    dataService: PropTypes.object,
+    isVisible: PropTypes.bool.isRequired,
+    isBackground: PropTypes.bool.isRequired,
+    isUnique: PropTypes.bool.isRequired,
+    isTtl: PropTypes.bool.isRequired,
+    ttl: PropTypes.string.isRequired,
+    isPartialFilterExpression: PropTypes.bool.isRequired,
+    partialFilterExpression: PropTypes.string.isRequired,
+    isCustomCollation: PropTypes.bool.isRequired,
+    collation: PropTypes.object.isRequired,
+    name: PropTypes.string.isRequired,
+    updateFieldName: PropTypes.func.isRequired,
+    updateFieldType: PropTypes.func.isRequired,
+    addField: PropTypes.func.isRequired,
+    removeField: PropTypes.func.isRequired,
+    toggleIsUnique: PropTypes.func.isRequired,
+    toggleIsVisible: PropTypes.func.isRequired,
+    toggleShowOptions: PropTypes.func.isRequired,
+    toggleIsBackground: PropTypes.func.isRequired,
+    toggleIsTtl: PropTypes.func.isRequired,
+    toggleIsPartialFilterExpression: PropTypes.func.isRequired,
+    toggleIsCustomCollation: PropTypes.func.isRequired,
+    resetForm: PropTypes.func.isRequired,
+    createIndex: PropTypes.func.isRequired,
+    openLink: PropTypes.func.isRequired,
+    changeTtl: PropTypes.func.isRequired,
+    changePartialFilterExpression: PropTypes.func.isRequired,
+    changeCollationOption: PropTypes.func.isRequired,
+    changeName: PropTypes.func.isRequired
+  };
 
   /**
    * The component constructor.
@@ -38,146 +99,17 @@ class CreateIndexModal extends React.Component {
    */
   constructor(props) {
     super(props);
-    this.state = {
-      showOptions: true,
-      error: false,
-      errorMessage: '',
-      inProgress: false,
-      schemaFields: [],
-      fields: [],
-      options: {},
-      isCustomCollation: false
-    };
-    this.CreateCollectionCollationSelect = app.appRegistry.getComponent('Database.CreateCollectionCollationSelect');
-    this.CreateCollectionCheckbox = app.appRegistry.getComponent('Database.CreateCollectionCheckbox');
-  }
-
-  /**
-   * Subscribe on mount.
-   */
-  componentWillMount() {
-    this.unsubscribeCreateField = CreateIndexStore.listen(this.handleStoreChange.bind(this));
-    this.unsubscribeDDLStatus = DDLStatusStore.listen(this.handleStatusChange.bind(this));
-  }
-
-  /**
-   * Unsubscribe on unmount.
-   */
-  componentWillUnmount() {
-    this.unsubscribeCreateField();
-    this.unsubscribeDDLStatus();
-  }
-
- /**
-   * Set state to selected field of collation option.
-   *
-   * @param {String} field - The field.
-   * @param {Event} evt - The event.
-   */
-  onCollationOptionChange(field, evt) {
-    Actions.updateOption('collation', {[field]: evt.value});
-  }
-
-  /**
-   * Handle clicking the collation checkbox.
-   */
-  onCollationClicked() {
-    this.setState({ isCustomCollation: !this.state.isCustomCollation });
-  }
-
-  /**
-   * Create option field and parameter forms for each option in INDEX_OPTIONS.
-   *
-   * @returns {Array} The React components for option fields and their parameters (if necessary).
-   */
-  getOptionFields() {
-    let idx = 0;
-    const options = [];
-    for (const option of INDEX_OPTIONS) {
-      const propOption = this.state.options[option.name];
-      const checked = propOption === undefined ? false : propOption.value;
-      options.push(
-        <CreateIndexCheckbox
-          key={idx++}
-          description={option.desc}
-          isParam={false}
-          dataTestId={`create-index-modal-${option.name}-checkbox`}
-          option={option.name}
-          checked={checked}/>
-      );
-      if (option.param) {
-        let val;
-        if (propOption === undefined || propOption.param === undefined) {
-          val = option.name === 'partialFilterExpression'
-            ? '{}'
-            : '';
-        } else {
-          val = propOption.param;
-        }
-        options.push(
-          <CreateIndexTextField
-            key={idx++}
-            enabled={propOption ? propOption.value : false}
-            isParam
-            option={option.name}
-            dataTestId={`create-index-modal-${option.name}-field`}
-            units={option.paramUnit}
-            value={val}/>
-        );
-      }
-    }
-    options.push(<div className="create-index-checkbox" key={idx++}>
-      <this.CreateCollectionCheckbox
-        name="Use Custom Collation"
-        inputClassName="create-index-checkbox-input"
-        titleClassName="create-index-collation-title"
-        helpUrl={HELP_URL_COLLATION}
-        onClickHandler={this.onCollationClicked.bind(this)}
-        checked={this.state.isCustomCollation}
-      />
-    </div>);
-    options.push(this.renderCollation(idx++));
-    return options;
-  }
-
-  /**
-   * Create React components for each selected field in the create index form.
-   *
-   * @returns {Array} The React components for each field, or null if none are selected.
-   */
-  getIndexFields() {
-    if (!this.state.fields.length) {
-      return null;
-    }
-
-    const disabledFields = pluck(this.state.fields, 'name');
-
-    return this.state.fields.map((field, idx) => {
-      return (<CreateIndexField
-        fields={this.state.schemaFields}
-        key={idx}
-        idx={idx}
-        field={field}
-        disabledFields={disabledFields}
-        isRemovable={!(this.state.fields.length > 1)} />);
-    });
+    this.CollationSelect = global.hadronApp.appRegistry.getComponent(
+      'Collation.Select'
+    );
   }
 
   /**
    * Close modal and fire clear create index form action.
    */
-  close() {
-    Actions.clearForm();
-    this.setState({inProgress: false, error: false, errorMessage: '', isCustomCollation: false});
-    this.props.close();
-  }
-
-  /**
-   * Close modal when cancel is clicked.
-   */
-  handleCancel() {
-    Actions.updateStatus('cancel');
-    this.close();
+  handleClose() {
+    this.props.toggleIsVisible(false);
+    this.props.resetForm();
   }
 
   /**
@@ -185,37 +117,10 @@ class CreateIndexModal extends React.Component {
    *
    * @param {Object} evt - The click event.
    */
-  handleCreate(evt) {
+  onFormSubmit(evt) {
     evt.preventDefault();
     evt.stopPropagation();
-    Actions.triggerIndexCreation();
-  }
-
-  /**
-   * Handle changes in creation state (success, error, or complete).
-   *
-   * @param {string} status - The status.
-   * @param {string} message - The error message.
-   */
-  handleStatusChange(status, message) {
-    if (status === 'inProgress') {
-      this.setState({inProgress: true, error: false, errorMessage: message});
-    } else if (status === 'error') {
-      this.setState({inProgress: false, error: true, errorMessage: message});
-    } else {
-      this.close();
-    }
-  }
-
-  /**
-   * Store updates to create index form and possible schema fields in state.
-   *
-   * @param {Array} fields - The index fields.
-   * @param {Object} options - The index options.
-   * @param {Array} schemaFields - The possible index fields for the schema.
-   */
-  handleStoreChange(fields, options, schemaFields) {
-    this.setState({fields, options, schemaFields});
+    this.props.createIndex();
   }
 
   /**
@@ -224,9 +129,9 @@ class CreateIndexModal extends React.Component {
    * @param {Object} evt - The click event.
    */
   handleToggleBarClick(evt) {
+    this.props.toggleShowOptions(!this.props.showOptions);
     evt.preventDefault();
     evt.stopPropagation();
-    this.setState({showOptions: !this.state.showOptions});
   }
 
   /**
@@ -234,53 +139,140 @@ class CreateIndexModal extends React.Component {
    *
    * @param {Object} evt - The click event.
    */
-  handleSubmit(evt) {
+  handleAddField(evt) {
+    this.props.addField();
     evt.preventDefault();
     evt.stopPropagation();
-    Actions.addIndexField();
   }
 
-/**
-   * Render collation options when collation is selected.
+  /**
+   * Create React components for each selected field in the create index form.
    *
-   * @returns {React.Component} The component.
+   * @returns {Array} The React components for each field, or null if none are selected.
    */
-  renderCollation(id) {
-    if (this.state.isCustomCollation) {
+  renderIndexFields() {
+    if (!this.props.fields.length) {
+      return null;
+    }
+
+    const disabledFields = pluck(this.props.fields, 'name');
+
+    return this.props.fields.map((field, idx) => {
       return (
-        <div className="create-collection-dialog-collation-div" key={id}>
-          <this.CreateCollectionCollationSelect
-            collation={this.state.options.collation || {}}
-            onCollationOptionChange={this.onCollationOptionChange.bind(this)}
-          />
+        <CreateIndexField
+          fields={this.props.schemaFields}
+          key={idx}
+          idx={idx}
+          field={field}
+          disabledFields={disabledFields}
+          isRemovable={!(this.props.fields.length > 1)}
+          updateFieldName={this.props.updateFieldName}
+          updateFieldType={this.props.updateFieldType}
+          addField={this.props.addField}
+          removeField={this.props.removeField} />
+      );
+    });
+  }
+
+  renderOptions() {
+    if (!this.props.showOptions) {
+      return null;
+    }
+    return (
+      <div
+        className={classnames(styles['create-index-modal-options'])}
+        data-test-id="create-index-modal-options"
+      >
+        <ModalCheckbox
+          name="Build index in the background"
+          data-test-id="toggle-is-background"
+          titleClassName={classnames(styles['create-index-modal-options-checkbox'])}
+          checked={this.props.isBackground}
+          helpUrl={HELP_URL_BACKGROUND}
+          onClickHandler={() => (this.props.toggleIsBackground(!this.props.isBackground))}
+          onLinkClickHandler={this.props.openLink} />
+        <ModalCheckbox
+          name="Create unique index"
+          data-test-id="toggle-is-unique"
+          titleClassName={classnames(styles['create-index-modal-options-checkbox'])}
+          checked={this.props.isUnique}
+          helpUrl={HELP_URL_UNIQUE}
+          onClickHandler={() => (this.props.toggleIsUnique(!this.props.isUnique))}
+          onLinkClickHandler={this.props.openLink} />
+        <ModalCheckbox
+          name="Create TTL"
+          data-test-id="toggle-is-ttl"
+          titleClassName={classnames(styles['create-index-modal-options-param'])}
+          checked={this.props.isTtl}
+          helpUrl={HELP_URL_TTL}
+          onClickHandler={() => (this.props.toggleIsTtl(!this.props.isTtl))}
+          onLinkClickHandler={this.props.openLink} />
+        {this.renderTtl()}
+        <ModalCheckbox
+          name="Partial Filter Expression"
+          data-test-id="toggle-is-pfe"
+          titleClassName={classnames(styles['create-index-modal-options-param'])}
+          checked={this.props.isPartialFilterExpression}
+          helpUrl={HELP_URL_PARTIAL_FILTER_EXPRESSION}
+          onClickHandler={() => (this.props.toggleIsPartialFilterExpression(!this.props.isPartialFilterExpression))}
+          onLinkClickHandler={this.props.openLink} />
+        {this.renderPartialFilterExpression()}
+        <ModalCheckbox
+          name="Use Custom Collation"
+          data-test-id="toggle-is-custom-collation"
+          titleClassName={classnames(styles['create-index-modal-options-param'])}
+          checked={this.props.isCustomCollation}
+          helpUrl={HELP_URL_COLLATION}
+          onClickHandler={() => (this.props.toggleIsCustomCollation(!this.props.isCustomCollation))}
+          onLinkClickHandler={this.props.openLink} />
+        {this.renderCollation()}
+      </div>
+    );
+  }
+
+  renderTtl() {
+    if (this.props.showOptions && this.props.isTtl) {
+      return (
+        <div className={classnames(styles['create-index-modal-options-param-wrapper'])}>
+          <ModalInput
+            id="ttl-value"
+            name="seconds"
+            value={this.props.ttl}
+            onChangeHandler={(evt) => (this.props.changeTtl(evt.target.value))} />
+        </div>
+      );
+    }
+  }
+  renderPartialFilterExpression() {
+    if (this.props.showOptions && this.props.isPartialFilterExpression) {
+      return (
+        <div className={classnames(styles['create-index-modal-options-param-wrapper'])}>
+          <ModalInput
+            id="partial-filter-expression-value"
+            name=""
+            value={this.props.partialFilterExpression}
+            onChangeHandler={(evt) => (this.props.changePartialFilterExpression(evt.target.value))} />
         </div>
       );
     }
   }
 
   /**
-   * Render the create and cancel buttons.
+   * Render the collation component when collation is selected.
    *
-   * @returns {React.Component} The create and cancel buttons.
+   * @returns {React.Component} The component.
    */
-  renderButtons() {
-    return (
-      <div className="create-index-confirm-buttons">
-        <button
-          className="btn btn-default btn-sm create-index-confirm-buttons-cancel"
-          type="button"
-          onClick={this.handleCancel.bind(this)}>
-          Cancel
-        </button>
-        <button
-          data-test-id="create-index-button"
-          className="btn btn-primary btn-sm create-index-confirm-buttons-create"
-          disabled={!this.state.fields.length}
-          type="submit">
-          Create
-        </button>
-      </div>
-    );
+  renderCollation() {
+    if (this.props.isCustomCollation) {
+      return (
+        <div className={classnames(styles['create-index-modal-options-param-wrapper'])}>
+          <this.CollationSelect
+            collation={this.props.collation || {}}
+            changeCollationOption={this.props.changeCollationOption}
+          />
+        </div>
+      );
+    }
   }
 
   /**
@@ -290,69 +282,146 @@ class CreateIndexModal extends React.Component {
    */
   render() {
     return (
-      <Modal show={this.props.open}
+      <Modal show={this.props.isVisible}
         backdrop="static"
-        dialogClassName="create-index-modal"
-        onHide={this.close.bind(this)} >
+        dialogClassName={classnames(styles['create-index-modal'])}
+        onHide={this.handleClose.bind(this)} >
 
-        <div className="create-index-modal-content" data-test-id="create-index-modal">
-          <Modal.Header>
-            <Modal.Title>Create Index</Modal.Title>
-          </Modal.Header>
+        <Modal.Header>
+          <Modal.Title>Create Index</Modal.Title>
+        </Modal.Header>
 
-          <Modal.Body>
-            <form onSubmit={this.handleCreate.bind(this)}>
-              <p className="create-index-description">Choose an index name</p>
-              <CreateIndexTextField
-                autoFocus
-                isParam={false}
-                option={'name'}
-                dataTestId="create-index-modal-name"
-                value={''}/>
+        <Modal.Body>
+          <form
+            name="create-index-modal-form"
+            onSubmit={this.onFormSubmit.bind(this)}
+            data-test-id="create-index-modal">
 
-              <div className="create-index-fields">
-                <p className="create-index-description">Configure the index definition</p>
-                {this.getIndexFields()}
+            <ModalInput
+              autoFocus
+              id="create-index-name"
+              name="Choose an index name"
+              value={this.props.name}
+              onChangeHandler={(evt) => (this.props.changeName(evt.target.value))} />
 
-                <div>
-                  <button
-                    onClick={this.handleSubmit.bind(this)}
-                    className="create-index-field-add btn btn-primary btn-sm btn-full-width">
-                    Add another field
-                  </button>
-                </div>
+            <div className={classnames(styles['create-index-modal-fields'])}>
+              <p className={classnames(styles['create-index-modal-fields-description'])}>Configure the index definition</p>
+              {this.renderIndexFields()}
+
+              <button
+                onClick={this.handleAddField.bind(this)}
+                id="add-field"
+                className="btn btn-primary btn-sm btn-full-width">
+                Add another field
+              </button>
+            </div>
+
+            <div className={classnames(styles['create-index-modal-toggle-bar'])}
+              onClick={this.handleToggleBarClick.bind(this)}>
+              <div className={classnames(styles['create-index-modal-toggle-bar-header'])}>
+                {this.props.showOptions ?
+                  <i className="fa fa-angle-down"/> :
+                  <i className="fa fa-angle-right"/>}
+                <p className={classnames(styles['create-index-modal-toggle-bar-header-text'])}> Options</p>
               </div>
+            </div>
 
-              <OptionsToggleBar
-                showOptions={this.state.showOptions}
-                onClick={this.handleToggleBarClick.bind(this)} />
+            {this.renderOptions()}
 
-              {this.state.showOptions ?
-                <div className="create-index-options">
-                  {this.getOptionFields()}
-                </div>
-                : null}
+            {!(this.props.error === null || this.props.error === undefined) ?
+              <ModalStatusMessage
+                icon="times"
+                message={this.props.error}
+                type="error"
+                className={classnames(styles['create-index-modal-message'])}/>
+              : null}
 
-              {this.state.error ?
-                <ModalStatusMessage icon="times" message={this.state.errorMessage} type="error" />
-                : null}
+            {this.props.inProgress && (this.props.error === null || this.props.error === undefined) ?
+              <ModalStatusMessage
+                icon="spinner"
+                message="Create in Progress"
+                type="in-progress"
+                className={classnames(styles['create-index-modal-message'])}/>
+              : null}
+          </form>
+        </Modal.Body>
 
-              {this.state.inProgress ?
-                <ModalStatusMessage icon="spinner" message={'Create in Progress'} type="in-progress" />
-                : this.renderButtons()}
-            </form>
-          </Modal.Body>
-        </div>
+        <Modal.Footer>
+          <TextButton
+            className="btn btn-default btn-sm"
+            dataTestId="cancel-create-index-button"
+            disabled={this.props.inProgress}
+            text="Cancel"
+            clickHandler={this.handleClose.bind(this)} />
+          <TextButton
+            className="btn btn-primary btn-sm"
+            disabled={!this.props.fields.length || this.props.inProgress}
+            dataTestId="create-index-button"
+            text="Create Index"
+            clickHandler={this.props.createIndex} />
+        </Modal.Footer>
       </Modal>
     );
   }
 }
 
-CreateIndexModal.displayName = 'CreateIndexModal';
+/**
+ * Map the store state to properties to pass to the components.
+ *
+ * @param {Object} state - The store state.
+ *
+ * @returns {Object} The mapped properties.
+ */
+const mapStateToProps = (state) => ({
+  dataService: state.dataService,
+  fields: state.fields,
+  inProgress: state.inProgress,
+  showOptions: state.showOptions,
+  schemaFields: state.schemaFields,
+  error: state.error,
+  isVisible: state.isVisible,
+  isBackground: state.isBackground,
+  isTtl: state.isTtl,
+  ttl: state.ttl,
+  isUnique: state.isUnique,
+  isPartialFilterExpression: state.isPartialFilterExpression,
+  partialFilterExpression: state.partialFilterExpression,
+  isCustomCollation: state.isCustomCollation,
+  collation: state.collation,
+  name: state.name
+});
 
-CreateIndexModal.propTypes = {
-  open: PropTypes.bool.isRequired,
-  close: PropTypes.func.isRequired
-};
+/**
+ * Connect the redux store to the component.
+ * (dispatch)
+ */
+const MappedCreateIndexModal = connect(
+  mapStateToProps,
+  {
+    toggleInProgress,
+    toggleShowOptions,
+    changeSchemaFields,
+    clearError,
+    handleError,
+    toggleIsVisible,
+    toggleIsBackground,
+    toggleIsTtl,
+    toggleIsUnique,
+    toggleIsPartialFilterExpression,
+    toggleIsCustomCollation,
+    changePartialFilterExpression,
+    changeTtl,
+    changeCollationOption,
+    openLink,
+    changeName,
+    createIndex,
+    resetForm,
+    addField,
+    removeField,
+    updateFieldName,
+    updateFieldType
+  },
+)(CreateIndexModal);
 
-export default CreateIndexModal;
+export default MappedCreateIndexModal;
+export { CreateIndexModal };

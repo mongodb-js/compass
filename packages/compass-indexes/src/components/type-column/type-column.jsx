@@ -1,20 +1,27 @@
-const getIndexHelpLink = require('../../index-link-helper'); // TODO
-
 import map from 'lodash.map';
 import pick from 'lodash.pick';
 import { format } from 'util';
-import React from 'react';
+import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import { InfoSprinkle } from 'hadron-react-components';
-import { shell } from 'electron';
 import ReactTooltip from 'react-tooltip';
+import getIndexHelpLink from 'utils/index-link-helper';
 
 const TOOLTIP_ID = 'index-type';
+
+import classnames from 'classnames';
+import styles from './type-column.less';
 
 /**
  * Component for the type column.
  */
-class TypeColumn extends React.Component {
+class TypeColumn extends PureComponent {
+  static displayName = 'TypeColumn';
+
+  static propTypes = {
+    index: PropTypes.object.isRequired,
+    openLink: PropTypes.func.isRequired
+  };
 
   _textTooltip() {
     const info = pick(this.props.index.extra, ['weights', 'default_language', 'language_override']);
@@ -41,11 +48,11 @@ class TypeColumn extends React.Component {
       };
     }
     return (
-      <div {...tooltipOptions} className={`property ${this.props.index.type}`} data-test-id="index-table-type">
+      <div {...tooltipOptions} className={classnames(styles[`type-column-property-${this.props.index.type}`])} data-test-id="index-table-type">
         {this.props.index.type}
         <InfoSprinkle
           helpLink={getIndexHelpLink(this.props.index.type.toUpperCase())}
-          onClickHandler={shell.openExternal}
+          onClickHandler={this.props.openLink}
         />
       </div>
     );
@@ -58,18 +65,12 @@ class TypeColumn extends React.Component {
    */
   render() {
     return (
-      <td className="type-column">
+      <td className={classnames(styles['type-column'])}>
         {this.renderType()}
         <ReactTooltip id={TOOLTIP_ID} />
       </td>
     );
   }
 }
-
-TypeColumn.displayType = 'TypeColumn';
-
-TypeColumn.propTypes = {
-  index: PropTypes.object.isRequired
-};
 
 export default TypeColumn;

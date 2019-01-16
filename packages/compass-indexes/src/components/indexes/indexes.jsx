@@ -1,38 +1,123 @@
-import React, { Component } from 'react';
-import { connect } from 'react-redux';
+/* eslint dot-notation: 0 */
+import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
-import classnames from 'classnames';
-import { toggleStatus } from 'modules/status';
+import { connect, Provider } from 'react-redux';
+import { StatusRow } from 'hadron-react-components';
 
+import { writeStateChanged } from 'modules/is-writable';
+import { getDescription } from 'modules/description';
+import { dataServiceConnected } from 'modules/data-service';
+import { sortIndexes } from 'modules/indexes';
+import { toggleIsVisible } from 'modules/is-visible';
+import { reset } from 'modules/reset';
+import { changeName } from 'modules/drop-index/name';
+import { openLink } from 'modules/link';
+
+import CreateIndexButton from 'components/create-index-button';
+import DropIndexModal from 'components/drop-index-modal';
+import IndexHeader from 'components/index-header';
+import IndexList from 'components/index-list';
+
+import dropIndexStore from 'stores/drop-index';
+
+import classnames from 'classnames';
 import styles from './indexes.less';
 
-class Indexes extends Component {
+class Indexes extends PureComponent {
   static displayName = 'IndexesComponent';
 
   static propTypes = {
-    toggleStatus: PropTypes.func.isRequired,
-    status: PropTypes.oneOf(['enabled', 'disabled'])
+    isWritable: PropTypes.bool.isRequired,
+    isReadonly: PropTypes.bool.isRequired,
+    description: PropTypes.string.isRequired,
+    indexes: PropTypes.array.isRequired,
+    sortColumn: PropTypes.string.isRequired,
+    sortOrder: PropTypes.string.isRequired,
+    sortIndexes: PropTypes.func.isRequired,
+    toggleIsVisible: PropTypes.func.isRequired,
+    reset: PropTypes.func.isRequired,
+    error: PropTypes.string,
+    changeName: PropTypes.func.isRequired,
+    openLink: PropTypes.func.isRequired
   };
 
-  static defaultProps = {
-    status: 'enabled'
-  };
+  renderComponent() {
+    return (
+      <div className="column-container">
+        <div className="column main">
+          <table className={classnames(styles['indexes'])}>
+            <IndexHeader
+              isWritable={this.props.isWritable}
+              isReadonly={this.props.isReadonly}
+              indexes={this.props.indexes}
+              sortColumn={this.props.sortColumn}
+              sortOrder={this.props.sortOrder}
+              sortIndexes={this.props.sortIndexes} />
+            <IndexList
+              isWritable={this.props.isWritable}
+              isReadonly={this.props.isReadonly}
+              indexes={this.props.indexes}
+              toggleIsVisible={this.props.toggleIsVisible}
+              changeName={this.props.changeName}
+              openLink={this.props.openLink}
+            />
+          </table>
+        </div>
+      </div>
+    );
+  }
 
-  onClick = () => {
-    this.props.toggleStatus();
+  renderBanner() {
+    if (this.props.isReadonly) {
+      return (
+        <StatusRow style="warning">
+          Readonly views may not contain indexes.
+        </StatusRow>
+      );
+    }
+    return (
+      <StatusRow style="error">
+        {this.props.error}
+      </StatusRow>
+    );
+  }
+
+  renderCreateIndexButton() {
+    if (!this.props.isReadonly && (this.props.error === null || this.props.error === undefined)) {
+      return (
+        <CreateIndexButton
+          toggleIsVisible={this.props.toggleIsVisible}
+        />
+      );
+    }
+    return (
+      <div className="create-index-btn action-bar" />
+    );
+  }
+
+  renderDropIndexModal() {
+    return (
+      <Provider store={dropIndexStore}>
+        <DropIndexModal />
+      </Provider>
+    );
   }
 
   /**
-   * Render Indexes component.
+   * Render the indexes.
    *
-   * @returns {React.Component} The rendered component.
+   * @returns {React.Component} The indexes.
    */
   render() {
     return (
-      <div className={classnames(styles.root)}>
-        <h2 className={classnames(styles.title)}>Indexes Plugin</h2>
-        <p>Index plugin</p>
-        <p>The current status is: <code>{this.props.status}</code></p>
+      <div className="index-container">
+        <div className="controls-container">
+          {this.renderCreateIndexButton()}
+          {this.renderDropIndexModal()}
+        </div>
+        {(this.props.isReadonly || !(this.props.error === null || this.props.error === undefined)) ?
+          this.renderBanner() :
+          this.renderComponent()}
       </div>
     );
   }
@@ -46,7 +131,14 @@ class Indexes extends Component {
  * @returns {Object} The mapped properties.
  */
 const mapStateToProps = (state) => ({
-  status: state.status
+  indexes: state.indexes,
+  isWritable: state.isWritable,
+  isReadonly: state.isReadonly,
+  description: state.description,
+  error: state.error,
+  dataService: state.dataService,
+  sortColumn: state.sortColumn,
+  sortOrder: state.sortOrder
 });
 
 /**
@@ -56,7 +148,14 @@ const mapStateToProps = (state) => ({
 const MappedIndexes = connect(
   mapStateToProps,
   {
-    toggleStatus
+    writeStateChanged,
+    getDescription,
+    dataServiceConnected,
+    sortIndexes,
+    toggleIsVisible,
+    reset,
+    changeName,
+    openLink
   },
 )(Indexes);
 

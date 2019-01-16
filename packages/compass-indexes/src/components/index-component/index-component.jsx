@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import NameColumn from 'components/name-column';
 import TypeColumn from 'components/type-column';
@@ -7,41 +7,23 @@ import UsageColumn from 'components/usage-column';
 import PropertyColumn from 'components/property-column';
 import DropColumn from 'components/drop-column';
 
+import classnames from 'classnames';
+import styles from './index-component.less';
+
 /**
  * Component for the index.
  */
-class IndexComponent extends React.Component {
+class IndexComponent extends PureComponent {
+  static displayName = 'IndexComponent';
+  static propTypes = {
+    index: PropTypes.object.isRequired,
+    isReadonly: PropTypes.bool.isRequired,
+    isWritable: PropTypes.bool.isRequired,
+    toggleIsVisible: PropTypes.func.isRequired,
+    changeName: PropTypes.func.isRequired,
+    openLink: PropTypes.func.isRequired
+  };
 
-  constructor(props) {
-    super(props);
-    const appRegistry = global.hadronApp.appRegistry;
-    this.CollectionStore = appRegistry.getStore('App.CollectionStore');
-    this.WriteStateStore = appRegistry.getStore('DeploymentAwareness.WriteStateStore');
-    this.state = this.WriteStateStore.state;
-  }
-
-  componentDidMount() {
-    this.unsubscribeStateStore = this.WriteStateStore.listen(this.deploymentStateChanged.bind(this));
-  }
-
-  componentWillUnmount() {
-    this.unsubscribeStateStore();
-  }
-
-  /**
-   * Called when the deployment state changes.
-   *
-   * @param {Object} state - The deployment state.
-   */
-  deploymentStateChanged(state) {
-    this.setState(state);
-  }
-
-  isWritable() {
-    return !this.CollectionStore.isReadonly() &&
-      this.state.isWritable &&
-      !this.props.isReadonly;
-  }
 
   /**
    * Render the index.
@@ -50,25 +32,22 @@ class IndexComponent extends React.Component {
    */
   render() {
     return (
-      <tr>
+      <tr className={classnames(styles['index-component'])}>
         <NameColumn index={this.props.index} />
-        <TypeColumn index={this.props.index} />
+        <TypeColumn index={this.props.index} openLink={this.props.openLink}/>
         <SizeColumn
           size={this.props.index.size}
           relativeSize={this.props.index.relativeSize} />
         <UsageColumn usage={this.props.index.usageCount} since={this.props.index.usageSince} />
-        <PropertyColumn index={this.props.index} />
-        <DropColumn indexName={this.props.index.name} isReadonly={!this.isWritable()} />
+        <PropertyColumn index={this.props.index} openLink={this.props.openLink}/>
+        <DropColumn
+          indexName={this.props.index.name}
+          isReadonly={this.props.isReadonly && !this.props.isWritable}
+          toggleIsVisible={this.props.toggleIsVisible}
+          changeName={this.props.changeName} />
       </tr>
     );
   }
 }
-
-IndexComponent.displayName = 'IndexComponent';
-
-IndexComponent.propTypes = {
-  index: PropTypes.object.isRequired,
-  isReadonly: PropTypes.bool.isRequired
-};
 
 export default IndexComponent;
