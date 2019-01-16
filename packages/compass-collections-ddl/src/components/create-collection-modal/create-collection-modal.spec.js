@@ -81,10 +81,6 @@ describe('CreateCollectionModal [Component]', () => {
       expect(component.find('[name="create-collection-modal-form"]')).to.be.present();
     });
 
-    it('renders the info message', () => {
-      expect(component.find(`.${styles['create-collection-modal-notice']}`)).to.be.present();
-    });
-
     context('when changing the collection name', () => {
       it('calls the change collection name function', () => {
         component.find('#create-collection-name').hostNodes().

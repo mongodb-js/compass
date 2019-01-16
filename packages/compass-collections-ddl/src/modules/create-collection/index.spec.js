@@ -12,7 +12,6 @@ describe('create collection module', () => {
           expect(reducer({ dataService: dataService }, reset())).to.deep.equal({
             cappedSize: '',
             collation: {},
-            collectionName: '',
             dataService: 'data-service',
             error: null,
             isCapped: false,

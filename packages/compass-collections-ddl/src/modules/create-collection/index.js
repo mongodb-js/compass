@@ -61,7 +61,6 @@ const rootReducer = (state, action) => {
     return {
       ...state,
       cappedSize: CAPPED_SIZE_INITIAL_STATE,
-      collectionName: COLLECTION_NAME_INITIAL_STATE,
       isCapped: IS_CAPPED_INITIAL_STATE,
       isCustomCollation: IS_CUSTOM_COLLATION_INITIAL_STATE,
       isRunning: IS_RUNNING_INITIAL_STATE,
