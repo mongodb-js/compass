@@ -21,11 +21,12 @@ describe('fetch()', function() {
     before(function(done) {
       MongoClient.connect(
         'mongodb://localhost:27017/test',
+        { useNewUrlParser: true },
         function(err, _client) {
           assert.ifError(err);
           client = _client;
           collection = _client.db('test').collection('_test_index_fetch');
-          collection.ensureIndex({ loc: '2d' }, { w: 1 }, function(err2) {
+          collection.createIndex({ loc: '2d' }, { w: 1 }, function(err2) {
             assert.ifError(err2);
             done();
           });
