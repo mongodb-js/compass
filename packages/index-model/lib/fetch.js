@@ -28,16 +28,19 @@ function attach(anything, done) {
 function getIndexes(done, results) {
   var client = results.client;
   var ns = mongodbNS(results.namespace);
-  client.db(ns.database).collection(ns.collection).indexes(function(err, indexes) {
-    if (err) {
-      done(err);
-    }
-    // add ns field to each index
-    _.each(indexes, function(idx) {
-      idx.ns = ns.ns;
+  client
+    .db(ns.database)
+    .collection(ns.collection)
+    .indexes(function(err, indexes) {
+      if (err) {
+        done(err);
+      }
+      // add ns field to each index
+      _.each(indexes, function(idx) {
+        idx.ns = ns.ns;
+      });
+      done(null, indexes);
     });
-    done(null, indexes);
-  });
 }
 
 /**
@@ -49,11 +52,18 @@ function getIndexStats(done, results) {
   var client = results.client;
   var ns = mongodbNS(results.namespace);
   var pipeline = [
-    { $indexStats: { } },
-    { $project: { name: 1, usageHost: '$host', usageCount: '$accesses.ops', usageSince: '$accesses.since' } }
+    { $indexStats: {} },
+    {
+      $project: {
+        name: 1,
+        usageHost: '$host',
+        usageCount: '$accesses.ops',
+        usageSince: '$accesses.since'
+      }
+    }
   ];
   var collection = client.db(ns.database).collection(ns.collection);
-  collection.aggregate(pipeline, { cursor: {}}).toArray(function(err, res) {
+  collection.aggregate(pipeline, { cursor: {} }).toArray(function(err, res) {
     if (err) {
       if (isNotAuthorizedError(err)) {
         /**
@@ -86,20 +96,25 @@ function getIndexStats(done, results) {
 function getIndexSizes(done, results) {
   var client = results.client;
   var ns = mongodbNS(results.namespace);
-  client.db(ns.database).collection(ns.collection).stats(function(err, res) {
-    if (err) {
-      if (isNotAuthorizedError(err)) {
-        debug('Not authorized to get collection stats.  Returning default for indexSizes {}.');
-        return done(null, {});
+  client
+    .db(ns.database)
+    .collection(ns.collection)
+    .stats(function(err, res) {
+      if (err) {
+        if (isNotAuthorizedError(err)) {
+          debug(
+            'Not authorized to get collection stats.  Returning default for indexSizes {}.'
+          );
+          return done(null, {});
+        }
+        return done(err);
       }
-      return done(err);
-    }
 
-    res = _.mapValues(res.indexSizes, function(size) {
-      return {size: size};
+      res = _.mapValues(res.indexSizes, function(size) {
+        return { size: size };
+      });
+      done(null, res);
     });
-    done(null, res);
-  });
 }
 
 /**
@@ -120,7 +135,7 @@ function combineStatsAndIndexes(done, results) {
 
 /**
  * get basic index information via `db.collection.indexes()`
- * @param  {MongoClient} db      db handle from mongodb driver
+ * @param  {MongoClient} client      handle from mongodb driver
  * @param  {String} namespace    namespace for which to get indexes
  * @param  {Function} done       callback
  */
@@ -131,7 +146,12 @@ function getIndexDetails(client, namespace, done) {
     getIndexes: ['client', 'namespace', getIndexes],
     getIndexStats: ['client', 'namespace', getIndexStats],
     getIndexSizes: ['client', 'namespace', getIndexSizes],
-    indexes: ['getIndexes', 'getIndexStats', 'getIndexSizes', combineStatsAndIndexes]
+    indexes: [
+      'getIndexes',
+      'getIndexStats',
+      'getIndexSizes',
+      combineStatsAndIndexes
+    ]
   };
 
   async.auto(tasks, function(err, results) {
@@ -143,6 +163,5 @@ function getIndexDetails(client, namespace, done) {
     return done(null, results.indexes);
   });
 }
-
 
 module.exports = getIndexDetails;

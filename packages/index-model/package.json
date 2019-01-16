@@ -14,15 +14,10 @@
     "mongodb-js"
   ],
   "scripts": {
-    "fmt": "mongodb-js-fmt test/*.js bin/*.js index.js",
     "check": "mongodb-js-precommit",
-    "ci": "npm run check && npm test",
     "pretest": "mongodb-runner install",
     "test": "mocha"
   },
-  "precommit": [
-    "check"
-  ],
   "dependencies": {
     "ampersand-collection": "^1.6.1",
     "ampersand-model": "^6.0.2",
@@ -30,17 +25,15 @@
     "async": "^1.5.2",
     "lodash": "^4.8.2",
     "mongodb": "^3.1.9",
-    "mongodb-js-errors": "^0.2.1",
+    "mongodb-js-errors": "^0.4.0",
     "mongodb-ns": "^2.0.0",
     "triejs": "github:rueckstiess/triejs"
   },
   "devDependencies": {
     "debug": "^2.2.0",
-    "eslint-config-mongodb-js": "^2.2.0",
+    "eslint-config-mongodb-js": "^3.0.1",
     "mocha": "^5.2.0",
-    "mongodb-js-fmt": "^0.0.3",
-    "mongodb-js-precommit": "^0.2.9",
-    "mongodb-runner": "^4.6.0",
-    "pre-commit": "^1.1.2"
+    "mongodb-js-precommit": "^2.0.0",
+    "mongodb-runner": "^4.7.1"
   }
 }
