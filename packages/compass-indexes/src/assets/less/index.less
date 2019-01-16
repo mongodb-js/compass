@@ -1,0 +1,53 @@
+:global {
+  @import "~less/_fonts";
+  @import "~less/compass/_theme";
+
+  // Define global styles here, these will be imported by the Plugin.js.
+  // Note: these styles WILL NOT be used in compass, as compass provides its own set
+  // of global styles. If you are wishing to style a given component, you should be writing a less file per
+  // component as per the CSS Modules ICSS spec. @see components/ToggleButton for an example.
+  html, body {
+    height: 100%;
+    width: 100%;
+    overflow: hidden;
+    font-family: "Akzidenz", "Helvetica Neue", Helvetica, Arial, sans-serif;
+    color: @gray1;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  * {
+    user-select: text;
+    -webkit-user-select: text;
+  }
+
+  // TODO: Temp Global internal-packages/app/styles/info-sprinkle.less
+  // Needs to be migrated to info-sprinkle external dependency with CSS-Module support
+  i.info-sprinkle {
+    .fa-icon;
+    margin-left: 5px;
+    margin-right: 1px;
+    cursor: pointer;
+    font-size: 14px;
+    position: relative;
+    top: 1px;
+    opacity: 0.5;
+
+    &:hover {
+      color: @alertOrange;
+    }
+    &:before {
+      content: @fa-var-info-circle;
+    }
+  }
+
+  a i.info-sprinkle {
+    // Subview info sprinkles need to be more prominently opaque
+    color: #337ab7;
+    opacity: 1.0;
+    text-decoration: none;
+
+    &:hover {
+      color: #23527c;
+    }
+  }
+}
