@@ -1,6 +1,8 @@
 # mongodb-index-model [![][npm_img]][npm_url] [![][travis_img]][travis_url]
 
-MongoDB index model.
+> MongoDB Index toolkit for humans.
+
+![Index Mental Model Diagram](./img/index_mental_model.png)
 
 ## Example
 
