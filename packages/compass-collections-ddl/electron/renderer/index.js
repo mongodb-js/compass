@@ -86,8 +86,6 @@ const refreshInstance = () => {
   dataService.instance({}, (err, data) => {
     if (err) console.log(err);
 
-    console.log(data);
-
     InstanceStore.setState({
       instance: {
         databases: data.databases
