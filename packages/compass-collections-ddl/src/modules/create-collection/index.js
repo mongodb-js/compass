@@ -29,11 +29,6 @@ import { reset, RESET } from 'modules/reset';
 
 
 /**
- * No dots in DB name error message.
- */
-export const NO_DOT = 'Collection names may not contain a "."';
-
-/**
  * The main reducer.
  */
 const reducer = combineReducers({
@@ -102,10 +97,6 @@ export const createCollection = () => {
     const coll = state.collation;
 
     dispatch(clearError());
-
-    if (dbName.includes('.')) {
-      return dispatch(handleError(new Error(NO_DOT)));
-    }
 
     let options = state.isCapped ? { capped: true, size: parseInt(state.cappedSize, 10) } : {};
     options = state.isCustomCollation ? { ...options, coll } : options;

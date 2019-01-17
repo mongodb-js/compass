@@ -3,7 +3,8 @@ import thunk from 'redux-thunk';
 import find from 'lodash.find';
 import { appRegistryActivated } from 'modules/app-registry';
 import { changeDatabaseName } from 'modules/database-name';
-import { loadCollections } from 'modules/collections';
+import { dataServiceConnected } from 'modules/data-service';
+import { loadCollectionStats } from 'modules/collections';
 import { loadDatabases } from 'modules/databases';
 import { writeStateChanged } from 'modules/is-writable';
 import reducer from 'modules';
@@ -30,6 +31,16 @@ store.onActivated = (appRegistry) => {
   });
 
   /**
+   * Set the data service in the store when connected.
+   *
+   * @param {Error} error - The error.
+   * @param {DataService} dataService - The data service.
+   */
+  appRegistry.on('data-service-connected', (error, dataService) => {
+    store.dispatch(dataServiceConnected(error, dataService));
+  });
+
+  /**
    * When the database changes load the collections.
    *
    * @param {String} ns - The namespace.
@@ -42,7 +53,7 @@ store.onActivated = (appRegistry) => {
         return db._id === ns;
       });
       store.dispatch(changeDatabaseName(ns));
-      store.dispatch(loadCollections(database.collections));
+      store.dispatch(loadCollectionStats(database.collections));
     }
   });
 

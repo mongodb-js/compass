@@ -1,3 +1,4 @@
+import { parallel } from 'async';
 import zipObject from 'lodash.zipobject';
 import sortByOrder from 'lodash.sortbyorder';
 import { INITIAL_STATE as COLUMNS } from 'modules/columns';
@@ -110,3 +111,42 @@ export const sortCollections = (collections, column, order) => ({
   column: column,
   order: order
 });
+
+/**
+ * Get the stats for each collection in parallel.
+ *
+ * @param {Array} collections - The collections.
+ *
+ * @returns {Function} The thunk function.
+ */
+export const loadCollectionStats = (collections) => {
+  return (dispatch, getState) => {
+    const state = getState();
+    const dataService = state.dataService.dataService;
+
+    if (dataService) {
+      parallel(
+        collections.map((collection) => {
+          return (done) => {
+            dataService.collectionStats(
+              state.databaseName,
+              collection.name,
+              (err, res) => {
+                done(err, { ...collection, ...res });
+              }
+            );
+          };
+        }),
+        (err, results) => {
+          if (err) {
+            dispatch(loadCollections(collections));
+          } else {
+            dispatch(loadCollections(results));
+          }
+        }
+      );
+    } else {
+      dispatch(loadCollections(collections));
+    }
+  };
+};
