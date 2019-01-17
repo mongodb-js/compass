@@ -24,12 +24,10 @@ class Ddl extends PureComponent {
     isReadonly: PropTypes.bool.isRequired,
     isWritable: PropTypes.bool.isRequired,
     changeDatabaseName: PropTypes.func.isRequired,
-    reset: PropTypes.func.isRequired,
     showDatabase: PropTypes.func.isRequired,
     sortColumn: PropTypes.string.isRequired,
     sortOrder: PropTypes.string.isRequired,
-    sortDatabases: PropTypes.func.isRequired,
-    toggleIsVisible: PropTypes.func.isRequired
+    sortDatabases: PropTypes.func.isRequired
   }
 
   /**
@@ -42,20 +40,20 @@ class Ddl extends PureComponent {
       <div className={classnames(styles.ddl)} data-test-id="databases-table">
         <Toolbar
           isReadonly={this.props.isReadonly}
-          toggleIsVisible={this.props.toggleIsVisible}
-          reset={this.props.reset} />
+          toggleIsVisible={toggleIsVisible}
+          reset={reset} />
         <DatabasesTable
           columns={this.props.columns}
           databases={this.props.databases}
           isWritable={this.props.isWritable}
           isReadonly={this.props.isReadonly}
           changeDatabaseName={this.props.changeDatabaseName}
-          reset={this.props.reset}
+          reset={reset}
           sortOrder={this.props.sortOrder}
           sortColumn={this.props.sortColumn}
           sortDatabases={this.props.sortDatabases}
           showDatabase={this.props.showDatabase}
-          toggleIsVisible={this.props.toggleIsVisible} />
+          toggleIsVisible={toggleIsVisible} />
       </div>
     );
   }
@@ -85,10 +83,8 @@ const MappedDdl = connect(
   mapStateToProps,
   {
     changeDatabaseName,
-    reset,
     showDatabase,
-    sortDatabases,
-    toggleIsVisible
+    sortDatabases
   },
 )(Ddl);
 
