@@ -339,7 +339,8 @@ function parseCollection(resp) {
     _id: ns.toString(),
     name: ns.collection,
     database: ns.database,
-    readonly: get(resp, 'info.readOnly', false)
+    readonly: get(resp, 'info.readOnly', false),
+    collation: get(resp, 'options.collation', null)
   };
 }
 

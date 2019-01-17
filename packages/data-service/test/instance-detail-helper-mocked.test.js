@@ -217,79 +217,92 @@ describe('instance-detail-helper-mocked', function() {
             '_id': 'tenants.mongodb',
             'database': 'tenants',
             'name': 'mongodb',
-            'readonly': false
+            'readonly': false,
+            'collation': null
           },
           {
             '_id': 'reporting.system.indexes',
             'database': 'reporting',
             'name': 'system.indexes',
-            'readonly': false
+            'readonly': false,
+            'collation': null
           },
           {
             '_id': 'reporting.system.js',
             'database': 'reporting',
             'name': 'system.js',
-            'readonly': false
+            'readonly': false,
+            'collation': null
           },
           {
             '_id': 'reporting.system.namespaces',
             'database': 'reporting',
             'name': 'system.namespaces',
-            'readonly': false
+            'readonly': false,
+            'collation': null
           },
           {
             '_id': 'products.system.indexes',
             'database': 'products',
             'name': 'system.indexes',
-            'readonly': false
+            'readonly': false,
+            'collation': null
           },
           {
             '_id': 'products.system.js',
             'database': 'products',
             'name': 'system.js',
-            'readonly': false
+            'readonly': false,
+            'collation': null
           },
           {
             '_id': 'products.system.namespaces',
             'database': 'products',
             'name': 'system.namespaces',
-            'readonly': false
+            'readonly': false,
+            'collation': null
           },
           {
             '_id': 'sales.system.indexes',
             'database': 'sales',
             'name': 'system.indexes',
-            'readonly': false
+            'readonly': false,
+            'collation': null
           },
           {
             '_id': 'sales.system.js',
             'database': 'sales',
             'name': 'system.js',
-            'readonly': false
+            'readonly': false,
+            'collation': null
           },
           {
             '_id': 'sales.system.namespaces',
             'database': 'sales',
             'name': 'system.namespaces',
-            'readonly': false
+            'readonly': false,
+            'collation': null
           },
           {
             '_id': 'accounts.system.indexes',
             'database': 'accounts',
             'name': 'system.indexes',
-            'readonly': false
+            'readonly': false,
+            'collation': null
           },
           {
             '_id': 'accounts.system.js',
             'database': 'accounts',
             'name': 'system.js',
-            'readonly': false
+            'readonly': false,
+            'collation': null
           },
           {
             '_id': 'accounts.system.namespaces',
             'database': 'accounts',
             'name': 'system.namespaces',
-            'readonly': false
+            'readonly': false,
+            'collation': null
           }
         ];
         assert.deepEqual(res, expected);
@@ -317,7 +330,8 @@ describe('instance-detail-helper-mocked', function() {
             '_id': 'db3.coll3',
             'database': 'db3',
             'name': 'coll3',
-            'readonly': false
+            'readonly': false,
+            'collation': null
           }
         ]);
         done();
@@ -393,25 +407,29 @@ describe('instance-detail-helper-mocked', function() {
             '_id': 'accounts.testCol',
             'database': 'accounts',
             'name': 'testCol',
-            'readonly': true
+            'readonly': true,
+            'collation': null
           },
           {
             '_id': 'products.testCol',
             'database': 'products',
             'name': 'testCol',
-            'readonly': true
+            'readonly': true,
+            'collation': null
           },
           {
             '_id': 'reporting.testCol',
             'database': 'reporting',
             'name': 'testCol',
-            'readonly': true
+            'readonly': true,
+            'collation': null
           },
           {
             '_id': 'sales.testCol',
             'database': 'sales',
             'name': 'testCol',
-            'readonly': true
+            'readonly': true,
+            'collation': null
           }
         ];
         expected.sort();
