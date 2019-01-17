@@ -10,6 +10,7 @@ import { toggleIsVisible } from 'modules/is-visible';
 import { openLink } from 'modules/link';
 import { reset } from 'modules/reset';
 import { changeCollectionName } from 'modules/drop-collection/name';
+import { changeDatabaseName } from 'modules/database-name';
 
 import styles from './ddl.less';
 
@@ -22,16 +23,15 @@ class Ddl extends PureComponent {
   static propTypes = {
     columns: PropTypes.array.isRequired,
     collections: PropTypes.array.isRequired,
+    databaseName: PropTypes.string.isRequired,
     isReadonly: PropTypes.bool.isRequired,
     isWritable: PropTypes.bool.isRequired,
-    changeCollectionName: PropTypes.func.isRequired,
-    reset: PropTypes.func.isRequired,
+    changeDatabaseName: PropTypes.func.isRequired,
     openLink: PropTypes.func.isRequired,
     showCollection: PropTypes.func.isRequired,
     sortColumn: PropTypes.string.isRequired,
     sortOrder: PropTypes.string.isRequired,
-    sortCollections: PropTypes.func.isRequired,
-    toggleIsVisible: PropTypes.func.isRequired
+    sortCollections: PropTypes.func.isRequired
   }
 
   /**
@@ -44,21 +44,23 @@ class Ddl extends PureComponent {
       <div className={classnames(styles.ddl)} data-test-id="collections-table">
         <Toolbar
           isReadonly={this.props.isReadonly}
-          toggleIsVisible={this.props.toggleIsVisible}
-          reset={this.props.reset} />
+          toggleIsVisible={toggleIsVisible}
+          databaseName={this.props.databaseName}
+          changeDatabaseName={changeDatabaseName}
+          reset={reset} />
         <CollectionsTable
           columns={this.props.columns}
           collections={this.props.collections}
           isWritable={this.props.isWritable}
           isReadonly={this.props.isReadonly}
-          changeCollectionName={this.props.changeCollectionName}
+          changeCollectionName={changeCollectionName}
           openLink={this.props.openLink}
-          reset={this.props.reset}
+          reset={reset}
           sortOrder={this.props.sortOrder}
           sortColumn={this.props.sortColumn}
           sortCollections={this.props.sortCollections}
           showCollection={this.props.showCollection}
-          toggleIsVisible={this.props.toggleIsVisible} />
+          toggleIsVisible={toggleIsVisible} />
       </div>
     );
   }
@@ -74,6 +76,7 @@ class Ddl extends PureComponent {
 const mapStateToProps = (state) => ({
   columns: state.columns,
   collections: state.collections,
+  databaseName: state.databaseName,
   isReadonly: state.isReadonly,
   isWritable: state.isWritable,
   sortColumn: state.sortColumn,
@@ -87,11 +90,8 @@ const mapStateToProps = (state) => ({
 const MappedDdl = connect(
   mapStateToProps,
   {
-    changeCollectionName,
-    reset,
     showCollection,
     sortCollections,
-    toggleIsVisible,
     openLink
   },
 )(Ddl);

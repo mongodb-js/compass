@@ -17,7 +17,8 @@ describe('create collection module', () => {
             isCustomCollation: false,
             isRunning: false,
             isVisible: false,
-            name: ''
+            name: '',
+            databaseName: ''
           });
         });
       });

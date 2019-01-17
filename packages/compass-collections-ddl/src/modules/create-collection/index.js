@@ -22,11 +22,13 @@ import collation, {
 import name, {
   INITIAL_STATE as NAME_INITIAL_STATE
 } from 'modules/create-collection/name';
+import databaseName, {
+  INITIAL_STATE as DATABASE_NAME_INITIAL_STATE
+} from 'modules/database-name';
 import error, {
   clearError, handleError, INITIAL_STATE as ERROR_INITIAL_STATE
 } from 'modules/error';
 import { reset, RESET } from 'modules/reset';
-
 
 /**
  * The main reducer.
@@ -38,6 +40,7 @@ const reducer = combineReducers({
   isRunning,
   isVisible,
   name,
+  databaseName,
   error,
   collation,
   dataService
@@ -61,6 +64,7 @@ const rootReducer = (state, action) => {
       isRunning: IS_RUNNING_INITIAL_STATE,
       isVisible: IS_VISIBLE_INITIAL_STATE,
       name: NAME_INITIAL_STATE,
+      databaseName: DATABASE_NAME_INITIAL_STATE,
       error: ERROR_INITIAL_STATE,
       collation: COLLATION_INITIAL_STATE
     };
