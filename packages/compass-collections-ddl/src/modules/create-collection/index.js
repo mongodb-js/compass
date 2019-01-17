@@ -97,7 +97,8 @@ export const createCollection = () => {
   return (dispatch, getState) => {
     const state = getState();
     const ds = state.dataService.dataService;
-    const dbName = state.name;
+    const collectionName = state.name;
+    const dbName = state.databaseName;
     const coll = state.collation;
 
     dispatch(clearError());
@@ -110,7 +111,7 @@ export const createCollection = () => {
     options = state.isCustomCollation ? { ...options, coll } : options;
     try {
       dispatch(toggleIsRunning(true));
-      ds.createCollection(`${dbName}.${state.collectionName}`, options, (e) => {
+      ds.createCollection(`${dbName}.${collectionName}`, options, (e) => {
         if (e) {
           return stopWithError(dispatch, e);
         }

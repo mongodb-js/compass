@@ -86,11 +86,14 @@ const refreshInstance = () => {
   dataService.instance({}, (err, data) => {
     if (err) console.log(err);
 
+    console.log(data);
+
     InstanceStore.setState({
       instance: {
         databases: data.databases
       }
     });
+    appRegistry.emit('database-changed', 'citibike');
   });
 };
 
@@ -100,7 +103,6 @@ appRegistry.emit('data-service-initialized', dataService);
 dataService.connect((error, ds) => {
   appRegistry.emit('data-service-connected', error, ds);
   refreshInstance();
-  appRegistry.emit('database-changed', 'citibike');
 });
 
 if (module.hot) {
