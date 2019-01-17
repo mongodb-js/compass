@@ -50,6 +50,17 @@ class DataService extends EventEmitter {
   }
 
   /**
+   * Get the stats for a collection.
+   *
+   * @param {String} databaseName - The database name.
+   * @param {String} collectionName - The collection name.
+   * @param {Function} callback - The callback.
+   */
+  collectionStats(databaseName, collectionName, callback) {
+    this.client.collectionStats(databaseName, collectionName, callback);
+  }
+
+  /**
    * Execute a command.
    *
    * @param {String} databaseName - The db name.

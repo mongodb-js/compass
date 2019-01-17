@@ -325,6 +325,18 @@ describe('DataService', function() {
     });
   });
 
+  describe('#collectionStats', function() {
+    context('when the collection is not a system collection', function() {
+      it('returns an object with the collection stats', function(done) {
+        service.collectionStats('data-service', 'test', function(err, stats) {
+          assert.equal(null, err);
+          expect(stats.name).to.equal('test');
+          done();
+        });
+      });
+    });
+  });
+
   describe('#listCollections', function() {
     it('returns the collections', function(done) {
       service.listCollections('data-service', {}, function(err, collections) {
