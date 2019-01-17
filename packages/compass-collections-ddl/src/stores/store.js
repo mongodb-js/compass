@@ -1,7 +1,10 @@
 import { createStore, applyMiddleware } from 'redux';
 import thunk from 'redux-thunk';
+import find from 'lodash.find';
 import { appRegistryActivated } from 'modules/app-registry';
+import { changeDatabaseName } from 'modules/database-name';
 import { loadCollections } from 'modules/collections';
+import { loadDatabases } from 'modules/databases';
 import { writeStateChanged } from 'modules/is-writable';
 import reducer from 'modules';
 
@@ -14,7 +17,7 @@ store.onActivated = (appRegistry) => {
    * @param {Object} state - The instance store state.
    */
   appRegistry.getStore('App.InstanceStore').listen((state) => {
-    store.dispatch(loadCollections(state.instance.collections));
+    store.dispatch(loadDatabases(state.instance.databases));
   });
 
   /**
@@ -24,6 +27,23 @@ store.onActivated = (appRegistry) => {
    */
   appRegistry.getStore('DeploymentAwareness.WriteStateStore').listen((state) => {
     store.dispatch(writeStateChanged(state));
+  });
+
+  /**
+   * When the database changes load the collections.
+   *
+   * @param {String} ns - The namespace.
+   */
+  appRegistry.on('database-changed', (ns) => {
+    const state = store.getState();
+    const databaseName = state.databaseName;
+    if (ns && !ns.includes('.') && ns !== databaseName) {
+      const database = find(state.databases, (db) => {
+        return db._id === ns;
+      });
+      store.dispatch(changeDatabaseName(ns));
+      store.dispatch(loadCollections(database.collections));
+    }
   });
 
   /**

@@ -6,6 +6,12 @@ import columns, {
 import collections, {
   INITIAL_STATE as COLLECTIONS_INITIAL_STATE
 } from 'modules/collections';
+import databases, {
+  INITIAL_STATE as DATABASES_INITIAL_STATE
+} from 'modules/databases';
+import databaseName, {
+  INITIAL_STATE as DATABASE_NAME_INITIAL_STATE
+} from 'modules/database-name';
 import isReadonly, {
   INITIAL_STATE as READONLY_INITIAL_STATE
 } from 'modules/is-readonly';
@@ -26,6 +32,8 @@ import { RESET } from 'modules/reset';
 const reducer = combineReducers({
   columns,
   collections,
+  databases,
+  databaseName,
   isReadonly,
   isWritable,
   sortColumn,
@@ -47,6 +55,8 @@ const rootReducer = (state, action) => {
       ...state,
       columns: COLUMNS_INITIAL_STATE,
       collections: COLLECTIONS_INITIAL_STATE,
+      databases: DATABASES_INITIAL_STATE,
+      databaseName: DATABASE_NAME_INITIAL_STATE,
       isReadonly: READONLY_INITIAL_STATE,
       isWritable: WRITABLE_INITIAL_STATE,
       sortColumn: SORT_COLUMN_INITIAL_STATE,

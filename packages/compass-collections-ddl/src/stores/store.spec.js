@@ -45,17 +45,50 @@ describe('DdlStore [Store]', () => {
     });
 
     context('when the instance store triggers', () => {
-      const dbs = [{ _id: 'db1', storage_size: 10, collections: [], index_count: 2 }];
-      const mappedDbs = [
-        { 'Collection Name': 'db1', 'Storage Size': 10, 'Collections': 0, 'Indexes': 2 }
-      ];
+      const dbs = [{ _id: 'db1', storage_size: 10, collections: ['test'], index_count: 2 }];
 
       beforeEach(() => {
-        InstanceStore.setState({ instance: { collections: dbs }});
+        InstanceStore.setState({ instance: { databases: dbs }});
       });
 
-      it('dispatches the load collection action', () => {
-        expect(store.getState().collections).to.deep.equal(mappedDbs);
+      it('dispatches the load databases action', () => {
+        expect(store.getState().databases).to.deep.equal(dbs);
+      });
+
+      context('when the database name changes', () => {
+        context('when the name is missing', () => {
+          beforeEach(() => {
+            appRegistry.emit('database-changed');
+          });
+
+          it('does not load collections', () => {
+            expect(store.getState().collections).to.be.empty;
+          });
+        });
+
+        context('when the name is a collection', () => {
+          beforeEach(() => {
+            appRegistry.emit('database-changed', 'name.test');
+          });
+
+          it('does not load collections', () => {
+            expect(store.getState().collections).to.be.empty;
+          });
+        });
+
+        context('when the name is different', () => {
+          beforeEach(() => {
+            appRegistry.emit('database-changed', 'db1');
+          });
+
+          it('loads the collections', () => {
+            expect(store.getState().collections).to.not.be.empty;
+          });
+
+          it('sets the database name', () => {
+            expect(store.getState().databaseName).to.equal('db1');
+          });
+        });
       });
     });
 

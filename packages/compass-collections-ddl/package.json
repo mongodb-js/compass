@@ -139,6 +139,7 @@
   },
   "dependencies": {
     "lodash.assign": "^4.2.0",
+    "lodash.find": "^4.6.0",
     "lodash.sortby": "^4.7.0",
     "lodash.sortbyorder": "^3.4.4",
     "lodash.zipobject": "^4.1.3",

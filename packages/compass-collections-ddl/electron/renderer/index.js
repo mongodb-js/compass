@@ -1,9 +1,14 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
+import Reflux from 'reflux';
+import StateMixin from 'reflux-state-mixin';
 import app from 'hadron-app';
 import AppRegistry from 'hadron-app-registry';
 import { AppContainer } from 'react-hot-loader';
 import DatabasePlugin, { activate } from 'plugin';
+import { activate as daActivate } from '@mongodb-js/compass-deployment-awareness';
+import { NamespaceStore } from 'mongodb-reflux-store';
+import CollectionStore from './stores/collection-store';
 
 // Import global less file. Note: these styles WILL NOT be used in compass, as compass provides its own set
 // of global styles. If you are wishing to style a given component, you should be writing a less file per
@@ -16,8 +21,29 @@ const appRegistry = new AppRegistry();
 global.hadronApp = app;
 global.hadronApp.appRegistry = appRegistry;
 
+const InstanceStore = Reflux.createStore({
+  mixins: [StateMixin.store],
+  getInitialState() {
+    return {
+      instance: {
+        databases: []
+      }
+    };
+  }
+});
+
+const InstanceActions = Reflux.createActions([
+  'refreshInstance'
+]);
+
+appRegistry.registerStore('App.InstanceStore', InstanceStore);
+appRegistry.registerStore('App.NamespaceStore', NamespaceStore);
+appRegistry.registerStore('App.CollectionStore', CollectionStore);
+appRegistry.registerAction('App.InstanceActions', InstanceActions);
+
 // Activate our plugin with the Hadron App Registry
 activate(appRegistry);
+daActivate(appRegistry);
 appRegistry.onActivated();
 
 // Since we are using HtmlWebpackPlugin WITHOUT a template,
@@ -46,37 +72,36 @@ const render = Component => {
 render(DatabasePlugin);
 
 // // Data service initialization and connection.
-// import Connection from 'mongodb-connection-model';
-// import DataService from 'mongodb-data-service';
-//
-// const connection = new Connection({
-//   hostname: '127.0.0.1',
-//   port: 27017,
-//   ns: 'databaseName',
-//   mongodb_database_name: 'admin',
-//   mongodb_username: '<user>',
-//   mongodb_password: '<password>'
-// });
-// const dataService = new DataService(connection);
-//
-// appRegistry.emit('data-service-initialized', dataService);
-// dataService.connect((error, ds) => {
-//    appRegistry.emit('data-service-connected', error, ds);
-//    For automatic switching to specific namespaces, uncomment below as needed.
-//    appRegistry.emit('collection-changed', 'database.collection');
-//    appRegistry.emit('database-changed', 'database');
+import Connection from 'mongodb-connection-model';
+import DataService from 'mongodb-data-service';
 
-//    For plugins based on query execution, comment out below:
-//    const query = {
-//      filter: { name: 'testing' },
-//      project: { name: 1 },
-//      sort: { name: -1 },
-//      skip: 0,
-//      limit: 20,
-//      ns: 'database.collection'
-//    }
-//    appRegistry.emit('query-applied', query);
-// });
+const connection = new Connection({
+  hostname: '127.0.0.1',
+  port: 27017,
+  ns: 'admin'
+});
+const dataService = new DataService(connection);
+
+const refreshInstance = () => {
+  dataService.instance({}, (err, data) => {
+    if (err) console.log(err);
+
+    InstanceStore.setState({
+      instance: {
+        databases: data.databases
+      }
+    });
+  });
+};
+
+InstanceActions.refreshInstance.listen(refreshInstance);
+
+appRegistry.emit('data-service-initialized', dataService);
+dataService.connect((error, ds) => {
+  appRegistry.emit('data-service-connected', error, ds);
+  refreshInstance();
+  appRegistry.emit('database-changed', 'citibike');
+});
 
 if (module.hot) {
   /**
