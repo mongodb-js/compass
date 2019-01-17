@@ -7,6 +7,7 @@ import CollectionsTable from 'components/collections-table';
 import { showCollection } from 'modules/show-collection';
 import { sortCollections } from 'modules/collections';
 import { toggleIsVisible } from 'modules/is-visible';
+import { openLink } from 'modules/link';
 import { reset } from 'modules/reset';
 import { changeCollectionName } from 'modules/drop-collection/name';
 
@@ -25,6 +26,7 @@ class Ddl extends PureComponent {
     isWritable: PropTypes.bool.isRequired,
     changeCollectionName: PropTypes.func.isRequired,
     reset: PropTypes.func.isRequired,
+    openLink: PropTypes.func.isRequired,
     showCollection: PropTypes.func.isRequired,
     sortColumn: PropTypes.string.isRequired,
     sortOrder: PropTypes.string.isRequired,
@@ -50,6 +52,7 @@ class Ddl extends PureComponent {
           isWritable={this.props.isWritable}
           isReadonly={this.props.isReadonly}
           changeCollectionName={this.props.changeCollectionName}
+          openLink={this.props.openLink}
           reset={this.props.reset}
           sortOrder={this.props.sortOrder}
           sortColumn={this.props.sortColumn}
@@ -88,7 +91,8 @@ const MappedDdl = connect(
     reset,
     showCollection,
     sortCollections,
-    toggleIsVisible
+    toggleIsVisible,
+    openLink
   },
 )(Ddl);
 

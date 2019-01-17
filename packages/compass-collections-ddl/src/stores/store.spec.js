@@ -45,7 +45,15 @@ describe('DdlStore [Store]', () => {
     });
 
     context('when the instance store triggers', () => {
-      const dbs = [{ _id: 'db1', storage_size: 10, collections: ['test'], index_count: 2 }];
+      const coll = {
+        name: 'spotify',
+        document_count: 10,
+        size: 200,
+        index_count: 1,
+        index_size: 15,
+        collation: { locale: 'se' }
+      };
+      const dbs = [{ _id: 'db1', storage_size: 10, collections: [ coll ], index_count: 2 }];
 
       beforeEach(() => {
         InstanceStore.setState({ instance: { databases: dbs }});

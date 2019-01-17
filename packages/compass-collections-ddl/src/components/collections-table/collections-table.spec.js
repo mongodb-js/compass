@@ -12,6 +12,7 @@ describe('CollectionsTable [Component]', () => {
   let showCollectionSpy;
   let toggleIsVisibleSpy;
   let changeCollectionNameSpy;
+  let openLinkSpy;
 
   beforeEach(() => {
     resetSpy = sinon.spy();
@@ -19,6 +20,7 @@ describe('CollectionsTable [Component]', () => {
     showCollectionSpy = sinon.spy();
     toggleIsVisibleSpy = sinon.spy();
     changeCollectionNameSpy = sinon.spy();
+    openLinkSpy = sinon.spy();
     component = mount(
       <CollectionsTable
         columns={COLUMNS}
@@ -31,6 +33,7 @@ describe('CollectionsTable [Component]', () => {
         sortCollections={sortCollectionsSpy}
         showCollection={showCollectionSpy}
         changeCollectionName={changeCollectionNameSpy}
+        openLink={openLinkSpy}
         toggleIsVisible={toggleIsVisibleSpy} />
     );
   });
@@ -42,6 +45,7 @@ describe('CollectionsTable [Component]', () => {
     showCollectionSpy = null;
     toggleIsVisibleSpy = null;
     changeCollectionNameSpy = null;
+    openLinkSpy = null;
   });
 
   it('renders the correct root classname', () => {

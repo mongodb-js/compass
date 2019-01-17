@@ -1,7 +1,15 @@
 /**
  * The initial state of the columns attribute.
  */
-export const INITIAL_STATE = [ 'Collection Name', 'Storage Size', 'Collections', 'Indexes' ];
+export const INITIAL_STATE = [
+  'Collection Name',
+  'Documents',
+  'Avg. Document Size',
+  'Total Document Size',
+  'Num. Indexes',
+  'Total Index Size',
+  'Properties'
+];
 
 /**
  * Reducer function for handle state changes to columns.

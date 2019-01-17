@@ -6,41 +6,56 @@ import reducer, {
 } from 'modules/collections';
 
 const SPOTIFY = {
-  _id: 'spotify',
-  collections: [ 1, 2, 3, 4],
-  index_count: 10,
-  storage_size: 15
+  name: 'spotify',
+  document_count: 10,
+  size: 200,
+  index_count: 1,
+  index_size: 15,
+  collation: { locale: 'se' }
 };
 const SOUNDCLOUD = {
-  _id: 'soundcloud',
-  collections: [ 1 ],
-  index_count: 15,
-  storage_size: 20
+  name: 'soundcloud',
+  document_count: 100,
+  size: 20000,
+  index_count: 2,
+  index_size: 20,
+  collation: { locale: 'de' }
 };
 const DEEZER = {
-  _id: 'deezer',
-  collections: [ 1, 2 ],
-  index_count: 1,
-  storage_size: 100
+  name: 'deezer',
+  document_count: 5,
+  size: 20,
+  index_count: 3,
+  index_size: 1,
+  collation: { locale: 'us' }
 };
 
 const SPOTIFY_MAPPED = {
   'Collection Name': 'spotify',
-  'Collections': 4,
-  'Indexes': 10,
-  'Storage Size': 15
+  'Documents': 10,
+  'Avg. Document Size': 20,
+  'Total Document Size': 200,
+  'Num. Indexes': 1,
+  'Total Index Size': 15,
+  'Properties': { locale: 'se' }
 };
 const SOUNDCLOUD_MAPPED = {
   'Collection Name': 'soundcloud',
-  'Collections': 1,
-  'Indexes': 15,
-  'Storage Size': 20
+  'Documents': 100,
+  'Avg. Document Size': 200,
+  'Total Document Size': 20000,
+  'Num. Indexes': 2,
+  'Total Index Size': 20,
+  'Properties': { locale: 'de' }
 };
 const DEEZER_MAPPED = {
   'Collection Name': 'deezer',
-  'Collections': 2,
-  'Indexes': 1,
-  'Storage Size': 100
+  'Documents': 5,
+  'Avg. Document Size': 4,
+  'Total Document Size': 20,
+  'Num. Indexes': 3,
+  'Total Index Size': 1,
+  'Properties': { locale: 'us' }
 };
 
 describe('collections module', () => {
@@ -75,49 +90,81 @@ describe('collections module', () => {
             });
           });
 
-          context('when the column is Storage Size', () => {
+          context('when the column is Documents', () => {
             context('when sorting asc', () => {
               it('returns the sorted datbases list', () => {
-                expect(reducer(undefined, sortCollections(collections, 'Storage Size', 'asc'))).
-                  to.deep.equal([ SPOTIFY_MAPPED, SOUNDCLOUD_MAPPED, DEEZER_MAPPED ]);
-              });
-            });
-
-            context('when sorting desc', () => {
-              it('returns the sorted datbases list', () => {
-                expect(reducer(undefined, sortCollections(collections, 'Storage Size', 'desc'))).
-                  to.deep.equal([ DEEZER_MAPPED, SOUNDCLOUD_MAPPED, SPOTIFY_MAPPED ]);
-              });
-            });
-          });
-
-          context('when the column is Collections', () => {
-            context('when sorting asc', () => {
-              it('returns the sorted datbases list', () => {
-                expect(reducer(undefined, sortCollections(collections, 'Collections', 'asc'))).
-                  to.deep.equal([ SOUNDCLOUD_MAPPED, DEEZER_MAPPED, SPOTIFY_MAPPED ]);
-              });
-            });
-
-            context('when sorting desc', () => {
-              it('returns the sorted datbases list', () => {
-                expect(reducer(undefined, sortCollections(collections, 'Collections', 'desc'))).
-                  to.deep.equal([ SPOTIFY_MAPPED, DEEZER_MAPPED, SOUNDCLOUD_MAPPED ]);
-              });
-            });
-          });
-
-          context('when the column is Indexes', () => {
-            context('when sorting asc', () => {
-              it('returns the sorted datbases list', () => {
-                expect(reducer(undefined, sortCollections(collections, 'Indexes', 'asc'))).
+                expect(reducer(undefined, sortCollections(collections, 'Documents', 'asc'))).
                   to.deep.equal([ DEEZER_MAPPED, SPOTIFY_MAPPED, SOUNDCLOUD_MAPPED ]);
               });
             });
 
             context('when sorting desc', () => {
               it('returns the sorted datbases list', () => {
-                expect(reducer(undefined, sortCollections(collections, 'Indexes', 'desc'))).
+                expect(reducer(undefined, sortCollections(collections, 'Documents', 'desc'))).
+                  to.deep.equal([ SOUNDCLOUD_MAPPED, SPOTIFY_MAPPED, DEEZER_MAPPED ]);
+              });
+            });
+          });
+
+          context('when the column is Avg. Document Size', () => {
+            context('when sorting asc', () => {
+              it('returns the sorted datbases list', () => {
+                expect(reducer(undefined, sortCollections(collections, 'Avg. Document Size', 'asc'))).
+                  to.deep.equal([ DEEZER_MAPPED, SPOTIFY_MAPPED, SOUNDCLOUD_MAPPED ]);
+              });
+            });
+
+            context('when sorting desc', () => {
+              it('returns the sorted datbases list', () => {
+                expect(reducer(undefined, sortCollections(collections, 'Avg. Document Size', 'desc'))).
+                  to.deep.equal([ SOUNDCLOUD_MAPPED, SPOTIFY_MAPPED, DEEZER_MAPPED ]);
+              });
+            });
+          });
+
+          context('when the column is Total Document Size', () => {
+            context('when sorting asc', () => {
+              it('returns the sorted datbases list', () => {
+                expect(reducer(undefined, sortCollections(collections, 'Total Document Size', 'asc'))).
+                  to.deep.equal([ DEEZER_MAPPED, SPOTIFY_MAPPED, SOUNDCLOUD_MAPPED ]);
+              });
+            });
+
+            context('when sorting desc', () => {
+              it('returns the sorted datbases list', () => {
+                expect(reducer(undefined, sortCollections(collections, 'Total Document Size', 'desc'))).
+                  to.deep.equal([ SOUNDCLOUD_MAPPED, SPOTIFY_MAPPED, DEEZER_MAPPED ]);
+              });
+            });
+          });
+
+          context('when the column is Num. Indexes', () => {
+            context('when sorting asc', () => {
+              it('returns the sorted datbases list', () => {
+                expect(reducer(undefined, sortCollections(collections, 'Num. Indexes', 'asc'))).
+                  to.deep.equal([ SPOTIFY_MAPPED, SOUNDCLOUD_MAPPED, DEEZER_MAPPED ]);
+              });
+            });
+
+            context('when sorting desc', () => {
+              it('returns the sorted datbases list', () => {
+                expect(reducer(undefined, sortCollections(collections, 'Num. Indexes', 'desc'))).
+                  to.deep.equal([ DEEZER_MAPPED, SOUNDCLOUD_MAPPED, SPOTIFY_MAPPED ]);
+              });
+            });
+          });
+
+          context('when the column is Total Index Size', () => {
+            context('when sorting asc', () => {
+              it('returns the sorted datbases list', () => {
+                expect(reducer(undefined, sortCollections(collections, 'Total Index Size', 'asc'))).
+                  to.deep.equal([ DEEZER_MAPPED, SPOTIFY_MAPPED, SOUNDCLOUD_MAPPED ]);
+              });
+            });
+
+            context('when sorting desc', () => {
+              it('returns the sorted datbases list', () => {
+                expect(reducer(undefined, sortCollections(collections, 'Total Index Size', 'desc'))).
                   to.deep.equal([ SOUNDCLOUD_MAPPED, SPOTIFY_MAPPED, DEEZER_MAPPED ]);
               });
             });

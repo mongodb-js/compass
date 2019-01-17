@@ -70,9 +70,15 @@ const sort = (collections, column, order) => {
  * @return {Array} The mapped collections for the UI.
  */
 export const load = (collections) => {
-  return collections.map((db) => {
+  return collections.map((coll) => {
     return zipObject(COLUMNS, [
-      db._id, db.storage_size, db.collections.length, db.index_count
+      coll.name,
+      coll.document_count,
+      coll.size / coll.document_count,
+      coll.size,
+      coll.index_count,
+      coll.index_size,
+      coll.collation
     ]);
   });
 };
