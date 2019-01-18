@@ -3,7 +3,7 @@
   "productName": "MongoDB Compass",
   "description": "The MongoDB GUI",
   "homepage": "https://compass.mongodb.com",
-  "version": "1.17.0-beta.5",
+  "version": "1.17.0-beta.6",
   "apiVersion": "2.0.0",
   "main": "src/main.js",
   "author": {
@@ -289,7 +289,7 @@
     "mapbox-gl": "^0.39.1",
     "marky": "^1.2.0",
     "moment": "^2.10.6",
-    "mongodb": "^3.1.9",
+    "mongodb": "3.1.9",
     "mongodb-ace-autocompleter": "^0.0.21",
     "mongodb-ace-mode": "^0.0.2",
     "mongodb-ace-theme": "^0.0.1",
