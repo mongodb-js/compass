@@ -295,7 +295,7 @@
     "mongodb-ace-theme": "^0.0.1",
     "mongodb-ace-theme-query": "^0.0.2",
     "mongodb-collection-model": "^1.0.0",
-    "mongodb-connection-model": "^12.5.4",
+    "mongodb-connection-model": "^12.5.5",
     "mongodb-core": "^3.1.8",
     "mongodb-data-service": "^12.4.14",
     "mongodb-database-model": "^0.1.3",
