@@ -32,7 +32,7 @@ describe('DropCollectionStore [Store]', () => {
 
     context('when open drop collection is emitted', () => {
       beforeEach(() => {
-        appRegistry.emit('open-drop-collection', 'testing');
+        appRegistry.emit('open-drop-collection', 'testing', 'test');
       });
 
       it('dispatches the toggle action', () => {
@@ -40,7 +40,11 @@ describe('DropCollectionStore [Store]', () => {
       });
 
       it('sets the name in the store', () => {
-        expect(store.getState().name).to.equal('testing');
+        expect(store.getState().name).to.equal('test');
+      });
+
+      it('sets the database name in the store', () => {
+        expect(store.getState().databaseName).to.equal('testing');
       });
     });
   });

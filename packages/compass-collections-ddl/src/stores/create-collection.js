@@ -1,9 +1,7 @@
 import { createStore, applyMiddleware } from 'redux';
 import thunk from 'redux-thunk';
 import { dataServiceConnected } from 'modules/data-service';
-import { toggleIsVisible } from 'modules/is-visible';
-import { reset } from 'modules/reset';
-import reducer from 'modules/create-collection';
+import reducer, { open } from 'modules/create-collection';
 
 const store = createStore(reducer, applyMiddleware(thunk));
 
@@ -21,10 +19,11 @@ store.onActivated = (appRegistry) => {
   /**
    * When needing to create a collection from elsewhere, the app registry
    * event is emitted.
+   *
+   * @param {String} databaseName - The database name.
    */
-  appRegistry.on('open-create-collection', () => {
-    store.dispatch(reset());
-    store.dispatch(toggleIsVisible(true));
+  appRegistry.on('open-create-collection', (databaseName) => {
+    store.dispatch(open(databaseName));
   });
 };
 
