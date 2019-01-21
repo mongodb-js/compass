@@ -17,12 +17,15 @@ export const showCollection = (name) => {
     const appRegistry = state.appRegistry;
     if (appRegistry) {
       const collectionStore = appRegistry.getStore(COLLECTION_STORE);
-      const ipc = require('hadron-ipc');
+      console.log('------------------- find collection', state.collections);
+      console.log('------------------- state', state);
+      console.log('------------------- name', name);
       const collection = find(state.collections, (coll) => {
         return coll._id === `${state.databaseName}.${name}`;
       });
       collectionStore.setCollection(collection);
       dispatch(appRegistryEmit('collection-selected', { view: 'table' }));
+      const ipc = require('hadron-ipc');
       ipc.call('window:show-collection-submenu');
     }
   };
