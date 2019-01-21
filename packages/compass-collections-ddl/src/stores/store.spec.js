@@ -56,7 +56,7 @@ describe('DdlStore [Store]', () => {
       const dbs = [{ _id: 'db1', storage_size: 10, collections: [ coll ], index_count: 2 }];
 
       beforeEach(() => {
-        InstanceStore.setState({ instance: { databases: dbs }});
+        InstanceStore.setState({ instance: { databases: { models: dbs }}});
       });
 
       it('dispatches the load databases action', () => {

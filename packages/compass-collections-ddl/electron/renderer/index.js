@@ -26,7 +26,9 @@ const InstanceStore = Reflux.createStore({
   getInitialState() {
     return {
       instance: {
-        databases: []
+        databases: {
+          models: []
+        }
       }
     };
   }
@@ -87,7 +89,9 @@ const refreshInstance = () => {
     if (err) console.log(err);
     InstanceStore.setState({
       instance: {
-        databases: data.databases
+        databases: {
+          models: data.databases
+        }
       }
     });
     appRegistry.emit('database-changed', 'citibike');
