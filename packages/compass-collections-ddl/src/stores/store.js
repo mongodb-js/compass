@@ -14,7 +14,7 @@ const store = createStore(reducer, applyMiddleware(thunk));
 /**
  * Load all the collections.
  *
- * @param {String} datbaseName - The current database name.
+ * @param {String} databaseName - The current database name.
  * @param {Array} databases - The databases.
  */
 const loadAll = (databaseName, databases) => {
