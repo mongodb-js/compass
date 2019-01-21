@@ -43,8 +43,6 @@ class Home extends React.Component {
     this.collectionsTable = app.appRegistry.getComponent('Database.CollectionsTable');
     this.instanceView = app.appRegistry.getRole('Instance.Workspace')[0].component;
     this.connectView = app.appRegistry.getRole('Application.Connect')[0].component;
-    this.CreateCollectionDialog = app.appRegistry.getComponent('Database.CreateCollectionDialog');
-    this.DropCollectionDialog = app.appRegistry.getComponent('Database.DropCollectionDialog');
     this.InstanceHeader = app.appRegistry.getComponent('InstanceHeader.Component');
     this.SchemaActions = app.appRegistry.getAction('Schema.Actions');
     this.importRole = app.appRegistry.getRole('Import.Modal');
@@ -157,8 +155,6 @@ class Home extends React.Component {
           </div>
           <this.sideBar onCollapse={this.collapseSidebar.bind(this)}/>
           <this.QueryHistoryComponent />
-          <this.CreateCollectionDialog />
-          <this.DropCollectionDialog />
           {this.renderImportModal()}
           {this.renderExportModal()}
           {this.renderExportToLangModal()}

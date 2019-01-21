@@ -11,7 +11,6 @@ class SidebarDatabase extends React.Component {
     super(props);
     const appRegistry = global.hadronApp.appRegistry;
     this.WriteStateStore = appRegistry.getStore('DeploymentAwareness.WriteStateStore');
-    this.CollectionsActions = appRegistry.getAction('Database.CollectionsActions');
     this.CollectionStore = appRegistry.getStore('App.CollectionStore');
     this.NamespaceStore = appRegistry.getStore('App.NamespaceStore');
     this.state = this.WriteStateStore.state;
@@ -75,7 +74,7 @@ class SidebarDatabase extends React.Component {
   handleCreateCollectionClick(isWritable) {
     if (isWritable) {
       const databaseName = this.props._id;
-      this.CollectionsActions.openCreateCollectionDialog(databaseName);
+      global.hadronApp.appRegistry.emit('open-create-collection', databaseName);
     }
   }
 

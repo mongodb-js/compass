@@ -9,7 +9,6 @@ class SidebarCollection extends React.Component {
     super();
     const appRegistry = global.hadronApp.appRegistry;
     this.handleClick = this.handleClick.bind(this);
-    this.CollectionsActions = appRegistry.getAction('Database.CollectionsActions');
     this.CollectionStore = appRegistry.getStore('App.CollectionStore');
     this.NamespaceStore = appRegistry.getStore('App.NamespaceStore');
     this.WriteStateStore = appRegistry.getStore('DeploymentAwareness.WriteStateStore');
@@ -55,7 +54,7 @@ class SidebarCollection extends React.Component {
     if (isWritable) {
       const databaseName = this.props.database;
       const collectionName = this.getCollectionName();
-      this.CollectionsActions.openDropCollectionDialog(databaseName, collectionName);
+      global.hadronApp.appRegistry.emit('open-drop-collection', databaseName, collectionName);
     }
   }
 
