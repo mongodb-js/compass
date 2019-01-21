@@ -7,19 +7,15 @@ import CollectionsTable from 'components/collections-table';
 describe('CollectionsTable [Component]', () => {
   const collections = [];
   let component;
-  let resetSpy;
+  let openSpy;
   let sortCollectionsSpy;
   let showCollectionSpy;
-  let toggleIsVisibleSpy;
-  let changeCollectionNameSpy;
   let openLinkSpy;
 
   beforeEach(() => {
-    resetSpy = sinon.spy();
+    openSpy = sinon.spy();
     sortCollectionsSpy = sinon.spy();
     showCollectionSpy = sinon.spy();
-    toggleIsVisibleSpy = sinon.spy();
-    changeCollectionNameSpy = sinon.spy();
     openLinkSpy = sinon.spy();
     component = mount(
       <CollectionsTable
@@ -29,22 +25,19 @@ describe('CollectionsTable [Component]', () => {
         isReadonly={false}
         sortOrder="asc"
         sortColumn="Collection Name"
-        reset={resetSpy}
+        databaseName="testing"
+        open={openSpy}
         sortCollections={sortCollectionsSpy}
         showCollection={showCollectionSpy}
-        changeCollectionName={changeCollectionNameSpy}
-        openLink={openLinkSpy}
-        toggleIsVisible={toggleIsVisibleSpy} />
+        openLink={openLinkSpy} />
     );
   });
 
   afterEach(() => {
     component = null;
-    resetSpy = null;
+    openSpy = null;
     sortCollectionsSpy = null;
     showCollectionSpy = null;
-    toggleIsVisibleSpy = null;
-    changeCollectionNameSpy = null;
     openLinkSpy = null;
   });
 

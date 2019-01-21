@@ -11,6 +11,7 @@ describe('drop collection module', () => {
           expect(reducer({ dataService: dataService }, reset())).to.deep.equal({
             isRunning: false,
             isVisible: false,
+            databaseName: '',
             name: '',
             nameConfirmation: '',
             error: null,

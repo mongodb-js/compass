@@ -31,6 +31,11 @@ import error, {
 import { reset, RESET } from 'modules/reset';
 
 /**
+ * Open action name.
+ */
+const OPEN = 'ddl/create-collection/OPEN';
+
+/**
  * The main reducer.
  */
 const reducer = combineReducers({
@@ -68,6 +73,19 @@ const rootReducer = (state, action) => {
       error: ERROR_INITIAL_STATE,
       collation: COLLATION_INITIAL_STATE
     };
+  } else if (action.type === OPEN) {
+    return {
+      ...state,
+      isVisible: true,
+      databaseName: action.databaseName,
+      cappedSize: CAPPED_SIZE_INITIAL_STATE,
+      isCapped: IS_CAPPED_INITIAL_STATE,
+      isCustomCollation: IS_CUSTOM_COLLATION_INITIAL_STATE,
+      isRunning: IS_RUNNING_INITIAL_STATE,
+      name: NAME_INITIAL_STATE,
+      error: ERROR_INITIAL_STATE,
+      collation: COLLATION_INITIAL_STATE
+    };
   }
   return reducer(state, action);
 };
@@ -88,6 +106,18 @@ const stopWithError = (dispatch, err) => {
 };
 
 /**
+ * Open create collection action creator.
+ *
+ * @param {String} dbName - The database name.
+ *
+ * @returns {Object} The action.
+ */
+export const open = (dbName) => ({
+  type: OPEN,
+  databaseName: dbName
+});
+
+/**
  * The create collection action.
  *
  * @returns {Function} The thunk function.
@@ -103,7 +133,7 @@ export const createCollection = () => {
     dispatch(clearError());
 
     let options = state.isCapped ? { capped: true, size: parseInt(state.cappedSize, 10) } : {};
-    options = state.isCustomCollation ? { ...options, coll } : options;
+    options = state.isCustomCollation ? { ...options, collation: coll } : options;
     try {
       dispatch(toggleIsRunning(true));
       ds.createCollection(`${dbName}.${collectionName}`, options, (e) => {

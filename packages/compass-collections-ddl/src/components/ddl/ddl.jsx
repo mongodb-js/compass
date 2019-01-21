@@ -6,11 +6,9 @@ import Toolbar from 'components/toolbar';
 import CollectionsTable from 'components/collections-table';
 import { showCollection } from 'modules/show-collection';
 import { sortCollections } from 'modules/collections';
-import { toggleIsVisible } from 'modules/is-visible';
 import { openLink } from 'modules/link';
-import { reset } from 'modules/reset';
-import { changeCollectionName } from 'modules/drop-collection/name';
-import { changeDatabaseName } from 'modules/database-name';
+import { open as openCreate } from 'modules/create-collection';
+import { open as openDrop } from 'modules/drop-collection';
 
 import styles from './ddl.less';
 
@@ -43,23 +41,20 @@ class Ddl extends PureComponent {
       <div className={classnames(styles.ddl)} data-test-id="collections-table">
         <Toolbar
           isReadonly={this.props.isReadonly}
-          toggleIsVisible={toggleIsVisible}
           databaseName={this.props.databaseName}
-          changeDatabaseName={changeDatabaseName}
-          reset={reset} />
+          open={openCreate} />
         <CollectionsTable
           columns={this.props.columns}
           collections={this.props.collections}
           isWritable={this.props.isWritable}
           isReadonly={this.props.isReadonly}
-          changeCollectionName={changeCollectionName}
+          databaseName={this.props.databaseName}
           openLink={this.props.openLink}
-          reset={reset}
           sortOrder={this.props.sortOrder}
           sortColumn={this.props.sortColumn}
           sortCollections={this.props.sortCollections}
           showCollection={this.props.showCollection}
-          toggleIsVisible={toggleIsVisible} />
+          open={openDrop} />
       </div>
     );
   }

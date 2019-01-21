@@ -11,6 +11,20 @@ import reducer from 'modules';
 
 const store = createStore(reducer, applyMiddleware(thunk));
 
+/**
+ * Load all the collections.
+ *
+ * @param {String} datbaseName - The current database name.
+ * @param {Array} databases - The databases.
+ */
+const loadAll = (databaseName, databases) => {
+  const database = find(databases, (db) => {
+    return db._id === databaseName;
+  });
+  store.dispatch(changeDatabaseName(databaseName));
+  store.dispatch(loadCollectionStats(database.collections));
+};
+
 store.onActivated = (appRegistry) => {
   /**
    * Sort the collections once the instance is refreshed.
@@ -18,7 +32,13 @@ store.onActivated = (appRegistry) => {
    * @param {Object} state - The instance store state.
    */
   appRegistry.getStore('App.InstanceStore').listen((state) => {
-    store.dispatch(loadDatabases(state.instance.databases));
+    const storeState = store.getState();
+    const databaseName = storeState.databaseName;
+    const databases = state.instance.databases;
+    store.dispatch(loadDatabases(databases));
+    if (databaseName) {
+      loadAll(databaseName, databases);
+    }
   });
 
   /**
@@ -49,11 +69,7 @@ store.onActivated = (appRegistry) => {
     const state = store.getState();
     const databaseName = state.databaseName;
     if (ns && !ns.includes('.') && ns !== databaseName) {
-      const database = find(state.databases, (db) => {
-        return db._id === ns;
-      });
-      store.dispatch(changeDatabaseName(ns));
-      store.dispatch(loadCollectionStats(database.collections));
+      loadAll(ns, state.databases);
     }
   });
 

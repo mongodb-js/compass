@@ -24,19 +24,9 @@ class DropCollectionModal extends PureComponent {
     name: PropTypes.string.isRequired,
     nameConfirmation: PropTypes.string.isRequired,
     error: PropTypes.object,
-    changeCollectionName: PropTypes.func.isRequired,
     changeCollectionNameConfirmation: PropTypes.func.isRequired,
     dropCollection: PropTypes.func.isRequired,
     toggleIsVisible: PropTypes.func.isRequired
-  }
-
-  /**
-   * Called when the db name changes.
-   *
-   * @param {Object} evt - The event.
-   */
-  onNameChange = (evt) => {
-    this.props.changeCollectionName(evt.target.value);
   }
 
   /**

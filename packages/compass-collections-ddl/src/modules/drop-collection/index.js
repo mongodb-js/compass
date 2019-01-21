@@ -12,11 +12,19 @@ import name, {
 import nameConfirmation, {
   INITIAL_STATE as NAME_CONFIRMATION_INITIAL_STATE
 } from 'modules/drop-collection/name-confirmation';
+import databaseName, {
+  INITIAL_STATE as DATABASE_NAME_INITIAL_STATE
+} from 'modules/database-name';
 import error, {
   clearError, handleError, INITIAL_STATE as ERROR_INITIAL_STATE
 } from 'modules/error';
 import { reset, RESET } from 'modules/reset';
 import dataService from 'modules/data-service';
+
+/**
+ * Open action name.
+ */
+const OPEN = 'ddl/drop-collection/OPEN';
 
 /**
  * The main reducer.
@@ -26,6 +34,7 @@ const reducer = combineReducers({
   isVisible,
   name,
   nameConfirmation,
+  databaseName,
   error,
   dataService
 });
@@ -45,6 +54,17 @@ const rootReducer = (state, action) => {
       isRunning: IS_RUNNING_INITIAL_STATE,
       isVisible: IS_VISIBLE_INITIAL_STATE,
       name: NAME_INITIAL_STATE,
+      nameConfirmation: NAME_CONFIRMATION_INITIAL_STATE,
+      databaseName: DATABASE_NAME_INITIAL_STATE,
+      error: ERROR_INITIAL_STATE
+    };
+  } else if (action.type === OPEN) {
+    return {
+      ...state,
+      isVisible: true,
+      name: action.collectionName,
+      databaseName: action.databaseName,
+      isRunning: IS_RUNNING_INITIAL_STATE,
       nameConfirmation: NAME_CONFIRMATION_INITIAL_STATE,
       error: ERROR_INITIAL_STATE
     };
@@ -68,6 +88,20 @@ const stopWithError = (dispatch, err) => {
 };
 
 /**
+ * Open create collection action creator.
+ *
+ * @param {String} collectionName - The collection name.
+ * @param {String} dbName - The database name.
+ *
+ * @returns {Object} The action.
+ */
+export const open = (collectionName, dbName) => ({
+  type: OPEN,
+  collectionName: collectionName,
+  databaseName: dbName
+});
+
+/**
  * The drop collection action.
  *
  * @returns {Function} The thunk function.
@@ -76,13 +110,14 @@ export const dropCollection = () => {
   return (dispatch, getState) => {
     const state = getState();
     const ds = state.dataService.dataService;
-    const dbName = state.name;
+    const collectionName = state.name;
+    const dbName = state.databaseName;
 
     dispatch(clearError());
 
     try {
       dispatch(toggleIsRunning(true));
-      ds.dropCollection(dbName, (e) => {
+      ds.dropCollection(`${dbName}.${collectionName}`, (e) => {
         if (e) {
           return stopWithError(dispatch, e);
         }

@@ -91,13 +91,12 @@ class CollectionsTable extends PureComponent {
     isWritable: PropTypes.bool.isRequired,
     isReadonly: PropTypes.bool.isRequired,
     openLink: PropTypes.func.isRequired,
-    changeCollectionName: PropTypes.func.isRequired,
-    reset: PropTypes.func.isRequired,
+    open: PropTypes.func.isRequired,
+    databaseName: PropTypes.string.isRequired,
     sortOrder: PropTypes.string.isRequired,
     sortColumn: PropTypes.string.isRequired,
     sortCollections: PropTypes.func.isRequired,
-    showCollection: PropTypes.func.isRequired,
-    toggleIsVisible: PropTypes.func.isRequired
+    showCollection: PropTypes.func.isRequired
   }
 
   /**
@@ -114,12 +113,10 @@ class CollectionsTable extends PureComponent {
    * Happens on the click of the delete trash can in the list.
    *
    * @param {Number} index - The index in the list.
-   * @param {String} name - The db name.
+   * @param {String} name - The collection name.
    */
   onDeleteClicked = (index, name) => {
-    dropCollectionStore.dispatch(this.props.reset());
-    dropCollectionStore.dispatch(this.props.changeCollectionName(name));
-    dropCollectionStore.dispatch(this.props.toggleIsVisible(true));
+    dropCollectionStore.dispatch(this.props.open(name, this.props.databaseName));
   }
 
   /**
