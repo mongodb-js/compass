@@ -127,7 +127,6 @@ export const loadCollectionStats = (collections) => {
     if (dataService) {
       parallel(
         collections.map((collection) => {
-          console.log('-------------------- getting collection stats', collection);
           return (done) => {
             dataService.collectionStats(
               state.databaseName,
