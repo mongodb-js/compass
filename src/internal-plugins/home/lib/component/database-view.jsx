@@ -1,0 +1,65 @@
+const _ = require('lodash');
+const app = require('hadron-app');
+const React = require('react');
+const { TabNavBar, UnsafeComponent } = require('hadron-react-components');
+
+class DatabaseView extends React.Component {
+
+  constructor(props) {
+    super(props);
+    this.state = { activeTab: 0 };
+    this.setupTabs();
+  }
+
+  /**
+   * Handle the tab click.
+   *
+   * @param {Number} idx - The index of the clicked tab.
+   */
+  onTabClicked(idx) {
+    if (this.state.activeTab === idx) {
+      return;
+    }
+    this.setState({ activeTab: idx });
+  }
+
+  /**
+   * Setup the instance level tabs.
+   */
+  setupTabs() {
+    const roles = app.appRegistry.getRole('Database.Tab');
+
+    const tabs = _.map(roles, 'name');
+    const views = _.map(roles, (role) => {
+      return (
+        <UnsafeComponent component={role.component} />
+      );
+    });
+
+    this.tabs = tabs;
+    this.views = views;
+  }
+
+  /**
+   * Renders the component.
+   *
+   * @returns {React.Component} The component.
+   */
+  render() {
+    return (
+      <div className="collections">
+        <TabNavBar
+          theme="light"
+          tabs={this.tabs}
+          views={this.views}
+          activeTabIndex={0}
+          onTabClicked={this.onTabClicked.bind(this)}
+          className="rt-nav" />
+      </div>
+    );
+  }
+}
+
+DatabaseView.displayName = 'DatabaseView';
+
+module.exports = DatabaseView;
