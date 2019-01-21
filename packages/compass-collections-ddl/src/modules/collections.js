@@ -4,6 +4,11 @@ import sortByOrder from 'lodash.sortbyorder';
 import { INITIAL_STATE as COLUMNS } from 'modules/columns';
 
 /**
+ * Need extra columns to map.
+ */
+const EXTRA_COLUMNS = COLUMNS.concat([ '_id', 'readonly', 'capped' ]);
+
+/**
  * The module prefix.
  */
 const PREFIX = 'ddl/collections';
@@ -72,7 +77,7 @@ const sort = (collections, column, order) => {
  */
 export const load = (collections) => {
   return collections.map((coll) => {
-    return zipObject(COLUMNS, [
+    return zipObject(EXTRA_COLUMNS, [
       coll.name,
       coll.document_count,
       coll.size / coll.document_count,

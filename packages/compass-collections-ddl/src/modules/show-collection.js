@@ -20,7 +20,6 @@ export const showCollection = (name) => {
       const collection = find(state.collections, (coll) => {
         return coll._id === `${state.databaseName}.${name}`;
       });
-      console.log('------------------- collection', collection);
       collectionStore.setCollection({
         _id: collection._id,
         readonly: collection.readonly,

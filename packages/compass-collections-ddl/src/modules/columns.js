@@ -8,10 +8,7 @@ export const INITIAL_STATE = [
   'Total Document Size',
   'Num. Indexes',
   'Total Index Size',
-  'Properties',
-  '_id',
-  'readonly',
-  'capped'
+  'Properties'
 ];
 
 /**
