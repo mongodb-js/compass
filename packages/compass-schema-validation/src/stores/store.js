@@ -7,7 +7,7 @@ import { dataServiceConnected } from 'modules/data-service';
 import { fieldsChanged } from 'modules/fields';
 import { serverVersionChanged } from 'modules/server-version';
 import { appRegistryActivated } from 'modules/app-registry';
-import { fetchValidation } from 'modules/validation';
+import { fetchValidation, editModeChanged } from 'modules/validation';
 
 /**
  * The store has a combined pipeline reducer plus the thunk middleware.
@@ -27,9 +27,12 @@ store.onActivated = (appRegistry) => {
    */
   appRegistry.on('collection-changed', (ns) => {
     const namespace = toNS(ns);
+    const CollectionStore = appRegistry.getStore('App.CollectionStore');
+    const isEditable = !CollectionStore.isReadonly() && process.env.HADRON_READONLY !== 'true';
 
     if (namespace.collection) {
       store.dispatch(namespaceChanged(namespace));
+      store.dispatch(editModeChanged(isEditable));
       store.dispatch(fetchValidation(namespace));
     }
   });

@@ -14,6 +14,7 @@ describe('ValidationEditor [Component]', () => {
   const setValidationCanceledSpy = sinon.spy();
   const saveValidationSpy = sinon.spy();
   const openLinkSpy = sinon.spy();
+  const fetchSampleDocumentsSpy = sinon.spy();
   const serverVersion = '3.6.0';
   const fields = [];
   const validation = {
@@ -22,7 +23,8 @@ describe('ValidationEditor [Component]', () => {
     validationLevel: 'moderate',
     isChanged: false,
     syntaxError: null,
-    error: null
+    error: null,
+    isEditable: true
   };
   const appRegistry = new AppRegistry();
 
@@ -40,6 +42,7 @@ describe('ValidationEditor [Component]', () => {
         validationLevelChanged={setValidationLevelChangedSpy}
         validationCanceled={setValidationCanceledSpy}
         saveValidation={saveValidationSpy}
+        fetchSampleDocuments={fetchSampleDocumentsSpy}
         serverVersion={serverVersion}
         fields={fields}
         validation={validation}

@@ -6,6 +6,8 @@ import fields, { INITIAL_STATE as FIELDS_INITIAL_STATE } from './fields';
 import namespace, { INITIAL_STATE as NS_INITIAL_STATE, NAMESPACE_CHANGED } from './namespace';
 import serverVersion, { INITIAL_STATE as SV_INITIAL_STATE } from './server-version';
 import validation, { INITIAL_STATE as VALIDATION_STATE } from './validation';
+import sampleDocuments, { INITIAL_STATE as SAMPLE_DOCUMENTS_STATE } from './sample-documents';
+import isZeroState, { INITIAL_STATE as IS_ZERO_STATE } from './zero-state';
 
 /**
  * Reset action constant.
@@ -21,7 +23,9 @@ export const INITIAL_STATE = {
   fields: FIELDS_INITIAL_STATE,
   namespace: NS_INITIAL_STATE,
   serverVersion: SV_INITIAL_STATE,
-  validation: VALIDATION_STATE
+  validation: VALIDATION_STATE,
+  sampleDocuments: SAMPLE_DOCUMENTS_STATE,
+  isZeroState: IS_ZERO_STATE
 };
 
 /**
@@ -33,7 +37,9 @@ const appReducer = combineReducers({
   fields,
   namespace,
   serverVersion,
-  validation
+  validation,
+  sampleDocuments,
+  isZeroState
 });
 
 /**

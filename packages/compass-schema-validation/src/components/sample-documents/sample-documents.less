@@ -1,0 +1,41 @@
+@import (reference) "~less/compass/_theme.less";
+
+.sample-documents {
+  border: 1px solid @gray6;
+  border-radius: 4px;
+  box-shadow: 1px 1px 1px @gray6;
+  margin-top: 15px;
+
+  .sample-documents-content {
+    background-color: @pw;
+    padding: 2.4rem;
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+    height: 230px;
+    position: relative;
+
+    .document-container {
+      width: 49%;
+      height: 100px;
+    }
+
+    .matching-documents {
+      color: #13AA52;
+      font-weight: bold;
+
+      i.info-sprinkle {
+        color: #13AA52;
+      }
+    }
+
+    .notmatching-documents {
+      color: @alertRed;
+      font-weight: bold;
+
+      i.info-sprinkle {
+        color: @alertRed;
+      }
+    }
+  }
+}

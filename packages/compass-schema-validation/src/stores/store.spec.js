@@ -6,19 +6,30 @@ import {
   validationFetched,
   validationSaved,
   validationActionChanged,
-  validationLevelChanged
+  validationLevelChanged,
+  fetchSampleDocuments
 } from 'modules/validation';
 import { reset, INITIAL_STATE } from '../modules/index';
 import javascriptStringify from 'javascript-stringify';
 
 describe('Schema Validation Store', () => {
+  const appRegistry = new AppRegistry();
+  const collectionStore = {
+    isReadonly: () => {
+      return false;
+    }
+  };
+
+  before(() => {
+    global.hadronApp.appRegistry = appRegistry;
+    global.hadronApp.appRegistry.registerStore('App.CollectionStore', collectionStore);
+  });
+
   beforeEach(() => {
     store.dispatch(reset());
   });
 
   describe('#onActivated', () => {
-    const appRegistry = new AppRegistry();
-
     beforeEach(() => {
       activate(appRegistry);
       store.onActivated(appRegistry);
@@ -81,25 +92,25 @@ describe('Schema Validation Store', () => {
       });
     });
 
-    context('when the action is VALIDATION_CANCELED', () => {
-      const validator = '{ name: { $type: 4 } }';
-
-      it('updates the stage in state', (done) => {
-        const unsubscribe = store.subscribe(() => {
-          unsubscribe();
-          expect(store.getState().validation.prevValidation).to.be.undefined;
-          done();
-        });
-        store.dispatch(validatorChanged(validator));
-      });
-    });
-
     context('when the action is VALIDATION_FETCHED', () => {
       const validation = {
         validator: { name: { $type: 4 } },
         validationAction: 'warn',
         validationLevel: 'moderate'
       };
+
+      it('updates the isLoading in state', () => {
+        const isLoading = true;
+
+        it('updates the validationAction in state', (done) => {
+          const unsubscribe = store.subscribe(() => {
+            unsubscribe();
+            expect(store.getState().sampleDocuments.isLoading).to.equal(isLoading);
+            done();
+          });
+          store.dispatch(fetchSampleDocuments({ matching: {}, notmatching: {}}));
+        });
+      });
 
       it('updates the validation in state', (done) => {
         const unsubscribe = store.subscribe(() => {
@@ -115,7 +126,8 @@ describe('Schema Validation Store', () => {
               validator,
               validationAction: 'warn',
               validationLevel: 'moderate'
-            }
+            },
+            isEditable: true
           };
 
           unsubscribe();
@@ -127,15 +139,13 @@ describe('Schema Validation Store', () => {
     });
 
     context('when the action is VALIDATION_SAVED', () => {
-      const validation = '{ validator: { name: { $type: 4 } } }';
-
       it('updates the validation in state', (done) => {
         const unsubscribe = store.subscribe(() => {
           unsubscribe();
           expect(store.getState().validation.error).to.equal(null);
           done();
         });
-        store.dispatch(validationSaved(validation));
+        store.dispatch(validationSaved());
       });
     });
 
@@ -167,8 +177,6 @@ describe('Schema Validation Store', () => {
 
     context('when the collection changes', () => {
       context('when there is no collection', () => {
-        const appRegistry = new AppRegistry();
-
         beforeEach(() => {
           store.onActivated(appRegistry);
           appRegistry.emit('collection-changed', 'db');
@@ -185,7 +193,9 @@ describe('Schema Validation Store', () => {
             dataService: INITIAL_STATE.dataService,
             fields: INITIAL_STATE.fields,
             serverVersion: INITIAL_STATE.serverVersion,
-            validation: INITIAL_STATE.validation
+            validation: INITIAL_STATE.validation,
+            sampleDocuments: INITIAL_STATE.sampleDocuments,
+            isZeroState: INITIAL_STATE.isZeroState
           });
         });
       });

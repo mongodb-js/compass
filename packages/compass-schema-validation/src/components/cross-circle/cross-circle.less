@@ -1,0 +1,14 @@
+@import (reference) "~less/compass/_theme.less";
+
+.cross-circle {
+  .fa-icon;
+  margin-right: 10px;
+  cursor: pointer;
+  font-size: 14px;
+  position: relative;
+  opacity: 1;
+
+  &:before {
+    content: @fa-var-times-circle;
+  }
+}

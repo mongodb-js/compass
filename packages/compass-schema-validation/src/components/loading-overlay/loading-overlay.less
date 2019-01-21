@@ -1,0 +1,34 @@
+@import (reference) "~less/compass/_theme.less";
+
+.loading-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 1000;
+  background-color: rgba(0, 0, 0, 0.08);;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  &-box {
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 300px;
+    height: 50px;
+    background-color: #FFFFFF;
+
+    &-text {
+      font-size: 16px;
+      margin-left: 5px;
+    }
+
+    i {
+      font-size: 20px;
+      color: @green1;
+    }
+  }
+}

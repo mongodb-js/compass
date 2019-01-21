@@ -21,6 +21,7 @@ const CollectionStore = Reflux.createStore({
    */
   setCollection(collection) {
     this.collection = collection;
+
     if (collection._id) {
       NamespaceStore.ns = collection._id;
     }

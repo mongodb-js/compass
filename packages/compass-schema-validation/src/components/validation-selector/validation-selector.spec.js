@@ -10,8 +10,8 @@ describe('ValidationSelector [Component]', () => {
   const bsSize = 'xs';
   const options = { warn: 'Warning', error: 'Error' };
   const label = [
-    <span key="validation-action-span">Validation Action</span>,
-    <p key="validation-action-span">Description</p>
+    <span key="validation-action-label">Validation Action</span>,
+    <p key="validation-action-description">Description</p>
   ];
   const title = 'Warning';
   const setOnSelect = sinon.spy();

@@ -1,7 +1,10 @@
-const bson = require('bson');
-const Context = require('context-eval');
-const EJSON = require('mongodb-extended-json');
-const javascriptStringify = require('javascript-stringify');
+import bson from 'bson';
+import Context from 'context-eval';
+import EJSON from 'mongodb-extended-json';
+import javascriptStringify from 'javascript-stringify';
+import { isEmpty } from 'lodash';
+import { fetchSampleDocuments } from './sample-documents';
+import { zeroStateChanged } from './zero-state';
 
 import { defaults, isEqual, pick } from 'lodash';
 
@@ -46,6 +49,16 @@ export const VALIDATION_ACTION_CHANGED = `${PREFIX}/VALIDATION_ACTION_CHANGED`;
 export const VALIDATION_LEVEL_CHANGED = `${PREFIX}/VALIDATION_LEVEL_CHANGED`;
 
 /**
+* Edit mode changed action name.
+*/
+export const EDIT_MODE_CHANGED = `${PREFIX}/EDIT_MODE_CHANGED`;
+
+/**
+* Syntax error occurred action name.
+*/
+export const SYNTAX_ERROR_OCCURRED = `${PREFIX}/SYNTAX_ERROR_OCCURRED`;
+
+/**
  * The initial state.
  */
 export const INITIAL_STATE = {
@@ -54,7 +67,8 @@ export const INITIAL_STATE = {
   validationLevel: 'strict',
   isChanged: false,
   syntaxError: null,
-  error: null
+  error: null,
+  isEditable: true
 };
 
 /**
@@ -123,7 +137,7 @@ function executeJavascript(input, sandbox) {
  *
  * @returns {Boolean} Is validator correct.
  */
-const checkValidator = (validator) => {
+export const checkValidator = (validator) => {
   const sandbox = getQuerySandbox();
   const validation = { syntaxError: null, validator };
 
@@ -179,18 +193,32 @@ const cancelValidation = (state) => ({
 });
 
 /**
- * Clears validation state after saving.
+ * Cleans validation state after saving.
  *
  * @param {Object} state - The state
  * @param {Object} action - The action.
  *
  * @returns {Object} The new state.
  */
-const updateValidation = (state, action) => ({
+const cleanValidation = (state, action) => ({
   ...state,
   isChanged: action.isChanged,
   syntaxError: null,
   error: action.error ? action.error : null
+});
+
+/**
+* Sets syntax error.
+*
+* @param {Object} state - The state
+* @param {Object} action - The action.
+*
+* @returns {Object} The new state.
+*/
+const setSyntaxError = (state, action) => ({
+  ...state,
+  isChanged: true,
+  syntaxError: action.syntaxError
 });
 
 /**
@@ -268,16 +296,45 @@ const changeValidationLevel = (state, action) => {
 };
 
 /**
+ * Change edit mode.
+ *
+ * @param {Object} state - The state
+ * @param {Object} action - The action.
+ *
+ * @returns {Object} The new state.
+ */
+const changeEditMode = (state, action) => {
+  return {
+    ...state,
+    isEditable: action.isEditable
+  };
+};
+
+/**
+ * Action creator for edit mode changed events.
+ *
+ * @param {Boolean} isEditable - Is editable.
+ *
+ * @returns {Function} The function.
+ */
+export const editModeChanged = (isEditable) => ({
+  type: EDIT_MODE_CHANGED,
+  isEditable
+});
+
+/**
  * To not have a huge switch statement in the reducer.
  */
 const MAPPINGS = {
   [VALIDATOR_CHANGED]: changeValidator,
   [VALIDATION_CANCELED]: cancelValidation,
   [VALIDATION_FETCHED]: setValidation,
-  [VALIDATION_SAVED]: updateValidation,
-  [VALIDATION_SAVE_FAILED]: updateValidation,
+  [VALIDATION_SAVED]: cleanValidation,
+  [VALIDATION_SAVE_FAILED]: cleanValidation,
   [VALIDATION_ACTION_CHANGED]: changeValidationAction,
-  [VALIDATION_LEVEL_CHANGED]: changeValidationLevel
+  [VALIDATION_LEVEL_CHANGED]: changeValidationLevel,
+  [EDIT_MODE_CHANGED]: changeEditMode,
+  [SYNTAX_ERROR_OCCURRED]: setSyntaxError
 };
 
 /**
@@ -354,14 +411,11 @@ export const validationCanceled = () => ({
 /**
  * Action creator for validation saved events.
  *
- * @param {Object} validation - Validation.
- *
  * @returns {Object} Validation saved action.
  */
-export const validationSaved = (validation) => ({
+export const validationSaved = () => ({
   type: VALIDATION_SAVED,
-  isChanged: false,
-  validation
+  isChanged: false
 });
 
 /**
@@ -376,6 +430,17 @@ export const validationSaveFailed = (error) => ({
   isChanged: true,
   error
 });
+/**
+ * Action creator for syntax error occurred events.
+ *
+ * @param {Object} error - Syntax error value.
+ *
+ * @returns {Object} Syntax error occurred action.
+ */
+export const syntaxErrorOccurred = (syntaxError) => ({
+  type: SYNTAX_ERROR_OCCURRED,
+  syntaxError
+});
 
 /**
  * Fetch validation.
@@ -388,6 +453,7 @@ export const fetchValidation = (namespace) => {
   return (dispatch, getState) => {
     const state = getState();
     const dataService = state.dataService.dataService;
+    let validator = '';
 
     if (dataService) {
       dataService.listCollections(
@@ -402,7 +468,7 @@ export const fetchValidation = (namespace) => {
           };
 
           if (!error && options) {
-            const validator = options.validator
+            validator = options.validator
               ? EJSON.stringify(options.validator, null, 2)
               : {};
 
@@ -416,7 +482,14 @@ export const fetchValidation = (namespace) => {
             );
           }
 
-          return dispatch(validationFetched(validation));
+          if (!isEmpty(validator)) {
+            dispatch(zeroStateChanged());
+          }
+
+          dispatch(validationFetched(validation));
+          dispatch(fetchSampleDocuments(validator));
+
+          return;
         }
       );
     }
@@ -448,7 +521,7 @@ export const saveValidation = (validation) => {
         },
         (error) => {
           if (!error) {
-            return dispatch(validationSaved(validation));
+            return dispatch(validationSaved());
           }
 
           return dispatch(validationSaveFailed(error));
