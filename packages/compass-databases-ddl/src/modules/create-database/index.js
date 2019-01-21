@@ -30,6 +30,10 @@ import error, {
 } from 'modules/error';
 import { reset, RESET } from 'modules/reset';
 
+/**
+ * Open action name.
+ */
+const OPEN = 'ddl/create-database/OPEN';
 
 /**
  * No dots in DB name error message.
@@ -74,6 +78,19 @@ const rootReducer = (state, action) => {
       error: ERROR_INITIAL_STATE,
       collation: COLLATION_INITIAL_STATE
     };
+  } else if (action.type === OPEN) {
+    return {
+      ...state,
+      isVisible: true,
+      cappedSize: CAPPED_SIZE_INITIAL_STATE,
+      collectionName: COLLECTION_NAME_INITIAL_STATE,
+      isCapped: IS_CAPPED_INITIAL_STATE,
+      isCustomCollation: IS_CUSTOM_COLLATION_INITIAL_STATE,
+      isRunning: IS_RUNNING_INITIAL_STATE,
+      name: NAME_INITIAL_STATE,
+      error: ERROR_INITIAL_STATE,
+      collation: COLLATION_INITIAL_STATE
+    };
   }
   return reducer(state, action);
 };
@@ -92,6 +109,15 @@ const stopWithError = (dispatch, err) => {
   dispatch(toggleIsRunning(false));
   return dispatch(handleError(err));
 };
+
+/**
+ * Open create database action creator.
+ *
+ * @returns {Object} The action.
+ */
+export const open = () => ({
+  type: OPEN
+});
 
 /**
  * The create database action.

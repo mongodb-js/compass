@@ -7,18 +7,14 @@ import DatabasesTable from 'components/databases-table';
 describe('DatabasesTable [Component]', () => {
   const databases = [];
   let component;
-  let resetSpy;
+  let openSpy;
   let sortDatabasesSpy;
   let showDatabaseSpy;
-  let toggleIsVisibleSpy;
-  let changeDatabaseNameSpy;
 
   beforeEach(() => {
-    resetSpy = sinon.spy();
+    openSpy = sinon.spy();
     sortDatabasesSpy = sinon.spy();
     showDatabaseSpy = sinon.spy();
-    toggleIsVisibleSpy = sinon.spy();
-    changeDatabaseNameSpy = sinon.spy();
     component = mount(
       <DatabasesTable
         columns={COLUMNS}
@@ -27,21 +23,17 @@ describe('DatabasesTable [Component]', () => {
         isReadonly={false}
         sortOrder="asc"
         sortColumn="Database Name"
-        reset={resetSpy}
+        open={openSpy}
         sortDatabases={sortDatabasesSpy}
-        showDatabase={showDatabaseSpy}
-        changeDatabaseName={changeDatabaseNameSpy}
-        toggleIsVisible={toggleIsVisibleSpy} />
+        showDatabase={showDatabaseSpy} />
     );
   });
 
   afterEach(() => {
     component = null;
-    resetSpy = null;
+    openSpy = null;
     sortDatabasesSpy = null;
     showDatabaseSpy = null;
-    toggleIsVisibleSpy = null;
-    changeDatabaseNameSpy = null;
   });
 
   it('renders the correct root classname', () => {

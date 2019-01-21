@@ -7,23 +7,19 @@ import styles from './toolbar.less';
 describe('Toolbar [Component]', () => {
   context('when the distribution is readonly', () => {
     let component;
-    let toggleIsVisibleSpy;
-    let resetSpy;
+    let openSpy;
 
     beforeEach(() => {
-      toggleIsVisibleSpy = sinon.spy();
-      resetSpy = sinon.spy();
+      openSpy = sinon.spy();
       component = mount(
         <Toolbar
           isReadonly
-          toggleIsVisible={toggleIsVisibleSpy}
-          reset={resetSpy} />
+          open={openSpy} />
       );
     });
 
     afterEach(() => {
-      toggleIsVisibleSpy = null;
-      resetSpy = null;
+      openSpy = null;
       component = null;
     });
 
@@ -38,23 +34,19 @@ describe('Toolbar [Component]', () => {
 
   context('when the distribution is not readonly', () => {
     let component;
-    let toggleIsVisibleSpy;
-    let resetSpy;
+    let openSpy;
 
     beforeEach(() => {
-      toggleIsVisibleSpy = sinon.spy();
-      resetSpy = sinon.spy();
+      openSpy = sinon.spy();
       component = mount(
         <Toolbar
           isReadonly={false}
-          toggleIsVisible={toggleIsVisibleSpy}
-          reset={resetSpy} />
+          open={openSpy} />
       );
     });
 
     afterEach(() => {
-      toggleIsVisibleSpy = null;
-      resetSpy = null;
+      openSpy = null;
       component = null;
     });
 

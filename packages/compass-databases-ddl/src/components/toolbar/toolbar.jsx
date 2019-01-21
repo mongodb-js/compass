@@ -20,8 +20,7 @@ class Toolbar extends PureComponent {
 
   static propTypes = {
     isReadonly: PropTypes.bool.isRequired,
-    toggleIsVisible: PropTypes.func.isRequired,
-    reset: PropTypes.func.isRequired
+    open: PropTypes.func.isRequired
   }
 
   /**
@@ -38,8 +37,7 @@ class Toolbar extends PureComponent {
    * Dispatch directly on the create database store.
    */
   onShowCreateDatabase = () => {
-    createDatabaseStore.dispatch(this.props.reset());
-    createDatabaseStore.dispatch(this.props.toggleIsVisible(true));
+    createDatabaseStore.dispatch(this.props.open());
   }
 
   /**

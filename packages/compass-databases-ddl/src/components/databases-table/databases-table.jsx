@@ -31,13 +31,11 @@ class DatabasesTable extends PureComponent {
     databases: PropTypes.array.isRequired,
     isWritable: PropTypes.bool.isRequired,
     isReadonly: PropTypes.bool.isRequired,
-    changeDatabaseName: PropTypes.func.isRequired,
-    reset: PropTypes.func.isRequired,
+    open: PropTypes.func.isRequired,
     sortOrder: PropTypes.string.isRequired,
     sortColumn: PropTypes.string.isRequired,
     sortDatabases: PropTypes.func.isRequired,
-    showDatabase: PropTypes.func.isRequired,
-    toggleIsVisible: PropTypes.func.isRequired
+    showDatabase: PropTypes.func.isRequired
   }
 
   /**
@@ -57,9 +55,7 @@ class DatabasesTable extends PureComponent {
    * @param {String} name - The db name.
    */
   onDeleteClicked = (index, name) => {
-    dropDatabaseStore.dispatch(this.props.reset());
-    dropDatabaseStore.dispatch(this.props.changeDatabaseName(name));
-    dropDatabaseStore.dispatch(this.props.toggleIsVisible(true));
+    dropDatabaseStore.dispatch(this.props.open(name));
   }
 
   /**

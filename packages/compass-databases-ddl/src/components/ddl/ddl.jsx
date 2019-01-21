@@ -6,9 +6,8 @@ import Toolbar from 'components/toolbar';
 import DatabasesTable from 'components/databases-table';
 import { showDatabase } from 'modules/show-database';
 import { sortDatabases } from 'modules/databases';
-import { toggleIsVisible } from 'modules/is-visible';
-import { reset } from 'modules/reset';
-import { changeDatabaseName } from 'modules/drop-database/name';
+import { open as openCreate } from 'modules/create-database';
+import { open as openDrop } from 'modules/drop-database';
 
 import styles from './ddl.less';
 
@@ -23,7 +22,6 @@ class Ddl extends PureComponent {
     databases: PropTypes.array.isRequired,
     isReadonly: PropTypes.bool.isRequired,
     isWritable: PropTypes.bool.isRequired,
-    changeDatabaseName: PropTypes.func.isRequired,
     showDatabase: PropTypes.func.isRequired,
     sortColumn: PropTypes.string.isRequired,
     sortOrder: PropTypes.string.isRequired,
@@ -40,20 +38,17 @@ class Ddl extends PureComponent {
       <div className={classnames(styles.ddl)} data-test-id="databases-table">
         <Toolbar
           isReadonly={this.props.isReadonly}
-          toggleIsVisible={toggleIsVisible}
-          reset={reset} />
+          open={openCreate} />
         <DatabasesTable
           columns={this.props.columns}
           databases={this.props.databases}
           isWritable={this.props.isWritable}
           isReadonly={this.props.isReadonly}
-          changeDatabaseName={this.props.changeDatabaseName}
-          reset={reset}
           sortOrder={this.props.sortOrder}
           sortColumn={this.props.sortColumn}
           sortDatabases={this.props.sortDatabases}
           showDatabase={this.props.showDatabase}
-          toggleIsVisible={toggleIsVisible} />
+          open={openDrop} />
       </div>
     );
   }
@@ -82,7 +77,6 @@ const mapStateToProps = (state) => ({
 const MappedDdl = connect(
   mapStateToProps,
   {
-    changeDatabaseName,
     showDatabase,
     sortDatabases
   },

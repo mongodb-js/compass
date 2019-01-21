@@ -19,6 +19,11 @@ import { reset, RESET } from 'modules/reset';
 import dataService from 'modules/data-service';
 
 /**
+ * Open action name.
+ */
+const OPEN = 'ddl/drop-database/OPEN';
+
+/**
  * The main reducer.
  */
 const reducer = combineReducers({
@@ -48,6 +53,15 @@ const rootReducer = (state, action) => {
       nameConfirmation: NAME_CONFIRMATION_INITIAL_STATE,
       error: ERROR_INITIAL_STATE
     };
+  } else if (action.type === OPEN) {
+    return {
+      ...state,
+      isVisible: true,
+      name: action.name,
+      isRunning: IS_RUNNING_INITIAL_STATE,
+      nameConfirmation: NAME_CONFIRMATION_INITIAL_STATE,
+      error: ERROR_INITIAL_STATE
+    };
   }
   return reducer(state, action);
 };
@@ -66,6 +80,18 @@ const stopWithError = (dispatch, err) => {
   dispatch(toggleIsRunning(false));
   return dispatch(handleError(err));
 };
+
+/**
+ * Open drop database action creator.
+ *
+ * @param {String} dbName - The database name.
+ *
+ * @returns {Object} The action.
+ */
+export const open = (dbName) => ({
+  type: OPEN,
+  name: dbName
+});
 
 /**
  * The drop database action.
