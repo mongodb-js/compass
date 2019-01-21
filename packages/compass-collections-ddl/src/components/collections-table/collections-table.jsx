@@ -92,7 +92,7 @@ class CollectionsTable extends PureComponent {
     isReadonly: PropTypes.bool.isRequired,
     openLink: PropTypes.func.isRequired,
     open: PropTypes.func.isRequired,
-    databaseName: PropTypes.string.isRequired,
+    databaseName: PropTypes.string,
     sortOrder: PropTypes.string.isRequired,
     sortColumn: PropTypes.string.isRequired,
     sortCollections: PropTypes.func.isRequired,

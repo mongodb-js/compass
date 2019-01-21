@@ -21,7 +21,7 @@ class Ddl extends PureComponent {
   static propTypes = {
     columns: PropTypes.array.isRequired,
     collections: PropTypes.array.isRequired,
-    databaseName: PropTypes.string.isRequired,
+    databaseName: PropTypes.string,
     isReadonly: PropTypes.bool.isRequired,
     isWritable: PropTypes.bool.isRequired,
     openLink: PropTypes.func.isRequired,
