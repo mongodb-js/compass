@@ -18,6 +18,8 @@ const store = createStore(reducer, applyMiddleware(thunk));
  * @param {Array} databases - The databases.
  */
 const loadAll = (databaseName, databases) => {
+  console.log('----------------- loading all', databaseName);
+  console.log('----------------- dbs', databases);
   const database = find(databases, (db) => {
     return db._id === databaseName;
   });
@@ -66,6 +68,7 @@ store.onActivated = (appRegistry) => {
    * @param {String} ns - The namespace.
    */
   appRegistry.on('database-changed', (ns) => {
+    console.log('------------------- db changed', ns);
     const state = store.getState();
     const databaseName = state.databaseName;
     if (ns && !ns.includes('.') && ns !== databaseName) {
