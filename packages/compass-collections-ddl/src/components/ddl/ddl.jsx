@@ -26,7 +26,6 @@ class Ddl extends PureComponent {
     databaseName: PropTypes.string.isRequired,
     isReadonly: PropTypes.bool.isRequired,
     isWritable: PropTypes.bool.isRequired,
-    changeDatabaseName: PropTypes.func.isRequired,
     openLink: PropTypes.func.isRequired,
     showCollection: PropTypes.func.isRequired,
     sortColumn: PropTypes.string.isRequired,

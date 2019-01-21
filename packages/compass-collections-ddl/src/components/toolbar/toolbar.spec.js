@@ -8,14 +8,18 @@ describe('Toolbar [Component]', () => {
   context('when the distribution is readonly', () => {
     let component;
     let toggleIsVisibleSpy;
+    let changeDatabaseNameSpy;
     let resetSpy;
 
     beforeEach(() => {
       toggleIsVisibleSpy = sinon.spy();
       resetSpy = sinon.spy();
+      changeDatabaseNameSpy = sinon.spy();
       component = mount(
         <Toolbar
           isReadonly
+          databaseName="test"
+          changeDatabaseName={changeDatabaseNameSpy}
           toggleIsVisible={toggleIsVisibleSpy}
           reset={resetSpy} />
       );
@@ -39,14 +43,18 @@ describe('Toolbar [Component]', () => {
   context('when the distribution is not readonly', () => {
     let component;
     let toggleIsVisibleSpy;
+    let changeDatabaseNameSpy;
     let resetSpy;
 
     beforeEach(() => {
       toggleIsVisibleSpy = sinon.spy();
+      changeDatabaseNameSpy = sinon.spy();
       resetSpy = sinon.spy();
       component = mount(
         <Toolbar
           isReadonly={false}
+          databaseName="test"
+          changeDatabaseName={changeDatabaseNameSpy}
           toggleIsVisible={toggleIsVisibleSpy}
           reset={resetSpy} />
       );
