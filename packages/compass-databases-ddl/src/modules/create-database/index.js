@@ -112,7 +112,7 @@ export const createDatabase = () => {
     }
 
     let options = state.isCapped ? { capped: true, size: parseInt(state.cappedSize, 10) } : {};
-    options = state.isCustomCollation ? { ...options, coll } : options;
+    options = state.isCustomCollation ? { ...options, collation: coll } : options;
     try {
       dispatch(toggleIsRunning(true));
       ds.createCollection(`${dbName}.${state.collectionName}`, options, (e) => {
