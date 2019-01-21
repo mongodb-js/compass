@@ -122,7 +122,7 @@ functions:
           echo "Installing Compass dependencies..."
 
           echo "If npm ci fails, debug.log will be uploaded to S3."
-          npm ci
+          npm ci --unsafe-perm
   save:
     - command: shell.exec
       params:
