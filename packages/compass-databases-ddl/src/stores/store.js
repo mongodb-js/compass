@@ -14,7 +14,6 @@ store.onActivated = (appRegistry) => {
    * @param {Object} state - The instance store state.
    */
   appRegistry.getStore('App.InstanceStore').listen((state) => {
-    console.log('---------------- loading dbs', state.instance.databases);
     store.dispatch(loadDatabases(state.instance.databases));
   });
 
