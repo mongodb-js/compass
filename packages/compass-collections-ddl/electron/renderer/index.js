@@ -9,6 +9,7 @@ import DatabasePlugin, { activate } from 'plugin';
 import { activate as daActivate } from '@mongodb-js/compass-deployment-awareness';
 import { NamespaceStore } from 'mongodb-reflux-store';
 import CollectionStore from './stores/collection-store';
+import CollectionModel from 'mongodb-collection-model';
 
 // Import global less file. Note: these styles WILL NOT be used in compass, as compass provides its own set
 // of global styles. If you are wishing to style a given component, you should be writing a less file per
@@ -86,11 +87,18 @@ const dataService = new DataService(connection);
 
 const refreshInstance = () => {
   dataService.instance({}, (err, data) => {
+    const dbs = data.databases;
+    dbs.forEach((db) => {
+      db.collections = db.collections.map((collection) => {
+        return new CollectionModel(collection);
+      });
+    });
+
     if (err) console.log(err);
     InstanceStore.setState({
       instance: {
         databases: {
-          models: data.databases
+          models: dbs
         }
       }
     });

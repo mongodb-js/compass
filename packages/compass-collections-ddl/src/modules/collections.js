@@ -77,8 +77,6 @@ const sort = (collections, column, order) => {
  */
 export const load = (collections) => {
   return collections.map((coll) => {
-    console.log('loading', coll);
-    console.log(EXTRA_COLUMNS);
     return zipObject(EXTRA_COLUMNS, [
       coll.name,
       coll.document_count,
@@ -137,15 +135,13 @@ export const loadCollectionStats = (collections) => {
     if (dataService) {
       parallel(
         collections.map((collection) => {
-          console.log('getting collection stats for', collection);
           return (done) => {
             dataService.collectionStats(
               state.databaseName,
               collection.name,
               (err, res) => {
-                console.log('res', res);
-                console.log('mapped', { ...collection, ...res });
-                done(err, { ...collection, ...res });
+                collection.set(res);
+                done(err, collection);
               }
             );
           };
