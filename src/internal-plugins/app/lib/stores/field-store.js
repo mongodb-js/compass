@@ -25,7 +25,7 @@ const FieldStore = Reflux.createStore({
       this.processSingleDocument(docs[0] || {});
     });
     // process new document a user inserts
-    appRegistry.getStore('document-inserted').listen((view, doc) => {
+    appRegistry.on('document-inserted', (doc) => {
       this.processSingleDocument(doc);
     });
     // optionally also subscribe to the SchemaStore if present
