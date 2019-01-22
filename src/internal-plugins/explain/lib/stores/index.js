@@ -56,6 +56,7 @@ const CompassExplainStore = Reflux.createStore({
     this.project = null;
     this.skip = 0;
     this.limit = 0;
+    this.collation = null;
   },
 
   indexesChanged(indexes) {
@@ -70,6 +71,7 @@ const CompassExplainStore = Reflux.createStore({
       this.skip = state.skip;
       this.limit = state.limit;
       this.ns = state.ns;
+      this.collation = state.collation;
 
       if (this.state.explainState === 'done') {
         this.setState({
@@ -166,10 +168,14 @@ const CompassExplainStore = Reflux.createStore({
     // const filter = QueryStore.state.query;
     const options = {
       sort: this.sort,
-      fields: this.project,
+      projection: this.project,
       skip: this.skip,
       limit: this.limit
     };
+
+    if (this.collation) {
+      options.collation = this.collation;
+    }
 
     if (this.CollectionStore.isReadonly()) {
       this.setState(this.getInitialState());
