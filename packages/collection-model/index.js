@@ -25,6 +25,10 @@ var Collection = AmpersandModel.extend({
       type: 'boolean',
       default: false
     },
+    collation: {
+      type: 'object',
+      default: null
+    },
     /**
      * http://docs.mongodb.org/manual/reference/command/collStats/#collStats.userFlags
      */
