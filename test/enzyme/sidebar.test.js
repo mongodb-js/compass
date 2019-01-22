@@ -80,10 +80,5 @@ describe('<Sidebar />', () => {
       const element = this.component.find('.compass-sidebar-button-create-database');
       expect(element.prop('data-tip')).to.be.undefined;
     });
-    it('clicking the create database button triggers an action', function() {
-      const element = this.component.find('.compass-sidebar-button-create-database');
-      element.simulate('click');
-      expect(this.DatabaseDDLActionSpy.calledOnce).to.be.true;
-    });
   });
 });
