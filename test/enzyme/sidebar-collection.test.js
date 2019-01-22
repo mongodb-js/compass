@@ -76,10 +76,5 @@ describe('<SidebarCollection />', () => {
       const element = this.component.find('.compass-sidebar-icon-drop-collection');
       expect(element.prop('data-tip')).to.be.equal(expected);
     });
-    it('clicking the drop collection icon triggers an action', function() {
-      const element = this.component.find('.compass-sidebar-icon-drop-collection');
-      element.simulate('click');
-      expect(this.DatabaseDDLActionSpy.calledOnce).to.be.true;
-    });
   });
 });

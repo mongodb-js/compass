@@ -99,21 +99,10 @@ describe('<SidebarDatabase />', () => {
       const element = this.component.find('.compass-sidebar-icon-create-collection');
       expect(element.prop('data-tip')).to.be.equal(expected);
     });
-    it('clicking the create collection icon triggers an action', function() {
-      const element = this.component.find('.compass-sidebar-icon-create-collection');
-      element.simulate('click');
-      expect(this.DatabaseDDLActionSpyCreate.calledOnce).to.be.true;
-    });
-
     it('renders a drop database icon with tooltip', function() {
       const expected = 'Drop database';
       const element = this.component.find('.compass-sidebar-icon-drop-database');
       expect(element.prop('data-tip')).to.be.equal(expected);
-    });
-    it('clicking the drop database icon triggers an action', function() {
-      const element = this.component.find('.compass-sidebar-icon-drop-database');
-      element.simulate('click');
-      expect(this.DatabaseDDLActionSpyDrop.calledOnce).to.be.true;
     });
   });
 });

@@ -22,6 +22,8 @@ const arrayOfDocsFields = require('../fixtures/fields.fixture.json');
 
 const mockDataService = require('./support/mock-data-service');
 
+app.appRegistry = new AppRegistry();
+
 describe('CreateIndexesStore', function() {
   let unsubscribe;
 
