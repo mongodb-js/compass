@@ -197,7 +197,7 @@ class CollectionsTable extends PureComponent {
   render() {
     const rows = this.props.collections.map((coll) => {
       const linkName = this.renderLink(coll);
-
+      console.log('coll in component', coll);
       return assign({}, coll, {
         [NAME]: linkName,
         [DOCUMENTS]: isNaN(coll.Documents) ? DASH : numeral(coll.Documents).format('0,0'),
