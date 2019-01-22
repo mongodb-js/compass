@@ -1,4 +1,5 @@
 const app = require('hadron-app');
+const { shell } = require('electron');
 const React = require('react');
 const PropTypes = require('prop-types');
 const Modal = require('react-bootstrap').Modal;
@@ -8,6 +9,7 @@ const DDLStatusStore = require('../store/ddl-status-store');
 const CreateIndexCheckbox = require('./create-index-checkbox');
 const CreateIndexField = require('./create-index-field');
 const CreateIndexTextField = require('./create-index-text-field');
+const { ModalCheckbox } = require('hadron-react-components');
 const OptionsToggleBar = require('./options-toggle-bar');
 const Action = require('../action/index-actions');
 const _ = require('lodash');
@@ -49,8 +51,7 @@ class CreateIndexModal extends React.Component {
       options: {},
       isCustomCollation: false
     };
-    this.CreateCollectionCollationSelect = app.appRegistry.getComponent('Database.CreateCollectionCollationSelect');
-    this.CreateCollectionCheckbox = app.appRegistry.getComponent('Database.CreateCollectionCheckbox');
+    this.CollationSelect = app.appRegistry.getComponent('Collation.Select');
   }
 
   /**
@@ -73,10 +74,10 @@ class CreateIndexModal extends React.Component {
    * Set state to selected field of collation option.
    *
    * @param {String} field - The field.
-   * @param {Event} evt - The event.
+   * @param {String} value - The value.
    */
-  onCollationOptionChange(field, evt) {
-    Action.updateOption('collation', {[field]: evt.value});
+  onCollationOptionChange(field, value) {
+    Action.updateOption('collation', {[field]: value});
   }
 
   /**
@@ -84,6 +85,16 @@ class CreateIndexModal extends React.Component {
    */
   onCollationClicked() {
     this.setState({ isCustomCollation: !this.state.isCustomCollation });
+  }
+
+  /**
+   * See https://github.com/mongodb-js/compass-collections-ddl/blob/master/src/modules/link.js
+   * for implementation of the function when extracted to new plugin.
+   *
+   * @param {String} href - The link to open.
+   */
+  onCollationLinkClicked(href) {
+    shell.openExternal(href);
   }
 
   /**
@@ -128,12 +139,13 @@ class CreateIndexModal extends React.Component {
       }
     }
     options.push(<div className="create-index-checkbox" key={idx++}>
-      <this.CreateCollectionCheckbox
+      <ModalCheckbox
         name="Use Custom Collation"
         inputClassName="create-index-checkbox-input"
         titleClassName="create-index-collation-title"
         helpUrl={HELP_URL_COLLATION}
         onClickHandler={this.onCollationClicked.bind(this)}
+        onLinkClickHandler={this.onCollationLinkClicked.bind(this)}
         checked={this.state.isCustomCollation}
       />
     </div>);
@@ -250,9 +262,9 @@ class CreateIndexModal extends React.Component {
     if (this.state.isCustomCollation) {
       return (
         <div className="create-collection-dialog-collation-div" key={id}>
-          <this.CreateCollectionCollationSelect
+          <this.CollationSelect
             collation={this.state.options.collation || {}}
-            onCollationOptionChange={this.onCollationOptionChange.bind(this)}
+            changeCollationOption={this.onCollationOptionChange.bind(this)}
           />
         </div>
       );
