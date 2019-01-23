@@ -248,6 +248,39 @@ const RULES = [
     })
   },
   {
+    registryEvent: 'schema-validation-fetched',
+    resource: 'SchemaValidation',
+    action: 'fetched',
+    condition: () => true,
+    metadata: (data) => ({
+      ruleCount: data.ruleCount,
+      validationLevel: data.validationLevel,
+      validationAction: data.validationAction,
+      jsonSchema: data.jsonSchema,
+      collectionSize: data.collectionSize
+    })
+  },
+  {
+    registryEvent: 'schema-validation-saved',
+    resource: 'SchemaValidation',
+    action: 'saved',
+    condition: () => true,
+    metadata: (data) => ({
+      ruleCount: data.ruleCount,
+      validationLevel: data.validationLevel,
+      validationAction: data.validationAction,
+      jsonSchema: data.jsonSchema,
+      collectionSize: data.collectionSize
+    })
+  },
+  {
+    registryEvent: 'schema-validation-rules-added',
+    resource: 'SchemaValidation',
+    action: 'rulesadded',
+    condition: () => true,
+    metadata: (data) => ({ collectionSize: data.collectionSize })
+  },
+  {
     registryEvent: 'agg-pipeline-saved',
     resource: 'Aggregation',
     action: 'saved',

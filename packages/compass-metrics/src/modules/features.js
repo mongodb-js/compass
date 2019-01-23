@@ -29,7 +29,7 @@ const featureResources = zipObject(map(features, function(feature) {
   return [feature, new Klass()];
 }));
 
-// Geo Data uses `detected` as action
+// Geo Data resource uses `detected` as action
 const GeoDataResource = FeatureResource.extend({
   id: 'Geo Data',
   eventTrackers: ['stitch'],
@@ -38,7 +38,7 @@ const GeoDataResource = FeatureResource.extend({
   }
 });
 
-// Collection uses `fetched` as action
+// Collection resource uses `fetched` as action
 const CollectionResource = FeatureResource.extend({
   id: 'Collection',
   eventTrackers: ['stitch'],
@@ -47,7 +47,7 @@ const CollectionResource = FeatureResource.extend({
   }
 });
 
-// Deployment Data uses `detected` as action
+// Deployment resource uses `detected` as action
 const DeploymentResource = FeatureResource.extend({
   id: 'Deployment',
   eventTrackers: ['ga', 'intercom', 'stitch'],
@@ -74,7 +74,7 @@ const IndexesResource = BaseResource.extend({
   }
 });
 
-// Collection Stats uses 'fetched' as action
+// Collection Stats resource uses 'fetched' as action
 const CollectionStatsResource = BaseResource.extend({
   id: 'Collection Stats',
   eventTrackers: ['stitch'],
@@ -83,7 +83,7 @@ const CollectionStatsResource = BaseResource.extend({
   }
 });
 
-// Topology resources uses 'detected' as action
+// Topology resource uses 'detected' as action
 const TopologyResource = BaseResource.extend({
   id: 'Topology',
   eventTrackers: ['stitch'],
@@ -92,7 +92,7 @@ const TopologyResource = BaseResource.extend({
   }
 });
 
-// Query resources uses 'applied' as action
+// Query resource uses 'applied' as action
 const QueryResource = BaseResource.extend({
   id: 'Query',
   eventTrackers: ['stitch'],
@@ -101,7 +101,7 @@ const QueryResource = BaseResource.extend({
   }
 });
 
-// Application resources uses 'connected' as action
+// Application resource uses 'connected' as action
 const ApplicationResource = BaseResource.extend({
   id: 'Application',
   eventTrackers: ['stitch'],
@@ -110,7 +110,7 @@ const ApplicationResource = BaseResource.extend({
   }
 });
 
-// ValidationRules resources uses 'fetched' as action
+// Validation Rules resource uses 'fetched' as action
 const ValidationRulesResource = BaseResource.extend({
   id: 'Validation Rules',
   eventTrackers: ['stitch'],
@@ -119,7 +119,22 @@ const ValidationRulesResource = BaseResource.extend({
   }
 });
 
-// Explain resources uses 'fetched' as action
+// SchemaValidation resource uses 'fetched', 'saved', and 'rulesadded' as actions
+const SchemaValidationResource = BaseResource.extend({
+  id: 'SchemaValidation',
+  eventTrackers: ['stitch'],
+  fetched: function(metadata, callback) {
+    this._send_event(metadata, callback);
+  },
+  saved: function(metadata, callback) {
+    this._send_event(metadata, callback);
+  },
+  rulesadded: function(metadata, callback) {
+    this._send_event(metadata, callback);
+  }
+});
+
+// Explain resource uses 'fetched' as action
 const ExplainResource = BaseResource.extend({
   id: 'Explain',
   eventTrackers: ['stitch'],
@@ -128,7 +143,7 @@ const ExplainResource = BaseResource.extend({
   }
 });
 
-// Document resources uses 'inserted', 'updated', and 'deleted' as actions
+// Document resource uses 'inserted', 'updated', and 'deleted' as actions
 const DocumentResource = BaseResource.extend({
   id: 'Document',
   eventTrackers: ['stitch'],
@@ -143,7 +158,7 @@ const DocumentResource = BaseResource.extend({
   }
 });
 
-// Aggregation resource.
+// Aggregation resource uses 'executed', 'saved', and 'deleted' as actions
 const AggregationResource = BaseResource.extend({
   id: 'Aggregation',
   eventTrackers: ['stitch'],
@@ -158,7 +173,7 @@ const AggregationResource = BaseResource.extend({
   }
 });
 
-// Resource for the atlas link.
+// AtlasLink resource uses 'clicked' as action
 const AtlasLinkResource = BaseResource.extend({
   id: 'AtlasLink',
   eventTrackers: ['stitch'],
@@ -167,7 +182,7 @@ const AtlasLinkResource = BaseResource.extend({
   }
 });
 
-// Documents resources uses 'loaded' as action
+// Documents resource uses 'loaded' as action
 const DocumentsResource = BaseResource.extend({
   id: 'Documents',
   eventTrackers: ['stitch'],
@@ -176,7 +191,7 @@ const DocumentsResource = BaseResource.extend({
   }
 });
 
-// DocumentsListView resources uses 'paginated' as action
+// Documents List View resource uses 'paginated' as action
 const DocumentsListViewResource = BaseResource.extend({
   id: 'Documents List View',
   eventTrackers: ['stitch'],
@@ -185,7 +200,7 @@ const DocumentsListViewResource = BaseResource.extend({
   }
 });
 
-// DocumentsTableView resources uses 'paginated' as action
+// Documents Table View resource uses 'paginated' as action
 const DocumentsTableViewResource = BaseResource.extend({
   id: 'Documents Table View',
   eventTrackers: ['stitch'],
@@ -194,7 +209,7 @@ const DocumentsTableViewResource = BaseResource.extend({
   }
 });
 
-// License resources uses 'viewed' as action
+// License resource uses 'viewed' as action
 const LicenseResource = BaseResource.extend({
   id: 'License',
   eventTrackers: ['stitch'],
@@ -203,6 +218,8 @@ const LicenseResource = BaseResource.extend({
   }
 });
 
+// Auto Update resource uses 'checking', 'uptodate', 'available',
+// 'downloaded', 'cancelled' and 'confirmed' as actions
 const AutoUpdateResource = BaseResource.extend({
   id: 'Auto Update',
   eventTrackers: ['ga', 'intercom', 'stitch'],
@@ -226,7 +243,7 @@ const AutoUpdateResource = BaseResource.extend({
   }
 });
 
-// Import Resource
+// Import resource uses 'completed' as action
 const ImportResource = BaseResource.extend({
   id: 'Import',
   eventTrackers: ['stitch'],
@@ -235,7 +252,7 @@ const ImportResource = BaseResource.extend({
   }
 });
 
-// Export Resource
+// Export resource uses 'completed' as action
 const ExportResource = BaseResource.extend({
   id: 'Export',
   eventTrackers: ['stitch'],
@@ -256,6 +273,7 @@ featureResources.Topology = new TopologyResource();
 featureResources.Query = new QueryResource();
 featureResources.Application = new ApplicationResource();
 featureResources['Validation Rules'] = new ValidationRulesResource();
+featureResources.SchemaValidation = new SchemaValidationResource();
 featureResources.Explain = new ExplainResource();
 featureResources.Import = new ImportResource();
 featureResources.Export = new ExportResource();
