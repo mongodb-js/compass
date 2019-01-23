@@ -16,10 +16,14 @@ export const showCollection = (name) => {
     const state = getState();
     const appRegistry = state.appRegistry;
     if (appRegistry) {
+      console.log('-------------------- showCollection dbname', state.databaseName); 
+      console.log('-------------------- showCollection name', name); 
       const collectionStore = appRegistry.getStore(COLLECTION_STORE);
       const collection = find(state.collections, (coll) => {
+        console.log(coll);
         return coll._id === `${state.databaseName}.${name}`;
       });
+      console.log('collection', collection);
       collectionStore.setCollection({
         _id: collection._id,
         readonly: collection.readonly,
