@@ -77,6 +77,7 @@ const sort = (collections, column, order) => {
  */
 export const load = (collections) => {
   return collections.map((coll) => {
+    console.log('mapping coll', coll);
     return zipObject(EXTRA_COLUMNS, [
       coll.name,
       coll.document_count,
