@@ -16,8 +16,8 @@ export const showCollection = (name) => {
     const state = getState();
     const appRegistry = state.appRegistry;
     if (appRegistry) {
-      console.log('-------------------- showCollection dbname', state.databaseName); 
-      console.log('-------------------- showCollection name', name); 
+      console.log('-------------------- dbname', state.databaseName);
+      console.log('-------------------- name', name);
       const collectionStore = appRegistry.getStore(COLLECTION_STORE);
       const collection = find(state.collections, (coll) => {
         console.log(coll);
