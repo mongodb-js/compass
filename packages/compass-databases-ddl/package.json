@@ -1,7 +1,7 @@
 {
   "name": "@mongodb-js/compass-databases-ddl",
   "productName": "Compass Databases DDL plugin",
-  "version": "0.0.11",
+  "version": "0.0.12",
   "apiVersion": "2.0.0",
   "description": "Compass DDL Plugin",
   "main": "lib/index.js",
