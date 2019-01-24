@@ -34,10 +34,12 @@ store.onActivated = (appRegistry) => {
   appRegistry.getStore('App.InstanceStore').listen((state) => {
     const storeState = store.getState();
     const databaseName = storeState.databaseName;
-    const databases = state.instance.databases.models;
-    store.dispatch(loadDatabases(databases));
-    if (databaseName) {
-      loadAll(databaseName, databases);
+    if (state.instance.databases) {
+      const databases = state.instance.databases.models;
+      store.dispatch(loadDatabases(databases));
+      if (databaseName) {
+        loadAll(databaseName, databases);
+      }
     }
   });
 
