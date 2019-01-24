@@ -63,7 +63,7 @@ class ValidationEditor extends Component {
     validatorChanged: PropTypes.func.isRequired,
     validationActionChanged: PropTypes.func.isRequired,
     validationLevelChanged: PropTypes.func.isRequired,
-    validationCanceled: PropTypes.func.isRequired,
+    cancelValidation: PropTypes.func.isRequired,
     saveValidation: PropTypes.func.isRequired,
     serverVersion: PropTypes.string.isRequired,
     fields: PropTypes.array,
@@ -73,8 +73,7 @@ class ValidationEditor extends Component {
       validationLevel: PropTypes.string.isRequired,
       isChanged: PropTypes.bool.isRequired,
       syntaxError: PropTypes.object,
-      error: PropTypes.object,
-      isEditable: PropTypes.bool.isRequired
+      error: PropTypes.object
     }),
     openLink: PropTypes.func.isRequired
   };
@@ -97,17 +96,6 @@ class ValidationEditor extends Component {
   }
 
   /**
-   * Subscribe listeners.
-   */
-  componentDidMount() {
-    this.unsubFields = global.hadronApp.appRegistry
-      .getStore('Field.Store')
-      .listen((fields) => this.completer.update(
-        this.processFields(fields.fields)
-      ));
-  }
-
-  /**
    * Should the component update?
    *
    * @param {Object} nextProps - The next properties.
@@ -122,17 +110,17 @@ class ValidationEditor extends Component {
       nextProps.validation.error !== this.props.validation.error ||
       nextProps.validation.syntaxError !== this.props.validation.syntaxError ||
       nextProps.validation.isChanged !== this.props.validation.isChanged ||
-      nextProps.validation.isEditable !== this.props.validation.isEditable ||
       nextProps.serverVersion !== this.props.serverVersion ||
       nextProps.fields.length !== this.props.fields.length
     );
   }
 
   /**
-   * Unsubscribe listeners.
+   * If there are new fields update autocompleter with new fields.
    */
-  componentWillUnmount() {
-    this.unsubFields();
+  componentDidUpdate() {
+    this.completer.update(this.props.fields);
+    this.completer.version = this.props.serverVersion;
   }
 
   /**
@@ -170,23 +158,6 @@ class ValidationEditor extends Component {
       this.hasErrors()
     );
   }
-
-  /**
-   * Handles converting the field list to an ACE friendly format.
-   *
-   * @param {Object} fields - The fields.
-   *
-   * @returns {Array} The field list.
-   */
-  processFields = (fields) => Object
-    .keys(fields)
-    .map((name) => {
-      const value = (name.indexOf('.') > -1 || name.indexOf(' ') > -1)
-        ? `"${name}"`
-        : name;
-
-      return { name, value, score: 1, meta: 'field', version: '0.0.0' };
-    })
 
   /**
    * Render action selector.
@@ -250,7 +221,7 @@ class ValidationEditor extends Component {
    * @returns {React.Component} The component.
    */
   renderValidationMessage() {
-    if (this.props.validation.error || this.props.validation.syntaxError) {
+    if (this.hasErrors()) {
       let message = '';
       let colorStyle = '';
 
@@ -282,8 +253,6 @@ class ValidationEditor extends Component {
    */
   renderActionsPanel() {
     if (this.props.validation.isChanged) {
-      const hasError = this.props.validation.syntaxError || this.props.validation.error;
-
       return (
         <div className={classnames(styles['validation-action-container'])}>
           <div className={classnames(styles['validation-action-message'])}>
@@ -292,9 +261,9 @@ class ValidationEditor extends Component {
           <TextButton
             className={`btn btn-default btn-xs ${classnames(styles.cancel)}`}
             text="Cancel"
-            clickHandler={this.props.validationCanceled} />
+            clickHandler={this.props.cancelValidation} />
           <TextButton
-              className={`btn btn-primary btn-xs ${hasError ? 'disabled' : ''}`}
+              className={`btn btn-primary btn-xs ${this.hasErrors() ? 'disabled' : ''}`}
               text="Update"
               clickHandler={this.onValidatorSave.bind(this)} />
         </div>

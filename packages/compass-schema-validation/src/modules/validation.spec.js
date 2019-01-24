@@ -7,12 +7,10 @@ import reducer, {
   validationFetched,
   validationCanceled,
   validationSaved,
-  validationSaveFailed,
   syntaxErrorOccurred,
   VALIDATOR_CHANGED,
   VALIDATION_CANCELED,
   VALIDATION_SAVED,
-  VALIDATION_SAVE_FAILED,
   VALIDATION_FETCHED,
   VALIDATION_ACTION_CHANGED,
   VALIDATION_LEVEL_CHANGED,
@@ -77,27 +75,46 @@ describe('validation module', () => {
 
   describe('#validationCanceled', () => {
     it('returns the VALIDATION_CANCELED action', () => {
-      expect(validationCanceled()).to.deep.equal({
-        type: VALIDATION_CANCELED
+      expect(validationCanceled({
+        isChanged: false,
+        validator: { name: { $exists: true } },
+        validationAction: 'warning',
+        validationLevel: 'off',
+        syntaxError: null,
+        error: null
+      })).to.deep.equal({
+        type: VALIDATION_CANCELED,
+        validation: {
+          isChanged: false,
+          validator: { name: { $exists: true } },
+          validationAction: 'warning',
+          validationLevel: 'off',
+          syntaxError: null,
+          error: null
+        }
       });
     });
   });
 
   describe('#validationSaved', () => {
     it('returns the VALIDATION_SAVED action', () => {
-      const validation = validationSaved();
+      const validation = validationSaved({
+        validator: {},
+        validationAction: 'error',
+        validationLevel: 'strict',
+        isChanged: true,
+        syntaxError: null,
+        error: null
+      });
 
       expect(validation.type).to.equal(VALIDATION_SAVED);
-      expect(validation.isChanged).to.equal(false);
-    });
-  });
-
-  describe('#validationSaveFailed', () => {
-    it('returns the VALIDATION_SAVE_FAILED action', () => {
-      expect(validationSaveFailed({ message: 'Error!' })).to.deep.equal({
-        type: VALIDATION_SAVE_FAILED,
+      expect(validation.validation).to.deep.equal({
+        validator: {},
+        validationAction: 'error',
+        validationLevel: 'strict',
         isChanged: true,
-        error: { message: 'Error!' }
+        syntaxError: null,
+        error: null
       });
     });
   });
@@ -120,8 +137,7 @@ describe('validation module', () => {
           validationLevel: 'strict',
           isChanged: false,
           syntaxError: null,
-          error: null,
-          isEditable: true
+          error: null
         });
       });
     });
@@ -209,40 +225,34 @@ describe('validation module', () => {
           validationAction: 'warning',
           validationLevel: 'off',
           syntaxError: null,
-          error: null,
-          isEditable: true
+          error: null
         });
       });
     });
 
     context('when the action is validationSaved', () => {
       it('returns the new state', () => {
-        const validation = reducer(undefined, validationSaved());
-
-        expect(validation).to.deep.equal({
-          validator: '',
-          validationAction: 'error',
+        const validation = reducer(undefined, validationSaved({
+          validator: {},
+          validationAction: 'warning',
           validationLevel: 'strict',
           isChanged: false,
           syntaxError: null,
-          error: null,
-          isEditable: true
-        });
-      });
-    });
-
-    context('when the action is validationSaveFailed', () => {
-      it('returns the new state', () => {
-        const validation = reducer(undefined, validationSaveFailed({ message: 'Error!' }));
+          error: null
+        }));
 
         expect(validation).to.deep.equal({
-          validator: '',
-          validationAction: 'error',
+          validator: '{}',
+          validationAction: 'warning',
           validationLevel: 'strict',
-          isChanged: true,
+          prevValidation: {
+            validator: '{}',
+            validationAction: 'warning',
+            validationLevel: 'strict'
+          },
+          isChanged: false,
           syntaxError: null,
-          error: { message: 'Error!' },
-          isEditable: true
+          error: null
         });
       });
     });
@@ -257,8 +267,7 @@ describe('validation module', () => {
           validationLevel: 'strict',
           isChanged: true,
           syntaxError: { message: 'Syntax Error!' },
-          error: null,
-          isEditable: true
+          error: null
         });
       });
     });

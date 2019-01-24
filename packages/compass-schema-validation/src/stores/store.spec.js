@@ -112,7 +112,7 @@ describe('Schema Validation Store', () => {
         });
       });
 
-      it('updates the validation in state', (done) => {
+      it('updates the validation in state if succeed', (done) => {
         const unsubscribe = store.subscribe(() => {
           const validator = javascriptStringify(validation.validator, null, 2);
           const createdValidation = {
@@ -126,8 +126,7 @@ describe('Schema Validation Store', () => {
               validator,
               validationAction: 'warn',
               validationLevel: 'moderate'
-            },
-            isEditable: true
+            }
           };
 
           unsubscribe();
@@ -136,16 +135,61 @@ describe('Schema Validation Store', () => {
         });
         store.dispatch(validationFetched(validation));
       });
+
+      it('updates the errir in state if failed', (done) => {
+        const unsubscribe = store.subscribe(() => {
+          const validator = javascriptStringify(validation.validator, null, 2);
+          const createdValidation = {
+            validator,
+            validationAction: 'warn',
+            validationLevel: 'moderate',
+            error: { message: 'Validation fetch failed!' },
+            syntaxError: null,
+            isChanged: false,
+            prevValidation: {
+              validator,
+              validationAction: 'warn',
+              validationLevel: 'moderate'
+            }
+          };
+
+          unsubscribe();
+          expect(store.getState().validation).to.deep.equal(createdValidation);
+          done();
+        });
+        validation.error = { message: 'Validation fetch failed!' };
+        store.dispatch(validationFetched(validation));
+      });
     });
 
     context('when the action is VALIDATION_SAVED', () => {
-      it('updates the validation in state', (done) => {
+      it('updates the validation in state if succeed', (done) => {
         const unsubscribe = store.subscribe(() => {
           unsubscribe();
           expect(store.getState().validation.error).to.equal(null);
           done();
         });
-        store.dispatch(validationSaved());
+        store.dispatch(validationSaved({
+          validator: { name: { $type: 4 } },
+          validationAction: 'warn',
+          validationLevel: 'moderate'
+        }));
+      });
+
+      it('updates the validation in state if failed', (done) => {
+        const unsubscribe = store.subscribe(() => {
+          unsubscribe();
+          expect(store.getState().validation.error).to.deep.equal({
+            message: 'Validation fetch failed!'
+          });
+          done();
+        });
+        store.dispatch(validationSaved({
+          validator: { name: { $type: 4 } },
+          validationAction: 'warn',
+          validationLevel: 'moderate',
+          error: { message: 'Validation fetch failed!' }
+        }));
       });
     });
 
@@ -195,7 +239,8 @@ describe('Schema Validation Store', () => {
             serverVersion: INITIAL_STATE.serverVersion,
             validation: INITIAL_STATE.validation,
             sampleDocuments: INITIAL_STATE.sampleDocuments,
-            isZeroState: INITIAL_STATE.isZeroState
+            isZeroState: INITIAL_STATE.isZeroState,
+            isEditable: INITIAL_STATE.isEditable
           });
         });
       });

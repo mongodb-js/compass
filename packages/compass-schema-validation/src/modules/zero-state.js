@@ -1,3 +1,4 @@
+import { appRegistryEmit } from 'modules/app-registry';
 
 /**
  * Zero state changed action.
@@ -28,11 +29,52 @@ export default function reducer(state = INITIAL_STATE, action) {
 /**
  * Action creator for zero state changed events.
  *
- * @param {Boolean} isZeroState - Is zero state.
- *
- * @returns {Object} The namespace changed action.
+ * @returns {Object} The zero state changed action.
  */
 export const zeroStateChanged = () => ({
   type: IS_ZERO_STATE_CHANGED,
   isZeroState: false
 });
+
+/**
+ * Send metrics.
+ *
+ * @param {Function} dispatch - Dispatch.
+ * @param {Object} dataService - Data service.
+ * @param {Object} namespace - Namespace.
+ * @param {String} registryEvent - Registry event.
+ *
+ * @returns {Function} The function.
+ */
+const sendMetrics = (dispatch, dataService, namespace, registryEvent) => dataService
+  .database(namespace.database, {}, (errorDB, res) => {
+    let collectionSize = 0;
+
+    if (!errorDB) {
+      const collection = res.collections.find((coll) => (
+        coll.name === namespace.collection
+      ));
+
+      collectionSize = collection.document_count;
+    }
+
+    return dispatch(appRegistryEmit(registryEvent, { collectionSize } ));
+  });
+
+/**
+* Change zero state.
+*
+* @returns {Function} The function.
+*/
+export const changeZeroState = () => {
+  return (dispatch, getState) => {
+    const state = getState();
+    const dataService = state.dataService.dataService;
+    const namespace = state.namespace;
+
+    sendMetrics(dispatch, dataService, namespace, 'schema-validation-rules-added');
+    dispatch(zeroStateChanged());
+
+    return;
+  };
+};
