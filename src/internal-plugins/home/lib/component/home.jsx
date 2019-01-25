@@ -43,6 +43,7 @@ class Home extends React.Component {
     this.collectionView = app.appRegistry.getComponent('Collection.Collection');
     this.instanceView = app.appRegistry.getRole('Instance.Workspace')[0].component;
     this.connectView = app.appRegistry.getRole('Application.Connect')[0].component;
+    this.globalModals = app.appRegistry.getRole('Global.Modal');
     this.InstanceHeader = app.appRegistry.getComponent('InstanceHeader.Component');
     this.SchemaActions = app.appRegistry.getAction('Schema.Actions');
     this.importRole = app.appRegistry.getRole('Import.Modal');
@@ -145,6 +146,15 @@ class Home extends React.Component {
     }
   }
 
+  renderGlobalModals() {
+    if (this.globalModals) {
+      return this.globalModals.map((globalModal, index) => {
+        const GlobalModal = globalModal.component;
+        return (<GlobalModal key={index} />);
+      });
+    }
+  }
+
   renderHome() {
     return (
       <div className="page-container" data-test-id="home-view">
@@ -159,6 +169,7 @@ class Home extends React.Component {
           {this.renderExportModal()}
           {this.renderExportToLangModal()}
           {this.renderFindInPage()}
+          {this.renderGlobalModals()}
         </div>
       </div>
     );
