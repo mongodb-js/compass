@@ -9,6 +9,7 @@ import DdlPlugin, { activate } from 'plugin';
 import { activate as daActivate } from '@mongodb-js/compass-deployment-awareness';
 import { NamespaceStore } from 'mongodb-reflux-store';
 import CollectionStore from './stores/collection-store';
+import CreateDatabasePlugin from 'components/create-database-plugin';
 
 // Import global less file. Note: these styles WILL NOT be used in compass, as compass provides its own set
 // of global styles. If you are wishing to style a given component, you should be writing a less file per
@@ -56,7 +57,10 @@ document.body.appendChild(root);
 const render = Component => {
   ReactDOM.render(
     <AppContainer>
-      <Component />
+      <div>
+        <Component />
+        <CreateDatabasePlugin />
+      </div>
     </AppContainer>,
     document.getElementById('root')
   );
