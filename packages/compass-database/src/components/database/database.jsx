@@ -32,10 +32,10 @@ class Database extends Component {
     const roles = global.hadronApp.appRegistry.getRole('Database.Tab');
 
     const tabs = [];
-    const views = roles.map((role) => {
+    const views = roles.map((role, i) => {
       tabs.push(role.name);
       return (
-        <UnsafeComponent component={role.component} />
+        <UnsafeComponent component={role.component} key={i} />
       );
     });
 
