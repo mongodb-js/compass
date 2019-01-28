@@ -18,7 +18,7 @@ class Database extends Component {
    *
    * @param {Number} idx - The index of the clicked tab.
    */
-  onTabClicked(idx) {
+  onTabClicked = (idx) => {
     if (this.state.activeTab === idx) {
       return;
     }
@@ -56,7 +56,7 @@ class Database extends Component {
           tabs={this.tabs}
           views={this.views}
           activeTabIndex={this.state.activeTab}
-          onTabClicked={this.onTabClicked.bind(this)}
+          onTabClicked={this.onTabClicked}
           className="rt-nav" />
       </div>
     );
