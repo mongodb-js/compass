@@ -261,6 +261,19 @@ const RULES = [
     })
   },
   {
+    registryEvent: 'schema-validation-activated',
+    resource: 'SchemaValidation',
+    action: 'activated',
+    condition: () => true,
+    metadata: (data) => ({
+      ruleCount: data.ruleCount,
+      validationLevel: data.validationLevel,
+      validationAction: data.validationAction,
+      jsonSchema: data.jsonSchema,
+      collectionSize: data.collectionSize
+    })
+  },
+  {
     registryEvent: 'schema-validation-saved',
     resource: 'SchemaValidation',
     action: 'saved',
