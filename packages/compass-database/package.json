@@ -1,7 +1,7 @@
 {
   "name": "@mongodb-js/compass-database",
   "productName": "Database plugin",
-  "version": "0.0.8",
+  "version": "0.0.9",
   "apiVersion": "2.0.0",
   "description": "Compass Database Plugin",
   "main": "lib/index.js",
