@@ -5,4 +5,43 @@
   flex-direction: column;
   align-items: stretch;
   height: 100%;
+
+  &-title {
+    font-size: 24px;
+    font-weight: normal;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: flex;
+    padding-left: 15px;
+    padding-right: 15px;
+    margin: 0;
+    float: left;
+    line-height: 32px;
+
+    &-db {
+      flex-shrink: 2;
+      flex-basis: auto;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+
+      &-link {
+        text-decoration: none;
+        cursor: pointer;
+        color: #337ab7;
+      }
+    }
+
+    &-collection {
+      flex-grow: 2;
+      flex-basis: auto;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    &-readonly {
+
+    }
+  }
 }

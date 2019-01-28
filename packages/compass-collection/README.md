@@ -1,4 +1,4 @@
-# database [![][travis_img]][travis_url]
+# @mongodb-js/compass-collection [![][travis_img]][travis_url]
 
 > Compass Collection Plugin
 
