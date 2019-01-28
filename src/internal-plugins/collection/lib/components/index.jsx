@@ -86,6 +86,7 @@ class Collection extends React.Component {
     this.tabs = tabs;
     this.views = views;
     this.queryHistoryIndexes = queryHistoryIndexes;
+    this.CollectionStore.setTabs(tabs);
   }
 
   roleFiltered(role) {

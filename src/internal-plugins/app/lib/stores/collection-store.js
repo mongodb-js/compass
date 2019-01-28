@@ -1,4 +1,5 @@
 const Reflux = require('reflux');
+const app = require('hadron-app');
 
 /**
  * Sets global collection information.
@@ -51,12 +52,21 @@ const CollectionStore = Reflux.createStore({
   },
 
   /**
+   * Set all existing tabs for the current collection
+   * @param {Array} tabs that exist for the current collection
+   */
+  setTabs(tabs) {
+    this.tabs = tabs;
+  },
+
+  /**
    * Set the active tab idx for the current collection
    * @param {number} idx current tab idx
    */
   setActiveTab(idx) {
     this.activeTabIndex = idx;
     this.trigger(idx);
+    app.appRegistry.emit('active-tab-changed', this.tabs[idx]);
   },
 
   /**
