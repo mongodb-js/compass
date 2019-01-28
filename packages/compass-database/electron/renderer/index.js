@@ -11,10 +11,22 @@ import DatabasePlugin, { activate } from 'plugin';
 import 'bootstrap/less/bootstrap.less';
 import 'less/index.less';
 
+class Collections extends React.Component {
+  render() {
+    return (<div id="test">Testing</div>);
+  }
+}
+
+const ROLE = {
+  name: 'Collections',
+  component: Collections
+};
+
 const appRegistry = new AppRegistry();
 
 global.hadronApp = app;
-global.hadronApp.appRegistry = appRegistry;
+global.hadronApp.appRegistry = appRegistry
+global.hadronApp.appRegistry.registerRole('Database.Tab', ROLE);
 
 // Activate our plugin with the Hadron App Registry
 activate(appRegistry);
