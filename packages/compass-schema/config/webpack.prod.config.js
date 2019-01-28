@@ -69,7 +69,7 @@ const config = {
   },
   optimization: {
     // Minimize and uglify the code
-    minimize: true,
+    minimize: true
   },
   plugins: [
     // Auto-create webpack externals for any dependency listed as a peerDependency in package.json
@@ -90,7 +90,7 @@ const config = {
     new webpack.DefinePlugin(GLOBALS),
 
     // Creates HTML page for us at build time
-    new HtmlWebpackPlugin(),
+    new HtmlWebpackPlugin()
 
     // Uncomment to Analyze the output bundle size of the plugin. Useful for optimizing the build.
     // new BundleAnalyzerPlugin()
