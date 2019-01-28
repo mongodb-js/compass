@@ -1,7 +1,5 @@
 import React, { Component } from 'react';
-import { Provider } from 'react-redux';
 import Database from 'components/database';
-import store from 'stores';
 
 class Plugin extends Component {
   static displayName = 'DatabasePlugin';
@@ -12,11 +10,7 @@ class Plugin extends Component {
    * @returns {React.Component} The rendered component.
    */
   render() {
-    return (
-      <Provider store={store}>
-        <Database />
-      </Provider>
-    );
+    return (<Database />);
   }
 }
 

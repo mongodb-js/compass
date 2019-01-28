@@ -1,26 +1,46 @@
 import React, { Component } from 'react';
-import { connect } from 'react-redux';
-import PropTypes from 'prop-types';
 import classnames from 'classnames';
-import ToggleButton from 'components/toggle-button';
-import { toggleStatus } from 'modules/status';
+import { TabNavBar, UnsafeComponent } from 'hadron-react-components';
 
 import styles from './database.less';
 
 class Database extends Component {
   static displayName = 'DatabaseComponent';
 
-  static propTypes = {
-    toggleStatus: PropTypes.func.isRequired,
-    status: PropTypes.oneOf(['enabled', 'disabled'])
-  };
+  constructor(props) {
+    super(props);
+    this.state = { activeTab: 0 };
+    this.setupTabs();
+  }
 
-  static defaultProps = {
-    status: 'enabled'
-  };
+  /**
+   * Handle the tab click.
+   *
+   * @param {Number} idx - The index of the clicked tab.
+   */
+  onTabClicked(idx) {
+    if (this.state.activeTab === idx) {
+      return;
+    }
+    this.setState({ activeTab: idx });
+  }
 
-  onClick = () => {
-    this.props.toggleStatus();
+  /**
+   * Setup the instance level tabs.
+   */
+  setupTabs() {
+    const roles = global.hadronApp.appRegistry.getRole('Database.Tab');
+
+    const tabs = [];
+    const views = roles.map((role) => {
+      tabs.push(role.name);
+      return (
+        <UnsafeComponent component={role.component} />
+      );
+    });
+
+    this.tabs = tabs;
+    this.views = views;
   }
 
   /**
@@ -30,37 +50,17 @@ class Database extends Component {
    */
   render() {
     return (
-      <div className={classnames(styles.root)}>
-        <h2 className={classnames(styles.title)}>Database Plugin</h2>
-        <p>Compass Database Plugin</p>
-        <p>The current status is: <code>{this.props.status}</code></p>
-        <ToggleButton onClick={this.onClick} />
+      <div className={classnames(styles.database)}>
+        <TabNavBar
+          theme="light"
+          tabs={this.tabs}
+          views={this.views}
+          activeTabIndex={this.state.activeTab}
+          onTabClicked={this.onTabClicked.bind(this)}
+          className="rt-nav" />
       </div>
     );
   }
 }
 
-/**
- * Map the store state to properties to pass to the components.
- *
- * @param {Object} state - The store state.
- *
- * @returns {Object} The mapped properties.
- */
-const mapStateToProps = (state) => ({
-  status: state.status
-});
-
-/**
- * Connect the redux store to the component.
- * (dispatch)
- */
-const MappedDatabase = connect(
-  mapStateToProps,
-  {
-    toggleStatus
-  },
-)(Database);
-
-export default MappedDatabase;
-export { Database };
+export default Database;

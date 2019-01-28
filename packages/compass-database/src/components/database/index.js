@@ -1,4 +1,2 @@
-import MappedDatabase, { Database } from './database';
-
-export default MappedDatabase;
-export { Database };
+import Database from './database';
+export default Database;

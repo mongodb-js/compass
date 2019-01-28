@@ -1,37 +1,34 @@
 import React from 'react';
 import { mount } from 'enzyme';
 
-import { Database } from 'components/database';
-import ToggleButton from 'components/toggle-button';
+import Database from 'components/database';
 import styles from './database.less';
+
+class Collections extends React.Component {
+  render() {
+    return (<div id="test">Testing</div>);
+  }
+}
+
+const ROLE = {
+  name: 'Collections',
+  component: Collections
+};
 
 describe('Database [Component]', () => {
   let component;
-  let toggleStatus;
 
   beforeEach(() => {
-    toggleStatus = sinon.spy();
-    component = mount(<Database toggleStatus={toggleStatus} status="enabled" />);
+    global.hadronApp.appRegistry.registerRole('Database.Tab', ROLE);
+    component = mount(<Database />);
   });
 
   afterEach(() => {
+    global.hadronApp.appRegistry.deregisterRole('Database.Tab', ROLE);
     component = null;
-    toggleStatus = null;
   });
 
   it('renders the correct root classname', () => {
-    expect(component.find(`.${styles.root}`)).to.be.present();
-  });
-
-  it('should contain one <h2> tag', () => {
-    expect(component.find('h2')).to.have.length(1);
-  });
-
-  it('should contain one <ToggleButton />', () => {
-    expect(component.find(ToggleButton)).to.have.length(1);
-  });
-
-  it('should initially have prop {status: \'enabled\'}', () => {
-    expect(component.prop('status')).to.equal('enabled');
+    expect(component.find(`.${styles.database}`)).to.be.present();
   });
 });
