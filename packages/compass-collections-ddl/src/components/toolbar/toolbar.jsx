@@ -1,8 +1,6 @@
 import React, { PureComponent } from 'react';
-import { Provider } from 'react-redux';
 import PropTypes from 'prop-types';
 import classnames from 'classnames';
-import CreateCollectionModal from 'components/create-collection-modal';
 import createCollectionStore from 'stores/create-collection';
 
 import styles from './toolbar.less';
@@ -68,9 +66,6 @@ class Toolbar extends PureComponent {
     return (
       <div className={classnames(styles.toolbar)}>
         {this.renderButton()}
-        <Provider store={createCollectionStore}>
-          <CreateCollectionModal />
-        </Provider>
       </div>
     );
   }

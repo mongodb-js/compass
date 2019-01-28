@@ -10,6 +10,7 @@ import { activate as daActivate } from '@mongodb-js/compass-deployment-awareness
 import { NamespaceStore } from 'mongodb-reflux-store';
 import CollectionStore from './stores/collection-store';
 import CollectionModel from 'mongodb-collection-model';
+import CreateCollectionPlugin from 'components/create-collection-plugin';
 
 // Import global less file. Note: these styles WILL NOT be used in compass, as compass provides its own set
 // of global styles. If you are wishing to style a given component, you should be writing a less file per
@@ -59,7 +60,10 @@ document.body.appendChild(root);
 const render = Component => {
   ReactDOM.render(
     <AppContainer>
-      <Component />
+      <div>
+        <Component />
+        <CreateCollectionPlugin />
+      </div>
     </AppContainer>,
     document.getElementById('root')
   );
