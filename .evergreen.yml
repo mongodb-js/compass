@@ -69,7 +69,7 @@ functions:
           export NODE_JS_VERSION="10.2.1"
 
           if [[ "$OSTYPE" == "cygwin" ]]; then
-            export PATH="$(pwd)/.deps:$PATH"
+            export PATH="$(pwd)/.deps:/cygdrive/c/wixtools/bin/:$PATH"
             export APPDATA=Z:\\\;
           fi
 
