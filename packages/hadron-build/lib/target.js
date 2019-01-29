@@ -133,6 +133,8 @@ class Target {
     this.arch = opts.arch;
     this.description = opts.description;
     this.author = _.get(opts, 'author.name', opts.author);
+    this.shortcutFolderName = opts.shortcutFolderName;
+    this.programFilesFolderName = opts.programFilesFolderName;
 
     this.slug = this.name;
     this.semver = new semver.SemVer(this.version);
