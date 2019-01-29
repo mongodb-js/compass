@@ -4,7 +4,6 @@ const app = require('hadron-app');
 const toNS = require('mongodb-ns');
 const { StatusRow } = require('hadron-react-components');
 const { UI_STATES } = require('../constants');
-const DatabaseView = require('./database-view');
 
 const ERROR_WARNING = 'An error occurred while loading navigation';
 
@@ -40,7 +39,8 @@ class Home extends React.Component {
     super(props);
     this.state = { collapsed: false };
     this.sideBar = app.appRegistry.getComponent('Sidebar.Component');
-    this.collectionView = app.appRegistry.getComponent('Collection.Collection');
+    this.collectionView = app.appRegistry.getRole('Collection.Workspace')[0].component;
+    this.databaseView = app.appRegistry.getRole('Database.Workspace')[0].component;
     this.instanceView = app.appRegistry.getRole('Instance.Workspace')[0].component;
     this.connectView = app.appRegistry.getRole('Application.Connect')[0].component;
     this.globalModals = app.appRegistry.getRole('Global.Modal');
@@ -101,7 +101,7 @@ class Home extends React.Component {
       view = (<this.instanceView interval={1000}/>);
     } else if (ns.collection === '') {
       // a database was clicked, render collections table
-      view = (<DatabaseView />);
+      view = (<this.databaseView />);
     } else {
       // show collection view
       view = (<this.collectionView namespace={this.props.namespace} />);
