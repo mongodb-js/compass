@@ -25,7 +25,7 @@ const ROLE = {
 const appRegistry = new AppRegistry();
 
 global.hadronApp = app;
-global.hadronApp.appRegistry = appRegistry
+global.hadronApp.appRegistry = appRegistry;
 global.hadronApp.appRegistry.registerRole('Database.Tab', ROLE);
 
 // Activate our plugin with the Hadron App Registry
