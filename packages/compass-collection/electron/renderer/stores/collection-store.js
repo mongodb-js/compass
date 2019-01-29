@@ -58,6 +58,9 @@ const CollectionStore = Reflux.createStore({
    */
   isReadonly() {
     return this.collection.readonly;
+  },
+
+  setTabs() {
   }
 });
 
