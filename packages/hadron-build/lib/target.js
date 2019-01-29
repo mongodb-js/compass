@@ -321,7 +321,8 @@ class Target {
       title: this.productName,
       productName: this.productName,
       description: this.description,
-      name: this.packagerOptions.name
+      name: this.packagerOptions.name,
+      noMsi: true
     };
 
     /**
