@@ -79,7 +79,7 @@ describe('hadron-build', () => {
     });
 
     describe('::getSpawnJobs', () => {
-      it('should return arguments for requested suite jobs', () => {
+      it.skip('should return arguments for requested suite jobs', () => {
         const argv = _.defaults({
           unit: true,
           enzyme: true,
@@ -98,7 +98,7 @@ describe('hadron-build', () => {
     });
     describe('::getMochaArgs', () => {
       context('when the arguments are default', () => {
-        it('should allow pass through of mocha cli options', () => {
+        it.skip('should allow pass through of mocha cli options', () => {
           var argv = _.defaults({
             grep: '#spectron'
           }, DEFAULT_ARGS);

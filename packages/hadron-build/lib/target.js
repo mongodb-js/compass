@@ -339,7 +339,30 @@ class Target {
 
     this.createInstaller = () => {
       const electronWinstaller = require('electron-winstaller');
-      return electronWinstaller.createWindowsInstaller(this.installerOptions);
+      electronWinstaller
+        .createWindowsInstaller(this.installerOptions)
+        .then(() => {
+          const { MSICreator } = require('electron-wix-msi');
+          const msiCreator = new MSICreator({
+            appDirectory: this.appPath,
+            outputDirectory: this.packagerOptions.out,
+            exe: this.packagerOptions.name,
+            name: this.productName,
+            description: this.description,
+            manufacturer: this.author,
+            version: this.version,
+            signWithParams: signWithParams,
+            shortcutFolderName: this.shortcutFolderName || this.author,
+            programFilesFolderName: this.programFilesFolderName || this.productName,
+            ui: {
+              chooseDirectory: true
+            }
+          });
+
+          return msiCreator.create().then(() => {
+            return msiCreator.compile();
+          });
+        });
     };
   }
 
