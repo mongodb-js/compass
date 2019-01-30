@@ -250,8 +250,8 @@ functions:
           EOF_BUILD_SH
 
           if [ `uname` == Darwin ]; then
-            echo "Signing via ssh tunnel..."
-            ssh -v -p 2222 localhost "bash ~/compass_package.sh"
+            echo "Signing..."
+            bash ~/compass_package.sh
           else
             if [[ "$OSTYPE" == "cygwin" ]]; then
               echo "Fetching signtool -> notary-service hack..."
