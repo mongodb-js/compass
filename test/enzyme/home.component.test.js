@@ -8,6 +8,8 @@ const AppRegistry = require('hadron-app-registry');
 const { StatusRow } = require('hadron-react-components');
 const { UI_STATES } = require('../../src/internal-plugins/home/lib/constants');
 const InstancePlugin = require('@mongodb-js/compass-instance').default;
+const CollectionPlugin = require('@mongodb-js/compass-collection').default;
+const DatabasePlugin = require('@mongodb-js/compass-database').default;
 
 describe('<Home />', () => {
   const appRegistry = app.appRegistry;
@@ -22,6 +24,16 @@ describe('<Home />', () => {
   const InstanceRole = {
     name: 'Instance',
     component: InstancePlugin
+  };
+
+  const CollectionRole = {
+    name: 'Collection',
+    component: CollectionPlugin
+  };
+
+  const DatabaseRole = {
+    name: 'Database',
+    component: DatabasePlugin
   };
 
   beforeEach(() => {
@@ -43,6 +55,8 @@ describe('<Home />', () => {
 
     app.appRegistry.registerRole('Application.Connect', sinon.spy());
     app.appRegistry.registerRole('Instance.Workspace', InstanceRole);
+    app.appRegistry.registerRole('Collection.Workspace', CollectionRole);
+    app.appRegistry.registerRole('Database.Workspace', DatabaseRole);
 
     this.Home = require('../../src/internal-plugins/home/lib/component/home');
   });
