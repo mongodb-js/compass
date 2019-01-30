@@ -129,6 +129,7 @@ class Target {
     this.bundleId = distOpts.bundleId;
 
     this.version = opts.version;
+    this.installerVersion = opts.installerVersion;
     this.platform = opts.platform;
     this.arch = opts.arch;
     this.description = opts.description;
@@ -353,10 +354,12 @@ class Target {
             name: this.productName,
             description: this.description,
             manufacturer: this.author,
-            version: this.version,
+            version: this.installerVersion || this.version,
             signWithParams: signWithParams,
             shortcutFolderName: this.shortcutFolderName || this.author,
             programFilesFolderName: this.programFilesFolderName || this.productName,
+            appUserModelId: this.bundleId,
+            upgradeCode: this.bundleId,
             ui: {
               chooseDirectory: true
             }
