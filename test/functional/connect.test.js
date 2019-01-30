@@ -1,6 +1,6 @@
 const { launchCompass, quitCompass} = require('./support/spectron-support');
 
-describe('#connect', function() {
+describe.skip('#connect', function() {
   this.slow(30000);
   this.timeout(60000);
   let app = null;
