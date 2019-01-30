@@ -234,6 +234,8 @@
     "test-renderer": "npm test -- --renderer",
     "test-functional": "npm test -- --functional",
     "test-release": "npm test -- --release",
+    "pretravis": "npm run check",
+    "travis": "npm test",
     "upload": "hadron-build upload",
     "evergreen-expansions": "hadron-build info --format=yaml --flatten > expansions.yml",
     "jsx": "babel ./src --out-dir ./lib --presets react"

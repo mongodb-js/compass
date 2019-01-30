@@ -33,8 +33,7 @@ before_script:
     /usr/bin/python -c "import gnomekeyring;gnomekeyring.create_sync('login', '');";
     npm run check
 script:
-  - npm ci
-
+  - npm run travis
 cache:
   directories:
     - '$HOME/.npm'
