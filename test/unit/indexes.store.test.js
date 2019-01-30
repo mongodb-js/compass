@@ -16,7 +16,6 @@ const storeKeyMap = {
 require('../../src/app/reflux-listen-to-external-store.js');
 
 const CreateIndexStore = require('../../src/internal-plugins/indexes/lib/store/create-index-store');
-const Collection = require('../../src/internal-plugins/collection/lib/components/index');
 
 const arrayOfDocsFields = require('../fixtures/fields.fixture.json');
 
@@ -170,7 +169,6 @@ describe('CreateIndexesStore', function() {
 describe('LoadIndexesStore', () => {
   const appInstance = app.instance;
   const appRegistry = app.appRegistry;
-  const collectionStore = Collection.CollectionStore;
 
   before(mockDataService.before(null, {
     database: { collections: [] }
@@ -203,7 +201,6 @@ describe('LoadIndexesStore', () => {
     // so they don't affect other tests
     app.instance = appInstance;
     app.appRegistry = appRegistry;
-    Collection.CollectionStore = collectionStore;
     this.isReadOnlyStub.restore();
   });
 
