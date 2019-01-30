@@ -127,6 +127,7 @@ class Target {
     this.name = distOpts.name;
     this.productName = distOpts.productName;
     this.bundleId = distOpts.bundleId;
+    this.upgradeCode = distOpts.upgradeCode;
 
     this.version = opts.version;
     this.installerVersion = opts.installerVersion;
@@ -359,7 +360,7 @@ class Target {
             shortcutFolderName: this.shortcutFolderName || this.author,
             programFilesFolderName: this.programFilesFolderName || this.productName,
             appUserModelId: this.bundleId,
-            upgradeCode: this.bundleId,
+            upgradeCode: this.upgradeCode,
             ui: {
               chooseDirectory: true
             }
