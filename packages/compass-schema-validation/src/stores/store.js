@@ -7,7 +7,7 @@ import { dataServiceConnected } from 'modules/data-service';
 import { fieldsChanged } from 'modules/fields';
 import { serverVersionChanged } from 'modules/server-version';
 import { appRegistryActivated } from 'modules/app-registry';
-import { fetchValidation } from 'modules/validation';
+import { fetchValidation, activateValidation } from 'modules/validation';
 import { editModeChanged } from 'modules/edit-mode';
 
 /**
@@ -72,6 +72,17 @@ store.onActivated = (appRegistry) => {
    */
   appRegistry.on('server-version-changed', (version) => {
     store.dispatch(serverVersionChanged(version));
+  });
+
+  /**
+   * When the Schema Validation is an active tab, send 'activated' metric.
+   *
+   * @param {String} tabName - The name of active tab.
+   */
+  appRegistry.on('active-tab-changed', (tabName) => {
+    if (tabName === 'Validation') {
+      store.dispatch(activateValidation());
+    }
   });
 
   /**

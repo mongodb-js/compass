@@ -24,9 +24,9 @@ export const VALIDATOR_CHANGED = `${PREFIX}/VALIDATOR_CHANGED`;
 export const VALIDATION_CANCELED = `${PREFIX}/VALIDATION_CANCELED`;
 
 /**
- * Validation saved action name.
+ * Validation save failed action name.
  */
-export const VALIDATION_SAVED = `${PREFIX}/VALIDATION_SAVED`;
+export const VALIDATION_SAVE_FAILED = `${PREFIX}/VALIDATION_SAVE_FAILED`;
 
 /**
  * Validation fetched action name.
@@ -214,6 +214,21 @@ const setValidation = (state, action) => {
 };
 
 /**
+ * Set Error.
+ *
+ * @param {Object} state - The state
+ * @param {Object} action - The action.
+ *
+ * @returns {Object} The new state.
+ */
+const setError = (state, action) => {
+  return {
+    ...state,
+    error: action.error || null
+  };
+};
+
+/**
  * Change validation action.
  *
  * @param {Object} state - The state
@@ -266,7 +281,7 @@ const MAPPINGS = {
   [VALIDATOR_CHANGED]: changeValidator,
   [VALIDATION_CANCELED]: setValidation,
   [VALIDATION_FETCHED]: setValidation,
-  [VALIDATION_SAVED]: setValidation,
+  [VALIDATION_SAVE_FAILED]: setError,
   [VALIDATION_ACTION_CHANGED]: changeValidationAction,
   [VALIDATION_LEVEL_CHANGED]: changeValidationLevel,
   [SYNTAX_ERROR_OCCURRED]: setSyntaxError
@@ -347,15 +362,15 @@ export const validationCanceled = (validation) => ({
 });
 
 /**
- * Action creator for validation saved events.
+ * Action creator for validation save failed events.
  *
- * @param {Object} validation - Validation.
+ * @param {Object} error - Error.
  *
- * @returns {Object} Validation saved action.
+ * @returns {Object} Validation save failed action.
  */
-export const validationSaved = (validation) => ({
-  type: VALIDATION_SAVED,
-  validation
+export const validationSaveFailed = (error) => ({
+  type: VALIDATION_SAVE_FAILED,
+  error
 });
 
 /**
@@ -455,6 +470,7 @@ export const fetchValidation = (namespace) => {
             dispatch(zeroStateChanged());
             dispatch(fetchSampleDocuments(validation.validator));
             dispatch(validationFetched(validation));
+
             sendMetrics(
               dispatch,
               dataService,
@@ -512,9 +528,11 @@ export const saveValidation = (validation) => {
           validationLevel: savedValidation.validationLevel
         },
         (error) => {
-          savedValidation.error = error;
+          if (error) {
+            return dispatch(validationSaveFailed(error));
+          }
 
-          return dispatch(validationSaved(savedValidation));
+          return dispatch(fetchValidation(namespace));
         }
       );
     }
@@ -542,5 +560,29 @@ export const cancelValidation = () => {
     dispatch(fetchSampleDocuments(prevValidation.validator));
 
     return;
+  };
+};
+
+/**
+* Activate validation.
+*
+* @returns {Function} The function.
+*/
+export const activateValidation = () => {
+  return (dispatch, getState) => {
+    const state = getState();
+    const dataService = state.dataService.dataService;
+    const namespace = state.namespace;
+    const validation = state.validation;
+
+    if (dataService) {
+      sendMetrics(
+        dispatch,
+        dataService,
+        namespace,
+        validation,
+        'schema-validation-activated'
+      );
+    }
   };
 };

@@ -6,11 +6,11 @@ import reducer, {
   validatorChanged,
   validationFetched,
   validationCanceled,
-  validationSaved,
+  validationSaveFailed,
   syntaxErrorOccurred,
   VALIDATOR_CHANGED,
   VALIDATION_CANCELED,
-  VALIDATION_SAVED,
+  VALIDATION_SAVE_FAILED,
   VALIDATION_FETCHED,
   VALIDATION_ACTION_CHANGED,
   VALIDATION_LEVEL_CHANGED,
@@ -96,25 +96,13 @@ describe('validation module', () => {
     });
   });
 
-  describe('#validationSaved', () => {
-    it('returns the VALIDATION_SAVED action', () => {
-      const validation = validationSaved({
-        validator: {},
-        validationAction: 'error',
-        validationLevel: 'strict',
-        isChanged: true,
-        syntaxError: null,
-        error: null
-      });
-
-      expect(validation.type).to.equal(VALIDATION_SAVED);
-      expect(validation.validation).to.deep.equal({
-        validator: {},
-        validationAction: 'error',
-        validationLevel: 'strict',
-        isChanged: true,
-        syntaxError: null,
-        error: null
+  describe('#validationSaveFailed', () => {
+    it('returns the VALIDATION_SAVE_FAILED action', () => {
+      expect(validationSaveFailed({
+        message: 'Validation save failed!'
+      })).to.deep.equal({
+        type: VALIDATION_SAVE_FAILED,
+        error: { message: 'Validation save failed!' }
       });
     });
   });
@@ -230,29 +218,19 @@ describe('validation module', () => {
       });
     });
 
-    context('when the action is validationSaved', () => {
+    context('when the action is validationSaveFailed', () => {
       it('returns the new state', () => {
-        const validation = reducer(undefined, validationSaved({
-          validator: {},
-          validationAction: 'warning',
-          validationLevel: 'strict',
-          isChanged: false,
-          syntaxError: null,
-          error: null
+        const validation = reducer(undefined, validationSaveFailed({
+          message: 'Validation save failed!'
         }));
 
         expect(validation).to.deep.equal({
-          validator: '{}',
-          validationAction: 'warning',
+          validator: '',
+          validationAction: 'error',
           validationLevel: 'strict',
-          prevValidation: {
-            validator: '{}',
-            validationAction: 'warning',
-            validationLevel: 'strict'
-          },
           isChanged: false,
           syntaxError: null,
-          error: null
+          error: { message: 'Validation save failed!' }
         });
       });
     });

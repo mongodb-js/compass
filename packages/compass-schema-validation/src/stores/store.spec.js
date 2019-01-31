@@ -4,7 +4,7 @@ import store from 'stores';
 import {
   validatorChanged,
   validationFetched,
-  validationSaved,
+  validationSaveFailed,
   validationActionChanged,
   validationLevelChanged,
   fetchSampleDocuments
@@ -162,33 +162,17 @@ describe('Schema Validation Store', () => {
       });
     });
 
-    context('when the action is VALIDATION_SAVED', () => {
-      it('updates the validation in state if succeed', (done) => {
-        const unsubscribe = store.subscribe(() => {
-          unsubscribe();
-          expect(store.getState().validation.error).to.equal(null);
-          done();
-        });
-        store.dispatch(validationSaved({
-          validator: { name: { $type: 4 } },
-          validationAction: 'warn',
-          validationLevel: 'moderate'
-        }));
-      });
-
-      it('updates the validation in state if failed', (done) => {
+    context('when the action is VALIDATION_SAVE_FAILED', () => {
+      it('updates the error', (done) => {
         const unsubscribe = store.subscribe(() => {
           unsubscribe();
           expect(store.getState().validation.error).to.deep.equal({
-            message: 'Validation fetch failed!'
+            message: 'Validation save failed!'
           });
           done();
         });
-        store.dispatch(validationSaved({
-          validator: { name: { $type: 4 } },
-          validationAction: 'warn',
-          validationLevel: 'moderate',
-          error: { message: 'Validation fetch failed!' }
+        store.dispatch(validationSaveFailed({
+          message: 'Validation save failed!'
         }));
       });
     });
