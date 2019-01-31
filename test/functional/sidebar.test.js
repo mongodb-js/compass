@@ -7,7 +7,7 @@ const { launchCompass, quitCompass} = require('./support/spectron-support');
  */
 const CONNECTION = new Connection({ hostname: '127.0.0.1', port: 27017, ns: 'music' });
 
-describe('#sidebar', function() {
+describe.skip('#sidebar', function() {
   this.slow(30000);
   this.timeout(60000);
   let app = null;

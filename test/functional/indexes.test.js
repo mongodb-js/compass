@@ -7,7 +7,7 @@ const { launchCompass, quitCompass, isIndexUsageEnabled } = require('./support/s
  */
 const CONNECTION = new Connection({ hostname: '127.0.0.1', port: 27017, ns: 'music' });
 
-describe('#indexes', function() {
+describe.skip('#indexes', function() {
   this.slow(30000);
   this.timeout(60000);
   let app = null;
