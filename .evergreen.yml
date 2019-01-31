@@ -250,8 +250,8 @@ functions:
           EOF_BUILD_SH
 
           if [ `uname` == Darwin ]; then
-            echo "Signing via ssh tunnel..."
-            ssh -v -p 2222 localhost "bash ~/compass_package.sh"
+            echo "Signing..."
+            bash ~/compass_package.sh
           else
             if [[ "$OSTYPE" == "cygwin" ]]; then
               echo "Fetching signtool -> notary-service hack..."
@@ -629,7 +629,7 @@ buildvariants:
     display_name: MacOS
     # TODO (@imlucas) Ideally we'd run tests/fanout builds like the other platforms
     # on `macos-1012` but the setup windowserver" scripting is currently missing on 1012.
-    run_on: osx-1010-compass
+    run_on: macos-1012
     tasks:
       - name: oneshot-compile-test-package-publish
 
