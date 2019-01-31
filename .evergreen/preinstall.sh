@@ -66,7 +66,7 @@ else
 
     ./bin/node lib/node_modules/npm2/bin/npm-cli.js version 
 
-    ./bin/node lib/node_modules/npm2/bin/npm-cli.js i -g npm
+    ./bin/node lib/node_modules/npm2/bin/npm-cli.js i -g npm@6.5.0
     rm -rf lib/node_modules/npm2/
 
     # NOTE (@imlucas) RHEL and Ubuntu now have libsecret-dev by default
