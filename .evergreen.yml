@@ -1,5 +1,5 @@
 stepback: false
-exec_timeout_secs: 1800
+exec_timeout_secs: 3600
 
 ## Variables
 variables:
