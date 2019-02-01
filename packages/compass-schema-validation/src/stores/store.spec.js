@@ -136,7 +136,7 @@ describe('Schema Validation Store', () => {
         store.dispatch(validationFetched(validation));
       });
 
-      it('updates the errir in state if failed', (done) => {
+      it('updates the error in state if failed', (done) => {
         const unsubscribe = store.subscribe(() => {
           const validator = javascriptStringify(validation.validator, null, 2);
           const createdValidation = {

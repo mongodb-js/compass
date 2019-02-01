@@ -21,8 +21,8 @@ Compass Schema Validation supports complex validation rules based on JSON Schema
 
 Apache 2.0
 
-[travis_img]: https://travis-ci.org/mongodb-js/compass-schema-validation.svg?branch=master
-[travis_url]: https://travis-ci.org/mongodb-js/compass-schema-validation
+[travis_img]: https://travis-ci.com/10gen/compass-schema-validation.svg?token=YR7x4T8Eq47MJVPbWMye&branch=master
+[travis_url]: https://travis-ci.org/10gen/compass-schema-validation
 [enzyme]: http://airbnb.io/enzyme/
 [enzyme-chai]: https://github.com/producthunt/chai-enzyme
 [jsdom]: https://github.com/tmpvar/jsdom
