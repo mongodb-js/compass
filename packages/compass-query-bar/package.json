@@ -153,7 +153,7 @@
     "webpack-sources": "1.0.1"
   },
   "dependencies": {
-    "mongodb-query-parser": "^1.2.2",
+    "mongodb-query-parser": "^1.2.3",
     "mongodb-query-util": "0.0.1"
   }
 }
