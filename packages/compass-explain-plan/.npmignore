@@ -1,0 +1,17 @@
+.babelrc
+.eslintrc
+.editorconfig
+.jshintrc
+.jsfmtrc
+.nycrc
+.travis.yml
+config/
+electron/
+karma.conf.js
+mocha-webpack.opts
+scripts/
+src/
+test/
+.zuul.yml
+.nyc_output/
+coverage/

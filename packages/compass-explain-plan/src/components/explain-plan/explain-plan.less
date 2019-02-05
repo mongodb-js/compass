@@ -1,0 +1,31 @@
+@import (reference) "~less/compass/_theme.less";
+
+.root {
+	overflow-y: scroll;
+
+	.content-container {
+		background-color: @gray8;
+		height: 100%;
+		padding: 2.4rem;
+	}
+
+	.zero-state-container {
+		height: 100%;
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		text-align: center;
+		padding-top: 135px;
+
+		.zero-state-action {
+			display: flex;
+			flex-direction: column;
+
+			.zero-state-link {
+				display: block;
+				padding-top: 20px;
+				font-size: 16px;
+			}
+		}
+	}
+}
