@@ -1,7 +1,7 @@
 import React from 'react';
 import { mount } from 'enzyme';
 
-import AddAfterStage from 'components/add-after-stage';
+import AddAfterStage from './add-after-stage';
 import styles from './add-after-stage.less';
 
 describe('AddAfterStage [Component]', () => {
@@ -10,9 +10,7 @@ describe('AddAfterStage [Component]', () => {
     const spy = sinon.spy();
 
     beforeEach(() => {
-      component = mount(
-        <AddAfterStage index={1} stageAddedAfter={spy} />
-      );
+      component = mount(<AddAfterStage index={1} stageAddedAfter={spy} />);
     });
 
     afterEach(() => {
@@ -26,6 +24,9 @@ describe('AddAfterStage [Component]', () => {
     it('renders + text', () => {
       expect(component.find('button').contains('+')).to.equal(true);
     });
+    it('renders the tooltip', () => {
+      expect(component.find('.hadron-tooltip')).to.be.present();
+    });
   });
 
   context('when clicking on the button', () => {
@@ -33,9 +34,7 @@ describe('AddAfterStage [Component]', () => {
     const spy = sinon.spy();
 
     beforeEach(() => {
-      component = mount(
-        <AddAfterStage index={1} stageAddedAfter={spy} />
-      );
+      component = mount(<AddAfterStage index={1} stageAddedAfter={spy} />);
     });
 
     afterEach(() => {

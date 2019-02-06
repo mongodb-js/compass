@@ -1,7 +1,7 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import classnames from 'classnames';
-
+import { Tooltip } from 'hadron-react-components';
 import styles from './add-after-stage.less';
 
 /**
@@ -13,14 +13,14 @@ class AddAfterStage extends PureComponent {
   static propTypes = {
     index: PropTypes.number.isRequired,
     stageAddedAfter: PropTypes.func.isRequired
-  }
+  };
 
   /**
    * Handle stage add after clicks.
    */
   onStageAddedAfter = () => {
     this.props.stageAddedAfter(this.props.index);
-  }
+  };
 
   /**
    * Render the button component.
@@ -29,7 +29,11 @@ class AddAfterStage extends PureComponent {
    */
   render() {
     return (
-      <div className={classnames(styles['add-after-stage'])}>
+      <div
+        className={classnames(styles['add-after-stage'])}
+        data-tip="Add stage below"
+        data-place="top"
+        data-for="add-after-stage">
         <button
           type="button"
           title="Add After Stage"
@@ -37,6 +41,7 @@ class AddAfterStage extends PureComponent {
           onClick={this.onStageAddedAfter}>
           +
         </button>
+        <Tooltip id="add-after-stage" />
       </div>
     );
   }

@@ -1,7 +1,7 @@
 import React from 'react';
 import { mount } from 'enzyme';
 
-import DeleteStage from 'components/delete-stage';
+import DeleteStage from './delete-stage';
 import styles from './delete-stage.less';
 
 describe('DeleteStage [Component]', () => {
@@ -17,7 +17,8 @@ describe('DeleteStage [Component]', () => {
           stage={stage}
           index={1}
           setIsModified={setIsModifiedSpy}
-          stageDeleted={spy} />
+          stageDeleted={spy}
+        />
       );
     });
 
@@ -36,6 +37,10 @@ describe('DeleteStage [Component]', () => {
     it('renders the delete button', () => {
       expect(component.find('.fa-trash-o')).to.be.present();
     });
+
+    it('renders the tooltip', () => {
+      expect(component.find('.hadron-tooltip')).to.be.present();
+    });
   });
 
   context('when clicking on the button', () => {
@@ -50,7 +55,8 @@ describe('DeleteStage [Component]', () => {
           stage={stage}
           index={1}
           setIsModified={setIsModifiedSpy}
-          stageDeleted={spy} />
+          stageDeleted={spy}
+        />
       );
     });
 

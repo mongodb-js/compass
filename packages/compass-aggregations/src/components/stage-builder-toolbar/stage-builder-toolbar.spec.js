@@ -1,13 +1,13 @@
 import React from 'react';
 import { shallow } from 'enzyme';
 
-import StageBuilderToolbar from 'components/stage-builder-toolbar';
-import StageGrabber from 'components/stage-grabber';
-import StageCollapser from 'components/stage-collapser';
-import StageOperatorSelect from 'components/stage-operator-select';
-import ToggleStage from 'components/toggle-stage';
-import AddAfterStage from 'components/add-after-stage';
-import DeleteStage from 'components/delete-stage';
+import StageBuilderToolbar from './stage-builder-toolbar';
+import StageGrabber from './stage-grabber';
+import StageCollapser from './stage-collapser';
+import StageOperatorSelect from './stage-operator-select';
+import ToggleStage from './toggle-stage';
+import AddAfterStage from './add-after-stage';
+import DeleteStage from './delete-stage';
 import styles from './stage-builder-toolbar.less';
 
 describe('StageBuilderToolbar [Component]', () => {

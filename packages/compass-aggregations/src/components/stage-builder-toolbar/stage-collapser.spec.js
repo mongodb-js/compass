@@ -1,7 +1,7 @@
 import React from 'react';
 import { mount } from 'enzyme';
 
-import StageCollapser from 'components/stage-collapser';
+import StageCollapser from './stage-collapser';
 import styles from './stage-collapser.less';
 
 describe('StageCollaper [Component]', () => {

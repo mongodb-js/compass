@@ -1,7 +1,7 @@
 import React from 'react';
 import { mount } from 'enzyme';
 
-import StageGrabber from 'components/stage-grabber';
+import StageGrabber from './stage-grabber';
 import styles from './stage-grabber.less';
 
 describe('StageGrabber [Component]', () => {
