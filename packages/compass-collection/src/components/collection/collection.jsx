@@ -135,6 +135,7 @@ class Collection extends Component {
           theme="light"
           tabs={this.tabs}
           views={this.views}
+          mountAllViews={false}
           activeTabIndex={this.state.activeTab}
           onTabClicked={this.onTabClicked} />
       </div>
