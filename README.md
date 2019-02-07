@@ -16,12 +16,12 @@ git clone git@github.com:10gen/compass.git
 cd compass
 
 # Install dependencies
-# Note: If you haven't already, you may need to run 
-#     npm login 
+# Note: If you haven't already, you may need to run
+#     npm login
 # with an npm account which has been granted membership to
 #     https://www.npmjs.com/org/mongodb-js
-# in order to download and install private npm modules like 
-#     https://www.npmjs.com/package/@mongodb-js/compass-document-validation
+# in order to download and install private npm modules like
+#     https://www.npmjs.com/package/@mongodb-js/compass-schema-validation
 npm install
 
 # Build and launch the app, passing a distribution as an argument.
@@ -86,7 +86,7 @@ Here is the current list of external plugins Compass uses and their locations.
 - [@mongodb-js/compass-connect](https://github.com/10gen/compass-connect)
 - [@mongodb-js/compass-crud](https://github.com/10gen/compass-crud)
 - [@mongodb-js/compass-deployment-awareness](https://github.com/mongodb-js/compass-deployment-awareness)
-- [@mongodb-js/compass-document-validation](https://github.com/10gen/compass-document-validation)
+- [@mongodb-js/compass-schema-validation](https://github.com/10gen/compass-schema-validation)
 - [@mongodb-js/compass-export-to-language](https://github.com/mongodb-js/compass-export-to-language)
 - [@mongodb-js/compass-import-export](https://github.com/mongodb-js/compass-import-export)
 - [@mongodb-js/compass-instance](https://github.com/mongodb-js/compass-instance)
