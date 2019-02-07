@@ -1,11 +1,9 @@
-import bson from 'bson';
-import Context from 'context-eval';
 import EJSON from 'mongodb-extended-json';
+import queryParser from 'mongodb-query-parser';
 import javascriptStringify from 'javascript-stringify';
 import { fetchSampleDocuments } from './sample-documents';
 import { zeroStateChanged } from './zero-state';
 import { appRegistryEmit } from 'modules/app-registry';
-
 import { defaults, isEqual, pick } from 'lodash';
 
 /**
@@ -61,65 +59,6 @@ export const INITIAL_STATE = {
 };
 
 /**
- * Create the sandbox object with BSON types support.
- *
- * @returns {Object} The sandbox object.
- */
-function getQuerySandbox() {
-  return {
-    RegExp: RegExp,
-    Binary: bson.Binary,
-    Code: function(c, s) {
-      return new bson.Code(c, s);
-    },
-    DBRef: bson.DBRef,
-    Decimal128: bson.Decimal128,
-    NumberDecimal: bson.Decimal128.fromString,
-    Double: bson.Double,
-    Int32: bson.Int32,
-    NumberInt: (s) => parseInt(s, 10),
-    Long: bson.Long,
-    NumberLong: bson.Long.fromNumber,
-    Int64: bson.Long,
-    Map: bson.Map,
-    MaxKey: bson.MaxKey,
-    MinKey: bson.MinKey,
-    ObjectID: bson.ObjectID,
-    ObjectId: bson.ObjectID,
-    Symbol: bson.Symbol,
-    Timestamp: function(low, high) {
-      return new bson.Timestamp(low, high);
-    },
-    ISODate: function(s) {
-      return new Date(s);
-    },
-    Date: function(s) {
-      return new Date(s);
-    }
-  };
-}
-
-/**
- * Execute JS to parse the query string.
- *
- * @param {String} input - Validation rules.
- * @param {Object} sandbox - The sandbox.
- *
- * @returns {Object} The parsed query.
- */
-function executeJavascript(input, sandbox) {
-  sandbox = sandbox || {};
-  sandbox.__result = {};
-
-  const ctx = new Context(sandbox);
-  const res = ctx.evaluate('__result = ' + input);
-
-  ctx.destroy();
-
-  return res;
-}
-
-/**
  * Check validator as a simple query.
  *
  * @param {String} validator - Validator.
@@ -127,7 +66,6 @@ function executeJavascript(input, sandbox) {
  * @returns {Boolean} Is validator correct.
  */
 export const checkValidator = (validator) => {
-  const sandbox = getQuerySandbox();
   const validation = { syntaxError: null, validator };
 
   if (validator === '') {
@@ -136,7 +74,7 @@ export const checkValidator = (validator) => {
     };
   } else {
     try {
-      validation.validator = executeJavascript(validator, sandbox);
+      validation.validator = queryParser.parseFilter(validator);
     } catch (error) {
       validation.syntaxError = error;
     }

@@ -9,6 +9,12 @@ import { serverVersionChanged } from 'modules/server-version';
 import { appRegistryActivated } from 'modules/app-registry';
 import { fetchValidation, activateValidation } from 'modules/validation';
 import { editModeChanged } from 'modules/edit-mode';
+import semver from 'semver';
+
+/**
+ * The lowest supported version.
+ */
+const MIN_VERSION = '3.2.0';
 
 /**
  * The store has a combined pipeline reducer plus the thunk middleware.
@@ -71,7 +77,10 @@ store.onActivated = (appRegistry) => {
    * @param {String} version - The version.
    */
   appRegistry.on('server-version-changed', (version) => {
+    const isEditable = (semver.gte(version, MIN_VERSION));
+
     store.dispatch(serverVersionChanged(version));
+    store.dispatch(editModeChanged(isEditable));
   });
 
   /**

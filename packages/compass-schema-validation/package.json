@@ -35,7 +35,6 @@
   "peerDependencies": {
     "@mongodb-js/compass-crud": "^6.1.2",
     "bson": "^1.0.9",
-    "context-eval": "^0.1.0",
     "hadron-react-buttons": "^2.0.0",
     "hadron-react-components": "^2.0.0",
     "mongodb-ace-autocompleter": "0.1.0",
@@ -76,7 +75,6 @@
     "chai": "^4.1.2",
     "chai-enzyme": "1.0.0-beta.0",
     "classnames": "^2.2.5",
-    "context-eval": "^0.1.0",
     "cross-env": "^5.0.1",
     "css-loader": "^0.28.1",
     "electron": "^3.0.7",
@@ -150,9 +148,11 @@
   "dependencies": {
     "decomment": "^0.9.1",
     "mongodb-extended-json": "^1.10.0",
+    "mongodb-query-parser": "^1.2.4",
     "react-bootstrap": "^0.32.1",
     "react-redux": "^5.0.6",
     "redux": "^3.7.2",
-    "redux-thunk": "^2.2.0"
+    "redux-thunk": "^2.2.0",
+    "semver": "^5.6.0"
   }
 }

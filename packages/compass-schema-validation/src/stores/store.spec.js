@@ -1,6 +1,7 @@
 import AppRegistry from 'hadron-app-registry';
 import FieldStore, { activate } from '@mongodb-js/compass-field-store';
 import store from 'stores';
+import hadronApp from 'hadron-app';
 import {
   validatorChanged,
   validationFetched,
@@ -21,6 +22,7 @@ describe('Schema Validation Store', () => {
   };
 
   before(() => {
+    global.hadronApp = hadronApp;
     global.hadronApp.appRegistry = appRegistry;
     global.hadronApp.appRegistry.registerStore('App.CollectionStore', collectionStore);
   });
