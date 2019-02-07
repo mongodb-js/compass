@@ -12,9 +12,3 @@ The `DocumentList` component in the `CRUD` package:
 ```javascript
 app.appRegistry.registerComponent('CRUD.DocumentList');
 ```
-
-All the actions in the `indexes` pacakge:
-
-```javascript
-app.appRegistry.registerAction('Indexes.Actions');
-```
