@@ -277,7 +277,7 @@ class Target {
     /**
      * TODO (imlucas) Remove these after evergreen.yml updated to use inline templating.
      */
-    this.windows_msi_label = this.windows_msi_filename = `${this.productName}Setup.msi`;
+    this.windows_msi_label = this.windows_msi_filename = `${this.productName.replace(/\s/g, '')}.msi`;
     this.windows_setup_label = this.windows_setup_filename = `${this.productName}Setup.exe`;
     this.windows_zip_label = this.windows_zip_filename = `${this.productName}-windows.zip`;
     this.windows_nupkg_full_label = this.windows_nupkg_full_filename = `${this.packagerOptions.name}-${nuggetVersion}-full.nupkg`;
@@ -285,15 +285,15 @@ class Target {
     this.assets = [
       {
         name: `${this.id}-${this.version}-${this.platform}-${this.arch}.exe`,
-        path: this.dest(`${this.productName}Setup.exe`)
+        path: this.dest(this.windows_setup_label)
       },
       {
         name: `${this.id}-${this.version}-${this.platform}-${this.arch}.msi`,
-        path: this.dest(`${this.productName}Setup.msi`)
+        path: this.dest(this.windows_msi_label)
       },
       {
         name: `${this.id}-${this.version}-${this.platform}-${this.arch}.zip`,
-        path: this.dest(`${this.productName}-windows.zip`)
+        path: this.dest(this.windows_zip_label)
       },
       {
         name: `${this.slug}-RELEASES`,

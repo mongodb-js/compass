@@ -119,7 +119,7 @@ describe('hadron-build::config', () => {
     });
 
     it('should have the platform specific evergreen expansions', () => {
-      expect(res.windows_msi_filename).to.equal('MongoDB Compass Enterprise super long test nameSetup.msi');
+      expect(res.windows_msi_filename).to.equal('MongoDBCompassEnterprisesuperlongtestname.msi');
       expect(res.windows_setup_filename).to.equal('MongoDB Compass Enterprise super long test nameSetup.exe');
       expect(res.windows_zip_filename).to.equal('MongoDB Compass Enterprise super long test name-windows.zip');
       expect(res.windows_nupkg_full_filename).to.equal('MongoDBCompassEnterprisesuperlongtestname-1.2.0-full.nupkg');
@@ -161,7 +161,7 @@ describe('hadron-build::config', () => {
       });
 
       it('should include the channel name in asset filenames', () => {
-        expect(custom.windows_msi_filename).to.equal('MongoDB Compass Enterprise super long test name CustomSetup.msi');
+        expect(custom.windows_msi_filename).to.equal('MongoDBCompassEnterprisesuperlongtestnameCustom.msi');
         expect(custom.windows_setup_filename).to.equal('MongoDB Compass Enterprise super long test name CustomSetup.exe');
         expect(custom.windows_zip_filename).to.equal('MongoDB Compass Enterprise super long test name Custom-windows.zip');
         expect(custom.windows_nupkg_full_filename).to.equal('MongoDBCompassEnterprisesuperlongtestnameCustom-1.2.0-custom5-full.nupkg');
