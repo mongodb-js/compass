@@ -246,6 +246,12 @@ functions:
           export NOTARY_SIGNING_COMMENT="Evergreen project mongodb/compass ${revision} - ${build_variant} - ${branch_name}"
 
           echo "Creating signed release build..."
+
+          if [[ "$OSTYPE" == "cygwin" ]]; then
+            echo "Starting Installer Service..."
+            net start MSIServer
+          fi
+
           npm run release ${compass_distribution};
           EOF_BUILD_SH
 
