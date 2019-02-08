@@ -347,7 +347,7 @@ class Target {
       electronWinstaller
         .createWindowsInstaller(this.installerOptions)
         .then(() => {
-          const { MSICreator } = require('electron-wix-msi');
+          const { MSICreator } = require('@mongodb-js/electron-wix-msi');
           const msiCreator = new MSICreator({
             appDirectory: this.appPath,
             outputDirectory: this.packagerOptions.out,
