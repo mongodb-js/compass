@@ -271,6 +271,7 @@ functions:
               cp signtool.exe node_modules/@mongodb-js/electron-wix-msi/vendor/signtool.exe
             fi
             bash ~/compass_package.sh
+            ls -la dist
           fi
 
   'publish':
