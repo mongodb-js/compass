@@ -3,3 +3,4 @@ lib
 coverage
 harness/app/*
 harness/out/*
+*.swp

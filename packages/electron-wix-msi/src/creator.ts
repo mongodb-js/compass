@@ -213,6 +213,8 @@ export class MSICreator {
     const completeTemplate = replaceInString(this.wixTemplate, scaffoldReplacements);
     const output = await replaceToFile(completeTemplate, target, replacements);
 
+    console.log('wxs content', output);
+
     return { wxsFile: target, wxsContent: output };
   }
 
@@ -255,6 +257,12 @@ export class MSICreator {
     }
 
     const preArgs = flatMap(this.extensions.map((e) => (['-ext', e])));
+
+    if (type === 'msi') {
+      preArgs.push('-sval');
+    }
+
+    console.log(`Executing ${binary}`, [ ...preArgs, input ]);
 
     const { code, stderr, stdout } = await spawnPromise(binary, [ ...preArgs, input ], {
       env: process.env,
