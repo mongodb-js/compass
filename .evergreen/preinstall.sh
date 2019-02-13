@@ -47,7 +47,7 @@ if [ -n "$IS_WINDOWS" ]; then
     rm -rf npm npx npm.cmd npx.cmd
     mv node_modules/npm node_modules/npm2
     chmod +x ./node.exe
-    ./node.exe node_modules/npm2/bin/npm-cli.js i -g npm@latest
+    ./node.exe node_modules/npm2/bin/npm-cli.js i -g npm@6.5.0
     rm -rf node_modules/npm2/
     chmod +x npm.cmd npm
 else
