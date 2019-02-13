@@ -344,7 +344,7 @@ class Target {
 
     this.createInstaller = () => {
       const electronWinstaller = require('electron-winstaller');
-      electronWinstaller
+      return electronWinstaller
         .createWindowsInstaller(this.installerOptions)
         .then(() => {
           const { MSICreator } = require('@mongodb-js/electron-wix-msi');
