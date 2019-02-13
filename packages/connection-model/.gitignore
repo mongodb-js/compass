@@ -9,3 +9,4 @@ coverage
 *.pem
 *_rsa
 secrets.tar
+*.swp

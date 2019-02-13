@@ -13,7 +13,6 @@
   "keywords": [
     "mongodb-js"
   ],
-  "browser": "browser.js",
   "scripts": {
     "ci": "npm run check && npm test",
     "pretest": "mongodb-runner install",
