@@ -1,5 +1,5 @@
 {
-  "name": "indexes",
+  "name": "@mongodb-js/compass-indexes",
   "productName": "Compass Indexes plugin",
   "version": "0.0.2",
   "apiVersion": "2.0.0",
