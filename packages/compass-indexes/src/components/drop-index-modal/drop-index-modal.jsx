@@ -35,10 +35,17 @@ class DropIndexModal extends PureComponent {
     dropIndex: PropTypes.func.isRequired
   };
 
+  onFormSubmit(evt) {
+    evt.preventDefault();
+    evt.stopPropagation();
+  }
+
   /**
    * Clean up after a close events
    */
-  handleClose() {
+  handleClose(evt) {
+    evt.preventDefault();
+    evt.stopPropagation();
     this.props.toggleIsVisible(false);
     this.props.resetForm();
   }
@@ -79,7 +86,9 @@ class DropIndexModal extends PureComponent {
               to drop
             </p>
           </div>
-          <form>
+          <form
+            onSubmit={this.onFormSubmit.bind(this)}
+          >
             <div className="form-group">
               <input
                 autoFocus
