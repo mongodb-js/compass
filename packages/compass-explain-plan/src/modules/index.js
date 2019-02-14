@@ -6,6 +6,7 @@ import namespace, { INITIAL_STATE as NS_INITIAL_STATE, NAMESPACE_CHANGED } from 
 import serverVersion, { INITIAL_STATE as SV_INITIAL_STATE } from './server-version';
 import isZeroState, { INITIAL_STATE as IS_ZERO_STATE } from './zero-state';
 import isEditable, { INITIAL_STATE as IS_EDITABLE_STATE } from './edit-mode';
+import explain, { INITIAL_STATE as EXPLAIN_STATE } from './explain';
 
 /**
  * Reset action constant.
@@ -21,7 +22,8 @@ export const INITIAL_STATE = {
   namespace: NS_INITIAL_STATE,
   serverVersion: SV_INITIAL_STATE,
   isZeroState: IS_ZERO_STATE,
-  isEditable: IS_EDITABLE_STATE
+  isEditable: IS_EDITABLE_STATE,
+  explain: EXPLAIN_STATE
 };
 
 /**
@@ -33,7 +35,8 @@ const appReducer = combineReducers({
   namespace,
   serverVersion,
   isZeroState,
-  isEditable
+  isEditable,
+  explain
 });
 
 /**

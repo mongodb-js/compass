@@ -22,8 +22,15 @@
     "unlink-plugin": "./scripts/unlink.sh",
     "prepublish": "npm run compile"
   },
-  "precommit": ["check"],
-  "dependency-check": { "ignore": ["react-dom", "debug"] },
+  "precommit": [
+    "check"
+  ],
+  "dependency-check": {
+    "ignore": [
+      "react-dom",
+      "debug"
+    ]
+  },
   "license": "Apache-2.0",
   "peerDependencies": {
     "debug": "^3.0.1",
@@ -122,6 +129,7 @@
   },
   "dependencies": {
     "react-bootstrap": "^0.32.1",
+    "react-fontawesome": "^1.6.1",
     "react-redux": "^5.0.6",
     "redux": "^3.7.2",
     "redux-thunk": "^2.2.0"

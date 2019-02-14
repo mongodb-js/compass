@@ -68,7 +68,8 @@ describe('Explain Plan Store', () => {
             dataService: INITIAL_STATE.dataService,
             serverVersion: INITIAL_STATE.serverVersion,
             isZeroState: INITIAL_STATE.isZeroState,
-            isEditable: INITIAL_STATE.isEditable
+            isEditable: INITIAL_STATE.isEditable,
+            explain: INITIAL_STATE.explain
           });
         });
       });

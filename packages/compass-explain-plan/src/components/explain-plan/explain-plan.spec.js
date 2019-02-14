@@ -4,7 +4,7 @@ import ExplainPlan from 'components/explain-plan';
 import store from 'stores';
 import styles from './explain-plan.less';
 
-describe('CompassSchemaValidation [Component]', () => {
+describe('ExplainPlan [Component]', () => {
   let component;
 
   beforeEach(() => {
