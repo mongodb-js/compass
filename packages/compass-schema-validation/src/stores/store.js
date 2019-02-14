@@ -77,10 +77,11 @@ store.onActivated = (appRegistry) => {
    * @param {String} version - The version.
    */
   appRegistry.on('server-version-changed', (version) => {
-    const isEditable = (semver.gte(version, MIN_VERSION));
-
     store.dispatch(serverVersionChanged(version));
-    store.dispatch(editModeChanged(isEditable));
+
+    if (version) {
+      store.dispatch(editModeChanged(semver.gte(version, MIN_VERSION)));
+    }
   });
 
   /**

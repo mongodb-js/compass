@@ -77,4 +77,4 @@ const MappedCompassSchemaValidation = connect(
 )(CompassSchemaValidation);
 
 export default MappedCompassSchemaValidation;
-export {CompassSchemaValidation};
+export { CompassSchemaValidation };

@@ -57,7 +57,7 @@ class ValidationStates extends Component {
     zeroStateChanged: PropTypes.func.isRequired,
     isEditable: PropTypes.bool.isRequired,
     openLink: PropTypes.func.isRequired,
-    serverVersion: PropTypes.string.isRequired
+    serverVersion: PropTypes.string
   }
 
   /**

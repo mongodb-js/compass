@@ -65,7 +65,7 @@ class ValidationEditor extends Component {
     validationLevelChanged: PropTypes.func.isRequired,
     cancelValidation: PropTypes.func.isRequired,
     saveValidation: PropTypes.func.isRequired,
-    serverVersion: PropTypes.string.isRequired,
+    serverVersion: PropTypes.string,
     fields: PropTypes.array,
     validation: PropTypes.shape({
       validator: PropTypes.string.isRequired,
