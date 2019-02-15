@@ -336,7 +336,7 @@ const CRUDStore = Reflux.createStore({
         counter: this.state.counter + NUM_PAGE_DOCS,
         table: this.getInitialTableState()
       });
-      this.appRegistry.emit('documents-paginated', this.state.view);
+      this.appRegistry.emit('documents-paginated', this.state.view, documents);
     });
   },
 
@@ -372,7 +372,7 @@ const CRUDStore = Reflux.createStore({
         counter: this.state.counter - NUM_PAGE_DOCS,
         table: this.getInitialTableState()
       });
-      this.appRegistry.emit('documents-paginated', this.state.view);
+      this.appRegistry.emit('documents-paginated', this.state.view, documents);
     });
   },
 
