@@ -1,7 +1,7 @@
 import React from 'react';
 import { mount } from 'enzyme';
 
-import PipelineBuilderToolbar from 'components/pipeline-builder-toolbar';
+import PipelineBuilderToolbar from './pipeline-builder-toolbar';
 import styles from './pipeline-builder-toolbar.less';
 
 describe('PipelineBuilderToolbar [Component]', () => {
@@ -16,6 +16,7 @@ describe('PipelineBuilderToolbar [Component]', () => {
   let saveSpy;
   let setIsModifiedSpy;
   let collationCollapseSpy;
+  let toggleOverviewSpy;
 
   beforeEach(() => {
     savedPipelinesListToggleSpy = sinon.spy();
@@ -28,6 +29,7 @@ describe('PipelineBuilderToolbar [Component]', () => {
     saveSpy = sinon.spy();
     setIsModifiedSpy = sinon.spy();
     collationCollapseSpy = sinon.spy();
+    toggleOverviewSpy = sinon.spy();
 
     component = mount(
       <PipelineBuilderToolbar
@@ -42,9 +44,12 @@ describe('PipelineBuilderToolbar [Component]', () => {
         name=""
         isModified
         isCollationExpanded
+        isOverviewOn={false}
+        toggleOverview={toggleOverviewSpy}
         setIsModified={setIsModifiedSpy}
         collationCollapseToggled={collationCollapseSpy}
-        exportToLanguage={exportToLanguageSpy} />
+        exportToLanguage={exportToLanguageSpy}
+      />
     );
   });
 
@@ -59,15 +64,21 @@ describe('PipelineBuilderToolbar [Component]', () => {
     nameChangedSpy = null;
     saveSpy = null;
     setIsModifiedSpy = null;
+    toggleOverviewSpy = null;
   });
 
   it('renders the wrapper div', () => {
-    expect(component.find(`.${styles['pipeline-builder-toolbar']}`)).to.be.present();
+    expect(
+      component.find(`.${styles['pipeline-builder-toolbar']}`)
+    ).to.be.present();
   });
 
   it('renders the save pipeline button', () => {
-    expect(component.find(`.${styles['pipeline-builder-toolbar-save-pipeline-button']}`)).
-      to.be.present();
+    expect(
+      component.find(
+        `.${styles['pipeline-builder-toolbar-save-pipeline-button']}`
+      )
+    ).to.be.present();
   });
 
   it('renders the dropdown menu', () => {

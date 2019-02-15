@@ -1,13 +1,16 @@
+/**
+ * TODO (@imlucas) Rename -> Aggregation pipeline? Sep ./containers?
+ */
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import classnames from 'classnames';
 import PipelineToolbar from 'components/pipeline-toolbar';
-import CollationToolbar from 'components/collation-toolbar';
+import CollationToolbar from './collation-toolbar';
 import PipelineWorkspace from 'components/pipeline-workspace';
 import SavePipeline from 'components/save-pipeline';
-import RestorePipelineModal from 'components/restore-pipeline-modal';
-import ImportPipeline from 'components/import-pipeline';
-import ConfirmImportPipeline from 'components/confirm-import-pipeline';
+import RestorePipelineModal from './modals/restore-pipeline-modal';
+import ImportPipeline from './modals/import-pipeline';
+import ConfirmImportPipeline from './modals/confirm-import-pipeline';
 
 import styles from './pipeline.less';
 
@@ -67,7 +70,64 @@ class Pipeline extends PureComponent {
     collationStringChanged: PropTypes.func.isRequired,
     openLink: PropTypes.func.isRequired,
     collationCollapseToggled: PropTypes.func.isRequired,
-    isCollationExpanded: PropTypes.bool.isRequired
+    isCollationExpanded: PropTypes.bool.isRequired,
+    isOverviewOn: PropTypes.bool.isRequired,
+    toggleOverview: PropTypes.func.isRequired
+  };
+
+  /**
+   * Render global the separator bar.
+   *
+   * @returns {Component} The component.
+   */
+  renderSeparator() {
+    if (this.props.isCollationExpanded) {
+      return (
+        <div
+          key="expanded-separator"
+          className={classnames(styles['pipeline-expanded-separator'])}
+        />
+      );
+    }
+    return <div className={classnames(styles['pipeline-separator'])} />;
+  }
+
+  /**
+   * Render the collation toolbar if neccessary.
+   *
+   * @returns {Component} The component.
+   */
+  renderCollationToolbar() {
+    if (this.props.isCollationExpanded) {
+      return (
+        <CollationToolbar
+          collation={this.props.collation}
+          collationChanged={this.props.collationChanged}
+          collationString={this.props.collationString}
+          collationStringChanged={this.props.collationStringChanged}
+          openLink={this.props.openLink}
+        />
+      );
+    }
+    return null;
+  }
+
+  /**
+   * Render the restore modal if neccessary.
+   *
+   * @returns {Component} The component.
+   */
+  renderRestoreModal() {
+    if (this.props.restorePipeline.isModalVisible) {
+      return (
+        <RestorePipelineModal
+          restorePipelineModalToggle={this.props.restorePipelineModalToggle}
+          getPipelineFromIndexedDB={this.props.getPipelineFromIndexedDB}
+          restorePipeline={this.props.restorePipeline}
+        />
+      );
+    }
+    return null;
   }
 
   /**
@@ -76,12 +136,6 @@ class Pipeline extends PureComponent {
    * @returns {Component} The component.
    */
   render() {
-    const restorePipelineModal = this.props.restorePipeline.isModalVisible
-      ? (<RestorePipelineModal
-          restorePipelineModalToggle={this.props.restorePipelineModalToggle}
-          getPipelineFromIndexedDB={this.props.getPipelineFromIndexedDB}
-          restorePipeline={this.props.restorePipeline} />)
-      : null;
     const importPipelineModal = (
       <ImportPipeline
         isOpen={this.props.isImportPipelineOpen}
@@ -89,7 +143,8 @@ class Pipeline extends PureComponent {
         changeText={this.props.changeText}
         createNew={this.props.createNew}
         error={this.props.importPipelineError}
-        text={this.props.importPipelineText} />
+        text={this.props.importPipelineText}
+      />
     );
     const confirmImportPipelineModal = (
       <ConfirmImportPipeline
@@ -97,24 +152,9 @@ class Pipeline extends PureComponent {
         closeImport={this.props.closeImport}
         isAutoPreviewing={this.props.isAutoPreviewing}
         runStage={this.props.runStage}
-        confirmNew={this.props.confirmNew} />
+        confirmNew={this.props.confirmNew}
+      />
     );
-    let collation = null;
-    let separator = (<div className={classnames(styles['pipeline-separator'])}></div>);
-    if (this.props.isCollationExpanded) {
-      collation = (
-        <CollationToolbar
-          collation={this.props.collation}
-          collationChanged={this.props.collationChanged}
-          collationString={this.props.collationString}
-          collationStringChanged={this.props.collationStringChanged}
-          openLink={this.props.openLink} />
-      );
-      separator = ([
-        <div key="top-separator" className={classnames(styles['pipeline-top-separator'])}></div>,
-        <div key="bottom-separator" className={classnames(styles['pipeline-bottom-separator'])}></div>
-      ]);
-    }
 
     return (
       <div className={classnames(styles.pipeline)}>
@@ -138,19 +178,23 @@ class Pipeline extends PureComponent {
           isAutoPreviewing={this.props.isAutoPreviewing}
           collationCollapseToggled={this.props.collationCollapseToggled}
           isCollationExpanded={this.props.isCollationExpanded}
-          name={this.props.name} />
-        {collation}
-        {separator}
+          name={this.props.name}
+          isOverviewOn={this.props.isOverviewOn}
+          toggleOverview={this.props.toggleOverview}
+        />
+        {this.renderCollationToolbar()}
+        {this.renderSeparator()}
         <PipelineWorkspace {...this.props} />
         <SavePipeline
           restorePipelineModalToggle={this.props.restorePipelineModalToggle}
           restorePipelineFrom={this.props.restorePipelineFrom}
           deletePipeline={this.props.deletePipeline}
           savedPipelinesListToggle={this.props.savedPipelinesListToggle}
-          savedPipeline={this.props.savedPipeline} />
-        { restorePipelineModal }
-        { importPipelineModal }
-        { confirmImportPipelineModal }
+          savedPipeline={this.props.savedPipeline}
+        />
+        {this.renderRestoreModal()}
+        {importPipelineModal}
+        {confirmImportPipelineModal}
       </div>
     );
   }

@@ -17,12 +17,12 @@ const EXPAND = 'Expand';
 /**
  * Angle right class.
  */
-const ANGLE_RIGHT = 'fa fa-angle-right';
+const ANGLE_RIGHT = 'fa fa-caret-right';
 
 /**
  * Angle down class.
  */
-const ANGLE_DOWN = 'fa fa-angle-down';
+const ANGLE_DOWN = 'fa fa-caret-down';
 
 /**
  * Collapse/Expand a collation.
@@ -33,7 +33,7 @@ class CollationCollapser extends PureComponent {
   static propTypes = {
     isCollationExpanded: PropTypes.bool.isRequired,
     collationCollapseToggled: PropTypes.func.isRequired
-  }
+  };
 
   /**
    * Render the collation collapser component.
@@ -41,7 +41,9 @@ class CollationCollapser extends PureComponent {
    * @returns {Component} The component.
    */
   render() {
-    const iconClassName = this.props.isCollationExpanded ? ANGLE_DOWN : ANGLE_RIGHT;
+    const iconClassName = this.props.isCollationExpanded
+      ? ANGLE_DOWN
+      : ANGLE_RIGHT;
     const buttonTitle = this.props.isCollationExpanded ? COLLAPSE : EXPAND;
 
     return (
@@ -51,7 +53,8 @@ class CollationCollapser extends PureComponent {
           title={buttonTitle}
           onClick={this.props.collationCollapseToggled}
           className="btn btn-default btn-xs">
-            <i className={iconClassName} aria-hidden />
+          <i className={iconClassName} aria-hidden />
+          {' '}Collation
         </button>
       </div>
     );

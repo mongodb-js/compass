@@ -1,7 +1,7 @@
 import React from 'react';
 import { mount } from 'enzyme';
 
-import CollationCollapser from 'components/collation-collapser';
+import CollationCollapser from './collation-collapser';
 import styles from './collation-collapser.less';
 
 describe('CollationCollaper [Component]', () => {
@@ -30,7 +30,7 @@ describe('CollationCollaper [Component]', () => {
     });
 
     it('renders the collapse button', () => {
-      expect(component.find('.fa-angle-down')).to.be.present();
+      expect(component.find('.fa-caret-down')).to.be.present();
     });
   });
 
@@ -55,7 +55,7 @@ describe('CollationCollaper [Component]', () => {
     });
 
     it('renders the expand button', () => {
-      expect(component.find('.fa-angle-right')).to.be.present();
+      expect(component.find('.fa-caret-right')).to.be.present();
     });
   });
 

@@ -20,7 +20,8 @@ import reducer, {
   STAGE_OPERATOR_SELECTED,
   STAGE_PREVIEW_UPDATED,
   LOADING_STAGE_RESULTS,
-  STAGE_TOGGLED } from 'modules/pipeline';
+  STAGE_TOGGLED
+} from 'modules/pipeline';
 
 const LIMIT_TO_PROCESS = 100000;
 const LIMIT_TO_DISPLAY = 20;

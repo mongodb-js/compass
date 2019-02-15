@@ -1,7 +1,7 @@
 import React from 'react';
 import { mount } from 'enzyme';
 
-import SavePipelineCard from 'components/save-pipeline-card';
+import SavePipelineCard from './save-pipeline-card';
 import styles from './save-pipeline-card.less';
 
 describe('SavePipelineCard [Component]', () => {

@@ -4,11 +4,13 @@ import reducer, {
   restoreSavedPipeline,
   clonePipeline,
   newPipeline,
+  toggleOverview,
   RESET,
   CLEAR_PIPELINE,
   RESTORE_PIPELINE,
   NEW_PIPELINE,
-  CLONE_PIPELINE
+  CLONE_PIPELINE,
+  TOGGLE_OVERVIEW
 } from 'modules';
 
 describe('root [ module ]', () => {
@@ -49,6 +51,14 @@ describe('root [ module ]', () => {
     it('returns the CLONE_PIPELINE action', () => {
       expect(clonePipeline()).to.deep.equal({
         type: CLONE_PIPELINE
+      });
+    });
+  });
+
+  describe('#toggleOverview', () => {
+    it('returns the TOGGLE_OVERVIEW action', () => {
+      expect(toggleOverview()).to.deep.equal({
+        type: TOGGLE_OVERVIEW
       });
     });
   });
@@ -112,6 +122,91 @@ describe('root [ module ]', () => {
 
       it('updates the name', () => {
         expect(state.name).to.equal('test (copy)');
+      });
+    });
+
+    context('when the action is CLONE_PIPELINE', () => {
+      const prevState = {
+        id: 'testing',
+        name: 'test'
+      };
+
+      let state;
+
+      before(() => {
+        state = reducer(prevState, clonePipeline());
+      });
+
+      it('sets id to a new id', () => {
+        expect(state.id).to.not.equal('testing');
+      });
+
+      it('updates the name', () => {
+        expect(state.name).to.equal('test (copy)');
+      });
+    });
+
+    describe('when the action is TOGGLE_OVERVIEW', () => {
+      describe('#isOverviewOn', () => {
+        const prevState = {
+          isOverviewOn: false
+        };
+
+        let state;
+
+        it('first toggle turns it on', () => {
+          state = reducer(prevState, toggleOverview());
+          expect(state.isOverviewOn).to.equal(true);
+        });
+
+        it('second toggle turns it back off', () => {
+          state = reducer(state, toggleOverview());
+          expect(state.isOverviewOn).to.equal(false);
+        });
+      });
+
+      describe('#pipeline[].isExpanded', () => {
+        const prevState = {
+          isOverviewOn: false,
+          pipeline: [
+            {
+              isExpanded: true
+            }
+          ]
+        };
+
+        let state;
+
+        it('first toggle collapses the opened stage', () => {
+          state = reducer(prevState, toggleOverview());
+          expect(state.pipeline[0].isExpanded).to.equal(false);
+        });
+
+        it('second toggle expands the stage', () => {
+          state = reducer(state, toggleOverview());
+          expect(state.pipeline[0].isExpanded).to.equal(true);
+        });
+      });
+
+      describe('#inputDocuments.isExpanded', () => {
+        const prevState = {
+          isOverviewOn: false,
+          inputDocuments: {
+            isExpanded: true
+          }
+        };
+
+        let state;
+
+        it('first toggle collapses it', () => {
+          state = reducer(prevState, toggleOverview());
+          expect(state.inputDocuments.isExpanded).to.equal(false);
+        });
+
+        it('second toggle expands the stage', () => {
+          state = reducer(state, toggleOverview());
+          expect(state.inputDocuments.isExpanded).to.equal(true);
+        });
       });
     });
   });

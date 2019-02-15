@@ -1,7 +1,7 @@
 import React from 'react';
 import { mount } from 'enzyme';
 
-import RestorePipelineButton from 'components/restore-pipeline-button';
+import RestorePipelineButton from './restore-pipeline-button';
 import styles from './restore-pipeline-button.less';
 
 describe('RestorePipelineButton [Component]', () => {

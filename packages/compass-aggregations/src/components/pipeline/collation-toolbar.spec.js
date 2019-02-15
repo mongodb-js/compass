@@ -1,29 +1,25 @@
 import React from 'react';
 import { mount } from 'enzyme';
 
-import CollationToolbar from 'components/collation-toolbar';
+import CollationToolbar from './collation-toolbar';
 import styles from './collation-toolbar.less';
 
 describe('CollationToolbar [Component]', () => {
   let component;
-  let collationSpy;
   let collationChangedSpy;
-  let collationStringSpy;
   let collationStringChangedSpy;
   let openLinkSpy;
 
   beforeEach(() => {
-    collationSpy = sinon.spy();
     collationChangedSpy = sinon.spy();
-    collationStringSpy = sinon.spy();
     collationStringChangedSpy = sinon.spy();
     openLinkSpy = sinon.spy();
 
     component = mount(
       <CollationToolbar
-        collation={collationSpy}
+        collation={{ locale: 'simple' }}
         collationChanged={collationChangedSpy}
-        collationString={collationStringSpy}
+        collationString="{locale: 'simple' }"
         collationStringChanged={collationStringChangedSpy}
         openLink={openLinkSpy} />
     );
@@ -31,9 +27,7 @@ describe('CollationToolbar [Component]', () => {
 
   afterEach(() => {
     component = null;
-    collationSpy = null;
     collationChangedSpy = null;
-    collationStringSpy = null;
     collationStringChangedSpy = null;
   });
 

@@ -49,7 +49,8 @@ class StageEditor extends Component {
     isAutoPreviewing: PropTypes.bool.isRequired,
     isValid: PropTypes.bool.isRequired,
     fromStageOperators: PropTypes.bool.isRequired,
-    setIsModified: PropTypes.func.isRequired
+    setIsModified: PropTypes.func.isRequired,
+    isOverviewOn: PropTypes.bool.isRequired
   }
 
   /**
@@ -83,7 +84,8 @@ class StageEditor extends Component {
       nextProps.index !== this.props.index ||
       nextProps.serverVersion !== this.props.serverVersion ||
       nextProps.fields.length !== this.props.fields.length ||
-      nextProps.isValid !== this.props.isValid;
+      nextProps.isValid !== this.props.isValid ||
+      nextProps.isOverviewOn !== this.props.isOverviewOn;
   }
 
   /**

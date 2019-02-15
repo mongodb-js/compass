@@ -1,8 +1,8 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import classnames from 'classnames';
-import RestoreButton from 'components/restore-pipeline-button';
-import DeleteButton from 'components/delete-pipeline-button';
+import RestoreButton from './restore-pipeline-button';
+import DeleteButton from './delete-pipeline-button';
 
 import styles from './save-pipeline-card.less';
 

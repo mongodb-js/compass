@@ -31,7 +31,8 @@ const stageTarget = {
       // Determine rectangle on screen
       const hoverBoundingRect = findDOMNode(component).getBoundingClientRect();
       // Get vertical middle
-      const hoverMiddleY = (hoverBoundingRect.bottom - hoverBoundingRect.top) / 2;
+      const hoverMiddleY =
+        (hoverBoundingRect.bottom - hoverBoundingRect.top) / 2;
       // Determine mouse position
       const clientOffset = monitor.getClientOffset();
       // Get pixels to the top
@@ -59,7 +60,7 @@ const stageTarget = {
  *
  * Decorators added for giving the component drag/drop behaviour.
  */
-@DropTarget('Stage', stageTarget, (connect) => ({
+@DropTarget('Stage', stageTarget, connect => ({
   connectDropTarget: connect.dropTarget()
 }))
 @DragSource('Stage', stageSource, (connect, monitor) => ({
@@ -102,11 +103,12 @@ class Stage extends Component {
     openLink: PropTypes.func.isRequired,
     fields: PropTypes.array.isRequired,
     setIsModified: PropTypes.func.isRequired
-  }
+  };
 
   /* eslint complexity: 0 */
   shouldComponentUpdate(nextProps) {
-    return nextProps.stageOperator !== this.props.stageOperator ||
+    return (
+      nextProps.stageOperator !== this.props.stageOperator ||
       nextProps.snippet !== this.props.snippet ||
       nextProps.error !== this.props.error ||
       nextProps.syntaxError !== this.props.syntaxError ||
@@ -122,7 +124,9 @@ class Stage extends Component {
       nextProps.isAutoPreviewing !== this.props.isAutoPreviewing ||
       nextProps.serverVersion !== this.props.serverVersion ||
       nextProps.fields.length !== this.props.fields.length ||
-      (this.props.stageOperator === '$out' && (nextProps.stage !== this.props.stage));
+      (this.props.stageOperator === '$out' &&
+        nextProps.stage !== this.props.stage)
+    );
   }
 
   /**
@@ -153,7 +157,8 @@ class Stage extends Component {
           serverVersion={this.props.serverVersion}
           fields={this.props.fields}
           setIsModified={this.props.setIsModified}
-          stageChanged={this.props.stageChanged} />
+          stageChanged={this.props.stageChanged}
+        />
       );
     }
   }
@@ -164,7 +169,7 @@ class Stage extends Component {
    * @returns {Component} The component.
    */
   render() {
-    const opacity = this.props.isDragging ? 0 : (this.props.isEnabled ? 1 : 0.6);
+    const opacity = this.props.isDragging ? 0 : this.props.isEnabled ? 1 : 0.6;
     const errored = this.props.error ? 'stage-errored' : 'stage';
     return this.props.connectDragSource(
       this.props.connectDropTarget(
@@ -187,7 +192,8 @@ class Stage extends Component {
             runStage={this.props.runStage}
             isCommenting={this.props.isCommenting}
             setIsModified={this.props.setIsModified}
-            stageCollapseToggled={this.props.stageCollapseToggled} />
+            stageCollapseToggled={this.props.stageCollapseToggled}
+          />
           {this.renderWorkspace()}
         </div>
       )

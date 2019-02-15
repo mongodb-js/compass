@@ -32,8 +32,10 @@ class PipelineToolbar extends PureComponent {
     setIsModified: PropTypes.func.isRequired,
     name: PropTypes.string,
     collationCollapseToggled: PropTypes.func.isRequired,
-    isCollationExpanded: PropTypes.bool.isRequired
-  }
+    isCollationExpanded: PropTypes.bool.isRequired,
+    isOverviewOn: PropTypes.bool.isRequired,
+    toggleOverview: PropTypes.func.isRequired
+  };
 
   /**
    * Renders the toolbar.
@@ -42,10 +44,10 @@ class PipelineToolbar extends PureComponent {
    */
   render() {
     return (
-      <div className={classnames(
-        styles['pipeline-toolbar'],
-        { [ styles['pipeline-toolbar-border'] ]: !this.props.isCollationExpanded }
-      )}>
+      <div
+        className={classnames(styles['pipeline-toolbar'], {
+          [styles['pipeline-toolbar-border']]: !this.props.isCollationExpanded
+        })}>
         <PipelineBuilderToolbar
           savedPipelinesListToggle={this.props.savedPipelinesListToggle}
           getSavedPipelines={this.props.getSavedPipelines}
@@ -61,7 +63,10 @@ class PipelineToolbar extends PureComponent {
           setIsModified={this.props.setIsModified}
           name={this.props.name}
           collationCollapseToggled={this.props.collationCollapseToggled}
-          isCollationExpanded={this.props.isCollationExpanded} />
+          isCollationExpanded={this.props.isCollationExpanded}
+          isOverviewOn={this.props.isOverviewOn}
+          toggleOverview={this.props.toggleOverview}
+        />
         <PipelinePreviewToolbar
           toggleComments={this.props.toggleComments}
           toggleSample={this.props.toggleSample}
@@ -69,7 +74,8 @@ class PipelineToolbar extends PureComponent {
           isCommenting={this.props.isCommenting}
           isSampling={this.props.isSampling}
           isAutoPreviewing={this.props.isAutoPreviewing}
-          isModified={this.props.isModified} />
+          isModified={this.props.isModified}
+        />
       </div>
     );
   }

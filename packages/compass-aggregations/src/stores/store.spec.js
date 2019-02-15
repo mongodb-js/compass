@@ -7,7 +7,8 @@ import {
   stageDeleted,
   stageAdded,
   stageAddedAfter,
-  stageToggled } from 'modules/pipeline';
+  stageToggled
+} from 'modules/pipeline';
 import { reset, INITIAL_STATE } from '../modules/index';
 
 describe('Aggregation Store', () => {
@@ -24,16 +25,26 @@ describe('Aggregation Store', () => {
     });
 
     context('when the fields change', () => {
-      const docs = [
-        { _id: 1, name: 'Aphex Twin' }
-      ];
+      const docs = [{ _id: 1, name: 'Aphex Twin' }];
 
-      it('updates the namespace in the store', (done) => {
+      it('updates the namespace in the store', done => {
         const unsubscribe = store.subscribe(() => {
           unsubscribe();
           expect(store.getState().fields).to.deep.equal([
-            { name: '_id', value: '_id', score: 1, meta: 'field', version: '0.0.0' },
-            { name: 'name', value: 'name', score: 1, meta: 'field', version: '0.0.0' }
+            {
+              name: '_id',
+              value: '_id',
+              score: 1,
+              meta: 'field',
+              version: '0.0.0'
+            },
+            {
+              name: 'name',
+              value: 'name',
+              score: 1,
+              meta: 'field',
+              version: '0.0.0'
+            }
           ]);
           done();
         });
@@ -59,7 +70,7 @@ describe('Aggregation Store', () => {
 
   describe('#dispatch', () => {
     context('when the action is unknown', () => {
-      it('returns the initial state', (done) => {
+      it('returns the initial state', done => {
         const unsubscribe = store.subscribe(() => {
           unsubscribe();
           expect(store.getState().pipeline[0].stage).to.equal('');
@@ -72,7 +83,7 @@ describe('Aggregation Store', () => {
     context('when the action is STAGE_CHANGED', () => {
       const stage = '{ $match: {}}';
 
-      it('updates the stage in state', (done) => {
+      it('updates the stage in state', done => {
         const unsubscribe = store.subscribe(() => {
           unsubscribe();
           expect(store.getState().pipeline[0].stage).to.equal(stage);
@@ -83,7 +94,7 @@ describe('Aggregation Store', () => {
     });
 
     context('when the action is STAGE_DELETED', () => {
-      it('deletes the stage in state', (done) => {
+      it('deletes the stage in state', done => {
         const unsubscribe = store.subscribe(() => {
           unsubscribe();
           expect(store.getState().pipeline).to.deep.equal([]);
@@ -94,7 +105,7 @@ describe('Aggregation Store', () => {
     });
 
     context('when the action is STAGE_ADDED', () => {
-      it('updates the stage in state', (done) => {
+      it('updates the stage in state', done => {
         const unsubscribe = store.subscribe(() => {
           unsubscribe();
           expect(store.getState().pipeline.length).to.equal(2);
@@ -105,7 +116,7 @@ describe('Aggregation Store', () => {
     });
 
     context('when the action is STAGE_ADDED_AFTER', () => {
-      it('updates the stage in state', (done) => {
+      it('updates the stage in state', done => {
         const unsubscribe = store.subscribe(() => {
           unsubscribe();
           expect(store.getState().pipeline.length).to.equal(2);
@@ -116,7 +127,7 @@ describe('Aggregation Store', () => {
     });
 
     context('when the action is STAGE_TOGGLED', () => {
-      it('updates the stage in state', (done) => {
+      it('updates the stage in state', done => {
         const unsubscribe = store.subscribe(() => {
           unsubscribe();
           expect(store.getState().pipeline[0].isEnabled).to.equal(false);
@@ -127,7 +138,7 @@ describe('Aggregation Store', () => {
     });
 
     context('when the action is STAGE_COLLAPSE_TOGGLED', () => {
-      it('updates the stage in state', (done) => {
+      it('updates the stage in state', done => {
         const unsubscribe = store.subscribe(() => {
           unsubscribe();
           expect(store.getState().pipeline[0].isExpanded).to.equal(false);

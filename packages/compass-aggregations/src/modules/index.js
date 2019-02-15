@@ -3,35 +3,58 @@ import { ObjectId } from 'bson';
 
 import dataService, { INITIAL_STATE as DS_INITIAL_STATE } from './data-service';
 import fields, { INITIAL_STATE as FIELDS_INITIAL_STATE } from './fields';
-import inputDocuments, { INITIAL_STATE as INPUT_INITIAL_STATE } from './input-documents';
-import namespace, { INITIAL_STATE as NS_INITIAL_STATE, NAMESPACE_CHANGED } from './namespace';
-import serverVersion, { INITIAL_STATE as SV_INITIAL_STATE } from './server-version';
-import isModified, { INITIAL_STATE as IS_MODIFIED_INITIAL_STATE } from './is-modified';
+import inputDocuments, {
+  INITIAL_STATE as INPUT_INITIAL_STATE
+} from './input-documents';
+import namespace, {
+  INITIAL_STATE as NS_INITIAL_STATE,
+  NAMESPACE_CHANGED
+} from './namespace';
+import serverVersion, {
+  INITIAL_STATE as SV_INITIAL_STATE
+} from './server-version';
+import isModified, {
+  INITIAL_STATE as IS_MODIFIED_INITIAL_STATE
+} from './is-modified';
 import pipeline, {
   runStage,
   INITIAL_STATE as PIPELINE_INITIAL_STATE
 } from './pipeline';
 import name, { INITIAL_STATE as NAME_INITIAL_STATE } from './name';
-import collation, { INITIAL_STATE as COLLATION_INITIAL_STATE } from './collation';
-import collationString, { INITIAL_STATE as COLLATION_STRING_INITIAL_STATE } from './collation-string';
-import isCollationExpanded, { INITIAL_STATE as COLLATION_COLLAPSER_INITIAL_STATE } from './collation-collapser';
+import collation, {
+  INITIAL_STATE as COLLATION_INITIAL_STATE
+} from './collation';
+import collationString, {
+  INITIAL_STATE as COLLATION_STRING_INITIAL_STATE
+} from './collation-string';
+import isCollationExpanded, {
+  INITIAL_STATE as COLLATION_COLLAPSER_INITIAL_STATE
+} from './collation-collapser';
 import comments, { INITIAL_STATE as COMMENTS_INITIAL_STATE } from './comments';
 import sample, { INITIAL_STATE as SAMPLE_INITIAL_STATE } from './sample';
-import autoPreview, { INITIAL_STATE as AUTO_PREVIEW_INITIAL_STATE } from './auto-preview';
+import autoPreview, {
+  INITIAL_STATE as AUTO_PREVIEW_INITIAL_STATE
+} from './auto-preview';
 import id, { INITIAL_STATE as ID_INITIAL_STATE } from './id';
 import savedPipeline, {
   updatePipelineList,
   INITIAL_STATE as SP_INITIAL_STATE
 } from './saved-pipeline';
-import restorePipeline, { INITIAL_STATE as RESTORE_PIPELINE_STATE} from './restore-pipeline';
+import restorePipeline, {
+  INITIAL_STATE as RESTORE_PIPELINE_STATE
+} from './restore-pipeline';
 import importPipeline, {
   INITIAL_STATE as IMPORT_PIPELINE_INITIAL_STATE,
   CONFIRM_NEW,
   createPipeline
 } from './import-pipeline';
 import { getObjectStore } from 'utils/indexed-db';
-import appRegistry, { appRegistryEmit, INITIAL_STATE as APP_REGISTRY_STATE } from 'modules/app-registry';
+import appRegistry, {
+  appRegistryEmit,
+  INITIAL_STATE as APP_REGISTRY_STATE
+} from 'modules/app-registry';
 
+const OVERVIEW_INITIAL_STATE = false;
 /**
  * The intial state of the root reducer.
  */
@@ -49,6 +72,7 @@ export const INITIAL_STATE = {
   collation: COLLATION_INITIAL_STATE,
   collationString: COLLATION_STRING_INITIAL_STATE,
   isCollationExpanded: COLLATION_COLLAPSER_INITIAL_STATE,
+  isOverviewOn: OVERVIEW_INITIAL_STATE,
   comments: COMMENTS_INITIAL_STATE,
   sample: SAMPLE_INITIAL_STATE,
   autoPreview: AUTO_PREVIEW_INITIAL_STATE,
@@ -81,6 +105,12 @@ export const NEW_PIPELINE = 'aggregations/NEW_PIPELINE';
  * Clone pipeline action name.
  */
 export const CLONE_PIPELINE = 'aggregations/CLONE_PIPELINE';
+
+
+/**
+ * toggleOverview action name.
+ */
+export const TOGGLE_OVERVIEW = 'aggregations/TOGGLE_OVERVIEW';
 
 /**
  * The main application reducer.
@@ -148,12 +178,19 @@ const doReset = () => ({
  */
 const doRestorePipeline = (state, action) => {
   const savedState = action.restoreState;
-  const commenting = (savedState.comments === null || savedState.comments === undefined)
-    ? true : savedState.comments;
-  const sampling = (savedState.sample === null || savedState.sample === undefined)
-    ? true : savedState.sample;
-  const autoPreviewing = (savedState.autoPreview === null || savedState.autoPreview === undefined)
-    ? true : savedState.autoPreview;
+  const commenting =
+    savedState.comments === null || savedState.comments === undefined
+      ? true
+      : savedState.comments;
+  const sampling =
+    savedState.sample === null || savedState.sample === undefined
+      ? true
+      : savedState.sample;
+  const autoPreviewing =
+    savedState.autoPreview === null || savedState.autoPreview === undefined
+      ? true
+      : savedState.autoPreview;
+
   return {
     ...INITIAL_STATE,
     appRegistry: state.appRegistry,
@@ -189,7 +226,7 @@ const doRestorePipeline = (state, action) => {
  *
  * @returns {Object} The new state.
  */
-const doClearPipeline = (state) => ({
+const doClearPipeline = state => ({
   ...state,
   pipeline: [],
   savedPipeline: {
@@ -205,7 +242,7 @@ const doClearPipeline = (state) => ({
  *
  * @returns {Object} The new state.
  */
-const createNewPipeline = (state) => ({
+const createNewPipeline = state => ({
   ...INITIAL_STATE,
   appRegistry: state.appRegistry,
   namespace: state.namespace,
@@ -222,7 +259,7 @@ const createNewPipeline = (state) => ({
  *
  * @returns {Object} The new state.
  */
-const createClonedPipeline = (state) => ({
+const createClonedPipeline = state => ({
   ...state,
   id: new ObjectId().toHexString(),
   name: `${state.name} (copy)`,
@@ -236,7 +273,7 @@ const createClonedPipeline = (state) => ({
  *
  * @returns {Object} The new state.
  */
-const doConfirmNewFromText = (state) => {
+const doConfirmNewFromText = state => {
   const pipe = createPipeline(state.importPipeline.text);
   const error = pipe.length > 0 ? pipe[0].syntaxError : null;
   return {
@@ -257,16 +294,49 @@ const doConfirmNewFromText = (state) => {
 };
 
 /**
+ * Toggles whether agg pipeline builder is in overview mode.
+ * @example
+ * ```javascript
+ * isOverviewOn === true
+ * // set isExpanded = false on all stages and input children.
+ * // users can then click expanders in expanders independent of overview.
+ * isOverviewOn === false
+ * // Inverse of above. All children isExpanded=true
+ * ```
+ *
+ * @param {Object} state
+ * @param {Object} action
+ */
+const doToggleOverview = (state) => {
+  const newState = {
+    ...state,
+    isOverviewOn: !state.isOverviewOn
+  };
+
+  if (newState.pipeline) {
+    newState.pipeline.forEach((pipe) => {
+      pipe.isExpanded = !newState.isOverviewOn;
+    });
+  }
+
+  if (newState.inputDocuments) {
+    newState.inputDocuments.isExpanded = !newState.isOverviewOn;
+  }
+  return newState;
+};
+
+/**
  * The action to state modifier mappings.
  */
 const MAPPINGS = {
-  [ NAMESPACE_CHANGED ]: doNamespaceChanged,
-  [ RESET ]: doReset,
-  [ RESTORE_PIPELINE ]: doRestorePipeline,
-  [ CLEAR_PIPELINE ]: doClearPipeline,
-  [ NEW_PIPELINE ]: createNewPipeline,
-  [ CLONE_PIPELINE ]: createClonedPipeline,
-  [ CONFIRM_NEW ]: doConfirmNewFromText
+  [NAMESPACE_CHANGED]: doNamespaceChanged,
+  [RESET]: doReset,
+  [RESTORE_PIPELINE]: doRestorePipeline,
+  [CLEAR_PIPELINE]: doClearPipeline,
+  [NEW_PIPELINE]: createNewPipeline,
+  [CLONE_PIPELINE]: createClonedPipeline,
+  [CONFIRM_NEW]: doConfirmNewFromText,
+  [TOGGLE_OVERVIEW]: doToggleOverview
 };
 
 /**
@@ -309,7 +379,7 @@ export const clearPipeline = () => ({
  *
  * @returns {Object} The action.
  */
-export const restoreSavedPipeline = (restoreState) => ({
+export const restoreSavedPipeline = restoreState => ({
   type: RESTORE_PIPELINE,
   restoreState: restoreState
 });
@@ -332,6 +402,10 @@ export const clonePipeline = () => ({
   type: CLONE_PIPELINE
 });
 
+export const toggleOverview = () => ({
+  type: TOGGLE_OVERVIEW
+});
+
 /**
  * Get the delete action.
  *
@@ -339,13 +413,15 @@ export const clonePipeline = () => ({
  *
  * @returns {Function} The thunk function.
  */
-export const deletePipeline = (pipelineId) => {
+export const deletePipeline = pipelineId => {
   return (dispatch, getState) => {
-    getObjectStore('readwrite', (store) => {
+    getObjectStore('readwrite', store => {
       store.delete(pipelineId).onsuccess = () => {
         dispatch(updatePipelineList());
         dispatch(clearPipeline());
-        dispatch(appRegistryEmit('agg-pipeline-deleted', { name: getState().name }));
+        dispatch(
+          appRegistryEmit('agg-pipeline-deleted', { name: getState().name })
+        );
       };
     });
   };
@@ -358,10 +434,10 @@ export const deletePipeline = (pipelineId) => {
  *
  * @returns {Function} The thunk function.
  */
-export const getPipelineFromIndexedDB = (pipelineId) => {
-  return (dispatch) => {
-    getObjectStore('readwrite', (store) => {
-      store.get(pipelineId).onsuccess = (e) => {
+export const getPipelineFromIndexedDB = pipelineId => {
+  return dispatch => {
+    getObjectStore('readwrite', store => {
+      store.get(pipelineId).onsuccess = e => {
         const pipe = e.target.result;
         dispatch(clearPipeline());
         dispatch(restoreSavedPipeline(pipe));

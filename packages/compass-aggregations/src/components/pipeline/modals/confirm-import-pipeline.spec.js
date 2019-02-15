@@ -1,7 +1,7 @@
 import React from 'react';
 import { mount } from 'enzyme';
 
-import ConfirmImportPipeline from 'components/confirm-import-pipeline';
+import ConfirmImportPipeline from './confirm-import-pipeline';
 import styles from './confirm-import-pipeline.less';
 
 describe('ConfirmImportPipeline [Component]', () => {

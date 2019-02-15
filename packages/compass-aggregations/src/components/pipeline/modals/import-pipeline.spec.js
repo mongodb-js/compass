@@ -1,7 +1,7 @@
 import React from 'react';
 import { mount } from 'enzyme';
 
-import ImportPipeline from 'components/import-pipeline';
+import ImportPipeline from './import-pipeline';
 import styles from './import-pipeline.less';
 
 describe('ImportPipeline [Component]', () => {

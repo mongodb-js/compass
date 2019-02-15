@@ -12,6 +12,7 @@
     "start": "webpack-dev-server --config ./config/webpack.dev.config.js",
     "start:watch": "npm run clean && webpack --config ./config/webpack.watch.config.js",
     "test": "cross-env NODE_ENV=test mocha-webpack \"./src/**/*.spec.js\"",
+    "test:dev": "cross-env NODE_ENV=test mocha-webpack",
     "test:watch": "cross-env NODE_ENV=test mocha-webpack \"./src/**/*.spec.js\" --watch",
     "test:karma": "cross-env NODE_ENV=test karma start",
     "cover": "nyc npm run test",

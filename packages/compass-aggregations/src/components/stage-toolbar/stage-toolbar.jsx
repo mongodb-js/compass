@@ -55,7 +55,8 @@ class StageToolbar extends PureComponent {
           stageAddedAfter={this.props.stageAddedAfter}
           stageDeleted={this.props.stageDeleted}
           setIsModified={this.props.setIsModified}
-          serverVersion={this.props.serverVersion} />
+          serverVersion={this.props.serverVersion}
+          />
         <StagePreviewToolbar
           isEnabled={this.props.isEnabled}
           isValid={this.props.isValid}

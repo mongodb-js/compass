@@ -17,11 +17,7 @@ import {
 
 import { exportToLanguage } from 'modules/export-to-language';
 import { openLink } from 'modules/link';
-import {
-  deletePipeline,
-  newPipeline,
-  clonePipeline
-} from 'modules';
+import { deletePipeline, newPipeline, clonePipeline, toggleOverview } from 'modules';
 import {
   runStage,
   runOutStage,
@@ -43,7 +39,10 @@ import {
 } from 'modules/saved-pipeline';
 import { setIsModified } from 'modules/is-modified';
 import { restoreSavedPipeline, getPipelineFromIndexedDB } from 'modules/index';
-import { restorePipelineModalToggle, restorePipelineFrom } from 'modules/restore-pipeline';
+import {
+  restorePipelineModalToggle,
+  restorePipelineFrom
+} from 'modules/restore-pipeline';
 import {
   newPipelineFromText,
   closeImport,
@@ -80,7 +79,7 @@ class Aggregations extends Component {
  *
  * @returns {Object} The mapped properties.
  */
-const mapStateToProps = (state) => ({
+const mapStateToProps = state => ({
   fields: state.fields,
   inputDocuments: state.inputDocuments,
   namespace: state.namespace,
@@ -99,7 +98,9 @@ const mapStateToProps = (state) => ({
   isImportPipelineOpen: state.importPipeline.isOpen,
   isImportConfirmationNeeded: state.importPipeline.isConfirmationNeeded,
   importPipelineText: state.importPipeline.text,
-  importPipelineError: state.importPipeline.syntaxError
+  importPipelineError: state.importPipeline.syntaxError,
+  isOverviewOn: state.isOverviewOn,
+  toggleOverview: toggleOverview
 });
 
 /**
@@ -115,6 +116,7 @@ const MappedAggregations = connect(
     collationStringChanged,
     toggleInputDocumentsCollapsed,
     refreshInputDocuments,
+    toggleOverview,
     toggleComments,
     toggleSample,
     toggleAutoPreview,
@@ -149,7 +151,7 @@ const MappedAggregations = connect(
     openLink,
     getPipelineFromIndexedDB,
     setIsModified
-  },
+  }
 )(Aggregations);
 
 export default MappedAggregations;

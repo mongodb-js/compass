@@ -22,6 +22,8 @@ describe('PipelineToolbar [Component]', () => {
   let toggleCommentsSpy;
   let toggleSampleSpy;
   let toggleAutoPreviewSpy;
+  let collationCollapseToggledSpy;
+  let toggleOverviewSpy;
 
   beforeEach(() => {
     savedPipelinesListToggleSpy = sinon.spy();
@@ -37,6 +39,8 @@ describe('PipelineToolbar [Component]', () => {
     toggleCommentsSpy = sinon.spy();
     toggleSampleSpy = sinon.spy();
     toggleAutoPreviewSpy = sinon.spy();
+    collationCollapseToggledSpy = sinon.spy();
+    toggleOverviewSpy = sinon.spy();
 
     component = shallow(
       <PipelineToolbar
@@ -53,10 +57,13 @@ describe('PipelineToolbar [Component]', () => {
         toggleAutoPreview={toggleAutoPreviewSpy}
         nameChanged={nameChangedSpy}
         setIsModified={setIsModifiedSpy}
+        collationCollapseToggled={collationCollapseToggledSpy}
+        toggleOverview={toggleOverviewSpy}
         isModified
         isCommenting
         isSampling
         isAutoPreviewing
+        isOverviewOn={false}
         name=""
         exportToLanguage={exportToLanguageSpy} />
     );
