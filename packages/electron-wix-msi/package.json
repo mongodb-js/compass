@@ -1,6 +1,6 @@
 {
   "name": "@mongodb-js/electron-wix-msi",
-  "version": "2.1.2",
+  "version": "2.1.3",
   "description": "Creates an MSI installer for your Electron app",
   "license": "MIT",
   "repository": "",
