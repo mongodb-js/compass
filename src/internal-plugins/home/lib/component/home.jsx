@@ -45,6 +45,7 @@ class Home extends React.Component {
     this.connectView = app.appRegistry.getRole('Application.Connect')[0].component;
     this.globalModals = app.appRegistry.getRole('Global.Modal');
     this.InstanceHeader = app.appRegistry.getComponent('InstanceHeader.Component');
+    this.InstanceHeader = this.InstanceHeader === undefined ? null : this.InstanceHeader;
     this.SchemaActions = app.appRegistry.getAction('Schema.Actions');
     this.importRole = app.appRegistry.getRole('Import.Modal');
     this.exportRole = app.appRegistry.getRole('Export.Modal');
@@ -155,10 +156,18 @@ class Home extends React.Component {
     }
   }
 
+  renderInstanceHeader() {
+    if (this.InstanceHeader) {
+      return (
+        <this.InstanceHeader sidebarCollapsed={this.state.collapsed}/>
+      );
+    }
+  }
+
   renderHome() {
     return (
       <div className="page-container" data-test-id="home-view">
-        <this.InstanceHeader sidebarCollapsed={this.state.collapsed}/>
+        {this.renderInstanceHeader()}
         <div className="page">
           <div className={this.getContentClasses()}>
             {this.renderContent()}
