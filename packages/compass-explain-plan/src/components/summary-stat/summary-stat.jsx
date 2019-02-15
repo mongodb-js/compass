@@ -13,7 +13,7 @@ class SummaryStat extends Component {
   static propTypes = {
     dataLink: PropTypes.string, // Info sprinkle (optional)
     label: PropTypes.string.isRequired, // Label of the stat
-    value: PropTypes.number.isRequired,
+    value: PropTypes.any,
     openLink: PropTypes.func.isRequired
   };
 
