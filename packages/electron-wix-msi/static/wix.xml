@@ -62,6 +62,17 @@
       </Component>
     </DirectoryRef>
 
+    <!-- Add directory to the registry -->
+    <DirectoryRef Id="TARGETDIR">
+        <Component Id="RegistryEntries" Guid="{{ApplicationShortcutGuid}}">
+            <RegistryKey Root="HKCU"
+                         Key="Software\{{Manufacturer}}\{{ApplicationName}}"
+                  Action="createAndRemoveOnUninstall">
+                <RegistryValue Type="string" Value="[APPLICATIONROOTDIRECTORY]"/>
+            </RegistryKey>
+        </Component>
+    </DirectoryRef>
+
     <!-- Step 4: Tell WiX to install the files -->
     <Feature Id="MainApplication" Title="Main Application" Level="1">
 <!-- {{ComponentRefs}} -->
