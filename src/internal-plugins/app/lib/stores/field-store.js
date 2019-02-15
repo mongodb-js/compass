@@ -22,11 +22,14 @@ const FieldStore = Reflux.createStore({
   onActivated(appRegistry) {
     // process documents when CRUD store resets (first 20 docs)
     appRegistry.on('documents-refreshed', (view, docs) => {
-      this.processSingleDocument(docs[0] || {});
+      this.processDocuments(docs || {});
     });
     // process new document a user inserts
-    appRegistry.on('document-inserted', (doc) => {
+    appRegistry.on('document-inserted', (view, doc) => {
       this.processSingleDocument(doc);
+    });
+    appRegistry.on('documents-paginated', (view, docs) => {
+      this.processDocuments(docs || {});
     });
     // optionally also subscribe to the SchemaStore if present
     const schemaStore = appRegistry.getStore('Schema.Store');
