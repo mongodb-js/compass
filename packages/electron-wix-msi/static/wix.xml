@@ -64,11 +64,11 @@
 
     <!-- Add directory to the registry -->
     <DirectoryRef Id="TARGETDIR">
-        <Component Id="RegistryEntries" Guid="{{ApplicationShortcutGuid}}">
+        <Component Id="RegistryEntries">
             <RegistryKey Root="HKCU"
                          Key="Software\{{Manufacturer}}\{{ApplicationName}}"
                   Action="createAndRemoveOnUninstall">
-                <RegistryValue Type="string" Value="[APPLICATIONROOTDIRECTORY]"/>
+              <RegistryValue Type="string" Name="Directory" Value="[APPLICATIONROOTDIRECTORY]" KeyPath="yes"/>
             </RegistryKey>
         </Component>
     </DirectoryRef>
