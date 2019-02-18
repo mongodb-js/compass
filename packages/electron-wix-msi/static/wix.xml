@@ -63,8 +63,7 @@
                        Key="SOFTWARE\{{Manufacturer}}\{{ApplicationShortName}}"
                        Name="Directory"
                        Type="string"
-                       Value="[APPLICATIONROOTDIRECTORY]"
-                       KeyPath="yes"/>
+                       Value="[APPLICATIONROOTDIRECTORY]" />
       </Component>
     </DirectoryRef>
 
