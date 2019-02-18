@@ -59,18 +59,13 @@
                        Type="integer"
                        Value="1"
                        KeyPath="yes"/>
+        <RegistryValue Root="HKLM"
+                       Key="SOFTWARE\{{Manufacturer}}\{{ApplicationShortName}}"
+                       Name="Directory"
+                       Type="string"
+                       Value="[APPLICATIONROOTDIRECTORY]"
+                       KeyPath="yes"/>
       </Component>
-    </DirectoryRef>
-
-    <!-- Add directory to the registry -->
-    <DirectoryRef Id="TARGETDIR">
-        <Component Id="RegistryEntries">
-            <RegistryKey Root="HKLM"
-                         Key="Software\{{Manufacturer}}\{{ApplicationName}}"
-                  Action="createAndRemoveOnUninstall">
-              <RegistryValue Type="string" Name="Directory" Value="[APPLICATIONROOTDIRECTORY]" KeyPath="yes"/>
-            </RegistryKey>
-        </Component>
     </DirectoryRef>
 
     <!-- Step 4: Tell WiX to install the files -->
