@@ -60,7 +60,7 @@
                        Value="1"
                        KeyPath="yes"/>
       </Component>
-      <Component Id="c_InstallKey" Guid="{{Guid}}">
+      <Component Id="ApplicationInstallLocation" Guid="{{Guid}}">
         <RegistryKey Root="HKLM"
                      Key="Software\{{ShortcutFolderName}}\{{ApplicationShortName}}">
           <RegistryValue Type="string" Name="Directory" Value="[APPLICATIONROOTDIRECTORY]" KeyPath="yes"/>
@@ -72,6 +72,7 @@
     <Feature Id="MainApplication" Title="Main Application" Level="1">
 <!-- {{ComponentRefs}} -->
       <ComponentRef Id="ApplicationShortcut" />
+      <ComponentRef Id="ApplicationInstallLocation" />
     </Feature>
   </Product>
 </Wix>
