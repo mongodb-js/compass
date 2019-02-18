@@ -137,6 +137,9 @@ export const createIndex = () => {
     options.background = state.isBackground;
     options.unique = state.isUnique;
     options.name = state.name;
+    if (state.name === '') {
+      options.name = `${state.fields[0].name}_${spec[state.fields[0].name]}`;
+    }
     if (state.isCustomCollation) {
       options.collation = state.collation;
     }

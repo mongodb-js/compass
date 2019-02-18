@@ -133,6 +133,65 @@ describe('create index is background module', () => {
       expect(visibleSpy.calledOnce).to.equal(true, 'toggleIsVisible not called');
       expect(errorSpy.calledOnce).to.equal(false, 'error should not be called');
     });
+    it('generates name if empty', () => {
+      const dispatch = (res) => {
+        switch (res.type) {
+          case TOGGLE_IN_PROGRESS:
+            progressSpy();
+            break;
+          case RESET:
+            resetSpy();
+            break;
+          case CLEAR_ERROR:
+            clearErrorSpy();
+            break;
+          case TOGGLE_IS_VISIBLE:
+            visibleSpy();
+            break;
+          default:
+            expect(true).to.equal(false, `Unexpected action called ${res.type}`);
+        }
+      };
+      const state = () => ({
+        fields: [{name: 'abc', type: '1 (asc)'}],
+        isPartialFilterExpression: true,
+        partialFilterExpression: '{"a": 1}',
+        isBackground: true,
+        isUnique: true,
+        name: '',
+        isCustomCollation: true,
+        collation: 'coll',
+        isTtl: true,
+        ttl: 100,
+        appRegistry: {
+          getStore: () => ({ns: 'db.coll'}),
+          emit: emitSpy
+        },
+        dataService: {
+          createIndex: (ns, spec, options, cb) => {
+            expect(ns).to.equal('db.coll');
+            expect(spec).to.deep.equal({abc: 1});
+            expect(options).to.deep.equal({
+              background: true,
+              collation: 'coll',
+              expireAfterSeconds: 100,
+              name: 'abc_1',
+              partialFilterExpression: {a: 1},
+              unique: true
+            });
+            cb(null);
+          }
+        }
+
+      });
+      createIndex()(dispatch, state);
+      expect(resetSpy.calledOnce).to.equal(true, 'reset not called');
+      expect(emitSpy.calledOnce).to.equal(true, 'emit not called');
+      expect(clearErrorSpy.calledOnce).to.equal(true, 'clearError not called');
+      expect(progressSpy.calledTwice).to.equal(true, 'toggleInProgress not called');
+      expect(visibleSpy.calledOnce).to.equal(true, 'toggleIsVisible not called');
+      expect(errorSpy.calledOnce).to.equal(false, 'error should not be called');
+    });
     it('handles error in createIndex', () => {
       const dispatch = (res) => {
         switch (res.type) {
