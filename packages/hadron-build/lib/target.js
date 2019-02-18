@@ -362,7 +362,11 @@ class Target {
             appUserModelId: this.bundleId,
             upgradeCode: this.upgradeCode,
             ui: {
-              chooseDirectory: true
+              chooseDirectory: true,
+              images: {
+                background: this.src(platformSettings.background),
+                banner: this.src(platformSettings.banner)
+              }
             }
           });
 
