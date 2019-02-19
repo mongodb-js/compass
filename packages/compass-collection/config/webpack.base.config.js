@@ -71,7 +71,7 @@ module.exports = {
             options: {
               modules: true,
               importLoaders: 1,
-              localIdentName: 'DatabasePlugin_[name]-[local]__[hash:base64:5]'
+              localIdentName: 'CollectionPlugin_[name]-[local]__[hash:base64:5]'
             }
           },
           {
