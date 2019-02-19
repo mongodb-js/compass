@@ -195,7 +195,9 @@
         "win32": {
           "icon": "src/app/images/win32/mongodb-compass.ico",
           "favicon_url": "https://compass.mongodb.com/favicon.ico",
-          "loading_gif": "src/app/images/win32/mongodb-compass-installer-loading.gif"
+          "loading_gif": "src/app/images/win32/mongodb-compass-installer-loading.gif",
+          "background": "src/app/images/win32/background.jpg",
+          "banner": "src/app/images/win32/banner.jpg"
         },
         "darwin": {
           "icon": "src/app/images/darwin/mongodb-compass.icns",
@@ -398,7 +400,7 @@
     "enzyme": "^3.7.0",
     "enzyme-adapter-react-16": "^1.6.0",
     "eslint-config-mongodb-js": "^2.2.0",
-    "hadron-build": "^21.0.11",
+    "hadron-build": "^21.0.16",
     "hadron-spectron": "^5.0.0",
     "jsdom": "^9.8.3",
     "mocha": "^4.1.0",
