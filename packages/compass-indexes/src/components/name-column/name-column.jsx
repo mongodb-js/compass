@@ -2,6 +2,8 @@ import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import map from 'lodash.map';
 
+import IndexDefinitionType from 'components/index-definition-type';
+
 import classnames from 'classnames';
 import styles from './name-column.less';
 
@@ -97,7 +99,7 @@ class NameColumn extends PureComponent {
           <div className={classnames(styles['name-column-name'])} title={this.props.index.name}>
             {this.props.index.name}
           </div>
-          {this.renderType()}
+          <IndexDefinitionType index={this.props.index}/>
         </div>
       </td>
     );
