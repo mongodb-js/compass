@@ -1,11 +1,9 @@
 import React, { PureComponent } from 'react';
-import { Provider } from 'react-redux';
 import PropTypes from 'prop-types';
 import numeral from 'numeral';
 import assign from 'lodash.assign';
 import classnames from 'classnames';
 import { SortableTable } from 'hadron-react-components';
-import DropDatabaseModal from 'components/drop-database-modal';
 import dropDatabaseStore from 'stores/drop-database';
 
 import styles from './databases-table.less';
@@ -96,9 +94,6 @@ class DatabasesTable extends PureComponent {
             onColumnHeaderClicked={this.onHeaderClicked}
             onRowDeleteButtonClicked={this.onDeleteClicked} />
         </div>
-        <Provider store={dropDatabaseStore}>
-          <DropDatabaseModal />
-        </Provider>
       </div>
     );
   }
