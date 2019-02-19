@@ -1,0 +1,61 @@
+@import (reference) "~less/compass/_theme.less";
+
+@compass-sidebar-default-text-color: #9DA4AA;
+
+.compass-sidebar-properties {
+  margin: 0;
+
+  &-stats {
+    color: @compass-sidebar-default-text-color;
+    font-weight: bold;
+    font-size: 11px;
+    line-height: 12px;
+    padding: 6px 0 8px;
+    text-transform: uppercase;
+    display: flex;
+    overflow: hidden;
+    flex-wrap: nowrap;
+    white-space: nowrap;
+
+    &-column {
+      display: inline-block;
+      flex: 1;
+      flex-basis: auto;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      padding-right: 8px;
+      padding-top: 6px;
+      white-space: nowrap;
+    }
+
+    &-strong-property {
+      font-weight: bold;
+      color: #fff;
+    }
+
+    &-refresh-button-container {
+      flex-grow: 0;
+      flex-shrink: 1;
+      flex-basis: auto;
+      padding-left: 5px;
+      padding-right: 7px;
+    }
+
+    &-refresh-button {
+      color: #ebebed;
+      background: none;
+      border: none;
+      border-radius: 12px;
+      font-size: 13px;
+      height: 24px;
+      width: 24px;
+      padding: 4px;
+      transition: all 150ms ease;
+
+      &:hover {
+        background: #42494f;
+        color: #fff;
+      }
+    }
+  }
+}

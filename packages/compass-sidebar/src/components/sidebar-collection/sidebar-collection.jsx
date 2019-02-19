@@ -1,8 +1,10 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import { TOOLTIP_IDS } from 'constants/sidebar-constants';
-import ipc from 'hadron-ipc';
+import toNS from 'mongodb-ns';
 
+import classnames from 'classnames';
+import styles from './sidebar-collection.less';
 
 class SidebarCollection extends PureComponent {
   static displayName = 'SidebarCollection';
@@ -13,28 +15,24 @@ class SidebarCollection extends PureComponent {
     power_of_two: PropTypes.bool.isRequired,
     isReadonly: PropTypes.bool.isRequired,
     activeNamespace: PropTypes.string.isRequired,
-    active: PropTypes.bool.isRequired,
     isWritable: PropTypes.bool.isRequired,
     description: PropTypes.string.isRequired
   };
 
-  constructor() {
-    super();
-    const appRegistry = global.hadronApp.appRegistry;
-    this.handleClick = this.handleClick.bind(this);
-    this.CollectionStore = appRegistry.getStore('App.CollectionStore');
-    this.NamespaceStore = appRegistry.getStore('App.NamespaceStore');
+  constructor(props) {
+    super(props);
+    this.CollectionStore = global.hadronApp.appRegistry.getStore('App.CollectionStore');
+    this.NamespaceStore = global.hadronApp.appRegistry.getStore('App.NamespaceStore');
   }
 
   getCollectionName() {
-    const database = this.props.database;
-    const _id = this.props._id;
-    return _id.slice(database.length + 1);
+    return toNS(this.props._id).collection;
   }
 
   handleClick() {
     if (this.NamespaceStore.ns !== this.props._id) {
       this.CollectionStore.setCollection(this.props);
+      const ipc = require('hadron-ipc');
       ipc.call('window:show-collection-submenu');
     }
   }
@@ -54,30 +52,35 @@ class SidebarCollection extends PureComponent {
   renderIsReadonly() {
     if (this.props.isReadonly) {
       return (
-        <i className="fa fa-lock" aria-hidden="true" />
+        <i className="fa fa-lock" aria-hidden="true" data-test-id="sidebar-collection-is-readonly"/>
       );
     }
   }
 
   renderDropCollectionButton() {
     if (!this.isReadonlyDistro()) {
-      const tooltipText = this.state.isWritable ?
+      const tooltipText = this.props.isWritable ?
         'Drop collection' :
-        this.state.description;
+        this.props.description;
       const tooltipOptions = {
         'data-for': TOOLTIP_IDS.DROP_COLLECTION,
         'data-effect': 'solid',
         'data-offset': "{'bottom': 10, 'left': -5}",
         'data-tip': tooltipText
       };
-      let dropClassName = 'compass-sidebar-icon compass-sidebar-icon-drop-collection fa fa-trash-o';
-      if (!this.state.isWritable) {
-        dropClassName += ' compass-sidebar-icon-is-disabled';
-      }
+      const disabled = !this.props.isWritable ? styles['compass-sidebar-icon-is-disabled'] : '';
+      const dropClassName = classnames(
+        styles['compass-sidebar-icon'],
+        styles['compass-sidebar-icon-drop-collection'],
+        'fa',
+        'fa-trash-o',
+        disabled
+      );
       return (
         <i
           className={dropClassName}
-          onClick={this.handleDropCollectionClick.bind(this, this.state.isWritable)}
+          data-test-id="compass-sidebar-icon-drop-collection"
+          onClick={this.handleDropCollectionClick.bind(this, this.props.isWritable)}
           {...tooltipOptions} />
       );
     }
@@ -85,21 +88,25 @@ class SidebarCollection extends PureComponent {
 
   render() {
     const collectionName = this.getCollectionName();
-    let itemClassName = 'compass-sidebar-item compass-sidebar-item-is-actionable';
-    if (this.props.activeNamespace === this.props._id) {
-      itemClassName += ' compass-sidebar-item-is-active';
-    }
+    const active = this.props.activeNamespace === this.props._id ?
+      styles['compass-sidebar-item-is-active'] :
+      '';
+    const itemClassName = classnames(
+      styles['compass-sidebar-item'],
+      styles['compass-sidebar-item-is-actionable'],
+      active
+    );
     return (
       <div className={itemClassName}>
         <div
           onClick={this.handleClick.bind(this)}
-          className="compass-sidebar-item-title"
+          className={classnames(styles['compass-sidebar-item-title'])}
           data-test-id="sidebar-collection"
           title={this.props._id} >
           {collectionName}&nbsp;
           {this.renderIsReadonly()}
         </div>
-        <div className="compass-sidebar-item-actions compass-sidebar-item-actions-ddl">
+        <div className={classnames(styles['compass-sidebar-item-actions'], styles['compass-sidebar-item-actions-ddl'])}>
           {this.renderDropCollectionButton()}
         </div>
       </div>

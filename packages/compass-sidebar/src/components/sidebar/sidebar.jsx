@@ -11,10 +11,8 @@ import styles from './sidebar.less';
 import SidebarDatabase from 'components/sidebar-database';
 import SidebarInstanceProperties from 'components/sidebar-instance-properties';
 
-import { changeExpandedDblist, updateExpandedDblist } from 'modules/expanded-dblist';
 import { toggleIsCollapsed } from 'modules/is-collapsed';
-import { filterDatabases } from 'modules/databases';
-import { toggleIsDblistExpanded } from 'modules/is-dblist-expanded';
+import { filterDatabases, changeDatabases } from 'modules/databases';
 import { changeFilterRegex } from 'modules/filter-regex';
 
 import { TOOLTIP_IDS } from 'constants/sidebar-constants';
@@ -26,25 +24,26 @@ const EXPANDED_WHITESPACE = 12;
 class Sidebar extends PureComponent {
   static displayName = 'Sidebar';
   static propTypes = {
-    activeNamespace: PropTypes.string.isRequired,
-    databases: PropTypes.array.isRequired,
+    databases: PropTypes.object.isRequired,
     description: PropTypes.string.isRequired,
-    expandedDblist: PropTypes.object.isRequired,
     filterRegex: PropTypes.any.isRequired,
     instance: PropTypes.object.isRequired,
     isCollapsed: PropTypes.bool.isRequired,
-    isDblistExpanded: PropTypes.bool.isRequired,
     isWritable: PropTypes.bool.isRequired,
     onCollapse: PropTypes.func.isRequired,
     toggleIsCollapsed: PropTypes.func.isRequired,
     filterDatabases: PropTypes.func.isRequired,
-    changeExpandedDblist: PropTypes.func.isRequired,
-    updateExpandedDblist: PropTypes.func.isRequired
+    changeDatabases: PropTypes.func.isRequired,
+    changeFilterRegex: PropTypes.func.isRequired
   };
 
   constructor(props) {
     super(props);
     this.StatusActions = global.hadronApp.appRegistry.getAction('Status.Actions');
+  }
+
+  componentWillReceiveProps() {
+    this.list.recomputeRowHeights();
   }
 
   componentDidUpdate() {
@@ -53,24 +52,18 @@ class Sidebar extends PureComponent {
     ReactTooltip.rebuild();
   }
 
-  componentWillReceiveProps(nextProps, nextContext) {
-    this.list.recomputeRowHeights();
-  }
-
   getSidebarClasses() {
-    return 'compass-sidebar' +
-      (this.props.isCollapsed ? ' compass-sidebar-collapsed' : ' compass-sidebar-expanded');
   }
 
   getToggleClasses() {
-    return 'fa' +
-      (this.props.isCollapsed ? ' fa-caret-right' : ' fa-caret-left');
   }
 
   handleCollapse() {
     if (!this.props.isCollapsed) {
       this.props.onCollapse();
-      this.StatusActions ? this.StatusActions.configure({ sidebar: false }) : '';
+      if (this.StatusActions) {
+        this.StatusActions.configure({ sidebar: false });
+      }
       this.props.toggleIsCollapsed(!this.props.isCollapsed);
     }
   }
@@ -78,7 +71,9 @@ class Sidebar extends PureComponent {
   handleExpand() {
     if (this.props.isCollapsed) {
       this.props.onCollapse();
-      this.StatusActions ? this.StatusActions.configure({ sidebar: false }) : '';
+      if (this.StatusActions) {
+        this.StatusActions.configure({ sidebar: false });
+      }
       this.props.toggleIsCollapsed(!this.props.isCollapsed);
     }
   }
@@ -98,9 +93,7 @@ class Sidebar extends PureComponent {
     }
 
     this.props.changeFilterRegex(re);
-    this.props.filterDatabases(re, null);
-    this.props.toggleIsDblistExpanded(!this.props.isDblistExpanded);
-    this.props.updateExpandedDblist(null, re);
+    this.props.filterDatabases(re, null, null);
   }
 
   handleCreateDatabaseClick(isWritable) {
@@ -110,13 +103,11 @@ class Sidebar extends PureComponent {
   }
 
   _calculateRowHeight({index}) {
-    console.log(`calculateRowHeight: ${index}`);
-    const db = this.props.databases[index];
+    const db = this.props.databases.databases[index];
     let height = ROW_HEIGHT;
-    if (this.props.expandedDblist[db._id]) {
+    if (this.props.databases.expandedDblist[db._id]) {
       height += db.collections.length * ROW_HEIGHT + EXPANDED_WHITESPACE;
     }
-    console.log(height);
     return height;
   }
 
@@ -147,10 +138,9 @@ class Sidebar extends PureComponent {
    * @param{string} _id sidebar-database _id
    */
   _onDBClick(_id) {
-    const expandedDB = cloneDeep(this.props.expandedDblist);
+    const expandedDB = cloneDeep(this.props.databases.expandedDblist);
     expandedDB[_id] = !expandedDB[_id];
-    this.props.changeExpandedDblist(expandedDB);
-    // TODO: also call update?
+    this.props.changeDatabases(this.props.databases.databases, expandedDB, this.props.databases.activeNamespace);
     this.list.recomputeRowHeights();
   }
 
@@ -164,18 +154,19 @@ class Sidebar extends PureComponent {
         'data-offset': "{'right': -10}",
         'data-tip': tooltipText
       };
-      let className = 'compass-sidebar-button-create-database';
-      if (!this.props.isWritable) {
-        className += ' compass-sidebar-button-is-disabled';
-      }
+      const isW = !this.props.isWritable ? styles['compass-sidebar-button-is-disabled'] : '';
+      const className = classnames(styles['compass-sidebar-button-create-database'], styles[isW]);
       return (
-        <div className="compass-sidebar-button-create-database-container" {...tooltipOptions}>
+        <div
+          className={classnames(styles['compass-sidebar-button-create-database-container'])}
+          {...tooltipOptions}
+        >
           <button
             className={className}
             title="Create Database"
             onClick={this.handleCreateDatabaseClick.bind(this, this.props.isWritable)}>
             <i className="mms-icon-add" />
-            <div className="plus-button">
+            <div className={classnames(styles['plus-button'])}>
               Create Database
             </div>
           </button>
@@ -185,16 +176,14 @@ class Sidebar extends PureComponent {
   }
 
   renderSidebarDatabase({index, key, style}) {
-    console.log(`renderSidebarDatabase at ${index}`);
-    const db = this.props.databases[index];
-    console.log(db);
+    const db = this.props.databases.databases[index];
     const props = {
       isWritable: this.props.isWritable,
       description: this.props.description,
       _id: db._id,
-      activeNamespace: this.props.activeNamespace,
+      activeNamespace: this.props.databases.activeNamespace,
       collections: db.collections,
-      expanded: this.props.expandedDblist[db._id],
+      expanded: this.props.databases.expandedDblist[db._id],
       onClick: this._onDBClick.bind(this),
       key,
       style,
@@ -206,61 +195,62 @@ class Sidebar extends PureComponent {
   }
 
   renderSidebarScroll() {
-    // return (
-    //   <AutoSizer>
-    //     {({height, width}) => (
-    //       <List
-    //         width={width}
-    //         height={height}
-    //         className="compass-sidebar-autosizer-list"
-    //         overScanRowCount={OVER_SCAN_COUNT}
-    //         rowCount={this.props.databases.length}
-    //         rowHeight={this._calculateRowHeight.bind(this)}
-    //         noRowsRenderer={this.retrievingDatabases}
-    //         rowRenderer={this.renderSidebarDatabase.bind(this)}
-    //         ref={this._setRef.bind(this)}
-    //       />
-    //     )}
-    //   </AutoSizer>
-    // );
     return (
+      <AutoSizer>
+        {({height, width}) => (
           <List
-            width={100}
-            height={30}
+            width={width}
+            height={height}
             className="compass-sidebar-autosizer-list"
-            overScanRowCount={100}
-            rowCount={this.props.databases.length}
+            overScanRowCount={OVER_SCAN_COUNT}
+            rowCount={this.props.databases.databases.length}
             rowHeight={this._calculateRowHeight.bind(this)}
             noRowsRenderer={this.retrievingDatabases}
             rowRenderer={this.renderSidebarDatabase.bind(this)}
             ref={this._setRef.bind(this)}
           />
+        )}
+      </AutoSizer>
     );
   }
 
   render() {
-    console.log(this.props);
+    const collapsed = this.props.isCollapsed ?
+      'compass-sidebar-collapsed' :
+      'compass-sidebar-expanded';
+    const collapsedButton = 'fa' +
+      (this.props.isCollapsed ? ' fa-caret-right' : ' fa-caret-left');
+
     return (
       <div
-        className={this.getSidebarClasses()}
+        className={classnames(styles['compass-sidebar'], styles[collapsed])}
         data-test-id="instance-sidebar"
         onClick={this.handleExpand.bind(this)}>
-        <button className="compass-sidebar-toggle btn btn-default btn-sm"
-                onClick={this.handleCollapse.bind(this)}
-                data-test-id="toggle-sidebar"
+        <button
+          className={classnames(styles['compass-sidebar-toggle'], 'btn btn-default btn-sm')}
+          onClick={this.handleCollapse.bind(this)}
+          data-test-id="toggle-sidebar"
         >
-          <i className={this.getToggleClasses()}></i>
+          <i className={collapsedButton}/>
         </button>
+
         <SidebarInstanceProperties
           instance={this.props.instance}
-          activeNamespace={this.props.activeNamespace}
+          activeNamespace={this.props.databases.activeNamespace}
         />
-        <div className="compass-sidebar-filter" onClick={this.handleSearchFocus.bind(this)}>
-          <i className="fa fa-search compass-sidebar-search-icon"></i>
-          <input data-test-id="sidebar-filter-input" ref="filter"
-                 className="compass-sidebar-search-input" placeholder="filter" onChange={this.handleFilter.bind(this)}></input>
+        <div
+          className={classnames(styles['compass-sidebar-filter'])}
+          onClick={this.handleSearchFocus.bind(this)}>
+          <i className={classnames('fa', 'fa-search', styles['compass-sidebar-search-icon'])}/>
+          <input
+            data-test-id="sidebar-filter-input"
+            ref="filter"
+            className={classnames(styles['compass-sidebar-search-input'])}
+            placeholder="filter"
+            onChange={this.handleFilter.bind(this)}>
+          </input>
         </div>
-        <div className="compass-sidebar-content">
+        <div className={classnames(styles['compass-sidebar-content'])}>
           {this.renderSidebarScroll()}
         </div>
         {this.renderCreateDatabaseButton()}
@@ -277,14 +267,13 @@ class Sidebar extends PureComponent {
  * Map the store state to properties to pass to the components.
  *
  * @param {Object} state - The store state.
+ * @param {Object} ownProps - Props passed not through the state.
  *
  * @returns {Object} The mapped properties.
  */
 const mapStateToProps = (state, ownProps) => ({
-  activeNamespace: state.activeNamespace,
   databases: state.databases,
   description: state.description,
-  expandedDblist: state.expandedDbList,
   filterRegex: state.filterRegex,
   instance: state.instance,
   isCollapsed: state.isCollapsed,
@@ -302,9 +291,7 @@ const MappedSidebar = connect(
   {
     toggleIsCollapsed,
     filterDatabases,
-    changeExpandedDblist,
-    updateExpandedDblist,
-    toggleIsDblistExpanded,
+    changeDatabases,
     changeFilterRegex
   },
 )(Sidebar);

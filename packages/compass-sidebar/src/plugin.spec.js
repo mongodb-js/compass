@@ -7,7 +7,7 @@ describe('Sidebar [Plugin]', () => {
   let component;
 
   beforeEach((done) => {
-    component = mount(<SidebarPlugin />);
+    component = mount(<SidebarPlugin onCollapse={()=>{}}/>);
     done();
   });
 

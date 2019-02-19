@@ -3,10 +3,10 @@ import reducer from 'modules';
 import thunk from 'redux-thunk';
 
 import { changeInstance } from 'modules/instance';
-import { toggleIsDblistExpanded } from 'modules/is-dblist-expanded';
 import { filterDatabases } from 'modules/databases';
-import { changeFilterRegex } from 'modules/filter-regex';
 import { reset } from 'modules/reset';
+import { toggleIsWritable } from 'modules/is-writable';
+import { changeDescription } from 'modules/description';
 
 const store = createStore(reducer, applyMiddleware(thunk));
 
@@ -14,6 +14,11 @@ store.onActivated = (appRegistry) => {
   appRegistry.getStore('App.InstanceStore').listen((state) => {
     store.dispatch(changeInstance(state.instance));
     store.dispatch(filterDatabases(null, state.instance.databases, null));
+  });
+
+  appRegistry.getStore('DeploymentAwareness.WriteStateStore').listen((state) => {
+    store.dispatch(toggleIsWritable(state.isWritable));
+    store.dispatch(changeDescription(state.description));
   });
 
   appRegistry.on('collection-changed', (ns) => {
@@ -24,20 +29,13 @@ store.onActivated = (appRegistry) => {
     store.dispatch(filterDatabases(null, null, ns || ''));
   });
 
-  // appRegistry.on('refresh-data', () => {
-  //   appRegistry.getAction('App.InstanceActions').refreshInstance();
-  // });
-  //
-  // appRegistry.on('data-service-disconnected', () => {
-  //   store.dispatch(reset());
-  // });
+  appRegistry.on('refresh-data', () => {
+    appRegistry.getAction('App.InstanceActions').refreshInstance();
+  });
 
-  // appRegistry.on('filter-databases', (re) => {
-  //   store.dispatch(changeFilterRegex(re));
-  //   store.dispatch(toggleIsDblistExpanded());
-  //   store.dispatch(filterDatabases(re, null));
-  //   store.dispatch(changeExpandedDblist());
-  // });
+  appRegistry.on('data-service-disconnected', () => {
+    store.dispatch(reset());
+  });
 };
 
 

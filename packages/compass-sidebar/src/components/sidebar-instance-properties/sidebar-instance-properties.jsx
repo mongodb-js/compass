@@ -2,53 +2,58 @@ import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import { LOADING_STATE } from 'constants/sidebar-constants';
 
-// import classnames from 'classnames';
-// import styles from './sidebar-instance-properties.less';
+import classnames from 'classnames';
+import styles from './sidebar-instance-properties.less';
 
 class SidebarInstanceProperties extends PureComponent {
   static displayName = 'SidebarInstanceProperties';
   static propTypes = {
-    instance: PropTypes.object,
-    activeNamespace: PropTypes.string.isRequired
+    instance: PropTypes.object
   };
 
-  getRefreshIconClassNames() {
-    const fetchingInstance = this.props.instance.databases === LOADING_STATE;
-    return 'fa ' + (fetchingInstance ? 'fa-refresh fa-spin' : 'fa-repeat');
-  }
-
   handleRefresh() {
-    const InstanceActions = global.hadronApp.appRegistry.getAction('App.InstanceActions');
-    InstanceActions ? InstanceActions.refreshInstance() : '';
+    const InstanceActions = global.hadronApp.appRegistry.getAction(
+      'App.InstanceActions'
+    );
+    if (InstanceActions) {
+      InstanceActions.refreshInstance();
+    }
   }
 
   render() {
     const instance = this.props.instance;
-    const numDbs = instance.databases === LOADING_STATE ? '-' : instance.databases.length;
-    const numCollections = instance.collections === LOADING_STATE ? '-' : instance.collections.length;
+    const numDbs = instance.databases === LOADING_STATE ?
+      '-' :
+      instance.databases.length;
+    const numCollections = instance.databases === LOADING_STATE ?
+      '-' :
+      instance.collections.length;
+    const refreshName = 'fa ' + (this.props.instance.databases === LOADING_STATE ?
+      'fa-refresh fa-spin' :
+      'fa-repeat');
 
     return (
-      <div className="compass-sidebar-properties">
-        <div className="compass-sidebar-stats">
-          <div className="compass-sidebar-refresh-button-container">
+      <div className={classnames(styles['compass-sidebar-properties'])}>
+        <div className={classnames(styles['compass-sidebar-properties-stats'])}>
+          <div className={classnames(styles['compass-sidebar-properties-stats-refresh-button-container'])}>
             <button
               onClick={this.handleRefresh.bind(this)}
-              className="compass-sidebar-refresh-button"
+              className={classnames(styles['compass-sidebar-properties-stats-refresh-button'])}
               data-test-id="instance-refresh-button">
-              <i className={this.getRefreshIconClassNames()}></i>
+              <i className={refreshName}/>
             </button>
           </div>
-          <div className="compass-sidebar-property-column">
+          <div className={classnames(styles['compass-sidebar-properties-stats-column'])}>
             <span
               data-test-id="sidebar-db-count"
-              className="compass-sidebar-strong-property">
+              className={classnames(styles['compass-sidebar-properties-stats-strong-property'])}>
               {numDbs}
             </span> DBs
           </div>
-          <div className="compass-sidebar-property-column">
+          <div className={classnames(styles['compass-sidebar-properties-stats-column'])}>
             <span
               data-test-id="sidebar-collection-count"
-              className="compass-sidebar-strong-property">
+              className={classnames(styles['compass-sidebar-properties-stats-strong-property'])}>
               {numCollections}
             </span> Collections
           </div>

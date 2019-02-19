@@ -1,32 +1,40 @@
-.compass-sidebar-item-header {
+@import (reference) "~less/compass/_theme.less";
+
+@compass-sidebar-default-text-color: #9DA4AA;
+@compass-sidebar-active-background-color: #6D7984;
+@compass-sidebar-hover-background-color: #42494f;
+
+.compass-sidebar-item {
   display: flex;
   flex-wrap: nowrap;
   align-items: stretch;
-  padding: 6px 0;
+  padding: 4px 0;
   transition: background-color 180ms ease;
-  overflow: hidden;
 
   &-actions .compass-sidebar-icon,
   &-title {
     cursor: pointer;
     transition: all 180ms ease;
+    flex: 1;
+    flex-basis: auto;
+    padding-left: 37px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    color: @pw;
+    white-space: nowrap;
   }
 
   &-actions {
     flex-grow: 0;
     flex-shrink: 0;
+
+    &-ddl {
+      flex-shrink: 1;
+      flex-basis: auto;
+      padding: 0 0 0 8px;
+    }
   }
 
-  &-actions-expand {
-    flex-basis: 34px;
-    text-align: center;
-  }
-
-  &-actions-ddl {
-    flex-shrink: 1;
-    flex-basis: auto;
-    padding: 0 0 0 8px;
-  }
 
   &-actions-ddl .compass-sidebar-icon {
     margin-right: 8px;
@@ -38,14 +46,8 @@
     color: @pw;
   }
 
-  &-title {
-    flex: 1;
-    flex-basis: auto;
-    padding-left: 3px;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    color: @pw;
-    white-space: nowrap;
+  &:last-child {
+    margin-bottom: 24px;
   }
 
   /* :hover styles */
@@ -55,7 +57,7 @@
     color: @pw;
   }
 
-  &:hover .compass-sidebar-item-header-actions-ddl .compass-sidebar-icon {
+  &:hover .compass-sidebar-item-actions-ddl .compass-sidebar-icon {
     display: inline;
   }
 
@@ -66,22 +68,21 @@
     background-color: @compass-sidebar-active-background-color;
   }
 
-  &-is-active .compass-sidebar-item-header-actions,
-  &-is-active:hover .compass-sidebar-item-header-actions {
+  &-is-active .compass-sidebar-item-actions,
+  &-is-active:hover .compass-sidebar-item-actions {
     color: @pw;
   }
 
-  &-is-active .compass-sidebar-item-header-title,
-  &-is-active:hover .compass-sidebar-item-header-title {
+  &-is-active .compass-sidebar-item-title,
+  &-is-active:hover .compass-sidebar-item-title {
     color: @pw;
   }
 
-  &-is-active .compass-sidebar-item-header-actions-ddl .compass-sidebar-icon,
-  &-is-active:hover .compass-sidebar-item-header-actions-ddl .compass-sidebar-icon {
+  &-is-active .compass-sidebar-item-actions-ddl .compass-sidebar-icon,
+  &-is-active:hover .compass-sidebar-item-actions-ddl .compass-sidebar-icon {
     color: @pw;
     display: inline;
   }
-
   /* disabled styles */
   &-actions-ddl .compass-sidebar-icon-is-disabled,
   &-actions-ddl .compass-sidebar-icon-is-disabled:hover {
@@ -89,8 +90,8 @@
     opacity: .4;
     color: @compass-sidebar-default-text-color;
   }
-  &-is-active .compass-sidebar-item-header-actions-ddl .compass-sidebar-icon-is-disabled,
-  &-is-active:hover .compass-sidebar-item-header-actions-ddl .compass-sidebar-icon-is-disabled {
+  &-is-active .compass-sidebar-item-actions-ddl .compass-sidebar-icon-is-disabled,
+  &-is-active:hover .compass-sidebar-item-actions-ddl .compass-sidebar-icon-is-disabled {
     cursor: default;
     opacity: .4;
   }

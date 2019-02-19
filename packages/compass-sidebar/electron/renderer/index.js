@@ -1,12 +1,13 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import Reflux from 'reflux';
-import StateMixin from 'reflux-state-mixin';
 import app from 'hadron-app';
 import AppRegistry from 'hadron-app-registry';
 import { AppContainer } from 'react-hot-loader';
 import SidebarPlugin, { activate } from 'plugin';
-import { Collection } from 'mongodb-database-model';
+import DeploymentStateStore from './stores/deployment-state-store';
+import { InstanceStore, InstanceActions } from './stores/instance-store';
+import CollectionStore from './stores/collection-store';
+import NamespaceStore from './stores/namespace-store';
 
 // Import global less file. Note: these styles WILL NOT be used in compass, as compass provides its own set
 // of global styles. If you are wishing to style a given component, you should be writing a less file per
@@ -19,66 +20,20 @@ const appRegistry = new AppRegistry();
 global.hadronApp = app;
 global.hadronApp.appRegistry = appRegistry;
 
-const InstanceStore = Reflux.createStore({
-  mixins: [StateMixin.store],
-  getInitialState() {
-    return {
-      instance: {
-        databases: [],
-        // collections: []
-      }
-    };
-  },
-  setupStore() {
-    this.setState(
-      {
-        instance: {
-          databases: [
-            {
-              _id: "admin", toJSON: () => ({
-                _id: 'admin', collections: [{_id: 'citibikecoll'}, {_id: 'coll'}]
-              }),
-            },
-            {
-              _id: "citibike", toJSON: () => ({
-                _id: 'citibike', collections: [{_id: 'admincoll'}, {_id: 'coll2'}]
-              }),
-            }
-          ],
-          collections: [
-            {
-              _id: 'citibikecoll'
-            },
-            {
-              _id: 'coll'
-            },
-            {
-              _id: 'admincoll'
-            },
-            {
-              _id: 'coll2'
-            }
-          ]
-        }
-      }
-    );
-  }
-});
-
-const InstanceActions = Reflux.createActions([
-  'refreshInstance'
-]);
-
 activate(appRegistry);
 
 appRegistry.registerStore('App.InstanceStore', InstanceStore);
 appRegistry.registerAction('App.InstanceActions', InstanceActions);
+appRegistry.registerStore('DeploymentAwareness.WriteStateStore', DeploymentStateStore);
+appRegistry.registerStore('App.CollectionStore', CollectionStore);
+appRegistry.registerStore('App.NamespaceStore', NamespaceStore);
 
 appRegistry.onActivated();
 
 // Since we are using HtmlWebpackPlugin WITHOUT a template,
 // we should create our own root node in the body element before rendering into it.
 const root = document.createElement('div');
+root.style = 'height: 100%';
 root.id = 'root';
 document.body.appendChild(root);
 
@@ -108,16 +63,17 @@ import DataService from 'mongodb-data-service';
 const connection = new Connection({
   hostname: '127.0.0.1',
   port: 27017,
-  ns: 'databaseName',
+  ns: 'databaseName'
 });
 const dataService = new DataService(connection);
 
 
 InstanceStore.setupStore();
+DeploymentStateStore.setToInitial();
 appRegistry.emit('data-service-initialized', dataService);
 dataService.connect((error, ds) => {
-   appRegistry.emit('data-service-connected', error, ds);
-   // appRegistry.emit('database-changed', '');
+  appRegistry.emit('data-service-connected', error, ds);
+  appRegistry.emit('database-changed', 'citibike.admincoll');
 });
 
 if (module.hot) {
