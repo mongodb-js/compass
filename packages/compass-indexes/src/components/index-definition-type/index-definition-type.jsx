@@ -2,12 +2,15 @@ import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import map from 'lodash.map';
 
+import classnames from 'classnames';
+import styles from './index-definition-type.less';
 
 /**
  * Component for an index definition type.
  */
 class IndexDefinitionType extends PureComponent {
   static displayName = 'IndexDefinitionType';
+
   static propTypes = {
     index: PropTypes.object.isRequired,
     dataTestId: PropTypes.string
@@ -23,19 +26,19 @@ class IndexDefinitionType extends PureComponent {
   renderDirection(field) {
     if (field.value === 1) {
       return (
-        <span className="sort">
+        <span className={classnames(styles['index-definition-type-pair-field-sort'])}>
           <i className="fa fa-arrow-circle-up fa-lg" />
         </span>
       );
     } else if (field.value === -1) {
       return (
-        <span className="sort">
+        <span className={classnames(styles['index-definition-type-pair-field-sort'])}>
           <i className="fa fa-arrow-circle-down fa-lg" />
         </span>
       );
     }
     return (
-      <span className="type">
+      <span className={classnames(styles['index-definition-type-pair-field-type'])}>
         {field.value._bsontype ? this.renderBsonValue(field.value) : field.value}
       </span>
     );
@@ -58,35 +61,24 @@ class IndexDefinitionType extends PureComponent {
   }
 
   /**
-   * Render a field in an index.
-   *
-   * @param {Object} field - The field.
-   *
-   * @returns {React.Component} The field component.
-   */
-  renderField(field) {
-    return (
-      <span key={field.field} className="pair">
-        <span className="field">
-          {field.field}
-          {this.renderDirection(field)}
-        </span>
-      </span>
-    );
-  }
-
-  /**
    * Render the index definition
    *
    * @returns {React.Component} The index definition.
    */
   render() {
     const fields = map(this.props.index.fields.serialize(), (field) => {
-      return this.renderField(field);
+      return (
+        <span key={field.field} className={classnames(styles['index-definition-type-pair'])}>
+          <span className={classnames(styles['index-definition-type-pair-field'])}>
+            {field.field}
+            {this.renderDirection(field)}
+          </span>
+        </span>
+      );
     });
     return (
-      <div className="index-definition-type">
-        <p className="definition" data-test-id={this.props.dataTestId}>
+      <div className={classnames(styles['index-definition'])}>
+        <p className={classnames(styles['index-definition-type'])} data-test-id={this.props.dataTestId}>
           {fields}
         </p>
       </div>

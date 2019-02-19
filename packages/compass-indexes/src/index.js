@@ -2,6 +2,7 @@ import IndexesPlugin from './plugin';
 import IndexesStore from 'stores';
 import CreateIndexStore from 'stores/create-index';
 import DropIndexStore from 'stores/drop-index';
+import IndexDefintionType from 'components/index-defintion-type';
 
 /**
  * A sample role for the component.
@@ -21,6 +22,7 @@ function activate(appRegistry) {
   appRegistry.registerStore('Indexes.Store', IndexesStore);
   appRegistry.registerStore('Indexes.CreateIndexStore', CreateIndexStore);
   appRegistry.registerStore('Indexes.DropIndexStore', DropIndexStore);
+  appRegistry.registerComponent('Indexes.IndexDefinitionType', IndexDefintionType);
 }
 
 /**
@@ -30,6 +32,9 @@ function activate(appRegistry) {
 function deactivate(appRegistry) {
   appRegistry.deregisterRole('Collection.Tab', ROLE);
   appRegistry.deregisterStore('Indexes.Store');
+  appRegistry.deregisterStore('Indexes.CreateIndexStore');
+  appRegistry.deregisterStore('Indexes.DropIndexStore');
+  appRegistry.deregisterComponent('Indexes.IndexDefinitionType');
 }
 
 export default IndexesPlugin;
