@@ -1,8 +1,8 @@
 const React = require('react');
 const PropTypes = require('prop-types');
 const FontAwesome = require('react-fontawesome');
-const app = require('hadron-app');
 const shell = require('electron').shell;
+const IndexDefinitionType = require('./index-definition-type');
 // const debug = require('debug')('mongodb-compass:explain:summary-index-stat');
 
 /**
@@ -10,10 +10,6 @@ const shell = require('electron').shell;
  * given query, if any.
  */
 class SummaryIndexStat extends React.Component {
-
-  componentWillMount() {
-    this.indexComponent = app.appRegistry.getComponent('Indexes.IndexDefinitionType');
-  }
 
   onHelpClicked(explainURL) {
     shell.openExternal(explainURL);
@@ -57,7 +53,7 @@ class SummaryIndexStat extends React.Component {
 
   renderIndexDefinition() {
     if (this.props.index) {
-      return <this.indexComponent index={this.props.index} dataTestId={this.props.dataTestId}/>;
+      return <IndexDefinitionType index={this.props.index} dataTestId={this.props.dataTestId}/>;
     }
     return null;
   }
