@@ -53,6 +53,14 @@
           <ShortcutProperty Key="System.AppUserModel.ID" Value="{{AppUserModelId}}" />
         </Shortcut>
         <RemoveFolder Id="ApplicationProgramsFolder" On="uninstall"/>
+        <RegistryValue Root="HKCU"
+                       Key="Software\{{ShortcutFolderName}}\{{ApplicationShortName}}"
+                       Name="installed"
+                       Type="integer"
+                       Value="1"
+                       KeyPath="yes"/>
+      </Component>
+      <Component Id="ApplicationInstallLocation">
         <RegistryValue Root="HKLM"
                        Key="SOFTWARE\{{ShortcutFolderName}}\{{ApplicationShortName}}"
                        Name="directory"
@@ -66,6 +74,7 @@
     <Feature Id="MainApplication" Title="Main Application" Level="1">
 <!-- {{ComponentRefs}} -->
       <ComponentRef Id="ApplicationShortcut" />
+      <ComponentRef Id="ApplicationInstallLocation" />
     </Feature>
   </Product>
 </Wix>
