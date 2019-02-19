@@ -1,5 +1,4 @@
 import React, { PureComponent } from 'react';
-import { Provider } from 'react-redux';
 import ReactTooltip from 'react-tooltip';
 import PropTypes from 'prop-types';
 import numeral from 'numeral';
@@ -8,7 +7,6 @@ import isEmpty from 'lodash.isempty';
 import isNaN from 'lodash.isnan';
 import classnames from 'classnames';
 import { SortableTable, InfoSprinkle } from 'hadron-react-components';
-import DropCollectionModal from 'components/drop-collection-modal';
 import dropCollectionStore from 'stores/drop-collection';
 
 import styles from './collections-table.less';
@@ -226,9 +224,6 @@ class CollectionsTable extends PureComponent {
             onColumnHeaderClicked={this.onHeaderClicked}
             onRowDeleteButtonClicked={this.onDeleteClicked} />
         </div>
-        <Provider store={dropCollectionStore}>
-          <DropCollectionModal />
-        </Provider>
       </div>
     );
   }
