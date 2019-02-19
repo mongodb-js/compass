@@ -1,0 +1,243 @@
+@import './sidebar-collection.less';
+@import './sidebar-database.less';
+@import './sidebar-instance-properties.less';
+
+@compass-sidebar-default-text-color: #9DA4AA;
+@compass-sidebar-base-background-color: #4C5259;
+@compass-sidebar-lite-background-color: #565E65;
+@compass-sidebar-active-background-color: #6D7984;
+@compass-sidebar-hover-background-color: #42494f;
+@compass-sidebar-transition-time: 400ms;
+
+.compass-sidebar {
+  background: @compass-sidebar-base-background-color;
+  color: #bfbfbe;
+  display: flex;
+  flex-direction: column;
+  flex-grow: 0;
+  flex-shrink: 0;
+  margin: 0;
+  overflow: hidden;
+  transition: flex-basis @compass-sidebar-transition-time ease;
+
+  &-toggle {
+    position: absolute;
+    left: 250px;
+    width: 14px;
+    border-left: 0;
+    transition: all @compass-sidebar-transition-time ease;
+    border-bottom-left-radius: 0;
+    border-top-left-radius: 0;
+    top: 4px;
+    padding: 0;
+    cursor: pointer;
+    &:hover, &:focus {
+      border-left: 0;
+    }
+  }
+
+  &-expanded {
+    flex-basis: 250px;
+  }
+
+  &-properties,
+  &-filter,
+  &-content {
+    flex-grow: 0;
+    flex-shrink: 1;
+    flex-basis: auto;
+  }
+
+  /* Style for the sidebar filter */
+
+  &-filter {
+    position: relative;
+    box-shadow: 0 2px 2px rgba(0,0,0,.3);
+    z-index: 2;
+  }
+
+  &-search-icon {
+    position: absolute;
+    top: 8px;
+    left: 11px;
+    color: #fff;
+    cursor: pointer;
+  }
+
+  &-search-input {
+    padding: 7px 5px 5px 36px;
+    height: auto;
+    background: @compass-sidebar-hover-background-color;
+    color: #fff;
+    width: 100%;
+    border: none;
+    font-size: 14px;
+    font-family: "Akzidenz", "Helvetica Neue", Helvetica, Arial, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    outline: none;
+  }
+
+  &-search-input::-webkit-input-placeholder {
+    color: @compass-sidebar-default-text-color;
+    transition: color 180ms ease-out;
+  }
+  &-search-input:focus::-webkit-input-placeholder {
+      color: #fff;
+  }
+
+  &-content {
+    flex: 1;
+    overflow: hidden;
+  }
+
+  *::-webkit-scrollbar-track {
+    background-color: rgba(0,0,0,.12);
+    border-bottom-left-radius: 3px;
+    border-bottom-right-radius: 3px;
+    &:hover {
+      background-color: rgba(0,0,0,.24);
+    }
+  }
+  *::-webkit-scrollbar-thumb {
+    background-color: @compass-sidebar-lite-background-color;
+    border: 1px solid rgba(0,0,0,.24);
+  }
+
+  /* Styles for the big create database button at the bottom */
+
+  &-button-create-database-container {
+    flex-grow: 0;
+    flex-shrink: 1;
+    flex-basis: auto;
+    padding: 10px;
+    z-index: 2;
+    position: relative;
+  }
+
+  &-button-create-database {
+    background-color: @compass-sidebar-hover-background-color;
+    border-radius: 14px;
+    border: 0;
+    color: @pw;
+    display: block;
+    font-weight: bold;
+    font-size: 12px;
+    line-height: 12px;
+    height: 28px;
+    width: 28px;
+    margin: 0 auto;
+    overflow: hidden;
+    text-transform: uppercase;
+    transition: all 180ms ease;
+    white-space: nowrap;
+    text-align: center;
+  }
+
+  &-button-create-database {
+    .plus-button {
+      opacity: 0;
+      transition: all 180ms ease;
+      display: inline-block;
+    }
+  }
+
+  &-button-create-database:hover {
+    width: 100%;
+    background-color: @compass-sidebar-active-background-color;
+
+  }
+
+  &-button-create-database:hover {
+    .plus-button {
+      opacity: 1;
+    }
+  }
+
+  &-button-create-database.compass-sidebar-button-is-disabled {
+    background-color: fade(@compass-sidebar-active-background-color, 40%);
+    color: fade(@pw, 40%);
+    cursor: not-allowed;
+  }
+}
+
+/* Styles for collapsed sidebar state */
+
+.compass-sidebar-collapsed {
+  overflow: hidden;
+  cursor: pointer;
+  flex-basis: 36px;
+
+  .compass-sidebar-toggle {
+    left: 36px;
+  }
+
+  .compass-sidebar-item,
+  .compass-sidebar-property-column,
+  .compass-sidebar-instance-hostname,
+  .compass-sidebar-instance-version,
+  .compass-sidebar-instance-ssh-tunnel {
+    display: none;
+  }
+
+  .compass-sidebar-content {
+    visibility: hidden;
+  }
+
+  .compass-sidebar-instance {
+    padding-top: 6px;
+    padding-bottom: 10px;
+  }
+
+  .compass-sidebar-properties {
+    padding-bottom: 0;
+  }
+
+  .compass-sidebar-stats {
+    padding-top: 6px;
+    padding-bottom: 0;
+    height: 36px;
+    margin: 0;
+  }
+
+  &-refresh-button {
+    &:hover {
+        background: transparent;
+    }
+  }
+
+  .compass-sidebar-filter {
+    box-shadow: none;
+  }
+
+  .compass-sidebar-search-input {
+    width: 30px;
+    padding: 11px 6px 5px 30px;
+    background: transparent;
+  }
+
+  .compass-sidebar-search-icon {
+    top: 10px;
+    color: #fff;
+  }
+
+  .compass-sidebar-button-create-database-container {
+    padding: 0 0 10px 0;
+    background: transparent;
+    box-shadow: none;
+  }
+
+  .compass-sidebar-button-create-database:hover {
+    width: 28px;
+  }
+
+  .compass-sidebar-button-create-database:hover {
+    .plus-button {
+      opacity: 0;
+    }
+  }
+}
+
+// Disable the blue (macOS) or orange (RedHat/Ubuntu/Windows) focus outline
+.compass-sidebar-autosizer-list:focus {
+  outline: 0;
+}
