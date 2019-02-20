@@ -361,6 +361,7 @@ class Target {
             programFilesFolderName: this.programFilesFolderName || this.productName,
             appUserModelId: this.bundleId,
             upgradeCode: this.upgradeCode,
+            arch: 'x64',
             ui: {
               chooseDirectory: true,
               images: {
