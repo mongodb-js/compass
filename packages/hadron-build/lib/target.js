@@ -362,6 +362,7 @@ class Target {
             appUserModelId: this.bundleId,
             upgradeCode: this.upgradeCode,
             arch: 'x64',
+            extensions: ['WixUtilExtension'],
             ui: {
               chooseDirectory: true,
               images: {
