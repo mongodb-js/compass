@@ -173,6 +173,18 @@ Application.prototype.setupUserDirectory = function() {
       app.setPath('userData', path.join(app.getPath('appData'), newAppName));
       app.setPath('userCache', path.join(app.getPath('cache'), newAppName));
     }
+  } else if (process.env.NODE_ENV === 'production') {
+    // If we are on windows we need to look for the registry key that tells us
+    // where Commpass is installed. If they key exists, we need to change the user
+    // data directory to a subfolder of that.
+    if (process.platform === 'win32') {
+      const vsWinReg = require('vscode-windows-registry');
+      const installDir = vsWinReg.GetStringRegKey('HKEY_LOCAL_MACHINE', `SOFTWARE\\MongoDB\\${app.getName()}`, 'directory');
+      if (installDir) {
+        app.setPath('userData', path.join(installDir, 'UserData'));
+        app.setPath('userCache', path.join(installDir, 'Cache'));
+      }
+    }
   }
 };
 
