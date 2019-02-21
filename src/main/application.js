@@ -179,6 +179,7 @@ Application.prototype.setupUserDirectory = function() {
     // data directory to a subfolder of that.
     if (process.platform === 'win32') {
       const vsWinReg = require('vscode-windows-registry');
+      /* eslint new-cap: 0 */
       const installDir = vsWinReg.GetStringRegKey('HKEY_LOCAL_MACHINE', `SOFTWARE\\MongoDB\\${app.getName()}`, 'directory');
       if (installDir) {
         app.setPath('userData', path.join(installDir, 'UserData'));
