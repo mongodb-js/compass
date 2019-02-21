@@ -60,7 +60,7 @@
                        Value="1"
                        KeyPath="yes"/>
       </Component>
-      <Component Id="ApplicationInstallLocation" Guid="78B37883-AC76-44C6-8122-007BD077BA29">
+      <Component Id="ApplicationInstallLocation" Guid="78B37883-AC76-44C6-8122-007BD077BA29" Win64="{{Win64YesNo}}">
         <RegistryKey Root="HKLM"
                      Key="Software\{{ShortcutFolderName}}\{{ApplicationShortName}}">
           <RegistryValue Type="string" Name="directory" Value="[APPLICATIONROOTDIRECTORY]" KeyPath="yes"/>
