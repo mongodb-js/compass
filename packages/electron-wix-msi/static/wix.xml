@@ -42,6 +42,14 @@
       </Directory>
     </Directory>
 
+    <Property Id="RemoveUserDataFolder">
+      <RegistrySearch Id="RemovalProperty"
+                      Root="HKLM"
+                      Key="Software\{{ShortcutFolderName}}\{{ApplicationShortName}}"
+                      Name="UserDataDirectory"
+                      Type="raw" />
+    </Property>
+
     <!-- Step 3: Add app to Start Menu -->
     <DirectoryRef Id="ApplicationProgramsFolder">
       <Component Id="ApplicationShortcut" Guid="{{ApplicationShortcutGuid}}" Win64='{{Win64YesNo}}'>
@@ -63,8 +71,10 @@
       <Component Id="ApplicationInstallLocation" Guid="78B37883-AC76-44C6-8122-007BD077BA29" Win64="{{Win64YesNo}}">
         <RegistryKey Root="HKLM"
                      Key="Software\{{ShortcutFolderName}}\{{ApplicationShortName}}">
-          <RegistryValue Type="string" Name="directory" Value="[APPLICATIONROOTDIRECTORY]" KeyPath="yes"/>
+          <RegistryValue Type="string" Name="Directory" Value="[APPLICATIONROOTDIRECTORY]" KeyPath="yes"/>
+          <RegistryValue Type="string" Name="UserDataDirectory" Value="[APPLICATIONROOTDIRECTORY]\UserData" KeyPath="yes"/>
         </RegistryKey>
+        <util:RemoveFolderEx Id="RemoveAdditionalFiles" On="uninstall" Property="RemoveUserDataFolder"/>
       </Component>
     </DirectoryRef>
 
