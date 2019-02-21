@@ -39,7 +39,7 @@
           "productName": "MongoDB Compass",
           "bundleId": "com.mongodb.compass",
           "plugins-directory": ".mongodb/compass/plugins",
-          "upgradeCode": "0152273d-2f9f-4913-b67f-0fcd3557ffd1",
+          "upgradeCode": "0152273D-2F9F-4913-B67F-0FCD3557FFD1",
           "plugins": [
             "node_modules/@mongodb-js/compass-aggregations",
             "node_modules/@mongodb-js/compass-auto-updates",
@@ -79,7 +79,7 @@
           "productName": "MongoDB Compass Community",
           "bundleId": "com.mongodb.compass-community",
           "plugins-directory": ".mongodb/compass-community/plugins",
-          "upgradeCode": "eaf69c0d-a16e-44da-a47f-37745230aaf0",
+          "upgradeCode": "EAF69C0D-A16E-44DA-A47F-37745230AAF0",
           "plugins": [
             "node_modules/@mongodb-js/compass-aggregations",
             "node_modules/@mongodb-js/compass-auto-updates",
@@ -115,7 +115,7 @@
           "productName": "MongoDB Compass Readonly",
           "bundleId": "com.mongodb.compass.readonly",
           "plugins-directory": ".mongodb/compass-readonly/plugins",
-          "upgradeCode": "2176ec1d-ef71-49d4-b3b4-9e15b289d79a",
+          "upgradeCode": "2176EC1D-EF71-49D4-B3B4-9E15B289D79A",
           "readonly": true,
           "plugins": [
             "node_modules/@mongodb-js/compass-aggregations",
@@ -156,7 +156,7 @@
           "productName": "MongoDB Compass Isolated Edition",
           "bundleId": "com.mongodb.compass.isolated",
           "plugins-directory": ".mongodb/compass-isolated/plugins",
-          "upgradeCode": "516f2be1-4417-4f31-baa1-364a59404775",
+          "upgradeCode": "516F2BE1-4417-4F31-BAA1-364A59404775",
           "isolated": true,
           "plugins": [
             "node_modules/@mongodb-js/compass-aggregations",
@@ -400,7 +400,7 @@
     "enzyme": "^3.7.0",
     "enzyme-adapter-react-16": "^1.6.0",
     "eslint-config-mongodb-js": "^2.2.0",
-    "hadron-build": "^21.0.21",
+    "hadron-build": "^21.0.22",
     "hadron-spectron": "^5.0.0",
     "jsdom": "^9.8.3",
     "mocha": "^4.1.0",
