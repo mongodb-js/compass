@@ -33,18 +33,23 @@ class Saving extends PureComponent {
     this._name = event.target.value;
   };
 
-  handleSubmit = (evt) => {
-    evt.preventDefault();
-    evt.stopPropagation();
+  handleSubmit = () => {
     const { actions, model } = this.props;
     actions.saveFavorite(model, this._name);
+  }
+
+  handleFormSubmit = (evt) => {
+    evt.preventDefault();
+    evt.stopPropagation();
+    this.handleSubmit();
   }
 
   renderSaveForm = () => {
     return (
       <form
         data-test-id="query-history-saving-form"
-        className={classnames(styles.form)}>
+        className={classnames(styles.form)}
+        onSubmit={this.handleFormSubmit}>
         <input
           data-test-id="query-history-saving-form-input-name"
           type="text"

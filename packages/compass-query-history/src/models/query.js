@@ -38,6 +38,10 @@ const Query = Model.extend({
      */
     limit: 'number',
     /**
+     * The collation.
+     */
+    collation: 'object',
+    /**
      * The query last executed time.
      */
     _lastExecuted: 'date',
