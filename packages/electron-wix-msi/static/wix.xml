@@ -72,7 +72,7 @@
         <RegistryKey Root="HKLM"
                      Key="Software\{{ShortcutFolderName}}\{{ApplicationShortName}}">
           <RegistryValue Type="string" Name="Directory" Value="[APPLICATIONROOTDIRECTORY]" KeyPath="yes"/>
-          <RegistryValue Type="string" Name="UserDataDirectory" Value="[APPLICATIONROOTDIRECTORY]\UserData" KeyPath="yes"/>
+          <RegistryValue Type="string" Name="UserDataDirectory" Value="[APPLICATIONROOTDIRECTORY]\UserData"/>
         </RegistryKey>
         <util:RemoveFolderEx Id="RemoveAdditionalFiles" On="uninstall" Property="USERDATAFOLDER"/>
       </Component>
