@@ -42,7 +42,7 @@
       </Directory>
     </Directory>
 
-    <Property Id="RemoveUserDataFolder">
+    <Property Id="USERDATAFOLDER">
       <RegistrySearch Id="RemovalProperty"
                       Root="HKLM"
                       Key="Software\{{ShortcutFolderName}}\{{ApplicationShortName}}"
@@ -74,7 +74,7 @@
           <RegistryValue Type="string" Name="Directory" Value="[APPLICATIONROOTDIRECTORY]" KeyPath="yes"/>
           <RegistryValue Type="string" Name="UserDataDirectory" Value="[APPLICATIONROOTDIRECTORY]\UserData" KeyPath="yes"/>
         </RegistryKey>
-        <util:RemoveFolderEx Id="RemoveAdditionalFiles" On="uninstall" Property="RemoveUserDataFolder"/>
+        <util:RemoveFolderEx Id="RemoveAdditionalFiles" On="uninstall" Property="USERDATAFOLDER"/>
       </Component>
     </DirectoryRef>
 
