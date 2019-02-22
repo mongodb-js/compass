@@ -27,7 +27,7 @@
   ],
   "scripts": {
     "ci": "npm run check && npm test",
-    "test": "mocha --compilers js:babel-register",
+    "test": "mocha --require babel-core/register",
     "fmt": "mongodb-js-fmt ./*.js ./test/*.js",
     "compile": "npm run babel & npm run pegjs",
     "babel": "babel ./src --out-dir ./lib --presets es2015",
@@ -53,6 +53,6 @@
     "mongodb-js-fmt": "^0.0.3",
     "mongodb-js-precommit": "^0.2.9",
     "pre-commit": "^1.1.2",
-    "mocha": "^2.3.3"
+    "mocha": "^6.0.1"
   }
 }
