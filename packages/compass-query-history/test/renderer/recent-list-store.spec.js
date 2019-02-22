@@ -69,5 +69,23 @@ describe('RecentListStore [Store]', () => {
         expect(RecentListStore.state.items.length).to.equal(1);
       });
     });
+
+    context('when a collation is present', () => {
+      before(() => {
+        appRegistry.emit('query-applied', { ns: 'test.test', collation: { locale: 'en' }});
+      });
+
+      after(() => {
+        RecentListStore.state.items.reset();
+      });
+
+      it('adds the query to the list', () => {
+        expect(RecentListStore.state.items.length).to.equal(1);
+      });
+
+      it('stores the collation', () => {
+        expect(RecentListStore.state.items.at(0).collation).to.deep.equal({ locale: 'en' });
+      });
+    });
   });
 });

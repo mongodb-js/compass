@@ -8,7 +8,7 @@ import { RecentQuery, RecentQueryCollection } from 'models';
 import Actions from 'actions';
 
 const TOTAL_RECENTS = 30;
-const ALLOWED = ['filter', 'project', 'sort', 'skip', 'limit'];
+const ALLOWED = ['filter', 'project', 'sort', 'skip', 'limit', 'collation'];
 
 /**
  * Query History Recent List store.
