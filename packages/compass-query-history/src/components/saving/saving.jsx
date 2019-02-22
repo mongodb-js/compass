@@ -33,7 +33,9 @@ class Saving extends PureComponent {
     this._name = event.target.value;
   };
 
-  handleSubmit = () => {
+  handleSubmit = (evt) => {
+    evt.preventDefault();
+    evt.stopPropagation();
     const { actions, model } = this.props;
     actions.saveFavorite(model, this._name);
   }
