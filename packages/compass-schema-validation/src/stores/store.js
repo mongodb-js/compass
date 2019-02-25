@@ -9,6 +9,7 @@ import { serverVersionChanged } from 'modules/server-version';
 import { appRegistryActivated } from 'modules/app-registry';
 import { fetchValidation, activateValidation } from 'modules/validation';
 import { editModeChanged } from 'modules/edit-mode';
+import { changeZeroState } from 'modules/zero-state';
 import semver from 'semver';
 
 /**
@@ -35,20 +36,24 @@ store.onActivated = (appRegistry) => {
   appRegistry.on('collection-changed', (ns) => {
     const namespace = toNS(ns);
     const CollectionStore = appRegistry.getStore('App.CollectionStore');
-    const isEditable = (
-      !CollectionStore.isReadonly() &&
-      process.env.HADRON_READONLY !== 'true'
-    );
+    const WriteStateStore = appRegistry.getStore('DeploymentAwareness.WriteStateStore');
+    const editMode = {
+      collectionReadOnly: CollectionStore.isReadonly() ? true : false,
+      hardonReadOnly: (process.env.HADRON_READONLY === 'true'),
+      writeStateStoreReadOnly: !WriteStateStore.state.isWritable
+    };
 
     if (namespace.collection) {
       store.dispatch(namespaceChanged(namespace));
 
-      if (isEditable) {
+      if (editMode.collectionReadOnly) {
+        store.dispatch(changeZeroState(true));
+      } else {
         store.dispatch(fetchValidation(namespace));
       }
     }
 
-    store.dispatch(editModeChanged(isEditable));
+    store.dispatch(editModeChanged(editMode));
   });
 
   /**
@@ -80,7 +85,9 @@ store.onActivated = (appRegistry) => {
     store.dispatch(serverVersionChanged(version));
 
     if (version) {
-      store.dispatch(editModeChanged(semver.gte(version, MIN_VERSION)));
+      const editMode = { oldServerReadOnly: semver.gte(MIN_VERSION, version) };
+
+      store.dispatch(editModeChanged(editMode));
     }
   });
 

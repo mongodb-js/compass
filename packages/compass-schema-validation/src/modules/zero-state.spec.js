@@ -6,7 +6,7 @@ import reducer, {
 describe('zero-state module', () => {
   describe('#zeroStateChanged', () => {
     it('returns the IS_ZERO_STATE_CHANGED action', () => {
-      expect(zeroStateChanged()).to.deep.equal({
+      expect(zeroStateChanged(false)).to.deep.equal({
         type: IS_ZERO_STATE_CHANGED,
         isZeroState: false
       });
@@ -22,7 +22,7 @@ describe('zero-state module', () => {
 
     context('when the action is zeroStateChanged', () => {
       it('returns the new state', () => {
-        expect(reducer(undefined, zeroStateChanged())).to.equal(false);
+        expect(reducer(undefined, zeroStateChanged(true))).to.equal(true);
       });
     });
   });

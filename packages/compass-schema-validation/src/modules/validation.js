@@ -383,7 +383,7 @@ export const fetchValidation = (namespace) => {
           if (errorColl) {
             validation.error = errorColl;
 
-            dispatch(zeroStateChanged());
+            dispatch(zeroStateChanged(false));
             dispatch(validationFetched(validation));
 
             return;
@@ -405,7 +405,7 @@ export const fetchValidation = (namespace) => {
           if (validation.validator) {
             validation.validator = EJSON.stringify(options.validator, null, 2);
 
-            dispatch(zeroStateChanged());
+            dispatch(zeroStateChanged(false));
             dispatch(fetchSampleDocuments(validation.validator));
             dispatch(validationFetched(validation));
 

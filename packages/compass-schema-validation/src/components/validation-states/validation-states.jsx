@@ -6,24 +6,17 @@ import { TextButton } from 'hadron-react-buttons';
 import ValidationEditor from 'components/validation-editor';
 import SampleDocuments from 'components/sample-documents';
 import { ZeroGraphic } from 'components/zero-graphic';
-import semver from 'semver';
 
 import styles from './validation-states.less';
 
 /**
- * The lowest supported version.
+ * Warnings for the banner.
  */
-const MIN_VERSION = '3.2.0';
-
-/**
- * Read only warning for the banner.
- */
-const READ_ONLY_WARNING = 'Schema validation on readonly views are not supported.';
-
-/**
- * Version warning for the banner.
- */
-const VERSION_WARNING = 'Compass no longer supports the visual rule builder for server versions below 3.2. To use the visual rule builder, please';
+export const READ_ONLY_WARNING = {
+  collectionReadOnly: 'Schema validation on readonly views are not supported.',
+  writeStateStoreReadOnly: 'This action is not available on a secondary node.',
+  oldServerReadOnly: 'Compass no longer supports the visual rule builder for server versions below 3.2. To use the visual rule builder, please'
+};
 
 /**
  * Header for zero state.
@@ -55,27 +48,23 @@ class ValidationStates extends Component {
     isZeroState: PropTypes.bool.isRequired,
     changeZeroState: PropTypes.func.isRequired,
     zeroStateChanged: PropTypes.func.isRequired,
-    isEditable: PropTypes.bool.isRequired,
+    editMode: PropTypes.object.isRequired,
     openLink: PropTypes.func.isRequired,
     serverVersion: PropTypes.string
   }
 
   /**
-   * Checks if it is a proper server version.
+   * Checks if the validation is editable.
    *
-   * @returns {Boolean}
+   * @returns {Boolean} True if it is editable.
    */
-  isProperServerVersion() {
-    return semver.gte(this.props.serverVersion, MIN_VERSION);
-  }
-
-  /**
-   * Checks if the zero state window should be displayed.
-   *
-   * @returns {Boolean}
-   */
-  checkIfZeroState() {
-    return (this.props.isZeroState || !this.props.isEditable);
+  isEditable() {
+    return (
+      !this.props.editMode.collectionReadOnly &&
+      !this.props.editMode.hardonReadOnly &&
+      !this.props.editMode.writeStateStoreReadOnly &&
+      !this.props.editMode.oldServerReadOnly
+    );
   }
 
   /**
@@ -84,23 +73,43 @@ class ValidationStates extends Component {
    * @returns {React.Component} The component.
    */
   renderBanner() {
-    if (!this.props.isEditable) {
-      if (this.isProperServerVersion()) {
-        return (<StatusRow style="warning">{READ_ONLY_WARNING}</StatusRow>);
+    if (!this.isEditable()) {
+      if (this.props.editMode.oldServerReadOnly) {
+        return (
+          <StatusRow style="warning">
+            <div id="oldServerReadOnly">
+              {READ_ONLY_WARNING.oldServerReadOnly}
+            </div>
+          </StatusRow>
+        );
       }
 
-      return (
-        <StatusRow style="warning">
-          {VERSION_WARNING}
-          <div>&nbsp;</div>
-          <a
-            className={classnames(styles['upgrade-link'])}
-            onClick={this.props.openLink.bind(this, DOC_UPGRADE_REVISION)}
-          >
-            upgrade to MongoDB 3.2.
-          </a>
-        </StatusRow>
-      );
+      if (this.props.editMode.writeStateStoreReadOnly) {
+        return (
+          <StatusRow style="warning">
+            <div id="writeStateStoreReadOnly">
+              {READ_ONLY_WARNING.writeStateStoreReadOnly}
+            </div>
+          </StatusRow>
+        );
+      }
+
+      if (this.props.editMode.oldServerReadOnly) {
+        return (
+          <StatusRow style="warning">
+            <div id="oldServerReadOnly">
+              {READ_ONLY_WARNING.oldServerReadOnly}
+              <div>&nbsp;</div>
+              <a
+                className={classnames(styles['upgrade-link'])}
+                onClick={this.props.openLink.bind(this, DOC_UPGRADE_REVISION)}
+              >
+                upgrade to MongoDB 3.2.
+              </a>
+            </div>
+          </StatusRow>
+        );
+      }
     }
   }
 
@@ -110,7 +119,7 @@ class ValidationStates extends Component {
    * @returns {React.Component} The component.
    */
   renderZeroState() {
-    if (this.checkIfZeroState()) {
+    if (this.props.isZeroState) {
       return (
           <div className={classnames(styles['zero-state-container'])}>
             <ZeroGraphic />
@@ -119,10 +128,10 @@ class ValidationStates extends Component {
                 <div>
                   <TextButton
                     className={`btn btn-primary btn-lg ${
-                      !this.props.isEditable ? 'disabled' : ''
+                      !this.isEditable() ? 'disabled' : ''
                     }`}
                     text="Add Rule"
-                    clickHandler={this.props.changeZeroState} />
+                    clickHandler={this.props.changeZeroState.bind(this, false)} />
                 </div>
                 <a
                   className={classnames(styles['zero-state-link'])}
@@ -143,10 +152,10 @@ class ValidationStates extends Component {
    * @returns {React.Component} The component.
    */
   renderContent() {
-    if (!this.checkIfZeroState()) {
+    if (!this.props.isZeroState) {
       return (
         <div className={classnames(styles['content-container'])}>
-          <ValidationEditor {...this.props} />
+          <ValidationEditor {...this.props} isEditable={this.isEditable()} />
           <SampleDocuments {...this.props} />
         </div>
       );

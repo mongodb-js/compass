@@ -75,7 +75,8 @@ class ValidationEditor extends Component {
       syntaxError: PropTypes.object,
       error: PropTypes.object
     }),
-    openLink: PropTypes.func.isRequired
+    openLink: PropTypes.func.isRequired,
+    isEditable: PropTypes.bool.isRequired
   };
 
   /**
@@ -182,6 +183,7 @@ class ValidationEditor extends Component {
           options={ACTION_OPTIONS}
           title={ACTION_OPTIONS[this.props.validation.validationAction]}
           label={label}
+          disabled={!this.props.isEditable}
           onSelect={this.props.validationActionChanged} />
       </div>
     );
@@ -210,6 +212,7 @@ class ValidationEditor extends Component {
           options={LEVEL_OPTIONS}
           title={LEVEL_OPTIONS[this.props.validation.validationLevel]}
           label={label}
+          disabled={!this.props.isEditable}
           onSelect={this.props.validationLevelChanged} />
       </div>
     );
@@ -295,6 +298,7 @@ class ValidationEditor extends Component {
               onChange={this.onValidatorChange.bind(this)}
               editorProps={{$blockScrolling: Infinity}}
               setOptions={OPTIONS}
+              readOnly={!this.props.isEditable}
               onFocus={() => tools.setCompleters([this.completer])} />
             </div>
             {this.renderValidationMessage()}

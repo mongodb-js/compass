@@ -19,9 +19,11 @@ global.hadronApp.appRegistry = appRegistry;
 
 const CollectionStore = require('./stores/collection-store');
 const NamespaceStore = require('./stores/namespace-store');
+const WriteStateStore = require('./stores/write-state-store');
 
 appRegistry.registerStore('App.NamespaceStore', NamespaceStore);
 appRegistry.registerStore('App.CollectionStore', CollectionStore);
+appRegistry.registerStore('DeploymentAwareness.WriteStateStore', WriteStateStore);
 
 // Activate our plugin with the Hadron App Registry
 activate(appRegistry);
@@ -31,6 +33,8 @@ appRegistry.onActivated();
 // Since we are using HtmlWebpackPlugin WITHOUT a template,
 // we should create our own root node in the body element before rendering into it.
 const root = document.createElement('div');
+
+root.style = 'height: 100vh';
 root.id = 'root';
 document.body.appendChild(root);
 

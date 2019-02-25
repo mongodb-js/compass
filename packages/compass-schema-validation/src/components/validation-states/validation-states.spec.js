@@ -25,7 +25,12 @@ describe('ValidationStates [Component]', () => {
       error: null
     };
     const sampleDocuments = {};
-    const isEditable = false;
+    const editMode = {
+      collectionReadOnly: false,
+      hardonReadOnly: false,
+      writeStateStoreReadOnly: false,
+      oldServerReadOnly: true
+    };
     const isZeroState = true;
     const serverVersion = '3.1.0';
 
@@ -43,9 +48,9 @@ describe('ValidationStates [Component]', () => {
           changeZeroState={changeZeroStateSpy}
           zeroStateChanged={setZeroStateChangedSpy}
           isZeroState={isZeroState}
-          isEditable={isEditable}
-          serverVersion={serverVersion}
+          editMode={editMode}
           sampleDocuments={sampleDocuments}
+          serverVersion={serverVersion}
           openLink={openLinkSpy} />
       );
     });
@@ -59,7 +64,13 @@ describe('ValidationStates [Component]', () => {
     });
 
     it('renders the version banner', () => {
-      expect(component.find(`.${styles['upgrade-link']}`)).to.be.present();
+      expect(component.find({ id: 'oldServerReadOnly' })).to.be.present();
+    });
+
+    it('does not render other banners', () => {
+      expect(component.find({ id: 'collectionReadOnly' })).to.be.not.present();
+      expect(component.find({ id: 'hardonReadOnly' })).to.be.not.present();
+      expect(component.find({ id: 'writeStateStoreReadOnly' })).to.be.not.present();
     });
   });
 
@@ -84,9 +95,14 @@ describe('ValidationStates [Component]', () => {
       error: null
     };
     const sampleDocuments = {};
-    const isEditable = false;
+    const editMode = {
+      collectionReadOnly: false,
+      hardonReadOnly: false,
+      writeStateStoreReadOnly: false,
+      oldServerReadOnly: false
+    };
     const isZeroState = true;
-    const serverVersion = '3.3.0';
+    const serverVersion = '3.2.0';
 
     beforeEach(() => {
       component = mount(
@@ -102,9 +118,9 @@ describe('ValidationStates [Component]', () => {
           changeZeroState={changeZeroStateSpy}
           zeroStateChanged={setZeroStateChangedSpy}
           isZeroState={isZeroState}
-          isEditable={isEditable}
-          serverVersion={serverVersion}
+          editMode={editMode}
           sampleDocuments={sampleDocuments}
+          serverVersion={serverVersion}
           openLink={openLinkSpy} />
       );
     });
@@ -113,12 +129,134 @@ describe('ValidationStates [Component]', () => {
       component = null;
     });
 
-    it('does not render the version banner', () => {
-      expect(component.find(`.${styles['upgrade-link']}`)).to.be.not.present();
+    it('does not render a warning banner', () => {
+      expect(component.find('StatusRow')).to.be.not.present();
+    });
+  });
+
+  context('when compass is in the read-only mode', () => {
+    let component;
+    const changeZeroStateSpy = sinon.spy();
+    const setZeroStateChangedSpy = sinon.spy();
+    const openLinkSpy = sinon.spy();
+    const setValidatorChangedSpy = sinon.spy();
+    const setValidationActionChangedSpy = sinon.spy();
+    const setValidationLevelChangedSpy = sinon.spy();
+    const setCancelValidationSpy = sinon.spy();
+    const saveValidationSpy = sinon.spy();
+    const fetchSampleDocumentsSpy = sinon.spy();
+    const fields = [];
+    const validation = {
+      validator: '',
+      validationAction: 'warn',
+      validationLevel: 'moderate',
+      isChanged: false,
+      syntaxError: null,
+      error: null
+    };
+    const sampleDocuments = {};
+    const editMode = {
+      collectionReadOnly: false,
+      hardonReadOnly: true,
+      writeStateStoreReadOnly: false,
+      oldServerReadOnly: false
+    };
+    const isZeroState = false;
+    const serverVersion = '3.2.0';
+
+    beforeEach(() => {
+      component = mount(
+        <ValidationStates
+          validatorChanged={setValidatorChangedSpy}
+          validationActionChanged={setValidationActionChangedSpy}
+          validationLevelChanged={setValidationLevelChangedSpy}
+          cancelValidation={setCancelValidationSpy}
+          saveValidation={saveValidationSpy}
+          fetchSampleDocuments={fetchSampleDocumentsSpy}
+          fields={fields}
+          validation={validation}
+          changeZeroState={changeZeroStateSpy}
+          zeroStateChanged={setZeroStateChangedSpy}
+          isZeroState={isZeroState}
+          editMode={editMode}
+          sampleDocuments={sampleDocuments}
+          serverVersion={serverVersion}
+          openLink={openLinkSpy} />
+      );
     });
 
-    it('renders the read only banner', () => {
-      expect(component.find('StatusRow')).to.be.present();
+    afterEach(() => {
+      component = null;
+    });
+
+    it('does not render a warning banner', () => {
+      expect(component.find('StatusRow')).to.be.not.present();
+    });
+  });
+
+  context('when compass is not writable', () => {
+    let component;
+    const changeZeroStateSpy = sinon.spy();
+    const setZeroStateChangedSpy = sinon.spy();
+    const openLinkSpy = sinon.spy();
+    const setValidatorChangedSpy = sinon.spy();
+    const setValidationActionChangedSpy = sinon.spy();
+    const setValidationLevelChangedSpy = sinon.spy();
+    const setCancelValidationSpy = sinon.spy();
+    const saveValidationSpy = sinon.spy();
+    const fetchSampleDocumentsSpy = sinon.spy();
+    const fields = [];
+    const validation = {
+      validator: '',
+      validationAction: 'warn',
+      validationLevel: 'moderate',
+      isChanged: false,
+      syntaxError: null,
+      error: null
+    };
+    const sampleDocuments = {};
+    const editMode = {
+      collectionReadOnly: false,
+      hardonReadOnly: false,
+      writeStateStoreReadOnly: true,
+      oldServerReadOnly: false
+    };
+    const isZeroState = false;
+    const serverVersion = '3.2.0';
+
+    beforeEach(() => {
+      component = mount(
+        <ValidationStates
+          validatorChanged={setValidatorChangedSpy}
+          validationActionChanged={setValidationActionChangedSpy}
+          validationLevelChanged={setValidationLevelChangedSpy}
+          cancelValidation={setCancelValidationSpy}
+          saveValidation={saveValidationSpy}
+          fetchSampleDocuments={fetchSampleDocumentsSpy}
+          fields={fields}
+          validation={validation}
+          changeZeroState={changeZeroStateSpy}
+          zeroStateChanged={setZeroStateChangedSpy}
+          isZeroState={isZeroState}
+          editMode={editMode}
+          sampleDocuments={sampleDocuments}
+          serverVersion={serverVersion}
+          openLink={openLinkSpy} />
+      );
+    });
+
+    afterEach(() => {
+      component = null;
+    });
+
+    it('renders the writable banner', () => {
+      expect(component.find({ id: 'writeStateStoreReadOnly' })).to.be.present();
+    });
+
+    it('does not render other banners', () => {
+      expect(component.find({ id: 'collectionReadOnly' })).to.be.not.present();
+      expect(component.find({ id: 'hardonReadOnly' })).to.be.not.present();
+      expect(component.find({ id: 'oldServerReadOnly' })).to.be.not.present();
     });
   });
 });

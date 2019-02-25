@@ -8,7 +8,7 @@ import serverVersion, { INITIAL_STATE as SV_INITIAL_STATE } from './server-versi
 import validation, { INITIAL_STATE as VALIDATION_STATE } from './validation';
 import sampleDocuments, { INITIAL_STATE as SAMPLE_DOCUMENTS_STATE } from './sample-documents';
 import isZeroState, { INITIAL_STATE as IS_ZERO_STATE } from './zero-state';
-import isEditable, { INITIAL_STATE as IS_EDITABLE_STATE } from './edit-mode';
+import editMode, { INITIAL_STATE as EDIT_MODE_STATE } from './edit-mode';
 
 /**
  * Reset action constant.
@@ -27,7 +27,7 @@ export const INITIAL_STATE = {
   validation: VALIDATION_STATE,
   sampleDocuments: SAMPLE_DOCUMENTS_STATE,
   isZeroState: IS_ZERO_STATE,
-  isEditable: IS_EDITABLE_STATE
+  editMode: EDIT_MODE_STATE
 };
 
 /**
@@ -42,7 +42,7 @@ const appReducer = combineReducers({
   validation,
   sampleDocuments,
   isZeroState,
-  isEditable
+  editMode
 });
 
 /**

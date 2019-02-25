@@ -29,11 +29,13 @@ export default function reducer(state = INITIAL_STATE, action) {
 /**
  * Action creator for zero state changed events.
  *
+ * @param {Boolean} isZeroState - Is zero state.
+ *
  * @returns {Object} The zero state changed action.
  */
-export const zeroStateChanged = () => ({
+export const zeroStateChanged = (isZeroState) => ({
   type: IS_ZERO_STATE_CHANGED,
-  isZeroState: false
+  isZeroState
 });
 
 /**
@@ -64,17 +66,20 @@ const sendMetrics = (dispatch, dataService, namespace, registryEvent) => dataSer
 /**
 * Change zero state.
 *
+* @param {Boolean} isZeroState - Is zero state.
+*
 * @returns {Function} The function.
 */
-export const changeZeroState = () => {
+export const changeZeroState = (isZeroState) => {
   return (dispatch, getState) => {
     const state = getState();
     const dataService = state.dataService.dataService;
     const namespace = state.namespace;
 
-    sendMetrics(dispatch, dataService, namespace, 'schema-validation-rules-added');
-    dispatch(zeroStateChanged());
+    if (isZeroState === false) {
+      sendMetrics(dispatch, dataService, namespace, 'schema-validation-rules-added');
+    }
 
-    return;
+    return dispatch(zeroStateChanged(isZeroState));
   };
 };

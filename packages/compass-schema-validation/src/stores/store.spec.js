@@ -20,11 +20,13 @@ describe('Schema Validation Store', () => {
       return false;
     }
   };
+  const writeStateStore = { state: { isWritable: true } };
 
   before(() => {
     global.hadronApp = hadronApp;
     global.hadronApp.appRegistry = appRegistry;
     global.hadronApp.appRegistry.registerStore('App.CollectionStore', collectionStore);
+    global.hadronApp.appRegistry.registerStore('DeploymentAwareness.WriteStateStore', writeStateStore);
   });
 
   beforeEach(() => {
@@ -226,8 +228,29 @@ describe('Schema Validation Store', () => {
             validation: INITIAL_STATE.validation,
             sampleDocuments: INITIAL_STATE.sampleDocuments,
             isZeroState: INITIAL_STATE.isZeroState,
-            isEditable: INITIAL_STATE.isEditable
+            editMode: INITIAL_STATE.editMode
           });
+        });
+      });
+    });
+
+    context('when running in a readonly context', () => {
+      beforeEach(() => {
+        process.env.HADRON_READONLY = 'true';
+        store.onActivated(appRegistry);
+        appRegistry.emit('collection-changed', 'db');
+      });
+
+      afterEach(() => {
+        process.env.HADRON_READONLY = 'false';
+      });
+
+      it('sets hardonReadOnly property as true', () => {
+        expect(store.getState().editMode).to.deep.equal({
+          collectionReadOnly: false,
+          hardonReadOnly: true,
+          writeStateStoreReadOnly: false,
+          oldServerReadOnly: false
         });
       });
     });

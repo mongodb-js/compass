@@ -1,13 +1,18 @@
 
 /**
- * Edit mode changed action.
+ * The edit mode changed action.
  */
 export const EDIT_MODE_CHANGED = 'validation/namespace/EDIT_MODE_CHANGED';
 
 /**
  * The initial state.
  */
-export const INITIAL_STATE = true;
+export const INITIAL_STATE = {
+  collectionReadOnly: false,
+  hardonReadOnly: false,
+  writeStateStoreReadOnly: false,
+  oldServerReadOnly: false
+};
 
 /**
  * Reducer function for handle state changes to namespace.
@@ -19,20 +24,20 @@ export const INITIAL_STATE = true;
  */
 export default function reducer(state = INITIAL_STATE, action) {
   if (action.type === EDIT_MODE_CHANGED) {
-    return action.isEditable;
+    return { ...state, ...action.editMode };
   }
 
   return state;
 }
 
 /**
- * Action creator for edit mode changed events.
+ * Action creator for the edit mode changed events.
  *
- * @param {Boolean} isEditable - Is editable.
+ * @param {Object} editMode - The edit mode.
  *
  * @returns {Object} The edit mode changed action.
  */
-export const editModeChanged = (isEditable) => ({
+export const editModeChanged = (editMode) => ({
   type: EDIT_MODE_CHANGED,
-  isEditable
+  editMode
 });
