@@ -26,7 +26,7 @@ export default function reducer(state = INITIAL_STATE, action) {
 /**
  * The change ssh tunnel action creator.
  *
- * @param {String} ssh tunnel - The ssh tunnel.
+ * @param {String} sshTunnel - The ssh tunnel.
  *
  * @returns {Object} The action.
  */

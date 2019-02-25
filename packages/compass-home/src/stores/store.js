@@ -20,7 +20,6 @@ const store = createStore(reducer, applyMiddleware(thunk));
 
 
 store.onActivated = (appRegistry) => {
-
   appRegistry.getStore('App.InstanceStore').listen((state) => {
     if (state.errorMessage) {
       store.dispatch(changeErrorMessage(state.errorMessage));
@@ -65,8 +64,8 @@ store.onActivated = (appRegistry) => {
   appRegistry.on('collection-changed', (ns) => {
     store.dispatch(changeNamespace(ns));
     store.dispatch(updateTitle(ns));
-
   });
+
   appRegistry.on('database-changed', (ns) => {
     store.dispatch(changeNamespace(ns));
     store.dispatch(updateTitle(ns));

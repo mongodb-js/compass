@@ -1,3 +1,5 @@
+/* eslint-disable react/sort-comp */
+
 import React, { PureComponent } from 'react';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
@@ -7,8 +9,8 @@ import UI_STATES from 'constants/ui-states';
 
 import toggleIsCollapsed from 'modules/is-collapsed';
 
-import classnames from 'classnames';
-import styles from './home.less';
+// import classnames from 'classnames';
+// import styles from './home.less';
 
 const ERROR_WARNING = 'An error occurred while loading navigation';
 
@@ -90,7 +92,7 @@ class Home extends PureComponent {
 
   getContentClasses() {
     return 'content' +
-      (this.props.collapsed ? ' content-sidebar-collapsed' : ' content-sidebar-expanded');
+      (this.props.isCollapsed ? ' content-sidebar-collapsed' : ' content-sidebar-expanded');
   }
 
   getErrorMessage() {
@@ -203,8 +205,8 @@ class Home extends PureComponent {
           <div className={this.getContentClasses()}>
             {this.renderContent()}
           </div>
-          {/*<this.sideBar onCollapse={this.collapseSidebar.bind(this)}/>*/}
-          {/*<this.QueryHistoryComponent />*/}
+          {<this.sideBar onCollapse={this.collapseSidebar.bind(this)}/>}
+          {/* <this.QueryHistoryComponent /> */}
           {this.renderImportModal()}
           {this.renderExportModal()}
           {this.renderExportToLangModal()}
@@ -246,7 +248,7 @@ const mapStateToProps = (state) => ({
 const MappedHome = connect(
   mapStateToProps,
   {
-   toggleIsCollapsed
+    toggleIsCollapsed
   },
 )(Home);
 

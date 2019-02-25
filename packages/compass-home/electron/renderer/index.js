@@ -15,7 +15,8 @@ import { activate as exportToLangActivate } from '@mongodb-js/compass-export-to-
 import { activate as findInPageActivate } from '@mongodb-js/compass-find-in-page';
 import { activate as connectActivate } from '@mongodb-js/compass-connect';
 import { activate as statusActivate } from '@mongodb-js/compass-status';
-
+import { activate as sidebarActivate } from '@mongodb-js/compass-sidebar';
+import { activate as daActivate } from '@mongodb-js/compass-deployment-awareness';
 
 // Import global less file. Note: these styles WILL NOT be used in compass, as compass provides its own set
 // of global styles. If you are wishing to style a given component, you should be writing a less file per
@@ -40,6 +41,8 @@ exportToLangActivate(appRegistry);
 findInPageActivate(appRegistry);
 connectActivate(appRegistry);
 statusActivate(appRegistry);
+sidebarActivate(appRegistry);
+daActivate(appRegistry);
 
 const InstanceActions = Reflux.createActions([
   'refreshInstance',
@@ -80,28 +83,16 @@ import DataService from 'mongodb-data-service';
 
 const connection = new Connection({
   hostname: '127.0.0.1',
-  port: 27017,
-  ns: 'databaseName',
+  port: 27017
 });
 const dataService = new DataService(connection);
 
 appRegistry.emit('data-service-initialized', dataService);
 dataService.connect((error, ds) => {
-   appRegistry.emit('data-service-connected', error, ds);
-   // For automatic switching to specific namespaces, uncomment below as needed.
-   appRegistry.emit('collection-changed', 'database.collection');
-   appRegistry.emit('database-changed', 'database');
-
-   // For plugins based on query execution, comment out below:
-   const query = {
-     filter: { name: 'testing' },
-     project: { name: 1 },
-     sort: { name: -1 },
-     skip: 0,
-     limit: 20,
-     ns: 'database.collection'
-   }
-   appRegistry.emit('query-applied', query);
+  appRegistry.emit('data-service-connected', error, ds);
+  // For automatic switching to specific namespaces, uncomment below as needed.
+  appRegistry.emit('collection-changed', 'database.collection');
+  appRegistry.emit('database-changed', 'database');
 });
 
 if (module.hot) {
