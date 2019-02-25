@@ -7,9 +7,7 @@ import { changeCollection } from 'modules/collection/collection';
 import { changeActiveTabIndex } from 'modules/collection/active-tab-index';
 import { changeTabs } from 'modules/collection/tabs';
 
-
 const store = createStore(reducer, applyMiddleware(thunk));
-
 
 store.onActivated = (appRegistry) => {
   // Events emitted from the app registry:

@@ -17,7 +17,7 @@ const NamespaceStore = Reflux.createStore({
   }
 });
 
-describe('IndexesStore [Store]', () => {
+describe('CollectionStore [Store]', () => {
   beforeEach(() => {
     store.dispatch(reset());
   });
@@ -93,10 +93,16 @@ describe('IndexesStore [Store]', () => {
       });
     });
     context('call public setActiveTab method', () => {
+      let emit;
       beforeEach(() => {
+        emit = global.hadronApp.appRegistry.emit;
+        global.hadronApp.appRegistry.emit = sinon.spy();
         expect(store.getState().activeTabIndex).to.deep.equal(0); // initial state
         store.setTabs([1, 3, 5]);
         store.setActiveTab(1);
+      });
+      afterEach(() => {
+        global.hadronApp.appRegistry.emit = emit;
       });
 
       it('dispatches the change tabs action', () => {
@@ -104,6 +110,12 @@ describe('IndexesStore [Store]', () => {
       });
       it('getActiveTab returns correct', () => {
         expect(store.getActiveTab()).to.equal(1);
+      });
+      it('emits active-tab-changed', () => {
+        expect(global.hadronApp.appRegistry.emit.called).to.equal(true);
+        expect(global.hadronApp.appRegistry.emit.args[0]).to.deep.equal(
+          ['active-tab-changed', 3]
+        );
       });
     });
   });

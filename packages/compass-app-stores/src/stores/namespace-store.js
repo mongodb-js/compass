@@ -1,51 +1,35 @@
-const Reflux = require('reflux');
-const app = require('hadron-app');
-const toNS = require('mongodb-ns');
-const debug = require('debug')('mongodb-compass:namespace-store');
+import { createStore, applyMiddleware } from 'redux';
+import reducer from 'modules/namespace';
+import thunk from 'redux-thunk';
+import toNS from 'mongodb-ns';
 
-/**
- * The default namespace when the Compass user connects to a MongoDB instance.
- */
-const DEFAULT_NAMESPACE = '';
+import { reset } from 'modules/namespace/reset';
+import { changeNamespace } from 'modules/namespace/ns';
 
-/**
- * The store holds the source of truth for the namespace being worked on.
- */
-const NamespaceStore = Reflux.createStore({
 
-  /**
-   * Initializing the store should set up the default namespace.
-   */
-  init() {
-    this._ns = DEFAULT_NAMESPACE;
-  },
+const store = createStore(reducer, applyMiddleware(thunk));
 
-  onActivated(appRegistry) {
-    appRegistry.on('data-service-disconnected', this.onDisconnected.bind(this));
-  },
+store.onActivated = (appRegistry) => {
+  // Events emitted from the app registry:
+  appRegistry.on('data-service-disconnected', () => {
+    store.dispatch(reset());
+  });
+};
 
-  onDisconnected() {
-    this.init();
-  },
-
+Object.defineProperty(store, 'ns', {
   /**
    * Gets the current namespace being worked with in the application.
    */
-  get ns() {
-    debug('getting ns:', this._ns);
-    return this._ns;
-  },
-
+  get: () => (store.getState().ns),
   /**
    * Set the current namespace being worked on in the application.
    *
    * @param {String} ns - The current ns.
    */
-  set ns(ns) {
-    debug('setting ns: from', this._ns, 'to', ns);
-    const registry = app.appRegistry;
+  set: (ns) => {
+    const registry = global.hadronApp.appRegistry;
     if (registry) {
-      const oldNs = toNS(this._ns);
+      const oldNs = toNS(store.getState().ns);
       const newNs = toNS(ns);
 
       if (oldNs.database !== newNs.database) {
@@ -54,13 +38,9 @@ const NamespaceStore = Reflux.createStore({
       if (oldNs.database !== newNs.database || oldNs.collection !== newNs.collection) {
         registry.emit('collection-changed', ns);
       }
-    } else {
-      debug('Error: AppRegistry not available');
     }
-    // TODO: still trigger if appRegistry is not available?
-    this._ns = ns;
-    this.trigger(this._ns);
+    store.dispatch(changeNamespace(ns));
   }
 });
 
-module.exports = NamespaceStore;
+export default store;
