@@ -216,17 +216,21 @@ SecureBackend.prototype.find = function(collection, options, done) {
   keytar
     .findCredentials(this.namespace)
     .then(function(credentials) {
-      return credentials.map(function(credential) {
-        return JSON.parse(credential.password);
-      });
-    })
-    .then(function(contents) {
-      var modelStubs = collection.map(function(model) {
-        var doc = {};
-        doc[model.idAttribute] = model.getId();
-        return doc;
-      });
-      return done(null, _.merge(modelStubs, contents));
+      var attributes = collection.reduce(function(attrs, model) {
+        var modelId = model.getId();
+        var credential = credentials.find(function(credential) {
+          return credential.account === modelId;
+        });
+        var attr = {};
+        attr[model.idAttribute] = modelId;
+        if (credential) {
+          var password = JSON.parse(credential.password);
+          _.assign(attr, password);
+        }
+        attrs.push(attr);
+        return attrs;
+      }, []);
+      return(done(null, attributes));
     })
     .catch(done);
 };
