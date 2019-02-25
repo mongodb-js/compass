@@ -16,9 +16,7 @@ class Input extends PureComponent {
     isLoading: PropTypes.bool.isRequired,
     isExpanded: PropTypes.bool.isRequired,
     openLink: PropTypes.func.isRequired,
-    count: PropTypes.oneOfType([PropTypes.number, PropTypes.string]).isRequired,
-    isOverviewOn: PropTypes.bool.isRequired,
-    toggleOverview: PropTypes.func.isRequired
+    count: PropTypes.oneOfType([PropTypes.number, PropTypes.string]).isRequired
   };
 
   /**
@@ -32,8 +30,6 @@ class Input extends PureComponent {
         documents={this.props.documents}
         openLink={this.props.openLink}
         isLoading={this.props.isLoading}
-        isOverviewOn={this.props.isOverviewOn}
-        toggleOverview={this.props.toggleOverview}
       />
     ) : null;
     return (
@@ -45,8 +41,6 @@ class Input extends PureComponent {
           refreshInputDocuments={this.props.refreshInputDocuments}
           isExpanded={this.props.isExpanded}
           count={this.props.count}
-          isOverviewOn={this.props.isOverviewOn}
-          toggleOverview={this.props.toggleOverview}
         />
         {workspace}
       </div>

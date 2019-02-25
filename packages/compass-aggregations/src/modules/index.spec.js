@@ -4,14 +4,13 @@ import reducer, {
   restoreSavedPipeline,
   clonePipeline,
   newPipeline,
-  toggleOverview,
   RESET,
   CLEAR_PIPELINE,
   RESTORE_PIPELINE,
   NEW_PIPELINE,
-  CLONE_PIPELINE,
-  TOGGLE_OVERVIEW
+  CLONE_PIPELINE
 } from 'modules';
+import { toggleOverview, TOGGLE_OVERVIEW } from 'modules/is-overview-on';
 
 describe('root [ module ]', () => {
   describe('#reset', () => {
@@ -147,7 +146,7 @@ describe('root [ module ]', () => {
     });
 
     describe('when the action is TOGGLE_OVERVIEW', () => {
-      describe('#isOverviewOn', () => {
+      describe('#overview', () => {
         const prevState = {
           isOverviewOn: false
         };

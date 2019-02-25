@@ -53,8 +53,11 @@ import appRegistry, {
   appRegistryEmit,
   INITIAL_STATE as APP_REGISTRY_STATE
 } from 'modules/app-registry';
+import isOverviewOn, {
+  TOGGLE_OVERVIEW,
+  INITIAL_STATE as OVERVIEW_INITIAL_STATE
+} from 'modules/is-overview-on';
 
-const OVERVIEW_INITIAL_STATE = false;
 /**
  * The intial state of the root reducer.
  */
@@ -106,12 +109,6 @@ export const NEW_PIPELINE = 'aggregations/NEW_PIPELINE';
  */
 export const CLONE_PIPELINE = 'aggregations/CLONE_PIPELINE';
 
-
-/**
- * toggleOverview action name.
- */
-export const TOGGLE_OVERVIEW = 'aggregations/TOGGLE_OVERVIEW';
-
 /**
  * The main application reducer.
  *
@@ -139,7 +136,8 @@ const appReducer = combineReducers({
   isCollationExpanded,
   id,
   isModified,
-  importPipeline
+  importPipeline,
+  isOverviewOn
 });
 
 /**
@@ -400,10 +398,6 @@ export const newPipeline = () => ({
  */
 export const clonePipeline = () => ({
   type: CLONE_PIPELINE
-});
-
-export const toggleOverview = () => ({
-  type: TOGGLE_OVERVIEW
 });
 
 /**

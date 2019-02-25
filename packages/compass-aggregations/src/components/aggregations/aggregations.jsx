@@ -17,7 +17,8 @@ import {
 
 import { exportToLanguage } from 'modules/export-to-language';
 import { openLink } from 'modules/link';
-import { deletePipeline, newPipeline, clonePipeline, toggleOverview } from 'modules';
+import { toggleOverview } from 'modules/is-overview-on';
+import { deletePipeline, newPipeline, clonePipeline } from 'modules';
 import {
   runStage,
   runOutStage,

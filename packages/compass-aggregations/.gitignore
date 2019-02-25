@@ -7,6 +7,7 @@ coverage
 .lock-wscript
 .idea/
 *.swp
+*.swo
 *.iml
 .nvmrc
 .nyc_output
