@@ -139,7 +139,7 @@
     "mongodb-extended-json": "^1.10.0",
     "mongodb-ns": "^2.0.0",
     "mongodb-query-parser": "^1.2.4",
-    "mongodb-stage-validator": "^0.0.8",
+    "mongodb-stage-validator": "^0.0.9",
     "react-bootstrap": "^0.32.1",
     "react-dnd": "^2.5.4",
     "react-dnd-html5-backend": "^2.5.4",
