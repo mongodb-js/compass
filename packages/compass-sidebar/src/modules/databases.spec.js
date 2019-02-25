@@ -307,11 +307,11 @@ describe('sidebar databases', () => {
                 databases: [
                   {_id: 'abc', collections: []},
                   {_id: '123', collections: [
-                      {_id: '123.abc', capped: false, database: '123', power_of_two: false, readonly: false}
+                    {_id: '123.abc', capped: false, database: '123', power_of_two: false, readonly: false}
                   ]},
                   {_id: 'def', collections: [
-                      {_id: 'def.coll', capped: false, database: 'def', power_of_two: false, readonly: false},
-                      {_id: 'def.other', capped: false, database: 'def', power_of_two: false, readonly: false}
+                    {_id: 'def.coll', capped: false, database: 'def', power_of_two: false, readonly: false},
+                    {_id: 'def.other', capped: false, database: 'def', power_of_two: false, readonly: false}
                   ]}
                 ],
                 expandedDblist: {abc: false, '123': false, def: true},
@@ -344,11 +344,11 @@ describe('sidebar databases', () => {
               databases: [
                 {_id: 'abc', collections: []},
                 {_id: '123', collections: [
-                    {_id: '123.abc', capped: false, database: '123', power_of_two: false, readonly: false}
+                  {_id: '123.abc', capped: false, database: '123', power_of_two: false, readonly: false}
                 ]},
                 {_id: 'def', collections: [
-                    {_id: 'def.coll', capped: false, database: 'def', power_of_two: false, readonly: false},
-                    {_id: 'def.other', capped: false, database: 'def', power_of_two: false, readonly: false}
+                  {_id: 'def.coll', capped: false, database: 'def', power_of_two: false, readonly: false},
+                  {_id: 'def.other', capped: false, database: 'def', power_of_two: false, readonly: false}
                 ]}
               ],
               expandedDblist: {abc: false, def: false, 123: false},
