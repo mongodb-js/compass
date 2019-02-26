@@ -1,13 +1,12 @@
-import { createStore, applyMiddleware } from 'redux';
+import { createStore } from 'redux';
 import reducer from 'modules/collection';
-import thunk from 'redux-thunk';
 
 import { reset } from 'modules/collection/reset';
 import { changeCollection } from 'modules/collection/collection';
 import { changeActiveTabIndex } from 'modules/collection/active-tab-index';
 import { changeTabs } from 'modules/collection/tabs';
 
-const store = createStore(reducer, applyMiddleware(thunk));
+const store = createStore(reducer);
 
 store.onActivated = (appRegistry) => {
   // Events emitted from the app registry:

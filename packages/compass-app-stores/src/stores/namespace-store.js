@@ -1,13 +1,12 @@
-import { createStore, applyMiddleware } from 'redux';
+import { createStore } from 'redux';
 import reducer from 'modules/namespace';
-import thunk from 'redux-thunk';
 import toNS from 'mongodb-ns';
 
 import { reset } from 'modules/namespace/reset';
 import { changeNamespace } from 'modules/namespace/ns';
 
 
-const store = createStore(reducer, applyMiddleware(thunk));
+const store = createStore(reducer);
 
 store.onActivated = (appRegistry) => {
   // Events emitted from the app registry:

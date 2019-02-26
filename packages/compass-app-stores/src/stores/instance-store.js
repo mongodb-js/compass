@@ -1,6 +1,5 @@
-import { createStore, applyMiddleware } from 'redux';
+import { createStore } from 'redux';
 import reducer from 'modules/instance';
-import thunk from 'redux-thunk';
 
 import MongoDBInstance from 'models/mongodb-instance';
 import { reset } from 'modules/instance/reset';
@@ -8,7 +7,7 @@ import { changeInstance } from 'modules/instance/instance';
 import { changeErrorMessage } from 'modules/instance/error-message';
 import { changeDataService } from 'modules/instance/data-service';
 
-const store = createStore(reducer, applyMiddleware(thunk));
+const store = createStore(reducer);
 
 store.handleError = (model, resp, options) => {
   const err = options.error.arguments[2];

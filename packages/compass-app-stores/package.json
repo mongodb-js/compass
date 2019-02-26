@@ -118,7 +118,6 @@
     "react-hot-loader": "^4.1.0",
     "react-storybook-addon-chapters": "^1.1.0",
     "redux": "^3.7.2",
-    "redux-thunk": "^2.3.0",
     "reflux-state-mixin": "^0.8.0",
     "resolve": "^1.4.0",
     "rimraf": "^2.6.1",
