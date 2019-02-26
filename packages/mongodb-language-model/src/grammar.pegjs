@@ -125,9 +125,42 @@ shape
 
 geometry
   = begin_object
-    quotation_mark "$geometry" quotation_mark name_separator json:$ JSON  // @todo replace with GeoJSON
+      quotation_mark "$geometry" quotation_mark name_separator
+      begin_object
+        members:(
+          type:(
+            quotation_mark "type" quotation_mark
+            name_separator quotation_mark type:geometry_type quotation_mark
+            { return type; }
+          )
+          coordinates:(
+            value_separator quotation_mark "coordinates" quotation_mark
+            name_separator coordinates:geometry_coordinates
+            { return coordinates; }
+          )
+          { return { "type": type, "coordinates": coordinates }; }
+        )
+      end_object
     end_object
-    { return {"$geometry": JSON.parse(json) }; }
+    { return { "$geometry": members }; }
+
+geometry_type
+  = "Point"
+  / "LineString"
+  / "Polygon"
+  / "MultiPoint"
+  / "MultiLineString"
+  / "MultiPolygon"
+
+
+geometry_coordinates
+  = begin_array
+    values:(
+      // number or "recursive" geometry_coordinates
+      head:(number/geometry_coordinates) tail:(value_separator v:(number/geometry_coordinates) { return v; })*
+      { return [head].concat(tail); }
+    )?
+    end_array
 
 legacy_shape
   = center_shape
@@ -437,6 +470,15 @@ array
   = begin_array
     values:(
       head:leaf_value tail:(value_separator v:leaf_value { return v; })*
+      { return [head].concat(tail); }
+    )?
+    end_array
+    { return values !== null ? values : []; }
+
+array_number
+  = begin_array
+    values:(
+      head:number tail:(value_separator v:number { return v; })*
       { return [head].concat(tail); }
     )?
     end_array
