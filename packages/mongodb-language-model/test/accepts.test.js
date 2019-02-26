@@ -230,72 +230,144 @@ describe('accepts', function() {
   });
 
   describe('Geo operators', function() {
-    it('should accept a $geoWithin query with $centerSphere legacy shape', function() {
-      accepts('{"loc":{"$geoWithin":{"$centerSphere":[[-87.71,38.64],0.03]}}}');
-    });
+    describe('$geoWithin', function() {
+      it('should accept a $geoWithin query with $centerSphere legacy shape', function() {
+        accepts('{"loc":{"$geoWithin":{"$centerSphere":[[-87.71,38.64],0.03]}}}');
+      });
 
-    it('should accept a $geoWithin query with $center legacy shape', function() {
-      accepts('{"loc":{"$geoWithin":{"$center":[[-87.71,38.64],0.03]}}}');
-    });
+      it('should accept a $geoWithin query with $center legacy shape', function() {
+        accepts('{"loc":{"$geoWithin":{"$center":[[-87.71,38.64],0.03]}}}');
+      });
 
-    it('should accept a $geoWithin query with $box legacy shape', function() {
-      accepts('{"loc":{"$geoWithin":{"$box":[[0,0],[100,100]]}}}');
-    });
+      it('should accept a $geoWithin query with $box legacy shape', function() {
+        accepts('{"loc":{"$geoWithin":{"$box":[[0,0],[100,100]]}}}');
+      });
 
-    it('should accept a $geoWithin query with $polygon legacy shape', function() {
-      accepts('{"loc":{"$geoWithin":{"$polygon":[[0,0],[100,100],[1,4],[1,5]]}}}');
-    });
+      it('should accept a $geoWithin query with $polygon legacy shape', function() {
+        accepts('{"loc":{"$geoWithin":{"$polygon":[[0,0],[100,100],[1,4],[1,5]]}}}');
+      });
 
-    it('should accept a $geoWithin query with Polygon $geometry without hole', function() {
-      accepts(`{
-        "loc": {
-          "$geoWithin": {
-            "$geometry": {
-              "type": "Polygon",
-              "coordinates": [
-                [ [100.0, 0.0], [101.0, 0.0], [101.0, 1.0], [100.0, 1.0], [100.0, 0.0] ]
-              ]
-            }
-          }
-        }
-      }`);
-    });
-
-    it('should accept a $geoWithin query with Polygon $geometry with hole', function() {
-      accepts(`{
-        "loc": {
-          "$geoWithin": {
-            "$geometry": {
-              "type": "Polygon",
-              "coordinates": [
-                [ [100.0, 0.0], [101.0, 0.0], [101.0, 1.0], [100.0, 1.0], [100.0, 0.0] ],
-                [ [100.2, 0.2], [100.8, 0.2], [100.8, 0.8], [100.2, 0.8], [100.2, 0.2] ]
-              ]
-            }
-          }
-        }
-      }`);
-    });
-
-    it('should accept a $geoWithin query with MultiPolygon $geometry', function() {
-      accepts(`{
-        "loc": {
-          "$geoWithin": {
-            "$geometry": {
-              "type": "MultiPolygon",
-              "coordinates": [
-                [
-                  [[102.0, 2.0], [103.0, 2.0], [103.0, 3.0], [102.0, 3.0], [102.0, 2.0]]
-                ],
-                [
-                  [[100.0, 0.0], [101.0, 0.0], [101.0, 1.0], [100.0, 1.0], [100.0, 0.0]],
-                  [[100.2, 0.2], [100.8, 0.2], [100.8, 0.8], [100.2, 0.8], [100.2, 0.2]]
+      it('should accept a $geoWithin query with Polygon $geometry without hole', function() {
+        accepts(`{
+          "loc": {
+            "$geoWithin": {
+              "$geometry": {
+                "type": "Polygon",
+                "coordinates": [
+                  [ [100.0, 0.0], [101.0, 0.0], [101.0, 1.0], [100.0, 1.0], [100.0, 0.0] ]
                 ]
-              ]
+              }
             }
           }
-        }
-      }`);
+        }`);
+      });
+
+      it('should accept a $geoWithin query with Polygon $geometry with hole', function() {
+        accepts(`{
+          "loc": {
+            "$geoWithin": {
+              "$geometry": {
+                "type": "Polygon",
+                "coordinates": [
+                  [ [100.0, 0.0], [101.0, 0.0], [101.0, 1.0], [100.0, 1.0], [100.0, 0.0] ],
+                  [ [100.2, 0.2], [100.8, 0.2], [100.8, 0.8], [100.2, 0.8], [100.2, 0.2] ]
+                ]
+              }
+            }
+          }
+        }`);
+      });
+
+      it('should accept a $geoWithin query with MultiPolygon $geometry', function() {
+        accepts(`{
+          "loc": {
+            "$geoWithin": {
+              "$geometry": {
+                "type": "MultiPolygon",
+                "coordinates": [
+                  [
+                    [[102.0, 2.0], [103.0, 2.0], [103.0, 3.0], [102.0, 3.0], [102.0, 2.0]]
+                  ],
+                  [
+                    [[100.0, 0.0], [101.0, 0.0], [101.0, 1.0], [100.0, 1.0], [100.0, 0.0]],
+                    [[100.2, 0.2], [100.8, 0.2], [100.8, 0.8], [100.2, 0.8], [100.2, 0.2]]
+                  ]
+                ]
+              }
+            }
+          }
+        }`);
+      });
+    });
+
+    describe('$geoIntersects', function() {
+      it('should reject a $geoIntersects query with $centerSphere legacy shape', function() {
+        rejects('{"loc":{"$geoIntersects":{"$centerSphere":[[-87.71,38.64],0.03]}}}');
+      });
+
+      it('should reject a $geoIntersects query with $center legacy shape', function() {
+        rejects('{"loc":{"$geoIntersects":{"$center":[[-87.71,38.64],0.03]}}}');
+      });
+
+      it('should reject a $geoIntersects query with $box legacy shape', function() {
+        rejects('{"loc":{"$geoIntersects":{"$box":[[0,0],[100,100]]}}}');
+      });
+
+      it('should reject a $geoIntersects query with $polygon legacy shape', function() {
+        rejects('{"loc":{"$geoIntersects":{"$polygon":[[0,0],[100,100],[1,4],[1,5]]}}}');
+      });
+
+      it('should accept a $geoIntersects query with Polygon $geometry without hole', function() {
+        accepts(`{
+          "loc": {
+            "$geoIntersects": {
+              "$geometry": {
+                "type": "Polygon",
+                "coordinates": [
+                  [ [100.0, 0.0], [101.0, 0.0], [101.0, 1.0], [100.0, 1.0], [100.0, 0.0] ]
+                ]
+              }
+            }
+          }
+        }`);
+      });
+
+      it('should accept a $geoIntersects query with Polygon $geometry with hole', function() {
+        accepts(`{
+          "loc": {
+            "$geoIntersects": {
+              "$geometry": {
+                "type": "Polygon",
+                "coordinates": [
+                  [ [100.0, 0.0], [101.0, 0.0], [101.0, 1.0], [100.0, 1.0], [100.0, 0.0] ],
+                  [ [100.2, 0.2], [100.8, 0.2], [100.8, 0.8], [100.2, 0.8], [100.2, 0.2] ]
+                ]
+              }
+            }
+          }
+        }`);
+      });
+
+      it('should accept a $geoIntersects query with MultiPolygon $geometry', function() {
+        accepts(`{
+          "loc": {
+            "$geoIntersects": {
+              "$geometry": {
+                "type": "MultiPolygon",
+                "coordinates": [
+                  [
+                    [[102.0, 2.0], [103.0, 2.0], [103.0, 3.0], [102.0, 3.0], [102.0, 2.0]]
+                  ],
+                  [
+                    [[100.0, 0.0], [101.0, 0.0], [101.0, 1.0], [100.0, 1.0], [100.0, 0.0]],
+                    [[100.2, 0.2], [100.8, 0.2], [100.8, 0.8], [100.2, 0.8], [100.2, 0.2]]
+                  ]
+                ]
+              }
+            }
+          }
+        }`);
+      });
     });
   });
 

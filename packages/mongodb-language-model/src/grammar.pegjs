@@ -109,9 +109,12 @@ operator
   // operator-expression-operator
   / quotation_mark operator:operator_expression_operator quotation_mark name_separator opobject:operator_expression
   { return { pos: "operator-expression-operator", operator: operator, operators: opobject.operators } }
-  // geo-operator
+  // geo-within-operator
   / quotation_mark "$geoWithin" quotation_mark name_separator shape:shape
   { return { pos: "geo-within-operator", operator: "$geoWithin", shape: shape }; }
+  // geo-intersects-operator
+  / quotation_mark "$geoIntersects" quotation_mark name_separator geometry:geometry
+  { return { pos: "geo-intersects-operator", operator: "$geoIntersects", geometry: geometry }; }
 
 
 /* --- Geo Operators --- */
