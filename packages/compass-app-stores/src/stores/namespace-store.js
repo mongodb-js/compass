@@ -18,6 +18,8 @@ store.onActivated = (appRegistry) => {
 Object.defineProperty(store, 'ns', {
   /**
    * Gets the current namespace being worked with in the application.
+   *
+   * @returns {String} the current ns.
    */
   get: () => (store.getState().ns),
   /**

@@ -1,6 +1,5 @@
 import {
   CollectionStore,
-  // FieldStore,
   InstanceStore,
   NamespaceStore
 } from 'stores';
@@ -12,7 +11,6 @@ function activate(appRegistry) {
   appRegistry.registerStore('App.NamespaceStore', NamespaceStore);
   appRegistry.registerStore('App.InstanceStore', InstanceStore);
   appRegistry.registerStore('App.CollectionStore', CollectionStore);
-  // appRegistry.registerStore('Field.Store', FieldStore);
 }
 
 /**
@@ -23,7 +21,6 @@ function deactivate(appRegistry) {
   appRegistry.deregisterStore('App.NamespaceStore');
   appRegistry.deregisterStore('App.InstanceStore');
   appRegistry.deregisterStore('App.CollectionStore');
-  // app.appRegistry.deregisterStore('Field.Store');
 }
 
 export default {
