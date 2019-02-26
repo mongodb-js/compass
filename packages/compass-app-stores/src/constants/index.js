@@ -1,5 +1,5 @@
 const LOADING_STATE = null;
 
-module.exports = {
+export default {
   LOADING_STATE
 };
