@@ -2,10 +2,10 @@ sudo: required
 dist: trusty
 language: node_js
 node_js:
-  - 7.4
+  - 10.2.1
 env:
   matrix:
-    - MONGODB_VERSION=3.4.x MONGODB_TOPOLOGY=standalone
+    - MONGODB_VERSION=4.0.x MONGODB_TOPOLOGY=standalone
 addons:
   apt:
     sources:
@@ -15,9 +15,7 @@ addons:
 before_script:
   - export DISPLAY=:99.0
   - sh -e /etc/init.d/xvfb start
-  - npm run check
-script: npm run test
+script: npm run ci
 cache:
   directories:
     - $HOME/.electron
-    - node_modules
