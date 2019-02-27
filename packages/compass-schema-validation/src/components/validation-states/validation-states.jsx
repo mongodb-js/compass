@@ -74,11 +74,11 @@ class ValidationStates extends Component {
    */
   renderBanner() {
     if (!this.isEditable()) {
-      if (this.props.editMode.oldServerReadOnly) {
+      if (this.props.editMode.collectionReadOnly) {
         return (
           <StatusRow style="warning">
-            <div id="oldServerReadOnly">
-              {READ_ONLY_WARNING.oldServerReadOnly}
+            <div id="collectionReadOnly">
+              {READ_ONLY_WARNING.collectionReadOnly}
             </div>
           </StatusRow>
         );
