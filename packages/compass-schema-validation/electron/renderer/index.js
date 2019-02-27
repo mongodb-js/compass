@@ -100,9 +100,5 @@ if (module.hot) {
     }
   };
 
-  module.hot.accept('plugin', () => {
-    // Because Webpack 2 has built-in support for ES2015 modules,
-    // you won't need to re-require your app root in module.hot.accept
-    render(CompassSchemaValidationPlugin);
-  });
+  module.hot.accept('plugin', () => render(CompassSchemaValidationPlugin));
 }

@@ -9,7 +9,7 @@
     "clean": "rimraf lib",
     "precompile": "npm run clean",
     "compile": "cross-env NODE_ENV=production webpack --config ./config/webpack.prod.config.js --progress",
-    "start": "webpack-dev-server --config ./config/webpack.dev.config.js",
+    "start": "cross-env NODE_ENV=development webpack-dev-server --config ./config/webpack.dev.config.js",
     "start:watch": "npm run clean && webpack --config ./config/webpack.watch.config.js",
     "test": "cross-env NODE_ENV=test mocha-webpack \"./src/**/*.spec.js\"",
     "test:watch": "cross-env NODE_ENV=test mocha-webpack \"./src/**/*.spec.js\" --watch",
