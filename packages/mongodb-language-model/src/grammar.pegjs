@@ -115,9 +115,16 @@ operator
   // geo-intersects-operator
   / quotation_mark "$geoIntersects" quotation_mark name_separator geometry:geometry
   { return { pos: "geo-intersects-operator", operator: "$geoIntersects", geometry: geometry }; }
-
+  // near-operator
+  / quotation_mark near_operator:("$nearSphere" / "$near") quotation_mark name_separator value:(geometry_point / legacy_coordinates)
+  { return { pos: "near-operator", operator: near_operator, value: value }; }
+  // min-distance-operator
+  / quotation_mark operator:distance_operator quotation_mark name_separator value:number_positive
+  { return { pos: "distance-operator", operator: operator, value: value }; }
 
 /* --- Geo Operators --- */
+distance_operator
+  = "$minDistance" / "$maxDistance"
 
 shape
   = geometry
@@ -144,14 +151,40 @@ geometry
     end_object
     { return { "$geometry": members }; }
 
-geometry_type
-  = "Point"
-  / "LineString"
-  / "Polygon"
-  / "MultiPoint"
-  / "MultiLineString"
-  / "MultiPolygon"
+geometry_point
+  = begin_object
+      quotation_mark "$geometry" quotation_mark name_separator
+      begin_object
+        geometry:(
+          type:(
+            quotation_mark "type" quotation_mark
+            name_separator quotation_mark type:"Point" quotation_mark
+            { return type; }
+          )
+          coordinates:(
+            value_separator quotation_mark "coordinates" quotation_mark
+            name_separator coordinates:legacy_coordinates
+            { return coordinates; }
+          )
+          { return { "type": type, "coordinates": coordinates }; }
+        )
+      end_object
+      distance:(
+        value_separator quotation_mark operator:distance_operator quotation_mark
+        name_separator value:number_positive
+        { return { [operator]: value }; }
+      )*
+    end_object
+    {
+      return {
+        "$geometry": geometry,
+        ...(distance ? distance : {})
+      };
+    }
 
+geometry_type
+  = "Polygon"
+  / "MultiPolygon"
 
 geometry_coordinates
   = begin_array
@@ -160,6 +193,12 @@ geometry_coordinates
       head:(number/geometry_coordinates) tail:(value_separator v:(number/geometry_coordinates) { return v; })*
       { return [head].concat(tail); }
     )?
+    end_array
+
+legacy_coordinates
+  = begin_array
+    number_longitude value_separator
+    number_latitude
     end_array
 
 legacy_shape
@@ -171,8 +210,8 @@ center_shape
   = begin_object
     quotation_mark center_operator:("$centerSphere" / "$center") quotation_mark name_separator
     parameters:$(begin_array
-    	begin_array
-    		number value_separator number
+      begin_array
+        number value_separator number
         end_array
         value_separator
         number
@@ -188,13 +227,13 @@ box_shape
   = begin_object
     quotation_mark "$box" quotation_mark name_separator
     parameters:$(begin_array
-    	begin_array
-    	    number value_separator number
+      begin_array
+          number value_separator number
         end_array
         value_separator
         begin_array
             number value_separator number
-		end_array
+    end_array
     end_array)
     end_object
     { return {"$box": JSON.parse(parameters)}; }
@@ -204,18 +243,17 @@ polygon_shape
   = begin_object
     quotation_mark "$polygon" quotation_mark name_separator
     parameters:$(begin_array
-    	head:(begin_array
-    	    number value_separator number
+      head:(begin_array
+          number value_separator number
         end_array)
         tail:(value_separator
         begin_array
             number value_separator number
-		end_array)*
+    end_array)*
     end_array
     { return [head].concat(tail); })
     end_object
     { return {"$polygon": JSON.parse(parameters)}; }
-
 
 where_operator = "$where"
 
@@ -369,9 +407,9 @@ ejson_undefined
 
 ejson_dbref
   = begin_object
-  	members:(
+    members:(
       ref:(
-      	quotation_mark "$ref" quotation_mark
+        quotation_mark "$ref" quotation_mark
         name_separator string:string
         { return string; }
       )
@@ -388,7 +426,7 @@ ejson_dbref
       {
         var result = {"$ref": ref, "$id": id};
         if (db !== null) result["$db"] = db;
-      	return result;
+        return result;
       }
     )
     end_object
@@ -396,9 +434,9 @@ ejson_dbref
 
 ejson_regex
   = begin_object
-  	members:(
+    members:(
       regex:(
-      	quotation_mark "$regex" quotation_mark
+        quotation_mark "$regex" quotation_mark
         name_separator string:string
         { return string; }
       )
@@ -414,9 +452,9 @@ ejson_regex
 
 ejson_binary
   = begin_object
-  	members:(
+    members:(
       binary:(
-      	quotation_mark "$binary" quotation_mark
+        quotation_mark "$binary" quotation_mark
         name_separator string:string
         { return string; }
       )
@@ -488,6 +526,33 @@ array_number
 
 number "number"
   = minus? int frac? exp? { return parseFloat(text()); }
+
+number_positive
+  = int frac? exp? { return parseFloat(text()); }
+
+// A numeric value that represents a longitude coordinate (to any precision between -180.0 and 180.0, inclusive)
+// Converted to PEG syntax from this regex: ^-?(180(\.0)?|(1[0-7]\d|[1-9]?\d)(\.(0|\d*[1-9]))?)$
+// Taking into account PEG's greedy behaviour and lack of backtracking.
+number_longitude
+  = minus? (
+    "180"(decimal_point zero)?
+    / (
+        (("1" [0-7] DIGIT / digit1_9 DIGIT / DIGIT) decimal_point int*)
+        / (("1" [0-7] DIGIT / digit1_9 DIGIT / DIGIT))
+      )
+  )
+
+// A numeric value that represents a latitude coordinate (to any precision between -90.0 and 90.0, inclusive)
+// Converted to PEG syntax from regex: ^-?(90(\.0)?|([1-8]?\d)(\.(0|\d*[1-9]))?)$
+// Taking into account PEG's greedy behaviour and lack of backtracking.
+number_latitude
+  = minus? (
+    "90"(decimal_point zero)?
+    / (
+        ((digit1_9 DIGIT / DIGIT) decimal_point int*)
+        / ((digit1_9 DIGIT / DIGIT))
+      )
+  )
 
 decimal_point = "."
 digit1_9      = [1-9]

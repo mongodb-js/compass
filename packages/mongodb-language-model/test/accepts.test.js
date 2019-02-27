@@ -369,6 +369,308 @@ describe('accepts', function() {
         }`);
       });
     });
+
+    describe('$near', function() {
+      it('should accept a $near query with Point $geometry coordinates specifying valid longitude and latitude values', function() {
+        accepts(`{
+          "loc": {
+            "$near": {
+              "$geometry": {
+                "type": "Point",
+                "coordinates": [-87.71, 38.64]
+              }
+            }
+          }
+        }`);
+      });
+
+      it('should reject a $near query with an invalid $geometry type', function() {
+        rejects(`{
+          "loc": {
+            "$near": {
+              "$geometry": {
+                "type": "Polygon",
+                "coordinates": [-87.71, 38.64]
+              }
+            }
+          }
+        }`);
+      });
+
+      it('should reject a $near query with Point $geometry coordinates specifying invalid longitude and latitude values', function() {
+        rejects(`{
+          "loc": {
+            "$near": {
+              "$geometry": {
+                "type": "Point",
+                "coordinates": [180.71, -91.1]
+              }
+            }
+          }
+        }`);
+      });
+
+      it('should accept a $near query with Point $geometry with $minDistance limit', function() {
+        accepts(`{
+          "loc": {
+            "$near": {
+              "$geometry": {
+                "type": "Point",
+                "coordinates": [-87.71, 38.64]
+              },
+              "$minDistance": 1000
+            }
+          }
+        }`);
+      });
+
+      it('should accept a $near query with Point $geometry with $maxDistance limit', function() {
+        accepts(`{
+          "loc": {
+            "$near": {
+              "$geometry": {
+                "type": "Point",
+                "coordinates": [-87.71, 38.64]
+              },
+              "$maxDistance": 5000
+            }
+          }
+        }`);
+      });
+
+      it('should accept a $near query with Point $geometry with $minDistance and $maxDistance limits', function() {
+        accepts(`{
+          "loc": {
+            "$near": {
+              "$geometry": {
+                "type": "Point",
+                "coordinates": [-87.71, 38.64]
+              },
+              "$minDistance": 1000,
+              "$maxDistance": 5000
+            }
+          }
+        }`);
+
+        // Test with the order of the limits flipped ($maxDistance then $minDistance)
+        accepts(`{
+          "loc": {
+            "$near": {
+              "$geometry": {
+                "type": "Point",
+                "coordinates": [-87.71, 38.64]
+              },
+              "$maxDistance": 5000,
+              "$minDistance": 1000
+            }
+          }
+        }`);
+      });
+
+      it('should accept a $near query with legacy coordinates specifying valid longitude and latitude values', function() {
+        accepts(`{
+          "loc": {
+            "$near": [-87.71, 38.64]
+          }
+        }`);
+      });
+
+      it('should reject a $near query with legacy coordinates specifying invalid longitude and latitude values', function() {
+        rejects(`{
+          "loc": {
+            "$near": [180.71, -91.1]
+          }
+        }`);
+      });
+
+      it('should accept a $near query with legacy coordinates with $minDistance limit', function() {
+        accepts(`{
+          "loc": {
+            "$near": [-87.71, 38.64],
+            "$minDistance": 1000
+          }
+        }`);
+      });
+
+      it('should accept a $near query with legacy coordinates with $maxDistance limit', function() {
+        accepts(`{
+          "loc": {
+            "$near": [-87.71, 38.64],
+            "$maxDistance": 5000
+          }
+        }`);
+      });
+
+      it('should accept a $near query with legacy coordinates with $minDistance and $maxDistance limits', function() {
+        accepts(`{
+          "loc": {
+            "$near": [-87.71, 38.64],
+            "$minDistance": 1000,
+            "$maxDistance": 5000
+          }
+        }`);
+
+        // Test with the order of the limits flipped ($maxDistance then $minDistance)
+        accepts(`{
+          "loc": {
+            "$near": [-87.71, 38.64],
+            "$maxDistance": 5000,
+            "$minDistance": 1000
+          }
+        }`);
+      });
+    });
+
+    describe('$nearSphere', function() {
+      it('should accept a $nearSphere query with Point $geometry coordinates specifying valid longitude and latitude values', function() {
+        accepts(`{
+          "loc": {
+            "$nearSphere": {
+              "$geometry": {
+                "type": "Point",
+                "coordinates": [-87.71, 38.64]
+              }
+            }
+          }
+        }`);
+      });
+
+      it('should reject a $nearSphere query with an invalid $geometry type', function() {
+        rejects(`{
+          "loc": {
+            "$nearSphere": {
+              "$geometry": {
+                "type": "Polygon",
+                "coordinates": [-87.71, 38.64]
+              }
+            }
+          }
+        }`);
+      });
+
+      it('should reject a $nearSphere query with Point $geometry coordinates specifying invalid longitude and latitude values', function() {
+        rejects(`{
+          "loc": {
+            "$nearSphere": {
+              "$geometry": {
+                "type": "Point",
+                "coordinates": [180.71, -91.1]
+              }
+            }
+          }
+        }`);
+      });
+
+      it('should accept a $nearSphere query with Point $geometry with $minDistance limit', function() {
+        accepts(`{
+          "loc": {
+            "$nearSphere": {
+              "$geometry": {
+                "type": "Point",
+                "coordinates": [-87.71, 38.64]
+              },
+              "$minDistance": 1000
+            }
+          }
+        }`);
+      });
+
+      it('should accept a $nearSphere query with Point $geometry with $maxDistance limit', function() {
+        accepts(`{
+          "loc": {
+            "$nearSphere": {
+              "$geometry": {
+                "type": "Point",
+                "coordinates": [-87.71, 38.64]
+              },
+              "$maxDistance": 5000
+            }
+          }
+        }`);
+      });
+
+      it('should accept a $nearSphere query with Point $geometry with $minDistance and $maxDistance limits', function() {
+        accepts(`{
+          "loc": {
+            "$nearSphere": {
+              "$geometry": {
+                "type": "Point",
+                "coordinates": [-87.71, 38.64]
+              },
+              "$minDistance": 1000,
+              "$maxDistance": 5000
+            }
+          }
+        }`);
+
+        // Test with the order of the limits flipped ($maxDistance then $minDistance)
+        accepts(`{
+          "loc": {
+            "$nearSphere": {
+              "$geometry": {
+                "type": "Point",
+                "coordinates": [-87.71, 38.64]
+              },
+              "$maxDistance": 5000,
+              "$minDistance": 1000
+            }
+          }
+        }`);
+      });
+
+      it('should accept a $nearSphere query with legacy coordinates specifying valid longitude and latitude values', function() {
+        accepts(`{
+          "loc": {
+            "$nearSphere": [-87.71, 38.64]
+          }
+        }`);
+      });
+
+      it('should reject a $nearSphere query with legacy coordinates specifying invalid longitude and latitude values', function() {
+        rejects(`{
+          "loc": {
+            "$nearSphere": [180.71, -91.1]
+          }
+        }`);
+      });
+
+      it('should accept a $nearSphere query with legacy coordinates with $minDistance limit', function() {
+        accepts(`{
+          "loc": {
+            "$nearSphere": [-87.71, 38.64],
+            "$minDistance": 1000
+          }
+        }`);
+      });
+
+      it('should accept a $nearSphere query with legacy coordinates with $maxDistance limit', function() {
+        accepts(`{
+          "loc": {
+            "$nearSphere": [-87.71, 38.64],
+            "$maxDistance": 5000
+          }
+        }`);
+      });
+
+      it('should accept a $nearSphere query with legacy coordinates with $minDistance and $maxDistance limits', function() {
+        accepts(`{
+          "loc": {
+            "$nearSphere": [-87.71, 38.64],
+            "$minDistance": 1000,
+            "$maxDistance": 5000
+          }
+        }`);
+
+        // Test with the order of the limits flipped ($maxDistance then $minDistance)
+        accepts(`{
+          "loc": {
+            "$nearSphere": [-87.71, 38.64],
+            "$maxDistance": 5000,
+            "$minDistance": 1000
+          }
+        }`);
+      });
+    });
   });
 
   describe('Logical Expression Trees', function() {
