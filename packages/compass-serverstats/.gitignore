@@ -9,3 +9,4 @@ coverage
 *.iml
 .nvmrc
 styles/index.css
+*.swp
