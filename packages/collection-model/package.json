@@ -2,7 +2,7 @@
   "name": "mongodb-collection-model",
   "description": "MongoDB collection model.",
   "author": "Lucas Hrabovsky <lucas@mongodb.com>",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "bugs": "https://github.com/mongodb-js/mongodb-collection-model/issues",
   "homepage": "https://github.com/mongodb-js/mongodb-collection-model",
   "repository": "git://github.com/mongodb-js/mongodb-collection-model.git",
