@@ -1,0 +1,9 @@
+{
+  "presets": [
+    ["es2015", { "modules": false }]
+  ],
+  "plugins": [
+    "syntax-object-rest-spread",
+    "transform-object-rest-spread"
+  ]
+}

@@ -30,7 +30,7 @@
     "test": "mocha --require babel-core/register",
     "fmt": "mongodb-js-fmt ./*.js ./test/*.js",
     "compile": "npm run babel & npm run pegjs",
-    "babel": "babel ./src --out-dir ./lib --presets es2015",
+    "babel": "babel ./src --out-dir ./lib",
     "pegjs": "pegjs -o ./lib/parser.js < ./src/grammar.pegjs",
     "check": "mongodb-js-precommit ./src ./test",
     "prepublish": "npm run compile",
@@ -48,11 +48,13 @@
   },
   "devDependencies": {
     "babel-cli": "^6.10.1",
+    "babel-plugin-syntax-object-rest-spread": "^6.13.0",
+    "babel-plugin-transform-object-rest-spread": "^6.26.0",
     "babel-preset-es2015": "^6.14.0",
     "eslint-config-mongodb-js": "^2.2.0",
+    "mocha": "^6.0.1",
     "mongodb-js-fmt": "^0.0.3",
     "mongodb-js-precommit": "^0.2.9",
-    "pre-commit": "^1.1.2",
-    "mocha": "^6.0.1"
+    "pre-commit": "^1.1.2"
   }
 }
