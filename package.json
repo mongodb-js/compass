@@ -41,6 +41,7 @@
           "plugins-directory": ".mongodb/compass/plugins",
           "upgradeCode": "0152273D-2F9F-4913-B67F-0FCD3557FFD1",
           "plugins": [
+            "node_modules/@mongodb-js/compass-app-stores",
             "node_modules/@mongodb-js/compass-aggregations",
             "node_modules/@mongodb-js/compass-auto-updates",
             "node_modules/@mongodb-js/compass-export-to-language",
@@ -83,6 +84,7 @@
           "plugins-directory": ".mongodb/compass-community/plugins",
           "upgradeCode": "EAF69C0D-A16E-44DA-A47F-37745230AAF0",
           "plugins": [
+            "node_modules/@mongodb-js/compass-app-stores",
             "node_modules/@mongodb-js/compass-aggregations",
             "node_modules/@mongodb-js/compass-auto-updates",
             "node_modules/@mongodb-js/compass-export-to-language",
@@ -122,6 +124,7 @@
           "upgradeCode": "2176EC1D-EF71-49D4-B3B4-9E15B289D79A",
           "readonly": true,
           "plugins": [
+            "node_modules/@mongodb-js/compass-app-stores",
             "node_modules/@mongodb-js/compass-aggregations",
             "node_modules/@mongodb-js/compass-auto-updates",
             "node_modules/@mongodb-js/compass-export-to-language",
@@ -165,6 +168,7 @@
           "upgradeCode": "516F2BE1-4417-4F31-BAA1-364A59404775",
           "isolated": true,
           "plugins": [
+            "node_modules/@mongodb-js/compass-app-stores",
             "node_modules/@mongodb-js/compass-aggregations",
             "node_modules/@mongodb-js/compass-export-to-language",
             "node_modules/@mongodb-js/compass-collection",
@@ -268,6 +272,7 @@
   },
   "dependencies": {
     "@mongodb-js/compass-aggregations": "^2.2.18",
+    "@mongodb-js/compass-app-stores": "1.0.3",
     "@mongodb-js/compass-auth-kerberos": "^1.3.1",
     "@mongodb-js/compass-auth-ldap": "^1.2.0",
     "@mongodb-js/compass-auth-x509": "^1.2.0",
