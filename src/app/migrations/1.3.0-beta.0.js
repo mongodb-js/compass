@@ -1,4 +1,4 @@
-var Preferences = require('../models/preferences');
+var Preferences = require('compass-preferences-model');
 var async = require('async');
 var _ = require('lodash');
 var debug = require('debug')('mongodb-compass:migrations:1.3.0-beta.0');
