@@ -1,8 +1,8 @@
 var assert = require('assert');
-var Preferences = require('../');
+var User = require('../');
 
-describe('mongodb-preferences-model', function() {
+describe('compass-user-model', function() {
   it('should work', () => {
-    assert(Preferences);
+    assert(User);
   });
 });

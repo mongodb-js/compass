@@ -1,7 +1,17 @@
 sudo: required
 language: node_js
 node_js:
-  - 7
+  - 10.2.1
+addons:
+  apt:
+    sources:
+      - ubuntu-toolchain-r-test
+    packages:
+      - libkrb5-dev
+      - libsecret-1-dev
+      - libstdc++6
+      - gnome-keyring
+      - python-gnomekeyring
 script: npm run-script ci
 cache:
   directories:

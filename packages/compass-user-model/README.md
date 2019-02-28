@@ -1,6 +1,6 @@
-# mongodb-preferences-model [![][npm_img]][npm_url] [![][travis_img]][travis_url] [![][inch_img]][inch_url]
+# compass-user-model [![][npm_img]][npm_url] [![][travis_img]][travis_url] [![][inch_img]][inch_url]
 
-> MongoDB preferences model.
+> MongoDB user model.
 
 ## Example
 
@@ -11,7 +11,7 @@
 ## Installation
 
 ```
-npm install --save mongodb-preferences-model
+npm install --save compass-user-model
 ```
 
 ## Testing
@@ -24,9 +24,9 @@ npm test
 
 Apache 2.0
 
-[travis_img]: https://secure.travis-ci.org/mongodb-js/preferences-model.svg?branch=master
-[travis_url]: https://travis-ci.org/mongodb-js/preferences-model
-[npm_img]: https://img.shields.io/npm/v/mongodb-preferences-model.svg
-[npm_url]: https://www.npmjs.org/package/mongodb-preferences-model
-[inch_img]: http://inch-ci.org/github/mongodb-js/preferences-model.svg?branch=master
-[inch_url]: http://inch-ci.org/github/mongodb-js/preferences-model
+[travis_img]: https://secure.travis-ci.org/mongodb-js/user-model.svg?branch=master
+[travis_url]: https://travis-ci.org/mongodb-js/user-model
+[npm_img]: https://img.shields.io/npm/v/compass-user-model.svg
+[npm_url]: https://www.npmjs.org/package/compass-user-model
+[inch_img]: http://inch-ci.org/github/mongodb-js/user-model.svg?branch=master
+[inch_url]: http://inch-ci.org/github/mongodb-js/user-model
