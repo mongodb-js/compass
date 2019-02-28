@@ -8,7 +8,7 @@ var isString = require('lodash.isstring');
 var isFunction = require('lodash.isfunction');
 var MongoClient = require('mongodb').MongoClient;
 var parseURL = require('mongodb/lib/url_parser');
-var Connection = require('./model');
+var Connection = require('./extended-model');
 var createSSHTunnel = require('./ssh-tunnel');
 var EventEmitter = require('events').EventEmitter;
 var debug = require('debug')('mongodb-connection-model:connect');
@@ -282,7 +282,7 @@ function getTasks(model, setupListeners) {
 }
 
 function connect(model, setupListeners, done) {
-  if (!(model instanceof Connection)) {
+  if (model.serialize === undefined) {
     model = new Connection(model);
   }
 

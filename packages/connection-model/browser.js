@@ -1,4 +1,4 @@
-module.exports = require('./lib/model');
+module.exports = require('./lib/extended-model');
 
 /*
  * @todo (imlucas): Should `mongodb-js-client` monkey patch this?

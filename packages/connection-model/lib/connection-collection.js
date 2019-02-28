@@ -1,5 +1,5 @@
 var Collection = require('ampersand-rest-collection');
-var Connection = require('./extended-connection');
+var Connection = require('./extended-model');
 var storageMixin = require('storage-mixin');
 var each = require('lodash.foreach');
 var electron = require('electron');

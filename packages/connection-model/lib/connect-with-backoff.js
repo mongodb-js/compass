@@ -1,5 +1,5 @@
 var backoff = require('backoff');
-var Connection = require('./model');
+var Connection = require('./extended-model');
 var MongoClient = require('mongodb').MongoClient;
 var debug = require('debug')('mongodb-connection-model:connect-with-backoff');
 

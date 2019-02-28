@@ -16,9 +16,15 @@ describe('mongodb-connection#connect', function() {
     this.timeout(10000);
     before(require('mongodb-runner/mocha/before')({ port: 27018 }));
     after(require('mongodb-runner/mocha/after')({ port: 27018 }));
-    it('should connect to `localhost:27018`', function(done) {
+    it('should connect to `localhost:27018 with model`', function(done) {
       var model = Connection.from('mongodb://localhost:27018');
       connect(model, setupListeners, function(err) {
+        assert.equal(err, null);
+        done();
+      });
+    });
+    it('should connect to `localhost:27018 with object`', function(done) {
+      connect({port: 27018, host: 'localhost'}, setupListeners, function(err) {
         assert.equal(err, null);
         done();
       });
@@ -33,7 +39,7 @@ describe('mongodb-connection#connect', function() {
         return {close: spy};
       });
 
-      var MockConnection = mock.reRequire('../lib/model');
+      var MockConnection = mock.reRequire('../lib/extended-model');
       var mockConnect = mock.reRequire('../lib/connect');
 
       it('should close ssh tunnel if the connection fails', function(done) {
