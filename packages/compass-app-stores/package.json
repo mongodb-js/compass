@@ -1,5 +1,5 @@
 {
-  "name": "app-stores",
+  "name": "@mongodb-js/app-stores",
   "productName": "App Stores plugin",
   "version": "1.0.1",
   "apiVersion": "2.0.0",
