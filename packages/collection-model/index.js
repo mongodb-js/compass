@@ -7,4 +7,4 @@ module.export = CollectionModel;
 module.export.Collection = CollectionModelCollection;
 /* Models used by Compass */
 module.export.ExtendedCollectionModel = ExtendedCollectionModel;
-module.export.ExtendedCollectionModel.Collection = ExtendedCollectionModelCollection;
+module.export.ExtendedCollectionModelCollection = ExtendedCollectionModelCollection;
