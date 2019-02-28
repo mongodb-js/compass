@@ -1,13 +1,13 @@
-const Model = require('ampersand-model');
-const storageMixin = require('storage-mixin');
-const get = require('lodash.get');
-const format = require('util').format;
-const electron = require('electron');
-const electronApp = electron.remote ? electron.remote.app : undefined;
+var Model = require('ampersand-model');
+var storageMixin = require('storage-mixin');
+var get = require('lodash.get');
+var format = require('util').format;
+var electron = require('electron');
+var electronApp = electron.remote ? electron.remote.app : undefined;
 
-const debug = require('debug')('mongodb-compass:models:preferences');
+var debug = require('debug')('mongodb-compass:models:preferences');
 
-const preferencesProps = {
+var preferencesProps = {
   /**
    * String identifier for this set of preferences. Default is `General`.
    * @type {String}
@@ -239,7 +239,7 @@ const preferencesProps = {
   }
 };
 
-const Preferences = Model.extend(storageMixin, {
+var Preferences = Model.extend(storageMixin, {
   props: preferencesProps,
   extraProperties: 'ignore',
   idAttribute: 'id',
