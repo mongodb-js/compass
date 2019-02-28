@@ -151,6 +151,7 @@ describe('Aggregation Store', () => {
     context('when the collection changes', () => {
       context('when there is no collection', () => {
         const appRegistry = new AppRegistry();
+        activate(appRegistry);
 
         beforeEach(() => {
           store.onActivated(appRegistry);
@@ -189,6 +190,7 @@ describe('Aggregation Store', () => {
 
       context('when there is a collection', () => {
         const appRegistry = new AppRegistry();
+        activate(appRegistry);
 
         beforeEach(() => {
           store.onActivated(appRegistry);
