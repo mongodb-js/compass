@@ -66,7 +66,8 @@ store.onActivated = (appRegistry) => {
    *
    * @param {Object} fields - The fields.
    */
-  appRegistry.getStore('Field.Store').listen((fields) => {
+  appRegistry.getStore('Field.Store').subscribe(() => {
+    const fields = appRegistry.getStore('Field.Store').getState();
     store.dispatch(fieldsChanged(fields.aceFields));
   });
 
