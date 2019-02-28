@@ -1,5 +1,5 @@
-var ExtendedCollectionModel = require('./lib/extended-collection-model');
-var ExtendedCollectionModelCollection = require('./lib/extended-collection-model').Collection;
+var ExtendedCollectionModel = require('./lib/extended-model');
+var ExtendedCollectionModelCollection = require('./lib/extended-model').Collection;
 
-module.export = ExtendedCollectionModel;
-module.export.Collection = ExtendedCollectionModelCollection;
+module.exports = ExtendedCollectionModel;
+module.exports.Collection = ExtendedCollectionModelCollection;
