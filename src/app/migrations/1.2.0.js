@@ -1,5 +1,5 @@
-var Preferences = require('../models/preferences');
-var User = require('../models/user');
+var Preferences = require('compass-preferences-model');
+var User = require('compass-user-model');
 var pkg = require('../../../package.json');
 var async = require('async');
 var app = require('hadron-app');

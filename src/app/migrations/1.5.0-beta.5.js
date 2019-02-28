@@ -1,6 +1,6 @@
 const async = require('async');
 const debug = require('debug')('mongodb-compass:migrations');
-const ConnectionCollection = require('../models/connection-collection');
+const ConnectionCollection = require('mongodb-connection-model').ConnectionCollection;
 
 /**
  * This migration removes and then re-saves all connections in order to trigger

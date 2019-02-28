@@ -36,8 +36,8 @@ var ipc = require('hadron-ipc');
 
 var semver = require('semver');
 
-var Preferences = require('./models/preferences');
-var User = require('./models/user');
+var Preferences = require('compass-preferences-model');
+var User = require('compass-user-model');
 
 require('./menu-renderer');
 var Router = require('./router');
@@ -88,7 +88,7 @@ var Application = View.extend({
     /**
      *
      * The connection details for the MongoDB Instance we want to/are currently connected to.
-     * @see models/connection.js
+     * @see mongodb-connection-model.js
      */
     connection: 'state',
     /**
@@ -167,7 +167,7 @@ var Application = View.extend({
     // most of the expense has already occurred. You can see it take 1700ms
     // or so if you move this to the top of the file.
     require('local-links');
-    require('./models/mongodb-instance');
+    require('mongodb-instance-model');
     marky.stop('Pre-loading additional modules required to connect');
   },
   /**
@@ -345,7 +345,7 @@ app.extend({
         // catch a data refresh coming from window-manager
         ipc.on('app:refresh-data', () => global.hadronApp.appRegistry.emit('refresh-data'));
         // as soon as dom is ready, render and set up the rest
-        const MongoDBInstance = require('./models/mongodb-instance');
+        const MongoDBInstance = require('mongodb-instance-model');
         state.instance = new MongoDBInstance();
         state.render();
         marky.stop('Time to Connect rendered');

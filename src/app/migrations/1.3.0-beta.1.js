@@ -1,5 +1,5 @@
 var async = require('async');
-var Preferences = require('../models/preferences');
+var Preferences = require('compass-preferences-model');
 
 /**
  * Enable maps and explain plan tree view features.

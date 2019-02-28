@@ -1,6 +1,6 @@
 var async = require('async');
-var Connection = require('../models/connection');
-var Preferences = require('../models/preferences');
+var Connection = require('mongodb-connection-model');
+var Preferences = require('compass-preferences-model');
 
 // var debug = require('debug')('mongodb-compass:migrations:1.3.0-beta.3');
 

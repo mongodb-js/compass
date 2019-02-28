@@ -1,5 +1,5 @@
-var Preferences = require('../models/preferences');
-var ConnectionCollection = require('../models/connection-collection');
+var Preferences = require('compass-preferences-model');
+var ConnectionCollection = require('mongodb-connection-model').ConnectionCollection;
 var pkg = require('../../../package.json');
 var async = require('async');
 var format = require('util').format;
