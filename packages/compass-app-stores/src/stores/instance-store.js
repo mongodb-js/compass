@@ -1,7 +1,7 @@
 import { createStore } from 'redux';
 import reducer from 'modules/instance';
 
-import MongoDBInstance from 'models/mongodb-instance';
+import MongoDBInstance from 'mongodb-instance-model';
 import { reset } from 'modules/instance/reset';
 import { changeInstance } from 'modules/instance/instance';
 import { changeErrorMessage } from 'modules/instance/error-message';
