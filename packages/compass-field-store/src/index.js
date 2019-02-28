@@ -16,4 +16,5 @@ function deactivate(appRegistry) {
   appRegistry.deregisterStore('Field.Store');
 }
 
+export default FieldStore;
 export { activate, deactivate };
