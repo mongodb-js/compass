@@ -112,14 +112,7 @@ var TabNavBar = function (_React$Component) {
   }, {
     key: 'renderActiveView',
     value: function renderActiveView() {
-      var idx = this.state.activeTabIndex;
-      return React.createElement(
-        'div',
-        {
-          'data-test-id': this.props.tabs[idx].toLowerCase().replace(/ /g, '-') + '-content',
-          className: 'tab' },
-        this.props.views[idx]
-      );
+      return this.props.views[this.state.activeTabIndex];
     }
 
     /**

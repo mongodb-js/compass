@@ -72,14 +72,7 @@ class TabNavBar extends React.Component {
    * @return {React.Element}    active view
    */
   renderActiveView() {
-    const idx = this.state.activeTabIndex;
-    return (
-      <div
-        data-test-id={`${this.props.tabs[idx].toLowerCase().replace(/ /g, '-')}-content`}
-        className="tab">
-        {this.props.views[idx]}
-      </div>
-    );
+    return this.props.views[this.state.activeTabIndex];
   }
 
   /**
