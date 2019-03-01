@@ -68,8 +68,7 @@ class OptionEditor extends Component {
       this.editor.clearSelection();
     });
 
-    this.unsubFields = global.hadronApp.appRegistry.getStore('Field.Store').subscribe(() => {
-      const fields = global.hadronApp.appRegistry.getStore('Field.Store').getState();
+    global.hadronApp.appRegistry.on('fields-changed', (fields) => {
       this.completer.update(fields.aceFields);
     });
   }
