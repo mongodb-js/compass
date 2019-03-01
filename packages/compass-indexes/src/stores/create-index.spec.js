@@ -1,15 +1,7 @@
 import AppRegistry from 'hadron-app-registry';
-import Reflux from 'reflux';
-import StateMixin from 'reflux-state-mixin';
 import store from 'stores/create-index';
 import { reset } from 'modules/reset';
-
-const FieldStore = Reflux.createStore({
-  mixins: [StateMixin.store],
-  getInitialState() {
-    return { fields: [] };
-  }
-});
+import { activate } from '@mongodb-js/compass-field-store';
 
 describe('CreateIndexStore [Store]', () => {
   beforeEach(() => {
@@ -22,7 +14,7 @@ describe('CreateIndexStore [Store]', () => {
 
   describe('#onActivated', () => {
     const appRegistry = new AppRegistry();
-    appRegistry.registerStore('Field.Store', FieldStore);
+    activate(appRegistry);
 
     before(() => {
       store.onActivated(appRegistry);
@@ -49,21 +41,19 @@ describe('CreateIndexStore [Store]', () => {
     context('when the field store emits', () => {
       beforeEach(() => {
         expect(store.getState().schemaFields).to.deep.equal([]); // initial state
-        FieldStore.setState({
-          fields: {city: {name: 'city', path: 'city', count: 1, type: 'Document', nestedFields: Array(1)},
-            'city.home': {name: 'home', path: 'city.home', count: 1, type: 'String'},
-            loc: {name: 'loc', path: 'loc', count: 1, type: 'String'},
-            members: {name: 'members', path: 'members', count: 1, type: 'Number'},
-            name: {name: 'name', path: 'name', count: 1, type: 'String'},
-            newestAlbum: {name: 'newestAlbum', path: 'newestAlbum', count: 1, type: 'String'},
-            _id: {name: '_id', path: '_id', count: 1, type: 'Number'}}
-        });
       });
 
-      it('dispatches the change schema fields action', () => {
-        expect(store.getState().schemaFields).to.deep.equal([
-          'city', 'city.home', 'loc', 'members', 'name', 'newestAlbum'
-        ]);
+      it('dispatches the change schema fields action', (done) => {
+        const unsubscribe = store.subscribe(() => {
+          expect(store.getState().schemaFields).to.deep.equal([
+            'city', 'city.home', 'loc', 'members', 'name', 'newestAlbum'
+          ]);
+          unsubscribe();
+          done();
+        });
+        appRegistry.getStore('Field.Store').processSingleDocument({
+          city: {home: 1}, loc: 1, members: 1, name: 1, newestAlbum: 1
+        });
       });
     });
   });

@@ -27,7 +27,8 @@ store.onActivated = (appRegistry) => {
   /**
    * Get the schema so users can build indexes on existing fields.
    */
-  appRegistry.getStore('Field.Store').listen((state) => {
+  appRegistry.getStore('Field.Store').subscribe(() => {
+    const state = appRegistry.getStore('Field.Store').getState();
     store.dispatch(changeSchemaFields(
       Object.keys(state.fields).filter(name => name !== '_id')
     ));
