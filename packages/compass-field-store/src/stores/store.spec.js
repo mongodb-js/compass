@@ -151,6 +151,33 @@ describe('FieldStore', function() {
     });
   });
 
+  describe('emits appReg event on change', () => {
+    let hold;
+    let spy;
+    before(() => {
+      hold = global.hadronApp.appRegistry;
+      global.hadronApp.appRegistry = new AppRegistry();
+      store.onActivated(global.hadronApp.appRegistry);
+      spy = sinon.spy();
+      global.hadronApp.appRegistry.emit = spy;
+    });
+    after(() => {
+      global.hadronApp.appRegistry = hold;
+      spy = null;
+    });
+    it('triggers for action calls', () => {
+      store.dispatch(changeFields('a', 'b', 'c'));
+      expect(spy.calledTwice).to.equal(true);
+      expect(spy.args[0][0]).to.equal('fields-changed');
+      expect(spy.args[0][1]).to.deep.equal({fields: {}, topLevelFields: [], aceFields: []});
+      expect(spy.args[1][0]).to.equal('fields-changed');
+      expect(spy.args[1][1]).to.deep.equal({fields: 'a', topLevelFields: 'b', aceFields: 'c'});
+      store.dispatch(reset());
+      expect(spy.args[2][0]).to.equal('fields-changed');
+      expect(spy.args[2][1]).to.deep.equal({fields: {}, topLevelFields: [], aceFields: []});
+    });
+  });
+
   describe('store process methods', () => {
     it('samples a single document', (done) => {
       unsubscribe = store.subscribe(() => {

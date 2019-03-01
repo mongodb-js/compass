@@ -27,6 +27,11 @@ const VERSION_ZERO = '0.0.0';
 
 const store = createStore(reducer);
 
+store.subscribe(() => {
+  const state = store.getState();
+  global.hadronApp.appRegistry.emit('fields-changed', state);
+});
+
 store._mergeFields = (existingField, newField) => {
   return mergeWith(
     existingField,
