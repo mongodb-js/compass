@@ -1,5 +1,4 @@
 import AppRegistry from 'hadron-app-registry';
-import FieldStore, { activate } from '@mongodb-js/compass-field-store';
 import store from 'stores';
 import {
   stageChanged,
@@ -20,36 +19,51 @@ describe('Aggregation Store', () => {
     const appRegistry = new AppRegistry();
 
     beforeEach(() => {
-      activate(appRegistry);
       store.onActivated(appRegistry);
     });
 
     context('when the fields change', () => {
-      const docs = [{ _id: 1, name: 'Aphex Twin' }];
-
-      it('updates the namespace in the store', done => {
+      it('updates the fields', done => {
         const unsubscribe = store.subscribe(() => {
           unsubscribe();
           expect(store.getState().fields).to.deep.equal([
-            {
-              name: '_id',
-              value: '_id',
+            { name: 'harry',
+              value: 'harry',
               score: 1,
               meta: 'field',
-              version: '0.0.0'
-            },
-            {
-              name: 'name',
-              value: 'name',
+              version: '0.0.0' },
+            { name: 'potter',
+              value: 'potter',
               score: 1,
               meta: 'field',
-              version: '0.0.0'
-            }
+              version: '0.0.0' }
           ]);
           done();
         });
 
-        FieldStore.processDocuments(docs);
+        appRegistry.emit('fields-changed', {
+          fields: {
+            harry: {
+              name: 'harry', path: 'harry', count: 1, type: 'Number'
+            },
+            potter: {
+              name: 'potter', path: 'potter', count: 1, type: 'Boolean'
+            }
+          },
+          topLevelFields: [ 'harry', 'potter' ],
+          aceFields: [
+            { name: 'harry',
+              value: 'harry',
+              score: 1,
+              meta: 'field',
+              version: '0.0.0' },
+            { name: 'potter',
+              value: 'potter',
+              score: 1,
+              meta: 'field',
+              version: '0.0.0' }
+          ]
+        });
       });
     });
 
@@ -151,8 +165,6 @@ describe('Aggregation Store', () => {
     context('when the collection changes', () => {
       context('when there is no collection', () => {
         const appRegistry = new AppRegistry();
-        activate(appRegistry);
-
         beforeEach(() => {
           store.onActivated(appRegistry);
           appRegistry.emit('collection-changed', 'db');
@@ -190,8 +202,6 @@ describe('Aggregation Store', () => {
 
       context('when there is a collection', () => {
         const appRegistry = new AppRegistry();
-        activate(appRegistry);
-
         beforeEach(() => {
           store.onActivated(appRegistry);
           appRegistry.emit('collection-changed', 'db.coll');

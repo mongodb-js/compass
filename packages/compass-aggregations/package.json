@@ -42,7 +42,6 @@
   },
   "devDependencies": {
     "@mongodb-js/compass-crud": "^6.1.2",
-    "@mongodb-js/compass-field-store": "^4.0.1",
     "autoprefixer": "^7.1.2",
     "babel-cli": "^6.10.1",
     "babel-core": "^6.24.1",
