@@ -39,7 +39,6 @@
     "redux": "^3.7.2"
   },
   "devDependencies": {
-    "@mongodb-js/compass-field-store": "^1.0.0",
     "@storybook/react": "^3.2.0",
     "autoprefixer": "^7.1.2",
     "babel-cli": "^6.10.1",

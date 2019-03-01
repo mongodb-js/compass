@@ -1,5 +1,4 @@
 import AppRegistry from 'hadron-app-registry';
-import { activate } from '@mongodb-js/compass-field-store';
 import store from 'stores';
 import compiler from 'bson-transpilers';
 
@@ -19,7 +18,6 @@ describe('ExportToLanguage Store', () => {
   let unsubscribe;
 
   before(() => {
-    activate(appRegistry);
     store.onActivated(appRegistry);
   });
 
