@@ -11,9 +11,6 @@ const baseWebpackConfig = require('./webpack.base.config');
 const project = require('./project');
 
 const GLOBALS = {
-  'process.env': {
-    'NODE_ENV': JSON.stringify('production')
-  },
   __DEV__: JSON.stringify(JSON.parse(process.env.DEBUG || 'false'))
 };
 
