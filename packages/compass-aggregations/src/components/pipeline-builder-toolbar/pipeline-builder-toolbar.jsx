@@ -73,11 +73,6 @@ class PipelineBuilderToolbar extends PureComponent {
       ? this.handleSavedPipelinesClose
       : this.handleSavedPipelinesOpen;
 
-    const openPipelinesClassName = classnames({
-      btn: true,
-      'btn-xs': true,
-      'btn-default': true
-    });
     const savePipelineClassName = classnames({
       btn: true,
       'btn-xs': true,
@@ -97,7 +92,7 @@ class PipelineBuilderToolbar extends PureComponent {
         />
         <IconButton
           title="Toggle Saved Pipelines"
-          className={openPipelinesClassName}
+          className={classnames('btn', 'btn-xs', 'btn-default', styles['pipeline-builder-toolbar-open-saved-pipelines-button'])}
           iconClassName="fa fa-folder-open-o"
           clickHandler={clickHandler}
         />
