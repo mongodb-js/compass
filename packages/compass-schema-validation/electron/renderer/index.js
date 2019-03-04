@@ -4,7 +4,6 @@ import app from 'hadron-app';
 import AppRegistry from 'hadron-app-registry';
 import { AppContainer } from 'react-hot-loader';
 import CompassSchemaValidationPlugin, { activate } from 'plugin';
-import FieldStore, { activate as fieldsActivate } from '@mongodb-js/compass-field-store';
 
 // Import global less file. Note: these styles WILL NOT be used in compass, as compass provides its own set
 // of global styles. If you are wishing to style a given component, you should be writing a less file per
@@ -27,7 +26,6 @@ appRegistry.registerStore('DeploymentAwareness.WriteStateStore', WriteStateStore
 
 // Activate our plugin with the Hadron App Registry
 activate(appRegistry);
-fieldsActivate(appRegistry);
 appRegistry.onActivated();
 
 // Since we are using HtmlWebpackPlugin WITHOUT a template,
@@ -75,13 +73,29 @@ dataService.connect((error, ds) => {
   appRegistry.emit('collection-changed', 'crunchbase.companies');
   appRegistry.emit('server-version-changed', '4.0.0');
 
-  const docs = [{
-    _id: 1,
-    name: 'Test',
-    city: 'Berlin'
-  }];
-
-  FieldStore.processDocuments(docs);
+  appRegistry.emit('fields-changed', {
+    fields: {
+      harry: {
+        name: 'harry', path: 'harry', count: 1, type: 'Number'
+      },
+      potter: {
+        name: 'potter', path: 'potter', count: 1, type: 'Boolean'
+      }
+    },
+    topLevelFields: [ 'harry', 'potter' ],
+    aceFields: [
+      { name: 'harry',
+        value: 'harry',
+        score: 1,
+        meta: 'field',
+        version: '0.0.0' },
+      { name: 'potter',
+        value: 'potter',
+        score: 1,
+        meta: 'field',
+        version: '0.0.0' }
+    ]
+  });
 });
 
 if (module.hot) {

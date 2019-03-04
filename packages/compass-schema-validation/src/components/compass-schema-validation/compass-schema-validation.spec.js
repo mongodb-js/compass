@@ -2,7 +2,6 @@ import React from 'react';
 import { mount } from 'enzyme';
 import AppRegistry from 'hadron-app-registry';
 import hadronApp from 'hadron-app';
-import FieldStore from '@mongodb-js/compass-field-store';
 
 import CompassSchemaValidation from 'components/compass-schema-validation';
 import store from 'stores';
@@ -23,7 +22,6 @@ describe('CompassSchemaValidation [Component]', () => {
   before(function() {
     global.hadronApp = hadronApp;
     global.hadronApp.appRegistry = appRegistry;
-    global.hadronApp.appRegistry.registerStore('Field.Store', FieldStore);
   });
 
   it('renders the correct root classname', () => {

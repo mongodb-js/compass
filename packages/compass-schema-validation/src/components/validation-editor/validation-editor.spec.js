@@ -3,7 +3,6 @@ import { mount } from 'enzyme';
 import ValidationEditor from 'components/validation-editor';
 import AppRegistry from 'hadron-app-registry';
 import hadronApp from 'hadron-app';
-import FieldStore from '@mongodb-js/compass-field-store';
 import styles from './validation-editor.less';
 
 describe('ValidationEditor [Component]', () => {
@@ -32,7 +31,6 @@ describe('ValidationEditor [Component]', () => {
     before(function() {
       global.hadronApp = hadronApp;
       global.hadronApp.appRegistry = appRegistry;
-      global.hadronApp.appRegistry.registerStore('Field.Store', FieldStore);
     });
 
     beforeEach(() => {
@@ -87,7 +85,6 @@ describe('ValidationEditor [Component]', () => {
     before(function() {
       global.hadronApp = hadronApp;
       global.hadronApp.appRegistry = appRegistry;
-      global.hadronApp.appRegistry.registerStore('Field.Store', FieldStore);
     });
 
     beforeEach(() => {
