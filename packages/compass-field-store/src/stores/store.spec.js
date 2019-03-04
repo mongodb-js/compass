@@ -156,12 +156,14 @@ describe('FieldStore', function() {
     let spy;
     before(() => {
       hold = global.hadronApp.appRegistry;
-      global.hadronApp.appRegistry = new AppRegistry();
-      store.onActivated(global.hadronApp.appRegistry);
+      const app = new AppRegistry();
+      global.hadronApp.appRegistry = app;
+      store.onActivated(app);
       spy = sinon.spy();
-      global.hadronApp.appRegistry.emit = spy;
+      app.emit = spy;
     });
     after(() => {
+      store.dispatch(reset());
       global.hadronApp.appRegistry = hold;
       spy = null;
     });
@@ -175,6 +177,33 @@ describe('FieldStore', function() {
       store.dispatch(reset());
       expect(spy.args[2][0]).to.equal('fields-changed');
       expect(spy.args[2][1]).to.deep.equal({fields: {}, topLevelFields: [], aceFields: []});
+    });
+    it('triggers for store methods', () => {
+      const doc = {harry: 1, potter: true};
+      store.processSingleDocument(doc);
+      unsubscribe = store.subscribe(() => {
+        expect(spy.calledTwice).to.equal(true);
+        expect(spy.args[0][0]).to.equal('fields-changed');
+        expect(spy.args[0][1]).to.deep.equal({fields: {}, topLevelFields: [], aceFields: []});
+        expect(spy.args[1][0]).to.equal('fields-changed');
+        expect(Object.keys(spy.args[1][1].fields)).to.have.all.members(['harry', 'potter']);
+        expect(spy.args[1][1].aceFields).to.deep.equal([
+          {
+            name: 'harry',
+            value: 'harry',
+            score: 1,
+            meta: 'field',
+            version: '0.0.0'
+          },
+          {
+            name: 'potter',
+            value: 'potter',
+            score: 1,
+            meta: 'field',
+            version: '0.0.0'
+          }
+        ]);
+      });
     });
   });
 

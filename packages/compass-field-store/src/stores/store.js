@@ -27,10 +27,6 @@ const VERSION_ZERO = '0.0.0';
 
 const store = createStore(reducer);
 
-store.subscribe(() => {
-  const state = store.getState();
-  global.hadronApp.appRegistry.emit('fields-changed', state);
-});
 
 store._mergeFields = (existingField, newField) => {
   return mergeWith(
@@ -236,6 +232,11 @@ store.onActivated = (appRegistry) => {
 
   appRegistry.on('data-service-disconnected', () => {
     store.dispatch(reset());
+  });
+
+  store.subscribe(() => {
+    const state = store.getState();
+    appRegistry.emit('fields-changed', state);
   });
 };
 
