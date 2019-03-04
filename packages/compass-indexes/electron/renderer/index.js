@@ -8,7 +8,6 @@ import CollectionStore from './stores/collection-store';
 import DeploymentStateStore from './stores/deployment-state-store';
 import NamespaceStore from './stores/namespace-store';
 import TextWriteButton from './components/text-write-button';
-import FieldStore, { activate as fieldsActivate } from '@mongodb-js/compass-field-store';
 import Collation from './components/collation';
 
 
@@ -25,7 +24,6 @@ global.hadronApp.appRegistry = appRegistry;
 
 // Activate our plugin with the Hadron App Registry
 activate(appRegistry);
-fieldsActivate(appRegistry);
 
 CollectionStore.setCollection({_id: 'citibike.trips', readonly: false});
 
@@ -89,17 +87,29 @@ dataService.connect((error, ds) => {
     ns: 'citibike.trips'
   };
   appRegistry.emit('query-changed', query);
-  const docs = [{
-    _id: 1,
-    name: 'Aphex Twin',
-    loc: 'London',
-    members: 1,
-    newestAlbum: 'Cheetah',
-    city: {
-      home: 'London'
-    }
-  }];
-  FieldStore.processDocuments(docs);
+  appRegistry.emit('fields-changed', {
+    fields: {
+      harry: {
+        name: 'harry', path: 'harry', count: 1, type: 'Number'
+      },
+      potter: {
+        name: 'potter', path: 'potter', count: 1, type: 'Boolean'
+      }
+    },
+    topLevelFields: [ 'harry', 'potter' ],
+    aceFields: [
+      { name: 'harry',
+        value: 'harry',
+        score: 1,
+        meta: 'field',
+        version: '0.0.0' },
+      { name: 'potter',
+        value: 'potter',
+        score: 1,
+        meta: 'field',
+        version: '0.0.0' }
+    ]
+  });
 });
 
 if (module.hot) {

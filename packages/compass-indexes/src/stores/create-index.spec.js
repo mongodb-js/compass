@@ -1,7 +1,6 @@
 import AppRegistry from 'hadron-app-registry';
 import store from 'stores/create-index';
 import { reset } from 'modules/reset';
-import { activate } from '@mongodb-js/compass-field-store';
 
 describe('CreateIndexStore [Store]', () => {
   beforeEach(() => {
@@ -14,8 +13,6 @@ describe('CreateIndexStore [Store]', () => {
 
   describe('#onActivated', () => {
     const appRegistry = new AppRegistry();
-    activate(appRegistry);
-
     before(() => {
       store.onActivated(appRegistry);
     });
@@ -29,6 +26,7 @@ describe('CreateIndexStore [Store]', () => {
         expect(store.getState().dataService).to.deep.equal({'data-service': 1});
       });
     });
+
     context('when the data service errors', () => {
       beforeEach(() => {
         appRegistry.emit('data-service-connected', {message: 'err'}, null);
@@ -38,22 +36,16 @@ describe('CreateIndexStore [Store]', () => {
       });
     });
 
-    context('when the field store emits', () => {
+    context('when the field-store triggers', () => {
       beforeEach(() => {
-        expect(store.getState().schemaFields).to.deep.equal([]); // initial state
+        appRegistry.emit('fields-changed', {
+          fields: {'a': 1, 'b': 2},
+          topLevelFields: ['a'],
+          aceFields: ['a', 'b']
+        });
       });
-
-      it('dispatches the change schema fields action', (done) => {
-        const unsubscribe = store.subscribe(() => {
-          expect(store.getState().schemaFields).to.deep.equal([
-            'city', 'city.home', 'loc', 'members', 'name', 'newestAlbum'
-          ]);
-          unsubscribe();
-          done();
-        });
-        appRegistry.getStore('Field.Store').processSingleDocument({
-          city: {home: 1}, loc: 1, members: 1, name: 1, newestAlbum: 1
-        });
+      it('dispatches the changeSchemaFields action', () => {
+        expect(store.getState().schemaFields).to.deep.equal(['a', 'b']);
       });
     });
   });

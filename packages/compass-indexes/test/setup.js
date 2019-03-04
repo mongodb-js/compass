@@ -17,7 +17,6 @@ require('jsdom-global')('', {
 });
 
 const { activate: daa } = require('@mongodb-js/compass-deployment-awareness');
-const { activate: fsa } = require('@mongodb-js/compass-field-store');
 
 const CollectionStore = require('../electron/renderer/stores/collection-store');
 const appRegistry = new AppRegistry();
@@ -29,7 +28,6 @@ global.hadronApp.appRegistry = appRegistry;
 
 appRegistry.registerStore('App.CollectionStore', CollectionStore);
 daa(appRegistry);
-fsa(appRegistry);
 
 appRegistry.onActivated();
 
