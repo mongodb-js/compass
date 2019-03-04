@@ -3,7 +3,6 @@ import { mount } from 'enzyme';
 import OptionEditor from 'components/option-editor';
 import AppRegistry from 'hadron-app-registry';
 import hadronApp from 'hadron-app';
-import FieldStore from '@mongodb-js/compass-field-store';
 import Actions from 'actions';
 
 describe('OptionEditor [Component]', function() {
@@ -15,7 +14,6 @@ describe('OptionEditor [Component]', function() {
   before(function() {
     global.hadronApp = hadronApp;
     global.hadronApp.appRegistry = appRegistry;
-    global.hadronApp.appRegistry.registerStore('Field.Store', FieldStore);
   });
 
   beforeEach(function() {
