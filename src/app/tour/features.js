@@ -56,10 +56,11 @@ module.exports = [
     community: true
   },
   {
-    title: 'Document Validation.',
-    description: 'Create and modify rules that validate your data using a simple point and click interface. CRUD support lets you fix data quality issues easily in individual documents.',
+    title: 'Schema Validation.',
+    description: 'Create schema validation rules with a smart editor that auto-suggests rule components. See immediate results with a live preview and revise rules as needed. See Schema Validation in the MongoDB documentation for more information.',
     image: 'validation.png',
-    version: '1.5.0',
+    version: '1.8.0',
+    force: true,
     initial: true,
     community: false
   },
