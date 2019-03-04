@@ -2,10 +2,15 @@
 
 .input-preview-toolbar {
   width: 100%;
-
+  overflow: hidden;
+  text-overflow: ellipsis;
+  
   &-text {
     font-size: 12px;
     padding-left: 10px;
     color: @gray1;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
 }
