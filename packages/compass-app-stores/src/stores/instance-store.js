@@ -33,7 +33,6 @@ store.refreshInstance = () => {
       error: store.handleError,
       success: (instance) => {
         store.dispatch(changeInstance(instance));
-        // appRegistry.emit('instance-refreshed'); TODO: don't think this is ever used
         StatusAction.hide();
       },
       dataService: store.getState().dataService
@@ -67,6 +66,11 @@ store.onActivated = (appRegistry) => {
 
   appRegistry.on('agg-pipeline-out-executed', () => {
     store.refreshInstance();
+  });
+
+  store.subscribe(() => {
+    const state = store.getState();
+    appRegistry.emit('instance-refreshed', state);
   });
 };
 

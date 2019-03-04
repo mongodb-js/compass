@@ -16,9 +16,11 @@ describe('InstanceStore [Store]', () => {
     let hold;
     let hideSpy;
     let configureSpy;
+    let emitSpy;
     beforeEach(() => {
       hold = global.hadronApp.appRegistry;
       global.hadronApp.appRegistry = new AppRegistry();
+      emitSpy = sinon.spy(global.hadronApp.appRegistry, 'emit');
       hideSpy = sinon.spy();
       configureSpy = sinon.spy();
       global.hadronApp.appRegistry.getAction = () => ({
@@ -29,6 +31,7 @@ describe('InstanceStore [Store]', () => {
     });
     afterEach(() => {
       global.hadronApp.appRegistry = hold;
+      emitSpy = null;
       hideSpy = null;
       configureSpy = null;
     });
@@ -48,6 +51,11 @@ describe('InstanceStore [Store]', () => {
       });
       it('calls StatusAction hide', () => {
         expect(hideSpy.calledOnce).to.equal(true);
+      });
+      it('emits instance-changed event', () => {
+        expect(emitSpy.callCount).to.equal(3);
+        expect(emitSpy.args[2][0]).to.equal('instance-refreshed');
+        expect(emitSpy.args[2][1].instance).to.deep.equal('instance');
       });
     });
     context('on refresh data', () => {
@@ -72,13 +80,18 @@ describe('InstanceStore [Store]', () => {
       it('calls instance model fetch', () => {
         expect(store.getState().instance).to.equal('result');
       });
+      it('emits instance-changed event', () => {
+        expect(emitSpy.callCount).to.equal(5);
+        expect(emitSpy.args[4][0]).to.equal('instance-refreshed');
+        expect(emitSpy.args[4][1].instance).to.deep.equal('result');
+      });
     });
     context('on agg pipeline out', () => {
       beforeEach(() => {
         expect(store.getState().instance).to.deep.equal(INITIAL_STATE);
         global.hadronApp.instance = {
           fetch: (arg) => {
-            arg.success('result');
+            arg.success('result2');
           }
         };
         global.hadronApp.appRegistry.emit('data-service-connected', null, {
@@ -93,7 +106,12 @@ describe('InstanceStore [Store]', () => {
         ]);
       });
       it('calls instance model fetch', () => {
-        expect(store.getState().instance).to.equal('result');
+        expect(store.getState().instance).to.equal('result2');
+      });
+      it('emits instance-changed event', () => {
+        expect(emitSpy.callCount).to.equal(5);
+        expect(emitSpy.args[4][0]).to.equal('instance-refreshed');
+        expect(emitSpy.args[4][1].instance).to.deep.equal('result2');
       });
     });
   });
