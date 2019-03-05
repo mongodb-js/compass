@@ -63,9 +63,52 @@ describe('CollectionStore [Store]', () => {
           isCustomCollation: false
         });
       });
-
       it('dispatches the change collection action', () => {
         expect(store.getState().collection).to.deep.equal({
+          _id: 'db.test',
+          readonly: true,
+          capped: false,
+          isCustomCollation: false
+        });
+      });
+      it('getter works too', () => {
+        expect(store.collection).to.deep.equal({
+          _id: 'db.test',
+          readonly: true,
+          capped: false,
+          isCustomCollation: false
+        });
+      });
+      it('sets the ns store', () => {
+        expect(global.hadronApp.appRegistry.getStore('App.NamespaceStore').ns).to.equal('db.test');
+      });
+      it('public ns method', () => {
+        expect(store.ns()).to.equal('db.test');
+      });
+      it('public isReadonly method', () => {
+        expect(store.isReadonly()).to.equal(true);
+      });
+    });
+    context('use public collection setter', () => {
+      beforeEach(() => {
+        expect(store.getState().collection).to.deep.equal({}); // initial state
+        store.collection = {
+          _id: 'db.test',
+          readonly: true,
+          capped: false,
+          isCustomCollation: false
+        };
+      });
+      it('dispatches the change collection action', () => {
+        expect(store.getState().collection).to.deep.equal({
+          _id: 'db.test',
+          readonly: true,
+          capped: false,
+          isCustomCollation: false
+        });
+      });
+      it('getter works too', () => {
+        expect(store.collection).to.deep.equal({
           _id: 'db.test',
           readonly: true,
           capped: false,

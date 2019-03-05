@@ -47,4 +47,12 @@ store.getActiveTab = () => (store.getState().activeTabIndex);
 store.ns = () => (store.getState().collection._id);
 store.isReadonly = () => (store.getState().collection.readonly);
 
+Object.defineProperty(store, 'collection', {
+  get: () => (store.getState().collection),
+
+  set: (collection) => {
+    return store.setCollection(collection);
+  }
+});
+
 export default store;
