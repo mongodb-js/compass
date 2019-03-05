@@ -87,7 +87,6 @@ class OptionEditor extends Component {
    */
   componentWillUnmount() {
     this.unsub();
-    this.unsubFields();
   }
 
   /**
