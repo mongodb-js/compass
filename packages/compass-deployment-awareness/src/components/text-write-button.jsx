@@ -10,11 +10,6 @@ const WriteStateStore = require('../stores/write-state-store');
 const COLLECTION_STORE = 'App.CollectionStore';
 
 /**
- * The namespace store name.
- */
-const NAMESPACE_STORE = 'App.NamespaceStore';
-
-/**
  * The readonly collection message.
  */
 const READONLY = 'Write operations are not permitted on readonly collections.';
@@ -38,14 +33,13 @@ class TextWriteButton extends React.Component {
   constructor(props) {
     super(props);
     this.CollectionStore = global.hadronApp.appRegistry.getStore(COLLECTION_STORE);
-    this.NamespaceStore = global.hadronApp.appRegistry.getStore(NAMESPACE_STORE);
   }
 
   /**
    * Subscribe to the state changing stores.
    */
   componentDidMount() {
-    this.unsubscribeNamespace = this.NamespaceStore.listen(this.namespaceChanged.bind(this));
+    global.hadronApp.appRegistry.on('namespace-changed', this.namespaceChanged.bind(this));
     this.unsubscribeWriteState = WriteStateStore.listen(this.writeStateChanged.bind(this));
   }
 
