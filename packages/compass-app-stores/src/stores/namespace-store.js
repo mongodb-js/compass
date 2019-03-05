@@ -38,6 +38,7 @@ Object.defineProperty(store, 'ns', {
       }
       if (oldNs.database !== newNs.database || oldNs.collection !== newNs.collection) {
         registry.emit('collection-changed', ns);
+        registry.emit('namespace-changed', ns);
       }
     }
     store.dispatch(changeNamespace(ns));

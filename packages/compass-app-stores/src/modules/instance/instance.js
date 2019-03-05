@@ -1,5 +1,3 @@
-import { LOADING_STATE } from 'constants';
-
 /**
  * Create instance.
  */
@@ -9,8 +7,8 @@ export const CHANGE_INSTANCE = 'app/instance/CHANGE_INSTANCE';
  * The initial state of the instance.
  */
 export const INITIAL_STATE = {
-  databases: LOADING_STATE,
-  collections: LOADING_STATE,
+  databases: null,
+  collections: null,
   build: {},
   hostname: 'Retrieving host information',
   port: ''

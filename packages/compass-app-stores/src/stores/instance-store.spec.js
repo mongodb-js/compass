@@ -2,6 +2,8 @@ import AppRegistry from 'hadron-app-registry';
 import { InstanceStore as store } from 'stores';
 import { reset } from 'modules/instance/reset';
 import { INITIAL_STATE } from 'modules/instance/instance';
+import { changeDataService } from 'modules/instance/data-service';
+import { changeInstance } from 'modules/instance/instance';
 
 describe('InstanceStore [Store]', () => {
   beforeEach(() => {
@@ -39,7 +41,12 @@ describe('InstanceStore [Store]', () => {
       beforeEach(() => {
         expect(store.getState().dataService).to.deep.equal(null); // initial state
         expect(store.getState().instance).to.deep.equal(INITIAL_STATE);
-        global.hadronApp.instance = 'instance';
+        const instance = {
+          fetch: (s) => {
+            s.success('new instance');
+          }
+        };
+        global.hadronApp.instance = instance;
         global.hadronApp.appRegistry.emit('data-service-connected', null, 'ds');
       });
 
@@ -47,15 +54,15 @@ describe('InstanceStore [Store]', () => {
         expect(store.getState().dataService).to.equal('ds');
       });
       it('sets initial instance to global.hadronApp.instance', () => {
-        expect(store.getState().instance).to.equal('instance');
+        expect(store.getState().instance).to.equal('new instance');
       });
       it('calls StatusAction hide', () => {
-        expect(hideSpy.calledOnce).to.equal(true);
+        expect(hideSpy.called).to.equal(true);
       });
       it('emits instance-changed event', () => {
-        expect(emitSpy.callCount).to.equal(3);
-        expect(emitSpy.args[2][0]).to.equal('instance-refreshed');
-        expect(emitSpy.args[2][1].instance).to.deep.equal('instance');
+        expect(emitSpy.callCount).to.equal(2);
+        expect(emitSpy.args[1][0]).to.equal('instance-refreshed');
+        expect(emitSpy.args[1][1].instance).to.deep.equal('new instance');
       });
     });
     context('on refresh data', () => {
@@ -66,9 +73,10 @@ describe('InstanceStore [Store]', () => {
             arg.success('result');
           }
         };
-        global.hadronApp.appRegistry.emit('data-service-connected', null, {
+        store.dispatch(changeDataService({
           get: () => ({_id: 'test'})
-        });
+        }));
+        store.dispatch(changeInstance(global.hadronApp.instance));
         global.hadronApp.appRegistry.emit('refresh-data');
       });
       it('calls statusAction configure', () => {
@@ -81,9 +89,9 @@ describe('InstanceStore [Store]', () => {
         expect(store.getState().instance).to.equal('result');
       });
       it('emits instance-changed event', () => {
-        expect(emitSpy.callCount).to.equal(5);
-        expect(emitSpy.args[4][0]).to.equal('instance-refreshed');
-        expect(emitSpy.args[4][1].instance).to.deep.equal('result');
+        expect(emitSpy.callCount).to.equal(2);
+        expect(emitSpy.args[1][0]).to.equal('instance-refreshed');
+        expect(emitSpy.args[1][1].instance).to.deep.equal('result');
       });
     });
     context('on agg pipeline out', () => {
@@ -94,9 +102,10 @@ describe('InstanceStore [Store]', () => {
             arg.success('result2');
           }
         };
-        global.hadronApp.appRegistry.emit('data-service-connected', null, {
+        store.dispatch(changeDataService({
           get: () => ({_id: 'test'})
-        });
+        }));
+        store.dispatch(changeInstance(global.hadronApp.instance));
         global.hadronApp.appRegistry.emit('agg-pipeline-out-executed');
       });
       it('calls statusAction configure', () => {
@@ -109,9 +118,9 @@ describe('InstanceStore [Store]', () => {
         expect(store.getState().instance).to.equal('result2');
       });
       it('emits instance-changed event', () => {
-        expect(emitSpy.callCount).to.equal(5);
-        expect(emitSpy.args[4][0]).to.equal('instance-refreshed');
-        expect(emitSpy.args[4][1].instance).to.deep.equal('result2');
+        expect(emitSpy.callCount).to.equal(2);
+        expect(emitSpy.args[1][0]).to.equal('instance-refreshed');
+        expect(emitSpy.args[1][1].instance).to.deep.equal('result2');
       });
     });
   });
