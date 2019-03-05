@@ -1,7 +1,7 @@
 {
   "name": "@mongodb-js/compass-app-stores",
   "productName": "App Stores plugin",
-  "version": "1.0.5",
+  "version": "1.0.6",
   "apiVersion": "2.0.0",
   "description": "The external stores repo for compass",
   "main": "lib/index.js",
