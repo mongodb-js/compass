@@ -13,3 +13,4 @@ scripts/
 test/
 src/
 .zuul.yml
+coverage/
