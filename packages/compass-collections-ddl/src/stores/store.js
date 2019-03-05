@@ -31,7 +31,7 @@ store.onActivated = (appRegistry) => {
    *
    * @param {Object} state - The instance store state.
    */
-  appRegistry.getStore('App.InstanceStore').listen((state) => {
+  appRegistry.on('instance-refreshed', (state) => {
     const storeState = store.getState();
     const databaseName = storeState.databaseName;
     if (state.instance.databases) {
