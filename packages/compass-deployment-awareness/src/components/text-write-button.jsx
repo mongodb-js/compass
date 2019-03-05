@@ -47,7 +47,6 @@ class TextWriteButton extends React.Component {
    * Unsubscribe from the stores.
    */
   componentWillUnmount() {
-    this.unsubscribeNamespace();
     this.unsubscribeWriteState();
   }
 
