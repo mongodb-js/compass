@@ -145,7 +145,7 @@ export const createDatabase = () => {
         if (e) {
           return stopWithError(dispatch, e);
         }
-        global.hadronApp.appRegistry.getAction('App.InstanceActions').refreshInstance();
+        global.hadronApp.appRegistry.emit('refresh-data');
         dispatch(reset());
       });
     } catch (e) {
