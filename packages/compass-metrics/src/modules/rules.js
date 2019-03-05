@@ -17,32 +17,6 @@ import schemaStats from 'mongodb-schema/lib/stats';
  */
 const RULES = [
   {
-    store: 'App.InstanceStore',
-    resource: 'Deployment',
-    action: 'detected',
-    condition: (state) => (state.instance.databases !== null),
-    metadata: (state) => ({
-      'databases count': state.instance.databases.length,
-      'namespaces count': state.instance.collections.length,
-      'mongodb version': state.instance.build.version,
-      'enterprise module': state.instance.build.enterprise_module,
-      'longest database name length': Math.max(
-        ...state.instance.databases.map((db) => db._id.length)),
-      'longest collection name length': Math.max(
-        ...state.instance.collections.map((col) => col._id.split('.')[1].length)),
-      'server architecture': state.instance.host.arch,
-      'server cpu cores': state.instance.host.cpu_cores,
-      'server cpu frequency (mhz)': state.instance.host.cpu_frequency / 1000 / 1000,
-      'server memory (gb)': state.instance.host.memory_bits / 1024 / 1024 / 1024,
-      'server os': state.instance.host.os,
-      'server arch': state.instance.host.arch,
-      'server os family': state.instance.host.os_family,
-      'server machine model': state.instance.host.machine_model,
-      'server kernel version': state.instance.host.kernel_version,
-      'server kernel version string': state.instance.host.kernel_version_string
-    })
-  },
-  {
     store: 'Schema.Store',
     resource: 'Schema',
     action: 'sampled',
@@ -149,6 +123,32 @@ const RULES = [
       'total docs examined': state.totalDocsExamined,
       'total keys examined': state.totalKeysExamined,
       'index used': state.usedIndex
+    })
+  },
+  {
+    registryEvent: 'instance-refreshed',
+    resource: 'Deployment',
+    action: 'detected',
+    condition: (state) => (state.instance.databases !== null),
+    metadata: (state) => ({
+      'databases count': state.instance.databases.length,
+      'namespaces count': state.instance.collections.length,
+      'mongodb version': state.instance.build.version,
+      'enterprise module': state.instance.build.enterprise_module,
+      'longest database name length': Math.max(
+        ...state.instance.databases.map((db) => db._id.length)),
+      'longest collection name length': Math.max(
+        ...state.instance.collections.map((col) => col._id.split('.')[1].length)),
+      'server architecture': state.instance.host.arch,
+      'server cpu cores': state.instance.host.cpu_cores,
+      'server cpu frequency (mhz)': state.instance.host.cpu_frequency / 1000 / 1000,
+      'server memory (gb)': state.instance.host.memory_bits / 1024 / 1024 / 1024,
+      'server os': state.instance.host.os,
+      'server arch': state.instance.host.arch,
+      'server os family': state.instance.host.os_family,
+      'server machine model': state.instance.host.machine_model,
+      'server kernel version': state.instance.host.kernel_version,
+      'server kernel version string': state.instance.host.kernel_version_string
     })
   },
   {
