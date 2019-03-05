@@ -49,6 +49,186 @@ ace.define("ace/mode/doc_comment_highlight_rules",["require","exports","module",
 
 });
 
+var AGG_ACCUMULATORS = [
+  '$addToSet',
+  '$avg',
+  '$first',
+  '$last',
+  '$max',
+  '$min',
+  '$push',
+  '$stdDevPop',
+  '$stdDevSamp',
+  '$sum',
+];
+
+var AGG_CONVERTERS = [
+  '$convert',
+  '$ltrim',
+  '$rtrim',
+  '$toBool',
+  '$toDate',
+  '$toDecimal',
+  '$toDouble',
+  '$toInt',
+  '$toLong',
+  '$toObjectId',
+  '$toString',
+  '$trim',
+];
+
+var AGG_EXPRESSION_OPERATORS = [
+  '$abs',
+  '$add',
+  '$allElementsTrue',
+  '$and',
+  '$anyElementTrue',
+  '$arrayElemAt',
+  '$arrayToObject',
+  '$ceil',
+  '$cmp',
+  '$concat',
+  '$concatArrays',
+  '$cond',
+  '$dateFromParts',
+  '$dateFromString',
+  '$dateToParts',
+  '$dateToString',
+  '$dayOfMonth',
+  '$dayOfWeek',
+  '$dayOfYear',
+  '$dateToString',
+  '$divide',
+  '$eq',
+  '$exp',
+  '$filter',
+  '$floor',
+  '$gt',
+  '$gte',
+  '$hour',
+  '$ifNull',
+  '$in',
+  '$indexOfArray',
+  '$indexOfBytes',
+  '$indexOfCP',
+  '$isArray',
+  '$isoDayOfWeek',
+  '$isoWeek',
+  '$isoWeekYear',
+  '$let',
+  '$literal',
+  '$lt',
+  '$lt',
+  '$ln',
+  '$log',
+  '$log10',
+  '$map',
+  '$mergeObjects',
+  '$meta',
+  '$millisecond',
+  '$minute',
+  '$mod',
+  '$month',
+  '$multiply',
+  '$new',
+  '$not',
+  '$objectToArray',
+  '$or',
+  '$pow',
+  '$range',
+  '$reduce',
+  '$reverseArray',
+  '$second',
+  '$setDifference',
+  '$setEquals',
+  '$setIntersection',
+  '$setIsSubset',
+  '$setUnion',
+  '$size',
+  '$slice',
+  '$split',
+  '$sqrt',
+  '$strcasecmp',
+  '$strLenBytes',
+  '$strLenCP',
+  '$substr',
+  '$substrBytes',
+  '$substrCP',
+  '$subtract',
+  '$switch',
+  '$toLower',
+  '$toUpper',
+  '$trunc',
+  '$type',
+  '$week',
+  '$year',
+  '$zip',
+];
+
+var AGG_QUERY_OPERATORS = [
+  '$all',
+  '$and',
+  '$bitsAllClear',
+  '$bitsAllSet',
+  '$bitsAnyClear',
+  '$bitsAnySet',
+  '$comment',
+  '$elemMatch',
+  '$eq',
+  '$exists',
+  '$expr',
+  '$geoIntersects',
+  '$geoWithin',
+  '$gt',
+  '$gte',
+  '$in',
+  '$jsonSchema',
+  '$lt',
+  '$lte',
+  '$mod',
+  '$ne',
+  '$near',
+  '$nearSphere',
+  '$nin',
+  '$not',
+  '$nor',
+  '$or',
+  '$regex',
+  '$size',
+  '$slice',
+  '$text',
+  '$type',
+  '$where',
+];
+
+var AGG_STAGE_OPERATORS = [
+  '$addFields',
+  '$bucket',
+  '$bucketAuto',
+  '$collStats',
+  '$count',
+  '$facet',
+  '$geoNear',
+  '$graphLookup',
+  '$group',
+  '$indexStats',
+  '$limit',
+  '$lookup',
+  '$match',
+  '$out',
+  '$project',
+  '$redact',
+  '$replaceRoot',
+  '$sample',
+  '$skip',
+  '$sort',
+  '$sortByCount',
+  '$unwind',
+];
+
+var ALL_AGG = [];
+ALL_AGG.push.apply(ALL_AGG, AGG_ACCUMULATORS, AGG_CONVERTERS, AGG_EXPRESSION_OPERATORS, AGG_QUERY_OPERATORS, AGG_STAGE_OPERATORS);
+
 ace.define("ace/mode/javascript_highlight_rules",["require","exports","module","ace/lib/oop","ace/mode/doc_comment_highlight_rules","ace/mode/text_highlight_rules"], function(acequire, exports, module) {
   "use strict";
 
@@ -63,7 +243,8 @@ ace.define("ace/mode/javascript_highlight_rules",["require","exports","module","
         "Code|ObjectId|Binary|DBRef|Timestamp|NumberInt|NumberLong|NumberDecimal|MaxKey|MinKey|ISODate|RegExp",
       "constant.language":
         "null|Infinity|NaN|undefined",
-      "constant.language.boolean": "true|false"
+      "constant.language.boolean": "true|false",
+      "support.function": ALL_AGG.join('|')
     }, "identifier");
     var kwBeforeRe = "case|do|finally|in|instanceof|return|throw|try|typeof|yield|void";
 
@@ -317,20 +498,61 @@ ace.define("ace/mode/javascript_highlight_rules",["require","exports","module","
         {
           token : "constant.language.escape",
           regex : escapedRe
-        }, {
+        }, 
+        {
           token : "string",
           regex : "\\\\$",
           consumeLineEnd  : true
-        }, {
+        }, 
+        {
           token : "string",
           regex : "'|$",
           next  : "no_regex"
-        }, {
+        }, 
+        {
           defaultToken: "string"
         }
-      ]
+      ],
     };
 
+    // var aggregation_field = [
+    //   {
+    //     //regex: /(\"\${1}(type+)\"/|]/,
+    //     onMatch: function (val, state, stack) {
+    //       // debugger;
+    //       this.next = val == "$" ? this.nextState : "";
+    //       if (val == "$" && stack.length) {
+    //         stack.unshift("start", state);
+    //       } else if (val == "\"" && stack.length) {
+    //         stack.shift();
+    //         this.next = stack.shift();
+    //         if (this.next.indexOf("quote") != -1 || this.next.indexOf("jsx") != -1)
+    //           return "paren.quasi.end";
+    //       }
+    //       return val == "$" ? "paren.lparen" : "paren.rparen";
+    //     },
+    //     nextState: "start"
+    //   }, {
+    //     token: "string.quasi.start",
+    //     regex: /\$/,
+    //     push: [{
+    //       token: "constant.language.escape",
+    //       regex: escapedRe
+    //     }, {
+    //       token: "paren.quasi.start",
+    //       regex: /\${/,
+    //       push: "start"
+    //     }, {
+    //       token: "string.quasi.end",
+    //       regex: /"/,
+    //       next: "pop"
+    //     }, {
+    //       defaultToken: "string.quasi"
+    //     }]
+    //   }
+    // ];
+
+    // // this.$rules.no_regex.unshift.apply(this.$rules.no_regex, aggregation_field);
 
     if (!options || !options.noES6) {
       this.$rules.no_regex.unshift({

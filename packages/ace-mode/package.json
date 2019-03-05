@@ -12,5 +12,8 @@
     "ACE"
   ],
   "author": "Anna Herlihy <anna@mongodb.com>",
-  "license": "Apache-2.0"
+  "license": "Apache-2.0",
+  "devDependencies": {
+    "babel-plugin-transform-decorators-legacy": "^1.3.5"
+  }
 }
