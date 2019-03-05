@@ -29,10 +29,6 @@ store.onActivated = (appRegistry) => {
     store.dispatch(filterDatabases(null, null, ns || ''));
   });
 
-  appRegistry.on('refresh-data', () => {
-    appRegistry.getAction('App.InstanceActions').refreshInstance();
-  });
-
   appRegistry.on('data-service-disconnected', () => {
     store.dispatch(reset());
   });

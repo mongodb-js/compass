@@ -12,12 +12,7 @@ class SidebarInstanceProperties extends PureComponent {
   };
 
   handleRefresh() {
-    const InstanceActions = global.hadronApp.appRegistry.getAction(
-      'App.InstanceActions'
-    );
-    if (InstanceActions) {
-      InstanceActions.refreshInstance();
-    }
+    global.hadronApp.appRegistry.emit('refresh-data');
   }
 
   render() {

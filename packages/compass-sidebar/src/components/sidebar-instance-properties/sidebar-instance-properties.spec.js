@@ -5,7 +5,6 @@ import SidebarInstanceProperties from 'components/sidebar-instance-properties';
 
 describe('SidebarInstanceProperties [Component]', () => {
   let component;
-  let refreshSpy;
   describe('empty instance', () => {
     beforeEach(() => {
       component = mount(<SidebarInstanceProperties
@@ -43,25 +42,20 @@ describe('SidebarInstanceProperties [Component]', () => {
     });
   });
   describe('nonempty instance', () => {
-    let hold;
     beforeEach(() => {
-      refreshSpy = sinon.spy();
+      sinon.spy(global.hadronApp.appRegistry, 'emit');
       component = mount(<SidebarInstanceProperties
         instance={{databases: [1, 2, 3], collections: [6, 7]}}
       />);
-      hold = global.hadronApp.appRegistry.getAction('App.InstanceAction');
-      global.hadronApp.appRegistry.registerAction('App.InstanceActions', {refreshInstance: refreshSpy});
     });
     afterEach(() => {
       component = null;
-      refreshSpy = null;
-      if (hold) {
-        global.hadronApp.appRegistry.registerAction('App.InstanceActions', hold);
-      }
+      global.hadronApp.appRegistry.emit.restore();
     });
     it('refreshes', () => {
       component.find('[data-test-id="instance-refresh-button"]').simulate('click');
-      expect(refreshSpy.called).to.equal(true);
+      expect(global.hadronApp.appRegistry.emit.calledOnce).to.equal(true);
+      expect(global.hadronApp.appRegistry.emit.args[0][0]).to.equal('refresh-data');
     });
   });
 });
