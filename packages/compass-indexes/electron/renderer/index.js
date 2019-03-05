@@ -77,16 +77,6 @@ const dataService = new DataService(connection);
 appRegistry.emit('data-service-initialized', dataService);
 dataService.connect((error, ds) => {
   appRegistry.emit('data-service-connected', error, ds);
-
-  const query = {
-    filter: { name: 'testing' },
-    project: { name: 1 },
-    sort: { name: -1 },
-    skip: 0,
-    limit: 20,
-    ns: 'citibike.trips'
-  };
-  appRegistry.emit('query-changed', query);
   appRegistry.emit('fields-changed', {
     fields: {
       harry: {
@@ -110,6 +100,7 @@ dataService.connect((error, ds) => {
         version: '0.0.0' }
     ]
   });
+  appRegistry.emit('collection-changed', 'citibike.trips');
 });
 
 if (module.hot) {

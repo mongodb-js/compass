@@ -29,6 +29,7 @@ class Indexes extends PureComponent {
   static propTypes = {
     isWritable: PropTypes.bool.isRequired,
     isReadonly: PropTypes.bool.isRequired,
+    isReadonlyView: PropTypes.bool.isRequired,
     description: PropTypes.string.isRequired,
     indexes: PropTypes.array.isRequired,
     sortColumn: PropTypes.string.isRequired,
@@ -68,7 +69,7 @@ class Indexes extends PureComponent {
   }
 
   renderBanner() {
-    if (this.props.isReadonly) {
+    if (this.props.isReadonlyView) {
       return (
         <StatusRow style="warning">
           Readonly views may not contain indexes.
@@ -83,7 +84,7 @@ class Indexes extends PureComponent {
   }
 
   renderCreateIndexButton() {
-    if (!this.props.isReadonly && (this.props.error === null || this.props.error === undefined)) {
+    if (!this.props.isReadonly && !this.props.isReadonlyView && (this.props.error === null || this.props.error === undefined)) {
       return (
         <CreateIndexButton
           toggleIsVisible={this.props.toggleIsVisible}
@@ -115,7 +116,7 @@ class Indexes extends PureComponent {
           {this.renderCreateIndexButton()}
           {this.renderDropIndexModal()}
         </div>
-        {(this.props.isReadonly || !(this.props.error === null || this.props.error === undefined)) ?
+        {(this.props.isReadonlyView || !(this.props.error === null || this.props.error === undefined)) ?
           this.renderBanner() :
           this.renderComponent()}
       </div>
@@ -134,6 +135,7 @@ const mapStateToProps = (state) => ({
   indexes: state.indexes,
   isWritable: state.isWritable,
   isReadonly: state.isReadonly,
+  isReadonlyView: state.isReadonlyView,
   description: state.description,
   error: state.error,
   dataService: state.dataService,

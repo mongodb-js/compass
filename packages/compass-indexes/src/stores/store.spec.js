@@ -64,13 +64,13 @@ describe('IndexesStore [Store]', () => {
         expect(store.getState().description).to.equal('test description');
       });
     });
-    context('query-changed emitted', () => {
+    context('collection-changed emitted', () => {
       beforeEach(() => {
         expect(store.getState().isReadonly).to.equal(false);
-        appRegistry.emit('query-changed', {ns: 'test.coll'});
+        appRegistry.emit('collection-changed', 'test.coll');
       });
-      it('dispatches the readStateChanged action', () => {
-        expect(store.getState().isReadonly).to.equal(true);
+      it('dispatches the readonlyViewChanged action', () => {
+        expect(store.getState().isReadonlyView).to.equal(true);
         expect(store.getState().indexes).to.deep.equal([]);
         expect(store.getState().error).to.equal(null);
       });
@@ -80,8 +80,7 @@ describe('IndexesStore [Store]', () => {
         expect(store.getState().isReadonly).to.equal(false);
         appRegistry.emit('refresh-data');
       });
-      it('dispatches the readStateChanged action', () => {
-        expect(store.getState().isReadonly).to.equal(true);
+      it('dispatches the load indexes action', () => {
         expect(store.getState().indexes).to.deep.equal([]);
         expect(store.getState().error).to.equal(null);
       });

@@ -1,9 +1,10 @@
 import { createStore, applyMiddleware } from 'redux';
 import reducer from 'modules';
 import thunk from 'redux-thunk';
+import toNS from 'mongodb-ns';
 
 import { writeStateChanged } from 'modules/is-writable';
-import { readStateChanged } from 'modules/is-readonly';
+import { readonlyViewChanged } from 'modules/is-readonly-view';
 import { getDescription } from 'modules/description';
 import { appRegistryActivated} from 'modules/app-registry';
 import { dataServiceConnected } from 'modules/data-service';
@@ -29,16 +30,16 @@ store.onActivated = (appRegistry) => {
     }
   });
 
-  appRegistry.on('query-changed', (query) => {
-    const cs = appRegistry.getStore('App.CollectionStore').isReadonly();
-    store.dispatch(readStateChanged(process.env.HADRON_READONLY === 'true' || cs === true));
-    store.dispatch(loadIndexesFromDb(query.ns));
+  appRegistry.on('collection-changed', (ns) => {
+    const namespace = toNS(ns);
+    if (namespace.collection) {
+      const isReadonlyView = appRegistry.getStore('App.CollectionStore').isReadonly();
+      store.dispatch(readonlyViewChanged(isReadonlyView));
+      store.dispatch(loadIndexesFromDb(ns));
+    }
   });
 
   appRegistry.on('refresh-data', () => {
-    const cs = appRegistry.getStore('App.CollectionStore').isReadonly();
-    store.dispatch(readStateChanged(process.env.HADRON_READONLY === 'true' || cs === true));
-
     const ns = appRegistry.getStore('App.NamespaceStore').ns;
     if (ns.indexOf('.') !== -1) {
       store.dispatch(loadIndexesFromDb(ns));

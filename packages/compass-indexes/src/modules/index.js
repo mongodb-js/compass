@@ -8,6 +8,9 @@ import isWritable, {
 import isReadonly, {
   INITIAL_STATE as READ_INITIAL_STATE
 } from 'modules/is-readonly';
+import isReadonlyView, {
+  INITIAL_STATE as READONLY_VIEW_INITIAL_STATE
+} from 'modules/is-readonly-view';
 import description, {
   INITIAL_STATE as DESCRIPTION_INITIAL_STATE
 } from 'modules/description';
@@ -31,6 +34,7 @@ const reducer = combineReducers({
   indexes,
   isWritable,
   isReadonly,
+  isReadonlyView,
   description,
   appRegistry,
   dataService,
@@ -53,6 +57,7 @@ const rootReducer = (state, action) => {
       ...state,
       isWritable: WRITABLE_INITIAL_STATE,
       isReadonly: READ_INITIAL_STATE,
+      isReadonlyView: READONLY_VIEW_INITIAL_STATE,
       description: DESCRIPTION_INITIAL_STATE,
       indexes: INDEXES_INITIAL_STATE,
       sortOrder: SORT_ORDER_INITIAL_STATE,
