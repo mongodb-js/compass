@@ -4,17 +4,6 @@ import StateMixin from 'reflux-state-mixin';
 import store from 'stores';
 import { reset } from 'modules/reset';
 
-const InstanceStore = Reflux.createStore({
-  mixins: [StateMixin.store],
-  getInitialState() {
-    return {
-      instance: {
-        databases: []
-      }
-    };
-  }
-});
-
 const WriteStateStore = Reflux.createStore({
   mixins: [StateMixin.store],
   getInitialState() {
@@ -33,7 +22,6 @@ describe('DdlStore [Store]', () => {
 
   describe('#onActivated', () => {
     const appRegistry = new AppRegistry();
-    appRegistry.registerStore('App.InstanceStore', InstanceStore);
     appRegistry.registerStore('DeploymentAwareness.WriteStateStore', WriteStateStore);
 
     before(() => {
@@ -51,7 +39,7 @@ describe('DdlStore [Store]', () => {
       ];
 
       beforeEach(() => {
-        InstanceStore.setState({ instance: { databases: dbs }});
+        appRegistry.emit('instance-refreshed', { instance: { databases: dbs }});
       });
 
       it('dispatches the load database action', () => {

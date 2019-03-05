@@ -1,7 +1,5 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import Reflux from 'reflux';
-import StateMixin from 'reflux-state-mixin';
 import app from 'hadron-app';
 import AppRegistry from 'hadron-app-registry';
 import { AppContainer } from 'react-hot-loader';
@@ -23,25 +21,8 @@ const appRegistry = new AppRegistry();
 global.hadronApp = app;
 global.hadronApp.appRegistry = appRegistry;
 
-const InstanceStore = Reflux.createStore({
-  mixins: [StateMixin.store],
-  getInitialState() {
-    return {
-      instance: {
-        databases: []
-      }
-    };
-  }
-});
-
-const InstanceActions = Reflux.createActions([
-  'refreshInstance'
-]);
-
-appRegistry.registerStore('App.InstanceStore', InstanceStore);
 appRegistry.registerStore('App.NamespaceStore', NamespaceStore);
 appRegistry.registerStore('App.CollectionStore', CollectionStore);
-appRegistry.registerAction('App.InstanceActions', InstanceActions);
 
 // Activate our plugin with the Hadron App Registry
 activate(appRegistry);
@@ -88,24 +69,18 @@ const connection = new Connection({
 });
 const dataService = new DataService(connection);
 
-const refreshInstance = () => {
+appRegistry.emit('data-service-initialized', dataService);
+dataService.connect((error, ds) => {
+  appRegistry.emit('data-service-connected', error, ds);
   dataService.instance({}, (err, data) => {
     if (err) console.log(err);
 
-    InstanceStore.setState({
+    appRegistry.emit('instance-refreshed', {
       instance: {
         databases: data.databases
       }
     });
   });
-};
-
-InstanceActions.refreshInstance.listen(refreshInstance);
-
-appRegistry.emit('data-service-initialized', dataService);
-dataService.connect((error, ds) => {
-  appRegistry.emit('data-service-connected', error, ds);
-  refreshInstance();
 });
 
 if (module.hot) {
