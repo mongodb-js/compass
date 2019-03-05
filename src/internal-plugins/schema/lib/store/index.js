@@ -51,7 +51,7 @@ const SchemaStore = Reflux.createStore({
   },
 
   onActivated(appRegistry) {
-    appRegistry.getStore('App.NamespaceStore').listen(this.onNamespaceChanged.bind(this));
+    appRegistry.on('namespace-changed', this.onNamespaceChanged.bind(this));
     appRegistry.on('query-changed', this.onQueryChanged.bind(this));
     appRegistry.on('data-service-connected', (err, dataService) => {
       if (!err) {

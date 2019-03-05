@@ -11,7 +11,7 @@ const HomeStore = Reflux.createStore({
 
   onActivated(appRegistry) {
     // set up listeners on external stores
-    appRegistry.getStore('App.InstanceStore').listen(this.onInstanceChange.bind(this));
+    appRegistry.on('instance-refreshed', this.onInstanceChange.bind(this));
     appRegistry.on('data-service-connected', this.onConnected.bind(this, appRegistry));
     appRegistry.on('data-service-disconnected', this.onDisconnected.bind(this, appRegistry));
     appRegistry.on('collection-changed', this.onCollectionChanged.bind(this));
@@ -68,9 +68,6 @@ const HomeStore = Reflux.createStore({
       message: 'Loading navigation',
       visible: true
     });
-
-    const InstanceActions = appRegistry.getAction('App.InstanceActions');
-    InstanceActions.fetchFirstInstance();
 
     this.setState({
       isConnected: true,
