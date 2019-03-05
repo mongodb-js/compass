@@ -40,7 +40,7 @@ class Collection extends Component {
       this.setState({ activeTab: 0 });
     }
     if (this.CollectionStore) {
-      this.unsubStore = this.CollectionStore.listen((index) => {
+      global.hadronApp.appRegistry.on('active-tab-changed', (index) => {
         this.setState({ activeTab: index });
       });
     }
@@ -49,7 +49,7 @@ class Collection extends Component {
   onTabClicked = (idx) => {
     // Only proceed if the active tab has changed; prevent multiple clicks
     if (this.state.activeTab === idx) {
-return;
+      return;
     }
     if (!this.queryHistoryIndexes.includes(idx)) {
       this.QueryHistoryActions.collapse();
