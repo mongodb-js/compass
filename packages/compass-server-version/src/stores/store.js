@@ -27,7 +27,7 @@ const ServerVersionStore = Reflux.createStore({
    */
   onActivated(appRegistry) {
     this.appRegistry = appRegistry;
-    appRegistry.getStore('App.InstanceStore').listen(this.onInstanceFetched.bind(this));
+    appRegistry.on('instance-refreshed', this.onInstanceFetched.bind(this));
   },
 
   /**
