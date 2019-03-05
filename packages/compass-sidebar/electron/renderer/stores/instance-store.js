@@ -1,6 +1,3 @@
-const Reflux = require('reflux');
-const StateMixin = require('reflux-state-mixin');
-
 /**
  * Convert into format expected
  * @param {Object} db - {_id: dbname, collections: ['coll1', 'coll2']}
@@ -21,40 +18,6 @@ const makeModel = (db) => {
   };
 };
 
-
-const InstanceStore = Reflux.createStore({
-  mixins: [StateMixin.store],
-  getInitialState() {
-    return {
-      instance: {
-        databases: [],
-        collections: []
-      }
-    };
-  },
-  setupStore() {
-    this.setState(
-      {
-        instance: {
-          databases: [
-            {_id: 'admin', collections: ['citibikecoll', 'coll']},
-            {_id: 'citibike', collections: ['admincoll', 'coll2']}
-          ].map((d) => (makeModel(d))),
-          collections: [
-            { _id: 'citibikecoll' }, { _id: 'coll' }, { _id: 'admincoll' }, { _id: 'coll2' }
-          ]
-        }
-      }
-    );
-  }
-});
-
-const InstanceActions = Reflux.createActions([
-  'refreshInstance'
-]);
-
 module.exports = {
-  InstanceStore,
-  InstanceActions,
   makeModel
 };

@@ -11,7 +11,7 @@ import { changeDescription } from 'modules/description';
 const store = createStore(reducer, applyMiddleware(thunk));
 
 store.onActivated = (appRegistry) => {
-  appRegistry.getStore('App.InstanceStore').listen((state) => {
+  appRegistry.on('instance-refreshed', (state) => {
     store.dispatch(changeInstance(state.instance));
     store.dispatch(filterDatabases(null, state.instance.databases, null));
   });

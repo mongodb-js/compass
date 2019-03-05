@@ -5,7 +5,7 @@ import AppRegistry from 'hadron-app-registry';
 import { AppContainer } from 'react-hot-loader';
 import SidebarPlugin, { activate } from 'plugin';
 import DeploymentStateStore from './stores/deployment-state-store';
-import { InstanceStore, InstanceActions } from './stores/instance-store';
+import { makeModel } from './stores/instance-store';
 import CollectionStore from './stores/collection-store';
 import NamespaceStore from './stores/namespace-store';
 
@@ -22,8 +22,6 @@ global.hadronApp.appRegistry = appRegistry;
 
 activate(appRegistry);
 
-appRegistry.registerStore('App.InstanceStore', InstanceStore);
-appRegistry.registerAction('App.InstanceActions', InstanceActions);
 appRegistry.registerStore('DeploymentAwareness.WriteStateStore', DeploymentStateStore);
 appRegistry.registerStore('App.CollectionStore', CollectionStore);
 appRegistry.registerStore('App.NamespaceStore', NamespaceStore);
@@ -67,8 +65,17 @@ const connection = new Connection({
 });
 const dataService = new DataService(connection);
 
-
-InstanceStore.setupStore();
+appRegistry.emit('instance-refreshed', {
+  instance: {
+    databases: [
+      {_id: 'admin', collections: ['citibikecoll', 'coll']},
+      {_id: 'citibike', collections: ['admincoll', 'coll2']}
+    ].map((d) => (makeModel(d))),
+    collections: [
+      { _id: 'citibikecoll' }, { _id: 'coll' }, { _id: 'admincoll' }, { _id: 'coll2' }
+    ]
+  }
+});
 DeploymentStateStore.setToInitial();
 appRegistry.emit('data-service-initialized', dataService);
 dataService.connect((error, ds) => {

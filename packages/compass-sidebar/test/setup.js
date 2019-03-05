@@ -17,7 +17,6 @@ require('jsdom-global')('', {
 });
 
 const WriteStateStore = require('../electron/renderer/stores/deployment-state-store');
-const { InstanceStore, InstanceActions } = require('../electron/renderer/stores/instance-store');
 const NamespaceStore = require('../electron/renderer/stores/namespace-store');
 const CollectionStore = require('../electron/renderer/stores/collection-store');
 const appRegistry = new AppRegistry();
@@ -28,9 +27,7 @@ global.expect = chai.expect;
 global.hadronApp = hadronApp;
 global.hadronApp.appRegistry = appRegistry;
 
-appRegistry.registerStore('App.InstanceStore', InstanceStore);
 appRegistry.registerStore('DeploymentAwareness.WriteStateStore', WriteStateStore);
-appRegistry.registerAction('App.InstanceActions', InstanceActions);
 appRegistry.registerStore('App.CollectionStore', CollectionStore);
 appRegistry.registerStore('App.NamespaceStore', NamespaceStore);
 

@@ -4,7 +4,7 @@ import StateMixin from 'reflux-state-mixin';
 import store from 'stores';
 import { reset } from 'modules/reset';
 
-import { makeModel, InstanceStore } from '../../electron/renderer/stores/instance-store';
+import { makeModel } from '../../electron/renderer/stores/instance-store';
 
 const WriteStateStore = Reflux.createStore({
   mixins: [StateMixin.store],
@@ -38,7 +38,6 @@ describe('IndexesStore [Store]', () => {
   describe('#onActivated', () => {
     const appRegistry = new AppRegistry();
     appRegistry.registerStore('DeploymentAwareness.WriteStateStore', WriteStateStore);
-    appRegistry.registerStore('App.InstanceStore', InstanceStore);
 
     before(() => {
       store.onActivated(appRegistry);
@@ -70,7 +69,7 @@ describe('IndexesStore [Store]', () => {
           expandedDblist: {},
           activeNamespace: ''
         }); // initial state
-        InstanceStore.setState(instance);
+        appRegistry.emit('instance-refreshed', instance);
       });
 
       it('updates the instance and databases state', () => {
