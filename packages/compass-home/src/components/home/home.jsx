@@ -9,8 +9,8 @@ import UI_STATES from 'constants/ui-states';
 
 import { toggleIsCollapsed } from 'modules/is-collapsed';
 
-// import classnames from 'classnames';
-// import styles from './home.less';
+import classnames from 'classnames';
+import styles from './home.less';
 
 const ERROR_WARNING = 'An error occurred while loading navigation';
 
@@ -91,8 +91,15 @@ class Home extends PureComponent {
   }
 
   getContentClasses() {
-    return 'content' +
-      (this.props.isCollapsed ? ' content-sidebar-collapsed' : ' content-sidebar-expanded');
+    const collapsed = this.props.isCollapsed ?
+      'content-sidebar-collapsed' :
+      'content-sidebar-expanded';
+    return classnames(
+      styles['home-view-page-content'],
+      collapsed
+    );
+    // return 'content' +
+    //   (this.props.isCollapsed ? ' content-sidebar-collapsed' : ' content-sidebar-expanded');
   }
 
   getErrorMessage() {
@@ -167,9 +174,16 @@ class Home extends PureComponent {
   renderConnect() {
     if (this.connectRole) {
       const Connect = this.connectRole[0].component;
+      // return (
+      //   <div className="page-container" data-test-id="home-view">
+      //     <div className="page">
+      //       <Connect />
+      //     </div>
+      //   </div>
+      // );
       return (
-        <div className="page-container" data-test-id="home-view">
-          <div className="page">
+        <div className={classnames(styles['home-view'])} data-test-id="home-view">
+          <div className={classnames(styles['home-view-page'])}>
             <Connect />
           </div>
         </div>
@@ -248,9 +262,9 @@ class Home extends PureComponent {
 
   renderHome() {
     return (
-      <div className="page-container" data-test-id="home-view">
+      <div className={classnames(styles['home-view'])} data-test-id="home-view">
         {this.renderInstanceHeader()}
-        <div className="page">
+        <div className={classnames(styles['home-view-page'])}>
           <div className={this.getContentClasses()}>
             {this.renderContent()}
           </div>
