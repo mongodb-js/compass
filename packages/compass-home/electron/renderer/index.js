@@ -1,22 +1,40 @@
 import React from 'react';
-import Reflux from 'reflux';
 import ReactDOM from 'react-dom';
 import app from 'hadron-app';
 import AppRegistry from 'hadron-app-registry';
 import { AppContainer } from 'react-hot-loader';
+
+
 import HomePlugin, { activate } from 'plugin';
-import { activate as instanceHeaderActivate } from '@mongodb-js/compass-instance-header';
+import { activate as aggregationsActivate } from '@mongodb-js/compass-aggregations';
+import { activate as appActivate } from '@mongodb-js/compass-app-stores';
+import { activate as authKerbActivate } from '@mongodb-js/compass-auth-kerberos';
+import { activate as authLdapActivate } from '@mongodb-js/compass-auth-ldap';
+import { activate as authX509Activate } from '@mongodb-js/compass-auth-x509';
 import { activate as collectionActivate } from '@mongodb-js/compass-collection';
-import { activate as databaseActivate } from '@mongodb-js/compass-database';
-import { activate as instanceActivate } from '@mongodb-js/compass-instance';
+import { activate as collectionStatsActivate } from '@mongodb-js/compass-collection-stats';
 import { activate as collectionDDLActivate } from '@mongodb-js/compass-collections-ddl';
-import { activate as importExportActivate } from '@mongodb-js/compass-import-export';
-import { activate as exportToLangActivate } from '@mongodb-js/compass-export-to-language';
-import { activate as findInPageActivate } from '@mongodb-js/compass-find-in-page';
 import { activate as connectActivate } from '@mongodb-js/compass-connect';
-import { activate as statusActivate } from '@mongodb-js/compass-status';
-import { activate as sidebarActivate } from '@mongodb-js/compass-sidebar';
+import { activate as crudActivate } from '@mongodb-js/compass-crud';
+import { activate as databaseActivate } from '@mongodb-js/compass-database';
+import { activate as databasesDDLActivate } from '@mongodb-js/compass-databases-ddl';
 import { activate as daActivate } from '@mongodb-js/compass-deployment-awareness';
+import { activate as exportToLangActivate } from '@mongodb-js/compass-export-to-language';
+import { activate as fieldStoreActivate } from '@mongodb-js/compass-field-store';
+import { activate as findInPageActivate } from '@mongodb-js/compass-find-in-page';
+import { activate as importExportActivate } from '@mongodb-js/compass-import-export';
+import { activate as indexesActivate } from '@mongodb-js/compass-indexes';
+import { activate as instanceActivate } from '@mongodb-js/compass-instance';
+import { activate as instanceHeaderActivate } from '@mongodb-js/compass-instance-header';
+import { activate as queryBarActivate } from '@mongodb-js/compass-query-bar';
+import { activate as queryHistoryActivate } from '@mongodb-js/compass-query-history';
+import { activate as schemaValidationActivate } from '@mongodb-js/compass-schema-validation';
+import { activate as serverVersionActivate } from '@mongodb-js/compass-server-version';
+const rtssActivate = require('@mongodb-js/compass-serverstats').activate;
+import { activate as sidebarActivate } from '@mongodb-js/compass-sidebar';
+import { activate as sshTunnelStatusActivate } from '@mongodb-js/compass-ssh-tunnel-status';
+import { activate as statusActivate } from '@mongodb-js/compass-status';
+import MongoDBInstance from 'mongodb-instance-model';
 
 // Import global less file. Note: these styles WILL NOT be used in compass, as compass provides its own set
 // of global styles. If you are wishing to style a given component, you should be writing a less file per
@@ -28,29 +46,41 @@ const appRegistry = new AppRegistry();
 
 global.hadronApp = app;
 global.hadronApp.appRegistry = appRegistry;
+global.hadronApp.instance = new MongoDBInstance();
 
 // Activate our plugin with the Hadron App Registry
 activate(appRegistry);
-instanceHeaderActivate(appRegistry);
+appActivate(appRegistry);
+// authKerbActivate(appRegistry);
+// authLdapActivate(appRegistry);
+// authX509Activate(appRegistry);
+aggregationsActivate(appRegistry);
 collectionActivate(appRegistry);
-databaseActivate(appRegistry);
-instanceActivate(appRegistry);
 collectionDDLActivate(appRegistry);
-importExportActivate(appRegistry);
-exportToLangActivate(appRegistry);
-findInPageActivate(appRegistry);
+collectionStatsActivate(appRegistry);
 connectActivate(appRegistry);
+crudActivate(appRegistry);
+databaseActivate(appRegistry);
+databasesDDLActivate(appRegistry);
+daActivate(appRegistry);
+exportToLangActivate(appRegistry);
+fieldStoreActivate(appRegistry);
+findInPageActivate(appRegistry);
+importExportActivate(appRegistry);
+indexesActivate(appRegistry);
+instanceActivate(appRegistry);
+instanceHeaderActivate(appRegistry);
+queryBarActivate(appRegistry);
+queryHistoryActivate(appRegistry);
+schemaValidationActivate(appRegistry);
+serverVersionActivate(appRegistry);
 statusActivate(appRegistry);
 sidebarActivate(appRegistry);
-daActivate(appRegistry);
-
-const InstanceActions = Reflux.createActions([
-  'refreshInstance',
-  'fetchFirstInstance'
-]);
-appRegistry.registerAction('App.InstanceActions', InstanceActions);
+// rtssActivate(appRegistry);
 
 appRegistry.onActivated();
+
+console.log(appRegistry);
 
 // Since we are using HtmlWebpackPlugin WITHOUT a template,
 // we should create our own root node in the body element before rendering into it.
@@ -89,10 +119,12 @@ const dataService = new DataService(connection);
 
 appRegistry.emit('data-service-initialized', dataService);
 dataService.connect((error, ds) => {
+  if (error) {
+    console.log(`ERROR OCCURRED ${error}`);
+  }
   appRegistry.emit('data-service-connected', error, ds);
-  // For automatic switching to specific namespaces, uncomment below as needed.
-  appRegistry.emit('collection-changed', 'database.collection');
-  appRegistry.emit('database-changed', 'database');
+  // appRegistry.emit('collection-changed', 'database.collection');
+  // appRegistry.emit('database-changed', 'database');
 });
 
 if (module.hot) {

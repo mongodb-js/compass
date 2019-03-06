@@ -6,7 +6,7 @@ export const CHANGE_INSTANCE_ID = 'home/instance-id/CHANGE_INSTANCE_ID';
 /**
  * The initial state of the instance id.
  */
-export const INITIAL_STATE = 'NONE';
+export const INITIAL_STATE = '';
 
 /**
  * Reducer function for handle state changes to instance id.

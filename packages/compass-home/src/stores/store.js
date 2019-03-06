@@ -20,7 +20,7 @@ const store = createStore(reducer, applyMiddleware(thunk));
 
 
 store.onActivated = (appRegistry) => {
-  appRegistry.getStore('App.InstanceStore').listen((state) => {
+  appRegistry.on('instance-refreshed', (state) => {
     if (state.errorMessage) {
       store.dispatch(changeErrorMessage(state.errorMessage));
       store.dispatch(changeUiStatus(UI_STATES.ERROR));
@@ -45,9 +45,6 @@ store.onActivated = (appRegistry) => {
       message: 'Loading navigation',
       visible: true
     });
-
-    const InstanceActions = appRegistry.getAction('App.InstanceActions');
-    InstanceActions.fetchFirstInstance();
 
     store.dispatch(toggleIsConnected(true));
     store.dispatch(toggleIsAtlas(/mongodb\.net/i.test(connection.hostname)));

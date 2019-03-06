@@ -7,7 +7,7 @@ import toNS from 'mongodb-ns';
 import { StatusRow } from 'hadron-react-components';
 import UI_STATES from 'constants/ui-states';
 
-import toggleIsCollapsed from 'modules/is-collapsed';
+import { toggleIsCollapsed } from 'modules/is-collapsed';
 
 // import classnames from 'classnames';
 // import styles from './home.less';
@@ -69,8 +69,8 @@ class Home extends PureComponent {
   }
 
 
-  constructor() {
-    super();
+  constructor(props) {
+    super(props);
     this.sideBar = this.getComponentOrNull('Sidebar.Component');
     this.connectView = this.getRoleOrNull('Application.Connect')[0].component;
     this.SchemaActions = this.getActionOrNull('Schema.Actions');

@@ -6,7 +6,7 @@ export const CHANGE_NAMESPACE = 'home/namespace/CHANGE_NAMESPACE';
 /**
  * The initial state of the namespace.
  */
-export const INITIAL_STATE = 'NONE';
+export const INITIAL_STATE = '';
 
 /**
  * Reducer function for handle state changes to namespace.

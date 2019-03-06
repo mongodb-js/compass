@@ -6,7 +6,7 @@ export const CHANGE_AUTHENTICATION = 'home/authentication/CHANGE_AUTHENTICATION'
 /**
  * The initial state of the authentication.
  */
-export const INITIAL_STATE = '';
+export const INITIAL_STATE = 'NONE';
 
 /**
  * Reducer function for handle state changes to authentication.
