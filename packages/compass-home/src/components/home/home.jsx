@@ -72,12 +72,16 @@ class Home extends PureComponent {
   constructor(props) {
     super(props);
     this.sideBar = this.getComponentOrNull('Sidebar.Component');
-    this.connectView = this.getRoleOrNull('Application.Connect')[0].component;
+    this.connectView = this.getRoleOrNull('Application.Connect');
+    this.connectView = this.connectView ? this.connectView[0].component : null;
     this.SchemaActions = this.getActionOrNull('Schema.Actions');
 
-    this.collectionView = this.getRoleOrNull('Collection.Workspace')[0].component;
-    this.databaseView = this.getRoleOrNull('Database.Workspace')[0].component;
-    this.instanceView = this.getRoleOrNull('Instance.Workspace')[0].component;
+    this.collectionView = this.getRoleOrNull('Collection.Workspace');
+    this.collectionView = this.collectionView ? this.collectionView[0].component : null;
+    this.databaseView = this.getRoleOrNull('Database.Workspace');
+    this.databaseView = this.databaseView ? this.databaseView[0].component : null;
+    this.instanceView = this.getRoleOrNull('Instance.Workspace');
+    this.instanceView = this.instanceView ? this.instanceView[0].component : null;
     this.globalModals = this.getRoleOrNull('Global.Modal');
     this.InstanceHeader = this.getComponentOrNull('InstanceHeader.Component');
     this.importRole = this.getRoleOrNull('Import.Modal');

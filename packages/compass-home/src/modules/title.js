@@ -1,4 +1,5 @@
-const electronApp = require('electron').remote.app;
+const electron = require('electron').remote;
+const electronApp = electron ? electron.app : {getName: 'not run within electron'};
 /**
  * Title action.
  */

@@ -81,8 +81,6 @@ rtssActivate(appRegistry);
 
 appRegistry.onActivated();
 
-console.log(appRegistry);
-
 // Since we are using HtmlWebpackPlugin WITHOUT a template,
 // we should create our own root node in the body element before rendering into it.
 const root = document.createElement('div');
