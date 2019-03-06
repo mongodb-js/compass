@@ -97,7 +97,7 @@
     "mocha": "^4.1.0",
     "mocha-webpack": "^1.0.0-rc.1",
     "mongodb-ace-autocompleter": "0.0.25",
-    "mongodb-ace-mode": "^0.0.2",
+    "mongodb-ace-mode": "^0.1.0",
     "mongodb-ace-theme": "^0.0.1",
     "mongodb-connection-model": "^12.0.2",
     "mongodb-data-service": "^12.4.13",
