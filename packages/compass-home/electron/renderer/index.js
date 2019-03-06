@@ -30,7 +30,7 @@ import { activate as queryBarActivate } from '@mongodb-js/compass-query-bar';
 import { activate as queryHistoryActivate } from '@mongodb-js/compass-query-history';
 import { activate as schemaValidationActivate } from '@mongodb-js/compass-schema-validation';
 import { activate as serverVersionActivate } from '@mongodb-js/compass-server-version';
-const rtssActivate = require('@mongodb-js/compass-serverstats').activate;
+import { activate as rtssActivate } from '@mongodb-js/compass-serverstats';
 import { activate as sidebarActivate } from '@mongodb-js/compass-sidebar';
 import { activate as sshTunnelStatusActivate } from '@mongodb-js/compass-ssh-tunnel-status';
 import { activate as statusActivate } from '@mongodb-js/compass-status';
@@ -51,9 +51,9 @@ global.hadronApp.instance = new MongoDBInstance();
 // Activate our plugin with the Hadron App Registry
 activate(appRegistry);
 appActivate(appRegistry);
-// authKerbActivate(appRegistry);
-// authLdapActivate(appRegistry);
-// authX509Activate(appRegistry);
+authKerbActivate(appRegistry);
+authLdapActivate(appRegistry);
+authX509Activate(appRegistry);
 aggregationsActivate(appRegistry);
 collectionActivate(appRegistry);
 collectionDDLActivate(appRegistry);
@@ -74,6 +74,7 @@ queryBarActivate(appRegistry);
 queryHistoryActivate(appRegistry);
 schemaValidationActivate(appRegistry);
 serverVersionActivate(appRegistry);
+sshTunnelStatusActivate(appRegistry);
 statusActivate(appRegistry);
 sidebarActivate(appRegistry);
 rtssActivate(appRegistry);
@@ -118,14 +119,14 @@ const connection = new Connection({
 const dataService = new DataService(connection);
 
 appRegistry.emit('data-service-initialized', dataService);
-dataService.connect((error, ds) => {
-  if (error) {
-    console.log(`ERROR OCCURRED ${error}`);
-  }
-  appRegistry.emit('data-service-connected', error, ds);
-  // appRegistry.emit('collection-changed', 'database.collection');
-  // appRegistry.emit('database-changed', 'database');
-});
+// dataService.connect((error, ds) => {
+//   if (error) {
+//     console.log(`ERROR OCCURRED ${error}`);
+//   }
+//   appRegistry.emit('data-service-connected', error, ds);
+//   appRegistry.emit('collection-changed', 'database.collection');
+//   appRegistry.emit('database-changed', 'database');
+// });
 
 if (module.hot) {
   /**
