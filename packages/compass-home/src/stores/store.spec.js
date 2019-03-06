@@ -2,7 +2,6 @@ import store from 'stores';
 import { reset } from 'modules/reset';
 
 describe('HomeStore [Store]', () => {
-
   beforeEach(() => {
     store.dispatch(reset());
   });

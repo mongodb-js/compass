@@ -71,17 +71,13 @@ class Home extends PureComponent {
 
   constructor(props) {
     super(props);
-    this.sideBar = this.getComponentOrNull('Sidebar.Component');
-    this.connectView = this.getRoleOrNull('Application.Connect');
-    this.connectView = this.connectView ? this.connectView[0].component : null;
+    this.SidebarComponent = this.getComponentOrNull('Sidebar.Component');
+    this.connectRole = this.getRoleOrNull('Application.Connect');
     this.SchemaActions = this.getActionOrNull('Schema.Actions');
 
-    this.collectionView = this.getRoleOrNull('Collection.Workspace');
-    this.collectionView = this.collectionView ? this.collectionView[0].component : null;
-    this.databaseView = this.getRoleOrNull('Database.Workspace');
-    this.databaseView = this.databaseView ? this.databaseView[0].component : null;
-    this.instanceView = this.getRoleOrNull('Instance.Workspace');
-    this.instanceView = this.instanceView ? this.instanceView[0].component : null;
+    this.collectionRole = this.getRoleOrNull('Collection.Workspace');
+    this.databaseRole = this.getRoleOrNull('Database.Workspace');
+    this.instanceRole = this.getRoleOrNull('Instance.Workspace');
     this.globalModals = this.getRoleOrNull('Global.Modal');
     this.InstanceHeader = this.getComponentOrNull('InstanceHeader.Component');
     this.importRole = this.getRoleOrNull('Import.Modal');
@@ -120,6 +116,30 @@ class Home extends PureComponent {
     }
   }
 
+  renderCollectionView() {
+    if (this.collectionRole) {
+      const Collection = this.collectionRole[0].component;
+      return (<Collection namespace={this.props.namespace}/>);
+    }
+    return null;
+  }
+
+  renderDatabaseView() {
+    if (this.databaseRole) {
+      const Database = this.databaseRole[0].component;
+      return (<Database />);
+    }
+    return null;
+  }
+
+  renderInstanceView() {
+    if (this.instanceRole) {
+      const Instance = this.instanceRole[0].component;
+      return (<Instance interval={1000}/>);
+    }
+    return null;
+  }
+
   renderContent() {
     if (this.props.uiStatus === UI_STATES.LOADING) {
       // Handled by the <Status> component
@@ -133,28 +153,29 @@ class Home extends PureComponent {
       );
     }
     const ns = toNS(this.props.namespace);
-    let view;
     if (ns.database === '') {
       // top of the side bar was clicked, render server stats
-      view = (<this.instanceView interval={1000}/>);
+      return this.renderInstanceView();
     } else if (ns.collection === '') {
       // a database was clicked, render collections table
-      view = (<this.databaseView />);
-    } else {
-      // show collection view
-      view = (<this.collectionView namespace={this.props.namespace} />);
+      return this.renderDatabaseView();
     }
-    return view;
+    // show collection view
+    return this.renderCollectionView();
   }
 
   renderConnect() {
-    return (
-      <div className="page-container" data-test-id="home-view">
-        <div className="page">
-          <this.connectView />
+    if (this.connectRole) {
+      const Connect = this.connectRole[0].component;
+      return (
+        <div className="page-container" data-test-id="home-view">
+          <div className="page">
+            <Connect />
+          </div>
         </div>
-      </div>
-    );
+      );
+    }
+    return null;
   }
 
   renderImportModal() {
@@ -162,6 +183,7 @@ class Home extends PureComponent {
       const Import = this.importRole[0].component;
       return (<Import />);
     }
+    return null;
   }
 
   renderExportModal() {
@@ -169,12 +191,14 @@ class Home extends PureComponent {
       const Export = this.exportRole[0].component;
       return (<Export />);
     }
+    return null;
   }
   renderFindInPage() {
     if (this.findInPageRole) {
       const Find = this.findInPageRole[0].component;
       return (<Find/>);
     }
+    return null;
   }
 
   renderExportToLangModal() {
@@ -182,6 +206,7 @@ class Home extends PureComponent {
       const ExportToLanguage = this.exportToLangRole[0].component;
       return (<ExportToLanguage />);
     }
+    return null;
   }
 
   renderGlobalModals() {
@@ -191,6 +216,7 @@ class Home extends PureComponent {
         return (<GlobalModal key={index} />);
       });
     }
+    return null;
   }
 
   renderInstanceHeader() {
@@ -199,6 +225,25 @@ class Home extends PureComponent {
         <this.InstanceHeader sidebarCollapsed={this.props.isCollapsed}/>
       );
     }
+    return null;
+  }
+
+  renderSidebar() {
+    if (this.SidebarComponent) {
+      return (
+        <this.SidebarComponent onCollapse={this.collapseSidebar.bind(this)}/>
+      );
+    }
+    return null;
+  }
+
+  renderQueryHistory() {
+    if (this.QueryHistoryComponent) {
+      return (
+        <this.QueryHistoryCompinent />
+      );
+    }
+    return null;
   }
 
   renderHome() {
@@ -209,8 +254,8 @@ class Home extends PureComponent {
           <div className={this.getContentClasses()}>
             {this.renderContent()}
           </div>
-          {<this.sideBar onCollapse={this.collapseSidebar.bind(this)}/>}
-          {/* <this.QueryHistoryComponent /> */}
+          {this.renderSidebar()}
+          {/* this.renderQueryHistory() */}
           {this.renderImportModal()}
           {this.renderExportModal()}
           {this.renderExportToLangModal()}
