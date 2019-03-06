@@ -76,7 +76,7 @@ schemaValidationActivate(appRegistry);
 serverVersionActivate(appRegistry);
 statusActivate(appRegistry);
 sidebarActivate(appRegistry);
-// rtssActivate(appRegistry);
+rtssActivate(appRegistry);
 
 appRegistry.onActivated();
 

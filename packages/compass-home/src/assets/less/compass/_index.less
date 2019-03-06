@@ -1,0 +1,113 @@
+// Dependencies
+@import "./_bootstrap.less";
+@import "./_caret.less";
+@import "./_buttons.less";
+@import "_react-select.less";
+@import "_zero-state.less";
+
+// TODO: Is this import broken?
+//@import (css) "../../../node_modules/highlight.js/styles/github.css";
+@import "_palette.less";
+@import "_fontawesome.less";
+@import "_fonts.less";
+@import "_mms-icons.less";
+
+// Configuration
+@import "_palette.less";
+@sidebar-width: 250px;
+
+// Tweaks to bootstrap
+@import "_message-background.less";
+
+/* Styles from previous internal-plugin app */
+@import '_modal-status-message.less';
+@import './_hadron-tooltip.less';
+@import '_info-sprinkle.less';
+@import '_option-selector.less';
+@import '_sortable-table.less';
+@import '_status-row.less';
+@import '_tab-nav-bar.less';
+
+html, body {
+  height: 100%;
+  width: 100%;
+  overflow: hidden;
+  font-family: "Akzidenz", "Helvetica Neue", Helvetica, Arial, sans-serif;
+  color: @gray1;
+  -webkit-font-smoothing: antialiased;
+}
+
+#application {
+
+  // TODO: These #statusbar should be moved into internal-packages/status/styles
+  #statusbar {
+    background-color: rgba(255, 255, 255, .5);
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 1020;
+
+    .progress {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      text-align: center;
+      height: 4px;
+      z-index: 2000;
+      border-radius: 0;
+      transition: height 500ms cubic-bezier(0.600, -0.280, 0.735, 0.045);
+
+      .progress-bar {
+        background-color: #6ba442;
+      }
+    }
+  }
+}
+
+* {
+  user-select: text;
+  -webkit-user-select: text;
+}
+// disable highlighting for most of the schema and document viewers
+.schema-field-list *, .document-list * {
+  user-select: none;
+  -webkit-user-select: none;
+}
+// re-enable field names and individual documents
+.schema-field-name > span, .document-property-body * {
+  user-select: text;
+  -webkit-user-select: text;
+}
+
+// make all help buttons consistent
+i.help,
+i.syntax-help {
+  .fa-icon;
+  margin: 0 5px;
+  cursor: pointer;
+  color: @gray5;
+
+  &:hover {
+    color: @alertOrange;
+  }
+  &:before {
+    content: @fa-var-info-circle;
+  }
+}
+
+.input-group.has-error {
+  i.syntax-help {
+    color: #a94442; // same color as bootstrap validation error borders
+  }
+}
+
+//action-bar, just a drop-shadow for now but should think about where to put these styles eventually
+.action-bar {
+  height: 32px;
+  background: @gray8;
+  border-bottom: 1px solid @gray7;
+  padding-top: 4px;
+  padding-left: 15px;
+}
