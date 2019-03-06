@@ -515,44 +515,30 @@ ace.define("ace/mode/javascript_highlight_rules",["require","exports","module","
       ],
     };
 
-    // var aggregation_field = [
-    //   {
-    //     //regex: /(\"\${1}(type+)\"/|]/,
-    //     onMatch: function (val, state, stack) {
-    //       // debugger;
-    //       this.next = val == "$" ? this.nextState : "";
-    //       if (val == "$" && stack.length) {
-    //         stack.unshift("start", state);
-    //       } else if (val == "\"" && stack.length) {
-    //         stack.shift();
-    //         this.next = stack.shift();
-    //         if (this.next.indexOf("quote") != -1 || this.next.indexOf("jsx") != -1)
-    //           return "paren.quasi.end";
-    //       }
-    //       return val == "$" ? "paren.lparen" : "paren.rparen";
-    //     },
-    //     nextState: "start"
-    //   }, {
-    //     token: "string.quasi.start",
-    //     regex: /\$/,
-    //     push: [{
-    //       token: "constant.language.escape",
-    //       regex: escapedRe
-    //     }, {
-    //       token: "paren.quasi.start",
-    //       regex: /\${/,
-    //       push: "start"
-    //     }, {
-    //       token: "string.quasi.end",
-    //       regex: /"/,
-    //       next: "pop"
-    //     }, {
-    //       defaultToken: "string.quasi"
-    //     }]
-    //   }
-    // ];
+    /**
+     * See README on `Field-level highlighting`
+     * Given:
+     *     type: "$type"
+     * 
+     */
+    this.$rules.no_regex.unshift({
+      regex: /(\")(\$[a-zA-Z\d\_\.]+)(\")/,
+      token: [
+        "string.quasi.start", 
+        "variable.parameter.language",
+        "string.quasi.end"
+      ],
+    });
 
-    // // this.$rules.no_regex.unshift.apply(this.$rules.no_regex, aggregation_field);
+    // TODO (@imlucas) Differentiate between local variable usage `$$<ref>`.
+    // this.$rules.no_regex.unshift({
+    //   regex: /(\")(\$[a-zA-Z\d\_\.]+)(\")/,
+    //   token: [
+    //     "string.quasi.start",
+    //     "variable.parameter.other",
+    //     "string.quasi.end"
+    //   ],
+    // });
 
     if (!options || !options.noES6) {
       this.$rules.no_regex.unshift({
