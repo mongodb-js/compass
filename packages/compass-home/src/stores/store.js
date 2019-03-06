@@ -40,11 +40,13 @@ store.onActivated = (appRegistry) => {
     store.dispatch(changeInstanceId(connection.instance_id));
 
     const StatusAction = appRegistry.getAction('Status.Actions');
-    StatusAction.configure({
-      animation: true,
-      message: 'Loading navigation',
-      visible: true
-    });
+    if (StatusAction) {
+      StatusAction.configure({
+        animation: true,
+        message: 'Loading navigation',
+        visible: true
+      });
+    }
 
     store.dispatch(toggleIsConnected(true));
     store.dispatch(toggleIsAtlas(/mongodb\.net/i.test(connection.hostname)));

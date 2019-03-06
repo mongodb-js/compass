@@ -54,11 +54,11 @@ global.hadronApp = hadronApp;
 global.hadronApp.appRegistry = appRegistry;
 global.hadronApp.instance = new MongoDBInstance();
 
+// aggregationsActivate(appRegistry);
 // appActivate(appRegistry);
 // authKerbActivate(appRegistry);
 // authLdapActivate(appRegistry);
 // authX509Activate(appRegistry);
-// aggregationsActivate(appRegistry);
 // collectionActivate(appRegistry);
 // collectionDDLActivate(appRegistry);
 // collectionStatsActivate(appRegistry);

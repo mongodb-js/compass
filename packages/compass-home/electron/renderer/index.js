@@ -50,11 +50,11 @@ global.hadronApp.instance = new MongoDBInstance();
 
 // Activate our plugin with the Hadron App Registry
 activate(appRegistry);
+aggregationsActivate(appRegistry);
 appActivate(appRegistry);
 authKerbActivate(appRegistry);
 authLdapActivate(appRegistry);
 authX509Activate(appRegistry);
-aggregationsActivate(appRegistry);
 collectionActivate(appRegistry);
 collectionDDLActivate(appRegistry);
 collectionStatsActivate(appRegistry);
