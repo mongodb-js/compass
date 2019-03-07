@@ -97,8 +97,6 @@ class Home extends PureComponent {
       styles['home-view-page-content'],
       collapsed
     );
-    // return 'content' +
-    //   (this.props.isCollapsed ? ' content-sidebar-collapsed' : ' content-sidebar-expanded');
   }
 
   getErrorMessage() {
@@ -168,27 +166,6 @@ class Home extends PureComponent {
     }
     // show collection view
     return this.renderCollectionView();
-  }
-
-  renderConnect() {
-    if (this.connectRole) {
-      const Connect = this.connectRole[0].component;
-      // return (
-      //   <div className="page-container" data-test-id="home-view">
-      //     <div className="page">
-      //       <Connect />
-      //     </div>
-      //   </div>
-      // );
-      return (
-        <div className={classnames(styles['home-view'])} data-test-id="home-view">
-          <div className={classnames(styles['home-view-page'])}>
-            <Connect />
-          </div>
-        </div>
-      );
-    }
-    return null;
   }
 
   renderImportModal() {
@@ -278,6 +255,21 @@ class Home extends PureComponent {
       </div>
     );
   }
+
+  renderConnect() {
+    if (this.connectRole) {
+      const Connect = this.connectRole[0].component;
+      return (
+        <div className={classnames(styles['home-view'])} data-test-id="home-view">
+          <div className={classnames(styles['home-view-page'])}>
+            <Connect />
+          </div>
+        </div>
+      );
+    }
+    return null;
+  }
+
 
   render() {
     if (this.props.isConnected) {
