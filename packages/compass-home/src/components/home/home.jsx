@@ -64,7 +64,6 @@ class Home extends PureComponent {
   }
   getActionOrNull(name) {
     const action = global.hadronApp.appRegistry.getAction(name);
-    if (!action) console.log(`${name} is NULL`);
     return action ? action : null;
   }
 

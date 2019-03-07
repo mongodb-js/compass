@@ -22,8 +22,8 @@ require('jsdom-global')('', {
 // const authLdapActivate = require('@mongodb-js/compass-auth-ldap').activate;
 // const authX509Activate = require('@mongodb-js/compass-auth-x509').activate;
 // const collectionActivate = require('@mongodb-js/compass-collection').activate;
-// const collectionStatsActivate = require('@mongodb-js/compass-collection-stats').activate;
 // const collectionDDLActivate = require('@mongodb-js/compass-collections-ddl').activate;
+// const collectionStatsActivate = require('@mongodb-js/compass-collection-stats').activate;
 // const connectActivate = require('@mongodb-js/compass-connect').activate;
 // const crudActivate = require('@mongodb-js/compass-crud').activate;
 // const databaseActivate = require('@mongodb-js/compass-database').activate;
