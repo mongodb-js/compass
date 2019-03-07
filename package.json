@@ -288,7 +288,7 @@
     "@mongodb-js/compass-instance": "^1.2.0",
     "@mongodb-js/compass-instance-header": "^0.0.3",
     "@mongodb-js/compass-license": "^1.2.0",
-    "@mongodb-js/compass-metrics": "^0.0.12",
+    "@mongodb-js/compass-metrics": "^0.0.14",
     "@mongodb-js/compass-plugin-info": "^1.2.0",
     "@mongodb-js/compass-query-bar": "^2.0.8",
     "@mongodb-js/compass-query-history": "^3.2.3",
