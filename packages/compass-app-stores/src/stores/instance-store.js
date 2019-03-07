@@ -16,7 +16,7 @@ store.handleError = (model, resp, options) => {
   }
 
   const StatusAction = global.hadronApp.appRegistry.getAction('Status.Actions');
-  StatusAction.hide();
+  if (StatusAction) StatusAction.hide();
   const state = {
     errorMessage: err,
     dataService: store.getState().dataService,
@@ -63,15 +63,24 @@ store.onActivated = (appRegistry) => {
   appRegistry.on('data-service-connected', (err, ds) => {
     if (!err) {
       store.dispatch(changeDataService(ds));
+    } else {
+      store.dispatch(changeErrorMessage(err.message));
     }
     // Was previously onFirstFetch action, which was triggered from data-service-connected in the home plugin
     const StatusAction = appRegistry.getAction('Status.Actions');
-    if (StatusAction) {
-      StatusAction.hide();
-    }
-
+    if (StatusAction) StatusAction.hide();
     store.dispatch(changeInstance(global.hadronApp.instance));
-    store.refreshInstance();
+
+    if (!err) {
+      store.refreshInstance();
+    } else {
+      const state = {
+        dataService: null,
+        errorMessage: err.message,
+        instance: global.hadronApp.instance
+      };
+      global.hadronApp.appRegistry.emit('instance-refreshed', state);
+    }
   });
 
   appRegistry.on('refresh-data', () => {

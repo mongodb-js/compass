@@ -65,6 +65,37 @@ describe('InstanceStore [Store]', () => {
         expect(emitSpy.args[1][1].instance).to.deep.equal('new instance');
       });
     });
+    context('when data service connects with error', () => {
+      beforeEach(() => {
+        expect(store.getState().dataService).to.deep.equal(null); // initial state
+        expect(store.getState().instance).to.deep.equal(INITIAL_STATE);
+        const instance = 'instance';
+        global.hadronApp.instance = instance;
+        global.hadronApp.appRegistry.emit(
+          'data-service-connected', {message: 'test err msg'}, null
+        );
+      });
+
+      it('dispatches the change data service action', () => {
+        expect(store.getState().dataService).to.equal(null);
+      });
+      it('sets initial instance to global.hadronApp.instance', () => {
+        expect(store.getState().instance).to.equal('instance');
+      });
+      it('sets errorMessage', () => {
+        expect(store.getState().errorMessage).to.equal('test err msg');
+      });
+      it('calls StatusAction hide', () => {
+        expect(hideSpy.called).to.equal(true);
+      });
+      it('emits instance-changed event', () => {
+        expect(emitSpy.callCount).to.equal(2);
+        expect(emitSpy.args[1][0]).to.equal('instance-refreshed');
+        expect(emitSpy.args[1][1].instance).to.deep.equal('instance');
+        expect(emitSpy.args[1][1].errorMessage).to.deep.equal('test err msg');
+        expect(emitSpy.args[1][1].dataService).to.deep.equal(null);
+      });
+    });
     context('on refresh data', () => {
       beforeEach(() => {
         expect(store.getState().instance).to.deep.equal(INITIAL_STATE);
