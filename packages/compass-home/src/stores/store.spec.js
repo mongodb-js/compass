@@ -3,6 +3,7 @@ import { reset } from 'modules/reset';
 import AppRegistry from 'hadron-app-registry';
 import { changeInstanceId } from 'modules/instance-id';
 import { activate } from '@mongodb-js/compass-app-stores';
+import UI_STATES from 'constants/ui-states';
 
 describe('HomeStore [Store]', () => {
   beforeEach(() => {
@@ -26,7 +27,7 @@ describe('HomeStore [Store]', () => {
       isConnected: false,
       namespace: '',
       title: '',
-      uiStatus: 'INITIAL'
+      uiStatus: UI_STATES.INITIAL
     };
     beforeEach(() => {
       hold = global.hadronApp.appRegistry;
@@ -57,7 +58,7 @@ describe('HomeStore [Store]', () => {
         expect(store.getState().errorMessage).to.equal('err');
       });
       it('dispatches the change ui status action', () => {
-        expect(store.getState().uiStatus).to.equal('ERROR');
+        expect(store.getState().uiStatus).to.equal(UI_STATES.ERROR);
       });
     });
     context('on instance refresh without error', () => {
@@ -72,7 +73,7 @@ describe('HomeStore [Store]', () => {
         expect(store.getState().errorMessage).to.equal('');
       });
       it('dispatches the change ui status action', () => {
-        expect(store.getState().uiStatus).to.equal('COMPLETE');
+        expect(store.getState().uiStatus).to.equal(UI_STATES.COMPLETE);
       });
       it('dispatches the change title action', () => {
         expect(store.getState().title).to.equal(' - test');
@@ -89,7 +90,7 @@ describe('HomeStore [Store]', () => {
         expect(store.getState().errorMessage).to.equal('err');
       });
       it('dispatches the change ui status action', () => {
-        expect(store.getState().uiStatus).to.equal('ERROR');
+        expect(store.getState().uiStatus).to.equal(UI_STATES.ERROR);
       });
     });
     context('on data-service-connected without error', () => {
@@ -109,7 +110,7 @@ describe('HomeStore [Store]', () => {
         });
       });
       it('dispatches the change ui status action', () => {
-        expect(store.getState().uiStatus).to.equal('COMPLETE');
+        expect(store.getState().uiStatus).to.equal(UI_STATES.COMPLETE);
       });
       it('dispatches the isAtlas action', () => {
         expect(store.getState().isAtlas).to.equal(true);
@@ -149,7 +150,7 @@ describe('HomeStore [Store]', () => {
           title: ' - test_id',
           isConnected: true,
           isAtlas: true,
-          uiStatus: 'COMPLETE',
+          uiStatus: UI_STATES.COMPLETE,
           authentication: 'test_auth',
           ssl: 'test_ssl',
           sshTunnel: 'test_ssh_tunnel'
@@ -173,7 +174,7 @@ describe('HomeStore [Store]', () => {
           title: '',
           isConnected: false,
           isAtlas: false,
-          uiStatus: 'ERROR',
+          uiStatus: UI_STATES.ERROR,
           authentication: 'NONE',
           ssl: 'NONE',
           sshTunnel: 'NONE'
