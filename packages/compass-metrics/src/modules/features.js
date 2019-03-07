@@ -265,6 +265,16 @@ const ExportResource = BaseResource.extend({
   }
 });
 
+// Tour resource.
+const TourResource = BaseResource.extend({
+  id: 'Tour',
+  eventTrackers: ['stitch'],
+  closed: function(metadata, callback) {
+    this._send_event(metadata, callback);
+  }
+});
+
+featureResources.Tour = new TourResource();
 featureResources['Geo Data'] = new GeoDataResource();
 featureResources['Auto Update'] = new AutoUpdateResource();
 featureResources.Collection = new CollectionResource();

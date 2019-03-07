@@ -312,6 +312,15 @@ const RULES = [
     })
   },
   {
+    registryEvent: 'tour-closed',
+    resource: 'Tour',
+    action: 'closed',
+    condition: () => true,
+    metadata: (title) => ({
+      tab: title
+    })
+  },
+  {
     store: 'License.Store',
     resource: 'License',
     action: 'viewed',
