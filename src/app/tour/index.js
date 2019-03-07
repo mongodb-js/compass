@@ -238,6 +238,8 @@ var TourView = View.extend({
     this.showHidePreviousNextButtons();
   },
   tourRemove: function() {
+    const feature = this.features[this.tourCount];
+    global.hadronApp.appRegistry.emit('tour-closed', feature.title);
     this.trigger('close');
     this.body.removeEventListener('keydown', this.onKeyPress);
     this.remove();
