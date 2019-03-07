@@ -14,6 +14,7 @@ class DropColumn extends PureComponent {
   static propTypes = {
     indexName: PropTypes.string.isRequired,
     isReadonly: PropTypes.bool.isRequired,
+    isWritable: PropTypes.bool.isRequired,
     toggleIsVisible: PropTypes.func.isRequired,
     changeName: PropTypes.func.isRequired
   };
@@ -31,6 +32,15 @@ class DropColumn extends PureComponent {
   }
 
   /**
+   * Is the index droppable?
+   *
+   * @returns {Boolean} If the index can be dropped.
+   */
+  isDroppable() {
+    return this.props.isWritable && this.props.indexName !== '_id_' && !this.props.isReadonly;
+  }
+
+  /**
    * Render the drop column.
    *
    * @returns {React.Component} The drop column.
@@ -38,7 +48,7 @@ class DropColumn extends PureComponent {
   render() {
     return (
       <td className={classnames(styles['drop-column'])}>
-        {this.props.indexName !== '_id_' && !this.props.isReadonly ?
+        {this.isDroppable() ?
           <button
             className="drop-btn btn btn-default btn-sm"
             type="button"

@@ -42,7 +42,8 @@ class IndexComponent extends PureComponent {
         <PropertyColumn index={this.props.index} openLink={this.props.openLink}/>
         <DropColumn
           indexName={this.props.index.name}
-          isReadonly={this.props.isReadonly && !this.props.isWritable}
+          isReadonly={this.props.isReadonly}
+          isWritable={this.props.isWritable}
           toggleIsVisible={this.props.toggleIsVisible}
           changeName={this.props.changeName} />
       </tr>
