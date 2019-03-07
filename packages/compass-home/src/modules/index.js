@@ -87,13 +87,13 @@ export const dataServiceDisconnected = (appRegistry) => {
     if (state.uiStatus === UI_STATES.COMPLETE || state.uiStatus === UI_STATES.INITIAL) {
       const StatusAction = appRegistry.getAction('Status.Actions');
       dispatch(reset());
-      StatusAction.done();
+      if (StatusAction) StatusAction.done();
     } else {
       const timer = setInterval(() => {
         if (state.uiStatus === UI_STATES.COMPLETE) {
           const StatusAction = appRegistry.getAction('Status.Actions');
           dispatch(reset());
-          StatusAction.done();
+          if (StatusAction) StatusAction.done();
           clearInterval(timer);
         }
       }, 500);
