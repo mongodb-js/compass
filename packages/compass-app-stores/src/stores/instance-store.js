@@ -39,11 +39,12 @@ store.refreshInstance = () => {
       error: store.handleError,
       success: function(instance) {
         store.dispatch(changeInstance(instance));
+        store.dispatch(changeErrorMessage(''));
         if (StatusAction) StatusAction.hide();
         /* Emit here because ampersand changes don't trigger rerenders on their own */
         const state = {
           dataService: store.getState().dataService,
-          errorMessage: store.getState().errorMessage,
+          errorMessage: '',
           instance: instance
         };
         global.hadronApp.appRegistry.emit('instance-refreshed', state);
