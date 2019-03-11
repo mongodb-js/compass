@@ -6,7 +6,12 @@ const PREFIX = 'collection';
 /**
  * Namespace selected action name.
  */
-export const NAMESPACE_SELECTED = `${PREFIX}/tabs/NAMESPACE_SELECTED`;
+export const SELECT_NAMESPACE = `${PREFIX}/tabs/SELECT_NAMESPACE`;
+
+/**
+ * Create tab action name.
+ */
+export const CREATE_TAB = `${PREFIX}/tabs/CREATE_TAB`;
 
 /**
  * The initial state.
@@ -21,7 +26,7 @@ export const INITIAL_STATE = [];
  *
  * @returns {Object} The new state.
  */
-const doNamespaceSelected = (state, action) => {
+const doSelectNamespace = (state, action) => {
   if (state.length === 0) {
     // If we don't have any tabs open, then open a new tab with the
     // namespace and set it to the active one.
@@ -39,7 +44,7 @@ const doNamespaceSelected = (state, action) => {
     if (tab.isActive) {
       newState.push({
         namespace: action.namespace,
-        isActive: tab.isActive,
+        isActive: true,
         isReadonly: action.isReadonly
       });
     } else {
@@ -50,10 +55,31 @@ const doNamespaceSelected = (state, action) => {
 };
 
 /**
+ * Handle create tab actions.
+ *
+ * @param {Object} state - The state.
+ * @param {Object} action - The action.
+ *
+ * @returns {Object} The new state.
+ */
+const doCreateTab = (state, action) => {
+  const newState = state.map((tab) => {
+    return { ...tab, isActive: false };
+  });
+  newState.push({
+    namespace: action.namespace,
+    isActive: false,
+    isReadonly: action.isReadonly
+  });
+  return newState;
+};
+
+/**
  * The action to state modifier mappings.
  */
 const MAPPINGS = {
-  [NAMESPACE_SELECTED]: doNamespaceSelected
+  [SELECT_NAMESPACE]: doSelectNamespace,
+  [CREATE_TAB]: doCreateTab
 };
 
 /**
@@ -70,6 +96,20 @@ export default function reducer(state = INITIAL_STATE, action) {
 }
 
 /**
+ * Action creator for create tab.
+ *
+ * @param {String} namespace - The namespace.
+ * @param {Boolean} isReadonly - Is the collection readonly?
+ *
+ * @returns {Object} The create tab action.
+ */
+export const createTab = (namespace, isReadonly) => ({
+  type: CREATE_TAB,
+  namespace: namespace,
+  isReadonly: isReadonly
+});
+
+/**
  * Action creator for namespace selected.
  *
  * @param {String} namespace - The namespace.
@@ -77,8 +117,8 @@ export default function reducer(state = INITIAL_STATE, action) {
  *
  * @returns {Object} The namespace selected action.
  */
-export const namespaceSelected = (namespace, isReadonly) => ({
-  type: NAMESPACE_SELECTED,
+export const selectNamespace = (namespace, isReadonly) => ({
+  type: SELECT_NAMESPACE,
   namespace: namespace,
   isReadonly: isReadonly
 });

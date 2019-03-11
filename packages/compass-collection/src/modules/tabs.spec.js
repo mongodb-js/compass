@@ -1,13 +1,25 @@
 import reducer, {
-  namespaceSelected,
-  NAMESPACE_SELECTED
+  selectNamespace,
+  createTab,
+  SELECT_NAMESPACE,
+  CREATE_TAB
 } from 'modules/tabs';
 
 describe('tabs module', () => {
-  describe('#namespaceSelected', () => {
-    it('returns the NAMESPACE_SELECTED action', () => {
-      expect(namespaceSelected('db.coll', true)).to.deep.equal({
-        type: NAMESPACE_SELECTED,
+  describe('#selectNamespace', () => {
+    it('returns the SELECT_NAMESPACE action', () => {
+      expect(selectNamespace('db.coll', true)).to.deep.equal({
+        type: SELECT_NAMESPACE,
+        namespace: 'db.coll',
+        isReadonly: true
+      });
+    });
+  });
+
+  describe('#createTab', () => {
+    it('returns the CREATE_TAB action', () => {
+      expect(createTab('db.coll', true)).to.deep.equal({
+        type: CREATE_TAB,
         namespace: 'db.coll',
         isReadonly: true
       });
@@ -27,7 +39,7 @@ describe('tabs module', () => {
         const namespace = 'db.coll';
 
         before(() => {
-          state = reducer(undefined, namespaceSelected(namespace, true));
+          state = reducer(undefined, selectNamespace(namespace, true));
         });
 
         it('creates a new tab with the namespace', () => {
@@ -41,6 +53,10 @@ describe('tabs module', () => {
         it('sets the tab readonly value', () => {
           expect(state[0].isReadonly).to.equal(true);
         });
+
+        it('does not add additional tabs', () => {
+          expect(state.length).to.equal(1);
+        });
       });
 
       context('when one tab exists', () => {
@@ -51,7 +67,7 @@ describe('tabs module', () => {
         ];
 
         before(() => {
-          state = reducer(existingState, namespaceSelected(namespace, true));
+          state = reducer(existingState, selectNamespace(namespace, true));
         });
 
         it('sets the new namespace on the tab', () => {
@@ -64,6 +80,124 @@ describe('tabs module', () => {
 
         it('sets the tab readonly value', () => {
           expect(state[0].isReadonly).to.equal(true);
+        });
+
+        it('does not add additional tabs', () => {
+          expect(state.length).to.equal(1);
+        });
+      });
+
+      context('when multiple tabs exist', () => {
+        let state;
+        const namespace = 'db.coll';
+        const existingState = [
+          { namespace: 'db.coll1', isActive: false, isReadonly: false },
+          { namespace: 'db.coll2', isActive: true, isReadonly: false },
+          { namespace: 'db.coll3', isActive: false, isReadonly: false }
+        ];
+
+        before(() => {
+          state = reducer(existingState, selectNamespace(namespace, true));
+        });
+
+        it('sets the new namespace on the tab', () => {
+          expect(state[1].namespace).to.equal(namespace);
+        });
+
+        it('keeps the tab as active', () => {
+          expect(state[1].isActive).to.equal(true);
+        });
+
+        it('sets the tab readonly value', () => {
+          expect(state[1].isReadonly).to.equal(true);
+        });
+
+        it('does not add additional tabs', () => {
+          expect(state.length).to.equal(3);
+        });
+      });
+    });
+
+    context('when the action is create tab', () => {
+      context('when no tabs exist', () => {
+        let state;
+        const namespace = 'db.coll';
+
+        before(() => {
+          state = reducer(undefined, createTab(namespace, true));
+        });
+
+        it('creates a new tab with the namespace', () => {
+          expect(state[0].namespace).to.equal(namespace);
+        });
+
+        it('does not set the tab to active', () => {
+          expect(state[0].isActive).to.equal(false);
+        });
+
+        it('sets the tab readonly value', () => {
+          expect(state[0].isReadonly).to.equal(true);
+        });
+
+        it('adds additional tabs', () => {
+          expect(state.length).to.equal(1);
+        });
+      });
+
+      context('when one tab exists', () => {
+        let state;
+        const namespace = 'db.coll';
+        const existingState = [
+          { namespace: 'db.coll1', isActive: true, isReadonly: false }
+        ];
+
+        before(() => {
+          state = reducer(existingState, createTab(namespace, true));
+        });
+
+        it('sets the new namespace on the new tab', () => {
+          expect(state[1].namespace).to.equal(namespace);
+        });
+
+        it('does not set the new tab as active', () => {
+          expect(state[1].isActive).to.equal(false);
+        });
+
+        it('sets the tab readonly value', () => {
+          expect(state[1].isReadonly).to.equal(true);
+        });
+
+        it('adds additional tabs', () => {
+          expect(state.length).to.equal(2);
+        });
+      });
+
+      context('when multiple tabs exist', () => {
+        let state;
+        const namespace = 'db.coll';
+        const existingState = [
+          { namespace: 'db.coll1', isActive: true, isReadonly: false },
+          { namespace: 'db.coll2', isActive: false, isReadonly: false }
+        ];
+
+        before(() => {
+          state = reducer(existingState, createTab(namespace, true));
+        });
+
+        it('sets the new namespace on the new tab', () => {
+          expect(state[2].namespace).to.equal(namespace);
+        });
+
+        it('does not set the new tab as active', () => {
+          expect(state[2].isActive).to.equal(false);
+        });
+
+        it('sets the tab readonly value', () => {
+          expect(state[2].isReadonly).to.equal(true);
+        });
+
+        it('adds additional tabs', () => {
+          expect(state.length).to.equal(3);
         });
       });
     });
