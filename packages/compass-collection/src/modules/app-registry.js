@@ -1,7 +1,7 @@
 /**
  * The prefix.
  */
-const PREFIX = 'aggregations/app-registry';
+const PREFIX = 'collection/app-registry';
 
 /**
  * App registry activated.
