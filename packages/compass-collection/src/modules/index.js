@@ -1,6 +1,9 @@
 import { combineReducers } from 'redux';
 
-/*
+/**
+ * appRegistry,
+ * dataService,
+ * serverVersion,
  * tabs: [
  *   {
  *     namespace: 'db.coll',
