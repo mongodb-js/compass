@@ -22,9 +22,9 @@ export const INITIAL_STATE = [];
  * @returns {Object} The new state.
  */
 const doNamespaceSelected = (state, action) => {
-  // If we don't have any tabs open, then open a new tab with the
-  // namespace and select it.
   if (state.length === 0) {
+    // If we don't have any tabs open, then open a new tab with the
+    // namespace and set it to the active one.
     return [
       {
         namespace: action.namespace,
@@ -33,6 +33,20 @@ const doNamespaceSelected = (state, action) => {
       }
     ];
   }
+  // If we have tabs open, then switch the currently active tab
+  // to the new namespace.
+  return state.reduce((newState, tab) => {
+    if (tab.isActive) {
+      newState.push({
+        namespace: action.namespace,
+        isActive: tab.isActive,
+        isReadonly: action.isReadonly
+      });
+    } else {
+      newState.push({ ...tab });
+    }
+    return newState;
+  }, []);
 };
 
 /**

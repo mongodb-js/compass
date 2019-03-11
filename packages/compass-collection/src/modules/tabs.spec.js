@@ -42,6 +42,30 @@ describe('tabs module', () => {
           expect(state[0].isReadonly).to.equal(true);
         });
       });
+
+      context('when one tab exists', () => {
+        let state;
+        const namespace = 'db.coll';
+        const existingState = [
+          { namespace: 'db.coll1', isActive: true, isReadonly: false }
+        ];
+
+        before(() => {
+          state = reducer(existingState, namespaceSelected(namespace, true));
+        });
+
+        it('sets the new namespace on the tab', () => {
+          expect(state[0].namespace).to.equal(namespace);
+        });
+
+        it('keeps the tab as active', () => {
+          expect(state[0].isActive).to.equal(true);
+        });
+
+        it('sets the tab readonly value', () => {
+          expect(state[0].isReadonly).to.equal(true);
+        });
+      });
     });
   });
 });
