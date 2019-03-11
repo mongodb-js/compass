@@ -1,7 +1,9 @@
 import reducer, {
   selectNamespace,
   createTab,
+  selectTab,
   SELECT_NAMESPACE,
+  SELECT_TAB,
   CREATE_TAB
 } from 'modules/tabs';
 
@@ -22,6 +24,15 @@ describe('tabs module', () => {
         type: CREATE_TAB,
         namespace: 'db.coll',
         isReadonly: true
+      });
+    });
+  });
+
+  describe('#selectTab', () => {
+    it('returns the SELECT_TAB action', () => {
+      expect(selectTab(1)).to.deep.equal({
+        type: SELECT_TAB,
+        index: 1
       });
     });
   });
@@ -197,6 +208,53 @@ describe('tabs module', () => {
         });
 
         it('adds additional tabs', () => {
+          expect(state.length).to.equal(3);
+        });
+      });
+    });
+
+    context('when the action is select tab', () => {
+      context('when one tab exists', () => {
+        let state;
+        const existingState = [
+          { namespace: 'db.coll1', isActive: true, isReadonly: false }
+        ];
+
+        before(() => {
+          state = reducer(existingState, selectTab(0));
+        });
+
+        it('does not change the active state', () => {
+          expect(state[0].isActive).to.equal(true);
+        });
+
+        it('does not add additional tabs', () => {
+          expect(state.length).to.equal(1);
+        });
+      });
+
+      context('when multiple tabs exist', () => {
+        let state;
+        const existingState = [
+          { namespace: 'db.coll1', isActive: true, isReadonly: false },
+          { namespace: 'db.coll1', isActive: false, isReadonly: false },
+          { namespace: 'db.coll1', isActive: false, isReadonly: false }
+        ];
+
+        before(() => {
+          state = reducer(existingState, selectTab(1));
+        });
+
+        it('it activates the selected tab', () => {
+          expect(state[1].isActive).to.equal(true);
+        });
+
+        it('deactivates the other tabs', () => {
+          expect(state[0].isActive).to.equal(false);
+          expect(state[2].isActive).to.equal(false);
+        });
+
+        it('does not add additional tabs', () => {
           expect(state.length).to.equal(3);
         });
       });

@@ -14,6 +14,11 @@ export const SELECT_NAMESPACE = `${PREFIX}/tabs/SELECT_NAMESPACE`;
 export const CREATE_TAB = `${PREFIX}/tabs/CREATE_TAB`;
 
 /**
+ * Select tab action name.
+ */
+export const SELECT_TAB = `${PREFIX}/tabs/SELECT_TAB`;
+
+/**
  * The initial state.
  */
 export const INITIAL_STATE = [];
@@ -75,11 +80,26 @@ const doCreateTab = (state, action) => {
 };
 
 /**
+ * Handle select tab actions.
+ *
+ * @param {Object} state - The state.
+ * @param {Object} action - The action.
+ *
+ * @returns {Object} The new state.
+ */
+const doSelectTab = (state, action) => {
+  return state.map((tab, i) => {
+    return { ...tab, isActive: (action.index === i) ? true : false };
+  });
+};
+
+/**
  * The action to state modifier mappings.
  */
 const MAPPINGS = {
   [SELECT_NAMESPACE]: doSelectNamespace,
-  [CREATE_TAB]: doCreateTab
+  [CREATE_TAB]: doCreateTab,
+  [SELECT_TAB]: doSelectTab
 };
 
 /**
@@ -121,4 +141,16 @@ export const selectNamespace = (namespace, isReadonly) => ({
   type: SELECT_NAMESPACE,
   namespace: namespace,
   isReadonly: isReadonly
+});
+
+/**
+ * Action creator for selecting tabs.
+ *
+ * @param {Number} index - The tab index.
+ *
+ * @returns {Object} The action.
+ */
+export const selectTab = (index) => ({
+  type: SELECT_TAB,
+  index: index
 });
