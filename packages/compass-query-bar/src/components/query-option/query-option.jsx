@@ -2,7 +2,6 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import classnames from 'classnames';
 import { InfoSprinkle } from 'hadron-react-components';
-import { shell } from 'electron';
 import OptionEditor from 'components/option-editor';
 
 import styles from './query-option.less';
@@ -60,6 +59,18 @@ class QueryOption extends Component {
     );
   }
 
+  _openLink(href) {
+    const userAgent = navigator.userAgent.toLowerCase();
+
+    if (userAgent.indexOf('electron') > -1) {
+      const { shell } = require('electron');
+
+      shell.openExternal(href);
+    } else {
+      window.open(href, '_new');
+    }
+  }
+
   _renderAutoCompleteInput() {
     return (
       <OptionEditor
@@ -113,7 +124,7 @@ class QueryOption extends Component {
         <div
           className={classnames(styles.label)}
           data-test-id="query-bar-option-label">
-          <InfoSprinkle helpLink={link} onClickHandler={shell.openExternal} />
+          <InfoSprinkle helpLink={link} onClickHandler={this._openLink} />
           {label}
         </div>
         {input}
