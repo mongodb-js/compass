@@ -1,7 +1,16 @@
 import { combineReducers } from 'redux';
-import appRegistry from './app-registry';
-import dataService from './data-service';
-import serverVersion from './server-version';
+import appRegistry, {
+  INITIAL_STATE as APP_REGISTRY_INITIAL_STATE
+} from './app-registry';
+import dataService, {
+  INITIAL_STATE as DATA_SERVICE_INITIAL_STATE
+} from './data-service';
+import serverVersion, {
+  INITIAL_STATE as SERVER_VERSION_INITIAL_STATE
+} from './server-version';
+import tabs, {
+  INITIAL_STATE as TABS_INITIAL_STATE
+} from './tabs';
 
 /**
  * Reset action constant.
@@ -11,7 +20,12 @@ export const RESET = 'collection/reset';
 /**
  * The initial state.
  */
-const INITIAL_STATE = {};
+export const INITIAL_STATE = {
+  appRegistry: APP_REGISTRY_INITIAL_STATE,
+  dataService: DATA_SERVICE_INITIAL_STATE,
+  serverVersion: SERVER_VERSION_INITIAL_STATE,
+  tabs: TABS_INITIAL_STATE
+};
 
 /**
  * Handle the reset.
@@ -36,17 +50,16 @@ const MAPPINGS = {
  * tabs: [
  *   {
  *     namespace: 'db.coll',
- *     isSelected: true,
- *     isReadonly: false,
- *     isCapped: false,
- *     activeTabIndex: 3,
+ *     isActive: true,
+ *     isReadonly: false
  *   }
  * ]
  */
 const appReducer = combineReducers({
   appRegistry,
   dataService,
-  serverVersion
+  serverVersion,
+  tabs
 });
 
 /**
