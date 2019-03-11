@@ -1,0 +1,154 @@
+@import (reference) "~less/compass/_theme.less";
+
+.explain-stage {
+  pointer-events: none;
+  width: 276px;
+  background: #fff;
+  border: 1px solid @gray7;
+  margin: 0 auto;
+  position: absolute;
+  border-radius: 3px;
+  padding: 18px 12px 12px;
+  box-shadow: 0px 2px 0px rgba(0,0,0,0.06);
+
+  &:hover {
+    box-shadow: 0px 4px 2px rgba(0,0,0,0.12);
+  }
+
+  .stage-header {
+    text-transform: uppercase;
+    font-weight: bold;
+    font-size: 14px;
+    margin: 0;
+    color: @gray1;
+  }
+
+  &-is-shard {
+    background: @gray8;
+    color: @gray4;
+    border: none;
+    box-shadow: none;
+    .stage-header {
+      color: @gray4;
+      text-align: center;
+    }
+  }
+
+  ul {
+    font-size: 12px;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  ul li span.key {
+    color: @gray4;
+  }
+
+  ul li span.value {
+    color: @gray1;
+    font-weight: bold;
+  }
+
+  ul li span.key:after {
+    content: ": ";
+  }
+
+  ul.core {
+    margin-bottom: 12px;
+  }
+
+  ul.core li {
+    display: inline-block;
+    margin-top: 9px;
+    line-height: 1;
+  }
+
+  ul.core li.nReturned .value {
+    color: @pw;
+    background: @chart1;
+    font-weight: bold;
+    padding: 2px 6px;
+    font-size: 12px;
+    line-height: 1;
+    border-radius: 20px;
+  }
+
+  ul.core li.exec-time {
+    float: right;
+    margin-right: 18px;
+  }
+
+  ul.highlighted li {
+    border-top: 1px solid @gray7;
+    padding: 11px 0;
+  }
+
+  .clock {
+    height: 60px;
+    width: 60px;
+    position: absolute;
+    top: 18px;
+    right: -31px;
+  }
+
+  .face {
+    background: #fff url(../../images/explain-card-clockface.png) -1px -1px no-repeat;
+    background-size: 48px 48px;
+    border: 1px solid @gray6;
+    border-radius: 24px;
+    font-size: 10px;
+    height: 48px;
+    width: 48px;
+    position: absolute;
+    top: 6px;
+    left: 6px;
+    text-align: center;
+    transition: all 250ms ease-out;
+  }
+
+  .face span {
+    display: block;
+    font-size: 14px;
+    font-weight: bold;
+    margin-top: 11px;
+    color: @chart1;
+  }
+
+  ul li span.value .clock .face {
+    font-weight: normal;
+    color: #818487;
+  }
+
+  .details {
+    border-top: 1px solid @gray7;
+    padding-top: 12px;
+  }
+
+  .details button.btn {
+    pointer-events: all;
+    margin: 0;
+  }
+
+  .details-output {
+    pointer-events: all;
+    padding: 6px;
+    margin-top: 6px;
+    background: @gray8;
+    border-radius: 3px;
+  }
+
+  .details-output pre {
+    background: none;
+    word-break: break-word;
+    border: none;
+    margin: 0;
+    font-size: 11px;
+
+  }
+
+  .details-output pre code {
+    background: none;
+    margin: 0;
+  }
+}

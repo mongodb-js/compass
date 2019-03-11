@@ -32,8 +32,7 @@ class SummaryStat extends Component {
       ? (
         <i
           className={classnames(styles['summary-stat-info-sprinkle'])}
-          onClick={this.props.openLink.bind(this, dataLink)}
-        ></i>
+          onClick={this.props.openLink.bind(this, dataLink)} />
       )
       : null;
 

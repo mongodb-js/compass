@@ -1,13 +1,11 @@
 import React from 'react';
 import { mount } from 'enzyme';
 import ExplainSummary from 'components/explain-summary';
-import AppRegistry from 'hadron-app-registry';
 
 import styles from './explain-summary.less';
 
 describe('ExplainSummary [Component]', () => {
   let component;
-  const appRegistry = new AppRegistry();
   const nReturned = 0;
   const totalKeysExamined = 0;
   const totalDocsExamined = 0;
@@ -27,8 +25,7 @@ describe('ExplainSummary [Component]', () => {
         inMemorySort={inMemorySort}
         indexType={indexType}
         index={index}
-        openLink={openLinkSpy}
-        appRegistry={appRegistry} />
+        openLink={openLinkSpy} />
     );
   });
 

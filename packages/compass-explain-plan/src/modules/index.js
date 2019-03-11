@@ -1,12 +1,13 @@
 import { combineReducers } from 'redux';
 
 import appRegistry, { INITIAL_STATE as APP_REGISTRY_STATE } from 'modules/app-registry';
-import dataService, { INITIAL_STATE as DS_INITIAL_STATE } from './data-service';
-import namespace, { INITIAL_STATE as NS_INITIAL_STATE, NAMESPACE_CHANGED } from './namespace';
-import serverVersion, { INITIAL_STATE as SV_INITIAL_STATE } from './server-version';
-import isZeroState, { INITIAL_STATE as IS_ZERO_STATE } from './zero-state';
+import dataService, { INITIAL_STATE as DS_STATE } from './data-service';
+import namespace, { INITIAL_STATE as NAMESPACE_STATE, NAMESPACE_CHANGED } from './namespace';
+import serverVersion, { INITIAL_STATE as SV_STATE } from './server-version';
 import isEditable, { INITIAL_STATE as IS_EDITABLE_STATE } from './edit-mode';
 import explain, { INITIAL_STATE as EXPLAIN_STATE } from './explain';
+import indexes, { INITIAL_STATE as INDEXES_STATE } from './indexes';
+import query, { INITIAL_STATE as QUERY_STATE } from './query';
 
 /**
  * Reset action constant.
@@ -18,12 +19,13 @@ export const RESET = 'explain/reset';
  */
 export const INITIAL_STATE = {
   appRegistry: APP_REGISTRY_STATE,
-  dataService: DS_INITIAL_STATE,
-  namespace: NS_INITIAL_STATE,
-  serverVersion: SV_INITIAL_STATE,
-  isZeroState: IS_ZERO_STATE,
+  dataService: DS_STATE,
+  namespace: NAMESPACE_STATE,
+  serverVersion: SV_STATE,
   isEditable: IS_EDITABLE_STATE,
-  explain: EXPLAIN_STATE
+  explain: EXPLAIN_STATE,
+  indexes: INDEXES_STATE,
+  query: QUERY_STATE
 };
 
 /**
@@ -34,9 +36,10 @@ const appReducer = combineReducers({
   dataService,
   namespace,
   serverVersion,
-  isZeroState,
   isEditable,
-  explain
+  explain,
+  indexes,
+  query
 });
 
 /**

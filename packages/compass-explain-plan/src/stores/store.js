@@ -7,6 +7,9 @@ import { dataServiceConnected } from 'modules/data-service';
 import { serverVersionChanged } from 'modules/server-version';
 import { appRegistryActivated } from 'modules/app-registry';
 import { editModeChanged } from 'modules/edit-mode';
+// import { indexesChanged } from 'modules/indexes';
+import { queryChanged } from 'modules/query';
+import { explainStateChanged, fetchExplainPlan } from 'modules/explain';
 
 /**
  * The store has a combined pipeline reducer plus the thunk middleware.
@@ -19,6 +22,14 @@ const store = createStore(reducer, applyMiddleware(thunk));
  * @param {AppRegistry} appRegistry - The app registry.
  */
 store.onActivated = (appRegistry) => {
+  /**
+   * When indexes were changed for the collection,
+   * update indexes for the explain plan.
+   *
+   * @param {Object} fields - The fields.
+   */
+  // appRegistry.getStore('Indexes.IndexStore').listen(indexesChanged);
+
   /**
    * When the collection is changed, update the store.
    *
@@ -37,6 +48,7 @@ store.onActivated = (appRegistry) => {
     }
 
     store.dispatch(editModeChanged(isEditable));
+    store.dispatch(explainStateChanged('initial'));
   });
 
   /**
@@ -67,6 +79,16 @@ store.onActivated = (appRegistry) => {
     if (tabName === 'Validation') {
       // TODO: store.dispatch(activateExplainPlan());
     }
+  });
+
+  /**
+   * When query was changed, update query parameters for the explain plan.
+   *
+   * @param {String} tabName - The name of active tab.
+   */
+  appRegistry.on('query-changed', (state) => {
+    store.dispatch(queryChanged(state));
+    store.dispatch(fetchExplainPlan());
   });
 
   /**

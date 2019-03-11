@@ -2,13 +2,11 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import FontAwesome from 'react-fontawesome';
 import classnames from 'classnames';
+import { IndexDefinitionType } from '@mongodb-js/compass-indexes';
+
+import INDEX_TYPES from 'constants/index-types';
 
 import styles from './summary-index-stat.less';
-
-/**
- * Index types.
- */
-const INDEX_TYPES = ['MULTIPLE', 'UNAVAILABLE', 'COLLSCAN', 'COVERED', 'INDEX'];
 
 /**
  * The SummaryIndexStat component.
@@ -20,12 +18,7 @@ class SummaryIndexStat extends Component {
     dataLink: PropTypes.string, // Info sprinkle (optional)
     indexType: PropTypes.oneOf(INDEX_TYPES).isRequired,
     index: PropTypes.object,
-    openLink: PropTypes.func.isRequired,
-    appRegistry: PropTypes.object
-  }
-
-  componentWillMount() {
-    this.indexComponent = this.props.appRegistry.getComponent('Indexes.IndexDefinitionType');
+    openLink: PropTypes.func.isRequired
   }
 
   /**
@@ -91,19 +84,6 @@ class SummaryIndexStat extends Component {
   }
 
   /**
-   * Returns index component.
-   *
-   * @returns {React.Component} The rendered component.
-   */
-  renderIndexDefinition() {
-    if (this.props.index) {
-      return (<this.indexComponent />);
-    }
-
-    return null;
-  }
-
-  /**
    * Renders SummaryIndexStat component.
    *
    * @returns {React.Component} The rendered component.
@@ -118,8 +98,7 @@ class SummaryIndexStat extends Component {
       )}>
         <i
           className={classnames(styles['summary-index-stat-info-sprinkle'])}
-          onClick={this.props.openLink.bind(this, dataLink)}
-        ></i>
+          onClick={this.props.openLink.bind(this, dataLink)} />
         <span>
           <span className={classnames(styles['summary-index-stat-index-icon'])}>
             {this.getIndexMessageIcon()}
@@ -131,7 +110,7 @@ class SummaryIndexStat extends Component {
             {this.getIndexMessageText()}
           </span>
         </span>
-        {this.renderIndexDefinition()}
+        {this.props.index ? <IndexDefinitionType /> : null}
       </div>
     );
   }

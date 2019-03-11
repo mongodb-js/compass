@@ -6,12 +6,8 @@ const { spawn } = require('child_process');
 const baseWebpackConfig = require('./webpack.base.config');
 const project = require('./project');
 
-const GLOBALS = {
-  'process.env': { 'NODE_ENV': JSON.stringify('development') },
-  __DEV__: JSON.stringify(JSON.parse('true'))
-};
-
 const config = {
+  mode: 'development',
   target: 'electron-renderer',
   devtool: 'eval-source-map',
   entry: {
@@ -47,14 +43,10 @@ const config = {
   plugins: [
     // Enable HMR globally
     new webpack.HotModuleReplacementPlugin(),
-    // Prints more readable module names in the browser console on HMR updates
-    new webpack.NamedModulesPlugin(),
     // Do not emit compiled assets that include errors
     new webpack.NoEmitOnErrorsPlugin(),
     // Creates HTML page for us at build time
-    new HtmlWebpackPlugin(),
-    // Defines global variables
-    new webpack.DefinePlugin(GLOBALS)
+    new HtmlWebpackPlugin()
   ],
   devServer: {
     host: '0.0.0.0',

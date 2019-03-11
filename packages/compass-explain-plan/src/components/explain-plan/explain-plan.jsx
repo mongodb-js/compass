@@ -4,7 +4,13 @@ import { pick } from 'lodash';
 import classnames from 'classnames';
 import { namespaceChanged } from 'modules/namespace';
 import { openLink } from 'modules/link';
-import { changeZeroState, zeroStateChanged } from 'modules/zero-state';
+import {
+  switchToTreeView,
+  switchToJSONView,
+  fetchExplainPlan,
+  changeExplainPlanState,
+  explainStateChanged
+} from 'modules/explain';
 import ExplainStates from 'components/explain-states';
 
 import styles from './explain-plan.less';
@@ -41,10 +47,8 @@ const mapStateToProps = (state) => pick(
   [
     'serverVersion',
     'namespace',
-    'isZeroState',
     'isEditable',
-    'explain',
-    'appRegistry'
+    'explain'
   ]
 );
 
@@ -56,8 +60,11 @@ const MappedExplainPlan = connect(
   {
     namespaceChanged,
     openLink,
-    zeroStateChanged,
-    changeZeroState
+    switchToTreeView,
+    switchToJSONView,
+    fetchExplainPlan,
+    changeExplainPlanState,
+    explainStateChanged
   },
 )(ExplainPlan);
 

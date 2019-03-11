@@ -4,6 +4,7 @@ import app from 'hadron-app';
 import AppRegistry from 'hadron-app-registry';
 import { AppContainer } from 'react-hot-loader';
 import ExplainPlanPlugin, { activate } from 'plugin';
+import FieldStore, { activate as fieldsActivate } from '@mongodb-js/compass-field-store';
 
 // Import global less file. Note: these styles WILL NOT be used in compass, as compass provides its own set
 // of global styles. If you are wishing to style a given component, you should be writing a less file per
@@ -24,6 +25,7 @@ appRegistry.registerStore('App.CollectionStore', CollectionStore);
 
 // Activate our plugin with the Hadron App Registry
 activate(appRegistry);
+fieldsActivate(appRegistry);
 appRegistry.onActivated();
 
 // Since we are using HtmlWebpackPlugin WITHOUT a template,
@@ -66,9 +68,13 @@ const dataService = new DataService(connection);
 appRegistry.emit('data-service-initialized', dataService);
 
 dataService.connect((error, ds) => {
+  const docs = [{ _id: 1, name: 'Test', city: 'Berlin'}];
+
   appRegistry.emit('data-service-connected', error, ds);
   appRegistry.emit('collection-changed', 'crunchbase.companies');
   appRegistry.emit('server-version-changed', '4.0.0');
+
+  FieldStore.processDocuments(docs);
 });
 
 if (module.hot) {
@@ -87,9 +93,5 @@ if (module.hot) {
     }
   };
 
-  module.hot.accept('plugin', () => {
-    // Because Webpack 2 has built-in support for ES2015 modules,
-    // you won't need to re-require your app root in module.hot.accept
-    render(ExplainPlanPlugin);
-  });
+  module.hot.accept('plugin', () => render(ExplainPlanPlugin));
 }

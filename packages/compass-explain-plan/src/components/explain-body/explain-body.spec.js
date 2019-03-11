@@ -1,13 +1,11 @@
 import React from 'react';
 import { mount } from 'enzyme';
 import ExplainBody from 'components/explain-body';
-import AppRegistry from 'hadron-app-registry';
 
 import styles from './explain-body.less';
 
 describe('ExplainBody [Component]', () => {
   let component;
-  const appRegistry = new AppRegistry();
   const explain = {
     viewType: 'tree',
     rawExplainObject: {},
@@ -25,8 +23,7 @@ describe('ExplainBody [Component]', () => {
     component = mount(
       <ExplainBody
         explain={explain}
-        openLink={openLinkSpy}
-        appRegistry={appRegistry} />);
+        openLink={openLinkSpy} />);
   });
 
   afterEach(() => {

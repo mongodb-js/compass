@@ -2,13 +2,12 @@ import React, { Component } from 'react';
 import classnames from 'classnames';
 import PropTypes from 'prop-types';
 import { ExplainSummary } from 'components/explain-summary';
+import { ExplainJSON } from 'components/explain-json';
+import { ExplainTree } from 'components/explain-tree';
+
+import INDEX_TYPES from 'constants/index-types';
 
 import styles from './explain-body.less';
-
-/**
- * Index types.
- */
-const INDEX_TYPES = ['MULTIPLE', 'UNAVAILABLE', 'COLLSCAN', 'COVERED', 'INDEX'];
 
 /**
  * The ExplainBody component.
@@ -25,10 +24,10 @@ class ExplainBody extends Component {
       inMemorySort: PropTypes.bool.isRequired,
       indexType: PropTypes.oneOf(INDEX_TYPES).isRequired,
       index: PropTypes.object,
-      viewType: PropTypes.string.isRequired
+      viewType: PropTypes.string.isRequired,
+      rawExplainObject: PropTypes.object.isRequired
     }),
-    openLink: PropTypes.func.isRequired,
-    appRegistry: PropTypes.object
+    openLink: PropTypes.func.isRequired
   }
 
   /**
@@ -41,10 +40,26 @@ class ExplainBody extends Component {
       return (
         <ExplainSummary
           {...this.props.explain}
-          openLink={this.props.openLink}
-          appRegistry={this.props.appRegistry} />
+          openLink={this.props.openLink} />
       );
     }
+  }
+
+  /**
+   * Renders DetailsView Component.
+   *
+   * @returns {React.Component} The details view part of the explain view.
+   */
+  renderDetailsView() {
+    if (this.props.explain.viewType === 'json') {
+      return (
+        <ExplainJSON rawExplainObject={this.props.explain.rawExplainObject} />
+      );
+    }
+
+    return (
+      <ExplainTree rawExplainObject={this.props.explain.rawExplainObject} />
+    );
   }
 
   /**
@@ -56,6 +71,7 @@ class ExplainBody extends Component {
     return (
       <div className={classnames(styles['explain-body'])}>
         {this.renderSummary()}
+        {this.renderDetailsView()}
       </div>
     );
   }

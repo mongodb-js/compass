@@ -5,18 +5,35 @@ import styles from './explain-states.less';
 
 describe('ExplainStates [Component]', () => {
   let component;
-  const changeZeroStateSpy = sinon.spy();
-  const setZeroStateChangedSpy = sinon.spy();
-  const openLinkSpy = sinon.spy();
-  const isZeroState = true;
   const isEditable = false;
+  const openLinkSpy = sinon.spy();
+  const explain = {
+    viewType: 'tree',
+    rawExplainObject: {},
+    nReturned: 0,
+    totalKeysExamined: 0,
+    totalDocsExamined: 0,
+    executionTimeMillis: 0,
+    inMemorySort: false,
+    indexType: 'UNAVAILABLE',
+    index: null,
+    explainState: 'initial'
+  };
+  const fetchExplainPlanSpy = sinon.spy();
+  const changeExplainPlanStateSpy = sinon.spy();
+  const switchToTreeViewSpy = sinon.spy();
+  const switchToJSONViewSpy = sinon.spy();
+  const query = {};
 
   beforeEach(() => {
     component = mount(
       <ExplainStates
-        changeZeroState={changeZeroStateSpy}
-        zeroStateChanged={setZeroStateChangedSpy}
-        isZeroState={isZeroState}
+        explain={explain}
+        fetchExplainPlan={fetchExplainPlanSpy}
+        changeExplainPlanState={changeExplainPlanStateSpy}
+        switchToTreeView={switchToTreeViewSpy}
+        switchToJSONView={switchToJSONViewSpy}
+        query={query}
         isEditable={isEditable}
         openLink={openLinkSpy} />
     );

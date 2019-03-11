@@ -67,9 +67,10 @@ describe('Explain Plan Store', () => {
             appRegistry: appRegistry,
             dataService: INITIAL_STATE.dataService,
             serverVersion: INITIAL_STATE.serverVersion,
-            isZeroState: INITIAL_STATE.isZeroState,
             isEditable: INITIAL_STATE.isEditable,
-            explain: INITIAL_STATE.explain
+            explain: INITIAL_STATE.explain,
+            indexes: INITIAL_STATE.indexes,
+            query: INITIAL_STATE.query
           });
         });
       });

@@ -5,12 +5,9 @@ import { FlexBox } from 'components/flex-box';
 import { SummaryStat } from 'components/summary-stat';
 import { SummaryIndexStat } from 'components/summary-index-stat';
 
-import styles from './explain-summary.less';
+import INDEX_TYPES from 'constants/index-types';
 
-/**
- * Index types.
- */
-const INDEX_TYPES = ['MULTIPLE', 'UNAVAILABLE', 'COLLSCAN', 'COVERED', 'INDEX'];
+import styles from './explain-summary.less';
 
 /**
  * The base url.
@@ -43,8 +40,7 @@ class ExplainSummary extends Component {
     inMemorySort: PropTypes.bool.isRequired,
     indexType: PropTypes.oneOf(INDEX_TYPES).isRequired,
     index: PropTypes.object,
-    openLink: PropTypes.func.isRequired,
-    appRegistry: PropTypes.object
+    openLink: PropTypes.func.isRequired
   }
 
   /**
@@ -64,41 +60,34 @@ class ExplainSummary extends Component {
               dataLink={HELP_URLS.NRETURNED}
               label="Documents Returned:"
               value={this.props.nReturned}
-              openLink={this.props.openLink}
-            />
+              openLink={this.props.openLink} />
             <SummaryStat
               dataLink={HELP_URLS.KEYS_EXAMINED}
               label="Index Keys Examined:"
               value={this.props.totalKeysExamined}
-              openLink={this.props.openLink}
-            />
+              openLink={this.props.openLink} />
             <SummaryStat
               dataLink={HELP_URLS.DOCS_EXAMINED}
               label="Documents Examined:"
               value={this.props.totalDocsExamined}
-              openLink={this.props.openLink}
-            />
+              openLink={this.props.openLink} />
           </div>
           <div className={classnames(styles['summary-stats'])}>
             <SummaryStat
               dataLink={HELP_URLS.EXECUTION_TIME}
               label="Actual Query Execution Time (ms):"
               value={this.props.executionTimeMillis}
-              openLink={this.props.openLink}
-            />
+              openLink={this.props.openLink} />
             <SummaryStat
               dataLink={HELP_URLS.SORT_STAGE}
               label="Sorted in Memory:"
               value={inMemorySort}
-              openLink={this.props.openLink}
-            />
+              openLink={this.props.openLink} />
             <SummaryIndexStat
               dataLink={HELP_URLS.INDEX_USED}
               indexType={this.props.indexType}
               index={this.props.index}
-              openLink={this.props.openLink}
-              appRegistry={this.props.appRegistry}
-            />
+              openLink={this.props.openLink} />
           </div>
         </FlexBox>
       </div>
