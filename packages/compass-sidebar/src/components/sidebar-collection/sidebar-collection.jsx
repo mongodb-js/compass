@@ -31,7 +31,11 @@ class SidebarCollection extends PureComponent {
 
   handleClick() {
     if (this.NamespaceStore.ns !== this.props._id) {
-      this.CollectionStore.setCollection(this.props);
+      this.CollectionStore.setCollection({
+        _id: this.props._id, database: this.props.database, capped: this.props.capped,
+        power_of_two: this.props.power_of_two, isreadonly: this.props.isReadonly,
+        activeNamespace: this.props.activeNamespace
+      });
       const ipc = require('hadron-ipc');
       ipc.call('window:show-collection-submenu');
     }
