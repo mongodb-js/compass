@@ -48,7 +48,7 @@ class TextWriteButton extends React.Component {
    * Unsubscribe from the stores.
    */
   componentWillUnmount() {
-    global.hadronApp.appRegistry.off('namespace-changed', this.boundNamespaceChanged);
+    global.hadronApp.appRegistry.removeListener('namespace-changed', this.boundNamespaceChanged);
     this.unsubscribeWriteState();
   }
 
