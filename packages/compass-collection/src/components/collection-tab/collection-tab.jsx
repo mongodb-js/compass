@@ -26,10 +26,15 @@ class CollectionTab extends PureComponent {
     return (
       <div className={tabClass}>
         <div className={classnames(styles['collection-tab-info'])}>
-          <div>{this.props.namespace}</div>
-          <div></div>
+          <div className={classnames(styles['collection-tab-info-ns'])}>
+            {this.props.namespace}
+          </div>
+          <div className={classnames(styles['collection-tab-info-subtab'])}>
+            Placeholder
+          </div>
         </div>
         <div className={classnames(styles['collection-tab-close'])}>
+          <i className="fa fa-times" aria-hidden></i>
         </div>
       </div>
     );
