@@ -22,7 +22,6 @@ const STUB_STORE = Reflux.createStore();
  * in the application.
  */
 class AppRegistry {
-
   /**
    * Instantiate the registry.
    */
