@@ -1,0 +1,24 @@
+@import (reference) "~less/compass/_theme.less";
+
+.collection-tab {
+  border-bottom: 1px @gray6 solid;
+  border-left: 1px @gray6 solid;
+  border-right: 1px @gray6 solid;
+  border-top: 1px @gray6 solid;
+  border-radius: 4px 4px 0px 0px;
+  flex-grow: 1;
+  max-width: 200px;
+
+  &-is-active {
+    border-bottom: 1px #FFFFFF solid;
+    margin-bottom: -1px;
+    border-left: 4px @green7 solid;
+    box-shadow: 5px 0px 3px -2px @gray6;
+    padding: 5px;
+    z-index: 100;
+  }
+
+  &-info {
+    padding: 0px 5px 0px 5px;
+  }
+}

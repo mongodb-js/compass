@@ -7,6 +7,7 @@ import {
   closeTab,
   selectTab
 } from 'modules/tabs';
+import CollectionTab from 'components/collection-tab';
 
 import styles from './workspace.less';
 
@@ -26,9 +27,12 @@ class Workspace extends PureComponent {
    * @returns {Component} The component.
    */
   renderTabs() {
-    return this.props.tabs.map((tab) => {
+    return this.props.tabs.map((tab, i) => {
       return (
-        <div>{tab.namespace}</div>
+        <CollectionTab
+          key={i}
+          namespace={tab.namespace}
+          isActive={tab.isActive} />
       );
     });
   }
@@ -41,7 +45,9 @@ class Workspace extends PureComponent {
   render() {
     return (
       <div className={classnames(styles.workspace)}>
-        {this.renderTabs()}
+        <div className={classnames(styles['workspace-tabs'])}>
+          {this.renderTabs()}
+        </div>
       </div>
     );
   }
