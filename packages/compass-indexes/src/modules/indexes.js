@@ -196,14 +196,17 @@ export const loadIndexesFromDb = (ns) => {
     if (ns && toNS(ns).collection) {
       if (state.appRegistry.getStore('App.CollectionStore').isReadonly()) {
         dispatch(loadIndexes([]));
+        state.appRegistry.emit('indexes-changed', []);
       } else {
         state.dataService.indexes(ns, {}, (err, indexes) => {
           if (err) {
             dispatch(handleError(parseErrorMsg(err)));
             dispatch(loadIndexes([]));
+            state.appRegistry.emit('indexes-changed', []);
           } else {
             const ixs = modelAndSort(indexes, state.sortColumn, state.sortOrder);
             dispatch(loadIndexes(ixs));
+            state.appRegistry.emit('indexes-changed', ixs);
           }
         });
       }

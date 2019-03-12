@@ -89,11 +89,14 @@ describe('indexes module', () => {
   });
   describe('#loadIndexesFromDb', () => {
     let actionSpy;
+    let emitSpy;
     beforeEach(() => {
       actionSpy = sinon.spy();
+      emitSpy = sinon.spy();
     });
     afterEach(() => {
       actionSpy = null;
+      emitSpy = null;
     });
     it('returns loadIndexes action with empty list for readonly', () => {
       const dispatch = (res) => {
@@ -101,10 +104,16 @@ describe('indexes module', () => {
         actionSpy();
       };
       const state = () => ({
-        appRegistry: {getStore: () => ({isReadonly: () => (true)})}
+        appRegistry: {
+          getStore: () => ({isReadonly: () => (true)}),
+          emit: emitSpy
+        }
       });
       loadIndexesFromDb('citibikes.trips')(dispatch, state);
       expect(actionSpy.calledOnce).to.equal(true);
+      expect(emitSpy.calledOnce).to.equal(true);
+      expect(emitSpy.args[0][0]).to.equal('indexes-changed');
+      expect(emitSpy.args[0][1]).to.deep.equal([]);
     });
 
     it('returns loadIndexes action with error for error state', () => {
@@ -120,13 +129,19 @@ describe('indexes module', () => {
         }
       };
       const state = () => ({
-        appRegistry: {getStore: () => ({isReadonly: () => (false)})},
+        appRegistry: {
+          getStore: () => ({isReadonly: () => (false)}),
+          emit: emitSpy
+        },
         dataService: {
           indexes: (ns, opts, cb) => { cb({message: 'error message!'}); }
         }
       });
       loadIndexesFromDb('citibikes.trips')(dispatch, state);
       expect(actionSpy.calledTwice).to.equal(true);
+      expect(emitSpy.calledOnce).to.equal(true);
+      expect(emitSpy.args[0][0]).to.equal('indexes-changed');
+      expect(emitSpy.args[0][1]).to.deep.equal([]);
     });
 
     it('returns loadIndexes action with sorted and modelled indexes', () => {
@@ -139,7 +154,10 @@ describe('indexes module', () => {
         actionSpy();
       };
       const state = () => ({
-        appRegistry: {getStore: () => ({isReadonly: () => (false)})},
+        appRegistry: {
+          getStore: () => ({isReadonly: () => (false)}),
+          emit: emitSpy
+        },
         dataService: {
           indexes: (ns, opts, cb) => { cb(null, fromDB); }
         },
@@ -148,6 +166,11 @@ describe('indexes module', () => {
       });
       loadIndexesFromDb('citibikes.trips')(dispatch, state);
       expect(actionSpy.calledOnce).to.equal(true);
+      expect(emitSpy.calledOnce).to.equal(true);
+      expect(emitSpy.args[0][0]).to.equal('indexes-changed');
+      expect(
+        JSON.stringify(emitSpy.args[0][1])
+      ).to.equal(JSON.stringify(defaultSort, null, null));
     });
   });
 });

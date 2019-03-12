@@ -11,8 +11,9 @@ import { dataServiceConnected } from 'modules/data-service';
 import { loadIndexesFromDb, parseErrorMsg } from 'modules/indexes';
 import { handleError } from 'modules/error';
 
-const store = createStore(reducer, applyMiddleware(thunk));
+const debug = require('debug')('mongodb-compass:stores:IndexesStore');
 
+const store = createStore(reducer, applyMiddleware(thunk));
 
 store.onActivated = (appRegistry) => {
   // Events emitted from the app registry:
@@ -52,5 +53,9 @@ store.onActivated = (appRegistry) => {
   store.dispatch(appRegistryActivated(appRegistry));
 };
 
+store.subscribe(() => {
+  const state = store.getState();
+  debug('IndexesStore changed to', state);
+});
 
 export default store;
