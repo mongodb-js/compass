@@ -33,7 +33,7 @@ deploy:
     keep-history: true
     local_dir: .ghpages
     on:
-      branch: 3.0.0
+      branch: master
   # TODO (@imlucas) Do we even need to do this?
   # All we're doing is making sure webpack can 
   # build (for the 4th time)
