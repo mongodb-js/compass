@@ -13,7 +13,7 @@ class SidebarCollection extends PureComponent {
     database: PropTypes.string.isRequired,
     capped: PropTypes.bool.isRequired,
     power_of_two: PropTypes.bool.isRequired,
-    isReadonly: PropTypes.bool.isRequired,
+    readonly: PropTypes.bool.isRequired,
     activeNamespace: PropTypes.string.isRequired,
     isWritable: PropTypes.bool.isRequired,
     description: PropTypes.string.isRequired
@@ -32,8 +32,11 @@ class SidebarCollection extends PureComponent {
   handleClick() {
     if (this.NamespaceStore.ns !== this.props._id) {
       this.CollectionStore.setCollection({
-        _id: this.props._id, database: this.props.database, capped: this.props.capped,
-        power_of_two: this.props.power_of_two, isreadonly: this.props.isReadonly,
+        _id: this.props._id,
+        database: this.props.database,
+        capped: this.props.capped,
+        power_of_two: this.props.power_of_two,
+        readonly: this.props.readonly,
         activeNamespace: this.props.activeNamespace
       });
       const ipc = require('hadron-ipc');
@@ -54,7 +57,7 @@ class SidebarCollection extends PureComponent {
   }
 
   renderIsReadonly() {
-    if (this.props.isReadonly) {
+    if (this.props.readonly) {
       return (
         <i className="fa fa-lock" aria-hidden="true" data-test-id="sidebar-collection-is-readonly"/>
       );

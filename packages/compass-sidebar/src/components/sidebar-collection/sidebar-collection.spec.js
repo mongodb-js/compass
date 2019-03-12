@@ -17,7 +17,7 @@ describe('SidebarCollection [Component]', () => {
         database="db"
         capped={false}
         power_of_two={false}
-        isReadonly={false}
+        readonly={false}
         isWritable
         description="description"
         activeNamespace=""
@@ -55,7 +55,7 @@ describe('SidebarCollection [Component]', () => {
         database="db"
         capped={false}
         power_of_two={false}
-        isReadonly={false}
+        readonly={false}
         isWritable
         description="description"
         activeNamespace="db.coll"
@@ -79,7 +79,7 @@ describe('SidebarCollection [Component]', () => {
         database="db"
         capped={false}
         power_of_two={false}
-        isReadonly
+        readonly
         isWritable={false}
         description="description"
         activeNamespace="db.coll"

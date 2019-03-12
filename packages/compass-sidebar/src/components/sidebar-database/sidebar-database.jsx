@@ -36,7 +36,7 @@ class SidebarDatabase extends PureComponent {
           database: c.database,
           capped: c.capped,
           power_of_two: c.power_of_two,
-          isReadonly: c.readonly,
+          readonly: c.readonly,
           activeNamespace: this.props.activeNamespace,
           isWritable: this.props.isWritable,
           description: this.props.description
