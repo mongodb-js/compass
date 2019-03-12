@@ -19,13 +19,13 @@ const store = createStore(reducer, applyMiddleware(thunk));
  *
  * @param {AppRegistry} appRegistry - The app registry.
  */
-store.onActivated = (appRegistry) => {
+store.onActivated = appRegistry => {
   /**
    * When the collection is changed, update the store.
    *
    * @param {String} ns - The full namespace.
    */
-  appRegistry.on('collection-changed', (ns) => {
+  appRegistry.on('collection-changed', ns => {
     const namespace = toNS(ns);
     if (namespace.collection) {
       store.dispatch(namespaceChanged(ns));
@@ -75,7 +75,7 @@ store.onActivated = (appRegistry) => {
    *
    * @param {String} version - The version.
    */
-  appRegistry.on('server-version-changed', (version) => {
+  appRegistry.on('server-version-changed', version => {
     store.dispatch(serverVersionChanged(version));
   });
 

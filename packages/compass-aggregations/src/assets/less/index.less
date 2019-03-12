@@ -1,36 +1,73 @@
 :global {
-  @import "~less/_fonts";
-  @import "~less/compass/_theme";
+  @import '~less/_fonts';
+  @import '~less/compass/_theme';
 
   // Define global styles here, these will be imported by the Plugin.js.
   // Note: these styles WILL NOT be used in compass, as compass provides its own set
   // of global styles. If you are wishing to style a given component, you should be writing a less file per
   // component as per the CSS Modules ICSS spec. @see components/ToggleButton for an example.
-  html, body {
+  html,
+  body {
     height: 100%;
     width: 100%;
     overflow: hidden;
-    font-family: "Akzidenz", "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-family: 'Akzidenz', 'Helvetica Neue', Helvetica, Arial, sans-serif;
     color: @gray1;
     -webkit-font-smoothing: antialiased;
+  }
+
+  #application {
+    // TODO: These #statusbar should be moved into internal-packages/status/styles
+    #statusbar {
+      background-color: rgba(255, 255, 255, 0.5);
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 1020;
+
+      .progress {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        text-align: center;
+        height: 4px;
+        z-index: 2000;
+        border-radius: 0;
+        transition: height 500ms cubic-bezier(0.6, -0.28, 0.735, 0.045);
+
+        .progress-bar {
+          background-color: #6ba442;
+        }
+      }
+    }
   }
 
   * {
     user-select: text;
     -webkit-user-select: text;
   }
+  // disable highlighting for most of the schema and document viewers
+  .schema-field-list *,
+  .document-list * {
+    user-select: none;
+    -webkit-user-select: none;
+  }
+  // re-enable field names and individual documents
+  .schema-field-name > span,
+  .document-property-body * {
+    user-select: text;
+    -webkit-user-select: text;
+  }
 
-  // TODO: Temp Global internal-packages/app/styles/info-sprinkle.less
-  // Needs to be migrated to info-sprinkle external dependency with CSS-Module support
-  i.info-sprinkle {
+  // make all help buttons consistent
+  i.help,
+  i.syntax-help {
     .fa-icon;
-    margin-left: 5px;
-    margin-right: 1px;
+    margin: 0 5px;
     cursor: pointer;
-    font-size: 14px;
-    position: relative;
-    top: 1px;
-    opacity: 0.5;
+    color: @gray5;
 
     &:hover {
       color: @alertOrange;
@@ -40,14 +77,18 @@
     }
   }
 
-  a i.info-sprinkle {
-    // Subview info sprinkles need to be more prominently opaque
-    color: #337ab7;
-    opacity: 1.0;
-    text-decoration: none;
-
-    &:hover {
-      color: #23527c;
+  .input-group.has-error {
+    i.syntax-help {
+      color: #a94442; // same color as bootstrap validation error borders
     }
+  }
+
+  //action-bar, just a drop-shadow for now but should think about where to put these styles eventually
+  .action-bar {
+    height: 32px;
+    background: @gray8;
+    border-bottom: 1px solid @gray7;
+    padding-top: 4px;
+    padding-left: 15px;
   }
 }

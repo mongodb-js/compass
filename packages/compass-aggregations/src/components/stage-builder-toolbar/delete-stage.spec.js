@@ -37,10 +37,6 @@ describe('DeleteStage [Component]', () => {
     it('renders the delete button', () => {
       expect(component.find('.fa-trash-o')).to.be.present();
     });
-
-    it('renders the tooltip', () => {
-      expect(component.find('.hadron-tooltip')).to.be.present();
-    });
   });
 
   context('when clicking on the button', () => {

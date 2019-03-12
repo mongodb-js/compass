@@ -10,6 +10,7 @@ import styles from './stage-operator-select.less';
 /**
  * Select from a list of stage operators.
  */
+
 class StageOperatorSelect extends PureComponent {
   static displayName = 'StageOperatorSelectComponent';
 
@@ -25,8 +26,8 @@ class StageOperatorSelect extends PureComponent {
 
   /**
    * Called when the stage operator is selected.
-   *
-   * @param {String} name - The name of the stage operator.
+   * @param {String} name The name of the stage operator.
+   * @returns {void}
    */
   onStageOperatorSelected = (name) => {
     this.props.stageOperatorSelected(this.props.index, name, this.props.isCommenting);

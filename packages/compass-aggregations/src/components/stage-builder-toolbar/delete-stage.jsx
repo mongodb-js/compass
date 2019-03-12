@@ -1,7 +1,6 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import classnames from 'classnames';
-import { Tooltip } from 'hadron-react-components';
 
 import styles from './delete-stage.less';
 
@@ -32,11 +31,7 @@ class DeleteStage extends PureComponent {
    */
   render() {
     return (
-      <div
-        className={classnames(styles['delete-stage'])}
-        data-tip="Delete stage"
-        data-place="top"
-        data-for="delete-stage">
+      <div className={classnames(styles['delete-stage'])}>
         <button
           type="button"
           title="Delete Stage"
@@ -44,7 +39,6 @@ class DeleteStage extends PureComponent {
           onClick={this.onStageDeleted}>
           <i className="fa fa-trash-o" aria-hidden />
         </button>
-        <Tooltip id="delete-stage" />
       </div>
     );
   }

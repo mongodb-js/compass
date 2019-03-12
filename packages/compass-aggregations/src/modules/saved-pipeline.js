@@ -41,6 +41,7 @@ export default function reducer(state = INITIAL_STATE, action) {
 /**
  * Action creators for toggling actions in the save m0dal
  *
+ * @param {Number} index
  * @returns {Object} The action.
  */
 export const savedPipelinesListToggle = (index) => ({

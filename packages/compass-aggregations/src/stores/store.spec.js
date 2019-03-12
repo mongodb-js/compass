@@ -195,7 +195,13 @@ describe('Aggregation Store', () => {
             collation: INITIAL_STATE.collation,
             collationString: INITIAL_STATE.collationString,
             isCollationExpanded: INITIAL_STATE.isCollationExpanded,
-            isOverviewOn: INITIAL_STATE.isOverviewOn
+            isOverviewOn: INITIAL_STATE.isOverviewOn,
+            settings: INITIAL_STATE.settings,
+            limit: INITIAL_STATE.limit,
+            largeLimit: INITIAL_STATE.largeLimit,
+            maxTimeMS: INITIAL_STATE.maxTimeMS,
+            isFullscreenOn: INITIAL_STATE.isFullscreenOn,
+            savingPipeline: INITIAL_STATE.savingPipeline
           });
         });
       });
@@ -232,7 +238,13 @@ describe('Aggregation Store', () => {
             collation: INITIAL_STATE.collation,
             collationString: INITIAL_STATE.collationString,
             isCollationExpanded: INITIAL_STATE.isCollationExpanded,
-            isOverviewOn: INITIAL_STATE.isOverviewOn
+            isOverviewOn: INITIAL_STATE.isOverviewOn,
+            settings: INITIAL_STATE.settings,
+            limit: INITIAL_STATE.limit,
+            largeLimit: INITIAL_STATE.largeLimit,
+            maxTimeMS: INITIAL_STATE.maxTimeMS,
+            isFullscreenOn: INITIAL_STATE.isFullscreenOn,
+            savingPipeline: INITIAL_STATE.savingPipeline
           });
         });
       });

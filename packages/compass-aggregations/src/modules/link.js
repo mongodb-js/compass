@@ -1,17 +1,16 @@
-const userAgent = navigator.userAgent.toLowerCase();
+const IS_ELECTRON = require('is-electron-renderer');
 
 /**
  * Action creator for opening links.
- *
+ * @param {String} href The URL to open.
  * @returns {Function} The open link function.
  */
-export const openLink = (href) => {
+export const openLink = href => {
   return () => {
-    if (userAgent.indexOf('electron') > -1) {
-      const { shell } = require('electron');
-      shell.openExternal(href);
-    } else {
+    if (!IS_ELECTRON) {
       window.open(href, '_new');
+    } else {
+      require('electron').shell.openExternal(href);
     }
   };
 };

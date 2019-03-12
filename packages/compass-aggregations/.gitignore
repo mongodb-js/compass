@@ -11,3 +11,4 @@ coverage
 *.iml
 .nvmrc
 .nyc_output
+.vscode/

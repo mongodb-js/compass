@@ -260,11 +260,11 @@ describe('Stage module', () => {
       });
 
       it('generates min key', () => {
-        expect(generated.minkey).to.deep.equal(bson.MinKey());
+        expect(generated.minkey._bsontype).to.deep.equal(new bson.MinKey()._bsontype);
       });
 
       it('generates max key', () => {
-        expect(generated.maxkey).to.deep.equal(bson.MaxKey());
+        expect(generated.maxkey._bsontype).to.deep.equal(new bson.MaxKey()._bsontype);
       });
 
       it('generates isodate', () => {

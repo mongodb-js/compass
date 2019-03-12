@@ -1,9 +1,9 @@
 import React from 'react';
 import { shallow } from 'enzyme';
 
-import PipelineToolbar from 'components/pipeline-toolbar';
-import PipelineBuilderToolbar from 'components/pipeline-builder-toolbar';
-import PipelinePreviewToolbar from 'components/pipeline-preview-toolbar';
+import PipelineToolbar from './pipeline-toolbar';
+import PipelineBuilderToolbar from './pipeline-builder-toolbar';
+import PipelinePreviewToolbar from './pipeline-preview-toolbar';
 
 import styles from './pipeline-toolbar.less';
 
@@ -24,6 +24,8 @@ describe('PipelineToolbar [Component]', () => {
   let toggleAutoPreviewSpy;
   let collationCollapseToggledSpy;
   let toggleOverviewSpy;
+  let toggleFullscreenSpy;
+  let toggleSettingsIsExpandedSpy;
 
   beforeEach(() => {
     savedPipelinesListToggleSpy = sinon.spy();
@@ -41,6 +43,8 @@ describe('PipelineToolbar [Component]', () => {
     toggleAutoPreviewSpy = sinon.spy();
     collationCollapseToggledSpy = sinon.spy();
     toggleOverviewSpy = sinon.spy();
+    toggleFullscreenSpy = sinon.spy();
+    toggleSettingsIsExpandedSpy = sinon.spy();
 
     component = shallow(
       <PipelineToolbar
@@ -65,7 +69,12 @@ describe('PipelineToolbar [Component]', () => {
         isAutoPreviewing
         isOverviewOn={false}
         name=""
-        exportToLanguage={exportToLanguageSpy} />
+        exportToLanguage={exportToLanguageSpy}
+        isCollationExpanded={false}
+        isFullscreenOn={false}
+        toggleFullscreen={toggleFullscreenSpy}
+        toggleSettingsIsExpanded={toggleSettingsIsExpandedSpy}
+      />
     );
   });
 

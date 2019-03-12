@@ -1,8 +1,8 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import classnames from 'classnames';
-import PipelineBuilderToolbar from 'components/pipeline-builder-toolbar';
-import PipelinePreviewToolbar from 'components/pipeline-preview-toolbar';
+import PipelineBuilderToolbar from './pipeline-builder-toolbar';
+import PipelinePreviewToolbar from './pipeline-preview-toolbar';
 
 import styles from './pipeline-toolbar.less';
 
@@ -34,7 +34,17 @@ class PipelineToolbar extends PureComponent {
     collationCollapseToggled: PropTypes.func.isRequired,
     isCollationExpanded: PropTypes.bool.isRequired,
     isOverviewOn: PropTypes.bool.isRequired,
-    toggleOverview: PropTypes.func.isRequired
+    toggleOverview: PropTypes.func.isRequired,
+    toggleSettingsIsExpanded: PropTypes.func.isRequired,
+    isFullscreenOn: PropTypes.bool.isRequired,
+    toggleFullscreen: PropTypes.func.isRequired,
+    savingPipelineOpen: PropTypes.func.isRequired
+  };
+
+  static defaultProps = {
+    savedPipeline: {
+      isNameValid: true
+    }
   };
 
   /**
@@ -66,6 +76,7 @@ class PipelineToolbar extends PureComponent {
           isCollationExpanded={this.props.isCollationExpanded}
           isOverviewOn={this.props.isOverviewOn}
           toggleOverview={this.props.toggleOverview}
+          savingPipelineOpen={this.props.savingPipelineOpen}
         />
         <PipelinePreviewToolbar
           toggleComments={this.props.toggleComments}
@@ -75,6 +86,9 @@ class PipelineToolbar extends PureComponent {
           isSampling={this.props.isSampling}
           isAutoPreviewing={this.props.isAutoPreviewing}
           isModified={this.props.isModified}
+          toggleSettingsIsExpanded={this.props.toggleSettingsIsExpanded}
+          isFullscreenOn={this.props.isFullscreenOn}
+          toggleFullscreen={this.props.toggleFullscreen}
         />
       </div>
     );

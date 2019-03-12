@@ -11,6 +11,12 @@ import reducer, {
   CLONE_PIPELINE
 } from 'modules';
 import { toggleOverview, TOGGLE_OVERVIEW } from 'modules/is-overview-on';
+import { largeLimitChanged, LARGE_LIMIT_CHANGED } from 'modules/large-limit';
+import { limitChanged, LIMIT_CHANGED } from 'modules/limit';
+import {
+  maxTimeMSChanged,
+  MAX_TIME_MS_CHANGED
+} from 'modules/max-time-ms';
 
 describe('root [ module ]', () => {
   describe('#reset', () => {
@@ -62,6 +68,33 @@ describe('root [ module ]', () => {
     });
   });
 
+  describe('#maxTimeMS', () => {
+    it('returns the MAX_TIME_MS_CHANGED action', () => {
+      expect(maxTimeMSChanged(100)).to.deep.equal({
+        type: MAX_TIME_MS_CHANGED,
+        maxTimeMS: 100
+      });
+    });
+  });
+
+  describe('#limit', () => {
+    it('returns the LIMIT_CHANGED action', () => {
+      expect(limitChanged(100)).to.deep.equal({
+        type: LIMIT_CHANGED,
+        limit: 100
+      });
+    });
+  });
+
+  describe('#largeLimit', () => {
+    it('returns the LARGE_LIMIT_CHANGED action', () => {
+      expect(largeLimitChanged(100)).to.deep.equal({
+        type: LARGE_LIMIT_CHANGED,
+        largeLimit: 100
+      });
+    });
+  });
+
   describe('#reducer', () => {
     context('when the action is NEW_PIPELINE', () => {
       const prevState = {
@@ -69,7 +102,7 @@ describe('root [ module ]', () => {
         namespace: 'test.test',
         fields: 'test-fields',
         serverVersion: '3.6.0',
-        inputDocuments: [ 'test' ]
+        inputDocuments: ['test']
       };
 
       let state;
@@ -95,7 +128,7 @@ describe('root [ module ]', () => {
       });
 
       it('keeps the input documents', () => {
-        expect(state.inputDocuments).to.deep.equal([ 'test' ]);
+        expect(state.inputDocuments).to.deep.equal(['test']);
       });
 
       it('sets id to null', () => {

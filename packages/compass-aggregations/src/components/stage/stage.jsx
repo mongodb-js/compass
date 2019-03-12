@@ -9,6 +9,13 @@ import StageWorkspace from 'components/stage-workspace';
 import styles from './stage.less';
 
 /**
+ * The default CSS opacity for the HTMLElement
+ * when not dragging or enabled.
+ * @constant {Number}
+ */
+const DEFAULT_OPACITY = 0.6;
+
+/**
  * Behaviour for the stage drag source.
  */
 const stageSource = {
@@ -130,6 +137,20 @@ class Stage extends Component {
   }
 
   /**
+   * What the current CSS opacity for the Stage HTMLElement should be.
+   * @returns {Number} The opacity value.
+   */
+  getOpacity() {
+    if (this.props.isDragging) {
+      return 0;
+    }
+    if (this.props.isEnabled) {
+      return 1;
+    }
+    return DEFAULT_OPACITY;
+  }
+
+  /**
    * Render the workspace.
    *
    * @returns {React.Component} The workspace.
@@ -169,7 +190,7 @@ class Stage extends Component {
    * @returns {Component} The component.
    */
   render() {
-    const opacity = this.props.isDragging ? 0 : this.props.isEnabled ? 1 : 0.6;
+    const opacity = this.getOpacity();
     const errored = this.props.error ? 'stage-errored' : 'stage';
     return this.props.connectDragSource(
       this.props.connectDropTarget(

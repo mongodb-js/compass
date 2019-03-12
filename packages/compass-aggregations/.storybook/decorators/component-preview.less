@@ -1,0 +1,50 @@
+.root {
+  @gutter: 1rem;
+
+  margin-top: @gutter / 2;
+  border: 1px solid transparent;
+  position: absolute;
+
+  top: @gutter;
+  left: @gutter;
+  right: @gutter;
+  bottom: @gutter;
+
+  overflow: scroll;
+
+  // &::before {
+  //   content: 'Live Preview';
+  //   display: block;
+  //   color: rgb(137, 141, 151);
+  //   position: absolute;
+  //   top: -(@gutter + (@gutter/2));
+  //   left: 0;
+  //   font-size: 16px;
+  //   margin-bottom: 20px;
+  //   margin-top: 0px;
+  //   pointer-events: none;
+  // }
+}
+
+.root--light {
+background-image:
+  -moz-linear-gradient(45deg, #eee 25%, transparent 25%), 
+  -moz-linear-gradient(-45deg, #eee 25%, transparent 25%),
+  -moz-linear-gradient(45deg, transparent 75%, #eee 75%),
+  -moz-linear-gradient(-45deg, transparent 75%, #eee 75%);
+background-image:
+  -webkit-gradient(linear, 0 100%, 100% 0, color-stop(.25, #eee), color-stop(.25, transparent)), 
+  -webkit-gradient(linear, 0 0, 100% 100%, color-stop(.25, #eee), color-stop(.25, transparent)),
+  -webkit-gradient(linear, 0 100%, 100% 0, color-stop(.75, transparent), color-stop(.75, #eee)),
+  -webkit-gradient(linear, 0 0, 100% 100%, color-stop(.75, transparent), color-stop(.75, #eee));
+
+-moz-background-size:100px 100px;
+background-size: 10px 10px;
+
+background-position:0 0, 5px 0, 5px -5px, 0px 5px;
+}
+
+.root--dark {
+  background-color: #333;
+  border-color: #000;
+}
