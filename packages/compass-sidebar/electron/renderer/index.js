@@ -5,9 +5,8 @@ import AppRegistry from 'hadron-app-registry';
 import { AppContainer } from 'react-hot-loader';
 import SidebarPlugin, { activate } from 'plugin';
 import DeploymentStateStore from './stores/deployment-state-store';
-import { makeModel } from './stores/instance-store';
-import CollectionStore from './stores/collection-store';
-import NamespaceStore from './stores/namespace-store';
+import { activate as appActivate } from '@mongodb-js/compass-app-stores';
+import InstanceModel from 'mongodb-instance-model';
 
 // Import global less file. Note: these styles WILL NOT be used in compass, as compass provides its own set
 // of global styles. If you are wishing to style a given component, you should be writing a less file per
@@ -19,12 +18,12 @@ const appRegistry = new AppRegistry();
 
 global.hadronApp = app;
 global.hadronApp.appRegistry = appRegistry;
+global.hadronApp.instance = new InstanceModel();
 
 activate(appRegistry);
+appActivate(appRegistry);
 
 appRegistry.registerStore('DeploymentAwareness.WriteStateStore', DeploymentStateStore);
-appRegistry.registerStore('App.CollectionStore', CollectionStore);
-appRegistry.registerStore('App.NamespaceStore', NamespaceStore);
 
 appRegistry.onActivated();
 
@@ -60,27 +59,13 @@ import DataService from 'mongodb-data-service';
 
 const connection = new Connection({
   hostname: '127.0.0.1',
-  port: 27017,
-  ns: 'databaseName'
+  port: 27017
 });
 const dataService = new DataService(connection);
 
-appRegistry.emit('instance-refreshed', {
-  instance: {
-    databases: [
-      {_id: 'admin', collections: ['citibikecoll', 'coll']},
-      {_id: 'citibike', collections: ['admincoll', 'coll2']}
-    ].map((d) => (makeModel(d))),
-    collections: [
-      { _id: 'citibikecoll' }, { _id: 'coll' }, { _id: 'admincoll' }, { _id: 'coll2' }
-    ]
-  }
-});
 DeploymentStateStore.setToInitial();
-appRegistry.emit('data-service-initialized', dataService);
 dataService.connect((error, ds) => {
   appRegistry.emit('data-service-connected', error, ds);
-  appRegistry.emit('database-changed', 'citibike.admincoll');
 });
 
 if (module.hot) {
