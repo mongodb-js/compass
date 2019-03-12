@@ -1,10 +1,12 @@
 import reducer, {
   selectNamespace,
   createTab,
+  closeTab,
   selectTab,
   SELECT_NAMESPACE,
   SELECT_TAB,
-  CREATE_TAB
+  CREATE_TAB,
+  CLOSE_TAB
 } from 'modules/tabs';
 
 describe('tabs module', () => {
@@ -32,6 +34,15 @@ describe('tabs module', () => {
     it('returns the SELECT_TAB action', () => {
       expect(selectTab(1)).to.deep.equal({
         type: SELECT_TAB,
+        index: 1
+      });
+    });
+  });
+
+  describe('#closeTab', () => {
+    it('returns the CLOSE_TAB action', () => {
+      expect(closeTab(1)).to.deep.equal({
+        type: CLOSE_TAB,
         index: 1
       });
     });
@@ -256,6 +267,52 @@ describe('tabs module', () => {
 
         it('does not add additional tabs', () => {
           expect(state.length).to.equal(3);
+        });
+      });
+    });
+
+    context('when the action is close tab', () => {
+      context('when one tab exists', () => {
+        let state;
+        const existingState = [
+          { namespace: 'db.coll1', isActive: true, isReadonly: false }
+        ];
+
+        before(() => {
+          state = reducer(existingState, closeTab(0));
+        });
+
+        it('removes the tab', () => {
+          expect(state.length).to.equal(0);
+        });
+      });
+
+      context('when multiple tabs exist', () => {
+        let state;
+        const existingState = [
+          { namespace: 'db.coll1', isActive: true, isReadonly: false },
+          { namespace: 'db.coll1', isActive: false, isReadonly: false },
+          { namespace: 'db.coll1', isActive: false, isReadonly: false }
+        ];
+
+        context('when the tab being removed is active', () => {
+          before(() => {
+            state = reducer(existingState, closeTab(0));
+          });
+
+          it('removes the tab', () => {
+            expect(state.length).to.equal(2);
+          });
+        });
+
+        context('when the tab being removed is not active', () => {
+          before(() => {
+            state = reducer(existingState, closeTab(1));
+          });
+
+          it('removes the tab', () => {
+            expect(state.length).to.equal(2);
+          });
         });
       });
     });

@@ -14,6 +14,11 @@ export const SELECT_NAMESPACE = `${PREFIX}/tabs/SELECT_NAMESPACE`;
 export const CREATE_TAB = `${PREFIX}/tabs/CREATE_TAB`;
 
 /**
+ * Close tab action name.
+ */
+export const CLOSE_TAB = `${PREFIX}/tabs/CLOSE_TAB`;
+
+/**
  * Select tab action name.
  */
 export const SELECT_TAB = `${PREFIX}/tabs/SELECT_TAB`;
@@ -79,6 +84,15 @@ const doCreateTab = (state, action) => {
   return newState;
 };
 
+const doCloseTab = (state, action) => {
+  return state.reduce((newState, tab, i) => {
+    if (action.index !== i) {
+      newState.push({ ...tab });
+    }
+    return newState;
+  }, []);
+};
+
 /**
  * Handle select tab actions.
  *
@@ -99,6 +113,7 @@ const doSelectTab = (state, action) => {
 const MAPPINGS = {
   [SELECT_NAMESPACE]: doSelectNamespace,
   [CREATE_TAB]: doCreateTab,
+  [CLOSE_TAB]: doCloseTab,
   [SELECT_TAB]: doSelectTab
 };
 
@@ -127,6 +142,18 @@ export const createTab = (namespace, isReadonly) => ({
   type: CREATE_TAB,
   namespace: namespace,
   isReadonly: isReadonly
+});
+
+/**
+ * Action creator for close tab.
+ *
+ * @param {Number} index - The tab index.
+ *
+ * @returns {Object} The close tab action.
+ */
+export const closeTab = (index) => ({
+  type: CLOSE_TAB,
+  index: index
 });
 
 /**
