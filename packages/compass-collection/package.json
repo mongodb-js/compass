@@ -29,7 +29,9 @@
   "dependency-check": {
     "ignore": [
       "react-dom",
-      "debug"
+      "debug",
+      "hadron-ipc",
+      "hadron-react-components"
     ]
   },
   "license": "Apache-2.0",
