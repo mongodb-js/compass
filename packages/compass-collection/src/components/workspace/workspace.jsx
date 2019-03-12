@@ -8,6 +8,7 @@ import {
   selectTab
 } from 'modules/tabs';
 import CollectionTab from 'components/collection-tab';
+import CreateTab from 'components/create-tab';
 
 import styles from './workspace.less';
 
@@ -18,8 +19,23 @@ class Workspace extends PureComponent {
   static displayName = 'Workspace';
 
   static propTypes = {
-    tabs: PropTypes.array.isRequired
+    tabs: PropTypes.array.isRequired,
+    closeTab: PropTypes.func.isRequired,
+    createTab: PropTypes.func.isRequired,
+    selectTab: PropTypes.func.isRequired
   };
+
+  /**
+   * Get the last namespace in the list.
+   *
+   * @returns {String} The last namespace in the list.
+   */
+  lastNamespace() {
+    if (this.props.tabs.length > 0) {
+      return this.props.tabs[this.props.tabs.length - 1].namespace;
+    }
+    return '';
+  }
 
   /**
    * Render the tabs.
@@ -31,8 +47,11 @@ class Workspace extends PureComponent {
       return (
         <CollectionTab
           key={i}
+          index={i}
           namespace={tab.namespace}
-          isActive={tab.isActive} />
+          isActive={tab.isActive}
+          closeTab={this.props.closeTab}
+          selectTab={this.props.selectTab} />
       );
     });
   }
@@ -47,6 +66,9 @@ class Workspace extends PureComponent {
       <div className={classnames(styles.workspace)}>
         <div className={classnames(styles['workspace-tabs'])}>
           {this.renderTabs()}
+          <CreateTab
+            createTab={this.props.createTab}
+            lastNamespace={this.lastNamespace()}/>
         </div>
       </div>
     );

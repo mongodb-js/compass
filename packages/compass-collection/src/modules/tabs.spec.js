@@ -153,8 +153,8 @@ describe('tabs module', () => {
           expect(state[0].namespace).to.equal(namespace);
         });
 
-        it('does not set the tab to active', () => {
-          expect(state[0].isActive).to.equal(false);
+        it('sets the tab to active', () => {
+          expect(state[0].isActive).to.equal(true);
         });
 
         it('sets the tab readonly value', () => {
@@ -181,8 +181,12 @@ describe('tabs module', () => {
           expect(state[1].namespace).to.equal(namespace);
         });
 
-        it('does not set the new tab as active', () => {
-          expect(state[1].isActive).to.equal(false);
+        it('sets the new tab as active', () => {
+          expect(state[1].isActive).to.equal(true);
+        });
+
+        it('sets the other tab as inactive', () => {
+          expect(state[0].isActive).to.equal(false);
         });
 
         it('sets the tab readonly value', () => {
@@ -210,8 +214,8 @@ describe('tabs module', () => {
           expect(state[2].namespace).to.equal(namespace);
         });
 
-        it('does not set the new tab as active', () => {
-          expect(state[2].isActive).to.equal(false);
+        it('sets the new tab as active', () => {
+          expect(state[2].isActive).to.equal(true);
         });
 
         it('sets the tab readonly value', () => {

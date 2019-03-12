@@ -78,7 +78,7 @@ const doCreateTab = (state, action) => {
   });
   newState.push({
     namespace: action.namespace,
-    isActive: false,
+    isActive: true,
     isReadonly: action.isReadonly
   });
   return newState;
