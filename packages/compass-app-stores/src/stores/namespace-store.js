@@ -5,8 +5,9 @@ import toNS from 'mongodb-ns';
 import { reset } from 'modules/namespace/reset';
 import { changeNamespace } from 'modules/namespace/ns';
 
-
 const store = createStore(reducer);
+
+const debug = require('debug')('mongodb-compass:stores:NamespaceStore');
 
 store.onActivated = (appRegistry) => {
   // Events emitted from the app registry:
@@ -43,6 +44,11 @@ Object.defineProperty(store, 'ns', {
     }
     store.dispatch(changeNamespace(ns));
   }
+});
+
+store.subscribe(() => {
+  const state = store.getState();
+  debug('App.NamespaceStore changed to', state);
 });
 
 export default store;

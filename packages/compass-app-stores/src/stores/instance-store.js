@@ -7,6 +7,8 @@ import { changeInstance } from 'modules/instance/instance';
 import { changeErrorMessage } from 'modules/instance/error-message';
 import { changeDataService } from 'modules/instance/data-service';
 
+const debug = require('debug')('mongodb-compass:stores:InstanceStore');
+
 const store = createStore(reducer);
 
 store.handleError = (model, resp, options) => {
@@ -92,5 +94,10 @@ store.onActivated = (appRegistry) => {
     store.refreshInstance();
   });
 };
+
+store.subscribe(() => {
+  const state = store.getState();
+  debug('App.InstanceStore changed to', state);
+});
 
 export default store;

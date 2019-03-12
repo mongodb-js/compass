@@ -6,6 +6,8 @@ import { changeCollection } from 'modules/collection/collection';
 import { changeActiveTabIndex } from 'modules/collection/active-tab-index';
 import { changeTabs } from 'modules/collection/tabs';
 
+const debug = require('debug')('mongodb-compass:stores:CollectionStore');
+
 const store = createStore(reducer);
 
 store.onActivated = (appRegistry) => {
@@ -27,10 +29,10 @@ store.onActivated = (appRegistry) => {
 
 store.setCollection = (collection) => {
   const nsStore = global.hadronApp.appRegistry.getStore('App.NamespaceStore');
+  store.dispatch(changeCollection(collection));
   if (collection._id) {
     nsStore.ns = collection._id;
   }
-  store.dispatch(changeCollection(collection));
 };
 
 store.setTabs = (tabs) => {
@@ -53,6 +55,11 @@ Object.defineProperty(store, 'collection', {
   set: (collection) => {
     return store.setCollection(collection);
   }
+});
+
+store.subscribe(() => {
+  const state = store.getState();
+  debug('App.CollectionStore changed to', state);
 });
 
 export default store;
