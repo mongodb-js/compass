@@ -84,10 +84,48 @@ const doCreateTab = (state, action) => {
   return newState;
 };
 
+/**
+ * Determine if a tab becomes active after an active tab
+ * is closed.
+ *
+ * @param {Number} closeIndex - The index of the tab being closed.
+ * @param {Number} currentIndex - The current tab index.
+ * @param {Number} numTabs - The number of tabs.
+ *
+ * @returns {Boolean} If the tab must be active.
+ */
+const isTabAfterCloseActive = (closeIndex, currentIndex, numTabs) => {
+  return (closeIndex === numTabs - 1)
+    ? (currentIndex === numTabs - 2)
+    : (currentIndex === closeIndex + 1);
+};
+
+/**
+ * Handle close tab actions.
+ *
+ * @param {Object} state - The state.
+ * @param {Object} action - The action.
+ *
+ * @returns {Object} The new state.
+ */
 const doCloseTab = (state, action) => {
+  const closeIndex = action.index;
+  const activeIndex = state.findIndex((tab) => {
+    return tab.isActive;
+  });
+  const numTabs = state.length;
+
   return state.reduce((newState, tab, i) => {
-    if (action.index !== i) {
-      newState.push({ ...tab });
+    if (closeIndex !== i) {
+      // We follow stnadard browser behaviour with tabs on how we
+      // handle which tab gets activated if we close the active tab.
+      // If the active tab is the last tab, we activate the one before
+      // it, otherwise we activate the next tab.
+      if (activeIndex === closeIndex) {
+        newState.push({ ...tab, isActive: isTabAfterCloseActive(closeIndex, i, numTabs)});
+      } else {
+        newState.push({ ...tab });
+      }
     }
     return newState;
   }, []);

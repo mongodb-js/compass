@@ -288,30 +288,70 @@ describe('tabs module', () => {
       });
 
       context('when multiple tabs exist', () => {
-        let state;
-        const existingState = [
-          { namespace: 'db.coll1', isActive: true, isReadonly: false },
-          { namespace: 'db.coll1', isActive: false, isReadonly: false },
-          { namespace: 'db.coll1', isActive: false, isReadonly: false }
-        ];
-
         context('when the tab being removed is active', () => {
-          before(() => {
-            state = reducer(existingState, closeTab(0));
+          context('when there is a tab after it', () => {
+            let state;
+            const existingState = [
+              { namespace: 'db.coll1', isActive: true, isReadonly: false },
+              { namespace: 'db.coll2', isActive: false, isReadonly: false },
+              { namespace: 'db.coll3', isActive: false, isReadonly: false }
+            ];
+
+            before(() => {
+              state = reducer(existingState, closeTab(0));
+            });
+
+            it('removes the tab', () => {
+              expect(state.length).to.equal(2);
+            });
+
+            it('makes the next tab active', () => {
+              expect(state[0].isActive).to.equal(true);
+              expect(state[0].namespace).to.equal('db.coll2');
+            });
           });
 
-          it('removes the tab', () => {
-            expect(state.length).to.equal(2);
+          context('when there is no tab after it', () => {
+            let state;
+            const existingState = [
+              { namespace: 'db.coll1', isActive: false, isReadonly: false },
+              { namespace: 'db.coll2', isActive: false, isReadonly: false },
+              { namespace: 'db.coll3', isActive: true, isReadonly: false }
+            ];
+
+            before(() => {
+              state = reducer(existingState, closeTab(2));
+            });
+
+            it('removes the tab', () => {
+              expect(state.length).to.equal(2);
+            });
+
+            it('makes the previous tab active', () => {
+              expect(state[1].isActive).to.equal(true);
+              expect(state[1].namespace).to.equal('db.coll2');
+            });
           });
         });
 
         context('when the tab being removed is not active', () => {
+          let state;
+          const existingState = [
+            { namespace: 'db.coll1', isActive: false, isReadonly: false },
+            { namespace: 'db.coll2', isActive: false, isReadonly: false },
+            { namespace: 'db.coll3', isActive: true, isReadonly: false }
+          ];
+
           before(() => {
             state = reducer(existingState, closeTab(1));
           });
 
           it('removes the tab', () => {
             expect(state.length).to.equal(2);
+          });
+
+          it('does not change active state', () => {
+            expect(state[1].isActive).to.equal(true);
           });
         });
       });
