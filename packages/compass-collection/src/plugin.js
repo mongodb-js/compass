@@ -1,13 +1,10 @@
 import React, { Component } from 'react';
-import PropTypes from 'prop-types';
-import Collection from 'components/collection';
+import Workspace from 'components/workspace';
+import { Provider } from 'react-redux';
+import store from 'stores';
 
 class Plugin extends Component {
-  static displayName = 'CollectionPlugin';
-
-  static propTypes = {
-    namespace: PropTypes.string
-  };
+  static displayName = 'CollectionWorkspacePlugin';
 
   /**
    * Connect the Plugin to the store and render.
@@ -15,8 +12,13 @@ class Plugin extends Component {
    * @returns {React.Component} The rendered component.
    */
   render() {
-    return (<Collection namespace={this.props.namespace} />);
+    return (
+      <Provider store={store}>
+        <Workspace />
+      </Provider>
+    );
   }
 }
 
 export default Plugin;
+export { Plugin };

@@ -1,4 +1,5 @@
 import CollectionPlugin from './plugin';
+import CollectionStore from 'stores';
 
 /**
  * A sample role for the component.
@@ -14,6 +15,7 @@ const ROLE = {
  **/
 function activate(appRegistry) {
   appRegistry.registerRole('Collection.Workspace', ROLE);
+  appRegistry.registerStore('Collection.Store', CollectionStore);
 }
 
 /**
@@ -22,6 +24,7 @@ function activate(appRegistry) {
  **/
 function deactivate(appRegistry) {
   appRegistry.deregisterRole('Collection.Workspace', ROLE);
+  appRegistry.deregisterStore('Collection.Store');
 }
 
 export default CollectionPlugin;

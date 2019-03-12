@@ -4,7 +4,7 @@ import ReactDOM from 'react-dom';
 import app from 'hadron-app';
 import AppRegistry from 'hadron-app-registry';
 import { AppContainer } from 'react-hot-loader';
-import DatabasePlugin, { activate } from 'plugin';
+import CollectionPlugin, { activate } from 'plugin';
 import CollectionStore from './stores/collection-store';
 
 // Import global less file. Note: these styles WILL NOT be used in compass, as compass provides its own set
@@ -55,13 +55,15 @@ appRegistry.onActivated();
 // we should create our own root node in the body element before rendering into it.
 const root = document.createElement('div');
 root.id = 'root';
+root.style.width = '100vw';
+root.style.height = '100vh';
 document.body.appendChild(root);
 
 // Create a HMR enabled render function
 const render = Component => {
   ReactDOM.render(
     <AppContainer>
-      <Component namespace="citibike.trips" />
+      <Component />
     </AppContainer>,
     document.getElementById('root')
   );
@@ -74,7 +76,7 @@ const render = Component => {
 // appRegistry.emit('application-initialized', '1.11.0-dev');
 
 // Render our plugin - don't remove the following line.
-render(DatabasePlugin);
+render(CollectionPlugin);
 
 // // Data service initialization and connection.
 // import Connection from 'mongodb-connection-model';
@@ -94,7 +96,7 @@ render(DatabasePlugin);
 // dataService.connect((error, ds) => {
 //    appRegistry.emit('data-service-connected', error, ds);
 //    For automatic switching to specific namespaces, uncomment below as needed.
-//    appRegistry.emit('collection-changed', 'database.collection');
+appRegistry.emit('collection-changed', 'citibike.trips');
 //    appRegistry.emit('database-changed', 'database');
 
 //    For plugins based on query execution, comment out below:
@@ -127,6 +129,6 @@ if (module.hot) {
   module.hot.accept('plugin', () => {
     // Because Webpack 2 has built-in support for ES2015 modules,
     // you won't need to re-require your app root in module.hot.accept
-    render(DatabasePlugin);
+    render(CollectionPlugin);
   });
 }

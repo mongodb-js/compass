@@ -123,6 +123,8 @@
   },
   "dependencies": {
     "lodash.filter": "^4.6.0",
-    "mongodb-ns": "^2.0.0"
+    "mongodb-ns": "^2.0.0",
+    "react-redux": "^5.0.6",
+    "redux": "^3.7.2"
   }
 }
