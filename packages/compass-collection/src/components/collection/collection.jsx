@@ -26,6 +26,7 @@ class Collection extends Component {
     this.NamespaceStore = app.appRegistry.getStore('App.NamespaceStore');
     this.QueryActions = app.appRegistry.getAction('Query.Actions');
     this.QueryHistoryActions = app.appRegistry.getAction('QueryHistory.Actions');
+    this.boundActiveTabChanged = this.activeTabChanged.bind(this);
 
     this.setupTabs();
   }
@@ -40,9 +41,13 @@ class Collection extends Component {
       this.setState({ activeTab: 0 });
     }
     if (this.CollectionStore) {
-      global.hadronApp.appRegistry.on('active-tab-changed', (index) => {
-        this.setState({ activeTab: index });
-      });
+      global.hadronApp.appRegistry.on('active-tab-changed', this.boundActiveTabChanged);
+    }
+  }
+
+  componentWillUnmount() {
+    if (this.CollectionStore) {
+      global.hadronApp.appRegistry.removeListener('active-tab-changed', this.boundActiveTabChanged);
     }
   }
 
@@ -91,6 +96,11 @@ class Collection extends Component {
     this.queryHistoryIndexes = queryHistoryIndexes;
     this.CollectionStore.setTabs(tabs);
   }
+
+  activeTabChanged(index) {
+    this.setState({ activeTab: index });
+  }
+
 
   roleFiltered(role) {
     const serverVersion = global.hadronApp.instance.build.version;
