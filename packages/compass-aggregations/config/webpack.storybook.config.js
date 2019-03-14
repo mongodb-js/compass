@@ -93,5 +93,4 @@ const config = {
   },
   plugins: PLUGINS
 };
-
 module.exports = merge.smart(baseWebpackConfig, config);

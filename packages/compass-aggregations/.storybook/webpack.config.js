@@ -1,10 +1,9 @@
 module.exports = (storybookBaseConfig, env) => {
   const webpackConfig = require('../config/webpack.storybook.config.js');
-
   return {
-    ...storybookBaseConfig,
+    ...storybookBaseConfig.config,
     module: { rules: webpackConfig.module.rules },
     resolve: webpackConfig.resolve,
-    plugins: storybookBaseConfig.plugins.concat(webpackConfig.plugins),
+    plugins: storybookBaseConfig.config.plugins.concat(webpackConfig.plugins),
   };
 };
