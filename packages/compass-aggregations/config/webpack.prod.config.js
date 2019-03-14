@@ -1,4 +1,3 @@
-const webpack = require('webpack');
 const merge = require('webpack-merge');
 const path = require('path');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
@@ -8,14 +7,8 @@ const PeerDepsExternalsPlugin = require('peer-deps-externals-webpack-plugin');
 const baseWebpackConfig = require('./webpack.base.config');
 const project = require('./project');
 
-const GLOBALS = {
-  'process.env': {
-    'NODE_ENV': JSON.stringify('production')
-  },
-  __DEV__: JSON.stringify(JSON.parse(process.env.DEBUG || 'false'))
-};
-
 const config = {
+  mode: 'production',
   target: 'electron-renderer',
   devtool: false,
   entry: {
@@ -56,17 +49,10 @@ const config = {
       }
     ]
   },
-  optimization: {
-    // Minimize and uglify the code
-    minimize: true,
-  },
   plugins: [
     // Auto-create webpack externals for any dependency listed as a peerDependency in package.json
     // so that the external vendor JavaScript is not part of our compiled bundle
     new PeerDepsExternalsPlugin(),
-
-    // Do not emit compiled assets that include errors
-    new webpack.NoEmitOnErrorsPlugin(),
 
     // Configure Extract Plugin for dependent global styles into a single CSS file
     new ExtractTextPlugin({
@@ -74,10 +60,6 @@ const config = {
       allChunks: true,
       ignoreOrder: true // When using CSS modules import order of CSS no longer needs to be preserved
     }),
-
-    // Defines global variables
-    new webpack.DefinePlugin(GLOBALS),
-
     // Creates HTML page for us at build time
     new HtmlWebpackPlugin()
   ],

@@ -6,14 +6,6 @@ const nodeExternals = require('webpack-node-externals');
 const baseWebpackConfig = require('./webpack.base.config');
 const project = require('./project');
 
-const GLOBALS = {
-  'process.env': {
-    NODE_ENV: JSON.stringify('development')
-  },
-  jQuery: require('jquery'),
-  __DEV__: JSON.stringify(JSON.parse('true'))
-};
-
 const PLUGINS = [
   // Node externals
   new webpack.ExternalsPlugin('commonjs', [
@@ -59,10 +51,7 @@ if (process.env.NODE_ENV !== 'production') {
 
 PLUGINS.push.apply(PLUGINS, [
   // Do not emit compiled assets that include errors
-  new webpack.NoEmitOnErrorsPlugin(),
-
-  // Defines global variables
-  new webpack.DefinePlugin(GLOBALS)
+  new webpack.NoEmitOnErrorsPlugin()
 ]);
 
 const config = {
