@@ -97,7 +97,7 @@ render(CollectionPlugin);
 //    appRegistry.emit('data-service-connected', error, ds);
 //    For automatic switching to specific namespaces, uncomment below as needed.
 appRegistry.emit('select-namespace', 'citibike.trips');
-appRegistry.emit('open-in-new-tab', 'thisisaverylongdatabase.andcollectionname');
+appRegistry.emit('open-namespace-in-new-tab', 'thisisaverylongdatabase.andcollectionname');
 //    appRegistry.emit('database-changed', 'database');
 
 //    For plugins based on query execution, comment out below:

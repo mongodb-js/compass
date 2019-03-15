@@ -4,7 +4,7 @@ import reducer from 'modules';
 import { appRegistryActivated } from 'modules/app-registry';
 import { dataServiceConnected } from 'modules/data-service';
 import { serverVersionChanged } from 'modules/server-version';
-import { selectNamespace } from 'modules/tabs';
+import { selectNamespace, createTab } from 'modules/tabs';
 
 const store = createStore(reducer);
 
@@ -19,6 +19,20 @@ store.onActivated = (appRegistry) => {
    *
    * @param {String} ns - The namespace.
    */
+  appRegistry.on('open-namespace-in-new-tab', (ns) => {
+    if (ns) {
+      const namespace = toNS(ns);
+      if (namespace.collection) {
+        store.dispatch(createTab(ns));
+      }
+    }
+  });
+
+  /**
+   * When a collection namespace is selected in the sidebar.
+   *
+   * @param {String} ns - The namespace.
+   */
   appRegistry.on('select-namespace', (ns) => {
     if (ns) {
       const namespace = toNS(ns);
@@ -27,6 +41,7 @@ store.onActivated = (appRegistry) => {
       }
     }
   });
+
   /**
    * Set the data service in the store when connected.
    *

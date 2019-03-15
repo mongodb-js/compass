@@ -97,5 +97,57 @@ describe('Aggregation Store', () => {
         });
       });
     });
+
+    context('when a opening a namespace in a new tab', () => {
+      context('when the namespace has a collection', () => {
+        beforeEach(() => {
+          appRegistry.emit('open-namespace-in-new-tab', 'db.coll');
+        });
+
+        it('creates a tab in the store', () => {
+          expect(store.getState().tabs[0].namespace).to.equal('db.coll');
+        });
+      });
+
+      context('when the namespace does not have a collection', () => {
+        beforeEach(() => {
+          appRegistry.emit('open-namespace-in-new-tab', 'db');
+        });
+
+        it('does not create a tab in the store', () => {
+          expect(store.getState().tabs).to.have.length(0);
+        });
+      });
+
+      context('when the namespace is null', () => {
+        beforeEach(() => {
+          appRegistry.emit('open-namespace-in-new-tab', null);
+        });
+
+        it('does not create a tab in the store', () => {
+          expect(store.getState().tabs).to.have.length(0);
+        });
+      });
+
+      context('when the namespace is undefined', () => {
+        beforeEach(() => {
+          appRegistry.emit('open-namespace-in-new-tab');
+        });
+
+        it('does not create a tab in the store', () => {
+          expect(store.getState().tabs).to.have.length(0);
+        });
+      });
+
+      context('when the namespace is empty', () => {
+        beforeEach(() => {
+          appRegistry.emit('open-namespace-in-new-tab', '');
+        });
+
+        it('does not create a tab in the store', () => {
+          expect(store.getState().tabs).to.have.length(0);
+        });
+      });
+    });
   });
 });
