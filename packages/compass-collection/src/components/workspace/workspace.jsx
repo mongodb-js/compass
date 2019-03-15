@@ -67,13 +67,18 @@ class Workspace extends PureComponent {
    */
   handleKeypress(evt) {
     if (evt.ctrlKey || evt.metaKey) {
-      if (evt.keyCode === KEY_W) {
-        this.props.closeTab(this.props.tabs.findIndex(tab => tab.isActive));
-        if (this.props.tabs.length > 0) {
-          evt.preventDefault();
+      if (evt.shiftKey) {
+        // Handle open bracket (prev tab)
+        // Handle close bracket (next tab)
+      } else {
+        if (evt.keyCode === KEY_W) {
+          this.props.closeTab(this.props.tabs.findIndex(tab => tab.isActive));
+          if (this.props.tabs.length > 0) {
+            evt.preventDefault();
+          }
+        } else if (evt.keyCode === KEY_T) {
+          this.props.createTab(this.lastNamespace());
         }
-      } else if (evt.keyCode === KEY_T) {
-        this.props.createTab(this.lastNamespace());
       }
     }
   }

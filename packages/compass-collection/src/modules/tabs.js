@@ -24,6 +24,11 @@ export const CLOSE_TAB = `${PREFIX}/tabs/CLOSE_TAB`;
 export const SELECT_TAB = `${PREFIX}/tabs/SELECT_TAB`;
 
 /**
+ * Move tab action name.
+ */
+export const MOVE_TAB = `${PREFIX}/tabs/MOVE_TAB`;
+
+/**
  * The initial state.
  */
 export const INITIAL_STATE = [];
@@ -132,6 +137,21 @@ const doCloseTab = (state, action) => {
 };
 
 /**
+ * Handle move tab actions.
+ *
+ * @param {Object} state - The state.
+ * @param {Object} action - The action.
+ *
+ * @returns {Object} The new state.
+ */
+const doMoveTab = (state, action) => {
+  if (action.fromIndex === action.toIndex) return state;
+  const newState = state.map((tab) => ({ ...tab }));
+  newState.splice(action.toIndex, 0, newState.splice(action.fromIndex, 1)[0]);
+  return newState;
+};
+
+/**
  * Handle select tab actions.
  *
  * @param {Object} state - The state.
@@ -152,6 +172,7 @@ const MAPPINGS = {
   [SELECT_NAMESPACE]: doSelectNamespace,
   [CREATE_TAB]: doCreateTab,
   [CLOSE_TAB]: doCloseTab,
+  [MOVE_TAB]: doMoveTab,
   [SELECT_TAB]: doSelectTab
 };
 
@@ -192,6 +213,20 @@ export const createTab = (namespace, isReadonly) => ({
 export const closeTab = (index) => ({
   type: CLOSE_TAB,
   index: index
+});
+
+/**
+ * Action creator for move tab.
+ *
+ * @param {Number} fromIndex - The from tab index.
+ * @param {Number} toIndex - The to tab index.
+ *
+ * @returns {Object} The move tab action.
+ */
+export const moveTab = (fromIndex, toIndex) => ({
+  type: MOVE_TAB,
+  fromIndex: fromIndex,
+  toIndex: toIndex
 });
 
 /**

@@ -2,9 +2,11 @@ import reducer, {
   selectNamespace,
   createTab,
   closeTab,
+  moveTab,
   selectTab,
   SELECT_NAMESPACE,
   SELECT_TAB,
+  MOVE_TAB,
   CREATE_TAB,
   CLOSE_TAB
 } from 'modules/tabs';
@@ -35,6 +37,16 @@ describe('tabs module', () => {
       expect(selectTab(1)).to.deep.equal({
         type: SELECT_TAB,
         index: 1
+      });
+    });
+  });
+
+  describe('#moveTab', () => {
+    it('returns the MOVE action', () => {
+      expect(moveTab(1, 7)).to.deep.equal({
+        type: MOVE_TAB,
+        fromIndex: 1,
+        toIndex: 7
       });
     });
   });
@@ -273,6 +285,54 @@ describe('tabs module', () => {
           expect(state.length).to.equal(3);
         });
       });
+    });
+
+    context('when the action is move tab', () => {
+      context('when moving forward', () => {
+        let state;
+        const existingState = [
+          { namespace: 'db.coll1', isActive: true, isReadonly: false },
+          { namespace: 'db.coll2', isActive: false, isReadonly: false },
+          { namespace: 'db.coll3', isActive: false, isReadonly: false }
+        ];
+
+        before(() => {
+          state = reducer(existingState, moveTab(0, 2));
+        });
+
+        it('it reorders the tabs', () => {
+          expect(state[0].namespace).to.equal('db.coll2');
+          expect(state[1].namespace).to.equal('db.coll3');
+          expect(state[2].namespace).to.equal('db.coll1');
+        });
+      });
+
+      context('when moving backwards', () => {
+        let state;
+        const existingState = [
+          { namespace: 'db.coll1', isActive: true, isReadonly: false },
+          { namespace: 'db.coll2', isActive: false, isReadonly: false },
+          { namespace: 'db.coll3', isActive: false, isReadonly: false }
+        ];
+
+        before(() => {
+          state = reducer(existingState, moveTab(2, 1));
+        });
+
+        it('reorders the tabs', () => {
+          expect(state[0].namespace).to.equal('db.coll1');
+          expect(state[1].namespace).to.equal('db.coll3');
+          expect(state[2].namespace).to.equal('db.coll2');
+        });
+      });
+    });
+
+    context('when the action is prev tab', () => {
+
+    });
+
+    context('when the action is next tab', () => {
+
     });
 
     context('when the action is close tab', () => {
