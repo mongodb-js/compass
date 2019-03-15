@@ -14,10 +14,17 @@ const store = createStore(reducer);
  * @param {AppRegistry} appRegistry - The app registry.
  */
 store.onActivated = (appRegistry) => {
-  appRegistry.on('collection-changed', (ns) => {
-    const namespace = toNS(ns);
-    if (namespace.collection) {
-      store.dispatch(selectNamespace(ns));
+  /**
+   * When a collection namespace is selected in the sidebar.
+   *
+   * @param {String} ns - The namespace.
+   */
+  appRegistry.on('select-namespace', (ns) => {
+    if (ns) {
+      const namespace = toNS(ns);
+      if (namespace.collection) {
+        store.dispatch(selectNamespace(ns));
+      }
     }
   });
   /**

@@ -45,5 +45,57 @@ describe('Aggregation Store', () => {
         expect(store.getState().serverVersion).to.equal('4.2.0');
       });
     });
+
+    context('when a namespace is selected', () => {
+      context('when the namespace has a collection', () => {
+        beforeEach(() => {
+          appRegistry.emit('select-namespace', 'db.coll');
+        });
+
+        it('creates a tab in the store', () => {
+          expect(store.getState().tabs[0].namespace).to.equal('db.coll');
+        });
+      });
+
+      context('when the namespace does not have a collection', () => {
+        beforeEach(() => {
+          appRegistry.emit('select-namespace', 'db');
+        });
+
+        it('does not create a tab in the store', () => {
+          expect(store.getState().tabs).to.have.length(0);
+        });
+      });
+
+      context('when the namespace is null', () => {
+        beforeEach(() => {
+          appRegistry.emit('select-namespace', null);
+        });
+
+        it('does not create a tab in the store', () => {
+          expect(store.getState().tabs).to.have.length(0);
+        });
+      });
+
+      context('when the namespace is undefined', () => {
+        beforeEach(() => {
+          appRegistry.emit('select-namespace');
+        });
+
+        it('does not create a tab in the store', () => {
+          expect(store.getState().tabs).to.have.length(0);
+        });
+      });
+
+      context('when the namespace is empty', () => {
+        beforeEach(() => {
+          appRegistry.emit('select-namespace', '');
+        });
+
+        it('does not create a tab in the store', () => {
+          expect(store.getState().tabs).to.have.length(0);
+        });
+      });
+    });
   });
 });
