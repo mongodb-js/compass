@@ -4,11 +4,13 @@ import reducer, {
   closeTab,
   moveTab,
   nextTab,
+  prevTab,
   selectTab,
   SELECT_NAMESPACE,
   SELECT_TAB,
   MOVE_TAB,
   NEXT_TAB,
+  PREV_TAB,
   CREATE_TAB,
   CLOSE_TAB
 } from 'modules/tabs';
@@ -57,6 +59,14 @@ describe('tabs module', () => {
     it('returns the NEXT_TAB action', () => {
       expect(nextTab()).to.deep.equal({
         type: NEXT_TAB
+      });
+    });
+  });
+
+  describe('#prevTab', () => {
+    it('returns the PREV_TAB action', () => {
+      expect(prevTab()).to.deep.equal({
+        type: PREV_TAB
       });
     });
   });
@@ -339,11 +349,45 @@ describe('tabs module', () => {
 
     context('when the action is prev tab', () => {
       context('when the tab is not the first tab', () => {
+        let state;
+        const existingState = [
+          { namespace: 'db.coll1', isActive: false, isReadonly: false },
+          { namespace: 'db.coll2', isActive: true, isReadonly: false },
+          { namespace: 'db.coll3', isActive: false, isReadonly: false }
+        ];
 
+        before(() => {
+          state = reducer(existingState, prevTab());
+        });
+
+        it('activates the prev tab', () => {
+          expect(state[0].isActive).to.equal(true);
+        });
+
+        it('deactivates the old tab', () => {
+          expect(state[1].isActive).to.equal(false);
+        });
       });
 
       context('when the tab is the first tab', () => {
+        let state;
+        const existingState = [
+          { namespace: 'db.coll1', isActive: true, isReadonly: false },
+          { namespace: 'db.coll2', isActive: false, isReadonly: false },
+          { namespace: 'db.coll3', isActive: false, isReadonly: false }
+        ];
 
+        before(() => {
+          state = reducer(existingState, prevTab());
+        });
+
+        it('activates the last tab', () => {
+          expect(state[2].isActive).to.equal(true);
+        });
+
+        it('deactivates the old tab', () => {
+          expect(state[0].isActive).to.equal(false);
+        });
       });
     });
 
