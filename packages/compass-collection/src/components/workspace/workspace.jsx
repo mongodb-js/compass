@@ -75,7 +75,8 @@ class Workspace extends PureComponent {
 
   /**
    * Handle key press. This listens for CTRL/CMD+T and CTRL/CMD+W to control
-   * natural opening and closing of collection tabs.
+   * natural opening and closing of collection tabs. CTRL/CMD+SHIFT+] and
+   * CTRL/CMD+SHIFT+[ to go forward and backwards through the tabs.
    *
    * @param {Event} evt - The event.
    */
