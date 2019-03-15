@@ -29,6 +29,11 @@ export const SELECT_TAB = `${PREFIX}/tabs/SELECT_TAB`;
 export const MOVE_TAB = `${PREFIX}/tabs/MOVE_TAB`;
 
 /**
+ * Next tab action name.
+ */
+export const NEXT_TAB = `${PREFIX}/tabs/NEXT_TAB`;
+
+/**
  * The initial state.
  */
 export const INITIAL_STATE = [];
@@ -152,6 +157,35 @@ const doMoveTab = (state, action) => {
 };
 
 /**
+ * Determine if a tab is active after the next action.
+ *
+ * @param {Number} activeIndex - The current active tab index.
+ * @param {Number} currentIndex - The currently iterated tab index.
+ * @param {Number} numTabs - The total number of tabs.
+ *
+ * @returns {Boolean} If the tab is active.
+ */
+const isTabAfterNextActive = (activeIndex, currentIndex, numTabs) => {
+  return (activeIndex === numTabs - 1)
+    ? (currentIndex === 0)
+    : (currentIndex === activeIndex + 1);
+};
+
+/**
+ * Activate the next tab.
+ *
+ * @param {Object} state - The state.
+ *
+ * @returns {Object} The new state.
+ */
+const doNextTab = (state) => {
+  const activeIndex = state.findIndex(tab => tab.isActive);
+  return state.map((tab, i) => {
+    return { ...tab, isActive: isTabAfterNextActive(activeIndex, i, state.length) };
+  });
+};
+
+/**
  * Handle select tab actions.
  *
  * @param {Object} state - The state.
@@ -173,6 +207,7 @@ const MAPPINGS = {
   [CREATE_TAB]: doCreateTab,
   [CLOSE_TAB]: doCloseTab,
   [MOVE_TAB]: doMoveTab,
+  [NEXT_TAB]: doNextTab,
   [SELECT_TAB]: doSelectTab
 };
 
@@ -227,6 +262,15 @@ export const moveTab = (fromIndex, toIndex) => ({
   type: MOVE_TAB,
   fromIndex: fromIndex,
   toIndex: toIndex
+});
+
+/**
+ * Action creator for next tab.
+ *
+ * @returns {Object} The next tab action.
+ */
+export const nextTab = () => ({
+  type: NEXT_TAB
 });
 
 /**

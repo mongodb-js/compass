@@ -3,10 +3,12 @@ import reducer, {
   createTab,
   closeTab,
   moveTab,
+  nextTab,
   selectTab,
   SELECT_NAMESPACE,
   SELECT_TAB,
   MOVE_TAB,
+  NEXT_TAB,
   CREATE_TAB,
   CLOSE_TAB
 } from 'modules/tabs';
@@ -47,6 +49,14 @@ describe('tabs module', () => {
         type: MOVE_TAB,
         fromIndex: 1,
         toIndex: 7
+      });
+    });
+  });
+
+  describe('#nextTab', () => {
+    it('returns the NEXT_TAB action', () => {
+      expect(nextTab()).to.deep.equal({
+        type: NEXT_TAB
       });
     });
   });
@@ -328,11 +338,57 @@ describe('tabs module', () => {
     });
 
     context('when the action is prev tab', () => {
+      context('when the tab is not the first tab', () => {
 
+      });
+
+      context('when the tab is the first tab', () => {
+
+      });
     });
 
     context('when the action is next tab', () => {
+      context('when the tab is not the last tab', () => {
+        let state;
+        const existingState = [
+          { namespace: 'db.coll1', isActive: true, isReadonly: false },
+          { namespace: 'db.coll2', isActive: false, isReadonly: false },
+          { namespace: 'db.coll3', isActive: false, isReadonly: false }
+        ];
 
+        before(() => {
+          state = reducer(existingState, nextTab());
+        });
+
+        it('activates the next tab', () => {
+          expect(state[1].isActive).to.equal(true);
+        });
+
+        it('deactivates the old tab', () => {
+          expect(state[0].isActive).to.equal(false);
+        });
+      });
+
+      context('when the tab is the last tab', () => {
+        let state;
+        const existingState = [
+          { namespace: 'db.coll1', isActive: false, isReadonly: false },
+          { namespace: 'db.coll2', isActive: false, isReadonly: false },
+          { namespace: 'db.coll3', isActive: true, isReadonly: false }
+        ];
+
+        before(() => {
+          state = reducer(existingState, nextTab());
+        });
+
+        it('activates the first tab', () => {
+          expect(state[0].isActive).to.equal(true);
+        });
+
+        it('deactivates the old tab', () => {
+          expect(state[2].isActive).to.equal(false);
+        });
+      });
     });
 
     context('when the action is close tab', () => {
