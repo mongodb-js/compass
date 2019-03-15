@@ -5,6 +5,8 @@ import classnames from 'classnames';
 import {
   createTab,
   closeTab,
+  prevTab,
+  nextTab,
   selectTab
 } from 'modules/tabs';
 import CollectionTab from 'components/collection-tab';
@@ -23,6 +25,16 @@ const KEY_W = 87;
 const KEY_T = 84;
 
 /**
+ * ] is 221.
+ */
+const KEY_CLOSE_BRKT = 221;
+
+/**
+ * [ = 219
+ */
+const KEY_OPEN_BRKT = 219;
+
+/**
  * The collection workspace contains tabs of multiple collections.
  */
 class Workspace extends PureComponent {
@@ -32,6 +44,8 @@ class Workspace extends PureComponent {
     tabs: PropTypes.array.isRequired,
     closeTab: PropTypes.func.isRequired,
     createTab: PropTypes.func.isRequired,
+    prevTab: PropTypes.func.isRequired,
+    nextTab: PropTypes.func.isRequired,
     selectTab: PropTypes.func.isRequired
   };
 
@@ -68,8 +82,11 @@ class Workspace extends PureComponent {
   handleKeypress(evt) {
     if (evt.ctrlKey || evt.metaKey) {
       if (evt.shiftKey) {
-        // Handle open bracket (prev tab)
-        // Handle close bracket (next tab)
+        if (evt.keyCode === KEY_CLOSE_BRKT) {
+          this.props.nextTab();
+        } else if (evt.keyCode === KEY_OPEN_BRKT) {
+          this.props.prevTab();
+        }
       } else {
         if (evt.keyCode === KEY_W) {
           this.props.closeTab(this.props.tabs.findIndex(tab => tab.isActive));
@@ -154,6 +171,8 @@ const MappedWorkspace = connect(
   {
     createTab,
     closeTab,
+    prevTab,
+    nextTab,
     selectTab
   }
 )(Workspace);
