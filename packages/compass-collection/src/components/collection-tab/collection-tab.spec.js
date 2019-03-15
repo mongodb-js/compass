@@ -5,6 +5,8 @@ import CollectionTab from 'components/collection-tab';
 import styles from './collection-tab.less';
 
 describe('CollectionTab [Component]', () => {
+  const connect = (c) => { return c };
+
   context('when the tab is active', () => {
     let component;
     let closeTabSpy;
@@ -14,11 +16,13 @@ describe('CollectionTab [Component]', () => {
       closeTabSpy = sinon.spy();
       selectTabSpy = sinon.spy();
       component = mount(
-        <CollectionTab
+        <CollectionTab.DecoratedComponent
           namespace="db.coll"
           subTab="Documents"
           isActive
           index={1}
+          connectDropTarget={connect}
+          connectDragSource={connect}
           closeTab={closeTabSpy}
           selectTab={selectTabSpy} />
       );
@@ -64,9 +68,11 @@ describe('CollectionTab [Component]', () => {
       closeTabSpy = sinon.spy();
       selectTabSpy = sinon.spy();
       component = mount(
-        <CollectionTab
+        <CollectionTab.DecoratedComponent
           namespace="db.coll"
           subTab="Documents"
+          connectDropTarget={connect}
+          connectDragSource={connect}
           isActive={false}
           index={1}
           closeTab={closeTabSpy}

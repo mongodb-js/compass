@@ -1,4 +1,6 @@
 import React, { PureComponent } from 'react';
+import { DragDropContext } from 'react-dnd';
+import HTML5Backend from 'react-dnd-html5-backend';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import classnames from 'classnames';
@@ -7,6 +9,7 @@ import {
   closeTab,
   prevTab,
   nextTab,
+  moveTab,
   selectTab
 } from 'modules/tabs';
 import CollectionTab from 'components/collection-tab';
@@ -37,6 +40,7 @@ const KEY_OPEN_BRKT = 219;
 /**
  * The collection workspace contains tabs of multiple collections.
  */
+@DragDropContext(HTML5Backend)
 class Workspace extends PureComponent {
   static displayName = 'Workspace';
 
@@ -46,6 +50,7 @@ class Workspace extends PureComponent {
     createTab: PropTypes.func.isRequired,
     prevTab: PropTypes.func.isRequired,
     nextTab: PropTypes.func.isRequired,
+    moveTab: PropTypes.func.isRequired,
     selectTab: PropTypes.func.isRequired
   };
 
@@ -128,7 +133,8 @@ class Workspace extends PureComponent {
           subTab="Documents"
           isActive={tab.isActive}
           closeTab={this.props.closeTab}
-          selectTab={this.props.selectTab} />
+          selectTab={this.props.selectTab}
+          moveTab={this.props.moveTab} />
       );
     });
   }
@@ -174,6 +180,7 @@ const MappedWorkspace = connect(
     closeTab,
     prevTab,
     nextTab,
+    moveTab,
     selectTab
   }
 )(Workspace);
