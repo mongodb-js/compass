@@ -9,6 +9,7 @@ class CollectionTab extends PureComponent {
 
   static propTypes = {
     namespace: PropTypes.string.isRequired,
+    subTab: PropTypes.string.isRequired,
     isActive: PropTypes.bool.isRequired,
     closeTab: PropTypes.func.isRequired,
     selectTab: PropTypes.func.isRequired,
@@ -47,7 +48,7 @@ class CollectionTab extends PureComponent {
             {this.props.namespace}
           </div>
           <div className={classnames(styles['collection-tab-info-subtab'])}>
-            Placeholder
+            {this.props.subTab}
           </div>
         </div>
         <div className={classnames(styles['collection-tab-close'])} onClick={this.closeTab}>
