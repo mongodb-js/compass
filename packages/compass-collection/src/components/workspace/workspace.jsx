@@ -13,6 +13,16 @@ import CreateTab from 'components/create-tab';
 import styles from './workspace.less';
 
 /**
+ * W key is key code 87.
+ */
+const KEY_W = 87;
+
+/**
+ * T key is key code 84.
+ */
+const KEY_T = 84;
+
+/**
  * The collection workspace contains tabs of multiple collections.
  */
 class Workspace extends PureComponent {
@@ -24,6 +34,49 @@ class Workspace extends PureComponent {
     createTab: PropTypes.func.isRequired,
     selectTab: PropTypes.func.isRequired
   };
+
+  /**
+   * Instantiate the component.
+   *
+   * @param {Object} props - The properties.
+   */
+  constructor(props) {
+    super(props);
+    this.boundHandleKeypress = this.handleKeypress.bind(this);
+  }
+
+  /**
+   * Add the keypress listener on mount.
+   */
+  componentDidMount() {
+    window.addEventListener('keydown', this.boundHandleKeypress);
+  }
+
+  /**
+   * Remove the keypress listener on unmount.
+   */
+  componentWillUnmount() {
+    window.removeEventListener('keydown', this.boundHandleKeypress);
+  }
+
+  /**
+   * Handle key press. This listens for CTRL/CMD+T and CTRL/CMD+W to control
+   * natural opening and closing of collection tabs.
+   *
+   * @param {Event} evt - The event.
+   */
+  handleKeypress(evt) {
+    if (evt.ctrlKey || evt.metaKey) {
+      if (evt.keyCode === KEY_W) {
+        this.props.closeTab(this.props.tabs.findIndex(tab => tab.isActive));
+        if (this.props.tabs.length > 0) {
+          evt.preventDefault();
+        }
+      } else if (evt.keyCode === KEY_T) {
+        this.props.createTab(this.lastNamespace());
+      }
+    }
+  }
 
   /**
    * Get the last namespace in the list.
