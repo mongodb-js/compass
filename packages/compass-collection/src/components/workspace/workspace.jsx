@@ -4,6 +4,7 @@ import HTML5Backend from 'react-dnd-html5-backend';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import classnames from 'classnames';
+import { IconButton } from 'hadron-react-buttons';
 import {
   createTab,
   closeTab,
@@ -148,10 +149,18 @@ class Workspace extends PureComponent {
     return (
       <div className={classnames(styles.workspace)}>
         <div className={classnames(styles['workspace-tabs'])}>
-          {this.renderTabs()}
-          <CreateTab
-            createTab={this.props.createTab}
-            lastNamespace={this.lastNamespace()}/>
+          <div className={classnames(styles['workspace-tabs-prev'])}>
+            <i className="fa fa-chevron-left" aria-hidden/>
+          </div>
+          <div className={classnames(styles['workspace-tabs-container'])}>
+            {this.renderTabs()}
+            <CreateTab
+              createTab={this.props.createTab}
+              lastNamespace={this.lastNamespace()}/>
+          </div>
+          <div className={classnames(styles['workspace-tabs-next'])}>
+            <i className="fa fa-chevron-right" aria-hidden/>
+          </div>
         </div>
       </div>
     );

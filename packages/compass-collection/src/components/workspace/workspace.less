@@ -5,12 +5,40 @@
   height: 100%;
 
   &-tabs {
-    width: 100%;
     height: 40px;
+    width: 100%;
     display: flex;
     border-bottom: 1px @gray6 solid;
     background-color: @gray8;
     z-index: 50;
     align-items: center;
+
+    &-container {
+      flex-grow: 1;
+      display: flex;
+      align-items: center;
+      overflow-x: auto;
+    }
+
+    &-prev, &-next {
+      width: 26px;
+      height: 26px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: @gray5;
+      background-color: @gray6;
+      border-radius: 4px;
+      cursor: pointer;
+      flex-shrink: 0;
+    }
+
+    &-prev {
+      margin: 0px 5px 0px 15px;
+    }
+
+    &-next {
+      margin: 0px 5px 0px 5px;
+    }
   }
 }

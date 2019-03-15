@@ -11,10 +11,12 @@ describe('CollectionTab [Component]', () => {
     let component;
     let closeTabSpy;
     let selectTabSpy;
+    let moveTabSpy;
 
     beforeEach(() => {
       closeTabSpy = sinon.spy();
       selectTabSpy = sinon.spy();
+      moveTabSpy = sinon.spy();
       component = mount(
         <CollectionTab.DecoratedComponent
           namespace="db.coll"
@@ -24,6 +26,7 @@ describe('CollectionTab [Component]', () => {
           connectDropTarget={connect}
           connectDragSource={connect}
           closeTab={closeTabSpy}
+          moveTab={moveTabSpy}
           selectTab={selectTabSpy} />
       );
     });
@@ -63,10 +66,12 @@ describe('CollectionTab [Component]', () => {
     let component;
     let closeTabSpy;
     let selectTabSpy;
+    let moveTabSpy;
 
     beforeEach(() => {
       closeTabSpy = sinon.spy();
       selectTabSpy = sinon.spy();
+      moveTabSpy = sinon.spy();
       component = mount(
         <CollectionTab.DecoratedComponent
           namespace="db.coll"
@@ -76,6 +81,7 @@ describe('CollectionTab [Component]', () => {
           isActive={false}
           index={1}
           closeTab={closeTabSpy}
+          moveTab={moveTabSpy}
           selectTab={selectTabSpy} />
       );
     });
