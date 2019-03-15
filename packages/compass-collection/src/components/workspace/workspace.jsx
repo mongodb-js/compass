@@ -49,6 +49,7 @@ class Workspace extends PureComponent {
           key={i}
           index={i}
           namespace={tab.namespace}
+          subTab="Documents"
           isActive={tab.isActive}
           closeTab={this.props.closeTab}
           selectTab={this.props.selectTab} />
