@@ -76,6 +76,34 @@ class CollectionTab extends PureComponent {
   };
 
   /**
+   * Instantiate the tab.
+   *
+   * @param {Object} props - The properties.
+   */
+  constructor(props) {
+    super(props);
+    this.tabRef = React.createRef();
+  }
+
+  /**
+   * Scroll into view on first mount if active.
+   */
+  componentDidMount() {
+    this.scrollTab();
+  }
+
+  /**
+   * Scroll into view if tab was activated.
+   *
+   * @param {Object} prevProps - The previous props.
+   */
+  componentDidUpdate(prevProps) {
+    if (!prevProps.isActive) {
+      this.scrollTab();
+    }
+  }
+
+  /**
    * Close the tab.
    */
   closeTab = () => {
@@ -87,6 +115,15 @@ class CollectionTab extends PureComponent {
    */
   selectTab = () => {
     this.props.selectTab(this.props.index);
+  }
+
+  /**
+   * Scroll this tab into view.
+   */
+  scrollTab = () => {
+    if (this.props.isActive && this.tabRef.current.scrollIntoView) {
+      this.tabRef.current.scrollIntoView();
+    }
   }
 
   /**
@@ -102,7 +139,7 @@ class CollectionTab extends PureComponent {
 
     return this.props.connectDragSource(
       this.props.connectDropTarget(
-        <div className={tabClass}>
+        <div ref={this.tabRef} className={tabClass}>
           <div className={classnames(styles['collection-tab-info'])} onClick={this.selectTab}>
             <div className={classnames(styles['collection-tab-info-ns'])}>
               {this.props.namespace}

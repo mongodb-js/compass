@@ -149,7 +149,7 @@ class Workspace extends PureComponent {
     return (
       <div className={classnames(styles.workspace)}>
         <div className={classnames(styles['workspace-tabs'])}>
-          <div className={classnames(styles['workspace-tabs-prev'])}>
+          <div onClick={this.props.prevTab} className={classnames(styles['workspace-tabs-prev'])}>
             <i className="fa fa-chevron-left" aria-hidden/>
           </div>
           <div className={classnames(styles['workspace-tabs-container'])}>
@@ -158,7 +158,7 @@ class Workspace extends PureComponent {
               createTab={this.props.createTab}
               lastNamespace={this.lastNamespace()}/>
           </div>
-          <div className={classnames(styles['workspace-tabs-next'])}>
+          <div onClick={this.props.nextTab} className={classnames(styles['workspace-tabs-next'])}>
             <i className="fa fa-chevron-right" aria-hidden/>
           </div>
         </div>
