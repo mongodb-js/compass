@@ -12,13 +12,13 @@ import COMPLEX_EXAMPLE from './example-complex.js';
 import ARRAY_STATS_EXAMPLE from './example-array-stats.js';
 import GROUPED_STATS_EXAMPLE from './example-grouped-stats.js';
 
+import DataService from './data-service-provider';
+
 const BASE_STATE = {
   ...INITIAL_STATE
 };
 
-BASE_STATE.dataService.dataService = {
-  aggregate: () => {}
-};
+BASE_STATE.dataService.dataService = new DataService();
 
 storiesOf('<Aggregations>', module)
   .addDecorator(story => <ComponentPreview>{story()}</ComponentPreview>)
