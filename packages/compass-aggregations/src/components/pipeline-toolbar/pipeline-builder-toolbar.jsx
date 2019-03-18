@@ -9,7 +9,6 @@ import CollationCollapser from './collation-collapser';
 
 import {
   TOOLTIP_EXPORT_TO_LANGUAGE,
-  TOOLTIP_CREATE_NEW_PIPELINE,
   TOOLTIP_OPEN_SAVED_PIPELINES
 } from '../../constants';
 
@@ -172,22 +171,15 @@ class PipelineBuilderToolbar extends PureComponent {
         </span>
         <div>
           <Dropdown id="new-pipeline-actions" className="btn-group">
-            <span
-              data-tip={TOOLTIP_CREATE_NEW_PIPELINE}
-              data-for="create-new-pipeline"
-              data-place="top"
-              data-html="true">
-              <Button
-                variant="default"
-                className={classnames(
-                  'btn-xs',
-                  styles['pipeline-builder-toolbar-new-button']
-                )}
-                onClick={this.props.newPipeline}>
-                <i className="fa fa-plus-circle" />
-              </Button>
-            </span>
-            <Tooltip id="create-new-pipeline" />
+            <Button
+              variant="default"
+              className={classnames(
+                'btn-xs',
+                styles['pipeline-builder-toolbar-new-button']
+              )}
+              onClick={this.props.newPipeline}>
+              <i className="fa fa-plus-circle" />
+            </Button>
             <Dropdown.Toggle className="btn-default btn-xs btn" />
 
             <Dropdown.Menu>

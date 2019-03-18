@@ -6,6 +6,7 @@ import { setOptions } from '@storybook/addon-options';
 // import { Page } from '@mongodb-js/migrator-storybook-decorators';
 
 // Configure the Storybook UI
+import "less/global.less";
 setOptions({
       name: 'Compass Aggregation Builder',
       url: 'https://github.com/mongodb-js/compass-aggregations',
