@@ -9,6 +9,20 @@ const parseNamespaceString = require('mongodb-ns');
 
 const STITCH_APP_ID = 'compass-aggregations-storybook-fecnn';
 
+class StitchCursor {
+  constructor(result) {
+    this.result = result;
+  }
+
+  async toArray(callback) {
+    const boo = await this.result.asArray();
+    callback(null, boo);
+  }
+
+  // noop for stitch
+  close() {}
+}
+
 class DataServiceStitchProvider {
   constructor() {
     this._dbs = {};
@@ -62,7 +76,7 @@ class DataServiceStitchProvider {
 
     this.db(database)
       .then(_db => _db.collection(collection).aggregate(pipeline))
-      .then(res => callback(null, res))
+      .then(res => callback(null, new StitchCursor(res)))
       .catch(callback);
   }
 
