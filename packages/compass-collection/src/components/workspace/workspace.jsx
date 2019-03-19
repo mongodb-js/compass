@@ -101,22 +101,20 @@ class Workspace extends PureComponent {
             evt.preventDefault();
           }
         } else if (evt.keyCode === KEY_T) {
-          this.props.createTab(this.lastNamespace());
+          this.props.createTab(this.activeNamespace());
         }
       }
     }
   }
 
   /**
-   * Get the last namespace in the list.
+   * Get the active namespace in the list.
    *
-   * @returns {String} The last namespace in the list.
+   * @returns {String} The active namespace in the list.
    */
-  lastNamespace() {
-    if (this.props.tabs.length > 0) {
-      return this.props.tabs[this.props.tabs.length - 1].namespace;
-    }
-    return '';
+  activeNamespace() {
+    const activeTab = this.props.tabs.find(tab => tab.isActive);
+    return activeTab ? activeTab.namespace : '';
   }
 
   /**
@@ -163,7 +161,7 @@ class Workspace extends PureComponent {
             {this.renderTabs()}
             <CreateTab
               createTab={this.props.createTab}
-              lastNamespace={this.lastNamespace()}/>
+              activeNamespace={this.activeNamespace()}/>
           </div>
           <div onClick={this.props.nextTab} className={classnames(styles['workspace-tabs-next'])}>
             <i className="fa fa-chevron-right" aria-hidden/>

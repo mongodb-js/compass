@@ -9,14 +9,14 @@ class CreateTab extends PureComponent {
 
   static propTypes = {
     createTab: PropTypes.func.isRequired,
-    lastNamespace: PropTypes.string.isRequired
+    activeNamespace: PropTypes.string.isRequired
   };
 
   /**
    * Create a new tab with the same namespace as the last one.
    */
   createTab = () => {
-    this.props.createTab(this.props.lastNamespace);
+    this.props.createTab(this.props.activeNamespace);
   }
 
   /**
