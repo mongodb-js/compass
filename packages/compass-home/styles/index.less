@@ -1,1 +1,154 @@
 // TODO: TEMP - remove hardcoded require statement from hadron-style-manager
+// TODO: where to put these
+.badge {
+  border: 1px solid @gray-lighter;
+}
+
+.state-arrow {
+  margin: 185px 0 0 20px;
+
+  img {
+    margin-bottom: 7px;
+  }
+  span {
+    font-size: 24px;
+    color: @gray4;
+    font-weight: 200;
+    margin-left: 15px;
+  }
+}
+
+.panel-title {
+  i.fa {
+    margin-right: 6px;
+  }
+}
+.vgroup {
+  flex-direction: column;
+  display: flex;
+}
+
+.hgroup {
+  display: flex;
+  flex-direction: row;
+}
+
+/*
+GLOBAL FLEXBOX LAYOUT STYLES
+*/
+.tab-views {
+  flex-grow: 1;
+  flex-shrink: 1;
+  flex-basis: auto;
+  display: flex;
+}
+
+.tab {
+  display: flex;
+  width: 100%;
+}
+
+.rtss-databases,
+.rt-perf, //rtss charts
+.collections-table,
+  //collection views
+.schema-container,
+.compass-documents,
+.index-container,
+.compass-explain,
+.validation-container {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  width: 100%;
+  flex-grow: 1;
+}
+
+.controls-container {
+  flex-grow: 0;
+  flex-shrink: 0;
+  flex-basis: auto;
+  box-shadow: 0 2px 2px rgba(0,0,0,.2);
+  z-index: 4;
+  border-top: 1px solid @gray7;
+}
+
+.column-container {
+  flex-grow: 1;
+  flex-shrink: 1;
+  flex-basis: auto;
+  flex-direction: column;
+  display: flex;
+  overflow: auto;
+  background: @gray8;
+}
+
+.column.main {
+  flex: 1;
+  margin-bottom: 100px;
+  padding: 0 15px;
+}
+
+// pull these definitions out from below because RTSS header has an internal conflict
+//TO DO refactor cleanly
+.rtss, //databases table
+.collections, // collections table
+.collection-view {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  height: 100%;
+}
+
+
+
+::-webkit-scrollbar {
+  width: 10px;
+  &:horizontal {
+    height: 10px;
+  }
+}
+
+::-webkit-scrollbar-track {
+  background-color: rgba(0,0,0,.10);
+  -webkit-border-radius: 0px;
+  border-radius: 0px;
+  &:hover {
+    background-color: rgba(0,0,0,.16);
+  }
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: rgba(255,255,255,1);
+  -webkit-border-radius: 3px;
+  border-radius: 3px;
+  border: 1px solid rgba(0,0,0,.16);
+}
+
+.unsafe-component {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  width: 100%;
+  flex-grow: 1;
+
+  &-has-error {
+    color: red;
+    padding: 10px;
+    background-color: #ffcccc;
+    display: flex;
+    flex-direction: column;
+  }
+
+  &-message {
+    i {
+      margin-right: 5px;
+      font-size: 20px;
+    }
+  }
+
+  &-stack {
+    padding-left: 25px;
+    white-space: pre-wrap;
+  }
+}
