@@ -2,6 +2,32 @@
 
 > Compass Aggregation Pipeline Builder
 
+## Development
+
+### Tests
+
+```
+npm run test
+```
+
+### Electron
+
+```
+npm start
+```
+
+### Storybook
+
+```
+npm run storybook
+```
+
+### Analyze Build
+
+```
+npm run analyze
+```
+
 ## License
 
 Apache 2.0
@@ -19,7 +45,7 @@ Apache 2.0
 - [ ] COMPASS-2960: Autocomplete `$$variables` defined from `let`
 - [ ] COMPASS-3086: Quickly create new pipelines by pasting into stage editor when in `INITIAL_STATE`
 
-#### Misc.
+#### Misc
 
 - [ ] input-docs uses sample size setting
 - [ ] Remove sample mode toggle
