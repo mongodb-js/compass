@@ -1,7 +1,7 @@
 {
   "name": "@mongodb-js/compass-home",
   "productName": "Home plugin",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "apiVersion": "2.0.0",
   "description": "Home",
   "main": "lib/index.js",
