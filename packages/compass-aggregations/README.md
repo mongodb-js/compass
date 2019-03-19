@@ -2,9 +2,34 @@
 
 > Compass Aggregation Pipeline Builder
 
+- [`<Aggregation />`](https://github.com/mongodb-js/compass-aggregations) Plugin for primary UI
+- [`<ExportToLanguage />`](https://github.com/mongodb-js/compass-export-to-language) Modal plugin that connects `<Aggregation />` to `bson-transpilers` [for actual compiling to another language](https://github.com/mongodb-js/bson-transpilers)
+
+## Compass Plugin Patterns
+
+- `src/modules/` is where action happens
+    - action creators components call
+    - reducers that call dataService, window.open, emit to other plugins, etc.
+    - follows the `ducks` pattern
+- `src/stores/store` is where plugin listens+responds to events of interest from other plugins
+- store is global state instantiated via `configureStore()`
+
+## Cross-plugin Communication
+
+> How does clicking on export to language button in aggregation builder show the modal that has code in it?
+
+- `./src/modules/export-to-language.js` `appRegistry.emit('open-aggregation-export-to-language', generatePipelineAsString())`
+- [`compass-export-to-language/src/stores/store.js`](https://github.com/mongodb-js/compass-export-to-language/blob/master/src/stores/store.js#L16) Listener for 'export to lang' event via appRegistry and renders its modal.
+- [`compass-export-to-language/src/modules/export-query.js`](https://github.com/mongodb-js/compass-export-to-language/blob/master/src/modules/export-query.js#L56) has reducer for calling `bson-transpilers.compile()` which populates the code in the modal dialog.
+
+## Usage with a `mongodb-data-service` Provider
+
+See `./examples-data-service-provider.js` for details on what `data-service` functions are used and the applicable options for each.
+
 ## Related
 
 - [`mongodb-js/stage-validator`](https://github.com/mongodb-js/stage-validator) Aggregation Pipeline Stage grammar.
+- [`bson-transpilers`](https://github.com/mongodb-js/bson-transpilers) Read the amazing: [Compiler in JavaScript using ANTLR](https://medium.com/dailyjs/compiler-in-javascript-using-antlr-9ec53fd2780f)
 - [`mongodb-js/ace-mode`](https://github.com/mongodb-js/ace-mode) MongoDB highlighting rules for ACE.
 - [`mongodb-js/ace-theme`](https://github.com/mongodb-js/ace-theme) MongoDB syntax highlighting rules for ACE.
 - [`mongodb-js/ace-autocompleter`](https://github.com/mongodb-js/ace-autocompleter) Makes ACE autocompletion aware of MongoDB Aggregation Pipeline [operators, expressions, and fields](https://github.com/mongodb-js/ace-autocompleter/tree/master/lib/constants).
