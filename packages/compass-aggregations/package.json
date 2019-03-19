@@ -21,7 +21,7 @@
     "unlink-plugin": "./scripts/unlink.sh",
     "prepublishOnly": "npm run compile",
     "storybook": "cross-env NODE_ENV=development start-storybook -p 9001 -c .storybook",
-    "storybook:ghpages": "cross-env NODE_ENV=production build-storybook -c .storybook -o .ghpages",
+    "storybook:ghpages": "build-storybook -c .storybook -o .ghpages",
     "poststorybook:ghpages": "npm run analyze ",
     "preanalyze": "mkdir -p .ghpages && cross-env NODE_ENV=production webpack --profile --json --config ./config/webpack.prod.config.js > .ghpages/stats.json",
     "analyze": "webpack-bundle-analyzer .ghpages/stats.json --no-open  --report .ghpages/report.html --mode static --bundleDir lib"
