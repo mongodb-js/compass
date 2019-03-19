@@ -270,7 +270,7 @@ export default function reducer(state = INITIAL_STATE, action) {
 export const createTab = (namespace, isReadonly) => ({
   type: CREATE_TAB,
   namespace: namespace,
-  isReadonly: isReadonly
+  isReadonly: isReadonly || false
 });
 
 /**
@@ -328,7 +328,7 @@ export const prevTab = () => ({
 export const selectNamespace = (namespace, isReadonly) => ({
   type: SELECT_NAMESPACE,
   namespace: namespace,
-  isReadonly: isReadonly
+  isReadonly: isReadonly || false
 });
 
 /**

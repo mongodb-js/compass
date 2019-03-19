@@ -140,6 +140,13 @@ class Workspace extends PureComponent {
     });
   }
 
+  renderViews() {
+    const activeTab = this.props.tabs.find((tab) => {
+      return tab.isActive;
+    });
+    return activeTab ? (<p>{activeTab.namespace}</p>) : null;
+  }
+
   /**
    * Render the Workspace component.
    *
@@ -161,6 +168,9 @@ class Workspace extends PureComponent {
           <div onClick={this.props.nextTab} className={classnames(styles['workspace-tabs-next'])}>
             <i className="fa fa-chevron-right" aria-hidden/>
           </div>
+        </div>
+        <div className={classnames(styles['workspace-views'])}>
+          {this.renderViews()}
         </div>
       </div>
     );
