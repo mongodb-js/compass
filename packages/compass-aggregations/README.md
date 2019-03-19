@@ -14,10 +14,18 @@ Apache 2.0
 - [x] Verify Storybook not included in `production` bundle for Cloud
 - [x] Switch Storybook deploy from `3.0.0` to `master`
 - [x] Webpack 4 Upgrade #79 
-- [ ] COMPASS-2960: Autocomplete `$$variables` defined from `let`
-- [ ] COMPASS-3086: Quickly create new pipewlines by pasting into stage editor when in `INITIAL_STATE`
-- [ ] webpack 4 upgrade part 2 mongodb-js/compass-plugin#23
+- [x] Webpack 4 upgrade part 2 mongodb-js/compass-plugin#23
 - [ ] COMPASS-2888: Autocompletion includes projections #76
+- [ ] COMPASS-2960: Autocomplete `$$variables` defined from `let`
+- [ ] COMPASS-3086: Quickly create new pipelines by pasting into stage editor when in `INITIAL_STATE`
+
+#### Misc.
+
 - [ ] input-docs uses sample size setting
-- [ ] write some more tests for saving
+- [ ] Remove sample mode toggle
+- [ ] clarify settings name language
+
+#### Future
+
+- [ ] Write some more tests for saving
 - [ ] Save pipeline validation
