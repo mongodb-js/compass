@@ -20,7 +20,7 @@ const PROPS = {
 
 import SavingPipelineModal from 'components/saving-pipeline-modal';
 
-storiesOf('Styling > SavingPipelineModal', module)
+storiesOf('Components/SavingPipelineModal', module)
   .addDecorator(story => <ComponentPreview>{story()}</ComponentPreview>)
   .add('isOpen', () => {
     const props = {

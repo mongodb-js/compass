@@ -8,8 +8,9 @@ import { setOptions } from '@storybook/addon-options';
 // Configure the Storybook UI
 import "less/global.less";
 setOptions({
-      name: 'Compass Aggregation Builder',
-      url: 'https://github.com/mongodb-js/compass-aggregations',
+  name: "Aggregation Builder",
+  url: "https://github.com/mongodb-js/compass-aggregations",
+  showAddonPanel: false
 });
 
 // setAddon(chaptersAddon);

@@ -20,9 +20,9 @@ const BASE_STATE = {
 
 BASE_STATE.dataService.dataService = new DataService();
 
-storiesOf('<Aggregations>', module)
+storiesOf('Examples', module)
   .addDecorator(story => <ComponentPreview>{story()}</ComponentPreview>)
-  .add('Example: Basic', () => {
+  .add('Basic', () => {
     const store = configureStore({
       ...BASE_STATE,
       ...BASIC_EXAMPLE
@@ -33,7 +33,7 @@ storiesOf('<Aggregations>', module)
       </Provider>
     );
   })
-  .add('Example: Very Complex', () => {
+  .add('Very Complex', () => {
     const store = configureStore({
       ...BASE_STATE,
       ...COMPLEX_EXAMPLE
@@ -44,7 +44,7 @@ storiesOf('<Aggregations>', module)
       </Provider>
     );
   })
-  .add('Example: Array Stats', () => {
+  .add('Array Stats', () => {
     const store = configureStore({
       ...BASE_STATE,
       ...ARRAY_STATS_EXAMPLE
@@ -55,7 +55,7 @@ storiesOf('<Aggregations>', module)
       </Provider>
     );
   })
-  .add('Example: Grouped Stats', () => {
+  .add('Grouped Stats', () => {
     const store = configureStore({
       ...BASE_STATE,
       ...GROUPED_STATS_EXAMPLE
@@ -85,7 +85,7 @@ storiesOf('<Aggregations>', module)
       </Provider>
     );
   })
-  .add('settings > isExpanded', () => {
+  .add('settings.isExpanded', () => {
     const state = {
       ...BASE_STATE
     };
