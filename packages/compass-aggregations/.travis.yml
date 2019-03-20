@@ -19,8 +19,8 @@ before_install:
 install:
   - npm ci
 cache: npm
-script: 
-  - npm run cover 
+script:
+  - npm run cover
   - npm run test:karma
 after_success:
   - npm run storybook:ghpages
@@ -29,13 +29,13 @@ deploy:
   # Push to GitHub Pages
   - provider: pages
     skip-cleanup: true
-    github-token: $GITHUB_TOKEN 
+    github-token: $GITHUB_TOKEN
     keep-history: true
     local_dir: .ghpages
     on:
       branch: master
   # TODO (@imlucas) Do we even need to do this?
-  # All we're doing is making sure webpack can 
+  # All we're doing is making sure webpack can
   # build (for the 4th time)
   # - provider: script
   #   script: npm run compile
