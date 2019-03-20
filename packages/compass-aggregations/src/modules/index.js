@@ -230,16 +230,16 @@ const doRestorePipeline = (state, action) => {
   const savedState = action.restoreState;
   const commenting =
     savedState.comments === null || savedState.comments === undefined ?
-    true :
-    savedState.comments;
+      true :
+      savedState.comments;
   const sampling =
     savedState.sample === null || savedState.sample === undefined ?
-    true :
-    savedState.sample;
+      true :
+      savedState.sample;
   const autoPreviewing =
     savedState.autoPreview === null || savedState.autoPreview === undefined ?
-    true :
-    savedState.autoPreview;
+      true :
+      savedState.autoPreview;
 
   return {
     ...INITIAL_STATE,

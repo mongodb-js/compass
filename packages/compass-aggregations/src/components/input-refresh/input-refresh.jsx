@@ -27,7 +27,7 @@ class InputRefresh extends PureComponent {
           title="Refresh Documents"
           onClick={this.props.refreshInputDocuments}
           className="btn btn-default btn-xs">
-            <i className="fa fa-repeat" aria-hidden />
+          <i className="fa fa-repeat" aria-hidden />
         </button>
       </div>
     );
