@@ -249,6 +249,13 @@ describe('explain-plan-model', function() {
         assert.deepEqual(model.usedIndex, ['age_1', null]);
       });
     });
+
+    describe('Single Sharded Indexes', function() {
+      it('should detect IDHACK stage', function() {
+        model = loadExplainFixture('./fixtures/sharded_single_index_3.2.json');
+        assert.equal(model.usedIndex, '_id_');
+      });
+    });
   });
 
   context('Stage Helpers', function() {

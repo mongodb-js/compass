@@ -25,11 +25,13 @@ var ExplainPlanModel = Model.extend(stageIterationMixin, {
     usedIndex: {
       deps: ['rawExplainObject', 'isSharded', 'numShards'],
       fn: function() {
-        var stages = this.findAllStagesByName('IXSCAN');
-        var names = _.uniq(_.map(stages, 'indexName'));
+        var ixscan = this.findAllStagesByName('IXSCAN');
+        var names = _.uniq(_.map(ixscan, 'indexName'));
+        // special case for IDHACK stage, using the _id_ index.
+        var idhack = this.findStageByName('IDHACK');
         // if not all shards use an index, add `null` to the array
-        if (stages.length < this.numShards) {
-          names.push(null);
+        if (ixscan.length < this.numShards) {
+          names.push(idhack ? '_id_' : null);
         }
         if (names.length === 1) {
           return names[0];
@@ -37,8 +39,6 @@ var ExplainPlanModel = Model.extend(stageIterationMixin, {
         if (names.length > 1) {
           return names;
         }
-        // special case for IDHACK stage, using the _id_ index.
-        var idhack = this.findStageByName('IDHACK');
         return idhack ? '_id_' : null;
       }
     },
