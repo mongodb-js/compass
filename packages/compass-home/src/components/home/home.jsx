@@ -7,6 +7,8 @@ import toNS from 'mongodb-ns';
 import { StatusRow } from 'hadron-react-components';
 import UI_STATES from 'constants/ui-states';
 
+const debug = require('debug')('mongodb-compass:stores:HomeComponent');
+
 import { toggleIsCollapsed } from 'modules/is-collapsed';
 
 import classnames from 'classnames';
@@ -54,12 +56,12 @@ class Home extends PureComponent {
 
   getComponentOrNull(name) {
     const component = global.hadronApp.appRegistry.getComponent(name);
-    if (!component) console.log(`${name} is NULL`);
+    if (!component) debug(`home plugin loading component, but ${name} is NULL`);
     return component ? component : null;
   }
   getRoleOrNull(name) {
     const role = global.hadronApp.appRegistry.getRole(name);
-    if (!role) console.log(`${name} is NULL`);
+    if (!role) debug(`home plugin loading role, but ${name} is NULL`);
     return role ? role : null;
   }
   getActionOrNull(name) {
@@ -230,7 +232,7 @@ class Home extends PureComponent {
   renderQueryHistory() {
     if (this.QueryHistoryComponent) {
       return (
-        <this.QueryHistoryCompinent />
+        <this.QueryHistoryComponent />
       );
     }
     return null;
@@ -245,7 +247,7 @@ class Home extends PureComponent {
             {this.renderContent()}
           </div>
           {this.renderSidebar()}
-          {/* this.renderQueryHistory() */}
+          {this.renderQueryHistory()}
           {this.renderImportModal()}
           {this.renderExportModal()}
           {this.renderExportToLangModal()}

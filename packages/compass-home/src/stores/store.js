@@ -14,6 +14,8 @@ import { changeInstanceId } from 'modules/instance-id';
 import { changeNamespace } from 'modules/namespace';
 import { dataServiceDisconnected } from 'modules';
 
+const debug = require('debug')('mongodb-compass:stores:HomeStore');
+
 import UI_STATES from 'constants/ui-states';
 
 const store = createStore(reducer, applyMiddleware(thunk));
@@ -71,5 +73,9 @@ store.onActivated = (appRegistry) => {
   });
 };
 
+store.subscribe(() => {
+  const state = store.getState();
+  debug('Home.Store changed to', state);
+});
 
 export default store;
