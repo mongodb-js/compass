@@ -1,10 +1,6 @@
 import ExplainPlanModel from 'mongodb-explain-plan-model';
 import { defaults, isString, find } from 'lodash';
-
-/**
- * View types.
- */
-// const VIEW_TYPES = ['tree', 'json'];
+import { treeStagesChanged } from 'modules/tree-stages';
 
 /**
  * The module action prefix.
@@ -241,7 +237,10 @@ export const fetchExplainPlan = () => {
         explain.explainState = 'done';
         explain.error = error;
 
-        return dispatch(explainPlanFetched(explain));
+        dispatch(explainPlanFetched(explain));
+        dispatch(treeStagesChanged(explain));
+
+        return;
       });
     }
   };

@@ -8,6 +8,7 @@ import isEditable, { INITIAL_STATE as IS_EDITABLE_STATE } from './edit-mode';
 import explain, { INITIAL_STATE as EXPLAIN_STATE } from './explain';
 import indexes, { INITIAL_STATE as INDEXES_STATE } from './indexes';
 import query, { INITIAL_STATE as QUERY_STATE } from './query';
+import treeStages, { INITIAL_STATE as TREE_STAGES_STATE } from './tree-stages';
 
 /**
  * Reset action constant.
@@ -25,7 +26,8 @@ export const INITIAL_STATE = {
   isEditable: IS_EDITABLE_STATE,
   explain: EXPLAIN_STATE,
   indexes: INDEXES_STATE,
-  query: QUERY_STATE
+  query: QUERY_STATE,
+  treeStages: TREE_STAGES_STATE
 };
 
 /**
@@ -39,7 +41,8 @@ const appReducer = combineReducers({
   isEditable,
   explain,
   indexes,
-  query
+  query,
+  treeStages
 });
 
 /**

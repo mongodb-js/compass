@@ -7,7 +7,7 @@ import { dataServiceConnected } from 'modules/data-service';
 import { serverVersionChanged } from 'modules/server-version';
 import { appRegistryActivated } from 'modules/app-registry';
 import { editModeChanged } from 'modules/edit-mode';
-// import { indexesChanged } from 'modules/indexes';
+import { indexesChanged } from 'modules/indexes';
 import { queryChanged } from 'modules/query';
 import { explainStateChanged, fetchExplainPlan } from 'modules/explain';
 
@@ -28,7 +28,9 @@ store.onActivated = (appRegistry) => {
    *
    * @param {Object} fields - The fields.
    */
-  // appRegistry.getStore('Indexes.IndexStore').listen(indexesChanged);
+  appRegistry.on('indexes-changed', (ixs) => {
+    store.dispatch(indexesChanged(ixs));
+  });
 
   /**
    * When the collection is changed, update the store.

@@ -1,66 +1,62 @@
 @import (reference) "~less/compass/_theme.less";
 
-.explain-states {
-	// hacks for json view on explain tab
-  ol.document-list li.document-list-item ol.document-property-body li.document-property.array ol.document-property-body .document-property-key,
-  ol.document-list li.document-list-item ol.document-property-body li.document-property.object ol.document-property-body .document-property-key {
-    margin-left: 0;
-  }
+.controls-container {
+	flex-grow: 0;
+	flex-shrink: 0;
+	flex-basis: auto;
+	box-shadow: 0 2px 2px rgba(0, 0, 0, 0.2);
+	z-index: 4;
+	border-top: 1px solid #ebebed;
+}
 
-  ol.document-list li.document-list-item ol.document-property-body li.document-property.array.expanded > ol.document-property-body,
-  ol.document-list li.document-list-item ol.document-property-body li.document-property.object.expanded > ol.document-property-body {
-    margin-left: 16px;
-  }
+.column-container {
+	position: relative;
+	flex-grow: 1;
+	flex-shrink: 1;
+	flex-basis: auto;
+	flex-direction: column;
+	display: flex;
+	overflow: auto;
+	background: #f5f6f7;
 
-  ol.document-list li.document-list-item ol.document-property-body li.document-property.array.expanded,
-  ol.document-list li.document-list-item ol.document-property-body li.document-property.object.expanded {
-    margin-left: 0;
-  }
-
-  ol.document-list li.document-list-item ol.document-property-body li.document-property.array,
-  ol.document-list li.document-list-item ol.document-property-body li.document-property.object {
-    margin-left: 0;
-  }
-	// end hacks
-
-	.content-container {
-		background-color: @gray8;
-		height: 100%;
-		padding: 2.4rem;
+	.column-main {
+		flex: 1;
+		margin-bottom: 100px;
+		padding: 0 15px;
 	}
+}
 
-	// Just a drop-shadow for now but should think about where to put these styles eventually
-	.action-bar {
-		height: 32px;
-		background: @gray8;
-		border-bottom: 1px solid @gray7;
-		padding-top: 4px;
-		padding-left: 15px;
+// Just a drop-shadow for now but should think about where to put these styles eventually
+.action-bar {
+	height: 32px;
+	background: @gray8;
+	border-bottom: 1px solid @gray7;
+	padding-top: 4px;
+	padding-left: 15px;
 
-		span {
-			text-transform: uppercase;
-			padding-right: 3px;
-			font-size: 11px;
-		}
+	span {
+		text-transform: uppercase;
+		padding-right: 3px;
+		font-size: 11px;
 	}
+}
 
-	.zero-state-container {
-		height: 100%;
+.zero-state-container {
+	height: 100%;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	text-align: center;
+	padding-top: 70px;
+
+	.zero-state-action {
 		display: flex;
 		flex-direction: column;
-		align-items: center;
-		text-align: center;
-		padding-top: 135px;
 
-		.zero-state-action {
-			display: flex;
-			flex-direction: column;
-
-			.zero-state-link {
-				display: block;
-				padding-top: 20px;
-				font-size: 16px;
-			}
+		.zero-state-link {
+			display: block;
+			padding-top: 20px;
+			font-size: 16px;
 		}
 	}
 }

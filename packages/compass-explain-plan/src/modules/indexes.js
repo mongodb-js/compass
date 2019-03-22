@@ -1,8 +1,12 @@
+/**
+ * The prefix.
+ */
+const PREFIX = 'explain/indexes';
 
 /**
  * The indexes changed action.
  */
-export const INDEXES_CHANGED = 'explain/indexes/INDEXES_CHANGED';
+export const INDEXES_CHANGED = `${PREFIX}/INDEXES_CHANGED`;
 
 /**
  * The initial state.

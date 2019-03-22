@@ -8,6 +8,16 @@ import { Button } from 'react-bootstrap';
 import styles from './explain-stage.less';
 
 /**
+ * Reference to the clock div.
+ */
+let clock = '';
+
+/**
+ * Visibility of fields.
+ */
+let zIndexCounter = 100;
+
+/**
  * The ExplainStage component.
  */
 class ExplainStage extends Component {
@@ -28,10 +38,24 @@ class ExplainStage extends Component {
     yoffset: PropTypes.number.isRequired
   }
 
+  static defaultProps = {
+    name: '',
+    nReturned: 0,
+    isShard: false,
+    totalExecTimeMS: 1,
+    curStageExecTimeMS: 0,
+    prevStageExecTimeMS: 0,
+    x: 0,
+    y: 0,
+    xoffset: 0,
+    yoffset: 0,
+    details: {}
+  }
+
   constructor(props) {
     super(props);
 
-    this.state = { detailsOpen: false, zIndexCounter: 100 };
+    this.state = { detailsOpen: false };
   }
 
   /**
@@ -54,7 +78,7 @@ class ExplainStage extends Component {
    * @returns {Number}
    */
   getNewZIndex() {
-    return this.zIndexCounter++;
+    return zIndexCounter++;
   }
 
   /**
@@ -103,6 +127,7 @@ class ExplainStage extends Component {
    */
   detailsButtonClicked() {
     const detailsOpen = !this.state.detailsOpen;
+
     this.setState({detailsOpen});
   }
 
@@ -129,7 +154,7 @@ class ExplainStage extends Component {
 
     // Create the SVG container, and apply a transform such that the origin is the
     // center of the canvas. This way, we don't need to position arcs individually.
-    const svgClock = d3.select(this.refs.clock)
+    const svgClock = d3.select(clock)
       .selectAll('svg')
       .data([null])
       .enter().append('svg')
@@ -143,7 +168,7 @@ class ExplainStage extends Component {
       .attr('class', 'prevArcPath')
       .style('fill', '#dfdfdf');
 
-    d3.select(this.refs.clock)
+    d3.select(clock)
       .select('.prevArcPath')
       .attr('d', arcGen({
         startAngle: prevArcStart,
@@ -157,7 +182,7 @@ class ExplainStage extends Component {
       .attr('class', 'currArcPath')
       .style('fill', '#43B1E5');
 
-    d3.select(this.refs.clock)
+    d3.select(clock)
       .select('.currArcPath')
       .attr('d', arcGen({
         startAngle: curArcStart,
@@ -218,7 +243,10 @@ class ExplainStage extends Component {
           <li className={classnames(styles['key-value-pair'], styles['exec-time'])}>
             <span className={classnames(styles.key)}>Execution Time</span>
             <span className={classnames(styles.value)}>
-              <div className={classnames(styles.clock)} ref="clock">
+              <div
+                className={classnames(styles.clock)}
+                ref={(inst) => { clock = inst; }}
+              >
                 <div className={classnames(styles.face)}>
                   <span>{deltaExecTime}</span>
                   ms
@@ -234,11 +262,11 @@ class ExplainStage extends Component {
           <Button
             bsSize="xsmall"
             bsStyle="default"
-            className={this.state.detailsOpen ? classnames(styles.active) : ''}
+            className={this.state.detailsOpen ? 'active' : ''}
             onClick={this.detailsButtonClicked.bind(this)}
           >
-            Detail
-          s</Button>
+            Details
+          </Button>
           {this.getDetails()}
         </div>
       </div>

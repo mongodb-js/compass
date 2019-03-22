@@ -48,7 +48,8 @@ const mapStateToProps = (state) => pick(
     'serverVersion',
     'namespace',
     'isEditable',
-    'explain'
+    'explain',
+    'treeStages'
   ]
 );
 

@@ -1,7 +1,7 @@
 /**
  * The prefix.
  */
-const PREFIX = 'validation/data-service';
+const PREFIX = 'explain/data-service';
 
 /**
  * Data service connected.

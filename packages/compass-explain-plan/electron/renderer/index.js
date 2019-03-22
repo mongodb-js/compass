@@ -33,6 +33,7 @@ appRegistry.onActivated();
 const root = document.createElement('div');
 
 root.id = 'root';
+root.style.height = '100vh';
 document.body.appendChild(root);
 
 // Create a HMR enabled render function

@@ -1,10 +1,36 @@
 @import (reference) "~less/compass/_theme.less";
 
 .explain-json {
-  margin: 26px;
+  margin: 21px 26px 26px 26px;
 
   .panel-body {
     padding: 0;
+
+    .document-list {
+      padding-left: 15px;
+    }
+
+    // Hacks for json view on explain tab
+    ol.document-list li.document-list-item ol.document-property-body li.document-property.array ol.document-property-body .document-property-key,
+    ol.document-list li.document-list-item ol.document-property-body li.document-property.object ol.document-property-body .document-property-key {
+      margin-left: 0;
+    }
+
+    ol.document-list li.document-list-item ol.document-property-body li.document-property.array.expanded > ol.document-property-body,
+    ol.document-list li.document-list-item ol.document-property-body li.document-property.object.expanded > ol.document-property-body {
+      margin-left: 16px;
+    }
+
+    ol.document-list li.document-list-item ol.document-property-body li.document-property.array.expanded,
+    ol.document-list li.document-list-item ol.document-property-body li.document-property.object.expanded {
+      margin-left: 0;
+    }
+
+    ol.document-list li.document-list-item ol.document-property-body li.document-property.array,
+    ol.document-list li.document-list-item ol.document-property-body li.document-property.object {
+      margin-left: 0;
+    }
+    // End hacks
   }
 
   &-pre {

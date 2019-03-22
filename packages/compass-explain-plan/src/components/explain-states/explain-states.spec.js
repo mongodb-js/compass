@@ -24,6 +24,7 @@ describe('ExplainStates [Component]', () => {
   const switchToTreeViewSpy = sinon.spy();
   const switchToJSONViewSpy = sinon.spy();
   const query = {};
+  const treeStages = {};
 
   beforeEach(() => {
     component = mount(
@@ -35,7 +36,8 @@ describe('ExplainStates [Component]', () => {
         switchToJSONView={switchToJSONViewSpy}
         query={query}
         isEditable={isEditable}
-        openLink={openLinkSpy} />
+        openLink={openLinkSpy}
+        treeStages={treeStages} />
     );
   });
 
@@ -44,7 +46,7 @@ describe('ExplainStates [Component]', () => {
   });
 
   it('renders the wrapper div', () => {
-    expect(component.find(`.${styles['explain-states']}`)).to.be.present();
+    expect(component.find(`.${styles['controls-container']}`)).to.be.present();
   });
 
   it('renders the read only banner', () => {

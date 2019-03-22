@@ -1,8 +1,12 @@
+/**
+ * The prefix.
+ */
+const PREFIX = 'explain/namespace';
 
 /**
  * Namespace changed action.
  */
-export const NAMESPACE_CHANGED = 'validation/namespace/NAMESPACE_CHANGED';
+export const NAMESPACE_CHANGED = `${PREFIX}/NAMESPACE_CHANGED`;
 
 /**
  * The initial state.

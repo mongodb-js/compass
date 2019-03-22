@@ -27,7 +27,7 @@ describe('Explain Plan Store', () => {
         appRegistry.emit('data-service-connected', 'error', 'ds');
       });
 
-      it('sets the data servicein the state', () => {
+      it('sets the data service in the state', () => {
         expect(store.getState().dataService.dataService).to.equal('ds');
       });
 
@@ -70,7 +70,8 @@ describe('Explain Plan Store', () => {
             isEditable: INITIAL_STATE.isEditable,
             explain: INITIAL_STATE.explain,
             indexes: INITIAL_STATE.indexes,
-            query: INITIAL_STATE.query
+            query: INITIAL_STATE.query,
+            treeStages: INITIAL_STATE.treeStages
           });
         });
       });

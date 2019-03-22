@@ -28,6 +28,7 @@
     color: @gray4;
     border: none;
     box-shadow: none;
+
     .stage-header {
       color: @gray4;
       text-align: center;
@@ -125,9 +126,11 @@
     padding-top: 12px;
   }
 
-  .details button.btn {
-    pointer-events: all;
-    margin: 0;
+  .details {
+    button {
+      pointer-events: all;
+      margin: 0;
+    }
   }
 
   .details-output {
@@ -144,7 +147,6 @@
     border: none;
     margin: 0;
     font-size: 11px;
-
   }
 
   .details-output pre code {

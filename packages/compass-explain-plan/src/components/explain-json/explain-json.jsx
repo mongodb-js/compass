@@ -26,7 +26,7 @@ class ExplainJSON extends Component {
 
     return (
       <div className={classnames(styles['explain-json'])}>
-        <div className={classnames(styles.panel, styles['panel-default'])}>
+        <div className="panel panel-default">
           <div className={classnames(styles['panel-body'])}>
             <ol className={classnames(styles['document-list'])}>
               <Document doc={doc} expandAll />

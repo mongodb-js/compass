@@ -1,7 +1,7 @@
 /**
  * The prefix.
  */
-const PREFIX = 'validation/app-registry';
+const PREFIX = 'explain/app-registry';
 
 /**
  * App registry activated.

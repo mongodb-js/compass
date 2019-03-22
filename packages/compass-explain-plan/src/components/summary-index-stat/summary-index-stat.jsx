@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import FontAwesome from 'react-fontawesome';
 import classnames from 'classnames';
-import { IndexDefinitionType } from '@mongodb-js/compass-indexes';
+import { IndexDefinitionType } from 'components/index-definition-type';
 
 import INDEX_TYPES from 'constants/index-types';
 
@@ -110,7 +110,7 @@ class SummaryIndexStat extends Component {
             {this.getIndexMessageText()}
           </span>
         </span>
-        {this.props.index ? <IndexDefinitionType /> : null}
+        {this.props.index ? <IndexDefinitionType index={this.props.index} /> : null}
       </div>
     );
   }

@@ -9,7 +9,10 @@ import STAGE_CARD_PROPERTIES from 'constants/stage-card-properties';
 
 import styles from './explain-tree.less';
 
-let app = '';
+/**
+ * Reference to the tree div.
+ */
+let tree = '';
 
 /**
  * The ExplainTree component.
@@ -58,7 +61,7 @@ class ExplainTree extends Component {
     V${d.target.y - STAGE_CARD_PROPERTIES.VERTICAL_PADDING / 2}
     H${d.target.x + STAGE_CARD_PROPERTIES.DEFAULT_CARD_WIDTH / 2}
     V${d.target.y}`;
-    const svg = d3.select(app).selectAll('svg.links').data([null]);
+    const svg = d3.select(tree).selectAll('svg.links').data([null]);
 
     svg.enter().append('svg')
       .attr('class', 'links')
@@ -80,6 +83,9 @@ class ExplainTree extends Component {
     links.enter()
       .append('path')
       .attr('class', 'link')
+      .attr('fill', 'none')
+      .attr('stroke', '#dee0e3')
+      .attr('stroke-width', '6px')
       .attr('d', elbow);
 
     links.exit().remove();
@@ -96,7 +102,7 @@ class ExplainTree extends Component {
         <div
           className={classnames(styles['explain-tree'])}
           style={{ height: this.props.height, width: this.props.width }}
-          ref={inst => { app = inst; }}
+          ref={(inst) => { tree = inst; }}
         >
           {this.getStages()}
         </div>

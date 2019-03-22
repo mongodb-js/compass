@@ -1,8 +1,12 @@
+/**
+ * The prefix.
+ */
+const PREFIX = 'explain/query';
 
 /**
  * The query changed action.
  */
-export const QUERY_CHANGED = 'explain/query/QUERY_CHANGED';
+export const QUERY_CHANGED = `${PREFIX}/QUERY_CHANGED`;
 
 /**
  * The initial state.

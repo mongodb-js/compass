@@ -1,8 +1,13 @@
 
 /**
+ * The prefix.
+ */
+const PREFIX = 'explain/edit-mode';
+
+/**
  * Edit mode changed action.
  */
-export const EDIT_MODE_CHANGED = 'validation/namespace/EDIT_MODE_CHANGED';
+export const EDIT_MODE_CHANGED = `${PREFIX}/EDIT_MODE_CHANGED`;
 
 /**
  * The initial state.

@@ -1,7 +1,12 @@
 /**
+ * The prefix.
+ */
+const PREFIX = 'explain/server-version';
+
+/**
  * Server version changed action.
  */
-export const SERVER_VERSION_CHANGED = 'validation/server-version/SERVER_VERSION_CHANGED';
+export const SERVER_VERSION_CHANGED = `${PREFIX}/SERVER_VERSION_CHANGED`;
 
 /**
  * The initial state.

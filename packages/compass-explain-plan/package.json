@@ -46,15 +46,13 @@
     "react-ace": "^6.2.0",
     "react-bootstrap": "^0.32.1",
     "react-redux": "^5.0.6",
-    "react-select-plus": "^1.2.0",
-    "react-tooltip": "^3.2.6",
     "redux": "^3.7.2"
   },
   "devDependencies": {
     "@hot-loader/react-dom": "^16.8.2",
     "@mongodb-js/compass-crud": "^6.2.3",
     "@mongodb-js/compass-field-store": "^4.0.3",
-    "@mongodb-js/compass-indexes": "^0.0.10",
+    "@mongodb-js/compass-indexes": "^0.0.13",
     "@mongodb-js/compass-query-bar": "^2.0.10",
     "autoprefixer": "^9.4.6",
     "babel-cli": "^6.10.1",
