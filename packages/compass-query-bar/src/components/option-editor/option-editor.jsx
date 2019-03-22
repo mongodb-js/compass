@@ -57,6 +57,7 @@ class OptionEditor extends Component {
     super(props);
     const textCompleter = tools.textCompleter;
     this.completer = new QueryAutoCompleter(props.serverVersion, textCompleter, props.schemaFields);
+    this.boundOnFieldsChanged = this.onFieldsChanged.bind(this);
   }
 
   /**
@@ -68,9 +69,7 @@ class OptionEditor extends Component {
       this.editor.clearSelection();
     });
 
-    global.hadronApp.appRegistry.on('fields-changed', (fields) => {
-      this.completer.update(fields.aceFields);
-    });
+    global.hadronApp.appRegistry.on('fields-changed', this.boundOnFieldsChanged);
   }
 
   /**
@@ -87,6 +86,11 @@ class OptionEditor extends Component {
    */
   componentWillUnmount() {
     this.unsub();
+    global.hadronApp.appRegistry.removeListener('fields-changed', this.boundOnFieldsChanged);
+  }
+
+  onFieldsChanged(fields) {
+    this.completer.update(fields.aceFields);
   }
 
   /**
