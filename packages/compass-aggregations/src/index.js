@@ -1,10 +1,8 @@
 import AggregationsPlugin from './plugin';
 import configureStore from 'stores';
 import { Aggregations } from 'components/aggregations';
-
 import CreateViewPlugin from 'components/create-view-plugin';
 import CreateViewStore from 'stores/create-view';
-
 import StageEditor from 'components/stage-editor';
 
 /**

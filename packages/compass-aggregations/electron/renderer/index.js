@@ -4,6 +4,7 @@ import app from 'hadron-app';
 import AppRegistry from 'hadron-app-registry';
 import { AppContainer } from 'react-hot-loader';
 import AggregationsPlugin, { activate, CreateViewPlugin } from 'plugin';
+import configureStore, { setDataProvider, setNamespace } from 'stores';
 
 // Import global less file. Note: these styles WILL NOT be used in compass, as compass provides its own set
 // of global styles. If you are wishing to style a given component, you should be writing a less file per
@@ -26,12 +27,45 @@ root.style = 'height: 100vh';
 root.id = 'root';
 document.body.appendChild(root);
 
+// // Data service initialization and connection.
+import Connection from 'mongodb-connection-model';
+import DataService from 'mongodb-data-service';
+
+const store = configureStore({
+  appRegistry: new AppRegistry(),
+  serverVersion: '4.2.0',
+  fields: [
+    { name: 'harry',
+      value: 'harry',
+      score: 1,
+      meta: 'field',
+      version: '0.0.0' },
+    { name: 'potter',
+      value: 'potter',
+      score: 1,
+      meta: 'field',
+      version: '0.0.0' }
+  ]
+});
+
+const connection = new Connection({
+  hostname: '127.0.0.1',
+  port: 27017,
+  ns: 'admin'
+});
+const dataService = new DataService(connection);
+
+dataService.connect((error, ds) => {
+  setDataProvider(store, error, ds);
+  setNamespace(store, 'citibike.trips');
+});
+
 // Create a HMR enabled render function
 const render = Component => {
   ReactDOM.render(
     <AppContainer>
       <div>
-        <Component />
+        <Component store={store} />
         <CreateViewPlugin />
       </div>
     </AppContainer>,
@@ -47,49 +81,6 @@ const render = Component => {
 
 // Render our plugin - don't remove the following line.
 render(AggregationsPlugin);
-
-// // Data service initialization and connection.
-import Connection from 'mongodb-connection-model';
-import DataService from 'mongodb-data-service';
-
-const connection = new Connection({
-  hostname: '127.0.0.1',
-  port: 27017,
-  ns: 'admin'
-});
-const dataService = new DataService(connection);
-
-appRegistry.emit('data-service-initialized', dataService);
-
-dataService.connect((error, ds) => {
-  appRegistry.emit('data-service-connected', error, ds);
-  appRegistry.emit('collection-changed', 'echo.bands');
-  appRegistry.emit('server-version-changed', '4.1.11');
-
-  appRegistry.emit('fields-changed', {
-    fields: {
-      harry: {
-        name: 'harry', path: 'harry', count: 1, type: 'Number'
-      },
-      potter: {
-        name: 'potter', path: 'potter', count: 1, type: 'Boolean'
-      }
-    },
-    topLevelFields: [ 'harry', 'potter' ],
-    aceFields: [
-      { name: 'harry',
-        value: 'harry',
-        score: 1,
-        meta: 'field',
-        version: '0.0.0' },
-      { name: 'potter',
-        value: 'potter',
-        score: 1,
-        meta: 'field',
-        version: '0.0.0' }
-    ]
-  });
-});
 
 // For automatic switching to specific namespaces, uncomment below as needed.
 // appRegistry.emit('database-changed', 'database');
