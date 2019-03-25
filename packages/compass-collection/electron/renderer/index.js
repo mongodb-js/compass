@@ -6,7 +6,6 @@ import AppRegistry from 'hadron-app-registry';
 import { AppContainer } from 'react-hot-loader';
 import CollectionPlugin, { activate } from 'plugin';
 import { activate as activateAgg } from '@mongodb-js/compass-aggregations';
-import { activate as activateCrud } from '@mongodb-js/compass-crud';
 
 // Import global less file. Note: these styles WILL NOT be used in compass, as compass provides its own set
 // of global styles. If you are wishing to style a given component, you should be writing a less file per
@@ -19,25 +18,13 @@ const appRegistry = new AppRegistry();
 global.hadronApp = app;
 global.hadronApp.appRegistry = appRegistry;
 
-class Documents extends React.Component {
-  render() {
-    return (<div id="test">Testing</div>);
-  }
-}
-
 class CollectionStats extends React.Component {
   render() {
     return (<div id="stats">Stats</div>);
   }
 }
 
-const ROLE = {
-  name: 'Documents',
-  component: Documents
-};
-
 appRegistry.registerComponent('CollectionStats.Component', CollectionStats);
-appRegistry.registerRole('Collection.Tab', ROLE);
 
 const instance = {
   build: {
@@ -50,7 +37,6 @@ app.instance = instance;
 // Activate our plugin with the Hadron App Registry
 activate(appRegistry);
 activateAgg(appRegistry);
-activateCrud(appRegistry);
 appRegistry.onActivated();
 
 // Since we are using HtmlWebpackPlugin WITHOUT a template,
@@ -81,38 +67,23 @@ const render = Component => {
 render(CollectionPlugin);
 
 // // Data service initialization and connection.
-// import Connection from 'mongodb-connection-model';
-// import DataService from 'mongodb-data-service';
-//
-// const connection = new Connection({
-//   hostname: '127.0.0.1',
-//   port: 27017,
-//   ns: 'databaseName',
-//   mongodb_database_name: 'admin',
-//   mongodb_username: '<user>',
-//   mongodb_password: '<password>'
-// });
-// const dataService = new DataService(connection);
-//
-// appRegistry.emit('data-service-initialized', dataService);
-// dataService.connect((error, ds) => {
-//    appRegistry.emit('data-service-connected', error, ds);
-//    For automatic switching to specific namespaces, uncomment below as needed.
-appRegistry.emit('select-namespace', 'citibike.trips');
-appRegistry.emit('open-namespace-in-new-tab', 'thisisaverylongdatabase.andcollectionname');
-//    appRegistry.emit('database-changed', 'database');
+import Connection from 'mongodb-connection-model';
+import DataService from 'mongodb-data-service';
 
-//    For plugins based on query execution, comment out below:
-//    const query = {
-//      filter: { name: 'testing' },
-//      project: { name: 1 },
-//      sort: { name: -1 },
-//      skip: 0,
-//      limit: 20,
-//      ns: 'database.collection'
-//    }
-//    appRegistry.emit('query-applied', query);
-// });
+const connection = new Connection({
+  hostname: '127.0.0.1',
+  port: 27017,
+  ns: 'databaseName',
+  mongodb_database_name: 'admin',
+});
+const dataService = new DataService(connection);
+
+appRegistry.emit('data-service-initialized', dataService);
+dataService.connect((error, ds) => {
+  appRegistry.emit('data-service-connected', error, ds);
+  appRegistry.emit('select-namespace', 'citibike.trips');
+  appRegistry.emit('open-namespace-in-new-tab', 'thisisaverylongdatabase.andcollectionname');
+});
 
 if (module.hot) {
   /**
