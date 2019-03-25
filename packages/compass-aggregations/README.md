@@ -34,6 +34,16 @@ See `./examples-data-service-provider.js` for details on what `data-service` fun
 - [`mongodb-js/ace-theme`](https://github.com/mongodb-js/ace-theme) MongoDB syntax highlighting rules for ACE.
 - [`mongodb-js/ace-autocompleter`](https://github.com/mongodb-js/ace-autocompleter) Makes ACE autocompletion aware of MongoDB Aggregation Pipeline [operators, expressions, and fields](https://github.com/mongodb-js/ace-autocompleter/tree/master/lib/constants).
 
+## Contributing
+
+If you're interested in helping with the Aggregation Builder plugin, we'd be over the moon excited! Here are a few ideas if you're interested but not sure where to start:
+
+- [Add a new example aggregation](https://github.com/mongodb-js/compass-aggregations/tree/master/examples#adding-new-examples)
+- Additions/clarifications/improvements to `README`'s
+- More tests (especially edge cases!)
+- Generate `jsdoc` html to include in GitHub pages
+- Improve build times (e.g. audit our webpack configs)
+
 ## Development
 
 ### Tests
@@ -80,8 +90,6 @@ Apache 2.0
 #### Misc
 
 - [ ] input-docs uses sample size setting
-- [ ] Remove sample mode toggle
-- [ ] clarify settings name language
 
 #### Future
 
