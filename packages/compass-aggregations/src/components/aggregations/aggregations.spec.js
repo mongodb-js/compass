@@ -2,14 +2,14 @@ import React from 'react';
 import { mount } from 'enzyme';
 
 import Aggregations from 'components/aggregations';
-import store from 'stores';
+import configureStore from 'stores';
 import styles from './aggregations.less';
 
 describe('Aggregations [Component]', () => {
   let component;
 
   beforeEach(() => {
-    component = mount(<Aggregations store={store} />);
+    component = mount(<Aggregations store={configureStore()} />);
   });
 
   afterEach(() => {

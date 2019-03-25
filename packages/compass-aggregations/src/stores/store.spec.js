@@ -1,5 +1,5 @@
 import AppRegistry from 'hadron-app-registry';
-import store from 'stores';
+import configureStore from 'stores';
 import {
   stageChanged,
   stageCollapseToggled,
@@ -8,17 +8,170 @@ import {
   stageAddedAfter,
   stageToggled
 } from 'modules/pipeline';
-import { reset, INITIAL_STATE } from '../modules/index';
+import { INITIAL_STATE } from '../modules/index';
 
 describe('Aggregation Store', () => {
-  beforeEach(() => {
-    store.dispatch(reset());
+  describe('#configureStore', () => {
+    context('when providing an app registry', () => {
+      let store;
+      const appRegistry = new AppRegistry();
+
+      beforeEach(() => {
+        store = configureStore({
+          appRegistry: appRegistry
+        });
+      });
+
+      it('sets the app registry the state', () => {
+        expect(store.getState().appRegistry).to.equal(appRegistry);
+      });
+    });
+
+    context('when providing a serverVersion', () => {
+      let store;
+
+      beforeEach(() => {
+        store = configureStore({
+          serverVersion: '4.2.0'
+        });
+      });
+
+      it('sets the server version the state', () => {
+        expect(store.getState().serverVersion).to.equal('4.2.0');
+      });
+    });
+
+    context('when providing fields', () => {
+      let store;
+      const fields = [ 1, 2, 3 ];
+
+      beforeEach(() => {
+        store = configureStore({
+          fields: fields
+        });
+      });
+
+      it('sets the server version the state', () => {
+        expect(store.getState().fields).to.deep.equal(fields);
+      });
+    });
+
+    context('when providing a data provider', () => {
+      let store;
+
+      beforeEach(() => {
+        store = configureStore({
+          dataProvider: {
+            error: 'error',
+            dataProvider: 'ds'
+          }
+        });
+      });
+
+      it('sets the data service in the state', () => {
+        expect(store.getState().dataService.dataService).to.equal('ds');
+      });
+
+      it('sets the error in the state', () => {
+        expect(store.getState().dataService.error).to.equal('error');
+      });
+    });
+
+    context('when providing a namespace', () => {
+      context('when there is no collection', () => {
+        let store;
+
+        beforeEach(() => {
+          store = configureStore({ namespace: 'db' });
+        });
+
+        it('does not update the namespace in the store', () => {
+          expect(store.getState().namespace).to.equal('');
+        });
+
+        it('resets the rest of the state to initial state', () => {
+          expect(store.getState()).to.deep.equal({
+            namespace: '',
+            appRegistry: INITIAL_STATE.appRegistry,
+            comments: INITIAL_STATE.comments,
+            sample: INITIAL_STATE.sample,
+            autoPreview: INITIAL_STATE.autoPreview,
+            name: INITIAL_STATE.name,
+            id: INITIAL_STATE.id,
+            restorePipeline: INITIAL_STATE.restorePipeline,
+            savedPipeline: INITIAL_STATE.savedPipeline,
+            dataService: INITIAL_STATE.dataService,
+            fields: INITIAL_STATE.fields,
+            inputDocuments: INITIAL_STATE.inputDocuments,
+            serverVersion: INITIAL_STATE.serverVersion,
+            pipeline: INITIAL_STATE.pipeline,
+            isModified: INITIAL_STATE.isModified,
+            importPipeline: INITIAL_STATE.importPipeline,
+            collation: INITIAL_STATE.collation,
+            collationString: INITIAL_STATE.collationString,
+            isCollationExpanded: INITIAL_STATE.isCollationExpanded,
+            isOverviewOn: INITIAL_STATE.isOverviewOn,
+            settings: INITIAL_STATE.settings,
+            limit: INITIAL_STATE.limit,
+            largeLimit: INITIAL_STATE.largeLimit,
+            maxTimeMS: INITIAL_STATE.maxTimeMS,
+            isFullscreenOn: INITIAL_STATE.isFullscreenOn,
+            savingPipeline: INITIAL_STATE.savingPipeline
+          });
+        });
+      });
+
+      context('when there is a collection', () => {
+        let store;
+
+        beforeEach(() => {
+          store = configureStore({ namespace: 'db.coll' });
+        });
+
+        it('updates the namespace in the store', () => {
+          expect(store.getState().namespace).to.equal('db.coll');
+        });
+
+        it('resets the rest of the state to initial state', () => {
+          expect(store.getState()).to.deep.equal({
+            namespace: 'db.coll',
+            appRegistry: INITIAL_STATE.appRegistry,
+            comments: INITIAL_STATE.comments,
+            sample: INITIAL_STATE.sample,
+            autoPreview: INITIAL_STATE.autoPreview,
+            name: INITIAL_STATE.name,
+            id: INITIAL_STATE.id,
+            restorePipeline: INITIAL_STATE.restorePipeline,
+            savedPipeline: INITIAL_STATE.savedPipeline,
+            dataService: INITIAL_STATE.dataService,
+            fields: INITIAL_STATE.fields,
+            inputDocuments: INITIAL_STATE.inputDocuments,
+            serverVersion: INITIAL_STATE.serverVersion,
+            pipeline: INITIAL_STATE.pipeline,
+            isModified: INITIAL_STATE.isModified,
+            importPipeline: INITIAL_STATE.importPipeline,
+            collation: INITIAL_STATE.collation,
+            collationString: INITIAL_STATE.collationString,
+            isCollationExpanded: INITIAL_STATE.isCollationExpanded,
+            isOverviewOn: INITIAL_STATE.isOverviewOn,
+            settings: INITIAL_STATE.settings,
+            limit: INITIAL_STATE.limit,
+            largeLimit: INITIAL_STATE.largeLimit,
+            maxTimeMS: INITIAL_STATE.maxTimeMS,
+            isFullscreenOn: INITIAL_STATE.isFullscreenOn,
+            savingPipeline: INITIAL_STATE.savingPipeline
+          });
+        });
+      });
+    });
   });
 
   describe('#onActivated', () => {
+    let store;
     const appRegistry = new AppRegistry();
 
     beforeEach(() => {
+      store = configureStore();
       store.onActivated(appRegistry);
     });
 
@@ -80,23 +233,15 @@ describe('Aggregation Store', () => {
         });
       });
     });
-
-    context('when the data service is connected', () => {
-      beforeEach(() => {
-        appRegistry.emit('data-service-connected', 'error', 'ds');
-      });
-
-      it('sets the data servicein the state', () => {
-        expect(store.getState().dataService.dataService).to.equal('ds');
-      });
-
-      it('sets the error in the state', () => {
-        expect(store.getState().dataService.error).to.equal('error');
-      });
-    });
   });
 
   describe('#dispatch', () => {
+    let store;
+
+    beforeEach(() => {
+      store = configureStore();
+    });
+
     context('when the action is unknown', () => {
       it('returns the initial state', (done) => {
         const unsubscribe = store.subscribe(() => {
@@ -173,96 +318,6 @@ describe('Aggregation Store', () => {
           done();
         });
         store.dispatch(stageCollapseToggled(0));
-      });
-    });
-
-    context('when the collection changes', () => {
-      context('when there is no collection', () => {
-        const appRegistry = new AppRegistry();
-        beforeEach(() => {
-          store.onActivated(appRegistry);
-          appRegistry.emit('collection-changed', 'db');
-        });
-
-        it('does not update the namespace in the store', () => {
-          expect(store.getState().namespace).to.equal('');
-        });
-
-        it('resets the rest of the state to initial state', () => {
-          expect(store.getState()).to.deep.equal({
-            namespace: '',
-            appRegistry: appRegistry,
-            comments: INITIAL_STATE.comments,
-            sample: INITIAL_STATE.sample,
-            autoPreview: INITIAL_STATE.autoPreview,
-            name: INITIAL_STATE.name,
-            id: INITIAL_STATE.id,
-            restorePipeline: INITIAL_STATE.restorePipeline,
-            savedPipeline: INITIAL_STATE.savedPipeline,
-            dataService: INITIAL_STATE.dataService,
-            fields: INITIAL_STATE.fields,
-            inputDocuments: INITIAL_STATE.inputDocuments,
-            serverVersion: INITIAL_STATE.serverVersion,
-            pipeline: INITIAL_STATE.pipeline,
-            isModified: INITIAL_STATE.isModified,
-            importPipeline: INITIAL_STATE.importPipeline,
-            collation: INITIAL_STATE.collation,
-            collationString: INITIAL_STATE.collationString,
-            isCollationExpanded: INITIAL_STATE.isCollationExpanded,
-            isOverviewOn: INITIAL_STATE.isOverviewOn,
-            settings: INITIAL_STATE.settings,
-            limit: INITIAL_STATE.limit,
-            largeLimit: INITIAL_STATE.largeLimit,
-            maxTimeMS: INITIAL_STATE.maxTimeMS,
-            isFullscreenOn: INITIAL_STATE.isFullscreenOn,
-            savingPipeline: INITIAL_STATE.savingPipeline,
-            projections: INITIAL_STATE.projections
-          });
-        });
-      });
-
-      context('when there is a collection', () => {
-        const appRegistry = new AppRegistry();
-        beforeEach(() => {
-          store.onActivated(appRegistry);
-          appRegistry.emit('collection-changed', 'db.coll');
-        });
-
-        it('updates the namespace in the store', () => {
-          expect(store.getState().namespace).to.equal('db.coll');
-        });
-
-        it('resets the rest of the state to initial state', () => {
-          expect(store.getState()).to.deep.equal({
-            namespace: 'db.coll',
-            appRegistry: appRegistry,
-            comments: INITIAL_STATE.comments,
-            sample: INITIAL_STATE.sample,
-            autoPreview: INITIAL_STATE.autoPreview,
-            name: INITIAL_STATE.name,
-            id: INITIAL_STATE.id,
-            restorePipeline: INITIAL_STATE.restorePipeline,
-            savedPipeline: INITIAL_STATE.savedPipeline,
-            dataService: INITIAL_STATE.dataService,
-            fields: INITIAL_STATE.fields,
-            inputDocuments: INITIAL_STATE.inputDocuments,
-            serverVersion: INITIAL_STATE.serverVersion,
-            pipeline: INITIAL_STATE.pipeline,
-            isModified: INITIAL_STATE.isModified,
-            importPipeline: INITIAL_STATE.importPipeline,
-            collation: INITIAL_STATE.collation,
-            collationString: INITIAL_STATE.collationString,
-            isCollationExpanded: INITIAL_STATE.isCollationExpanded,
-            isOverviewOn: INITIAL_STATE.isOverviewOn,
-            settings: INITIAL_STATE.settings,
-            limit: INITIAL_STATE.limit,
-            largeLimit: INITIAL_STATE.largeLimit,
-            maxTimeMS: INITIAL_STATE.maxTimeMS,
-            isFullscreenOn: INITIAL_STATE.isFullscreenOn,
-            savingPipeline: INITIAL_STATE.savingPipeline,
-            projections: INITIAL_STATE.projections
-          });
-        });
       });
     });
   });
