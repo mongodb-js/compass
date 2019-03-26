@@ -17,6 +17,8 @@ npm install --save mongodb-ace-mode
 
 ### Operators -> ace_function
 
+![MongoDB operator highlighting](https://user-images.githubusercontent.com/23074/53835489-9ec81f80-3f5b-11e9-9859-419879321d64.png)
+
 Why? Mental model of operators to functions. (e.g. `$avg: 'a'`, `avg(a)`)
 
 Given: 
@@ -40,6 +42,8 @@ max_cpi: {$max: "$trends.icecream_cpi"}
 ```
 
 ### Field usage -> ace_variable
+
+![MongoDB field highlighting](https://user-images.githubusercontent.com/23074/53902120-806f2c00-400e-11e9-9bb1-5a89829de189.png)
 
 Why? Nothing worse than off by one typos... So now really easy to catch because `"field"` and `"$field"` will be styled differently.
 
