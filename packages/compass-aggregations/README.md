@@ -95,7 +95,7 @@ Apache 2.0
 - [x] Webpack 4 Upgrade #79 
 - [x] Webpack 4 upgrade part 2 mongodb-js/compass-plugin#23
 - [ ] COMPASS-2888: Autocompletion includes projections #76
-- [ ] COMPASS-2960: Autocomplete `$$variables` defined from `let`
+- [x] ~COMPASS-2960: Autocomplete `$$variables` defined from `let`~
 - [ ] COMPASS-3086: Quickly create new pipelines by pasting into stage editor when in `INITIAL_STATE`
 
 #### Misc
