@@ -1,6 +1,6 @@
 # mongodb-ace-mode [![][npm_img]][npm_url]
 
-MongoDB ACE mode
+> ACE mode that provides highlighting for MongoDB
 
 ## Installation
 
@@ -8,7 +8,12 @@ MongoDB ACE mode
 npm install --save mongodb-ace-mode
 ```
 
-## Highlighting
+## Related
+
+- [`mongodb-js/ace-theme`](https://github.com/mongodb-js/ace-theme) ACE Theme for MongoDB.
+- [`mongodb-js/ace-autocompleter`](https://github.com/mongodb-js/ace-autocompleter) Makes ACE autocompletion aware of MongoDB Aggregation Pipeline [operators, expressions, and fields](https://github.com/mongodb-js/ace-autocompleter/tree/master/lib/constants).
+
+## Highlighting Rules
 
 ### Operators -> ace_function
 
