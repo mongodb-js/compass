@@ -1,6 +1,6 @@
 {
   "name": "mongodb-ace-mode",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "MongoDB Mode for the ACE Editor",
   "main": "index.js",
   "repository": {
