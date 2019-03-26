@@ -522,7 +522,7 @@ ace.define("ace/mode/javascript_highlight_rules",["require","exports","module","
      * 
      */
     this.$rules.no_regex.unshift({
-      regex: /(\")(\$[a-zA-Z\d\_\.]+)(\")/,
+      regex: /(["']{1})(\$[a-zA-Z\d\_\.]+)(["']{1})/,
       token: [
         "string.quasi.start", 
         "variable.parameter.language",
