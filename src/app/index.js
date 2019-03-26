@@ -367,6 +367,9 @@ Object.defineProperty(app, 'autoUpdate', {
 Object.defineProperty(app, 'instance', {
   get: function() {
     return state.instance;
+  },
+  set: function(instance) {
+    state.instance = instance;
   }
 });
 
