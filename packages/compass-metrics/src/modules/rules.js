@@ -294,6 +294,28 @@ const RULES = [
     metadata: (data) => ({ collectionSize: data.collectionSize })
   },
   {
+    registryEvent: 'explain-plan-fetched',
+    resource: 'Explain',
+    action: 'fetched',
+    condition: () => true,
+    metadata: (data) => ({
+      viewMode: data.viewMode,
+      executionTimeMS: data.executionTimeMS,
+      inMemorySort: data.inMemorySort,
+      isCollectionScan: data.isCollectionScan,
+      isCovered: data.isCovered,
+      isMultiKey: data.isMultiKey,
+      isSharded: data.isSharded,
+      indexType: data.indexType,
+      index: data.index,
+      numberOfDocsReturned: data.numberOfDocsReturned,
+      numberOfShards: data.numberOfShards,
+      totalDocsExamined: data.totalDocsExamined,
+      totalKeysExamined: data.totalKeysExamined,
+      indexUsed: data.indexUsed
+    })
+  },
+  {
     registryEvent: 'agg-pipeline-saved',
     resource: 'Aggregation',
     action: 'saved',
