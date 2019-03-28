@@ -1,9 +1,9 @@
 import React, { PureComponent } from 'react';
-import { DragDropContextProvider } from 'react-dnd';
-import HTML5Backend from 'react-dnd-html5-backend';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import classnames from 'classnames';
+import { IconButton } from 'hadron-react-buttons';
+import { WithDragDropContext } from 'hadron-react-components';
 import {
   createTab,
   closeTab,
@@ -157,27 +157,25 @@ class Workspace extends PureComponent {
    */
   render() {
     return (
-      <DragDropContextProvider backend={HTML5Backend}>
-        <div className={classnames(styles.workspace)}>
-          <div className={classnames(styles['workspace-tabs'])}>
-            <div onClick={this.props.prevTab} className={classnames(styles['workspace-tabs-prev'])}>
-              <i className="fa fa-chevron-left" aria-hidden/>
-            </div>
-            <div className={classnames(styles['workspace-tabs-container'])}>
-              {this.renderTabs()}
-              <CreateTab
-                createTab={this.props.createTab}
-                activeNamespace={this.activeNamespace()}/>
-            </div>
-            <div onClick={this.props.nextTab} className={classnames(styles['workspace-tabs-next'])}>
-              <i className="fa fa-chevron-right" aria-hidden/>
-            </div>
+      <div className={classnames(styles.workspace)}>
+        <div className={classnames(styles['workspace-tabs'])}>
+          <div onClick={this.props.prevTab} className={classnames(styles['workspace-tabs-prev'])}>
+            <i className="fa fa-chevron-left" aria-hidden/>
           </div>
-          <div className={classnames(styles['workspace-views'])}>
-            {this.renderViews()}
+          <div className={classnames(styles['workspace-tabs-container'])}>
+            {this.renderTabs()}
+            <CreateTab
+              createTab={this.props.createTab}
+              activeNamespace={this.activeNamespace()}/>
+          </div>
+          <div onClick={this.props.nextTab} className={classnames(styles['workspace-tabs-next'])}>
+            <i className="fa fa-chevron-right" aria-hidden/>
           </div>
         </div>
-      </DragDropContextProvider>
+        <div className={classnames(styles['workspace-views'])}>
+          {this.renderViews()}
+        </div>
+      </div>
     );
   }
 }
@@ -209,5 +207,5 @@ const MappedWorkspace = connect(
   }
 )(Workspace);
 
-export default MappedWorkspace;
+export default WithDragDropContext(MappedWorkspace);
 export { Workspace };
