@@ -23,8 +23,8 @@
     "hadron-react-utils": "^3.0.6",
     "moment-timezone": "^0.5.14",
     "prop-types": "^15.5.8",
-    "react": "^16.5.2",
-    "react-dom": "^16.5.2"
+    "react": "^16.8.0",
+    "react-dom": "^16.8.0"
   },
   "devDependencies": {
     "babel-cli": "^6.9.0",

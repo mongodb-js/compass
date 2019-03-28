@@ -31,9 +31,11 @@
     "lodash.map": "^4.6.0",
     "lodash.omit": "^4.5.0",
     "prop-types": "^15.5.8",
-    "react": "^16.5.2",
+    "react": "^16.8.0",
     "react-bootstrap": "0.31.0",
-    "react-dom": "^16.5.2",
+    "react-dnd": "^7.3.2",
+    "react-dnd-html5-backend": "^7.2.0",
+    "react-dom": "^16.8.0",
     "react-fontawesome": "^1.6.1",
     "react-tooltip": "^3.2.6"
   },
