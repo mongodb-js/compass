@@ -1,8 +1,7 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import classnames from 'classnames';
-import { DragDropContext } from 'react-dnd';
-import HTML5Backend from 'react-dnd-html5-backend';
+import { WithDragDropContext } from 'hadron-react-components';
 import Stage from 'components/stage';
 import Input from 'components/input';
 import AddStage from 'components/add-stage';
@@ -12,7 +11,6 @@ import styles from './pipeline-workspace.less';
 /**
  * The pipeline workspace component.
  */
-@DragDropContext(HTML5Backend)
 class PipelineWorkspace extends PureComponent {
   static displayName = 'PipelineWorkspace';
 
@@ -115,4 +113,4 @@ class PipelineWorkspace extends PureComponent {
   }
 }
 
-export default PipelineWorkspace;
+export default WithDragDropContext(PipelineWorkspace);
