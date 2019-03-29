@@ -819,7 +819,7 @@ describe('NativeClient', function() {
     it('disconnects the database', function(done) {
       client.disconnect();
       client.count('data-service.test', {}, {}, function(error) {
-        expect(error.message).to.equal('Topology was destroyed');
+        expect(error.message).to.include('was destroyed');
         done();
       });
     });
