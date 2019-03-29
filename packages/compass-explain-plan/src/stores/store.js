@@ -73,17 +73,6 @@ store.onActivated = (appRegistry) => {
   });
 
   /**
-   * When the Schema Validation is an active tab, send 'activated' metric.
-   *
-   * @param {String} tabName - The name of active tab.
-   */
-  appRegistry.on('active-tab-changed', (tabName) => {
-    if (tabName === 'Validation') {
-      // TODO: store.dispatch(activateExplainPlan());
-    }
-  });
-
-  /**
    * When query was changed, update query parameters for the explain plan.
    *
    * @param {String} tabName - The name of active tab.

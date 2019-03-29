@@ -1,6 +1,7 @@
 import ExplainPlanModel from 'mongodb-explain-plan-model';
 import { defaults, isString, find } from 'lodash';
 import { treeStagesChanged } from 'modules/tree-stages';
+import { appRegistryEmit } from 'modules/app-registry';
 
 /**
  * The module action prefix.
@@ -239,6 +240,27 @@ export const fetchExplainPlan = () => {
 
         dispatch(explainPlanFetched(explain));
         dispatch(treeStagesChanged(explain));
+
+        // Send metrics
+        dispatch(appRegistryEmit(
+          'explain-plan-fetched',
+          {
+            viewMode: explain.viewType,
+            executionTimeMS: explain.executionTimeMillis,
+            inMemorySort: explain.inMemorySort,
+            isCollectionScan: explain.isCollectionScan,
+            isCovered: explain.isCovered,
+            isMultiKey: explain.isMultiKey,
+            isSharded: explain.isSharded,
+            indexType: explain.indexType,
+            index: explain.index ? explain.index.serialize() : null,
+            numberOfDocsReturned: explain.nReturned,
+            numberOfShards: explain.numShards,
+            totalDocsExamined: explain.totalDocsExamined,
+            totalKeysExamined: explain.totalKeysExamined,
+            indexUsed: explain.usedIndex
+          }
+        ));
 
         return;
       });
