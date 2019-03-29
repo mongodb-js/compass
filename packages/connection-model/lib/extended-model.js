@@ -1,8 +1,15 @@
-var Connection = require('./model');
-var storageMixin = require('storage-mixin');
-var uuid = require('uuid');
-var electron = require('electron');
-var electronApp = electron.remote ? electron.remote.app : undefined;
+const Connection = require('./model');
+const storageMixin = require('storage-mixin');
+const uuid = require('uuid');
+
+let appName;
+
+try {
+  const electron = require('electron');
+  appName = electron.remote ? electron.remote.app : undefined;
+} catch (e) {
+  console.log('Could not load electron', e.message);
+}
 
 /**
  * Configuration for connecting to a MongoDB Deployment.
@@ -12,7 +19,7 @@ module.exports = Connection.extend(storageMixin, {
   namespace: 'Connections',
   storage: {
     backend: 'splice',
-    appName: electronApp ? electronApp.getName() : undefined,
+    appName: appName,
     secureCondition: function(val, key) {
       return key.match(/(password|passphrase)/i);
     }
