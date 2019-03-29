@@ -55,7 +55,8 @@ describe('mongodb-connection#connect', function() {
         mockConnect(model, setupListeners, function(err) {
           // must throw error here, because the connection details are invalid
           assert.ok(err);
-          assert.ok(/failed to connect to server/.test(err.message));
+          console.log(err.message);
+          assert.ok(/ECONNREFUSED/.test(err.message));
           // assert that tunnel.close() was called once
           assert.ok(spy.calledOnce);
           done();

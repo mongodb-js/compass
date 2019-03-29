@@ -1,9 +1,6 @@
 var Connection = require('./model');
 var storageMixin = require('storage-mixin');
-var DataService = require('mongodb-data-service');
-var debug = require('debug')('mongodb-compass:models:connection');
 var uuid = require('uuid');
-var metrics = require('mongodb-js-metrics')();
 var electron = require('electron');
 var electronApp = electron.remote ? electron.remote.app : undefined;
 
@@ -71,23 +68,6 @@ module.exports = Connection.extend(storageMixin, {
         }
       }
     }
-  },
-  test: function(done) {
-    var dataService = new DataService(this);
-    var onTested = function(err) {
-      if (err) {
-        metrics.error(err);
-        return done(err);
-      }
-
-      debug('test worked!');
-      dataService.disconnect();
-      done(null, this);
-    }.bind(this);
-
-    debug('Testing connection to `%j`...', this.serialize());
-    dataService.connect(onTested);
-    return this;
   },
   serialize: function() {
     return Connection.prototype.serialize.call(this, {
