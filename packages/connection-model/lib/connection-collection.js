@@ -1,17 +1,25 @@
-var Collection = require('ampersand-rest-collection');
-var Connection = require('./extended-model');
-var storageMixin = require('storage-mixin');
-var each = require('lodash.foreach');
-var electron = require('electron');
-var electronApp = electron.remote ? electron.remote.app : undefined;
-var raf = require('raf');
+const Collection = require('ampersand-rest-collection');
+const Connection = require('./extended-model');
+const storageMixin = require('storage-mixin');
+const each = require('lodash.foreach');
+const raf = require('raf');
+
+let appName;
+
+try {
+  const electron = require('electron');
+  appName = electron.remote ? electron.remote.app : undefined;
+} catch (e) {
+  /* eslint no-console: 0 */
+  console.log('Could not load electron', e.message);
+}
 
 module.exports = Collection.extend(storageMixin, {
   model: Connection,
   namespace: 'Connections',
   storage: {
     backend: 'splice',
-    appName: electronApp ? electronApp.getName() : undefined
+    appName: appName
   },
   comparator: function(a, b) {
     if (a.is_favorite === b.is_favorite) {
