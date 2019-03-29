@@ -8,6 +8,7 @@ try {
   const electron = require('electron');
   appName = electron.remote ? electron.remote.app : undefined;
 } catch (e) {
+  /* eslint no-console: 0 */
   console.log('Could not load electron', e.message);
 }
 
