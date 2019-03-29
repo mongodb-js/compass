@@ -4,7 +4,7 @@
   "author": "Lucas Hrabovsky <lucas@mongodb.com>",
   "bugs": "https://github.com/mongodb-js/connection-model/issues",
   "homepage": "https://github.com/mongodb-js/connection-model",
-  "version": "13.1.1",
+  "version": "13.1.2",
   "repository": {
     "type": "git",
     "url": "https://github.com/mongodb-js/connection-model.git"
