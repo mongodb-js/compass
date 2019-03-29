@@ -150,6 +150,35 @@ describe('Stage module', () => {
       });
     });
 
+    describe('when the stage is $project', () => {
+      const stage = {
+        id: 0,
+        isEnabled: true,
+        isExpanded: true,
+        isValid: true,
+        snippet: '',
+        stageOperator: '$project',
+        stage: '{_id: 0, avg_price: {$avg: "$price"}}'
+      };
+      const res = generateStage(stage);
+      it('returns the stage', () => {
+        expect(res).to.deep.equal({
+          '$project': {
+            _id: 0,
+            avg_price: {
+              $avg: '$price'
+            }
+          }
+        });
+      });
+      it('does not include dropped projections', () => {
+        expect(stage.projections.length).to.equal(1);
+      });
+      it('detects the avg_price projection', () => {
+        expect(stage.projections[0].name).to.equal('avg_price');
+      });
+    });
+
     context('when the stage has multiple types', () => {
       const stage = {
         id: 0,

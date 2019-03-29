@@ -49,8 +49,15 @@ class StageEditor extends Component {
     isAutoPreviewing: PropTypes.bool.isRequired,
     isValid: PropTypes.bool.isRequired,
     fromStageOperators: PropTypes.bool.isRequired,
-    setIsModified: PropTypes.func.isRequired
-  }
+    setIsModified: PropTypes.func.isRequired,
+    projections: PropTypes.array.isRequired,
+    projectionsChanged: PropTypes.func.isRequired
+  };
+
+  static defaultProps = {
+    fields: [],
+    projections: []
+  };
 
   /**
    * Set up the autocompleters once on initialization.
@@ -63,7 +70,7 @@ class StageEditor extends Component {
     this.completer = new StageAutoCompleter(
       this.props.serverVersion,
       textCompleter,
-      this.props.fields,
+      this.getFieldsAndProjections(),
       this.props.stageOperator
     );
     this.debounceRun = debounce(this.onRunStage, 750);
@@ -77,13 +84,16 @@ class StageEditor extends Component {
    * @returns {Boolean} If the component should update.
    */
   shouldComponentUpdate(nextProps) {
-    return nextProps.stageOperator !== this.props.stageOperator ||
+    return (
+      nextProps.stageOperator !== this.props.stageOperator ||
       nextProps.error !== this.props.error ||
       nextProps.syntaxError !== this.props.syntaxError ||
       nextProps.index !== this.props.index ||
       nextProps.serverVersion !== this.props.serverVersion ||
       nextProps.fields.length !== this.props.fields.length ||
-      nextProps.isValid !== this.props.isValid;
+      nextProps.projections.length !== this.props.projections.length ||
+      nextProps.isValid !== this.props.isValid
+    );
   }
 
   /**
@@ -92,7 +102,10 @@ class StageEditor extends Component {
    * @param {Object} prevProps - The previous properties.
    */
   componentDidUpdate(prevProps) {
-    this.completer.update(this.props.fields, this.props.stageOperator);
+    this.completer.update(
+      this.getFieldsAndProjections(),
+      this.props.stageOperator
+    );
     this.completer.version = this.props.serverVersion;
     if (this.props.stageOperator !== prevProps.stageOperator && this.editor) {
       this.editor.setValue('');
@@ -109,15 +122,17 @@ class StageEditor extends Component {
    */
   onStageChange = (value) => {
     this.props.stageChanged(value, this.props.index);
+    this.props.projectionsChanged();
     this.props.setIsModified(true);
 
     if (
-      (this.props.fromStageOperators === false || this.props.stageOperator === INDEX_STATS) &&
+      (this.props.fromStageOperators === false ||
+        this.props.stageOperator === INDEX_STATS) &&
       this.props.isAutoPreviewing
     ) {
       this.debounceRun();
     }
-  }
+  };
 
   /**
    * Need to decorate the change event with the stage index before
@@ -125,6 +140,25 @@ class StageEditor extends Component {
    */
   onRunStage = () => {
     this.props.runStage(this.props.index);
+  };
+
+  /**
+   * Combines all fields and projections into a single array for
+   * auto-completer.
+   * @returns {Array}
+   */
+  getFieldsAndProjections() {
+    const { fields, projections, index } = this.props;
+    const previouslyDefinedProjections = projections.filter(
+      (p) => p.index < index
+    );
+
+    const fieldsAndProjections = [].concat.call(
+      [],
+      fields,
+      previouslyDefinedProjections
+    );
+    return fieldsAndProjections;
   }
 
   /**
@@ -135,7 +169,9 @@ class StageEditor extends Component {
   renderError() {
     if (this.props.error) {
       return (
-        <div className={classnames(styles['stage-editor-errormsg'])} title={this.props.error}>
+        <div
+          className={classnames(styles['stage-editor-errormsg'])}
+          title={this.props.error}>
           {this.props.error}
         </div>
       );
@@ -145,7 +181,9 @@ class StageEditor extends Component {
   renderSyntaxError() {
     if (!this.props.isValid) {
       return (
-        <div className={classnames(styles['stage-editor-syntax-error'])} title={this.props.syntaxError}>
+        <div
+          className={classnames(styles['stage-editor-syntax-error'])}
+          title={this.props.syntaxError}>
           {this.props.syntaxError}
         </div>
       );
@@ -172,14 +210,15 @@ class StageEditor extends Component {
             name={`aggregations-stage-editor-${this.props.index}`}
             setOptions={OPTIONS}
             onFocus={() => {
-              tools.setCompleters([ this.completer ]);
+              tools.setCompleters([this.completer]);
             }}
             onLoad={(editor) => {
               this.editor = editor;
               this.editor.commands.addCommand({
                 name: 'executePipeline',
                 bindKey: {
-                  win: 'Ctrl-Enter', mac: 'Command-Enter'
+                  win: 'Ctrl-Enter',
+                  mac: 'Command-Enter'
                 },
                 exec: () => {
                   this.onRunStage();

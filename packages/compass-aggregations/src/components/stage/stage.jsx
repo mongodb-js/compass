@@ -67,7 +67,7 @@ const stageTarget = {
  *
  * Decorators added for giving the component drag/drop behaviour.
  */
-@DropTarget('Stage', stageTarget, connect => ({
+@DropTarget('Stage', stageTarget, (connect) => ({
   connectDropTarget: connect.dropTarget()
 }))
 @DragSource('Stage', stageSource, (connect, monitor) => ({
@@ -109,7 +109,9 @@ class Stage extends Component {
     stageToggled: PropTypes.func.isRequired,
     openLink: PropTypes.func.isRequired,
     fields: PropTypes.array.isRequired,
-    setIsModified: PropTypes.func.isRequired
+    setIsModified: PropTypes.func.isRequired,
+    projections: PropTypes.array.isRequired,
+    projectionsChanged: PropTypes.func.isRequired
   };
 
   /* eslint complexity: 0 */
@@ -131,6 +133,7 @@ class Stage extends Component {
       nextProps.isAutoPreviewing !== this.props.isAutoPreviewing ||
       nextProps.serverVersion !== this.props.serverVersion ||
       nextProps.fields.length !== this.props.fields.length ||
+      nextProps.projections.length !== this.props.projections.length ||
       (this.props.stageOperator === '$out' &&
         nextProps.stage !== this.props.stage)
     );
@@ -179,6 +182,8 @@ class Stage extends Component {
           fields={this.props.fields}
           setIsModified={this.props.setIsModified}
           stageChanged={this.props.stageChanged}
+          projections={this.props.projections}
+          projectionsChanged={this.props.projectionsChanged}
         />
       );
     }

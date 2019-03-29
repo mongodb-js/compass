@@ -91,7 +91,9 @@ class Pipeline extends PureComponent {
     savingPipelineApply: PropTypes.func.isRequired,
     savingPipelineCancel: PropTypes.func.isRequired,
     savingPipelineOpen: PropTypes.func.isRequired,
-    savingPipeline: PropTypes.object.isRequired
+    savingPipeline: PropTypes.object.isRequired,
+    projections: PropTypes.array.isRequired,
+    projectionsChanged: PropTypes.func.isRequired
   };
 
   /**

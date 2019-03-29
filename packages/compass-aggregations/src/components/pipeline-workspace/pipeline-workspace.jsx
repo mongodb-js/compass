@@ -38,7 +38,9 @@ class PipelineWorkspace extends PureComponent {
     stageOperatorSelected: PropTypes.func.isRequired,
     stageToggled: PropTypes.func.isRequired,
     fields: PropTypes.array.isRequired,
-    isOverviewOn: PropTypes.bool.isRequired
+    isOverviewOn: PropTypes.bool.isRequired,
+    projections: PropTypes.array.isRequired,
+    projectionsChanged: PropTypes.func.isRequired
   };
 
   /**
@@ -82,6 +84,8 @@ class PipelineWorkspace extends PureComponent {
           setIsModified={this.props.setIsModified}
           key={stage.id}
           isOverviewOn={this.props.isOverviewOn}
+          projections={this.props.projections}
+          projectionsChanged={this.props.projectionsChanged}
         />
       );
     });

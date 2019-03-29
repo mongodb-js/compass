@@ -1,16 +1,8 @@
-import {
-  combineReducers
-} from 'redux';
-import {
-  ObjectId
-} from 'bson';
+import { combineReducers } from 'redux';
+import { ObjectId } from 'bson';
 
-import dataService, {
-  INITIAL_STATE as DS_INITIAL_STATE
-} from './data-service';
-import fields, {
-  INITIAL_STATE as FIELDS_INITIAL_STATE
-} from './fields';
+import dataService, { INITIAL_STATE as DS_INITIAL_STATE } from './data-service';
+import fields, { INITIAL_STATE as FIELDS_INITIAL_STATE } from './fields';
 import inputDocuments, {
   INITIAL_STATE as INPUT_INITIAL_STATE
 } from './input-documents';
@@ -28,12 +20,8 @@ import pipeline, {
   runStage,
   INITIAL_STATE as PIPELINE_INITIAL_STATE
 } from './pipeline';
-import name, {
-  INITIAL_STATE as NAME_INITIAL_STATE
-} from './name';
-import limit, {
-  INITIAL_STATE as LIMIT_INITIAL_STATE
-} from './limit';
+import name, { INITIAL_STATE as NAME_INITIAL_STATE } from './name';
+import limit, { INITIAL_STATE as LIMIT_INITIAL_STATE } from './limit';
 import largeLimit, {
   INITIAL_STATE as LARGE_LIMIT_INITIAL_STATE
 } from './large-limit';
@@ -51,18 +39,12 @@ import collationString, {
 import isCollationExpanded, {
   INITIAL_STATE as COLLATION_COLLAPSER_INITIAL_STATE
 } from './collation-collapser';
-import comments, {
-  INITIAL_STATE as COMMENTS_INITIAL_STATE
-} from './comments';
-import sample, {
-  INITIAL_STATE as SAMPLE_INITIAL_STATE
-} from './sample';
+import comments, { INITIAL_STATE as COMMENTS_INITIAL_STATE } from './comments';
+import sample, { INITIAL_STATE as SAMPLE_INITIAL_STATE } from './sample';
 import autoPreview, {
   INITIAL_STATE as AUTO_PREVIEW_INITIAL_STATE
 } from './auto-preview';
-import id, {
-  INITIAL_STATE as ID_INITIAL_STATE
-} from './id';
+import id, { INITIAL_STATE as ID_INITIAL_STATE } from './id';
 import savedPipeline, {
   updatePipelineList,
   INITIAL_STATE as SP_INITIAL_STATE
@@ -75,9 +57,7 @@ import importPipeline, {
   CONFIRM_NEW,
   createPipeline
 } from './import-pipeline';
-import {
-  getObjectStore
-} from 'utils/indexed-db';
+import { getObjectStore } from 'utils/indexed-db';
 import appRegistry, {
   appRegistryEmit,
   INITIAL_STATE as APP_REGISTRY_STATE
@@ -97,6 +77,11 @@ import savingPipeline, {
   INITIAL_STATE as SAVING_PIPELINE_INITIAL_STATE,
   SAVING_PIPELINE_APPLY
 } from 'modules/saving-pipeline';
+
+import projections, {
+  INITIAL_STATE as PROJECTIONS_INITIAL_STATE,
+  PROJECTIONS_CHANGED
+} from 'modules/projections';
 
 /**
  * The intial state of the root reducer.
@@ -127,7 +112,8 @@ export const INITIAL_STATE = {
   largeLimit: LARGE_LIMIT_INITIAL_STATE,
   maxTimeMS: MAX_TIME_MS_INITIAL_STATE,
   isFullscreenOn: FULLSCREEN_INITIAL_STATE,
-  savingPipeline: SAVING_PIPELINE_INITIAL_STATE
+  savingPipeline: SAVING_PIPELINE_INITIAL_STATE,
+  projections: PROJECTIONS_INITIAL_STATE
 };
 
 /**
@@ -189,7 +175,8 @@ const appReducer = combineReducers({
   largeLimit,
   maxTimeMS,
   isFullscreenOn,
-  savingPipeline
+  savingPipeline,
+  projections
 });
 
 /**
@@ -229,17 +216,17 @@ const doReset = () => ({
 const doRestorePipeline = (state, action) => {
   const savedState = action.restoreState;
   const commenting =
-    savedState.comments === null || savedState.comments === undefined ?
-      true :
-      savedState.comments;
+    savedState.comments === null || savedState.comments === undefined
+      ? true
+      : savedState.comments;
   const sampling =
-    savedState.sample === null || savedState.sample === undefined ?
-      true :
-      savedState.sample;
+    savedState.sample === null || savedState.sample === undefined
+      ? true
+      : savedState.sample;
   const autoPreviewing =
-    savedState.autoPreview === null || savedState.autoPreview === undefined ?
-      true :
-      savedState.autoPreview;
+    savedState.autoPreview === null || savedState.autoPreview === undefined
+      ? true
+      : savedState.autoPreview;
 
   return {
     ...INITIAL_STATE,
@@ -255,6 +242,7 @@ const doRestorePipeline = (state, action) => {
     limit: savedState.limit,
     largeLimit: savedState.largeLimit,
     maxTimeMS: savedState.maxTimeMS,
+    projections: savedState.projections,
     sample: sampling,
     autoPreview: autoPreviewing,
     fields: state.fields,
@@ -279,7 +267,7 @@ const doRestorePipeline = (state, action) => {
  *
  * @returns {Object} The new state.
  */
-const doClearPipeline = state => ({
+const doClearPipeline = (state) => ({
   ...state,
   pipeline: [],
   limit: LIMIT_INITIAL_STATE,
@@ -298,7 +286,7 @@ const doClearPipeline = state => ({
  *
  * @returns {Object} The new state.
  */
-const createNewPipeline = state => ({
+const createNewPipeline = (state) => ({
   ...INITIAL_STATE,
   appRegistry: state.appRegistry,
   namespace: state.namespace,
@@ -315,7 +303,7 @@ const createNewPipeline = state => ({
  *
  * @returns {Object} The new state.
  */
-const createClonedPipeline = state => ({
+const createClonedPipeline = (state) => ({
   ...state,
   id: new ObjectId().toHexString(),
   name: `${state.name} (copy)`,
@@ -329,7 +317,7 @@ const createClonedPipeline = state => ({
  *
  * @returns {Object} The new state.
  */
-const doConfirmNewFromText = state => {
+const doConfirmNewFromText = (state) => {
   const pipe = createPipeline(state.importPipeline.text);
   const error = pipe.length > 0 ? pipe[0].syntaxError : null;
   return {
@@ -354,14 +342,14 @@ const doConfirmNewFromText = state => {
  * @param {Object} state
  * @returns {Object} The new state.
  */
-const doToggleOverview = state => {
+const doToggleOverview = (state) => {
   const newState = {
     ...state,
     isOverviewOn: !state.isOverviewOn
   };
 
   if (newState.pipeline) {
-    newState.pipeline.forEach(pipe => {
+    newState.pipeline.forEach((pipe) => {
       pipe.isExpanded = !newState.isOverviewOn;
     });
   }
@@ -372,7 +360,7 @@ const doToggleOverview = state => {
   return newState;
 };
 
-const doApplySettings = state => {
+const doApplySettings = (state) => {
   const newState = {
     ...state,
     limit: state.settings.sampleSize,
@@ -385,7 +373,7 @@ const doApplySettings = state => {
   return newState;
 };
 
-const doApplySavingPipeline = state => {
+const doApplySavingPipeline = (state) => {
   const newState = {
     ...state,
     name: state.savingPipeline.name
@@ -395,6 +383,23 @@ const doApplySavingPipeline = state => {
   return newState;
 };
 
+import { gatherProjections } from 'modules/stage';
+
+const doProjectionsChanged = (state) => {
+  const newState = {
+    ...state,
+    projections: []
+  };
+
+  newState.pipeline.map((_stage, index) => {
+    _stage.projections = gatherProjections(_stage);
+    _stage.projections.map((projection) => {
+      projection.index = index;
+      newState.projections.push(projection);
+    });
+  });
+  return newState;
+};
 /**
  * The action to state modifier mappings.
  */
@@ -408,7 +413,8 @@ const MAPPINGS = {
   [CONFIRM_NEW]: doConfirmNewFromText,
   [TOGGLE_OVERVIEW]: doToggleOverview,
   [APPLY_SETTINGS]: doApplySettings,
-  [SAVING_PIPELINE_APPLY]: doApplySavingPipeline
+  [SAVING_PIPELINE_APPLY]: doApplySavingPipeline,
+  [PROJECTIONS_CHANGED]: doProjectionsChanged
 };
 
 /**
@@ -451,7 +457,7 @@ export const clearPipeline = () => ({
  *
  * @returns {Object} The action.
  */
-export const restoreSavedPipeline = restoreState => ({
+export const restoreSavedPipeline = (restoreState) => ({
   type: RESTORE_PIPELINE,
   restoreState: restoreState
 });
@@ -481,9 +487,9 @@ export const clonePipeline = () => ({
  *
  * @returns {Function} The thunk function.
  */
-export const deletePipeline = pipelineId => {
+export const deletePipeline = (pipelineId) => {
   return (dispatch, getState) => {
-    getObjectStore('readwrite', store => {
+    getObjectStore('readwrite', (store) => {
       store.delete(pipelineId).onsuccess = () => {
         dispatch(updatePipelineList());
         dispatch(clearPipeline());
@@ -504,10 +510,10 @@ export const deletePipeline = pipelineId => {
  *
  * @returns {Function} The thunk function.
  */
-export const getPipelineFromIndexedDB = pipelineId => {
-  return dispatch => {
-    getObjectStore('readwrite', store => {
-      store.get(pipelineId).onsuccess = e => {
+export const getPipelineFromIndexedDB = (pipelineId) => {
+  return (dispatch) => {
+    getObjectStore('readwrite', (store) => {
+      store.get(pipelineId).onsuccess = (e) => {
         const pipe = e.target.result;
         dispatch(clearPipeline());
         dispatch(restoreSavedPipeline(pipe));

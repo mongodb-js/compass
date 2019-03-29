@@ -119,7 +119,8 @@ export const EMPTY_STAGE = {
   isComplete: false,
   previewDocuments: [],
   syntaxError: null,
-  error: null
+  error: null,
+  projections: []
 };
 
 /**

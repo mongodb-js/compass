@@ -77,7 +77,7 @@ class DataServiceStitchProvider {
     this.db(database)
       .then(_db => _db.collection(collection).aggregate(pipeline))
       .then(res => callback(null, new StitchCursor(res)))
-      .catch(callback);
+      .catch((err) => callback(err));
   }
 
   /**

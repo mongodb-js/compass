@@ -32,8 +32,10 @@ class StageWorkspace extends PureComponent {
     fields: PropTypes.array.isRequired,
     previewDocuments: PropTypes.array.isRequired,
     setIsModified: PropTypes.func.isRequired,
-    stageChanged: PropTypes.func.isRequired
-  }
+    stageChanged: PropTypes.func.isRequired,
+    projections: PropTypes.array.isRequired,
+    projectionsChanged: PropTypes.func.isRequired
+  };
 
   /**
    * Renders the stage workspace.
@@ -57,7 +59,10 @@ class StageWorkspace extends PureComponent {
           setIsModified={this.props.setIsModified}
           isAutoPreviewing={this.props.isAutoPreviewing}
           fields={this.props.fields}
-          stageChanged={this.props.stageChanged} />
+          stageChanged={this.props.stageChanged}
+          projections={this.props.projections}
+          projectionsChanged={this.props.projectionsChanged}
+        />
         <StagePreview
           documents={this.props.previewDocuments}
           isValid={this.props.isValid}
@@ -68,7 +73,8 @@ class StageWorkspace extends PureComponent {
           stage={this.props.stage}
           index={this.props.index}
           runOutStage={this.props.runOutStage}
-          gotoOutResults={this.props.gotoOutResults} />
+          gotoOutResults={this.props.gotoOutResults}
+        />
       </div>
     );
   }

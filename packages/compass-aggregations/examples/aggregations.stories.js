@@ -14,85 +14,57 @@ import GROUPED_STATS_EXAMPLE from './example-grouped-stats.js';
 
 import DataService from './data-service-provider';
 
+import { runStage } from 'modules/pipeline';
+import { refreshInputDocuments } from 'modules/input-documents';
+
 const BASE_STATE = {
   ...INITIAL_STATE
 };
 
 BASE_STATE.dataService.dataService = new DataService();
 
+function loadAggregation(state = {}) {
+  const initialState = {
+    ...BASE_STATE,
+    ...state
+  };
+
+  const store = configureStore(initialState);
+  /**
+   * TOOD (lucas) Dispatch for populating fields.
+   */
+  store.dispatch(refreshInputDocuments());
+  store.dispatch(runStage(0));
+  return (
+    <Provider store={store}>
+      <Aggregations />
+    </Provider>
+  );
+}
+
 storiesOf('Examples', module)
-  .addDecorator(story => <ComponentPreview>{story()}</ComponentPreview>)
-  .add('Basic', () => {
-    const store = configureStore({
-      ...BASE_STATE,
-      ...BASIC_EXAMPLE
-    });
-    return (
-      <Provider store={store}>
-        <Aggregations />
-      </Provider>
-    );
-  })
-  .add('Very Complex', () => {
-    const store = configureStore({
-      ...BASE_STATE,
-      ...COMPLEX_EXAMPLE
-    });
-    return (
-      <Provider store={store}>
-        <Aggregations />
-      </Provider>
-    );
-  })
-  .add('Array Stats', () => {
-    const store = configureStore({
-      ...BASE_STATE,
-      ...ARRAY_STATS_EXAMPLE
-    });
-    return (
-      <Provider store={store}>
-        <Aggregations />
-      </Provider>
-    );
-  })
-  .add('Grouped Stats', () => {
-    const store = configureStore({
-      ...BASE_STATE,
-      ...GROUPED_STATS_EXAMPLE
-    });
-    return (
-      <Provider store={store}>
-        <Aggregations />
-      </Provider>
-    );
-  })
+  .addDecorator((story) => <ComponentPreview>{story()}</ComponentPreview>)
+  .add('Basic', () => loadAggregation(BASIC_EXAMPLE))
+  .add('Grouped Stats', () => loadAggregation(GROUPED_STATS_EXAMPLE))
+  .add('Array Stats', () => loadAggregation(ARRAY_STATS_EXAMPLE))
+  .add('Very Complex', () => loadAggregation(COMPLEX_EXAMPLE))
   .add('Default', () => {
-    const store = configureStore(BASE_STATE);
-    return (
-      <Provider store={store}>
-        <Aggregations />
-      </Provider>
-    );
-  })
-  .add('isFullscreenOn', () => {
-    const store = configureStore({
-      ...BASE_STATE,
-      isFullscreenOn: true
-    });
-    return (
-      <Provider store={store}>
-        <Aggregations />
-      </Provider>
-    );
-  })
-  .add('settings.isExpanded', () => {
-    const state = {
+    const initialState = {
       ...BASE_STATE
     };
-
-    state.settings.isExpanded = true;
-
-    const store = configureStore(state);
+    const store = configureStore(initialState);
+    return (
+      <Provider store={store}>
+        <Aggregations />
+      </Provider>
+    );
+  })
+  .add('Static', () => {
+    const initialState = {
+      ...BASE_STATE,
+      ...BASIC_EXAMPLE
+    };
+    const store = configureStore(initialState);
     return (
       <Provider store={store}>
         <Aggregations />

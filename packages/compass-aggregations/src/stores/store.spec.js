@@ -23,20 +23,24 @@ describe('Aggregation Store', () => {
     });
 
     context('when the fields change', () => {
-      it('updates the fields', done => {
+      it('updates the fields', (done) => {
         const unsubscribe = store.subscribe(() => {
           unsubscribe();
           expect(store.getState().fields).to.deep.equal([
-            { name: 'harry',
+            {
+              name: 'harry',
               value: 'harry',
               score: 1,
               meta: 'field',
-              version: '0.0.0' },
-            { name: 'potter',
+              version: '0.0.0'
+            },
+            {
+              name: 'potter',
               value: 'potter',
               score: 1,
               meta: 'field',
-              version: '0.0.0' }
+              version: '0.0.0'
+            }
           ]);
           done();
         });
@@ -44,24 +48,34 @@ describe('Aggregation Store', () => {
         appRegistry.emit('fields-changed', {
           fields: {
             harry: {
-              name: 'harry', path: 'harry', count: 1, type: 'Number'
+              name: 'harry',
+              path: 'harry',
+              count: 1,
+              type: 'Number'
             },
             potter: {
-              name: 'potter', path: 'potter', count: 1, type: 'Boolean'
+              name: 'potter',
+              path: 'potter',
+              count: 1,
+              type: 'Boolean'
             }
           },
-          topLevelFields: [ 'harry', 'potter' ],
+          topLevelFields: ['harry', 'potter'],
           aceFields: [
-            { name: 'harry',
+            {
+              name: 'harry',
               value: 'harry',
               score: 1,
               meta: 'field',
-              version: '0.0.0' },
-            { name: 'potter',
+              version: '0.0.0'
+            },
+            {
+              name: 'potter',
               value: 'potter',
               score: 1,
               meta: 'field',
-              version: '0.0.0' }
+              version: '0.0.0'
+            }
           ]
         });
       });
@@ -84,7 +98,7 @@ describe('Aggregation Store', () => {
 
   describe('#dispatch', () => {
     context('when the action is unknown', () => {
-      it('returns the initial state', done => {
+      it('returns the initial state', (done) => {
         const unsubscribe = store.subscribe(() => {
           unsubscribe();
           expect(store.getState().pipeline[0].stage).to.equal('');
@@ -97,7 +111,7 @@ describe('Aggregation Store', () => {
     context('when the action is STAGE_CHANGED', () => {
       const stage = '{ $match: {}}';
 
-      it('updates the stage in state', done => {
+      it('updates the stage in state', (done) => {
         const unsubscribe = store.subscribe(() => {
           unsubscribe();
           expect(store.getState().pipeline[0].stage).to.equal(stage);
@@ -108,7 +122,7 @@ describe('Aggregation Store', () => {
     });
 
     context('when the action is STAGE_DELETED', () => {
-      it('deletes the stage in state', done => {
+      it('deletes the stage in state', (done) => {
         const unsubscribe = store.subscribe(() => {
           unsubscribe();
           expect(store.getState().pipeline).to.deep.equal([]);
@@ -119,7 +133,7 @@ describe('Aggregation Store', () => {
     });
 
     context('when the action is STAGE_ADDED', () => {
-      it('updates the stage in state', done => {
+      it('updates the stage in state', (done) => {
         const unsubscribe = store.subscribe(() => {
           unsubscribe();
           expect(store.getState().pipeline.length).to.equal(2);
@@ -130,7 +144,7 @@ describe('Aggregation Store', () => {
     });
 
     context('when the action is STAGE_ADDED_AFTER', () => {
-      it('updates the stage in state', done => {
+      it('updates the stage in state', (done) => {
         const unsubscribe = store.subscribe(() => {
           unsubscribe();
           expect(store.getState().pipeline.length).to.equal(2);
@@ -141,7 +155,7 @@ describe('Aggregation Store', () => {
     });
 
     context('when the action is STAGE_TOGGLED', () => {
-      it('updates the stage in state', done => {
+      it('updates the stage in state', (done) => {
         const unsubscribe = store.subscribe(() => {
           unsubscribe();
           expect(store.getState().pipeline[0].isEnabled).to.equal(false);
@@ -152,7 +166,7 @@ describe('Aggregation Store', () => {
     });
 
     context('when the action is STAGE_COLLAPSE_TOGGLED', () => {
-      it('updates the stage in state', done => {
+      it('updates the stage in state', (done) => {
         const unsubscribe = store.subscribe(() => {
           unsubscribe();
           expect(store.getState().pipeline[0].isExpanded).to.equal(false);
@@ -201,7 +215,8 @@ describe('Aggregation Store', () => {
             largeLimit: INITIAL_STATE.largeLimit,
             maxTimeMS: INITIAL_STATE.maxTimeMS,
             isFullscreenOn: INITIAL_STATE.isFullscreenOn,
-            savingPipeline: INITIAL_STATE.savingPipeline
+            savingPipeline: INITIAL_STATE.savingPipeline,
+            projections: INITIAL_STATE.projections
           });
         });
       });
@@ -244,7 +259,8 @@ describe('Aggregation Store', () => {
             largeLimit: INITIAL_STATE.largeLimit,
             maxTimeMS: INITIAL_STATE.maxTimeMS,
             isFullscreenOn: INITIAL_STATE.isFullscreenOn,
-            savingPipeline: INITIAL_STATE.savingPipeline
+            savingPipeline: INITIAL_STATE.savingPipeline,
+            projections: INITIAL_STATE.projections
           });
         });
       });

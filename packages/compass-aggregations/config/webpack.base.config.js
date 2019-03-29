@@ -2,13 +2,14 @@ const path = require('path');
 const project = require('./project');
 
 module.exports = {
-  mode: (process.env.NODE_ENV !== 'production') ? 'development' : 'production',
+  mode: process.env.NODE_ENV !== 'production' ? 'development' : 'production',
   resolve: {
     modules: ['node_modules'],
     extensions: ['.js', '.jsx', '.json', 'less'],
     alias: {
       components: path.join(project.path.src, 'components'),
       constants: path.join(project.path.src, 'constants'),
+      containers: path.join(project.path.src, 'containers'),
       fonts: path.join(project.path.src, 'assets/fonts'),
       images: path.join(project.path.src, 'assets/images'),
       less: path.join(project.path.src, 'assets/less'),

@@ -73,6 +73,8 @@ import {
   savingPipelineOpen
 } from 'modules/saving-pipeline';
 
+import { projectionsChanged } from 'modules/projections';
+
 import styles from './aggregations.less';
 
 /**
@@ -102,7 +104,7 @@ class Aggregations extends Component {
  *
  * @returns {Object} The mapped properties.
  */
-const mapStateToProps = state => ({
+const mapStateToProps = (state) => ({
   fields: state.fields,
   inputDocuments: state.inputDocuments,
   namespace: state.namespace,
@@ -128,7 +130,8 @@ const mapStateToProps = state => ({
   largeLimit: state.largeLimit,
   maxTimeMS: state.maxTimeMS,
   isFullscreenOn: state.isFullscreenOn,
-  savingPipeline: state.savingPipeline
+  savingPipeline: state.savingPipeline,
+  projections: state.projections
 });
 
 /**
@@ -192,7 +195,8 @@ const MappedAggregations = connect(
     savingPipelineNameChanged,
     savingPipelineApply,
     savingPipelineCancel,
-    savingPipelineOpen
+    savingPipelineOpen,
+    projectionsChanged
   }
 )(Aggregations);
 
