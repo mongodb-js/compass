@@ -1,12 +1,13 @@
-import { createStore } from 'redux';
+import { createStore, applyMiddleware } from 'redux';
+import thunk from 'redux-thunk';
 import toNS from 'mongodb-ns';
 import reducer from 'modules';
 import { appRegistryActivated } from 'modules/app-registry';
 import { dataServiceConnected } from 'modules/data-service';
 import { serverVersionChanged } from 'modules/server-version';
-import { selectNamespace, createTab } from 'modules/tabs';
+import { selectNamespace, preCreateTab } from 'modules/tabs';
 
-const store = createStore(reducer);
+const store = createStore(reducer, applyMiddleware(thunk));
 
 /**
  * This hook is Compass specific to listen to app registry events.
@@ -23,7 +24,7 @@ store.onActivated = (appRegistry) => {
     if (ns) {
       const namespace = toNS(ns);
       if (namespace.collection) {
-        store.dispatch(createTab(ns));
+        store.dispatch(preCreateTab(ns, false));
       }
     }
   });

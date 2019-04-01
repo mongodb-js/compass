@@ -15,7 +15,8 @@ class Collection extends Component {
 
   static propTypes = {
     namespace: PropTypes.string.isRequired,
-    isReadonly: PropTypes.bool.isRequired
+    isReadonly: PropTypes.bool.isRequired,
+    stores: PropTypes.array.isRequired
   };
 
   constructor(props) {
@@ -27,7 +28,10 @@ class Collection extends Component {
     this.Stats = app.appRegistry.getComponent('CollectionStats.Component');
     this.QueryActions = app.appRegistry.getAction('Query.Actions');
     this.QueryHistoryActions = app.appRegistry.getAction('QueryHistory.Actions');
+<<<<<<< HEAD
     this.setupTabs();
+=======
+>>>>>>> Moving store creation into reducers
   }
 
   onTabClicked = (idx) => {
@@ -60,27 +64,13 @@ class Collection extends Component {
     const tabs = [];
     const queryHistoryIndexes = [];
     const views = roles.map((role, i) => {
-      console.log('role', role);
       if (role.hasQueryHistory) queryHistoryIndexes.push(i);
       tabs.push(role.name);
-      // @todo: Durran: Does this go here?
-      const configureStore = role.configureStore;
-      const scopedAppRegistry = new AppRegistry();
-      const state = store.getState();
-      const scopedStore = configureStore({
-        appRegistry: scopedAppRegistry,
-        dataProvider: {
-          error: state.dataService.error,
-          dataProvider: state.dataService.dataService
-        },
-        namespace: this.props.namespace,
-        serverVersion: '4.2.0',
-        fields: []
-      });
-      console.log('scoped store', scopedStore);
-
+      console.log('collection props', this.props);
+      console.log('i', i);
+      console.log('store', this.props.stores[i]);
       return (
-        <UnsafeComponent component={role.component} key={i} store={scopedStore} />
+        <UnsafeComponent component={role.component} key={i} store={this.props.stores[i]} />
       );
     });
 
@@ -122,6 +112,7 @@ class Collection extends Component {
     const ns = toNS(this.props.namespace);
     const database = ns.database;
     const collection = ns.collection;
+    this.setupTabs();
 
     return (
       <div className={classnames(styles.collection, 'clearfix')}>

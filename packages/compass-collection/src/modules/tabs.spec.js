@@ -176,9 +176,10 @@ describe('tabs module', () => {
       context('when no tabs exist', () => {
         let state;
         const namespace = 'db.coll';
+        const store = {};
 
         before(() => {
-          state = reducer(undefined, createTab(namespace, true));
+          state = reducer(undefined, createTab(namespace, true, store));
         });
 
         it('creates a new tab with the namespace', () => {
@@ -191,6 +192,10 @@ describe('tabs module', () => {
 
         it('sets the tab readonly value', () => {
           expect(state[0].isReadonly).to.equal(true);
+        });
+
+        it('sets the store on the tab', () => {
+          expect(state[0].store).to.equal(store);
         });
 
         it('adds additional tabs', () => {
@@ -519,6 +524,12 @@ describe('tabs module', () => {
           });
         });
       });
+    });
+  });
+
+  describe('#preCreateTab', () => {
+    context('when there are no filtered roles', () => {
+
     });
   });
 });

@@ -5,7 +5,7 @@ import classnames from 'classnames';
 import { IconButton } from 'hadron-react-buttons';
 import { WithDragDropContext } from 'hadron-react-components';
 import {
-  createTab,
+  preCreateTab,
   closeTab,
   prevTab,
   nextTab,
@@ -47,7 +47,7 @@ class Workspace extends PureComponent {
   static propTypes = {
     tabs: PropTypes.array.isRequired,
     closeTab: PropTypes.func.isRequired,
-    createTab: PropTypes.func.isRequired,
+    preCreateTab: PropTypes.func.isRequired,
     prevTab: PropTypes.func.isRequired,
     nextTab: PropTypes.func.isRequired,
     moveTab: PropTypes.func.isRequired,
@@ -123,6 +123,7 @@ class Workspace extends PureComponent {
    */
   renderTabs() {
     return this.props.tabs.map((tab, i) => {
+      console.log('tab', tab);
       return (
         <CollectionTab
           key={i}
@@ -142,10 +143,12 @@ class Workspace extends PureComponent {
       return tab.isActive;
     });
     if (activeTab) {
+      console.log('active tab', activeTab);
       return (
         <Collection
           namespace={activeTab.namespace}
-          isReadonly={activeTab.isReadonly} />
+          isReadonly={activeTab.isReadonly}
+          stores={activeTab.stores} />
       );
     }
   }
@@ -165,7 +168,7 @@ class Workspace extends PureComponent {
           <div className={classnames(styles['workspace-tabs-container'])}>
             {this.renderTabs()}
             <CreateTab
-              createTab={this.props.createTab}
+              createTab={this.props.preCreateTab}
               activeNamespace={this.activeNamespace()}/>
           </div>
           <div onClick={this.props.nextTab} className={classnames(styles['workspace-tabs-next'])}>
@@ -198,7 +201,7 @@ const mapStateToProps = state => ({
 const MappedWorkspace = connect(
   mapStateToProps,
   {
-    createTab,
+    preCreateTab,
     closeTab,
     prevTab,
     nextTab,

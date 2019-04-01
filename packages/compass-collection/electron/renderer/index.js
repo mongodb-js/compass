@@ -81,8 +81,11 @@ const dataService = new DataService(connection);
 appRegistry.emit('data-service-initialized', dataService);
 dataService.connect((error, ds) => {
   appRegistry.emit('data-service-connected', error, ds);
-  appRegistry.emit('select-namespace', 'citibike.trips');
-  appRegistry.emit('open-namespace-in-new-tab', 'thisisaverylongdatabase.andcollectionname');
+  appRegistry.emit('server-version-changed', '4.2.0');
+  // appRegistry.emit('select-namespace', 'citibike.trips');
+  appRegistry.emit('open-namespace-in-new-tab', 'citibike.trips');
+  appRegistry.emit('open-namespace-in-new-tab', 'echo.artists');
+  // appRegistry.emit('open-namespace-in-new-tab', 'thisisaverylongdatabase.andcollectionname');
 });
 
 if (module.hot) {

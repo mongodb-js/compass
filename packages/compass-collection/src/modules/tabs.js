@@ -1,3 +1,6 @@
+import AppRegistry from 'hadron-app-registry';
+import semver from 'semver';
+
 /**
  * The prefix.
  */
@@ -94,7 +97,8 @@ const doCreateTab = (state, action) => {
   newState.push({
     namespace: action.namespace,
     isActive: true,
-    isReadonly: action.isReadonly
+    isReadonly: action.isReadonly,
+    stores: action.stores
   });
   return newState;
 };
@@ -264,13 +268,15 @@ export default function reducer(state = INITIAL_STATE, action) {
  *
  * @param {String} namespace - The namespace.
  * @param {Boolean} isReadonly - Is the collection readonly?
+ * @param {Array} stores - The stores for the tab.
  *
  * @returns {Object} The create tab action.
  */
-export const createTab = (namespace, isReadonly) => ({
+export const createTab = (namespace, isReadonly, stores) => ({
   type: CREATE_TAB,
   namespace: namespace,
-  isReadonly: isReadonly || false
+  isReadonly: isReadonly || false,
+  stores: stores
 });
 
 /**
@@ -342,3 +348,48 @@ export const selectTab = (index) => ({
   type: SELECT_TAB,
   index: index
 });
+
+/**
+ * Handles all the setup of tab creation by creating the stores for each
+ * of the roles in the global app registry.
+ *
+ * @param {String} namespace - The namespace.
+ * @param {Boolean} isReadonly - If the namespace is readonly.
+ */
+export const preCreateTab = (namespace, isReadonly) => {
+  return (dispatch, getState) => {
+    const state = getState();
+    const serverVersion = state.serverVersion;
+    const appRegistry = new AppRegistry();
+    const roles = state.appRegistry.getRole('Collection.Tab');
+    console.log(roles);
+
+    // Filter roles for feature support in the server.
+    const filteredRoles = roles.filter((role) => {
+      console.log('version', serverVersion);
+      if (!role.minimumServerVersion) return true;
+      return semver.gte(serverVersion, role.minimumServerVersion);
+    });
+    console.log('filtered roles', filteredRoles);
+
+    // Creates all the stores for the tabs in the same order as
+    // the tabs. Creates a scoped app registry for the tabs.
+    const stores = filteredRoles.map((role) => {
+      const store = role.configureStore({
+        appRegistry: appRegistry,
+        dataProvider: {
+          error: state.dataService.error,
+          dataProvider: state.dataService.dataService
+        },
+        namespace: namespace,
+        serverVersion: serverVersion
+      });
+      console.log('scoped store', store);
+      appRegistry.registerStore(role.storeName, store);
+      return store;
+    });
+    appRegistry.onActivated();
+
+    dispatch(createTab(namespace, isReadonly, stores));
+  };
+}
