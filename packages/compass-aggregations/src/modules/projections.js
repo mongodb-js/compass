@@ -1,5 +1,5 @@
 /**
- * Handled in the root reducer. 
+ * Handled in the root reducer.
  */
 export const PROJECTIONS_CHANGED =
   'aggregations/projections/PROJECTIONS_CHANGED';
