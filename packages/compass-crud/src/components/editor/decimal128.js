@@ -35,6 +35,7 @@ class Decimal128Editor extends StandardEditor {
    */
   edit(value) {
     try {
+      TypeChecker.cast(value, 'Decimal128');
       this.element.currentValue = value;
       this.element.setValid();
       this.element._bubbleUp(Element.Events.Edited);
