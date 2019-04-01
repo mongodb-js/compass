@@ -12,6 +12,7 @@ addons:
       - ubuntu-toolchain-r-test
     packages:
       - libkrb5-dev
+      - libsecret-1-dev
 before_install:
   - echo "//registry.npmjs.org/:_authToken=\${NEW_NPM_TOKEN}" > .npmrc
 before_script:
