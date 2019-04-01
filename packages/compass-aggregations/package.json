@@ -40,7 +40,7 @@
     "hadron-react-buttons": "^3.0.6",
     "hadron-react-components": "^3.0.6",
     "mongodb-ace-autocompleter": "^0.1.0",
-    "mongodb-ace-mode": "^0.2.0",
+    "mongodb-ace-mode": "^0.2.1",
     "mongodb-ace-theme": "^0.0.1",
     "prop-types": "^15.7.2",
     "react": "^16.6.0",
