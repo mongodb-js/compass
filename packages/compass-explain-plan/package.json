@@ -1,5 +1,5 @@
 {
-  "name": "@mongodb-js/explain-plan",
+  "name": "@mongodb-js/compass-explain-plan",
   "productName": "Explain Plan plugin",
   "version": "1.0.0",
   "apiVersion": "2.0.0",
