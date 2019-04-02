@@ -8,7 +8,6 @@ import QueryBarStore from './query-bar-store';
 const debug = require('debug')('mongodb-compass:stores:query-changed-store');
 
 const EXTENDED_QUERY_PROPERTIES = QUERY_PROPERTIES.concat([
-  'maxTimeMS',
   'queryState',
   'ns'
 ]);
@@ -71,7 +70,6 @@ const QueryChangedStore = Reflux.createStore({
       }
 
       newState.queryState = state.queryState;
-      newState.maxTimeMS = state.maxTimeMS;
       newState.ns = state.ns;
 
       // Call onQueryChanged lifecycle method

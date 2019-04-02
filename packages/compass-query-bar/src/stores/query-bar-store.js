@@ -131,6 +131,7 @@ const QueryBarStore = Reflux.createStore({
       collationString: '',
       skipString: '',
       limitString: '',
+      maxTimeMSString: '',
 
       // whether Apply or Reset was clicked last
       queryState: DEFAULT_STATE, // either apply or reset
@@ -144,6 +145,7 @@ const QueryBarStore = Reflux.createStore({
       skipValid: true,
       limitValid: true,
       sampleValid: true,
+      maxTimeMSValid: true,
 
       // last full query (contains user-facing and internal variables above)
       lastExecutedQuery: null,
@@ -262,7 +264,8 @@ const QueryBarStore = Reflux.createStore({
         sort: this.state.sortValid,
         collation: this.state.collationValid,
         skip: this.state.skipValid,
-        limit: this.state.limitValid
+        limit: this.state.limitValid,
+        maxTimeMS: this.state.maxTimeMSValid
       };
       valid[label] = validatedInput !== false;
       state.valid = every(values(valid));
@@ -319,7 +322,8 @@ const QueryBarStore = Reflux.createStore({
             sort: this.state.sortValid,
             collation: this.state.collationValid,
             skip: this.state.skipValid,
-            limit: this.state.limitValid
+            limit: this.state.limitValid,
+            maxTimeMS: this.state.maxTimeMSValid
           },
           inputValids
         )
@@ -391,7 +395,8 @@ const QueryBarStore = Reflux.createStore({
       queryParser.isSortValid(this.state.sortString) !== false &&
       queryParser.isCollationValid(this.state.collationString) !== false &&
       queryParser.isSkipValid(this.state.skipString) !== false &&
-      queryParser.isLimitValid(this.state.limitString) !== false
+      queryParser.isLimitValid(this.state.limitString) !== false &&
+      queryParser.isMaxTimeMSValid(this.state.maxTimeMSString) !== false
     );
   },
 
@@ -642,7 +647,8 @@ const QueryBarStore = Reflux.createStore({
           collation: this.state.collation,
           skip: this.state.skip,
           limit: this.state.limit,
-          ns: this.state.ns
+          ns: this.state.ns,
+          maxTimeMS: this.state.maxTimeMS
         };
         registry.emit('query-applied', newState);
       }

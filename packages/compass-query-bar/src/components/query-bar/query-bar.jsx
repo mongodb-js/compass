@@ -50,6 +50,11 @@ const OPTION_DEFINITION = {
     placeholder: '0',
     link: 'https://docs.mongodb.com/manual/reference/method/cursor.limit/'
   },
+  maxTimeMS: {
+    type: 'numeric',
+    placeholder: '5000',
+    link: 'https://docs.mongodb.com/manual/reference/method/cursor.maxTimeMS/'
+  },
   sample: {
     type: 'boolean',
     placeholder: null,
@@ -67,6 +72,7 @@ class QueryBar extends Component {
     collation: PropTypes.object,
     skip: PropTypes.number,
     limit: PropTypes.number,
+    maxTimeMS: PropTypes.number,
     sample: PropTypes.bool,
 
     valid: PropTypes.bool,
@@ -101,7 +107,7 @@ class QueryBar extends Component {
   static defaultProps = {
     expanded: false,
     buttonLabel: 'Apply',
-    layout: ['filter', 'project', 'sort', ['collation', 'skip', 'limit']],
+    layout: ['filter', 'project', ['sort', 'maxTimeMS'], ['collation', 'skip', 'limit']],
     schemaFields: []
   };
 

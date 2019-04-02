@@ -21,8 +21,8 @@ describe('QueryBar [Component]', function() {
   });
 
   describe('#rendering', function() {
-    describe('with layout ["filter", "project", "sort", ["collation", "skip", "limit"]]', function() {
-      const layout = ['filter', 'project', 'sort', ['collation', 'skip', 'limit']];
+    describe('with layout ["filter", "project", ["sort", "maxTimeMS"], ["collation", "skip", "limit"]]', function() {
+      const layout = ['filter', 'project', ['sort', 'maxTimeMS'], ['collation', 'skip', 'limit']];
 
       describe('when rendering the button label', function() {
         it('defaults to "Apply"', function() {
@@ -74,12 +74,12 @@ describe('QueryBar [Component]', function() {
       describe('when rendering in expanded state', function() {
         it('has all 6 <QueryOption />s', function() {
           const component = shallow(<QueryBar actions={actions} layout={layout} expanded serverVersion="3.4.0" />);
-          expect(component.find(QueryOption)).to.have.lengthOf(6);
+          expect(component.find(QueryOption)).to.have.lengthOf(7);
         });
 
         it('has one .query-option-group div', function() {
           const component = shallow(<QueryBar actions={actions} layout={layout} expanded serverVersion="3.4.0" />);
-          expect(component.find(`.${styles['option-group']}`)).to.have.lengthOf(1);
+          expect(component.find(`.${styles['option-group']}`)).to.have.lengthOf(2);
         });
 
         it('does not contain the focus class by default', function() {
