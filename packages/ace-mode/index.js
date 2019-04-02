@@ -246,7 +246,7 @@ ALL_AGG.push.apply(ALL_AGG, AGG_QUERY_OPERATORS);
 ALL_AGG.push.apply(ALL_AGG, AGG_STAGE_OPERATORS);
 
 ace.define(
-  'ace/mode/javascript_highlight_rules',
+  'ace/mode/mongodb_highlight_rules',
   [
     'require',
     'exports',
@@ -265,7 +265,7 @@ ace.define(
       .TextHighlightRules;
     var identifierRe = '[a-zA-Z\\$_\u00a1-\uffff][a-zA-Z\\d\\$_\u00a1-\uffff]*';
 
-    var JavaScriptHighlightRules = function(options) {
+    var MongoDBHighlightRules = function(options) {
       var keywordMapper = this.createKeywordMapper(
         {
           'variable.language':
@@ -741,7 +741,7 @@ ace.define(
       this.normalizeRules();
     };
 
-    oop.inherits(JavaScriptHighlightRules, TextHighlightRules);
+    oop.inherits(MongoDBHighlightRules, TextHighlightRules);
 
     function JSX() {
       var tagRegex = identifierRe.replace('\\d', '\\d\\-');
@@ -875,7 +875,7 @@ ace.define(
         }
       ];
     }
-    exports.JavaScriptHighlightRules = JavaScriptHighlightRules;
+    exports.MongoDBHighlightRules = MongoDBHighlightRules;
   }
 );
 
@@ -1093,7 +1093,7 @@ ace.define(
     'module',
     'ace/lib/oop',
     'ace/mode/text',
-    'ace/mode/javascript_highlight_rules',
+    'ace/mode/mongodb_highlight_rules',
     'ace/mode/matching_brace_outdent',
     'ace/worker/worker_client',
     'ace/mode/behaviour/cstyle',
@@ -1104,8 +1104,8 @@ ace.define(
 
     var oop = acequire('../lib/oop');
     var TextMode = acequire('./text').Mode;
-    var JavaScriptHighlightRules = acequire('./javascript_highlight_rules')
-      .JavaScriptHighlightRules;
+    var MongoDBHighlightRules = acequire('./mongodb_highlight_rules')
+      .MongoDBHighlightRules;
     var MatchingBraceOutdent = acequire('./matching_brace_outdent')
       .MatchingBraceOutdent;
     var WorkerClient = acequire('../worker/worker_client').WorkerClient;
@@ -1113,7 +1113,7 @@ ace.define(
     var CStyleFoldMode = acequire('./folding/cstyle').FoldMode;
 
     var Mode = function() {
-      this.HighlightRules = JavaScriptHighlightRules;
+      this.HighlightRules = MongoDBHighlightRules;
 
       this.$outdent = new MatchingBraceOutdent();
       this.$behaviour = new CstyleBehaviour();
