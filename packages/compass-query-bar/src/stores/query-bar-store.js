@@ -396,7 +396,7 @@ const QueryBarStore = Reflux.createStore({
       queryParser.isCollationValid(this.state.collationString) !== false &&
       queryParser.isSkipValid(this.state.skipString) !== false &&
       queryParser.isLimitValid(this.state.limitString) !== false &&
-      queryParser.isMaxTimeMSValid(this.state.maxTimeMSString) !== false
+      queryParser.isMaxtimemsValid(this.state.maxTimeMSString) !== false
     );
   },
 
