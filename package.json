@@ -319,6 +319,7 @@
     "app-migrations": "mongodb-js/app-migrations#v0.1.2",
     "async": "^1.5.2",
     "bootstrap": "https://github.com/twbs/bootstrap/archive/v3.3.5.tar.gz",
+    "bson-transpilers": "^0.10.0",
     "clean-stack": "^2.0.0",
     "compass-preferences-model": "^0.0.2",
     "compass-user-model": "^0.0.2",
