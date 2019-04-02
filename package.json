@@ -358,7 +358,7 @@
     "moment": "^2.10.6",
     "mongodb": "^3.2.2",
     "mongodb-ace-autocompleter": "^0.1.0",
-    "mongodb-ace-mode": "^0.2.1",
+    "mongodb-ace-mode": "^0.3.0",
     "mongodb-ace-theme": "^0.0.1",
     "mongodb-ace-theme-query": "^0.0.2",
     "mongodb-collection-model": "^2.0.3",
