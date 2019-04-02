@@ -162,7 +162,7 @@ export const explainStateChanged = (explainState) => ({
 */
 export const explainPlanFetched = (explain) => ({
   type: EXPLAIN_PLAN_FETCHED,
-  explain
+  explain: { ...explain, explainState: 'done' }
 });
 
 /**
@@ -189,6 +189,36 @@ const getIndexType = (explainPlan) => {
 
   return 'INDEX';
 };
+
+/**
+ * Parses the explain plan.
+ *
+ * @param {Object} explain - The explain plan.
+ *
+ * @returns {Object} The parsed explain plan.
+ */
+const parseExplainPlan = (explain) => {
+  const explainPlanModel = new ExplainPlanModel(explain);
+
+  return defaults(explainPlanModel.serialize(), INITIAL_STATE);
+};
+
+/**
+ * Updates the explain plan with information about indexes.
+ * Extracts index type, index object
+ *
+ * @param {Object} explain - The explain plan.
+ * @param {Array} indexes - Indexes received from indexes plugin.
+ *
+ * @returns {Object} The updated explain plan with indexes info.
+ */
+const updateWithIndexesInfo = (explain, indexes) => ({
+  ...explain,
+  indexType: getIndexType(explain),
+  index: isString(explain.usedIndex)
+    ? find(indexes, (idx) => (idx.name === explain.usedIndex))
+    : null
+});
 
 /**
  * Fetches the explain plan.
@@ -226,17 +256,14 @@ export const fetchExplainPlan = () => {
 
     if (dataService) {
       dataService.explain(namespace, filter, options, (error, data) => {
-        const explainPlanModel = new ExplainPlanModel(data);
+        if (error) {
+          explain.error = error;
 
-        explain = defaults(explainPlanModel.serialize(), INITIAL_STATE);
+          return dispatch(explainPlanFetched(explain));
+        }
 
-        // Extract index type, index object
-        explain.indexType = getIndexType(explain);
-        explain.index = isString(explain.usedIndex)
-          ? find(indexes, (idx) => (idx.name === explain.usedIndex))
-          : null;
-        explain.explainState = 'done';
-        explain.error = error;
+        explain = parseExplainPlan(data);
+        explain = updateWithIndexesInfo(explain, indexes);
 
         dispatch(explainPlanFetched(explain));
         dispatch(treeStagesChanged(explain));

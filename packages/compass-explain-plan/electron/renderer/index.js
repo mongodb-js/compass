@@ -74,6 +74,11 @@ dataService.connect((error, ds) => {
   appRegistry.emit('data-service-connected', error, ds);
   appRegistry.emit('collection-changed', 'crunchbase.companies');
   appRegistry.emit('server-version-changed', '4.0.0');
+  appRegistry.emit('indexes-changed', [{
+    name: '_id_',
+    fields: { serialize: () => ({ field: { field: '_id', value: 1 } }) },
+    serialize: () => {}
+  }]);
 
   FieldStore.processDocuments(docs);
 });
