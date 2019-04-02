@@ -16,7 +16,7 @@ import 'bootstrap/less/bootstrap.less';
 import 'less/index.less';
 
 const DB = 'echo';
-const COLL = 'artists';
+const COLL = 'bands';
 
 const appRegistry = new AppRegistry();
 

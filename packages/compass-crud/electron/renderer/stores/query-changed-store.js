@@ -7,9 +7,8 @@ const isEqual = require('lodash.isequal');
 const cloneDeep = require('lodash.clonedeep');
 const debug = require('debug')('mongodb-compass:stores:query-changed');
 
-const QUERY_PROPERTIES = ['filter', 'project', 'sort', 'skip', 'limit', 'sample'];
+const QUERY_PROPERTIES = ['filter', 'project', 'sort', 'skip', 'limit', 'sample', 'maxTimeMS'];
 const EXTENDED_QUERY_PROPERTIES = QUERY_PROPERTIES.concat([
-  'maxTimeMS',
   'queryState',
   'ns'
 ]);
@@ -60,7 +59,6 @@ const QueryChangedStore = Reflux.createStore({
         }
       }
       newState.queryState = state.queryState;
-      newState.maxTimeMS = state.maxTimeMS;
       newState.ns = state.ns;
       this.setState(newState);
       const registry = app.appRegistry;
@@ -83,7 +81,7 @@ const QueryChangedStore = Reflux.createStore({
       sample: false,
 
       // internal query properties
-      maxTimeMS: 10000,
+      maxTimeMS: 5000,
 
       // string values for the query bar input fields
       filterString: '',
@@ -91,6 +89,7 @@ const QueryChangedStore = Reflux.createStore({
       sortString: '',
       skipString: '',
       limitString: '',
+      maxTimeMSString: '',
 
       // whether Apply or Reset was clicked last
       queryState: 'reset', // either apply or reset
@@ -103,6 +102,7 @@ const QueryChangedStore = Reflux.createStore({
       skipValid: true,
       limitValid: true,
       sampleValid: true,
+      maxTimeMSValid: true,
 
       // last full query (contains user-facing and internal variables above)
       lastExecutedQuery: null,
