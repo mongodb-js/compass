@@ -4,7 +4,7 @@ import ExplainPlanStore from 'stores';
 /**
  * A sample role for the component.
  */
-const ROLE = { name: 'ExplainPlan', component: ExplainPlanPlugin };
+const ROLE = { name: 'ExplainPlan', component: ExplainPlanPlugin, order: 4 };
 
 /**
  * Activate all the components in the Explain Plan package.
