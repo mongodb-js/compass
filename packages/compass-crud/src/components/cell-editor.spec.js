@@ -33,19 +33,24 @@ describe('<CellEditor />', () => {
       before((done) => {
         rowNode = getNode({field1: 'value'});
         value = rowNode.data.hadronDocument.get('field1');
-        component = mount(<CellEditor api={api} column={column} node={rowNode}
-                                      value={value}
-                                      removeColumn={actions.removeColumn}
-                                      renameColumn={actions.renameColumn}
-                                      elementAdded={actions.elementAdded}
-                                      elementRemoved={actions.elementRemoved}
-                                      elementTypeChanged={actions.elementTypeChanged}
-                                      elementMarkRemoved={actions.elementMarkRemoved}
-                                      drillDown={actions.drillDown}
-                                      addColumn={actions.addColumn}
-                                      tz="UTC"
-                                      version="3.4.0"
-                                      columnApi={columnApi} context={context}/>);
+        component = mount(<CellEditor
+          api={api}
+          column={column}
+          node={rowNode}
+          value={value}
+          removeColumn={actions.removeColumn}
+          renameColumn={actions.renameColumn}
+          elementAdded={actions.elementAdded}
+          elementRemoved={actions.elementRemoved}
+          elementTypeChanged={actions.elementTypeChanged}
+          elementMarkRemoved={actions.elementMarkRemoved}
+          drillDown={actions.drillDown}
+          addColumn={actions.addColumn}
+          tz="UTC"
+          version="3.4.0"
+          columnApi={columnApi}
+          context={context}/>
+        );
         rowNode.data.hadronDocument.elements.flush();
         done();
       });
@@ -83,19 +88,25 @@ describe('<CellEditor />', () => {
         rowNode = getNode({});
         rowNode.data.hadronDocument.insertEnd('$new', '');
         value = rowNode.data.hadronDocument.get('$new');
-        component = mount(<CellEditor api={api} column={column} node={rowNode}
-                                      value={value}
-                                      removeColumn={actions.removeColumn}
-                                      renameColumn={actions.renameColumn}
-                                      elementAdded={actions.elementAdded}
-                                      elementRemoved={actions.elementRemoved}
-                                      elementTypeChanged={actions.elementTypeChanged}
-                                      elementMarkRemoved={actions.elementMarkRemoved}
-                                      drillDown={actions.drillDown}
-                                      addColumn={actions.addColumn}
-                                      version="3.4.0"
-                                      tz="UTC"
-                                      columnApi={columnApi} context={context}/>);
+        component = mount(
+          <CellEditor
+            api={api}
+            column={column}
+            node={rowNode}
+            value={value}
+            removeColumn={actions.removeColumn}
+            renameColumn={actions.renameColumn}
+            elementAdded={actions.elementAdded}
+            elementRemoved={actions.elementRemoved}
+            elementTypeChanged={actions.elementTypeChanged}
+            elementMarkRemoved={actions.elementMarkRemoved}
+            drillDown={actions.drillDown}
+            addColumn={actions.addColumn}
+            version="3.4.0"
+            tz="UTC"
+            columnApi={columnApi}
+            context={context}/>
+        );
         done();
       });
       it('renders the fieldname input field', () => {
@@ -127,19 +138,25 @@ describe('<CellEditor />', () => {
       before((done) => {
         rowNode = getNode({});
         value = undefined;
-        component = mount(<CellEditor api={api} column={column} node={rowNode}
-                                      value={value}
-                                      removeColumn={actions.removeColumn}
-                                      renameColumn={actions.renameColumn}
-                                      elementAdded={actions.elementAdded}
-                                      elementRemoved={actions.elementRemoved}
-                                      elementTypeChanged={actions.elementTypeChanged}
-                                      elementMarkRemoved={actions.elementMarkRemoved}
-                                      drillDown={actions.drillDown}
-                                      addColumn={actions.addColumn}
-                                      version="3.4.0"
-                                      tz="UTC"
-                                      columnApi={columnApi} context={context}/>);
+        component = mount(
+          <CellEditor
+            api={api}
+            column={column}
+            node={rowNode}
+            value={value}
+            removeColumn={actions.removeColumn}
+            renameColumn={actions.renameColumn}
+            elementAdded={actions.elementAdded}
+            elementRemoved={actions.elementRemoved}
+            elementTypeChanged={actions.elementTypeChanged}
+            elementMarkRemoved={actions.elementMarkRemoved}
+            drillDown={actions.drillDown}
+            addColumn={actions.addColumn}
+            version="3.4.0"
+            tz="UTC"
+            columnApi={columnApi}
+            context={context}/>
+        );
         done();
       });
       it('renders the input field', () => {
@@ -171,19 +188,25 @@ describe('<CellEditor />', () => {
       before((done) => {
         rowNode = getNode({field1: {subfield1: 'value'}});
         value = rowNode.data.hadronDocument.get('field1');
-        component = mount(<CellEditor api={api} column={column} node={rowNode}
-                                      value={value}
-                                      removeColumn={actions.removeColumn}
-                                      renameColumn={actions.renameColumn}
-                                      elementAdded={actions.elementAdded}
-                                      elementRemoved={actions.elementRemoved}
-                                      elementTypeChanged={actions.elementTypeChanged}
-                                      elementMarkRemoved={actions.elementMarkRemoved}
-                                      drillDown={actions.drillDown}
-                                      addColumn={actions.addColumn}
-                                      version="3.4.0"
-                                      tz="UTC"
-                                      columnApi={columnApi} context={context}/>);
+        component = mount(
+          <CellEditor
+            api={api}
+            column={column}
+            node={rowNode}
+            value={value}
+            removeColumn={actions.removeColumn}
+            renameColumn={actions.renameColumn}
+            elementAdded={actions.elementAdded}
+            elementRemoved={actions.elementRemoved}
+            elementTypeChanged={actions.elementTypeChanged}
+            elementMarkRemoved={actions.elementMarkRemoved}
+            drillDown={actions.drillDown}
+            addColumn={actions.addColumn}
+            version="3.4.0"
+            tz="UTC"
+            columnApi={columnApi}
+            context={context}/>
+        );
         done();
       });
       it('renders the type cast dropdown', () => {
@@ -222,19 +245,25 @@ describe('<CellEditor />', () => {
       describe('top-level', () => {
         before((done) => {
           value = rowNode.data.hadronDocument.get('_id');
-          component = mount(<CellEditor api={api} column={column} node={rowNode}
-                                        value={value}
-                                        removeColumn={actions.removeColumn}
-                                        renameColumn={actions.renameColumn}
-                                        elementAdded={actions.elementAdded}
-                                        elementRemoved={actions.elementRemoved}
-                                        elementTypeChanged={actions.elementTypeChanged}
-                                        elementMarkRemoved={actions.elementMarkRemoved}
-                                        drillDown={actions.drillDown}
-                                        addColumn={actions.addColumn}
-                                        version="3.4.0"
-                                        tz="UTC"
-                                        columnApi={columnApi} context={context}/>);
+          component = mount(
+            <CellEditor
+              api={api}
+              column={column}
+              node={rowNode}
+              value={value}
+              removeColumn={actions.removeColumn}
+              renameColumn={actions.renameColumn}
+              elementAdded={actions.elementAdded}
+              elementRemoved={actions.elementRemoved}
+              elementTypeChanged={actions.elementTypeChanged}
+              elementMarkRemoved={actions.elementMarkRemoved}
+              drillDown={actions.drillDown}
+              addColumn={actions.addColumn}
+              version="3.4.0"
+              tz="UTC"
+              columnApi={columnApi}
+              context={context}/>
+          );
           done();
         });
         it('renders the add field button', () => {
@@ -256,19 +285,25 @@ describe('<CellEditor />', () => {
         before((done) => {
           value = rowNode.data.hadronDocument.getChild(['field1', '_id']);
           context.path = ['field1'];
-          component = mount(<CellEditor api={api} column={column} node={rowNode}
-                                        value={value}
-                                        removeColumn={actions.removeColumn}
-                                        renameColumn={actions.renameColumn}
-                                        elementAdded={actions.elementAdded}
-                                        elementRemoved={actions.elementRemoved}
-                                        elementTypeChanged={actions.elementTypeChanged}
-                                        elementMarkRemoved={actions.elementMarkRemoved}
-                                        drillDown={actions.drillDown}
-                                        addColumn={actions.addColumn}
-                                        version="3.4.0"
-                                        tz="UTC"
-                                        columnApi={columnApi} context={context}/>);
+          component = mount(
+            <CellEditor
+              api={api}
+              column={column}
+              node={rowNode}
+              value={value}
+              removeColumn={actions.removeColumn}
+              renameColumn={actions.renameColumn}
+              elementAdded={actions.elementAdded}
+              elementRemoved={actions.elementRemoved}
+              elementTypeChanged={actions.elementTypeChanged}
+              elementMarkRemoved={actions.elementMarkRemoved}
+              drillDown={actions.drillDown}
+              addColumn={actions.addColumn}
+              version="3.4.0"
+              tz="UTC"
+              columnApi={columnApi}
+              context={context}/>
+          );
           done();
         });
         it('renders the type cast dropdown', () => {
@@ -312,19 +347,25 @@ describe('<CellEditor />', () => {
         const value = rowNode.data.hadronDocument.get('field1');
         let component;
         before((done) => {
-          component = mount(<CellEditor api={api} node={rowNode} column={column}
-                                        value={value}
-                                        removeColumn={actions.removeColumn}
-                                        renameColumn={actions.renameColumn}
-                                        elementAdded={actions.elementAdded}
-                                        elementRemoved={actions.elementRemoved}
-                                        elementTypeChanged={actions.elementTypeChanged}
-                                        elementMarkRemoved={actions.elementMarkRemoved}
-                                        drillDown={actions.drillDown}
-                                        addColumn={actions.addColumn}
-                                        version="3.4.0"
-                                        tz="UTC"
-                                        context={context} columnApi={columnApi}/>);
+          component = mount(
+            <CellEditor
+              api={api}
+              node={rowNode}
+              column={column}
+              value={value}
+              removeColumn={actions.removeColumn}
+              renameColumn={actions.renameColumn}
+              elementAdded={actions.elementAdded}
+              elementRemoved={actions.elementRemoved}
+              elementTypeChanged={actions.elementTypeChanged}
+              elementMarkRemoved={actions.elementMarkRemoved}
+              drillDown={actions.drillDown}
+              addColumn={actions.addColumn}
+              version="3.4.0"
+              tz="UTC"
+              context={context}
+              columnApi={columnApi}/>
+          );
           const wrapper = component.find('.editable-element-value-is-string');
           wrapper.simulate('change', {target: {value: 'new input'}});
           expect(component.find('.editable-element-value-is-string').props().value).to.equal('new input');
@@ -357,19 +398,25 @@ describe('<CellEditor />', () => {
           const rowNode = getNode({field1: '100'});
           const value = rowNode.data.hadronDocument.get('field1');
           before((done) => {
-            component = mount(<CellEditor api={api} node={rowNode} column={column}
-                                          value={value}
-                                          removeColumn={actions.removeColumn}
-                                          renameColumn={actions.renameColumn}
-                                          elementAdded={actions.elementAdded}
-                                          elementRemoved={actions.elementRemoved}
-                                          elementTypeChanged={actions.elementTypeChanged}
-                                          elementMarkRemoved={actions.elementMarkRemoved}
-                                          drillDown={actions.drillDown}
-                                          addColumn={actions.addColumn}
-                                          version="3.4.0"
-                                          tz="UTC"
-                                          context={context} columnApi={columnApi}/>);
+            component = mount(
+              <CellEditor
+                api={api}
+                node={rowNode}
+                column={column}
+                value={value}
+                removeColumn={actions.removeColumn}
+                renameColumn={actions.renameColumn}
+                elementAdded={actions.elementAdded}
+                elementRemoved={actions.elementRemoved}
+                elementTypeChanged={actions.elementTypeChanged}
+                elementMarkRemoved={actions.elementMarkRemoved}
+                drillDown={actions.drillDown}
+                addColumn={actions.addColumn}
+                version="3.4.0"
+                tz="UTC"
+                context={context}
+                columnApi={columnApi}/>
+            );
             const item = component.find('.table-view-cell-editor-input-types');
             const item2 = component.find('.editable-element-type-int32');
             expect(item2).to.be.present();
@@ -407,19 +454,25 @@ describe('<CellEditor />', () => {
           const rowNode = getNode({field1: 'value'});
           const value = rowNode.data.hadronDocument.get('field1');
           before((done) => {
-            component = mount(<CellEditor api={api} node={rowNode} columnApi={columnApi}
-                                          value={value}
-                                          removeColumn={actions.removeColumn}
-                                          renameColumn={actions.renameColumn}
-                                          elementAdded={actions.elementAdded}
-                                          elementRemoved={actions.elementRemoved}
-                                          elementTypeChanged={actions.elementTypeChanged}
-                                          elementMarkRemoved={actions.elementMarkRemoved}
-                                          drillDown={actions.drillDown}
-                                          addColumn={actions.addColumn}
-                                          version="3.4.0"
-                                          tz="UTC"
-                                          context={context} column={column}/>);
+            component = mount(
+              <CellEditor
+                api={api}
+                node={rowNode}
+                columnApi={columnApi}
+                value={value}
+                removeColumn={actions.removeColumn}
+                renameColumn={actions.renameColumn}
+                elementAdded={actions.elementAdded}
+                elementRemoved={actions.elementRemoved}
+                elementTypeChanged={actions.elementTypeChanged}
+                elementMarkRemoved={actions.elementMarkRemoved}
+                drillDown={actions.drillDown}
+                addColumn={actions.addColumn}
+                version="3.4.0"
+                tz="UTC"
+                context={context}
+                column={column}/>
+            );
             const item = component.find('.table-view-cell-editor-input-types');
             const item2 = component.find('.editable-element-type-date');
             expect(item2).to.be.present();
@@ -460,19 +513,25 @@ describe('<CellEditor />', () => {
           const value = rowNode.data.hadronDocument.get('field1');
           let component;
           before((done) => {
-            component = mount(<CellEditor api={api} node={rowNode} column={column}
-                                          value={value}
-                                          removeColumn={actions.removeColumn}
-                                          renameColumn={actions.renameColumn}
-                                          elementAdded={actions.elementAdded}
-                                          elementRemoved={actions.elementRemoved}
-                                          elementTypeChanged={actions.elementTypeChanged}
-                                          elementMarkRemoved={actions.elementMarkRemoved}
-                                          drillDown={actions.drillDown}
-                                          addColumn={actions.addColumn}
-                                          version="3.4.0"
-                                          tz="UTC"
-                                          context={context} columnApi={columnApi}/>);
+            component = mount(
+              <CellEditor
+                api={api}
+                node={rowNode}
+                column={column}
+                value={value}
+                removeColumn={actions.removeColumn}
+                renameColumn={actions.renameColumn}
+                elementAdded={actions.elementAdded}
+                elementRemoved={actions.elementRemoved}
+                elementTypeChanged={actions.elementTypeChanged}
+                elementMarkRemoved={actions.elementMarkRemoved}
+                drillDown={actions.drillDown}
+                addColumn={actions.addColumn}
+                version="3.4.0"
+                tz="UTC"
+                context={context}
+                columnApi={columnApi}/>
+            );
             const wrapper = component.find('.fa-trash');
             expect(wrapper).to.be.present();
             wrapper.simulate('mousedown');
@@ -506,19 +565,25 @@ describe('<CellEditor />', () => {
         const value = rowNode.data.hadronDocument.get('field1');
         let component;
         before((done) => {
-          component = mount(<CellEditor api={api} node={rowNode} column={column}
-                                        value={value}
-                                        removeColumn={actions.removeColumn}
-                                        renameColumn={actions.renameColumn}
-                                        elementAdded={actions.elementAdded}
-                                        elementRemoved={actions.elementRemoved}
-                                        elementTypeChanged={actions.elementTypeChanged}
-                                        elementMarkRemoved={actions.elementMarkRemoved}
-                                        drillDown={actions.drillDown}
-                                        addColumn={actions.addColumn}
-                                        version="3.4.0"
-                                        tz="UTC"
-                                        context={context} columnApi={columnApi}/>);
+          component = mount(
+            <CellEditor
+              api={api}
+              node={rowNode}
+              column={column}
+              value={value}
+              removeColumn={actions.removeColumn}
+              renameColumn={actions.renameColumn}
+              elementAdded={actions.elementAdded}
+              elementRemoved={actions.elementRemoved}
+              elementTypeChanged={actions.elementTypeChanged}
+              elementMarkRemoved={actions.elementMarkRemoved}
+              drillDown={actions.drillDown}
+              addColumn={actions.addColumn}
+              version="3.4.0"
+              tz="UTC"
+              context={context}
+              columnApi={columnApi}/>
+          );
           const wrapper = component.find('.fa-trash');
           expect(wrapper).to.be.present();
           wrapper.simulate('mousedown');
@@ -558,20 +623,25 @@ describe('<CellEditor />', () => {
         const value = rowNode.data.hadronDocument.get('$new');
         let component;
         before((done) => {
-          component = mount(<CellEditor api={api} node={rowNode}
-                                        value={value}
-                                        removeColumn={actions.removeColumn}
-                                        renameColumn={actions.renameColumn}
-                                        elementAdded={actions.elementAdded}
-                                        elementRemoved={actions.elementRemoved}
-                                        elementTypeChanged={actions.elementTypeChanged}
-                                        elementMarkRemoved={actions.elementMarkRemoved}
-                                        drillDown={actions.drillDown}
-                                        addColumn={actions.addColumn}
-                                        context={context} column={column}
-                                        version="3.4.0"
-                                        tz="UTC"
-                                        columnApi={columnApi}/>);
+          component = mount(
+            <CellEditor
+              api={api}
+              node={rowNode}
+              value={value}
+              removeColumn={actions.removeColumn}
+              renameColumn={actions.renameColumn}
+              elementAdded={actions.elementAdded}
+              elementRemoved={actions.elementRemoved}
+              elementTypeChanged={actions.elementTypeChanged}
+              elementMarkRemoved={actions.elementMarkRemoved}
+              drillDown={actions.drillDown}
+              addColumn={actions.addColumn}
+              context={context}
+              column={column}
+              version="3.4.0"
+              tz="UTC"
+              columnApi={columnApi}/>
+          );
           const wrapper = component.find('.editable-element-field');
           wrapper.simulate('change', {target: {value: 'fieldname'}});
           expect(component.find('.editable-element-field').props().value).to.equal('fieldname');
@@ -622,20 +692,25 @@ describe('<CellEditor />', () => {
         const value = rowNode.data.hadronDocument.get('$new');
         let component;
         before((done) => {
-          component = mount(<CellEditor api={api} node={rowNode}
-                                        value={value}
-                                        removeColumn={actions.removeColumn}
-                                        renameColumn={actions.renameColumn}
-                                        elementAdded={actions.elementAdded}
-                                        elementRemoved={actions.elementRemoved}
-                                        elementTypeChanged={actions.elementTypeChanged}
-                                        elementMarkRemoved={actions.elementMarkRemoved}
-                                        drillDown={actions.drillDown}
-                                        addColumn={actions.addColumn}
-                                        context={context} column={column}
-                                        version="3.4.0"
-                                        tz="UTC"
-                                        columnApi={columnApi}/>);
+          component = mount(
+            <CellEditor
+              api={api}
+              node={rowNode}
+              value={value}
+              removeColumn={actions.removeColumn}
+              renameColumn={actions.renameColumn}
+              elementAdded={actions.elementAdded}
+              elementRemoved={actions.elementRemoved}
+              elementTypeChanged={actions.elementTypeChanged}
+              elementMarkRemoved={actions.elementMarkRemoved}
+              drillDown={actions.drillDown}
+              addColumn={actions.addColumn}
+              context={context}
+              column={column}
+              version="3.4.0"
+              tz="UTC"
+              columnApi={columnApi}/>
+          );
           const wrapper = component.find('.editable-element-field');
           wrapper.simulate('change', {target: {value: 'fieldname'}});
           expect(component.find('.editable-element-field-is-duplicate').props().value).to.equal('fieldname');
@@ -666,20 +741,25 @@ describe('<CellEditor />', () => {
         const value = rowNode.data.hadronDocument.get('$new');
         let component;
         before((done) => {
-          component = mount(<CellEditor api={api} node={rowNode}
-                                        value={value}
-                                        removeColumn={actions.removeColumn}
-                                        renameColumn={actions.renameColumn}
-                                        elementAdded={actions.elementAdded}
-                                        elementRemoved={actions.elementRemoved}
-                                        elementTypeChanged={actions.elementTypeChanged}
-                                        elementMarkRemoved={actions.elementMarkRemoved}
-                                        drillDown={actions.drillDown}
-                                        addColumn={actions.addColumn}
-                                        context={context} column={column}
-                                        version="3.4.0"
-                                        tz="UTC"
-                                        columnApi={columnApi}/>);
+          component = mount(
+            <CellEditor
+              api={api}
+              node={rowNode}
+              value={value}
+              removeColumn={actions.removeColumn}
+              renameColumn={actions.renameColumn}
+              elementAdded={actions.elementAdded}
+              elementRemoved={actions.elementRemoved}
+              elementTypeChanged={actions.elementTypeChanged}
+              elementMarkRemoved={actions.elementMarkRemoved}
+              drillDown={actions.drillDown}
+              addColumn={actions.addColumn}
+              context={context}
+              column={column}
+              version="3.4.0"
+              tz="UTC"
+              columnApi={columnApi}/>
+          );
           component.instance().isCancelAfterEnd();
           done();
         });
@@ -707,20 +787,25 @@ describe('<CellEditor />', () => {
         const value = rowNode.data.hadronDocument.get('$new');
         let component;
         before((done) => {
-          component = mount(<CellEditor api={api} node={rowNode}
-                                        value={value}
-                                        removeColumn={actions.removeColumn}
-                                        renameColumn={actions.renameColumn}
-                                        elementAdded={actions.elementAdded}
-                                        elementRemoved={actions.elementRemoved}
-                                        elementTypeChanged={actions.elementTypeChanged}
-                                        elementMarkRemoved={actions.elementMarkRemoved}
-                                        drillDown={actions.drillDown}
-                                        addColumn={actions.addColumn}
-                                        context={context} column={column}
-                                        version="3.4.0"
-                                        tz="UTC"
-                                        columnApi={columnApi}/>);
+          component = mount(
+            <CellEditor
+              api={api}
+              node={rowNode}
+              value={value}
+              removeColumn={actions.removeColumn}
+              renameColumn={actions.renameColumn}
+              elementAdded={actions.elementAdded}
+              elementRemoved={actions.elementRemoved}
+              elementTypeChanged={actions.elementTypeChanged}
+              elementMarkRemoved={actions.elementMarkRemoved}
+              drillDown={actions.drillDown}
+              addColumn={actions.addColumn}
+              context={context}
+              column={column}
+              version="3.4.0"
+              tz="UTC"
+              columnApi={columnApi}/>
+          );
           const wrapper = component.find('.editable-element-value-is-string');
           wrapper.simulate('change', {target: {value: 'new input'}});
           expect(component.find('.editable-element-value-is-string').props().value).to.equal('new input');
@@ -755,20 +840,24 @@ describe('<CellEditor />', () => {
         const context = getContext([]);
         const columnApi = getColumnApi([]);
         before((done) => {
-          mount(<CellEditor api={api} column={column} node={rowNode}
-                                              value={value}
-                                              removeColumn={actions.removeColumn}
-                                              renameColumn={actions.renameColumn}
-                                              elementAdded={actions.elementAdded}
-                                              elementRemoved={actions.elementRemoved}
-                                              elementTypeChanged={actions.elementTypeChanged}
-                                              elementMarkRemoved={actions.elementMarkRemoved}
-                                              drillDown={actions.drillDown}
-                                              addColumn={actions.addColumn}
-                                              columnApi={columnApi}
-                                              version="3.4.0"
-                                              tz="UTC"
-                                              context={context}/>);
+          mount(
+            <CellEditor
+              api={api}
+              column={column}
+              node={rowNode}
+              value={value}
+              removeColumn={actions.removeColumn}
+              renameColumn={actions.renameColumn}
+              elementAdded={actions.elementAdded}
+              elementRemoved={actions.elementRemoved}
+              elementTypeChanged={actions.elementTypeChanged}
+              elementMarkRemoved={actions.elementMarkRemoved}
+              drillDown={actions.drillDown}
+              addColumn={actions.addColumn}
+              columnApi={columnApi}
+              version="3.4.0"
+              tz="UTC"
+              context={context}/>);
           done();
         });
         it('sets the initial type to what the header has', () => {
@@ -792,20 +881,25 @@ describe('<CellEditor />', () => {
         const context = getContext([]);
         const columnApi = getColumnApi([]);
         before((done) => {
-          mount(<CellEditor api={api} column={column} node={rowNode}
-                                              value={value}
-                                              removeColumn={actions.removeColumn}
-                                              renameColumn={actions.renameColumn}
-                                              elementAdded={actions.elementAdded}
-                                              elementRemoved={actions.elementRemoved}
-                                              elementTypeChanged={actions.elementTypeChanged}
-                                              elementMarkRemoved={actions.elementMarkRemoved}
-                                              drillDown={actions.drillDown}
-                                              addColumn={actions.addColumn}
-                                              columnApi={columnApi}
-                                              version="3.4.0"
-                                              tz="UTC"
-                                              context={context}/>);
+          mount(
+            <CellEditor
+              api={api}
+              column={column}
+              node={rowNode}
+              value={value}
+              removeColumn={actions.removeColumn}
+              renameColumn={actions.renameColumn}
+              elementAdded={actions.elementAdded}
+              elementRemoved={actions.elementRemoved}
+              elementTypeChanged={actions.elementTypeChanged}
+              elementMarkRemoved={actions.elementMarkRemoved}
+              drillDown={actions.drillDown}
+              addColumn={actions.addColumn}
+              columnApi={columnApi}
+              version="3.4.0"
+              tz="UTC"
+              context={context}/>
+          );
           done();
         });
         it('sets the initial type to what the header has', () => {
@@ -829,20 +923,25 @@ describe('<CellEditor />', () => {
         const context = getContext([]);
         const columnApi = getColumnApi([]);
         before((done) => {
-          const component = mount(<CellEditor api={api} column={column}
-                                              node={rowNode} value={value}
-                                              removeColumn={actions.removeColumn}
-                                              renameColumn={actions.renameColumn}
-                                              elementAdded={actions.elementAdded}
-                                              elementRemoved={actions.elementRemoved}
-                                              elementTypeChanged={actions.elementTypeChanged}
-                                              elementMarkRemoved={actions.elementMarkRemoved}
-                                              drillDown={actions.drillDown}
-                                              addColumn={actions.addColumn}
-                                              columnApi={columnApi}
-                                              version="3.4.0"
-                                              tz="UTC"
-                                              context={context}/>);
+          const component = mount(
+            <CellEditor
+              api={api}
+              column={column}
+              node={rowNode}
+              value={value}
+              removeColumn={actions.removeColumn}
+              renameColumn={actions.renameColumn}
+              elementAdded={actions.elementAdded}
+              elementRemoved={actions.elementRemoved}
+              elementTypeChanged={actions.elementTypeChanged}
+              elementMarkRemoved={actions.elementMarkRemoved}
+              drillDown={actions.drillDown}
+              addColumn={actions.addColumn}
+              columnApi={columnApi}
+              version="3.4.0"
+              tz="UTC"
+              context={context}/>
+          );
           component.instance().isCancelAfterEnd();
           done();
         });
@@ -868,20 +967,25 @@ describe('<CellEditor />', () => {
         const context = getContext([]);
         const columnApi = getColumnApi([]);
         before((done) => {
-          const component = mount(<CellEditor api={api} column={column}
-                                              node={rowNode} value={value}
-                                              removeColumn={actions.removeColumn}
-                                              renameColumn={actions.renameColumn}
-                                              elementAdded={actions.elementAdded}
-                                              elementRemoved={actions.elementRemoved}
-                                              elementTypeChanged={actions.elementTypeChanged}
-                                              elementMarkRemoved={actions.elementMarkRemoved}
-                                              drillDown={actions.drillDown}
-                                              addColumn={actions.addColumn}
-                                              columnApi={columnApi}
-                                              version="3.4.0"
-                                              tz="UTC"
-                                              context={context}/>);
+          const component = mount(
+            <CellEditor
+              api={api}
+              column={column}
+              node={rowNode}
+              value={value}
+              removeColumn={actions.removeColumn}
+              renameColumn={actions.renameColumn}
+              elementAdded={actions.elementAdded}
+              elementRemoved={actions.elementRemoved}
+              elementTypeChanged={actions.elementTypeChanged}
+              elementMarkRemoved={actions.elementMarkRemoved}
+              drillDown={actions.drillDown}
+              addColumn={actions.addColumn}
+              columnApi={columnApi}
+              version="3.4.0"
+              tz="UTC"
+              context={context}/>
+          );
           const wrapper = component.find('.editable-element-value-is-string');
           wrapper.simulate('change', {target: {value: 'new input'}});
           expect(component.find('.editable-element-value-is-string').props().value).to.equal('new input');
@@ -917,20 +1021,25 @@ describe('<CellEditor />', () => {
         const context = getContext(['field', 'subfield']);
         const columnApi = getColumnApi([]);
         before((done) => {
-          const component = mount(<CellEditor api={api} column={column}
-                                              node={rowNode} value={value}
-                                              removeColumn={actions.removeColumn}
-                                              renameColumn={actions.renameColumn}
-                                              elementAdded={actions.elementAdded}
-                                              elementRemoved={actions.elementRemoved}
-                                              elementTypeChanged={actions.elementTypeChanged}
-                                              elementMarkRemoved={actions.elementMarkRemoved}
-                                              drillDown={actions.drillDown}
-                                              addColumn={actions.addColumn}
-                                              columnApi={columnApi}
-                                              version="3.4.0"
-                                              tz="UTC"
-                                              context={context}/>);
+          const component = mount(
+            <CellEditor
+              api={api}
+              column={column}
+              node={rowNode}
+              value={value}
+              removeColumn={actions.removeColumn}
+              renameColumn={actions.renameColumn}
+              elementAdded={actions.elementAdded}
+              elementRemoved={actions.elementRemoved}
+              elementTypeChanged={actions.elementTypeChanged}
+              elementMarkRemoved={actions.elementMarkRemoved}
+              drillDown={actions.drillDown}
+              addColumn={actions.addColumn}
+              columnApi={columnApi}
+              version="3.4.0"
+              tz="UTC"
+              context={context}/>
+          );
           const wrapper = component.find('.editable-element-value-is-string');
           wrapper.simulate('change', {target: {value: 'new input'}});
           expect(component.find('.editable-element-value-is-string').props().value).to.equal('new input');
@@ -966,20 +1075,25 @@ describe('<CellEditor />', () => {
       const columnApi = getColumnApi([]);
       const context = getContext([]);
       before((done) => {
-        const component = mount(<CellEditor api={api} column={column}
-                                            node={rowNode} value={value}
-                                            removeColumn={actions.removeColumn}
-                                            renameColumn={actions.renameColumn}
-                                            elementAdded={actions.elementAdded}
-                                            elementRemoved={actions.elementRemoved}
-                                            elementTypeChanged={actions.elementTypeChanged}
-                                            elementMarkRemoved={actions.elementMarkRemoved}
-                                            drillDown={actions.drillDown}
-                                            addColumn={actions.addColumn}
-                                            columnApi={columnApi}
-                                            version="3.4.0"
-                                            tz="UTC"
-                                            context={context}/>);
+        const component = mount(
+          <CellEditor
+            api={api}
+            column={column}
+            node={rowNode}
+            value={value}
+            removeColumn={actions.removeColumn}
+            renameColumn={actions.renameColumn}
+            elementAdded={actions.elementAdded}
+            elementRemoved={actions.elementRemoved}
+            elementTypeChanged={actions.elementTypeChanged}
+            elementMarkRemoved={actions.elementMarkRemoved}
+            drillDown={actions.drillDown}
+            addColumn={actions.addColumn}
+            columnApi={columnApi}
+            version="3.4.0"
+            tz="UTC"
+            context={context}/>
+        );
         const wrapper = component.find('.fa-expand');
         expect(wrapper).to.be.present();
         wrapper.simulate('mousedown');

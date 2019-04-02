@@ -56,7 +56,6 @@ const EXP_SEPARATOR = `${EXP_HEADER}-separator`;
  * General element component.
  */
 class Element extends React.Component {
-
   /**
    * Instantiate the element.
    *

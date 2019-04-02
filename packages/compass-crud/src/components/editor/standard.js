@@ -11,7 +11,6 @@ const ARRAY_OR_OBJECT = /^(\[|\{)(.+)(\]|\})$/;
  * CRUD editor for standard values.
  */
 class StandardEditor {
-
   /**
    * Create the editor with the element.
    *

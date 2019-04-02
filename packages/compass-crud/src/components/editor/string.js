@@ -5,7 +5,6 @@ import StandardEditor from './standard';
  * CRUD editor for string values.
  */
 class StringEditor extends StandardEditor {
-
   /**
    * Create the editor with the element.
    *

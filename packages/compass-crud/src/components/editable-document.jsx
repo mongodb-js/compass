@@ -36,7 +36,6 @@ const TEST_ID = 'editable-document';
  * Component for a single editable document in a list of documents.
  */
 class EditableDocument extends React.Component {
-
   /**
    * The component constructor.
    *

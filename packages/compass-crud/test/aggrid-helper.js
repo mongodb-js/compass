@@ -110,8 +110,7 @@ const getDataService = function(done) {
   };
 };
 
-const checkPageRange = function(error, documents, start, end, page,
-                                expectedPage, skip, limit) {
+const checkPageRange = function(error, documents, start, end, page, expectedPage, skip, limit) {
   expect(error).to.equal(null);
   expect(page).to.equal(expectedPage);
 

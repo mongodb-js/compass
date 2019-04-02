@@ -131,6 +131,7 @@ class CellEditor extends React.Component {
    * @param {Object} event
    */
   onKeyDown(event) {
+    /* eslint complexity: 0 */
     event.stopPropagation();
     if (event.keyCode === 27 || event.keyCode === 13) {
       this.props.api.stopEditing();
@@ -413,11 +414,15 @@ class CellEditor extends React.Component {
       return null;
     }
     return (
-      <div className={`${BEM_BASE}-input-types`}
-           onBlur={this.handleTypeChange.bind(this)}
-           onClick={() => {this.nodeIndex = 3;}}>
-        <Types element={this.element} version={this.props.version} className={`${BEM_BASE}-types btn btn-default btn-xs`}
-               buttonRef={(c) => { this.typesNode = c; }}/>
+      <div
+        className={`${BEM_BASE}-input-types`}
+        onBlur={this.handleTypeChange.bind(this)}
+        onClick={() => {this.nodeIndex = 3;}}>
+        <Types
+          element={this.element}
+          version={this.props.version}
+          className={`${BEM_BASE}-types btn btn-default btn-xs`}
+          buttonRef={(c) => { this.typesNode = c; }}/>
       </div>
     );
   }
@@ -455,7 +460,7 @@ class CellEditor extends React.Component {
             value={this.editor().value(true)}
             placeholder="Value"/>
         </span>
-    </div>
+      </div>
     );
   }
 
@@ -471,9 +476,10 @@ class CellEditor extends React.Component {
       return null;
     }
     return (
-      <button className={`${BEM_BASE}-button btn btn-default btn-xs`}
-              onMouseDown={this.handleDrillDown.bind(this)}
-              ref={(c) => {this.expandNode = c;}}>
+      <button
+        className={`${BEM_BASE}-button btn btn-default btn-xs`}
+        onMouseDown={this.handleDrillDown.bind(this)}
+        ref={(c) => {this.expandNode = c;}}>
         <FontAwesome name="expand" className={`${BEM_BASE}-button-icon`}/>
       </button>
     );
@@ -489,9 +495,10 @@ class CellEditor extends React.Component {
       return null;
     }
     return (
-      <button className={`${BEM_BASE}-button btn btn-default btn-xs`}
-              onMouseDown={this.handleRemoveField.bind(this)}
-              ref={(c) => { this.removeNode = c; }}>
+      <button
+        className={`${BEM_BASE}-button btn btn-default btn-xs`}
+        onMouseDown={this.handleRemoveField.bind(this)}
+        ref={(c) => { this.removeNode = c; }}>
         <FontAwesome name="trash" className={`${BEM_BASE}-button-icon`}/>
       </button>
     );
@@ -517,9 +524,10 @@ class CellEditor extends React.Component {
       <span className={`${BEM_BASE}-actions`}>
         {this.renderExpand(showExpand)}
         <span onClick={()=>{this.nodeIndex = 5;}}>
-          <AddFieldButton {...this.props}
-                          displace={displace}
-                          buttonRef={(c) => { this.addFieldNode = c; }}
+          <AddFieldButton
+            {...this.props}
+            displace={displace}
+            buttonRef={(c) => { this.addFieldNode = c; }}
           />
         </span>
         {this.renderRemoveField()}

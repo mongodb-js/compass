@@ -9,7 +9,6 @@ const VALUE = 'undefined';
  * CRUD editor for undefined values.
  */
 class UndefinedEditor extends StandardEditor {
-
   /**
    * Create the editor with the element.
    *

@@ -22,7 +22,6 @@ const HP_VERSION = '3.4.0';
  * General types component.
  */
 class Types extends React.Component {
-
   /**
    * The component constructor.
    *

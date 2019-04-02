@@ -58,7 +58,6 @@ const ADD_FIELD_ICON = 'fa fa-plus-square-o';
  * Add field button component.
  */
 class AddFieldButton extends React.Component {
-
   /**
    * Instantiate the add field button component.
    *
@@ -319,9 +318,7 @@ class AddFieldButton extends React.Component {
    */
   renderMenu() {
     return (
-      <ul className={this.menuClassName()}
-          style={{left: `${this.props.displace}px`}}
-      >
+      <ul className={this.menuClassName()} style={{left: `${this.props.displace}px`}}>
         {this.renderObjectItem()}
         {this.renderArrayItem()}
         {this.renderDefaultItem()}
@@ -339,12 +336,12 @@ class AddFieldButton extends React.Component {
       return null;
     }
     return (
-      <button className={this.divClassName()}
-              onClick={this.handleClick.bind(this)}
-              onKeyPress={this.handleKeyPress.bind(this)}
-              onBlur={this.handleClickOutside.bind(this)}
-              ref={this.props.buttonRef}
-      >
+      <button
+        className={this.divClassName()}
+        onClick={this.handleClick.bind(this)}
+        onKeyPress={this.handleKeyPress.bind(this)}
+        onBlur={this.handleClickOutside.bind(this)}
+        ref={this.props.buttonRef}>
         <FontAwesome name="plus-square-o" className={`${BEM_BASE}-icon`}/>
         {this.renderMenu()}
       </button>

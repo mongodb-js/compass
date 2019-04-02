@@ -17,7 +17,6 @@ const INSERT_INVALID_MESSAGE = 'Insert not permitted while document contains err
  * Component for the insert document dialog.
  */
 class InsertDocumentDialog extends React.PureComponent {
-
   /**
    * The component constructor.
    *
@@ -133,9 +132,9 @@ class InsertDocumentDialog extends React.PureComponent {
   render() {
     return (
       <Modal
-          show={this.props.isOpen}
-          backdrop="static"
-          onHide={this.handleHide.bind(this)}>
+        show={this.props.isOpen}
+        backdrop="static"
+        onHide={this.handleHide.bind(this)}>
         <Modal.Header>
           <Modal.Title>Insert Document</Modal.Title>
         </Modal.Header>

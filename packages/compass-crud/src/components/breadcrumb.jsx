@@ -6,7 +6,6 @@ const BEM_BASE = 'ag-header-breadcrumb';
 const ICON_TYPE = {Array: '[ ]', Object: '{ }' };
 
 class BreadcrumbComponent extends React.PureComponent {
-
   constructor(props) {
     super(props);
     this.onTabClicked = this.onTabClicked.bind(this);

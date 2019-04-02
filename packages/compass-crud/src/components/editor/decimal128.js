@@ -7,7 +7,6 @@ import chars from 'utils';
  * CRUD editor for decimal128 values.
  */
 class Decimal128Editor extends StandardEditor {
-
   /**
    * Create the editor with the element.
    *

@@ -63,7 +63,7 @@ describe('<ExpansionBar />', () => {
           setRenderSize: () => {},
           totalSize: 8
         };
-        hideSize = 2 * props.perClickSize;  // 2 clicks of "Show more" button
+        hideSize = 2 * props.perClickSize; // 2 clicks of "Show more" button
         expect(hideSize).to.be.equal(4);
         props.renderSize = props.initialSize + hideSize;
         expect(props.renderSize).to.be.equal(7);
@@ -90,7 +90,7 @@ describe('<ExpansionBar />', () => {
           setRenderSize: () => {},
           totalSize: 8
         };
-        hideSize = 2 * props.perClickSize;  // 2 clicks of "Show more" button
+        hideSize = 2 * props.perClickSize; // 2 clicks of "Show more" button
         props.renderSize = props.initialSize + hideSize;
         expect(props.renderSize).to.be.equal(7);
         showSize = props.totalSize - props.renderSize;
@@ -137,7 +137,7 @@ describe('<ExpansionBar />', () => {
         const props = {
           initialSize: 3,
           perClickSize: 2,
-          renderSize: 5,  // Between 3 and 8 to make both buttons show
+          renderSize: 5, // Between 3 and 8 to make both buttons show
           setRenderSize: spy,
           totalSize: 8
         };

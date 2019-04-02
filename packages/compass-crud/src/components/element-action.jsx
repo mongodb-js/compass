@@ -8,7 +8,6 @@ import NoAction from 'components/no-action';
  * Component to render the available action for an element.
  */
 class ElementAction extends React.Component {
-
   /**
    * Render the action available for the element.
    *

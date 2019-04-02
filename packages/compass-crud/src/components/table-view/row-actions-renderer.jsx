@@ -67,14 +67,14 @@ class RowActionsRenderer extends React.Component {
     return (
       <div className={BEM_BASE}>
         <div className={`${BEM_BASE}-panel`}>
-        <IconButton
-          title="Edit Document"
-          className={`${BEM_BASE}-panel-button btn btn-default btn-xs`}
-          iconClassName={`${BEM_BASE}-button-icon fa fa-pencil`}
-          clickHandler={this.handleEdit.bind(this)} />
-        {this.renderTopLevelActions()}
+          <IconButton
+            title="Edit Document"
+            className={`${BEM_BASE}-panel-button btn btn-default btn-xs`}
+            iconClassName={`${BEM_BASE}-button-icon fa fa-pencil`}
+            clickHandler={this.handleEdit.bind(this)} />
+          {this.renderTopLevelActions()}
+        </div>
       </div>
-    </div>
     );
   }
 }

@@ -111,7 +111,6 @@ class FullWidthCellRenderer extends React.Component {
       );
     }
   }
-
 }
 
 FullWidthCellRenderer.propTypes = {

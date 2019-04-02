@@ -17,10 +17,13 @@ describe('<RowActionsRenderer />', () => {
       before((done) => {
         rowNode = getNode({field1: 'value'});
         value = rowNode.data.hadronDocument.get('field1');
-        component = mount(<RowActionsRenderer api={api} value={value}
-                                              node={rowNode} context={context}
-                                              data={data} nested={false}
-                                              copyToClipboard={sinon.spy()} isEditable />);
+        component = mount(
+          <RowActionsRenderer
+            api={api}
+            value={value}
+            node={rowNode} context={context}
+            data={data} nested={false}
+            copyToClipboard={sinon.spy()} isEditable />);
         done();
       });
       it('renders the edit button', () => {
@@ -44,10 +47,13 @@ describe('<RowActionsRenderer />', () => {
       before((done) => {
         rowNode = getNode({field1: 'value'});
         value = rowNode.data.hadronDocument.get('field1');
-        component = mount(<RowActionsRenderer api={api} value={value}
-                                              node={rowNode} context={context}
-                                              data={data} nested={true}
-                                              copyToClipboard={sinon.spy()} isEditable />);
+        component = mount(
+          <RowActionsRenderer
+            api={api}
+            value={value}
+            node={rowNode} context={context}
+            data={data} nested={true}
+            copyToClipboard={sinon.spy()} isEditable />);
         done();
       });
       it('renders the edit button', () => {
@@ -66,10 +72,13 @@ describe('<RowActionsRenderer />', () => {
       before(() => {
         rowNode = getNode({field1: 'value'});
         value = rowNode.data.hadronDocument.get('field1');
-        component = mount(<RowActionsRenderer api={api} value={value}
-                                              node={rowNode} context={context}
-                                              data={data} nested={true}
-                                              copyToClipboard={sinon.spy()} isEditable={false} />);
+        component = mount(
+          <RowActionsRenderer
+            api={api}
+            value={value}
+            node={rowNode} context={context}
+            data={data} nested={true}
+            copyToClipboard={sinon.spy()} isEditable={false} />);
       });
 
       it('does not render the buttons', () => {
@@ -90,10 +99,13 @@ describe('<RowActionsRenderer />', () => {
           data = rowNode.data;
           value = rowNode.data.hadronDocument.get('field1');
           context = getContext();
-          component = mount(<RowActionsRenderer api={api} value={value}
-                                                node={rowNode} context={context}
-                                                data={data} nested={false}
-                                                copyToClipboard={sinon.spy()} isEditable />);
+          component = mount(
+            <RowActionsRenderer
+              api={api}
+              value={value}
+              node={rowNode} context={context}
+              data={data} nested={false}
+              copyToClipboard={sinon.spy()} isEditable />);
           const wrapper = component.find('button[title="Edit Document"]');
           wrapper.simulate('click');
           done();
@@ -113,10 +125,12 @@ describe('<RowActionsRenderer />', () => {
           data = rowNode.data;
           value = rowNode.data.hadronDocument.get('field1');
           context = getContext();
-          component = mount(<RowActionsRenderer api={api} value={value}
-                                                node={rowNode} context={context}
-                                                data={data} nested={false}
-                                                copyToClipboard={sinon.spy()} isEditable />);
+          component = mount(
+            <RowActionsRenderer
+              api={api} value={value}
+              node={rowNode} context={context}
+              data={data} nested={false}
+              copyToClipboard={sinon.spy()} isEditable />);
           const wrapper = component.find('button[title="Clone Document"]');
           wrapper.simulate('click');
           done();
@@ -135,10 +149,13 @@ describe('<RowActionsRenderer />', () => {
           data = rowNode.data;
           value = rowNode.data.hadronDocument.get('field1');
           context = getContext();
-          component = mount(<RowActionsRenderer api={api} value={value}
-                                                node={rowNode} context={context}
-                                                data={data} nested={false}
-                                                copyToClipboard={sinon.spy()} isEditable />);
+          component = mount(
+            <RowActionsRenderer
+              api={api}
+              value={value}
+              node={rowNode} context={context}
+              data={data} nested={false}
+              copyToClipboard={sinon.spy()} isEditable />);
           const wrapper = component.find('button[title="Delete Document"]');
           wrapper.simulate('click');
           done();
@@ -161,10 +178,12 @@ describe('<RowActionsRenderer />', () => {
           data = rowNode.data;
           value = rowNode.data.hadronDocument.get('field1');
           context = getContext();
-          component = mount(<RowActionsRenderer api={api} value={value}
-                                                node={rowNode} context={context}
-                                                data={data} nested={true}
-                                                copyToClipboard={sinon.spy()} isEditable />);
+          component = mount(
+            <RowActionsRenderer
+              api={api} value={value}
+              node={rowNode} context={context}
+              data={data} nested={true}
+              copyToClipboard={sinon.spy()} isEditable />);
           const wrapper = component.find('button');
           wrapper.simulate('click');
           done();

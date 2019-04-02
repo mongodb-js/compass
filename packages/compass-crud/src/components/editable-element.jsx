@@ -77,7 +77,6 @@ const WRAPPER = 'editable-element-value-wrapper';
  * General editable element component.
  */
 class EditableElement extends React.Component {
-
   /**
    * The component constructor.
    *
@@ -303,8 +302,9 @@ class EditableElement extends React.Component {
    */
   renderKey() {
     if (this.props.editing && this.element.isKeyEditable()) {
-      return (<EditableKey element={this.element} index={this.props.index}
-         isFocused={this.state.focusKey} />);
+      return (
+        <EditableKey element={this.element} index={this.props.index} isFocused={this.state.focusKey} />
+      );
     }
     const onDoubleClick = this.element.isKeyEditable() ? null : this.focusEditKey.bind(this);
     return (

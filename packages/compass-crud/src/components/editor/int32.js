@@ -5,7 +5,6 @@ import StandardEditor from './standard';
  * CRUD editor for int32 values.
  */
 class Int32Editor extends StandardEditor {
-
   /**
    * Create the editor with the element.
    *

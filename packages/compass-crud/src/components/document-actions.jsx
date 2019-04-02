@@ -7,7 +7,6 @@ import UpdatableIconButton from 'components/updatable-icon-button';
  * Component for actions on the document.
  */
 class DocumentActions extends React.Component {
-
   /**
    * Instantiate the actions.
    *

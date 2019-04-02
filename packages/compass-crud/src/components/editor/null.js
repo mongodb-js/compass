@@ -9,7 +9,6 @@ const VALUE = 'null';
  * CRUD editor for null values.
  */
 class NullEditor extends StandardEditor {
-
   /**
    * Create the editor with the element.
    *

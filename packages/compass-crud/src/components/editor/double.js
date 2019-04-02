@@ -7,7 +7,6 @@ import chars from 'utils';
  * CRUD editor for double values.
  */
 class DoubleEditor extends StandardEditor {
-
   /**
    * Create the editor with the element.
    *

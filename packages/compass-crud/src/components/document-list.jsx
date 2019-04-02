@@ -14,7 +14,6 @@ import './ag-grid-dist.css';
  * Component for the entire document list.
  */
 class DocumentList extends React.Component {
-
   /**
    * Handle opening of the insert dialog.
    */

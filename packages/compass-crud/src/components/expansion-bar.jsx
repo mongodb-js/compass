@@ -23,7 +23,6 @@ const ARROW_UP = 'fa fa-arrow-up';
 const MAX_EXTRA_ELEMENTS = 1000;
 
 class ExpansionBar extends React.PureComponent {
-
   /**
    * Handle clicking the "Hide N fields" button.
    */
@@ -35,8 +34,10 @@ class ExpansionBar extends React.PureComponent {
    * Handle clicking the "Show N more fields" button.
    */
   handleShowClick() {
-    const newSize = Math.min(this.props.renderSize + this.props.perClickSize,
-                             this.props.totalSize);
+    const newSize = Math.min(
+      this.props.renderSize + this.props.perClickSize,
+      this.props.totalSize
+    );
     this.props.setRenderSize(newSize);
   }
 
@@ -90,8 +91,10 @@ class ExpansionBar extends React.PureComponent {
     const components = [];
     const total = this.props.totalSize;
     if (total > this.props.initialSize) {
-      const showMoreFields = Math.min(total - this.props.renderSize,
-                                      this.props.perClickSize);
+      const showMoreFields = Math.min(
+        total - this.props.renderSize,
+        this.props.perClickSize
+      );
       const hideFields = this.props.renderSize - this.props.initialSize;
       if (this.props.renderSize < total) {
         components.push(this.renderShowMoreFieldsButton(showMoreFields));
@@ -109,12 +112,12 @@ class ExpansionBar extends React.PureComponent {
 }
 
 ExpansionBar.propTypes = {
-  disableHideButton: PropTypes.bool,            // Flag to disable display of the "Hide M fields" button
-  initialSize: PropTypes.number.isRequired,     // Initial number of elements to render
-  perClickSize: PropTypes.number,               // Extra elements to render per click
-  renderSize: PropTypes.number.isRequired,      // Current number of elements to be rendered
-  setRenderSize: PropTypes.func.isRequired,     // Callback to allow the new renderSize to be set outside the component
-  totalSize: PropTypes.number.isRequired        // Maximum number of elements to render
+  disableHideButton: PropTypes.bool,
+  initialSize: PropTypes.number.isRequired,
+  perClickSize: PropTypes.number,
+  renderSize: PropTypes.number.isRequired,
+  setRenderSize: PropTypes.func.isRequired,
+  totalSize: PropTypes.number.isRequired
 };
 
 ExpansionBar.defaultProps = {

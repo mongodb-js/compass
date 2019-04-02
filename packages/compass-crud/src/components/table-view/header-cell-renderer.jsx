@@ -6,7 +6,6 @@ import classNames from 'classnames';
   Custom cell renderer for the headers.
  */
 class HeaderCellRenderer extends React.Component {
-
   constructor(props) {
     super(props);
   }

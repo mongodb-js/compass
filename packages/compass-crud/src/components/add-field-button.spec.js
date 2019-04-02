@@ -29,14 +29,20 @@ describe('<AddFieldButton />', () => {
       before((done) => {
         rowNode = getNode({field1: {'subfield1': 'value'}});
         value = rowNode.data.hadronDocument.get('field1');
-        component = mount(<AddFieldButton api={api} column={column} node={rowNode}
-                                      value={value}
-                                      addColumn={actions.addColumn}
-                                      drillDown={actions.drillDown}
-                                      columnApi={columnApi}
-                                      buttonRef="test"
-                                      displace={20}
-                                      context={context} displace={0}/>);
+        component = mount(
+          <AddFieldButton
+            api={api}
+            column={column}
+            node={rowNode}
+            value={value}
+            addColumn={actions.addColumn}
+            drillDown={actions.drillDown}
+            columnApi={columnApi}
+            buttonRef="test"
+            displace={20}
+            context={context}
+            displace={0}/>
+        );
         done();
       });
       it('renders add next field', () => {
@@ -54,14 +60,19 @@ describe('<AddFieldButton />', () => {
       before((done) => {
         rowNode = getNode({field1: ['item1', 'item2']});
         value = rowNode.data.hadronDocument.get('field1');
-        component = mount(<AddFieldButton api={api} column={column} node={rowNode}
-                                          value={value}
-                                          addColumn={actions.addColumn}
-                                          drillDown={actions.drillDown}
-                                          columnApi={columnApi}
-                                          buttonRef="test"
-                                          displace={20}
-                                          context={context}/>);
+        component = mount(
+          <AddFieldButton
+            api={api}
+            column={column}
+            node={rowNode}
+            value={value}
+            addColumn={actions.addColumn}
+            drillDown={actions.drillDown}
+            columnApi={columnApi}
+            buttonRef="test"
+            displace={20}
+            context={context}/>
+        );
         done();
       });
       it('renders add next field', () => {
@@ -79,14 +90,19 @@ describe('<AddFieldButton />', () => {
       before((done) => {
         rowNode = getNode({field1: 'value'});
         value = rowNode.data.hadronDocument.get('field1');
-        component = mount(<AddFieldButton api={api} column={column} node={rowNode}
-                                          value={value}
-                                          addColumn={actions.addColumn}
-                                          drillDown={actions.drillDown}
-                                          columnApi={columnApi}
-                                          buttonRef="test"
-                                          displace={20}
-                                          context={context}/>);
+        component = mount(
+          <AddFieldButton
+            api={api}
+            column={column}
+            node={rowNode}
+            value={value}
+            addColumn={actions.addColumn}
+            drillDown={actions.drillDown}
+            columnApi={columnApi}
+            buttonRef="test"
+            displace={20}
+            context={context}/>
+        );
         done();
       });
       it('renders add next field', () => {
@@ -117,15 +133,19 @@ describe('<AddFieldButton />', () => {
           before((done) => {
             rowNode = getNode({});
             value = undefined;
-            component = mount(<AddFieldButton api={api} column={column}
-                                              node={rowNode}
-                                              value={value}
-                                              addColumn={actions.addColumn}
-                                              drillDown={actions.drillDown}
-                                              columnApi={columnApi}
-                                              buttonRef="test"
-                                              displace={20}
-                                              context={context}/>);
+            component = mount(
+              <AddFieldButton
+                api={api}
+                column={column}
+                node={rowNode}
+                value={value}
+                addColumn={actions.addColumn}
+                drillDown={actions.drillDown}
+                columnApi={columnApi}
+                buttonRef="test"
+                displace={20}
+                context={context}/>
+            );
             const wrapper = component.find({'data-test-id': 'add-field-after'});
             expect(wrapper).to.be.present();
             rowNode.data.hadronDocument.elements.flush();
@@ -150,15 +170,19 @@ describe('<AddFieldButton />', () => {
           before((done) => {
             rowNode = getNode({field1: 'value', field3: 'value3'});
             value = rowNode.data.hadronDocument.get('field1');
-            component = mount(<AddFieldButton api={api} column={column}
-                                              node={rowNode}
-                                              value={value}
-                                              addColumn={actions.addColumn}
-                                              drillDown={actions.drillDown}
-                                              columnApi={columnApi}
-                                              buttonRef="test"
-                                              displace={20}
-                                              context={context}/>);
+            component = mount(
+              <AddFieldButton
+                api={api}
+                column={column}
+                node={rowNode}
+                value={value}
+                addColumn={actions.addColumn}
+                drillDown={actions.drillDown}
+                columnApi={columnApi}
+                buttonRef="test"
+                displace={20}
+                context={context}/>
+            );
             const wrapper = component.find({'data-test-id': 'add-field-after'});
             expect(wrapper).to.be.present();
             wrapper.simulate('click');
@@ -183,15 +207,19 @@ describe('<AddFieldButton />', () => {
         before((done) => {
           rowNode = getNode({field0: {field1: 'value'}});
           value = rowNode.data.hadronDocument.getChild(['field0', 'field1']);
-          component = mount(<AddFieldButton api={api} column={column}
-                                            node={rowNode}
-                                            value={value}
-                                            addColumn={actions.addColumn}
-                                            drillDown={actions.drillDown}
-                                            columnApi={columnApi}
-                                            buttonRef="test"
-                                            displace={20}
-                                            context={context}/>);
+          component = mount(
+            <AddFieldButton
+              api={api}
+              column={column}
+              node={rowNode}
+              value={value}
+              addColumn={actions.addColumn}
+              drillDown={actions.drillDown}
+              columnApi={columnApi}
+              buttonRef="test"
+              displace={20}
+              context={context}/>
+          );
           const wrapper = component.find({'data-test-id': 'add-field-after'});
           expect(wrapper).to.be.present();
           wrapper.simulate('click');
@@ -222,15 +250,19 @@ describe('<AddFieldButton />', () => {
             before((done) => {
               rowNode = getNode({field0: ['value0', 'value1', 'value2']});
               value = rowNode.data.hadronDocument.getChild(['field0', 2]);
-              component = mount(<AddFieldButton api={api} column={arrayColumn}
-                                                node={rowNode}
-                                                value={value}
-                                                addColumn={actions.addColumn}
-                                                drillDown={actions.drillDown}
-                                                columnApi={arrayColumnApi}
-                                                buttonRef="test"
-                                                displace={20}
-                                                context={context}/>);
+              component = mount(
+                <AddFieldButton
+                  api={api}
+                  column={arrayColumn}
+                  node={rowNode}
+                  value={value}
+                  addColumn={actions.addColumn}
+                  drillDown={actions.drillDown}
+                  columnApi={arrayColumnApi}
+                  buttonRef="test"
+                  displace={20}
+                  context={context}/>
+              );
               const wrapper = component.find({'data-test-id': 'add-field-after'});
               expect(wrapper).to.be.present();
               wrapper.simulate('click');
@@ -256,15 +288,19 @@ describe('<AddFieldButton />', () => {
             before((done) => {
               rowNode = getNode({field0: ['value0', 'value1', 'value2']});
               value = rowNode.data.hadronDocument.getChild(['field0', 1]);
-              component = mount(<AddFieldButton api={api} column={arrayColumn}
-                                                node={rowNode}
-                                                value={value}
-                                                addColumn={actions.addColumn}
-                                                drillDown={actions.drillDown}
-                                                columnApi={arrayColumnApi}
-                                                buttonRef="test"
-                                                displace={20}
-                                                context={context}/>);
+              component = mount(
+                <AddFieldButton
+                  api={api}
+                  column={arrayColumn}
+                  node={rowNode}
+                  value={value}
+                  addColumn={actions.addColumn}
+                  drillDown={actions.drillDown}
+                  columnApi={arrayColumnApi}
+                  buttonRef="test"
+                  displace={20}
+                  context={context}/>
+              );
               const wrapper = component.find({'data-test-id': 'add-field-after'});
               expect(wrapper).to.be.present();
               wrapper.simulate('click');
@@ -293,15 +329,19 @@ describe('<AddFieldButton />', () => {
             before((done) => {
               rowNode = getNode({field0: ['value0', 'value1', 'value2']});
               value = rowNode.data.hadronDocument.getChild(['field0', 2]);
-              component = mount(<AddFieldButton api={api} column={arrayColumn}
-                                                node={rowNode}
-                                                value={value}
-                                                addColumn={actions.addColumn}
-                                                drillDown={actions.drillDown}
-                                                columnApi={arrayColumnApi}
-                                                buttonRef="test"
-                                                displace={20}
-                                                context={context}/>);
+              component = mount(
+                <AddFieldButton
+                  api={api}
+                  column={arrayColumn}
+                  node={rowNode}
+                  value={value}
+                  addColumn={actions.addColumn}
+                  drillDown={actions.drillDown}
+                  columnApi={arrayColumnApi}
+                  buttonRef="test"
+                  displace={20}
+                  context={context}/>
+              );
               const wrapper = component.find({'data-test-id': 'add-field-after'});
               expect(wrapper).to.be.present();
               wrapper.simulate('click');
@@ -327,15 +367,19 @@ describe('<AddFieldButton />', () => {
             before((done) => {
               rowNode = getNode({field0: ['value0', 'value1', 'value2']});
               value = rowNode.data.hadronDocument.getChild(['field0', 1]);
-              component = mount(<AddFieldButton api={api} column={arrayColumn}
-                                                node={rowNode}
-                                                value={value}
-                                                addColumn={actions.addColumn}
-                                                drillDown={actions.drillDown}
-                                                columnApi={arrayColumnApi}
-                                                buttonRef="test"
-                                                displace={20}
-                                                context={context}/>);
+              component = mount(
+                <AddFieldButton
+                  api={api}
+                  column={arrayColumn}
+                  node={rowNode}
+                  value={value}
+                  addColumn={actions.addColumn}
+                  drillDown={actions.drillDown}
+                  columnApi={arrayColumnApi}
+                  buttonRef="test"
+                  displace={20}
+                  context={context}/>
+              );
               const wrapper = component.find({'data-test-id': 'add-field-after'});
               expect(wrapper).to.be.present();
               wrapper.simulate('click');
@@ -364,15 +408,19 @@ describe('<AddFieldButton />', () => {
       before((done) => {
         rowNode = getNode({field0: {field1: 'value'}});
         value = rowNode.data.hadronDocument.getChild(['field0']);
-        component = mount(<AddFieldButton api={api} column={column}
-                                            node={rowNode}
-                                            value={value}
-                                            addColumn={actions.addColumn}
-                                            drillDown={actions.drillDown}
-                                            columnApi={columnApi}
-                                            buttonRef="test"
-                                            displace={20}
-                                            context={context}/>);
+        component = mount(
+          <AddFieldButton
+            api={api}
+            column={column}
+            node={rowNode}
+            value={value}
+            addColumn={actions.addColumn}
+            drillDown={actions.drillDown}
+            columnApi={columnApi}
+            buttonRef="test"
+            displace={20}
+            context={context}/>
+        );
         const wrapper = component.find({'data-test-id': 'add-child-to-object'});
         expect(wrapper).to.be.present();
         wrapper.simulate('click');
@@ -383,7 +431,7 @@ describe('<AddFieldButton />', () => {
         expect(actions.drillDown.args[0]).to.deep.equal([
           rowNode.data.hadronDocument,
           value,
-            {colId: '$new', rowIndex: 2}
+          {colId: '$new', rowIndex: 2}
         ]);
         notCalledExcept(actions, ['drillDown']);
       });
@@ -402,15 +450,19 @@ describe('<AddFieldButton />', () => {
       before((done) => {
         rowNode = getNode({field0: ['value0', 'value1', 'value2']});
         value = rowNode.data.hadronDocument.getChild(['field0']);
-        component = mount(<AddFieldButton api={api} column={column}
-                                            node={rowNode}
-                                            value={value}
-                                            addColumn={actions.addColumn}
-                                            drillDown={actions.drillDown}
-                                            columnApi={columnApi}
-                                            buttonRef="test"
-                                            displace={20}
-                                            context={context}/>);
+        component = mount(
+          <AddFieldButton
+            api={api}
+            column={column}
+            node={rowNode}
+            value={value}
+            addColumn={actions.addColumn}
+            drillDown={actions.drillDown}
+            columnApi={columnApi}
+            buttonRef="test"
+            displace={20}
+            context={context}/>
+        );
         const wrapper = component.find({'data-test-id': 'add-element-to-array'});
         expect(wrapper).to.be.present();
         wrapper.simulate('click');
@@ -421,7 +473,7 @@ describe('<AddFieldButton />', () => {
         expect(actions.drillDown.args[0]).to.deep.equal([
           rowNode.data.hadronDocument,
           value,
-            {colId: 3, rowIndex: 2}
+          {colId: 3, rowIndex: 2}
         ]);
         notCalledExcept(actions, ['drillDown']);
       });

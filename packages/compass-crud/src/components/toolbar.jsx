@@ -15,7 +15,6 @@ const VIEW_SWITCHER_CLASS = `${ACTION_BAR_CLASS}-view-switcher`;
  * Component for the CRUD toolbar.
  */
 class Toolbar extends React.Component {
-
   /**
    * Handle refreshing the document list.
    */
@@ -132,8 +131,7 @@ class Toolbar extends React.Component {
                 dataTestId="refresh-documents-button"
                 className="btn btn-default btn-xs sampling-message-refresh-documents"
                 iconClassName="fa fa-repeat"
-                animatingIconClassName="fa fa-refresh fa-spin"
-                />
+                animatingIconClassName="fa fa-refresh fa-spin"/>
             </div>
           </div>
         </div>

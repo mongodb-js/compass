@@ -51,7 +51,6 @@ const UPDATED = 'Document Deleted.';
  * Component for a the remove document footer.
  */
 class RemoveDocumentFooter extends React.Component {
-
   /**
    * The component constructor.
    *

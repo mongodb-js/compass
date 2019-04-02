@@ -24,14 +24,16 @@ describe('<EditableDocument />', () => {
     const action = Reflux.createAction();
 
     before(() => {
-      wrapper = mount(<EditableDocument
-                        doc={new HadronDocument(doc)}
-                        removeDocument={sinon.spy(action)}
-                        updateDocument={sinon.spy(action)}
-                        copyToClipboard={sinon.spy(action)}
-                        version="3.4.0"
-                        tz="UTC"
-                        openInsertDocumentDialog={sinon.spy(action)} />);
+      wrapper = mount(
+        <EditableDocument
+          doc={new HadronDocument(doc)}
+          removeDocument={sinon.spy(action)}
+          updateDocument={sinon.spy(action)}
+          copyToClipboard={sinon.spy(action)}
+          version="3.4.0"
+          tz="UTC"
+          openInsertDocumentDialog={sinon.spy(action)} />
+      );
     });
 
     it('renders the list div', () => {
@@ -62,14 +64,16 @@ describe('<EditableDocument />', () => {
         const arrayDoc = {
           long_array: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14]
         };
-        wrapper = mount(<EditableDocument
-                          doc={new HadronDocument(arrayDoc)}
-                          removeDocument={sinon.spy(action)}
-                          updateDocument={sinon.spy(action)}
-                          copyToClipboard={sinon.spy(action)}
-                          version="3.4.0"
-                          tz="UTC"
-                          openInsertDocumentDialog={sinon.spy(action)} />);
+        wrapper = mount(
+          <EditableDocument
+            doc={new HadronDocument(arrayDoc)}
+            removeDocument={sinon.spy(action)}
+            updateDocument={sinon.spy(action)}
+            copyToClipboard={sinon.spy(action)}
+            version="3.4.0"
+            tz="UTC"
+            openInsertDocumentDialog={sinon.spy(action)} />
+        );
 
         // Set build version, so setState does not throw an error
         wrapper.setState({

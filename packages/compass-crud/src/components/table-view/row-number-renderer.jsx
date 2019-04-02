@@ -7,7 +7,6 @@ import PropTypes from 'prop-types';
  is the last pinned column.
  */
 class RowNumberRenderer extends React.Component {
-
   refresh() {
     return true;
   }

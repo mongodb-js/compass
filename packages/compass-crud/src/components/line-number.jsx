@@ -52,7 +52,6 @@ const ADD_FIELD_ICON = 'fa fa-plus-square-o';
  * Line number component.
  */
 class LineNumber extends React.Component {
-
   /**
    * Instantiate the line number component.
    *

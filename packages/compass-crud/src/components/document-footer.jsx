@@ -70,7 +70,6 @@ const UPDATED = 'Document Updated.';
  * Component for a the edit document footer.
  */
 class DocumentFooter extends React.Component {
-
   /**
    * The component constructor.
    *

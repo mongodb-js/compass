@@ -16,7 +16,7 @@ import 'bootstrap/less/bootstrap.less';
 import 'less/index.less';
 
 const DB = 'echo';
-const COLL = 'bands';
+const COLL = 'artists';
 
 const appRegistry = new AppRegistry();
 
@@ -54,7 +54,7 @@ const render = Component => {
 
   ReactDOM.render(
     <AppContainer>
-        <Component />
+      <Component />
     </AppContainer>,
     document.getElementById('root')
   );

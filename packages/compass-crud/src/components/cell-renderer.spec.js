@@ -1,7 +1,13 @@
 import React from 'react';
 import { mount } from 'enzyme';
-import { getNode, getApi, getColumn, getActions,
-        notCalledExcept, getContext} from '../../test/aggrid-helper';
+import {
+  getNode,
+  getApi,
+  getColumn,
+  getActions,
+  notCalledExcept,
+  getContext
+} from '../../test/aggrid-helper';
 import CellRenderer from 'components/table-view/cell-renderer';
 
 describe('<CellRenderer />', () => {
@@ -18,22 +24,26 @@ describe('<CellRenderer />', () => {
       before((done) => {
         rowNode = getNode({field1: 'value'});
         value = rowNode.data.hadronDocument.get('field1');
-        component = mount(<CellRenderer api={api}
-                                        column={column}
-                                        node={rowNode}
-                                        value={value}
-                                        drillDown={actions.drillDown}
-                                        elementAdded={actions.elementAdded}
-                                        elementRemoved={actions.elementRemoved}
-                                        elementTypeChanged={actions.elementTypeChanged}
-                                        parentType=""
-                                        context={context}/>);
+        component = mount(
+          <CellRenderer
+            api={api}
+            column={column}
+            node={rowNode}
+            value={value}
+            drillDown={actions.drillDown}
+            elementAdded={actions.elementAdded}
+            elementRemoved={actions.elementRemoved}
+            elementTypeChanged={actions.elementTypeChanged}
+            parentType=""
+            context={context}/>
+        );
         done();
       });
       it('renders the element type correctly', () => {
         const wrapper = component.find('.table-view-cell');
-        expect(wrapper).to.contain(<div className="element-value element-value-is-string"
-                                        title="value">"value"</div>);
+        expect(wrapper).to.contain(
+          <div className="element-value element-value-is-string" title="value">"value"</div>
+        );
       });
       it('does not render the undo button', () => {
         const wrapper = component.find('.table-view-cell-circle-button');
@@ -50,22 +60,26 @@ describe('<CellRenderer />', () => {
         rowNode = getNode({});
         rowNode.data.hadronDocument.insertEnd('field1', 'value');
         value = rowNode.data.hadronDocument.get('field1');
-        component = mount(<CellRenderer api={api}
-                                        column={column}
-                                        node={rowNode}
-                                        value={value}
-                                        drillDown={actions.drillDown}
-                                        elementAdded={actions.elementAdded}
-                                        elementRemoved={actions.elementRemoved}
-                                        elementTypeChanged={actions.elementTypeChanged}
-                                        parentType=""
-                                        context={context}/>);
+        component = mount(
+          <CellRenderer
+            api={api}
+            column={column}
+            node={rowNode}
+            value={value}
+            drillDown={actions.drillDown}
+            elementAdded={actions.elementAdded}
+            elementRemoved={actions.elementRemoved}
+            elementTypeChanged={actions.elementTypeChanged}
+            parentType=""
+            context={context}/>
+        );
         done();
       });
       it('renders the cell as added', () => {
         const wrapper = component.find('.table-view-cell-is-added');
-        expect(wrapper).to.contain(<div className="element-value element-value-is-string"
-                                        title="value">"value"</div>);
+        expect(wrapper).to.contain(
+          <div className="element-value element-value-is-string" title="value">"value"</div>
+        );
       });
       it('renders the undo button', () => {
         const wrapper = component.find('.table-view-cell-circle-button');
@@ -82,22 +96,26 @@ describe('<CellRenderer />', () => {
         rowNode = getNode({field1: 'value'});
         rowNode.data.hadronDocument.get('field1').edit('a new value');
         value = rowNode.data.hadronDocument.get('field1');
-        component = mount(<CellRenderer api={api}
-                                        column={column}
-                                        node={rowNode}
-                                        value={value}
-                                        drillDown={actions.drillDown}
-                                        elementAdded={actions.elementAdded}
-                                        elementRemoved={actions.elementRemoved}
-                                        elementTypeChanged={actions.elementTypeChanged}
-                                        parentType=""
-                                        context={context}/>);
+        component = mount(
+          <CellRenderer
+            api={api}
+            column={column}
+            node={rowNode}
+            value={value}
+            drillDown={actions.drillDown}
+            elementAdded={actions.elementAdded}
+            elementRemoved={actions.elementRemoved}
+            elementTypeChanged={actions.elementTypeChanged}
+            parentType=""
+            context={context}/>
+        );
         done();
       });
       it('renders the element as modified', () => {
         const wrapper = component.find('.table-view-cell-is-edited');
-        expect(wrapper).to.contain(<div className="element-value element-value-is-string"
-                                        title="a new value">"a new value"</div>);
+        expect(wrapper).to.contain(
+          <div className="element-value element-value-is-string" title="a new value">"a new value"</div>
+        );
       });
       it('renders the undo button', () => {
         const wrapper = component.find('.table-view-cell-circle-button');
@@ -114,16 +132,19 @@ describe('<CellRenderer />', () => {
         rowNode = getNode({field1: 'value'});
         rowNode.data.hadronDocument.get('field1').remove();
         value = rowNode.data.hadronDocument.get('field1');
-        component = mount(<CellRenderer api={api}
-                                        column={column}
-                                        node={rowNode}
-                                        value={value}
-                                        drillDown={actions.drillDown}
-                                        elementAdded={actions.elementAdded}
-                                        elementRemoved={actions.elementRemoved}
-                                        elementTypeChanged={actions.elementTypeChanged}
-                                        parentType=""
-                                        context={context}/>);
+        component = mount(
+          <CellRenderer
+            api={api}
+            column={column}
+            node={rowNode}
+            value={value}
+            drillDown={actions.drillDown}
+            elementAdded={actions.elementAdded}
+            elementRemoved={actions.elementRemoved}
+            elementTypeChanged={actions.elementTypeChanged}
+            parentType=""
+            context={context}/>
+        );
         done();
       });
       it('renders the element as removed', () => {
@@ -146,16 +167,19 @@ describe('<CellRenderer />', () => {
         rowNode.data.hadronDocument.get('field1').setInvalid(
           'invalid', 'String', 'message');
         value = rowNode.data.hadronDocument.get('field1');
-        component = mount(<CellRenderer api={api}
-                                        column={column}
-                                        node={rowNode}
-                                        value={value}
-                                        drillDown={actions.drillDown}
-                                        elementAdded={actions.elementAdded}
-                                        elementRemoved={actions.elementRemoved}
-                                        elementTypeChanged={actions.elementTypeChanged}
-                                        parentType=""
-                                        context={context}/>);
+        component = mount(
+          <CellRenderer
+            api={api}
+            column={column}
+            node={rowNode}
+            value={value}
+            drillDown={actions.drillDown}
+            elementAdded={actions.elementAdded}
+            elementRemoved={actions.elementRemoved}
+            elementTypeChanged={actions.elementTypeChanged}
+            parentType=""
+            context={context}/>
+        );
         done();
       });
       it('renders the element as invalid', () => {
@@ -172,16 +196,19 @@ describe('<CellRenderer />', () => {
       before((done) => {
         rowNode = getNode({});
         value = undefined;
-        component = mount(<CellRenderer api={api}
-                                        column={column}
-                                        node={rowNode}
-                                        value={value}
-                                        drillDown={actions.drillDown}
-                                        elementAdded={actions.elementAdded}
-                                        elementRemoved={actions.elementRemoved}
-                                        elementTypeChanged={actions.elementTypeChanged}
-                                        parentType=""
-                                        context={context}/>);
+        component = mount(
+          <CellRenderer
+            api={api}
+            column={column}
+            node={rowNode}
+            value={value}
+            drillDown={actions.drillDown}
+            elementAdded={actions.elementAdded}
+            elementRemoved={actions.elementRemoved}
+            elementTypeChanged={actions.elementTypeChanged}
+            parentType=""
+            context={context}/>
+        );
         done();
       });
       it('renders the element as empty', () => {
@@ -204,16 +231,19 @@ describe('<CellRenderer />', () => {
         value = undefined;
         const context2 = getContext(['array']);
         const column2 = getColumn(4);
-        component = mount(<CellRenderer api={api}
-                                        column={column2}
-                                        node={rowNode}
-                                        value={value}
-                                        drillDown={actions.drillDown}
-                                        elementAdded={actions.elementAdded}
-                                        elementRemoved={actions.elementRemoved}
-                                        elementTypeChanged={actions.elementTypeChanged}
-                                        parentType=""
-                                        context={context2}/>);
+        component = mount(
+          <CellRenderer
+            api={api}
+            column={column2}
+            node={rowNode}
+            value={value}
+            drillDown={actions.drillDown}
+            elementAdded={actions.elementAdded}
+            elementRemoved={actions.elementRemoved}
+            elementTypeChanged={actions.elementTypeChanged}
+            parentType=""
+            context={context2}/>
+        );
         done();
       });
       it('renders the element as uneditable', () => {
@@ -237,16 +267,19 @@ describe('<CellRenderer />', () => {
           value = rowNode.data.hadronDocument.getChild(['array', 1]);
           const context2 = getContext(['array']);
           const column2 = getColumn(1);
-          component = mount(<CellRenderer api={api}
-                                          column={column2}
-                                          node={rowNode}
-                                          value={value}
-                                          drillDown={actions.drillDown}
-                                          elementAdded={actions.elementAdded}
-                                          elementRemoved={actions.elementRemoved}
-                                          elementTypeChanged={actions.elementTypeChanged}
-                                          context={context2}
-                                          parentType={'Object'} />);
+          component = mount(
+            <CellRenderer
+              api={api}
+              column={column2}
+              node={rowNode}
+              value={value}
+              drillDown={actions.drillDown}
+              elementAdded={actions.elementAdded}
+              elementRemoved={actions.elementRemoved}
+              elementTypeChanged={actions.elementTypeChanged}
+              context={context2}
+              parentType={'Object'} />
+          );
           done();
         });
         it('renders the element as uneditable', () => {
@@ -268,16 +301,19 @@ describe('<CellRenderer />', () => {
           value = rowNode.data.hadronDocument.getChild(['obj', 'field1']);
           const context2 = getContext(['obj']);
           const column2 = getColumn('field1');
-          component = mount(<CellRenderer api={api}
-                                          column={column2}
-                                          node={rowNode}
-                                          value={value}
-                                          drillDown={actions.drillDown}
-                                          elementAdded={actions.elementAdded}
-                                          elementRemoved={actions.elementRemoved}
-                                          elementTypeChanged={actions.elementTypeChanged}
-                                          context={context2}
-                                          parentType={'Array'}/>);
+          component = mount(
+            <CellRenderer
+              api={api}
+              column={column2}
+              node={rowNode}
+              value={value}
+              drillDown={actions.drillDown}
+              elementAdded={actions.elementAdded}
+              elementRemoved={actions.elementRemoved}
+              elementTypeChanged={actions.elementTypeChanged}
+              context={context2}
+              parentType={'Array'}/>
+          );
           done();
         });
         it('renders the element as uneditable', () => {
@@ -299,16 +335,19 @@ describe('<CellRenderer />', () => {
       before((done) => {
         rowNode = getNode({field1: {subfield1: 1}});
         value = rowNode.data.hadronDocument.get('field1');
-        component = mount(<CellRenderer api={api}
-                                        column={column}
-                                        node={rowNode}
-                                        value={value}
-                                        drillDown={actions.drillDown}
-                                        elementAdded={actions.elementAdded}
-                                        elementRemoved={actions.elementRemoved}
-                                        elementTypeChanged={actions.elementTypeChanged}
-                                        parentType=""
-                                        context={context}/>);
+        component = mount(
+          <CellRenderer
+            api={api}
+            column={column}
+            node={rowNode}
+            value={value}
+            drillDown={actions.drillDown}
+            elementAdded={actions.elementAdded}
+            elementRemoved={actions.elementRemoved}
+            elementTypeChanged={actions.elementTypeChanged}
+            parentType=""
+            context={context}/>
+        );
         done();
       });
       it('renders the element correctly', () => {
@@ -329,16 +368,19 @@ describe('<CellRenderer />', () => {
       before((done) => {
         rowNode = getNode({field1: [1, 2, 3]});
         value = rowNode.data.hadronDocument.get('field1');
-        component = mount(<CellRenderer api={api}
-                                        column={column}
-                                        node={rowNode}
-                                        value={value}
-                                        drillDown={actions.drillDown}
-                                        elementAdded={actions.elementAdded}
-                                        elementRemoved={actions.elementRemoved}
-                                        elementTypeChanged={actions.elementTypeChanged}
-                                        parentType=""
-                                        context={context}/>);
+        component = mount(
+          <CellRenderer
+            api={api}
+            column={column}
+            node={rowNode}
+            value={value}
+            drillDown={actions.drillDown}
+            elementAdded={actions.elementAdded}
+            elementRemoved={actions.elementRemoved}
+            elementTypeChanged={actions.elementTypeChanged}
+            parentType=""
+            context={context}/>
+        );
         done();
       });
       it('renders the element correctly', () => {
@@ -353,14 +395,19 @@ describe('<CellRenderer />', () => {
         rowNode.data.hadronDocument.getChild(
           ['field1', 'subfield1']).edit('a new value');
         value = rowNode.data.hadronDocument.get('field1');
-        component = mount(<CellRenderer api={api} column={column} node={rowNode}
-                                        value={value}
-                                        drillDown={actions.drillDown}
-                                        elementAdded={actions.elementAdded}
-                                        elementRemoved={actions.elementRemoved}
-                                        elementTypeChanged={actions.elementTypeChanged}
-                                        parentType=""
-                                        context={context}/>);
+        component = mount(
+          <CellRenderer
+            api={api}
+            column={column}
+            node={rowNode}
+            value={value}
+            drillDown={actions.drillDown}
+            elementAdded={actions.elementAdded}
+            elementRemoved={actions.elementRemoved}
+            elementTypeChanged={actions.elementTypeChanged}
+            parentType=""
+            context={context}/>
+        );
         done();
       });
       it('renders the undo button', () => {
@@ -391,14 +438,19 @@ describe('<CellRenderer />', () => {
           value = rowNode.data.hadronDocument.get('field1');
           api = getApi();
           actions = getActions();
-          component = mount(<CellRenderer api={api} column={column}
-                                          node={rowNode} value={value}
-                                          drillDown={actions.drillDown}
-                                          elementAdded={actions.elementAdded}
-                                          elementRemoved={actions.elementRemoved}
-                                          elementTypeChanged={actions.elementTypeChanged}
-                                          parentType=""
-                                          context={context}/>);
+          component = mount(
+            <CellRenderer
+              api={api}
+              column={column}
+              node={rowNode}
+              value={value}
+              drillDown={actions.drillDown}
+              elementAdded={actions.elementAdded}
+              elementRemoved={actions.elementRemoved}
+              elementTypeChanged={actions.elementTypeChanged}
+              parentType=""
+              context={context}/>
+          );
           const wrapper = component.find('.table-view-cell-circle-button');
           wrapper.simulate('click');
           done();
@@ -426,14 +478,19 @@ describe('<CellRenderer />', () => {
           value = rowNode.data.hadronDocument.get('field1');
           api = getApi();
           actions = getActions();
-          component = mount(<CellRenderer api={api} column={column}
-                                          node={rowNode} value={value}
-                                          drillDown={actions.drillDown}
-                                          elementAdded={actions.elementAdded}
-                                          elementRemoved={actions.elementRemoved}
-                                          elementTypeChanged={actions.elementTypeChanged}
-                                          parentType=""
-                                          context={context}/>);
+          component = mount(
+            <CellRenderer
+              api={api}
+              column={column}
+              node={rowNode}
+              value={value}
+              drillDown={actions.drillDown}
+              elementAdded={actions.elementAdded}
+              elementRemoved={actions.elementRemoved}
+              elementTypeChanged={actions.elementTypeChanged}
+              parentType=""
+              context={context}/>
+          );
           const wrapper = component.find('.table-view-cell-circle-button');
           wrapper.simulate('click');
           done();
@@ -458,14 +515,19 @@ describe('<CellRenderer />', () => {
           value = rowNode.data.hadronDocument.get('field1');
           api = getApi();
           actions = getActions();
-          component = mount(<CellRenderer api={api} column={column}
-                                          node={rowNode} value={value}
-                                          drillDown={actions.drillDown}
-                                          elementAdded={actions.elementAdded}
-                                          elementRemoved={actions.elementRemoved}
-                                          elementTypeChanged={actions.elementTypeChanged}
-                                          parentType=""
-                                          context={context}/>);
+          component = mount(
+            <CellRenderer
+              api={api}
+              column={column}
+              node={rowNode}
+              value={value}
+              drillDown={actions.drillDown}
+              elementAdded={actions.elementAdded}
+              elementRemoved={actions.elementRemoved}
+              elementTypeChanged={actions.elementTypeChanged}
+              parentType=""
+              context={context}/>
+          );
           const wrapper = component.find('.table-view-cell-circle-button');
           wrapper.simulate('click');
           done();
@@ -492,16 +554,19 @@ describe('<CellRenderer />', () => {
           value = rowNode.data.hadronDocument.get('field1');
           api = getApi();
           actions = getActions();
-          component = mount(<CellRenderer api={api}
-                                          column={column}
-                                          node={rowNode}
-                                          value={value}
-                                          drillDown={actions.drillDown}
-                                          elementAdded={actions.elementAdded}
-                                          elementRemoved={actions.elementRemoved}
-                                          elementTypeChanged={actions.elementTypeChanged}
-                                          parentType=""
-                                          context={context}/>);
+          component = mount(
+            <CellRenderer
+              api={api}
+              column={column}
+              node={rowNode}
+              value={value}
+              drillDown={actions.drillDown}
+              elementAdded={actions.elementAdded}
+              elementRemoved={actions.elementRemoved}
+              elementTypeChanged={actions.elementTypeChanged}
+              parentType=""
+              context={context}/>
+          );
           const wrapper = component.find('.table-view-cell-circle-button');
           wrapper.simulate('click');
           done();
@@ -528,13 +593,19 @@ describe('<CellRenderer />', () => {
         actions = getActions();
         rowNode = getNode({field1: {subfield1: 1}});
         value = rowNode.data.hadronDocument.get('field1');
-        component = mount(<CellRenderer api={api} column={column} node={rowNode}
-                                        value={value} drillDown={actions.drillDown}
-                                        elementAdded={actions.elementAdded}
-                                        elementRemoved={actions.elementRemoved}
-                                        elementTypeChanged={actions.elementTypeChanged}
-                                        parentType=""
-                                        context={context}/>);
+        component = mount(
+          <CellRenderer
+            api={api}
+            column={column}
+            node={rowNode}
+            value={value}
+            drillDown={actions.drillDown}
+            elementAdded={actions.elementAdded}
+            elementRemoved={actions.elementRemoved}
+            elementTypeChanged={actions.elementTypeChanged}
+            parentType=""
+            context={context}/>
+        );
         const wrapper = component.find('.table-view-cell-circle-button');
         wrapper.simulate('click');
         done();
@@ -554,13 +625,18 @@ describe('<CellRenderer />', () => {
         actions = getActions();
         rowNode = getNode({field1: 'value'});
         value = rowNode.data.hadronDocument.get('field1');
-        component = mount(<CellRenderer api={api} column={column} node={rowNode}
-                                        value={value} drillDown={actions.drillDown}
-                                        elementAdded={actions.elementAdded}
-                                        elementRemoved={actions.elementRemoved}
-                                        elementTypeChanged={actions.elementTypeChanged}
-                                        parentType=""
-                                        context={context}/>);
+        component = mount(
+          <CellRenderer
+            api={api}
+            column={column}
+            node={rowNode}
+            value={value} drillDown={actions.drillDown}
+            elementAdded={actions.elementAdded}
+            elementRemoved={actions.elementRemoved}
+            elementTypeChanged={actions.elementTypeChanged}
+            parentType=""
+            context={context}/>
+        );
         const wrapper = component.find('.table-view-cell');
         wrapper.simulate('click');
         done();
@@ -578,13 +654,19 @@ describe('<CellRenderer />', () => {
         rowNode = getNode({field1: 'value'});
         rowNode.data.state = 'editing';
         value = rowNode.data.hadronDocument.get('field1');
-        component = mount(<CellRenderer api={api} column={column} node={rowNode}
-                                        value={value} drillDown={actions.drillDown}
-                                        elementAdded={actions.elementAdded}
-                                        elementRemoved={actions.elementRemoved}
-                                        elementTypeChanged={actions.elementTypeChanged}
-                                        parentType=""
-                                        context={context}/>);
+        component = mount(
+          <CellRenderer
+            api={api}
+            column={column}
+            node={rowNode}
+            value={value}
+            drillDown={actions.drillDown}
+            elementAdded={actions.elementAdded}
+            elementRemoved={actions.elementRemoved}
+            elementTypeChanged={actions.elementTypeChanged}
+            parentType=""
+            context={context}/>
+        );
         const wrapper = component.find('.table-view-cell');
         wrapper.simulate('click');
         done();

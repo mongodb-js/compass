@@ -34,7 +34,6 @@ const INVALID = `${VALUE_CLASS}-is-invalid-type`;
  * General editable value component.
  */
 class EditableValue extends React.Component {
-
   /**
    * The component constructor.
    *

@@ -1,7 +1,9 @@
 const webpack = require('webpack');
+const merge = require('webpack-merge');
 const path = require('path');
 const PeerDepsExternalsPlugin = require('peer-deps-externals-webpack-plugin');
 
+const baseWebpackConfig = require('./webpack.base.config');
 const project = require('./project');
 
 const GLOBALS = {
@@ -11,7 +13,7 @@ const GLOBALS = {
   __DEV__: JSON.stringify(JSON.parse(process.env.DEBUG || 'true'))
 };
 
-module.exports = {
+const config = {
   target: 'electron-renderer',
   devtool: 'source-map',
   watch: true,
@@ -24,119 +26,11 @@ module.exports = {
     publicPath: '/',
     filename: '[name].js',
     // Export our plugin as a UMD library (compatible with all module definitions - CommonJS, AMD and global variable)
-    library: 'CRUDPlugin',
+    library: 'CrudPlugin',
     libraryTarget: 'umd'
-  },
-  resolve: {
-    modules: ['node_modules'],
-    extensions: ['.js', '.jsx', '.json', 'less'],
-    alias: {
-      actions: path.join(project.path.src, 'actions'),
-      components: path.join(project.path.src, 'components'),
-      constants: path.join(project.path.src, 'constants'),
-      fonts: path.join(project.path.src, 'assets/fonts'),
-      images: path.join(project.path.src, 'assets/images'),
-      less: path.join(project.path.src, 'assets/less'),
-      models: path.join(project.path.src, 'models'),
-      modules: path.join(project.path.src, 'modules'),
-      plugin: path.join(project.path.src, 'index.js'),
-      stores: path.join(project.path.src, 'stores'),
-      storybook: project.path.storybook,
-      utils: path.join(project.path.src, 'utils')
-    }
   },
   module: {
     rules: [
-      {
-        test: /\.css$/,
-        use: [
-          { loader: 'style-loader'},
-          { loader: 'css-loader' }
-        ]
-      },
-      // For styles that have to be global (see https://github.com/css-modules/css-modules/pull/65)
-      {
-        test: /\.less$/,
-        include: [/\.global/, /bootstrap/],
-        use: [
-          { loader: 'style-loader' },
-          {
-            loader: 'css-loader',
-            options: {
-              modules: false
-            }
-          },
-          {
-            loader: 'postcss-loader',
-            options: {
-              plugins: function() {
-                return [
-                  project.plugin.autoprefixer
-                ];
-              }
-            }
-          },
-          {
-            loader: 'less-loader',
-            options: {
-              noIeCompat: true
-            }
-          }
-        ]
-      },
-      {
-        test: /\.node$/,
-        use: 'node-loader'
-      },
-      // For CSS-Modules locally scoped styles
-      {
-        test: /\.less$/,
-        exclude: [/\.global/, /bootstrap/, /node_modules/],
-        use: [
-          { loader: 'style-loader' },
-          {
-            loader: 'css-loader',
-            options: {
-              modules: true,
-              importLoaders: 1,
-              localIdentName: 'CRUDPlugin_[name]-[local]__[hash:base64:5]'
-            }
-          },
-          {
-            loader: 'postcss-loader',
-            options: {
-              plugins: function() {
-                return [
-                  project.plugin.autoprefixer
-                ];
-              }
-            }
-          },
-          {
-            loader: 'less-loader',
-            options: {
-              noIeCompat: true
-            }
-          }
-        ]
-      },
-      {
-        test: /node_modules[\\\/]JSONStream[\\\/]index\.js/,
-        use: [{ loader: 'shebang-loader' }]
-      },
-      {
-        test: /\.(js|jsx)$/,
-        use: [{
-          loader: 'babel-loader',
-          query: {
-            cacheDirectory: true,
-            plugins: [
-              'transform-decorators-legacy'
-            ]
-          }
-        }],
-        exclude: /(node_modules)/
-      },
       {
         test: /\.(png|jpg|jpeg|gif|svg)$/,
         use: [{
@@ -175,13 +69,7 @@ module.exports = {
     new webpack.NoEmitOnErrorsPlugin(),
 
     // Defines global variables
-    new webpack.DefinePlugin(GLOBALS),
-
-    new webpack.ProvidePlugin({
-      jQuery: 'jquery',
-      $: 'jquery',
-      jquery: 'jquery'
-    })
+    new webpack.DefinePlugin(GLOBALS)
   ],
   stats: {
     colors: true,
@@ -190,3 +78,5 @@ module.exports = {
     modules: false
   }
 };
+
+module.exports = merge.smart(baseWebpackConfig, config);

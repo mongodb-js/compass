@@ -21,7 +21,6 @@ const LIST_ITEM_TEST_ID = LIST_ITEM_CLASS;
  * Represents the list view of the documents tab.
  */
 class DocumentListView extends React.Component {
-
   /**
    * Get the document list item components.
    *

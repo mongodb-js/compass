@@ -10,7 +10,6 @@ const BUTTON = 'button';
  * Component for a button with an icon.
  */
 class UpdatableIconButton extends React.Component {
-
   /**
    * Render the button.
    *

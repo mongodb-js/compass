@@ -6,7 +6,6 @@ import chars from 'utils';
  * CRUD editor for object id values.
  */
 class ObjectIdEditor {
-
   /**
    * Create the editor with the element.
    *

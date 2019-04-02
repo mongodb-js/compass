@@ -9,7 +9,6 @@ const ACTIONS = 'editable-element-actions';
  * General element action component.
  */
 class NoAction extends React.Component {
-
   /**
    * Render a single editable key.
    *

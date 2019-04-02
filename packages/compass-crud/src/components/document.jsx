@@ -7,7 +7,6 @@ import ReadonlyDocument from 'components/readonly-document';
  * Component for a single document in a list of documents.
  */
 class Document extends React.Component {
-
   /**
    * Render a single document list item.
    *

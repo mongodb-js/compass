@@ -10,7 +10,6 @@ const ACTIONS = 'editable-element-actions';
  * General element action component.
  */
 class RemoveAction extends React.Component {
-
   /**
    * The component constructor.
    *

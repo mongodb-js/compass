@@ -33,7 +33,6 @@ const COLON = 186;
  * General editable key component.
  */
 class EditableKey extends React.Component {
-
   /**
    * The component constructor.
    *

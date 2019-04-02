@@ -32,7 +32,6 @@ const TEST_ID = 'readonly-document';
  * Component for a single readonly document in a list of documents.
  */
 class ReadonlyDocument extends React.Component {
-
   /**
    * Initialize the readonly document.
    *

@@ -13,7 +13,6 @@ const FORMAT = 'YYYY-MM-DDTHH:mm:ss.SSSZ';
  * CRUD editor for date values.
  */
 class DateEditor extends StandardEditor {
-
   /**
    * Create the editor with the element.
    *
