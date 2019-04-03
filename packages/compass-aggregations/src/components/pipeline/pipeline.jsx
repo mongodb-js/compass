@@ -6,6 +6,8 @@ import PropTypes from 'prop-types';
 import classnames from 'classnames';
 import PipelineToolbar from 'components/pipeline-toolbar';
 import CollationToolbar from './collation-toolbar';
+import Splitter from './splitter';
+
 import PipelineWorkspace from 'components/pipeline-workspace';
 import SavePipeline from 'components/save-pipeline';
 import Settings from 'components/settings';
@@ -96,23 +98,6 @@ class Pipeline extends PureComponent {
     projectionsChanged: PropTypes.func.isRequired,
     newPipelineFromPaste: PropTypes.func.isRequired
   };
-
-  /**
-   * Render global the separator bar.
-   *
-   * @returns {Component} The component.
-   */
-  renderSeparator() {
-    if (this.props.isCollationExpanded) {
-      return (
-        <div
-          key="expanded-separator"
-          className={classnames(styles['pipeline-expanded-separator'])}
-        />
-      );
-    }
-    return <div className={classnames(styles['pipeline-separator'])} />;
-  }
 
   /**
    * Render the collation toolbar if neccessary.
@@ -227,7 +212,7 @@ class Pipeline extends PureComponent {
           savingPipelineOpen={this.props.savingPipelineOpen}
         />
         {this.renderCollationToolbar()}
-        {this.renderSeparator()}
+        <Splitter isCollationExpanded={this.props.isCollationExpanded} />
         <PipelineWorkspace {...this.props} />
         <SavePipeline
           restorePipelineModalToggle={this.props.restorePipelineModalToggle}
