@@ -22,11 +22,11 @@ These are a base set of example aggregation's from @terakilobyte used in his M12
 
 [View in storybook](https://mongodb-js.github.io/compass-aggregations/?path=/story/examples--grouped-stats)
 
-### Complex
+### Schema Checker
 
-[`example-complex.js`](https://github.com/mongodb-js/compass-aggregations/blob/master/examples/example-complex.js) uses `$lookup` and more to sanity check mistyped names or bad references.
+[`example-complex.js`](https://github.com/mongodb-js/compass-aggregations/blob/master/examples/example-schema-checker.js) uses `$lookup` and more to sanity check mistyped names or bad references.
 
-[View in storybook](https://mongodb-js.github.io/compass-aggregations/?path=/story/examples--complex)
+[View in storybook](https://mongodb-js.github.io/compass-aggregations/?path=/story/examples--schema-chcker)
 
 ## Usage
 

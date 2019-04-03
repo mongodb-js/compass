@@ -9,7 +9,7 @@ import { ObjectId } from 'bson';
 
 // do I have schema problems?
 // the following tells me if I have mistyped names or bad references for a lookup
-const COMPLEX_EXAMPLE = {
+const SCHEMA_CHECKER_EXAMPLE = {
   ...EXAMPLE,
   namespace: 'aggregations.air_alliances',
   pipeline: [{
@@ -96,4 +96,4 @@ const COMPLEX_EXAMPLE = {
   ]
 };
 
-export default COMPLEX_EXAMPLE;
+export default SCHEMA_CHECKER_EXAMPLE;
