@@ -28,6 +28,12 @@ These are a base set of example aggregation's from @terakilobyte used in his M12
 
 [View in storybook](https://mongodb-js.github.io/compass-aggregations/?path=/story/examples--schema-chcker)
 
+### Pearson's rho
+
+[`example-pearsons-rho.js`](https://github.com/mongodb-js/compass-aggregations/blob/master/examples/example-pearsons-rho.js) calculates [the correlation co-efficient of two fields using Pearsons Rho](http://ilearnasigoalong.blogspot.com/2017/10/calculating-correlation-inside-mongodb.html). (HT @johnlpage)
+
+[View in storybook](https://mongodb-js.github.io/compass-aggregations/?path=/story/examples--pearsons-rho)
+
 ## Usage
 
 See [`aggregations.stories.js`](https://github.com/mongodb-js/compass-aggregations/blob/master/examples/aggregations.stories.js).
