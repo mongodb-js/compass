@@ -111,7 +111,8 @@ class Stage extends Component {
     fields: PropTypes.array.isRequired,
     setIsModified: PropTypes.func.isRequired,
     projections: PropTypes.array.isRequired,
-    projectionsChanged: PropTypes.func.isRequired
+    projectionsChanged: PropTypes.func.isRequired,
+    newPipelineFromPaste: PropTypes.func.isRequired
   };
 
   /* eslint complexity: 0 */
@@ -184,6 +185,7 @@ class Stage extends Component {
           stageChanged={this.props.stageChanged}
           projections={this.props.projections}
           projectionsChanged={this.props.projectionsChanged}
+          newPipelineFromPaste={this.props.newPipelineFromPaste}
         />
       );
     }

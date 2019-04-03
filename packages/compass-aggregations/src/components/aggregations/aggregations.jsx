@@ -44,7 +44,11 @@ import {
   getSavedPipelines
 } from 'modules/saved-pipeline';
 import { setIsModified } from 'modules/is-modified';
-import { restoreSavedPipeline, getPipelineFromIndexedDB } from 'modules/index';
+import {
+  newPipelineFromPaste,
+  restoreSavedPipeline,
+  getPipelineFromIndexedDB
+} from 'modules/index';
 import {
   restorePipelineModalToggle,
   restorePipelineFrom
@@ -196,7 +200,8 @@ const MappedAggregations = connect(
     savingPipelineApply,
     savingPipelineCancel,
     savingPipelineOpen,
-    projectionsChanged
+    projectionsChanged,
+    newPipelineFromPaste
   }
 )(Aggregations);
 

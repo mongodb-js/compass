@@ -93,7 +93,8 @@ class Pipeline extends PureComponent {
     savingPipelineOpen: PropTypes.func.isRequired,
     savingPipeline: PropTypes.object.isRequired,
     projections: PropTypes.array.isRequired,
-    projectionsChanged: PropTypes.func.isRequired
+    projectionsChanged: PropTypes.func.isRequired,
+    newPipelineFromPaste: PropTypes.func.isRequired
   };
 
   /**

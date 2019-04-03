@@ -141,6 +141,8 @@ export const NEW_PIPELINE = 'aggregations/NEW_PIPELINE';
  */
 export const CLONE_PIPELINE = 'aggregations/CLONE_PIPELINE';
 
+export const NEW_FROM_PASTE = 'aggregations/NEW_FROM_PASTE';
+
 /**
  * The main application reducer.
  *
@@ -338,6 +340,49 @@ const doConfirmNewFromText = (state) => {
 };
 
 /**
+ * When <StageEditor /> is empty and you paste
+ * what could be an aggregation pipeline.
+ *
+ * @see `newPipelineFromPaste()`
+ * @param {Object} state
+ * @param {Object} action
+ * @returns {Object}
+ */
+const doNewFromPastedText = (state, action) => {
+  const pipe = createPipeline(action.text);
+  const error = pipe.length > 0 ? pipe[0].syntaxError : null;
+  /**
+   * Do nothing if the text is not a valid pipeline.
+   */
+  if (error) {
+    return state;
+  }
+
+  /**
+   * Do nothing if you have more than default first stage.
+   */
+  if (state.pipeline.length > 1) {
+    return state;
+  }
+
+  return {
+    ...state,
+    name: '',
+    collation: {},
+    collationString: '',
+    isCollationExpanded: false,
+    id: new ObjectId().toHexString(),
+    pipeline: pipe,
+    importPipeline: {
+      isOpen: false,
+      isConfirmationNeeded: false,
+      text: action.text,
+      syntaxError: error
+    }
+  };
+};
+
+/**
  * Toggles whether agg pipeline builder is in overview mode.
  * @param {Object} state
  * @returns {Object} The new state.
@@ -414,7 +459,8 @@ const MAPPINGS = {
   [TOGGLE_OVERVIEW]: doToggleOverview,
   [APPLY_SETTINGS]: doApplySettings,
   [SAVING_PIPELINE_APPLY]: doApplySavingPipeline,
-  [PROJECTIONS_CHANGED]: doProjectionsChanged
+  [PROJECTIONS_CHANGED]: doProjectionsChanged,
+  [NEW_FROM_PASTE]: doNewFromPastedText
 };
 
 /**
@@ -478,6 +524,17 @@ export const newPipeline = () => ({
  */
 export const clonePipeline = () => ({
   type: CLONE_PIPELINE
+});
+
+/**
+ * Action creator <StageEditor /> calls if empty and you paste
+ * what could be an aggregation pipeline.
+ * @param {String} text
+ * @returns {Object}
+ */
+export const newPipelineFromPaste = (text) => ({
+  type: NEW_FROM_PASTE,
+  text: text
 });
 
 /**

@@ -51,7 +51,8 @@ class StageEditor extends Component {
     fromStageOperators: PropTypes.bool.isRequired,
     setIsModified: PropTypes.func.isRequired,
     projections: PropTypes.array.isRequired,
-    projectionsChanged: PropTypes.func.isRequired
+    projectionsChanged: PropTypes.func.isRequired,
+    newPipelineFromPaste: PropTypes.func.isRequired
   };
 
   static defaultProps = {
@@ -203,7 +204,7 @@ class StageEditor extends Component {
             mode="mongodb"
             theme="mongodb"
             width="100%"
-            readOnly={this.props.stageOperator === null}
+            // readOnly={this.props.stageOperator === null}
             value={this.props.stage}
             onChange={this.onStageChange}
             editorProps={{ $blockScrolling: Infinity }}
@@ -211,6 +212,15 @@ class StageEditor extends Component {
             setOptions={OPTIONS}
             onFocus={() => {
               tools.setCompleters([this.completer]);
+            }}
+            onChange={(contents) => {
+              if (
+                this.props.stageOperator === null &&
+                contents &&
+                contents.charAt(0) === '['
+              ) {
+                this.props.newPipelineFromPaste(contents);
+              }
             }}
             onLoad={(editor) => {
               this.editor = editor;

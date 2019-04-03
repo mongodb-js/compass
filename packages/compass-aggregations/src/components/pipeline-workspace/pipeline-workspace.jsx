@@ -40,7 +40,8 @@ class PipelineWorkspace extends PureComponent {
     fields: PropTypes.array.isRequired,
     isOverviewOn: PropTypes.bool.isRequired,
     projections: PropTypes.array.isRequired,
-    projectionsChanged: PropTypes.func.isRequired
+    projectionsChanged: PropTypes.func.isRequired,
+    newPipelineFromPaste: PropTypes.func.isRequired
   };
 
   /**
@@ -86,6 +87,7 @@ class PipelineWorkspace extends PureComponent {
           isOverviewOn={this.props.isOverviewOn}
           projections={this.props.projections}
           projectionsChanged={this.props.projectionsChanged}
+          newPipelineFromPaste={this.props.newPipelineFromPaste}
         />
       );
     });

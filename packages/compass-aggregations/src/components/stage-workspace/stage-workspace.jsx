@@ -34,7 +34,8 @@ class StageWorkspace extends PureComponent {
     setIsModified: PropTypes.func.isRequired,
     stageChanged: PropTypes.func.isRequired,
     projections: PropTypes.array.isRequired,
-    projectionsChanged: PropTypes.func.isRequired
+    projectionsChanged: PropTypes.func.isRequired,
+    newPipelineFromPaste: PropTypes.func.isRequired
   };
 
   /**
@@ -62,6 +63,7 @@ class StageWorkspace extends PureComponent {
           stageChanged={this.props.stageChanged}
           projections={this.props.projections}
           projectionsChanged={this.props.projectionsChanged}
+          newPipelineFromPaste={this.props.newPipelineFromPaste}
         />
         <StagePreview
           documents={this.props.previewDocuments}
