@@ -18,10 +18,6 @@ class InputPreview extends Component {
     isLoading: PropTypes.bool.isRequired
   }
 
-  shouldComponentUpdate(nextProps) {
-    return nextProps.isLoading !== this.props.isLoading;
-  }
-
   /**
    * Renders the input preview.
    *
