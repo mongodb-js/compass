@@ -24,6 +24,7 @@ class Plugin extends Component {
    * @returns {React.Component} The rendered component.
    */
   render() {
+    console.log('Plugin#render()', this.props);
     return (
       <Provider store={this.props.store}>
         <Aggregations />

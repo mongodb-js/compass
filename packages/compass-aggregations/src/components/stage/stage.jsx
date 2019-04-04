@@ -197,6 +197,7 @@ class Stage extends Component {
    * @returns {Component} The component.
    */
   render() {
+    console.log('Stage#render()', this.props);
     const opacity = this.getOpacity();
     const errored = this.props.error ? 'stage-errored' : 'stage';
     return this.props.connectDragSource(
