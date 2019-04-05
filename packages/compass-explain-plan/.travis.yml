@@ -12,6 +12,7 @@ addons:
       - ubuntu-toolchain-r-test
     packages:
       - libkrb5-dev
+      - libsecret-1-dev
 before_script:
   - export DISPLAY=:99.0
   - sh -e /etc/init.d/xvfb start
