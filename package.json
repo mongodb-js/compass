@@ -72,7 +72,8 @@
             "node_modules/@mongodb-js/compass-ssh-tunnel-status",
             "node_modules/@mongodb-js/compass-status",
             "node_modules/@mongodb-js/compass-indexes",
-            "node_modules/@mongodb-js/compass-instance-header"
+            "node_modules/@mongodb-js/compass-instance-header",
+            "node_modules/@mongodb-js/compass-explain-plan"
           ],
           "styles": [
             "index"
@@ -112,7 +113,8 @@
             "node_modules/@mongodb-js/compass-ssh-tunnel-status",
             "node_modules/@mongodb-js/compass-status",
             "node_modules/@mongodb-js/compass-indexes",
-            "node_modules/@mongodb-js/compass-instance-header"
+            "node_modules/@mongodb-js/compass-instance-header",
+            "node_modules/@mongodb-js/compass-explain-plan"
           ],
           "styles": [
             "index"
@@ -157,7 +159,8 @@
             "node_modules/@mongodb-js/compass-ssh-tunnel-status",
             "node_modules/@mongodb-js/compass-status",
             "node_modules/@mongodb-js/compass-indexes",
-            "node_modules/@mongodb-js/compass-instance-header"
+            "node_modules/@mongodb-js/compass-instance-header",
+            "node_modules/@mongodb-js/compass-explain-plan"
           ],
           "styles": [
             "index"
@@ -200,7 +203,8 @@
             "node_modules/@mongodb-js/compass-ssh-tunnel-status",
             "node_modules/@mongodb-js/compass-status",
             "node_modules/@mongodb-js/compass-indexes",
-            "node_modules/@mongodb-js/compass-instance-header"
+            "node_modules/@mongodb-js/compass-instance-header",
+            "node_modules/@mongodb-js/compass-explain-plan"
           ],
           "styles": [
             "index"
@@ -289,12 +293,13 @@
     "@mongodb-js/compass-database": "^0.0.10",
     "@mongodb-js/compass-databases-ddl": "^0.0.19",
     "@mongodb-js/compass-deployment-awareness": "^6.4.5",
+    "@mongodb-js/compass-explain-plan": "^1.0.3",
     "@mongodb-js/compass-export-to-language": "^2.6.0",
     "@mongodb-js/compass-field-store": "^4.0.3",
     "@mongodb-js/compass-find-in-page": "^1.2.0",
     "@mongodb-js/compass-home": "^0.0.6",
     "@mongodb-js/compass-import-export": "^2.0.0",
-    "@mongodb-js/compass-indexes": "^0.0.12",
+    "@mongodb-js/compass-indexes": "^0.0.13",
     "@mongodb-js/compass-instance": "^1.2.0",
     "@mongodb-js/compass-instance-header": "^0.0.3",
     "@mongodb-js/compass-license": "^1.2.0",
