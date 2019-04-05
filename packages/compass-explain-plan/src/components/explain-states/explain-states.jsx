@@ -5,7 +5,6 @@ import { ZeroState, StatusRow, ViewSwitcher } from 'hadron-react-components';
 import { TextButton } from 'hadron-react-buttons';
 import { ZeroGraphic } from 'components/zero-graphic';
 import { ExplainBody } from 'components/explain-body';
-import QueryBar from '@mongodb-js/compass-query-bar';
 
 import INDEX_TYPES from 'constants/index-types';
 
@@ -66,6 +65,11 @@ class ExplainStates extends Component {
     switchToJSONView: PropTypes.func.isRequired,
     query: PropTypes.any,
     treeStages: PropTypes.object.isRequired
+  }
+
+  constructor(props) {
+    super(props);
+    this.queryBar = global.hadronApp.appRegistry.getComponent('Query.QueryBar');
   }
 
   /**
@@ -173,7 +177,7 @@ class ExplainStates extends Component {
    */
   renderQueryBar() {
     return (
-      <QueryBar
+      <this.queryBar
         buttonLabel="Explain"
         onApply={this.props.changeExplainPlanState.bind(this, 'fetching')}
         onReset={this.props.changeExplainPlanState.bind(this, 'initial')}

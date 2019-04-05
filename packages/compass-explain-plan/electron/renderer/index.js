@@ -4,7 +4,9 @@ import app from 'hadron-app';
 import AppRegistry from 'hadron-app-registry';
 import { AppContainer } from 'react-hot-loader';
 import ExplainPlanPlugin, { activate } from 'plugin';
-import FieldStore, { activate as fieldsActivate } from '@mongodb-js/compass-field-store';
+import FieldStore, { activate as activateFieldStore } from '@mongodb-js/compass-field-store';
+import { activate as activateQueryBar } from '@mongodb-js/compass-query-bar';
+import { activate as activateQueryHistory } from '@mongodb-js/compass-query-history';
 
 // Import global less file. Note: these styles WILL NOT be used in compass, as compass provides its own set
 // of global styles. If you are wishing to style a given component, you should be writing a less file per
@@ -25,7 +27,9 @@ appRegistry.registerStore('App.CollectionStore', CollectionStore);
 
 // Activate our plugin with the Hadron App Registry
 activate(appRegistry);
-fieldsActivate(appRegistry);
+activateFieldStore(appRegistry);
+activateQueryBar(appRegistry);
+activateQueryHistory(appRegistry);
 appRegistry.onActivated();
 
 // Since we are using HtmlWebpackPlugin WITHOUT a template,

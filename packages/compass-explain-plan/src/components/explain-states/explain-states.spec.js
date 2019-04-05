@@ -2,9 +2,19 @@ import React from 'react';
 import { mount } from 'enzyme';
 import ExplainStates from 'components/explain-states';
 import styles from './explain-states.less';
+import AppRegistry from 'hadron-app-registry';
+import hadronApp from 'hadron-app';
 
 describe('ExplainStates [Component]', () => {
   let component;
+  const appRegistry = new AppRegistry();
+
+  class QueryBar extends React.Component {
+    render() {
+      return (<div id="queryBar">Query Bar</div>);
+    }
+  }
+
   const isEditable = false;
   const openLinkSpy = sinon.spy();
   const explain = {
@@ -43,6 +53,12 @@ describe('ExplainStates [Component]', () => {
 
   afterEach(() => {
     component = null;
+  });
+
+  before(function() {
+    global.hadronApp = hadronApp;
+    global.hadronApp.appRegistry = appRegistry;
+    global.hadronApp.appRegistry.registerComponent('Query.QueryBar', QueryBar);
   });
 
   it('renders the wrapper div', () => {
