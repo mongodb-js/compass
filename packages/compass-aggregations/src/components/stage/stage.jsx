@@ -117,7 +117,9 @@ class Stage extends Component {
 
   /* eslint complexity: 0 */
   shouldComponentUpdate(nextProps) {
-    return (
+    console.log('Stage#shouldComponentUpdate nextProps', nextProps);
+    console.log('Stage#shouldComponentUpdate this.props', this.props);
+    const should = (
       nextProps.stageOperator !== this.props.stageOperator ||
       nextProps.snippet !== this.props.snippet ||
       nextProps.error !== this.props.error ||
@@ -138,6 +140,7 @@ class Stage extends Component {
       (this.props.stageOperator === '$out' &&
         nextProps.stage !== this.props.stage)
     );
+    return should;
   }
 
   /**

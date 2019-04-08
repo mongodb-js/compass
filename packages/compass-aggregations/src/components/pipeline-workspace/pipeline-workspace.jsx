@@ -90,6 +90,7 @@ class PipelineWorkspace extends PureComponent {
         />
       );
     });
+    console.log('{stages}', stages);
     return (
       <div className={classnames(styles['pipeline-workspace'])}>
         <Input
