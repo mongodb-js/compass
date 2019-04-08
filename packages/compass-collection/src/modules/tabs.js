@@ -1,4 +1,5 @@
 import AppRegistry from 'hadron-app-registry';
+import { ObjectId } from 'bson';
 import semver from 'semver';
 
 /**
@@ -60,6 +61,7 @@ const doSelectNamespace = (state, action) => {
     // namespace and set it to the active one.
     return [
       {
+        id: action.id,
         namespace: action.namespace,
         isActive: true,
         isReadonly: action.isReadonly
@@ -71,6 +73,7 @@ const doSelectNamespace = (state, action) => {
   return state.reduce((newState, tab) => {
     if (tab.isActive) {
       newState.push({
+        id: action.id,
         namespace: action.namespace,
         isActive: true,
         isReadonly: action.isReadonly
@@ -95,6 +98,7 @@ const doCreateTab = (state, action) => {
     return { ...tab, isActive: false };
   });
   newState.push({
+    id: action.id,
     namespace: action.namespace,
     isActive: true,
     isReadonly: action.isReadonly,
@@ -272,8 +276,9 @@ export default function reducer(state = INITIAL_STATE, action) {
  *
  * @returns {Object} The create tab action.
  */
-export const createTab = (namespace, isReadonly, stores) => ({
+export const createTab = (id, namespace, isReadonly, stores) => ({
   type: CREATE_TAB,
+  id: id,
   namespace: namespace,
   isReadonly: isReadonly || false,
   stores: stores
@@ -390,6 +395,6 @@ export const preCreateTab = (namespace, isReadonly) => {
     });
     appRegistry.onActivated();
 
-    dispatch(createTab(namespace, isReadonly, stores));
+    dispatch(createTab(new ObjectId().toHexString(), namespace, isReadonly, stores));
   };
 }

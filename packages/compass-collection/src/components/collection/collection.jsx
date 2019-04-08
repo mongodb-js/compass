@@ -69,6 +69,7 @@ class Collection extends Component {
       console.log('collection props', this.props);
       console.log('i', i);
       console.log('store', this.props.stores[i]);
+      console.log('store state', this.props.stores[i].getState());
       return (
         <UnsafeComponent component={role.component} key={i} store={this.props.stores[i]} />
       );

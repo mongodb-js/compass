@@ -100,7 +100,7 @@ class Workspace extends PureComponent {
             evt.preventDefault();
           }
         } else if (evt.keyCode === KEY_T) {
-          this.props.createTab(this.activeNamespace());
+          this.props.preCreateTab(this.activeNamespace());
         }
       }
     }
@@ -146,6 +146,7 @@ class Workspace extends PureComponent {
       console.log('active tab', activeTab);
       return (
         <Collection
+          key={activeTab.id}
           namespace={activeTab.namespace}
           isReadonly={activeTab.isReadonly}
           stores={activeTab.stores} />
