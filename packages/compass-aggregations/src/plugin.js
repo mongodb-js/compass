@@ -25,6 +25,7 @@ class Plugin extends Component {
    */
   render() {
     console.log('Plugin#render()', this.props);
+    console.log('Plugin#render() store.getState()', this.props.store.getState());
     return (
       <Provider store={this.props.store}>
         <Aggregations />
