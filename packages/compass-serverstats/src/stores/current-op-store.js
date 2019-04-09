@@ -25,6 +25,7 @@ const CurrentOpStore = Reflux.createStore({
     this.listenTo(Actions.restart, this.restart);
     this.listenTo(Actions.mouseOver, this.mouseOver);
     this.listenTo(Actions.mouseOut, this.mouseOut);
+    this.listenTo(Actions.killOp, this.killOp);
   },
 
   onActivated: function(appRegistry) {
@@ -48,6 +49,14 @@ const CurrentOpStore = Reflux.createStore({
   pause: function() {
     this.endPause = this.allOps.length;
     this.isPaused = !this.isPaused;
+  },
+
+  killOp: function(id) {
+    this.dataService.command('admin', { killOp: 1, op: id }, (err) => {
+      if (err) {
+        Actions.dbError({'op': 'currentOp', 'error': err });
+      }
+    });
   },
 
   mouseOver: function(index) {

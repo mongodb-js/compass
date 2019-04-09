@@ -26,6 +26,7 @@
   ],
   "license": "Apache-2.0",
   "peerDependencies": {
+    "hadron-react-buttons": "^3.0.0",
     "hadron-react-components": "^3.0.0",
     "react": "^16.6.0",
     "react-dom": "^16.6.0"
@@ -33,7 +34,7 @@
   "dependencies": {
     "d3": "^3.5.17",
     "d3-timer": "^1.0.3",
-    "less": "^2.7.1",
+    "less": "^3.0.2",
     "lodash.has": "^4.5.2",
     "lodash.isequal": "^4.5.0",
     "lodash.max": "^4.0.1",
@@ -61,6 +62,7 @@
     "hadron-app": "^3.1.0",
     "hadron-app-registry": "^7.0.0",
     "hadron-build": "github:mongodb-js/hadron-build#evergreen",
+    "hadron-react-buttons": "^3.0.0",
     "hadron-react-components": "^3.0.0",
     "hadron-spectron": "^5.0.0",
     "jsdom": "^9.4.2",

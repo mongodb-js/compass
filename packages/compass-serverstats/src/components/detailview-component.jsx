@@ -1,5 +1,6 @@
 const React = require('react');
 const Actions = require('../actions');
+const { IconTextButton } = require('hadron-react-buttons');
 
 // const debug = require('debug')('mongodb-compass:server-stats:detailview-component');
 
@@ -34,6 +35,11 @@ class DetailViewComponent extends React.Component {
    */
   hide() {
     this.setState({ data: {}, display: 'none' });
+  }
+
+  killOp() {
+    Actions.killOp(this.state.data.opid);
+    this.hideOperationDetails();
   }
 
   /**
@@ -92,6 +98,15 @@ class DetailViewComponent extends React.Component {
             <li className="rt-details__item">
               <div className="rt-details__datatype">wait lock</div>
               <div className="rt-details__datatype-val">{this.state.data.waitingForLock}</div>
+            </li>
+            <li className="rt-details__item">
+              <div className="rt-details__datatype">
+                <IconTextButton
+                  text="Kill Op"
+                  clickHandler={this.killOp.bind(this)}
+                  className="btn btn-alert btn-xs"
+                  iconClassName="fa fa-exclamation-circle" />
+              </div>
             </li>
           </ul>
           <div className="rt-details__raw"><span>{JSON.stringify(this.state.data, this.removeMs, 4)}</span></div>

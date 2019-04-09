@@ -13,6 +13,7 @@ const Actions = Reflux.createActions([
   'currentOp',
   'serverStats',
   'top',
+  'killOp',
   { mouseOver: { sync: true }}
 ]);
 
