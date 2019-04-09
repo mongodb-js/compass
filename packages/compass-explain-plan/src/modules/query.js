@@ -17,7 +17,8 @@ export const INITIAL_STATE = {
   project: null,
   skip: 0,
   limit: 0,
-  collation: null
+  collation: null,
+  maxTimeMS: 5000
 };
 
 /**

@@ -247,7 +247,8 @@ export const fetchExplainPlan = () => {
       sort: query.sort,
       projection: query.project,
       skip: query.skip,
-      limit: query.limit
+      limit: query.limit,
+      maxTimeMS: query.maxTimeMS
     };
 
     if (query.collation) {

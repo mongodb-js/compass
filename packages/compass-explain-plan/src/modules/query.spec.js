@@ -25,23 +25,25 @@ describe('query module', () => {
           project: null,
           skip: 0,
           limit: 0,
-          collation: null
+          collation: null,
+          maxTimeMS: 5000
         });
       });
     });
 
     context('when the action is query changed', () => {
       it('returns the new state', () => {
-        const qyery = {
+        const query = {
           filter: {},
           sort: null,
           project: null,
           skip: 100,
           limit: 0,
-          collation: null
+          collation: null,
+          maxTimeMS: 2000
         };
 
-        expect(reducer(undefined, queryChanged(qyery))).to.deep.equal(qyery);
+        expect(reducer(undefined, queryChanged(query))).to.deep.equal(query);
       });
     });
   });
