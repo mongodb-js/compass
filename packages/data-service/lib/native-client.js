@@ -1,6 +1,5 @@
 'use strict';
 
-const fil = require('lodash.filter');
 const map = require('lodash.map');
 const isFunction = require('lodash.isfunction');
 const assignIn = require('lodash.assignin');
@@ -257,16 +256,15 @@ class NativeClient extends EventEmitter {
    * @param {Function} callback - The callback.
    */
   collections(databaseName, callback) {
+    if (databaseName === SYSTEM) {
+      return callback(null, []);
+    }
     this.collectionNames(databaseName, (error, names) => {
       if (error) {
         return callback(this._translateMessage(error));
       }
-      // Filter out system. collections.
-      const filteredNames = fil(names, name => {
-        return !name.startsWith(SYSTEM);
-      });
       async.parallel(
-        map(filteredNames, name => {
+        map(names, name => {
           return done => {
             this.collectionStats(databaseName, name, done);
           };
