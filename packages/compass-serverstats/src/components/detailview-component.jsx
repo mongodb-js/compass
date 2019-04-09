@@ -1,6 +1,6 @@
 const React = require('react');
 const Actions = require('../actions');
-const { IconTextButton } = require('hadron-react-buttons');
+const { TextButton } = require('hadron-react-buttons');
 
 // const debug = require('debug')('mongodb-compass:server-stats:detailview-component');
 
@@ -101,11 +101,10 @@ class DetailViewComponent extends React.Component {
             </li>
             <li className="rt-details__item">
               <div className="rt-details__datatype">
-                <IconTextButton
+                <TextButton
                   text="Kill Op"
                   clickHandler={this.killOp.bind(this)}
-                  className="btn btn-alert btn-xs"
-                  iconClassName="fa fa-exclamation-circle" />
+                  className="btn btn-alert btn-xs" />
               </div>
             </li>
           </ul>
