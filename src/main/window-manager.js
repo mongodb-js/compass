@@ -268,12 +268,13 @@ var createWindow = (module.exports.create = function(opts) {
   debug('loading application menu...');
   AppMenu.load(_window);
 
-  debug('calling isSingleInstance(_window) to check if we should quit...');
-  if (!isSingleInstance(_window)) {
-    console.error('Ach! Quitting app because of isSingleInstance result');
-    app.quit();
-    return null;
-  }
+  debug('isSingleInstance *was* called from here but commented out.');
+  // debug('calling isSingleInstance(_window) to check if we should quit...');
+  // if (!isSingleInstance(_window)) {
+  //   console.error('Ach! Quitting app because of isSingleInstance result');
+  //   app.quit();
+  //   return null;
+  // }
 
   debug('loadURL for _window', opts.url);
   _window.loadURL(opts.url);
