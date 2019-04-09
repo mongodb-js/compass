@@ -39,7 +39,7 @@ describe('ConfirmImportPipeline [Component]', () => {
 
   it('renders the note text', () => {
     expect(component.find(`.${styles['confirm-import-pipeline-note']}`)).to.have.text(
-      'Creating this pipeine will abandon unsaved changes to the current pipeline.'
+      'Creating this pipeline will abandon unsaved changes to the current pipeline.'
     );
   });
 

@@ -14,7 +14,7 @@ const QUESTION = 'Are you sure you want to create a new pipeline?';
 /**
  * The note.
  */
-const NOTE = 'Creating this pipeine will abandon unsaved changes to the current pipeline.';
+const NOTE = 'Creating this pipeline will abandon unsaved changes to the current pipeline.';
 
 /**
  * Confirm import pipeline modal.
