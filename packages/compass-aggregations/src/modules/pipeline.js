@@ -104,11 +104,11 @@ export const FULL_SCAN_OPS = ['$group', '$bucket', '$bucketAuto'];
 export const OUT = '$out';
 
 /**
- * A new empty stage to initially populate the pipeline with.
+ * Generate an empty stage for the pipeline.
  *
- * @todo: (durran) Loading needs to clear out server errors.
+ * @returns {Object} An empty stage.
  */
-export const EMPTY_STAGE = {
+const emptyStage = () => ({
   id: new ObjectId().toHexString(),
   stageOperator: null,
   stage: '',
@@ -121,12 +121,12 @@ export const EMPTY_STAGE = {
   syntaxError: null,
   error: null,
   projections: []
-};
+});
 
 /**
  * The initial state.
  */
-export const INITIAL_STATE = [EMPTY_STAGE];
+export const INITIAL_STATE = [ emptyStage() ];
 
 /**
  * The default snippet.
@@ -178,8 +178,7 @@ const changeStage = (state, action) => {
  */
 const addStage = state => {
   const newState = copyState(state);
-  const newStage = { ...EMPTY_STAGE };
-  newStage.id = new ObjectId().toHexString();
+  const newStage = { ...emptyStage() };
   newState.push(newStage);
   return newState;
 };
@@ -192,10 +191,9 @@ const addStage = state => {
  *
  * @returns {Object} The new state.
  */
-const AddAfterStage = (state, action) => {
+const addAfterStage = (state, action) => {
   const newState = copyState(state);
-  const newStage = { ...EMPTY_STAGE };
-  newStage.id = new Date().getTime();
+  const newStage = { ...emptyStage() };
   newState.splice(action.index + 1, 0, newStage);
   return newState;
 };
@@ -323,7 +321,7 @@ const MAPPINGS = {};
 
 MAPPINGS[STAGE_CHANGED] = changeStage;
 MAPPINGS[STAGE_ADDED] = addStage;
-MAPPINGS[STAGE_ADDED_AFTER] = AddAfterStage;
+MAPPINGS[STAGE_ADDED_AFTER] = addAfterStage;
 MAPPINGS[STAGE_DELETED] = deleteStage;
 MAPPINGS[STAGE_MOVED] = moveStage;
 MAPPINGS[STAGE_OPERATOR_SELECTED] = selectStageOperator;
@@ -340,7 +338,7 @@ MAPPINGS[LOADING_STAGE_RESULTS] = stageResultsLoading;
  *
  * @returns {Array} The new state.
  */
-export default function reducer(state = INITIAL_STATE, action) {
+export default function reducer(state = [ emptyStage() ], action) {
   const fn = MAPPINGS[action.type];
   return fn ? fn(state, action) : state;
 }
