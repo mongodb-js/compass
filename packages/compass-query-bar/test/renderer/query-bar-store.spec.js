@@ -64,6 +64,7 @@ describe('QueryBarStore [Store]', function() {
       sortString: '',
       skipString: '',
       limitString: '',
+      maxTimeMSString: '',
       queryState: DEFAULT_STATE,
       valid: true,
       filterValid: true,
@@ -73,6 +74,7 @@ describe('QueryBarStore [Store]', function() {
       skipValid: true,
       limitValid: true,
       sampleValid: true,
+      maxTimeMSValid: true,
       serverVersion: '3.6.0',
       lastExecutedQuery: null,
       userTyping: false,
@@ -193,7 +195,8 @@ describe('QueryBarStore [Store]', function() {
         collation: { locale: 'simple' },
         skip: 5,
         limit: 10,
-        sample: false
+        sample: false,
+        maxTimeMS: 5000
       };
 
       unsubscribe = QueryBarStore.listen(function() {
