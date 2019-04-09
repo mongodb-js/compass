@@ -31,7 +31,8 @@
   "license": "Apache-2.0",
   "dependency-check": {
     "ignore": [
-      "@hot-loader/react-dom"
+      "@hot-loader/react-dom",
+      "bson-transpilers"
     ]
   },
   "peerDependencies": {
@@ -41,7 +42,7 @@
     "hadron-react-buttons": "^3.0.6",
     "hadron-react-components": "^3.0.6",
     "mongodb-ace-autocompleter": "^0.1.0",
-    "mongodb-ace-mode": "^0.2.1",
+    "mongodb-ace-mode": "^0.3.0",
     "mongodb-ace-theme": "^0.0.1",
     "prop-types": "^15.7.2",
     "react": "^16.6.0",
@@ -114,7 +115,7 @@
     "mocha": "^6.0.2",
     "mocha-webpack": "^2.0.0-beta.0",
     "mongodb-ace-autocompleter": "^0.1.0",
-    "mongodb-ace-mode": "^0.2.2",
+    "mongodb-ace-mode": "^0.3.0",
     "mongodb-ace-theme": "^0.0.1",
     "mongodb-connection-model": "^13.0.1",
     "mongodb-data-service": "^12.4.17",
@@ -156,7 +157,7 @@
     "lodash.isempty": "^4.4.0",
     "mongodb-extended-json": "^1.10.1",
     "mongodb-ns": "^2.0.0",
-    "mongodb-query-parser": "^1.3.0",
+    "mongodb-query-parser": "^1.3.3",
     "mongodb-stage-validator": "^0.0.9",
     "react-bootstrap": "^0.32.4",
     "react-dnd": "^7.3.2",
