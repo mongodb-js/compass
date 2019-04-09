@@ -11,4 +11,5 @@ karma.conf.js
 mocha-webpack.opts
 scripts/
 test/
+src/
 .zuul.yml
