@@ -1,6 +1,6 @@
 {
   "name": "mongodb-redux-common",
-  "description": "Common Redux Modules for MongoDB Applications",
+  "description": "Common Redux Modules for mongodb-js",
   "author": "Durran Jordan <durran@gmail.com>",
   "bugs": "https://github.com/mongodb-js/redux-common/issues",
   "homepage": "https://github.com/mongodb-js/redux-common",
@@ -25,6 +25,7 @@
   "devDependencies": {
     "chai": "^4.1.2",
     "eslint-config-mongodb-js": "^2.2.0",
+    "hadron-app-registry": "^7.1.1",
     "mocha": "^6.0.0",
     "mongodb-js-fmt": "^0.0.3",
     "mongodb-js-precommit": "^2.0.0",
