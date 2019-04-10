@@ -4,7 +4,7 @@
   "author": "Durran Jordan <durran@gmail.com>",
   "bugs": "https://github.com/mongodb-js/redux-common/issues",
   "homepage": "https://github.com/mongodb-js/redux-common",
-  "version": "0.0.0",
+  "version": "0.0.1",
   "repository": {
     "type": "git",
     "url": "https://github.com/mongodb-js/redux-common.git"
