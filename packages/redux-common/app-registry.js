@@ -32,12 +32,11 @@ const INITIAL_STATE = {
 const reducer = (state = INITIAL_STATE, action) => {
   if (action.type === LOCAL_APP_REGISTRY_ACTIVATED) {
     return { ...state, localAppRegistry: action.appRegistry };
-  }
-  else if (action.type === GLOBAL_APP_REGISTRY_ACTIVATED) {
+  } else if (action.type === GLOBAL_APP_REGISTRY_ACTIVATED) {
     return { ...state, globalAppRegistry: action.appRegistry };
   }
   return state;
-}
+};
 
 /**
  * Action creator for local app registry activated events.

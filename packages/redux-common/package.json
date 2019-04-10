@@ -20,6 +20,9 @@
     "test": "mocha --recursive",
     "check": "mongodb-js-precommit"
   },
+  "dependency-check": {
+    "entries": "./*.js"
+  },
   "precommit": [
     "check"
   ],
