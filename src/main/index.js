@@ -1,7 +1,3 @@
-/* eslint-disable no-console */
-console.group();
-console.time('main');
-
 if (!process.env.NODE_ENV) {
   process.env.NODE_ENV = 'production';
 }
@@ -21,6 +17,8 @@ if (!pkg.distribution) {
   );
 }
 
+// TODO (@imlucas): Revisit whether to ship this at same time or not.
+//
 const { dialog, clipboard, app } = require('electron');
 const COMPASS_ICON = require('../icon');
 const cleanStack = require('clean-stack');
@@ -67,19 +65,8 @@ process.on('uncaughtException', err => {
 var path = require('path');
 var resourcePath = path.join(__dirname, '..', '..');
 
-console.group();
-console.time('module-cache');
 var ModuleCache = require('hadron-module-cache');
 ModuleCache.register(resourcePath);
 ModuleCache.add(resourcePath);
-console.timeEnd('module-cache');
-console.groupEnd();
 
-console.group();
-console.time('main/application/main');
 require('./application').main();
-console.timeEnd('main/application/main');
-console.groupEnd();
-
-console.timeEnd('main');
-console.groupEnd();

@@ -1,4 +1,3 @@
-/* eslint-disable no-console */
 /**
  * A high-level wrapper around electron's builtin [BrowserWindow][0] class.
  * https://github.com/atom/electron/blob/master/docs/api/browser-window.md
@@ -61,7 +60,6 @@ var appLaunched = false;
  * @returns {Boolean}
  */
 function isSingleInstance(_window) {
-  debug('isSingleInstance checking...');
   var isNotSingle = app.makeSingleInstance(function(argv, dir) {
     /**
      * TODO (imlucas) To make clicking on a `mongodb://` URL in chrome
@@ -79,21 +77,14 @@ function isSingleInstance(_window) {
     );
 
     if (_window) {
-      debug('isSingleInstance: already have _window!');
       if (_window.isMinimized()) {
-        debug('isSingleInstance: _window minimized. restoring!');
         _window.restore();
       }
-      debug('isSingleInstance: _window focusing');
       _window.focus();
-    } else {
-      debug('isSingleInstance: uhoh... no _window to forward to? could be bad...');
     }
-    debug('isSingleInstance: returning true');
     return true;
   });
 
-  debug('isSingleInstance result', !isNotSingle);
   return !isNotSingle;
 }
 
@@ -131,12 +122,11 @@ var createWindow = (module.exports.create = function(opts) {
     icon: opts.icon,
     show: false,
     'min-width': opts.minwidth,
-    'web-preferences': { // TODO (lucas) here's where we might need updates for disabling webgl?
+    'web-preferences': {
       'subpixel-font-scaling': true,
       'direct-write': true
     }
   });
-  debug('creating _loading BrowserWindow');
 
   /**
    * TODO (@imlucas) COMPASS-3134 to factor out 2 BrowserWindow's.
@@ -153,20 +143,15 @@ var createWindow = (module.exports.create = function(opts) {
       nodeIntegration: false
     }
   });
-  debug('setting up _loading BrowserWindow listeners');
-  _loading.webContents.on('will-navigate', evt => {
-    debug('preventing default for will-navigate', evt);
-    evt.preventDefault();
-  });
+
+  _loading.webContents.on('will-navigate', evt => evt.preventDefault());
 
   _loading.on('move', () => {
-    debug('relaying loading window move');
     const position = _loading.getPosition();
     _window.setPosition(position[0], position[1]);
   });
 
   _loading.on('resize', () => {
-    debug('relaying loading window resize');
     const size = _loading.getSize();
     _window.setSize(size[0], size[1]);
   });
@@ -189,14 +174,12 @@ var createWindow = (module.exports.create = function(opts) {
    * # App Window IPC Handlers
    */
   const onRendererReady = () => {
-    debug('onRendererReady');
     if (!_loading && !_window) {
       debug('loading and window gone away! dropping ipc window:renderer-ready');
       return;
     }
 
     if (_loading) {
-      debug('shutting down _loading window');
       if (_loading.isFullScreen()) {
         _window.setFullScreen(true);
       }
@@ -207,14 +190,13 @@ var createWindow = (module.exports.create = function(opts) {
       debug('showing _window');
       _window.show();
       _window.focus();
-      debug('app window now visible');
     } else {
       debug('uhoh... _loading already derefd?');
     }
   };
 
   /**
-   * TODO (@imlucas) Replace with `ready-to-show` event? Instead of our in renderer ipc signal?
+   * TODO (@imlucas) Replace with `ready-to-show` event?
    * https://github.com/electron/electron/blob/master/docs/api/browser-window.md#using-ready-to-show-event
    */
   ipc.respondTo('window:renderer-ready', onRendererReady);
@@ -265,20 +247,14 @@ var createWindow = (module.exports.create = function(opts) {
   };
   _window.once('closed', onWindowClosed);
 
-  debug('loading application menu...');
   AppMenu.load(_window);
 
-  debug('isSingleInstance *was* called from here but commented out.');
-  // debug('calling isSingleInstance(_window) to check if we should quit...');
-  // if (!isSingleInstance(_window)) {
-  //   console.error('Ach! Quitting app because of isSingleInstance result');
-  //   app.quit();
-  //   return null;
-  // }
+  if (!isSingleInstance(_window)) {
+    app.quit();
+    return null;
+  }
 
-  debug('loadURL for _window', opts.url);
   _window.loadURL(opts.url);
-  debug('loadURL for _loading', LOADING_URL);
   _loading.loadURL(LOADING_URL);
 
   /**
@@ -298,21 +274,17 @@ var createWindow = (module.exports.create = function(opts) {
    * TODO (@imlucas) Do we need this anymore?
    */
   _window.webContents.on('new-window', function(event, url) {
-    debug('preventing defgault for new-window', event);
     event.preventDefault();
     electron.shell.openExternal(url);
   });
-  debug('createWindow finished. returning');
   return _window;
 });
 
 function showConnectWindow() {
-  debug('showConnectWindow');
   createWindow();
 }
 
 function showAboutDialog() {
-  debug('showAboutDialog');
   dialog.showMessageBox({
     type: 'info',
     title: 'About ' + app.getName(),
@@ -324,17 +296,14 @@ function showAboutDialog() {
 }
 
 function showCompassOverview() {
-  debug('forward showCompassOverview');
   AppMenu.showCompassOverview();
 }
 
 function showCollectionSubmenu() {
-  debug('forward showCollectionSubmenu');
   AppMenu.showCollection();
 }
 
 function hideCollectionSubmenu() {
-  debug('forward hideCollectionSubmenu');
   AppMenu.hideCollection();
 }
 
@@ -347,18 +316,13 @@ function hideCollectionSubmenu() {
  * @param {Object} sender   original sender of the event
  */
 function rendererReady(sender) {
-  debug('rendererReady!');
   if (!appLaunched) {
-    debug('app not launched');
     appLaunched = true;
     debug('sending `app:launched` msg back');
     sender.send('app:launched');
-  } else {
-    debug('rendererReady: app already launched...');
   }
 }
 
-debug('registering window hooks for ipc from renderers...');
 /**
  * Respond to events from the renderer process.
  * Certain Electron API's are only accessible in the main process.
@@ -381,40 +345,32 @@ app.on('window:show-about-dialog', showAboutDialog);
 app.on('app:show-connect-window', showConnectWindow);
 
 app.on('before-quit', function() {
-  debug('app before-quit caught!');
   var win = _.first(BrowserWindow.getAllWindows());
   if (win) {
     debug('sending `app:quit` msg');
     win.webContents.send('app:quit');
-  } else {
-    debug('app before-quit: no _window to forward quit ipc to!');
   }
 });
 
 app.on('window-all-closed', () => {
-  debug('app.window-all-closed caught');
   if (process.platform !== 'darwin') {
-    debug('app.window-all-closed: not darwin. quitting...');
     app.quit();
   }
 });
 
 app.on('ready', function() {
-  debug('app.ready!');
-  // TODO (lucas) I don't think anyone is using these.
-  //
   // install development tools (devtron, react tools) if in development mode
-  // if (process.env.NODE_ENV === 'development') {
-  //   debug('Activating Compass specific devtools...');
-  //   require('devtron').install();
-  //   const {
-  //     default: installExtension,
-  //     REACT_DEVELOPER_TOOLS
-  //   } = require('electron-devtools-installer');
-  //   installExtension(REACT_DEVELOPER_TOOLS)
-  //     .then(name => debug(`Added Extension:  ${name}`))
-  //     .catch(err => debug('An error occurred: ', err));
-  // }
+  if (process.env.NODE_ENV === 'development') {
+    debug('Activating Compass specific devtools...');
+    require('devtron').install();
+    const {
+      default: installExtension,
+      REACT_DEVELOPER_TOOLS
+    } = require('electron-devtools-installer');
+    installExtension(REACT_DEVELOPER_TOOLS)
+      .then(name => debug(`Added Extension:  ${name}`))
+      .catch(err => debug('An error occurred: ', err));
+  }
 
   /**
    * When electron's main renderer has completed setup,
@@ -422,8 +378,5 @@ app.on('ready', function() {
    * on start which is responsible for retaining it's own
    * state between application launches.
    */
-  debug('app.ready: showing connect window');
   showConnectWindow();
 });
-
-debug('end of file. :crossed_fingers:');
