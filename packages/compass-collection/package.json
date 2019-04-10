@@ -43,7 +43,7 @@
     "react-dom": "^16.8.0"
   },
   "devDependencies": {
-    "@mongodb-js/compass-aggregations": "^4.0.0-alpha.7",
+    "@mongodb-js/compass-aggregations": "^4.0.0-alpha.9",
     "@mongodb-js/compass-crud": "^6.2.5",
     "@storybook/react": "^3.2.0",
     "autoprefixer": "^9.4.6",

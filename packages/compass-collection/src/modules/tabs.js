@@ -1,5 +1,7 @@
+import React from 'react';
 import AppRegistry from 'hadron-app-registry';
 import { ObjectId } from 'bson';
+import { UnsafeComponent } from 'hadron-react-components';
 import semver from 'semver';
 
 /**
@@ -102,7 +104,9 @@ const doCreateTab = (state, action) => {
     namespace: action.namespace,
     isActive: true,
     isReadonly: action.isReadonly,
-    stores: action.stores
+    tabs: action.tabs,
+    views: action.views,
+    queryHistoryIndexes: action.queryHistoryIndexes
   });
   return newState;
 };
@@ -276,12 +280,14 @@ export default function reducer(state = INITIAL_STATE, action) {
  *
  * @returns {Object} The create tab action.
  */
-export const createTab = (id, namespace, isReadonly, stores) => ({
+export const createTab = (id, namespace, isReadonly, tabs, views, queryHistoryIndexes) => ({
   type: CREATE_TAB,
   id: id,
   namespace: namespace,
   isReadonly: isReadonly || false,
-  stores: stores
+  tabs: tabs,
+  views: views,
+  queryHistoryIndexes: queryHistoryIndexes
 });
 
 /**
@@ -365,23 +371,24 @@ export const preCreateTab = (namespace, isReadonly) => {
   return (dispatch, getState) => {
     const state = getState();
     const serverVersion = state.serverVersion;
-    const appRegistry = new AppRegistry();
-    const roles = state.appRegistry.getRole('Collection.Tab');
-    console.log(roles);
+    const localAppRegistry = new AppRegistry();
+    const globalAppRegistry = state.appRegistry;
+    const roles = globalAppRegistry.getRole('Collection.Tab');
 
     // Filter roles for feature support in the server.
     const filteredRoles = roles.filter((role) => {
-      console.log('version', serverVersion);
       if (!role.minimumServerVersion) return true;
       return semver.gte(serverVersion, role.minimumServerVersion);
     });
-    console.log('filtered roles', filteredRoles);
 
-    // Creates all the stores for the tabs in the same order as
-    // the tabs. Creates a scoped app registry for the tabs.
-    const stores = filteredRoles.map((role) => {
+    const tabs = [];
+    const views = [];
+    const queryHistoryIndexes = [];
+
+    filteredRoles.forEach((role, i) => {
       const store = role.configureStore({
-        appRegistry: appRegistry,
+        localAppRegistry: localAppRegistry,
+        globalAppRegistry: globalAppRegistry,
         dataProvider: {
           error: state.dataService.error,
           dataProvider: state.dataService.dataService
@@ -389,12 +396,31 @@ export const preCreateTab = (namespace, isReadonly) => {
         namespace: namespace,
         serverVersion: serverVersion
       });
-      console.log('scoped store', store);
-      appRegistry.registerStore(role.storeName, store);
-      return store;
-    });
-    appRegistry.onActivated();
+      localAppRegistry.registerStore(role.storeName, store);
 
-    dispatch(createTab(new ObjectId().toHexString(), namespace, isReadonly, stores));
+      // Add the tab.
+      tabs.push(role.name);
+
+      // Add to query history indexes if needed.
+      if (role.hasQueryHistory) {
+        queryHistoryIndexes.push(i);
+      }
+
+      // Add the view.
+      views.push(
+        <UnsafeComponent component={role.component} key={i} store={store} />
+      );
+    });
+
+    dispatch(
+      createTab(
+        new ObjectId().toHexString(),
+        namespace,
+        isReadonly,
+        tabs,
+        views,
+        queryHistoryIndexes
+      )
+    );
   };
 }

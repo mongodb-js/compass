@@ -123,7 +123,6 @@ class Workspace extends PureComponent {
    */
   renderTabs() {
     return this.props.tabs.map((tab, i) => {
-      console.log('tab', tab);
       return (
         <CollectionTab
           key={i}
@@ -138,18 +137,24 @@ class Workspace extends PureComponent {
     });
   }
 
+  /**
+   * Render the views.
+   *
+   * @returns {Component} The views.
+   */
   renderViews() {
     const activeTab = this.props.tabs.find((tab) => {
       return tab.isActive;
     });
     if (activeTab) {
-      console.log('active tab', activeTab);
       return (
         <Collection
           key={activeTab.id}
           namespace={activeTab.namespace}
           isReadonly={activeTab.isReadonly}
-          stores={activeTab.stores} />
+          tabs={activeTab.tabs}
+          views={activeTab.views}
+          queryHistoryIndexes={activeTab.queryHistoryIndexes} />
       );
     }
   }
