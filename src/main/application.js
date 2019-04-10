@@ -178,13 +178,14 @@ Application.prototype.setupUserDirectory = function() {
     // where Commpass is installed. If they key exists, we need to change the user
     // data directory to a subfolder of that.
     if (process.platform === 'win32') {
-      const vsWinReg = require('vscode-windows-registry');
+      console.log('noop to debug.');
+      // const vsWinReg = require('vscode-windows-registry');
       /* eslint new-cap: 0 */
-      const installDir = vsWinReg.GetStringRegKey('HKEY_LOCAL_MACHINE', `SOFTWARE\\MongoDB\\${app.getName()}`, 'directory');
-      if (installDir) {
-        app.setPath('userData', path.join(installDir, 'UserData'));
-        app.setPath('userCache', path.join(installDir, 'Cache'));
-      }
+      // const installDir = vsWinReg.GetStringRegKey('HKEY_LOCAL_MACHINE', `SOFTWARE\\MongoDB\\${app.getName()}`, 'directory');
+      // if (installDir) {
+      //   app.setPath('userData', path.join(installDir, 'UserData'));
+      //   app.setPath('userCache', path.join(installDir, 'Cache'));
+      // }
     }
   }
 };
