@@ -98,39 +98,9 @@ const configureStore = (options = {}) => {
 
   // Set the app registry if preset. This must happen first.
   if (options.localAppRegistry) {
-    setLocalAppRegistry(store, options.localAppRegistry);
-  }
-  if (options.globalAppRegistry) {
-    setGlobalAppRegistry(store, options.globalAppRegistry);
-  }
+    const localAppRegistry = options.localAppRegistry;
+    setLocalAppRegistry(store, localAppRegistry);
 
-  // Set the data provider - this must happen second.
-  if (options.dataProvider) {
-    setDataProvider(store, options.dataProvider.error, options.dataProvider.dataProvider);
-  }
-
-  // Set the namespace - must happen third.
-  if (options.namespace) {
-    setNamespace(store, options.namespace);
-  }
-
-  // Setting server version in fields can change in order but must be after
-  // the previous options.
-  if (options.serverVersion) {
-    setServerVersion(store, options.serverVersion);
-  }
-  if (options.fields) {
-    setFields(store, options.fields);
-  }
-
-  /**
-   * This hook is Compass specific to listen to app registry events
-   * from the collection scoped app registry.
-   *
-   * @param {AppRegistry} localAppRegistry - The local app registry.
-   * @param {AppRegistry} globalAppRegistry - The global app registry.
-   */
-  store.onActivated = (localAppRegistry, globalAppRegistry) => {
     /**
      * When the collection is changed, update the store.
      */
@@ -146,13 +116,6 @@ const configureStore = (options = {}) => {
     });
 
     /**
-     * Refresh documents on global data refresh.
-     */
-    globalAppRegistry.on('refresh-data', () => {
-      refreshInput(store);
-    });
-
-    /**
      * When the schema fields change, update the state with the new
      * fields.
      *
@@ -161,13 +124,42 @@ const configureStore = (options = {}) => {
     localAppRegistry.on('fields-changed', (fields) => {
       setFields(store, fields.aceFields);
     });
+  }
+
+  if (options.globalAppRegistry) {
+    const globalAppRegistry = options.globalAppRegistry;
+    setGlobalAppRegistry(store, globalAppRegistry);
 
     /**
-     * Set the app registry to use later.
+     * Refresh documents on global data refresh.
      */
-    setLocalAppRegistry(store, localAppRegistry);
-    setGlobalAppRegistry(store, globalAppRegistry);
-  };
+    globalAppRegistry.on('refresh-data', () => {
+      refreshInput(store);
+    });
+  }
+
+  // Set the data provider - this must happen second.
+  if (options.dataProvider) {
+    setDataProvider(
+      store,
+      options.dataProvider.error,
+      options.dataProvider.dataProvider
+    );
+  }
+
+  // Set the namespace - must happen third.
+  if (options.namespace) {
+    setNamespace(store, options.namespace);
+  }
+
+  // Setting server version in fields can change in order but must be after
+  // the previous options.
+  if (options.serverVersion) {
+    setServerVersion(store, options.serverVersion);
+  }
+  if (options.fields) {
+    setFields(store, options.fields);
+  }
 
   return store;
 };

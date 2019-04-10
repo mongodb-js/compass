@@ -243,8 +243,10 @@ describe('Aggregation Store', () => {
     const globalAppRegistry = new AppRegistry();
 
     beforeEach(() => {
-      store = configureStore();
-      store.onActivated(localAppRegistry, globalAppRegistry);
+      store = configureStore({
+        localAppRegistry: localAppRegistry,
+        globalAppRegistry: globalAppRegistry
+      });
     });
 
     context('when the fields change', () => {
