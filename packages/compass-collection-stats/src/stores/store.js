@@ -90,7 +90,6 @@ const CollectionStatsStore = Reflux.createStore({
         this.dataService.collection(this.ns, {}, (err, result) => {
           if (!err) {
             this.setState(this._parseCollectionDetails(result));
-            console.log(result.document_count);
           }
         });
       }
