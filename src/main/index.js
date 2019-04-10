@@ -1,4 +1,5 @@
 /* eslint-disable no-console */
+console.group();
 console.time('main');
 
 if (!process.env.NODE_ENV) {
@@ -81,3 +82,4 @@ console.timeEnd('main/application/main');
 console.groupEnd();
 
 console.timeEnd('main');
+console.groupEnd();
