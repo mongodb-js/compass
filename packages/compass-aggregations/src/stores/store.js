@@ -7,7 +7,10 @@ import { dataServiceConnected } from 'modules/data-service';
 import { fieldsChanged } from 'modules/fields';
 import { refreshInputDocuments } from 'modules/input-documents';
 import { serverVersionChanged } from 'modules/server-version';
-import { appRegistryActivated } from 'modules/app-registry';
+import {
+  localAppRegistryActivated,
+  globalAppRegistryActivated
+} from 'mongodb-redux-common/app-registry';
 
 /**
  * Refresh the input documents.
@@ -64,13 +67,23 @@ export const setFields = (store, fields) => {
 };
 
 /**
- * Set the app registry.
+ * Set the local app registry.
  *
  * @param {Store} store - The store.
  * @param {AppRegistry} appRegistry - The app registry.
  */
-export const setAppRegistry = (store, appRegistry) => {
-  store.dispatch(appRegistryActivated(appRegistry));
+export const setLocalAppRegistry = (store, appRegistry) => {
+  store.dispatch(localAppRegistryActivated(appRegistry));
+};
+
+/**
+ * Set the global app registry.
+ *
+ * @param {Store} store - The store.
+ * @param {AppRegistry} appRegistry - The app registry.
+ */
+export const setGlobalAppRegistry = (store, appRegistry) => {
+  store.dispatch(globalAppRegistryActivated(appRegistry));
 };
 
 /**
@@ -84,8 +97,11 @@ const configureStore = (options = {}) => {
   const store = createStore(reducer, applyMiddleware(thunk));
 
   // Set the app registry if preset. This must happen first.
-  if (options.appRegistry) {
-    setAppRegistry(store, options.appRegistry);
+  if (options.localAppRegistry) {
+    setLocalAppRegistry(store, options.localAppRegistry);
+  }
+  if (options.globalAppRegistry) {
+    setGlobalAppRegistry(store, options.globalAppRegistry);
   }
 
   // Set the data provider - this must happen second.
@@ -111,20 +127,28 @@ const configureStore = (options = {}) => {
    * This hook is Compass specific to listen to app registry events
    * from the collection scoped app registry.
    *
-   * @param {AppRegistry} appRegistry - The app registry.
+   * @param {AppRegistry} localAppRegistry - The local app registry.
+   * @param {AppRegistry} globalAppRegistry - The global app registry.
    */
-  store.onActivated = (appRegistry) => {
+  store.onActivated = (localAppRegistry, globalAppRegistry) => {
     /**
      * When the collection is changed, update the store.
      */
-    appRegistry.on('import-finished', () => {
+    localAppRegistry.on('import-finished', () => {
       refreshInput(store);
     });
 
     /**
      * Refresh documents on data refresh.
      */
-    appRegistry.on('refresh-data', () => {
+    localAppRegistry.on('refresh-data', () => {
+      refreshInput(store);
+    });
+
+    /**
+     * Refresh documents on global data refresh.
+     */
+    globalAppRegistry.on('refresh-data', () => {
       refreshInput(store);
     });
 
@@ -134,14 +158,15 @@ const configureStore = (options = {}) => {
      *
      * @param {Object} fields - The fields.
      */
-    appRegistry.on('fields-changed', (fields) => {
+    localAppRegistry.on('fields-changed', (fields) => {
       setFields(store, fields.aceFields);
     });
 
     /**
      * Set the app registry to use later.
      */
-    setAppRegistry(store, appRegistry);
+    setLocalAppRegistry(store, localAppRegistry);
+    setGlobalAppRegistry(store, globalAppRegistry);
   };
 
   return store;

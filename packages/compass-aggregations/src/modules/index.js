@@ -61,9 +61,9 @@ import importPipeline, {
 } from './import-pipeline';
 import { getObjectStore } from 'utils/indexed-db';
 import appRegistry, {
-  appRegistryEmit,
+  globalAppRegistryEmit,
   INITIAL_STATE as APP_REGISTRY_STATE
-} from 'modules/app-registry';
+} from 'mongodb-redux-common/app-registry';
 import isOverviewOn, {
   TOGGLE_OVERVIEW,
   INITIAL_STATE as OVERVIEW_INITIAL_STATE
@@ -554,7 +554,7 @@ export const deletePipeline = (pipelineId) => {
         dispatch(updatePipelineList());
         dispatch(clearPipeline());
         dispatch(
-          appRegistryEmit('agg-pipeline-deleted', {
+          globalAppRegistryEmit('agg-pipeline-deleted', {
             name: getState().name
           })
         );

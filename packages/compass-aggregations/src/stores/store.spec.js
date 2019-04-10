@@ -14,16 +14,21 @@ describe('Aggregation Store', () => {
   describe('#configureStore', () => {
     context('when providing an app registry', () => {
       let store;
-      const appRegistry = new AppRegistry();
+      const localAppRegistry = new AppRegistry();
+      const globalAppRegistry = new AppRegistry();
 
       beforeEach(() => {
         store = configureStore({
-          appRegistry: appRegistry
+          localAppRegistry: localAppRegistry,
+          globalAppRegistry: globalAppRegistry
         });
       });
 
       it('sets the app registry the state', () => {
-        expect(store.getState().appRegistry).to.equal(appRegistry);
+        expect(store.getState().appRegistry).to.deep.equal({
+          localAppRegistry: localAppRegistry,
+          globalAppRegistry: globalAppRegistry
+        });
       });
     });
 
@@ -134,8 +139,8 @@ describe('Aggregation Store', () => {
           expect(state.serverVersion).to.equal(INITIAL_STATE.serverVersion);
         });
 
-        it('resets the pipeline', () => {
-          expect(state.pipeline).to.equal(INITIAL_STATE.pipeline);
+        it('resets the pipeline with a new id', () => {
+          expect(state.pipeline[0].id).to.not.equal(INITIAL_STATE.pipeline[0].id);
         });
 
         it('resets is modified', () => {
@@ -178,12 +183,12 @@ describe('Aggregation Store', () => {
           expect(state.maxTimeMS).to.equal(INITIAL_STATE.maxTimeMS);
         });
 
-        it('resets the rest of the state to initial state', () => {
-          // expect(store.getState()).to.deep.equal({
-            // maxTimeMS: INITIAL_STATE.maxTimeMS,
-            // isFullscreenOn: INITIAL_STATE.isFullscreenOn,
-            // savingPipeline: INITIAL_STATE.savingPipeline
-          // });
+        it('resets isFullscreenOn', () => {
+          expect(state.isFullscreenOn).to.equal(INITIAL_STATE.isFullscreenOn);
+        });
+
+        it('resets saving pipeline', () => {
+          expect(state.savingPipeline).to.equal(INITIAL_STATE.savingPipeline);
         });
       });
 
@@ -234,11 +239,12 @@ describe('Aggregation Store', () => {
 
   describe('#onActivated', () => {
     let store;
-    const appRegistry = new AppRegistry();
+    const localAppRegistry = new AppRegistry();
+    const globalAppRegistry = new AppRegistry();
 
     beforeEach(() => {
       store = configureStore();
-      store.onActivated(appRegistry);
+      store.onActivated(localAppRegistry, globalAppRegistry);
     });
 
     context('when the fields change', () => {
@@ -264,7 +270,7 @@ describe('Aggregation Store', () => {
           done();
         });
 
-        appRegistry.emit('fields-changed', {
+        localAppRegistry.emit('fields-changed', {
           fields: {
             harry: {
               name: 'harry',

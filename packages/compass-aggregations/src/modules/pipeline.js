@@ -1,6 +1,6 @@
 import { STAGE_OPERATORS } from 'mongodb-ace-autocompleter';
 import { generateStage, generateStageAsString } from 'modules/stage';
-import { appRegistryEmit } from 'modules/app-registry';
+import { globalAppRegistryEmit } from 'mongodb-redux-common/app-registry';
 import { ObjectId } from 'bson';
 import toNS from 'mongodb-ns';
 import isEmpty from 'lodash.isempty';
@@ -571,7 +571,7 @@ const executeStage = (dataService, ns, dispatch, state, index) => {
       dispatch(stagePreviewUpdated(docs || [], index, e, true));
       cursor.close();
       dispatch(
-        appRegistryEmit('agg-pipeline-executed', {
+        globalAppRegistryEmit('agg-pipeline-executed', {
           numStages: state.pipeline.length,
           stageOperators: state.pipeline.map(s => s.stageOperator)
         })
@@ -591,7 +591,7 @@ export const gotoOutResults = collection => {
   return (dispatch, getState) => {
     const database = toNS(getState().namespace).database;
     const outNamespace = `${database}.${collection.replace(/\"/g, '')}`;
-    dispatch(appRegistryEmit('show-agg-pipeline-out-results', outNamespace));
+    dispatch(globalAppRegistryEmit('show-agg-pipeline-out-results', outNamespace));
   };
 };
 
@@ -607,7 +607,7 @@ export const runOutStage = index => {
     const state = getState();
     const dataService = state.dataService.dataService;
     executeStage(dataService, state.namespace, dispatch, state, index);
-    dispatch(appRegistryEmit('agg-pipeline-out-executed'));
+    dispatch(globalAppRegistryEmit('agg-pipeline-out-executed'));
   };
 };
 
