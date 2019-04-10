@@ -1,0 +1,34 @@
+{
+  "name": "mongodb-redux-common",
+  "description": "Common Redux Modules for MongoDB Applications",
+  "author": "Durran Jordan <durran@gmail.com>",
+  "bugs": "https://github.com/mongodb-js/redux-common/issues",
+  "homepage": "https://github.com/mongodb-js/redux-common",
+  "version": "0.0.0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/mongodb-js/redux-common.git"
+  },
+  "license": "Apache-2.0",
+  "keywords": [
+    "mongodb-js"
+  ],
+  "scripts": {
+    "ci": "npm test",
+    "fmt": "mongodb-js-fmt ./*.js ./test/*.js",
+    "test": "mocha --recursive",
+    "check": "mongodb-js-precommit"
+  },
+  "precommit": [
+    "check"
+  ],
+  "devDependencies": {
+    "chai": "^4.1.2",
+    "eslint-config-mongodb-js": "^2.2.0",
+    "mocha": "^6.0.0",
+    "mongodb-js-fmt": "^0.0.3",
+    "mongodb-js-precommit": "^2.0.0",
+    "pre-commit": "^1.1.3",
+    "sinon": "^7.2.7"
+  }
+}
