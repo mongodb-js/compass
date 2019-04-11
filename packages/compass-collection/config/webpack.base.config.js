@@ -5,7 +5,7 @@ module.exports = {
   mode: (process.env.NODE_ENV !== 'production') ? 'development' : 'production',
   resolve: {
     modules: ['node_modules'],
-    extensions: ['.js', '.jsx', '.json', 'less', '.wasm'],
+    extensions: ['.js', '.jsx', '.json', '.less', '.wasm'],
     alias: {
       actions: path.join(project.path.src, 'actions'),
       components: path.join(project.path.src, 'components'),
