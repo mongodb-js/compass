@@ -1,4 +1,5 @@
 const webpack = require('webpack');
+const merge = require('webpack-merge');
 const path = require('path');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const MinifyPlugin = require('babel-minify-webpack-plugin');
@@ -6,6 +7,7 @@ const ExtractTextPlugin = require('extract-text-webpack-plugin');
 const PeerDepsExternalsPlugin = require('peer-deps-externals-webpack-plugin');
 // const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin;
 
+const baseWebpackConfig = require('./webpack.base.config');
 const project = require('./project');
 
 const GLOBALS = {
@@ -15,8 +17,9 @@ const GLOBALS = {
   __DEV__: JSON.stringify(JSON.parse(process.env.DEBUG || 'false'))
 };
 
-module.exports = {
+const config = {
   target: 'electron-renderer',
+  devtool: 'source-map',
   entry: {
     // Export the entry to our plugin. Referenced in package.json main.
     index: path.resolve(project.path.src, 'index.js')
@@ -26,123 +29,40 @@ module.exports = {
     publicPath: './',
     filename: '[name].js',
     // Export our plugin as a UMD library (compatible with all module definitions - CommonJS, AMD and global variable)
-    library: 'QueryBarPlugin',
+    library: 'CollectionStatsPlugin',
     libraryTarget: 'umd'
-  },
-  resolve: {
-    modules: ['node_modules'],
-    extensions: ['.js', '.jsx', '.json', 'less'],
-    alias: {
-      actions: path.join(project.path.src, 'actions'),
-      components: path.join(project.path.src, 'components'),
-      constants: path.join(project.path.src, 'constants'),
-      fonts: path.join(project.path.src, 'assets/fonts'),
-      images: path.join(project.path.src, 'assets/images'),
-      less: path.join(project.path.src, 'assets/less'),
-      models: path.join(project.path.src, 'models'),
-      plugin: path.join(project.path.src, 'index.js'),
-      stores: path.join(project.path.src, 'stores'),
-      storybook: project.path.storybook,
-      utils: path.join(project.path.src, 'utils')
-    }
   },
   module: {
     rules: [
       {
-        test: /\.css$/,
-        use: [
-          { loader: 'style-loader'},
-          { loader: 'css-loader' }
-        ]
-      },
-      // For styles that have to be global (see https://github.com/css-modules/css-modules/pull/65)
-      {
-        test: /\.less$/,
-        include: [/\.global/, /bootstrap/],
-        use: [
-          { loader: 'style-loader' },
-          {
-            loader: 'css-loader',
-            options: {
-              modules: false
-            }
-          },
-          {
-            loader: 'postcss-loader',
-            options: {
-              plugins: function() {
-                return [
-                  project.plugin.autoprefixer
-                ];
-              }
-            }
-          },
-          {
-            loader: 'less-loader',
-            options: {
-              noIeCompat: true
-            }
-          }
-        ]
-      },
-      // For CSS-Modules locally scoped styles
-      {
-        test: /\.less$/,
-        exclude: [/\.global/, /bootstrap/, /node_modules/],
-        use: [
-          { loader: 'style-loader' },
-          {
-            loader: 'css-loader',
-            options: {
-              modules: true,
-              importLoaders: 1,
-              localIdentName: 'QueryBar_[name]-[local]__[hash:base64:5]'
-            }
-          },
-          {
-            loader: 'postcss-loader',
-            options: {
-              plugins: function() {
-                return [
-                  project.plugin.autoprefixer
-                ];
-              }
-            }
-          },
-          {
-            loader: 'less-loader',
-            options: {
-              noIeCompat: true
-            }
-          }
-        ]
-      },
-      {
-        test: /node_modules[\\\/]JSONStream[\\\/]index\.js/,
-        use: [{ loader: 'shebang-loader' }]
-      },
-      {
-        test: /\.(js|jsx)$/,
-        use: [{ loader: 'babel-loader' }],
-        exclude: /(node_modules)/
-      },
-      {
         test: /\.(png|jpg|jpeg|gif|svg)$/,
         use: [{
-          loader: 'url-loader',
+          loader: 'file-loader',
+          // In prod we need to go to $COMPASS_HOME/node_modules/<plugin>/lib or
+          // $USER_HOME/.mongodb/compasss(-community)/plugins
+          //
+          // @note This currently does not work in published plugin.
           query: {
-            limit: 8192,
-            name: 'assets/images/[name].[ext]'
+            name: 'assets/images/[name]__[hash:base64:5].[ext]',
+            publicPath: function(file) {
+              return path.join(__dirname, '..', 'lib', file);
+            }
           }
         }]
       },
       {
         test: /\.(woff|woff2|ttf|eot)(\?v=\d+\.\d+\.\d+)?$/,
         use: [{
-          loader: 'url-loader',
+          loader: 'file-loader',
+          // In prod we need to go to $COMPASS_HOME/node_modules/<plugin>/lib or
+          // $USER_HOME/.mongodb/compasss(-community)/plugins
+          //
+          // @note This currently does not work in published plugin.
           query: {
-            limit: 8192,
-            name: 'assets/fonts/[name].[ext]'
+            name: 'assets/images/[name]__[hash:base64:5].[ext]',
+            publicPath: function(file) {
+              return path.join(__dirname, '..', 'lib', file);
+            }
           }
         }]
       }
@@ -183,3 +103,5 @@ module.exports = {
     modules: false
   }
 };
+
+module.exports = merge.smart(baseWebpackConfig, config);

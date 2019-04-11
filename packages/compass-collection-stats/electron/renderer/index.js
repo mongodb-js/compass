@@ -12,7 +12,7 @@ import CollectionStatsPlugin, { activate } from 'plugin';
 import 'bootstrap/less/bootstrap.less';
 import 'less/index.less';
 
-const NS = 'ruby-driver.test';
+const NS = 'echo.artists';
 
 const appRegistry = new AppRegistry();
 
