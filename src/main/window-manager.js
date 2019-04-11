@@ -59,34 +59,34 @@ var appLaunched = false;
  *
  * @returns {Boolean}
  */
-function isSingleInstance(_window) {
-  var isNotSingle = app.makeSingleInstance(function(argv, dir) {
-    /**
-     * TODO (imlucas) To make clicking on a `mongodb://` URL in chrome
-     * open Compass w/ connection dialog filled out, we can check if
-     * any argv[i] starts w/ `mongodb://` and if so, call
-     * `require('mongodb-connection-model').from(argv[i])` to parse the
-     * URL an get back an instance of the Connection model.
-     */
-    debug(
-      'Someone tried to run a second instance! We should focus our window',
-      {
-        argv: argv,
-        dir: dir
-      }
-    );
+// function isSingleInstance(_window) {
+//   var isNotSingle = app.makeSingleInstance(function(argv, dir) {
+//     /**
+//      * TODO (imlucas) To make clicking on a `mongodb://` URL in chrome
+//      * open Compass w/ connection dialog filled out, we can check if
+//      * any argv[i] starts w/ `mongodb://` and if so, call
+//      * `require('mongodb-connection-model').from(argv[i])` to parse the
+//      * URL an get back an instance of the Connection model.
+//      */
+//     debug(
+//       'Someone tried to run a second instance! We should focus our window',
+//       {
+//         argv: argv,
+//         dir: dir
+//       }
+//     );
 
-    if (_window) {
-      if (_window.isMinimized()) {
-        _window.restore();
-      }
-      _window.focus();
-    }
-    return true;
-  });
+//     if (_window) {
+//       if (_window.isMinimized()) {
+//         _window.restore();
+//       }
+//       _window.focus();
+//     }
+//     return true;
+//   });
 
-  return !isNotSingle;
-}
+//   return !isNotSingle;
+// }
 
 /**
  * Call me instead of using `new BrowserWindow()` directly because i'll:
@@ -249,10 +249,10 @@ var createWindow = (module.exports.create = function(opts) {
 
   AppMenu.load(_window);
 
-  if (!isSingleInstance(_window)) {
-    app.quit();
-    return null;
-  }
+  // if (!isSingleInstance(_window)) {
+  //   app.quit();
+  //   return null;
+  // }
 
   _window.loadURL(opts.url);
   _loading.loadURL(LOADING_URL);

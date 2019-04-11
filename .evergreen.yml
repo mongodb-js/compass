@@ -239,6 +239,10 @@ functions:
           # Load environment variables
           source ~/compass_env.sh
 
+          # For debugging any problems when the notary service fails.
+          # @see https://github.com/mongodb-js/notary-service-client For details on what notary service is.
+          export DEBUG=mongodb-notary*
+
           # Required to sign release assets
           export NOTARY_URL="http://notary-service.build.10gen.cc:5000"
           export NOTARY_AUTH_TOKEN="${signing_auth_token}"
