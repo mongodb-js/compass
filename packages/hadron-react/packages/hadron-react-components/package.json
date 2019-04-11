@@ -32,7 +32,7 @@
     "lodash.omit": "^4.5.0",
     "prop-types": "^15.5.8",
     "react": "^16.8.0",
-    "react-bootstrap": "0.31.0",
+    "react-bootstrap": "^0.32.0",
     "react-dnd": "^7.3.2",
     "react-dnd-html5-backend": "^7.2.0",
     "react-dom": "^16.8.0",
