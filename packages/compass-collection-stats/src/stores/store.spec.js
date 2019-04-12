@@ -1,55 +1,59 @@
-import Store from 'stores';
+import configurestore from 'stores';
 
-describe('CollectionStatsStore [Store]', () => {
-  beforeEach(() => {
-    Store.state = Store.getInitialState();
-  });
+describe('CollectionStatsstore [store]', () => {
+  describe('#configurestore', () => {
+    let store;
 
-  it('defaults document count to invalid', () => {
-    expect(Store.state.documentCount).to.be.equal('N/A');
-  });
+    beforeEach(() => {
+      store = configurestore();
+    });
 
-  it('defaults document count to invalid', () => {
-    expect(Store.state.totalDocumentSize).to.be.equal('N/A');
-  });
+    it('defaults document count to invalid', () => {
+      expect(store.state.documentCount).to.be.equal('N/A');
+    });
 
-  it('defaults document count to invalid', () => {
-    expect(Store.state.avgDocumentSize).to.be.equal('N/A');
-  });
+    it('defaults document count to invalid', () => {
+      expect(store.state.totalDocumentSize).to.be.equal('N/A');
+    });
 
-  it('defaults document count to invalid', () => {
-    expect(Store.state.indexCount).to.be.equal('N/A');
-  });
+    it('defaults document count to invalid', () => {
+      expect(store.state.avgDocumentSize).to.be.equal('N/A');
+    });
 
-  it('defaults document count to invalid', () => {
-    expect(Store.state.totalIndexSize).to.be.equal('N/A');
-  });
+    it('defaults document count to invalid', () => {
+      expect(store.state.indexCount).to.be.equal('N/A');
+    });
 
-  it('defaults document count to invalid', () => {
-    expect(Store.state.avgIndexSize).to.be.equal('N/A');
-  });
+    it('defaults document count to invalid', () => {
+      expect(store.state.totalIndexSize).to.be.equal('N/A');
+    });
 
-  it('defaults raw document count to invalid', () => {
-    expect(Store.state.rawDocumentCount).to.be.equal(0);
-  });
+    it('defaults document count to invalid', () => {
+      expect(store.state.avgIndexSize).to.be.equal('N/A');
+    });
 
-  it('defaults raw document count to invalid', () => {
-    expect(Store.state.rawTotalDocumentSize).to.be.equal(0);
-  });
+    it('defaults raw document count to invalid', () => {
+      expect(store.state.rawDocumentCount).to.be.equal(0);
+    });
 
-  it('defaults raw document count to invalid', () => {
-    expect(Store.state.rawAvgDocumentSize).to.be.equal(0);
-  });
+    it('defaults raw document count to invalid', () => {
+      expect(store.state.rawTotalDocumentSize).to.be.equal(0);
+    });
 
-  it('defaults raw document count to invalid', () => {
-    expect(Store.state.rawIndexCount).to.be.equal(0);
-  });
+    it('defaults raw document count to invalid', () => {
+      expect(store.state.rawAvgDocumentSize).to.be.equal(0);
+    });
 
-  it('defaults raw document count to invalid', () => {
-    expect(Store.state.rawTotalIndexSize).to.be.equal(0);
-  });
+    it('defaults raw document count to invalid', () => {
+      expect(store.state.rawIndexCount).to.be.equal(0);
+    });
 
-  it('defaults raw document count to invalid', () => {
-    expect(Store.state.rawAvgIndexSize).to.be.equal(0);
+    it('defaults raw document count to invalid', () => {
+      expect(store.state.rawTotalIndexSize).to.be.equal(0);
+    });
+
+    it('defaults raw document count to invalid', () => {
+      expect(store.state.rawAvgIndexSize).to.be.equal(0);
+    });
   });
 });

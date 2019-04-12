@@ -1,13 +1,14 @@
 import React from 'react';
 import { mount } from 'enzyme';
 import { StoreConnector } from 'hadron-react-components';
+import configureStore from 'stores';
 import CollectionStatsPlugin from './plugin';
 
 describe('CollectionStats [Plugin]', () => {
   let component;
 
   beforeEach((done) => {
-    component = mount(<CollectionStatsPlugin />);
+    component = mount(<CollectionStatsPlugin store={configureStore()} />);
     done();
   });
 

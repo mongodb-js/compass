@@ -5,6 +5,7 @@ import Reflux from 'reflux';
 import AppRegistry from 'hadron-app-registry';
 import { AppContainer } from 'react-hot-loader';
 import CollectionStatsPlugin, { activate } from 'plugin';
+import configureStore from 'stores';
 
 // Import global less file. Note: these styles WILL NOT be used in compass, as compass provides its own set
 // of global styles. If you are wishing to style a given component, you should be writing a less file per
@@ -53,7 +54,7 @@ document.body.appendChild(root);
 const render = Component => {
   ReactDOM.render(
     <AppContainer>
-      <Component />
+      <Component store={configureStore()} />
     </AppContainer>,
     document.getElementById('root')
   );

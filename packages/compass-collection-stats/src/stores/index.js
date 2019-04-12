@@ -1,4 +1,2 @@
-import CollectionStatsStore from './store';
-
-export default CollectionStatsStore;
-export { CollectionStatsStore };
+import configureStore from './store';
+export default configureStore;

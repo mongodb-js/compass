@@ -1,7 +1,15 @@
 import CollectionStatsPlugin from './plugin';
-import CollectionStatsStore from 'stores';
 import DocumentStatsItem from 'components/document-stats-item';
 import IndexStatsItem from 'components/index-stats-item';
+import configureStore from 'stores';
+
+const COLLECTION_HUD_ROLE = {
+  component: CollectionStatsPlugin,
+  order: 1,
+  name: 'Collection HUD',
+  configureStore: configureStore,
+  storeName: 'CollectionStats.Store'
+};
 
 const DOCUMENTS_STATS_ITEM_ROLE = {
   component: DocumentStatsItem,
@@ -22,8 +30,7 @@ const INDEXES_STATS_ITEM_ROLE = {
 function activate(appRegistry) {
   appRegistry.registerRole('CollectionHUD.Item', DOCUMENTS_STATS_ITEM_ROLE);
   appRegistry.registerRole('CollectionHUD.Item', INDEXES_STATS_ITEM_ROLE);
-  appRegistry.registerStore('CollectionStats.Store', CollectionStatsStore);
-  appRegistry.registerComponent('CollectionStats.Component', CollectionStatsPlugin);
+  appRegistry.registerRole('Collection.HUD', COLLECTION_HUD_ROLE);
 }
 
 /**
@@ -33,8 +40,7 @@ function activate(appRegistry) {
 function deactivate(appRegistry) {
   appRegistry.deregisterRole('CollectionHUD.Item', DOCUMENTS_STATS_ITEM_ROLE);
   appRegistry.deregisterRole('CollectionHUD.Item', INDEXES_STATS_ITEM_ROLE);
-  appRegistry.deregisterStore('CollectionStats.Store');
-  appRegistry.deregisterComponent('CollectionStats.Component');
+  appRegistry.deregisterRole('Collection.HUD', COLLECTION_HUD_ROLE);
 }
 
 export default CollectionStatsPlugin;
