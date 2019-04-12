@@ -5,7 +5,7 @@ import Reflux from 'reflux';
 import AppRegistry from 'hadron-app-registry';
 import { AppContainer } from 'react-hot-loader';
 import CollectionStatsPlugin, { activate } from 'plugin';
-import configureStore from 'stores';
+import configureStore, { setNamespace, setDataProvider } from 'stores';
 
 // Import global less file. Note: these styles WILL NOT be used in compass, as compass provides its own set
 // of global styles. If you are wishing to style a given component, you should be writing a less file per
@@ -44,6 +44,11 @@ appRegistry.registerAction('CRUD.Actions', CrudActions);
 activate(appRegistry);
 appRegistry.onActivated();
 
+const store = configureStore({
+  localAppRegistry: appRegistry,
+  isReadonly: false
+});
+
 // Since we are using HtmlWebpackPlugin WITHOUT a template,
 // we should create our own root node in the body element before rendering into it.
 const root = document.createElement('div');
@@ -54,7 +59,7 @@ document.body.appendChild(root);
 const render = Component => {
   ReactDOM.render(
     <AppContainer>
-      <Component store={configureStore()} />
+      <Component store={store} />
     </AppContainer>,
     document.getElementById('root')
   );
@@ -81,10 +86,9 @@ const connection = new Connection({
 });
 const dataService = new DataService(connection);
 
-appRegistry.emit('data-service-initialized', dataService);
 dataService.connect((error, ds) => {
-  appRegistry.emit('data-service-connected', error, ds);
-  appRegistry.emit('collection-changed', NS);
+  setDataProvider(store, error, ds);
+  setNamespace(store, NS);
 });
 
 // For automatic switching to specific namespaces, uncomment below as needed.

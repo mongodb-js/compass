@@ -1,59 +1,118 @@
-import configurestore from 'stores';
+import AppRegistry from 'hadron-app-registry';
+import configureStore from 'stores';
 
 describe('CollectionStatsstore [store]', () => {
-  describe('#configurestore', () => {
-    let store;
+  describe('#configureStore', () => {
+    context('when providing no options', () => {
+      let store;
 
-    beforeEach(() => {
-      store = configurestore();
+      beforeEach(() => {
+        store = configureStore();
+      });
+
+      it('defaults document count to invalid', () => {
+        expect(store.state.documentCount).to.be.equal('N/A');
+      });
+
+      it('defaults document count to invalid', () => {
+        expect(store.state.totalDocumentSize).to.be.equal('N/A');
+      });
+
+      it('defaults document count to invalid', () => {
+        expect(store.state.avgDocumentSize).to.be.equal('N/A');
+      });
+
+      it('defaults document count to invalid', () => {
+        expect(store.state.indexCount).to.be.equal('N/A');
+      });
+
+      it('defaults document count to invalid', () => {
+        expect(store.state.totalIndexSize).to.be.equal('N/A');
+      });
+
+      it('defaults document count to invalid', () => {
+        expect(store.state.avgIndexSize).to.be.equal('N/A');
+      });
+
+      it('defaults raw document count to invalid', () => {
+        expect(store.state.rawDocumentCount).to.be.equal(0);
+      });
+
+      it('defaults raw document count to invalid', () => {
+        expect(store.state.rawTotalDocumentSize).to.be.equal(0);
+      });
+
+      it('defaults raw document count to invalid', () => {
+        expect(store.state.rawAvgDocumentSize).to.be.equal(0);
+      });
+
+      it('defaults raw document count to invalid', () => {
+        expect(store.state.rawIndexCount).to.be.equal(0);
+      });
+
+      it('defaults raw document count to invalid', () => {
+        expect(store.state.rawTotalIndexSize).to.be.equal(0);
+      });
+
+      it('defaults raw document count to invalid', () => {
+        expect(store.state.rawAvgIndexSize).to.be.equal(0);
+      });
     });
 
-    it('defaults document count to invalid', () => {
-      expect(store.state.documentCount).to.be.equal('N/A');
-    });
+    context('when providing options', () => {
+      context('when providing a local app registry', () => {
+        let store;
+        const appRegistry = new AppRegistry();
 
-    it('defaults document count to invalid', () => {
-      expect(store.state.totalDocumentSize).to.be.equal('N/A');
-    });
+        beforeEach(() => {
+          store = configureStore({ localAppRegistry: appRegistry });
+        });
 
-    it('defaults document count to invalid', () => {
-      expect(store.state.avgDocumentSize).to.be.equal('N/A');
-    });
+        it('sets the local app registry on the store', () => {
+          expect(store.appRegistry).to.equal(appRegistry);
+        });
+      });
 
-    it('defaults document count to invalid', () => {
-      expect(store.state.indexCount).to.be.equal('N/A');
-    });
+      context('when providing a data provider', () => {
+        let store;
 
-    it('defaults document count to invalid', () => {
-      expect(store.state.totalIndexSize).to.be.equal('N/A');
-    });
+        beforeEach(() => {
+          store = configureStore({
+            dataProvider: {
+              error: null,
+              dataProvider: 'test'
+            }
+          });
+        });
 
-    it('defaults document count to invalid', () => {
-      expect(store.state.avgIndexSize).to.be.equal('N/A');
-    });
+        it('sets the data provider on the store', () => {
+          expect(store.dataService).to.equal('test');
+        });
+      });
 
-    it('defaults raw document count to invalid', () => {
-      expect(store.state.rawDocumentCount).to.be.equal(0);
-    });
+      context('when providing is readonly', () => {
+        let store;
 
-    it('defaults raw document count to invalid', () => {
-      expect(store.state.rawTotalDocumentSize).to.be.equal(0);
-    });
+        beforeEach(() => {
+          store = configureStore({ isReadonly: true });
+        });
 
-    it('defaults raw document count to invalid', () => {
-      expect(store.state.rawAvgDocumentSize).to.be.equal(0);
-    });
+        it('sets the is readonly value on the store', () => {
+          expect(store.isReadonly).to.equal(true);
+        });
+      });
 
-    it('defaults raw document count to invalid', () => {
-      expect(store.state.rawIndexCount).to.be.equal(0);
-    });
+      context('wnen providing a namespace', () => {
+        let store;
 
-    it('defaults raw document count to invalid', () => {
-      expect(store.state.rawTotalIndexSize).to.be.equal(0);
-    });
+        beforeEach(() => {
+          store = configureStore({ namespace: 'db.coll' });
+        });
 
-    it('defaults raw document count to invalid', () => {
-      expect(store.state.rawAvgIndexSize).to.be.equal(0);
+        it('sets the namespace on the store', () => {
+          expect(store.ns).to.equal('db.coll');
+        });
+      });
     });
   });
 });

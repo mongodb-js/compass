@@ -9,6 +9,60 @@ import numeral from 'numeral';
 const INVALID = 'N/A';
 
 /**
+ * Refresh the input.
+ *
+ * @param {Store} store - The store.
+ */
+export const refreshInput = (store) => {
+  store.loadCollectionStats();
+};
+
+/**
+ * Set the data provider.
+ *
+ * @param {Store} store - The store.
+ * @param {Error} error - The error (if any) while connecting.
+ * @param {Object} provider - The data provider.
+ */
+export const setDataProvider = (store, error, provider) => {
+  store.onConnected(error, provider);
+};
+
+/**
+ * Set the data provider.
+ *
+ * @param {Store} store - The store.
+ * @param {Boolean} isReadonly - Is the store readonly.
+ */
+export const setIsReadonly = (store, isReadonly) => {
+  store.isReadonly = isReadonly;
+};
+
+/**
+ * Set the namespace in the store.
+ *
+ * @param {Store} store - The store.
+ * @param {String} ns - The namespace in "db.collection" format.
+ */
+export const setNamespace = (store, ns) => {
+  const namespace = toNS(ns);
+  if (namespace.collection) {
+    store.ns = ns;
+    refreshInput(store);
+  }
+};
+
+/**
+ * Set the local app registry.
+ *
+ * @param {Store} store - The store.
+ * @param {AppRegistry} appRegistry - The app registry.
+ */
+export const setLocalAppRegistry = (store, appRegistry) => {
+  store.appRegistry = appRegistry;
+};
+
+/**
  * Collection Stats store.
  */
 const configureStore = (options = {}) => {
@@ -23,33 +77,6 @@ const configureStore = (options = {}) => {
     mixins: [StateMixin.store],
 
     /**
-     * This method is called when all plugins are activated. You can register
-     * listeners to other plugins' stores here, e.g.
-     *
-     * appRegistry.getStore('OtherPlugin.Store').listen(this.otherStoreChanged.bind(this));
-     *
-     * If this plugin does not depend on other stores, you can delete the method.
-     *
-     * @param {Object} appRegistry - app registry containing all stores and components
-     */
-    // eslint-disable-next-line no-unused-vars
-    onActivated(appRegistry) {
-      this.CollectionStore = appRegistry.getStore('App.CollectionStore');
-      appRegistry.on('document-deleted', this.onDocumentsModified.bind(this));
-      appRegistry.on('document-inserted', this.onDocumentsModified.bind(this));
-      appRegistry.on('import-finished', this.onDocumentsModified.bind(this));
-      appRegistry.on('data-service-connected', this.onConnected.bind(this));
-      appRegistry.on('collection-changed', this.onCollectionChanged.bind(this));
-      appRegistry.on('refresh-data', () => {
-        const ns = appRegistry.getStore('App.NamespaceStore').ns;
-        if (ns.indexOf('.' === 0)) {
-          this.onDocumentsModified();
-          this.onCollectionChanged();
-        }
-      });
-    },
-
-    /**
      * Handle the data-service-connected event.
      *
      * @param {Error} err - The error.
@@ -62,37 +89,22 @@ const configureStore = (options = {}) => {
     },
 
     /**
-     * Handle document deletion.
-     */
-    onDocumentsModified() {
-      this.loadCollectionStats();
-    },
-
-    /**
-     * Handle collection being changed.
-     *
-     * @param {String} ns - The namespace.
-     */
-    onCollectionChanged(ns) {
-      this.ns = ns;
-      this.loadCollectionStats();
-    },
-
-    /**
      * Load the collection stats.
      *
      * @param {String} ns - The namespace.
      */
     loadCollectionStats() {
       if (toNS(this.ns || '').collection) {
-        if (this.CollectionStore.isReadonly()) {
+        if (this.isReadonly) {
           this.setState(this.getInitialState());
         } else {
-          this.dataService.collection(this.ns, {}, (err, result) => {
-            if (!err) {
-              this.setState(this._parseCollectionDetails(result));
-            }
-          });
+          if (this.dataService) {
+            this.dataService.collection(this.ns, {}, (err, result) => {
+              if (!err) {
+                this.setState(this._parseCollectionDetails(result));
+              }
+            });
+          }
         }
       }
     },
@@ -149,6 +161,58 @@ const configureStore = (options = {}) => {
       return numeral(value).format(precision + format);
     }
   });
+
+  // Set the app registry if preset. This must happen first.
+  if (options.localAppRegistry) {
+    const localAppRegistry = options.localAppRegistry;
+    setLocalAppRegistry(store, localAppRegistry);
+
+    /**
+     * When the collection is changed, update the store.
+     */
+    localAppRegistry.on('import-finished', () => {
+      refreshInput(store);
+    });
+
+    /**
+     * Refresh documents on data refresh.
+     */
+    localAppRegistry.on('refresh-data', () => {
+      refreshInput(store);
+    });
+
+    /**
+     * Refresh documents on document deletion.
+     */
+    localAppRegistry.on('document-deleted', () => {
+      refreshInput(store);
+    });
+
+    /**
+     * Refresh documents on document insertion.
+     */
+    localAppRegistry.on('document-inserted', () => {
+      refreshInput(store);
+    });
+  }
+
+  // Set the data provider - this must happen second.
+  if (options.dataProvider) {
+    setDataProvider(
+      store,
+      options.dataProvider.error,
+      options.dataProvider.dataProvider
+    );
+  }
+
+  if (options.isReadonly) {
+    setIsReadonly(store, options.isReadonly);
+  }
+
+  // Set the namespace - must happen third.
+  if (options.namespace) {
+    setNamespace(store, options.namespace);
+  }
 
   return store;
 };
