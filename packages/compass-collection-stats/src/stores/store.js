@@ -97,14 +97,12 @@ const configureStore = (options = {}) => {
       if (toNS(this.ns || '').collection) {
         if (this.isReadonly) {
           this.setState(this.getInitialState());
-        } else {
-          if (this.dataService) {
-            this.dataService.collection(this.ns, {}, (err, result) => {
-              if (!err) {
-                this.setState(this._parseCollectionDetails(result));
-              }
-            });
-          }
+        } else if (this.dataService) {
+          this.dataService.collection(this.ns, {}, (err, result) => {
+            if (!err) {
+              this.setState(this._parseCollectionDetails(result));
+            }
+          });
         }
       }
     },
