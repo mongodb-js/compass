@@ -12,6 +12,9 @@ addons:
       - ubuntu-toolchain-r-test
     packages:
       - libkrb5-dev
+      - libsecret-1-dev
+      - gnome-keyring
+      - python-gnomekeyring
 script: npm run ci
 before_script:
   - export DISPLAY=:99.0
