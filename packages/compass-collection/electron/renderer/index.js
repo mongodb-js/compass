@@ -6,6 +6,7 @@ import AppRegistry from 'hadron-app-registry';
 import { AppContainer } from 'react-hot-loader';
 import CollectionPlugin, { activate } from 'plugin';
 import { activate as activateAgg } from '@mongodb-js/compass-aggregations';
+import { activate as activateStats } from '@mongodb-js/compass-collection-stats';
 
 // Import global less file. Note: these styles WILL NOT be used in compass, as compass provides its own set
 // of global styles. If you are wishing to style a given component, you should be writing a less file per
@@ -37,6 +38,7 @@ app.instance = instance;
 // Activate our plugin with the Hadron App Registry
 activate(appRegistry);
 activateAgg(appRegistry);
+activateStats(appRegistry);
 appRegistry.onActivated();
 
 // Since we are using HtmlWebpackPlugin WITHOUT a template,

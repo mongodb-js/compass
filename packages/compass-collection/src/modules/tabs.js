@@ -106,7 +106,9 @@ const doCreateTab = (state, action) => {
     isReadonly: action.isReadonly,
     tabs: action.tabs,
     views: action.views,
-    queryHistoryIndexes: action.queryHistoryIndexes
+    queryHistoryIndexes: action.queryHistoryIndexes,
+    statsPlugin: action.statsPlugin,
+    statsStore: action.statsStore
   });
   return newState;
 };
@@ -276,18 +278,25 @@ export default function reducer(state = INITIAL_STATE, action) {
  *
  * @param {String} namespace - The namespace.
  * @param {Boolean} isReadonly - Is the collection readonly?
- * @param {Array} stores - The stores for the tab.
+ * @param {Array} tabs - The tabs.
+ * @param {Array} views - The views.
+ * @param {Array} queryHistoryIndexes - The query history tab indexes.
+ * @param {Component} statsPugin - The stats plugin.
+ * @param {Store} statsStore - The stats store.
  *
  * @returns {Object} The create tab action.
  */
-export const createTab = (id, namespace, isReadonly, tabs, views, queryHistoryIndexes) => ({
+export const createTab = (
+  id, namespace, isReadonly, tabs, views, queryHistoryIndexes, statsPlugin, statsStore) => ({
   type: CREATE_TAB,
   id: id,
   namespace: namespace,
   isReadonly: isReadonly || false,
   tabs: tabs,
   views: views,
-  queryHistoryIndexes: queryHistoryIndexes
+  queryHistoryIndexes: queryHistoryIndexes,
+  statsPlugin: statsPlugin,
+  statsStore: statsStore
 });
 
 /**
@@ -360,6 +369,14 @@ export const selectTab = (index) => ({
   index: index
 });
 
+const statsView = () => {
+
+};
+
+const generateViews = () => {
+
+};
+
 /**
  * Handles all the setup of tab creation by creating the stores for each
  * of the roles in the global app registry.
@@ -374,6 +391,7 @@ export const preCreateTab = (namespace, isReadonly) => {
     const localAppRegistry = new AppRegistry();
     const globalAppRegistry = state.appRegistry;
     const roles = globalAppRegistry.getRole('Collection.Tab');
+    const statsRole = globalAppRegistry.getRole('Collection.HUD')[0];
 
     // Filter roles for feature support in the server.
     const filteredRoles = roles.filter((role) => {
@@ -412,6 +430,18 @@ export const preCreateTab = (namespace, isReadonly) => {
       );
     });
 
+    const statsStore = statsRole.configureStore({
+      localAppRegistry: localAppRegistry,
+      dataProvider: {
+        error: state.dataService.error,
+        dataProvider: state.dataService.dataService
+      },
+      namespace: namespace,
+      isReadonly: isReadonly
+    });
+    localAppRegistry.registerStore(statsRole.storeName, statsStore);
+    const statsPlugin = statsRole.component;
+
     dispatch(
       createTab(
         new ObjectId().toHexString(),
@@ -419,7 +449,9 @@ export const preCreateTab = (namespace, isReadonly) => {
         isReadonly,
         tabs,
         views,
-        queryHistoryIndexes
+        queryHistoryIndexes,
+        statsPlugin,
+        statsStore
       )
     );
   };

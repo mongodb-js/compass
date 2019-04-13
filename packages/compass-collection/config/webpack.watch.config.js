@@ -26,7 +26,7 @@ const config = {
     publicPath: '/',
     filename: '[name].js',
     // Export our plugin as a UMD library (compatible with all module definitions - CommonJS, AMD and global variable)
-    library: 'DatabasePlugin',
+    library: 'CollectionPlugin',
     libraryTarget: 'umd'
   },
   module: {

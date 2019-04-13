@@ -154,7 +154,9 @@ class Workspace extends PureComponent {
           isReadonly={activeTab.isReadonly}
           tabs={activeTab.tabs}
           views={activeTab.views}
-          queryHistoryIndexes={activeTab.queryHistoryIndexes} />
+          queryHistoryIndexes={activeTab.queryHistoryIndexes}
+          statsPlugin={activeTab.statsPlugin}
+          statsStore={activeTab.statsStore} />
       );
     }
   }

@@ -16,17 +16,16 @@ class Collection extends Component {
     isReadonly: PropTypes.bool.isRequired,
     tabs: PropTypes.array.isRequired,
     views: PropTypes.array.isRequired,
-    queryHistoryIndexes: PropTypes.array.isRequired
+    queryHistoryIndexes: PropTypes.array.isRequired,
+    statsPlugin: PropTypes.func.isRequired,
+    statsStore: PropTypes.object.isRequired
   };
 
   constructor(props) {
     super(props);
     this.state = { activeTab: 0 };
-
-    const app = global.hadronApp;
-
-    this.QueryActions = app.appRegistry.getAction('Query.Actions');
-    this.QueryHistoryActions = app.appRegistry.getAction('QueryHistory.Actions');
+    // @todo: Use app registry.
+    // this.QueryHistoryActions = app.appRegistry.getAction('QueryHistory.Actions');
   }
 
   onTabClicked = (idx) => {
@@ -51,7 +50,8 @@ class Collection extends Component {
         <CollectionHeader
           namespace={this.props.namespace}
           isReadonly={this.props.isReadonly}
-          stats={this.props.stats} />
+          statsPlugin={this.props.statsPlugin}
+          statsStore={this.props.statsStore} />
         <TabNavBar
           theme="light"
           tabs={this.props.tabs}

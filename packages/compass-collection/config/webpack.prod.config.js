@@ -10,9 +10,6 @@ const baseWebpackConfig = require('./webpack.base.config');
 const project = require('./project');
 
 const GLOBALS = {
-  'process.env': {
-    'NODE_ENV': JSON.stringify('production')
-  },
   __DEV__: JSON.stringify(JSON.parse(process.env.DEBUG || 'false'))
 };
 
@@ -28,7 +25,7 @@ const config = {
     publicPath: './',
     filename: '[name].js',
     // Export our plugin as a UMD library (compatible with all module definitions - CommonJS, AMD and global variable)
-    library: 'DatabasePlugin',
+    library: 'CollectionPlugin',
     libraryTarget: 'umd'
   },
   module: {

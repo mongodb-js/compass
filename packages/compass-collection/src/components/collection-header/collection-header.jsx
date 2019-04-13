@@ -14,7 +14,8 @@ class CollectionHeader extends Component {
   static propTypes = {
     namespace: PropTypes.string.isRequired,
     isReadonly: PropTypes.bool.isRequired,
-    stats: PropTypes.object.isRequired
+    statsPlugin: PropTypes.func.isRequired,
+    statsStore: PropTypes.object.isRequired
   };
 
   /**
@@ -44,6 +45,7 @@ class CollectionHeader extends Component {
 
     return (
       <div className={classnames(styles['collection-header'])}>
+        <this.props.statsPlugin store={this.props.statsStore} />
         <h1 className={classnames(styles['collection-header-title'])}>
           <span className={classnames(styles['collection-header-title-db'])}>
             {database}

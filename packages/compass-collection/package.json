@@ -44,6 +44,7 @@
   },
   "devDependencies": {
     "@mongodb-js/compass-aggregations": "^4.0.0-alpha.9",
+    "@mongodb-js/compass-collection-stats": "^4.0.1",
     "@mongodb-js/compass-crud": "^6.2.5",
     "@storybook/react": "^3.2.0",
     "autoprefixer": "^9.4.6",
@@ -119,7 +120,8 @@
     "react-dom": "^16.8.0",
     "react-hot-loader": "^4.1.0",
     "react-storybook-addon-chapters": "^1.1.0",
-    "reflux": "^0.4.1",
+    "reflux": "0.4.1",
+    "reflux-state-mixin": "^0.8.0",
     "resolve": "^1.4.0",
     "rimraf": "^2.6.1",
     "semver": "^5.4.1",
