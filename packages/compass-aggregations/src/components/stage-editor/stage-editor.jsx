@@ -122,6 +122,11 @@ class StageEditor extends Component {
    * @param {String} value - The value of the stage.
    */
   onStageChange = (value) => {
+    if (this.props.stageOperator === null && value && value.charAt(0) === '[') {
+      this.props.newPipelineFromPaste(value);
+      return;
+    }
+
     this.props.stageChanged(value, this.props.index);
     this.props.projectionsChanged();
     this.props.setIsModified(true);
@@ -212,15 +217,6 @@ class StageEditor extends Component {
             setOptions={OPTIONS}
             onFocus={() => {
               tools.setCompleters([this.completer]);
-            }}
-            onChange={(contents) => {
-              if (
-                this.props.stageOperator === null &&
-                contents &&
-                contents.charAt(0) === '['
-              ) {
-                this.props.newPipelineFromPaste(contents);
-              }
             }}
             onLoad={(editor) => {
               this.editor = editor;
