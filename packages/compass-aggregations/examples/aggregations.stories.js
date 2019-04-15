@@ -15,20 +15,25 @@ import PEARSONS_RHO_EXAMPLE from './example-pearsons-rho.js';
 
 import DataService from './data-service-provider';
 
+import { DEFAULT_STITCH_APP_ID } from './example-constants';
+
 import { runStage } from 'modules/pipeline';
 import { refreshInputDocuments } from 'modules/input-documents';
 
 const BASE_STATE = {
-  ...INITIAL_STATE
+  ...INITIAL_STATE,
+  stitchAppId: DEFAULT_STITCH_APP_ID
 };
-
-BASE_STATE.dataService.dataService = new DataService();
 
 function loadAggregation(state = {}) {
   const initialState = {
     ...BASE_STATE,
     ...state
   };
+
+  initialState.dataService.dataService = new DataService(
+    initialState.stitchAppId
+  );
 
   const store = configureStore(initialState);
   /**
@@ -54,6 +59,10 @@ storiesOf('Examples', module)
     const initialState = {
       ...BASE_STATE
     };
+    initialState.dataService.dataService = new DataService(
+      DEFAULT_STITCH_APP_ID
+    );
+
     const store = configureStore(initialState);
     return (
       <Provider store={store}>

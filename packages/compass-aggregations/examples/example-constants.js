@@ -1,3 +1,5 @@
+export const DEFAULT_STITCH_APP_ID = 'compass-aggregations-storybook-fecnn';
+
 export const INITIAL_INPUT_DOCUMENTS = {
   documents: [],
   isLoading: false,
@@ -19,7 +21,8 @@ export const EXAMPLE = {
     isListVisible: false,
     isModalVisible: false,
     isModalError: false
-  }
+  },
+  stitchAppId: DEFAULT_STITCH_APP_ID
 };
 
 export const STAGE_DEFAULTS = {
