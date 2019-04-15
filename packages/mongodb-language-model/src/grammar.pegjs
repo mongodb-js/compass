@@ -15,6 +15,7 @@ clause_list
 clause
   = leaf_clause
   / expression_tree_clause
+  / expression_clause
   / where_clause
   / text_clause
   // / comment_clause
@@ -43,6 +44,13 @@ expression_tree_clause
 
 expression_tree_operator
   = "$or" / "$nor" / "$and"
+
+expression_clause
+  = quotation_mark expression_operator quotation_mark name_separator begin_object operator end_object
+  { return { pos: "expression-clause" }; }
+
+expression_operator
+  = "$expr"
 
 expression_list
   = expressions:(
