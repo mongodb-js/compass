@@ -40,4 +40,9 @@ See [`aggregations.stories.js`](https://github.com/mongodb-js/compass-aggregatio
 
 ## Adding new examples
 
-We haven't defined a process for this yet, but we'd be thrilled to have more. [Open an issue and let's chat more!](https://github.com/mongodb-js/compass-aggregations/issues)
+1. [Put your data set in MongoDB Atlas](https://cloud.mongodb.com/)
+2. Create a new Stitch app with read permissions for the example collection
+3. Copy `./example-grouped-stats.js` to `./example-<my-example>.js` and update with your pipeline details and `stitchAppId`
+4. In [`aggregations.stories.js`](https://github.com/mongodb-js/compass-aggregations/blob/master/examples/aggregations.stories.js) `import MY_EXAMPLE from ./example-<my-example>.js` and add a new story
+5. `npm run storybook` and your new example will load
+6. Open a new pull request with your changes and include a brief description of what you use this aggregation pipeline for.
