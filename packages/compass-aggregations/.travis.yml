@@ -10,6 +10,9 @@ addons:
     packages:
       - libkrb5-dev
       - xvfb
+      - libsecret-1-dev
+      - gnome-keyring
+      - python-gnomekeyring
 before_script:
   - export DISPLAY=:99.0
   - sh -e /etc/init.d/xvfb start
