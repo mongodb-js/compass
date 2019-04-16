@@ -124,6 +124,7 @@ class StageEditor extends Component {
   onStageChange = (value) => {
     if (this.props.stageOperator === null && value && value.charAt(0) === '[') {
       this.props.newPipelineFromPaste(value);
+      this.props.runStage(0);
       return;
     }
 
