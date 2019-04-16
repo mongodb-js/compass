@@ -11,7 +11,7 @@ const SamplingMessage = require('./sampling-message');
 const { TOOLTIP_IDS } = require('../constants');
 const _ = require('lodash');
 
-// const debug = require('debug')('mongodb-compass:schema');
+const debug = require('debug')('mongodb-compass:schema');
 
 const QUERYBAR_LAYOUT = ['filter', ['project', 'limit']];
 
@@ -65,16 +65,9 @@ class Schema extends React.Component {
    * increased in 5% steps.
    */
   _updateProgressBar() {
-    if (this.props.samplingState === 'timeout') {
-      this.StatusAction.configure({
-        progressbar: false,
-        animation: false,
-        trickle: false
-      });
-      return;
-    }
     if (this.props.samplingState === 'error') {
       this.StatusAction.hide();
+      return;
     }
     const progress = this.props.samplingProgress;
     // initial schema phase, cannot measure progress, enable trickling
@@ -172,6 +165,7 @@ class Schema extends React.Component {
    * @returns {React.Component} The schema view.
    */
   render() {
+    debug('rendering with props', this.props);
     this._updateProgressBar();
 
     return (
@@ -197,7 +191,7 @@ class Schema extends React.Component {
 Schema.propTypes = {
   actions: PropTypes.object,
   samplingState: PropTypes.oneOf(['initial', 'counting', 'sampling',
-    'analyzing', 'timeout', 'error', 'complete', 'outdated']),
+    'analyzing', 'error', 'complete', 'outdated']),
   samplingProgress: PropTypes.number,
   samplingTimeMS: PropTypes.number,
   errorMessage: PropTypes.string,
