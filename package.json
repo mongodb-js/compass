@@ -264,8 +264,8 @@
   },
   "dependencies": {
     "@mongodb-js/compass-aggregations": "2.2.12-beta.0",
-    "@mongodb-js/compass-auth-kerberos": "1.3.1",
-    "@mongodb-js/compass-auth-ldap": "1.2.0",
+    "@mongodb-js/compass-auth-kerberos": "1.3.2",
+    "@mongodb-js/compass-auth-ldap": "1.2.1",
     "@mongodb-js/compass-auth-x509": "1.2.1",
     "@mongodb-js/compass-auto-updates": "0.2.0",
     "@mongodb-js/compass-collection": "0.0.5",
