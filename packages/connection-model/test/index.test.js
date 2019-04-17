@@ -32,7 +32,7 @@ describe('mongodb-connection-model', function() {
         app_name: 'My App'
       });
       assert.equal(c.driver_url,
-        'mongodb://localhost:27017/?readPreference=primary&appname=My%20App');
+        'mongodb://localhost:27017/?readPreference=primary&appname=My%20App&ssl=false');
 
       assert.doesNotThrow(function() {
         parse(c.driver_url);
@@ -52,14 +52,21 @@ describe('mongodb-connection-model', function() {
     it('sets the replica set name', function() {
       var c = new Connection({ app_name: 'My App', replica_set_name: 'testing' });
       assert.equal(c.driver_url,
-        'mongodb://localhost:27017/?replicaSet=testing&readPreference=primary&appname=My%20App');
+        'mongodb://localhost:27017/?replicaSet=testing&readPreference=primary&appname=My%20App&ssl=false');
     });
 
-    context('when the connection is a srv record', function() {
+    context('when the connection is a srv record and ssl is default', function() {
       const c = new Connection({ isSrvRecord: true });
 
       it('changes the uri scheme', function() {
-        assert.equal(c.driver_url, 'mongodb+srv://localhost/?readPreference=primary');
+        assert.equal(c.driver_url, 'mongodb+srv://localhost/?readPreference=primary&ssl=false');
+      });
+    });
+    context('when the connection is a srv record and ssl is set to false', function() {
+      const c = new Connection({ isSrvRecord: true, ssl: 'NONE' });
+
+      it('changes the uri scheme', function() {
+        assert.equal(c.driver_url, 'mongodb+srv://localhost/?readPreference=primary&ssl=false');
       });
     });
   });
@@ -75,25 +82,25 @@ describe('mongodb-connection-model', function() {
   describe('#isURI', function() {
     context('when using a mongodb protocol', function() {
       it('returns true', function() {
-        assert.equal(Connection.isURI('mongodb://localhost'), true);
+        assert.equal(Connection.isURI('mongodb://localhost&ssl=false'), true);
       });
     });
 
     context('when using a mongodb+srv protocol', function() {
       it('returns true', function() {
-        assert.equal(Connection.isURI('mongodb+srv://localhost'), true);
+        assert.equal(Connection.isURI('mongodb+srv://localhost&ssl=false'), true);
       });
     });
 
     context('when using another protocol', function() {
       it('returns false', function() {
-        assert.equal(Connection.isURI('mongodb+somethign://localhost'), false);
+        assert.equal(Connection.isURI('mongodb+somethign://localhost&ssl=false'), false);
       });
     });
 
     context('when using a shell connection string', function() {
       it('returns false', function() {
-        assert.equal(Connection.isURI('mongo "mongodb://localhost"'), false);
+        assert.equal(Connection.isURI('mongo "mongodb://localhost&ssl=false"'), false);
       });
     });
   });
@@ -105,7 +112,7 @@ describe('mongodb-connection-model', function() {
           ssl: 'NONE'
         });
         assert.equal(c.driver_url,
-          'mongodb://localhost:27017/?readPreference=primary');
+          'mongodb://localhost:27017/?readPreference=primary&ssl=false');
 
         assert.doesNotThrow(function() {
           parse(c.driver_url);
@@ -151,7 +158,7 @@ describe('mongodb-connection-model', function() {
 
         it('should urlencode credentials', function() {
           assert.equal(c.driver_url,
-            'mongodb://%40rlo:w%40of@localhost:27017/?readPreference=primary&authSource=admin&authMechanism=SCRAM-SHA-256');
+            'mongodb://%40rlo:w%40of@localhost:27017/?readPreference=primary&authSource=admin&authMechanism=SCRAM-SHA-256&ssl=false');
         });
 
         it('should be parse in the browser', function() {
@@ -216,7 +223,7 @@ describe('mongodb-connection-model', function() {
 
         it('should urlencode credentials', function() {
           assert.equal(c.driver_url,
-            'mongodb://%40rlo:w%40of@localhost:27017/?readPreference=primary&authSource=admin');
+            'mongodb://%40rlo:w%40of@localhost:27017/?readPreference=primary&authSource=admin&ssl=false');
         });
 
         it('should be parse in the browser', function() {
@@ -252,7 +259,7 @@ describe('mongodb-connection-model', function() {
 
           it('should urlencode credentials', () => {
             assert.equal(connection.driver_url,
-              `mongodb://${authExpect}@localhost:27017/?readPreference=primary&authSource=admin`);
+              `mongodb://${authExpect}@localhost:27017/?readPreference=primary&authSource=admin&ssl=false`);
           });
 
           it('should be parse in the browser', () => {
@@ -287,7 +294,7 @@ describe('mongodb-connection-model', function() {
 
           it('should urlencode credentials', () => {
             assert.equal(connection.driver_url,
-              `mongodb://${authExpect}@localhost:27017/?readPreference=primary&authMechanism=PLAIN&authSource=$external`);
+              `mongodb://${authExpect}@localhost:27017/?readPreference=primary&authMechanism=PLAIN&ssl=false&authSource=$external`);
           });
 
           it('should be parse in the browser', () => {
@@ -323,7 +330,7 @@ describe('mongodb-connection-model', function() {
 
             it('should urlencode credentials', () => {
               assert.equal(connection.driver_url,
-                `mongodb://${authExpect}@localhost:27017/?readPreference=primary&gssapiServiceName=mongodb&authMechanism=GSSAPI&authSource=$external`);
+                `mongodb://${authExpect}@localhost:27017/?readPreference=primary&gssapiServiceName=mongodb&authMechanism=GSSAPI&ssl=false&authSource=$external`);
             });
 
             it('should be parse in the browser', () => {
@@ -360,7 +367,7 @@ describe('mongodb-connection-model', function() {
 
           it('should urlencode credentials', () => {
             assert.equal(connection.driver_url,
-              `mongodb://${authExpect}@localhost:27017/?readPreference=primary&gssapiServiceName=mongodb&authMechanism=GSSAPI&authSource=$external&authMechanismProperties=CANONICALIZE_HOST_NAME:true`);
+              `mongodb://${authExpect}@localhost:27017/?readPreference=primary&gssapiServiceName=mongodb&authMechanism=GSSAPI&ssl=false&authSource=$external&authMechanismProperties=CANONICALIZE_HOST_NAME:true`);
           });
 
           it('should be parse in the browser', () => {
@@ -396,7 +403,7 @@ describe('mongodb-connection-model', function() {
 
         it('should urlencode credentials', () => {
           assert.equal(connection.driver_url,
-            `mongodb://${authExpect}@localhost:27017/?readPreference=primary&authSource=admin`);
+            `mongodb://${authExpect}@localhost:27017/?readPreference=primary&authSource=admin&ssl=false`);
         });
 
         it('should be parse in the browser', () => {
@@ -422,7 +429,7 @@ describe('mongodb-connection-model', function() {
       });
 
       it('regenerates the correct URI', function() {
-        assert.equal(c.driver_url, 'mongodb+srv://123.45.67.8/admin?readPreference=primary');
+        assert.equal(c.driver_url, 'mongodb+srv://123.45.67.8/admin?readPreference=primary&ssl=false');
       });
     });
 
@@ -521,7 +528,7 @@ describe('mongodb-connection-model', function() {
       context('when read preference is not the default', function() {
         it('adds the read preference', function() {
           var c = new Connection({ read_preference: 'secondary' });
-          assert.equal(c.driver_url, 'mongodb://localhost:27017/?readPreference=secondary');
+          assert.equal(c.driver_url, 'mongodb://localhost:27017/?readPreference=secondary&ssl=false');
         });
       });
 
@@ -535,7 +542,7 @@ describe('mongodb-connection-model', function() {
         it('includes the attribute in the url', function() {
           assert.equal(
             c.driver_url,
-            'mongodb://ldap-user:ldap-password@localhost:27017/?readPreference=primary&authMechanism=PLAIN&authSource=$external'
+            'mongodb://ldap-user:ldap-password@localhost:27017/?readPreference=primary&authMechanism=PLAIN&ssl=false&authSource=$external'
           );
         });
       });
@@ -596,7 +603,7 @@ describe('mongodb-connection-model', function() {
 
           it('should urlencode credentials', function() {
             assert.equal(c.driver_url,
-              'mongodb://arlo:w%40of@localhost:27017/ldap?readPreference=primary&authMechanism=PLAIN&authSource=$external');
+              'mongodb://arlo:w%40of@localhost:27017/ldap?readPreference=primary&authMechanism=PLAIN&ssl=false&authSource=$external');
           });
 
           it('should be parse in the browser', function() {
@@ -622,7 +629,7 @@ describe('mongodb-connection-model', function() {
           });
           it('COMPASS-745 - should urlencode @ once only', function() {
             assert.equal(c.driver_url,
-              'mongodb://arlo%40t.co:woof@localhost:27017/ldap?readPreference=primary&authMechanism=PLAIN&authSource=$external');
+              'mongodb://arlo%40t.co:woof@localhost:27017/ldap?readPreference=primary&authMechanism=PLAIN&ssl=false&authSource=$external');
           });
         });
       });
@@ -655,7 +662,7 @@ describe('mongodb-connection-model', function() {
             assert.equal(c.driver_url,
               'mongodb://CN%3Dclient%2COU%3Dkerneluser%2CO%3D10Gen%2CL%3DNew%20York%20City'
               + '%2CST%3DNew%20York%2CC%3DUS@localhost:27017/'
-              + '?readPreference=primary&authMechanism=MONGODB-X509');
+              + '?readPreference=primary&authMechanism=MONGODB-X509&ssl=false');
           });
 
           it('should be parse in the browser', function() {
@@ -944,7 +951,7 @@ describe('mongodb-connection-model', function() {
       });
 
       it('should produce the correct driver URL', function() {
-        assert.equal(sslNone.driver_url, 'mongodb://localhost:27017/?readPreference=primary');
+        assert.equal(sslNone.driver_url, 'mongodb://localhost:27017/?readPreference=primary&ssl=false');
       });
       it('should produce the correct driver options', function() {
         const expected = _.clone(Connection.DRIVER_OPTIONS_DEFAULT);

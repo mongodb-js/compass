@@ -679,6 +679,8 @@ assign(derived, {
         req.query.ssl = 'true';
       } else if (this.ssl === 'IFAVAILABLE') {
         req.query.ssl = 'prefer';
+      } else if (this.ssl === 'NONE') {
+        req.query.ssl = 'false';
       }
       var reqClone = clone(req);
       if (this.ssh_tunnel !== 'NONE') {
