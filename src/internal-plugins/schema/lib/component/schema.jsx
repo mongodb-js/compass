@@ -65,16 +65,9 @@ class Schema extends React.Component {
    * increased in 5% steps.
    */
   _updateProgressBar() {
-    if (this.props.samplingState === 'timeout') {
-      this.StatusAction.configure({
-        progressbar: false,
-        animation: false,
-        trickle: false
-      });
-      return;
-    }
     if (this.props.samplingState === 'error') {
       this.StatusAction.hide();
+      return;
     }
     const progress = this.props.samplingProgress;
     // initial schema phase, cannot measure progress, enable trickling
@@ -197,7 +190,7 @@ class Schema extends React.Component {
 Schema.propTypes = {
   actions: PropTypes.object,
   samplingState: PropTypes.oneOf(['initial', 'counting', 'sampling',
-    'analyzing', 'timeout', 'error', 'complete', 'outdated']),
+    'analyzing', 'error', 'complete', 'outdated']),
   samplingProgress: PropTypes.number,
   samplingTimeMS: PropTypes.number,
   errorMessage: PropTypes.string,
