@@ -199,10 +199,8 @@ const SchemaStore = Reflux.createStore({
 
     const onError = (err) => {
       debug('onError', err);
-      const errorState = (_.has(err, 'message') &&
-        err.message.match(/operation exceeded time limit/)) ? 'timeout' : 'error';
       this.setState({
-        samplingState: errorState,
+        samplingState: 'error',
         errorMessage: _.get(err, 'message') || 'unknown error'
       });
       this.stopSampling();
