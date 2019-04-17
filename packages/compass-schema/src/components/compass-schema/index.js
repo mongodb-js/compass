@@ -1,4 +1,2 @@
-import MappedCompassSchema, { CompassSchema } from './compass-schema';
-
-export default MappedCompassSchema;
-export { CompassSchema };
+import CompassSchema from './compass-schema';
+export default CompassSchema;

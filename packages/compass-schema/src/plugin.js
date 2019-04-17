@@ -1,10 +1,14 @@
 import React, { Component } from 'react';
-import { Provider } from 'react-redux';
+import PropTypes from 'prop-types';
+import { StoreConnector } from 'hadron-react-components';
 import CompassSchema from 'components/compass-schema';
-import store from 'stores';
 
 class Plugin extends Component {
   static displayName = 'CompassSchemaPlugin';
+
+  static propTypes = {
+    store: PropTypes.object.isRequired
+  }
 
   /**
    * Connect the Plugin to the store and render.
@@ -13,9 +17,9 @@ class Plugin extends Component {
    */
   render() {
     return (
-      <Provider store={store}>
+      <StoreConnector store={this.props.store}>
         <CompassSchema />
-      </Provider>
+      </StoreConnector>
     );
   }
 }

@@ -9,6 +9,7 @@
     "clean": "rimraf lib",
     "precompile": "npm run clean",
     "compile": "cross-env NODE_ENV=production webpack --config ./config/webpack.prod.config.js --progress",
+    "prestart": "electron-rebuild --force --only keytar",
     "start": "webpack-dev-server --config ./config/webpack.dev.config.js",
     "start:watch": "npm run clean && webpack --config ./config/webpack.watch.config.js",
     "test": "cross-env NODE_ENV=test mocha-webpack \"./src/**/*.spec.js\"",
@@ -29,19 +30,24 @@
   "dependency-check": {
     "ignore": [
       "react-dom",
-      "debug"
+      "debug",
+      "hadron-ipc",
+      "reflux",
+      "reflux-state-mixin"
     ]
   },
   "license": "Apache-2.0",
   "peerDependencies": {
     "debug": "^3.0.1",
+    "hadron-ipc": "^1.1.0",
+    "hadron-react-components": "^3.2.1",
     "prop-types": "^15.5.8",
-    "react": "^16.6.0",
-    "react-dom": "^16.6.0",
+    "react": "^16.8.0",
+    "react-dom": "^16.8.0",
     "react-bootstrap": "0.31.0",
-    "react-redux": "^5.0.6",
     "react-tooltip": "^3.2.6",
-    "redux": "^3.7.2"
+    "reflux": "^0.4.1",
+    "reflux-state-mixin": "^0.7.0"
   },
   "devDependencies": {
     "@storybook/react": "^3.2.0",
@@ -68,6 +74,7 @@
     "debug": "^3.0.1",
     "electron": "^3.0.7",
     "electron-packager": "^8.7.0",
+    "electron-rebuild": "^1.8.4",
     "enzyme": "^3.7.0",
     "enzyme-adapter-react-16": "^1.6.0",
     "eslint-config-mongodb-js": "^2.1.0",
@@ -76,6 +83,8 @@
     "font-awesome": "^4.7.0",
     "hadron-app": "^3.1.0",
     "hadron-app-registry": "^7.1.0",
+    "hadron-ipc": "^1.1.0",
+    "hadron-react-components": "^3.2.1",
     "html-webpack-plugin": "^3.2.0",
     "ignore-loader": "^0.1.2",
     "istanbul-instrumenter-loader": "^3.0.0",
@@ -106,9 +115,9 @@
     "prop-types": "^15.5.8",
     "react-dom": "^16.6.0",
     "react-hot-loader": "^4.1.0",
-    "react-redux": "^5.0.6",
     "react-storybook-addon-chapters": "^1.1.0",
-    "redux": "^3.7.2",
+    "reflux": "^0.4.1",
+    "reflux-state-mixin": "^0.7.0",
     "resolve": "^1.4.0",
     "rimraf": "^2.6.1",
     "semver": "^5.4.1",
@@ -126,6 +135,7 @@
     "webpack-sources": "^1.0.1"
   },
   "dependencies": {
+    "mongodb-schema": "^8.2.3",
     "mongodb-schema-parser": "^0.1.5"
   }
 }

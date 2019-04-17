@@ -1,12 +1,18 @@
 import CompassSchemaPlugin from './plugin';
-import CompassSchemaStore from 'stores';
+import configureStore from 'stores';
+import configureActions from 'actions';
 
 /**
  * A sample role for the component.
  */
 const ROLE = {
-  name: 'CompassSchema',
-  component: CompassSchemaPlugin
+  component: CompassSchemaPlugin,
+  name: 'Schema',
+  hasQueryHistory: true,
+  order: 3,
+  configureStore: configureStore,
+  configureActions: configureActions,
+  storeName: 'Schema.Store'
 };
 
 /**
@@ -14,17 +20,7 @@ const ROLE = {
  * @param {Object} appRegistry - The Hadron appRegisrty to activate this plugin with.
  **/
 function activate(appRegistry) {
-  // Register the CompassSchemaPlugin as a role in Compass
-  //
-  // Available roles are:
-  //   - Instance.Tab: { name: <String>, component: <React.Component>, order: <Number> }
-  //   - Database.Tab: { name: <String>, component: <React.Component>, order: <Number> }
-  //   - Collection.Tab: { name: <String>, component: <React.Component>, order: <Number> }
-  //   - CollectionHUD.Item: { name <String>, component: <React.Component> }
-  //   - Header.Item: { name: <String>, component: <React.Component>, alignment: <String> }
-
   appRegistry.registerRole('Collection.Tab', ROLE);
-  appRegistry.registerStore('CompassSchema.Store', CompassSchemaStore);
 }
 
 /**
@@ -33,7 +29,6 @@ function activate(appRegistry) {
  **/
 function deactivate(appRegistry) {
   appRegistry.deregisterRole('Collection.Tab', ROLE);
-  appRegistry.deregisterStore('CompassSchema.Store');
 }
 
 export default CompassSchemaPlugin;
