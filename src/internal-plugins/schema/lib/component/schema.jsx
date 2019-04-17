@@ -11,7 +11,7 @@ const SamplingMessage = require('./sampling-message');
 const { TOOLTIP_IDS } = require('../constants');
 const _ = require('lodash');
 
-const debug = require('debug')('mongodb-compass:schema');
+// const debug = require('debug')('mongodb-compass:schema');
 
 const QUERYBAR_LAYOUT = ['filter', ['project', 'limit']];
 
@@ -165,7 +165,6 @@ class Schema extends React.Component {
    * @returns {React.Component} The schema view.
    */
   render() {
-    debug('rendering with props', this.props);
     this._updateProgressBar();
 
     return (
