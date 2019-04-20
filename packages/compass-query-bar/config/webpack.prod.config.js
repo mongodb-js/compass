@@ -9,14 +9,12 @@ const PeerDepsExternalsPlugin = require('peer-deps-externals-webpack-plugin');
 const project = require('./project');
 
 const GLOBALS = {
-  'process.env': {
-    'NODE_ENV': JSON.stringify('production')
-  },
   __DEV__: JSON.stringify(JSON.parse(process.env.DEBUG || 'false'))
 };
 
 module.exports = {
   target: 'electron-renderer',
+  devtool: false,
   entry: {
     // Export the entry to our plugin. Referenced in package.json main.
     index: path.resolve(project.path.src, 'index.js')
