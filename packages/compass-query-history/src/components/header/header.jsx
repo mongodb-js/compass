@@ -55,12 +55,12 @@ class Header extends PureComponent {
           label="Past Queries"
           buttonLabels={['Recent', 'Favorites']}
           activeButton={activeButton}
-          onClick={this.onViewSwitch}
-        />
-        <span className={classnames(styles.close)}
-              data-test-id="query-history-button-close-panel"
-              href="#"
-              onClick={this.collapse}>
+          onClick={this.onViewSwitch} />
+        <span
+          className={classnames(styles.close)}
+          data-test-id="query-history-button-close-panel"
+          href="#"
+          onClick={this.collapse}>
           ×
         </span>
       </div>

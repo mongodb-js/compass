@@ -10,8 +10,9 @@ electron/
 karma.conf.js
 mocha-webpack.opts
 scripts/
-test/
 src/
+test/
+.zuul.yml
 .storybook/
 .nyc_output/
-.zuul.yml
+coverage/

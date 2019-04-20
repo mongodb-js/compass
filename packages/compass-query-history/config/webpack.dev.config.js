@@ -1,8 +1,10 @@
 const webpack = require('webpack');
+const merge = require('webpack-merge');
 const path = require('path');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const { spawn } = require('child_process');
 
+const baseWebpackConfig = require('./webpack.base.config');
 const project = require('./project');
 
 const GLOBALS = {
@@ -12,8 +14,9 @@ const GLOBALS = {
   __DEV__: JSON.stringify(JSON.parse('true'))
 };
 
-module.exports = {
+const config = {
   target: 'electron-renderer',
+  devtool: 'eval-source-map',
   entry: {
     index: [
       // activate HMR for React
@@ -36,72 +39,8 @@ module.exports = {
     publicPath: '/',
     filename: '[name].js'
   },
-  resolve: {
-    modules: ['node_modules'],
-    extensions: ['.js', '.jsx', '.json', 'less'],
-    alias: {
-      actions: path.join(project.path.src, 'actions'),
-      components: path.join(project.path.src, 'components'),
-      constants: path.join(project.path.src, 'constants'),
-      fonts: path.join(project.path.src, 'assets/fonts'),
-      images: path.join(project.path.src, 'assets/images'),
-      less: path.join(project.path.src, 'assets/less'),
-      models: path.join(project.path.src, 'models'),
-      plugin: path.join(project.path.src, 'index.js'),
-      stores: path.join(project.path.src, 'stores'),
-      storybook: project.path.storybook,
-      utils: path.join(project.path.src, 'utils')
-    }
-  },
   module: {
     rules: [
-      {
-        test: /\.css$/,
-        use: [
-          { loader: 'style-loader'},
-          { loader: 'css-loader' }
-        ]
-      },
-      {
-        test: /\.less$/,
-        exclude: /node_modules/,
-        use: [
-          { loader: 'style-loader' },
-          {
-            loader: 'css-loader',
-            options: {
-              modules: true,
-              importLoaders: 1,
-              localIdentName: 'QueryHistory_[name]-[local]__[hash:base64:5]'
-            }
-          },
-          {
-            loader: 'postcss-loader',
-            options: {
-              plugins: function() {
-                return [
-                  project.plugin.autoprefixer
-                ];
-              }
-            }
-          },
-          {
-            loader: 'less-loader',
-            options: {
-              noIeCompat: true
-            }
-          }
-        ]
-      },
-      {
-        test: /node_modules[\\\/]JSONStream[\\\/]index\.js/,
-        use: [{ loader: 'shebang-loader' }]
-      },
-      {
-        test: /\.(js|jsx)$/,
-        use: [{ loader: 'babel-loader' }],
-        exclude: /(node_modules)/
-      },
       {
         test: /\.(png|jpg|jpeg|gif|svg)$/,
         use: [{
@@ -140,7 +79,6 @@ module.exports = {
     // Defines global variables
     new webpack.DefinePlugin(GLOBALS)
   ],
-  devtool: 'cheap-source-map',
   devServer: {
     host: '0.0.0.0',
     hot: true,
@@ -150,10 +88,12 @@ module.exports = {
       chunks: false,
       children: false
     },
-    setup() {
+    before() {
       spawn('electron', [project.path.electron], { shell: true, env: process.env, stdio: 'inherit' })
         .on('close', () => process.exit(0))
         .on('error', spawnError => console.error(spawnError)); // eslint-disable-line no-console
     }
   }
 };
+
+module.exports = merge.smart(baseWebpackConfig, config);

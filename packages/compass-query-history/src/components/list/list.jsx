@@ -44,9 +44,9 @@ const factory = (ListItem, Saving) => {
       if (length === 0 && current === null) {
         return (
           <Card>
-              <CardBody className={classnames(styles.zeroState)}>
-                  <div className={classnames(styles['zeroState-title'])}>{zeroStateTitle}</div>
-              </CardBody>
+            <CardBody className={classnames(styles.zeroState)}>
+              <div className={classnames(styles['zeroState-title'])}>{zeroStateTitle}</div>
+            </CardBody>
           </Card>
         );
       }

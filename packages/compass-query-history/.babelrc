@@ -10,7 +10,9 @@
       "plugins": [
         "react-hot-loader/babel",
         "syntax-object-rest-spread",
-        "transform-class-properties"
+        "transform-object-rest-spread",
+        "transform-class-properties",
+        "syntax-dynamic-import"
       ]
     }
   },
@@ -21,6 +23,8 @@
   "plugins": [
     "react-hot-loader/babel",
     "syntax-object-rest-spread",
-    "transform-class-properties"
+    "transform-object-rest-spread",
+    "transform-class-properties",
+    "syntax-dynamic-import"
   ]
 }
