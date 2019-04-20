@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { pick } from 'lodash';
+import pick from 'lodash.pick';
 import classnames from 'classnames';
 import { namespaceChanged } from 'modules/namespace';
 import { openLink } from 'modules/link';

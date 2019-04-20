@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import classnames from 'classnames';
 import PropTypes from 'prop-types';
-import { map } from 'lodash';
+import map from 'lodash.map';
 import d3 from 'd3';
 import { ExplainStage } from 'components/explain-stage';
 

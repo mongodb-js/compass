@@ -1,5 +1,7 @@
 import ExplainPlanModel from 'mongodb-explain-plan-model';
-import { defaults, isString, find } from 'lodash';
+import defaults from 'lodash.defaults';
+import isString from 'lodash.isstring';
+import find from 'lodash.find';
 import { treeStagesChanged } from 'modules/tree-stages';
 import { appRegistryEmit } from 'modules/app-registry';
 

@@ -1,4 +1,11 @@
-import { has, omit, map, isPlainObject, keys, max, min, forEach } from 'lodash';
+import has from 'lodash.has';
+import omit from 'lodash.omit';
+import map from 'lodash.map';
+import isPlainObject from 'lodash.isplainobject';
+import keys from 'lodash.keys';
+import max from 'lodash.max';
+import min from 'lodash.min';
+import forEach from 'lodash.foreach';
 import d3 from 'd3';
 import STAGE_CARD_PROPERTIES from 'constants/stage-card-properties';
 import { format } from 'util';

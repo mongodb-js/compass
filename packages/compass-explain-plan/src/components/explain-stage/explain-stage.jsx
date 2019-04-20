@@ -1,7 +1,9 @@
 import React, { Component } from 'react';
 import classnames from 'classnames';
 import PropTypes from 'prop-types';
-import { map, isBoolean, camelCase } from 'lodash';
+import map from 'lodash.map';
+import isBoolean from 'lodash.isboolean';
+import camelCase from 'lodash.camelcase';
 import d3 from 'd3';
 import { Button } from 'react-bootstrap';
 
