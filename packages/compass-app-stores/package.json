@@ -36,8 +36,8 @@
   "peerDependencies": {
     "debug": "^3.0.1",
     "prop-types": "^15.5.8",
-    "react": "^16.6.0",
-    "react-dom": "^16.6.0",
+    "react": "^16.8.0",
+    "react-dom": "^16.8.0",
     "react-bootstrap": "^0.32.1",
     "react-tooltip": "^3.2.6",
     "redux": "^3.7.2"

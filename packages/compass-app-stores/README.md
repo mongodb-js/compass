@@ -93,8 +93,8 @@ For completeness, below is a list of directories present in this module:
 
 Apache 2.0
 
-[travis_img]: https://travis-ci.org/mongodb-js/app-stores.svg?branch=master
-[travis_url]: https://travis-ci.org/mongodb-js/app-stores
+[travis_img]: https://travis-ci.org/mongodb-js/compass-app-stores.svg?branch=master
+[travis_url]: https://travis-ci.org/mongodb-js/compass-app-stores
 [react-storybook]: https://github.com/kadirahq/react-storybook
 [enzyme]: http://airbnb.io/enzyme/
 [enzyme-chai]: https://github.com/producthunt/chai-enzyme
