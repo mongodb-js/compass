@@ -33,15 +33,17 @@
   "dependency-check": {
     "ignore": [
       "@hot-loader/react-dom",
+      "@mongodb-js/compass-crud",
+      "@mongodb-js/compass-field-store",
       "bson-transpilers",
       "mongodb-js-metrics",
-      "storage-mixin",
-      "@mongodb-js/compass-crud"
+      "storage-mixin"
     ]
   },
   "peerDependencies": {
     "@hot-loader/react-dom": "^16.8.4",
     "@mongodb-js/compass-crud": "^6.2.4",
+    "@mongodb-js/compass-field-store": "^4.0.4",
     "bson-transpilers": "^0.10.0",
     "hadron-react-buttons": "^3.1.0",
     "hadron-react-components": "^3.2.1",
@@ -59,7 +61,7 @@
   "devDependencies": {
     "@hot-loader/react-dom": "^16.8.4",
     "@mongodb-js/compass-crud": "^6.2.4",
-    "@mongodb-js/compass-field-store": "^4.0.3",
+    "@mongodb-js/compass-field-store": "^4.0.4",
     "@storybook/addon-actions": "^5.0.3",
     "@storybook/addon-knobs": "^5.0.3",
     "@storybook/addon-links": "^5.0.3",
