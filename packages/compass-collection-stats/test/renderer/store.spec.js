@@ -1,31 +1,33 @@
-import Store from 'stores';
+import configureStore from 'stores';
 
 describe('CollectionStatsStore [Store]', () => {
+  let store;
+
   beforeEach(() => {
-    Store.setState(Store.getInitialState());
+    store = configureStore();
   });
 
   it('defaults document count to invalid', () => {
-    expect(Store.state.documentCount).to.be.equal('N/A');
+    expect(store.state.documentCount).to.be.equal('N/A');
   });
 
   it('defaults document count to invalid', () => {
-    expect(Store.state.totalDocumentSize).to.be.equal('N/A');
+    expect(store.state.totalDocumentSize).to.be.equal('N/A');
   });
 
   it('defaults document count to invalid', () => {
-    expect(Store.state.avgDocumentSize).to.be.equal('N/A');
+    expect(store.state.avgDocumentSize).to.be.equal('N/A');
   });
 
   it('defaults document count to invalid', () => {
-    expect(Store.state.indexCount).to.be.equal('N/A');
+    expect(store.state.indexCount).to.be.equal('N/A');
   });
 
   it('defaults document count to invalid', () => {
-    expect(Store.state.totalIndexSize).to.be.equal('N/A');
+    expect(store.state.totalIndexSize).to.be.equal('N/A');
   });
 
   it('defaults document count to invalid', () => {
-    expect(Store.state.avgIndexSize).to.be.equal('N/A');
+    expect(store.state.avgIndexSize).to.be.equal('N/A');
   });
 });
