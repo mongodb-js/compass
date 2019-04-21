@@ -1,2 +1,3 @@
-import Aggregations from './aggregations';
-export default Aggregations;
+import MappedAggregations, { Aggregations } from './aggregations';
+export default MappedAggregations;
+export { Aggregations };
