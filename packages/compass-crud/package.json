@@ -106,6 +106,7 @@
     "mongodb-js-precommit": "^2.0.0",
     "mongodb-ns": "^2.0.0",
     "mongodb-runner": "^3.6.1",
+    "mongodb-tools": "^1.0.6",
     "nise": "1.2.0",
     "node-loader": "^0.6.0",
     "numeral": "^1.5.3",
