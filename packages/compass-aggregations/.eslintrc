@@ -17,5 +17,10 @@
     "mongodb-js/browser",
     "mongodb-js/react"
   ],
-  "plugins": ["react"]
+  "plugins": ["react"],
+  "settings": {
+    "react": {
+      "version": "detect"
+    }
+  }
 }
