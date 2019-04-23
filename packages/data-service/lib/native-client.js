@@ -818,6 +818,62 @@ class NativeClient extends EventEmitter {
   }
 
   /**
+   * Create a new view.
+   * @param {String} name - The collectionName for the view.
+   * @param {String} sourceNs - The source `<db>.<collectionOrViewName>` for the view.
+   * @param {Array} pipeline - The agggregation pipeline for the view.
+   * @param {Object} options - Options e.g. collation.
+   * @param {Function} callback - The callback.
+   * @option {Object} collation
+   */
+  createView(name, sourceNs, pipeline, options, callback) {
+    options.viewOn = this._collectionName(sourceNs);
+    options.pipeline = pipeline;
+
+    this._database(this._databaseName(sourceNs))
+      .createCollection(name, options, (error, result) => {
+        if (error) {
+          return callback(this._translateMessage(error));
+        }
+        callback(null, result);
+      });
+  }
+  /**
+   * Update a view.
+   * @param {String} name - The collectionName for the view.
+   * @param {String} sourceNs - The source `<db>.<collectionOrViewName>` for the view.
+   * @param {Array} pipeline - The agggregation pipeline for the view.
+   * @param {Object} options - Options e.g. collation.
+   * @param {Function} callback - The callback.
+   * @option {Object} collation
+   */
+  updateView(name, sourceNs, pipeline, options, callback) {
+    options.viewOn = this._collectionName(sourceNs);
+    options.pipeline = pipeline;
+
+    var collMod = { collMod: name };
+    var command = assignIn(collMod, options);
+    var db = this._database(this._databaseName(sourceNs));
+
+    db.command(command, (error, result) => {
+      if (error) {
+        return callback(this._translateMessage(error));
+      }
+      callback(null, result);
+    });
+  }
+
+  /**
+   * Convenience for dropping a view as a passthrough to `dropCollection()`.
+   *
+   * @param {String} ns - The namespace.
+   * @param {Function} callback - The callback.
+   */
+  dropView(ns, callback) {
+    this.dropCollection(ns, callback);
+  }
+
+  /**
    * Merges the shard distribution information into the collection detail.
    *
    * @param {String} ns - The namespace.

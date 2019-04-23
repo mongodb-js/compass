@@ -809,4 +809,67 @@ describe('DataService', function() {
       );
     });
   });
+
+  describe('#views', function() {
+    before(function(done) {
+      helper.insertTestDocuments(service.client, function() {
+        done();
+      });
+    });
+
+    after(function(done) {
+      helper.deleteTestDocuments(service.client, function() {
+        done();
+      });
+    });
+
+    it('creates a new view', function(done) {
+      service.createView('myView', 'data-service.test', [{$project: {a: 0}}], {}, function(err) {
+        if (err) return done(err);
+        done();
+      });
+    });
+
+    it('returns documents from the view', function(done) {
+      service.find('data-service.myView', {}, {}, function(err, docs) {
+        if (err) return done(err);
+
+        assert.equal(docs.length, 2);
+        assert.strictEqual(docs[0].a, undefined);
+        assert.strictEqual(docs[1].a, undefined);
+        done();
+      });
+    });
+
+    it('updates the view', function(done) {
+      service.updateView('myView', 'data-service.test', [{ $project: { a: 1 } }], {}, function(err) {
+        if (err) return done(err);
+        done();
+      });
+    });
+
+    it('returns documents from the updated', function(done) {
+      service.find('data-service.myView', {}, {}, function(err, docs) {
+        if (err) return done(err);
+
+        assert.equal(docs.length, 2);
+        assert.strictEqual(docs[0].a, 1);
+        assert.strictEqual(docs[1].a, 2);
+        done();
+      });
+    });
+
+    it('drops the view', function(done) {
+      service.dropView('data-service.myView', done);
+    });
+
+    it('returns 0 documents because the view has been dropped', function(done) {
+      service.count('data-service.myView', {}, {}, function(err, _count) {
+        if (err) return done(err);
+
+        assert.equal(_count, 0);
+        done();
+      });
+    });
+  });
 });

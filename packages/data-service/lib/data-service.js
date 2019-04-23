@@ -1,5 +1,3 @@
-'use strict';
-
 const Router = require('./router');
 const EventEmitter = require('events');
 const { CONNECTION_TYPE_VALUES } = require('mongodb-connection-model');
@@ -11,7 +9,6 @@ const { CONNECTION_TYPE_VALUES } = require('mongodb-connection-model');
  * @param {Connection} connection - The Connection model.
  */
 class DataService extends EventEmitter {
-
   /**
    * Instantiate a new DataService object.
    *
@@ -235,6 +232,7 @@ class DataService extends EventEmitter {
 
   /**
    * Disconnect the service.
+   * @param {Function} callback - The callback.
    */
   disconnect(callback) {
     this.client.disconnect(callback);
@@ -496,6 +494,44 @@ class DataService extends EventEmitter {
    */
   top(callback) {
     this.client.top(callback);
+  }
+
+  /**
+   * Create a new view.
+   *
+   * @param {String} name - The collectionName for the view.
+   * @param {String} sourceNs - The source `<db>.<collectionOrViewName>` for the view.
+   * @param {Array} pipeline - The agggregation pipeline for the view.
+   * @param {Object} options - Options e.g. collation.
+   * @param {Function} callback - The callback.
+   * @option {Object} collation
+   */
+  createView(name, sourceNs, pipeline, options, callback) {
+    this.client.createView(name, sourceNs, pipeline, options, callback);
+  }
+
+  /**
+   * Update an existing view.
+   *
+   * @param {String} name - The collectionName for the view.
+   * @param {String} sourceNs - The source `<db>.<collectionOrViewName>` for the view.
+   * @param {Array} pipeline - The agggregation pipeline for the view.
+   * @param {Object} options - Options e.g. collation.
+   * @param {Function} callback - The callback.
+   * @option {Object} collation
+   */
+  updateView(name, sourceNs, pipeline, options, callback) {
+    this.client.updateView(name, sourceNs, pipeline, options, callback);
+  }
+
+  /**
+   * Convenience for dropping a view as a passthrough to `dropCollection()`.
+   *
+   * @param {String} ns - The namespace.
+   * @param {Function} callback - The callback.
+   */
+  dropView(ns, callback) {
+    this.client.dropView(ns, callback);
   }
 
   /**
