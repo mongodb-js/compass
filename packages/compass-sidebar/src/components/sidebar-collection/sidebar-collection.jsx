@@ -21,8 +21,12 @@ class SidebarCollection extends PureComponent {
 
   constructor(props) {
     super(props);
-    this.CollectionStore = global.hadronApp.appRegistry.getStore('App.CollectionStore');
-    this.NamespaceStore = global.hadronApp.appRegistry.getStore('App.NamespaceStore');
+    this.CollectionStore = global.hadronApp.appRegistry.getStore(
+      'App.CollectionStore'
+    );
+    this.NamespaceStore = global.hadronApp.appRegistry.getStore(
+      'App.NamespaceStore'
+    );
   }
 
   getCollectionName() {
@@ -48,7 +52,11 @@ class SidebarCollection extends PureComponent {
     if (isWritable) {
       const databaseName = this.props.database;
       const collectionName = this.getCollectionName();
-      global.hadronApp.appRegistry.emit('open-drop-collection', databaseName, collectionName);
+      global.hadronApp.appRegistry.emit(
+        'open-drop-collection',
+        databaseName,
+        collectionName
+      );
     }
   }
 
@@ -59,23 +67,30 @@ class SidebarCollection extends PureComponent {
   renderIsReadonly() {
     if (this.props.readonly) {
       return (
-        <i className="fa fa-lock" aria-hidden="true" data-test-id="sidebar-collection-is-readonly"/>
+        <i
+          className={classnames('fa', styles['compass-sidebar-view-icon'])}
+          title="Read-only View"
+          aria-hidden="true"
+          data-test-id="sidebar-collection-is-readonly"
+        />
       );
     }
   }
 
   renderDropCollectionButton() {
     if (!this.isReadonlyDistro()) {
-      const tooltipText = this.props.isWritable ?
-        'Drop collection' :
-        this.props.description;
+      const tooltipText = this.props.isWritable
+        ? 'Drop collection'
+        : this.props.description;
       const tooltipOptions = {
         'data-for': TOOLTIP_IDS.DROP_COLLECTION,
         'data-effect': 'solid',
         'data-offset': "{'bottom': 10, 'left': -5}",
         'data-tip': tooltipText
       };
-      const disabled = !this.props.isWritable ? styles['compass-sidebar-icon-is-disabled'] : '';
+      const disabled = !this.props.isWritable
+        ? styles['compass-sidebar-icon-is-disabled']
+        : '';
       const dropClassName = classnames(
         styles['compass-sidebar-icon'],
         styles['compass-sidebar-icon-drop-collection'],
@@ -87,17 +102,22 @@ class SidebarCollection extends PureComponent {
         <i
           className={dropClassName}
           data-test-id="compass-sidebar-icon-drop-collection"
-          onClick={this.handleDropCollectionClick.bind(this, this.props.isWritable)}
-          {...tooltipOptions} />
+          onClick={this.handleDropCollectionClick.bind(
+            this,
+            this.props.isWritable
+          )}
+          {...tooltipOptions}
+        />
       );
     }
   }
 
   render() {
     const collectionName = this.getCollectionName();
-    const active = this.props.activeNamespace === this.props._id ?
-      styles['compass-sidebar-item-is-active'] :
-      '';
+    const active =
+      this.props.activeNamespace === this.props._id
+        ? styles['compass-sidebar-item-is-active']
+        : '';
     const itemClassName = classnames(
       styles['compass-sidebar-item'],
       styles['compass-sidebar-item-is-actionable'],
@@ -109,11 +129,15 @@ class SidebarCollection extends PureComponent {
           onClick={this.handleClick.bind(this)}
           className={classnames(styles['compass-sidebar-item-title'])}
           data-test-id="sidebar-collection"
-          title={this.props._id} >
+          title={this.props._id}>
           {collectionName}&nbsp;
           {this.renderIsReadonly()}
         </div>
-        <div className={classnames(styles['compass-sidebar-item-actions'], styles['compass-sidebar-item-actions-ddl'])}>
+        <div
+          className={classnames(
+            styles['compass-sidebar-item-actions'],
+            styles['compass-sidebar-item-actions-ddl']
+          )}>
           {this.renderDropCollectionButton()}
         </div>
       </div>
@@ -122,4 +146,3 @@ class SidebarCollection extends PureComponent {
 }
 
 export default SidebarCollection;
-
