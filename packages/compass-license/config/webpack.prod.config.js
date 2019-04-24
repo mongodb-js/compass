@@ -9,9 +9,6 @@ const PeerDepsExternalsPlugin = require('peer-deps-externals-webpack-plugin');
 const project = require('./project');
 
 const GLOBALS = {
-  'process.env': {
-    'NODE_ENV': JSON.stringify('production')
-  },
   __DEV__: JSON.stringify(JSON.parse(process.env.DEBUG || 'false'))
 };
 
