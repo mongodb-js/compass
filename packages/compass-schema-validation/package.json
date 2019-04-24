@@ -1,7 +1,7 @@
 {
   "name": "@mongodb-js/compass-schema-validation",
   "productName": "Compass Json Schema Validation plugin",
-  "version": "1.1.3",
+  "version": "1.2.0",
   "apiVersion": "2.0.0",
   "description": "Compass plugin for document JSON schema validation",
   "main": "lib/index.js",
