@@ -1,4 +1,4 @@
-const { ReadPreference } = require('mongodb');
+import { ReadPreference } from 'mongodb';
 
 const SINGLE = 'Single';
 const REPLICA_SET_NO_PRIMARY = 'ReplicaSetNoPrimary';
@@ -99,13 +99,16 @@ const humanize = (topologyType) => {
   return HUMANIZED_TYPES[topologyType];
 };
 
-module.exports.humanize = humanize;
-module.exports.isWritable = isWritable;
-module.exports.isReadable = isReadable;
-module.exports.SINGLE = SINGLE;
-module.exports.REPLICA_SET_NO_PRIMARY = REPLICA_SET_NO_PRIMARY;
-module.exports.REPLICA_SET_WITH_PRIMARY = REPLICA_SET_WITH_PRIMARY;
-module.exports.SHARDED = SHARDED;
-module.exports.UNKNOWN = UNKNOWN;
-module.exports.TOPOLOGY_TYPES = TOPOLOGY_TYPES;
-module.exports.WRITABLE_TOPOLOGY_TYPES = WRITABLE_TOPOLOGY_TYPES;
+export default isWritable;
+export {
+  humanize,
+  isWritable,
+  isReadable,
+  SINGLE,
+  REPLICA_SET_NO_PRIMARY,
+  REPLICA_SET_WITH_PRIMARY,
+  SHARDED,
+  UNKNOWN,
+  TOPOLOGY_TYPES,
+  WRITABLE_TOPOLOGY_TYPES
+};

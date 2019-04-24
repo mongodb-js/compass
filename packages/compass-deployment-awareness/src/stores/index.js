@@ -1,5 +1,5 @@
-const Reflux = require('reflux');
-const StateMixin = require('reflux-state-mixin');
+import Reflux from 'reflux';
+import StateMixin from 'reflux-state-mixin';
 
 /**
  * Deployment Awareness store.
@@ -57,4 +57,4 @@ const DeploymentAwarenessStore = Reflux.createStore({
   }
 });
 
-module.exports = DeploymentAwarenessStore;
+export default DeploymentAwarenessStore;

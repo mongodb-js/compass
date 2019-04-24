@@ -1,0 +1,42 @@
+@import (reference) "~less/compass/_theme.less";
+
+.topology {
+  &-sharded {
+    display: flex;
+    flex-direction: row;
+    font-family: "Akzidenz", "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-size: 12px;
+  }
+
+  &-sharded {
+    &-name {
+      font-weight: bold;
+      margin-left: 10px;
+      margin-right: 10px;
+    }
+
+    &-type {
+      text-transform: uppercase;
+
+      i {
+        margin-right: 5px;
+      }
+
+      &-name {
+        margin-right: 5px;
+      }
+    }
+
+    &-mongos {
+      text-transform: uppercase;
+      color: #777474;
+      border-radius: 14px;
+      border-style: solid;
+      border-color: #bfbfbf;
+      border-width: 1px;
+      padding: 0 8px;
+      margin-right: 5px;
+      font-weight: bold;
+    }
+  }
+}

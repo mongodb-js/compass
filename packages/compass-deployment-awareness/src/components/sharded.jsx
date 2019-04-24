@@ -1,10 +1,18 @@
-const React = require('react');
-const PropTypes = require('prop-types');
+import React from 'react';
+import PropTypes from 'prop-types';
+import classnames from 'classnames';
+
+import styles from './sharded.less';
 
 /**
  * The sharded component.
  */
 class Sharded extends React.Component {
+  static displayName = 'Sharded';
+
+  static propTypes = {
+    servers: PropTypes.array.isRequired
+  }
 
   /**
    * Renders the server count.
@@ -26,15 +34,15 @@ class Sharded extends React.Component {
    */
   render() {
     return (
-      <div className="topology-sharded">
-        <div className="topology-sharded-name">
+      <div className={classnames(styles['topology-sharded'])}>
+        <div className={classnames(styles['topology-sharded-name'])}>
           Cluster
         </div>
-        <div className="topology-sharded-type">
+        <div className={classnames(styles['topology-sharded-type'])}>
           <i className="mms-icon-cluster" />
-          <span className="topology-sharded-type-name">Sharded Cluster</span>
+          <span className={classnames(styles['topology-sharded-type-name'])}>Sharded Cluster</span>
         </div>
-        <div className="topology-sharded-mongos">
+        <div className={classnames(styles['topology-sharded-mongos'])}>
           {this.renderServerCount()}
         </div>
       </div>
@@ -42,10 +50,4 @@ class Sharded extends React.Component {
   }
 }
 
-Sharded.propTypes = {
-  servers: PropTypes.array.isRequired
-};
-
-Sharded.displayName = 'Sharded';
-
-module.exports = Sharded;
+export default Sharded;

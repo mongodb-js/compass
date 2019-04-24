@@ -1,8 +1,8 @@
-const React = require('react');
-const PropTypes = require('prop-types');
-const { TextButton } = require('hadron-react-buttons');
-const { Tooltip } = require('hadron-react-components');
-const WriteStateStore = require('../stores/write-state-store');
+import React from 'react';
+import PropTypes from 'prop-types';
+import { TextButton } from 'hadron-react-buttons';
+import { Tooltip } from 'hadron-react-components';
+import WriteStateStore from 'stores/write-state-store';
 
 /**
  * The collection store name.
@@ -24,6 +24,16 @@ const WRAPPER = 'tooltip-button-wrapper';
  * This button contains only text, no icons, no animations.
  */
 class TextWriteButton extends React.Component {
+  static displayName = 'TextWriteButton';
+
+  static propTypes = {
+    className: PropTypes.string.isRequired,
+    clickHandler: PropTypes.func.isRequired,
+    dataTestId: PropTypes.string,
+    isCollectionLevel: PropTypes.bool,
+    text: PropTypes.string.isRequired,
+    tooltipId: PropTypes.string.isRequired
+  }
 
   /**
    * Instantiate the component.
@@ -116,15 +126,4 @@ class TextWriteButton extends React.Component {
   }
 }
 
-TextWriteButton.propTypes = {
-  className: PropTypes.string.isRequired,
-  clickHandler: PropTypes.func.isRequired,
-  dataTestId: PropTypes.string,
-  isCollectionLevel: PropTypes.bool,
-  text: PropTypes.string.isRequired,
-  tooltipId: PropTypes.string.isRequired
-};
-
-TextWriteButton.displayName = 'TextWriteButton';
-
-module.exports = TextWriteButton;
+export default TextWriteButton;

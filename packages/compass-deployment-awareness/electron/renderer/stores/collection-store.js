@@ -1,5 +1,5 @@
 const Reflux = require('reflux');
-const { NamespaceStore } = require('hadron-reflux-store');
+const { NamespaceStore } = require('mongodb-reflux-store');
 
 /**
  * Sets global collection information.
@@ -60,13 +60,7 @@ const CollectionStore = Reflux.createStore({
     return this.collection.readonly;
   },
 
-  /**
-   * Is the collection writable?
-   *
-   * @returns {Boolean} If the collection is writable.
-   */
-  isWritable() {
-    return !this.isReadonly() && global.hadronApp.dataService.isWritable();
+  setTabs() {
   }
 });
 

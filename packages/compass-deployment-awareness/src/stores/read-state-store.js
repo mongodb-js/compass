@@ -1,7 +1,10 @@
-const Reflux = require('reflux');
-const StateMixin = require('reflux-state-mixin');
-const DeploymentAwarenessStore = require('./index');
-const TopologyType = require('../models/topology-type');
+import Reflux from 'reflux';
+import StateMixin from 'reflux-state-mixin';
+import DeploymentAwarenessStore from 'stores';
+import {
+  humanize,
+  isReadable as isTopologyReadable
+} from 'models/topology-type';
 
 /**
  * The default description.
@@ -55,7 +58,7 @@ const ReadStateStore = Reflux.createStore({
   topologyChanged(description) {
     const topologyType = description.topologyType;
     const readPreference = this.state.connection.read_preference;
-    const isReadable = TopologyType.isReadable(topologyType, readPreference);
+    const isReadable = isTopologyReadable(topologyType, readPreference);
     this.setState({
       isReadable: isReadable,
       description: this._getDescription(isReadable, topologyType, readPreference)
@@ -77,10 +80,10 @@ const ReadStateStore = Reflux.createStore({
   },
 
   _getDescription(isReadable, topologyType, readPreference) {
-    const topology = TopologyType.humanize(topologyType);
+    const topology = humanize(topologyType);
     const note = isReadable ? 'is readable' : 'is not readable';
     return `Topology type ${topology} in conjunction with read preference ${readPreference} ${note}`;
   }
 });
 
-module.exports = ReadStateStore;
+export default ReadStateStore;

@@ -1,22 +1,28 @@
-sudo: required
+sudo: false
 dist: trusty
 language: node_js
 node_js:
-  - 7.9
-env:
-  matrix:
-    - MONGODB_VERSION=3.4.x MONGODB_TOPOLOGY=standalone
+  - 10.2.1
 addons:
   apt:
     sources:
       - ubuntu-toolchain-r-test
     packages:
       - libkrb5-dev
+      - xvfb
+      - libsecret-1-dev
+      - gnome-keyring
+      - python-gnomekeyring
 before_script:
   - export DISPLAY=:99.0
   - sh -e /etc/init.d/xvfb start
-script: npm run test
-cache:
-  directories:
-    - $HOME/.electron
-    - node_modules
+before_install:
+  - npm i -g npm@latest
+  - echo "//registry.npmjs.org/:_authToken=\${NPM_TOKEN}" >> .npmrc
+install:
+  - npm ci
+cache: npm
+script:
+  - npm run check
+  - npm run cover
+  - npm run test:karma

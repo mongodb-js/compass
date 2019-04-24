@@ -1,8 +1,15 @@
-const Reflux = require('reflux');
-const StateMixin = require('reflux-state-mixin');
-const DeploymentAwarenessStore = require('./index');
-const ServerType = require('../models/server-type');
-const TopologyType = require('../models/topology-type');
+import Reflux from 'reflux';
+import StateMixin from 'reflux-state-mixin';
+import DeploymentAwarenessStore from 'stores';
+import {
+  humanize as humanizeServer,
+  isWritable as isServerWritable
+} from 'models/server-type';
+import {
+  humanize as humanizeTopology,
+  isWritable as isTopologyWritable,
+  SINGLE
+} from 'models/topology-type';
 
 /**
  * The default description.
@@ -37,10 +44,10 @@ const WriteStateStore = Reflux.createStore({
    */
   topologyChanged(description) {
     const topologyType = description.topologyType;
-    if (TopologyType.isWritable(topologyType)) {
-      if (topologyType === TopologyType.SINGLE) {
+    if (isTopologyWritable(topologyType)) {
+      if (topologyType === SINGLE) {
         const serverType = description.servers[0].type;
-        const serverWritable = ServerType.isWritable(serverType);
+        const serverWritable = isServerWritable(serverType);
         this.setState({
           isWritable: serverWritable,
           description: this._generateSingleMessage(serverWritable, serverType)
@@ -74,13 +81,13 @@ const WriteStateStore = Reflux.createStore({
 
   _generateNonSingleMessage(isWritable, topologyType) {
     const message = isWritable ? 'is writable' : 'is not writable';
-    return `Topology type: ${TopologyType.humanize(topologyType)} ${message}`;
+    return `Topology type: ${humanizeTopology(topologyType)} ${message}`;
   },
 
   _generateSingleMessage(isWritable, serverType) {
     const message = isWritable ? 'is writable' : 'is not writable';
-    return `Single connection to server type: ${ServerType.humanize(serverType)} ${message}`;
+    return `Single connection to server type: ${humanizeServer(serverType)} ${message}`;
   }
 });
 
-module.exports = WriteStateStore;
+export default WriteStateStore;

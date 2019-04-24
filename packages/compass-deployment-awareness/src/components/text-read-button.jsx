@@ -1,8 +1,8 @@
-const React = require('react');
-const PropTypes = require('prop-types');
-const { TextButton } = require('hadron-react-buttons');
-const { Tooltip } = require('hadron-react-components');
-const ReadStateStore = require('../stores/read-state-store');
+import React from 'react';
+import PropTypes from 'prop-types';
+import { TextButton } from 'hadron-react-buttons';
+import { Tooltip } from 'hadron-react-components';
+import ReadStateStore from 'stores/read-state-store';
 
 /**
  * The wrapper class.
@@ -14,6 +14,18 @@ const WRAPPER = 'tooltip-button-wrapper';
  * This button contains only text, no icons, no animations.
  */
 class TextReadButton extends React.Component {
+  static displayName = 'TextReadButton';
+
+  static propTypes = {
+    className: PropTypes.string.isRequired,
+    clickHandler: PropTypes.func.isRequired,
+    dataTestId: PropTypes.string,
+    disabled: PropTypes.bool,
+    id: PropTypes.string,
+    style: PropTypes.object,
+    text: PropTypes.string.isRequired,
+    tooltipId: PropTypes.string.isRequired
+  }
 
   /**
    * Instantiate the component.
@@ -82,17 +94,4 @@ class TextReadButton extends React.Component {
   }
 }
 
-TextReadButton.propTypes = {
-  className: PropTypes.string.isRequired,
-  clickHandler: PropTypes.func.isRequired,
-  dataTestId: PropTypes.string,
-  disabled: PropTypes.bool,
-  id: PropTypes.string,
-  style: PropTypes.object,
-  text: PropTypes.string.isRequired,
-  tooltipId: PropTypes.string.isRequired
-};
-
-TextReadButton.displayName = 'TextReadButton';
-
-module.exports = TextReadButton;
+export default TextReadButton;

@@ -69,16 +69,19 @@ const isWritable = (serverType) => {
   return WRITABLE_SERVER_TYPES.includes(serverType);
 };
 
-module.exports.humanize = humanize;
-module.exports.isWritable = isWritable;
-module.exports.STANDALONE = STANDALONE;
-module.exports.MONGOS = MONGOS;
-module.exports.POSSIBLE_PRIMARY = POSSIBLE_PRIMARY;
-module.exports.RS_PRIMARY = RS_PRIMARY;
-module.exports.RS_SECONDARY = RS_SECONDARY;
-module.exports.RS_ARBITER = RS_ARBITER;
-module.exports.RS_OTHER = RS_OTHER;
-module.exports.RS_GHOST = RS_GHOST;
-module.exports.UNKNOWN = UNKNOWN;
-module.exports.SERVER_TYPES = SERVER_TYPES;
-module.exports.WRITABLE_SERVER_TYPES = WRITABLE_SERVER_TYPES;
+export default isWritable;
+export {
+  humanize,
+  isWritable,
+  STANDALONE,
+  MONGOS,
+  POSSIBLE_PRIMARY,
+  RS_PRIMARY,
+  RS_SECONDARY,
+  RS_ARBITER,
+  RS_OTHER,
+  RS_GHOST,
+  UNKNOWN,
+  SERVER_TYPES,
+  WRITABLE_SERVER_TYPES
+};

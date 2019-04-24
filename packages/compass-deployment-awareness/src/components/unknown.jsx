@@ -1,10 +1,18 @@
-const React = require('react');
-const PropTypes = require('prop-types');
+import React from 'react';
+import PropTypes from 'prop-types';
+import classnames from 'classnames';
+
+import styles from './unknown.less';
 
 /**
  * The unknown component.
  */
 class Unknown extends React.Component {
+  static displayName = 'Unknown';
+
+  static propTypes = {
+    servers: PropTypes.array.isRequired
+  }
 
   /**
    * Renders the server count.
@@ -26,15 +34,15 @@ class Unknown extends React.Component {
    */
   render() {
     return (
-      <div className="topology-unknown">
-        <div className="topology-unknown-name">
+      <div className={classnames(styles['topology-unknown'])}>
+        <div className={classnames(styles['topology-unknown-name'])}>
           Unknown
         </div>
-        <div className="topology-unknown-type">
+        <div className={classnames(styles['topology-unknown-type'])}>
           <i className="mms-icon-unknown" />
-          <span className="topology-unknown-type-name">Unknown</span>
+          <span className={classnames(styles['topology-unknown-type-name'])}>Unknown</span>
         </div>
-        <div className="topology-unknown-nodes">
+        <div className={classnames(styles['topology-unknown-nodes'])}>
           {this.renderServerCount()}
         </div>
       </div>
@@ -42,10 +50,4 @@ class Unknown extends React.Component {
   }
 }
 
-Unknown.propTypes = {
-  servers: PropTypes.array.isRequired
-};
-
-Unknown.displayName = 'Unknown';
-
-module.exports = Unknown;
+export default Unknown;

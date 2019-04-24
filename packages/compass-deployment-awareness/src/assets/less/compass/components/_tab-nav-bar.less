@@ -1,0 +1,113 @@
+.tab-nav-bar {
+
+  &-is-light-theme {
+    flex-grow: 1;
+    flex-shrink: 1;
+    flex-basis: auto;
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  &-header {
+    background-color: @pw;
+    flex-grow: 0;
+    flex-shrink: 0;
+    flex-basis: 38px;
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-start;
+    align-items: flex-end;
+    position: relative;
+    margin: 0 15px;
+    border-bottom: 4px solid @gray10; 
+  }
+
+  &-tabs {
+    display: flex;
+    justify-content: flex-end;
+    align-self: flex-end;
+    margin-bottom: 0;
+    position: absolute;
+    top: 9px;
+    margin-left: 0px;
+    padding-left: 0px;
+  }
+
+  &-tab {
+    height: 29px;
+    width: 130px;
+    margin-right: 5px;
+    font-size: 13px;
+    display: flex;
+    justify-content: center;
+    cursor: pointer;
+    margin-bottom: 0;
+    color: @gray9;
+    border-bottom: 4px solid @gray10;
+  }
+
+  &-tab:hover {
+    color: @gray1;
+  }
+
+  &-link {
+    margin: auto;
+    font-size: 14px;
+    font-weight: bold;
+    padding-bottom: 5px;
+  }
+
+  &-link:hover, &-link:active, &-link:focus {
+    text-decoration: none;
+    color: @gray1;
+  }
+
+  &-is-selected {
+    cursor: default;
+    border-bottom-color: @green2;
+    .tab-nav-bar-link {
+      color: @gray1;
+    }
+  }
+}
+
+.unsafe-component {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  width: 100%;
+  flex-grow: 1;
+
+  &-has-error {
+    color: red;
+    padding: 10px;
+    background-color: #ffcccc;
+    display: flex;
+    flex-direction: column;
+  }
+
+  &-message {
+    i {
+      margin-right: 5px;
+      font-size: 20px;
+    }
+  }
+
+  &-stack {
+    padding-left: 25px;
+    white-space: pre-wrap;
+  }
+}
+
+.tab-views {
+  flex-grow: 1;
+  flex-shrink: 1;
+  flex-basis: auto;
+  display: flex;
+}
+
+.tab {
+  display: flex;
+  width: 100%;
+}

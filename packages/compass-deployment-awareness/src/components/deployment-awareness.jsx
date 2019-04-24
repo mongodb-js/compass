@@ -1,15 +1,27 @@
-const React = require('react');
-const PropTypes = require('prop-types');
-const TopologyType = require('../models/topology-type');
-const Single = require('./single');
-const Sharded = require('./sharded');
-const ReplicaSet = require('./replica-set');
-const Unknown = require('./unknown');
+import React from 'react';
+import PropTypes from 'prop-types';
+import {
+  SINGLE,
+  SHARDED,
+  REPLICA_SET_NO_PRIMARY,
+  REPLICA_SET_WITH_PRIMARY
+} from 'models/topology-type';
+import Single from 'components/single';
+import Sharded from 'components/sharded';
+import ReplicaSet from 'components/replica-set';
+import Unknown from 'components/unknown';
 
 /**
  * The deployment awareness component.
  */
 class DeploymentAwarenessComponent extends React.Component {
+  static displayName = 'DeploymentAwarenessComponent';
+
+  static propTypes = {
+    servers: PropTypes.array,
+    setName: PropTypes.string,
+    topologyType: PropTypes.string
+  }
 
   /**
    * Renders the topology information.
@@ -18,12 +30,12 @@ class DeploymentAwarenessComponent extends React.Component {
    */
   renderTopologyInfo() {
     switch (this.props.topologyType) {
-      case TopologyType.SINGLE:
+      case SINGLE:
         return (<Single server={this.props.servers[0]} />);
-      case TopologyType.SHARDED:
+      case SHARDED:
         return (<Sharded servers={this.props.servers} />);
-      case TopologyType.REPLICA_SET_NO_PRIMARY:
-      case TopologyType.REPLICA_SET_WITH_PRIMARY:
+      case REPLICA_SET_NO_PRIMARY:
+      case REPLICA_SET_WITH_PRIMARY:
         return (<ReplicaSet {...this.props} />);
       default:
         return (<Unknown servers={this.props.servers} />);
@@ -37,19 +49,11 @@ class DeploymentAwarenessComponent extends React.Component {
    */
   render() {
     return (
-      <div className="topology">
+      <div>
         {this.renderTopologyInfo()}
       </div>
     );
   }
 }
 
-DeploymentAwarenessComponent.propTypes = {
-  servers: PropTypes.array,
-  setName: PropTypes.string,
-  topologyType: PropTypes.string
-};
-
-DeploymentAwarenessComponent.displayName = 'DeploymentAwarenessComponent';
-
-module.exports = DeploymentAwarenessComponent;
+export default DeploymentAwarenessComponent;

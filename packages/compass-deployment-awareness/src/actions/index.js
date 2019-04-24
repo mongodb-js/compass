@@ -1,6 +1,6 @@
-const Reflux = require('reflux');
+import Reflux from 'reflux';
 
 const DeploymentAwarenessActions = Reflux.createActions([
 ]);
 
-module.exports = DeploymentAwarenessActions;
+export default DeploymentAwarenessActions;
