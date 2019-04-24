@@ -8,5 +8,5 @@
 
 Apache 2.0
 
-[travis_img]: https://travis-ci.com/mongodb-js/compass-plugin-info.svg
-[travis_url]: https://travis-ci.com/mongodb-js/compass-plugin-info
+[travis_img]: https://travis-ci.org/mongodb-js/compass-plugin-info.svg
+[travis_url]: https://travis-ci.org/mongodb-js/compass-plugin-info
