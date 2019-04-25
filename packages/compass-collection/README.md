@@ -1,4 +1,4 @@
-# @mongodb-js/compass-collection [![][travis_img]][travis_url]
+# @mongodb-js/compass-collection [![][travis_img]][travis_url] [![Build Status](https://dev.azure.com/team-compass/team-compass/_apis/build/status/mongodb-js.compass-collection?branchName=master)](https://dev.azure.com/team-compass/team-compass/_build/latest?definitionId=1&branchName=master)
 
 > Compass Collection Plugin
 
