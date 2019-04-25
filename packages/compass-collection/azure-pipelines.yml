@@ -11,10 +11,10 @@ pool:
 
 steps:
   - script: |
-    set -e
-    sudo apt-get update
-    sudo apt-get install -y libxkbfile-dev pkg-config libsecret-1-dev libxss1 dbus xvfb libgtk-3-0
-    sudo service xvfb start
+      set -e
+      sudo apt-get update
+      sudo apt-get install -y libxkbfile-dev pkg-config libsecret-1-dev libxss1 dbus xvfb libgtk-3-0
+      sudo service xvfb start
     displayName: 'Install Services'
   - task: NodeTool@0
     inputs:
