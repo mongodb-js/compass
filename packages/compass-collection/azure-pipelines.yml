@@ -4,22 +4,28 @@
 # https://docs.microsoft.com/azure/devops/pipelines/languages/javascript
 
 trigger:
-- master
+  - master
 
 pool:
   vmImage: 'Ubuntu-16.04'
 
 steps:
-- task: NodeTool@0
-  inputs:
-    versionSpec: '10.2.1'
-  displayName: 'Install Node.js'
-
-- script: |
-    echo "//registry.npmjs.org/:_authToken=$(org.NPMToken)" >> .npmrc
-    npm install
-    npm run cover
-    npm run test:karma
-    npm run compile
-    npm run check
-  displayName: 'npm install, run tests, run karma tests, run checks'
+  - task: NodeTool@0
+    inputs:
+      versionSpec: '10.2.1'
+    displayName: 'Install Node.js'
+  - script: |
+      echo "//registry.npmjs.org/:_authToken=$(org.NPMToken)" >> .npmrc
+    displayName: 'Set NPM Token'
+  - script: |
+      npm install
+    displayName: 'NPM Install'
+  - script: |
+      npm run cover
+    displayName: 'Run Node Tests'
+  - script: |
+      npm run test:karma
+    displayName: 'Run Renderer Tests'
+  - script: |
+      npm run check
+    displayName: 'Run Checks'
