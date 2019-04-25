@@ -16,6 +16,7 @@ steps:
   displayName: 'Install Node.js'
 
 - script: |
+    echo "//registry.npmjs.org/:_authToken=$(org.NPMToken)" >> .npmrc
     npm install
     npm run cover
     npm run test:karma
