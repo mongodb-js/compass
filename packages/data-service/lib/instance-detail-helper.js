@@ -61,7 +61,8 @@ function parseBuildInfo(resp) {
     debug: resp.debug,
     for_bits: resp.bits,
     max_bson_object_size: resp.maxBsonObjectSize,
-    enterprise_module: false
+    enterprise_module: false,
+    raw: resp // Save the raw output to later determine if genuine MongoDB
   };
   // cover both cases of detecting enterprise module, see SERVER-18099
   if (resp.gitVersion && resp.gitVersion.match(/enterprise/)) {
@@ -92,6 +93,43 @@ function getBuildInfo(results, done) {
     }
     done(null, parseBuildInfo(res));
   });
+}
+
+function getCmdLineOpts(results, done) {
+  const db = results.db;
+
+  const spec = {
+    getCmdLineOpts: 1
+  };
+
+  const adminDb = db.databaseName === 'admin' ? db : db.admin();
+  adminDb.command(spec, {}, function(err, res) {
+    if (err) {
+      debug('getCmdLineOpts failed!', err);
+      return done(null, { errmsg: err.message });
+    }
+    done(null, res);
+  });
+}
+
+function getGenuineMongoDB(results, done) {
+  const buildInfo = results.build.raw;
+  const cmdLineOpts = results.cmdLineOpts;
+
+  const res = {
+    isGenuine: true,
+    dbType: 'mongodb'
+  };
+
+  if (buildInfo.hasOwnProperty('_t' )) {
+    res.isGenuine = false;
+    res.dbType = 'cosmosdb';
+  }
+  if (cmdLineOpts.hasOwnProperty('errmsg') && cmdLineOpts.errmsg.indexOf('not supported') !== -1) {
+    res.isGenuine = false;
+    res.dbType = 'documentdb';
+  }
+  done(null, res);
 }
 
 /**
@@ -487,6 +525,8 @@ function getInstanceDetail(client, db, done) {
 
     host: ['client', 'db', getHostInfo],
     build: ['client', 'db', getBuildInfo],
+    cmdLineOpts: ['client', 'db', getCmdLineOpts],
+    genuineMongoDB: ['build', 'cmdLineOpts', getGenuineMongoDB],
 
     listDatabases: ['client', 'db', 'userInfo', listDatabases],
     allowedDatabases: ['userInfo', getAllowedDatabases],
@@ -508,7 +548,7 @@ function getInstanceDetail(client, db, done) {
     }
     // cleanup
     results = omit(results, ['db', 'listDatabases', 'allowedDatabases',
-      'userInfo', 'listCollections', 'allowedCollections']);
+      'userInfo', 'listCollections', 'allowedCollections', 'cmdLineOpts']);
     return done(null, results);
   });
 }
@@ -545,7 +585,7 @@ function getInstance(client, db, done) {
     }
 
     res._id = [hostname, port].join(':');
-    debug('instance.get returning %j', res);
+    debug('instance.get returning', res);
     done(null, res);
   });
 }
@@ -554,7 +594,9 @@ module.exports = {
   getAllowedCollections,
   getAllowedDatabases,
   getBuildInfo,
+  getCmdLineOpts,
   getDatabaseCollections,
+  getGenuineMongoDB,
   getHostInfo,
   getInstance,
   listCollections,

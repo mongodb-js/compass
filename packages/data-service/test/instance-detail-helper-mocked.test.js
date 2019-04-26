@@ -3,7 +3,9 @@ const {
   getAllowedCollections,
   getAllowedDatabases,
   getBuildInfo,
+  getCmdLineOpts,
   getDatabaseCollections,
+  getGenuineMongoDB,
   getHostInfo,
   listCollections,
   listDatabases
@@ -109,7 +111,104 @@ describe('instance-detail-helper-mocked', function() {
         done();
       });
     });
+    it('should save a copy of the raw output', function(done) {
+      const results = {
+        db: makeMockDB(null, {tester: 1})
+      };
+      getBuildInfo(results, function(err, res) {
+        assert.equal(err, null);
+        assert.deepEqual(res.raw, {tester: 1});
+        done();
+      });
+    });
   });
+
+  describe('getCmdLineOpts', function() {
+    it('should not pass on any error that getCmdLineOpts returns', function(done) {
+      // instead of the real db handle, pass in the mocked one
+      const results = {
+        db: makeMockDB(new Error('some strange error'), null)
+      };
+      getCmdLineOpts(results, function(err, res) {
+        assert.equal(err, null);
+        assert.equal(res.errmsg, 'some strange error');
+        done();
+      });
+    });
+    it('should return results if they error but do not throw', function(done) {
+      // instead of the real db handle, pass in the mocked one
+      const results = {
+        db: makeMockDB(null, fixtures.DOCUMENTDB_CMD_LINE_OPTS)
+      };
+      getCmdLineOpts(results, function(err, res) {
+        assert.equal(err, null);
+        assert.equal(res.errmsg, 'Feature not supported: getCmdLineOpts');
+        done();
+      });
+    });
+    it('should return results if no error', function(done) {
+      const results = {
+        db: makeMockDB(null, fixtures.CMD_LINE_OPTS)
+      };
+      getCmdLineOpts(results, function(err, res) {
+        assert.equal(err, null);
+        assert.deepEqual(res, fixtures.CMD_LINE_OPTS);
+        done();
+      });
+    });
+  });
+
+  describe('getGenuineMongoDB', function() {
+    it('reports on CosmosDB', function(done) {
+      const results = {
+        build: {raw: fixtures.COSMOSDB_BUILD_INFO},
+        cmdLineOpts: fixtures.CMD_LINE_OPTS
+      };
+      getGenuineMongoDB(results, function(err, res) {
+        assert.equal(err, null);
+        assert.equal(res.dbType, 'cosmosdb');
+        assert.equal(res.isGenuine, false);
+        done();
+      });
+    });
+    it('reports on DocumentDB', function(done) {
+      const results = {
+        build: {raw: fixtures.BUILD_INFO_3_2},
+        cmdLineOpts: fixtures.DOCUMENTDB_CMD_LINE_OPTS
+      };
+      getGenuineMongoDB(results, function(err, res) {
+        assert.equal(err, null);
+        assert.equal(res.dbType, 'documentdb');
+        assert.equal(res.isGenuine, false);
+        done();
+      });
+    });
+    it('should not report on 3.2', function(done) {
+      const results = {
+        build: {raw: fixtures.BUILD_INFO_3_2},
+        cmdLineOpts: fixtures.CMD_LINE_OPTS
+      };
+      getGenuineMongoDB(results, function(err, res) {
+        assert.equal(err, null);
+        assert.equal(res.dbType, 'mongodb');
+        assert.equal(res.isGenuine, true);
+        done();
+      });
+    });
+    it('should not report on older versions', function(done) {
+      const results = {
+        build: {raw: fixtures.BUILD_INFO_OLD},
+        cmdLineOpts: fixtures.CMD_LINE_OPTS
+      };
+      getGenuineMongoDB(results, function(err, res) {
+        assert.equal(err, null);
+        assert.equal(res.dbType, 'mongodb');
+        assert.equal(res.isGenuine, true);
+        done();
+      });
+    });
+  });
+
 
   describe('getHostInfo', function() {
     it('should ignore auth errors gracefully', function(done) {

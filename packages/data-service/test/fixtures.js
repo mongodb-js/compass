@@ -493,11 +493,58 @@ var BUILD_INFO_3_2 = {
   "ok" : 1
 };
 
+var CMD_LINE_OPTS = {
+  "argv" : [
+    "/opt/mongodb-osx-x86_64-enterprise-3.6.3/bin/mongod",
+    "--dbpath=/Users/user/testdata"
+  ],
+  "parsed" : {
+    "storage" : {
+      "dbPath" : "/Users/user/testdata"
+    }
+  },
+  "ok" : 1
+};
+
+var DOCUMENTDB_CMD_LINE_OPTS = {
+  "ok" : 0,
+  "errmsg" : "Feature not supported: getCmdLineOpts",
+  "code" : 303
+};
+
+var COSMOSDB_BUILD_INFO = {
+  "_t" : "BuildInfoResponse",
+  "ok" : 1,
+  "version" : "3.2.0",
+  "gitVersion" : "45d947729a0315accb6d4f15a6b06be6d9c19fe7",
+  "targetMinOS" : "Windows 7/Windows Server 2008 R2",
+  "modules" : [ ],
+  "allocator" : "tcmalloc",
+  "javascriptEngine" : "Chakra",
+  "sysInfo" : "deprecated",
+  "versionArray" : [
+    3,
+    2,
+    0,
+    0
+  ],
+  "bits" : 64,
+  "debug" : false,
+  "maxBsonObjectSize" : 524288,
+  "openssl" : {
+    "running" : "OpenSSL 1.0.1p-fips 9 Jul 2015",
+    "compiled" : "OpenSSL 1.0.1p-fips 9 Jul 2015"
+  }
+};
+
 module.exports = {
   HOST_INFO: HOST_INFO,
   BUILD_INFO_OLD: BUILD_INFO_OLD,
   BUILD_INFO_3_2: BUILD_INFO_3_2,
   USER_INFO_JOHN: USER_INFO_JOHN,
   USER_INFO_LISTDB_ONLY: USER_INFO_LISTDB_ONLY,
-  USER_INFO_COLL_ONLY: USER_INFO_COLL_ONLY
+  USER_INFO_COLL_ONLY: USER_INFO_COLL_ONLY,
+  CMD_LINE_OPTS: CMD_LINE_OPTS,
+  DOCUMENTDB_CMD_LINE_OPTS: DOCUMENTDB_CMD_LINE_OPTS,
+  COSMOSDB_BUILD_INFO: COSMOSDB_BUILD_INFO
 };
