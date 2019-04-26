@@ -68,7 +68,7 @@ class SidebarCollection extends PureComponent {
     if (this.props.readonly) {
       return (
         <i
-          className={classnames('fa', styles['compass-sidebar-view-icon'])}
+          className={classnames('fa', styles['compass-sidebar-item-view-icon'])}
           title="Read-only View"
           aria-hidden="true"
           data-test-id="sidebar-collection-is-readonly"
