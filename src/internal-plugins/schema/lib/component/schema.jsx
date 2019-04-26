@@ -133,7 +133,7 @@ class Schema extends React.Component {
     if (this.props.samplingState === 'initial') {
       return (
         <div className="root">
-          <div className="zero-graphic zero-graphic-schema"></div>
+          <div className="zero-graphic zero-graphic-schema" />
           <ZeroState
             header={HEADER}
             subtext={SUBTEXT}>

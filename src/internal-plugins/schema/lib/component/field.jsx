@@ -166,7 +166,7 @@ class Field extends React.Component {
         <div className="row">
           <div className="col-sm-4">
             <div className="schema-field-name" onClick={this.titleClicked.bind(this)}>
-              <span className={nestedDocType ? 'caret' : ''}></span>
+              <span className={nestedDocType ? 'caret' : ''} />
               <span>{this.props.name}</span>
             </div>
             <div className="schema-field-type-list">

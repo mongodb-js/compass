@@ -67,10 +67,10 @@ class D3Component extends React.Component {
         <svg {...options}>
           <defs>
             <pattern id="diagonal-stripes" width="4" height="4" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
-              <rect width="2.5" height="4" transform="translate(0,0)" fill="white"></rect>
+              <rect width="2.5" height="4" transform="translate(0,0)" fill="white" />
             </pattern>
             <mask id="mask-stripe">
-              <rect x="0" y="0" width="100%" height="100%" fill="url(#diagonal-stripes)"></rect>
+              <rect x="0" y="0" width="100%" height="100%" fill="url(#diagonal-stripes)" />
             </mask>
           </defs>
         </svg>
@@ -79,7 +79,7 @@ class D3Component extends React.Component {
     options = _.assign(options, {
       style: sizeOptions
     });
-    return <div {...options}></div>;
+    return <div {...options} />;
   }
 
   _redraw() {

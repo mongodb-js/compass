@@ -70,11 +70,11 @@ class SchemaSteps extends React.Component {
       <div style={style}>
         <ul className="steps">
           <li id="sampling-step">
-            <i className={samplingIndicator}></i>
+            <i className={samplingIndicator} />
             Sampling Collection
           </li>
           <li id="analyzing-step">
-            <i className={analyzingIndicator}></i>
+            <i className={analyzingIndicator} />
             Analyzing Documents
           </li>
         </ul>
