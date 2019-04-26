@@ -247,8 +247,7 @@ class Sidebar extends PureComponent {
             ref="filter"
             className={classnames(styles['compass-sidebar-search-input'])}
             placeholder="filter"
-            onChange={this.handleFilter.bind(this)}>
-          </input>
+            onChange={this.handleFilter.bind(this)} />
         </div>
         <div className={classnames(styles['compass-sidebar-content'])}>
           {this.renderSidebarScroll()}
