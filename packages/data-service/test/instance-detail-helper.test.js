@@ -2,7 +2,9 @@ const assert = require('assert');
 const Connection = require('mongodb-connection-model');
 const connect = Connection.connect;
 const { getInstance } = require('../lib/instance-detail-helper');
-const debug = require('debug')('mongodb-data-service:test:instance');
+const helper = require('./helper');
+const DataService = require('../lib/data-service');
+const _ = require('lodash');
 
 describe('mongodb-data-service#instance', function() {
   describe('local', function() {
@@ -37,31 +39,67 @@ describe('mongodb-data-service#instance', function() {
         });
       });
     });
-  });
-
-  /**
-   * @todo (imlucas) After mongodb-tools rewrite, http://npm.im/mongodb-runner
-   * will be able to properly spin up deployments w authentication.
-   */
-  it.skip('should get instance details for john doe', function(done) {
-    const connection = Connection.from(
-      'john:doe@localhost:30000/admin?authMechanism=MONGODB-CR'
-    );
-    connect(
-      connection,
-      null,
-      function(err, _client) {
-        if (err) {
-          return done(err);
-        }
-        getInstance(_client, _client.db('data-service'), function(_err, res) {
-          if (_err) {
-            return done(_err);
-          }
-          debug('instance details', JSON.stringify(res, null, 2));
-          done();
+    if (process.env.MONGODB_TOPOLOGY !== 'cluster') {
+      describe('views', function() {
+        var service = new DataService(helper.connection);
+        var instanceDetails = null;
+        before(function(done) {
+          service.connect(function(err) {
+            if (err) return done(err);
+            helper.insertTestDocuments(service.client, function() {
+              done();
+            });
+          });
         });
-      }
-    );
+
+        after(function(done) {
+          helper.deleteTestDocuments(service.client, function() {
+            done();
+          });
+        });
+
+        it('creates a new view', function(done) {
+          service.createView(
+            'myView',
+            'data-service.test',
+            [{ $project: { a: 0 } }],
+            {},
+            function(err) {
+              if (err) return done(err);
+              done();
+            }
+          );
+        });
+
+        it('gets the instance details', function(done) {
+          service.instance({}, function(err, res) {
+            if (err) return done(err);
+            instanceDetails = res;
+            done();
+          });
+        });
+
+        it('includes the view details in instance details', function() {
+          const viewInfo = _.find(instanceDetails.collections, [
+            '_id',
+            'data-service.myView'
+          ]);
+          assert.deepEqual(viewInfo, {
+            _id: 'data-service.myView',
+            name: 'myView',
+            database: 'data-service',
+            readonly: true,
+            collation: null,
+            type: 'view',
+            view_on: 'test',
+            pipeline: [{ $project: { a: 0 } }]
+          });
+        });
+
+        it('drops the view', function(done) {
+          service.dropView('data-service.myView', done);
+        });
+      });
+    }
   });
 });

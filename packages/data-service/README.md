@@ -69,6 +69,75 @@ service.instance({}, (error, result) => {
 service.sample('database.collection', {});
 ```
 
+## Instance Details
+
+### `collections`
+
+```javascript
+[
+  {
+    _id: 'admin.system.version',
+    name: 'system.version',
+    database: 'admin',
+    readonly: false,
+    collation: null,
+    type: 'collection',
+    view_on: undefined,
+    pipeline: undefined
+  },
+  {
+    _id: 'config.system.sessions',
+    name: 'system.sessions',
+    database: 'config',
+    readonly: false,
+    collation: null,
+    type: 'collection',
+    view_on: undefined,
+    pipeline: undefined
+  },
+  {
+    _id: 'data-service.test',
+    name: 'test',
+    database: 'data-service',
+    readonly: false,
+    collation: null,
+    type: 'collection',
+    view_on: undefined,
+    pipeline: undefined
+  },
+  {
+    _id: 'data-service.system.views',
+    name: 'system.views',
+    database: 'data-service',
+    readonly: false,
+    collation: null,
+    type: 'collection',
+    view_on: undefined,
+    pipeline: undefined
+  },
+  {
+    _id: 'data-service.myView',
+    name: 'myView',
+    database: 'data-service',
+    readonly: true,
+    collation: null,
+    type: 'view',
+    view_on: 'test',
+    pipeline: [{ $project: { a: 0 } }]
+  },
+  {
+    _id: 'local.startup_log',
+    name: 'startup_log',
+    database: 'local',
+    readonly: false,
+    collation: null,
+    type: 'collection',
+    view_on: undefined,
+    pipeline: undefined
+  }
+]
+```
+
 ## License
 
 Apache 2.0

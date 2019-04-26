@@ -25,12 +25,7 @@ const debug = require('debug')('mongodb-data-service:instance-detail-helper');
 function getStats(results, done) {
   const databases = results.databases;
 
-  const keys = [
-    'document_count',
-    'storage_size',
-    'index_count',
-    'index_size'
-  ];
+  const keys = ['document_count', 'storage_size', 'index_count', 'index_size'];
   const stats = {};
   keys.map(function(k) {
     stats[k] = 0;
@@ -121,11 +116,14 @@ function getGenuineMongoDB(results, done) {
     dbType: 'mongodb'
   };
 
-  if (buildInfo.hasOwnProperty('_t' )) {
+  if (buildInfo.hasOwnProperty('_t')) {
     res.isGenuine = false;
     res.dbType = 'cosmosdb';
   }
-  if (cmdLineOpts.hasOwnProperty('errmsg') && cmdLineOpts.errmsg.indexOf('not supported') !== -1) {
+  if (
+    cmdLineOpts.hasOwnProperty('errmsg') &&
+    cmdLineOpts.errmsg.indexOf('not supported') !== -1
+  ) {
     res.isGenuine = false;
     res.dbType = 'documentdb';
   }
@@ -200,7 +198,9 @@ function getHostInfo(results, done) {
       if (isNotAuthorized(err)) {
         // if the error is that the user is not authorized, silently ignore it
         // and return an empty document
-        debug('user does not have hostInfo privilege, returning empty document {}');
+        debug(
+          'user does not have hostInfo privilege, returning empty document {}'
+        );
         done(null, {});
         return;
       }
@@ -214,13 +214,13 @@ function getHostInfo(results, done) {
   });
 }
 
-
 function listDatabases(results, done) {
   const db = results.db;
   const userInfo = results.userInfo;
 
-  const cluster = security.getResourcesWithActions(
-    userInfo, ['listDatabases']).filter(function(resource) {
+  const cluster = security
+    .getResourcesWithActions(userInfo, ['listDatabases'])
+    .filter(function(resource) {
       return resource.cluster;
     });
 
@@ -260,7 +260,6 @@ function listDatabases(results, done) {
     done(null, names);
   });
 }
-
 
 function parseDatabase(resp) {
   return {
@@ -313,7 +312,6 @@ function getDatabase(client, db, name, done) {
   });
 }
 
-
 function getDatabases(results, done) {
   const db = results.db;
   const client = results.client;
@@ -321,32 +319,43 @@ function getDatabases(results, done) {
   // merge and de-dupe databases
   const dbnames = union(results.listDatabases, results.allowedDatabases);
 
-  async.parallel(map(dbnames, function(name) {
-    const result = partial(getDatabase, client, db, name);
-    return result;
-  }), done);
+  async.parallel(
+    map(dbnames, function(name) {
+      const result = partial(getDatabase, client, db, name);
+      return result;
+    }),
+    done
+  );
 }
-
 
 function getUserInfo(results, done) {
   const db = results.db;
 
   // get the user privileges
-  db.command({ connectionStatus: 1, showPrivileges: true }, {}, function(err, res) {
+  db.command({ connectionStatus: 1, showPrivileges: true }, {}, function(
+    err,
+    res
+  ) {
     // no auth required, if this fails there was a real problem
     if (err) {
       return done(err);
     }
-    if (!has(res, 'authInfo.authenticatedUsers') || !res.authInfo.authenticatedUsers[0]) {
+    if (
+      !has(res, 'authInfo.authenticatedUsers') ||
+      !res.authInfo.authenticatedUsers[0]
+    ) {
       debug('no logged in user, returning empty document');
       return done(null, {});
     }
     const user = res.authInfo.authenticatedUsers[0];
 
-    db.command({ usersInfo: user, showPrivileges: true }, {}, function(_err, _res) {
+    db.command({ usersInfo: user, showPrivileges: true }, {}, function(
+      _err,
+      _res
+    ) {
       if (_err) {
         // @durran: For the case usersInfo cannot be retrieved.
-        debug('Command \"usersInfo\" could not be retrieved: ' + _err.message);
+        debug('Command "usersInfo" could not be retrieved: ' + _err.message);
         return done(null, {});
       }
       // For the case azure cosmosDB bug
@@ -359,16 +368,20 @@ function getAllowedDatabases(results, done) {
   const userInfo = results.userInfo;
 
   // get databases on which the user is allowed to call listCollections
-  let databases = security.getResourcesWithActions(
-    userInfo, ['listCollections']).map(function(resource) {
+  let databases = security
+    .getResourcesWithActions(userInfo, ['listCollections'])
+    .map(function(resource) {
       return resource.db;
     });
-  databases = databases.concat(security.getResourcesWithActions(
-    userInfo, ['find']).map(function(resource) {
-      return resource.db;
-    }));
+  databases = databases.concat(
+    security
+      .getResourcesWithActions(userInfo, ['find'])
+      .map(function(resource) {
+        return resource.db;
+      })
+  );
 
-  done(null, databases.filter((f, i) => (f && databases.indexOf(f) === i)));
+  done(null, databases.filter((f, i) => f && databases.indexOf(f) === i));
 }
 
 function parseCollection(resp) {
@@ -378,7 +391,10 @@ function parseCollection(resp) {
     name: ns.collection,
     database: ns.database,
     readonly: get(resp, 'info.readOnly', false),
-    collation: get(resp, 'options.collation', null)
+    collation: get(resp, 'options.collation', null),
+    type: get(resp, 'type', 'collection'),
+    view_on: get(resp, 'options.viewOn', undefined),
+    pipeline: get(resp, 'options.pipeline', undefined)
   };
 }
 
@@ -387,22 +403,28 @@ function getAllowedCollections(results, done) {
 
   // get collections on which the user is allowed to call find and collStats
   const compassActions = ['find', 'collStats'];
-  let collections = security.getResourcesWithActions(
-    userInfo, compassActions).map(function(resource) {
+  let collections = security
+    .getResourcesWithActions(userInfo, compassActions)
+    .map(function(resource) {
       return {
         db: resource.db,
         name: resource.collection
       };
     });
-  collections = collections.concat(security.getResourcesWithActions(
-    userInfo, ['find']).map(function(resource) {
-      return {
-        db: resource.db,
-        name: resource.collection
-      };
-    })).filter((f) => (f.name));
+  collections = collections
+    .concat(
+      security
+        .getResourcesWithActions(userInfo, ['find'])
+        .map(function(resource) {
+          return {
+            db: resource.db,
+            name: resource.collection
+          };
+        })
+    )
+    .filter((f) => f.name);
 
-  collections = uniqBy(collections, (c) => (`${c.db}.${c.name}`));
+  collections = uniqBy(collections, (c) => `${c.db}.${c.name}`);
   collections = map(collections, parseCollection);
   debug('allowed collections', collections);
   done(null, collections);
@@ -435,8 +457,11 @@ function getDatabaseCollections(db, done) {
         // if the error is that the user is not authorized, silently ignore it
         // and return an empty list, same for trying to listCollections on local
         // db in Mongos
-        debug('not allowed to run `listCollections` command on %s, returning'
-          + ' empty result [].', db.databaseName);
+        debug(
+          'not allowed to run `listCollections` command on %s, returning' +
+            ' empty result [].',
+          db.databaseName
+        );
         return done(null, []);
       }
       // the command failed for another reason, report the error
@@ -444,10 +469,13 @@ function getDatabaseCollections(db, done) {
       err.command = 'listCollections';
       return done(err);
     }
-    done(null, map(res, function(d) {
-      d.db = db.databaseName;
-      return parseCollection(d);
-    }));
+    done(
+      null,
+      map(res, function(d) {
+        d.db = db.databaseName;
+        return parseCollection(d);
+      })
+    );
   });
 }
 
@@ -455,11 +483,11 @@ function getCollections(results, done) {
   // var db = results.db;
 
   // concat
-  let collections = [].concat.apply(
-    results.listCollections, results.allowedCollections
-  ).filter((f) => (f.name !== ''));
+  let collections = [].concat
+    .apply(results.listCollections, results.allowedCollections)
+    .filter((f) => f.name !== '');
   // de-dupe based on _id
-  collections = uniqBy(collections, (c) => (c._id));
+  collections = uniqBy(collections, (c) => c._id);
 
   // @todo filter the ones that we can "count on"
   // async.filter(collections, function(collection, callback) {
@@ -504,7 +532,6 @@ function getHierarchy(results, done) {
   done();
 }
 
-
 function attach(anything, done) {
   done(null, anything);
 }
@@ -530,11 +557,23 @@ function getInstanceDetail(client, db, done) {
 
     listDatabases: ['client', 'db', 'userInfo', listDatabases],
     allowedDatabases: ['userInfo', getAllowedDatabases],
-    databases: ['client', 'db', 'listDatabases', 'allowedDatabases', getDatabases],
+    databases: [
+      'client',
+      'db',
+      'listDatabases',
+      'allowedDatabases',
+      getDatabases
+    ],
 
     listCollections: ['client', 'db', 'databases', listCollections],
     allowedCollections: ['userInfo', getAllowedCollections],
-    collections: ['client', 'db', 'listCollections', 'allowedCollections', getCollections],
+    collections: [
+      'client',
+      'db',
+      'listCollections',
+      'allowedCollections',
+      getCollections
+    ],
 
     hierarchy: ['databases', 'collections', getHierarchy],
 
@@ -547,8 +586,15 @@ function getInstanceDetail(client, db, done) {
       return done(err);
     }
     // cleanup
-    results = omit(results, ['db', 'listDatabases', 'allowedDatabases',
-      'userInfo', 'listCollections', 'allowedCollections', 'cmdLineOpts']);
+    results = omit(results, [
+      'db',
+      'listDatabases',
+      'allowedDatabases',
+      'userInfo',
+      'listCollections',
+      'allowedCollections',
+      'cmdLineOpts'
+    ]);
     return done(null, results);
   });
 }
@@ -563,8 +609,10 @@ function getInstance(client, db, done) {
     let hostname;
 
     if (has(db, 's.options.url')) {
-      debug('parsing port and hostname from driver url option `%s`',
-        db.s.options.url);
+      debug(
+        'parsing port and hostname from driver url option `%s`',
+        db.s.options.url
+      );
       port = URL.port(db.s.options.url);
       hostname = URL.hostname(db.s.options.url);
     }

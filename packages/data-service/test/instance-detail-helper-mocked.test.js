@@ -14,7 +14,6 @@ const fixtures = require('./fixtures');
 
 // var debug = require('debug')('mongodb-data-service:test:instance-detail-helper-mocked');
 
-
 describe('instance-detail-helper-mocked', function() {
   let makeMockDB;
   let makeMockClient;
@@ -113,11 +112,11 @@ describe('instance-detail-helper-mocked', function() {
     });
     it('should save a copy of the raw output', function(done) {
       const results = {
-        db: makeMockDB(null, {tester: 1})
+        db: makeMockDB(null, { tester: 1 })
       };
       getBuildInfo(results, function(err, res) {
         assert.equal(err, null);
-        assert.deepEqual(res.raw, {tester: 1});
+        assert.deepEqual(res.raw, { tester: 1 });
         done();
       });
     });
@@ -161,7 +160,7 @@ describe('instance-detail-helper-mocked', function() {
   describe('getGenuineMongoDB', function() {
     it('reports on CosmosDB', function(done) {
       const results = {
-        build: {raw: fixtures.COSMOSDB_BUILD_INFO},
+        build: { raw: fixtures.COSMOSDB_BUILD_INFO },
         cmdLineOpts: fixtures.CMD_LINE_OPTS
       };
       getGenuineMongoDB(results, function(err, res) {
@@ -173,7 +172,7 @@ describe('instance-detail-helper-mocked', function() {
     });
     it('reports on DocumentDB', function(done) {
       const results = {
-        build: {raw: fixtures.BUILD_INFO_3_2},
+        build: { raw: fixtures.BUILD_INFO_3_2 },
         cmdLineOpts: fixtures.DOCUMENTDB_CMD_LINE_OPTS
       };
       getGenuineMongoDB(results, function(err, res) {
@@ -185,7 +184,7 @@ describe('instance-detail-helper-mocked', function() {
     });
     it('should not report on 3.2', function(done) {
       const results = {
-        build: {raw: fixtures.BUILD_INFO_3_2},
+        build: { raw: fixtures.BUILD_INFO_3_2 },
         cmdLineOpts: fixtures.CMD_LINE_OPTS
       };
       getGenuineMongoDB(results, function(err, res) {
@@ -197,7 +196,7 @@ describe('instance-detail-helper-mocked', function() {
     });
     it('should not report on older versions', function(done) {
       const results = {
-        build: {raw: fixtures.BUILD_INFO_OLD},
+        build: { raw: fixtures.BUILD_INFO_OLD },
         cmdLineOpts: fixtures.CMD_LINE_OPTS
       };
       getGenuineMongoDB(results, function(err, res) {
@@ -209,13 +208,17 @@ describe('instance-detail-helper-mocked', function() {
     });
   });
 
-
   describe('getHostInfo', function() {
     it('should ignore auth errors gracefully', function(done) {
       // instead of the real db handle, pass in the mocked one
       const results = {
-        db: makeMockDB(new Error('not authorized on fooBarDatabase to execute command '
-          + '{listCollections: true, filter: {}, cursor: {}'), null)
+        db: makeMockDB(
+          new Error(
+            'not authorized on fooBarDatabase to execute command ' +
+              '{listCollections: true, filter: {}, cursor: {}'
+          ),
+          null
+        )
       };
       getHostInfo(results, function(err, res) {
         assert.equal(err, null);
@@ -246,8 +249,13 @@ describe('instance-detail-helper-mocked', function() {
 
     it('should ignore auth errors gracefully', function(done) {
       // instead of the real db handle, pass in the mocked one
-      results.db = makeMockDB(new Error('not authorized on admin to execute command '
-        + '{ listDatabases: 1.0 }'), null);
+      results.db = makeMockDB(
+        new Error(
+          'not authorized on admin to execute command ' +
+            '{ listDatabases: 1.0 }'
+        ),
+        null
+      );
 
       listDatabases(results, function(err, res) {
         assert.equal(err, null);
@@ -257,7 +265,10 @@ describe('instance-detail-helper-mocked', function() {
     });
     it('should pass on other errors from the listDatabases command', function(done) {
       // instead of the real db handle, pass in the mocked one
-      results.db = makeMockDB(new Error('some other error from hostInfo'), null);
+      results.db = makeMockDB(
+        new Error('some other error from hostInfo'),
+        null
+      );
 
       listDatabases(results, function(err, res) {
         assert.ok(err);
@@ -277,7 +288,13 @@ describe('instance-detail-helper-mocked', function() {
       getAllowedDatabases(results, function(err, res) {
         assert.equal(err, null);
         res.sort();
-        assert.deepEqual(res, ['accounts', 'products', 'reporting', 'sales', 'tenants']);
+        assert.deepEqual(res, [
+          'accounts',
+          'products',
+          'reporting',
+          'sales',
+          'tenants'
+        ]);
         done();
       });
     });
@@ -313,95 +330,134 @@ describe('instance-detail-helper-mocked', function() {
         assert.equal(err, null);
         const expected = [
           {
-            '_id': 'tenants.mongodb',
-            'database': 'tenants',
-            'name': 'mongodb',
-            'readonly': false,
-            'collation': null
+            _id: 'tenants.mongodb',
+            collation: null,
+            database: 'tenants',
+            name: 'mongodb',
+            pipeline: undefined,
+            readonly: false,
+            type: 'collection',
+            view_on: undefined
           },
           {
-            '_id': 'reporting.system.indexes',
-            'database': 'reporting',
-            'name': 'system.indexes',
-            'readonly': false,
-            'collation': null
+            _id: 'reporting.system.indexes',
+            database: 'reporting',
+            name: 'system.indexes',
+            pipeline: undefined,
+            readonly: false,
+            collation: null,
+            type: 'collection',
+            view_on: undefined
           },
           {
-            '_id': 'reporting.system.js',
-            'database': 'reporting',
-            'name': 'system.js',
-            'readonly': false,
-            'collation': null
+            _id: 'reporting.system.js',
+            database: 'reporting',
+            name: 'system.js',
+            readonly: false,
+            collation: null,
+            type: 'collection',
+            view_on: undefined,
+            pipeline: undefined
           },
           {
-            '_id': 'reporting.system.namespaces',
-            'database': 'reporting',
-            'name': 'system.namespaces',
-            'readonly': false,
-            'collation': null
+            _id: 'reporting.system.namespaces',
+            database: 'reporting',
+            name: 'system.namespaces',
+            readonly: false,
+            collation: null,
+            type: 'collection',
+            view_on: undefined,
+            pipeline: undefined
           },
           {
-            '_id': 'products.system.indexes',
-            'database': 'products',
-            'name': 'system.indexes',
-            'readonly': false,
-            'collation': null
+            _id: 'products.system.indexes',
+            database: 'products',
+            name: 'system.indexes',
+            readonly: false,
+            collation: null,
+            type: 'collection',
+            view_on: undefined,
+            pipeline: undefined
           },
           {
-            '_id': 'products.system.js',
-            'database': 'products',
-            'name': 'system.js',
-            'readonly': false,
-            'collation': null
+            _id: 'products.system.js',
+            database: 'products',
+            name: 'system.js',
+            readonly: false,
+            collation: null,
+            type: 'collection',
+            view_on: undefined,
+            pipeline: undefined
           },
           {
-            '_id': 'products.system.namespaces',
-            'database': 'products',
-            'name': 'system.namespaces',
-            'readonly': false,
-            'collation': null
+            _id: 'products.system.namespaces',
+            database: 'products',
+            name: 'system.namespaces',
+            readonly: false,
+            collation: null,
+            type: 'collection',
+            view_on: undefined,
+            pipeline: undefined
           },
           {
-            '_id': 'sales.system.indexes',
-            'database': 'sales',
-            'name': 'system.indexes',
-            'readonly': false,
-            'collation': null
+            _id: 'sales.system.indexes',
+            database: 'sales',
+            name: 'system.indexes',
+            readonly: false,
+            collation: null,
+            type: 'collection',
+            view_on: undefined,
+            pipeline: undefined
           },
           {
-            '_id': 'sales.system.js',
-            'database': 'sales',
-            'name': 'system.js',
-            'readonly': false,
-            'collation': null
+            _id: 'sales.system.js',
+            database: 'sales',
+            name: 'system.js',
+            readonly: false,
+            collation: null,
+            type: 'collection',
+            view_on: undefined,
+            pipeline: undefined
           },
           {
-            '_id': 'sales.system.namespaces',
-            'database': 'sales',
-            'name': 'system.namespaces',
-            'readonly': false,
-            'collation': null
+            _id: 'sales.system.namespaces',
+            database: 'sales',
+            name: 'system.namespaces',
+            readonly: false,
+            collation: null,
+            type: 'collection',
+            view_on: undefined,
+            pipeline: undefined
           },
           {
-            '_id': 'accounts.system.indexes',
-            'database': 'accounts',
-            'name': 'system.indexes',
-            'readonly': false,
-            'collation': null
+            _id: 'accounts.system.indexes',
+            database: 'accounts',
+            name: 'system.indexes',
+            readonly: false,
+            collation: null,
+            type: 'collection',
+            view_on: undefined,
+            pipeline: undefined
           },
           {
-            '_id': 'accounts.system.js',
-            'database': 'accounts',
-            'name': 'system.js',
-            'readonly': false,
-            'collation': null
+            _id: 'accounts.system.js',
+            database: 'accounts',
+            name: 'system.js',
+            readonly: false,
+            collation: null,
+            type: 'collection',
+            view_on: undefined,
+            pipeline: undefined
           },
           {
-            '_id': 'accounts.system.namespaces',
-            'database': 'accounts',
-            'name': 'system.namespaces',
-            'readonly': false,
-            'collation': null
+            _id: 'accounts.system.namespaces',
+            database: 'accounts',
+            name: 'system.namespaces',
+            readonly: false,
+            collation: null,
+            type: 'collection',
+            view_on: undefined,
+            pipeline: undefined
           }
         ];
         assert.deepEqual(res, expected);
@@ -426,11 +482,14 @@ describe('instance-detail-helper-mocked', function() {
         assert.equal(err, null);
         assert.deepEqual(res, [
           {
-            '_id': 'db3.coll3',
-            'database': 'db3',
-            'name': 'coll3',
-            'readonly': false,
-            'collation': null
+            _id: 'db3.coll3',
+            database: 'db3',
+            name: 'coll3',
+            readonly: false,
+            collation: null,
+            type: 'collection',
+            view_on: undefined,
+            pipeline: undefined
           }
         ]);
         done();
@@ -441,8 +500,13 @@ describe('instance-detail-helper-mocked', function() {
   describe('getDatabaseCollections', function() {
     const results = {};
     it('should ignore auth errors gracefully', function(done) {
-      results.db = makeMockDB(new Error('not authorized on fooBarDatabase to execute command '
-        + '{listCollections: true, filter: {}, cursor: {}'), null);
+      results.db = makeMockDB(
+        new Error(
+          'not authorized on fooBarDatabase to execute command ' +
+            '{listCollections: true, filter: {}, cursor: {}'
+        ),
+        null
+      );
 
       getDatabaseCollections(results.db.admin(), function(err, res) {
         assert.equal(err, null);
@@ -452,7 +516,10 @@ describe('instance-detail-helper-mocked', function() {
     });
 
     it('should pass on other errors from the listCollections command', function(done) {
-      results.db = makeMockDB(new Error('some other error from list collections'), null);
+      results.db = makeMockDB(
+        new Error('some other error from list collections'),
+        null
+      );
 
       getDatabaseCollections(results.db.admin(), function(err, res) {
         assert.ok(err);
@@ -469,66 +536,82 @@ describe('instance-detail-helper-mocked', function() {
     beforeEach(function() {
       results.databases = [
         {
-          'name': 'accounts'
+          name: 'accounts'
         },
         {
-          'name': 'products'
+          name: 'products'
         },
         {
-          'name': 'reporting'
+          name: 'reporting'
         },
         {
-          'name': 'sales'
+          name: 'sales'
         }
       ];
     });
 
     it('should lists all collections for each listable db', function(done) {
       results.userInfo = fixtures.USER_INFO_JOHN;
-      results.db = makeMockDB(null, [{
-        'name': 'testCol',
-        'info': {
-          'readOnly': true
+      results.db = makeMockDB(null, [
+        {
+          name: 'testCol',
+          info: {
+            readOnly: true
+          }
         }
-      }]);
-      results.client = makeMockClient(null, [{
-        'name': 'testCol',
-        'info': {
-          'readOnly': true
+      ]);
+      results.client = makeMockClient(null, [
+        {
+          name: 'testCol',
+          info: {
+            readOnly: true
+          }
         }
-      }]);
+      ]);
 
       listCollections(results, function(err, res) {
         assert.equal(err, null);
         res.sort();
         const expected = [
           {
-            '_id': 'accounts.testCol',
-            'database': 'accounts',
-            'name': 'testCol',
-            'readonly': true,
-            'collation': null
+            _id: 'accounts.testCol',
+            database: 'accounts',
+            name: 'testCol',
+            readonly: true,
+            collation: null,
+            type: 'collection',
+            view_on: undefined,
+            pipeline: undefined
           },
           {
-            '_id': 'products.testCol',
-            'database': 'products',
-            'name': 'testCol',
-            'readonly': true,
-            'collation': null
+            _id: 'products.testCol',
+            database: 'products',
+            name: 'testCol',
+            readonly: true,
+            collation: null,
+            type: 'collection',
+            view_on: undefined,
+            pipeline: undefined
           },
           {
-            '_id': 'reporting.testCol',
-            'database': 'reporting',
-            'name': 'testCol',
-            'readonly': true,
-            'collation': null
+            _id: 'reporting.testCol',
+            database: 'reporting',
+            name: 'testCol',
+            readonly: true,
+            collation: null,
+            type: 'collection',
+            view_on: undefined,
+            pipeline: undefined
           },
           {
-            '_id': 'sales.testCol',
-            'database': 'sales',
-            'name': 'testCol',
-            'readonly': true,
-            'collation': null
+            _id: 'sales.testCol',
+            database: 'sales',
+            name: 'testCol',
+            readonly: true,
+            collation: null,
+            type: 'collection',
+            view_on: undefined,
+            pipeline: undefined
           }
         ];
         expected.sort();

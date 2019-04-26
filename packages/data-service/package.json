@@ -53,6 +53,7 @@
   "devDependencies": {
     "chai": "^3.4.1",
     "eslint-config-mongodb-js": "^2.2.0",
+    "lodash.find": "^4.6.0",
     "mocha": "^3.1.2",
     "mock-require": "^2.0.1",
     "mongodb-js-precommit": "^0.2.9",
