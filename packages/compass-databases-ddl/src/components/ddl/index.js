@@ -1,4 +1,4 @@
-import Ddl from './ddl';
+import MappedDdl, { Ddl } from './ddl';
 
-export default Ddl;
+export default MappedDdl;
 export { Ddl };

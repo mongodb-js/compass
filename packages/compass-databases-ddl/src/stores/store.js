@@ -3,6 +3,7 @@ import thunk from 'redux-thunk';
 import { appRegistryActivated } from 'modules/app-registry';
 import { loadDatabases } from 'modules/databases';
 import { writeStateChanged } from 'modules/is-writable';
+import { toggleIsGenuineMongoDB } from 'modules/is-genuine-mongodb';
 import reducer from 'modules';
 
 const store = createStore(reducer, applyMiddleware(thunk));
@@ -18,6 +19,11 @@ store.onActivated = (appRegistry) => {
     if (databases) {
       store.dispatch(loadDatabases(databases));
     }
+    const isGenuine = state.instance.genuineMongoDB === undefined
+      ? { isGenuine: true }
+      : state.instance.genuineMongoDB;
+
+    store.dispatch(toggleIsGenuineMongoDB(isGenuine.isGenuine));
   });
 
   /**

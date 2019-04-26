@@ -18,6 +18,9 @@ import sortColumn, {
 import sortOrder, {
   INITIAL_STATE as SORT_ORDER_INITIAL_STATE
 } from 'modules/sort-order';
+import isGenuineMongoDB, {
+  INITIAL_STATE as GENUINE_INITIAL_STATE
+} from 'modules/is-genuine-mongodb';
 import { RESET } from 'modules/reset';
 
 /**
@@ -30,7 +33,8 @@ const reducer = combineReducers({
   isWritable,
   sortColumn,
   sortOrder,
-  appRegistry
+  appRegistry,
+  isGenuineMongoDB
 });
 
 /**
@@ -50,7 +54,8 @@ const rootReducer = (state, action) => {
       isReadonly: READONLY_INITIAL_STATE,
       isWritable: WRITABLE_INITIAL_STATE,
       sortColumn: SORT_COLUMN_INITIAL_STATE,
-      sortOrder: SORT_ORDER_INITIAL_STATE
+      sortOrder: SORT_ORDER_INITIAL_STATE,
+      isGenuineMongoDB: GENUINE_INITIAL_STATE
     };
   }
   return reducer(state, action);
