@@ -5,18 +5,17 @@
     "es6": true
   },
   "rules": {
-    "camelcase": 1
+    "camelcase": 1,
+    "new-cap": 0,
+    "no-use-before-define": 0,
+    "no-var": 0,
+    "prefer-const": 0
   },
-  "extends": [
-    "mongodb-js/node",
-    "mongodb-js/browser"
-  ],
-  "parserOptions": {
-    "ecmaVersion": 6,
-    "sourceType": "module",
-    "ecmaFeatures": {
-        "jsx": true
+  "extends": ["mongodb-js/node", "mongodb-js/browser", "mongodb-js/react"],
+  "plugins": ["react"],
+  "settings": {
+    "react": {
+      "version": "detect"
     }
-  },
-  "plugins": ["react"]
+  }
 }

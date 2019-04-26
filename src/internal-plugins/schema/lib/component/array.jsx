@@ -23,7 +23,7 @@ class ArrayMinichart extends React.Component {
       <div>
         <dl>
           <dt>{arrayOfFieldsMessage}</dt>
-          <dd></dd>
+          <dd />
           <dt>Array lengths</dt>
           <dd>
             <ul className="list-inline">

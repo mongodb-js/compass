@@ -26,7 +26,7 @@ class UniqueMiniChart extends React.Component {
    */
   render() {
     if (!this.props.type.values) {
-      return <div></div>;
+      return <div />;
     }
     const sample = this.state.sample || [];
     const fieldName = this.props.fieldName.toLowerCase();

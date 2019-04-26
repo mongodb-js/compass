@@ -121,7 +121,7 @@ class Type extends React.Component {
       <div {...tooltipOptions} className={cls} style={style} onClick={handleClick}>
         <ReactTooltip id={TOOLTIP_IDS.SCHEMA_PROBABILITY_PERCENT}/>
         {this.props.showSubTypes ? label : null}
-        <div className="schema-field-type"></div>
+        <div className="schema-field-type" />
         {subtypes}
         {this.props.showSubTypes ? null : label}
       </div>
