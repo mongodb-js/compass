@@ -46,6 +46,13 @@ var BuildInfo = AmpersandState.extend({
   }
 });
 
+var genuineMongoDB = AmpersandState.extend({
+  props: {
+    isGenuine: 'boolean',
+    dbType: 'string'
+  }
+});
+
 var Instance = AmpersandModel.extend({
   modelType: 'Instance',
   idAttribute: '_id',
@@ -98,7 +105,8 @@ var Instance = AmpersandModel.extend({
   },
   children: {
     host: HostInfo,
-    build: BuildInfo
+    build: BuildInfo,
+    genuineMongoDB: genuineMongoDB
   },
   /**
    * Override `AmpersandModel.serialize()` to
