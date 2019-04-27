@@ -5,7 +5,6 @@ const TOOLTIP_IDS = Object.freeze({
 const LONG_RUNNING_QUERIES_URL =
   'https://docs.mongodb.com/compass/current/faq/#what-happens-to-long-running-queries';
 
-const STRING = 'String';
 const DECIMAL_128 = 'Decimal128';
 const DOUBLE = 'Double';
 const LONG = 'Long';
@@ -21,6 +20,5 @@ export {
   DOUBLE,
   LONG,
   INT_32,
-  STRING,
   NUMBER
 };

@@ -1,11 +1,15 @@
-import { combineReducers } from 'redux';
-import status from './status';
+import number from './number';
+import boolean from './boolean';
+import date from './date';
+import string from './string';
+import objectid from './date';
+import coordinates from './coordinates';
 
-/**
- * The reducer.
- */
-const reducer = combineReducers({
-  status
-});
-
-export default reducer;
+export default {
+  number,
+  boolean,
+  date,
+  string,
+  objectid,
+  coordinates
+};

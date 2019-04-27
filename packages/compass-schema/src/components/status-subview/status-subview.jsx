@@ -9,7 +9,7 @@ const DEFAULT_MAX_TIME_MS = 10000;
 /**
  * Component for the entire document list.
  */
-class SchemaStatusSubview extends React.Component {
+class SchemaStatusSubview extends Component {
   static displayName = 'StatusSubviewComponent';
   static propTypes = {
     store: PropTypes.object.isRequired

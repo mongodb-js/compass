@@ -4,6 +4,8 @@ import app from 'hadron-app';
 import AppRegistry from 'hadron-app-registry';
 import { AppContainer } from 'react-hot-loader';
 import CompassSchemaPlugin, { activate } from 'plugin';
+import configureStore, { setDataProvider, setNamespace } from 'stores';
+import configureActions from 'actions';
 
 // Import global less file. Note: these styles WILL NOT be used in compass, as compass provides its own set
 // of global styles. If you are wishing to style a given component, you should be writing a less file per
@@ -26,11 +28,31 @@ const root = document.createElement('div');
 root.id = 'root';
 document.body.appendChild(root);
 
+import Connection from 'mongodb-connection-model';
+import DataService from 'mongodb-data-service';
+
+const store = configureStore({
+  localAppRegistry: new AppRegistry(),
+  globalAppRegistry: appRegistry
+});
+
+const connection = new Connection({
+  hostname: '127.0.0.1',
+  port: 27017,
+  ns: 'admin'
+});
+const dataService = new DataService(connection);
+
+dataService.connect((error, ds) => {
+  setDataProvider(store, error, ds);
+  setNamespace(store, 'echo.artists');
+});
+
 // Create a HMR enabled render function
 const render = Component => {
   ReactDOM.render(
     <AppContainer>
-      <Component />
+      <Component store={store} actions={configureActions()} />
     </AppContainer>,
     document.getElementById('root')
   );

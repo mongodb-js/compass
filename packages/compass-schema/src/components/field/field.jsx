@@ -15,17 +15,13 @@ const FIELD_CLASS = 'schema-field';
 /**
  * Component for the entire document list.
  */
-class Field extends React.Component {
+class Field extends Component {
   static displayName = 'FieldComponent';
 
   static propTypes = {
-     // non-dotted name of the field, e.g. `street`
     name: PropTypes.string,
-     // full dotted name of the field, e.g. `address.street`
     path: PropTypes.string,
-     // array of type objects present in this field
     types: PropTypes.array,
-     // array of subfields in a nested documents
     fields: PropTypes.array
   }
 

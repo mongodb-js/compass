@@ -7,7 +7,7 @@ const SHOW_STEPS_TIME_MS = 3000;
 /**
  * Component for the entire document list.
  */
-class SchemaSteps extends React.Component {
+class SchemaSteps extends Component {
   static displayName = 'SchemaStepsComponent';
 
   static propTypes = {

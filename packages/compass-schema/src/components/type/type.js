@@ -19,13 +19,13 @@ class Type extends Component {
   static displayName = 'TypeComponent';
 
   static propTypes = {
-    name: PropTypes.string.isRequired,  // type name, e.g. `Number`
-    types: PropTypes.array,             // array of types (for subtypes)
-    activeType: PropTypes.any,          // currently active type overall
-    self: PropTypes.object,             // a reference to this type
-    probability: PropTypes.number.isRequired,  // length of bar
-    renderType: PropTypes.func.isRequired,     // callback function
-    showSubTypes: PropTypes.bool.isRequired    // should subtypes be rendered?
+    name: PropTypes.string.isRequired,
+    types: PropTypes.array,
+    activeType: PropTypes.any,
+    self: PropTypes.object,
+    probability: PropTypes.number.isRequired,
+    renderType: PropTypes.func.isRequired,
+    showSubTypes: PropTypes.bool.isRequired
   }
 
   /**
@@ -141,4 +141,4 @@ class Type extends Component {
   }
 }
 
-module.exports = Type;
+export default Type;

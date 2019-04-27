@@ -4,17 +4,18 @@ import _ from 'lodash';
 import { hasDistinctValue } from 'mongodb-query-util';
 import { DECIMAL_128, DOUBLE, LONG, INT_32 } from 'constants';
 
-class ValueBubble extends React.Component {
+class ValueBubble extends Component {
   static displayName = 'ValueBubbleComponent';
 
   static propTypes = {
+    localAppRegistry: PropTypes.object.isRequired,
     fieldName: PropTypes.string.isRequired,
     queryValue: PropTypes.string,
     value: PropTypes.any.isRequired
   }
 
   onBubbleClicked(e) {
-    const QueryAction = global.hadronApp.appRegistry.getAction('Query.Actions');
+    const QueryAction = this.props.localAppRegistry.getAction('Query.Actions');
     const action = e.shiftKey ?
       QueryAction.toggleDistinctValue : QueryAction.setValue;
     action({

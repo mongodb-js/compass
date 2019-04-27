@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import ValueBubble from 'components/value-bubble';
 import _ from 'lodash';
 
-class UniqueMiniChart extends React.Component {
+class UniqueMiniChart extends Component {
   static displayName = 'UniqueMiniChartComponent';
 
   static propTypes = {

@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import pluralize from 'pluralize';
 import _ from 'lodash';
 
-class DocumentMinichart extends React.Component {
+class DocumentMinichart extends Component {
   static displayName = 'DocumentMiniChartComponent';
 
   static propTypes = {

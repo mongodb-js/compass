@@ -9,23 +9,24 @@ const RETRY_INC_MAXTIMEMS_VALUE = 60000;
 /**
  * Component for the entire document list.
  */
-class ButtonsError extends React.Component {
+class ButtonsError extends Component {
   static displayName = 'ButtonsErrorComponent';
 
   static propTypes = {
+    globalAppRegistry: PropTypes.object.isRequired,
+    actions: PropTypes.object.isRequired,
     maxTimeMS: PropTypes.number.isRequired,
     samplingState: PropTypes.string.isRequired
   }
 
   componentWillMount() {
-    this.StatusAction = global.hadronApp.appRegistry.getAction('Status.Actions');
-    this.SchemaAction = global.hadronApp.appRegistry.getAction('Schema.Actions');
+    this.StatusAction = this.props.globalAppRegistry.getAction('Status.Actions');
   }
 
   onTryAgainButtonClick() {
     // increase maxTimeMS and sample again
-    this.SchemaAction.setMaxTimeMS(RETRY_INC_MAXTIMEMS_VALUE);
-    this.SchemaAction.startSampling();
+    this.props.actions.setMaxTimeMS(RETRY_INC_MAXTIMEMS_VALUE);
+    this.props.actions.startSampling();
   }
 
   onNewQueryButtonClick() {

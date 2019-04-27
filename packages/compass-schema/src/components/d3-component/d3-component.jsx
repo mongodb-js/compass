@@ -36,6 +36,7 @@ class D3Component extends Component {
   static propTypes = {
     fieldName: PropTypes.string.isRequired,
     type: PropTypes.object.isRequired,
+    globalAppRegistry: PropTypes.object.isRequired,
     renderMode: PropTypes.oneOf(['svg', 'div']),
     width: PropTypes.number,
     height: PropTypes.number,
@@ -50,7 +51,7 @@ class D3Component extends Component {
 
   componentWillMount() {
     this.setState({
-      chart: this.props.fn()
+      chart: this.props.fn(this.props.globalAppRegistry)
     });
   }
 

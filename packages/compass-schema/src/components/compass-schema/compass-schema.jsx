@@ -1,8 +1,6 @@
 /* eslint react/no-multi-comp:0 */
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import classnames from 'classnames';
-import ReactTooltip from 'react-tooltip');
 import { StatusRow, Tooltip, ZeroState } from 'hadron-react-components';
 import { TextButton } from 'hadron-react-buttons';
 import Field from 'components/field';
@@ -10,9 +8,6 @@ import StatusSubview from 'components/status-subview';
 import SamplingMessage from 'components/sampling-message';
 import { TOOLTIP_IDS } from 'constants';
 import _ from 'lodash';
-
-import styles from './compass-schema.less';
-// const debug = require('debug')('mongodb-compass:schema');
 
 const QUERYBAR_LAYOUT = ['filter', ['project', 'limit']];
 
@@ -37,6 +32,7 @@ class Schema extends Component {
 
   static propTypes = {
     actions: PropTypes.object,
+    globalAppRegistry: PropTypes.object.isRequired,
     samplingState: PropTypes.oneOf([
       'initial',
       'counting',
@@ -55,9 +51,8 @@ class Schema extends Component {
   }
 
   componentWillMount() {
-    this.StatusAction = global.hadronApp..appRegistry.getAction('Status.Actions');
-    this.queryBar = global.hadronApp.appRegistry.getComponent('Query.QueryBar');
-    this.CollectionStore = global.hadronApp.appRegistry.getStore('App.CollectionStore');
+    this.StatusAction = this.props.globalAppRegistry.getAction('Status.Actions');
+    this.queryBar = this.props.globalAppRegistry.getComponent('Query.QueryBar');
   }
 
   componentDidUpdate() {
@@ -68,8 +63,8 @@ class Schema extends Component {
     // the minicharts have to be re-rendered.
     //
     // if (this.CollectionStore.getActiveTab() === 1) {
-      // this.props.actions.resizeMiniCharts();
-      // ReactTooltip.rebuild();
+    //   this.props.actions.resizeMiniCharts();
+    //   ReactTooltip.rebuild();
     // }
   }
 
@@ -105,7 +100,7 @@ class Schema extends Component {
     } else if (progress >= 0 && progress < 100 && progress % 5 === 1) {
       if (this.trickleStop === null) {
         // remember where trickling stopped to calculate remaining progress
-        const StatusStore = app.appRegistry.getStore('Status.Store');
+        const StatusStore = this.props.globalAppRegistry.getStore('Status.Store');
         this.trickleStop = StatusStore.state.progress;
       }
       const newProgress = Math.ceil(this.trickleStop + (100 - this.trickleStop) / 100 * progress);
@@ -199,7 +194,7 @@ class Schema extends Component {
             onReset={this.onResetClicked.bind(this)} />
           {this.renderBanner()}
         </div>
-          {this.renderContent()}
+        {this.renderContent()}
         <Tooltip
           id={TOOLTIP_IDS.SCHEMA_PROBABILITY_PERCENT}
           className="opaque-tooltip" />

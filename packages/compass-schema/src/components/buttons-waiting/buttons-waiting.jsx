@@ -12,6 +12,7 @@ class ButtonsWaiting extends Component {
   static displayName = 'ButtonsWaitingComponent';
 
   static propTypes = {
+    globalAppRegistry: PropTypes.object.isRequired,
     samplingTimeMS: PropTypes.number.isRequired,
     samplingState: PropTypes.string.isRequired,
     actions: PropTypes.object.isRequired
@@ -19,7 +20,7 @@ class ButtonsWaiting extends Component {
 
   onStopPartialButton() {
     this.props.actions.stopSampling();
-    const StatusAction = global.hadronApp.appRegistry.getAction('Status.Actions');
+    const StatusAction = this.props.globalAppRegistry.getAction('Status.Actions');
     if (StatusAction !== undefined) {
       StatusAction.hide();
     }
@@ -48,7 +49,7 @@ class ButtonsWaiting extends Component {
         <div id="buttons-waiting">
           <div className="alert alert-info" role="alert">
             Document analysis is taking longer than expected. &nbsp;
-            <a onClick={() => {shell.openExternal(LONG_RUNNING_QUERIES_URL);}}>
+            <a onClick={() => {this._openLink(LONG_RUNNING_QUERIES_URL);}}>
               Learn More
               <InfoSprinkle
                 helpLink={LONG_RUNNING_QUERIES_URL}

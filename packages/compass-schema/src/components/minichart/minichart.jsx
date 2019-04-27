@@ -3,15 +3,16 @@ import PropTypes from 'prop-types';
 import UniqueMiniChart from 'components/unique-minichart';
 import DocumentMinichart from 'components/document-minichart';
 import ArrayMinichart from 'components/array-minichart';
-import D3Component from 'components/d3component';
+import D3Component from 'components/d3-component';
 import _ from 'lodash';
-import vizFns from '../d3';
+import vizFns from 'modules';
 import { STRING, DECIMAL_128, DOUBLE, LONG, INT_32, NUMBER } from 'constants';
 
 class MiniChart extends Component {
   static displayName = 'MiniChartComponent';
 
   static propTypes = {
+    localAppRegistry: PropTypes.object.isRequired,
     fieldName: PropTypes.string.isRequired,
     actions: PropTypes.object.isRequired,
     type: PropTypes.object.isRequired,
@@ -36,7 +37,7 @@ class MiniChart extends Component {
     this.resizeListener();
     window.addEventListener('resize', this.resizeListener);
 
-    const QueryStore = global.hadronApp.appRegistry.getStore('Query.Store');
+    const QueryStore = this.props.localAppRegistry.getStore('Query.Store');
     const onQueryChanged = (store) => {
       this.setState({
         filter: store.filter,
@@ -153,7 +154,6 @@ class MiniChart extends Component {
       </div>
     );
   }
-
 }
 
 export default MiniChart;
