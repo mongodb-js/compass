@@ -53,6 +53,16 @@ export const setGlobalAppRegistry = (store, appRegistry) => {
 };
 
 /**
+ * Set the local app registry.
+ *
+ * @param {Store} store - The store.
+ * @param {AppRegistry} appRegistry - The app registry.
+ */
+export const setLocalAppRegistry = (store, appRegistry) => {
+  store.localAppRegistry = appRegistry;
+};
+
+/**
  * Configure a store with the provided options.
  *
  * @param {Object} options - The options.
@@ -117,6 +127,8 @@ const configureStore = (options = {}) => {
      */
     getInitialState() {
       return {
+        localAppRegistry: null,
+        globalAppRegistry: null,
         samplingState: 'initial',
         samplingProgress: 0,
         samplingTimeMS: 0,
@@ -309,6 +321,8 @@ const configureStore = (options = {}) => {
     options.localAppRegistry.on('onQueryChanged', (state) => {
       store.onQueryChanged(state);
     });
+
+    setLocalAppRegistry(store, options.localAppRegistry);
   }
 
   // Set global app registry to get status actions.
