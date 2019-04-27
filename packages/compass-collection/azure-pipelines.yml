@@ -33,6 +33,7 @@ steps:
       npm run cover
     displayName: 'Run Node Tests'
   - script: |
+      npm install
       npm run test:karma
     displayName: 'Run Renderer Tests'
   - script: |
