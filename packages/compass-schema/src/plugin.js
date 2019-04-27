@@ -7,7 +7,8 @@ class Plugin extends Component {
   static displayName = 'CompassSchemaPlugin';
 
   static propTypes = {
-    store: PropTypes.object.isRequired
+    store: PropTypes.object.isRequired,
+    actions: PropTypes.object.isRequired
   }
 
   /**
@@ -18,7 +19,7 @@ class Plugin extends Component {
   render() {
     return (
       <StoreConnector store={this.props.store}>
-        <CompassSchema />
+        <CompassSchema {...this.props} />
       </StoreConnector>
     );
   }

@@ -1,4 +1,2 @@
-import CompassSchemaStore from './store';
-
-export default CompassSchemaStore;
-export { CompassSchemaStore };
+import configureStore from './store';
+export default configureStore;
