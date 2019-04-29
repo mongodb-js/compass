@@ -27,7 +27,9 @@ import limit, { INITIAL_STATE as LIMIT_INITIAL_STATE } from './limit';
 import largeLimit, {
   INITIAL_STATE as LARGE_LIMIT_INITIAL_STATE
 } from './large-limit';
-
+import isAtlasDeployed, {
+  INITIAL_STATE as IS_ATLAS_DEPLOYED_INITIAL_STATE
+} from './is-atlas-deployed';
 import maxTimeMS, {
   INITIAL_STATE as MAX_TIME_MS_INITIAL_STATE
 } from './max-time-ms';
@@ -102,6 +104,7 @@ export const INITIAL_STATE = {
   collation: COLLATION_INITIAL_STATE,
   collationString: COLLATION_STRING_INITIAL_STATE,
   isCollationExpanded: COLLATION_COLLAPSER_INITIAL_STATE,
+  isAtlasDeployed: IS_ATLAS_DEPLOYED_INITIAL_STATE,
   isOverviewOn: OVERVIEW_INITIAL_STATE,
   comments: COMMENTS_INITIAL_STATE,
   sample: SAMPLE_INITIAL_STATE,
@@ -172,6 +175,7 @@ const appReducer = combineReducers({
   isCollationExpanded,
   id,
   isModified,
+  isAtlasDeployed,
   importPipeline,
   isOverviewOn,
   settings,
@@ -194,6 +198,7 @@ const appReducer = combineReducers({
 const doNamespaceChanged = (state, action) => {
   const newState = {
     ...INITIAL_STATE,
+    isAtlasDeployed: state.isAtlasDeployed,
     dataService: state.dataService,
     appRegistry: state.appRegistry,
     serverVersion: state.serverVersion
@@ -254,6 +259,7 @@ const doRestorePipeline = (state, action) => {
     serverVersion: state.serverVersion,
     dataService: state.dataService,
     inputDocuments: state.inputDocuments,
+    isAtlasDeployed: state.isAtlasDeployed,
     savedPipeline: {
       ...state.savedPipeline,
       isListVisible: false
@@ -278,6 +284,7 @@ const doClearPipeline = (state) => ({
   limit: LIMIT_INITIAL_STATE,
   largeLimit: LARGE_LIMIT_INITIAL_STATE,
   maxTimeMS: MAX_TIME_MS_INITIAL_STATE,
+  isAtlasDeployed: state.isAtlasDeployed,
   savedPipeline: {
     ...state.savedPipeline,
     isListVisible: true
@@ -298,6 +305,7 @@ const createNewPipeline = (state) => ({
   fields: state.fields,
   serverVersion: state.serverVersion,
   dataService: state.dataService,
+  isAtlasDeployed: state.isAtlasDeployed,
   inputDocuments: state.inputDocuments
 });
 

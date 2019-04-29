@@ -128,6 +128,7 @@ const mapStateToProps = (state) => ({
   isModified: state.isModified,
   isCommenting: state.comments,
   isSampling: state.sample,
+  isAtlasDeployed: state.isAtlasDeployed,
   isAutoPreviewing: state.autoPreview,
   isImportPipelineOpen: state.importPipeline.isOpen,
   isImportConfirmationNeeded: state.importPipeline.isConfirmationNeeded,

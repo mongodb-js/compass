@@ -7,6 +7,7 @@ import { dataServiceConnected } from 'modules/data-service';
 import { fieldsChanged } from 'modules/fields';
 import { refreshInputDocuments } from 'modules/input-documents';
 import { serverVersionChanged } from 'modules/server-version';
+import { setIsAtlasDeployed } from 'modules/is-atlas-deployed';
 import {
   localAppRegistryActivated,
   globalAppRegistryActivated
@@ -19,6 +20,16 @@ import {
  */
 export const refreshInput = (store) => {
   store.dispatch(refreshInputDocuments());
+};
+
+/**
+ * Set if the plugin is deployed in Atlas.
+ *
+ * @param {Store} store - The store.
+ * @param {Boolean} isAtlas - If the plugin is running in Atlas.
+ */
+export const setIsAtlas = (store, isAtlas) => {
+  store.dispatch(setIsAtlasDeployed(isAtlas));
 };
 
 /**
@@ -145,6 +156,10 @@ const configureStore = (options = {}) => {
       options.dataProvider.error,
       options.dataProvider.dataProvider
     );
+  }
+
+  if (options.isAtlasDeployed) {
+    setIsAtlas(options.isAtlasDeployed);
   }
 
   // Set the namespace - must happen third.
