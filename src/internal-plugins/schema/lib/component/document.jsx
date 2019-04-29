@@ -16,7 +16,7 @@ class DocumentMinichart extends React.Component {
       <div>
         <dl>
           <dt>{docFieldsMessage}</dt>
-          <dd></dd>
+          <dd />
         </dl>
       </div>
     );
