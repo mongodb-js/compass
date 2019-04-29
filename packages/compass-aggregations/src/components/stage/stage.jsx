@@ -84,9 +84,6 @@ class Stage extends Component {
     fromStageOperators: PropTypes.bool.isRequired,
     previewDocuments: PropTypes.array.isRequired,
     index: PropTypes.number.isRequired,
-    connectDragSource: PropTypes.func.isRequired,
-    connectDropTarget: PropTypes.func.isRequired,
-    isDragging: PropTypes.bool.isRequired,
     isCommenting: PropTypes.bool.isRequired,
     isAutoPreviewing: PropTypes.bool.isRequired,
     runStage: PropTypes.func.isRequired,
@@ -120,7 +117,6 @@ class Stage extends Component {
       nextProps.isExpanded !== this.props.isExpanded ||
       nextProps.isLoading !== this.props.isLoading ||
       nextProps.isComplete !== this.props.isComplete ||
-      nextProps.isDragging !== this.props.isDragging ||
       nextProps.fromStageOperators !== this.props.fromStageOperators ||
       nextProps.index !== this.props.index ||
       nextProps.isCommenting !== this.props.isCommenting ||
@@ -139,9 +135,6 @@ class Stage extends Component {
    * @returns {Number} The opacity value.
    */
   getOpacity() {
-    if (this.props.isDragging) {
-      return 0;
-    }
     if (this.props.isEnabled) {
       return 1;
     }
