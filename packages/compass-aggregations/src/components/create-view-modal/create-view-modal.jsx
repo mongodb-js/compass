@@ -22,7 +22,7 @@ class CreateViewModal extends PureComponent {
     isVisible: PropTypes.bool.isRequired,
     toggleIsVisible: PropTypes.func.isRequired,
 
-    name: PropTypes.string.isRequired,
+    name: PropTypes.string,
     changeViewName: PropTypes.func.isRequired,
 
     source: PropTypes.string.isRequired,
