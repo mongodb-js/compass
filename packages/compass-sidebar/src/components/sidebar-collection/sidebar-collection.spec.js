@@ -98,6 +98,9 @@ describe('SidebarCollection [Component]', () => {
     it('registers as readonly', () => {
       expect(component.find('[data-test-id="sidebar-collection-is-readonly"]')).to.be.present();
     });
+    it('has the view icon', () => {
+      expect(component.find(`.${styles['compass-sidebar-item-view-icon']}`)).to.be.present();
+    });
     it('does not trigger drop collection when clicked', () => {
       component.find('[data-test-id="compass-sidebar-icon-drop-collection"]').simulate('click');
       expect(spy.called).to.equal(false);
