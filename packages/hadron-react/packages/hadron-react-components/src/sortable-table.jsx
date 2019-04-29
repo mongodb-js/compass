@@ -125,6 +125,18 @@ class SortableTable extends React.Component {
     return cells;
   }
 
+  getStringValueFromCell(cell) {
+    if(isString(cell)) {
+      return cell;
+    }
+
+    const fromChild = get(cell, 'props.children', '');
+    if (isArray(fromChild)) {
+      return fromChild[0].props.children;
+    }
+    return fromChild;
+  }
+
   /**
    * Render the table rows.
    *
@@ -151,7 +163,7 @@ class SortableTable extends React.Component {
         row = row.slice(0, this.props.columns.length);
       }
       const cells = map(row, (cell, columnIndex) => {
-        const title = isString(cell) ? cell : get(cell, 'props.children', '');
+        const title = this.getStringValueFromCell(cell);
         return (
           <td
             className={`${BASE}-td`}
@@ -165,7 +177,7 @@ class SortableTable extends React.Component {
       if (this.props.removable) {
         // add a column with a delete button if the `removable` prop was set
         const valueCell = row[this.props.valueIndex];
-        const valueStr = isString(valueCell) ? valueCell : get(valueCell, 'props.children', '');
+        const valueStr = this.getStringValueFromCell(valueCell);
         cells.push(
           <td
             className={`${BASE}-td`}

@@ -51,7 +51,6 @@ var SortableTable = function (_React$Component) {
   _createClass(SortableTable, [{
     key: 'onBodyRowMouseEnter',
 
-
     /**
      * Fires when the user's mouse cursor hovers over a <tr>.
      *
@@ -149,10 +148,17 @@ var SortableTable = function (_React$Component) {
       var sortClass = 'sort-' + this.props.sortOrder.toLowerCase();
       var cells = map(this.props.columns, function (col, idx) {
         var active = _this2._sortColumnMatch(_this2.props.sortColumn, col) ? ' ' + BASE + '-th-is-active' : '';
-        var sortIcon = _this2.props.sortable ? React.createElement(FontAwesome, { className: BASE + '-sort-icon', name: sortClass, fixedWidth: true }) : null;
+        var sortIcon = _this2.props.sortable ? React.createElement(FontAwesome, {
+          className: BASE + '-sort-icon',
+          name: sortClass,
+          fixedWidth: true
+        }) : null;
         return React.createElement(
           'th',
-          { className: 'sortable-table-th' + active, key: 'th-' + idx, onClick: _this2.onColumnHeaderClicked.bind(_this2, idx) },
+          {
+            className: 'sortable-table-th' + active,
+            key: 'th-' + idx,
+            onClick: _this2.onColumnHeaderClicked.bind(_this2, idx) },
           col,
           sortIcon
         );
@@ -161,6 +167,19 @@ var SortableTable = function (_React$Component) {
         cells.push(React.createElement('th', { key: 'th-delete', className: BASE + '-th ' + BASE + '-th-is-last-col' }));
       }
       return cells;
+    }
+  }, {
+    key: 'getStringValueFromCell',
+    value: function getStringValueFromCell(cell) {
+      if (isString(cell)) {
+        return cell;
+      }
+
+      var fromChild = get(cell, 'props.children', '');
+      if (isArray(fromChild)) {
+        return fromChild[0].props.children;
+      }
+      return fromChild;
     }
 
     /**
@@ -194,7 +213,7 @@ var SortableTable = function (_React$Component) {
           row = row.slice(0, _this3.props.columns.length);
         }
         var cells = map(row, function (cell, columnIndex) {
-          var title = isString(cell) ? cell : get(cell, 'props.children', '');
+          var title = _this3.getStringValueFromCell(cell);
           return React.createElement(
             'td',
             {
@@ -208,7 +227,7 @@ var SortableTable = function (_React$Component) {
         if (_this3.props.removable) {
           // add a column with a delete button if the `removable` prop was set
           var valueCell = row[_this3.props.valueIndex];
-          var valueStr = isString(valueCell) ? valueCell : get(valueCell, 'props.children', '');
+          var valueStr = _this3.getStringValueFromCell(valueCell);
           cells.push(React.createElement(
             'td',
             {
@@ -229,7 +248,8 @@ var SortableTable = function (_React$Component) {
         return React.createElement(
           'tr',
           {
-            className: BASE + '-tbody-tr', key: 'tr-' + rowIndex,
+            className: BASE + '-tbody-tr',
+            key: 'tr-' + rowIndex,
             onMouseEnter: _this3.onBodyRowMouseEnter.bind(_this3, rowIndex),
             onMouseLeave: _this3.onBodyRowMouseLeave.bind(_this3, rowIndex) },
           cells
