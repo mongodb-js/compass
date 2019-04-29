@@ -23,6 +23,7 @@ class PipelineBuilderToolbar extends PureComponent {
   static displayName = 'PipelineBuilderToolbarComponent';
 
   static propTypes = {
+    isAtlasDeployed: PropTypes.bool.isRequired,
     clonePipeline: PropTypes.func.isRequired,
     exportToLanguage: PropTypes.func.isRequired,
     newPipeline: PropTypes.func.isRequired,
@@ -158,30 +159,32 @@ class PipelineBuilderToolbar extends PureComponent {
   }
 
   renderSavedPipelineListToggler() {
-    const clickHandler = this.props.savedPipeline.isListVisible
-      ? this.handleSavedPipelinesClose
-      : this.handleSavedPipelinesOpen;
+    if (!this.props.isAtlasDeployed) {
+      const clickHandler = this.props.savedPipeline.isListVisible
+        ? this.handleSavedPipelinesClose
+        : this.handleSavedPipelinesOpen;
 
-    return (
-      <span
-        data-tip={TOOLTIP_OPEN_SAVED_PIPELINES}
-        data-for="open-saved-pipelines"
-        data-place="top"
-        data-html="true">
-        <IconButton
-          title="Toggle Saved Pipelines"
-          className={classnames(
-            'btn',
-            'btn-xs',
-            'btn-default',
-            styles['pipeline-builder-toolbar-open-saved-pipelines-button']
-          )}
-          iconClassName="fa fa-folder-open-o"
-          clickHandler={clickHandler}
-        />
-        <Tooltip id="open-saved-pipelines" />
-      </span>
-    );
+      return (
+        <span
+          data-tip={TOOLTIP_OPEN_SAVED_PIPELINES}
+          data-for="open-saved-pipelines"
+          data-place="top"
+          data-html="true">
+          <IconButton
+            title="Toggle Saved Pipelines"
+            className={classnames(
+              'btn',
+              'btn-xs',
+              'btn-default',
+              styles['pipeline-builder-toolbar-open-saved-pipelines-button']
+            )}
+            iconClassName="fa fa-folder-open-o"
+            clickHandler={clickHandler}
+          />
+          <Tooltip id="open-saved-pipelines" />
+        </span>
+      );
+    }
   }
 
   renderNewPipelineActionsItem() {
@@ -210,58 +213,64 @@ class PipelineBuilderToolbar extends PureComponent {
   }
 
   renderSavedPipelineNameItem() {
-    return (
-      <div className={styles['pipeline-builder-toolbar-add-wrapper']}>
-        <div className={styles['pipeline-builder-toolbar-name']}>
-          {this.props.name || 'Untitled'}
+    if (!this.props.isAtlasDeployed) {
+      return (
+        <div className={styles['pipeline-builder-toolbar-add-wrapper']}>
+          <div className={styles['pipeline-builder-toolbar-name']}>
+            {this.props.name || 'Untitled'}
+          </div>
+          {this.renderIsModifiedIndicator()}
         </div>
-        {this.renderIsModifiedIndicator()}
-      </div>
-    );
+      );
+    }
   }
 
   renderSavePipelineActionsItem() {
-    const savePipelineClassName = classnames({
-      btn: true,
-      'btn-xs': true,
-      'btn-primary': true,
-      [styles['pipeline-builder-toolbar-save-pipeline-button']]: true
-    });
+    if (!this.props.isAtlasDeployed) {
+      const savePipelineClassName = classnames({
+        btn: true,
+        'btn-xs': true,
+        'btn-primary': true,
+        [styles['pipeline-builder-toolbar-save-pipeline-button']]: true
+      });
 
-    return (
-      <div>
-        <Dropdown id="save-pipeline-actions">
-          <Button
-            className={savePipelineClassName}
-            variant="primary"
-            onClick={this.onSaveClicked.bind(this)}>
-            Save
-          </Button>
+      return (
+        <div>
+          <Dropdown id="save-pipeline-actions">
+            <Button
+              className={savePipelineClassName}
+              variant="primary"
+              onClick={this.onSaveClicked.bind(this)}>
+              Save
+            </Button>
 
-          <Dropdown.Toggle className="btn-xs btn btn-primary" />
-          <Dropdown.Menu>{this.renderSaveDropdownMenu()}</Dropdown.Menu>
-        </Dropdown>
-      </div>
-    );
+            <Dropdown.Toggle className="btn-xs btn btn-primary" />
+            <Dropdown.Menu>{this.renderSaveDropdownMenu()}</Dropdown.Menu>
+          </Dropdown>
+        </div>
+      );
+    }
   }
 
   renderExportToLanguageItem() {
-    return (
-      <div
-        className={styles['pipeline-builder-toolbar-export-to-language']}
-        data-tip={TOOLTIP_EXPORT_TO_LANGUAGE}
-        data-for="export-to-language"
-        data-place="top"
-        data-html="true">
-        <IconButton
-          className="btn btn-xs btn-default"
-          iconClassName={classnames(styles['export-icon'])}
-          clickHandler={this.props.exportToLanguage}
-          title="Export To Language"
-        />
-        <Tooltip id="export-to-language" />
-      </div>
-    );
+    if (!this.props.isAtlasDeployed) {
+      return (
+        <div
+          className={styles['pipeline-builder-toolbar-export-to-language']}
+          data-tip={TOOLTIP_EXPORT_TO_LANGUAGE}
+          data-for="export-to-language"
+          data-place="top"
+          data-html="true">
+          <IconButton
+            className="btn btn-xs btn-default"
+            iconClassName={classnames(styles['export-icon'])}
+            clickHandler={this.props.exportToLanguage}
+            title="Export To Language"
+          />
+          <Tooltip id="export-to-language" />
+        </div>
+      );
+    }
   }
 
   /**

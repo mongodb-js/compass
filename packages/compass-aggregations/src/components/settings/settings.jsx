@@ -14,6 +14,7 @@ import styles from './settings.less';
 class Settings extends PureComponent {
   static displayName = 'Settings';
   static propTypes = {
+    isAtlasDeployed: PropTypes.bool.isRequired,
     isCommenting: PropTypes.bool.isRequired,
     isExpanded: PropTypes.bool.isRequired,
     limit: PropTypes.number.isRequired,
@@ -64,17 +65,45 @@ class Settings extends PureComponent {
     // Hide the settings panel.
     this.props.toggleSettingsIsExpanded();
   }
+
+  renderLargeLimit() {
+    if (!this.props.isAtlasDeployed) {
+      let limit = this.props.largeLimit;
+      if (this.props.settings.isDirty) {
+        limit = this.props.settings.limit;
+      }
+
+      return (
+        <div className={classnames(styles['input-group'])}>
+          <div className={classnames(styles['input-meta'])}>
+            <label>Limit</label>
+            <p>
+              Limits input documents before $group, $bucket, and $bucketAuto
+              stages. Set a limit to make the collection run faster.
+            </p>
+          </div>
+          <div className={classnames(styles['input-control'])}>
+            <input
+              type="number"
+              min="0"
+              placeholder={DEFAULT_LARGE_LIMIT}
+              value={limit}
+              onChange={this.onLimitChanged.bind(this)} />
+          </div>
+        </div>
+      );
+    }
+  }
+
   renderFields() {
     let commentModeChecked = this.props.isCommenting;
     let sampleSize = this.props.limit;
     let maxTimeMS = this.props.maxTimeMS;
-    let limit = this.props.largeLimit;
 
     if (this.props.settings.isDirty) {
       commentModeChecked = this.props.settings.isCommentMode;
       sampleSize = this.props.settings.sampleSize;
       maxTimeMS = this.props.settings.maxTimeMS;
-      limit = this.props.settings.limit;
     }
 
     return (
@@ -98,8 +127,8 @@ class Settings extends PureComponent {
         </div>
         <div className={classnames(styles['input-group'])}>
           <div className={classnames(styles['input-meta'])}>
-            <label>Sample Size</label>
-            <p>Specify the number of documents to use for Sample Mode.</p>
+            <label>Number of Preview Documents</label>
+            <p>Specify the number of documents to show in the preview.</p>
           </div>
           <div className={classnames(styles['input-control'])}>
             <input
@@ -130,24 +159,7 @@ class Settings extends PureComponent {
             />
           </div>
         </div>
-        <div className={classnames(styles['input-group'])}>
-          <div className={classnames(styles['input-meta'])}>
-            <label>Limit</label>
-            <p>
-              Limits input documents before $group, $bucket, and $bucketAuto
-              stages. Set a limit to make the collection run faster.
-            </p>
-          </div>
-          <div className={classnames(styles['input-control'])}>
-            <input
-              type="number"
-              min="0"
-              placeholder={DEFAULT_LARGE_LIMIT}
-              value={limit}
-              onChange={this.onLimitChanged.bind(this)}
-            />
-          </div>
-        </div>
+        {this.renderLargeLimit()}
       </div>
     );
   }

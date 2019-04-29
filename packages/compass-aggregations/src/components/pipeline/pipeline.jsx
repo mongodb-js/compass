@@ -31,6 +31,7 @@ class Pipeline extends PureComponent {
   static displayName = 'PipelineComponent';
 
   static propTypes = {
+    isAtlasDeployed: PropTypes.bool.isRequired,
     getPipelineFromIndexedDB: PropTypes.func.isRequired,
     savedPipelinesListToggle: PropTypes.func.isRequired,
     getSavedPipelines: PropTypes.func.isRequired,
@@ -198,6 +199,7 @@ class Pipeline extends PureComponent {
           this.props.isFullscreenOn ? styles['pipeline-fullscreen'] : false
         )}>
         <PipelineToolbar
+          isAtlasDeployed={this.props.isAtlasDeployed}
           savedPipelinesListToggle={this.props.savedPipelinesListToggle}
           getSavedPipelines={this.props.getSavedPipelines}
           exportToLanguage={this.props.exportToLanguage}
@@ -238,6 +240,7 @@ class Pipeline extends PureComponent {
           savedPipeline={this.props.savedPipeline}
         />
         <Settings
+          isAtlasDeployed={this.props.isAtlasDeployed}
           isExpanded={this.props.settings.isExpanded}
           toggleSettingsIsExpanded={this.props.toggleSettingsIsExpanded}
           toggleSettingsIsCommentMode={this.props.toggleSettingsIsCommentMode}

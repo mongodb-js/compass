@@ -19,6 +19,7 @@ describe('PipelinePreviewToolbar [Component]', () => {
 
     component = mount(
       <PipelinePreviewToolbar
+        isAtlasDeployed={false}
         toggleSample={toggleSampleSpy}
         toggleAutoPreview={toggleAutoPreviewSpy}
         toggleSettingsIsExpanded={toggleSettingsIsExpandedSpy}

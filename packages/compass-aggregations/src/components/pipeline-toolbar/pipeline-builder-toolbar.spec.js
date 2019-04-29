@@ -46,6 +46,7 @@ describe('PipelineBuilderToolbar [Component]', () => {
         clonePipeline={clonePipelineSpy}
         nameChanged={nameChangedSpy}
         name=""
+        isAtlasDeployed={false}
         isModified
         isCollationExpanded
         isOverviewOn={false}
