@@ -119,7 +119,8 @@ import Plugin, {
   setDataProvider,
   setNamespace,
   setServerVersion,
-  setFields
+  setFields,
+  setIsAtlas,
 } from '@mongodb-js/compass-aggregations';
 
 const store = configureStore();
@@ -129,6 +130,7 @@ setDataProvider(store, error, provider); // Sets the (optional) connect error an
 setNamespace(store, ns); // Set the namespace in "db.collection" format.
 setServerVersion(store, version); // Set the lowest MongoDB server version in the cluster.
 setFields(store, fields); // Set the field names in the schema for autocompletion. See note below.
+setIsAtlas(store, true); // Indicate the plugin is deployed to Atlas.
 
 <Plugin store={store} />
 ```
@@ -145,7 +147,8 @@ const store = configureStore({
   },
   namespace: 'db.coll',
   serverVersion: '4.2.0',
-  fields: []
+  fields: [],
+  isAtlasDeployed: true
 });
 
 <Plugin store={store} />
@@ -158,7 +161,8 @@ const role = appRegistry.getRole('Collection.Tab')[0];
 const Plugin = role.component;
 const configureStore = role.configureStore;
 const store = configureStore({
-  appRegistry: appRegistry,
+  globalAppRegistry: appRegistry,
+  localAppRegistry: localAppRegistry,
   dataProvider: {
     error: null,
     dataProvider: dataProvider
