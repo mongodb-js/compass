@@ -1,12 +1,18 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
-import classnames from 'classnames';
+
 import Switch from 'react-ios-switch';
 import { Tooltip } from 'hadron-react-components';
 import { IconButton } from 'hadron-react-buttons';
 
 import styles from './pipeline-preview-toolbar.less';
 import { TOOLTIP_PREVIEW_MODE, TOOLTIP_SAMPLING_MODE } from '../../constants';
+
+const SHARED_SWITCH_PROPS = {
+  className: styles.switch,
+  onColor: 'rgb(19, 170, 82)',
+  style: { backgroundColor: 'rgb(255,255,255)' }
+};
 
 /**
  * The pipeline preview toolbar component.
@@ -33,11 +39,9 @@ class PipelinePreviewToolbar extends PureComponent {
         data-place="top"
         data-html="true">
         <Switch
-          className={styles.switch}
           checked={this.props.isAutoPreviewing}
           onChange={this.props.toggleAutoPreview}
-          onColor="rgb(19, 170, 82)"
-          style={{ backgroundColor: 'rgb(255,255,255)' }}
+          {...SHARED_SWITCH_PROPS}
         />
         <span className={styles['toggle-auto-preview-label']}>
           Auto Preview
@@ -56,11 +60,9 @@ class PipelinePreviewToolbar extends PureComponent {
         data-place="top"
         data-html="true">
         <Switch
-          className={styles.switch}
           checked={this.props.isSampling}
           onChange={this.props.toggleSample}
-          onColor="rgb(19, 170, 82)"
-          style={{ backgroundColor: 'rgb(255,255,255)' }}
+          {...SHARED_SWITCH_PROPS}
         />
         <span className={styles['toggle-sample-label']}>Sample Mode</span>
         <Tooltip id="sampling-mode" />
@@ -90,6 +92,19 @@ class PipelinePreviewToolbar extends PureComponent {
     );
   }
 
+  renderSettingsToggle() {
+    return (
+      <div className={styles.settings}>
+        <IconButton
+          title="Settings"
+          className="btn btn-xs btn-default"
+          iconClassName="fa fa-gear"
+          clickHandler={this.props.toggleSettingsIsExpanded}
+        />
+      </div>
+    );
+  }
+
   /**
    * Renders the pipeline preview toolbar.
    *
@@ -97,18 +112,10 @@ class PipelinePreviewToolbar extends PureComponent {
    */
   render() {
     return (
-      <div className={classnames(styles['container-right'])}>
+      <div className={styles['container-right']}>
         {this.renderSampleToggle()}
         {this.renderAutoPreviewToggle()}
-
-        <div className={styles.settings}>
-          <IconButton
-            title="Settings"
-            className="btn btn-xs btn-default"
-            iconClassName="fa fa-gear"
-            clickHandler={this.props.toggleSettingsIsExpanded}
-          />
-        </div>
+        {this.renderSettingsToggle()}
         {this.renderFullscreenButton()}
       </div>
     );

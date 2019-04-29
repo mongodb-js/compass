@@ -36,3 +36,22 @@ export function configureStore(preloadedState = {}) {
 
   return store;
 }
+
+import rootCreateViewReducer from 'modules/create-view';
+
+export function configureCreateViewStore(preloadedState = {}) {
+  const store = reduxCreateStore(
+    rootCreateViewReducer,
+    preloadedState,
+    composeEnhancers(applyMiddleware(reduxThunk))
+  );
+
+  if (module.hot) {
+    module.hot.accept('modules/create-view', () => {
+      const nextRootReducer = require('../modules/create-view');
+      store.replaceReducer(nextRootReducer);
+    });
+  }
+
+  return store;
+}

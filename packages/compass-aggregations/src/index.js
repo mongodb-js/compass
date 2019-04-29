@@ -1,6 +1,10 @@
 import AggregationsPlugin from './plugin';
 import AggregationsStore from 'stores';
 import { Aggregations } from 'components/aggregations';
+
+import CreateViewPlugin from 'components/create-view-plugin';
+import CreateViewStore from 'stores/create-view';
+
 import StageEditor from 'components/stage-editor';
 
 /**
@@ -13,6 +17,14 @@ const ROLE = {
 };
 
 /**
+ * Create view modal plugin.
+ */
+const CREATE_ROLE = {
+  name: 'Create View',
+  component: CreateViewPlugin
+};
+
+/**
  * Activate all the components in the Aggregations package.
 
  * @param {Object} appRegistry - The Hadron appRegisrty to activate this plugin with.
@@ -20,6 +32,9 @@ const ROLE = {
 const activate = (appRegistry) => {
   appRegistry.registerRole('Collection.Tab', ROLE);
   appRegistry.registerStore('Aggregations.Store', AggregationsStore);
+
+  appRegistry.registerRole('Global.Modal', CREATE_ROLE);
+  appRegistry.registerStore('Aggregations.CreateViewStore', CreateViewStore);
 };
 
 /**
@@ -30,6 +45,9 @@ const activate = (appRegistry) => {
 const deactivate = (appRegistry) => {
   appRegistry.deregisterRole('Collection.Tab', ROLE);
   appRegistry.deregisterStore('Aggregations.Store');
+
+  appRegistry.deregisterRole('Global.Modal', CREATE_ROLE);
+  appRegistry.deregisterStore('Aggregations.CreateViewStore');
 };
 
 export default AggregationsPlugin;

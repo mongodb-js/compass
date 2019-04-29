@@ -579,3 +579,19 @@ export const getPipelineFromIndexedDB = (pipelineId) => {
     });
   };
 };
+
+/**
+ * Open create view.
+ *
+ * @returns {Function} The thunk function.
+ */
+export const openCreateView = () => {
+  return (dispatch, getState) => {
+    dispatch(
+      appRegistryEmit('open-create-view', {
+        source: getState().namespace,
+        pipeline: getState().pipeline
+      })
+    );
+  };
+};

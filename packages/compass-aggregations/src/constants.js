@@ -30,6 +30,8 @@ export const REQUIRED_AS_FIRST_STAGE = [
   '$listSessions'
 ];
 
+export const VIEWS_MIN_SERVER_VERSION = '3.4.0';
+
 /**
  * Ops that must scan the entire results before moving to the
  * next stage.

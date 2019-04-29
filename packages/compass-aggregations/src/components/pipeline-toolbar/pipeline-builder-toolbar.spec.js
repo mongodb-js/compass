@@ -49,6 +49,7 @@ describe('PipelineBuilderToolbar [Component]', () => {
         setIsModified={setIsModifiedSpy}
         collationCollapseToggled={collationCollapseSpy}
         exportToLanguage={exportToLanguageSpy}
+        serverVersion="4.0.0"
       />
     );
   });

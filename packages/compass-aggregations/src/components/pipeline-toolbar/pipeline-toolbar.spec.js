@@ -74,6 +74,7 @@ describe('PipelineToolbar [Component]', () => {
         isFullscreenOn={false}
         toggleFullscreen={toggleFullscreenSpy}
         toggleSettingsIsExpanded={toggleSettingsIsExpandedSpy}
+        serverVersion="4.0.0"
       />
     );
   });

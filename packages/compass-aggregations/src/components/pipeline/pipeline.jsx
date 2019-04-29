@@ -96,7 +96,8 @@ class Pipeline extends PureComponent {
     savingPipeline: PropTypes.object.isRequired,
     projections: PropTypes.array.isRequired,
     projectionsChanged: PropTypes.func.isRequired,
-    newPipelineFromPaste: PropTypes.func.isRequired
+    newPipelineFromPaste: PropTypes.func.isRequired,
+    openCreateView: PropTypes.func.isRequired
   };
 
   /**
@@ -210,6 +211,8 @@ class Pipeline extends PureComponent {
           isFullscreenOn={this.props.isFullscreenOn}
           toggleFullscreen={this.props.toggleFullscreen}
           savingPipelineOpen={this.props.savingPipelineOpen}
+          serverVersion={this.props.serverVersion}
+          openCreateView={this.props.openCreateView}
         />
         {this.renderCollationToolbar()}
         <Splitter isCollationExpanded={this.props.isCollationExpanded} />
