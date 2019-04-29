@@ -4,7 +4,7 @@ import javascriptStringify from 'javascript-stringify';
 import { fetchSampleDocuments } from './sample-documents';
 import { zeroStateChanged } from './zero-state';
 import { appRegistryEmit } from 'modules/app-registry';
-import { defaults, isEqual, pick } from 'lodash';
+import { defaults, isEqual, pick, isObject } from 'lodash';
 
 /**
  * The module action prefix.
@@ -337,6 +337,8 @@ export const syntaxErrorOccurred = (syntaxError) => ({
 const sendMetrics = (dispatch, dataService, namespace, validation, registryEvent) => dataService
   .database(namespace.database, {}, (errorDB, res) => {
     let collectionSize = 0;
+    let ruleCount = 0;
+    let validator = validation.validator;
 
     if (!errorDB) {
       const collection = res.collections.find((coll) => (
@@ -346,13 +348,24 @@ const sendMetrics = (dispatch, dataService, namespace, validation, registryEvent
       collectionSize = collection.document_count;
     }
 
+    try {
+      if (!isObject(validator)) {
+        validator = queryParser.parseFilter(validator);
+      }
+
+      ruleCount = Object.keys(validator).length;
+    } catch (error) {
+      // In case of a parsing error set ruleCount to -1 to indicate the problem
+      ruleCount = -1;
+    }
+
     return dispatch(appRegistryEmit(
       registryEvent,
       {
-        ruleCount: Object.keys(validation.validator).length,
+        ruleCount,
         validationLevel: validation.validationLevel,
         validationAction: validation.validationAction,
-        jsonSchema: (validation.validator.indexOf('$jsonSchema') !== -1),
+        jsonSchema: (!!validator.$jsonSchema),
         collectionSize
       }
     ));
@@ -403,12 +416,6 @@ export const fetchValidation = (namespace) => {
           }
 
           if (validation.validator) {
-            validation.validator = EJSON.stringify(options.validator, null, 2);
-
-            dispatch(zeroStateChanged(false));
-            dispatch(fetchSampleDocuments(validation.validator));
-            dispatch(validationFetched(validation));
-
             sendMetrics(
               dispatch,
               dataService,
@@ -416,6 +423,12 @@ export const fetchValidation = (namespace) => {
               validation,
               'schema-validation-fetched'
             );
+
+            validation.validator = EJSON.stringify(validation.validator, null, 2);
+
+            dispatch(zeroStateChanged(false));
+            dispatch(fetchSampleDocuments(validation.validator));
+            dispatch(validationFetched(validation));
 
             return;
           }
