@@ -24,16 +24,6 @@ export const LOADING_INPUT_DOCUMENTS = `${PREFIX}/LOADING_INPUT_DOCUMENTS`;
 const FILTER = Object.freeze({});
 
 /**
- * The options constant.
- */
-const OPTIONS = Object.freeze({ maxTimeMS: 5000 });
-
-/**
- * The sample pipeline.
- */
-const SAMPLE = [ Object.freeze({ '$limit': 20 }) ];
-
-/**
  * N/A contant.
  */
 const NA = 'N/A';
@@ -120,16 +110,32 @@ export const refreshInputDocuments = () => {
     const state = getState();
     const dataService = state.dataService.dataService;
     const ns = state.namespace;
+
+    const options = {
+      maxTimeMS: state.settings.maxTimeMS
+    };
+
+    const exampleDocumentsPipeline = [{ $limit: state.settings.sampleSize }];
+
     if (dataService) {
       dispatch(loadingInputDocuments());
-      dataService.count(ns, FILTER, OPTIONS, (error, count) => {
-        dataService.aggregate(ns, SAMPLE, OPTIONS, (err, cursor) => {
-          if (err) return dispatch(updateInputDocuments(error ? NA : count, [], err));
-          cursor.toArray((e, docs) => {
-            dispatch(updateInputDocuments(error ? NA : count, docs, e));
-            cursor.close();
-          });
-        });
+      dataService.count(ns, FILTER, options, (error, count) => {
+        dataService.aggregate(
+          ns,
+          exampleDocumentsPipeline,
+          options,
+          (err, cursor) => {
+            if (err) {
+              return dispatch(
+                updateInputDocuments(error ? NA : count, [], err)
+              );
+            }
+            cursor.toArray((e, docs) => {
+              dispatch(updateInputDocuments(error ? NA : count, docs, e));
+              cursor.close();
+            });
+          }
+        );
       });
     }
   };
