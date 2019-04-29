@@ -26,7 +26,7 @@ class StitchCursor {
 class DataServiceStitchProvider {
   constructor(appId = DEFAULT_STITCH_APP_ID) {
     this._dbs = {};
-    this.client = Stitch.initializeDefaultAppClient(appId);
+    this.client = Stitch.initializeAppClient(appId);
   }
 
   /**
