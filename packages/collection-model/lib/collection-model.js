@@ -83,7 +83,19 @@ var Collection = AmpersandModel.extend({
      *
      * http://docs.mongodb.org/manual/reference/command/collStats/#collStats.wiredTiger
      */
-    wired_tiger: 'object'
+    wired_tiger: 'object',
+    type: {
+      type: 'string',
+      default: 'collection'
+    },
+    view_on: {
+      type: 'string',
+      default: undefined
+    },
+    pipeline: {
+      type: 'array',
+      default: undefined
+    }
   },
   collections: {
     indexes: IndexCollection
@@ -121,17 +133,28 @@ var Collection = AmpersandModel.extend({
     }
   },
   serialize: function() {
-    var res = this.getAttributes({
-      props: true,
-      derived: true
-    }, true);
+    var res = this.getAttributes(
+      {
+        props: true,
+        derived: true
+      },
+      true
+    );
 
-    each(this._children, function(value, key) {
-      res[key] = this[key].serialize();
-    }, this);
-    each(this._collections, function(value, key) {
-      res[key] = this[key].serialize();
-    }, this);
+    each(
+      this._children,
+      function(value, key) {
+        res[key] = this[key].serialize();
+      },
+      this
+    );
+    each(
+      this._collections,
+      function(value, key) {
+        res[key] = this[key].serialize();
+      },
+      this
+    );
     return res;
   }
 });
