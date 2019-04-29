@@ -32,7 +32,8 @@ import Connection from 'mongodb-connection-model';
 import DataService from 'mongodb-data-service';
 
 const store = configureStore({
-  appRegistry: new AppRegistry(),
+  localAppRegistry: new AppRegistry(),
+  globalAppRegistry: appRegistry,
   serverVersion: '4.2.0',
   fields: [
     { name: 'harry',

@@ -48,7 +48,6 @@ class PipelineWorkspace extends PureComponent {
    * @returns {React.Component} The component.
    */
   render() {
-    console.log('PipelineWorkspace#render()', this.props);
     const inputDocuments = this.props.inputDocuments;
     const stages = this.props.pipeline.map((stage, i) => {
       return (
@@ -90,7 +89,6 @@ class PipelineWorkspace extends PureComponent {
         />
       );
     });
-    console.log('{stages}', stages);
     return (
       <div className={classnames(styles['pipeline-workspace'])}>
         <Input

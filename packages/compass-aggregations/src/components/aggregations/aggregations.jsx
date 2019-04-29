@@ -98,7 +98,6 @@ class Aggregations extends Component {
    * @returns {React.Component} The rendered component.
    */
   render() {
-    console.log('Aggregations#render()', this.props);
     return (
       <div className={classnames(styles.aggregations)}>
         <Pipeline {...this.props} />

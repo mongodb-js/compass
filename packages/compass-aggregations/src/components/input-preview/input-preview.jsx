@@ -24,7 +24,6 @@ class InputPreview extends Component {
    * @returns {React.Component} The component.
    */
   render() {
-    console.log('InputPreview#render()', this.props);
     const documents = this.props.documents.map((doc, i) => {
       return (
         <Document

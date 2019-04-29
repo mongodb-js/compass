@@ -4,7 +4,8 @@ import configureStore, {
   setNamespace,
   setServerVersion,
   setFields,
-  setAppRegistry
+  setGlobalAppRegistry,
+  setLocalAppRegistry
 } from './store';
 export default configureStore;
 export {
@@ -13,5 +14,6 @@ export {
   setNamespace,
   setServerVersion,
   setFields,
-  setAppRegistry
+  setGlobalAppRegistry,
+  setLocalAppRegistry
 };

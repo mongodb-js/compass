@@ -8,7 +8,8 @@ import configureStore, {
   setNamespace,
   setServerVersion,
   setFields,
-  setAppRegistry
+  setGlobalAppRegistry,
+  setLocalAppRegistry
 } from 'stores';
 
 class Plugin extends Component {
@@ -24,8 +25,6 @@ class Plugin extends Component {
    * @returns {React.Component} The rendered component.
    */
   render() {
-    console.log('Plugin#render()', this.props);
-    console.log('Plugin#render() store.getState()', this.props.store.getState());
     return (
       <Provider store={this.props.store}>
         <Aggregations />
@@ -43,5 +42,6 @@ export {
   setNamespace,
   setServerVersion,
   setFields,
-  setAppRegistry
+  setGlobalAppRegistry,
+  setLocalAppRegistry
 };

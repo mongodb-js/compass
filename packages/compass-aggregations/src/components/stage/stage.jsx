@@ -1,6 +1,6 @@
+/* eslint no-unused-vars: 0 */
 import React, { Component } from 'react';
 import { findDOMNode } from 'react-dom';
-import { DragSource, DropTarget } from 'react-dnd';
 import PropTypes from 'prop-types';
 import classnames from 'classnames';
 import StageToolbar from 'components/stage-toolbar';
@@ -67,13 +67,6 @@ const stageTarget = {
  *
  * Decorators added for giving the component drag/drop behaviour.
  */
-@DropTarget('Stage', stageTarget, (connect) => ({
-  connectDropTarget: connect.dropTarget()
-}))
-@DragSource('Stage', stageSource, (connect, monitor) => ({
-  connectDragSource: connect.dragSource(),
-  isDragging: monitor.didDrop() ? false : monitor.isDragging()
-}))
 class Stage extends Component {
   static displayName = 'StageComponent';
 
@@ -117,8 +110,6 @@ class Stage extends Component {
 
   /* eslint complexity: 0 */
   shouldComponentUpdate(nextProps) {
-    console.log('Stage#shouldComponentUpdate nextProps', nextProps);
-    console.log('Stage#shouldComponentUpdate this.props', this.props);
     const should = (
       nextProps.stageOperator !== this.props.stageOperator ||
       nextProps.snippet !== this.props.snippet ||
@@ -200,35 +191,32 @@ class Stage extends Component {
    * @returns {Component} The component.
    */
   render() {
-    console.log('Stage#render()', this.props);
     const opacity = this.getOpacity();
     const errored = this.props.error ? 'stage-errored' : 'stage';
-    return this.props.connectDragSource(
-      this.props.connectDropTarget(
-        <div className={classnames(styles[errored])} style={{ opacity }}>
-          <StageToolbar
-            stage={this.props.stage}
-            stageOperator={this.props.stageOperator}
-            error={this.props.error}
-            isExpanded={this.props.isExpanded}
-            isEnabled={this.props.isEnabled}
-            isValid={this.props.isValid}
-            previewCount={this.props.previewDocuments.length}
-            index={this.props.index}
-            serverVersion={this.props.serverVersion}
-            stageOperatorSelected={this.props.stageOperatorSelected}
-            stageToggled={this.props.stageToggled}
-            openLink={this.props.openLink}
-            stageAddedAfter={this.props.stageAddedAfter}
-            stageDeleted={this.props.stageDeleted}
-            runStage={this.props.runStage}
-            isCommenting={this.props.isCommenting}
-            setIsModified={this.props.setIsModified}
-            stageCollapseToggled={this.props.stageCollapseToggled}
-          />
-          {this.renderWorkspace()}
-        </div>
-      )
+    return (
+      <div className={classnames(styles[errored])} style={{ opacity }}>
+        <StageToolbar
+          stage={this.props.stage}
+          stageOperator={this.props.stageOperator}
+          error={this.props.error}
+          isExpanded={this.props.isExpanded}
+          isEnabled={this.props.isEnabled}
+          isValid={this.props.isValid}
+          previewCount={this.props.previewDocuments.length}
+          index={this.props.index}
+          serverVersion={this.props.serverVersion}
+          stageOperatorSelected={this.props.stageOperatorSelected}
+          stageToggled={this.props.stageToggled}
+          openLink={this.props.openLink}
+          stageAddedAfter={this.props.stageAddedAfter}
+          stageDeleted={this.props.stageDeleted}
+          runStage={this.props.runStage}
+          isCommenting={this.props.isCommenting}
+          setIsModified={this.props.setIsModified}
+          stageCollapseToggled={this.props.stageCollapseToggled}
+        />
+        {this.renderWorkspace()}
+      </div>
     );
   }
 }
