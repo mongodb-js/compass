@@ -86,7 +86,7 @@ See [`aggregations.stories.js`](https://github.com/mongodb-js/compass-aggregatio
 
 If you're interested in helping with the Aggregation Builder plugin, we'd be over the moon excited! Here are a few ideas if you're interested but not sure where to start:
 
-- [Add a new example aggregation](https://github.com/mongodb-js/compass-aggregations/tree/master/examples#adding-new-examples)
+- [Add a new example aggregation](https://github.com/mongodb-js/compass-aggregations/#adding-new-examples)
 - Additions/clarifications/improvements to `README`'s
 - More tests (especially edge cases!)
 - Generate `jsdoc` html to include in GitHub pages
@@ -136,23 +136,3 @@ Apache 2.0
 [travis_url]: https://travis-ci.org/mongodb-js/compass-aggregations
 [storybook_img]: https://raw.githubusercontent.com/storybooks/brand/master/badge/badge-storybook.svg
 [storybook_url]: https://mongodb-js.github.io/compass-aggregations/
-
-## TODO
-
-- [x] Verify Storybook not included in `production` bundle for Cloud
-- [x] Switch Storybook deploy from `3.0.0` to `master`
-- [x] Webpack 4 Upgrade #79 
-- [x] Webpack 4 upgrade part 2 mongodb-js/compass-plugin#23
-- [x] Fixed: Far too little docs for the amount of work...
-- [ ] COMPASS-2888: Autocompletion includes projections #76
-- [x] ~COMPASS-2960: Autocomplete `$$variables` defined from `let`~
-- [ ] COMPASS-3086: Quickly create new pipelines by pasting into stage editor when in `INITIAL_STATE`
-
-#### Misc
-
-- [ ] input-docs uses sample size setting
-
-#### Future
-
-- [ ] Write some more tests for saving
-- [ ] Save pipeline validation
