@@ -6,7 +6,14 @@ import { INITIAL_STATE as COLUMNS } from 'modules/columns';
 /**
  * Need extra columns to map.
  */
-const EXTRA_COLUMNS = COLUMNS.concat([ '_id', 'readonly', 'capped' ]);
+const EXTRA_COLUMNS = COLUMNS.concat([
+  '_id',
+  'readonly',
+  'capped',
+  'view_on',
+  'type',
+  'pipeline'
+]);
 
 /**
  * The module prefix.

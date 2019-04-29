@@ -40,7 +40,10 @@ const SPOTIFY_MAPPED = {
   'Properties': { locale: 'se' },
   '_id': undefined,
   'readonly': undefined,
-  'capped': undefined
+  'capped': undefined,
+  'pipeline': undefined,
+  'view_on': undefined,
+  'type': undefined
 };
 const SOUNDCLOUD_MAPPED = {
   'Collection Name': 'soundcloud',
@@ -52,7 +55,10 @@ const SOUNDCLOUD_MAPPED = {
   'Properties': { locale: 'de' },
   '_id': undefined,
   'readonly': undefined,
-  'capped': undefined
+  'capped': undefined,
+  'pipeline': undefined,
+  'view_on': undefined,
+  'type': undefined
 };
 const DEEZER_MAPPED = {
   'Collection Name': 'deezer',
@@ -64,7 +70,10 @@ const DEEZER_MAPPED = {
   'Properties': { locale: 'us' },
   '_id': undefined,
   'readonly': undefined,
-  'capped': undefined
+  'capped': undefined,
+  'pipeline': undefined,
+  'view_on': undefined,
+  'type': undefined
 };
 
 describe('collections module', () => {

@@ -153,12 +153,21 @@ class CollectionsTable extends PureComponent {
    */
   renderLink(coll) {
     const collName = coll[NAME];
+    let viewInfo = null;
+
+    if (coll.readonly) {
+      viewInfo = <span className={styles['collections-table-view-on']}>(on: {coll.view_on})</span>;
+    }
+
     return (
-      <a
-        className={classnames(styles['collections-table-link'])}
-        onClick={this.onNameClicked.bind(this, collName)}>
-        {collName}
-      </a>
+      <span>
+        <a
+          className={classnames(styles['collections-table-link'])}
+          onClick={this.onNameClicked.bind(this, collName)}>
+          {collName}
+        </a>
+        {viewInfo}
+      </span>
     );
   }
 
@@ -178,8 +187,8 @@ class CollectionsTable extends PureComponent {
         'data-border': true
       };
       return (
-        <div {...tooltipOptions} className={classnames(styles['collections-table-property'])}>
-          <span className={classnames(styles['collections-table-tooltip'])}>Collation</span>
+        <div {...tooltipOptions} className={styles['collections-table-property']}>
+          <span className={styles['collections-table-tooltip']}>Collation</span>
           <ReactTooltip id={TOOLTIP_ID} html />
           <InfoSprinkle helpLink={HELP_URL_COLLATION} onClickHandler={this.props.openLink} />
         </div>
@@ -220,7 +229,7 @@ class CollectionsTable extends PureComponent {
             sortOrder={this.props.sortOrder}
             sortColumn={this.props.sortColumn}
             valueIndex={0}
-            removable={this.props.isWritable && !this.props.isReadonly}
+            removable={this.props.isWritable}
             onColumnHeaderClicked={this.onHeaderClicked}
             onRowDeleteButtonClicked={this.onDeleteClicked} />
         </div>

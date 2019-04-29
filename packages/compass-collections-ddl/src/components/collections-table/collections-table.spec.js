@@ -3,9 +3,19 @@ import { mount } from 'enzyme';
 
 import { INITIAL_STATE as COLUMNS } from 'modules/columns';
 import CollectionsTable from 'components/collections-table';
+import styles from './collections-table.less';
 
 describe('CollectionsTable [Component]', () => {
-  const collections = [];
+  const collections = [
+    {
+      _id: 'data-service.myView',
+      readonly: true,
+      type: 'view',
+      view_on: 'test',
+      pipeline: [{$project: {a: 1}}]
+    }
+  ];
+
   let component;
   let openSpy;
   let sortCollectionsSpy;
@@ -47,5 +57,11 @@ describe('CollectionsTable [Component]', () => {
 
   it('renders the correct wrapper classname', () => {
     expect(component.find('.main')).to.be.present();
+  });
+
+  describe('Views', () => {
+    it('renders the viewOn', () => {
+      expect(component.find(`.${styles['collections-table-view-on']}`)).to.be.present();
+    });
   });
 });
