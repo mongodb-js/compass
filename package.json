@@ -287,7 +287,7 @@
     "@mongodb-js/compass-auto-updates": "^0.2.0",
     "@mongodb-js/compass-collection": "^0.0.6",
     "@mongodb-js/compass-collection-stats": "^3.2.0",
-    "@mongodb-js/compass-collections-ddl": "^0.0.24",
+    "@mongodb-js/compass-collections-ddl": "^1.0.2",
     "@mongodb-js/compass-connect": "^3.8.15",
     "@mongodb-js/compass-crud": "^6.2.7",
     "@mongodb-js/compass-database": "^0.0.10",
