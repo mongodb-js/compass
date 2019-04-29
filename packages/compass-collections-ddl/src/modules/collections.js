@@ -94,7 +94,10 @@ export const load = (collections) => {
       coll.collation,
       coll.ns || coll._id,
       coll.readonly,
-      coll.is_capped || coll.capped
+      coll.is_capped || coll.capped,
+      coll.view_on,
+      coll.type,
+      coll.pipeline
     ]);
   });
 };
