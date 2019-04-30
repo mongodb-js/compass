@@ -1,5 +1,5 @@
 import { combineReducers } from 'redux';
-import dataService from 'modules/create-view/data-service';
+import dataService, { DS_INITIAL_STATE } from 'modules/data-service';
 
 import source, {
   INITIAL_STATE as SOURCE_INITIAL_STATE
@@ -36,6 +36,7 @@ const parseNs = require('mongodb-ns');
 const OPEN = 'aggregations/create-view/OPEN';
 
 export const INITIAL_STATE = {
+  dataService: DS_INITIAL_STATE,
   isRunning: IS_RUNNING_INITIAL_STATE,
   isVisible: IS_VISIBLE_INITIAL_STATE,
   name: NAME_INITIAL_STATE,

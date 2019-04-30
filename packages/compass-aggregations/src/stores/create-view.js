@@ -1,5 +1,6 @@
 import { createStore, applyMiddleware } from 'redux';
 import thunk from 'redux-thunk';
+import { appRegistryActivated } from 'modules/app-registry';
 import { dataServiceConnected } from 'modules/data-service';
 import reducer, { open } from 'modules/create-view';
 
@@ -23,6 +24,7 @@ store.onActivated = (appRegistry) => {
   appRegistry.on('open-create-view', (source, pipeline) => {
     store.dispatch(open(source, pipeline));
   });
+  store.dispatch(appRegistryActivated(appRegistry));
 };
 
 export default store;
