@@ -30,6 +30,9 @@ import largeLimit, {
 import isAtlasDeployed, {
   INITIAL_STATE as IS_ATLAS_DEPLOYED_INITIAL_STATE
 } from './is-atlas-deployed';
+import allowWrites, {
+  INITIAL_STATE as ALLOW_WRITES_INITIAL_STATE
+} from './allow-writes';
 import maxTimeMS, {
   INITIAL_STATE as MAX_TIME_MS_INITIAL_STATE
 } from './max-time-ms';
@@ -93,6 +96,7 @@ import projections, {
  */
 export const INITIAL_STATE = {
   appRegistry: APP_REGISTRY_STATE,
+  allowWrites: ALLOW_WRITES_INITIAL_STATE,
   dataService: DS_INITIAL_STATE,
   fields: FIELDS_INITIAL_STATE,
   inputDocuments: INPUT_INITIAL_STATE,
@@ -159,6 +163,7 @@ export const NEW_FROM_PASTE = 'aggregations/NEW_FROM_PASTE';
  */
 const appReducer = combineReducers({
   appRegistry,
+  allowWrites,
   comments,
   sample,
   autoPreview,

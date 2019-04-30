@@ -114,6 +114,7 @@ class Aggregations extends Component {
  * @returns {Object} The mapped properties.
  */
 const mapStateToProps = (state) => ({
+  allowWrites: state.allowWrites,
   fields: state.fields,
   inputDocuments: state.inputDocuments,
   namespace: state.namespace,

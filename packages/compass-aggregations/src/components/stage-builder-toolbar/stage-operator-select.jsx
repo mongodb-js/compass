@@ -7,6 +7,8 @@ import { STAGE_OPERATORS } from 'mongodb-ace-autocompleter';
 
 import styles from './stage-operator-select.less';
 
+const OUT = '$out';
+
 /**
  * Select from a list of stage operators.
  */
@@ -15,6 +17,7 @@ class StageOperatorSelect extends PureComponent {
   static displayName = 'StageOperatorSelectComponent';
 
   static propTypes = {
+    allowWrites: PropTypes.bool.isRequired,
     stageOperator: PropTypes.string,
     index: PropTypes.number.isRequired,
     isEnabled: PropTypes.bool.isRequired,
@@ -42,6 +45,7 @@ class StageOperatorSelect extends PureComponent {
   render() {
     const operators = STAGE_OPERATORS.filter((o) => {
       if (o.name === '$searchBeta') return true;
+      if (o.name === OUT && !this.props.allowWrites) return false;
       return semver.gte(this.props.serverVersion, o.version);
     });
     return (
