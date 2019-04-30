@@ -18,6 +18,12 @@ import ConfirmImportPipeline from './modals/confirm-import-pipeline';
 import SavingPipelineModal from 'components/saving-pipeline-modal';
 import styles from './pipeline.less';
 
+import {
+  DEFAULT_MAX_TIME_MS,
+  DEFAULT_SAMPLE_SIZE,
+  DEFAULT_LARGE_LIMIT
+} from '../../constants';
+
 /**
  * Displays a pipeline.
  */
@@ -98,6 +104,13 @@ class Pipeline extends PureComponent {
     projectionsChanged: PropTypes.func.isRequired,
     newPipelineFromPaste: PropTypes.func.isRequired,
     openCreateView: PropTypes.func.isRequired
+  };
+
+  static defaultProps = {
+    projections: [],
+    maxTimeMS: DEFAULT_MAX_TIME_MS,
+    limit: DEFAULT_SAMPLE_SIZE,
+    largeLimit: DEFAULT_LARGE_LIMIT
   };
 
   /**

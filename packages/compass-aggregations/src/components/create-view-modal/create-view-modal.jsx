@@ -31,6 +31,14 @@ class CreateViewModal extends PureComponent {
     error: PropTypes.object
   };
 
+  static defaultProps = {
+    name: '',
+    source: '',
+    pipeline: [],
+    isRunning: false,
+    isVisible: false
+  };
+
   onNameChange = (evt) => {
     this.props.changeViewName(evt.target.value);
   };
