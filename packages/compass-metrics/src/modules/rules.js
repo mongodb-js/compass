@@ -148,7 +148,9 @@ const RULES = [
       'server os family': state.instance.host.os_family,
       'server machine model': state.instance.host.machine_model,
       'server kernel version': state.instance.host.kernel_version,
-      'server kernel version string': state.instance.host.kernel_version_string
+      'server kernel version string': state.instance.host.kernel_version_string,
+      'is genuine mongodb': state.instance.genuineMongoDB === undefined ? true : state.instance.genuineMongoDB.isGenuine,
+      'server name': state.instance.genuineMongoDB === undefined ? 'mongodb' : state.instance.genuineMongoDB.dbType
     })
   },
   {
