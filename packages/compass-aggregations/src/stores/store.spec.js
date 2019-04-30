@@ -231,7 +231,8 @@ describe('Aggregation Store', () => {
             largeLimit: INITIAL_STATE.largeLimit,
             maxTimeMS: INITIAL_STATE.maxTimeMS,
             isFullscreenOn: INITIAL_STATE.isFullscreenOn,
-            savingPipeline: INITIAL_STATE.savingPipeline
+            savingPipeline: INITIAL_STATE.savingPipeline,
+            projections: INITIAL_STATE.projections
           });
         });
       });

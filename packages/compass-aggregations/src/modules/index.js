@@ -63,6 +63,7 @@ import importPipeline, {
 } from './import-pipeline';
 import { getObjectStore } from 'utils/indexed-db';
 import appRegistry, {
+  localAppRegistryEmit,
   globalAppRegistryEmit,
   INITIAL_STATE as APP_REGISTRY_STATE
 } from 'mongodb-redux-common/app-registry';
@@ -610,6 +611,6 @@ export const openCreateView = () => {
     };
 
     debug('emitting', 'open-create-view', meta);
-    dispatch(appRegistryEmit('open-create-view', meta));
+    dispatch(localAppRegistryEmit('open-create-view', meta));
   };
 };
