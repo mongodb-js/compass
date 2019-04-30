@@ -1,5 +1,5 @@
 import { combineReducers } from 'redux';
-import dataService from 'modules/data-service';
+import dataService from 'modules/create-view/data-service';
 
 import source, {
   INITIAL_STATE as SOURCE_INITIAL_STATE
@@ -119,6 +119,7 @@ export const open = (sourceNs, sourcePipeline) => ({
 export const createView = () => {
   return (dispatch, getState) => {
     const state = getState();
+    console.log('createView state', state);
     const ds = state.dataService.dataService;
 
     const viewName = state.name;

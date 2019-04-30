@@ -46,7 +46,6 @@ class CreateViewModal extends PureComponent {
   onFormSubmit = (evt) => {
     evt.preventDefault();
     evt.stopPropagation();
-    console.log('onFormSubmit', createView);
     this.props.createView();
   };
 
