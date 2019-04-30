@@ -1,5 +1,7 @@
+const debug = require('debug')('mongodb-aggregations:modules:create-view:index');
+
 import { combineReducers } from 'redux';
-import dataService, { DS_INITIAL_STATE } from 'modules/data-service';
+import dataService from 'modules/data-service';
 
 import source, {
   INITIAL_STATE as SOURCE_INITIAL_STATE
@@ -36,7 +38,6 @@ const parseNs = require('mongodb-ns');
 const OPEN = 'aggregations/create-view/OPEN';
 
 export const INITIAL_STATE = {
-  dataService: DS_INITIAL_STATE,
   isRunning: IS_RUNNING_INITIAL_STATE,
   isVisible: IS_VISIBLE_INITIAL_STATE,
   name: NAME_INITIAL_STATE,
@@ -73,13 +74,17 @@ const rootReducer = (state, action) => {
       ...INITIAL_STATE
     };
   } else if (action.type === OPEN) {
-    return {
+    const newState = {
       ...state,
       ...INITIAL_STATE,
       isVisible: true,
       source: action.source,
       pipeline: action.pipeline
     };
+
+    debug('handling open', { newState });
+
+    return newState;
   }
   return reducer(state, action);
 };
@@ -119,8 +124,8 @@ export const open = (sourceNs, sourcePipeline) => ({
  */
 export const createView = () => {
   return (dispatch, getState) => {
+    debug('creating view!');
     const state = getState();
-    console.log('createView state', state);
     const ds = state.dataService.dataService;
 
     const viewName = state.name;
@@ -133,9 +138,10 @@ export const createView = () => {
 
     try {
       dispatch(toggleIsRunning(true));
-
+      debug('calling data-service.createView', viewName, viewSource, viewPipeline, options);
       ds.createView(viewName, viewSource, viewPipeline, options, (e) => {
         if (e) {
+          debug('error creating view', e);
           return stopWithError(dispatch, e);
         }
         global.hadronApp.appRegistry.emit('refresh-data');
@@ -145,9 +151,11 @@ export const createView = () => {
           `${database}.${viewName}`,
           true
         );
+        debug('View created!');
         dispatch(reset());
       });
     } catch (e) {
+      debug('Unexpected error creating view', e);
       return stopWithError(dispatch, e);
     }
   };

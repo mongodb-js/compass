@@ -1,3 +1,5 @@
+const debug = require('debug')('mongodb-aggregations:modules:index');
+
 import { combineReducers } from 'redux';
 import { ObjectId } from 'bson';
 
@@ -583,18 +585,22 @@ export const getPipelineFromIndexedDB = (pipelineId) => {
 /**
  * Open create view.
  *
- * @emits open-create-view
+ * @emits open-create-view {meta: {source, pipeline}}
  * @see create-view src/stores/create-view.js
  * @returns {Function} The thunk function.
  */
 export const openCreateView = () => {
   return (dispatch, getState) => {
-    dispatch(
-      appRegistryEmit(
-        'open-create-view',
-        getState().namespace,
-        getState().pipeline
-      )
-    );
+    const state = getState();
+    const sourceNs = state.namespace;
+    const sourcePipeline = state.pipeline.map((p) => p.executor);
+
+    const meta = {
+      source: sourceNs,
+      pipeline: sourcePipeline
+    };
+
+    debug('emitting', 'open-create-view', meta);
+    dispatch(appRegistryEmit('open-create-view', meta));
   };
 };
