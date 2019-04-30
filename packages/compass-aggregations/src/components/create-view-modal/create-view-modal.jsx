@@ -46,6 +46,7 @@ class CreateViewModal extends PureComponent {
   onFormSubmit = (evt) => {
     evt.preventDefault();
     evt.stopPropagation();
+    console.log('onFormSubmit', createView);
     this.props.createView();
   };
 
@@ -73,7 +74,7 @@ class CreateViewModal extends PureComponent {
         <Modal.Body className={styles['create-view-modal-body']}>
           <form
             name="create-view-modal-form"
-            onSubmit={this.onFormSubmit}
+            onSubmit={this.onFormSubmit.bind(this)}
             data-test-id="create-view-modal">
             <ModalInput
               autoFocus
@@ -98,8 +99,7 @@ class CreateViewModal extends PureComponent {
           </form>
         </Modal.Body>
 
-        <Modal.Footer
-          className={styles['create-view-modal-footer']}>
+        <Modal.Footer className={styles['create-view-modal-footer']}>
           <TextButton
             className="btn btn-default btn-sm"
             dataTestId="cancel-create-view-button"
