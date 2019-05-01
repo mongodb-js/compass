@@ -121,6 +121,7 @@ import Plugin, {
   setServerVersion,
   setFields,
   setIsAtlas,
+  setAllowWrites
 } from '@mongodb-js/compass-aggregations';
 
 const store = configureStore();
@@ -130,7 +131,8 @@ setDataProvider(store, error, provider); // Sets the (optional) connect error an
 setNamespace(store, ns); // Set the namespace in "db.collection" format.
 setServerVersion(store, version); // Set the lowest MongoDB server version in the cluster.
 setFields(store, fields); // Set the field names in the schema for autocompletion. See note below.
-setIsAtlas(store, true); // Indicate the plugin is deployed to Atlas.
+setIsAtlas(store, true); // Indicate the plugin is deployed to Atlas. (defaults to false)
+setAllowWrites(store, false); // Indicate the plugin allows writes. (defaults to true)
 
 <Plugin store={store} />
 ```
@@ -148,7 +150,8 @@ const store = configureStore({
   namespace: 'db.coll',
   serverVersion: '4.2.0',
   fields: [],
-  isAtlasDeployed: true
+  isAtlasDeployed: true,
+  allowWrites: false
 });
 
 <Plugin store={store} />

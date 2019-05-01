@@ -77,6 +77,7 @@ const SPRINKLE_MAPPINGS = {
 class StageBuilderToolbar extends PureComponent {
   static displayName = 'StageBuilderToolbar';
   static propTypes = {
+    allowWrites: PropTypes.bool.isRequired,
     isExpanded: PropTypes.bool.isRequired,
     isEnabled: PropTypes.bool.isRequired,
     stageOperator: PropTypes.string,
@@ -125,6 +126,7 @@ class StageBuilderToolbar extends PureComponent {
           stageCollapseToggled={this.props.stageCollapseToggled}
         />
         <StageOperatorSelect
+          allowWrites={this.props.allowWrites}
           stageOperator={this.props.stageOperator}
           index={this.props.index}
           isEnabled={this.props.isEnabled}

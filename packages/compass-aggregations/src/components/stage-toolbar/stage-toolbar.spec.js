@@ -34,6 +34,7 @@ describe('StageToolbar [Component]', () => {
         isValid
         isEnabled
         isExpanded
+        allowWrites
         previewCount={5}
         index={0}
         serverVersion="3.6.0"

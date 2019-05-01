@@ -31,6 +31,7 @@ class Pipeline extends PureComponent {
   static displayName = 'PipelineComponent';
 
   static propTypes = {
+    allowWrites: PropTypes.bool.isRequired,
     isAtlasDeployed: PropTypes.bool.isRequired,
     getPipelineFromIndexedDB: PropTypes.func.isRequired,
     savedPipelinesListToggle: PropTypes.func.isRequired,

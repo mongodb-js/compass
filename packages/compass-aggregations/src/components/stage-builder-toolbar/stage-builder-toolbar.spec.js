@@ -36,6 +36,7 @@ describe('StageBuilderToolbar [Component]', () => {
         stage=""
         isEnabled
         isExpanded
+        allowWrites
         index={0}
         stageCollapseToggled={stageCollapseToggledSpy}
         stageOperatorSelected={stageOperatorSelectedSpy}

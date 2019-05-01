@@ -129,7 +129,7 @@
     "mongodb-ace-mode": "^0.3.0",
     "mongodb-ace-theme": "^0.0.1",
     "mongodb-connection-model": "^13.0.1",
-    "mongodb-data-service": "^14.0.0",
+    "mongodb-data-service": "^14.0.2",
     "mongodb-js-metrics": "^4.2.0",
     "mongodb-js-precommit": "^2.0.0",
     "mongodb-reflux-store": "0.0.1",
