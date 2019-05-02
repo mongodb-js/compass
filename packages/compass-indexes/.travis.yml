@@ -22,6 +22,4 @@ before_script:
 before_install:
   - echo "//registry.npmjs.org/:_authToken=\${NPM_TOKEN}" >> .npmrc
 script: npm run ci
-cache:
-  directories:
-    - $HOME/.electron
+cache: npm
