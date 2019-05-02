@@ -2,7 +2,7 @@
   "name": "compass-preferences-model",
   "description": "Compass preferences model.",
   "author": "Lucas Hrabovsky <lucas@mongodb.com>",
-  "version": "0.0.2",
+  "version": "0.1.0",
   "bugs": "https://github.com/mongodb-js/compass-preferences-model/issues",
   "homepage": "https://github.com/mongodb-js/compass-preferences-model",
   "repository": "git://github.com/mongodb-js/compass-preferences-model.git",
