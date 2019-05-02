@@ -16,7 +16,10 @@ class SidebarCollection extends PureComponent {
     readonly: PropTypes.bool.isRequired,
     activeNamespace: PropTypes.string.isRequired,
     isWritable: PropTypes.bool.isRequired,
-    description: PropTypes.string.isRequired
+    description: PropTypes.string.isRequired,
+    view_on: PropTypes.any, // undefined or string if view
+    pipeline: PropTypes.any, // undefined or array if view
+    type: PropTypes.oneOf('collection', 'view')
   };
 
   constructor(props) {
@@ -41,6 +44,9 @@ class SidebarCollection extends PureComponent {
         capped: this.props.capped,
         power_of_two: this.props.power_of_two,
         readonly: this.props.readonly,
+        type: this.props.type,
+        view_on: this.props.view_on,
+        pipeline: this.props.pipeline,
         activeNamespace: this.props.activeNamespace
       });
       const ipc = require('hadron-ipc');

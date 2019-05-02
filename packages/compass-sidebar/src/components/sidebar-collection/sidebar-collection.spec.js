@@ -71,18 +71,21 @@ describe('SidebarCollection [Component]', () => {
       expect(component.find('[data-test-id="sidebar-collection"]').text()).to.equal('coll ');
     });
   });
-  describe('is readonly', () => {
+  describe('Views', () => {
     beforeEach(() => {
       spy = sinon.spy();
       component = mount(<SidebarCollection
-        _id="db.coll"
-        database="db"
+        _id="echo.albums"
+        database="echo"
         capped={false}
         power_of_two={false}
+        type="view"
+        pipeline={[ { $unwind: '$albums' }, { $project: { artist: '$name', title: '$albums.name' } }]}
+        view_on="artists"
         readonly
-        isWritable={false}
+        isWritable
         description="description"
-        activeNamespace="db.coll"
+        activeNamespace="echo.albums"
       />);
       hold = global.hadronApp.appRegistry;
       global.hadronApp.appRegistry = {emit: spy};
@@ -93,7 +96,7 @@ describe('SidebarCollection [Component]', () => {
       global.hadronApp.appRegistry = hold;
     });
     it('sets collection name', () => {
-      expect(component.find('[data-test-id="sidebar-collection"]').text()).to.equal('coll ');
+      expect(component.find('[data-test-id="sidebar-collection"]').text()).to.equal('albums ');
     });
     it('registers as readonly', () => {
       expect(component.find('[data-test-id="sidebar-collection-is-readonly"]')).to.be.present();
@@ -101,9 +104,9 @@ describe('SidebarCollection [Component]', () => {
     it('has the view icon', () => {
       expect(component.find(`.${styles['compass-sidebar-item-view-icon']}`)).to.be.present();
     });
-    it('does not trigger drop collection when clicked', () => {
+    it('triggers drop collection when clicked', () => {
       component.find('[data-test-id="compass-sidebar-icon-drop-collection"]').simulate('click');
-      expect(spy.called).to.equal(false);
+      expect(spy.called).to.equal(true);
     });
   });
 });
