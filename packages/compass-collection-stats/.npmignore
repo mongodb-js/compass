@@ -11,3 +11,5 @@ scripts/
 src/
 test/
 .storybook/
+lib/index.html
+lib/index.js.map
