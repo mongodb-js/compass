@@ -1,5 +1,5 @@
 import React from 'react';
-import { shallow } from 'enzyme';
+import { mount } from 'enzyme';
 import AppRegistry from 'hadron-app-registry';
 
 import CollectionStats from 'components/collection-stats';
@@ -12,7 +12,7 @@ describe('CollectionStats [Component]', () => {
     global.hadronApp = {
       appRegistry: new AppRegistry()
     };
-    component = shallow(<CollectionStats />);
+    component = mount(<CollectionStats />);
   });
 
   afterEach(() => {
@@ -21,5 +21,22 @@ describe('CollectionStats [Component]', () => {
 
   it('renders the correct root classname', () => {
     expect(component.find(`.${styles['collection-stats']}`)).to.be.present();
+  });
+
+  describe('When the collection is a view', () => {
+    let _component;
+    before(() => {
+      _component = mount(<CollectionStats isReadonly />);
+    });
+
+    it('should hide the stats', () => {
+      expect(
+        _component.find(`.${styles['collection-stats']}`)
+      ).to.not.be.present();
+    });
+
+    after(() => {
+      _component = null;
+    });
   });
 });

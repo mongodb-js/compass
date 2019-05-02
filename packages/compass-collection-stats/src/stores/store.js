@@ -115,6 +115,7 @@ const configureStore = (options = {}) => {
      */
     getInitialState() {
       return {
+        isReadonly: false,
         documentCount: INVALID,
         totalDocumentSize: INVALID,
         avgDocumentSize: INVALID,
@@ -132,6 +133,7 @@ const configureStore = (options = {}) => {
 
     _parseCollectionDetails(result) {
       return {
+        isReadonly: this.isReadonly || false,
         documentCount: this._format(result.document_count),
         totalDocumentSize: this._format(result.document_size, 'b'),
         avgDocumentSize: this._format(this._avg(result.document_size, result.document_count), 'b'),

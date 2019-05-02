@@ -17,11 +17,10 @@
     "test:karma": "cross-env NODE_ENV=test karma start",
     "cover": "nyc npm run test",
     "ci": "npm run cover && npm run test:karma && npm run compile && npm run check",
-    "fmt": "mongodb-js-fmt ./*.js ./test/*.js",
     "check": "mongodb-js-precommit './src/**/*{.js,.jsx}' './test/**/*.js' './electron/**/*.js' './config/**/*{.js,.jsx}'",
     "link-plugin": "./scripts/link.sh",
     "unlink-plugin": "./scripts/unlink.sh",
-    "prepublish": "npm run compile",
+    "prepublishOnly": "npm run compile",
     "storybook": "start-storybook -p 9001 -c .storybook"
   },
   "precommit": [
@@ -29,12 +28,14 @@
   ],
   "dependency-check": {
     "ignore": [
-      "react-dom"
+      "react-dom",
+      "mongodb-data-service"
     ]
   },
   "license": "Apache-2.0",
   "peerDependencies": {
     "hadron-react-components": "^3.2.1",
+    "mongodb-data-service": "^14.0.2",
     "prop-types": "^15.5.8",
     "react": "^16.8.0",
     "react-dom": "^16.8.0",
@@ -65,11 +66,10 @@
     "css-loader": "^0.28.1",
     "debug": "^3.0.1",
     "electron": "^3.0.7",
-    "electron-packager": "^8.7.0",
     "electron-rebuild": "^1.8.4",
     "enzyme": "^3.7.0",
     "enzyme-adapter-react-16": "^1.6.0",
-    "eslint-config-mongodb-js": "^2.1.0",
+    "eslint-config-mongodb-js": "^3.0.1",
     "extract-text-webpack-plugin": "^4.0.0-beta.0",
     "file-loader": "^3.0.1",
     "font-awesome": "^4.7.0",
@@ -95,8 +95,7 @@
     "less-loader": "^4.0.5",
     "mocha": "^4.1.0",
     "mocha-webpack": "^2.0.0-beta.0",
-    "mongodb-data-service": "^12.5.0",
-    "mongodb-js-fmt": "^1.0.0",
+    "mongodb-data-service": "^14.0.2",
     "mongodb-js-precommit": "^2.0.0",
     "mongodb-reflux-store": "0.0.1",
     "node-loader": "^0.6.0",
@@ -124,7 +123,7 @@
     "webpack-dev-server": "^3.1.14",
     "webpack-merge": "^4.2.1",
     "webpack-node-externals": "^1.7.2",
-    "webpack-sources": "1.0.1"
+    "webpack-sources": "^1.0.1"
   },
   "dependencies": {
     "mongodb-ns": "^2.0.0",

@@ -10,6 +10,10 @@ describe('CollectionStatsstore [store]', () => {
         store = configureStore();
       });
 
+      it('defaults isReadonly to false', () => {
+        expect(store.state.isReadonly).to.be.false;
+      });
+
       it('defaults document count to invalid', () => {
         expect(store.state.documentCount).to.be.equal('N/A');
       });

@@ -1,10 +1,14 @@
 import React, { Component } from 'react';
-import classnames from 'classnames';
+import PropTypes from 'prop-types';
 
 import styles from './collection-stats.less';
 
 class CollectionStats extends Component {
   static displayName = 'CollectionStatsComponent';
+
+  static propTypes = {
+    isReadonly: PropTypes.bool
+  };
 
   /**
    * Instantiate the component.
@@ -22,13 +26,15 @@ class CollectionStats extends Component {
    * @returns {React.Component} The rendered component.
    */
   render() {
-    const views = (this.roles || []).map((role, i) => {
-      return (<role.component key={i} {...this.props} />);
+    if (this.props.isReadonly === true) {
+      return null;
+    }
+
+    const children = (this.roles || []).map((role, i) => {
+      return <role.component key={i} {...this.props} />;
     });
     return (
-      <div className={classnames(styles['collection-stats'])}>
-        {views}
-      </div>
+      <div className={styles['collection-stats']}>{children}</div>
     );
   }
 }
