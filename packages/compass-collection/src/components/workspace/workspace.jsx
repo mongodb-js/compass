@@ -4,7 +4,6 @@ import HTML5Backend from 'react-dnd-html5-backend';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import classnames from 'classnames';
-import { IconButton } from 'hadron-react-buttons';
 import {
   createTab,
   closeTab,

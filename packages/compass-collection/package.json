@@ -16,11 +16,10 @@
     "test:karma": "cross-env NODE_ENV=test karma start",
     "cover": "nyc npm run test",
     "ci": "npm run cover && npm run test:karma && npm run compile && npm run check",
-    "fmt": "mongodb-js-fmt ./*.js ./test/*.js",
     "check": "mongodb-js-precommit './src/**/*{.js,.jsx}' './test/**/*.js' './electron/**/*.js' './config/**/*{.js,.jsx}'",
     "link-plugin": "./scripts/link.sh",
     "unlink-plugin": "./scripts/unlink.sh",
-    "prepublish": "npm run compile",
+    "prepublishOnly": "npm run compile",
     "storybook": "start-storybook -p 9001 -c .storybook"
   },
   "precommit": [
@@ -40,7 +39,9 @@
     "hadron-react-buttons": "^3.0.5",
     "hadron-react-components": "^3.0.5",
     "react": "^16.6.0",
-    "react-dom": "^16.6.0"
+    "react-dom": "^16.6.0",
+    "react-redux": "^5.0.6",
+    "redux": "^3.7.2"
   },
   "devDependencies": {
     "@mongodb-js/compass-aggregations": "^3.0.0",
@@ -67,10 +68,9 @@
     "cross-env": "^5.0.1",
     "css-loader": "^0.28.1",
     "electron": "^3.0.7",
-    "electron-packager": "^8.7.0",
     "enzyme": "^3.7.0",
     "enzyme-adapter-react-16": "^1.6.0",
-    "eslint-config-mongodb-js": "^2.1.0",
+    "eslint-config-mongodb-js": "^3.0.1",
     "extract-text-webpack-plugin": "^4.0.0-beta.0",
     "file-loader": "^3.0.1",
     "font-awesome": "^4.7.0",
@@ -78,7 +78,6 @@
     "hadron-app-registry": "^7.1.0",
     "hadron-ipc": "^1.1.0",
     "hadron-react-bson": "^3.0.5",
-    "hadron-react-buttons": "^3.0.5",
     "hadron-react-components": "^3.0.5",
     "html-webpack-plugin": "^3.2.0",
     "ignore-loader": "^0.1.2",
@@ -101,9 +100,8 @@
     "mongodb-ace-autocompleter": "^0.1.0",
     "mongodb-ace-mode": "^0.2.0",
     "mongodb-ace-theme": "^0.0.1",
-    "mongodb-js-fmt": "^0.0.3",
     "mongodb-js-precommit": "^2.0.0",
-    "mongodb-reflux-store": "0.0.1",
+    "mongodb-reflux-store": "^0.0.1",
     "node-loader": "^0.6.0",
     "nyc": "^13.1.0",
     "peer-deps-externals-webpack-plugin": "^1.0.2",
@@ -115,11 +113,11 @@
     "react-dom": "^16.6.0",
     "react-hot-loader": "^4.1.0",
     "react-storybook-addon-chapters": "^1.1.0",
-    "reflux": "0.4.1",
+    "reflux": "^0.4.1",
     "resolve": "^1.4.0",
     "rimraf": "^2.6.1",
     "semver": "^5.4.1",
-    "shebang-loader": "0.0.1",
+    "shebang-loader": "^0.0.1",
     "sinon": "^3.2.0",
     "sinon-chai": "^2.11.0",
     "style-loader": "^0.18.2",
@@ -130,14 +128,12 @@
     "webpack-dev-server": "^3.1.14",
     "webpack-merge": "^4.2.1",
     "webpack-node-externals": "^1.7.2",
-    "webpack-sources": "1.0.1"
+    "webpack-sources": "^1.0.1"
   },
   "dependencies": {
     "lodash.filter": "^4.6.0",
     "mongodb-ns": "^2.0.0",
     "react-dnd": "^7.3.2",
-    "react-dnd-html5-backend": "^7.2.0",
-    "react-redux": "^5.0.6",
-    "redux": "^3.7.2"
+    "react-dnd-html5-backend": "^7.2.0"
   }
 }

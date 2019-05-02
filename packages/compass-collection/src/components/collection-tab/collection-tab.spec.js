@@ -5,7 +5,7 @@ import CollectionTab from 'components/collection-tab';
 import styles from './collection-tab.less';
 
 describe('CollectionTab [Component]', () => {
-  const connect = (c) => { return c };
+  const connect = (c) => { return c; };
 
   context('when the tab is active', () => {
     let component;

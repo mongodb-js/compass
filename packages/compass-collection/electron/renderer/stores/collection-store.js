@@ -5,7 +5,6 @@ const { NamespaceStore } = require('mongodb-reflux-store');
  * Sets global collection information.
  */
 const CollectionStore = Reflux.createStore({
-
   /**
    * Initialize the store.
    */
@@ -60,8 +59,34 @@ const CollectionStore = Reflux.createStore({
     return this.collection.readonly;
   },
 
-  setTabs() {
-  }
+  /**
+   * Get the collection name a view is built on.
+   *
+   * @returns {String|undefined} The collection name;
+   */
+  viewOn() {
+    return this.collection.view_on;
+  },
+
+  /**
+   * Get the aggregation pipeline a view is built on.
+   *
+   * @returns {Array|undefined} The aggregation pipeline.
+   */
+  pipeline() {
+    return this.collection.pipeline;
+  },
+
+  /**
+   * Get the collection type.
+   *
+   * @returns {String} collection|view
+   */
+  type() {
+    return this.collection.type;
+  },
+
+  setTabs() {}
 });
 
 module.exports = CollectionStore;

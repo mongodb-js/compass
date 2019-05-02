@@ -16,3 +16,5 @@ test/
 .storybook/
 .nyc_output/
 coverage/
+lib/index.html
+lib/index.js.map

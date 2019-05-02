@@ -149,7 +149,7 @@ class CollectionTab extends PureComponent {
             </div>
           </div>
           <div className={classnames(styles['collection-tab-close'])} onClick={this.closeTab}>
-            <i className="fa fa-times" aria-hidden></i>
+            <i className="fa fa-times" aria-hidden />
           </div>
         </div>
       )

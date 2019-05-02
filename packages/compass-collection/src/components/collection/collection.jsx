@@ -25,7 +25,9 @@ class Collection extends Component {
     this.CollectionStore = app.appRegistry.getStore('App.CollectionStore');
     this.NamespaceStore = app.appRegistry.getStore('App.NamespaceStore');
     this.QueryActions = app.appRegistry.getAction('Query.Actions');
-    this.QueryHistoryActions = app.appRegistry.getAction('QueryHistory.Actions');
+    this.QueryHistoryActions = app.appRegistry.getAction(
+      'QueryHistory.Actions'
+    );
     this.boundActiveTabChanged = this.activeTabChanged.bind(this);
 
     this.setupTabs();
@@ -41,13 +43,19 @@ class Collection extends Component {
       this.setState({ activeTab: 0 });
     }
     if (this.CollectionStore) {
-      global.hadronApp.appRegistry.on('active-tab-changed', this.boundActiveTabChanged);
+      global.hadronApp.appRegistry.on(
+        'active-tab-changed',
+        this.boundActiveTabChanged
+      );
     }
   }
 
   componentWillUnmount() {
     if (this.CollectionStore) {
-      global.hadronApp.appRegistry.removeListener('active-tab-changed', this.boundActiveTabChanged);
+      global.hadronApp.appRegistry.removeListener(
+        'active-tab-changed',
+        this.boundActiveTabChanged
+      );
     }
   }
 
@@ -62,7 +70,7 @@ class Collection extends Component {
 
     this.CollectionStore.setActiveTab(idx);
     this.setState({ activeTab: this.CollectionStore.getActiveTab() });
-  }
+  };
 
   onDBClick = () => {
     const ipc = require('hadron-ipc');
@@ -70,13 +78,15 @@ class Collection extends Component {
     this.CollectionStore.setCollection({});
     this.NamespaceStore.ns = db;
     ipc.call('window:hide-collection-submenu');
-  }
+  };
 
   /**
    * Setup the instance level tabs.
    */
   setupTabs() {
-    const collectionTabs = global.hadronApp.appRegistry.getRole('Collection.Tab');
+    const collectionTabs = global.hadronApp.appRegistry.getRole(
+      'Collection.Tab'
+    );
     const roles = filter(collectionTabs, (role) => {
       return this.roleFiltered(role) ? false : true;
     });
@@ -86,9 +96,7 @@ class Collection extends Component {
     const views = roles.map((role, i) => {
       if (role.hasQueryHistory) queryHistoryIndexes.push(i);
       tabs.push(role.name);
-      return (
-        <UnsafeComponent component={role.component} key={i} />
-      );
+      return <UnsafeComponent component={role.component} key={i} />;
     });
 
     this.tabs = tabs;
@@ -101,17 +109,25 @@ class Collection extends Component {
     this.setState({ activeTab: index });
   }
 
-
   roleFiltered(role) {
     const serverVersion = global.hadronApp.instance.build.version;
-    return (role.minimumServerVersion && !semver.gte(serverVersion, role.minimumServerVersion));
+    return (
+      role.minimumServerVersion &&
+      !semver.gte(serverVersion, role.minimumServerVersion)
+    );
   }
 
   renderReadonly() {
     if (this.CollectionStore && this.CollectionStore.isReadonly()) {
       return (
-        <span className={classnames(styles['collection-title-readonly'])}>
-          <i className="fa fa-lock" aria-hidden="true" />
+        <span className={styles['collection-title-readonly']}>
+          <i
+            className={classnames('fa', styles['collection-title-readonly-view-icon'])}
+            aria-hidden="true"
+          />
+          <span className={styles['collection-title-readonly-view-on']}>
+            (on: {this.CollectionStore.viewOn()})
+          </span>
         </span>
       );
     }
@@ -131,12 +147,21 @@ class Collection extends Component {
       <div className={classnames(styles.collection, 'clearfix')}>
         <header>
           <this.Stats />
-          <h1 className={classnames(styles['collection-title'])}>
-            <span className={classnames(styles['collection-title-db'])}>
-              <a className={classnames(styles['collection-title-db-link'])} title={database} onClick={this.onDBClick}>{database}</a>
+          <h1 className={styles['collection-title']}>
+            <span className={styles['collection-title-db']}>
+              <a
+                className={styles['collection-title-db-link']}
+                title={database}
+                onClick={this.onDBClick}>
+                {database}
+              </a>
             </span>
             <span>.</span>
-            <span className={classnames(styles['collection-title-collection'])} title={collection}>{collection}</span>
+            <span
+              className={styles['collection-title-collection']}
+              title={collection}>
+              {collection}
+            </span>
             {this.renderReadonly()}
           </h1>
         </header>
@@ -147,7 +172,8 @@ class Collection extends Component {
           views={this.views}
           mountAllViews
           activeTabIndex={this.state.activeTab}
-          onTabClicked={this.onTabClicked} />
+          onTabClicked={this.onTabClicked}
+        />
       </div>
     );
   }
