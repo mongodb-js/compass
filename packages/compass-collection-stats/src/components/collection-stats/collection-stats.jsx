@@ -27,15 +27,13 @@ class CollectionStats extends Component {
    */
   render() {
     if (this.props.isReadonly === true) {
-      return null;
+      return <div className={styles['collection-stats-empty']} />;
     }
 
     const children = (this.roles || []).map((role, i) => {
       return <role.component key={i} {...this.props} />;
     });
-    return (
-      <div className={styles['collection-stats']}>{children}</div>
-    );
+    return <div className={styles['collection-stats']}>{children}</div>;
   }
 }
 

@@ -31,8 +31,8 @@ describe('CollectionStats [Component]', () => {
 
     it('should hide the stats', () => {
       expect(
-        _component.find(`.${styles['collection-stats']}`)
-      ).to.not.be.present();
+        _component.find(`.${styles['collection-stats-empty']}`)
+      ).to.be.present();
     });
 
     after(() => {
