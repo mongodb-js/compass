@@ -1,7 +1,7 @@
 {
   "name": "@mongodb-js/compass-collection-stats",
   "productName": "Collection Stats",
-  "version": "4.0.1",
+  "version": "4.1.0",
   "apiVersion": "2.0.0",
   "description": "Compass Collection Stats Plugin",
   "main": "lib/index.js",
