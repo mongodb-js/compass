@@ -30,7 +30,7 @@ module.exports = (JavascriptVisitor) => class Visitor extends JavascriptVisitor 
       MaxKey: bson.MaxKey,
       MinKey: bson.MinKey,
       ObjectId: bson.ObjectID,
-      Symbol: bson.Symbol,
+      BSONSymbol: bson.BSONSymbol,
       Timestamp: bson.Timestamp,
       Code: function(c, s) {
         return new bson.Code(c, s);

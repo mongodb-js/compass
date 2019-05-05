@@ -247,8 +247,8 @@ BsonSymbols:
         attr: {} #TODO: add fromInt, fromNumber, fromBits, fromString
         template: *TimestampSymbolTemplate
         argsTemplate: *TimestampSymbolArgsTemplate
-    Symbol:
-        id: "Symbol"
+    BSONSymbol:
+        id: "BSONSymbol"
         code: 111
         callable: *constructor
         args:

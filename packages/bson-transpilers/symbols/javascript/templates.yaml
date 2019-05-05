@@ -581,7 +581,7 @@ Templates:
         }
     111ImportTemplate: &111ImportTemplate !!js/function >
         () => {
-            return 'Symbol';
+            return 'BSONSymbol';
         }
     112ImportTemplate: &112ImportTemplate !!js/function >
         () => {

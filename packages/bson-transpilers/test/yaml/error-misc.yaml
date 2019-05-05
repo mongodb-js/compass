@@ -231,7 +231,7 @@ tests:
           javascript: Timestamp(1, 100).invalidProperty
           python: Timestamp(1, 100).invalidProperty
       errorCode: E_BSONTRANSPILERS_ATTRIBUTE
-    - description: Symbol with invalidMethod
+    - description: BSONSymbol with invalidMethod
       input:
-          javascript: Symbol('2').invalidMethod()
+          javascript: BSONSymbol('2').invalidMethod()
       errorCode: E_BSONTRANSPILERS_ATTRIBUTE

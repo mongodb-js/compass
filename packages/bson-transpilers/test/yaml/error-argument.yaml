@@ -819,32 +819,32 @@ tests:
 
     -   description: new Symbol without args
         input:
-            javascript: new Symbol()
+            javascript: new BSONSymbol()
         errorCode: E_BSONTRANSPILERS_ARGUMENT
 
     -   description: Symbol with extra argument (should be 1)
         input:
-            javascript: Symbol('2', '3')
+            javascript: BSONSymbol('2', '3')
         errorCode: E_BSONTRANSPILERS_ARGUMENT
 
     -   description: Symbol with wrong type of argument
         input:
-            javascript: Symbol({})
+            javascript: BSONSymbol({})
         errorCode: E_BSONTRANSPILERS_ARGUMENT
 
     -   description: Symbol .valueOf() with extra argument
         input:
-            javascript: Symbol('2').valueOf(2)
+            javascript: BSONSymbol('2').valueOf(2)
         errorCode: E_BSONTRANSPILERS_ARGUMENT
 
     -   description: Symbol .toString() with extra argument
         input:
-            javascript: Symbol('2').toString(10)
+            javascript: BSONSymbol('2').toString(10)
         errorCode: E_BSONTRANSPILERS_ARGUMENT
 
     -   description: Symbol .inspect() with extra argument
         input:
-            javascript: Symbol('2').inspect('2')
+            javascript: BSONSymbol('2').inspect('2')
         errorCode: E_BSONTRANSPILERS_ARGUMENT
     RegExp:
 

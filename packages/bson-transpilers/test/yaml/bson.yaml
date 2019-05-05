@@ -528,21 +528,21 @@ tests:
     Symbol:
     - description: from string
       input:
-          javascript: Symbol('abc')
+          javascript: BSONSymbol('abc')
       output:
-          javascript: new Symbol('abc')
+          javascript: new BSONSymbol('abc')
           shell: "'abc'"
           python: "'abc'"
           java: new Symbol("abc")
           csharp: '"abc"'
-          object: new Symbol('abc')
+          object: new BSONSymbol('abc')
     - description: NEW from string
       input:
-          javascript: new Symbol('abc')
+          javascript: new BSONSymbol('abc')
       output:
-          javascript: new Symbol('abc')
+          javascript: new BSONSymbol('abc')
           shell: "'abc'"
           python: "'abc'"
           java: new Symbol("abc")
           csharp: '"abc"'
-          object: new Symbol('abc')
+          object: new BSONSymbol('abc')

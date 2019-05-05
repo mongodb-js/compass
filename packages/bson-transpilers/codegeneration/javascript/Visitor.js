@@ -386,7 +386,7 @@ module.exports = (CodeGenerationVisitor) => class Visitor extends CodeGeneration
     this.checkArguments(symbolType.args, argsList, 'ObjectId');
     let hexstr;
     try {
-      hexstr = this.executeJavascript(ctx.getText()).toHexString();
+      hexstr = this.executeJavascript(`new ${ctx.getText()}`).toHexString();
     } catch (error) {
       throw new BsonTranspilersRuntimeError(error.message);
     }
@@ -474,7 +474,7 @@ module.exports = (CodeGenerationVisitor) => class Visitor extends CodeGeneration
     );
 
     try {
-      longstr = this.executeJavascript(long.getText()).toString();
+      longstr = this.executeJavascript(`new ${long.getText()}`).toString();
     } catch (error) {
       throw new BsonTranspilersRuntimeError(error.message);
     }
@@ -584,7 +584,7 @@ module.exports = (CodeGenerationVisitor) => class Visitor extends CodeGeneration
       MinKey: bson.MinKey,
       ObjectID: bson.ObjectID,
       ObjectId: bson.ObjectID,
-      Symbol: bson.Symbol,
+      BSONSymbol: bson.BSONSymbol,
       Timestamp: bson.Timestamp,
       Code: function(c, s) {
         return new bson.Code(c, s);

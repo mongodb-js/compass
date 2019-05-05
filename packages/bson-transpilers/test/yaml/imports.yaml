@@ -235,7 +235,7 @@ tests:
     - description: Single import Symbol
       input:
           shell: "{x: Symbol('a')}"
-          javascript: "{x: Symbol('a')}"
+          javascript: "{x: BSONSymbol('a')}"
       output:
           java: |-
               import org.bson.types.Symbol;
@@ -246,7 +246,7 @@ tests:
           python: ''
           javascript: |-
               const {
-                Symbol
+                BSONSymbol
               } = require('mongo');
     - description: Single import NumberDecimal
       input:
@@ -322,7 +322,7 @@ tests:
         6: 10, 7: 'str', 8: RegExp('10'), '8a': /abc/, 9: [1,2], 10: {x: 1}, 11: null,
         12: undefined, 100: Code('1', {x: 1}), '100a': Code('!'), 101: ObjectId(),
         103: DBRef('c', ObjectId()), 104: Double(1), 105: Int32(1), 106: Long(1, 100),
-        107: MinKey(), 108: MaxKey(), 110: Timestamp(1, 100), 111: Symbol('1'), 112:
+        107: MinKey(), 108: MaxKey(), 110: Timestamp(1, 100), 111: BSONSymbol('1'), 112:
         Decimal128([1]), '201a': new Date()}"
       output:
           java: |-
@@ -361,7 +361,7 @@ tests:
                 MinKey,
                 MaxKey,
                 Timestamp,
-                Symbol,
+                BSONSymbol,
                 Decimal128
               } = require('mongo');
     - description: All filter builder imports

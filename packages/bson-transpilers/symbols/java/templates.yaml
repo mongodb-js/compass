@@ -772,8 +772,14 @@ Templates:
         (lhs, arg1, arg2) => {
             return `(${arg1 === undefined ? 0 : arg1}, ${arg2 === undefined ? 0 : arg2})`;
         }
-    SymbolSymbolTemplate: &SymbolSymbolTemplate null
-    SymbolSymbolArgsTemplate: &SymbolSymbolArgsTemplate null
+    SymbolSymbolTemplate: &SymbolSymbolTemplate !!js/function >
+        () => {
+            return 'Symbol';
+        }
+    SymbolSymbolArgsTemplate: &SymbolSymbolArgsTemplate !!js/function >
+        (lhs, arg) => {
+            return `(${arg})`;
+        }
     BSONRegExpSymbolTemplate: &BSONRegExpSymbolTemplate !!js/function >
         () => {
             return 'BsonRegularExpression';

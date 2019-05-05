@@ -32,7 +32,7 @@
   },
   "dependencies": {
     "antlr4": "^4.7.1",
-    "bson": "^2.0.4",
+    "bson": "^4.0.2",
     "chai": "^4.1.2",
     "context-eval": "^0.1.0",
     "fast-json-parse": "^1.0.3",

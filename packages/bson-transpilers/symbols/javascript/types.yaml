@@ -409,9 +409,9 @@ BsonTypes:
                 type: *BoolType
                 template: *TimestampLessThanOrEqualTemplate
                 argsTemplate: *TimestampLessThanOrEqualArgsTemplate
-    Symbol: &SymbolType
+    BSONSymbol: &SymbolType
         <<: *__type
-        id: "Symbol"
+        id: "BSONSymbol"
         code: 111
         type: *ObjectType
         attr:

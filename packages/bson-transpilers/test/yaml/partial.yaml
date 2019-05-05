@@ -98,9 +98,9 @@ tests:
           csharp: BsonTimestamp
           shell: Timestamp
     - input:
-          javascript: Symbol
+          javascript: BSONSymbol
       output:
-          javascript: Symbol
+          javascript: BSONSymbol
           python: ''
           java: Symbol
           csharp: ''
@@ -489,7 +489,7 @@ tests:
           csharp: new BsonTimestamp(1, 100).Increment
           shell: new Timestamp(1, 100).getInc
     - input:
-          javascript: Symbol('2').valueOf
+          javascript: BSONSymbol('2').valueOf
       output:
           javascript: ''
           python: "'2'"
@@ -497,7 +497,7 @@ tests:
           csharp: '"2"'
           shell: "'2'"
     - input:
-          javascript: Symbol('2').toString
+          javascript: BSONSymbol('2').toString
       output:
           javascript: ''
           python: "'2'"
@@ -505,7 +505,7 @@ tests:
           csharp: '"2"'
           shell: "'2'"
     - input:
-          javascript: Symbol('2').inspect
+          javascript: BSONSymbol('2').inspect
       output:
           javascript: ''
           python: "'2'"

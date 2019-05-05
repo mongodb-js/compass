@@ -44,7 +44,7 @@ tests:
             object: "'test code'"
     ObjectId-methods:
     -   input:
-            javascript: ObjectId('5ab901c29ee65f5c8550c5b9').toString()
+            javascript: new ObjectId('5ab901c29ee65f5c8550c5b9').toString()
             python: ObjectId('5ab901c29ee65f5c8550c5b9').binary
             shell: ObjectId('5ab901c29ee65f5c8550c5b9').toString()
         output:
@@ -55,7 +55,7 @@ tests:
             shell: new ObjectId('5ab901c29ee65f5c8550c5b9').toString()
             object: "'5ab901c29ee65f5c8550c5b9'"
     -   input:
-            javascript: ObjectId('5ab901c29ee65f5c8550c5b9').getTimestamp()
+            javascript: new ObjectId('5ab901c29ee65f5c8550c5b9').getTimestamp()
             python: ObjectId('5ab901c29ee65f5c8550c5b9').generation_time
             shell: ObjectId('5ab901c29ee65f5c8550c5b9').getTimestamp()
         output:
@@ -65,7 +65,7 @@ tests:
             shell: new ObjectId('5ab901c29ee65f5c8550c5b9').getTimestamp()
             object: new Date('2018-03-26T14:20:50.000Z')
     -   input:
-            javascript: ObjectId('5ab901c29ee65f5c8550c5b9').equals(ObjectId('5ab901c29ee65f5c8550c5b9'))
+            javascript: new ObjectId('5ab901c29ee65f5c8550c5b9').equals(new ObjectId('5ab901c29ee65f5c8550c5b9'))
             shell: ObjectId('5ab901c29ee65f5c8550c5b9').equals(ObjectId('5ab901c29ee65f5c8550c5b9'))
         output:
             python: ObjectId('5ab901c29ee65f5c8550c5b9') == ObjectId('5ab901c29ee65f5c8550c5b9')
@@ -78,7 +78,7 @@ tests:
         output:
             object: true
     -   input:
-            javascript: ObjectId().equals(ObjectId())
+            javascript: new ObjectId().equals(new ObjectId())
             shell: ObjectId().equals(ObjectId())
             python: ObjectId() == ObjectId()
         output:
@@ -172,7 +172,7 @@ tests:
             python: float(Int64(429496729601))
             object: '429496729601'
     -   input:
-            javascript: Long(1, 100).toInt()
+            javascript: new Long(1, 100).toInt()
         output:
             python: int(Int64(429496729601))
             java: "(int) 429496729601L"
@@ -180,7 +180,7 @@ tests:
             shell: new NumberLong(429496729601).valueOf()
             object: '1'
     -   input:
-            javascript: Long(1, 100).toNumber()
+            javascript: new Long(1, 100).toNumber()
         output:
             python: float(Int64(429496729601))
             java: "(double) 429496729601L"
@@ -188,7 +188,7 @@ tests:
             shell: new NumberLong(429496729601).floatApprox
             object: '429496729601'
     -   input:
-            javascript: Long(1, 100).toString()
+            javascript: new Long(1, 100).toString()
             shell: NumberLong(429496729601).toString()
         output:
             python: "'429496729601'"
@@ -197,7 +197,7 @@ tests:
             shell: "'429496729601'"
             object: "'429496729601'"
     -   input:
-            javascript: Long(1, 100).toString(10)
+            javascript: new Long(1, 100).toString(10)
         output:
             python: "'429496729601'"
             java: '"429496729601"'
@@ -205,7 +205,7 @@ tests:
             shell: "'429496729601'"
             object: "'429496729601'"
     -   input:
-            javascript: Long(1, 100).isZero()
+            javascript: new Long(1, 100).isZero()
         output:
             python: Int64(429496729601) == 0
             java: 429496729601L == 0
@@ -213,7 +213,7 @@ tests:
             shell: new NumberLong(429496729601) === 0
             object: 'false'
     -   input:
-            javascript: Long(1, 100).isNegative()
+            javascript: new Long(1, 100).isNegative()
         output:
             python: Int64(429496729601) < 0
             java: 429496729601L < 0
@@ -221,7 +221,7 @@ tests:
             shell: new NumberLong(429496729601) < 0
             object: 'false'
     -   input:
-            javascript: Long(1, 100).isOdd()
+            javascript: new Long(1, 100).isOdd()
         output:
             python: "(Int64(429496729601) % 2) == 1"
             java: "(429496729601L % 2) == 1"
@@ -229,7 +229,7 @@ tests:
             shell: "(new NumberLong(429496729601) % 2) === 1"
             object: 'true'
     -   input:
-            javascript: Long(1, 100).equals(Long(9, 1))
+            javascript: new Long(1, 100).equals(Long(9, 1))
         output:
             python: Int64(429496729601) == Int64(4294967305)
             java: 429496729601L == 4294967305L
@@ -237,7 +237,7 @@ tests:
             shell: new NumberLong(429496729601) === new NumberLong(4294967305)
             object: 'false'
     -   input:
-            javascript: Long(1, 100).notEquals(Long(9, 1))
+            javascript: new Long(1, 100).notEquals(Long(9, 1))
         output:
             python: Int64(429496729601) != Int64(4294967305)
             java: 429496729601L != 4294967305L
@@ -245,7 +245,7 @@ tests:
             shell: new NumberLong(429496729601) !== new NumberLong(4294967305)
             object: 'true'
     -   input:
-            javascript: Long(1, 100).compare(Long(9, 1))
+            javascript: new Long(1, 100).compare(Long(9, 1))
         output:
             python: Int64(429496729601) - Int64(4294967305)
             java: 429496729601L - 4294967305L
@@ -253,7 +253,7 @@ tests:
             shell: new NumberLong(429496729601) - new NumberLong(4294967305)
             object: "1"
     -   input:
-            javascript: Long(1, 100).greaterThan(Long(9, 1))
+            javascript: new Long(1, 100).greaterThan(Long(9, 1))
         output:
             python: Int64(429496729601) > Int64(4294967305)
             java: 429496729601L > 4294967305L
@@ -261,7 +261,7 @@ tests:
             shell: new NumberLong(429496729601) > new NumberLong(4294967305)
             object: 'true'
     -   input:
-            javascript: Long(1, 100).greaterThanOrEqual(Long(9, 1))
+            javascript: new Long(1, 100).greaterThanOrEqual(Long(9, 1))
         output:
             python: Int64(429496729601) >= Int64(4294967305)
             java: 429496729601L >= 4294967305L
@@ -269,7 +269,7 @@ tests:
             shell: new NumberLong(429496729601) >= new NumberLong(4294967305)
             object: 'true'
     -   input:
-            javascript: Long(1, 100).lessThan(Long(9, 1))
+            javascript: new Long(1, 100).lessThan(Long(9, 1))
         output:
             python: Int64(429496729601) < Int64(4294967305)
             java: 429496729601L < 4294967305L
@@ -277,7 +277,7 @@ tests:
             shell: new NumberLong(429496729601) < new NumberLong(4294967305)
             object: 'false'
     -   input:
-            javascript: Long(1, 100).lessThanOrEqual(Long(9, 1))
+            javascript: new Long(1, 100).lessThanOrEqual(Long(9, 1))
         output:
             python: Int64(429496729601) <= Int64(4294967305)
             java: 429496729601L <= 4294967305L
@@ -285,7 +285,7 @@ tests:
             shell: new NumberLong(429496729601) <= new NumberLong(4294967305)
             object: 'false'
     -   input:
-            javascript: Long(1, 100).negate()
+            javascript: new Long(1, 100).negate()
         output:
             python: "-Int64(429496729601)"
             java: "-429496729601L"
@@ -293,7 +293,7 @@ tests:
             shell: "-new NumberLong(429496729601)"
             output: "-429496729601"
     -   input:
-            javascript: Long(1, 100).add(Long(9, 1))
+            javascript: new Long(1, 100).add(Long(9, 1))
         output:
             python: Int64(429496729601) + Int64(4294967305)
             java: 429496729601L + 4294967305L
@@ -301,7 +301,7 @@ tests:
             shell: new NumberLong(429496729601) + new NumberLong(4294967305)
             object: Long(10, 101)
     -   input:
-            javascript: Long(1, 100).subtract(Long(9, 1))
+            javascript: new Long(1, 100).subtract(Long(9, 1))
         output:
             python: Int64(429496729601) - Int64(4294967305)
             java: 429496729601L - 4294967305L
@@ -309,7 +309,7 @@ tests:
             shell: new NumberLong(429496729601) - new NumberLong(4294967305)
             object: Long(-8, 98)
     -   input:
-            javascript: Long(1, 100).multiply(Long(9, 1))
+            javascript: new Long(1, 100).multiply(Long(9, 1))
         output:
             python: Int64(429496729601) * Int64(4294967305)
             java: 429496729601L * 4294967305L
@@ -317,7 +317,7 @@ tests:
             shell: new NumberLong(429496729601) * new NumberLong(4294967305)
             output: Long(9, 901)
     -   input:
-            javascript: Long(1, 100).div(Long(9, 1))
+            javascript: new Long(1, 100).div(Long(9, 1))
         output:
             python: Int64(429496729601) / Int64(4294967305)
             java: 429496729601L / 4294967305L
@@ -325,7 +325,7 @@ tests:
             shell: new NumberLong(429496729601) / new NumberLong(4294967305)
             output: Long(99, 0)
     -   input:
-            javascript: Long(1, 100).modulo(Long(9, 1))
+            javascript: new Long(1, 100).modulo(Long(9, 1))
         output:
             python: Int64(429496729601) % Int64(4294967305)
             java: 429496729601L % 4294967305L
@@ -333,7 +333,7 @@ tests:
             shell: new NumberLong(429496729601) % new NumberLong(4294967305)
             output: Long(-890, 0)
     -   input:
-            javascript: Long(1, 100).not()
+            javascript: new Long(1, 100).not()
         output:
             python: "~Int64(429496729601)"
             java: "~429496729601L"
@@ -341,7 +341,7 @@ tests:
             shell: "~new NumberLong(429496729601)"
             output: Long(-1, -101)
     -   input:
-            javascript: Long(1, 100).and(Long(9, 1))
+            javascript: new Long(1, 100).and(Long(9, 1))
         output:
             python: Int64(429496729601) & Int64(4294967305)
             java: 429496729601L & 4294967305L
@@ -349,7 +349,7 @@ tests:
             shell: new NumberLong(429496729601) & new NumberLong(4294967305)
             output: Long(1, 0)
     -   input:
-            javascript: Long(1, 100).or(Long(9, 1))
+            javascript: new Long(1, 100).or(Long(9, 1))
         output:
             python: Int64(429496729601) | Int64(4294967305)
             java: 429496729601L | 4294967305L
@@ -357,7 +357,7 @@ tests:
             shell: new NumberLong(429496729601) | new NumberLong(4294967305)
             object: Long(9, 101)
     -   input:
-            javascript: Long(1, 100).xor(Long(9, 1))
+            javascript: new Long(1, 100).xor(Long(9, 1))
         output:
             python: Int64(429496729601) ^ Int64(4294967305)
             java: 429496729601L ^ 4294967305L
@@ -365,7 +365,7 @@ tests:
             shell: new NumberLong(429496729601) ^ new NumberLong(4294967305)
             object: Long(8, 101)
     -   input:
-            javascript: Long(1, 100).shiftLeft(10)
+            javascript: new Long(1, 100).shiftLeft(10)
         output:
             python: Int64(429496729601) << 10
             java: Long.rotateLeft(429496729601L, 10)
@@ -373,7 +373,7 @@ tests:
             shell: new NumberLong(429496729601) << 10
             object: Long(1024, 102400)
     -   input:
-            javascript: Long(1, 100).shiftRight(10)
+            javascript: new Long(1, 100).shiftRight(10)
         output:
             python: Int64(429496729601) >> 10
             java: Long.rotateRight(429496729601L, 10)
@@ -501,7 +501,7 @@ tests:
           object: "new Date('1970-01-01T00:01:40.000Z')"
     Symbol-methods:
     -   input:
-            javascript: Symbol('2').valueOf()
+            javascript: new BSONSymbol('2').valueOf()
         output:
             python: "'2'"
             java: new Symbol("2").getSymbol()
@@ -509,7 +509,7 @@ tests:
             shell: "'2'"
             object: "'2'"
     -   input:
-            javascript: Symbol('2').toString()
+            javascript: new BSONSymbol('2').toString()
         output:
             python: "'2'"
             java: new Symbol("2").toString()
@@ -517,7 +517,7 @@ tests:
             shell: "'2'"
             output: "'2'"
     -   input:
-            javascript: Symbol('2').inspect()
+            javascript: new BSONSymbol('2').inspect()
         output:
             python: "'2'"
             java: new Symbol("2").getSymbol()
@@ -532,7 +532,7 @@ tests:
           java: new ObjectId("5ab901c29ee65f5c8550c5b9")
           csharp: new ObjectId("5ab901c29ee65f5c8550c5b9")
           python: ObjectId('5ab901c29ee65f5c8550c5b9')
-          object: ObjectId('5ab901c29ee65f5c8550c5b9')
+          object: new ObjectId('5ab901c29ee65f5c8550c5b9')
     - input:
           python: ObjectId.from_datetime(datetime(1, 2, 3))
           shell: ObjectId.fromDate(new Date('Sun, 03 Feb 1901 00:00:00 GMT')) # TODO: just takes in number?
@@ -541,7 +541,7 @@ tests:
           java: new ObjectId(new java.util.Date(-2174601600000L))
           csharp: new ObjectId.GenerateNewId(new DateTime(1901, 2, 3, 0, 0, 0))
           shell: ObjectId.fromDate(new Date('Sun, 03 Feb 1901 00:00:00 GMT'))
-          object: ObjectId('7e6236800000000000000000')
+          object: new ObjectId('7e6236800000000000000000')
     - input:
           javascript: ObjectId.createFromTime(1522075031642)
       output:
@@ -550,7 +550,7 @@ tests:
           java: new ObjectId(new java.util.Date(1522075031642L))
           csharp: new ObjectId.GenerateNewId(Convert.ToInt32(1522075031642))
           python: ObjectId.from_datetime(datetime.fromtimestamp(1522075031642))
-          object: ObjectId('62bdd85a0000000000000000')
+          object: new ObjectId('62bdd85a0000000000000000')
     - input:
           javascript: ObjectId.isValid('5ab901c29ee65f5c8550c5b9')
           python: ObjectId.is_valid('5ab901c29ee65f5c8550c5b9')

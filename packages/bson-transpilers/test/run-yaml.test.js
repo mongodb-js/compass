@@ -5,7 +5,7 @@ const chai = require('chai');
 const expect = chai.expect;
 const yaml = require('js-yaml');
 const Context = require('context-eval');
-const bson = require('mongodb');
+const bson = require('bson');
 
 const transpiler = require('../index');
 
@@ -42,7 +42,7 @@ const executeJavascript = (input) => {
     MinKey: bson.MinKey,
     ObjectID: bson.ObjectID,
     ObjectId: bson.ObjectID,
-    Symbol: bson.Symbol,
+    BSONSymbol: bson.BSONSymbol,
     Timestamp: bson.Timestamp,
     Code: function(c, s) {
       return new bson.Code(c, s);
@@ -75,6 +75,8 @@ fs.readdirSync(testpath).map((file) => {
     return;
   }
   describe(mode, () => {
+    console.log(testpath);
+    console.log(file);
     const tests = readYAML(path.join(testpath, file));
     for (const type of Object.keys(tests.tests)) {
       if (skipType.indexOf(type) !== -1) {
