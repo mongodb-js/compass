@@ -3,3 +3,10 @@
 .travis.yml
 .zuul.yml
 test/
+codegeneration/
+config/
+grammars/
+helper/
+img-docs/
+printers/
+symbols/
