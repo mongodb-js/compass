@@ -29,6 +29,7 @@ import error, {
 } from 'modules/create-view/error';
 
 import { reset, RESET } from 'modules/create-view/reset';
+import { globalAppRegistryEmit } from 'mongodb-redux-common/app-registry';
 
 const parseNs = require('mongodb-ns');
 
@@ -144,16 +145,9 @@ export const createView = () => {
           debug('error creating view', e);
           return stopWithError(dispatch, e);
         }
-        global.hadronApp.appRegistry.emit('refresh-data');
-
-        global.hadronApp.appRegistry.emit(
-          'open-namespace-in-new-tab',
-          `${database}.${viewName}`,
-          true,
-          state.source
-        );
-
         debug('View created!');
+        dispatch(globalAppRegistryEmit('refresh-data'));
+        dispatch(globalAppRegistryEmit('open-namespace-in-new-tab', `${database}.${viewName}`, true, viewSource));
         dispatch(reset());
       });
     } catch (e) {

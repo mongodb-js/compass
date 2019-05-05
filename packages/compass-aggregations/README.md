@@ -110,37 +110,14 @@ conveniently set any values it uses.
 
 ### Browser
 
-Setting values from directly exported functions:
-
-```js
-import Plugin, {
-  configureStore,
-  refreshInput,
-  setDataProvider,
-  setNamespace,
-  setServerVersion,
-  setFields,
-  setIsAtlas,
-  setAllowWrites
-} from '@mongodb-js/compass-aggregations';
-
-const store = configureStore();
-
-refreshInput(store); // Refreshes input documents.
-setDataProvider(store, error, provider); // Sets the (optional) connect error and data provider.
-setNamespace(store, ns); // Set the namespace in "db.collection" format.
-setServerVersion(store, version); // Set the lowest MongoDB server version in the cluster.
-setFields(store, fields); // Set the field names in the schema for autocompletion. See note below.
-setIsAtlas(store, true); // Indicate the plugin is deployed to Atlas. (defaults to false)
-setAllowWrites(store, false); // Indicate the plugin allows writes. (defaults to true)
-
-<Plugin store={store} />
-```
-
 Setting values via configure:
 
 ```js
 import Plugin, { configureStore, } from '@mongodb-js/compass-aggregations';
+
+const handleOut = (namespace) => {
+  window.open(`https://cloud.mongodb.com/${namespace}`, '_new');
+};
 
 const store = configureStore({
   dataProvider: {
@@ -151,7 +128,8 @@ const store = configureStore({
   serverVersion: '4.2.0',
   fields: [],
   isAtlasDeployed: true,
-  allowWrites: false
+  allowWrites: false,
+  outResultsFn: handleOut
 });
 
 <Plugin store={store} />

@@ -9,6 +9,7 @@ import { refreshInputDocuments } from 'modules/input-documents';
 import { serverVersionChanged } from 'modules/server-version';
 import { setIsAtlasDeployed } from 'modules/is-atlas-deployed';
 import { allowWrites } from 'modules/allow-writes';
+import { outResultsFnChanged } from 'modules/out-results-fn';
 import {
   localAppRegistryActivated,
   globalAppRegistryActivated
@@ -66,6 +67,16 @@ export const setNamespace = (store, ns) => {
     store.dispatch(namespaceChanged(ns));
     refreshInput(store);
   }
+};
+
+/**
+ * Set the $out results custom handler function.
+ *
+ * @param {Store} store - The store.
+ * @param {Function} fn - The function.
+ */
+export const setOutResultsFn = (store, fn) => {
+  store.dispatch(outResultsFnChanged(fn));
 };
 
 /**
@@ -189,6 +200,9 @@ const configureStore = (options = {}) => {
   }
   if (options.fields) {
     setFields(store, options.fields);
+  }
+  if (options.outResultsFn) {
+    setOutResultsFn(store, options.outResultsFn);
   }
 
   return store;

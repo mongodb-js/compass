@@ -5,7 +5,10 @@ import configureStore, {
   setServerVersion,
   setFields,
   setGlobalAppRegistry,
-  setLocalAppRegistry
+  setLocalAppRegistry,
+  setIsAtlas,
+  setAllowWrites,
+  setOutResultsFn
 } from './store';
 export default configureStore;
 export {
@@ -15,5 +18,8 @@ export {
   setServerVersion,
   setFields,
   setGlobalAppRegistry,
-  setLocalAppRegistry
+  setLocalAppRegistry,
+  setIsAtlas,
+  setAllowWrites,
+  setOutResultsFn
 };

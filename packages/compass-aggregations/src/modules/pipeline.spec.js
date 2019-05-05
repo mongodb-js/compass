@@ -11,6 +11,7 @@ import reducer, {
   generatePipeline,
   generatePipelineAsString,
   loadingStageResults,
+  gotoOutResults,
   STAGE_ADDED,
   STAGE_ADDED_AFTER,
   STAGE_CHANGED,
@@ -344,6 +345,23 @@ describe('pipeline module', () => {
       expect(loadingStageResults(2)).to.deep.equal({
         type: LOADING_STAGE_RESULTS,
         index: 2
+      });
+    });
+  });
+
+  describe('#gotoOutResults', () => {
+    context('when a custom function exists', () => {
+      const spy = sinon.spy();
+      const getState = () => {
+        return {
+          outResultsFn: spy,
+          namespace: 'db.coll'
+        };
+      };
+
+      it('calls the function with the namespace', () => {
+        gotoOutResults('coll')(null, getState);
+        expect(spy.calledWith('db.coll')).to.equal(true);
       });
     });
   });

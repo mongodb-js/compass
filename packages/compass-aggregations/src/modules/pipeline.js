@@ -590,9 +590,14 @@ const executeStage = (dataService, ns, dispatch, state, index) => {
  */
 export const gotoOutResults = collection => {
   return (dispatch, getState) => {
-    const database = toNS(getState().namespace).database;
+    const state = getState();
+    const database = toNS(state.namespace).database;
     const outNamespace = `${database}.${collection.replace(/\"/g, '')}`;
-    dispatch(globalAppRegistryEmit('show-agg-pipeline-out-results', outNamespace));
+    if (state.outResultsFn) {
+      state.outResultsFn(outNamespace);
+    } else {
+      dispatch(globalAppRegistryEmit('open-namespace-in-new-tab', outNamespace, false));
+    }
   };
 };
 
