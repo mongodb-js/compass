@@ -403,9 +403,6 @@ module.exports = (ANTLRVisitor) => class CodeGenerationVisitor extends ANTLRVisi
     const name = this.visitChildren(ctx);
     ctx.type = this.Symbols[name];
     if (ctx.type === undefined) {
-      console.log('name', name);
-      console.log('symbols', this.Symbols);
-      console.log('ctx', ctx);
       throw new BsonTranspilersReferenceError(`Symbol '${name}' is undefined`);
     }
     this.requiredImports[ctx.type.code] = true;

@@ -269,7 +269,7 @@ tests:
             shell: new NumberLong(429496729601) >= new NumberLong(4294967305)
             object: 'true'
     -   input:
-            javascript: new Long(1, 100).lessThan(Long(9, 1))
+            javascript: new Long(1, 100).lessThan(new Long(9, 1))
         output:
             python: Int64(429496729601) < Int64(4294967305)
             java: 429496729601L < 4294967305L
@@ -277,7 +277,7 @@ tests:
             shell: new NumberLong(429496729601) < new NumberLong(4294967305)
             object: 'false'
     -   input:
-            javascript: new Long(1, 100).lessThanOrEqual(Long(9, 1))
+            javascript: new Long(1, 100).lessThanOrEqual(new Long(9, 1))
         output:
             python: Int64(429496729601) <= Int64(4294967305)
             java: 429496729601L <= 4294967305L
@@ -293,45 +293,45 @@ tests:
             shell: "-new NumberLong(429496729601)"
             output: "-429496729601"
     -   input:
-            javascript: new Long(1, 100).add(Long(9, 1))
+            javascript: new Long(1, 100).add(new Long(9, 1))
         output:
             python: Int64(429496729601) + Int64(4294967305)
             java: 429496729601L + 4294967305L
             csharp: 429496729601L + 4294967305L
             shell: new NumberLong(429496729601) + new NumberLong(4294967305)
-            object: Long(10, 101)
+            object: new Long(10, 101)
     -   input:
-            javascript: new Long(1, 100).subtract(Long(9, 1))
+            javascript: new Long(1, 100).subtract(new Long(9, 1))
         output:
             python: Int64(429496729601) - Int64(4294967305)
             java: 429496729601L - 4294967305L
             csharp: 429496729601L - 4294967305L
             shell: new NumberLong(429496729601) - new NumberLong(4294967305)
-            object: Long(-8, 98)
+            object: new Long(-8, 98)
     -   input:
-            javascript: new Long(1, 100).multiply(Long(9, 1))
+            javascript: new Long(1, 100).multiply(new Long(9, 1))
         output:
             python: Int64(429496729601) * Int64(4294967305)
             java: 429496729601L * 4294967305L
             csharp: 429496729601L * 4294967305L
             shell: new NumberLong(429496729601) * new NumberLong(4294967305)
-            output: Long(9, 901)
+            object: new Long(9, 901)
     -   input:
-            javascript: new Long(1, 100).div(Long(9, 1))
+            javascript: new Long(1, 100).div(new Long(9, 1))
         output:
             python: Int64(429496729601) / Int64(4294967305)
             java: 429496729601L / 4294967305L
             csharp: 429496729601L / 4294967305L
             shell: new NumberLong(429496729601) / new NumberLong(4294967305)
-            output: Long(99, 0)
+            object: new Long(99, 0)
     -   input:
-            javascript: new Long(1, 100).modulo(Long(9, 1))
+            javascript: new Long(1, 100).modulo(new Long(9, 1))
         output:
             python: Int64(429496729601) % Int64(4294967305)
             java: 429496729601L % 4294967305L
             csharp: 429496729601L % 4294967305L
             shell: new NumberLong(429496729601) % new NumberLong(4294967305)
-            output: Long(-890, 0)
+            object: new Long(-890, 0)
     -   input:
             javascript: new Long(1, 100).not()
         output:
@@ -339,31 +339,31 @@ tests:
             java: "~429496729601L"
             csharp: "~429496729601L"
             shell: "~new NumberLong(429496729601)"
-            output: Long(-1, -101)
+            object: new Long(-1, -101)
     -   input:
-            javascript: new Long(1, 100).and(Long(9, 1))
+            javascript: new Long(1, 100).and(new Long(9, 1))
         output:
             python: Int64(429496729601) & Int64(4294967305)
             java: 429496729601L & 4294967305L
             csharp: 429496729601L & 4294967305L
             shell: new NumberLong(429496729601) & new NumberLong(4294967305)
-            output: Long(1, 0)
+            object: new Long(1, 0)
     -   input:
-            javascript: new Long(1, 100).or(Long(9, 1))
+            javascript: new Long(1, 100).or(new Long(9, 1))
         output:
             python: Int64(429496729601) | Int64(4294967305)
             java: 429496729601L | 4294967305L
             csharp: 429496729601L | 4294967305L
             shell: new NumberLong(429496729601) | new NumberLong(4294967305)
-            object: Long(9, 101)
+            object: new Long(9, 101)
     -   input:
-            javascript: new Long(1, 100).xor(Long(9, 1))
+            javascript: new Long(1, 100).xor(new Long(9, 1))
         output:
             python: Int64(429496729601) ^ Int64(4294967305)
             java: 429496729601L ^ 4294967305L
             csharp: 429496729601L ^ 4294967305L
             shell: new NumberLong(429496729601) ^ new NumberLong(4294967305)
-            object: Long(8, 101)
+            object: new Long(8, 101)
     -   input:
             javascript: new Long(1, 100).shiftLeft(10)
         output:
@@ -371,7 +371,7 @@ tests:
             java: Long.rotateLeft(429496729601L, 10)
             csharp: 429496729601L << 10
             shell: new NumberLong(429496729601) << 10
-            object: Long(1024, 102400)
+            object: new Long(1024, 102400)
     -   input:
             javascript: new Long(1, 100).shiftRight(10)
         output:
@@ -379,7 +379,7 @@ tests:
             java: Long.rotateRight(429496729601L, 10)
             csharp: 429496729601L >> 10
             shell: new NumberLong(429496729601) >> 10
-            output: Long(419430400, 0)
+            object: new Long(419430400, 0)
     Decimal128-methods:
     -   input:
             javascript: new Decimal128(Buffer.from('5')).toString()
@@ -618,7 +618,7 @@ tests:
           java: Long.MAX_VALUE
           csharp: Int64.MaxValue
           python: sys.maxsize
-          object: Long(-1, 2147483647)
+          object: new Long(-1, 2147483647)
     - input:
           javascript: Long.MIN_VALUE
       output:
@@ -626,7 +626,7 @@ tests:
           java: Long.MIN_VALUE
           csharp: Int64.MinValue
           python: "-sys.maxsize -1"
-          object: Long(0, -2147483648)
+          object: new Long(0, -2147483648)
     - input:
           javascript: Long.ZERO
       output:
@@ -634,7 +634,7 @@ tests:
           java: 0L
           csharp: 0L
           python: Int64(0)
-          object: Long(0, 0)
+          object: new Long(0, 0)
     - input:
           javascript: Long.ONE
       output:
@@ -642,7 +642,7 @@ tests:
           java: 1L
           csharp: 1L
           python: Int64(1)
-          object: Long(1, 0)
+          object: new Long(1, 0)
     - input:
           javascript: Long.NEG_ONE
       output:
@@ -650,7 +650,7 @@ tests:
           java: "-1L"
           csharp: "-1L"
           python: Int64(-1)
-          object: Long(-1, -1)
+          object: new Long(-1, -1)
     - input:
           javascript: Long.fromInt(5)
       output:
@@ -658,7 +658,7 @@ tests:
           java: 5L
           csharp: 5L
           python: Int64(5)
-          object: Long(5, 0)
+          object: new Long(5, 0)
     - input:
           javascript: Long.fromString('5')
       output:
@@ -666,7 +666,7 @@ tests:
           java: Long.parseLong("5")
           csharp: Convert.ToInt64("5", 10)
           python: Int64(int('5'))
-          object: Long(5, 0)
+          object: new Long(5, 0)
     - input:
           javascript: Long.fromString('5', 10)
       output:
@@ -674,7 +674,7 @@ tests:
           java: Long.parseLong("5", 10)
           csharp: Convert.ToInt64("5", 10)
           python: Int64(int('5'))
-          object: Long(5, 0)
+          object: new Long(5, 0)
     - input:
           javascript: Long.fromBits(-1, 2147483647)
       output:
@@ -682,11 +682,11 @@ tests:
           java: 9223372036854775807L
           csharp: 9223372036854775807L
           python: Int64(9223372036854775807)
-          object: Long(-1, 2147483647)
+          object: new Long(-1, 2147483647)
     - input:
           javascript: Long.fromNumber(429496729601)
       output:
-          object: Long(1, 100)
+          object: new Long(1, 100)
     Decimal128-utils:
     - input:
           javascript: Decimal128.fromString("5")

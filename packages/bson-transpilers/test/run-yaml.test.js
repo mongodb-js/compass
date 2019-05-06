@@ -75,8 +75,6 @@ fs.readdirSync(testpath).map((file) => {
     return;
   }
   describe(mode, () => {
-    console.log(testpath);
-    console.log(file);
     const tests = readYAML(path.join(testpath, file));
     for (const type of Object.keys(tests.tests)) {
       if (skipType.indexOf(type) !== -1) {

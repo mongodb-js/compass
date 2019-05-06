@@ -442,11 +442,11 @@ Templates:
         }
     LongTopTemplate: &LongTopTemplate !!js/function >
         (lhs, rhs) => {
-            return lhs.high_;
+            return lhs.high;
         }
     LongBottomTemplate: &LongBottomTemplate !!js/function >
         (lhs, rhs) => {
-            return lhs.low_;
+            return lhs.low;
         }
     TimestampToStringTemplate: &TimestampToStringTemplate null
     TimestampToStringArgsTemplate: &TimestampToStringArgsTemplate null
