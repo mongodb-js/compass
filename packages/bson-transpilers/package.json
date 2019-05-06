@@ -1,6 +1,6 @@
 {
   "name": "bson-transpilers",
-  "version": "0.11.2",
+  "version": "0.11.3",
   "apiVersion": "0.0.1",
   "productName": "BSON Transpilers",
   "description": "Source to source compilers using ANTLR",
