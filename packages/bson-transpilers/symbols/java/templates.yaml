@@ -776,10 +776,7 @@ Templates:
         () => {
             return 'Symbol';
         }
-    SymbolSymbolArgsTemplate: &SymbolSymbolArgsTemplate !!js/function >
-        (lhs, arg) => {
-            return `(${arg})`;
-        }
+    SymbolSymbolArgsTemplate: &SymbolSymbolArgsTemplate null
     BSONRegExpSymbolTemplate: &BSONRegExpSymbolTemplate !!js/function >
         () => {
             return 'BsonRegularExpression';
