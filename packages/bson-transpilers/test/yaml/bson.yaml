@@ -536,9 +536,9 @@ tests:
           java: new Symbol("abc")
           csharp: '"abc"'
           object: new BSONSymbol('abc')
-    - description: from java symbol
+    - description: from shell symbol
       input:
-          java: new Symbol('abc')
+          shell: Symbol('abc')
       output:
           javascript: new BSONSymbol('abc')
           shell: "'abc'"
