@@ -229,7 +229,7 @@ tests:
             shell: "(new NumberLong(429496729601) % 2) === 1"
             object: 'true'
     -   input:
-            javascript: new Long(1, 100).equals(Long(9, 1))
+            javascript: new Long(1, 100).equals(new Long(9, 1))
         output:
             python: Int64(429496729601) == Int64(4294967305)
             java: 429496729601L == 4294967305L
@@ -245,7 +245,7 @@ tests:
             shell: new NumberLong(429496729601) !== new NumberLong(4294967305)
             object: 'true'
     -   input:
-            javascript: new Long(1, 100).compare(Long(9, 1))
+            javascript: new Long(1, 100).compare(new Long(9, 1))
         output:
             python: Int64(429496729601) - Int64(4294967305)
             java: 429496729601L - 4294967305L
@@ -253,7 +253,7 @@ tests:
             shell: new NumberLong(429496729601) - new NumberLong(4294967305)
             object: "1"
     -   input:
-            javascript: new Long(1, 100).greaterThan(Long(9, 1))
+            javascript: new Long(1, 100).greaterThan(new Long(9, 1))
         output:
             python: Int64(429496729601) > Int64(4294967305)
             java: 429496729601L > 4294967305L
@@ -261,7 +261,7 @@ tests:
             shell: new NumberLong(429496729601) > new NumberLong(4294967305)
             object: 'true'
     -   input:
-            javascript: new Long(1, 100).greaterThanOrEqual(Long(9, 1))
+            javascript: new Long(1, 100).greaterThanOrEqual(new Long(9, 1))
         output:
             python: Int64(429496729601) >= Int64(4294967305)
             java: 429496729601L >= 4294967305L
