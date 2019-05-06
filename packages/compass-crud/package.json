@@ -28,8 +28,14 @@
   "precommit": [
     "check"
   ],
+  "dependency-check": {
+    "ignore": [
+      "@mongodb-js/compass-status"
+    ]
+  },
   "license": "Apache-2.0",
   "peerDependencies": {
+    "@mongodb-js/compass-status": "^3.3.0",
     "hadron-react-bson": "^3.1.0",
     "hadron-react-components": "^3.2.1",
     "prop-types": "^15.5.8",
@@ -39,7 +45,7 @@
     "react-tooltip": "^3.2.6"
   },
   "devDependencies": {
-    "@mongodb-js/compass-status": "^3.0.1",
+    "@mongodb-js/compass-status": "^3.3.0",
     "autoprefixer": "^9.4.6",
     "babel-cli": "^6.10.1",
     "babel-core": "^6.24.1",
@@ -56,7 +62,6 @@
     "babel-preset-react": "^6.24.1",
     "babel-register": "^6.9.0",
     "bootstrap": "https://github.com/twbs/bootstrap/archive/v3.3.5.tar.gz",
-    "bson": "^1.0.4",
     "chai": "^4.1.2",
     "chai-as-promised": "^7.1.0",
     "chai-enzyme": "1.0.0-beta.0",
@@ -100,8 +105,8 @@
     "less-loader": "^4.0.5",
     "mocha": "^4.1.0",
     "mocha-webpack": "^2.0.0-beta.0",
-    "mongodb-connection-model": "^13.1.4",
-    "mongodb-data-service": "^12.5.0",
+    "mongodb-connection-model": "^13.1.5",
+    "mongodb-data-service": "^14.0.3",
     "mongodb-js-fmt": "^0.0.3",
     "mongodb-js-precommit": "^2.0.0",
     "mongodb-ns": "^2.0.0",
@@ -143,6 +148,7 @@
   "dependencies": {
     "ag-grid-community": "19.0.0",
     "ag-grid-react": "19.0.0",
+    "bson": "^1.1.1",
     "hadron-document": "^5.0.4",
     "hadron-type-checker": "^4.0.4",
     "lodash.clonedeep": "^4.5.0",

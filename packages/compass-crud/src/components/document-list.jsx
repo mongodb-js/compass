@@ -1,6 +1,6 @@
 import PropTypes from 'prop-types';
 import React from 'react';
-import { ObjectId } from 'bson';
+import { ObjectID as ObjectId } from 'bson';
 import { StatusRow } from 'hadron-react-components';
 import InsertDocumentDialog from 'components/insert-document-dialog';
 import DocumentListView from 'components/document-list-view';

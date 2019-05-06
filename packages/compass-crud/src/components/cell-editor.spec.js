@@ -4,7 +4,7 @@ import { getNode, getApi, getColumn, getActions,
   getColumnApi, getContext, notCalledExcept} from '../../test/aggrid-helper';
 import CellEditor from 'components/table-view/cell-editor';
 import AppRegistry from 'hadron-app-registry';
-import { ObjectId } from 'bson';
+import { ObjectID as ObjectId } from 'bson';
 import app from 'hadron-app';
 
 describe('<CellEditor />', () => {

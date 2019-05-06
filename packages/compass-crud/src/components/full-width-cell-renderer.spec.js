@@ -4,7 +4,7 @@ import { getNode, getApi, getActions, getContext, notCalledExcept } from '../../
 import FullWidthCellRenderer from 'components/table-view/full-width-cell-renderer';
 import AppRegistry from 'hadron-app-registry';
 import app from 'hadron-app';
-import { ObjectId } from 'bson';
+import { ObjectID as ObjectId } from 'bson';
 
 describe('<FullWidthCellRenderer />', () => {
   before(() => {
