@@ -111,6 +111,8 @@ function getGenuineMongoDB(results, done) {
   const buildInfo = results.build.raw;
   const cmdLineOpts = results.cmdLineOpts;
 
+  debug('genuineMongoDB check: buildInfo and cmdLineOpts', buildInfo, cmdLineOpts);
+
   const res = {
     isGenuine: true,
     dbType: 'mongodb'
