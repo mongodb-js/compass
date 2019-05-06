@@ -1,6 +1,9 @@
+.babelrc
 .jshintrc
 .jsfmtrc
 .travis.yml
 .zuul.yml
 test/
 src/
+electron/
+demo/
