@@ -536,6 +536,16 @@ tests:
           java: new Symbol("abc")
           csharp: '"abc"'
           object: new BSONSymbol('abc')
+    - description: from java symbol
+      input:
+          java: new Symbol('abc')
+      output:
+          javascript: new BSONSymbol('abc')
+          shell: "'abc'"
+          python: "'abc'"
+          java: new Symbol("abc")
+          csharp: '"abc"'
+          object: new BSONSymbol('abc')
     - description: NEW from string
       input:
           javascript: new BSONSymbol('abc')
