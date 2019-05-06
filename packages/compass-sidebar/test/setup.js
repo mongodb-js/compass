@@ -25,7 +25,7 @@ const appRegistry = new AppRegistry();
 global.sinon = require('sinon');
 global.expect = chai.expect;
 global.hadronApp = hadronApp;
-global.hadronApp.appRegistry = appRegistry;
+global.hadronApp.appRegistry = new AppRegistry();
 
 appRegistry.registerStore('DeploymentAwareness.WriteStateStore', WriteStateStore);
 appRegistry.registerStore('App.CollectionStore', CollectionStore);
