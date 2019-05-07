@@ -6,13 +6,13 @@ runner: !!js/function >
             ).to.equal(test.output[output]);
         });
     }
-tests: 
-    Document: 
-    - input: 
+tests:
+    Document:
+    - input:
           javascript: "{x: '1'}"
           shell: "{x: '1'}"
           python: "{'x': '1'}"
-      output: 
+      output:
           javascript: "{\n  'x': '1'\n}"
           python: "{\n    'x': '1'\n}"
           java: "eq(\"x\", \"1\")"
@@ -307,7 +307,7 @@ tests:
           javascript: Math.floor(10, 2) % 3
           shell: Math.floor(10, 2) % 3
           python: 10 // 2 % 3
-          java: floor(10L, 2L) % 3L
+          java: floor(10L) % 3L
           csharp: Math.floor(10, 2) % 3
           object: Math.floor(10, 2)%3
     - input:

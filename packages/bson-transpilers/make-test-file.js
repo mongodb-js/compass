@@ -1,14 +1,13 @@
 #!/usr/bin/env node
 
 const fs = require('fs');
-const parse = require('fast-json-parse');
+const yaml = require('js-yaml');
 const path = require('path');
-const pSuccess = path.join(__dirname, 'test', 'json', 'success');
+const testpath = path.join(__dirname, 'test', 'yaml');
 const { singleQuoteStringify, doubleQuoteStringify } = require('./helper/format');
-const imports = {python: '', java: '', csharp: '', javascript: ''}; // TODO
 
 if (process.argv.length !== 3) {
-  console.log('Usage: <outputLanguage>');
+  console.log('Usage: <outputLanguage> | pbcopy (or > testfile)');
   process.exit();
 }
 const output = process.argv[2].toLowerCase();
@@ -17,8 +16,26 @@ if (!['python', 'csharp', 'java', 'javascript'].includes(output)) {
   process.exit();
 }
 
+const readYAML = (filename) => {
+  let parseResult;
+  try {
+    parseResult = yaml.load(fs.readFileSync(filename));
+  } catch (err) {
+    err.message = `${filename}: ${err.message}`;
+    throw err;
+  }
+  return parseResult;
+};
+
+const getAllImports = () => {
+  const importtests = readYAML(path.join(testpath, 'imports.yaml'));
+  return importtests.tests.every[0].output[output];
+};
+
+const imports = getAllImports();
+
 const javaFileTemplate = (code) => {
-  return `${imports.java}
+  return `${imports}
 
 public class Test {
     public void all() throws Exception {
@@ -47,7 +64,7 @@ const javaLineTemplate = (description, result) => {
 };
 
 const pythonFileTemplate = (code) => {
-  return `${imports.python}
+  return `${imports}
 x = {
     ${code}
 }
@@ -64,7 +81,7 @@ const pythonLineTemplate = (description, result) => {
 };
 
 const csharpFileTemplate = (code) => {
-  return `${imports.csharp}
+  return `${imports}
 namespace csharp_test
 {
     class Program
@@ -88,7 +105,7 @@ const csharpLineTemplate = (description, result) => {
 };
 
 const jsFileTemplate = (code) => {
-  return `${imports.javascript}
+  return `${imports}
 x = {
   ${code}
 }
@@ -126,39 +143,48 @@ const templates = {
   }
 };
 
-const readJSON = (filename) => {
-  const parseResult = parse(fs.readFileSync(filename));
-  if (parseResult.err) {
-    throw new Error(parseResult.err.message);
-  }
-  return parseResult.value;
-};
-
-const makeFile = (input) => {
-  return templates[output].file(fs.readdirSync(path.join(pSuccess, input)).reduce(
+const makeFile = (side) => {
+  return templates[output].file(fs.readdirSync(testpath).reduce(
     (str0, file) => {
-      const tests = readJSON(path.join(pSuccess, input, file)).tests;
-      return str0 + Object.keys(tests).reduce(
-        (str, key) => {
-          return str + templates[output].doc(file.replace(/-/g, '').slice(0, -5) + key, tests[key].reduce(
-            (str2, test) => {
-              return str2 + templates[output].line(test.description, test[output]);
-            }, ''));
-        }, '');
+      if (!file.startsWith('error') && !file.startsWith('edge') && !file.startsWith('imports') && !file.startsWith('partial') && !file.startsWith('builders')) {
+        const tests = readYAML(path.join(testpath, file)).tests;
+        return str0 + Object.keys(tests).reduce(
+          (str, key) => {
+            let name = file.slice(0, -5) + key;
+            name = name.replace(/\/|-|\s/g, '');
+            return str + templates[output].doc(name, tests[key].reduce(
+              (str2, test) => {
+                if (output in test[side] && test[side][output] !== '') {
+                  const desc = 'description' in test ? test.description : 'x';
+                  const line = templates[output].line(desc, test[side][output]);
+                  return str2 + line;
+                }
+                return str2;
+              }, ''));
+          }, '');
+      }
+      return str0;
     }, ''));
 };
 
-const makeList = (input) => {
-  return fs.readdirSync(path.join(pSuccess, input)).reduce(
+const makeList = (side) => {
+  return fs.readdirSync(testpath).reduce(
     (str0, file) => {
-      const tests = readJSON(path.join(pSuccess, input, file)).tests;
-      return str0 + Object.keys(tests).reduce(
-        (str, key) => {
-          return str + tests[key].reduce(
-            (str2, test) => {
-              return str2 + test[output] + '\n';
-            }, '');
-        }, '');
+      if (!file.startsWith('error') && !file.startsWith('edge')) {
+        const tests = readYAML(path.join(testpath, file)).tests;
+        return str0 + Object.keys(tests).reduce(
+          (str, key) => {
+            return str + tests[key].reduce(
+              (str2, test) => {
+                if (output in test[side]) {
+                  const line = test[side][output];
+                  return str2 + line + '\n';
+                }
+                return str2;
+              }, '');
+          }, '');
+      }
+      return str0;
     }, '');
 };
-console.log(makeList('python'));
+console.log(makeFile('output'));

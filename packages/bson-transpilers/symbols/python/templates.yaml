@@ -966,7 +966,7 @@ Templates:
     114ImportTemplate: &114ImportTemplate null
     200ImportTemplate: &200ImportTemplate !!js/function >
         () => {
-            return 'from datetime import datetime, tzinfo';
+            return 'from datetime import datetime, tzinfo, timezone';
         }
     201ImportTemplate: &201ImportTemplate null
     300ImportTemplate: &300ImportTemplate null

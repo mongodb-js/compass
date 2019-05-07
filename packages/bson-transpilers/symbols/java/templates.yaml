@@ -54,7 +54,7 @@ Templates:
                 const rhs = arr[i + 1];
                 switch(op) {
                     case '//':
-                        return `floor(${s}, ${rhs})`;
+                        return `floor(${s})`;
                     case '**':
                         return `pow(${s}, ${rhs})`;
                     default:
@@ -506,7 +506,7 @@ Templates:
         }
     TimestampAsDateTemplate: &TimestampAsDateTemplate !!js/function >
         (lhs) => {
-            return `new Date(${lhs}.getTime())`;
+            return `new java.util.Date(${lhs}.getTime())`;
         }
     TimestampAsDateArgsTemplate: &TimestampAsDateArgsTemplate !!js/function >
         () => {

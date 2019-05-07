@@ -521,7 +521,7 @@ Templates:
                 }
             );
             if (bson.length) {
-                other.push(`const {\n  ${bson.join(',\n  ')}\n} = require('mongo');`);
+                other.push(`const {\n  ${bson.join(',\n  ')}\n} = require('bson');`);
             }
             return other.join('\n');
         }

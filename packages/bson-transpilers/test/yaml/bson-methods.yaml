@@ -495,7 +495,7 @@ tests:
           python: Timestamp(1, 100).as_datetime
       output:
           javascript: new Date(new Timestamp(1, 100).getHighBits() * 1000)
-          java: new Date(new BSONTimestamp(1, 100).getTime())
+          java: new java.util.Date(new BSONTimestamp(1, 100).getTime())
           csharp: new DateTime(1970, 1, 1).AddSeconds(new BsonTimestamp(1, 100).Timestamp)
           shell: new Date(new Timestamp(1, 100).getHighBits() * 1000)
           object: "new Date('1970-01-01T00:01:40.000Z')"

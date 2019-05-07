@@ -8,6 +8,51 @@ runner: !!js/function >
         });
     }
 tests:
+    every:
+    - description: Empty test with all types imported # (used for make-test-file.js)
+      input: {}
+      output:
+          java: |-
+              import static java.lang.Math.pow;
+              import static java.lang.Math.floor;
+              import java.util.regex.Pattern;
+              import java.util.Arrays;
+              import java.text.SimpleDateFormat;
+              import org.bson.*;
+              import org.bson.types.*;
+              import com.mongodb.DBRef;
+              import com.mongodb.client.model.*;
+              import com.mongodb.client.model.geojson.*;
+              import static com.mongodb.client.model.Accumulators.*;
+              import static com.mongodb.client.model.Filters.*;
+              import static com.mongodb.client.model.Aggregates.*;
+              import static com.mongodb.client.model.Projections.*;
+              import static com.mongodb.client.model.Sorts.*;
+          csharp: |-
+              using MongoDB.Bson;
+              using MongoDB.Driver;
+              using System.Text.RegularExpressions;
+              using System;
+          python: |-
+              import re
+              import sys
+              from datetime import datetime, tzinfo, timezone
+              from bson import Code, ObjectId, DBRef, Int64, MinKey, MaxKey, Timestamp, Decimal128, Regex
+          javascript: |-
+              const {
+                Code,
+                ObjectId,
+                DBRef,
+                Int32,
+                Long,
+                MinKey,
+                MaxKey,
+                Timestamp,
+                BSONSymbol,
+                Decimal128,
+                Double,
+                BSONRegExp
+              } = require('bson');
     all:
     - description: Single import Code
       input:
@@ -25,7 +70,7 @@ tests:
           javascript: |-
               const {
                 Code
-              } = require('mongo');
+              } = require('bson');
     - description: Single import Code with scope
       input:
           shell: "{x: Code('code', {x: 1})}"
@@ -44,7 +89,7 @@ tests:
           javascript: |-
               const {
                 Code
-              } = require('mongo');
+              } = require('bson');
     - description: Single import ObjectId
       input:
           shell: "{x: ObjectId()}"
@@ -61,7 +106,7 @@ tests:
           javascript: |-
               const {
                 ObjectId
-              } = require('mongo');
+              } = require('bson');
     - description: Single import Timestamp
       input:
           shell: "{x: Timestamp(1, 2)}"
@@ -78,7 +123,7 @@ tests:
           javascript: |-
               const {
                 Timestamp
-              } = require('mongo');
+              } = require('bson');
     - description: Single import DBRef
       input:
           shell: "{x: DBRef('db', ObjectId())}"
@@ -97,7 +142,7 @@ tests:
               const {
                 ObjectId,
                 DBRef
-              } = require('mongo');
+              } = require('bson');
     - description: Single import Double
       input:
           shell: "{x: 1}"
@@ -124,7 +169,7 @@ tests:
           javascript: |-
               const {
                 Int32
-              } = require('mongo');
+              } = require('bson');
     - description: Single import NumberLong
       input:
           shell: "{x: NumberLong(1)}"
@@ -139,7 +184,7 @@ tests:
           javascript: |-
               const {
                 Long
-              } = require('mongo');
+              } = require('bson');
     - description: Single import MinKey
       input:
           shell: "{x: MinKey()}"
@@ -156,7 +201,7 @@ tests:
           javascript: |-
               const {
                 MinKey
-              } = require('mongo');
+              } = require('bson');
     - description: Single import MaxKey
       input:
           shell: "{x: MaxKey()}"
@@ -173,7 +218,7 @@ tests:
           javascript: |-
               const {
                 MaxKey
-              } = require('mongo');
+              } = require('bson');
     - description: Single import RegExp
       input:
           shell: "{x: RegExp('abc')}"
@@ -231,7 +276,7 @@ tests:
           javascript: |-
               const {
                 Timestamp
-              } = require('mongo');
+              } = require('bson');
     - description: Single import Symbol
       input:
           shell: "{x: Symbol('a')}"
@@ -247,7 +292,7 @@ tests:
           javascript: |-
               const {
                 BSONSymbol
-              } = require('mongo');
+              } = require('bson');
     - description: Single import NumberDecimal
       input:
           shell: "{x: NumberDecimal(1)}"
@@ -264,7 +309,7 @@ tests:
           javascript: |-
               const {
                 Decimal128
-              } = require('mongo');
+              } = require('bson');
     - description: Single import Date as string
       input:
           shell: "{x: Date()}"
@@ -277,7 +322,7 @@ tests:
               using MongoDB.Bson;
               using MongoDB.Driver;
               using System;
-          python: from datetime import datetime, tzinfo
+          python: from datetime import datetime, tzinfo, timezone
           javascript: ''
     - description: Single import Date() as object
       input:
@@ -290,7 +335,7 @@ tests:
               using MongoDB.Bson;
               using MongoDB.Driver;
               using System;
-          python: from datetime import datetime, tzinfo
+          python: from datetime import datetime, tzinfo, timezone
           javascript: ''
     - description: Single import ISODate
       input:
@@ -302,7 +347,7 @@ tests:
               using MongoDB.Bson;
               using MongoDB.Driver;
               using System;
-          python: from datetime import datetime, tzinfo
+          python: from datetime import datetime, tzinfo, timezone
           javascript: ''
     - description: Multiple imports without Date to string
       input: {}
@@ -349,7 +394,7 @@ tests:
               using System;
           python: |-
               import re
-              from datetime import datetime, tzinfo
+              from datetime import datetime, tzinfo, timezone
               from bson import Code, ObjectId, DBRef, Int64, MinKey, MaxKey, Timestamp, Decimal128
           javascript: |-
               const {
@@ -363,7 +408,7 @@ tests:
                 Timestamp,
                 BSONSymbol,
                 Decimal128
-              } = require('mongo');
+              } = require('bson');
     - description: All filter builder imports
       input:
           shell: "[{ $and: [{x: 1}], $expr: 1, all: {$all: [1,2]}, bitsAllClear: {$bitsAllClear:

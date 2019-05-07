@@ -529,6 +529,7 @@ tests:
     - description: from string
       input:
           javascript: BSONSymbol('abc')
+          shell: Symbol('abc')
       output:
           javascript: new BSONSymbol('abc')
           shell: "'abc'"
