@@ -206,6 +206,7 @@ describe('Aggregation Store', () => {
         it('resets the rest of the state to initial state', () => {
           expect(store.getState()).to.deep.equal({
             allowWrites: INITIAL_STATE.allowWrites,
+            outResultsFn: INITIAL_STATE.outResultsFn,
             namespace: 'db.coll',
             appRegistry: INITIAL_STATE.appRegistry,
             comments: INITIAL_STATE.comments,

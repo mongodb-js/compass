@@ -154,6 +154,24 @@ class Pipeline extends PureComponent {
   }
 
   /**
+   * Render the saved pipelines box.
+   *
+   * @returns {Component} The component.
+   */
+  renderSavePipeline() {
+    if (!this.props.isAtlasDeployed) {
+      return (
+        <SavePipeline
+          restorePipelineModalToggle={this.props.restorePipelineModalToggle}
+          restorePipelineFrom={this.props.restorePipelineFrom}
+          deletePipeline={this.props.deletePipeline}
+          savedPipelinesListToggle={this.props.savedPipelinesListToggle}
+          savedPipeline={this.props.savedPipeline} />
+      );
+    }
+  }
+
+  /**
    * Render the pipeline component.
    *
    * @returns {Component} The component.
@@ -233,13 +251,7 @@ class Pipeline extends PureComponent {
         {this.renderCollationToolbar()}
         <Splitter isCollationExpanded={this.props.isCollationExpanded} />
         <PipelineWorkspace {...this.props} />
-        <SavePipeline
-          restorePipelineModalToggle={this.props.restorePipelineModalToggle}
-          restorePipelineFrom={this.props.restorePipelineFrom}
-          deletePipeline={this.props.deletePipeline}
-          savedPipelinesListToggle={this.props.savedPipelinesListToggle}
-          savedPipeline={this.props.savedPipeline}
-        />
+        {this.renderSavePipeline()}
         <Settings
           isAtlasDeployed={this.props.isAtlasDeployed}
           isExpanded={this.props.settings.isExpanded}

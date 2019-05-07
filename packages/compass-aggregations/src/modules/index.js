@@ -85,6 +85,9 @@ import savingPipeline, {
   INITIAL_STATE as SAVING_PIPELINE_INITIAL_STATE,
   SAVING_PIPELINE_APPLY
 } from 'modules/saving-pipeline';
+import outResultsFn, {
+  INITIAL_STATE as OUT_RESULTS_FN_INITIAL_STATE
+} from 'modules/out-results-fn';
 
 import projections, {
   INITIAL_STATE as PROJECTIONS_INITIAL_STATE,
@@ -123,7 +126,8 @@ export const INITIAL_STATE = {
   maxTimeMS: MAX_TIME_MS_INITIAL_STATE,
   isFullscreenOn: FULLSCREEN_INITIAL_STATE,
   savingPipeline: SAVING_PIPELINE_INITIAL_STATE,
-  projections: PROJECTIONS_INITIAL_STATE
+  projections: PROJECTIONS_INITIAL_STATE,
+  outResultsFn: OUT_RESULTS_FN_INITIAL_STATE
 };
 
 /**
@@ -190,7 +194,8 @@ const appReducer = combineReducers({
   maxTimeMS,
   isFullscreenOn,
   savingPipeline,
-  projections
+  projections,
+  outResultsFn
 });
 
 /**
@@ -205,6 +210,8 @@ const doNamespaceChanged = (state, action) => {
   const newState = {
     ...INITIAL_STATE,
     isAtlasDeployed: state.isAtlasDeployed,
+    outResultsFn: state.outResultsFn,
+    allowWrites: state.allowWrites,
     dataService: state.dataService,
     appRegistry: state.appRegistry,
     serverVersion: state.serverVersion
@@ -266,6 +273,8 @@ const doRestorePipeline = (state, action) => {
     dataService: state.dataService,
     inputDocuments: state.inputDocuments,
     isAtlasDeployed: state.isAtlasDeployed,
+    allowWrites: state.allowWrites,
+    outResultsFn: state.outResultsFn,
     savedPipeline: {
       ...state.savedPipeline,
       isListVisible: false
@@ -291,6 +300,8 @@ const doClearPipeline = (state) => ({
   largeLimit: LARGE_LIMIT_INITIAL_STATE,
   maxTimeMS: MAX_TIME_MS_INITIAL_STATE,
   isAtlasDeployed: state.isAtlasDeployed,
+  allowWrites: state.allowWrites,
+  outResultsFn: state.outResultsFn,
   savedPipeline: {
     ...state.savedPipeline,
     isListVisible: true
@@ -312,6 +323,8 @@ const createNewPipeline = (state) => ({
   serverVersion: state.serverVersion,
   dataService: state.dataService,
   isAtlasDeployed: state.isAtlasDeployed,
+  allowWrites: state.allowWrites,
+  outResultsFn: state.outResultsFn,
   inputDocuments: state.inputDocuments
 });
 
