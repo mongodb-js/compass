@@ -1,7 +1,7 @@
 {
   "name": "@mongodb-js/compass-export-to-language",
   "productName": "Export To Language plugin",
-  "version": "3.1.0",
+  "version": "3.1.1",
   "apiVersion": "2.0.0",
   "description": "export to language modal",
   "main": "lib/index.js",
