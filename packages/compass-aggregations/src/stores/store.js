@@ -181,11 +181,11 @@ const configureStore = (options = {}) => {
   }
 
   if (options.isAtlasDeployed) {
-    setIsAtlas(options.isAtlasDeployed);
+    setIsAtlas(store, options.isAtlasDeployed);
   }
 
   if (options.allowWrites) {
-    setAllowWrites(options.allowWrites);
+    setAllowWrites(store, options.allowWrites);
   }
 
   // Set the namespace - must happen third.
