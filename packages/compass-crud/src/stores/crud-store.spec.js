@@ -895,6 +895,7 @@ describe('CRUDStore', () => {
       it('prev to page 1', (done) => {
         const unsubscribe = CRUDStore.listen((state) => {
           unsubscribe();
+          console.log(state);
           checkPageRange(state.error, state.docs, state.start, state.end, state.page, 1, skip, limit);
           expect(state.counter).to.equal(NUM_DOCS);
           done();
