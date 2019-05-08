@@ -1,3 +1,4 @@
+/* eslint complexity: 0 */
 import { createStore, applyMiddleware } from 'redux';
 import thunk from 'redux-thunk';
 import reducer from 'modules';
@@ -180,11 +181,11 @@ const configureStore = (options = {}) => {
     );
   }
 
-  if (options.isAtlasDeployed) {
+  if (options.isAtlasDeployed !== null && options.isAtlasDeployed !== undefined) {
     setIsAtlas(store, options.isAtlasDeployed);
   }
 
-  if (options.allowWrites) {
+  if (options.allowWrites !== null && options.allowWrites !== undefined) {
     setAllowWrites(store, options.allowWrites);
   }
 
