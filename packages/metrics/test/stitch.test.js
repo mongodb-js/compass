@@ -16,8 +16,8 @@ describe('Stitch Tracker', function() {
     metrics.configure('stitch', {
       enabled: true,
       appId: 'compass-metrics-irinb',
-      eventNamespace: 'metrics.events',
-      userNamespace: 'metrics.users'
+      events: 'metrics.events',
+      users: 'metrics.users'
     });
 
     metrics.resources.reset();
@@ -117,6 +117,38 @@ describe('Stitch Tracker', function() {
       stitchTracker._enabledConfiguredChanged();
       return setupStub().then(function() {
         assert.ok(identifyStub.called);
+      });
+    });
+  });
+
+  describe('optional users collection', function() {
+    var _getCollectionStub;
+    var setupStub;
+
+    beforeEach(function() {
+      metrics.addResource(app);
+      metrics.addResource(user);
+      _getCollectionStub = sinon.stub(stitchTracker, '_getCollection');
+      setupStub = sinon.stub(stitchTracker, '_setup').returns(Promise.resolve({}));
+    });
+
+    afterEach(function() {
+      _getCollectionStub.restore();
+      setupStub.restore();
+    });
+
+    it('should only send to the users collection when this.users is specified', function() {
+      stitchTracker._enabledConfiguredChanged();
+      return setupStub().then(function() {
+        assert.ok(_getCollectionStub.called);
+      });
+    });
+
+    it('should not send to the users collection when this.users is falsey', function() {
+      stitchTracker.users = null;
+      stitchTracker._enabledConfiguredChanged();
+      return setupStub().then(function() {
+        assert.ok(!_getCollectionStub.called);
       });
     });
   });

@@ -72,7 +72,7 @@ var StitchTracker = State.extend({
   },
   derived: {
     enabledAndConfigured: {
-      deps: ['enabled', 'appId', 'userId'],
+      deps: ['enabled', 'appId', 'userId', 'events', 'users'],
       fn: function() {
         return this.enabled && this.appId !== '' && this.userId !== '';
       }
@@ -110,9 +110,11 @@ var StitchTracker = State.extend({
     this._eventsDatabaseName = eventsNS.database;
     this._eventsCollectionName = eventsNS.collection;
 
-    var usersNS = parseNamespaceString(this.users);
-    this._usersDatabaseName = usersNS.database;
-    this._usersCollectionName = usersNS.collection;
+    if (this.users) {
+      var usersNS = parseNamespaceString(this.users);
+      this._usersDatabaseName = usersNS.database;
+      this._usersCollectionName = usersNS.collection;
+    }
 
     var self = this;
     return stitch.StitchClientFactory.create(this.appId)
@@ -164,6 +166,11 @@ var StitchTracker = State.extend({
 
     if (!this.hasBooted) {
       this.hasBooted = true;
+    }
+
+    // don't log user information if users namespace is not specified
+    if (!this.users) {
+      return;
     }
 
     return this._getCollection(
