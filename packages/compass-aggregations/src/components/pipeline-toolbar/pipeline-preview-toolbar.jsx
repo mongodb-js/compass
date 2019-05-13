@@ -119,7 +119,6 @@ class PipelinePreviewToolbar extends PureComponent {
         {this.renderSampleToggle()}
         {this.renderAutoPreviewToggle()}
         {this.renderSettingsToggle()}
-        {this.renderFullscreenButton()}
       </div>
     );
   }
