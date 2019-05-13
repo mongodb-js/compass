@@ -101,7 +101,7 @@ describe('PipelinePreviewToolbar [Component]', () => {
       });
     });
   });
-  describe('Fullscreen', () => {
+  describe.skip('Fullscreen', () => {
     it('renders the wrapper div', () => {
       expect(component.find(`.${styles.fullscreen}`)).to.be.present();
     });
