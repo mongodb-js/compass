@@ -3,7 +3,6 @@ import PropTypes from 'prop-types';
 import AceEditor from 'react-ace';
 import ace from 'brace';
 import { QueryAutoCompleter } from 'mongodb-ace-autocompleter';
-import Actions from 'actions';
 
 import 'brace/ext/language_tools';
 import 'mongodb-ace-mode';
@@ -64,12 +63,10 @@ class OptionEditor extends Component {
    * Subscribe on mount.
    */
   componentDidMount() {
-    this.unsub = Actions.refreshEditor.listen(() => {
+    this.unsub = this.props.actions.refreshEditor.listen(() => {
       this.editor.setValue(this.props.value);
       this.editor.clearSelection();
     });
-
-    global.hadronApp.appRegistry.on('fields-changed', this.boundOnFieldsChanged);
   }
 
   /**
@@ -81,12 +78,15 @@ class OptionEditor extends Component {
     return nextProps.autoPopulated || nextProps.serverVersion !== this.props.serverVersion;
   }
 
+  componentDidUpdate() {
+    this.boundOnFieldsChanged(this.props.schemaFields);
+  }
+
   /**
    * Unsubscribe listeners.
    */
   componentWillUnmount() {
     this.unsub();
-    global.hadronApp.appRegistry.removeListener('fields-changed', this.boundOnFieldsChanged);
   }
 
   onFieldsChanged(fields) {

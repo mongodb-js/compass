@@ -1,4 +1,2 @@
-import QueryBarActions from './actions';
-
-export default QueryBarActions;
-export { QueryBarActions };
+import configureActions from './actions';
+export default configureActions;

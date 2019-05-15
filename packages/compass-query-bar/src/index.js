@@ -1,36 +1,33 @@
 import QueryBarPlugin from './plugin';
-import QueryBarActions from 'actions';
-import { QueryBarStore, QueryChangedStore } from 'stores';
+import configureActions from 'actions';
+import configureStore from 'stores';
+
+/**
+ * A sample role for the component.
+ */
+const ROLE = {
+  name: 'Query Bar',
+  component: QueryBarPlugin,
+  configureStore: configureStore,
+  configureActions: configureActions,
+  storeName: 'Query.Store'
+};
 
 /**
  * Activate all the components in the Query Bar package.
- * @param {Object} appRegistry - The Hadron appRegisrty to activate this plugin with.
+ * @param {Object} appRegistry - The global appRegisrty to activate this plugin with.
  **/
 function activate(appRegistry) {
-  // Register the QueryBarPlugin as a role in Compass
-  //
-  // Available roles are:
-  //   - Instance.Tab
-  //   - Database.Tab
-  //   - Collection.Tab
-  //   - CollectionHUD.Item
-  //   - Header.Item
-  appRegistry.registerComponent('Query.QueryBar', QueryBarPlugin);
-  appRegistry.registerAction('Query.Actions', QueryBarActions);
-  appRegistry.registerStore('Query.Store', QueryBarStore);
-  appRegistry.registerStore('Query.ChangedStore', QueryChangedStore);
+  appRegistry.registerRole('Query.QueryBar', ROLE);
 }
 
 /**
  * Deactivate all the components in the Query Bar package.
- * @param {Object} appRegistry - The Hadron appRegisrty to deactivate this plugin with.
+ * @param {Object} appRegistry - The global appRegisrty to deactivate this plugin with.
  **/
 function deactivate(appRegistry) {
-  appRegistry.deregisterComponent('Query.QueryBar');
-  appRegistry.deregisterAction('Query.Actions');
-  appRegistry.deregisterStore('Query.Store');
-  appRegistry.deregisterStore('Query.ChangedStore');
+  appRegistry.deregisterRole('Query.QueryBar', ROLE);
 }
 
 export default QueryBarPlugin;
-export { activate, deactivate };
+export { activate, deactivate, configureStore, configureActions };

@@ -4,6 +4,8 @@ import app from 'hadron-app';
 import AppRegistry from 'hadron-app-registry';
 import { AppContainer } from 'react-hot-loader';
 import QueryBarPlugin, { activate } from 'plugin';
+import configureStore from 'stores';
+import configureActions from 'actions';
 
 // Import global less file. Note: these styles WILL NOT be used in compass, as compass provides its own set
 // of global styles. If you are wishing to style a given component, you should be writing a less file per
@@ -16,12 +18,6 @@ const appRegistry = new AppRegistry();
 global.hadronApp = app;
 global.hadronApp.appRegistry = appRegistry;
 
-const actions = {
-  runQuery: {
-    listen: () => {}
-  }
-};
-appRegistry.registerAction('QueryHistory.Actions', actions);
 // Activate our plugin with the Hadron App Registry
 activate(appRegistry);
 appRegistry.onActivated();
@@ -32,30 +28,14 @@ const root = document.createElement('div');
 root.id = 'root';
 document.body.appendChild( root );
 
-// Create a HMR enabled render function
-const render = Component => {
-  ReactDOM.render(
-    <AppContainer>
-      <Component />
-    </AppContainer>,
-    document.getElementById('root')
-  );
-};
-
-// Render our plugin
-render( QueryBarPlugin );
-
-appRegistry.emit('fields-changed', {
-  fields: {
-    harry: {
-      name: 'harry', path: 'harry', count: 1, type: 'Number'
-    },
-    potter: {
-      name: 'potter', path: 'potter', count: 1, type: 'Boolean'
-    }
-  },
-  topLevelFields: [ 'harry', 'potter' ],
-  aceFields: [
+const actions = configureActions();
+const store = configureStore({
+  localAppRegistry: new AppRegistry(),
+  globalAppRegistry: appRegistry,
+  serverVersion: '4.2.0',
+  namespace: 'echo.artists',
+  actions: actions,
+  fields: [
     { name: 'harry',
       value: 'harry',
       score: 1,
@@ -68,6 +48,19 @@ appRegistry.emit('fields-changed', {
       version: '0.0.0' }
   ]
 });
+
+// Create a HMR enabled render function
+const render = Component => {
+  ReactDOM.render(
+    <AppContainer>
+      <Component store={store} actions={actions} />
+    </AppContainer>,
+    document.getElementById('root')
+  );
+};
+
+// Render our plugin
+render(QueryBarPlugin);
 
 if (module.hot) {
   /**
@@ -87,6 +80,6 @@ if (module.hot) {
   module.hot.accept('plugin', () => {
     // Because Webpack 2 has built-in support for ES2015 modules,
     // you won't need to re-require your app root in module.hot.accept
-    render( QueryBarPlugin );
+    render(QueryBarPlugin);
   });
 }

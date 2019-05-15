@@ -1,4 +1,2 @@
-import QueryBarStore from './query-bar-store';
-import QueryChangedStore from './query-changed-store';
-
-export { QueryBarStore, QueryChangedStore };
+import configureStore from './query-bar-store';
+export default configureStore;

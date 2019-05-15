@@ -66,6 +66,7 @@ class QueryBar extends Component {
   static displayName = 'QueryBar';
 
   static propTypes = {
+    store: PropTypes.object.isRequired,
     filter: PropTypes.object,
     project: PropTypes.object,
     sort: PropTypes.object,
@@ -116,16 +117,8 @@ class QueryBar extends Component {
     schemaFields: []
   }
 
-  componentDidMount() {
-    if (global.hadronApp && global.hadronApp.appRegistry) { // Unit tests don't have appRegistry
-      this.QueryHistoryActions = global.hadronApp.appRegistry.getAction('QueryHistory.Actions');
-    }
-  }
-
   componentWillUnmount() {
-    if (this.QueryHistoryActions) {
-      this.QueryHistoryActions.collapse();
-    }
+    this.props.store.localAppRegistry.emit('query-history-collapse');
   }
 
   onChange(label, evt) {

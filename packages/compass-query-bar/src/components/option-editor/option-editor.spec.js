@@ -1,20 +1,12 @@
 import React from 'react';
 import { mount } from 'enzyme';
 import OptionEditor from 'components/option-editor';
-import AppRegistry from 'hadron-app-registry';
-import hadronApp from 'hadron-app';
-import Actions from 'actions';
+import configureActions from 'actions';
 
 describe('OptionEditor [Component]', function() {
   let onChangeSpy;
   let onApplySpy;
   let component;
-  const appRegistry = new AppRegistry();
-
-  before(function() {
-    global.hadronApp = hadronApp;
-    global.hadronApp.appRegistry = appRegistry;
-  });
 
   beforeEach(function() {
     onChangeSpy = sinon.spy();
@@ -33,7 +25,7 @@ describe('OptionEditor [Component]', function() {
           label="Apply"
           serverVersion="3.4.0"
           autoPopulated={false}
-          actions={Actions}
+          actions={configureActions()}
           value="{ name: 'testing' }"
           onChange={onChangeSpy}
           onApply={onApplySpy}
