@@ -1,10 +1,13 @@
 import React, { Component } from 'react';
-import ExportModal from 'components/export-modal';
+import PropTypes from 'prop-types';
 import { Provider } from 'react-redux';
-import store from 'stores';
+import ExportModal from 'components/export-modal';
 
 class ExportPlugin extends Component {
   static displayName = 'ExportPlugin';
+  static propTypes = {
+    store: PropTypes.object.isRequired
+  }
 
   /**
    * Connect the Plugin to the store and render.
@@ -13,7 +16,7 @@ class ExportPlugin extends Component {
    */
   render() {
     return (
-      <Provider store={store}>
+      <Provider store={this.props.store}>
         <ExportModal />
       </Provider>
     );

@@ -1,17 +1,20 @@
 import 'any-observable/register/rxjs';
 import './rx-operators';
 
-import ImportExportPlugin from './plugin';
+import Plugin from './plugin';
 import ImportPlugin from './import-plugin';
 import ExportPlugin from './export-plugin';
-import ImportExportStore from 'stores';
+import configureStore from 'stores';
 
 /**
  * The import plugin.
  */
 const IMPORT_ROLE = {
   name: 'Import',
-  component: ImportPlugin
+  component: ImportPlugin,
+  configureStore: configureStore,
+  configureActions: () => {},
+  storeName: 'Import.Store'
 };
 
 /**
@@ -19,7 +22,10 @@ const IMPORT_ROLE = {
  */
 const EXPORT_ROLE = {
   name: 'Export',
-  component: ExportPlugin
+  component: ExportPlugin,
+  configureStore: configureStore,
+  configureActions: () => {},
+  storeName: 'Export.Store'
 };
 
 /**
@@ -27,9 +33,8 @@ const EXPORT_ROLE = {
  * @param {Object} appRegistry - The Hadron appRegisrty to activate this plugin with.
  **/
 function activate(appRegistry) {
-  appRegistry.registerRole('Import.Modal', IMPORT_ROLE);
-  appRegistry.registerRole('Export.Modal', EXPORT_ROLE);
-  appRegistry.registerStore('ImportExport.Store', ImportExportStore);
+  appRegistry.registerRole('Collection.ScopedModal', IMPORT_ROLE);
+  appRegistry.registerRole('Collection.ScopedModal', EXPORT_ROLE);
 }
 
 /**
@@ -37,10 +42,9 @@ function activate(appRegistry) {
  * @param {Object} appRegistry - The Hadron appRegisrty to deactivate this plugin with.
  **/
 function deactivate(appRegistry) {
-  appRegistry.deregisterRole('Import.Modal', IMPORT_ROLE);
-  appRegistry.deregisterRole('Export.Modal', EXPORT_ROLE);
-  appRegistry.deregisterStore('ImportExport.Store');
+  appRegistry.deregisterRole('Collection.ScopedModal', IMPORT_ROLE);
+  appRegistry.deregisterRole('Collection.ScopedModal', EXPORT_ROLE);
 }
 
-export default ImportExportPlugin;
-export { activate, deactivate, ImportPlugin, ExportPlugin };
+export default Plugin;
+export { activate, deactivate, ImportPlugin, ExportPlugin, configureStore };

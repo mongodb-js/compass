@@ -3,9 +3,10 @@ import ReactDOM from 'react-dom';
 import app from 'hadron-app';
 import AppRegistry from 'hadron-app-registry';
 import { AppContainer } from 'react-hot-loader';
-import ImportExportPlugin, { activate } from 'plugin';
+import { activate } from 'plugin';
+import ImportExportPlugin from './components/import-export';
+import configureStore, { setDataProvider } from 'stores';
 import { activate as activateStats } from '@mongodb-js/compass-collection-stats';
-import CollectionStore from './stores/collection-store';
 
 // Import global less file. Note: these styles WILL NOT be used in compass, as compass provides its own set
 // of global styles. If you are wishing to style a given component, you should be writing a less file per
@@ -13,7 +14,7 @@ import CollectionStore from './stores/collection-store';
 import 'bootstrap/less/bootstrap.less';
 import 'less/index.less';
 
-const NS = 'import-export.embedded-testing-import2';
+const NS = 'echo.artists';
 
 const appRegistry = new AppRegistry();
 
@@ -23,7 +24,6 @@ global.hadronApp.appRegistry = appRegistry;
 // Activate our plugin with the Hadron App Registry
 activate(appRegistry);
 activateStats(appRegistry);
-appRegistry.registerStore('App.CollectionStore', CollectionStore);
 appRegistry.onActivated();
 
 // Since we are using HtmlWebpackPlugin WITHOUT a template,
@@ -32,11 +32,17 @@ const root = document.createElement('div');
 root.id = 'root';
 document.body.appendChild(root);
 
+const localAppRegistry = new AppRegistry();
+const store = configureStore({
+  namespace: NS,
+  localAppRegistry: localAppRegistry
+});
+
 // Create a HMR enabled render function
 const render = Component => {
   ReactDOM.render(
     <AppContainer>
-      <Component />
+      <Component store={store} appRegistry={localAppRegistry} />
     </AppContainer>,
     document.getElementById('root')
   );
@@ -64,11 +70,9 @@ const connection = new Connection({
 
 const dataService = new DataService(connection);
 
-appRegistry.emit('data-service-initialized', dataService);
 dataService.connect((error, ds) => {
-  appRegistry.emit('data-service-connected', error, ds);
-  appRegistry.emit('collection-changed', NS);
-  appRegistry.emit('query-applied', { filter: {}});
+  setDataProvider(store, error, ds);
+  localAppRegistry.emit('query-applied', { filter: {}});
 });
 
 // For automatic switching to specific namespaces, uncomment below as needed.

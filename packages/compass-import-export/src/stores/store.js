@@ -12,58 +12,76 @@ import { statsReceived } from 'modules/stats';
 
 import { ipcRenderer } from 'electron';
 
-const epicMiddleware = createEpicMiddleware(rootEpic);
-
 /**
- * The store has a combined reducer.
- */
-const store = createStore(
-  rootReducer,
-  applyMiddleware(
-    epicMiddleware
-  )
-);
-
-// Enable Webpack hot module replacement for reducers
-if (module.hot) {
-  module.hot.accept('../modules', () => {
-    const { rootReducer: nextRootReducer, rootEpic: nextRootEpic } = require('../modules');
-    store.replaceReducer(nextRootReducer);
-    epicMiddleware.replaceEpic(nextRootEpic);
-  });
-}
-
-/**
- * Called when the app registry is activated.
+ * Set the data provider.
  *
- * @param {AppRegistry} appRegistry - The app registry.
+ * @param {Store} store - The store.
+ * @param {Error} error - The error (if any) while connecting.
+ * @param {Object} provider - The data provider.
  */
-store.onActivated = (appRegistry) => {
-  store.dispatch(appRegistryActivated(appRegistry));
-
-  appRegistry.on('collection-changed', ns => store.dispatch(nsChanged(ns)));
-  appRegistry.on('data-service-connected', (err, ds) => store.dispatch(dataServiceConnected(err, ds)));
-  appRegistry.on('query-applied', (query) => store.dispatch(queryChanged(query)));
-  appRegistry.on('open-import', () => store.dispatch(openImport()));
-  appRegistry.on('open-export', () => store.dispatch(openExport()));
-  appRegistry.getStore('CollectionStats.Store').listen((stats) => {
-    store.dispatch(statsReceived(stats));
-  });
+export const setDataProvider = (store, error, provider) => {
+  store.dispatch(dataServiceConnected(error, provider));
 };
 
-if (ipcRenderer) {
-  /**
-   * Listen for compass:open-export messages.
-   */
-  ipcRenderer.on('compass:open-export', () => {
-    store.dispatch(openExport());
-  });
+const configureStore = (options = {}) => {
+  const epicMiddleware = createEpicMiddleware(rootEpic);
 
   /**
-   * Listen for compass:open-import messages.
+   * The store has a combined reducer.
    */
-  ipcRenderer.on('compass:open-import', () => {
-    store.dispatch(openImport());
-  });
-}
-export default store;
+  const store = createStore(
+    rootReducer,
+    applyMiddleware(
+      epicMiddleware
+    )
+  );
+
+  /**
+   * Called when the app registry is activated.
+   *
+   * @param {AppRegistry} appRegistry - The app registry.
+   */
+  if (options.localAppRegistry) {
+    const appRegistry = options.localAppRegistry;
+    store.dispatch(appRegistryActivated(appRegistry));
+
+    appRegistry.on('query-applied', (query) => store.dispatch(queryChanged(query)));
+    appRegistry.on('open-import', () => store.dispatch(openImport()));
+    appRegistry.on('open-export', () => store.dispatch(openExport()));
+    appRegistry.getStore('CollectionStats.Store').listen((stats) => {
+      store.dispatch(statsReceived(stats));
+    });
+  }
+
+  if (options.dataProvider) {
+    setDataProvider(
+      store,
+      options.dataProvider.error,
+      options.dataProvider.dataProvider
+    );
+  }
+
+  if (options.namespace) {
+    store.dispatch(nsChanged(options.namespace));
+  }
+
+  if (ipcRenderer) {
+    /**
+     * Listen for compass:open-export messages.
+     */
+    ipcRenderer.on('compass:open-export', () => {
+      store.dispatch(openExport());
+    });
+
+    /**
+     * Listen for compass:open-import messages.
+     */
+    ipcRenderer.on('compass:open-import', () => {
+      store.dispatch(openImport());
+    });
+  }
+
+  return store;
+};
+
+export default configureStore;

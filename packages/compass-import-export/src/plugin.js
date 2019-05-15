@@ -1,12 +1,13 @@
 import React, { Component } from 'react';
-import ImportExport from 'components/import-export';
-import store from 'stores';
-import { Provider } from 'react-redux';
+import PropTypes from 'prop-types';
 import ImportPlugin from './import-plugin';
 import ExportPlugin from './export-plugin';
 
 class Plugin extends Component {
   static displayName = 'ImportExportPlugin';
+  static propTypes = {
+    store: PropTypes.object.isRequired
+  }
 
   /**
    * Connect the Plugin to the store and render.
@@ -15,13 +16,10 @@ class Plugin extends Component {
    */
   render() {
     return (
-      <Provider store={store}>
-        <div>
-          <ImportExport />
-          <ImportPlugin />
-          <ExportPlugin />
-        </div>
-      </Provider>
+      <div>
+        <ImportPlugin store={this.props.store} />
+        <ExportPlugin store={this.props.store} />
+      </div>
     );
   }
 }
