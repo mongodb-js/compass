@@ -18,7 +18,7 @@ const ROLE = {
  * @param {Object} appRegistry - The Hadron appRegisrty to activate this plugin with.
  **/
 function activate(appRegistry) {
-  appRegistry.registerRole('Query.History', ROLE);
+  appRegistry.registerRole('Collection.ScopedModal', ROLE);
 }
 
 /**
@@ -26,7 +26,7 @@ function activate(appRegistry) {
  * @param {Object} appRegistry - The Hadron appRegisrty to deactivate this plugin with.
  **/
 function deactivate(appRegistry) {
-  appRegistry.deregisterRole('Query.History', ROLE);
+  appRegistry.deregisterRole('Collection.ScopedModal', ROLE);
 }
 
 export default QueryHistoryPlugin;
