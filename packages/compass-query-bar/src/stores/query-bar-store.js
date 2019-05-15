@@ -89,7 +89,7 @@ const configureStore = (options = {}) => {
      * Toggle the query history.
      */
     toggleQueryHistory() {
-      this.QueryHistoryActions.toggleCollapse();
+      this.localAppRegistry.emit('toggle-query-history');
     },
 
     /**

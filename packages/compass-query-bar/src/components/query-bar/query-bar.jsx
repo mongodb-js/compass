@@ -118,7 +118,7 @@ class QueryBar extends Component {
   }
 
   componentWillUnmount() {
-    this.props.store.localAppRegistry.emit('query-history-collapse');
+    this.props.store.localAppRegistry.emit('collapse-query-history');
   }
 
   onChange(label, evt) {
