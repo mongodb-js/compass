@@ -1,71 +1,73 @@
 /* eslint-disable no-unused-expressions */
 
-import { QueryBarStore, QueryChangedStore } from 'stores';
-import AppRegistry from 'hadron-app-registry';
+import configureStore from 'stores/query-changed-store';
+import configureQueryBarStore from 'stores';
+import configureActions from 'actions';
 
 describe('QueryChangedStore [Store]', function() {
-  const registry = new AppRegistry();
-  const historyActions = {
-    runQuery: {
-      listen: () => {}
-    }
-  };
   let unsubscribe;
-
-  before(function() {
-    registry.registerStore('QueryBarStore', QueryBarStore);
-    registry.registerAction('QueryHistory.Actions', historyActions);
-    registry.onActivated();
-  });
+  let actions;
+  let store;
+  let queryBarStore;
 
   beforeEach(function() {
     unsubscribe = () => {};
-    QueryBarStore.setState( QueryBarStore.getInitialState() );
+    actions = configureActions();
+    queryBarStore = configureQueryBarStore({
+      actions: actions
+    });
+    store = configureStore({
+      actions: actions,
+      store: queryBarStore
+    });
   });
 
   afterEach(function() {
+    actions = null;
+    store = null;
+    queryBarStore = null;
     unsubscribe();
   });
 
   it('returns the extended query properties for its initial state', () => {
-    const keys = QueryChangedStore.getInitialState();
+    const keys = store.getInitialState();
     expect(keys).to.have.all.keys(['filter', 'project', 'sort', 'skip',
       'limit', 'sample', 'maxTimeMS', 'queryState', 'ns', 'collation']);
   });
 
   it('detects if there was a change in lastExecutedQuery', () => {
-    expect(QueryChangedStore._detectChange({lastExecutedQuery: {filter: {foo: 1}}})).to.be.true;
+    expect(store._detectChange({lastExecutedQuery: {filter: {foo: 1}}})).to.be.true;
   });
 
   it('detects if there was no change in lastExecutedQuery', () => {
-    expect(QueryChangedStore._detectChange({lastExecutedQuery: {}})).to.be.true;
+    expect(store._detectChange({lastExecutedQuery: {}})).to.be.true;
   });
 
-  it('triggers when the QueryBarStore lastExecutedQuery variable changes', (done) => {
-    QueryBarStore.setQuery({filter: {foo: 1}});
+  it('triggers when the queryBarStore lastExecutedQuery variable changes', (done) => {
+    queryBarStore.setQuery({filter: {foo: 1}});
 
-    unsubscribe = QueryChangedStore.listen((state) => {
+    unsubscribe = store.listen((state) => {
       expect(state.filter).to.be.deep.equal({foo: 1});
       done();
     });
 
-    QueryBarStore.apply();
+    queryBarStore.apply();
   });
 
-  it('triggers when the QueryBarStore sample variable changes', (done) => {
-    expect(QueryBarStore.state.sample).to.be.false;
+  it('triggers when the queryBarStore sample variable changes', (done) => {
+    expect(queryBarStore.state.sample).to.be.false;
 
-    unsubscribe = QueryChangedStore.listen((state) => {
+    unsubscribe = store.listen((state) => {
       expect(state.sample).to.be.true;
       done();
     });
 
-    QueryBarStore.setQuery({sample: true});
-    QueryBarStore.apply();
+    queryBarStore.setQuery({sample: true});
+    queryBarStore.apply();
   });
 
   it('contains all the other query options', (done) => {
-    unsubscribe = QueryChangedStore.listen((state) => {
+    unsubscribe = store.listen((state) => {
       expect(state.filter).to.be.deep.equal({foo: 1});
       expect(state.sort).to.be.deep.equal(null);
       expect(state.skip).to.be.equal(0);
@@ -77,17 +79,17 @@ describe('QueryChangedStore [Store]', function() {
       done();
     });
 
-    QueryBarStore.setQuery({filter: {foo: 1}});
-    QueryBarStore.apply();
+    queryBarStore.setQuery({filter: {foo: 1}});
+    queryBarStore.apply();
   });
 
-  it('does not trigger when the QueryBarStore lastExecutedQuery variable remains the same', (done) => {
+  it('does not trigger when the queryBarStore lastExecutedQuery variable remains the same', (done) => {
     const spy = sinon.spy();
-    unsubscribe = QueryChangedStore.listen(spy);
+    unsubscribe = store.listen(spy);
 
-    QueryBarStore.setQuery({filter: {foo: 1}});
-    QueryBarStore.apply();
-    QueryBarStore.apply();
+    queryBarStore.setQuery({filter: {foo: 1}});
+    queryBarStore.apply();
+    queryBarStore.apply();
 
     setTimeout(() => {
       expect(spy.callCount).to.be.equal(1);
@@ -95,11 +97,11 @@ describe('QueryChangedStore [Store]', function() {
     }, 50);
   });
 
-  it('does not trigger when other variables of the QueryBarStore change', (done) => {
+  it('does not trigger when other variables of the queryBarStore change', (done) => {
     const spy = sinon.spy();
-    unsubscribe = QueryChangedStore.listen(spy);
+    unsubscribe = store.listen(spy);
 
-    QueryBarStore.setQuery({filter: {foo: 1}});
+    queryBarStore.setQuery({filter: {foo: 1}});
 
     setTimeout(() => {
       expect(spy.called).to.be.false;
