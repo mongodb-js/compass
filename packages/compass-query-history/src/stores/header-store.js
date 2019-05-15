@@ -1,36 +1,38 @@
 import Reflux from 'reflux';
-import Actions from 'actions';
 import StateMixin from 'reflux-state-mixin';
 
 /**
  * Query History Header store.
  */
-const HeaderStore = Reflux.createStore({
-  mixins: [StateMixin.store],
+const configureStore = (options = {}) => {
+  const store = Reflux.createStore({
+    mixins: [StateMixin.store],
 
-  listenables: Actions,
+    listenables: options.actions,
 
-  init() {
-  },
+    init() {
+    },
 
-  showFavorites() {
-    this.setState({
-      showing: 'favorites'
-    });
-  },
+    showFavorites() {
+      this.setState({
+        showing: 'favorites'
+      });
+    },
 
-  showRecent() {
-    this.setState({
-      showing: 'recent'
-    });
-  },
+    showRecent() {
+      this.setState({
+        showing: 'recent'
+      });
+    },
 
-  getInitialState() {
-    return {
-      showing: 'recent'
-    };
-  }
-});
+    getInitialState() {
+      return {
+        showing: 'recent'
+      };
+    }
+  });
 
-export default HeaderStore;
-export { HeaderStore };
+  return store;
+};
+
+export default configureStore;

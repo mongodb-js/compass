@@ -30,7 +30,7 @@
     "test:watch": "cross-env NODE_ENV=test mocha-webpack \"./src/**/*.spec.js\" --watch",
     "test:karma": "cross-env NODE_ENV=test karma start",
     "cover": "nyc npm run test",
-    "ci": "npm run cover && npm run test:karma && npm run compile && npm run check",
+    "ci": "npm run cover && npm run compile && npm run check",
     "fmt": "mongodb-js-fmt ./*.js ./test/*.js",
     "check": "mongodb-js-precommit './src/**/*{.js,.jsx}' './test/**/*.js' './electron/**/*.js' './config/**/*{.js,.jsx}'",
     "link-plugin": "./scripts/link.sh",

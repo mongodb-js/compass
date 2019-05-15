@@ -10,7 +10,6 @@ import { RecentList } from 'components/recent';
 import { FavoriteList } from 'components/favorite';
 
 // Stores
-import { HeaderStore, RecentListStore, FavoriteListStore } from 'stores';
 import styles from './query-history.less';
 
 class QueryHistory extends PureComponent {
@@ -18,6 +17,7 @@ class QueryHistory extends PureComponent {
 
   static propTypes = {
     actions: PropTypes.object.isRequired,
+    store: PropTypes.object.isRequired,
     showing: PropTypes.oneOf(['recent', 'favorites']),
     collapsed: PropTypes.bool,
     ns: PropTypes.object
@@ -30,7 +30,7 @@ class QueryHistory extends PureComponent {
   };
 
   renderFavorites = () => (
-    <StoreConnector store={FavoriteListStore}>
+    <StoreConnector store={this.props.store.localAppRegistry.getStore('QueryHistory.FavoriteListStore')}>
       <FavoriteList
         data-test-id="query-history-list-favorites"
         ns={this.props.ns}
@@ -40,7 +40,7 @@ class QueryHistory extends PureComponent {
   );
 
   renderRecents = () => (
-    <StoreConnector store={RecentListStore}>
+    <StoreConnector store={this.props.store.localAppRegistry.getStore('QueryHistory.RecentListStore')}>
       <RecentList
         data-test-id="query-history-list-recent"
         ns={this.props.ns}
@@ -61,7 +61,7 @@ class QueryHistory extends PureComponent {
         data-test-id="query-history"
         className={classnames(styles.component)}>
         <div className={classnames(styles.inner)}>
-          <StoreConnector store={HeaderStore}>
+          <StoreConnector store={this.props.store.localAppRegistry.getStore('QueryHistory.HeaderStore')}>
             <Header
               data-test-id="query-history-header"
               actions={actions}

@@ -4,6 +4,8 @@ import app from 'hadron-app';
 import AppRegistry from 'hadron-app-registry';
 import { AppContainer } from 'react-hot-loader';
 import QueryHistoryPlugin, { activate } from 'plugin';
+import configureStore from 'stores';
+import configureActions from 'actions';
 
 // Import global less file. Note: these styles WILL NOT be used in compass, as compass provides its own set
 // of global styles. If you are wishing to style a given component, you should be writing a less file per
@@ -24,11 +26,18 @@ const root = document.createElement('div');
 root.id = 'root';
 document.body.appendChild( root );
 
+const actions = configureActions();
+const store = configureStore({
+  localAppRegistry: new AppRegistry(),
+  namespace: 'echo.artists',
+  actions: actions
+});
+
 // Create a HMR enabled render function
 const render = Component => {
   ReactDOM.render(
     <AppContainer>
-      <Component />
+      <Component store={store} actions={actions} />
     </AppContainer>,
     document.getElementById('root')
   );

@@ -1,11 +1,14 @@
 import React, { Component } from 'react';
 import { StoreConnector } from 'hadron-react-components';
 import QueryHistory from 'components/query-history';
-import { QueryHistoryStore } from 'stores';
-import Actions from 'actions';
+import PropTypes from 'prop-types';
 
 class Plugin extends Component {
   static displayName = 'QueryHistoryPlugin';
+  static propTypes = {
+    store: PropTypes.object.isRequired,
+    actions: PropTypes.object.isRequired
+  }
 
   /**
    * Connect the Plugin to the store and render.
@@ -14,8 +17,8 @@ class Plugin extends Component {
    */
   render() {
     return (
-      <StoreConnector store={QueryHistoryStore}>
-        <QueryHistory actions={Actions} {...this.props} />
+      <StoreConnector store={this.props.store}>
+        <QueryHistory actions={this.props.actions} {...this.props} />
       </StoreConnector>
     );
   }

@@ -1,4 +1,2 @@
-import Actions from './actions';
-
-export default Actions;
-export { Actions };
+import configureActions from './actions';
+export default configureActions;
