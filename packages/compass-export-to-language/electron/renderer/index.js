@@ -5,6 +5,7 @@ import AppRegistry from 'hadron-app-registry';
 import { AppContainer } from 'react-hot-loader';
 import ExportToLanguagePlugin, { activate } from 'plugin';
 import ExportToLanguageStandalone from './components/export-to-language-standalone';
+import configureStore from 'stores';
 
 // Import global less file. Note: these styles WILL NOT be used in compass, as compass provides its own set
 // of global styles. If you are wishing to style a given component, you should be writing a less file per
@@ -27,11 +28,16 @@ const root = document.createElement('div');
 root.id = 'root';
 document.body.appendChild(root);
 
+const localAppRegistry = new AppRegistry();
+const store = configureStore({
+  localAppRegistry: localAppRegistry
+});
+
 // Create a HMR enabled render function
 const render = Component => {
   ReactDOM.render(
     <AppContainer>
-      <Component appRegistry={appRegistry}/>
+      <Component store={store} appRegistry={localAppRegistry} />
     </AppContainer>,
     document.getElementById('root')
   );

@@ -6,7 +6,8 @@ import PropTypes from 'prop-types';
 class ExportToLanguageStandalone extends Component {
   static displayName = 'ExportToLanguageStandaloneComponent';
   static propTypes = {
-    appRegistry: PropTypes.object.isRequired
+    appRegistry: PropTypes.object.isRequired,
+    store: PropTypes.object.isRequired
   };
 
   handleChange = (event) => {
@@ -35,7 +36,7 @@ class ExportToLanguageStandalone extends Component {
           <input type="text" name="input code" onKeyUp={this.handleChange}/>
         </div>
         <div>
-          <ExportToLanguagePlugin/>
+          <ExportToLanguagePlugin store={this.props.store} />
         </div>
       </div>
     );
