@@ -34,6 +34,7 @@ describe('<CellRenderer />', () => {
             elementAdded={actions.elementAdded}
             elementRemoved={actions.elementRemoved}
             elementTypeChanged={actions.elementTypeChanged}
+            tz="UTC"
             parentType=""
             context={context}/>
         );
@@ -71,6 +72,7 @@ describe('<CellRenderer />', () => {
             elementRemoved={actions.elementRemoved}
             elementTypeChanged={actions.elementTypeChanged}
             parentType=""
+            tz="UTC"
             context={context}/>
         );
         done();
@@ -107,6 +109,7 @@ describe('<CellRenderer />', () => {
             elementRemoved={actions.elementRemoved}
             elementTypeChanged={actions.elementTypeChanged}
             parentType=""
+            tz="UTC"
             context={context}/>
         );
         done();
@@ -143,6 +146,7 @@ describe('<CellRenderer />', () => {
             elementRemoved={actions.elementRemoved}
             elementTypeChanged={actions.elementTypeChanged}
             parentType=""
+            tz="UTC"
             context={context}/>
         );
         done();
@@ -178,6 +182,7 @@ describe('<CellRenderer />', () => {
             elementRemoved={actions.elementRemoved}
             elementTypeChanged={actions.elementTypeChanged}
             parentType=""
+            tz="UTC"
             context={context}/>
         );
         done();
@@ -207,6 +212,7 @@ describe('<CellRenderer />', () => {
             elementRemoved={actions.elementRemoved}
             elementTypeChanged={actions.elementTypeChanged}
             parentType=""
+            tz="UTC"
             context={context}/>
         );
         done();
@@ -242,6 +248,7 @@ describe('<CellRenderer />', () => {
             elementRemoved={actions.elementRemoved}
             elementTypeChanged={actions.elementTypeChanged}
             parentType=""
+            tz="UTC"
             context={context2}/>
         );
         done();
@@ -278,6 +285,7 @@ describe('<CellRenderer />', () => {
               elementRemoved={actions.elementRemoved}
               elementTypeChanged={actions.elementTypeChanged}
               context={context2}
+              tz="UTC"
               parentType={'Object'} />
           );
           done();
@@ -312,6 +320,7 @@ describe('<CellRenderer />', () => {
               elementRemoved={actions.elementRemoved}
               elementTypeChanged={actions.elementTypeChanged}
               context={context2}
+              tz="UTC"
               parentType={'Array'}/>
           );
           done();
@@ -346,6 +355,7 @@ describe('<CellRenderer />', () => {
             elementRemoved={actions.elementRemoved}
             elementTypeChanged={actions.elementTypeChanged}
             parentType=""
+            tz="UTC"
             context={context}/>
         );
         done();
@@ -379,6 +389,7 @@ describe('<CellRenderer />', () => {
             elementRemoved={actions.elementRemoved}
             elementTypeChanged={actions.elementTypeChanged}
             parentType=""
+            tz="UTC"
             context={context}/>
         );
         done();
@@ -406,6 +417,7 @@ describe('<CellRenderer />', () => {
             elementRemoved={actions.elementRemoved}
             elementTypeChanged={actions.elementTypeChanged}
             parentType=""
+            tz="UTC"
             context={context}/>
         );
         done();
@@ -449,6 +461,7 @@ describe('<CellRenderer />', () => {
               elementRemoved={actions.elementRemoved}
               elementTypeChanged={actions.elementTypeChanged}
               parentType=""
+              tz="UTC"
               context={context}/>
           );
           const wrapper = component.find('.table-view-cell-circle-button');
@@ -489,6 +502,7 @@ describe('<CellRenderer />', () => {
               elementRemoved={actions.elementRemoved}
               elementTypeChanged={actions.elementTypeChanged}
               parentType=""
+              tz="UTC"
               context={context}/>
           );
           const wrapper = component.find('.table-view-cell-circle-button');
@@ -526,6 +540,7 @@ describe('<CellRenderer />', () => {
               elementRemoved={actions.elementRemoved}
               elementTypeChanged={actions.elementTypeChanged}
               parentType=""
+              tz="UTC"
               context={context}/>
           );
           const wrapper = component.find('.table-view-cell-circle-button');
@@ -565,6 +580,7 @@ describe('<CellRenderer />', () => {
               elementRemoved={actions.elementRemoved}
               elementTypeChanged={actions.elementTypeChanged}
               parentType=""
+              tz="UTC"
               context={context}/>
           );
           const wrapper = component.find('.table-view-cell-circle-button');
@@ -604,6 +620,7 @@ describe('<CellRenderer />', () => {
             elementRemoved={actions.elementRemoved}
             elementTypeChanged={actions.elementTypeChanged}
             parentType=""
+            tz="UTC"
             context={context}/>
         );
         const wrapper = component.find('.table-view-cell-circle-button');
@@ -635,6 +652,7 @@ describe('<CellRenderer />', () => {
             elementRemoved={actions.elementRemoved}
             elementTypeChanged={actions.elementTypeChanged}
             parentType=""
+            tz="UTC"
             context={context}/>
         );
         const wrapper = component.find('.table-view-cell');
@@ -665,6 +683,7 @@ describe('<CellRenderer />', () => {
             elementRemoved={actions.elementRemoved}
             elementTypeChanged={actions.elementTypeChanged}
             parentType=""
+            tz="UTC"
             context={context}/>
         );
         const wrapper = component.find('.table-view-cell');

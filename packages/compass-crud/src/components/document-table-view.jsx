@@ -594,7 +594,8 @@ class DocumentTableView extends React.Component {
         elementRemoved: this.props.elementRemoved,
         elementTypeChanged: this.props.elementTypeChanged,
         drillDown: this.props.drillDown,
-        parentType: ''
+        parentType: '',
+        tz: this.props.tz
       },
       editable: false,
       cellEditorFramework: CellEditor,
@@ -656,7 +657,8 @@ class DocumentTableView extends React.Component {
         elementRemoved: this.props.elementRemoved,
         elementTypeChanged: this.props.elementTypeChanged,
         drillDown: this.props.drillDown,
-        parentType: parentType
+        parentType: parentType,
+        tz: this.props.tz
       },
 
       editable: function(params) {
@@ -802,7 +804,8 @@ class DocumentTableView extends React.Component {
       cellRendererParams: {
         nested: (path.length !== 0),
         isEditable: this.props.isEditable,
-        copyToClipboard: this.props.copyToClipboard
+        copyToClipboard: this.props.copyToClipboard,
+        tz: this.props.tz
       },
       editable: false,
       pinned: 'right',

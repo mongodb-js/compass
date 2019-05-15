@@ -88,7 +88,7 @@ class CellRenderer extends React.Component {
       }
     }
 
-    this._editors = initEditors(this.element);
+    this._editors = initEditors(this.element, this.props.tz);
   }
 
   componentDidMount() {
@@ -195,7 +195,7 @@ class CellRenderer extends React.Component {
       const component = getComponent(this.element.currentType);
       element = React.createElement(
         component,
-        {type: this.props.value.currentType, value: this.element.currentValue}
+        {type: this.props.value.currentType, value: this.element.currentValue, tz: this.props.tz}
       );
     }
 
@@ -285,7 +285,8 @@ CellRenderer.propTypes = {
   elementAdded: PropTypes.func.isRequired,
   elementRemoved: PropTypes.func.isRequired,
   elementTypeChanged: PropTypes.func.isRequired,
-  drillDown: PropTypes.func.isRequired
+  drillDown: PropTypes.func.isRequired,
+  tz: PropTypes.string.isRequired
 };
 
 CellRenderer.displayName = 'CellRenderer';
