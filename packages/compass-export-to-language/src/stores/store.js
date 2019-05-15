@@ -3,22 +3,34 @@ import { createStore, applyMiddleware } from 'redux';
 import thunk from 'redux-thunk';
 import reducer from 'modules';
 
-const store = createStore(reducer, applyMiddleware(thunk));
+/**
+ * Configure the store for use.
+ *
+ * @param {Object} options - The options.
+ *
+ * @returns {Store} The store.
+ */
+const configureStore = (options = {}) => {
+  const store = createStore(reducer, applyMiddleware(thunk));
 
-store.onActivated = (appRegistry) => {
-  appRegistry.on('open-aggregation-export-to-language', (aggregation) => {
-    store.dispatch(toggleModal(true));
-    store.dispatch(setNamespace('Pipeline'));
-    store.dispatch(runQuery('python', aggregation));
-    store.dispatch(addInputQuery(aggregation));
-  });
+  if (options.localAppRegistry) {
+    const localAppRegistry = options.localAppRegistry;
+    localAppRegistry.on('open-aggregation-export-to-language', (aggregation) => {
+      store.dispatch(toggleModal(true));
+      store.dispatch(setNamespace('Pipeline'));
+      store.dispatch(runQuery('python', aggregation));
+      store.dispatch(addInputQuery(aggregation));
+    });
 
-  appRegistry.on('open-query-export-to-language', (query) => {
-    store.dispatch(toggleModal(true));
-    store.dispatch(setNamespace('Query'));
-    store.dispatch(runQuery('python', query));
-    store.dispatch(addInputQuery(query));
-  });
+    localAppRegistry.on('open-query-export-to-language', (query) => {
+      store.dispatch(toggleModal(true));
+      store.dispatch(setNamespace('Query'));
+      store.dispatch(runQuery('python', query));
+      store.dispatch(addInputQuery(query));
+    });
+  };
+
+  return store;
 };
 
-export default store;
+export default configureStore;

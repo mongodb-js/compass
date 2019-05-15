@@ -1,13 +1,15 @@
 import ExportToLanguagePlugin from './plugin';
-import ExportToLanguageStore from 'stores';
+import configureStore from 'stores';
 
 /**
  * Export To Language Role (specifically created)
  **/
-
 const ROLE = {
-  name: 'ExportToLanguage',
-  component: ExportToLanguagePlugin
+  name: 'Export To Language',
+  component: ExportToLanguagePlugin,
+  configureStore: configureStore,
+  configureActions: () => {},
+  storeName: 'ExportToLanguage.Store',
 };
 
 /**
@@ -15,17 +17,7 @@ const ROLE = {
  * @param {Object} appRegistry - The Hadron appRegisrty to activate this plugin with.
  **/
 function activate(appRegistry) {
-  // Register the ExportToLanguagePlugin as a role in Compass
-  //
-  // Available roles are:
-  //   - Instance.Tab: { name: <String>, component: <React.Component>, order: <Number> }
-  //   - Database.Tab: { name: <String>, component: <React.Component>, order: <Number> }
-  //   - Collection.Tab: { name: <String>, component: <React.Component>, order: <Number> }
-  //   - CollectionHUD.Item: { name <String>, component: <React.Component> }
-  //   - Header.Item: { name: <String>, component: <React.Component>, alignment: <String> }
-
-  appRegistry.registerRole('ExportToLanguage.Modal', ROLE);
-  appRegistry.registerStore('ExportToLanguage.Store', ExportToLanguageStore);
+  appRegistry.registerRole('Collection.ScopedModal', ROLE);
 }
 
 /**
@@ -33,8 +25,7 @@ function activate(appRegistry) {
  * @param {Object} appRegistry - The Hadron appRegisrty to deactivate this plugin with.
  **/
 function deactivate(appRegistry) {
-  appRegistry.deregisterRole('ExportToLanguage.Modal', ROLE);
-  appRegistry.deregisterStore('ExportToLanguage.Store');
+  appRegistry.deregisterRole('Collection.ScopedModal', ROLE);
 }
 
 export default ExportToLanguagePlugin;

@@ -1,4 +1,2 @@
-import ExportToLanguageStore from './store';
-
-export default ExportToLanguageStore;
-export { ExportToLanguageStore };
+import configureStore from './store';
+export default configureStore;

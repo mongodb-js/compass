@@ -2,17 +2,21 @@ import React from 'react';
 import { mount } from 'enzyme';
 import { Provider } from 'react-redux';
 import ExportToLanguagePlugin from './plugin';
+import configureStore from 'stores';
 
 describe('ExportToLanguage [Plugin]', () => {
   let component;
+  let store;
 
   beforeEach((done) => {
-    component = mount(<ExportToLanguagePlugin />);
+    store = configureStore();
+    component = mount(<ExportToLanguagePlugin store={store} />);
     done();
   });
 
   afterEach((done) => {
     component = null;
+    store = null;
     done();
   });
 

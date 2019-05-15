@@ -4,16 +4,19 @@ import { mount } from 'enzyme';
 import ExportToLanguage from 'components/export-to-language';
 import ExportModal from 'components/export-modal';
 
-import store from 'stores';
+import configureStore from 'stores';
 
 describe('ExportToLanguage [Component]', () => {
   let component;
+  let store;
 
   beforeEach(() => {
+    store = configureStore();
     component = mount(<ExportToLanguage store={store} />);
   });
 
   afterEach(() => {
+    store = null;
     component = null;
   });
 

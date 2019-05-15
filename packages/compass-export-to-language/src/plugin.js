@@ -1,10 +1,13 @@
 import ExportToLanguage from 'components/export-to-language';
 import React, { Component } from 'react';
 import { Provider } from 'react-redux';
-import store from 'stores';
+import PropTypes from 'prop-types';
 
 class Plugin extends Component {
   static displayName = 'ExportToLanguagePlugin';
+  static propTypes = {
+    store: PropTypes.object.isRequired
+  }
 
   /**
    * Connect the Plugin to the store and render.
@@ -13,7 +16,7 @@ class Plugin extends Component {
    */
   render() {
     return (
-      <Provider store={store}>
+      <Provider store={this.props.store}>
         <ExportToLanguage />
       </Provider>
     );
