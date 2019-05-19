@@ -1,7 +1,32 @@
-const clipboard = require('electron').clipboard;
 const compiler = require('bson-transpilers');
+const userAgent = navigator.userAgent.toLowerCase();
 
 const PREFIX = 'exportQuery';
+
+/**
+ * Input type.
+ */
+const TYPE = 'text';
+
+/**
+ * Styles attribute.
+ */
+const STYLES = 'styles';
+
+/**
+ * Input display.
+ */
+const DISPLAY = 'display: none;';
+
+/**
+ * Input type.
+ */
+const INPUT = 'input';
+
+/**
+ * Copy command.
+ */
+const COPY = 'copy';
 
 export const SET_NAMESPACE = `${PREFIX}/SET_NAMESPACE`;
 export const ADD_INPUT_QUERY = `${PREFIX}/ADD_INPUT`;
@@ -29,8 +54,20 @@ export const INITIAL_STATE = {
 };
 
 function copyToClipboard(state, action) {
-  clipboard.writeText(action.input.query);
-
+  if (userAgent.indexOf('electron') > -1) {
+    const { clipboard } = require('electron');
+    clipboard.writeText(action.input.query);
+  } else {
+    let input = document.createElement(INPUT);
+    input.type = TYPE;
+    input.setAttribute(STYLES, DISPLAY);
+    input.value = action.input.query;
+    document.body.appendChild(input);
+    input.select();
+    document.execCommand(COPY);
+    document.body.removeChild(input);
+    input = null;
+  }
   return { ...state, copySuccess: action.input.type };
 }
 
