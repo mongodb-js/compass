@@ -28,7 +28,7 @@ const configureStore = (options = {}) => {
       store.dispatch(runQuery('python', query));
       store.dispatch(addInputQuery(query));
     });
-  };
+  }
 
   return store;
 };
