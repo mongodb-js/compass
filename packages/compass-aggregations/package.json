@@ -1,7 +1,7 @@
 {
   "name": "@mongodb-js/compass-aggregations",
   "productName": "Aggregations plugin",
-  "version": "4.0.0-beta.10",
+  "version": "4.0.0-rc.0",
   "apiVersion": "2.0.0",
   "description": "Compass Aggregation Pipeline Builder",
   "main": "lib/index.js",
