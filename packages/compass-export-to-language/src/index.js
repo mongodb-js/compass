@@ -29,4 +29,4 @@ function deactivate(appRegistry) {
 }
 
 export default ExportToLanguagePlugin;
-export { activate, deactivate };
+export { activate, deactivate, configureStore };
