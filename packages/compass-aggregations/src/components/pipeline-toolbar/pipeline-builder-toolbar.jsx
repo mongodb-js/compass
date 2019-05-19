@@ -253,24 +253,21 @@ class PipelineBuilderToolbar extends PureComponent {
   }
 
   renderExportToLanguageItem() {
-    if (!this.props.isAtlasDeployed) {
-      return (
-        <div
-          className={styles['pipeline-builder-toolbar-export-to-language']}
-          data-tip={TOOLTIP_EXPORT_TO_LANGUAGE}
-          data-for="export-to-language"
-          data-place="top"
-          data-html="true">
-          <IconButton
-            className="btn btn-xs btn-default"
-            iconClassName={classnames(styles['export-icon'])}
-            clickHandler={this.props.exportToLanguage}
-            title="Export To Language"
-          />
-          <Tooltip id="export-to-language" />
-        </div>
-      );
-    }
+    return (
+      <div
+        className={styles['pipeline-builder-toolbar-export-to-language']}
+        data-tip={TOOLTIP_EXPORT_TO_LANGUAGE}
+        data-for="export-to-language"
+        data-place="top"
+        data-html="true">
+        <IconButton
+          className="btn btn-xs btn-default"
+          iconClassName={classnames(styles['export-icon'])}
+          clickHandler={this.props.exportToLanguage}
+          title="Export To Language" />
+        <Tooltip id="export-to-language" />
+      </div>
+    );
   }
 
   /**

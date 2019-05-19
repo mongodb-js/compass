@@ -108,18 +108,30 @@ so the store instance must be passed to the plugin. The plugin exports a functio
 to initialise the store instance, which decorates it with various methods to
 conveniently set any values it uses.
 
+This is for:
+  - `@mongodb-js/compass-aggregations 4.0.0-beta.10`
+  - `@mongodb-js/compass-export-to-language 4.0.0`
+
 ### Browser
 
 Setting values via configure:
 
 ```js
-import Plugin, { configureStore, } from '@mongodb-js/compass-aggregations';
+import AppRegistry from 'hadron-app-registry';
+import AggregationsPlugin, {
+  configureStore as configureAggregationsStore
+} from '@mongodb-js/compass-aggregations';
+import ExportToLanguagePlugin, {
+  configureStore as configureExportToLanguageStore
+} from '@mongodb-js/compass-export-to-language';
 
 const handleOut = (namespace) => {
   window.open(`https://cloud.mongodb.com/${namespace}`, '_new');
 };
 
-const store = configureStore({
+const appRegistry = new AppRegistry();
+
+const aggregationsStore = configureAggregationsStore({
   dataProvider: {
     error: null,
     dataProvider: dataProvider
@@ -129,10 +141,16 @@ const store = configureStore({
   fields: [],
   isAtlasDeployed: true,
   allowWrites: false,
-  outResultsFn: handleOut
+  outResultsFn: handleOut,
+  localAppRegistry: appRegistry
 });
 
-<Plugin store={store} />
+const exportToLanguageStore = configureExportToLanguageStore({
+  localAppRegistry: appRegistry
+});
+
+<AggregationsPlugin store={aggregationsStore} />
+<ExportToLanguagePlugin store={exportToLanguageStore} />
 ```
 
 ### Hadron/Electron

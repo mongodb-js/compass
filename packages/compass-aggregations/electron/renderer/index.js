@@ -5,6 +5,9 @@ import AppRegistry from 'hadron-app-registry';
 import { AppContainer } from 'react-hot-loader';
 import AggregationsPlugin, { activate, CreateViewPlugin } from 'plugin';
 import configureStore, { setDataProvider, setNamespace } from 'stores';
+import ExportToLanguagePlugin, {
+  configureStore as configureExportToLangStore
+} from '@mongodb-js/compass-export-to-language';
 
 // Import global less file. Note: these styles WILL NOT be used in compass, as compass provides its own set
 // of global styles. If you are wishing to style a given component, you should be writing a less file per
@@ -31,8 +34,9 @@ document.body.appendChild(root);
 import Connection from 'mongodb-connection-model';
 import DataService from 'mongodb-data-service';
 
+const localAppRegistry = new AppRegistry();
 const store = configureStore({
-  localAppRegistry: new AppRegistry(),
+  localAppRegistry: localAppRegistry,
   globalAppRegistry: appRegistry,
   serverVersion: '4.2.0',
   fields: [
@@ -47,6 +51,10 @@ const store = configureStore({
       meta: 'field',
       version: '0.0.0' }
   ]
+});
+
+const exportToLangStore = configureExportToLangStore({
+  localAppRegistry: localAppRegistry
 });
 
 const connection = new Connection({
@@ -68,6 +76,7 @@ const render = Component => {
       <div>
         <Component store={store} />
         <CreateViewPlugin />
+        <ExportToLanguagePlugin store={exportToLangStore} />
       </div>
     </AppContainer>,
     document.getElementById('root')
