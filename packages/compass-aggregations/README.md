@@ -109,8 +109,8 @@ to initialise the store instance, which decorates it with various methods to
 conveniently set any values it uses.
 
 This is for:
-  - `@mongodb-js/compass-aggregations 4.0.0-beta.10`
-  - `@mongodb-js/compass-export-to-language 4.0.0`
+  - `@mongodb-js/compass-aggregations 4.0.0-beta.11`
+  - `@mongodb-js/compass-export-to-language 4.0.2`
 
 ### Browser
 
