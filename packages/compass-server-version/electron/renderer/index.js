@@ -27,6 +27,7 @@ const state = {
       enterprise_module: true,
       version: '3.4.4'
     }
+    // dataLake: { isDataLake: true, version: '1.0.1'}
   }
 };
 

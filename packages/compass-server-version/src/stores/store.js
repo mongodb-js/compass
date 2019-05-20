@@ -41,7 +41,9 @@ const ServerVersionStore = Reflux.createStore({
     }
     this.setState({
       versionDistro: state.instance.build.enterprise_module ? ENTERPRISE : COMMUNITY,
-      versionNumber: state.instance.build.version
+      versionNumber: state.instance.build.version,
+      isDataLake: state.instance.dataLake ? state.instance.dataLake.isDataLake : false,
+      dataLakeVersion: state.instance.dataLake ? state.instance.dataLake.version : null
     });
   },
 
@@ -54,7 +56,9 @@ const ServerVersionStore = Reflux.createStore({
   getInitialState() {
     return {
       versionDistro: '',
-      versionNumber: ''
+      versionNumber: '',
+      isDataLake: false,
+      dataLakeVersion: ''
     };
   }
 });
