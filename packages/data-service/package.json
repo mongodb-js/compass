@@ -25,6 +25,7 @@
   "dependencies": {
     "async": "^2.3.0",
     "debug": "^2.6.0",
+    "electron-rebuild": "^1.8.4",
     "lodash.assign": "^4.2.0",
     "lodash.assignin": "^4.2.0",
     "lodash.filter": "^4.6.0",
@@ -40,9 +41,9 @@
     "lodash.union": "^4.6.0",
     "lodash.uniqby": "^4.5.0",
     "mongodb": "^3.2.2",
-    "mongodb-core": "^3.2.2",
     "mongodb-collection-sample": "^4.4.3",
     "mongodb-connection-model": "^13.1.5",
+    "mongodb-core": "^3.2.2",
     "mongodb-index-model": "^2.3.0",
     "mongodb-js-errors": "^0.3.3",
     "mongodb-ns": "^2.0.0",

@@ -57,6 +57,7 @@ function parseBuildInfo(resp) {
     for_bits: resp.bits,
     max_bson_object_size: resp.maxBsonObjectSize,
     enterprise_module: false,
+    query_engine: resp.queryEngine ? resp.queryEngine : null,
     raw: resp // Save the raw output to later determine if genuine MongoDB
   };
   // cover both cases of detecting enterprise module, see SERVER-18099
@@ -129,6 +130,24 @@ function getGenuineMongoDB(results, done) {
     res.isGenuine = false;
     res.dbType = 'documentdb';
   }
+  done(null, res);
+}
+
+function getDataLake(results, done) {
+  const buildInfo = results.build.raw;
+
+  debug('isDataLake check: buildInfo.queryEngine', buildInfo.queryEngine);
+
+  const res = {
+    isDataLake: false,
+    version: null
+  };
+
+  if (buildInfo.queryEngine) {
+    res.isDataLake = true;
+    res.version = buildInfo.queryEngine.version;
+  }
+
   done(null, res);
 }
 
@@ -556,6 +575,7 @@ function getInstanceDetail(client, db, done) {
     build: ['client', 'db', getBuildInfo],
     cmdLineOpts: ['client', 'db', getCmdLineOpts],
     genuineMongoDB: ['build', 'cmdLineOpts', getGenuineMongoDB],
+    dataLake: ['build', getDataLake],
 
     listDatabases: ['client', 'db', 'userInfo', listDatabases],
     allowedDatabases: ['userInfo', getAllowedDatabases],
@@ -647,6 +667,7 @@ module.exports = {
   getCmdLineOpts,
   getDatabaseCollections,
   getGenuineMongoDB,
+  getDataLake,
   getHostInfo,
   getInstance,
   listCollections,

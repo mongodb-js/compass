@@ -544,6 +544,9 @@ describe('DataService', function() {
             expect(instance.genuineMongoDB).to.deep.equal(
               {isGenuine: true, dbType: 'mongodb'}
             );
+            expect(instance.dataLake).to.deep.equal(
+              {isDataLake: false, version: null}
+            );
             done();
           });
         });
@@ -557,6 +560,9 @@ describe('DataService', function() {
             expect(instance.port).to.equal(27018);
             expect(instance.genuineMongoDB).to.deep.equal(
               {isGenuine: true, dbType: 'mongodb'}
+            );
+            expect(instance.dataLake).to.deep.equal(
+              {isDataLake: false, version: null}
             );
             done();
           });
@@ -597,6 +603,9 @@ describe('DataService', function() {
         expect(instance.databases[0]._id).to.not.equal(undefined);
         expect(instance.genuineMongoDB).to.deep.equal(
           {isGenuine: true, dbType: 'mongodb'}
+        );
+        expect(instance.dataLake).to.deep.equal(
+          {isDataLake: false, version: null}
         );
         done();
       });

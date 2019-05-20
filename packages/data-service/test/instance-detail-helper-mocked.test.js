@@ -6,6 +6,7 @@ const {
   getCmdLineOpts,
   getDatabaseCollections,
   getGenuineMongoDB,
+  getDataLake,
   getHostInfo,
   listCollections,
   listDatabases
@@ -120,6 +121,27 @@ describe('instance-detail-helper-mocked', function() {
         done();
       });
     });
+    it('should save the queryEngine field as null if it does not exist', function(done) {
+      const results = {
+        db: makeMockDB(null, { tester: 1 })
+      };
+      getBuildInfo(results, function(err, res) {
+        assert.equal(err, null);
+        assert.deepEqual(res.queryEngine, null);
+        done();
+      });
+    });
+    it('should save the queryEngine field if it exists', function(done) {
+      const results = {
+        db: makeMockDB(null, { queryEngine: { version: '1' } })
+      };
+      getBuildInfo(results, function(err, res) {
+        assert.equal(err, null);
+        console.log(res);
+        assert.deepEqual(res.query_engine, { version: '1' });
+        done();
+      });
+    });
   });
 
   describe('getCmdLineOpts', function() {
@@ -203,6 +225,31 @@ describe('instance-detail-helper-mocked', function() {
         assert.equal(err, null);
         assert.equal(res.dbType, 'mongodb');
         assert.equal(res.isGenuine, true);
+        done();
+      });
+    });
+  });
+
+  describe('getDataLake', function() {
+    it('reports when connected to DataLake', function(done) {
+      const results = {
+        build: { raw: { queryEngine: { version: '1.0.0' } } }
+      };
+      getDataLake(results, function(err, res) {
+        assert.equal(err, null);
+        assert.equal(res.isDataLake, true);
+        assert.equal(res.version, '1.0.0');
+        done();
+      });
+    });
+    it('reports when not connected to DataLake and no queryEngine', function(done) {
+      const results = {
+        build: { raw: {} }
+      };
+      getDataLake(results, function(err, res) {
+        assert.equal(err, null);
+        assert.equal(res.isDataLake, false);
+        assert.equal(res.version, null);
         done();
       });
     });
