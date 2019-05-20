@@ -21,6 +21,11 @@ const DeploymentAwarenessStore = Reflux.createStore({
    */
   onActivated(appRegistry) {
     appRegistry.on('data-service-initialized', this.onDataServiceInitialized.bind(this));
+    appRegistry.on('instance-refreshed', (state) => {
+      if (state.instance.dataLake && state.instance.dataLake.isDataLake) {
+        this.setState({isDataLake: true});
+      }
+    });
   },
 
   /**
@@ -52,7 +57,8 @@ const DeploymentAwarenessStore = Reflux.createStore({
     return {
       topologyType: 'Unknown',
       setName: '',
-      servers: []
+      servers: [],
+      isDataLake: false
     };
   }
 });

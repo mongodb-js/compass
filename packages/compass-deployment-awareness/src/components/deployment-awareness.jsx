@@ -20,7 +20,8 @@ class DeploymentAwarenessComponent extends React.Component {
   static propTypes = {
     servers: PropTypes.array,
     setName: PropTypes.string,
-    topologyType: PropTypes.string
+    topologyType: PropTypes.string,
+    isDataLake: PropTypes.bool
   }
 
   /**
@@ -31,7 +32,7 @@ class DeploymentAwarenessComponent extends React.Component {
   renderTopologyInfo() {
     switch (this.props.topologyType) {
       case SINGLE:
-        return (<Single server={this.props.servers[0]} />);
+        return (<Single server={this.props.servers[0]} isDataLake={this.props.isDataLake}/>);
       case SHARDED:
         return (<Sharded servers={this.props.servers} />);
       case REPLICA_SET_NO_PRIMARY:

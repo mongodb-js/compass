@@ -11,7 +11,8 @@ class Unknown extends React.Component {
   static displayName = 'Unknown';
 
   static propTypes = {
-    servers: PropTypes.array.isRequired
+    servers: PropTypes.array.isRequired,
+    isDataLake: PropTypes.bool.isRequired
   }
 
   /**
@@ -27,6 +28,15 @@ class Unknown extends React.Component {
     return `${count} server`;
   }
 
+  renderPill() {
+    return (
+      <div className={classnames(styles['topology-unknown-type'])}>
+        <i className="mms-icon-unknown" />
+        <span className={classnames(styles['topology-unknown-type-name'])}>Unknown</span>
+      </div>
+    );
+  }
+
   /**
    * Render the unknown component.
    *
@@ -38,10 +48,7 @@ class Unknown extends React.Component {
         <div className={classnames(styles['topology-unknown-name'])}>
           Unknown
         </div>
-        <div className={classnames(styles['topology-unknown-type'])}>
-          <i className="mms-icon-unknown" />
-          <span className={classnames(styles['topology-unknown-type-name'])}>Unknown</span>
-        </div>
+        { this.props.isDataLake ? null : this.renderPill() }
         <div className={classnames(styles['topology-unknown-nodes'])}>
           {this.renderServerCount()}
         </div>

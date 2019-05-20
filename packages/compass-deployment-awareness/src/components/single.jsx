@@ -12,7 +12,16 @@ class Single extends React.Component {
   static displayName = 'Single';
 
   static propTypes = {
-    server: PropTypes.object.isRequired
+    server: PropTypes.object.isRequired,
+    isDataLake: PropTypes.bool.isRequired
+  }
+
+  renderPill() {
+    return (
+      <div className={classnames(styles['topology-single-type'])}>
+        {humanize(this.props.server.type)}
+      </div>
+    );
   }
 
   /**
@@ -26,9 +35,7 @@ class Single extends React.Component {
         <div className={classnames(styles['topology-single-address'])}>
           {this.props.server.address}
         </div>
-        <div className={classnames(styles['topology-single-type'])}>
-          {humanize(this.props.server.type)}
-        </div>
+        { this.props.isDataLake ? null : this.renderPill() }
       </div>
     );
   }

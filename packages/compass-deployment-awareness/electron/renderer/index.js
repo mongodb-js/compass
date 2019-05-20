@@ -57,6 +57,7 @@ appRegistry.emit('data-service-initialized', dataService);
 dataService.connect((error, ds) => {
   global.hadronApp.dataService = ds;
   appRegistry.emit('data-service-connected', error, ds);
+  appRegistry.emit('instance-refreshed', { instance: { dataLake: { isDataLake: false, version: '1.0.0' }}});
 });
 
 if (module.hot) {
