@@ -114,7 +114,7 @@ var Instance = AmpersandModel.extend({
     host: HostInfo,
     build: BuildInfo,
     genuineMongoDB: genuineMongoDB,
-    isDataLake: dataLake
+    dataLake: dataLake
   },
   /**
    * Override `AmpersandModel.serialize()` to
