@@ -212,6 +212,7 @@ const doNamespaceChanged = (state, action) => {
     isAtlasDeployed: state.isAtlasDeployed,
     outResultsFn: state.outResultsFn,
     allowWrites: state.allowWrites,
+    serverVersion: state.serverVersion,
     dataService: state.dataService,
     appRegistry: state.appRegistry,
     serverVersion: state.serverVersion
