@@ -150,7 +150,9 @@ const RULES = [
       'server kernel version': state.instance.host.kernel_version,
       'server kernel version string': state.instance.host.kernel_version_string,
       'is genuine mongodb': state.instance.genuineMongoDB === undefined ? true : state.instance.genuineMongoDB.isGenuine,
-      'server name': state.instance.genuineMongoDB === undefined ? 'mongodb' : state.instance.genuineMongoDB.dbType
+      'server name': state.instance.genuineMongoDB === undefined ? 'mongodb' : state.instance.genuineMongoDB.dbType,
+      'is data lake': state.instance.dataLake === undefined ? false : state.instance.dataLake.isDataLake,
+      'data lake version': state.instance.dataLake === undefined ? null : state.instance.dataLake.version
     })
   },
   {
