@@ -8,6 +8,7 @@ import { STAGE_OPERATORS } from 'mongodb-ace-autocompleter';
 import styles from './stage-operator-select.less';
 
 const OUT = '$out';
+const MERGE = '$merge';
 
 /**
  * Select from a list of stage operators.
@@ -45,7 +46,7 @@ class StageOperatorSelect extends PureComponent {
   render() {
     const operators = STAGE_OPERATORS.filter((o) => {
       if (o.name === '$searchBeta') return true;
-      if (o.name === OUT && !this.props.allowWrites) return false;
+      if ((o.name === OUT || o.name === MERGE) && !this.props.allowWrites) return false;
       return semver.gte(this.props.serverVersion, o.version);
     });
     return (
