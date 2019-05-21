@@ -90,6 +90,7 @@ class Stage extends Component {
     runStage: PropTypes.func.isRequired,
     runOutStage: PropTypes.func.isRequired,
     gotoOutResults: PropTypes.func.isRequired,
+    gotoMergeResults: PropTypes.func.isRequired,
     serverVersion: PropTypes.string.isRequired,
     stageChanged: PropTypes.func.isRequired,
     stageCollapseToggled: PropTypes.func.isRequired,
@@ -165,6 +166,7 @@ class Stage extends Component {
           runStage={this.props.runStage}
           runOutStage={this.props.runOutStage}
           gotoOutResults={this.props.gotoOutResults}
+          gotoMergeResults={this.props.gotoMergeResults}
           index={this.props.index}
           isAutoPreviewing={this.props.isAutoPreviewing}
           serverVersion={this.props.serverVersion}

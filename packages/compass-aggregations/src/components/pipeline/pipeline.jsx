@@ -74,6 +74,8 @@ class Pipeline extends PureComponent {
     isImportPipelineOpen: PropTypes.bool.isRequired,
     isImportConfirmationNeeded: PropTypes.bool.isRequired,
     setIsModified: PropTypes.func.isRequired,
+    gotoOutResults: PropTypes.func.isRequired,
+    gotoMergeResults: PropTypes.func.isRequired,
     name: PropTypes.string,
     importPipelineError: PropTypes.string,
     collation: PropTypes.oneOfType([PropTypes.bool, PropTypes.object]),

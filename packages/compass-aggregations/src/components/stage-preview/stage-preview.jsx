@@ -4,7 +4,7 @@ import { Document } from '@mongodb-js/compass-crud';
 import { TextButton } from 'hadron-react-buttons';
 import HadronDocument from 'hadron-document';
 import LoadingOverlay from 'components/loading-overlay';
-import { OUT } from 'modules/pipeline';
+import { OUT, MERGE } from 'modules/pipeline';
 import classnames from 'classnames';
 import decomment from 'decomment';
 
@@ -19,6 +19,7 @@ class StagePreview extends Component {
   static propTypes = {
     runOutStage: PropTypes.func.isRequired,
     gotoOutResults: PropTypes.func.isRequired,
+    gotoMergeResults: PropTypes.func.isRequired,
     documents: PropTypes.array.isRequired,
     isValid: PropTypes.bool.isRequired,
     isEnabled: PropTypes.bool.isRequired,
@@ -27,6 +28,13 @@ class StagePreview extends Component {
     index: PropTypes.number.isRequired,
     stageOperator: PropTypes.string,
     stage: PropTypes.string
+  }
+
+  /**
+   * Goto the merge results.
+   */
+  onGotoMergeResults = () => {
+    this.props.gotoMergeResults(this.props.index);
   }
 
   /**
@@ -42,6 +50,42 @@ class StagePreview extends Component {
    */
   onSaveDocuments = () => {
     this.props.runOutStage(this.props.index);
+  }
+
+  /**
+   * If the stage operator is $merge we have special behaviour.
+   *
+   * @returns {Component} The component.
+   */
+  renderMergeSection() {
+    if (this.props.isComplete) {
+      return (
+        <div className={classnames(styles['stage-preview-out'])}>
+          <div className={classnames(styles['stage-preview-out-text'])}>
+            Documents persisted to collection specified by $merge.
+          </div>
+          <div
+            className={classnames(styles['stage-preview-out-link'])}
+            onClick={this.onGotoMergeResults}>
+            Go to collection.
+          </div>
+        </div>
+      );
+    }
+    return (
+      <div className={classnames(styles['stage-preview-out'])}>
+        <div className={classnames(styles['stage-preview-out-text'])}>
+          The $merge operator will cause the pipeline to persist the results
+          to the specified location. Please confirm to execute.
+        </div>
+        <div className={classnames(styles['stage-preview-out-button'])}>
+          <TextButton
+            text="Merge Documents"
+            className="btn btn-xs btn-primary"
+            clickHandler={this.onSaveDocuments} />
+        </div>
+      </div>
+    );
   }
 
   /**
@@ -90,6 +134,9 @@ class StagePreview extends Component {
     if (this.props.isValid && this.props.isEnabled) {
       if (this.props.stageOperator === OUT) {
         return this.renderOutSection();
+      }
+      if (this.props.stageOperator === MERGE) {
+        return this.renderMergeSection();
       }
       if (this.props.documents.length > 0) {
         const documents = this.props.documents.map((doc, i) => {

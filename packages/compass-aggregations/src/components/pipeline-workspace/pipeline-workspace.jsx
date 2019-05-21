@@ -28,6 +28,7 @@ class PipelineWorkspace extends PureComponent {
     runStage: PropTypes.func.isRequired,
     runOutStage: PropTypes.func.isRequired,
     gotoOutResults: PropTypes.func.isRequired,
+    gotoMergeResults: PropTypes.func.isRequired,
     serverVersion: PropTypes.string.isRequired,
     stageChanged: PropTypes.func.isRequired,
     stageCollapseToggled: PropTypes.func.isRequired,
@@ -73,6 +74,7 @@ class PipelineWorkspace extends PureComponent {
           openLink={this.props.openLink}
           runOutStage={this.props.runOutStage}
           gotoOutResults={this.props.gotoOutResults}
+          gotoMergeResults={this.props.gotoMergeResults}
           serverVersion={this.props.serverVersion}
           stageChanged={this.props.stageChanged}
           stageCollapseToggled={this.props.stageCollapseToggled}

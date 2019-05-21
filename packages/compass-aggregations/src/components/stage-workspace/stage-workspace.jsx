@@ -25,6 +25,7 @@ class StageWorkspace extends PureComponent {
     runStage: PropTypes.func.isRequired,
     runOutStage: PropTypes.func.isRequired,
     gotoOutResults: PropTypes.func.isRequired,
+    gotoMergeResults: PropTypes.func.isRequired,
     index: PropTypes.number.isRequired,
     serverVersion: PropTypes.string.isRequired,
     isAutoPreviewing: PropTypes.bool.isRequired,
@@ -76,6 +77,7 @@ class StageWorkspace extends PureComponent {
           index={this.props.index}
           runOutStage={this.props.runOutStage}
           gotoOutResults={this.props.gotoOutResults}
+          gotoMergeResults={this.props.gotoMergeResults}
         />
       </div>
     );

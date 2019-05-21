@@ -4,6 +4,7 @@ import { globalAppRegistryEmit } from 'mongodb-redux-common/app-registry';
 import { ObjectId } from 'bson';
 import toNS from 'mongodb-ns';
 import isEmpty from 'lodash.isempty';
+import { parseNamespace } from 'utils/stage';
 
 import {
   DEFAULT_MAX_TIME_MS,
@@ -102,6 +103,11 @@ export const FULL_SCAN_OPS = ['$group', '$bucket', '$bucketAuto'];
  * The out stage operator.
  */
 export const OUT = '$out';
+
+/**
+ * The merge stage operator.
+ */
+export const MERGE = '$merge';
 
 /**
  * Generate an empty stage for the pipeline.
@@ -510,7 +516,7 @@ export const generatePipeline = (state, index) => {
   if (
     stages.length > 0 &&
     !REQUIRED_AS_FIRST_STAGE.includes(lastStage.stageOperator) &&
-    lastStage.stageOperator !== OUT
+    (lastStage.stageOperator !== OUT && lastStage.stageOperator !== MERGE)
   ) {
     stages.push({
       $limit: state.limit || DEFAULT_SAMPLE_SIZE
@@ -542,7 +548,7 @@ const executeAggregation = (dataService, ns, dispatch, state, index) => {
     stage.isValid &&
     stage.isEnabled &&
     stage.stageOperator &&
-    stage.stageOperator !== OUT
+    (stage.stageOperator !== OUT && stage.stageOperator !== MERGE)
   ) {
     executeStage(dataService, ns, dispatch, state, index);
   } else {
@@ -579,6 +585,26 @@ const executeStage = (dataService, ns, dispatch, state, index) => {
       );
     });
   });
+};
+
+/**
+ * Go to the $merge results collection.
+ *
+ * @param {Number} index - The stage index.
+ *
+ * @returns {Function} The thunk function.
+ */
+export const gotoMergeResults = (index) => {
+  return (dispatch, getState) => {
+    const state = getState();
+    const database = toNS(state.namespace).database;
+    const outNamespace = parseNamespace(database, state.pipeline[index]);
+    if (state.outResultsFn) {
+      state.outResultsFn(outNamespace);
+    } else {
+      dispatch(globalAppRegistryEmit('open-namespace-in-new-tab', outNamespace, false));
+    }
+  };
 };
 
 /**
