@@ -9,6 +9,7 @@ module.exports = BaseResource.extend({
       type: 'string',
       required: true
     },
+    userHash: 'string',
     createdAt: ['date', true],
     name: 'string',
     email: 'string',

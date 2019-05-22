@@ -41,6 +41,7 @@ var IntercomTracker = State.extend({
      * <set by `lib/resources/user.js`>
      */
     userId: ['string', true],
+    userHash: ['string', false],
     createdAt: ['date', true],
     name: {
       type: 'any',
@@ -62,7 +63,8 @@ var IntercomTracker = State.extend({
       default: undefined,
       required: false,
       allowNull: true
-    }
+    },
+    company: ['object', false]
   },
   session: {
     intercomHandle: 'any',
@@ -177,6 +179,7 @@ var IntercomTracker = State.extend({
   _updateIntercom: function() {
     var obj = {
       user_id: this.userId,
+      user_hash: this.userHash,
       created_at: Math.floor(this.createdAt.getTime() / 1000),
       name: this.name,
       email: this.email,
@@ -185,6 +188,7 @@ var IntercomTracker = State.extend({
       app_version: this.appVersion,
       app_stage: this.appStage
     };
+
     if (typeof os !== 'undefined') {
       obj.host_arch = os.arch();
       obj.host_cpu_cores = os.cpus().length;
@@ -192,6 +196,7 @@ var IntercomTracker = State.extend({
       obj.host_total_memory_gb = os.totalmem() / 1024 / 1024 / 1024;
       obj.host_free_memory_gb = os.freemem() / 1024 / 1024 / 1024;
     }
+
     if (typeof window !== 'undefined' && window.Intercom) {
       if (!this.hasBooted) {
         obj.app_id = this.appId;
