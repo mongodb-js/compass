@@ -1,7 +1,7 @@
 {
   "name": "mongodb-js-metrics",
   "description": "Shareable metric recording.",
-  "version": "4.3.0",
+  "version": "4.4.0",
   "scripts": {
     "fmt": "mongodb-js-fmt",
     "check": "mongodb-js-precommit",
