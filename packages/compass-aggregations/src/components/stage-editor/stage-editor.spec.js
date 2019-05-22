@@ -12,6 +12,8 @@ describe('StageEditor [Component]', () => {
   const stage = '{ name: "testing" }';
   const stageOperator = '$match';
   const isValid = true;
+  const projectionsChangedSpy = sinon.spy();
+  const newPipelineFromPasteSpy = sinon.spy();
 
   beforeEach(() => {
     component = mount(
@@ -26,7 +28,10 @@ describe('StageEditor [Component]', () => {
         serverVersion="3.6.0"
         runStage={runStageSpy}
         setIsModified={setIsModifiedSpy}
-        stageChanged={spy} />
+        stageChanged={spy}
+        projectionsChanged={projectionsChangedSpy}
+        newPipelineFromPaste={newPipelineFromPasteSpy}
+      />
     );
   });
 

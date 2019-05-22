@@ -4,14 +4,19 @@ import { mount } from 'enzyme';
 import OverviewToggler from './overview-toggler';
 import styles from './overview-toggler.less';
 
-
 describe('OverviewToggler [Component]', () => {
   context('when expanded', () => {
     let component;
     const spy = sinon.spy();
 
     beforeEach(() => {
-      component = mount(<OverviewToggler isOverviewOn={false} overviewToggled={spy} />);
+      component = mount(
+        <OverviewToggler
+          isOverviewOn={false}
+          overviewToggled={spy}
+          toggleOverview={spy}
+        />
+      );
     });
 
     afterEach(() => {
@@ -40,7 +45,11 @@ describe('OverviewToggler [Component]', () => {
 
     beforeEach(() => {
       component = mount(
-        <OverviewToggler isOverviewOn overviewToggled={spy} />
+        <OverviewToggler
+          isOverviewOn
+          overviewToggled={spy}
+          toggleOverview={spy}
+        />
       );
     });
 
@@ -49,7 +58,10 @@ describe('OverviewToggler [Component]', () => {
     });
 
     it('renders the expand text', () => {
-      expect(component.find('button')).to.have.prop('title', 'Expand all stages');
+      expect(component.find('button')).to.have.prop(
+        'title',
+        'Expand all stages'
+      );
     });
 
     it('renders the expand button', () => {
@@ -63,7 +75,11 @@ describe('OverviewToggler [Component]', () => {
 
     beforeEach(() => {
       component = mount(
-        <OverviewToggler overviewOn overviewToggled={spy} />
+        <OverviewToggler
+          isOverviewOn
+          overviewToggled={spy}
+          toggleOverview={spy}
+        />
       );
     });
 

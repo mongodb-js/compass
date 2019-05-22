@@ -26,6 +26,8 @@ describe('PipelineToolbar [Component]', () => {
   let toggleOverviewSpy;
   let toggleFullscreenSpy;
   let toggleSettingsIsExpandedSpy;
+  let savingPipelineOpenSpy;
+  let openCreateViewSpy;
 
   beforeEach(() => {
     savedPipelinesListToggleSpy = sinon.spy();
@@ -45,6 +47,8 @@ describe('PipelineToolbar [Component]', () => {
     toggleOverviewSpy = sinon.spy();
     toggleFullscreenSpy = sinon.spy();
     toggleSettingsIsExpandedSpy = sinon.spy();
+    savingPipelineOpenSpy = sinon.spy();
+    openCreateViewSpy = sinon.spy();
 
     component = shallow(
       <PipelineToolbar
@@ -75,6 +79,8 @@ describe('PipelineToolbar [Component]', () => {
         toggleFullscreen={toggleFullscreenSpy}
         toggleSettingsIsExpanded={toggleSettingsIsExpandedSpy}
         serverVersion="4.0.0"
+        savingPipelineOpen={savingPipelineOpenSpy}
+        openCreateView={openCreateViewSpy}
       />
     );
   });
@@ -88,10 +94,14 @@ describe('PipelineToolbar [Component]', () => {
   });
 
   it('renders the builder toolbar', () => {
-    expect(component.find(`.${styles['pipeline-toolbar']}`)).to.have.descendants(PipelineBuilderToolbar);
+    expect(
+      component.find(`.${styles['pipeline-toolbar']}`)
+    ).to.have.descendants(PipelineBuilderToolbar);
   });
 
   it('renders the preview toolbar', () => {
-    expect(component.find(`.${styles['pipeline-toolbar']}`)).to.have.descendants(PipelinePreviewToolbar);
+    expect(
+      component.find(`.${styles['pipeline-toolbar']}`)
+    ).to.have.descendants(PipelinePreviewToolbar);
   });
 });

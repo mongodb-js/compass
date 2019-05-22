@@ -32,9 +32,9 @@ describe('CreateViewStore [Store]', () => {
 
     describe('when open create view is emitted', () => {
       beforeEach(() => {
-        appRegistry.emit('open-create-view', 'dataService.test', [
+        appRegistry.emit('open-create-view', {source: 'dataService.test', pipeline: [
           { $project: { a: 1 } }
-        ]);
+        ]});
       });
 
       it('dispatches the toggle action', () => {
