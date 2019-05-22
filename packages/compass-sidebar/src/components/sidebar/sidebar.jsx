@@ -145,7 +145,7 @@ class Sidebar extends PureComponent {
   }
 
   renderCreateDatabaseButton() {
-    if (!this.isReadonlyDistro()) {
+    if (!this.isReadonlyDistro() && !(this.props.instance.dataLake && this.props.instance.dataLake.isDataLake)) {
       const tooltipText = this.props.description;
       const tooltipOptions = this.props.isWritable ? {} : {
         'data-for': TOOLTIP_IDS.CREATE_DATABASE_BUTTON,
