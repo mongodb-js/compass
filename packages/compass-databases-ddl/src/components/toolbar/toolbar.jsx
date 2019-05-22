@@ -18,7 +18,8 @@ class Toolbar extends PureComponent {
 
   static propTypes = {
     isReadonly: PropTypes.bool.isRequired,
-    open: PropTypes.func.isRequired
+    open: PropTypes.func.isRequired,
+    isDataLake: PropTypes.bool.isRequired
   }
 
   /**
@@ -44,7 +45,7 @@ class Toolbar extends PureComponent {
    * @returns {Component} The button component.
    */
   renderButton() {
-    if (!this.props.isReadonly) {
+    if (!this.props.isReadonly && !this.props.isDataLake) {
       return (
         <this.TextWriteButton
           className="btn btn-primary btn-xs"

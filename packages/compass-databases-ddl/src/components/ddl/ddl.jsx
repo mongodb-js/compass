@@ -35,7 +35,8 @@ class Ddl extends PureComponent {
     sortColumn: PropTypes.string.isRequired,
     sortOrder: PropTypes.string.isRequired,
     sortDatabases: PropTypes.func.isRequired,
-    isGenuineMongoDB: PropTypes.bool.isRequired
+    isGenuineMongoDB: PropTypes.bool.isRequired,
+    isDataLake: PropTypes.bool.isRequired
   }
 
   renderDatabases() {
@@ -81,7 +82,9 @@ class Ddl extends PureComponent {
       <div className={classnames(styles.ddl)} data-test-id="databases-table">
         <Toolbar
           isReadonly={this.props.isReadonly}
-          open={openCreate} />
+          open={openCreate}
+          isDataLake={this.props.isDataLake}
+        />
         {this.renderDatabases()}
       </div>
     );
@@ -102,7 +105,8 @@ const mapStateToProps = (state) => ({
   isWritable: state.isWritable,
   sortColumn: state.sortColumn,
   sortOrder: state.sortOrder,
-  isGenuineMongoDB: state.isGenuineMongoDB
+  isGenuineMongoDB: state.isGenuineMongoDB,
+  isDataLake: state.isDataLake
 });
 
 /**

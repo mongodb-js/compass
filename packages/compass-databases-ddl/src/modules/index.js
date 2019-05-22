@@ -21,6 +21,9 @@ import sortOrder, {
 import isGenuineMongoDB, {
   INITIAL_STATE as GENUINE_INITIAL_STATE
 } from 'modules/is-genuine-mongodb';
+import isDataLake, {
+  INITIAL_STATE as DATA_LAKE_INITIAL_STATE
+} from 'modules/is-data-lake';
 import { RESET } from 'modules/reset';
 
 /**
@@ -34,7 +37,8 @@ const reducer = combineReducers({
   sortColumn,
   sortOrder,
   appRegistry,
-  isGenuineMongoDB
+  isGenuineMongoDB,
+  isDataLake
 });
 
 /**
@@ -55,7 +59,8 @@ const rootReducer = (state, action) => {
       isWritable: WRITABLE_INITIAL_STATE,
       sortColumn: SORT_COLUMN_INITIAL_STATE,
       sortOrder: SORT_ORDER_INITIAL_STATE,
-      isGenuineMongoDB: GENUINE_INITIAL_STATE
+      isGenuineMongoDB: GENUINE_INITIAL_STATE,
+      isDataLake: DATA_LAKE_INITIAL_STATE
     };
   }
   return reducer(state, action);

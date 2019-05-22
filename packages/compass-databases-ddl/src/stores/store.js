@@ -4,6 +4,7 @@ import { appRegistryActivated } from 'modules/app-registry';
 import { loadDatabases } from 'modules/databases';
 import { writeStateChanged } from 'modules/is-writable';
 import { toggleIsGenuineMongoDB } from 'modules/is-genuine-mongodb';
+import { toggleIsDataLake } from 'modules/is-data-lake';
 import reducer from 'modules';
 
 const store = createStore(reducer, applyMiddleware(thunk));
@@ -22,6 +23,10 @@ store.onActivated = (appRegistry) => {
     const isGenuine = state.instance.genuineMongoDB === undefined
       ? { isGenuine: true }
       : state.instance.genuineMongoDB;
+
+    if (state.instance.dataLake && state.instance.dataLake.isDataLake) {
+      store.dispatch(toggleIsDataLake(true));
+    }
 
     store.dispatch(toggleIsGenuineMongoDB(isGenuine.isGenuine));
   });

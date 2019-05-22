@@ -78,7 +78,8 @@ dataService.connect((error, ds) => {
     appRegistry.emit('instance-refreshed', {
       instance: {
         databases: data.databases,
-        genuineMongoDB: { isGenuine: true }
+        genuineMongoDB: { isGenuine: true },
+        dataLake: {isDataLake: false}
       }
     });
   });
