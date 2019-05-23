@@ -125,6 +125,13 @@ appRegistry.emit('data-service-initialized', dataService);
 //   appRegistry.emit('collection-changed', 'database.collection');
 //   appRegistry.emit('database-changed', 'database');
 // });
+// Uncomment to test as if data lake
+// global.hadronApp.appRegistry.emit('instance-refreshed', { instance: {
+//   dataLake: {
+//     isDataLake: true, version: '1.0.0'
+//   },
+//   build: { version: 1 }
+// }});
 
 if (module.hot) {
   /**

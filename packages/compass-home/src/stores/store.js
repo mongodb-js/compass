@@ -5,6 +5,7 @@ import thunk from 'redux-thunk';
 import { changeAuthentication } from 'modules/authentication';
 import { changeErrorMessage } from 'modules/error-message';
 import { toggleIsAtlas } from 'modules/is-atlas';
+import { toggleIsDataLake } from 'modules/is-data-lake';
 import { toggleIsConnected } from 'modules/is-connected';
 import { changeSshTunnel } from 'modules/ssh-tunnel';
 import { changeUiStatus } from 'modules/ui-status';
@@ -30,6 +31,9 @@ store.onActivated = (appRegistry) => {
     }
     store.dispatch(changeUiStatus(UI_STATES.COMPLETE));
     store.dispatch(updateTitle());
+    if (state.instance.dataLake && state.instance.dataLake.isDataLake) {
+      store.dispatch(toggleIsDataLake(true));
+    }
   });
 
   appRegistry.on('data-service-connected', (err, ds) => {

@@ -9,6 +9,9 @@ import errorMessage, {
 import isAtlas, {
   INITIAL_STATE as IS_ATLAS_INITIAL_STATE
 } from 'modules/is-atlas';
+import isDataLake, {
+  INITIAL_STATE as IS_DATA_LAKE_INITIAL_STATE
+} from 'modules/is-data-lake';
 import isCollapsed, {
   INITIAL_STATE as IS_COLLAPSED_INITIAL_STATE
 } from 'modules/is-collapsed';
@@ -43,6 +46,7 @@ const reducer = combineReducers({
   authentication,
   errorMessage,
   isAtlas,
+  isDataLake,
   isCollapsed,
   isConnected,
   namespace,
@@ -68,6 +72,7 @@ const rootReducer = (state, action) => {
       authentication: AUTH_INITIAL_STATE,
       errorMessage: ERROR_MESSAGE_INITIAL_STATE,
       isAtlas: IS_ATLAS_INITIAL_STATE,
+      isDataLake: IS_DATA_LAKE_INITIAL_STATE,
       isCollapsed: IS_COLLAPSED_INITIAL_STATE,
       isConnected: IS_CONNECTED_INITIAL_STATE,
       namespace: NAMESPACE_INITIAL_STATE,

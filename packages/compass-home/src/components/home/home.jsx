@@ -51,7 +51,8 @@ class Home extends PureComponent {
     uiStatus: PropTypes.string,
     isConnected: PropTypes.bool,
     isCollapsed: PropTypes.bool,
-    toggleIsCollapsed: PropTypes.func
+    toggleIsCollapsed: PropTypes.func,
+    isDataLake: PropTypes.bool
   };
 
   getComponentOrNull(name) {
@@ -125,7 +126,7 @@ class Home extends PureComponent {
   renderCollectionView() {
     if (this.collectionRole) {
       const Collection = this.collectionRole[0].component;
-      return (<Collection namespace={this.props.namespace}/>);
+      return (<Collection namespace={this.props.namespace} isDataLake={this.props.isDataLake}/>);
     }
     return null;
   }
@@ -141,7 +142,7 @@ class Home extends PureComponent {
   renderInstanceView() {
     if (this.instanceRole) {
       const Instance = this.instanceRole[0].component;
-      return (<Instance interval={1000}/>);
+      return (<Instance interval={1000} isDataLake={this.props.isDataLake}/>);
     }
     return null;
   }
@@ -294,7 +295,8 @@ const mapStateToProps = (state) => ({
   namespace: state.namespace,
   uiStatus: state.uiStatus,
   isConnected: state.isConnected,
-  isCollapsed: state.isCollapsed
+  isCollapsed: state.isCollapsed,
+  isDataLake: state.isDataLake
 });
 
 /**
