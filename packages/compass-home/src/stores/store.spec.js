@@ -27,7 +27,8 @@ describe('HomeStore [Store]', () => {
       isConnected: false,
       namespace: '',
       title: '',
-      uiStatus: UI_STATES.INITIAL
+      uiStatus: UI_STATES.INITIAL,
+      isDataLake: false
     };
     beforeEach(() => {
       hold = global.hadronApp.appRegistry;
@@ -66,7 +67,8 @@ describe('HomeStore [Store]', () => {
         expect(store.getState()).to.deep.equal(initialState);
         store.dispatch(changeInstanceId('test'));
         global.hadronApp.appRegistry.emit('instance-refreshed', {
-          errorMessage: ''
+          errorMessage: '',
+          instance: { dataLake: {isDataLake: false} }
         });
       });
       it('dispatches the change error action', () => {
@@ -153,7 +155,8 @@ describe('HomeStore [Store]', () => {
           uiStatus: UI_STATES.COMPLETE,
           authentication: 'test_auth',
           ssl: 'test_ssl',
-          sshTunnel: 'test_ssh_tunnel'
+          sshTunnel: 'test_ssh_tunnel',
+          isDataLake: false
         });
         global.hadronApp.appRegistry.emit('data-service-disconnected');
       });
@@ -177,7 +180,8 @@ describe('HomeStore [Store]', () => {
           uiStatus: UI_STATES.ERROR,
           authentication: 'NONE',
           ssl: 'NONE',
-          sshTunnel: 'NONE'
+          sshTunnel: 'NONE',
+          isDataLake: false
         });
         global.hadronApp.appRegistry.emit('data-service-disconnected');
       });
