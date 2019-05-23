@@ -2,6 +2,9 @@ import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import classnames from 'classnames';
 import createDatabaseStore from 'stores/create-database';
+import { TextButton } from 'hadron-react-buttons';
+import { Tooltip } from 'hadron-react-components';
+
 
 import styles from './toolbar.less';
 
@@ -9,6 +12,8 @@ import styles from './toolbar.less';
  * The button component name.
  */
 const BUTTON = 'DeploymentAwareness.TextWriteButton';
+
+const DATA_LAKE_WARNING = 'Creating databases is not supported by Atlas Data Lake';
 
 /**
  * The toolbar component.
@@ -45,7 +50,22 @@ class Toolbar extends PureComponent {
    * @returns {Component} The button component.
    */
   renderButton() {
-    if (!this.props.isReadonly && !this.props.isDataLake) {
+    if (this.props.isDataLake) {
+      return (
+        <div className="tooltip-wrapper-class" data-tip={DATA_LAKE_WARNING} data-for="database-ddl-is-not-writable">
+          <TextButton
+            className="btn btn-primary btn-xs"
+            dataTestId="open-create-database-modal-button"
+            text="Create Database"
+            tooltipId="database-ddl-is-not-writable"
+            disabled
+            clickHandler={this.onShowCreateDatabase}
+          />
+          <Tooltip id="database-ddl-is-not-writable" place="left"/>
+        </div>
+      );
+    }
+    if (!this.props.isReadonly) {
       return (
         <this.TextWriteButton
           className="btn btn-primary btn-xs"

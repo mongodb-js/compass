@@ -79,7 +79,7 @@ dataService.connect((error, ds) => {
       instance: {
         databases: data.databases,
         genuineMongoDB: { isGenuine: true },
-        dataLake: {isDataLake: false}
+        dataLake: {isDataLake: true}
       }
     });
   });
