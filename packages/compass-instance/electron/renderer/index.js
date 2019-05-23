@@ -4,6 +4,8 @@ import app from 'hadron-app';
 import AppRegistry from 'hadron-app-registry';
 import { AppContainer } from 'react-hot-loader';
 import InstancePlugin, { activate } from 'plugin';
+import { activate as rtssActivate } from '@mongodb-js/compass-serverstats';
+import { activate as databaseActivate } from '@mongodb-js/compass-database';
 
 // Import global less file. Note: these styles WILL NOT be used in compass, as compass provides its own set
 // of global styles. If you are wishing to style a given component, you should be writing a less file per
@@ -18,6 +20,8 @@ global.hadronApp.appRegistry = appRegistry;
 
 // Activate our plugin with the Hadron App Registry
 activate(appRegistry);
+rtssActivate(appRegistry);
+databaseActivate(appRegistry);
 appRegistry.onActivated();
 
 // Since we are using HtmlWebpackPlugin WITHOUT a template,
@@ -30,7 +34,7 @@ document.body.appendChild(root);
 const render = Component => {
   ReactDOM.render(
     <AppContainer>
-      <Component />
+      <Component isDataLake={false}/>
     </AppContainer>,
     document.getElementById('root')
   );

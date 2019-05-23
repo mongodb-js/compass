@@ -1,4 +1,6 @@
 const React = require('react');
+const filter = require('lodash.filter');
+const PropTypes = require('prop-types');
 const { TabNavBar, UnsafeComponent } = require('hadron-react-components');
 
 /**
@@ -7,6 +9,10 @@ const { TabNavBar, UnsafeComponent } = require('hadron-react-components');
 class InstanceComponent extends React.Component {
 
   static displayName = 'InstanceComponent';
+  static propTypes = {
+    isDataLake: PropTypes.bool.isRequired
+  };
+
 
   /**
    * Instantiate the instance component.
@@ -35,7 +41,10 @@ class InstanceComponent extends React.Component {
    * Setup the instance level tabs.
    */
   setupTabs() {
-    const roles = global.hadronApp.appRegistry.getRole('Instance.Tab');
+    const instanceTabs = global.hadronApp.appRegistry.getRole('Instance.Tab');
+    const roles = filter(instanceTabs, (role) => {
+      return !(this.props.isDataLake && role.name === 'Performance');
+    });
 
     const tabs = roles.map((role) => role.name);
     const views = roles.map((role, i) => {
