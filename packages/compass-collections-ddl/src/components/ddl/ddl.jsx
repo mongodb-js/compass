@@ -28,7 +28,8 @@ class Ddl extends PureComponent {
     showCollection: PropTypes.func.isRequired,
     sortColumn: PropTypes.string.isRequired,
     sortOrder: PropTypes.string.isRequired,
-    sortCollections: PropTypes.func.isRequired
+    sortCollections: PropTypes.func.isRequired,
+    isDataLake: PropTypes.bool.isRequired
   }
 
   /**
@@ -42,7 +43,9 @@ class Ddl extends PureComponent {
         <Toolbar
           isReadonly={this.props.isReadonly}
           databaseName={this.props.databaseName}
-          open={openCreate} />
+          open={openCreate}
+          isDataLake={this.props.isDataLake}
+        />
         <CollectionsTable
           columns={this.props.columns}
           collections={this.props.collections}
@@ -74,7 +77,8 @@ const mapStateToProps = (state) => ({
   isReadonly: state.isReadonly,
   isWritable: state.isWritable,
   sortColumn: state.sortColumn,
-  sortOrder: state.sortOrder
+  sortOrder: state.sortOrder,
+  isDataLake: state.isDataLake
 });
 
 /**

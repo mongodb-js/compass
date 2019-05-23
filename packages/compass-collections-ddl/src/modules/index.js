@@ -25,6 +25,9 @@ import sortColumn, {
 import sortOrder, {
   INITIAL_STATE as SORT_ORDER_INITIAL_STATE
 } from 'modules/sort-order';
+import isDataLake, {
+  INITIAL_STATE as DATA_LAKE_INITIAL_STATE
+} from 'modules/is-data-lake';
 import { RESET } from 'modules/reset';
 
 /**
@@ -40,7 +43,8 @@ const reducer = combineReducers({
   sortColumn,
   sortOrder,
   appRegistry,
-  dataService
+  dataService,
+  isDataLake
 });
 
 /**
@@ -62,7 +66,8 @@ const rootReducer = (state, action) => {
       isReadonly: READONLY_INITIAL_STATE,
       isWritable: WRITABLE_INITIAL_STATE,
       sortColumn: SORT_COLUMN_INITIAL_STATE,
-      sortOrder: SORT_ORDER_INITIAL_STATE
+      sortOrder: SORT_ORDER_INITIAL_STATE,
+      isDataLake: DATA_LAKE_INITIAL_STATE
     };
   }
   return reducer(state, action);

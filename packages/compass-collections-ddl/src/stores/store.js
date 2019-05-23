@@ -7,6 +7,7 @@ import { dataServiceConnected } from 'modules/data-service';
 import { loadCollectionStats } from 'modules/collections';
 import { loadDatabases } from 'modules/databases';
 import { writeStateChanged } from 'modules/is-writable';
+import { toggleIsDataLake } from 'modules/is-data-lake';
 import reducer from 'modules';
 
 const store = createStore(reducer, applyMiddleware(thunk));
@@ -40,6 +41,9 @@ store.onActivated = (appRegistry) => {
       if (databaseName) {
         loadAll(databaseName, databases);
       }
+    }
+    if (state.instance.dataLake && state.instance.dataLake.isDataLake) {
+      store.dispatch(toggleIsDataLake(true));
     }
   });
 
