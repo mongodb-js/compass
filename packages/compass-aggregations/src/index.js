@@ -13,7 +13,9 @@ const ROLE = {
   component: AggregationsPlugin,
   order: 2,
   configureStore: configureStore,
-  storeName: 'Aggregations.Store'
+  configureActions: () => {},
+  storeName: 'Aggregations.Store',
+  actionName: 'Aggregations.Actions'
 };
 
 /**
