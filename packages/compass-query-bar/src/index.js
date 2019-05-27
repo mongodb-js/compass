@@ -10,7 +10,8 @@ const ROLE = {
   component: QueryBarPlugin,
   configureStore: configureStore,
   configureActions: configureActions,
-  storeName: 'Query.Store'
+  storeName: 'Query.Store',
+  actionName: 'Query.Actions'
 };
 
 /**
