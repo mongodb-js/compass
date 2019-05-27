@@ -35,7 +35,7 @@ export const setDataProvider = (store, error, provider) => {
  * @param {Boolean} isReadonly - Is the store readonly.
  */
 export const setIsReadonly = (store, isReadonly) => {
-  store.isReadonly = isReadonly;
+  store.setState({ isReadonly: isReadonly });
 };
 
 /**
@@ -95,10 +95,10 @@ const configureStore = (options = {}) => {
      */
     loadCollectionStats() {
       console.log('loadCollectionStats', this.ns);
-      console.log('stats is readonly', this.isReadonly);
+      console.log('stats is readonly', this.state.isReadonly);
       console.log('stats dataService', this.dataService);
       if (toNS(this.ns || '').collection) {
-        if (this.isReadonly) {
+        if (this.state.isReadonly) {
           this.setState(this.getInitialState());
         } else if (this.dataService) {
           this.dataService.collection(this.ns, {}, (err, result) => {
@@ -137,7 +137,7 @@ const configureStore = (options = {}) => {
 
     _parseCollectionDetails(result) {
       return {
-        isReadonly: this.isReadonly || false,
+        isReadonly: this.state.isReadonly || false,
         documentCount: this._format(result.document_count),
         totalDocumentSize: this._format(result.document_size, 'b'),
         avgDocumentSize: this._format(this._avg(result.document_size, result.document_count), 'b'),

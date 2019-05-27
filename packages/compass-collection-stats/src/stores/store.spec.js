@@ -102,7 +102,7 @@ describe('CollectionStatsstore [store]', () => {
         });
 
         it('sets the is readonly value on the store', () => {
-          expect(store.isReadonly).to.equal(true);
+          expect(store.state.isReadonly).to.equal(true);
         });
       });
 
