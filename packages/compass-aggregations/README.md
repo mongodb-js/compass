@@ -129,6 +129,10 @@ const handleOut = (namespace) => {
   window.open(`https://cloud.mongodb.com/${namespace}`, '_new');
 };
 
+const handleCopy = (query) => {
+  alert(query);
+};
+
 const appRegistry = new AppRegistry();
 
 const aggregationsStore = configureAggregationsStore({
@@ -146,7 +150,8 @@ const aggregationsStore = configureAggregationsStore({
 });
 
 const exportToLanguageStore = configureExportToLanguageStore({
-  localAppRegistry: appRegistry
+  localAppRegistry: appRegistry,
+  copyToClipboardFn: handleCopy
 });
 
 <AggregationsPlugin store={aggregationsStore} />
