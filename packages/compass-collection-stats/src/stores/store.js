@@ -94,11 +94,15 @@ const configureStore = (options = {}) => {
      * @param {String} ns - The namespace.
      */
     loadCollectionStats() {
+      console.log('loadCollectionStats', this.ns);
+      console.log('stats is readonly', this.isReadonly);
+      console.log('stats dataService', this.dataService);
       if (toNS(this.ns || '').collection) {
         if (this.isReadonly) {
           this.setState(this.getInitialState());
         } else if (this.dataService) {
           this.dataService.collection(this.ns, {}, (err, result) => {
+            console.log(err);
             if (!err) {
               this.setState(this._parseCollectionDetails(result));
             }
