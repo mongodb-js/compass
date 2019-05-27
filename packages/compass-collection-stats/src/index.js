@@ -8,6 +8,7 @@ const COLLECTION_HUD_ROLE = {
   order: 1,
   name: 'Collection HUD',
   configureStore: configureStore,
+  configureActions: () => {},
   storeName: 'CollectionStats.Store'
 };
 
