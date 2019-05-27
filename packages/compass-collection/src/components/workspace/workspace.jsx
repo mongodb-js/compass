@@ -128,7 +128,7 @@ class Workspace extends PureComponent {
           key={i}
           index={i}
           namespace={tab.namespace}
-          subTab="Documents"
+          localAppRegistry={tab.localAppRegistry}
           isActive={tab.isActive}
           closeTab={this.props.closeTab}
           selectTab={this.props.selectTab}
@@ -156,7 +156,8 @@ class Workspace extends PureComponent {
           views={activeTab.views}
           queryHistoryIndexes={activeTab.queryHistoryIndexes}
           statsPlugin={activeTab.statsPlugin}
-          statsStore={activeTab.statsStore} />
+          statsStore={activeTab.statsStore}
+          localAppRegistry={activeTab.localAppRegistry} />
       );
     }
   }

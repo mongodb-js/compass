@@ -18,24 +18,24 @@ class Collection extends Component {
     views: PropTypes.array.isRequired,
     queryHistoryIndexes: PropTypes.array.isRequired,
     statsPlugin: PropTypes.func.isRequired,
-    statsStore: PropTypes.object.isRequired
+    statsStore: PropTypes.object.isRequired,
+    localAppRegistry: PropTypes.object.isRequired
   };
 
   constructor(props) {
     super(props);
     this.state = { activeTab: 0 };
-    // @todo: Use app registry.
-    // this.QueryHistoryActions = app.appRegistry.getAction('QueryHistory.Actions');
   }
 
-  onTabClicked = (idx) => {
+  onTabClicked = (idx, name) => {
     // Only proceed if the active tab has changed; prevent multiple clicks
     if (this.state.activeTab === idx) {
       return;
     }
     if (!this.props.queryHistoryIndexes.includes(idx)) {
-      this.QueryHistoryActions.collapse();
+      this.props.localAppRegistry.emit('collapse-query-history');
     }
+    this.props.localAppRegistry.emit('subtab-changed', name);
     this.setState({ activeTab: idx });
   }
 

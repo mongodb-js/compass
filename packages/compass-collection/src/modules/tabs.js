@@ -106,9 +106,12 @@ const doCreateTab = (state, action) => {
     isReadonly: action.isReadonly,
     tabs: action.tabs,
     views: action.views,
+    subtab: action.subtab,
     queryHistoryIndexes: action.queryHistoryIndexes,
     statsPlugin: action.statsPlugin,
-    statsStore: action.statsStore
+    statsStore: action.statsStore,
+    scopedModals: action.scopedModals,
+    localAppRegistry: action.localAppRegistry
   });
   return newState;
 };
@@ -287,17 +290,30 @@ export default function reducer(state = INITIAL_STATE, action) {
  * @returns {Object} The create tab action.
  */
 export const createTab = (
-  id, namespace, isReadonly, tabs, views, queryHistoryIndexes, statsPlugin, statsStore) => ({
-  type: CREATE_TAB,
-  id: id,
-  namespace: namespace,
-  isReadonly: isReadonly || false,
-  tabs: tabs,
-  views: views,
-  queryHistoryIndexes: queryHistoryIndexes,
-  statsPlugin: statsPlugin,
-  statsStore: statsStore
-});
+  id,
+  namespace,
+  isReadonly,
+  tabs,
+  views,
+  queryHistoryIndexes,
+  statsPlugin,
+  statsStore,
+  scopedModals,
+  localAppRegistry) => (
+    {
+      type: CREATE_TAB,
+      id: id,
+      namespace: namespace,
+      isReadonly: isReadonly || false,
+      tabs: tabs,
+      views: views,
+      queryHistoryIndexes: queryHistoryIndexes,
+      statsPlugin: statsPlugin,
+      statsStore: statsStore,
+      scopedModals: scopedModals,
+      localAppRegistry: localAppRegistry
+    }
+);
 
 /**
  * Action creator for close tab.
@@ -369,12 +385,95 @@ export const selectTab = (index) => ({
   index: index
 });
 
-const statsView = () => {
-
+const setupActions = (role, localAppRegistry) => {
+  const actions = role.configureActions();
+  console.log('setupActions', role);
+  localAppRegistry.registerAction(role.actionName, actions);
+  return actions;
 };
 
-const generateViews = () => {
+const setupStore = (
+  role,
+  globalAppRegistry,
+  localAppRegistry,
+  dataService,
+  namespace,
+  serverVersion,
+  isReadonly,
+  actions) => {
 
+  const store = role.configureStore({
+    localAppRegistry: localAppRegistry,
+    dataProvider: {
+      error: dataService.error,
+      dataProvider: dataService.dataService
+    },
+    namespace: namespace,
+    serverVersion: serverVersion,
+    isReadonly: isReadonly,
+    actions: actions
+  });
+  localAppRegistry.registerStore(role.storeName, store);
+
+  return store;
+};
+
+/**
+ * Setup a scoped plugin to the tab.
+ *
+ * @returns {Component} The plugin.
+ */
+const setupPlugin = (
+  role,
+  globalAppRegistry,
+  localAppRegistry,
+  dataService,
+  namespace,
+  serverVersion,
+  isReadonly) => {
+
+  const store = setupStore(
+    role,
+    globalAppRegistry,
+    localAppRegistry,
+    dataService,
+    namespace,
+    serverVersion,
+    isReadonly
+  );
+  const actions = role.configureActions();
+  const plugin = role.component;
+  return (<plugin store={store} actions={actions} />);
+};
+
+/**
+ * Setup every scoped modal role.
+ *
+ * @returns {Array} The components.
+ */
+const setupScopedModals = (
+  globalAppRegistry,
+  localAppRegistry,
+  dataService,
+  namespace,
+  serverVersion,
+  isReadonly) => {
+
+  const roles = globalAppRegistry.getRole('Collection.ScopedModal');
+  if (roles) {
+    return roles.map((role, i) => {
+      return setupPlugin(
+        role,
+        globalAppRegistry,
+        localAppRegistry,
+        dataService,
+        namespace,
+        serverVersion,
+        isReadonly
+      );
+    });
+  }
+  return [];
 };
 
 /**
@@ -391,7 +490,6 @@ export const preCreateTab = (namespace, isReadonly) => {
     const localAppRegistry = new AppRegistry();
     const globalAppRegistry = state.appRegistry;
     const roles = globalAppRegistry.getRole('Collection.Tab');
-    const statsRole = globalAppRegistry.getRole('Collection.HUD')[0];
 
     // Filter roles for feature support in the server.
     const filteredRoles = roles.filter((role) => {
@@ -403,18 +501,43 @@ export const preCreateTab = (namespace, isReadonly) => {
     const views = [];
     const queryHistoryIndexes = [];
 
+    // @todo: Durran: Setup fields.
+
+    // Setup the query bar plugin. Need to instantiate the store and actions
+    // and put them in the app registry for use by all the plugins. This way
+    // there is only 1 query bar store per collection tab instead of one per
+    // plugin that uses it.
+    const queryBarRole = globalAppRegistry.getRole('Query.QueryBar')[0];
+    localAppRegistry.registerRole('Query.QueryBar', queryBarRole);
+    const queryBarActions = setupActions(queryBarRole, localAppRegistry);
+    setupStore(
+      queryBarRole,
+      globalAppRegistry,
+      localAppRegistry,
+      state.dataService,
+      namespace,
+      serverVersion,
+      isReadonly,
+      queryBarActions
+    );
+
+    console.log('localAppRegistry', localAppRegistry);
+
+    // Setup each of the tabs inside the collection tab. They will all get
+    // passed the same information and can determine whether they want to
+    // use it or not.
     filteredRoles.forEach((role, i) => {
-      const store = role.configureStore({
-        localAppRegistry: localAppRegistry,
-        globalAppRegistry: globalAppRegistry,
-        dataProvider: {
-          error: state.dataService.error,
-          dataProvider: state.dataService.dataService
-        },
-        namespace: namespace,
-        serverVersion: serverVersion
-      });
-      localAppRegistry.registerStore(role.storeName, store);
+      const store = setupStore(
+        role,
+        globalAppRegistry,
+        localAppRegistry,
+        state.dataService,
+        namespace,
+        serverVersion,
+        isReadonly
+      );
+      const actions = setupActions(role, localAppRegistry);
+      console.log(actions);
 
       // Add the tab.
       tabs.push(role.name);
@@ -425,22 +548,31 @@ export const preCreateTab = (namespace, isReadonly) => {
       }
 
       // Add the view.
-      views.push(
-        <UnsafeComponent component={role.component} key={i} store={store} />
-      );
+      views.push(<UnsafeComponent component={role.component} key={i} store={store} actions={actions} />);
     });
 
-    const statsStore = statsRole.configureStore({
-      localAppRegistry: localAppRegistry,
-      dataProvider: {
-        error: state.dataService.error,
-        dataProvider: state.dataService.dataService
-      },
-      namespace: namespace,
-      isReadonly: isReadonly
-    });
-    localAppRegistry.registerStore(statsRole.storeName, statsStore);
+    // Setup the stats in the collection HUD
+    const statsRole = globalAppRegistry.getRole('Collection.HUD')[0];
     const statsPlugin = statsRole.component;
+    const statsStore = setupStore(
+      statsRole,
+      globalAppRegistry,
+      localAppRegistry,
+      state.dataService,
+      namespace,
+      serverVersion,
+      isReadonly
+    );
+
+    // Setup the scoped modals
+    const scopedModals = setupScopedModals(
+      globalAppRegistry,
+      localAppRegistry,
+      state.dataService,
+      namespace,
+      serverVersion,
+      isReadonly
+    );
 
     dispatch(
       createTab(
@@ -451,7 +583,9 @@ export const preCreateTab = (namespace, isReadonly) => {
         views,
         queryHistoryIndexes,
         statsPlugin,
-        statsStore
+        statsStore,
+        scopedModals,
+        localAppRegistry
       )
     );
   };
