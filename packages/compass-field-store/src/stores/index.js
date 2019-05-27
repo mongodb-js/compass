@@ -1,4 +1,2 @@
-import FieldStore from './store';
-
-export default FieldStore;
-export { FieldStore };
+import configureStore from './store';
+export default configureStore;

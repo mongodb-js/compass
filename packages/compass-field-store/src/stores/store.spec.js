@@ -2,9 +2,9 @@ import AppRegistry from 'hadron-app-registry';
 import Reflux from 'reflux';
 import StateMixin from 'reflux-state-mixin';
 const schemaFixture = require('../../test/fixtures/array_of_docs.fixture.json');
-import store from 'stores';
+import configureStore from 'stores';
 import { reset } from 'modules/reset';
-import { changeFields, INITIAL_STATE } from 'modules';
+import { INITIAL_STATE } from 'modules';
 
 const SchemaStore = Reflux.createStore({
   mixins: [StateMixin.store],
@@ -16,10 +16,15 @@ const SchemaStore = Reflux.createStore({
   }
 });
 
-
 describe('FieldStore', function() {
   let unsubscribe = () => {};
+  let store;
+  let appRegistry;
+
   beforeEach(() => {
+    appRegistry = new AppRegistry();
+    appRegistry.registerStore('Schema.Store', SchemaStore);
+    store = configureStore({ localAppRegistry: appRegistry });
     store.dispatch(reset());
     expect(store.getState()).to.deep.equal(INITIAL_STATE);
   });
@@ -49,16 +54,6 @@ describe('FieldStore', function() {
         version: '0.0.0'
       }
     ];
-    let hold;
-    before(() => {
-      hold = global.hadronApp.appRegistry;
-      global.hadronApp.appRegistry = new AppRegistry();
-      global.hadronApp.appRegistry.registerStore('Schema.Store', SchemaStore);
-      store.onActivated(global.hadronApp.appRegistry);
-    });
-    after(() => {
-      global.hadronApp.appRegistry = hold;
-    });
 
     it('on schema store trigger', (done) => {
       unsubscribe = store.subscribe(() => {
@@ -86,7 +81,7 @@ describe('FieldStore', function() {
         expect(state.aceFields).to.deep.equal(expected);
         done();
       });
-      global.hadronApp.appRegistry.emit(
+      appRegistry.emit(
         'documents-refreshed', null, [doc]
       );
     });
@@ -98,7 +93,7 @@ describe('FieldStore', function() {
         expect(state.aceFields).to.deep.equal(expected);
         done();
       });
-      global.hadronApp.appRegistry.emit(
+      appRegistry.emit(
         'document-inserted', null, doc
       );
     });
@@ -110,74 +105,24 @@ describe('FieldStore', function() {
         expect(state.aceFields).to.deep.equal(expected);
         done();
       });
-      global.hadronApp.appRegistry.emit(
+      appRegistry.emit(
         'documents-paginated', null, [doc]
       );
-    });
-
-    describe('resets', () => {
-      const defined = {
-        fields: {'a': 1}, topLevelFields: ['a'], aceFields: ['b']
-      };
-
-      beforeEach(() => {
-        store.dispatch(changeFields({a: 1}, ['a'], ['b']));
-        expect(store.getState()).to.deep.equal(defined);
-      });
-
-      it('on collection-changed', (done) => {
-        unsubscribe = store.subscribe(() => {
-          expect(store.getState()).to.deep.equal(INITIAL_STATE);
-          done();
-        });
-        global.hadronApp.appRegistry.emit('collection-changed');
-      });
-
-      it('on database-changed', (done) => {
-        unsubscribe = store.subscribe(() => {
-          expect(store.getState()).to.deep.equal(INITIAL_STATE);
-          done();
-        });
-        global.hadronApp.appRegistry.emit('database-changed');
-      });
-
-      it('on data-service-disconnected', (done) => {
-        unsubscribe = store.subscribe(() => {
-          expect(store.getState()).to.deep.equal(INITIAL_STATE);
-          done();
-        });
-        global.hadronApp.appRegistry.emit('data-service-disconnected');
-      });
     });
   });
 
   describe('emits appReg event on change', () => {
-    let hold;
     let spy;
+
     before(() => {
-      hold = global.hadronApp.appRegistry;
-      const app = new AppRegistry();
-      global.hadronApp.appRegistry = app;
-      store.onActivated(app);
       spy = sinon.spy();
-      app.emit = spy;
+      appRegistry.emit = spy;
     });
+
     after(() => {
-      store.dispatch(reset());
-      global.hadronApp.appRegistry = hold;
       spy = null;
     });
-    it('triggers for action calls', () => {
-      store.dispatch(changeFields('a', 'b', 'c'));
-      expect(spy.calledTwice).to.equal(true);
-      expect(spy.args[0][0]).to.equal('fields-changed');
-      expect(spy.args[0][1]).to.deep.equal({fields: {}, topLevelFields: [], aceFields: []});
-      expect(spy.args[1][0]).to.equal('fields-changed');
-      expect(spy.args[1][1]).to.deep.equal({fields: 'a', topLevelFields: 'b', aceFields: 'c'});
-      store.dispatch(reset());
-      expect(spy.args[2][0]).to.equal('fields-changed');
-      expect(spy.args[2][1]).to.deep.equal({fields: {}, topLevelFields: [], aceFields: []});
-    });
+
     it('triggers for store methods', () => {
       const doc = {harry: 1, potter: true};
       store.processSingleDocument(doc);
