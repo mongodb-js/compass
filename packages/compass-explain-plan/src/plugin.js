@@ -1,10 +1,13 @@
 import React, { Component } from 'react';
+import PropTypes from 'prop-types';
 import { Provider } from 'react-redux';
 import ExplainPlan from 'components/explain-plan';
-import store from 'stores';
 
 class Plugin extends Component {
   static displayName = 'ExplainPlanPlugin';
+  static propTypes = {
+    store: PropTypes.object.isRequired
+  }
 
   /**
    * Connect the Plugin to the store and render.
@@ -13,7 +16,7 @@ class Plugin extends Component {
    */
   render() {
     return (
-      <Provider store={store}>
+      <Provider store={this.props.store}>
         <ExplainPlan />
       </Provider>
     );

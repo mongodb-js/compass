@@ -64,12 +64,17 @@ class ExplainStates extends Component {
     switchToTreeView: PropTypes.func.isRequired,
     switchToJSONView: PropTypes.func.isRequired,
     query: PropTypes.any,
-    treeStages: PropTypes.object.isRequired
+    treeStages: PropTypes.object.isRequired,
+    appRegistry: PropTypes.object.isRequired
   }
 
   constructor(props) {
     super(props);
-    this.queryBar = global.hadronApp.appRegistry.getComponent('Query.QueryBar');
+    const appRegistry = props.appRegistry.localAppRegistry;
+    this.queryBarRole = appRegistry.getRole('Query.QueryBar')[0];
+    this.queryBar = this.queryBarRole.component;
+    this.queryBarStore = appRegistry.getStore(this.queryBarRole.storeName);
+    this.queryBarActions = appRegistry.getAction(this.queryBarRole.actionName);
   }
 
   /**
@@ -178,6 +183,8 @@ class ExplainStates extends Component {
   renderQueryBar() {
     return (
       <this.queryBar
+        store={this.queryBarStore}
+        actions={this.queryBarActions}
         buttonLabel="Explain"
         onApply={this.props.changeExplainPlanState.bind(this, 'fetching')}
         onReset={this.props.changeExplainPlanState.bind(this, 'initial')}

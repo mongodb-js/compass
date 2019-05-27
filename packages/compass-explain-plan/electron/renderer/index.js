@@ -4,7 +4,8 @@ import app from 'hadron-app';
 import AppRegistry from 'hadron-app-registry';
 import { AppContainer } from 'react-hot-loader';
 import ExplainPlanPlugin, { activate } from 'plugin';
-import FieldStore, { activate as activateFieldStore } from '@mongodb-js/compass-field-store';
+import configureStore, { setDataProvider } from 'stores';
+import { activate as activateFieldStore } from '@mongodb-js/compass-field-store';
 import { activate as activateQueryBar } from '@mongodb-js/compass-query-bar';
 import { activate as activateQueryHistory } from '@mongodb-js/compass-query-history';
 
@@ -19,16 +20,9 @@ const appRegistry = new AppRegistry();
 global.hadronApp = app;
 global.hadronApp.appRegistry = appRegistry;
 
-const CollectionStore = require('./stores/collection-store');
-const NamespaceStore = require('./stores/namespace-store');
-
-appRegistry.registerStore('App.NamespaceStore', NamespaceStore);
-appRegistry.registerStore('App.CollectionStore', CollectionStore);
-
 // Activate our plugin with the Hadron App Registry
 activate(appRegistry);
 activateFieldStore(appRegistry);
-activateQueryBar(appRegistry);
 activateQueryHistory(appRegistry);
 appRegistry.onActivated();
 
@@ -40,11 +34,36 @@ root.id = 'root';
 root.style.height = '100vh';
 document.body.appendChild(root);
 
+const localAppRegistry = new AppRegistry();
+activateQueryBar(localAppRegistry);
+
+const queryBarRole = localAppRegistry.getRole('Query.QueryBar')[0];
+const queryBarActions = queryBarRole.configureActions();
+const queryBarStore = queryBarRole.configureStore({
+  localAppRegistry: localAppRegistry,
+  serverVersion: '4.2.0',
+  actions: queryBarActions
+});
+localAppRegistry.registerStore(queryBarRole.storeName, queryBarStore);
+localAppRegistry.registerAction(queryBarRole.actionName, queryBarActions);
+
+const configureFieldStore = appRegistry.getStore('Field.Store');
+const fieldStore = configureFieldStore({
+  localAppRegistry: localAppRegistry
+});
+
+const store = configureStore({
+  localAppRegistry: localAppRegistry,
+  globalAppRegistry: appRegistry,
+  serverVersion: '4.2.0',
+  namespace: 'echo.artists'
+});
+
 // Create a HMR enabled render function
 const render = Component => {
   ReactDOM.render(
     <AppContainer>
-      <Component />
+      <Component store={store} />
     </AppContainer>,
     document.getElementById('root')
   );
@@ -75,16 +94,14 @@ appRegistry.emit('data-service-initialized', dataService);
 dataService.connect((error, ds) => {
   const docs = [{ _id: 1, name: 'Test', city: 'Berlin'}];
 
-  appRegistry.emit('data-service-connected', error, ds);
-  appRegistry.emit('collection-changed', 'crunchbase.companies');
-  appRegistry.emit('server-version-changed', '4.0.0');
-  appRegistry.emit('indexes-changed', [{
+  setDataProvider(store, error, ds);
+  localAppRegistry.emit('indexes-changed', [{
     name: '_id_',
     fields: { serialize: () => ({ field: { field: '_id', value: 1 } }) },
     serialize: () => {}
   }]);
 
-  FieldStore.processDocuments(docs);
+  fieldStore.processDocuments(docs);
 });
 
 if (module.hot) {

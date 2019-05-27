@@ -1,10 +1,17 @@
 import ExplainPlanPlugin from './plugin';
-import ExplainPlanStore from 'stores';
+import configureStore from 'stores';
 
 /**
  * A sample role for the component.
  */
-const ROLE = { name: 'ExplainPlan', component: ExplainPlanPlugin, order: 4 };
+const ROLE = {
+  name: 'Explain Plan',
+  component: ExplainPlanPlugin,
+  order: 4,
+  configureStore: configureStore,
+  configureActions: () => {},
+  storeName: 'ExplainPlan.Store'
+};
 
 /**
  * Activate all the components in the Explain Plan package.
@@ -13,7 +20,6 @@ const ROLE = { name: 'ExplainPlan', component: ExplainPlanPlugin, order: 4 };
  **/
 function activate(appRegistry) {
   appRegistry.registerRole('Collection.Tab', ROLE);
-  appRegistry.registerStore('ExplainPlan.Store', ExplainPlanStore);
 }
 
 /**
@@ -23,8 +29,7 @@ function activate(appRegistry) {
  **/
 function deactivate(appRegistry) {
   appRegistry.deregisterRole('Collection.Tab', ROLE);
-  appRegistry.deregisterStore('ExplainPlan.Store');
 }
 
 export default ExplainPlanPlugin;
-export { activate, deactivate };
+export { activate, deactivate, configureStore };

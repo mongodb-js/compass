@@ -3,7 +3,6 @@ import { mount } from 'enzyme';
 import ExplainStates from 'components/explain-states';
 import styles from './explain-states.less';
 import AppRegistry from 'hadron-app-registry';
-import hadronApp from 'hadron-app';
 
 describe('ExplainStates [Component]', () => {
   let component;
@@ -37,6 +36,11 @@ describe('ExplainStates [Component]', () => {
   const treeStages = {};
 
   beforeEach(() => {
+    appRegistry.registerRole('Query.QueryBar', {
+      component: QueryBar,
+      configureStore: () => {},
+      configureActions: () => {}
+    });
     component = mount(
       <ExplainStates
         explain={explain}
@@ -45,6 +49,7 @@ describe('ExplainStates [Component]', () => {
         switchToTreeView={switchToTreeViewSpy}
         switchToJSONView={switchToJSONViewSpy}
         query={query}
+        appRegistry={{ localAppRegistry: appRegistry }}
         isEditable={isEditable}
         openLink={openLinkSpy}
         treeStages={treeStages} />
@@ -53,12 +58,6 @@ describe('ExplainStates [Component]', () => {
 
   afterEach(() => {
     component = null;
-  });
-
-  before(function() {
-    global.hadronApp = hadronApp;
-    global.hadronApp.appRegistry = appRegistry;
-    global.hadronApp.appRegistry.registerComponent('Query.QueryBar', QueryBar);
   });
 
   it('renders the wrapper div', () => {

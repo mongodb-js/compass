@@ -3,7 +3,7 @@ import defaults from 'lodash.defaults';
 import isString from 'lodash.isstring';
 import find from 'lodash.find';
 import { treeStagesChanged } from 'modules/tree-stages';
-import { appRegistryEmit } from 'modules/app-registry';
+import { globalAppRegistryEmit } from 'mongodb-redux-common/app-registry';
 
 /**
  * The module action prefix.
@@ -241,7 +241,7 @@ export const fetchExplainPlan = () => {
     }
 
     const dataService = state.dataService.dataService;
-    const namespace = state.namespace.ns;
+    const namespace = state.namespace;
     const query = state.query;
     const indexes = state.indexes;
     const filter = query.filter;
@@ -272,7 +272,7 @@ export const fetchExplainPlan = () => {
         dispatch(treeStagesChanged(explain));
 
         // Send metrics
-        dispatch(appRegistryEmit(
+        dispatch(globalAppRegistryEmit(
           'explain-plan-fetched',
           {
             viewMode: explain.viewType,

@@ -1,91 +1,80 @@
 import { createStore, applyMiddleware } from 'redux';
 import thunk from 'redux-thunk';
 import reducer from 'modules';
-import toNS from 'mongodb-ns';
 import { namespaceChanged } from 'modules/namespace';
 import { dataServiceConnected } from 'modules/data-service';
 import { serverVersionChanged } from 'modules/server-version';
-import { appRegistryActivated } from 'modules/app-registry';
 import { editModeChanged } from 'modules/edit-mode';
 import { indexesChanged } from 'modules/indexes';
 import { queryChanged } from 'modules/query';
 import { explainStateChanged, fetchExplainPlan } from 'modules/explain';
+import {
+  localAppRegistryActivated,
+  globalAppRegistryActivated
+} from 'mongodb-redux-common/app-registry';
+
+export const setDataProvider = (store, error, dataProvider) => {
+  store.dispatch(dataServiceConnected(error, dataProvider));
+};
 
 /**
  * The store has a combined pipeline reducer plus the thunk middleware.
  */
-const store = createStore(reducer, applyMiddleware(thunk));
+const configureStore = (options = {}) => {
+  const store = createStore(reducer, applyMiddleware(thunk));
 
-/**
- * This hook is Compass specific to listen to app registry events.
- *
- * @param {AppRegistry} appRegistry - The app registry.
- */
-store.onActivated = (appRegistry) => {
-  /**
-   * When indexes were changed for the collection,
-   * update indexes for the explain plan.
-   *
-   * @param {Object} fields - The fields.
-   */
-  appRegistry.on('indexes-changed', (ixs) => {
-    store.dispatch(indexesChanged(ixs));
-  });
+  // Set the app registry if preset. This must happen first.
+  if (options.localAppRegistry) {
+    const localAppRegistry = options.localAppRegistry;
+    store.dispatch(localAppRegistryActivated(localAppRegistry));
 
-  /**
-   * When the collection is changed, update the store.
-   *
-   * @param {String} ns - The full namespace.
-   */
-  appRegistry.on('collection-changed', (ns) => {
-    const namespace = toNS(ns);
-    const CollectionStore = appRegistry.getStore('App.CollectionStore');
-    const isEditable = (
-      !CollectionStore.isReadonly() &&
-      process.env.HADRON_READONLY !== 'true'
+    /**
+     * When the collection is changed, update the store.
+     */
+    localAppRegistry.on('indexes-changed', (ixs) => {
+      store.dispatch(indexesChanged(ixs));
+    });
+
+    /**
+     * Refresh on query change.
+     */
+    localAppRegistry.on('query-changed', (state) => {
+      store.dispatch(queryChanged(state));
+      store.dispatch(fetchExplainPlan());
+    });
+  }
+
+  if (options.globalAppRegistry) {
+    const globalAppRegistry = options.globalAppRegistry;
+    store.dispatch(globalAppRegistryActivated(globalAppRegistry));
+  }
+
+  // Set the data provider - this must happen second.
+  if (options.dataProvider) {
+    setDataProvider(
+      store,
+      options.dataProvider.error,
+      options.dataProvider.dataProvider
     );
+  }
 
-    if (namespace.collection) {
-      store.dispatch(namespaceChanged(namespace));
-    }
-
-    store.dispatch(editModeChanged(isEditable));
+  // Set the namespace - must happen third.
+  if (options.namespace) {
+    store.dispatch(namespaceChanged(options.namespace));
     store.dispatch(explainStateChanged('initial'));
-  });
+  }
 
-  /**
-   * Set the data service in the store when connected.
-   *
-   * @param {Error} error - The error.
-   * @param {DataService} dataService - The data service.
-   */
-  appRegistry.on('data-service-connected', (error, dataService) => {
-    store.dispatch(dataServiceConnected(error, dataService));
-  });
+  if (options.isReadonly) {
+    store.dispatch(editModeChanged(options.isReadonly));
+  }
 
-  /**
-   * When the instance is loaded, set our server version.
-   *
-   * @param {String} version - The version.
-   */
-  appRegistry.on('server-version-changed', (version) => {
-    store.dispatch(serverVersionChanged(version));
-  });
+  // Setting server version in fields can change in order but must be after
+  // the previous options.
+  if (options.serverVersion) {
+    store.dispatch(serverVersionChanged(options.serverVersion));
+  }
 
-  /**
-   * When query was changed, update query parameters for the explain plan.
-   *
-   * @param {String} tabName - The name of active tab.
-   */
-  appRegistry.on('query-changed', (state) => {
-    store.dispatch(queryChanged(state));
-    store.dispatch(fetchExplainPlan());
-  });
-
-  /**
-   * Set the app registry to use later.
-   */
-  store.dispatch(appRegistryActivated(appRegistry));
+  return store;
 };
 
-export default store;
+export default configureStore;

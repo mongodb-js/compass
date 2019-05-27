@@ -1,4 +1,3 @@
-import ExplainPlanStore from './store';
-
-export default ExplainPlanStore;
-export { ExplainPlanStore };
+import configureStore, { setDataProvider } from './store';
+export default configureStore;
+export { setDataProvider };

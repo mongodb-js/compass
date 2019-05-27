@@ -1,8 +1,6 @@
 import AppRegistry from 'hadron-app-registry';
 import { activate } from '@mongodb-js/compass-field-store';
-import store from 'stores';
-import { reset, INITIAL_STATE } from '../modules/index';
-import hadronApp from 'hadron-app';
+import configureStore from 'stores';
 import {
   switchToTreeView,
   switchToJSONView,
@@ -12,21 +10,24 @@ import {
 import { treeStagesChanged } from 'modules/tree-stages';
 
 describe('Explain Plan Store', () => {
+  let store;
   const appRegistry = new AppRegistry();
-  const collectionStore = { isReadonly: () => false };
 
-  before(() => {
-    global.hadronApp = hadronApp;
-    global.hadronApp.appRegistry = appRegistry;
-    global.hadronApp.appRegistry.registerStore('App.CollectionStore', collectionStore);
+  beforeEach(() => {
+    store = configureStore({
+      localAppRegistry: appRegistry,
+      namespace: 'db.coll',
+      dataProvider: {
+        error: 'error',
+        dataProvider: 'ds'
+      },
+      serverVersion: '4.0.0'
+    });
   });
-
-  beforeEach(() => store.dispatch(reset()));
 
   describe('#onActivated', () => {
     beforeEach(() => {
       activate(appRegistry);
-      store.onActivated(appRegistry);
     });
 
     context('when indexes are connected', () => {
@@ -40,48 +41,18 @@ describe('Explain Plan Store', () => {
     });
 
     context('when the collection is changed', () => {
-      context('when there is no collection', () => {
-        beforeEach(() => {
-          store.onActivated(appRegistry);
-          appRegistry.emit('collection-changed', 'db');
-        });
-
-        it('does not update the namespace in the store', () => {
-          expect(store.getState().namespace).to.equal('');
-        });
-
-        it('resets the rest of the state to initial state', () => {
-          expect(store.getState()).to.deep.equal({
-            namespace: '',
-            appRegistry: appRegistry,
-            dataService: INITIAL_STATE.dataService,
-            serverVersion: INITIAL_STATE.serverVersion,
-            isEditable: INITIAL_STATE.isEditable,
-            explain: INITIAL_STATE.explain,
-            indexes: INITIAL_STATE.indexes,
-            query: INITIAL_STATE.query,
-            treeStages: INITIAL_STATE.treeStages
-          });
-        });
-      });
-
       context('when there is a collection', () => {
         beforeEach(() => {
-          store.onActivated(appRegistry);
           appRegistry.emit('collection-changed', 'db.coll');
         });
 
         it('updates the namespace in the store', () => {
-          expect(store.getState().namespace.ns).to.equal('db.coll');
+          expect(store.getState().namespace).to.equal('db.coll');
         });
       });
     });
 
     context('when the data service is connected', () => {
-      beforeEach(() => {
-        appRegistry.emit('data-service-connected', 'error', 'ds');
-      });
-
       it('sets the data service in the state', () => {
         expect(store.getState().dataService.dataService).to.equal('ds');
       });
@@ -92,10 +63,6 @@ describe('Explain Plan Store', () => {
     });
 
     context('when the server version is changed', () => {
-      beforeEach(() => {
-        appRegistry.emit('server-version-changed', '4.0.0');
-      });
-
       it('sets the server version in the state', () => {
         expect(store.getState().serverVersion).to.equal('4.0.0');
       });
@@ -122,18 +89,6 @@ describe('Explain Plan Store', () => {
   });
 
   describe('#dispatch', () => {
-    context('when the action is unknown', () => {
-      it('returns the initial state', (done) => {
-        const unsubscribe = store.subscribe(() => {
-          unsubscribe();
-          expect(store.getState().namespace).to.equal('');
-          done();
-        });
-
-        store.dispatch({ type: 'UNKNOWN' });
-      });
-    });
-
     context('when it is the explain module', () => {
       context('when the action is SWITCHED_TO_TREE_VIEW', () => {
         it('updates the view type in state to "tree"', (done) => {

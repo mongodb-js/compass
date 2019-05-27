@@ -49,7 +49,8 @@ const mapStateToProps = (state) => pick(
     'namespace',
     'isEditable',
     'explain',
-    'treeStages'
+    'treeStages',
+    'appRegistry'
   ]
 );
 
