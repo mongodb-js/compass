@@ -1,32 +1,6 @@
 const compiler = require('bson-transpilers');
-const userAgent = navigator.userAgent.toLowerCase();
 
 const PREFIX = 'exportQuery';
-
-/**
- * Input type.
- */
-const TYPE = 'text';
-
-/**
- * Styles attribute.
- */
-const STYLES = 'styles';
-
-/**
- * Input display.
- */
-const DISPLAY = 'display: none;';
-
-/**
- * Input type.
- */
-const INPUT = 'input';
-
-/**
- * Copy command.
- */
-const COPY = 'copy';
 
 export const SET_NAMESPACE = `${PREFIX}/SET_NAMESPACE`;
 export const ADD_INPUT_QUERY = `${PREFIX}/ADD_INPUT`;
