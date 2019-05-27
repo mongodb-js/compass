@@ -38,6 +38,7 @@ export const TOGGLE_MODAL = `${PREFIX}/MODAL_OPEN`;
 export const COPY_QUERY = `${PREFIX}/COPY_QUERY`;
 export const CLEAR_COPY = `${PREFIX}/CLEAR_COPY`;
 export const RUN_QUERY = `${PREFIX}/RUN_QUERY`;
+export const COPY_TO_CLIPBOARD_FN_CHANGED = `${PREFIX}/COPY_TO_CLIPBOARD_FN_CHANGED`;
 
 // TODO: change inputQuery to '' when working with compass
 export const INITIAL_STATE = {
@@ -50,23 +51,16 @@ export const INITIAL_STATE = {
   inputQuery: '',
   imports: '',
   showImports: false,
-  builders: true
+  builders: true,
+  copyToClipboardFn: null
 };
 
 function copyToClipboard(state, action) {
-  if (userAgent.indexOf('electron') > -1) {
+  if (state.copyToClipboardFn) {
+    state.copyToClipboardFn(action.input.query);
+  } else {
     const { clipboard } = require('electron');
     clipboard.writeText(action.input.query);
-  } else {
-    let input = document.createElement(INPUT);
-    input.type = TYPE;
-    input.setAttribute(STYLES, DISPLAY);
-    input.value = action.input.query;
-    document.body.appendChild(input);
-    input.select();
-    document.execCommand(COPY);
-    document.body.removeChild(input);
-    input = null;
   }
   return { ...state, copySuccess: action.input.type };
 }
@@ -111,7 +105,9 @@ export default function reducer(state = INITIAL_STATE, action) {
   if (action.type === USE_BUILDERS) return { ...state, builders: action.builders };
   if (action.type === COPY_QUERY) return copyToClipboard(state, action);
   if (action.type === TOGGLE_MODAL) return closeModal(state, action);
-
+  if (action.type === COPY_TO_CLIPBOARD_FN_CHANGED) {
+    return { ...state, copyToClipboardFn: action.copyToClipboardFn };
+  }
   return state;
 }
 
@@ -157,4 +153,16 @@ export const toggleModal = (open) => ({
 
 export const clearCopy = () => ({
   type: CLEAR_COPY
+});
+
+/**
+ * Action creator for copy to clipboard fn changed events.
+ *
+ * @param {Function} fn - The copy to clipboard fn.
+ *
+ * @returns {Object} The copy to clipboard fn changed action.
+ */
+export const copyToClipboardFnChanged = (fn) => ({
+  type: COPY_TO_CLIPBOARD_FN_CHANGED,
+  copyToClipboardFn: fn
 });

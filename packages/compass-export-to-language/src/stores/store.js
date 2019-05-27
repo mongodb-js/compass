@@ -1,7 +1,23 @@
-import { addInputQuery, toggleModal, setNamespace, runQuery } from 'modules/export-query';
+import {
+  addInputQuery,
+  toggleModal,
+  setNamespace,
+  runQuery,
+  copyToClipboardFnChanged
+} from 'modules/export-query';
 import { createStore, applyMiddleware } from 'redux';
 import thunk from 'redux-thunk';
 import reducer from 'modules';
+
+/**
+ * Set the custom copy to clipboard function.
+ *
+ * @param {Store} store - The store.
+ * @param {Function} fn - The function.
+ */
+export const setCopyToClipboardFn = (store, fn) => {
+  store.dispatch(copyToClipboardFnChanged(fn));
+};
 
 /**
  * Configure the store for use.
@@ -28,6 +44,10 @@ const configureStore = (options = {}) => {
       store.dispatch(runQuery('python', query));
       store.dispatch(addInputQuery(query));
     });
+  }
+
+  if (options.copyToClipboardFn) {
+    setCopyToClipboardFn(store, options.copyToClipboardFn);
   }
 
   return store;

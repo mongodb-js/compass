@@ -8,11 +8,13 @@ import reducer, {
   TOGGLE_MODAL,
   COPY_QUERY,
   CLEAR_COPY,
+  COPY_TO_CLIPBOARD_FN_CHANGED,
   includeImports,
   useBuilders,
   setOutputLang,
   addInputQuery,
   setNamespace,
+  copyToClipboardFnChanged,
   toggleModal,
   queryError,
   copyQuery,
@@ -107,6 +109,15 @@ describe('export query module', () => {
     });
   });
 
+  describe('#copyToClipboardFnChanged', () => {
+    it('returns the COPY_TO_CLIPBOARD_FN_CHANGED action', () => {
+      expect(copyToClipboardFnChanged('testing')).to.deep.equal({
+        type: COPY_TO_CLIPBOARD_FN_CHANGED,
+        copyToClipboardFn: 'testing'
+      });
+    });
+  });
+
   describe('#reducer', () => {
     context('action type is queryError', () => {
       it('query error is has a value in state', () => {
@@ -120,7 +131,8 @@ describe('export query module', () => {
           inputQuery: '',
           imports: '',
           showImports: false,
-          builders: true
+          builders: true,
+          copyToClipboardFn: null
         });
       });
     });
@@ -137,7 +149,8 @@ describe('export query module', () => {
           inputQuery: '',
           imports: '',
           showImports: true,
-          builders: true
+          builders: true,
+          copyToClipboardFn: null
         });
       });
 
@@ -152,7 +165,8 @@ describe('export query module', () => {
           inputQuery: '',
           imports: '',
           showImports: false,
-          builders: true
+          builders: true,
+          copyToClipboardFn: null
         });
       });
     });
@@ -169,7 +183,8 @@ describe('export query module', () => {
           inputQuery: '',
           imports: '',
           showImports: false,
-          builders: true
+          builders: true,
+          copyToClipboardFn: null
         });
       });
 
@@ -184,7 +199,8 @@ describe('export query module', () => {
           inputQuery: '',
           imports: '',
           showImports: false,
-          builders: false
+          builders: false,
+          copyToClipboardFn: null
         });
       });
     });
@@ -201,7 +217,8 @@ describe('export query module', () => {
           returnQuery: '',
           imports: '',
           showImports: false,
-          builders: true
+          builders: true,
+          copyToClipboardFn: null
         });
       });
     });
@@ -218,7 +235,8 @@ describe('export query module', () => {
           inputQuery: '',
           imports: '',
           showImports: false,
-          builders: true
+          builders: true,
+          copyToClipboardFn: null
         });
       });
     });
@@ -235,7 +253,8 @@ describe('export query module', () => {
           inputQuery: '',
           imports: '',
           showImports: false,
-          builders: true
+          builders: true,
+          copyToClipboardFn: null
         });
       });
     });
@@ -252,7 +271,8 @@ describe('export query module', () => {
           inputQuery: '',
           imports: '',
           showImports: false,
-          builders: true
+          builders: true,
+          copyToClipboardFn: null
         });
       });
     });
@@ -269,7 +289,8 @@ describe('export query module', () => {
           inputQuery: '',
           imports: '',
           showImports: false,
-          builders: true
+          builders: true,
+          copyToClipboardFn: null
         });
       });
     });
@@ -286,7 +307,26 @@ describe('export query module', () => {
           inputQuery: '',
           imports: '',
           showImports: false,
-          builders: true
+          builders: true,
+          copyToClipboardFn: null
+        });
+      });
+    });
+
+    context('action type is copyToClipboardFnChanged', () => {
+      it('returns a fn in state', () => {
+        expect(reducer(undefined, copyToClipboardFnChanged('test'))).to.deep.equal({
+          namespace: 'Query',
+          outputLang: 'python',
+          copySuccess: false,
+          queryError: null,
+          modalOpen: false,
+          returnQuery: '',
+          inputQuery: '',
+          imports: '',
+          showImports: false,
+          builders: true,
+          copyToClipboardFn: 'test'
         });
       });
     });
@@ -303,7 +343,8 @@ describe('export query module', () => {
           inputQuery: '',
           imports: '',
           showImports: false,
-          builders: true
+          builders: true,
+          copyToClipboardFn: null
         });
       });
     });
