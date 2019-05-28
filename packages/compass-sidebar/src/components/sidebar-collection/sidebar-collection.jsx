@@ -19,7 +19,8 @@ class SidebarCollection extends PureComponent {
     description: PropTypes.string.isRequired,
     view_on: PropTypes.any, // undefined or string if view
     pipeline: PropTypes.any, // undefined or array if view
-    type: PropTypes.oneOf(['collection', 'view'])
+    type: PropTypes.oneOf(['collection', 'view']),
+    isDataLake: PropTypes.bool.isRequired
   };
 
   constructor(props) {
@@ -61,7 +62,7 @@ class SidebarCollection extends PureComponent {
   }
 
   handleDropCollectionClick(isWritable) {
-    if (isWritable) {
+    if (isWritable && !this.props.isDataLake) {
       const databaseName = this.props.database;
       const collectionName = this.getCollectionName();
       global.hadronApp.appRegistry.emit(
@@ -90,7 +91,7 @@ class SidebarCollection extends PureComponent {
   }
 
   renderDropCollectionButton() {
-    if (!this.isReadonlyDistro()) {
+    if (!this.isReadonlyDistro() && !this.props.isDataLake) {
       const tooltipText = this.props.isWritable
         ? 'Drop collection'
         : this.props.description;

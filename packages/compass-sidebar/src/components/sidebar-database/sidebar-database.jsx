@@ -18,7 +18,8 @@ class SidebarDatabase extends PureComponent {
     onClick: PropTypes.func.isRequired,
     index: PropTypes.number.isRequired,
     isWritable: PropTypes.bool.isRequired,
-    description: PropTypes.string.isRequired
+    description: PropTypes.string.isRequired,
+    isDataLake: PropTypes.bool.isRequired
   };
 
   constructor(props) {
@@ -42,7 +43,8 @@ class SidebarDatabase extends PureComponent {
           type: c.type,
           activeNamespace: this.props.activeNamespace,
           isWritable: this.props.isWritable,
-          description: this.props.description
+          description: this.props.description,
+          isDataLake: this.props.isDataLake
         };
         return (
           <SidebarCollection key={c._id} {...props} />
@@ -95,7 +97,7 @@ class SidebarDatabase extends PureComponent {
   }
 
   renderCreateCollectionButton() {
-    if (!this.isReadonlyDistro()) {
+    if (!this.isReadonlyDistro() && !this.props.isDataLake) {
       const createTooltipText = this.props.isWritable ?
         'Create collection' :
         this.props.description;
@@ -122,7 +124,7 @@ class SidebarDatabase extends PureComponent {
   }
 
   renderDropDatabaseButton() {
-    if (!this.isReadonlyDistro()) {
+    if (!this.isReadonlyDistro() && !this.props.isDataLake) {
       const dropTooltipText = this.props.isWritable ?
         'Drop database' :
         'Drop database is not available on a secondary node'; // TODO: Arbiter/recovering/etc

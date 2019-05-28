@@ -7,6 +7,7 @@ import { filterDatabases } from 'modules/databases';
 import { reset } from 'modules/reset';
 import { toggleIsWritable } from 'modules/is-writable';
 import { changeDescription } from 'modules/description';
+import { toggleIsDataLake } from 'modules/is-data-lake';
 
 const store = createStore(reducer, applyMiddleware(thunk));
 
@@ -14,6 +15,8 @@ store.onActivated = (appRegistry) => {
   appRegistry.on('instance-refreshed', (state) => {
     store.dispatch(changeInstance(state.instance));
     store.dispatch(filterDatabases(null, state.instance.databases, null));
+    const isDataLake = state.instance.dataLake !== undefined && state.instance.dataLake.isDataLake === true;
+    store.dispatch(toggleIsDataLake(isDataLake));
   });
 
   appRegistry.getStore('DeploymentAwareness.WriteStateStore').listen((state) => {

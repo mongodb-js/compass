@@ -34,7 +34,8 @@ class Sidebar extends PureComponent {
     toggleIsCollapsed: PropTypes.func.isRequired,
     filterDatabases: PropTypes.func.isRequired,
     changeDatabases: PropTypes.func.isRequired,
-    changeFilterRegex: PropTypes.func.isRequired
+    changeFilterRegex: PropTypes.func.isRequired,
+    isDataLake: PropTypes.bool.isRequired
   };
 
   constructor(props) {
@@ -145,7 +146,7 @@ class Sidebar extends PureComponent {
   }
 
   renderCreateDatabaseButton() {
-    if (!this.isReadonlyDistro() && !(this.props.instance.dataLake && this.props.instance.dataLake.isDataLake)) {
+    if (!this.isReadonlyDistro() && !this.props.isDataLake) {
       const tooltipText = this.props.description;
       const tooltipOptions = this.props.isWritable ? {} : {
         'data-for': TOOLTIP_IDS.CREATE_DATABASE_BUTTON,
@@ -187,7 +188,8 @@ class Sidebar extends PureComponent {
       onClick: this._onDBClick.bind(this),
       key,
       style,
-      index
+      index,
+      isDataLake: this.props.isDataLake
     };
     return (
       <SidebarDatabase {...props} />
@@ -278,7 +280,8 @@ const mapStateToProps = (state, ownProps) => ({
   isCollapsed: state.isCollapsed,
   isDblistExpanded: state.isDblistExpanded,
   isWritable: state.isWritable,
-  onCollapse: ownProps.onCollapse
+  onCollapse: ownProps.onCollapse,
+  isDataLake: state.isDataLake
 });
 
 /**

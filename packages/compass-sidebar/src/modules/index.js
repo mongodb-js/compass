@@ -18,6 +18,9 @@ import isCollapsed, {
 import isWritable, {
   INITIAL_STATE as IS_WRITABLE_INITIAL_STATE
 } from 'modules/is-writable';
+import isDataLake, {
+  INITIAL_STATE as DL_INITIAL_STATE
+} from './is-data-lake';
 import { RESET } from 'modules/reset';
 
 /**
@@ -29,7 +32,8 @@ const reducer = combineReducers({
   instance,
   filterRegex,
   isCollapsed,
-  isWritable
+  isWritable,
+  isDataLake
 });
 
 /**
@@ -49,7 +53,8 @@ const rootReducer = (state, action) => {
       instance: INSTANCE_INITIAL_STATE,
       filterRegex: FILTER_REGEX_INITIAL_STATE,
       isCollapsed: IS_COLLAPSED_INITIAL_STATE,
-      isWritable: IS_WRITABLE_INITIAL_STATE
+      isWritable: IS_WRITABLE_INITIAL_STATE,
+      isDataLake: DL_INITIAL_STATE
     };
   }
   return reducer(state, action);

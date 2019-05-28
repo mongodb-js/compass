@@ -1,7 +1,7 @@
 /**
  * Change is collapsed action name.
  */
-export const TOGGLE_IS_COLLAPSED = 'indexes/is-collapsed/TOGGLE_IS_COLLAPSED';
+export const TOGGLE_IS_COLLAPSED = 'sidebar/is-collapsed/TOGGLE_IS_COLLAPSED';
 
 /**
  * The initial state of the is collapsed attribute.
