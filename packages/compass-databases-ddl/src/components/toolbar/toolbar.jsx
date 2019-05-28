@@ -52,7 +52,7 @@ class Toolbar extends PureComponent {
   renderButton() {
     if (this.props.isDataLake) {
       return (
-        <div className="tooltip-wrapper-class" data-tip={DATA_LAKE_WARNING} data-for="database-ddl-is-not-writable">
+        <div className={classnames(styles['tooltip-wrapper-class'])} data-tip={DATA_LAKE_WARNING} data-for="database-ddl-is-not-writable">
           <TextButton
             className="btn btn-primary btn-xs"
             dataTestId="open-create-database-modal-button"
@@ -61,7 +61,7 @@ class Toolbar extends PureComponent {
             disabled
             clickHandler={this.onShowCreateDatabase}
           />
-          <Tooltip id="database-ddl-is-not-writable" place="left"/>
+          <Tooltip id="database-ddl-is-not-writable" place="right" />
         </div>
       );
     }
