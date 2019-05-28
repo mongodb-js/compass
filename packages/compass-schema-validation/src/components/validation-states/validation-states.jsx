@@ -121,26 +121,25 @@ class ValidationStates extends Component {
   renderZeroState() {
     if (this.props.isZeroState) {
       return (
-          <div className={classnames(styles['zero-state-container'])}>
-            <ZeroGraphic />
-            <ZeroState header={HEADER} subtext={SUBTEXT}>
-              <div className={classnames(styles['zero-state-action'])}>
-                <div>
-                  <TextButton
-                    className={`btn btn-primary btn-lg ${
-                      !this.isEditable() ? 'disabled' : ''
-                    }`}
-                    text="Add Rule"
-                    clickHandler={this.props.changeZeroState.bind(this, false)} />
-                </div>
-                <a
-                  className={classnames(styles['zero-state-link'])}
-                  onClick={this.props.openLink.bind(this, DOC_SCHEMA_VALIDATION)}
-                >
-                  Learn more about validations
-                </a>
+        <div className={classnames(styles['zero-state-container'])}>
+          <ZeroGraphic />
+          <ZeroState header={HEADER} subtext={SUBTEXT}>
+            <div className={classnames(styles['zero-state-action'])}>
+              <div>
+                <TextButton
+                  className={`btn btn-primary btn-lg ${
+                    !this.isEditable() ? 'disabled' : ''
+                  }`}
+                  text="Add Rule"
+                  clickHandler={this.props.changeZeroState.bind(this, false)} />
               </div>
-            </ZeroState>
+              <a
+                className={classnames(styles['zero-state-link'])}
+                onClick={this.props.openLink.bind(this, DOC_SCHEMA_VALIDATION)}>
+                Learn more about validations
+              </a>
+            </div>
+          </ZeroState>
         </div>
       );
     }

@@ -93,9 +93,9 @@ class SampleDocuments extends Component {
       <div className={classnames(styles['sample-documents'])}>
         <div className={classnames(styles['sample-documents-content'])}>
           { this.props.sampleDocuments.isLoading ?
-              <LoadingOverlay text="Sampling Document..." /> :
-              null
-            }
+            <LoadingOverlay text="Sampling Document..." /> :
+            null
+          }
           {this.renderMatchingDocuments()}
           {this.renderNotMatchingDocuments()}
         </div>

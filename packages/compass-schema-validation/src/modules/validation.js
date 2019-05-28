@@ -3,7 +3,7 @@ import queryParser from 'mongodb-query-parser';
 import javascriptStringify from 'javascript-stringify';
 import { fetchSampleDocuments } from './sample-documents';
 import { zeroStateChanged } from './zero-state';
-import { appRegistryEmit } from 'modules/app-registry';
+import { globalAppRegistryEmit } from 'mongodb-redux-common/app-registry';
 import { defaults, isEqual, pick, isObject } from 'lodash';
 
 /**
@@ -359,7 +359,7 @@ const sendMetrics = (dispatch, dataService, namespace, validation, registryEvent
       ruleCount = -1;
     }
 
-    return dispatch(appRegistryEmit(
+    return dispatch(globalAppRegistryEmit(
       registryEvent,
       {
         ruleCount,

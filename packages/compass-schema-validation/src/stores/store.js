@@ -6,10 +6,13 @@ import { namespaceChanged } from 'modules/namespace';
 import { dataServiceConnected } from 'modules/data-service';
 import { fieldsChanged } from 'modules/fields';
 import { serverVersionChanged } from 'modules/server-version';
-import { appRegistryActivated } from 'modules/app-registry';
 import { fetchValidation, activateValidation } from 'modules/validation';
 import { editModeChanged } from 'modules/edit-mode';
 import { changeZeroState } from 'modules/zero-state';
+import {
+  localAppRegistryActivated,
+  globalAppRegistryActivated
+} from 'mongodb-redux-common/app-registry';
 import semver from 'semver';
 
 /**
@@ -17,95 +20,90 @@ import semver from 'semver';
  */
 const MIN_VERSION = '3.2.0';
 
+export const setDataProvider = (store, error, dataProvider) => {
+  store.dispatch(dataServiceConnected(error, dataProvider));
+};
+
 /**
  * The store has a combined pipeline reducer plus the thunk middleware.
  */
-const store = createStore(reducer, applyMiddleware(thunk));
+const configureStore = (options = {}) => {
+  const store = createStore(reducer, applyMiddleware(thunk));
 
-/**
- * This hook is Compass specific to listen to app registry events.
- *
- * @param {AppRegistry} appRegistry - The app registry.
- */
-store.onActivated = (appRegistry) => {
+  // Set the app registry if preset. This must happen first.
+  if (options.localAppRegistry) {
+    const localAppRegistry = options.localAppRegistry;
+    store.dispatch(localAppRegistryActivated(localAppRegistry));
+
+    /**
+     * When the collection is changed, update the store.
+     */
+    localAppRegistry.on('fields-changed', (fields) => {
+      store.dispatch(fieldsChanged(fields.fields));
+    });
+
+    /**
+     * Refresh on query change.
+     */
+    localAppRegistry.on('server-version-changed', (version) => {
+      store.dispatch(serverVersionChanged(version));
+      if (version) {
+        const editMode = { oldServerReadOnly: semver.gte(MIN_VERSION, version) };
+        store.dispatch(editModeChanged(editMode));
+      }
+    });
+
+    /**
+     * When the Schema Validation is an active tab, send 'activated' metric.
+     *
+     * @param {String} tabName - The name of active tab.
+     */
+    localAppRegistry.on('active-tab-changed', (tabName) => {
+      if (tabName === 'Validation') {
+        store.dispatch(activateValidation());
+      }
+    });
+  }
+
+  if (options.globalAppRegistry) {
+    const globalAppRegistry = options.globalAppRegistry;
+    store.dispatch(globalAppRegistryActivated(globalAppRegistry));
+  }
+
+  if (options.dataProvider) {
+    setDataProvider(
+      store,
+      options.dataProvider.error,
+      options.dataProvider.dataProvider
+    );
+  }
+
   /**
    * When the collection is changed, update the store.
    *
    * @param {String} ns - The full namespace.
    */
-  appRegistry.on('collection-changed', (ns) => {
-    const namespace = toNS(ns);
-    const CollectionStore = appRegistry.getStore('App.CollectionStore');
-    const WriteStateStore = appRegistry.getStore('DeploymentAwareness.WriteStateStore');
+  if (options.namespace) {
+    const namespace = toNS(options.namespace);
+    const WriteStateStore = options.globalAppRegistry.getStore('DeploymentAwareness.WriteStateStore');
     const editMode = {
-      collectionReadOnly: CollectionStore.isReadonly() ? true : false,
+      collectionReadOnly: options.isReadonly ? true : false,
       hardonReadOnly: (process.env.HADRON_READONLY === 'true'),
       writeStateStoreReadOnly: !WriteStateStore.state.isWritable
     };
 
-    if (namespace.collection) {
-      store.dispatch(namespaceChanged(namespace));
+    store.dispatch(namespaceChanged(namespace));
 
-      if (editMode.collectionReadOnly) {
-        store.dispatch(changeZeroState(true));
-      } else {
-        store.dispatch(fetchValidation(namespace));
-      }
+    if (editMode.collectionReadOnly) {
+      store.dispatch(changeZeroState(true));
+    } else {
+      store.dispatch(fetchValidation(namespace));
     }
 
     store.dispatch(editModeChanged(editMode));
-  });
+  }
 
-  /**
-   * Set the data service in the store when connected.
-   *
-   * @param {Error} error - The error.
-   * @param {DataService} dataService - The data service.
-   */
-  appRegistry.on('data-service-connected', (error, dataService) => {
-    store.dispatch(dataServiceConnected(error, dataService));
-  });
-
-  /**
-   * When the schema fields change, update the state with the new
-   * fields.
-   *
-   * @param {Object} fields - The fields.
-   */
-  appRegistry.on('fields-changed', (fields) => {
-    store.dispatch(fieldsChanged(fields.fields));
-  });
-
-  /**
-   * When the instance is loaded, set our server version.
-   *
-   * @param {String} version - The version.
-   */
-  appRegistry.on('server-version-changed', (version) => {
-    store.dispatch(serverVersionChanged(version));
-
-    if (version) {
-      const editMode = { oldServerReadOnly: semver.gte(MIN_VERSION, version) };
-
-      store.dispatch(editModeChanged(editMode));
-    }
-  });
-
-  /**
-   * When the Schema Validation is an active tab, send 'activated' metric.
-   *
-   * @param {String} tabName - The name of active tab.
-   */
-  appRegistry.on('active-tab-changed', (tabName) => {
-    if (tabName === 'Validation') {
-      store.dispatch(activateValidation());
-    }
-  });
-
-  /**
-   * Set the app registry to use later.
-   */
-  store.dispatch(appRegistryActivated(appRegistry));
+  return store;
 };
 
-export default store;
+export default configureStore;

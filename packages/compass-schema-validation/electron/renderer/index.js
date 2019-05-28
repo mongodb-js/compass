@@ -4,6 +4,7 @@ import app from 'hadron-app';
 import AppRegistry from 'hadron-app-registry';
 import { AppContainer } from 'react-hot-loader';
 import CompassSchemaValidationPlugin, { activate } from 'plugin';
+import configureStore, { setDataProvider } from 'stores';
 
 // Import global less file. Note: these styles WILL NOT be used in compass, as compass provides its own set
 // of global styles. If you are wishing to style a given component, you should be writing a less file per
@@ -16,12 +17,8 @@ const appRegistry = new AppRegistry();
 global.hadronApp = app;
 global.hadronApp.appRegistry = appRegistry;
 
-const CollectionStore = require('./stores/collection-store');
-const NamespaceStore = require('./stores/namespace-store');
 const WriteStateStore = require('./stores/write-state-store');
 
-appRegistry.registerStore('App.NamespaceStore', NamespaceStore);
-appRegistry.registerStore('App.CollectionStore', CollectionStore);
 appRegistry.registerStore('DeploymentAwareness.WriteStateStore', WriteStateStore);
 
 // Activate our plugin with the Hadron App Registry
@@ -36,11 +33,19 @@ root.style = 'height: 100vh';
 root.id = 'root';
 document.body.appendChild(root);
 
+const localAppRegistry = new AppRegistry();
+const store = configureStore({
+  localAppRegistry: localAppRegistry,
+  globalAppRegistry: appRegistry,
+  serverVersion: '4.2.0',
+  namespace: 'echo.artists'
+});
+
 // Create a HMR enabled render function
 const render = Component => {
   ReactDOM.render(
     <AppContainer>
-      <Component />
+      <Component store={store} />
     </AppContainer>,
     document.getElementById('root')
   );
@@ -66,14 +71,9 @@ const connection = new Connection({
 });
 const dataService = new DataService(connection);
 
-appRegistry.emit('data-service-initialized', dataService);
-
 dataService.connect((error, ds) => {
-  appRegistry.emit('data-service-connected', error, ds);
-  appRegistry.emit('collection-changed', 'crunchbase.companies');
-  appRegistry.emit('server-version-changed', '4.0.0');
-
-  appRegistry.emit('fields-changed', {
+  setDataProvider(store, error, ds);
+  localAppRegistry.emit('fields-changed', {
     fields: {
       harry: {
         name: 'harry', path: 'harry', count: 1, type: 'Number'

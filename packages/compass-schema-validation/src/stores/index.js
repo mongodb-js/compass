@@ -1,4 +1,3 @@
-import CompassSchemaValidationStore from './store';
-
-export default CompassSchemaValidationStore;
-export { CompassSchemaValidationStore };
+import configureStore, { setDataProvider } from './store';
+export default configureStore;
+export { setDataProvider };

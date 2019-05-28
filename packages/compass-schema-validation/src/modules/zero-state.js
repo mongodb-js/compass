@@ -1,4 +1,4 @@
-import { appRegistryEmit } from 'modules/app-registry';
+import { globalAppRegistryEmit } from 'mongodb-redux-common/app-registry';
 
 /**
  * Zero state changed action.
@@ -60,7 +60,7 @@ const sendMetrics = (dispatch, dataService, namespace, registryEvent) => dataSer
       collectionSize = collection.document_count;
     }
 
-    return dispatch(appRegistryEmit(registryEvent, { collectionSize } ));
+    return dispatch(globalAppRegistryEmit(registryEvent, { collectionSize } ));
   });
 
 /**

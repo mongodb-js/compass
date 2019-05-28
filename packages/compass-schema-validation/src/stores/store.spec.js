@@ -1,6 +1,4 @@
 import AppRegistry from 'hadron-app-registry';
-import store from 'stores';
-import hadronApp from 'hadron-app';
 import {
   validatorChanged,
   validationFetched,
@@ -9,34 +7,31 @@ import {
   validationLevelChanged,
   fetchSampleDocuments
 } from 'modules/validation';
-import { reset, INITIAL_STATE } from '../modules/index';
 import javascriptStringify from 'javascript-stringify';
+import configureStore from 'stores';
 
 describe('Schema Validation Store', () => {
-  const appRegistry = new AppRegistry();
-  const collectionStore = {
-    isReadonly: () => {
-      return false;
-    }
-  };
+  let store;
+  const globalAppRegistry = new AppRegistry();
+  const localAppRegistry = new AppRegistry();
   const writeStateStore = { state: { isWritable: true } };
 
   before(() => {
-    global.hadronApp = hadronApp;
-    global.hadronApp.appRegistry = appRegistry;
-    global.hadronApp.appRegistry.registerStore('App.CollectionStore', collectionStore);
-    global.hadronApp.appRegistry.registerStore('DeploymentAwareness.WriteStateStore', writeStateStore);
+    globalAppRegistry.registerStore('DeploymentAwareness.WriteStateStore', writeStateStore);
   });
 
   beforeEach(() => {
-    store.dispatch(reset());
+    store = configureStore({
+      localAppRegistry: localAppRegistry,
+      globalAppRegistry: globalAppRegistry,
+      dataProvider: {
+        error: 'error',
+        dataProvider: 'ds'
+      }
+    });
   });
 
   describe('#onActivated', () => {
-    beforeEach(() => {
-      store.onActivated(appRegistry);
-    });
-
     context('when the validation changes', () => {
       it('updates the namespace in the store', (done) => {
         const unsubscribe = store.subscribe(() => {
@@ -56,7 +51,7 @@ describe('Schema Validation Store', () => {
           done();
         });
 
-        appRegistry.emit('fields-changed', {
+        localAppRegistry.emit('fields-changed', {
           fields: {
             harry: {
               name: 'harry', path: 'harry', count: 1, type: 'Number'
@@ -83,10 +78,6 @@ describe('Schema Validation Store', () => {
     });
 
     context('when the data service is connected', () => {
-      beforeEach(() => {
-        appRegistry.emit('data-service-connected', 'error', 'ds');
-      });
-
       it('sets the data servicein the state', () => {
         expect(store.getState().dataService.dataService).to.equal('ds');
       });
@@ -233,38 +224,13 @@ describe('Schema Validation Store', () => {
       });
     });
 
-    context('when the collection changes', () => {
-      context('when there is no collection', () => {
-        beforeEach(() => {
-          store.onActivated(appRegistry);
-          appRegistry.emit('collection-changed', 'db');
-        });
-
-        it('does not update the namespace in the store', () => {
-          expect(store.getState().namespace).to.equal('');
-        });
-
-        it('resets the rest of the state to initial state', () => {
-          expect(store.getState()).to.deep.equal({
-            namespace: '',
-            appRegistry: appRegistry,
-            dataService: INITIAL_STATE.dataService,
-            fields: INITIAL_STATE.fields,
-            serverVersion: INITIAL_STATE.serverVersion,
-            validation: INITIAL_STATE.validation,
-            sampleDocuments: INITIAL_STATE.sampleDocuments,
-            isZeroState: INITIAL_STATE.isZeroState,
-            editMode: INITIAL_STATE.editMode
-          });
-        });
-      });
-    });
-
     context('when running in a readonly context', () => {
       beforeEach(() => {
         process.env.HADRON_READONLY = 'true';
-        store.onActivated(appRegistry);
-        appRegistry.emit('collection-changed', 'db');
+        store = configureStore({
+          namespace: 'db.coll',
+          globalAppRegistry: globalAppRegistry
+        });
       });
 
       afterEach(() => {

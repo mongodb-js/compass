@@ -266,9 +266,9 @@ class ValidationEditor extends Component {
             text="Cancel"
             clickHandler={this.props.cancelValidation} />
           <TextButton
-              className={`btn btn-primary btn-xs ${this.hasErrors() ? 'disabled' : ''}`}
-              text="Update"
-              clickHandler={this.onValidatorSave.bind(this)} />
+            className={`btn btn-primary btn-xs ${this.hasErrors() ? 'disabled' : ''}`}
+            text="Update"
+            clickHandler={this.onValidatorSave.bind(this)} />
         </div>
       );
     }
@@ -300,8 +300,8 @@ class ValidationEditor extends Component {
               setOptions={OPTIONS}
               readOnly={!this.props.isEditable}
               onFocus={() => tools.setCompleters([this.completer])} />
-            </div>
-            {this.renderValidationMessage()}
+          </div>
+          {this.renderValidationMessage()}
         </div>
         {this.renderActionsPanel()}
       </div>

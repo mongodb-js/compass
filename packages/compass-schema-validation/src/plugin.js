@@ -1,13 +1,16 @@
 import React, { Component } from 'react';
 import { Provider } from 'react-redux';
+import PropTypes from 'prop-types';
 import CompassSchemaValidation from 'components/compass-schema-validation';
-import store from 'stores';
 
 /**
  * CompassSchemaValidationPlugin plugin.
  */
 class Plugin extends Component {
   static displayName = 'CompassSchemaValidationPlugin';
+  static propTypes = {
+    store: PropTypes.object.isRequired
+  }
 
   /**
    * Connect the Plugin to the store and render.
@@ -16,7 +19,7 @@ class Plugin extends Component {
    */
   render() {
     return (
-      <Provider store={store}>
+      <Provider store={this.props.store}>
         <CompassSchemaValidation />
       </Provider>
     );
