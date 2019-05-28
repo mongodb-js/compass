@@ -52,16 +52,16 @@ class Toolbar extends PureComponent {
   renderButton() {
     if (this.props.isDataLake) {
       return (
-        <div className="tooltip-wrapper-class" data-tip={DATA_LAKE_WARNING} data-for="collection-ddl-is-not-writable">
+        <div className={classnames(styles['tooltip-wrapper-class'])} data-tip={DATA_LAKE_WARNING} data-for="collections-ddl-is-not-writable">
           <TextButton
             className="btn btn-primary btn-xs"
             dataTestId="open-create-collection-modal-button"
             text="Create Collection"
-            tooltipId="collection-ddl-is-not-writable"
+            tooltipId="collections-ddl-is-not-writable"
             disabled
             clickHandler={this.onShowCreateCollection}
           />
-          <Tooltip id="collection-ddl-is-not-writable" place="left"/>
+          <Tooltip id="collections-ddl-is-not-writable" place="right"/>
         </div>
       );
     }
@@ -71,7 +71,7 @@ class Toolbar extends PureComponent {
           className="btn btn-primary btn-xs"
           dataTestId="open-create-collection-modal-button"
           text="Create Collection"
-          tooltipId="collection-ddl-is-not-writable"
+          tooltipId="collections-ddl-is-not-writable"
           clickHandler={this.onShowCreateCollection}
         />
       );
