@@ -22,7 +22,6 @@ class InstanceComponent extends React.Component {
   constructor(props) {
     super(props);
     this.state = { activeTab: 0 };
-    this.setupTabs();
   }
 
   /**
@@ -63,6 +62,7 @@ class InstanceComponent extends React.Component {
    * @returns {React.Component} The rendered component.
    */
   render() {
+    this.setupTabs();
     return (
       <div className="rtss">
         <TabNavBar
