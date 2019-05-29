@@ -84,7 +84,8 @@ const CRUDStore = Reflux.createStore({
       count: 0,
       insert: this.getInitialInsertState(),
       table: this.getInitialTableState(),
-      query: this.getInitialQueryState()
+      query: this.getInitialQueryState(),
+      isDataLake: false
     };
   },
 
@@ -142,7 +143,7 @@ const CRUDStore = Reflux.createStore({
     appRegistry.on('collection-changed', this.onCollectionChanged.bind(this));
     appRegistry.on('query-changed', this.onQueryChanged.bind(this));
     appRegistry.on('data-service-connected', this.setDataService.bind(this));
-    appRegistry.on('instance-changed', this.onInstanceChanged.bind(this));
+    appRegistry.on('instance-refreshed', this.onInstanceRefreshed.bind(this));
     appRegistry.on('import-finished', this.refreshDocuments.bind(this));
     appRegistry.on('refresh-data', () => {
       const namespace = appRegistry.getStore('App.NamespaceStore').ns;
@@ -156,10 +157,15 @@ const CRUDStore = Reflux.createStore({
   /**
    * Handle the instance changing.
    *
-   * @param {Object} instance - The instance.
+   * @param {Object} state - The instance store state.
    */
-  onInstanceChanged(instance) {
-    this.setState({ version: instance.build.version });
+  onInstanceRefreshed(state) {
+    const res = { version: state.instance.build.version };
+    if (state.instance.dataLake && state.instance.dataLake.isDataLake) {
+      res.isDataLake = true;
+      res.isEditable = false;
+    }
+    this.setState(res);
   },
 
   /**
@@ -213,7 +219,7 @@ const CRUDStore = Reflux.createStore({
    * @returns {Boolean} If the list is editable.
    */
   isListEditable() {
-    return !this.CollectionStore.isReadonly() && process.env.HADRON_READONLY !== 'true';
+    return !this.state.isDataLake && !this.CollectionStore.isReadonly() && process.env.HADRON_READONLY !== 'true';
   },
 
   /**

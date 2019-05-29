@@ -93,6 +93,14 @@ dataService.connect((error, ds) => {
   appRegistry.emit('collection-changed', `${DB}.${COLL}`);
   QueryChangedStore.onQueryStoreChanged({ ns: `${DB}.${COLL}` });
   appRegistry.emit('query-changed', { ns: `${DB}.${COLL}` });
+
+
+  // global.hadronApp.appRegistry.emit('instance-refreshed', { instance: {
+  //   dataLake: {
+  //     isDataLake: true, version: '2'
+  //   },
+  //   build: { version: '1' }
+  // }});
 });
 
 // For automatic switching to specific namespaces, uncomment below as needed.
