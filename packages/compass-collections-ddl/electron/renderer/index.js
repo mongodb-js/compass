@@ -87,7 +87,7 @@ dataService.connect((error, ds) => {
         databases: {
           models: dbs
         },
-        dataLake: { isDataLake: true }
+        dataLake: { isDataLake: false }
       }
     });
     appRegistry.emit('database-changed', 'echo');

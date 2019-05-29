@@ -26,8 +26,10 @@ export const showCollection = (name) => {
         capped: collection.capped
       });
       dispatch(appRegistryEmit('collection-selected', { view: 'table' }));
-      const ipc = require('hadron-ipc');
-      ipc.call('window:show-collection-submenu');
+      if (!state.isDataLake) {
+        const ipc = require('hadron-ipc');
+        ipc.call('window:show-collection-submenu');
+      }
     }
   };
 };
