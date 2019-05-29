@@ -56,8 +56,10 @@ class SidebarCollection extends PureComponent {
         this.props.readonly,
         this.props.view_on
       );
-      const ipc = require('hadron-ipc');
-      ipc.call('window:show-collection-submenu');
+      if (!this.props.isDataLake) {
+        const ipc = require('hadron-ipc');
+        ipc.call('window:show-collection-submenu');
+      }
     }
   }
 

@@ -15,8 +15,9 @@ store.onActivated = (appRegistry) => {
   appRegistry.on('instance-refreshed', (state) => {
     store.dispatch(changeInstance(state.instance));
     store.dispatch(filterDatabases(null, state.instance.databases, null));
-    const isDataLake = state.instance.dataLake !== undefined && state.instance.dataLake.isDataLake === true;
-    store.dispatch(toggleIsDataLake(isDataLake));
+    if (state.instance.dataLake && state.instance.dataLake.isDataLake) {
+      store.dispatch(toggleIsDataLake(true));
+    }
   });
 
   appRegistry.getStore('DeploymentAwareness.WriteStateStore').listen((state) => {
