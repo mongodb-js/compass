@@ -1,6 +1,6 @@
 import { combineReducers } from 'redux';
+import appRegistry from 'mongodb-redux-common/app-registry';
 import dataService from './data-service';
-import appRegistry from './app-registry';
 import { RESET } from './reset';
 import isWritable, {
   INITIAL_STATE as WRITABLE_INITIAL_STATE

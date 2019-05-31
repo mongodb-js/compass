@@ -1,8 +1,5 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
-import { Provider } from 'react-redux';
-import CreateIndexModal from 'components/create-index-modal';
-import createIndexStore from 'stores/create-index';
 
 /**
  * Component for the create index button.
@@ -10,7 +7,7 @@ import createIndexStore from 'stores/create-index';
 class CreateIndexButton extends PureComponent {
   static displayName = 'CreateIndexButton';
   static propTypes = {
-    toggleIsVisible: PropTypes.func.isRequired
+    localAppRegistry: PropTypes.object.isRequired
   };
 
   /**
@@ -33,7 +30,7 @@ class CreateIndexButton extends PureComponent {
   clickCreateHandler(evt) {
     evt.preventDefault();
     evt.stopPropagation();
-    createIndexStore.dispatch(this.props.toggleIsVisible(true));
+    this.props.localAppRegistry.emit('toggle-create-index-modal', true);
   }
 
   /**
@@ -51,9 +48,6 @@ class CreateIndexButton extends PureComponent {
           text="Create Index"
           tooltipId="index-is-not-writable"
           clickHandler={this.clickCreateHandler.bind(this)} />
-        <Provider store={createIndexStore}>
-          <CreateIndexModal />
-        </Provider>
       </div>
     );
   }

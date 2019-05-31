@@ -19,7 +19,7 @@ class IndexComponent extends PureComponent {
     index: PropTypes.object.isRequired,
     isReadonly: PropTypes.bool.isRequired,
     isWritable: PropTypes.bool.isRequired,
-    toggleIsVisible: PropTypes.func.isRequired,
+    localAppRegistry: PropTypes.object.isRequired,
     changeName: PropTypes.func.isRequired,
     openLink: PropTypes.func.isRequired
   };
@@ -45,6 +45,7 @@ class IndexComponent extends PureComponent {
           isReadonly={this.props.isReadonly}
           isWritable={this.props.isWritable}
           toggleIsVisible={this.props.toggleIsVisible}
+          localAppRegistry={this.props.localAppRegistry}
           changeName={this.props.changeName} />
       </tr>
     );

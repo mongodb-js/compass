@@ -1,10 +1,13 @@
 import React, { Component } from 'react';
 import { Provider } from 'react-redux';
+import PropTypes from 'prop-types';
 import Indexes from 'components/indexes';
-import store from 'stores';
 
 class Plugin extends Component {
   static displayName = 'IndexesPlugin';
+  static propTypes = {
+    store: PropTypes.object.isRequired
+  }
 
   /**
    * Connect the Plugin to the store and render.
@@ -13,7 +16,7 @@ class Plugin extends Component {
    */
   render() {
     return (
-      <Provider store={store}>
+      <Provider store={this.props.store}>
         <Indexes />
       </Provider>
     );

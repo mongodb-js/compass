@@ -155,6 +155,7 @@
     "lodash.trim": "^4.5.1",
     "lodash.zipobject": "^4.1.3",
     "mongodb-ns": "^2.0.0",
+    "mongodb-redux-common": "0.0.1",
     "numeral": "^2.0.6",
     "react-bootstrap": "^0.32.1"
   }

@@ -1,5 +1,4 @@
 import React, { PureComponent } from 'react';
-import dropIndexStore from 'stores/drop-index';
 import PropTypes from 'prop-types';
 
 import classnames from 'classnames';
@@ -15,8 +14,7 @@ class DropColumn extends PureComponent {
     indexName: PropTypes.string.isRequired,
     isReadonly: PropTypes.bool.isRequired,
     isWritable: PropTypes.bool.isRequired,
-    toggleIsVisible: PropTypes.func.isRequired,
-    changeName: PropTypes.func.isRequired
+    localAppRegistry: PropTypes.object.isRequired
   };
 
   /**
@@ -27,8 +25,7 @@ class DropColumn extends PureComponent {
   clickDropHandler(evt) {
     evt.preventDefault();
     evt.stopPropagation();
-    dropIndexStore.dispatch(this.props.changeName(this.props.indexName));
-    dropIndexStore.dispatch(this.props.toggleIsVisible(true));
+    this.props.localAppRegistry.emit('toggle-drop-index-modal', true, this.props.indexName);
   }
 
   /**

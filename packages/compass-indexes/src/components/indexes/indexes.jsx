@@ -14,11 +14,8 @@ import { changeName } from 'modules/drop-index/name';
 import { openLink } from 'modules/link';
 
 import CreateIndexButton from 'components/create-index-button';
-import DropIndexModal from 'components/drop-index-modal';
 import IndexHeader from 'components/index-header';
 import IndexList from 'components/index-list';
-
-import dropIndexStore from 'stores/drop-index';
 
 import classnames from 'classnames';
 import styles from './indexes.less';
@@ -35,7 +32,7 @@ class Indexes extends PureComponent {
     sortColumn: PropTypes.string.isRequired,
     sortOrder: PropTypes.string.isRequired,
     sortIndexes: PropTypes.func.isRequired,
-    toggleIsVisible: PropTypes.func.isRequired,
+    localAppRegistry: PropTypes.object.isRequired,
     reset: PropTypes.func.isRequired,
     error: PropTypes.string,
     changeName: PropTypes.func.isRequired,
@@ -58,7 +55,7 @@ class Indexes extends PureComponent {
               isWritable={this.props.isWritable}
               isReadonly={this.props.isReadonly}
               indexes={this.props.indexes}
-              toggleIsVisible={this.props.toggleIsVisible}
+              localAppRegistry={this.props.localAppRegistry}
               changeName={this.props.changeName}
               openLink={this.props.openLink}
             />
@@ -86,21 +83,11 @@ class Indexes extends PureComponent {
   renderCreateIndexButton() {
     if (!this.props.isReadonly && !this.props.isReadonlyView && (this.props.error === null || this.props.error === undefined)) {
       return (
-        <CreateIndexButton
-          toggleIsVisible={this.props.toggleIsVisible}
-        />
+        <CreateIndexButton localAppRegistry={this.props.localAppRegistry} />
       );
     }
     return (
       <div className="create-index-btn action-bar" />
-    );
-  }
-
-  renderDropIndexModal() {
-    return (
-      <Provider store={dropIndexStore}>
-        <DropIndexModal />
-      </Provider>
     );
   }
 
@@ -114,7 +101,6 @@ class Indexes extends PureComponent {
       <div className="index-container">
         <div className="controls-container">
           {this.renderCreateIndexButton()}
-          {this.renderDropIndexModal()}
         </div>
         {(this.props.isReadonlyView || !(this.props.error === null || this.props.error === undefined)) ?
           this.renderBanner() :
@@ -140,7 +126,8 @@ const mapStateToProps = (state) => ({
   error: state.error,
   dataService: state.dataService,
   sortColumn: state.sortColumn,
-  sortOrder: state.sortOrder
+  sortOrder: state.sortOrder,
+  localAppRegistry: state.appRegistry.localAppRegistry
 });
 
 /**
@@ -154,7 +141,6 @@ const MappedIndexes = connect(
     getDescription,
     dataServiceConnected,
     sortIndexes,
-    toggleIsVisible,
     reset,
     changeName,
     openLink

@@ -1,7 +1,7 @@
 import { combineReducers } from 'redux';
 
 import dataService from 'modules/data-service';
-import appRegistry from 'modules/app-registry';
+import appRegistry from 'mongodb-redux-common/app-registry';
 import error, {
   clearError, handleError,
   INITIAL_STATE as ERROR_INITIAL_STATE

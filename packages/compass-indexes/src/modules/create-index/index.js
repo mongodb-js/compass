@@ -2,7 +2,9 @@ import { combineReducers } from 'redux';
 const EJSON = require('mongodb-extended-json');
 
 import dataService from 'modules/data-service';
-import appRegistry from 'modules/app-registry';
+import appRegistry, {
+  globalAppRegistryEmit
+} from 'mongodb-redux-common/app-registry';
 import error, {
   clearError, handleError,
   INITIAL_STATE as ERROR_INITIAL_STATE
@@ -159,7 +161,7 @@ export const createIndex = () => {
       return;
     }
     dispatch(toggleInProgress(true));
-    const ns = state.appRegistry.getStore('App.NamespaceStore').ns;
+    // const ns = state.appRegistry.getStore('App.NamespaceStore').ns;
 
     state.dataService.createIndex(ns, spec, options, (createErr) => {
       if (!createErr) {
