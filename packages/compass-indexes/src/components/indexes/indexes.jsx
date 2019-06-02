@@ -1,14 +1,13 @@
 /* eslint dot-notation: 0 */
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
-import { connect, Provider } from 'react-redux';
+import { connect } from 'react-redux';
 import { StatusRow } from 'hadron-react-components';
 
 import { writeStateChanged } from 'modules/is-writable';
 import { getDescription } from 'modules/description';
 import { dataServiceConnected } from 'modules/data-service';
 import { sortIndexes } from 'modules/indexes';
-import { toggleIsVisible } from 'modules/is-visible';
 import { reset } from 'modules/reset';
 import { changeName } from 'modules/drop-index/name';
 import { openLink } from 'modules/link';

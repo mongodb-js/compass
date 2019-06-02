@@ -44,7 +44,6 @@ class IndexComponent extends PureComponent {
           indexName={this.props.index.name}
           isReadonly={this.props.isReadonly}
           isWritable={this.props.isWritable}
-          toggleIsVisible={this.props.toggleIsVisible}
           localAppRegistry={this.props.localAppRegistry}
           changeName={this.props.changeName} />
       </tr>

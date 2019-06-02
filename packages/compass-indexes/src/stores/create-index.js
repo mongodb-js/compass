@@ -44,6 +44,10 @@ const configureStore = (options = {}) => {
     localAppRegistry.on('toggle-create-index-modal', (isVisible) => {
       store.dispatch(toggleIsVisible(isVisible));
     });
+
+    localAppRegistry.on('data-service-connected', (error, ds) => {
+      setDataProvider(store, error, ds);
+    });
   }
 
   if (options.globalAppRegistry) {
@@ -52,7 +56,7 @@ const configureStore = (options = {}) => {
   }
 
   if (options.namespace) {
-    store.dipatch(namespaceChanged(options.namespace));
+    store.dispatch(namespaceChanged(options.namespace));
   }
 
   // Set the data provider - this must happen second.

@@ -1,7 +1,6 @@
 import { createStore, applyMiddleware } from 'redux';
 import reducer from 'modules';
 import thunk from 'redux-thunk';
-import toNS from 'mongodb-ns';
 import {
   localAppRegistryActivated,
   globalAppRegistryActivated
@@ -41,7 +40,7 @@ const configureStore = (options = {}) => {
     store.dispatch(localAppRegistryActivated(localAppRegistry));
 
     localAppRegistry.on('refresh-data', () => {
-      store.dispatch(loadIndexesFromDb(options.namespace));
+      store.dispatch(loadIndexesFromDb());
     });
   }
 
@@ -55,14 +54,12 @@ const configureStore = (options = {}) => {
     });
   }
 
-  // Set the namespace - must happen third.
   if (options.namespace) {
     const isReadonlyView = options.isReadonly;
     store.dispatch(readonlyViewChanged(isReadonlyView));
     store.dispatch(namespaceChanged(options.namespace));
   }
 
-  // Set the data provider - this must happen second.
   if (options.dataProvider) {
     setDataProvider(store, options.dataProvider.error, options.dataProvider.dataProvider);
   }

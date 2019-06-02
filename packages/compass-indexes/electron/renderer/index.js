@@ -23,7 +23,7 @@ global.hadronApp.appRegistry = appRegistry;
 // Activate our plugin with the Hadron App Registry
 activate(appRegistry);
 
-const localAppRegistry = new AppRegistry;
+const localAppRegistry = new AppRegistry();
 const store = configureStore({
   namespace: 'echo.artists',
   isReadonly: false,
@@ -45,11 +45,25 @@ const root = document.createElement('div');
 root.id = 'root';
 document.body.appendChild(root);
 
+const scopedModalRoles = appRegistry.getRole('Collection.ScopedModal');
+const scopedModals = scopedModalRoles.map((role, i) => {
+  const scopedStore = role.configureStore({
+    localAppRegistry: localAppRegistry,
+    globalAppRegistry: appRegistry,
+    namespace: 'echo.artists',
+    isReadonly: false
+  });
+  return (<role.component store={scopedStore} key={i} />);
+});
+
 // Create a HMR enabled render function
 const render = Component => {
   ReactDOM.render(
     <AppContainer>
-      <Component store={store} />
+      <div>
+        <Component store={store} />
+        {scopedModals}
+      </div>
     </AppContainer>,
     document.getElementById('root')
   );
@@ -76,6 +90,7 @@ const dataService = new DataService(connection);
 
 dataService.connect((error, ds) => {
   setDataProvider(store, error, ds);
+  localAppRegistry.emit('data-service-connected', error, ds);
   localAppRegistry.emit('fields-changed', {
     fields: {
       harry: {

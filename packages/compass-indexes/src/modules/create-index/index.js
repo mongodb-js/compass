@@ -3,7 +3,7 @@ const EJSON = require('mongodb-extended-json');
 
 import dataService from 'modules/data-service';
 import appRegistry, {
-  globalAppRegistryEmit
+  localAppRegistryEmit
 } from 'mongodb-redux-common/app-registry';
 import error, {
   clearError, handleError,
@@ -171,7 +171,7 @@ export const createIndex = () => {
     state.dataService.createIndex(ns, spec, options, (createErr) => {
       if (!createErr) {
         dispatch(reset());
-        state.appRegistry.emit('refresh-data');
+        dispatch(localAppRegistryEmit('refresh-data'));
         dispatch(clearError());
         dispatch(toggleInProgress(false));
         dispatch(toggleIsVisible(false));

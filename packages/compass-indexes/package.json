@@ -28,6 +28,8 @@
   ],
   "dependency-check": {
     "ignore": [
+      "@hot-loader/react-dom",
+      "@mongodb-js/compass-deployment-awareness",
       "react-dom",
       "debug",
       "hadron-react-buttons",

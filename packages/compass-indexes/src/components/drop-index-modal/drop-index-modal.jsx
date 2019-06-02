@@ -44,8 +44,10 @@ class DropIndexModal extends PureComponent {
    * Clean up after a close events
    */
   handleClose(evt) {
-    evt.preventDefault();
-    evt.stopPropagation();
+    if (evt) {
+      evt.preventDefault();
+      evt.stopPropagation();
+    }
     this.props.toggleIsVisible(false);
     this.props.resetForm();
   }
@@ -87,8 +89,7 @@ class DropIndexModal extends PureComponent {
             </p>
           </div>
           <form
-            onSubmit={this.onFormSubmit.bind(this)}
-          >
+            onSubmit={this.onFormSubmit.bind(this)}>
             <div className="form-group">
               <input
                 autoFocus

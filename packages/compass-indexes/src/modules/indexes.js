@@ -1,5 +1,4 @@
 import IndexModel from 'mongodb-index-model';
-import toNS from 'mongodb-ns';
 import map from 'lodash.map';
 import max from 'lodash.max';
 import { handleError } from 'modules/error';
@@ -27,7 +26,6 @@ export const DEFAULT = 'Name and Definition';
 export const ASC = 'fa-sort-asc';
 export const DESC = 'fa-sort-desc';
 export const USAGE = 'Usage';
-
 
 /**
  * The initial state.
@@ -196,17 +194,17 @@ export const loadIndexesFromDb = () => {
     const state = getState();
     if (state.isReadonly) {
       dispatch(loadIndexes([]));
-      localAppRegistryEmit('indexes-changed', []);
+      dispatch(localAppRegistryEmit('indexes-changed', []));
     } else {
       state.dataService.indexes(state.namespace, {}, (err, indexes) => {
         if (err) {
           dispatch(handleError(parseErrorMsg(err)));
           dispatch(loadIndexes([]));
-          localAppRegistryEmit('indexes-changed', []);
+          dispatch(localAppRegistryEmit('indexes-changed', []));
         } else {
           const ixs = modelAndSort(indexes, state.sortColumn, state.sortOrder);
           dispatch(loadIndexes(ixs));
-          localAppRegistryEmit('indexes-changed', ixs);
+          dispatch(localAppRegistryEmit('indexes-changed', ixs));
         }
       });
     }
