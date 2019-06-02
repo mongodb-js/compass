@@ -2,7 +2,8 @@ const merge = require('webpack-merge');
 const baseWebpackConfig = require('./webpack.base.config');
 
 const config = {
-  target: 'electron-renderer', // webpack should compile node compatible code for tests
+  mode: 'none',
+  target: 'electron-renderer', // Webpack should compile node compatible code for tests
   devtool: 'eval-source-map',
   stats: 'errors-only',
   externals: {
@@ -14,10 +15,7 @@ const config = {
   },
   module: {
     rules: [
-      {
-        test: /\.(png|jpg|jpeg|gif|svg)$/,
-        use: [{ loader: 'ignore-loader' }]
-      },
+      { test: /\.(png|jpg|jpeg|gif|svg)$/, use: [{ loader: 'ignore-loader' }] },
       {
         test: /\.(woff|woff2|ttf|eot)(\?v=\d+\.\d+\.\d+)?$/,
         use: [{ loader: 'ignore-loader' }]

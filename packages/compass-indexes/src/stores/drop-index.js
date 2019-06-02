@@ -8,6 +8,9 @@ import {
 } from 'mongodb-redux-common/app-registry';
 import { parseErrorMsg } from 'modules/indexes';
 import { handleError } from 'modules/error';
+import { toggleIsVisible } from 'modules/is-visible';
+import { changeName } from 'modules/drop-index/name';
+import { namespaceChanged } from 'modules/namespace';
 
 /**
  * Handle setting up the data provider.
@@ -33,7 +36,8 @@ const configureStore = (options = {}) => {
     store.dispatch(localAppRegistryActivated(localAppRegistry));
 
     localAppRegistry.on('toggle-drop-index-modal', (isVisible, indexName) => {
-
+      store.dispatch(changeName(indexName));
+      store.dispatch(toggleIsVisible(isVisible));
     });
   }
 
@@ -42,7 +46,11 @@ const configureStore = (options = {}) => {
     store.dispatch(globalAppRegistryActivated(globalAppRegistry));
   }
 
-  // Set the data provider - this must happen second.
+  if (options.namespace) {
+    store.dipatch(namespaceChanged(options.namespace));
+  }
+
+  // Set the data provider - this must happen last.
   if (options.dataProvider) {
     setDataProvider(store, options.dataProvider.error, options.dataProvider.dataProvider);
   }

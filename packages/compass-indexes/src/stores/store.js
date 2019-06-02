@@ -12,6 +12,7 @@ import { getDescription } from 'modules/description';
 import { dataServiceConnected } from 'modules/data-service';
 import { loadIndexesFromDb, parseErrorMsg } from 'modules/indexes';
 import { handleError } from 'modules/error';
+import { namespaceChanged } from 'modules/namespace';
 
 const debug = require('debug')('mongodb-compass:stores:IndexesStore');
 
@@ -27,6 +28,7 @@ export const setDataProvider = (store, error, provider) => {
     store.dispatch(handleError(parseErrorMsg(error)));
   } else {
     store.dispatch(dataServiceConnected(provider));
+    store.dispatch(loadIndexesFromDb());
   }
 };
 
@@ -53,16 +55,16 @@ const configureStore = (options = {}) => {
     });
   }
 
-  // Set the data provider - this must happen second.
-  if (options.dataProvider) {
-    setDataProvider(store, options.dataProvider.error, options.dataProvider.dataProvider);
-  }
-
   // Set the namespace - must happen third.
   if (options.namespace) {
     const isReadonlyView = options.isReadonly;
     store.dispatch(readonlyViewChanged(isReadonlyView));
-    store.dispatch(loadIndexesFromDb(options.namespace));
+    store.dispatch(namespaceChanged(options.namespace));
+  }
+
+  // Set the data provider - this must happen second.
+  if (options.dataProvider) {
+    setDataProvider(store, options.dataProvider.error, options.dataProvider.dataProvider);
   }
 
   store.subscribe(() => {

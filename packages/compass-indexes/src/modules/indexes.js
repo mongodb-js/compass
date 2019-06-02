@@ -3,6 +3,7 @@ import toNS from 'mongodb-ns';
 import map from 'lodash.map';
 import max from 'lodash.max';
 import { handleError } from 'modules/error';
+import { localAppRegistryEmit } from 'mongodb-redux-common/app-registry';
 
 /**
  * The module action prefix.
@@ -190,26 +191,24 @@ export const sortIndexes = (indexes, column, order) => ({
  *
  * @returns {Function} The thunk function.
  */
-export const loadIndexesFromDb = (ns) => {
+export const loadIndexesFromDb = () => {
   return (dispatch, getState) => {
     const state = getState();
-    if (ns && toNS(ns).collection) {
-      if (state.appRegistry.getStore('App.CollectionStore').isReadonly()) {
-        dispatch(loadIndexes([]));
-        state.appRegistry.emit('indexes-changed', []);
-      } else {
-        state.dataService.indexes(ns, {}, (err, indexes) => {
-          if (err) {
-            dispatch(handleError(parseErrorMsg(err)));
-            dispatch(loadIndexes([]));
-            state.appRegistry.emit('indexes-changed', []);
-          } else {
-            const ixs = modelAndSort(indexes, state.sortColumn, state.sortOrder);
-            dispatch(loadIndexes(ixs));
-            state.appRegistry.emit('indexes-changed', ixs);
-          }
-        });
-      }
+    if (state.isReadonly) {
+      dispatch(loadIndexes([]));
+      localAppRegistryEmit('indexes-changed', []);
+    } else {
+      state.dataService.indexes(state.namespace, {}, (err, indexes) => {
+        if (err) {
+          dispatch(handleError(parseErrorMsg(err)));
+          dispatch(loadIndexes([]));
+          localAppRegistryEmit('indexes-changed', []);
+        } else {
+          const ixs = modelAndSort(indexes, state.sortColumn, state.sortOrder);
+          dispatch(loadIndexes(ixs));
+          localAppRegistryEmit('indexes-changed', ixs);
+        }
+      });
     }
   };
 };

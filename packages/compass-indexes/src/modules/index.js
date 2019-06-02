@@ -26,6 +26,9 @@ import sortColumn, {
 import error, {
   INITIAL_STATE as ERROR_INITIAL_STATE
 } from 'modules/error';
+import namespace, {
+  INITIAL_STATE as NAMESPACE_INITIAL_STATE
+} from 'modules/namespace';
 
 /**
  * The main reducer.
@@ -40,7 +43,8 @@ const reducer = combineReducers({
   dataService,
   sortOrder,
   sortColumn,
-  error
+  error,
+  namespace
 });
 
 /**
@@ -62,7 +66,8 @@ const rootReducer = (state, action) => {
       indexes: INDEXES_INITIAL_STATE,
       sortOrder: SORT_ORDER_INITIAL_STATE,
       sortColumn: SORT_COLUMN_INITIAL_STATE,
-      error: ERROR_INITIAL_STATE
+      error: ERROR_INITIAL_STATE,
+      namespace: NAMESPACE_INITIAL_STATE
     };
   }
   return reducer(state, action);

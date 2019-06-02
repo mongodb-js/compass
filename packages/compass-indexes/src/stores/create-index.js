@@ -9,6 +9,8 @@ import {
 import { changeSchemaFields } from 'modules/create-index/schema-fields';
 import { parseErrorMsg } from 'modules/indexes';
 import { handleError } from 'modules/error';
+import { toggleIsVisible } from 'modules/is-visible';
+import { namespaceChanged } from 'modules/namespace';
 
 /**
  * Handle setting up the data provider.
@@ -40,13 +42,17 @@ const configureStore = (options = {}) => {
     });
 
     localAppRegistry.on('toggle-create-index-modal', (isVisible) => {
-
+      store.dispatch(toggleIsVisible(isVisible));
     });
   }
 
   if (options.globalAppRegistry) {
     const globalAppRegistry = options.globalAppRegistry;
     store.dispatch(globalAppRegistryActivated(globalAppRegistry));
+  }
+
+  if (options.namespace) {
+    store.dipatch(namespaceChanged(options.namespace));
   }
 
   // Set the data provider - this must happen second.

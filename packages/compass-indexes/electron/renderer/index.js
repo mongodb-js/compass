@@ -4,12 +4,10 @@ import app from 'hadron-app';
 import AppRegistry from 'hadron-app-registry';
 import { AppContainer } from 'react-hot-loader';
 import IndexesPlugin, { activate } from 'plugin';
-import CollectionStore from './stores/collection-store';
 import DeploymentStateStore from './stores/deployment-state-store';
-import NamespaceStore from './stores/namespace-store';
 import TextWriteButton from './components/text-write-button';
 import Collation from './components/collation';
-
+import configureStore, { setDataProvider } from 'stores';
 
 // Import global less file. Note: these styles WILL NOT be used in compass, as compass provides its own set
 // of global styles. If you are wishing to style a given component, you should be writing a less file per
@@ -25,15 +23,17 @@ global.hadronApp.appRegistry = appRegistry;
 // Activate our plugin with the Hadron App Registry
 activate(appRegistry);
 
-CollectionStore.setCollection({_id: 'citibike.trips', readonly: false});
+const localAppRegistry = new AppRegistry;
+const store = configureStore({
+  namespace: 'echo.artists',
+  isReadonly: false,
+  localAppRegistry: localAppRegistry,
+  globalAppRegistry: appRegistry
+});
 
-appRegistry.registerStore('App.CollectionStore', CollectionStore);
 appRegistry.registerStore('DeploymentAwareness.WriteStateStore', DeploymentStateStore);
 appRegistry.registerComponent('DeploymentAwareness.TextWriteButton', TextWriteButton);
 appRegistry.registerComponent('Collation.Select', Collation);
-appRegistry.registerStore('App.NamespaceStore', NamespaceStore);
-NamespaceStore.ns = 'citibike.trips';
-
 
 appRegistry.onActivated();
 
@@ -49,7 +49,7 @@ document.body.appendChild(root);
 const render = Component => {
   ReactDOM.render(
     <AppContainer>
-      <Component />
+      <Component store={store} />
     </AppContainer>,
     document.getElementById('root')
   );
@@ -74,10 +74,9 @@ const connection = new Connection({
 });
 const dataService = new DataService(connection);
 
-appRegistry.emit('data-service-initialized', dataService);
 dataService.connect((error, ds) => {
-  appRegistry.emit('data-service-connected', error, ds);
-  appRegistry.emit('fields-changed', {
+  setDataProvider(store, error, ds);
+  localAppRegistry.emit('fields-changed', {
     fields: {
       harry: {
         name: 'harry', path: 'harry', count: 1, type: 'Number'
@@ -100,7 +99,6 @@ dataService.connect((error, ds) => {
         version: '0.0.0' }
     ]
   });
-  appRegistry.emit('collection-changed', 'citibike.trips');
 });
 
 if (module.hot) {

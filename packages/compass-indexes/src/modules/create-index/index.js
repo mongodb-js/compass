@@ -50,6 +50,9 @@ import partialFilterExpression, {
 import name, {
   INITIAL_STATE as NAME_INITIAL_STATE
 } from 'modules/create-index/name';
+import namespace, {
+  INITIAL_STATE as NAMESPACE_INITIAL_STATE
+} from 'modules/namespace';
 
 import schemaFields from 'modules/create-index/schema-fields';
 import { RESET_FORM } from 'modules/reset-form';
@@ -76,7 +79,8 @@ const reducer = combineReducers({
   isPartialFilterExpression,
   ttl,
   partialFilterExpression,
-  name
+  name,
+  namespace
 });
 
 /**
@@ -104,7 +108,8 @@ const rootReducer = (state, action) => {
       isPartialFilterExpression: IS_PARTIAL_FILTER_EXPRESSION_INITIAL_STATE,
       ttl: TTL_INITIAL_STATE,
       partialFilterExpression: PARTIAL_FILTER_EXPRESSION_INITIAL_STATE,
-      name: NAME_INITIAL_STATE
+      name: NAME_INITIAL_STATE,
+      namespace: NAMESPACE_INITIAL_STATE
     };
   }
   return reducer(state, action);
@@ -161,7 +166,7 @@ export const createIndex = () => {
       return;
     }
     dispatch(toggleInProgress(true));
-    // const ns = state.appRegistry.getStore('App.NamespaceStore').ns;
+    const ns = state.namespace;
 
     state.dataService.createIndex(ns, spec, options, (createErr) => {
       if (!createErr) {

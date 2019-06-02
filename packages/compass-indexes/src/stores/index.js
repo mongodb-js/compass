@@ -1,4 +1,3 @@
-import IndexesStore from './store';
-
-export default IndexesStore;
-export { IndexesStore };
+import configureStore, { setDataProvider } from './store';
+export default configureStore;
+export { setDataProvider };
