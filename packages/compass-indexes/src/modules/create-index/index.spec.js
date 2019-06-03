@@ -76,21 +76,25 @@ describe('create index is background module', () => {
     });
     it('calls createIndex with correct options', () => {
       const dispatch = (res) => {
-        switch (res.type) {
-          case TOGGLE_IN_PROGRESS:
-            progressSpy();
-            break;
-          case RESET:
-            resetSpy();
-            break;
-          case CLEAR_ERROR:
-            clearErrorSpy();
-            break;
-          case TOGGLE_IS_VISIBLE:
-            visibleSpy();
-            break;
-          default:
-            expect(true).to.equal(false, `Unexpected action called ${res.type}`);
+        if (typeof res !== 'function') {
+          switch (res.type) {
+            case TOGGLE_IN_PROGRESS:
+              progressSpy();
+              break;
+            case RESET:
+              resetSpy();
+              break;
+            case CLEAR_ERROR:
+              clearErrorSpy();
+              break;
+            case TOGGLE_IS_VISIBLE:
+              visibleSpy();
+              break;
+            case Function:
+              break;
+            default:
+              expect(true).to.equal(false, `Unexpected action called ${res.type}`);
+          }
         }
       };
       const state = () => ({
@@ -105,9 +109,9 @@ describe('create index is background module', () => {
         isTtl: true,
         ttl: 100,
         appRegistry: {
-          getStore: () => ({ns: 'db.coll'}),
           emit: emitSpy
         },
+        namespace: 'db.coll',
         dataService: {
           createIndex: (ns, spec, options, cb) => {
             expect(ns).to.equal('db.coll');
@@ -127,7 +131,6 @@ describe('create index is background module', () => {
       });
       createIndex()(dispatch, state);
       expect(resetSpy.calledOnce).to.equal(true, 'reset not called');
-      expect(emitSpy.calledOnce).to.equal(true, 'emit not called');
       expect(clearErrorSpy.calledOnce).to.equal(true, 'clearError not called');
       expect(progressSpy.calledTwice).to.equal(true, 'toggleInProgress not called');
       expect(visibleSpy.calledOnce).to.equal(true, 'toggleIsVisible not called');
@@ -135,21 +138,23 @@ describe('create index is background module', () => {
     });
     it('generates name if empty', () => {
       const dispatch = (res) => {
-        switch (res.type) {
-          case TOGGLE_IN_PROGRESS:
-            progressSpy();
-            break;
-          case RESET:
-            resetSpy();
-            break;
-          case CLEAR_ERROR:
-            clearErrorSpy();
-            break;
-          case TOGGLE_IS_VISIBLE:
-            visibleSpy();
-            break;
-          default:
-            expect(true).to.equal(false, `Unexpected action called ${res.type}`);
+        if (typeof res !== 'function') {
+          switch (res.type) {
+            case TOGGLE_IN_PROGRESS:
+              progressSpy();
+              break;
+            case RESET:
+              resetSpy();
+              break;
+            case CLEAR_ERROR:
+              clearErrorSpy();
+              break;
+            case TOGGLE_IS_VISIBLE:
+              visibleSpy();
+              break;
+            default:
+              expect(true).to.equal(false, `Unexpected action called ${res.type}`);
+          }
         }
       };
       const state = () => ({
@@ -163,8 +168,8 @@ describe('create index is background module', () => {
         collation: 'coll',
         isTtl: true,
         ttl: 100,
+        namespace: 'db.coll',
         appRegistry: {
-          getStore: () => ({ns: 'db.coll'}),
           emit: emitSpy
         },
         dataService: {
@@ -186,7 +191,6 @@ describe('create index is background module', () => {
       });
       createIndex()(dispatch, state);
       expect(resetSpy.calledOnce).to.equal(true, 'reset not called');
-      expect(emitSpy.calledOnce).to.equal(true, 'emit not called');
       expect(clearErrorSpy.calledOnce).to.equal(true, 'clearError not called');
       expect(progressSpy.calledTwice).to.equal(true, 'toggleInProgress not called');
       expect(visibleSpy.calledOnce).to.equal(true, 'toggleIsVisible not called');
@@ -216,8 +220,8 @@ describe('create index is background module', () => {
         isUnique: false,
         isBackground: false,
         name: 'test name',
+        namespace: 'db.coll',
         appRegistry: {
-          getStore: () => ({ns: 'db.coll'})
         },
         dataService: {
           createIndex: (ns, spec, options, cb) => {

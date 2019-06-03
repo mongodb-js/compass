@@ -100,77 +100,75 @@ describe('indexes module', () => {
     });
     it('returns loadIndexes action with empty list for readonly', () => {
       const dispatch = (res) => {
-        expect(res).to.deep.equal({ type: LOAD_INDEXES, indexes: [] });
-        actionSpy();
+        if (typeof res !== 'function') {
+          expect(res).to.deep.equal({ type: LOAD_INDEXES, indexes: [] });
+          actionSpy();
+        }
       };
       const state = () => ({
         appRegistry: {
-          getStore: () => ({isReadonly: () => (true)}),
           emit: emitSpy
-        }
+        },
+        isReadonly: true,
+        namespace: 'citibikes.trips'
       });
-      loadIndexesFromDb('citibikes.trips')(dispatch, state);
+      loadIndexesFromDb()(dispatch, state);
       expect(actionSpy.calledOnce).to.equal(true);
-      expect(emitSpy.calledOnce).to.equal(true);
-      expect(emitSpy.args[0][0]).to.equal('indexes-changed');
-      expect(emitSpy.args[0][1]).to.deep.equal([]);
     });
 
     it('returns loadIndexes action with error for error state', () => {
       const dispatch = (res) => {
-        if (res.type === LOAD_INDEXES) {
-          expect(res).to.deep.equal({ type: LOAD_INDEXES, indexes: [] });
-          actionSpy();
-        } else if (res.type === HANDLE_ERROR) {
-          expect(res).to.deep.equal({ type: HANDLE_ERROR, error: 'error message!' });
-          actionSpy();
-        } else {
-          expect(true, 'unknown action called').to.be.false();
+        if (typeof res !== 'function') {
+          if (res.type === LOAD_INDEXES) {
+            expect(res).to.deep.equal({ type: LOAD_INDEXES, indexes: [] });
+            actionSpy();
+          } else if (res.type === HANDLE_ERROR) {
+            expect(res).to.deep.equal({ type: HANDLE_ERROR, error: 'error message!' });
+            actionSpy();
+          } else {
+            expect(true, 'unknown action called').to.be.false();
+          }
         }
       };
       const state = () => ({
         appRegistry: {
-          getStore: () => ({isReadonly: () => (false)}),
           emit: emitSpy
         },
+        isReadonly: false,
         dataService: {
           indexes: (ns, opts, cb) => { cb({message: 'error message!'}); }
-        }
+        },
+        namespace: 'citibikes.trips'
       });
-      loadIndexesFromDb('citibikes.trips')(dispatch, state);
+      loadIndexesFromDb()(dispatch, state);
       expect(actionSpy.calledTwice).to.equal(true);
-      expect(emitSpy.calledOnce).to.equal(true);
-      expect(emitSpy.args[0][0]).to.equal('indexes-changed');
-      expect(emitSpy.args[0][1]).to.deep.equal([]);
     });
 
     it('returns loadIndexes action with sorted and modelled indexes', () => {
       const dispatch = (res) => {
-        expect(Object.keys(res)).to.deep.equal(['type', 'indexes']);
-        expect(res.type).to.equal(LOAD_INDEXES);
-        expect(
-          JSON.stringify(res.indexes, null, '\n')
-        ).to.equal(JSON.stringify(defaultSort, null, '\n'));
-        actionSpy();
+        if (typeof res !== 'function') {
+          expect(Object.keys(res)).to.deep.equal(['type', 'indexes']);
+          expect(res.type).to.equal(LOAD_INDEXES);
+          expect(
+            JSON.stringify(res.indexes, null, '\n')
+          ).to.equal(JSON.stringify(defaultSort, null, '\n'));
+          actionSpy();
+        }
       };
       const state = () => ({
         appRegistry: {
-          getStore: () => ({isReadonly: () => (false)}),
           emit: emitSpy
         },
+        isReadonly: false,
         dataService: {
           indexes: (ns, opts, cb) => { cb(null, fromDB); }
         },
         sortColumn: DEFAULT,
-        sortOrder: ASC
+        sortOrder: ASC,
+        namespace: 'citibikes.trips'
       });
-      loadIndexesFromDb('citibikes.trips')(dispatch, state);
+      loadIndexesFromDb()(dispatch, state);
       expect(actionSpy.calledOnce).to.equal(true);
-      expect(emitSpy.calledOnce).to.equal(true);
-      expect(emitSpy.args[0][0]).to.equal('indexes-changed');
-      expect(
-        JSON.stringify(emitSpy.args[0][1])
-      ).to.equal(JSON.stringify(defaultSort, null, null));
     });
   });
 });

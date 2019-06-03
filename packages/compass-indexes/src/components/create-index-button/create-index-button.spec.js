@@ -2,7 +2,6 @@ import React from 'react';
 import { mount } from 'enzyme';
 
 import CreateIndexButton from 'components/create-index-button';
-import CreateIndexModal from 'components/create-index-modal';
 
 describe('create-index-button [Component]', () => {
   let component;
@@ -28,12 +27,5 @@ describe('create-index-button [Component]', () => {
         component.find('[data-test-id="open-create-index-modal-button"]')
       ).to.be.present();
     });
-    it('renders a createIndexModal', () => {
-      expect(component.find(CreateIndexModal)).to.be.present();
-    });
-    // it('calls toggleIsVisible on click', () => {
-    //   component.find('[data-test-id="open-create-index-modal-button"]').simulate('click');
-    //   expect(toggleIsVisibleSpy.calledOnce).to.equal(true);
-    // });
   });
 });

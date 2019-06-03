@@ -1,8 +1,7 @@
 import AppRegistry from 'hadron-app-registry';
 import Reflux from 'reflux';
 import StateMixin from 'reflux-state-mixin';
-import store from 'stores';
-import { reset } from 'modules/reset';
+import configureStore from 'stores';
 
 const WriteStateStore = Reflux.createStore({
   mixins: [StateMixin.store],
@@ -10,97 +9,63 @@ const WriteStateStore = Reflux.createStore({
     return { isWritable: true, description: 'store initial state description' };
   }
 });
-const CollectionStore = Reflux.createStore({
-  mixins: [StateMixin.store],
-  getInitialState() {
-    return {};
-  },
-  isReadonly() {
-    return true;
-  }
-});
-const NamespaceStore = Reflux.createStore({
-  mixins: [StateMixin.store],
-  getInitialState() {
-    return { ns: 'initial' };
-  },
-  get ns() {
-    return 'initial';
-  }
-});
-
 
 describe('IndexesStore [Store]', () => {
+  const appRegistry = new AppRegistry();
+  const localAppRegistry = new AppRegistry();
+  appRegistry.registerStore('DeploymentAwareness.WriteStateStore', WriteStateStore);
+
+  let store;
+
   beforeEach(() => {
-    store.dispatch(reset());
+    store = configureStore({
+      globalAppRegistry: appRegistry,
+      localAppRegistry: localAppRegistry,
+      namespace: 'test.coll',
+      dataProvider: {
+        error: null,
+        dataProvider: {
+          indexes: (ns, options, callback) => {
+            callback('err', []);
+          }
+        }
+      },
+      isReadonly: true
+    });
   });
 
-  afterEach(() => {
-    store.dispatch(reset());
+  it('activates the app registry module', () => {
+    expect(store.getState().appRegistry.globalAppRegistry).to.deep.equal(appRegistry);
   });
 
-  describe('#onActivated', () => {
-    const appRegistry = new AppRegistry();
-    appRegistry.registerStore('DeploymentAwareness.WriteStateStore', WriteStateStore);
-    appRegistry.registerStore('App.CollectionStore', CollectionStore);
-    appRegistry.registerStore('App.NamespaceStore', NamespaceStore);
+  it('sets the namespace', () => {
+    expect(store.getState().namespace).to.equal('test.coll');
+  });
 
-    before(() => {
-      store.onActivated(appRegistry);
+  it('sets is readonly', () => {
+    expect(store.getState().isReadonlyView).to.equal(true);
+  });
+
+  it('sets the data service', () => {
+    expect(store.getState().dataService).to.not.equal(null);
+  });
+
+  context('when write state changes', () => {
+    beforeEach(() => {
+      expect(store.getState().isWritable).to.equal(true); // initial state
+      WriteStateStore.setState({ isWritable: false, description: 'test description' });
     });
 
-    it('activates the app registry module', () => {
-      expect(store.getState().appRegistry).to.deep.equal(appRegistry);
+    it('dispatches the change write state action', () => {
+      expect(store.getState().isWritable).to.equal(false);
+      expect(store.getState().description).to.equal('test description');
     });
+  });
 
-    context('when write state changes', () => {
-      beforeEach(() => {
-        expect(store.getState().isWritable).to.equal(true); // initial state
-        WriteStateStore.setState({ isWritable: false, description: 'test description' });
-      });
-
-      it('dispatches the change write state action', () => {
-        expect(store.getState().isWritable).to.equal(false);
-        expect(store.getState().description).to.equal('test description');
-      });
-    });
-    context('collection-changed emitted', () => {
-      beforeEach(() => {
-        expect(store.getState().isReadonly).to.equal(false);
-        appRegistry.emit('collection-changed', 'test.coll');
-      });
-      it('dispatches the readonlyViewChanged action', () => {
-        expect(store.getState().isReadonlyView).to.equal(true);
-        expect(store.getState().indexes).to.deep.equal([]);
-        expect(store.getState().error).to.equal(null);
-      });
-    });
-    context('refresh-data emitted', () => {
-      beforeEach(() => {
-        expect(store.getState().isReadonly).to.equal(false);
-        appRegistry.emit('refresh-data');
-      });
-      it('dispatches the load indexes action', () => {
-        expect(store.getState().indexes).to.deep.equal([]);
-        expect(store.getState().error).to.equal(null);
-      });
-    });
-    context('when the data service is connected', () => {
-      const ds = {'data-service': 1};
-      beforeEach(() => {
-        appRegistry.emit('data-service-connected', null, ds);
-      });
-      it('dispatches the data service connected action', () => {
-        expect(store.getState().dataService).to.deep.equal({'data-service': 1});
-      });
-    });
-    context('when the data service errors', () => {
-      beforeEach(() => {
-        appRegistry.emit('data-service-connected', {message: 'err'}, null);
-      });
-      it('dispatches the data service connected action', () => {
-        expect(store.getState().error).to.equal('err');
-      });
+  context('refresh-data emitted', () => {
+    it('dispatches the load indexes action', () => {
+      localAppRegistry.emit('refresh-data');
+      expect(store.getState().indexes).to.deep.equal([]);
     });
   });
 });

@@ -5,7 +5,6 @@ import { Indexes } from 'components/indexes';
 import styles from './indexes.less';
 
 import CreateIndexButton from 'components/create-index-button';
-import DropIndexModal from 'components/drop-index-modal';
 import { StatusRow } from 'hadron-react-components';
 import IndexHeader from 'components/index-header';
 import IndexList from 'components/index-list';
@@ -52,7 +51,6 @@ describe('indexes [Component]', () => {
 
     it('renders the controls container', () => {
       expect(component.find(CreateIndexButton)).to.be.present();
-      expect(component.find(DropIndexModal)).to.be.present();
     });
 
     it('does not render a status row', () => {
@@ -98,7 +96,6 @@ describe('indexes [Component]', () => {
 
     it('does not render the controls container', () => {
       expect(component.find(CreateIndexButton)).to.not.be.present();
-      expect(component.find(DropIndexModal)).to.be.present();
     });
 
     it('renders a status row', () => {
@@ -147,7 +144,6 @@ describe('indexes [Component]', () => {
 
     it('does not render the controls container', () => {
       expect(component.find(CreateIndexButton)).to.not.be.present();
-      expect(component.find(DropIndexModal)).to.be.present();
     });
 
     it('does not render a status row', () => {

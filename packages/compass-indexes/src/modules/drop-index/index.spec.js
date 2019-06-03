@@ -30,21 +30,23 @@ describe('drop index is background module', () => {
     });
     it('calls dropIndex with correct options', () => {
       const dispatch = (res) => {
-        switch (res.type) {
-          case TOGGLE_IN_PROGRESS:
-            progressSpy();
-            break;
-          case RESET:
-            resetSpy();
-            break;
-          case CLEAR_ERROR:
-            clearErrorSpy();
-            break;
-          case TOGGLE_IS_VISIBLE:
-            visibleSpy();
-            break;
-          default:
-            expect(true).to.equal(false, `Unexpected action called ${res.type}`);
+        if (typeof res !== 'function') {
+          switch (res.type) {
+            case TOGGLE_IN_PROGRESS:
+              progressSpy();
+              break;
+            case RESET:
+              resetSpy();
+              break;
+            case CLEAR_ERROR:
+              clearErrorSpy();
+              break;
+            case TOGGLE_IS_VISIBLE:
+              visibleSpy();
+              break;
+            default:
+              expect(true).to.equal(false, `Unexpected action called ${res.type}`);
+          }
         }
       };
       const state = () => ({
@@ -52,6 +54,7 @@ describe('drop index is background module', () => {
           getStore: () => ({ns: 'db.coll'}),
           emit: emitSpy
         },
+        namespace: 'db.coll',
         dataService: {
           dropIndex: (ns, indexName, cb) => {
             expect(ns).to.equal('db.coll');
@@ -63,7 +66,6 @@ describe('drop index is background module', () => {
       });
       dropIndex('index name')(dispatch, state);
       expect(resetSpy.calledOnce).to.equal(true, 'reset not called');
-      expect(emitSpy.calledOnce).to.equal(true, 'emit not called');
       expect(clearErrorSpy.calledOnce).to.equal(true, 'clearError not called');
       expect(progressSpy.calledTwice).to.equal(true, 'toggleInProgress not called');
       expect(visibleSpy.calledOnce).to.equal(true, 'toggleIsVisible not called');
@@ -90,6 +92,7 @@ describe('drop index is background module', () => {
         appRegistry: {
           getStore: () => ({ns: 'db.coll'})
         },
+        namespace: 'db.coll',
         dataService: {
           dropIndex: (ns, indexName, cb) => {
             expect(ns).to.equal('db.coll');
