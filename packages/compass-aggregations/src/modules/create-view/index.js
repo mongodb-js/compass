@@ -149,8 +149,10 @@ export const createView = () => {
         global.hadronApp.appRegistry.emit(
           'open-namespace-in-new-tab',
           `${database}.${viewName}`,
-          true
+          true,
+          state.source
         );
+
         debug('View created!');
         dispatch(reset());
       });

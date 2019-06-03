@@ -51,4 +51,4 @@ const deactivate = (appRegistry) => {
 };
 
 export default AggregationsPlugin;
-export { activate, deactivate, Aggregations, StageEditor };
+export { activate, deactivate, Aggregations, StageEditor, CreateViewPlugin };
