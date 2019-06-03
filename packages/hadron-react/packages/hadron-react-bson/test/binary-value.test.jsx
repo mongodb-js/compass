@@ -83,4 +83,25 @@ describe('<BinaryValue />', () => {
       expect(component.text()).to.equal('Binary(\'dGVzdGluZw==\')');
     });
   });
+
+  context('when the type is FLE', () => {
+    const binary = new Binary('testing', 6);
+    const component = shallow(<BinaryValue type="Binary" value={binary} />);
+
+    it('sets the base class', () => {
+      expect(component.hasClass('element-value')).to.equal(true);
+    });
+
+    it('sets the type class', () => {
+      expect(component.hasClass('element-value-is-binary')).to.equal(true);
+    });
+
+    it('sets the title', () => {
+      expect(component.props().title).to.equal('Editing documents with encrypted fields is not yet supported');
+    });
+
+    it('sets the value', () => {
+      expect(component.text()).to.equal('*********');
+    });
+  });
 });

@@ -46,12 +46,16 @@ var Binary = function (_React$Component) {
     /**
      * Render the value as a string.
      *
-     * @returns {String} The binary value.
+     * @returns {String[]} The binary value, and the tooltip content.
      */
     value: function renderValue() {
       var type = this.props.value.sub_type;
       var buffer = this.props.value.buffer;
-      return 'Binary(\'' + truncate(buffer.toString(BASE_64), 100) + '\')';
+      if (type === 6) {
+        return ['*********', 'Editing documents with encrypted fields is not yet supported'];
+      }
+      var val = 'Binary(\'' + truncate(buffer.toString(BASE_64), 100) + '\')';
+      return [val, val];
     }
 
     /**
@@ -66,8 +70,8 @@ var Binary = function (_React$Component) {
       var value = this.renderValue();
       return React.createElement(
         'div',
-        { className: CLASS, title: value },
-        value
+        { className: CLASS, title: value[1] },
+        value[0]
       );
     }
   }]);

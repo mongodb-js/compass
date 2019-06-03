@@ -20,12 +20,16 @@ class Binary extends React.Component {
   /**
    * Render the value as a string.
    *
-   * @returns {String} The binary value.
+   * @returns {String[]} The binary value, and the tooltip content.
    */
   renderValue() {
     const type = this.props.value.sub_type;
     const buffer = this.props.value.buffer;
-    return `Binary('${truncate(buffer.toString(BASE_64), 100)}')`;
+    if (type === 6) {
+      return ['*********', 'Editing documents with encrypted fields is not yet supported'];
+    }
+    const val = `Binary('${truncate(buffer.toString(BASE_64), 100)}')`;
+    return [val, val]
   }
 
   /**
@@ -36,8 +40,8 @@ class Binary extends React.Component {
   render() {
     const value = this.renderValue();
     return (
-      <div className={CLASS} title={value}>
-        {value}
+      <div className={CLASS} title={value[1]}>
+        {value[0]}
       </div>
     );
   }
