@@ -10,7 +10,8 @@ import {
   prevTab,
   nextTab,
   moveTab,
-  selectTab
+  selectTab,
+  changeActiveSubTab
 } from 'modules/tabs';
 import CollectionTab from 'components/collection-tab';
 import CreateTab from 'components/create-tab';
@@ -51,7 +52,8 @@ class Workspace extends PureComponent {
     prevTab: PropTypes.func.isRequired,
     nextTab: PropTypes.func.isRequired,
     moveTab: PropTypes.func.isRequired,
-    selectTab: PropTypes.func.isRequired
+    selectTab: PropTypes.func.isRequired,
+    changeActiveSubTab: PropTypes.func.isRequired
   };
 
   /**
@@ -150,6 +152,7 @@ class Workspace extends PureComponent {
       return (
         <Collection
           key={activeTab.id}
+          id={activeTab.id}
           namespace={activeTab.namespace}
           isReadonly={activeTab.isReadonly}
           tabs={activeTab.tabs}
@@ -157,6 +160,8 @@ class Workspace extends PureComponent {
           queryHistoryIndexes={activeTab.queryHistoryIndexes}
           statsPlugin={activeTab.statsPlugin}
           statsStore={activeTab.statsStore}
+          activeSubTab={activeTab.activeSubTab}
+          changeActiveSubTab={this.props.changeActiveSubTab}
           localAppRegistry={activeTab.localAppRegistry} />
       );
     }
@@ -215,7 +220,8 @@ const MappedWorkspace = connect(
     prevTab,
     nextTab,
     moveTab,
-    selectTab
+    selectTab,
+    changeActiveSubTab
   }
 )(Workspace);
 

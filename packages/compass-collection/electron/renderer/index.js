@@ -6,9 +6,12 @@ import AppRegistry from 'hadron-app-registry';
 import { AppContainer } from 'react-hot-loader';
 import CollectionPlugin, { activate } from 'plugin';
 import { activate as activateAgg } from '@mongodb-js/compass-aggregations';
+import { activate as activateDA } from '@mongodb-js/compass-deployment-awareness';
 import { activate as activateStats } from '@mongodb-js/compass-collection-stats';
-import { activate as activateQueryBar } from '@mongodb-js/compass-query-bar';
 import { activate as activateExplain } from '@mongodb-js/compass-explain-plan';
+import { activate as activateIndexes } from '@mongodb-js/compass-indexes';
+import { activate as activateQueryBar } from '@mongodb-js/compass-query-bar';
+import { activate as activateValidation } from '@mongodb-js/compass-schema-validation';
 
 // Import global less file. Note: these styles WILL NOT be used in compass, as compass provides its own set
 // of global styles. If you are wishing to style a given component, you should be writing a less file per
@@ -21,17 +24,9 @@ const appRegistry = new AppRegistry();
 global.hadronApp = app;
 global.hadronApp.appRegistry = appRegistry;
 
-class CollectionStats extends React.Component {
-  render() {
-    return (<div id="stats">Stats</div>);
-  }
-}
-
-appRegistry.registerComponent('CollectionStats.Component', CollectionStats);
-
 const instance = {
   build: {
-    version: '4.0.0'
+    version: '4.2.0'
   }
 };
 
@@ -40,9 +35,12 @@ app.instance = instance;
 // Activate our plugin with the Hadron App Registry
 activate(appRegistry);
 activateAgg(appRegistry);
+activateDA(appRegistry);
 activateStats(appRegistry);
 activateQueryBar(appRegistry);
 activateExplain(appRegistry);
+activateIndexes(appRegistry);
+activateValidation(appRegistry);
 appRegistry.onActivated();
 
 // Since we are using HtmlWebpackPlugin WITHOUT a template,

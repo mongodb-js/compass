@@ -19,24 +19,21 @@ class Collection extends Component {
     queryHistoryIndexes: PropTypes.array.isRequired,
     statsPlugin: PropTypes.func.isRequired,
     statsStore: PropTypes.object.isRequired,
-    localAppRegistry: PropTypes.object.isRequired
+    localAppRegistry: PropTypes.object.isRequired,
+    activeSubTab: PropTypes.number.isRequired,
+    id: PropTypes.string.isRequired,
+    changeActiveSubTab: PropTypes.func.isRequired
   };
 
-  constructor(props) {
-    super(props);
-    this.state = { activeTab: 0 };
-  }
-
-  onTabClicked = (idx, name) => {
-    // Only proceed if the active tab has changed; prevent multiple clicks
-    if (this.state.activeTab === idx) {
+  onSubTabClicked = (idx, name) => {
+    if (this.props.activeSubTab === idx) {
       return;
     }
     if (!this.props.queryHistoryIndexes.includes(idx)) {
       this.props.localAppRegistry.emit('collapse-query-history');
     }
     this.props.localAppRegistry.emit('subtab-changed', name);
-    this.setState({ activeTab: idx });
+    this.props.changeActiveSubTab(idx, this.props.id);
   }
 
   /**
@@ -57,9 +54,8 @@ class Collection extends Component {
           tabs={this.props.tabs}
           views={this.props.views}
           mountAllViews
-          activeTabIndex={this.state.activeTab}
-          onTabClicked={this.onTabClicked}
-        />
+          activeTabIndex={this.props.activeSubTab}
+          onTabClicked={this.onSubTabClicked} />
       </div>
     );
   }

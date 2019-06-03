@@ -45,6 +45,11 @@ export const PREV_TAB = `${PREFIX}/tabs/PREV_TAB`;
 export const NEXT_TAB = `${PREFIX}/tabs/NEXT_TAB`;
 
 /**
+ * Change active subtab action name.
+ */
+export const CHANGE_ACTIVE_SUB_TAB = `${PREFIX}/tabs/CHANGE_ACTIVE_SUBTAB`;
+
+/**
  * The initial state.
  */
 export const INITIAL_STATE = [];
@@ -103,6 +108,7 @@ const doCreateTab = (state, action) => {
     id: action.id,
     namespace: action.namespace,
     isActive: true,
+    activeSubTab: 0,
     isReadonly: action.isReadonly,
     tabs: action.tabs,
     views: action.views,
@@ -250,6 +256,12 @@ const doSelectTab = (state, action) => {
   });
 };
 
+const doChangeActiveSubTab = (state, action) => {
+  return state.map((tab) => {
+    return { ...tab, activeSubTab: (action.id === tab.id) ? action.activeSubTab : tab.activeSubTab };
+  });
+};
+
 /**
  * The action to state modifier mappings.
  */
@@ -260,7 +272,8 @@ const MAPPINGS = {
   [MOVE_TAB]: doMoveTab,
   [NEXT_TAB]: doNextTab,
   [PREV_TAB]: doPrevTab,
-  [SELECT_TAB]: doSelectTab
+  [SELECT_TAB]: doSelectTab,
+  [CHANGE_ACTIVE_SUB_TAB]: doChangeActiveSubTab
 };
 
 /**
@@ -385,9 +398,22 @@ export const selectTab = (index) => ({
   index: index
 });
 
+/**
+ * Action creator for changing subtabs.
+ *
+ * @param {Number} activeSubTab - The active subtab index.
+ * @param {Number} id - The tab id.
+ *
+ * @returns {Object} The action.
+ */
+export const changeActiveSubTab = (activeSubTab, id) => ({
+  type: CHANGE_ACTIVE_SUB_TAB,
+  activeSubTab: activeSubTab,
+  id: id
+});
+
 const setupActions = (role, localAppRegistry) => {
   const actions = role.configureActions();
-  console.log('setupActions', role);
   localAppRegistry.registerAction(role.actionName, actions);
   return actions;
 };
@@ -404,6 +430,7 @@ const setupStore = (
 
   const store = role.configureStore({
     localAppRegistry: localAppRegistry,
+    globalAppRegistry: globalAppRegistry,
     dataProvider: {
       error: dataService.error,
       dataProvider: dataService.dataService
@@ -521,8 +548,6 @@ export const preCreateTab = (namespace, isReadonly) => {
       queryBarActions
     );
 
-    console.log('localAppRegistry', localAppRegistry);
-
     // Setup each of the tabs inside the collection tab. They will all get
     // passed the same information and can determine whether they want to
     // use it or not.
@@ -537,7 +562,6 @@ export const preCreateTab = (namespace, isReadonly) => {
         isReadonly
       );
       const actions = setupActions(role, localAppRegistry);
-      console.log(actions);
 
       // Add the tab.
       tabs.push(role.name);
