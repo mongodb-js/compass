@@ -5,16 +5,6 @@ import { Tooltip } from 'hadron-react-components';
 import WriteStateStore from 'stores/write-state-store';
 
 /**
- * The collection store name.
- */
-const COLLECTION_STORE = 'App.CollectionStore';
-
-/**
- * The readonly collection message.
- */
-const READONLY = 'Write operations are not permitted on readonly collections.';
-
-/**
  * The wrapper class.
  */
 const WRAPPER = 'tooltip-button-wrapper';
@@ -36,21 +26,9 @@ class TextWriteButton extends React.Component {
   }
 
   /**
-   * Instantiate the component.
-   *
-   * @param {Object} props - The properties.
-   */
-  constructor(props) {
-    super(props);
-    this.CollectionStore = global.hadronApp.appRegistry.getStore(COLLECTION_STORE);
-    this.boundNamespaceChanged = this.namespaceChanged.bind(this);
-  }
-
-  /**
    * Subscribe to the state changing stores.
    */
   componentDidMount() {
-    global.hadronApp.appRegistry.on('namespace-changed', this.boundNamespaceChanged);
     this.unsubscribeWriteState = WriteStateStore.listen(this.writeStateChanged.bind(this));
   }
 
@@ -58,7 +36,6 @@ class TextWriteButton extends React.Component {
    * Unsubscribe from the stores.
    */
   componentWillUnmount() {
-    global.hadronApp.appRegistry.removeListener('namespace-changed', this.boundNamespaceChanged);
     this.unsubscribeWriteState();
   }
 
@@ -69,17 +46,7 @@ class TextWriteButton extends React.Component {
    */
   isWritable() {
     const isWritable = WriteStateStore.state.isWritable;
-    if (!this.props.isCollectionLevel) {
-      return isWritable;
-    }
-    return isWritable && !this.CollectionStore.isReadonly();
-  }
-
-  /**
-   * Handle namespace changes.
-   */
-  namespaceChanged() {
-    this.forceUpdate();
+    return isWritable;
   }
 
   /**
@@ -98,9 +65,6 @@ class TextWriteButton extends React.Component {
    */
   tooltipText() {
     if (!this.isWritable()) {
-      if (this.props.isCollectionLevel && this.CollectionStore.isReadonly()) {
-        return READONLY;
-      }
       return WriteStateStore.state.description;
     }
   }
