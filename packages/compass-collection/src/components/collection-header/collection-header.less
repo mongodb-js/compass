@@ -13,6 +13,7 @@
     padding-right: 15px;
     margin: 0;
     line-height: 32px;
+    align-items: center;
 
     &-is-writable {
       float: left;
@@ -41,9 +42,11 @@
     &-readonly {
       flex-grow: 2;
       display: flex;
+      align-items: center;
 
       &-on {
         margin: 0px 5px 0px 5px;
+        font-size: 16px;
       }
 
       &-modify {
@@ -52,10 +55,14 @@
 
       &-indicator {
         text-align: right;
-        i {
-          font-size: 16px;
+
+        &-icon {
+          height: 12px;
+          width: 12px;
           margin-right: 4px;
+          display: block;
         }
+
         font-weight: bold;
         font-size: 14px;
         flex-grow: 4;

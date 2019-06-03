@@ -50,7 +50,10 @@ class CollectionHeader extends Component {
               className={modifyClass} />
           </span>
           <span className={classnames(styles['collection-header-title-readonly-indicator'])}>
-            <i className="fa fa-eye" aria-hidden="true" />
+            <i
+              className={classnames('fa', styles['collection-header-title-readonly-indicator-icon'])}
+              title="Read-only View"
+              aria-hidden="true" />
             Read Only
           </span>
         </div>
