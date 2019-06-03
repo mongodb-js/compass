@@ -97,7 +97,7 @@ describe('<BinaryValue />', () => {
     });
 
     it('sets the title', () => {
-      expect(component.props().title).to.equal('Editing documents with encrypted fields is not yet supported');
+      expect(component.props().title).to.equal('This field is encrypted');
     });
 
     it('sets the value', () => {

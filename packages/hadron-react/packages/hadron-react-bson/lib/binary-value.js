@@ -52,7 +52,7 @@ var Binary = function (_React$Component) {
       var type = this.props.value.sub_type;
       var buffer = this.props.value.buffer;
       if (type === 6) {
-        return ['*********', 'Editing documents with encrypted fields is not yet supported'];
+        return ['*********', 'This field is encrypted'];
       }
       var val = 'Binary(\'' + truncate(buffer.toString(BASE_64), 100) + '\')';
       return [val, val];

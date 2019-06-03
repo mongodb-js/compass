@@ -26,7 +26,7 @@ class Binary extends React.Component {
     const type = this.props.value.sub_type;
     const buffer = this.props.value.buffer;
     if (type === 6) {
-      return ['*********', 'Editing documents with encrypted fields is not yet supported'];
+      return ['*********', 'This field is encrypted'];
     }
     const val = `Binary('${truncate(buffer.toString(BASE_64), 100)}')`;
     return [val, val]
