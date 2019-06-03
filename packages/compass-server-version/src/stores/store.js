@@ -28,6 +28,9 @@ const ServerVersionStore = Reflux.createStore({
   onActivated(appRegistry) {
     this.appRegistry = appRegistry;
     appRegistry.on('instance-refreshed', this.onInstanceFetched.bind(this));
+    appRegistry.on('data-service-disconnected', () => {
+      return this.setState(this.getInitialState());
+    });
   },
 
   /**
