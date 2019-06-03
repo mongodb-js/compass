@@ -64,7 +64,7 @@ appRegistry.emit('data-service-initialized', dataService);
 dataService.connect((error, ds) => {
   appRegistry.emit('data-service-connected', error, ds);
   appRegistry.emit('collection-changed', 'echo.bands');
-  appRegistry.emit('server-version-changed', '4.0.0');
+  appRegistry.emit('server-version-changed', '4.1.11');
 
   appRegistry.emit('fields-changed', {
     fields: {

@@ -195,7 +195,8 @@ const doNamespaceChanged = (state, action) => {
   const newState = {
     ...INITIAL_STATE,
     dataService: state.dataService,
-    appRegistry: state.appRegistry
+    appRegistry: state.appRegistry,
+    serverVersion: state.serverVersion
   };
   return appReducer(newState, action);
 };

@@ -47,6 +47,8 @@ const SPRINKLE_MAPPINGS = {
     'https://docs.mongodb.com/manual/reference/operator/aggregation/lookup/#pipe._S_lookup',
   $match:
     'https://docs.mongodb.com/manual/reference/operator/aggregation/match/#pipe._S_match',
+  $merge:
+    'https://docs.mongodb.com/manual/reference/operator/aggregation/match/#pipe._S_merge',
   $out:
     'https://docs.mongodb.com/manual/reference/operator/aggregation/out/#pipe._S_out',
   $project:
@@ -57,6 +59,8 @@ const SPRINKLE_MAPPINGS = {
     'https://docs.mongodb.com/manual/reference/operator/aggregation/replaceRoot/#pipe._S_replaceRoot',
   $sample:
     'https://docs.mongodb.com/manual/reference/operator/aggregation/sample/#pipe._S_sample',
+  $searchBeta:
+    'https://docs.mongodb.com/manual/reference/operator/aggregation/sample/#pipe._S_searchBeta',
   $skip:
     'https://docs.mongodb.com/manual/reference/operator/aggregation/skip/#pipe._S_skip',
   $sort:
