@@ -20,11 +20,11 @@ store.onActivated = (appRegistry) => {
    *
    * @param {String} ns - The namespace.
    */
-  appRegistry.on('open-namespace-in-new-tab', (ns) => {
+  appRegistry.on('open-namespace-in-new-tab', (ns, isReadonly, sourceName) => {
     if (ns) {
       const namespace = toNS(ns);
       if (namespace.collection) {
-        store.dispatch(preCreateTab(ns, false));
+        store.dispatch(preCreateTab(ns, isReadonly, sourceName));
       }
     }
   });
@@ -34,11 +34,11 @@ store.onActivated = (appRegistry) => {
    *
    * @param {String} ns - The namespace.
    */
-  appRegistry.on('select-namespace', (ns) => {
+  appRegistry.on('select-namespace', (ns, isReadonly, sourceName) => {
     if (ns) {
       const namespace = toNS(ns);
       if (namespace.collection) {
-        store.dispatch(selectNamespace(ns));
+        store.dispatch(selectNamespace(ns, isReadonly, sourceName));
       }
     }
   });

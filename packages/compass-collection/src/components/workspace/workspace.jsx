@@ -131,6 +131,7 @@ class Workspace extends PureComponent {
           index={i}
           namespace={tab.namespace}
           localAppRegistry={tab.localAppRegistry}
+          isReadonly={tab.isReadonly}
           isActive={tab.isActive}
           closeTab={this.props.closeTab}
           selectTab={this.props.selectTab}
@@ -155,6 +156,7 @@ class Workspace extends PureComponent {
           id={activeTab.id}
           namespace={activeTab.namespace}
           isReadonly={activeTab.isReadonly}
+          sourceName={activeTab.sourceName}
           tabs={activeTab.tabs}
           views={activeTab.views}
           queryHistoryIndexes={activeTab.queryHistoryIndexes}

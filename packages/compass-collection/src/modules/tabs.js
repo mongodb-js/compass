@@ -71,7 +71,8 @@ const doSelectNamespace = (state, action) => {
         id: action.id,
         namespace: action.namespace,
         isActive: true,
-        isReadonly: action.isReadonly
+        isReadonly: action.isReadonly,
+        sourceName: action.sourceName
       }
     ];
   }
@@ -83,7 +84,8 @@ const doSelectNamespace = (state, action) => {
         id: action.id,
         namespace: action.namespace,
         isActive: true,
-        isReadonly: action.isReadonly
+        isReadonly: action.isReadonly,
+        sourceName: action.sourceName
       });
     } else {
       newState.push({ ...tab });
@@ -117,6 +119,7 @@ const doCreateTab = (state, action) => {
     statsPlugin: action.statsPlugin,
     statsStore: action.statsStore,
     scopedModals: action.scopedModals,
+    sourceName: action.sourceName,
     localAppRegistry: action.localAppRegistry
   });
   return newState;
@@ -312,7 +315,8 @@ export const createTab = (
   statsPlugin,
   statsStore,
   scopedModals,
-  localAppRegistry) => (
+  localAppRegistry,
+  sourceName) => (
     {
       type: CREATE_TAB,
       id: id,
@@ -324,7 +328,8 @@ export const createTab = (
       statsPlugin: statsPlugin,
       statsStore: statsStore,
       scopedModals: scopedModals,
-      localAppRegistry: localAppRegistry
+      localAppRegistry: localAppRegistry,
+      sourceName: sourceName
     }
 );
 
@@ -377,13 +382,15 @@ export const prevTab = () => ({
  *
  * @param {String} namespace - The namespace.
  * @param {Boolean} isReadonly - Is the collection readonly?
+ * @param {String} sourceName - The source namespace.
  *
  * @returns {Object} The namespace selected action.
  */
-export const selectNamespace = (namespace, isReadonly) => ({
+export const selectNamespace = (namespace, isReadonly, sourceName) => ({
   type: SELECT_NAMESPACE,
   namespace: namespace,
-  isReadonly: isReadonly || false
+  isReadonly: ((isReadonly === undefined) ? false : isReadonly),
+  sourceName: sourceName
 });
 
 /**
@@ -509,8 +516,9 @@ const setupScopedModals = (
  *
  * @param {String} namespace - The namespace.
  * @param {Boolean} isReadonly - If the namespace is readonly.
+ * @param {String} sourceName - The view source namespace.
  */
-export const preCreateTab = (namespace, isReadonly) => {
+export const preCreateTab = (namespace, isReadonly, sourceName) => {
   return (dispatch, getState) => {
     const state = getState();
     const serverVersion = state.serverVersion;
@@ -609,7 +617,8 @@ export const preCreateTab = (namespace, isReadonly) => {
         statsPlugin,
         statsStore,
         scopedModals,
-        localAppRegistry
+        localAppRegistry,
+        sourceName
       )
     );
   };

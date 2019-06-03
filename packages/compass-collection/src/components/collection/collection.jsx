@@ -22,6 +22,7 @@ class Collection extends Component {
     localAppRegistry: PropTypes.object.isRequired,
     activeSubTab: PropTypes.number.isRequired,
     id: PropTypes.string.isRequired,
+    sourceName: PropTypes.string,
     changeActiveSubTab: PropTypes.func.isRequired
   };
 
@@ -48,7 +49,8 @@ class Collection extends Component {
           namespace={this.props.namespace}
           isReadonly={this.props.isReadonly}
           statsPlugin={this.props.statsPlugin}
-          statsStore={this.props.statsStore} />
+          statsStore={this.props.statsStore}
+          sourceName={this.props.sourceName} />
         <TabNavBar
           theme="light"
           tabs={this.props.tabs}

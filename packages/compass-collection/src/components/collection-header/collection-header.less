@@ -12,8 +12,11 @@
     padding-left: 15px;
     padding-right: 15px;
     margin: 0;
-    float: left;
     line-height: 32px;
+
+    &-is-writable {
+      float: left;
+    }
 
     &-db {
       color: #337ab7;
@@ -25,15 +28,42 @@
     }
 
     &-collection {
-      flex-grow: 2;
       flex-basis: auto;
       overflow: hidden;
       text-overflow: ellipsis;
       white-space: nowrap;
+
+      &-is-writable {
+        flex-grow: 2;
+      }
     }
 
     &-readonly {
+      flex-grow: 2;
+      display: flex;
 
+      &-on {
+        margin: 0px 5px 0px 5px;
+      }
+
+      &-modify {
+        flex-grow: 1;
+
+        &-button {
+
+        }
+      }
+
+      &-indicator {
+        text-align: right;
+        i {
+          font-size: 16px;
+          margin-right: 4px;
+        }
+        font-weight: bold;
+        font-size: 14px;
+        flex-grow: 4;
+      }
     }
   }
 }
