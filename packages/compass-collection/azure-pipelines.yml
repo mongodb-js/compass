@@ -1,40 +1,58 @@
-# Node.js with webpack
-# Build a Node.js project using the webpack CLI.
-# Add steps that analyze code, save build artifacts, deploy, and more:
-# https://docs.microsoft.com/azure/devops/pipelines/languages/javascript
-
 trigger:
   - master
-
-pool:
-  vmImage: 'Ubuntu-16.04'
-
-steps:
-  - script: |
-      set -e
-      sudo apt-get update
-      sudo apt-get install -y libxkbfile-dev pkg-config libsecret-1-dev libxss1 dbus xvfb libgtk-3-0
-      sudo cp xvfb.init /etc/init.d/xvfb
-      sudo chmod +x /etc/init.d/xvfb
-      sudo update-rc.d xvfb defaults
-      sudo service xvfb start
-    displayName: 'Install Services'
-  - task: NodeTool@0
-    inputs:
-      versionSpec: '10.2.1'
-    displayName: 'Install Node.js'
-  - script: |
-      echo "//registry.npmjs.org/:_authToken=$(org.NPMToken)" >> .npmrc
-    displayName: 'Set NPM Token'
-  - script: |
-      npm install
-    displayName: 'NPM Install'
-  - script: |
-      npm run cover
-    displayName: 'Run Node Tests'
-  - script: |
-      npm run test:karma
-    displayName: 'Run Renderer Tests'
-  - script: |
-      npm run check
-    displayName: 'Run Checks'
+jobs:
+  - job: Ubuntu
+    pool:
+      vmImage: 'Ubuntu-16.04'
+    steps:
+      - script: |
+          set -e
+          sudo apt-get update
+          sudo apt-get install -y libxkbfile-dev pkg-config libsecret-1-dev libxss1 dbus xvfb libgtk-3-0
+          sudo cp xvfb.init /etc/init.d/xvfb
+          sudo chmod +x /etc/init.d/xvfb
+          sudo update-rc.d xvfb defaults
+          sudo service xvfb start
+        displayName: 'Install Services'
+      - task: NodeTool@0
+        inputs:
+          versionSpec: '10.2.1'
+        displayName: 'Install Node.js'
+      - script: |
+          echo "//registry.npmjs.org/:_authToken=$(org.NPMToken)" >> .npmrc
+        displayName: 'Set NPM Token'
+      - script: |
+          npm install
+        displayName: 'NPM Install'
+      - script: |
+          npm run cover
+        displayName: 'Run Node Tests'
+      - script: |
+          npm run test:karma
+        displayName: 'Run Renderer Tests'
+      - script: |
+          npm run check
+        displayName: 'Run Checks'
+  - job: OSX
+    pool:
+      vmImage: 'macOS-10.14'
+    steps:
+      - task: NodeTool@0
+        inputs:
+          versionSpec: '10.2.1'
+        displayName: 'Install Node.js'
+      - script: |
+          echo "//registry.npmjs.org/:_authToken=$(org.NPMToken)" >> .npmrc
+        displayName: 'Set NPM Token'
+      - script: |
+          npm install
+        displayName: 'NPM Install'
+      - script: |
+          npm run cover
+        displayName: 'Run Node Tests'
+      - script: |
+          npm run test:karma
+        displayName: 'Run Renderer Tests'
+      - script: |
+          npm run check
+        displayName: 'Run Checks'
