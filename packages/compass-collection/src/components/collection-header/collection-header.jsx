@@ -45,15 +45,12 @@ class CollectionHeader extends Component {
           <span className={classnames(styles['collection-header-title-readonly-modify'])}>
             <TextButton
               text="Modify Source"
-              title="Modify View Source" 
+              title="Modify View Source"
               clickHandler={this.onModifySource}
               className={modifyClass} />
           </span>
           <span className={classnames(styles['collection-header-title-readonly-indicator'])}>
-            <i
-              className={classnames('fa', styles['collection-header-title-readonly-indicator-icon'])}
-              title="Read-only View"
-              aria-hidden="true" />
+            <i className="fa fa-eye" aria-hidden="true" />
             Read Only
           </span>
         </div>

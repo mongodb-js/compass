@@ -66,6 +66,7 @@ class CollectionTab extends PureComponent {
   static propTypes = {
     namespace: PropTypes.string.isRequired,
     isActive: PropTypes.bool.isRequired,
+    isReadonly: PropTypes.bool.isRequired,
     connectDragSource: PropTypes.func.isRequired,
     connectDropTarget: PropTypes.func.isRequired,
     closeTab: PropTypes.func.isRequired,
@@ -145,6 +146,16 @@ class CollectionTab extends PureComponent {
     }
   }
 
+  renderReadonly() {
+    if (this.props.isReadonly) {
+      return (
+        <div className={classnames(styles['collection-tab-info-readonly'])}>
+          <i className="fa fa-eye" aria-hidden="true" />
+        </div>
+      );
+    }
+  }
+
   /**
    * Render the Collection Tab component.
    *
@@ -160,8 +171,11 @@ class CollectionTab extends PureComponent {
       this.props.connectDropTarget(
         <div ref={this.tabRef} className={tabClass}>
           <div className={classnames(styles['collection-tab-info'])} onClick={this.selectTab}>
-            <div className={classnames(styles['collection-tab-info-ns'])}>
-              {this.props.namespace}
+            <div className={classnames(styles['collection-tab-info-label'])}>
+              <div className={classnames(styles['collection-tab-info-ns'])}>
+                {this.props.namespace}
+              </div>
+              {this.renderReadonly()}
             </div>
             <div className={classnames(styles['collection-tab-info-subtab'])}>
               {this.state.subtab}
