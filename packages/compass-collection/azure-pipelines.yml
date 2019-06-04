@@ -31,6 +31,9 @@ jobs:
           npm run test:karma
         displayName: 'Run Renderer Tests'
       - script: |
+          npm run compile
+        displayName: 'Compile'
+      - script: |
           npm run check
         displayName: 'Run Checks'
   - job: OSX
@@ -53,6 +56,9 @@ jobs:
       - script: |
           npm run test:karma
         displayName: 'Run Renderer Tests'
+      - script: |
+          npm run compile
+        displayName: 'Compile'
       - script: |
           npm run check
         displayName: 'Run Checks'
