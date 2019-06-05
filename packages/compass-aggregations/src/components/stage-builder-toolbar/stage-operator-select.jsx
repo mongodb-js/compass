@@ -41,6 +41,7 @@ class StageOperatorSelect extends PureComponent {
    */
   render() {
     const operators = STAGE_OPERATORS.filter((o) => {
+      if (o.name === '$searchBeta') return true;
       return semver.gte(this.props.serverVersion, o.version);
     });
     return (
