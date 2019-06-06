@@ -78,7 +78,7 @@ class CreateViewModal extends PureComponent {
             <ModalInput
               autoFocus
               id="create-view-name"
-              name="create-view-name"
+              name="Enter a View Name"
               value={this.props.name}
               onChangeHandler={this.onNameChange}
             />
