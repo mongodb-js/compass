@@ -2,7 +2,9 @@ import AggregationsPlugin from './plugin';
 import configureStore from 'stores';
 import { Aggregations } from 'components/aggregations';
 import CreateViewPlugin from 'components/create-view-plugin';
+import DuplicateViewPlugin from 'components/duplicate-view-plugin';
 import configureCreateViewStore from 'stores/create-view';
+import duplicateViewStore from 'stores/duplicate-view';
 import StageEditor from 'components/stage-editor';
 
 /**
@@ -31,6 +33,14 @@ const CREATE_ROLE = {
 };
 
 /**
+ * Duplicate view role.
+ */
+const DUPLICATE_ROLE = {
+  name: 'Duplicate View',
+  component: DuplicateViewPlugin
+};
+
+/**
  * Activate all the components in the Aggregations package.
 
  * @param {Object} appRegistry - The Hadron appRegisrty to activate this plugin with.
@@ -38,6 +48,8 @@ const CREATE_ROLE = {
 const activate = (appRegistry) => {
   appRegistry.registerRole('Collection.Tab', ROLE);
   appRegistry.registerRole('Collection.ScopedModal', CREATE_ROLE);
+  appRegistry.registerRole('Global.Modal', DUPLICATE_ROLE);
+  appRegistry.registerStore('Aggregations.DuplicateViewStore', duplicateViewStore);
 };
 
 /**
@@ -48,7 +60,8 @@ const activate = (appRegistry) => {
 const deactivate = (appRegistry) => {
   appRegistry.deregisterRole('Collection.Tab', ROLE);
   appRegistry.deregisterRole('Collection.ScopedModal', CREATE_ROLE);
-  appRegistry.deregisterStore('Aggregations.CreateViewStore');
+  appRegistry.deregisterRole('Global.Modal', DUPLICATE_ROLE);
+  appRegistry.deregisterStore('Aggregations.DuplicateViewStore');
 };
 
 export default AggregationsPlugin;
@@ -58,6 +71,7 @@ export {
   Aggregations,
   StageEditor,
   CreateViewPlugin,
+  DuplicateViewPlugin,
   configureStore,
   configureCreateViewStore
 };

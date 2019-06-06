@@ -3,7 +3,7 @@ import ReactDOM from 'react-dom';
 import app from 'hadron-app';
 import AppRegistry from 'hadron-app-registry';
 import { AppContainer } from 'react-hot-loader';
-import AggregationsPlugin, { activate, CreateViewPlugin } from 'plugin';
+import AggregationsPlugin, { activate, CreateViewPlugin, DuplicateViewPlugin } from 'plugin';
 import configureStore, { setDataProvider, setNamespace } from 'stores';
 import configureCreateViewStore from 'stores/create-view';
 import ExportToLanguagePlugin, {
@@ -71,6 +71,7 @@ const connection = new Connection({
 const dataService = new DataService(connection);
 
 dataService.connect((error, ds) => {
+  appRegistry.emit('data-service-connected', error, ds);
   setDataProvider(store, error, ds);
   setDataProvider(createViewStore, error, ds);
   setNamespace(store, 'echo.bands');
@@ -83,6 +84,7 @@ const render = Component => {
       <div>
         <Component store={store} />
         <CreateViewPlugin store={createViewStore} />
+        <DuplicateViewPlugin />
         <ExportToLanguagePlugin store={exportToLangStore} />
       </div>
     </AppContainer>,
