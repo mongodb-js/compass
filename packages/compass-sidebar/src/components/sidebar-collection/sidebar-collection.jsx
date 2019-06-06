@@ -56,7 +56,8 @@ class SidebarCollection extends PureComponent {
   onDuplicateView() {
     global.hadronApp.appRegistry.emit(
       'duplicate-view',
-      this.props._id
+      this.props.view_on,
+      this.props.pipeline
     );
   }
 
