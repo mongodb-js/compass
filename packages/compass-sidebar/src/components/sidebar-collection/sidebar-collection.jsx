@@ -1,5 +1,6 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
+import { DropdownButton, MenuItem } from 'react-bootstrap';
 import { TOOLTIP_IDS } from 'constants/sidebar-constants';
 import toNS from 'mongodb-ns';
 
@@ -33,6 +34,40 @@ class SidebarCollection extends PureComponent {
     );
   }
 
+  onOpenInNewTab() {
+    global.hadronApp.appRegistry.emit(
+      'open-namespace-in-new-tab',
+      this.props._id,
+      this.props.readonly,
+      this.props.view_on
+    );
+  }
+
+  onDrop() {
+    const databaseName = this.props.database;
+    const collectionName = this.getCollectionName();
+    global.hadronApp.appRegistry.emit(
+      'open-drop-collection',
+      databaseName,
+      collectionName
+    );
+  }
+
+  onDuplicateView() {
+    global.hadronApp.appRegistry.emit(
+      'duplicate-view',
+      this.props._id
+    );
+  }
+
+  onModifySource() {
+    global.hadronApp.appRegistry.emit(
+      'modify-source-pipeline',
+      this.props.view_on,
+      false
+    );
+  }
+
   getCollectionName() {
     return toNS(this.props._id).collection;
   }
@@ -63,18 +98,6 @@ class SidebarCollection extends PureComponent {
     }
   }
 
-  handleDropCollectionClick(isWritable) {
-    if (isWritable && !this.props.isDataLake) {
-      const databaseName = this.props.database;
-      const collectionName = this.getCollectionName();
-      global.hadronApp.appRegistry.emit(
-        'open-drop-collection',
-        databaseName,
-        collectionName
-      );
-    }
-  }
-
   isReadonlyDistro() {
     return process.env.HADRON_READONLY === 'true';
   }
@@ -83,13 +106,46 @@ class SidebarCollection extends PureComponent {
     if (this.props.readonly) {
       return (
         <i
-          className={classnames('fa', styles['compass-sidebar-item-view-icon'])}
-          title="Read-only View"
+          className="fa fa-eye"
           aria-hidden="true"
           data-test-id="sidebar-collection-is-readonly"
-        />
+          title="Read-only View" />
       );
     }
+  }
+
+  renderViewActions() {
+    return (
+      <DropdownButton
+        bsSize="xsmall"
+        bsStyle="link"
+        title="&hellip;"
+        className={classnames(styles['compass-sidebar-item-collection-actions'])}
+        noCaret
+        pullRight
+        id="collection-actions">
+        <MenuItem eventKey="1" onClick={this.onOpenInNewTab.bind(this)}>Open in New Tab</MenuItem>
+        <MenuItem eventKey="2" onClick={this.onDrop.bind(this)} disabled={!this.props.isWritable || this.props.isDataLake}>Drop View</MenuItem>
+        <MenuItem eventKey="3" onClick={this.onDuplicateView.bind(this)} disabled={!this.props.isWritable}>Duplicate View</MenuItem>
+        <MenuItem eventKey="4" onClick={this.onModifySource.bind(this)} disabled={!this.props.isWritable}>Modify Source</MenuItem>
+      </DropdownButton>
+    );
+  }
+
+  renderCollectionActions() {
+    return (
+      <DropdownButton
+        bsSize="xsmall"
+        bsStyle="link"
+        title="&hellip;"
+        className={classnames(styles['compass-sidebar-item-collection-actions'])}
+        noCaret
+        pullRight
+        id="collection-actions">
+        <MenuItem eventKey="1" onClick={this.onOpenInNewTab.bind(this)}>Open in New Tab</MenuItem>
+        <MenuItem eventKey="2" onClick={this.onDrop.bind(this)} disabled={!this.props.isWritable}>Drop Collection</MenuItem>
+      </DropdownButton>
+    );
   }
 
   renderDropCollectionButton() {
@@ -153,7 +209,7 @@ class SidebarCollection extends PureComponent {
             styles['compass-sidebar-item-actions'],
             styles['compass-sidebar-item-actions-ddl']
           )}>
-          {this.renderDropCollectionButton()}
+          {this.props.readonly ? this.renderViewActions() : this.renderCollectionActions()}
         </div>
       </div>
     );

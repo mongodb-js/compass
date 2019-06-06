@@ -26,6 +26,7 @@ describe('SidebarDatabase [Component]', () => {
         onClick={spy}
         index={0}
         isWritable
+        isDataLake={false}
         description="description"
       />);
     });
@@ -74,6 +75,7 @@ describe('SidebarDatabase [Component]', () => {
         onClick={spy}
         index={0}
         isWritable
+        isDataLake={false}
         description="description"
       />);
     });
@@ -103,6 +105,7 @@ describe('SidebarDatabase [Component]', () => {
         onClick={spy}
         index={0}
         isWritable={false}
+        isDataLake={false}
         description="description"
       />);
     });
@@ -136,6 +139,7 @@ describe('SidebarDatabase [Component]', () => {
         onClick={spy}
         index={0}
         isWritable
+        isDataLake={false}
         description="description"
       />);
     });

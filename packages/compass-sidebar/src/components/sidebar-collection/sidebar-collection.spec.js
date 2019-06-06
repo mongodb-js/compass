@@ -19,6 +19,7 @@ describe('SidebarCollection [Component]', () => {
         power_of_two={false}
         readonly={false}
         isWritable
+        isDataLake={false}
         description="description"
         activeNamespace=""
       />);
@@ -42,11 +43,6 @@ describe('SidebarCollection [Component]', () => {
     it('does not register as readonly', () => {
       expect(component.find('[data-test-id="sidebar-collection-is-readonly"]')).to.be.not.present();
     });
-    it('triggers drop collection when clicked', () => {
-      component.find('[data-test-id="compass-sidebar-icon-drop-collection"]').simulate('click');
-      expect(spy.called).to.equal(true);
-      expect(spy.args[0]).to.deep.equal(['open-drop-collection', 'db', 'coll']);
-    });
   });
   describe('is active', () => {
     beforeEach(() => {
@@ -57,6 +53,7 @@ describe('SidebarCollection [Component]', () => {
         power_of_two={false}
         readonly={false}
         isWritable
+        isDataLake={false}
         description="description"
         activeNamespace="db.coll"
       />);
@@ -84,6 +81,7 @@ describe('SidebarCollection [Component]', () => {
         view_on="artists"
         readonly
         isWritable
+        isDataLake={false}
         description="description"
         activeNamespace="echo.albums"
       />);
@@ -102,11 +100,7 @@ describe('SidebarCollection [Component]', () => {
       expect(component.find('[data-test-id="sidebar-collection-is-readonly"]')).to.be.present();
     });
     it('has the view icon', () => {
-      expect(component.find(`.${styles['compass-sidebar-item-view-icon']}`)).to.be.present();
-    });
-    it('triggers drop collection when clicked', () => {
-      component.find('[data-test-id="compass-sidebar-icon-drop-collection"]').simulate('click');
-      expect(spy.called).to.equal(true);
+      expect(component.find('.fa-eye')).to.be.present();
     });
   });
 });
