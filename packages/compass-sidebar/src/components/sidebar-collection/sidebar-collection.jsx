@@ -64,8 +64,7 @@ class SidebarCollection extends PureComponent {
   onModifySource() {
     global.hadronApp.appRegistry.emit(
       'modify-source-pipeline',
-      this.props.view_on,
-      false
+      this.props.view_on
     );
   }
 
