@@ -214,8 +214,7 @@ const doNamespaceChanged = (state, action) => {
     allowWrites: state.allowWrites,
     serverVersion: state.serverVersion,
     dataService: state.dataService,
-    appRegistry: state.appRegistry,
-    serverVersion: state.serverVersion
+    appRegistry: state.appRegistry
   };
   return appReducer(newState, action);
 };

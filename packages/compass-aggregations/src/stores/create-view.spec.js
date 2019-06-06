@@ -1,33 +1,28 @@
 import AppRegistry from 'hadron-app-registry';
-import store from 'stores/create-view';
-import { reset } from 'modules/create-view/reset';
+import configureStore from 'stores/create-view';
 
 describe('CreateViewStore [Store]', () => {
+  let store;
+  const appRegistry = new AppRegistry();
+  const ds = 'data-service';
+
   beforeEach(() => {
-    store.dispatch(reset());
+    store = configureStore({
+      localAppRegistry: appRegistry,
+      dataProvider: {
+        error: null,
+        dataProvider: ds
+      }
+    });
   });
 
   afterEach(() => {
-    store.dispatch(reset());
+    store = null;
   });
 
-  describe('#onActivated', () => {
-    const appRegistry = new AppRegistry();
-
-    before(() => {
-      store.onActivated(appRegistry);
-    });
-
-    describe('when the data service is connected', () => {
-      const ds = 'data-service';
-
-      beforeEach(() => {
-        appRegistry.emit('data-service-connected', null, ds);
-      });
-
-      it('dispatches the data service connected action', () => {
-        expect(store.getState().dataService.dataService).to.equal(ds);
-      });
+  describe('#configureStore', () => {
+    it('dispatches the data service connected action', () => {
+      expect(store.getState().dataService.dataService).to.equal(ds);
     });
 
     describe('when open create view is emitted', () => {

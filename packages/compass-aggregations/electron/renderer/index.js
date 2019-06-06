@@ -5,6 +5,7 @@ import AppRegistry from 'hadron-app-registry';
 import { AppContainer } from 'react-hot-loader';
 import AggregationsPlugin, { activate, CreateViewPlugin } from 'plugin';
 import configureStore, { setDataProvider, setNamespace } from 'stores';
+import configureCreateViewStore from 'stores/create-view';
 import ExportToLanguagePlugin, {
   configureStore as configureExportToLangStore
 } from '@mongodb-js/compass-export-to-language';
@@ -57,6 +58,11 @@ const exportToLangStore = configureExportToLangStore({
   localAppRegistry: localAppRegistry
 });
 
+const createViewStore = configureCreateViewStore({
+  localAppRegistry: localAppRegistry,
+  globalAppRegistry: appRegistry
+});
+
 const connection = new Connection({
   hostname: '127.0.0.1',
   port: 27017,
@@ -66,6 +72,7 @@ const dataService = new DataService(connection);
 
 dataService.connect((error, ds) => {
   setDataProvider(store, error, ds);
+  setDataProvider(createViewStore, error, ds);
   setNamespace(store, 'echo.bands');
 });
 
@@ -75,7 +82,7 @@ const render = Component => {
     <AppContainer>
       <div>
         <Component store={store} />
-        <CreateViewPlugin />
+        <CreateViewPlugin store={createViewStore} />
         <ExportToLanguagePlugin store={exportToLangStore} />
       </div>
     </AppContainer>,

@@ -2,7 +2,7 @@ import AggregationsPlugin from './plugin';
 import configureStore from 'stores';
 import { Aggregations } from 'components/aggregations';
 import CreateViewPlugin from 'components/create-view-plugin';
-import CreateViewStore from 'stores/create-view';
+import configureCreateViewStore from 'stores/create-view';
 import StageEditor from 'components/stage-editor';
 
 /**
@@ -23,7 +23,11 @@ const ROLE = {
  */
 const CREATE_ROLE = {
   name: 'Create View',
-  component: CreateViewPlugin
+  component: CreateViewPlugin,
+  configureStore: configureCreateViewStore,
+  storeName: 'Aggregations.CreateViewStore',
+  configureActions: () => {},
+  actionName: 'Aggregations.Actions'
 };
 
 /**
@@ -33,8 +37,7 @@ const CREATE_ROLE = {
  **/
 const activate = (appRegistry) => {
   appRegistry.registerRole('Collection.Tab', ROLE);
-  appRegistry.registerRole('Global.Modal', CREATE_ROLE);
-  appRegistry.registerStore('Aggregations.CreateViewStore', CreateViewStore);
+  appRegistry.registerRole('Collection.ScopedModal', CREATE_ROLE);
 };
 
 /**
@@ -44,9 +47,17 @@ const activate = (appRegistry) => {
  **/
 const deactivate = (appRegistry) => {
   appRegistry.deregisterRole('Collection.Tab', ROLE);
-  appRegistry.deregisterRole('Global.Modal', CREATE_ROLE);
+  appRegistry.deregisterRole('Collection.ScopedModal', CREATE_ROLE);
   appRegistry.deregisterStore('Aggregations.CreateViewStore');
 };
 
 export default AggregationsPlugin;
-export { activate, deactivate, Aggregations, StageEditor, CreateViewPlugin, configureStore };
+export {
+  activate,
+  deactivate,
+  Aggregations,
+  StageEditor,
+  CreateViewPlugin,
+  configureStore,
+  configureCreateViewStore
+};

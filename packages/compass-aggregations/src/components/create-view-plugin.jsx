@@ -1,10 +1,13 @@
 import React, { Component } from 'react';
+import PropTypes from 'prop-types';
 import { Provider } from 'react-redux';
 import CreateViewModal from 'components/create-view-modal';
-import store from 'stores/create-view';
 
 class CreateViewPlugin extends Component {
   static displayName = 'CreateViewPlugin';
+  static propTypes = {
+    store: PropTypes.object.isRequired
+  }
 
   /**
    * Connect the Plugin to the store and render.
@@ -13,7 +16,7 @@ class CreateViewPlugin extends Component {
    */
   render() {
     return (
-      <Provider store={store}>
+      <Provider store={this.props.store}>
         <CreateViewModal />
       </Provider>
     );
