@@ -5,7 +5,7 @@ import reducer from 'modules';
 import { appRegistryActivated } from 'modules/app-registry';
 import { dataServiceConnected } from 'modules/data-service';
 import { serverVersionChanged } from 'modules/server-version';
-import { selectNamespace, preCreateTab } from 'modules/tabs';
+import { preSelectNamespace, preCreateTab } from 'modules/tabs';
 
 const store = createStore(reducer, applyMiddleware(thunk));
 
@@ -38,9 +38,25 @@ store.onActivated = (appRegistry) => {
     if (ns) {
       const namespace = toNS(ns);
       if (namespace.collection) {
-        store.dispatch(selectNamespace(ns, isReadonly, sourceName));
+        store.dispatch(preSelectNamespace(ns, isReadonly, sourceName));
       }
     }
+  });
+
+  /**
+   * Modify the source pipeline.
+   *
+   * @param {String} ns - The namespace.
+   * @param {String} sourceName - The source name that will be edited.
+   * @param {Boolean} isSourceReadonly - If the source is also a view.
+   * @param {String} sourceSourceName - If the source is a view, its source name.
+   */
+  appRegistry.on('modify-source-pipeline', (ns, sourceName, isSourceReadonly, sourceSourceName) => {
+    // If tabs are open.
+    // - If modifying source from sidebar open in new tab.
+    //   - Back stays in same tab.
+    // - If modifying source from the header select-namespace.
+    //   - Back stays in same tab.
   });
 
   /**

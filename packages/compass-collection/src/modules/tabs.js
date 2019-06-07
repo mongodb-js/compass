@@ -63,21 +63,6 @@ export const INITIAL_STATE = [];
  * @returns {Object} The new state.
  */
 const doSelectNamespace = (state, action) => {
-  if (state.length === 0) {
-    // If we don't have any tabs open, then open a new tab with the
-    // namespace and set it to the active one.
-    return [
-      {
-        id: action.id,
-        namespace: action.namespace,
-        isActive: true,
-        isReadonly: action.isReadonly,
-        sourceName: action.sourceName
-      }
-    ];
-  }
-  // If we have tabs open, then switch the currently active tab
-  // to the new namespace.
   return state.reduce((newState, tab) => {
     if (tab.isActive) {
       newState.push({
@@ -259,6 +244,14 @@ const doSelectTab = (state, action) => {
   });
 };
 
+/**
+ * Handle the changing of the active subtab for a collection tab.
+ *
+ * @param {Object} state - The state.
+ * @param {Object} action - The action.
+ *
+ * @returns {Array} The new state.
+ */
 const doChangeActiveSubTab = (state, action) => {
   return state.map((tab) => {
     return { ...tab, activeSubTab: (action.id === tab.id) ? action.activeSubTab : tab.activeSubTab };
@@ -419,12 +412,34 @@ export const changeActiveSubTab = (activeSubTab, id) => ({
   id: id
 });
 
+/**
+ * Setup scoped actions for a plugin.
+ *
+ * @param {Object} role - The role.
+ * @param {Object} localAppRegistry - The scoped app registry to the collection.
+ *
+ * @returns {Object} The configured actions.
+ */
 const setupActions = (role, localAppRegistry) => {
   const actions = role.configureActions();
   localAppRegistry.registerAction(role.actionName, actions);
   return actions;
 };
 
+/**
+ * Setup a scoped store to the collection.
+ *
+ * @param {Object} role - The role.
+ * @param {Object} globalAppRegistry - The global app registry.
+ * @param {Object} localAppRegistry - The scoped app registry to the collection.
+ * @param {Object} dataService - The data service.
+ * @param {String} namespace - The namespace.
+ * @param {String} serverVersion - The server version.
+ * @param {Boolean} isReadonly - If the collection is a readonly view.
+ * @param {Object} actions - The actions for the store.
+ *
+ * @returns {Object} The configured store.
+ */
 const setupStore = (
   role,
   globalAppRegistry,
@@ -455,6 +470,14 @@ const setupStore = (
 /**
  * Setup a scoped plugin to the tab.
  *
+ * @param {Object} role - The role.
+ * @param {Object} globalAppRegistry - The global app registry.
+ * @param {Object} localAppRegistry - The scoped app registry to the collection.
+ * @param {Object} dataService - The data service.
+ * @param {String} namespace - The namespace.
+ * @param {String} serverVersion - The server version.
+ * @param {Boolean} isReadonly - If the collection is a readonly view.
+ *
  * @returns {Component} The plugin.
  */
 const setupPlugin = (
@@ -483,6 +506,13 @@ const setupPlugin = (
 /**
  * Setup every scoped modal role.
  *
+ * @param {Object} globalAppRegistry - The global app registry.
+ * @param {Object} localAppRegistry - The scoped app registry to the collection.
+ * @param {Object} dataService - The data service.
+ * @param {String} namespace - The namespace.
+ * @param {String} serverVersion - The server version.
+ * @param {Boolean} isReadonly - If the collection is a readonly view.
+ *
  * @returns {Array} The components.
  */
 const setupScopedModals = (
@@ -508,6 +538,25 @@ const setupScopedModals = (
     });
   }
   return [];
+};
+
+/**
+ * Checks if we need to select a namespace or actually create a new
+ * tab, then dispatches the correct events.
+ *
+ * @param {String} namespace - The namespace to select.
+ * @param {Boolean} isReadonly - If the ns is readonly.
+ * @param {String} sourceName - The ns of the resonly view source.
+ */
+export const preSelectNamespace = (namespace, isReadonly, sourceName) => {
+  return (dispatch, getState) => {
+    const state = getState();
+    if (state.length === 0) {
+      dispatch(preCreateTab(namespace, isReadonly, sourceName);
+    } else {
+      dispatch(selectNamespace(namespace, isReadonly, sourceName);
+    }
+  };
 };
 
 /**
