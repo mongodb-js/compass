@@ -20,7 +20,7 @@ var WARNINGS = {
  *
  * @type {string[]}
  */
-var VALID_INDEX_TYPE_VALUES = [1, -1, '2dsphere', '2d', 'geoHaystack', 'text', 'hashed'];
+var VALID_INDEX_TYPE_VALUES = [1, -1, '2dsphere', '2d', 'geoHaystack', 'text', 'hashed', 'wildcard'];
 
 var WarningModel = Model.extend({
   idAttribute: 'code',

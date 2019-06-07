@@ -15,7 +15,7 @@ describe('mongodb-index-model', function() {
 
   context('IndexModel', function() {
     it('should have all indexes in the collection', function() {
-      assert.equal(indexes.length, 9);
+      assert.equal(indexes.length, 12);
     });
 
     it('should get the names right', function() {
@@ -27,8 +27,12 @@ describe('mongodb-index-model', function() {
         'email_1_favorite_features_1',
         'last_login_-1',
         'last_position_2dsphere',
+        'not_wildcard',
         'seniors',
-        'seniors-inverse']);
+        'seniors-inverse',
+        'wildcard_multi_subtree',
+        'wildcard_single_subtree'
+      ]);
     });
 
     it('should have the correct namespace', function() {
@@ -51,13 +55,25 @@ describe('mongodb-index-model', function() {
       assert.equal(index.hashed, false);
       assert.equal(index.geo, false);
       assert.equal(index.compound, false);
-      assert.equal(index.geo, false);
+      assert.equal(index.wildcard, false);
       assert.equal(index.partial, false);
       assert.equal(index.collation, false);
     });
 
     it('should recognize geo indexes', function() {
       assert.equal(indexes.get('last_position_2dsphere', 'name').geo, true);
+    });
+
+    it('should recognize single wildcard indexes', function() {
+      assert.equal(indexes.get('wildcard_single_subtree', 'name').wildcard, true);
+    });
+
+    it('should recognize multi subtree wildcard indexes', function() {
+      assert.equal(indexes.get('wildcard_multi_subtree', 'name').wildcard, true);
+    });
+
+    it('should not recognize indexes with $** as wildcard', function() {
+      assert.equal(indexes.get('not_wildcard', 'name').wildcard, false);
     });
 
     it('should recognize compound indexes', function() {
@@ -107,6 +123,7 @@ describe('mongodb-index-model', function() {
       assert.ok('ttl' in index);
       assert.ok('hashed' in index);
       assert.ok('geo' in index);
+      assert.ok('wildcard' in index);
       assert.ok('compound' in index);
       assert.ok('partial' in index);
       assert.ok('text' in index);

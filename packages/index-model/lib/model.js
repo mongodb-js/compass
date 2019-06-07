@@ -89,6 +89,14 @@ var IndexModel = Model.extend({
         return !!this.extra.textIndexVersion;
       }
     },
+    wildcard: {
+      deps: ['extra', 'key'],
+      fn: function() {
+        return _.keys(this.key).some(function(k) {
+          return k === '$**' || k.indexOf('.$**') > -1;
+        });
+      }
+    },
     collation: {
       deps: ['extra'],
       fn: function() {
@@ -96,7 +104,7 @@ var IndexModel = Model.extend({
       }
     },
     type: {
-      deps: ['geo', 'hashed', 'text'],
+      deps: ['geo', 'hashed', 'text', 'wildcard'],
       fn: function() {
         if (this.geo) {
           return 'geospatial';
@@ -106,6 +114,9 @@ var IndexModel = Model.extend({
         }
         if (this.text) {
           return 'text';
+        }
+        if (this.wildcard) {
+          return 'wildcard';
         }
         return 'regular';
       }

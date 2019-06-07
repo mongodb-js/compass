@@ -90,5 +90,33 @@ module.exports = [
     },
     'name': 'big-index',
     'ns': 'mongodb.fanclub'
+  },
+  {
+    'v': 1,
+    'key': {
+      'address.$**': 1
+    },
+    'name': 'wildcard_single_subtree',
+    'ns': 'mongodb.fanclub'
+  },
+  {
+    'v': 1,
+    'key': {
+      '$**': 1
+    },
+    'name': 'wildcard_multi_subtree',
+    'wildcardProjection': {
+      'borough': 1,
+      'cuisine': 1
+    },
+    'ns': 'mongodb.fanclub'
+  },
+  {
+    'v': 1,
+    'key': {
+      'name$**': 1
+    },
+    'name': 'not_wildcard',
+    'ns': 'mongodb.fanclub'
   }
 ];
