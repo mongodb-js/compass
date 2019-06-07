@@ -1,7 +1,10 @@
 /* eslint no-use-before-define: 0, camelcase: 0 */
 import d3 from 'd3';
 import $ from 'jquery';
-import _ from 'lodash';
+import assign from 'lodash.assign';
+import map from 'lodash.map';
+import sortBy from 'lodash.sortby';
+import sum from 'lodash.sum';
 import shared from './shared';
 import { hasDistinctValue } from 'mongodb-query-util';
 
@@ -54,7 +57,7 @@ const minicharts_d3fns_few = (globalAppRegistry) => {
 
     // if selection has changed, trigger query builder event
     if (numSelected !== selected[0].length) {
-      const values = _.map(selected.data(), 'value');
+      const values = map(selected.data(), 'value');
       QueryAction.setDistinctValues({
         field: options.fieldName,
         value: values.map((v) => options.promoter(v))
@@ -93,7 +96,7 @@ const minicharts_d3fns_few = (globalAppRegistry) => {
 
     function mousemove() {
       const extent = [start, xScale.invert(d3.mouse(background)[0])];
-      d3.select(brushNode).call(brush.extent(_.sortBy(extent)));
+      d3.select(brushNode).call(brush.extent(sortBy(extent)));
       brushed.call(brushNode);
     }
 
@@ -121,14 +124,14 @@ const minicharts_d3fns_few = (globalAppRegistry) => {
 
   function chart(selection) {
     selection.each(function(data) {
-      _.each(data, (d, i) => {
-        data[i].xpos = _.sum(_(data)
+      data.forEach((d, i) => {
+        data[i].xpos = sum(_(data)
           .slice(0, i)
           .map('count')
           .value()
         );
       });
-      const values = _.map(data, 'count');
+      const values = map(data, 'count');
       const sumValues = d3.sum(values);
       const maxValue = d3.max(values);
       const percentFormat = shared.friendlyPercentFormat(maxValue / sumValues * 100);
@@ -238,7 +241,7 @@ const minicharts_d3fns_few = (globalAppRegistry) => {
     if (!arguments.length) {
       return options;
     }
-    _.assign(options, value);
+    assign(options, value);
     return chart;
   };
 

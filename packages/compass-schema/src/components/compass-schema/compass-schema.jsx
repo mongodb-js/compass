@@ -6,10 +6,11 @@ import { TextButton } from 'hadron-react-buttons';
 import Field from 'components/field';
 import StatusSubview from 'components/status-subview';
 import SamplingMessage from 'components/sampling-message';
-import { TOOLTIP_IDS } from 'constants';
-import _ from 'lodash';
+import CONSTANTS from 'constants/schema';
+import includes from 'lodash.includes';
+import get from 'lodash.get';
 
-const QUERYBAR_LAYOUT = ['filter', ['project', 'limit']];
+const QUERYBAR_LAYOUT = ['filter', ['project', 'limit', 'maxTimeMs']];
 
 const OUTDATED_WARNING = 'The schema content is outdated and no longer in sync'
   + ' with the documents view. Press "Analyze" again to see the schema for the'
@@ -32,7 +33,7 @@ class Schema extends Component {
 
   static propTypes = {
     actions: PropTypes.object,
-    globalAppRegistry: PropTypes.object.isRequired,
+    store: PropTypes.object.isRequired,
     samplingState: PropTypes.oneOf([
       'initial',
       'counting',
@@ -50,9 +51,17 @@ class Schema extends Component {
     count: PropTypes.number
   }
 
+  constructor(props) {
+    super(props);
+    const appRegistry = props.store.localAppRegistry;
+    this.queryBarRole = appRegistry.getRole('Query.QueryBar')[0];
+    this.queryBar = this.queryBarRole.component;
+    this.queryBarStore = appRegistry.getStore(this.queryBarRole.storeName);
+    this.queryBarActions = appRegistry.getAction(this.queryBarRole.actionName);
+  }
+
   componentWillMount() {
-    this.StatusAction = this.props.globalAppRegistry.getAction('Status.Actions');
-    this.queryBar = this.props.globalAppRegistry.getComponent('Query.QueryBar');
+    this.StatusAction = this.props.store.globalAppRegistry.getAction('Status.Actions');
   }
 
   componentDidUpdate() {
@@ -100,7 +109,7 @@ class Schema extends Component {
     } else if (progress >= 0 && progress < 100 && progress % 5 === 1) {
       if (this.trickleStop === null) {
         // remember where trickling stopped to calculate remaining progress
-        const StatusStore = this.props.globalAppRegistry.getStore('Status.Store');
+        const StatusStore = this.props.store.globalAppRegistry.getStore('Status.Store');
         this.trickleStop = StatusStore.state.progress;
       }
       const newProgress = Math.ceil(this.trickleStop + (100 - this.trickleStop) / 100 * progress);
@@ -135,9 +144,15 @@ class Schema extends Component {
 
   renderFieldList() {
     let fieldList = null;
-    if (_.includes(['outdated', 'complete'], this.props.samplingState)) {
-      fieldList = _.get(this.props.schema, 'fields', []).map((field) => {
-        return <Field key={field.name} {...field} />;
+    if (includes(['outdated', 'complete'], this.props.samplingState)) {
+      fieldList = get(this.props.schema, 'fields', []).map((field) => {
+        return (
+          <Field
+            key={field.name}
+            actions={this.props.actions}
+            localAppRegistry={this.props.store.localAppRegistry}
+            {...field} />
+        );
       });
     }
     return fieldList;
@@ -188,15 +203,18 @@ class Schema extends Component {
       <div className="content-container content-container-schema schema-container">
         <div className="controls-container">
           <this.queryBar
-            layout={QUERYBAR_LAYOUT}
+            store={this.queryBarStore}
+            actions={this.queryBarActions}
             buttonLabel="Analyze"
+            layout={QUERYBAR_LAYOUT}
             onApply={this.onApplyClicked.bind(this)}
-            onReset={this.onResetClicked.bind(this)} />
+            onReset={this.onResetClicked.bind(this)}
+          />
           {this.renderBanner()}
         </div>
         {this.renderContent()}
         <Tooltip
-          id={TOOLTIP_IDS.SCHEMA_PROBABILITY_PERCENT}
+          id={CONSTANTS.SCHEMA_PROBABILITY_PERCENT}
           className="opaque-tooltip" />
       </div>
     );

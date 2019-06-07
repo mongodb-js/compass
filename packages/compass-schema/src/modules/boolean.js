@@ -1,6 +1,10 @@
 /* eslint camelcase: 0 */
 import d3 from 'd3';
-import _ from 'lodash';
+import assign from 'lodash.assign';
+import groupBy from 'lodash.groupby';
+import defaults from 'lodash.defaults';
+import map from 'lodash.map';
+import sortByOrder from 'lodash.sortbyorder';
 import few from './few';
 import shared from './shared';
 
@@ -22,23 +26,21 @@ const minicharts_d3fns_boolean = () => {
       const innerHeight = height - margin.top - margin.bottom;
 
       // group by true/false
-      const grouped = _(data)
-        .groupBy(function(d) {
-          return d;
-        })
-        .defaults({
-          false: [],
-          true: []
-        })
-        .map(function(v, k) {
-          return {
-            label: k,
-            value: k === 'true',
-            count: v.length
-          };
-        })
-        .sortByOrder('label', [false]) // order: false, true
-        .value();
+      const gr = groupBy(data, function(d) {
+        return d;
+      })
+      const grd = defaults(gr, {
+        false: [],
+        true: []
+      })
+      const grdm = map(grd, function(v, k) {
+        return {
+          label: k,
+          value: k === 'true',
+          count: v.length
+        };
+      })
+      const grouped = sortByOrder(grdm, 'label', [false]); // order: false, true
 
       fewChart
         .width(innerWidth)
@@ -76,7 +78,7 @@ const minicharts_d3fns_boolean = () => {
     if (!arguments.length) {
       return options;
     }
-    _.assign(options, value);
+    assign(options, value);
     return chart;
   };
 

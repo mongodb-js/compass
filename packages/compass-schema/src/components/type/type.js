@@ -1,9 +1,10 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import _ from 'lodash';
+import sortBy from 'lodash.sortby';
+import find from 'lodash.find';
 import numeral from 'numeral';
 import ReactTooltip from 'react-tooltip';
-import { TOOLTIP_IDS } from 'constants';
+import TOOLTIP_IDS from 'constants/schema';
 
 // const debug = require('debug')('mongodb-compass:schema:type');
 
@@ -66,14 +67,14 @@ class Type extends Component {
       return null;
     }
     // sort the subtypes same as types (by probability, undefined last)
-    const subtypes = _.sortBy(this.props.types, (type) => {
+    const subtypes = sortBy(this.props.types, (type) => {
       if (type.name === 'Undefined') {
         return -Infinity;
       }
       return type.probability;
     }).reverse();
     // is one of the subtypes active?
-    const activeSubType = _.find(subtypes, this.props.activeType);
+    const activeSubType = find(subtypes, this.props.activeType);
     // generate the react fragment of subtypes, pass in showSubTypes=false
     // to stop the recursion after one step.
     const typeList = subtypes.map((subtype) => {

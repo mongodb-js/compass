@@ -12,7 +12,8 @@ const ROLE = {
   order: 3,
   configureStore: configureStore,
   configureActions: configureActions,
-  storeName: 'Schema.Store'
+  storeName: 'Schema.Store',
+  actionName: 'Schema.Actions'
 };
 
 /**
@@ -32,4 +33,4 @@ function deactivate(appRegistry) {
 }
 
 export default CompassSchemaPlugin;
-export { activate, deactivate };
+export { activate, deactivate, configureStore };

@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import _ from 'lodash';
+import includes from 'lodash.includes';
 
 const SHOW_STEPS_TIME_MS = 3000;
 
@@ -34,7 +34,7 @@ class SchemaSteps extends Component {
   }
 
   _getSamplingIndicator() {
-    if (_.contains(['counting', 'sampling'], this.props.samplingState)) {
+    if (includes(['counting', 'sampling'], this.props.samplingState)) {
       return 'fa fa-fw fa-spin fa-circle-o-notch';
     }
     if (this.props.samplingState === 'analyzing' ||

@@ -1,6 +1,8 @@
 /* eslint camelcase: 0 */
 import d3 from 'd3';
-import _ from 'lodash';
+import assign from 'lodash.assign';
+import has from 'lodash.has';
+import includes from 'lodash.includes';
 import many from './many';
 import shared from './shared';
 
@@ -11,11 +13,11 @@ import shared from './shared';
 * @return {Number}       converted value
 */
 function extractNumericValueFromBSON(value) {
-  if (_.has(value, '_bsontype')) {
-    if (_.includes([ 'Decimal128', 'Long' ], value._bsontype)) {
+  if (has(value, '_bsontype')) {
+    if (includes([ 'Decimal128', 'Long' ], value._bsontype)) {
       return parseFloat(value.toString(), 10);
     }
-    if (_.includes([ 'Double', 'Int32' ], value._bsontype)) {
+    if (includes([ 'Double', 'Int32' ], value._bsontype)) {
       return value.value;
     }
   }
@@ -73,7 +75,7 @@ const minicharts_d3fns_number = () => {
 
         grouped = hist(data);
 
-        _.each(grouped, function(d, i) {
+        grouped.forEach(function(d, i) {
           let label;
           if (i === 0) {
             label = '< ' + (d.x + d.dx);
@@ -146,7 +148,7 @@ const minicharts_d3fns_number = () => {
     if (!arguments.length) {
       return options;
     }
-    _.assign(options, value);
+    assign(options, value);
     return chart;
   };
 

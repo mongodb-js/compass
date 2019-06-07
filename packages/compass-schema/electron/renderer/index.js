@@ -4,6 +4,8 @@ import app from 'hadron-app';
 import AppRegistry from 'hadron-app-registry';
 import { AppContainer } from 'react-hot-loader';
 import CompassSchemaPlugin, { activate } from 'plugin';
+import { activate as activateQueryBar } from '@mongodb-js/compass-query-bar';
+import { activate as activateStatus } from '@mongodb-js/compass-status';
 import configureStore, { setDataProvider, setNamespace } from 'stores';
 import configureActions from 'actions';
 
@@ -17,9 +19,11 @@ const appRegistry = new AppRegistry();
 
 global.hadronApp = app;
 global.hadronApp.appRegistry = appRegistry;
+global.hadronApp.isFeatureEnabled = () => { return true; };
 
 // Activate our plugin with the Hadron App Registry
 activate(appRegistry);
+activateStatus(appRegistry);
 appRegistry.onActivated();
 
 // Since we are using HtmlWebpackPlugin WITHOUT a template,
@@ -31,9 +35,25 @@ document.body.appendChild(root);
 import Connection from 'mongodb-connection-model';
 import DataService from 'mongodb-data-service';
 
+const localAppRegistry = new AppRegistry();
+
+activateQueryBar(localAppRegistry);
+
+const queryBarRole = localAppRegistry.getRole('Query.QueryBar')[0];
+const queryBarActions = queryBarRole.configureActions();
+const queryBarStore = queryBarRole.configureStore({
+  localAppRegistry: localAppRegistry,
+  serverVersion: '4.2.0',
+  actions: queryBarActions
+});
+localAppRegistry.registerStore(queryBarRole.storeName, queryBarStore);
+localAppRegistry.registerAction(queryBarRole.actionName, queryBarActions);
+
+const actions = configureActions();
 const store = configureStore({
-  localAppRegistry: new AppRegistry(),
-  globalAppRegistry: appRegistry
+  localAppRegistry: localAppRegistry,
+  globalAppRegistry: appRegistry,
+  actions: actions
 });
 
 const connection = new Connection({
@@ -52,7 +72,7 @@ dataService.connect((error, ds) => {
 const render = Component => {
   ReactDOM.render(
     <AppContainer>
-      <Component store={store} actions={configureActions()} />
+      <Component store={store} actions={actions} />
     </AppContainer>,
     document.getElementById('root')
   );

@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import pluralize from 'pluralize';
-import _ from 'lodash';
+import get from 'lodash.get';
 
 class DocumentMinichart extends Component {
   static displayName = 'DocumentMiniChartComponent';
@@ -13,7 +13,7 @@ class DocumentMinichart extends Component {
   render() {
     let docFieldsMessage = '';
     if (this.props.nestedDocType) {
-      const numFields = _.get(this.props.nestedDocType.fields, 'length', 0);
+      const numFields = get(this.props.nestedDocType.fields, 'length', 0);
       const nestedFields = pluralize('nested field', numFields, true);
       docFieldsMessage = `Document with ${nestedFields}.`;
     }

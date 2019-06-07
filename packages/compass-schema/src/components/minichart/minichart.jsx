@@ -4,7 +4,7 @@ import UniqueMiniChart from 'components/unique-minichart';
 import DocumentMinichart from 'components/document-minichart';
 import ArrayMinichart from 'components/array-minichart';
 import D3Component from 'components/d3-component';
-import _ from 'lodash';
+import includes from 'lodash.includes';
 import vizFns from 'modules';
 import { STRING, DECIMAL_128, DOUBLE, LONG, INT_32, NUMBER } from 'constants';
 
@@ -78,7 +78,7 @@ class MiniChart extends Component {
 
   minichartFactory() {
     // cast all numeric types to Number pseudo-type
-    const typeName = _.includes([ DECIMAL_128, DOUBLE, INT_32, LONG ],
+    const typeName = includes([ DECIMAL_128, DOUBLE, INT_32, LONG ],
       this.props.type.name) ? NUMBER : this.props.type.name;
 
     const fieldName = this.props.fieldName;
@@ -87,7 +87,7 @@ class MiniChart extends Component {
     const fn = vizFns[typeName.toLowerCase()];
     const width = this.state.containerWidth;
 
-    if (_.includes([ STRING, NUMBER ], typeName) && !hasDuplicates) {
+    if (includes([ STRING, NUMBER ], typeName) && !hasDuplicates) {
       return (
         <UniqueMiniChart
           key={typeName}
@@ -108,6 +108,7 @@ class MiniChart extends Component {
           query={queryValue}
           width={width}
           height={height}
+          localAppRegistry={this.props.localAppRegistry}
           fn={vizFns.coordinates}
         />
       );
@@ -142,6 +143,7 @@ class MiniChart extends Component {
         width={width}
         height={100}
         fn={fn}
+        localAppRegistry={this.props.localAppRegistry}
       />
     );
   }

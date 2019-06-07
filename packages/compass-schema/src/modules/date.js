@@ -1,6 +1,11 @@
 /* eslint no-use-before-define: 0, camelcase:0 */
 import d3 from 'd3';
-import _ from 'lodash';
+import assign from 'lodash.assign';
+import isEqual from 'lodash.isequal';
+import range from 'lodash.range';
+import min from 'lodash.min';
+import max from 'lodash.max';
+import sortBy from 'lodash.sortby';
 import $ from 'jquery';
 import moment from 'moment';
 import shared from './shared';
@@ -11,7 +16,7 @@ require('./d3-tip')(d3);
 
 function generateDefaults(n) {
   const doc = {};
-  _.each(_.range(n), function(d) {
+  range(n).forEach(function(d) {
     doc[d] = [];
   });
   return doc;
@@ -21,7 +26,7 @@ function extractTimestamp(d) {
   return d._bsontype === 'ObjectID' ? d.getTimestamp() : d;
 }
 
-const minicharts_d3fns_date = (globalAppRegistry) => {
+const minicharts_d3fns_date = (appRegistry) => {
   // --- beginning chart setup ---
   let width = 400;
   let height = 100;
@@ -67,7 +72,7 @@ const minicharts_d3fns_date = (globalAppRegistry) => {
   // }
 
   function handleDrag() {
-    const QueryAction = globalAppRegistry.getAction('Query.Actions');
+    const QueryAction = appRegistry.getAction('Query.Actions');
     const lines = el.selectAll('line.selectable');
     const numSelected = el.selectAll('line.selectable.selected').length;
     const s = brush.extent();
@@ -96,14 +101,14 @@ const minicharts_d3fns_date = (globalAppRegistry) => {
       }
     }
 
-    const minValue = _.min(selected.data(), function(d) {
+    const minValue = min(selected.data(), function(d) {
       return d.ts;
     });
-    const maxValue = _.max(selected.data(), function(d) {
+    const maxValue = max(selected.data(), function(d) {
       return d.ts;
     });
 
-    if (_.isEqual(minValue.ts, maxValue.ts)) {
+    if (isEqual(minValue.ts, maxValue.ts)) {
       // if values are the same, single equality query
       QueryAction.setValue({
         field: options.fieldName,
@@ -130,7 +135,7 @@ const minicharts_d3fns_date = (globalAppRegistry) => {
 
 
   function handleMouseDown(d) {
-    const QueryAction = globalAppRegistry.getAction('Query.Actions');
+    const QueryAction = appRegistry.getAction('Query.Actions');
     if (d3.event.shiftKey && lastNonShiftRangeValue) {
       const minVal = d.ts < lastNonShiftRangeValue.ts ? d.value : lastNonShiftRangeValue.value;
       const maxVal = d.ts > lastNonShiftRangeValue.ts ? d.value : lastNonShiftRangeValue.value;
@@ -163,7 +168,7 @@ const minicharts_d3fns_date = (globalAppRegistry) => {
 
     function mousemove() {
       const extent = [start, barcodeX.invert(d3.mouse(background)[0])];
-      d3.select(brushNode).call(brush.extent(_.sortBy(extent)));
+      d3.select(brushNode).call(brush.extent(sortBy(extent)));
       brushed.call(brushNode);
     }
 
@@ -362,7 +367,7 @@ const minicharts_d3fns_date = (globalAppRegistry) => {
 
       let chartWidth = innerWidth / (upperRatio + 1) - upperMargin;
       const weekdayContainer = g.select('g.weekday').data([weekdays]);
-      const manyDayChart = many()
+      const manyDayChart = many(appRegistry)
         .width(chartWidth)
         .height(upperBarBottom)
         .options({
@@ -379,7 +384,7 @@ const minicharts_d3fns_date = (globalAppRegistry) => {
 
       chartWidth = innerWidth / (upperRatio + 1) * upperRatio - upperMargin;
       const hourContainer = g.select('g.hour').data([hours]);
-      const manyHourChart = many()
+      const manyHourChart = many(appRegistry)
         .width(chartWidth)
         .height(upperBarBottom)
         .options({
@@ -415,7 +420,7 @@ const minicharts_d3fns_date = (globalAppRegistry) => {
     if (!arguments.length) {
       return options;
     }
-    _.assign(options, value);
+    assign(options, value);
     return chart;
   };
 

@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import ReactDOM from 'react-dom';
 import d3 from 'd3';
 import bson from 'bson';
-import _ from 'lodash';
+import assign from 'lodash.assign';
 
 /**
  * Conversion for display in minicharts for non-promoted BSON types.
@@ -36,7 +36,7 @@ class D3Component extends Component {
   static propTypes = {
     fieldName: PropTypes.string.isRequired,
     type: PropTypes.object.isRequired,
-    globalAppRegistry: PropTypes.object.isRequired,
+    localAppRegistry: PropTypes.object.isRequired,
     renderMode: PropTypes.oneOf(['svg', 'div']),
     width: PropTypes.number,
     height: PropTypes.number,
@@ -50,8 +50,9 @@ class D3Component extends Component {
   }
 
   componentWillMount() {
+    console.log('props', this.props);
     this.setState({
-      chart: this.props.fn(this.props.globalAppRegistry)
+      chart: this.props.fn(this.props.localAppRegistry)
     });
   }
 
@@ -73,7 +74,7 @@ class D3Component extends Component {
       height: this.props.height
     };
     if (this.props.renderMode === 'svg') {
-      options = _.assign(options, sizeOptions);
+      options = assign(options, sizeOptions);
       return (
         <svg {...options}>
           <defs>
@@ -87,7 +88,7 @@ class D3Component extends Component {
         </svg>
       );
     }
-    options = _.assign(options, {
+    options = assign(options, {
       style: sizeOptions
     });
     return <div {...options}></div>;

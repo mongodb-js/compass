@@ -1,8 +1,9 @@
 import Reflux from 'reflux';
 import StateMixin from 'reflux-state-mixin';
-import { schemaStream } from 'mongodb-schema';
+import { stream as schemaStream } from 'mongodb-schema';
 import toNS from 'mongodb-ns';
-import _ from 'lodash';
+import get from 'lodash.get';
+import has from 'lodash.has';
 
 const debug = require('debug')('mongodb-compass:stores:schema');
 
@@ -228,11 +229,11 @@ const configureStore = (options = {}) => {
 
       const onError = (err) => {
         debug('onError', err);
-        const errorState = (_.has(err, 'message') &&
+        const errorState = (has(err, 'message') &&
           err.message.match(/operation exceeded time limit/)) ? 'timeout' : 'error';
         this.setState({
           samplingState: errorState,
-          errorMessage: _.get(err, 'message') || 'unknown error'
+          errorMessage: get(err, 'message') || 'unknown error'
         });
         this.stopSampling();
       };

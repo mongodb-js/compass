@@ -1,6 +1,9 @@
 /* eslint camelcase: 0 */
 import d3 from 'd3';
-import _ from 'lodash';
+import assign from 'lodash.assign';
+import defer from 'lodash.defer';
+import get from 'lodash.get';
+import isEqual from 'lodash.isequal';
 import shared from './shared';
 import turfDistance from 'turf-distance';
 import turfPoint from 'turf-point';
@@ -282,14 +285,14 @@ const minicharts_d3fns_geo = (globalAppRegistry) => {
       circleControl.clear(true);
       return;
     }
-    const center = _.get(options.query, '$geoWithin.$centerSphere[0]');
-    const radius = _.get(options.query, '$geoWithin.$centerSphere[1]', 0) * 3963.2;
+    const center = get(options.query, '$geoWithin.$centerSphere[0]');
+    const radius = get(options.query, '$geoWithin.$centerSphere[1]', 0) * 3963.2;
     if (!center || !radius) {
       circleControl.clear(true);
       return;
     }
     // only redraw if the center/radius is different to the existing circle
-    if (radius !== mileDistance || !_.isEqual(center, [circleCenter.lng, circleCenter.lat])) {
+    if (radius !== mileDistance || !isEqual(center, [circleCenter.lng, circleCenter.lat])) {
       circleControl.setCircle(center, radius);
     }
   }
@@ -337,7 +340,7 @@ const minicharts_d3fns_geo = (globalAppRegistry) => {
 
       // compute bounds from data
       const bounds = new mapboxgl.LngLatBounds();
-      _.each(data, function(d) {
+      data.forEach(function(d) {
         bounds.extend(getLL(d));
       });
 
@@ -410,7 +413,7 @@ const minicharts_d3fns_geo = (globalAppRegistry) => {
           render();
         });
 
-        _.defer(function() {
+        defer(function() {
           map.resize();
           map.fitBounds(bounds, {
             linear: true,
@@ -456,7 +459,7 @@ const minicharts_d3fns_geo = (globalAppRegistry) => {
     if (!arguments.length) {
       return options;
     }
-    _.assign(options, value);
+    assign(options, value);
     return chart;
   };
 

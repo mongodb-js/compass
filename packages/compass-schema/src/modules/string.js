@@ -1,11 +1,14 @@
 /* eslint camelcase: 0 */
 import d3 from 'd3';
-import _ from 'lodash';
+import assign from 'lodash.assign';
+import map from 'lodash.map';
+import groupBy from 'lodash.groupby';
+import sortByOrder from 'lodash.sortbyorder';
 import few from './few';
 import many from './many';
 import shared from './shared';
 
-const minicharts_d3fns_string = () => {
+const minicharts_d3fns_string = (appRegistry) => {
   // --- beginning chart setup ---
   let width = 400;
   let height = 100;
@@ -13,8 +16,8 @@ const minicharts_d3fns_string = () => {
     query: {}
   };
 
-  const manyChart = many();
-  const fewChart = few();
+  const manyChart = many(appRegistry);
+  const fewChart = few(appRegistry);
   const margin = shared.margin;
   // --- end chart setup ---
 
@@ -25,19 +28,17 @@ const minicharts_d3fns_string = () => {
       const innerHeight = height - margin.top - margin.bottom;
 
       // group into labels and values per bucket, sort descending
-      const grouped = _(data)
-        .groupBy(function(d) {
-          return d;
-        })
-        .map(function(v, k) {
-          return {
-            label: k,
-            value: k,
-            count: v.length
-          };
-        })
-        .sortByOrder('count', [false]) // descending on value
-        .value();
+      const gr = groupBy(data, function(d) {
+        return d;
+      });
+      const grm = map(gr, function(v, k) {
+        return {
+          label: k,
+          value: k,
+          count: v.length
+        };
+      });
+      const grouped = sortByOrder(grm, 'count', [false]); // descending on value
 
       const g = el.selectAll('g').data([grouped]);
 
@@ -81,7 +82,7 @@ const minicharts_d3fns_string = () => {
     if (!arguments.length) {
       return options;
     }
-    _.assign(options, value);
+    assign(options, value);
     return chart;
   };
 

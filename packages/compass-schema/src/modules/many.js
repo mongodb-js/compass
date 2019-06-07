@@ -1,7 +1,13 @@
 /* eslint no-use-before-define: 0, camelcase: 0 */
 import d3 from 'd3';
 import $ from 'jquery';
-import _ from 'lodash';
+import assign from 'lodash.assign';
+import defaults from 'lodash.defaults';
+import pluck from 'lodash.pluck';
+import map from 'lodash.map';
+import min from 'lodash.min';
+import max from 'lodash.max';
+import sortBy from 'lodash.sortby';
 import shared from './shared';
 import { hasDistinctValue, inValueRange } from 'mongodb-query-util';
 
@@ -70,7 +76,7 @@ const minicharts_d3fns_many = (appRegistry) => {
       }
       // distinct values (strings)
       if (options.selectionType === 'distinct') {
-        const values = _.map(selected.data(), 'value');
+        const values = map(selected.data(), 'value');
         QueryAction.setDistinctValues({
           field: options.fieldName,
           value: values.map((v) => options.promoter(v))
@@ -78,10 +84,10 @@ const minicharts_d3fns_many = (appRegistry) => {
         return;
       }
       // numeric types
-      const minValue = _.min(selected.data(), function(d) {
+      const minValue = min(selected.data(), function(d) {
         return d.value;
       });
-      const maxValue = _.max(selected.data(), function(d) {
+      const maxValue = max(selected.data(), function(d) {
         return d.value;
       });
 
@@ -186,7 +192,7 @@ const minicharts_d3fns_many = (appRegistry) => {
 
     function mousemove() {
       const extent = [start, d3.mouse(background)[0]];
-      d3.select(brushNode).call(brush.extent(_.sortBy(extent)));
+      d3.select(brushNode).call(brush.extent(sortBy(extent)));
       brushed.call(brushNode);
     }
 
@@ -233,7 +239,7 @@ const minicharts_d3fns_many = (appRegistry) => {
   function chart(selection) {
     /* eslint complexity: 0 */
     selection.each(function(data) {
-      const values = _.pluck(data, 'count');
+      const values = pluck(data, 'count');
       const maxValue = d3.max(values);
       const sumValues = d3.sum(values);
       const percentFormat = shared.friendlyPercentFormat(maxValue / sumValues * 100);
@@ -241,7 +247,7 @@ const minicharts_d3fns_many = (appRegistry) => {
       el = d3.select(this);
 
       xScale
-        .domain(_.pluck(data, 'label'))
+        .domain(pluck(data, 'label'))
         .rangeRoundBands([0, width], 0.3, 0.0);
 
       brush.x(xScale);
@@ -253,7 +259,7 @@ const minicharts_d3fns_many = (appRegistry) => {
 
       // set label defaults
       if (options.labels) {
-        _.defaults(labels, {
+        defaults(labels, {
           'text-anchor': function(d, i) {
             if (i === 0) {
               return 'start';
@@ -295,7 +301,7 @@ const minicharts_d3fns_many = (appRegistry) => {
           return [v, v / 2, 0];
         };
 
-        const scaleLabels = _.map(triples(maxValue / sumValues * 100), function(x) {
+        const scaleLabels = map(triples(maxValue / sumValues * 100), function(x) {
           return percentFormat(x, true);
         });
 
@@ -462,7 +468,7 @@ const minicharts_d3fns_many = (appRegistry) => {
     if (!arguments.length) {
       return options;
     }
-    _.assign(options, value);
+    assign(options, value);
     return chart;
   };
 

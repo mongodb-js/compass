@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import ValueBubble from 'components/value-bubble';
-import _ from 'lodash';
+import sample from 'lodash.sample';
 
 class UniqueMiniChart extends Component {
   static displayName = 'UniqueMiniChartComponent';
@@ -15,14 +15,14 @@ class UniqueMiniChart extends Component {
 
   constructor(props) {
     super(props);
-    this.state = { sample: _.sample(this.props.type.values, 20) };
+    this.state = { sample: sample(this.props.type.values, 20) };
   }
 
   onRefresh(e) {
     e.stopPropagation();
     e.preventDefault();
     this.setState({
-      sample: _.sample(this.props.type.values, 20)
+      sample: sample(this.props.type.values, 20)
     });
   }
 
@@ -35,10 +35,10 @@ class UniqueMiniChart extends Component {
     if (!this.props.type.values) {
       return <div></div>;
     }
-    const sample = this.state.sample || [];
+    const samp = this.state.sample || [];
     const fieldName = this.props.fieldName.toLowerCase();
     const typeName = this.props.type.name.toLowerCase();
-    const randomValueList = sample.map((value, i) => {
+    const randomValueList = samp.map((value, i) => {
       return (
         <ValueBubble
           key={`${fieldName}-${typeName}-${i}`}
