@@ -6,11 +6,16 @@ import { TextButton } from 'hadron-react-buttons';
 import Field from 'components/field';
 import StatusSubview from 'components/status-subview';
 import SamplingMessage from 'components/sampling-message';
+import ZeroGraphic from 'components/zero-graphic';
 import CONSTANTS from 'constants/schema';
 import includes from 'lodash.includes';
 import get from 'lodash.get';
+import classnames from 'classnames';
 
-const QUERYBAR_LAYOUT = ['filter', ['project', 'limit', 'maxTimeMs']];
+import styles from './compass-schema.less';
+
+// TODO: Durran
+// const QUERYBAR_LAYOUT = ['filter', ['project', 'limit', 'maxTimeMs']];
 
 const OUTDATED_WARNING = 'The schema content is outdated and no longer in sync'
   + ' with the documents view. Press "Analyze" again to see the schema for the'
@@ -164,8 +169,8 @@ class Schema extends Component {
   renderContent() {
     if (this.props.samplingState === 'initial') {
       return (
-        <div className="root">
-          <div className="zero-graphic zero-graphic-schema"></div>
+        <div className={classnames(styles['schema-zero-state'])}>
+          <ZeroGraphic />
           <ZeroState
             header={HEADER}
             subtext={SUBTEXT}>
@@ -183,7 +188,7 @@ class Schema extends Component {
     return (
       <div className="column-container">
         <div className="column main">
-          <div className="schema-field-list">
+          <div className={classnames(styles['schema-field-list'])}>
             {this.renderFieldList()}
           </div>
         </div>
@@ -206,7 +211,6 @@ class Schema extends Component {
             store={this.queryBarStore}
             actions={this.queryBarActions}
             buttonLabel="Analyze"
-            layout={QUERYBAR_LAYOUT}
             onApply={this.onApplyClicked.bind(this)}
             onReset={this.onResetClicked.bind(this)}
           />
