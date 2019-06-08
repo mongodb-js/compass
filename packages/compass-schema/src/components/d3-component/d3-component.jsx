@@ -50,7 +50,6 @@ class D3Component extends Component {
   }
 
   componentWillMount() {
-    console.log('props', this.props);
     this.setState({
       chart: this.props.fn(this.props.localAppRegistry)
     });

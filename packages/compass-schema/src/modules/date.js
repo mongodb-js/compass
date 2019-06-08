@@ -6,6 +6,9 @@ import range from 'lodash.range';
 import min from 'lodash.min';
 import max from 'lodash.max';
 import sortBy from 'lodash.sortby';
+import groupBy from 'lodash.groupby';
+import defaults from 'lodash.defaults';
+import map from 'lodash.map';
 import $ from 'jquery';
 import moment from 'moment';
 import shared from './shared';
@@ -228,33 +231,30 @@ const minicharts_d3fns_date = (appRegistry) => {
         .range([0, innerWidth]);
 
       // group by weekdays
-      const weekdays = _(values)
-        .groupBy(function(d) {
-          return moment(d.ts).weekday();
-        })
-        .defaults(generateDefaults(7))
-        .map(function(d, i) {
-          return {
-            label: weekdayLabels[i],
-            count: d.length
-          };
-        })
-        .value();
+      const w = groupBy(values, function(d) {
+        return moment(d.ts).weekday();
+      });
+      const wd = defaults(w, generateDefaults(7));
+      const weekdays = map(wd, function(d, i) {
+        return {
+          label: weekdayLabels[i],
+          count: d.length
+        };
+      });
 
       // group by hours
       const hourLabels = d3.range(24);
-      const hours = _(values)
-        .groupBy(function(d) {
-          return d.ts.getHours();
-        })
-        .defaults(generateDefaults(24))
-        .map(function(d, i) {
-          return {
-            label: hourLabels[i] + ':00',
-            count: d.length
-          };
-        })
-        .value();
+      const h = groupBy(values, function(d) {
+        return d.ts.getHours();
+      });
+      const hd = defaults(h, generateDefaults(24));
+      const hours = map(hd, function(d, i) {
+        return {
+          label: hourLabels[i] + ':00',
+          count: d.length
+        };
+      });
+
       el.call(tip);
 
       const g = el.selectAll('g').data([data]);

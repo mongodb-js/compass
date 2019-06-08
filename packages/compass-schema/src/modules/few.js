@@ -5,6 +5,7 @@ import assign from 'lodash.assign';
 import map from 'lodash.map';
 import sortBy from 'lodash.sortby';
 import sum from 'lodash.sum';
+import slice from 'lodash.slice';
 import shared from './shared';
 import { hasDistinctValue } from 'mongodb-query-util';
 
@@ -125,11 +126,9 @@ const minicharts_d3fns_few = (globalAppRegistry) => {
   function chart(selection) {
     selection.each(function(data) {
       data.forEach((d, i) => {
-        data[i].xpos = sum(_(data)
-          .slice(0, i)
-          .map('count')
-          .value()
-        );
+        const da = slice(data, 0, i);
+        const dam = map(da, 'count');
+        data[i].xpos = sum(dam);
       });
       const values = map(data, 'count');
       const sumValues = d3.sum(values);

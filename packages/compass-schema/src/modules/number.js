@@ -3,6 +3,9 @@ import d3 from 'd3';
 import assign from 'lodash.assign';
 import has from 'lodash.has';
 import includes from 'lodash.includes';
+import groupBy from 'lodash.groupby';
+import sortBy from 'lodash.sortby';
+import map from 'lodash.map';
 import many from './many';
 import shared from './shared';
 
@@ -44,23 +47,21 @@ const minicharts_d3fns_number = () => {
 
       // transform data
       if (options.unique < 20) {
-        grouped = _(data)
-          .groupBy(function(d) {
-            return extractNumericValueFromBSON(d);
-          })
-          .map(function(v, k) {
-            v.label = k;
-            v.x = parseFloat(k, 10);
-            v.value = v.x;
-            v.dx = 0;
-            v.count = v.length;
-            v.bson = v[0];
-            return v;
-          })
-          .sortBy(function(v) {
-            return v.value;
-          })
-          .value();
+        const g = groupBy(data, function(d) {
+          return extractNumericValueFromBSON(d);
+        });
+        const gr = map(g, function(v, k) {
+          v.label = k;
+          v.x = parseFloat(k, 10);
+          v.value = v.x;
+          v.dx = 0;
+          v.count = v.length;
+          v.bson = v[0];
+          return v;
+        });
+        grouped = sortBy(gr, function(v) {
+          return v.value;
+        });
       } else {
         // use the linear scale just to get nice binning values
         xBinning

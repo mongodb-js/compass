@@ -28,18 +28,18 @@ const minicharts_d3fns_boolean = () => {
       // group by true/false
       const gr = groupBy(data, function(d) {
         return d;
-      })
+      });
       const grd = defaults(gr, {
         false: [],
         true: []
-      })
+      });
       const grdm = map(grd, function(v, k) {
         return {
           label: k,
           value: k === 'true',
           count: v.length
         };
-      })
+      });
       const grouped = sortByOrder(grdm, 'label', [false]); // order: false, true
 
       fewChart
