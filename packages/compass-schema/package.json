@@ -1,5 +1,5 @@
 {
-  "name": "compass-schema",
+  "name": "@mongodb-js/compass-schema",
   "productName": "Compass Schema plugin",
   "version": "0.0.2",
   "apiVersion": "2.0.0",
