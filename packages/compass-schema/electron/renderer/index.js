@@ -30,6 +30,7 @@ appRegistry.onActivated();
 // we should create our own root node in the body element before rendering into it.
 const root = document.createElement('div');
 root.id = 'root';
+root.style = 'height: 100vh';
 document.body.appendChild(root);
 
 import Connection from 'mongodb-connection-model';
@@ -72,7 +73,7 @@ dataService.connect((error, ds) => {
 const render = Component => {
   ReactDOM.render(
     <AppContainer>
-      <div>
+      <div style={{ height: '100vh' }}>
         <StatusPlugin />
         <Component store={store} actions={actions} />
       </div>

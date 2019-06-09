@@ -85,6 +85,13 @@ class Schema extends Component {
     this.props.actions.startSampling();
   }
 
+  onOpenLink(evt) {
+    evt.preventDefault();
+    evt.stopPropagation();
+    const { shell } = require('electron');
+    shell.openExternal(DOCUMENTATION_LINK);
+  }
+
   renderBanner() {
     let banner;
     if (this.props.samplingState === 'outdated') {
@@ -123,16 +130,20 @@ class Schema extends Component {
   renderContent() {
     if (this.props.samplingState === 'initial') {
       return (
-        <div className="schema-zero-state">
+        <div className={classnames(styles['schema-zero-state'])}>
           <ZeroGraphic />
           <ZeroState
             header={HEADER}
             subtext={SUBTEXT}>
-            <TextButton
-              className="btn btn-primary btn-lg"
-              text="Analyze Schema"
-              clickHandler={this.onApplyClicked.bind(this)} />
-            <a className="zero-state-link" href={DOCUMENTATION_LINK}>
+            <div className={classnames(styles['schema-zero-state-action'])}>
+              <div>
+                <TextButton
+                  className="btn btn-primary btn-lg"
+                  text="Analyze Schema"
+                  clickHandler={this.onApplyClicked.bind(this)} />
+              </div>
+            </div>
+            <a className={classnames(styles['schema-zero-state-link'])} onClick={this.onOpenLink.bind(this)}>
               Learn more about schema analysis in Compass
             </a>
           </ZeroState>
