@@ -12,6 +12,7 @@ import { activate as activateExplain } from '@mongodb-js/compass-explain-plan';
 import { activate as activateIndexes } from '@mongodb-js/compass-indexes';
 import { activate as activateQueryBar } from '@mongodb-js/compass-query-bar';
 import { activate as activateValidation } from '@mongodb-js/compass-schema-validation';
+import { activate as activateSchema } from '@mongodb-js/compass-schema';
 
 // Import global less file. Note: these styles WILL NOT be used in compass, as compass provides its own set
 // of global styles. If you are wishing to style a given component, you should be writing a less file per
@@ -40,6 +41,7 @@ activateStats(appRegistry);
 activateQueryBar(appRegistry);
 activateExplain(appRegistry);
 activateIndexes(appRegistry);
+activateSchema(appRegistry);
 activateValidation(appRegistry);
 appRegistry.onActivated();
 

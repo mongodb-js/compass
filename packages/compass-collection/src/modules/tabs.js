@@ -552,9 +552,9 @@ export const preSelectNamespace = (namespace, isReadonly, sourceName) => {
   return (dispatch, getState) => {
     const state = getState();
     if (state.length === 0) {
-      dispatch(preCreateTab(namespace, isReadonly, sourceName);
+      dispatch(preCreateTab(namespace, isReadonly, sourceName));
     } else {
-      dispatch(selectNamespace(namespace, isReadonly, sourceName);
+      dispatch(selectNamespace(namespace, isReadonly, sourceName));
     }
   };
 };
