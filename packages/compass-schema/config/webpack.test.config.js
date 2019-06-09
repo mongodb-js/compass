@@ -6,6 +6,7 @@ const project = require('./project');
 
 const config = {
   target: 'node', // webpack should compile node compatible code for tests
+  devtool: 'srouce-map',
   externals: [ nodeExternals() ],
   stats: {
     warnings: false

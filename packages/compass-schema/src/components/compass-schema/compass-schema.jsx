@@ -9,9 +9,8 @@ import ZeroGraphic from 'components/zero-graphic';
 import CONSTANTS from 'constants/schema';
 import includes from 'lodash.includes';
 import get from 'lodash.get';
-import classnames from 'classnames';
 
-import styles from './compass-schema.less';
+import './compass-schema.less';
 
 // TODO: Durran
 // const QUERYBAR_LAYOUT = ['filter', ['project', 'limit', 'maxTimeMs']];
@@ -123,7 +122,7 @@ class Schema extends Component {
   renderContent() {
     if (this.props.samplingState === 'initial') {
       return (
-        <div className={classnames(styles['schema-zero-state'])}>
+        <div className="schema-zero-state">
           <ZeroGraphic />
           <ZeroState
             header={HEADER}
@@ -142,7 +141,7 @@ class Schema extends Component {
     return (
       <div className="column-container">
         <div className="column main">
-          <div className={classnames(styles['schema-field-list'])}>
+          <div className="schema-field-list">
             {this.renderFieldList()}
           </div>
         </div>

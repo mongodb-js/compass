@@ -80,8 +80,8 @@
   }
 }
 
-.schema {
-  &-zero-state {
+:global {
+  .schema-zero-state {
     height: 100%;
     display: flex;
     flex-direction: column;
@@ -101,158 +101,156 @@
     }
   }
 
-  &-field-list {
+  .schema-field-list {
 
-    :global {
-      // .list-group;
+    // .list-group;
+    .schema-field {
+      // .list-group-item;
+      padding: 24px 0 0 0;
+      border-bottom: 3px solid @gray8;
+      background: @pw;
+      transition: all 250ms ease-out;
+
+      .row {
+        margin-bottom: 24px;
+      }
+
+      .schema-field-type-list {
+        padding-left: 24px;
+      }
+
+      .schema-field-name {
+        padding-left: 24px;
+      }
+
+      .array-subtypes {
+        .schema-field-type-list {
+          padding-left: 0px !important;
+        }
+      }
+
       .schema-field {
-        // .list-group-item;
-        padding: 24px 0 0 0;
+        // second level
         border-bottom: 3px solid @gray8;
-        background: @pw;
-        transition: all 250ms ease-out;
+        border-left: 24px solid @gray8;
+        animation-duration: 250ms;
+        position: relative;
+        animation-name: fadein;
+        @keyframes fadein {
+          from {
+            left: -20px;
+            opacity: 0;
+          }
+
+          to {
+            left: 0px;
+            opacity: 1;
+          }
+        }
+
+        &:first-child {
+          border-top: 3px solid @gray8;
+          margin-top: 24px;
+        }
+        &:last-child {
+          border-bottom: 3px solid @gray8;
+        }
 
         .row {
-          margin-bottom: 24px;
+          margin-left: -39px;
         }
 
         .schema-field-type-list {
-          padding-left: 24px;
+          padding-left: 48px;
         }
-
         .schema-field-name {
-          padding-left: 24px;
+          padding-left: 48px;
         }
-
-        .array-subtypes {
-          .schema-field-type-list {
-            padding-left: 0px !important;
-          }
-        }
-
         .schema-field {
-          // second level
-          border-bottom: 3px solid @gray8;
-          border-left: 24px solid @gray8;
-          animation-duration: 250ms;
-          position: relative;
-          animation-name: fadein;
-          @keyframes fadein {
-            from {
-              left: -20px;
-              opacity: 0;
-            }
-
-            to {
-              left: 0px;
-              opacity: 1;
-            }
-          }
-
-          &:first-child {
-            border-top: 3px solid @gray8;
-            margin-top: 24px;
-          }
-          &:last-child {
-            border-bottom: 3px solid @gray8;
-          }
-
-          .row {
-            margin-left: -39px;
-          }
-
+          // third level
           .schema-field-type-list {
-            padding-left: 48px;
+            padding-left: 72px;
           }
           .schema-field-name {
-            padding-left: 48px;
+            padding-left: 72px;
+          }
+          .row {
+            margin-left: -63px;
           }
           .schema-field {
-            // third level
+            // fourth level
             .schema-field-type-list {
-              padding-left: 72px;
+              padding-left: 96px;
             }
             .schema-field-name {
-              padding-left: 72px;
+              padding-left: 96px;
             }
             .row {
-              margin-left: -63px;
+              margin-left: -87px;
             }
             .schema-field {
-              // fourth level
+              // fifth level
               .schema-field-type-list {
-                padding-left: 96px;
+                padding-left: 120px;
               }
               .schema-field-name {
-                padding-left: 96px;
+                padding-left: 120px;
               }
               .row {
-                margin-left: -87px;
+                margin-left: -111px;
               }
               .schema-field {
-                // fifth level
+                // sixth level
                 .schema-field-type-list {
-                  padding-left: 120px;
+                  padding-left: 144px;
                 }
                 .schema-field-name {
-                  padding-left: 120px;
+                  padding-left: 144px;
                 }
                 .row {
-                  margin-left: -111px;
-                }
-                .schema-field {
-                  // sixth level
-                  .schema-field-type-list {
-                    padding-left: 144px;
-                  }
-                  .schema-field-name {
-                    padding-left: 144px;
-                  }
-                  .row {
-                    margin-left: -135px;
-                  }
+                  margin-left: -135px;
                 }
               }
             }
           }
         }
+      }
 
+      .schema-field-name {
+        font-size: 16px;
+        font-weight: bold;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        display: inline-block;
+      }
+
+      &.schema-field-object, &.schema-field-array {
         .schema-field-name {
-          font-size: 16px;
-          font-weight: bold;
-          overflow: hidden;
-          text-overflow: ellipsis;
-          white-space: nowrap;
-          display: inline-block;
+          cursor: pointer;
+        }
+      }
+      &.expanded {
+        .caret {
+          .caret-down;
+          margin-right: 4px;
+          margin-left: -12px;
+          cursor: pointer;
+        }
+        > .schema-field-list {
+          display: block;
+        }
+      }
+      &.collapsed {
+        .caret {
+          .caret-right;
+          margin-right: 8px;
+          margin-left: -12px;
+          cursor: pointer;
         }
 
-        &.schema-field-object, &.schema-field-array {
-          .schema-field-name {
-            cursor: pointer;
-          }
-        }
-        &.expanded {
-          .caret {
-            .caret-down;
-            margin-right: 4px;
-            margin-left: -12px;
-            cursor: pointer;
-          }
-          > .schema-field-list {
-            display: block;
-          }
-        }
-        &.collapsed {
-          .caret {
-            .caret-right;
-            margin-right: 8px;
-            margin-left: -12px;
-            cursor: pointer;
-          }
-
-          > .schema-field-list {
-            display: none;
-          }
+        > .schema-field-list {
+          display: none;
         }
       }
     }
