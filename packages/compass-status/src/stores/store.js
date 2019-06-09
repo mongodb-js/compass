@@ -35,6 +35,7 @@ const StatusStore = Reflux.createStore({
     appRegistry.on('compass:status:hide-static-sidebar', this.hideStaticSidebar.bind(this));
     appRegistry.on('compass:status:set-subview', this.setSubview.bind(this));
     appRegistry.on('compass:status:set-subview-store', this.setSubviewStore.bind(this));
+    appRegistry.on('compass:status:set-subview-actions', this.setSubviewActions.bind(this));
     appRegistry.on('compass:status:clear-subview', this.clearSubview.bind(this));
     appRegistry.on('compass:status:enable-modal', this.enableModal.bind(this));
     appRegistry.on('compass:status:disable-modal', this.disableModal.bind(this));
@@ -64,6 +65,7 @@ const StatusStore = Reflux.createStore({
       message: '',
       subview: null,
       subviewStore: null,
+      subviewActions: null,
       sidebar: true,
       trickle: false,
       globalAppRegistry: null
@@ -201,10 +203,17 @@ const StatusStore = Reflux.createStore({
     });
   },
 
+  setSubviewActions(actions) {
+    this.setState({
+      subviewActions: actions
+    });
+  },
+
   clearSubview() {
     this.setState({
       subview: null,
-      subviewStore: null
+      subviewStore: null,
+      subviewActions: null
     });
   },
 
@@ -232,7 +241,8 @@ const StatusStore = Reflux.createStore({
       animation: false,
       message: '',
       subview: null,
-      subviewStore: null
+      subviewStore: null,
+      subviewActions: null
     });
     delay(() => {
       this.hide();

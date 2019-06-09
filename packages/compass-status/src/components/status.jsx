@@ -21,7 +21,9 @@ class Status extends Component {
     message: PropTypes.string,
     animation: PropTypes.bool,
     sidebar: PropTypes.bool,
-    subview: PropTypes.any
+    subview: PropTypes.any,
+    subviewStore: PropTypes.object,
+    subviewActions: PropTypes.object
   };
 
   /**
