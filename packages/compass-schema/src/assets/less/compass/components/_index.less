@@ -8,3 +8,19 @@
 @import "~less/compass/components/_react-select";
 @import "~less/compass/components/_sortable-table";
 @import "~less/compass/components/_zero-state";
+
+.column-container {
+  flex-grow: 1;
+  flex-shrink: 1;
+  flex-basis: auto;
+  flex-direction: column;
+  display: flex;
+  overflow: auto;
+  background: @gray8;
+}
+
+.column.main {
+  flex: 1;
+  margin-bottom: 100px;
+  padding: 0 15px;
+}

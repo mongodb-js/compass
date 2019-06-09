@@ -7,8 +7,6 @@ import sortBy from 'lodash.sortby';
 import get from 'lodash.get';
 import find from 'lodash.find';
 
-// const debug = require('debug')('mongodb-compass:schema:field');
-
 /**
  * The full schema component class.
  */

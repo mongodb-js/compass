@@ -219,7 +219,13 @@ const configureStore = (options = {}) => {
       }, 1000);
 
       // reset the progress bar to 0
-      this.globalAppRegistry.emit('compass:status:configure', { progress: 0 });
+      this.globalAppRegistry.emit('compass:status:configure', {
+        progress: 0,
+        globalAppRegistry: this.globalAppRegistry,
+        subview: StatusSubview,
+        subviewStore: this,
+        subviewActions: options.actions
+      });
 
       this.samplingStream = this.dataService.sample(this.ns, sampleOptions);
       this.analyzingStream = schemaStream();
