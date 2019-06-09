@@ -9,8 +9,9 @@ import ZeroGraphic from 'components/zero-graphic';
 import CONSTANTS from 'constants/schema';
 import includes from 'lodash.includes';
 import get from 'lodash.get';
+import classnames from 'classnames';
 
-import './compass-schema.less';
+import styles from './compass-schema.less';
 
 // TODO: Durran
 // const QUERYBAR_LAYOUT = ['filter', ['project', 'limit', 'maxTimeMs']];
@@ -156,7 +157,7 @@ class Schema extends Component {
    */
   render() {
     return (
-      <div className="content-container content-container-schema schema-container">
+      <div className={classnames(styles.root)}>
         <div className="controls-container">
           <this.queryBar
             store={this.queryBarStore}

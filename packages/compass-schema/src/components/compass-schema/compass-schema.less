@@ -13,6 +13,15 @@
 @mc-fg-selected: @chart0;
 @mc-fg-unselected: @gray6;
 
+.root {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  flex-grow: 1;
+  background: @gray8;
+}
+
 :global {
   .sampling-message {
     border-bottom: 1px solid @gray7;
@@ -88,6 +97,7 @@
     align-items: center;
     text-align: center;
     padding-top: 70px;
+    background-color: @pw;
 
     .zero-state-action {
       display: flex;
