@@ -41,6 +41,8 @@ const StatusStore = Reflux.createStore({
     appRegistry.on('compass:status:configure', this.configure.bind(this));
     appRegistry.on('compass:status:hide', this.hide.bind(this));
     appRegistry.on('compass:status:done', this.done.bind(this));
+    appRegistry.on('compass:status:set-global-app-registry', this.setGlobalAppRegistry.bind(this));
+    this.setGlobalAppRegistry(appRegistry);
   },
 
   init() {
@@ -63,8 +65,15 @@ const StatusStore = Reflux.createStore({
       subview: null,
       subviewStore: null,
       sidebar: true,
-      trickle: false
+      trickle: false,
+      globalAppRegistry: null
     };
+  },
+
+  setGlobalAppRegistry(appRegistry) {
+    this.setState({
+      globalAppRegistry: appRegistry
+    });
   },
 
   showProgressBar() {

@@ -109,7 +109,8 @@ const StatusActions = Reflux.createActions([
    * like `hide()` but animates the progress bar to 100% before hiding, so that
    * the user gets feedback of success. Use when loading is complete.
    */
-  'done'
+  'done',
+  'setGlobalAppRegistry'
 ]);
 
 export default StatusActions;

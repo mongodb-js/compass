@@ -341,6 +341,17 @@ describe('StatusStore [Store]', () => {
     });
   });
 
+  describe('#setGlobalAppRegistry', () => {
+    it('sets the app registry', (done) => {
+      const unsubscribe = Store.listen((state) => {
+        unsubscribe();
+        expect(state.globalAppRegistry).to.deep.equal(appRegistry);
+        done();
+      });
+      Actions.setGlobalAppRegistry(appRegistry);
+    });
+  });
+
   describe('#disableModal', () => {
     beforeEach(() => {
       Store.state.modal = true;
