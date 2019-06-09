@@ -142,16 +142,13 @@ const configureStore = (options = {}) => {
     },
 
     onQueryChanged: function(state) {
-      if (state.ns && toNS(state.ns).collection) {
-        this.query.filter = state.filter;
-        this.query.limit = state.limit;
-        this.query.project = state.project;
-        this.ns = state.ns;
-        if (this.state.samplingState === 'complete') {
-          this.setState({
-            samplingState: 'outdated'
-          });
-        }
+      this.query.filter = state.filter;
+      this.query.limit = state.limit;
+      this.query.project = state.project;
+      if (this.state.samplingState === 'complete') {
+        this.setState({
+          samplingState: 'outdated'
+        });
       }
     },
 
@@ -358,7 +355,7 @@ const configureStore = (options = {}) => {
     /**
      * When the collection is changed, update the store.
      */
-    options.localAppRegistry.on('onQueryChanged', (state) => {
+    options.localAppRegistry.on('query-changed', (state) => {
       store.onQueryChanged(state);
     });
 
