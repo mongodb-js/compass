@@ -12,7 +12,9 @@ const DEFAULT_MAX_TIME_MS = 10000;
 class SchemaStatusSubview extends Component {
   static displayName = 'StatusSubviewComponent';
   static propTypes = {
-    store: PropTypes.object.isRequired
+    globalAppRegistry: PropTypes.object.isRequired,
+    subviewStore: PropTypes.object.isRequired,
+    subviewActions: PropTypes.object.isRequired
   }
 
   constructor(props) {
@@ -25,7 +27,7 @@ class SchemaStatusSubview extends Component {
   }
 
   componentWillMount() {
-    this.unsubscribe = this.props.store.listen((state) => {
+    this.unsubscribe = this.props.subviewStore.listen((state) => {
       this.setState(state);
     });
   }
@@ -41,9 +43,13 @@ class SchemaStatusSubview extends Component {
           samplingTimeMS={this.state.samplingTimeMS}
           samplingState={this.state.samplingState} />
         <ButtonsWaiting
+          subviewActions={this.props.subviewActions}
+          globalAppRegistry={this.props.globalAppRegistry}
           samplingState={this.state.samplingState}
           samplingTimeMS={this.state.samplingTimeMS} />
         <ButtonsError
+          subviewActions={this.props.subviewActions}
+          globalAppRegistry={this.props.globalAppRegistry}
           maxTimeMS={this.state.maxTimeMS}
           samplingState={this.state.samplingState} />
       </div>

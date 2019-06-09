@@ -5,7 +5,7 @@ import AppRegistry from 'hadron-app-registry';
 import { AppContainer } from 'react-hot-loader';
 import CompassSchemaPlugin, { activate } from 'plugin';
 import { activate as activateQueryBar } from '@mongodb-js/compass-query-bar';
-import { activate as activateStatus } from '@mongodb-js/compass-status';
+import StatusPlugin, { activate as activateStatus } from '@mongodb-js/compass-status';
 import configureStore, { setDataProvider, setNamespace } from 'stores';
 import configureActions from 'actions';
 
@@ -72,7 +72,10 @@ dataService.connect((error, ds) => {
 const render = Component => {
   ReactDOM.render(
     <AppContainer>
-      <Component store={store} actions={actions} />
+      <div>
+        <StatusPlugin />
+        <Component store={store} actions={actions} />
+      </div>
     </AppContainer>,
     document.getElementById('root')
   );

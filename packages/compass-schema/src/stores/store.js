@@ -1,6 +1,7 @@
 import Reflux from 'reflux';
 import StateMixin from 'reflux-state-mixin';
 import { stream as schemaStream } from 'mongodb-schema';
+import StatusSubview from 'components/status-subview';
 import toNS from 'mongodb-ns';
 import get from 'lodash.get';
 import has from 'lodash.has';
@@ -218,10 +219,7 @@ const configureStore = (options = {}) => {
       }, 1000);
 
       // reset the progress bar to 0
-      const StatusAction = this.globalAppRegistry.getAction('Status.Actions');
-      StatusAction.configure({
-        progress: 0
-      });
+      this.globalAppRegistry.emit('compass:status:configure', { progress: 0 });
 
       this.samplingStream = this.dataService.sample(this.ns, sampleOptions);
       this.analyzingStream = schemaStream();
@@ -235,6 +233,7 @@ const configureStore = (options = {}) => {
           samplingState: errorState,
           errorMessage: get(err, 'message') || 'unknown error'
         });
+        this.globalAppRegistry.emit('compass:status:hide');
         this.stopSampling();
       };
 
@@ -287,9 +286,10 @@ const configureStore = (options = {}) => {
           .on('progress', () => {
             sampleCount ++;
             const newProgress = Math.ceil(sampleCount / numSamples * 100);
+            this.updateStatus(newProgress);
             if (newProgress > this.state.samplingProgress) {
               this.setState({
-                samplingProgress: Math.ceil(sampleCount / numSamples * 100),
+                samplingProgress: newProgress,
                 samplingTimeMS: new Date() - samplingStart
               });
             }
@@ -307,6 +307,39 @@ const configureStore = (options = {}) => {
             this.stopSampling();
           });
       });
+    },
+
+    updateStatus(progress) {
+      if (progress === -1) {
+        this.trickleStop = null;
+        this.globalAppRegistry.emit('compass:status:configure', {
+          visible: true,
+          progressbar: true,
+          animation: true,
+          trickle: true,
+          subview: StatusSubview,
+          subviewStore: this,
+          subviewActions: options.actions
+        });
+      } else if (progress >= 0 && progress < 100 && progress % 5 === 1) {
+        if (this.trickleStop === null) {
+          // remember where trickling stopped to calculate remaining progress
+          this.trickleStop = progress;
+        }
+        const newProgress = Math.ceil(this.trickleStop + (100 - this.trickleStop) / 100 * progress);
+        this.globalAppRegistry.emit('compass:status:configure', {
+          visible: true,
+          trickle: false,
+          animation: true,
+          progressbar: true,
+          subview: StatusSubview,
+          progress: newProgress,
+          subviewStore: this,
+          subviewActions: options.actions
+        });
+      } else if (progress === 100) {
+        this.globalAppRegistry.emit('compass:status:done');
+      }
     },
 
     storeDidUpdate(prevState) {

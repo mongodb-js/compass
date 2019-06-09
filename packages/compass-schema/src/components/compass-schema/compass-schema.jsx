@@ -4,7 +4,6 @@ import PropTypes from 'prop-types';
 import { StatusRow, Tooltip, ZeroState } from 'hadron-react-components';
 import { TextButton } from 'hadron-react-buttons';
 import Field from 'components/field';
-import StatusSubview from 'components/status-subview';
 import SamplingMessage from 'components/sampling-message';
 import ZeroGraphic from 'components/zero-graphic';
 import CONSTANTS from 'constants/schema';
@@ -65,10 +64,6 @@ class Schema extends Component {
     this.queryBarActions = appRegistry.getAction(this.queryBarRole.actionName);
   }
 
-  componentWillMount() {
-    this.StatusAction = this.props.store.globalAppRegistry.getAction('Status.Actions');
-  }
-
   componentDidUpdate() {
     // when the namespace changes and the schema tab is not active, the
     // tab is "display:none" and its width 0. That also means the the minichart
@@ -88,47 +83,6 @@ class Schema extends Component {
 
   onResetClicked() {
     this.props.actions.startSampling();
-  }
-
-  /**
-   * updates the progress bar according to progress of schema sampling.
-   * The count is indeterminate (trickling), and sampling/analyzing is
-   * increased in 5% steps.
-   */
-  _updateProgressBar() {
-    if (this.props.samplingState === 'error') {
-      this.StatusAction.hide();
-      return;
-    }
-    const progress = this.props.samplingProgress;
-    // initial schema phase, cannot measure progress, enable trickling
-    if (this.props.samplingProgress === -1) {
-      this.trickleStop = null;
-      this.StatusAction.configure({
-        visible: true,
-        progressbar: true,
-        animation: true,
-        trickle: true,
-        subview: StatusSubview
-      });
-    } else if (progress >= 0 && progress < 100 && progress % 5 === 1) {
-      if (this.trickleStop === null) {
-        // remember where trickling stopped to calculate remaining progress
-        const StatusStore = this.props.store.globalAppRegistry.getStore('Status.Store');
-        this.trickleStop = StatusStore.state.progress;
-      }
-      const newProgress = Math.ceil(this.trickleStop + (100 - this.trickleStop) / 100 * progress);
-      this.StatusAction.configure({
-        visible: true,
-        trickle: false,
-        animation: true,
-        progressbar: true,
-        subview: StatusSubview,
-        progress: newProgress
-      });
-    } else if (progress === 100) {
-      this.StatusAction.done();
-    }
   }
 
   renderBanner() {
@@ -202,8 +156,6 @@ class Schema extends Component {
    * @returns {React.Component} The schema view.
    */
   render() {
-    this._updateProgressBar();
-
     return (
       <div className="content-container content-container-schema schema-container">
         <div className="controls-container">

@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { InfoSprinkle } from 'hadron-react-components';
-import { LONG_RUNNING_QUERIES_URL } from 'constants';
+import CONSTANTS from 'constants/schema';
 
 const SHOW_WAITING_BUTTONS_TIME_MS = 15000;
 
@@ -15,15 +15,12 @@ class ButtonsWaiting extends Component {
     globalAppRegistry: PropTypes.object.isRequired,
     samplingTimeMS: PropTypes.number.isRequired,
     samplingState: PropTypes.string.isRequired,
-    actions: PropTypes.object.isRequired
+    subviewActions: PropTypes.object.isRequired
   }
 
   onStopPartialButton() {
-    this.props.actions.stopSampling();
-    const StatusAction = this.props.globalAppRegistry.getAction('Status.Actions');
-    if (StatusAction !== undefined) {
-      StatusAction.hide();
-    }
+    this.props.subviewActions.stopSampling();
+    this.props.globalAppRegistry.emit('compass:status:hide');
   }
 
   _openLink(link) {
@@ -49,10 +46,10 @@ class ButtonsWaiting extends Component {
         <div id="buttons-waiting">
           <div className="alert alert-info" role="alert">
             Document analysis is taking longer than expected. &nbsp;
-            <a onClick={() => {this._openLink(LONG_RUNNING_QUERIES_URL);}}>
+            <a onClick={() => {this._openLink(CONSTANTS.LONG_RUNNING_QUERIES_URL);}}>
               Learn More
               <InfoSprinkle
-                helpLink={LONG_RUNNING_QUERIES_URL}
+                helpLink={CONSTANTS.LONG_RUNNING_QUERIES_URL}
                 onClickHandler={NOOP}
               />
             </a>

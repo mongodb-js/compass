@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import ms from 'ms';
 import { InfoSprinkle } from 'hadron-react-components';
-import { LONG_RUNNING_QUERIES_URL } from 'constants';
+import CONSTANTS from 'constants/schema';
 
 const RETRY_INC_MAXTIMEMS_VALUE = 60000;
 
@@ -14,24 +14,20 @@ class ButtonsError extends Component {
 
   static propTypes = {
     globalAppRegistry: PropTypes.object.isRequired,
-    actions: PropTypes.object.isRequired,
+    subviewActions: PropTypes.object.isRequired,
     maxTimeMS: PropTypes.number.isRequired,
     samplingState: PropTypes.string.isRequired
   }
 
-  componentWillMount() {
-    this.StatusAction = this.props.globalAppRegistry.getAction('Status.Actions');
-  }
-
   onTryAgainButtonClick() {
     // increase maxTimeMS and sample again
-    this.props.actions.setMaxTimeMS(RETRY_INC_MAXTIMEMS_VALUE);
-    this.props.actions.startSampling();
+    this.props.subviewActions.setMaxTimeMS(RETRY_INC_MAXTIMEMS_VALUE);
+    this.props.subviewActions.startSampling();
   }
 
   onNewQueryButtonClick() {
     // dismiss status view
-    this.StatusAction.hide();
+    this.globalAppRegistry.emit('compass:status:hide');
   }
 
   /**
@@ -74,10 +70,10 @@ class ButtonsError extends Component {
           <div className="alert alert-warning" role="alert">
             The query took longer than {sampleTime} on the database.
             As a safety measure, Compass aborts long-running queries. &nbsp;
-            <a onClick={() => {this._openLink(LONG_RUNNING_QUERIES_URL);}}>
+            <a onClick={() => {this._openLink(CONSTANTS.LONG_RUNNING_QUERIES_URL);}}>
               Learn More
               <InfoSprinkle
-                helpLink={LONG_RUNNING_QUERIES_URL}
+                helpLink={CONSTANTS.LONG_RUNNING_QUERIES_URL}
                 onClickHandler={NOOP}
               />
             </a>
