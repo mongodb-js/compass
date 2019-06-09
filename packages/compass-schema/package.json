@@ -1,7 +1,7 @@
 {
   "name": "compass-schema",
   "productName": "Compass Schema plugin",
-  "version": "0.0.0",
+  "version": "0.0.1",
   "apiVersion": "2.0.0",
   "description": "Compass Schema Tab Plugin",
   "main": "lib/index.js",
