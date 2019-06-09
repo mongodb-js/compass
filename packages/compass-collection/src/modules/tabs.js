@@ -310,20 +310,20 @@ export const createTab = (
   scopedModals,
   localAppRegistry,
   sourceName) => (
-    {
-      type: CREATE_TAB,
-      id: id,
-      namespace: namespace,
-      isReadonly: isReadonly || false,
-      tabs: tabs,
-      views: views,
-      queryHistoryIndexes: queryHistoryIndexes,
-      statsPlugin: statsPlugin,
-      statsStore: statsStore,
-      scopedModals: scopedModals,
-      localAppRegistry: localAppRegistry,
-      sourceName: sourceName
-    }
+  {
+    type: CREATE_TAB,
+    id: id,
+    namespace: namespace,
+    isReadonly: isReadonly || false,
+    tabs: tabs,
+    views: views,
+    queryHistoryIndexes: queryHistoryIndexes,
+    statsPlugin: statsPlugin,
+    statsStore: statsStore,
+    scopedModals: scopedModals,
+    localAppRegistry: localAppRegistry,
+    sourceName: sourceName
+  }
 );
 
 /**
@@ -449,7 +449,6 @@ const setupStore = (
   serverVersion,
   isReadonly,
   actions) => {
-
   const store = role.configureStore({
     localAppRegistry: localAppRegistry,
     globalAppRegistry: globalAppRegistry,
@@ -488,7 +487,6 @@ const setupPlugin = (
   namespace,
   serverVersion,
   isReadonly) => {
-
   const store = setupStore(
     role,
     globalAppRegistry,
@@ -522,10 +520,9 @@ const setupScopedModals = (
   namespace,
   serverVersion,
   isReadonly) => {
-
   const roles = globalAppRegistry.getRole('Collection.ScopedModal');
   if (roles) {
-    return roles.map((role, i) => {
+    return roles.map((role) => {
       return setupPlugin(
         role,
         globalAppRegistry,
@@ -671,4 +668,4 @@ export const preCreateTab = (namespace, isReadonly, sourceName) => {
       )
     );
   };
-}
+};

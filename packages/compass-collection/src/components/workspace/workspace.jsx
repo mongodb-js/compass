@@ -2,7 +2,6 @@ import React, { PureComponent } from 'react';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import classnames from 'classnames';
-import { IconButton } from 'hadron-react-buttons';
 import { WithDragDropContext } from 'hadron-react-components';
 import {
   preCreateTab,

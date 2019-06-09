@@ -51,7 +51,7 @@ store.onActivated = (appRegistry) => {
    * @param {Boolean} isSourceReadonly - If the source is also a view.
    * @param {String} sourceSourceName - If the source is a view, its source name.
    */
-  appRegistry.on('modify-source-pipeline', (ns, sourceName, isSourceReadonly, sourceSourceName) => {
+  appRegistry.on('modify-source-pipeline', () => {
     // If tabs are open.
     // - If modifying source from sidebar open in new tab.
     //   - Back stays in same tab.

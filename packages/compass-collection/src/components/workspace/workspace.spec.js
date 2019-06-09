@@ -1,7 +1,7 @@
 import React from 'react';
-import { mount } from 'enzyme';
+import { shallow } from 'enzyme';
 
-import Workspace from 'components/workspace';
+import { Workspace } from 'components/workspace';
 import styles from './workspace.less';
 
 describe('Workspace [Component]', () => {
@@ -14,8 +14,8 @@ describe('Workspace [Component]', () => {
     prevTabSpy = sinon.spy();
     nextTabSpy = sinon.spy();
 
-    component = mount(
-      <Workspace.DecoratedComponent
+    component = shallow(
+      <Workspace
         tabs={tabs}
         closeTab={() => {}}
         moveTab={() => {}}

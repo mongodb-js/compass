@@ -2,8 +2,6 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import classnames from 'classnames';
 import { TabNavBar } from 'hadron-react-components';
-import toNS from 'mongodb-ns';
-import store from 'stores';
 import CollectionHeader from 'components/collection-header';
 
 import styles from './collection.less';

@@ -80,7 +80,7 @@ const connection = new Connection({
   hostname: '127.0.0.1',
   port: 27017,
   ns: 'databaseName',
-  mongodb_database_name: 'admin',
+  mongodb_database_name: 'admin'
 });
 const dataService = new DataService(connection);
 

@@ -84,7 +84,7 @@ class CollectionTab extends PureComponent {
   constructor(props) {
     super(props);
     this.tabRef = React.createRef();
-    this.state = { subtab: "Aggregations" };
+    this.state = { subtab: 'Aggregations' };
     this.onSubtabChanged = this.handleSubtabChange.bind(this);
   }
 
@@ -97,13 +97,6 @@ class CollectionTab extends PureComponent {
   }
 
   /**
-   * Remove app registry listeners on unmount.
-   */
-  compnentWillUnmount() {
-    this.props.localAppRegistry.removeListener('subtab-changed', this.onSubtabChanged);
-  }
-
-  /**
    * Scroll into view if tab was activated.
    *
    * @param {Object} prevProps - The previous props.
@@ -112,6 +105,13 @@ class CollectionTab extends PureComponent {
     if (!prevProps.isActive) {
       this.scrollTab();
     }
+  }
+
+  /**
+   * Remove app registry listeners on unmount.
+   */
+  compnentWillUnmount() {
+    this.props.localAppRegistry.removeListener('subtab-changed', this.onSubtabChanged);
   }
 
   /**

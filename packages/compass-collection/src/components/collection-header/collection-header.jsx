@@ -36,7 +36,7 @@ class CollectionHeader extends Component {
         'btn': true,
         'btn-default': true,
         'btn-xs': true
-      })
+      });
       return (
         <div className={classnames(styles['collection-header-title-readonly'])}>
           <span className={classnames(styles['collection-header-title-readonly-on'])}>
@@ -81,12 +81,12 @@ class CollectionHeader extends Component {
 
     const titleClass = classnames({
       [styles['collection-header-title']]: true,
-      [styles['collection-header-title-is-writable']]: !this.props.isReadonly,
+      [styles['collection-header-title-is-writable']]: !this.props.isReadonly
     });
 
     const collectionClass = classnames({
       [styles['collection-header-title-collection']]: true,
-      [styles['collection-header-title-collection-is-writable']]: !this.props.isReadonly,
+      [styles['collection-header-title-collection-is-writable']]: !this.props.isReadonly
     });
 
     return (

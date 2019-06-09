@@ -1,11 +1,13 @@
 import React from 'react';
 import { mount } from 'enzyme';
+import AppRegistry from 'hadron-app-registry';
 
 import CollectionTab from 'components/collection-tab';
 import styles from './collection-tab.less';
 
 describe('CollectionTab [Component]', () => {
   const connect = (c) => { return c; };
+  const localAppRegistry = new AppRegistry();
 
   context('when the tab is active', () => {
     let component;
@@ -22,7 +24,9 @@ describe('CollectionTab [Component]', () => {
           namespace="db.coll"
           subTab="Documents"
           isActive
+          isReadonly={false}
           index={1}
+          localAppRegistry={localAppRegistry}
           connectDropTarget={connect}
           connectDragSource={connect}
           closeTab={closeTabSpy}
@@ -44,7 +48,7 @@ describe('CollectionTab [Component]', () => {
     });
 
     it('renders the subtab', () => {
-      expect(component.find(`.${styles['collection-tab-info-subtab']}`)).to.have.text('Documents');
+      expect(component.find(`.${styles['collection-tab-info-subtab']}`)).to.have.text('Aggregations');
     });
 
     context('when clicking on close tab', () => {
@@ -79,7 +83,9 @@ describe('CollectionTab [Component]', () => {
           connectDropTarget={connect}
           connectDragSource={connect}
           isActive={false}
+          isReadonly={false}
           index={1}
+          localAppRegistry={localAppRegistry}
           closeTab={closeTabSpy}
           moveTab={moveTabSpy}
           selectTab={selectTabSpy} />
@@ -103,7 +109,7 @@ describe('CollectionTab [Component]', () => {
     });
 
     it('renders the subtab', () => {
-      expect(component.find(`.${styles['collection-tab-info-subtab']}`)).to.have.text('Documents');
+      expect(component.find(`.${styles['collection-tab-info-subtab']}`)).to.have.text('Aggregations');
     });
 
     context('when clicking on close tab', () => {
@@ -118,6 +124,41 @@ describe('CollectionTab [Component]', () => {
         component.find(`.${styles['collection-tab-info']}`).simulate('click');
         expect(selectTabSpy.calledWith(1)).to.equal(true);
       });
+    });
+  });
+
+  context('when the collection is readonly', () => {
+    let component;
+    let closeTabSpy;
+    let selectTabSpy;
+    let moveTabSpy;
+
+    beforeEach(() => {
+      closeTabSpy = sinon.spy();
+      selectTabSpy = sinon.spy();
+      moveTabSpy = sinon.spy();
+      component = mount(
+        <CollectionTab.DecoratedComponent
+          namespace="db.coll"
+          subTab="Documents"
+          isActive
+          index={1}
+          isReadonly
+          localAppRegistry={localAppRegistry}
+          connectDropTarget={connect}
+          connectDragSource={connect}
+          closeTab={closeTabSpy}
+          moveTab={moveTabSpy}
+          selectTab={selectTabSpy} />
+      );
+    });
+
+    afterEach(() => {
+      component = null;
+    });
+
+    it('renders the readonly icon', () => {
+      expect(component.find('.fa-eye')).to.be.present();
     });
   });
 });
