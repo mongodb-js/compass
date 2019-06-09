@@ -1,7 +1,18 @@
+import React from 'react';
 import Store from 'stores';
 import Actions from 'actions';
+import AppRegistry from 'hadron-app-registry';
 
 describe('StatusStore [Store]', () => {
+  const appRegistry = new AppRegistry();
+  const SubView = () => {
+    return (<div></div>);
+  };
+
+  before(() => {
+    Store.onActivated(appRegistry);
+  });
+
   beforeEach(() => {
     Store.setState(Store.getInitialState());
   });
@@ -53,6 +64,18 @@ describe('StatusStore [Store]', () => {
         done();
       });
       Actions.showProgressBar();
+    });
+
+    context('when triggered from the app registry', () => {
+      it('sets visible and progressbar to true', (done) => {
+        const unsubscribe = Store.listen((state) => {
+          unsubscribe();
+          expect(state.visible).to.equal(true);
+          expect(state.progressbar).to.equal(true);
+          done();
+        });
+        appRegistry.emit('compass:status:show-progress-bar');
+      });
     });
   });
 
@@ -285,14 +308,14 @@ describe('StatusStore [Store]', () => {
     it('sets the subview', (done) => {
       const unsubscribe = Store.listen((state) => {
         unsubscribe();
-        expect(state.subview).to.equal('div');
+        expect(state.subview).to.equal(SubView);
         done();
       });
-      Actions.setSubview('div');
+      Actions.setSubview(SubView);
     });
   });
 
-  describe('#onClearSubview', () => {
+  describe('#clearSubview', () => {
     beforeEach(() => {
       Store.state.subview = 'div';
     });
@@ -303,7 +326,7 @@ describe('StatusStore [Store]', () => {
         expect(state.subview).to.equal(null);
         done();
       });
-      Store.onClearSubview();
+      Store.clearSubview();
     });
   });
 
@@ -369,7 +392,7 @@ describe('StatusStore [Store]', () => {
           state.progress = 50;
           state.animation = true;
           state.message = 'testing';
-          state.subview = 'div';
+          state.subview = SubView;
           done();
         });
         Actions.enableProgressTrickle();

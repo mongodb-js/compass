@@ -69,6 +69,7 @@ const StatusActions = Reflux.createActions([
    * @param {View} subview    the subview to render.
    */
   'setSubview',
+  'setSubviewStore',
   /**
    * clears the custom subview.
    */

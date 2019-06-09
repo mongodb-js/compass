@@ -19,6 +19,30 @@ const StatusStore = Reflux.createStore({
   mixins: [StateMixin.store],
   listenables: StatusActions,
 
+  onActivated(appRegistry) {
+    appRegistry.on('compass:status:show-progress-bar', this.showProgressBar.bind(this));
+    appRegistry.on('compass:status:show-indeterminate-progress-bar', this.showIndeterminateProgressBar.bind(this));
+    appRegistry.on('compass:status:hide-progress-bar', this.hideProgressBar.bind(this));
+    appRegistry.on('compass:status:set-progress-value', this.setProgressValue.bind(this));
+    appRegistry.on('compass:status:inc-progress-value', this.incProgressValue.bind(this));
+    appRegistry.on('compass:status:enable-progress-trickle', this.enableProgressTrickle.bind(this));
+    appRegistry.on('compass:status:disable-progress-trickle', this.disableProgressTrickle.bind(this));
+    appRegistry.on('compass:status:set-message', this.setMessage.bind(this));
+    appRegistry.on('compass:status:clear-message', this.clearMessage.bind(this));
+    appRegistry.on('compass:status:show-animation', this.showAnimation.bind(this));
+    appRegistry.on('compass:status:hide-animation', this.hideAnimation.bind(this));
+    appRegistry.on('compass:status:show-static-sidebar', this.showStaticSidebar.bind(this));
+    appRegistry.on('compass:status:hide-static-sidebar', this.hideStaticSidebar.bind(this));
+    appRegistry.on('compass:status:set-subview', this.setSubview.bind(this));
+    appRegistry.on('compass:status:set-subview-store', this.setSubviewStore.bind(this));
+    appRegistry.on('compass:status:clear-subview', this.clearSubview.bind(this));
+    appRegistry.on('compass:status:enable-modal', this.enableModal.bind(this));
+    appRegistry.on('compass:status:disable-modal', this.disableModal.bind(this));
+    appRegistry.on('compass:status:configure', this.configure.bind(this));
+    appRegistry.on('compass:status:hide', this.hide.bind(this));
+    appRegistry.on('compass:status:done', this.done.bind(this));
+  },
+
   init() {
     this._trickleTimer = null;
   },
@@ -37,6 +61,7 @@ const StatusStore = Reflux.createStore({
       animation: false,
       message: '',
       subview: null,
+      subviewStore: null,
       sidebar: true,
       trickle: false
     };
@@ -161,9 +186,16 @@ const StatusStore = Reflux.createStore({
     });
   },
 
-  onClearSubview() {
+  setSubviewStore(store) {
     this.setState({
-      subview: null
+      subviewStore: store
+    });
+  },
+
+  clearSubview() {
+    this.setState({
+      subview: null,
+      subviewStore: null
     });
   },
 
@@ -190,7 +222,8 @@ const StatusStore = Reflux.createStore({
       progress: 100,
       animation: false,
       message: '',
-      subview: null
+      subview: null,
+      subviewStore: null
     });
     delay(() => {
       this.hide();
