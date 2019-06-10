@@ -84,7 +84,7 @@ class CollectionTab extends PureComponent {
   constructor(props) {
     super(props);
     this.tabRef = React.createRef();
-    this.state = { subtab: 'Aggregations' };
+    this.state = { subtab: 'Documents' };
     this.onSubtabChanged = this.handleSubtabChange.bind(this);
   }
 

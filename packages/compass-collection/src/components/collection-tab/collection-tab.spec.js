@@ -48,7 +48,7 @@ describe('CollectionTab [Component]', () => {
     });
 
     it('renders the subtab', () => {
-      expect(component.find(`.${styles['collection-tab-info-subtab']}`)).to.have.text('Aggregations');
+      expect(component.find(`.${styles['collection-tab-info-subtab']}`)).to.have.text('Documents');
     });
 
     context('when clicking on close tab', () => {
@@ -109,7 +109,7 @@ describe('CollectionTab [Component]', () => {
     });
 
     it('renders the subtab', () => {
-      expect(component.find(`.${styles['collection-tab-info-subtab']}`)).to.have.text('Aggregations');
+      expect(component.find(`.${styles['collection-tab-info-subtab']}`)).to.have.text('Documents');
     });
 
     context('when clicking on close tab', () => {

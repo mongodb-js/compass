@@ -606,6 +606,7 @@ export const preCreateTab = (namespace, isReadonly, sourceName) => {
     // passed the same information and can determine whether they want to
     // use it or not.
     filteredRoles.forEach((role, i) => {
+      const actions = setupActions(role, localAppRegistry);
       const store = setupStore(
         role,
         globalAppRegistry,
@@ -613,9 +614,9 @@ export const preCreateTab = (namespace, isReadonly, sourceName) => {
         state.dataService,
         namespace,
         serverVersion,
-        isReadonly
+        isReadonly,
+        actions
       );
-      const actions = setupActions(role, localAppRegistry);
 
       // Add the tab.
       tabs.push(role.name);

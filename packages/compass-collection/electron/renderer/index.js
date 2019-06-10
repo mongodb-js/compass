@@ -6,6 +6,7 @@ import AppRegistry from 'hadron-app-registry';
 import { AppContainer } from 'react-hot-loader';
 import CollectionPlugin, { activate } from 'plugin';
 import { activate as activateAgg } from '@mongodb-js/compass-aggregations';
+import { activate as activateCrud } from '@mongodb-js/compass-crud';
 import { activate as activateDA } from '@mongodb-js/compass-deployment-awareness';
 import { activate as activateStats } from '@mongodb-js/compass-collection-stats';
 import { activate as activateExplain } from '@mongodb-js/compass-explain-plan';
@@ -24,6 +25,7 @@ const appRegistry = new AppRegistry();
 
 global.hadronApp = app;
 global.hadronApp.appRegistry = appRegistry;
+global.hadronApp.isFeatureEnabled = () => { return false; };
 
 const instance = {
   build: {
@@ -35,6 +37,7 @@ app.instance = instance;
 
 // Activate our plugin with the Hadron App Registry
 activate(appRegistry);
+activateCrud(appRegistry);
 activateAgg(appRegistry);
 activateDA(appRegistry);
 activateStats(appRegistry);
